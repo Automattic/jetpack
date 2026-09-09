@@ -96,6 +96,16 @@ class Passport {
 	}
 
 	/**
+	 * Clear the cookie.
+	 *
+	 * @return void
+	 */
+	public static function clear() {
+		self::set( '', time() - YEAR_IN_SECONDS );
+		unset( $_COOKIE[ Checkpoint::COOKIE_NAME ] );
+	}
+
+	/**
 	 * HMAC a payload. The context tag keeps the signature from being reused elsewhere.
 	 *
 	 * @param string $payload The base64url payload.

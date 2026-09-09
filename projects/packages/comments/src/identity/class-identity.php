@@ -21,8 +21,15 @@ class Identity {
 	 * @return array
 	 */
 	public static function settings() {
+		$commenter = wp_get_current_commenter();
+
 		$settings = array(
 			'isLoggedIn' => is_user_logged_in(),
+			'commenter'  => array(
+				'author' => $commenter['comment_author'],
+				'email'  => $commenter['comment_author_email'],
+				'url'    => $commenter['comment_author_url'],
+			),
 			'user'       => null,
 			// class_exists: on a staged deploy this file and the checkpoint's can
 			// land in either order.
@@ -57,7 +64,7 @@ class Identity {
 				'avatarUrl'    => $identity['avatar'],
 				'commentingAs' => sprintf(
 					/* translators: %s is the name the commenter signed in with. */
-					__( 'Posting as %s', 'jetpack-comments' ),
+					__( 'Commenting as %s', 'jetpack-comments' ),
 					$name
 				),
 				'isPassport'   => true,
@@ -65,5 +72,14 @@ class Identity {
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * Whether a WordPress.com-vouched commenter is recognised on this request.
+	 *
+	 * @return bool
+	 */
+	public static function has_passport_identity() {
+		return class_exists( Passport::class ) && ! is_user_logged_in() && false !== Passport::read();
 	}
 }

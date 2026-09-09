@@ -1,8 +1,8 @@
 import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
-import { isConnecting } from './identity';
-import type { FormSettings } from './types';
+import { identityUser, isConnecting } from './identity';
+import type { Commenter, FormSettings } from './types';
 
 /**
  * Build one form's signals.
@@ -19,9 +19,19 @@ export function createSignals( formSettings: FormSettings ) {
 
 	const commentParent = signal( 0 );
 
-	// isConnecting is page-global (shared/identity.ts); submission waits on it.
+	const commenter = signal< Commenter >( {
+		author: JetpackComments.commenter.author,
+		email: JetpackComments.commenter.email,
+		url: JetpackComments.commenter.url,
+	} );
+
+	// identityUser and isConnecting are page-global (shared/identity.ts); submission waits on both.
 	const isSubmitDisabled = computed(
-		() => isEmptyComment.value || isSavingComment.value || isConnecting.value
+		() =>
+			( JetpackComments.mustLogIn && ! identityUser.value ) ||
+			isEmptyComment.value ||
+			isSavingComment.value ||
+			isConnecting.value
 	);
 
 	return {
@@ -30,6 +40,7 @@ export function createSignals( formSettings: FormSettings ) {
 		isEmptyComment,
 		isSavingComment,
 		commentParent,
+		commenter,
 		isSubmitDisabled,
 	} as const;
 }

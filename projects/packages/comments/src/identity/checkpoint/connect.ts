@@ -1,16 +1,12 @@
-import { hasLoginFailed, identityUser, isConnecting } from '../../shared/identity';
-import { attribution, holdCode } from './code';
-import type { CheckpointSettings, SignedRequest } from '../../shared/types';
+import { identityUser, isConnecting } from '../../shared/identity';
+import { attribution, dropCode, holdCode } from './code';
+import type { CheckpointSettings } from '../../shared/types';
 
 /**
- * Sign-in, browser side. Open a popup on the click, point it at a signed
- * connect request, and take WordPress.com's postMessage result:
- * { type, challenge, code, name, avatar } or { type, challenge, error }. The
+ * Sign-in, browser side. Open a popup, have the site sign a connect request,
+ * point the popup at it, and take WordPress.com's postMessage result:
+ * { type, code, challenge, name, avatar } or { type, error, challenge }. The
  * code is held for the comment to carry; the server exchanges it then.
- *
- * The first attempt uses the request minted with the page; every later one
- * re-mints, since a challenge is good for one attempt and a page can sit
- * open past the signature's two hours.
  *
  * No fallback when the popup is blocked or COOP drops the opener: WordPress.com
  * stops on a "close this window" page, same as Verbum.
@@ -29,23 +25,6 @@ const CLOSED_POLL_MS = 500;
 const ATTEMPT_TIMEOUT_MS = 10 * 60 * 1000;
 
 /**
- * A signature this close to lapsing is re-minted rather than sent.
- */
-const EXPIRY_MARGIN_MS = 60 * 1000;
-
-/**
- * Outcomes the reader chose, so nothing to apologise for.
- */
-const SILENT = [ 'cancelled', 'access_denied' ];
-
-/**
- * The request minted with the page, until it is used or lapses.
- */
-let minted: SignedRequest | null = JetpackComments.checkpoint.enabled
-	? JetpackComments.checkpoint.connect
-	: null;
-
-/**
  * The checkpoint settings, narrowed to the enabled shape.
  *
  * @return The enabled settings, or null when the checkpoint is off.
@@ -55,17 +34,25 @@ function enabledCheckpoint(): Checkpoint | null {
 }
 
 /**
- * Mint a fresh signed request. Throws the WP_Error code on failure.
+ * Call a checkpoint route. Throws the WP_Error code on failure.
  *
  * @param checkpoint - The enabled checkpoint settings.
- * @return The signed request.
+ * @param url        - The route.
+ * @param method     - The HTTP method.
+ * @param body       - The JSON body, for POST.
+ * @return The decoded response.
  */
-async function mint( checkpoint: Checkpoint ): Promise< SignedRequest > {
-	const response = await fetch( checkpoint.signUrl, {
-		method: 'POST',
+async function call< T >(
+	checkpoint: Checkpoint,
+	url: string,
+	method: 'POST' | 'DELETE',
+	body?: object
+): Promise< T > {
+	const response = await fetch( url, {
+		method,
 		credentials: 'same-origin',
 		headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': checkpoint.nonce },
-		body: JSON.stringify( { origin: window.location.origin } ),
+		body: body ? JSON.stringify( body ) : undefined,
 	} );
 
 	if ( ! response.ok ) {
@@ -82,44 +69,14 @@ async function mint( checkpoint: Checkpoint ): Promise< SignedRequest > {
 }
 
 /**
- * The signed request for this attempt: the page's own while it is fresh and
- * was signed for this origin, otherwise a new one. Either way it is spent.
+ * Sign in with a provider. Holds the code and sets the page-global identity
+ * on success, so callers only handle failure.
  *
- * @param checkpoint - The enabled checkpoint settings.
- * @return The signed request.
+ * @param provider - The provider slug.
+ * @return Resolves once the code is held.
  */
-async function take( checkpoint: Checkpoint ): Promise< SignedRequest > {
-	const ready = minted;
-	minted = null;
-
-	if (
-		ready &&
-		ready.origin === window.location.origin &&
-		ready.expires * 1000 - Date.now() > EXPIRY_MARGIN_MS
-	) {
-		return ready;
-	}
-
-	return mint( checkpoint );
-}
-
-type OpenOptions = {
-	/** Ask WordPress.com to offer a choice even when it already knows the reader. */
-	prompt?: boolean;
-};
-
-/**
- * Sign in through the checkpoint. Holds the code and sets the page-global
- * identity on success; on failure shows the error line, unless the reader
- * just closed the popup. Callers only need to know which way it went.
- *
- * @param options        - Options.
- * @param options.prompt - Whether to force the account choice.
- * @return Resolves once the code is held, rejects with the error slug.
- */
-export function openCheckpoint( { prompt = false }: OpenOptions = {} ): Promise< void > {
+export function connect( provider: string ): Promise< void > {
 	const checkpoint = enabledCheckpoint();
-	hasLoginFailed.value = false;
 
 	return new Promise( ( resolve, reject ) => {
 		if ( ! checkpoint ) {
@@ -132,7 +89,6 @@ export function openCheckpoint( { prompt = false }: OpenOptions = {} ): Promise<
 		const popup = window.open( '', 'jetpack-comment-identity', 'width=780,height=700' );
 
 		if ( ! popup ) {
-			hasLoginFailed.value = true;
 			reject( new Error( 'popup_blocked' ) );
 			return;
 		}
@@ -143,7 +99,6 @@ export function openCheckpoint( { prompt = false }: OpenOptions = {} ): Promise<
 
 		const fail = ( slug: string ) => {
 			isConnecting.value = false;
-			hasLoginFailed.value = ! SILENT.includes( slug );
 			reject( new Error( slug ) );
 		};
 
@@ -213,6 +168,7 @@ export function openCheckpoint( { prompt = false }: OpenOptions = {} ): Promise<
 
 			const held = {
 				code: data.code,
+				provider,
 				name: typeof data.name === 'string' ? data.name : '',
 				avatar: typeof data.avatar === 'string' ? data.avatar : '',
 			};
@@ -225,13 +181,16 @@ export function openCheckpoint( { prompt = false }: OpenOptions = {} ): Promise<
 
 		window.addEventListener( 'message', onMessage );
 
-		take( checkpoint ).then(
+		call< { url: string; challenge: string } >( checkpoint, checkpoint.signUrl, 'POST', {
+			provider,
+			origin: window.location.origin,
+		} ).then(
 			signed => {
 				if ( settled ) {
 					return;
 				}
 				challenge = signed.challenge;
-				popup.location.href = prompt ? signed.url + '&prompt=1' : signed.url;
+				popup.location.href = signed.url;
 			},
 			error => {
 				if ( ! settled ) {
@@ -242,4 +201,27 @@ export function openCheckpoint( { prompt = false }: OpenOptions = {} ): Promise<
 			}
 		);
 	} );
+}
+
+/**
+ * Clear the Passport cookie, the held code, and the page-global identity.
+ *
+ * @return Whether it was cleared.
+ */
+export async function disconnect(): Promise< boolean > {
+	const checkpoint = enabledCheckpoint();
+	if ( ! checkpoint ) {
+		return false;
+	}
+
+	try {
+		await call( checkpoint, checkpoint.logoutUrl, 'DELETE' );
+	} catch {
+		return false;
+	}
+
+	dropCode();
+	identityUser.value = null;
+
+	return true;
 }

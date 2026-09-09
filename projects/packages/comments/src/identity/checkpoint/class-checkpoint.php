@@ -14,10 +14,6 @@ namespace Automattic\Jetpack\Comments\Identity;
  */
 class Checkpoint {
 
-	/**
-	 * Providers WordPress.com can vouch through. Only read back, to validate a
-	 * stored identity; the connect page picks the provider itself.
-	 */
 	const PROVIDERS = array( 'wordpress', 'facebook', 'google' );
 
 	/**
@@ -30,10 +26,9 @@ class Checkpoint {
 	const COOKIE_NAME = 'wp_jetpack_comment_passport';
 
 	/**
-	 * A signed request is minted with the page and has to outlive a reader
-	 * writing a long comment. WordPress.com caps it at two hours.
+	 * WordPress.com caps a signed request at 600s.
 	 */
-	const SIGNATURE_TTL = 2 * HOUR_IN_SECONDS;
+	const SIGNATURE_TTL = 300;
 
 	/**
 	 * WordPress.com's opaque per-person-per-site id. Never renamed once shipped.
@@ -55,7 +50,7 @@ class Checkpoint {
 	}
 
 	/**
-	 * Whether the site is connected.
+	 * Whether the site is connected and offers at least one provider.
 	 *
 	 * @return bool
 	 */
@@ -65,7 +60,8 @@ class Checkpoint {
 		}
 
 		return ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-comments' ) )->is_connected()
-			&& self::blog_id() > 0;
+			&& self::blog_id() > 0
+			&& count( self::providers() ) > 0;
 	}
 
 	/**
@@ -75,6 +71,24 @@ class Checkpoint {
 	 */
 	public static function blog_id() {
 		return class_exists( '\Jetpack_Options' ) ? (int) \Jetpack_Options::get_option( 'id' ) : 0;
+	}
+
+	/**
+	 * The providers offered on this site.
+	 *
+	 * @return string[]
+	 */
+	public static function providers() {
+		/**
+		 * Filter the identity providers the comment form offers.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $providers Provider slugs, a subset of the PROVIDERS list.
+		 */
+		$providers = (array) apply_filters( 'jetpack_comment_identity_providers', self::PROVIDERS );
+
+		return array_values( array_intersect( self::PROVIDERS, $providers ) );
 	}
 
 	/**
@@ -100,10 +114,15 @@ class Checkpoint {
 	 * A connect URL for one attempt, signed with the blog token over the sorted,
 	 * newline-joined params. The challenge is issued here since it is signed.
 	 *
-	 * @param string $origin The page origin WordPress.com posts the result to.
-	 * @return array|\WP_Error The url, the challenge, when the signature expires, and the origin it was signed for.
+	 * @param string $provider One of providers().
+	 * @param string $origin   The page origin WordPress.com posts the result to.
+	 * @return array|\WP_Error The url and the challenge.
 	 */
-	public static function signed_connect_url( $origin ) {
+	public static function signed_connect_url( $provider, $origin ) {
+		if ( ! in_array( $provider, self::providers(), true ) ) {
+			return new \WP_Error( 'invalid_provider', __( 'That sign-in provider is not offered here.', 'jetpack-comments' ), array( 'status' => 400 ) );
+		}
+
 		if ( ! self::is_site_origin( $origin ) ) {
 			return new \WP_Error( 'invalid_origin', __( 'That origin is not this site.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
@@ -113,12 +132,12 @@ class Checkpoint {
 			return new \WP_Error( 'not_connected', __( 'This site is not connected to WordPress.com.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
 
-		$expires = time() + self::SIGNATURE_TTL;
-		$params  = array(
+		$params = array(
 			'blog_id'   => (string) self::blog_id(),
 			'challenge' => bin2hex( random_bytes( 24 ) ),
-			'expires'   => (string) $expires,
+			'expires'   => (string) ( time() + self::SIGNATURE_TTL ),
 			'origin'    => $origin,
+			'provider'  => $provider,
 		);
 
 		// The signature is over the sorted params; alphabetical order above is
@@ -133,14 +152,11 @@ class Checkpoint {
 		$params['signature'] = hash_hmac( 'sha256', implode( "\n", $parts ), (string) $token->secret );
 
 		// Selects the handler behind /connect/ and nothing more, so not signed.
-		// The browser appends prompt=1 for "not you?" the same way.
 		$params['comment_identity'] = '1';
 
 		return array(
 			'url'       => add_query_arg( array_map( 'rawurlencode', $params ), self::connect_url() ),
 			'challenge' => $params['challenge'],
-			'expires'   => $expires,
-			'origin'    => $origin,
 		);
 	}
 
@@ -151,28 +167,7 @@ class Checkpoint {
 	 * @return string
 	 */
 	public static function connect_origin() {
-		return self::origin_of( self::connect_url() );
-	}
-
-	/**
-	 * The origin the site's pages are served from, for the request minted with
-	 * the page. A page reached on another of the site's hosts re-mints from the
-	 * browser, which sends the origin it is actually on.
-	 *
-	 * @return string
-	 */
-	public static function site_origin() {
-		return self::origin_of( home_url() );
-	}
-
-	/**
-	 * The scheme, host and port of a URL.
-	 *
-	 * @param string $url The URL.
-	 * @return string
-	 */
-	private static function origin_of( $url ) {
-		$parts  = wp_parse_url( $url );
+		$parts  = wp_parse_url( self::connect_url() );
 		$origin = ( $parts['scheme'] ?? 'https' ) . '://' . ( $parts['host'] ?? '' );
 
 		if ( isset( $parts['port'] ) ) {
@@ -187,15 +182,22 @@ class Checkpoint {
 	 *
 	 * This is the impersonation guard: the exchange takes a code from the comment
 	 * POST, so a signed URL naming someone else's origin would let them collect a
-	 * commenter's code and post as them. The host must be home or site URL's,
-	 * with or without www. HTTP_HOST is deliberately not used; a caller picks that.
+	 * commenter's code and post as them. Neither check trusts the request about
+	 * itself: the host must be home or site URL's (with or without www), and the
+	 * browser's own Origin header, sent on every POST and unforgeable, must agree.
+	 * HTTP_HOST is deliberately not used; a caller picks that.
 	 *
 	 * @param mixed $origin The origin, as window.location.origin gives it.
 	 * @return bool
 	 */
-	public static function is_site_origin( $origin ) {
+	private static function is_site_origin( $origin ) {
 		if ( ! is_string( $origin ) || strlen( $origin ) > 255
 			|| ! preg_match( '#^https?://[A-Za-z0-9.-]+(:[0-9]{1,5})?$#', $origin ) ) {
+			return false;
+		}
+
+		$header = isset( $_SERVER['HTTP_ORIGIN'] ) ? (string) wp_unslash( $_SERVER['HTTP_ORIGIN'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- compared, never output.
+		if ( $header !== $origin ) {
 			return false;
 		}
 
@@ -215,8 +217,7 @@ class Checkpoint {
 	}
 
 	/**
-	 * Everything the front end needs, a signed request for the first attempt
-	 * included.
+	 * Everything the front end needs.
 	 *
 	 * @return array
 	 */
@@ -225,18 +226,35 @@ class Checkpoint {
 			return array( 'enabled' => false );
 		}
 
-		$signed = self::signed_connect_url( self::site_origin() );
-		if ( is_wp_error( $signed ) ) {
-			return array( 'enabled' => false );
+		// Brand names, not translated; the label around them is.
+		$names = array(
+			'google'    => 'Google',
+			'facebook'  => 'Facebook',
+			'wordpress' => 'WordPress.com',
+		);
+
+		$providers = array();
+		foreach ( self::providers() as $provider ) {
+			$providers[] = array(
+				'id'    => $provider,
+				'name'  => $names[ $provider ],
+				'label' => sprintf(
+					/* translators: %s is the identity provider, e.g. Google. */
+					__( 'Continue with %s', 'jetpack-comments' ),
+					$names[ $provider ]
+				),
+			);
 		}
 
 		return array(
 			'enabled'       => true,
-			'connect'       => $signed,
+			'providers'     => $providers,
 			'connectOrigin' => self::connect_origin(),
 			'signUrl'       => rest_url( REST_Controller::NAMESPACE . '/identity/connect' ),
+			'logoutUrl'     => rest_url( REST_Controller::NAMESPACE . '/identity' ),
 			'nonce'         => wp_create_nonce( 'wp_rest' ),
 			'codeField'     => Comment_Hooks::CODE_FIELD,
+			'disclosure'    => __( 'Your name, email address and avatar from the provider you choose are shared with this site and shown with your comment.', 'jetpack-comments' ),
 		);
 	}
 }

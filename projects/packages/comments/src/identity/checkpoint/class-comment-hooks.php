@@ -85,10 +85,12 @@ class Comment_Hooks {
 
 		self::$identity = $identity;
 
-		// Both gates: WordPress.com vouched for this person, and the form draws no
-		// fields they could fill in instead.
 		add_filter( 'pre_option_comment_registration', '__return_zero' );
-		add_filter( 'pre_option_require_name_email', '__return_zero' );
+
+		// A provider can withhold either (Facebook, email); the site's rule then stands.
+		if ( '' !== $identity['name'] && '' !== $identity['email'] ) {
+			add_filter( 'pre_option_require_name_email', '__return_zero' );
+		}
 	}
 
 	/**
