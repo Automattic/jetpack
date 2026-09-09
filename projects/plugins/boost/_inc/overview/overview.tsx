@@ -1,4 +1,5 @@
 import { getScoreMovementPercentage } from '@automattic/jetpack-boost-score-api';
+import { queryClient as legacyQueryClient } from '@automattic/jetpack-react-data-sync-client';
 import { useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
@@ -48,6 +49,18 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 	const queryClient = useQueryClient();
 	const online = isSiteOnline();
 	const isLoading = scoreState.status === 'loading';
+
+	useEffect( () => {
+		return legacyQueryClient.getQueryCache().subscribe( event => {
+			if (
+				event.type === 'updated' &&
+				event.action.type === 'success' &&
+				event.query.queryKey[ 0 ] === 'modules_state'
+			) {
+				queryClient.invalidateQueries( { queryKey: [ 'modules_state' ] } );
+			}
+		} );
+	}, [ queryClient ] );
 
 	useEffect( () => {
 		if ( online && scoreState.status === 'loaded' ) {
