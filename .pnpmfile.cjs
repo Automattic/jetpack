@@ -112,6 +112,15 @@ async function fixDeps( pkg ) {
 		delete pkg.dependencies[ 'react-router-dom' ];
 	}
 
+	// Oddly pinned dep.
+	if (
+		pkg.name === '@automattic/components' &&
+		pkg.dependencies.colord &&
+		! pkg.dependencies.colord.startsWith( '^' )
+	) {
+		pkg.dependencies.colord = '^' + pkg.dependencies.colord;
+	}
+
 	// Breaking change in @wordpress/icons v11.
 	if (
 		pkg.name === '@automattic/components' &&

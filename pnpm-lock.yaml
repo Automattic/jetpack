@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-3Wde9tns2EWIOHz3+26yEp9tswozfsO/HhMfkRq9GL4=
+pnpmfileChecksum: sha256-zIGfgLIXbue4g5clxKU0TcQJtkxuNLeJRK0PZ/rJkhw=
 
 patchedDependencies:
   '@wordpress/build': 6f3fbefb10df6ce84b2e3c307e3894b697d87a888315abc805b6ff67bf7de635
@@ -13107,9 +13107,6 @@ packages:
   colord@2.10.0:
     resolution: {integrity: sha512-AidJptpBJmjTclAp9BkLwJi0T93fo5epJnbaZslpg6QVzpHjAiveF55mE9AcUJiGMqRHgMDY8soMsQtuNYMHfw==}
 
-  colord@2.9.3:
-    resolution: {integrity: sha512-jeC1axXpnb0/2nn/Y1LPuLdgXBLH7aDcHu4KEKfqw3CUhX7ZpfBSlPKyqXE6btIgEzfWtrX3/tyBCaCvXvMkOw==}
-
   colorjs.io@0.5.2:
     resolution: {integrity: sha512-twmVoizEW7ylZSN32OgKdXRmo1qg+wT5/6C3xu5b9QsWzSFAhHLn2xd8ro0diCsKfCj1RdaTP/nrcW+vAoQPIw==}
 
@@ -19304,7 +19301,7 @@ snapshots:
       '@wordpress/warning': 3.54.0
       canvas-confetti: 1.9.4
       clsx: 2.1.1
-      colord: 2.9.3
+      colord: 2.10.0
       debug: 4.4.3
       gridicons: 3.4.3(react@18.3.1)
       i18n-calypso: 7.4.0(@types/react@18.3.31)(react@18.3.1)
@@ -33514,8 +33511,6 @@ snapshots:
       color-string: 2.1.4
 
   colord@2.10.0: {}
-
-  colord@2.9.3: {}
 
   colorjs.io@0.5.2: {}
 
