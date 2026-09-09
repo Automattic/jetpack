@@ -2,11 +2,6 @@
 /**
  * Premium Analytics glue for the shared WooCommerce Analytics sync module.
  *
- * The `woocommerce_analytics` module, its helpers, checksum tables, and minimum
- * data requirements live in the jetpack-sync package. This class owns the
- * consumer-specific registration, full-sync policy, Config bootstrap, package
- * version signal, legacy-module arbitration, and Bookings post meta whitelist.
- *
  * @package automattic/jetpack-premium-analytics
  */
 
@@ -30,27 +25,23 @@ defined( 'ABSPATH' ) || exit;
 class Configuration {
 
 	/**
-	 * FQCN of the Analytics module shipped by the standalone plugin.
+	 * FQCN of the Analytics module shipped by the standalone WooCommerce Analytics plugin.
 	 *
+	 * @since $$next-version$$
 	 * @var string
 	 */
 	const ANALYTICS_PLUGIN_MODULE_FQCN = 'Automattic\\WooCommerce\\Analytics\\Internal\\Jetpack\\Sync\\Modules\\Analytics';
 
 	/**
-	 * FQCN of the interim Analytics module from older Premium Analytics versions.
-	 *
-	 * @var string
-	 */
-	const PREMIUM_ANALYTICS_MODULE_FQCN = 'Automattic\\Jetpack\\PremiumAnalytics\\Sync\\WooCommerce_Analytics_Module';
-
-	/**
-	 * Existing implementations that remain authoritative when present.
+	 * Checksum tables the shared module registers; audited only once the site can sync orders.
 	 *
 	 * @var string[]
 	 */
-	const LEGACY_MODULE_FQCNS = array(
-		self::ANALYTICS_PLUGIN_MODULE_FQCN,
-		self::PREMIUM_ANALYTICS_MODULE_FQCN,
+	private const ANALYTICS_CHECKSUM_TABLES = array(
+		'wc_order_stats',
+		'wc_order_product_lookup',
+		'wc_order_coupon_lookup',
+		'wc_order_tax_lookup',
 	);
 
 	/**
@@ -89,8 +80,8 @@ class Configuration {
 	public static function register(): void {
 		$instance = new self();
 
-		// Defer to plugins_loaded so the WooCommerce-active guard runs after every plugin loads; priority 1
-		// also lets the Jetpack Config constructed below run its on_plugins_loaded (priority 2) handler in the same cycle.
+		// plugins_loaded priority 1: every plugin has loaded for the WooCommerce guard, and the
+		// Config constructed in configure_sync() still gets its priority 2 handler in this cycle.
 		if ( did_action( 'plugins_loaded' ) ) {
 			$instance->configure_sync();
 		} else {
@@ -121,6 +112,7 @@ class Configuration {
 		// Runs last so another plugin's Analytics module, when present, is already in the list.
 		add_filter( 'jetpack_sync_modules', array( $this, 'add_woocommerce_analytics_module' ), PHP_INT_MAX );
 		add_filter( 'jetpack_full_sync_config', array( $this, 'expand_full_sync_config' ) );
+		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'gate_analytics_checksum_tables' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
 
 		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
@@ -129,9 +121,8 @@ class Configuration {
 	/**
 	 * Jetpack Sync module configuration.
 	 *
-	 * Merging MUST_SYNC_DATA_SETTINGS keeps the narrow option and callable whitelists on
-	 * sites where Premium Analytics is the only Sync consumer; for any filter left out here,
-	 * Data_Settings falls back to the full default whitelist instead.
+	 * MUST_SYNC_DATA_SETTINGS is merged in because Data_Settings falls back to the full default
+	 * whitelist for any filter a consumer leaves out, which would widen standalone sites.
 	 *
 	 * @return array Jetpack Sync config array.
 	 */
@@ -146,18 +137,15 @@ class Configuration {
 					Terms_Module::class,
 					Term_Relationships_Module::class,
 				),
-				// The shared and WooCommerce modules also append these; listing them keeps the
-				// contract explicit and independent of module load order.
+				// Listed explicitly so the contract does not depend on which other Sync modules load.
 				'jetpack_sync_options_whitelist'   => array(
 					'woocommerce_custom_orders_table_enabled', // Required for HPOS checksums.
 					'woocommerce_excluded_report_order_statuses', // Required for generating analytics reports.
 					'woocommerce_date_type', // Date used to determine the date range for analytics reports.
 				),
 				'jetpack_sync_constants_whitelist' => array(
-					// Syncing this triggers WPCom to provision the WC Analytics tables. Defined by the
-					// plugin at load (double underscore, per the JETPACK__VERSION convention). (WOOA7S-1643)
-					// WC_ANALYTICS_VERSION is intentionally omitted: it is defined and whitelisted by the
-					// standalone woocommerce-analytics plugin, and on a PA-only store would only sync null.
+					// Syncing it makes WPCOM provision the WC Analytics tables (WOOA7S-1643). WC_ANALYTICS_VERSION
+					// belongs to the standalone plugin and would only sync null on a PA-only store.
 					'JETPACK_PREMIUM_ANALYTICS__VERSION',
 				),
 			)
@@ -165,17 +153,18 @@ class Configuration {
 	}
 
 	/**
-	 * Add the shared module unless another Analytics implementation is present.
+	 * Add the shared module unless the standalone plugin's module is present.
 	 *
 	 * @param array|mixed $modules Current Sync module class names.
 	 * @return array|mixed Updated Sync module class names.
 	 */
 	public function add_woocommerce_analytics_module( $modules ) {
-		if ( ! is_array( $modules ) ) {
+		// An emptied list is a kill switch (Jetpack's uninstaller uses one); leave it alone.
+		if ( ! is_array( $modules ) || empty( $modules ) ) {
 			return $modules;
 		}
 
-		if ( array_intersect( self::LEGACY_MODULE_FQCNS, $modules ) ) {
+		if ( in_array( self::ANALYTICS_PLUGIN_MODULE_FQCN, $modules, true ) ) {
 			return array_values( array_diff( $modules, array( WooCommerce_Analytics_Module::class ) ) );
 		}
 
@@ -208,6 +197,20 @@ class Configuration {
 		}
 
 		return $config;
+	}
+
+	/**
+	 * Keep the Analytics checksum tables out of audits until the site can sync orders.
+	 *
+	 * @param array $tables Current checksum table configuration.
+	 * @return array Updated checksum table configuration.
+	 */
+	public function gate_analytics_checksum_tables( array $tables ): array {
+		if ( $this->can_site_sync_orders() ) {
+			return $tables;
+		}
+
+		return array_diff_key( $tables, array_flip( self::ANALYTICS_CHECKSUM_TABLES ) );
 	}
 
 	/**
