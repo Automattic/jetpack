@@ -188,12 +188,7 @@ JS;
 
 		set_transient( self::PLAN_REFRESH_TRANSIENT, 1, 15 * MINUTE_IN_SECONDS );
 
-		$cap_plan_refresh_timeout = static function () {
-			return 5;
-		};
-		add_filter( 'http_request_timeout', $cap_plan_refresh_timeout, PHP_INT_MAX );
-		Jetpack_Plan::refresh_from_wpcom();
-		remove_filter( 'http_request_timeout', $cap_plan_refresh_timeout, PHP_INT_MAX );
+		Jetpack_Plan::refresh_from_wpcom( array( 'timeout' => 5 ) );
 	}
 
 	/**

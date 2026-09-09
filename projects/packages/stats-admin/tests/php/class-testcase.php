@@ -98,8 +98,10 @@ abstract class TestCase extends PHPUnit_TestCase {
 			if ( PHP_VERSION_ID < 80100 ) {
 				$property->setAccessible( true );
 			}
-			$property->setValue( null, 'active_plan_cache' === $name ? null : array() );
+			$property->setValue( null, null );
 		}
+
+		$GLOBALS['wpcom_test_site_purchases'] = array( (object) array( 'product_slug' => 'personal-bundle' ) );
 	}
 
 	/**

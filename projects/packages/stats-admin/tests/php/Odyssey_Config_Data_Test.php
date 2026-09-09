@@ -39,6 +39,30 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 		$data = ( new Odyssey_Config_Data() )->get_data();
 
 		$this->assertSame(
+			array( 'stats-paid', 'support' ),
+			$data['intial_state']['sites']['features']['999']['data']['active']
+		);
+	}
+
+	/**
+	 * A registry with nothing in it cannot be told apart from a site that bought nothing, so the
+	 * cached plan is still the better answer.
+	 */
+	public function test_config_data_features_fall_back_when_the_registry_has_no_purchases() {
+		update_option(
+			Current_Plan::PLAN_OPTION,
+			array(
+				'product_slug' => 'personal-bundle',
+				'features'     => array( 'active' => array( 'stats-paid' ) ),
+			),
+			true
+		);
+		$this->make_site_atomic();
+		$GLOBALS['wpcom_test_site_purchases'] = array();
+
+		$data = ( new Odyssey_Config_Data() )->get_data();
+
+		$this->assertSame(
 			array( 'stats-paid' ),
 			$data['intial_state']['sites']['features']['999']['data']['active']
 		);

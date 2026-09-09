@@ -32,9 +32,11 @@ class Current_Plan {
 	/**
 	 * Atomic site-specific features available, cached for the request alongside the Simple ones.
 	 *
-	 * @var array Site-specific features, keyed on blog ID.
+	 * Not keyed on a blog ID: an Atomic site can only ever answer for itself.
+	 *
+	 * @var array|null Site-specific features.
 	 */
-	private static $atomic_site_specific_features = array();
+	private static $atomic_site_specific_features = null;
 
 	/**
 	 * The name of the option that will store the site's plan.
@@ -260,9 +262,14 @@ class Current_Plan {
 	 * @access public
 	 * @static
 	 *
+	 * @since $$next-version$$ Accepts request arguments.
+	 *
+	 * @param array $args Request arguments, as accepted by `Client::wpcom_json_api_request_as_blog()`.
+	 *                    A caller refreshing in front of a page render can cap `timeout` here; the
+	 *                    `http_request_timeout` filter cannot, because the client always sends one.
 	 * @return bool True if plan is updated, false if no update
 	 */
-	public static function refresh_from_wpcom() {
+	public static function refresh_from_wpcom( $args = array() ) {
 		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;
@@ -272,7 +279,8 @@ class Current_Plan {
 
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d?force=wpcom', $site_id ),
-			'1.1'
+			'1.1',
+			$args
 		);
 
 		$updated = self::update_from_sites_response( $response );
@@ -497,30 +505,38 @@ class Current_Plan {
 			return null;
 		}
 
-		$current_blog_id = get_current_blog_id();
-
-		if ( isset( self::$atomic_site_specific_features[ $current_blog_id ] ) ) {
-			return self::$atomic_site_specific_features[ $current_blog_id ];
+		if ( null !== self::$atomic_site_specific_features ) {
+			return self::$atomic_site_specific_features;
 		}
 
-		$purchases = \wpcom_get_site_purchases( $current_blog_id );
-		$active    = array();
+		// No blog ID anywhere below. wpcomsh resolves it from `jetpack_options`, where WordPress
+		// reports 1, and throws when the two disagree.
+		$purchases = \wpcom_get_site_purchases();
+
+		/*
+		 * A site whose Atomic persistent data has not synced reads exactly like one that bought
+		 * nothing, and answering would gate a paid site. Only WordPress.com can tell the two
+		 * apart, so report no answer and leave the caller its own fallback.
+		 */
+		if ( ! $purchases ) {
+			return null;
+		}
+
+		$active = array();
 
 		foreach ( \WPCOM_Features::get_feature_slugs() as $feature ) {
-			if ( \WPCOM_Features::has_feature( $feature, $purchases, 'wpcom', $current_blog_id ) ) {
+			if ( \WPCOM_Features::has_feature( $feature, $purchases, 'wpcom' ) ) {
 				$active[] = $feature;
 			}
 		}
 
 		// `available` names the plans that would grant each feature the site lacks, which only the
 		// WordPress.com product catalogue can answer. Callers here read `active`.
-		$features = array(
+		self::$atomic_site_specific_features = array(
 			'active'    => $active,
 			'available' => array(),
 		);
 
-		self::$atomic_site_specific_features[ $current_blog_id ] = $features;
-
-		return $features;
+		return self::$atomic_site_specific_features;
 	}
 }

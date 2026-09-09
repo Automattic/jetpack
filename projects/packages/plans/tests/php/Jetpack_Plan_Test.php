@@ -41,7 +41,8 @@ class Jetpack_Plan_Test extends TestCase {
 		if ( PHP_VERSION_ID < 80100 ) {
 			$cache->setAccessible( true );
 		}
-		$cache->setValue( null, array() );
+		$cache->setValue( null, null );
+		$GLOBALS['wpcom_test_site_purchases'] = array( (object) array( 'product_slug' => 'personal-bundle' ) );
 	}
 
 	/**
@@ -105,11 +106,22 @@ class Jetpack_Plan_Test extends TestCase {
 
 		$this->assertSame(
 			array(
-				'active'    => array( 'stats-paid' ),
+				'active'    => array( 'stats-paid', 'support' ),
 				'available' => array(),
 			),
 			Jetpack_Plan::get_wpcom_site_specific_features()
 		);
+	}
+
+	/**
+	 * Atomic persistent data that has not synced yet reads exactly like a site that bought
+	 * nothing, and answering would gate a paid site. Only WordPress.com can tell the two apart.
+	 */
+	public function test_wpcom_site_specific_features_are_absent_when_the_registry_has_no_purchases() {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$GLOBALS['wpcom_test_site_purchases'] = array();
+
+		$this->assertNull( Jetpack_Plan::get_wpcom_site_specific_features() );
 	}
 
 	public function test_update_from_sites_response_failure_to_update() {

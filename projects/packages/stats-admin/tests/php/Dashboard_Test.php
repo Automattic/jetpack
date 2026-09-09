@@ -27,6 +27,13 @@ class Dashboard_Test extends Stats_TestCase {
 	private $site_record_filter;
 
 	/**
+	 * The timeout the site record request carried.
+	 *
+	 * @var int|null
+	 */
+	private $site_record_timeout;
+
+	/**
 	 * Returning the environment into its initial state.
 	 */
 	public function tearDown(): void {
@@ -179,6 +186,7 @@ class Dashboard_Test extends Stats_TestCase {
 			}
 
 			++$this->site_record_requests;
+			$this->site_record_timeout = isset( $parsed_args['timeout'] ) ? (int) $parsed_args['timeout'] : null;
 
 			return array(
 				'response' => array(
@@ -203,6 +211,10 @@ class Dashboard_Test extends Stats_TestCase {
 
 		$this->assertSame( 1, $this->site_record_requests );
 		$this->assertSame( array( 'stats-paid' ), Current_Plan::get()['features']['active'] );
+
+		// The client always sends a timeout of its own, so `http_request_timeout` cannot cap this
+		// and the request has to carry the cap itself.
+		$this->assertSame( 5, $this->site_record_timeout );
 	}
 
 	/**
@@ -264,6 +276,20 @@ class Dashboard_Test extends Stats_TestCase {
 		( new Dashboard() )->admin_init();
 
 		$this->assertSame( 0, $this->site_record_requests );
+	}
+
+	/**
+	 * A registry holding nothing is a site whose data has not synced as readily as one that bought
+	 * nothing, so it is WordPress.com that has to settle it.
+	 */
+	public function test_a_site_whose_registry_has_no_purchases_fetches_the_plan() {
+		$this->serve_a_personal_plan();
+		$this->make_site_atomic();
+		$GLOBALS['wpcom_test_site_purchases'] = array();
+
+		( new Dashboard() )->admin_init();
+
+		$this->assertSame( 1, $this->site_record_requests );
 	}
 
 	/**
