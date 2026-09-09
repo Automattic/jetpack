@@ -34,16 +34,21 @@ const findClippingAncestor = ( wrapper: Element ): Element | null => {
 
 /**
  * Where the box goes, in wrapper coordinates. Below and to the right of the
- * anchor; flipped to the other side when that side clips less, as visx's
+ * anchor; flipped to the other side when that side overflows less, as visx's
  * `TooltipWithBounds` decides it; then clamped so the box stays inside
  * `bounds` whenever it fits at all.
  *
- * @param params            - Anchor, offsets, the box size and the bounds to keep inside.
+ * The flip measures against the wrapper as well as `bounds`. Only the clamp
+ * is bound by the page: a box that fits inside the chart on one side stays
+ * there, so it does not reach past the chart into siblings that paint over it.
+ *
+ * @param params            - Anchor, offsets, the box size and the rects to keep inside.
  * @param params.left       - Anchor x, in wrapper coordinates.
  * @param params.top        - Anchor y, in wrapper coordinates.
  * @param params.offsetLeft - Gap between the anchor and the box, horizontally.
  * @param params.offsetTop  - Gap between the anchor and the box, vertically.
  * @param params.box        - Rendered size of the box.
+ * @param params.wrapper    - The wrapper's own edges, in wrapper coordinates.
  * @param params.bounds     - Edges the box must keep inside, in wrapper coordinates.
  * @return The box's top-left corner, rounded to whole pixels.
  */
@@ -53,6 +58,7 @@ export const getBoundedPosition = ( {
 	offsetLeft,
 	offsetTop,
 	box,
+	wrapper,
 	bounds,
 }: {
 	left: number;
@@ -60,18 +66,25 @@ export const getBoundedPosition = ( {
 	offsetLeft: number;
 	offsetTop: number;
 	box: Size;
+	wrapper: Bounds;
 	bounds: Bounds;
 } ) => {
 	const rightX = left + offsetLeft;
 	const leftX = left - offsetLeft - box.width;
-	const rightOverflow = rightX + box.width - bounds.right;
-	const leftOverflow = bounds.left - leftX;
+	const rightOverflow = Math.max(
+		rightX + box.width - wrapper.right,
+		rightX + box.width - bounds.right
+	);
+	const leftOverflow = Math.max( wrapper.left - leftX, bounds.left - leftX );
 	let x = rightOverflow > 0 && rightOverflow > leftOverflow ? leftX : rightX;
 
 	const downY = top + offsetTop;
 	const upY = top - offsetTop - box.height;
-	const downOverflow = downY + box.height - bounds.bottom;
-	const upOverflow = bounds.top - upY;
+	const downOverflow = Math.max(
+		downY + box.height - wrapper.bottom,
+		downY + box.height - bounds.bottom
+	);
+	const upOverflow = Math.max( wrapper.top - upY, bounds.top - upY );
 	let y = downOverflow > 0 && downOverflow > upOverflow ? upY : downY;
 
 	x = Math.min( Math.max( x, bounds.left ), Math.max( bounds.left, bounds.right - box.width ) );
@@ -81,11 +94,11 @@ export const getBoundedPosition = ( {
 };
 
 /**
- * visx's `Tooltip`, positioned like its `TooltipWithBounds` but kept inside the
- * nearest clipping ancestor — or the viewport when there is none — rather than
- * inside its own parent. Rendered in-tree, a tooltip's parent is the chart
- * wrapper, which is often narrower than the box; measuring against the parent
- * alone would let the box spill into an `overflow: hidden` card and be cut off.
+ * visx's `Tooltip`, positioned like its `TooltipWithBounds` but clamped inside
+ * the nearest clipping ancestor — or the viewport when there is none — rather
+ * than inside its own parent. Rendered in-tree, a tooltip's parent is the chart
+ * wrapper, which is often narrower than the box; clamping to the parent alone
+ * would let the box spill into an `overflow: hidden` card and be cut off.
  *
  * Re-measures on every render, so a box whose content changes width between
  * two hovers is placed for its current size.
@@ -137,6 +150,7 @@ export const BoundedTooltip = ( {
 			offsetLeft,
 			offsetTop,
 			box: { width: own.width, height: own.height },
+			wrapper: { left: 0, top: 0, right: wrapperRect.width, bottom: wrapperRect.height },
 			bounds: {
 				left: clipRect.left - wrapperRect.left,
 				top: clipRect.top - wrapperRect.top,

@@ -12,6 +12,7 @@ describe( 'getBoundedPosition', () => {
 				top: 20,
 				...OFFSETS,
 				box: BOX,
+				wrapper: { left: 0, top: 0, right: 600, bottom: 300 },
 				bounds: { left: 0, top: 0, right: 600, bottom: 300 },
 			} )
 		).toEqual( { x: 50, y: 30 } );
@@ -24,6 +25,7 @@ describe( 'getBoundedPosition', () => {
 				top: 280,
 				...OFFSETS,
 				box: BOX,
+				wrapper: { left: 0, top: 0, right: 600, bottom: 300 },
 				bounds: { left: 0, top: 0, right: 600, bottom: 300 },
 			} )
 		).toEqual( { x: 282, y: 234 } );
@@ -38,23 +40,54 @@ describe( 'getBoundedPosition', () => {
 				top: 50,
 				...OFFSETS,
 				box: BOX,
+				wrapper: { left: 0, top: 0, right: 346, bottom: 200 },
 				bounds: { left: 0, top: 0, right: 346, bottom: 200 },
 			} )
 		).toEqual( { x: 138, y: 60 } );
 	} );
 
 	test( 'may leave the wrapper as long as it stays inside the clipping ancestor', () => {
-		// The wrapper starts 40px inside its clipping card, so the box can reach
-		// 40px past the wrapper's left edge, and stops there.
+		// Neither side fits the 346px wrapper, and the clipping card ends 14px
+		// past its right edge, so the box keeps the near side and stops there.
 		expect(
 			getBoundedPosition( {
 				left: 173,
 				top: 50,
 				...OFFSETS,
 				box: BOX,
+				wrapper: { left: 0, top: 0, right: 346, bottom: 200 },
 				bounds: { left: -40, top: -60, right: 360, bottom: 200 },
 			} )
-		).toEqual( { x: -40, y: 60 } );
+		).toEqual( { x: 152, y: 60 } );
+	} );
+
+	test( 'flips up to stay inside the wrapper even when the page below has room', () => {
+		// The box fits above the anchor inside the 200px wrapper, so it goes
+		// there rather than below the chart, where the page would cover it.
+		expect(
+			getBoundedPosition( {
+				left: 40,
+				top: 180,
+				...OFFSETS,
+				box: BOX,
+				wrapper: { left: 0, top: 0, right: 600, bottom: 200 },
+				bounds: { left: 0, top: 0, right: 1024, bottom: 768 },
+			} )
+		).toEqual( { x: 50, y: 134 } );
+	} );
+
+	test( 'flips up when the wrapper fits below but the clipping ancestor does not', () => {
+		// A scrolled container cuts the wrapper off 20px under the anchor.
+		expect(
+			getBoundedPosition( {
+				left: 40,
+				top: 100,
+				...OFFSETS,
+				box: BOX,
+				wrapper: { left: 0, top: 0, right: 600, bottom: 300 },
+				bounds: { left: 0, top: -50, right: 600, bottom: 120 },
+			} )
+		).toEqual( { x: 50, y: 54 } );
 	} );
 } );
 
@@ -100,9 +133,31 @@ describe( 'BoundedTooltip', () => {
 			</div>
 		);
 
-		// Neither side of the anchor fits inside the card, so the box stops at
-		// the card's left edge, 40px outside the wrapper.
-		expect( screen.getByTestId( 'box' ) ).toHaveStyle( { transform: 'translate(-40px, 60px)' } );
+		// Neither side of the anchor fits the wrapper, so the box keeps the near
+		// side and stops at the card's right edge, 14px outside the wrapper.
+		expect( screen.getByTestId( 'box' ) ).toHaveStyle( { transform: 'translate(152px, 60px)' } );
+	} );
+
+	test( 'keeps the box inside the wrapper when nothing clips and the anchor sits low', () => {
+		jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+			this: Element
+		) {
+			return this.classList.contains( 'visx-tooltip' )
+				? rect( 0, 0, 150, 100 )
+				: rect( 100, 100, 600, 200 );
+		} );
+
+		render(
+			<div style={ { position: 'relative' } }>
+				<BoundedTooltip left={ 300 } top={ 180 } data-testid="box">
+					content
+				</BoundedTooltip>
+			</div>
+		);
+
+		// The viewport has room below the wrapper, but that is where the page's
+		// own content paints over the box; above the anchor it fits in the chart.
+		expect( screen.getByTestId( 'box' ) ).toHaveStyle( { transform: 'translate(310px, 70px)' } );
 	} );
 
 	test( 'falls back to the viewport when nothing clips', () => {
