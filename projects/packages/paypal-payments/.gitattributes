@@ -11,3 +11,4 @@ webpack.config.blocks.js production-exclude
 /src/block/*.jsx         production-exclude
 /src/**/*.scss           production-exclude
 /src/**/*.jsx            production-exclude
+/src/paypal-payment-buttons/**/*.js production-exclude
