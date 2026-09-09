@@ -17,7 +17,7 @@ namespace Automattic\Jetpack\SEO;
  * Visitor-independent by design: those surfaces are cached and shared, so their
  * output must not vary by who fetched them.
  *
- * @since $$next-version$$
+ * @since 0.9.2
  */
 class Content_Gate {
 
@@ -78,7 +78,7 @@ class Content_Gate {
 	 * module switched off after the level was set). Erring that way withholds a
 	 * summary; erring the other way publishes a paywalled body.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.2
 	 *
 	 * @param \WP_Post|int|null $post Post, post ID, or null for the global post.
 	 * @return bool True when the body must not be published.
@@ -114,7 +114,7 @@ class Content_Gate {
 	 * readers, but only because `do_blocks()` then renders that prefix: a
 	 * `premium-content` block inside it hides itself, which raw markup does not.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.2
 	 *
 	 * @param \WP_Post|int|null $post Post, post ID, or null for the global post.
 	 * @return string Public teaser, or '' when no part of the body is public.
