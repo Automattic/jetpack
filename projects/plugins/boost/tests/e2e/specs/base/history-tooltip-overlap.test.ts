@@ -160,15 +160,16 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
 		const bars = chart.locator( '.visx-bar' );
 		await expect( bars ).toHaveCount( 30 );
-		await expect( bars.first() ).toHaveCSS( 'fill', 'none' );
-		await expect( bars.first() ).not.toHaveCSS( 'stroke-dasharray', 'none' );
+		await expect( bars.first() ).toHaveCSS( 'fill', 'rgb(224, 224, 224)' );
+		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
+		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
 		const grid = chart.getByRole( 'grid' );
 		await grid.focus();
 		await page.keyboard.press( 'ArrowRight' );
 		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( surface ).toContainText( 'August 11, 2026' );
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
-		await expect( surface ).toContainText( 'No score recorded.' );
+		await expect( surface ).toContainText( 'No score recorded before you unlocked this feature.' );
 		await page.keyboard.press( 'ArrowRight' );
 		await expect( surface ).toContainText( 'August 12, 2026' );
 		await page.keyboard.press( 'Escape' );
@@ -185,15 +186,41 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 			expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
 		}
 		const zeroBar = bars.nth( 27 );
-		await expect( zeroBar ).toHaveAttribute(
-			'fill',
-			'var(--wpds-color-foreground-content-error-weak)'
-		);
+		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
 		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
 		await expect( surface ).toContainText( '0 / 100' );
 	} );
 }
+
+test( 'uses compact plots with three horizontal gridlines and no band legend', async ( {
+	page,
+} ) => {
+	await expect( page.getByText( 'Could be improved', { exact: true } ) ).toHaveCount( 0 );
+	for ( const device of [ 'Desktop', 'Mobile' ] ) {
+		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
+		await expect( chart.locator( '.visx-rows line' ) ).toHaveCount( 3 );
+		await expect( chart.getByLabel( 'XYChart' ) ).toHaveCSS( 'height', '96px' );
+	}
+
+	const desktop = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const mobile = page.getByRole( 'region', { name: 'Mobile score history' } );
+	await hoverDay( desktop, 0 );
+	const highlight = page.locator( '.boost-daily-history__highlight' );
+	await expect( highlight ).toHaveCount( 1 );
+	await expect( highlight ).toBeVisible();
+	const band = ( await highlight.boundingBox() )!;
+	const firstPanel = ( await desktop.boundingBox() )!;
+	const secondSvg = ( await mobile.getByLabel( 'XYChart' ).boundingBox() )!;
+	const bar = ( await desktop.locator( '.visx-bar' ).first().boundingBox() )!;
+	expect( band.y ).toBeCloseTo( firstPanel.y, 0 );
+	expect( band.y + band.height ).toBeCloseTo( secondSvg.y + secondSvg.height - 24, 0 );
+	expect( band.width ).toBeCloseTo( bar.width + 1, 0 );
+	const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
+	await expect( tooltip ).toContainText( 'No score recorded before you unlocked this feature.' );
+	await expect( tooltip ).toHaveCSS( 'width', '265px' );
+	await expect( tooltip ).toHaveCSS( 'height', '106px' );
+} );
 
 test( 'an all-zero window paints recorded scores separately from empty slots', async ( {
 	page,
@@ -203,14 +230,12 @@ test( 'an all-zero window paints recorded scores separately from empty slots', a
 		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
 		const bars = chart.locator( '.visx-bar' );
 		const zeroBar = bars.nth( 21 );
-		await expect( zeroBar ).toHaveAttribute(
-			'fill',
-			'var(--wpds-color-foreground-content-error-weak)'
-		);
+		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
 		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
-		await expect( bars.first() ).toHaveCSS( 'fill', 'none' );
-		await expect( bars.first() ).not.toHaveCSS( 'stroke-dasharray', 'none' );
+		await expect( bars.first() ).toHaveCSS( 'fill', 'rgb(224, 224, 224)' );
+		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
+		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
 	}
 } );
 
@@ -278,9 +303,22 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	}
 	await expect( desktop.first().getByText( '+10 points compared with Boost disabled' ) ).toHaveCSS(
 		'color',
-		'rgb(0, 128, 48)'
+		'rgb(0, 138, 32)'
 	);
 	await expect( mobile.getByText( /compared with Boost disabled/ ) ).toHaveCount( 0 );
+	await expect( mobile.getByRole( 'progressbar' ) ).toHaveCSS( 'color', 'rgb(245, 118, 0)' );
+	await expect( desktop.nth( 1 ).getByRole( 'progressbar' ) ).toHaveCSS(
+		'color',
+		'rgb(204, 24, 24)'
+	);
+	await expect( desktop.first().getByText( '+10 points compared to without Boost' ) ).toHaveCSS(
+		'color',
+		'rgb(0, 138, 32)'
+	);
+	await expect( mobile.getByText( '−10 points compared to without Boost' ) ).toHaveCSS(
+		'color',
+		'rgb(204, 24, 24)'
+	);
 	await expect( desktop.first() ).toHaveCSS( 'padding-top', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-bottom', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-left', '20px' );
