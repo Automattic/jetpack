@@ -14,9 +14,7 @@ test( 'the Overall information popover shows every grade and its score range', a
 	);
 
 	expect( screen.queryByRole( 'table' ) ).not.toBeInTheDocument();
-	fireEvent.click(
-		screen.getByRole( 'button', { name: 'How the overall grade is calculated' } )
-	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'How the overall grade is calculated' } ) );
 	const popover = within( await screen.findByRole( 'dialog', { name: 'Overall grade' } ) );
 	expect( popover.getAllByRole( 'table' ) ).toHaveLength( 2 );
 	for ( const [ grade, range ] of [
@@ -52,8 +50,18 @@ test.each( [
 	const overall = within( screen.getByRole( 'region', { name: 'Overall grade' } ) );
 	expect( overall.getByText( String( grade ) ) ).toBeVisible();
 	expect( overall.getByText( String( description ) ) ).toBeVisible();
-	if ( score === 75 ) {
-		const desktop = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
-		expect( desktop.getByText( 'Good' ) ).toBeVisible();
-	}
+} );
+
+test( 'desktop retains its numeric tier when the overall grade is C', () => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { mobile: 75, desktop: 75 },
+				noBoost: null,
+				isStale: false,
+			} }
+		/>
+	);
+	const desktop = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
+	expect( desktop.getByText( 'Good' ) ).toBeVisible();
 } );
