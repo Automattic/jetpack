@@ -30,15 +30,41 @@ const mockPostDailyViews: Array< [ string, number ] > = Array.from(
 	}
 );
 
+type YearTable = { total: number; months: Record< string, number > };
+
+/**
+ * The endpoint's per-year tables, rolled up from the daily series: each
+ * month's views and the year's total. Months are keyed `1`-`12`.
+ */
+function rollUpYears( series: Array< [ string, number ] > ) {
+	const years: Record< string, YearTable > = {};
+
+	series.forEach( ( [ date, views ] ) => {
+		const year = date.slice( 0, 4 );
+		const month = String( Number( date.slice( 5, 7 ) ) );
+
+		years[ year ] = years[ year ] ?? { total: 0, months: {} };
+		years[ year ].months[ month ] = ( years[ year ].months[ month ] ?? 0 ) + views;
+		years[ year ].total += views;
+	} );
+
+	return { years };
+}
+
+// Published on the series' first day, so the post's life and its stats agree.
+const mockPostPublishedAt = `${ mockPostDailyViews[ 0 ][ 0 ] } 10:00:00`;
+
 export const mockStatsPostData = {
 	views: mockPostDailyViews.reduce( ( total, [ , views ] ) => total + views, 0 ),
 	like_count: 24,
 	data: mockPostDailyViews,
+	...rollUpYears( mockPostDailyViews ),
 	post: {
 		ID: 779,
 		post_title: 'Ten things I learned building my first WordPress theme',
 		post_type: 'post',
-		post_date_gmt: '2026-06-22 10:00:00',
+		post_date: mockPostPublishedAt,
+		post_date_gmt: mockPostPublishedAt,
 		comment_count: '8',
 	},
 };
