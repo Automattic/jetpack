@@ -79,6 +79,7 @@ await jest.unstable_mockModule( '@wordpress/components', () => ( {
 const { FormWelcomeGuide, PREFERENCE_NAME, PREFERENCE_SCOPE } = await import(
 	'../../../../src/form-editor/welcome-guide/index'
 );
+const { GUIDE_VERSION } = await import( '../../../../src/form-editor/welcome-guide/pages' );
 
 const CORE_SCOPE = 'core/edit-post';
 
@@ -420,6 +421,25 @@ describe( 'FormWelcomeGuide', () => {
 			expect( recordEvent ).toHaveBeenCalledWith(
 				'jetpack_forms_welcome_guide_dismiss',
 				expect.objectContaining( { slide: 2, slide_count: 5, origin: 'auto' } )
+			);
+		} );
+
+		it( 'stamps every event with the guide version, not just the first', async () => {
+			const user = userEvent.setup();
+			render( <FormWelcomeGuide /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Finish' } ) );
+
+			const guideEvents = recordEvent.mock.calls.filter( ( [ name ] ) =>
+				name.startsWith( 'jetpack_forms_welcome_guide_' )
+			);
+
+			// view, slide 1, slide 2, dismiss — so an event recorded without the
+			// version would have to be one of these four.
+			expect( guideEvents ).toHaveLength( 4 );
+			expect( guideEvents.map( ( [ , props ] ) => props.guide_version ) ).toEqual(
+				Array( 4 ).fill( GUIDE_VERSION )
 			);
 		} );
 	} );

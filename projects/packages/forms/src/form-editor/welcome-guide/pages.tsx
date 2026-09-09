@@ -19,11 +19,27 @@ export interface GuidePage {
 }
 
 /**
+ * Which revision of the slides below the analytics describe.
+ *
+ * Bump this whenever a change would make old and new events unsafe to pool:
+ * slides reordered, or copy rewritten enough that "left on slide 3" stops
+ * meaning what it meant before. `slide_count` already catches a slide being
+ * added or removed; this catches everything else.
+ *
+ * Events recorded before this property existed carry no `guide_version` at all,
+ * and describe the same slides as version 1 — so a report covering that period
+ * should read a missing value as 1.
+ */
+export const GUIDE_VERSION = 1;
+
+/**
  * The slides, in order.
  *
  * Copy is held as thunks so `__()` runs when the guide is built rather than at
  * module load, which would translate before the locale data has arrived. Each
  * slide names its own artwork, so a slide can't drift away from its image.
+ *
+ * Editing these means deciding whether GUIDE_VERSION above needs bumping.
  */
 const SLIDES = [
 	{

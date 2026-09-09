@@ -10,6 +10,7 @@
 
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
+import { GUIDE_VERSION } from './pages';
 
 /** Fired once each time the guide opens. */
 export const VIEW_EVENT = 'jetpack_forms_welcome_guide_view';
@@ -34,6 +35,10 @@ interface Tracks {
 /**
  * Records a guide event with the properties every one of them carries.
  *
+ * `guide_version` is added here rather than at the call sites so that no event
+ * can be added later that forgets it — a single event missing the version is
+ * enough to make a report choose between dropping it and guessing.
+ *
  * @return A recorder taking an event name and any extra properties.
  */
 export function useGuideTracks() {
@@ -41,7 +46,7 @@ export function useGuideTracks() {
 
 	return useCallback(
 		( event: string, props: TracksProps = {} ) => {
-			tracks.recordEvent( event, props );
+			tracks.recordEvent( event, { ...props, guide_version: GUIDE_VERSION } );
 		},
 		[ tracks ]
 	);
