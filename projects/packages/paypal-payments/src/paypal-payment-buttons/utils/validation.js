@@ -130,6 +130,26 @@ export function validateTaxRate( value ) {
 }
 
 /**
+ * Validate a return URL (optional field).
+ *
+ * HTTPS only - a rule this block has always enforced on its own. Empty means the
+ * buyer is not redirected anywhere.
+ *
+ * @param {string} value - The return URL.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validateReturnUrl( value ) {
+	if ( ! value || /^https:\/\/.+/.test( value ) ) {
+		return null;
+	}
+
+	return __(
+		'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
+		'jetpack-paypal-payments'
+	);
+}
+
+/**
  * Map an API error response to a user-friendly message.
  *
  * The server-side already returns user-friendly messages, but this

@@ -3,7 +3,7 @@
  *
  * Covers client-side validation functions extracted from edit.js:
  * validatePrice, validateProductName, validateDescription,
- * validateTaxRate, getUserFriendlyError.
+ * validateTaxRate, validateReturnUrl, getUserFriendlyError.
  *
  * @package
  */
@@ -21,6 +21,7 @@ import {
 	validateProductName,
 	validateDescription,
 	validateTaxRate,
+	validateReturnUrl,
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
@@ -165,6 +166,28 @@ describe( 'validateTaxRate', () => {
 	// The control's max attribute is the only upper bound; PayPal's own is unmeasured.
 	it( 'accepts a rate above the control’s maximum', () => {
 		expect( validateTaxRate( '150' ) ).toBeNull();
+	} );
+} );
+
+describe( 'validateReturnUrl', () => {
+	const httpsOnly = 'Return URL must use HTTPS (e.g., https://example.com/thank-you).';
+
+	// The field is optional, so no URL is a valid answer.
+	it.each( [ null, undefined, '' ] )( 'returns null for %p', value => {
+		expect( validateReturnUrl( value ) ).toBeNull();
+	} );
+
+	it( 'returns null for an HTTPS URL', () => {
+		expect( validateReturnUrl( 'https://example.com/thanks' ) ).toBeNull();
+	} );
+
+	it.each( [
+		[ 'plain HTTP', 'http://example.com/thanks' ],
+		[ 'a scheme-relative URL', '//example.com/thanks' ],
+		[ 'a bare host', 'example.com' ],
+		[ 'the scheme on its own', 'https://' ],
+	] )( 'returns an error for %s', ( _label, value ) => {
+		expect( validateReturnUrl( value ) ).toBe( httpsOnly );
 	} );
 } );
 

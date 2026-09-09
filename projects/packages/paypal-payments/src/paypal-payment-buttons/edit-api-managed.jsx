@@ -15,6 +15,7 @@ import {
 	InspectorControls,
 	MediaUpload,
 	MediaUploadCheck,
+	URLInput,
 	useBlockProps,
 } from '@wordpress/block-editor';
 import {
@@ -52,6 +53,7 @@ import {
 	validatePrice,
 	validateProductName,
 	validateDescription,
+	validateReturnUrl,
 	validateTaxRate,
 } from './utils/validation';
 
@@ -194,6 +196,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			// it - an error on an invisible field would disable Save with nothing to fix.
 			price: usesVariantPricing ? null : validatePrice( price, currencyCode || 'USD' ),
 			productDescription: validateDescription( productDescription ),
+			returnUrl: validateReturnUrl( returnUrl ),
 			taxValue: taxEnabled && taxIsPercentage ? validateTaxRate( taxValue ) : null,
 			currencyCode:
 				currencyCode && ! VALID_CURRENCY_CODES.has( currencyCode )
@@ -204,6 +207,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			productName,
 			price,
 			productDescription,
+			returnUrl,
 			currencyCode,
 			usesVariantPricing,
 			taxEnabled,
@@ -231,6 +235,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			? validationErrors.price
 			: null;
 
+	const returnUrlError = touchedFields.returnUrl ? validationErrors.returnUrl : null;
+
+	// returnUrl is deliberately absent below - a bad one warns and still saves, as it
+	// always has.
 	const isFormValid =
 		! validationErrors.productName &&
 		! validationErrors.price &&
@@ -879,27 +887,27 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					) }
 				</PanelBody>
 				<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>
-					<TextControl
-						label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
-						value={ returnUrl || '' }
-						onChange={ value => setAttributes( { returnUrl: value } ) }
+					{ /* URLInput takes no onBlur, so the wrapper catches it as it bubbles, and
+					     carries has-error too. URLInput gets exactly one class - it appends
+					     `__suggestions` to whatever it is given, and a second one in there
+					     would break the suggestion list's width. */ }
+					<div
+						className={ returnUrlError ? 'has-error' : undefined }
 						onBlur={ () => markTouched( 'returnUrl' ) }
-						type="url"
-						disabled={ isCreating }
-						help={
-							touchedFields.returnUrl && returnUrl && ! /^https:\/\/.+/.test( returnUrl )
-								? __(
-										'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
-										'jetpack-paypal-payments'
-								  )
-								: __( 'Redirect customers here after payment.', 'jetpack-paypal-payments' )
-						}
-						className={
-							touchedFields.returnUrl && returnUrl && ! /^https:\/\/.+/.test( returnUrl )
-								? 'has-error'
-								: undefined
-						}
-					/>
+					>
+						<URLInput
+							label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
+							className="jetpack-paypal-payment-buttons__return-url"
+							value={ returnUrl || '' }
+							onChange={ value => setAttributes( { returnUrl: value } ) }
+							required={ false }
+							disabled={ isCreating }
+							help={
+								returnUrlError ||
+								__( 'Redirect customers here after payment.', 'jetpack-paypal-payments' )
+							}
+						/>
+					</div>
 				</PanelBody>
 				<PanelBody
 					title={ __( 'Button Appearance', 'jetpack-paypal-payments' ) }

@@ -60,6 +60,24 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	InspectorControls: ( { children } ) => <div data-testid="inspector-controls">{ children }</div>,
 	MediaUpload: ( { render: renderProp } ) => renderProp( { open: jest.fn() } ),
 	MediaUploadCheck: ( { children } ) => <>{ children }</>,
+	// Like TextControl, className and help sit on the BaseControl wrapper rather than
+	// the input. URLInput has no onBlur - the form catches that on a wrapper of its
+	// own. The testid deliberately differs from `control-` so a test can tell this
+	// apart from the TextControl it replaced.
+	URLInput: ( { label, value, onChange, help, className, ...rest } ) => (
+		<div data-testid={ `url-input-${ label }` } className={ className }>
+			<label htmlFor={ `field-${ label }` }>{ label }</label>
+			<input
+				id={ `field-${ label }` }
+				aria-label={ label }
+				value={ value || '' }
+				onChange={ e => onChange( e.target.value ) }
+				type="text"
+				{ ...rest }
+			/>
+			{ help && <span className="help-text">{ help }</span> }
+		</div>
+	),
 } ) );
 
 // Mock WordPress components with simple HTML equivalents.
@@ -2120,6 +2138,114 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			expect( screen.getByText( 'Add field' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Return URL', () => {
+		const label = 'Return URL (optional)';
+		const httpsOnly = 'Return URL must use HTTPS (e.g., https://example.com/thank-you).';
+		const helpLine = 'Redirect customers here after payment.';
+
+		beforeEach( () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+		} );
+
+		/**
+		 * Render the create form with a return URL already set.
+		 *
+		 * @param {string} returnUrl - The returnUrl attribute.
+		 * @return {object} Testing Library render result.
+		 */
+		const renderWith = returnUrl =>
+			render(
+				<Edit
+					attributes={ { productName: 'Test Widget', price: '29.99', returnUrl } }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+		/**
+		 * The control a message has to appear inside for the fix to mean anything.
+		 *
+		 * @return {object} Queries scoped to the return URL control.
+		 */
+		const control = () => within( screen.getByTestId( `url-input-${ label }` ) );
+
+		/**
+		 * Focus the field and leave it, which is what marks it touched.
+		 *
+		 * @param {object} user - userEvent instance.
+		 */
+		const visit = async user => {
+			await user.click( await screen.findByLabelText( label ) );
+			await user.tab();
+		};
+
+		it( 'is a URL picker, not a plain text field', async () => {
+			renderWith( '' );
+
+			await expect( screen.findByTestId( `url-input-${ label }` ) ).resolves.toBeInTheDocument();
+			expect( control().getByText( helpLine ) ).toBeInTheDocument();
+		} );
+
+		// URLInput appends `__suggestions` to whatever className it gets, so a second
+		// class in there silently breaks the suggestion list's width rule.
+		it( 'hands URLInput exactly one class', async () => {
+			renderWith( 'http://example.com' );
+
+			await expect( screen.findByTestId( `url-input-${ label }` ) ).resolves.toHaveAttribute(
+				'class',
+				'jetpack-paypal-payment-buttons__return-url'
+			);
+		} );
+
+		it( 'writes what the merchant types', async () => {
+			const user = userEvent.setup();
+			renderWith( '' );
+
+			await user.type( await screen.findByLabelText( label ), 'h' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { returnUrl: 'h' } );
+		} );
+
+		// People paste into this field, so a URL that is still being typed is not yet
+		// wrong. Nothing is said until the merchant leaves the field.
+		it( 'says nothing about HTTPS until the field is left', async () => {
+			renderWith( 'http://example.com' );
+
+			await expect( screen.findByLabelText( label ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( httpsOnly ) ).not.toBeInTheDocument();
+			expect( control().getByText( helpLine ) ).toBeInTheDocument();
+		} );
+
+		it( 'asks for HTTPS once the field is left', async () => {
+			const user = userEvent.setup();
+			renderWith( 'http://example.com' );
+
+			await visit( user );
+
+			expect( control().getByText( httpsOnly ) ).toBeInTheDocument();
+			expect( screen.queryByText( helpLine ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'accepts an HTTPS URL', async () => {
+			const user = userEvent.setup();
+			renderWith( 'https://example.com/thanks' );
+
+			await visit( user );
+
+			expect( screen.queryByText( httpsOnly ) ).not.toBeInTheDocument();
+			expect( control().getByText( helpLine ) ).toBeInTheDocument();
+		} );
+
+		// A bad URL warns, it has never blocked saving.
+		it( 'leaves Create enabled with a bad URL', async () => {
+			const user = userEvent.setup();
+			renderWith( 'http://example.com' );
+
+			await visit( user );
+
+			expect( screen.getByText( 'Create New' ) ).toBeEnabled();
 		} );
 	} );
 

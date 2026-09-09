@@ -285,6 +285,30 @@
 			box-shadow: 0 0 0 1px #cc1818;
 		}
 	}
+
+	// URLInput builds on InputControl, which draws its border on a backdrop
+	// behind the input. Core's emotion class repeats itself three times, so
+	// naming the backdrop alone loses - walk its structure to out-specify it.
+	.components-input-control .components-input-control__container {
+
+		.components-input-control__backdrop {
+			border-color: #cc1818;
+		}
+	}
+}
+
+// Core sizes URLInput and its suggestion list wider than the 280px sidebar.
+// Same three overrides the contact form block uses for this control.
+.jetpack-paypal-payment-buttons__return-url {
+	min-width: auto;
+
+	input[type="text"] {
+		width: 100%;
+	}
+
+	&__suggestions {
+		width: 230px;
+	}
 }
 
 .jetpack-paypal-payment-buttons__price-row {
