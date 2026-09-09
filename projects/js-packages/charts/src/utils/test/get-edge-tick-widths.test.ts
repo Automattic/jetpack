@@ -40,7 +40,16 @@ describe( 'getEdgeTickWidths', () => {
 	} );
 
 	it( 'returns nothing to reserve for an axis with no ticks', () => {
-		expect( getEdgeTickWidths( [] ) ).toEqual( { first: null, last: null } );
+		expect( getEdgeTickWidths( [] ) ).toEqual( { first: 0, last: 0 } );
 		expect( mockGetStringWidth ).not.toHaveBeenCalled();
+	} );
+
+	it( 'reserves nothing for a label the measurer cannot size', () => {
+		mockGetStringWidth.mockReturnValue( null );
+
+		expect( getEdgeTickWidths( [ 1, 2, 3 ], value => `tick-${ value }` ) ).toEqual( {
+			first: 0,
+			last: 0,
+		} );
 	} );
 } );

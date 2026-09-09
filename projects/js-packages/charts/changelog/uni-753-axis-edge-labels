@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Charts: Reserve room for the first and last labels on a time axis so they are no longer cut off at the chart's edge.
+Reserve room for the first and last labels on a time axis, size the y-axis gutter from a pinned domain, and reserve nothing for a hidden y axis.

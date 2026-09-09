@@ -50,6 +50,33 @@ const DEFAULT_TICK_LENGTH = 8;
  */
 const DEFAULT_Y_TICK_WIDTH = 40;
 
+type LabelStyle = { fontSize?: number | string; letterSpacing?: number | string };
+
+/**
+ * Copy a label style with its lengths spelled out in px.
+ *
+ * `getStringWidth` applies the style through CSSOM. Blink resolves a bare number
+ * on an SVG `<text>`, but that is its own leniency rather than the CSS rule, and
+ * `buildChartTheme` hands us bare numbers.
+ *
+ * @param style - Raw label style from the theme.
+ * @return The same style with px-qualified lengths.
+ */
+const toMeasurableStyle = < T extends LabelStyle >( style?: T ) => {
+	if ( ! style ) {
+		return style;
+	}
+
+	const fontSize = resolveFontSize( style.fontSize );
+	const { letterSpacing } = style;
+
+	return {
+		...style,
+		...( fontSize === undefined ? {} : { fontSize: `${ fontSize }px` } ),
+		...( typeof letterSpacing === 'number' ? { letterSpacing: `${ letterSpacing }px` } : {} ),
+	};
+};
+
 const getXAxisLabelMetrics = ( theme: XYChartTheme, orientation: 'top' | 'bottom' ) => {
 	const xAxisStyles =
 		orientation === 'top' ? theme.axisStyles?.x?.top : theme.axisStyles?.x?.bottom;
@@ -61,17 +88,7 @@ const getXAxisLabelMetrics = ( theme: XYChartTheme, orientation: 'top' | 'bottom
 
 	const tickLength = xAxisStyles?.tickLength ?? DEFAULT_TICK_LENGTH;
 
-	// The measurer assigns this through CSSOM, which drops a unitless length, so
-	// the theme's plain-number fontSize has to carry its unit or labels measure
-	// at whatever the host body inherits.
-	const tickLabel = xAxisStyles?.tickLabel;
-	const tickLabelFontSize = resolveFontSize( tickLabel?.fontSize );
-	const tickLabelStyle =
-		tickLabel && tickLabelFontSize !== undefined
-			? { ...tickLabel, fontSize: `${ tickLabelFontSize }px` }
-			: tickLabel;
-
-	return { fontSize, tickLength, tickLabelStyle };
+	return { fontSize, tickLength, tickLabelStyle: toMeasurableStyle( xAxisStyles?.tickLabel ) };
 };
 
 export const useChartMargin = (
@@ -98,7 +115,9 @@ export const useChartMargin = (
 		const maxY = Math.max( ...allDataPoints.map( d => d.value ) );
 		const yScale = createScale( {
 			...options.yScale,
-			domain: [ minY, maxY ],
+			// A pinned domain is what the axis actually renders, so measure those
+			// ticks; the data's range would size the gutter for narrower labels.
+			domain: options.yScale?.domain ?? [ minY, maxY ],
 			range: [ height, 0 ],
 		} );
 
@@ -121,7 +140,7 @@ export const useChartMargin = (
 		const yTickWidth = getLongestTickWidth(
 			yTicks,
 			options.axis?.y?.tickFormat,
-			yAxisStyles.axisLabel
+			toMeasurableStyle( yAxisStyles.axisLabel )
 		);
 		// visx's default axis theme pushes y-axis tick labels a further 0.25em
 		// away from the axis (dx of -0.25em on the left, 0.25em on the right), so
@@ -135,10 +154,13 @@ export const useChartMargin = (
 			( yAxisStyles?.tickLength ?? 0 ) +
 			Math.ceil( yTickLabelFontSize * 0.25 );
 
-		if ( yAxisOrientation === 'right' ) {
-			defaultMargin.right = yMarginValue;
-		} else {
-			defaultMargin.left = yMarginValue;
+		// A hidden y axis reserves nothing; its gutter belongs to the plot area.
+		if ( options.axis?.y?.display !== false ) {
+			if ( yAxisOrientation === 'right' ) {
+				defaultMargin.right = yMarginValue;
+			} else {
+				defaultMargin.left = yMarginValue;
+			}
 		}
 
 		// Dynamically compute X-axis margin (bottom by default, or top if orientation is 'top').
@@ -164,12 +186,8 @@ export const useChartMargin = (
 				tickLabelStyle
 			);
 
-			if ( first !== null ) {
-				defaultMargin.left = Math.max( defaultMargin.left, Math.ceil( first / 2 ) );
-			}
-			if ( last !== null ) {
-				defaultMargin.right = Math.max( defaultMargin.right, Math.ceil( last / 2 ) );
-			}
+			defaultMargin.left = Math.max( defaultMargin.left, Math.ceil( first / 2 ) );
+			defaultMargin.right = Math.max( defaultMargin.right, Math.ceil( last / 2 ) );
 		}
 
 		return defaultMargin;

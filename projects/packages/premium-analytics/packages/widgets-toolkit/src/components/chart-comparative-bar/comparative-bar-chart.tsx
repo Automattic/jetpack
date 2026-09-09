@@ -286,12 +286,12 @@ export function ComparativeBarChart( {
 	);
 
 	/**
-	 * A pinned domain for percentage metrics and all-zero periods, with the left
-	 * margin its widest tick needs. Null lets the chart scale to the data.
+	 * A pinned domain for percentage metrics and all-zero periods. Null lets the
+	 * chart scale to the data.
 	 */
 	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData, yTickFormat ),
-		[ dataFormat.type, isEmptyData, yTickFormat ]
+		() => getFixedYAxis( dataFormat.type, isEmptyData ),
+		[ dataFormat.type, isEmptyData ]
 	);
 
 	const chartOptions = useMemo( () => {
@@ -316,15 +316,6 @@ export function ComparativeBarChart( {
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
 	}, [ xTickFormat, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
 
-	const margin = useMemo( () => {
-		// A sparkline is full bleed: it hides both axes and gives their gutters to the bars.
-		if ( isCompact ) {
-			return { right: 0, left: 0 };
-		}
-
-		return fixedYAxis ? { left: fixedYAxis.marginLeft } : undefined;
-	}, [ isCompact, fixedYAxis ] );
-
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
 			<BarChart
@@ -334,7 +325,6 @@ export function ComparativeBarChart( {
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }
-				margin={ margin }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }

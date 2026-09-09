@@ -51,7 +51,7 @@ describe( 'useChartMargin', () => {
 		mockGetLongestTickWidth.mockReset();
 		mockGetLongestTickWidth.mockReturnValue( 40 );
 		mockGetEdgeTickWidths.mockReset();
-		mockGetEdgeTickWidths.mockReturnValue( { first: null, last: null } );
+		mockGetEdgeTickWidths.mockReturnValue( { first: 0, last: 0 } );
 	} );
 
 	it( 'calculates left margin for left y axis', () => {
@@ -71,7 +71,7 @@ describe( 'useChartMargin', () => {
 		expect( mockGetLongestTickWidth ).toHaveBeenCalledWith(
 			expect.any( Array ),
 			options.axis.y.tickFormat,
-			theme.axisStyles.y.left.axisLabel
+			{ fontSize: '12px' }
 		);
 		// 40 label width + 8 tick length + ceil(11 * 0.25) label dx offset
 		expect( result.current.left ).toBe( 51 );
@@ -94,7 +94,7 @@ describe( 'useChartMargin', () => {
 		expect( mockGetLongestTickWidth ).toHaveBeenCalledWith(
 			expect.any( Array ),
 			options.axis.y.tickFormat,
-			theme.axisStyles.y.right.axisLabel
+			{ fontSize: '12px' }
 		);
 		// 40 label width + 8 tick length + ceil(11 * 0.25) label dx offset
 		expect( result.current.right ).toBe( 51 );
@@ -117,7 +117,7 @@ describe( 'useChartMargin', () => {
 		expect( mockGetLongestTickWidth ).toHaveBeenCalledWith(
 			[ 0, 1000 ],
 			options.axis.y.tickFormat,
-			theme.axisStyles.y.left.axisLabel
+			{ fontSize: '12px' }
 		);
 	} );
 
@@ -203,7 +203,7 @@ describe( 'useChartMargin', () => {
 		} );
 
 		it( 'reserves half of the last label on the right', () => {
-			mockGetEdgeTickWidths.mockReturnValue( { first: null, last: 60 } );
+			mockGetEdgeTickWidths.mockReturnValue( { first: 0, last: 60 } );
 
 			const { result } = renderHook( () =>
 				useChartMargin( 300, datedXOptions(), data, baseTheme )
@@ -213,7 +213,7 @@ describe( 'useChartMargin', () => {
 		} );
 
 		it( 'keeps the default right margin when the last label fits inside it', () => {
-			mockGetEdgeTickWidths.mockReturnValue( { first: null, last: 30 } );
+			mockGetEdgeTickWidths.mockReturnValue( { first: 0, last: 30 } );
 
 			const { result } = renderHook( () =>
 				useChartMargin( 300, datedXOptions(), data, baseTheme )
@@ -223,7 +223,7 @@ describe( 'useChartMargin', () => {
 		} );
 
 		it( 'widens the left margin past the y-axis reservation when the first label needs it', () => {
-			mockGetEdgeTickWidths.mockReturnValue( { first: 120, last: null } );
+			mockGetEdgeTickWidths.mockReturnValue( { first: 120, last: 0 } );
 
 			const { result } = renderHook( () =>
 				useChartMargin( 300, datedXOptions(), data, baseTheme )
@@ -247,11 +247,39 @@ describe( 'useChartMargin', () => {
 
 			renderHook( () => useChartMargin( 300, datedXOptions(), data, theme ) );
 
-			// px, not the theme's bare 11: CSSOM drops a unitless length, so the
-			// measurer would silently fall back to the host's font size.
 			expect( mockGetEdgeTickWidths ).toHaveBeenCalledWith( tickValues, tickFormat, {
 				fontSize: '11px',
 			} );
+		} );
+
+		it( 'falls back to the raw tick label style when its font size is a relative unit', () => {
+			const theme = {
+				...baseTheme,
+				axisStyles: {
+					...baseTheme.axisStyles,
+					x: {
+						bottom: { tickLabel: { fontSize: '0.875rem' }, tickLength: 8 } as unknown as never,
+						top: {} as unknown as never,
+					},
+				},
+			} as XYChartTheme;
+
+			renderHook( () => useChartMargin( 300, datedXOptions(), data, theme ) );
+
+			expect( mockGetEdgeTickWidths ).toHaveBeenCalledWith( tickValues, tickFormat, {
+				fontSize: '0.875rem',
+			} );
+		} );
+
+		it( 'reserves the edge labels on a top x axis too', () => {
+			mockGetEdgeTickWidths.mockReturnValue( { first: 120, last: 60 } );
+
+			const { result } = renderHook( () =>
+				useChartMargin( 300, datedXOptions( { orientation: 'top' } ), data, baseTheme )
+			);
+
+			expect( result.current.right ).toBe( 30 );
+			expect( result.current.left ).toBe( 60 );
 		} );
 
 		it( 'reserves nothing for a hidden x axis', () => {
@@ -264,6 +292,66 @@ describe( 'useChartMargin', () => {
 			expect( mockGetEdgeTickWidths ).not.toHaveBeenCalled();
 			expect( result.current.right ).toBe( 20 );
 			expect( result.current.left ).toBe( 51 );
+		} );
+	} );
+
+	describe( 'real measurement', () => {
+		// Everything else here mocks the measurer out; this block runs it for real,
+		// so that a width that never reaches the margin would fail something.
+		const actual = jest.requireActual( '../../utils/get-edge-tick-widths' );
+		type Measurable = { getComputedTextLength?: () => number };
+
+		afterEach( () => {
+			delete ( window.SVGElement.prototype as Measurable ).getComputedTextLength;
+		} );
+
+		it( 'turns a measured edge label into a reserved margin', () => {
+			// jsdom ships no getComputedTextLength, so @visx/text cannot measure at all.
+			( window.SVGElement.prototype as Measurable ).getComputedTextLength = function (
+				this: SVGElement
+			) {
+				return ( this.textContent ?? '' ).length * 8;
+			};
+			mockGetEdgeTickWidths.mockImplementation( actual.getEdgeTickWidths );
+
+			const options = {
+				...optionsBase,
+				axis: {
+					...optionsBase.axis,
+					x: {
+						tickValues: [ 1, 2 ],
+						tickFormat: ( _value: number, index: number ) =>
+							index === 0 ? 'AA' : 'MEASURED-LAST',
+					},
+				},
+			};
+
+			const { result } = renderHook( () => useChartMargin( 300, options, data, baseTheme ) );
+
+			// 'MEASURED-LAST' is 13 characters, so 104px wide, and half of it is reserved.
+			expect( result.current.right ).toBe( 52 );
+		} );
+	} );
+
+	describe( 'y axis gutter', () => {
+		it( 'measures a caller-pinned domain rather than the data range', () => {
+			const options = { ...optionsBase, yScale: { domain: [ 0, 1 ] as [ number, number ] } };
+
+			renderHook( () => useChartMargin( 300, options, data, baseTheme ) );
+
+			const ticks = mockGetLongestTickWidth.mock.calls[ 0 ][ 0 ] as number[];
+			expect( Math.max( ...ticks ) ).toBeLessThanOrEqual( 1 );
+		} );
+
+		it( 'reserves no gutter for a hidden y axis', () => {
+			const options = {
+				...optionsBase,
+				axis: { ...optionsBase.axis, y: { ...optionsBase.axis.y, display: false } },
+			};
+
+			const { result } = renderHook( () => useChartMargin( 300, options, data, baseTheme ) );
+
+			expect( result.current.left ).toBe( 20 );
 		} );
 	} );
 

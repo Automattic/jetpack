@@ -242,11 +242,11 @@ export function ComparativeLineChart( {
 
 	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
 
-	// A pinned domain for percentage metrics and all-zero periods, with the left
-	// margin its widest tick needs. Null lets the chart scale to the data.
+	// A pinned domain for percentage metrics and all-zero periods. Null lets the
+	// chart scale to the data.
 	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData, yTickFormat ),
-		[ dataFormat.type, isEmptyData, yTickFormat ]
+		() => getFixedYAxis( dataFormat.type, isEmptyData ),
+		[ dataFormat.type, isEmptyData ]
 	);
 
 	const xTickFormat = useCallback(
@@ -278,8 +278,6 @@ export function ComparativeLineChart( {
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
 	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, fixedYAxis, isCompact ] );
 
-	const margin = fixedYAxis ? { left: fixedYAxis.marginLeft } : undefined;
-
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
 			<LineChart
@@ -289,8 +287,6 @@ export function ComparativeLineChart( {
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }
-				// A sparkline is full bleed: it hides both axes and gives their gutters to the line.
-				margin={ isCompact ? { right: 0, left: 0 } : margin }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
