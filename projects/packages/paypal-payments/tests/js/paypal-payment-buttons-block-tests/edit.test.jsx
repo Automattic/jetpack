@@ -1492,6 +1492,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( details().getByLabelText( 'Price' ) ).toHaveValue( 0 );
 			expect( screen.getByText( 'Create New' ) ).toBeDisabled();
+			// The field only reappeared because the option prices were cleared, so it says
+			// what is wrong instead of waiting for a blur that may never come.
+			expect( details().getByText( 'Price must be a positive number.' ) ).toBeInTheDocument();
+			expect( details().getByTestId( 'control-Price' ) ).toHaveClass( 'has-error' );
 		} );
 
 		it( 'leaves the product amount out of the create request', async () => {

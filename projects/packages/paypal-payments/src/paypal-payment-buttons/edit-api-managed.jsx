@@ -223,6 +223,14 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	/**
 	 * Whether the form is valid (no validation errors on required fields or variants).
 	 */
+	// The price field only hides while the options carry prices, so seeing it with product
+	// options on means the merchant has been in the pricing UI - say what is wrong rather
+	// than wait for a blur on a field they never asked for.
+	const priceError =
+		( touchedFields.price || variantsEnabled ) && validationErrors.price
+			? validationErrors.price
+			: null;
+
 	const isFormValid =
 		! validationErrors.productName &&
 		! validationErrors.price &&
@@ -578,14 +586,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									min={ priceStep }
 									step={ priceStep }
 									placeholder={ pricePlaceholder }
-									help={
-										touchedFields.price && validationErrors.price
-											? validationErrors.price
-											: undefined
-									}
-									className={
-										touchedFields.price && validationErrors.price ? 'has-error' : undefined
-									}
+									help={ priceError || undefined }
+									className={ priceError ? 'has-error' : undefined }
 								/>
 							</div>
 						) }
