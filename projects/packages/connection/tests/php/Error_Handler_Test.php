@@ -64,12 +64,7 @@ class Error_Handler_Test extends BaseTestCase {
 		\Jetpack_Options::delete_option( 'user_tokens' );
 
 		// Manager memoizes the connection owner, which jetpack_connect_user maps on.
-		$owner_id_property = new \ReflectionProperty( Manager::class, 'connection_owner_id' );
-		// @todo Remove this call once we no longer need to support PHP <8.1.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$owner_id_property->setAccessible( true );
-		}
-		$owner_id_property->setValue( null, null );
+		( new Manager() )-reset_connection_status();
 
 		// The gate is keyed by code + direction; clean every direction variant a test could
 		// have armed (including '' for a WP_Error built with no error_data).
