@@ -152,8 +152,9 @@ describe( 'LineChart', () => {
 			await user.keyboard( '{ArrowRight}' );
 
 			const content = screen.getByTestId( 'line-chart-tooltip-content' );
-			expect( content ).toHaveStyle( { color } );
-			expect( content ).toHaveStyle( { background } );
+			// Computed styles resolve inheritance and cannot distinguish an absent declaration.
+			expect( content.style.getPropertyValue( 'color' ) ).toBe( color );
+			expect( content.style.getPropertyValue( 'background' ) ).toBe( background );
 		}
 	);
 
