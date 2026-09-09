@@ -38,9 +38,10 @@ const findClippingAncestor = ( wrapper: Element ): Element | null => {
  * `TooltipWithBounds` decides it; then clamped so the box stays inside
  * `bounds` whenever it fits at all.
  *
- * The flip measures against the wrapper as well as `bounds`. Only the clamp
- * is bound by the page: a box that fits inside the chart on one side stays
- * there, so it does not reach past the chart into siblings that paint over it.
+ * The flip measures against the visible part of the wrapper, its intersection
+ * with `bounds`. Only the clamp is bound by the page: a box that fits inside the
+ * chart on one side stays there, so it does not reach past the chart into
+ * siblings that paint over it.
  *
  * @param params            - Anchor, offsets, the box size and the rects to keep inside.
  * @param params.left       - Anchor x, in wrapper coordinates.
@@ -69,22 +70,24 @@ export const getBoundedPosition = ( {
 	wrapper: Bounds;
 	bounds: Bounds;
 } ) => {
+	// The part of the wrapper that is not cut off: the flip keeps the box inside it.
+	const fit = {
+		left: Math.max( wrapper.left, bounds.left ),
+		top: Math.max( wrapper.top, bounds.top ),
+		right: Math.min( wrapper.right, bounds.right ),
+		bottom: Math.min( wrapper.bottom, bounds.bottom ),
+	};
+
 	const rightX = left + offsetLeft;
 	const leftX = left - offsetLeft - box.width;
-	const rightOverflow = Math.max(
-		rightX + box.width - wrapper.right,
-		rightX + box.width - bounds.right
-	);
-	const leftOverflow = Math.max( wrapper.left - leftX, bounds.left - leftX );
+	const rightOverflow = rightX + box.width - fit.right;
+	const leftOverflow = fit.left - leftX;
 	let x = rightOverflow > 0 && rightOverflow > leftOverflow ? leftX : rightX;
 
 	const downY = top + offsetTop;
 	const upY = top - offsetTop - box.height;
-	const downOverflow = Math.max(
-		downY + box.height - wrapper.bottom,
-		downY + box.height - bounds.bottom
-	);
-	const upOverflow = Math.max( wrapper.top - upY, bounds.top - upY );
+	const downOverflow = downY + box.height - fit.bottom;
+	const upOverflow = fit.top - upY;
 	let y = downOverflow > 0 && downOverflow > upOverflow ? upY : downY;
 
 	x = Math.min( Math.max( x, bounds.left ), Math.max( bounds.left, bounds.right - box.width ) );
