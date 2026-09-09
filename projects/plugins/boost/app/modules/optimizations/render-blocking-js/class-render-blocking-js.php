@@ -501,10 +501,10 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * Concatenated scripts share one <script> tag, but handle_exclusions() marks a script's own
 	 * tag - a concatenated script has none to mark, so this module would move it.
 	 *
-	 * @param bool   $do_concat Whether the script may be concatenated.
+	 * @param mixed  $do_concat Whether the script may be concatenated, as left by earlier filters.
 	 * @param string $handle    Script handle from register_ or enqueue_ methods.
 	 *
-	 * @return bool
+	 * @return mixed False when this module vetoes, otherwise $do_concat unchanged.
 	 */
 	public function should_concatenate( $do_concat, $handle ) {
 		if ( $do_concat && in_array( $handle, $this->get_exclude_handles(), true ) ) {
