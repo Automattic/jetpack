@@ -185,7 +185,7 @@ export default withSelect( select => {
 ## Hook `useConnectionStatusSummary`
 Reports the connection's standing for a status surface — a card, a badge, a health row: whether it is broken, which half broke, and how much it is this viewer's problem.
 
-Use it wherever a surface describes the connection in its own words. For the error *message* and its CTAs, use `useConnectionErrorNotice` (or the ready-made `ConnectionError` component) instead — both read the same displayable errors, so surfaces built on either cannot contradict each other.
+Use it wherever a surface describes the connection in its own words. For the error *message* and its CTAs, use `useConnectionErrorNotice` (or the ready-made `ConnectionError` component) instead — the summary reads the same `scope` and `severity` that hook derives, so surfaces built on either cannot rate the same break differently.
 
 ### Returns
 - *hasConnectionError* - boolean, whether there is an error worth showing this viewer. Another user's broken token is not one.
