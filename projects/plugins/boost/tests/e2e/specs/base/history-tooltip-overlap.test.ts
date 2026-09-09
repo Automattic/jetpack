@@ -5,29 +5,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { test, expect } from '@playwright/test';
-import type { Locator } from '@playwright/test';
 
 const pluginRoot = fileURLToPath( new URL( '../../../../', import.meta.url ) );
 let fixtureDirectory: string;
-
-/**
- * Verify that the tooltip pointer leaves the entire date label band clear.
- * @param chart   - Chart containing the date labels.
- * @param pointer - Visible tooltip pointer.
- */
-async function expectPointerBelowDateLabels( chart: Locator, pointer: Locator ) {
-	const labels = chart.locator( '.visx-axis-tick text' ).filter( {
-		hasText: /^[A-Z][a-z]{2} \d{1,2}$/,
-	} );
-	const dateLabels = await labels.all();
-	expect( dateLabels.length ).toBeGreaterThan( 0 );
-	const pointerBox = ( await pointer.boundingBox() )!;
-	for ( const label of dateLabels ) {
-		await expect( label ).toBeVisible();
-		const labelBox = ( await label.boundingBox() )!;
-		expect( pointerBox.y ).toBeGreaterThanOrEqual( labelBox.y + labelBox.height );
-	}
-}
 
 test.use( {
 	viewport: { width: 1280, height: 900 },
@@ -49,11 +29,16 @@ test.beforeAll( async () => {
 			'--output-path',
 			fixtureDirectory,
 		],
-		{ cwd: pluginRoot, maxBuffer: 10 * 1024 * 1024 }
+		{
+			cwd: pluginRoot,
+			maxBuffer: 10 * 1024 * 1024,
+			env: { ...process.env, NPM_CONFIG_USERCONFIG: '/dev/null' },
+		}
 	);
 } );
 
 test.beforeEach( async ( { page } ) => {
+	await page.clock.setFixedTime( new Date( '2026-09-09T12:00:00Z' ) );
 	await page.route( 'http://boost-history.test/**', async route => {
 		const filename = new URL( route.request().url() ).pathname.slice( 1 );
 		if ( [ 'history-tooltip.js', 'history-tooltip.css' ].includes( filename ) ) {
@@ -75,199 +60,100 @@ test.afterAll( async () => {
 	}
 } );
 
-test( 'History tooltip stays below the date axis with matching series colors', async ( {
-	page,
-} ) => {
-	const chart = page.locator( '.jetpack-boost-overview__chart-canvas' );
-	await expect( chart.locator( '.visx-annotationlabel' ).first() ).toBeVisible();
-	const grid = chart.getByRole( 'grid' );
-	const bounds = await grid.boundingBox();
-	await grid.hover( { position: { x: bounds!.width / 2, y: 10 } } );
-	const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
-	await expect( surface ).toBeVisible();
-	await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCSS(
-		'background-color',
-		'rgb(30, 30, 30)'
-	);
-	const upperPosition = await surface.boundingBox();
-	const date = await surface.locator( ':scope > :first-child' ).textContent();
-	await grid.hover( { position: { x: bounds!.width / 2, y: bounds!.height - 40 } } );
-	await expect( surface.locator( ':scope > :first-child' ) ).toHaveText( date! );
-	await expect
-		.poll( async () => ( await surface.boundingBox() )!.y )
-		.toBeCloseTo( upperPosition!.y, 0 );
-	const axis = await chart.locator( '.visx-axis-tick line' ).first().boundingBox();
-	const pointer = page.getByTestId( 'tooltip-axis-pointer' );
-	const tooltipBox = page.getByTestId( 'bounded-tooltip' );
-	const pointerPosition = ( await pointer.boundingBox() )!;
-	await expectPointerBelowDateLabels( chart, pointer );
-	expect( ( await tooltipBox.boundingBox() )!.y ).toBeCloseTo(
-		pointerPosition.y + pointerPosition.height,
-		0
-	);
-	expect( upperPosition!.y ).toBeGreaterThan( axis!.y );
-	await expect( page.getByRole( 'tooltip' ) ).toContainText( 'Desktop score' );
-	await expect( page.getByRole( 'tooltip' ) ).toContainText( 'Mobile score' );
-	const hoverColumn = chart.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
-	await expect( hoverColumn ).toHaveCSS( 'visibility', 'visible' );
-	await expect( hoverColumn ).not.toHaveCSS( 'display', 'none' );
-	const columnWidth = await hoverColumn.evaluate( element =>
-		parseFloat( getComputedStyle( element ).strokeWidth )
-	);
-	expect.soft( columnWidth ).toBe( 40 );
-	await expect.soft( hoverColumn ).toHaveCSS( 'stroke', 'rgb(244, 244, 244)' );
-	await expect.soft( hoverColumn ).toHaveCSS( 'mix-blend-mode', 'normal' );
-	const columnBounds = await hoverColumn.evaluate( element => {
-		const { x, width, height } = element.getBoundingClientRect();
-		return { x, width, height };
-	} );
-	expect( columnBounds.height ).toBeGreaterThan( 0 );
-	const pointerBounds = ( await pointer.boundingBox() )!;
-	expect( columnBounds.x + columnBounds.width / 2 ).toBeCloseTo(
-		pointerBounds.x + pointerBounds.width / 2,
-		0
-	);
-
-	const painted = await surface.evaluate( popup => {
-		const box = popup.getBoundingClientRect();
-		const style = document.createElement( 'style' );
-		style.textContent =
-			'.jetpack-boost-overview__history-tooltip, .jetpack-boost-overview__history-tooltip * { pointer-events: auto !important; }';
-		document.head.append( style );
-		try {
-			const hit = document.elementFromPoint( box.x + box.width / 2, box.bottom - 1 );
-			return !! hit && popup.contains( hit );
-		} finally {
-			style.remove();
+for ( const device of [ 'Desktop', 'Mobile' ] ) {
+	test( `${ device } daily bars show recorded scores and matching tooltip dots`, async ( {
+		page,
+	} ) => {
+		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
+		const bars = chart.locator( '.visx-bar' );
+		await expect( bars ).toHaveCount( 30 );
+		await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
+		await expect( page.getByRole( 'button', { name: 'Next 30 days' } ) ).toBeDisabled();
+		await bars.nth( 21 ).hover();
+		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		await expect( surface ).toBeVisible();
+		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
+			'September 1, 2026'
+		);
+		await expect( surface ).toContainText( 'Overall score' );
+		const sections = surface.locator( '.jetpack-boost-overview__tooltip-section' );
+		for ( const [ index, label, score, metrics ] of [
+			[ 1, 'Desktop score', '80 / 100', [ '1.20s', '0.10s', '0.01' ] ],
+			[ 2, 'Mobile score', '65 / 100', [ '2.10s', '0.30s', '0.04' ] ],
+		] as const ) {
+			const section = sections.nth( index );
+			await expect( section.locator( 'dt' ).first() ).toHaveText( label );
+			await expect( section.locator( 'dd' ) ).toHaveText( [ score, ...metrics ] );
+			await expect( section.locator( 'dt' ) ).toHaveText( [
+				label,
+				'Largest Contentful Paint',
+				'Total Blocking Time',
+				'Cumulative Layout Shift',
+			] );
+			const dot = section.locator( '.jetpack-boost-overview__series-swatch' );
+			const recordedBar = page
+				.getByRole( 'region', { name: `${ index === 1 ? 'Desktop' : 'Mobile' } score history` } )
+				.locator( '.visx-bar' )
+				.nth( 21 );
+			const fill = await recordedBar.evaluate( element => getComputedStyle( element ).fill );
+			await expect( dot ).toHaveCSS( 'background-color', fill );
+			const shape = await dot.evaluate( element => {
+				const style = getComputedStyle( element );
+				return {
+					width: parseFloat( style.width ),
+					height: parseFloat( style.height ),
+					radius: parseFloat( style.borderRadius ),
+				};
+			} );
+			expect( shape.width ).toBeGreaterThan( 0 );
+			expect( shape.width ).toBe( shape.height );
+			expect( shape.radius ).toBeGreaterThanOrEqual( shape.width / 2 );
 		}
 	} );
-	expect( painted, 'The tooltip content remains visible below the chart.' ).toBe( true );
-	const typography = await surface.evaluate( popup => {
-		const sections = Array.from(
-			popup.querySelectorAll( '.jetpack-boost-overview__tooltip-section' )
-		);
-		return {
-			dateWeight: getComputedStyle( popup.firstElementChild! ).fontWeight,
-			dateGap: parseFloat( getComputedStyle( popup.firstElementChild! ).marginBottom ),
-			devices: sections.slice( 1 ).map( section => ( {
-				headingWeight: getComputedStyle( section.children[ 0 ] ).fontWeight,
-				scoreWeight: getComputedStyle( section.children[ 1 ] ).fontWeight,
-				metricWeights: Array.from( section.children )
-					.slice( 2 )
-					.map( metric => getComputedStyle( metric ).fontWeight ),
-				rowGap: parseFloat( getComputedStyle( section ).rowGap ),
-				sectionGap: parseFloat( getComputedStyle( section ).marginTop ),
-			} ) ),
-		};
-	} );
-	expect( Number( typography.dateWeight ) ).toBeGreaterThan( 400 );
-	expect( typography.dateGap ).toBeGreaterThan( 0 );
-	for ( const device of typography.devices ) {
-		expect( Number( device.headingWeight ) ).toBeGreaterThan( 400 );
-		expect( device.scoreWeight ).toBe( device.headingWeight );
-		expect( device.metricWeights ).toEqual( Array( 6 ).fill( '400' ) );
-		expect( device.rowGap ).toBeGreaterThan( 0 );
-		expect( device.sectionGap ).toBeGreaterThan( 0 );
-	}
-	const colors = await surface.evaluate( popup => {
-		const element = document;
-		const swatches = Array.from(
-			popup.querySelectorAll( '.jetpack-boost-overview__series-swatch' )
-		);
-		return {
-			labels: Array.from(
-				element.querySelectorAll( '[data-testid="legend-label"]' ),
-				node => node.textContent
-			),
-			tooltipLabels: swatches.map( node => node.parentElement!.textContent ),
-			swatches: swatches.map( node => getComputedStyle( node ).backgroundColor ),
-			legend: Array.from(
-				element.querySelectorAll( '.visx-legend-shape line' ),
-				node => getComputedStyle( node ).stroke
-			),
-			lines: Array.from(
-				element.querySelectorAll( 'path.visx-line' ),
-				node => getComputedStyle( node ).stroke
-			),
-			areas: Array.from(
-				element.querySelectorAll( 'path.visx-area' ),
-				node => getComputedStyle( node ).fill
-			),
-		};
-	} );
-	expect( colors.labels ).toEqual( [ 'Desktop', 'Mobile' ] );
-	expect( colors.tooltipLabels ).toEqual( [ 'Desktop score', 'Mobile score' ] );
-	expect( colors.swatches ).toHaveLength( 2 );
-	expect( new Set( colors.swatches ).size ).toBe( 2 );
-	expect( colors.legend ).toEqual( colors.swatches );
-	expect( colors.lines ).toEqual( colors.swatches );
-	expect( colors.lines ).toEqual( [ 'rgb(56, 88, 233)', 'rgb(0, 128, 48)' ] );
-	expect( colors.areas.every( fill => fill === 'none' || fill === 'rgba(0, 0, 0, 0)' ) ).toBe(
-		true
-	);
-} );
 
-test( 'History tooltip follows the hovered date and stays within a narrow viewport', async ( {
-	page,
-} ) => {
-	await page.setViewportSize( { width: 390, height: 900 } );
-	const chart = page.locator( '.jetpack-boost-overview__chart-canvas' );
-	const grid = chart.getByRole( 'grid' );
-	const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
-	await expect.poll( async () => ( await grid.boundingBox() )!.width ).toBeLessThan( 390 );
-	const axis = await chart.locator( '.visx-axis-tick line' ).first().boundingBox();
-	const positions = [];
-	for ( const [ fraction, date ] of [
-		[ 0, 'September 1, 2026' ],
-		[ 1, 'September 7, 2026' ],
-	] as const ) {
-		const datePoint = await chart
-			.locator( 'path.visx-line' )
-			.first()
-			.evaluate( ( element, end ) => {
-				const line = element as SVGPathElement;
-				const point = line.getPointAtLength( end * line.getTotalLength() );
-				const screenPoint = point.matrixTransform( line.getScreenCTM()! );
-				return { x: screenPoint.x, y: screenPoint.y };
-			}, fraction );
-		await page.mouse.move( datePoint.x, datePoint.y );
-		await expect( surface.locator( ':scope > :first-child' ) ).toHaveText( date );
-		const popup = ( await surface.boundingBox() )!;
-		expect( popup.x ).toBeGreaterThanOrEqual( 0 );
-		expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
-		expect( popup.y ).toBeGreaterThan( axis!.y );
-		const pointerElement = page.getByTestId( 'tooltip-axis-pointer' );
-		const pointer = ( await pointerElement.boundingBox() )!;
-		await expectPointerBelowDateLabels( chart, pointerElement );
-		expect( pointer.x + pointer.width / 2 ).toBeCloseTo( datePoint.x, 0 );
-		positions.push( popup );
-	}
-	expect( positions[ 1 ].x ).toBeGreaterThan( positions[ 0 ].x );
-	expect( positions[ 1 ].y ).toBeCloseTo( positions[ 0 ].y, 0 );
-	await page.mouse.move( 0, 0 );
-	await grid.focus();
-	await grid.press( 'ArrowRight' );
-	await expect( surface ).toBeVisible();
-	const keyboardDate = await surface.locator( ':scope > :first-child' ).textContent();
-	await grid.press( 'ArrowRight' );
-	await expect( surface.locator( ':scope > :first-child' ) ).not.toHaveText( keyboardDate! );
-	expect( ( await surface.boundingBox() )!.y ).toBeCloseTo( positions[ 0 ].y, 0 );
-	await expectPointerBelowDateLabels( chart, page.getByTestId( 'tooltip-axis-pointer' ) );
-} );
+	test( `${ device } empty days and recorded tooltips work at narrow widths`, async ( { page } ) => {
+		await page.setViewportSize( { width: 390, height: 900 } );
+		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
+		const bars = chart.locator( '.visx-bar' );
+		await expect( bars ).toHaveCount( 30 );
+		await expect( bars.first() ).toHaveCSS( 'fill', 'none' );
+		await expect( bars.first() ).not.toHaveCSS( 'stroke-dasharray', 'none' );
+		const grid = chart.getByRole( 'grid' );
+		await grid.focus();
+		await page.keyboard.press( 'ArrowRight' );
+		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		await expect( surface ).toContainText( 'August 11, 2026' );
+		await expect( surface ).toContainText( 'No score recorded before you unlocked this feature.' );
+		await page.keyboard.press( 'ArrowRight' );
+		await expect( surface ).toContainText( 'August 12, 2026' );
+		await page.keyboard.press( 'Escape' );
+		await expect( surface ).toBeHidden();
+		for ( const [ index, date ] of [
+			[ 21, 'September 1, 2026' ],
+			[ 27, 'September 7, 2026' ],
+		] as const ) {
+			await bars.nth( index ).hover();
+			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
+			const popup = ( await surface.boundingBox() )!;
+			expect( popup.x ).toBeGreaterThanOrEqual( 0 );
+			expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
+		}
+	} );
+}
 
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
 	page,
 } ) => {
-	const grid = page.getByRole( 'grid' );
+	const grid = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
 	await grid.focus();
-	await grid.press( 'ArrowRight' );
+	await page.keyboard.press( 'ArrowRight' );
 	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
 	await grid.focus();
-	await grid.press( 'ArrowRight' );
+	await page.keyboard.press( 'ArrowRight' );
 	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
 } );
 
