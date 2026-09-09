@@ -258,17 +258,6 @@ $twitter-pofile-image-padding: 17px;
 
 .jp-stats-odyssey-disabled-notice {
 
-	@include breakpoints.breakpoint("<480px") {
-
-		a.dops-notice__action {
-			white-space: initial;
-		}
-
-		a.dops-notice__action .gridicon {
-			display: none;
-		}
-	}
-
 	@include breakpoints.breakpoint(">480px") {
 		width: calc(100% - 26px);
 	}
