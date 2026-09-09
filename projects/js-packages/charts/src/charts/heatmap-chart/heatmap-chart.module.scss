@@ -114,12 +114,16 @@ $focus-ring-width: var(--wpds-border-width-focus);
 }
 
 // A roll-up beside the grid, on another scale from it: no fill, its figure
-// always printed and emphasised, set one gap apart from the data columns.
+// always printed and emphasised. The margin is deliberate on top of the grid's
+// own gap: the roll-up sits one gap further from the data columns than they
+// sit from each other, the way a table sets its totals apart, and the auto
+// track grows by the same amount.
 .heatmap-chart__cell--summary {
 	background: none;
 	margin-inline-start: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs));
 }
 
+// The same offset as its cells, so the label stays over them.
 .heatmap-chart__col-label--summary {
 	margin-inline-start: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs));
 	font-weight: var(--wpds-typography-font-weight-emphasis);
