@@ -376,6 +376,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertStringContainsString( 'Get started', $links[0] );
+		$this->assertStringNotContainsString( 'target=', $links[0] );
 		$this->assertStringContainsString( 'wordpress.com/plugins/gravityforms/', $links[0] );
 		$this->assertStringNotContainsString( 'install-now', $links[0] );
 

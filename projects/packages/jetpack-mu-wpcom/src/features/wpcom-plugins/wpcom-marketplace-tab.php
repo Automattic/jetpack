@@ -167,8 +167,9 @@ function wpcom_marketplace_action_links( $action_links, $plugin ) {
 		return $action_links;
 	}
 
+	// Same tab, like every other button on this screen.
 	$button = sprintf(
-		'<a class="button" href="%s" aria-label="%s" target="_blank" rel="noopener">%s</a>',
+		'<a class="button" href="%s" aria-label="%s">%s</a>',
 		esc_url( Marketplace_Catalog::product_url( $plugin['wpcom_product_slug'] ?? $plugin['slug'] ) ),
 		/* translators: %s: Plugin name. */
 		esc_attr( sprintf( __( 'Get started with %s', 'jetpack-mu-wpcom' ), $plugin['name'] ?? $plugin['slug'] ) ),
