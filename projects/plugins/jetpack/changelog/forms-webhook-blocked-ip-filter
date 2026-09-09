@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: Add a filter to allow webhook destinations that would otherwise be rejected as internal.

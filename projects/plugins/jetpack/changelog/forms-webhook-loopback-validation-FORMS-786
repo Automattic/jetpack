@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Block webhook URLs that point at loopback or unspecified addresses.
