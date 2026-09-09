@@ -23,9 +23,13 @@ export function formatViewCount( count: number ): string {
  * than a total. Kept beside `formatViewCount` so the two plural sets stay together.
  */
 export function formatDailyViewCount( count: number ): string {
+	// Rounded once for both the plural and the figure, so a fractional rate
+	// cannot read "1 views per day".
+	const views = Math.round( count );
+
 	return sprintf(
 		/* translators: %s: average number of views per day, e.g. "2,033". */
-		_n( '%s view per day', '%s views per day', count, 'jetpack-premium-analytics-pkg' ),
-		formatMetricValue( count, 'number', { decimals: 0 } )
+		_n( '%s view per day', '%s views per day', views, 'jetpack-premium-analytics-pkg' ),
+		formatMetricValue( views, 'number', { decimals: 0 } )
 	);
 }
