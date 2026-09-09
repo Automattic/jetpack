@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { Notice as WPNotice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
@@ -45,12 +46,17 @@ const Notice = ( {
 				styles[ `notice--${ type }` ],
 				floating && styles[ 'notice--floating' ]
 			) }
-			// Only the floating toast appears without a focus change, so only it needs
-			// announcing. The other two sit in a modal that is read when it opens.
-			spokenMessage={ floating ? message : null }
+			// The legacy notice never announced, and none of the three call sites
+			// sits in a live region. Announcing is a separate change.
+			spokenMessage={ null }
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
-			{ dismissable && <WPNotice.CloseIcon onClick={ onClose } /> }
+			{ dismissable && (
+				<WPNotice.CloseIcon
+					label={ __( 'Dismiss notice.', 'jetpack-protect' ) }
+					onClick={ onClose }
+				/>
+			) }
 		</WPNotice.Root>
 	);
 };
