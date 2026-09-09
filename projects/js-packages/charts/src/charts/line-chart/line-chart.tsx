@@ -114,7 +114,7 @@ const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution
  */
 export const renderDefaultTooltip = (
 	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo },
-	inheritStyles = false
+	inheritStyles: boolean | LineChartProps[ 'tooltipStyle' ] = false
 ) => {
 	const { tooltipData, bucketInfo } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -131,7 +131,15 @@ export const renderDefaultTooltip = (
 		<div
 			className={ styles[ 'line-chart__tooltip' ] }
 			data-testid="line-chart-tooltip-content"
-			style={ inheritStyles ? { background: 'inherit', color: 'inherit' } : undefined }
+			style={ {
+				background:
+					inheritStyles === true ||
+					( inheritStyles && ( inheritStyles.background || inheritStyles.backgroundColor ) )
+						? 'inherit'
+						: undefined,
+				color:
+					inheritStyles === true || ( inheritStyles && inheritStyles.color ) ? 'inherit' : undefined,
+			} }
 		>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
 				<TooltipDate
@@ -486,7 +494,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		const tooltipRenderer = useMemo(
 			() => ( params: RenderTooltipParams< DataPointDate > ) =>
 				renderTooltip === renderDefaultTooltip
-					? renderDefaultTooltip( { ...params, bucketInfo }, Boolean( tooltipStyle ) )
+					? renderDefaultTooltip( { ...params, bucketInfo }, tooltipStyle )
 					: renderTooltip( { ...params, bucketInfo } ),
 			[ renderTooltip, bucketInfo, tooltipStyle ]
 		);
