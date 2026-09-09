@@ -118,10 +118,24 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 			'September 1, 2026'
 		);
 		await expect( surface ).toContainText( 'Overall score' );
+		await expect( surface ).toHaveCSS( 'width', '265px' );
+		await expect( surface ).toHaveCSS( 'height', '382px' );
+		await expect( surface ).toHaveCSS( 'padding', '17px' );
+		const popupBox = ( await surface.boundingBox() )!;
+		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
+		const cardBox = ( await page
+			.getByText( 'Last 30 days scores', { exact: true } )
+			.boundingBox() )!;
+		expect( popupBox.x ).toBeGreaterThanOrEqual( Math.floor( hoveredBar.x + hoveredBar.width ) );
+		expect( popupBox.y ).toBeLessThan( cardBox.y + cardBox.height );
+		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
+			'font-weight',
+			'400'
+		);
 		const sections = surface.locator( '.jetpack-boost-overview__tooltip-section' );
 		for ( const [ index, label, score, metrics ] of [
-			[ 1, 'Desktop score', '80 / 100', [ '1.20s', '0.10s', '0.01' ] ],
-			[ 2, 'Mobile score', '65 / 100', [ '2.10s', '0.30s', '0.04' ] ],
+			[ 1, 'Desktop', '80/100', [ '1.20s', '0.10s', '0.01' ] ],
+			[ 2, 'Mobile', '65/100', [ '2.10s', '0.30s', '0.04' ] ],
 		] as const ) {
 			const section = sections.nth( index );
 			await expect( section.locator( 'dt' ).first() ).toHaveText( label );
@@ -148,7 +162,21 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 				};
 			} );
 			expect( shape.width ).toBeGreaterThan( 0 );
-			expect( shape.width ).toBe( shape.height );
+			expect( shape.width ).toBe( 8 );
+			expect( shape.height ).toBe( 8 );
+			const dotPosition = await dot.evaluate( element => {
+				const labelElement = element.parentElement!;
+				const range = document.createRange();
+				range.selectNodeContents( labelElement.firstChild! );
+				return element.getBoundingClientRect().left - range.getBoundingClientRect().right;
+			} );
+			expect( dotPosition ).toBeCloseTo( 8, 0 );
+			const values = await section
+				.locator( 'dd' )
+				.evaluateAll( elements =>
+					elements.map( element => element.getBoundingClientRect().right )
+				);
+			expect( Math.max( ...values ) - Math.min( ...values ) ).toBeLessThan( 1 );
 			expect( shape.radius ).toBeGreaterThanOrEqual( shape.width / 2 );
 		}
 	} );
@@ -189,7 +217,10 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
 		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
-		await expect( surface ).toContainText( '0 / 100' );
+		await expect( surface ).toContainText( '0/100' );
+		const flippedPopup = ( await surface.boundingBox() )!;
+		const rightmostBar = ( await zeroBar.boundingBox() )!;
+		expect( flippedPopup.x + flippedPopup.width ).toBeLessThan( rightmostBar.x );
 	} );
 }
 
@@ -220,6 +251,13 @@ test( 'uses compact plots with three horizontal gridlines and no band legend', a
 	await expect( tooltip ).toContainText( 'No score recorded before you unlocked this feature.' );
 	await expect( tooltip ).toHaveCSS( 'width', '265px' );
 	await expect( tooltip ).toHaveCSS( 'height', '106px' );
+	const emptyPopup = ( await tooltip.boundingBox() )!;
+	expect( emptyPopup.y ).toBeGreaterThanOrEqual( firstPanel.y );
+	expect( emptyPopup.y + emptyPopup.height ).toBeLessThanOrEqual( secondSvg.y + secondSvg.height );
+	await expect( tooltip.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
+		'font-weight',
+		'600'
+	);
 } );
 
 test( 'an all-zero window paints recorded scores separately from empty slots', async ( {

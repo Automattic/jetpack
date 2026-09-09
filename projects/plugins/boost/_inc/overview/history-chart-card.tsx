@@ -84,6 +84,9 @@ export function HistoryTooltip( {
 				{ ( [ 'desktop', 'mobile' ] as const ).map( device => (
 					<div key={ device } className="jetpack-boost-overview__tooltip-section">
 						<dt>
+							{ device === 'desktop'
+								? __( 'Desktop', 'jetpack-boost' )
+								: __( 'Mobile', 'jetpack-boost' ) }
 							<span
 								className="jetpack-boost-overview__series-swatch"
 								style={ {
@@ -93,14 +96,11 @@ export function HistoryTooltip( {
 								} }
 								aria-hidden="true"
 							/>
-							{ device === 'desktop'
-								? __( 'Desktop score', 'jetpack-boost' )
-								: __( 'Mobile score', 'jetpack-boost' ) }
 						</dt>
 						<dd>
 							{ sprintf(
 								/* translators: %d is the performance score. */
-								__( '%d / 100', 'jetpack-boost' ),
+								__( '%d/100', 'jetpack-boost' ),
 								dimensions[ `${ device }_overall_score` ]
 							) }
 						</dd>
@@ -127,7 +127,11 @@ export function HistoryTooltip( {
 			</dl>
 		</>
 	);
-	return <div className="jetpack-boost-overview__history-tooltip">{ content }</div>;
+	return (
+		<div className="jetpack-boost-overview__history-tooltip boost-daily-history__score-tooltip">
+			{ content }
+		</div>
+	);
 }
 
 export default function HistoryChartCard( {
@@ -256,6 +260,16 @@ export default function HistoryChartCard( {
 										withTooltips
 										gridVisibility="x"
 										onCategoryHighlightChange={ updateHighlight }
+										tooltipPlacement={
+											days.some( day => day.period && day.date === highlight?.datum.label )
+												? 'beside'
+												: 'auto'
+										}
+										tooltipAnchorTop={
+											days.some( day => day.period && day.date === highlight?.datum.label )
+												? -96 - index * 149
+												: undefined
+										}
 										margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
 										options={ {
 											xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
