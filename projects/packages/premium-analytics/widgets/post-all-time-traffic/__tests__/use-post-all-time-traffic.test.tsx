@@ -16,6 +16,7 @@ const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
 const STATS_POST_RESPONSE = {
 	years: { '2026': { total: 45, months: { '1': 5, '3': 40 } } },
+	averages: { '2026': { overall: 3, months: { '1': 1, '3': 8 } } },
 	post: { ID: 779, post_date: '2026-01-10 16:27:32' },
 };
 
@@ -36,13 +37,13 @@ describe( 'usePostAllTimeTraffic', () => {
 	} );
 
 	it( 'requests the yearly tables and the post row, and builds the rows from them', async () => {
-		const { result } = renderHook( () => usePostAllTimeTraffic( 779 ), { wrapper } );
+		const { result } = renderHook( () => usePostAllTimeTraffic( 779, 'total' ), { wrapper } );
 
 		await waitFor( () => expect( result.current.rows ).toHaveLength( 1 ) );
 
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 		expect( String( mockApiFetch.mock.calls[ 0 ][ 0 ].path ) ).toMatch(
-			/stats\/post\/779.*fields=years(%2C|,)post/
+			/stats\/post\/779.*fields=years(%2C|,)averages(%2C|,)post/
 		);
 
 		expect( result.current.rows[ 0 ].year ).toBe( 2026 );
@@ -55,15 +56,29 @@ describe( 'usePostAllTimeTraffic', () => {
 			...STATS_POST_RESPONSE,
 			post: { ID: 779, post_date: '2026-03-05 10:00:00' },
 		} );
-		const { result } = renderHook( () => usePostAllTimeTraffic( 779 ), { wrapper } );
+		const { result } = renderHook( () => usePostAllTimeTraffic( 779, 'total' ), { wrapper } );
 
 		await waitFor( () => expect( result.current.rows ).toHaveLength( 1 ) );
 
 		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2026-01-01T00:00:00.000Z' );
 	} );
 
+	it( 'switches to the per-day averages without refetching', async () => {
+		const { result, rerender } = renderHook(
+			( { metric }: { metric: 'total' | 'average' } ) => usePostAllTimeTraffic( 779, metric ),
+			{ wrapper, initialProps: { metric: 'total' } }
+		);
+
+		await waitFor( () => expect( result.current.rows ).toHaveLength( 1 ) );
+
+		rerender( { metric: 'average' } );
+
+		expect( result.current.rows[ 0 ].months.slice( 0, 3 ) ).toEqual( [ 1, 0, 8 ] );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'never requests without a post scope', () => {
-		const { result } = renderHook( () => usePostAllTimeTraffic( 0 ), { wrapper } );
+		const { result } = renderHook( () => usePostAllTimeTraffic( 0, 'total' ), { wrapper } );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 		expect( result.current.rows ).toEqual( [] );
