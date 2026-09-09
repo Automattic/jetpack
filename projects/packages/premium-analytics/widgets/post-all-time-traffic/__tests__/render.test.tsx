@@ -125,6 +125,9 @@ const NOVEMBER_2025 = {
 	to: new Date( '2025-11-30T23:59:59.999Z' ),
 };
 
+// The current year closes the table, so the clock is pinned: the rows are 2026 and 2025.
+const NOW = new Date( '2026-03-15T12:00:00.000Z' );
+
 // `null` renders the widget without a post scope.
 function renderWidget( postId: number | null = 779 ) {
 	return render(
@@ -146,6 +149,12 @@ describe( 'PostAllTimeTraffic widget', () => {
 		mockOnApply.mockReset();
 		mockUseStatsPost.mockReset();
 		mockUseStatsPost.mockReturnValue( statsPostResult( RESPONSE ) );
+		jest.useFakeTimers();
+		jest.setSystemTime( NOW );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'lays the years out newest first over the site month names', () => {
@@ -167,7 +176,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 	} );
 
 	it( 'applies a clicked month to the page as a custom range cut to the post life', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
 		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025' } ) );
@@ -177,7 +186,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 	} );
 
 	it( 'opens the keyboard-selected month on Enter', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
 		screen.getByRole( 'grid', { name: 'heatmap' } ).focus();
@@ -188,7 +197,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 	} );
 
 	it( 'leaves the page alone for keys that do not activate', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
 		screen.getByRole( 'grid', { name: 'heatmap' } ).focus();
@@ -219,7 +228,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 		mockUseStatsPost.mockReturnValue(
 			statsPostResult( undefined, { isError: true, error: new Error( 'boom' ), refetch } )
 		);
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
 		expect(

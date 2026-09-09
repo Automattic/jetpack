@@ -19,11 +19,20 @@ const STATS_POST_RESPONSE = {
 	post: { ID: 779, post_date: '2026-01-10 16:27:32' },
 };
 
+// The current year closes the table, so the clock is pinned to the fixture's year.
+const NOW = new Date( '2026-03-15T12:00:00.000Z' );
+
 describe( 'usePostAllTimeTraffic', () => {
 	beforeEach( () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( STATS_POST_RESPONSE );
+		jest.useFakeTimers();
+		jest.setSystemTime( NOW );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'requests the yearly tables and the post row, and builds the rows from them', async () => {
