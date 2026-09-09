@@ -116,6 +116,9 @@ class PayPal_API_Client {
 	/**
 	 * List payment resources with optional pagination.
 	 *
+	 * The 10 is PayPal's own default when the parameter is omitted. Callers that
+	 * care state their own - the REST route asks for 100, the admin table PER_PAGE.
+	 *
 	 * @param int    $page_size  Number of results per page. Default 10.
 	 * @param string $page_token Pagination cursor from a previous response. Default empty.
 	 * @return array|\WP_Error Decoded response body on success (HTTP 200), WP_Error on failure.

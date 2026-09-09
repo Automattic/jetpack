@@ -977,6 +977,23 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * A list request with no page size asks PayPal for a full page.
+	 *
+	 * PayPal cannot search server-side, so a short page silently hides links from
+	 * whoever has to filter them.
+	 */
+	public function test_list_route_defaults_to_a_full_page() {
+		$this->assertStringContainsString( 'page_size=100', $this->capture_list_route_url() );
+	}
+
+	/**
+	 * An explicit page size overrides the default.
+	 */
+	public function test_list_route_honors_an_explicit_page_size() {
+		$this->assertStringContainsString( 'page_size=25', $this->capture_list_route_url( array( 'page_size' => 25 ) ) );
+	}
+
+	/**
 	 * The site must never proxy to a route it serves itself.
 	 *
 	 * The Jetpack plugin registers wpcom/v2/paypal/platform/signup-link for the
@@ -1402,6 +1419,50 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$body = json_decode( $sent, true );
 
 		return $body['line_items'][0];
+	}
+
+	/**
+	 * Dispatch a list request against a mocked PayPal and return the URL it built.
+	 *
+	 * @param array $params Query parameters to set on the request.
+	 * @return string The URL that reached PayPal.
+	 */
+	private function capture_list_route_url( array $params = array() ) {
+		$this->set_up_connected_admin_state();
+		$this->register_paypal_routes();
+
+		$captured_url = null;
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$captured_url ) {
+				$captured_url = $url;
+
+				return $preempt;
+			},
+			9,
+			3
+		);
+
+		$this->mock_http_routes(
+			array( '/v1/checkout/payment-resources' => $this->http_response( 200, array( 'resources' => array() ) ) )
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons' );
+		foreach ( $params as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame(
+			200,
+			$response->get_status(),
+			'The route rejected the request: ' . wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES )
+		);
+		$this->assertStringContainsString( '/v1/checkout/payment-resources', (string) $captured_url, 'No list request reached PayPal.' );
+
+		return $captured_url;
 	}
 
 	/**

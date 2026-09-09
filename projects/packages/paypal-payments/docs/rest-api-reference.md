@@ -175,17 +175,21 @@ List payment resources with pagination.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `page_size` | integer | No | `10` | Results per page (1–100) |
+| `page_size` | integer | No | `100` | Results per page (1–100) |
 | `page_token` | string | No | — | Pagination cursor |
 
 **Response (200):**
 
 ```json
 {
-  "items": [ ... ],
-  "total_items": 5
+  "resources": [ ... ],
+  "total_items": 5,
+  "total_pages": 1,
+  "links": [ { "rel": "next", "href": "..." } ]
 }
 ```
+
+PayPal's body is passed through as-is. `links` carries a `next` only when more pages remain.
 
 ---
 

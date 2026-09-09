@@ -226,14 +226,18 @@ class PayPal_REST_Controller {
 					'callback'            => array( __CLASS__, 'handle_list_buttons' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
 					'args'                => array(
+						// PayPal cannot search or filter server-side, so a short page just
+						// hides links from whoever has to filter them. Send a full one.
 						'page_size'  => array(
-							'required' => false,
-							'type'     => 'integer',
-							'default'  => 10,
-							'minimum'  => 1,
-							'maximum'  => 100,
+							'description' => __( 'Payment resources per page.', 'jetpack-paypal-payments' ),
+							'required'    => false,
+							'type'        => 'integer',
+							'default'     => 100,
+							'minimum'     => 1,
+							'maximum'     => 100,
 						),
 						'page_token' => array(
+							'description'       => __( 'Cursor from the previous page\'s next link.', 'jetpack-paypal-payments' ),
 							'required'          => false,
 							'type'              => 'string',
 							'default'           => '',
