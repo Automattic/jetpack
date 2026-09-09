@@ -275,12 +275,12 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_heading_quotes_plan_name_and_days(): void {
-		$heading = wpcom_expiry_notices_admin_banner_heading( $this->message_state() );
+		$heading = wpcom_expiry_notices_banner_heading( $this->message_state() );
 		$this->assertSame( 'Your Business plan expires in 45 days', $heading );
 	}
 
 	public function test_heading_expires_today_never_says_expired(): void {
-		$heading = wpcom_expiry_notices_admin_banner_heading( $this->message_state( array( 'days_remaining' => 0 ) ) );
+		$heading = wpcom_expiry_notices_banner_heading( $this->message_state( array( 'days_remaining' => 0 ) ) );
 		$this->assertSame( 'Your Business plan expires today', $heading );
 	}
 
@@ -291,31 +291,31 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 				'days_remaining' => -5,
 			)
 		);
-		$this->assertSame( 'Your Business plan has expired', wpcom_expiry_notices_admin_banner_heading( $state ) );
+		$this->assertSame( 'Your Business plan has expired', wpcom_expiry_notices_banner_heading( $state ) );
 	}
 
 	public function test_heading_without_plan_name(): void {
 		$state = $this->message_state( array( 'plan_name' => null ) );
-		$this->assertSame( 'Your plan expires in 45 days', wpcom_expiry_notices_admin_banner_heading( $state ) );
+		$this->assertSame( 'Your plan expires in 45 days', wpcom_expiry_notices_banner_heading( $state ) );
 	}
 
 	public function test_body_early_warning_names_the_expiry_date(): void {
 		update_option( 'date_format', 'F j, Y' );
 		$state = $this->message_state( array( 'expiry_ts' => 1767225600 ) ); // 2026-01-01.
-		$body  = wpcom_expiry_notices_admin_banner_body( $state );
+		$body  = wpcom_expiry_notices_banner_body( $state, true );
 		$this->assertStringContainsString( 'After January 1, 2026,', $body );
 		$this->assertStringContainsString( '50 GB of storage', $body );
 	}
 
 	public function test_body_early_warning_drops_the_date_when_it_cannot_be_formatted(): void {
 		update_option( 'date_format', '' );
-		$body = wpcom_expiry_notices_admin_banner_body( $this->message_state() );
+		$body = wpcom_expiry_notices_banner_body( $this->message_state(), true );
 		$this->assertStringStartsWith( 'Your site will move to the Free plan,', $body );
 		$this->assertStringContainsString( '50 GB of storage', $body );
 	}
 
 	public function test_body_final_week_asks_for_renewal(): void {
-		$body = wpcom_expiry_notices_admin_banner_body( $this->message_state( array( 'days_remaining' => 5 ) ) );
+		$body = wpcom_expiry_notices_banner_body( $this->message_state( array( 'days_remaining' => 5 ) ), true );
 		$this->assertSame(
 			'Your site will move to the Free plan and you’ll lose plugins, custom themes, and 50 GB of storage. Renew now to keep everything in place.',
 			$body
@@ -323,14 +323,14 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_body_day_of_expiry(): void {
-		$body = wpcom_expiry_notices_admin_banner_body( $this->message_state( array( 'days_remaining' => 0 ) ) );
+		$body = wpcom_expiry_notices_banner_body( $this->message_state( array( 'days_remaining' => 0 ) ), true );
 		$this->assertStringContainsString( 'Unless you renew your plan', $body );
 		$this->assertStringContainsString( 'Renew now to keep everything in place.', $body );
 	}
 
 	public function test_heading_counts_down_neutrally_when_auto_renew_on(): void {
 		$state = $this->message_state( array( 'auto_renew' => true ) );
-		$this->assertSame( 'Your Business plan has 45 days remaining', wpcom_expiry_notices_admin_banner_heading( $state ) );
+		$this->assertSame( 'Your Business plan has 45 days remaining', wpcom_expiry_notices_banner_heading( $state ) );
 	}
 
 	public function test_heading_on_day_of_expiry_is_the_same_either_way(): void {
@@ -340,14 +340,14 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 				'auto_renew'     => true,
 			)
 		);
-		$this->assertSame( 'Your Business plan expires today', wpcom_expiry_notices_admin_banner_heading( $state ) );
+		$this->assertSame( 'Your Business plan expires today', wpcom_expiry_notices_banner_heading( $state ) );
 	}
 
 	public function test_body_before_the_final_week_is_conditional_when_auto_renew_on(): void {
 		$state = $this->message_state( array( 'auto_renew' => true ) );
 		$this->assertSame(
 			'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and 50 GB of storage.',
-			wpcom_expiry_notices_admin_banner_body( $state )
+			wpcom_expiry_notices_banner_body( $state, true )
 		);
 	}
 
@@ -360,7 +360,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertSame(
 			'If renewal doesn’t go through, your site will move to the Free plan and you’ll lose plugins, custom themes, and 50 GB of storage. Renew now to keep everything in place.',
-			wpcom_expiry_notices_admin_banner_body( $state )
+			wpcom_expiry_notices_banner_body( $state, true )
 		);
 	}
 
@@ -371,7 +371,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 				'auto_renew'     => true,
 			)
 		);
-		$body  = wpcom_expiry_notices_admin_banner_body( $state );
+		$body  = wpcom_expiry_notices_banner_body( $state, true );
 		$this->assertStringStartsWith( 'If renewal doesn’t go through,', $body );
 		$this->assertStringNotContainsString( 'Unless you renew your plan', $body );
 	}
@@ -384,7 +384,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 				'auto_renew'     => true,
 			)
 		);
-		$this->assertStringContainsString( 'If renewal doesn’t go through', wpcom_expiry_notices_admin_banner_body( $state ) );
+		$this->assertStringContainsString( 'If renewal doesn’t go through', wpcom_expiry_notices_banner_body( $state, true ) );
 	}
 
 	public function test_body_grace_without_auto_renew_is_unconditional(): void {
@@ -394,7 +394,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 				'days_remaining' => -5,
 			)
 		);
-		$body  = wpcom_expiry_notices_admin_banner_body( $state );
+		$body  = wpcom_expiry_notices_banner_body( $state, true );
 		$this->assertStringStartsWith( 'Your site will move to the Free plan.', $body );
 		$this->assertStringContainsString( 'But it’s not too late.', $body );
 	}
@@ -417,7 +417,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertSame(
 			'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or 50 GB of storage. Contact support to get help restoring it.',
-			wpcom_expiry_notices_admin_banner_body( $state )
+			wpcom_expiry_notices_banner_body( $state, true )
 		);
 	}
 
@@ -429,7 +429,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 				'is_atomic'      => false,
 			)
 		);
-		$body  = wpcom_expiry_notices_admin_banner_body( $state );
+		$body  = wpcom_expiry_notices_banner_body( $state, true );
 		$this->assertStringNotContainsString( 'set to private', $body );
 		$this->assertStringContainsString( '50 GB of storage', $body );
 	}
@@ -537,7 +537,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 
 	public function test_body_falls_back_to_additional_storage_for_unknown_slug(): void {
 		$state = $this->message_state( array( 'product_slug' => 'mystery-bundle' ) );
-		$this->assertStringContainsString( 'additional storage', wpcom_expiry_notices_admin_banner_body( $state ) );
+		$this->assertStringContainsString( 'additional storage', wpcom_expiry_notices_banner_body( $state, true ) );
 	}
 
 	public function test_a_site_that_was_never_atomic_is_not_sent_to_support(): void {

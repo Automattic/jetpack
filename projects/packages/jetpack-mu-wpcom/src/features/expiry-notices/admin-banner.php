@@ -55,24 +55,14 @@ function wpcom_expiry_notices_render_admin_banner() {
 	$is_grace       = Expiry_Data::STATE_EXPIRED_GRACE === $state['state'];
 	?>
 	<div id="wpcom-expiry-banner" class="notice <?php echo esc_attr( $notice_class ); ?>">
-		<p><strong><?php echo esc_html( wpcom_expiry_notices_admin_banner_heading( $state ) ); ?></strong></p>
+		<p><strong><?php echo esc_html( wpcom_expiry_notices_banner_heading( $state ) ); ?></strong></p>
 		<p><?php echo esc_html( wpcom_expiry_notices_banner_body( $state, $data['is_owner'] ) ); ?></p>
 		<?php if ( null !== $urls || $is_dismissible ) : ?>
 			<p class="wpcom-expiry-banner__actions">
 				<?php if ( null !== $urls ) : ?>
-					<a
-						class="button button-primary"
-						href="<?php echo esc_url( $urls['primary']['url'] ); ?>"
-						<?php if ( isset( $urls['primary']['message'] ) ) : ?>
-							data-support-message="<?php echo esc_attr( $urls['primary']['message'] ); ?>"
-						<?php endif; ?>
-					>
-						<?php echo esc_html( $urls['primary']['label'] ); ?>
-					</a>
+					<?php wpcom_expiry_notices_render_cta_link( $urls['primary'], 'button button-primary' ); ?>
 					<?php if ( $is_grace ) : ?>
-						<a class="button" href="<?php echo esc_url( $urls['secondary']['url'] ); ?>">
-							<?php echo esc_html( $urls['secondary']['label'] ); ?>
-						</a>
+						<?php wpcom_expiry_notices_render_cta_link( $urls['secondary'], 'button' ); ?>
 					<?php endif; ?>
 				<?php endif; ?>
 				<?php if ( $is_dismissible ) : ?>

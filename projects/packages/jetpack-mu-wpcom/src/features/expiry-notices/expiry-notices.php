@@ -1,6 +1,6 @@
 <?php
 /**
- * Sitewide plan-expiry notices: shared infrastructure loader.
+ * Sitewide plan-expiry notices: loader, and the helpers every surface shares.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -102,144 +102,13 @@ function wpcom_expiry_notices_eligible_state( bool $flush = false ): ?array {
 		return $memo;
 	}
 
-	$state = \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data::get_expiry_state();
-	if ( null === $state || \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data::STATE_ACTIVE === $state['state'] ) {
+	$state = Expiry_Data::get_expiry_state();
+	if ( null === $state || Expiry_Data::STATE_ACTIVE === $state['state'] ) {
 		return $memo;
 	}
 
 	$memo = $state;
 	return $memo;
-}
-
-/**
- * The "Your {plan} plan has expired" heading, shared by the banner and the modal.
- *
- * @param array<string,mixed> $state Expiry state.
- */
-function wpcom_expiry_notices_expired_heading( array $state ): string {
-	$plan = isset( $state['plan_name'] ) && is_string( $state['plan_name'] ) ? $state['plan_name'] : '';
-
-	// Every stage has a variant without the plan name, for the rare purchase
-	// whose slug the Plans package can't resolve to a short name.
-	if ( '' === $plan ) {
-		return __( 'Your plan has expired', 'jetpack-mu-wpcom' );
-	}
-
-	return sprintf(
-		/* translators: %s is the plan name (e.g. Business). */
-		__( 'Your %s plan has expired', 'jetpack-mu-wpcom' ),
-		$plan
-	);
-}
-
-/**
- * Whether the revert this feature describes applies to this site, now.
- *
- * Past the grace period this waits on the sticker rather than the date, because
- * the revert runs off the subscription-removal record and can lag the state by
- * days. Before then the changes are still ahead, which only Atomic faces.
- *
- * @param array<string,mixed> $state Expiry state.
- */
-function wpcom_expiry_notices_revert_applies_to_site( array $state ): bool {
-	if ( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
-		return wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() );
-	}
-
-	return \Automattic\Jetpack\Constants::is_true( 'IS_ATOMIC' );
-}
-
-/**
- * The CTA a reverted site gets, pointing at support rather than checkout.
- *
- * Buying the plan again does not undo the revert, so only support can help with
- * what the notice says was lost. `url` is the fallback for a click the Help
- * Center could not answer.
- *
- * @param array<string,mixed> $state Expiry state.
- * @return array{label:string,url:string,message:string}
- */
-function wpcom_expiry_notices_support_cta( array $state ): array {
-	$plan = isset( $state['plan_name'] ) && is_string( $state['plan_name'] ) ? $state['plan_name'] : '';
-
-	if ( '' === $plan ) {
-		$message = __( 'My plan expired and I need your help getting it restored.', 'jetpack-mu-wpcom' );
-	} else {
-		$message = sprintf(
-			/* translators: %s is the plan name (e.g. Business). */
-			__( 'My %s plan expired and I need your help getting it restored.', 'jetpack-mu-wpcom' ),
-			$plan
-		);
-	}
-
-	return array(
-		'label'   => __( 'Contact support', 'jetpack-mu-wpcom' ),
-		// Where the Help Center package itself sends people when it cannot open
-		// in place, so a click still lands somewhere useful without its bundle.
-		'url'     => 'https://wordpress.com/help?help-center=home',
-		'message' => $message,
-	);
-}
-
-/**
- * The body of a banner-style notice: what the site loses and what to do about
- * it, or -- for an admin who cannot renew -- whose plan it is instead.
- *
- * The non-owner sentence is the one the Plans page uses, so the two agree. It
- * replaces the body, since every stage's body ends by asking for a renewal.
- *
- * @param array<string,mixed> $state    Expiry state.
- * @param bool                $is_owner Whether the viewer can renew.
- */
-function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): string {
-	if ( $is_owner ) {
-		return wpcom_expiry_notices_admin_banner_body( $state );
-	}
-	return __( 'This plan was purchased by a different WordPress.com account. To manage this plan, log in to that account or contact the account owner.', 'jetpack-mu-wpcom' );
-}
-
-/**
- * The Tracks props every surface's events carry.
- *
- * Booleans go as the strings 'true'/'false': the PHP and JS Tracks clients
- * encode a real boolean differently, and a funnel has to read both the same.
- *
- * @param array<string,mixed> $state    Expiry state.
- * @param bool                $is_owner Whether the viewer can renew, and so was offered a CTA.
- * @param string              $surface  Where the notice showed.
- * @return array{state:string,days_remaining:int,product_slug:string,is_plan_owner:string,surface:string}
- */
-function wpcom_expiry_notices_track_props( array $state, bool $is_owner, string $surface ): array {
-	return array(
-		'state'          => (string) ( $state['state'] ?? '' ),
-		'days_remaining' => isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0,
-		'product_slug'   => isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '',
-		'is_plan_owner'  => $is_owner ? 'true' : 'false',
-		'surface'        => $surface,
-	);
-}
-
-/**
- * Enqueue a surface's bundle with its data on `window.$global`.
- *
- * Inline JSON rather than wp_localize_script(), which casts every top-level
- * scalar to a string and would hand the client "" for a false. The Tracks
- * transport rides along because Atomic wp-admin loads none of its own, and
- * without it `window._tkq` stays an ordinary array that is dropped on unload.
- *
- * @param string              $asset  Build entry name.
- * @param string              $global Name of the window property the data lands on.
- * @param array<string,mixed> $data   What the script renders from.
- * @param string[]            $types  Asset types to enqueue.
- */
-function wpcom_expiry_notices_enqueue_surface( string $asset, string $global, array $data, array $types = array( 'js', 'css' ) ): void {
-	$json = wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS );
-	if ( false === $json ) {
-		return;
-	}
-	$handle = jetpack_mu_wpcom_enqueue_assets( $asset, $types );
-	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $handle );
-	wp_add_inline_script( $handle, 'window.' . $global . ' = ' . $json . ';', 'before' );
 }
 
 /**
@@ -291,6 +160,133 @@ function wpcom_expiry_notices_banner_data(): ?array {
 }
 
 /**
+ * The plan's short name, or '' for the rare purchase whose slug the Plans
+ * package can't resolve; every string has a variant without it.
+ *
+ * @param array<string,mixed> $state Expiry state.
+ */
+function wpcom_expiry_notices_plan_name( array $state ): string {
+	return isset( $state['plan_name'] ) && is_string( $state['plan_name'] ) ? $state['plan_name'] : '';
+}
+
+/**
+ * The "Your {plan} plan has expired" heading, shared by the banner and the modal.
+ *
+ * @param array<string,mixed> $state Expiry state.
+ */
+function wpcom_expiry_notices_expired_heading( array $state ): string {
+	$plan = wpcom_expiry_notices_plan_name( $state );
+	return '' === $plan
+		? __( 'Your plan has expired', 'jetpack-mu-wpcom' )
+		/* translators: %s is the plan name (e.g. Business). */
+		: sprintf( __( 'Your %s plan has expired', 'jetpack-mu-wpcom' ), $plan );
+}
+
+/**
+ * Whether the revert this feature describes applies to this site, now.
+ *
+ * Past the grace period this waits on the sticker rather than the date, because
+ * the revert runs off the subscription-removal record and can lag the state by
+ * days. Before then the changes are still ahead, which only Atomic faces.
+ *
+ * @param array<string,mixed> $state Expiry state.
+ */
+function wpcom_expiry_notices_revert_applies_to_site( array $state ): bool {
+	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
+		return wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() );
+	}
+
+	return Constants::is_true( 'IS_ATOMIC' );
+}
+
+/**
+ * The CTA a reverted site gets, pointing at support rather than checkout.
+ *
+ * Buying the plan again does not undo the revert, so only support can help with
+ * what the notice says was lost. `message` opens the Help Center with it typed
+ * in; `url` is the fallback for a click the Help Center could not answer.
+ *
+ * @param array<string,mixed> $state Expiry state.
+ * @return array{label:string,url:string,message:string}
+ */
+function wpcom_expiry_notices_support_cta( array $state ): array {
+	$plan = wpcom_expiry_notices_plan_name( $state );
+
+	return array(
+		'label'   => __( 'Contact support', 'jetpack-mu-wpcom' ),
+		'url'     => 'https://wordpress.com/help?help-center=home',
+		'message' => '' === $plan
+			? __( 'My plan expired and I need your help getting it restored.', 'jetpack-mu-wpcom' )
+			/* translators: %s is the plan name (e.g. Business). */
+			: sprintf( __( 'My %s plan expired and I need your help getting it restored.', 'jetpack-mu-wpcom' ), $plan ),
+	);
+}
+
+/**
+ * The Tracks props every surface's events carry.
+ *
+ * Booleans go as the strings 'true'/'false': the PHP and JS Tracks clients
+ * encode a real boolean differently, and a funnel has to read both the same.
+ *
+ * @param array<string,mixed> $state    Expiry state.
+ * @param bool                $is_owner Whether the viewer can renew, and so was offered a CTA.
+ * @param string              $surface  Where the notice showed.
+ * @return array{state:string,days_remaining:int,product_slug:string,is_plan_owner:string,surface:string}
+ */
+function wpcom_expiry_notices_track_props( array $state, bool $is_owner, string $surface ): array {
+	return array(
+		'state'          => (string) ( $state['state'] ?? '' ),
+		'days_remaining' => isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0,
+		'product_slug'   => isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '',
+		'is_plan_owner'  => $is_owner ? 'true' : 'false',
+		'surface'        => $surface,
+	);
+}
+
+/**
+ * Enqueue a surface's bundle with its data on `window.$global`.
+ *
+ * Inline JSON rather than wp_localize_script(), which casts every top-level
+ * scalar to a string and would hand the client "" for a false. The Tracks
+ * transport rides along because Atomic wp-admin loads none of its own, and
+ * without it `window._tkq` stays an ordinary array that is dropped on unload.
+ *
+ * @param string              $asset  Build entry name.
+ * @param string              $global Name of the window property the data lands on.
+ * @param array<string,mixed> $data   What the script renders from.
+ * @param string[]            $types  Asset types to enqueue.
+ */
+function wpcom_expiry_notices_enqueue_surface( string $asset, string $global, array $data, array $types = array( 'js', 'css' ) ): void {
+	$json = wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS );
+	if ( false === $json ) {
+		return;
+	}
+	$handle = jetpack_mu_wpcom_enqueue_assets( $asset, $types );
+	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $handle );
+	wp_add_inline_script( $handle, 'window.' . $global . ' = ' . $json . ';', 'before' );
+}
+
+/**
+ * Print a CTA as a link, carrying the support message where there is one.
+ *
+ * @param array<string,string> $cta   Label, url and optional message.
+ * @param string               $class Class attribute.
+ */
+function wpcom_expiry_notices_render_cta_link( array $cta, string $class ): void {
+	?>
+	<a
+		class="<?php echo esc_attr( $class ); ?>"
+		href="<?php echo esc_url( $cta['url'] ); ?>"
+		<?php if ( isset( $cta['message'] ) ) : ?>
+			data-support-message="<?php echo esc_attr( $cta['message'] ); ?>"
+		<?php endif; ?>
+	>
+		<?php echo esc_html( $cta['label'] ); ?>
+	</a>
+	<?php
+}
+
+/**
  * CTA URLs for a banner surface.
  *
  * Only a reverted site is sent to support: one that never carried a transfer
@@ -333,225 +329,144 @@ function wpcom_expiry_notices_is_early_warning( array $state ): bool {
 /**
  * The banner heading: which plan, and how long it has left.
  *
- * Copy is the plan-expiry spec's per-stage headings. Every stage has a variant
- * without the plan name, for the rare purchase whose slug the Plans package
- * can't resolve to a short name.
- *
  * @param array<string,mixed> $state Expiry state.
  */
-function wpcom_expiry_notices_admin_banner_heading( array $state ): string {
-	$plan = isset( $state['plan_name'] ) && is_string( $state['plan_name'] ) ? $state['plan_name'] : '';
+function wpcom_expiry_notices_banner_heading( array $state ): string {
+	$plan = wpcom_expiry_notices_plan_name( $state );
 	$days = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
 
-	$has_expired = in_array(
-		$state['state'] ?? '',
-		array( Expiry_Data::STATE_EXPIRED_GRACE, Expiry_Data::STATE_EXPIRED ),
-		true
-	);
-
-	if ( $has_expired ) {
+	if ( in_array( $state['state'] ?? '', array( Expiry_Data::STATE_EXPIRED_GRACE, Expiry_Data::STATE_EXPIRED ), true ) ) {
 		return wpcom_expiry_notices_expired_heading( $state );
 	}
 
-	// A plan that is still expected to renew hasn't failed yet, so it gets a
-	// neutral count rather than the language of an expiry deadline. Asserting a
-	// failed renewal would be wrong for someone who just switched auto-renew on.
+	// Still expected to renew: a neutral countdown, not the language of a
+	// deadline someone who just switched auto-renew on has already missed.
 	if ( ! empty( $state['auto_renew'] ) && $days > 0 ) {
-		if ( '' === $plan ) {
-			return sprintf(
-				/* translators: %d is the number of days remaining. */
-				_n( 'Your plan has %d day remaining', 'Your plan has %d days remaining', $days, 'jetpack-mu-wpcom' ),
-				$days
-			);
-		}
-		return sprintf(
-			/* translators: %1$s is the plan name (e.g. Business). %2$d is the number of days remaining. */
-			_n(
-				'Your %1$s plan has %2$d day remaining',
-				'Your %1$s plan has %2$d days remaining',
-				$days,
-				'jetpack-mu-wpcom'
-			),
-			$plan,
-			$days
-		);
-	}
-
-	// Never "expired" while the day of expiry is still running: a plan can
-	// still renew at any hour of it.
-	if ( 0 === $days ) {
-		if ( '' === $plan ) {
-			return __( 'Your plan expires today', 'jetpack-mu-wpcom' );
-		}
-		return sprintf(
-			/* translators: %s is the plan name (e.g. Business). */
-			__( 'Your %s plan expires today', 'jetpack-mu-wpcom' ),
-			$plan
-		);
-	}
-
-	if ( '' === $plan ) {
-		return sprintf(
+		return '' === $plan
 			/* translators: %d is the number of days remaining. */
-			_n( 'Your plan expires in %d day', 'Your plan expires in %d days', $days, 'jetpack-mu-wpcom' ),
-			$days
-		);
+			? sprintf( _n( 'Your plan has %d day remaining', 'Your plan has %d days remaining', $days, 'jetpack-mu-wpcom' ), $days )
+			/* translators: %1$s is the plan name (e.g. Business). %2$d is the number of days remaining. */
+			: sprintf( _n( 'Your %1$s plan has %2$d day remaining', 'Your %1$s plan has %2$d days remaining', $days, 'jetpack-mu-wpcom' ), $plan, $days );
 	}
-	return sprintf(
+
+	// Never "expired" while the day of expiry is still running.
+	if ( 0 === $days ) {
+		return '' === $plan
+			? __( 'Your plan expires today', 'jetpack-mu-wpcom' )
+			/* translators: %s is the plan name (e.g. Business). */
+			: sprintf( __( 'Your %s plan expires today', 'jetpack-mu-wpcom' ), $plan );
+	}
+
+	return '' === $plan
+		/* translators: %d is the number of days remaining. */
+		? sprintf( _n( 'Your plan expires in %d day', 'Your plan expires in %d days', $days, 'jetpack-mu-wpcom' ), $days )
 		/* translators: %1$s is the plan name (e.g. Business). %2$d is the number of days remaining. */
-		_n(
-			'Your %1$s plan expires in %2$d day',
-			'Your %1$s plan expires in %2$d days',
-			$days,
-			'jetpack-mu-wpcom'
-		),
-		$plan,
-		$days
-	);
+		: sprintf( _n( 'Your %1$s plan expires in %2$d day', 'Your %1$s plan expires in %2$d days', $days, 'jetpack-mu-wpcom' ), $plan, $days );
 }
 
 /**
- * The banner body: what the site loses, and what to do about it.
+ * The banner body: what the site loses and what to do about it, or -- for an
+ * admin who cannot renew -- whose plan it is instead.
  *
+ * The non-owner sentence is the one the Plans page uses, so the two agree.
  * Each stage has a variant quoting the plan's storage allowance and one saying
  * "additional storage", for slugs with no storage figure on record.
  *
- * @param array<string,mixed> $state Expiry state.
+ * @param array<string,mixed> $state    Expiry state.
+ * @param bool                $is_owner Whether the viewer can renew.
  */
-function wpcom_expiry_notices_admin_banner_body( array $state ): string {
-	$storage_gb = Expiry_Data::get_plan_storage_gb( isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '' );
-	$days       = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
-	$auto_renew = ! empty( $state['auto_renew'] );
+function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): string {
+	if ( ! $is_owner ) {
+		return __( 'This plan was purchased by a different WordPress.com account. To manage this plan, log in to that account or contact the account owner.', 'jetpack-mu-wpcom' );
+	}
 
-	$stage = $state['state'] ?? '';
+	$storage_gb  = Expiry_Data::get_plan_storage_gb( isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '' );
+	$days        = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
+	$auto_renew  = ! empty( $state['auto_renew'] );
+	$stage       = $state['state'] ?? '';
+	$is_reverted = Expiry_Data::STATE_EXPIRED === $stage && wpcom_expiry_notices_revert_applies_to_site( $state );
 
 	// Past grace by the calendar but still Atomic and un-reverted: none of what
-	// the post-grace copy claims has happened yet, and renewing still prevents
-	// it, so describe it the way the grace period does.
-	if ( Expiry_Data::STATE_EXPIRED === $stage
-		&& ! wpcom_expiry_notices_revert_applies_to_site( $state )
-		&& Constants::is_true( 'IS_ATOMIC' ) ) {
+	// the post-grace copy claims has happened yet, and renewing still prevents it.
+	if ( Expiry_Data::STATE_EXPIRED === $stage && ! $is_reverted && Constants::is_true( 'IS_ATOMIC' ) ) {
 		$stage = Expiry_Data::STATE_EXPIRED_GRACE;
 	}
 
-	if ( Expiry_Data::STATE_EXPIRED === $stage ) {
-		// A revert takes the site private and deletes what it lists, and buying
-		// the plan again brings none of it back -- so this half asks for support.
-		if ( wpcom_expiry_notices_revert_applies_to_site( $state ) ) {
-			if ( null === $storage_gb ) {
-				return __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
-			}
-			return sprintf(
-				/* translators: %d is a number of gigabytes of storage. */
-				__( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or %d GB of storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' ),
-				$storage_gb
-			);
-		}
-		if ( null === $storage_gb ) {
-			return __( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or additional storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
-		}
-		return sprintf(
-			/* translators: %d is a number of gigabytes of storage. */
-			__( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or %d GB of storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' ),
-			$storage_gb
-		);
+	if ( $is_reverted ) {
+		/* translators: %d is a number of gigabytes of storage. */
+		$with_storage    = __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or %d GB of storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
+		$without_storage = __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
+	} elseif ( Expiry_Data::STATE_EXPIRED === $stage ) {
+		/* translators: %d is a number of gigabytes of storage. */
+		$with_storage    = __( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or %d GB of storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
+		$without_storage = __( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or additional storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
+	} elseif ( Expiry_Data::STATE_EXPIRED_GRACE === $stage && $auto_renew ) {
+		/* translators: %d is a number of gigabytes of storage. */
+		$with_storage    = __( 'If renewal doesn’t go through, your site will move to the Free plan. That means losing plugins, custom themes, and %d GB of storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' );
+		$without_storage = __( 'If renewal doesn’t go through, your site will move to the Free plan. That means losing plugins, custom themes, and additional storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' );
+	} elseif ( Expiry_Data::STATE_EXPIRED_GRACE === $stage ) {
+		/* translators: %d is a number of gigabytes of storage. */
+		$with_storage    = __( 'Your site will move to the Free plan. That means losing plugins, custom themes, and %d GB of storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' );
+		$without_storage = __( 'Your site will move to the Free plan. That means losing plugins, custom themes, and additional storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' );
+	} elseif ( $auto_renew && $days <= Expiry_Notice_Dismiss::FINAL_WINDOW_DAYS ) {
+		/* translators: %d is a number of gigabytes of storage. */
+		$with_storage    = __( 'If renewal doesn’t go through, your site will move to the Free plan and you’ll lose plugins, custom themes, and %d GB of storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
+		$without_storage = __( 'If renewal doesn’t go through, your site will move to the Free plan and you’ll lose plugins, custom themes, and additional storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
+	} elseif ( $auto_renew ) {
+		/* translators: %d is a number of gigabytes of storage. */
+		$with_storage    = __( 'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and %d GB of storage.', 'jetpack-mu-wpcom' );
+		$without_storage = __( 'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and additional storage.', 'jetpack-mu-wpcom' );
+	} elseif ( 0 === $days ) {
+		/* translators: %d is a number of gigabytes of storage. */
+		$with_storage    = __( 'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and %d GB of storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
+		$without_storage = __( 'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and additional storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
+	} elseif ( $days <= Expiry_Notice_Dismiss::FINAL_WINDOW_DAYS ) {
+		/* translators: %d is a number of gigabytes of storage. */
+		$with_storage    = __( 'Your site will move to the Free plan and you’ll lose plugins, custom themes, and %d GB of storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
+		$without_storage = __( 'Your site will move to the Free plan and you’ll lose plugins, custom themes, and additional storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
+	} else {
+		return wpcom_expiry_notices_early_warning_body( $state, $storage_gb );
 	}
 
-	if ( Expiry_Data::STATE_EXPIRED_GRACE === $stage ) {
-		// "If renewal doesn't go through" only makes sense while a renewal
-		// attempt is still scheduled.
-		if ( $auto_renew ) {
-			if ( null === $storage_gb ) {
-				return __( 'If renewal doesn’t go through, your site will move to the Free plan. That means losing plugins, custom themes, and additional storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' );
-			}
-			return sprintf(
-				/* translators: %d is a number of gigabytes of storage. */
-				__( 'If renewal doesn’t go through, your site will move to the Free plan. That means losing plugins, custom themes, and %d GB of storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' ),
-				$storage_gb
-			);
-		}
-		if ( null === $storage_gb ) {
-			return __( 'Your site will move to the Free plan. That means losing plugins, custom themes, and additional storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' );
-		}
-		return sprintf(
-			/* translators: %d is a number of gigabytes of storage. */
-			__( 'Your site will move to the Free plan. That means losing plugins, custom themes, and %d GB of storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' ),
-			$storage_gb
-		);
-	}
+	return null === $storage_gb ? $without_storage : sprintf( $with_storage, $storage_gb );
+}
 
-	// Everything below is still before expiry. A plan with a renewal attempt
-	// still to come is described conditionally; one that cannot renew itself is
-	// described as a certainty.
-	if ( $auto_renew ) {
-		if ( $days <= Expiry_Notice_Dismiss::FINAL_WINDOW_DAYS ) {
-			if ( null === $storage_gb ) {
-				return __( 'If renewal doesn’t go through, your site will move to the Free plan and you’ll lose plugins, custom themes, and additional storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
-			}
-			return sprintf(
-				/* translators: %d is a number of gigabytes of storage. */
-				__( 'If renewal doesn’t go through, your site will move to the Free plan and you’ll lose plugins, custom themes, and %d GB of storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' ),
-				$storage_gb
-			);
-		}
-		if ( null === $storage_gb ) {
-			return __( 'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and additional storage.', 'jetpack-mu-wpcom' );
-		}
-		return sprintf(
-			/* translators: %d is a number of gigabytes of storage. */
-			__( 'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and %d GB of storage.', 'jetpack-mu-wpcom' ),
-			$storage_gb
-		);
-	}
-
-	if ( 0 === $days ) {
-		if ( null === $storage_gb ) {
-			return __( 'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and additional storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
-		}
-		return sprintf(
-			/* translators: %d is a number of gigabytes of storage. */
-			__( 'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and %d GB of storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' ),
-			$storage_gb
-		);
-	}
-
-	if ( $days <= Expiry_Notice_Dismiss::FINAL_WINDOW_DAYS ) {
-		if ( null === $storage_gb ) {
-			return __( 'Your site will move to the Free plan and you’ll lose plugins, custom themes, and additional storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
-		}
-		return sprintf(
-			/* translators: %d is a number of gigabytes of storage. */
-			__( 'Your site will move to the Free plan and you’ll lose plugins, custom themes, and %d GB of storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' ),
-			$storage_gb
-		);
-	}
-
-	// The early reminder names the date: "in 45 days" is hard to place on a
-	// calendar, and there is still time to plan around it.
+/**
+ * The early reminder names the date: "in 45 days" is hard to place on a
+ * calendar, and there is still time to plan around it.
+ *
+ * @param array<string,mixed> $state      Expiry state.
+ * @param int|null            $storage_gb Storage the plan includes, or null when unknown.
+ */
+function wpcom_expiry_notices_early_warning_body( array $state, ?int $storage_gb ): string {
 	$expiry_date = (string) wp_date( (string) get_option( 'date_format' ), (int) $state['expiry_ts'] );
+
 	if ( '' === $expiry_date ) {
-		// No usable date format; fall back to the wording that doesn't name one.
-		if ( null === $storage_gb ) {
-			return __( 'Your site will move to the Free plan, which means you’ll lose access to plugins, custom themes, and additional storage.', 'jetpack-mu-wpcom' );
-		}
-		return sprintf(
+		return null === $storage_gb
+			? __( 'Your site will move to the Free plan, which means you’ll lose access to plugins, custom themes, and additional storage.', 'jetpack-mu-wpcom' )
 			/* translators: %d is a number of gigabytes of storage. */
-			__( 'Your site will move to the Free plan, which means you’ll lose access to plugins, custom themes, and %d GB of storage.', 'jetpack-mu-wpcom' ),
-			$storage_gb
-		);
+			: sprintf( __( 'Your site will move to the Free plan, which means you’ll lose access to plugins, custom themes, and %d GB of storage.', 'jetpack-mu-wpcom' ), $storage_gb );
 	}
-	if ( null === $storage_gb ) {
-		return sprintf(
-			/* translators: %s is the expiration date. */
-			__( 'After %s, your site will move to the Free plan, which means you’ll lose access to plugins, custom themes, and additional storage.', 'jetpack-mu-wpcom' ),
-			$expiry_date
-		);
-	}
-	return sprintf(
+
+	return null === $storage_gb
+		/* translators: %s is the expiration date. */
+		? sprintf( __( 'After %s, your site will move to the Free plan, which means you’ll lose access to plugins, custom themes, and additional storage.', 'jetpack-mu-wpcom' ), $expiry_date )
 		/* translators: %1$s is the expiration date. %2$d is a number of gigabytes of storage. */
-		__( 'After %1$s, your site will move to the Free plan, which means you’ll lose access to plugins, custom themes, and %2$d GB of storage.', 'jetpack-mu-wpcom' ),
-		$expiry_date,
-		$storage_gb
+		: sprintf( __( 'After %1$s, your site will move to the Free plan, which means you’ll lose access to plugins, custom themes, and %2$d GB of storage.', 'jetpack-mu-wpcom' ), $expiry_date, $storage_gb );
+}
+
+/**
+ * Heading and body as one run of text, for surfaces with no heading markup.
+ *
+ * @param array<string,mixed> $state    Expiry state.
+ * @param bool                $is_owner Whether the viewer can renew.
+ */
+function wpcom_expiry_notices_banner_sentence( array $state, bool $is_owner ): string {
+	return sprintf(
+		/* translators: %1$s is the notice heading (e.g. "Your plan has expired"), %2$s is the rest of the notice. */
+		__( '%1$s. %2$s', 'jetpack-mu-wpcom' ),
+		wpcom_expiry_notices_banner_heading( $state ),
+		wpcom_expiry_notices_banner_body( $state, $is_owner )
 	);
 }
 
@@ -617,7 +532,7 @@ function wpcom_expiry_notices_register_meta() {
 	if ( ! wpcom_expiry_notices_is_enabled_for_site() ) {
 		return;
 	}
-	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss::register_user_meta();
+	Expiry_Notice_Dismiss::register_user_meta();
 }
 add_action( 'init', 'wpcom_expiry_notices_register_meta' ); // @codeCoverageIgnore
 // `init` alone never registers these on a REST request: WP defines REST_REQUEST

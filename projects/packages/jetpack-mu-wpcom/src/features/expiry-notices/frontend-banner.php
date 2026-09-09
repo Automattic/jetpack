@@ -67,25 +67,11 @@ function wpcom_expiry_notices_render_frontend_banner() {
 
 	$urls           = $data['urls'];
 	$is_dismissible = $data['is_dismissible'];
-	$text           = sprintf(
-		/* translators: %1$s is the notice heading (e.g. "Your Business plan has expired"), %2$s the notice body. */
-		__( '%1$s. %2$s', 'jetpack-mu-wpcom' ),
-		wpcom_expiry_notices_admin_banner_heading( $data['state'] ),
-		wpcom_expiry_notices_banner_body( $data['state'], $data['is_owner'] )
-	);
 	?>
 	<div id="wpcom-expiry-frontend-banner" class="wpcom-expiry-frontend-banner<?php echo $is_dismissible ? ' wpcom-expiry-frontend-banner--dismissible' : ''; ?>" role="region" aria-label="<?php esc_attr_e( 'Plan expiry notice', 'jetpack-mu-wpcom' ); ?>">
-		<span class="wpcom-expiry-frontend-banner__text"><?php echo esc_html( $text ); ?></span>
+		<span class="wpcom-expiry-frontend-banner__text"><?php echo esc_html( wpcom_expiry_notices_banner_sentence( $data['state'], $data['is_owner'] ) ); ?></span>
 		<?php if ( null !== $urls ) : ?>
-			<a
-				class="wpcom-expiry-frontend-banner__cta"
-				href="<?php echo esc_url( $urls['primary']['url'] ); ?>"
-				<?php if ( isset( $urls['primary']['message'] ) ) : ?>
-					data-support-message="<?php echo esc_attr( $urls['primary']['message'] ); ?>"
-				<?php endif; ?>
-			>
-				<?php echo esc_html( $urls['primary']['label'] ); ?>
-			</a>
+			<?php wpcom_expiry_notices_render_cta_link( $urls['primary'], 'wpcom-expiry-frontend-banner__cta' ); ?>
 		<?php endif; ?>
 		<?php if ( $is_dismissible ) : ?>
 			<button type="button" class="wpcom-expiry-frontend-banner__dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>">

@@ -39,30 +39,18 @@ function wpcom_expiry_notices_admin_modal_data(): ?array {
 		'state'       => $state,
 		'metaKey'     => Expiry_Notice_Dismiss::modal_meta_key( $state ),
 		'title'       => wpcom_expiry_notices_expired_heading( $state ),
-		'description' => wpcom_expiry_notices_modal_description( $is_grace ),
+		'description' => $is_grace
+			? __( 'Your site will be moved to the Free plan. We will also make these changes to your site:', 'jetpack-mu-wpcom' )
+			: __( 'Your site has been moved to the Free plan and set to private. Contact support to get help restoring it.', 'jetpack-mu-wpcom' ),
 		'listIntro'   => $is_grace ? '' : __( 'Here’s what changed:', 'jetpack-mu-wpcom' ),
 		'items'       => wpcom_expiry_notices_modal_items( $is_grace ),
-		'primary'     => wpcom_expiry_notices_modal_primary_cta( $state, $urls, $is_grace ),
+		'primary'     => $is_grace ? $urls['primary'] : wpcom_expiry_notices_support_cta( $state ),
 		// Renewing is only one of two things to consider while the site is still
 		// recoverable by paying for the same plan. Once it has been reverted the
 		// only offer is to put it back, so there is nothing to compare.
 		'secondary'   => $is_grace ? $urls['secondary'] : null,
 		'imageUrl'    => plugins_url( 'images/plan-expired.svg', __FILE__ ),
 	);
-}
-
-/**
- * The paragraph under the title.
- *
- * @param bool $is_grace Whether the site is still inside the grace period.
- */
-function wpcom_expiry_notices_modal_description( bool $is_grace ): string {
-	if ( $is_grace ) {
-		return __( 'Your site will be moved to the Free plan. We will also make these changes to your site:', 'jetpack-mu-wpcom' );
-	}
-	// Not "upgrade your plan": buying it again does not bring back what the
-	// revert deleted, which is why the only button here goes to support.
-	return __( 'Your site has been moved to the Free plan and set to private. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
 }
 
 /**
@@ -100,19 +88,6 @@ function wpcom_expiry_notices_modal_items( bool $is_grace ): array {
 	$items[] = __( 'Your installed themes, plugins, and their data were removed from your site.', 'jetpack-mu-wpcom' );
 	$items[] = __( 'Your settings and theme reverted to what you had before upgrading.', 'jetpack-mu-wpcom' );
 	return $items;
-}
-
-/**
- * The primary CTA: renew while that still saves the site, support once it
- * doesn't.
- *
- * @param array<string,mixed> $state    Expiry state.
- * @param array<string,array> $urls     CTA URLs from Expiry_Data::get_cta_urls().
- * @param bool                $is_grace Whether the site is still inside the grace period.
- * @return array<string,string>
- */
-function wpcom_expiry_notices_modal_primary_cta( array $state, array $urls, bool $is_grace ): array {
-	return $is_grace ? $urls['primary'] : wpcom_expiry_notices_support_cta( $state );
 }
 
 /**
