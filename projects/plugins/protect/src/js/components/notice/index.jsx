@@ -17,6 +17,7 @@ const Notice = ( {
 	duration = null,
 	floating = false,
 	message,
+	spokenMessage,
 	type = 'success',
 } ) => {
 	const { clearNotice } = useNotices();
@@ -24,6 +25,8 @@ const Notice = ( {
 	const onClose = useCallback( () => {
 		clearNotice();
 	}, [ clearNotice ] );
+
+	const spoken = spokenMessage ?? ( 'string' === typeof message ? message : null );
 
 	/**
 	 * Clears the notice automatically after {duration} milliseconds.
@@ -46,10 +49,10 @@ const Notice = ( {
 				styles[ `notice--${ type }` ],
 				floating && styles[ 'notice--floating' ]
 			) }
-			// Only the toast announces: the modal notices are read when their dialog
-			// opens. A non-string message is never passed — `Notice.Root` renders it
-			// to a string mid-render, which corrupts hook order when it holds a Link.
-			spokenMessage={ floating && 'string' === typeof message ? message : null }
+			// Only the toast announces: the modal notices are read when their dialog opens.
+			// The value must be null, never undefined — `Notice.Root` defaults it to the
+			// children and renders those mid-render, corrupting hook order on a JSX message.
+			spokenMessage={ floating ? spoken : null }
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
 			{ dismissable && (

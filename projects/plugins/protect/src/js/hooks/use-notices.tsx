@@ -8,6 +8,7 @@ import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 
 interface NoticeState {
 	message?: string | JSX.Element;
+	spokenMessage?: string;
 	dismissable?: boolean;
 	duration?: number;
 	type?: 'success' | 'info' | 'warning' | 'error';
@@ -69,6 +70,7 @@ export default function useNotices() {
 			setNotice( {
 				type: 'error',
 				dismissable: true,
+				spokenMessage: message || __( 'An error occurred.', 'jetpack-protect' ),
 				message: (
 					<>
 						{ message || __( 'An error occurred.', 'jetpack-protect' ) }{ ' ' }
