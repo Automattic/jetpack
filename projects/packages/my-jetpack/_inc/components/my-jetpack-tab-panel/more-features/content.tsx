@@ -17,6 +17,7 @@ import { useOtherModules } from './use-other-modules';
  */
 export function MoreFeaturesContent() {
 	const { groups, modules, isLoading } = useOtherModules();
+
 	const [ selected, setSelected ] = useState< string[] >( [] );
 
 	// A module pinned on or off by a filter cannot take part in a bulk action.

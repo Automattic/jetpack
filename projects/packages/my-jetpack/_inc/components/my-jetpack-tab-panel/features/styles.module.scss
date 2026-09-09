@@ -1,3 +1,5 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
 // Matches the product-card icon palette in ../products/styles.module.scss.
 $feature-icon-background: #003010;
 $feature-icon-foreground: #0ced57;
@@ -236,4 +238,15 @@ $feature-icon-foreground: #0ced57;
 	:global(.jetpack-feature-sidebar-highlight)::after {
 		animation: none;
 	}
+}
+
+.search {
+	margin-block-end: var(--wpds-dimension-gap-md);
+	max-inline-size: 24rem;
+}
+
+.search-heading {
+
+	@include gb.heading-x-large;
+	margin-block: 0;
 }
