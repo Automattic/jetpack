@@ -55,37 +55,17 @@ class Checkpoint {
 	}
 
 	/**
-	 * Whether the site can sign a connect request: connected, or a Simple site,
-	 * where WordPress.com signs for itself.
+	 * Whether the site is connected.
 	 *
 	 * @return bool
 	 */
 	public static function is_available() {
-		if ( self::blog_id() < 1 ) {
+		if ( ! class_exists( '\Automattic\Jetpack\Connection\Manager' ) || ! class_exists( '\Jetpack_Options' ) ) {
 			return false;
 		}
 
-		if ( self::is_simple_site() ) {
-			// Loaded by the connect page and the exchange endpoint, not on a post.
-			$consulate = WP_CONTENT_DIR . '/lib/comment-identity/class-consulate.php';
-			if ( ! class_exists( '\Automattic\Comment_Identity\Consulate' ) && file_exists( $consulate ) ) {
-				require_once $consulate;
-			}
-
-			return class_exists( '\Automattic\Comment_Identity\Consulate' );
-		}
-
-		return class_exists( '\Automattic\Jetpack\Connection\Manager' )
-			&& ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-comments' ) )->is_connected();
-	}
-
-	/**
-	 * Whether this is WordPress.com itself, which has no blog token.
-	 *
-	 * @return bool
-	 */
-	private static function is_simple_site() {
-		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+		return ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-comments' ) )->is_connected()
+			&& self::blog_id() > 0;
 	}
 
 	/**
@@ -128,6 +108,11 @@ class Checkpoint {
 			return new \WP_Error( 'invalid_origin', __( 'That origin is not this site.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
 
+		$token = ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-comments' ) )->get_tokens()->get_access_token();
+		if ( ! is_object( $token ) || empty( $token->secret ) ) {
+			return new \WP_Error( 'not_connected', __( 'This site is not connected to WordPress.com.', 'jetpack-comments' ), array( 'status' => 400 ) );
+		}
+
 		$expires = time() + self::SIGNATURE_TTL;
 		$params  = array(
 			'blog_id'   => (string) self::blog_id(),
@@ -145,11 +130,7 @@ class Checkpoint {
 			$parts[] = $key . '=' . $value;
 		}
 
-		$signature = self::sign( implode( "\n", $parts ), $params );
-		if ( is_wp_error( $signature ) ) {
-			return $signature;
-		}
-		$params['signature'] = $signature;
+		$params['signature'] = hash_hmac( 'sha256', implode( "\n", $parts ), (string) $token->secret );
 
 		// Selects the handler behind /connect/ and nothing more, so not signed.
 		// The browser appends prompt=1 for "not you?" the same way.
@@ -161,28 +142,6 @@ class Checkpoint {
 			'expires'   => $expires,
 			'origin'    => $origin,
 		);
-	}
-
-	/**
-	 * Sign the payload as the blog. A Simple site has no blog token; WordPress.com
-	 * signs for it with the key it will verify against.
-	 *
-	 * @param string $payload The sorted, newline-joined params.
-	 * @param array  $params  The params, for WordPress.com's signer.
-	 * @return string|\WP_Error
-	 */
-	private static function sign( $payload, array $params ) {
-		if ( self::is_simple_site() ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only, until the stub lands.
-			return \Automattic\Comment_Identity\Consulate::sign( $params );
-		}
-
-		$token = ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-comments' ) )->get_tokens()->get_access_token();
-		if ( ! is_object( $token ) || empty( $token->secret ) ) {
-			return new \WP_Error( 'not_connected', __( 'This site is not connected to WordPress.com.', 'jetpack-comments' ), array( 'status' => 400 ) );
-		}
-
-		return hash_hmac( 'sha256', $payload, (string) $token->secret );
 	}
 
 	/**

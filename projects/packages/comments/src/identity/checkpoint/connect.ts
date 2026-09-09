@@ -129,7 +129,7 @@ export function openCheckpoint( { prompt = false }: OpenOptions = {} ): Promise<
 
 		// Opened blank on the click itself; opening after the signing round trip
 		// would be blocked.
-		const popup = window.open( '', 'jetpack-comment-identity', 'width=420,height=560' );
+		const popup = window.open( '', 'jetpack-comment-identity', 'width=780,height=700' );
 
 		if ( ! popup ) {
 			hasLoginFailed.value = true;
