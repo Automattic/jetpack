@@ -80,9 +80,8 @@ trait Expiry_Notices_Fixtures {
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 		unset( $GLOBALS['wpcom_is_vip_test_value'] );
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
-		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $meta_key ) {
-			delete_user_meta( $this->admin_id, $meta_key );
-			delete_user_meta( $this->admin_id, $GLOBALS['wpdb']->get_blog_prefix() . $meta_key );
+		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
+			delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::meta_key( $base ) );
 		}
 		delete_transient( $this->owner_cache_key() );
 		Constants::clear_constants();

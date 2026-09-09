@@ -92,7 +92,7 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 
 	public function test_a_wp_admin_dismissal_hides_the_front_end_banner(): void {
 		$this->set_purchase( -45 );
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - DAY_IN_SECONDS );
+		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::banner_meta_key(), time() - DAY_IN_SECONDS );
 		$this->assertNull( wpcom_expiry_notices_frontend_banner_data() );
 	}
 

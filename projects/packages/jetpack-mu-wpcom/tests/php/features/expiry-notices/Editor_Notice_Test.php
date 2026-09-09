@@ -74,13 +74,13 @@ class Editor_Notice_Test extends \WorDBless\BaseTestCase {
 			$this->assertStringContainsString( '/checkout/business-bundle/', $data['primary']['url'] );
 			$this->assertSame( $has_plans, null !== $data['secondary'], "wrong secondary CTA at {$days} days" );
 			$this->assertSame( $is_dismissible, $data['isDismissible'], "wrong dismissibility at {$days} days" );
-			$this->assertSame( Expiry_Notice_Dismiss::META_BANNER, $data['metaKey'] );
+			$this->assertSame( Expiry_Notice_Dismiss::banner_meta_key(), $data['metaKey'] );
 		}
 	}
 
 	public function test_a_banner_dismissal_hides_the_editor_notice_too(): void {
 		$this->set_purchase( -45 );
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - DAY_IN_SECONDS );
+		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::banner_meta_key(), time() - DAY_IN_SECONDS );
 		$this->assertNull( wpcom_expiry_notices_editor_notice_data() );
 	}
 

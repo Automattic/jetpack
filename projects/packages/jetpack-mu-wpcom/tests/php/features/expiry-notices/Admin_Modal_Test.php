@@ -48,7 +48,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$data = wpcom_expiry_notices_admin_modal_data();
 
 		$this->assertNotNull( $data );
-		$this->assertSame( Expiry_Notice_Dismiss::META_MODAL_GRACE, $data['metaKey'] );
+		$this->assertSame( Expiry_Notice_Dismiss::meta_key( Expiry_Notice_Dismiss::META_MODAL_GRACE ), $data['metaKey'] );
 		$this->assertStringContainsString( 'will be moved to the Free plan', $data['description'] );
 		$this->assertSame( 'Renew now', $data['primary']['label'] );
 		$this->assertStringContainsString( '/checkout/', $data['primary']['url'] );
@@ -112,10 +112,10 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	public function test_grace_dismissal_lapses_so_the_modal_returns(): void {
 		$this->set_purchase( -5 );
 
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL_GRACE, time() );
+		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::meta_key( Expiry_Notice_Dismiss::META_MODAL_GRACE ), time() );
 		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
 
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL_GRACE, time() - ( Expiry_Notice_Dismiss::MODAL_GRACE_DISMISS_TTL + HOUR_IN_SECONDS ) );
+		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::meta_key( Expiry_Notice_Dismiss::META_MODAL_GRACE ), time() - ( Expiry_Notice_Dismiss::MODAL_GRACE_DISMISS_TTL + HOUR_IN_SECONDS ) );
 		$this->assertNotNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 

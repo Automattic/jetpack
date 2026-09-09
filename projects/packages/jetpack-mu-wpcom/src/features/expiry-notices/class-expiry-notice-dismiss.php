@@ -9,20 +9,16 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
-use Automattic\Jetpack\Constants;
-
 /**
  * Dismissals live in user meta written through core's `/wp/v2/users/me`, so
  * wp-admin and the front end read and write the same record.
  *
- * The `META_*` constants are base names: on Simple, where every site shares
- * one usermeta table, the stored key is prefixed per blog (see meta_key()).
+ * The `META_*` constants are base names; the stored key is per site (see meta_key()).
  */
 class Expiry_Notice_Dismiss {
 
-	// One key for every banner surface; the `_wp_admin` suffix predates the
-	// front-end banner and stays so stored dismissals remain valid.
-	const META_BANNER = 'wpcom_plan_expiry_notice_dismiss_wp_admin';
+	// One key for every banner surface.
+	const META_BANNER = 'wpcom_plan_expiry_notice_dismiss';
 	const META_MODAL  = 'wpcom_plan_expiry_modal_dismiss';
 	// Separate from META_MODAL: a grace dismissal is stamped after `expiry_ts`
 	// and would otherwise satisfy the post-grace check for a modal never seen.
@@ -61,15 +57,13 @@ class Expiry_Notice_Dismiss {
 	}
 
 	/**
-	 * The stored meta key for a base name: per blog on Simple, where usermeta
-	 * is network-wide and a dismissal on one site must not silence another.
+	 * The stored meta key for a base name, prefixed per site the way core
+	 * keys per-site user settings: on Simple every site shares one usermeta
+	 * table, and a dismissal on one site must not silence another.
 	 *
 	 * @param string $base One of the `META_*` constants.
 	 */
 	public static function meta_key( string $base ): string {
-		if ( ! Constants::is_true( 'IS_WPCOM' ) ) {
-			return $base;
-		}
 		global $wpdb;
 		return $wpdb->get_blog_prefix() . $base;
 	}

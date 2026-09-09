@@ -25,8 +25,8 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 
 	public function tear_down() {
 		remove_all_filters( 'wpcom_expiry_notices_enabled' );
-		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $meta_key ) {
-			unregister_meta_key( 'user', $meta_key );
+		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
+			unregister_meta_key( 'user', Expiry_Notice_Dismiss::meta_key( $base ) );
 		}
 		$this->tear_down_expiry_fixtures();
 		parent::tear_down();
@@ -73,14 +73,14 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 	public function test_registers_the_dismiss_meta_in_admin_but_not_on_the_front_end(): void {
 		set_current_screen( 'front' );
 		wpcom_expiry_notices_register_meta();
-		$this->assertArrayNotHasKey( Expiry_Notice_Dismiss::META_BANNER, get_registered_meta_keys( 'user' ) );
+		$this->assertArrayNotHasKey( Expiry_Notice_Dismiss::banner_meta_key(), get_registered_meta_keys( 'user' ) );
 
 		set_current_screen( 'dashboard' );
 		wpcom_expiry_notices_register_meta();
 		$registered = get_registered_meta_keys( 'user' );
-		$this->assertArrayHasKey( Expiry_Notice_Dismiss::META_BANNER, $registered );
-		$this->assertArrayHasKey( Expiry_Notice_Dismiss::META_MODAL, $registered );
-		$this->assertArrayHasKey( Expiry_Notice_Dismiss::META_MODAL_GRACE, $registered );
+		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
+			$this->assertArrayHasKey( Expiry_Notice_Dismiss::meta_key( $base ), $registered );
+		}
 	}
 
 	public function test_registers_meta_on_rest_api_init(): void {

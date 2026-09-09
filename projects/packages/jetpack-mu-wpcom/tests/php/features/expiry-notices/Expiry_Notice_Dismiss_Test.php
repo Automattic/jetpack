@@ -9,7 +9,6 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -40,11 +39,9 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function tear_down() {
-		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $meta_key ) {
-			unregister_meta_key( 'user', $meta_key );
-			unregister_meta_key( 'user', $GLOBALS['wpdb']->get_blog_prefix() . $meta_key );
+		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
+			unregister_meta_key( 'user', Expiry_Notice_Dismiss::meta_key( $base ) );
 		}
-		Constants::clear_constants();
 		parent::tear_down();
 	}
 
@@ -55,8 +52,8 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	private function dismiss( string $meta_key, int $when ): void {
-		update_user_meta( $this->user_id, $meta_key, $when );
+	private function dismiss( string $base, int $when ): void {
+		update_user_meta( $this->user_id, Expiry_Notice_Dismiss::meta_key( $base ), $when );
 	}
 
 	public function test_a_dismissal_holds_for_its_own_term_and_not_the_next(): void {
@@ -91,10 +88,10 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		}
 
 		$grace = $this->state( Expiry_Data::STATE_EXPIRED_GRACE, time() - 5 * DAY_IN_SECONDS );
-		$this->assertSame( Expiry_Notice_Dismiss::META_MODAL_GRACE, Expiry_Notice_Dismiss::modal_meta_key( $grace ) );
+		$this->assertSame( Expiry_Notice_Dismiss::meta_key( Expiry_Notice_Dismiss::META_MODAL_GRACE ), Expiry_Notice_Dismiss::modal_meta_key( $grace ) );
 
 		$expired = $this->state( Expiry_Data::STATE_EXPIRED, time() - 40 * DAY_IN_SECONDS );
-		$this->assertSame( Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::modal_meta_key( $expired ) );
+		$this->assertSame( Expiry_Notice_Dismiss::meta_key( Expiry_Notice_Dismiss::META_MODAL ), Expiry_Notice_Dismiss::modal_meta_key( $expired ) );
 
 		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, time() );
 		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $expired, $this->user_id ), 'the banner key must not silence the modal' );
@@ -126,39 +123,36 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $this->state( Expiry_Data::STATE_EXPIRED_GRACE, time() - 60 ), $this->user_id ) );
 	}
 
-	public function test_on_simple_a_dismissal_belongs_to_one_site(): void {
-		Constants::set_constant( 'IS_WPCOM', true );
-		$state = $this->state( Expiry_Data::STATE_EXPIRED, time() - 40 * DAY_IN_SECONDS );
+	public function test_a_dismissal_belongs_to_one_site(): void {
+		$state  = $this->state( Expiry_Data::STATE_EXPIRED, time() - 40 * DAY_IN_SECONDS );
+		$prefix = $GLOBALS['wpdb']->get_blog_prefix();
 
-		$this->assertSame( $GLOBALS['wpdb']->get_blog_prefix() . Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::banner_meta_key() );
-		$this->assertStringStartsWith( $GLOBALS['wpdb']->get_blog_prefix(), (string) Expiry_Notice_Dismiss::modal_meta_key( $state ) );
+		$this->assertSame( $prefix . Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::banner_meta_key() );
+		$this->assertStringStartsWith( $prefix, (string) Expiry_Notice_Dismiss::modal_meta_key( $state ) );
 
-		// A dismissal recorded without the site's prefix is another site's.
-		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, time() );
+		// A dismissal recorded without this site's prefix is another site's.
+		update_user_meta( $this->user_id, Expiry_Notice_Dismiss::META_BANNER, time() );
 		$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ) );
 
-		$this->dismiss( Expiry_Notice_Dismiss::banner_meta_key(), time() );
+		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, time() );
 		$this->assertFalse( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ) );
-
-		Expiry_Notice_Dismiss::register_user_meta();
-		$this->assertArrayHasKey( Expiry_Notice_Dismiss::banner_meta_key(), get_registered_meta_keys( 'user' ) );
 	}
 
 	public function test_the_dismiss_meta_is_writable_over_rest_by_admins_only_and_stamps_server_time(): void {
 		Expiry_Notice_Dismiss::register_user_meta();
 		$registered = get_registered_meta_keys( 'user' );
 
-		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $meta_key ) {
-			$this->assertTrue( $registered[ $meta_key ]['show_in_rest'] );
-			$this->assertSame( 'integer', $registered[ $meta_key ]['type'] );
+		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
+			$this->assertTrue( $registered[ Expiry_Notice_Dismiss::meta_key( $base ) ]['show_in_rest'] );
+			$this->assertSame( 'integer', $registered[ Expiry_Notice_Dismiss::meta_key( $base ) ]['type'] );
 		}
 
 		$before = time();
-		$stored = $registered[ Expiry_Notice_Dismiss::META_BANNER ]['sanitize_callback']( 0 );
+		$stored = $registered[ Expiry_Notice_Dismiss::banner_meta_key() ]['sanitize_callback']( 0 );
 		$this->assertGreaterThanOrEqual( $before, $stored );
 		$this->assertLessThanOrEqual( time(), $stored );
 
-		$auth = $registered[ Expiry_Notice_Dismiss::META_BANNER ]['auth_callback'];
+		$auth = $registered[ Expiry_Notice_Dismiss::banner_meta_key() ]['auth_callback'];
 		wp_set_current_user( $this->user_id );
 		$this->assertTrue( $auth() );
 		wp_set_current_user(
