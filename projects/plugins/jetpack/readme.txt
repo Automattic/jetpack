@@ -327,9 +327,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 == Changelog ==
 ### 16.2 - 2026-09-09
-#### Major Enhancements
-- Update minimum WordPress version to 7.0.
-
 #### Enhancements
 - AI: Add a Jetpack AI module as the site-wide master switch on self-hosted and Atomic, preserving explicit opt-outs.
 - AI: Add an AI SEO control to the AI settings page. The AI sidebar's SEO suggestions follow it, separately from the automatic-generation setting.
@@ -371,7 +368,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Forms: Show progress while a new form's editor opens, and report it when creating a form fails.
 - Map Block: Add support for wide and full width alignments.
 - My Jetpack: Allow the Automattic for Agencies banner to be dismissed.
-- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
 - Newsletter: Explain why the Everyone audience is unavailable when a post has a paywall block, instead of linking to the block.
 - Newsletter: Let editors preview email with only a site connection while continuing to require a user connection for test emails.
 - Newsletter: Rename the Access panel to Audience, describe who can read each post, and link out to set up paid subscribers.
@@ -431,7 +427,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Premium Analytics: Tighten the Latest subscribers rows so more subscribers fit the widget.
 - Premium Analytics: Tighten the spacing between leaderboard rows.
 - Premium Analytics: Turn the dashboard period comparison off by default.
-- REST API: Add the `atomic_email_block` field to the site endpoint response.
 - Search: Preserve the saved AI Answers choice while site-wide AI is off, disable unavailable controls, and honor the host AI opt-out in the AI Answer block. Require Instant Search to enable AI Answers.
 - Search Blocks: Add a customizable No Results block while continuing to render existing Results List messages.
 - Sitemaps: Speed up sitemap generation and reduce its memory use on sites with many posts and images.
@@ -450,7 +445,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Improved compatibility
 - CSV import and export in Forms and Stats now process data containing backslashed quotation marks as specified in the relevant standard.
 - Tested up to WordPress 7.1.
-- Updated PHP version requirements to PHP 7.4 or newer.
+- Update minimum PHP version to 7.4.
+- Update minimum WordPress version to 7.0.
 
 #### Bug fixes
 - Activity Log: Ensure table content wraps neatly onto a new line if long.
@@ -461,18 +457,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - AI: Auto-activate the AI module on sites running a 16.2 prerelease build.
 - AI: Keep the editor working when another plugin loads an older copy of the Status package.
 - AI: Prevent saving the General Settings page from turning off Jetpack AI features.
-- AI: Render scheduled task results as Markdown.
 - AI: Show connection notices instead of raw connection errors on the MCP settings page when the site or the current user is not connected to WordPress.com.
 - AI Assistant: Scroll the Form block's AI prompt into view when it opens, so it no longer sits over the form.
 - At a Glance: Stop requesting a new speed score on sites that already have Boost.
 - Backup: Fix the backup overview ability reporting no storage usage, storage limit or backup time.
 - Backup: Show a failure message when your backup status cannot be read, rather than the screen that says your first backup is on its way, and let the "Back up now" button recover when a backup could not be queued.
 - Backup: Show storage usage and the plan limit the right way round when the interface is translated.
-- Blocks: Fix an infinite refresh loop in the Goodreads block editor that regenerated the widget ID on every re-render and hammered the REST API.
 - Blocks: Keep blocks that load outside the post editor available in front-end block editors such as P2, by never deferring their registration.
-- Blocks: Restrict Goodreads scripts to the expected Goodreads widget endpoints.
 - Blocks: Treat WordPress.com public API requests as a block-editor context so editor-only extensions load, restoring block plan availability (such as the core/video upgrade nudge) in the mobile editor.
-- Blogging Prompts: Scope the endpoint's query filters to the prompts query so they no longer modify unrelated queries (e.g. Gutenberg global styles lookups) run while prompts are being rendered.
+- Blogging Prompts: Prevent prompt rendering from interfering with other page content.
 - Boost: Stop At a Glance re-testing the site speed when a recent score is already stored for the site's URL.
 - Carousel: Keep the loading overlay hidden when the module stylesheet is missing.
 - Charts: Draw labels at the design system's font weight and size.
@@ -487,10 +480,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Content Guidelines AI: Keep the empty-state banner from painting over the sticky page header while scrolling.
 - Editor: Refresh the cached plan when returning from a plan purchase so paid blocks (such as the Forms file upload field) stop showing their upgrade nudge once the plan is active.
 - Editor: Restore active module state for module-dependent features.
-- Escape the Premium Content block login button label on output.
 - External Media: Improve validation for media copy requests.
 - Fix the premium block upgrade banner rendering collapsed and too narrow on the site frontend.
-- Forms: Add an empty alt attribute to the image option thumbnails in the form success summary.
 - Forms: Allow a single response to scroll when it is taller than the screen.
 - Forms: Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog.
 - Forms: Cancel in-flight uploads and release previews when a form containing a file upload field is reset.
@@ -498,6 +489,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Forms: Fix several problems with adding more than one file at once to the file upload field, and with uploads that stall or fail.
 - Forms: Fix the first change made to a form after opening a page being discarded when saving.
 - Forms: Fix the form editor welcome guide artwork not loading on WordPress.com Simple sites.
+- Forms: Improve accessibility of image options in the form submission summary.
 - Forms: Keep an option's label when switching it to the "Other" option.
 - Forms: Keep one column per form field on a form's responses when a field is moved, and read every answer from the field it belongs to.
 - Forms: Keep prev/next working on a single response after marking it as spam or trash, open responses instantly from the list, and add keyboard shortcuts for triaging responses.
@@ -517,7 +509,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Forms: Space out the files listed on a response and line their download buttons up on one edge.
 - Forms: Stop uploading a file that was removed while its upload was still being prepared.
 - Forms: Validate a required phone field with a default country against what the input actually shows, so it can no longer be submitted empty.
-- Harden the subscriber authentication endpoint so it only redirects within the current site.
 - Heartbeat: Restore identity crisis reporting in the WP-CLI status command.
 - Likes: Fix Like buttons sometimes getting stuck on "Loading…" and never appearing.
 - Likes: Include public custom post types in default visibility settings so Likes and Comment Likes render on CPTs without requiring manual configuration.
@@ -525,7 +516,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Likes: Rename the settings heading on Settings > Sharing to reflect what it holds when sharing buttons are off.
 - Map Block: Remove the duplicate alignment toolbar in the editor.
 - Media API: Restrict the edit endpoints to attachments, so they no longer accept ordinary post IDs.
-- Memberships: Ensure the configured post access level is evaluated correctly before authorizing access to paywalled content.
 - My Jetpack: Always label the license activation link "Activate a license", including on sites with a plan but no activated licenses.
 - My Jetpack: Keep the Automattic for Agencies banner hidden after dismissing it and switching tabs.
 - My Jetpack: Stop repeating the partner lookup request on every page load.
@@ -585,23 +575,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Premium Analytics: Stop the Ads chart interval menu offering buckets the WordAds chart cannot draw.
 - Premium Content: Keep subscription login available when a WordPress session lacks a subscription token.
 - Premium Content: Restore the local account link from a verified magic-link token so subscription access persists.
-- Random Redirect: Avoid a fatal error when a theme or plugin already declares the module's redirect function.
 - Related Posts: Improve handling of protected content.
-- Require a Jetpack site (blog) token for JSON API endpoints that declare no capabilities, such as the Backup helper script endpoints, and reject user tokens regardless of privilege.
-- Resolve Redirect endpoint: Validate every redirect hop, and return a 400 error when a URL cannot be fetched, is blocked, or exceeds the redirect limit, instead of a 200 response with an empty URL.
-- REST API: Require the admin capability for all settings in a request that also updates Post by Email.
 - Search: Fix a crash on mount when the localized widget configuration is missing or incomplete, which could leave the whole page blank.
 - Search: Prevent General Settings from disabling Site Chat and WordPress Agent access.
-- Security: Enforce per-item permission checks when editing media through the JSON API.
-- Security: External Media: Ensure imported files are always saved under a safe file name.
-- Security: Verify attachment ownership before removing an uploaded package in the plugin and theme install endpoints.
 - SEO: Hide the post list SEO columns for people who had customized Screen Options before those columns existed.
 - SEO: Improve handling of protected content in generated metadata.
 - SEO: Move the dashboard's toast notices back to the top right.
 - SEO: Stop the search-engine indexing toggle from publishing a private or coming-soon site.
 - SEO Tools: Fix og:description leaking the first post's custom SEO description on archive and latest-posts homepage views.
 - Settings: Dismiss success notices automatically instead of leaving them on screen.
-- Sharing: Escape Tumblr share title, URL, and button label in official button output.
 - Sharing: Use an unpredictable name for share and Press This popups so another page cannot pre-register the same window name.
 - Sitemaps: Avoid a PHP notice when a sitemap query returns no posts.
 - Stats: Fix access for users whose allowed role is not their first assigned role.
@@ -627,8 +609,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - VideoPress: Say when a video upload failed because of a Jetpack connection problem, instead of only "Upload failed".
 - VideoPress: Say when a video upload from the Video block failed because of a Jetpack connection problem, instead of only "Failed to upload your video".
 - VideoPress: Show the Jetpack connection error notice on the VideoPress dashboard again.
-- WAF: Restrict firewall settings to administrators.
-- WordPress Posts: Escape remote site data before output.
 
 --------
 
