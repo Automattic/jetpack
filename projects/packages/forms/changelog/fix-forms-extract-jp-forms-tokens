@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: define the Forms CSS custom properties in a shared partial.

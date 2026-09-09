@@ -4,6 +4,7 @@
 
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "@wordpress/base-styles/breakpoints";
+@use "../forms-vars";
 
 body.jetpack_page_jetpack-forms-responses-wp-admin,
 body.jetpack-forms-responses {
