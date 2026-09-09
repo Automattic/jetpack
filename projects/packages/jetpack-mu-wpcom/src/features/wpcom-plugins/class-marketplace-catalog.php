@@ -137,12 +137,14 @@ class Marketplace_Catalog {
 
 		// The card carries every field the modal needs except the long description.
 		if ( ! is_array( $product ) || empty( $product['slug'] ) ) {
-			set_transient( $cache_key, $card, self::MISS_CACHE_TTL );
+			$details = self::to_details( $card );
 
-			return $card;
+			set_transient( $cache_key, $details, self::MISS_CACHE_TTL );
+
+			return $details;
 		}
 
-		$details = self::to_card( $product );
+		$details = self::to_details( self::to_card( $product ) );
 
 		$description = is_string( $product['description'] ?? null ) ? $product['description'] : '';
 		if ( '' !== $description ) {
@@ -152,6 +154,22 @@ class Marketplace_Catalog {
 		set_transient( $cache_key, $details, self::CACHE_TTL );
 
 		return $details;
+	}
+
+	/**
+	 * Strips the fields that only exist to satisfy the browse list.
+	 *
+	 * The list table reads active_installs unguarded, so a card has to carry it, but
+	 * the details modal guards on isset() and renders 0 as "Less Than 10", which we
+	 * would be stating as fact about a plugin we have no install count for.
+	 *
+	 * @param array $card Normalized card data.
+	 * @return array
+	 */
+	private static function to_details( array $card ) {
+		unset( $card['active_installs'], $card['downloaded'] );
+
+		return $card;
 	}
 
 	/**

@@ -347,6 +347,23 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Core's details modal guards active_installs on isset(), so a zero would be
+	 * rendered as the claim "Less Than 10 Active Installations".
+	 */
+	public function test_details_drop_the_browse_only_fields() {
+		$this->enable_tab();
+		$this->seed_catalog( array( 'gravityforms' => Marketplace_Catalog::to_card( self::PRODUCT ) ) );
+
+		$details = Marketplace_Catalog::get_product_details( 'gravityforms' );
+
+		$this->assertArrayNotHasKey( 'active_installs', $details );
+		$this->assertArrayNotHasKey( 'downloaded', $details );
+
+		// The list table does read it unguarded, so the card keeps it.
+		$this->assertArrayHasKey( 'active_installs', Marketplace_Catalog::to_card( self::PRODUCT ) );
+	}
+
+	/**
 	 * A product that is not installed is bought, not downloaded.
 	 */
 	public function test_install_button_is_replaced_for_our_products() {
