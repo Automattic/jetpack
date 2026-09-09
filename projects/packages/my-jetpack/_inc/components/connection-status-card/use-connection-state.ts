@@ -114,8 +114,10 @@ export function useConnectionState(): ConnectionState {
 
 	// Below here the account is still to be connected, and that prompt is the most
 	// useful thing the card can say — so a live error only tints the connector
-	// line, and never displaces the call to action.
-	const status = connection.hasConnectionError ? 'error' : 'warning';
+	// line, and never displaces the call to action. The tint is the package's
+	// rating, not a flat 'error': a break only the owner can repair stays a warning
+	// for everybody else, as it does once the account is connected.
+	const status = connection.hasConnectionError ? connection.severity : 'warning';
 
 	// If the user is not an admin, they can't connect their account unless an admin has connected their account.
 	if ( ! currentUserCan( 'manage_options' ) && ! hasConnectedOwner ) {
