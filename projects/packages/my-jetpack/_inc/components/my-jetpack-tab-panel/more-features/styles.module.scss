@@ -28,6 +28,10 @@
 	}
 }
 
+.module-item--active {
+	background: var(--wpds-color-background-surface-neutral-strong);
+}
+
 .module-item__details {
 	flex: 1;
 	min-inline-size: 0;

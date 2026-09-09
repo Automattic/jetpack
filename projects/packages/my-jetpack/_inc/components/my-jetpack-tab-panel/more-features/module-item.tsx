@@ -4,6 +4,7 @@ import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Checkbox, Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
 import type { MyJetpackModule } from '../../../types';
@@ -75,7 +76,9 @@ export function ModuleItem( {
 			direction="row"
 			align="center"
 			gap="md"
-			className={ styles[ 'module-item' ] }
+			className={ clsx( styles[ 'module-item' ], {
+				[ styles[ 'module-item--active' ] ]: $module.activated,
+			} ) }
 			data-module={ $module.module }
 		>
 			{ showCheckbox && (

@@ -59,6 +59,12 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
+// An active feature lifts off the wp-admin grey, so the
+// list reads as what is on.
+.feature-item--active {
+	background: var(--wpds-color-background-surface-neutral-strong);
+}
+
 .feature-item__details {
 	flex: 1;
 	min-inline-size: 0;
