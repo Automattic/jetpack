@@ -29,6 +29,16 @@ describe( 'StatsCards detailed stats link', () => {
 		);
 	} );
 
+	// Without a label the link is named by its content: the empty-state copy or the axis ticks.
+	it( 'names the chart link by its destination', () => {
+		renderCards();
+
+		expect( screen.getByRole( 'link', { name: 'View detailed stats' } ) ).toHaveAttribute(
+			'href',
+			HREF
+		);
+	} );
+
 	// The card is inside a "slim" ProductCard, which renders no action buttons, so these
 	// links are the only route to the Stats page.
 	it( 'leaves no link behind when the product has no manage URL', () => {

@@ -81,6 +81,7 @@ const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, me
 			className={ styles[ 'chart-container' ] }
 			href={ href }
 			onClick={ onClick }
+			aria-label={ __( 'View detailed stats', 'jetpack-my-jetpack' ) }
 		>
 			{ isEmpty && (
 				<div className={ styles[ 'chart-empty' ] }>
