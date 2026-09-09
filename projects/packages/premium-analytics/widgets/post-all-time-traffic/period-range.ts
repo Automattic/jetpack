@@ -13,8 +13,8 @@ import {
 import type { MonthKey } from './build-all-time-traffic-rows';
 
 export type PeriodBounds = {
-	/** When the post was published; the range never starts before that day. */
-	publishedAt?: Date;
+	/** Where the post's life starts; the range never starts before that day. */
+	lifeStartsAt?: Date;
 	/** The site timezone the calendar month is read in. */
 	timeZone: string;
 	/** The range never ends after this instant. Defaults to the clock. */
@@ -30,7 +30,7 @@ export type PeriodBounds = {
  * @return The range to apply, or `null`.
  */
 export function monthRange( key: MonthKey, bounds: PeriodBounds ): DateRange | null {
-	const { publishedAt, timeZone, now = new Date() } = bounds;
+	const { lifeStartsAt, timeZone, now = new Date() } = bounds;
 	// The bucket the traffic chart opens on a click, cut at the clock.
 	const bucket = drillDateRange(
 		createTZDateFromParts( [ key.year, key.month, 1 ], timeZone ),
@@ -42,8 +42,8 @@ export function monthRange( key: MonthKey, bounds: PeriodBounds ): DateRange | n
 		return null;
 	}
 
-	const publishedDay = publishedAt ? startOfDayTZ( publishedAt, timeZone ) : undefined;
-	const from = publishedDay && publishedDay > bucket.from ? publishedDay : bucket.from;
+	const firstDay = lifeStartsAt ? startOfDayTZ( lifeStartsAt, timeZone ) : undefined;
+	const from = firstDay && firstDay > bucket.from ? firstDay : bucket.from;
 
 	return from.getTime() <= bucket.to.getTime() ? { from, to: bucket.to } : null;
 }

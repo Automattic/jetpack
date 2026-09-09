@@ -49,7 +49,7 @@ function PostAllTimeTrafficInner() {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
-	const { rows, publishedAt, isLoading, isFetching, isError, error, refetch } =
+	const { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch } =
 		usePostAllTimeTraffic( postId );
 
 	// Bound to the route hosting the widget: a month picked here becomes the
@@ -65,14 +65,14 @@ function PostAllTimeTrafficInner() {
 			}
 
 			const month = Number( cell.getAttribute( 'data-column' ) );
-			const range = monthRange( { year: row.year, month }, { publishedAt, timeZone } );
+			const range = monthRange( { year: row.year, month }, { lifeStartsAt, timeZone } );
 
 			if ( range ) {
 				onChange( range, PRESET_CUSTOM );
 				onApply();
 			}
 		},
-		[ rows, publishedAt, timeZone, onChange, onApply ]
+		[ rows, lifeStartsAt, timeZone, onChange, onApply ]
 	);
 
 	// The chart owns the cells, so the click is read off its markup.

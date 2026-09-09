@@ -47,7 +47,19 @@ describe( 'usePostAllTimeTraffic', () => {
 
 		expect( result.current.rows[ 0 ].year ).toBe( 2026 );
 		expect( result.current.rows[ 0 ].months.slice( 0, 3 ) ).toEqual( [ 5, 0, 40 ] );
-		expect( result.current.publishedAt?.toISOString() ).toBe( '2026-01-10T16:27:32.000Z' );
+		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2026-01-10T16:27:32.000Z' );
+	} );
+
+	it( 'starts the life at an earlier month the endpoint reports for a rescheduled post', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...STATS_POST_RESPONSE,
+			post: { ID: 779, post_date: '2026-03-05 10:00:00' },
+		} );
+		const { result } = renderHook( () => usePostAllTimeTraffic( 779 ), { wrapper } );
+
+		await waitFor( () => expect( result.current.rows ).toHaveLength( 1 ) );
+
+		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2026-01-01T00:00:00.000Z' );
 	} );
 
 	it( 'never requests without a post scope', () => {
@@ -55,6 +67,6 @@ describe( 'usePostAllTimeTraffic', () => {
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 		expect( result.current.rows ).toEqual( [] );
-		expect( result.current.publishedAt ).toBeUndefined();
+		expect( result.current.lifeStartsAt ).toBeUndefined();
 	} );
 } );

@@ -2,22 +2,56 @@
  * External dependencies
  */
 import { useStatsPost } from '@jetpack-premium-analytics/data';
-import { localTZDate, parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import {
+	createTZDateFromParts,
+	localTZDate,
+	parseSiteDateTime,
+	reportingTimeZone,
+} from '@jetpack-premium-analytics/datetime';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildAllTimeTrafficRows, type AllTimeTrafficRow } from './build-all-time-traffic-rows';
+import {
+	buildAllTimeTrafficRows,
+	type AllTimeTrafficRow,
+	type MonthKey,
+} from './build-all-time-traffic-rows';
 
 export interface PostAllTimeTrafficState {
 	rows: AllTimeTrafficRow[];
-	/** When the post was published, read from the endpoint's post row. */
-	publishedAt: Date | undefined;
+	/** Where the post's life starts, which a picked period never precedes. */
+	lifeStartsAt: Date | undefined;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
 	error: unknown;
 	refetch: () => void;
+}
+
+/**
+ * The publish day, unless the endpoint reports an earlier month: a rescheduled
+ * post keeps the views from before its new date, and those months open whole.
+ */
+function lifeStart(
+	rows: AllTimeTrafficRow[],
+	publishedAt: Date | undefined,
+	publishedMonth: MonthKey | undefined
+): Date | undefined {
+	const oldest = rows[ rows.length - 1 ];
+	const month = oldest?.months.findIndex( value => typeof value === 'number' ) ?? -1;
+
+	if ( ! oldest || month < 0 ) {
+		return publishedAt;
+	}
+
+	if ( publishedMonth && oldest.year === publishedMonth.year && month === publishedMonth.month ) {
+		return publishedAt;
+	}
+
+	return new Date(
+		createTZDateFromParts( [ oldest.year, month, 1 ], reportingTimeZone() ).getTime()
+	);
 }
 
 /**
@@ -44,21 +78,26 @@ export default function usePostAllTimeTraffic( postId: number ): PostAllTimeTraf
 		);
 	}, [ data ] );
 
-	const rows = useMemo( () => {
+	const { rows, lifeStartsAt } = useMemo( () => {
 		// Read in the site timezone so the months fall on the site's own calendar.
 		const today = localTZDate();
 		const published = publishedAt ? localTZDate( publishedAt ) : undefined;
-
-		return buildAllTimeTrafficRows(
+		const publishedMonth = published && {
+			year: published.getFullYear(),
+			month: published.getMonth(),
+		};
+		const built = buildAllTimeTrafficRows(
 			data,
 			{ year: today.getFullYear(), month: today.getMonth() },
-			published && { year: published.getFullYear(), month: published.getMonth() }
+			publishedMonth
 		);
+
+		return { rows: built, lifeStartsAt: lifeStart( built, publishedAt, publishedMonth ) };
 	}, [ data, publishedAt ] );
 
 	return {
 		rows,
-		publishedAt,
+		lifeStartsAt,
 		isLoading,
 		isFetching,
 		isError,

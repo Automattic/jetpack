@@ -186,6 +186,24 @@ describe( 'PostAllTimeTraffic widget', () => {
 		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'opens a month the endpoint reports before the publish day in full', async () => {
+		mockUseStatsPost.mockReturnValue(
+			statsPostResult( { ...RESPONSE, post: { ID: 779, post_date: '2026-01-10 16:27:32' } } )
+		);
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025' } ) );
+
+		expect( mockOnChange ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2025-11-01T00:00:00.000Z' ),
+				to: new Date( '2025-11-30T23:59:59.999Z' ),
+			},
+			'custom'
+		);
+	} );
+
 	it( 'opens the keyboard-selected month on Enter', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();

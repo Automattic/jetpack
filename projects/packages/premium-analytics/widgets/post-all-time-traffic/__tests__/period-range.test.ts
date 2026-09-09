@@ -4,7 +4,7 @@
 import { monthRange } from '../period-range';
 
 const bounds = {
-	publishedAt: new Date( '2026-04-10T16:27:32Z' ),
+	lifeStartsAt: new Date( '2026-04-10T16:27:32Z' ),
 	timeZone: 'UTC',
 	now: new Date( '2026-09-09T12:00:00Z' ),
 };
@@ -17,7 +17,7 @@ describe( 'monthRange', () => {
 		} );
 	} );
 
-	it( 'starts the publish month on the publish day', () => {
+	it( 'starts the first month on the day the life starts', () => {
 		expect( monthRange( { year: 2026, month: 3 }, bounds ) ).toEqual( {
 			from: new Date( '2026-04-10T00:00:00.000Z' ),
 			to: new Date( '2026-04-30T23:59:59.999Z' ),
@@ -46,12 +46,12 @@ describe( 'monthRange', () => {
 		expect( monthRange( { year: 2026, month: 9 }, bounds ) ).toBeNull();
 	} );
 
-	it( 'opens the whole month without a publish date', () => {
-		expect( monthRange( { year: 2026, month: 0 }, { ...bounds, publishedAt: undefined } ) ).toEqual(
-			{
-				from: new Date( '2026-01-01T00:00:00.000Z' ),
-				to: new Date( '2026-01-31T23:59:59.999Z' ),
-			}
-		);
+	it( 'opens the whole month without a life start', () => {
+		expect(
+			monthRange( { year: 2026, month: 0 }, { ...bounds, lifeStartsAt: undefined } )
+		).toEqual( {
+			from: new Date( '2026-01-01T00:00:00.000Z' ),
+			to: new Date( '2026-01-31T23:59:59.999Z' ),
+		} );
 	} );
 } );
