@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ef9cc3c770b952550f6beb65edd51c81",
+    "content-hash": "4f4ce3415a43d1a47ae9536311adc637",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -1539,16 +1539,16 @@
         },
         {
             "name": "automattic/jetpack-forms",
-            "version": "v8.0.1",
+            "version": "v8.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-forms.git",
-                "reference": "ae2c90674add6a2047865facd12a4cd15358c5ec"
+                "reference": "9d2e585d0164b12950b9be8d077e1b5d07f0ca31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/ae2c90674add6a2047865facd12a4cd15358c5ec",
-                "reference": "ae2c90674add6a2047865facd12a4cd15358c5ec",
+                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/9d2e585d0164b12950b9be8d077e1b5d07f0ca31",
+                "reference": "9d2e585d0164b12950b9be8d077e1b5d07f0ca31",
                 "shasum": ""
             },
             "require": {
@@ -1604,9 +1604,9 @@
             ],
             "description": "Jetpack Forms",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-forms/tree/v8.0.1"
+                "source": "https://github.com/Automattic/jetpack-forms/tree/v8.0.2"
             },
-            "time": "2026-09-08T18:13:59+00:00"
+            "time": "2026-09-09T18:12:37+00:00"
         },
         {
             "name": "automattic/jetpack-image-cdn",
@@ -3111,16 +3111,16 @@
         },
         {
             "name": "automattic/jetpack-seo",
-            "version": "v0.9.1",
+            "version": "v0.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-seo.git",
-                "reference": "1ebc0b756ff17a9dbf941895713dc86d315995c7"
+                "reference": "3099f35816169ff81863726f8a4df43cb326af7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-seo/zipball/1ebc0b756ff17a9dbf941895713dc86d315995c7",
-                "reference": "1ebc0b756ff17a9dbf941895713dc86d315995c7",
+                "url": "https://api.github.com/repos/Automattic/jetpack-seo/zipball/3099f35816169ff81863726f8a4df43cb326af7f",
+                "reference": "3099f35816169ff81863726f8a4df43cb326af7f",
                 "shasum": ""
             },
             "require": {
@@ -3164,9 +3164,9 @@
             ],
             "description": "Jetpack SEO — the visibility command center for WordPress sites in the agentic web.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-seo/tree/v0.9.1"
+                "source": "https://github.com/Automattic/jetpack-seo/tree/v0.9.2"
             },
-            "time": "2026-09-08T18:13:32+00:00"
+            "time": "2026-09-09T18:11:54+00:00"
         },
         {
             "name": "automattic/jetpack-stats",
