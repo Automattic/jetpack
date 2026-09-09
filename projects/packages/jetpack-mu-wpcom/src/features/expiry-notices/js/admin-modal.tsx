@@ -1,5 +1,6 @@
 import { Button, Modal } from '@wordpress/components';
 import { createRoot, useState } from '@wordpress/element';
+import { Icon, info } from '@wordpress/icons';
 import { wpcomTrackEvent } from '../../../common/tracks';
 import { clickCta, dismissNotice, recordDismissal } from './notice.ts';
 import type { Cta, TrackProps } from './notice.ts';
@@ -59,6 +60,7 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 		// a bare `aria-label` is dropped. The heading renders under the image instead.
 		<Modal
 			className="wpcom-expiry-modal"
+			size="small"
 			contentLabel={ data.title }
 			// A stray overlay click must not spend the one dismissal; Escape stays,
 			// as the only pointer-free way out.
@@ -74,13 +76,17 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 
 				<ul className="wpcom-expiry-modal__list">
 					{ data.items.map( item => (
-						<li key={ item }>{ item }</li>
+						<li key={ item }>
+							<Icon icon={ info } size={ 16 } />
+							{ item }
+						</li>
 					) ) }
 				</ul>
 
 				<div className="wpcom-expiry-modal__actions">
 					{ secondary && (
 						<Button
+							__next40pxDefaultSize
 							variant="secondary"
 							href={ secondary.url }
 							onClick={ ( event: MouseEvent ) => onCtaClick( 'secondary', secondary, event ) }
@@ -89,6 +95,7 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 						</Button>
 					) }
 					<Button
+						__next40pxDefaultSize
 						variant="primary"
 						href={ primary.url }
 						onClick={ ( event: MouseEvent ) => onCtaClick( 'primary', primary, event ) }
