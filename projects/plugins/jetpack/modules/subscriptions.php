@@ -1083,7 +1083,7 @@ class Jetpack_Subscriptions {
 			'manage_options',
 			esc_url( $link ),
 			null,
-			15
+			100
 		);
 	}
 

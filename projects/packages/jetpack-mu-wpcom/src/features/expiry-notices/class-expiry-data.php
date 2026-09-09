@@ -181,6 +181,8 @@ class Expiry_Data {
 			'is_monthly'      => $is_monthly,
 			'plan_name'       => $plan_name,
 			'product_slug'    => $product_slug,
+			// Empty on an Atomic site whose synced purchases predate the field.
+			'subscription_id' => isset( $purchase->subscription_id ) && is_scalar( $purchase->subscription_id ) ? (string) $purchase->subscription_id : '',
 			// Whether a renewal is still expected to go through, not merely
 			// whether the customer left auto-renew switched on -- but only
 			// once the state is past active. Outside the notice window this
@@ -313,12 +315,19 @@ class Expiry_Data {
 	 * @return array{primary:array{label:string,url:string},secondary:array{label:string,url:string}}
 	 */
 	public static function get_cta_urls( array $state, string $redirect_to = '' ): array {
-		$domain = (string) wpcom_get_site_slug();
-		$slug   = isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '';
+		$domain          = (string) wpcom_get_site_slug();
+		$slug            = isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '';
+		$subscription_id = isset( $state['subscription_id'] ) ? (string) $state['subscription_id'] : '';
 
+		// Naming the subscription makes checkout a renewal of that subscription,
+		// which the cart refuses for anyone but its owner with an explanation.
+		// The plain form is matched against the cart user's own subscriptions,
+		// so for another admin it quietly becomes a second purchase of the plan.
 		$primary = array(
 			'label' => __( 'Renew now', 'jetpack-mu-wpcom' ),
-			'url'   => sprintf( 'https://wordpress.com/checkout/%s/%s', $slug, $domain ),
+			'url'   => '' === $subscription_id
+				? sprintf( 'https://wordpress.com/checkout/%s/%s', $slug, $domain )
+				: sprintf( 'https://wordpress.com/checkout/%s/renew/%s/%s', $slug, $subscription_id, $domain ),
 		);
 		// add_query_arg() does not encode values, so a redirect with a query of
 		// its own would hand checkout the second half as parameters of its own.

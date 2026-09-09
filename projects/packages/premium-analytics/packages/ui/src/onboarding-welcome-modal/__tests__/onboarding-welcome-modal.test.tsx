@@ -57,4 +57,15 @@ describe( 'OnboardingWelcomeModal', () => {
 		expect( onDismiss ).toHaveBeenCalledTimes( 1 );
 		expect( onDismiss ).toHaveBeenCalledWith( 'escape' );
 	} );
+
+	it( 'stays open on a click outside, without counting a dismissal', async () => {
+		const { onDismiss } = renderModal();
+
+		await userEvent.click( document.body );
+
+		expect(
+			screen.getByRole( 'dialog', { name: 'Welcome to the new Traffic page' } )
+		).toBeInTheDocument();
+		expect( onDismiss ).not.toHaveBeenCalled();
+	} );
 } );

@@ -151,7 +151,7 @@ class Reprint_Exporter {
 		 * secret or the signature. An export with no secret_rotated or
 		 * window_opened event before it used a secret this site did not create.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param string $event   Event name.
 		 * @param array  $context Details of the event.
@@ -217,7 +217,7 @@ class Reprint_Exporter {
 		 * Filters whether Jetpack Reprint export support is available on the
 		 * current site.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param bool $available Whether Reprint export support is available.
 		 */

@@ -9,8 +9,9 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
+
+require_once __DIR__ . '/class-expiry-wpcom-request.php';
 
 /**
  * Resolves the domain the expiry modal names, or null when it should say nothing.
@@ -127,40 +128,18 @@ class Expiry_Domain {
 	/**
 	 * Fetch the site's domains from WordPress.com.
 	 *
-	 * Version 1.2 of this endpoint accepts a site's own blog token, which is what
-	 * makes it answerable from Atomic at all.
+	 * Version 1.2 of this endpoint accepts the blog token.
 	 *
 	 * @return array<int,object>|null Null on any failure.
 	 */
 	private static function request_domains(): ?array {
-		if ( ! class_exists( '\Jetpack_Options' ) || ! class_exists( Client::class ) ) {
-			return null;
-		}
-
-		$site_id = \Jetpack_Options::get_option( 'id' );
+		$site_id = class_exists( '\Jetpack_Options' ) ? \Jetpack_Options::get_option( 'id' ) : 0;
 		if ( ! $site_id ) {
 			return null;
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/domains', (int) $site_id ),
-			'1.2',
-			array(
-				'method'  => 'GET',
-				// This runs during an admin page load, so a slow answer must not
-				// become a slow dashboard. Failing here just omits the domain line.
-				'timeout' => 5,
-			),
-			null,
-			'rest'
-		);
-
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return null;
-		}
-
-		$body = json_decode( wp_remote_retrieve_body( $response ) );
-		if ( ! isset( $body->domains ) || ! is_array( $body->domains ) ) {
+		$body = Expiry_Wpcom_Request::get_as_blog( sprintf( '/sites/%d/domains', (int) $site_id ) );
+		if ( ! is_object( $body ) || ! isset( $body->domains ) || ! is_array( $body->domains ) ) {
 			return null;
 		}
 

@@ -85,19 +85,9 @@ From `projects/plugins/boost`, run `pnpm typecheck` to check the modern dashboar
 [`tsconfig.dashboard.json`](../tsconfig.dashboard.json). This command does not
 check the full legacy application.
 
-From the monorepo root, check Boost's JavaScript, TypeScript, and Svelte syntax and style:
 
-  ```sh
-  pnpm lint-file --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte projects/plugins/boost
-  ``` 
-
-
-To automatically fix some JavaScript related issues, you can run:
-
-  ```sh
-  pnpm lint-file --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte projects/plugins/boost --fix
-  ``` 
-
+Run JavaScript linting from the monorepo root as described in the
+[development environment guide](../../../../docs/development-environment.md#linting-jetpacks-javascript).
 
 # Debugging Concatenate JS/CSS exclusions
 

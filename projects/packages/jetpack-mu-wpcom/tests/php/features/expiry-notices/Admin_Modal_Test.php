@@ -144,6 +144,31 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
+	public function test_does_not_show_to_an_admin_who_cannot_renew(): void {
+		// Nothing to interrupt them into doing; the banner explains instead.
+		$this->act_as_non_owner();
+		$this->set_purchase( -5 );
+		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
+
+		$this->set_plan_owner( $this->admin_wpcom_id );
+		$this->assertNotNull( wpcom_expiry_notices_admin_modal_data() );
+	}
+
+	public function test_does_not_show_to_a_local_only_admin(): void {
+		$this->act_as_local_only_admin();
+		$this->set_purchase( -5 );
+		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
+	}
+
+	public function test_track_props_say_the_viewer_is_the_owner(): void {
+		$this->set_purchase( -5 );
+		wpcom_expiry_notices_enqueue_admin_modal_assets();
+
+		$localized = wp_scripts()->get_data( 'jetpack-mu-wpcom-expiry-notices-admin-modal', 'data' );
+		$this->assertIsString( $localized );
+		$this->assertStringContainsString( '"is_plan_owner":"true"', $localized );
+	}
+
 	public function test_does_not_show_for_non_admins(): void {
 		wp_set_current_user( $this->subscriber_id );
 		$this->set_purchase( -5 );

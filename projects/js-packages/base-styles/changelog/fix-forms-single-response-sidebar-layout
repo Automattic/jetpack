@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin page layout: stop the flex chain at the boot stage again, so a dashboard's sidebar panel keeps its side-by-side layout on boot 0.21 and later.

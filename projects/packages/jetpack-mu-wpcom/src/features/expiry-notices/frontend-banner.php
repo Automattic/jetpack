@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
 
 /**
  * Resolve the data needed to render the banner, or null if it shouldn't show.
@@ -14,9 +15,11 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
  * Memoized: the enqueue, body-class, and render hooks all ask per pageview,
  * and each read costs a user-meta lookup and a site-slug resolution.
  *
+ * `urls` is null when the viewer cannot renew.
+ *
  * @param bool $flush Drop the memo. For tests, which move the fixture under a
  *                    process that has already answered once.
- * @return array{state:array,is_dismissible:bool,urls:array}|null
+ * @return array{state:array,is_dismissible:bool,is_owner:bool,urls:array|null}|null
  */
 function wpcom_expiry_notices_frontend_banner_data( bool $flush = false ): ?array {
 	// Distinct from null, which is a real answer worth remembering.
@@ -47,10 +50,13 @@ function wpcom_expiry_notices_frontend_banner_data( bool $flush = false ): ?arra
 		return $memo;
 	}
 
+	$is_owner = Expiry_Owner::current_user_is_owner( $state );
+
 	$memo = array(
 		'state'          => $state,
 		'is_dismissible' => Expiry_Notice_Dismiss::is_dismissible( $state ),
-		'urls'           => wpcom_expiry_notices_banner_urls( $state, wpcom_expiry_notices_current_frontend_url() ),
+		'is_owner'       => $is_owner,
+		'urls'           => $is_owner ? wpcom_expiry_notices_banner_urls( $state, wpcom_expiry_notices_current_frontend_url() ) : null,
 	);
 
 	return $memo;
@@ -79,8 +85,11 @@ function wpcom_expiry_notices_frontend_banner_should_render(): bool {
  * Enqueue + localize the banner's JS/CSS on wp_enqueue_scripts.
  */
 function wpcom_expiry_notices_enqueue_frontend_banner_assets() {
+	if ( ! wpcom_expiry_notices_frontend_banner_should_render() ) {
+		return;
+	}
 	$data = wpcom_expiry_notices_frontend_banner_data();
-	if ( null === $data || ! wpcom_expiry_notices_frontend_banner_should_render() ) {
+	if ( null === $data ) {
 		return;
 	}
 
@@ -90,10 +99,8 @@ function wpcom_expiry_notices_enqueue_frontend_banner_assets() {
 		$asset_handle,
 		'wpcomExpiryFrontendBanner',
 		array(
-			'metaKey'       => Expiry_Notice_Dismiss::META_BANNER,
-			'state'         => $data['state']['state'],
-			'daysRemaining' => isset( $data['state']['days_remaining'] ) ? (int) $data['state']['days_remaining'] : 0,
-			'productSlug'   => isset( $data['state']['product_slug'] ) ? (string) $data['state']['product_slug'] : '',
+			'metaKey'    => Expiry_Notice_Dismiss::META_BANNER,
+			'trackProps' => wpcom_expiry_notices_track_props( $data['state'], $data['is_owner'] ),
 		)
 	);
 }
@@ -140,29 +147,32 @@ add_action( 'wp_footer', 'wpcom_expiry_notices_render_frontend_banner_fallback' 
 /**
  * Render the banner DOM.
  *
- * @param array<string,mixed> $state          Expiry state.
- * @param array<string,array> $urls           CTA URLs from wpcom_expiry_notices_banner_urls().
- * @param bool                $is_dismissible Whether the notice can be dismissed.
+ * @param array<string,mixed>      $state          Expiry state.
+ * @param array<string,array>|null $urls           CTA URLs from wpcom_expiry_notices_banner_urls(), or null
+ *                                                 when the viewer cannot renew.
+ * @param bool                     $is_dismissible Whether the notice can be dismissed.
  */
-function wpcom_expiry_notices_render_frontend_banner_html( array $state, array $urls, bool $is_dismissible ): void {
+function wpcom_expiry_notices_render_frontend_banner_html( array $state, ?array $urls, bool $is_dismissible ): void {
 	$text = sprintf(
 		/* translators: %1$s is the notice heading (e.g. "Your Business plan has expired"), %2$s the notice body. */
 		__( '%1$s. %2$s', 'jetpack-mu-wpcom' ),
 		wpcom_expiry_notices_admin_banner_heading( $state ),
-		wpcom_expiry_notices_admin_banner_body( $state )
+		wpcom_expiry_notices_banner_body( $state, null !== $urls )
 	);
 	?>
 	<div id="wpcom-expiry-frontend-banner" class="wpcom-expiry-frontend-banner<?php echo $is_dismissible ? ' wpcom-expiry-frontend-banner--dismissible' : ''; ?>" role="region" aria-label="<?php esc_attr_e( 'Plan expiry notice', 'jetpack-mu-wpcom' ); ?>">
 		<span class="wpcom-expiry-frontend-banner__text"><?php echo esc_html( $text ); ?></span>
-		<a
-			class="wpcom-expiry-frontend-banner__cta"
-			href="<?php echo esc_url( $urls['primary']['url'] ); ?>"
-			<?php if ( isset( $urls['primary']['message'] ) ) : ?>
-				data-support-message="<?php echo esc_attr( $urls['primary']['message'] ); ?>"
-			<?php endif; ?>
-		>
-			<?php echo esc_html( $urls['primary']['label'] ); ?>
-		</a>
+		<?php if ( null !== $urls ) : ?>
+			<a
+				class="wpcom-expiry-frontend-banner__cta"
+				href="<?php echo esc_url( $urls['primary']['url'] ); ?>"
+				<?php if ( isset( $urls['primary']['message'] ) ) : ?>
+					data-support-message="<?php echo esc_attr( $urls['primary']['message'] ); ?>"
+				<?php endif; ?>
+			>
+				<?php echo esc_html( $urls['primary']['label'] ); ?>
+			</a>
+		<?php endif; ?>
 		<?php if ( $is_dismissible ) : ?>
 			<button type="button" class="wpcom-expiry-frontend-banner__dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>">
 				<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="m13.06 12 6.47-6.47-1.06-1.06L12 10.94 5.53 4.47 4.47 5.53 10.94 12l-6.47 6.47 1.06 1.06L12 13.06l6.47 6.47 1.06-1.06L13.06 12Z"/></svg>

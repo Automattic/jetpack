@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats: Fix endless spinner when the blog token is invalid.
