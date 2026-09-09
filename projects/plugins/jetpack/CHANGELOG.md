@@ -4,8 +4,8 @@
 
 ## 16.2 - 2026-09-09
 ### Enhancements
-- AI: Add a site-wide switch for Jetpack AI on self-hosted sites, preserving explicit opt-outs. [#50718]
 - AI: Add an AI SEO control to the AI settings page. The AI sidebar's SEO suggestions follow it, separately from the automatic-generation setting. [#51380]
+- AI: Add a site-wide switch for Jetpack AI on self-hosted sites, preserving explicit opt-outs. [#50718]
 - AI: Add a welcome banner to the Overview tab, keep the tab navigation and a back link on MCP sub-pages, and name the MCP connect row by its action for screen readers. [#51783]
 - AI: Add Quick start links for connecting Claude and ChatGPT to the AI Hub Overview. [#51691]
 - AI: Hide the AI sidebar when the writing assistant and SEO enhancer toggles are both off. [#50778]
@@ -63,10 +63,10 @@
 - VideoPress: Redesign the video details page with grouped details, a wider layout, side-by-side player and settings, thumbnail tiles, collapsible sections, and an Add to content action. [#51480]
 
 ### Improved compatibility
-- Update minimum WordPress version to 7.0. [#51370]
 - CSV import and export in Forms and Stats now process data containing backslashed quotation marks as specified in the relevant standard. [#51572]
 - Tested up to WordPress 7.1. [#51370]
 - Update minimum PHP version to 7.4. [#51515]
+- Update minimum WordPress version to 7.0. [#51370]
 
 ### Bug fixes
 - Activity Log: Ensure table content wraps neatly onto a new line if long. [#51600]
@@ -102,7 +102,6 @@
 - Editor: Restore active module state for module-dependent features. [#51888]
 - External Media: Improve validation for media copy requests.
 - Fix the premium block upgrade banner rendering collapsed and too narrow on the site frontend. [#50873]
-- Forms: Improve accessibility of image options in the form submission summary. [#51781]
 - Forms: Allow a single response to scroll when it is taller than the screen. [#51486]
 - Forms: Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog. [#51371]
 - Forms: Cancel in-flight uploads and release previews when a form containing a file upload field is reset. [#51183]
@@ -110,6 +109,7 @@
 - Forms: Fix several problems with adding more than one file at once to the file upload field, and with uploads that stall or fail. [#51549]
 - Forms: Fix the first change made to a form after opening a page being discarded when saving. [#51393]
 - Forms: Fix the form editor welcome guide artwork not loading on WordPress.com Simple sites. [#51682]
+- Forms: Improve accessibility of image options in the form submission summary. [#51781]
 - Forms: Keep an option's label when switching it to the "Other" option. [#51628]
 - Forms: Keep one column per form field on a form's responses when a field is moved, and read every answer from the field it belongs to. [#51615]
 - Forms: Keep prev/next working on a single response after marking it as spam or trash, open responses instantly from the list, and add keyboard shortcuts for triaging responses. [#51670]
@@ -122,7 +122,6 @@
 - Forms: Prevent a new choice option from inheriting the previous option's label when pressing Enter. [#51628]
 - Forms: Remove an uploaded file from the form immediately instead of waiting for the server, so a slow connection no longer leaves the file upload field looking stuck. [#51183]
 - Forms: Restore multi-page printing of a single response. [#52096]
-- SEO: Move the dashboard's toast notices back to the top right. [#52096]
 - Forms: Restore the Integrations button in the Form block toolbar when the settings sidebar is closed. [#51630]
 - Forms: Scroll a single response from the page edge instead of from inside the reading column. [#52096]
 - Forms: Show an empty checkbox icon next to checkbox fields the respondent left unchecked, instead of always showing a ticked one. [#51293]
@@ -160,6 +159,7 @@
 - Search: Prevent General Settings from disabling Site Chat and WordPress Agent access. [#51844]
 - SEO: Hide the post list SEO columns for people who had customized Screen Options before those columns existed. [#51071]
 - SEO: Improve handling of protected content in generated metadata.
+- SEO: Move the dashboard's toast notices back to the top right. [#52096]
 - SEO: Stop the search-engine indexing toggle from publishing a private or coming-soon site. [#51778]
 - SEO Tools: Fix og:description leaking the first post's custom SEO description on archive and latest-posts homepage views. [#50911]
 - Settings: Dismiss success notices automatically instead of leaving them on screen. [#52054]
@@ -191,7 +191,6 @@
 - VideoPress: Show the Jetpack connection error notice on the VideoPress dashboard again. [#51541]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- REST API: Add the `atomic_email_block` field to the site endpoint response. [#51038]
 - Admin Bar: Expose the command palette node through the admin bar endpoint. [#51026]
 - Admin Page: Remove the release post update modal, which has had no content published for it since 2023. [#51402]
 - Agents Manager: Show an “Agent” label beside the admin bar's AI chat icon while the chat is hidden. [#51926]
@@ -210,6 +209,7 @@
 - Register the jetpack-ai-jwt REST route through the shared Connection controller so the route is only registered once. [#51761]
 - Related Posts: Harden rendering JavaScript. [#52041]
 - Reprint export: Serve a site export from Jetpack on Pressable and WordPress.com Atomic sites. [#51430]
+- REST API: Add the `atomic_email_block` field to the site endpoint response. [#51038]
 - Sharing: Reduce the inline JavaScript on posts with sharing buttons by opening every share popup from one shared click handler. [#51299]
 - Sitemaps: Add a `jetpack_sitemap_flat_master_index` filter that makes `sitemap.xml` list individual sitemap files instead of nesting sitemap index files. [#51980]
 - Update lock file. [#50855]
