@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Line chart: Pair tooltip color defaults when overriding only the background or text color.
