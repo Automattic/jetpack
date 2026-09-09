@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use shared chart positioning for the experimental dashboard history tooltip.
