@@ -86,7 +86,7 @@ export function connect( provider: string ): Promise< void > {
 
 		// Opened blank on the click itself; opening after the signing round trip
 		// would be blocked.
-		const popup = window.open( '', 'jetpack-comment-identity', 'width=780,height=700' );
+		const popup = window.open( '', 'jetpack-comment-identity', 'width=420,height=560' );
 
 		if ( ! popup ) {
 			reject( new Error( 'popup_blocked' ) );
