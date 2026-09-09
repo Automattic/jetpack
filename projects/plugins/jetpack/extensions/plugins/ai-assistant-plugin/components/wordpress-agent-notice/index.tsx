@@ -10,7 +10,8 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { Button, Icon, LinkButton, Notice } from '@wordpress/ui';
+import { Button, Icon, LinkButton, Notice, VisuallyHidden } from '@wordpress/ui';
+import { useId } from 'react';
 /**
  * Internal dependencies
  */
@@ -36,6 +37,7 @@ import type {
 } from './types';
 
 export const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
+export const AGENT_ENABLED_FEATURE = 'ai-sidebar-agent-enabled';
 export const PREFERENCE_SCOPE = 'jetpack/ai-assistant';
 export const DISMISSED_PREFERENCE = 'wordpressAgentNoticeDismissed';
 
@@ -58,7 +60,11 @@ function getEnableAgentUrl(): string {
 		return getMyJetpackUrl( '#/overview' );
 	}
 
-	return `https://wordpress.com/sites/${ getSiteFragment() }/settings/ai-tools`;
+	const siteFragment = getSiteFragment();
+
+	return siteFragment
+		? `https://wordpress.com/sites/${ siteFragment }/settings/ai-tools`
+		: 'https://wordpress.com/sites';
 }
 
 function useEventProperties(
@@ -128,6 +134,9 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	const canOpenAgent = isAgentActionAvailable();
 	const isAgentReady = useIsWordPressAgentReady();
 	const isChatOnScreen = useIsWordPressAgentChatVisible();
+	// A site with a chat to open has the Agent on, whatever the server flag says.
+	const isAgentOn = canOpenAgent || getFeatureAvailability( AGENT_ENABLED_FEATURE );
+	const disabledReasonId = useId();
 
 	const openAgent = () => {
 		tracks.recordEvent( 'jetpack_big_sky_agent_notice_click', {
@@ -165,7 +174,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 			style={ { gridTemplateColumns: 'auto minmax(0, 1fr) auto' } }
 		>
 			<Notice.Description>
-				{ canOpenAgent
+				{ isAgentOn
 					? createInterpolateElement(
 							// translators: <icon/> is the WordPress Agent's icon. "Agent" is the label on an editor toolbar button.
 							__(
@@ -183,7 +192,8 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 								),
 							}
 					  )
-					: __( 'AI tools have moved to the WordPress Agent.', 'jetpack' ) }
+					: /* translators: "WordPress Agent" is a product name. */
+					  __( 'AI tools have moved to the WordPress Agent.', 'jetpack' ) }
 			</Notice.Description>
 
 			<Notice.Actions>
@@ -193,17 +203,21 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 						style={ ACTION_BUTTON_STYLE }
 						onClick={ openAgent }
 						disabled={ isChatOnScreen }
-						// Replaces the visible label, so it must still name the button.
-						aria-label={
-							isChatOnScreen ? __( 'WordPress Agent is already open', 'jetpack' ) : undefined
-						}
+						aria-describedby={ isChatOnScreen ? disabledReasonId : undefined }
 					>
 						{ /* translators: Button that opens the WordPress Agent chat. "WordPress Agent" is a product name. */ }
 						{ __( 'Open WordPress Agent', 'jetpack' ) }
 					</Button>
 				) }
 
-				{ ! canOpenAgent && (
+				{ isChatOnScreen && (
+					<VisuallyHidden id={ disabledReasonId }>
+						{ /* translators: Read out to explain why the button is disabled. "WordPress Agent" is a product name. */ }
+						{ __( 'WordPress Agent is already open', 'jetpack' ) }
+					</VisuallyHidden>
+				) }
+
+				{ ! isAgentOn && (
 					<LinkButton
 						variant="outline"
 						style={ ACTION_BUTTON_STYLE }
