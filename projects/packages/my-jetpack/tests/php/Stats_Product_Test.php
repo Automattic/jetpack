@@ -22,6 +22,11 @@ use WorDBless\Users as WorDBless_Users;
 class Stats_Product_Test extends TestCase {
 
 	/**
+	 * The first filename Stats declares for its standalone plugin.
+	 */
+	private const STANDALONE_PLUGIN_FILE = 'jetpack-stats/jetpack-stats.php';
+
+	/**
 	 * The current user id.
 	 *
 	 * @var int
@@ -70,6 +75,8 @@ class Stats_Product_Test extends TestCase {
 	public function tearDown(): void {
 		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- It's declared on the mock from ./assets/jetpack-mock-plugin.txt
 		\Jetpack::$mock_premium_analytics_enabled = false;
+
+		$this->uninstall_standalone_plugin();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -131,5 +138,40 @@ class Stats_Product_Test extends TestCase {
 		$this->set_premium_analytics_enabled( true );
 
 		$this->assertNull( Stats::get_purchase_url() );
+	}
+
+	public function test_standalone_plugin_is_not_active_when_only_the_jetpack_plugin_is() {
+		$this->assertFalse( Stats::is_standalone_plugin_active() );
+	}
+
+	public function test_standalone_plugin_is_active_once_installed_and_activated() {
+		$this->install_standalone_plugin();
+		activate_plugin( self::STANDALONE_PLUGIN_FILE );
+
+		$this->assertTrue( Stats::is_standalone_plugin_active() );
+	}
+
+	/**
+	 * Copy the standalone Stats mock plugin into place.
+	 */
+	private function install_standalone_plugin() {
+		$target = WP_PLUGIN_DIR . '/' . self::STANDALONE_PLUGIN_FILE;
+		if ( ! file_exists( dirname( $target ) ) ) {
+			mkdir( dirname( $target ), 0777, true );
+		}
+		copy( __DIR__ . '/assets/stats-mock-plugin.txt', $target );
+		wp_cache_delete( 'plugins', 'plugins' );
+	}
+
+	/**
+	 * Remove the standalone Stats mock plugin, so it cannot answer another test class's
+	 * "standalone plugin absent" case.
+	 */
+	private function uninstall_standalone_plugin() {
+		$target = WP_PLUGIN_DIR . '/' . self::STANDALONE_PLUGIN_FILE;
+		if ( file_exists( $target ) ) {
+			unlink( $target );
+		}
+		wp_cache_delete( 'plugins', 'plugins' );
 	}
 }

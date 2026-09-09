@@ -53,7 +53,7 @@ class Stats extends Hybrid_Product {
 	/**
 	 * The Plugin file associated with stats
 	 *
-	 * @var string|array|null
+	 * @var string[]
 	 */
 	public static $plugin_filename = array(
 		'jetpack-stats/jetpack-stats.php',
@@ -191,6 +191,12 @@ class Stats extends Hybrid_Product {
 			// If the site has never been connected before, show the "Learn more" CTA,
 			// that points to the add Stats product interstitial.
 			$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
+		}
+		if ( Products::STATUS_NEEDS_PLAN === $status ) {
+			// Recognizing the standalone plugin makes the base class ask an unowned site to
+			// buy a plan while that plugin is inactive, but Stats is free from the Jetpack
+			// plugin, so the card keeps offering activation.
+			$status = Products::STATUS_NEEDS_ACTIVATION;
 		}
 		return $status;
 	}
