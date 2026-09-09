@@ -164,7 +164,7 @@ export function SpotlightStep( {
 					<Stack direction="column" gap="sm">
 						<Popover.Title>{ title }</Popover.Title>
 						<Popover.Description>{ description }</Popover.Description>
-						<Stack direction="row" align="center" justify="space-between" gap="md">
+						<Stack direction="row" align="center" justify="space-between" gap="md" wrap="wrap">
 							<Text variant="body-sm">
 								{ sprintf(
 									/* translators: 1: the current step number, 2: the number of steps in the tour. */
