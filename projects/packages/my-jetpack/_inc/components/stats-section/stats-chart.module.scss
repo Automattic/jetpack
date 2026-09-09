@@ -8,7 +8,10 @@
 	display: block;
 	position: relative;
 	box-sizing: border-box;
-	cursor: pointer;
+
+	&[href] {
+		cursor: pointer;
+	}
 
 	.chart-empty {
 		align-items: center;

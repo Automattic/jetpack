@@ -175,7 +175,7 @@ const StatsCards = ( {
 				variant="unstyled"
 				className={ styles[ 'section-title-container' ] }
 				href={ detailedStatsHref }
-				onClick={ onDetailedStatsClick }
+				onClick={ detailedStatsHref ? onDetailedStatsClick : undefined }
 			>
 				<Heading className={ styles[ 'section-title' ] }>
 					<span>{ getDynamicTitle( selectedMetric ) }</span>

@@ -80,7 +80,7 @@ const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, me
 			variant="unstyled"
 			className={ styles[ 'chart-container' ] }
 			href={ href }
-			onClick={ onClick }
+			onClick={ href ? onClick : undefined }
 			aria-label={ __( 'View detailed stats', 'jetpack-my-jetpack' ) }
 		>
 			{ isEmpty && (

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import StatsCards from '../cards.jsx';
 
 const HREF = 'admin.php?page=stats&force_refresh=1';
@@ -41,9 +42,14 @@ describe( 'StatsCards detailed stats link', () => {
 
 	// The card is inside a "slim" ProductCard, which renders no action buttons, so these
 	// links are the only route to the Stats page.
-	it( 'leaves no link behind when the product has no manage URL', () => {
-		renderCards( { detailedStatsHref: undefined } );
+	it( 'leaves nothing clickable when the product has no manage URL', async () => {
+		const onDetailedStatsClick = jest.fn();
+		renderCards( { detailedStatsHref: undefined, onDetailedStatsClick } );
 
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'heading', { name: /Views in the last 7 days/ } ) );
+
+		expect( onDetailedStatsClick ).not.toHaveBeenCalled();
 	} );
 } );
