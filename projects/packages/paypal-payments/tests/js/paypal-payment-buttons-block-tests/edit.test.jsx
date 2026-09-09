@@ -138,6 +138,22 @@ jest.mock( '@wordpress/components', () => ( {
 		</select>
 	),
 	Spinner: () => <div data-testid="spinner">Loading...</div>,
+	CheckboxControl: ( { label, checked, onChange, help, disabled } ) => {
+		const id = `checkbox-${ label }`;
+		return (
+			<div>
+				<input
+					id={ id }
+					type="checkbox"
+					checked={ checked }
+					onChange={ () => onChange( ! checked ) }
+					disabled={ disabled }
+				/>
+				<label htmlFor={ id }>{ label }</label>
+				{ help && <span>{ help }</span> }
+			</div>
+		);
+	},
 	ToggleControl: ( { label, checked, onChange, help, disabled } ) => {
 		const id = `toggle-${ label }`;
 		return (
@@ -1626,7 +1642,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			await expect(
-				screen.findByText( 'Prices are set on option group 2.' )
+				screen.findByText( 'Prices are set on variant 2.' )
 			).resolves.toBeInTheDocument();
 			expect( screen.getByLabelText( 'Add price per variant' ) ).toBeChecked();
 
@@ -1756,6 +1772,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		const control = label => within( screen.getByTestId( `control-${ label }` ) );
 
 		/**
+		 * One variant's name control. They all share a label, so they go by position.
+		 *
+		 * @param {number} index - Zero-based variant index.
+		 * @return {Element} That variant's name control.
+		 */
+		const variantControl = index => screen.getAllByTestId( 'control-Variant name' )[ index ];
+
+		/**
 		 * Focus a control and leave it, which is what marks the field touched.
 		 *
 		 * @param {object} user  - userEvent instance.
@@ -1817,7 +1841,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( optionsPanel() ).toHaveAttribute( 'data-initial-open', 'true' );
 			expect(
-				control( 'Option group 1' ).getByText( 'Option group name is required.' )
+				within( variantControl( 0 ) ).getByText( 'Variant name is required.' )
 			).toBeVisible();
 		} );
 
@@ -1830,13 +1854,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( optionsPanel() ).toHaveAttribute( 'data-initial-open', 'false' );
 		} );
 
+		// The design labels every variant the same, so the number only exists for screen
+		// readers - without it two name fields on one panel are indistinguishable.
+		it( 'labels every variant the same on screen and numbers them for screen readers', async () => {
+			renderWith( [ group( 'g1' ), group( 'g2' ) ] );
+
+			await expect( screen.findAllByText( 'Variant name' ) ).resolves.toHaveLength( 2 );
+			expect( screen.getByRole( 'textbox', { name: 'Variant name 1' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'textbox', { name: 'Variant name 2' } ) ).toBeInTheDocument();
+		} );
+
 		it( 'holds its tongue until the merchant leaves the field', async () => {
 			renderWith();
 
 			await expect(
-				screen.findByRole( 'textbox', { name: 'Option group 1' } )
+				screen.findByRole( 'textbox', { name: 'Variant name 1' } )
 			).resolves.toBeInTheDocument();
-			expect( screen.queryByText( 'Option group name is required.' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Variant name is required.' ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( 'Option name is required.' ) ).not.toBeInTheDocument();
 			// The save button is dead from the first render, with nothing on screen saying why.
 			expect( screen.getByText( 'Create New' ) ).toBeDisabled();
@@ -1846,12 +1880,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const user = userEvent.setup();
 			renderWith();
 
-			await visit( user, await screen.findByRole( 'textbox', { name: 'Option group 1' } ) );
+			await visit( user, await screen.findByRole( 'textbox', { name: 'Variant name 1' } ) );
 
 			expect(
-				control( 'Option group 1' ).getByText( 'Option group name is required.' )
+				within( variantControl( 0 ) ).getByText( 'Variant name is required.' )
 			).toBeInTheDocument();
-			expect( screen.getByTestId( 'control-Option group 1' ) ).toHaveClass( 'has-error' );
+			expect( variantControl( 0 ) ).toHaveClass( 'has-error' );
 			// Leaving the group name says nothing about the option below it.
 			expect( screen.queryByText( 'Option name is required.' ) ).not.toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Option 1' ) ).not.toHaveClass( 'has-error' );
@@ -1865,8 +1899,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const user = userEvent.setup();
 			const { rerender } = renderWith();
 
-			await visit( user, await screen.findByRole( 'textbox', { name: 'Option group 1' } ) );
-			expect( screen.getByText( 'Option group name is required.' ) ).toBeInTheDocument();
+			await visit( user, await screen.findByRole( 'textbox', { name: 'Variant name 1' } ) );
+			expect( screen.getByText( 'Variant name is required.' ) ).toBeInTheDocument();
 
 			rerender(
 				<Edit
@@ -1881,20 +1915,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			expect( screen.queryByText( 'Option group name is required.' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Variant name is required.' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'keeps one group quiet while the merchant works in another', async () => {
 			const user = userEvent.setup();
 			renderWith( [ group( 'g1' ), group( 'g2' ) ] );
 
-			await visit( user, await screen.findByRole( 'textbox', { name: 'Option group 2' } ) );
+			await visit( user, await screen.findByRole( 'textbox', { name: 'Variant name 2' } ) );
 
 			expect(
-				control( 'Option group 2' ).getByText( 'Option group name is required.' )
+				within( variantControl( 1 ) ).getByText( 'Variant name is required.' )
 			).toBeInTheDocument();
 			expect(
-				control( 'Option group 1' ).queryByText( 'Option group name is required.' )
+				within( variantControl( 0 ) ).queryByText( 'Variant name is required.' )
 			).not.toBeInTheDocument();
 		} );
 

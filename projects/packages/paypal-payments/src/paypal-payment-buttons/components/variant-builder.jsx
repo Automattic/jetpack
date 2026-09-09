@@ -9,30 +9,22 @@
  * @since 0.9.0
  */
 
-import { Button, TextControl, ToggleControl } from '@wordpress/components';
+import { Button, CheckboxControl, TextControl, ToggleControl } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import GridiconTrash from 'gridicons/dist/trash';
-import { getPricePlaceholder, getPriceStep } from '../utils/currency-symbols';
+import { getPriceStep } from '../utils/currency-symbols';
 import { validatePrice } from '../utils/validation';
 
 // Pre-extract translated strings used in ternaries to avoid i18n build errors.
-const placeholderColor = __( 'e.g., Color', 'jetpack-paypal-payments' );
-const placeholderSize = __( 'e.g., Size', 'jetpack-paypal-payments' );
-const helpVariantsOn = __(
-	'Customers choose options (e.g., size, color) at checkout.',
-	'jetpack-paypal-payments'
-);
-const helpVariantsOff = __(
-	'Add size, color, or other product options.',
+const helpVariants = __(
+	'Options for your item, up to 5 variations in color, size, type, etc.',
 	'jetpack-paypal-payments'
 );
 const helpPricingFirstGroup = __(
 	'You can only set the price for your first variant.',
 	'jetpack-paypal-payments'
 );
-/* translators: %d: option group number */
-const helpPricingOtherGroup = __( 'Prices are set on option group %d.', 'jetpack-paypal-payments' );
 
 const MAX_GROUPS = 5;
 const MAX_OPTIONS = 10;
@@ -171,7 +163,7 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 				group: i,
 				option: null,
 				field: 'name',
-				message: __( 'Option group name is required.', 'jetpack-paypal-payments' ),
+				message: __( 'Variant name is required.', 'jetpack-paypal-payments' ),
 			} );
 		}
 
@@ -298,23 +290,24 @@ function GroupEditor( {
 	const groupLabel =
 		group.name ||
 		sprintf(
-			/* translators: %d: group number */
-			__( 'Option group %d', 'jetpack-paypal-payments' ),
+			/* translators: %d: variant number */
+			__( 'Variant %d', 'jetpack-paypal-payments' ),
 			index + 1
 		);
 
 	return (
 		<div className="jetpack-paypal-variants__group" role="group" aria-label={ groupLabel }>
 			<TextControl
-				label={ sprintf(
-					/* translators: %d: group number */
-					__( 'Option group %d', 'jetpack-paypal-payments' ),
+				label={ __( 'Variant name', 'jetpack-paypal-payments' ) }
+				aria-label={ sprintf(
+					/* translators: %d: variant number */
+					__( 'Variant name %d', 'jetpack-paypal-payments' ),
 					index + 1
 				) }
 				value={ group.name }
 				onChange={ updateName }
 				onBlur={ () => onTouch( fieldKey( null, 'name' ) ) }
-				placeholder={ index === 0 ? placeholderColor : placeholderSize }
+				placeholder={ __( 'Enter variant name', 'jetpack-paypal-payments' ) }
 				disabled={ disabled }
 				help={ errorFor( null, 'name' ) }
 				className={ errorFor( null, 'name' ) ? 'has-error' : undefined }
@@ -328,7 +321,7 @@ function GroupEditor( {
 				disabled={ disabled }
 				label={ sprintf(
 					/* translators: %s: group name */
-					__( 'Remove option group "%s"', 'jetpack-paypal-payments' ),
+					__( 'Remove variant "%s"', 'jetpack-paypal-payments' ),
 					groupLabel
 				) }
 			/>
@@ -349,7 +342,7 @@ function GroupEditor( {
 							value={ option.label }
 							onChange={ label => updateOption( optIndex, { label } ) }
 							onBlur={ () => onTouch( fieldKey( optIndex, 'label' ) ) }
-							placeholder={ __( 'e.g., Black', 'jetpack-paypal-payments' ) }
+							placeholder={ __( 'Enter option name', 'jetpack-paypal-payments' ) }
 							disabled={ disabled }
 							help={ errorFor( optIndex, 'label' ) }
 							className={ errorFor( optIndex, 'label' ) ? 'has-error' : undefined }
@@ -357,6 +350,7 @@ function GroupEditor( {
 						{ group.primary && (
 							<TextControl
 								label={ __( 'Price', 'jetpack-paypal-payments' ) }
+								hideLabelFromVision
 								value={ option.unit_amount?.value || '' }
 								onChange={ value =>
 									updateOption( optIndex, {
@@ -369,7 +363,7 @@ function GroupEditor( {
 								type="number"
 								min={ getPriceStep( currencyCode ) }
 								step={ getPriceStep( currencyCode ) }
-								placeholder={ getPricePlaceholder( currencyCode ) }
+								placeholder={ __( 'Price', 'jetpack-paypal-payments' ) }
 								disabled={ disabled }
 								help={ errorFor( optIndex, 'price' ) }
 								className={ errorFor( optIndex, 'price' ) ? 'has-error' : undefined }
@@ -397,8 +391,8 @@ function GroupEditor( {
 
 				<div className="jetpack-paypal-variants__option-actions">
 					{ group.options.length < MAX_OPTIONS ? (
-						<Button isSmall variant="secondary" onClick={ addOption } disabled={ disabled }>
-							{ __( 'Add Option', 'jetpack-paypal-payments' ) }
+						<Button isSmall variant="link" onClick={ addOption } disabled={ disabled }>
+							{ __( '+ Add another option', 'jetpack-paypal-payments' ) }
 						</Button>
 					) : (
 						<p className="jetpack-paypal-variants__limit-notice">
@@ -507,7 +501,13 @@ export default function VariantBuilder( {
 	// New buttons always price the first group, but a payment created elsewhere can
 	// price a later one - name that group instead of claiming it is the first.
 	const pricingHelp =
-		primaryIndex > 0 ? sprintf( helpPricingOtherGroup, primaryIndex + 1 ) : helpPricingFirstGroup;
+		primaryIndex > 0
+			? sprintf(
+					/* translators: %d: variant number */
+					__( 'Prices are set on variant %d.', 'jetpack-paypal-payments' ),
+					primaryIndex + 1
+			  )
+			: helpPricingFirstGroup;
 
 	const addGroup = () => {
 		if ( dimensions.length >= MAX_GROUPS ) {
@@ -524,8 +524,8 @@ export default function VariantBuilder( {
 	return (
 		<div className="jetpack-paypal-variants">
 			<ToggleControl
-				label={ __( 'Enable product options', 'jetpack-paypal-payments' ) }
-				help={ enabled ? helpVariantsOn : helpVariantsOff }
+				label={ __( 'Add variants', 'jetpack-paypal-payments' ) }
+				help={ helpVariants }
 				checked={ enabled }
 				onChange={ setEnabled }
 				disabled={ disabled }
@@ -536,14 +536,14 @@ export default function VariantBuilder( {
 					{ dimensions.length === 0 && (
 						<p className="jetpack-paypal-variants__empty-help">
 							{ __(
-								'No option groups yet. Click "Add option group" to create one. An option group is a product attribute like Color or Size — add choices within each group.',
+								'No variants yet. Click "Add Variant" to create one. A variant is a product attribute like Color or Size — add options within each one.',
 								'jetpack-paypal-payments'
 							) }
 						</p>
 					) }
 
 					{ dimensions.length > 0 && (
-						<ToggleControl
+						<CheckboxControl
 							label={ __( 'Add price per variant', 'jetpack-paypal-payments' ) }
 							help={ pricingHelp }
 							checked={ pricingOn }
@@ -576,24 +576,14 @@ export default function VariantBuilder( {
 						{ dimensions.length < MAX_GROUPS ? (
 							<>
 								<Button variant="secondary" onClick={ addGroup } disabled={ disabled }>
-									{ __( 'Add option group', 'jetpack-paypal-payments' ) }
+									{ __( 'Add Variant', 'jetpack-paypal-payments' ) }
 								</Button>
-								{ dimensions.length > 0 && (
-									<span className="jetpack-paypal-variants__counter">
-										{ sprintf(
-											/* translators: 1: current count, 2: maximum */
-											__( '%1$d / %2$d groups', 'jetpack-paypal-payments' ),
-											dimensions.length,
-											MAX_GROUPS
-										) }
-									</span>
-								) }
 							</>
 						) : (
 							<p className="jetpack-paypal-variants__limit-notice">
 								{ sprintf(
 									/* translators: %d: maximum number of groups */
-									__( 'Maximum of %d option groups reached.', 'jetpack-paypal-payments' ),
+									__( 'Maximum of %d variants reached.', 'jetpack-paypal-payments' ),
 									MAX_GROUPS
 								) }
 							</p>

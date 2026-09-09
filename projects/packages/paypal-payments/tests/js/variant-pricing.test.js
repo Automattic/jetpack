@@ -190,7 +190,7 @@ describe( 'validateVariants', () => {
 		// The group name error belongs to no single option, so it carries option: null.
 		// The group is primary, so its option needs a price too.
 		expect( errors ).toEqual( [
-			{ group: 0, option: null, field: 'name', message: 'Option group name is required.' },
+			{ group: 0, option: null, field: 'name', message: 'Variant name is required.' },
 			{ group: 0, option: 0, field: 'label', message: 'Option name is required.' },
 			{ group: 0, option: 0, field: 'price', message: 'Price is required.' },
 		] );

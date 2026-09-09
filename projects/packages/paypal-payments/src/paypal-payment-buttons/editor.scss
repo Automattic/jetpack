@@ -529,27 +529,14 @@
 	margin: 4px 0;
 }
 
-.jetpack-paypal-variants__counter {
-	font-size: 12px;
-	color: #757575;
-	margin-left: 8px;
-}
-
 // Variant builder option groups.
+// No card and no indent to the left or right. A 280px sidebar leaves 228px here
+// once core takes its scrollbar and panel padding, and the design spends all of
+// it on the fields - its name and price inputs are 159 + 89, edge to edge.
+// The vertical rhythm is unchanged.
 .jetpack-paypal-variants__group {
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	padding: 12px;
+	padding: 12px 0;
 	margin-bottom: 12px;
-	background: #f9f9f9;
-}
-
-.jetpack-paypal-variants__options {
-	// The border carries the nesting cue on its own, and this already
-	// sits inside __group's card padding, so keep it tight - the option
-	// fields start from about 230px.
-	padding-left: 8px;
-	border-left: 2px solid #ddd;
 }
 
 .jetpack-paypal-variants__option {
@@ -581,6 +568,11 @@
 	margin-top: 8px;
 	display: flex;
 	align-items: center;
+
+	.components-button {
+		justify-content: center;
+		width: 100%;
+	}
 }
 
 // Variant summary badges in preview.
