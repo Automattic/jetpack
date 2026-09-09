@@ -44,7 +44,7 @@ const FreshlyPressedPost = ( { post, position, siteType } ) => {
  * @param {string}   props.siteType - The site type, for analytics.
  * @return {import('react').ReactElement} The Freshly Pressed panel.
  */
-export default ( { posts, siteType } ) => (
+const FreshlyPressedPanel = ( { posts, siteType } ) => (
 	<Stack direction="column" gap="sm">
 		<Text
 			className="wpcom-daily-writing-prompt--freshly-pressed-intro"
@@ -65,3 +65,5 @@ export default ( { posts, siteType } ) => (
 		</ul>
 	</Stack>
 );
+
+export default FreshlyPressedPanel;

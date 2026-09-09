@@ -19,7 +19,7 @@ import { addQueryArgs } from '@wordpress/url';
  * @param {Function} props.onReaderClick      - Called when the Reader link is clicked.
  * @return {import('react').ReactElement} The prompt panel.
  */
-export default ( { prompts, siteType, readerUrl, openReaderInNewTab, onReaderClick } ) => {
+const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onReaderClick } ) => {
 	const [ index, setIndex ] = useState( 0 );
 
 	const goToPrevious = useCallback( () => setIndex( current => current - 1 ), [] );
@@ -165,3 +165,5 @@ export default ( { prompts, siteType, readerUrl, openReaderInNewTab, onReaderCli
 		</Stack>
 	);
 };
+
+export default PromptPanel;

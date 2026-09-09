@@ -17,7 +17,7 @@ import PromptPanel from './prompt-panel.jsx';
 const PROMPT_TAB = 'prompt';
 const FRESHLY_PRESSED_TAB = 'freshly-pressed';
 
-export default () => {
+const WritingPrompt = () => {
 	const [ prompts, setPrompts ] = useState( [] );
 	const [ loaded, setLoaded ] = useState( false );
 	const [ tab, setTab ] = useState( PROMPT_TAB );
@@ -27,10 +27,7 @@ export default () => {
 
 	// The Freshly Pressed posts are fetched and cached server-side, so they
 	// arrive with the page rather than through a request of their own.
-	const freshlyPressed = useMemo( () => {
-		const posts = getScriptData()?.newsletter?.freshlyPressed;
-		return Array.isArray( posts ) ? posts : [];
-	}, [] );
+	const freshlyPressed = useMemo( () => getScriptData()?.newsletter?.freshlyPressed ?? [], [] );
 
 	// Initialize analytics with user data.
 	useEffect( () => {
@@ -154,3 +151,5 @@ export default () => {
 		</Stack>
 	);
 };
+
+export default WritingPrompt;
