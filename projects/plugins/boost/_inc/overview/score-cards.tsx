@@ -3,6 +3,7 @@ import { CardDivider } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
 import { Card, Stack, Popover } from '@wordpress/ui';
+import GradeExplanation from '../../app/assets/src/js/features/speed-score/context-tooltip/grade-explanation';
 import { getGradeTier } from './lib/score-utils';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';
@@ -44,12 +45,10 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 							</Popover.Trigger>
 							<Popover.Popup className="jetpack-boost-overview__grade-tooltip">
 								<Popover.Title>{ __( 'Overall grade', 'jetpack-boost' ) }</Popover.Title>
-								<Popover.Description>
-									{ __(
-										"Your Overall Score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance.",
-										'jetpack-boost'
-									) }
-								</Popover.Description>
+								<GradeExplanation
+									descriptionComponent={ Popover.Description }
+									tableClassName="jetpack-boost-overview__grade-ranges"
+								/>
 							</Popover.Popup>
 						</Popover.Root>
 					}
