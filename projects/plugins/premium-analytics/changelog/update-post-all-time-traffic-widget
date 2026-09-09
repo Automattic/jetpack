@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Post detail: Show a post's monthly views across its whole life, in place of the daily heatmap; picking a month reads the page over it.
+Post detail: Show a post's monthly views across its whole life, in place of the daily heatmap, and picking a month applies it as the page's period.
