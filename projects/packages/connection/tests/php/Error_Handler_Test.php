@@ -64,7 +64,7 @@ class Error_Handler_Test extends BaseTestCase {
 		\Jetpack_Options::delete_option( 'user_tokens' );
 
 		// Manager memoizes the connection owner, which jetpack_connect_user maps on.
-		( new Manager() )-reset_connection_status();
+		( new Manager() )->reset_connection_status();
 
 		// The gate is keyed by code + direction; clean every direction variant a test could
 		// have armed (including '' for a WP_Error built with no error_data).
