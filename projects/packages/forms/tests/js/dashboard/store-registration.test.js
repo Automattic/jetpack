@@ -3,21 +3,26 @@
  */
 import { describe, expect, it, jest } from '@jest/globals';
 
-// Hand every re-import the same @wordpress/data instance, so the two module
-// copies share one registry the way two route bundles share one page.
+// Pin one @wordpress/data instance across resetModules, or each re-import gets
+// a fresh registry and the duplicate registration can never happen.
 const wpData = await import( '@wordpress/data' );
 await jest.unstable_mockModule( '@wordpress/data', () => ( { ...wpData } ) );
 
-const importStoreModule = () => import( '../../../src/dashboard/store/index.js' );
+const storeModules = [
+	[ 'FORM_RESPONSES', () => import( '../../../src/dashboard/store/index.js' ) ],
+	[ 'jetpack/forms/config', () => import( '../../../src/store/config/index.ts' ) ],
+	[ 'jetpack/forms/integrations', () => import( '../../../src/store/integrations/index.ts' ) ],
+];
 
-describe( 'dashboard store registration', () => {
+describe.each( storeModules )( '%s store registration', ( storeName, importModule ) => {
 	it( 'registers once when a second bundle evaluates the module', async () => {
-		const first = await importStoreModule();
+		const first = await importModule();
 
 		jest.resetModules();
-		const second = await importStoreModule();
+		const second = await importModule();
 
 		expect( second ).not.toBe( first );
-		expect( wpData.select( first.STORE_NAME ) ).toBeTruthy();
+		expect( wpData.select( storeName ) ).toBeTruthy();
+		expect( console ).not.toHaveErrored();
 	} );
 } );
