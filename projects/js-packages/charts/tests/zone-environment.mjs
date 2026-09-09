@@ -7,10 +7,8 @@ const PINNED_TZ = process.env.TZ;
 /**
  * jsdom, with the worker's time zone pinned to the given zone.
  *
- * `TZ=UTC` in the test script is what hid every time-zone bug in the date
- * formatters, but a test file cannot lift it: Jest sandboxes `process.env` per
- * file, so assigning `TZ` there never reaches the ICU the runtime formats with.
- * An environment runs in the worker's own process, outside that sandbox.
+ * Must run here rather than in a test file: Jest sandboxes `process.env` per file, so a `TZ`
+ * assignment there never reaches the ICU the runtime formats with.
  *
  * @param {string} timeZone - IANA zone the worker runs in.
  * @return {Function} An environment class Jest can instantiate.

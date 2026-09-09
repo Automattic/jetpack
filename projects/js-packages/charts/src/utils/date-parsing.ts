@@ -1,45 +1,16 @@
 /**
- * @file Date parsing utilities using date-fns, dated in a supplied zone or the runtime's own
+ * @file Date parsing: a naive string is dated in a supplied IANA zone, or the runtime's own
  *
- * This module provides utilities for parsing various date string formats and converting
- * them to dates using the battle-tested date-fns library. A format carrying timezone info
- * is a true instant and parses the same everywhere. A format without it is a wall-clock
- * reading, so it means nothing until a zone is named: it is read in the supplied
- * `timeZone`, or in the runtime's own when none is supplied.
+ * A string carrying an offset is already an instant and parses the same everywhere. A string
+ * without one is only a wall-clock reading, so it means nothing until a zone is named. See
+ * `parseAsLocalDate` for the supported formats.
  *
- * Note: And specifically it prevents format `YYYY-MM-DD` being parsed as UTC date.
- *
- * Key Features:
- * - Naive strings are read in the supplied zone, or the runtime's own
- * - Converts timezone-aware strings to their instant
- * - Robust input validation and error handling using date-fns
- * - TypeScript type safety
- * - Much smaller codebase than custom parsing
- *
- * Supported Formats, the first six read in the supplied zone and the last two
- * already instants:
- * - YYYY-MM-DD
- * - YYYY-MM-DD HH:mm:ss
- * - YYYY-MM-DD HH:mm
- * - YYYY-MM-DDTHH:mm:ss
- * - YYYY-MM-DDTHH:mm:ss.SSS
- * - YYYY-MM-DDTHH:mm
- * - YYYY-MM-DDTHH:mm:ssZ
- * - YYYY-MM-DDTHH:mm:ss±HH:mm
- *
- * @example
- * ```typescript
- * parseAsLocalDate("2025-01-01");                     // Local timezone
- * parseAsLocalDate("2025-01-01 14:30:00");            // Local timezone
- * parseAsLocalDate("2025-01-01 14:30");               // Local timezone
- * parseAsLocalDate("2025-01-01T14:30:45.123");        // Local timezone
- * parseAsLocalDate("2025-01-01T14:30:00Z");           // UTC 14:30 → Local equivalent
- * parseAsLocalDate("2025-01-01T14:30:00+05:00");      // +05:00 14:30 → Local equivalent
- * parseAsLocalDate("2025-01-01", "Asia/Tokyo");       // Midnight in Tokyo
- * ```
+ * Note: this specifically avoids date-fns's default of parsing `YYYY-MM-DD` as a UTC date.
  */
 
+import { tzOffset } from '@date-fns/tz';
 import { parse, parseISO, isValid } from 'date-fns';
+import { warnOnce } from './warn-once';
 
 /**
  * Checks if a date string contains timezone information
@@ -59,128 +30,69 @@ const hasTimezone = ( dateString: string ): boolean => {
 	return /[+-]\d{2}:?\d{2}$/.test( dateString.slice( tIndex + 1 ) );
 };
 
-// Enough of the calendar to invert a zone's offset. `en-US` with `h23` pins the
-// digits as Latin and the clock as 0-23; `asUtcMs` below counts in the Gregorian
-// calendar these parts are read on.
-const OFFSET_OPTIONS: Intl.DateTimeFormatOptions = {
-	year: 'numeric',
-	month: 'numeric',
-	day: 'numeric',
-	hour: 'numeric',
-	minute: 'numeric',
-	second: 'numeric',
-	hourCycle: 'h23',
-};
+// The wall clock, read off the string rather than back out of the parsed `Date`: date-fns
+// builds that with local setters, so a runtime zone whose own DST gap swallows the reading
+// hands back fields an hour out. Covers every naive shape in `formats` below.
+const NAIVE = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?)?$/;
 
-// One formatter per zone. Every point in a series is parsed through this, and
-// building an `Intl.DateTimeFormat` is what costs. `null` marks a zone `Intl`
-// rejected, so a bad zone is tried once rather than on every point.
-const offsetFormatters = new Map< string, Intl.DateTimeFormat | null >();
-
-const getOffsetFormatter = ( timeZone: string ): Intl.DateTimeFormat | null => {
-	if ( ! offsetFormatters.has( timeZone ) ) {
-		try {
-			offsetFormatters.set(
-				timeZone,
-				new Intl.DateTimeFormat( 'en-US', { ...OFFSET_OPTIONS, timeZone } )
-			);
-		} catch {
-			offsetFormatters.set( timeZone, null );
-		}
-	}
-
-	return offsetFormatters.get( timeZone ) ?? null;
-};
-
-// `Date.UTC` reads a year below 100 as 1900 + year, which would silently re-date
-// the first century. `setUTCFullYear` has no such mapping.
-const asUtcMs = ( fields: {
-	year: number;
-	month: number;
-	day: number;
-	hour: number;
-	minute: number;
-	second: number;
-	ms: number;
-} ): number => {
-	const date = new Date( 0 );
-	date.setUTCFullYear( fields.year, fields.month - 1, fields.day );
-	date.setUTCHours( fields.hour, fields.minute, fields.second, fields.ms );
-	return date.getTime();
-};
-
-// How far ahead of UTC `timeZone` was at this instant, in milliseconds.
-const zoneOffsetMs = ( instant: number, formatter: Intl.DateTimeFormat ): number => {
-	const parts = formatter.formatToParts( instant );
-	const read = ( type: Intl.DateTimeFormatPartTypes ) =>
-		Number( parts.find( part => part.type === type )?.value );
-
-	// Parts are truncated to the second, so compare against the same truncation.
-	return (
-		asUtcMs( {
-			year: read( 'year' ),
-			month: read( 'month' ),
-			day: read( 'day' ),
-			hour: read( 'hour' ),
-			minute: read( 'minute' ),
-			second: read( 'second' ),
-			ms: 0,
-		} ) -
-		Math.floor( instant / 1000 ) * 1000
+// `Date.UTC` reads a year below 100 as 1900 + year, which would silently re-date the first
+// century. `setUTCFullYear` has no such mapping.
+const asUtcMs = ( [ , ...fields ]: RegExpExecArray ): number => {
+	const [ year, month, day, hour, minute, second, ms ] = fields.map( field =>
+		Number( field ?? 0 )
 	);
+	const date = new Date( 0 );
+	date.setUTCFullYear( year, month - 1, day );
+	date.setUTCHours( hour, minute, second, ms );
+	return date.getTime();
 };
 
 /**
  * The instant a wall-clock reading names in a given zone.
  *
- * @param wallClock - A `Date` whose local getters carry the fields to read; the instant it points at is not used.
- * @param timeZone  - IANA zone the fields are read in.
- * @return The instant, or the wall clock unchanged where `Intl` rejects the zone.
+ * A reading a spring-forward gap deleted moves forward past the gap, and one a fall-back
+ * repeated resolves to a single instant. Neither is configurable: see CHARTS-268.
+ *
+ * @param wallClock - The reading, as the milliseconds it would be if it were UTC.
+ * @param timeZone  - IANA zone the reading is dated in.
+ * @return The instant, or `null` where `timeZone` is not a zone Intl accepts.
  */
-const wallClockToInstant = ( wallClock: Date, timeZone: string ): Date => {
-	const formatter = getOffsetFormatter( timeZone );
+const wallClockToInstant = ( wallClock: number, timeZone: string ): Date | null => {
+	// `tzOffset` answers NaN for a zone Intl cannot use. Falling back to the runtime's zone
+	// keeps the contract that this never throws, but it silently reinstates the very defect
+	// the argument exists to fix, so say so where a developer can see it.
+	const first = tzOffset( timeZone, new Date( wallClock ) );
 
-	// A zone Intl cannot use degrades to the runtime's own rather than throwing:
-	// this function is reached from a public helper whose contract is to return an
-	// invalid date, never to throw, and `GlobalChartsProvider` has already warned
-	// about an unusable zone before its own points get here.
-	if ( ! formatter ) {
-		return wallClock;
+	if ( Number.isNaN( first ) ) {
+		warnOnce(
+			`parse:timeZone:${ timeZone }`,
+			`timeZone ${ JSON.stringify(
+				timeZone
+			) } is not a zone Intl accepts, so dates are read in the browser's zone. Pass an IANA name or a UTC offset such as "+05:30".`
+		);
+		return null;
 	}
 
-	const fields = asUtcMs( {
-		year: wallClock.getFullYear(),
-		month: wallClock.getMonth() + 1,
-		day: wallClock.getDate(),
-		hour: wallClock.getHours(),
-		minute: wallClock.getMinutes(),
-		second: wallClock.getSeconds(),
-		ms: wallClock.getMilliseconds(),
-	} );
-
 	// The offset depends on the instant, so the first answer is only a guess: a DST
-	// transition between the two moves it. Re-reading the offset at the guess
-	// settles every reading the zone actually has.
-	const first = zoneOffsetMs( fields, formatter );
-	const guess = fields - first;
-	const second = zoneOffsetMs( guess, formatter );
+	// transition between the two moves it. Re-reading the offset at the guess settles
+	// every reading the zone actually has.
+	const guess = wallClock - first * 60000;
+	const second = tzOffset( timeZone, new Date( guess ) );
 
 	if ( first === second ) {
 		return new Date( guess );
 	}
 
-	const corrected = fields - second;
-	const third = zoneOffsetMs( corrected, formatter );
+	const corrected = wallClock - second * 60000;
+	const third = tzOffset( timeZone, new Date( corrected ) );
 
 	if ( second === third ) {
 		return new Date( corrected );
 	}
 
-	// A reading a spring-forward gap deleted, so no instant carries it. The smaller
-	// offset moves it forward past the gap: a day bucket in a zone that springs
-	// forward at midnight keeps its own calendar day instead of landing on the
-	// previous one.
-	return new Date( fields - Math.min( second, third ) );
+	// The smaller offset moves the reading forward past the gap, so a day bucket in a zone
+	// that springs forward at midnight keeps its own calendar day.
+	return new Date( wallClock - Math.min( second, third ) * 60000 );
 };
 
 /**
@@ -190,6 +102,10 @@ const wallClockToInstant = ( wallClock: Date, timeZone: string ): Date => {
  * is already an instant and is returned as one, whatever `timeZone` says. A string
  * without it is a wall-clock reading, dated in `timeZone` when one is supplied and
  * in the runtime's own zone when none is.
+ *
+ * A wall clock a DST gap deleted is moved forward past the gap; one a fall-back repeated
+ * resolves to a single instant. Neither policy is selectable. A zone `Intl` rejects falls
+ * back to the runtime's own, and warns once outside production.
  *
  * @param {string} dateString - The date string to parse into a date
  * @param {string} [timeZone] - IANA zone a naive string is read in; the runtime's own when absent, and ignored by a string that carries its own offset
@@ -221,10 +137,20 @@ export const parseAsLocalDate = ( dateString: string, timeZone?: string ): Date 
 	];
 
 	for ( const format of formats ) {
+		// date-fns still decides whether the string is a date at all, calendar rules included;
+		// only the fields it read are untrustworthy, and only when a zone was named.
 		const result = parse( trimmedString, format, new Date() );
-		if ( isValid( result ) ) {
-			return timeZone ? wallClockToInstant( result, timeZone ) : result;
+		if ( ! isValid( result ) ) {
+			continue;
 		}
+
+		if ( ! timeZone ) {
+			return result;
+		}
+
+		const fields = NAIVE.exec( trimmedString );
+
+		return ( fields && wallClockToInstant( asUtcMs( fields ), timeZone ) ) ?? result;
 	}
 
 	// If no format matched, return invalid date

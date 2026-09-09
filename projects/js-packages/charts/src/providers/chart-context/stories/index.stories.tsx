@@ -437,8 +437,7 @@ const HOST_DAY_DATA: SeriesData[] = [
  * The same day strings under two hosts, both landing on the day they name.
  *
  * A `dateString` names no instant, so it is read as midnight in the provider's `timeZone` rather
- * than the viewer's. Switch your browser's own zone and nothing here moves; before CHARTS-268 the
- * first column shifted a day for a viewer far enough east.
+ * than the viewer's: switch your browser's own zone and nothing here moves.
  */
 export const HostTimeZoneDatesDayStrings: Story = {
 	render: () => (

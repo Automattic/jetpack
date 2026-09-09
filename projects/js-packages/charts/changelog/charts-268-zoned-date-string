@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Date a naive dateString point in the provider's time zone, so every viewer reads the same day.
+LineChart, AreaChart, BarChart: Date a naive dateString point in the provider's time zone, so every viewer reads the same day.
