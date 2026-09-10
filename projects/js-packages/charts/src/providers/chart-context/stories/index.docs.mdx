@@ -190,7 +190,7 @@ The context respects explicit color overrides while maintaining group stability 
 
 ### Theme Structure
 
-For catalog colors and their scoping rules, see [TOKENS.md](https://github.com/Automattic/jetpack/blob/trunk/projects/js-packages/charts/TOKENS.md). For local tooltip overrides, see [LineChart tooltip styling](?path=/docs/js-packages-charts-library-charts-line-chart--docs#below-axis-tooltips).
+**Colors are CSS, not JS.** Every color a chart paints has a `--a8c-charts-color-*` catalog role behind it, declared anywhere inside the provider tree. The closest declaration wins, so scope a rule to one dashboard, or to `.a8c-charts-scope` to reach every chart on the page:
 
 <Source
 	language="css"
