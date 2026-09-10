@@ -58,6 +58,7 @@ export { LineShape, RectShape } from '@automattic/charts/visx/legend';
  * is what consumers already import. Still a plain re-export, not a wrap.
  */
 export {
+	AlertDialog,
 	Badge,
 	Button,
 	Dialog,

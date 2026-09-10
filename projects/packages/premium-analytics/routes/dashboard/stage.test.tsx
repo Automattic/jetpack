@@ -26,6 +26,8 @@ let mockActiveSectionSlug = 'insights';
 let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
+let mockCanCompose = false;
+const mockResetLayout = jest.fn();
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 
 jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
@@ -101,11 +103,22 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
+	PageOptionsMenu: ( {
+		onCustomize,
+		onReset,
+	}: {
+		onCustomize?: () => void;
+		onReset?: () => void;
+	} ) => (
 		<div data-testid="page-options-menu">
 			{ onCustomize && (
 				<button type="button" onClick={ onCustomize }>
 					Customize
+				</button>
+			) }
+			{ onReset && (
+				<button type="button" onClick={ onReset }>
+					Reset to default
 				</button>
 			) }
 		</div>
@@ -250,8 +263,9 @@ jest.mock( '../widget-module-i18n', () => ( {
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
+	isDashboardCompositionEnabled: () => mockCanCompose,
 	useDashboardPolicy: () => () => true,
-	useDashboardSectionLayout: () => [ [], jest.fn(), jest.fn() ],
+	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
 	useOnboarding: jest.fn(),
 	useSectionDateFilter: jest.fn(),
@@ -690,6 +704,34 @@ describe( 'Dashboard customizing', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
 
 		expect( within( menu ).getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers Reset to default from the menu while customizing, behind the composition flag', async () => {
+		mockCanCompose = true;
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+		expect(
+			within( menu ).queryByRole( 'button', { name: 'Reset to default' } )
+		).not.toBeInTheDocument();
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Reset to default' } ) );
+
+		expect( mockResetLayout ).toHaveBeenCalledTimes( 1 );
+		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
+		expect( within( menu ).getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
+		mockCanCompose = false;
+	} );
+
+	it( 'keeps Reset to default from customers', async () => {
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+
+		expect(
+			within( menu ).queryByRole( 'button', { name: 'Reset to default' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it.each( [ 'Done', 'Cancel' ] )( 'brings the date controls back on %s', async action => {

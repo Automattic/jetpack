@@ -14,6 +14,8 @@ export type DetailPageCustomize = {
 	canPerform: CanPerformDashboardOperation;
 	/** Enters customize mode; the page options menu's Customize entry. */
 	startCustomizing: () => void;
+	/** Resets the layout on show and leaves customize mode; the menu's Reset to default entry. */
+	resetToDefault: () => void;
 	/** For `WidgetDashboard`'s `onEditChange`: its Cancel and Done report back here. */
 	onEditChange: ( nextEditMode: boolean ) => void;
 };
@@ -28,23 +30,26 @@ export type DetailPageCustomizeOptions = {
 	layoutId?: string;
 	/** Whether there is anything to customize; going false ends customize mode. */
 	enabled?: boolean;
+	/** Resets the stored layout; what `resetToDefault` calls before leaving customize mode. */
+	onLayoutReset?: () => void;
 };
 
 /**
  * Customize mode for a detail page: the reader may rearrange the fixed
- * composition's cards, never add or remove them (WOOA7S-1622). Customize is
- * offered by the page options menu, not the dashboard's own button, and Reset
- * only joins Cancel and Done while customizing (WOOA7S-2033).
+ * composition's cards, never add or remove them (WOOA7S-1622). Customize and
+ * Reset to default are the page options menu's, not the dashboard's own actions;
+ * Reset is offered while customizing only, and leaves the mode (WOOA7S-2033).
  *
- * @param layout           - The layout on show; while empty, edit mode cannot be entered.
- * @param options          - Which layout this is, and whether it can be customized at all.
- * @param options.layoutId - Names the layout on show; a change ends customize mode.
- * @param options.enabled  - Whether there is anything to customize.
+ * @param layout                - The layout on show; while empty, edit mode cannot be entered.
+ * @param options               - Which layout this is, and whether it can be customized at all.
+ * @param options.layoutId      - Names the layout on show; a change ends customize mode.
+ * @param options.enabled       - Whether there is anything to customize.
+ * @param options.onLayoutReset - Resets the stored layout.
  * @return The mode, the policy, and the transitions.
  */
 export function useDetailPageCustomize(
 	layout: DashboardWidget[],
-	{ layoutId, enabled = true }: DetailPageCustomizeOptions = {}
+	{ layoutId, enabled = true, onLayoutReset }: DetailPageCustomizeOptions = {}
 ): DetailPageCustomize {
 	const [ isCustomizing, setIsCustomizing ] = useState( false );
 
@@ -63,21 +68,17 @@ export function useDetailPageCustomize(
 		}
 	}, [ canCustomize ] );
 
-	const canPerform = useCallback< CanPerformDashboardOperation >(
-		request => {
-			switch ( request.operation ) {
-				case 'customize':
-				case 'insert':
-				case 'remove':
-					return false;
-				case 'reset':
-					return isCustomizing;
-				default:
-					return true;
-			}
-		},
-		[ isCustomizing ]
-	);
+	const canPerform = useCallback< CanPerformDashboardOperation >( request => {
+		switch ( request.operation ) {
+			case 'customize':
+			case 'insert':
+			case 'remove':
+			case 'reset':
+				return false;
+			default:
+				return true;
+		}
+	}, [] );
 
 	const startCustomizing = useCallback( () => {
 		if ( canCustomize ) {
@@ -95,7 +96,20 @@ export function useDetailPageCustomize(
 		[ canCustomize ]
 	);
 
-	return { isCustomizing, canCustomize, canPerform, startCustomizing, onEditChange };
+	// The dashboard's own reset did the same: reset, then leave the mode.
+	const resetToDefault = useCallback( () => {
+		onLayoutReset?.();
+		setIsCustomizing( false );
+	}, [ onLayoutReset ] );
+
+	return {
+		isCustomizing,
+		canCustomize,
+		canPerform,
+		startCustomizing,
+		resetToDefault,
+		onEditChange,
+	};
 }
 
 export type DetailPageBreadcrumbsProps = {
@@ -130,6 +144,8 @@ export type DetailPageActionsProps = {
 	isCustomizing: boolean;
 	/** Enters customize mode; Customize is on offer only when given. */
 	onCustomize?: () => void;
+	/** Resets the layout to default; on offer while customizing, only when given. */
+	onReset?: () => void | Promise< void >;
 	/**
 	 * The dashboard's own actions, `<WidgetDashboard.Actions />`, created by the route.
 	 * Each bundle carries its own copy of `@wordpress/widget-dashboard`, so one rendered
@@ -143,13 +159,14 @@ export type DetailPageActionsProps = {
 /**
  * The actions slot of a detail page. Idle, it holds the page's own actions
  * and the page options menu, Customize included; customizing, the dashboard's
- * own Cancel, Done and overflow (with Reset to default) take the actions' place
- * and the menu stays, less Customize. Leaving unmounts the focused control, so
+ * own Cancel and Done take the actions' place and the menu stays, Reset to
+ * default in place of Customize. Leaving unmounts the focused control, so
  * focus is moved back onto the menu trigger.
  *
  * @param props                - Component props.
  * @param props.isCustomizing  - Whether the page is in customize mode.
  * @param props.onCustomize    - Called when the reader picks Customize.
+ * @param props.onReset        - Called when the reader confirms Reset to default.
  * @param props.editingActions - The dashboard's own actions, shown while customizing.
  * @param props.children       - The page's own actions.
  * @return The slot content.
@@ -157,6 +174,7 @@ export type DetailPageActionsProps = {
 export function DetailPageActions( {
 	isCustomizing,
 	onCustomize,
+	onReset,
 	editingActions,
 	children,
 }: DetailPageActionsProps ) {
@@ -177,7 +195,10 @@ export function DetailPageActions( {
 	return (
 		<Stack ref={ frame } direction="row" align="center" gap="sm">
 			{ isCustomizing ? editingActions : children }
-			<PageOptionsMenu onCustomize={ isCustomizing ? undefined : onCustomize } />
+			<PageOptionsMenu
+				onCustomize={ isCustomizing ? undefined : onCustomize }
+				onReset={ isCustomizing ? onReset : undefined }
+			/>
 		</Stack>
 	);
 }

@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useDashboardPolicy } from './use-dashboard-policy';
+import { isDashboardCompositionEnabled, useDashboardPolicy } from './use-dashboard-policy';
 import type { WidgetType } from '@wordpress/widget-primitives';
 
 const widgetType: WidgetType = {
@@ -62,7 +62,8 @@ describe( 'useDashboardPolicy', () => {
 
 		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( true );
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( true );
-		expect( result.current( { operation: 'reset' } ) ).toBe( true );
+		// Reset to default is the page options menu's, behind the same flag.
+		expect( result.current( { operation: 'reset' } ) ).toBe( false );
 	} );
 
 	it( 'keeps the same callback across renders', () => {
@@ -73,5 +74,19 @@ describe( 'useDashboardPolicy', () => {
 		rerender();
 
 		expect( result.current ).toBe( first );
+	} );
+} );
+
+describe( 'isDashboardCompositionEnabled', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it( 'answers the flag, and off without one', () => {
+		seedScriptData( { dashboard_composition_enabled: true } );
+		expect( isDashboardCompositionEnabled() ).toBe( true );
+
+		seedScriptData();
+		expect( isDashboardCompositionEnabled() ).toBe( false );
 	} );
 } );

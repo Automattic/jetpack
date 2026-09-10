@@ -95,8 +95,14 @@ function VideoDetail(): JSX.Element {
 
 	// Without cards there is nothing to arrange, and a refetch that fails
 	// mid-customize would otherwise hide Cancel and Done along with the grid.
-	const { isCustomizing, canCustomize, canPerform, startCustomizing, onEditChange } =
-		useDetailPageCustomize( layout, { enabled: canRenderWidgets } );
+	const {
+		isCustomizing,
+		canCustomize,
+		canPerform,
+		startCustomizing,
+		resetToDefault,
+		onEditChange,
+	} = useDetailPageCustomize( layout, { enabled: canRenderWidgets, onLayoutReset: resetLayout } );
 
 	// Error and not-found responses have no trustworthy title, so only a
 	// resolved video adds the title crumb.
@@ -163,6 +169,7 @@ function VideoDetail(): JSX.Element {
 						<DetailPageActions
 							isCustomizing={ isCustomizing }
 							onCustomize={ canCustomize ? startCustomizing : undefined }
+							onReset={ resetToDefault }
 							editingActions={ <WidgetDashboard.Actions /> }
 						/>
 					}

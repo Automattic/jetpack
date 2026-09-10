@@ -28,7 +28,7 @@ describe( 'useDetailPageCustomize', () => {
 		expect( result.current.canCustomize ).toBe( true );
 	} );
 
-	it( 'offers Reset only while customizing', () => {
+	it( 'leaves the dashboard no Reset of its own, in or out of customize mode', () => {
 		const { result } = renderHook( () => useDetailPageCustomize( layout ) );
 
 		expect( result.current.canPerform( { operation: 'reset' } ) ).toBe( false );
@@ -36,10 +36,21 @@ describe( 'useDetailPageCustomize', () => {
 		act( () => result.current.startCustomizing() );
 
 		expect( result.current.isCustomizing ).toBe( true );
-		expect( result.current.canPerform( { operation: 'reset' } ) ).toBe( true );
+		expect( result.current.canPerform( { operation: 'reset' } ) ).toBe( false );
 
 		act( () => result.current.onEditChange( false ) );
 
+		expect( result.current.isCustomizing ).toBe( false );
+	} );
+
+	it( 'resets the stored layout and leaves customize mode on Reset to default', () => {
+		const onLayoutReset = jest.fn();
+		const { result } = renderHook( () => useDetailPageCustomize( layout, { onLayoutReset } ) );
+
+		act( () => result.current.startCustomizing() );
+		act( () => result.current.resetToDefault() );
+
+		expect( onLayoutReset ).toHaveBeenCalledTimes( 1 );
 		expect( result.current.isCustomizing ).toBe( false );
 	} );
 
@@ -114,6 +125,7 @@ describe( 'DetailPageActions', () => {
 			<DetailPageActions
 				isCustomizing={ false }
 				onCustomize={ onCustomize }
+				onReset={ () => {} }
 				editingActions={ editingActions }
 			>
 				<a href="https://example.com/">View post</a>
@@ -144,10 +156,15 @@ describe( 'DetailPageActions', () => {
 		expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( "keeps the menu, less Customize, while the dashboard's own actions take the slot", async () => {
+	it( "keeps the menu, Reset to default in place of Customize, while the dashboard's own actions take the slot", async () => {
 		const user = userEvent.setup();
 		render(
-			<DetailPageActions isCustomizing onCustomize={ () => {} } editingActions={ editingActions }>
+			<DetailPageActions
+				isCustomizing
+				onCustomize={ () => {} }
+				onReset={ () => {} }
+				editingActions={ editingActions }
+			>
 				<a href="https://example.com/">View post</a>
 			</DetailPageActions>
 		);
@@ -156,11 +173,12 @@ describe( 'DetailPageActions', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		const items = await screen.findAllByRole( 'menuitem' );
 
-		await expect(
-			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		expect( items.map( item => item.textContent ) ).toEqual( [
+			'Reset to default',
+			'Any feedback?',
+		] );
 	} );
 
 	it( 'moves focus back onto the menu trigger when leaving unmounts the focused control', async () => {

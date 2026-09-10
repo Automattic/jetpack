@@ -44,6 +44,7 @@ import {
 	useActiveSection,
 	useDashboardGridSettings,
 	useDashboardPolicy,
+	isDashboardCompositionEnabled,
 	useDashboardSectionLayout,
 	useDashboardSections,
 	useOnboarding,
@@ -115,8 +116,14 @@ function Dashboard(): JSX.Element {
 	);
 
 	const [ editMode, setEditMode ] = useState( false );
-	// The page options menu's way in; the dashboard's own button is off by policy.
+	// The page options menu's way in and out; the dashboard's own are off by policy.
 	const startCustomizing = useCallback( () => setEditMode( true ), [] );
+	const resetToDefault = useCallback( () => {
+		resetLayout();
+		setEditMode( false );
+	}, [ resetLayout ] );
+	// Reset stays behind the composition flag for customers (WOOA7S-2097).
+	const canReset = editMode && isDashboardCompositionEnabled();
 
 	// The tour's anchors, handed in by the elements below once they mount.
 	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
@@ -274,7 +281,10 @@ function Dashboard(): JSX.Element {
 								<Stack direction="row" gap="sm">
 									<WidgetDashboard.Actions />
 									<Stack ref={ setOptionsMenuFrame } direction="row">
-										<PageOptionsMenu onCustomize={ editMode ? undefined : startCustomizing } />
+										<PageOptionsMenu
+											onCustomize={ editMode ? undefined : startCustomizing }
+											onReset={ canReset ? resetToDefault : undefined }
+										/>
 									</Stack>
 								</Stack>
 							}
