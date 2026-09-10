@@ -7,7 +7,7 @@
  *
  * Sync module name: `woocommerce_analytics`. The name, the action names, and the
  * payload shapes are consumed by the WPCOM receiving side and by consumer packages
- * (Premium Analytics, WooCommerce AI); treat them as a public contract.
+ * (Premium Analytics, the standalone WooCommerce Analytics plugin); treat them as a public contract.
  *
  * This module is NOT registered by default. Consumers own its registration,
  * WooCommerce runtime guard, full-sync policy, and any additional Sync data
