@@ -413,11 +413,11 @@ function wpcom_actionbar_site_title( $site_url, $site_name ) {
  */
 function wpcom_actionbar_follow_links( $is_following ) {
 	?>
-		<a class="actnbr-action actnbr-actn-follow <?php echo $is_following ? ' no-display' : ''; ?>" href="">
+		<a class="actnbr-action actnbr-actn-follow <?php echo $is_following ? ' no-display' : ''; ?>" href="" role="button" aria-haspopup="dialog" aria-expanded="false">
 			<?php wpcom_actionbar_icon( 'bell', 20 ); ?>
 			<span><?php esc_html_e( 'Subscribe', 'jetpack-mu-wpcom' ); ?></span>
 		</a>
-		<a class="actnbr-action actnbr-actn-following <?php echo $is_following ? '' : ' no-display'; ?>" href="">
+		<a class="actnbr-action actnbr-actn-following <?php echo $is_following ? '' : ' no-display'; ?>" href="" role="button">
 			<?php wpcom_actionbar_icon( 'check', 20 ); ?>
 			<span><?php esc_html_e( 'Subscribed', 'jetpack-mu-wpcom' ); ?></span>
 		</a>
@@ -610,7 +610,8 @@ function wpcom_actionbar_html( $is_rtl ) {
 
 	?>
 		<div id="actionbar" dir="<?php echo esc_attr( $dir ); ?>" style="display: none;"
-			class="<?php echo esc_attr( $classes ); ?>">
+			class="<?php echo esc_attr( $classes ); ?>" role="region" aria-label="<?php esc_attr_e( 'Site actions', 'jetpack-mu-wpcom' ); ?>">
+		<span class="actnbr-live" aria-live="polite"></span>
 		<ul>
 			<?php
 			if ( $can_edit_post ) {
@@ -645,7 +646,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 			if ( $can_reblog && ! $can_edit_current_view ) {
 				?>
 					<li class="actnbr-btn actnbr-hidden">
-						<a class="actnbr-action actnbr-actn-reblog" href="">
+						<a class="actnbr-action actnbr-actn-reblog" href="" role="button">
 							<?php wpcom_actionbar_icon( 'reusable-block', 20 ); ?><span><?php esc_html_e( 'Reblog', 'jetpack-mu-wpcom' ); ?></span>
 						</a>
 					</li>
@@ -656,17 +657,17 @@ function wpcom_actionbar_html( $is_rtl ) {
 				?>
 					<li class="actnbr-btn actnbr-hidden">
 						<?php wpcom_actionbar_follow_links( $is_following ); ?>
-						<div class="actnbr-popover actnbr-panel actnbr-notice" id="follow-bubble">
+						<div class="actnbr-popover actnbr-panel actnbr-notice" id="follow-bubble" role="dialog" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: site name */ __( 'Subscribe to %s', 'jetpack-mu-wpcom' ), $site_name ) ); ?>">
 							<div class="actnbr-follow-bubble">
 							<?php wpcom_actionbar_site_title( $site_url, $site_name ); ?>
 							<?php
 							if ( $is_logged_in ) {
 								?>
 								<div class="actnbr-panel__group actnbr-site-settings">
-									<div class="actnbr-message no-display"></div>
+									<div class="actnbr-message no-display" aria-live="polite"></div>
 									<div class="actnbr-site-settings__setting">
 										<span class="actnbr-site-settings__toggle">
-											<input class="actnbr-site-settings__toggle__input" id="toggle-input-notify-posts" type="checkbox" />
+											<input class="actnbr-site-settings__toggle__input" id="toggle-input-notify-posts" type="checkbox" role="switch" aria-checked="false" />
 											<span class="actnbr-site-settings__toggle__track"></span>
 											<span class="actnbr-site-settings__toggle__thumb"></span>
 										</span>
@@ -679,7 +680,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 									</p>
 									<div class="actnbr-site-settings__setting">
 										<span class="actnbr-site-settings__toggle">
-											<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-posts" type="checkbox" />
+											<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-posts" type="checkbox" role="switch" aria-checked="false" />
 											<span class="actnbr-site-settings__toggle__track"></span>
 											<span class="actnbr-site-settings__toggle__thumb"></span>
 										</span>
@@ -688,21 +689,21 @@ function wpcom_actionbar_html( $is_rtl ) {
 										</label>
 									</div>
 									<div class="actnbr-site-settings__details" id="email-new-posts-details">
-										<ul class="segmented-control" role="radiogroup">
+										<ul class="segmented-control" role="radiogroup" aria-label="<?php esc_attr_e( 'Email frequency', 'jetpack-mu-wpcom' ); ?>">
 											<li class="segmented-control__item">
-												<a class="segmented-control__link frequency-instantly"><?php esc_html_e( 'Instantly', 'jetpack-mu-wpcom' ); ?></a>
+												<a class="segmented-control__link frequency-instantly" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Instantly', 'jetpack-mu-wpcom' ); ?></a>
 											</li>
 											<li class="segmented-control__item">
-												<a class="segmented-control__link frequency-daily"><?php esc_html_e( 'Daily', 'jetpack-mu-wpcom' ); ?></a>
+												<a class="segmented-control__link frequency-daily" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Daily', 'jetpack-mu-wpcom' ); ?></a>
 											</li>
 											<li class="segmented-control__item">
-												<a class="segmented-control__link frequency-weekly"><?php esc_html_e( 'Weekly', 'jetpack-mu-wpcom' ); ?></a>
+												<a class="segmented-control__link frequency-weekly" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Weekly', 'jetpack-mu-wpcom' ); ?></a>
 											</li>
 										</ul>
 									</div>
 									<div class="actnbr-site-settings__setting">
 										<span class="actnbr-site-settings__toggle">
-											<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-comments" type="checkbox" />
+											<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-comments" type="checkbox" role="switch" aria-checked="false" />
 											<span class="actnbr-site-settings__toggle__track"></span>
 											<span class="actnbr-site-settings__toggle__thumb"></span>
 										</span>
@@ -715,7 +716,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 							} else {
 								?>
 								<div class="actnbr-panel__group">
-									<div class="actnbr-message no-display"></div>
+									<div class="actnbr-message no-display" aria-live="polite"></div>
 									<form method="post" action="https://subscribe.wordpress.com" accept-charset="utf-8" style="display: none;">
 										<?php
 										if ( $followers ) {
@@ -762,7 +763,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 			if ( $gdpr_applies ) {
 				?>
 					<li class="actnbr-btn actnbr-hidden no-display" onclick="javascript:__tcfapi( 'showUi' );">
-						<a class="actnbr-action actnbr-actn-privacy" href="#">
+						<a class="actnbr-action actnbr-actn-privacy" href="#" role="button">
 							<?php wpcom_actionbar_icon( 'shield', 20 ); ?>
 							<span><?php esc_html_e( 'Privacy', 'jetpack-mu-wpcom' ); ?>
 						</span>

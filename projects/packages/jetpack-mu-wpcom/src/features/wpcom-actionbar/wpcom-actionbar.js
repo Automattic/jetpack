@@ -120,6 +120,36 @@
 
 	actionbar.removeAttribute( 'style' );
 
+	const liveRegion = actionbar.querySelector( '.actnbr-live' );
+
+	/**
+	 * Announce a message to screen readers.
+	 *
+	 * @param {string} text - Plain text to announce.
+	 */
+	function announce( text ) {
+		if ( liveRegion ) {
+			liveRegion.textContent = '';
+			liveRegion.textContent = text;
+		}
+	}
+
+	// Links that act as buttons should also respond to Space.
+	actionbar.addEventListener( 'keydown', e => {
+		if ( e.key === ' ' && e.target.matches( 'a[role="button"], a[role="radio"]' ) ) {
+			e.preventDefault();
+			e.target.click();
+		} else if ( e.key === 'Enter' && e.target.matches( 'a[role="radio"]' ) ) {
+			e.preventDefault();
+			e.target.click();
+		}
+	} );
+
+	// A bar that slid away on scroll comes back when keyboard focus lands in it.
+	actionbar.addEventListener( 'focusin', () => {
+		actionbar.classList.remove( 'actnbr-hidden' );
+	} );
+
 	// Show status message if available
 	if ( fbd.statusMessage ) {
 		showActionBarStatusMessage( fbd.statusMessage );
@@ -145,6 +175,7 @@
 		}
 		closeMenu( false );
 		followItem.classList.remove( 'actnbr-hidden' );
+		follow && follow.setAttribute( 'aria-expanded', 'true' );
 		isFollowBubbleOpen = true;
 	}
 
@@ -157,6 +188,7 @@
 		if ( followItem ) {
 			followItem.classList.add( 'actnbr-hidden' );
 		}
+		follow && follow.setAttribute( 'aria-expanded', 'false' );
 		isFollowBubbleOpen = false;
 		if ( returnFocus && follow ) {
 			follow.focus();
@@ -232,6 +264,7 @@
 		notifyPostsToggle.addEventListener( 'click', e => {
 			e.preventDefault();
 			const isEnabling = e.target.parentElement.classList.toggle( 'is-checked' );
+			e.target.setAttribute( 'aria-checked', isEnabling ? 'true' : 'false' );
 			const restPath = `/read/sites/${ fbd.siteID }/notification-subscriptions/${
 				isEnabling ? 'new' : 'delete'
 			}`;
@@ -248,16 +281,15 @@
 		emailPostsToggle.addEventListener( 'click', e => {
 			e.preventDefault();
 			const isEnabling = e.target.parentElement.classList.toggle( 'is-checked' );
+			e.target.setAttribute( 'aria-checked', isEnabling ? 'true' : 'false' );
 			const restPath = `/read/site/${ fbd.siteID }/post_email_subscriptions/${
 				isEnabling ? 'new' : 'delete'
 			}`;
 			const body = {};
 			if ( isEnabling ) {
 				body.delivery_frequency = fbd.subsEmailDefault;
-				frequencyOptions.forEach( opt => opt.parentElement.classList.remove( 'is-selected' ) );
-				actionbar
-					.querySelector( `.frequency-${ fbd.subsEmailDefault }` )
-					.parentElement.classList.add( 'is-selected' );
+				const defaultOption = actionbar.querySelector( `.frequency-${ fbd.subsEmailDefault }` );
+				defaultOption && selectFrequencyOption( defaultOption );
 			}
 			actionbar
 				.querySelector( '#email-new-posts-details' )
@@ -269,6 +301,7 @@
 		emailCommentsToggle.addEventListener( 'click', e => {
 			e.preventDefault();
 			const isEnabling = e.target.parentElement.classList.toggle( 'is-checked' );
+			e.target.setAttribute( 'aria-checked', isEnabling ? 'true' : 'false' );
 			const restPath = `/read/site/${ fbd.siteID }/comment_email_subscriptions/${
 				isEnabling ? 'new' : 'delete'
 			}`;
@@ -307,9 +340,22 @@
 	}
 
 	// Handle notification frequency selector clicks
+	/**
+	 * Mark one frequency option as the selected radio.
+	 *
+	 * @param {Element} option - The option's link.
+	 */
+	function selectFrequencyOption( option ) {
+		frequencyOptions.forEach( opt => {
+			opt.parentElement.classList.remove( 'is-selected' );
+			opt.setAttribute( 'aria-checked', 'false' );
+		} );
+		option.parentElement.classList.add( 'is-selected' );
+		option.setAttribute( 'aria-checked', 'true' );
+	}
+
 	const onFrequencyOptionClick = ( e, frequencyKey ) => {
-		frequencyOptions.forEach( opt => opt.parentElement.classList.remove( 'is-selected' ) );
-		e.target.parentElement.classList.add( 'is-selected' );
+		selectFrequencyOption( e.target );
 		const restPath = `/read/site/${ fbd.siteID }/post_email_subscriptions/update`;
 		postToApi( restPath, 'rest/v1.2', { delivery_frequency: frequencyKey } );
 	};
@@ -319,6 +365,20 @@
 		instantlyOption.addEventListener( 'click', e => onFrequencyOptionClick( e, 'instantly' ) );
 		dailyOption.addEventListener( 'click', e => onFrequencyOptionClick( e, 'daily' ) );
 		weeklyOption.addEventListener( 'click', e => onFrequencyOptionClick( e, 'weekly' ) );
+
+		// Arrow keys move between the radios, as in a native group.
+		frequencyOptions.forEach( ( opt, i ) => {
+			opt.addEventListener( 'keydown', e => {
+				const delta = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[ e.key ];
+				if ( delta ) {
+					e.preventDefault();
+					const next =
+						frequencyOptions[ ( i + delta + frequencyOptions.length ) % frequencyOptions.length ];
+					next.focus();
+					next.click();
+				}
+			} );
+		} );
 	}
 
 	if ( follow ) {
@@ -343,6 +403,11 @@
 				}
 
 				notifyPostsToggle && notifyPostsToggle.click();
+
+				// Keyboard users land on the first setting.
+				if ( e.detail === 0 && notifyPostsToggle ) {
+					notifyPostsToggle.focus();
+				}
 			} else {
 				showActionBarFollowForm();
 			}
@@ -369,7 +434,11 @@
 			const followNotificationCheckedToggles = actionbar.querySelectorAll(
 				'.actnbr-site-settings__toggle.is-checked'
 			);
-			followNotificationCheckedToggles.forEach( t => t.classList.remove( 'is-checked' ) );
+			followNotificationCheckedToggles.forEach( t => {
+				t.classList.remove( 'is-checked' );
+				const input = t.querySelector( 'input' );
+				input && input.setAttribute( 'aria-checked', 'false' );
+			} );
 		} );
 	}
 
@@ -396,6 +465,7 @@
 	 */
 	function shortLinkUpdateText( link, shortlinkTextElement, originalText ) {
 		shortlinkTextElement.textContent = fbd.i18n.shortLinkCopied;
+		announce( fbd.i18n.shortLinkCopied );
 		link.classList.add( 'actnbr-shortlink__copied' );
 		setTimeout( () => {
 			shortlinkTextElement.textContent = originalText;
@@ -590,6 +660,7 @@
 				actionbar.classList.add( 'actnbr-folded' );
 				postAction( { action: 'fold_actionbar' } );
 			}
+			closeMenu( true );
 		} );
 	}
 
