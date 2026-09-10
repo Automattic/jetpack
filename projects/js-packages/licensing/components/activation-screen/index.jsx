@@ -132,7 +132,7 @@ const ActivationScreen = props => {
 			} );
 	}, [ isSaving, license, onActivationSuccess ] );
 
-	const assetsUrl = getScriptData()?.licensing?.assets_url;
+	const assetsUrl = getScriptData()?.licensing?.assetsUrl;
 
 	const renderActivationSuccess = () => (
 		<Card.Root className="jp-license-activation-screen">

@@ -19,7 +19,7 @@ describe( 'ActivationScreen illustrations', () => {
 	} );
 
 	it( 'builds the illustration URL from script data', () => {
-		getScriptData.mockReturnValue( { licensing: { assets_url: ASSETS_URL } } );
+		getScriptData.mockReturnValue( { licensing: { assetsUrl: ASSETS_URL } } );
 
 		render( <ActivationScreen { ...testProps } /> );
 

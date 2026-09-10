@@ -37,7 +37,7 @@ class Connection_Assets {
 	 * @return array
 	 */
 	public static function add_script_data( $data ) {
-		$data['connection']['assets_url'] = trailingslashit( plugins_url( 'assets/images/', __DIR__ ) );
+		$data['connection']['assetsUrl'] = trailingslashit( plugins_url( 'assets/images/', __DIR__ ) );
 
 		return $data;
 	}

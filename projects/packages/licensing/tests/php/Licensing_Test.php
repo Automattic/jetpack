@@ -442,9 +442,9 @@ class Licensing_Test extends BaseTestCase {
 
 		$this->assertSame(
 			trailingslashit( plugins_url( 'assets/images/', dirname( __DIR__, 2 ) . '/src' ) ),
-			$data['licensing']['assets_url']
+			$data['licensing']['assetsUrl']
 		);
-		$this->assertStringEndsWith( '/assets/images/', $data['licensing']['assets_url'] );
+		$this->assertStringEndsWith( '/assets/images/', $data['licensing']['assetsUrl'] );
 		$this->assertSame( array( 'title' => 'Example' ), $data['site'] );
 	}
 

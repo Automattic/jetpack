@@ -79,7 +79,7 @@ class Licensing {
 	 * @return array
 	 */
 	public function add_script_data( $data ) {
-		$data['licensing']['assets_url'] = trailingslashit( plugins_url( 'assets/images/', __DIR__ ) );
+		$data['licensing']['assetsUrl'] = trailingslashit( plugins_url( 'assets/images/', __DIR__ ) );
 
 		return $data;
 	}

@@ -26,7 +26,7 @@ const StepDisconnectConfirm = ( {
 	canProvideFeedback,
 	onProvideFeedback,
 }: StepDisconnectConfirmProps ) => {
-	const assetsUrl = getScriptData()?.connection?.assets_url;
+	const assetsUrl = getScriptData()?.connection?.assetsUrl;
 
 	return (
 		<div className="jp-connection__disconnect-dialog__content">

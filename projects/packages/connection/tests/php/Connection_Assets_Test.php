@@ -32,9 +32,9 @@ class Connection_Assets_Test extends TestCase {
 
 		$this->assertSame(
 			trailingslashit( plugins_url( 'assets/images/', dirname( __DIR__, 2 ) . '/src' ) ),
-			$data['connection']['assets_url']
+			$data['connection']['assetsUrl']
 		);
-		$this->assertStringEndsWith( '/assets/images/', $data['connection']['assets_url'] );
+		$this->assertStringEndsWith( '/assets/images/', $data['connection']['assetsUrl'] );
 		$this->assertSame( array( 'title' => 'Example' ), $data['site'] );
 	}
 
@@ -60,7 +60,7 @@ class Connection_Assets_Test extends TestCase {
 
 		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
 
-		$this->assertStringEndsWith( '/assets/images/', $data['connection']['assets_url'] );
+		$this->assertStringEndsWith( '/assets/images/', $data['connection']['assetsUrl'] );
 		$this->assertArrayHasKey( 'apiRoot', $data['connection'] );
 	}
 }
