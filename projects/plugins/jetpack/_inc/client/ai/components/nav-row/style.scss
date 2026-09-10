@@ -28,8 +28,8 @@
 	// which the card's overflow clips — and its outline is transparent. Draw
 	// an opaque inset outline instead so keyboard focus is actually visible.
 	&:focus-visible {
-		outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus, #3858e9);
-		outline-offset: calc(-1 * var(--wpds-border-width-focus, 2px));
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: calc(-1 * var(--wpds-border-width-focus));
 		box-shadow: none;
 	}
 
@@ -52,11 +52,11 @@
 	// and on the row's hover fill (sanjagrbic, i4 thread, 3 Aug).
 	&--neutral &__icon,
 	&--neutral &__chevron {
-		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
 	&--neutral:hover {
-		background: var(--wpds-color-background-surface-neutral-weak, #f4f4f4);
+		background: var(--wpds-color-background-surface-neutral-weak);
 	}
 
 	&__text {
@@ -71,10 +71,10 @@
 
 	// The variants carry size and weight; only the colours are ours.
 	&__title {
-		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
 	&__description {
-		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 }

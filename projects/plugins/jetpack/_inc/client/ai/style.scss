@@ -106,10 +106,10 @@ body.jetpack_page_jetpack-ai {
 		margin-inline-start: -7px;
 		margin-block: 0 20px;
 		cursor: pointer;
-		font-size: var(--wpds-typography-font-size-md, 13px);
-		font-weight: var(--wpds-typography-font-weight-default, 400);
-		line-height: var(--wpds-typography-line-height-sm, 20px);
-		color: var(--wp-components-color-gray-700, var(--wpds-color-foreground-content-neutral-weak, #707070));
+		font-size: var(--wpds-typography-font-size-md);
+		font-weight: var(--wpds-typography-font-weight-default);
+		line-height: var(--wpds-typography-line-height-sm);
+		color: var(--wp-components-color-gray-700, var(--wpds-color-foreground-content-neutral-weak));
 		transition: background 0.1s ease-in-out, color 0.1s ease-in-out;
 
 		svg {
@@ -119,8 +119,8 @@ body.jetpack_page_jetpack-ai {
 		&:hover,
 		&:focus-visible {
 			// Light-mode counterpart of the reference's dark hover pill.
-			background: var(--wpds-color-background-surface-neutral-weak, #f6f7f7);
-			color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+			background: var(--wpds-color-background-surface-neutral-weak);
+			color: var(--wpds-color-foreground-content-neutral);
 		}
 	}
 
@@ -157,7 +157,7 @@ body.jetpack_page_jetpack-ai {
 
 		p {
 			margin-block: 0 24px;
-			color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+			color: var(--wpds-color-foreground-content-neutral-weak);
 		}
 	}
 
