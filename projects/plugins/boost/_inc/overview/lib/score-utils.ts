@@ -7,10 +7,6 @@ export function getScoreTier( score: number ): ScoreTier {
 	return score > 70 ? 'good' : score > 50 ? 'medium' : 'poor';
 }
 
-export function getGradeTier( grade: string ): ScoreTier {
-	return grade === 'A' || grade === 'B' ? 'good' : grade === 'C' ? 'medium' : 'poor';
-}
-
 export function getScoreTierLabel( tier: ScoreTier ): string {
 	const labels = {
 		good: __( 'Good', 'jetpack-boost' ),
@@ -29,12 +25,14 @@ export function getTrendDirection( delta: number ): 'up' | 'down' | 'neutral' {
 }
 
 export function formatScoreDelta( delta: number ): string {
-	if ( delta === 0 ) {
-		return __( 'No change', 'jetpack-boost' );
-	}
 	return sprintf(
-		// translators: %s is the signed change in a performance score, such as +10 or −1.
-		_n( '%s point', '%s points', Math.abs( delta ), 'jetpack-boost' ),
-		`${ delta > 0 ? '+' : '−' }${ Math.abs( delta ) }`
+		// translators: %s is the improvement in a performance score, such as +10.
+		_n(
+			'%s point compared with Boost disabled',
+			'%s points compared with Boost disabled',
+			delta,
+			'jetpack-boost'
+		),
+		`+${ delta }`
 	);
 }

@@ -13,6 +13,14 @@ test( 'the Overall information popover shows every grade and its score range', a
 		/>
 	);
 
+	expect( screen.getByRole( 'heading', { level: 2, name: 'Performance scores' } ) ).toBeVisible();
+	for ( const label of [ 'Overall grade', 'Desktop', 'Mobile' ] ) {
+		const region = screen.getByRole( 'region', { name: label } );
+		expect( region ).toHaveAttribute(
+			'aria-labelledby',
+			within( region ).getByRole( 'heading', { level: 3, name: label } ).id
+		);
+	}
 	expect( screen.queryByRole( 'table' ) ).not.toBeInTheDocument();
 	fireEvent.click( screen.getByRole( 'button', { name: 'How the overall grade is calculated' } ) );
 	const popover = within( await screen.findByRole( 'dialog', { name: 'Overall grade' } ) );
@@ -31,13 +39,13 @@ test( 'the Overall information popover shows every grade and its score range', a
 } );
 
 test.each( [
-	[ 91, 'A', 'Good' ],
-	[ 90, 'B', 'Good' ],
-	[ 75, 'C', 'Could be improved' ],
-	[ 50, 'D', 'Poor' ],
-	[ 35, 'E', 'Poor' ],
-	[ 25, 'F', 'Poor' ],
-] )( 'pairs grade %s with its description', ( score, grade, description ) => {
+	[ 91, 'A' ],
+	[ 90, 'B' ],
+	[ 75, 'C' ],
+	[ 50, 'D' ],
+	[ 35, 'E' ],
+	[ 25, 'F' ],
+] )( 'shows the Overall letter for score %s without a tier', ( score, grade ) => {
 	render(
 		<ScoreCards
 			scores={ {
@@ -49,40 +57,57 @@ test.each( [
 	);
 	const overall = within( screen.getByRole( 'region', { name: 'Overall grade' } ) );
 	expect( overall.getByText( String( grade ) ) ).toBeVisible();
-	expect( overall.getByText( String( description ) ) ).toBeVisible();
+	expect( overall.queryByText( /Good|Could be improved|Poor/ ) ).not.toBeInTheDocument();
 } );
 
-test( 'desktop retains its numeric tier when the overall grade is C', () => {
+test.each( [
+	[ 75, 'Good', 'good' ],
+	[ 60, 'Could be improved', 'medium' ],
+	[ 40, 'Poor', 'poor' ],
+] )( 'renders device score %s with its tier and progress color', ( score, label, tier ) => {
 	render(
 		<ScoreCards
 			scores={ {
-				current: { mobile: 75, desktop: 75 },
+				current: { mobile: Number( score ), desktop: Number( score ) },
 				noBoost: null,
 				isStale: false,
 			} }
 		/>
 	);
-	const desktop = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
-	expect( desktop.getByText( 'Good' ) ).toBeVisible();
-	expect( desktop.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 75 );
+	for ( const device of [ 'Desktop', 'Mobile' ] ) {
+		const card = within( screen.getByRole( 'region', { name: device } ) );
+		expect( card.getByText( String( label ) ) ).toHaveClass(
+			`jetpack-boost-overview__tier--${ tier }`
+		);
+		const progress = card.getByRole( 'progressbar', { name: device } );
+		expect( progress ).toHaveValue( Number( score ) );
+		// eslint-disable-next-line testing-library/no-node-access -- ProgressBar applies color classes to its wrapper.
+		expect( progress.closest( '.jetpack-boost-overview__progress' ) ).toHaveClass(
+			`jetpack-boost-overview__progress--${ tier }`
+		);
+	}
 } );
 
-test( 'shows signed baseline deltas only for changed, current scores', () => {
+test( 'shows positive baseline deltas only for current scores', () => {
 	const scores = {
 		current: { desktop: 80, mobile: 60 },
 		noBoost: { desktop: 70, mobile: 70 },
 		isStale: false,
 	};
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
-	expect( screen.getByText( '+10 points compared to without Boost' ) ).toBeVisible();
-	expect( screen.getByText( '−10 points compared to without Boost' ) ).toBeVisible();
+	expect( screen.getByText( '+10 points compared with Boost disabled' ) ).toBeVisible();
+	expect(
+		within( screen.getByRole( 'region', { name: 'Mobile' } ) ).queryByText(
+			/compared with Boost disabled/
+		)
+	).not.toBeInTheDocument();
 	rerender( <ScoreCards scores={ { ...scores, isStale: true } } /> );
-	expect( screen.queryByText( /compared to without Boost/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
 	rerender( <ScoreCards scores={ { ...scores, noBoost: scores.current } } /> );
-	expect( screen.queryByText( /compared to without Boost/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
 } );
 
-test( 'marks placeholder regions busy after loading ends without scores', () => {
+test( 'announces unavailable scores without marking idle placeholders busy', () => {
 	const scores = {
 		current: { desktop: 80, mobile: 60 },
 		noBoost: { desktop: 70, mobile: 70 },
@@ -92,32 +117,17 @@ test( 'marks placeholder regions busy after loading ends without scores', () => 
 		<ScoreCards scores={ scores } isLoading={ false } showPlaceholder />
 	);
 	for ( const label of [ 'Overall grade', 'Desktop', 'Mobile' ] ) {
-		expect( screen.getByRole( 'region', { name: label } ) ).toHaveAttribute( 'aria-busy', 'true' );
+		expect( screen.getByRole( 'region', { name: label } ) ).toHaveAttribute( 'aria-busy', 'false' );
 	}
+	expect( screen.getAllByText( 'Score unavailable' ) ).toHaveLength( 3 );
 	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( /compared to without Boost/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
 	rerender( <ScoreCards scores={ scores } isLoading={ false } showPlaceholder={ false } /> );
 	for ( const label of [ 'Overall grade', 'Desktop', 'Mobile' ] ) {
 		expect( screen.getByRole( 'region', { name: label } ) ).toHaveAttribute( 'aria-busy', 'false' );
 	}
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 80 );
-} );
-
-test( 'shows a neutral delta for an unchanged device when the other score changes', () => {
-	render(
-		<ScoreCards
-			scores={ {
-				current: { desktop: 80, mobile: 60 },
-				noBoost: { desktop: 80, mobile: 70 },
-				isStale: false,
-			} }
-		/>
-	);
-	const desktop = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
-	expect( desktop.getByText( 'No change compared to without Boost' ) ).toHaveClass(
-		'jetpack-boost-overview__delta--neutral'
-	);
 } );
 
 test( 'defaults placeholders to the loading state', () => {

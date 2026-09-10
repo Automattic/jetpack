@@ -23,13 +23,12 @@ test.each( [
 	expect( getScoreLetter( Number( score ), Number( score ) ) ).toBe( grade );
 } );
 
-test( 'distinguishes missing baselines from zero and formats signed deltas', () => {
+test( 'distinguishes missing baselines from zero and formats improvements', () => {
 	expect( getScoreDelta( 80, null ) ).toBeNull();
 	expect( getScoreDelta( 80 ) ).toBeNull();
 	expect( getScoreDelta( 80, 0 ) ).toBe( 80 );
 	expect( getScoreDelta( 80.2, 70 ) ).toBe( 10 );
-	expect( formatScoreDelta( 1 ) ).toBe( '+1 point' );
-	expect( formatScoreDelta( -10 ) ).toBe( '−10 points' );
-	expect( formatScoreDelta( 0 ) ).toBe( 'No change' );
+	expect( formatScoreDelta( 1 ) ).toBe( '+1 point compared with Boost disabled' );
+	expect( formatScoreDelta( 10 ) ).toBe( '+10 points compared with Boost disabled' );
 	expect( [ 1, -1, 0 ].map( getTrendDirection ) ).toEqual( [ 'up', 'down', 'neutral' ] );
 } );

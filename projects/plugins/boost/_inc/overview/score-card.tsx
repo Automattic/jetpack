@@ -1,6 +1,7 @@
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Skeleton, Stack, Text } from '@wordpress/ui';
+import { Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import { useId } from 'react';
 import {
 	formatScoreDelta,
 	getScoreDelta,
@@ -18,7 +19,6 @@ type Props = {
 	value: ReactNode;
 	score?: number;
 	tier?: ScoreTier;
-	showProgress?: boolean;
 	noBoost?: number | null;
 	isLoading?: boolean;
 	showPlaceholder?: boolean;
@@ -31,25 +31,28 @@ export default function ScoreCard( {
 	value,
 	score,
 	tier = score === undefined ? undefined : getScoreTier( score ),
-	showProgress = true,
 	noBoost,
 	isLoading,
 	showPlaceholder = isLoading,
 }: Props ) {
+	const headingId = useId();
 	const delta = score === undefined ? null : getScoreDelta( score, noBoost );
 	return (
 		<section
 			className="jetpack-boost-overview__score-section"
-			aria-label={ label }
-			aria-busy={ showPlaceholder }
+			aria-labelledby={ headingId }
+			aria-busy={ isLoading }
 		>
 			<Stack direction="row" align="center" gap="sm">
 				{ icon }
-				<Text render={ <h3 /> } variant="heading-md">
+				<Text render={ <h3 id={ headingId } /> } variant="heading-md">
 					{ label }
 				</Text>
 				{ help }
 			</Stack>
+			{ showPlaceholder && ! isLoading && (
+				<VisuallyHidden>{ __( 'Score unavailable', 'jetpack-boost' ) }</VisuallyHidden>
+			) }
 			<Stack direction="row" align="center" gap="md">
 				{ showPlaceholder ? (
 					<Skeleton className="jetpack-boost-overview__score-placeholder" />
@@ -66,21 +69,21 @@ export default function ScoreCard( {
 					</>
 				) }
 			</Stack>
-			{ ! showPlaceholder && showProgress && score !== undefined && (
+			{ ! showPlaceholder && score !== undefined && (
 				<ProgressBar
 					className={ `jetpack-boost-overview__progress jetpack-boost-overview__progress--${ tier }` }
 					value={ score }
 					aria-label={ label }
 				/>
 			) }
-			{ ! showPlaceholder && delta !== null && (
+			{ ! showPlaceholder && delta !== null && delta > 0 && (
 				<Text
 					variant="body-md"
 					className={ `jetpack-boost-overview__delta jetpack-boost-overview__delta--${ getTrendDirection(
 						delta
 					) }` }
 				>
-					{ formatScoreDelta( delta ) } { __( 'compared to without Boost', 'jetpack-boost' ) }
+					{ formatScoreDelta( delta ) }
 				</Text>
 			) }
 		</section>
