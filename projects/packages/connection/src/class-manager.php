@@ -1358,8 +1358,15 @@ class Manager {
 	 * Whether the connection owner is the protected owner the anchor names.
 	 *
 	 * This is the question consumers gate on before binding anything to the owner's identity.
-	 * The owner's WordPress.com ID is confirmed with WordPress.com rather than read from local
-	 * state, so a token revoked on the WordPress.com side fails closed.
+	 *
+	 * Reads the binding of the current owner rather than searching for whoever holds the anchored
+	 * ID, so a row on any other user cannot affect the answer. Requiring the owner to hold a live
+	 * token on top of that is what keeps a row written by another subsystem from ever satisfying
+	 * this: both halves are load-bearing, and there are tests for each.
+	 *
+	 * Known gap: if the owner subscribes to their own site under a different WordPress.com
+	 * account, Premium Content overwrites their row and this goes false until the owner is
+	 * established again.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1378,9 +1385,7 @@ class Manager {
 			return false;
 		}
 
-		$owner_data = $this->get_connected_user_data( $owner_id );
-
-		return ! empty( $owner_data['ID'] ) && (int) $owner_data['ID'] === (int) $anchor['wpcom_user_id'];
+		return $this->resolve_wpcom_user_id( $owner_id ) === (int) $anchor['wpcom_user_id'];
 	}
 
 	/**
@@ -1426,6 +1431,10 @@ class Manager {
 				array( 'status' => 400 )
 			);
 		}
+
+		// Store the binding the anchor will be compared against, so the gate reads local state from
+		// here on. Routed through the deduping writer, which clears the ID off any previous holder.
+		Utils::set_wpcom_user_id( $user_id, (int) $owner_data['ID'] );
 
 		Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by );
 

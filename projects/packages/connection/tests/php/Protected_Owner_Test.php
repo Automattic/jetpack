@@ -67,16 +67,28 @@ class Protected_Owner_Test extends TestCase {
 	 * Build a Manager with a stubbed connection owner and WordPress.com user data lookup.
 	 *
 	 * @param int|false $owner_id       What `get_connection_owner_id()` should report.
-	 * @param mixed     $owner_data     What the WordPress.com lookup should return.
+	 * @param mixed     $owner_data     What the WordPress.com lookup should return on a miss.
 	 * @param mixed     $lookup_matcher Optional invocation matcher for the lookup.
+	 * @param bool      $connected      Whether the owner holds a token.
 	 * @return \PHPUnit\Framework\MockObject\MockObject|Manager
 	 */
-	private function manager( $owner_id, $owner_data = false, $lookup_matcher = null ) {
+	private function manager( $owner_id, $owner_data = false, $lookup_matcher = null, $connected = true ) {
+		$tokens = $this->getMockBuilder( Tokens::class )
+			->onlyMethods( array( 'get_access_token' ) )
+			->getMock();
+		$tokens->method( 'get_access_token' )->willReturn(
+			$connected ? (object) array(
+				'secret'           => 'key.secret',
+				'external_user_id' => $owner_id,
+			) : false
+		);
+
 		$manager = $this->getMockBuilder( Manager::class )
-			->onlyMethods( array( 'get_connection_owner_id', 'get_connected_user_data' ) )
+			->onlyMethods( array( 'get_connection_owner_id', 'get_connected_user_data', 'get_tokens' ) )
 			->getMock();
 
 		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
 
 		if ( null === $lookup_matcher ) {
 			$manager->method( 'get_connected_user_data' )->willReturn( $owner_data );
@@ -101,10 +113,11 @@ class Protected_Owner_Test extends TestCase {
 	/**
 	 * The owner WordPress.com confirms as the anchored identity is the protected owner.
 	 */
-	public function test_has_protected_owner_when_the_confirmed_owner_matches_the_anchor() {
+	public function test_has_protected_owner_when_the_owner_binding_matches_the_anchor() {
 		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
 
-		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
 
 		$this->assertTrue( $manager->has_protected_owner() );
 	}
@@ -112,10 +125,11 @@ class Protected_Owner_Test extends TestCase {
 	/**
 	 * A different WordPress.com identity does not satisfy the anchor.
 	 */
-	public function test_has_protected_owner_is_false_when_the_confirmed_owner_differs() {
+	public function test_has_protected_owner_is_false_when_the_owner_binding_differs() {
 		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, 9999 );
 
-		$manager = $this->manager( $this->owner_id, array( 'ID' => 9999 ) );
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
 
 		$this->assertFalse( $manager->has_protected_owner() );
 	}
@@ -143,10 +157,55 @@ class Protected_Owner_Test extends TestCase {
 	/**
 	 * An owner WordPress.com cannot confirm fails closed.
 	 */
-	public function test_has_protected_owner_is_false_when_wpcom_cannot_confirm_the_owner() {
+	public function test_has_protected_owner_is_false_when_nothing_is_bound_and_wpcom_cannot_confirm() {
 		$this->anchor();
 
 		$manager = $this->manager( $this->owner_id, false );
+
+		$this->assertFalse( $manager->has_protected_owner() );
+	}
+
+	/**
+	 * With nothing bound, one lookup re-establishes the binding and the gate answers from it.
+	 */
+	public function test_has_protected_owner_reheals_an_absent_binding_from_wpcom() {
+		$this->anchor();
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->once() );
+
+		$this->assertTrue( $manager->has_protected_owner() );
+		$this->assertSame( self::ANCHORED_WPCOM_ID, Utils::get_wpcom_user_id( $this->owner_id ) );
+	}
+
+	/**
+	 * A row on somebody who is not the connection owner cannot satisfy the gate. This is what
+	 * starting from `master_user` buys, rather than searching for whoever holds the anchored ID.
+	 */
+	public function test_a_binding_on_another_user_does_not_satisfy_the_gate() {
+		$this->anchor();
+
+		$bystander = wp_insert_user(
+			array(
+				'user_login' => 'protected_owner_bystander',
+				'user_pass'  => 'pass',
+			)
+		);
+		Utils::set_wpcom_user_id( $bystander, self::ANCHORED_WPCOM_ID );
+
+		$manager = $this->manager( $this->owner_id, false );
+
+		$this->assertFalse( $manager->has_protected_owner() );
+	}
+
+	/**
+	 * The owner holding the anchored ID is not enough on its own: without a live token the binding
+	 * is not evidence of a current connection, and a row written by another subsystem would pass.
+	 */
+	public function test_a_binding_without_a_live_token_does_not_satisfy_the_gate() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never(), false );
 
 		$this->assertFalse( $manager->has_protected_owner() );
 	}
@@ -186,7 +245,9 @@ class Protected_Owner_Test extends TestCase {
 	public function test_ownership_is_not_transferable_when_the_owner_does_not_match_the_anchor() {
 		$this->anchor();
 
-		$manager = $this->manager( $this->owner_id, array( 'ID' => 9999 ) );
+		Utils::set_wpcom_user_id( $this->owner_id, 9999 );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
 
 		$this->assertFalse( $manager->has_protected_owner(), 'Test setup: the owner should not match.' );
 		$this->assertFalse( $manager->is_ownership_transferable() );
@@ -227,7 +288,9 @@ class Protected_Owner_Test extends TestCase {
 	public function test_requires_protected_owner_is_independent_of_has_protected_owner() {
 		$this->anchor();
 
-		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
 
 		$this->assertTrue( $manager->has_protected_owner() );
 		$this->assertFalse( $manager->requires_protected_owner() );
