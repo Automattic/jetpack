@@ -143,7 +143,7 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 					<div className={ styles[ 'modal-body' ] }>
 						<Stack direction="column" gap="lg">
 							<Dialog.Description>
-								{ product?.longDescription || feature.description }
+								{ feature.long_description || product?.longDescription || feature.description }
 							</Dialog.Description>
 
 							{ highlights.length > 0 && (

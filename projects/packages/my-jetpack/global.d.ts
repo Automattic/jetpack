@@ -466,6 +466,7 @@ type MainFeature = {
 	slug: string;
 	name: string;
 	description: string;
+	long_description: string;
 	icon: string;
 	status: 'active' | 'inactive';
 	manage_url: string;
