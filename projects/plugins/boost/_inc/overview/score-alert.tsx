@@ -13,17 +13,14 @@ type Props = {
 };
 
 export default function ScoreAlert( { scoreChange, isVisible }: Props ) {
-	const message = scoreChange !== false && scoreChange < 0 ? slowerMessage : fasterMessage;
+	const hasScoreChanged = scoreChange !== false;
+	const message = hasScoreChanged && scoreChange < 0 ? slowerMessage : fasterMessage;
 	const [ isDismissed, dismissAlert ] = useDismissibleAlertState( message.id );
 	const [ isClosed, setClosed ] = useState( false );
 	const impressionRecorded = useRef( false );
 	const showAlert =
-		isVisible &&
-		scoreChange !== false &&
-		Math.abs( scoreChange ) > 5 &&
-		! isDismissed &&
-		! isClosed;
-	const scoreDirection = scoreChange !== false && scoreChange > 0 ? 'up' : 'down';
+		isVisible && hasScoreChanged && Math.abs( scoreChange ) > 5 && ! isDismissed && ! isClosed;
+	const scoreDirection = hasScoreChanged && scoreChange > 0 ? 'up' : 'down';
 
 	useEffect( () => {
 		impressionRecorded.current = false;

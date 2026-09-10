@@ -7,7 +7,6 @@ export default function UpgradeCTA() {
 		if ( ! container.current ) {
 			return;
 		}
-		// The prerequisite webpack bundle owns the existing upgrade flow and its providers.
 		const request: UpgradeSlotRequest = { container: container.current };
 		window.dispatchEvent( new CustomEvent( OVERVIEW_UPGRADE_EVENT, { detail: request } ) );
 		return () => request.unmount?.();
