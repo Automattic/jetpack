@@ -34,7 +34,7 @@ declare module '@automattic/jetpack-script-data' {
 		myJetpack?: {
 			// Only added on the My Jetpack page.
 			siteEditor?: SiteEditorData;
-			/** Absolute URL of the package's built images, with a trailing slash. */
+			/** Absolute URL of the package's built images directory. */
 			assetsUrl?: string;
 		};
 	}
