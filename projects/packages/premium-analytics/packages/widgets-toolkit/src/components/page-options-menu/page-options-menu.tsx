@@ -20,8 +20,9 @@ export type PageOptionsMenuProps = {
 
 /**
  * The page options menu of a Premium Analytics page: arranging the layout, where
- * the page has one, feedback, and the way back to classic Stats. One group, after
- * the configurations design (WOOA7S-2055) less its Usage and Settings entries.
+ * the page has one, and, apart from it, feedback and the way back to classic
+ * Stats. After the configurations design (WOOA7S-2055) less its Usage and
+ * Settings entries.
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2098).
  *
@@ -62,11 +63,14 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 				/>
 				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
 					{ onCustomize && (
-						<Menu.Item prefix={ <Icon icon={ pencil } /> } onClick={ onCustomize }>
-							<Menu.ItemLabel>
-								{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
+						<>
+							<Menu.Item prefix={ <Icon icon={ pencil } /> } onClick={ onCustomize }>
+								<Menu.ItemLabel>
+									{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }
+								</Menu.ItemLabel>
+							</Menu.Item>
+							<Menu.Separator />
+						</>
 					) }
 					<Menu.Item prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
 						<Menu.ItemLabel>

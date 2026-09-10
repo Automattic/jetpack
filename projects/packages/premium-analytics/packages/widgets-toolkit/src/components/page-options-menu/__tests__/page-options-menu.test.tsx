@@ -565,13 +565,13 @@ describe( 'Customize', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		const items = await screen.findAllByRole( 'menuitem' );
 
-		// One group: no separator before the way out.
 		expect( items.map( item => item.textContent ) ).toEqual( [
 			'Customize',
 			'Any feedback?',
 			'Switch off the preview',
 		] );
-		expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
+		// The layout action sits apart from the rest.
+		expect( screen.getByRole( 'separator' ) ).toBeInTheDocument();
 
 		await user.click( items[ 0 ] );
 
@@ -590,5 +590,6 @@ describe( 'Customize', () => {
 			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
 	} );
 } );
