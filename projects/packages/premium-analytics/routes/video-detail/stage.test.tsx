@@ -495,8 +495,7 @@ describe( 'video detail stage', () => {
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 		expect( mockDashboardProps.editMode ).toBe( true );
 
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await user.click( await screen.findByRole( 'menuitem', { name: 'Reset to default' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
 		const dialog = await screen.findByRole( 'alertdialog' );
 		await user.click( within( dialog ).getByRole( 'button', { name: 'Reset' } ) );
 

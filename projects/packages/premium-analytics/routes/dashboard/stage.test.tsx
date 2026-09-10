@@ -103,25 +103,19 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	PageOptionsMenu: ( {
-		onCustomize,
-		onReset,
-	}: {
-		onCustomize?: () => void;
-		onReset?: () => void;
-	} ) => (
+	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
 		<div data-testid="page-options-menu">
 			{ onCustomize && (
 				<button type="button" onClick={ onCustomize }>
 					Customize
 				</button>
 			) }
-			{ onReset && (
-				<button type="button" onClick={ onReset }>
-					Reset to default
-				</button>
-			) }
 		</div>
+	),
+	ResetLayoutAction: ( { onReset }: { onReset: () => void } ) => (
+		<button type="button" onClick={ onReset }>
+			Reset to default
+		</button>
 	),
 } ) );
 
@@ -706,16 +700,14 @@ describe( 'Dashboard customizing', () => {
 		expect( within( menu ).getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'offers Reset to default from the menu while customizing, behind the composition flag', async () => {
+	it( "offers Reset to default beside the dashboard's own actions while customizing, behind the composition flag", async () => {
 		mockCanCompose = true;
 		render( <Dashboard /> );
 		const menu = screen.getByTestId( 'page-options-menu' );
-		expect(
-			within( menu ).queryByRole( 'button', { name: 'Reset to default' } )
-		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) ).not.toBeInTheDocument();
 
 		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
-		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Reset to default' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
 
 		expect( mockResetLayout ).toHaveBeenCalledTimes( 1 );
 		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
@@ -729,9 +721,7 @@ describe( 'Dashboard customizing', () => {
 
 		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
 
-		expect(
-			within( menu ).queryByRole( 'button', { name: 'Reset to default' } )
-		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [ 'Done', 'Cancel' ] )( 'brings the date controls back on %s', async action => {

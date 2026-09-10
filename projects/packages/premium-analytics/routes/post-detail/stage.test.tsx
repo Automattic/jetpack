@@ -364,7 +364,7 @@ describe( 'post detail stage', () => {
 		expect( mockCanPerform?.( { operation: 'remove' } ) ).toBe( false );
 		// The page options menu is the way in, not the dashboard's own button.
 		expect( mockCanPerform?.( { operation: 'customize' } ) ).toBe( false );
-		// Reset to default is the menu's too, so the dashboard never gets its own.
+		// Reset to default is ours too, so the dashboard never gets its own.
 		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( false );
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
@@ -390,8 +390,7 @@ describe( 'post detail stage', () => {
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 		expect( mockDashboardProps.editMode ).toBe( true );
 
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await user.click( await screen.findByRole( 'menuitem', { name: 'Reset to default' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
 		const dialog = await screen.findByRole( 'alertdialog' );
 		await user.click( within( dialog ).getByRole( 'button', { name: 'Reset' } ) );
 

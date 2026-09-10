@@ -2,6 +2,7 @@ import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PageOptionsMenu } from '../page-options-menu';
+import { ResetLayoutAction } from '../reset-layout';
 import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
 import type { ReactNode } from 'react';
 
@@ -144,7 +145,7 @@ export type DetailPageActionsProps = {
 	isCustomizing: boolean;
 	/** Enters customize mode; Customize is on offer only when given. */
 	onCustomize?: () => void;
-	/** Resets the layout to default; on offer while customizing, only when given. */
+	/** Resets the layout to default; the Reset button shows while customizing, only when given. */
 	onReset?: () => void | Promise< void >;
 	/**
 	 * The dashboard's own actions, `<WidgetDashboard.Actions />`, created by the route.
@@ -159,8 +160,8 @@ export type DetailPageActionsProps = {
 /**
  * The actions slot of a detail page. Idle, it holds the page's own actions
  * and the page options menu, Customize included; customizing, the dashboard's
- * own Cancel and Done take the actions' place and the menu stays, Reset to
- * default in place of Customize. Leaving unmounts the focused control, so
+ * own Cancel and Done take the actions' place, Reset to default beside them,
+ * and the menu stays, less Customize. Leaving unmounts the focused control, so
  * focus is moved back onto the menu trigger.
  *
  * @param props                - Component props.
@@ -195,10 +196,8 @@ export function DetailPageActions( {
 	return (
 		<Stack ref={ frame } direction="row" align="center" gap="sm">
 			{ isCustomizing ? editingActions : children }
-			<PageOptionsMenu
-				onCustomize={ isCustomizing ? undefined : onCustomize }
-				onReset={ isCustomizing ? onReset : undefined }
-			/>
+			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
+			<PageOptionsMenu onCustomize={ isCustomizing ? undefined : onCustomize } />
 		</Stack>
 	);
 }

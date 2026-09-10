@@ -112,6 +112,8 @@ export {
 	type DetailPageShellProps,
 	PageOptionsMenu,
 	type PageOptionsMenuProps,
+	ResetLayoutAction,
+	type ResetLayoutActionProps,
 	LocationsGeoChart,
 	type LocationsGeoChartProps,
 	type LocationsGeoFocusCountry,

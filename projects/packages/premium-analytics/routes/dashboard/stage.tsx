@@ -16,7 +16,7 @@ import {
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
-import { PageOptionsMenu } from '@jetpack-premium-analytics/widgets-toolkit';
+import { PageOptionsMenu, ResetLayoutAction } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -280,11 +280,9 @@ function Dashboard(): JSX.Element {
 							actions={
 								<Stack direction="row" gap="sm">
 									<WidgetDashboard.Actions />
+									{ canReset && <ResetLayoutAction onReset={ resetToDefault } /> }
 									<Stack ref={ setOptionsMenuFrame } direction="row">
-										<PageOptionsMenu
-											onCustomize={ editMode ? undefined : startCustomizing }
-											onReset={ canReset ? resetToDefault : undefined }
-										/>
+										<PageOptionsMenu onCustomize={ editMode ? undefined : startCustomizing } />
 									</Stack>
 								</Stack>
 							}

@@ -138,6 +138,7 @@ describe( 'DetailPageActions', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		const items = await screen.findAllByRole( 'menuitem' );
 		expect( items.map( item => item.textContent ) ).toEqual( [ 'Customize', 'Any feedback?' ] );
+		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) ).not.toBeInTheDocument();
 
 		await user.click( items[ 0 ] );
 
@@ -156,7 +157,7 @@ describe( 'DetailPageActions', () => {
 		expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( "keeps the menu, Reset to default in place of Customize, while the dashboard's own actions take the slot", async () => {
+	it( "keeps the menu, less Customize, and puts Reset to default beside the dashboard's own actions", async () => {
 		const user = userEvent.setup();
 		render(
 			<DetailPageActions
@@ -171,14 +172,12 @@ describe( 'DetailPageActions', () => {
 
 		expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Reset to default' } ) ).toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		const items = await screen.findAllByRole( 'menuitem' );
 
-		expect( items.map( item => item.textContent ) ).toEqual( [
-			'Reset to default',
-			'Any feedback?',
-		] );
+		expect( items.map( item => item.textContent ) ).toEqual( [ 'Any feedback?' ] );
 	} );
 
 	it( 'moves focus back onto the menu trigger when leaving unmounts the focused control', async () => {
