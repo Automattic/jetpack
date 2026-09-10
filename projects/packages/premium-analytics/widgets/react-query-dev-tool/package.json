@@ -7,6 +7,6 @@
 		"@jetpack-premium-analytics/data": "link:../../packages/data",
 		"@tanstack/react-query-devtools": "5.101.2",
 		"@wordpress/i18n": "^6.9.0",
-		"@wordpress/icons": "^15.0.0"
+		"@wordpress/icons": "^16.0.0"
 	}
 }
