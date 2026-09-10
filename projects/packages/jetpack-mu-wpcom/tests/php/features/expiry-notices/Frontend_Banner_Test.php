@@ -78,6 +78,7 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 			$this->set_purchase( $days );
 			$html = $this->render();
 			$this->assertStringContainsString( 'id="wpcom-expiry-frontend-banner"', $html );
+			$this->assertStringContainsString( 'role="region"', $html );
 			$this->assertStringContainsString( $prefix, $html, "wrong text at {$days} days" );
 			$this->assertStringNotContainsString( '<strong>', $html );
 			$this->assertStringNotContainsString( '/plans/', $html );
