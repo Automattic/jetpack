@@ -17,7 +17,7 @@ interface StepThankYouProps {
  * @return {import('react').ReactNode} - The StepThankYou Component
  */
 const StepThankYou = ( { onExit }: StepThankYouProps ) => {
-	const assetsUrl = getScriptData()?.connection?.assets_url;
+	const assetsUrl = getScriptData()?.connection?.assetsUrl;
 
 	return (
 		<div className="jp-connection__disconnect-dialog__content">

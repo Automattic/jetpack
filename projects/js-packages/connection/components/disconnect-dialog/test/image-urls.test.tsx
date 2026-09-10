@@ -23,7 +23,7 @@ describe( 'disconnect dialog illustrations', () => {
 
 	describe( 'StepDisconnectConfirm', () => {
 		it( 'builds the illustration URL from script data', () => {
-			mockGetScriptData.mockReturnValue( { connection: { assets_url: ASSETS_URL } } );
+			mockGetScriptData.mockReturnValue( { connection: { assetsUrl: ASSETS_URL } } );
 
 			render( <StepDisconnectConfirm onExit={ jest.fn() } onProvideFeedback={ jest.fn() } /> );
 
@@ -43,7 +43,7 @@ describe( 'disconnect dialog illustrations', () => {
 
 	describe( 'StepThankYou', () => {
 		it( 'builds the illustration URL from script data', () => {
-			mockGetScriptData.mockReturnValue( { connection: { assets_url: ASSETS_URL } } );
+			mockGetScriptData.mockReturnValue( { connection: { assetsUrl: ASSETS_URL } } );
 
 			render( <StepThankYou onExit={ jest.fn() } /> );
 
