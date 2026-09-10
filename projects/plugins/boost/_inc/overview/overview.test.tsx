@@ -1,6 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
-import { queryClient as legacyQueryClient } from '@automattic/jetpack-react-data-sync-client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
 	act,
@@ -25,6 +24,14 @@ jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
 	...jest.requireActual( '@automattic/jetpack-boost-score-api' ),
 	requestSpeedScores: jest.fn(),
 } ) );
+// The dashboard route and legacy Settings bundle have separate Data Sync singletons.
+jest.mock( '@automattic/jetpack-react-data-sync-client', () => ( {
+	...jest.requireActual( '@automattic/jetpack-react-data-sync-client' ),
+	queryClient: new ( jest.requireActual( '@tanstack/react-query' ).QueryClient )(),
+} ) );
+const { queryClient: legacyQueryClient } = jest.requireActual(
+	'@automattic/jetpack-react-data-sync-client'
+);
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '../../app/assets/src/js/features/performance-history/lib/hooks', () => ( {
 	...jest.requireActual( '../../app/assets/src/js/features/performance-history/lib/hooks' ),
