@@ -3,6 +3,7 @@ import { check, chevronLeft, chevronRight, starFilled } from '@wordpress/icons';
 import { Badge, Button, Dialog, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
 import { getArrowStep } from './arrow-navigation';
+import { FeatureDelivery } from './feature-delivery';
 import { FeatureIcon } from './feature-icon';
 import { FeatureLinks } from './feature-links';
 import { FeatureScreenshot } from './feature-screenshot';
@@ -181,7 +182,10 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 							<FeatureLinks feature={ feature } isActive={ isActive } />
 						</Stack>
 
-						<FeatureScreenshot feature={ feature } />
+						<Stack direction="column" gap="lg">
+							<FeatureDelivery state={ state } />
+							<FeatureScreenshot feature={ feature } />
+						</Stack>
 					</div>
 				</Dialog.Content>
 

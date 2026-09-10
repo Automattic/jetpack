@@ -475,6 +475,11 @@ type MainFeature = {
 	module: string;
 	essential: boolean;
 	paid_highlights?: string[];
+	paid_routes?: string[];
+	delivery?: {
+		in_jetpack?: boolean;
+		standalone?: string;
+	};
 	screenshot: string;
 	info_url: string;
 	docs_url: string;
