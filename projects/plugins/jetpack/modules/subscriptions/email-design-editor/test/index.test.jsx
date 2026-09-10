@@ -173,6 +173,7 @@ describe( 'Email design editor entry point', () => {
 		// snackbar the save path creates, so it would leak into the next test.
 		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
 		dispatch( noticesStore ).removeAllNotices( 'default' );
+		dispatch( noticesStore ).removeAllNotices( 'default', 'email-editor' );
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
@@ -744,6 +745,46 @@ describe( 'Email design editor entry point', () => {
 			// The template is parsed on first render and resolved against the registry then, so
 			// registering afterwards leaves the same unsupported-block errors.
 			expect( order ).toEqual( [ 'register', 'render' ] );
+		} );
+	} );
+
+	describe( 'when the blog does not render through the email editor', () => {
+		const { reportInactiveEmailDesign } = jest.requireActual( '../src/index' );
+
+		const editorNotices = () => select( noticesStore ).getNotices( 'email-editor' );
+
+		it( 'warns, pinned, when WordPress.com says it does not', () => {
+			reportInactiveEmailDesign( { renders_through_email_editor: false } );
+
+			// Pinned rather than dismissible: the editor's own list splits on that, and this is a
+			// standing condition of the blog rather than something that just happened.
+			expect( editorNotices() ).toEqual( [
+				expect.objectContaining( {
+					status: 'warning',
+					type: 'default',
+					isDismissible: false,
+					content: expect.stringContaining( 'not active on this site' ),
+				} ),
+			] );
+		} );
+
+		// `null` is WordPress.com saying it could not determine this, which happens in a deploy
+		// window. Warning then tells a creator on a healthy blog something false.
+		it.each( [
+			[ 'it renders through the editor', { renders_through_email_editor: true } ],
+			[ 'the answer is null', { renders_through_email_editor: null } ],
+			[ 'the key is absent', {} ],
+			[ 'there is no bundle', undefined ],
+		] )( 'says nothing when %s', ( _label, bundle ) => {
+			reportInactiveEmailDesign( bundle );
+
+			expect( editorNotices() ).toEqual( [] );
+		} );
+
+		it( 'does not put the warning where the snackbars are', () => {
+			reportInactiveEmailDesign( { renders_through_email_editor: false } );
+
+			expect( select( noticesStore ).getNotices() ).toEqual( [] );
 		} );
 	} );
 

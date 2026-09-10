@@ -398,6 +398,35 @@ export function createDesignSaveMiddleware( id ) {
 }
 
 /**
+ * Tell the creator when a design saved here would never reach anyone.
+ *
+ * `renders_through_email_editor` is the blog's state, not the reader's — independent of
+ * `can_edit`, which asks whether *this person* may edit. Only `false` warns: `null` means
+ * WordPress.com could not determine it during a deploy window, and warning a creator whose blog is
+ * fine is a false alarm they cannot act on. Pinned, not a snackbar — it is a standing condition.
+ * See NL-864.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {void}
+ */
+export function reportInactiveEmailDesign( bundle ) {
+	if ( false !== bundle?.renders_through_email_editor ) {
+		return;
+	}
+
+	dispatch( noticesStore ).createNotice(
+		'warning',
+		__(
+			'Email design is not active on this site, so changes saved here will not affect the emails your subscribers receive.',
+			'jetpack'
+		),
+		// The editor's pinned notice list reads this context and this type; the default context
+		// only reaches its snackbars.
+		{ context: 'email-editor', type: 'default', isDismissible: false }
+	);
+}
+
+/**
  * What the screen shows when it could not load.
  *
  * The design lives on another site, so without this "nothing appeared" and "your
@@ -450,6 +479,7 @@ export async function mountEmailDesignEditor() {
 		// resolved against the registry at that moment. Registering later leaves the same
 		// unsupported-block errors, which looks identical to this never running.
 		registerEmailBlocks( bundle );
+		reportInactiveEmailDesign( bundle );
 
 		const postId = getTemplateId( bundle );
 		const preload = buildPreloadMap( bundle, postId );
