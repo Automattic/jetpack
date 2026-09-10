@@ -544,6 +544,7 @@ class Admin_Menu {
 			return;
 		}
 
+		// @todo Remove when WP 7.1 is the minimum version.
 		self::register_design_tokens_style();
 		wp_enqueue_style( self::DESIGN_TOKENS_HANDLE );
 	}
