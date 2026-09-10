@@ -22,9 +22,9 @@ module.exports = [
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: {
-					// `@wordpress/ui`'s close control reaches `@wordpress/theme` and
-					// `@wordpress/private-apis`. This page registers no shim for those
-					// handles, and an unmet one stops the whole bundle enqueuing.
+					// `@wordpress/theme` and `@wordpress/private-apis` are bundled, not
+					// externalized: this page registers neither handle, and an unmet
+					// handle stops the whole bundle enqueuing.
 					requestMap: {
 						'@wordpress/theme': { external: false },
 						'@wordpress/private-apis': { external: false },
