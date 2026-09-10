@@ -1,5 +1,3 @@
 Significance: patch
 Type: other
-Comment: Remove CSS rules left dead by the notice migration
-
-
+Comment: Remove CSS rules left dead by the notice migration and the Legacy Stats removal
