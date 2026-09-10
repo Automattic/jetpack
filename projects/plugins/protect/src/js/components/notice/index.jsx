@@ -1,3 +1,4 @@
+import { speak } from '@wordpress/a11y';
 import { __ } from '@wordpress/i18n';
 import { Notice as WPNotice } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -29,9 +30,14 @@ const Notice = ( {
 
 	const spoken = spokenMessage ?? ( 'string' === typeof message ? message : null );
 
-	// An identical repeat has to re-run the announcing effect, and alternating a
-	// trailing non-breaking space is what `@wordpress/a11y` itself does for that.
-	const announced = spoken && id % 2 ? `${ spoken }\u00a0` : spoken;
+	// Announced here, keyed on the notice, rather than by `Notice.Root`: it diffs the
+	// value, so an identical repeat would never announce twice. `speak()` handles the
+	// repeat itself, and a JSX message never reaches its serializer this way.
+	useEffect( () => {
+		if ( floating && 'string' === typeof spoken ) {
+			speak( spoken, 'error' === type ? 'assertive' : 'polite' );
+		}
+	}, [ id, floating, spoken, type ] );
 
 	/**
 	 * Clears the notice automatically after {duration} milliseconds.
@@ -54,10 +60,9 @@ const Notice = ( {
 				styles[ `notice--${ type }` ],
 				floating && styles[ 'notice--floating' ]
 			) }
-			// Only the toast announces: the modal notices are read when their dialog opens.
-			// The value must be null, never undefined — `Notice.Root` defaults it to the
-			// children and renders those mid-render, corrupting hook order on a JSX message.
-			spokenMessage={ floating ? announced : null }
+			// Always null, never undefined: the default is the children, which
+			// `Notice.Root` renders mid-render, corrupting hook order on a JSX message.
+			spokenMessage={ null }
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
 			{ dismissable && (

@@ -29,9 +29,11 @@ export const NoticeProvider: FC< { children: ReactNode } > = ( { children } ) =>
 	const [ notice, setNoticeState ] = useState< NoticeState >( null );
 
 	const setNotice: Dispatch< SetStateAction< NoticeState > > = useCallback( value => {
+		const id = ++noticeId;
+
 		setNoticeState( previous => {
 			const next = 'function' === typeof value ? value( previous ) : value;
-			return next ? { ...next, id: ++noticeId } : next;
+			return next ? { ...next, id } : next;
 		} );
 	}, [] );
 
