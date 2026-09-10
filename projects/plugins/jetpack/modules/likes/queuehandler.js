@@ -480,6 +480,9 @@ var jetpackLikesWidgetObserver =
 	typeof IntersectionObserver === 'function'
 		? new IntersectionObserver( jetpackOnScrollStopped, {
 				rootMargin: `${ jetpackLikesLookAhead }px`,
+				// jetpackIsScrolledIntoView() wants the widget fully inside the band, so ask to be
+				// told when it gets there - crossing into partial overlap alone would not load it.
+				threshold: [ 0, 1 ],
 		  } )
 		: null;
 
