@@ -86,9 +86,9 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	),
 	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
 		open ? <div data-testid="onboarding-welcome-modal" /> : null,
-	// Forwards the ref and renders the notice slot after the row, since the
-	// stage relies on both: the ref feeds the year surface's measurement, and
-	// the notice's position in the band is asserted below.
+	// Forwards the ref and marks the notice slot, since the stage relies on
+	// both: the ref feeds the year surface's measurement, and the notice's
+	// place in the slot is asserted below.
 	SectionHeader: jest
 		.requireActual< typeof import('react') >( 'react' )
 		.forwardRef(
@@ -98,7 +98,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 			) => (
 				<div ref={ ref }>
 					<div>{ children }</div>
-					{ notice }
+					<div data-testid="section-header-notice">{ notice }</div>
 				</div>
 			)
 		),
@@ -407,12 +407,9 @@ describe( 'Dashboard refresh-failure notice', () => {
 		const notices = screen.getAllByTestId( 'refresh-failure-notice' );
 		expect( notices ).toHaveLength( 1 );
 
-		// Pinned right after the header, not among the widgets, so it stays reachable
-		// however far scrolled; sibling order is the assertion Testing Library lacks.
-		// eslint-disable-next-line testing-library/no-node-access -- position in the header band is what this test is for.
-		expect( notices[ 0 ].previousElementSibling ).toContainElement(
-			screen.getByText( 'header offers comparison' )
-		);
+		// Through the header's slot, so it pins with the band rather than
+		// scrolling away among the widgets.
+		expect( screen.getByTestId( 'section-header-notice' ) ).toContainElement( notices[ 0 ] );
 	} );
 } );
 
