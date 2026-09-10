@@ -213,7 +213,7 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 
 					{ isActive && feature.manage_url ? (
 						<LinkButton href={ feature.manage_url } variant="solid">
-							{ __( 'Go to', 'jetpack-my-jetpack' ) }
+							{ __( 'Open', 'jetpack-my-jetpack' ) }
 						</LinkButton>
 					) : null }
 					<FeatureSwitch state={ state } />

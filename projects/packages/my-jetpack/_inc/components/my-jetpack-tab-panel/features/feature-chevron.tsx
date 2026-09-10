@@ -14,7 +14,7 @@ type FeatureChevronProps = {
 /**
  * The labelled chevron at the end of a feature row.
  *
- * Every feature opens its details here, active or not: the modal is where "Go to"
+ * Every feature opens its details here, active or not: the modal is where "Open"
  * lives, so linking straight out would leave an active feature with no way to read
  * about itself.
  *
