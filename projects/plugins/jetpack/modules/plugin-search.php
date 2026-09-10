@@ -319,8 +319,23 @@ class Jetpack_Plugin_Search {
 				'module'              => 'sharing-block',
 				'sort'                => '13',
 				'learn_more_button'   => Redirect::get_url( 'jetpack-support-sharing-block' ),
-				'configure_url'       => admin_url( 'site-editor.php?path=%2Fwp_template' ),
+				'configure_url'       => $this->get_sharing_block_editor_url(),
 			),
+		);
+	}
+
+	/**
+	 * Site Editor URL for the template the Sharing Buttons block goes in.
+	 *
+	 * @return string
+	 */
+	private function get_sharing_block_editor_url() {
+		return add_query_arg(
+			array(
+				'p'      => '/wp_template/' . get_stylesheet() . '//single',
+				'canvas' => 'edit',
+			),
+			admin_url( 'site-editor.php' )
 		);
 	}
 
@@ -567,7 +582,7 @@ class Jetpack_Plugin_Search {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
-				href="' . esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ) . '"
+				href="' . esc_url( $this->get_sharing_block_editor_url() ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Add block', 'jetpack' ) . '</a>';

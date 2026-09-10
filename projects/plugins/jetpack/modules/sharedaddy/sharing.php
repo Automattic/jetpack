@@ -819,9 +819,17 @@ class Sharing_Admin {
 
 		$link = $host->is_wpcom_platform() ? $wpcom_link : Redirect::get_url( 'jetpack-support-sharing-block' );
 
+		$site_editor_url = add_query_arg(
+			array(
+				'p'      => '/wp_template/' . get_stylesheet() . '//single',
+				'canvas' => 'edit',
+			),
+			admin_url( 'site-editor.php' )
+		);
+
 		?>
 			<div class="sharing-block-message__buttons-wrapper">
-				<a href="<?php echo esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ); ?>" class="button button-primary">
+				<a href="<?php echo esc_url( $site_editor_url ); ?>" class="button button-primary">
 					<?php esc_html_e( 'Go to the site editor', 'jetpack' ); ?>
 				</a>
 				<a data-target="wpcom-help-center" href="<?php echo esc_url( $link ); ?>" class="button" target="_blank" rel="noopener noreferrer">
