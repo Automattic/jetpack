@@ -9,7 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
-use Automattic\Jetpack\Constants;
+require_once __DIR__ . '/class-expiry-wpcom.php';
 
 /**
  * Reads purchases and computes a normalized expiry state for the primary plan.
@@ -27,32 +27,23 @@ class Expiry_Data {
 	const MONTHLY_NOTICE_DAYS    = 7;
 
 	/**
-	 * Return the expiry state for the current site, or null if there's no
+	 * The expiry state for the current site, or null if there's no
 	 * notice-eligible plan purchase.
 	 *
 	 * @return array<string,mixed>|null
 	 */
 	public static function get_expiry_state(): ?array {
-		$purchases = wpcom_expiry_get_purchases();
-		$plan      = self::pick_primary_plan_purchase( $purchases );
-		if ( null === $plan ) {
-			return null;
-		}
-		return self::compute_state_from_purchase( $plan );
+		$plan = self::pick_primary_plan_purchase( wpcom_expiry_get_purchases() );
+		return null === $plan ? null : self::compute_state_from_purchase( $plan );
 	}
 
 	/**
-	 * Pick the plan purchase with the latest expiry. Non-plan purchases
-	 * (addons, domains) are filtered out.
+	 * The plan purchase with the latest expiry; add-ons and domains are skipped.
 	 *
 	 * @param array<int,object>|null $purchases List of purchase objects.
 	 * @return object|null
 	 */
 	public static function pick_primary_plan_purchase( $purchases ): ?object {
-		if ( empty( $purchases ) ) {
-			return null;
-		}
-
 		$plans = array_filter( (array) $purchases, array( self::class, 'is_plan_purchase' ) );
 		if ( empty( $plans ) ) {
 			return null;
@@ -61,7 +52,7 @@ class Expiry_Data {
 		usort(
 			$plans,
 			static function ( $a, $b ): int {
-				return strtotime( $b->expiry_date ) <=> strtotime( $a->expiry_date );
+				return strtotime( (string) ( $b->expiry_date ?? '' ) ) <=> strtotime( (string) ( $a->expiry_date ?? '' ) );
 			}
 		);
 
@@ -69,29 +60,27 @@ class Expiry_Data {
 	}
 
 	/**
-	 * True if the purchase looks like a site plan, as opposed to an addon or domain.
+	 * Whether the purchase is a site plan rather than an add-on or domain.
 	 *
-	 * Primary signal is `product_type === 'bundle'`. Falls back to slug-based
-	 * inference for fixtures missing product_type.
+	 * The slug is only consulted for a purchase synced without a product type:
+	 * matching on it alone would take "sensei_pro" or "woocommerce_*" for a plan.
 	 *
 	 * @param object $purchase Purchase object.
 	 */
 	public static function is_plan_purchase( $purchase ): bool {
-		if ( isset( $purchase->product_type ) && 'bundle' === $purchase->product_type ) {
-			return true;
+		if ( ! empty( $purchase->product_type ) ) {
+			return 'bundle' === $purchase->product_type;
 		}
-		if ( isset( $purchase->product_slug ) ) {
-			return null !== self::infer_plan_class_from_slug( (string) $purchase->product_slug );
-		}
-		return false;
+		return isset( $purchase->product_slug )
+			&& null !== self::infer_plan_class_from_slug( (string) $purchase->product_slug );
 	}
 
 	/**
-	 * Pure: derive normalized state from a single plan purchase. Tests can pass
-	 * $now to avoid clock issues.
+	 * The normalized state of one plan purchase, or null when it is unusable or
+	 * too long expired to say anything about.
 	 *
 	 * @param object   $purchase Purchase object (see wpcom_get_site_purchases() shape).
-	 * @param int|null $now      Optional "now" timestamp. Defaults to time().
+	 * @param int|null $now      Timestamp to judge against. Defaults to time().
 	 * @return array<string,mixed>|null
 	 */
 	public static function compute_state_from_purchase( $purchase, ?int $now = null ): ?array {
@@ -107,99 +96,51 @@ class Expiry_Data {
 		$now          ??= time();
 		$days_remaining = (int) floor( ( $expiry_ts - $now ) / DAY_IN_SECONDS );
 		$product_slug   = (string) $purchase->product_slug;
-		$plan_name      = self::derive_plan_name( $product_slug );
-		$is_monthly     = self::is_monthly_plan( $product_slug );
-		// The raw flag is only the customer's intent: it stays true for a
-		// subscription that cannot actually be charged. `might_still_auto_renew()`
-		// is the effective answer, but it is null until a site is serving the
-		// declared purchase shape, so fall back to the flag there.
-		$raw_auto_renew = ! empty( $purchase->user_allows_auto_renew ?? $purchase->auto_renew ?? null );
-		$is_atomic      = Constants::is_true( 'IS_ATOMIC' );
+		$is_monthly     = false !== stripos( $product_slug, 'monthly' );
 
-		// Neither the effective renewal state nor the attempt schedule is a
-		// free read: on a Simple site each one queries the store and pulls in
-		// the whole billing stack, on every admin pageview. Outside this plan's
-		// own notice window neither can change the answer, so don't ask. Per
-		// cadence rather than the widest of the two, because a monthly plan
-		// that is still weeks out lands on STATE_ACTIVE either way: it is
-		// excluded from the attempt-passed warning outright, and its
-		// auto-renew-off window is only the last 7 days.
-		$notice_window   = $is_monthly ? self::MONTHLY_NOTICE_DAYS : self::ANNUAL_NOTICE_DAYS;
-		$in_notice_range = $days_remaining <= $notice_window;
+		// The raw flag is the customer's intent and stays on for a subscription
+		// billing can no longer charge. The effective answer is a store query on
+		// Simple, so it is only asked inside this plan's own notice window.
+		$raw_auto_renew  = ! empty( $purchase->user_allows_auto_renew ?? $purchase->auto_renew ?? null );
+		$in_notice_range = $days_remaining <= ( $is_monthly ? self::MONTHLY_NOTICE_DAYS : self::ANNUAL_NOTICE_DAYS );
 		$will_renew      = $in_notice_range
 			? ( self::might_still_auto_renew( $purchase ) ?? $raw_auto_renew )
 			: $raw_auto_renew;
 
-		if ( $days_remaining >= 0 ) {
-			$grace_days_left = null;
-
-			if ( ! $in_notice_range ) {
-				// Too early for either warning: the auto-renew-off window has
-				// not opened, and the first renewal attempt is at most 30 days
-				// before expiry, so it cannot already have passed. This has to
-				// come before the branch below, which would otherwise reach
-				// billing for the attempt date and discard it.
-				$state = self::STATE_ACTIVE;
-			} elseif ( $will_renew ) {
-				// Nothing to say about a plan that is still expected to renew
-				// itself, until a scheduled attempt has come and gone without
-				// renewing it. Monthly terms are excluded outright: their first
-				// attempt doesn't land until some unknown hour of the expiry
-				// date, so there is never a "an attempt failed" window to warn
-				// about beforehand.
-				$state = ( ! $is_monthly && self::is_past_first_auto_renew_attempt( $purchase, $now ) )
-					? self::STATE_APPROACHING
-					: self::STATE_ACTIVE;
-			} else {
-				// Inside the window with no renewal expected: the plan is
-				// going to lapse unless the owner acts. Nothing left to test
-				// -- being here already means $days_remaining is within this
-				// plan's own notice window.
-				$state = self::STATE_APPROACHING;
-			}
-		} else {
-			$days_past = abs( $days_remaining );
+		if ( $days_remaining < 0 ) {
+			$days_past = -$days_remaining;
 			if ( $days_past >= self::GRACE_PERIOD_DAYS + self::POST_GRACE_PERIOD_DAYS ) {
 				return null;
 			}
-			if ( $days_past < self::GRACE_PERIOD_DAYS ) {
-				$state           = self::STATE_EXPIRED_GRACE;
-				$grace_days_left = self::GRACE_PERIOD_DAYS - $days_past;
-			} else {
-				$state           = self::STATE_EXPIRED;
-				$grace_days_left = 0;
-			}
+			$state = $days_past < self::GRACE_PERIOD_DAYS ? self::STATE_EXPIRED_GRACE : self::STATE_EXPIRED;
+		} elseif ( ! $in_notice_range ) {
+			$state = self::STATE_ACTIVE;
+		} elseif ( ! $will_renew ) {
+			$state = self::STATE_APPROACHING;
+		} else {
+			// A plan still expected to renew has nothing to hear until a
+			// scheduled attempt has passed without renewing it. Monthly terms
+			// attempt only on the expiry date itself, so they never do.
+			$attempt_has_failed = ! $is_monthly && self::is_past_first_auto_renew_attempt( $purchase, $now );
+			$state              = $attempt_has_failed ? self::STATE_APPROACHING : self::STATE_ACTIVE;
 		}
 
 		return array(
 			'state'           => $state,
-			'expiry_date'     => (string) $purchase->expiry_date,
 			'expiry_ts'       => $expiry_ts,
 			'days_remaining'  => $days_remaining,
-			'grace_days_left' => $grace_days_left,
-			'is_atomic'       => $is_atomic,
-			'is_monthly'      => $is_monthly,
-			'plan_name'       => $plan_name,
 			'product_slug'    => $product_slug,
 			// Empty on an Atomic site whose synced purchases predate the field.
 			'subscription_id' => isset( $purchase->subscription_id ) && is_scalar( $purchase->subscription_id ) ? (string) $purchase->subscription_id : '',
-			// Whether a renewal is still expected to go through, not merely
-			// whether the customer left auto-renew switched on -- but only
-			// once the state is past active. Outside the notice window this
-			// falls back to the customer's raw flag, which stays true for a
-			// subscription that can no longer be charged, because the
-			// effective answer costs a billing query no notice would have
-			// read. Don't trust this field on an active plan.
+			// Whether a renewal is still expected, once past active; outside the
+			// notice window this is the raw flag. Don't trust it on an active plan.
 			'auto_renew'      => $will_renew,
 		);
 	}
 
 	/**
-	 * Whether the billing system still expects to renew this purchase, or null
-	 * when the site has not been told.
-	 *
-	 * Null covers Atomic sites whose synced purchases predate the declared
-	 * shape, and any caller passing a plain purchase row.
+	 * Whether billing still expects to renew this purchase, or null when the
+	 * purchase shape cannot say (Atomic purchases synced before it existed).
 	 *
 	 * @param object $purchase Purchase object.
 	 */
@@ -214,10 +155,8 @@ class Expiry_Data {
 	/**
 	 * Whether the first scheduled auto-renewal attempt is behind us.
 	 *
-	 * Compared against our own clock rather than read as a boolean, because an
-	 * Atomic site holds its synced purchases until the next subscription event
-	 * and a boolean would have been frozen when it was sent. False whenever the
-	 * schedule is unknown, so an unanswered question keeps the notice quiet.
+	 * A date compared to our clock, not a synced boolean: Atomic purchases stay
+	 * frozen until the next subscription event. Unknown reads as not yet.
 	 *
 	 * @param object $purchase Purchase object.
 	 * @param int    $now      Timestamp to compare against.
@@ -237,25 +176,32 @@ class Expiry_Data {
 	}
 
 	/**
-	 * Resolve the canonical localized short name for a plan slug. Returns null
-	 * if the Plans package isn't loaded (i.e. outside wpcom contexts).
+	 * The plan's localized short name, or null where the Plans package can't say.
+	 *
+	 * Ask only when copy is about to name the plan: on Atomic the Plans package
+	 * fetches the whole plan list from WordPress.com to answer, and on Simple it
+	 * loads the billing stack. Remembered per locale.
 	 *
 	 * @param string $slug Product slug.
 	 */
 	public static function derive_plan_name( string $slug ): ?string {
-		if ( '' === $slug || ! class_exists( '\Automattic\Jetpack\Plans' ) ) {
+		if ( '' === $slug || ! method_exists( '\Automattic\Jetpack\Plans', 'get_plan_short_name' ) ) {
 			return null;
 		}
-		$short_name = \Automattic\Jetpack\Plans::get_plan_short_name( $slug );
-		return is_string( $short_name ) && '' !== $short_name ? $short_name : null;
+		return Expiry_Wpcom::remember(
+			'wpcom_expiry_notices_plan_name_' . $slug . '_' . get_user_locale(),
+			static function () use ( $slug ): ?string {
+				$short_name = \Automattic\Jetpack\Plans::get_plan_short_name( $slug );
+				return is_string( $short_name ) && '' !== $short_name ? $short_name : null;
+			}
+		);
 	}
 
 	/**
-	 * Map a product slug to one of the canonical plan classes
-	 * ('personal' / 'premium' / 'business' / 'commerce' / 'pro') or null when
-	 * the slug doesn't match a plan.
+	 * The canonical plan class a slug belongs to, or null when it isn't a plan.
 	 *
 	 * @param string $slug Product slug.
+	 * @return string|null One of 'personal', 'premium', 'business', 'commerce', 'pro'.
 	 */
 	private static function infer_plan_class_from_slug( string $slug ): ?string {
 		if ( '' === $slug ) {
@@ -280,18 +226,8 @@ class Expiry_Data {
 	}
 
 	/**
-	 * True if the slug refers to a monthly cadence plan.
-	 *
-	 * @param string $slug Product slug.
-	 */
-	public static function is_monthly_plan( string $slug ): bool {
-		return false !== stripos( $slug, 'monthly' );
-	}
-
-	/**
 	 * Storage included with the plan, in GB, or null when unknown. Mirrors
-	 * Calypso's plan-expiry-notice storage map so both surfaces quote the same
-	 * figure.
+	 * Calypso's plan-expiry-notice storage map so both quote the same figure.
 	 *
 	 * @param string $slug Product slug.
 	 */
@@ -302,16 +238,14 @@ class Expiry_Data {
 			'business' => 50,
 			'commerce' => 50,
 		);
-		$plan_class       = self::infer_plan_class_from_slug( $slug );
-		return null === $plan_class ? null : ( $storage_by_class[ $plan_class ] ?? null );
+		return $storage_by_class[ self::infer_plan_class_from_slug( $slug ) ?? '' ] ?? null;
 	}
 
 	/**
-	 * Build CTA URLs for the current expiry state.
+	 * CTA URLs for the current expiry state.
 	 *
 	 * @param array<string,mixed> $state       State as produced by compute_state_from_purchase().
-	 * @param string              $redirect_to Optional URL appended to the primary CTA so checkout
-	 *                                         can return the user to where they came from.
+	 * @param string              $redirect_to Optional URL checkout returns the user to.
 	 * @return array{primary:array{label:string,url:string},secondary:array{label:string,url:string}}
 	 */
 	public static function get_cta_urls( array $state, string $redirect_to = '' ): array {
@@ -319,30 +253,27 @@ class Expiry_Data {
 		$slug            = isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '';
 		$subscription_id = isset( $state['subscription_id'] ) ? (string) $state['subscription_id'] : '';
 
-		// Naming the subscription makes checkout a renewal of that subscription,
-		// which the cart refuses for anyone but its owner with an explanation.
-		// The plain form is matched against the cart user's own subscriptions,
-		// so for another admin it quietly becomes a second purchase of the plan.
+		// Naming the subscription makes checkout a renewal the cart refuses for
+		// anyone but its owner; the plain form would quietly become a second
+		// purchase of the plan for another admin.
 		$primary = array(
 			'label' => __( 'Renew now', 'jetpack-mu-wpcom' ),
 			'url'   => '' === $subscription_id
 				? sprintf( 'https://wordpress.com/checkout/%s/%s', $slug, $domain )
 				: sprintf( 'https://wordpress.com/checkout/%s/renew/%s/%s', $slug, $subscription_id, $domain ),
 		);
-		// add_query_arg() does not encode values, so a redirect with a query of
-		// its own would hand checkout the second half as parameters of its own.
+		// add_query_arg() does not encode, and a redirect with a query of its
+		// own would hand checkout the second half as parameters.
 		if ( '' !== $redirect_to ) {
 			$primary['url'] = add_query_arg( 'redirect_to', rawurlencode( $redirect_to ), $primary['url'] );
 		}
 
-		$secondary = array(
-			'label' => __( 'View other plans', 'jetpack-mu-wpcom' ),
-			'url'   => sprintf( 'https://wordpress.com/plans/%s', $domain ),
-		);
-
 		return array(
 			'primary'   => $primary,
-			'secondary' => $secondary,
+			'secondary' => array(
+				'label' => __( 'View other plans', 'jetpack-mu-wpcom' ),
+				'url'   => sprintf( 'https://wordpress.com/plans/%s', $domain ),
+			),
 		);
 	}
 }
