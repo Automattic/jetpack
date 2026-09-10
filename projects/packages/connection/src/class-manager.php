@@ -1022,16 +1022,16 @@ class Manager {
 	public function resolve_wpcom_user_id( $user_id = false ) {
 		$user_id = $user_id ? absint( $user_id ) : get_current_user_id();
 
-		// The cached ID outlives the token, unlike the transient behind `get_connected_user_data()`,
+		// The binding outlives the token, unlike the transient behind `get_connected_user_data()`,
 		// so connectedness is checked here rather than left to the lookup below.
 		if ( ! $user_id || ! $this->is_user_connected( $user_id ) ) {
 			return 0;
 		}
 
-		$cached = Utils::get_wpcom_user_id( $user_id );
+		$bound = Utils::get_wpcom_user_id( $user_id );
 
-		if ( $cached ) {
-			return $cached;
+		if ( $bound ) {
+			return $bound;
 		}
 
 		$user_data = $this->get_connected_user_data( $user_id );
@@ -1373,7 +1373,7 @@ class Manager {
 	 * @return bool
 	 */
 	public function has_protected_owner() {
-		$anchor = Protected_Owner::get();
+		$anchor = Protected_Owner::get_locked();
 
 		if ( ! $anchor ) {
 			return false;
@@ -1412,6 +1412,14 @@ class Manager {
 		$user_id = absint( $user_id );
 		$roles   = new Roles();
 
+		if ( ! sanitize_key( $confirmed_by ) ) {
+			return new WP_Error(
+				'protected_owner_missing_provenance',
+				__( 'Recording a protected owner requires naming how it was confirmed.', 'jetpack-connection' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		if ( ! user_can( $user_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			return new WP_Error(
 				'protected_owner_not_admin',
@@ -1437,6 +1445,18 @@ class Manager {
 		Utils::set_wpcom_user_id( $user_id, (int) $owner_data['ID'] );
 
 		Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by );
+
+		// Confirmed by reading it back, not by the write's return value: that is also false when
+		// the anchor already said exactly this, which is not a failure.
+		$anchor = Protected_Owner::get();
+
+		if ( ! $anchor || (int) $anchor['wpcom_user_id'] !== (int) $owner_data['ID'] ) {
+			return new WP_Error(
+				'protected_owner_not_stored',
+				__( 'Could not store the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 500 )
+			);
+		}
 
 		// Written directly rather than through update_connection_owner(): that round-trips to
 		// WordPress.com first, and its ownership-change guard will refuse the anchor just set here.

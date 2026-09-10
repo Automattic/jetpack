@@ -392,6 +392,39 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * Provenance that sanitizes away is not provenance, and is refused rather than stored blank.
+	 */
+	public function test_set_protected_owner_rejects_provenance_that_sanitizes_to_nothing() {
+		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->never() );
+		$result  = $manager->set_protected_owner( $this->owner_id, '!!!' );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_missing_provenance', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * An anchor that could not be stored must not leave the site promoted: ownership would have
+	 * moved with nothing locking it, and the caller would have been told it worked.
+	 */
+	public function test_set_protected_owner_does_not_promote_when_the_anchor_cannot_be_stored() {
+		$block = static function ( $value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_jetpack_options', $block, 10, 2 );
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
+		$result  = $manager->set_protected_owner( $this->owner_id, 'popup' );
+
+		remove_filter( 'pre_update_option_jetpack_options', $block, 10 );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_not_stored', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertFalse( Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
 	 * Clearing the anchor unlocks ownership without changing who the owner is.
 	 */
 	public function test_clear_protected_owner_removes_the_anchor_and_leaves_the_owner_alone() {
@@ -428,6 +461,26 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertNull( Protected_Owner::get() );
 		$this->assertFalse( Protected_Owner::is_locked() );
 		$this->assertTrue( ( new Manager() )->is_ownership_transferable() );
+	}
+
+	/**
+	 * An unlocked anchor names an owner without protecting one, so the gate must not answer yes
+	 * even when that owner is exactly who is connected.
+	 */
+	public function test_an_unlocked_anchor_does_not_protect_the_matching_owner() {
+		Jetpack_Options::update_option(
+			'protected_owner',
+			array(
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+				'locked'        => false,
+			)
+		);
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+
+		$this->assertFalse( $manager->has_protected_owner() );
+		$this->assertTrue( $manager->is_ownership_transferable() );
 	}
 
 	/**

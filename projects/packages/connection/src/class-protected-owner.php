@@ -50,9 +50,17 @@ class Protected_Owner {
 	 *                              Required, and travels to WordPress.com with the anchor: it names
 	 *                              a mechanism rather than a local user, and a default here would
 	 *                              record provenance nobody established.
-	 * @return bool Whether the anchor was written.
+	 * @return bool Whether the anchor was written. False when the mechanism is missing.
 	 */
 	public static function set( $wpcom_user_id, $local_user_id, $confirmed_by ) {
+		$confirmed_by = sanitize_key( $confirmed_by );
+
+		// A blank mechanism is indistinguishable from one never recorded, which is what requiring
+		// the argument was meant to prevent.
+		if ( ! $confirmed_by ) {
+			return false;
+		}
+
 		return Jetpack_Options::update_option(
 			self::OPTION,
 			array(
@@ -60,7 +68,7 @@ class Protected_Owner {
 				'local_user_id' => absint( $local_user_id ),
 				'locked'        => true,
 				'confirmed_at'  => gmdate( 'Y-m-d\TH:i:s\Z' ),
-				'confirmed_by'  => sanitize_key( $confirmed_by ),
+				'confirmed_by'  => $confirmed_by,
 			)
 		);
 	}
@@ -80,6 +88,22 @@ class Protected_Owner {
 	}
 
 	/**
+	 * Get the anchor, but only while it is locked.
+	 *
+	 * An unlocked anchor names an owner without preventing ownership moving, so it protects
+	 * nobody and callers gating on protection must not see it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|null The locked anchor, or null when there is none.
+	 */
+	public static function get_locked() {
+		$anchor = self::get();
+
+		return ( $anchor && ! empty( $anchor['locked'] ) ) ? $anchor : null;
+	}
+
+	/**
 	 * Whether an anchor is set and locked.
 	 *
 	 * Deliberately independent of whether the current owner matches it: a mismatch is when
@@ -90,8 +114,6 @@ class Protected_Owner {
 	 * @return bool
 	 */
 	public static function is_locked() {
-		$anchor = self::get();
-
-		return $anchor && ! empty( $anchor['locked'] );
+		return null !== self::get_locked();
 	}
 }
