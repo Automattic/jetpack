@@ -37,7 +37,9 @@
 .root .chart [role="row"][aria-rowindex] > span:first-child {
 	position: sticky;
 	z-index: 1;
-	background: var(--wpds-color-background-surface-neutral-strong);
+
+	/* The chart's own background, which its cell fills mix against too. */
+	background: var(--a8c-charts-color-background);
 }
 
 .root .chart [role="row"][aria-hidden="true"] > span {

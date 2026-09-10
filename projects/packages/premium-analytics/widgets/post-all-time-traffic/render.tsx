@@ -61,6 +61,33 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 	// page's period, read over by the other cards while this one stays all-time.
 	const { onChange, onApply, timeZone } = useReportDateFilters();
 
+	// No per-cell label: the chart names a cell from its column and row, the
+	// month and the year here. A month without views reads 0, as the endpoint
+	// reports it; the months outside the post's life are filler. The last
+	// column is the year's roll-up, a summary column outside the colour scale.
+	const columns = useMemo< HeatmapColumn[] >(
+		() => [
+			...Array.from( { length: MONTHS_IN_YEAR }, ( _column, month ) => ( {
+				label: formatMonth( month, { short: true } ),
+				data: rows.map( row => {
+					const value = row.months[ month ];
+
+					if ( typeof value !== 'number' ) {
+						return { value: null, placeholder: true };
+					}
+
+					return { value };
+				} ),
+			} ) ),
+			{
+				label: __( 'Totals', 'jetpack-premium-analytics-pkg' ),
+				summary: true,
+				data: rows.map( row => ( { value: row.total } ) ),
+			},
+		],
+		[ rows ]
+	);
+
 	const openPeriod = useCallback(
 		( cell: Element ) => {
 			const row = rows[ Number( cell.getAttribute( 'data-row' ) ) ];
@@ -71,18 +98,17 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 
 			const column = Number( cell.getAttribute( 'data-column' ) );
 			const bounds = { lifeStartsAt, timeZone };
-			// The thirteenth column is the year's roll-up, which opens the whole year.
-			const range =
-				column === MONTHS_IN_YEAR
-					? yearRange( row.year, bounds )
-					: monthRange( { year: row.year, month: column }, bounds );
+			// The year's roll-up opens the whole year.
+			const range = columns[ column ]?.summary
+				? yearRange( row.year, bounds )
+				: monthRange( { year: row.year, month: column }, bounds );
 
 			if ( range ) {
 				onChange( range, PRESET_CUSTOM );
 				onApply();
 			}
 		},
-		[ rows, lifeStartsAt, timeZone, onChange, onApply ]
+		[ rows, columns, lifeStartsAt, timeZone, onChange, onApply ]
 	);
 
 	// The chart owns the cells, so the click is read off its markup.
@@ -123,33 +149,6 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 	// Keep stale rows visible when a background refetch fails.
 	const showError = isError && rows.length === 0;
 
-	// No per-cell label: the chart names a cell from its column and row, the
-	// month and the year here. A month without views reads 0, as the endpoint
-	// reports it; the months outside the post's life are filler. The last
-	// column is the year's roll-up, a summary column outside the colour scale.
-	const columns = useMemo< HeatmapColumn[] >(
-		() => [
-			...Array.from( { length: MONTHS_IN_YEAR }, ( _column, month ) => ( {
-				label: formatMonth( month, { short: true } ),
-				data: rows.map( row => {
-					const value = row.months[ month ];
-
-					if ( typeof value !== 'number' ) {
-						return { value: null, placeholder: true };
-					}
-
-					return { value };
-				} ),
-			} ) ),
-			{
-				label: __( 'Totals', 'jetpack-premium-analytics-pkg' ),
-				summary: true,
-				data: rows.map( row => ( { value: row.total } ) ),
-			},
-		],
-		[ rows ]
-	);
-
 	const yearLabels = useMemo( () => rows.map( row => String( row.year ) ), [ rows ] );
 
 	const renderTooltip = useCallback(
@@ -159,7 +158,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 				// Named from the column and row, the way the chart names a cell to a
 				// screen reader: "Aug 2026". The year's roll-up is named by the year.
 				cellLabel={
-					column === MONTHS_IN_YEAR
+					columns[ column ]?.summary
 						? rowLabel ?? ''
 						: `${ columnLabel ?? '' } ${ rowLabel ?? '' }`.trim()
 				}
@@ -167,7 +166,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 				formatValue={ metric === 'average' ? formatDailyViewCount : formatViewCount }
 			/>
 		),
-		[ metric ]
+		[ metric, columns ]
 	);
 
 	return (
