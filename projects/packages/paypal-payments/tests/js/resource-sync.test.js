@@ -7,6 +7,7 @@
 import {
 	getResourceAttributeUpdates,
 	normalizeResourceVariants,
+	withCurrency,
 } from '../../src/paypal-payment-buttons/utils/resource-sync';
 
 const blockAttributes = {
@@ -99,6 +100,31 @@ describe( 'getResourceAttributeUpdates', () => {
 		expect( updates.variants.dimensions[ 0 ].options[ 0 ].unit_amount.value ).toBe( '12.50' );
 	} );
 
+	// The mount GET runs through here, so inventing a primary group would turn the
+	// pricing toggle on behind the merchant and brick the form on a saved button.
+	it( 'leaves the pricing toggle off for a saved button with no per-option prices', () => {
+		const groups = dimensions => ( { dimensions } );
+		const current = {
+			...blockAttributes,
+			variantsEnabled: true,
+			variants: groups( [
+				{
+					_key: 'vb-1',
+					name: 'Color',
+					primary: false,
+					options: [ { _key: 'vb-2', label: 'Red' } ],
+				},
+			] ),
+		};
+		const fromResource = {
+			...resourceAttributes,
+			variantsEnabled: true,
+			variants: groups( [ { name: 'Color', options: [ { label: 'Red' } ] } ] ),
+		};
+
+		expect( getResourceAttributeUpdates( current, fromResource ) ).toEqual( {} );
+	} );
+
 	it( 'treats editor keys and empty per-option amounts as no difference', () => {
 		const current = {
 			...blockAttributes,
@@ -160,7 +186,10 @@ describe( 'normalizeResourceVariants', () => {
 		expect( normalized.dimensions.map( dim => dim.primary ) ).toEqual( [ false, true ] );
 	} );
 
-	it( 'falls back to the first group when nothing is priced or flagged', () => {
+	// `primary` is what the form reads for "per-variant pricing is on", so guessing at
+	// the first group here would reopen a saved button with the product price field gone
+	// and a price error on every option.
+	it( 'leaves every group unflagged when nothing is priced or flagged', () => {
 		const normalized = normalizeResourceVariants( {
 			dimensions: [
 				{ name: 'Color', options: [ { label: 'Red' } ] },
@@ -168,7 +197,7 @@ describe( 'normalizeResourceVariants', () => {
 			],
 		} );
 
-		expect( normalized.dimensions.map( dim => dim.primary ) ).toEqual( [ true, false ] );
+		expect( normalized.dimensions.map( dim => dim.primary ) ).toEqual( [ false, false ] );
 	} );
 
 	it( 'keeps the flag when the payment carries one', () => {
@@ -180,5 +209,48 @@ describe( 'normalizeResourceVariants', () => {
 		} );
 
 		expect( normalized.dimensions.map( dim => dim.primary ) ).toEqual( [ false, true ] );
+	} );
+} );
+
+describe( 'withCurrency', () => {
+	it( 'retags every priced option, in every group', () => {
+		const variants = withCurrency(
+			{
+				dimensions: [
+					{
+						name: 'Color',
+						primary: true,
+						options: [
+							{ label: 'Black', unit_amount: { currency_code: 'USD', value: '10.00' } },
+							{ label: 'White', unit_amount: { currency_code: 'USD', value: '20.00' } },
+						],
+					},
+					{
+						name: 'Size',
+						primary: false,
+						options: [ { label: 'Small', unit_amount: { currency_code: 'GBP', value: '5.00' } } ],
+					},
+				],
+			},
+			'EUR'
+		);
+
+		expect(
+			variants.dimensions.flatMap( dim => dim.options.map( opt => opt.unit_amount.currency_code ) )
+		).toEqual( [ 'EUR', 'EUR', 'EUR' ] );
+	} );
+
+	it( 'leaves an unpriced option without an amount', () => {
+		const variants = withCurrency(
+			{ dimensions: [ { name: 'Size', primary: false, options: [ { label: 'S' } ] } ] },
+			'EUR'
+		);
+
+		expect( variants.dimensions[ 0 ].options[ 0 ] ).toEqual( { label: 'S' } );
+	} );
+
+	it( 'passes through variants it cannot price', () => {
+		expect( withCurrency( null, 'EUR' ) ).toBeNull();
+		expect( withCurrency( { dimensions: [] }, 'EUR' ) ).toEqual( { dimensions: [] } );
 	} );
 } );

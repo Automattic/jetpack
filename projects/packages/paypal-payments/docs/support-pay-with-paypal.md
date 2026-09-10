@@ -19,7 +19,7 @@ The Pay with PayPal block lets you accept payments directly on your WordPress si
 1. Connect your PayPal account using API credentials
 2. Add the Pay with PayPal block to any post or page
 3. Enter product details (name, price, currency)
-4. Click "Create Button" — the plugin creates a payment link via PayPal's API
+4. Click "Create New" — the plugin creates a payment link via PayPal's API
 5. Publish — visitors see a styled PayPal button that links to checkout
 
 Each button also generates a shareable payment link URL you can use in emails, social media, or text links.
@@ -65,7 +65,7 @@ Once connected:
 2. Enter a **Price** (positive number, up to 2 decimal places)
 3. Select a **Currency** from the dropdown (26 supported)
 4. Optionally add a **Description** (max 256 characters)
-5. Click **Create Button**
+5. Click **Create New**
 
 A live preview appears showing exactly how your button will look on the published page.
 
@@ -78,7 +78,7 @@ A live preview appears showing exactly how your button will look on the publishe
 
 ### Editing and Deleting Buttons
 
-- **Edit:** Click "Edit Button" in the block sidebar to update product details, then "Update Button" to save
+- **Edit:** Click "Edit" in the block toolbar to update product details, then "Save"
 - **Delete:** Click "Delete Button" to remove the PayPal resource and start over
 
 ### Legacy Buttons

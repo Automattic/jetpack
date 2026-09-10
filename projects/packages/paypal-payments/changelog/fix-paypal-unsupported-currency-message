@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Say why an unsupported currency or an empty variant group blocks saving, instead of disabling the save button with nothing on screen.
