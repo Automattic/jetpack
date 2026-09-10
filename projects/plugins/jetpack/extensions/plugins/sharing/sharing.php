@@ -39,15 +39,12 @@ add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_
  * The Sharing panel is only displayed for post types that support sharing.
  * The sharing module declares support for sharing for all the public post types.
  * Let's do the same thing when the module isn't active yet.
- *
- * The support flag only exists to render the module activation nudge.
  */
 add_action(
 	'rest_api_init',
 	function () {
 		if ( ! ( new Modules() )->is_active( 'sharedaddy' ) ) {
-			$post_types     = get_post_types( array( 'public' => true ) );
-			$is_block_theme = wp_is_block_theme();
+			$post_types = get_post_types( array( 'public' => true ) );
 
 			foreach ( $post_types as $post_type ) {
 				register_rest_field(
@@ -67,10 +64,7 @@ add_action(
 						),
 					)
 				);
-
-				if ( ! $is_block_theme ) {
-					add_post_type_support( $post_type, 'jetpack-sharing-buttons' );
-				}
+				add_post_type_support( $post_type, 'jetpack-sharing-buttons' );
 			}
 		}
 	}

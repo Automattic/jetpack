@@ -45,14 +45,12 @@ function register_plugins() {
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugins' );
 
 /**
- * Register post types.
- *
- * The support flag only exists to render the module activation nudge.
+ * Register post types
  */
 add_action(
 	'rest_api_init',
 	function () {
-		if ( ! ( new Modules() )->is_active( 'likes' ) && ! wp_is_block_theme() ) {
+		if ( ! ( new Modules() )->is_active( 'likes' ) ) {
 			$post_types = get_post_types( array( 'public' => true ) );
 			foreach ( $post_types as $post_type ) {
 				add_post_type_support( $post_type, 'jetpack-post-likes' );
