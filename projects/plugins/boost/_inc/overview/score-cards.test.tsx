@@ -66,3 +66,40 @@ test( 'desktop retains its numeric tier when the overall grade is C', () => {
 	expect( desktop.getByText( 'Good' ) ).toBeVisible();
 	expect( desktop.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 75 );
 } );
+
+test( 'shows signed baseline deltas only for changed, current scores', () => {
+	const scores = {
+		current: { desktop: 80, mobile: 60 },
+		noBoost: { desktop: 70, mobile: 70 },
+		isStale: false,
+	};
+	const { rerender } = render( <ScoreCards scores={ scores } /> );
+	expect( screen.getByText( '+10 points compared to without Boost' ) ).toBeVisible();
+	expect( screen.getByText( '−10 points compared to without Boost' ) ).toBeVisible();
+	rerender( <ScoreCards scores={ { ...scores, isStale: true } } /> );
+	expect( screen.queryByText( /compared to without Boost/ ) ).not.toBeInTheDocument();
+	rerender( <ScoreCards scores={ { ...scores, noBoost: scores.current } } /> );
+	expect( screen.queryByText( /compared to without Boost/ ) ).not.toBeInTheDocument();
+} );
+
+test( 'marks placeholder regions busy after loading ends without scores', () => {
+	const scores = {
+		current: { desktop: 80, mobile: 60 },
+		noBoost: { desktop: 70, mobile: 70 },
+		isStale: false,
+	};
+	const { rerender } = render(
+		<ScoreCards scores={ scores } isLoading={ false } showPlaceholder />
+	);
+	for ( const label of [ 'Overall grade', 'Desktop', 'Mobile' ] ) {
+		expect( screen.getByRole( 'region', { name: label } ) ).toHaveAttribute( 'aria-busy', 'true' );
+	}
+	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /compared to without Boost/ ) ).not.toBeInTheDocument();
+	rerender( <ScoreCards scores={ scores } isLoading={ false } showPlaceholder={ false } /> );
+	for ( const label of [ 'Overall grade', 'Desktop', 'Mobile' ] ) {
+		expect( screen.getByRole( 'region', { name: label } ) ).toHaveAttribute( 'aria-busy', 'false' );
+	}
+	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 80 );
+} );

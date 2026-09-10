@@ -41,7 +41,7 @@ export default function ScoreCard( {
 		<section
 			className="jetpack-boost-overview__score-section"
 			aria-label={ label }
-			aria-busy={ isLoading }
+			aria-busy={ showPlaceholder }
 		>
 			<Stack direction="row" align="center" gap="sm">
 				{ icon }
