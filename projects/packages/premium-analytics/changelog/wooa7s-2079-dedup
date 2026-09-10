@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Report dates: read every round-trip-validated date label and day bound through one helper.
+Comment: Internal refactor: read the round-trip-validated date labels and day bounds through one shared helper.
