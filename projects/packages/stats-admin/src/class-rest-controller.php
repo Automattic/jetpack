@@ -221,7 +221,7 @@ class REST_Controller {
 					),
 					'postponed_for' => array(
 						'type'        => 'number',
-						'default'     => null,
+						'default'     => 0,
 						'description' => 'Postponed for (in seconds)',
 						'minimum'     => 0,
 					),
@@ -250,7 +250,8 @@ class REST_Controller {
 					),
 					'postponed_for' => array(
 						'type'        => 'number',
-						'default'     => null,
+						// Forwarded to WPCOM as-is, whose schema rejects the null an omitted param would carry.
+						'default'     => 0,
 						'description' => 'Postponed for (in seconds)',
 						'minimum'     => 0,
 					),

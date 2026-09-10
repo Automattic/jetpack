@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Notices: Add an `include_details` parameter that returns a detail record per notice, so a dismissal can escalate.
+Notices: Add an `include_details` parameter that returns a detail record per notice, so a dismissal can escalate, and accept a dismissal that omits `postponed_for`.

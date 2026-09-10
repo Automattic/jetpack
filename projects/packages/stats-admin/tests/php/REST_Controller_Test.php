@@ -193,6 +193,38 @@ class REST_Controller_Test extends Stats_TestCase {
 	}
 
 	/**
+	 * Test the notices POST forwards `postponed_for` as 0 when omitted.
+	 */
+	public function test_stats_notices_omitted_postponed_for_forwards_zero() {
+		wp_set_current_user( $this->admin_id );
+		$forwarded = null;
+		$capture   = function ( $response, $parsed_args, $url ) use ( &$forwarded ) {
+			if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) !== false ) {
+				$forwarded = json_decode( $parsed_args['body'], true );
+			}
+			return $response;
+		};
+		add_filter( 'pre_http_request', $capture, 9, 3 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/sites/999/jetpack-stats-dashboard/notices' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'id'     => 'new_stats_feedback',
+					'status' => 'dismissed',
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'pre_http_request', $capture, 9 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 0, $forwarded['postponed_for'] );
+	}
+
+	/**
 	 * Test '/jetpack/v4/stats-app/stats/notices' failed
 	 */
 	public function test_stats_notices_illegal_params() {
