@@ -1,7 +1,7 @@
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { check, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Button, Dialog, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { getArrowStep } from './arrow-navigation';
 import { FeatureIcon } from './feature-icon';
 import { FeatureLinks } from './feature-links';
@@ -9,6 +9,9 @@ import { FeatureScreenshot } from './feature-screenshot';
 import { FeatureSwitch } from './feature-switch';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
+
+// Set by @wordpress/ui on the dialog's own close button.
+const CLOSE_ICON_ATTR = 'data-wp-ui-dialog-close-icon';
 
 type FeatureModalProps = {
 	state: FeatureState;
@@ -50,6 +53,8 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 		[ onStep, previous ]
 	);
 	const onNext = useCallback( () => next && onStep( next.feature.slug ), [ next, onStep ] );
+	const popupRef = useRef< HTMLDivElement >( null );
+	const claimedRef = useRef< string | null >( null );
 
 	useEffect( () => {
 		const onKeyDown = ( event: KeyboardEvent ) => {
@@ -68,9 +73,54 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 		return () => document.removeEventListener( 'keydown', onKeyDown, true );
 	}, [ onNext, onPrevious ] );
 
+	// The footer's action, which is what the modal is open in order to reach — not the
+	// first link in the body, and not the step buttons.
+	const findAction = useCallback( () => {
+		const footer = popupRef.current?.querySelector( 'footer' );
+		const steps = footer?.querySelector( `.${ styles[ 'modal-steps' ] }` );
+
+		return Array.from( footer?.querySelectorAll< HTMLElement >( 'button, a[href]' ) ?? [] ).find(
+			element =>
+				! steps?.contains( element ) &&
+				! element.hasAttribute( 'disabled' ) &&
+				element.getAttribute( 'aria-disabled' ) !== 'true'
+		);
+	}, [] );
+
+	const initialFocus = useCallback( () => findAction() ?? true, [ findAction ] );
+
+	// A product's action only renders once its state arrives, which is usually after the
+	// dialog opened and resolved its own focus. Claim focus the first time the action
+	// exists for this feature, and only while focus is still where the dialog put it.
+	useEffect( () => {
+		const popup = popupRef.current;
+		const active = popup?.ownerDocument.activeElement;
+
+		if (
+			claimedRef.current === feature.slug ||
+			! popup ||
+			! active ||
+			( active !== popup && ! active.hasAttribute( CLOSE_ICON_ATTR ) )
+		) {
+			return;
+		}
+
+		const action = findAction();
+
+		if ( action ) {
+			claimedRef.current = feature.slug;
+			action.focus();
+		}
+	}, [ feature.slug, findAction, state ] );
+
 	return (
 		<Dialog.Root open onOpenChange={ onOpenChange }>
-			<Dialog.Popup size="large" className={ styles[ 'modal-popup' ] }>
+			<Dialog.Popup
+				ref={ popupRef }
+				size="large"
+				className={ styles[ 'modal-popup' ] }
+				initialFocus={ initialFocus }
+			>
 				<Dialog.Header>
 					<Stack direction="row" align="center" gap="md">
 						<FeatureIcon feature={ feature } />
