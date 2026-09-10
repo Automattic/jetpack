@@ -326,7 +326,11 @@ function GroupEditor( {
 				placeholder={ __( 'Enter variant name', 'jetpack-paypal-payments' ) }
 				disabled={ disabled }
 				help={ errorFor( null, VARIANT_ERROR_FIELDS.NAME ) }
-				className={ errorFor( null, VARIANT_ERROR_FIELDS.NAME ) ? 'has-error' : undefined }
+				className={
+					errorFor( null, VARIANT_ERROR_FIELDS.NAME )
+						? 'jetpack-paypal-payment-buttons__has-error'
+						: undefined
+				}
 			/>
 			<Button
 				isDestructive
@@ -362,7 +366,9 @@ function GroupEditor( {
 							disabled={ disabled }
 							help={ errorFor( optIndex, VARIANT_ERROR_FIELDS.LABEL ) }
 							className={
-								errorFor( optIndex, VARIANT_ERROR_FIELDS.LABEL ) ? 'has-error' : undefined
+								errorFor( optIndex, VARIANT_ERROR_FIELDS.LABEL )
+									? 'jetpack-paypal-payment-buttons__has-error'
+									: undefined
 							}
 						/>
 						{ group.primary && (
@@ -385,7 +391,9 @@ function GroupEditor( {
 								disabled={ disabled }
 								help={ errorFor( optIndex, VARIANT_ERROR_FIELDS.PRICE ) }
 								className={
-									errorFor( optIndex, VARIANT_ERROR_FIELDS.PRICE ) ? 'has-error' : undefined
+									errorFor( optIndex, VARIANT_ERROR_FIELDS.PRICE )
+										? 'jetpack-paypal-payment-buttons__has-error'
+										: undefined
 								}
 							/>
 						) }

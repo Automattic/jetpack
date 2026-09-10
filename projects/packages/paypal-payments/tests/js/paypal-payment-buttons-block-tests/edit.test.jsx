@@ -200,7 +200,7 @@ jest.mock( '@wordpress/components', () => ( {
 		);
 	},
 	// Real TextControl puts className and help on the BaseControl wrapper, not the input,
-	// which is what editor.scss's `.has-error .components-text-control__input` expects.
+	// which is what editor.scss's `.jetpack-paypal-payment-buttons__has-error .components-text-control__input` expects.
 	TextControl: ( { label, value, onChange, onBlur, type, help, className, ...rest } ) => (
 		<div data-testid={ `control-${ label }` } className={ className }>
 			<label htmlFor={ `field-${ label }` }>{ label }</label>
@@ -1939,10 +1939,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect(
 				within( variantControl( 0 ) ).getByText( 'Variant name is required.' )
 			).toBeInTheDocument();
-			expect( variantControl( 0 ) ).toHaveClass( 'has-error' );
+			expect( variantControl( 0 ) ).toHaveClass( 'jetpack-paypal-payment-buttons__has-error' );
 			// Leaving the group name says nothing about the option below it.
 			expect( screen.queryByText( 'Option name is required.' ) ).not.toBeInTheDocument();
-			expect( screen.getByTestId( 'control-Option 1' ) ).not.toHaveClass( 'has-error' );
+			expect( screen.getByTestId( 'control-Option 1' ) ).not.toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
 
 			await visit( user, screen.getByRole( 'textbox', { name: 'Option 1' } ) );
 
@@ -2006,7 +2008,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// be checked against the one that is missing a price rather than the panel.
 			const [ priced, unpriced ] = screen.getAllByTestId( 'control-Price' );
 			expect( within( unpriced ).getByText( 'Price is required.' ) ).toBeInTheDocument();
-			expect( unpriced ).toHaveClass( 'has-error' );
+			expect( unpriced ).toHaveClass( 'jetpack-paypal-payment-buttons__has-error' );
 			expect( within( priced ).queryByText( 'Price is required.' ) ).not.toBeInTheDocument();
 		} );
 
@@ -2276,7 +2278,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await openEditForm( user );
 
 			expect( screen.getByText( missingRate ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).toHaveClass( 'has-error' );
+			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
 			expect( screen.getByText( 'Save' ) ).toBeDisabled();
 			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
 		} );
@@ -2353,7 +2357,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await openEditForm( user );
 
 			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
-			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).not.toHaveClass( 'has-error' );
+			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).not.toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
 			expect( screen.getByText( 'Save' ) ).toBeEnabled();
 			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'false' );
 		} );
@@ -2650,7 +2656,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect(
 				control( 'Product Name' ).getByText( 'Product name is required.' )
 			).toBeInTheDocument();
-			expect( screen.getByTestId( 'control-Product Name' ) ).toHaveClass( 'has-error' );
+			expect( screen.getByTestId( 'control-Product Name' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
 		} );
 
 		it( 'writes the price', async () => {
@@ -2673,7 +2681,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await visit( user, details().getByLabelText( 'Price' ) );
 
 			expect( control( 'Price' ).getByText( 'Price is required.' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'control-Price' ) ).toHaveClass( 'has-error' );
+			expect( screen.getByTestId( 'control-Price' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
 		} );
 
 		it( 'writes the currency', async () => {
@@ -2714,7 +2724,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await visit( user, field );
 
 			expect( control( 'Description (optional)' ).getByText( tooLong ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'control-Description (optional)' ) ).toHaveClass( 'has-error' );
+			expect( screen.getByTestId( 'control-Description (optional)' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
 		} );
 
 		it( 'saves the image the merchant chooses', async () => {

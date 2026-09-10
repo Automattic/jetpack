@@ -584,7 +584,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 								  )
 						}
 						className={
-							touchedFields.productName && validationErrors.productName ? 'has-error' : undefined
+							touchedFields.productName && validationErrors.productName
+								? 'jetpack-paypal-payment-buttons__has-error'
+								: undefined
 						}
 					/>
 
@@ -602,7 +604,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									step={ priceStep }
 									placeholder={ pricePlaceholder }
 									help={ priceError || undefined }
-									className={ priceError ? 'has-error' : undefined }
+									className={ priceError ? 'jetpack-paypal-payment-buttons__has-error' : undefined }
 								/>
 							</div>
 						) }
@@ -615,7 +617,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 							options={ SUPPORTED_CURRENCIES }
 							onChange={ value => setAttributes( { currencyCode: value } ) }
 							help={ validationErrors.currencyCode || undefined }
-							className={ validationErrors.currencyCode ? 'has-error' : undefined }
+							className={
+								validationErrors.currencyCode
+									? 'jetpack-paypal-payment-buttons__has-error'
+									: undefined
+							}
 						/>
 					</div>
 
@@ -642,7 +648,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						}
 						className={
 							touchedFields.productDescription && validationErrors.productDescription
-								? 'has-error'
+								? 'jetpack-paypal-payment-buttons__has-error'
 								: undefined
 						}
 					/>
@@ -790,7 +796,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 										validationErrors.taxValue ||
 										__( 'Percentage added to the product price.', 'jetpack-paypal-payments' )
 									}
-									className={ validationErrors.taxValue ? 'has-error' : undefined }
+									className={
+										validationErrors.taxValue
+											? 'jetpack-paypal-payment-buttons__has-error'
+											: undefined
+									}
 								/>
 							) }
 						</>
@@ -900,11 +910,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				</PanelBody>
 				<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>
 					{ /* URLInput takes no onBlur, so the wrapper catches it as it bubbles, and
-					     carries has-error too. URLInput gets exactly one class - it appends
+					     carries the error class too. URLInput gets exactly one class - it appends
 					     `__suggestions` to whatever it is given, and a second one in there
 					     would break the suggestion list's width. */ }
 					<div
-						className={ returnUrlError ? 'has-error' : undefined }
+						className={ returnUrlError ? 'jetpack-paypal-payment-buttons__has-error' : undefined }
 						onBlur={ () => markTouched( 'returnUrl' ) }
 					>
 						<URLInput

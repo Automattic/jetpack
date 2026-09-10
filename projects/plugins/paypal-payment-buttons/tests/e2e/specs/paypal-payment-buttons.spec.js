@@ -643,8 +643,8 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await nameInput.fill( '' );
 			await block.locator( 'input[placeholder="29.99"]' ).click(); // blur
 
-			// The TextControl gets a 'has-error' class and shows error via the help prop.
-			await expect( block.locator( '.has-error' ) ).toBeVisible( {
+			// The TextControl gets the error class and shows the message via the help prop.
+			await expect( block.locator( '.jetpack-paypal-payment-buttons__has-error' ) ).toBeVisible( {
 				timeout: 3000,
 			} );
 		} );
