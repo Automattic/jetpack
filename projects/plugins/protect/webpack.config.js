@@ -22,10 +22,7 @@ module.exports = [
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: {
-					// Bundled, not externalized: this page registers neither script
-					// handle, and an unmet handle stops the whole bundle enqueuing.
-					// The two must go together, or `@wordpress/theme`'s module-init
-					// `lock()` lands on a different consent map. See #48173.
+					// Bundled, never one without the other — see #48173.
 					requestMap: {
 						'@wordpress/theme': { external: false },
 						'@wordpress/private-apis': { external: false },
