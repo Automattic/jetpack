@@ -1084,7 +1084,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$result = PayPal_REST_Controller::handle_update_button( $request );
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $result );
-		$this->assertSame(
+		// assertEquals, not assertSame: the whole array is the point - nothing
+		// vanished - but the key order is the sanitizer's business, not the test's.
+		$this->assertEquals(
 			array(
 				array(
 					'name'  => 'ZZ Custom VAT Label',
