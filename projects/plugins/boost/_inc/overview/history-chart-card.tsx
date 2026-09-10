@@ -7,16 +7,18 @@ import { dateI18n } from '@wordpress/date';
 import { RawHTML } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info, trendingUp } from '@wordpress/icons';
-import { Button, Card, EmptyState, Notice } from '@wordpress/ui';
+import { Card, EmptyState, Notice } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 import UpgradeCTA from './upgrade-cta';
-import type { PerformanceHistoryData } from './lib/use-performance-history';
+import type {
+	PerformanceHistoryData,
+	PerformanceHistoryPeriod,
+} from './lib/use-performance-history';
 import type { DataPointDate, SeriesData } from '@automattic/charts';
 import type { ComponentProps } from 'react';
 
 type DeviceColors = { desktop?: string; mobile?: string };
 
-type History = NonNullable< PerformanceHistoryData >;
 type Props = {
 	data?: PerformanceHistoryData | null;
 	isLoading?: boolean;
@@ -51,7 +53,7 @@ export function HistoryTooltip( {
 	period,
 	colors,
 }: {
-	period: History[ 'periods' ][ number ];
+	period: PerformanceHistoryPeriod;
 	colors?: DeviceColors;
 } ) {
 	const dimensions = period.dimensions;
@@ -60,15 +62,15 @@ export function HistoryTooltip( {
 			<div className="jetpack-boost-overview__tooltip-date">
 				{ dateI18n( 'F j, Y', new Date( period.timestamp ), false ) }
 			</div>
-			<dl>
-				<div className="jetpack-boost-overview__tooltip-section">
+			<div>
+				<dl className="jetpack-boost-overview__tooltip-section">
 					<dt>{ __( 'Overall score', 'jetpack-boost' ) }</dt>
 					<dd>
 						{ getScoreLetter( dimensions.mobile_overall_score, dimensions.desktop_overall_score ) }
 					</dd>
-				</div>
+				</dl>
 				{ ( [ 'desktop', 'mobile' ] as const ).map( device => (
-					<div key={ device } className="jetpack-boost-overview__tooltip-section">
+					<dl key={ device } className="jetpack-boost-overview__tooltip-section">
 						<dt>
 							<span
 								className="jetpack-boost-overview__series-swatch"
@@ -104,9 +106,9 @@ export function HistoryTooltip( {
 						</dd>
 						<dt>{ __( 'Cumulative Layout Shift', 'jetpack-boost' ) }</dt>
 						<dd>{ formatNumber( dimensions[ `${ device }_cls` ], { decimals: 2 } ) }</dd>
-					</div>
+					</dl>
 				) ) }
-			</dl>
+			</div>
 		</>
 	);
 	return <div className="jetpack-boost-overview__history-tooltip">{ content }</div>;
@@ -174,13 +176,7 @@ export default function HistoryChartCard( {
 		[ data, series ]
 	);
 	let content;
-	if ( isLoading && ! data?.periods.length ) {
-		content = (
-			<div className="jetpack-boost-overview__chart-loading">
-				<Spinner />
-			</div>
-		);
-	} else if ( needsUpgrade ) {
+	if ( needsUpgrade ) {
 		content = (
 			<Notice.Root intent="info" spokenMessage={ null }>
 				<Notice.Title>{ __( 'Unlock historical performance', 'jetpack-boost' ) }</Notice.Title>
@@ -192,6 +188,12 @@ export default function HistoryChartCard( {
 				</Notice.Actions>
 			</Notice.Root>
 		);
+	} else if ( isLoading && ! data?.periods.length ) {
+		content = (
+			<div className="jetpack-boost-overview__chart-loading">
+				<Spinner />
+			</div>
+		);
 	} else if ( isError && ! isLoading ) {
 		content = (
 			<Notice.Root
@@ -201,7 +203,9 @@ export default function HistoryChartCard( {
 				<Notice.Title>{ __( 'Failed to load performance history', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Description>{ error?.message }</Notice.Description>
 				<Notice.Actions>
-					<Button onClick={ onRetry }>{ __( 'Try again', 'jetpack-boost' ) }</Button>
+					<Notice.ActionButton onClick={ onRetry }>
+						{ __( 'Try again', 'jetpack-boost' ) }
+					</Notice.ActionButton>
 				</Notice.Actions>
 			</Notice.Root>
 		);
@@ -215,9 +219,9 @@ export default function HistoryChartCard( {
 					{ __( 'Your scores will be recorded from now on.', 'jetpack-boost' ) }
 				</Notice.Description>
 				<Notice.Actions>
-					<Button onClick={ onDismissFreshStart }>
+					<Notice.ActionButton onClick={ onDismissFreshStart }>
 						{ __( 'Okay, got it!', 'jetpack-boost' ) }
-					</Button>
+					</Notice.ActionButton>
 				</Notice.Actions>
 			</Notice.Root>
 		);

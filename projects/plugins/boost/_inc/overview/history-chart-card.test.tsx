@@ -4,17 +4,10 @@ import { dateI18n, getSettings, setSettings } from '@wordpress/date';
 import HistoryChartCard, { buildHistorySeries, HistoryTooltip } from './history-chart-card';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 
-jest.mock( './upgrade-cta', () => {
-	const { useEffect, useRef } = jest.requireActual( 'react' );
-	return {
-		__esModule: true,
-		default: function UpgradeCTA() {
-			const ref = useRef( null );
-			useEffect( () => {}, [] );
-			return <button ref={ ref }>Upgrade now</button>;
-		},
-	};
-} );
+jest.mock( './upgrade-cta', () => ( {
+	__esModule: true,
+	default: () => <button>Upgrade now</button>,
+} ) );
 
 const timestamp = Date.UTC( 2026, 8, 1 );
 const dimensions = {
@@ -343,12 +336,15 @@ test( 'uses the non-UTC site date for both axis and tooltip', async () => {
 	}
 } );
 
-test( 'offers the premium upgrade before errors without rendering paid history', () => {
-	render( <HistoryChartCard data={ history } needsUpgrade isError { ...callbacks } /> );
-	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
-	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
-} );
+test.each( [ { isError: true, data: history }, { isLoading: true } ] )(
+	'offers the premium upgrade before errors or loading without rendering paid history (%o)',
+	state => {
+		render( <HistoryChartCard needsUpgrade { ...state } { ...callbacks } /> );
+		expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
+	}
+);
 
 test( 'dismisses the paid fresh-start notice', () => {
 	render( <HistoryChartCard data={ history } isFreshStart { ...callbacks } /> );
