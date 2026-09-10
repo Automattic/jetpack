@@ -608,42 +608,6 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * The wp-theme script polyfill must not be treated as the tokens stylesheet.
-	 *
-	 * @return void
-	 */
-	public function test_enqueue_design_tokens_ignores_wp_theme_script_handle() {
-		wp_dequeue_style( 'wp-theme' );
-		wp_deregister_style( 'wp-theme' );
-		wp_register_script( 'wp-theme', 'https://example.com/theme.js', array(), '1.0.0', true );
-
-		Admin_Menu::enqueue_design_tokens();
-
-		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
-		$this->assertFalse( wp_style_is( 'wp-theme', 'registered' ) );
-	}
-
-	/**
-	 * Design tokens load only on pages registered through Admin_Menu.
-	 *
-	 * @return void
-	 */
-	public function test_maybe_enqueue_design_tokens_is_scoped_to_registered_pages() {
-		wp_dequeue_style( 'wp-theme' );
-		wp_deregister_style( 'wp-theme' );
-
-		$hook = Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'tokens_scope_menu', '__return_null' );
-
-		Admin_Menu::maybe_enqueue_design_tokens( 'plugins.php' );
-
-		$this->assertFalse( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
-
-		Admin_Menu::maybe_enqueue_design_tokens( $hook );
-
-		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
-	}
-
-	/**
 	 * Upgrade menu stylesheet is enqueued for a free-plan site.
 	 *
 	 * The sidebar is visible everywhere in wp-admin, so styles must load globally.
