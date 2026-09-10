@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
 	fasterMessage,
 	slowerMessage,
@@ -16,6 +16,7 @@ export default function ScoreAlert( { scoreChange, isVisible }: Props ) {
 	const message = scoreChange !== false && scoreChange < 0 ? slowerMessage : fasterMessage;
 	const [ isDismissed, dismissAlert ] = useDismissibleAlertState( message.id );
 	const [ isClosed, setClosed ] = useState( false );
+	const impressionRecorded = useRef( false );
 	const showAlert =
 		isVisible &&
 		scoreChange !== false &&
@@ -25,10 +26,15 @@ export default function ScoreAlert( { scoreChange, isVisible }: Props ) {
 	const scoreDirection = scoreChange !== false && scoreChange > 0 ? 'up' : 'down';
 
 	useEffect( () => {
-		if ( showAlert ) {
+		impressionRecorded.current = false;
+	}, [ scoreChange ] );
+
+	useEffect( () => {
+		if ( showAlert && ! impressionRecorded.current ) {
+			impressionRecorded.current = true;
 			recordBoostEvent( 'speed_score_alert_shown', { score_direction: scoreDirection } );
 		}
-	}, [ showAlert, scoreDirection ] );
+	}, [ showAlert, scoreDirection, scoreChange ] );
 
 	const handleDismiss = () => {
 		recordBoostEvent( 'speed_score_alert_cta_clicked', { score_direction: scoreDirection } );

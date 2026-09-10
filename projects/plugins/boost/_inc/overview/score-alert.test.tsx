@@ -24,7 +24,7 @@ beforeEach( () => {
 	jest.mocked( useDismissibleAlertState ).mockReturnValue( [ false, dismissAlert ] );
 } );
 
-test( 'records an impression only when the retained Overview becomes visible', () => {
+test( 'records one impression per score change when the retained Overview becomes visible', () => {
 	const { rerender } = render( <ScoreAlert scoreChange={ 10 } isVisible={ false } /> );
 	expect( screen.getByText( 'Your site got faster' ) ).not.toBeVisible();
 	expect( recordBoostEvent ).not.toHaveBeenCalled();
@@ -33,11 +33,12 @@ test( 'records an impression only when the retained Overview becomes visible', (
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_alert_shown', {
 		score_direction: 'up',
 	} );
-	rerender( <ScoreAlert scoreChange={ 11 } isVisible /> );
-	expect( recordBoostEvent ).toHaveBeenCalledTimes( 1 );
-	rerender( <ScoreAlert scoreChange={ 11 } isVisible={ false } /> );
+	rerender( <ScoreAlert scoreChange={ 10 } isVisible={ false } /> );
 	expect( screen.getByText( 'Your site got faster' ) ).not.toBeVisible();
+	rerender( <ScoreAlert scoreChange={ 10 } isVisible /> );
 	expect( recordBoostEvent ).toHaveBeenCalledTimes( 1 );
+	rerender( <ScoreAlert scoreChange={ 11 } isVisible /> );
+	expect( recordBoostEvent ).toHaveBeenCalledTimes( 2 );
 } );
 
 test( 'closing remains temporary and suppresses impressions when returning to Overview', () => {
