@@ -131,7 +131,46 @@
 
 	// Follow Site
 	const follow = actionbar.querySelector( '.actnbr-actn-follow' );
+	// The bar item that owns the Subscribe button and its popover.
+	const followItem = follow ? follow.closest( '.actnbr-btn' ) : null;
+	const followBubble = actionbar.querySelector( '#follow-bubble' );
 	const reblog = actionbar.querySelector( '.actnbr-actn-reblog' );
+
+	/**
+	 * Reveal the Subscribe popover, closing the ⋯ menu if it is open.
+	 */
+	function openFollowBubble() {
+		if ( ! followItem ) {
+			return;
+		}
+		closeMenu( false );
+		followItem.classList.remove( 'actnbr-hidden' );
+		isFollowBubbleOpen = true;
+	}
+
+	/**
+	 * Hide the Subscribe popover.
+	 *
+	 * @param {boolean} returnFocus - Put focus back on the Subscribe button.
+	 */
+	function closeFollowBubble( returnFocus ) {
+		if ( followItem ) {
+			followItem.classList.add( 'actnbr-hidden' );
+		}
+		isFollowBubbleOpen = false;
+		if ( returnFocus && follow ) {
+			follow.focus();
+		}
+	}
+
+	if ( followBubble ) {
+		followBubble.addEventListener( 'keydown', e => {
+			if ( e.key === 'Escape' ) {
+				e.preventDefault();
+				closeFollowBubble( true );
+			}
+		} );
+	}
 
 	// Comment
 	const commentButton = actionbar.querySelector( '.actnbr-actn-comment' );
@@ -287,7 +326,7 @@
 			e.preventDefault();
 			e.stopPropagation();
 
-			isFollowBubbleOpen = true;
+			openFollowBubble();
 
 			if ( fbd.isLoggedIn ) {
 				showActionBarStatusMessage( `<div class="actnbr-reader">${ fbd.i18n.followedText }</div>` );
@@ -326,8 +365,7 @@
 
 			followRequest( 'ab_unsubscribe_from_blog' );
 
-			const btn = actionbar.querySelector( '.actnbr-btn' );
-			btn.classList.add( 'actnbr-hidden' );
+			closeFollowBubble( false );
 			const followNotificationCheckedToggles = actionbar.querySelectorAll(
 				'.actnbr-site-settings__toggle.is-checked'
 			);
@@ -342,11 +380,8 @@
 		if ( isClickInPopup ) {
 			return;
 		}
-		const btn = actionbar.querySelector( '.actnbr-btn' );
-
-		if ( isFollowBubbleOpen && ! btn.classList.contains( 'actnbr-hidden' ) ) {
-			isFollowBubbleOpen = false;
-			btn.classList.add( 'actnbr-hidden' );
+		if ( isFollowBubbleOpen ) {
+			closeFollowBubble( false );
 		}
 	} );
 
@@ -448,6 +483,7 @@
 	 * @param {boolean} focusFirst - Move focus to the first item, for keyboard users.
 	 */
 	function openMenu( focusFirst ) {
+		closeFollowBubble( false );
 		ellipsis.classList.remove( 'actnbr-hidden' );
 		menuToggle.setAttribute( 'aria-expanded', 'true' );
 		bumpStat( 'show_more_menu' );
@@ -467,6 +503,9 @@
 	 * @param {boolean} returnFocus - Put focus back on the toggle button.
 	 */
 	function closeMenu( returnFocus ) {
+		if ( ! ellipsis || ! menuToggle ) {
+			return;
+		}
 		ellipsis.classList.add( 'actnbr-hidden' );
 		menuToggle.setAttribute( 'aria-expanded', 'false' );
 		isMenuOpen = false;
@@ -562,10 +601,9 @@
 	 * @param {Function} additionalEffect - Optional callback after the stat is bumped.
 	 */
 	function statsOnClick( selector, stat, additionalEffect ) {
-		const el = actionbar.querySelector( selector );
-		if ( el ) {
+		actionbar.querySelectorAll( selector ).forEach( el => {
 			el.addEventListener( 'click', createStatsBumperEventHandler( stat, additionalEffect ) );
-		}
+		} );
 	}
 
 	// Record stats for clicks
@@ -690,8 +728,6 @@
 		const form = actionbar.querySelector( '.actnbr-follow-bubble form' );
 		form.removeAttribute( 'style' );
 
-		const button = actionbar.querySelector( '.actnbr-actn-follow' )?.parentNode;
-		button && button.classList.toggle( 'actnbr-hidden' );
 		setTimeout( () => {
 			actionbar.querySelector( '.actnbr-email-field' ).focus();
 		}, 10 );
@@ -716,7 +752,6 @@
 			msgEl.innerHTML = message;
 		}
 
-		const button = actionbar.querySelector( '.actnbr-btn' );
-		button && button.classList.remove( 'actnbr-hidden' );
+		openFollowBubble();
 	}
 } )();

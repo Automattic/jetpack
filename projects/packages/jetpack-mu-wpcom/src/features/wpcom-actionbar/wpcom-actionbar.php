@@ -352,7 +352,7 @@ function wpcom_actionbar_menu_item( $args ) {
 		<?php
 		if ( $args['icon'] ) {
 			echo '<span class="actnbr-menu__icon">';
-			wpcom_actionbar_icon( $args['icon'], 24 );
+			wpcom_actionbar_icon( $args['icon'], 18 );
 			echo '</span>';
 		}
 		?>
@@ -397,12 +397,12 @@ function wpcom_actionbar_blavatar() {
  */
 function wpcom_actionbar_site_title( $site_url, $site_name ) {
 	?>
-		<li class="actnbr-sitename">
-			<a href="<?php echo esc_url( $site_url ); ?>">
+		<div class="actnbr-panel__group">
+			<a class="actnbr-panel__site actnbr-sitename" href="<?php echo esc_url( $site_url ); ?>">
 				<?php echo wpcom_actionbar_blavatar(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Image markup from get_blavatar(). ?>
-				<?php echo esc_html( $site_name ); ?>
+				<span class="actnbr-menu__label"><?php echo esc_html( $site_name ); ?></span>
 			</a>
-		</li>
+		</div>
 	<?php
 }
 
@@ -656,108 +656,96 @@ function wpcom_actionbar_html( $is_rtl ) {
 				?>
 					<li class="actnbr-btn actnbr-hidden">
 						<?php wpcom_actionbar_follow_links( $is_following ); ?>
-						<div class="actnbr-popover tip tip-top-left actnbr-notice" id="follow-bubble">
-							<div class="tip-arrow"></div>
-							<div class="tip-inner actnbr-follow-bubble">
+						<div class="actnbr-popover actnbr-panel actnbr-notice" id="follow-bubble">
+							<div class="actnbr-follow-bubble">
+							<?php wpcom_actionbar_site_title( $site_url, $site_name ); ?>
 							<?php
 							if ( $is_logged_in ) {
 								?>
-								<ul>
-									<?php wpcom_actionbar_site_title( $site_url, $site_name ); ?>
-									<div class="actnbr-site-settings">
-										<div class="actnbr-site-settings__setting">
-											<span class="actnbr-site-settings__toggle">
-												<input class="actnbr-site-settings__toggle__input" id="toggle-input-notify-posts" type="checkbox"></input>
-												<span class="actnbr-site-settings__toggle__track"></span>
-												<span class="actnbr-site-settings__toggle__thumb"></span>
-											</span>
-											<label for="toggle-input-notify-posts" class="components-toggle-control__label">
-												<?php esc_html_e( 'Notify me of new posts', 'jetpack-mu-wpcom' ); ?>
-											</label>
-										</div>
-										<p class="actnbr-site-settings__details">
-											<?php esc_html_e( 'Receive web and mobile notifications for new posts from this site.', 'jetpack-mu-wpcom' ); ?>
-										</p>
-										<div class="actnbr-site-settings__setting">
-											<span class="actnbr-site-settings__toggle">
-												<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-posts" type="checkbox"></input>
-												<span class="actnbr-site-settings__toggle__track"></span>
-												<span class="actnbr-site-settings__toggle__thumb"></span>
-											</span>
-											<label for="toggle-input-email-posts" class="components-toggle-control__label">
-												<?php esc_html_e( 'Email me new posts', 'jetpack-mu-wpcom' ); ?>
-											</label>
-										</div>
-										<div class="actnbr-site-settings__details" id="email-new-posts-details">
-											<ul class="segmented-control" role="radiogroup">
-												<li class="segmented-control__item">
-													<a class="segmented-control__link frequency-instantly"><?php esc_html_e( 'Instantly', 'jetpack-mu-wpcom' ); ?></a>
-												</li>
-												<li class="segmented-control__item">
-													<a class="segmented-control__link frequency-daily"><?php esc_html_e( 'Daily', 'jetpack-mu-wpcom' ); ?></a>
-												</li>
-												<li class="segmented-control__item">
-													<a class="segmented-control__link frequency-weekly"><?php esc_html_e( 'Weekly', 'jetpack-mu-wpcom' ); ?></a>
-												</li>
-											</ul>
-										</div>
-										<div class="actnbr-site-settings__setting">
-											<span class="actnbr-site-settings__toggle">
-												<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-comments" type="checkbox">
-												</input>
-												<span class="actnbr-site-settings__toggle__track"></span>
-												<span class="actnbr-site-settings__toggle__thumb"></span>
-											</span>
-											<label for="toggle-input-email-comments" class="components-toggle-control__label">
-												<?php esc_html_e( 'Email me new comments', 'jetpack-mu-wpcom' ); ?>
-											</label>
-										</div>
+								<div class="actnbr-panel__group actnbr-site-settings">
+									<div class="actnbr-message no-display"></div>
+									<div class="actnbr-site-settings__setting">
+										<span class="actnbr-site-settings__toggle">
+											<input class="actnbr-site-settings__toggle__input" id="toggle-input-notify-posts" type="checkbox" />
+											<span class="actnbr-site-settings__toggle__track"></span>
+											<span class="actnbr-site-settings__toggle__thumb"></span>
+										</span>
+										<label for="toggle-input-notify-posts" class="components-toggle-control__label">
+											<?php esc_html_e( 'Notify me of new posts', 'jetpack-mu-wpcom' ); ?>
+										</label>
 									</div>
-								</ul>
+									<p class="actnbr-site-settings__details">
+										<?php esc_html_e( 'Receive web and mobile notifications for new posts from this site.', 'jetpack-mu-wpcom' ); ?>
+									</p>
+									<div class="actnbr-site-settings__setting">
+										<span class="actnbr-site-settings__toggle">
+											<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-posts" type="checkbox" />
+											<span class="actnbr-site-settings__toggle__track"></span>
+											<span class="actnbr-site-settings__toggle__thumb"></span>
+										</span>
+										<label for="toggle-input-email-posts" class="components-toggle-control__label">
+											<?php esc_html_e( 'Email me new posts', 'jetpack-mu-wpcom' ); ?>
+										</label>
+									</div>
+									<div class="actnbr-site-settings__details" id="email-new-posts-details">
+										<ul class="segmented-control" role="radiogroup">
+											<li class="segmented-control__item">
+												<a class="segmented-control__link frequency-instantly"><?php esc_html_e( 'Instantly', 'jetpack-mu-wpcom' ); ?></a>
+											</li>
+											<li class="segmented-control__item">
+												<a class="segmented-control__link frequency-daily"><?php esc_html_e( 'Daily', 'jetpack-mu-wpcom' ); ?></a>
+											</li>
+											<li class="segmented-control__item">
+												<a class="segmented-control__link frequency-weekly"><?php esc_html_e( 'Weekly', 'jetpack-mu-wpcom' ); ?></a>
+											</li>
+										</ul>
+									</div>
+									<div class="actnbr-site-settings__setting">
+										<span class="actnbr-site-settings__toggle">
+											<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-comments" type="checkbox" />
+											<span class="actnbr-site-settings__toggle__track"></span>
+											<span class="actnbr-site-settings__toggle__thumb"></span>
+										</span>
+										<label for="toggle-input-email-comments" class="components-toggle-control__label">
+											<?php esc_html_e( 'Email me new comments', 'jetpack-mu-wpcom' ); ?>
+										</label>
+									</div>
+								</div>
 								<?php
 							} else {
 								?>
-								<ul>
-									<?php wpcom_actionbar_site_title( $site_url, $site_name ); ?>
+								<div class="actnbr-panel__group">
 									<div class="actnbr-message no-display"></div>
 									<form method="post" action="https://subscribe.wordpress.com" accept-charset="utf-8" style="display: none;">
 										<?php
 										if ( $followers ) {
 											?>
-												<div class="actnbr-follow-count"><?php echo esc_html( $followers ); ?></div>
+											<div class="actnbr-follow-count"><?php echo esc_html( $followers ); ?></div>
 											<?php
 										}
 										?>
-										<div>
-										<input type="email" name="email" placeholder="<?php esc_attr_e( 'Enter your email address', 'jetpack-mu-wpcom' ); ?>" class="actnbr-email-field" aria-label="<?php esc_attr_e( 'Enter your email address', 'jetpack-mu-wpcom' ); ?>" />
-										</div>
+										<input type="email" name="email" placeholder="<?php esc_attr_e( 'Want updates? Enter your email', 'jetpack-mu-wpcom' ); ?>" class="actnbr-email-field" aria-label="<?php esc_attr_e( 'Email address', 'jetpack-mu-wpcom' ); ?>" />
 										<input type="hidden" name="action" value="subscribe" />
 										<input type="hidden" name="blog_id" value="<?php echo esc_attr( (string) $site_id ); ?>" />
 										<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>" />
 										<input type="hidden" name="sub-type" value="actionbar-follow" />
 										<?php wp_nonce_field( 'blogsub_subscribe_' . $site_id, '_wpnonce', false, true ); ?>
-										<div class="actnbr-button-wrap">
-											<button type="submit" value="<?php esc_attr_e( 'Sign me up', 'jetpack-mu-wpcom' ); ?>">
-												<?php esc_html_e( 'Sign me up', 'jetpack-mu-wpcom' ); ?>
-											</button>
-										</div>
+										<button type="submit" class="actnbr-button"><?php esc_html_e( 'Sign me up', 'jetpack-mu-wpcom' ); ?></button>
 									</form>
-									<li class="actnbr-login-nudge">
-										<div>
-											<?php
-											echo wp_kses(
-												/* translators: %s is a URL */
-												sprintf( __( 'Already have a WordPress.com account? <a href="%s">Log in now.</a>', 'jetpack-mu-wpcom' ), esc_url( $login_url ) ),
-												array(
-													'a' => array(
-														'href' => array(),
-													),
-												)
-											);
-											?>
-										</div>
-									</li>
-								</ul>
+									<p class="actnbr-login-nudge">
+										<?php
+										echo wp_kses(
+											/* translators: %s is a URL */
+											sprintf( __( 'Already have a WordPress.com account? <a href="%s">Log in now.</a>', 'jetpack-mu-wpcom' ), esc_url( $login_url ) ),
+											array(
+												'a' => array(
+													'href' => array(),
+												),
+											)
+										);
+										?>
+									</p>
+								</div>
 								<?php
 							}
 							?>
@@ -807,8 +795,8 @@ function wpcom_actionbar_html( $is_rtl ) {
 						?>
 						<a role="menuitem" class="actnbr-menu__item actnbr-shortlink" href="<?php echo esc_url( $shortlink ); ?>">
 							<span class="actnbr-menu__label actnbr-shortlink__text"><?php esc_html_e( 'Copy shortlink', 'jetpack-mu-wpcom' ); ?></span>
-							<span class="actnbr-menu__icon actnbr-shortlink__icon"><?php wpcom_actionbar_icon( 'copy', 24 ); ?></span>
-							<span class="actnbr-menu__icon actnbr-shortlink__icon-copied"><?php wpcom_actionbar_icon( 'check', 24 ); ?></span>
+							<span class="actnbr-menu__icon actnbr-shortlink__icon"><?php wpcom_actionbar_icon( 'copy', 18 ); ?></span>
+							<span class="actnbr-menu__icon actnbr-shortlink__icon-copied"><?php wpcom_actionbar_icon( 'check', 18 ); ?></span>
 						</a>
 						<?php
 					}
