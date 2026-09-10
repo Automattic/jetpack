@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -33,8 +34,13 @@ class Site_Health_Test extends TestCase {
 		}
 		$property->setValue( null, false );
 
+		// These tests run the real connection tests, which memoize Status lookups
+		// (offline mode in particular) for the rest of the process.
+		StatusCache::clear();
+
 		remove_all_filters( 'site_status_tests' );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_debugger_run_self_test' );
 		remove_all_actions( 'admin_init' );
 		remove_all_actions( 'jetpack_connection_tests_loaded' );
@@ -232,6 +238,10 @@ class Site_Health_Test extends TestCase {
 	 * Test that invoking a direct test callback returns correct structure for a skipped test.
 	 */
 	public function test_direct_callback_returns_site_health_format_for_skipped_test() {
+		// Pin the skip: helper_is_connected() is false in offline mode, so the test
+		// skips without depending on the connection state of the test environment.
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
 		$core_tests = array(
 			'direct' => array(),
 			'async'  => array(),
@@ -258,9 +268,13 @@ class Site_Health_Test extends TestCase {
 	 * the heading used to read "Wpcom Connection Test".
 	 */
 	public function test_direct_callback_applies_default_label() {
+		// Offline mode is the first skip branch, so this keeps the test off the
+		// network instead of relying on the site being unconnected.
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
 		$tests = $this->register_direct_tests();
 
-		// Skips when not connected, and the skipped result sets no label.
+		// Skips in offline mode, and the skipped result sets no label.
 		$output = $tests['test__wpcom_connection_test']['test']();
 
 		$this->assertSame( 'Requests from WordPress.com', $output['label'] );
@@ -271,11 +285,13 @@ class Site_Health_Test extends TestCase {
 	 * introduced for.
 	 */
 	public function test_direct_callback_applies_default_label_to_other_tests() {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
 		$tests = $this->register_direct_tests();
 
 		$output = $tests['test__blog_token_if_exists']['test']();
 
-		$this->assertSame( 'Blog Token', $output['label'] );
+		$this->assertSame( 'Site Token', $output['label'] );
 	}
 
 	/**
