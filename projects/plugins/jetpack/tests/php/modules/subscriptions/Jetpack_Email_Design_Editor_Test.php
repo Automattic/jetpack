@@ -379,8 +379,10 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The editor paints notices and popovers against the viewport, so below #adminmenuwrap
-	 * (9990) they land behind the admin menu, and above #wpadminbar (100000) they cover it.
+	 * The editor paints notices and popovers against the viewport, so below the admin menu's
+	 * submenus (9999) they land behind them, and above #wpadminbar (99999) they cover it. The
+	 * bound that matters is the submenu one: #adminmenuwrap is 9990, and clearing only that left
+	 * every flyout painting over the editor.
 	 */
 	public function test_the_layout_lifts_the_editor_between_the_admin_menu_and_the_admin_bar() {
 		$css = $this->call_private( 'get_layout_css' );
@@ -388,8 +390,22 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		preg_match( '/z-index:\s*(\d+)/', $css, $matches );
 
 		$this->assertNotEmpty( $matches );
-		$this->assertGreaterThan( 9990, (int) $matches[1] );
-		$this->assertLessThan( 100000, (int) $matches[1] );
+		$this->assertGreaterThan( 9999, (int) $matches[1] );
+		$this->assertLessThan( 99999, (int) $matches[1] );
+	}
+
+	/**
+	 * `wp-edit-post` carries the rule that pins this, and the screen does not enqueue it, so
+	 * without one of our own the snackbar renders in flow beside the header.
+	 */
+	public function test_the_layout_pins_the_snackbar_over_the_canvas() {
+		$css = $this->call_private( 'get_layout_css' );
+
+		$this->assertMatchesRegularExpression(
+			'/#' . Jetpack_Email_Design_Editor::HANDLE . '\s+\.components-editor-notices__snackbar\s*\{[^}]*position:\s*absolute/',
+			$css
+		);
+		$this->assertMatchesRegularExpression( '/inset-block-end:/', $css );
 	}
 
 	public function test_the_layout_is_rtl_aware() {

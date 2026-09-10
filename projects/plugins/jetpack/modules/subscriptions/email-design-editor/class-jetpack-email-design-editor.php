@@ -182,12 +182,20 @@ class Jetpack_Email_Design_Editor {
 			#wpfooter { display: none; }
 			#' . self::HANDLE . ' {
 				position: fixed;
-				/* Above #adminmenuwrap (9990) and below #wpadminbar (100000): the editor paints
-				   notices and popovers against the viewport, so without this they land behind
-				   the admin menu. */
-				z-index: 9991;
+				/* Above the admin menu\'s submenus (9999) and below #wpadminbar (99999): the editor
+				   paints notices and popovers against the viewport, so below this they land behind
+				   the admin menu. This also caps everything inside, which is why the snackbar
+				   below cannot simply ask for more. */
+				z-index: 99990;
 				inset-block: var(--wp-admin--admin-bar--height, 32px) 0;
 				inset-inline: 160px 0;
+			}
+			/* wp-edit-post pins this and the screen does not load it, so without this the
+			   snackbar renders in flow beside the header instead of over the canvas. */
+			#' . self::HANDLE . ' .components-editor-notices__snackbar {
+				position: absolute;
+				inset-block-end: 20px;
+				inset-inline-start: 20px;
 			}
 			body.folded #' . self::HANDLE . ' { inset-inline-start: 36px; }
 			@media screen and (max-width: 782px) {
