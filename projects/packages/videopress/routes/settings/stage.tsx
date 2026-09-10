@@ -1,7 +1,8 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { ToggleControl } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { Card, Stack } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FreeTierNotice, {
@@ -20,7 +21,7 @@ import type { SettingsPatch } from '../../src/dashboard/hooks/use-settings';
 const SettingsForm = () => {
 	const settings = useSettings();
 	const update = useUpdateSettings();
-	const { createErrorNotice } = useGlobalNotices();
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const privateForSite = settings.data?.videoPressVideosPrivateForSite ?? false;
 	const autoSubtitlesDisabled = settings.data?.videoPressAutoSubtitlesDisabled ?? false;
 	const playerPreloadDisabled = settings.data?.videoPressPlayerPreloadDisabled ?? false;
@@ -36,7 +37,8 @@ const SettingsForm = () => {
 			mutate( patch, {
 				onError: () =>
 					createErrorNotice(
-						__( 'Your setting couldn’t be saved. Please try again.', 'jetpack-videopress-pkg' )
+						__( 'Your setting couldn’t be saved. Please try again.', 'jetpack-videopress-pkg' ),
+						{ type: 'snackbar' }
 					),
 			} ),
 		[ mutate, createErrorNotice ]

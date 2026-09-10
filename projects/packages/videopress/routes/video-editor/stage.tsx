@@ -20,10 +20,11 @@
  * navigation guards (sub-nav, links, browser back/forward) all key off the
  * session being effectively dirty (dirty AND probed 'editable').
  */
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { Button as IconButton } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { redo as redoIcon, undo as undoIcon } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Button, Dialog, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -289,7 +290,8 @@ type ReadyProps = {
  */
 function EditorReady( { video }: ReadyProps ): ReactElement {
 	const navigate = useNavigate();
-	const { createSuccessNotice, createWarningNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice, createWarningNotice, createErrorNotice } =
+		useDispatch( noticesStore );
 	// The two halves of Save: the description meta POST, then the
 	// fire-and-notice VTT sync (same pair the Details tab saves through).
 	const { mutateAsync: saveVideoMeta, isPending: metaSavePending } = useUpdateVideoMeta();
@@ -473,7 +475,9 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 		try {
 			await saveVideoMeta( { id: item.id, patch: { description: nextDescription } } );
 		} catch {
-			createErrorNotice( __( 'Failed to save chapters.', 'jetpack-videopress-pkg' ) );
+			createErrorNotice( __( 'Failed to save chapters.', 'jetpack-videopress-pkg' ), {
+				type: 'snackbar',
+			} );
 			return;
 		}
 		void syncChapters( item, nextDescription );
@@ -484,14 +488,17 @@ function EditorReady( { video }: ReadyProps ): ReactElement {
 		// catalog entry for this sentence — there the callee has to differ,
 		// because both branches go through the same `notify`.
 		if ( chaptersValid ) {
-			createSuccessNotice( __( 'Chapters saved.', 'jetpack-videopress-pkg' ) );
+			createSuccessNotice( __( 'Chapters saved.', 'jetpack-videopress-pkg' ), {
+				type: 'snackbar',
+			} );
 		} else {
 			createWarningNotice(
 				_x(
 					'Chapters saved to the description, but they won’t appear in the player until they meet the requirements.',
 					'chapters save outcome',
 					'jetpack-videopress-pkg'
-				)
+				),
+				{ type: 'snackbar' }
 			);
 		}
 	}, [

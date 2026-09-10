@@ -30,6 +30,12 @@
 	margin-bottom: 0;
 }
 
+// Core snackbar placement (matches `@wordpress/boot`'s snackbar-container).
+.snackbar-notices {
+
+	@include gb.snackbar-container();
+}
+
 .notice {
 
 	> div {

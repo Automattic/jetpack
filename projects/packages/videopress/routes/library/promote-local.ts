@@ -12,8 +12,8 @@ export type PromoteLocalDeps = {
 		id: string;
 		onProgress?: ( percent: number ) => void;
 	} ) => Promise< unknown >;
-	createSuccessNotice: ( content: string ) => void;
-	createErrorNotice: ( content: string ) => void;
+	createSuccessNotice: ( content: string, options?: { type?: string } ) => void;
+	createErrorNotice: ( content: string, options?: { type?: string } ) => void;
 	/**
 	 * Receives a fresh snapshot of the in-flight id → upload-percent map
 	 * whenever it changes (a promote starting, a chunk progress report, or
@@ -65,7 +65,9 @@ export function createPromoteLocal( deps: PromoteLocalDeps ): ( id: string ) => 
 				},
 			} )
 			.then( () => {
-				deps.createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ) );
+				deps.createSuccessNotice( __( 'Video uploaded to VideoPress.', 'jetpack-videopress-pkg' ), {
+					type: 'snackbar',
+				} );
 			} )
 			.catch( ( error: Error ) => {
 				const reason = error?.message?.trim();
@@ -76,7 +78,8 @@ export function createPromoteLocal( deps: PromoteLocalDeps ): ( id: string ) => 
 								__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
 								reason
 						  )
-						: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
+						: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' ),
+					{ type: 'snackbar' }
 				);
 			} )
 			.finally( () => {
