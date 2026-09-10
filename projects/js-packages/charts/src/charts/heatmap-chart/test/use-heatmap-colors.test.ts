@@ -11,6 +11,14 @@ describe( 'getValueExtent', () => {
 		expect( getValueExtent( data ) ).toEqual( [ 0, 20 ] );
 	} );
 
+	test( 'leaves summary columns out of the extent', () => {
+		const withTotals: HeatmapColumn[] = [
+			...data,
+			{ label: 'Total', summary: true, data: [ { value: 500 }, { value: 900 }, { value: null } ] },
+		];
+		expect( getValueExtent( withTotals ) ).toEqual( [ 0, 20 ] );
+	} );
+
 	test( 'returns [0, 0] for all-empty data', () => {
 		expect( getValueExtent( [ { data: [ { value: null } ] } ] ) ).toEqual( [ 0, 0 ] );
 	} );

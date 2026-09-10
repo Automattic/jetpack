@@ -5,6 +5,7 @@ import {
 } from '../../../stories/chart-decorator';
 import {
 	heatmapActivityMatrix,
+	heatmapActivityMatrixWithTotals,
 	heatmapCalendarSeries,
 	heatmapLargeValueMatrix,
 	heatmapPartialMonthCalendarSeries,
@@ -69,6 +70,13 @@ export const LargeValues: Story = {
 	args: {
 		...Default.args,
 		data: heatmapLargeValueMatrix,
+	},
+};
+
+export const WithSummaryColumn: Story = {
+	args: {
+		...Default.args,
+		data: heatmapActivityMatrixWithTotals,
 	},
 };
 
