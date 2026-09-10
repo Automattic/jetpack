@@ -111,7 +111,6 @@ function UtmReport(): JSX.Element {
 
 	return (
 		<ReportPageShell
-			tabbed
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={

@@ -46,7 +46,6 @@ export function PostDetailTabs( { tabs, value, onChange, children }: PostDetailT
 			value={ value }
 			onChange={ onChange }
 			rootClassName={ styles.root }
-			className={ styles.tabList }
 		>
 			{ children }
 		</DetailPageTabs>

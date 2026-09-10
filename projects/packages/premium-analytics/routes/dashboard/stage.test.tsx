@@ -16,7 +16,7 @@ import {
 } from './hooks';
 import { stage as Dashboard } from './stage';
 import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
-import type { ReactNode } from 'react';
+import type { ForwardedRef, ReactNode } from 'react';
 
 // Read inside the mocked functions, never at factory time — the factories run
 // while `./stage` is still importing, so these are in the temporal dead zone.
@@ -86,7 +86,22 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	),
 	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
 		open ? <div data-testid="onboarding-welcome-modal" /> : null,
-	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	// Forwards the ref and renders the notice slot after the row, since the
+	// stage relies on both: the ref feeds the year surface's measurement, and
+	// the notice's position in the band is asserted below.
+	SectionHeader: jest
+		.requireActual< typeof import('react') >( 'react' )
+		.forwardRef(
+			(
+				{ children, notice }: { children: ReactNode; notice?: ReactNode },
+				ref: ForwardedRef< HTMLDivElement >
+			) => (
+				<div ref={ ref }>
+					<div>{ children }</div>
+					{ notice }
+				</div>
+			)
+		),
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
 		( mockMountedSectionSlugs ?? [ mockActiveSectionSlug ] ).includes( value ) ? (
 			<div>{ children }</div>
@@ -212,9 +227,7 @@ jest.mock( './components', () => ( {
 	onboardingTourSteps: () => [],
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
-	RefreshFailureNotice: ( { className }: { className?: string } ) => (
-		<div data-testid="refresh-failure-notice" className={ className } />
-	),
+	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
 	SectionSyncNotice: ( {
 		percentage,
 		hasError,

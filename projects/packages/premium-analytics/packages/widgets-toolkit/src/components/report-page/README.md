@@ -35,8 +35,8 @@ const label = __( 'All pages' );
 
 - **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
   Stats breadcrumbs and page-level actions.
-- **`ReportPageLayout`** — the report content scaffold: optional internal tabs,
-  the section header, and stacked sections.
+- **`ReportPageLayout`** — the scroll area below the page header: optional
+  internal tabs, the section header pinned at its top, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
 
 - **`ReportChartSection`** — a chart in its own card, with the control below it
@@ -92,8 +92,9 @@ set. `title` is the third: `getTabTitle( activeTab )` on a tabbed report, which
 falls back to the tab's label, and the report's `getTitle()` otherwise.
 
 Omit `dateFilters` on a report with no date window; the header is then the title
-alone. It does not pin, unlike the dashboard's — that lives in the surface's own
-CSS (`routes/dashboard/stage.module.scss`).
+alone. It pins at the top of the layout's scroll area and condenses on scroll,
+as the dashboard's does: the layout only declares the timeline scope the
+header's own pin marker publishes into.
 
 Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to the shell's
 `breadcrumbs` slot. It owns the leading `Stats` crumb and links it back to the

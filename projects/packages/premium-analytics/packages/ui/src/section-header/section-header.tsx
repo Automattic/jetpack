@@ -1,6 +1,6 @@
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
-import { ReactNode, Ref } from 'react';
+import { forwardRef, ForwardedRef, ReactNode, Ref } from 'react';
 import styles from './section-header.module.scss';
 
 export type SectionHeaderProps = {
@@ -29,11 +29,20 @@ export type SectionHeaderProps = {
 	busy?: boolean;
 
 	/**
-	 * Condenses into a compact bar once it pins: the title drops a type-scale
-	 * step. Requires the surface to publish a `--section-header-pin` view
-	 * timeline; falls back to resting layout without it.
+	 * Pins the header at the top of the surface's scroll container and
+	 * condenses it once pinned: a sticky band in the page header's fill,
+	 * spanning the page gutter on its own. The surface declares
+	 * `timeline-scope: --section-header-pin` on the header's parent, which
+	 * must span the content that scrolls under the band.
 	 */
-	condenseOnScroll?: boolean;
+	pinned?: boolean;
+
+	/**
+	 * Rendered under the header row. Pinned, it stays inside the band, so its
+	 * actions remain reachable however far the reader has scrolled. May
+	 * render nothing.
+	 */
+	notice?: ReactNode;
 
 	/**
 	 * Date controls anchored to the end of the header row. Left out, the cell is
@@ -50,23 +59,31 @@ export type SectionHeaderProps = {
  * subtitle, and the date controls share one row. Below a container-query width
  * the controls take their own row and the title wraps.
  *
- * @param {SectionHeaderProps} props - The props for the SectionHeader component.
+ * The ref reaches the header's root: the row a date control measures the room
+ * it has against.
+ *
+ * @param {SectionHeaderProps}  props - The props for the SectionHeader component.
+ * @param {Ref<HTMLDivElement>} ref   - Forwarded to the header's root element.
  * @return The section header element.
  */
-export function SectionHeader( {
-	title,
-	headingLevel = 2,
-	visual,
-	subTitle,
-	busy = false,
-	condenseOnScroll = false,
-	children,
-	controlsRef,
-}: SectionHeaderProps ) {
+function UnforwardedSectionHeader(
+	{
+		title,
+		headingLevel = 2,
+		visual,
+		subTitle,
+		busy = false,
+		pinned = false,
+		notice,
+		children,
+		controlsRef,
+	}: SectionHeaderProps,
+	ref: ForwardedRef< HTMLDivElement >
+) {
 	const HeadingTag = `h${ headingLevel }` as const;
 
-	return (
-		<div className={ clsx( styles.container, condenseOnScroll && styles.condensing ) }>
+	const header = (
+		<div ref={ ref } className={ clsx( styles.container, pinned && styles.pinned ) }>
 			<div className={ clsx( styles.layout, visual && styles.withVisual ) }>
 				{ visual ? (
 					<div className={ styles.visual } aria-hidden="true">
@@ -100,6 +117,23 @@ export function SectionHeader( {
 					</Stack>
 				) : null }
 			</div>
+
+			{ notice ? <div className={ styles.notice }>{ notice }</div> : null }
 		</div>
 	);
+
+	if ( ! pinned ) {
+		return header;
+	}
+
+	return (
+		<>
+			{ /* Marks where the header comes to rest, so the condense starts
+			     there. Measured, never seen. */ }
+			<div className={ styles.pinMarker } aria-hidden="true" />
+			{ header }
+		</>
+	);
 }
+
+export const SectionHeader = forwardRef( UnforwardedSectionHeader );

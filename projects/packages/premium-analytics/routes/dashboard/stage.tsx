@@ -297,25 +297,18 @@ function Dashboard(): JSX.Element {
 										value={ section.slug }
 										className={ styles.content }
 									>
-										{ /* Marks where the header below comes to rest, so it starts
-								     condensing there. Measured, never seen. */ }
-										<div className={ styles.pinMarker } aria-hidden="true" />
-
-										<div ref={ setHeaderRef } className={ styles.sectionHeader }>
-											<SectionHeader
-												title={ resolveSectionHeading( section ) }
-												condenseOnScroll
-												controlsRef={ setControlsAnchor }
-											>
-												{ dateControls }
-											</SectionHeader>
-											{ /* Inside the pinned band, so its Retry stays reachable however
-										     far the reader has scrolled. */ }
-											<RefreshFailureNotice className={ styles.refreshFailure } />
-										</div>
+										<SectionHeader
+											ref={ setHeaderRef }
+											title={ resolveSectionHeading( section ) }
+											pinned
+											notice={ <RefreshFailureNotice /> }
+											controlsRef={ setControlsAnchor }
+										>
+											{ dateControls }
+										</SectionHeader>
 
 										{ activeSection === section.slug ? (
-											<>
+											<div className={ styles.body }>
 												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
 													<SectionSyncNotice
 														percentage={ syncStatus?.percentage ?? 0 }
@@ -329,7 +322,7 @@ function Dashboard(): JSX.Element {
 												<div ref={ setWidgetsFrame }>
 													<WidgetDashboard.Widgets className={ styles.widgets } />
 												</div>
-											</>
+											</div>
 										) : null }
 									</SectionTabPanel>
 								) ) }

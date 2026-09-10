@@ -59,4 +59,42 @@ describe( 'SectionHeader', () => {
 
 		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).toBeInTheDocument();
 	} );
+
+	it( 'renders the notice under the header row', () => {
+		render( <SectionHeader title="Traffic" notice={ <p>{ "Couldn't refresh." }</p> } /> );
+
+		expect( screen.getByText( "Couldn't refresh." ) ).toBeInTheDocument();
+	} );
+
+	it( 'hands the ref the root the heading sits in', () => {
+		const ref = jest.fn();
+
+		render( <SectionHeader ref={ ref } title="Traffic" /> );
+
+		expect( ref ).toHaveBeenCalledWith( expect.any( HTMLDivElement ) );
+		expect( ref.mock.calls[ 0 ][ 0 ] ).toContainElement( screen.getByRole( 'heading' ) );
+	} );
+
+	// The marker publishes the scroll timeline the band condenses on; it has to
+	// precede the band as its sibling, where the surface's timeline scope sees it.
+	it( 'precedes a pinned header with its hidden pin marker', () => {
+		const ref = jest.fn();
+
+		render( <SectionHeader ref={ ref } title="Traffic" pinned /> );
+
+		// eslint-disable-next-line testing-library/no-node-access -- The marker is measured, never seen, so it has no accessible query target.
+		const marker = ref.mock.calls[ 0 ][ 0 ].previousElementSibling;
+
+		expect( marker ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( marker ).toBeEmptyDOMElement();
+	} );
+
+	it( 'renders no pin marker unless pinned', () => {
+		const ref = jest.fn();
+
+		render( <SectionHeader ref={ ref } title="Traffic" /> );
+
+		// eslint-disable-next-line testing-library/no-node-access -- Asserting the absence of a sibling.
+		expect( ref.mock.calls[ 0 ][ 0 ].previousElementSibling ).toBeNull();
+	} );
 } );
