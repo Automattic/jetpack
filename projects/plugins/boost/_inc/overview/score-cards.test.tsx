@@ -107,6 +107,42 @@ test( 'shows positive baseline deltas only for current scores', () => {
 	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
 } );
 
+test( 'omits an unchanged device delta while preserving the improved device delta', () => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { desktop: 80, mobile: 60 },
+				noBoost: { desktop: 70, mobile: 60 },
+				isStale: false,
+			} }
+		/>
+	);
+	expect(
+		within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByText(
+			'+10 points compared with Boost disabled'
+		)
+	).toBeVisible();
+	expect(
+		within( screen.getByRole( 'region', { name: 'Mobile' } ) ).queryByText(
+			/compared with Boost disabled/
+		)
+	).not.toBeInTheDocument();
+} );
+
+test( 'does not announce unavailable scores while loading', () => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { desktop: 80, mobile: 60 },
+				noBoost: null,
+				isStale: false,
+			} }
+			isLoading
+		/>
+	);
+	expect( screen.queryByText( 'Score unavailable' ) ).not.toBeInTheDocument();
+} );
+
 test( 'announces unavailable scores without marking idle placeholders busy', () => {
 	const scores = {
 		current: { desktop: 80, mobile: 60 },

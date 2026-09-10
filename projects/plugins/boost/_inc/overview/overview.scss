@@ -12,7 +12,6 @@
 	max-inline-size: var(--wpds-dimension-surface-width-xl);
 	margin-inline: auto;
 	min-inline-size: 0;
-
 }
 
 .jetpack-boost-overview__scores-card {
@@ -133,14 +132,10 @@
 	--wp-components-color-foreground: var(--wpds-color-foreground-content-error-weak);
 }
 
-.jetpack-boost-overview__tier--poor,
-.jetpack-boost-overview__delta--down {
+.jetpack-boost-overview__tier--poor {
 	color: var(--wpds-color-foreground-content-error-weak);
 }
 
-.jetpack-boost-overview__delta--neutral {
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
 
 .jetpack-boost-overview__history-card {
 	overflow: visible;

@@ -20,11 +20,12 @@ export function getScoreDelta( current: number, noBoost?: number | null ): numbe
 	return noBoost == null ? null : Math.round( current - noBoost );
 }
 
-export function getTrendDirection( delta: number ): 'up' | 'down' | 'neutral' {
-	return delta > 0 ? 'up' : delta < 0 ? 'down' : 'neutral';
-}
+// Formats a score improvement relative to Boost being disabled.
+export function formatScoreDelta( delta: number ): string | null {
+	if ( delta <= 0 ) {
+		return null;
+	}
 
-export function formatScoreDelta( delta: number ): string {
 	return sprintf(
 		// translators: %s is the improvement in a performance score, such as +10.
 		_n(

@@ -1,5 +1,5 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
-import { formatScoreDelta, getScoreDelta, getScoreTier, getTrendDirection } from './score-utils';
+import { formatScoreDelta, getScoreDelta, getScoreTier } from './score-utils';
 
 test.each( [
 	[ 0, 'poor' ],
@@ -30,5 +30,6 @@ test( 'distinguishes missing baselines from zero and formats improvements', () =
 	expect( getScoreDelta( 80.2, 70 ) ).toBe( 10 );
 	expect( formatScoreDelta( 1 ) ).toBe( '+1 point compared with Boost disabled' );
 	expect( formatScoreDelta( 10 ) ).toBe( '+10 points compared with Boost disabled' );
-	expect( [ 1, -1, 0 ].map( getTrendDirection ) ).toEqual( [ 'up', 'down', 'neutral' ] );
+	expect( formatScoreDelta( 0 ) ).toBeNull();
+	expect( formatScoreDelta( -10 ) ).toBeNull();
 } );

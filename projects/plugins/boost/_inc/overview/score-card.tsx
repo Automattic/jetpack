@@ -7,7 +7,6 @@ import {
 	getScoreDelta,
 	getScoreTier,
 	getScoreTierLabel,
-	getTrendDirection,
 } from './lib/score-utils';
 import type { ScoreTier } from './lib/score-utils';
 import type { ReactNode } from 'react';
@@ -79,9 +78,7 @@ export default function ScoreCard( {
 			{ ! showPlaceholder && delta !== null && delta > 0 && (
 				<Text
 					variant="body-md"
-					className={ `jetpack-boost-overview__delta jetpack-boost-overview__delta--${ getTrendDirection(
-						delta
-					) }` }
+					className="jetpack-boost-overview__delta jetpack-boost-overview__delta--up"
 				>
 					{ formatScoreDelta( delta ) }
 				</Text>
