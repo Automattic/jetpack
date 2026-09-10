@@ -107,6 +107,11 @@ $section-header-condense-distance: 40px;
 	display: flex;
 	flex-direction: column;
 	min-inline-size: 0;
+	// The resting title's line box, so the row keeps its height when the
+	// controls beside it are gone and the pinned title has condensed.
+	min-block-size: var(--wpds-typography-line-height-2xl);
+	// Centred, as the row centred it before the floor filled the row.
+	justify-content: center;
 }
 
 .withVisual .text {
@@ -216,7 +221,7 @@ $section-header-condense-distance: 40px;
 		animation-timeline: --section-header-pin;
 		animation-range: exit;
 
-		// Buys no height: the row is floored by the date controls beside it.
+		// Buys no height: `.text` is floored at the resting line box.
 		// What changes is what the pinned band reads as.
 		.title {
 			animation: condense-title linear both;
