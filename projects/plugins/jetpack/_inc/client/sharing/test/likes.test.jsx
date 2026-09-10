@@ -20,7 +20,6 @@ jest.mock( 'lib/analytics', () => ( {
 
 jest.mock( 'components/settings-card', () => ( { children } ) => <section>{ children }</section> );
 jest.mock( 'components/settings-group', () => ( { children } ) => <div>{ children }</div> );
-jest.mock( 'components/block-theme-notice', () => () => <div>Block theme notice</div> );
 jest.mock( 'components/module-settings/with-module-settings-form-helpers', () => ( {
 	withModuleSettingsFormHelpers: Component => Component,
 } ) );
@@ -154,10 +153,10 @@ describe( 'Like buttons settings', () => {
 		);
 
 		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
-		expect( screen.queryByText( 'Block theme notice' ) ).not.toBeInTheDocument();
 		expect(
-			screen.queryByRole( 'link', { name: 'Configure your Like buttons' } )
+			screen.queryByRole( 'button', { name: 'Switch to the Like block' } )
 		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps a forced-active module non-actionable', () => {
@@ -174,17 +173,6 @@ describe( 'Like buttons settings', () => {
 			screen.queryByRole( 'button', { name: 'Switch to the Like block' } )
 		).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'keeps the existing block-theme fallback when the exact template URL is unavailable', () => {
-		render( <Likes { ...defaultProps } themeStylesheet="" /> );
-
-		expect( screen.getByRole( 'checkbox' ) ).not.toBeChecked();
-		expect( screen.getByText( 'Block theme notice' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Configure your Like buttons' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/wp-admin/site-editor.php?path=%2Fwp_template'
-		);
 	} );
 
 	it( 'disables the toggle in offline mode', () => {

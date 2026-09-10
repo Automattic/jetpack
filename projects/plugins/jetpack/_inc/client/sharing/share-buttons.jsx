@@ -2,7 +2,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
-import BlockThemeNotice from 'components/block-theme-notice';
 import Button from 'components/button';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -69,29 +68,23 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			const sharingModuleSupportUrl = getRedirectUrl( 'jetpack-support-sharing' );
 
 			/**
-			 * Sharing configuration link.
+			 * Legacy sharing configuration link, for the themes that can still use it.
 			 *
-			 * This link can be different depending on your site setup:
-			 * - Do you use a block-based theme and is the sharing block available?
-			 * - Is the site connected to WordPress.com?
-			 * - Is the site in offline mode?
-			 * - Is the site using the classic admin interface?
+			 * Block themes get the Sharing Buttons block through moduleAction() instead.
 			 *
 			 * @return {import('react').ReactNode} A card with the sharing configuration link.
 			 */
 			const configCard = () => {
-				const cardProps = {
-					compact: true,
-					className: 'jp-settings-card__configure-link',
-					href: `${ siteAdminUrl }options-general.php?page=sharing`,
-					onClick: this.trackClickConfigure,
-				};
-
-				if ( shouldShowSharingBlock ) {
-					cardProps.href = `${ siteAdminUrl }site-editor.php?path=%2Fwp_template`;
-				}
-
-				return <Card { ...cardProps }>{ __( 'Configure your sharing buttons', 'jetpack' ) }</Card>;
+				return (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						href={ `${ siteAdminUrl }options-general.php?page=sharing` }
+						onClick={ this.trackClickConfigure }
+					>
+						{ __( 'Configure your sharing buttons', 'jetpack' ) }
+					</Card>
+				);
 			};
 
 			/**
@@ -164,15 +157,6 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						<p>{ description }</p>
 						{ moduleAction() }
 					</SettingsGroup>
-
-					{ ! shouldUseSharingBlockAction && shouldShowSharingBlock && (
-						<div className="jp-settings-card__notice">
-							<BlockThemeNotice
-								isModuleActive={ isActive }
-								redirectSlug="jetpack-support-sharing-block"
-							/>
-						</div>
-					) }
 
 					{ ( isActive || shouldShowSharingBlock ) &&
 						! shouldUseSharingBlockAction &&
