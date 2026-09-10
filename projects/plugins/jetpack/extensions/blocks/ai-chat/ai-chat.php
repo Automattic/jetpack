@@ -50,8 +50,15 @@ function register_block() {
 
 	// Tell the editor why the block is off, so posts that already contain it
 	// show a placeholder instead of core's "unsupported block" warning.
+	// Registration queues its own "available" mark on this action, so run after it.
 	if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
-		Jetpack_Gutenberg::set_extension_unavailable( 'ai-chat', 'ai_disabled', array( 'gate' => 'master' ) );
+		add_action(
+			'jetpack_register_gutenberg_extensions',
+			static function () {
+				Jetpack_Gutenberg::set_extension_unavailable( 'ai-chat', 'ai_disabled', array( 'gate' => 'master' ) );
+			},
+			20
+		);
 	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
