@@ -31,6 +31,7 @@ import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
+import PageSubTitle from '../page-subtitle';
 import PricingSection from '../pricing-section';
 import { ConnectSiteSettingsSection as SettingsSection } from '../site-settings-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
@@ -74,7 +75,7 @@ const Admin = () => {
 	return (
 		<AdminPage
 			title={ 'VideoPress' /** "VideoPress" is a product name, do not translate. */ }
-			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+			subTitle={ <PageSubTitle /> }
 		>
 			<div
 				className={ clsx( styles[ 'files-overlay' ], {
