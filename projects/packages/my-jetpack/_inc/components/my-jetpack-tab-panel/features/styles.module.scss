@@ -285,3 +285,7 @@ $feature-icon-foreground: #0ced57;
 	padding: 0;
 	text-decoration: none;
 }
+
+.paid-routes {
+	margin-block-start: var(--wpds-dimension-gap-md);
+}

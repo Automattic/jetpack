@@ -1,11 +1,12 @@
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { check, chevronLeft, chevronRight, starFilled } from '@wordpress/icons';
+import { check, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Button, Dialog, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
 import { getArrowStep } from './arrow-navigation';
 import { FeatureDelivery } from './feature-delivery';
 import { FeatureIcon } from './feature-icon';
 import { FeatureLinks } from './feature-links';
+import { FeaturePaid } from './feature-paid';
 import { FeatureScreenshot } from './feature-screenshot';
 import { FeatureSwitch } from './feature-switch';
 import styles from './styles.module.scss';
@@ -157,7 +158,7 @@ export function FeatureModal( {
 								{ feature.long_description || product?.longDescription || feature.description }
 							</Dialog.Description>
 
-							<FeatureDelivery state={ state } onFilterByPlan={ onFilterByPlan } />
+							<FeatureDelivery state={ state } />
 
 							{ highlights.length > 0 && (
 								<div className={ styles[ 'detail-highlights' ] }>
@@ -178,23 +179,7 @@ export function FeatureModal( {
 
 						<Stack direction="column" gap="lg">
 							<FeatureScreenshot feature={ feature } />
-							{ /* A paid-only feature's "What you get" is already the paid list, so this
-							     would only repeat it. Show it where there is a free tier to compare against. */ }
-							{ feature.paid_highlights?.length && state.action !== 'learn_more' ? (
-								<div className={ styles[ 'detail-highlights' ] }>
-									<Text variant="heading-md">
-										{ __( 'With a paid plan', 'jetpack-my-jetpack' ) }
-									</Text>
-									<Stack direction="column" gap="sm">
-										{ feature.paid_highlights.map( highlight => (
-											<Stack key={ highlight } direction="row" align="start" gap="sm">
-												<Icon icon={ starFilled } size={ 20 } />
-												<Text variant="body-md">{ highlight }</Text>
-											</Stack>
-										) ) }
-									</Stack>
-								</div>
-							) : null }
+							<FeaturePaid state={ state } onFilterByPlan={ onFilterByPlan } />
 						</Stack>
 					</div>
 				</Dialog.Content>

@@ -1,71 +1,30 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Stack, Text } from '@wordpress/ui';
-import { useCallback } from 'react';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
-import type { FeatureFilter } from './use-feature-filter';
-
-type PlanBadgeProps = {
-	plan: { slug: string; name: string };
-	onSelect: ( plan: FeatureFilter ) => void;
-};
-
-/**
- * A plan badge that filters the list to everything that plan includes.
- *
- * @param {PlanBadgeProps} props          - The component props.
- * @param {object}         props.plan     - The plan's slug and display name.
- * @param {Function}       props.onSelect - Filters the list to one plan.
- * @return The rendered component.
- */
-function PlanBadge( { plan, onSelect }: PlanBadgeProps ) {
-	const onClick = useCallback(
-		() => onSelect( plan.slug as FeatureFilter ),
-		[ onSelect, plan.slug ]
-	);
-
-	return (
-		<button
-			type="button"
-			className={ styles[ 'badge-link' ] }
-			onClick={ onClick }
-			title={ sprintf(
-				/* translators: %s is a plan name, such as "Jetpack Complete". */
-				__( 'Show everything in %s', 'jetpack-my-jetpack' ),
-				plan.name
-			) }
-		>
-			<Badge intent="informational">{ plan.name }</Badge>
-		</button>
-	);
-}
 
 type FeatureDeliveryProps = {
 	state: FeatureState;
-	onFilterByPlan: ( plan: FeatureFilter ) => void;
 };
 
 /**
- * Where the feature comes from, as badges rather than sentences.
+ * Where an inactive feature comes from, and what the button will do to get it.
  *
- * Turning a feature on can install a whole plugin, which is worth saying before
- * someone clicks rather than after.
+ * Only shown while the feature is off: once it is running, how it arrived is no
+ * longer the question the reader has.
  *
- * @param {FeatureDeliveryProps} props                - The component props.
- * @param {FeatureState}         props.state          - Live state for the feature.
- * @param {Function}             props.onFilterByPlan - Filters the list to one plan.
+ * @param {FeatureDeliveryProps} props       - The component props.
+ * @param {FeatureState}         props.state - Live state for the feature.
  * @return The rendered component.
  */
-export function FeatureDelivery( { state, onFilterByPlan }: FeatureDeliveryProps ) {
+export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	const { feature, product } = state;
 	// Saying "In Jetpack" to someone already running Jetpack tells them nothing.
 	const inJetpack = !! feature.delivery?.in_jetpack && ! isJetpackPluginActive();
 	const { standalone } = feature.delivery ?? {};
-	const plans = feature.plans ?? [];
-	const paidProduct = feature.paid_product;
 
-	if ( ! inJetpack && ! standalone && ! plans.length && ! paidProduct ) {
+	if ( state.status === 'active' ) {
 		return null;
 	}
 
@@ -74,23 +33,55 @@ export function FeatureDelivery( { state, onFilterByPlan }: FeatureDeliveryProps
 		? `https://wordpress.org/plugins/${ product.pluginSlug }/`
 		: '';
 
-	const note = () => {
+	// Named for the button it describes, so the two cannot be read as different things.
+	// Only claim a plugin is involved when this product actually has one waiting.
+	const installedStandalone =
+		!! standalone && !! product?.standalonePluginInfo?.isStandaloneInstalled;
+
+	const consequence = () => {
 		if ( state.action === 'install' && standalone ) {
 			return sprintf(
-				/* translators: %s is a plugin name, such as "Jetpack Protect". */
-				__( 'Turning it on installs and activates %s for you.', 'jetpack-my-jetpack' ),
-				standalone
+				/* translators: 1: a plugin name, 2: a feature name. */
+				__(
+					'Install adds the %1$s plugin, then turns %2$s on for your site. It does not buy anything.',
+					'jetpack-my-jetpack'
+				),
+				standalone,
+				feature.name
+			);
+		}
+
+		if ( state.action === 'activate' && installedStandalone ) {
+			return sprintf(
+				/* translators: 1: a plugin name, 2: a feature name. */
+				__(
+					'Activate switches on the %1$s plugin, already installed here, and turns %2$s on for your site.',
+					'jetpack-my-jetpack'
+				),
+				standalone,
+				feature.name
 			);
 		}
 
 		if ( state.action === 'install' || state.action === 'activate' ) {
-			return __( 'Turning it on switches it on straight away.', 'jetpack-my-jetpack' );
+			return sprintf(
+				/* translators: %s is a feature name, such as "Protect". */
+				__(
+					'Activate turns %s on for your site. There is nothing to install, and it does not buy anything.',
+					'jetpack-my-jetpack'
+				),
+				feature.name
+			);
 		}
 
 		return '';
 	};
 
-	const consequence = note();
+	const note = consequence();
+
+	if ( ! inJetpack && ! standalone && ! note ) {
+		return null;
+	}
 
 	return (
 		<div className={ styles[ 'detail-highlights' ] }>
@@ -118,19 +109,7 @@ export function FeatureDelivery( { state, onFilterByPlan }: FeatureDeliveryProps
 				{ standalone && ! repoUrl ? <Badge intent="informational">{ standalone }</Badge> : null }
 			</Stack>
 
-			{ consequence ? <Text variant="body-sm">{ consequence }</Text> : null }
-
-			{ plans.length || paidProduct ? (
-				<>
-					<Text variant="body-sm">{ __( 'Paid features come with', 'jetpack-my-jetpack' ) }</Text>
-					<Stack direction="row" align="center" gap="sm" wrap="wrap">
-						{ plans.map( plan => (
-							<PlanBadge key={ plan.slug } plan={ plan } onSelect={ onFilterByPlan } />
-						) ) }
-						{ paidProduct ? <Badge>{ paidProduct }</Badge> : null }
-					</Stack>
-				</>
-			) : null }
+			{ note ? <Text variant="body-sm">{ note }</Text> : null }
 		</div>
 	);
 }
