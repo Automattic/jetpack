@@ -3,7 +3,7 @@ import { Notice } from '@wordpress/ui';
 import { OVERVIEW_UPGRADE_EVENT, type UpgradeSlotRequest } from './lib/upgrade-bridge';
 import UpgradeCTA from './upgrade-cta';
 
-test( 'mounts and releases the upgrade UI once when the notice changes to paid', () => {
+test( 'mounts the upgrade UI once and cleans up once when removed', () => {
 	const cleanup = jest.fn();
 	const handleMount = jest.fn( ( event: Event ) => {
 		const request = ( event as CustomEvent< UpgradeSlotRequest > ).detail;
