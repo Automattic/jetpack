@@ -188,6 +188,42 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test verification service validation.
+	 *
+	 * @dataProvider verification_service_provider
+	 *
+	 * @param string $value    Verification value.
+	 * @param bool   $expected Expected validation result.
+	 */
+	#[DataProvider( 'verification_service_provider' )]
+	public function test_validate_verification_service( $value, $expected ) {
+		$this->load_rest_endpoints_direct();
+
+		$result = Jetpack_Core_Json_Api_Endpoints::validate_verification_service( $value, new WP_REST_Request(), 'google' );
+
+		if ( $expected ) {
+			$this->assertTrue( $result );
+		} else {
+			$this->assertWPError( $result );
+		}
+	}
+
+	/**
+	 * Provide safe and unsafe verification values.
+	 *
+	 * @return array
+	 */
+	public static function verification_service_provider() {
+		return array(
+			'printable punctuation' => array( 'verification.Code_123-+/=:@~', true ),
+			'google meta tag'       => array( '<meta name="google-site-verification" content="+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=" />', true ),
+			'angle bracket'         => array( 'unsafe<script', false ),
+			'quote'                 => array( 'unsafe"attribute', false ),
+			'whitespace'            => array( "unsafe\nvalue", false ),
+		);
+	}
+
+	/**
 	 * Test permission to see if users can view Jetpack admin screen.
 	 *
 	 * @since 4.4.0

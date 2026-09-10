@@ -3160,7 +3160,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_verification_service( $value, $request, $param ) {
-		if ( ! empty( $value ) && ! ( is_string( $value ) && ( preg_match( '/^[a-z0-9_-]+$/i', $value ) || jetpack_verification_get_code( $value ) !== false ) ) ) {
+		$validated_codes = is_string( $value ) ? jetpack_verification_validate( array( $param => $value ) ) : array();
+
+		if ( ! empty( $value ) && empty( $validated_codes[ $param ] ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(

@@ -17,8 +17,8 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_verification_validate_google_raw_code() {
 		$this->assertEquals(
-			array( 'google' => 'W2gxpExLATRT5c0dgRjlJsXRnrLE7vpr_1YtYxEnDIzn9ylj7C' ),
-			jetpack_verification_validate( array( 'google' => 'W2gxpExLATRT5c0dgRjlJsXRnrLE7vpr_1YtYxEnDIzn9ylj7C' ) ),
+			array( 'google' => '+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=' ),
+			jetpack_verification_validate( array( 'google' => '+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=' ) ),
 			'raw code should be accepeted'
 		);
 	}
@@ -29,8 +29,8 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_verification_validate_google_code_in_meta_double_quotes() {
 		$this->assertEquals(
-			array( 'test' => 'bX1szG_kxD6O0CGSVgS8m4F5gKvgUPMdo96McTiJ7pZ5Ax7mQr' ),
-			jetpack_verification_validate( array( 'test' => '<meta name="google-site-verification" content="bX1szG_kxD6O0CGSVgS8m4F5gKvgUPMdo96McTiJ7pZ5Ax7mQr" />' ) ),
+			array( 'test' => '+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=' ),
+			jetpack_verification_validate( array( 'test' => '<meta name="google-site-verification" content="+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=" />' ) ),
 			'google-style meta tag with double quotes should be accepeted'
 		);
 	}
@@ -86,11 +86,12 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	 */
 	public static function valid_verification_code_provider() {
 		return array(
-			'google'    => array( 'google', 'verification_Code-123' ),
-			'bing'      => array( 'bing', 'verification_Code-123' ),
-			'pinterest' => array( 'pinterest', 'verification_Code-123' ),
-			'yandex'    => array( 'yandex', 'verification_Code-123' ),
-			'facebook'  => array( 'facebook', 'verification_Code-123' ),
+			'google'           => array( 'google', '+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=' ),
+			'bing'             => array( 'bing', '12C1203B5086AECE94EB3A3D9830B2E' ),
+			'pinterest'        => array( 'pinterest', 'f100679e6048d45e4a0b0b92dce1efce' ),
+			'yandex'           => array( 'yandex', '44d68e1216009f40' ),
+			'facebook'         => array( 'facebook', 'rvv8b23jxlp1lq41I9rwsvpzncy1fd' ),
+			'safe punctuation' => array( 'google', 'verification.Code_123-+/=:@~' ),
 		);
 	}
 
@@ -101,11 +102,12 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	 */
 	public static function invalid_verification_code_provider() {
 		return array(
-			'google'    => array( 'google', 'invalid.code' ),
-			'bing'      => array( 'bing', 'invalid.code' ),
-			'pinterest' => array( 'pinterest', 'invalid.code' ),
-			'yandex'    => array( 'yandex', 'invalid.code' ),
-			'facebook'  => array( 'facebook', 'invalid.code' ),
+			'opening angle bracket'        => array( 'google', 'invalid<script' ),
+			'closing angle bracket'        => array( 'bing', 'invalid>script' ),
+			'double quote'                 => array( 'pinterest', 'invalid"code' ),
+			'single quote'                 => array( 'yandex', "invalid'code" ),
+			'control character'            => array( 'facebook', "invalid\ncode" ),
+			'unsafe character after limit' => array( 'google', '<meta name="google-site-verification" content="' . str_repeat( 'a', 100 ) . '<" />' ),
 		);
 	}
 }
