@@ -66,21 +66,11 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( { disabled }: { disabled?: boolean } ) => (
-		<MockHeaderScopeProbe disabled={ disabled } />
-	),
-	DateIntervalDropdown: ( { disabled }: { disabled?: boolean } ) => (
-		<span>{ disabled ? 'interval disabled' : 'interval enabled' }</span>
-	),
-	DateYearFilter: ( {
-		containerElement,
-		disabled,
-	}: {
-		containerElement?: HTMLElement | null;
-		disabled?: boolean;
-	} ) => (
+	DateFiltersPanel: () => <MockHeaderScopeProbe />,
+	DateIntervalDropdown: () => <span>interval control</span>,
+	DateYearFilter: ( { containerElement }: { containerElement?: HTMLElement | null } ) => (
 		<>
-			<span>{ disabled ? 'year surface disabled' : 'year surface enabled' }</span>
+			<span>year surface</span>
 			<span>{ containerElement ? 'measuring header' : 'measuring body' }</span>
 		</>
 	),
@@ -132,18 +122,13 @@ jest.mock( '@wordpress/data', () => ( { useSelect: () => [] } ) );
  * render. Both halves derive from the one declaration, so the header reads it
  * rather than being handed a prop.
  *
- * @param props          - The props the stage hands the panel.
- * @param props.disabled - Whether the stage greyed the controls out.
- * @return The declared scope, as text, with the disabled state appended.
+ * @return The declared scope, as text.
  */
-function MockHeaderScopeProbe( { disabled = false }: { disabled?: boolean } ) {
+function MockHeaderScopeProbe() {
 	const { offersComparison } = useReportScope();
 
 	return (
-		<span>
-			{ offersComparison ? 'header offers comparison' : 'header offers no comparison' }
-			{ disabled ? ', disabled' : '' }
-		</span>
+		<span>{ offersComparison ? 'header offers comparison' : 'header offers no comparison' }</span>
 	);
 }
 
@@ -662,38 +647,37 @@ describe( 'Dashboard customizing', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 	} );
 
-	// The layout has to be saved or dropped before the page is used again, so
-	// the controls stay in view naming the range but take nothing until then.
-	it( 'greys the date controls out while customizing', async () => {
+	it( 'hides the date controls while customizing', async () => {
 		render( <Dashboard /> );
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
-		expect( screen.getByText( 'header offers comparison, disabled' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
 		// The widgets keep reporting over the same range meanwhile.
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 	} );
 
-	it( 'greys the year surface out too', async () => {
+	it( 'hides the year surface too', async () => {
 		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
 		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 		mockSection();
 
 		render( <Dashboard /> );
-		expect( screen.getByText( 'year surface enabled' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'year surface' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'interval control' ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
-		expect( screen.getByText( 'year surface disabled' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'interval disabled' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'year surface' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'interval control' ) ).not.toBeInTheDocument();
 	} );
 
-	it.each( [ 'Done', 'Cancel' ] )( 'enables the date controls again on %s', async action => {
+	it.each( [ 'Done', 'Cancel' ] )( 'brings the date controls back on %s', async action => {
 		render( <Dashboard /> );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
-		expect( screen.getByText( 'header offers comparison, disabled' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: action } ) );
 
