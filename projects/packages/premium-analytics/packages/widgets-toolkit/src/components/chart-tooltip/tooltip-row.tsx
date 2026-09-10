@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -18,6 +19,12 @@ export type TooltipRowProps = {
 };
 
 export function TooltipRow( { indicator, label, value, dataFormat }: TooltipRowProps ) {
+	// The tooltip is where a compact chart value gets spelled out in full.
+	const exactFormat = useMemo(
+		() => ( { ...dataFormat, options: { ...dataFormat.options, useMultipliers: false } } ),
+		[ dataFormat ]
+	);
+
 	return (
 		<Stack
 			direction="row"
@@ -32,7 +39,7 @@ export function TooltipRow( { indicator, label, value, dataFormat }: TooltipRowP
 
 			<MetricValue
 				value={ value }
-				dataFormat={ dataFormat }
+				dataFormat={ exactFormat }
 				fontSize="sm"
 				className={ styles.value }
 			/>

@@ -50,8 +50,8 @@ describe( 'MostPopularDayWidget', () => {
 		expect( screen.getByRole( 'heading', { level: 4, name: 'Views' } ) ).toBeInTheDocument();
 		// The count appears twice by design: the abbreviated headline is hidden
 		// from assistive tech, and the exact count beside it is hidden visually.
-		expect( container ).toHaveTextContent( 'Views102.6K102,6310.16% of views' );
-		expect( screen.getByText( '102.6K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( container ).toHaveTextContent( 'Views103K102,6310.16% of views' );
+		expect( screen.getByText( '103K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 
 	it( 'requests the site summary without date params', async () => {
@@ -95,7 +95,7 @@ describe( 'MostPopularDayWidget', () => {
 
 		await expect( screen.findByText( 'October 17' ) ).resolves.toBeInTheDocument();
 
-		expect( container ).toHaveTextContent( 'Views102.6K' );
+		expect( container ).toHaveTextContent( 'Views103K' );
 		expect( screen.queryByText( /of views/ ) ).not.toBeInTheDocument();
 	} );
 

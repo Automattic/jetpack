@@ -10,12 +10,12 @@ import {
 	Icon,
 	Stack,
 } from '@jetpack-premium-analytics/externals';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import clsx from 'clsx';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { AbbreviatedValue } from '../abbreviated-value';
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './leaderboard-chart.module.scss';
 import type { DataFormat } from '../../types';
@@ -90,7 +90,7 @@ export function LeaderboardChart( {
 	const { getElementStyles } = useGlobalChartsContext();
 
 	const valueFormatter = useMemo(
-		() => ( value: number ) => formatMetricValue( value, dataFormat.type, dataFormat.options ),
+		() => ( value: number ) => <AbbreviatedValue value={ value } dataFormat={ dataFormat } />,
 		[ dataFormat ]
 	);
 

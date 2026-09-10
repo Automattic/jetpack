@@ -6,6 +6,7 @@ import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
+	AbbreviatedValue,
 	describeError,
 	summaryCount,
 	WidgetRoot,
@@ -13,7 +14,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -39,8 +40,6 @@ type MostPopularDayHighlightProps = {
 type MostPopularDayFieldProps = {
 	label: string;
 	value: ReactNode;
-	/** The unabbreviated value, exposed as a tooltip. */
-	valueTitle?: string;
 	caption?: string;
 };
 
@@ -48,16 +47,14 @@ type MostPopularDayFieldProps = {
  * A single labelled highlight: a small label, the prominent value, and a muted
  * caption beneath it (e.g. "Day" / "August 18" / "2020").
  */
-const MostPopularDayField = ( { label, value, valueTitle, caption }: MostPopularDayFieldProps ) => (
+const MostPopularDayField = ( { label, value, caption }: MostPopularDayFieldProps ) => (
 	<Stack direction="column" gap="xs">
 		{ /* A heading, like the Most popular time card beside it: the labels carry
 		     the card's structure, so screen readers should hear it as structure. */ }
 		<Text variant="heading-md" render={ <h4 /> }>
 			{ label }
 		</Text>
-		<Text variant="heading-2xl" title={ valueTitle }>
-			{ value }
-		</Text>
+		<Text variant="heading-2xl">{ value }</Text>
 		{ caption !== undefined && (
 			<Text variant="body-md" className={ styles.caption }>
 				{ caption }
@@ -66,23 +63,13 @@ const MostPopularDayField = ( { label, value, valueTitle, caption }: MostPopular
 	</Stack>
 );
 
-// `decimals: 0` would round 102,631 to "103K"; the design's headline keeps the
-// digit ("102.6K"). Below the first multiplier it is always ".0", so use plain there.
-const ABBREVIATED_COUNT_OPTIONS = { useMultipliers: true, decimals: 1 };
-const PLAIN_COUNT_OPTIONS = { decimals: 0 };
+const VIEWS_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
 
 /**
  * Presentational body for the "Most popular day" widget. Loading / error / empty
  * are handled by `<WidgetState>` in the report component.
  */
 export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayHighlightProps ) => {
-	const fullViews = formatMetricValue( views, 'number', PLAIN_COUNT_OPTIONS );
-	const headlineViews = formatMetricValue(
-		views,
-		'number',
-		views >= 1000 ? ABBREVIATED_COUNT_OPTIONS : PLAIN_COUNT_OPTIONS
-	);
-
 	return (
 		<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
 			<MostPopularDayField
@@ -92,19 +79,7 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 			/>
 			<MostPopularDayField
 				label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
-				// An abbreviated headline is read aloud as "102.6 K", so the exact
-				// count is what reaches a screen reader.
-				value={
-					headlineViews === fullViews ? (
-						headlineViews
-					) : (
-						<>
-							<span aria-hidden="true">{ headlineViews }</span>
-							<VisuallyHidden>{ fullViews }</VisuallyHidden>
-						</>
-					)
-				}
-				valueTitle={ fullViews }
+				value={ <AbbreviatedValue value={ views } dataFormat={ VIEWS_FORMAT } /> }
 				// A summary without an all-time total gives no share to state; "0% of
 				// views" would read as a measurement rather than a missing one.
 				caption={

@@ -20,13 +20,14 @@ export type MetricType = 'number' | 'average' | 'currency' | 'percentage';
 
 export type FormatMetricValueOptions = {
 	/**
-	 * Decimal precision.
+	 * Decimal precision of the full value; compact output picks its own.
 	 * Defaults vary by type: 0 for number, 2 for average/currency/percentage.
 	 */
 	decimals?: number;
 
 	/**
-	 * Use compact notation with K/M suffixes.
+	 * Use compact notation with K/M suffixes above 999: one decimal while the
+	 * mantissa has two digits (1.2K, 54.3K), none from three (234K).
 	 * @default false
 	 */
 	useMultipliers?: boolean;
@@ -45,12 +46,29 @@ export type FormatMetricValueOptions = {
 };
 
 /**
+ * Fraction digits for compact notation: the full precision below 1,000, then
+ * one decimal until the mantissa reaches three digits.
+ */
+function compactFractionDigits(
+	absoluteValue: number,
+	fullDecimals: number
+): Pick< Intl.NumberFormatOptions, 'minimumFractionDigits' | 'maximumFractionDigits' > {
+	if ( absoluteValue < 1000 ) {
+		return { minimumFractionDigits: fullDecimals, maximumFractionDigits: fullDecimals };
+	}
+	const mantissa = absoluteValue / 1000 ** Math.floor( Math.log10( absoluteValue ) / 3 );
+	// Rounded first so 99.95K rolls over to 100K instead of printing 100.0K.
+	const maximumFractionDigits = Math.round( mantissa * 10 ) / 10 < 100 ? 1 : 0;
+	return { minimumFractionDigits: 0, maximumFractionDigits };
+}
+
+/**
  * Format a numeric metric value based on its type, precision, and scale.
  * Returns `''` for null, undefined, or NaN input.
  *
  * @example
  * formatMetricValue( 9876.543 )                                             // '9,877'
- * formatMetricValue( 1500, 'number', { useMultipliers: true, decimals: 1 } ) // '1.5K'
+ * formatMetricValue( 1500, 'number', { useMultipliers: true } )              // '1.5K'
  * formatMetricValue( 192088.05, 'currency' )                                 // '$192,088.05'
  * formatMetricValue( 0.25, 'percentage' )                                    // '+25%'
  * formatMetricValue( 0.125, 'average' )                                      // '0.13'
@@ -105,10 +123,7 @@ export function formatMetricValue(
 				}
 
 				const compactFormatted = formatNumberCompact( absoluteValue, {
-					decimals: decimals ?? 2,
-					numberFormatOptions: {
-						maximumFractionDigits: decimals ?? 2,
-					},
+					numberFormatOptions: compactFractionDigits( absoluteValue, decimals ?? 2 ),
 				} );
 
 				return symbolPosition === 'before'
@@ -154,9 +169,8 @@ export function formatMetricValue(
 		default: {
 			return useMultipliers
 				? formatNumberCompact( numericValue, {
-						decimals: decimals ?? 0,
 						numberFormatOptions: {
-							maximumFractionDigits: decimals ?? 0,
+							...compactFractionDigits( Math.abs( numericValue ), decimals ?? 0 ),
 							signDisplay,
 						},
 				  } )

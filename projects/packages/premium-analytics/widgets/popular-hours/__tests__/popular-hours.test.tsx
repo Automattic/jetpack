@@ -169,9 +169,7 @@ describe( 'PopularHoursWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( '166.9K views per day' ) ).toBeInTheDocument();
-		expect( screen.getByTitle( '166,900' ) ).toBeInTheDocument();
-		expect( screen.getByText( '166.9K views per day' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '167K views per day' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 		expect( screen.getByText( '166,900 views per day' ) ).toBeInTheDocument();
 	} );
 
