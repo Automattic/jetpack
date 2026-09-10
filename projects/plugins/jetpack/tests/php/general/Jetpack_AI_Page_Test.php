@@ -280,31 +280,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The turned-off notice sends people to My Jetpack wherever it loads.
-	 */
-	public function test_manage_url_points_at_my_jetpack_when_it_loads() {
-		$this->given_woa( false );
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertTrue( $settings['hasMyJetpack'] );
-		$this->assertSame( 'admin.php?page=my-jetpack#/products', $settings['manageUrl'] );
-	}
-
-	/**
-	 * Hosts that keep My Jetpack out get the legacy modules page instead.
-	 */
-	public function test_manage_url_falls_back_to_the_modules_page_without_my_jetpack() {
-		$this->given_woa( false );
-		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertFalse( $settings['hasMyJetpack'] );
-		$this->assertSame( 'admin.php?page=jetpack_modules', $settings['manageUrl'] );
-	}
-
-	/**
 	 * Internal self-hosted requests still present the views as public UI.
 	 */
 	public function test_self_hosted_internal_request_has_no_a12s_badge() {

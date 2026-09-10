@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { GATED_VIEWS } from '../../constants';
@@ -110,12 +111,9 @@ function getNoticeContent( state, pageData ) {
 					'Your feature settings are saved and will apply again when AI is turned back on.',
 					'jetpack'
 				),
-				action: {
-					href: pageData.manageUrl,
-					label: pageData.hasMyJetpack
-						? __( 'Manage in My Jetpack', 'jetpack' )
-						: __( 'Manage in Jetpack modules', 'jetpack' ),
-				},
+				// The switch itself, rather than a link away: which page holds the
+				// master switch varies by host.
+				hasMasterSwitch: true,
 			};
 
 		default:
@@ -133,13 +131,27 @@ function getNoticeContent( state, pageData ) {
  * @param {boolean}     [props.isUserConnected]   - Whether this user's account is linked.
  * @param {object|null} [props.settings]          - Feature settings, null until fetched.
  * @param {string}      [props.userConnectionUrl] - Where this host links an account.
- * @param {string}      [props.manageUrl]         - Where this host manages the AI module.
- * @param {boolean}     [props.hasMyJetpack]      - Whether My Jetpack is loaded on this host.
+ * @param {Function}    props.onTurnOnAi          - Turns the master switch on; resolves with it on.
  * @return {object|null} Component markup.
  */
 export default function PageNotice( props ) {
-	const { view, blogId, isUserConnected, settings } = props;
+	const { view, blogId, isUserConnected, settings, onTurnOnAi } = props;
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const [ turnOnError, setTurnOnError ] = useState( null );
+	const [ isTurningOn, setIsTurningOn ] = useState( false );
+
+	const handleTurnOn = useCallback( async () => {
+		setTurnOnError( null );
+		setIsTurningOn( true );
+
+		try {
+			await onTurnOnAi();
+		} catch {
+			setTurnOnError( __( 'Jetpack AI could not be turned on. Please try again.', 'jetpack' ) );
+		} finally {
+			setIsTurningOn( false );
+		}
+	}, [ onTurnOnAi ] );
 	const state = getPageNoticeState( {
 		view,
 		blogId,
@@ -163,14 +175,26 @@ export default function PageNotice( props ) {
 		return null;
 	}
 
-	const { title, description, action } = content;
+	const { title, description, action, hasMasterSwitch } = content;
 
 	// Keyed per state: swapping content into a live Notice breaks the hook that
 	// announces it on mount.
 	return (
-		<Notice.Root key={ state } intent="warning" className="jetpack-ai-admin__page-notice">
+		<Notice.Root
+			key={ turnOnError ? `${ state }-error` : state }
+			intent="warning"
+			className="jetpack-ai-admin__page-notice"
+		>
 			{ title && <Notice.Title>{ title }</Notice.Title> }
 			{ description && <Notice.Description>{ description }</Notice.Description> }
+			{ turnOnError && <Notice.Description>{ turnOnError }</Notice.Description> }
+			{ hasMasterSwitch && (
+				<Notice.Actions>
+					<Notice.ActionButton disabled={ isTurningOn } onClick={ handleTurnOn }>
+						{ isTurningOn ? __( 'Turning on…', 'jetpack' ) : __( 'Turn on Jetpack AI', 'jetpack' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			) }
 			{ action && (
 				<Notice.Actions>
 					<Notice.ActionLink href={ action.href } openInNewTab={ action.openInNewTab }>

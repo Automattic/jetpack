@@ -169,7 +169,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		const MASTER_OFF_TITLE = 'Jetpack AI is turned off for this site.';
 		const masterOffSettings = () => ( { ...enabledSettings(), master_enabled: false } );
 
-		test( 'features tab: notice with the My Jetpack link, rendered exactly once', async () => {
+		test( 'features tab: the notice offers the switch, rendered exactly once', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
 			mockApiFetch( { featureGet: masterOffSettings() } );
 
@@ -178,32 +178,24 @@ describe( 'AI admin page (main.jsx)', () => {
 			await expect(
 				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
-			expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
-				'href',
-				'admin.php?page=my-jetpack#/products'
-			);
+			expect( screen.getByRole( 'button', { name: 'Turn on Jetpack AI' } ) ).toBeInTheDocument();
 			// One page-level notice — AiFeatures must not render a second copy.
 			expect( screen.getAllByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).toHaveLength( 1 );
 			expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
 		} );
 
-		test( 'a host without My Jetpack is sent to the modules page instead', async () => {
-			window.jetpackAiSettings = {
-				showFeaturesView: true,
-				blogId: 1,
-				hasMyJetpack: false,
-				manageUrl: 'admin.php?page=jetpack_modules',
-			};
+		test( 'turning AI on from the notice clears the notice and re-enables the rows', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
 			mockApiFetch( { featureGet: masterOffSettings() } );
 
 			render( <App /> );
 
-			await expect(
-				screen.findByRole( 'link', { name: 'Manage in Jetpack modules' } )
-			).resolves.toHaveAttribute( 'href', 'admin.php?page=jetpack_modules' );
-			expect(
-				screen.queryByRole( 'link', { name: 'Manage in My Jetpack' } )
-			).not.toBeInTheDocument();
+			await userEvent.click( await screen.findByRole( 'button', { name: 'Turn on Jetpack AI' } ) );
+
+			await waitFor( () =>
+				expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument()
+			);
+			expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeEnabled();
 		} );
 
 		test( 'the notice sits above the view it applies to', async () => {

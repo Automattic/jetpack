@@ -258,8 +258,7 @@ class Jetpack_AI_Page {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
-		$host           = new Host();
-		$has_my_jetpack = self::has_my_jetpack();
+		$host = new Host();
 
 		/**
 		 * Filters the host-specific AI Hub configuration.
@@ -277,13 +276,9 @@ class Jetpack_AI_Page {
 					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
 				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
-				'hasMyJetpack'      => $has_my_jetpack,
-				'userConnectionUrl' => $has_my_jetpack
+				'userConnectionUrl' => self::has_my_jetpack()
 					? 'admin.php?page=my-jetpack#/connection'
 					: 'admin.php?page=jetpack#/connect-user',
-				'manageUrl'         => $has_my_jetpack
-					? 'admin.php?page=my-jetpack#/products'
-					: 'admin.php?page=jetpack_modules',
 				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
@@ -305,8 +300,6 @@ class Jetpack_AI_Page {
 			'seoSettingsUrl'    => $seo_settings_url,
 			'siteAdminUrl'      => admin_url(),
 			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ),
-			'manageUrl'         => esc_url_raw( $config['manageUrl'] ),
-			'hasMyJetpack'      => ! empty( $config['hasMyJetpack'] ),
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),

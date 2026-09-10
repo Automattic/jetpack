@@ -184,8 +184,6 @@ export default function App() {
 		planName,
 		isUserConnected,
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
-		manageUrl = 'admin.php?page=my-jetpack#/products',
-		hasMyJetpack = true,
 		showFeaturesView = false,
 		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
@@ -281,6 +279,13 @@ export default function App() {
 			);
 		},
 		[ updateAiSettings, createSuccessNotice, createErrorNotice ]
+	);
+
+	// Not handleAiSettingsUpdate: the notice shows its own inline error, and the
+	// response's fresh settings are what dismiss the notice.
+	const turnOnAi = useCallback(
+		() => updateAiSettings( { master_enabled: true } ),
+		[ updateAiSettings ]
 	);
 
 	const navigateToView = useCallback( newView => {
@@ -408,8 +413,7 @@ export default function App() {
 					isUserConnected={ isUserConnected }
 					settings={ aiSettings }
 					userConnectionUrl={ userConnectionUrl }
-					manageUrl={ manageUrl }
-					hasMyJetpack={ hasMyJetpack }
+					onTurnOnAi={ turnOnAi }
 				/>
 
 				{ isMcpContext && (

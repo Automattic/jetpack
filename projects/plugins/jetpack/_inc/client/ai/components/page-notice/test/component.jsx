@@ -1,5 +1,6 @@
 import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import PageNotice, { getPageNoticeState } from '../index';
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
@@ -139,6 +140,8 @@ describe( 'getPageNoticeState', () => {
 } );
 
 describe( 'PageNotice', () => {
+	let onTurnOnAi;
+
 	const renderNotice = ( overrides = {} ) =>
 		render(
 			<PageNotice
@@ -147,15 +150,15 @@ describe( 'PageNotice', () => {
 				isUserConnected={ true }
 				settings={ connected() }
 				userConnectionUrl="admin.php?page=my-jetpack#/connection"
-				manageUrl="admin.php?page=my-jetpack#/products"
 				siteAdminUrl="https://example.com/wp-admin/"
-				hasMyJetpack={ true }
+				onTurnOnAi={ onTurnOnAi }
 				{ ...overrides }
 			/>
 		);
 
 	beforeEach( () => {
 		useConnectionErrorNotice.mockReturnValue( { hasConnectionError: false } );
+		onTurnOnAi = jest.fn().mockResolvedValue( undefined );
 	} );
 
 	it( 'renders nothing when there is nothing to say', () => {
@@ -231,30 +234,43 @@ describe( 'PageNotice', () => {
 	describe( 'the master switch notice', () => {
 		const masterOff = { settings: connected( { master_enabled: false } ) };
 
-		it( 'points at My Jetpack where My Jetpack is loaded', () => {
+		it( 'offers to turn Jetpack AI back on', async () => {
 			renderNotice( masterOff );
+
 			expect(
 				screen.getByText( 'Jetpack AI is turned off for this site.', IGNORE_A11Y )
 			).toBeInTheDocument();
-			expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
-				'href',
-				'admin.php?page=my-jetpack#/products'
-			);
+			await userEvent.click( screen.getByRole( 'button', { name: 'Turn on Jetpack AI' } ) );
+			expect( onTurnOnAi ).toHaveBeenCalled();
 		} );
 
-		it( 'points at the modules page where My Jetpack is not loaded', () => {
-			renderNotice( {
-				...masterOff,
-				hasMyJetpack: false,
-				manageUrl: 'admin.php?page=jetpack_modules',
-			} );
-			expect( screen.getByRole( 'link', { name: 'Manage in Jetpack modules' } ) ).toHaveAttribute(
-				'href',
-				'admin.php?page=jetpack_modules'
+		it( 'says so while the request is in flight', async () => {
+			let settle;
+			onTurnOnAi.mockReturnValue( new Promise( done => ( settle = done ) ) );
+			renderNotice( masterOff );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'Turn on Jetpack AI' } ) );
+
+			expect( screen.getByRole( 'button', { name: 'Turning on…' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
 			);
+			await act( async () => settle() );
+		} );
+
+		it( 'explains a failed request without losing the notice', async () => {
+			onTurnOnAi.mockRejectedValue( new Error( 'nope' ) );
+			renderNotice( masterOff );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'Turn on Jetpack AI' } ) );
+
+			await expect(
+				screen.findByText( 'Jetpack AI could not be turned on. Please try again.', IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
 			expect(
-				screen.queryByRole( 'link', { name: 'Manage in My Jetpack' } )
-			).not.toBeInTheDocument();
+				screen.getByText( 'Jetpack AI is turned off for this site.', IGNORE_A11Y )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Turn on Jetpack AI' } ) ).toBeEnabled();
 		} );
 	} );
 } );
