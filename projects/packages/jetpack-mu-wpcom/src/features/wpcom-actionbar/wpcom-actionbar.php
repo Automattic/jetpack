@@ -285,31 +285,44 @@ function wpcom_actionbar_email_default( $current_user ) {
 }
 
 /**
- * Print one of the Gridicons the bar uses, inlined so the bar has no dependency on wpcom's icon library.
+ * Print one of the WordPress icons the bar uses, inlined from @wordpress/icons.
  *
- * @param string $slug Icon slug.
+ * Icons inherit their color from CSS `color`, like the library's own Icon component.
+ *
+ * @param string $name Icon name from the WordPress icon library.
  * @param int    $size Rendered width and height in pixels.
  */
-function wpcom_actionbar_gridicon( $slug, $size = 24 ) {
-	$paths = array(
-		'checkmark'    => 'M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414',
-		'comment'      => 'M12 16l-5 5v-5H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2h-7z',
-		'ellipsis'     => 'M7 12c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2zm12-2c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm-7 0c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2z',
-		'info-outline' => 'M13 9h-2V7h2v2zm0 2h-2v6h2v-6zm-1-7c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8m0-2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z',
-		'pencil'       => 'M13 6l5 5-9.507 9.507c-.686-.686-.69-1.794-.012-2.485l-.002-.003c-.69.676-1.8.673-2.485-.013-.677-.677-.686-1.762-.036-2.455l-.008-.008c-.694.65-1.78.64-2.456-.036L13 6zm7.586-.414l-2.172-2.172c-.78-.78-2.047-.78-2.828 0L14 5l5 5 1.586-1.586c.78-.78.78-2.047 0-2.828zM3 18v3h3c0-1.657-1.343-3-3-3z',
-		'reblog'       => 'M22.086 9.914L20 7.828V18c0 1.105-.895 2-2 2h-7v-2h7V7.828l-2.086 2.086L14.5 8.5 19 4l4.5 4.5-1.414 1.414zM6 16.172V6h7V4H6c-1.105 0-2 .895-2 2v10.172l-2.086-2.086L.5 15.5 5 20l4.5-4.5-1.414-1.414L6 16.172z',
-		'stats-alt'    => 'M21 21H3v-2h18v2zM8 10H4v7h4v-7zm6-7h-4v14h4V3zm6 3h-4v11h4V6z',
+function wpcom_actionbar_icon( $name, $size = 24 ) {
+	$fill_icons = array(
+		'bell'            => '<path fill-rule="evenodd" clip-rule="evenodd" d="M17 11.5c0 1.353.17 2.368.976 3 .266.209.602.376 1.024.5v1H5v-1c.422-.124.757-.291 1.024-.5.806-.632.976-1.647.976-3V9c0-2.8 2.2-5 5-5s5 2.2 5 5v2.5ZM15.5 9v2.5c0 .93.066 1.98.515 2.897l.053.103H7.932a4.018 4.018 0 0 0 .053-.103c.449-.917.515-1.967.515-2.897V9c0-1.972 1.528-3.5 3.5-3.5s3.5 1.528 3.5 3.5Zm-5.492 9.008c0-.176.023-.346.065-.508h3.854A1.996 1.996 0 0 1 12 20c-1.1 0-1.992-.892-1.992-1.992Z"/>',
+		'comment'         => '<path d="M18 4H6c-1.1 0-2 .9-2 2v12.9c0 .6.5 1.1 1.1 1.1.3 0 .5-.1.8-.3L8.5 17H18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm.5 11c0 .3-.2.5-.5.5H7.9l-2.4 2.4V6c0-.3.2-.5.5-.5h12c.3 0 .5.2.5.5v9z"/>',
+		'more-horizontal' => '<path d="M11 13h2v-2h-2v2zm-6 0h2v-2H5v2zm12-2v2h2v-2h-2z"/>',
+		'pencil'          => '<path d="m19 7-3-3-8.5 8.5-1 4 4-1L19 7Zm-7 11.5H5V20h7v-1.5Z"/>',
+		'reusable-block'  => '<path d="M7 7.2h8.2L13.5 9l1.1 1.1 3.6-3.6-3.5-4-1.1 1 1.9 2.3H7c-.9 0-1.7.3-2.3.9-1.4 1.5-1.4 4.2-1.4 5.6v.2h1.5v-.3c0-1.1 0-3.5 1-4.5.3-.3.7-.5 1.2-.5zm13.8 4V11h-1.5v.3c0 1.1 0 3.5-1 4.5-.3.3-.7.5-1.3.5H8.8l1.7-1.7-1.1-1.1L5.9 17l3.5 4 1.1-1-1.9-2.3H17c.9 0 1.7-.3 2.3-.9 1.5-1.4 1.5-4.2 1.5-5.6z"/>',
+		'shield'          => '<path fill-rule="evenodd" clip-rule="evenodd" d="M12 3.176l6.75 3.068v4.574c0 3.9-2.504 7.59-6.035 8.755a2.283 2.283 0 01-1.43 0c-3.53-1.164-6.035-4.856-6.035-8.755V6.244L12 3.176zM6.75 7.21v3.608c0 3.313 2.145 6.388 5.005 7.33.159.053.331.053.49 0 2.86-.942 5.005-4.017 5.005-7.33V7.21L12 4.824 6.75 7.21z"/>',
+	);
+	// These are drawn with strokes, not fills, in the library.
+	$stroke_icons = array(
+		'chart-bar' => '<path d="M6.75 20V10M12 20V5M17.25 20V14" vector-effect="non-scaling-stroke"/>',
+		'check'     => '<path d="M7 12L10 15L17 8" vector-effect="non-scaling-stroke"/>',
 	);
 
-	if ( ! isset( $paths[ $slug ] ) ) {
+	if ( isset( $fill_icons[ $name ] ) ) {
+		$attributes = 'fill="currentColor"';
+		$markup     = $fill_icons[ $name ];
+	} elseif ( isset( $stroke_icons[ $name ] ) ) {
+		$attributes = 'style="fill: none" stroke="currentColor" stroke-width="1.5"';
+		$markup     = $stroke_icons[ $name ];
+	} else {
 		return;
 	}
 
 	printf(
-		'<svg class="gridicon gridicons-%1$s" height="%2$d" width="%2$d" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="%3$s"/></g></svg>',
-		esc_attr( $slug ),
+		'<svg class="actnbr-icon actnbr-icon-%1$s" width="%2$d" height="%2$d" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" %3$s>%4$s</svg>',
+		esc_attr( $name ),
 		(int) $size,
-		esc_attr( $paths[ $slug ] )
+		$attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static attribute string.
+		$markup // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static SVG path markup from @wordpress/icons.
 	);
 }
 
@@ -349,11 +362,11 @@ function wpcom_actionbar_site_title( $site_url, $site_name ) {
 function wpcom_actionbar_follow_links( $is_following ) {
 	?>
 		<a class="actnbr-action actnbr-actn-follow <?php echo $is_following ? ' no-display' : ''; ?>" href="">
-			<svg class="gridicon" height="20" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path clip-rule="evenodd" d="m4 4.5h12v6.5h1.5v-6.5-1.5h-1.5-12-1.5v1.5 10.5c0 1.1046.89543 2 2 2h7v-1.5h-7c-.27614 0-.5-.2239-.5-.5zm10.5 2h-9v1.5h9zm-5 3h-4v1.5h4zm3.5 1.5h-1v1h1zm-1-1.5h-1.5v1.5 1 1.5h1.5 1 1.5v-1.5-1-1.5h-1.5zm-2.5 2.5h-4v1.5h4zm6.5 1.25h1.5v2.25h2.25v1.5h-2.25v2.25h-1.5v-2.25h-2.25v-1.5h2.25z"  fill-rule="evenodd"></path></svg>
+			<?php wpcom_actionbar_icon( 'bell', 20 ); ?>
 			<span><?php esc_html_e( 'Subscribe', 'jetpack-mu-wpcom' ); ?></span>
 		</a>
 		<a class="actnbr-action actnbr-actn-following <?php echo $is_following ? '' : ' no-display'; ?>" href="">
-			<svg class="gridicon" height="20" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 4.5H4V15C4 15.2761 4.22386 15.5 4.5 15.5H11.5V17H4.5C3.39543 17 2.5 16.1046 2.5 15V3H17.5V12.5H16V4.5ZM5.5 6.5H14.5V8H5.5V6.5ZM5.5 9.5H9.5V11H5.5V9.5ZM12 11H13V12H12V11ZM10.5 9.5H14.5V13.5H10.5V9.5ZM5.5 12H9.5V13.5H5.5V12Z" fill="#008A20"></path><path d="M19.5303 15.0303L15.5 19.0605L12.9697 16.5303L14.0303 15.4697L15.5 16.9395L18.4697 13.9697L19.5303 15.0303Z" fill="#008A20"></path></svg>
+			<?php wpcom_actionbar_icon( 'check', 20 ); ?>
 			<span><?php esc_html_e( 'Subscribed', 'jetpack-mu-wpcom' ); ?></span>
 		</a>
 	<?php
@@ -552,13 +565,13 @@ function wpcom_actionbar_html( $is_rtl ) {
 				?>
 					<li class="actnbr-btn actnbr-edit">
 						<a href="<?php echo esc_url( $edit_link ); ?>">
-							<?php wpcom_actionbar_gridicon( 'pencil', 20 ); ?>
+							<?php wpcom_actionbar_icon( 'pencil', 20 ); ?>
 							<span><?php esc_html_e( 'Edit', 'jetpack-mu-wpcom' ); ?></span>
 						</a>
 					</li>
 					<li class="actnbr-btn actnbr-stats">
 						<a href="<?php echo esc_url( $stats_link ); ?>">
-							<?php wpcom_actionbar_gridicon( 'stats-alt', 20 ); ?>
+							<?php wpcom_actionbar_icon( 'chart-bar', 20 ); ?>
 							<span><?php esc_html_e( 'Stats', 'jetpack-mu-wpcom' ); ?></span>
 						</a>
 					</li>
@@ -569,7 +582,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 				?>
 					<li class="actnbr-btn actnbr-hidden">
 						<a class="actnbr-action actnbr-actn-comment" href="<?php echo esc_url( get_comments_link( $post_id ) ); ?>">
-							<?php wpcom_actionbar_gridicon( 'comment', 20 ); ?>
+							<?php wpcom_actionbar_icon( 'comment', 20 ); ?>
 							<span><?php esc_html_e( 'Comment', 'jetpack-mu-wpcom' ); ?>
 						</span>
 						</a>
@@ -581,7 +594,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 				?>
 					<li class="actnbr-btn actnbr-hidden">
 						<a class="actnbr-action actnbr-actn-reblog" href="">
-							<?php wpcom_actionbar_gridicon( 'reblog', 20 ); ?><span><?php esc_html_e( 'Reblog', 'jetpack-mu-wpcom' ); ?></span>
+							<?php wpcom_actionbar_icon( 'reusable-block', 20 ); ?><span><?php esc_html_e( 'Reblog', 'jetpack-mu-wpcom' ); ?></span>
 						</a>
 					</li>
 				<?php
@@ -710,7 +723,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 				?>
 					<li class="actnbr-btn actnbr-hidden no-display" onclick="javascript:__tcfapi( 'showUi' );">
 						<a class="actnbr-action actnbr-actn-privacy" href="#">
-							<?php wpcom_actionbar_gridicon( 'info-outline', 20 ); ?>
+							<?php wpcom_actionbar_icon( 'shield', 20 ); ?>
 							<span><?php esc_html_e( 'Privacy', 'jetpack-mu-wpcom' ); ?>
 						</span>
 						</a>
@@ -719,7 +732,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 			}
 			?>
 			<li class="actnbr-ellipsis actnbr-hidden">
-				<?php wpcom_actionbar_gridicon( 'ellipsis', 24 ); ?>
+				<?php wpcom_actionbar_icon( 'more-horizontal', 24 ); ?>
 				<div class="actnbr-popover tip tip-top-left actnbr-more">
 					<div class="tip-arrow"></div>
 					<div class="tip-inner">
@@ -754,7 +767,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 									<li class="actnbr-shortlink">
 										<a href="<?php echo esc_url( $shortlink ); ?>">
 											<span class="actnbr-shortlink__text"><?php esc_html_e( 'Copy shortlink', 'jetpack-mu-wpcom' ); ?></span>
-											<span class="actnbr-shortlink__icon"><?php wpcom_actionbar_gridicon( 'checkmark', 16 ); ?></span>
+											<span class="actnbr-shortlink__icon"><?php wpcom_actionbar_icon( 'check', 16 ); ?></span>
 										</a>
 									</li>
 								<?php

@@ -109,15 +109,15 @@ div#actionbar li.actnbr-btn > a:hover {
 	background: none;
 }
 
-div#actionbar li.actnbr-btn > a .gridicon {
-	fill: #787c82;
+div#actionbar li.actnbr-btn > a .actnbr-icon {
+	color: #787c82;
 	position: absolute;
 	top: 6px;
 	left: 5px;
 }
 
-div#actionbar li.actnbr-btn a:hover .gridicon {
-	fill: #3c434a;
+div#actionbar li.actnbr-btn a:hover .actnbr-icon {
+	color: #3c434a;
 }
 
 div#actionbar li.actnbr-btn a.actnbr-actn-following,
@@ -125,16 +125,16 @@ div#actionbar li.actnbr-btn a.actnbr-actn-following:hover {
 	color: #008a20;
 }
 
-div#actionbar li.actnbr-btn a.actnbr-actn-following .gridicon,
-div#actionbar li.actnbr-btn a.actnbr-actn-following:hover .gridicon {
-	fill: #008a20;
+div#actionbar li.actnbr-btn a.actnbr-actn-following .actnbr-icon,
+div#actionbar li.actnbr-btn a.actnbr-actn-following:hover .actnbr-icon {
+	color: #008a20;
 }
 
-div#actionbar.actnbr-folded li.actnbr-btn a.actnbr-action .gridicon {
+div#actionbar.actnbr-folded li.actnbr-btn a.actnbr-action .actnbr-icon {
 	top: 2px;
 }
 
-div#actionbar.actnbr-folded li.actnbr-btn a .gridicon {
+div#actionbar.actnbr-folded li.actnbr-btn a .actnbr-icon {
 	top: 2px;
 }
 
@@ -154,8 +154,8 @@ div#actionbar.actnbr-folded li.actnbr-ellipsis {
 	top: 2px;
 }
 
-div#actionbar .actnbr-ellipsis > .gridicon {
-	fill: #3c434a;
+div#actionbar .actnbr-ellipsis > .actnbr-icon {
+	color: #3c434a;
 	transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 	-webkit-transform: rotate(90deg);
 	-moz-transform: rotate(90deg);
@@ -164,16 +164,16 @@ div#actionbar .actnbr-ellipsis > .gridicon {
 	transform: rotate(90deg);
 }
 
-div#actionbar:not(.actnbr-has-actions) .actnbr-ellipsis > .gridicon {
+div#actionbar:not(.actnbr-has-actions) .actnbr-ellipsis > .actnbr-icon {
 	margin-top: 3px;
 }
 
-div#actionbar.actnbr-folded:not(.actnbr-has-actions) .actnbr-ellipsis > .gridicon {
+div#actionbar.actnbr-folded:not(.actnbr-has-actions) .actnbr-ellipsis > .actnbr-icon {
 	margin-top: 0;
 }
 
-div#actionbar .actnbr-ellipsis.actnbr-hidden > .gridicon {
-	fill: #787c82;
+div#actionbar .actnbr-ellipsis.actnbr-hidden > .actnbr-icon {
+	color: #787c82;
 	-webkit-transform: rotate(0);
 	-moz-transform: rotate(0);
 	-o-transform: rotate(0);
@@ -181,11 +181,11 @@ div#actionbar .actnbr-ellipsis.actnbr-hidden > .gridicon {
 	transform: rotate(0);
 }
 
-div#actionbar .actnbr-ellipsis.actnbr-hidden > .gridicon:hover {
-	fill: #3c434a;
+div#actionbar .actnbr-ellipsis.actnbr-hidden > .actnbr-icon:hover {
+	color: #3c434a;
 }
 
-div#actionbar .actnbr-ellipsis .tip-inner .gridicon {
+div#actionbar .actnbr-ellipsis .tip-inner .actnbr-icon {
 	margin: 0 5px 0 0;
 	vertical-align: middle;
 	position: relative;
@@ -333,16 +333,16 @@ div#actionbar .actnbr-notice .actnbr-follow-count {
 	margin-bottom: 10px;
 }
 
-div#actionbar .actnbr-ellipsis li a:hover .gridicon {
-	fill: #fff;
+div#actionbar .actnbr-ellipsis li a:hover .actnbr-icon {
+	color: #fff;
 }
 
-div#actionbar .actnbr-ellipsis li .actnbr-actn-following:hover .gridicon path {
-	fill: #fff;
+div#actionbar .actnbr-ellipsis li .actnbr-actn-following:hover .actnbr-icon {
+	color: #fff;
 }
 
-div#actionbar .actnbr-ellipsis li .actnbr-actn-following:hover .gridicon .following-icon-tick {
-	fill: none;
+div#actionbar .actnbr-ellipsis li .actnbr-actn-following:hover .actnbr-icon .following-icon-tick {
+	color: none;
 	stroke: #fff;
 }
 
@@ -726,9 +726,9 @@ div#actionbar .actnbr-shortlink .actnbr-shortlink__copied:hover .actnbr-shortlin
 	color: #008a20;
 }
 
-div#actionbar .actnbr-shortlink .actnbr-shortlink__copied .gridicon,
-div#actionbar .actnbr-shortlink .actnbr-shortlink__copied:hover .gridicon {
-	fill: #008a20;
+div#actionbar .actnbr-shortlink .actnbr-shortlink__copied .actnbr-icon,
+div#actionbar .actnbr-shortlink .actnbr-shortlink__copied:hover .actnbr-icon {
+	color: #008a20;
 }
 
 /* Responsive Styles */
@@ -873,7 +873,7 @@ ul#wp-admin-bar-blog-secondary {
 @media (prefers-reduced-motion: reduce) {
 
 	div#actionbar,
-	div#actionbar .actnbr-ellipsis > .gridicon,
+	div#actionbar .actnbr-ellipsis > .actnbr-icon,
 	div#actionbar .tip li > a {
 		transition-duration: 1ms !important;
 	}
