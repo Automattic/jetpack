@@ -500,6 +500,14 @@ describe( 'HeatmapChart summary column', () => {
 		);
 	} );
 
+	test( 'keeps the summary track content-sized when the data tracks are capped', () => {
+		renderChart( { data: withTotals, maxCellWidth: 32 } );
+
+		expect( screen.getByRole( 'grid', { name: /heatmap/i } ) ).toHaveStyle( {
+			gridTemplateColumns: 'auto minmax(0px, 32px) minmax(0px, 32px) minmax(auto, max-content)',
+		} );
+	} );
+
 	test( 'reaches the summary column by keyboard, with its tooltip', async () => {
 		renderChart( { data: withTotals, withTooltips: true } );
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );

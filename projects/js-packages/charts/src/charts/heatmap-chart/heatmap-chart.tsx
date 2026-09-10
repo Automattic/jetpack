@@ -316,10 +316,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const rowTrack = compact
 		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
 		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
-	// A summary column takes an `auto` track: a roll-up is wider than a cell,
-	// and a shared track would stretch every cell to fit it.
+	// A summary column takes a content-sized track: a roll-up is wider than a
+	// cell, and a shared track would stretch every cell to fit it. `max-content`
+	// as the max keeps the leftover width out of it once the data tracks hit
+	// `maxCellWidth`, where a plain `auto` would absorb it.
 	const columnTracks = data.some( column => column.summary )
-		? data.map( column => ( column.summary ? 'auto' : columnTrack ) ).join( ' ' )
+		? data
+				.map( column => ( column.summary ? 'minmax(auto, max-content)' : columnTrack ) )
+				.join( ' ' )
 		: `repeat(${ columns }, ${ columnTrack })`;
 	const gridStyle: Record< string, string | number > = {
 		'--a8c-charts-color-heatmap-primary': primaryColorHex,
