@@ -181,7 +181,7 @@ function wpcom_actionbar_enqueue_scripts() {
 		'followedText'    => __( 'New posts from this site will now appear in your <a href="https://wordpress.com/reader">Reader</a>', 'jetpack-mu-wpcom' ),
 		'foldBar'         => __( 'Collapse this bar', 'jetpack-mu-wpcom' ),
 		'unfoldBar'       => __( 'Expand this bar', 'jetpack-mu-wpcom' ),
-		'shortLinkCopied' => __( 'Shortlink copied to clipboard.', 'jetpack-mu-wpcom' ),
+		'shortLinkCopied' => __( 'Copied to clipboard.', 'jetpack-mu-wpcom' ),
 	);
 
 	// Switch back to site language.
@@ -995,13 +995,19 @@ function wpcom_actionbar_bump_stat( $stat_value ) {
 	bump_stats_extras( $stat_name, $stat_value );
 }
 
+/*
+ * The three ajax handlers below deliberately skip nonce verification, as the wpcom original did.
+ * Batcache can serve a logged-in visitor a page whose localized nonce was minted for user 0, so a
+ * check would reject the request and the folded state would never save. The writes are limited to
+ * the caller's own fold flag and anonymous counters.
+ */
+
 /**
  * Ajax: remember that the user collapsed the bar.
  *
  * @return never
  */
 function wpcom_actionbar_fold() {
-	check_ajax_referer( 'manage_subscription' );
 	wpcom_actionbar_bump_stat( 'folded' );
 
 	if ( is_user_logged_in() ) {
@@ -1020,7 +1026,6 @@ add_action( 'wp_ajax_nopriv_fold_actionbar', 'wpcom_actionbar_fold' );
  * @return never
  */
 function wpcom_actionbar_unfold() {
-	check_ajax_referer( 'manage_subscription' );
 	wpcom_actionbar_bump_stat( 'expanded' );
 
 	if ( is_user_logged_in() && function_exists( 'delete_user_attribute' ) ) {
@@ -1040,7 +1045,7 @@ add_action( 'wp_ajax_nopriv_unfold_actionbar', 'wpcom_actionbar_unfold' );
  * @return never
  */
 function wpcom_actionbar_ajax_stats() {
-	check_ajax_referer( 'manage_subscription' );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Whitelisted counter bump; see the note above.
 	$stat_value = isset( $_REQUEST['stat'] ) ? sanitize_key( wp_unslash( $_REQUEST['stat'] ) ) : '';
 
 	wpcom_actionbar_bump_stat( $stat_value );

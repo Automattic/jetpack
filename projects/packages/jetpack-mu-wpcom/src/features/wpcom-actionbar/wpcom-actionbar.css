@@ -284,8 +284,7 @@ div#actionbar .actnbr-popover {
 	right: 0;
 	bottom: 40px;
 	z-index: 1000;
-	min-width: 240px;
-	max-width: 320px;
+	width: 280px;
 	margin: 0;
 	padding: 8px;
 	background: #fff;
@@ -296,10 +295,6 @@ div#actionbar .actnbr-popover {
 	font-size: 13px;
 	line-height: 1.4;
 	text-align: left;
-}
-
-div#actionbar .actnbr-panel {
-	width: 280px;
 }
 
 div#actionbar .actnbr-notice form {
