@@ -6,8 +6,10 @@ require __DIR__ . '/../../../../modules/verification-tools/verification-tools-ut
 
 /**
  * @covers ::jetpack_verification_validate
+ * @covers ::jetpack_verification_validate_code
  */
 #[CoversFunction( 'jetpack_verification_validate' )]
+#[CoversFunction( 'jetpack_verification_validate_code' )]
 class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -19,7 +21,7 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 		$this->assertEquals(
 			array( 'google' => '+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=' ),
 			jetpack_verification_validate( array( 'google' => '+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=' ) ),
-			'raw code should be accepeted'
+			'raw code should be accepted'
 		);
 	}
 
@@ -80,6 +82,22 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The validation action receives the same canonical code that is returned for storage.
+	 */
+	public function test_validation_action_receives_canonical_code() {
+		$action_code = null;
+		$callback    = static function ( $service, $code ) use ( &$action_code ) {
+			$action_code = $code;
+		};
+		add_action( 'jetpack_site_verification_validate', $callback, 10, 2 );
+
+		$validated = jetpack_verification_validate( array( 'google' => 'verification&Code' ) );
+
+		remove_action( 'jetpack_site_verification_validate', $callback, 10 );
+		$this->assertSame( $validated['google'], $action_code );
+	}
+
+	/**
 	 * Provide valid verification codes.
 	 *
 	 * @return array<string, array{string, string}> Test cases.
@@ -92,6 +110,7 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 			'yandex'           => array( 'yandex', '44d68e1216009f40' ),
 			'facebook'         => array( 'facebook', 'rvv8b23jxlp1lq41I9rwsvpzncy1fd' ),
 			'safe punctuation' => array( 'google', 'verification.Code_123-+/=:@~' ),
+			'ampersand'        => array( 'bing', 'verification&Code' ),
 		);
 	}
 

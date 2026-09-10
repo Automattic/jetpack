@@ -3160,14 +3160,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_verification_service( $value, $request, $param ) {
-		$validated_codes = is_string( $value ) ? jetpack_verification_validate( array( $param => $value ) ) : array();
-
-		if ( ! empty( $value ) && empty( $validated_codes[ $param ] ) ) {
+		if ( ! empty( $value ) && ( ! is_string( $value ) || false === jetpack_verification_validate_code( $value ) ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(
 					/* Translators: Placeholder is a verification string used to verify a service like Google Webmaster Console. */
-					esc_html__( '%s must be an alphanumeric string or a verification tag.', 'jetpack' ),
+					esc_html__( '%s must be a valid verification code or verification tag.', 'jetpack' ),
 					$param
 				)
 			);
