@@ -158,9 +158,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						{ moduleAction() }
 					</SettingsGroup>
 
-					{ ( isActive || shouldShowSharingBlock ) &&
-						! shouldUseSharingBlockAction &&
-						configCard() }
+					{ isActive && ! shouldUseSharingBlockAction && configCard() }
 				</SettingsCard>
 			);
 		}
