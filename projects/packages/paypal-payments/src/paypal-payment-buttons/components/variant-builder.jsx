@@ -140,6 +140,21 @@ export function isVariantPricingOn( enabled, variants ) {
 }
 
 /**
+ * The kinds of error validateVariants() reports.
+ *
+ * Every one has to reach the merchant through a control in GroupEditor. A kind that
+ * only reaches the save gate leaves a dead button with nothing on screen saying why,
+ * which is how `options` shipped. The block's tests assert this list against what the
+ * validator actually emits, so a new kind fails there until it has somewhere to render.
+ */
+export const VARIANT_ERROR_FIELDS = {
+	NAME: 'name',
+	OPTIONS: 'options',
+	LABEL: 'label',
+	PRICE: 'price',
+};
+
+/**
  * Validate variant data.
  *
  * Errors carry the group and option they belong to so the builder can render each
@@ -162,7 +177,7 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 			errors.push( {
 				group: i,
 				option: null,
-				field: 'name',
+				field: VARIANT_ERROR_FIELDS.NAME,
 				message: __( 'Variant name is required.', 'jetpack-paypal-payments' ),
 			} );
 		}
@@ -173,7 +188,7 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 			errors.push( {
 				group: i,
 				option: null,
-				field: 'options',
+				field: VARIANT_ERROR_FIELDS.OPTIONS,
 				message: __( 'Add at least one option to price.', 'jetpack-paypal-payments' ),
 			} );
 		}
@@ -183,7 +198,7 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 				errors.push( {
 					group: i,
 					option: j,
-					field: 'label',
+					field: VARIANT_ERROR_FIELDS.LABEL,
 					message: __( 'Option name is required.', 'jetpack-paypal-payments' ),
 				} );
 			}
@@ -195,7 +210,7 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 
 			const message = validatePrice( `${ opt.unit_amount?.value ?? '' }`.trim(), currencyCode );
 			if ( message ) {
-				errors.push( { group: i, option: j, field: 'price', message } );
+				errors.push( { group: i, option: j, field: VARIANT_ERROR_FIELDS.PRICE, message } );
 			}
 		} );
 	} );
@@ -255,7 +270,8 @@ function GroupEditor( {
 	// Turning pricing on is the interaction, so price errors show right away - waiting
 	// for a blur would disable Save with no visible error. The tax rate field does the same.
 	const errorFor = ( optIndex, field ) => {
-		const revealed = showAll || field === 'price' || touched[ fieldKey( optIndex, field ) ];
+		const revealed =
+			showAll || field === VARIANT_ERROR_FIELDS.PRICE || touched[ fieldKey( optIndex, field ) ];
 		return revealed
 			? errors.find( e => e.option === optIndex && e.field === field )?.message
 			: undefined;
@@ -306,11 +322,11 @@ function GroupEditor( {
 				) }
 				value={ group.name }
 				onChange={ updateName }
-				onBlur={ () => onTouch( fieldKey( null, 'name' ) ) }
+				onBlur={ () => onTouch( fieldKey( null, VARIANT_ERROR_FIELDS.NAME ) ) }
 				placeholder={ __( 'Enter variant name', 'jetpack-paypal-payments' ) }
 				disabled={ disabled }
-				help={ errorFor( null, 'name' ) }
-				className={ errorFor( null, 'name' ) ? 'has-error' : undefined }
+				help={ errorFor( null, VARIANT_ERROR_FIELDS.NAME ) }
+				className={ errorFor( null, VARIANT_ERROR_FIELDS.NAME ) ? 'has-error' : undefined }
 			/>
 			<Button
 				isDestructive
@@ -341,11 +357,13 @@ function GroupEditor( {
 							) }
 							value={ option.label }
 							onChange={ label => updateOption( optIndex, { label } ) }
-							onBlur={ () => onTouch( fieldKey( optIndex, 'label' ) ) }
+							onBlur={ () => onTouch( fieldKey( optIndex, VARIANT_ERROR_FIELDS.LABEL ) ) }
 							placeholder={ __( 'Enter option name', 'jetpack-paypal-payments' ) }
 							disabled={ disabled }
-							help={ errorFor( optIndex, 'label' ) }
-							className={ errorFor( optIndex, 'label' ) ? 'has-error' : undefined }
+							help={ errorFor( optIndex, VARIANT_ERROR_FIELDS.LABEL ) }
+							className={
+								errorFor( optIndex, VARIANT_ERROR_FIELDS.LABEL ) ? 'has-error' : undefined
+							}
 						/>
 						{ group.primary && (
 							<TextControl
@@ -365,8 +383,10 @@ function GroupEditor( {
 								step={ getPriceStep( currencyCode ) }
 								placeholder={ __( 'Price', 'jetpack-paypal-payments' ) }
 								disabled={ disabled }
-								help={ errorFor( optIndex, 'price' ) }
-								className={ errorFor( optIndex, 'price' ) ? 'has-error' : undefined }
+								help={ errorFor( optIndex, VARIANT_ERROR_FIELDS.PRICE ) }
+								className={
+									errorFor( optIndex, VARIANT_ERROR_FIELDS.PRICE ) ? 'has-error' : undefined
+								}
 							/>
 						) }
 						{ group.options.length > 1 && (
@@ -388,6 +408,14 @@ function GroupEditor( {
 						) }
 					</div>
 				) ) }
+
+				{ /* A priced group with nothing in it blocks Save, and the merchant can only
+				     fix it here - so the message belongs beside the button that adds one. */ }
+				{ errorFor( null, VARIANT_ERROR_FIELDS.OPTIONS ) && (
+					<p className="jetpack-paypal-variants__option-error">
+						{ errorFor( null, VARIANT_ERROR_FIELDS.OPTIONS ) }
+					</p>
+				) }
 
 				<div className="jetpack-paypal-variants__option-actions">
 					{ group.options.length < MAX_OPTIONS ? (

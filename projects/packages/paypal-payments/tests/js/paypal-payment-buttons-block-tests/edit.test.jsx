@@ -10,7 +10,15 @@
 
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import {
+	validateVariants,
+	VARIANT_ERROR_FIELDS,
+} from '../../../src/paypal-payment-buttons/components/variant-builder';
 import Edit from '../../../src/paypal-payment-buttons/edit';
+import {
+	ADVISORY_ERROR_KEYS,
+	getValidationErrors,
+} from '../../../src/paypal-payment-buttons/utils/validation';
 // apiFetch mock — controls what the component receives from the REST API.
 const apiFetch = require( '@wordpress/api-fetch' );
 // Used by the ToggleControl mock below to id each toggle.
@@ -140,15 +148,20 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</div>
 	),
-	SelectControl: ( { label, value, options, onChange } ) => (
-		<select aria-label={ label } value={ value } onChange={ e => onChange( e.target.value ) }>
-			{ options &&
-				options.map( opt => (
-					<option key={ opt.value } value={ opt.value }>
-						{ opt.label }
-					</option>
-				) ) }
-		</select>
+	// Like TextControl, the real SelectControl hands className and help to the
+	// BaseControl wrapper rather than the <select>.
+	SelectControl: ( { label, value, options, onChange, help, className } ) => (
+		<div data-testid={ `control-${ label }` } className={ className }>
+			<select aria-label={ label } value={ value } onChange={ e => onChange( e.target.value ) }>
+				{ options &&
+					options.map( opt => (
+						<option key={ opt.value } value={ opt.value }>
+							{ opt.label }
+						</option>
+					) ) }
+			</select>
+			{ help && <span className="help-text">{ help }</span> }
+		</div>
 	),
 	Spinner: () => <div data-testid="spinner">Loading...</div>,
 	CheckboxControl: ( { label, checked, onChange, help, disabled } ) => {
@@ -1996,6 +2009,65 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( unpriced ).toHaveClass( 'has-error' );
 			expect( within( priced ).queryByText( 'Price is required.' ) ).not.toBeInTheDocument();
 		} );
+
+		// The option groups are the second path into the same failure, and they enumerate
+		// differently: validateVariants returns errors shaped by the data. So put the block
+		// in a state, ask the validator what it reports, and require all of it on screen.
+		describe( 'Every option group error reaches the merchant', () => {
+			// Between them these trip every branch validateVariants has, and no message
+			// repeats within one of them.
+			const fixtures = [
+				// A priced group with nothing in it, and no name either.
+				[ { _key: 'g1', name: '', primary: true, options: [] } ],
+				// A priced group whose one option is missing both its name and its price.
+				[
+					{
+						_key: 'g2',
+						name: 'Size',
+						primary: true,
+						options: [
+							{ _key: 'g2-o1', label: '', unit_amount: { currency_code: 'USD', value: '' } },
+						],
+					},
+				],
+			];
+
+			/**
+			 * What validateVariants reports for one fixture.
+			 *
+			 * @param {Array} dimensions - The option groups.
+			 * @return {Array} Errors as { group, option, field, message }.
+			 */
+			const errorsFor = dimensions => validateVariants( true, { dimensions }, 'USD' );
+
+			// Against the exported list, not a copy kept here - so a new kind of option
+			// group error fails until a fixture reaches it and the loop below renders it.
+			it( 'trips every kind of option group error between them', () => {
+				const fields = fixtures.flatMap( errorsFor ).map( error => error.field );
+
+				expect( [ ...new Set( fields ) ].sort() ).toEqual(
+					Object.values( VARIANT_ERROR_FIELDS ).sort()
+				);
+			} );
+
+			it.each( fixtures.map( ( dimensions, i ) => [ i, dimensions ] ) )(
+				'shows every error the group in state %i is carrying',
+				async ( _index, dimensions ) => {
+					const user = userEvent.setup();
+					const errors = errorsFor( dimensions );
+					expect( errors.length ).toBeGreaterThan( 0 );
+
+					// A saved button, so showAll is on - which is the only way a group with
+					// no options reaches the merchant in the first place.
+					await openSavedWith( user, dimensions );
+
+					const opened = optionsPanel();
+					errors.forEach( ( { message } ) => {
+						expect( within( opened ).getByText( message ) ).toBeVisible();
+					} );
+				}
+			);
+		} );
 	} );
 
 	describe( 'Shared payment resource', () => {
@@ -2683,6 +2755,99 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				imageUrl: undefined,
 				imageId: undefined,
 			} );
+		} );
+	} );
+
+	// A key of validationErrors has to reach both the save gate and a control's `help`,
+	// and the two are maintained separately. The keys come from the source rather than a
+	// list kept here, so a new one that never reaches a `help` fails this suite.
+	describe( 'Every validation error reaches the merchant', () => {
+		beforeEach( () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+		} );
+
+		// getValidationErrors() reports every key on every call, so any input enumerates them.
+		const errorKeys = Object.keys( getValidationErrors( {} ) );
+		const blockingKeys = errorKeys.filter( key => ! ADVISORY_ERROR_KEYS.includes( key ) );
+
+		// Per key: the block state that triggers it, the control its message has to be
+		// inside, and the field to leave first where the form waits for a visit.
+		const cases = {
+			productName: {
+				attributes: { productName: '' },
+				testId: 'control-Product Name',
+				message: 'Product name is required.',
+				visit: 'Product Name',
+			},
+			price: {
+				attributes: { price: '' },
+				testId: 'control-Price',
+				message: 'Price is required.',
+				visit: 'Price',
+			},
+			productDescription: {
+				attributes: { productDescription: 'x'.repeat( 257 ) },
+				testId: 'control-Description (optional)',
+				message: 'Description must be 256 characters or fewer.',
+				visit: 'Description (optional)',
+			},
+			currencyCode: {
+				attributes: { currencyCode: 'XYZ' },
+				testId: 'control-Currency',
+				message: 'Unsupported currency.',
+			},
+			taxValue: {
+				attributes: { taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '' },
+				testId: 'control-Tax rate (%)',
+				message: 'To continue, add the requested info or turn off this feature.',
+			},
+			returnUrl: {
+				attributes: { returnUrl: 'http://example.com/thanks' },
+				testId: 'url-input-Return URL (optional)',
+				message: 'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
+				visit: 'Return URL (optional)',
+			},
+		};
+
+		/**
+		 * Render the form in the state one error describes, and hand back the control
+		 * that error's message has to appear inside.
+		 *
+		 * @param {string} key - The validationErrors key under test.
+		 * @return {Element} The control that has to be carrying the message.
+		 */
+		const showError = async key => {
+			const user = userEvent.setup();
+			const { attributes, testId, visit: visitLabel } = cases[ key ];
+
+			renderForm( attributes );
+			await expect( screen.findByText( 'Create New' ) ).resolves.toBeInTheDocument();
+
+			if ( visitLabel ) {
+				await visit( user, within( screen.getByTestId( testId ) ).getByLabelText( visitLabel ) );
+			}
+
+			return screen.getByTestId( testId );
+		};
+
+		// A new key with no case here fails on this line rather than going untested.
+		it( 'has a case for every error the form can report', () => {
+			expect( errorKeys.slice().sort() ).toEqual( Object.keys( cases ).sort() );
+		} );
+
+		it.each( blockingKeys )( 'says what is wrong when %s blocks the save', async key => {
+			const field = await showError( key );
+
+			expect( within( field ).getByText( cases[ key ].message ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Create New' ) ).toBeDisabled();
+		} );
+
+		// The other half of the split: these warn and the merchant can still save.
+		it.each( ADVISORY_ERROR_KEYS )( 'warns about %s and still saves', async key => {
+			const field = await showError( key );
+
+			expect( within( field ).getByText( cases[ key ].message ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Create New' ) ).toBeEnabled();
 		} );
 	} );
 

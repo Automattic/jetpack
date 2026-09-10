@@ -286,6 +286,17 @@
 		}
 	}
 
+	// SelectControl's own <select> is `border: none`, so coloring it paints
+	// nothing - the border you see is the backdrop, same as URLInput below.
+	// Compound, not descendant: has-error lands on the same element as
+	// components-select-control, so a space between them matches nothing.
+	&.components-select-control .components-input-control__container {
+
+		.components-input-control__backdrop {
+			border-color: #cc1818;
+		}
+	}
+
 	// URLInput builds on InputControl, which draws its border on a backdrop
 	// behind the input. Core's emotion class repeats itself three times, so
 	// naming the backdrop alone loses - walk its structure to out-specify it.
@@ -558,6 +569,14 @@
 	align-self: flex-start;
 	align-items: center;
 	justify-content: center;
+}
+
+// Group-level error, for the one case that belongs to the option list
+// rather than to any single field in it. Same red the has-error borders use.
+.jetpack-paypal-variants__option-error {
+	font-size: 12px;
+	color: #cc1818;
+	margin: 4px 0;
 }
 
 .jetpack-paypal-variants__option-actions {

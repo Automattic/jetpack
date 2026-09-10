@@ -48,17 +48,14 @@ import PayPalInspectorControls from './controls';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
 import { usePayPalResource } from './hooks/use-paypal-resource';
 import { API_BASE } from './utils/api-base';
-import { SUPPORTED_CURRENCIES, VALID_CURRENCY_CODES } from './utils/currencies';
+import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import {
+	getValidationErrors,
+	hasBlockingError,
 	MAX_CUSTOMER_NOTES,
 	MAX_DESCRIPTION_LENGTH,
 	MAX_NAME_LENGTH,
-	validatePrice,
-	validateProductName,
-	validateDescription,
-	validateReturnUrl,
-	validateTaxRate,
 } from './utils/validation';
 
 // Button type is always 'single' — the hosted payment page handles
@@ -206,19 +203,18 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	 * Memoized to avoid re-computing on every render.
 	 */
 	const validationErrors = useMemo(
-		() => ( {
-			productName: validateProductName( productName ),
-			// The price field is hidden once per-variant pricing is on, so don't validate
-			// it - an error on an invisible field would disable Save with nothing to fix.
-			price: variantPricingOn ? null : validatePrice( price, currencyCode || 'USD' ),
-			productDescription: validateDescription( productDescription ),
-			returnUrl: validateReturnUrl( returnUrl ),
-			taxValue: taxEnabled && taxIsPercentage ? validateTaxRate( taxValue ) : null,
-			currencyCode:
-				currencyCode && ! VALID_CURRENCY_CODES.has( currencyCode )
-					? __( 'Unsupported currency.', 'jetpack-paypal-payments' )
-					: null,
-		} ),
+		() =>
+			getValidationErrors( {
+				productName,
+				price,
+				productDescription,
+				returnUrl,
+				currencyCode,
+				variantPricingOn,
+				taxEnabled,
+				taxIsPercentage,
+				taxValue,
+			} ),
 		[
 			productName,
 			price,
@@ -253,15 +249,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 
 	const returnUrlError = touchedFields.returnUrl ? validationErrors.returnUrl : null;
 
-	// returnUrl is deliberately absent below - a bad one warns and still saves, as it
-	// always has.
-	const isFormValid =
-		! validationErrors.productName &&
-		! validationErrors.price &&
-		! validationErrors.productDescription &&
-		! validationErrors.currencyCode &&
-		! validationErrors.taxValue &&
-		variantErrors.length === 0;
+	// Derived over the errors rather than listed field by field, so a new one cannot be
+	// forgotten here. returnUrl stays out of the gate - a bad one warns and still saves,
+	// as it always has - which is what ADVISORY_ERROR_KEYS carries.
+	const isFormValid = ! hasBlockingError( validationErrors ) && variantErrors.length === 0;
 
 	const {
 		isCreating,
@@ -615,11 +606,16 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 								/>
 							</div>
 						) }
+						{ /* No touched-gate, for the same reason the tax rate has none: the menu
+						     only offers currencies PayPal takes, so a bad one arrived from a
+						     paste or an older block and there is no visit coming to wait for. */ }
 						<SelectControl
 							label={ __( 'Currency', 'jetpack-paypal-payments' ) }
 							value={ currencyCode || 'USD' }
 							options={ SUPPORTED_CURRENCIES }
 							onChange={ value => setAttributes( { currencyCode: value } ) }
+							help={ validationErrors.currencyCode || undefined }
+							className={ validationErrors.currencyCode ? 'has-error' : undefined }
 						/>
 					</div>
 

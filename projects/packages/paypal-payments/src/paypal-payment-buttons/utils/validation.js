@@ -10,6 +10,7 @@
  */
 
 import { __, sprintf } from '@wordpress/i18n';
+import { VALID_CURRENCY_CODES } from './currencies';
 import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
 
 /**
@@ -146,6 +147,94 @@ export function validateReturnUrl( value ) {
 	return __(
 		'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
 		'jetpack-paypal-payments'
+	);
+}
+
+/**
+ * Validate a currency code.
+ *
+ * The picker only offers codes PayPal takes, so a bad one arrived from a paste or
+ * an older block rather than from the merchant.
+ *
+ * @param {string} value - The ISO currency code.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validateCurrency( value ) {
+	if ( ! value || VALID_CURRENCY_CODES.has( value ) ) {
+		return null;
+	}
+
+	return __( 'Unsupported currency.', 'jetpack-paypal-payments' );
+}
+
+/**
+ * Error keys that warn the merchant without blocking the save.
+ *
+ * A bad return URL has always saved - PayPal takes the button either way, and the
+ * merchant is told what is wrong. Everything else getValidationErrors() reports
+ * blocks the save.
+ */
+export const ADVISORY_ERROR_KEYS = [ 'returnUrl' ];
+
+/**
+ * Validate every form field at once.
+ *
+ * Two things consume each key: hasBlockingError() below, which disables the save
+ * button, and a control's `help`, which tells the merchant what is wrong. A key
+ * that reaches only the first leaves a dead button and nothing on screen saying
+ * why. Adding a key here means adding the `help` that renders it.
+ *
+ * Return every key on every call, `null` where it does not apply - building the
+ * object conditionally would shrink the key set the tests enumerate, and the
+ * fence would go quiet with nothing failing.
+ *
+ * @param {object}  fields                    - The form's current values.
+ * @param {string}  fields.productName        - Product name.
+ * @param {string}  fields.price              - Product price.
+ * @param {string}  fields.productDescription - Product description.
+ * @param {string}  fields.returnUrl          - Post-payment redirect.
+ * @param {string}  fields.currencyCode       - ISO currency code.
+ * @param {boolean} fields.variantPricingOn   - Whether options carry their own prices.
+ * @param {boolean} fields.taxEnabled         - Whether tax collection is on.
+ * @param {boolean} fields.taxIsPercentage    - Whether the tax type carries a rate.
+ * @param {string}  fields.taxValue           - Tax rate.
+ * @return {object} An error message or null, keyed by field.
+ */
+export function getValidationErrors( {
+	productName,
+	price,
+	productDescription,
+	returnUrl,
+	currencyCode,
+	variantPricingOn,
+	taxEnabled,
+	taxIsPercentage,
+	taxValue,
+} ) {
+	return {
+		productName: validateProductName( productName ),
+		// The price field is hidden once per-variant pricing is on, so don't validate
+		// it - an error on an invisible field would disable Save with nothing to fix.
+		price: variantPricingOn ? null : validatePrice( price, currencyCode || 'USD' ),
+		productDescription: validateDescription( productDescription ),
+		returnUrl: validateReturnUrl( returnUrl ),
+		taxValue: taxEnabled && taxIsPercentage ? validateTaxRate( taxValue ) : null,
+		currencyCode: validateCurrency( currencyCode ),
+	};
+}
+
+/**
+ * Whether any error is one that blocks the save.
+ *
+ * Derived rather than a hand-written list of fields, so a new key cannot be
+ * forgotten on the gate side.
+ *
+ * @param {object} errors - Errors from getValidationErrors().
+ * @return {boolean} True when a blocking field is in error.
+ */
+export function hasBlockingError( errors ) {
+	return Object.entries( errors ).some(
+		( [ field, message ] ) => message && ! ADVISORY_ERROR_KEYS.includes( field )
 	);
 }
 
