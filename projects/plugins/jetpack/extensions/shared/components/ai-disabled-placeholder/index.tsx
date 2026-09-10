@@ -12,10 +12,7 @@ type Props = {
 /**
  * Editor stand-in for a block that a Jetpack AI setting has switched off.
  *
- * Mirrors the AI Answer block in the Search package: the block stays in the
- * post and explains why it is inert, so authors don't mistake it for broken
- * content. There is no button, since the block cannot know which settings
- * page the current user may open.
+ * No button: the block cannot know which settings page the current user may open.
  *
  * @param {Props}  props              - Component props.
  * @param {string} props.label        - The block's name, shown as the placeholder title.

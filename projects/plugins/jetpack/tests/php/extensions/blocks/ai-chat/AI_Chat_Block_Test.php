@@ -20,6 +20,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-chat/ai-chat.php';
 class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use \Activates_Ai_Module;
+	use \Reads_Block_Availability;
 
 	const BLOCK_NAME = 'jetpack/ai-chat';
 
@@ -109,7 +110,7 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 
 		$this->assertTrue( Blocks::is_registered( self::BLOCK_NAME ) );
 
-		$availability = $this->get_block_availability();
+		$availability = $this->get_block_availability( 'ai-chat' );
 		$this->assertFalse( $availability['available'] );
 		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
 	}
@@ -126,7 +127,7 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 
 		$this->assertTrue( Blocks::is_registered( self::BLOCK_NAME ) );
 
-		$availability = $this->get_block_availability();
+		$availability = $this->get_block_availability( 'ai-chat' );
 		$this->assertFalse( $availability['available'] );
 		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
 		$this->assertSame( array( 'gate' => 'master' ), $availability['details'] );
@@ -165,36 +166,9 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 
 		AIChat\register_block();
 
-		$availability = $this->get_block_availability();
+		$availability = $this->get_block_availability( 'ai-chat' );
 		$this->assertFalse( $availability['available'] );
 		$this->assertSame( 'missing_module', $availability['unavailable_reason'] );
-	}
-
-	/**
-	 * Read the block's entry from the availability list the editor receives.
-	 *
-	 * Limits the list to this block and treats the site as connected so the
-	 * list is computed at all.
-	 *
-	 * @return array The block's availability entry.
-	 */
-	private function get_block_availability() {
-		$only_this_block = static function () {
-			return array( 'ai-chat' );
-		};
-		add_filter( 'jetpack_set_available_extensions', $only_this_block, 1000 );
-		// Atomic (wpcomsh) test runs hook these at default priority, so run late.
-		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
-		add_filter( 'jetpack_gutenberg', '__return_true', 1000 );
-
-		// Keep the registration action: the block marks itself available on it.
-		$availability = Jetpack_Gutenberg::get_availability();
-
-		remove_filter( 'jetpack_set_available_extensions', $only_this_block, 1000 );
-		remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
-		remove_filter( 'jetpack_gutenberg', '__return_true', 1000 );
-
-		return $availability['ai-chat'];
 	}
 
 	/**

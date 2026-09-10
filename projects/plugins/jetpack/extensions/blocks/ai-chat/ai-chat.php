@@ -48,8 +48,6 @@ function register_block() {
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 	);
 
-	// Tell the editor why the block is off, so posts that already contain it
-	// show a placeholder instead of core's "unsupported block" warning.
 	// Registration queues its own "available" mark on this action, so run after it.
 	if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
 		add_action(
