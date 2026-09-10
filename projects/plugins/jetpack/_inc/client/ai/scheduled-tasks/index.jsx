@@ -215,9 +215,13 @@ export default function ScheduledTasks( {
 		async ( operation, successMessage ) => {
 			try {
 				await operation();
-				createSuccessNotice( successMessage, { id: 'jetpack-ai-scheduled-task-status' } );
+				createSuccessNotice( successMessage, {
+					type: 'snackbar',
+					id: 'jetpack-ai-scheduled-task-status',
+				} );
 			} catch ( mutationError ) {
 				createErrorNotice( mutationError.message, {
+					type: 'snackbar',
 					id: 'jetpack-ai-scheduled-task-status',
 					explicitDismiss: true,
 				} );

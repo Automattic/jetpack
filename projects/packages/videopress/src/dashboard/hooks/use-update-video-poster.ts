@@ -1,7 +1,8 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
 import type { LibraryItem } from '../types/library';
 
@@ -97,7 +98,7 @@ async function mutationFn( vars: UpdatePosterVars ): Promise< { poster?: string 
  */
 export function useUpdateVideoPoster() {
 	const client = useQueryClient();
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	return useMutation< { poster?: string }, Error, UpdatePosterVars >( {
 		mutationFn,
@@ -109,10 +110,14 @@ export function useUpdateVideoPoster() {
 				);
 			}
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
-			createSuccessNotice( __( 'Thumbnail updated.', 'jetpack-videopress-pkg' ) );
+			createSuccessNotice( __( 'Thumbnail updated.', 'jetpack-videopress-pkg' ), {
+				type: 'snackbar',
+			} );
 		},
 		onError: () => {
-			createErrorNotice( __( 'Failed to update thumbnail.', 'jetpack-videopress-pkg' ) );
+			createErrorNotice( __( 'Failed to update thumbnail.', 'jetpack-videopress-pkg' ), {
+				type: 'snackbar',
+			} );
 		},
 	} );
 }

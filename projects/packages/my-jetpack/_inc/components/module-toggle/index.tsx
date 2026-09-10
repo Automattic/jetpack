@@ -1,8 +1,8 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useCallback } from 'react';
 import { requestModuleSwitch } from '../../data/module-switch';
 import { moduleSwitchKey, useRequestedSwitch } from '../../data/requested-switch-state';
@@ -44,7 +44,7 @@ export function useModuleActivation(
 	{ reload = true }: { reload?: boolean } = {}
 ) {
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { trackProductAction } = useProductFiltersContext() || {};
 
 	const storeIsUpdating = useSelect(
@@ -78,8 +78,8 @@ export function useModuleActivation(
 								/* translators: %s is the module name */
 								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
 								$module.name
-							);
-				createSuccessNotice( message );
+						  );
+				createSuccessNotice( message, { type: 'snackbar' } );
 			} else {
 				const message =
 					action === 'activation'
@@ -94,7 +94,7 @@ export function useModuleActivation(
 								$module.name
 							);
 
-				createErrorNotice( message );
+				createErrorNotice( message, { type: 'snackbar' } );
 			}
 		},
 		[ $module.module, $module.name, createErrorNotice, createSuccessNotice ]

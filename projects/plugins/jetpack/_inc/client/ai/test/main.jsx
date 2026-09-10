@@ -127,7 +127,7 @@ const mcpViewCount = () =>
 	).length;
 
 beforeEach( () => {
-	// GlobalNotices renders SnackbarList, whose framer-motion animations
+	// SnackbarNotices renders SnackbarList, whose framer-motion animations
 	// measure keyframes via window.scrollTo — not implemented in jsdom.
 	jest.spyOn( window, 'scrollTo' ).mockImplementation();
 	apiFetch.mockReset();
@@ -576,7 +576,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		await userEvent.click( toggle );
 
 		// Save feedback is transient, so it renders through the shared
-		// GlobalNotices snackbars (the design-system SnackbarList), not a
+		// Core SnackbarNotices snackbars (SnackbarList), not a
 		// persistent Notice banner. The snackbar's signature is its
 		// click-to-dismiss button wrapper.
 		const snackbar = await screen.findByRole( 'button', { name: 'Dismiss this notice' } );

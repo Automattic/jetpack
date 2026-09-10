@@ -33,11 +33,6 @@
 			"types": "./build/components/button/index.d.ts",
 			"default": "./build/components/button/index.js"
 		},
-		"./global-notices": {
-			"jetpack:src": "./components/global-notices/index.ts",
-			"types": "./build/components/global-notices/index.d.ts",
-			"default": "./build/components/global-notices/index.js"
-		},
 		"./gravatar": {
 			"jetpack:src": "./components/gravatar/index.tsx",
 			"types": "./build/components/gravatar/index.d.ts",
@@ -98,7 +93,6 @@
 		"@wordpress/element": "8.7.0",
 		"@wordpress/i18n": "6.28.0",
 		"@wordpress/icons": "16.0.0",
-		"@wordpress/notices": "5.55.0",
 		"@wordpress/theme": "2.1.0",
 		"@wordpress/ui": "0.22.0",
 		"clsx": "2.1.1",

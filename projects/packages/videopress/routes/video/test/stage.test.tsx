@@ -74,13 +74,29 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	},
 } ) );
 
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
+	__esModule: true,
+	default: () => ( { hasConnectionError: false } ),
+	ConnectionError: () => null,
+} ) );
+
 // Variables referenced inside jest.mock() factories must be prefixed with
 // "mock" (case-insensitive) to satisfy Jest's babel-jest hoisting rules.
 const mockSuccessNotice = jest.fn();
 const mockErrorNotice = jest.fn();
 const mockInfoNotice = jest.fn();
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( {
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( {
 		createSuccessNotice: mockSuccessNotice,
 		createErrorNotice: mockErrorNotice,
 		createInfoNotice: mockInfoNotice,
@@ -360,7 +376,9 @@ describe( 'video stage', () => {
 			expect.objectContaining( { id: '42', guid: GUID } ),
 			`${ DESCRIPTION }!`
 		);
-		expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video details saved.' );
+		expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video details saved.', {
+			type: 'snackbar',
+		} );
 	} );
 
 	it( 'skips the chapters sync when only the title changed', async () => {
@@ -379,7 +397,9 @@ describe( 'video stage', () => {
 
 		// The description didn't change, so the VTT is already in sync.
 		expect( mockSyncChapters ).not.toHaveBeenCalled();
-		expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video details saved.' );
+		expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video details saved.', {
+			type: 'snackbar',
+		} );
 	} );
 
 	// The crumb is the page's <h1>. It reads the form's live value, so it has
@@ -424,7 +444,9 @@ describe( 'video stage', () => {
 		} );
 
 		expect( mockSyncChapters ).not.toHaveBeenCalled();
-		expect( mockErrorNotice ).toHaveBeenCalledWith( 'Failed to save video details.' );
+		expect( mockErrorNotice ).toHaveBeenCalledWith( 'Failed to save video details.', {
+			type: 'snackbar',
+		} );
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
 	} );
 } );

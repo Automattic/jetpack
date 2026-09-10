@@ -1,12 +1,13 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import useConnectionErrorNotice, {
 	ConnectionError,
 } from '@automattic/jetpack-connection/use-connection-error-notice';
 import { useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '@wordpress/admin-ui';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
@@ -280,7 +281,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
 	const { syncChapters } = useUpdateChapters();
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
-	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useDispatch( noticesStore );
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
 	const [ captionsOpen, setCaptionsOpen ] = useState( false );
 	const queryClient = useQueryClient();
@@ -333,12 +334,15 @@ const StageReady = ( { video }: StageReadyProps ) => {
 								if ( values.description !== video.description ) {
 									void syncChapters( video, values.description );
 								}
-								createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ) );
+								createSuccessNotice( __( 'Video details saved.', 'jetpack-videopress-pkg' ), {
+									type: 'snackbar',
+								} );
 								reset( values );
 							},
 							onError: () => {
 								createErrorNotice(
-									__( 'Failed to save video details.', 'jetpack-videopress-pkg' )
+									__( 'Failed to save video details.', 'jetpack-videopress-pkg' ),
+									{ type: 'snackbar' }
 								);
 							},
 						}
@@ -355,6 +359,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					createInfoNotice( __( 'Deleting video…', 'jetpack-videopress-pkg' ), {
 						id: deletingNoticeId( video.id ),
 						explicitDismiss: true,
+						type: 'snackbar',
 					} );
 					// Promise chain rather than mutate-level callbacks: those are
 					// dropped when the component unmounts mid-flight, which would
@@ -363,6 +368,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 						.then( () => {
 							createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ), {
 								id: deletingNoticeId( video.id ),
+								type: 'snackbar',
 							} );
 							if ( isMountedRef.current ) {
 								navigate( { href: '/' } );
@@ -371,6 +377,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 						.catch( () => {
 							createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ), {
 								id: deletingNoticeId( video.id ),
+								type: 'snackbar',
 							} );
 						} );
 				} }

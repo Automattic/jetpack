@@ -1,8 +1,9 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { Button, Tooltip } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { EmptyState, Text } from '@wordpress/ui';
 import { useVideoPressUpgrade } from '../../hooks/use-videopress-upgrade';
 import { FREE_TIER_AT_LIMIT_MESSAGE, FREE_TIER_AT_LIMIT_NOTICE_ID } from '../free-tier-notice';
@@ -67,7 +68,7 @@ const UploadDropzone = ( {
 } ) => {
 	const inputRef = useRef< HTMLInputElement >( null );
 	const [ dragging, setDragging ] = useState( false );
-	const { createErrorNotice } = useGlobalNotices();
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const runUpgrade = useVideoPressUpgrade();
 	const plural = ( copyVariant ?? ( allowMultiple ? 'multiple' : 'single' ) ) === 'multiple';
 	const dropzoneClassName = `vp-upload-dropzone${ dragging ? ' is-dragging' : '' }${
@@ -82,6 +83,7 @@ const UploadDropzone = ( {
 		createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
 			id: FREE_TIER_AT_LIMIT_NOTICE_ID,
 			actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+			type: 'snackbar',
 		} );
 	}, [ createErrorNotice, runUpgrade ] );
 
@@ -111,6 +113,7 @@ const UploadDropzone = ( {
 				// someone holding one is simply untrue.
 				createErrorNotice( await describeRefusal( files ), {
 					id: INVALID_FILE_NOTICE_ID,
+					type: 'snackbar',
 				} );
 				return;
 			}

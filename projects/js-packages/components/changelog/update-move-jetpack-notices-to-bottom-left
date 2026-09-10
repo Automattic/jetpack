@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove GlobalNotices and useGlobalNotices in favor of core SnackbarNotices.

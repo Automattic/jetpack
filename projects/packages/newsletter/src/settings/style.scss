@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @use "sass:meta";
 
 // This stylesheet feeds two bundles: the wp-build dashboard
@@ -114,4 +115,10 @@ body.jetpack_page_jetpack-newsletter {
 			fill: currentColor;
 		}
 	}
+}
+
+// Core snackbar placement (matches `@wordpress/boot`'s snackbar-container).
+.jetpack-newsletter-snackbar-notices {
+
+	@include gb.snackbar-container();
 }
