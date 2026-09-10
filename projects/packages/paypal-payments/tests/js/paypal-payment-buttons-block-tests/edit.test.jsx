@@ -1759,6 +1759,36 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( dimensions[ 1 ].options.every( opt => ! opt.unit_amount ) ).toBe( true );
 		} );
 
+		it( 'gives every option row a key when the payment carries none', async () => {
+			// The resource-sync diff compares variants with _key stripped, so a block
+			// that already agrees with the payment on content keeps its _key-less
+			// options and never goes through the backfill.
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants: {
+							dimensions: [
+								{
+									_key: 'grp-1',
+									name: 'Size',
+									primary: false,
+									options: [ { label: 'Small' }, { label: 'Large' } ],
+								},
+							],
+						},
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByLabelText( 'Option 1' ) ).resolves.toHaveValue( 'Small' );
+			expect( screen.getByLabelText( 'Option 2' ) ).toHaveValue( 'Large' );
+		} );
+
 		it( 'leaves the product amount out of the create request', async () => {
 			const user = userEvent.setup();
 
