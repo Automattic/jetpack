@@ -280,8 +280,7 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await expect( desktop.first().getByText( 'Good', { exact: true } ) ).toBeVisible();
 	await expect( mobile.getByText( 'Could be improved', { exact: true } ) ).toBeVisible();
 	await expect( desktop.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
-	await expect( overall.first().getByText( 'Could be improved', { exact: true } ) ).toBeVisible();
-	await expect( overall.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
+	await expect( overall.getByText( /Good|Could be improved|Poor/ ) ).toHaveCount( 0 );
 	for ( const [ card, score, color ] of [
 		[ desktop.first(), 90, 'color(srgb 0 0.501961 0.188235 / 0.9)' ],
 		[ mobile, 60, 'color(srgb 0.572549 0.388235 0 / 0.9)' ],
@@ -294,14 +293,11 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 		await expect( track ).toHaveCSS( 'height', '4px' );
 		await expect( track ).toHaveCSS( 'border-radius', '4px' );
 	}
-	await expect( desktop.first().getByText( '+10 points compared to without Boost' ) ).toHaveCSS(
+	await expect( desktop.first().getByText( '+10 points compared with Boost disabled' ) ).toHaveCSS(
 		'color',
 		'rgb(0, 128, 48)'
 	);
-	await expect( mobile.getByText( '−10 points compared to without Boost' ) ).toHaveCSS(
-		'color',
-		'rgb(204, 24, 24)'
-	);
+	await expect( mobile.getByText( /compared with Boost disabled/ ) ).toHaveCount( 0 );
 	await expect( desktop.first() ).toHaveCSS( 'padding-top', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-bottom', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-left', '20px' );
