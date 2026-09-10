@@ -9,8 +9,6 @@ export const VIDEO_DETAIL_LAYOUT: DashboardWidget[] = [
 	{
 		uuid: 'video-detail-views-performance',
 		type: 'jpa/video-detail-views-performance',
-		// Bars: a video's exposure peaks right after upload, so its chart is
-		// mostly read over short windows, where a line adds little.
 		attributes: { chartType: 'bar' },
 		placement: { width: PA_COLUMN_COUNT, height: 2, order: 1 },
 	},
