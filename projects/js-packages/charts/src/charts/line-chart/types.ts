@@ -47,8 +47,7 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	 */
 	tooltipPlacement?: XyChartTooltipProps< DataPointDate >[ 'tooltipPlacement' ];
 	/**
-	 * Inline container styles. A color-only override retains the default dark tooltip surface.
-	 * Content color overrides affect only the named property. See Below-Axis Tooltips in stories/index.docs.mdx.
+	 * Inline container styles; see Below-Axis Tooltips in stories/index.docs.mdx for content color overrides.
 	 */
 	tooltipStyle?: CSSProperties;
 	withStartGlyphs?: boolean;

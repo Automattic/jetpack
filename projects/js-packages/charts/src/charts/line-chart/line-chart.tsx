@@ -108,8 +108,8 @@ const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution
  * one row per visible series (label + formatted value), sorted descending by
  * value. Reused by AreaChart, which has the same multi-series shape.
  *
- * @param params        - visx tooltip data and the chart's optional `bucketInfo`.
- * @param contentStyle  - Explicit tooltip content color overrides.
+ * @param params       - visx tooltip data and the chart's optional `bucketInfo`.
+ * @param contentStyle - Explicit tooltip content color overrides.
  * @return Tooltip JSX, or `null` when no datum is hovered.
  */
 export const renderDefaultTooltip = (

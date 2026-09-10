@@ -3,7 +3,11 @@ import { DataContext, TooltipContext } from '@visx/xychart';
 import { useCallback, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { BoundedTooltip } from './private/bounded-tooltip';
-import type { CrosshairStyle, RenderTooltipGlyphProps, XyChartTooltipProps } from '../../visx/types';
+import type {
+	CrosshairStyle,
+	RenderTooltipGlyphProps,
+	XyChartTooltipProps,
+} from '../../visx/types';
 import type { TooltipContextType } from '@visx/xychart';
 import type { CSSProperties, ReactNode } from 'react';
 

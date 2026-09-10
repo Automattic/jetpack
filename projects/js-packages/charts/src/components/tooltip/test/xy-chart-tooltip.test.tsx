@@ -306,7 +306,7 @@ describe( 'XyChartTooltip', () => {
 			expect( guide ).toHaveAttribute( 'stroke', 'purple' );
 			expect( guide ).toHaveAttribute( 'stroke-width', '8' );
 			expect( guide ).toHaveClass( 'custom-crosshair' );
-			expect( guide ).toHaveStyle( { strokeOpacity: '0.25', transform: '' } );
+			expect( guide ).toHaveStyle( { 'stroke-opacity': '0.25', transform: 'none' } );
 			expect( guide ).not.toHaveAttribute( 'transform' );
 			expect( guide ).toHaveAttribute( 'x1', direction === 'vertical' ? '100' : '0' );
 			expect( guide ).toHaveAttribute( 'x2', direction === 'vertical' ? '100' : '200' );

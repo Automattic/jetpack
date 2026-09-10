@@ -197,7 +197,7 @@ BelowAxisDefaultRenderer.parameters = {
 	docs: {
 		description: {
 			story:
-				'The default renderer inherits the tooltip surface and text colors. The panel clears the x-axis label band, and its pointer uses the same background.',
+				'See [Below-Axis Tooltips](?path=/docs/js-packages-charts-library-charts-line-chart--docs#below-axis-tooltips) for default renderer styling.',
 		},
 	},
 };

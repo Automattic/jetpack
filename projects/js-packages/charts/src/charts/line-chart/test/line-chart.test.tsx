@@ -139,10 +139,14 @@ describe( 'LineChart', () => {
 		}
 	);
 	test.each( [
-		[ { color: 'white' }, 'white', 'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))' ],
-		[ { backgroundColor: 'white' }, 'var(--a8c-charts-color-label)', 'white' ],
+		[
+			{ color: 'white' },
+			'rgb(255, 255, 255)',
+			'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))',
+		],
+		[ { backgroundColor: 'white' }, 'var(--a8c-charts-color-label)', 'rgb(255, 255, 255)' ],
 		[ { background: 'white' }, 'var(--a8c-charts-color-label)', 'white' ],
-		[ { color: 'white', background: 'black' }, 'white', 'black' ],
+		[ { color: 'white', background: 'black' }, 'rgb(255, 255, 255)', 'black' ],
 	] )(
 		'applies directional tooltip color defaults: %j',
 		async ( tooltipStyle, color, background ) => {
@@ -163,14 +167,14 @@ describe( 'LineChart', () => {
 			const content = screen.getByTestId( 'line-chart-tooltip-content' );
 			expect( content ).toHaveStyle( {
 				color,
-				background:
+				[ 'backgroundColor' in tooltipStyle ? 'background-color' : 'background' ]:
 					'background' in tooltipStyle || 'backgroundColor' in tooltipStyle
 						? background
 						: 'var(--a8c-charts-color-surface)',
 			} );
 			const container = screen.getByTestId( 'bounded-tooltip' );
 			if ( 'color' in tooltipStyle && tooltipStyle.color ) {
-				expect( container ).toHaveStyle( { color: tooltipStyle.color } );
+				expect( container ).toHaveStyle( { color } );
 			}
 			expect( container ).toHaveStyle( {
 				[ 'background' in tooltipStyle ? 'background' : 'background-color' ]: background,
