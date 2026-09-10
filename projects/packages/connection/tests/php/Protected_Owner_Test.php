@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -404,6 +405,35 @@ class Protected_Owner_Test extends TestCase {
 
 		$this->assertTrue( $established );
 		$this->assertTrue( $repeated, 'An anchor already saying exactly this is stored as requested.' );
+	}
+
+	/**
+	 * An anchor naming nobody is one `get()` rejects, so it is refused rather than persisted as a
+	 * locked row every reader treats as absent.
+	 *
+	 * @dataProvider unusable_anchor_ids
+	 *
+	 * @param int $wpcom_user_id The WordPress.com user ID to attempt.
+	 * @param int $local_user_id The local user ID to attempt.
+	 */
+	#[DataProvider( 'unusable_anchor_ids' )]
+	public function test_set_refuses_to_write_an_anchor_naming_nobody( $wpcom_user_id, $local_user_id ) {
+		$this->assertFalse( Protected_Owner::set( $wpcom_user_id, $local_user_id, 'popup' ) );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertFalse( Jetpack_Options::get_option( 'protected_owner' ) );
+	}
+
+	/**
+	 * ID pairs that cannot make a usable anchor.
+	 *
+	 * @return array
+	 */
+	public static function unusable_anchor_ids() {
+		return array(
+			'no WordPress.com ID' => array( 0, 7 ),
+			'no local ID'         => array( 4242, 0 ),
+			'neither'             => array( 0, 0 ),
+		);
 	}
 
 	/**

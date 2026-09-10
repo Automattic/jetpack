@@ -45,20 +45,23 @@ class Protected_Owner {
 	 * @since $$next-version$$
 	 *
 	 * @param int    $wpcom_user_id The owner's WordPress.com user ID, as confirmed by WordPress.com.
-	 * @param int    $local_user_id The owner's local WordPress user ID.
+	 * @param int    $local_user_id The owner's local WordPress user ID. Required here, though the
+	 *                              anchor treats it as a re-pointable cache rather than the match
+	 *                              key, so a caller that legitimately does not know it yet would
+	 *                              need this relaxed.
 	 * @param string $confirmed_by  How the confirmation was obtained, e.g. `popup` or `recovery`.
 	 *                              Required, and travels to WordPress.com with the anchor: it names
 	 *                              a mechanism rather than a local user, and a default here would
 	 *                              record provenance nobody established.
 	 * @return bool Whether the anchor is now stored as requested.
 	 */
-public static function set( $wpcom_user_id, $local_user_id, $confirmed_by ) {
+	public static function set( $wpcom_user_id, $local_user_id, $confirmed_by ) {
 		$confirmed_by  = sanitize_key( $confirmed_by );
 		$wpcom_user_id = absint( $wpcom_user_id );
 		$local_user_id = absint( $local_user_id );
 
-		// A blank mechanism is indistinguishable from one never recorded, which is what requiring
-		// the argument was meant to prevent.
+		// A zero ID would store an anchor `get()` rejects, and a blank mechanism is
+		// indistinguishable from one never recorded. Neither is worth persisting.
 		if ( ! $confirmed_by || ! $wpcom_user_id || ! $local_user_id ) {
 			return false;
 		}
