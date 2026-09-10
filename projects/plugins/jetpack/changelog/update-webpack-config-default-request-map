@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: Move the @wordpress/theme + @wordpress/private-apis bundling rule into the shared webpack config default.
+Comment: Replace the duplicated DependencyExtractionPlugin requestMap block with an opt-in bundleWpUiDeps option. No build output changes.
 
 

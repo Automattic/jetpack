@@ -187,9 +187,6 @@ module.exports = [
 					// externalize to. Belongs in the dep-extraction plugin's
 					// `BUNDLED_PACKAGES` but isn't there as of 6.54.0, so opt it out here.
 					'@wordpress/global-styles-engine': { external: false },
-					// Opts out of the shared default: the editor packages this entry unlocks
-					// private APIs from are external, so their consent map has to be too.
-					'@wordpress/private-apis': {},
 				},
 			} ),
 		],
@@ -233,7 +230,12 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+			...jetpackWebpackConfig.DependencyExtractionPlugin( {
+				// The licensing activation screen pulls in @wordpress/ui, and this page
+				// registers neither handle: WP < 7.0 has no core wp-theme, and the
+				// wp-build-polyfills shim is not loaded here.
+				bundleWpUiDeps: true,
+			} ),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,
@@ -251,11 +253,12 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				// Opts out of the shared default: bundled DataViews unlocks private APIs
-				// exposed by external WordPress packages such as @wordpress/components, so
-				// @wordpress/private-apis has to stay on the shared external consent map.
+				// @wordpress/ui pulls in @wordpress/theme, which is not a reliable WP script
+				// handle in all contexts, so bundle it instead of externalizing it. Keep
+				// @wordpress/private-apis external so bundled DataViews can unlock private APIs
+				// exposed by external WordPress packages such as @wordpress/components.
 				requestMap: {
-					'@wordpress/private-apis': {},
+					'@wordpress/theme': { external: false },
 				},
 			} ),
 		],

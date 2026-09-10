@@ -82,6 +82,9 @@ module.exports = [
 				MiniCssExtractPlugin: {
 					filename: 'jetpack-boost.css',
 				},
+				DependencyExtractionPlugin: {
+					bundleWpUiDeps: true,
+				},
 			} ),
 			new webpack.ProvidePlugin( {
 				process: require.resolve( 'process/browser' ),

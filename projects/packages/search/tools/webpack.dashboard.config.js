@@ -36,6 +36,7 @@ module.exports = {
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: {
 				injectPolyfill: true,
+				bundleWpUiDeps: true,
 			},
 		} ),
 	],

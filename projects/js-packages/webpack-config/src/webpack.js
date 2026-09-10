@@ -144,17 +144,33 @@ const defaultRequestMap = {
 		external: 'JetpackSharedStores',
 		handle: 'jetpack-shared-stores',
 	},
-	// @wordpress/ui pulls both in transitively, and externalizing them targets script
-	// handles most admin pages never register, so the whole bundle fails to enqueue.
-	// Bundle them jointly: split, @wordpress/theme's module-scope lock() and
-	// @wordpress/private-apis' per-instance consent map diverge. See PR #48173.
+};
+
+// @wordpress/ui pulls these in transitively; externalizing them targets script handles many pages
+// never register, so the whole bundle fails to enqueue. Bundle the pair jointly — split, the
+// module-scope lock() in @wordpress/theme and the per-instance consent map in
+// @wordpress/private-apis diverge at runtime. See PR #48173.
+const wpUiRequestMap = {
 	'@wordpress/theme': { external: false },
 	'@wordpress/private-apis': { external: false },
 };
 
-const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
-	// A caller's entry wins over the default; an empty entry restores the plugin's own handling.
-	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
+/**
+ * Build the DependencyExtractionWebpackPlugin.
+ *
+ * @param {object}  options                - Plugin options, passed through except for the two below.
+ * @param {object}  options.requestMap     - Per-request `{ external, handle }` overrides. Wins over every default.
+ * @param {boolean} options.bundleWpUiDeps - Bundle `@wordpress/theme` and `@wordpress/private-apis` instead of
+ *                                         externalizing them. Off by default; set it on an entry that renders
+ *                                         `@wordpress/ui` on a page that registers neither script handle.
+ * @return {object[]} The plugin.
+ */
+const DependencyExtractionPlugin = ( { requestMap, bundleWpUiDeps = false, ...options } = {} ) => {
+	const finalRequestMap = {
+		...defaultRequestMap,
+		...( bundleWpUiDeps ? wpUiRequestMap : {} ),
+		...requestMap,
+	};
 
 	const requestToExternal = request => {
 		return finalRequestMap[ request ]?.external;
