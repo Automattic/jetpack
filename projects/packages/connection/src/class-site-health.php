@@ -105,7 +105,7 @@ class Site_Health {
 	 */
 	private static function get_default_test_labels() {
 		return array(
-			'test__blog_token_if_exists'           => __( 'Blog Token', 'jetpack-connection' ),
+			'test__blog_token_if_exists'           => __( 'Site Token', 'jetpack-connection' ),
 			'test__check_if_connected'             => __( 'WordPress.com Connection', 'jetpack-connection' ),
 			'test__master_user_exists_on_site'     => __( 'Connection Owner', 'jetpack-connection' ),
 			'test__master_user_can_manage_options' => __( 'Connection Owner Permissions', 'jetpack-connection' ),
