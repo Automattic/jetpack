@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide connection error notices from viewers who lack the capability to resolve them.

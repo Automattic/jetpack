@@ -115,17 +115,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				);
 
 				if ( ! shouldUseSharingBlockAction ) {
-					return (
-						<>
-							{ toggle }
-							{ shouldShowSharingBlock && (
-								<BlockThemeNotice
-									isModuleActive={ isActive }
-									redirectSlug="jetpack-support-sharing-block"
-								/>
-							) }
-						</>
-					);
+					return toggle;
 				}
 
 				if ( isForcedActive ) {
@@ -174,6 +164,15 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						<p>{ description }</p>
 						{ moduleAction() }
 					</SettingsGroup>
+
+					{ ! shouldUseSharingBlockAction && shouldShowSharingBlock && (
+						<div className="jp-settings-card__notice">
+							<BlockThemeNotice
+								isModuleActive={ isActive }
+								redirectSlug="jetpack-support-sharing-block"
+							/>
+						</div>
+					) }
 
 					{ ( isActive || shouldShowSharingBlock ) &&
 						! shouldUseSharingBlockAction &&

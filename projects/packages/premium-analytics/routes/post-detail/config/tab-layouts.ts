@@ -18,6 +18,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		{
 			uuid: 'post-views',
 			type: 'jpa/post-views',
+			attributes: { chartType: 'bar' },
 			placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{
@@ -41,9 +42,9 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			placement: { width: 1, height: 2, order: 5 },
 		},
 		{
-			uuid: 'post-traffic-activity',
-			// Full width: the heatmap lays a whole year out across its columns.
-			type: 'jpa/post-traffic-activity',
+			uuid: 'post-all-time-traffic',
+			// Full width: the table lays twelve months out across its columns.
+			type: 'jpa/post-all-time-traffic',
 			placement: { width: PA_COLUMN_COUNT, height: 2, order: 6 },
 		},
 	],

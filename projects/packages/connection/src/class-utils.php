@@ -129,7 +129,90 @@ class Utils {
 
 		$created_user_id = wp_insert_user( $user );
 
-		update_user_meta( $created_user_id, 'wpcom_user_id', $user_data->ID );
+		// `clean_user_cache()` calls `exists()` on anything non-numeric, which a WP_Error does not have.
+		if ( is_wp_error( $created_user_id ) ) {
+			return false;
+		}
+
+		self::set_wpcom_user_id( $created_user_id, (int) $user_data->ID );
 		return get_userdata( $created_user_id );
+	}
+
+	/**
+	 * Get the WordPress.com user ID bound to a local user.
+	 *
+	 * The `wpcom_user_id` meta is a durable, one-to-one, WordPress.com-asserted identity binding,
+	 * not a cache of any one token: SSO and Premium Content read and write it too, and it outlives
+	 * the connection that first established it. Do not drop it because a token went away.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id The local WordPress user ID.
+	 * @return int The WordPress.com user ID, or 0 when none is bound.
+	 */
+	public static function get_wpcom_user_id( $user_id ) {
+		return (int) get_user_meta( absint( $user_id ), 'wpcom_user_id', true );
+	}
+
+	/**
+	 * Bind a WordPress.com user ID to a local user, removing it from any other user first.
+	 *
+	 * Two local users answering to the same WordPress.com identity would make owner resolution
+	 * ambiguous, so the previous holder is cleared. That only holds for writes routed through here:
+	 * Premium Content writes the same key directly, so uniqueness is not guaranteed site-wide. On
+	 * multisite the lookup is scoped to the current site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id       The local WordPress user ID.
+	 * @param int $wpcom_user_id The WordPress.com user ID.
+	 */
+	public static function set_wpcom_user_id( $user_id, $wpcom_user_id ) {
+		$user_id       = absint( $user_id );
+		$wpcom_user_id = absint( $wpcom_user_id );
+
+		// 0 is what `get_wpcom_user_id()` returns for "nothing bound", so it is not storable.
+		if ( ! $user_id || ! $wpcom_user_id ) {
+			return;
+		}
+
+		$existing = new \WP_User_Query(
+			array(
+				'meta_key'    => 'wpcom_user_id',
+				'meta_value'  => $wpcom_user_id,
+				'exclude'     => array( $user_id ),
+				'fields'      => 'ID',
+				'count_total' => false,
+			)
+		);
+
+		foreach ( $existing->get_results() as $stale_user_id ) {
+			delete_user_meta( $stale_user_id, 'wpcom_user_id' );
+			clean_user_cache( $stale_user_id );
+		}
+
+		update_user_meta( $user_id, 'wpcom_user_id', $wpcom_user_id );
+		clean_user_cache( $user_id );
+	}
+
+	/**
+	 * Drop the WordPress.com user ID bound to a local user.
+	 *
+	 * Only for when the binding itself is known to be wrong — a token replaced with a different
+	 * WordPress.com account. A disconnect does not make it wrong, and other subsystems store their
+	 * own meaning in this key.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id The local WordPress user ID.
+	 */
+	public static function delete_wpcom_user_id( $user_id ) {
+		$user_id = absint( $user_id );
+
+		// `clean_user_cache()` bumps the site-wide users cache salt, so skip it on the common
+		// no-op path where there was nothing bound.
+		if ( delete_user_meta( $user_id, 'wpcom_user_id' ) ) {
+			clean_user_cache( $user_id );
+		}
 	}
 }

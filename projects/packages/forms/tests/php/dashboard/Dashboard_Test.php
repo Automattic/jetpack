@@ -30,6 +30,13 @@ class Dashboard_Test extends BaseTestCase {
 	private $doing_it_wrong = array();
 
 	/**
+	 * Hook names captured from _deprecated_hook() during a test.
+	 *
+	 * @var string[]
+	 */
+	private $deprecations = array();
+
+	/**
 	 * The Dashboard instance the submenu was registered from.
 	 *
 	 * @var Dashboard|null
@@ -42,76 +49,13 @@ class Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		$this->reset_wp_build_polyfills();
 		unset( $_GET['page'], $_GET['p'] );
+
+		// Tests that call set_current_screen() would otherwise leave it set for whatever
+		// runs next, which decides is_admin() and is_jetpack_forms_admin_page().
+		global $current_screen;
+		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Test teardown.
+
 		parent::tear_down();
-	}
-
-	/**
-	 * Test get_forms_admin_url without tab parameter (legacy dashboard)
-	 */
-	public function test_get_forms_admin_url_without_tab() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin';
-		$this->assertEquals( $expected, Dashboard::get_forms_admin_url() );
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-	}
-
-	/**
-	 * Test get_forms_admin_url with valid tab parameter (legacy dashboard)
-	 */
-	public function test_get_forms_admin_url_with_valid_tab() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox';
-		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox' ) );
-
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=spam';
-		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'spam' ) );
-
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=trash';
-		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'trash' ) );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-	}
-
-	/**
-	 * Test get_forms_admin_url with invalid tab parameter (legacy dashboard)
-	 */
-	public function test_get_forms_admin_url_with_invalid_tab() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin';
-		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'invalid' ) );
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-	}
-
-	/**
-	 * Test get_forms_admin_url with forms tab parameter (legacy dashboard)
-	 */
-	public function test_get_forms_admin_url_with_forms_tab() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/forms';
-		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'forms' ) );
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-	}
-
-	/**
-	 * Test get_forms_admin_url with post_id parameter (legacy mode).
-	 * Verifies the r parameter is correctly appended in the hash fragment.
-	 */
-	public function test_get_forms_admin_url_with_post_id_legacy() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		// Tab + post_id: appends r and status in hash fragment (client-side handles redirect).
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123';
-		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox', 123 ) );
-
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=spam&r=456';
-		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'spam', 456 ) );
-
-		// post_id only (no tab): appends r and status=inbox in hash fragment.
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=789';
-		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( null, 789 ) );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
 	}
 
 	/**
@@ -119,8 +63,6 @@ class Dashboard_Test extends BaseTestCase {
 	 * Verifies the responseIds query parameter is correctly encoded in the path.
 	 */
 	public function test_get_forms_admin_url_with_post_id_wp_build() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
-
 		// Tab + post_id: path includes responseIds in the path.
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox?responseIds=["123"]' );
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox', 123 ) );
@@ -131,37 +73,18 @@ class Dashboard_Test extends BaseTestCase {
 		// post_id only (no tab): defaults to /responses/inbox with responseIds.
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox?responseIds=["789"]' );
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( null, 789 ) );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}
 
 	/**
 	 * Test get_single_response_admin_url points at the standalone response page (wp-build mode).
 	 */
 	public function test_get_single_response_admin_url_wp_build() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
-
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/response/123' );
 		$this->assertEquals( $expected, Dashboard::get_single_response_admin_url( 123 ) );
 
 		// Without a post ID there is no single response to open — fall back to the list.
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
 		$this->assertEquals( $expected, Dashboard::get_single_response_admin_url() );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
-	}
-
-	/**
-	 * Test get_single_response_admin_url falls back to the responses list on the legacy dashboard,
-	 * which has no standalone single response route.
-	 */
-	public function test_get_single_response_admin_url_legacy() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$expected = get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123';
-		$this->assertEquals( $expected, Dashboard::get_single_response_admin_url( 123 ) );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
 	}
 
 	/**
@@ -197,88 +120,17 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A wp-build single response link must survive jetpack_forms_alpha being turned off.
-	 *
-	 * This is the branch nobody exercises by hand: it only runs against links already
-	 * sitting in people's inboxes after the flag is flipped.
-	 */
-	public function test_redirect_cross_variant_maps_single_response_path_to_legacy() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
-		$_GET['p']    = '/response/123';
-
-		$redirect = $this->capture_cross_variant_redirect();
-
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		// The legacy dashboard has no single response route, so the response is
-		// opened in the inbox list instead — and the `/response/` pattern must not be
-		// shadowed by the `/responses/(inbox|spam|trash)` one above it.
-		$this->assertEquals(
-			get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123',
-			$redirect
-		);
-	}
-
-	/**
-	 * The email's Mark as spam trigger survives the cross-variant redirect.
-	 *
-	 * Losing it here would silently turn the email's Mark as spam button into a
-	 * plain "view" link on the legacy dashboard.
-	 */
-	public function test_redirect_cross_variant_keeps_mark_as_spam_on_single_response_path() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
-		$_GET['p']    = '/response/123?mark_as_spam=1';
-
-		$redirect = $this->capture_cross_variant_redirect();
-
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$this->assertEquals(
-			get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox&r=123&mark_as_spam',
-			$redirect
-		);
-	}
-
-	/**
-	 * The single response path is matched whole — trailing junk is not a response ID.
-	 */
-	public function test_redirect_cross_variant_ignores_malformed_single_response_path() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
-		$_GET['p']    = '/response/123junk';
-
-		$redirect = $this->capture_cross_variant_redirect();
-
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		// Falls through to the plain inbox with no response selected.
-		$this->assertEquals(
-			get_admin_url() . 'admin.php?page=jetpack-forms-admin#/responses?status=inbox',
-			$redirect
-		);
-	}
-
-	/**
 	 * Test get_forms_admin_url without tab for wp-build dashboard
 	 */
 	public function test_get_forms_admin_url_wp_build_without_tab() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url() );
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}
 
 	/**
 	 * Test get_forms_admin_url with tab for wp-build dashboard
 	 */
 	public function test_get_forms_admin_url_wp_build_with_tab() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
-
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'inbox' ) );
 
@@ -287,8 +139,6 @@ class Dashboard_Test extends BaseTestCase {
 
 		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'responses/inbox' ) );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}
 
 	/**
@@ -377,53 +227,110 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The wp-build dashboard page is detected when the alpha flag is on and the
-	 * wp-build slug is requested (so the legacy SPA bundle is skipped there).
+	 * The dashboard page is detected from the slug alone.
 	 */
 	public function test_is_wp_build_dashboard_page_true_on_wpbuild_slug() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
 		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
 
 		$this->assertTrue( Dashboard::is_wp_build_dashboard_page() );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}
 
 	/**
-	 * The legacy SPA bundle must still load when the alpha flag is off, even on the
-	 * wp-build slug (the cross-variant redirect sends the user to the legacy page).
+	 * Links generated before the legacy dashboard was retired still carry its slug.
+	 * They must land on the dashboard rather than a page that no longer registers.
 	 */
-	public function test_is_wp_build_dashboard_page_false_when_alpha_off() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
+	public function test_redirect_cross_variant_sends_legacy_slug_to_wp_build() {
+		$_GET['page'] = Dashboard::ADMIN_SLUG;
+
+		$redirect = $this->capture_cross_variant_redirect();
+
+		$this->assertNotNull( $redirect, 'A legacy dashboard URL must redirect.' );
+		$this->assertStringContainsString( 'page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG, $redirect );
+	}
+
+	/**
+	 * The dashboard slug is already correct, so it must not bounce.
+	 */
+	public function test_redirect_cross_variant_leaves_the_wp_build_slug_alone() {
 		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
 
-		$this->assertFalse( Dashboard::is_wp_build_dashboard_page() );
+		$this->assertNull( $this->capture_cross_variant_redirect() );
+	}
 
+	/**
+	 * `jetpack_forms_alpha` no longer selects anything, so anyone still filtering it
+	 * is told rather than left wondering why their filter stopped working.
+	 */
+	public function test_announces_the_retired_filter() {
+		$this->capture_deprecations();
+
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+		( new Dashboard() )->init();
+		do_action( 'admin_notices' );
 		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$this->assertContains( 'jetpack_forms_alpha', $this->deprecations );
+	}
+
+	/**
+	 * ...and stays quiet for the overwhelming majority who never used it.
+	 */
+	public function test_is_silent_without_the_retired_filter() {
+		$this->capture_deprecations();
+
+		( new Dashboard() )->init();
+		do_action( 'admin_notices' );
+
+		$this->assertNotContains( 'jetpack_forms_alpha', $this->deprecations );
+	}
+
+	/**
+	 * Nothing may be emitted while init() runs. This class loads at after_setup_theme
+	 * priority -2, and printing there sends headers before load_wp_build() and
+	 * redirect_dashboard_url_cross_variant() can redirect — both would then die on
+	 * "headers already sent". Waiting for admin_notices also keeps the notice out of
+	 * admin-ajax and admin-post responses.
+	 */
+	public function test_does_not_announce_before_admin_notices() {
+		$this->capture_deprecations();
+
+		add_filter( 'jetpack_forms_alpha', '__return_false' );
+		( new Dashboard() )->init();
+		remove_filter( 'jetpack_forms_alpha', '__return_false' );
+
+		$this->assertNotContains( 'jetpack_forms_alpha', $this->deprecations );
+	}
+
+	/**
+	 * Record deprecated-hook reports instead of letting them raise.
+	 */
+	private function capture_deprecations() {
+		$this->deprecations = array();
+		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
+		add_action(
+			'deprecated_hook_run',
+			function ( $hook ) {
+				$this->deprecations[] = $hook;
+			}
+		);
 	}
 
 	/**
 	 * The legacy dashboard slug is not treated as the wp-build page.
 	 */
 	public function test_is_wp_build_dashboard_page_false_on_legacy_slug() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
 		$_GET['page'] = Dashboard::ADMIN_SLUG;
 
 		$this->assertFalse( Dashboard::is_wp_build_dashboard_page() );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}
 
 	/**
 	 * With no page requested, this is not the wp-build dashboard page.
 	 */
 	public function test_is_wp_build_dashboard_page_false_without_page() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
 		unset( $_GET['page'] );
 
 		$this->assertFalse( Dashboard::is_wp_build_dashboard_page() );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}
 
 	/**
@@ -451,45 +358,9 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_forms_admin_url with screen ID equivalents (legacy dashboard).
-	 */
-	public function test_get_forms_admin_url_with_screen_id_equivalents() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$url_form = Dashboard::get_forms_admin_url( 'forms' );
-		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url_form );
-		$this->assertStringContainsString( '#/forms', $url_form );
-
-		// For legacy dashboard, edit-feedback equivalent is base URL (no tab).
-		$url_feedback = Dashboard::get_forms_admin_url();
-		$expected     = get_admin_url() . 'admin.php?page=' . Dashboard::ADMIN_SLUG;
-		$this->assertEquals( $expected, $url_feedback );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-	}
-
-	/**
-	 * Test get_forms_admin_url with invalid tab returns base URL (legacy dashboard).
-	 */
-	public function test_get_forms_admin_url_with_invalid_tab_returns_base_url() {
-		add_filter( 'jetpack_forms_alpha', '__return_false' );
-
-		$url = Dashboard::get_forms_admin_url( 'invalid-screen' );
-		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url );
-		$this->assertStringNotContainsString( '#/', $url );
-
-		$url = Dashboard::get_forms_admin_url( '' );
-		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::ADMIN_SLUG, $url );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_false' );
-	}
-
-	/**
 	 * Test get_forms_admin_url with screen ID equivalents for wp-build dashboard
 	 */
 	public function test_get_forms_admin_url_wp_build_with_screen_id_equivalents() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
-
 		$url_form = Dashboard::get_forms_admin_url( 'forms' );
 		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG, $url_form );
 		$this->assertStringContainsString( '&p=%2Fforms', $url_form );
@@ -497,8 +368,6 @@ class Dashboard_Test extends BaseTestCase {
 		$url_feedback = Dashboard::get_forms_admin_url( 'inbox' );
 		$this->assertStringContainsString( 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG, $url_feedback );
 		$this->assertStringContainsString( '&p=%2Fresponses%2Finbox', $url_feedback );
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}
 
 	/**
@@ -510,13 +379,10 @@ class Dashboard_Test extends BaseTestCase {
 	 * @return array|null The registered menu entry.
 	 */
 	private function register_wp_build_submenu() {
-		add_filter( 'jetpack_forms_alpha', '__return_true' );
 		$this->capture_doing_it_wrong();
 
 		$this->dashboard = new Dashboard();
 		$this->dashboard->add_admin_submenu();
-
-		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 
 		return Admin_Menu::remove_menu( Dashboard::FORMS_WPBUILD_ADMIN_SLUG );
 	}

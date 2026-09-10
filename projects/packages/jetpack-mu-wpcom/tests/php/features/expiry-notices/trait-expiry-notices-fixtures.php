@@ -9,8 +9,24 @@ declare( strict_types = 1 );
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
 
 trait Expiry_Notices_Fixtures {
+
+	/**
+	 * The subscription every fixture purchase belongs to.
+	 *
+	 * @var string
+	 */
+	protected $subscription_id = '26532009';
+
+	/**
+	 * The WordPress.com account the admin signs in as, and by default the one
+	 * that bought the plan.
+	 *
+	 * @var int
+	 */
+	protected $admin_wpcom_id = 777;
 
 	/**
 	 * @var int
@@ -23,12 +39,15 @@ trait Expiry_Notices_Fixtures {
 	protected $subscriber_id;
 
 	/**
-	 * Create the users the tests act as, and act as the admin.
-	 *
-	 * WorDBless resets the users table between tests, so this belongs in
-	 * set_up rather than set_up_before_class.
+	 * @var string|null
+	 */
+	private $request_uri;
+
+	/**
+	 * Create the users the tests act as, and act as the admin, who owns the plan.
 	 */
 	protected function set_up_expiry_fixtures(): void {
+		$this->request_uri   = $_SERVER['REQUEST_URI'] ?? null;
 		$this->admin_id      = wp_insert_user(
 			array(
 				'user_login' => 'expiry_admin',
@@ -46,56 +65,72 @@ trait Expiry_Notices_Fixtures {
 			)
 		);
 		wp_set_current_user( $this->admin_id );
+		update_user_meta( $this->admin_id, 'wpcom_user_id', (string) $this->admin_wpcom_id );
+		$this->set_plan_owner( $this->admin_wpcom_id );
 		$this->flush_expiry_memos();
 	}
 
 	protected function tear_down_expiry_fixtures(): void {
+		// Restored rather than unset: later suites read it and CI reports the missing key.
+		if ( null === $this->request_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $this->request_uri;
+		}
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 		unset( $GLOBALS['wpcom_is_vip_test_value'] );
-		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $meta_key ) {
-			delete_user_meta( $this->admin_id, $meta_key );
+		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
+		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
+			delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::meta_key( $base ) );
 		}
+		delete_transient( $this->owner_cache_key() );
 		Constants::clear_constants();
 	}
 
 	/**
-	 * Drop every per-request memo, for whichever surfaces this test loaded.
+	 * Drop the per-request memo.
 	 */
 	protected function flush_expiry_memos(): void {
 		wpcom_expiry_notices_eligible_state( true );
-		if ( function_exists( 'wpcom_expiry_notices_admin_banner_data' ) ) {
-			wpcom_expiry_notices_admin_banner_data( true );
-		}
-		if ( function_exists( 'wpcom_expiry_notices_admin_modal_data' ) ) {
-			wpcom_expiry_notices_admin_modal_data( true );
-		}
-		if ( function_exists( 'wpcom_expiry_notices_frontend_banner_data' ) ) {
-			wpcom_expiry_notices_frontend_banner_data( true );
-		}
 	}
 
 	/**
 	 * A site the revert has already moved back to Simple.
-	 *
-	 * `has_blog_sticker` is declared per test because other suites declare their
-	 * own, and a shared definition makes theirs a fatal redeclare -- hence the
-	 * separate process on every caller.
 	 */
 	protected function pretend_reverted(): void {
 		Constants::set_constant( 'IS_ATOMIC', false );
 		Constants::set_constant( 'IS_WPCOM', true );
-		if ( ! function_exists( 'has_blog_sticker' ) ) {
-			eval( 'namespace { function has_blog_sticker( $sticker, $blog_id = 0 ) { return "blog-transfer-reverted" === $sticker; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
-		}
+		$GLOBALS['wpcom_site_stickers_test_value'] = array( 'blog-transfer-reverted' );
+		// On Simple the viewer's WordPress.com ID is their user ID.
+		$this->set_plan_owner( $this->admin_id );
+	}
+
+	/**
+	 * Record who bought the plan the way the lookup, a request on Atomic, would have.
+	 *
+	 * @param int $wpcom_user_id WordPress.com user ID of the owner.
+	 */
+	protected function set_plan_owner( int $wpcom_user_id ): void {
+		set_transient( $this->owner_cache_key(), $wpcom_user_id, HOUR_IN_SECONDS );
+		$this->flush_expiry_memos();
+	}
+
+	/**
+	 * Act as an admin who is not the account that bought the plan.
+	 */
+	protected function act_as_non_owner(): void {
+		$this->set_plan_owner( $this->admin_wpcom_id + 1 );
+	}
+
+	private function owner_cache_key(): string {
+		return Expiry_Owner::cache_key( array( 'subscription_id' => $this->subscription_id ) );
 	}
 
 	/**
 	 * The site's one plan purchase, expiring the given number of days from now.
 	 *
-	 * Half a day of slack on top of the whole days: the state computes
-	 * `floor( ( expiry - now ) / DAY_IN_SECONDS )` at read time, so an expiry
-	 * set to exactly N days collapses to N-1 the moment a second elapses
-	 * between this call and the read -- a race a slow runner loses.
+	 * Half a day of slack: the state floors whole days at read time, so an
+	 * expiry at exactly N days becomes N-1 a second later.
 	 *
 	 * @param int    $days_until_expiry Negative for a plan that has lapsed.
 	 * @param bool   $auto_renew        Whether the customer left auto-renew on.
@@ -108,6 +143,7 @@ trait Expiry_Notices_Fixtures {
 				'product_type'           => 'bundle',
 				'expiry_date'            => gmdate( 'c', time() + ( $days_until_expiry * DAY_IN_SECONDS ) + ( 12 * HOUR_IN_SECONDS ) ),
 				'user_allows_auto_renew' => $auto_renew,
+				'subscription_id'        => $this->subscription_id,
 			),
 		);
 		$this->flush_expiry_memos();

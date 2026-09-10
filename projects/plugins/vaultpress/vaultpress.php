@@ -390,7 +390,16 @@ class VaultPress {
 
 	function load_menu() {
 		if ( class_exists( 'Jetpack' ) ) {
-			$hook = add_submenu_page( 'jetpack', 'VaultPress', 'VaultPress', 'manage_options', 'vaultpress', array( $this, 'ui' ) );
+			/*
+			 * Register through Admin_Menu when it is available. A bare add_submenu_page() runs
+			 * at priority 5, well before Admin_Menu sorts at 1000, so the item would land above
+			 * every sorted entry instead of in the alphabetical run.
+			 */
+			if ( class_exists( '\Automattic\Jetpack\Admin_UI\Admin_Menu' ) ) {
+				$hook = \Automattic\Jetpack\Admin_UI\Admin_Menu::add_menu( 'VaultPress', 'VaultPress', 'manage_options', 'vaultpress', array( $this, 'ui' ) );
+			} else {
+				$hook = add_submenu_page( 'jetpack', 'VaultPress', 'VaultPress', 'manage_options', 'vaultpress', array( $this, 'ui' ) );
+			}
 		} else {
 			$hook = add_menu_page( 'VaultPress', 'VaultPress', 'manage_options', 'vaultpress', array( $this, 'ui' ), 'div' );
 		}

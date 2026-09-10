@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Close PayPal's onboarding window with the Escape key or its Close button, instead of reloading the editor and losing unsaved changes.

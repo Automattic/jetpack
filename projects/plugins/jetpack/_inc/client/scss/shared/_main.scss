@@ -46,6 +46,21 @@
 	text-decoration: underline;
 }
 
+// `@wordpress/ui` sits in `@layer wp-ui`, which loses to the unlayered
+// `.jetpack-pagestyles a` above, and its `Link` relies on the UA underline.
+// WordPress/gutenberg#82620 narrows this rather than retiring it: the upstream
+// defense reaches wp-ui `Link` only, and three notices interpolate a raw `<a>`.
+.jetpack-pagestyles .jp-notice a {
+	text-decoration-line: underline;
+	text-decoration-thickness: from-font; // `text-decoration: none` above resets it.
+}
+
+// Unlayered on purpose: `Notice.Root` sets `display: grid`
+// inside `@layer wp-ui`, which `[hidden]` cannot override.
+.jp-notice.is-hidden {
+	display: none;
+}
+
 // restyled the arrow to match our gray
 .toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu::after {
 	border-right-color: colors.$gray-light;

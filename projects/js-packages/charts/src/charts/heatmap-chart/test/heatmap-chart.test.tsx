@@ -411,6 +411,19 @@ const mockRects = () =>
 		} as DOMRect;
 	} );
 
+describe( 'HeatmapChart keyboard tooltip', () => {
+	test( 'opens on the selected cell without row labels', async () => {
+		renderChart( { withTooltips: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		grid.focus();
+		await user.keyboard( '{ArrowDown}' );
+
+		expect( within( screen.getByRole( 'tooltip' ) ).getByText( '1' ) ).toBeInTheDocument();
+	} );
+} );
+
 describe( 'HeatmapChart tooltip position', () => {
 	afterEach( () => {
 		jest.restoreAllMocks();
@@ -430,5 +443,83 @@ describe( 'HeatmapChart tooltip position', () => {
 		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
 			transform: 'translate(90px, 100px)',
 		} );
+	} );
+} );
+
+describe( 'HeatmapChart summary column', () => {
+	const withTotals: HeatmapColumn[] = [
+		...data,
+		{ label: 'Total', summary: true, data: [ { value: 400 }, { value: 200 }, { value: null } ] },
+	];
+
+	test( 'keeps the summary column out of the color scale', () => {
+		renderChart( { data: withTotals } );
+		// 4 is still the data maximum, so it keeps full intensity.
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'W2: 4' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '1' );
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'Total: 400' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '' );
+	} );
+
+	test( 'draws every summary cell, printing its figure even in compact mode', () => {
+		renderChart( { data: withTotals, compact: true } );
+		expect( screen.getAllByTestId( 'heatmap-cell-summary' ) ).toHaveLength( 3 );
+		expect( screen.getByRole( 'gridcell', { name: 'Total: 400' } ) ).toHaveTextContent( '400' );
+		expect( screen.getByRole( 'gridcell', { name: 'Total: No data' } ) ).toBeEmptyDOMElement();
+		expect( screen.getByRole( 'grid' ) ).toHaveAttribute( 'aria-colcount', '3' );
+	} );
+
+	test( 'sets a summary apart from the data on either side, but not from another summary', () => {
+		renderChart( {
+			data: [
+				{ label: 'Lead', summary: true, data: [ { value: 7 }, { value: 8 }, { value: 9 } ] },
+				...withTotals,
+				{ label: 'Mean', summary: true, data: [ { value: 2 }, { value: 1 }, { value: 3 } ] },
+			],
+		} );
+
+		const lead = screen.getByRole( 'gridcell', { name: 'Lead: 7' } );
+		expect( lead ).toHaveClass( 'heatmap-chart__gap-end' );
+		expect( lead ).not.toHaveClass( 'heatmap-chart__gap-start' );
+
+		const total = screen.getByRole( 'gridcell', { name: 'Total: 400' } );
+		expect( total ).toHaveClass( 'heatmap-chart__gap-start' );
+		expect( total ).not.toHaveClass( 'heatmap-chart__gap-end' );
+
+		const mean = screen.getByRole( 'gridcell', { name: 'Mean: 2' } );
+		expect( mean ).not.toHaveClass( 'heatmap-chart__gap-start' );
+		expect( mean ).not.toHaveClass( 'heatmap-chart__gap-end' );
+		expect( screen.getByRole( 'gridcell', { name: 'W1: 1' } ) ).not.toHaveClass(
+			'heatmap-chart__gap-start'
+		);
+	} );
+
+	test( 'keeps the summary track content-sized when the data tracks are capped', () => {
+		renderChart( { data: withTotals, maxCellWidth: 32 } );
+
+		expect( screen.getByRole( 'grid', { name: /heatmap/i } ) ).toHaveStyle( {
+			gridTemplateColumns: 'auto minmax(0px, 32px) minmax(0px, 32px) minmax(auto, max-content)',
+		} );
+	} );
+
+	test( 'reaches the summary column by keyboard, with its tooltip', async () => {
+		renderChart( { data: withTotals, withTooltips: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		grid.focus();
+		await user.keyboard( '{ArrowDown}{ArrowRight}{ArrowRight}' );
+
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-2-0$/ )
+		);
+		expect( within( screen.getByRole( 'tooltip' ) ).getByText( '400' ) ).toBeInTheDocument();
 	} );
 } );

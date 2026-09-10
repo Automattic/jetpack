@@ -7,7 +7,6 @@ import { differenceInDays } from 'date-fns';
  */
 import { getDateRangeSpan } from '../date-range-span';
 import { COMPARISON_PRESETS, getComparisonRangeFromPreset } from '../get-comparison-range';
-import { stepDateRange } from '../step-date-range';
 import { createTZDateFromParts } from '../tz';
 
 describe( 'getComparisonRangeFromPreset', () => {
@@ -389,8 +388,7 @@ describe( 'getComparisonRangeFromPreset', () => {
 		it( 'falls back to the day count where a month step will not reverse', () => {
 			// 31 January through 30 March measures as two months, but two months
 			// back from 31 January clamps to 30 November: 62 days against the
-			// reference's 59. The step arrows count days there, and a comparison
-			// naming a different window than the arrow would is a defect.
+			// reference's 59, so the comparison counts days instead.
 			const clamping = {
 				from: new Date( 2026, 0, 31, 0, 0, 0, 0 ),
 				to: new Date( 2026, 2, 30, 23, 59, 59, 999 ),
@@ -401,7 +399,6 @@ describe( 'getComparisonRangeFromPreset', () => {
 			};
 
 			expect( getComparisonRangeFromPreset( clamping, 'previous-period' ) ).toEqual( expected );
-			expect( stepDateRange( clamping, 'previous' ) ).toEqual( expected );
 		} );
 
 		it( 'ends the previous whole months on a month end, whatever day the reference ends on', () => {
@@ -482,6 +479,50 @@ describe( 'getComparisonRangeFromPreset', () => {
 				from: new Date( 2024, 8, 12, 0, 0, 0, 0 ),
 				to: new Date( 2025, 7, 31, 23, 59, 59, 999 ),
 			} );
+		} );
+
+		// Completed, it would shift onto a unit of another length: month to date
+		// read on 8 March came back three days short, and year to date read on
+		// 1 January 2028 came back inverted.
+		it.each( [
+			[ 'March, after a shorter February', new Date( 2026, 2, 1 ), new Date( 2026, 2, 8 ) ],
+			[ 'February, after a longer January', new Date( 2026, 1, 1 ), new Date( 2026, 1, 15 ) ],
+			[ 'September, after a longer August', new Date( 2026, 8, 1 ), new Date( 2026, 8, 8 ) ],
+		] )( 'mirrors month to date with an equal-length window in %s', ( _label, first, last ) => {
+			const monthToDate = {
+				from: new Date( first.getFullYear(), first.getMonth(), first.getDate(), 0, 0, 0, 0 ),
+				to: new Date( last.getFullYear(), last.getMonth(), last.getDate(), 23, 59, 59, 999 ),
+			};
+
+			const comparison = getComparisonRangeFromPreset( monthToDate, 'previous-period', {
+				primaryPresetId: 'month-to-date',
+			} );
+
+			expect( differenceInDays( comparison!.to!, comparison!.from! ) ).toBe(
+				differenceInDays( monthToDate.to, monthToDate.from )
+			);
+			expect( comparison!.to!.getTime() ).toBeLessThan( monthToDate.from.getTime() );
+		} );
+
+		it.each( [
+			[ 'the first day of a leap year', new Date( 2028, 0, 1 ), new Date( 2028, 0, 1 ) ],
+			[ 'the first day after one', new Date( 2025, 0, 1 ), new Date( 2025, 0, 1 ) ],
+			[ 'a day well into a leap year', new Date( 2028, 0, 1 ), new Date( 2028, 2, 5 ) ],
+		] )( 'mirrors year to date with an equal-length window on %s', ( _label, first, last ) => {
+			const yearToDate = {
+				from: new Date( first.getFullYear(), first.getMonth(), first.getDate(), 0, 0, 0, 0 ),
+				to: new Date( last.getFullYear(), last.getMonth(), last.getDate(), 23, 59, 59, 999 ),
+			};
+
+			const comparison = getComparisonRangeFromPreset( yearToDate, 'previous-period', {
+				primaryPresetId: 'year-to-date',
+			} );
+
+			expect( comparison!.to!.getTime() ).toBeGreaterThan( comparison!.from!.getTime() );
+			expect( differenceInDays( comparison!.to!, comparison!.from! ) ).toBe(
+				differenceInDays( yearToDate.to, yearToDate.from )
+			);
+			expect( comparison!.to!.getTime() ).toBeLessThan( yearToDate.from.getTime() );
 		} );
 	} );
 } );

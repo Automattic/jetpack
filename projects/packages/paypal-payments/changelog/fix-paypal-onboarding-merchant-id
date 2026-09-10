@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix onboarding leaving the site connected but reporting "Merchant integration info not available". The merchant ID PayPal returns on the redirect was never saved.
