@@ -152,6 +152,14 @@ describe( 'Freshly Pressed tab', () => {
 		).toBeInTheDocument();
 	} );
 
+	it( 'keeps the list semantics when Stack renders the ul', async () => {
+		await renderSettled();
+		await openFreshlyPressedTab();
+
+		const list = screen.getByRole( 'list', { name: 'Freshly Pressed posts' } );
+		expect( within( list ).getAllByRole( 'listitem' ) ).toHaveLength( 2 );
+	} );
+
 	it( 'lists the posts as Reader links once the tab is opened', async () => {
 		await renderSettled();
 		await openFreshlyPressedTab();
