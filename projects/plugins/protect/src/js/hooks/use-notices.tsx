@@ -89,8 +89,10 @@ export default function useNotices() {
 			setNotice( {
 				type: 'error',
 				dismissable: true,
-				// The same translated string, with its interpolation tags stripped.
-				spokenMessage: `${ error } ${ advice.replace( /<\/?[^>]+>/g, '' ) }`,
+				// The same translated string, minus the one interpolation tag it carries.
+				// Named rather than generic: a `<[^>]+>` strip reads as HTML sanitization
+				// and CodeQL flags it, though nothing here ever reaches innerHTML.
+				spokenMessage: `${ error } ${ advice.replace( /<\/?supportLink>/g, '' ) }`,
 				message: (
 					<>
 						{ error }{ ' ' }
