@@ -10,7 +10,7 @@ interface NoticeState {
 	message?: string | JSX.Element;
 	dismissable?: boolean;
 	duration?: number;
-	type?: 'success' | 'info' | 'error';
+	type?: 'success' | 'info' | 'warning' | 'error';
 }
 
 interface NoticeContextValue {
