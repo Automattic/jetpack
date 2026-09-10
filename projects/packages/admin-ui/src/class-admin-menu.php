@@ -537,7 +537,7 @@ class Admin_Menu {
 	 * @return void
 	 */
 	public static function enqueue_design_tokens() {
-		// Style handle, not the JS polyfill. Registered since WP 7.1 (and by Gutenberg):
+		// Registered since WP 7.1 (and by Gutenberg):
 		// https://make.wordpress.org/core/2026/07/31/design-system-theming-in-wordpress-7-1/
 		if ( wp_style_is( 'wp-theme', 'registered' ) ) {
 			wp_enqueue_style( 'wp-theme' );
