@@ -166,9 +166,10 @@ $feature-icon-foreground: #0ced57;
 	justify-content: center;
 }
 
-// A fixed height keeps the dialog from resizing as you step between features.
+// A fixed height keeps the dialog from resizing as you step between
+// features; the viewport term keeps it clear of the admin bar.
 .modal-popup {
-	block-size: min(34rem, calc(100vh - 6rem));
+	block-size: min(46rem, calc(100vh - 5rem));
 }
 
 // Applied to a wp-admin menu item, which lives outside this
