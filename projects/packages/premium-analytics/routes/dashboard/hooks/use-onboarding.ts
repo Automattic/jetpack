@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { store as preferencesStore } from '@wordpress/preferences';
@@ -8,7 +9,6 @@ import { store as preferencesStore } from '@wordpress/preferences';
  * Internal dependencies
  */
 import { DASHBOARD_ONBOARDING_KEY, DASHBOARD_PREFERENCES_SCOPE } from './constants';
-import { useTrackEvent } from './use-track-event';
 import type { OnboardingDismissReason } from '@jetpack-premium-analytics/ui';
 
 export type OnboardingPhase = 'closed' | 'modal' | 'tour';

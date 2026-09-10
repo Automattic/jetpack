@@ -6,8 +6,8 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { resetTracksIdentityForTesting } from '../../hooks/use-track-event';
-import { DashboardOptionsMenu } from './dashboard-options-menu';
+import { resetTracksIdentityForTesting } from '../../../hooks/use-track-event';
+import { PageOptionsMenu } from '../page-options-menu';
 
 const mockSetUser = jest.fn();
 const mockIdentifyUser = jest.fn();
@@ -35,7 +35,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 const mockReturnToClassicStats = jest.fn();
 
-jest.mock( './return-to-classic-stats', () => ( {
+jest.mock( '../return-to-classic-stats', () => ( {
 	returnToClassicStats: () => mockReturnToClassicStats(),
 } ) );
 
@@ -72,16 +72,16 @@ beforeEach( () => {
  */
 async function openModal() {
 	const user = userEvent.setup();
-	render( <DashboardOptionsMenu /> );
+	render( <PageOptionsMenu /> );
 	await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 	await user.click( await screen.findByRole( 'menuitem', { name: 'Any feedback?' } ) );
 	return user;
 }
 
-describe( 'DashboardOptionsMenu', () => {
+describe( 'PageOptionsMenu', () => {
 	it( 'keeps its entries behind the trigger', async () => {
 		const user = userEvent.setup();
-		render( <DashboardOptionsMenu /> );
+		render( <PageOptionsMenu /> );
 
 		expect( screen.queryByRole( 'menuitem' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
@@ -341,7 +341,7 @@ describe( 'switching the new Traffic tab off', () => {
 	 */
 	async function openConfirmation() {
 		const user = userEvent.setup();
-		render( <DashboardOptionsMenu /> );
+		render( <PageOptionsMenu /> );
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Switch off the preview' } ) );
 		return user;
@@ -350,7 +350,7 @@ describe( 'switching the new Traffic tab off', () => {
 	it( 'is offered to those who can change site settings', async () => {
 		mockCurrentUserCan.mockReturnValue( false );
 		const user = userEvent.setup();
-		render( <DashboardOptionsMenu /> );
+		render( <PageOptionsMenu /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 
