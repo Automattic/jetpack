@@ -8,13 +8,6 @@ export type SectionHeaderProps = {
 	title: ReactNode;
 
 	/**
-	 * The heading element the title renders as. Detail pages name their
-	 * resource, so the title is the page's `h1`; the dashboard and the report
-	 * pages title a section within one.
-	 */
-	headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
-
-	/**
 	 * Decorative mark before the title: a thumbnail, a poster, a type icon. The
 	 * slot owns the box and hides it from the accessibility tree, so pass an
 	 * `<img>` with `alt=""` or a bare icon, never interactive content or text
@@ -69,7 +62,6 @@ export type SectionHeaderProps = {
 function UnforwardedSectionHeader(
 	{
 		title,
-		headingLevel = 2,
 		visual,
 		subTitle,
 		busy = false,
@@ -80,8 +72,6 @@ function UnforwardedSectionHeader(
 	}: SectionHeaderProps,
 	ref: ForwardedRef< HTMLDivElement >
 ) {
-	const HeadingTag = `h${ headingLevel }` as const;
-
 	const header = (
 		<div ref={ ref } className={ clsx( styles.container, pinned && styles.pinned ) }>
 			<div className={ clsx( styles.layout, visual && styles.withVisual ) }>
@@ -92,18 +82,17 @@ function UnforwardedSectionHeader(
 				) : null }
 
 				<div className={ styles.text } aria-busy={ busy || undefined }>
-					{ /* The `title` attribute is the only way back to a name the
-					     ellipsis cut off, and only a string can supply one. */ }
+					{ /* An h2 under the breadcrumb's h1. The `title` attribute is the only
+					     way back to a name the ellipsis cut off, and only a string can
+					     supply one. */ }
 					<Text
 						className={ styles.title }
 						variant="heading-2xl"
-						render={ <HeadingTag title={ typeof title === 'string' ? title : undefined } /> }
+						render={ <h2 title={ typeof title === 'string' ? title : undefined } /> }
 					>
 						{ title }
 					</Text>
 
-					{ /* A div, not a p: the slot takes whatever the surface has, including
-					     the block-level skeleton it shows while the resource resolves. */ }
 					{ subTitle ? (
 						<Text className={ styles.subTitle } variant="body-sm" render={ <div /> }>
 							{ subTitle }

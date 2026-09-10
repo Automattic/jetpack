@@ -43,7 +43,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <div>Date filters</div>,
 	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
-	SectionTabPanel: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	SectionTabs: () => <div role="tablist" />,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
 	StatsPageIcon: () => null,
@@ -168,7 +168,6 @@ jest.mock( '@wordpress/route', () => ( {
 // the real report-origin validation.
 
 jest.mock( './components', () => ( {
-	PostDetailTabs: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	postHeaderSlots: ( {
 		variant,
 		performanceRange,
@@ -216,7 +215,7 @@ jest.mock( './hooks', () => ( {
 	usePostSummary: jest.fn(),
 	useEmailTabScope: jest.fn( () => mockEmailScope ),
 	usePostDetailTabs: jest.fn( () => ( {
-		// The active tab mounts the panel carrying the widget grid.
+		// The active tab keys the section carrying the widget grid.
 		tabs: [
 			{ id: 'traffic', label: 'Traffic' },
 			{ id: 'email-opens', label: 'Email opens' },

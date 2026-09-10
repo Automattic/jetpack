@@ -8,6 +8,10 @@ describe( 'Likes queue handler master iframe handshake', () => {
 	// the module cache but leaves these attached, so we track and detach them between tests to stop
 	// a stale masterReady handler from firing against the current test's DOM.
 	let trackedWindowListeners;
+	// The callback and observed elements of the IntersectionObserver the queue handler builds.
+	// jsdom has no IntersectionObserver, so tests that want one install the fake below.
+	let observerCallback;
+	let observedElements;
 
 	// Collect only the `queryMasterReady` pings the queue handler posts to the master iframe.
 	const queryReadyPings = () =>
@@ -71,6 +75,22 @@ describe( 'Likes queue handler master iframe handshake', () => {
 		widget.appendChild( placeholder );
 
 		document.body.appendChild( widget );
+
+		return widget;
+	};
+
+	const installIntersectionObserver = () => {
+		window.IntersectionObserver = function ( callback ) {
+			observerCallback = callback;
+			this.observe = element => observedElements.push( element );
+			this.unobserve = () => {};
+			this.disconnect = () => {};
+		};
+	};
+
+	// jsdom gives every element a zero rect, which counts as in view. Place a widget explicitly.
+	const placeWidgetAt = ( widget, top ) => {
+		widget.getBoundingClientRect = () => ( { top, bottom: top + 55 } );
 	};
 
 	beforeEach( () => {
@@ -78,6 +98,8 @@ describe( 'Likes queue handler master iframe handshake', () => {
 		jest.resetModules();
 
 		document.body.innerHTML = '';
+		observerCallback = undefined;
+		observedElements = [];
 
 		// Record every window listener the queue handler adds so afterEach can detach them.
 		trackedWindowListeners = [];
@@ -104,6 +126,7 @@ describe( 'Likes queue handler master iframe handshake', () => {
 		trackedWindowListeners.forEach( ( { type, listener, options } ) =>
 			window.removeEventListener( type, listener, options )
 		);
+		delete window.IntersectionObserver;
 		jest.restoreAllMocks();
 	} );
 
@@ -146,5 +169,28 @@ describe( 'Likes queue handler master iframe handshake', () => {
 
 		// Recovery worked: the queue picked up the waiting widget and requested its data.
 		expect( initialBatches().length ).toBeGreaterThanOrEqual( 1 );
+	} );
+
+	it( 'loads a widget a late reflow brings into range, with no scroll event', async () => {
+		installIntersectionObserver();
+		const widget = addUnloadedPostWidget();
+		// At first paint the widget sits far below the fold, so the queue skips it.
+		placeWidgetAt( widget, 5000 );
+		answerPingsWithMasterReady();
+
+		require( '../queuehandler' );
+		await Promise.resolve();
+		jest.advanceTimersByTime( 500 );
+
+		expect( initialBatches() ).toHaveLength( 0 );
+		expect( observedElements ).toContain( widget );
+
+		// A stylesheet lands and the page reflows: no scroll event, but the widget is now in range.
+		placeWidgetAt( widget, 100 );
+		observerCallback();
+		jest.advanceTimersByTime( 250 );
+
+		expect( initialBatches().length ).toBeGreaterThanOrEqual( 1 );
+		expect( widget.querySelector( 'iframe.post-likes-widget' ) ).not.toBeNull();
 	} );
 } );

@@ -268,22 +268,14 @@ describe( 'video detail stage', () => {
 	);
 
 	/**
-	 * Find the page heading while skipping the breadcrumb title crumb — admin-ui
-	 * renders the current crumb as an `h1` too, so an unscoped heading query
-	 * matches both.
+	 * Find the summary heading. The breadcrumb's trailing crumb is the page's
+	 * `h1`; the header titles the section under it.
 	 *
 	 * @param name - The accessible heading name.
-	 * @return The page heading.
+	 * @return The summary heading.
 	 */
 	function getSummaryHeading( name: string ): HTMLElement {
-		const nav = screen.getByRole( 'navigation', { name: 'Breadcrumbs' } );
-		const heading = screen
-			.getAllByRole( 'heading', { level: 1, name } )
-			.find( node => ! nav.contains( node ) );
-		if ( ! heading ) {
-			throw new Error( `No page heading named "${ name }" outside the breadcrumbs.` );
-		}
-		return heading;
+		return screen.getByRole( 'heading', { level: 2, name } );
 	}
 
 	it( 'renders the poster thumbnail and swaps in the placeholder glyph when it fails', () => {

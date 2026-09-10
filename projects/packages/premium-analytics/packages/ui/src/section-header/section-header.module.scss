@@ -18,6 +18,13 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 // The scroll distance the condense runs over once the header pins. Tunable.
 $section-header-condense-distance: 40px;
 
+// The row a pinned header condenses to: the title's line box and the date
+// controls are both 40px. A header with a visual condenses to the same band
+// as one without, so the visual's own box, from the prototype, overhangs the
+// row rather than growing it. Tunable.
+$section-header-condensed-row-size: 40px;
+$section-header-visual-condensed-size: 44px;
+
 // The controls drop below the title, reading from the same edge.
 @mixin section-header-stacked {
 
@@ -107,14 +114,25 @@ $section-header-condense-distance: 40px;
 	display: flex;
 	flex-direction: column;
 	min-inline-size: 0;
+	// The resting title's line box, so the row keeps its height when the
+	// controls beside it are gone and the pinned title has condensed.
+	min-block-size: var(--wpds-typography-line-height-2xl);
+	// Centred, as the row centred it before the floor filled the row.
+	justify-content: center;
 }
 
+// Matches the visual's box: title against its top, subtitle against its
+// bottom. A floor, not a height — the stacked layout lets the title wrap,
+// and a fixed box would push the subtitle out from under it.
 .withVisual .text {
-	// Matches the visual's box: title against its top, subtitle against its
-	// bottom. A floor, not a height — the stacked layout lets the title wrap,
-	// and a fixed box would push the subtitle out from under it.
 	min-block-size: $section-header-visual-size;
 	justify-content: space-between;
+}
+
+// On the title's row, as on a header without a visual, rather than floating
+// between the title and the subtitle.
+.withVisual .controls {
+	align-self: start;
 }
 
 // @todo Drop once `Text` truncates natively: https://github.com/WordPress/gutenberg/issues/77391
@@ -200,8 +218,9 @@ $section-header-condense-distance: 40px;
 
 /*
  * Condenses the band as it pins: the padding tightens, since there are no tabs
- * left to clear, and the title drops a step on the type scale. Progress-driven,
- * so it follows the scroll in both directions.
+ * left to clear, the title drops a step on the type scale, the subtitle folds
+ * away and a visual shrinks to the title row. Progress-driven, so it follows
+ * the scroll in both directions.
  *
  * The @supports gate is load-bearing: without scroll-driven animation
  * support, the `animation` shorthand would run as a 0s time animation and its
@@ -216,10 +235,28 @@ $section-header-condense-distance: 40px;
 		animation-timeline: --section-header-pin;
 		animation-range: exit;
 
-		// Buys no height: the row is floored by the date controls beside it.
+		// Buys no height: `.text` is floored at the resting line box.
 		// What changes is what the pinned band reads as.
 		.title {
 			animation: condense-title linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+		}
+
+		.subTitle {
+			animation: condense-subtitle linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+		}
+
+		.visual {
+			animation: condense-visual linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+		}
+
+		.withVisual .text {
+			animation: condense-text linear both;
 			animation-timeline: --section-header-pin;
 			animation-range: exit;
 		}
@@ -229,7 +266,10 @@ $section-header-condense-distance: 40px;
 	@media (prefers-reduced-motion: reduce) {
 
 		.pinned,
-		.pinned .title {
+		.pinned .title,
+		.pinned .subTitle,
+		.pinned .visual,
+		.pinned .withVisual .text {
 			animation: none;
 		}
 	}
@@ -243,11 +283,45 @@ $section-header-condense-distance: 40px;
 	}
 }
 
+// The line box keeps its resting height: it is the title row's height, which
+// the visual and the date controls align to, so only the glyphs shrink.
 @keyframes condense-title {
 
 	to {
 		font-size: var(--wpds-typography-font-size-xl);
-		line-height: var(--wpds-typography-line-height-xl);
+	}
+}
+
+// Starts from a cap the resting line never reaches, so the fill costs nothing
+// before the pin; the line is clipped by the ellipsis rule's overflow.
+@keyframes condense-subtitle {
+
+	from {
+		max-block-size: var(--wpds-typography-line-height-sm);
+	}
+
+	to {
+		max-block-size: 0;
+		opacity: 0;
+	}
+}
+
+// The negative margin trims the margin box to the row, which is what the
+// grid sizes and centers; the box itself paints past the row into the
+// band's padding.
+@keyframes condense-visual {
+
+	to {
+		inline-size: $section-header-visual-condensed-size;
+		block-size: $section-header-visual-condensed-size;
+		margin-block: calc((#{$section-header-condensed-row-size} - #{$section-header-visual-condensed-size}) / 2);
+	}
+}
+
+@keyframes condense-text {
+
+	to {
+		min-block-size: $section-header-condensed-row-size;
 	}
 }
 
