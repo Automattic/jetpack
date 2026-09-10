@@ -18,9 +18,12 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 // The scroll distance the condense runs over once the header pins. Tunable.
 $section-header-condense-distance: 40px;
 
-// The visual's box once pinned: the height of the title row beside it, so a
-// header with a visual condenses to the same band as one without. Tunable.
-$section-header-visual-condensed-size: 40px;
+// The row a pinned header condenses to: the title's line box and the date
+// controls are both 40px. A header with a visual condenses to the same band
+// as one without, so the visual's own box, from the prototype, overhangs the
+// row rather than growing it. Tunable.
+$section-header-condensed-row-size: 40px;
+$section-header-visual-condensed-size: 44px;
 
 // The controls drop below the title, reading from the same edge.
 @mixin section-header-stacked {
@@ -298,18 +301,22 @@ $section-header-visual-condensed-size: 40px;
 	}
 }
 
+// The negative margin trims the margin box to the row, which is what the
+// grid sizes and centers; the box itself paints past the row into the
+// band's padding.
 @keyframes condense-visual {
 
 	to {
 		inline-size: $section-header-visual-condensed-size;
 		block-size: $section-header-visual-condensed-size;
+		margin-block: calc((#{$section-header-condensed-row-size} - #{$section-header-visual-condensed-size}) / 2);
 	}
 }
 
 @keyframes condense-text {
 
 	to {
-		min-block-size: $section-header-visual-condensed-size;
+		min-block-size: $section-header-condensed-row-size;
 	}
 }
 
