@@ -295,6 +295,8 @@ function wpcom_actionbar_email_default( $current_user ) {
 function wpcom_actionbar_icon( $name, $size = 24 ) {
 	$fill_icons = array(
 		'bell'            => '<path fill-rule="evenodd" clip-rule="evenodd" d="M17 11.5c0 1.353.17 2.368.976 3 .266.209.602.376 1.024.5v1H5v-1c.422-.124.757-.291 1.024-.5.806-.632.976-1.647.976-3V9c0-2.8 2.2-5 5-5s5 2.2 5 5v2.5ZM15.5 9v2.5c0 .93.066 1.98.515 2.897l.053.103H7.932a4.018 4.018 0 0 0 .053-.103c.449-.917.515-1.967.515-2.897V9c0-1.972 1.528-3.5 3.5-3.5s3.5 1.528 3.5 3.5Zm-5.492 9.008c0-.176.023-.346.065-.508h3.854A1.996 1.996 0 0 1 12 20c-1.1 0-1.992-.892-1.992-1.992Z"/>',
+		'copy'            => '<path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.5h11a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 1 .5-.5ZM3 5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5Zm17 3v10.75c0 .69-.56 1.25-1.25 1.25H6v1.5h12.75a2.75 2.75 0 0 0 2.75-2.75V8H20Z"/>',
+		'external'        => '<path d="M19.5 4.5h-7V6h4.44l-5.97 5.97 1.06 1.06L18 7.06v4.44h1.5v-7Zm-13 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3H17v3a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h3V5.5h-3Z"/>',
 		'comment'         => '<path d="M18 4H6c-1.1 0-2 .9-2 2v12.9c0 .6.5 1.1 1.1 1.1.3 0 .5-.1.8-.3L8.5 17H18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm.5 11c0 .3-.2.5-.5.5H7.9l-2.4 2.4V6c0-.3.2-.5.5-.5h12c.3 0 .5.2.5.5v9z"/>',
 		'more-horizontal' => '<path d="M11 13h2v-2h-2v2zm-6 0h2v-2H5v2zm12-2v2h2v-2h-2z"/>',
 		'pencil'          => '<path d="m19 7-3-3-8.5 8.5-1 4 4-1L19 7Zm-7 11.5H5V20h7v-1.5Z"/>',
@@ -327,7 +329,68 @@ function wpcom_actionbar_icon( $name, $size = 24 ) {
 }
 
 /**
- * Print the site title row used at the top of both popovers.
+ * Print one item of the ⋯ menu.
+ *
+ * @param array $args Item arguments: href, label, class (stats hook), icon (right-edge icon name), blank (open in a new tab), before (trusted markup before the label).
+ */
+function wpcom_actionbar_menu_item( $args ) {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'href'   => '',
+			'label'  => '',
+			'class'  => '',
+			'icon'   => '',
+			'blank'  => false,
+			'before' => '',
+		)
+	);
+	?>
+	<a role="menuitem" class="actnbr-menu__item <?php echo esc_attr( $args['class'] ); ?>" href="<?php echo esc_url( $args['href'] ); ?>"<?php echo $args['blank'] ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
+		<?php echo $args['before']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Caller-built markup, escaped at the source. ?>
+		<span class="actnbr-menu__label"><?php echo esc_html( $args['label'] ); ?></span>
+		<?php
+		if ( $args['icon'] ) {
+			echo '<span class="actnbr-menu__icon">';
+			wpcom_actionbar_icon( $args['icon'], 24 );
+			echo '</span>';
+		}
+		?>
+	</a>
+	<?php
+}
+
+/**
+ * Print a menu group if it has any items.
+ *
+ * @param string $items_html Rendered items, usually captured with output buffering.
+ */
+function wpcom_actionbar_menu_group( $items_html ) {
+	if ( '' === trim( $items_html ) ) {
+		return;
+	}
+	echo '<div class="actnbr-menu__group" role="group">' . $items_html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Items are escaped where rendered.
+}
+
+/**
+ * The site's blavatar image markup, or an empty string.
+ *
+ * @return string
+ */
+function wpcom_actionbar_blavatar() {
+	if ( ! function_exists( 'get_blavatar' ) ) {
+		return '';
+	}
+	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
+	$blavatar_img = get_blavatar( get_option( 'siteurl' ), 50, staticize_subdomain( 'https://en.wordpress.com/i/logo/wpcom-gray-white.png' ) ); // phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
+	if ( 0 === strpos( $blavatar_img, '<img alt' ) ) {
+		$blavatar_img = "<img loading='lazy' alt" . substr( $blavatar_img, 8 );
+	}
+	return $blavatar_img;
+}
+
+/**
+ * Print the site title row at the top of the Subscribe popover.
  *
  * @param string $site_url  Site home URL.
  * @param string $site_name Site title.
@@ -336,18 +399,7 @@ function wpcom_actionbar_site_title( $site_url, $site_name ) {
 	?>
 		<li class="actnbr-sitename">
 			<a href="<?php echo esc_url( $site_url ); ?>">
-				<?php
-				if ( function_exists( 'get_blavatar' ) ) {
-					// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
-					$blavatar_img = get_blavatar( get_option( 'siteurl' ), 50, staticize_subdomain( 'https://en.wordpress.com/i/logo/wpcom-gray-white.png' ) ); // phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
-
-					if ( 0 === strpos( $blavatar_img, '<img alt' ) ) {
-						$blavatar_img = "<img loading='lazy' alt" . substr( $blavatar_img, 8 );
-					}
-
-					echo $blavatar_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				}
-				?>
+				<?php echo wpcom_actionbar_blavatar(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Image markup from get_blavatar(). ?>
 				<?php echo esc_html( $site_name ); ?>
 			</a>
 		</li>
@@ -732,124 +784,142 @@ function wpcom_actionbar_html( $is_rtl ) {
 			}
 			?>
 			<li class="actnbr-ellipsis actnbr-hidden">
-				<?php wpcom_actionbar_icon( 'more-horizontal', 24 ); ?>
-				<div class="actnbr-popover tip tip-top-left actnbr-more">
-					<div class="tip-arrow"></div>
-					<div class="tip-inner">
-						<ul>
-						<?php
-						wpcom_actionbar_site_title( $site_url, $site_name );
-						if ( $can_follow && ! $can_customize_site ) {
-							?>
-							<li class="actnbr-folded-follow">
-								<?php wpcom_actionbar_follow_links( $is_following ); ?>
-							</li>
-							<?php
-						}
+				<button type="button" class="actnbr-more-toggle" aria-haspopup="true" aria-expanded="false" aria-label="<?php esc_attr_e( 'More options', 'jetpack-mu-wpcom' ); ?>">
+					<?php wpcom_actionbar_icon( 'more-horizontal', 24 ); ?>
+				</button>
+				<div class="actnbr-popover actnbr-menu" role="menu" aria-label="<?php esc_attr_e( 'Site options', 'jetpack-mu-wpcom' ); ?>">
+					<?php
+					// Site.
+					ob_start();
+					wpcom_actionbar_menu_item(
+						array(
+							'href'   => $site_url,
+							'label'  => $site_name,
+							'class'  => 'actnbr-sitename',
+							'before' => wpcom_actionbar_blavatar(),
+						)
+					);
+					wpcom_actionbar_menu_group( ob_get_clean() );
 
-						if ( $is_logged_in && ! $can_customize_site ) {
-							?>
-							<li class="actnbr-theme">
-								<a href="<?php echo esc_url( $theme_url ); ?>"><?php echo esc_html( __( 'Get theme', 'jetpack-mu-wpcom' ) . ': ' . wp_get_theme()->get( 'Name' ) ); ?></a>
-							</li>
-							<?php
-						}
-
-						if ( ! $is_logged_in ) {
-							?>
-							<li class="actnbr-signup"><a href="<?php echo esc_url( $signup_url ); ?>"><?php esc_html_e( 'Sign up', 'jetpack-mu-wpcom' ); ?></a></li>
-							<li class="actnbr-login"><a href="<?php echo esc_url( $login_url ); ?>"><?php esc_html_e( 'Log in', 'jetpack-mu-wpcom' ); ?></a></li>
-							<?php
-						}
-
-						if ( $is_singular ) {
-							?>
-									<li class="actnbr-shortlink">
-										<a href="<?php echo esc_url( $shortlink ); ?>">
-											<span class="actnbr-shortlink__text"><?php esc_html_e( 'Copy shortlink', 'jetpack-mu-wpcom' ); ?></span>
-											<span class="actnbr-shortlink__icon"><?php wpcom_actionbar_icon( 'check', 16 ); ?></span>
-										</a>
-									</li>
-								<?php
-						}
-
-						if ( ! $can_customize_site ) {
-							$report_url = add_query_arg(
-								'report_url',
-								$is_singular ? get_permalink( $post_id ) : $site_url,
-								// phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
-								'https://wordpress.com/abuse/'
-							);
-							?>
-								<li class="flb-report">
-									<a href="<?php echo esc_url( $report_url ); ?>" target="_blank" rel="noopener noreferrer">
-										<?php esc_html_e( 'Report this content', 'jetpack-mu-wpcom' ); ?>
-									</a>
-								</li>
-							<?php
-						}
-
-						if ( $can_follow && $is_singular ) {
-							?>
-								<li class="actnbr-reader">
-									<a href="https://wordpress.com/reader/blogs/<?php echo esc_attr( (string) $site_id ); ?>/posts/<?php echo esc_attr( (string) (int) $post_id ); ?>">
-										<?php esc_html_e( 'View post in Reader', 'jetpack-mu-wpcom' ); ?>
-									</a>
-								</li>
-							<?php
-						}
-
-						if ( $can_follow && ! $is_singular ) {
-							?>
-								<li class="actnbr-reader">
-									<a href="https://wordpress.com/reader/<?php echo $feed_id ? 'feeds/' . esc_attr( (string) $feed_id ) : 'blogs/' . esc_attr( (string) $site_id ); ?>">
-										<?php esc_html_e( 'View site in Reader', 'jetpack-mu-wpcom' ); ?>
-									</a>
-								</li>
-							<?php
-						}
-
-						if ( $is_logged_in && $is_following ) {
-							?>
-								<li class="actnbr-follows">
-									<a href="https://wordpress.com/read/subscriptions/<?php echo esc_attr( (string) $subscription_id ); ?>">
-										<?php esc_html_e( 'Manage subscription', 'jetpack-mu-wpcom' ); ?>
-									</a>
-								</li>
-							<?php
-						}
-
-						if ( $is_logged_in && ! $is_following ) {
-							?>
-								<li class="actnbr-follows">
-									<a href="https://wordpress.com/read/subscriptions?s=<?php echo esc_attr( $site_host ); ?>">
-										<?php esc_html_e( 'Manage subscriptions', 'jetpack-mu-wpcom' ); ?>
-									</a>
-								</li>
-							<?php
-						}
-						if ( ! $is_logged_in ) {
-							?>
-								<li class="actnbr-subs">
-									<a href="https://subscribe.wordpress.com/"><?php esc_html_e( 'Manage subscriptions', 'jetpack-mu-wpcom' ); ?></a>
-								</li>
-							<?php
-						}
-
-						if ( $is_logged_in || $can_follow ) {
-							if ( $is_folded ) {
-								?>
-									<li class="actnbr-fold"><a href=""><?php esc_html_e( 'Expand this bar', 'jetpack-mu-wpcom' ); ?></a></li>
-								<?php
-							} else {
-								?>
-									<li class="actnbr-fold"><a href=""><?php esc_html_e( 'Collapse this bar', 'jetpack-mu-wpcom' ); ?></a></li>
-								<?php
-							}
-						}
+					// This post or site.
+					ob_start();
+					if ( $is_singular ) {
 						?>
-						</ul>
-					</div>
+						<a role="menuitem" class="actnbr-menu__item actnbr-shortlink" href="<?php echo esc_url( $shortlink ); ?>">
+							<span class="actnbr-menu__label actnbr-shortlink__text"><?php esc_html_e( 'Copy shortlink', 'jetpack-mu-wpcom' ); ?></span>
+							<span class="actnbr-menu__icon actnbr-shortlink__icon"><?php wpcom_actionbar_icon( 'copy', 24 ); ?></span>
+							<span class="actnbr-menu__icon actnbr-shortlink__icon-copied"><?php wpcom_actionbar_icon( 'check', 24 ); ?></span>
+						</a>
+						<?php
+					}
+					if ( $can_follow && $is_singular ) {
+						wpcom_actionbar_menu_item(
+							array(
+								'href'  => 'https://wordpress.com/reader/blogs/' . (int) $site_id . '/posts/' . (int) $post_id,
+								'label' => __( 'View post in Reader', 'jetpack-mu-wpcom' ),
+								'class' => 'actnbr-reader',
+							)
+						);
+					}
+					if ( $can_follow && ! $is_singular ) {
+						wpcom_actionbar_menu_item(
+							array(
+								'href'  => 'https://wordpress.com/reader/' . ( $feed_id ? 'feeds/' . (int) $feed_id : 'blogs/' . (int) $site_id ),
+								'label' => __( 'View site in Reader', 'jetpack-mu-wpcom' ),
+								'class' => 'actnbr-reader',
+							)
+						);
+					}
+					if ( $is_logged_in && ! $can_customize_site ) {
+						wpcom_actionbar_menu_item(
+							array(
+								'href'  => $theme_url,
+								'label' => __( 'Get theme', 'jetpack-mu-wpcom' ) . ': ' . wp_get_theme()->get( 'Name' ),
+								'class' => 'actnbr-theme',
+							)
+						);
+					}
+					wpcom_actionbar_menu_group( ob_get_clean() );
+
+					// Account.
+					ob_start();
+					if ( $is_logged_in && $is_following ) {
+						wpcom_actionbar_menu_item(
+							array(
+								'href'  => 'https://wordpress.com/read/subscriptions/' . (int) $subscription_id,
+								'label' => __( 'Manage subscription', 'jetpack-mu-wpcom' ),
+								'class' => 'actnbr-follows',
+							)
+						);
+					}
+					if ( $is_logged_in && ! $is_following ) {
+						wpcom_actionbar_menu_item(
+							array(
+								'href'  => 'https://wordpress.com/read/subscriptions?s=' . rawurlencode( (string) $site_host ),
+								'label' => __( 'Manage subscriptions', 'jetpack-mu-wpcom' ),
+								'class' => 'actnbr-follows',
+							)
+						);
+					}
+					if ( ! $is_logged_in ) {
+						wpcom_actionbar_menu_item(
+							array(
+								'href'  => 'https://subscribe.wordpress.com/',
+								'label' => __( 'Manage subscriptions', 'jetpack-mu-wpcom' ),
+								'class' => 'actnbr-subs',
+							)
+						);
+						wpcom_actionbar_menu_item(
+							array(
+								'href'  => $signup_url,
+								'label' => __( 'Sign up', 'jetpack-mu-wpcom' ),
+								'class' => 'actnbr-signup',
+							)
+						);
+						wpcom_actionbar_menu_item(
+							array(
+								'href'  => $login_url,
+								'label' => __( 'Log in', 'jetpack-mu-wpcom' ),
+								'class' => 'actnbr-login',
+							)
+						);
+					}
+					wpcom_actionbar_menu_group( ob_get_clean() );
+
+					// Report.
+					ob_start();
+					if ( ! $can_customize_site ) {
+						$report_url = add_query_arg(
+							'report_url',
+							$is_singular ? get_permalink( $post_id ) : $site_url,
+							// phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
+							'https://wordpress.com/abuse/'
+						);
+						wpcom_actionbar_menu_item(
+							array(
+								'href'  => $report_url,
+								'label' => __( 'Report this content', 'jetpack-mu-wpcom' ),
+								'class' => 'flb-report',
+								'icon'  => 'external',
+								'blank' => true,
+							)
+						);
+					}
+					wpcom_actionbar_menu_group( ob_get_clean() );
+
+					// Bar.
+					ob_start();
+					if ( $is_logged_in || $can_follow ) {
+						wpcom_actionbar_menu_item(
+							array(
+								'href'  => '',
+								'label' => $is_folded ? __( 'Expand this bar', 'jetpack-mu-wpcom' ) : __( 'Collapse this bar', 'jetpack-mu-wpcom' ),
+								'class' => 'actnbr-fold',
+							)
+						);
+					}
+					wpcom_actionbar_menu_group( ob_get_clean() );
+					?>
 				</div>
 			</li>
 		</ul>

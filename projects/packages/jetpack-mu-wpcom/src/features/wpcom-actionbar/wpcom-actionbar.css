@@ -146,44 +146,145 @@ div#actionbar.actnbr-folded li.actnbr-btn > a {
 
 div#actionbar li.actnbr-ellipsis {
 	position: relative;
-	cursor: pointer;
+}
+
+div#actionbar .actnbr-more-toggle {
+	display: inline-flex;
+	align-items: center;
 	height: 26px;
+	margin: 0;
 	padding: 0 4px;
+	border: 0;
 	border-radius: 3px;
+	background: none;
+	color: #2c3338;
+	cursor: pointer;
 	transition: background-color 0.1s ease-in-out;
 }
 
-div#actionbar li.actnbr-ellipsis:hover {
+div#actionbar .actnbr-more-toggle:hover {
 	background: #f0f0f1;
+	color: #1e1e1e;
 }
 
-div#actionbar .actnbr-ellipsis > .actnbr-icon {
-	color: #1e1e1e;
-	transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-	-webkit-transform: rotate(90deg);
-	-moz-transform: rotate(90deg);
-	-o-transform: rotate(90deg);
-	-ms-transform: rotate(90deg);
+div#actionbar .actnbr-more-toggle .actnbr-icon {
+	transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+div#actionbar .actnbr-ellipsis:not(.actnbr-hidden) .actnbr-more-toggle .actnbr-icon {
 	transform: rotate(90deg);
 }
 
-div#actionbar .actnbr-ellipsis.actnbr-hidden > .actnbr-icon {
-	color: #2c3338;
-	-webkit-transform: rotate(0);
-	-moz-transform: rotate(0);
-	-o-transform: rotate(0);
-	-ms-transform: rotate(0);
-	transform: rotate(0);
+/* Keyboard focus, in place of the blanket outline reset above. */
+div#actionbar :focus-visible {
+	outline: 1.5px solid #3858e9;
+	outline-offset: 1px;
 }
 
-div#actionbar .actnbr-ellipsis.actnbr-hidden > .actnbr-icon:hover {
+/* ⋯ menu, after the editor's DropdownMenu. */
+div#actionbar .actnbr-popover.actnbr-menu {
+	right: 0;
+	bottom: 36px;
+	margin: 0;
+	padding: 8px;
+	min-width: 240px;
+	max-width: 320px;
+	background: #fff;
+	border-radius: 4px;
+	box-shadow: 0 0 0 1px #ccc, 0 2px 3px rgba(0, 0, 0, 0.05), 0 4px 5px rgba(0, 0, 0, 0.04), 0 12px 12px rgba(0, 0, 0, 0.03), 0 16px 16px rgba(0, 0, 0, 0.02);
+	font-size: 13px;
+	line-height: 1.4;
+	text-align: left;
+}
+
+div#actionbar .actnbr-menu__group + .actnbr-menu__group {
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid #ddd;
+}
+
+div#actionbar .actnbr-menu__item {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	min-height: 32px;
+	padding: 6px 8px;
+	border: 0;
+	border-radius: 2px;
+	background: none;
+	box-shadow: none;
 	color: #1e1e1e;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.4;
+	text-align: left;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
 }
 
-div#actionbar .actnbr-ellipsis .tip-inner .actnbr-icon {
-	margin: 0 5px 0 0;
-	vertical-align: middle;
-	position: relative;
+div#actionbar .actnbr-menu__item:hover,
+div#actionbar .actnbr-menu__item:focus-visible {
+	color: #3858e9;
+	background: none;
+	text-decoration: none;
+}
+
+div#actionbar .actnbr-menu__item:focus-visible {
+	outline-offset: -1.5px;
+}
+
+div#actionbar .actnbr-menu__label {
+	display: inline-flex;
+	align-items: center;
+	margin-right: auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+div#actionbar .actnbr-menu__icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	margin-left: 24px;
+	margin-right: -2px;
+	color: currentColor;
+}
+
+div#actionbar .actnbr-menu__item img {
+	width: 24px;
+	height: 24px;
+	margin: -2px 8px -2px 0;
+	padding: 0;
+	border-radius: 2px;
+	display: inline;
+}
+
+div#actionbar .actnbr-sitename {
+	font-weight: 600;
+}
+
+div#actionbar .actnbr-shortlink .actnbr-shortlink__icon-copied,
+div#actionbar .actnbr-shortlink.actnbr-shortlink__copied .actnbr-shortlink__icon {
+	display: none;
+}
+
+div#actionbar .actnbr-shortlink.actnbr-shortlink__copied .actnbr-shortlink__icon-copied {
+	display: inline-flex;
+}
+
+div#actionbar .actnbr-shortlink.actnbr-shortlink__copied,
+div#actionbar .actnbr-shortlink.actnbr-shortlink__copied:hover {
+	color: #008a20;
+	pointer-events: none;
+}
+
+div#actionbar .actnbr-shortlink textarea {
+	position: fixed;
+	opacity: 0;
+	z-index: -1;
+	left: -9999px;
 }
 
 div#actionbar .actnbr-popover {
@@ -311,34 +412,8 @@ div#actionbar li.actnbr-sitename {
 	margin-bottom: 10px;
 }
 
-div#actionbar .actnbr-ellipsis .actnbr-fold,
-div#actionbar .actnbr-notice .actnbr-login-nudge {
-	border-top: 1px solid #f0f0f0;
-	margin-top: 10px;
-}
-
-div#actionbar .actnbr-ellipsis .actnbr-folded-following,
-div#actionbar .actnbr-ellipsis .actnbr-folded-follow {
-	border-bottom: 1px solid #f0f0f0;
-	padding-bottom: 10px;
-	margin-bottom: 10px;
-}
-
 div#actionbar .actnbr-notice .actnbr-follow-count {
 	margin-bottom: 10px;
-}
-
-div#actionbar .actnbr-ellipsis li a:hover .actnbr-icon {
-	color: #fff;
-}
-
-div#actionbar .actnbr-ellipsis li .actnbr-actn-following:hover .actnbr-icon {
-	color: #fff;
-}
-
-div#actionbar .actnbr-ellipsis li .actnbr-actn-following:hover .actnbr-icon .following-icon-tick {
-	color: none;
-	stroke: #fff;
 }
 
 div#actionbar .actnbr-notice form,
@@ -455,31 +530,10 @@ div#actionbar li.actnbr-sitename img {
 	padding: 0;
 }
 
-div#actionbar .actnbr-ellipsis li a:hover {
-	background: #3c434a;
-	color: #fff;
-	text-decoration: none;
-	border: 0;
-	box-shadow: none;
-}
-
 div#actionbar li.actnbr-sitename a:hover {
 	background: transparent;
 	color: #2e4453;
 	margin: 0;
-}
-
-div#actionbar .actnbr-fold {
-	padding-top: 10px;
-}
-
-div#actionbar .actnbr-ellipsis li.actnbr-folded-follow a {
-	align-items: center;
-	display: flex;
-}
-
-div#actionbar.actnbr-has-follow .actnbr-ellipsis li.actnbr-folded-follow {
-	display: none;
 }
 
 div#actionbar .actnbr-notice .tip-inner {
@@ -515,12 +569,6 @@ div#actionbar .actnbr-notice .actnbr-message a {
 
 div#actionbar .actnbr-notice .actnbr-message a:hover {
 	color: #3c434a;
-}
-
-div#actionbar .actnbr-theme a {
-	text-overflow: ellipsis;
-	overflow: hidden;
-	white-space: nowrap;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings {
@@ -691,41 +739,6 @@ div#actionbar .segmented-control__text {
 	overflow: hidden;
 }
 
-div#actionbar .actnbr-shortlink .actnbr-shortlink__icon {
-	display: none;
-	vertical-align: middle;
-	margin-left: 5px;
-	transition: opacity 0.2s ease-in-out;
-	float: right;
-	margin-top: -2px;
-}
-
-div#actionbar .actnbr-shortlink textarea {
-	position: fixed;
-	opacity: 0;
-	z-index: -1;
-	left: -9999px;
-}
-
-div#actionbar .actnbr-shortlink .actnbr-shortlink__copied {
-	pointer-events: none;
-	opacity: 0.5;
-}
-
-div#actionbar .actnbr-shortlink .actnbr-shortlink__copied .actnbr-shortlink__icon {
-	display: inline-block;
-}
-
-div#actionbar .actnbr-shortlink .actnbr-shortlink__copied .actnbr-shortlink__text,
-div#actionbar .actnbr-shortlink .actnbr-shortlink__copied:hover .actnbr-shortlink__text {
-	color: #008a20;
-}
-
-div#actionbar .actnbr-shortlink .actnbr-shortlink__copied .actnbr-icon,
-div#actionbar .actnbr-shortlink .actnbr-shortlink__copied:hover .actnbr-icon {
-	color: #008a20;
-}
-
 /* Responsive Styles */
 @media ( max-width: 660px ) {
 
@@ -846,7 +859,6 @@ div#translator-launcher { /* Move community translator tool when needed */
 
 /***** End theme adjustments */
 
-
 /* Hide Admin bar items */
 li#wp-admin-bar-follow,
 ul#wp-admin-bar-blog-secondary {
@@ -865,7 +877,7 @@ ul#wp-admin-bar-blog-secondary {
 @media (prefers-reduced-motion: reduce) {
 
 	div#actionbar,
-	div#actionbar .actnbr-ellipsis > .actnbr-icon,
+	div#actionbar .actnbr-more-toggle .actnbr-icon,
 	div#actionbar .tip li > a {
 		transition-duration: 1ms !important;
 	}

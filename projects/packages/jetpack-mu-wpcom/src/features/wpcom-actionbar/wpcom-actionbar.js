@@ -351,7 +351,7 @@
 	} );
 
 	// Show shortlink prompt
-	const shortlink = actionbar.querySelector( '.actnbr-shortlink a' );
+	const shortlink = actionbar.querySelector( 'a.actnbr-shortlink' );
 	/**
 	 * Show the "copied" state on the shortlink item for six seconds.
 	 *
@@ -425,33 +425,111 @@
 		} );
 	}
 
+	// More menu: a button toggles it, arrow keys move through it, Escape closes it.
 	const ellipsis = actionbar.querySelector( '.actnbr-ellipsis' );
+	const menuToggle = ellipsis && ellipsis.querySelector( '.actnbr-more-toggle' );
+	const menu = ellipsis && ellipsis.querySelector( '.actnbr-menu' );
 	let isMenuOpen = false;
-	if ( ellipsis ) {
-		ellipsis.addEventListener( 'click', e => {
-			const closestLink = e.target.closest( 'a' );
-			if ( closestLink && closestLink.classList.contains( 'actnbr-action' ) ) {
-				return false;
-			}
 
-			ellipsis.classList.toggle( 'actnbr-hidden' );
-
-			setTimeout( () => {
-				if ( ! ellipsis.classList.contains( 'actnbr-hidden' ) ) {
-					bumpStat( 'show_more_menu' );
-					isMenuOpen = true;
-				}
-			}, 10 );
-		} );
+	/**
+	 * The menu's visible items, in DOM order.
+	 *
+	 * @return {Element[]} Elements with role=menuitem.
+	 */
+	function menuItems() {
+		return Array.from( menu.querySelectorAll( '[role="menuitem"]' ) ).filter(
+			item => item.offsetParent !== null
+		);
 	}
 
-	// Dismiss menu when clicking on document
-	document.addEventListener( 'click', () => {
-		if ( isMenuOpen ) {
-			ellipsis.classList.add( 'actnbr-hidden' );
-			isMenuOpen = false;
+	/**
+	 * Open the menu.
+	 *
+	 * @param {boolean} focusFirst - Move focus to the first item, for keyboard users.
+	 */
+	function openMenu( focusFirst ) {
+		ellipsis.classList.remove( 'actnbr-hidden' );
+		menuToggle.setAttribute( 'aria-expanded', 'true' );
+		bumpStat( 'show_more_menu' );
+		// Let the opening click finish bubbling before the document listener may close it.
+		setTimeout( () => {
+			isMenuOpen = true;
+		}, 10 );
+		if ( focusFirst ) {
+			const items = menuItems();
+			items.length && items[ 0 ].focus();
 		}
-	} );
+	}
+
+	/**
+	 * Close the menu.
+	 *
+	 * @param {boolean} returnFocus - Put focus back on the toggle button.
+	 */
+	function closeMenu( returnFocus ) {
+		ellipsis.classList.add( 'actnbr-hidden' );
+		menuToggle.setAttribute( 'aria-expanded', 'false' );
+		isMenuOpen = false;
+		if ( returnFocus ) {
+			menuToggle.focus();
+		}
+	}
+
+	if ( menuToggle && menu ) {
+		menuToggle.addEventListener( 'click', e => {
+			if ( ellipsis.classList.contains( 'actnbr-hidden' ) ) {
+				// detail is 0 when the button was activated from the keyboard.
+				openMenu( e.detail === 0 );
+			} else {
+				closeMenu( false );
+			}
+		} );
+
+		menuToggle.addEventListener( 'keydown', e => {
+			if ( e.key === 'ArrowDown' || e.key === 'ArrowUp' ) {
+				e.preventDefault();
+				openMenu( true );
+			}
+		} );
+
+		menu.addEventListener( 'keydown', e => {
+			const items = menuItems();
+			const index = items.indexOf( menu.ownerDocument.activeElement );
+			switch ( e.key ) {
+				case 'ArrowDown':
+					e.preventDefault();
+					items[ ( index + 1 ) % items.length ].focus();
+					break;
+				case 'ArrowUp':
+					e.preventDefault();
+					items[ ( index - 1 + items.length ) % items.length ].focus();
+					break;
+				case 'Home':
+					e.preventDefault();
+					items[ 0 ].focus();
+					break;
+				case 'End':
+					e.preventDefault();
+					items[ items.length - 1 ].focus();
+					break;
+				case 'Escape':
+					e.preventDefault();
+					closeMenu( true );
+					break;
+				case 'Tab':
+					closeMenu( false );
+					break;
+				default:
+			}
+		} );
+
+		// Dismiss menu when clicking on document
+		document.addEventListener( 'click', () => {
+			if ( isMenuOpen ) {
+				closeMenu( false );
+			}
+		} );
+	}
 
 	// Fold/Unfold
 	const fold = actionbar.querySelector( '.actnbr-fold' );
@@ -462,7 +540,7 @@
 		}
 		fold.addEventListener( 'click', e => {
 			e.preventDefault();
-			const link = fold.querySelector( 'a' );
+			const link = fold.querySelector( '.actnbr-menu__label' );
 
 			if ( actionbar.classList.contains( 'actnbr-folded' ) ) {
 				link.textContent = fbd.i18n.foldBar;
@@ -491,17 +569,17 @@
 	}
 
 	// Record stats for clicks
-	statsOnClick( '.actnbr-sitename a', 'clicked_site_title' );
-	statsOnClick( '.actnbr-theme a', 'explored_theme' );
+	statsOnClick( 'a.actnbr-sitename', 'clicked_site_title' );
+	statsOnClick( 'a.actnbr-theme', 'explored_theme' );
 	statsOnClick( '.actnbr-edit a', 'edited' );
 	statsOnClick( '.actnbr-stats a', 'clicked_stats' );
-	statsOnClick( '.flb-report a', 'reported_content' );
-	statsOnClick( '.actnbr-follows a', 'managed_following' );
+	statsOnClick( 'a.flb-report', 'reported_content' );
+	statsOnClick( 'a.actnbr-follows', 'managed_following' );
 	statsOnClick( '.actnbr-login-nudge a', 'clicked_login_nudge' );
-	statsOnClick( '.actnbr-signup a', 'clicked_signup_link' );
-	statsOnClick( '.actnbr-login a', 'clicked_login_link' );
-	statsOnClick( '.actnbr-subs a', 'clicked_manage_subs_link' );
-	statsOnClick( '.actnbr-reader a', 'view_reader' );
+	statsOnClick( 'a.actnbr-signup', 'clicked_signup_link' );
+	statsOnClick( 'a.actnbr-login', 'clicked_login_link' );
+	statsOnClick( 'a.actnbr-subs', 'clicked_manage_subs_link' );
+	statsOnClick( 'a.actnbr-reader', 'view_reader' );
 
 	// Record stats on submit
 	const bubbleForm = actionbar.querySelector( '.actnbr-follow-bubble form' );
@@ -538,7 +616,11 @@
 			actionbar.classList.add( 'actnbr-hidden' );
 
 			// Hide any menus.
-			actionbar.querySelectorAll( 'li' ).forEach( menu => menu.classList.add( 'actnbr-hidden' ) );
+			actionbar.querySelectorAll( 'li' ).forEach( item => item.classList.add( 'actnbr-hidden' ) );
+			if ( menuToggle ) {
+				menuToggle.setAttribute( 'aria-expanded', 'false' );
+				isMenuOpen = false;
+			}
 		}
 
 		lastScrollTop = scrollTop;
