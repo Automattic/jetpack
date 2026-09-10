@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Move the @wordpress/theme + @wordpress/private-apis bundling rule into the shared webpack config default.
+
+

@@ -144,9 +144,16 @@ const defaultRequestMap = {
 		external: 'JetpackSharedStores',
 		handle: 'jetpack-shared-stores',
 	},
+	// @wordpress/ui pulls both in transitively, and externalizing them targets script
+	// handles most admin pages never register, so the whole bundle fails to enqueue.
+	// Bundle them jointly: split, @wordpress/theme's module-scope lock() and
+	// @wordpress/private-apis' per-instance consent map diverge. See PR #48173.
+	'@wordpress/theme': { external: false },
+	'@wordpress/private-apis': { external: false },
 };
 
 const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
+	// A caller's entry wins over the default; an empty entry restores the plugin's own handling.
 	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
 
 	const requestToExternal = request => {

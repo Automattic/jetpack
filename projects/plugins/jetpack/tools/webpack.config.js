@@ -187,6 +187,9 @@ module.exports = [
 					// externalize to. Belongs in the dep-extraction plugin's
 					// `BUNDLED_PACKAGES` but isn't there as of 6.54.0, so opt it out here.
 					'@wordpress/global-styles-engine': { external: false },
+					// Opts out of the shared default: the editor packages this entry unlocks
+					// private APIs from are external, so their consent map has to be too.
+					'@wordpress/private-apis': {},
 				},
 			} ),
 		],
@@ -230,18 +233,7 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				// Match the AI admin build: @wordpress/ui (pulled in via the licensing
-				// activation screen) drags in @wordpress/theme and @wordpress/private-apis.
-				// They are not registered as WP script handles on the main Jetpack admin
-				// path (WP < 7.0 has no core wp-theme, and this page does not load the
-				// wp-build-polyfills shim), so bundle them instead of externalizing to
-				// avoid the whole dashboard script failing to enqueue.
-				requestMap: {
-					'@wordpress/theme': { external: false },
-					'@wordpress/private-apis': { external: false },
-				},
-			} ),
+			...jetpackWebpackConfig.DependencyExtractionPlugin(),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,
@@ -259,12 +251,11 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				// @wordpress/ui pulls in @wordpress/theme, which is not a reliable WP script
-				// handle in all contexts, so bundle it instead of externalizing it. Keep
-				// @wordpress/private-apis external so bundled DataViews can unlock private APIs
-				// exposed by external WordPress packages such as @wordpress/components.
+				// Opts out of the shared default: bundled DataViews unlocks private APIs
+				// exposed by external WordPress packages such as @wordpress/components, so
+				// @wordpress/private-apis has to stay on the shared external consent map.
 				requestMap: {
-					'@wordpress/theme': { external: false },
+					'@wordpress/private-apis': {},
 				},
 			} ),
 		],
