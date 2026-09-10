@@ -35,6 +35,7 @@ export {
 	formatDatePartWithTime,
 	getDateIntervalDateParts,
 	getDatePart,
+	parseExactLabel,
 	type DateIntervalDateParts,
 	type DateIntervalPeriod,
 } from './date';
