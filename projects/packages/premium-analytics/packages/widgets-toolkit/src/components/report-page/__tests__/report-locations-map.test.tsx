@@ -43,9 +43,12 @@ describe( 'ReportLocationsMap', () => {
 	it( 'collapses the map from the toggle below it', async () => {
 		render( <ReportLocationsMap rows={ ROWS } mode="country" /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Hide map' } ) );
+		const toggle = screen.getByRole( 'button', { name: 'Hide map' } );
+		await userEvent.click( toggle );
 
-		expect( screen.queryByRole( 'img', { name: 'Views by location' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Show map' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Show map' } ) ).toBe( toggle );
+		// eslint-disable-next-line testing-library/no-node-access -- `aria-controls` is the only handle on the inert wrapper.
+		const chart = document.getElementById( toggle.getAttribute( 'aria-controls' ) as string );
+		expect( chart ).toHaveAttribute( 'inert' );
 	} );
 } );

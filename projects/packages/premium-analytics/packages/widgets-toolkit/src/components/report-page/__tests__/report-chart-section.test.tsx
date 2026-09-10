@@ -9,18 +9,23 @@ import userEvent from '@testing-library/user-event';
 import { ReportChartSection } from '../report-chart-section';
 
 describe( 'ReportChartSection', () => {
-	it( 'takes the chart out of the accessibility tree and back from the toggle', async () => {
+	// jsdom does not honour `inert`, so the attribute itself is what the test reads.
+	it( 'makes the collapsed chart inert and lifts it again from the toggle', async () => {
 		render(
 			<ReportChartSection title="Performance">
 				<button type="button">Chart option</button>
 			</ReportChartSection>
 		);
+		const toggle = screen.getByRole( 'button', { name: 'Hide chart' } );
+		// eslint-disable-next-line testing-library/no-node-access -- `aria-controls` is the only handle on the inert wrapper.
+		const chart = document.getElementById( toggle.getAttribute( 'aria-controls' ) as string );
 
-		expect( screen.getByRole( 'button', { name: 'Chart option' } ) ).toBeInTheDocument();
+		expect( chart ).toContainElement( screen.getByRole( 'button', { name: 'Chart option' } ) );
+		expect( chart ).not.toHaveAttribute( 'inert' );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Hide chart' } ) );
 
-		expect( screen.queryByRole( 'button', { name: 'Chart option' } ) ).not.toBeInTheDocument();
+		expect( chart ).toHaveAttribute( 'inert' );
 		expect( screen.getByRole( 'button', { name: 'Show chart' } ) ).toHaveAttribute(
 			'aria-expanded',
 			'false'
@@ -28,7 +33,7 @@ describe( 'ReportChartSection', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Show chart' } ) );
 
-		expect( screen.getByRole( 'button', { name: 'Chart option' } ) ).toBeInTheDocument();
+		expect( chart ).not.toHaveAttribute( 'inert' );
 		expect( screen.getByRole( 'button', { name: 'Hide chart' } ) ).toHaveAttribute(
 			'aria-expanded',
 			'true'

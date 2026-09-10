@@ -36,7 +36,7 @@ export function ReportLocationsMap( {
 			icon={ globe }
 			title={ __( 'Views by location', 'jetpack-premium-analytics-pkg' ) }
 			help={ __(
-				'Views shaded by country. Regions and cities are summed up to the country they sit in.',
+				'Views shaded by country. Pick a country on the Regions tab to see its regions instead.',
 				'jetpack-premium-analytics-pkg'
 			) }
 			hideLabel={ __( 'Hide map', 'jetpack-premium-analytics-pkg' ) }

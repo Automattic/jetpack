@@ -19,6 +19,8 @@ const ROWS: LocationsGeoRow[] = [
 	{ label: 'Taipei City', value: 40, countryCode: 'TW', countryFull: 'Taiwan' },
 ];
 
+const removeErrorMock = jest.fn();
+
 function lastChartProps() {
 	return geoChartMock.mock.calls[ geoChartMock.mock.calls.length - 1 ][ 0 ];
 }
@@ -26,6 +28,14 @@ function lastChartProps() {
 describe( 'LocationsGeoChart', () => {
 	beforeEach( () => {
 		geoChartMock.mockClear();
+		removeErrorMock.mockClear();
+		( window as Window & { google?: unknown } ).google = {
+			visualization: { errors: { removeError: removeErrorMock } },
+		};
+	} );
+
+	afterEach( () => {
+		delete ( window as Window & { google?: unknown } ).google;
 	} );
 
 	// The failed draw is cached in the module, so a later mount skips straight to
@@ -46,6 +56,7 @@ describe( 'LocationsGeoChart', () => {
 		} );
 
 		expect( lastChartProps() ).toMatchObject( { region: 'world', resolution: 'countries' } );
+		expect( removeErrorMock ).toHaveBeenCalledWith( 'error-1' );
 
 		unmount();
 		render(
@@ -57,5 +68,24 @@ describe( 'LocationsGeoChart', () => {
 		);
 
 		expect( lastChartProps() ).toMatchObject( { region: 'world', resolution: 'countries' } );
+	} );
+
+	it( 'keeps the error on screen where no fallback map follows', () => {
+		render(
+			<LocationsGeoChart
+				rows={ ROWS }
+				mode="city"
+				focusCountry={ { code: 'TW', name: 'Taiwan' } }
+			/>
+		);
+
+		expect( lastChartProps() ).toMatchObject( { region: 'TW', resolution: 'countries' } );
+
+		act( () => {
+			lastChartProps().onError?.( { id: 'error-2', message: 'Requested map does not exist' } );
+		} );
+
+		expect( removeErrorMock ).not.toHaveBeenCalled();
+		expect( lastChartProps() ).toMatchObject( { region: 'TW', resolution: 'countries' } );
 	} );
 } );

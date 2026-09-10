@@ -201,8 +201,18 @@ export function buildLocationsGeoChart( {
 		};
 	}
 
+	// Provinces are matched by name; countries by code, since Google does not
+	// know every name the API uses ("Korea, Republic of").
 	return {
 		...scope,
-		data: [ header, ...rows.map( ( row ): GoogleDataTableRow => [ row.label, row.value ] ) ],
+		data: [
+			header,
+			...rows.map(
+				( row ): GoogleDataTableRow => [
+					useProvinceMap ? row.label : { v: getGeoChartCountryId( row.countryCode ), f: row.label },
+					row.value,
+				]
+			),
+		],
 	};
 }

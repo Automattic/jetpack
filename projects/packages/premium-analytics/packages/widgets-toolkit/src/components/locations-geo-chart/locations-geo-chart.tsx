@@ -20,7 +20,6 @@ type GoogleChartsWindow = Window & {
 	};
 };
 
-const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
 // Google GeoChart has no `provinces` map for some countries (e.g. TW, SG) and no
 // upstream list exists, so each is learned on a failed draw and cached across remounts.
 const runtimeUnsupportedProvinceMapCountries = new Set< string >();
@@ -67,19 +66,9 @@ export function LocationsGeoChart( {
 
 	const handleError = useCallback(
 		( error: GeoChartError ) => {
-			const message = `${ error.message ?? '' } ${ error.detailedMessage ?? '' }`;
-			// Fall back on any error during a provinces draw — the message text may be
-			// localized, and late stragglers after a switch still hit an already-known
-			// country, so the English match alone only catches the first-time case.
-			const isProvinceDrawError = !! focusCountryCode && useProvinceMap;
-			const isKnownUnsupportedProvinceDraw =
-				!! focusCountryCode && runtimeUnsupportedProvinceMapCountries.has( focusCountryCode );
-
-			if (
-				! isProvinceDrawError &&
-				! isKnownUnsupportedProvinceDraw &&
-				! message.includes( MISSING_MAP_ERROR_MESSAGE )
-			) {
+			// Only a focused Regions view redraws after a failure; anywhere else
+			// Google's error element is the only signal left, so leave it be.
+			if ( ! focusCountryCode || mode !== 'region' ) {
 				return;
 			}
 
@@ -89,7 +78,9 @@ export function LocationsGeoChart( {
 				( window as GoogleChartsWindow ).google?.visualization?.errors?.removeError?.( error.id );
 			}
 
-			if ( ! isProvinceDrawError ) {
+			// Any error during a provinces draw triggers the fallback (the message may
+			// be localized); one on the fallback map is a straggler from the failed draw.
+			if ( ! useProvinceMap ) {
 				return;
 			}
 
@@ -104,7 +95,7 @@ export function LocationsGeoChart( {
 				return next;
 			} );
 		},
-		[ focusCountryCode, useProvinceMap ]
+		[ focusCountryCode, mode, useProvinceMap ]
 	);
 
 	return (

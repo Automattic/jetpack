@@ -18,9 +18,10 @@ const INDIA_REGIONS: LocationsGeoRow[] = [
 ];
 
 describe( 'buildLocationsGeoChart', () => {
-	it( 'plots country rows on the world map by name', () => {
+	// Google matches ISO codes but not every API name ("Korea, Republic of").
+	it( 'plots country rows on the world map by code, keeping the name for the tooltip', () => {
 		const { data, region, resolution } = buildLocationsGeoChart( {
-			rows: [ row( 'India', 'IN', 'India', 5967 ) ],
+			rows: [ row( 'Korea, Republic of', 'KR', 'Korea, Republic of', 5967 ) ],
 			mode: 'country',
 		} );
 
@@ -28,7 +29,7 @@ describe( 'buildLocationsGeoChart', () => {
 		expect( resolution ).toBe( 'countries' );
 		expect( data ).toEqual( [
 			[ 'Country', 'Views' ],
-			[ 'India', 5967 ],
+			[ { v: 'KR', f: 'Korea, Republic of' }, 5967 ],
 		] );
 	} );
 

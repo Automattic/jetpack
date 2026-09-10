@@ -3,8 +3,8 @@
 	flex-direction: column;
 }
 
-/* Do not drop the `visibility` delay: without it the card leaves the tab order
- * on the first frame and the collapse never draws. */
+/* Do not drop the `visibility` delay: without it the card vanishes on the
+ * first frame and the collapse never draws. */
 .chart {
 	display: grid;
 	grid-template-rows: 1fr;

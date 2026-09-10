@@ -70,8 +70,8 @@ export interface ReportChartSectionProps {
 /**
  * A report chart in its own card, with a control below it that collapses the card.
  *
- * A collapsed chart stays mounted; the stylesheet is what takes it out of the
- * tab order.
+ * A collapsed chart stays mounted, inert, so it animates shut and reopens
+ * without a redraw.
  *
  * @param {ReportChartSectionProps} props - The component props.
  * @return The chart section.
@@ -93,7 +93,9 @@ export function ReportChartSection( {
 			<div
 				id={ chartId }
 				className={ clsx( styles.chart, isHidden && styles.isHidden ) }
-				aria-hidden={ isHidden || undefined }
+				// React 18 strips a boolean `inert`; the string form is what renders.
+				// @ts-expect-error `inert` is not in the React 18 types.
+				inert={ isHidden ? 'true' : undefined }
 			>
 				<div className={ styles.pane }>
 					<ReportPageSection className={ styles.card }>
