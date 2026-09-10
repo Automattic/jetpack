@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Charts: Prevent unexpected page scrolling when navigating chart tooltips with the keyboard.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Prevent unexpected page scrolling when navigating traffic chart tooltips with the keyboard.
