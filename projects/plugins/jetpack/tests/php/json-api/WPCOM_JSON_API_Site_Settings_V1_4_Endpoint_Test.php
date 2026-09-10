@@ -182,6 +182,88 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Invalid site verification codes return an actionable client error and are not saved.
+	 */
+	public function test_post_rejects_invalid_site_verification_code() {
+		$existing_codes = array( 'bing' => 'existing-code' );
+		update_option( 'verification_services_codes', $existing_codes );
+
+		$setting = wp_json_encode(
+			array( 'verification_services_codes' => array( 'bing' => 'not a valid token' ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$response = $this->make_post_request( $setting );
+
+		$this->assertWPError( $response );
+		$this->assertSame( 'invalid_input', $response->get_error_code() );
+		$this->assertSame( 400, $response->get_error_data() );
+		$this->assertSame( $existing_codes, get_option( 'verification_services_codes' ) );
+	}
+
+	/**
+	 * A valid site verification meta tag is reduced to its content value and saved.
+	 */
+	public function test_post_saves_site_verification_code_from_meta_tag() {
+		$setting = wp_json_encode(
+			array(
+				'verification_services_codes' => array(
+					'bing' => '<meta name="msvalidate.01" content="12C1203B5086AECE94EB3A3D9830B2E" />',
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$response = $this->make_post_request( $setting );
+
+		$this->assertSame(
+			array( 'bing' => '12C1203B5086AECE94EB3A3D9830B2E' ),
+			$response['updated']['verification_services_codes']
+		);
+		$this->assertSame(
+			array( 'bing' => '12C1203B5086AECE94EB3A3D9830B2E' ),
+			get_option( 'verification_services_codes' )
+		);
+	}
+
+	/**
+	 * A boolean false remains a supported way to clear a verification code.
+	 */
+	public function test_post_clears_site_verification_code_with_false() {
+		$setting = wp_json_encode(
+			array( 'verification_services_codes' => array( 'google' => false ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$response = $this->make_post_request( $setting );
+
+		$this->assertSame(
+			array( 'google' => '' ),
+			$response['updated']['verification_services_codes']
+		);
+		$this->assertSame( array( 'google' => '' ), get_option( 'verification_services_codes' ) );
+	}
+
+	/**
+	 * A non-scalar verification code is rejected without clearing the stored value.
+	 */
+	public function test_post_rejects_non_scalar_site_verification_code() {
+		$existing_codes = array( 'google' => 'existing-code' );
+		update_option( 'verification_services_codes', $existing_codes );
+
+		$setting = wp_json_encode(
+			array( 'verification_services_codes' => array( 'google' => array() ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$response = $this->make_post_request( $setting );
+
+		$this->assertWPError( $response );
+		$this->assertSame( 'invalid_input', $response->get_error_code() );
+		$this->assertSame( $existing_codes, get_option( 'verification_services_codes' ) );
+	}
+
+	/**
 	 * The free tier description is capped to 500 characters to match the
 	 * paid-tier description field.
 	 */

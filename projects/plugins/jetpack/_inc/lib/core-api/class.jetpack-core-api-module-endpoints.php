@@ -816,12 +816,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$grouped_options_current = (array) get_option( 'verification_services_codes' );
 					$grouped_options         = $grouped_options_current;
 
-					// Extracts the content attribute from the HTML meta tag if needed.
-					if ( preg_match( '#.*<meta name="(?:[^"]+)" content="([^"]+)" />.*#i', $value, $matches ) ) {
-						$grouped_options[ $option ] = $matches[1];
-					} else {
-						$grouped_options[ $option ] = $value;
+					$validated_code = jetpack_verification_validate_code( $value );
+					if ( false === $validated_code ) {
+						$error = esc_html__( 'The site verification code is invalid.', 'jetpack' );
+						break;
 					}
+
+					$grouped_options[ $option ] = $validated_code;
 
 					// If option value was the same, consider it done.
 					$updated = $grouped_options_current !== $grouped_options
