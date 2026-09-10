@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reserve room for the first and last labels on a time axis, size the y-axis gutter from a pinned domain, and reserve nothing for a hidden y axis.

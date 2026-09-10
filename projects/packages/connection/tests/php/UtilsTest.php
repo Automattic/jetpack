@@ -90,4 +90,37 @@ class UtilsTest extends TestCase {
 				),
 		);
 	}
+
+	/**
+	 * A user WordPress refuses to insert is reported as a failure rather than cached.
+	 *
+	 * The returned WP_Error coerces to user ID 1, so an uncaught failure caches the WordPress.com
+	 * ID against whoever that is.
+	 */
+	public function test_generate_user_returns_false_when_the_user_cannot_be_inserted() {
+		$user_data = (object) array(
+			'ID'           => 4242,
+			'email'        => 'sso_insert_failure@example.com',
+			'user_login'   => 'sso_insert_failure',
+			'login'        => 'sso_insert_failure',
+			'display_name' => 'sso_insert_failure',
+			'first_name'   => 'sso',
+			'last_name'    => 'user',
+			'url'          => 'https://example.com',
+			'description'  => 'A user WordPress will refuse to create',
+		);
+
+		$reject = static function () {
+			return array( 'sso_insert_failure' );
+		};
+		add_filter( 'illegal_user_logins', $reject );
+
+		$before = Utils::get_wpcom_user_id( 1 );
+		$user   = Utils::generate_user( $user_data );
+
+		remove_filter( 'illegal_user_logins', $reject );
+
+		$this->assertFalse( $user );
+		$this->assertSame( $before, Utils::get_wpcom_user_id( 1 ) );
+	}
 }

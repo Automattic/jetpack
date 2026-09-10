@@ -112,6 +112,15 @@ async function fixDeps( pkg ) {
 		delete pkg.dependencies[ 'react-router-dom' ];
 	}
 
+	// Oddly pinned dep.
+	if (
+		pkg.name === '@automattic/components' &&
+		pkg.dependencies.colord &&
+		! pkg.dependencies.colord.startsWith( '^' )
+	) {
+		pkg.dependencies.colord = '^' + pkg.dependencies.colord;
+	}
+
 	// Breaking change in @wordpress/icons v11.
 	if (
 		pkg.name === '@automattic/components' &&
@@ -347,7 +356,6 @@ function fixPeerDeps( pkg ) {
 		'eslint-plugin-jsx-a11y', // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1075
 		'eslint-plugin-react', // https://github.com/jsx-eslint/eslint-plugin-react/issues/3977
 		'@babel/eslint-parser', // https://github.com/babel/babel/issues/17951
-		'eslint-plugin-jest-dom', // https://github.com/testing-library/eslint-plugin-jest-dom/issues/418
 	] );
 	if ( eslintOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'eslint' ] ) {

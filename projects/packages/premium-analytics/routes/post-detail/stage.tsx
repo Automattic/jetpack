@@ -8,13 +8,18 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
 	safeHttpUrl,
+	SectionTabs,
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
+	DetailPageActions,
+	DetailPageBreadcrumbs,
 	DetailPageLayout,
+	DetailPageSection,
 	DetailPageShell,
-	DetailPageTabPanel,
+	useDetailPageCustomize,
+	useStoredDetailLayout,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -27,22 +32,23 @@ import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { PostDetailTabs, postHeaderSlots } from './components';
+import { postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 
 const ROUTE_FROM = route.path;
 
-// The layout is fixed, so the change callback never fires; the dashboard
-// still requires one because it owns a staging copy internally.
-const noopLayoutChange = () => {};
+// Its own preferences scope: the routes are separate packages, and the detail
+// surfaces' stored arrangements have no reason to share a namespace.
+const PREFERENCES_SCOPE = 'jetpack-premium-analytics/post-detail';
 
 /**
  * Premium Analytics post/page detail page stage component.
  *
- * A fixed, non-customizable page (WOOA7S-1622): there is no edit mode, so
- * required widgets and their sizing cannot be removed or reshaped.
+ * The composition is fixed (WOOA7S-1622), but the reader can rearrange its
+ * cards per tab from the page options menu (STATS-428); the arrangement is
+ * committed by the dashboard's own Done action and stored in preferences.
  *
  * @return {JSX.Element} The post detail page.
  */
@@ -67,11 +73,27 @@ function PostDetail(): JSX.Element {
 	// tabs mount their fixed layout and let each widget surface its own error.
 	const emailScopeBlocked = ! emailScope && ! summary.isLoading && summary.isError;
 
-	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs(
-		postId,
-		emailScope?.reportParams,
-		emailScopeBlocked
+	const {
+		tabs,
+		activeTab,
+		setActiveTab,
+		layout: fixedLayout,
+	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked );
+
+	// The stored per-tab arrangement, layered over the fixed composition.
+	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
+		PREFERENCES_SCOPE,
+		activeTab,
+		fixedLayout
 	);
+
+	// Each tab is its own layout, so leaving the tab, by click, Back, or a deep
+	// link, leaves customize mode with it.
+	const { isCustomizing, canPerform, startCustomizing, onEditChange } = useDetailPageCustomize(
+		layout,
+		{ layoutId: activeTab }
+	);
+
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
 	const widgetModules = useSelect(
@@ -125,40 +147,54 @@ function PostDetail(): JSX.Element {
 
 	return (
 		<GlobalErrorProvider>
-			<WidgetDashboard
-				widgetTypes={ pageWidgetTypes }
-				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModuleWithI18n }
-				layout={ layout }
-				onLayoutChange={ noopLayoutChange }
-				gridSettings={ DETAIL_GRID }
-			>
-				<DetailPageShell
-					visual={ <StatsPageIcon /> }
-					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-					actions={
-						publicUrl ? (
-							<LinkButton
-								variant="solid"
-								tone="neutral"
-								size="compact"
-								href={ publicUrl }
-								openInNewTab
-							>
-								{ summary.type === 'page'
-									? __( 'View page', 'jetpack-premium-analytics-pkg' )
-									: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
-							</LinkButton>
-						) : undefined
-					}
+			<WidgetDashboard.Policy canPerform={ canPerform }>
+				<WidgetDashboard
+					widgetTypes={ pageWidgetTypes }
+					isResolvingWidgetTypes={ isResolvingWidgetTypes }
+					resolveWidgetModule={ resolveWidgetModuleWithI18n }
+					layout={ layout }
+					onLayoutChange={ setLayout }
+					onLayoutReset={ resetLayout }
+					gridSettings={ DETAIL_GRID }
+					editMode={ isCustomizing }
+					onEditChange={ onEditChange }
 				>
-					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
+					<DetailPageShell
+						visual={ <StatsPageIcon /> }
+						breadcrumbs={
+							<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
+								<StatsBreadcrumbs items={ breadcrumbs } />
+							</DetailPageBreadcrumbs>
+						}
+						actions={
+							<DetailPageActions
+								isCustomizing={ isCustomizing }
+								onCustomize={ startCustomizing }
+								editingActions={ <WidgetDashboard.Actions /> }
+							>
+								{ publicUrl ? (
+									<LinkButton
+										variant="solid"
+										tone="neutral"
+										size="compact"
+										href={ publicUrl }
+										openInNewTab
+									>
+										{ summary.type === 'page'
+											? __( 'View page', 'jetpack-premium-analytics-pkg' )
+											: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+									</LinkButton>
+								) : null }
+							</DetailPageActions>
+						}
+					>
 						{ /*
 						 * The header is shared by every tab (same post, same range), so it
-						 * renders once above the per-tab grids; the email tabs give it an
+						 * renders once above the per-tab grid; the email tabs give it an
 						 * email identity and report over the send window.
 						 */ }
 						<DetailPageLayout
+							tabs={ <SectionTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 							header={ postHeaderSlots( {
 								summary,
 								variant: isEmailTab ? 'email' : 'post',
@@ -166,15 +202,15 @@ function PostDetail(): JSX.Element {
 							} ) }
 							controls={ dateFiltersPanel }
 						>
-							{ tabs.map( tab => (
-								<DetailPageTabPanel key={ tab.id } value={ tab.id }>
-									{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
-								</DetailPageTabPanel>
-							) ) }
+							{ /* Keyed by tab: each tab is its own layout, so the grid mounts
+							     fresh rather than reflowing one arrangement into the next. */ }
+							<DetailPageSection key={ activeTab }>
+								<WidgetDashboard.Widgets />
+							</DetailPageSection>
 						</DetailPageLayout>
-					</PostDetailTabs>
-				</DetailPageShell>
-			</WidgetDashboard>
+					</DetailPageShell>
+				</WidgetDashboard>
+			</WidgetDashboard.Policy>
 		</GlobalErrorProvider>
 	);
 }

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+HeatmapChart: Add summary columns, per-row roll-ups drawn outside the color scale.

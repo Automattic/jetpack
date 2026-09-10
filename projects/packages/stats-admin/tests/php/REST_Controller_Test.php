@@ -193,6 +193,39 @@ class REST_Controller_Test extends Stats_TestCase {
 	}
 
 	/**
+	 * Test the notices POST forwards `postponed_for` as 0 when omitted.
+	 */
+	public function test_stats_notices_omitted_postponed_for_forwards_zero() {
+		wp_set_current_user( $this->admin_id );
+		$body    = '';
+		$capture = function ( $response, $parsed_args, $url ) use ( &$body ) {
+			if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) !== false ) {
+				$body = $parsed_args['body'];
+			}
+			return $response;
+		};
+		add_filter( 'pre_http_request', $capture, 9, 3 );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/sites/999/jetpack-stats-dashboard/notices' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'id'     => 'new_stats_feedback',
+					'status' => 'dismissed',
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'pre_http_request', $capture, 9 );
+
+		$forwarded = (array) json_decode( (string) $body, true );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 0, $forwarded['postponed_for'] );
+	}
+
+	/**
 	 * Test '/jetpack/v4/stats-app/stats/notices' failed
 	 */
 	public function test_stats_notices_illegal_params() {
@@ -206,6 +239,43 @@ class REST_Controller_Test extends Stats_TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 400, $response->get_status() );
+	}
+
+	/**
+	 * Test the notices GET defaults to the flat boolean map.
+	 */
+	public function test_stats_notices_get_defaults_to_flat_map() {
+		wp_set_current_user( $this->admin_id );
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/stats-app/sites/999/jetpack-stats-dashboard/notices' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertIsBool( $response->get_data()['traffic_page_settings'] );
+	}
+
+	/**
+	 * Test the notices GET forwards `include_details` through to the detail records.
+	 */
+	public function test_stats_notices_get_include_details() {
+		wp_set_current_user( $this->admin_id );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/stats-app/sites/999/jetpack-stats-dashboard/notices' );
+		$request->set_query_params( array( 'include_details' => 'true' ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertArrayHasKey( 'postponed_count', $response->get_data()['traffic_page_settings'] );
+	}
+
+	/**
+	 * Test a falsy `include_details` still gets the flat map, rather than being read as opt-in.
+	 */
+	public function test_stats_notices_get_include_details_false() {
+		wp_set_current_user( $this->admin_id );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/stats-app/sites/999/jetpack-stats-dashboard/notices' );
+		$request->set_query_params( array( 'include_details' => 'false' ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertIsBool( $response->get_data()['traffic_page_settings'] );
 	}
 
 	/**
