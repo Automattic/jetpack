@@ -3,7 +3,7 @@ import { CardDivider } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
 import { Card, Stack, Popover } from '@wordpress/ui';
-import GradeExplanation from '../../app/assets/src/js/features/speed-score/context-tooltip/grade-explanation';
+import GradeExplanation from './grade-explanation';
 import { getGradeTier } from './lib/score-utils';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';

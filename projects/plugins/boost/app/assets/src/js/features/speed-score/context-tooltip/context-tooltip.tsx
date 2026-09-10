@@ -1,5 +1,5 @@
 import { IconTooltip } from '@automattic/jetpack-components';
-import GradeExplanation from './grade-explanation';
+import GradeExplanation from '../../../../../../../_inc/overview/grade-explanation';
 import styles from './context-tooltip.module.scss';
 
 const ContextTooltip = () => {
