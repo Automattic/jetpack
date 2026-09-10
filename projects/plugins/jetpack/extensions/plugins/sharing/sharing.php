@@ -24,7 +24,7 @@ function register_plugins() {
 	 * The extension is available even when the module is not active,
 	 * so we can display a nudge to activate the module instead of the block.
 	 * We skip that nudge for non-admins, who cannot activate modules, and on block themes,
-	 * where the answer is the sharing block in a template rather than the legacy module.
+	 * where the answer is the Sharing Buttons block in a template rather than the legacy module.
 	 */
 	if ( ! ( new Modules() )->is_active( 'sharedaddy' ) && ( ! current_user_can( 'jetpack_activate_modules' ) || wp_is_block_theme() ) ) {
 		return;
