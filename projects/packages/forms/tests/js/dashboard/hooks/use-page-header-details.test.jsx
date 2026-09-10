@@ -176,6 +176,7 @@ let mockFormRecord = { title: { rendered: 'My Form' }, status: 'publish' };
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	createReduxStore: jest.fn( () => 'mock-store' ),
 	register: jest.fn(),
+	select: jest.fn(),
 	useSelect: jest.fn( callback => {
 		const fakeSelect = () => ( {
 			getEntityRecord: () => mockFormRecord,
