@@ -153,6 +153,14 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 	window.jetpack_boost_ds!.modules_state!.value = initialModules;
 	legacyQueryClient.clear();
 	const stopObserving = observeLegacyModulesState( legacyQueryClient );
+	const hadFetch = Object.hasOwn( globalThis, 'fetch' );
+	if ( ! hadFetch ) {
+		Object.defineProperty( globalThis, 'fetch', {
+			configurable: true,
+			writable: true,
+			value: jest.fn(),
+		} );
+	}
 	const fetchSpy = jest.spyOn( globalThis, 'fetch' ).mockImplementation( async ( url, options ) => {
 		if ( options.method === 'POST' ) {
 			savedModules = JSON.parse( options.body as string ).JSON;
@@ -217,6 +225,9 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 		client.clear();
 		legacyQueryClient.clear();
 		fetchSpy.mockRestore();
+		if ( ! hadFetch ) {
+			Reflect.deleteProperty( globalThis, 'fetch' );
+		}
 	}
 } );
 
