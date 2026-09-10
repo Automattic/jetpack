@@ -26,9 +26,10 @@ function register_plugins() {
 	/*
 	 * The extension is available even when the module is not active,
 	 * so we can display a nudge to activate the module instead of the block.
-	 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+	 * We skip that nudge for non-admins, who cannot activate modules, and on block themes,
+	 * where the answer is the Like block in a template rather than the legacy module.
 	 */
-	if ( ! ( new Modules() )->is_active( 'likes' ) && ! current_user_can( 'jetpack_activate_modules' ) ) {
+	if ( ! ( new Modules() )->is_active( 'likes' ) && ( ! current_user_can( 'jetpack_activate_modules' ) || wp_is_block_theme() ) ) {
 		return;
 	}
 
@@ -44,12 +45,15 @@ function register_plugins() {
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugins' );
 
 /**
- * Register post types
+ * Register post types.
+ *
+ * The support flag only exists to render the module activation nudge, so it is not needed
+ * on block themes, where we do not offer that nudge.
  */
 add_action(
 	'rest_api_init',
 	function () {
-		if ( ! ( new Modules() )->is_active( 'likes' ) ) {
+		if ( ! ( new Modules() )->is_active( 'likes' ) && ! wp_is_block_theme() ) {
 			$post_types = get_post_types( array( 'public' => true ) );
 			foreach ( $post_types as $post_type ) {
 				add_post_type_support( $post_type, 'jetpack-post-likes' );

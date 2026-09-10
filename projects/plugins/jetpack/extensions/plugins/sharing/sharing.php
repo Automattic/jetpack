@@ -23,9 +23,10 @@ function register_plugins() {
 	/*
 	 * The extension is available even when the module is not active,
 	 * so we can display a nudge to activate the module instead of the block.
-	 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+	 * We skip that nudge for non-admins, who cannot activate modules, and on block themes,
+	 * where the answer is the sharing block in a template rather than the legacy module.
 	 */
-	if ( ! ( new Modules() )->is_active( 'sharedaddy' ) && ! current_user_can( 'jetpack_activate_modules' ) ) {
+	if ( ! ( new Modules() )->is_active( 'sharedaddy' ) && ( ! current_user_can( 'jetpack_activate_modules' ) || wp_is_block_theme() ) ) {
 		return;
 	}
 
@@ -38,12 +39,17 @@ add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_
  * The Sharing panel is only displayed for post types that support sharing.
  * The sharing module declares support for sharing for all the public post types.
  * Let's do the same thing when the module isn't active yet.
+ *
+ * The support flag only exists to render the module activation nudge, so we skip it on
+ * block themes, where we no longer offer that nudge. The REST field is registered either
+ * way, so the response shape does not change with the theme.
  */
 add_action(
 	'rest_api_init',
 	function () {
 		if ( ! ( new Modules() )->is_active( 'sharedaddy' ) ) {
-			$post_types = get_post_types( array( 'public' => true ) );
+			$post_types     = get_post_types( array( 'public' => true ) );
+			$is_block_theme = wp_is_block_theme();
 
 			foreach ( $post_types as $post_type ) {
 				register_rest_field(
@@ -63,7 +69,10 @@ add_action(
 						),
 					)
 				);
-				add_post_type_support( $post_type, 'jetpack-sharing-buttons' );
+
+				if ( ! $is_block_theme ) {
+					add_post_type_support( $post_type, 'jetpack-sharing-buttons' );
+				}
 			}
 		}
 	}
