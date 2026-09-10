@@ -23,6 +23,11 @@ const ModernSubpage = ( { subpage }: ModernSubpageProps ) => {
 		case 'purchase-successful':
 			return <PurchaseSuccess />;
 	}
+
+	// A sub-page added to the contract without a case here would render nothing.
+	subpage satisfies never;
+
+	return null;
 };
 
 export default ModernSubpage;

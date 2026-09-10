@@ -1,9 +1,9 @@
 /**
  * URL rules for the modern chassis.
  *
- * The wp-build route is `/` with `?tab=overview|settings` in the outer query,
- * owned by the chassis. Sub-pages keep today's hashes, and a recognised hash
- * wins over the tab.
+ * The chassis router keeps its whole route — path and query — inside the `p`
+ * wp-admin query arg, so the tab lives in there rather than beside it.
+ * Sub-pages keep today's hashes, and a recognised hash wins over the tab.
  */
 
 import {
@@ -12,6 +12,8 @@ import {
 	splitHash,
 } from '../../../../../../_inc/runtime-contract';
 import type { Subpage, Tab } from '../../../../../../_inc/runtime-contract';
+
+const ROUTE_ARG = 'p';
 
 export type ModernRoute = {
 	subpage: Subpage | null;
@@ -38,7 +40,7 @@ export function resolveRoute( href: string = window.location.href ): ResolvedRou
 		return { route: { subpage, tab: readTab( url.searchParams ) }, normalizedUrl: null };
 	}
 
-	const hashTab = readTab( splitHash( url.hash ).query );
+	const hashTab = tabFromQuery( splitHash( url.hash ).query );
 	if ( hashTab === 'settings' ) {
 		return {
 			route: { subpage: null, tab: 'settings' },
@@ -50,13 +52,23 @@ export function resolveRoute( href: string = window.location.href ): ResolvedRou
 }
 
 /**
- * Read the tab out of a query, defaulting to Overview.
+ * Read the tab out of any query, defaulting to Overview.
  *
  * @param query - Query to read.
  * @return The tab.
  */
-function readTab( query: URLSearchParams ): Tab {
+function tabFromQuery( query: URLSearchParams ): Tab {
 	return query.get( 'tab' ) === 'settings' ? 'settings' : 'overview';
+}
+
+/**
+ * Read the tab the chassis is on, from the route it keeps in the route arg.
+ *
+ * @param search - Query holding the route arg.
+ * @return The tab.
+ */
+function readTab( search: URLSearchParams ): Tab {
+	return tabFromQuery( splitHash( search.get( ROUTE_ARG ) ?? '' ).query );
 }
 
 /**
@@ -68,7 +80,7 @@ function readTab( query: URLSearchParams ): Tab {
 export function settingsUrl( href: string = window.location.href ): string {
 	const url = new URL( href );
 	url.hash = '';
-	url.searchParams.set( 'tab', 'settings' );
+	url.searchParams.set( ROUTE_ARG, '/?tab=settings' );
 
 	return url.toString();
 }

@@ -39,6 +39,9 @@ jest.mock( './modern-subpage', () => ( {
 
 const BASE_URL = 'http://localhost/wp-admin/admin.php?page=jetpack-boost';
 
+/** The route arg as the chassis writes it. */
+const SETTINGS_ARG = '&p=%2F%3Ftab%3Dsettings';
+
 const goTo = ( suffix: string ) => {
 	act( () => {
 		window.history.replaceState( null, '', `${ BASE_URL }${ suffix }` );
@@ -101,13 +104,47 @@ describe( 'ModernApp', () => {
 
 	it( 'records one page view per visible route activation', () => {
 		renderApp();
-		goTo( '&tab=settings' );
+		goTo( SETTINGS_ARG );
 		goTo( '#/cache-debug-log' );
 
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 			'page_view_overview',
 			'page_view_settings',
 			'page_view_cache_debug_log',
+		] );
+	} );
+
+	it( 'records Settings on a cold load of the chassis Settings route', () => {
+		window.history.replaceState( null, '', `${ BASE_URL }${ SETTINGS_ARG }` );
+
+		renderApp();
+
+		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			'page_view_settings',
+		] );
+	} );
+
+	it( 'records Settings when the chassis switches tab', () => {
+		renderApp();
+
+		goTo( SETTINGS_ARG );
+
+		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			'page_view_overview',
+			'page_view_settings',
+		] );
+	} );
+
+	it( 'records Settings again on the way back from a sub-page', () => {
+		renderApp();
+
+		goTo( '#/cache-debug-log' );
+		goTo( SETTINGS_ARG );
+
+		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			'page_view_overview',
+			'page_view_cache_debug_log',
+			'page_view_settings',
 		] );
 	} );
 
@@ -124,7 +161,7 @@ describe( 'ModernApp', () => {
 		goTo( '#/?tab=settings' );
 
 		expect( window.location.hash ).toBe( '' );
-		expect( window.location.search ).toContain( 'tab=settings' );
+		expect( window.location.search ).toContain( 'p=%2F%3Ftab%3Dsettings' );
 		expect( mockRecordBoostEvent ).toHaveBeenLastCalledWith( 'page_view_settings', { path: '/' } );
 	} );
 

@@ -9,6 +9,8 @@ type NavigateOptions = {
 
 type BoostNavigation = {
 	returnToSettings: ( options?: NavigateOptions ) => void;
+	/** Where Settings lives, for links that must survive a middle click or copy. */
+	settingsHref: string;
 };
 
 const NavigationContext = createContext< BoostNavigation | null >( null );
@@ -32,7 +34,7 @@ export function useBoostNavigation(): BoostNavigation {
 export function LegacyNavigationProvider( { children }: { children: ReactNode } ) {
 	const navigate = useNavigate();
 	const navigation = useMemo< BoostNavigation >(
-		() => ( { returnToSettings: options => navigate( '/', options ) } ),
+		() => ( { returnToSettings: options => navigate( '/', options ), settingsHref: '#/' } ),
 		[ navigate ]
 	);
 
@@ -47,7 +49,10 @@ export function LegacyNavigationProvider( { children }: { children: ReactNode } 
  */
 export function ModernNavigationProvider( { children }: { children: ReactNode } ) {
 	const navigation = useMemo< BoostNavigation >(
-		() => ( { returnToSettings: options => navigateTo( settingsUrl(), options ) } ),
+		() => ( {
+			returnToSettings: options => navigateTo( settingsUrl(), options ),
+			settingsHref: settingsUrl(),
+		} ),
 		[]
 	);
 
