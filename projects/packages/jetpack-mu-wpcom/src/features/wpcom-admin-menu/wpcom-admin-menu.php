@@ -794,9 +794,9 @@ function wpcom_redirect_retired_marketing_page() {
 	}
 
 	wp_safe_redirect( admin_url() );
-	exit;
+	exit; // @codeCoverageIgnore -- the tests unwind from the wp_redirect filter before this line.
 }
-add_action( 'admin_init', 'wpcom_redirect_retired_marketing_page' );
+add_action( 'admin_init', 'wpcom_redirect_retired_marketing_page' ); // @codeCoverageIgnore
 
 /**
  * Displays an Export/Erase Personal Date page for Simple sites.
