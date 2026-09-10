@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Survicate: close surveys while another modal dialog is open in wp-admin, generalizing the existing Help-Center-only suppression.
