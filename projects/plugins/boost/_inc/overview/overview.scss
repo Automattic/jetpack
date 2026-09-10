@@ -101,29 +101,17 @@
 		font-size: var(--wpds-typography-font-size-2xl);
 	}
 
-	&__progress {
-		appearance: none;
-		border: 0;
+	& &__progress {
 		border-radius: var(--wpds-border-radius-md);
 		block-size: var(--wpds-dimension-size-5xs);
 		inline-size: 100%;
-		overflow: hidden;
 		background-color: var(--wpds-color-background-surface-neutral-weak);
-
-		&::-webkit-progress-bar {
-			background-color: var(--wpds-color-background-surface-neutral-weak);
-		}
-
-		&::-webkit-progress-value {
-			background-color: currentColor;
-		}
-
-		&::-moz-progress-bar {
-			background-color: currentColor;
-		}
 	}
 
-	&__progress--good,
+	&__progress--good {
+		--wp-components-color-foreground: var(--wpds-color-foreground-content-success-weak);
+	}
+
 	&__tier--good {
 		color: var(--wpds-color-foreground-content-success-weak);
 	}
@@ -132,12 +120,18 @@
 		color: var(--wpds-color-foreground-content-success-weak);
 	}
 
-	&__progress--medium,
+	&__progress--medium {
+		--wp-components-color-foreground: var(--wpds-color-foreground-content-warning-weak);
+	}
+
 	&__tier--medium {
 		color: var(--wpds-color-foreground-content-warning-weak);
 	}
 
-	&__progress--poor,
+	&__progress--poor {
+		--wp-components-color-foreground: var(--wpds-color-foreground-content-error-weak);
+	}
+
 	&__tier--poor,
 	&__delta--down {
 		color: var(--wpds-color-foreground-content-error-weak);

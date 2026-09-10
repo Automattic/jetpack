@@ -64,4 +64,5 @@ test( 'desktop retains its numeric tier when the overall grade is C', () => {
 	);
 	const desktop = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
 	expect( desktop.getByText( 'Good' ) ).toBeVisible();
+	expect( desktop.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 75 );
 } );

@@ -1,3 +1,4 @@
+import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Skeleton, Stack, Text } from '@wordpress/ui';
 import {
@@ -66,10 +67,9 @@ export default function ScoreCard( {
 				) }
 			</Stack>
 			{ ! showPlaceholder && showProgress && score !== undefined && (
-				<progress
+				<ProgressBar
 					className={ `jetpack-boost-overview__progress jetpack-boost-overview__progress--${ tier }` }
 					value={ score }
-					max={ 100 }
 					aria-label={ label }
 				/>
 			) }
