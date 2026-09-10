@@ -4,10 +4,17 @@ import { dateI18n, getSettings, setSettings } from '@wordpress/date';
 import HistoryChartCard, { buildHistorySeries, HistoryTooltip } from './history-chart-card';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 
-jest.mock( './upgrade-cta', () => ( {
-	__esModule: true,
-	default: () => <button>Upgrade now</button>,
-} ) );
+jest.mock( './upgrade-cta', () => {
+	const { useEffect, useRef } = jest.requireActual( 'react' );
+	return {
+		__esModule: true,
+		default: function UpgradeCTA() {
+			const ref = useRef( null );
+			useEffect( () => {}, [] );
+			return <button ref={ ref }>Upgrade now</button>;
+		},
+	};
+} );
 
 const timestamp = Date.UTC( 2026, 8, 1 );
 const dimensions = {
@@ -379,4 +386,33 @@ test( 'transitions between upgrade, error, and paid history states', () => {
 	expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeInTheDocument();
 	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
 	expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+} );
+
+test( 'keeps upgrade and fresh-start notices silent and safe to switch while announcing errors', () => {
+	// WordPress creates live regions outside the React test container.
+	/* eslint-disable testing-library/no-node-access */
+	const regions = [ 'polite', 'assertive' ].map( politeness => {
+		const id = `a11y-speak-${ politeness }`;
+		const region = document.getElementById( id ) ?? document.createElement( 'div' );
+		region.id = id;
+		region.className = 'a11y-speak-region';
+		region.textContent = '';
+		document.body.appendChild( region );
+		return region;
+	} );
+	/* eslint-enable testing-library/no-node-access */
+	const [ polite, assertive ] = regions;
+	const { rerender } = render( <HistoryChartCard needsUpgrade { ...callbacks } /> );
+	expect( polite ).toBeEmptyDOMElement();
+	expect( assertive ).toBeEmptyDOMElement();
+	expect( () => rerender( <HistoryChartCard isFreshStart { ...callbacks } /> ) ).not.toThrow();
+	expect( screen.getByRole( 'button', { name: 'Okay, got it!' } ) ).toBeInTheDocument();
+	expect( polite ).toBeEmptyDOMElement();
+	expect( assertive ).toBeEmptyDOMElement();
+	expect( () => rerender( <HistoryChartCard needsUpgrade { ...callbacks } /> ) ).not.toThrow();
+	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
+	expect( polite ).toBeEmptyDOMElement();
+	expect( assertive ).toBeEmptyDOMElement();
+	rerender( <HistoryChartCard isError { ...callbacks } /> );
+	expect( assertive ).toHaveTextContent( 'Failed to load performance history' );
 } );

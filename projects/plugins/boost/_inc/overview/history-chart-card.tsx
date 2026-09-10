@@ -182,7 +182,7 @@ export default function HistoryChartCard( {
 		);
 	} else if ( needsUpgrade ) {
 		content = (
-			<Notice.Root intent="info">
+			<Notice.Root intent="info" spokenMessage={ null }>
 				<Notice.Title>{ __( 'Unlock historical performance', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Description>
 					{ __( 'Upgrade and learn more about your site performance over time.', 'jetpack-boost' ) }
@@ -195,7 +195,6 @@ export default function HistoryChartCard( {
 	} else if ( isError && ! isLoading ) {
 		content = (
 			<Notice.Root
-				key="error"
 				intent="error"
 				spokenMessage={ __( 'Failed to load performance history', 'jetpack-boost' ) }
 			>
@@ -208,7 +207,7 @@ export default function HistoryChartCard( {
 		);
 	} else if ( isFreshStart ) {
 		content = (
-			<Notice.Root intent="success">
+			<Notice.Root intent="success" spokenMessage={ null }>
 				<Notice.Title>
 					{ __( 'Hello there! Jetpack Boost premium has been activated.', 'jetpack-boost' ) }
 				</Notice.Title>
