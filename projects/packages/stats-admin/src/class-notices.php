@@ -69,7 +69,7 @@ class Notices {
 	}
 
 	/**
-	 * Return an array of notices IDs as keys and their value to flag whther to show them.
+	 * Return an array of notices IDs as keys and their value to flag whether to show them.
 	 *
 	 * @param bool $include_details Return a detail record per notice instead of a bare flag.
 	 * @return array
