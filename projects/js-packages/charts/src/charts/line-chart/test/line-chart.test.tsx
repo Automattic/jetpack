@@ -143,20 +143,27 @@ describe( 'LineChart', () => {
 			{ color: 'white' },
 			'rgb(255, 255, 255)',
 			'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))',
+			{ color: 'rgb(255, 255, 255)' },
 		],
-		[ { backgroundColor: 'white' }, 'var(--a8c-charts-color-label)', 'rgb(255, 255, 255)' ],
-		[ { background: 'white' }, 'var(--a8c-charts-color-label)', 'white' ],
-		[ { color: 'white', background: 'black' }, 'rgb(255, 255, 255)', 'black' ],
+		[ { backgroundColor: 'white' }, 'var(--a8c-charts-color-label)', 'rgb(255, 255, 255)', {} ],
+		[ { background: 'white' }, 'var(--a8c-charts-color-label)', 'white', {} ],
+		[
+			{ color: 'white', background: 'black' },
+			'rgb(255, 255, 255)',
+			'black',
+			{ color: 'rgb(255, 255, 255)' },
+		],
 	] )(
 		'applies directional tooltip color defaults: %j',
-		async ( tooltipStyle, color, background ) => {
+		async ( tooltipStyle, color, background, containerColorStyle ) => {
 			const user = userEvent.setup();
 			const defaults = document.createElement( 'style' );
 			defaults.textContent = `.line-chart__tooltip {
 				color: var(--a8c-charts-color-label);
 				background: var(--a8c-charts-color-surface);
 			}`;
-			const { container: chart } = renderWithTheme( { tooltipStyle } );
+			renderWithTheme( { tooltipStyle } );
+			const chart = screen.getByTestId( 'line-chart' );
 			chart.appendChild( defaults );
 			chart.style.setProperty( '--a8c-charts-color-label', '#000' );
 			chart.style.setProperty( '--a8c-charts-color-label-axis', '#aaa' );
@@ -173,10 +180,8 @@ describe( 'LineChart', () => {
 						: 'var(--a8c-charts-color-surface)',
 			} );
 			const container = screen.getByTestId( 'bounded-tooltip' );
-			if ( 'color' in tooltipStyle && tooltipStyle.color ) {
-				expect( container ).toHaveStyle( { color } );
-			}
 			expect( container ).toHaveStyle( {
+				...containerColorStyle,
 				[ 'background' in tooltipStyle ? 'background' : 'background-color' ]: background,
 			} );
 		}
