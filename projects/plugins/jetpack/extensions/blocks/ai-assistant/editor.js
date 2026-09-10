@@ -21,9 +21,7 @@ import './extensions/image/with-ai-image-extension';
 const disabledGate = getAiDisabledGate( getJetpackExtensionAvailability( 'ai-assistant' ) );
 
 if ( disabledGate ) {
-	// A Jetpack AI setting is off. Register the block anyway, hidden from the
-	// inserter, so posts that already contain it show why it is off instead of
-	// core's "unsupported block" warning.
+	// Hidden from the inserter; saved blocks still render the placeholder.
 	registerBlockType( metadata, {
 		edit: AiDisabledEdit,
 		save: () => null,

@@ -15,10 +15,10 @@ export type AiDisabledGate = 'master' | 'writing_assistant';
 
 /**
  * Work out whether a block is unavailable because a Jetpack AI setting is
- * off, and if so which one.
+ * off, and if so which one. Any other reason returns null.
  *
- * Any other reason (offline mode, missing module, missing plan, and so on)
- * returns null so the block follows the standard registration path.
+ * Callers still register such a block, hidden from the inserter, so saved
+ * copies show why it is off instead of core's "unsupported block" warning.
  *
  * @param {ExtensionAvailability} availability - The block's availability from the editor's initial state.
  * @return {AiDisabledGate | null} The setting that switched the block off, or null.

@@ -17,6 +17,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-assistant/ai-assistant
 class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use \Activates_Ai_Module;
+	use \Reads_Block_Availability;
 
 	const BLOCK_NAME = 'jetpack/ai-assistant';
 
@@ -73,6 +74,8 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_image_editor_enabled' );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 		remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 		Jetpack_Gutenberg::reset();
 
@@ -103,7 +106,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
 
-		$availability = $this->get_block_availability();
+		$availability = $this->get_block_availability( 'ai-assistant' );
 		$this->assertFalse( $availability['available'] );
 		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
 		$this->assertSame( array( 'gate' => 'writing_assistant' ), $availability['details'] );
@@ -118,7 +121,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 
 		AIAssistant\register_block();
 
-		$availability = $this->get_block_availability();
+		$availability = $this->get_block_availability( 'ai-assistant' );
 		$this->assertFalse( $availability['available'] );
 		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
 		$this->assertSame( array( 'gate' => 'master' ), $availability['details'] );
@@ -136,38 +139,9 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 
 		AIAssistant\register_block();
 
-		$availability = $this->get_block_availability();
+		$availability = $this->get_block_availability( 'ai-assistant' );
 		$this->assertFalse( $availability['available'] );
 		$this->assertSame( 'missing_module', $availability['unavailable_reason'] );
-
-		remove_filter( 'jetpack_offline_mode', '__return_true' );
-		StatusCache::clear();
-	}
-
-	/**
-	 * Read the block's entry from the availability list the editor receives.
-	 *
-	 * Limits the list to this block and treats the site as connected so the
-	 * list is computed at all.
-	 *
-	 * @return array The block's availability entry.
-	 */
-	private function get_block_availability() {
-		$only_this_block = static function () {
-			return array( 'ai-assistant' );
-		};
-		add_filter( 'jetpack_set_available_extensions', $only_this_block, 1000 );
-		// Atomic (wpcomsh) test runs hook these at default priority, so run late.
-		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
-		add_filter( 'jetpack_gutenberg', '__return_true', 1000 );
-
-		$availability = Jetpack_Gutenberg::get_availability();
-
-		remove_filter( 'jetpack_set_available_extensions', $only_this_block, 1000 );
-		remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
-		remove_filter( 'jetpack_gutenberg', '__return_true', 1000 );
-
-		return $availability['ai-assistant'];
 	}
 
 	/**

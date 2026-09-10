@@ -14,9 +14,7 @@ import './editor.scss';
 import './components/feedback/style.scss';
 
 if ( getAiDisabledGate( getJetpackExtensionAvailability( 'ai-chat' ) ) ) {
-	// Jetpack AI is off. Register the block anyway, hidden from the inserter, so
-	// posts that already contain it show why it is off instead of core's
-	// "unsupported block" warning.
+	// Hidden from the inserter; saved blocks still render the placeholder.
 	registerBlockType( metadata, {
 		edit: DisabledEdit,
 		save,
