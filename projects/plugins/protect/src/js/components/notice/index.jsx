@@ -46,9 +46,8 @@ const Notice = ( {
 				styles[ `notice--${ type }` ],
 				floating && styles[ 'notice--floating' ]
 			) }
-			// Only the toast announces: the modal notices are read when their dialog
-			// opens. A non-string message is never passed — `Notice.Root` renders it
-			// to a string mid-render, which corrupts hook order when it holds a Link.
+			// `Notice.Root` serializes `spokenMessage` mid-render, so a JSX message runs its
+			// hooks inside Root and corrupts hook order. Strings only, and only for the toast.
 			spokenMessage={ floating && 'string' === typeof message ? message : null }
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
