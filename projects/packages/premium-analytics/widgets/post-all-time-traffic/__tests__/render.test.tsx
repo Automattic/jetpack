@@ -168,16 +168,17 @@ describe( 'PostAllTimeTraffic widget', () => {
 
 		const heatmap = screen.getByTestId( 'heatmap' );
 		expect( heatmap ).toHaveAttribute( 'data-row-labels', '2026|2025' );
-		expect( heatmap.dataset.columnLabels?.split( '|' ) ).toHaveLength( 12 );
+		// Twelve months and the Totals roll-up.
+		expect( heatmap.dataset.columnLabels?.split( '|' ) ).toHaveLength( 13 );
 		// The current year runs on to the clock's month, so only its opening is pinned.
 		const rows = heatmap.dataset.rows?.split( '|' ) ?? [];
 		// February had no views: a zero, as the endpoint reports it.
 		expect( rows[ 0 ]?.startsWith( '5,0,40' ) ).toBe( true );
 		// The months still to come are filler too, so the row stays a whole year.
-		expect( rows[ 0 ]?.split( ',' ) ).toHaveLength( 12 );
+		expect( rows[ 0 ]?.split( ',' ) ).toHaveLength( 13 );
 		expect( rows[ 0 ] ).not.toContain( '-' );
-		// Published in November: the months before it are filler.
-		expect( rows[ 1 ] ).toBe( '.,.,.,.,.,.,.,.,.,.,10,20' );
+		// Published in November: the months before it are filler; the year total closes the row.
+		expect( rows[ 1 ] ).toBe( '.,.,.,.,.,.,.,.,.,.,10,20,30' );
 		expect( screen.getByTestId( 'legend' ) ).toHaveTextContent( 'Fewer views/More views' );
 	} );
 
@@ -189,6 +190,22 @@ describe( 'PostAllTimeTraffic widget', () => {
 		expect( screen.getByTestId( 'legend' ) ).toHaveTextContent(
 			'Fewer views per day/More views per day'
 		);
+	} );
+
+	it( 'applies a clicked year total to the page as the year cut to the post life', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025' } ) );
+
+		expect( mockOnChange ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2025-11-10T00:00:00.000Z' ),
+				to: new Date( '2025-12-31T23:59:59.999Z' ),
+			},
+			'custom'
+		);
+		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'applies a clicked month to the page as a custom range cut to the post life', async () => {

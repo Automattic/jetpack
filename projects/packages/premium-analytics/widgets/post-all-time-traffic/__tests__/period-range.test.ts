@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { monthRange } from '../period-range';
+import { monthRange, yearRange } from '../period-range';
 
 const bounds = {
 	lifeStartsAt: new Date( '2026-04-10T16:27:32Z' ),
@@ -53,5 +53,27 @@ describe( 'monthRange', () => {
 			from: new Date( '2026-01-01T00:00:00.000Z' ),
 			to: new Date( '2026-01-31T23:59:59.999Z' ),
 		} );
+	} );
+} );
+
+describe( 'yearRange', () => {
+	it( 'opens the year cut to the post life', () => {
+		expect( yearRange( 2026, bounds ) ).toEqual( {
+			from: new Date( '2026-04-10T00:00:00.000Z' ),
+			to: bounds.now,
+		} );
+	} );
+
+	it( 'opens a whole past year', () => {
+		expect(
+			yearRange( 2025, { ...bounds, lifeStartsAt: new Date( '2024-01-01T00:00:00Z' ) } )
+		).toEqual( {
+			from: new Date( '2025-01-01T00:00:00.000Z' ),
+			to: new Date( '2025-12-31T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'has nothing to open for a year after today', () => {
+		expect( yearRange( 2027, bounds ) ).toBeNull();
 	} );
 } );
