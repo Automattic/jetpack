@@ -15,12 +15,13 @@ div#actionbar {
 	position: fixed;
 	bottom: 10px;
 	right: 10px;
-	border: solid 1px #dcdcde;
-	border-radius: 3px;
+	border: 0;
+	border-radius: 4px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
 	opacity: 0.98;
-	height: 35px;
+	height: 30px;
 	margin: 0;
-	padding: 0;
+	padding: 0 2px;
 	box-sizing: border-box;
 	line-height: 1;
 	z-index: 100000;
@@ -58,7 +59,14 @@ div#actionbar.actnbr-folded:hover {
 	opacity: 1;
 }
 
+div#actionbar:hover {
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
+}
+
 div#actionbar ul {
+	display: flex;
+	align-items: center;
+	height: 100%;
 	margin: 0;
 	padding: 0;
 	line-height: 1;
@@ -68,11 +76,11 @@ div#actionbar ul {
 
 div#actionbar li {
 	list-style-type: none;
-	display: inline-block;
-	min-width: 30px;
+	display: flex;
+	align-items: center;
+	height: 100%;
 	margin: 0;
 	padding: 0;
-	vertical-align: middle;
 	line-height: 1;
 }
 
@@ -81,43 +89,41 @@ div#actionbar li::before {
 }
 
 div#actionbar li.actnbr-btn {
-	margin: 0 2px 0 6px;
-}
-
-div#actionbar.actnbr-folded li.actnbr-btn {
-	margin-right: -5px;
+	margin: 0;
 }
 
 div#actionbar li.actnbr-btn > a {
-	display: block;
-	color: #787c82;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 26px;
+	padding: 0 9px;
+	border-radius: 3px;
+	color: #2c3338;
 	font-size: 13px;
-	font-weight: 400;
+	font-weight: 500;
 	text-decoration: none;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	line-height: 1;
-	vertical-align: middle;
-	transition: none;
-	position: relative;
-	padding: 10px 8px 10px 32px;
+	transition: background-color 0.1s ease-in-out;
 	border: none;
 	box-shadow: none;
 }
 
 div#actionbar li.actnbr-btn > a:hover {
-	color: #3c434a;
-	background: none;
+	color: #1e1e1e;
+	background: #f0f0f1;
 }
 
 div#actionbar li.actnbr-btn > a .actnbr-icon {
-	color: #787c82;
-	position: absolute;
-	top: 6px;
-	left: 5px;
+	color: #2c3338;
+	width: 18px;
+	height: 18px;
+	flex: none;
 }
 
 div#actionbar li.actnbr-btn a:hover .actnbr-icon {
-	color: #3c434a;
+	color: #1e1e1e;
 }
 
 div#actionbar li.actnbr-btn a.actnbr-actn-following,
@@ -130,32 +136,29 @@ div#actionbar li.actnbr-btn a.actnbr-actn-following:hover .actnbr-icon {
 	color: #008a20;
 }
 
-div#actionbar.actnbr-folded li.actnbr-btn a.actnbr-action .actnbr-icon {
-	top: 2px;
-}
-
-div#actionbar.actnbr-folded li.actnbr-btn a .actnbr-icon {
-	top: 2px;
-}
-
 div#actionbar.actnbr-folded .actnbr-btn span {
 	display: none;
 }
 
-div#actionbar li.actnbr-ellipsis {
-	position: relative;
-	top: -1px;
-	right: 2px;
-	cursor: pointer;
-	padding: 3px 5px 0 8px;
+div#actionbar.actnbr-folded li.actnbr-btn > a {
+	padding: 0 6px;
 }
 
-div#actionbar.actnbr-folded li.actnbr-ellipsis {
-	top: 2px;
+div#actionbar li.actnbr-ellipsis {
+	position: relative;
+	cursor: pointer;
+	height: 26px;
+	padding: 0 4px;
+	border-radius: 3px;
+	transition: background-color 0.1s ease-in-out;
+}
+
+div#actionbar li.actnbr-ellipsis:hover {
+	background: #f0f0f1;
 }
 
 div#actionbar .actnbr-ellipsis > .actnbr-icon {
-	color: #3c434a;
+	color: #1e1e1e;
 	transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 	-webkit-transform: rotate(90deg);
 	-moz-transform: rotate(90deg);
@@ -164,16 +167,8 @@ div#actionbar .actnbr-ellipsis > .actnbr-icon {
 	transform: rotate(90deg);
 }
 
-div#actionbar:not(.actnbr-has-actions) .actnbr-ellipsis > .actnbr-icon {
-	margin-top: 3px;
-}
-
-div#actionbar.actnbr-folded:not(.actnbr-has-actions) .actnbr-ellipsis > .actnbr-icon {
-	margin-top: 0;
-}
-
 div#actionbar .actnbr-ellipsis.actnbr-hidden > .actnbr-icon {
-	color: #787c82;
+	color: #2c3338;
 	-webkit-transform: rotate(0);
 	-moz-transform: rotate(0);
 	-o-transform: rotate(0);
@@ -182,7 +177,7 @@ div#actionbar .actnbr-ellipsis.actnbr-hidden > .actnbr-icon {
 }
 
 div#actionbar .actnbr-ellipsis.actnbr-hidden > .actnbr-icon:hover {
-	color: #3c434a;
+	color: #1e1e1e;
 }
 
 div#actionbar .actnbr-ellipsis .tip-inner .actnbr-icon {
@@ -197,14 +192,14 @@ div#actionbar .actnbr-popover {
 	z-index: 1000;
 	margin-left: 15px;
 	position: absolute;
-	bottom: 40px;
+	bottom: 38px;
 	right: -13px;
 	max-width: 320px;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 div#actionbar li.actnbr-btn .actnbr-popover {
-	bottom: 47px;
+	bottom: 42px;
 	right: 26px;
 }
 
@@ -737,20 +732,20 @@ div#actionbar .actnbr-shortlink .actnbr-shortlink__copied:hover .actnbr-icon {
 	div#actionbar {
 		bottom: 0;
 		right: 0;
-		padding: 5px 13px;
+		padding: 0 8px;
 		border-radius: 0;
 		width: 100%;
-		height: 44px;
+		height: 40px;
 	}
 
 	div#actionbar.actnbr-folded {
 		opacity: 0.9;
 		width: auto;
-		padding: 5px 10px;
+		padding: 0 4px;
 	}
 
 	div#actionbar > ul {
-		text-align: right;
+		justify-content: flex-end;
 	}
 
 	div#actionbar .actnbr-popover {
@@ -769,9 +764,6 @@ div#actionbar .actnbr-shortlink .actnbr-shortlink__copied:hover .actnbr-icon {
 		left: 53%;
 	}
 
-	div#actionbar.actnbr-folded li.actnbr-btn {
-		margin-right: 3px !important;
-	}
 }
 
 /***** Position adjustments for specific themes that conflict with action bar */
