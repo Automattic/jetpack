@@ -7,14 +7,17 @@ const GUIDES = [
 	{
 		title: __( 'Start a newsletter', 'jetpack-newsletter' ),
 		duration: __( '2 min', 'jetpack-newsletter' ),
+		url: 'https://wordpress.com/support/newsletter/',
 	},
 	{
 		title: __( 'Send newsletter emails to subscribers', 'jetpack-newsletter' ),
 		duration: __( '4 min', 'jetpack-newsletter' ),
+		url: 'https://wordpress.com/support/newsletter/send-newsletter-emails/',
 	},
 	{
 		title: __( 'Newsletter settings', 'jetpack-newsletter' ),
 		duration: __( '5 min', 'jetpack-newsletter' ),
+		url: 'https://wordpress.com/support/newsletter-settings/',
 	},
 ];
 
@@ -33,11 +36,23 @@ export default function GuidesCard(): JSX.Element {
 				<ul className="jetpack-newsletter-overview__guides-list">
 					{ GUIDES.map( guide => (
 						<li key={ guide.title } className="jetpack-newsletter-overview__guide">
-							<span>{ guide.title }</span>
-							<span className="jetpack-newsletter-overview__guide-meta">
-								<span>{ guide.duration }</span>
-								<Icon icon={ external } size={ 20 } aria-hidden="true" />
-							</span>
+							<a
+								className="jetpack-newsletter-overview__guide-link"
+								href={ guide.url }
+								target="_blank"
+								rel="noreferrer"
+							>
+								<span>
+									{ guide.title }{ ' ' }
+									<span className="screen-reader-text">
+										{ __( 'Opens in a new tab', 'jetpack-newsletter' ) }
+									</span>
+								</span>
+								<span className="jetpack-newsletter-overview__guide-meta">
+									<span>{ guide.duration }</span>
+									<Icon icon={ external } size={ 20 } aria-hidden="true" />
+								</span>
+							</a>
 						</li>
 					) ) }
 				</ul>

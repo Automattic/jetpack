@@ -1,7 +1,7 @@
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 
 type ChecklistStep = {
@@ -48,7 +48,7 @@ const STEPS: ChecklistStep[] = [
  */
 export default function OnboardingChecklist(): JSX.Element {
 	return (
-		<div className="jetpack-newsletter-overview__checklist">
+		<Stack direction="column" gap="sm" className="jetpack-newsletter-overview__checklist">
 			{ STEPS.map( step => (
 				<CollapsibleCard.Root
 					key={ step.title }
@@ -57,7 +57,7 @@ export default function OnboardingChecklist(): JSX.Element {
 					} ) }
 					defaultOpen={ step.defaultOpen }
 				>
-					<CollapsibleCard.Header>
+					<CollapsibleCard.Header className="jetpack-newsletter-overview__step-header">
 						<Stack direction="row" align="center" gap="sm">
 							<span
 								className={ clsx( 'jetpack-newsletter-overview__step-status', {
@@ -74,18 +74,23 @@ export default function OnboardingChecklist(): JSX.Element {
 							>
 								{ step.title }
 								{ step.complete ? (
-									<span className="screen-reader-text">
+									<Text
+										render={ <span className="screen-reader-text" /> }
+										className="jetpack-newsletter-overview__step-title-complete"
+									>
 										{ __( 'Complete', 'jetpack-newsletter' ) }
-									</span>
+									</Text>
 								) : null }
 							</Card.Title>
 						</Stack>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
-						<Stack direction="column" gap="md">
-							<p>{ step.description }</p>
+						<Stack direction="column" gap="xl">
+							<Text render={ <p /> } className="jetpack-newsletter-overview__step-description">
+								{ step.description }
+							</Text>
 							{ step.primaryAction ? (
-								<Stack direction="row" gap="sm">
+								<Stack direction="row" gap="md">
 									<Button>{ step.primaryAction }</Button>
 									{ step.secondaryAction ? (
 										<Button variant="minimal" tone="neutral">
@@ -98,6 +103,6 @@ export default function OnboardingChecklist(): JSX.Element {
 					</CollapsibleCard.Content>
 				</CollapsibleCard.Root>
 			) ) }
-		</div>
+		</Stack>
 	);
 }
