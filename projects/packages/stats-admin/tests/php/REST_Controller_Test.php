@@ -197,10 +197,10 @@ class REST_Controller_Test extends Stats_TestCase {
 	 */
 	public function test_stats_notices_omitted_postponed_for_forwards_zero() {
 		wp_set_current_user( $this->admin_id );
-		$forwarded = null;
-		$capture   = function ( $response, $parsed_args, $url ) use ( &$forwarded ) {
+		$body    = '';
+		$capture = function ( $response, $parsed_args, $url ) use ( &$body ) {
 			if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) !== false ) {
-				$forwarded = json_decode( $parsed_args['body'], true );
+				$body = $parsed_args['body'];
 			}
 			return $response;
 		};
@@ -220,6 +220,7 @@ class REST_Controller_Test extends Stats_TestCase {
 		$response = $this->server->dispatch( $request );
 		remove_filter( 'pre_http_request', $capture, 9 );
 
+		$forwarded = (array) json_decode( (string) $body, true );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( 0, $forwarded['postponed_for'] );
 	}
