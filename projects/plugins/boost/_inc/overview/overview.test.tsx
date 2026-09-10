@@ -15,6 +15,7 @@ import { useSingleModuleState } from '../../app/assets/src/js/features/module/li
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
+import { observeLegacyModulesState } from './lib/modules-state-bridge';
 import * as speedScores from './lib/use-speed-scores';
 import Overview from './overview';
 import ScoreCard from './score-card';
@@ -151,6 +152,7 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 	let savedModules = initialModules;
 	window.jetpack_boost_ds!.modules_state!.value = initialModules;
 	legacyQueryClient.clear();
+	const stopObserving = observeLegacyModulesState( legacyQueryClient );
 	const originalFetch = globalThis.fetch;
 	globalThis.fetch = jest.fn().mockImplementation( async ( url, options ) => {
 		if ( options.method === 'POST' ) {
@@ -211,6 +213,7 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 			wpApiSettings.nonce
 		);
 	} finally {
+		stopObserving();
 		view.unmount();
 		client.clear();
 		legacyQueryClient.clear();

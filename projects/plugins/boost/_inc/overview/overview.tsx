@@ -1,5 +1,4 @@
 import { getScoreMovementPercentage } from '@automattic/jetpack-boost-score-api';
-import { queryClient as legacyQueryClient } from '@automattic/jetpack-react-data-sync-client';
 import { useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
@@ -8,6 +7,7 @@ import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
+import { OVERVIEW_MODULES_CHANGE_EVENT } from './lib/modules-state-bridge';
 import { isSiteOnline, useModulesState, useScoreRefreshState } from './lib/use-modules-state';
 import {
 	performanceHistoryQueryKey,
@@ -51,15 +51,11 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 	const isLoading = scoreState.status === 'loading';
 
 	useEffect( () => {
-		return legacyQueryClient.getQueryCache().subscribe( event => {
-			if (
-				event.type === 'updated' &&
-				event.action.type === 'success' &&
-				event.query.queryKey[ 0 ] === 'modules_state'
-			) {
-				queryClient.invalidateQueries( { queryKey: [ 'modules_state' ] } );
-			}
-		} );
+		const onModulesChange = () => {
+			queryClient.invalidateQueries( { queryKey: [ 'modules_state' ] } );
+		};
+		window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onModulesChange );
+		return () => window.removeEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onModulesChange );
 	}, [ queryClient ] );
 
 	useEffect( () => {
