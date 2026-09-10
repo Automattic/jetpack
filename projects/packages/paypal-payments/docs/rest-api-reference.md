@@ -147,6 +147,9 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
 | `line_items[].unit_amount.value` | string | Yes | — | Price (positive, max 2 decimals) |
 | `line_items[].quantity` | string | No | `1` | Quantity |
 | `line_items[].image_url` | string | No | — | Product image URL |
+| `line_items[].taxes[].type` | string | No | `PERCENTAGE` | `PERCENTAGE`, `FLAT` or `PREFERENCE` |
+| `line_items[].taxes[].value` | string | No | `0` | Rate for `PERCENTAGE`, amount for `FLAT`. `PREFERENCE` always sends `PROFILE` |
+| `line_items[].taxes[].name` | string | No | — | Tax label. Sent only when set |
 | `return_url` | string | No | — | Post-payment redirect URL |
 | `name` | string | No | — | Display name for the resource |
 
@@ -175,17 +178,22 @@ List payment resources with pagination.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `page_size` | integer | No | `10` | Results per page (1–100) |
+| `page_size` | integer | No | `100` | Results per page (1–100) |
 | `page_token` | string | No | — | Pagination cursor |
 
 **Response (200):**
 
 ```json
 {
-  "items": [ ... ],
-  "total_items": 5
+  "resources": [ ... ],
+  "total_items": 5,
+  "total_pages": 1,
+  "links": [ { "rel": "next", "href": "..." } ]
 }
 ```
+
+> **Note:** PayPal's body is passed through as-is. `links` includes a `next` only when more
+> pages remain.
 
 ---
 
