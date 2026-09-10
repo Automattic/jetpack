@@ -1,7 +1,9 @@
 /* eslint-disable testing-library/prefer-user-event */
 /* eslint-disable jest-dom/prefer-in-document -- The legacy Boost Jest project does not load jest-dom. */
+import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRoot } from '@wordpress/element';
+import { OVERVIEW_MODULES_CHANGE_EVENT } from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
 import { recordBoostEvent } from './lib/utils/analytics';
 import './modern-overview-upgrade';
@@ -48,4 +50,18 @@ test( 'cancels a pending root before a strict-mode remount', async () => {
 	expect( screen.getAllByRole( 'button', { name: 'Upgrade now' } ) ).toHaveLength( 1 );
 	await act( async () => second.unmount?.() );
 	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).toBeNull();
+} );
+
+test( 'relays module updates from the Data Sync client', () => {
+	const onChange = jest.fn();
+	window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onChange );
+	try {
+		queryClient.setQueryData( [ 'modules_state' ], {
+			defer_js: { active: true, available: true },
+		} );
+		expect( onChange ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		window.removeEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onChange );
+		queryClient.clear();
+	}
 } );

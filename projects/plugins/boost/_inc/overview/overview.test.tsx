@@ -519,6 +519,7 @@ test( 'uses the legacy dismissal hook when no alert adapter is supplied', () => 
 } );
 
 test( 'reports module request errors independently and retries only modules', async () => {
+	window.jetpack_boost_ds!.modules_state!.value = undefined;
 	jest.mocked( apiFetch ).mockImplementation( async ( { url } ) => {
 		if ( url?.includes( 'modules-state' ) ) {
 			throw new Error( 'Module settings unavailable' );
