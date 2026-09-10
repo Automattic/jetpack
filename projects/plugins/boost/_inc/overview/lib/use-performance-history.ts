@@ -11,7 +11,7 @@ export function parsePerformanceHistory( value: unknown ): PerformanceHistory {
 	return performanceHistoryDataSchema.parse( value );
 }
 
-export const performanceHistoryQueryKey = [ 'performance_history' ];
+export const performanceHistoryQueryKey = [ 'performance_history' ] as const;
 
 export function usePerformanceHistory( enabled = true ) {
 	return useQuery( {
