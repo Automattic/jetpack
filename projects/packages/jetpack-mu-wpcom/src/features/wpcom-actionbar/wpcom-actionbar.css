@@ -18,7 +18,7 @@ div#actionbar {
 	border: 0;
 	border-radius: 4px;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
-	opacity: 0.98;
+	opacity: 0.7;
 	height: 30px;
 	margin: 0;
 	padding: 0 2px;
@@ -51,22 +51,13 @@ div#actionbar.actnbr-hidden {
 	transform: translate3d(0, 150px, 0);
 }
 
-div#actionbar.actnbr-folded {
-	opacity: 0.7;
-}
-
-div#actionbar.actnbr-folded:hover {
+div#actionbar:hover,
+div#actionbar:focus-within {
 	opacity: 1;
-}
-
-div#actionbar:hover {
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
 }
 
 div#actionbar ul {
-	display: flex;
-	align-items: center;
-	height: 100%;
 	margin: 0;
 	padding: 0;
 	line-height: 1;
@@ -74,14 +65,23 @@ div#actionbar ul {
 	font-size: 1rem;
 }
 
-div#actionbar li {
-	list-style-type: none;
+div#actionbar > ul {
 	display: flex;
 	align-items: center;
 	height: 100%;
+}
+
+div#actionbar li {
+	list-style-type: none;
 	margin: 0;
 	padding: 0;
 	line-height: 1;
+}
+
+div#actionbar > ul > li {
+	display: flex;
+	align-items: center;
+	height: 100%;
 }
 
 div#actionbar li::before {
