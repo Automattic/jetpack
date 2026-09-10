@@ -211,9 +211,5 @@
 			padding-inline-start: var(--wpds-dimension-padding-sm);
 		}
 
-		dt:not(:first-child),
-		dd:nth-child(n + 3) {
-			color: var(--wpds-color-background-surface-neutral-strong);
-		}
 	}
 }
