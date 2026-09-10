@@ -27,7 +27,6 @@ import { queryClient } from '../src/dashboard/data/query-client';
 import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
-const SETTLE = { timeout: 10000 };
 const PER_PAGE = 10;
 const CLEAR = 'Clear selection';
 
@@ -152,11 +151,11 @@ function renderApp() {
  */
 async function roundTripViaDownload( view: ReturnType< typeof renderApp > ): Promise< string > {
 	const chosen = rewindId( PER_PAGE - 1 );
-	await userEvent.click( await screen.findByRole( 'button', { name: named( chosen ) }, SETTLE ) );
+	await userEvent.click( await screen.findByRole( 'button', { name: named( chosen ) } ) );
 	await waitFor( () => expect( view.state.location.search ).toEqual( { selected: chosen } ) );
 
-	await userEvent.click( await screen.findByRole( 'link', { name: /Download backup/ }, SETTLE ) );
-	const back = await screen.findByRole( 'link', { name: /Back to overview/ }, SETTLE );
+	await userEvent.click( await screen.findByRole( 'link', { name: /Download backup/ } ) );
+	const back = await screen.findByRole( 'link', { name: /Back to overview/ } );
 
 	// One new row lands while they are away — a completed restore writes one, and so does a
 	// finished backup via `useRefreshActivityOnBackupComplete` — pushing their row onto page 2.
@@ -197,7 +196,7 @@ describe( 'Coming back from Download with a row chosen', () => {
 		// One Back from the restored address lands on Download — where the trip out
 		// to Download itself came from — not on an extra step this write invented.
 		await expect(
-			screen.findByRole( 'heading', { name: 'Download backup' }, SETTLE )
+			screen.findByRole( 'heading', { name: 'Download backup' } )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -207,7 +206,7 @@ describe( 'Coming back from Download with a row chosen', () => {
 
 		// The row is on page 2 now and the list is still on page 1, so the pane
 		// cannot resolve it and hedges instead of claiming it is gone.
-		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
 		await waitFor( () =>
 			expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument()
 		);
@@ -219,9 +218,7 @@ describe( 'Coming back from Download with a row chosen', () => {
 		// The copy admits the row may still be fine, so the discard has to be
 		// undoable — landing back on the Overview with the selection restored,
 		// not on the Download screen the return trip came from.
-		await expect(
-			screen.findByRole( 'button', { name: CLEAR }, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'button', { name: CLEAR } ) ).resolves.toBeInTheDocument();
 		expect( view.state.location.search ).toEqual( { selected: chosen } );
 	} );
 } );
@@ -235,17 +232,15 @@ describe( 'A selection nobody chose', () => {
 		// The default renders, so a bare address below is not a pane that never resolved
 		// anything — it is genuinely nothing having been chosen.
 		await expect(
-			screen.findByRole( 'heading', { name: title( rewindId( 0 ) ) }, SETTLE )
+			screen.findByRole( 'heading', { name: title( rewindId( 0 ) ) } )
 		).resolves.toBeInTheDocument();
 		expect( view.state.location.search ).toEqual( {} );
 
-		await userEvent.click( await screen.findByRole( 'link', { name: /Download backup/ }, SETTLE ) );
-		await userEvent.click(
-			await screen.findByRole( 'link', { name: /Back to overview/ }, SETTLE )
-		);
+		await userEvent.click( await screen.findByRole( 'link', { name: /Download backup/ } ) );
+		await userEvent.click( await screen.findByRole( 'link', { name: /Back to overview/ } ) );
 
 		await expect(
-			screen.findByRole( 'heading', { name: title( rewindId( 0 ) ) }, SETTLE )
+			screen.findByRole( 'heading', { name: title( rewindId( 0 ) ) } )
 		).resolves.toBeInTheDocument();
 		expect( view.state.location.search ).toEqual( {} );
 	} );

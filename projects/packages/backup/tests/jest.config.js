@@ -10,14 +10,10 @@ module.exports = {
 	...baseConfig,
 	rootDir: path.join( __dirname, '..' ),
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest.setup.js' ],
-	// Raised above Jest's 5s default so the `SETTLE` windows the route-stage
-	// suites pass to `findBy*` can actually elapse. Those stages render
-	// behind several sequential requests and have taken well over a second
-	// on a loaded runner under coverage, which is why they ask for a longer
-	// deadline than Testing Library's 1s default — but Jest's own timeout
-	// fires first when it is lower, killing the test with a bare "Exceeded
-	// timeout" instead of Testing Library's "Unable to find an element with
-	// the text …" plus the rendered DOM. Losing that dump is losing the one
-	// thing that says what actually went wrong on CI.
+	// Must stay above the `asyncUtilTimeout` set in jest.setup.js: whichever
+	// fires first owns the failure, and Jest's own timeout reports a bare
+	// "Exceeded timeout" where Testing Library reports the missing element
+	// plus the rendered DOM. On CI that dump is the only account of what went
+	// wrong.
 	testTimeout: 20000,
 };

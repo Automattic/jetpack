@@ -46,11 +46,6 @@ import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-// Testing Library's default `findBy` window is one second. These stages
-// render behind several sequential requests, and a loaded CI runner under
-// coverage has taken well over that for the same work locally-green here.
-const SETTLE = { timeout: 10000 };
-
 const REWIND_A = '1786644531.100';
 const REWIND_B = '1786644532.200';
 
@@ -146,10 +141,10 @@ describe( 'Switching between backups', () => {
 		const { rerender } = render( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'heading', { name: 'Backup A complete' }, SETTLE )
+			screen.findByRole( 'heading', { name: 'Backup A complete' } )
 		).resolves.toBeInTheDocument();
 		await expect(
-			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: wp-config.php' } )
 		).resolves.toBeInTheDocument();
 		await userEvent.click( fileRowCheckbox() );
 
@@ -161,25 +156,23 @@ describe( 'Switching between backups', () => {
 		// deliberately constant — a restore point is restored whole, so it
 		// never counts the selection — which makes it useless as a reset
 		// signal here. Its constancy is `restore-label-scope.test.tsx`.
-		await expect(
-			screen.findByText( 'Download 1 selected item', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Download 1 selected item' ) ).resolves.toBeInTheDocument();
 
 		// Open the file's preview as well. A regression that cleared the
 		// selection but left `openFile` set would otherwise pass.
 		await userEvent.click( screen.getByRole( 'button', { name: 'File: wp-config.php' } ) );
 		await expect(
-			screen.findByRole( 'button', { name: 'Close preview' }, SETTLE )
+			screen.findByRole( 'button', { name: 'Close preview' } )
 		).resolves.toBeInTheDocument();
 
 		mockSearch.mockReturnValue( { selected: REWIND_B } );
 		rerender( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'heading', { name: 'Backup B complete' }, SETTLE )
+			screen.findByRole( 'heading', { name: 'Backup B complete' } )
 		).resolves.toBeInTheDocument();
 		await expect(
-			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: wp-config.php' } )
 		).resolves.toBeInTheDocument();
 
 		// The new backup's own file — same path, never checked here — must
@@ -201,26 +194,24 @@ describe( 'Switching between backups', () => {
 		const { rerender } = render( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'heading', { name: 'Backup A complete' }, SETTLE )
+			screen.findByRole( 'heading', { name: 'Backup A complete' } )
 		).resolves.toBeInTheDocument();
 		await expect(
-			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: wp-config.php' } )
 		).resolves.toBeInTheDocument();
 		await userEvent.click( fileRowCheckbox() );
-		await expect(
-			screen.findByText( 'Download 1 selected item', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Download 1 selected item' ) ).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'File: wp-config.php' } ) );
 		await expect(
-			screen.findByRole( 'button', { name: 'Close preview' }, SETTLE )
+			screen.findByRole( 'button', { name: 'Close preview' } )
 		).resolves.toBeInTheDocument();
 
 		// Same backup, so the key is unchanged and nothing should remount.
 		rerender( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: wp-config.php' } )
 		).resolves.toBeInTheDocument();
 		expect( fileRowCheckbox() ).toBeChecked();
 		expect( screen.getByText( 'Download 1 selected item' ) ).toBeInTheDocument();

@@ -44,8 +44,6 @@ import { queryClient } from '../src/dashboard/data/query-client';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-const SETTLE = { timeout: 10000 };
-
 /** Every box in the shared checklist, by its accessible name. */
 const ITEM_LABELS = [
 	'WordPress themes',
@@ -84,7 +82,7 @@ beforeEach( () => {
  */
 async function untickEverything() {
 	for ( const label of ITEM_LABELS ) {
-		await userEvent.click( await screen.findByRole( 'checkbox', { name: label }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'checkbox', { name: label } ) );
 	}
 }
 
@@ -131,7 +129,7 @@ describe( 'Download screen with nothing selected', () => {
 
 		// Mounted and empty before anything is wrong: a live region that
 		// appears together with its first message is unreliable.
-		const hint = await screen.findByRole( 'status', undefined, SETTLE );
+		const hint = await screen.findByRole( 'status' );
 		expect( hint ).toBeEmptyDOMElement();
 		expect( button( /Generate download/ ) ).toHaveAttribute( 'aria-describedby', hint.id );
 
