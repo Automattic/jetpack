@@ -8,6 +8,7 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
 	safeHttpUrl,
+	SectionTabs,
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
@@ -15,8 +16,8 @@ import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DetailPageLayout,
+	DetailPageSection,
 	DetailPageShell,
-	DetailPageTabPanel,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -31,7 +32,7 @@ import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { PostDetailTabs, postHeaderSlots } from './components';
+import { postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
@@ -187,27 +188,26 @@ function PostDetail(): JSX.Element {
 							</DetailPageActions>
 						}
 					>
-						<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
-							{ /*
-							 * The header is shared by every tab (same post, same range), so it
-							 * renders once above the per-tab grids; the email tabs give it an
-							 * email identity and report over the send window.
-							 */ }
-							<DetailPageLayout
-								header={ postHeaderSlots( {
-									summary,
-									variant: isEmailTab ? 'email' : 'post',
-									performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
-								} ) }
-								controls={ dateFiltersPanel }
-							>
-								{ tabs.map( tab => (
-									<DetailPageTabPanel key={ tab.id } value={ tab.id }>
-										{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
-									</DetailPageTabPanel>
-								) ) }
-							</DetailPageLayout>
-						</PostDetailTabs>
+						{ /*
+						 * The header is shared by every tab (same post, same range), so it
+						 * renders once above the per-tab grid; the email tabs give it an
+						 * email identity and report over the send window.
+						 */ }
+						<DetailPageLayout
+							tabs={ <SectionTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
+							header={ postHeaderSlots( {
+								summary,
+								variant: isEmailTab ? 'email' : 'post',
+								performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
+							} ) }
+							controls={ dateFiltersPanel }
+						>
+							{ /* Keyed by tab: each tab is its own layout, so the grid mounts
+							     fresh rather than reflowing one arrangement into the next. */ }
+							<DetailPageSection key={ activeTab }>
+								<WidgetDashboard.Widgets />
+							</DetailPageSection>
+						</DetailPageLayout>
 					</DetailPageShell>
 				</WidgetDashboard>
 			</WidgetDashboard.Policy>
