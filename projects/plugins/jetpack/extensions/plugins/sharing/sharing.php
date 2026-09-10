@@ -40,9 +40,7 @@ add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_
  * The sharing module declares support for sharing for all the public post types.
  * Let's do the same thing when the module isn't active yet.
  *
- * The support flag only exists to render the module activation nudge, so we skip it on
- * block themes, where we no longer offer that nudge. The REST field is registered either
- * way, so the response shape does not change with the theme.
+ * The support flag only exists to render the module activation nudge.
  */
 add_action(
 	'rest_api_init',

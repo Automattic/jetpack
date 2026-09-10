@@ -47,8 +47,7 @@ add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_
 /**
  * Register post types.
  *
- * The support flag only exists to render the module activation nudge, so it is not needed
- * on block themes, where we do not offer that nudge.
+ * The support flag only exists to render the module activation nudge.
  */
 add_action(
 	'rest_api_init',
