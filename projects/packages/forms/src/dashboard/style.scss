@@ -1,11 +1,13 @@
 @use "@automattic/jetpack-base-styles/root-variables";
 @use "./forms-vars";
 
-// Legacy-only: on wp-build these two would shadow the WPDS fallbacks their
-// readers rely on, so they stay here and go when this file does.
+// Legacy-only: on wp-build each of these changes what renders today. The first
+// two shadow the WPDS fallbacks their readers use; the backdrop's reader has
+// none and would drop the file-preview overlay under the admin bar.
 :root {
 	--jp-forms-white-off: var(--jp-white-off, #f9f9f6);
 	--jp-forms-color-darker-20: var(--jp-black-80, #2c3338);
+	--jp-forms-z-modal-backdrop: 10005;
 }
 
 body[class*="_page_jetpack-forms"],

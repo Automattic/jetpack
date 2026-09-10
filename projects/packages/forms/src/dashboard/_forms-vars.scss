@@ -1,6 +1,4 @@
-// Shared by both dashboards. `--jp-forms-white-off` and
-// `--jp-forms-color-darker-20` are deliberately not here: their only readers
-// fall back to a WPDS token, which is what wp-build renders today.
+// Shared by both dashboards; three legacy-only tokens stay in style.scss.
 :root {
 	// Forms-specific variables
 	--jp-forms-font-size-regular: 14px;
@@ -16,7 +14,5 @@
 
 	--jp-forms-focus-shadow: 0 0 0 1px var(--jp-forms-white), 0 0 0 3px var(--jp-forms-color-darker-10);// jetpack color would be nicer: #0b9e08;
 
-	// Z-index values for modal stacking
-	--jp-forms-z-modal-backdrop: 10005;
 	--jp-forms-z-modal: 10010;
 }

@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: fixed
 
-Dashboard: define the Forms CSS custom properties in a shared partial.
+Dashboard: restore the missing border on the responses comment panel.
