@@ -766,6 +766,39 @@ function wpcom_add_tools_menu() {
 add_action( 'admin_menu', 'wpcom_add_tools_menu', 999999 );
 
 /**
+ * Sends the retired Tools > Marketing URL to the dashboard.
+ *
+ * The page was removed in DOTCOM-18531. Nothing links to it any more, but the
+ * Calypso sidebar pointed at this exact URL until the removal shipped, so it is
+ * still in plenty of browser histories and bookmarks. Left alone, WordPress
+ * answers an unregistered page slug with a bare "Cannot load
+ * wpcom-marketing-tools.", which reads like a broken install rather than a page
+ * that went away. The dashboard mirrors where the Calypso URL now lands.
+ *
+ * This runs on admin_init, which fires before the point in wp-admin/admin.php
+ * where core gives up on the slug.
+ *
+ * Tombstone: delete this function and its hook by 2027-09-10. A year is long
+ * enough for the stale bookmarks to age out, and after that the redirect is
+ * just a puzzle for whoever reads this next.
+ */
+function wpcom_redirect_retired_marketing_page() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading a menu slug from a GET request, no state changes.
+	if ( ! isset( $_GET['page'] ) ) {
+		return;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- As above.
+	if ( 'wpcom-marketing-tools' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
+		return;
+	}
+
+	wp_safe_redirect( admin_url() );
+	exit;
+}
+add_action( 'admin_init', 'wpcom_redirect_retired_marketing_page' );
+
+/**
  * Displays an Export/Erase Personal Date page for Simple sites.
  */
 function wpcom_display_export_erase_personal_data_page() {
