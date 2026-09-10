@@ -21,7 +21,7 @@ The Newsletter package will expose a composed endpoint:
 GET /jetpack/v4/newsletter/stats/recent-posts
 ```
 
-`Subscriber_Stats_Controller` will own the endpoint because it already owns the Newsletter Stats authorization and WordPress.com proxy integration. The endpoint will:
+`Subscriber_Stats_Controller` will own the endpoint because it already owns the Newsletter Stats authorization and WordPress.com integration. The endpoint will:
 
 1. query the current site for its ten newest `post` records with status `publish` or `draft`;
 2. request the latest 30 email-summary rows from WordPress.com Stats;
@@ -30,6 +30,8 @@ GET /jetpack/v4/newsletter/stats/recent-posts
 5. return one normalized response for the React application.
 
 The endpoint will not fetch post content through the WordPress.com posts API. `WP_Query` remains the source of truth in every host environment, including WordPress.com Simple. WordPress.com Stats is used only for email metrics.
+
+For connected self-hosted and Atomic sites, the portable package continues using its signed blog-token proxy. WordPress.com Simple has no general blog token on the Newsletter screen, so the package will expose the `jetpack_newsletter_stats_pre_request` filter with `( mixed|null $response, string $endpoint, array $query_args ): mixed`. A WPCOM-owned callback will register from the Newsletter mu-plugin integration, handle only `subscribers` and `emails/summary`, call the existing Stats implementation internally, and return the same payload. Returning `null` preserves the portable proxy fallback. The override must not weaken Connection Manager globally or introduce WPCOM library dependencies into the portable package.
 
 To avoid two requests for the same email summary, the composed response will also include the totals needed by the existing Open Rate and Click Rate cards. The frontend will request:
 
@@ -42,23 +44,24 @@ Successful responses use this shape:
 
 ```ts
 type RecentPostsResponse = {
-  posts: Array< {
-    id: number;
-    title: string;
-    status: 'publish' | 'draft';
-    date: string;
-    url: string;
-    image: string | null;
-    recipients: number | null;
-    openRatePercent: number | null;
-    clickRatePercent: number | null;
-  } >;
-  emailTotals: {
-    sends: number;
-    uniqueOpens: number;
-    uniqueClicks: number;
-  } | null;
-  viewAllUrl: string;
+ posts: Array< {
+  id: number;
+  title: string;
+  status: 'publish' | 'draft';
+  date: string;
+  url: string;
+  image: string | null;
+  recipients: number | null;
+  openRatePercent: number | null;
+  clickRatePercent: number | null;
+ } >;
+ emailTotals: {
+  sends: number;
+  uniqueOpens: number;
+  uniqueClicks: number;
+ } | null;
+ viewAllUrl: string;
+ createPostUrl: string;
 };
 ```
 
@@ -70,6 +73,8 @@ Post fields come from the current site:
 - `date` from the post date;
 - `url` from the permalink for published posts and the authenticated preview link for drafts;
 - `image` from the featured-image URL.
+
+The response also supplies `viewAllUrl` as `wp-admin/edit.php` and `createPostUrl` as `wp-admin/post-new.php`.
 
 Metric fields come from the matching email-summary row:
 
@@ -83,18 +88,16 @@ The route requires `manage_options`, matching the existing Newsletter Stats rout
 
 ## UI Structure
 
-The current Stats implementation will be split into bounded components:
+The current `subscriber-stats-chart.tsx` remains the Stats page owner. To keep this addition small, only the table is extracted:
 
 ```text
-routes/dashboard/components/stats-body/
-├── index.tsx
-├── metrics.tsx
-├── subscribers-chart.tsx
-├── recent-posts.tsx
-└── style.scss
+routes/dashboard/components/
+├── subscriber-stats-chart.tsx
+├── subscriber-stats-chart.module.scss
+└── recent-posts.tsx
 ```
 
-`StatsBody` owns the two request lifecycles and provides normalized data to the presentation components. `Metrics` renders subscriber and aggregate email values. `SubscribersChart` renders the existing chart. `RecentPosts` renders the new card.
+`SubscriberStatsChart` owns the two React Query requests, greeting, metrics, chart, and page composition. `RecentPosts` receives normalized rows and query-state props and renders the new card. Shared types stay beside their only consumers rather than introducing a new component hierarchy.
 
 The Recent Posts card follows the supplied reference:
 
@@ -112,7 +115,7 @@ The list contains ten rows rather than the five shown in the reference. The comp
 
 ## Loading, Empty, and Error States
 
-- The Recent Posts request has an independent loading state so it does not block the subscriber chart.
+- The existing dashboard `QueryClientProvider` owns caching, and separate `useQuery` calls keep Recent Posts loading and retry independent from the subscriber chart.
 - If no eligible posts exist, the card presents an empty state with a link to create a post.
 - If the composed endpoint fails, the card presents an error and retry action while the rest of Stats remains available.
 - If the WordPress.com email-summary request fails but the local post query succeeds, the endpoint still returns the local rows with `null` metrics and `emailTotals: null`.
@@ -136,6 +139,15 @@ Tests will verify that the controller:
 - uses `null` for unavailable metrics;
 - returns local posts when the WordPress.com summary request fails;
 - produces aggregate email totals from the same summary response.
+
+### WordPress.com Simple integration
+
+WPCOM tests will verify that its Newsletter integration:
+
+- registers the narrow host override only in the WPCOM environment;
+- serves both supported Stats paths without requiring a Jetpack connection token;
+- preserves the response shapes used by the portable controller;
+- leaves signed blog-token behavior unchanged for connected sites.
 
 ### JavaScript
 
