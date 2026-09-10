@@ -160,8 +160,6 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		// Atomic (wpcomsh) test runs hook these at default priority, so run late.
 		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 		add_filter( 'jetpack_gutenberg', '__return_true', 1000 );
-		// Other extensions re-registering here is noise for this test.
-		remove_all_actions( 'jetpack_register_gutenberg_extensions' );
 
 		$availability = Jetpack_Gutenberg::get_availability();
 
