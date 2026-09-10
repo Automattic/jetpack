@@ -64,6 +64,40 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * A Tokens stub reporting that a user holds a token.
+	 *
+	 * @param int $user_id The local user the token belongs to.
+	 * @return \PHPUnit\Framework\MockObject\MockObject|Tokens
+	 */
+	private function connected_tokens( $user_id ) {
+		$tokens = $this->getMockBuilder( Tokens::class )
+			->onlyMethods( array( 'get_access_token' ) )
+			->getMock();
+		$tokens->method( 'get_access_token' )->willReturn(
+			(object) array(
+				'secret'           => 'key.secret',
+				'external_user_id' => $user_id,
+			)
+		);
+
+		return $tokens;
+	}
+
+	/**
+	 * A Tokens stub reporting that a user holds no token.
+	 *
+	 * @return \PHPUnit\Framework\MockObject\MockObject|Tokens
+	 */
+	private function disconnected_tokens() {
+		$tokens = $this->getMockBuilder( Tokens::class )
+			->onlyMethods( array( 'get_access_token' ) )
+			->getMock();
+		$tokens->method( 'get_access_token' )->willReturn( false );
+
+		return $tokens;
+	}
+
+	/**
 	 * Build a Manager with a stubbed connection owner and WordPress.com user data lookup.
 	 *
 	 * @param int|false $owner_id       What `get_connection_owner_id()` should report.
@@ -73,15 +107,7 @@ class Protected_Owner_Test extends TestCase {
 	 * @return \PHPUnit\Framework\MockObject\MockObject|Manager
 	 */
 	private function manager( $owner_id, $owner_data = false, $lookup_matcher = null, $connected = true ) {
-		$tokens = $this->getMockBuilder( Tokens::class )
-			->onlyMethods( array( 'get_access_token' ) )
-			->getMock();
-		$tokens->method( 'get_access_token' )->willReturn(
-			$connected ? (object) array(
-				'secret'           => 'key.secret',
-				'external_user_id' => $owner_id,
-			) : false
-		);
+		$tokens = $connected ? $this->connected_tokens( $owner_id ) : $this->disconnected_tokens();
 
 		$manager = $this->getMockBuilder( Manager::class )
 			->onlyMethods( array( 'get_connection_owner_id', 'get_connected_user_data', 'get_tokens' ) )
@@ -178,10 +204,11 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * A row on somebody who is not the connection owner cannot satisfy the gate. This is what
-	 * starting from `master_user` buys, rather than searching for whoever holds the anchored ID.
+	 * The identity looked up is the connection owner's, so a row on any other user is never what
+	 * answers the gate. Asserted on the lookup itself: an outcome assertion would pass here
+	 * whether or not the owner was where the answer came from.
 	 */
-	public function test_a_binding_on_another_user_does_not_satisfy_the_gate() {
+	public function test_the_gate_resolves_the_connection_owner_and_nobody_else() {
 		$this->anchor();
 
 		$bystander = wp_insert_user(
@@ -192,7 +219,15 @@ class Protected_Owner_Test extends TestCase {
 		);
 		Utils::set_wpcom_user_id( $bystander, self::ANCHORED_WPCOM_ID );
 
-		$manager = $this->manager( $this->owner_id, false );
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'get_connection_owner_id', 'get_connected_user_data', 'get_tokens' ) )
+			->getMock();
+		$manager->method( 'get_connection_owner_id' )->willReturn( $this->owner_id );
+		$manager->method( 'get_tokens' )->willReturn( $this->connected_tokens( $this->owner_id ) );
+		$manager->expects( $this->once() )
+			->method( 'get_connected_user_data' )
+			->with( $this->owner_id )
+			->willReturn( false );
 
 		$this->assertFalse( $manager->has_protected_owner() );
 	}
