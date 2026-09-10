@@ -97,7 +97,6 @@
 	function followRequest( action ) {
 		postAction( {
 			action,
-			_wpnonce: fbd.nonce,
 			source: 'actionbar',
 			blog_id: fbd.siteID,
 		} );
@@ -150,14 +149,7 @@
 		actionbar.classList.remove( 'actnbr-hidden' );
 	} );
 
-	// Show status message if available
-	if ( fbd.statusMessage ) {
-		showActionBarStatusMessage( fbd.statusMessage );
-	}
-
 	// *** Actions *****************
-
-	let isFollowBubbleOpen = false;
 
 	// Follow Site
 	const follow = actionbar.querySelector( '.actnbr-actn-follow' );
@@ -175,8 +167,7 @@
 		}
 		closeMenu( false );
 		followItem.classList.remove( 'actnbr-hidden' );
-		follow && follow.setAttribute( 'aria-expanded', 'true' );
-		isFollowBubbleOpen = true;
+		follow.setAttribute( 'aria-expanded', 'true' );
 	}
 
 	/**
@@ -185,12 +176,12 @@
 	 * @param {boolean} returnFocus - Put focus back on the Subscribe button.
 	 */
 	function closeFollowBubble( returnFocus ) {
-		if ( followItem ) {
-			followItem.classList.add( 'actnbr-hidden' );
+		if ( ! followItem ) {
+			return;
 		}
-		follow && follow.setAttribute( 'aria-expanded', 'false' );
-		isFollowBubbleOpen = false;
-		if ( returnFocus && follow ) {
+		followItem.classList.add( 'actnbr-hidden' );
+		follow.setAttribute( 'aria-expanded', 'false' );
+		if ( returnFocus ) {
 			follow.focus();
 		}
 	}
@@ -217,9 +208,6 @@
 	const emailCommentsToggle = actionbar.querySelector( '#toggle-input-email-comments' );
 
 	const frequencyOptions = actionbar.querySelectorAll( '.segmented-control__link' );
-	const instantlyOption = actionbar.querySelector( '.frequency-instantly' );
-	const dailyOption = actionbar.querySelector( '.frequency-daily' );
-	const weeklyOption = actionbar.querySelector( '.frequency-weekly' );
 
 	if ( reblog ) {
 		reblog.addEventListener( 'click', e => {
@@ -262,9 +250,7 @@
 	}
 	if ( notifyPostsToggle ) {
 		notifyPostsToggle.addEventListener( 'click', e => {
-			e.preventDefault();
-			const isEnabling = e.target.parentElement.classList.toggle( 'is-checked' );
-			e.target.setAttribute( 'aria-checked', isEnabling ? 'true' : 'false' );
+			const isEnabling = e.target.checked;
 			const restPath = `/read/sites/${ fbd.siteID }/notification-subscriptions/${
 				isEnabling ? 'new' : 'delete'
 			}`;
@@ -279,9 +265,7 @@
 	}
 	if ( emailPostsToggle ) {
 		emailPostsToggle.addEventListener( 'click', e => {
-			e.preventDefault();
-			const isEnabling = e.target.parentElement.classList.toggle( 'is-checked' );
-			e.target.setAttribute( 'aria-checked', isEnabling ? 'true' : 'false' );
+			const isEnabling = e.target.checked;
 			const restPath = `/read/site/${ fbd.siteID }/post_email_subscriptions/${
 				isEnabling ? 'new' : 'delete'
 			}`;
@@ -299,9 +283,7 @@
 	}
 	if ( emailCommentsToggle ) {
 		emailCommentsToggle.addEventListener( 'click', e => {
-			e.preventDefault();
-			const isEnabling = e.target.parentElement.classList.toggle( 'is-checked' );
-			e.target.setAttribute( 'aria-checked', isEnabling ? 'true' : 'false' );
+			const isEnabling = e.target.checked;
 			const restPath = `/read/site/${ fbd.siteID }/comment_email_subscriptions/${
 				isEnabling ? 'new' : 'delete'
 			}`;
@@ -309,22 +291,7 @@
 		} );
 	}
 	if ( privacyButton ) {
-		/*
-		 * The PHP code will add the class 'actnbr-has-actions' to the actionbar if there are visible actions.
-		 * This does NOT include the privacy button. The privacy button is displayed when it satisfies both of
-		 * the following conditions:
-		 *
-		 * 1. the checks in PHP plugin code AND
-		 * 2. window.__tcfapi exists in the window object.
-		 *
-		 * If the JS thinks it should render the privacy button and there are no other actions
-		 * then it needs to add the class 'actnbr-has-actions' to the actionbar.
-		 * This is to style the ellipsis button and hide the expand/collapse button
-		 * (which shouldn't display if there are no visible actions).
-		 */
-		if ( ! actionbar.classList.contains( 'actnbr-has-actions' ) && ! window.__tcfapi ) {
-			actionbar.classList.remove( 'actnbr-has-actions' );
-		}
+		// The consent UI only exists when the CMP script defined window.__tcfapi.
 		if ( window.__tcfapi ) {
 			privacyButton.parentNode.classList.remove( 'no-display' );
 		}
@@ -346,50 +313,38 @@
 	 * @param {Element} option - The option's link.
 	 */
 	function selectFrequencyOption( option ) {
-		frequencyOptions.forEach( opt => {
-			opt.parentElement.classList.remove( 'is-selected' );
-			opt.setAttribute( 'aria-checked', 'false' );
-		} );
-		option.parentElement.classList.add( 'is-selected' );
+		frequencyOptions.forEach( opt => opt.setAttribute( 'aria-checked', 'false' ) );
 		option.setAttribute( 'aria-checked', 'true' );
 	}
 
-	const onFrequencyOptionClick = ( e, frequencyKey ) => {
-		selectFrequencyOption( e.target );
-		const restPath = `/read/site/${ fbd.siteID }/post_email_subscriptions/update`;
-		postToApi( restPath, 'rest/v1.2', { delivery_frequency: frequencyKey } );
-	};
-
-	if ( frequencyOptions.length > 0 ) {
-		// Check to make sure elements exist
-		instantlyOption.addEventListener( 'click', e => onFrequencyOptionClick( e, 'instantly' ) );
-		dailyOption.addEventListener( 'click', e => onFrequencyOptionClick( e, 'daily' ) );
-		weeklyOption.addEventListener( 'click', e => onFrequencyOptionClick( e, 'weekly' ) );
+	frequencyOptions.forEach( ( opt, i ) => {
+		opt.addEventListener( 'click', () => {
+			selectFrequencyOption( opt );
+			const restPath = `/read/site/${ fbd.siteID }/post_email_subscriptions/update`;
+			postToApi( restPath, 'rest/v1.2', { delivery_frequency: opt.dataset.frequency } );
+		} );
 
 		// Arrow keys move between the radios, as in a native group.
-		frequencyOptions.forEach( ( opt, i ) => {
-			opt.addEventListener( 'keydown', e => {
-				const delta = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[ e.key ];
-				if ( delta ) {
-					e.preventDefault();
-					const next =
-						frequencyOptions[ ( i + delta + frequencyOptions.length ) % frequencyOptions.length ];
-					next.focus();
-					next.click();
-				}
-			} );
+		opt.addEventListener( 'keydown', e => {
+			const delta = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[ e.key ];
+			if ( delta ) {
+				e.preventDefault();
+				const next =
+					frequencyOptions[ ( i + delta + frequencyOptions.length ) % frequencyOptions.length ];
+				next.focus();
+				next.click();
+			}
 		} );
-	}
+	} );
 
 	if ( follow ) {
 		follow.addEventListener( 'click', e => {
 			e.preventDefault();
-			e.stopPropagation();
 
 			openFollowBubble();
 
 			if ( fbd.isLoggedIn ) {
-				showActionBarStatusMessage( `<div class="actnbr-reader">${ fbd.i18n.followedText }</div>` );
+				showActionBarStatusMessage( fbd.i18n.followedText );
 				bumpStat( 'followed' );
 				recordTracksEvent( 'wpcom_actionbar_site_followed', {
 					follow_source: 'actionbar',
@@ -402,10 +357,10 @@
 					emailPostsToggle.click();
 				}
 
-				notifyPostsToggle && notifyPostsToggle.click();
+				notifyPostsToggle.click();
 
 				// Keyboard users land on the first setting.
-				if ( e.detail === 0 && notifyPostsToggle ) {
+				if ( e.detail === 0 ) {
 					notifyPostsToggle.focus();
 				}
 			} else {
@@ -431,110 +386,77 @@
 			followRequest( 'ab_unsubscribe_from_blog' );
 
 			closeFollowBubble( false );
-			const followNotificationCheckedToggles = actionbar.querySelectorAll(
-				'.actnbr-site-settings__toggle.is-checked'
-			);
-			followNotificationCheckedToggles.forEach( t => {
-				t.classList.remove( 'is-checked' );
-				const input = t.querySelector( 'input' );
-				input && input.setAttribute( 'aria-checked', 'false' );
+			actionbar.querySelectorAll( '.actnbr-site-settings__toggle__input' ).forEach( input => {
+				input.checked = false;
 			} );
 		} );
 	}
 
-	// Dismiss follow bubble when clicking on document
-	document.addEventListener( 'click', e => {
-		const isClickInPopup = !! e.target.closest( '#follow-bubble' );
-
-		if ( isClickInPopup ) {
-			return;
-		}
-		if ( isFollowBubbleOpen ) {
-			closeFollowBubble( false );
-		}
-	} );
-
-	// Show shortlink prompt
+	// Copy shortlink
 	const shortlink = actionbar.querySelector( 'a.actnbr-shortlink' );
+	const shortlinkText = shortlink && shortlink.querySelector( '.actnbr-shortlink__text' );
+
 	/**
 	 * Show the "copied" state on the shortlink item for six seconds.
 	 *
-	 * @param {Element} link                 - The shortlink anchor.
-	 * @param {Element} shortlinkTextElement - Its label element.
-	 * @param {string}  originalText         - Label to restore afterwards.
+	 * @param {string} originalText - Label to restore afterwards.
 	 */
-	function shortLinkUpdateText( link, shortlinkTextElement, originalText ) {
-		shortlinkTextElement.textContent = fbd.i18n.shortLinkCopied;
+	function shortLinkUpdateText( originalText ) {
+		shortlinkText.textContent = fbd.i18n.shortLinkCopied;
 		announce( fbd.i18n.shortLinkCopied );
-		link.classList.add( 'actnbr-shortlink__copied' );
+		shortlink.classList.add( 'actnbr-shortlink__copied' );
 		setTimeout( () => {
-			shortlinkTextElement.textContent = originalText;
-			link.classList.remove( 'actnbr-shortlink__copied' );
+			shortlinkText.textContent = originalText;
+			shortlink.classList.remove( 'actnbr-shortlink__copied' );
 		}, 6000 );
 	}
+
 	/**
 	 * Copy the shortlink to the clipboard, falling back to a prompt.
-	 *
-	 * @param {Element} link                 - The shortlink anchor.
-	 * @param {Element} shortlinkTextElement - Its label element.
-	 * @param {string}  shortlinkText        - The URL to copy.
-	 * @param {string}  originalText         - Label to restore afterwards.
 	 */
-	function shortLinkCopyTextToClipboard( link, shortlinkTextElement, shortlinkText, originalText ) {
-		if (
-			! link ||
-			! shortlinkTextElement ||
-			shortlinkTextElement.textContent === fbd.i18n.shortLinkCopied
-		) {
+	function shortLinkCopyTextToClipboard() {
+		const originalText = shortlinkText.textContent;
+		if ( originalText === fbd.i18n.shortLinkCopied ) {
 			return;
 		}
 		if ( navigator.clipboard ) {
-			// Use the Clipboard API if available
 			navigator.clipboard
-				.writeText( shortlinkText )
-				.then( () => {
-					shortLinkUpdateText( link, shortlinkTextElement, originalText );
-				} )
+				.writeText( fbd.shortlink )
+				.then( () => shortLinkUpdateText( originalText ) )
 				.catch( () => {
 					// eslint-disable-next-line no-alert
-					window.prompt( 'Shortlink: ', shortlinkText );
+					window.prompt( 'Shortlink: ', fbd.shortlink );
 				} );
 		} else {
 			// Fallback for older browsers
 			const textArea = document.createElement( 'textarea' );
-			textArea.value = shortlinkText;
-			link.appendChild( textArea );
+			textArea.value = fbd.shortlink;
+			shortlink.appendChild( textArea );
 			textArea.focus();
 			textArea.select();
 			try {
 				document.execCommand( 'copy' );
-				shortLinkUpdateText( link, shortlinkTextElement, originalText );
+				shortLinkUpdateText( originalText );
 			} catch {
 				// eslint-disable-next-line no-alert
-				window.prompt( 'Shortlink: ', shortlinkText );
+				window.prompt( 'Shortlink: ', fbd.shortlink );
 			}
-			link.removeChild( textArea );
+			shortlink.removeChild( textArea );
 		}
-		// Record stats on shortlink dialog.
 		bumpStat( 'copied_shortlink' );
 	}
 
 	if ( shortlink ) {
-		const shortlinkTextElement = actionbar.querySelector( '.actnbr-shortlink__text' );
 		shortlink.addEventListener( 'click', e => {
 			e.preventDefault();
-			e.stopPropagation();
-			const shortlinkText = fbd.shortlink;
-			const originalText = shortlinkTextElement.textContent;
-			shortLinkCopyTextToClipboard( shortlink, shortlinkTextElement, shortlinkText, originalText );
+			shortLinkCopyTextToClipboard();
 		} );
 	}
 
 	// More menu: a button toggles it, arrow keys move through it, Escape closes it.
 	const ellipsis = actionbar.querySelector( '.actnbr-ellipsis' );
-	const menuToggle = ellipsis && ellipsis.querySelector( '.actnbr-more-toggle' );
-	const menu = ellipsis && ellipsis.querySelector( '.actnbr-menu' );
-	let isMenuOpen = false;
+	const menuToggle = ellipsis.querySelector( '.actnbr-more-toggle' );
+	const menu = ellipsis.querySelector( '.actnbr-menu' );
 
 	/**
 	 * The menu's visible items, in DOM order.
@@ -557,10 +479,6 @@
 		ellipsis.classList.remove( 'actnbr-hidden' );
 		menuToggle.setAttribute( 'aria-expanded', 'true' );
 		bumpStat( 'show_more_menu' );
-		// Let the opening click finish bubbling before the document listener may close it.
-		setTimeout( () => {
-			isMenuOpen = true;
-		}, 10 );
 		if ( focusFirst ) {
 			const items = menuItems();
 			items.length && items[ 0 ].focus();
@@ -573,78 +491,74 @@
 	 * @param {boolean} returnFocus - Put focus back on the toggle button.
 	 */
 	function closeMenu( returnFocus ) {
-		if ( ! ellipsis || ! menuToggle ) {
-			return;
-		}
 		ellipsis.classList.add( 'actnbr-hidden' );
 		menuToggle.setAttribute( 'aria-expanded', 'false' );
-		isMenuOpen = false;
 		if ( returnFocus ) {
 			menuToggle.focus();
 		}
 	}
 
-	if ( menuToggle && menu ) {
-		menuToggle.addEventListener( 'click', e => {
-			if ( ellipsis.classList.contains( 'actnbr-hidden' ) ) {
-				// detail is 0 when the button was activated from the keyboard.
-				openMenu( e.detail === 0 );
-			} else {
-				closeMenu( false );
-			}
-		} );
+	menuToggle.addEventListener( 'click', e => {
+		if ( ellipsis.classList.contains( 'actnbr-hidden' ) ) {
+			// detail is 0 when the button was activated from the keyboard.
+			openMenu( e.detail === 0 );
+		} else {
+			closeMenu( false );
+		}
+	} );
 
-		menuToggle.addEventListener( 'keydown', e => {
-			if ( e.key === 'ArrowDown' || e.key === 'ArrowUp' ) {
+	menuToggle.addEventListener( 'keydown', e => {
+		if ( e.key === 'ArrowDown' || e.key === 'ArrowUp' ) {
+			e.preventDefault();
+			openMenu( true );
+		}
+	} );
+
+	menu.addEventListener( 'keydown', e => {
+		const items = menuItems();
+		const index = items.indexOf( menu.ownerDocument.activeElement );
+		switch ( e.key ) {
+			case 'ArrowDown':
 				e.preventDefault();
-				openMenu( true );
-			}
-		} );
-
-		menu.addEventListener( 'keydown', e => {
-			const items = menuItems();
-			const index = items.indexOf( menu.ownerDocument.activeElement );
-			switch ( e.key ) {
-				case 'ArrowDown':
-					e.preventDefault();
-					items[ ( index + 1 ) % items.length ].focus();
-					break;
-				case 'ArrowUp':
-					e.preventDefault();
-					items[ ( index - 1 + items.length ) % items.length ].focus();
-					break;
-				case 'Home':
-					e.preventDefault();
-					items[ 0 ].focus();
-					break;
-				case 'End':
-					e.preventDefault();
-					items[ items.length - 1 ].focus();
-					break;
-				case 'Escape':
-					e.preventDefault();
-					closeMenu( true );
-					break;
-				case 'Tab':
-					closeMenu( false );
-					break;
-				default:
-			}
-		} );
-
-		// Dismiss menu when clicking on document
-		document.addEventListener( 'click', () => {
-			if ( isMenuOpen ) {
+				items[ ( index + 1 ) % items.length ].focus();
+				break;
+			case 'ArrowUp':
+				e.preventDefault();
+				items[ ( index - 1 + items.length ) % items.length ].focus();
+				break;
+			case 'Home':
+				e.preventDefault();
+				items[ 0 ].focus();
+				break;
+			case 'End':
+				e.preventDefault();
+				items[ items.length - 1 ].focus();
+				break;
+			case 'Escape':
+				e.preventDefault();
+				closeMenu( true );
+				break;
+			case 'Tab':
 				closeMenu( false );
-			}
-		} );
-	}
+				break;
+			default:
+		}
+	} );
+
+	// A click anywhere outside the two popovers (and their buttons) closes both.
+	document.addEventListener( 'click', e => {
+		if ( ellipsis.contains( e.target ) || ( followItem && followItem.contains( e.target ) ) ) {
+			return;
+		}
+		closeMenu( false );
+		closeFollowBubble( false );
+	} );
 
 	// Fold/Unfold
 	const fold = actionbar.querySelector( '.actnbr-fold' );
 	if ( fold ) {
-		// Hide fold button if actions or privacy button are not present.
-		if ( ! actionbar.classList.contains( 'actnbr-has-actions' ) && ! window.__tcfapi ) {
+		// Nothing to fold when the bar has no visible buttons.
+		if ( ! actionbar.querySelector( 'li.actnbr-btn:not(.no-display)' ) ) {
 			fold.classList.add( 'no-display' );
 		}
 		fold.addEventListener( 'click', e => {
@@ -704,9 +618,20 @@
 		);
 	}
 
-	// Show/Hide actionbar on scroll.
 	/**
-	 * Slide the bar off-screen while scrolling down and back on scrolling up.
+	 * Whether the menu or the Subscribe popover is showing.
+	 *
+	 * @return {boolean} True while either is open.
+	 */
+	function isPopoverOpen() {
+		return (
+			! ellipsis.classList.contains( 'actnbr-hidden' ) ||
+			( !! followItem && ! followItem.classList.contains( 'actnbr-hidden' ) )
+		);
+	}
+
+	/**
+	 * Slide the bar off-screen while scrolling down and back on scrolling up, unless a popover is open.
 	 */
 	function handleScroll() {
 		const scrollTop = window.scrollY || window.pageYOffset || 0;
@@ -716,20 +641,8 @@
 		if ( scrollTop < lastScrollTop ) {
 			actionbar.classList.remove( 'actnbr-hidden' );
 			// Scrolling Down.
-		} else if (
-			! isHidden &&
-			document.querySelectorAll( '#actionbar > ul > li:not(.actnbr-hidden) > .actnbr-popover' )
-				.length === 0
-		) {
-			// Only hide the bar when no popover is open.
+		} else if ( ! isHidden && ! isPopoverOpen() ) {
 			actionbar.classList.add( 'actnbr-hidden' );
-
-			// Hide any menus.
-			actionbar.querySelectorAll( 'li' ).forEach( item => item.classList.add( 'actnbr-hidden' ) );
-			if ( menuToggle ) {
-				menuToggle.setAttribute( 'aria-expanded', 'false' );
-				isMenuOpen = false;
-			}
 		}
 
 		lastScrollTop = scrollTop;
@@ -796,12 +709,8 @@
 	 * Open the logged-out email subscribe form and focus its field.
 	 */
 	function showActionBarFollowForm() {
-		const form = actionbar.querySelector( '.actnbr-follow-bubble form' );
-		form.removeAttribute( 'style' );
-
-		setTimeout( () => {
-			actionbar.querySelector( '.actnbr-email-field' ).focus();
-		}, 10 );
+		actionbar.querySelector( '.actnbr-follow-bubble form' ).classList.remove( 'no-display' );
+		actionbar.querySelector( '.actnbr-email-field' ).focus();
 	}
 
 	/**
@@ -824,5 +733,10 @@
 		}
 
 		openFollowBubble();
+	}
+
+	// Message from the subscribe.wordpress.com redirect, once every handler above exists.
+	if ( fbd.statusMessage ) {
+		showActionBarStatusMessage( fbd.statusMessage );
 	}
 } )();

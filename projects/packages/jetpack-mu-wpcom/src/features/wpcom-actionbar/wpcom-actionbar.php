@@ -10,6 +10,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once __DIR__ . '/../../utils.php';
@@ -106,8 +107,6 @@ function wpcom_actionbar_enqueue_scripts() {
 		return;
 	}
 
-	$settings = get_option( 'subscription_options' );
-
 	// Render this in the user's language.
 	wpcom_actionbar_switch_to_user_locale();
 
@@ -153,11 +152,8 @@ function wpcom_actionbar_enqueue_scripts() {
 			break;
 	}
 
-	$vip_disabled = wpcom_is_vip() && ( ! isset( $settings['loggedoutfollow'] ) || 'off' === $settings['loggedoutfollow'] );
-	/** This filter is documented in projects/packages/jetpack-mu-wpcom/src/features/wpcom-actionbar/wpcom-actionbar.php */
-	$vip_disabled = apply_filters( 'wpcom_disable_logged_out_follow', $vip_disabled );
 	// VIP: Disable functionality on sites that have logged_out follow set to false.
-	if ( ! is_user_logged_in() && $vip_disabled ) {
+	if ( ! is_user_logged_in() && wpcom_actionbar_logged_out_follow_disabled() ) {
 		wpcom_actionbar_restore_locale();
 		return;
 	}
@@ -235,6 +231,25 @@ window.addEventListener( "DOMContentLoaded", function() {
 </script>
 
 	<?php
+}
+
+/**
+ * Whether logged-out visitors should get no bar and no follow actions.
+ *
+ * @return bool
+ */
+function wpcom_actionbar_logged_out_follow_disabled() {
+	$settings = get_option( 'subscription_options' );
+	$disabled = wpcom_is_vip() && ( ! isset( $settings['loggedoutfollow'] ) || 'off' === $settings['loggedoutfollow'] );
+
+	/**
+	 * Filters whether logged-out visitors get the bar and its follow actions.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $disabled Whether to disable. Defaults to true on VIP sites with logged-out follow off.
+	 */
+	return (bool) apply_filters( 'wpcom_disable_logged_out_follow', $disabled );
 }
 
 /**
@@ -331,7 +346,7 @@ function wpcom_actionbar_icon( $name, $size = 24 ) {
 /**
  * Print one item of the ⋯ menu.
  *
- * @param array $args Item arguments: href, label, class (stats hook), icon (right-edge icon name), blank (open in a new tab), before (trusted markup before the label).
+ * @param array $args Item arguments: href, label, class (stats hook), icon (right-edge icon name), blank (open in a new tab), before (trusted markup before the label), role (defaults to menuitem).
  */
 function wpcom_actionbar_menu_item( $args ) {
 	$args = wp_parse_args(
@@ -343,10 +358,11 @@ function wpcom_actionbar_menu_item( $args ) {
 			'icon'   => '',
 			'blank'  => false,
 			'before' => '',
+			'role'   => 'menuitem',
 		)
 	);
 	?>
-	<a role="menuitem" class="actnbr-menu__item <?php echo esc_attr( $args['class'] ); ?>" href="<?php echo esc_url( $args['href'] ); ?>"<?php echo $args['blank'] ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
+	<a<?php echo $args['role'] ? ' role="' . esc_attr( $args['role'] ) . '"' : ''; ?> class="actnbr-menu__item <?php echo esc_attr( $args['class'] ); ?>" href="<?php echo esc_url( $args['href'] ); ?>"<?php echo $args['blank'] ? ' target="_blank" rel="noopener noreferrer"' : ''; ?>>
 		<?php echo $args['before']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Caller-built markup, escaped at the source. ?>
 		<span class="actnbr-menu__label"><?php echo esc_html( $args['label'] ); ?></span>
 		<?php
@@ -382,7 +398,7 @@ function wpcom_actionbar_blavatar() {
 		return '';
 	}
 	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
-	$blavatar_img = get_blavatar( get_option( 'siteurl' ), 50, staticize_subdomain( 'https://en.wordpress.com/i/logo/wpcom-gray-white.png' ) ); // phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
+	$blavatar_img = get_blavatar( get_option( 'siteurl' ), 50, Assets::staticize_subdomain( 'https://en.wordpress.com/i/logo/wpcom-gray-white.png' ) ); // phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
 	if ( 0 === strpos( $blavatar_img, '<img alt' ) ) {
 		$blavatar_img = "<img loading='lazy' alt" . substr( $blavatar_img, 8 );
 	}
@@ -394,16 +410,20 @@ function wpcom_actionbar_blavatar() {
  *
  * @param string $site_url  Site home URL.
  * @param string $site_name Site title.
+ * @param string $blavatar  Blavatar image markup, or empty.
  */
-function wpcom_actionbar_site_title( $site_url, $site_name ) {
-	?>
-		<div class="actnbr-panel__group">
-			<a class="actnbr-panel__site actnbr-sitename" href="<?php echo esc_url( $site_url ); ?>">
-				<?php echo wpcom_actionbar_blavatar(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Image markup from get_blavatar(). ?>
-				<span class="actnbr-menu__label"><?php echo esc_html( $site_name ); ?></span>
-			</a>
-		</div>
-	<?php
+function wpcom_actionbar_site_title( $site_url, $site_name, $blavatar ) {
+	echo '<div class="actnbr-panel__group">';
+	wpcom_actionbar_menu_item(
+		array(
+			'href'   => $site_url,
+			'label'  => $site_name,
+			'class'  => 'actnbr-sitename',
+			'before' => $blavatar,
+			'role'   => '',
+		)
+	);
+	echo '</div>';
 }
 
 /**
@@ -435,49 +455,29 @@ function wpcom_actionbar_html( $is_rtl ) {
 
 	global $current_blog;
 
-	$site     = get_blog_details( $site_id );
-	$settings = get_option( 'subscription_options' );
+	$is_logged_in = is_user_logged_in();
+	$is_member    = $is_logged_in && is_user_member_of_blog( $current_user->ID, $site_id );
 
 	// Render this in the user's language.
 	wpcom_actionbar_switch_to_user_locale();
 
-	$dotcom_enabled = true;
-	$vip_disabled   = wpcom_is_vip() && ( ! isset( $settings['loggedoutfollow'] ) || 'off' === $settings['loggedoutfollow'] );
-	/**
-	 * Filters whether logged-out visitors get the bar and its follow actions.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param bool $vip_disabled Whether to disable. Defaults to true on VIP sites with logged-out follow off.
-	 */
-	$vip_disabled = apply_filters( 'wpcom_disable_logged_out_follow', $vip_disabled );
-
 	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 	$is_suspended = function_exists( 'is_suspended' ) && is_suspended( $site_id );
-	$is_archived  = function_exists( 'is_archived' ) && is_archived( $site_id );
 
-	/**
-	 * Determine if a site should show follow actions. Common cases that shouldn't show it include:
-	 * Most VIP sites, most private sites (except Automattic P2s),
-	 * "baddies": archived, deleted, etc.,
-	 * sites with "show logged-out follow" option turned off (option removed with r152772)
-	 * static sites: no blog posts and a static front page is set.
+	/*
+	 * Follow actions are dropped only on a "static" site (front page set, under two posts) viewed by
+	 * someone who is not a member. Deleted, spam and archived sites never reach this function.
 	 */
+	$can_follow = true;
 	if (
-		empty( $site->spam ) && empty( $site->deleted ) && ! $is_suspended && ! $is_archived &&
+		! $is_suspended &&
 		! in_array( $site_id, (array) apply_filters( 'loggedout_follow_disabled_blog_id', array( 1 ) ), true ) &&
 		! apply_filters( 'loggedout_follow_disabled', false ) &&
-		! $vip_disabled && (
-			( ! is_user_logged_in() ) ||
-			( ! is_user_member_of_blog( $current_user->ID, $site_id ) ) ||
-			( is_automattician( $current_user->ID ) )
-			// TODO: figure out a non performance-impacting way of adding the following check:
-			// logged in, member of blog, blog has more than one member
-			// || ( ( new WP_User_Query( array( 'blog_id' => $site_id ) ) )->get_total() > 1 )
-		) &&
+		! wpcom_actionbar_logged_out_follow_disabled() &&
+		( ! $is_member || is_automattician( $current_user->ID ) ) &&
 		( 'page' === get_option( 'show_on_front' ) && get_option( 'post_count' ) < 2 )
 	) {
-		$dotcom_enabled = false;
+		$can_follow = false;
 	}
 
 	$login_url = add_query_arg( 'redirect_to', get_permalink(), 'https://wordpress.com/log-in' );
@@ -493,9 +493,9 @@ function wpcom_actionbar_html( $is_rtl ) {
 
 	$site_name          = get_option( 'blogname' );
 	$site_url           = get_option( 'home' );
-	$site_host          = wp_parse_url( get_option( 'home' ), PHP_URL_HOST );
+	$site_host          = wp_parse_url( $site_url, PHP_URL_HOST );
 	$site_slug          = wpcom_get_site_slug();
-	$can_customize_site = current_user_can( 'edit_theme_options' ) && is_user_member_of_blog( $current_user->ID, $site_id );
+	$can_customize_site = $is_member && current_user_can( 'edit_theme_options' );
 	$subscription_id    = wpcom_subs_is_subscribed(
 		array(
 			'user_id' => get_current_user_id(),
@@ -506,11 +506,10 @@ function wpcom_actionbar_html( $is_rtl ) {
 	$signup_url         = 'https://wordpress.com/start/';
 	$theme_slug         = get_stylesheet();
 	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
-	$theme_url    = function_exists( 'wpcom_get_theme_showcase_url' ) ? wpcom_get_theme_showcase_url( $theme_slug ) : 'https://wordpress.com/theme/' . $theme_slug;
-	$is_singular  = false;
-	$is_folded    = (bool) get_user_attribute( $current_user->ID, 'is_actionbar_folded' );
-	$is_logged_in = is_user_logged_in();
-	$feed_id      = false;
+	$theme_url   = function_exists( 'wpcom_get_theme_showcase_url' ) ? wpcom_get_theme_showcase_url( $theme_slug ) : 'https://wordpress.com/theme/' . $theme_slug;
+	$is_singular = false;
+	$is_folded   = $is_logged_in && (bool) get_user_attribute( $current_user->ID, 'is_actionbar_folded' );
+	$feed_id     = false;
 	if ( class_exists( 'FeedBag' ) ) {
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded by class_exists above.
 		$feed_id = FeedBag::get_feed_id_for_blog_id( $site_id );
@@ -518,7 +517,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 	$gdpr_applies = wpcom_actionbar_gdpr_applies();
 
 	// Fall back to site URL if site title is empty.
-	if ( empty( get_option( 'blogname' ) ) ) {
+	if ( empty( $site_name ) ) {
 		$site_name = get_primary_redirect();
 	}
 
@@ -530,8 +529,8 @@ function wpcom_actionbar_html( $is_rtl ) {
 	if ( is_singular() ) {
 		$is_singular   = true;
 		$post_id       = get_the_ID();
-		$shortlink     = wp_get_shortlink( get_the_ID() );
-		$can_edit_post = current_user_can( 'edit_post', get_the_ID() ) && is_user_member_of_blog( $current_user->ID, $site_id );
+		$shortlink     = wp_get_shortlink( $post_id );
+		$can_edit_post = $is_member && current_user_can( 'edit_post', $post_id );
 
 		/*
 		 * Use the wp admin editor for VIPs (since they have custom editor
@@ -540,7 +539,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 		 */
 		$edit_link = add_query_arg(
 			array(
-				'post'   => get_the_ID(),
+				'post'   => $post_id,
 				'action' => 'edit',
 			),
 			admin_url( 'post.php' )
@@ -550,7 +549,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 
 		$should_use_calypso_links = empty( $post_type ) || function_exists( 'wpcom_should_disable_calypso_links' ) && ! wpcom_should_disable_calypso_links( 'edit.php?post_type=' . $post_type );
 
-		if ( $should_use_calypso_links && ! wpcom_is_vip() && ( ! is_super_admin() || is_user_member_of_blog( get_current_user_id(), $site_id ) ) ) {
+		if ( $should_use_calypso_links && ! wpcom_is_vip() && ( ! is_super_admin() || $is_member ) ) {
 			$path_prefix = null;
 			if ( in_array( $post_type, array( 'post', 'page' ), true ) ) {
 				$path_prefix = $post_type;
@@ -559,22 +558,15 @@ function wpcom_actionbar_html( $is_rtl ) {
 			}
 
 			if ( $path_prefix ) {
-				$edit_link = sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $site_slug, get_the_ID() );
+				$edit_link = sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $site_slug, $post_id );
 			}
 		}
 
 		if ( $should_use_calypso_links ) {
-			$stats_link = sprintf( 'https://wordpress.com/stats/post/%d/%s', get_the_ID(), $site_slug );
+			$stats_link = sprintf( 'https://wordpress.com/stats/post/%d/%s', $post_id, $site_slug );
 		} else {
-			$stats_link = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', get_the_ID(), (int) get_wpcom_blog_id() ) );
+			$stats_link = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, (int) get_wpcom_blog_id() ) );
 		}
-	}
-
-	$subscribers_total = wpcom_subs_total_for_blog();
-	$followers         = '';
-	if ( ! empty( $subscribers_total ) && $subscribers_total > 24 ) {
-		/* translators: %s: number of subscribers */
-		$followers = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack-mu-wpcom' ), number_format_i18n( $subscribers_total ) );
 	}
 
 	$referer = '';
@@ -584,26 +576,23 @@ function wpcom_actionbar_html( $is_rtl ) {
 
 	$can_comment           = is_single() && ! post_password_required( $post_id ) && comments_open( $post_id );
 	$can_reblog            = is_single() && wpcom_actionbar_can_reblog( $site_id, $post_id );
-	$can_follow            = $dotcom_enabled;
 	$can_edit_current_view = $can_edit_post || $can_customize_site;
+	$show_follow           = $can_follow && ! $can_edit_current_view;
 
-	/*
-	 * $gdpr_applies is deliberately left out even though it's a potential action.
-	 * The privacy/GDPR button is special as it relies on window.__tcfapi being in the browser window object as well.
-	 * The check/logic for that button is done in the JS code.
-	 */
-	$has_visible_actions = $can_edit_post || ( $can_comment && ! $can_edit_current_view ) || ( $can_reblog && ! $can_edit_current_view ) || ( $can_follow && ! $can_edit_current_view );
-	$classes             = 'actnbr-' . str_replace( '/', '-', $theme_slug );
-	if ( ! $can_customize_site ) {
-		$classes .= ' actnbr-has-follow';
+	$followers = '';
+	if ( $show_follow && ! $is_logged_in ) {
+		$subscribers_total = wpcom_subs_total_for_blog();
+		if ( ! empty( $subscribers_total ) && $subscribers_total > 24 ) {
+			/* translators: %s: number of subscribers */
+			$followers = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack-mu-wpcom' ), number_format_i18n( $subscribers_total ) );
+		}
 	}
 
+	$blavatar = wpcom_actionbar_blavatar();
+
+	$classes = 'actnbr-' . str_replace( '/', '-', $theme_slug );
 	if ( $is_folded ) {
 		$classes .= ' actnbr-folded';
-	}
-
-	if ( $has_visible_actions ) {
-		$classes .= ' actnbr-has-actions';
 	}
 
 	$dir = $is_rtl ? 'rtl' : 'ltr';
@@ -633,7 +622,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 
 			if ( $can_comment && ! $can_edit_current_view ) {
 				?>
-					<li class="actnbr-btn actnbr-hidden">
+					<li class="actnbr-btn">
 						<a class="actnbr-action actnbr-actn-comment" href="<?php echo esc_url( get_comments_link( $post_id ) ); ?>">
 							<?php wpcom_actionbar_icon( 'comment', 20 ); ?>
 							<span><?php esc_html_e( 'Comment', 'jetpack-mu-wpcom' ); ?>
@@ -645,7 +634,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 
 			if ( $can_reblog && ! $can_edit_current_view ) {
 				?>
-					<li class="actnbr-btn actnbr-hidden">
+					<li class="actnbr-btn">
 						<a class="actnbr-action actnbr-actn-reblog" href="" role="button">
 							<?php wpcom_actionbar_icon( 'reusable-block', 20 ); ?><span><?php esc_html_e( 'Reblog', 'jetpack-mu-wpcom' ); ?></span>
 						</a>
@@ -653,13 +642,13 @@ function wpcom_actionbar_html( $is_rtl ) {
 				<?php
 			}
 
-			if ( $can_follow && ! $can_edit_current_view ) {
+			if ( $show_follow ) {
 				?>
 					<li class="actnbr-btn actnbr-hidden">
 						<?php wpcom_actionbar_follow_links( $is_following ); ?>
 						<div class="actnbr-popover actnbr-panel actnbr-notice" id="follow-bubble" role="dialog" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: site name */ __( 'Subscribe to %s', 'jetpack-mu-wpcom' ), $site_name ) ); ?>">
 							<div class="actnbr-follow-bubble">
-							<?php wpcom_actionbar_site_title( $site_url, $site_name ); ?>
+							<?php wpcom_actionbar_site_title( $site_url, $site_name, $blavatar ); ?>
 							<?php
 							if ( $is_logged_in ) {
 								?>
@@ -667,7 +656,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 									<div class="actnbr-message no-display" aria-live="polite"></div>
 									<div class="actnbr-site-settings__setting">
 										<span class="actnbr-site-settings__toggle">
-											<input class="actnbr-site-settings__toggle__input" id="toggle-input-notify-posts" type="checkbox" role="switch" aria-checked="false" />
+											<input class="actnbr-site-settings__toggle__input" id="toggle-input-notify-posts" type="checkbox" role="switch" />
 											<span class="actnbr-site-settings__toggle__track"></span>
 											<span class="actnbr-site-settings__toggle__thumb"></span>
 										</span>
@@ -680,7 +669,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 									</p>
 									<div class="actnbr-site-settings__setting">
 										<span class="actnbr-site-settings__toggle">
-											<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-posts" type="checkbox" role="switch" aria-checked="false" />
+											<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-posts" type="checkbox" role="switch" />
 											<span class="actnbr-site-settings__toggle__track"></span>
 											<span class="actnbr-site-settings__toggle__thumb"></span>
 										</span>
@@ -691,19 +680,19 @@ function wpcom_actionbar_html( $is_rtl ) {
 									<div class="actnbr-site-settings__details" id="email-new-posts-details">
 										<ul class="segmented-control" role="radiogroup" aria-label="<?php esc_attr_e( 'Email frequency', 'jetpack-mu-wpcom' ); ?>">
 											<li class="segmented-control__item">
-												<a class="segmented-control__link frequency-instantly" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Instantly', 'jetpack-mu-wpcom' ); ?></a>
+												<a class="segmented-control__link frequency-instantly" data-frequency="instantly" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Instantly', 'jetpack-mu-wpcom' ); ?></a>
 											</li>
 											<li class="segmented-control__item">
-												<a class="segmented-control__link frequency-daily" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Daily', 'jetpack-mu-wpcom' ); ?></a>
+												<a class="segmented-control__link frequency-daily" data-frequency="daily" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Daily', 'jetpack-mu-wpcom' ); ?></a>
 											</li>
 											<li class="segmented-control__item">
-												<a class="segmented-control__link frequency-weekly" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Weekly', 'jetpack-mu-wpcom' ); ?></a>
+												<a class="segmented-control__link frequency-weekly" data-frequency="weekly" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Weekly', 'jetpack-mu-wpcom' ); ?></a>
 											</li>
 										</ul>
 									</div>
 									<div class="actnbr-site-settings__setting">
 										<span class="actnbr-site-settings__toggle">
-											<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-comments" type="checkbox" role="switch" aria-checked="false" />
+											<input class="actnbr-site-settings__toggle__input" id="toggle-input-email-comments" type="checkbox" role="switch" />
 											<span class="actnbr-site-settings__toggle__track"></span>
 											<span class="actnbr-site-settings__toggle__thumb"></span>
 										</span>
@@ -717,7 +706,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 								?>
 								<div class="actnbr-panel__group">
 									<div class="actnbr-message no-display" aria-live="polite"></div>
-									<form method="post" action="https://subscribe.wordpress.com" accept-charset="utf-8" style="display: none;">
+									<form method="post" action="https://subscribe.wordpress.com" accept-charset="utf-8" class="no-display">
 										<?php
 										if ( $followers ) {
 											?>
@@ -762,7 +751,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 			 */
 			if ( $gdpr_applies ) {
 				?>
-					<li class="actnbr-btn actnbr-hidden no-display" onclick="javascript:__tcfapi( 'showUi' );">
+					<li class="actnbr-btn no-display" onclick="javascript:__tcfapi( 'showUi' );">
 						<a class="actnbr-action actnbr-actn-privacy" href="#" role="button">
 							<?php wpcom_actionbar_icon( 'shield', 20 ); ?>
 							<span><?php esc_html_e( 'Privacy', 'jetpack-mu-wpcom' ); ?>
@@ -785,7 +774,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 							'href'   => $site_url,
 							'label'  => $site_name,
 							'class'  => 'actnbr-sitename',
-							'before' => wpcom_actionbar_blavatar(),
+							'before' => $blavatar,
 						)
 					);
 					wpcom_actionbar_menu_group( ob_get_clean() );
@@ -979,6 +968,7 @@ function wpcom_actionbar_bump_stat( $stat_value ) {
 		'folded',
 		'followed',
 		'managed_following',
+		'privacy_clicked',
 		'reported_content',
 		'show_follow_form',
 		'show_more_menu',

@@ -4,10 +4,7 @@ div#actionbar .no-display {
 
 div#actionbar * {
 	box-sizing: border-box;
-	outline: none;
 	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-	user-select: none;
-	-webkit-user-select: none;
 }
 
 div#actionbar {
@@ -28,9 +25,6 @@ div#actionbar {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
 	-webkit-transform: translate3d(0, 0, 0);
-	-moz-transform: translate3d(0, 0, 0);
-	-o-transform: translate3d(0, 0, 0);
-	-ms-transform: translate3d(0, 0, 0);
 	transform: translate3d(0, 0, 0);
 
 	transition: all 0.2s ease-in-out;
@@ -45,9 +39,6 @@ div#actionbar {
 
 div#actionbar.actnbr-hidden {
 	-webkit-transform: translate3d(0, 150px, 0);
-	-moz-transform: translate3d(0, 150px, 0);
-	-o-transform: translate3d(0, 150px, 0);
-	-ms-transform: translate3d(0, 150px, 0);
 	transform: translate3d(0, 150px, 0);
 }
 
@@ -186,14 +177,19 @@ div#actionbar .actnbr-ellipsis:not(.actnbr-hidden) .actnbr-more-toggle .actnbr-i
 	transform: rotate(90deg);
 }
 
-/* Keyboard focus, in place of the blanket outline reset above. */
+/* Focus rings only for keyboard focus. */
+div#actionbar :focus:not(:focus-visible) {
+	outline: none;
+}
+
 div#actionbar :focus-visible {
 	outline: 1.5px solid #3858e9;
 	outline-offset: 1px;
 }
 
 /* ⋯ menu, after the editor's DropdownMenu. */
-div#actionbar .actnbr-menu__group + .actnbr-menu__group {
+div#actionbar .actnbr-menu__group + .actnbr-menu__group,
+div#actionbar .actnbr-panel__group + .actnbr-panel__group {
 	margin-top: 8px;
 	padding-top: 8px;
 	border-top: 1px solid #ddd;
@@ -306,41 +302,6 @@ div#actionbar .actnbr-panel {
 	width: 280px;
 }
 
-div#actionbar .actnbr-panel__group + .actnbr-panel__group {
-	margin-top: 8px;
-	padding-top: 8px;
-	border-top: 1px solid #ddd;
-}
-
-div#actionbar .actnbr-panel__site {
-	display: flex;
-	align-items: center;
-	min-height: 32px;
-	padding: 6px 8px;
-	border: 0;
-	border-radius: 2px;
-	box-shadow: none;
-	color: #1e1e1e;
-	font-size: 13px;
-	font-weight: 600;
-	text-decoration: none;
-}
-
-div#actionbar .actnbr-panel__site:hover {
-	color: #3858e9;
-	background: none;
-	text-decoration: none;
-}
-
-div#actionbar .actnbr-panel__site img {
-	width: 24px;
-	height: 24px;
-	margin: -2px 8px -2px 0;
-	padding: 0;
-	border-radius: 2px;
-	display: inline;
-}
-
 div#actionbar .actnbr-notice form {
 	margin: 0;
 	padding: 6px 8px 2px;
@@ -378,7 +339,6 @@ div#actionbar .actnbr-notice form input[type="email"]::placeholder {
 div#actionbar .actnbr-notice form input[type="email"]:focus {
 	border-color: #3858e9;
 	box-shadow: 0 0 0 0.5px #3858e9;
-	outline: none;
 }
 
 div#actionbar .actnbr-notice form button {
@@ -459,11 +419,6 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings {
 	color: #1e1e1e;
 }
 
-div#actionbar .actnbr-follow-bubble .actnbr-site-settings a,
-div#actionbar .actnbr-follow-bubble .actnbr-site-settings a:hover {
-	color: #3c434a;
-}
-
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings__setting {
 	padding: 6px 8px;
 	display: flex;
@@ -506,9 +461,7 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input[type="c
 }
 
 div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__track {
-	content: "";
 	display: inline-block;
-	box-sizing: border-box;
 	vertical-align: top;
 	background-color: #fff;
 	border: 1px solid #1e1e1e;
@@ -518,7 +471,7 @@ div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__track {
 	transition: 0.2s background ease;
 }
 
-div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle.is-checked span.actnbr-site-settings__toggle__track {
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input:checked ~ span.actnbr-site-settings__toggle__track {
 	background-color: #000;
 }
 
@@ -536,18 +489,10 @@ div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__thumb {
 	border: 5px solid #1e1e1e;
 }
 
-div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle.is-checked span.actnbr-site-settings__toggle__thumb {
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input:checked ~ span.actnbr-site-settings__toggle__thumb {
 	background-color: #fff;
 	border-width: 0;
 	transform: translateX(18px);
-}
-
-div#actionbar .actnbr-site-settings__toggle__input[type="checkbox"]::before {
-	content: "";
-}
-
-div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input[type="checkbox"]:checked {
-	background: none;
 }
 
 div#actionbar .actnbr-site-settings__details {
@@ -588,7 +533,7 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__it
 	border-bottom-right-radius: 2px;
 }
 
-div#actionbar .segmented-control__item.is-selected + .segmented-control__item .segmented-control__link {
+div#actionbar .segmented-control__item:has(> [aria-checked="true"]) + .segmented-control__item .segmented-control__link {
 	border-left: none;
 }
 
@@ -605,23 +550,9 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__l
 	min-width: 0;
 }
 
-div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__link:focus {
-	color: #3c434a;
-	outline: none;
-}
-
-div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__item.is-selected a.segmented-control__link {
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__link[aria-checked="true"] {
 	border: 1px solid #3c434a;
 	color: #3c434a;
-}
-
-div#actionbar .segmented-control__text {
-	display: block;
-	max-width: 100%;
-	color: inherit;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
 }
 
 /* Responsive Styles */
@@ -736,8 +667,7 @@ ul#wp-admin-bar-blog-secondary {
 @media (prefers-reduced-motion: reduce) {
 
 	div#actionbar,
-	div#actionbar .actnbr-more-toggle .actnbr-icon,
-	div#actionbar .actnbr-menu__item {
+	div#actionbar * {
 		transition-duration: 1ms !important;
 	}
 }
