@@ -1280,8 +1280,8 @@ importers:
   projects/js-packages/react-data-sync-client:
     dependencies:
       '@tanstack/react-query':
-        specifier: 5.101.2
-        version: 5.101.2(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
     devDependencies:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
@@ -1836,7 +1836,7 @@ importers:
         version: link:packages/init
       '@tanstack/react-query':
         specifier: ^5.90.8
-        version: 5.101.2(react@18.3.1)
+        version: 5.102.8(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.9.0
         version: 2.9.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2056,8 +2056,8 @@ importers:
         specifier: link:packages/init
         version: link:packages/init
       '@tanstack/react-query':
-        specifier: 5.101.2
-        version: 5.101.2(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.9.0
         version: 2.9.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2992,7 +2992,7 @@ importers:
         version: 10.22.0
       '@tanstack/react-query':
         specifier: ^5.15.5
-        version: 5.101.2(react@18.3.1)
+        version: 5.102.8(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.9.0
         version: 2.9.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3356,8 +3356,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
       '@tanstack/react-query':
-        specifier: 5.101.2
-        version: 5.101.2(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.54.0
         version: 7.54.0
@@ -3525,8 +3525,8 @@ importers:
         specifier: link:packages/init
         version: link:packages/init
       '@tanstack/react-query':
-        specifier: 5.101.2
-        version: 5.101.2(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.9.0
         version: 2.9.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4065,8 +4065,8 @@ importers:
         specifier: link:packages/widgets-toolkit
         version: link:packages/widgets-toolkit
       '@tanstack/react-query':
-        specifier: 5.101.2
-        version: 5.101.2(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.9.0
         version: 2.9.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4162,8 +4162,8 @@ importers:
         specifier: 10.4.6
         version: 10.4.6(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@18.3.31)(react@18.3.1))(typescript@6.0.3)
       '@tanstack/react-query-devtools':
-        specifier: 5.101.2
-        version: 5.101.2(@tanstack/react-query@5.101.2(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(@tanstack/react-query@5.102.8(react@18.3.1))(react@18.3.1)
       '@tanstack/react-router':
         specifier: 1.167.1
         version: 1.167.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4244,8 +4244,8 @@ importers:
         specifier: link:packages/init
         version: link:packages/init
       '@tanstack/react-query':
-        specifier: 5.101.2
-        version: 5.101.2(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.9.0
         version: 2.9.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4534,8 +4534,8 @@ importers:
         specifier: workspace:*
         version: link:../wp-build-polyfills
       '@tanstack/react-query':
-        specifier: 5.101.2
-        version: 5.101.2(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.9.0
         version: 2.9.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4988,8 +4988,8 @@ importers:
         specifier: link:packages/init
         version: link:packages/init
       '@tanstack/react-query':
-        specifier: 5.101.2
-        version: 5.101.2(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.9.0
         version: 2.9.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5511,8 +5511,8 @@ importers:
         specifier: 10.1.1
         version: 10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
-        specifier: 5.101.2
-        version: 5.101.2(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@types/react':
         specifier: 18.3.31
         version: 18.3.31
@@ -6367,8 +6367,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/scan
       '@tanstack/react-query':
-        specifier: 5.101.2
-        version: 5.101.2(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.54.0
         version: 7.54.0
@@ -6924,8 +6924,8 @@ importers:
         specifier: 5.2.1
         version: 5.2.1(stylelint@17.14.1(typescript@6.0.3))
       '@tanstack/eslint-plugin-query':
-        specifier: 5.101.2
-        version: 5.101.2(eslint@10.10.0)(typescript@6.0.3)
+        specifier: 5.102.8
+        version: 5.102.8(eslint@10.10.0)(typescript@6.0.3)
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -10291,11 +10291,11 @@ packages:
   '@tannin/sprintf@1.3.3':
     resolution: {integrity: sha512-RwARl+hFwhzy0tg9atWcchLFvoQiOh4rrP7uG2N5E4W80BPCUX0ElcUR9St43fxB9EfjsW2df9Qp+UsTbvQDjA==}
 
-  '@tanstack/eslint-plugin-query@5.101.2':
-    resolution: {integrity: sha512-cPE99s3XZwlObfn8lCezT4j4JLj2CVzpIEywx0H4hzfPsX/o9QhdwaOwcDXxrQAqx2ds7TbvTinxhB8B/ywb6w==}
+  '@tanstack/eslint-plugin-query@5.102.8':
+    resolution: {integrity: sha512-zRjG2PL3zvoqnsSNJFyfX5Mo+OwRwTbLERwZVO3oNQQn82V949INwaLrprzsOW/ivuow7gASeAUUC24xH7kwSQ==}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-      typescript: ^5.4.0 || ^6.0.0
+      typescript: ^5.6.0 || ^6.0.0 || ^7.0.0
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -10308,20 +10308,20 @@ packages:
     resolution: {integrity: sha512-DR9t6lfLVdrjgCwpglrR9DR7Ok8/HlXjcOE+goWXF3zyuLUO/ug7vMbSFxTqrQTtbRghJfyhmIZ0S6LhPIy44w==}
     engines: {node: '>=20.19'}
 
-  '@tanstack/query-core@5.101.2':
-    resolution: {integrity: sha512-hH5MLoJhF7KaIGd7q3xTXGXvslI+GYlM1Z/35aSHHWaCJWB7XvTSHYuV3eM7tw+aE0mT/xMro4M4Q9rCGHT0lw==}
+  '@tanstack/query-core@5.102.8':
+    resolution: {integrity: sha512-ZNjkJ33CqvPNec/6lZBnHqLc3EVGPZ9ySLhYahU9TcuRFdmwXewuj0c4hwSWcGHqEUwcSrKeZ+oGcvPBqXcQcg==}
 
-  '@tanstack/query-devtools@5.101.2':
-    resolution: {integrity: sha512-o+wHcqgN7Pp0s8v1i0UGq/ZrrEKrxdIiMQmKRdYb2w7NPtylYSJ4+wg/tIn71m9DLstwUwdEGAvROdly6HXP6w==}
+  '@tanstack/query-devtools@5.102.8':
+    resolution: {integrity: sha512-ZgeMKuF5d/zOE+tgWm3cSbD6Zcbr6IugVsnbHzUcSismqLZDSUPBKM6ILUxExgwe6rPAOox2x5bA5T+PSOQG0Q==}
 
-  '@tanstack/react-query-devtools@5.101.2':
-    resolution: {integrity: sha512-eU7HctdA9gDjqoERoEdzLbw9DiqnBDfh5+Hu0u26gjqoHJezOpQAuiesDL2VvkU+2cPV76zgv0tMZsOrI4LjnQ==}
+  '@tanstack/react-query-devtools@5.102.8':
+    resolution: {integrity: sha512-QKb7A44BZOU7nxsGA4gFN1fofjYovar5O0T83Ff4Y+2eRq09RGFrAzzutVdF/6/emfSaMDohp6e759BjB3fxEw==}
     peerDependencies:
-      '@tanstack/react-query': ^5.101.2
+      '@tanstack/react-query': ^5.102.8
       react: ^18 || ^19
 
-  '@tanstack/react-query@5.101.2':
-    resolution: {integrity: sha512-seDkr6kzGzX1okaaTtZPtgA688CDPlXUz1C6xSg0ESqn04Vuc8tlrYms1s3de+znBqhPVxFRfpAfUf+6XvfPWg==}
+  '@tanstack/react-query@5.102.8':
+    resolution: {integrity: sha512-TYBea4OuXWD7MhaSHq069TWbFe7rcwWN6kzT7JF0OKi1K6c1gTv2IzD6A6ExJsCMozdkqBWeuIUZmu4KQg0O5A==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -19291,7 +19291,7 @@ snapshots:
       '@automattic/number-formatters': 1.2.8
       '@automattic/oauth-token': 1.0.1
       '@automattic/shopping-cart': 2.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@tanstack/react-query': 5.101.2(react@18.3.1)
+      '@tanstack/react-query': 5.102.8(react@18.3.1)
       '@wordpress/api-fetch': 7.54.0
       '@wordpress/data': 10.54.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data-controls': 4.54.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -19385,7 +19385,7 @@ snapshots:
       '@automattic/i18n-utils': 1.2.3(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))
       '@automattic/typography': 1.0.0
       '@automattic/viewport': 1.1.1(react@18.3.1)
-      '@tanstack/react-query': 5.101.2(react@18.3.1)
+      '@tanstack/react-query': 5.102.8(react@18.3.1)
       '@wordpress/base-styles': 13.0.0
       '@wordpress/components': 40.0.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.54.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -22895,7 +22895,7 @@ snapshots:
 
   '@tannin/sprintf@1.3.3': {}
 
-  '@tanstack/eslint-plugin-query@5.101.2(eslint@10.10.0)(typescript@6.0.3)':
+  '@tanstack/eslint-plugin-query@5.102.8(eslint@10.10.0)(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/utils': 8.70.0(eslint@10.10.0)(typescript@6.0.3)
       eslint: 10.10.0
@@ -22908,19 +22908,19 @@ snapshots:
 
   '@tanstack/history@1.162.1': {}
 
-  '@tanstack/query-core@5.101.2': {}
+  '@tanstack/query-core@5.102.8': {}
 
-  '@tanstack/query-devtools@5.101.2': {}
+  '@tanstack/query-devtools@5.102.8': {}
 
-  '@tanstack/react-query-devtools@5.101.2(@tanstack/react-query@5.101.2(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.102.8(@tanstack/react-query@5.102.8(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-devtools': 5.101.2
-      '@tanstack/react-query': 5.101.2(react@18.3.1)
+      '@tanstack/query-devtools': 5.102.8
+      '@tanstack/react-query': 5.102.8(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@5.101.2(react@18.3.1)':
+  '@tanstack/react-query@5.102.8(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.101.2
+      '@tanstack/query-core': 5.102.8
       react: 18.3.1
 
   '@tanstack/react-router@1.167.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
