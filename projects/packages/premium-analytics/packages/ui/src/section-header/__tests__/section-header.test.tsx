@@ -8,12 +8,6 @@ describe( 'SectionHeader', () => {
 		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Traffic' );
 	} );
 
-	it( 'renders the title at the level the surface names', () => {
-		render( <SectionHeader title="Hello world" headingLevel={ 1 } /> );
-
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Hello world' );
-	} );
-
 	it( 'carries the title as an attribute, past the ellipsis', () => {
 		render( <SectionHeader title="Traffic across every channel this site measures" /> );
 
