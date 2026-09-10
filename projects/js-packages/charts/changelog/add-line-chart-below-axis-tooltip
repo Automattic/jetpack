@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Line chart: Add options to place tooltips below the x-axis label band and customize tooltip and crosshair styles.
+Line chart: Add options to place tooltips below the x-axis label band, customize tooltip and crosshair styles, and pair default colors with partial overrides.
