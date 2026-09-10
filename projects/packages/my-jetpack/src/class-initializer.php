@@ -108,6 +108,10 @@ class Initializer {
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
+		// Unconditional: other plugins render My Jetpack components on their own pages,
+		// where `myJetpackInitialState` is never localized.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_assets_script_data' ) );
+
 		// Both of wp-build's deadlines fall later in this request: the `current_screen`
 		// alias must exist before `set_current_screen()`, and the render function
 		// before the page callback.
@@ -530,7 +534,7 @@ class Initializer {
 				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
 				'adminUrl'               => esc_url( admin_url() ),
-				'assetsUrl'              => Assets::normalize_path( plugins_url( '../build/images/', __FILE__ ) ),
+				'assetsUrl'              => self::get_assets_url(),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'lifecycleStats'         => array(
@@ -594,6 +598,34 @@ class Initializer {
 		);
 
 		return $data;
+	}
+
+	/**
+	 * Add the package's image base URL to the admin script data.
+	 *
+	 * Printed on every admin page by Script_Data, so components this package exports
+	 * (the connection screen) can resolve their illustrations off the My Jetpack page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $data Script data.
+	 * @return array
+	 */
+	public static function add_assets_script_data( $data ) {
+		$data['myJetpack']['assetsUrl'] = self::get_assets_url();
+
+		return $data;
+	}
+
+	/**
+	 * Get the base URL of the package's built images.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public static function get_assets_url() {
+		return Assets::normalize_path( plugins_url( '../build/images/', __FILE__ ) );
 	}
 
 	/**

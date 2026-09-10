@@ -32,7 +32,10 @@ export type SiteEditorData = {
 declare module '@automattic/jetpack-script-data' {
 	interface JetpackScriptData {
 		myJetpack?: {
-			siteEditor: SiteEditorData;
+			// Only added on the My Jetpack page.
+			siteEditor?: SiteEditorData;
+			/** Absolute URL of the package's built images, with a trailing slash. */
+			assetsUrl?: string;
 		};
 	}
 }

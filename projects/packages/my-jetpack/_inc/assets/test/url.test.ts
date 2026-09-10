@@ -3,6 +3,7 @@ import { assetUrl } from '../url';
 describe( 'assetUrl', () => {
 	afterEach( () => {
 		window.myJetpackInitialState = {} as Window[ 'myJetpackInitialState' ];
+		window.JetpackScriptData = {} as Window[ 'JetpackScriptData' ];
 	} );
 
 	it( 'joins the runtime base with the relative path', () => {
@@ -25,7 +26,17 @@ describe( 'assetUrl', () => {
 		);
 	} );
 
-	it( 'returns the relative path unchanged when no base is present', () => {
-		expect( assetUrl( 'components/a.png' ) ).toBe( 'components/a.png' );
+	it( 'falls back to the script data base off the My Jetpack page', () => {
+		window.JetpackScriptData = {
+			myJetpack: { assetsUrl: 'https://example.com/build/images/' },
+		} as Window[ 'JetpackScriptData' ];
+
+		expect( assetUrl( 'components/a.png' ) ).toBe(
+			'https://example.com/build/images/components/a.png'
+		);
+	} );
+
+	it( 'returns undefined when no base is present', () => {
+		expect( assetUrl( 'components/a.png' ) ).toBeUndefined();
 	} );
 } );
