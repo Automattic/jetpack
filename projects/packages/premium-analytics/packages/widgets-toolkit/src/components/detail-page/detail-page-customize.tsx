@@ -1,13 +1,15 @@
-import { Badge, Icon, IconButton, Menu, Stack } from '@jetpack-premium-analytics/externals';
+import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { moreVertical, pencil } from '@wordpress/icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { PageOptionsMenu } from '../page-options-menu';
 import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
 import type { ReactNode } from 'react';
 
 export type DetailPageCustomize = {
 	/** Whether the page is in customize mode. */
 	isCustomizing: boolean;
+	/** Whether Customize is on offer: a layout on show, and customization enabled. */
+	canCustomize: boolean;
 	/** The policy for `WidgetDashboard.Policy`. */
 	canPerform: CanPerformDashboardOperation;
 	/** Enters customize mode; the page options menu's Customize entry. */
@@ -93,7 +95,7 @@ export function useDetailPageCustomize(
 		[ canCustomize ]
 	);
 
-	return { isCustomizing, canPerform, startCustomizing, onEditChange };
+	return { isCustomizing, canCustomize, canPerform, startCustomizing, onEditChange };
 }
 
 export type DetailPageBreadcrumbsProps = {
@@ -126,7 +128,8 @@ export function DetailPageBreadcrumbs( { isCustomizing, children }: DetailPageBr
 
 export type DetailPageActionsProps = {
 	isCustomizing: boolean;
-	onCustomize: () => void;
+	/** Enters customize mode; Customize is on offer only when given. */
+	onCustomize?: () => void;
 	/**
 	 * The dashboard's own actions, `<WidgetDashboard.Actions />`, created by the route.
 	 * Each bundle carries its own copy of `@wordpress/widget-dashboard`, so one rendered
@@ -139,9 +142,10 @@ export type DetailPageActionsProps = {
 
 /**
  * The actions slot of a detail page. Idle, it holds the page's own actions
- * and the page options menu with Customize; customizing, the dashboard's own
- * Cancel, Done and overflow (with Reset to default) take it over. Either swap
- * unmounts the focused control, so focus is moved onto the incoming ones.
+ * and the page options menu, Customize included; customizing, the dashboard's
+ * own Cancel, Done and overflow (with Reset to default) take the actions' place
+ * and the menu stays, less Customize. Leaving unmounts the focused control, so
+ * focus is moved back onto the menu trigger.
  *
  * @param props                - Component props.
  * @param props.isCustomizing  - Whether the page is in customize mode.
@@ -164,42 +168,16 @@ export function DetailPageActions( {
 			return;
 		}
 		wasCustomizing.current = isCustomizing;
-		// Entering: the first enabled dashboard action. Leaving: the menu trigger.
-		const target = frame.current?.querySelector< HTMLElement >(
-			isCustomizing ? 'button:not([disabled])' : '[aria-haspopup="menu"]'
-		);
-		target?.focus();
+		// Entering, the menu closes onto its own trigger; leaving needs a hand.
+		if ( ! isCustomizing ) {
+			frame.current?.querySelector< HTMLElement >( '[aria-haspopup="menu"]' )?.focus();
+		}
 	}, [ isCustomizing ] );
-
-	if ( isCustomizing ) {
-		return (
-			<Stack ref={ frame } direction="row" align="center" gap="sm">
-				{ editingActions }
-			</Stack>
-		);
-	}
 
 	return (
 		<Stack ref={ frame } direction="row" align="center" gap="sm">
-			{ children }
-			<Menu.Root>
-				<Menu.Trigger
-					render={
-						<IconButton
-							icon={ moreVertical }
-							label={ __( 'Page options', 'jetpack-premium-analytics-pkg' ) }
-							variant="minimal"
-							tone="brand"
-							size="compact"
-						/>
-					}
-				/>
-				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
-					<Menu.Item prefix={ <Icon icon={ pencil } /> } onClick={ onCustomize }>
-						<Menu.ItemLabel>{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
-					</Menu.Item>
-				</Menu.Popup>
-			</Menu.Root>
+			{ isCustomizing ? editingActions : children }
+			<PageOptionsMenu onCustomize={ isCustomizing ? undefined : onCustomize } />
 		</Stack>
 	);
 }

@@ -1,4 +1,4 @@
-import { act, render, renderHook, screen } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
 	DetailPageActions,
@@ -25,6 +25,7 @@ describe( 'useDetailPageCustomize', () => {
 		expect( canPerform( { operation: 'remove', widget } ) ).toBe( false );
 		// The page options menu is the way in, not the dashboard's own button.
 		expect( canPerform( { operation: 'customize' } ) ).toBe( false );
+		expect( result.current.canCustomize ).toBe( true );
 	} );
 
 	it( 'offers Reset only while customizing', () => {
@@ -45,6 +46,7 @@ describe( 'useDetailPageCustomize', () => {
 	it( 'will not open on an empty layout, from the menu or the dashboard', () => {
 		const { result } = renderHook( () => useDetailPageCustomize( [] ) );
 
+		expect( result.current.canCustomize ).toBe( false );
 		act( () => result.current.startCustomizing() );
 		act( () => result.current.onEditChange( true ) );
 
@@ -77,6 +79,7 @@ describe( 'useDetailPageCustomize', () => {
 		rerender( { enabled: false } );
 
 		expect( result.current.isCustomizing ).toBe( false );
+		expect( result.current.canCustomize ).toBe( false );
 		act( () => result.current.startCustomizing() );
 		expect( result.current.isCustomizing ).toBe( false );
 	} );
@@ -104,7 +107,7 @@ describe( 'DetailPageBreadcrumbs', () => {
 } );
 
 describe( 'DetailPageActions', () => {
-	it( 'keeps Customize behind the page options menu beside the page actions', async () => {
+	it( 'keeps Customize first in the page options menu beside the page actions', async () => {
 		const user = userEvent.setup();
 		const onCustomize = jest.fn();
 		render(
@@ -121,12 +124,28 @@ describe( 'DetailPageActions', () => {
 		expect( screen.queryByRole( 'menuitem' ) ).not.toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		const items = await screen.findAllByRole( 'menuitem' );
+		expect( items.map( item => item.textContent ) ).toEqual( [ 'Customize', 'Any feedback?' ] );
+
+		await user.click( items[ 0 ] );
 
 		expect( onCustomize ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( "hands the slot to the dashboard's own actions while customizing", () => {
+	it( 'leaves Customize out where there is nothing to arrange', async () => {
+		const user = userEvent.setup();
+		render( <DetailPageActions isCustomizing={ false } editingActions={ editingActions } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( "keeps the menu, less Customize, while the dashboard's own actions take the slot", async () => {
+		const user = userEvent.setup();
 		render(
 			<DetailPageActions isCustomizing onCustomize={ () => {} } editingActions={ editingActions }>
 				<a href="https://example.com/">View post</a>
@@ -135,10 +154,16 @@ describe( 'DetailPageActions', () => {
 
 		expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'moves focus across the swap so keyboard users keep their place', async () => {
+	it( 'moves focus back onto the menu trigger when leaving unmounts the focused control', async () => {
 		const user = userEvent.setup();
 		const dashboardActions = (
 			<>
@@ -163,8 +188,12 @@ describe( 'DetailPageActions', () => {
 				editingActions={ dashboardActions }
 			/>
 		);
-		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
+		// The trigger outlives the swap, and the menu closes onto it.
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toHaveFocus()
+		);
 
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 		rerender(
 			<DetailPageActions
 				isCustomizing={ false }

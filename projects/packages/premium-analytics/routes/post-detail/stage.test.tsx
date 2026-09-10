@@ -317,7 +317,8 @@ describe( 'post detail stage', () => {
 		expect( mockDashboardProps.editMode ).toBe( true );
 		expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
+		// The menu stays, so feedback and the opt-out remain a click away.
+		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^View post/ } ) ).not.toBeInTheDocument();
 
 		// Cancel or Done report back through onEditChange.

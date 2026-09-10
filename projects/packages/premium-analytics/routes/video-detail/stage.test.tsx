@@ -208,7 +208,11 @@ describe( 'video detail stage', () => {
 	beforeAll( () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
 			configurable: true,
-			value: { premium_analytics: { has_videopress: true } },
+			// The page options menu reads the reader's capabilities off it too.
+			value: {
+				premium_analytics: { has_videopress: true },
+				user: { current_user: { capabilities: {} } },
+			},
 		} );
 	} );
 
@@ -438,13 +442,22 @@ describe( 'video detail stage', () => {
 		{ summary: { isLoading: true }, state: 'loading' },
 		{ summary: { isError: true }, state: 'errored' },
 		{ summary: { isNotFound: true }, state: 'not found' },
-	] )( 'keeps the page options menu back while the video is $state', ( { summary } ) => {
-		mockSummary( summary );
+	] )(
+		'offers the page options menu without Customize while the video is $state',
+		async ( { summary } ) => {
+			const user = userEvent.setup();
+			mockSummary( summary );
 
-		render( stage() );
+			render( stage() );
 
-		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
-	} );
+			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+			await expect(
+				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'leaves customize mode when the video stops rendering', async () => {
 		const user = userEvent.setup();
