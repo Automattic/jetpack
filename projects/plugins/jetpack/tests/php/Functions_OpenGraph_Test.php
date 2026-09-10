@@ -201,6 +201,176 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	}
 
 	/**
+	 * Create a published post gated by the post-level Newsletter access setting.
+	 *
+	 * @param array $fields Post field overrides.
+	 * @return int Post ID.
+	 */
+	protected function create_gated_post( $fields = array() ) {
+		// The factory supplies a default excerpt, which would publish ahead of the gate.
+		$post_id = self::factory()->post->create(
+			array_merge(
+				array(
+					'post_content' => 'Subscriber-only body text.',
+					'post_excerpt' => '',
+				),
+				$fields
+			)
+		);
+		update_post_meta( $post_id, '_jetpack_newsletter_access', 'paid_subscribers' );
+
+		return $post_id;
+	}
+
+	/**
+	 * Capture the tags jetpack_og_tags() prints for the current query.
+	 *
+	 * @return string
+	 */
+	protected function get_og_output() {
+		ob_start();
+		jetpack_og_tags();
+
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * A gated post publishes no og:description drawn from its body.
+	 */
+	public function test_jetpack_og_tags_omits_description_for_gated_post() {
+		$this->go_to( get_permalink( $this->create_gated_post() ) );
+
+		$output = $this->get_og_output();
+
+		$this->assertStringNotContainsString( 'og:description', $output );
+		$this->assertStringNotContainsString( 'Subscriber-only body text.', $output );
+	}
+
+	/**
+	 * An ungated post still gets one. Without this control a future widening of
+	 * the gate would blank descriptions site-wide with nothing failing.
+	 */
+	public function test_jetpack_og_tags_keeps_description_for_ungated_post() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => 'Public body text.',
+				'post_excerpt' => '',
+			)
+		);
+		$this->go_to( get_permalink( $post_id ) );
+
+		$output = $this->get_og_output();
+
+		$this->assertStringContainsString( 'og:description', $output );
+		$this->assertStringContainsString( 'Public body text.', $output );
+	}
+
+	/**
+	 * An author-written excerpt is a deliberate public summary, so the gate does
+	 * not withhold it.
+	 */
+	public function test_jetpack_og_tags_keeps_excerpt_for_gated_post() {
+		$post_id = $this->create_gated_post( array( 'post_excerpt' => 'Public summary.' ) );
+		$this->go_to( get_permalink( $post_id ) );
+
+		$output = $this->get_og_output();
+
+		$this->assertStringContainsString( 'Public summary.', $output );
+		$this->assertStringNotContainsString( 'Subscriber-only body text.', $output );
+	}
+
+	/**
+	 * A paywalled post describes itself with the teaser the front end publishes.
+	 */
+	public function test_jetpack_og_tags_uses_the_paywall_teaser() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => 'Free intro text.<!-- wp:jetpack/paywall /-->Paid body text.',
+				'post_excerpt' => '',
+			)
+		);
+		$this->go_to( get_permalink( $post_id ) );
+
+		$output = $this->get_og_output();
+
+		$this->assertStringContainsString( 'Free intro text.', $output );
+		$this->assertStringNotContainsString( 'Paid body text.', $output );
+	}
+
+	/**
+	 * A gated post is handed a plain summary card, so Twitter_Cards takes its
+	 * existing early return instead of analyzing the body.
+	 */
+	public function test_jetpack_og_gate_twitter_cards_sets_a_summary_card() {
+		$post_id = $this->create_gated_post();
+		$this->go_to( get_permalink( $post_id ) );
+
+		$tags = jetpack_og_gate_twitter_cards( array() );
+
+		$this->assertSame( 'summary', $tags['twitter:card'] );
+		$this->assertSame( get_the_title( $post_id ), $tags['twitter:text:title'] );
+	}
+
+	/**
+	 * An ungated post is left for Twitter_Cards to handle as before.
+	 */
+	public function test_jetpack_og_gate_twitter_cards_ignores_ungated_posts() {
+		$post_id = self::factory()->post->create( array( 'post_content' => 'Public body text.' ) );
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertSame( array(), jetpack_og_gate_twitter_cards( array() ) );
+	}
+
+	/**
+	 * Tags an earlier filter already set are left alone.
+	 */
+	public function test_jetpack_og_gate_twitter_cards_keeps_existing_tags() {
+		$post_id = $this->create_gated_post();
+		$this->go_to( get_permalink( $post_id ) );
+
+		$tags = jetpack_og_gate_twitter_cards(
+			array(
+				'twitter:card'       => 'player',
+				'twitter:text:title' => 'Set by another filter',
+			)
+		);
+
+		$this->assertSame( 'player', $tags['twitter:card'] );
+		$this->assertSame( 'Set by another filter', $tags['twitter:text:title'] );
+	}
+
+	/**
+	 * With Twitter Cards disabled, Twitter_Cards never registers -- including the
+	 * output filter that rewrites these to `name=` -- so the gate must not emit.
+	 */
+	public function test_jetpack_og_gate_twitter_cards_respects_disabled_cards() {
+		$post_id = $this->create_gated_post();
+		$this->go_to( get_permalink( $post_id ) );
+
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+		$tags = jetpack_og_gate_twitter_cards( array() );
+		remove_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
+		$this->assertSame( array(), $tags );
+	}
+
+	/**
+	 * The featured image survives the gate, as it does for og:image: it is chosen
+	 * separately rather than parsed out of the body.
+	 */
+	public function test_jetpack_og_gate_twitter_cards_keeps_the_featured_image() {
+		$post_id = $this->create_gated_post();
+		set_post_thumbnail( $post_id, $this->icon_id );
+		$this->go_to( get_permalink( $post_id ) );
+
+		$tags = jetpack_og_gate_twitter_cards( array() );
+
+		// jetpack-icon.jpg is 500x500, over the 300x157 large-card threshold.
+		$this->assertSame( 'summary_large_image', $tags['twitter:card'] );
+		$this->assertStringContainsString( 'jetpack-icon', $tags['twitter:image'] );
+	}
+
+	/**
 	 * Create a post containing a few images attached to another post.
 	 *
 	 * @since 9.2.0
@@ -274,6 +444,39 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		// We expect jetpack_og_get_image to return the first of the images in the post.
 		$first_image_url = $post_info['img_urls'][0];
 		$this->assertEquals( $first_image_url, $chosen_image['src'] );
+	}
+
+	/**
+	 * A gated post advertises no image parsed out of its body.
+	 *
+	 * The control lives in test_jetpack_og_get_image_from_post_order: the same
+	 * fixture ungated does return its first body image.
+	 */
+	public function test_jetpack_og_get_image_omits_body_images_for_gated_post() {
+		$post_info = $this->create_post_with_image_blocks( 2 );
+		update_post_meta( $post_info['post_id'], '_jetpack_newsletter_access', 'paid_subscribers' );
+
+		$this->go_to( get_permalink( $post_info['post_id'] ) );
+
+		$chosen_image = jetpack_og_get_image();
+
+		foreach ( $post_info['img_urls'] as $img_url ) {
+			$this->assertNotSame( $img_url, $chosen_image['src'] ?? '' );
+		}
+	}
+
+	/**
+	 * The featured image is chosen separately rather than parsed out of the body,
+	 * so it still stands in for a gated post.
+	 */
+	public function test_jetpack_og_get_image_keeps_featured_image_for_gated_post() {
+		$post_id = $this->create_gated_post();
+		set_post_thumbnail( $post_id, $this->icon_id );
+		update_post_meta( $post_id, '_jetpack_newsletter_access', 'paid_subscribers' );
+
+		$this->go_to( get_permalink( $post_id ) );
+
+		$this->assertStringContainsString( 'jetpack-icon', jetpack_og_get_image()['src'] );
 	}
 
 	/**

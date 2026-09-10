@@ -24,7 +24,7 @@ class Admin_Page {
 	 *
 	 * Unread since Podcast registers without a position; kept so consumers do not fatal.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 2.1.1
 	 */
 	const MENU_POSITION = 11;
 
