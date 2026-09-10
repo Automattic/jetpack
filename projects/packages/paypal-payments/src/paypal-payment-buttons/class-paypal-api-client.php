@@ -179,9 +179,14 @@ class PayPal_API_Client {
 	/**
 	 * Update a payment resource (full replacement via PUT).
 	 *
+	 * PayPal answers a successful PUT with an empty 204, so this echoes the request
+	 * back with the id. Call get_resource() for the payment's actual state, which a
+	 * full replacement can move. 200 counts as success too, in case PayPal ever
+	 * answers with a body; the body is discarded either way.
+	 *
 	 * @param string $resource_id   PayPal resource ID (format: PLB-XXXXXXXXXXXX).
 	 * @param array  $resource_data Complete updated resource data (same schema as create).
-	 * @return array|\WP_Error Decoded response body on success (HTTP 200), WP_Error on failure.
+	 * @return array|\WP_Error The data that was sent, plus the resource id, or WP_Error on failure.
 	 */
 	public static function update_resource( $resource_id, $resource_data ) {
 		$resource_id = self::sanitize_resource_id( $resource_id );
@@ -193,25 +198,14 @@ class PayPal_API_Client {
 			'PUT',
 			self::RESOURCES_ENDPOINT . '/' . $resource_id,
 			$resource_data,
-			200
+			array( 204, 200 )
 		);
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
-		// Extract payment_link from HATEOAS links array to top-level field.
-		$result = self::extract_payment_link( $result );
-
-		// Validate payment_link domain if present.
-		if ( ! empty( $result['payment_link'] ) ) {
-			$validation = self::validate_paypal_url( $result['payment_link'] );
-			if ( is_wp_error( $validation ) ) {
-				return $validation;
-			}
-		}
-
-		return $result;
+		return array_merge( $resource_data, array( 'id' => $resource_id ) );
 	}
 
 	/**
@@ -251,7 +245,7 @@ class PayPal_API_Client {
 	 * @param string     $method          HTTP method (GET, POST, PUT, DELETE).
 	 * @param string     $endpoint        API endpoint path.
 	 * @param array|null $body            Request body data.
-	 * @param int        $expected_status Expected HTTP status code for success.
+	 * @param int|array  $expected_status Status code, or codes, that count as success.
 	 * @return array|null|\WP_Error Decoded response body, null for 204, or WP_Error.
 	 */
 	private static function make_request_with_retry( $method, $endpoint, $body, $expected_status ) {
@@ -347,7 +341,7 @@ class PayPal_API_Client {
 	 * @param string     $method          HTTP method (GET, POST, PUT, DELETE).
 	 * @param string     $endpoint        API endpoint path (appended to base URL).
 	 * @param array|null $body            Request body data (JSON-encoded for POST/PUT).
-	 * @param int        $expected_status Expected HTTP status code for success.
+	 * @param int|array  $expected_status Status code, or codes, that count as success.
 	 * @param string     $request_id      Optional. Idempotency key. Auto-generated if empty.
 	 * @return array|null|\WP_Error Decoded response body, null for 204, or WP_Error.
 	 */
@@ -404,8 +398,8 @@ class PayPal_API_Client {
 		$status_code = wp_remote_retrieve_response_code( $response );
 
 		// Success path.
-		if ( $status_code === $expected_status ) {
-			// 204 No Content has no body.
+		if ( in_array( $status_code, (array) $expected_status, true ) ) {
+			// A 204 is empty. Ignore a body if PayPal ever sends one.
 			if ( 204 === $status_code ) {
 				return null;
 			}

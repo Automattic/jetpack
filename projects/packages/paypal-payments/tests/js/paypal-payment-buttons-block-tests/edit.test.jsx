@@ -301,6 +301,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			/>
 		);
 
+	/**
+	 * Open the block's edit form and press Save.
+	 *
+	 * @param {object} user - The userEvent instance driving the clicks.
+	 */
+	async function saveFromEditForm( user ) {
+		await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
+		await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+		await user.click( screen.getByText( 'Save' ) );
+	}
+
 	beforeEach( () => {
 		jest.clearAllMocks();
 		// Clear persisted wizard step to ensure tests start from 'welcome'.
@@ -1431,7 +1442,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						productName: 'Test Widget',
 						price: '29.99',
 						currencyCode: 'USD',
-						productDescription: 'x'.repeat( 257 ),
+						productDescription: 'x'.repeat( 2049 ),
 					} }
 					setAttributes={ setAttributes }
 				/>
@@ -1440,6 +1451,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByText( 'Create New' ) ).resolves.toBeInTheDocument();
 			const createButton = screen.getByText( 'Create New' );
 			expect( createButton ).toBeDisabled();
+		} );
+
+		it( 'accepts a description past the old 256 limit', async () => {
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						productDescription: 'x'.repeat( 500 ),
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByText( 'Create New' ) ).resolves.toBeInTheDocument();
+			expect( screen.getByText( 'Create New' ) ).toBeEnabled();
 		} );
 
 		it( 'submits create request with correct data', async () => {
@@ -1459,6 +1487,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						productName: 'Test Widget',
 						price: '29.99',
 						currencyCode: 'USD',
+						collectShippingAddress: false,
 					} }
 					setAttributes={ setAttributes }
 				/>
@@ -1480,6 +1509,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 							expect.objectContaining( {
 								name: 'Test Widget',
 								unit_amount: { currency_code: 'USD', value: '29.99' },
+								// Sent even when off: omit it and PayPal turns address collection on.
+								collect_shipping_address: false,
 							} ),
 						] ),
 					} ),
@@ -2385,6 +2416,89 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
 			expect( screen.getByText( 'Save' ) ).toBeEnabled();
 		} );
+
+		/**
+		 * The taxes the update request sent.
+		 *
+		 * @return {Array|undefined} The taxes array from the PUT.
+		 */
+		function taxesFromUpdate() {
+			const put = apiFetch.mock.calls.find( ( [ options ] ) => options.method === 'PUT' );
+			return put?.[ 0 ]?.data?.line_items?.[ 0 ]?.taxes;
+		}
+
+		// PayPal renders its own label to the buyer, so the merchant's string goes
+		// nowhere - and requiring one threw the whole tax away.
+		it( 'collects tax on a payment without a tax name', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await saveFromEditForm( user );
+
+			await waitFor( () =>
+				expect( taxesFromUpdate() ).toEqual( [ { type: 'PERCENTAGE', value: '8.25' } ] )
+			);
+		} );
+
+		it( 'leaves taxes out of the request when tax collection is off', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxEnabled: false } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await saveFromEditForm( user );
+
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { method: 'PUT' } ) )
+			);
+			expect( taxesFromUpdate() ).toBeUndefined();
+		} );
+
+		it( 'sends PayPal’s own profile rate as PROFILE', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType: 'PREFERENCE' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await saveFromEditForm( user );
+
+			await waitFor( () =>
+				expect( taxesFromUpdate() ).toEqual( [ { type: 'PREFERENCE', value: 'PROFILE' } ] )
+			);
+		} );
+
+		// A payment made in PayPal's dashboard can have one. Sending an empty name
+		// back would overwrite it, so the key rides along only when there is one.
+		it( 'sends a tax name the payment already has', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxName: 'ZZ Custom VAT Label' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await saveFromEditForm( user );
+
+			await waitFor( () =>
+				expect( taxesFromUpdate() ).toEqual( [
+					{ name: 'ZZ Custom VAT Label', type: 'PERCENTAGE', value: '8.25' },
+				] )
+			);
+		} );
 	} );
 
 	describe( 'Custom checkout fields', () => {
@@ -2715,8 +2829,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		it( 'shows the description error once the field is left', async () => {
 			const user = userEvent.setup();
-			const tooLong = 'Description must be 256 characters or fewer.';
-			renderForm( { productDescription: 'x'.repeat( 257 ) } );
+			const tooLong = 'Description must be 2048 characters or fewer.';
+			renderForm( { productDescription: 'x'.repeat( 2049 ) } );
 
 			const field = await screen.findByLabelText( 'Description (optional)' );
 			expect( screen.queryByText( tooLong ) ).not.toBeInTheDocument();
@@ -2798,9 +2912,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				visit: 'Price',
 			},
 			productDescription: {
-				attributes: { productDescription: 'x'.repeat( 257 ) },
+				attributes: { productDescription: 'x'.repeat( 2049 ) },
 				testId: 'control-Description (optional)',
-				message: 'Description must be 256 characters or fewer.',
+				message: 'Description must be 2048 characters or fewer.',
 				visit: 'Description (optional)',
 			},
 			currencyCode: {
@@ -3163,6 +3277,127 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByTestId( 'paypal-button-preview' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Updating a payment', () => {
+		const attributes = {
+			isApiManaged: true,
+			resourceId: 'PLB-KEEP1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-KEEP1',
+			productName: 'Test Widget',
+			price: '29.99',
+			currencyCode: 'USD',
+			collectShippingAddress: false,
+		};
+		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-KEEP1';
+
+		// A payment configured beyond what the block form covers - set in PayPal's
+		// own dashboard, or by the admin page.
+		const storedLineItem = {
+			name: 'Test Widget',
+			unit_amount: { currency_code: 'USD', value: '29.99' },
+			product_id: 'SKU-12345',
+			shipping: [ { type: 'FLAT', value: '5.00', additional_unit_value: '2.00' } ],
+			handling: [ { type: 'FLAT', value: '4.00' } ],
+			discounts: [ { type: 'FLAT', value: '2.00' } ],
+			// The block sends false, so a true in the PUT can only have come from
+			// the payment.
+			collect_shipping_address: true,
+		};
+
+		it( 'keeps the fields set outside the form', async () => {
+			const user = userEvent.setup();
+
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath && method === undefined ) {
+					return Promise.resolve( { id: 'PLB-KEEP1', line_items: [ storedLineItem ] } );
+				}
+				return Promise.resolve( {} );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await saveFromEditForm( user );
+
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						path: resourcePath,
+						method: 'PUT',
+						data: expect.objectContaining( {
+							line_items: [
+								expect.objectContaining( {
+									product_id: 'SKU-12345',
+									shipping: storedLineItem.shipping,
+									handling: storedLineItem.handling,
+									discounts: storedLineItem.discounts,
+									collect_shipping_address: true,
+								} ),
+							],
+						} ),
+					} )
+				)
+			);
+		} );
+
+		it( 'sends the form’s own values over the payment’s', async () => {
+			const user = userEvent.setup();
+
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath && method === undefined ) {
+					return Promise.resolve( {
+						id: 'PLB-KEEP1',
+						line_items: [ { ...storedLineItem, name: 'Stale name' } ],
+					} );
+				}
+				return Promise.resolve( {} );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await saveFromEditForm( user );
+
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						method: 'PUT',
+						data: expect.objectContaining( {
+							line_items: [ expect.objectContaining( { name: 'Test Widget' } ) ],
+						} ),
+					} )
+				)
+			);
+		} );
+
+		it( 're-creates a payment that has been deleted from PayPal', async () => {
+			const user = userEvent.setup();
+
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath ) {
+					return Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } );
+				}
+				return Promise.resolve( {
+					id: 'PLB-NEW1',
+					payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+				} );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await saveFromEditForm( user );
+
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { resourceId: 'PLB-NEW1' } )
+				)
+			);
 		} );
 	} );
 

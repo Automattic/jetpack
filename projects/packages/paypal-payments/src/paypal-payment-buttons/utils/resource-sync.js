@@ -30,6 +30,7 @@ export const RESOURCE_ATTRIBUTES = [
 	'taxName',
 	'taxValue',
 	'returnUrl',
+	'collectShippingAddress',
 ];
 
 let nextKey = 1;

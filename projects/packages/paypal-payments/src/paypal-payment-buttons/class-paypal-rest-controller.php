@@ -830,6 +830,20 @@ class PayPal_REST_Controller {
 	 * @return array REST API args definition.
 	 */
 	private static function get_button_create_args() {
+		// Shipping, handling and discounts take the same fields.
+		$amount_list = array(
+			'type'     => 'array',
+			'required' => false,
+			'items'    => array(
+				'type'       => 'object',
+				'properties' => array(
+					'type'                  => array( 'type' => 'string' ),
+					'value'                 => array( 'type' => 'string' ),
+					'additional_unit_value' => array( 'type' => 'string' ),
+				),
+			),
+		);
+
 		return array(
 			'name'             => array(
 				'required'          => false,
@@ -876,17 +890,17 @@ class PayPal_REST_Controller {
 				'items'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'name'                => array(
+						'name'                     => array(
 							'type'     => 'string',
 							'required' => true,
 						),
-						'description'         => array(
+						'description'              => array(
 							'type'     => 'string',
 							'required' => false,
 						),
 						// Not required: omitted when the product options carry
 						// their own per-option prices.
-						'unit_amount'         => array(
+						'unit_amount'              => array(
 							'type'       => 'object',
 							'required'   => false,
 							'properties' => array(
@@ -900,12 +914,12 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						'quantity'            => array(
+						'quantity'                 => array(
 							'type'     => 'string',
 							'required' => false,
 							'default'  => '1',
 						),
-						'variants'            => array(
+						'variants'                 => array(
 							'type'       => 'object',
 							'required'   => false,
 							'properties' => array(
@@ -937,14 +951,14 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						'adjustable_quantity' => array(
+						'adjustable_quantity'      => array(
 							'type'       => 'object',
 							'required'   => false,
 							'properties' => array(
 								'maximum' => array( 'type' => 'integer' ),
 							),
 						),
-						'customer_notes'      => array(
+						'customer_notes'           => array(
 							'type'     => 'array',
 							'required' => false,
 							'items'    => array(
@@ -955,7 +969,7 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						'taxes'               => array(
+						'taxes'                    => array(
 							'type'     => 'array',
 							'required' => false,
 							'items'    => array(
@@ -969,6 +983,19 @@ class PayPal_REST_Controller {
 									'value' => array( 'type' => 'string' ),
 								),
 							),
+						),
+						// Set outside the form, but a PUT replaces the whole resource,
+						// so the editor sends them back.
+						'product_id'               => array(
+							'type'     => 'string',
+							'required' => false,
+						),
+						'shipping'                 => $amount_list,
+						'handling'                 => $amount_list,
+						'discounts'                => $amount_list,
+						'collect_shipping_address' => array(
+							'type'     => 'boolean',
+							'required' => false,
 						),
 					),
 				),
@@ -1126,10 +1153,64 @@ class PayPal_REST_Controller {
 				}
 			}
 
+			// Copied back from the payment by the editor. Drop one here and Update
+			// deletes it at PayPal.
+			if ( isset( $item['product_id'] ) && '' !== $item['product_id'] ) {
+				$clean_item['product_id'] = sanitize_text_field( $item['product_id'] );
+			}
+			foreach ( array( 'shipping', 'handling', 'discounts' ) as $field ) {
+				if ( ! empty( $item[ $field ] ) && is_array( $item[ $field ] ) ) {
+					$clean_amounts = self::sanitize_amount_list( $item[ $field ] );
+					if ( ! empty( $clean_amounts ) ) {
+						$clean_item[ $field ] = $clean_amounts;
+					}
+				}
+			}
+
+			// Send it even when off - omit it and PayPal turns address collection back on.
+			if ( isset( $item['collect_shipping_address'] ) ) {
+				$clean_item['collect_shipping_address'] = (bool) $item['collect_shipping_address'];
+			}
+
 			$sanitized[] = $clean_item;
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Sanitize a shipping, handling or discount list for PayPal API submission.
+	 *
+	 * All three take a type, a value, and for per-unit shipping a rate for each
+	 * extra unit. The type passes straight through: these come back off the payment,
+	 * so anything PayPal accepted must survive the round trip.
+	 *
+	 * @param array $amounts Raw entries from the REST request.
+	 * @return array Sanitized entries.
+	 */
+	private static function sanitize_amount_list( $amounts ) {
+		$clean = array();
+
+		foreach ( $amounts as $amount ) {
+			// A zero is a legitimate amount, and in a zero-decimal currency it is
+			// written "0", which empty() would throw away.
+			if ( ! is_array( $amount ) || ! isset( $amount['value'] ) || '' === (string) $amount['value'] ) {
+				continue;
+			}
+
+			$clean_amount = array(
+				'type'  => isset( $amount['type'] ) ? sanitize_text_field( $amount['type'] ) : 'FLAT',
+				'value' => sanitize_text_field( (string) $amount['value'] ),
+			);
+
+			if ( isset( $amount['additional_unit_value'] ) && '' !== (string) $amount['additional_unit_value'] ) {
+				$clean_amount['additional_unit_value'] = sanitize_text_field( (string) $amount['additional_unit_value'] );
+			}
+
+			$clean[] = $clean_amount;
+		}
+
+		return $clean;
 	}
 
 	/**

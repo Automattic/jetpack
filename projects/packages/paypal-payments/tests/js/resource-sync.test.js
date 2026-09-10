@@ -28,6 +28,7 @@ const blockAttributes = {
 	taxName: 'Sales Tax',
 	taxValue: '',
 	returnUrl: '',
+	collectShippingAddress: true,
 	imageUrl: 'https://example.com/widget.jpg',
 	format: 'QR',
 };
@@ -76,6 +77,15 @@ describe( 'getResourceAttributeUpdates', () => {
 				resourceAttributes
 			)
 		).toEqual( { productDescription: '', returnUrl: '' } );
+	} );
+
+	it( 'reads address collection back from the payment', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, {
+				...resourceAttributes,
+				collectShippingAddress: false,
+			} )
+		).toEqual( { collectShippingAddress: false } );
 	} );
 
 	it( 'clears a leftover product price when the payment prices per option', () => {
