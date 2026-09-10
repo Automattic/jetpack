@@ -1444,13 +1444,7 @@ class Manager {
 		// here on. Routed through the deduping writer, which clears the ID off any previous holder.
 		Utils::set_wpcom_user_id( $user_id, (int) $owner_data['ID'] );
 
-		Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by );
-
-		// Confirmed by reading it back, not by the write's return value: that is also false when
-		// the anchor already said exactly this, which is not a failure.
-		$anchor = Protected_Owner::get();
-
-		if ( ! $anchor || (int) $anchor['wpcom_user_id'] !== (int) $owner_data['ID'] ) {
+		if ( ! Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by ) ) {
 			return new WP_Error(
 				'protected_owner_not_stored',
 				__( 'Could not store the protected owner.', 'jetpack-connection' ),

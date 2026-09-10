@@ -50,7 +50,7 @@ class Protected_Owner {
 	 *                              Required, and travels to WordPress.com with the anchor: it names
 	 *                              a mechanism rather than a local user, and a default here would
 	 *                              record provenance nobody established.
-	 * @return bool Whether the anchor was written. False when the mechanism is missing.
+	 * @return bool Whether the anchor is now stored as requested.
 	 */
 	public static function set( $wpcom_user_id, $local_user_id, $confirmed_by ) {
 		$confirmed_by = sanitize_key( $confirmed_by );
@@ -61,16 +61,20 @@ class Protected_Owner {
 			return false;
 		}
 
-		return Jetpack_Options::update_option(
-			self::OPTION,
-			array(
-				'wpcom_user_id' => absint( $wpcom_user_id ),
-				'local_user_id' => absint( $local_user_id ),
-				'locked'        => true,
-				'confirmed_at'  => gmdate( 'Y-m-d\TH:i:s\Z' ),
-				'confirmed_by'  => $confirmed_by,
-			)
+		$anchor = array(
+			'wpcom_user_id' => absint( $wpcom_user_id ),
+			'local_user_id' => absint( $local_user_id ),
+			'locked'        => true,
+			'confirmed_at'  => gmdate( 'Y-m-d\TH:i:s\Z' ),
+			'confirmed_by'  => $confirmed_by,
 		);
+
+		if ( Jetpack_Options::update_option( self::OPTION, $anchor ) ) {
+			return true;
+		}
+
+		// `update_option()` reports false for an unchanged value as well as for a failed write.
+		return Jetpack_Options::get_option( self::OPTION ) === $anchor;
 	}
 
 	/**

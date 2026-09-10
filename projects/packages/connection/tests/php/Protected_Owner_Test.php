@@ -392,6 +392,21 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * An anchor that already says exactly this is stored as requested, so it reports success.
+	 * `update_option()` reports false for that case as well as for a failed write.
+	 */
+	public function test_set_reports_success_when_the_anchor_already_says_this() {
+		$established = Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id, 'popup' );
+
+		// Back to back, so `confirmed_at` matches and the write is the no-op that
+		// `update_option()` reports as false.
+		$repeated = Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id, 'popup' );
+
+		$this->assertTrue( $established );
+		$this->assertTrue( $repeated, 'An anchor already saying exactly this is stored as requested.' );
+	}
+
+	/**
 	 * Provenance that sanitizes away is not provenance, and is refused rather than stored blank.
 	 */
 	public function test_set_protected_owner_rejects_provenance_that_sanitizes_to_nothing() {
