@@ -12,6 +12,7 @@
 		"_inc/**/*",
 		"routes/**/*",
 		"packages/init/src/**/*",
+		"app/assets/src/js/lib/modern/**/*",
 		"app/assets/src/js/global.d.ts"
 	]
 }
