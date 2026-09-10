@@ -314,15 +314,17 @@ test.each( [
 	);
 	expect( screen.getByText( String( score ) ) ).toBeInTheDocument();
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( score );
-	expect( screen.getByText( '+10 points compared to without Boost' ) ).toBeInTheDocument();
+	expect( screen.getByText( '+10 points compared with Boost disabled' ) ).toBeInTheDocument();
 	expect( screen.getByText( tier ) ).toBeInTheDocument();
 } );
 
 test( 'opens the overall grade explanation and dismisses it with Escape', async () => {
 	render( <ScoreCards scores={ scores } /> );
 	expect(
-		within( screen.getByRole( 'region', { name: 'Overall grade' } ) ).getByText( 'Good' )
-	).toBeInTheDocument();
+		within( screen.getByRole( 'region', { name: 'Overall grade' } ) ).queryByText(
+			/Good|Could be improved|Poor/
+		)
+	).not.toBeInTheDocument();
 	const trigger = within( screen.getByRole( 'region', { name: 'Overall grade' } ) ).getByRole(
 		'button',
 		{ name: 'How the overall grade is calculated' }
@@ -339,10 +341,10 @@ test( 'opens the overall grade explanation and dismisses it with Escape', async 
 	expect( trigger ).toHaveFocus();
 } );
 
-test( 'renders a negative baseline delta alongside the current measured bar', () => {
+test( 'hides a negative baseline delta while preserving the current measured bar', () => {
 	render( <ScoreCard icon={ null } label="Mobile" value={ 40 } score={ 40 } noBoost={ 60 } /> );
 	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 40 );
-	expect( screen.getByText( '−20 points compared to without Boost' ) ).toBeInTheDocument();
+	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
 	expect( screen.getByText( 'Poor' ) ).toBeInTheDocument();
 } );
 
@@ -350,10 +352,10 @@ test( 'hides stale and absent baselines while preserving measured scores', () =>
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
 	expect( screen.getByText( /\+10 points/ ) ).toBeInTheDocument();
 	rerender( <ScoreCards scores={ { ...scores, isStale: true } } /> );
-	expect( screen.queryByText( /compared to without Boost/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
 	expect( screen.getByText( '91' ) ).toBeInTheDocument();
 	rerender( <ScoreCards scores={ { ...scores, noBoost: null } } /> );
-	expect( screen.queryByText( /compared to without Boost/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
 } );
 
 test( 'selects the free history upgrade using module availability', async () => {
@@ -541,15 +543,15 @@ test( 'reports module request errors independently and retries only modules', as
 } );
 
 test.each( [
-	[ 100, 'A', 'Good', 'good' ],
-	[ 90, 'B', 'Good', 'good' ],
-	[ 76, 'B', 'Good', 'good' ],
-	[ 75, 'C', 'Could be improved', 'medium' ],
-	[ 71, 'C', 'Could be improved', 'medium' ],
-	[ 50, 'D', 'Poor', 'poor' ],
-	[ 30, 'E', 'Poor', 'poor' ],
-	[ 0, 'F', 'Poor', 'poor' ],
-] )( 'keeps the Overall letter and tier aligned at score %s', ( score, grade, word, tier ) => {
+	[ 100, 'A' ],
+	[ 90, 'B' ],
+	[ 76, 'B' ],
+	[ 75, 'C' ],
+	[ 71, 'C' ],
+	[ 50, 'D' ],
+	[ 30, 'E' ],
+	[ 0, 'F' ],
+] )( 'shows the Overall letter without a tier at score %s', ( score, grade ) => {
 	render(
 		<ScoreCards
 			scores={ {
@@ -561,12 +563,10 @@ test.each( [
 	);
 	const overall = within( screen.getByRole( 'region', { name: 'Overall grade' } ) );
 	expect( overall.getByText( String( grade ) ) ).toBeInTheDocument();
-	expect( overall.getByText( String( word ) ) ).toHaveClass(
-		`jetpack-boost-overview__tier--${ tier }`
-	);
+	expect( overall.queryByText( /Good|Could be improved|Poor/ ) ).not.toBeInTheDocument();
 } );
 
-test( 'keeps numeric device tiers when the Overall letter uses a different tier', () => {
+test( 'keeps numeric device tiers when the Overall letter is C', () => {
 	render(
 		<ScoreCards
 			scores={ { current: { desktop: 71, mobile: 71 }, noBoost: null, isStale: false } }
