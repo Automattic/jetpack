@@ -131,9 +131,12 @@ const calendarArgTypes = {
 	},
 };
 
+// A mid-week span (Wed to Wed) so both calendar edges are ragged. Sliced once, not per
+// render, since `useCalendarHeatmapData` holds the series by reference.
+const raggedCalendarSeries = heatmapCalendarSeries.slice( 2, 115 );
+
 export const Calendar: StoryObj< CalendarStoryArgs > = {
-	// A mid-week span (Wed to Wed) so both calendar edges are ragged.
-	render: args => <CalendarGrid { ...args } series={ heatmapCalendarSeries.slice( 2, 115 ) } />,
+	render: args => <CalendarGrid { ...args } series={ raggedCalendarSeries } />,
 	args: {
 		...sharedThemeArgs,
 		withTooltips: true,

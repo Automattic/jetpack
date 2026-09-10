@@ -168,7 +168,7 @@ Use `buildCalendarHeatmapData` to convert a flat `DataPointDate[]` series into t
 	}` }
 />
 
-`useCalendarHeatmapData` is `buildCalendarHeatmapData` with the locale and time zone taken from `GlobalChartsProvider`, so a host that already set them for its other charts does not name them again. Call `buildCalendarHeatmapData` directly outside a component, or when the values do not come from the provider.
+`useCalendarHeatmapData` is `buildCalendarHeatmapData` with the locale and time zone taken from `GlobalChartsProvider`, so a host that already set them for its other charts does not name them again. **Prefer the hook.** `buildCalendarHeatmapData` is the escape hatch for what it cannot serve: outside a component, or where the values do not come from the provider.
 
 `buildCalendarHeatmapData` accepts an optional `options` object:
 
@@ -191,6 +191,8 @@ How a point's date is read depends on what it carries:
 | `dateString` with a time but no offset | a wall clock in `timeZone` | its date part, as written |
 
 A bare `yyyy-MM-dd` is therefore safe to mix with a `timeZone`, unlike on the time axis, where `ChartFormatting` re-dates it.
+
+A `dateString` must start `yyyy-MM-dd`. Other ISO 8601 shapes — basic format (`20240103`), a bare month or year, ordinal (`2024-003`) and week (`2024-W05-1`) dates — name no day the calendar can key, and their points are left out of the grid with a console warning outside production.
 
 `weekStartsOn` is never derived from `locale`: a grid keeps the week start the caller asked for, or Monday.
 

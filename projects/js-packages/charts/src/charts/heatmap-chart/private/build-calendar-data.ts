@@ -1,4 +1,5 @@
 import { createDateFormatter, sanitizeFormatting } from '../../../utils/date-formatting';
+import { warnOnce } from '../../../utils/warn-once';
 import {
 	addCivilDays,
 	civilDate,
@@ -11,7 +12,7 @@ import {
 } from './civil-day';
 import type { DataPointDate } from '../../../types';
 import type { HeatmapCell, HeatmapColumn } from '../types';
-import type { DayKey } from './civil-day';
+import type { CivilDate, DayKey } from './civil-day';
 
 export type CalendarHeatmapResult = {
 	data: HeatmapColumn[];
@@ -61,6 +62,14 @@ const widenTo = (
 ): DayKey => {
 	const key = bound ? writtenDayKey( bound ) : null;
 	if ( ! key ) {
+		if ( bound ) {
+			warnOnce(
+				`heatmap:gridSpan:${ bound }`,
+				`gridSpan.${ direction === 'earlier' ? 'start' : 'end' } ${ JSON.stringify(
+					bound
+				) } is not a \`yyyy-MM-dd\` day, so the grid is drawn over the series' own span.`
+			);
+		}
 		return fallback;
 	}
 
@@ -85,8 +94,7 @@ export const buildCalendarHeatmapData = (
 	const weekStartsOn = options.weekStartsOn ?? 1;
 	const hideOutOfRangeDays = options.hideOutOfRangeDays ?? true;
 
-	// The provider sanitizes what it holds, but this function is called outside it
-	// too, and `createDateFormatter` throws on a tag `Intl` cannot use.
+	// The provider sanitizes what it holds, but this function is called outside it too.
 	const { locale, timeZone } = sanitizeFormatting( {
 		locale: options.locale,
 		timeZone: options.timeZone,
@@ -100,6 +108,15 @@ export const buildCalendarHeatmapData = (
 	for ( const point of series ) {
 		const key = pointDayKey( point, readInstant );
 		if ( ! key ) {
+			const offending = point.dateString ?? ( point.date && String( point.date ) );
+			warnOnce(
+				`heatmap:unreadableDate:${ offending }`,
+				offending
+					? `${ JSON.stringify(
+							offending
+					  ) } is not a day this can read, so its point is left out of the calendar. A \`dateString\` must start \`yyyy-MM-dd\`.`
+					: 'A point carries neither `date` nor `dateString`, so it is left out of the calendar.'
+			);
 			continue;
 		}
 
@@ -120,11 +137,10 @@ export const buildCalendarHeatmapData = (
 	const requestedMinDayKey = widenTo( options.gridSpan?.start, minDayKey, 'earlier' );
 	const gridMaxDayKey = widenTo( options.gridSpan?.end, maxDayKey, 'later' );
 
-	const requestedMinDate = civilDate( requestedMinDayKey );
-	const gridMaxDate = civilDate( gridMaxDayKey );
-	if ( ! requestedMinDate || ! gridMaxDate ) {
-		return { data: [], rowLabels: [] };
-	}
+	// Both are `DayKey`s, so they already round-tripped through `civilDate` once, and it
+	// is a pure function of the string: re-parsing them here cannot fail.
+	const requestedMinDate = civilDate( requestedMinDayKey ) as CivilDate;
+	const gridMaxDate = civilDate( gridMaxDayKey ) as CivilDate;
 
 	// The grid walks UTC proxies, so the label formatters read UTC. The host's zone
 	// was already spent on bucketing.

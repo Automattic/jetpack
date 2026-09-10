@@ -9,7 +9,6 @@ const PINNED_TZ = process.env.TZ;
  *
  * The counterpart to `environment-los-angeles.mjs`: a worker behind UTC renders a
  * UTC-midnight proxy on its own day, so it cannot tell UTC arithmetic from local.
- * Chatham is ahead of UTC, observes DST, and sits on a quarter hour.
  */
 export default class ChathamEnvironment extends BaseEnvironment {
 	constructor( config, context ) {

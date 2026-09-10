@@ -104,6 +104,7 @@ describe( 'buildCalendarHeatmapData date semantics', () => {
 				} ).data
 			).map( cell => cell.label )
 		).toEqual( [ 'Wed, Jan 3, 2024' ] );
+		expect( console ).toHaveWarned();
 	} );
 
 	test( 'falls through to dateString when date is an Invalid Date', () => {
@@ -122,12 +123,13 @@ describe( 'buildCalendarHeatmapData date semantics', () => {
 			data: [],
 			rowLabels: [],
 		} );
+		expect( console ).toHaveWarned();
 	} );
 } );
 
 describe( 'buildCalendarHeatmapData grid bounds are compared as calendar days', () => {
-	// Fri Jan 5 2024, 14:00 UTC. A time of day used to make the bound look earlier
-	// than the series and widen the grid; the comparison is on day keys now.
+	// Fri Jan 5 2024, 14:00 UTC: a time of day must not make a bound look earlier than
+	// the series and widen the grid.
 	const afternoon = [ { date: new Date( '2024-01-05T14:00:00Z' ), value: 5 } ];
 
 	test( 'a bound equal to the series start does not widen the grid', () => {
@@ -155,6 +157,28 @@ describe( 'buildCalendarHeatmapData grid bounds are compared as calendar days', 
 		} );
 
 		expect( data[ 0 ].data.slice( 0, 4 ).every( cell => cell.placeholder === true ) ).toBe( true );
+	} );
+
+	test( 'a bound genuinely later widens it too', () => {
+		const { data } = buildCalendarHeatmapData( afternoon, {
+			weekStartsOn: 1,
+			timeZone: 'UTC',
+			gridSpan: { end: '2024-01-12' },
+		} );
+
+		expect( data ).toHaveLength( 2 );
+		expect( data[ 1 ].data.slice( 0, 5 ).every( cell => cell.placeholder === true ) ).toBe( true );
+	} );
+
+	test( 'warns once and falls back on a bound that names no day', () => {
+		const { data } = buildCalendarHeatmapData( afternoon, {
+			weekStartsOn: 1,
+			timeZone: 'UTC',
+			gridSpan: { start: '2023-12' },
+		} );
+
+		expect( data ).toHaveLength( 1 );
+		expect( console ).toHaveWarned();
 	} );
 } );
 

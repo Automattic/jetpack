@@ -1,8 +1,9 @@
 import { parseISO } from 'date-fns';
+import { hasTimezone } from '../../../utils/date-parsing';
 import type { DataPointDate } from '../../../types';
 
-// Branded so a bare string or a real instant cannot pass as either; `civilDate` and
-// `writtenDayKey` are the only ways in.
+// Branded so a bare string or a real instant cannot pass as either. `civilDate` and
+// `writtenDayKey` validate what they mint; `civilKey` trusts its `CivilDate` argument.
 declare const dayKeyBrand: unique symbol;
 declare const civilDateBrand: unique symbol;
 
@@ -25,7 +26,6 @@ const KEY_OPTIONS: Intl.DateTimeFormatOptions = {
 };
 
 const DATE_PREFIX = /^(\d{4})-(\d{2})-(\d{2})/;
-const CARRIES_OFFSET = /(?:Z|[+-]\d{2}:?\d{2})$/i;
 
 const pad = ( value: number, length: number ) => String( value ).padStart( length, '0' );
 
@@ -115,9 +115,12 @@ export const pointDayKey = (
 	readInstant: ( date: Date ) => DayKey | null
 ): DayKey | null => {
 	// An unusable `date` falls through to `dateString`: a host that fills both fields
-	// has a working value in the second.
+	// has a working value in the second. A year too wide for a key is unusable too.
 	if ( point.date instanceof Date && ! isNaN( point.date.getTime() ) ) {
-		return readInstant( point.date );
+		const key = readInstant( point.date );
+		if ( key ) {
+			return key;
+		}
 	}
 
 	const text = point.dateString;
@@ -125,7 +128,7 @@ export const pointDayKey = (
 		return null;
 	}
 
-	if ( ! CARRIES_OFFSET.test( text ) ) {
+	if ( ! hasTimezone( text ) ) {
 		return writtenDayKey( text );
 	}
 
@@ -151,8 +154,8 @@ export const addCivilDays = ( date: CivilDate, days: number ): CivilDate =>
  * @return The proxy for that week's first day.
  */
 export const startOfCivilWeek = ( date: CivilDate, weekStartsOn: 0 | 1 ): CivilDate => {
-	const day = date.getUTCDay();
-	return addCivilDays( date, -( ( day < weekStartsOn ? 7 : 0 ) + day - weekStartsOn ) );
+	const daysSinceWeekStart = ( date.getUTCDay() - weekStartsOn + 7 ) % 7;
+	return addCivilDays( date, -daysSinceWeekStart );
 };
 
 /**

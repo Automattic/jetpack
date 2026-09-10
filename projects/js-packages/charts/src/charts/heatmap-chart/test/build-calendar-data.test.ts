@@ -113,6 +113,7 @@ describe( 'buildCalendarHeatmapData', () => {
 		expect( values ).toContain( 3 );
 		expect( values ).not.toContain( 9 );
 		expect( values ).not.toContain( 7 );
+		expect( console ).toHaveWarned();
 	} );
 
 	test( 'returns empty result when every entry has an invalid date', () => {
@@ -121,6 +122,7 @@ describe( 'buildCalendarHeatmapData', () => {
 			{ date: new Date( NaN ), value: 2 },
 		];
 		expect( buildCalendarHeatmapData( allInvalid ) ).toEqual( { data: [], rowLabels: [] } );
+		expect( console ).toHaveWarned();
 	} );
 
 	test( 'duplicate days keep the last value (no aggregation)', () => {
@@ -195,6 +197,7 @@ describe( 'buildCalendarHeatmapData with a grid wider than the series', () => {
 		} );
 
 		expect( data ).toHaveLength( 1 );
+		expect( console ).toHaveWarned();
 	} );
 
 	test( 'separates the ragged edge from the filler', () => {

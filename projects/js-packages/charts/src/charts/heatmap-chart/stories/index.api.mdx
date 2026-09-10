@@ -127,7 +127,7 @@ function buildCalendarHeatmapData(
 
 | Parameter | Type | Default | Description |
 | --------- | ---- | ------- | ----------- |
-| `series` | `DataPointDate[]` | - | **Required.** Array of data points with a `date` (or `dateString`) and a numeric `value`. |
+| `series` | `DataPointDate[]` | - | **Required.** Array of data points with a `date` (or a `dateString` starting `yyyy-MM-dd`) and a numeric `value`. A point carrying neither is left out of the grid. |
 | `options.weekStartsOn` | `0 \| 1` | `1` | Day the week starts on: `0` = Sunday, `1` = Monday. |
 | `options.hideOutOfRangeDays` | `boolean` | `true` | Mark the week-completion days outside the series' date span as hidden cells (empty grid slots) instead of blank cells, giving the calendar ragged edges. Pass `false` to keep them as blank cells. |
 | `options.gridSpan` | `{ start?: string; end?: string }` | - | Draw the grid over this span (`yyyy-MM-dd` bounds) instead of the series' own, so a series too short to fill its container still does. Days inside the grid but outside the series become `placeholder` cells. A `start` is drawn from the beginning of its week, so the grid opens on a whole column. Bounds narrower than the series are ignored. |

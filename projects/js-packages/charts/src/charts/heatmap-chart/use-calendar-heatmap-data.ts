@@ -8,7 +8,7 @@ import type { DataPointDate } from '../../types';
  * `buildCalendarHeatmapData` with the locale and zone taken from
  * `GlobalChartsProvider` where the caller names neither.
  *
- * @param series  - Points to bucket.
+ * @param series  - Points to bucket. Held by reference, so a caller that rebuilds it each render defeats the memo.
  * @param options - As for `buildCalendarHeatmapData`; `locale` and `timeZone` win over the provider.
  * @return Columns and row labels for `HeatmapChart`.
  */
@@ -26,7 +26,7 @@ export const useCalendarHeatmapData = (
 	const gridStart = options.gridSpan?.start;
 	const gridEnd = options.gridSpan?.end;
 
-	// Every dependency is a primitive: an options object is rebuilt on each render,
+	// Options are spread into primitives: the object itself is rebuilt on each render,
 	// even by a caller that memoized its own, and would defeat this memo.
 	return useMemo(
 		() =>
