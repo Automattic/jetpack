@@ -30,9 +30,8 @@ const Notice = ( {
 
 	const spoken = spokenMessage ?? ( 'string' === typeof message ? message : null );
 
-	// Announced here, keyed on the notice, rather than by `Notice.Root`: it diffs the
-	// value, so an identical repeat would never announce twice. `speak()` handles the
-	// repeat itself, and a JSX message never reaches its serializer this way.
+	// Keyed on the notice, not the message: `Notice.Root` announces only when the value
+	// it is handed changes, so an identical repeat would never announce twice.
 	useEffect( () => {
 		if ( floating && 'string' === typeof spoken ) {
 			speak( spoken, 'error' === type ? 'assertive' : 'polite' );
@@ -50,7 +49,7 @@ const Notice = ( {
 		}
 
 		return () => clearTimeout( timeout );
-	}, [ clearNotice, duration, message ] );
+	}, [ clearNotice, duration, id ] );
 
 	return (
 		<WPNotice.Root
