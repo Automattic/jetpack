@@ -275,11 +275,12 @@ $section-header-visual-condensed-size: 40px;
 	}
 }
 
+// The line box keeps its resting height: it is the title row's height, which
+// the visual and the date controls align to, so only the glyphs shrink.
 @keyframes condense-title {
 
 	to {
 		font-size: var(--wpds-typography-font-size-xl);
-		line-height: var(--wpds-typography-line-height-xl);
 	}
 }
 
