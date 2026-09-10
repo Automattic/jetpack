@@ -111,7 +111,7 @@ type Story = StoryObj< PostViewsStoryControls >;
  */
 export const Default: Story = {
 	render: renderPostViews,
-	args: { hasPostScope: true, interval: 'day', chartType: 'line' },
+	args: { hasPostScope: true, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -122,7 +122,7 @@ export const Default: Story = {
  */
 export const NoPostScope: Story = {
 	render: renderPostViews,
-	args: { hasPostScope: false, interval: 'day', chartType: 'line' },
+	args: { hasPostScope: false, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
