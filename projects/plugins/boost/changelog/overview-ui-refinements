@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-Comment: Add unmounted Overview score cards, alerts, an upgrade bridge, and shared styles for later dashboard integration.
-
+Comment: Add Overview score cards, alerts, an upgrade call-to-action, and shared styles.
