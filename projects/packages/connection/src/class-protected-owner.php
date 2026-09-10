@@ -52,18 +52,20 @@ class Protected_Owner {
 	 *                              record provenance nobody established.
 	 * @return bool Whether the anchor is now stored as requested.
 	 */
-	public static function set( $wpcom_user_id, $local_user_id, $confirmed_by ) {
-		$confirmed_by = sanitize_key( $confirmed_by );
+public static function set( $wpcom_user_id, $local_user_id, $confirmed_by ) {
+		$confirmed_by  = sanitize_key( $confirmed_by );
+		$wpcom_user_id = absint( $wpcom_user_id );
+		$local_user_id = absint( $local_user_id );
 
 		// A blank mechanism is indistinguishable from one never recorded, which is what requiring
 		// the argument was meant to prevent.
-		if ( ! $confirmed_by ) {
+		if ( ! $confirmed_by || ! $wpcom_user_id || ! $local_user_id ) {
 			return false;
 		}
 
 		$anchor = array(
-			'wpcom_user_id' => absint( $wpcom_user_id ),
-			'local_user_id' => absint( $local_user_id ),
+			'wpcom_user_id' => $wpcom_user_id,
+			'local_user_id' => $local_user_id,
 			'locked'        => true,
 			'confirmed_at'  => gmdate( 'Y-m-d\TH:i:s\Z' ),
 			'confirmed_by'  => $confirmed_by,
