@@ -24,7 +24,7 @@ beforeEach( () => {
 	jest.mocked( useDismissibleAlertState ).mockReturnValue( [ false, dismissAlert ] );
 } );
 
-test( 'records one impression per score change when the retained Overview becomes visible', () => {
+test( 'records one impression per loaded score result when the retained Overview becomes visible', () => {
 	const { rerender } = render( <ScoreAlert scoreChange={ 10 } isVisible={ false } /> );
 	expect( screen.getByText( 'Your site got faster' ) ).not.toBeVisible();
 	expect( recordBoostEvent ).not.toHaveBeenCalled();
