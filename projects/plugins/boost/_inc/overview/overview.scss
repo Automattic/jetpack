@@ -158,7 +158,7 @@
 .jetpack-boost-overview__chart-loading {
 	display: grid;
 	place-items: center;
-	min-block-size: var(--wpds-dimension-surface-width-xs);
+	block-size: var(--wpds-dimension-surface-width-sm);
 }
 
 .jetpack-boost-overview__history-tooltip {
