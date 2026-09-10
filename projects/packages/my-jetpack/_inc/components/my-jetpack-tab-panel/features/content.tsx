@@ -75,10 +75,20 @@ export function FeaturesContent() {
 		[ otherModules, states ]
 	);
 
-	const visible = useMemo(
-		() => new Set( targets.filter( t => matchesFilter( t, filter ) ).map( t => t.slug ) ),
-		[ filter, targets ]
-	);
+	const results = useFeatureSearch( states, otherModules, search );
+
+	// What is on screen right now, which is what select-all and the counts follow.
+	const visible = useMemo( () => {
+		if ( results !== null ) {
+			return new Set(
+				results.map( result =>
+					result.kind === 'feature' ? result.state.feature.slug : result.module.module
+				)
+			);
+		}
+
+		return new Set( targets.filter( t => matchesFilter( t, filter ) ).map( t => t.slug ) );
+	}, [ filter, results, targets ] );
 
 	const selectableSlugs = useMemo(
 		() => targets.filter( t => isSelectable( t ) && visible.has( t.slug ) ).map( t => t.slug ),
@@ -89,8 +99,6 @@ export function FeaturesContent() {
 		() => states.filter( state => visible.has( state.feature.slug ) ),
 		[ states, visible ]
 	);
-
-	const results = useFeatureSearch( states, otherModules, search );
 
 	const toggleFeature = useCallback( ( slug: string, checked: boolean ) => {
 		setSelected( current =>
@@ -145,7 +153,12 @@ export function FeaturesContent() {
 			/>
 
 			{ results !== null ? (
-				<SearchResults results={ results } onOpen={ openFeature } />
+				<SearchResults
+					results={ results }
+					selected={ selected }
+					onSelect={ toggleFeature }
+					onOpen={ openFeature }
+				/>
 			) : (
 				<>
 					{ visibleStates.length > 0 && (

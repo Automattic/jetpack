@@ -253,7 +253,7 @@ $feature-icon-foreground: #0ced57;
 	border-radius: var(--wpds-border-radius-md);
 	border-style: solid;
 	border-width: var(--wpds-border-width-xs);
-	inset-block-start: 32px;
+	inset-block-start: 0;
 	margin-block: var(--wpds-dimension-gap-md);
 	padding: var(--wpds-dimension-padding-md);
 	position: sticky;
@@ -268,9 +268,3 @@ $feature-icon-foreground: #0ced57;
 	margin-inline-start: auto;
 }
 
-@media (max-width: 782px) {
-
-	.toolbar {
-		inset-block-start: 46px;
-	}
-}

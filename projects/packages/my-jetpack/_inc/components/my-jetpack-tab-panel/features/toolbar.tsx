@@ -3,7 +3,8 @@ import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { SearchControl, SelectControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Button, Checkbox, Stack, Text } from '@wordpress/ui';
+import { closeSmall } from '@wordpress/icons';
+import { Button, Checkbox, Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 import useActivatePlugins from '../../../data/products/use-activate-plugins';
 import { useDeactivatePlugins } from '../../../data/products/use-deactivate-plugins';
@@ -191,8 +192,14 @@ export function Toolbar( {
 						>
 							{ __( 'Deactivate', 'jetpack-my-jetpack' ) }
 						</Button>
-						<Button variant="minimal" tone="neutral" size="compact" onClick={ onClear }>
-							{ __( 'Clear', 'jetpack-my-jetpack' ) }
+						<Button
+							variant="minimal"
+							tone="neutral"
+							size="compact"
+							onClick={ onClear }
+							aria-label={ __( 'Clear selection', 'jetpack-my-jetpack' ) }
+						>
+							<Icon icon={ closeSmall } size={ 20 } />
 						</Button>
 					</Stack>
 				) }
