@@ -271,7 +271,6 @@ export default function HistoryChartCard( {
 								verticalStyle: {
 									stroke: 'var(--wpds-color-background-surface-neutral-weak)',
 									strokeWidth: 'var(--wpds-dimension-size-lg)',
-									style: { mixBlendMode: 'multiply' },
 								},
 							} }
 							curveType="linear"
