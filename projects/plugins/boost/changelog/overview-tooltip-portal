@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix the modern dashboard history tooltip being clipped by the dashboard scroll container.
