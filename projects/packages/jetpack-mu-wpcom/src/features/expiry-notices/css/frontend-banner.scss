@@ -19,7 +19,7 @@ body.has-wpcom-expiry-banner {
 .wpcom-expiry-frontend-banner {
 	// @wordpress/components styles landmarks as relative. Keep this fixed banner
 	// anchored when those shared component styles are loaded on the front end.
-	&[role='region'] {
+	&[role="region"] {
 		position: fixed;
 	}
 
@@ -106,7 +106,7 @@ body.has-wpcom-expiry-banner {
 @media screen and (max-width: 600px) {
 
 	// Core makes #wpadminbar absolute here; a fixed bar would float away from it.
-	.wpcom-expiry-frontend-banner[role='region'] {
+	.wpcom-expiry-frontend-banner[role="region"] {
 		position: absolute;
 	}
 }
