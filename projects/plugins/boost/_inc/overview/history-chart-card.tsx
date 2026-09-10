@@ -180,9 +180,22 @@ export default function HistoryChartCard( {
 				<Spinner />
 			</div>
 		);
+	} else if ( needsUpgrade ) {
+		content = (
+			<Notice.Root intent="info">
+				<Notice.Title>{ __( 'Unlock historical performance', 'jetpack-boost' ) }</Notice.Title>
+				<Notice.Description>
+					{ __( 'Upgrade and learn more about your site performance over time.', 'jetpack-boost' ) }
+				</Notice.Description>
+				<Notice.Actions>
+					<UpgradeCTA />
+				</Notice.Actions>
+			</Notice.Root>
+		);
 	} else if ( isError && ! isLoading ) {
 		content = (
 			<Notice.Root
+				key="error"
 				intent="error"
 				spokenMessage={ __( 'Failed to load performance history', 'jetpack-boost' ) }
 			>
@@ -193,27 +206,9 @@ export default function HistoryChartCard( {
 				</Notice.Actions>
 			</Notice.Root>
 		);
-	} else if ( needsUpgrade ) {
-		content = (
-			<Notice.Root
-				intent="info"
-				spokenMessage={ __( 'Unlock historical performance', 'jetpack-boost' ) }
-			>
-				<Notice.Title>{ __( 'Unlock historical performance', 'jetpack-boost' ) }</Notice.Title>
-				<Notice.Description>
-					{ __( 'Upgrade and learn more about your site performance over time.', 'jetpack-boost' ) }
-				</Notice.Description>
-				<Notice.Actions>
-					<UpgradeCTA />
-				</Notice.Actions>
-			</Notice.Root>
-		);
 	} else if ( isFreshStart ) {
 		content = (
-			<Notice.Root
-				intent="success"
-				spokenMessage={ __( 'Your scores will be recorded from now on.', 'jetpack-boost' ) }
-			>
+			<Notice.Root intent="success">
 				<Notice.Title>
 					{ __( 'Hello there! Jetpack Boost premium has been activated.', 'jetpack-boost' ) }
 				</Notice.Title>
@@ -231,7 +226,9 @@ export default function HistoryChartCard( {
 		content = (
 			<EmptyState.Root>
 				<EmptyState.Icon icon={ trendingUp } />
-				<EmptyState.Title>{ __( 'No performance history yet', 'jetpack-boost' ) }</EmptyState.Title>
+				<EmptyState.Title render={ <h3 /> }>
+					{ __( 'No performance history yet', 'jetpack-boost' ) }
+				</EmptyState.Title>
 				<EmptyState.Description>
 					{ __(
 						'Performance history will appear here once enough data has been collected.',
@@ -306,9 +303,16 @@ export default function HistoryChartCard( {
 										<LineChart.Annotation
 											key={ `${ annotation.timestamp }-${ index }` }
 											datum={ { date: new Date( annotation.timestamp ), value: 100 } }
-											title={ __( 'View performance history annotation', 'jetpack-boost' ) }
+											title={ sprintf(
+												/* translators: %s is a date. */
+												__( 'View performance history annotation for %s', 'jetpack-boost' ),
+												dateI18n( 'F j, Y', new Date( annotation.timestamp ), false )
+											) }
 											renderLabel={ () => <Icon icon={ info } /> }
-											renderLabelPopover={ () => <RawHTML>{ annotation.text }</RawHTML> }
+											renderLabelPopover={ () => (
+												// Annotation text is sanitised by wp_kses_post in app/data-sync/class-performance-history-entry.php.
+												<RawHTML>{ annotation.text }</RawHTML>
+											) }
 											subjectType="line-vertical"
 										/>
 									) ) }
@@ -322,7 +326,9 @@ export default function HistoryChartCard( {
 	return (
 		<Card.Root className="jetpack-boost-overview__history-card">
 			<Card.Header>
-				<Card.Title>{ __( 'Historical performance', 'jetpack-boost' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>
+					{ __( 'Historical performance', 'jetpack-boost' ) }
+				</Card.Title>
 			</Card.Header>
 			<Card.Content>{ content }</Card.Content>
 		</Card.Root>

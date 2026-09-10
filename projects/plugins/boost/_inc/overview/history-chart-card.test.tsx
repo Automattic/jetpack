@@ -1,15 +1,12 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { getSettings, setSettings } from '@wordpress/date';
+import { dateI18n, getSettings, setSettings } from '@wordpress/date';
 import HistoryChartCard, { buildHistorySeries, HistoryTooltip } from './history-chart-card';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 
 jest.mock( './upgrade-cta', () => ( {
 	__esModule: true,
 	default: () => <button>Upgrade now</button>,
-} ) );
-jest.mock( '../../app/assets/src/js/lib/utils/analytics', () => ( {
-	recordBoostEvent: jest.fn(),
 } ) );
 
 const timestamp = Date.UTC( 2026, 8, 1 );
@@ -84,6 +81,9 @@ test( 'renders actual Charts lines and annotations using millisecond history dat
 	jest.useFakeTimers();
 	const { container, unmount } = render( <HistoryChartCard data={ history } { ...callbacks } /> );
 	try {
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: 'Historical performance' } )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Desktop' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Mobile' ) ).toBeInTheDocument();
@@ -123,11 +123,18 @@ test( 'only renders annotations inside the displayed date domain, including its 
 	);
 	await expect( screen.findByText( 'Start annotation' ) ).resolves.toBeInTheDocument();
 	expect( screen.getByText( 'End annotation' ) ).toBeInTheDocument();
+	for ( const annotationDate of [ timestamp, history.endDate ] ) {
+		expect(
+			screen.getByRole( 'button', {
+				name: `View performance history annotation for ${ dateI18n( 'F j, Y', annotationDate ) }`,
+			} )
+		).toBeInTheDocument();
+	}
 	expect( screen.queryByText( 'Older annotation' ) ).not.toBeInTheDocument();
 	expect( screen.queryByText( 'Future annotation' ) ).not.toBeInTheDocument();
 } );
 
-test( 'renders sanitized annotation markup and focusable links in the shared popover', async () => {
+test( 'preserves annotation HTML and focusable links in the shared popover', async () => {
 	render(
 		<HistoryChartCard
 			data={ {
@@ -143,7 +150,7 @@ test( 'renders sanitized annotation markup and focusable links in the shared pop
 		/>
 	);
 	const trigger = await screen.findByRole( 'button', {
-		name: 'View performance history annotation',
+		name: `View performance history annotation for ${ dateI18n( 'F j, Y', timestamp ) }`,
 	} );
 	const popover = screen.getByTestId( 'line-chart-annotation-label-popover' );
 	expect( trigger ).toHaveAttribute( 'popovertarget', popover.id );
@@ -302,6 +309,11 @@ test( 'uses the non-UTC site date for both axis and tooltip', async () => {
 		const ticks = screen.getAllByText( /^[A-Z][a-z]{2} \d{1,2}$/ );
 		expect( ticks[ 0 ] ).toHaveTextContent( /^Aug 31$/ );
 		expect( screen.getByText( 'August 31, 2026' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'button', {
+				name: 'View performance history annotation for August 31, 2026',
+			} )
+		).toBeInTheDocument();
 		expect( screen.queryByText( 'September 1, 2026' ) ).not.toBeInTheDocument();
 		// Tick coordinates must refer to the same instants as the measured scores.
 		/* eslint-disable testing-library/no-container, testing-library/no-node-access */
@@ -324,10 +336,11 @@ test( 'uses the non-UTC site date for both axis and tooltip', async () => {
 	}
 } );
 
-test( 'offers the premium upgrade without rendering paid history', () => {
-	render( <HistoryChartCard data={ history } needsUpgrade { ...callbacks } /> );
+test( 'offers the premium upgrade before errors without rendering paid history', () => {
+	render( <HistoryChartCard data={ history } needsUpgrade isError { ...callbacks } /> );
 	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
 	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
 } );
 
 test( 'dismisses the paid fresh-start notice', () => {
@@ -354,7 +367,7 @@ test( 'waits for the initial fetch before showing the empty state', () => {
 	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
 	rerender( <HistoryChartCard { ...callbacks } /> );
 	expect(
-		screen.getByRole( 'heading', { name: 'No performance history yet' } )
+		screen.getByRole( 'heading', { level: 3, name: 'No performance history yet' } )
 	).toBeInTheDocument();
 	expect( screen.getByText( /Performance history will appear/ ) ).toBeInTheDocument();
 } );
