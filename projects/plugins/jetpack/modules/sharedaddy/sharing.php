@@ -819,12 +819,8 @@ class Sharing_Admin {
 
 		$link = $host->is_wpcom_platform() ? $wpcom_link : Redirect::get_url( 'jetpack-support-sharing-block' );
 
-		$site_editor_url = add_query_arg(
-			array(
-				'p'      => '/wp_template/' . get_stylesheet() . '//single',
-				'canvas' => 'edit',
-			),
-			admin_url( 'site-editor.php' )
+		$site_editor_url = admin_url(
+			'site-editor.php?p=' . rawurlencode( '/wp_template/' . get_stylesheet() . '//single' ) . '&canvas=edit'
 		);
 
 		?>

@@ -80,9 +80,8 @@ class Jetpack_Plugin_Search_Test extends WP_UnitTestCase {
 			)
 		);
 
-		$this->assertStringContainsString(
-			'href="' . esc_url( $this->expected_url() ) . '"',
-			$links['jp_get_started']
-		);
+		$link = $links['jp_get_started'] ?? '';
+
+		$this->assertStringContainsString( 'href="' . esc_url( $this->expected_url() ) . '"', $link );
 	}
 }

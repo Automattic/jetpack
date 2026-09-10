@@ -330,12 +330,8 @@ class Jetpack_Plugin_Search {
 	 * @return string
 	 */
 	private function get_sharing_block_editor_url() {
-		return add_query_arg(
-			array(
-				'p'      => '/wp_template/' . get_stylesheet() . '//single',
-				'canvas' => 'edit',
-			),
-			admin_url( 'site-editor.php' )
+		return admin_url(
+			'site-editor.php?p=' . rawurlencode( '/wp_template/' . get_stylesheet() . '//single' ) . '&canvas=edit'
 		);
 	}
 
