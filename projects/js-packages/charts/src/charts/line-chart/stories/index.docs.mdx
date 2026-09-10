@@ -531,7 +531,7 @@ The public `AccessibleTooltip` component's `style` prop also merges with the com
 
 Use `withTooltipCrosshairs.verticalStyle` to turn the vertical guide into a broad translucent highlight, as shown above. Both `verticalStyle` and `horizontalStyle` accept SVG line properties, such as `strokeWidth`, `strokeOpacity`, and `strokeDasharray`; their corresponding `showVertical` or `showHorizontal` option enables the guide.
 
-The panel can extend beyond the chart wrapper without a portal or consumer CSS overrides. Leave space below the chart when it sits inside a clipping container. Keyboard navigation, screen reader announcements, and custom `renderTooltip` content are unchanged.
+Leave space below the chart when it sits inside a clipping container. Below-axis placement supports the same keyboard controls, screen reader announcements, and custom `renderTooltip` content as automatic placement.
 
 ### Pointer Events
 
@@ -612,7 +612,7 @@ Line Charts integrate seamlessly with the chart theming system. The default them
 	}` }
 />
 
-Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
+For other catalog colors and their scoping rules, see [the token catalog](?path=/docs/js-packages-charts-library-providers-globalchartsprovider--docs). For local tooltip colors, see [Below-Axis Tooltips](#below-axis-tooltips).
 
 <Source
 	language="css"
