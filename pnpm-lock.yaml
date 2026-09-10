@@ -1828,9 +1828,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/ui':
-        specifier: 1.0.2
-        version: 1.0.2(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@date-fns/tz':
+        specifier: 1.4.1
+        version: 1.4.1
       '@jetpack-activity-log/init':
         specifier: link:packages/init
         version: link:packages/init
@@ -1839,7 +1839,7 @@ importers:
         version: 5.101.2(react@18.3.1)
       '@wordpress/admin-ui':
         specifier: 2.9.0
-        version: 2.9.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.9.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.54.0
         version: 7.54.0
@@ -1848,7 +1848,7 @@ importers:
         version: 13.0.0
       '@wordpress/components':
         specifier: 40.0.0
-        version: 40.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 40.0.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/compose':
         specifier: 8.7.0
         version: 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1878,7 +1878,7 @@ importers:
         version: 0.20.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/ui':
         specifier: 0.21.0
-        version: 0.21.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.21.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.54.0
         version: 4.54.0
@@ -19484,23 +19484,6 @@ snapshots:
       '@wordpress/i18n': 6.27.0
       '@wordpress/icons': 15.5.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/primitives': 4.54.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      clsx: 2.1.1
-      date-fns: 4.1.0
-      react: 18.3.1
-      react-day-picker: 9.14.0(react@18.3.1)
-      react-dom: 18.3.1(react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
-
-  '@automattic/ui@1.0.2(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@wordpress/base-styles': 13.0.0
-      '@wordpress/compose': 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/element': 8.6.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/i18n': 6.27.0
-      '@wordpress/icons': 15.5.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/primitives': 4.54.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 18.3.1
