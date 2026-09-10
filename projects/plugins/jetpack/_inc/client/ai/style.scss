@@ -1,5 +1,6 @@
 @use "sass:meta";
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 // DataViews ships its structural table, toolbar, and row styles separately.
 // It is bundled with the AI Hub rather than enqueued by WordPress.
@@ -8,6 +9,12 @@
 body.jetpack_page_jetpack-ai {
 
 	@include jetpack-admin-page-layout;
+}
+
+// Core snackbar placement (matches `@wordpress/boot`'s snackbar-container).
+.jetpack-ai-admin__snackbar-notices {
+
+	@include gb.snackbar-container();
 }
 
 .jetpack-ai-admin {

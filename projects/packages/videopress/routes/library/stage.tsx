@@ -1,9 +1,10 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
 import { DropZone, Tooltip } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
 import { Button, Card } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
@@ -159,7 +160,7 @@ const StageInner = () => {
 		[ navigate ]
 	);
 
-	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useDispatch( noticesStore );
 
 	// Shared multi-file entry point for the DropZone, the header "Upload
 	// video" file picker, and (via the same hook) the welcome modal's CTA.
@@ -181,12 +182,10 @@ const StageInner = () => {
 	// The factory owns the in-flight progress map (re-entry guard + overlay
 	// snapshots, chunk progress folded in) and reacts via the mutateAsync
 	// promise; see promote-local.ts for why.
-	// Deliberately created ONCE per stage instance: useGlobalNotices() returns
-	// fresh wrapper closures every render, so a dep-keyed useMemo would rebuild
-	// the factory (emptying its in-flight state) on each render — including the
-	// renders its own publishes trigger. All captured deps are stable: the
-	// notice wrappers forward to registry-bound dispatchers, mutateAsync is
-	// referentially stable in TanStack v5, and state setters never change.
+	// Deliberately created ONCE per stage instance: the in-flight map lives
+	// in this closure, so a fresh factory would forget mid-promote rows.
+	// Captured deps are stable (useDispatch notice creators, mutateAsync,
+	// state setters).
 	const [ promoteLocal ] = useState( () =>
 		createPromoteLocal( {
 			promote: uploadFromLibrary,
@@ -224,7 +223,7 @@ const StageInner = () => {
 							),
 							ids.length
 						),
-						{ id: noticeId, explicitDismiss: true }
+						{ id: noticeId, explicitDismiss: true, type: 'snackbar' }
 					);
 					// React via the mutateAsync promise, not mutate-level callbacks:
 					// those are dropped if another delete starts while this one is in
@@ -247,7 +246,7 @@ const StageInner = () => {
 								),
 								ids.length
 							),
-							{ id: noticeId }
+							{ id: noticeId, type: 'snackbar' }
 						);
 					} catch ( error ) {
 						// Unknown error shape → assume nothing was deleted.
@@ -266,7 +265,7 @@ const StageInner = () => {
 								),
 								failedIds.size
 							),
-							{ id: noticeId }
+							{ id: noticeId, type: 'snackbar' }
 						);
 					}
 					setDeletingIds( prev => {
@@ -298,7 +297,8 @@ const StageInner = () => {
 										),
 										succeeded.length,
 										PRIVACY_LABELS[ privacy ]
-									)
+									),
+									{ type: 'snackbar' }
 								);
 								return;
 							}
@@ -310,7 +310,8 @@ const StageInner = () => {
 										'Failed to update privacy for the selected videos.',
 										failed.length,
 										'jetpack-videopress-pkg'
-									)
+									),
+									{ type: 'snackbar' }
 								);
 								return;
 							}
@@ -324,11 +325,14 @@ const StageInner = () => {
 									),
 									succeeded.length,
 									failed.length
-								)
+								),
+								{ type: 'snackbar' }
 							);
 						} )
 						.catch( () => {
-							createErrorNotice( __( 'Failed to update privacy.', 'jetpack-videopress-pkg' ) );
+							createErrorNotice( __( 'Failed to update privacy.', 'jetpack-videopress-pkg' ), {
+								type: 'snackbar',
+							} );
 						} );
 				},
 			} ),

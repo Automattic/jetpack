@@ -1,8 +1,15 @@
 @use "../scss/mixins/breakpoints";
 @use "../scss/functions/rem";
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .jp-settings-admin-page .jp-admin-page__page {
 	background-color: #fcfcfc;
+}
+
+// Core snackbar placement (matches `@wordpress/boot`'s snackbar-container).
+.jp-settings-snackbar-notices {
+
+	@include gb.snackbar-container();
 }
 
 .jp-settings-admin-page .jp-lower {
