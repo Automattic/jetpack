@@ -129,6 +129,15 @@ export function FeaturesContent() {
 		[ updateParams ]
 	);
 
+	// A plan badge answers "what else is in this?", so it filters and steps out of the modal.
+	const onFilterByPlan = useCallback(
+		( plan: FeatureFilter ) => {
+			setSelected( [] );
+			updateParams( { filter: plan, feature: null, search: null } );
+		},
+		[ updateParams ]
+	);
+
 	const openIndex = states.findIndex( item => item.feature.slug === openSlug );
 
 	return (
@@ -191,6 +200,7 @@ export function FeaturesContent() {
 					next={ states[ openIndex + 1 ] }
 					onClose={ closeFeature }
 					onStep={ openFeature }
+					onFilterByPlan={ onFilterByPlan }
 				/>
 			) }
 		</section>

@@ -217,6 +217,9 @@ export function Toolbar( {
 							{ label: __( 'Inactive', 'jetpack-my-jetpack' ), value: 'inactive' },
 							{ label: __( 'Recommended', 'jetpack-my-jetpack' ), value: 'recommended' },
 							{ label: __( 'Essential', 'jetpack-my-jetpack' ), value: 'essential' },
+							{ label: __( 'In Jetpack Security', 'jetpack-my-jetpack' ), value: 'security' },
+							{ label: __( 'In Jetpack Complete', 'jetpack-my-jetpack' ), value: 'complete' },
+							{ label: __( 'In Jetpack Growth', 'jetpack-my-jetpack' ), value: 'growth' },
 						] }
 					/>
 					<SearchControl

@@ -10,6 +10,7 @@ import { FeatureScreenshot } from './feature-screenshot';
 import { FeatureSwitch } from './feature-switch';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
+import type { FeatureFilter } from './use-feature-filter';
 
 // Set by @wordpress/ui on the dialog's own close button.
 const CLOSE_ICON_ATTR = 'data-wp-ui-dialog-close-icon';
@@ -20,20 +21,29 @@ type FeatureModalProps = {
 	next?: FeatureState;
 	onClose: () => void;
 	onStep: ( slug: string ) => void;
+	onFilterByPlan: ( plan: FeatureFilter ) => void;
 };
 
 /**
  * The feature's details, shown over the list rather than on a page of its own.
  *
- * @param {FeatureModalProps} props          - The component props.
- * @param {FeatureState}      props.state    - Live state for the feature being shown.
- * @param {FeatureState}      props.previous - The preceding feature, if any.
- * @param {FeatureState}      props.next     - The following feature, if any.
- * @param {Function}          props.onClose  - Closes the modal.
- * @param {Function}          props.onStep   - Switches the modal to another feature.
+ * @param {FeatureModalProps} props                - The component props.
+ * @param {FeatureState}      props.state          - Live state for the feature being shown.
+ * @param {FeatureState}      props.previous       - The preceding feature, if any.
+ * @param {FeatureState}      props.next           - The following feature, if any.
+ * @param {Function}          props.onClose        - Closes the modal.
+ * @param {Function}          props.onStep         - Switches the modal to another feature.
+ * @param {Function}          props.onFilterByPlan - Filters the list to one plan.
  * @return The rendered component.
  */
-export function FeatureModal( { state, previous, next, onClose, onStep }: FeatureModalProps ) {
+export function FeatureModal( {
+	state,
+	previous,
+	next,
+	onClose,
+	onStep,
+	onFilterByPlan,
+}: FeatureModalProps ) {
 	const { feature, product } = state;
 	const isActive = state.status === 'active';
 	const highlights = product?.features ?? [];
@@ -118,7 +128,7 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 		<Dialog.Root open onOpenChange={ onOpenChange }>
 			<Dialog.Popup
 				ref={ popupRef }
-				size="large"
+				size="stretch"
 				className={ styles[ 'modal-popup' ] }
 				initialFocus={ initialFocus }
 			>
@@ -147,6 +157,8 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 								{ feature.long_description || product?.longDescription || feature.description }
 							</Dialog.Description>
 
+							<FeatureDelivery state={ state } onFilterByPlan={ onFilterByPlan } />
+
 							{ highlights.length > 0 && (
 								<div className={ styles[ 'detail-highlights' ] }>
 									<Text variant="heading-md">{ __( 'What you get', 'jetpack-my-jetpack' ) }</Text>
@@ -161,6 +173,11 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 								</div>
 							) }
 
+							<FeatureLinks feature={ feature } isActive={ isActive } />
+						</Stack>
+
+						<Stack direction="column" gap="lg">
+							<FeatureScreenshot feature={ feature } />
 							{ /* A paid-only feature's "What you get" is already the paid list, so this
 							     would only repeat it. Show it where there is a free tier to compare against. */ }
 							{ feature.paid_highlights?.length && state.action !== 'learn_more' ? (
@@ -178,13 +195,6 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 									</Stack>
 								</div>
 							) : null }
-
-							<FeatureLinks feature={ feature } isActive={ isActive } />
-						</Stack>
-
-						<Stack direction="column" gap="lg">
-							<FeatureDelivery state={ state } />
-							<FeatureScreenshot feature={ feature } />
 						</Stack>
 					</div>
 				</Dialog.Content>

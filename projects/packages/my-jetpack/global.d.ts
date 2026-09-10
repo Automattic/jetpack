@@ -475,7 +475,8 @@ type MainFeature = {
 	module: string;
 	essential: boolean;
 	paid_highlights?: string[];
-	paid_routes?: string[];
+	plans?: Array< { slug: string; name: string } >;
+	paid_product?: string;
 	delivery?: {
 		in_jetpack?: boolean;
 		standalone?: string;

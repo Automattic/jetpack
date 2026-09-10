@@ -1,10 +1,20 @@
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import type { BulkTarget } from './partition-selection';
 
-export type FeatureFilter = 'all' | 'active' | 'inactive' | 'recommended' | 'essential';
+export type FeatureFilter =
+	| 'all'
+	| 'active'
+	| 'inactive'
+	| 'recommended'
+	| 'essential'
+	| 'security'
+	| 'complete'
+	| 'growth';
+
+const PLANS = [ 'security', 'complete', 'growth' ];
 
 export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
-	[ 'all', 'active', 'inactive', 'recommended', 'essential' ].includes( value );
+	[ 'all', 'active', 'inactive', 'recommended', 'essential', ...PLANS ].includes( value );
 
 /**
  * Whether a target passes the current filter.
@@ -30,6 +40,13 @@ export function matchesFilter( target: BulkTarget, filter: FeatureFilter ): bool
 
 	if ( filter === 'inactive' ) {
 		return ! isActive;
+	}
+
+	if ( PLANS.includes( filter ) ) {
+		return (
+			target.kind === 'feature' &&
+			!! target.state.feature.plans?.some( plan => plan.slug === filter )
+		);
 	}
 
 	if ( filter === 'essential' ) {

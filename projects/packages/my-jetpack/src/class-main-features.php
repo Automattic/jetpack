@@ -57,9 +57,8 @@ class Main_Features {
 				'delivery'         => array(
 					'in_jetpack' => true,
 				),
-				'paid_routes'      => array(
-					__( 'Included with Jetpack VaultPress Backup, Jetpack Security or Jetpack Complete.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'security', 'complete' ),
+				'paid_product'     => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
 			),
 			'anti-spam'     => array(
 				'info_url'         => 'https://akismet.com/',
@@ -79,10 +78,8 @@ class Main_Features {
 					'in_jetpack' => false,
 					'standalone' => __( 'Akismet Anti-spam', 'jetpack-my-jetpack' ),
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Security or Jetpack Complete.', 'jetpack-my-jetpack' ),
-					__( 'Akismet Anti-spam, on its own.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'security', 'complete' ),
+				'paid_product'     => __( 'Akismet Anti-spam', 'jetpack-my-jetpack' ),
 			),
 			'backup'        => array(
 				'info_url'         => 'https://jetpack.com/backup/',
@@ -103,10 +100,8 @@ class Main_Features {
 					'in_jetpack' => true,
 					'standalone' => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Security or Jetpack Complete.', 'jetpack-my-jetpack' ),
-					__( 'Jetpack VaultPress Backup, on its own.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'security', 'complete' ),
+				'paid_product'     => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
 			),
 			'blaze'         => array(
 				'info_url'         => 'https://jetpack.com/blaze/',
@@ -142,10 +137,8 @@ class Main_Features {
 					'in_jetpack' => false,
 					'standalone' => __( 'Jetpack Boost', 'jetpack-my-jetpack' ),
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Complete.', 'jetpack-my-jetpack' ),
-					__( 'Jetpack Boost, on its own.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'complete' ),
+				'paid_product'     => __( 'Jetpack Boost', 'jetpack-my-jetpack' ),
 			),
 			'crm'           => array(
 				'info_url'         => 'https://jetpackcrm.com/',
@@ -165,10 +158,8 @@ class Main_Features {
 					'in_jetpack' => false,
 					'standalone' => __( 'Jetpack CRM', 'jetpack-my-jetpack' ),
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Complete.', 'jetpack-my-jetpack' ),
-					__( 'Jetpack CRM extensions, bought individually.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'complete' ),
+				'paid_product'     => __( 'Jetpack CRM extensions', 'jetpack-my-jetpack' ),
 			),
 			'jetpack-ai'    => array(
 				'info_url'         => 'https://jetpack.com/ai/',
@@ -187,10 +178,8 @@ class Main_Features {
 				'delivery'         => array(
 					'in_jetpack' => true,
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Complete.', 'jetpack-my-jetpack' ),
-					__( 'Jetpack AI, on its own.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'complete' ),
+				'paid_product'     => __( 'Jetpack AI', 'jetpack-my-jetpack' ),
 			),
 			'jetpack-forms' => array(
 				'info_url'         => 'https://jetpack.com/forms/',
@@ -222,9 +211,7 @@ class Main_Features {
 				'delivery'         => array(
 					'in_jetpack' => true,
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Creator, on its own.', 'jetpack-my-jetpack' ),
-				),
+				'paid_product'     => __( 'Jetpack Creator', 'jetpack-my-jetpack' ),
 			),
 			'podcast'       => array(
 				'info_url'         => '',
@@ -260,10 +247,8 @@ class Main_Features {
 					'in_jetpack' => true,
 					'standalone' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Security or Jetpack Complete.', 'jetpack-my-jetpack' ),
-					__( 'Jetpack Scan, on its own.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'security', 'complete' ),
+				'paid_product'     => __( 'Jetpack Scan', 'jetpack-my-jetpack' ),
 			),
 			'search'        => array(
 				'info_url'         => 'https://jetpack.com/search/',
@@ -283,10 +268,8 @@ class Main_Features {
 					'in_jetpack' => true,
 					'standalone' => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Complete.', 'jetpack-my-jetpack' ),
-					__( 'Jetpack Search, on its own.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'complete' ),
+				'paid_product'     => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
 			),
 			'social'        => array(
 				'info_url'         => 'https://jetpack.com/social/',
@@ -307,10 +290,8 @@ class Main_Features {
 					'in_jetpack' => true,
 					'standalone' => __( 'Jetpack Social', 'jetpack-my-jetpack' ),
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Complete or Jetpack Growth.', 'jetpack-my-jetpack' ),
-					__( 'Jetpack Social, on its own.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'complete', 'growth' ),
+				'paid_product'     => __( 'Jetpack Social', 'jetpack-my-jetpack' ),
 			),
 			'stats'         => array(
 				'info_url'         => 'https://jetpack.com/stats/',
@@ -331,10 +312,8 @@ class Main_Features {
 				'delivery'         => array(
 					'in_jetpack' => true,
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Complete or Jetpack Growth.', 'jetpack-my-jetpack' ),
-					__( 'Jetpack Stats, on its own.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'complete', 'growth' ),
+				'paid_product'     => __( 'Jetpack Stats', 'jetpack-my-jetpack' ),
 			),
 			'videopress'    => array(
 				'info_url'         => 'https://jetpack.com/videopress/',
@@ -355,12 +334,40 @@ class Main_Features {
 					'in_jetpack' => true,
 					'standalone' => __( 'Jetpack VideoPress', 'jetpack-my-jetpack' ),
 				),
-				'paid_routes'      => array(
-					__( 'Jetpack Complete.', 'jetpack-my-jetpack' ),
-					__( 'Jetpack VideoPress, on its own.', 'jetpack-my-jetpack' ),
-				),
+				'plans'            => array( 'complete' ),
+				'paid_product'     => __( 'Jetpack VideoPress', 'jetpack-my-jetpack' ),
 			),
 		);
+	}
+
+	/**
+	 * The paid bundles that include a feature, named for display.
+	 *
+	 * Membership follows what the bundle products themselves declare they support, so
+	 * this stays right when a bundle's contents change.
+	 *
+	 * @param array $definition One feature's catalog entry.
+	 * @return array List of slug/name pairs.
+	 */
+	private static function get_plan_badges( $definition ) {
+		$names = array(
+			'security' => __( 'Jetpack Security', 'jetpack-my-jetpack' ),
+			'complete' => __( 'Jetpack Complete', 'jetpack-my-jetpack' ),
+			'growth'   => __( 'Jetpack Growth', 'jetpack-my-jetpack' ),
+		);
+
+		$badges = array();
+
+		foreach ( $definition['plans'] ?? array() as $slug ) {
+			if ( isset( $names[ $slug ] ) ) {
+				$badges[] = array(
+					'slug' => $slug,
+					'name' => $names[ $slug ],
+				);
+			}
+		}
+
+		return $badges;
 	}
 
 	/**
@@ -384,7 +391,8 @@ class Main_Features {
 				'learn_more_route' => $definition['interstitial'] ?? '',
 				'essential'        => ! empty( $definition['essential'] ),
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
-				'paid_routes'      => $definition['paid_routes'] ?? array(),
+				'plans'            => self::get_plan_badges( $definition ),
+				'paid_product'     => $definition['paid_product'] ?? '',
 				'delivery'         => $definition['delivery'] ?? array(),
 				'screenshot'       => $definition['image'],
 				'info_url'         => $definition['info_url'],

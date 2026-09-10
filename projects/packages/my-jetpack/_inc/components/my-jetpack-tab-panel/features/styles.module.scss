@@ -88,8 +88,11 @@ $feature-icon-foreground: #0ced57;
 
 // Reserves the image's space before it loads, so the remote asset
 // arriving cannot reflow the page around it.
+// Capped: left to its aspect ratio the artwork grows with the dialog and pushes
+// everything beside it out of view.
 .feature-screenshot__frame {
 	aspect-ratio: 16 / 10;
+	max-block-size: 20rem;
 	position: relative;
 	inline-size: 100%;
 }
@@ -166,10 +169,13 @@ $feature-icon-foreground: #0ced57;
 	justify-content: center;
 }
 
-// A fixed height keeps the dialog from resizing as you step between
-// features; the viewport term keeps it clear of the admin bar.
+// Fixed so the dialog does not resize as you step between features, and as
+// large as the viewport allows so its content rarely scrolls. Set here rather
+// than by the dialog's own `size`, which caps the width at 960px.
 .modal-popup {
-	block-size: min(46rem, calc(100vh - 5rem));
+	block-size: min(50rem, calc(100vh - 4rem));
+	inline-size: min(72rem, calc(100vw - 4rem));
+	max-inline-size: min(72rem, calc(100vw - 4rem));
 }
 
 // Applied to a wp-admin menu item, which lives outside this
@@ -269,3 +275,13 @@ $feature-icon-foreground: #0ced57;
 	margin-inline-start: auto;
 }
 
+
+// A badge is a span, so clickable ones are wrapped rather than restyled.
+.badge-link {
+	background: none;
+	border: 0;
+	cursor: pointer;
+	display: inline-flex;
+	padding: 0;
+	text-decoration: none;
+}
