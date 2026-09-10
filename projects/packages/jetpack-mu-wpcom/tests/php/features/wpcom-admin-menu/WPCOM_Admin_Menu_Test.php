@@ -336,6 +336,14 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			$_GET['page'] = $page;
 		}
 
+		/**
+		 * Unwinds out of `wp_safe_redirect()` carrying the target, so the `exit` that
+		 * follows it is never reached.
+		 *
+		 * @param string $location The redirect target.
+		 * @return never
+		 * @throws RuntimeException Always, carrying the redirect target.
+		 */
 		$capture = static function ( $location ) {
 			throw new RuntimeException( $location );
 		};
