@@ -45,17 +45,15 @@ export type FormatMetricValueOptions = {
 	currencyCode?: string;
 };
 
+const COMPACT_THRESHOLD = 1000;
+
 /**
- * Fraction digits for compact notation: the full precision below 1,000, then
- * one decimal until the mantissa reaches three digits.
+ * Fraction digits for compact notation: one decimal until the mantissa
+ * reaches three digits.
  */
 function compactFractionDigits(
-	absoluteValue: number,
-	fullDecimals: number
+	absoluteValue: number
 ): Pick< Intl.NumberFormatOptions, 'minimumFractionDigits' | 'maximumFractionDigits' > {
-	if ( absoluteValue < 1000 ) {
-		return { minimumFractionDigits: fullDecimals, maximumFractionDigits: fullDecimals };
-	}
 	const mantissa = absoluteValue / 1000 ** Math.floor( Math.log10( absoluteValue ) / 3 );
 	// Rounded first so 99.95K rolls over to 100K instead of printing 100.0K.
 	const maximumFractionDigits = Math.round( mantissa * 10 ) / 10 < 100 ? 1 : 0;
@@ -92,9 +90,13 @@ export function formatMetricValue(
 		return '';
 	}
 
+	// Below the threshold the full form is the compact form, so the two never
+	// disagree on precision (a compact JPY 500 must read ¥500, not ¥500.00).
+	const compact = useMultipliers && Math.abs( numericValue ) >= COMPACT_THRESHOLD;
+
 	switch ( type ) {
 		case 'currency': {
-			if ( useMultipliers ) {
+			if ( compact ) {
 				const { symbol, symbolPosition } = getCurrencyObject( 0, currencyCode );
 
 				// Detect if the locale places a space between symbol
@@ -123,7 +125,7 @@ export function formatMetricValue(
 				}
 
 				const compactFormatted = formatNumberCompact( absoluteValue, {
-					numberFormatOptions: compactFractionDigits( absoluteValue, decimals ?? 2 ),
+					numberFormatOptions: compactFractionDigits( absoluteValue ),
 				} );
 
 				return symbolPosition === 'before'
@@ -167,10 +169,10 @@ export function formatMetricValue(
 
 		case 'number':
 		default: {
-			return useMultipliers
+			return compact
 				? formatNumberCompact( numericValue, {
 						numberFormatOptions: {
-							...compactFractionDigits( Math.abs( numericValue ), decimals ?? 0 ),
+							...compactFractionDigits( Math.abs( numericValue ) ),
 							signDisplay,
 						},
 				  } )

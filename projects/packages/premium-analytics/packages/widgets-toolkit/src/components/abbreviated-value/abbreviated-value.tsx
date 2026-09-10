@@ -4,10 +4,12 @@
 import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
+import clsx from 'clsx';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import styles from './abbreviated-value.module.scss';
 import type { DataFormat } from '../../types';
 
 export type AbbreviatedTextProps = {
@@ -25,9 +27,11 @@ export function AbbreviatedText( { display, exact, className }: AbbreviatedTextP
 		return <span className={ className }>{ display }</span>;
 	}
 
+	// Out of the tab order: assistive tech reads the exact figure below, and a
+	// focusable span would nest inside leaderboard row buttons and metric tabs.
 	return (
 		<Tooltip text={ exact }>
-			<span className={ className }>
+			<span className={ clsx( styles.anchor, className ) } tabIndex={ -1 }>
 				<span aria-hidden="true">{ display }</span>
 				<VisuallyHidden render={ <span /> }>{ exact }</VisuallyHidden>
 			</span>
@@ -62,7 +66,8 @@ export function AbbreviatedValue( {
 	className,
 }: AbbreviatedValueProps ) {
 	const { display, exact } = useMemo( () => {
-		const options = { ...dataFormat.options, currencyCode };
+		const options =
+			currencyCode === undefined ? dataFormat.options : { ...dataFormat.options, currencyCode };
 		return {
 			display: formatMetricValue( value, dataFormat.type, options ),
 			exact: formatMetricValue( value, dataFormat.type, { ...options, useMultipliers: false } ),

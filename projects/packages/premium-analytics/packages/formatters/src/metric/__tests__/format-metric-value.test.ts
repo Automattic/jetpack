@@ -124,8 +124,11 @@ describe( 'formatMetricValue', () => {
 			expect( result ).toBe( '$192K' );
 		} );
 
-		it( 'keeps the full precision below 1,000 with multipliers', () => {
-			expect( formatMetricValue( 472.13, 'currency', { useMultipliers: true } ) ).toBe( '$472.13' );
+		it( 'formats below 1,000 exactly as without multipliers', () => {
+			expect( formatMetricValue( 472.13, 'currency', { useMultipliers: true } ) ).toBe(
+				formatMetricValue( 472.13, 'currency' )
+			);
+			expect( formatCurrency ).toHaveBeenLastCalledWith( 472.13, 'USD' );
 		} );
 
 		it( 'formats currency with multipliers and signDisplay', () => {
@@ -346,6 +349,15 @@ describe( 'formatMetricValue', () => {
 			[ -1234, '-1.2K' ],
 		] )( 'compacts %d as %s', ( value, expected ) => {
 			expect( formatMetricValue( value, 'number', { useMultipliers: true } ) ).toBe( expected );
+		} );
+
+		it( 'formats below 1,000 exactly as without multipliers', () => {
+			expect( formatMetricValue( 999.6, 'number', { useMultipliers: true } ) ).toBe(
+				formatMetricValue( 999.6, 'number' )
+			);
+			expect( formatMetricValue( 999.6, 'number', { useMultipliers: true, decimals: 1 } ) ).toBe(
+				'999.6'
+			);
 		} );
 
 		it( 'ignores decimals in compact notation', () => {
