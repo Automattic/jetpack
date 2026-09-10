@@ -1,9 +1,8 @@
 import { __ } from '@wordpress/i18n';
-import type { MouseEvent } from 'react';
 import styles from './close-button.module.scss';
 
-const CloseButton = ( { onClick }: { onClick: () => void } ) => {
-	const handleOnClick = ( event: MouseEvent< HTMLAnchorElement > ) => {
+const CloseButton = ( { onClick } ) => {
+	const handleOnClick = event => {
 		event.preventDefault();
 		onClick();
 	};
