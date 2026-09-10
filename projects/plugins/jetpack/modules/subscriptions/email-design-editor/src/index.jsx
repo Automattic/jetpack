@@ -15,7 +15,8 @@ import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { getBlockType, registerBlockType } from '@wordpress/blocks';
 import { Notice } from '@wordpress/components';
-import { dispatch } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
+import { dispatch, select } from '@wordpress/data';
 import { createRoot, StrictMode } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
@@ -356,11 +357,17 @@ export function createDesignSaveMiddleware( id ) {
 		// but sending it makes every save look like it lost a property to anything comparing what
 		// was sent against what was stored. `version` and `isGlobalStylesUserThemeJSON` are the
 		// store's to set, so they are not ours to send.
-		const { styles, settings } = options.data ?? {};
-		const submitted = {
-			...( undefined === styles ? {} : { styles } ),
-			...( undefined === settings ? {} : { settings } ),
-		};
+		// core-data drops unchanged keys from its edits, so `options.data` routinely carries one half
+		// — a styles-only save is the ordinary case here, not an anomaly. The store replaces the
+		// whole document rather than merging, so sending that half alone would destroy the other.
+		// The editor's own view — persisted record plus pending edits — is what the creator means.
+		const edited = select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', id );
+
+		if ( ! edited ) {
+			throw new Error( 'Email design save found no global styles record to read.' );
+		}
+
+		const submitted = { styles: edited.styles ?? {}, settings: edited.settings ?? {} };
 
 		const saved = await apiFetch( {
 			path: BOOTSTRAP_PATH,

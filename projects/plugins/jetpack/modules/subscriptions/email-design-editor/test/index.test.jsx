@@ -48,6 +48,7 @@ jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) 
 // which `@wordpress/components` needs at import time by way of `@wordpress/rich-text`.
 const { select, dispatch } = jest.requireActual( '@wordpress/data' );
 const { store: noticesStore } = jest.requireActual( '@wordpress/notices' );
+const { store: coreStore } = jest.requireActual( '@wordpress/core-data' );
 
 const ELEMENT_ID = 'jetpack-email-design-editor';
 
@@ -750,6 +751,21 @@ describe( 'Email design editor entry point', () => {
 		const { createDesignSaveMiddleware } = jest.requireActual( '../src/index' );
 		const ourId = 999999999;
 
+		/**
+		 * Put a design in core-data, which is where the middleware reads what to send.
+		 *
+		 * @param {object} design - `styles` and `settings` as the record holds them.
+		 * @return {void}
+		 */
+		const storeDesign = design =>
+			dispatch( coreStore ).receiveEntityRecords( 'root', 'globalStyles', [
+				{ id: ourId, ...design },
+			] );
+
+		beforeEach( () => {
+			storeDesign( { styles: {}, settings: {} } );
+		} );
+
 		it( 'sends the design to WordPress.com rather than to the site', async () => {
 			const next = jest.fn();
 			// The shape WordPress.com actually answers with: a read-back wrapped in an envelope.
@@ -758,6 +774,8 @@ describe( 'Email design editor entry point', () => {
 				design: { styles: { color: { background: '#c0ffee' } }, settings: {} },
 				discarded: false,
 			} );
+
+			storeDesign( { styles: { color: { background: '#c0ffee' } }, settings: {} } );
 
 			const result = await createDesignSaveMiddleware( ourId )(
 				{
@@ -772,7 +790,7 @@ describe( 'Email design editor entry point', () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
 				path: '/wpcom/v2/email-editor-bootstrap',
 				method: 'POST',
-				data: { design: { styles: { color: { background: '#c0ffee' } } } },
+				data: { design: { styles: { color: { background: '#c0ffee' } }, settings: {} } },
 			} );
 
 			// core-data takes this as the record itself, and the canvas is drawn from its `styles`
@@ -788,21 +806,17 @@ describe( 'Email design editor entry point', () => {
 		it( 'sends only the design, not the record it came from', async () => {
 			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: {}, discarded: false } );
 
+			// core-data holds the whole record, envelope keys and all.
+			storeDesign( {
+				title: { rendered: 'Email styles' },
+				version: 3,
+				isGlobalStylesUserThemeJSON: true,
+				styles: { color: { background: '#c0ffee' } },
+				settings: { color: { palette: { custom: [] } } },
+			} );
+
 			await createDesignSaveMiddleware( ourId )(
-				{
-					path: `/wp/v2/global-styles/${ ourId }`,
-					method: 'PUT',
-					data: {
-						// core-data hands over its whole record.
-						id: ourId,
-						title: { rendered: 'Email styles' },
-						_links: { self: [] },
-						version: 3,
-						isGlobalStylesUserThemeJSON: true,
-						styles: { color: { background: '#c0ffee' } },
-						settings: { color: { palette: { custom: [] } } },
-					},
-				},
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: { styles: {} } },
 				jest.fn()
 			);
 
@@ -820,21 +834,29 @@ describe( 'Email design editor entry point', () => {
 			);
 		} );
 
-		it( 'omits a half the panel did not send', async () => {
+		// The regression this replaced a refusal with. core-data strips unchanged keys from its
+		// edits, so an ordinary styles-only save arrives with no `settings` at all — and the store
+		// replaces rather than merges, so forwarding that would wipe whatever settings held.
+		it( 'sends both halves when only one of them was edited', async () => {
 			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: {}, discarded: false } );
+			storeDesign( {
+				styles: { color: { text: '#003300' } },
+				settings: { color: { palette: { custom: [ { slug: 'brand' } ] } } },
+			} );
 
 			await createDesignSaveMiddleware( ourId )(
-				{
-					path: `/wp/v2/global-styles/${ ourId }`,
-					method: 'PUT',
-					data: { id: ourId, styles: { color: { text: '#003300' } } },
-				},
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: { styles: {} } },
 				jest.fn()
 			);
 
 			expect( mockApiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( {
-					data: { design: { styles: { color: { text: '#003300' } } } },
+					data: {
+						design: {
+							styles: { color: { text: '#003300' } },
+							settings: { color: { palette: { custom: [ { slug: 'brand' } ] } } },
+						},
+					},
 				} )
 			);
 		} );
@@ -852,7 +874,10 @@ describe( 'Email design editor entry point', () => {
 				{
 					path: `/wp/v2/global-styles/${ ourId }`,
 					method: 'PUT',
-					data: { styles: { color: { background: 'color-mix(in srgb, #fff 50%, #000)' } } },
+					data: {
+						styles: { color: { background: 'color-mix(in srgb, #fff 50%, #000)' } },
+						settings: {},
+					},
 				},
 				jest.fn()
 			);
@@ -864,7 +889,11 @@ describe( 'Email design editor entry point', () => {
 			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: null, discarded: true } );
 
 			await createDesignSaveMiddleware( ourId )(
-				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: { styles: {} } },
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: {}, settings: {} },
+				},
 				jest.fn()
 			);
 
@@ -887,7 +916,11 @@ describe( 'Email design editor entry point', () => {
 			} );
 
 			await createDesignSaveMiddleware( ourId )(
-				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: {} },
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: {}, settings: {} },
+				},
 				jest.fn()
 			);
 
@@ -898,7 +931,11 @@ describe( 'Email design editor entry point', () => {
 			mockApiFetch.mockResolvedValueOnce( { blog_id: 12345, design: null, discarded: true } );
 
 			const result = await createDesignSaveMiddleware( ourId )(
-				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: {} },
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: {}, settings: {} },
+				},
 				jest.fn()
 			);
 
@@ -909,7 +946,7 @@ describe( 'Email design editor entry point', () => {
 			mockApiFetch.mockResolvedValueOnce( {} );
 
 			await createDesignSaveMiddleware( ourId )(
-				{ path: `/wp/v2/global-styles/${ ourId }`, method, data: {} },
+				{ path: `/wp/v2/global-styles/${ ourId }`, method, data: { styles: {}, settings: {} } },
 				jest.fn()
 			);
 
@@ -948,7 +985,11 @@ describe( 'Email design editor entry point', () => {
 			mockApiFetch.mockResolvedValueOnce( {} );
 
 			await createDesignSaveMiddleware( ourId )(
-				{ path: `/wp/v2/global-styles/${ ourId }?_locale=user`, method: 'PUT', data: {} },
+				{
+					path: `/wp/v2/global-styles/${ ourId }?_locale=user`,
+					method: 'PUT',
+					data: { styles: {}, settings: {} },
+				},
 				next
 			);
 
