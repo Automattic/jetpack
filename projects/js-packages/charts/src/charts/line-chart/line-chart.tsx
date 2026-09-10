@@ -362,6 +362,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			chartRef,
 			totalPoints: dataSorted[ 0 ]?.data.length || 0,
 			onActivate: activateSelectedPoint,
+			preventTooltipScroll: tooltipPlacement === 'below-axis',
 		} );
 
 		const chartOptions = useMemo( () => {
@@ -483,12 +484,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 
 		const resolvedTooltipStyle = useMemo( () => {
 			if ( renderTooltip !== renderDefaultTooltip || ! tooltipStyle ) return tooltipStyle;
-			if ( ! ( tooltipStyle.color || tooltipStyle.background || tooltipStyle.backgroundColor ) ) {
+			if ( ! tooltipStyle.color || tooltipStyle.background || tooltipStyle.backgroundColor ) {
 				return tooltipStyle;
 			}
 			return {
-				backgroundColor: 'var(--a8c-charts-color-tooltip-surface)',
-				color: 'var(--a8c-charts-color-label-inverse)',
+				backgroundColor: 'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))',
 				...tooltipStyle,
 			};
 		}, [ renderTooltip, tooltipStyle ] );
@@ -500,7 +500,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				renderTooltip === renderDefaultTooltip
 					? renderDefaultTooltip(
 							{ ...params, bucketInfo },
-							Boolean( resolvedTooltipStyle?.color )
+							Boolean(
+								resolvedTooltipStyle?.color ||
+									resolvedTooltipStyle?.background ||
+									resolvedTooltipStyle?.backgroundColor
+							)
 					  )
 					: renderTooltip( { ...params, bucketInfo } ),
 			[ renderTooltip, bucketInfo, resolvedTooltipStyle ]

@@ -525,7 +525,7 @@ Set `tooltipPlacement="below-axis"` to place the panel below the bottom x-axis l
 	/>` }
 />
 
-Set `tooltipStyle` to customize the tooltip. With the default renderer, overriding `color`, `background`, or `backgroundColor` starts from the paired `--a8c-charts-color-tooltip-surface` background and `--a8c-charts-color-label-inverse` text; supplied properties then override that pair. The default renderer inherits both colors, and the below-axis pointer inherits the background. Choose colors with sufficient contrast; when changing to a light background or dark text, set both colors explicitly. Non-color properties such as `boxShadow` retain the existing color defaults. A custom `renderTooltip` keeps control of its own content styles.
+Set `tooltipStyle` to customize the tooltip. With the default renderer, its content inherits any supplied color or background. A color-only override retains the default dark `--a8c-charts-color-tooltip-surface`; a background-only override retains the chart theme's text color. When both are supplied, both values are used. The below-axis pointer inherits the background. Choose colors with sufficient contrast. Non-color properties such as `boxShadow` retain the existing color defaults. A custom `renderTooltip` keeps control of its own content styles.
 
 The public `AccessibleTooltip` component's `style` prop also merges with the computed box styles instead of replacing them. Use its `unstyled` prop to strip the box styles.
 

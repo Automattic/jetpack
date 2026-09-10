@@ -200,6 +200,7 @@ interface UseKeyboardNavigationProps {
 	 * keyboard selection the way it treats a click.
 	 */
 	onActivate?: ( index: number ) => void;
+	preventTooltipScroll?: boolean;
 }
 
 export const useKeyboardNavigation = ( {
@@ -210,15 +211,20 @@ export const useKeyboardNavigation = ( {
 	chartRef,
 	totalPoints,
 	onActivate,
+	preventTooltipScroll = false,
 }: UseKeyboardNavigationProps ) => {
 	// Focus the tooltip as soon as it is rendered
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
 			if ( element && selectedIndex !== undefined ) {
-				element.focus( { preventScroll: true } );
+				if ( preventTooltipScroll ) {
+					element.focus( { preventScroll: true } );
+				} else {
+					element.focus();
+				}
 			}
 		},
-		[ selectedIndex ]
+		[ preventTooltipScroll, selectedIndex ]
 	);
 
 	// On each focus of chart, reset the selectedIndex to 0, if keyboard navigation is not already active

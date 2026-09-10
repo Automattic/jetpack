@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-AccessibleTooltip: Keep the page from scrolling when keyboard focus moves to a chart.
+Line chart: Keep the page from scrolling when keyboard focus moves to a below-axis tooltip.

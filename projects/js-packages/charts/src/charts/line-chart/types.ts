@@ -30,6 +30,8 @@ export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > &
 	position?: 'start' | 'end';
 };
 
+type CrosshairStyle = Omit< SVGProps< SVGLineElement >, 'x1' | 'x2' | 'y1' | 'y2' >;
+
 export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
@@ -47,7 +49,7 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	 */
 	tooltipPlacement?: XyChartTooltipProps< DataPointDate >[ 'tooltipPlacement' ];
 	/**
-	 * Inline container styles. Overriding either color starts from the tooltip-surface/label-inverse pair.
+	 * Inline container styles. A color-only override retains the default dark tooltip surface.
 	 * The default renderer inherits both colors. See Below-Axis Tooltips in stories/index.docs.mdx.
 	 */
 	tooltipStyle?: CSSProperties;
@@ -59,8 +61,8 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	withTooltipCrosshairs?: {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
-		verticalStyle?: SVGProps< SVGLineElement >;
-		horizontalStyle?: SVGProps< SVGLineElement >;
+		verticalStyle?: CrosshairStyle;
+		horizontalStyle?: CrosshairStyle;
 	};
 	/**
 	 * Enable drag-to-zoom on the X axis. The user drags horizontally to

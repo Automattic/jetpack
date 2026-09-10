@@ -24,6 +24,9 @@ const isClipping = ( element: Element ) => {
 	return [ overflow, overflowX, overflowY ].some( value => value && value !== 'visible' );
 };
 
+// The first ancestor that cuts its overflow off. The box may leave the chart
+// wrapper but never this element, which is what a body-level portal used to
+// guarantee by never being inside one.
 const findClippingAncestor = ( wrapper: Element ): Element | null => {
 	let element = wrapper.parentElement;
 	while ( element && element !== document.body ) {
@@ -36,8 +39,9 @@ const findClippingAncestor = ( wrapper: Element ): Element | null => {
 };
 
 /**
- * Flip and clamp the box in wrapper coordinates, or pin it below the axis
- * with horizontal clamping only.
+ * Where the box goes, in wrapper coordinates. Automatic placement flips to
+ * the side that clips less, then clamps inside `bounds`; below-axis placement
+ * is centered on the anchor and clamped horizontally.
  *
  * The flip measures against the visible part of the wrapper, its intersection
  * with `bounds`. Only the clamp is bound by the page: a box that fits inside the
@@ -111,15 +115,15 @@ export const getBoundedPosition = ( {
 };
 
 /**
- * visx's `Tooltip`, positioned like its `TooltipWithBounds` but clamped inside
- * the nearest clipping ancestor — or the viewport when there is none — rather
- * than inside its own parent. Rendered in-tree, a tooltip's parent is the chart
- * wrapper, which is often narrower than the box; clamping to the parent alone
- * would let the box spill into an `overflow: hidden` card and be cut off.
+ * visx's `Tooltip`, positioned like its `TooltipWithBounds` but kept inside the
+ * nearest clipping ancestor — or the viewport when there is none — rather than
+ * inside its own parent. Rendered in-tree, a tooltip's parent is the chart
+ * wrapper, which is often narrower than the box; measuring against the parent
+ * alone would let the box spill into an `overflow: hidden` card and be cut off.
  *
  * Re-measures on every render, so a box whose content changes width between
- * two hovers is placed for its current size.
- * Below-axis placement applies horizontal bounds only; see `getBoundedPosition`.
+ * two hovers is placed for its current size. See `getBoundedPosition` for the
+ * below-axis exception.
  *
  * @param props            - visx `Tooltip` props.
  * @param props.left       - Anchor x, in wrapper coordinates.

@@ -205,7 +205,7 @@ BelowAxisDefaultRenderer.parameters = {
 export const BelowAxisBackgroundOnly: StoryObj< typeof LineChart > = Template.bind( {} );
 BelowAxisBackgroundOnly.args = {
 	...BelowAxisDefaultRenderer.args,
-	tooltipStyle: { background: 'var(--a8c-charts-color-tooltip-surface)' },
+	tooltipStyle: { background: '#fff' },
 };
 
 export const BelowAxisColorOnly: StoryObj< typeof LineChart > = Template.bind( {} );

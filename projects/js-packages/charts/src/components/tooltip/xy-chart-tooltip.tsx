@@ -13,7 +13,9 @@ const FALLBACK_COLOR = '#222';
 // Above the chart's own overlays (the zoom reset button sits at 2). The chart
 // wrapper isolates its stacking context, so this never competes with page chrome.
 const DEFAULT_TOOLTIP_Z_INDEX = 3;
-// Drop compatibility-only portal options before rendering; see XyChartTooltipProps.
+// Portal-era options, accepted for compatibility and dropped before the box
+// renders: it sits in the chart wrapper and moves with it, and nothing
+// measures it any more.
 const PORTAL_OPTIONS = new Set( [ 'scroll', 'debounce', 'resizeObserverPolyfill' ] );
 
 type ScaleFn = ( value: unknown ) => number | undefined;
@@ -255,10 +257,22 @@ const XyChartTooltipContent = < Datum extends object >( {
 /**
  * In-tree replacement for `@visx/xychart`'s `Tooltip`.
  *
- * Render inside `XYChart`; its wrapper must be `position: relative` with the SVG
- * at its origin and `isolation: isolate` to keep overlays below page chrome.
- * SVG-local coordinates position the box in that wrapper; `BoundedTooltip`
- * owns bounds handling when enabled, including the below-axis exception.
+ * visx renders its tooltip box, glyphs and crosshairs through portals appended
+ * to `document.body`. That puts them in the page's root stacking context, where
+ * they paint above every sticky or fixed element that lives inside a nested
+ * stacking context, and no z-index on that element can change the order. This
+ * component draws the glyphs and crosshairs straight into the chart SVG and
+ * renders the tooltip box into the SVG's parent element, so all of them stack
+ * as ordinary descendants of the chart.
+ *
+ * Render it as a child of `XYChart`. The element wrapping that `XYChart` must
+ * be `position: relative` with the SVG at its origin, and `isolation: isolate`:
+ * the box is placed with the SVG-local coordinates visx reports, and the
+ * isolation keeps the box's `zIndex` from competing with page chrome. The box
+ * flips and clamps to stay inside the nearest ancestor that clips its overflow
+ * (or the viewport), so it may extend past the chart wrapper but is never cut
+ * off unless that ancestor is smaller than the box itself. Below-axis placement
+ * pins it beneath the x-axis and applies horizontal bounds only.
  *
  * @param props - visx's `Tooltip` options. `scroll`, `debounce` and `resizeObserverPolyfill` are accepted and ignored.
  * @return An anchor in the SVG, plus the overlay and the tooltip box while the tooltip is open.

@@ -139,12 +139,12 @@ describe( 'LineChart', () => {
 		}
 	);
 	test.each( [
-		[ { color: 'white' }, 'white', 'var(--a8c-charts-color-tooltip-surface)' ],
-		[ { backgroundColor: 'black' }, 'var(--a8c-charts-color-label-inverse)', 'black' ],
-		[ { background: 'black' }, 'var(--a8c-charts-color-label-inverse)', 'black' ],
+		[ { color: 'white' }, 'white', 'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))' ],
+		[ { backgroundColor: 'white' }, 'rgb(30, 30, 30)', 'white' ],
+		[ { background: 'white' }, 'rgb(30, 30, 30)', 'white' ],
 		[ { color: 'white', background: 'black' }, 'white', 'black' ],
 	] )(
-		'preserves the tooltip color pair when overriding styles: %j',
+		'applies directional tooltip color defaults: %j',
 		async ( tooltipStyle, color, background ) => {
 			const user = userEvent.setup();
 			renderWithTheme( { tooltipStyle } );
@@ -152,7 +152,6 @@ describe( 'LineChart', () => {
 			await user.keyboard( '{ArrowRight}' );
 
 			const content = screen.getByTestId( 'line-chart-tooltip-content' );
-			// Computed styles resolve inheritance and cannot distinguish an absent declaration.
 			expect( content.style.getPropertyValue( 'color' ) ).toBe( 'inherit' );
 			expect( content.style.getPropertyValue( 'background' ) ).toBe( 'inherit' );
 			const container = screen.getByTestId( 'bounded-tooltip' );
