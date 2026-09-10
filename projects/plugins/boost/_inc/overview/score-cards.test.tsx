@@ -103,3 +103,39 @@ test( 'marks placeholder regions busy after loading ends without scores', () => 
 	}
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 80 );
 } );
+
+test( 'shows a neutral delta for an unchanged device when the other score changes', () => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { desktop: 80, mobile: 60 },
+				noBoost: { desktop: 80, mobile: 70 },
+				isStale: false,
+			} }
+		/>
+	);
+	const desktop = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
+	expect( desktop.getByText( 'No change compared to without Boost' ) ).toHaveClass(
+		'jetpack-boost-overview__delta--neutral'
+	);
+} );
+
+test( 'defaults placeholders to the loading state', () => {
+	const scores = {
+		current: { desktop: 80, mobile: 60 },
+		noBoost: null,
+		isStale: false,
+	};
+	const { rerender } = render( <ScoreCards scores={ scores } isLoading /> );
+	for ( const label of [ 'Overall grade', 'Desktop', 'Mobile' ] ) {
+		expect( screen.getByRole( 'region', { name: label } ) ).toHaveAttribute( 'aria-busy', 'true' );
+	}
+	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
+	rerender( <ScoreCards scores={ scores } isLoading={ false } /> );
+	expect( screen.getByRole( 'region', { name: 'Desktop' } ) ).toHaveAttribute(
+		'aria-busy',
+		'false'
+	);
+	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 80 );
+} );
