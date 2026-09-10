@@ -172,7 +172,7 @@ const StatsCards = ( {
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
 			<Link
-				variant={ detailedStatsHref ? 'default' : 'unstyled' }
+				variant="unstyled"
 				className={ styles[ 'section-title-container' ] }
 				href={ detailedStatsHref }
 				onClick={ detailedStatsHref ? onDetailedStatsClick : undefined }
