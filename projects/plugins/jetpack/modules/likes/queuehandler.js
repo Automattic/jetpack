@@ -414,6 +414,13 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 	wrapper.classList.add( 'jetpack-likes-widget-loading' );
 
 	wrapper.querySelector( 'iframe' ).addEventListener( 'load', e => {
+		// A widget scrolled out of view mid-load has its iframe dropped, and a reloaded one
+		// replaces it, either of which leaves this closure holding a detached iframe. Acting on
+		// it would hide a placeholder that is now the only thing the widget has left to show.
+		if ( ! wrapper.contains( e.target ) ) {
+			return;
+		}
+
 		JetpackLikesPostMessage(
 			{ event: 'loadLikeWidget', name: e.target.name, width: e.target.width },
 			window.frames[ 'likes-master' ]

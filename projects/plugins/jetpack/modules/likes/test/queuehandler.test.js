@@ -119,14 +119,28 @@ describe( 'Likes queue handler master iframe handshake', () => {
 		return widget;
 	};
 
-	// Drive the queue to the point where it has created the iframe, then fire the load event
-	// jsdom never fires for a cross-origin src.
-	const loadWidget = async widget => {
+	// Drive the queue to the point where it has created the widget's iframe.
+	const startQueue = async () => {
 		answerPingsWithMasterReady();
 		require( '../queuehandler' );
 		await Promise.resolve();
 		jest.advanceTimersByTime( 500 );
+	};
+
+	// ...and fire the load event jsdom never fires for a cross-origin src.
+	const loadWidget = async widget => {
+		await startQueue();
 		widget.querySelector( 'iframe' ).dispatchEvent( new Event( 'load' ) );
+	};
+
+	// The wrapper has to move as well as its iframe, or the same pass that unloads it finds it
+	// in view and reloads it.
+	const scrollOutOfView = widget => {
+		const outOfView = () => ( { top: 50000, bottom: 50018 } );
+		widget.querySelector( 'iframe' ).getBoundingClientRect = outOfView;
+		widget.getBoundingClientRect = outOfView;
+		window.dispatchEvent( new Event( 'scroll' ) );
+		jest.advanceTimersByTime( 250 );
 	};
 
 	beforeEach( () => {
@@ -247,17 +261,27 @@ describe( 'Likes queue handler master iframe handshake', () => {
 		await loadWidget( widget );
 		expect( placeholder ).not.toBeVisible();
 
-		// Scroll the widget out of view: its iframe is dropped and the wrapper goes back to
-		// unloaded, so the placeholder has to become the visible state again. The wrapper needs
-		// moving too, or the same pass that unloads it finds it in view and reloads it.
-		const outOfView = () => ( { top: 50000, bottom: 50018 } );
-		widget.querySelector( 'iframe' ).getBoundingClientRect = outOfView;
-		widget.getBoundingClientRect = outOfView;
-		window.dispatchEvent( new Event( 'scroll' ) );
-		jest.advanceTimersByTime( 250 );
+		// Its iframe is dropped and the wrapper goes back to unloaded, so the placeholder has to
+		// become the visible state again.
+		scrollOutOfView( widget );
 
 		expect( widget ).toHaveClass( 'jetpack-likes-widget-unloaded' );
 		expect( widget.querySelectorAll( 'iframe' ) ).toHaveLength( 0 );
+		expect( placeholder ).toBeVisible();
+	} );
+
+	it( 'ignores a load event from an iframe the widget has already dropped', async () => {
+		const widget = addUnloadedCommentWidget();
+		const placeholder = widget.querySelector( '.likes-widget-placeholder' );
+
+		await startQueue();
+
+		// Scroll away before the iframe reports back, so the queue drops it mid-load.
+		const droppedIframe = widget.querySelector( 'iframe' );
+		scrollOutOfView( widget );
+		droppedIframe.dispatchEvent( new Event( 'load' ) );
+
+		expect( widget ).toHaveClass( 'jetpack-likes-widget-unloaded' );
 		expect( placeholder ).toBeVisible();
 	} );
 } );
