@@ -71,8 +71,9 @@ export interface ReportRecordsTableProps< Item > {
 	 *
 	 * The table still owns its view state; this only reports it outwards, for
 	 * a page whose data request depends on the view — a filter the API applies
-	 * server-side, say. Remounting the table (a `key` per tab) resets the view,
-	 * so a page tracking a value from here resets its own copy at the same time.
+	 * server-side, say. Remounting the table (a `key` per tab) resets the view
+	 * but not the page's copy, which the page has to clear for itself, or the
+	 * request stays scoped by a filter the table no longer shows.
 	 */
 	onChangeView?: ( view: View ) => void;
 	/** Whether a record's primary field should render as an interactive link. */

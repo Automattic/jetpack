@@ -28,6 +28,12 @@ export type HeatmapColumn = {
 	/** x-axis label for this column. Empty/omitted renders blank. */
 	label?: string;
 	data: HeatmapCell[];
+	/**
+	 * A per-row roll-up such as a total or an average. Left out of the color
+	 * scale, drawn unfilled with its figure always printed, on an `auto` track
+	 * one gap apart from the data beside it. The chart never computes it.
+	 */
+	summary?: boolean;
 };
 
 export type HeatmapTooltipData = {

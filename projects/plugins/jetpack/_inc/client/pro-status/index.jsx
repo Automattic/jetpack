@@ -151,11 +151,7 @@ class ProStatus extends Component {
 			<>
 				{ message }
 				{ action && (
-					<a
-						className="dops-notice__text-no-underline"
-						onClick={ handleClickForTracking( type, feature ) }
-						href={ actionUrl }
-					>
+					<a onClick={ handleClickForTracking( type, feature ) } href={ actionUrl }>
 						{ action }
 					</a>
 				) }

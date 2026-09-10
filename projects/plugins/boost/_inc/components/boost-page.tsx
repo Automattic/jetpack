@@ -4,11 +4,10 @@ import { Tabs } from '@wordpress/ui';
 import clsx from 'clsx';
 import './boost-page.scss';
 import type { ReactNode } from 'react';
-
-export type BoostTab = 'overview' | 'settings';
+import type { Tab } from '../runtime-contract';
 
 type Props = {
-	activeTab: BoostTab;
+	activeTab: Tab;
 	isSubpage: boolean;
 	onTabChange: ( tab: string | null ) => void;
 	children: ReactNode;

@@ -14,6 +14,10 @@ import type {
 } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
+/** Inclusive day bounds, in the offset-less second-precision shape Stats responses carry. */
+export const DAY_START_TIME = '00:00:00';
+export const DAY_END_TIME = '23:59:59';
+
 type StatsComparisonKey = string | number;
 
 type StatsComparisonEntry< TComparison > = {
@@ -317,8 +321,8 @@ export function getStatsIntervalFields( date: string, period?: string ): StatsIn
 
 	return {
 		time_interval: date,
-		date_start: formatDatePartWithTime( startDate, '00:00:00' ),
-		date_end: formatDatePartWithTime( endDate, '23:59:59' ),
+		date_start: formatDatePartWithTime( startDate, DAY_START_TIME ),
+		date_end: formatDatePartWithTime( endDate, DAY_END_TIME ),
 	};
 }
 
@@ -337,8 +341,8 @@ export function getStatsSummaryIntervalFields(
 	const endDate = getStatsEndDateParam( query ) ?? responseDate ?? getDatePart( query?.start_date );
 
 	return {
-		...( startDate ? { date_start: formatDatePartWithTime( startDate, '00:00:00' ) } : {} ),
-		...( endDate ? { date_end: formatDatePartWithTime( endDate, '23:59:59' ) } : {} ),
+		...( startDate ? { date_start: formatDatePartWithTime( startDate, DAY_START_TIME ) } : {} ),
+		...( endDate ? { date_end: formatDatePartWithTime( endDate, DAY_END_TIME ) } : {} ),
 	};
 }
 

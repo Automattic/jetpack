@@ -16,7 +16,7 @@ import {
 } from './hooks';
 import { stage as Dashboard } from './stage';
 import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
-import type { ReactNode } from 'react';
+import type { ForwardedRef, ReactNode } from 'react';
 
 // Read inside the mocked functions, never at factory time — the factories run
 // while `./stage` is still importing, so these are in the temporal dead zone.
@@ -66,27 +66,32 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( { disabled }: { disabled?: boolean } ) => (
-		<MockHeaderScopeProbe disabled={ disabled } />
-	),
-	DateIntervalDropdown: ( { disabled }: { disabled?: boolean } ) => (
-		<span>{ disabled ? 'interval disabled' : 'interval enabled' }</span>
-	),
-	DateYearFilter: ( {
-		containerElement,
-		disabled,
-	}: {
-		containerElement?: HTMLElement | null;
-		disabled?: boolean;
-	} ) => (
+	DateFiltersPanel: () => <MockHeaderScopeProbe />,
+	DateIntervalDropdown: () => <span>interval control</span>,
+	DateYearFilter: ( { containerElement }: { containerElement?: HTMLElement | null } ) => (
 		<>
-			<span>{ disabled ? 'year surface disabled' : 'year surface enabled' }</span>
+			<span>year surface</span>
 			<span>{ containerElement ? 'measuring header' : 'measuring body' }</span>
 		</>
 	),
 	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
 		open ? <div data-testid="onboarding-welcome-modal" /> : null,
-	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	// Forwards the ref and marks the notice slot, since the stage relies on
+	// both: the ref feeds the year surface's measurement, and the notice's
+	// place in the slot is asserted below.
+	SectionHeader: jest
+		.requireActual< typeof import('react') >( 'react' )
+		.forwardRef(
+			(
+				{ children, notice }: { children: ReactNode; notice?: ReactNode },
+				ref: ForwardedRef< HTMLDivElement >
+			) => (
+				<div ref={ ref }>
+					<div>{ children }</div>
+					<div data-testid="section-header-notice">{ notice }</div>
+				</div>
+			)
+		),
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
 		( mockMountedSectionSlugs ?? [ mockActiveSectionSlug ] ).includes( value ) ? (
 			<div>{ children }</div>
@@ -117,18 +122,13 @@ jest.mock( '@wordpress/data', () => ( { useSelect: () => [] } ) );
  * render. Both halves derive from the one declaration, so the header reads it
  * rather than being handed a prop.
  *
- * @param props          - The props the stage hands the panel.
- * @param props.disabled - Whether the stage greyed the controls out.
- * @return The declared scope, as text, with the disabled state appended.
+ * @return The declared scope, as text.
  */
-function MockHeaderScopeProbe( { disabled = false }: { disabled?: boolean } ) {
+function MockHeaderScopeProbe() {
 	const { offersComparison } = useReportScope();
 
 	return (
-		<span>
-			{ offersComparison ? 'header offers comparison' : 'header offers no comparison' }
-			{ disabled ? ', disabled' : '' }
-		</span>
+		<span>{ offersComparison ? 'header offers comparison' : 'header offers no comparison' }</span>
 	);
 }
 
@@ -212,9 +212,7 @@ jest.mock( './components', () => ( {
 	onboardingTourSteps: () => [],
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
-	RefreshFailureNotice: ( { className }: { className?: string } ) => (
-		<div data-testid="refresh-failure-notice" className={ className } />
-	),
+	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
 	SectionSyncNotice: ( {
 		percentage,
 		hasError,
@@ -394,12 +392,9 @@ describe( 'Dashboard refresh-failure notice', () => {
 		const notices = screen.getAllByTestId( 'refresh-failure-notice' );
 		expect( notices ).toHaveLength( 1 );
 
-		// Pinned right after the header, not among the widgets, so it stays reachable
-		// however far scrolled; sibling order is the assertion Testing Library lacks.
-		// eslint-disable-next-line testing-library/no-node-access -- position in the header band is what this test is for.
-		expect( notices[ 0 ].previousElementSibling ).toContainElement(
-			screen.getByText( 'header offers comparison' )
-		);
+		// Through the header's slot, so it pins with the band rather than
+		// scrolling away among the widgets.
+		expect( screen.getByTestId( 'section-header-notice' ) ).toContainElement( notices[ 0 ] );
 	} );
 } );
 
@@ -649,38 +644,37 @@ describe( 'Dashboard customizing', () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 	} );
 
-	// The layout has to be saved or dropped before the page is used again, so
-	// the controls stay in view naming the range but take nothing until then.
-	it( 'greys the date controls out while customizing', async () => {
+	it( 'hides the date controls while customizing', async () => {
 		render( <Dashboard /> );
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
-		expect( screen.getByText( 'header offers comparison, disabled' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
 		// The widgets keep reporting over the same range meanwhile.
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 	} );
 
-	it( 'greys the year surface out too', async () => {
+	it( 'hides the year surface too', async () => {
 		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
 		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 		mockSection();
 
 		render( <Dashboard /> );
-		expect( screen.getByText( 'year surface enabled' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'year surface' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'interval control' ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
-		expect( screen.getByText( 'year surface disabled' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'interval disabled' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'year surface' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'interval control' ) ).not.toBeInTheDocument();
 	} );
 
-	it.each( [ 'Done', 'Cancel' ] )( 'enables the date controls again on %s', async action => {
+	it.each( [ 'Done', 'Cancel' ] )( 'brings the date controls back on %s', async action => {
 		render( <Dashboard /> );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
-		expect( screen.getByText( 'header offers comparison, disabled' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: action } ) );
 

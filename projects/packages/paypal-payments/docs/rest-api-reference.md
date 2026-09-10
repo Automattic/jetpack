@@ -142,11 +142,14 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
 | `reusable` | string | No | `MULTIPLE` | `MULTIPLE` or `SINGLE` |
 | `line_items` | array | Yes | — | Array of line item objects (min 1) |
 | `line_items[].name` | string | Yes | — | Product name (max 127 chars) |
-| `line_items[].description` | string | No | — | Product description (max 256 chars) |
+| `line_items[].description` | string | No | — | Product description (max 2048 chars) |
 | `line_items[].unit_amount.currency_code` | string | Yes | — | ISO currency code |
 | `line_items[].unit_amount.value` | string | Yes | — | Price (positive, max 2 decimals) |
 | `line_items[].quantity` | string | No | `1` | Quantity |
 | `line_items[].image_url` | string | No | — | Product image URL |
+| `line_items[].taxes[].type` | string | No | `PERCENTAGE` | `PERCENTAGE`, `FLAT` or `PREFERENCE` |
+| `line_items[].taxes[].value` | string | No | `0` | Rate for `PERCENTAGE`, amount for `FLAT`. `PREFERENCE` always sends `PROFILE` |
+| `line_items[].taxes[].name` | string | No | — | Tax label. Sent only when set |
 | `return_url` | string | No | — | Post-payment redirect URL |
 | `name` | string | No | — | Display name for the resource |
 
@@ -175,17 +178,22 @@ List payment resources with pagination.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `page_size` | integer | No | `10` | Results per page (1–100) |
+| `page_size` | integer | No | `100` | Results per page (1–100) |
 | `page_token` | string | No | — | Pagination cursor |
 
 **Response (200):**
 
 ```json
 {
-  "items": [ ... ],
-  "total_items": 5
+  "resources": [ ... ],
+  "total_items": 5,
+  "total_pages": 1,
+  "links": [ { "rel": "next", "href": "..." } ]
 }
 ```
+
+> **Note:** PayPal's body is passed through as-is. `links` includes a `next` only when more
+> pages remain.
 
 ---
 
@@ -203,7 +211,9 @@ Get a single payment resource.
 
 Full replacement update of a payment resource. Same request body as create.
 
-**Response (200):** Updated resource object.
+**Response (200):** The request body echoed back, plus `id`. PayPal answers a successful update with
+`204 No Content`, so `status`, `payment_link` and `links` are absent - use the GET route to read
+PayPal's actual state.
 
 ---
 

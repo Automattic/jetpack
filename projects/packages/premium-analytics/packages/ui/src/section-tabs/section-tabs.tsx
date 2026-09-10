@@ -22,9 +22,8 @@ export interface SectionTabsProps< TabId extends string = string > {
 	children?: ReactNode;
 
 	/**
-	 * Optional class applied to the tab list wrapper. This component does not
-	 * own any horizontal page-gutter padding itself, so callers that render the
-	 * tab bar full-bleed (e.g. outside a padded content container) supply it here.
+	 * Optional class applied to the tab list wrapper, which already carries the
+	 * page gutter and the page header's fill.
 	 */
 	className?: string;
 

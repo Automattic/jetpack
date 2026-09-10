@@ -104,8 +104,8 @@ function haloStyle( rect: DOMRect ): CSSProperties {
 /**
  * One step of a spotlight tour: the page dims except for a halo around the
  * anchor, and a card beside it carries the step's copy, its position in the
- * tour and the way forward. Escape and the skip control, shown on focus, leave
- * the tour; clicks on the dimmed page do nothing.
+ * tour, Skip tour and the way forward. Escape and Skip tour leave the tour;
+ * clicks on the dimmed page do nothing.
  */
 export function SpotlightStep( {
 	anchor,
@@ -164,7 +164,7 @@ export function SpotlightStep( {
 					<Stack direction="column" gap="sm">
 						<Popover.Title>{ title }</Popover.Title>
 						<Popover.Description>{ description }</Popover.Description>
-						<Stack direction="row" align="center" justify="space-between" gap="md">
+						<Stack direction="row" align="center" justify="space-between" gap="md" wrap="wrap">
 							<Text variant="body-sm">
 								{ sprintf(
 									/* translators: 1: the current step number, 2: the number of steps in the tour. */
@@ -174,12 +174,8 @@ export function SpotlightStep( {
 								) }
 							</Text>
 							<Stack direction="row" align="center" gap="sm">
-								{ /* The Close part is what makes Base UI trap focus. It stays out
-								     of sight until focused, as the design draws no skip control. */ }
-								<Popover.Close
-									className={ styles.skip }
-									render={ <Button variant="minimal" tone="neutral" /> }
-								>
+								{ /* The Close part is what makes Base UI trap focus. */ }
+								<Popover.Close render={ <Button variant="minimal" tone="neutral" /> }>
 									{ __( 'Skip tour', 'jetpack-premium-analytics-pkg' ) }
 								</Popover.Close>
 								<Button ref={ nextRef } variant="solid" onClick={ onNext }>

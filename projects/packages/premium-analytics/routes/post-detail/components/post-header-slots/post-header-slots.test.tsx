@@ -27,14 +27,14 @@ const PERFORMANCE_RANGE = {
  * @return The render result.
  */
 function renderHeader( args: Parameters< typeof postHeaderSlots >[ 0 ] ) {
-	return render( <SectionHeader headingLevel={ 1 } { ...postHeaderSlots( args ) } /> );
+	return render( <SectionHeader { ...postHeaderSlots( args ) } /> );
 }
 
 describe( 'postHeaderSlots', () => {
 	it( 'shows the post identity by default: thumbnail and publish wording', () => {
 		renderHeader( { summary: SUMMARY } );
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Hello world' );
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Hello world' );
 		expect( screen.getByText( /Post published on Jan 10, 2026\./ ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'post-summary-image' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'post-summary-email-tile' ) ).not.toBeInTheDocument();
@@ -73,7 +73,7 @@ describe( 'postHeaderSlots', () => {
 	] )( 'names an unresolved %s so the page keeps its heading', ( type, heading ) => {
 		renderHeader( { summary: { ...SUMMARY, type, title: undefined, isError: true } } );
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( heading );
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( heading );
 	} );
 
 	it( 'marks the text cell busy only while the summary resolves', () => {
@@ -82,15 +82,15 @@ describe( 'postHeaderSlots', () => {
 		} );
 
 		// eslint-disable-next-line testing-library/no-node-access -- The text cell the slot fills has no accessible query target.
-		expect( screen.getByRole( 'heading', { level: 1 } ).parentElement ).toHaveAttribute(
+		expect( screen.getByRole( 'heading', { level: 2 } ).parentElement ).toHaveAttribute(
 			'aria-busy',
 			'true'
 		);
 
-		rerender( <SectionHeader headingLevel={ 1 } { ...postHeaderSlots( { summary: SUMMARY } ) } /> );
+		rerender( <SectionHeader { ...postHeaderSlots( { summary: SUMMARY } ) } /> );
 
 		// eslint-disable-next-line testing-library/no-node-access -- The text cell the slot fills has no accessible query target.
-		expect( screen.getByRole( 'heading', { level: 1 } ).parentElement ).not.toHaveAttribute(
+		expect( screen.getByRole( 'heading', { level: 2 } ).parentElement ).not.toHaveAttribute(
 			'aria-busy'
 		);
 	} );
