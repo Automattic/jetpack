@@ -4,8 +4,8 @@
  *
  * Serves a root-level `/llms.txt` — the emerging convention (llmstxt.org) for
  * giving AI assistants a curated, Markdown map of a site's key content. Gated on
- * the durable option `jetpack_seo_llms_txt_enabled` (round-tripped through the
- * existing `/jetpack/v4/settings` endpoint by the AI tab).
+ * the durable option `jetpack_seo_llms_txt_enabled` (round-tripped through core's
+ * `/wp/v2/settings` endpoint by the AI tab).
  *
  * Serving approach: this hooks `template_redirect` and inspects the raw request
  * path rather than registering a rewrite rule, so it needs no rewrite flush and

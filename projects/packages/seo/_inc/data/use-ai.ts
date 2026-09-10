@@ -10,6 +10,11 @@ import type { AiCrawler, AiState } from './ai-types';
 // in place by "Settings saved." (or an error) — matches the Settings tab.
 const SAVE_NOTICE_ID = 'jetpack-seo-ai-save';
 
+// WordPress core's settings endpoint. Every AI toggle is an option registered
+// with `show_in_rest` server-side, so it round-trips through core REST — which
+// exists on every platform the dashboard runs on.
+const CORE_SETTINGS_PATH = '/wp/v2/settings';
+
 export interface AiForm {
 	enhancer: AiState[ 'enhancer' ] | null;
 	llmsTxt: AiState[ 'llmsTxt' ] | null;
@@ -27,10 +32,9 @@ export interface AiForm {
 
 /**
  * Owns the AI tab's form state: seeds from the page bootstrap and auto-saves each
- * toggle through `/jetpack/v4/settings` (the same endpoint the legacy Traffic
- * page used). There's no Save button — toggles save on change, surfacing the
- * shared "Updating settings…"→"Settings saved." snackbar. On failure the local
- * value reverts.
+ * toggle through WordPress core's `/wp/v2/settings`. There's no Save button —
+ * toggles save on change, surfacing the shared "Updating settings…"→"Settings
+ * saved." snackbar. On failure the local value reverts.
  *
  * The AI tab is its own route, so this controller remounts on every tab switch.
  * Each slice is seeded from (and written back to) [ai-store] rather than the
@@ -67,7 +71,7 @@ export function useAiForm(): AiForm {
 				type: 'snackbar',
 				isDismissible: false,
 			} );
-			apiFetch( { path: '/jetpack/v4/settings', method: 'POST', data } )
+			apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data } )
 				.then( () => {
 					onSuccess();
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {

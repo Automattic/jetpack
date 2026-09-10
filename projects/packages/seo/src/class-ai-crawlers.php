@@ -30,8 +30,8 @@ class Ai_Crawlers {
 	/**
 	 * Option holding the sparse map of per-crawler overrides
 	 * (`slug => bool`, true = blocked). Only entries that deviate from the bot's
-	 * default policy are stored. Mirrored in the plugin's settings endpoint
-	 * whitelist (`jp_group => 'seo-tools'`).
+	 * default policy are stored. Registered with `show_in_rest` by
+	 * {@see Dashboard_Data::register_rest_settings()} so the AI tab can save it.
 	 *
 	 * @var string
 	 */

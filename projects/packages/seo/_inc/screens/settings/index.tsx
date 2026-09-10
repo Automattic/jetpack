@@ -11,6 +11,7 @@ import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import UpsellBanner from '../../components/upsell-banner';
 import { isGated } from '../../data/is-gated';
+import isVerificationSwitchable from '../../data/is-verification-switchable';
 import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
 import SchemaCard from './schema-card';
@@ -275,7 +276,14 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				<VerificationCard
 					value={ local.verification }
 					active={ local.verification_tools_active }
-					onToggle={ next => commit( { verification_tools_active: next } ) }
+					// Hidden where that module isn't present: it reads as active there no
+					// matter what, so the toggle would be refused and snap back. The codes
+					// themselves still save.
+					onToggle={
+						isVerificationSwitchable()
+							? next => commit( { verification_tools_active: next } )
+							: undefined
+					}
 					onChange={ setVerification }
 					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }

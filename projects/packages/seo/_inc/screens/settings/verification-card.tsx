@@ -15,7 +15,12 @@ import type { FC } from 'react';
 interface Props {
 	value: SettingsResponse[ 'verification' ];
 	active: boolean;
-	onToggle: ( active: boolean ) => void;
+	/**
+	 * Switch the verification-tools module. Omitted where the site can't switch
+	 * Jetpack modules (WordPress.com Simple), which hides the control rather than
+	 * offering one the server would refuse.
+	 */
+	onToggle?: ( active: boolean ) => void;
 	onChange: ( key: VerificationKey, value: string ) => void;
 	/** Save the current value — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
@@ -34,11 +39,10 @@ const description = __(
 // brand labels live in `data/verification-services` (single source of truth).
 //
 // Each hint names where to fetch the tag and says both forms are accepted. This
-// page saves through `/jetpack/v4/settings`, which validates the value
-// (`validate_verification_service()`) and stores it; the code is unwrapped from a
-// pasted tag on the way in (`class.jetpack-core-api-module-endpoints.php`) and
-// again at render (`jetpack_verification_print_meta()`). Both unwrappers expect
-// the `<meta name="…" content="…" />` shape the services actually emit.
+// page saves through `/wp/v2/settings`, and the code is unwrapped from a pasted
+// tag on the way in (`Dashboard_Data::sanitize_verification_codes()`) and again
+// at render (`jetpack_verification_print_meta()`). Both unwrappers expect the
+// `<meta name="…" content="…" />` shape the services actually emit.
 // Deliberately not repeating each service's own name for the tag ("HTML tag",
 // "HTML Meta Tag", …): those are third-party UI labels that drift out of date.
 //
@@ -107,17 +111,19 @@ const VerificationCard: FC< Props > = ( {
 					<Text variant="body-md" render={ <p /> }>
 						{ description }
 					</Text>
-					<ToggleControl
-						label={ __( 'Enable site verification', 'jetpack-seo' ) }
-						help={ __(
-							'Adds your saved verification codes to the site so supported services can confirm ownership.',
-							'jetpack-seo'
-						) }
-						checked={ active }
-						onChange={ onToggle }
-						disabled={ disabled }
-						__nextHasNoMarginBottom
-					/>
+					{ onToggle && (
+						<ToggleControl
+							label={ __( 'Enable site verification', 'jetpack-seo' ) }
+							help={ __(
+								'Adds your saved verification codes to the site so supported services can confirm ownership.',
+								'jetpack-seo'
+							) }
+							checked={ active }
+							onChange={ onToggle }
+							disabled={ disabled }
+							__nextHasNoMarginBottom
+						/>
+					) }
 					{ /* Google gets the keyring auto-verify flow; the rest are simple code fields. */ }
 					<GoogleVerificationField
 						value={ value.google }

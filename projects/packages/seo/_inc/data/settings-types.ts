@@ -1,7 +1,8 @@
 // Shape of the editable Settings state the server bootstraps onto
 // `window.JetpackScriptData.seo.settings` (see `Dashboard_Data::get_settings_data()`).
-// Most writes go through `/jetpack/v4/settings`; nested Schema writes use the
-// package-owned schema-settings route.
+// Fields backed by an option alone save through core's `/wp/v2/settings`; the three
+// whose write switches a Jetpack module — sitemap, canonical URLs and site
+// verification — and the nested Schema container use package-owned routes.
 
 import type { SchemaSettings } from './schema-settings-types';
 

@@ -213,10 +213,10 @@ class Initializer {
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
-		// endpoints until then. Expose the core `blog_public` option to the REST settings
-		// endpoint so the Settings tab can save search-engine visibility via
-		// `/wp/v2/settings` (the Jetpack settings endpoint only accepts Jetpack options).
-		// Writes are still capability-gated by the core settings controller.
+		// endpoints until then. Everything the dashboard saves is exposed to WordPress
+		// core's `/wp/v2/settings` endpoint, which exists on every platform the package
+		// runs on and capability-gates writes itself; module activation, the one thing
+		// `register_setting()` can't express, has its own package-owned route.
 		if ( self::is_seo_tools_module_active() ) {
 			// Front-end JSON-LD schema output and author profile schema fields.
 			// Intentionally NOT gated: every site keeps emitting its structured data —
@@ -241,7 +241,13 @@ class Initializer {
 				Ai_Crawlers::init();
 			}
 
-			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) );
+			// On `rest_api_init` rather than here: which option the front page description
+			// is stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
+			// plugin can add from anywhere up to the end of `init`. Priority 5 is after all
+			// of those and before core builds the settings route at 99.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
+			// Package-owned route for the three settings whose write switches a Jetpack module.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
 		}
