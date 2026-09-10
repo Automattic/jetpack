@@ -1,4 +1,3 @@
 Significance: patch
-Type: fixed
-
-Improve error handling and chart interaction in the experimental dashboard.
+Type: changed
+Comment: Improve Overview error handling and chart interaction behind the disabled filter.
