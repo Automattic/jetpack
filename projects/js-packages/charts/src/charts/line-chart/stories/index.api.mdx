@@ -20,8 +20,8 @@ Main chart component with responsive behavior by default.
 | `withGradientFill` | `boolean` | `false` | Fill area under lines with gradient |
 | `withTooltips` | `boolean` | `true` | Enable interactive tooltips |
 | `tooltipPlacement` | `'auto' \| 'below-axis'` | `'auto'` | Position the tooltip near the datum or below the bottom x-axis label band, anchored at the datum's x coordinate |
-| `tooltipStyle` | `CSSProperties` | - | Override the container styles. The default renderer inherits color overrides, and a color-only override retains the default dark tooltip surface. |
-| `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean; verticalStyle?: SVGProps<SVGLineElement>; horizontalStyle?: SVGProps<SVGLineElement> }?` | - | Show crosshair guides with optional SVG line properties for each direction |
+| `tooltipStyle` | `CSSProperties` | - | Override the container styles. The default renderer applies each color override independently, preserving its label or surface token when that property is omitted. |
+| `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean; verticalStyle?: CrosshairStyle; horizontalStyle?: CrosshairStyle }?` | - | Show crosshair guides with paint-only styles for each direction: stroke, strokeWidth, strokeOpacity, strokeDasharray, strokeLinecap, opacity, className, and inline style limited to the same paint properties |
 | `zoomable` | `boolean?` | `false` | Enable drag-to-zoom on the X axis. Dragging horizontally rescales the X axis to the selected range; a "Reset zoom" button appears in the top-right while zoomed |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a rising effect where lines scale up from the bottom. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Display chart legend |

@@ -138,3 +138,5 @@ export {
 export * from './utils/color-utils';
 export type { MetricValueType } from './utils';
 export type { BucketInfo } from './types';
+
+export type { CrosshairStyle } from './visx/types';

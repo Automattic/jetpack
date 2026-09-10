@@ -140,27 +140,41 @@ describe( 'LineChart', () => {
 	);
 	test.each( [
 		[ { color: 'white' }, 'white', 'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))' ],
-		[ { backgroundColor: 'white' }, 'rgb(30, 30, 30)', 'white' ],
-		[ { background: 'white' }, 'rgb(30, 30, 30)', 'white' ],
+		[ { backgroundColor: 'white' }, 'var(--a8c-charts-color-label)', 'white' ],
+		[ { background: 'white' }, 'var(--a8c-charts-color-label)', 'white' ],
 		[ { color: 'white', background: 'black' }, 'white', 'black' ],
 	] )(
 		'applies directional tooltip color defaults: %j',
 		async ( tooltipStyle, color, background ) => {
 			const user = userEvent.setup();
-			renderWithTheme( { tooltipStyle } );
+			const defaults = document.createElement( 'style' );
+			defaults.textContent = `.line-chart__tooltip {
+				color: var(--a8c-charts-color-label);
+				background: var(--a8c-charts-color-surface);
+			}`;
+			const { container: chart } = renderWithTheme( { tooltipStyle } );
+			chart.appendChild( defaults );
+			chart.style.setProperty( '--a8c-charts-color-label', '#000' );
+			chart.style.setProperty( '--a8c-charts-color-label-axis', '#aaa' );
+			chart.style.setProperty( '--a8c-charts-color-surface', '#fff' );
 			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
 			await user.keyboard( '{ArrowRight}' );
 
 			const content = screen.getByTestId( 'line-chart-tooltip-content' );
-			expect( content.style.getPropertyValue( 'color' ) ).toBe( 'inherit' );
-			expect( content.style.getPropertyValue( 'background' ) ).toBe( 'inherit' );
+			expect( content ).toHaveStyle( {
+				color,
+				background:
+					'background' in tooltipStyle || 'backgroundColor' in tooltipStyle
+						? background
+						: 'var(--a8c-charts-color-surface)',
+			} );
 			const container = screen.getByTestId( 'bounded-tooltip' );
-			expect( container.style.getPropertyValue( 'color' ) ).toBe( color );
-			expect(
-				container.style.getPropertyValue(
-					'background' in tooltipStyle ? 'background' : 'background-color'
-				)
-			).toBe( background );
+			if ( 'color' in tooltipStyle && tooltipStyle.color ) {
+				expect( container ).toHaveStyle( { color: tooltipStyle.color } );
+			}
+			expect( container ).toHaveStyle( {
+				[ 'background' in tooltipStyle ? 'background' : 'background-color' ]: background,
+			} );
 		}
 	);
 

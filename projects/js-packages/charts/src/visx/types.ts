@@ -1,7 +1,7 @@
 import type { PickD3Scale } from '@visx/scale';
 import type { TooltipProps as VisxTooltipProps, UseTooltipPortalOptions } from '@visx/tooltip';
 import type { GlyphProps, TooltipContextType } from '@visx/xychart';
-import type { ReactNode, SVGProps } from 'react';
+import type { CSSProperties, ReactNode, SVGProps } from 'react';
 
 export type RenderTooltipParams< Datum extends object > = TooltipContextType< Datum > & {
 	colorScale?: PickD3Scale< 'ordinal', string, string >;
@@ -13,6 +13,19 @@ export interface RenderTooltipGlyphProps< Datum extends object > extends GlyphPr
 }
 
 export type TooltipPlacement = 'auto' | 'below-axis';
+
+type CrosshairPaintProperty =
+	| 'stroke'
+	| 'strokeWidth'
+	| 'strokeOpacity'
+	| 'strokeDasharray'
+	| 'strokeLinecap'
+	| 'opacity';
+
+export type CrosshairStyle = Pick< SVGProps< SVGLineElement >, CrosshairPaintProperty > & {
+	className?: string;
+	style?: Pick< CSSProperties, CrosshairPaintProperty >;
+};
 
 export type XyChartTooltipProps< Datum extends object > = {
 	renderTooltip: ( params: RenderTooltipParams< Datum > ) => ReactNode;
@@ -31,8 +44,8 @@ export type XyChartTooltipProps< Datum extends object > = {
 	showHorizontalCrosshair?: boolean;
 	showDatumGlyph?: boolean;
 	showSeriesGlyphs?: boolean;
-	verticalCrosshairStyle?: SVGProps< SVGLineElement >;
-	horizontalCrosshairStyle?: SVGProps< SVGLineElement >;
+	verticalCrosshairStyle?: CrosshairStyle;
+	horizontalCrosshairStyle?: CrosshairStyle;
 	glyphStyle?: SVGProps< SVGCircleElement >;
 	/**
 	 * Flip and clamp the tooltip box so it stays inside the nearest ancestor

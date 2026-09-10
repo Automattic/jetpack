@@ -58,7 +58,7 @@ import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
-import type { FC, Ref } from 'react';
+import type { CSSProperties, FC, Ref } from 'react';
 
 const defaultRenderGlyph = < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => {
 	return <DefaultGlyph { ...props } key={ props.key } />;
@@ -109,12 +109,12 @@ const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution
  * value. Reused by AreaChart, which has the same multi-series shape.
  *
  * @param params        - visx tooltip data and the chart's optional `bucketInfo`.
- * @param inheritStyles - Inherit the paired container colors when true.
+ * @param contentStyle  - Explicit tooltip content color overrides.
  * @return Tooltip JSX, or `null` when no datum is hovered.
  */
 export const renderDefaultTooltip = (
 	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo },
-	inheritStyles = false
+	contentStyle?: Pick< CSSProperties, 'color' | 'background' | 'backgroundColor' >
 ) => {
 	const { tooltipData, bucketInfo } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -131,7 +131,7 @@ export const renderDefaultTooltip = (
 		<div
 			className={ styles[ 'line-chart__tooltip' ] }
 			data-testid="line-chart-tooltip-content"
-			style={ inheritStyles ? { background: 'inherit', color: 'inherit' } : undefined }
+			style={ contentStyle }
 		>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
 				<TooltipDate
@@ -500,14 +500,14 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				renderTooltip === renderDefaultTooltip
 					? renderDefaultTooltip(
 							{ ...params, bucketInfo },
-							Boolean(
-								resolvedTooltipStyle?.color ||
-									resolvedTooltipStyle?.background ||
-									resolvedTooltipStyle?.backgroundColor
-							)
+							{
+								color: tooltipStyle?.color,
+								background: tooltipStyle?.background,
+								backgroundColor: tooltipStyle?.backgroundColor,
+							}
 					  )
 					: renderTooltip( { ...params, bucketInfo } ),
-			[ renderTooltip, bucketInfo, resolvedTooltipStyle ]
+			[ renderTooltip, bucketInfo, tooltipStyle ]
 		);
 
 		if ( error ) {

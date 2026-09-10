@@ -8,7 +8,7 @@ import type {
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
-import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
+import type { CrosshairStyle, RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { GlyphProps } from '@visx/xychart';
 import type { ReactNode, SVGProps, FC, CSSProperties } from 'react';
 
@@ -30,8 +30,6 @@ export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > &
 	position?: 'start' | 'end';
 };
 
-type CrosshairStyle = Omit< SVGProps< SVGLineElement >, 'x1' | 'x2' | 'y1' | 'y2' >;
-
 export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
@@ -50,7 +48,7 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	tooltipPlacement?: XyChartTooltipProps< DataPointDate >[ 'tooltipPlacement' ];
 	/**
 	 * Inline container styles. A color-only override retains the default dark tooltip surface.
-	 * The default renderer inherits both colors. See Below-Axis Tooltips in stories/index.docs.mdx.
+	 * Content color overrides affect only the named property. See Below-Axis Tooltips in stories/index.docs.mdx.
 	 */
 	tooltipStyle?: CSSProperties;
 	withStartGlyphs?: boolean;

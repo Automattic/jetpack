@@ -283,6 +283,38 @@ describe( 'XyChartTooltip', () => {
 		expect( horizontal ).toHaveAttribute( 'x2', '180' );
 	} );
 
+	test( 'applies crosshair paint without allowing geometry overrides', async () => {
+		const consumerStyle = {
+			stroke: 'purple',
+			strokeWidth: 8,
+			className: 'custom-crosshair',
+			x1: 999,
+			transform: 'translate(100 0)',
+			style: { strokeOpacity: 0.25, transform: 'translateX(100px)' },
+		};
+		renderChart( {
+			snapTooltipToDatumX: true,
+			snapTooltipToDatumY: true,
+			showVerticalCrosshair: true,
+			showHorizontalCrosshair: true,
+			verticalCrosshairStyle: consumerStyle,
+			horizontalCrosshairStyle: consumerStyle,
+		} );
+
+		for ( const direction of [ 'vertical', 'horizontal' ] ) {
+			const guide = await screen.findByTestId( `xy-chart-tooltip-crosshair-${ direction }` );
+			expect( guide ).toHaveAttribute( 'stroke', 'purple' );
+			expect( guide ).toHaveAttribute( 'stroke-width', '8' );
+			expect( guide ).toHaveClass( 'custom-crosshair' );
+			expect( guide ).toHaveStyle( { strokeOpacity: '0.25', transform: '' } );
+			expect( guide ).not.toHaveAttribute( 'transform' );
+			expect( guide ).toHaveAttribute( 'x1', direction === 'vertical' ? '100' : '0' );
+			expect( guide ).toHaveAttribute( 'x2', direction === 'vertical' ? '100' : '200' );
+			expect( guide ).toHaveAttribute( 'y1', direction === 'vertical' ? '0' : '50' );
+			expect( guide ).toHaveAttribute( 'y2', direction === 'vertical' ? '100' : '50' );
+		}
+	} );
+
 	test( 'stacks the box above the chart overlays, with zIndex as the override', async () => {
 		const { unmount } = renderChart();
 		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( { zIndex: '3' } );
