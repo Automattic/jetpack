@@ -23,7 +23,7 @@ $min-card-width: 155px;
 	margin-bottom: $spacing-vertical;
 
 	&[href] {
-		cursor: pointer;
+		cursor: var(--wpds-cursor-control);
 	}
 }
 

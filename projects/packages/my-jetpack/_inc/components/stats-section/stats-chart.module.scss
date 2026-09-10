@@ -10,7 +10,7 @@
 	box-sizing: border-box;
 
 	&[href] {
-		cursor: pointer;
+		cursor: var(--wpds-cursor-control);
 	}
 
 	.chart-empty {
