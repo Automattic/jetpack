@@ -153,28 +153,27 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 	window.jetpack_boost_ds!.modules_state!.value = initialModules;
 	legacyQueryClient.clear();
 	const stopObserving = observeLegacyModulesState( legacyQueryClient );
-	const originalFetch = globalThis.fetch;
-	globalThis.fetch = jest.fn().mockImplementation( async ( url, options ) => {
+	const fetchSpy = jest.spyOn( globalThis, 'fetch' ).mockImplementation( async ( url, options ) => {
 		if ( options.method === 'POST' ) {
-			savedModules = JSON.parse( options.body ).JSON;
+			savedModules = JSON.parse( options.body as string ).JSON;
 		}
 		return {
 			ok: true,
 			text: async () => JSON.stringify( { status: 'success', JSON: savedModules } ),
-		};
+		} as Response;
 	} );
 	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
-	jest.mocked( apiFetch ).mockImplementation( options =>
-		options.url?.endsWith( '/modules-state' )
-			? Promise.resolve( { status: 'success', JSON: savedModules } )
-			: fetch( options )
-	);
+	jest
+		.mocked( apiFetch )
+		.mockImplementation( options =>
+			options.url?.endsWith( '/modules-state' )
+				? Promise.resolve( { status: 'success', JSON: savedModules } )
+				: fetch( options )
+		);
 	function SettingsToggle() {
 		const [ state, setState ] = useSingleModuleState( 'defer_js' );
 		return (
-			<button onClick={ () => setState( ! state?.active ) }>
-				Defer Non-Essential JavaScript
-			</button>
+			<button onClick={ () => setState( ! state?.active ) }>Defer Non-Essential JavaScript</button>
 		);
 	}
 	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
@@ -217,7 +216,7 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 		view.unmount();
 		client.clear();
 		legacyQueryClient.clear();
-		globalThis.fetch = originalFetch;
+		fetchSpy.mockRestore();
 	}
 } );
 
