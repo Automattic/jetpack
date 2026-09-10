@@ -1,3 +1,4 @@
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import {
 	formatAxisTickDate,
 	formatDate,
@@ -9,6 +10,11 @@ import {
 	calcLeftAxisMargin,
 } from '../src/helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
+
+jest.mock( '../../../../_inc/shared/analytics-url', () => ( {
+	getAnalyticsUrl: jest.fn( () => 'https://example.com/wp-admin/analytics' ),
+	hasAnalyticsDashboard: jest.fn( () => true ),
+} ) );
 
 describe( 'helpers', () => {
 	describe( 'formatDate', () => {
@@ -137,11 +143,37 @@ describe( 'helpers', () => {
 		const testSite = 'example.com';
 		const testAdminUrl = 'https://example.com/wp-admin/';
 
-		it( 'returns WP-admin URL', () => {
+		beforeEach( () => {
+			jest.mocked( getAnalyticsUrl ).mockClear();
+			jest.mocked( hasAnalyticsDashboard ).mockReturnValue( true );
+		} );
+
+		// Where the dashboard is the analytics UI, delegate to the shared helper —
+		// it owns that URL grammar, so this asserts the request, not the URL.
+		it( 'asks for the subscribers view of the analytics dashboard', () => {
 			const url = getSubscriberStatsUrl( testSite, testAdminUrl );
-			expect( url ).toBe(
+
+			expect( getAnalyticsUrl ).toHaveBeenCalledWith( {
+				view: 'dashboard',
+				section: 'subscribers',
+			} );
+			expect( url ).toBe( 'https://example.com/wp-admin/analytics' );
+		} );
+
+		it( 'passes through null when the user cannot open the dashboard', () => {
+			jest.mocked( getAnalyticsUrl ).mockReturnValueOnce( null );
+
+			expect( getSubscriberStatsUrl( testSite, testAdminUrl ) ).toBeNull();
+		} );
+
+		// Everywhere else the existing Stats deep link is untouched.
+		it( 'returns the Stats deep link when the dashboard has not replaced it', () => {
+			jest.mocked( hasAnalyticsDashboard ).mockReturnValue( false );
+
+			expect( getSubscriberStatsUrl( testSite, testAdminUrl ) ).toBe(
 				`${ testAdminUrl }admin.php?page=stats#!/stats/subscribers/${ testSite }`
 			);
+			expect( getAnalyticsUrl ).not.toHaveBeenCalled();
 		} );
 	} );
 

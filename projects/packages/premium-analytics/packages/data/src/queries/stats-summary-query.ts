@@ -21,9 +21,6 @@ export type StatsSummaryParams = StatsReportParams;
  * in the range (inclusive). The comparison period is fetched by `useReport`,
  * which re-invokes this factory with the compare window swapped into `from`/`to`,
  * so the date-range conversion stays here rather than in the widget.
- *
- * @param params - Report params carrying the dashboard date range.
- * @return The query options for the summary report.
  */
 export const statsSummaryQuery = (
 	params: StatsSummaryParams

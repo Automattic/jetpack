@@ -64,13 +64,6 @@ const ALL_METRICS_ARGS = {
 	metrics: DEFAULT_ALL_TIME_STATS_METRICS,
 } as const;
 
-/**
- * Renders the data-connected widget with report params derived from the
- * date-range picker preset and the selected metrics.
- *
- * @param {AllTimeStatsStoryControls} props - The story controls.
- * @return The rendered widget.
- */
 function renderAllTimeStats( { metrics }: AllTimeStatsStoryControls ) {
 	return <AllTimeStatsRender attributes={ { reportParams: getDefaultQueryParams(), metrics } } />;
 }
@@ -90,9 +83,6 @@ function renderAllTimeStatsOnPreset( preset: PresetType ) {
  * Evict the query from the shared client on enter and on cleanup so each
  * forced-state story hits the mock fresh (and no forced result leaks into the
  * sibling stories).
- *
- * @param state - The forced state.
- * @return The story cleanup callback.
  */
 function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 	// The bare `/proxy/v1.1/stats` site-summary endpoint — the only stats
@@ -173,13 +163,6 @@ interface AllTimeStatsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		AllTimeStatsStoryControls {}
 
-/**
- * Renders the data-connected widget through the shared dashboard harness, so it
- * appears exactly as it does in product (framed card, sizing, edit mode).
- *
- * @param {AllTimeStatsDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real `WidgetDashboard`.
- */
 function AllTimeStatsDashboardStory( {
 	metrics,
 	...dashboardArgs

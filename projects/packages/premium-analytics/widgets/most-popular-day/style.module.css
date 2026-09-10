@@ -1,20 +1,30 @@
+/* The default tile is two rows tall, where both fields fit. Resized down to one
+ * row the display figures outgrow the body, so scroll rather than clip. */
 .root {
 	container-type: inline-size;
-	height: 100%;
-	overflow: hidden;
+	block-size: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .content {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 0;
-	min-height: 0;
+	min-block-size: 0;
 }
 
-/* Fill the WidgetState ready area so the highlight stays centered. */
+/* Fill the WidgetState ready area so the highlight stays centered. A minimum
+ * rather than a fixed size: on a tile too short for both fields the box grows
+ * to them, so `justify: center` has no free space to distribute and the
+ * overflow falls below the fold, where `.root` can scroll to it. A fixed size
+ * would center the overflow and push the first field past the top edge.
+ *
+ * `widget-state.module.scss` solves the same problem with auto margins because
+ * it cannot beat the Stack's inline `justify-content`; here the Stack is ours,
+ * so growing the box keeps that prop meaningful on a tile that has room. */
 .highlight {
-	height: 100%;
+	min-block-size: 100%;
 }
 
 .caption {

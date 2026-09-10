@@ -22,14 +22,28 @@ const reportUtmTabs = defineReportTabs< UtmReportTabId >(
 		{
 			id: 'source-medium',
 			getLabel: () => __( 'Source / Medium', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Source / Medium report', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'campaign-source-medium',
 			getLabel: () => __( 'Campaign / Source / Medium', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Campaign / Source / Medium report', 'jetpack-premium-analytics-pkg' ),
 		},
-		{ id: 'source', getLabel: () => __( 'Source', 'jetpack-premium-analytics-pkg' ) },
-		{ id: 'medium', getLabel: () => __( 'Medium', 'jetpack-premium-analytics-pkg' ) },
-		{ id: 'campaign', getLabel: () => __( 'Campaign', 'jetpack-premium-analytics-pkg' ) },
+		{
+			id: 'source',
+			getLabel: () => __( 'Source', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Source report', 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			id: 'medium',
+			getLabel: () => __( 'Medium', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Medium report', 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			id: 'campaign',
+			getLabel: () => __( 'Campaign', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Campaign report', 'jetpack-premium-analytics-pkg' ),
+		},
 	],
 	DEFAULT_TAB_ID
 );
@@ -50,6 +64,9 @@ export const getUtmTabLabel = reportUtmTabs.getTabLabel;
 
 /** Resolve an arbitrary URL section to a supported UTM report tab. */
 export const resolveSection = reportUtmTabs.resolve;
+
+/** Heading for the active tab's section, where the tab declares one. */
+export const getTabTitle = reportUtmTabs.getTabTitle;
 
 /**
  * Map a report tab to the UTM endpoint's parameter dimension.

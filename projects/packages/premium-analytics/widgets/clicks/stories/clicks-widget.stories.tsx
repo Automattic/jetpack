@@ -40,20 +40,12 @@ interface ClicksDashboardStoryProps
 		ClicksStoryControls {}
 
 function renderClicksWidget( { withComparison }: ClicksStoryControls ) {
-	return (
-		<ClicksRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
+	return <ClicksRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderClicksOnPreset( preset: PresetType ) {
-	return (
-		<ClicksRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
-	);
+	return <ClicksRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />;
 }
 
 function ClicksDashboardStory( { withComparison, ...dashboardArgs }: ClicksDashboardStoryProps ) {
@@ -63,7 +55,7 @@ function ClicksDashboardStory( { withComparison, ...dashboardArgs }: ClicksDashb
 			widgetType={ storyWidgetType }
 			renderModule={ CLICKS_RENDER_MODULE }
 			renderComponent={ ClicksRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
@@ -109,8 +101,8 @@ export const WithComparison: Story = {
  * First load: the fetch is in flight, so the widget shows its loading state. The
  * mock is forced to never resolve for the duration of this story.
  *
- * Forced through `forceStatsMockState`: `stats/clicks` is answered by the legacy
- * stats mocks before the shared `setReportMockState` override can intercept it.
+ * Uses `forceStatsMockState`: the legacy stats mocks answer `stats/clicks`
+ * before `setReportMockState` can intercept it.
  */
 export const Loading: Story = {
 	render: () => renderClicksOnPreset( 'last-90-days' ),

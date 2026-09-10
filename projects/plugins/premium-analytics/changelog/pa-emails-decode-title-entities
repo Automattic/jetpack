@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Latest emails sent: Show subject lines with characters like "&" instead of their HTML codes.

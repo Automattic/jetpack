@@ -19,7 +19,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Handles CSV exports for the Orders Fulfilled Over Time report, supporting both
  * single interval and comparison interval data. Filters orders by fulfillment status.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Orders_Fulfilled_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 

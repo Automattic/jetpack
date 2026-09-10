@@ -1,14 +1,8 @@
 <?php
 /**
- * Widget availability policy (consumer layer).
- *
- * Premium Analytics' policy over the neutral filters in widget-types.php:
- * availability is the consumer's job, core only offers the hooks.
- *
- * Policies are hooked on the registry-time filter (a hard hide, which keeps
- * every registry consumer correct without a filtered accessor): developer-only
- * widget types are never registered in production, Simple-only types are only
- * registered on WPCOM Simple, and commerce categories require their plugins.
+ * Widget availability policy (consumer layer): hides developer-only, Simple-only, and
+ * plugin-gated widget types at registry time — a hard hide, so every consumer of the
+ * registry sees the same set, over the neutral hooks in widget-types.php.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -30,6 +24,13 @@ const WOOCOMMERCE_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons' );
  * extension cannot run without WooCommerce, so its presence implies both.
  */
 const WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
+
+/**
+ * Widget categories whose data counts as a store report — by data source, not subject
+ * matter: each reaches WPCOM via the proxy's `analytics` prefix (gated on
+ * `view_woocommerce_reports`), including `visitors`, which reads `sessions/…` from it.
+ */
+const STORE_REPORT_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons', 'bookings', 'visitors' );
 
 /**
  * Removes developer-only candidates in production.
@@ -133,14 +134,9 @@ function is_bookings_plugin_active() {
 }
 
 /**
- * Registry-time callback: hides commerce widget categories without their plugin.
- *
- * WooCommerce availability is read through the store section's signal
- * (dashboard-sections.php, including its availability filter) so section and
- * widgets can't disagree — a consumer overriding the section filter gets
- * matching widget types. Both dashboard entry points load
- * dashboard-sections.php before the widget registry can hydrate, so the
- * function is always defined by the time this callback runs.
+ * Registry-time callback: hides commerce categories without their plugin, reading
+ * WooCommerce availability through the store section's signal so section and widgets
+ * agree; both entry points load dashboard-sections.php before the registry hydrates.
  *
  * @param array $widget_candidates Manifest candidates.
  * @return array The candidates, minus commerce categories missing their plugin.
@@ -154,3 +150,51 @@ function filter_registrable_widget_types_by_plugin( $widget_candidates ) {
 }
 
 add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_plugin' );
+
+// Subscriber widgets stay registered even when their section is hidden: their data
+// doesn't depend on the local module, and unregistering would break instances placed elsewhere.
+
+/**
+ * Removes candidates the reader could not load data for anyway.
+ *
+ * Split from the hook callback so both branches are testable without a user.
+ *
+ * @since 0.1.0
+ *
+ * @param array $widget_candidates      Manifest candidates, each with a `category`.
+ * @param bool  $can_view_store_reports Whether the reader may see the store reports.
+ * @return array The candidates, minus the store-report categories for readers who can't.
+ */
+function remove_capability_gated_widget_types( $widget_candidates, $can_view_store_reports ) {
+	if ( $can_view_store_reports ) {
+		return $widget_candidates;
+	}
+
+	return array_values(
+		array_filter(
+			$widget_candidates,
+			static function ( $widget ) {
+				return ! in_array( $widget['category'] ?? '', STORE_REPORT_WIDGET_CATEGORIES, true );
+			}
+		)
+	);
+}
+
+/**
+ * Registry-time callback: hides widgets whose data the reader cannot fetch — a
+ * `view_stats` reader would only collect 403s from the proxy's `analytics` prefix.
+ * The registry is request-scoped, so filtering on the current user is safe here.
+ *
+ * @since 0.1.0
+ *
+ * @param array $widget_candidates Manifest candidates.
+ * @return array The candidates, minus the store-report categories for readers who can't see them.
+ */
+function filter_registrable_widget_types_by_capability( $widget_candidates ) {
+	return remove_capability_gated_widget_types(
+		$widget_candidates,
+		Capabilities::current_user_can_view_store_reports()
+	);
+}
+
+add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_capability' );

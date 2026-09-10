@@ -16,14 +16,36 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK__PLUGIN_FILE', __FILE__ );
 
+// Mirrors the real plugin's helper (functions.global.php). Defaults to true so
+// module-backed behavior is what tests see unless they opt out; flip
+// $GLOBALS['jetpack_mock_internal_testing_environment'] to exercise the
+// pre-release AI gate.
+function jetpack_is_internal_testing_environment() {
+	return $GLOBALS['jetpack_mock_internal_testing_environment'] ?? true;
+}
+
 class Jetpack {
 
 	static $active_modules = array();
+	static $available_modules = array( 'ai' );
 
 	static $return_false = false; // Force return false in action methods.
 
+	// Whether the Premium Analytics dashboard replaces the Stats page. Named apart from the real
+	// plugin's own private static of the same purpose, so tests setting it can't be confused for
+	// reaching into that one.
+	static $mock_premium_analytics_enabled = false;
+
+	public static function is_premium_analytics_enabled() {
+		return self::$mock_premium_analytics_enabled;
+	}
+
 	public static function is_module_active( $module_name ) {
 		return in_array( $module_name, self::$active_modules );
+	}
+
+	public static function is_module( $module_name ) {
+		return in_array( $module_name, self::$available_modules, true );
 	}
 
 	public static function activate_module( $module_name, $exit = true, $redirect = true ) {
@@ -50,6 +72,12 @@ class Jetpack {
 	}
 
 	public static function is_connection_ready() {
+		return true;
+	}
+}
+
+class Jetpack_AI_Settings {
+	public static function is_feature_enabled( $feature ) {
 		return true;
 	}
 }

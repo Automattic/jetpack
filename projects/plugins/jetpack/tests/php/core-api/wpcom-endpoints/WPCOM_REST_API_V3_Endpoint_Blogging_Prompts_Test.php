@@ -221,6 +221,118 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts_Test extends Jetpack_REST_Test
 	}
 
 	/**
+	 * Tests that modify_query() leaves queries for other post types alone.
+	 */
+	public function test_modify_query_ignores_other_post_types() {
+		$endpoint = new WPCOM_REST_API_V3_Endpoint_Blogging_Prompts();
+		$original = array(
+			array(
+				'column' => 'post_date',
+				'after'  => '--02-28',
+			),
+		);
+
+		$query = new WP_Query();
+		$query->set( 'post_type', 'wp_global_styles' );
+		$query->set( 'date_query', $original );
+
+		$endpoint->modify_query( $query );
+
+		$this->assertSame( $original, $query->get( 'date_query' ) );
+		$this->assertSame( '', $query->get( 'jetpack_blogging_prompts' ) );
+		$this->assertSame( 0, $endpoint->day_of_year_query );
+	}
+
+	/**
+	 * Tests that modify_query() does not warn on a query that has no date_query.
+	 */
+	public function test_modify_query_without_a_date_query_does_not_warn() {
+		$endpoint = new WPCOM_REST_API_V3_Endpoint_Blogging_Prompts();
+
+		$query = new WP_Query();
+		$query->set( 'post_type', 'post' );
+
+		$errors = array();
+		set_error_handler(
+			function ( $errno, $errstr ) use ( &$errors ) {
+				$errors[] = $errstr;
+				return true;
+			}
+		);
+		$endpoint->modify_query( $query );
+		restore_error_handler();
+
+		$this->assertSame( array(), $errors );
+		$this->assertSame( '', $query->get( 'jetpack_blogging_prompts' ) );
+	}
+
+	/**
+	 * Tests that filter_sql() leaves untagged queries alone even with a day-of-year query pending.
+	 */
+	public function test_filter_sql_ignores_untagged_queries() {
+		$endpoint                    = new WPCOM_REST_API_V3_Endpoint_Blogging_Prompts();
+		$endpoint->day_of_year_query = 59;
+		$endpoint->force_year        = 2026;
+
+		$query = new WP_Query();
+		$query->set( 'post_type', 'wp_global_styles' );
+
+		$clauses = $this->get_sample_clauses();
+
+		$this->assertSame( $clauses, $endpoint->filter_sql( $clauses, $query ) );
+	}
+
+	/**
+	 * Tests that filter_sql() still rewrites the prompts query it was written for.
+	 */
+	public function test_filter_sql_modifies_the_tagged_prompts_query() {
+		$endpoint             = new WPCOM_REST_API_V3_Endpoint_Blogging_Prompts();
+		$endpoint->force_year = 2026;
+
+		$query = new WP_Query();
+		$query->set( 'post_type', 'post' );
+		$query->set(
+			'date_query',
+			array(
+				array(
+					'column' => 'post_date',
+					'after'  => '--02-28',
+				),
+			)
+		);
+
+		$endpoint->modify_query( $query );
+
+		$this->assertTrue( $query->get( 'jetpack_blogging_prompts' ) );
+		$this->assertSame( 59, $endpoint->day_of_year_query );
+
+		$clauses = $endpoint->filter_sql( $this->get_sample_clauses(), $query );
+
+		$this->assertStringContainsString( 'day_of_year', $clauses['fields'] );
+		$this->assertStringContainsString( 'newest_prompts', $clauses['join'] );
+		$this->assertStringContainsString( 'day_of_year', $clauses['orderby'] );
+	}
+
+	/**
+	 * SQL clauses shaped like the wp_global_styles lookup that runs while prompts are rendered.
+	 *
+	 * @return array
+	 */
+	private function get_sample_clauses() {
+		global $wpdb;
+
+		return array(
+			'distinct' => '',
+			'fields'   => "{$wpdb->posts}.ID",
+			'join'     => " LEFT JOIN {$wpdb->term_relationships} ON ({$wpdb->posts}.ID = {$wpdb->term_relationships}.object_id)",
+			'where'    => " AND {$wpdb->term_relationships}.term_taxonomy_id IN (1)",
+			'groupby'  => "{$wpdb->posts}.ID",
+			'orderby'  => "{$wpdb->posts}.post_date DESC",
+			'limits'   => 'LIMIT 0, 1',
+		);
+	}
+
+	/**
 	 * Mock the user token.
 	 *
 	 * @return array

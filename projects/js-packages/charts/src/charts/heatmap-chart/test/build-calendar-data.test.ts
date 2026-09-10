@@ -142,3 +142,128 @@ describe( 'buildCalendarHeatmapData', () => {
 		expect( rowLabels[ 4 ] ).toBe( 'Thu' );
 	} );
 } );
+
+describe( 'buildCalendarHeatmapData with a grid wider than the series', () => {
+	// Mon Jan 1 2024 through Sun Jan 7 — one whole week of data.
+	const oneWeek: DataPointDate[] = [
+		{ dateString: '2024-01-01', value: 3 },
+		{ dateString: '2024-01-07', value: 4 },
+	];
+
+	test( 'draws the extra weeks and marks them placeholders, not blank cells', () => {
+		const { data } = buildCalendarHeatmapData( oneWeek, {
+			weekStartsOn: 1,
+			gridSpan: { start: '2023-12-04' }, // 4 weeks earlier
+		} );
+
+		expect( data ).toHaveLength( 5 );
+
+		// The filler weeks stand for days nothing was measured for.
+		expect( data[ 0 ].data.every( cell => cell.placeholder === true ) ).toBe( true );
+		expect( data[ 3 ].data.every( cell => cell.placeholder === true ) ).toBe( true );
+
+		// The data week is untouched: real values, no placeholder flag.
+		expect( data[ 4 ].data[ 0 ] ).toMatchObject( { value: 3 } );
+		expect( data[ 4 ].data[ 0 ].placeholder ).toBeUndefined();
+		expect( data[ 4 ].data[ 6 ] ).toMatchObject( { value: 4 } );
+	} );
+
+	test( 'labels the filler columns so the grid still reads as a calendar', () => {
+		const { data } = buildCalendarHeatmapData( oneWeek, {
+			weekStartsOn: 1,
+			gridSpan: { start: '2023-12-04' },
+		} );
+
+		expect( data.map( column => column.label ) ).toEqual( [ 'Dec', '', '', '', 'Jan' ] );
+	} );
+
+	test( 'ignores a bound that would cut into the series', () => {
+		const { data } = buildCalendarHeatmapData( oneWeek, {
+			weekStartsOn: 1,
+			gridSpan: { start: '2024-01-04', end: '2024-01-05' },
+		} );
+
+		expect( data ).toHaveLength( 1 );
+		expect( data[ 0 ].data[ 0 ].value ).toBe( 3 );
+		expect( data[ 0 ].data[ 6 ].value ).toBe( 4 );
+	} );
+
+	test( 'falls back to the series span for an unparseable bound', () => {
+		const { data } = buildCalendarHeatmapData( oneWeek, {
+			weekStartsOn: 1,
+			gridSpan: { start: 'not-a-date' },
+		} );
+
+		expect( data ).toHaveLength( 1 );
+	} );
+
+	test( 'separates the ragged edge from the filler', () => {
+		// The grid opens Mon Dec 25 and closes with the series on Wed Jan 3, so
+		// Thu Jan 4 onward only completes the last week.
+		const { data } = buildCalendarHeatmapData( [ { dateString: '2024-01-03', value: 5 } ], {
+			weekStartsOn: 1,
+			gridSpan: { start: '2023-12-25' },
+		} );
+
+		const lastColumn = data[ data.length - 1 ];
+
+		// Inside the requested grid, before the data: filler.
+		expect( lastColumn.data[ 0 ].placeholder ).toBe( true );
+		expect( lastColumn.data[ 0 ].hidden ).toBeUndefined();
+
+		expect( lastColumn.data[ 2 ].value ).toBe( 5 );
+
+		// Past the grid's end: the calendar's ragged edge, painted as nothing.
+		expect( lastColumn.data[ 3 ].hidden ).toBe( true );
+		expect( lastColumn.data[ 3 ].placeholder ).toBeUndefined();
+	} );
+
+	test( 'is a no-op when no grid span is given', () => {
+		expect( buildCalendarHeatmapData( oneWeek, { weekStartsOn: 1 } ) ).toEqual(
+			buildCalendarHeatmapData( oneWeek, { weekStartsOn: 1, gridSpan: {} } )
+		);
+	} );
+
+	// The caller sizes the grid in whole weeks back from the period's last day, so
+	// the bound lands on that weekday — a Monday only one year in seven.
+	test( 'opens on a whole column when the start bound falls mid-week', () => {
+		const { data } = buildCalendarHeatmapData( oneWeek, {
+			weekStartsOn: 1,
+			gridSpan: { start: '2023-12-07' }, // a Thursday
+		} );
+
+		expect( data ).toHaveLength( 5 );
+
+		// Mon Dec 4 through Wed Dec 6 precede the bound; they are as unmeasured as
+		// the rest of the filler, so they fill the column rather than notching it.
+		expect( data[ 0 ].data.every( cell => cell.placeholder === true ) ).toBe( true );
+		expect( data[ 0 ].data.some( cell => cell.hidden ) ).toBe( false );
+	} );
+
+	test( 'still draws the ragged edge past the grid end', () => {
+		// Wed Jan 3 ends the series, so Thu Jan 4 onward only completes the week.
+		const { data } = buildCalendarHeatmapData( [ { dateString: '2024-01-03', value: 5 } ], {
+			weekStartsOn: 1,
+			gridSpan: { start: '2023-12-20' }, // a Wednesday
+		} );
+
+		expect( data[ 0 ].data.every( cell => cell.placeholder === true ) ).toBe( true );
+
+		const lastColumn = data[ data.length - 1 ];
+		expect( lastColumn.data[ 2 ].value ).toBe( 5 );
+		expect( lastColumn.data[ 3 ].hidden ).toBe( true );
+	} );
+
+	test( 'keeps the ragged start edge when the bound is ignored', () => {
+		// A narrowing bound never applies, so the series' own first week stays
+		// ragged rather than being filled out.
+		const { data } = buildCalendarHeatmapData( [ { dateString: '2024-01-03', value: 5 } ], {
+			weekStartsOn: 1,
+			gridSpan: { start: '2024-01-05' },
+		} );
+
+		expect( data ).toHaveLength( 1 );
+		expect( data[ 0 ].data[ 0 ].hidden ).toBe( true );
+		expect( data[ 0 ].data[ 0 ].placeholder ).toBeUndefined();
+	} );
+} );

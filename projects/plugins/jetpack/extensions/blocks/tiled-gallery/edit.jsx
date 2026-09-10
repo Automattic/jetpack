@@ -10,6 +10,7 @@ import metadata from './block.json';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES } from './constants';
 import { TiledGalleryBlockControls, TiledGalleryInspectorControls } from './controls';
 import Layout from './layout';
+import { hasSameColumnShape } from './layout/utils';
 
 const DEFAULT_COLUMNS_COUNT = 3;
 
@@ -137,7 +138,16 @@ const TiledGalleryEdit = ( {
 	};
 
 	const onResize = value => {
-		if ( changed ) {
+		// Recomputed widths are normally only persisted once the user has edited the
+		// images, so that merely opening a post never marks it as modified. Widths
+		// that no longer match the layout are the exception. The row and column shape
+		// is recomputed from the images and the alignment on every render, so
+		// changing either — changing the alignment in particular, which edits no
+		// image — leaves the saved widths describing a layout the block no longer
+		// draws. Saving those spreads one row's widths over a differently shaped row,
+		// which is what published galleries render as rows only 57% of the content
+		// width. See JETPACK-1990.
+		if ( changed || ! hasSameColumnShape( value, columnWidths ) ) {
 			setAttributes( { columnWidths: value } );
 		}
 	};

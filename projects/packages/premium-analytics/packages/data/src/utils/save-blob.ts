@@ -1,10 +1,4 @@
-/**
- * Save a blob as a browser download.
- *
- * @param blob     - Blob to download.
- * @param filename - Requested download filename.
- * @return The sanitized filename used for the download.
- */
+/** Save a blob as a browser download, returning the sanitized filename used. */
 export function saveBlob( blob: Blob, filename: string ): string {
 	const url = window.URL.createObjectURL( blob );
 	const link = document.createElement( 'a' );

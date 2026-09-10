@@ -28,12 +28,6 @@ export type RequestReportVisitorsByLocationParams = BaseReportParams & {
 	limit?: number;
 };
 
-/**
- * Fetch visitors grouped by location (country or region) for the selected period.
- *
- * This endpoint is served through the Premium Analytics proxy on Jetpack sites
- * and directly through WPCOM public-api paths on Simple.
- */
 export async function fetchReportVisitorsByLocation( {
 	from,
 	to,

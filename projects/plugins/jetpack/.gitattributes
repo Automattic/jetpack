@@ -18,6 +18,7 @@
 /vendor/nojimage/**                                      production-include
 /vendor/scssphp/**                                       production-include
 /vendor/wikimedia/aho-corasick/**                        production-include
+/vendor/wp-php-toolkit/reprint-server/**                 production-include
 
 # Files to exclude from Automattic/jetpack-production.
 # (see also entries in the monorepo root .gitattributes)

@@ -4,17 +4,11 @@
 import { fetchReport } from '../stats-proxy-fetch';
 import type { BaseReportParams } from '../../utils/types';
 
-/**
- * Raw response item from the sessions/by-device endpoint.
- */
 type SessionsByDeviceItem = {
 	device_type: string;
 	active_sessions: string;
 };
 
-/**
- * Summary data from the sessions/by-device endpoint.
- */
 type SessionsByDeviceSummary = {
 	active_sessions: string;
 	total_orders: string;
@@ -22,9 +16,6 @@ type SessionsByDeviceSummary = {
 	date_end: string;
 };
 
-/**
- * Raw response structure from the sessions/by-device endpoint.
- */
 type ReportsSessionsByDeviceResponse = {
 	summary: SessionsByDeviceSummary;
 	data: SessionsByDeviceItem[];
@@ -32,16 +23,7 @@ type ReportsSessionsByDeviceResponse = {
 
 export type RequestReportSessionsByDeviceParams = Omit< BaseReportParams, 'interval' >;
 
-/**
- * Fetch sessions by device type report data.
- *
- * This endpoint returns a breakdown of sessions by device category
- * (Mobile, Desktop, Tablet) for the specified date range.
- *
- * @param params      - Request parameters
- * @param params.from - Start date in YYYY-MM-DD format
- * @param params.to   - End date in YYYY-MM-DD format
- */
+/** Breaks sessions down by device category (Mobile, Desktop, Tablet). */
 export async function fetchReportSessionsByDevice( {
 	from,
 	to,

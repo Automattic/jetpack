@@ -548,6 +548,8 @@
 
 			// Press This button
 			forEachNode( group.querySelectorAll( 'a.share-press-this' ), function ( pressThisButton ) {
+				// Unpredictable, but stable per page load so repeat clicks reuse the same popup.
+				var pressThisWindowName = 'wp-press-this-' + Math.random().toString( 36 ).slice( 2 );
 				pressThisButton.addEventListener( 'click', function ( event ) {
 					event.preventDefault();
 					event.stopPropagation();
@@ -570,7 +572,7 @@
 					if (
 						! window.open(
 							pressThisButton.getAttribute( 'href' ),
-							't',
+							pressThisWindowName,
 							'toolbar=0,resizable=1,scrollbars=1,status=1,width=720,height=570'
 						)
 					) {
@@ -610,5 +612,109 @@
 				node.classList.add( 'share-service-visible' );
 			}
 		);
+	}
+
+	// ---------------------------- SHARE POPUPS ---------------------------- //
+
+	// Services that open their share link in a popup publish the window features
+	// they need in `window.WPCOM_sharing_popups`, keyed by the service name that
+	// also appears in the link's `share-<service>` class. Sharing_Source::js_dialog()
+	// prints that map in an inline script after this file, and the one delegated
+	// listener below serves every service, with only one popup open at a time.
+	var sharePopup;
+	var sharePopupNames = {};
+
+	// Popup names are unpredictable, so another page cannot pre-register one and
+	// claim the popup. They are stable per service per page load, so repeat clicks
+	// on a service reuse its window.
+	function getSharePopupName( service ) {
+		if ( typeof sharePopupNames[ service ] !== 'string' ) {
+			sharePopupNames[ service ] =
+				'wpcom' + service + '-' + Math.random().toString( 36 ).slice( 2 );
+		}
+
+		return sharePopupNames[ service ];
+	}
+
+	// Find the share link a click landed on. Sharing buttons nest at most one
+	// element inside the anchor, and this stays as shallow as the per-service
+	// handlers it replaces, so nothing that used to reach its own click handler
+	// starts being claimed by this one instead.
+	function getShareLink( target ) {
+		if ( target.nodeName === 'A' ) {
+			return target;
+		}
+
+		var parent = target.parentNode;
+		return parent && parent.nodeName === 'A' ? parent : null;
+	}
+
+	// Find the popup service a share link belongs to, if it belongs to one.
+	function getSharePopupService( link ) {
+		var popups = window.WPCOM_sharing_popups;
+		if ( ! popups ) {
+			return null;
+		}
+
+		var prefix = 'share-';
+		var classes = ( link.getAttribute( 'class' ) || '' ).split( /\s+/ );
+		for ( var i = 0; i < classes.length; i++ ) {
+			if ( classes[ i ].indexOf( prefix ) !== 0 ) {
+				continue;
+			}
+
+			var service = classes[ i ].slice( prefix.length );
+			if ( typeof popups[ service ] === 'string' ) {
+				return service;
+			}
+		}
+
+		return null;
+	}
+
+	function openSharePopup( event ) {
+		var target = event.target;
+		if ( ! target || target.nodeType !== 1 ) {
+			return;
+		}
+
+		var link = getShareLink( target );
+		if ( ! link ) {
+			return;
+		}
+
+		var service = getSharePopupService( link );
+		if ( ! service ) {
+			return;
+		}
+
+		event.preventDefault();
+
+		// If there's another sharing window open, close it.
+		if ( sharePopup ) {
+			sharePopup.close();
+		}
+
+		sharePopup = window.open(
+			link.getAttribute( 'href' ),
+			getSharePopupName( service ),
+			window.WPCOM_sharing_popups[ service ]
+		);
+	}
+
+	// Listen on `document.body`, where the per-service handlers this replaces listened,
+	// so a page script that stops a click from propagating past the body keeps having
+	// the same effect it always had. The bind flag has to be global: if this file is
+	// enqueued twice under different handles, each copy gets its own closure, and two
+	// listeners would open two popups per click. Compare against `true` so a page
+	// element named after the flag cannot clobber it and leave every button dead.
+	//
+	// This has to stay below the `is.post-load` listener above: both dereference
+	// `document.body`, and if this file is ever evaluated before the body exists it
+	// should fail where it already failed, after `init()` has registered, rather than
+	// take the rest of the file down with it.
+	if ( window.WPCOM_sharing_popups_bound !== true ) {
+		document.body.addEventListener( 'click', openSharePopup );
+		window.WPCOM_sharing_popups_bound = true;
 	}
 } )();

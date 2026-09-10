@@ -4,6 +4,7 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-activity-log": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
@@ -34,7 +35,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ3_8",
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ3_9",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

@@ -28,9 +28,6 @@ interface SectionTabsStoryControls {
 /**
  * The tab bar with panels, inside a horizontally resizable container that
  * stands in for a narrow viewport.
- *
- * @param {SectionTabsStoryControls} props - The story controls.
- * @return The story content.
  */
 function SectionTabsStory( { containerWidth }: SectionTabsStoryControls ) {
 	const [ activeTab, setActiveTab ] = useState( TABS[ 0 ].id );

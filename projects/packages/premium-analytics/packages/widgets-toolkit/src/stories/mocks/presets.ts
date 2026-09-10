@@ -63,9 +63,7 @@ export const MOCK_DATA_PRESETS: Record< string, MockDataPreset > = {
 };
 
 /**
- * Get mock params from preset name
- *
- * Returns generic parameters that each generator interprets according to its domain
+ * Get mock params from preset name.
  */
 export function getMockParamsFromPreset( preset: string ): {
 	seed: number;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Pin the section header on the report pages, as on the dashboard, from one shared component.

@@ -18,9 +18,6 @@ import {
  */
 export type MetricType = 'number' | 'average' | 'currency' | 'percentage';
 
-/**
- * Options for `formatMetricValue`.
- */
 export type FormatMetricValueOptions = {
 	/**
 	 * Decimal precision.

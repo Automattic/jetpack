@@ -133,9 +133,9 @@ class Waf_Initializer {
 		$jetpack_text_domains_with_waf = array( 'jetpack', 'jetpack-protect' );
 		$jetpack_plugins_with_waf      = array( 'jetpack/jetpack.php', 'jetpack-protect/jetpack-protect.php' );
 
-		$hook_extra['type']    = $hook_extra['type'] ?? null;
-		$hook_extra['action']  = $hook_extra['action'] ?? null;
-		$hook_extra['plugins'] = $hook_extra['plugins'] ?? array();
+		$hook_extra['type']    ??= null;
+		$hook_extra['action']  ??= null;
+		$hook_extra['plugins'] ??= array();
 
 		// Only run on upgrades affecting plugins
 		if ( 'plugin' !== $hook_extra['type'] ) {

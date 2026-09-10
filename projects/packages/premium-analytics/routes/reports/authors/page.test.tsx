@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { ReportCsvAction, useReportCsvExport } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	ReportCsvAction,
+	ReportDrilldownTable,
+	useReportCsvExport,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -18,6 +22,7 @@ jest.mock( './config', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/',
 	useReportDateFilters: () => ( {} ),
 } ) );
@@ -48,6 +53,7 @@ jest.mock( '@wordpress/route', () => ( {
 const useRecordsMock = jest.mocked( useAuthorsReportRecords );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
+const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
 const getAuthorNameMock = jest.mocked( getAuthorName );
 
 /**
@@ -76,6 +82,29 @@ describe( 'AuthorsReportPage', () => {
 			rows: [],
 			filename: 'top-authors',
 		} );
+	} );
+
+	it( 'opens folded to its top-level authors', () => {
+		const rows: AuthorRow[] = [
+			{
+				id: 'id:42',
+				label: 'Ada Lovelace',
+				avatarUrl: null,
+				isGroup: true,
+				views: 12,
+			},
+		];
+		useRecordsMock.mockReturnValue( buildRecords( { rows } ) );
+
+		render( <AuthorsReportPage /> );
+
+		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( {
+				data: rows,
+				collapsible: true,
+				defaultExpanded: 'none',
+			} )
+		);
 	} );
 
 	it( 'surfaces the error and retry instead of stale rows', () => {

@@ -19,21 +19,13 @@ type BookingsByStatusRenderAttributes = BookingsByStatusAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
 type BookingsByStatusWidgetProps = WidgetRenderProps< BookingsByStatusRenderAttributes > & {
-	/**
-	 * Dashboard error handler.
-	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
- * Bookings by status widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; BookingsByAttendanceWidget
  * fetches the bookings report and renders the status breakdown.
- *
- * @param {BookingsByStatusWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function BookingsByStatusRender( {
 	attributes = {},

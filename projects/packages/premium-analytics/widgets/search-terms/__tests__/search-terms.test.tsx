@@ -30,7 +30,7 @@ describe( 'SearchTermsWidget', () => {
 	it( 'links to the Search Terms report', () => {
 		render( <SearchTermsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/search-terms' )
 		);

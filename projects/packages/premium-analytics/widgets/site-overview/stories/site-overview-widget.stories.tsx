@@ -45,23 +45,10 @@ const SITE_OVERVIEW_RENDER_MODULE = 'storybook/site-overview';
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface SiteOverviewStoryControls {
-	/**
-	 * Whether to include comparison report params.
-	 */
 	withComparison: boolean;
-	/**
-	 * Metric tiles to show in the widget body.
-	 */
 	metrics: SiteOverviewMetricId[];
 }
 
-/**
- * Renders the data-connected widget with report params derived from the
- * date-range picker preset and the selected metrics.
- *
- * @param {SiteOverviewStoryControls} props - The story controls.
- * @return The rendered widget.
- */
 function renderSiteOverview( { withComparison, metrics }: SiteOverviewStoryControls ) {
 	return (
 		<SiteOverviewRender
@@ -187,9 +174,6 @@ interface SiteOverviewDashboardStoryProps
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
- *
- * @param {SiteOverviewDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real `WidgetDashboard`.
  */
 function SiteOverviewDashboardStory( {
 	withComparison,

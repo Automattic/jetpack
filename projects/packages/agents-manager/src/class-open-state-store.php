@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -112,7 +113,7 @@ class Open_State_Store {
 	 * transient (see the class docblock). Returns null when nothing is known yet,
 	 * so callers can skip pre-rendering until the frontend sets the real state.
 	 *
-	 * @return array|null `{ agents_manager_open, agents_manager_docked }` or null.
+	 * @return array|null `{ agents_manager_open, agents_manager_docked, agents_manager_minimized }` or null.
 	 */
 	public static function get_cached() {
 		$user_id = get_current_user_id();
@@ -129,9 +130,18 @@ class Open_State_Store {
 			}
 
 			return array(
-				'agents_manager_open'   => (bool) ( $calypso_prefs['agents_manager_open'] ?? false ),
-				'agents_manager_docked' => (bool) ( $calypso_prefs['agents_manager_docked'] ?? false ),
+				'agents_manager_open'      => (bool) ( $calypso_prefs['agents_manager_open'] ?? false ),
+				'agents_manager_docked'    => (bool) ( $calypso_prefs['agents_manager_docked'] ?? false ),
+				'agents_manager_minimized' => (bool) ( $calypso_prefs['agents_manager_minimized'] ?? false ),
 			);
+		}
+
+		// The cached state is only as good as the connection that produced it.
+		// Without a user connection the frontend cannot fetch or refresh state
+		// (the app never mounts), so a pre-render from a stale transient would
+		// flash a shell nothing ever takes down.
+		if ( ! ( new Connection_Manager() )->is_user_connected( $user_id ) ) {
+			return null;
 		}
 
 		$cached = get_transient( self::cache_key( $user_id ) );
@@ -157,7 +167,7 @@ class Open_State_Store {
 	}
 
 	/**
-	 * Cache the open/docked bits in a per-user transient.
+	 * Cache the open, docked and minimized bits in a per-user transient.
 	 *
 	 * Only used on the remote (WoA / self-hosted) path — it's what get_cached()
 	 * reads there. Simple sites read `calypso_preferences` directly and skip this.
@@ -185,8 +195,9 @@ class Open_State_Store {
 		set_transient(
 			self::cache_key( $user_id ),
 			array(
-				'agents_manager_open'   => (bool) ( $state['agents_manager_open'] ?? false ),
-				'agents_manager_docked' => (bool) ( $state['agents_manager_docked'] ?? false ),
+				'agents_manager_open'      => (bool) ( $state['agents_manager_open'] ?? false ),
+				'agents_manager_docked'    => (bool) ( $state['agents_manager_docked'] ?? false ),
+				'agents_manager_minimized' => (bool) ( $state['agents_manager_minimized'] ?? false ),
 			),
 			$ttl
 		);

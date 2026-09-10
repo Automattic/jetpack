@@ -67,6 +67,10 @@ module.exports = [
 			'block-editor/blocks/video/index': './src/client/block-editor/blocks/video/index.ts',
 			'block-editor/blocks/video/view': './src/client/block-editor/blocks/video/view.ts',
 
+			// Video Playlist block
+			'block-editor/blocks/playlist/index': './src/client/block-editor/blocks/playlist/index.ts',
+			'block-editor/blocks/playlist/view': './src/client/block-editor/blocks/playlist/view.ts',
+
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
 
@@ -97,6 +101,16 @@ module.exports = [
 					{
 						from: 'src/client/block-editor/extensions/index.json',
 						to: './block-editor/extensions/index.json',
+					},
+					{
+						context: 'src/dashboard/components/onboarding-modal/images',
+						// Every extension in this folder has to be listed or the file
+						// silently 404s at runtime: JPEG and PNG for the stills, SVG
+						// for the wireframe brand artwork. Deliberately no video
+						// extensions — the plugin bundle must not ship one; the welcome
+						// modal's intro film is VideoPress-hosted (see intro-video.tsx).
+						from: './*.{jpeg,png,svg}',
+						to: './dashboard/onboarding-modal/images/[name][ext]',
 					},
 				],
 			} ),

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dialogs: keep the comment field's focus ring from being clipped by the dialog footer.

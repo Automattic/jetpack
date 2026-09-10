@@ -46,12 +46,10 @@ export function buildCouponUseData(
 	const salesWithoutCoupon = coupons.summary.sales_without_coupon;
 	const totalSales = coupons.summary.total_sales;
 
-	// Pick comparison totals
 	const comparisonTotalSales = comparisonCoupons?.summary.total_sales || 0;
 	const comparisonSalesWithCoupon = comparisonCoupons?.summary.sales_with_coupon || 0;
 	const comparisonSalesWithoutCoupon = comparisonCoupons?.summary.sales_without_coupon || 0;
 
-	// If there are no sales, return empty state
 	if ( totalSales === 0 ) {
 		return {
 			chartData: [],
@@ -61,7 +59,6 @@ export function buildCouponUseData(
 		};
 	}
 
-	// Build chart data showing sales breakdown
 	const chartData: DonutChartData = [
 		{
 			label: __( 'With coupons', 'jetpack-premium-analytics-pkg' ),
@@ -81,7 +78,6 @@ export function buildCouponUseData(
 		},
 	];
 
-	// Build legend data
 	const legendData: LegendItem[] = [
 		{
 			label: __( 'With coupons', 'jetpack-premium-analytics-pkg' ),

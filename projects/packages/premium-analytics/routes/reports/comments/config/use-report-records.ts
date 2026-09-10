@@ -2,10 +2,8 @@
  * External dependencies
  */
 import {
+	selectStatsCommentsRows,
 	useStatsComments,
-	type StatsCommentsAuthorItem,
-	type StatsCommentsGroupItem,
-	type StatsCommentsPostItem,
 	type StatsCommentsResponse,
 } from '@jetpack-premium-analytics/data';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
@@ -25,16 +23,6 @@ export type CommentReportRow = {
 };
 
 /**
- * Convert an API label value into display text.
- *
- * @param value - The raw label value.
- * @return The display label.
- */
-function toLabel( value: unknown ): string {
-	return typeof value === 'string' ? value : String( value );
-}
-
-/**
  * Fetch the all-time Comments report and expose the active tab's rows.
  *
  * @param activeTab - The active Comments report tab.
@@ -44,42 +32,20 @@ export function useCommentsReportRecords( activeTab: CommentsReportTabId ) {
 	const report = useStatsComments();
 
 	const rows = useMemo< CommentReportRow[] >( () => {
-		const data = report.data as StatsCommentsResponse | undefined;
-		const items = data?.data?.[ 0 ]?.items ?? [];
-		const group = items.find( item => item.label === activeTab ) as
-			| StatsCommentsGroupItem
-			| undefined;
+		const rawRows = selectStatsCommentsRows(
+			report.data as StatsCommentsResponse | undefined,
+			activeTab
+		);
 
-		return ( group?.children ?? [] )
-			.map( child => {
-				if ( activeTab === 'authors' ) {
-					const author = child as StatsCommentsAuthorItem;
-					const label = toLabel( author.label );
+		// Author links are built locally by the data layer (a root-relative
+		// `edit-comments.php` search), so only the posts tab's remote permalinks
+		// need the scheme guard. Row identity is left untouched: it can key on
+		// the raw link, which must survive a rejected URL.
+		if ( activeTab === 'authors' ) {
+			return rawRows;
+		}
 
-					return {
-						id: author.icon ?? `author-${ label }`,
-						label,
-						value: author.value,
-						avatarUrl: author.icon ?? undefined,
-						// The author's profile/admin URL from the API, when they have one.
-						link: author.link ?? undefined,
-					};
-				}
-
-				const post = child as StatsCommentsPostItem;
-				const label = toLabel( post.label );
-
-				return {
-					// Keyed on the raw link so row identity survives a rejected URL.
-					id: post.id != null ? String( post.id ) : post.link ?? `post-${ label }`,
-					label,
-					value: post.value,
-					// Unlike the author link above, this one comes straight from the API.
-					link: safeHttpUrl( post.link ) ?? undefined,
-					postId: post.id != null ? String( post.id ) : undefined,
-				};
-			} )
-			.sort( ( a, b ) => b.value - a.value );
+		return rawRows.map( row => ( { ...row, link: safeHttpUrl( row.link ) ?? undefined } ) );
 	}, [ report.data, activeTab ] );
 
 	return {

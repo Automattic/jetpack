@@ -1,0 +1,176 @@
+<?php
+/**
+ * No_Results class tests.
+ *
+ * @package automattic/jetpack-search
+ */
+
+namespace Automattic\Jetpack\Search;
+
+use PHPUnit\Framework\TestCase;
+
+/**
+ * Tests for the empty-state coverage helpers.
+ *
+ * The behaviour inside a self-contained render is covered where it shows —
+ * `No_Results_Render_Test` for the block's own markup, `Results_List_Render_Test`
+ * for the legacy regions it retires.
+ */
+class No_Results_Test extends TestCase {
+
+	/**
+	 * The block ships a variant per condition, which is what lets a render of
+	 * that markup do without the legacy regions entirely.
+	 */
+	public function test_collect_coverage_reads_every_variant() {
+		$coverage = No_Results::collect_coverage(
+			'<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:jetpack-search/no-results-slot /-->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"error"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
+		);
+
+		$this->assertSame(
+			array(
+				'any'      => true,
+				'filtered' => true,
+				'error'    => true,
+			),
+			$coverage
+		);
+	}
+
+	/**
+	 * The block sits several levels down in every shipped template, so the walk
+	 * has to descend rather than scan the top level.
+	 */
+	public function test_collect_coverage_descends_into_inner_blocks() {
+		$coverage = No_Results::collect_coverage(
+			'<!-- wp:group --><div class="wp-block-group">'
+			. '<!-- wp:jetpack-search/search-results -->'
+			. '<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
+			. '<!-- /wp:jetpack-search/search-results -->'
+			. '</div><!-- /wp:group -->'
+		);
+
+		$this->assertTrue( $coverage['filtered'] );
+		$this->assertFalse( $coverage['any'] );
+		$this->assertFalse( $coverage['error'] );
+	}
+
+	/**
+	 * A container with no variants stands in for an unscoped one — the shape the
+	 * templates carried before they gained variants.
+	 */
+	public function test_collect_coverage_treats_an_empty_container_as_unscoped() {
+		$coverage = No_Results::collect_coverage( '<!-- wp:jetpack-search/no-results /-->' );
+
+		$this->assertTrue( $coverage['any'] );
+		$this->assertFalse( $coverage['error'] );
+	}
+
+	/**
+	 * Markup with no block at all covers nothing, which is what keeps the legacy
+	 * regions rendering for content that predates it.
+	 */
+	public function test_collect_coverage_of_markup_without_the_block() {
+		$coverage = No_Results::collect_coverage( '<!-- wp:jetpack-search/results-list /-->' );
+
+		$this->assertSame(
+			array(
+				'any'      => false,
+				'filtered' => false,
+				'error'    => false,
+			),
+			$coverage
+		);
+	}
+
+	/**
+	 * An unrecognized or missing condition renders as the unscoped one, so
+	 * coverage has to read it that way too — otherwise a hand-edited variant
+	 * would leave the state it actually covers looking uncovered.
+	 */
+	public function test_collect_coverage_normalizes_an_unknown_condition() {
+		$coverage = No_Results::collect_coverage(
+			'<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"bogus"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
+		);
+
+		$this->assertTrue( $coverage['any'] );
+		$this->assertFalse( $coverage['filtered'] );
+	}
+
+	/**
+	 * The renderer wraps stray children as an unscoped variant, so coverage has
+	 * to count them as covering that condition. If the two disagreed, a
+	 * self-contained render would bind both the wrapped strays and the legacy
+	 * region to the same getter and show two messages at once.
+	 */
+	public function test_collect_coverage_counts_stray_children_as_unscoped() {
+		$coverage = No_Results::collect_coverage(
+			'<!-- wp:jetpack-search/no-results -->'
+			. '<!-- wp:paragraph --><p>Stray copy.</p><!-- /wp:paragraph -->'
+			. '<!-- wp:jetpack-search/no-results-slot {"condition":"filtered"} /-->'
+			. '<!-- /wp:jetpack-search/no-results -->'
+		);
+
+		$this->assertTrue( $coverage['any'], 'strays stand in for the unscoped condition' );
+		$this->assertTrue( $coverage['filtered'] );
+		$this->assertFalse( $coverage['error'] );
+	}
+
+	/**
+	 * A page render defers to the coverage flags each variant seeds, exactly as
+	 * it did before self-contained renders had a scope of their own.
+	 */
+	public function test_a_page_render_defers_to_the_seeded_flags() {
+		$this->assertSame( 'state.showLegacyNoResults', No_Results::legacy_no_results_getter() );
+		$this->assertSame( 'state.showLegacyError', No_Results::legacy_error_getter() );
+		$this->assertSame( 'state.showNoResultsAny', No_Results::visibility_getter( 'any' ) );
+	}
+
+	/**
+	 * The scope is restored rather than cleared, so a nested self-contained
+	 * render can't drop its parent back onto the page-global getters — which
+	 * would also let the parent resume seeding, reintroducing the very leak
+	 * this class exists to prevent.
+	 */
+	public function test_a_nested_self_contained_render_restores_its_parent_scope() {
+		// Keys declared up front: the closure fills them by reference from a
+		// filter, which static analysis can't follow.
+		$seen = array(
+			'during'       => null,
+			'after_nested' => null,
+		);
+
+		// Nest for real: run the inner render from inside the outer render's
+		// own `do_blocks()` pass, then read the scope back.
+		$probe = static function ( $html, $block ) use ( &$seen ) {
+			if ( 'core/separator' === ( $block['blockName'] ?? '' ) ) {
+				$seen['during'] = No_Results::legacy_no_results_getter();
+				No_Results::render_self_contained( '<!-- wp:paragraph --><p>inner</p><!-- /wp:paragraph -->' );
+				$seen['after_nested'] = No_Results::legacy_no_results_getter();
+			}
+			return $html;
+		};
+		\add_filter( 'render_block', $probe, 10, 2 );
+
+		// The outer markup covers `any`, so its legacy region is dropped ('').
+		// The inner markup covers nothing, so a scope that reset to null — or
+		// leaked the inner value — shows up as a different getter afterwards.
+		No_Results::render_self_contained(
+			'<!-- wp:jetpack-search/no-results /--><!-- wp:separator /-->'
+		);
+
+		\remove_filter( 'render_block', $probe, 10 );
+
+		$this->assertSame( '', $seen['during'], 'the outer render drops its legacy region' );
+		$this->assertSame( '', $seen['after_nested'], 'the outer scope must survive the nested render' );
+		$this->assertSame( 'state.showLegacyNoResults', No_Results::legacy_no_results_getter() );
+	}
+}

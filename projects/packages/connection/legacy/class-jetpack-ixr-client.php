@@ -10,6 +10,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Error_Handler;
 use Automattic\Jetpack\Connection\Manager;
 
 /**
@@ -126,6 +127,35 @@ class Jetpack_IXR_Client extends IXR_Client {
 		// Is the message a fault?
 		if ( 'fault' === $this->message->messageType ) {
 			$this->error = new IXR_Error( $this->message->faultCode, $this->message->faultString );
+
+			// Faults arrive as HTTP 200 responses with an XML body, so they never reach
+			// Error_Handler::check_api_response_for_errors() (called on this same request by
+			// Client::remote_request()); report them here instead.
+			//
+			// method_exists() guards against mid-update/mid-deploy skew: this legacy file can
+			// load before the connection package's Error_Handler class does, so the method may
+			// not exist yet on this request.
+			if ( method_exists( Error_Handler::class, 'check_xmlrpc_fault_for_errors' ) ) {
+				// is_scalar() avoids a PHP 8 array-to-string warning if malformed XML ever
+				// leaves faultString as something other than a string.
+				$fault_string = is_scalar( $this->message->faultString ) ? (string) $this->message->faultString : '';
+				$parsed       = self::parse_jetpack_fault_string( $fault_string );
+
+				if ( $parsed !== null ) {
+					$user_id = true === $this->jetpack_args['user_id']
+						? (int) \Jetpack_Options::get_option( 'master_user' )
+						: (int) $this->jetpack_args['user_id'];
+
+					Error_Handler::get_instance()->check_xmlrpc_fault_for_errors(
+						$parsed[0],
+						$parsed[1],
+						$this->jetpack_args['url'],
+						'POST',
+						$user_id
+					);
+				}
+			}
+
 			return false;
 		}
 
@@ -149,14 +179,35 @@ class Jetpack_IXR_Client extends IXR_Client {
 			$fault_string = $this->error->message;
 		}
 
-		if ( preg_match( '#jetpack:\s+\[(\w+)\]\s*(.*)?$#i', $fault_string, $match ) ) {
-			$code    = $match[1];
-			$message = $match[2];
-			$status  = $fault_code;
-			return new WP_Error( $code, $message, $status );
+		$parsed = self::parse_jetpack_fault_string( $fault_string );
+
+		if ( $parsed !== null ) {
+			list( $code, $message ) = $parsed;
+			return new WP_Error( $code, $message, $fault_code );
 		}
 
 		return new WP_Error( "IXR_{$fault_code}", $fault_string );
+	}
+
+	/**
+	 * Parse a `Jetpack: [code] message` fault string, the convention WP.com uses to surface
+	 * a Jetpack-specific error code and message inside an XML-RPC fault.
+	 *
+	 * Without the `s` modifier, `.` doesn't match a newline, and unmodified `$` anchors to the
+	 * end of the whole string (not each line) — so a fault string containing embedded newlines
+	 * after the code fails this match entirely rather than truncating the message. WP.com fault
+	 * strings are single-line in practice, so this is intentional, not a bug.
+	 *
+	 * @param string $fault_string The XML-RPC fault string.
+	 * @return array{0: string, 1: string}|null A [ code, message ] pair, or null if the string
+	 *                                           doesn't follow the convention.
+	 */
+	public static function parse_jetpack_fault_string( $fault_string ) {
+		if ( ! preg_match( '#\Ajetpack:\s+\[(\w+)\]\s*(.*)$#i', $fault_string, $match ) ) {
+			return null;
+		}
+
+		return array( $match[1], $match[2] );
 	}
 
 	/**

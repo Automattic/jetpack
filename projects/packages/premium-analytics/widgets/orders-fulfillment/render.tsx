@@ -23,14 +23,9 @@ type OrdersFulfillmentWidgetProps = WidgetRenderProps< OrdersFulfillmentRenderAt
 };
 
 /**
- * Orders fulfillment widget.
- *
  * Thin composition over WidgetRoot: WidgetRoot provides the query client, chart
  * theme, and resolved report params; OrdersFulfillmentWidget renders the
  * fulfilled vs unfulfilled orders donut chart.
- *
- * @param {OrdersFulfillmentWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function OrdersFulfillmentRender( {
 	attributes = {},

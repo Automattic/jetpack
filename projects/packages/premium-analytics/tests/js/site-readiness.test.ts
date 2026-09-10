@@ -2,8 +2,10 @@
  * Internal dependencies
  */
 import {
+	isDashboardSectionInPreviewScope,
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
+	isVideoPressAvailable,
 } from '../../routes/site-readiness';
 
 /**
@@ -61,5 +63,43 @@ describe( 'Premium Analytics site readiness', () => {
 
 		expect( isPremiumAnalyticsSiteConnected() ).toBe( true );
 		expect( isPremiumAnalyticsInitialSyncFinished() ).toBe( false );
+	} );
+
+	it( 'reads VideoPress availability from the server flag', () => {
+		setScriptData( { premium_analytics: { has_videopress: true } } );
+
+		expect( isVideoPressAvailable() ).toBe( true );
+	} );
+
+	it.each( [
+		[ 'the flag is false', { premium_analytics: { has_videopress: false } } ],
+		[ 'the flag is absent', { premium_analytics: { initial_full_sync_finished: 123 } } ],
+		[ 'no script data was published', {} ],
+	] )( 'treats VideoPress as unavailable when %s', ( _case, data ) => {
+		setScriptData( data );
+
+		expect( isVideoPressAvailable() ).toBe( false );
+	} );
+
+	it( 'reads the exposed tabs from the published scope', () => {
+		setScriptData( { premium_analytics: { preview_sections: [ 'traffic' ] } } );
+
+		expect( isDashboardSectionInPreviewScope( 'traffic' ) ).toBe( true );
+		expect( isDashboardSectionInPreviewScope( 'insights' ) ).toBe( false );
+	} );
+
+	it.each( [
+		[ 'the list is absent', { premium_analytics: { has_videopress: true } } ],
+		[ 'no script data was published', {} ],
+	] )( 'exposes every tab when %s', ( _case, data ) => {
+		setScriptData( data );
+
+		expect( isDashboardSectionInPreviewScope( 'insights' ) ).toBe( true );
+	} );
+
+	it( 'exposes no tab when the published scope is empty', () => {
+		setScriptData( { premium_analytics: { preview_sections: [] } } );
+
+		expect( isDashboardSectionInPreviewScope( 'traffic' ) ).toBe( false );
 	} );
 } );

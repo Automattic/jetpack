@@ -28,8 +28,11 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	has_legacy_front_page_meta: false,
 	title_formats: {},
 	title_separator: '-',
+	title_formats_editable: true,
+	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
+	site_is_private: false,
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,
@@ -37,7 +40,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 };
 
 export const SEEDED_AI: AiState = {
-	enhancer: { available: true, enabled: false },
+	enhancer: { available: true, enabled: false, aiSeoEnabled: true },
 	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt', canServe: true },
 	crawlers: {
 		catalog: [

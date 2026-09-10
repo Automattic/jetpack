@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\Service;
 
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -24,15 +25,47 @@ class Post_To_Url_Test extends BaseTestCase {
 	 *
 	 * @param Contact_Form $form         The form instance.
 	 * @param array        $entry_values The feedback entry values.
+	 * @param array|null   $fields       The visible submitted fields.
 	 * @return array The gathered form data.
 	 */
-	private function invoke_get_form_data( $form, $entry_values = array() ) {
+	private function invoke_get_form_data( $form, $entry_values = array(), $fields = null ) {
 		$instance = Post_To_Url::init();
 		$method   = new \ReflectionMethod( Post_To_Url::class, 'get_form_data' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		return $method->invoke( $instance, $form, $entry_values );
+		return $method->invoke( $instance, $form, $fields ?? $form->fields, $entry_values );
+	}
+
+	/**
+	 * Conditionally hidden fields are filtered before the integration hook runs.
+	 */
+	public function test_get_form_data_uses_the_filtered_field_collection() {
+		$form = $this->create_mock_form( array() );
+
+		$visible        = new Contact_Form_Field(
+			array(
+				'id'   => 'visible',
+				'type' => 'text',
+			),
+			'',
+			$form
+		);
+		$visible->value = 'keep';
+		$hidden         = new Contact_Form_Field(
+			array(
+				'id'   => 'hidden',
+				'type' => 'text',
+			),
+			'',
+			$form
+		);
+		$hidden->value  = 'drop';
+		$form->fields   = array( $visible, $hidden );
+
+		$data = $this->invoke_get_form_data( $form, array(), array( $visible ) );
+
+		$this->assertSame( array( 'visible' => 'keep' ), $data );
 	}
 
 	/**

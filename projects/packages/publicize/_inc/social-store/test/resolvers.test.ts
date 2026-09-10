@@ -1,6 +1,6 @@
 import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
-import { getTrafficReferrers } from '../resolvers';
+import { getRenderedMessages, getTrafficReferrers } from '../resolvers';
 import type { TrafficInterval } from '../types';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -111,6 +111,28 @@ describe( 'getTrafficReferrers resolver', () => {
 
 		expect( dispatch ).toHaveBeenCalledWith(
 			expect.objectContaining( { type: 'RECEIVE_TRAFFIC_REFERRERS', interval: 30, days: {} } )
+		);
+	} );
+} );
+
+describe( 'getRenderedMessages resolver', () => {
+	it( 'stores source-aware hyperlinks with the rendered message', async () => {
+		const hyperlinks = [ { text: 'same phrase', href: 'https://example.com/real', occurrence: 1 } ];
+		mockApiFetch.mockResolvedValue( [
+			{ connection_id: 'bluesky-1', rendered_message: 'same phrase', hyperlinks },
+		] );
+		const dispatch = jest.fn();
+		const items = [ { connection_id: 'bluesky-1', message: '{content}' } ];
+
+		await getRenderedMessages( 42, items )( { dispatch } );
+
+		expect( dispatch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				type: 'RECEIVE_RENDERED_MESSAGES',
+				batch: {
+					'bluesky-1': { rendered_message: 'same phrase', hyperlinks },
+				},
+			} )
 		);
 	} );
 } );

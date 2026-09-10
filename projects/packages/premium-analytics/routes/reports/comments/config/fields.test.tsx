@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getCommentsFields } from './fields';
 import type { CommentReportRow } from './use-report-records';
 import type { ReactNode } from 'react';
@@ -12,47 +13,59 @@ import type { ReactNode } from 'react';
 // The router is built dynamically at runtime, so a field-level test has no
 // router to mount. Render `Link` as the anchor it becomes, keeping `to`/`params`
 // assertable.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		children,
-		...props
-	}: {
-		to: string;
-		params: Record< string, string >;
-		children: ReactNode;
-	} ) => (
-		<a href={ to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] ) } { ...props }>
-			{ children }
-		</a>
-	),
-} ) );
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
 
-jest.mock( '@wordpress/ui', () => ( {
-	Link: ( {
-		href,
-		children,
-		openInNewTab,
-		variant,
-		...props
-	}: {
-		href: string;
-		children: ReactNode;
-		openInNewTab?: boolean;
-		variant?: string;
-	} ) => (
-		<a
-			href={ href }
-			data-variant={ variant }
-			target={ openInNewTab ? '_blank' : undefined }
-			rel={ openInNewTab ? 'noopener noreferrer' : undefined }
-			{ ...props }
-		>
-			{ children }
-		</a>
-	),
-} ) );
+	return mockWordPressRoute;
+} );
+
+setMockRouteSearch( {
+	from: '2026-06-01',
+	to: '2026-06-16',
+	interval: 'day',
+	section: 'posts',
+	foreign: 'drop-me',
+} );
+
+// The fields import `Link` from the externals passthrough, so the stub has to
+// replace it there; the Proxy leaves the rest of the barrel intact for any
+// other consumer in the graph.
+jest.mock(
+	'@jetpack-premium-analytics/externals',
+	() =>
+		new Proxy(
+			{
+				Link: ( {
+					href,
+					children,
+					openInNewTab,
+					variant,
+					...props
+				}: {
+					href: string;
+					children: ReactNode;
+					openInNewTab?: boolean;
+					variant?: string;
+				} ) => (
+					<a
+						href={ href }
+						data-variant={ variant }
+						target={ openInNewTab ? '_blank' : undefined }
+						rel={ openInNewTab ? 'noopener noreferrer' : undefined }
+						{ ...props }
+					>
+						{ children }
+					</a>
+				),
+			},
+			{
+				get: ( overrides, prop ) =>
+					prop in overrides
+						? overrides[ prop as keyof typeof overrides ]
+						: jest.requireActual( '@jetpack-premium-analytics/externals' )[ prop ],
+			}
+		)
+);
 
 /**
  * Mount the label field's render component for a table row.
@@ -61,7 +74,7 @@ jest.mock( '@wordpress/ui', () => ( {
  * @return The Testing Library render result.
  */
 function renderLabelField( item: CommentReportRow ) {
-	const field = getCommentsFields().find( candidate => candidate.id === 'label' );
+	const field = getCommentsFields( 'posts' ).find( candidate => candidate.id === 'label' );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` is the DataViews field render component.
 	const LabelField = field?.render;
 
@@ -83,7 +96,15 @@ describe( 'comments fields', () => {
 		} );
 
 		const link = screen.getByRole( 'link', { name: 'Hello world' } );
-		expect( link ).toHaveAttribute( 'href', '/post/42' );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/post/42' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'comments',
+			ref_section: 'posts',
+		} );
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 

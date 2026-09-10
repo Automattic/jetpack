@@ -2,18 +2,11 @@
  * Style configuration for a single segment.
  */
 export type SegmentStyle = {
-	/** Segment fill color */
 	color: string;
 };
 
-/**
- * Item with optional color property.
- */
 export type ColorableItem = { color?: string };
 
-/**
- * Segment data with optional color property.
- */
 type SegmentData = { color?: string };
 
 /**
@@ -37,14 +30,6 @@ export function resolveSegmentStyles(
 	} ) );
 }
 
-/**
- * Applies resolved styles (colors) to an array of items.
- * Works with any item type that has an optional color property.
- *
- * @param items          - Array of items to style
- * @param resolvedStyles - Styles to apply
- * @return Items with styles applied
- */
 export function applyStylesToItems< T extends ColorableItem >(
 	items: T[],
 	resolvedStyles: SegmentStyle[]

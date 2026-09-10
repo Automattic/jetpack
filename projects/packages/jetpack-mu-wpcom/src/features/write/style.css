@@ -141,8 +141,7 @@
 }
 
 .bw-back {
-	font-size: 22px;
-	color: #999;
+	color: #2d2d2d;
 	text-decoration: none;
 	width: 36px;
 	height: 36px;
@@ -155,7 +154,7 @@
 
 .bw-back:hover {
 	background: #f5f5f5;
-	color: #333;
+	color: #1e1e1e;
 }
 
 .bw-status {
@@ -172,44 +171,88 @@
 
 .bw-topbar-actions {
 	display: flex;
+	align-items: center;
 	gap: 8px;
 	flex-shrink: 0;
 }
 
+/*
+ * Buttons follow the WPDS Button (`@wordpress/ui`) appearance: `.bw-btn` alone
+ * is the default brand/solid tone — what `.bw-btn-publish` renders as, both in
+ * the top bar and as the primary action of every modal — while `.bw-btn-draft`
+ * switches to the neutral/minimal tone.
+ *
+ * Every `--wpds-*` reference carries a literal fallback: this stylesheet is
+ * served straight from source (see wpcom_write_asset_url()), so it never passes
+ * through the postcss plugin that normally injects those fallbacks at build
+ * time, and nothing on this page guarantees the token stylesheet is loaded.
+ * The fallbacks are inert wherever the tokens do resolve.
+ */
+/* stylelint-disable plugin-wpds/no-token-fallback-values -- Unbuilt stylesheet; see above. */
 .bw-btn {
-	border: none;
-	border-radius: 20px;
-	padding: 8px 20px;
-	font-size: 14px;
+	--bw-btn-background: var(--wpds-color-background-interactive-brand-strong, #3858e9);
+	--bw-btn-background-active: var(--wpds-color-background-interactive-brand-strong-active, #2e49d9);
+	--bw-btn-background-disabled: var(--wpds-color-background-interactive-brand-strong-disabled, #e6e6e6);
+	--bw-btn-foreground: var(--wpds-color-foreground-interactive-brand-strong, #eff0f2);
+	--bw-btn-foreground-active: var(--wpds-color-foreground-interactive-brand-strong-active, #eff0f2);
+	--bw-btn-foreground-disabled: var(--wpds-color-foreground-interactive-brand-strong-disabled, #8d8d8d);
+
+	/* Borders take the background color unless a tone overrides them. */
+	--bw-btn-border: var(--bw-btn-background);
+	--bw-btn-border-active: var(--bw-btn-background-active);
+	--bw-btn-border-disabled: var(--bw-btn-background-disabled);
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wpds-dimension-gap-sm, 8px);
+	min-width: calc(4ch + 2 * var(--wpds-dimension-padding-md, 12px));
+	max-width: 100%;
+	min-height: var(--wpds-dimension-size-lg, 40px);
+	padding-block: var(--wpds-dimension-padding-xs, 4px);
+	padding-inline: var(--wpds-dimension-padding-md, 12px);
+	border: 1px solid var(--bw-btn-border);
+	border-radius: var(--wpds-border-radius-sm, 2px);
+	background: var(--bw-btn-background);
+	background-clip: padding-box;
+	font-family: inherit;
+	font-size: var(--wpds-typography-font-size-md, 13px);
 	font-weight: 500;
-	cursor: pointer;
-	transition: all 0.15s ease;
+	line-height: var(--wpds-typography-line-height-sm, 20px);
+	color: var(--bw-btn-foreground);
+	text-align: center;
+	cursor: var(--wpds-cursor-control, pointer);
+	transition: color 0.1s ease-out;
 }
 
+.bw-btn:not(:disabled):is(:hover, :focus, :active) {
+	background: var(--bw-btn-background-active);
+	border-color: var(--bw-btn-border-active);
+	color: var(--bw-btn-foreground-active);
+}
+
+.bw-btn:focus-visible {
+	outline: var(--wpds-border-width-focus, 2px) solid var(--wpds-color-stroke-focus, #3858e9);
+	outline-offset: var(--wpds-border-width-focus, 2px);
+}
+
+/* The only disabled state is "a save is in flight", hence the cursor. */
 .bw-btn:disabled {
-	opacity: 0.5;
+	background: var(--bw-btn-background-disabled);
+	border-color: var(--bw-btn-border-disabled);
+	color: var(--bw-btn-foreground-disabled);
 	cursor: progress;
 }
 
 .bw-btn-draft {
-	background: transparent;
-	color: #666;
-	border: 1px solid #ddd;
+	--bw-btn-background: var(--wpds-color-background-interactive-neutral-weak, #0000);
+	--bw-btn-background-active: var(--wpds-color-background-interactive-neutral-weak-active, #ededed);
+	--bw-btn-background-disabled: var(--wpds-color-background-interactive-neutral-weak-disabled, #0000);
+	--bw-btn-foreground: var(--wpds-color-foreground-interactive-neutral, #1e1e1e);
+	--bw-btn-foreground-active: var(--wpds-color-foreground-interactive-neutral-active, #1e1e1e);
+	--bw-btn-foreground-disabled: var(--wpds-color-foreground-interactive-neutral-disabled, #8d8d8d);
 }
-
-.bw-btn-draft:hover:not(:disabled) {
-	border-color: #999;
-	color: #333;
-}
-
-.bw-btn-publish {
-	background: var(--wp-components-color-accent, #3858e9);
-	color: #fff;
-}
-
-.bw-btn-publish:hover:not(:disabled) {
-	background: var(--wp-components-color-accent-darker-10, #2145e6);
-}
+/* stylelint-enable plugin-wpds/no-token-fallback-values */
 
 /* "More options" dropdown to the right of Publish/Update */
 .bw-more-wrap {
@@ -222,7 +265,7 @@
 	border-radius: 50%;
 	border: 1px solid transparent;
 	background: transparent;
-	color: #666;
+	color: #757575;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -235,12 +278,11 @@
 .bw-more-toggle:hover,
 .bw-more-toggle[aria-expanded="true"] {
 	background: #f5f5f5;
-	color: #333;
+	color: #1e1e1e;
 }
 
 .bw-more-dots {
-	font-size: 22px;
-	line-height: 1;
+	display: flex;
 }
 
 .bw-more-menu {
@@ -409,14 +451,29 @@
 	}
 }
 
+/*
+ * Inline SVG icons (see icons.php). Every path draws with `currentColor`, so
+ * an icon picks up the `color` of its button and follows that button's hover,
+ * active and disabled states without needing rules of its own. Explicit
+ * dimensions guard against wp-admin's global `svg` sizing; `pointer-events`
+ * keeps the button — never the icon — as the event target for the click and
+ * focus handling in view.js.
+ */
+.bw-icon {
+	display: block;
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+	pointer-events: none;
+}
+
 .bw-tool {
 	width: 34px;
 	height: 34px;
 	border: none;
 	border-radius: 6px;
 	background: transparent;
-	color: #555;
-	font-size: 15px;
+	color: #1e1e1e;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -425,21 +482,12 @@
 	flex-shrink: 0;
 }
 
-.bw-tool .dashicons {
-	font-size: 18px;
-	width: 18px;
-	height: 18px;
-	line-height: 18px;
-}
-
 .bw-tool:hover {
 	background: #f0f0f0;
-	color: #1a1a1a;
 }
 
 .bw-tool-active {
 	background: #e8e8e8;
-	color: #1a1a1a;
 }
 
 .bw-tool:disabled {
@@ -470,9 +518,10 @@
 	font-weight: 500;
 }
 
+/* Wraps the chevron so it sits on the label's baseline row, not stretched. */
 .bw-tool-caret {
-	font-size: 12px;
-	color: #999;
+	display: flex;
+	align-items: center;
 }
 
 /* Dropdown wrapper (for heading and color menus) */
@@ -1510,11 +1559,10 @@
 	z-index: 5;
 }
 
-.bw-img-edit .dashicons {
-	font-size: 16px;
-	width: 16px;
-	height: 16px;
-	line-height: 16px;
+/* Smaller than the 24px default — this button is only 28x24. */
+.bw-img-edit .bw-icon {
+	width: 12px;
+	height: 12px;
 }
 
 .bw-img-controls:hover .bw-img-edit,
@@ -2268,10 +2316,9 @@ body.bw-modal-open {
 	align-items: center;
 }
 
+/* Radius and padding come from .bw-btn so this matches every other button. */
 .bw-postpicker-go {
 	flex-shrink: 0;
-	border-radius: 8px;
-	padding: 10px 16px;
 	white-space: nowrap;
 }
 

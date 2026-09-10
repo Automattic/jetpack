@@ -33,18 +33,14 @@ interface SearchTermsStoryControls {
 
 function renderSearchTerms( { withComparison }: SearchTermsStoryControls ) {
 	return (
-		<SearchTermsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
+		<SearchTermsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
 	);
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderSearchTermsOnPreset( preset: PresetType ) {
 	return (
-		<SearchTermsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
+		<SearchTermsRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
 
@@ -135,7 +131,7 @@ export const ErrorRetryable: Story = {
  * glyph and "No search terms in this period.").
  */
 export const Empty: Story = {
-	render: () => renderSearchTermsOnPreset( 'last-365-days' ),
+	render: () => renderSearchTermsOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
@@ -160,7 +156,7 @@ function SearchTermsDashboardStory( {
 			renderComponent={
 				SearchTermsDashboardRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }

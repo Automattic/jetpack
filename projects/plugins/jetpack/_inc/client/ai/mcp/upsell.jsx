@@ -2,7 +2,7 @@
  * MCP upsell card — shown when the current site does not have an MCP-capable plan.
  *
  * The CTA destination is read from `jetpackAiSettings.upgradeUrl`, which is
- * built server-side via `Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' )`
+ * built server-side via `Redirect::get_url( 'jetpack-ai-hub-upgrade' )`
  * so the target can be changed via the Jetpack redirect service without
  * shipping a code change. The previous implementation hardcoded
  * `wordpress.com/plans/<host>`, which 403'd for non-.com sites (AIINT-404).
@@ -15,11 +15,11 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
-import analytics from 'lib/analytics';
+import { recordMcpTracksEvent } from './tracks';
 import illustrationUrl from './upsell-illustration.svg';
 import './style.scss';
 
-const UPSELL_SOURCE = 'jetpack-ai-mcp-upsell';
+const UPSELL_REF = 'jetpack-ai-mcp-upsell';
 
 const { upgradeUrl } = window?.jetpackAiSettings ?? {};
 
@@ -34,14 +34,14 @@ export default function McpUpsell() {
 	// lifecycle is the right place to record the impression — no extra
 	// gating needed here.
 	useEffect( () => {
-		analytics.tracks.recordEvent( 'jetpack_mcp_upsell_viewed', {
-			source: UPSELL_SOURCE,
+		recordMcpTracksEvent( 'jetpack_mcp_upsell_viewed', {
+			ref: UPSELL_REF,
 		} );
 	}, [] );
 
 	const onClickUpgrade = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_mcp_upsell_cta_click', {
-			source: UPSELL_SOURCE,
+		recordMcpTracksEvent( 'jetpack_mcp_upsell_cta_click', {
+			ref: UPSELL_REF,
 		} );
 	}, [] );
 

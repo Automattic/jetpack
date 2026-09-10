@@ -4,6 +4,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from 'react';
 import { STORE_ID } from '../../state/store.jsx';
 import type {
+	ConnectionOwner,
 	RegistrationError,
 	UserConnectionData,
 	UseConnectionProps,
@@ -14,10 +15,46 @@ import type { SyntheticEvent } from 'react';
 
 type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
 
+/**
+ * Shared empty-value fallbacks for absent store slices.
+ *
+ * `useSelect` shallow-compares the object its callback returns and re-renders on
+ * any difference, so a fresh `{}` literal per call would make an absent slice
+ * look like a change on every store update, anywhere in the store.
+ *
+ * Typed rather than asserted: both shapes have no required members, so an empty
+ * object really is one of them.
+ */
+const EMPTY_USER_CONNECTION_DATA: UserConnectionData = {};
+const EMPTY_CONNECTION_ERROR_MAP: ConnectionErrorMap = {};
+
 const initialState =
 	window?.JP_CONNECTION_INITIAL_STATE ||
 	getScriptData()?.connection ||
 	( {} as Record< string, string > );
+
+/**
+ * Whether a raw store value is a usable connection owner.
+ *
+ * The value starts life as server-provided JSON and crosses an untyped store, so
+ * it is checked rather than asserted: consumers decide ownership by comparing
+ * `owner.id` to the viewer's ID, and a partial owner would pass that test by
+ * matching `undefined` against `undefined`. Anything short of a complete owner
+ * means "owner unknown".
+ *
+ * @param {unknown} value - The raw selector value.
+ * @return {boolean} Whether the value is a complete connection owner.
+ */
+function isConnectionOwner( value: unknown ): value is ConnectionOwner {
+	return (
+		!! value &&
+		typeof value === 'object' &&
+		'id' in value &&
+		typeof value.id === 'number' &&
+		'displayName' in value &&
+		typeof value.displayName === 'string'
+	);
+}
 
 /**
  * Hook to handle the connection process.
@@ -47,6 +84,7 @@ export default function useConnection( {
 		userIsConnecting,
 		userConnectionData,
 		connectedPlugins,
+		connectionOwner,
 		connectionErrors,
 		connectionHealthErrors,
 		isRegistered,
@@ -55,22 +93,31 @@ export default function useConnection( {
 		isOfflineMode,
 	} = useSelect( ( select: StoreSelector ) => {
 		const connectionStatus = select( STORE_ID ).getConnectionStatus() as Record< string, unknown >;
+		// Optional-call the selector: downstream consumers that register a partial
+		// connection-store mock may not define it.
+		const owner = select( STORE_ID ).getConnectionOwner?.();
 		return {
 			siteIsRegistering: select( STORE_ID ).getSiteIsRegistering() as boolean,
 			userIsConnecting: select( STORE_ID ).getUserIsConnecting() as boolean,
-			userConnectionData: ( select( STORE_ID ).getUserConnectionData() ||
-				{} ) as UserConnectionData,
+			// The assertion sits on the selector call — the one untyped step — so the
+			// fallback stays a real `UserConnectionData` rather than an empty object
+			// asserted into one.
+			userConnectionData:
+				( select( STORE_ID ).getUserConnectionData() as UserConnectionData | undefined ) ||
+				EMPTY_USER_CONNECTION_DATA,
 			connectedPlugins: select( STORE_ID ).getConnectedPlugins() as
 				| Record< string, unknown >
 				| unknown[],
+			connectionOwner: isConnectionOwner( owner ) ? owner : null,
 			connectionErrors: select( STORE_ID ).getConnectionErrors() as Array< string | object >,
 			// Always a code→user→error map (selector defaults to `{}`), unlike
 			// `connectionErrors` which can be an array — so type it as the real
 			// `ConnectionErrorMap` and skip the array normalization downstream.
 			// Optional-call the selector: downstream consumers that register a
 			// partial connection-store mock may not define it.
-			connectionHealthErrors: ( select( STORE_ID ).getConnectionHealthErrors?.() ??
-				{} ) as ConnectionErrorMap,
+			connectionHealthErrors:
+				( select( STORE_ID ).getConnectionHealthErrors?.() as ConnectionErrorMap | undefined ) ??
+				EMPTY_CONNECTION_ERROR_MAP,
 			isOfflineMode: select( STORE_ID ).getIsOfflineMode() as boolean,
 			isRegistered: ( connectionStatus.isRegistered ?? false ) as boolean,
 			isUserConnected: ( connectionStatus.isUserConnected ?? false ) as boolean,
@@ -145,6 +192,7 @@ export default function useConnection( {
 		userIsConnecting,
 		registrationError,
 		userConnectionData,
+		connectionOwner,
 		hasConnectedOwner,
 		connectedPlugins,
 		connectionErrors,

@@ -35,7 +35,11 @@ export const Nudge = ( {
 					</strong>
 				) }
 				{ description && (
-					<span className={ `${ className }__description banner-description` }>
+					<span
+						className={ clsx( 'banner-description', {
+							[ `${ className }__description` ]: className,
+						} ) }
+					>
 						{ description }
 					</span>
 				) }

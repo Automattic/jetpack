@@ -11,6 +11,10 @@ import {
 } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 /**
+ * Internal dependencies
+ */
+import './confirmation-overlay.scss';
+/**
  * Types
  */
 import type { KeyboardEvent, ReactElement } from 'react';

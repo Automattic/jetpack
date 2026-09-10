@@ -38,7 +38,7 @@ jobs:
       matrix: ${{ steps.evaluate.outputs.matrix }}
       build-matrix: ${{ steps.evaluate.outputs.build-matrix }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       - name: Deepen to merge base
@@ -92,7 +92,7 @@ jobs:
         include: ${{ fromJson( needs.create-test-matrix.outputs.build-matrix ) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -145,7 +145,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Save ${{ matrix.buildGroup }} build cache
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           path: ${{ matrix.buildGroup }}.tar.xz
           retention-days: 1
@@ -172,10 +172,10 @@ jobs:
       matrix:
         include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Restore ${{ matrix.buildGroup }} build cache
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         if: needs.build-projects.result == 'success'
         with:
           name: ${{ matrix.buildGroup }}.tar.xz
@@ -202,14 +202,14 @@ jobs:
 
       - name: Checkout jetpack-production
         if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: Automattic/jetpack-production
           path: build-output/build/Automattic/jetpack-production
 
       - name: Checkout mirror repo
         if: github.event_name == 'repository_dispatch'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ github.event.client_payload.repository }}
           ref: ${{ github.event.client_payload.ref_name }}
@@ -296,7 +296,7 @@ jobs:
       - name: Upload test artifacts
         if: ${{ always() }}
         continue-on-error: true
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           # The WordPress version is part of the name: without it the two runs of a project would
           # race for the same artifact and upload-artifact would fail on the duplicate.
@@ -343,7 +343,7 @@ jobs:
 
       - name: Display link to test report in Action Summary
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             await core.summary
@@ -370,7 +370,7 @@ jobs:
     needs: [e2e-tests]
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up tools
         uses: ./.github/actions/tool-setup
@@ -385,7 +385,7 @@ jobs:
         working-directory: ./projects/github-actions/test-results-to-slack
 
       - name: Download test artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           # Without this we'd also pull the build-cache tarballs, which this job has no use for.
           pattern: test-output-*

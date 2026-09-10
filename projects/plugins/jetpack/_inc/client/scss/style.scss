@@ -38,14 +38,15 @@
 @include meta.load-css( "../components/support-card/style" );
 @include meta.load-css( "../components/forms/styles" );
 @include meta.load-css( "../components/admin-notices/style" );
+// `AdminNotices` rebuilds core notices into the dops chassis with jQuery,
+// so these rules outlive `SimpleNotice`'s move to `@wordpress/ui`.
+@include meta.load-css( "../components/notice/style" );
 @include meta.load-css( "../components/module-toggle/style" );
 @include meta.load-css( "../components/navigation-settings/style" );
 @include meta.load-css( "../components/settings-nav-tabs/style" );
 @include meta.load-css( "../components/settings-card/style" );
 @include meta.load-css( "../components/settings-group/style" );
 @include meta.load-css( "../components/apps-card/style" );
-@include meta.load-css( "../components/upgrade-notice-content/style" );
-@include meta.load-css( "../components/jetpack-dialogue-modern/style" );
 @include meta.load-css( "../components/about-page/style" );
 
 // Page Templates

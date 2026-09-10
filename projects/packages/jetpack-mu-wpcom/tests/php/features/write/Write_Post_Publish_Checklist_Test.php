@@ -95,6 +95,58 @@ class Write_Post_Publish_Checklist_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Capture the footer output of the post-publish URL cleanup.
+	 *
+	 * @return string Printed markup.
+	 */
+	private function render_url_cleanup() {
+		ob_start();
+		wpcom_write_print_post_publish_url_cleanup();
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * The publish marker and its `source` companion are stripped from the address
+	 * bar on load, so the author isn't left holding a URL they'd share as-is.
+	 */
+	public function test_url_cleanup_strips_both_publish_args() {
+		$this->go_to_singular_post();
+		$_GET[ WPCOM_WRITE_PUBLISHED_MARKER ] = '1';
+
+		$markup = $this->render_url_cleanup();
+
+		$this->assertStringContainsString( WPCOM_WRITE_PUBLISHED_MARKER, $markup );
+		$this->assertStringContainsString( 'source', $markup );
+		$this->assertStringContainsString( 'replaceState', $markup );
+	}
+
+	/**
+	 * Cleanup must not depend on either card rendering. A writer who has already
+	 * answered the survey on a launched site sees no card at all, and that is
+	 * exactly the case where the args used to be left behind for good.
+	 */
+	public function test_url_cleanup_runs_when_no_card_will_render() {
+		wp_set_current_user( $this->subscriber_id );
+		update_option( 'wpcom_public_coming_soon', 0 );
+		$this->go_to_singular_post();
+		$_GET[ WPCOM_WRITE_PUBLISHED_MARKER ] = '1';
+
+		$this->assertFalse( wpcom_write_should_show_post_publish_checklist() );
+		$this->assertNotEmpty( $this->render_url_cleanup() );
+	}
+
+	/**
+	 * Without the marker nothing is printed, so a campaign link carrying its own
+	 * `source` to a post is left alone.
+	 */
+	public function test_url_cleanup_is_silent_without_the_marker() {
+		$this->go_to_singular_post();
+		$_GET['source'] = 'newsletter';
+
+		$this->assertSame( '', $this->render_url_cleanup() );
+	}
+
+	/**
 	 * The post-publish checklist should not show without the publish marker.
 	 */
 	public function test_post_publish_checklist_hidden_without_marker() {

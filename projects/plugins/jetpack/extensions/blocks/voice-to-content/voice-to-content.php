@@ -24,9 +24,9 @@ function register_block() {
 	/**
 	 * Register the block only if we are on an A8C P2 site.
 	 * TODO: when opening it to Jetpack sites, do the same checks
-	 * we do on the AI Assistant block: the jetpack_ai_enabled filter
+	 * we do on the AI Assistant block: the AI master gate
 	 * and the Jetpack connection:
-	 * - apply_filters( 'jetpack_ai_enabled', true )
+	 * - \Jetpack_AI_Settings::is_ai_enabled()
 	 * - ( new Host() )->is_wpcom_simple() || ! ( new Status() )->is_offline_mode()
 	 */
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

@@ -22,7 +22,39 @@ describe( 'GoodreadsUtils', () => {
 
 	test( 'should correctly form embed link based on attributes', async () => {
 		expect( createGoodreadsEmbedLink( { attributes } ) ).toBe(
-			'https://www.goodreads.com/review/custom_widget/1176283.My Bookshelf?num_books=5&order=a&shelf=read&show_author=1&show_cover=1&show_rating=1&show_review=0&show_tags=0&show_title=1&sort=date_added&widget_id=4529663'
+			'https://www.goodreads.com/review/custom_widget/1176283.My%20Bookshelf?num_books=5&order=a&shelf=read&show_author=1&show_cover=1&show_rating=1&show_review=0&show_tags=0&show_title=1&sort=date_added&widget_id=4529663'
 		);
+	} );
+
+	test.each( [
+		{
+			description: 'a slash',
+			customTitle: 'Sci-Fi / Fantasy',
+			encodedTitle: 'Sci-Fi%20/%20Fantasy',
+		},
+		{
+			description: 'a question mark',
+			customTitle: 'What? I read',
+			encodedTitle: 'What%3F%20I%20read',
+		},
+		{ description: 'a hash', customTitle: 'Reading #2026', encodedTitle: 'Reading%20%232026' },
+		{ description: 'an empty title', customTitle: '', encodedTitle: 'My%20Bookshelf' },
+	] )(
+		'should safely encode a title containing $description',
+		( { customTitle, encodedTitle } ) => {
+			const link = createGoodreadsEmbedLink( {
+				attributes: { ...attributes, customTitle },
+			} );
+
+			expect( link ).toContain( `/1176283.${ encodedTitle }?` );
+		}
+	);
+
+	test( 'should preserve title slashes in grid widget links', () => {
+		const link = createGoodreadsEmbedLink( {
+			attributes: { ...attributes, customTitle: 'Sci-Fi / Fantasy', style: 'grid' },
+		} );
+
+		expect( link ).toContain( '/grid_widget/1176283.Sci-Fi%20/%20Fantasy?' );
 	} );
 } );

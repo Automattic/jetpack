@@ -334,12 +334,20 @@ function JetpackLikesWidgetQueueHandler() {
 	var wrapperID;
 
 	if ( ! jetpackLikesMasterReady ) {
+		// The master iframe emits `masterReady` a single time, when it finishes loading. On
+		// script-heavy pages it can finish loading — and emit — before this script attaches its
+		// message listener above, so that one event is missed and the queue never starts. Ping the
+		// master iframe while we wait so it re-emits `masterReady` once both it and our listener
+		// are ready.
+		JetpackLikesPostMessage( { event: 'queryMasterReady' }, window.frames[ 'likes-master' ] );
 		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 		return;
 	}
 
 	// Restore widgets to initial unloaded state when they are scrolled out of view.
 	jetpackUnloadScrolledOutWidgets();
+
+	jetpackObserveUnloadedWidgets();
 
 	var unloadedWidgetsInView = jetpackGetUnloadedWidgetsInView();
 
@@ -464,6 +472,31 @@ var jetpackWidgetsDelayedExec = function ( after, fn ) {
 };
 
 var jetpackOnScrollStopped = jetpackWidgetsDelayedExec( 250, JetpackLikesWidgetQueueHandler );
+
+// Scrolling is not the only thing that brings a widget into range. A stylesheet that lands late
+// reflows the page without firing a scroll event, and the queue would never look at that widget
+// again, leaving it on "Loading…" until the reader happens to scroll.
+var jetpackLikesWidgetObserver =
+	typeof IntersectionObserver === 'function'
+		? new IntersectionObserver( jetpackOnScrollStopped, {
+				rootMargin: `${ jetpackLikesLookAhead }px`,
+				// jetpackIsScrolledIntoView() wants the widget fully inside the band, so ask to be
+				// told when it gets there - crossing into partial overlap alone would not load it.
+				threshold: [ 0, 1 ],
+		  } )
+		: null;
+
+// Observing an element twice is a no-op, so every queue pass can call this to pick up widgets
+// added after load.
+function jetpackObserveUnloadedWidgets() {
+	if ( ! jetpackLikesWidgetObserver ) {
+		return;
+	}
+
+	document
+		.querySelectorAll( 'div.jetpack-likes-widget-unloaded' )
+		.forEach( widget => jetpackLikesWidgetObserver.observe( widget ) );
+}
 
 // Load initial batch of widgets, prior to any scrolling events.
 JetpackLikesWidgetQueueHandler();

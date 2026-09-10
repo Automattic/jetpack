@@ -112,20 +112,29 @@ class AJAX_Test extends BaseTestCase {
 	 * @param string $method The AJAX method name.
 	 * @return array The decoded JSON response.
 	 */
+	// phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- PHPCS is mostly confused here.
 	private function call_ajax_method( $method ) {
 		add_filter( 'wp_doing_ajax', '__return_true' );
 
-		// Override WorDBless's wp_die handler to avoid a current_filter() bug on PHP < 8.
-		$noop_die_handler = static function () {
-			return '__return_empty_string';
+		// WorDBless overrides `wp_die` to not exit, which breaks `wp_send_json()`'s `@return never` behavior.
+		// Override it to throw an exception (preserving the behavior) which we can catch and verify.
+		$expected_exception = new \RuntimeException( 'wp_die' );
+		$throw_die_handler  = /** @return never */ static function () use ( $expected_exception ) {
+			throw $expected_exception;
 		};
-		add_filter( 'wp_die_ajax_handler', $noop_die_handler, 20 );
+		add_filter( 'wp_die_ajax_handler', $throw_die_handler, 20 );
 
 		ob_start();
-		$this->ajax->$method();
+		try {
+			$this->ajax->$method();
+		} catch ( \RuntimeException $caught_exception ) {
+			if ( $caught_exception !== $expected_exception ) {
+				throw $caught_exception;
+			}
+		}
 		$output = ob_get_clean();
 
-		remove_filter( 'wp_die_ajax_handler', $noop_die_handler, 20 );
+		remove_filter( 'wp_die_ajax_handler', $throw_die_handler, 20 );
 		remove_filter( 'wp_doing_ajax', '__return_true' );
 
 		$response = json_decode( $output, true );

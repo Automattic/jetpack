@@ -45,6 +45,13 @@ const projects = [
 		buildGroup: 'jetpack-boost',
 	},
 	{
+		project: 'Jetpack Boost - Dashboard Modernization',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/modernization' ],
+		targets: [ 'plugins/boost' ],
+		buildGroup: 'jetpack-boost',
+	},
+	{
 		project: 'Jetpack Boost - Modules',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/modules' ],
@@ -127,6 +134,13 @@ const projects = [
 		testArgs: [ 'specs' ],
 		targets: [ 'plugins/protect' ],
 		buildGroup: 'jetpack-protect',
+	},
+	{
+		project: 'Backup',
+		path: 'projects/plugins/backup/tests/e2e',
+		testArgs: [ 'specs' ],
+		targets: [ 'plugins/backup' ],
+		buildGroup: 'jetpack-backup',
 	},
 ];
 

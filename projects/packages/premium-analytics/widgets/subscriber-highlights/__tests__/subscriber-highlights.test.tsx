@@ -48,10 +48,8 @@ describe( 'SubscriberHighlightsWidget', () => {
 	} );
 
 	it( 'maps each subscriber count to its matching tile', async () => {
-		// Distinct sub-1000 values so the `useMultipliers` formatter leaves them
-		// unabbreviated, and `social_followers` is omitted so the `?? 0` fallback
-		// renders. The `Free` tile reads `email_subscribers`, so a mis-wired field
-		// (or a dropped fallback) changes this sequence and fails the test.
+		// Distinct sub-1000 values so `useMultipliers` leaves them unabbreviated,
+		// and `social_followers` is omitted so the `?? 0` fallback renders.
 		mockApiFetch.mockResolvedValue( {
 			counts: {
 				total_subscribers: 428,
@@ -84,16 +82,13 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( screen.queryByText( 'Total subscribers' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the WidgetState loading overlay while the counts request is pending', () => {
+	it( 'shows the WidgetState loading skeleton while the counts request is pending', () => {
 		// A promise that never settles keeps the query in its loading state.
 		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 
-		const { container } = render( <SubscriberHighlightsWidget attributes={ {} } /> );
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
 
-		// WidgetState's loading state renders a WP Spinner (role="presentation",
-		// no accessible name), so the class is the only stable handle for it.
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- No accessible role/text on the spinner to query.
-		expect( container.querySelector( '.components-spinner' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Total subscribers' ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByText( "We couldn't load subscriber highlights. Please try again in a moment." )

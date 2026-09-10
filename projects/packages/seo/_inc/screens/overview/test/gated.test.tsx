@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import type { OverviewResponse } from '../../../data/overview-types';
+import type { ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
@@ -19,6 +20,7 @@ jest.unstable_mockModule( '../../../data/is-gated', () => ( {
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useNavigate: () => jest.fn(),
+	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
 // The off-ramp's only non-presentational dependency; stubbed so the ungated
@@ -30,7 +32,6 @@ jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
 const { default: OverviewScreen } = await import( '../index' );
 
 const UPSELL_TITLE = 'Boost your search engine ranking';
-const OFF_RAMP_TEXT = 'Using a different SEO solution?';
 
 /**
  * Build an Overview payload with SEO tools active.
@@ -84,8 +85,6 @@ describe( 'OverviewScreen — plan gating', () => {
 
 		render( <OverviewScreen /> );
 
-		// Content coverage and the disable off-ramp are paid surfaces.
-		expect( screen.queryByText( OFF_RAMP_TEXT ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Content SEO' ) ).not.toBeInTheDocument();
 	} );
 
@@ -96,6 +95,5 @@ describe( 'OverviewScreen — plan gating', () => {
 
 		expect( screen.queryByText( UPSELL_TITLE ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Content SEO' ) ).toBeInTheDocument();
-		expect( screen.getByText( OFF_RAMP_TEXT ) ).toBeInTheDocument();
 	} );
 } );

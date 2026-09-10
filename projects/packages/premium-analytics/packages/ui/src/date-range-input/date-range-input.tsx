@@ -6,17 +6,17 @@ import {
 	formatToTimezoneNaiveString,
 	getDatePart,
 } from '@jetpack-premium-analytics/datetime';
+import { FormField, Input, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { Field, Input, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { DateRangePopover } from '../date-range-popover/date-range-filter';
+import { DateRangePopoverContent } from '../date-range-popover/date-range-filter';
 import './date-range-input.scss';
 
 type DateRangeInputProps = Pick<
-	Parameters< typeof DateRangePopover >[ 0 ],
+	Parameters< typeof DateRangePopoverContent >[ 0 ],
 	'range' | 'onChange'
 > & {
 	timeZone: string;
@@ -69,10 +69,10 @@ function DateInput( { label, date, onChange, timeZone }: DateInputProps ) {
 	}, [] );
 
 	return (
-		<Field.Root className="input-date-control">
-			<Field.Label>{ label }</Field.Label>
+		<FormField.Root className="input-date-control">
+			<FormField.Label>{ label }</FormField.Label>
 			<Input type="date" value={ value } onChange={ onInputChange } onClick={ onClick } />
-		</Field.Root>
+		</FormField.Root>
 	);
 }
 

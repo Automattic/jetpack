@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Date range presets: make "Last 12 months" a rolling window ending yesterday, consistent with the other rolling presets, instead of running to the end of last month.

@@ -55,4 +55,10 @@ export type BaseLegendItem = {
 	glyphSize?: number;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	shapeStyle?: CSSProperties & LineStyles;
+	/**
+	 * The series labels this legend item controls. For a grouped item this is every series
+	 * sharing the group (primary first); for a single series it is just its own label. Used by
+	 * the interactive legend to toggle a whole group's visibility from one item.
+	 */
+	seriesLabels?: string[];
 };

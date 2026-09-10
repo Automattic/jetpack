@@ -8,8 +8,7 @@ import { __ } from '@wordpress/i18n';
 import type { MetricKey } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * Identifier persisted in the widget's `metrics` attribute for each
- * selectable store metric.
+ * Identifier of one store metric tab.
  */
 export type StorePerformanceMetricId =
 	| 'net-sales'
@@ -96,9 +95,3 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		metricKey: 'customers',
 	},
 ];
-
-/**
- * Default selection for new widget instances: every metric enabled.
- */
-export const DEFAULT_STORE_PERFORMANCE_METRICS: StorePerformanceMetricId[] =
-	STORE_PERFORMANCE_METRICS.map( metric => metric.id );

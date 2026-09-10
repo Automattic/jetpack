@@ -27,6 +27,7 @@ export function ReportCsvAction< Row >( props: ReportCsvActionProps< Row > ) {
 			label={ __( 'Download', 'jetpack-premium-analytics-pkg' ) }
 			variant="solid"
 			showIcon={ false }
+			showLabel
 			{ ...props }
 		/>
 	);

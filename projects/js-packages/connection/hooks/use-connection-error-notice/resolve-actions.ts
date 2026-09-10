@@ -116,7 +116,9 @@ export function resolveConnectionErrorActions(
 			},
 		];
 	} else {
-		// Default action - restore connection.
+		// Default action - restore connection. The label stays generic on purpose:
+		// `restoreConnection()` restores the blog token and then walks the user
+		// through reconnecting their own account when that is also needed.
 		actions = [
 			{
 				label: __( 'Restore Connection', 'jetpack-connection-js' ),

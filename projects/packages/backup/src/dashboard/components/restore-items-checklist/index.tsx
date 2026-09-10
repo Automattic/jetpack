@@ -24,7 +24,7 @@ const ITEMS: ItemDef[] = [
 	{
 		key: 'roots',
 		label: __( 'WordPress root', 'jetpack-backup-pkg' ),
-		description: __( 'Includes wp-config.php and any non WordPress files.', 'jetpack-backup-pkg' ),
+		description: __( 'Includes wp-config.php and any non-WordPress files.', 'jetpack-backup-pkg' ),
 	},
 	{
 		key: 'contents',
@@ -34,7 +34,7 @@ const ITEMS: ItemDef[] = [
 	{
 		key: 'sqls',
 		label: __( 'Site database', 'jetpack-backup-pkg' ),
-		description: __( 'Includes pages, and posts.', 'jetpack-backup-pkg' ),
+		description: __( 'Includes pages and posts.', 'jetpack-backup-pkg' ),
 	},
 	{
 		key: 'uploads',

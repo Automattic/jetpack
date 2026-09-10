@@ -29,16 +29,30 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 	 */
 	protected $option_name;
 
+	/**
+	 * Prefix for the per-module status options.
+	 */
+	const OPTION_PREFIX = 'jetpack_boost_status_';
+
 	public function __construct( $slug ) {
 		$this->slug        = $slug;
-		$module_slug       = str_replace( '_', '-', $this->slug );
-		$this->option_name = 'jetpack_boost_status_' . $module_slug;
+		$this->option_name = self::get_option_name( $this->slug );
 
 		$this->status_sync_map = array(
 			Cloud_CSS::get_slug() => array(
 				Critical_CSS::get_slug(),
 			),
 		);
+	}
+
+	/**
+	 * Build the status option name for a given module slug.
+	 *
+	 * @param string $slug Module slug.
+	 * @return string The wp_options option name storing the module's status.
+	 */
+	public static function get_option_name( $slug ) {
+		return self::OPTION_PREFIX . str_replace( '_', '-', $slug );
 	}
 
 	public function get( $_fallback = false ) {

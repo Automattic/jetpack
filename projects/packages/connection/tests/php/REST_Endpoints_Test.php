@@ -238,7 +238,7 @@ class REST_Endpoints_Test extends TestCase {
 			$reflection->setStaticPropertyValue( 'configured', true );
 			$reflection->setStaticPropertyValue( 'plugins', array() );
 			$reflection->setStaticPropertyValue( 'current_blog_id', null );
-		} catch ( \ReflectionException $e ) { // PHP 7 compat fallback.
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9 compat fallback.
 			foreach ( array( 'configured', 'plugins', 'current_blog_id' ) as $name ) {
 				$prop = $reflection->getProperty( $name );
 				// @todo Remove this call once we no longer need to support PHP <8.1.

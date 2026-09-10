@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-image-guide",
-	"version": "1.0.18",
+	"version": "1.0.19",
 	"description": "Go through the dom to analyze image size on screen vs actual file size.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/image-guide/#readme",
 	"bugs": {
@@ -48,9 +48,9 @@
 		"@rollup/plugin-terser": "1.0.0",
 		"@rollup/plugin-typescript": "12.1.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"concurrently": "10.0.3",
+		"concurrently": "10.0.5",
 		"jest": "30.4.2",
-		"postcss": "8.5.21",
+		"postcss": "8.5.23",
 		"rollup": "3.30.0",
 		"rollup-plugin-postcss": "4.0.2",
 		"rollup-plugin-svelte": "7.2.2",

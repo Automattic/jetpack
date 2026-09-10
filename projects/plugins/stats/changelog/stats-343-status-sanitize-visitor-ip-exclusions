@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep excluding a visitor IP address from tracking when it is written in another form.

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -209,14 +209,13 @@ describe( 'SiteOverviewWidget', () => {
 		expect( requestedPaths.some( path => path.includes( 'date=2026-03-10' ) ) ).toBe( true );
 		expect( requestedPaths.some( path => path.includes( 'date=2026-02-10' ) ) ).toBe( true );
 
-		// Each tile derives its delta from the same metric in the comparison
-		// response, so distinct metrics show distinct period-over-period changes
-		// rather than one shared value: views 420 vs 300 rises, likes 48 vs 60 falls.
+		// Distinct metrics must show distinct deltas, not one shared value: views
+		// 420 vs 300 rises, likes 48 vs 60 falls.
 		await expect( screen.findByText( '+40%' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( '-20%' ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the stale tiles and overlays a spinner while a new date range loads', async () => {
+	it( 'shows the skeleton instead of the stale tiles while a new date range loads', async () => {
 		// Hold the second period's fetch open so the refetch state is observable.
 		let resolveNextPeriod: ( () => void ) | undefined;
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
@@ -228,19 +227,13 @@ describe( 'SiteOverviewWidget', () => {
 			} );
 		} );
 
-		const { container, rerender } = render(
+		const { rerender } = render(
 			<SiteOverviewWidget
 				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
 			/>
 		);
 
 		await expect( screen.findByText( '420' ) ).resolves.toBeInTheDocument();
-
-		// The overlay's spinner is decorative (`role="presentation"`), so there is
-		// no accessible role/text to query — assert on its stable class instead.
-		const hasOverlaySpinner = () =>
-			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- decorative spinner, no accessible query target
-			container.querySelector( '.components-spinner' ) !== null;
 
 		// Switch the date range: the new fetch is in flight but not yet resolved.
 		rerender(
@@ -249,15 +242,12 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		// The previous period's tiles stay put rather than blanking to a spinner…
-		expect( screen.getByText( '420' ) ).toBeInTheDocument();
-		// …and the refetch overlay spinner is layered on top.
-		await waitFor( () => expect( hasOverlaySpinner() ).toBe( true ) );
+		// March's total is not April's, so it gives way to the skeleton.
+		await expect( screen.findByTestId( 'widget-skeleton' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( '420' ) ).not.toBeInTheDocument();
 
-		// Once the new period resolves, its totals replace the stale ones and the
-		// overlay clears.
 		resolveNextPeriod?.();
 		await expect( screen.findByText( '999' ) ).resolves.toBeInTheDocument();
-		expect( hasOverlaySpinner() ).toBe( false );
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 } );

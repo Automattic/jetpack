@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Connection UI: Make the disconnect survey a real radio group, drop the decorative arrow the options no longer need, and build the option cards on the shared Card component.

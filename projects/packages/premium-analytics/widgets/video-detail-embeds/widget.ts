@@ -1,10 +1,10 @@
 /**
  * WordPress dependencies
  */
-import { video } from '@wordpress/icons';
+import { pages } from '@wordpress/icons';
 
 /**
- * Configurable attributes for the Video embeds widget.
+ * Configurable attributes for the "Used on posts & pages" widget.
  *
  * The widget is scoped to a single video and has no own settings: the video is
  * chosen by the host, which composes the report params with a `post_id` (the
@@ -23,5 +23,5 @@ export type VideoDetailEmbedsAttributes = Record< never, never >;
  * than a widget attribute.
  */
 export default {
-	icon: video,
+	icon: pages,
 };

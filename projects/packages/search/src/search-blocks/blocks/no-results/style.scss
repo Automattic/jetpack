@@ -1,0 +1,126 @@
+.jetpack-search-no-results {
+	margin: 0;
+
+	&[hidden] {
+		display: none;
+	}
+
+	// Every variant hides itself independently, so a container whose variants
+	// miss the live condition is revealed holding nothing — and block supports
+	// would paint that as a bare band of background and padding. Collapse it.
+	// Keyed on the binding so it can't reach the editor canvas, where an empty
+	// container has to stay selectable.
+	&[data-wp-bind--hidden]:not(:has(> :not([hidden]))) {
+		display: none;
+	}
+}
+
+// Editor-canvas-only: `render.php` never emits this class, so the rule is
+// inert on the front end despite `style.scss` loading there too. The outline
+// groups the per-condition messages as one block — without it three dashed
+// rows read as three unrelated things rather than the empty state.
+.jetpack-search-no-results__editor-container {
+	border: 1px dashed color-mix(in sRGB, currentColor 40%, transparent);
+	border-radius: 2px;
+	padding: 0.5rem;
+
+	> * + * {
+		margin-block-start: 0.75rem;
+	}
+}
+
+.jetpack-search-no-results__variant {
+	margin: 0;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+// Presentation for the copy `render.php` falls back to when the variant has no
+// inner blocks, so a stock install keeps the exact look `results-list` has
+// always shipped. Authored content gets none of it — centering, a 12rem floor,
+// a 36ch measure, and dimming would all fight a Columns row, a full-width
+// image, or a deliberately placed button.
+.jetpack-search-no-results--default {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	gap: 0.25rem;
+	min-block-size: 12rem;
+	padding-block: 2rem;
+	padding-inline: 1rem;
+	opacity: 0.6;
+
+	p {
+		max-width: 36ch;
+		margin: 0;
+		// `rem` (not `em`) so the size is anchored to the root font-size rather
+		// than the theme's body font. Mirrors `results-list`'s legacy region.
+		font-size: 0.875rem;
+		line-height: 1.5;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+}
+
+// Editor-canvas-only boundary: `render.php` never emits these classes, so the
+// rules are inert on the front end despite `style.scss` loading there too.
+.jetpack-search-no-results__editor-canvas {
+	border: 1px dashed color-mix(in sRGB, currentColor 40%, transparent);
+	border-radius: 2px;
+	padding: 0.5rem;
+}
+
+.jetpack-search-no-results__editor-label {
+	display: block;
+	font-size: 0.6875rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	margin-block-end: 0.5rem;
+	opacity: 0.6;
+	text-transform: uppercase;
+}
+
+// Collapsed row: label and a one-line summary of what the condition renders,
+// side by side. Only reachable for an untouched variant, so nothing an author
+// wrote is ever behind it.
+.jetpack-search-no-results__editor-canvas--collapsed {
+	align-items: baseline;
+	display: flex;
+	gap: 0.5rem;
+
+	.jetpack-search-no-results__editor-label {
+		flex-shrink: 0;
+		margin-block-end: 0;
+	}
+}
+
+.jetpack-search-no-results__editor-summary {
+	font-size: 0.8125rem;
+	opacity: 0.6;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// Authored blocks stay mounted while the variant is collapsed — see the note in
+// `slot/edit.jsx` — so they're hidden here rather than unmounted there.
+.jetpack-search-no-results__editor-blocks--collapsed {
+	display: none;
+}
+
+.jetpack-search-no-results__default-preview {
+	opacity: 0.6;
+	text-align: center;
+
+	p {
+		font-size: 0.875rem;
+		margin-inline: auto;
+		max-width: 36ch;
+	}
+}

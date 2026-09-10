@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the backup overview ability reporting no storage usage, storage limit or backup time.

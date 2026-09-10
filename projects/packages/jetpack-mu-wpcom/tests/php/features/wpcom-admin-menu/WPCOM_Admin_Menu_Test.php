@@ -105,9 +105,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * The Newsletter modernization gate now defaults on for every site, so by default
 	 * `wpcom_add_jetpack_submenu()` retires the legacy Calypso "Subscribers" submenu —
-	 * the unified Newsletter page owns the Subscribers tab. (The transitional
-	 * announcement page is registered by the Newsletter package, which isn't a
-	 * dependency of jetpack-mu-wpcom, so here the legacy link is simply absent.)
+	 * the unified Newsletter page owns the Subscribers tab.
 	 */
 	public function test_jetpack_submenu_retires_legacy_subscribers_link_by_default() {
 		\Jetpack_Options::update_option( 'id', 200 );
@@ -141,8 +139,6 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * When the Newsletter modernization gate is forced on, the unified Newsletter page
 	 * owns the Subscribers tab and the legacy Calypso "Subscribers" submenu is retired.
-	 * (The transitional announcement page is registered by the Newsletter package,
-	 * which isn't a dependency of jetpack-mu-wpcom, so here the link is simply absent.)
 	 */
 	public function test_jetpack_submenu_retires_legacy_subscribers_link_when_modernization_filter_on() {
 		\Jetpack_Options::update_option( 'id', 200 );

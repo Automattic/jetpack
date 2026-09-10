@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Remove the Subscribers announcement page entirely on sites that postdate the Subscribers move, instead of leaving an unstyled fallback page behind.

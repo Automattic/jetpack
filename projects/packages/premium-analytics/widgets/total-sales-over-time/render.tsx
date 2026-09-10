@@ -24,14 +24,7 @@ type TotalSalesOverTimeWidgetProps = WidgetRenderProps< TotalSalesOverTimeRender
 };
 
 /**
- * Total sales over time widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; OrderMetricWidget fetches
- * the orders report and renders total sales over time.
- *
- * @param {TotalSalesOverTimeWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * Total sales over time, from the orders report.
  */
 export default function TotalSalesOverTimeRender( {
 	attributes = {},
@@ -41,6 +34,7 @@ export default function TotalSalesOverTimeRender( {
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget
 				metricKey="total_sales"
+				seriesLabel={ __( 'Total sales', 'jetpack-premium-analytics-pkg' ) }
 				emptyStateText={ __( 'No sales in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load total sales. Please try again in a moment.",

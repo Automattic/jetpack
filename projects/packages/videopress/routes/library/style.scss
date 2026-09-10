@@ -12,6 +12,41 @@
 		cursor: not-allowed;
 	}
 
+	// At-limit upgrade notice rendered above the listing. The tabpanel is a
+	// column flex (see dashboard-layout/style.scss), so the notice stacks on
+	// top of the flex-growing viewport; the margin matches the Overview
+	// tab's 24px gutter.
+	&__notice {
+		margin: 24px 24px 0;
+	}
+
+	// Stands in for the whole viewport while the empty-vs-listing decision is
+	// pending (the unfiltered count hasn't answered yet), so the initial
+	// state reads as loading rather than a page that loaded empty.
+	&__deciding {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-block-size: 240px;
+	}
+
+	// The empty library's upload invitation: one centered card, sized to the
+	// Settings tab's content measure so adjacent screens share a width. The
+	// viewport's `> *` flex rule stretches it; `overflow-y` keeps the card
+	// reachable on short windows.
+	&__empty-state {
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		padding: 24px;
+		overflow-y: auto;
+	}
+
+	&__empty-card {
+		inline-size: 100%;
+		max-inline-size: 718px;
+	}
+
 	&__viewport {
 		display: flex;
 		flex-direction: column;
@@ -33,11 +68,10 @@
 		}
 	}
 
-	// Override wp-build's `.boot-layout-container .boot-layout img { height:
-	// auto }` reset (specificity 0,2,1) without referencing wp-build's class
-	// names. Our own class chain has specificity (0,3,0), which beats the
-	// reset and lets the img fill its parent in both grid (large) and table
-	// (32x32) cells.
+	// Override wp-build's boot `img { height: auto }` reset without referencing
+	// boot's class names. That reset is wrapped in `:where()` (0,0,1), and our
+	// own class chain is (0,3,0), so the img fills its parent in both grid
+	// (large) and table (32x32) cells.
 	&__viewport &__thumbnail &__thumbnail-image {
 		width: 100%;
 		height: 100%;
@@ -186,6 +220,8 @@
 		inset: 0;
 		background: rgba(204, 24, 24, 0.85);
 		color: #fff;
+		padding-inline: 8px;
+		text-align: center;
 	}
 
 	&__filename {

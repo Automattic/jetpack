@@ -1,44 +1,128 @@
-import { Stack, Text } from '@wordpress/ui';
-import { ReactNode } from 'react';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import clsx from 'clsx';
+import { forwardRef, ForwardedRef, ReactNode, Ref } from 'react';
+import styles from './section-header.module.scss';
 
-type SectionHeaderProps = {
+export type SectionHeaderProps = {
+	/** Required: a surface that cannot name itself has no heading for the page. */
+	title: ReactNode;
+
 	/**
-	 * The name of the section.
+	 * Decorative mark before the title: a thumbnail, a poster, a type icon. The
+	 * slot owns the box and hides it from the accessibility tree, so pass an
+	 * `<img>` with `alt=""` or a bare icon, never interactive content or text
+	 * the title does not already carry.
 	 */
-	title: string;
+	visual?: ReactNode;
+
+	/** A line under the title: what the resource is, what window it reports over. */
+	subTitle?: ReactNode;
+
+	/** Marks the text cell as updating while the surface resolves its title. */
+	busy?: boolean;
 
 	/**
-	 * Subtitle describing the active date configuration. Omit it while the
-	 * consumer has nothing to describe.
+	 * Pins the header at the top of the surface's scroll container and
+	 * condenses it once pinned: a sticky band in the page header's fill,
+	 * spanning the page gutter on its own. The surface declares
+	 * `timeline-scope: --section-header-pin` on the header's parent, which
+	 * must span the content that scrolls under the band.
 	 */
-	subtitle?: string;
+	pinned?: boolean;
 
 	/**
-	 * Date controls anchored to the end of the header row.
+	 * Rendered under the header row. Pinned, it stays inside the band, so its
+	 * actions remain reachable however far the reader has scrolled. May
+	 * render nothing.
+	 */
+	notice?: ReactNode;
+
+	/**
+	 * Date controls anchored to the end of the header row. Left out, the cell is
+	 * not rendered: an empty one costs a band of space in the stacked layout.
 	 */
 	children?: ReactNode;
+
+	/** Reaches the controls cell, for a spotlight to anchor on. */
+	controlsRef?: Ref< HTMLDivElement >;
 };
 
 /**
- * Two-halves section header: title plus optional subtitle on the left, and a
- * slot for the date controls anchored on the right.
+ * Header for an analytics surface: an optional visual, the title and its
+ * subtitle, and the date controls share one row. Below a container-query width
+ * the controls take their own row and the title wraps.
  *
- * @param {SectionHeaderProps} props - The props for the SectionHeader component.
+ * The ref reaches the header's root: the row a date control measures the room
+ * it has against.
+ *
+ * @param {SectionHeaderProps}  props - The props for the SectionHeader component.
+ * @param {Ref<HTMLDivElement>} ref   - Forwarded to the header's root element.
  * @return The section header element.
  */
-export function SectionHeader( { title, subtitle, children }: SectionHeaderProps ) {
-	return (
-		<Stack direction="row" align="flex-start" justify="space-between">
-			<Stack direction="column" align="flex-start" justify="flex-start">
-				<Text variant="heading-2xl" render={ <h2 /> }>
-					{ title }
-				</Text>
-				{ subtitle ? <Text variant="body-lg">{ subtitle }</Text> : null }
-			</Stack>
+function UnforwardedSectionHeader(
+	{
+		title,
+		visual,
+		subTitle,
+		busy = false,
+		pinned = false,
+		notice,
+		children,
+		controlsRef,
+	}: SectionHeaderProps,
+	ref: ForwardedRef< HTMLDivElement >
+) {
+	const header = (
+		<div ref={ ref } className={ clsx( styles.container, pinned && styles.pinned ) }>
+			<div className={ clsx( styles.layout, visual && styles.withVisual ) }>
+				{ visual ? (
+					<div className={ styles.visual } aria-hidden="true">
+						{ visual }
+					</div>
+				) : null }
 
-			<Stack direction="row" align="center" justify="flex-end">
-				{ children }
-			</Stack>
-		</Stack>
+				<div className={ styles.text } aria-busy={ busy || undefined }>
+					{ /* An h2 under the breadcrumb's h1. The `title` attribute is the only
+					     way back to a name the ellipsis cut off, and only a string can
+					     supply one. */ }
+					<Text
+						className={ styles.title }
+						variant="heading-2xl"
+						render={ <h2 title={ typeof title === 'string' ? title : undefined } /> }
+					>
+						{ title }
+					</Text>
+
+					{ subTitle ? (
+						<Text className={ styles.subTitle } variant="body-sm" render={ <div /> }>
+							{ subTitle }
+						</Text>
+					) : null }
+				</div>
+
+				{ children ? (
+					<Stack ref={ controlsRef } direction="row" align="center" className={ styles.controls }>
+						{ children }
+					</Stack>
+				) : null }
+			</div>
+
+			{ notice ? <div className={ styles.notice }>{ notice }</div> : null }
+		</div>
+	);
+
+	if ( ! pinned ) {
+		return header;
+	}
+
+	return (
+		<>
+			{ /* Marks where the header comes to rest, so the condense starts
+			     there. Measured, never seen. */ }
+			<div className={ styles.pinMarker } aria-hidden="true" />
+			{ header }
+		</>
 	);
 }
+
+export const SectionHeader = forwardRef( UnforwardedSectionHeader );

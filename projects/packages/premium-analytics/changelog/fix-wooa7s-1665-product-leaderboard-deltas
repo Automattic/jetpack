@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Product leaderboard and Visitors by location: show an em dash instead of a fabricated +100% delta for rows that have no matching comparison-period value, and hide comparison mode entirely when no visible row overlaps the comparison period.

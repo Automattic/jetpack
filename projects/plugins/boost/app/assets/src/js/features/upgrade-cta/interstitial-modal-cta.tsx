@@ -33,14 +33,14 @@ const InterstitialModalCTA = ( {
 			}
 			secondaryButtonHref={ learnMoreUrl }
 			description={ __(
-				'Unlock the full potential of Jetpack Boost with automated performance optimization tools and more.',
+				'Unlock the full potential of Jetpack Boost with automated performance improvements and advanced image optimization for a consistently fast site.',
 				'jetpack-boost'
 			) }
 			features={ [
-				__( 'Automated Critical CSS Generation', 'jetpack-boost' ),
-				__( 'In-depth Performance Insights', 'jetpack-boost' ),
-				__( 'Customizable Image Optimization', 'jetpack-boost' ),
-				__( 'Expert Support With Personal Assistance Available', 'jetpack-boost' ),
+				__( 'Automated critical CSS generation', 'jetpack-boost' ),
+				__( 'Image CDN and quality controls', 'jetpack-boost' ),
+				__( 'Image guide and performance history', 'jetpack-boost' ),
+				__( 'Priority support', 'jetpack-boost' ),
 			] }
 		/>
 	);

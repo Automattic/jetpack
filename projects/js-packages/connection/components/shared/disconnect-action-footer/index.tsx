@@ -45,13 +45,7 @@ const DisconnectActionFooter = ( {
 }: DisconnectActionFooterProps ) => {
 	return (
 		<div className="jp-connection__disconnect-dialog__actions">
-			<Stack
-				className="jp-connection__disconnect-dialog__actions-inner"
-				direction="row"
-				align="center"
-				gap="lg"
-				wrap="wrap"
-			>
+			<Stack direction="row" align="center" gap="lg" wrap="wrap">
 				<div className="jp-connection__disconnect-dialog__help">
 					<HelpFooter
 						namespace="jp-connection__disconnect-dialog"

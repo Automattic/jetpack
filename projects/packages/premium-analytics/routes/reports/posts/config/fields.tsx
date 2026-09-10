@@ -7,14 +7,15 @@ import {
 	type StatsArchivesItem,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import { Link as UiLink } from '@jetpack-premium-analytics/externals';
+import { createReportOriginSearch, pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { MetricWithComparison, PostTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { Link as UiLink } from '@wordpress/ui';
 import { useMemo } from 'react';
-import type { Field } from '@wordpress/dataviews';
+import type { ReportPostsTabId } from './tabs';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 const VIEWS_DATA_FORMAT = {
 	type: 'number',
@@ -31,13 +32,26 @@ const VIEWS_DATA_FORMAT = {
  * resolved from core settings. They never take the detail page: the homepage
  * is not a single post.
  *
- * @param props      - Component props.
- * @param props.item - The posts report row.
+ * @param props               - Component props.
+ * @param props.item          - The posts report row.
+ * @param props.originSection - The active Posts & Pages report tab.
  * @return The linked or plain post title.
  */
-function PostTitle( { item }: { item: StatsTopPostsComparisonItem } ) {
+function PostTitle( {
+	item,
+	originSection,
+}: {
+	item: StatsTopPostsComparisonItem;
+	originSection: ReportPostsTabId;
+} ) {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const detailSearch = useMemo( () => pickReportDateParams( search ), [ search ] );
+	const detailSearch = useMemo(
+		() => ( {
+			...pickReportDateParams( search ),
+			...createReportOriginSearch( 'posts', originSection ),
+		} ),
+		[ search, originSection ]
+	);
 	const homeUrl = useSiteHomeUrl();
 
 	const isHomepage = item.type === 'homepage';
@@ -61,9 +75,13 @@ function PostTitle( { item }: { item: StatsTopPostsComparisonItem } ) {
  * other routes.
  *
  * @param withComparison - Whether to render available period-over-period deltas.
+ * @param originSection  - The active Posts & Pages report tab.
  * @return The field config.
  */
-export function getPostsFields( withComparison = false ): Field< StatsTopPostsComparisonItem >[] {
+export function getPostsFields(
+	withComparison: boolean,
+	originSection: ReportPostsTabId
+): Field< StatsTopPostsComparisonItem >[] {
 	return [
 		{
 			id: 'title',
@@ -71,7 +89,7 @@ export function getPostsFields( withComparison = false ): Field< StatsTopPostsCo
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
-			render: ( { item } ) => <PostTitle item={ item } />,
+			render: ( { item } ) => <PostTitle item={ item } originSection={ originSection } />,
 		},
 		{
 			id: 'views',

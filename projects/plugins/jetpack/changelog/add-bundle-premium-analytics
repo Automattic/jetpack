@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Premium Analytics: bundle the package behind the jetpack_premium_analytics_enabled flag; when enabled it replaces the Stats wp-admin UI

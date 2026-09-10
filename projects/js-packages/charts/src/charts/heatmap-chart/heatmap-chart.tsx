@@ -1,14 +1,18 @@
 import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
-import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import {
 	GlobalChartsProvider,
 	useChartId,
+	useChartScopeElement,
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import {
 	isValidHexColor,
@@ -16,10 +20,11 @@ import {
 	normalizeColorToHex,
 	prefersLightText,
 } from '../../utils/color-utils';
+import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
@@ -38,6 +43,10 @@ import type { CSSProperties, FC } from 'react';
 // the rendered fill is the primary mixed over the chart background at 0.15 + 0.85 * intensity.
 const CELL_MIX_FLOOR = 0.15;
 
+// One instance, not a `[]` default in the signature: `buildTooltipData` keys on
+// it, and a fresh array per render re-ran the keyboard tooltip effect endlessly.
+const NO_ROW_LABELS: string[] = [];
+
 const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	data,
 	chartId: providedChartId,
@@ -50,7 +59,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	maxCellHeight,
 	minCellWidth,
 	minCellHeight,
-	rowLabels = [],
+	rowLabels = NO_ROW_LABELS,
 	primaryColor,
 	gap = 'md',
 	withTooltips = false,
@@ -58,30 +67,39 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const { getElementStyles, resolveThemeColor, theme } = useGlobalChartsContext();
+	const { getElementStyles, theme } = useGlobalChartsContext();
+	const scopeElement = useChartScopeElement();
 	const { heatmapChart: heatmapChartSettings } = theme;
 	const { nonLegendChildren } = useChartChildren( children, 'HeatmapChart' );
 
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, showTooltip, hideTooltip } =
 		useTooltip< HeatmapTooltipData >();
-	const { containerRef, containerBounds, TooltipInPortal } = useTooltipInPortal( {
-		detectBounds: true,
-		scroll: true,
-	} );
-	// Read from a ref so the keyboard-tooltip effect doesn't depend on containerBounds, which
-	// is a new object each render and would loop the effect via showTooltip.
-	const containerBoundsRef = useRef( containerBounds );
-	containerBoundsRef.current = containerBounds;
+	const standaloneScopeClass = useStandaloneScopeClass();
+	const containerRef = useRef< HTMLDivElement >( null );
+	// The chart root positions the tooltip, so pointer and cell coordinates are
+	// measured against it — found by its id rather than by walking up, so
+	// whatever ChartLayout wraps the grid in cannot shift the origin.
+	const getTooltipOrigin = useCallback(
+		() =>
+			containerRef.current
+				?.closest( `[data-chart-id="heatmap-chart-${ chartId }"]` )
+				?.getBoundingClientRect() ?? null,
+		[ chartId ]
+	);
 
 	const { color: primaryColorHex } = getElementStyles( {
 		index: 0,
-		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
+		overrideColor: primaryColor,
 	} );
 
-	// Resolve the background in the provider's theme scope so the blended-fill text
-	// color tracks a themed (e.g. dark) background.
-	const chartBackgroundHex = resolveThemeColor( theme.backgroundColor );
+	// The cell blend substitutes this role at the cell; this read happens at the scope
+	// element, so an override on the chart's own class makes the two disagree. CHARTS-255.
+	const chartBackgroundHex = normalizeColorToHex(
+		CATALOG_POINTERS.background,
+		scopeElement,
+		resolveCssVariable
+	);
 
 	// Choose text color from the blended fill, not the raw value.
 	// If either color cannot resolve to hex, keep dark text.
@@ -129,8 +147,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		hideTooltip();
 	}, [ hideTooltip ] );
 
-	const isCellHidden = useCallback(
-		( col: number, row: number ) => data[ col ]?.data[ row ]?.hidden === true,
+	// Both empty-slot kinds are skipped by navigation: `hidden` paints nothing,
+	// `placeholder` paints an empty cell, and neither has a value to report.
+	const isCellInert = useCallback(
+		( col: number, row: number ) => {
+			const cell = data[ col ]?.data[ row ];
+			return cell?.hidden === true || cell?.placeholder === true;
+		},
 		[ data ]
 	);
 
@@ -156,7 +179,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 				// Start at the first navigable cell (a calendar's leading edge
 				// slots may be hidden).
 				for ( let index = 0; index < columns * rows; index++ ) {
-					if ( ! isCellHidden( Math.floor( index / rows ), index % rows ) ) {
+					if ( ! isCellInert( Math.floor( index / rows ), index % rows ) ) {
 						setSelectedIndex( index );
 						return;
 					}
@@ -184,7 +207,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			do {
 				col += stepCol;
 				row += stepRow;
-			} while ( col >= 0 && col < columns && row >= 0 && row < rows && isCellHidden( col, row ) );
+			} while ( col >= 0 && col < columns && row >= 0 && row < rows && isCellInert( col, row ) );
 
 			if ( col < 0 || col >= columns || row < 0 || row >= rows ) {
 				return;
@@ -192,7 +215,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 			setSelectedIndex( col * rows + row );
 		},
-		[ rows, columns, selectedIndex, hideTooltip, isCellHidden ]
+		[ rows, columns, selectedIndex, hideTooltip, isCellInert ]
 	);
 
 	const handleCellMouseMove = useCallback(
@@ -200,20 +223,20 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			if ( ! withTooltips ) {
 				return;
 			}
+			const origin = getTooltipOrigin();
+			if ( ! origin ) {
+				return;
+			}
 			const target = event.currentTarget;
 			const columnIndex = Number( target.dataset.column );
 			const rowIndex = Number( target.dataset.row );
-			// Read bounds from the ref (like the keyboard-tooltip effect) so this
-			// callback stays stable across renders.
-			const bounds = containerBoundsRef.current;
-			// TooltipInPortal re-adds containerBounds, so subtract it to land at the cursor.
 			showTooltip( {
-				tooltipLeft: event.clientX - bounds.left,
-				tooltipTop: event.clientY - bounds.top,
+				tooltipLeft: event.clientX - origin.left,
+				tooltipTop: event.clientY - origin.top,
 				tooltipData: buildTooltipData( columnIndex, rowIndex ),
 			} );
 		},
-		[ withTooltips, showTooltip, buildTooltipData ]
+		[ withTooltips, showTooltip, buildTooltipData, getTooltipOrigin ]
 	);
 
 	const handleCellMouseLeave = useCallback( () => {
@@ -229,6 +252,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		if ( ! withTooltips || selectedIndex === undefined ) {
 			return;
 		}
+		const origin = getTooltipOrigin();
+		if ( ! origin ) {
+			return;
+		}
 		const col = Math.floor( selectedIndex / rows );
 		const row = selectedIndex % rows;
 		const cell =
@@ -236,13 +263,20 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
 				: null;
 		const rect = cell?.getBoundingClientRect();
-		const bounds = containerBoundsRef.current;
 		showTooltip( {
-			tooltipLeft: rect ? rect.left + rect.width / 2 - bounds.left : 0,
-			tooltipTop: rect ? rect.top + rect.height / 2 - bounds.top : 0,
+			tooltipLeft: rect ? rect.left + rect.width / 2 - origin.left : 0,
+			tooltipTop: rect ? rect.top + rect.height / 2 - origin.top : 0,
 			tooltipData: buildTooltipData( col, row ),
 		} );
-	}, [ selectedIndex, withTooltips, rows, chartId, buildTooltipData, showTooltip ] );
+	}, [
+		selectedIndex,
+		withTooltips,
+		rows,
+		chartId,
+		buildTooltipData,
+		showTooltip,
+		getTooltipOrigin,
+	] );
 
 	const defaultRenderTooltip = useCallback(
 		( info: HeatmapTooltipData ) => (
@@ -282,16 +316,39 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const rowTrack = compact
 		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
 		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
+	// A summary column takes a content-sized track: a roll-up is wider than a
+	// cell, and a shared track would stretch every cell to fit it. `max-content`
+	// as the max keeps the leftover width out of it once the data tracks hit
+	// `maxCellWidth`, where a plain `auto` would absorb it.
+	const columnTracks = data.some( column => column.summary )
+		? data
+				.map( column => ( column.summary ? 'minmax(auto, max-content)' : columnTrack ) )
+				.join( ' ' )
+		: `repeat(${ columns }, ${ columnTrack })`;
 	const gridStyle: Record< string, string | number > = {
 		'--a8c-charts-color-heatmap-primary': primaryColorHex,
-		'--a8c-charts-color-heatmap-background': theme.backgroundColor,
-		gridTemplateColumns: `auto repeat(${ columns }, ${ columnTrack })`,
+		gridTemplateColumns: `auto ${ columnTracks }`,
 		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
 	};
 	if ( compact ) {
 		gridStyle[ '--a8c-charts-dimension-heatmap-cell-gap' ] = `${ compactCellGap }px`;
 		gridStyle[ '--a8c-charts-dimension-heatmap-cell-size' ] = `${ compactCellSize }px`;
 	}
+
+	// A summary column sits one gap apart from the data on either side; two
+	// summaries side by side share no extra gap.
+	const summaryGaps = ( columnIndex: number ) => {
+		if ( ! data[ columnIndex ]?.summary ) {
+			return {};
+		}
+
+		return {
+			[ styles[ 'heatmap-chart__gap-start' ] ]:
+				columnIndex > 0 && ! data[ columnIndex - 1 ]?.summary,
+			[ styles[ 'heatmap-chart__gap-end' ] ]:
+				columnIndex < columns - 1 && ! data[ columnIndex + 1 ]?.summary,
+		};
+	};
 
 	const activeDescendant =
 		selectedIndex !== undefined
@@ -306,7 +363,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	return (
 		<HeatmapContext.Provider value={ heatmapContext }>
-			<SingleChartContext.Provider value={ { chartId } }>
+			<ChartInstanceContext.Provider value={ { chartId } }>
 				<ChartLayout
 					legendPosition="bottom"
 					// Legend renders via trailingContent, not the legend slot.
@@ -345,7 +402,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 							{ data.map( ( column, columnIndex ) => (
 								<span
 									key={ `col-${ columnIndex }` }
-									className={ styles[ 'heatmap-chart__col-label' ] }
+									className={ clsx( styles[ 'heatmap-chart__col-label' ], {
+										[ styles[ 'heatmap-chart__col-label--summary' ] ]: column.summary,
+										...summaryGaps( columnIndex ),
+									} ) }
 								>
 									{ column.label }
 								</span>
@@ -384,9 +444,29 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											);
 										}
 
+										// Filler: drawn like an empty cell so the grid fills its
+										// container, but it stands for a day nothing was measured
+										// for, so it reports nothing to a pointer or a screen
+										// reader either.
+										if ( cell?.placeholder ) {
+											return (
+												<div
+													key={ `cell-${ columnIndex }-${ rowIndex }` }
+													data-testid="heatmap-cell-placeholder"
+													aria-hidden="true"
+													className={ clsx(
+														styles[ 'heatmap-chart__cell' ],
+														styles[ 'heatmap-chart__cell--placeholder' ]
+													) }
+												/>
+											);
+										}
+
 										const value = cell?.value ?? null;
 										const present = isPresent( value );
-										const normalized = present ? getNormalizedValue( value, extent ) : 0;
+										// A summary cell is on another scale, so it takes no fill.
+										const filled = present && ! column.summary;
+										const normalized = filled ? getNormalizedValue( value, extent ) : 0;
 										const flatIndex = columnIndex * rows + rowIndex;
 										const info = buildTooltipData( columnIndex, rowIndex );
 										const accessibleName =
@@ -402,7 +482,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											<div
 												key={ `cell-${ columnIndex }-${ rowIndex }` }
 												id={ `${ chartId }-cell-${ columnIndex }-${ rowIndex }` }
-												data-testid="heatmap-cell"
+												data-testid={ column.summary ? 'heatmap-cell-summary' : 'heatmap-cell' }
 												role="gridcell"
 												// Focus stays on the grid (aria-activedescendant); cells are
 												// focusable but out of the tab order.
@@ -412,14 +492,16 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												data-column={ columnIndex }
 												data-row={ rowIndex }
 												className={ clsx( styles[ 'heatmap-chart__cell' ], {
-													[ styles[ 'heatmap-chart__cell--filled' ] ]: present,
+													[ styles[ 'heatmap-chart__cell--filled' ] ]: filled,
 													[ styles[ 'heatmap-chart__cell--strong' ] ]:
-														present && cellHasLightText( normalized ),
+														filled && cellHasLightText( normalized ),
+													[ styles[ 'heatmap-chart__cell--summary' ] ]: column.summary,
+													...summaryGaps( columnIndex ),
 													[ styles[ 'heatmap-chart__cell--selected' ] ]:
 														selectedIndex === flatIndex,
 												} ) }
 												style={
-													present
+													filled
 														? ( {
 																'--a8c-charts-heatmap-cell-intensity': normalized,
 														  } as CSSProperties )
@@ -428,7 +510,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												onMouseMove={ handleCellMouseMove }
 												onMouseLeave={ handleCellMouseLeave }
 											>
-												{ drawValues && present && (
+												{ ( drawValues || column.summary ) && present && (
 													<span className={ styles[ 'heatmap-chart__cell-value' ] }>
 														{ /* Compact display; tooltip and aria-label keep full precision. */ }
 														{ formatNumberCompact( value ) }
@@ -442,14 +524,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} ) }
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
-						<TooltipInPortal top={ tooltipTop } left={ tooltipLeft }>
-							<div role="tooltip" tabIndex={ -1 }>
+						<BoundedTooltip top={ tooltipTop } left={ tooltipLeft }>
+							<div className={ standaloneScopeClass } role="tooltip" tabIndex={ -1 }>
 								{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 							</div>
-						</TooltipInPortal>
+						</BoundedTooltip>
 					) }
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		</HeatmapContext.Provider>
 	);
 };

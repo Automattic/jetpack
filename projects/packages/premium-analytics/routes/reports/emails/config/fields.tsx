@@ -3,14 +3,14 @@
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
  * Format a count for display.
@@ -91,20 +91,15 @@ function EmailTitle( { item }: { item: StatsEmailSummaryItem } ) {
 	}
 
 	return (
-		<Link
-			to="/post/$postId"
-			params={ { postId: String( item.id ) } as unknown as never }
-			search={
-				( ( current: Record< string, unknown > ) => ( {
-					...current,
-					section: 'email-opens',
-				} ) ) as unknown as never
-			}
+		<PostDetailLink
+			postId={ item.id }
+			report="emails"
+			extraParams={ { section: 'email-opens' } }
 			title={ title }
 			className={ styles.title }
 		>
 			{ title }
-		</Link>
+		</PostDetailLink>
 	);
 }
 

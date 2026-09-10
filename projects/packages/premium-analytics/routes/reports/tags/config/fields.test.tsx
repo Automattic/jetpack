@@ -9,31 +9,48 @@ import { getTagsFields } from './fields';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
-jest.mock( '@wordpress/ui', () => ( {
-	Icon: () => null,
-	Link: ( {
-		href,
-		children,
-		openInNewTab,
-		variant,
-		...props
-	}: {
-		href: string;
-		children: ReactNode;
-		openInNewTab?: boolean;
-		variant?: string;
-	} ) => (
-		<a
-			href={ href }
-			data-variant={ variant }
-			target={ openInNewTab ? '_blank' : undefined }
-			rel={ openInNewTab ? 'noopener noreferrer' : undefined }
-			{ ...props }
-		>
-			{ children }
-		</a>
-	),
-} ) );
+// The fields import `Icon`/`Link` from the externals passthrough, so the stubs
+// have to replace them there. Everything else falls through to the real barrel:
+// a plain object would leave the rest of it undefined for any other consumer in
+// the graph, and calling `requireActual` eagerly re-enters the module while it
+// is still initialising.
+jest.mock(
+	'@jetpack-premium-analytics/externals',
+	() =>
+		new Proxy(
+			{
+				Icon: () => null,
+				Link: ( {
+					href,
+					children,
+					openInNewTab,
+					variant,
+					...props
+				}: {
+					href: string;
+					children: ReactNode;
+					openInNewTab?: boolean;
+					variant?: string;
+				} ) => (
+					<a
+						href={ href }
+						data-variant={ variant }
+						target={ openInNewTab ? '_blank' : undefined }
+						rel={ openInNewTab ? 'noopener noreferrer' : undefined }
+						{ ...props }
+					>
+						{ children }
+					</a>
+				),
+			},
+			{
+				get: ( overrides, prop ) =>
+					prop in overrides
+						? overrides[ prop as keyof typeof overrides ]
+						: jest.requireActual( '@jetpack-premium-analytics/externals' )[ prop ],
+			}
+		)
+);
 
 const tag = {
 	label: [ { label: 'Recipes', labelIcon: 'tag' } ],

@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Modules;
-use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
 
 /**
@@ -103,6 +102,55 @@ class Dashboard_Data {
 				'default'      => 1,
 			)
 		);
+
+		// Refuse an indexing write that would publish a private site. Scoped to core's
+		// settings route rather than attached as `blog_public`'s sanitizer, because a
+		// `register_setting()` sanitizer applies to every writer of the option for the
+		// rest of the request — including the site's own visibility control, which must
+		// stay able to change it.
+		add_filter( 'rest_pre_update_setting', array( __CLASS__, 'block_publishing_a_private_site' ), 10, 3 );
+	}
+
+	/**
+	 * Whether the site is private or still in coming-soon, which WordPress.com records
+	 * as a negative `blog_public`. Always false on self-hosted, where the option is a
+	 * plain 0/1.
+	 *
+	 * @return bool
+	 */
+	private static function is_site_private() {
+		return (int) get_option( 'blog_public', 1 ) < 0;
+	}
+
+	/**
+	 * Keep a WordPress.com site's private or coming-soon state out of reach of an SEO
+	 * toggle.
+	 *
+	 * `blog_public` is a plain 0/1 on self-hosted, but WordPress.com also stores `-1`
+	 * for a private site and `-2` for one still in coming-soon. This dashboard only
+	 * offers "allow search engines to index this site", which writes 1 or 0 — so
+	 * without this, the owner of an unfinished site who flipped that toggle on
+	 * published it. Publishing a site is not a search-engine setting and isn't a
+	 * decision this surface asks for, so a negative stored value is left alone.
+	 *
+	 * The site's own visibility control is what changes it — and still can, because
+	 * this hangs off core's settings route rather than the option's sanitizer.
+	 * {@see self::get_settings_data()} reports `site_is_private` so the toggle can say
+	 * why it's disabled rather than silently doing nothing.
+	 *
+	 * @param bool   $handled Whether another handler already wrote the setting.
+	 * @param string $name    Setting name.
+	 * @param mixed  $value   Submitted value.
+	 * @return bool True to report the write as handled, which skips it.
+	 */
+	public static function block_publishing_a_private_site( $handled, $name, $value ) {
+		if ( $handled || 'blog_public' !== $name ) {
+			return $handled;
+		}
+
+		// Leave a write that keeps the site unpublished alone; only a move to a public
+		// value is refused.
+		return self::is_site_private() && (int) $value >= 0;
 	}
 
 	/**
@@ -123,6 +171,7 @@ class Dashboard_Data {
 		return array(
 			'site_visibility'   => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
+				'site_is_private'        => self::is_site_private(),
 				// Read the durable SEO option (seeded/synced from the `sitemaps` module
 				// by the Jetpack plugin) so the state survives the module's removal. The
 				// reachable sitemap URL + "View" link live on the Settings tab.
@@ -159,8 +208,15 @@ class Dashboard_Data {
 	public static function get_settings_data() {
 		$modules = new Modules();
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Titles lives in plugins/jetpack and is guarded by class_exists.
-		$title_formats = class_exists( 'Jetpack_SEO_Titles' ) ? Jetpack_SEO_Titles::get_custom_title_formats() : array();
+		// Read the stored values directly: Jetpack_SEO_Titles::get_custom_title_formats()
+		// intentionally hides them while another SEO plugin controls output, but the
+		// dashboard must still show the saved values without allowing edits.
+		$title_formats = get_option( 'advanced_seo_title_formats', array() );
+		if ( ! is_array( $title_formats ) ) {
+			$title_formats = array();
+		}
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
+		$title_formats_editable = class_exists( 'Jetpack_SEO_Utils' ) && Jetpack_SEO_Utils::is_enabled_jetpack_seo();
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
 		$front_page_desc = class_exists( 'Jetpack_SEO_Utils' ) ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
 
@@ -180,6 +236,9 @@ class Dashboard_Data {
 
 		return array(
 			'search_engines_visible'     => (int) get_option( 'blog_public', 1 ) === 1,
+			// A private or coming-soon WordPress.com site isn't hidden from search by an
+			// SEO setting and can't be unhidden by one — see {@see self::block_publishing_a_private_site()}.
+			'site_is_private'            => self::is_site_private(),
 			// Read the durable SEO option (seeded/synced from the `sitemaps` module
 			// by the Jetpack plugin) so the state survives the module's removal.
 			'sitemap_active'             => $sitemap_active,
@@ -197,8 +256,10 @@ class Dashboard_Data {
 			// the incoming value untouched, so core composes the title itself and the
 			// Settings tab replays that composition to preview it.
 			'title_separator'            => self::get_default_title_separator(),
+			'title_formats_editable'     => $title_formats_editable,
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
+			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
 			'verification'               => array(
 				'google'    => isset( $codes['google'] ) ? (string) $codes['google'] : '',
 				'bing'      => isset( $codes['bing'] ) ? (string) $codes['bing'] : '',
@@ -249,16 +310,27 @@ class Dashboard_Data {
 	 *
 	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the
 	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
-	 * its persisted on/off toggle and whether it's available. Availability mirrors
-	 * the legacy Traffic page: the `ai_seo_enhancer_enabled` feature filter must be
-	 * on (it still depends on AI being available) AND the site's plan must support
-	 * the `ai-seo-enhancer` feature. The toggle writes through the existing
-	 * `/jetpack/v4/settings` endpoint (`ai_seo_enhancer_enabled`).
+	 * its persisted on/off toggle, whether it's available, and whether the AI SEO
+	 * control it sits under is on. Availability mirrors the legacy Traffic page:
+	 * the `ai_seo_enhancer_enabled` feature filter must be on (it still depends on
+	 * AI being available) AND the site's plan must support the `ai-seo-enhancer`
+	 * feature. The toggle writes through the existing `/jetpack/v4/settings`
+	 * endpoint (`ai_seo_enhancer_enabled`).
+	 *
+	 * `aiSeoEnabled` is reported separately rather than folded into availability:
+	 * with the control off the card is disabled, not hidden, so the saved choice
+	 * stays visible — the same treatment the Traffic page gives it.
 	 *
 	 * @return array
 	 */
 	public static function get_ai_data() {
 		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
+
+		// Jetpack_AI_Settings lives in plugins/jetpack, which bundles this package; guarded
+		// like the other host-plugin classes here. Without the method the AI SEO control
+		// does not exist, so the enhancer keeps its pre-control behavior.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by is_callable.
+		$ai_seo_on = ! is_callable( array( 'Jetpack_AI_Settings', 'is_ai_seo_enabled' ) ) || \Jetpack_AI_Settings::is_ai_seo_enabled();
 
 		// Current_Plan comes from the jetpack-plans package (a dependency of this
 		// package since the plan-gating work), so it's always available here; the
@@ -268,8 +340,9 @@ class Dashboard_Data {
 
 		return array(
 			'enhancer' => array(
-				'available' => $filter_on && $plan_supports,
-				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
+				'available'    => $filter_on && $plan_supports,
+				'enabled'      => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
+				'aiSeoEnabled' => $ai_seo_on,
 			),
 			'llmsTxt'  => array(
 				'enabled'  => Llms_Txt::is_enabled(),
@@ -304,13 +377,19 @@ class Dashboard_Data {
 
 		$logo_id  = (int) get_theme_mod( 'custom_logo' );
 		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+		if ( class_exists( 'Jetpack_Redux_State_Helper' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_Redux_State_Helper lives in plugins/jetpack and is guarded by class_exists.
+			$image_url = (string) \Jetpack_Redux_State_Helper::get_site_image();
+		} else {
+			$image_url = $logo_url ? $logo_url : $icon_url;
+		}
 
 		return array(
 			'title'   => (string) get_bloginfo( 'name' ),
 			'tagline' => (string) get_bloginfo( 'description' ),
 			'url'     => (string) home_url(),
 			'icon'    => $icon_url,
-			'image'   => $logo_url ? $logo_url : $icon_url,
+			'image'   => $image_url,
 		);
 	}
 

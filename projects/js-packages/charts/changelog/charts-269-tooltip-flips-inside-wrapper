@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Flip the tooltip to the side of the anchor that stays inside the chart wrapper, so a box that fits in the chart no longer reaches past it into page content that paints over it.

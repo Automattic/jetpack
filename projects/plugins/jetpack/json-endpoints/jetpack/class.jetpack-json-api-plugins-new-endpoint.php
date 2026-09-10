@@ -9,58 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 require_once ABSPATH . 'wp-admin/includes/file.php';
 
-// POST /sites/%s/plugins/new
-new Jetpack_JSON_API_Plugins_New_Endpoint(
-	array(
-		'description'             => 'Install a plugin to a Jetpack site by uploading a zip file',
-		'group'                   => '__do_not_document',
-		'stat'                    => 'plugins:new',
-		'min_version'             => '1',
-		'max_version'             => '1.1',
-		'method'                  => 'POST',
-		'path'                    => '/sites/%s/plugins/new',
-		'path_labels'             => array(
-			'$site' => '(int|string) Site ID or domain',
-		),
-		'request_format'          => array(
-			'zip' => '(array) Reference to an uploaded plugin package zip file.',
-		),
-		'response_format'         => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
-		'allow_jetpack_site_auth' => true,
-		'example_request_data'    => array(
-			'headers' => array(
-				'authorization' => 'Bearer YOUR_API_TOKEN',
-			),
-		),
-		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/new',
-	)
-);
-
-new Jetpack_JSON_API_Plugins_New_Endpoint(
-	array(
-		'description'             => 'Install a plugin to a Jetpack site by uploading a zip file',
-		'group'                   => '__do_not_document',
-		'stat'                    => 'plugins:new',
-		'min_version'             => '1.2',
-		'method'                  => 'POST',
-		'path'                    => '/sites/%s/plugins/new',
-		'path_labels'             => array(
-			'$site' => '(int|string) Site ID or domain',
-		),
-		'request_format'          => array(
-			'zip' => '(array) Reference to an uploaded plugin package zip file.',
-		),
-		'response_format'         => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
-		'allow_jetpack_site_auth' => true,
-		'example_request_data'    => array(
-			'headers' => array(
-				'authorization' => 'Bearer YOUR_API_TOKEN',
-			),
-		),
-		'example_request'         => 'https://public-api.wordpress.com/rest/v1.2/sites/example.wordpress.org/plugins/new',
-	)
-);
-
 /**
  * Plugins new endpoint class.
  *
@@ -69,6 +17,7 @@ new Jetpack_JSON_API_Plugins_New_Endpoint(
  * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
+	use Jetpack_JSON_API_Attachment_Ownership_Trait;
 
 	/**
 	 * Needed capabilities.
@@ -98,9 +47,15 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 		if ( is_wp_error( $validate ) ) {
 
 			// Lets delete the attachment... if the user doesn't have the right permissions to do things.
+			// Only clean up an upload the caller actually owns. This runs *after* the capability check
+			// has already failed, so without the ownership guard any connected user could name someone
+			// else's attachment and have it hard-deleted on their behalf.
 			$args = $this->input();
-			if ( isset( $args['zip'][0]['id'] ) ) {
-				wp_delete_attachment( $args['zip'][0]['id'], true );
+			if ( isset( $args['zip'][0]['id'] ) && is_scalar( $args['zip'][0]['id'] ) ) {
+				$attachment_id = (int) $args['zip'][0]['id'];
+				if ( true === $this->validate_attachment_ownership( $attachment_id ) ) {
+					wp_delete_attachment( $attachment_id, true );
+				}
 			}
 		}
 
@@ -174,3 +129,55 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 		return new WP_Error( 'no_plugin_installed' );
 	}
 }
+
+// POST /sites/%s/plugins/new
+new Jetpack_JSON_API_Plugins_New_Endpoint(
+	array(
+		'description'             => 'Install a plugin to a Jetpack site by uploading a zip file',
+		'group'                   => '__do_not_document',
+		'stat'                    => 'plugins:new',
+		'min_version'             => '1',
+		'max_version'             => '1.1',
+		'method'                  => 'POST',
+		'path'                    => '/sites/%s/plugins/new',
+		'path_labels'             => array(
+			'$site' => '(int|string) Site ID or domain',
+		),
+		'request_format'          => array(
+			'zip' => '(array) Reference to an uploaded plugin package zip file.',
+		),
+		'response_format'         => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+		'allow_jetpack_site_auth' => true,
+		'example_request_data'    => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN',
+			),
+		),
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/new',
+	)
+);
+
+new Jetpack_JSON_API_Plugins_New_Endpoint(
+	array(
+		'description'             => 'Install a plugin to a Jetpack site by uploading a zip file',
+		'group'                   => '__do_not_document',
+		'stat'                    => 'plugins:new',
+		'min_version'             => '1.2',
+		'method'                  => 'POST',
+		'path'                    => '/sites/%s/plugins/new',
+		'path_labels'             => array(
+			'$site' => '(int|string) Site ID or domain',
+		),
+		'request_format'          => array(
+			'zip' => '(array) Reference to an uploaded plugin package zip file.',
+		),
+		'response_format'         => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
+		'allow_jetpack_site_auth' => true,
+		'example_request_data'    => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN',
+			),
+		),
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1.2/sites/example.wordpress.org/plugins/new',
+	)
+);

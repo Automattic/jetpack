@@ -90,9 +90,6 @@ export const Empty: Story = {
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it
  * appears exactly as it does in product (framed card, sizing, edit mode).
- *
- * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
- * @return The widget mounted inside the real `WidgetDashboard`.
  */
 function WordAdsAdjustmentsHistoryDashboardStory(
 	dashboardArgs: WidgetDashboardWithWidgetControls

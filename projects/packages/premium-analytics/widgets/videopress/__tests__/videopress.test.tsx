@@ -122,7 +122,9 @@ describe( 'VideoPressWidget', () => {
 
 		const title = await screen.findByText( 'Unlinked video' );
 		expect( title ).not.toHaveRole( 'link' );
-		expect( title ).toHaveAttribute( 'title', 'Unlinked video' );
+		// The tooltip lives on the plain-branch wrapper; the label itself sits in
+		// the inner text span shared by every branch.
+		expect( screen.getByTitle( 'Unlinked video' ) ).toBeInTheDocument();
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {
@@ -135,10 +137,10 @@ describe( 'VideoPressWidget', () => {
 		const requestedPath = mockApiFetch.mock.calls[ 0 ]?.[ 0 ]?.path ?? '';
 		expect( requestedPath ).toContain( 'stats/video-plays' );
 		// The query factory derives the Stats date params from `reportParams`:
-		// `to` becomes the end `date` and the inclusive range length becomes `days`.
+		// `from` becomes `start_date` and `to` becomes the end `date`.
 		expect( requestedPath ).toContain( 'start_date=2026-03-01' );
 		expect( requestedPath ).toContain( 'date=2026-03-10' );
-		expect( requestedPath ).toContain( 'days=10' );
+		expect( requestedPath ).not.toContain( 'days=' );
 	} );
 
 	it( 'links to the Videos report', () => {
@@ -146,7 +148,7 @@ describe( 'VideoPressWidget', () => {
 			<VideoPressWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
 		);
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/videos' )
 		);

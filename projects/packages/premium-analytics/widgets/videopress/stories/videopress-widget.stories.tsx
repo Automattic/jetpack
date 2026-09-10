@@ -19,7 +19,7 @@ import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import VideoPressRender from '../render';
-import widgetDefinition, { DEFAULT_MAX } from '../widget';
+import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -41,24 +41,17 @@ interface VideoPressStoryControls {
  * Render the data-connected VideoPress widget with report params derived from
  * the `withComparison` control, so the close-up stories exercise the real data
  * flow (served by `registerReportMocks`).
- *
- * @param {VideoPressStoryControls} props - Story controls.
- * @return The rendered widget.
  */
 function renderVideoPress( { withComparison }: VideoPressStoryControls ) {
 	return (
-		<VideoPressRender
-			attributes={ { max: DEFAULT_MAX, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
+		<VideoPressRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
 	);
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderVideoPressOnPreset( preset: PresetType ) {
 	return (
-		<VideoPressRender
-			attributes={ { max: DEFAULT_MAX, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
+		<VideoPressRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
 
@@ -153,9 +146,6 @@ interface VideoPressDashboardStoryProps
  * Renders the real registered widget through the shared dashboard harness, so
  * it appears exactly as it does in product, inheriting the size / edit-mode /
  * host-environment controls.
- *
- * @param {VideoPressDashboardStoryProps} props - Story controls.
- * @return The widget mounted in the dashboard harness.
  */
 function VideoPressDashboardStory( {
 	withComparison,
@@ -167,7 +157,7 @@ function VideoPressDashboardStory( {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ VIDEOPRESS_RENDER_MODULE }
 			renderComponent={ VideoPressRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: DEFAULT_MAX, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }

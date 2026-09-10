@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
+use ReflectionProperty;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
@@ -29,6 +32,13 @@ abstract class TestCase extends PHPUnit_TestCase {
 	 * @var int
 	 */
 	protected $editor_id;
+
+	/**
+	 * Connection option override owned by the current test.
+	 *
+	 * @var \Closure|null
+	 */
+	private $connection_options_filter;
 
 	/**
 	 * Setting up the test.
@@ -60,6 +70,23 @@ abstract class TestCase extends PHPUnit_TestCase {
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 		add_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ), 10, 3 );
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
+
+		// The connection status and the stats options are both memoized in statics, so they
+		// outlive the mocked options and the cleared database.
+		( new Connection_Manager() )->reset_connection_status();
+		$this->reset_stats_options();
+	}
+
+	/**
+	 * Drop the stats options `Stats\Options` holds on to between calls.
+	 */
+	private function reset_stats_options() {
+		$options = new ReflectionProperty( Stats_Options::class, 'options' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$options->setAccessible( true );
+		}
+		$options->setValue( null, array() );
 	}
 
 	/**
@@ -75,7 +102,48 @@ abstract class TestCase extends PHPUnit_TestCase {
 
 		remove_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+		if ( $this->connection_options_filter ) {
+			remove_filter( 'jetpack_options', $this->connection_options_filter );
+		}
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
+	}
+
+	/**
+	 * Drop the mocked tokens, leaving a site that was never connected to WordPress.com.
+	 */
+	protected function disconnect_site() {
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Drop the mocked tokens but keep the blog ID, as disconnecting a site actually leaves it.
+	 */
+	protected function disconnect_site_keeping_blog_id() {
+		$this->disconnect_site();
+		$this->connection_options_filter = static function ( $value, $name ) {
+			return 'id' === $name ? '999' : $value;
+		};
+		add_filter( 'jetpack_options', $this->connection_options_filter, 10, 2 );
+	}
+
+	/**
+	 * Replace the blog token with one that has no dot — no secret half — simulating an
+	 * administrator writing an invalid value directly into the options table.
+	 */
+	protected function use_invalid_blog_token() {
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+		$this->connection_options_filter = static function ( $value, $name ) {
+			switch ( $name ) {
+				case 'blog_token':
+					return 'nodot-token';
+				case 'id':
+					return '999';
+			}
+			return $value;
+		};
+		add_filter( 'jetpack_options', $this->connection_options_filter, 10, 2 );
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**
@@ -118,6 +186,16 @@ abstract class TestCase extends PHPUnit_TestCase {
 					'message' => 'ok',
 				),
 				'body'     => '{"cache_buster": "calypso-4917-8664-g72a154d63a"}',
+			);
+		}
+
+		if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) !== false && strpos( $url, 'include_details=true' ) !== false ) {
+			return array(
+				'response' => array(
+					'code'    => 200,
+					'message' => 'ok',
+				),
+				'body'     => '{"opt_in_new_stats":{"show":true,"status":null,"postponed_count":0,"next_show_at":null},"opt_out_new_stats":{"show":true,"status":null,"postponed_count":0,"next_show_at":null},"new_stats_feedback":{"show":false,"status":"postponed","postponed_count":1,"next_show_at":1788000000},"traffic_page_settings":{"show":false,"status":"dismissed","postponed_count":2,"next_show_at":null}}',
 			);
 		}
 

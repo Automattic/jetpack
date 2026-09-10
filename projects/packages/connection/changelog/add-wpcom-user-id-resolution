@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Manager method to resolve a connected user's WordPress.com user ID.

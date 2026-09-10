@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fields: Add main entry pointing to source so Storybook can resolve the package without a build.

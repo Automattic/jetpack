@@ -37,7 +37,9 @@ export default class Layout extends Component {
 		);
 		const Image = GalleryImageSave;
 
-		const { src, srcSet } = photonizedImgProps( img, { layoutStyle } );
+		// This deprecated version has to keep producing the URLs it originally saved, so it always
+		// uses the external Photon domain. Only the current version follows the site's setting.
+		const { src, srcSet } = photonizedImgProps( img, { layoutStyle }, { skipPhotonDomain: false } );
 
 		return (
 			<Image

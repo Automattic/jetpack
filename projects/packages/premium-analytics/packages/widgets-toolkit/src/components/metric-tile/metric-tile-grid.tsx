@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Icon, Text, VisuallyHidden } from '@wordpress/ui';
+import { Icon, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -13,9 +13,6 @@ import type { DataFormat } from '../../types';
 import type { ComponentProps } from 'react';
 
 type MetricTileGridItem = {
-	/**
-	 * Stable identifier for the metric tile.
-	 */
 	key: string;
 
 	/**
@@ -73,21 +70,12 @@ type MetricTileGridItem = {
 	 */
 	placeholder?: string;
 
-	/**
-	 * CSS class for this tile.
-	 */
 	className?: string;
 };
 
 type MetricTileGridProps = {
-	/**
-	 * CSS class for the grid container.
-	 */
 	className?: string;
 
-	/**
-	 * Metric tiles to render.
-	 */
 	tiles: MetricTileGridItem[];
 
 	/**
@@ -107,10 +95,6 @@ type MetricTileGridProps = {
  * a tile that opts into comparison (its `previousValue` is set) renders through
  * `MetricWithComparison`; otherwise it renders a plain formatted value.
  *
- * @param props              - The component props.
- * @param props.tile         - The tile to render the value for.
- * @param props.dataFormat   - The grid's default value format.
- * @param props.currencyCode - The grid's default currency code.
  * @return The rendered value cell.
  */
 function MetricTileValue( {
@@ -155,7 +139,8 @@ function MetricTileValue( {
  *
  * - narrow: a single column of compact rows (icon and label left, value right);
  * - wide but short: a single row of centered tiles (columns follow tile count);
- * - wide and tall: a balanced two-column grid of large centered tiles.
+ * - wide and tall: a balanced two-column grid of large centered tiles, the last
+ *   one taking the whole row when the tile count is odd.
  *
  * The grid is a size container, so it takes no height of its own: render it
  * inside a definite-height flex column (or a `height: 100%` chain) or it

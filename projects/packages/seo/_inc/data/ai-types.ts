@@ -22,6 +22,8 @@ export interface AiState {
 		available: boolean;
 		/** Whether the SEO Enhancer is currently enabled. */
 		enabled: boolean;
+		/** Whether the AI SEO control the Enhancer sits under is on. */
+		aiSeoEnabled: boolean;
 	};
 	llmsTxt: {
 		/** Whether llms.txt generation is switched on. */

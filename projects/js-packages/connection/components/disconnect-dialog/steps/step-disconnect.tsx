@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
 import { Fragment, useCallback, useEffect } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
 import DisconnectActionFooter from '../../shared/disconnect-action-footer';
@@ -99,7 +100,7 @@ const StepDisconnect = ( {
 		if ( hasOtherConnectedPlugins === 0 && ! disconnectStepComponent ) {
 			return (
 				<div className="jp-connection__disconnect-dialog__step-copy">
-					<p className="jp-connection__disconnect-dialog__large-text">
+					<Text className="jp-connection__disconnect-dialog__large-text">
 						{ __(
 							'Jetpack is currently powering multiple products on your site.',
 							'jetpack-connection-js'
@@ -109,7 +110,7 @@ const StepDisconnect = ( {
 							'Once you disconnect Jetpack, these will no longer work.',
 							'jetpack-connection-js'
 						) }
-					</p>
+					</Text>
 				</div>
 			);
 		}

@@ -1,27 +1,19 @@
 /**
  * External dependencies
  */
-import { useGlobalChartsContext } from '@automattic/charts';
+import { useGlobalChartsContext, type SeriesData } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 import type { BarChartStyle } from '../../components';
-import type { SeriesData } from '@automattic/charts';
 
 /**
  * Internal dependencies
  */
 
 /**
- * Hook to build bar chart styles from theme.
- * Maps each series to its color from the theme provider.
+ * Maps each series to the color the theme provider resolves for it.
  *
  * @param chartData - Array of series data (SeriesData[])
  * @return Array of bar styles with stroke color for each series
- *
- * @example
- * ```tsx
- * const barStyles = useBarStyles( chartData );
- * return <BarChart chartData={ chartData } styles={ barStyles } ... />;
- * ```
  */
 export function useBarStyles( chartData: SeriesData[] ): BarChartStyle[] {
 	const { getElementStyles } = useGlobalChartsContext();

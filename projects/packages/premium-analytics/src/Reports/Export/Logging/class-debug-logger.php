@@ -18,7 +18,7 @@ use WC_Logger_Interface;
 /**
  * Class Debug_Logger
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Debug_Logger implements Logger_Interface {
 

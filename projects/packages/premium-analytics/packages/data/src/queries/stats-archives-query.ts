@@ -8,6 +8,12 @@ import { statsReportQuery, type StatsReportParams } from './stats-query';
 // entry inside `stats/top-posts` (as "Homepage (Latest posts)") and drops it
 // from this report.
 export const statsArchivesQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'archives', 'stats/archives', params, 'archives', '1.1', {
-		skip_archives: 1,
-	} );
+	statsReportQuery(
+		'archives',
+		'stats/archives',
+		params,
+		'archives',
+		'1.1',
+		{ skip_archives: 1 },
+		{ omitParams: [ 'days' ] }
+	);

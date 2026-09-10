@@ -21,9 +21,6 @@ type BookingsByDeviceRenderAttributes = BookingsByDeviceAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
 type BookingsByDeviceWidgetProps = WidgetRenderProps< BookingsByDeviceRenderAttributes > & {
-	/**
-	 * Dashboard error handler.
-	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
@@ -41,14 +38,9 @@ function BookingsByDeviceWidget() {
 }
 
 /**
- * Bookings by device widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; SalesByDeviceWidget fetches
  * the filtered bookings attribution report and renders the device breakdown.
- *
- * @param {BookingsByDeviceWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function BookingsByDeviceRender( {
 	attributes = {},

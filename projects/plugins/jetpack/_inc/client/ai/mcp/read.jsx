@@ -17,10 +17,10 @@ import { Fragment, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
-import analytics from 'lib/analytics';
 import { isWriteTool } from './categories';
 import { getOverridesToMatch } from './group-intents';
 import { groupToolsByGroup, groupToolsBySubCategory } from './groups';
+import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
 	getGroupDescriptors,
@@ -174,8 +174,8 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 
 	const handleToolChange = useCallback(
 		( toolId, enabled ) => {
-			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
-				tool_id: toolId,
+			recordMcpTracksEvent( 'jetpack_mcp_allowlist_updated', {
+				ability_name: toolId,
 				enabled,
 				view: 'read',
 			} );
@@ -200,7 +200,7 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 			if ( ! overrides ) {
 				return;
 			}
-			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
+			recordMcpTracksEvent( 'jetpack_mcp_allowlist_updated', {
 				enabled,
 				view: 'read',
 				scope: 'page',
@@ -223,7 +223,7 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 			if ( ! overrides ) {
 				return;
 			}
-			analytics.tracks.recordEvent( 'jetpack_mcp_allowlist_updated', {
+			recordMcpTracksEvent( 'jetpack_mcp_allowlist_updated', {
 				enabled,
 				view: 'read',
 				scope: 'group',

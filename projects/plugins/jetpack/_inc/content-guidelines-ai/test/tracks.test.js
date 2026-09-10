@@ -7,7 +7,14 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 } ) );
 
 describe( 'tracks', () => {
-	beforeEach( () => jest.clearAllMocks() );
+	beforeEach( () => {
+		jest.clearAllMocks();
+		delete window.jetpackContentGuidelinesAi;
+	} );
+
+	afterEach( () => {
+		delete window.jetpackContentGuidelinesAi;
+	} );
 
 	it( 'prefixes guidelines events with jetpack_ai_guidelines_', () => {
 		recordGuidelinesEvent( 'accept', { type: 'section', slug: 'copy' } );
@@ -15,15 +22,16 @@ describe( 'tracks', () => {
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_ai_guidelines_accept', {
 			type: 'section',
 			slug: 'copy',
+			is_a11n: false,
 		} );
 	} );
 
-	it( 'defaults properties to an empty object', () => {
+	it( 'sends only the defaults when no properties are passed', () => {
 		recordGuidelinesEvent( 'read_more_click' );
 
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_guidelines_read_more_click',
-			{}
+			{ is_a11n: false }
 		);
 	} );
 
@@ -32,6 +40,50 @@ describe( 'tracks', () => {
 
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_ai_upgrade_button', {
 			placement: 'content-guidelines',
+			is_a11n: false,
+		} );
+	} );
+
+	it( 'reports is_a11n false when the initial state is missing', () => {
+		recordGuidelinesEvent( 'generate_all', { action: 'generate' } );
+
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_ai_guidelines_generate_all',
+			{ action: 'generate', is_a11n: false }
+		);
+	} );
+
+	it( 'marks Automattician traffic on guidelines events', () => {
+		window.jetpackContentGuidelinesAi = { isA11n: true };
+
+		recordGuidelinesEvent( 'generate_all', { action: 'generate' } );
+
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_ai_guidelines_generate_all',
+			{ action: 'generate', is_a11n: true }
+		);
+	} );
+
+	it( 'marks Automattician traffic on generic AI events', () => {
+		window.jetpackContentGuidelinesAi = { isA11n: true };
+
+		recordAiEvent( 'jetpack_ai_upgrade_button', { placement: 'content-guidelines' } );
+
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_ai_upgrade_button', {
+			placement: 'content-guidelines',
+			is_a11n: true,
+		} );
+	} );
+
+	it( 'coerces a non-boolean flag to a boolean', () => {
+		window.jetpackContentGuidelinesAi = { isA11n: 1 };
+
+		recordGuidelinesEvent( 'dismiss', { type: 'section', slug: 'site' } );
+
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_ai_guidelines_dismiss', {
+			type: 'section',
+			slug: 'site',
+			is_a11n: true,
 		} );
 	} );
 } );

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search_Plugin;
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -97,6 +98,9 @@ class Jetpack_Search_Plugin {
 		Connection_Rest_Authentication::init();
 		// Initialize My Jetpack.
 		My_Jetpack_Initializer::init();
+		// Activity Log. Idempotent, so it no-ops when the Jetpack plugin already
+		// initialized the package on this request.
+		Jetpack_Activity_Log::initialize();
 	}
 
 	/**

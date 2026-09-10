@@ -1314,7 +1314,9 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * Block types are extracted directly from the `<!-- wp:type -->` comment
 	 * literals that convertToBlocks() emits, so no manual annotations are
-	 * needed for that axis.
+	 * needed for that axis.  The scan starts at serializeList(), the list
+	 * serializer convertToBlocks() delegates to, which sits immediately above
+	 * it, so that both functions' literals are covered.
 	 *
 	 * Attribute-level sync uses a hardcoded map of what convertToBlocks()
 	 * outputs per block type.  When you add attribute support in view.js,
@@ -1328,12 +1330,20 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$view_js      = file_get_contents( $view_js_path );
 		$this->assertNotEmpty( $view_js, 'Could not read view.js at ' . $view_js_path );
 
-		$fn_start = strpos( $view_js, 'function convertToBlocks(' );
-		$this->assertNotFalse( $fn_start, 'convertToBlocks() not found in view.js' );
-		// Read enough of the function body to capture all block types.
-		// If convertToBlocks() grows past this, the assertion below will
-		// catch missing types. Increase as needed.
-		$fn_body = substr( $view_js, $fn_start, 10000 );
+		// Scan from serializeList(), the list serializer convertToBlocks()
+		// delegates to, through the end of convertToBlocks() itself -- which is
+		// its closing `return blocks.join(...)`.  Bounding the scan on that
+		// statement rather than a character count keeps unrelated code further
+		// down the file from being mistaken for block types the serializer
+		// emits, and keeps the region correct as either function grows.
+		$this->assertStringContainsString( 'function serializeList(', $view_js );
+		$this->assertStringContainsString( 'function convertToBlocks(', $view_js );
+		$this->assertStringContainsString( 'return blocks.join', $view_js );
+
+		$fn_start = strpos( $view_js, 'function serializeList(' );
+		$fn_end   = strpos( $view_js, 'return blocks.join', $fn_start );
+		$this->assertGreaterThan( $fn_start, $fn_end, 'convertToBlocks() should follow serializeList() in view.js' );
+		$fn_body = substr( $view_js, $fn_start, $fn_end - $fn_start );
 
 		// Match opening block comments only (negative lookbehind skips closing <!-- /wp:... -->).
 		preg_match_all( '/<!-- (?!\/)wp:([a-z][a-z0-9-]*)/', $fn_body, $matches );

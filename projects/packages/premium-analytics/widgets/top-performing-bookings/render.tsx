@@ -24,14 +24,7 @@ type TopPerformingBookingsWidgetProps =
 	};
 
 /**
- * Top performing bookings widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; TopPerformingBookingsWidget
- * fetches booking product data and renders a revenue leaderboard.
- *
- * @param {TopPerformingBookingsWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * Booking products ranked by revenue.
  */
 export default function TopPerformingBookingsRender( {
 	attributes = {},

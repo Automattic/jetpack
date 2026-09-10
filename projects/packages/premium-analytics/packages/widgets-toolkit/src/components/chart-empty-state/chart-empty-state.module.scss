@@ -1,3 +1,5 @@
+@use "../../styles/widget-container" as *;
+
 .container {
 	display: flex;
 	align-items: center;
@@ -23,7 +25,7 @@
 // Mirror the error state's short-tile degradation (see widget-state): below
 // the threshold every state renders text only, vertically centered, so
 // adjacent widgets in different states stay visually aligned.
-@container (max-block-size: 140px) {
+@container (max-block-size: #{$widget-short-max-block-size}) {
 
 	.icon {
 		display: none;

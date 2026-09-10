@@ -26,7 +26,7 @@ jobs:
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
@@ -67,7 +67,7 @@ jobs:
       js-coverage-status: ${{ case( matrix.coverage-group == 'js', steps.run-tests.conclusion, '' ) }}
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           # Test coverage checks require a fetch depth > 1.
           fetch-depth: 2
@@ -136,7 +136,7 @@ jobs:
           if [[ ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-php-coverage" ) && ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) ]]; then
             VER=$(composer --format=json --working-dir="tools/php-test-env" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
             if [[ -n "$VER" ]]; then
-              INSVER=$WORDPRESS_TAG
+              INSVER="=$WORDPRESS_TAG"
               [[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
               echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
               # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
@@ -201,8 +201,10 @@ jobs:
               SLUG="${DIR#projects/}"
             fi
 
-            if [[ "${SLUG%%/*}" != "plugins" && "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$FORCE_PACKAGE_TESTS" != "true" ]]; then
-              echo "Skipping $SLUG, only plugins run for WP_BRANCH = $WP_BRANCH"
+            if [[ "${SLUG%%/*}" != "plugins" && "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$FORCE_PACKAGE_TESTS" != "true" ]] &&
+              ! jq -e '.["require-dev"]["automattic/jetpack-test-environment"] // empty' "$P" > /dev/null
+            then
+              echo "Skipping $SLUG, only plugins and packages dev-depending on automattic/jetpack-test-environment run for WP_BRANCH = $WP_BRANCH"
               continue
             fi
 
@@ -312,7 +314,7 @@ jobs:
       - name: Upload artifacts
         id: upload-artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ${{ matrix.artifact }}
           path: artifacts
@@ -326,7 +328,7 @@ jobs:
     needs: run-tests
     if: always() && needs.run-tests.outputs.did-coverage == 'true' && github.repository == 'Automattic/jetpack' && ( github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name || github.event_name == 'push' && github.ref == 'refs/heads/trunk' )
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Get token
         id: get_token
@@ -340,7 +342,7 @@ jobs:
         uses: ./.github/actions/tool-setup
 
       - name: Download coverage artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: 'Code coverage (*)'
           path: coverage_dl
@@ -368,7 +370,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20 # 2025-11-20: Takes about 4 minutes
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -420,7 +422,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5 # 2025-11-20: Takes less than a minute.
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:

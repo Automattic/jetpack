@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import type { StatsWordAdsEarningsBreakdown } from '@jetpack-premium-analytics/data';
-import type { Field, View } from '@wordpress/dataviews';
+import type { Field, View } from '@jetpack-premium-analytics/externals';
 
 /** A single WordAds earnings-history row (one period). */
 export type EarningsHistoryRow = {

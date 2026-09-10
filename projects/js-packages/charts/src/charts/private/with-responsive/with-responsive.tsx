@@ -1,6 +1,7 @@
 import { useParentSize } from '@visx/responsive';
 import clsx from 'clsx';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ChartScopeContext } from '../../../providers/chart-scope';
 import styles from './with-responsive.module.scss';
 import type { BaseChartProps } from '../../../types';
 import type { ComponentType } from 'react';
@@ -66,6 +67,9 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 
 		const hasAspectRatio = aspectRatio !== undefined && aspectRatio > 0;
 
+		// The context needs a re-render when the node attaches; wrapperRef alone cannot provide that, so mirror the node into state from the same callback ref.
+		const [ scopeNode, setScopeNode ] = useState< HTMLDivElement | null >( null );
+
 		// Keep our own handle on the wrapper so we can read its live height below, and
 		// still hand the node to useParentSize's ref (a callback ref in practice; guard
 		// the object-ref shape too).
@@ -73,6 +77,7 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 		const setWrapperRef = useCallback(
 			( node: HTMLDivElement | null ) => {
 				wrapperRef.current = node;
+				setScopeNode( node );
 				if ( typeof parentRef === 'function' ) {
 					parentRef( node );
 				} else if ( parentRef ) {
@@ -160,17 +165,19 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 					...( height !== undefined ? { height } : null ),
 				} }
 			>
-				{ hasAspectRatio ? (
-					<div
-						data-testid="responsive-content"
-						className={ styles.content }
-						style={ { width: boxWidth, height: boxHeight } }
-					>
-						{ wrappedComponent }
-					</div>
-				) : (
-					wrappedComponent
-				) }
+				<ChartScopeContext.Provider value={ scopeNode }>
+					{ hasAspectRatio ? (
+						<div
+							data-testid="responsive-content"
+							className={ styles.content }
+							style={ { width: boxWidth, height: boxHeight } }
+						>
+							{ wrappedComponent }
+						</div>
+					) : (
+						wrappedComponent
+					) }
+				</ChartScopeContext.Provider>
 			</div>
 		);
 	};

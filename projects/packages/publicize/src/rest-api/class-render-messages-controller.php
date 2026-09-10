@@ -153,6 +153,20 @@ class Render_Messages_Controller extends Base_Controller {
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
+				'hyperlinks'       => array(
+					'description' => __( 'Editor hyperlinks preserved from content or excerpt placeholders.', 'jetpack-publicize-pkg' ),
+					'type'        => 'array',
+					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'text'       => array( 'type' => 'string' ),
+							'href'       => array( 'type' => 'string' ),
+							'occurrence' => array( 'type' => 'integer' ),
+						),
+					),
+				),
 				'error'            => array(
 					'description' => __( 'Per-item error. Present only when this item failed to render.', 'jetpack-publicize-pkg' ),
 					'type'        => 'object',

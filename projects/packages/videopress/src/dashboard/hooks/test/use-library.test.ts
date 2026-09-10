@@ -378,6 +378,45 @@ describe( 'on WordPress.com Simple', () => {
 			expect( withDimensions( 1920, undefined ).orientation ).toBeNull();
 		} );
 
+		it( 'picks the best MP4 rendition for playbackUrl (dvd → std → hd)', () => {
+			// The original upload (`source_url`) may be an HEVC .mov most
+			// browsers can't decode; playbackUrl prefers the H.264 ladder,
+			// smallest useful rendition first — the editors' preview stage is
+			// far below 1080p and a progressive hd stream can outrun slow
+			// connections (see pickPlaybackUrl's docblock).
+			const withFiles = ( files?: Record< string, { mp4?: string } > ) =>
+				toLibraryItem(
+					{
+						id: 11,
+						title: { rendered: 'Rendition' },
+						mime_type: 'video/mp4',
+						source_url: 'https://example.com/original.mov',
+						media_details: {
+							videopress: {
+								poster: 'https://example.com/poster.jpg',
+								finished: true,
+								file_url_base: { https: 'https://videos.files.wordpress.com/guid11/' },
+								files,
+							},
+						},
+						jetpack_videopress: { guid: 'guid11' },
+					},
+					false
+				);
+
+			expect(
+				withFiles( { hd: { mp4: 'clip_hd.mp4' }, dvd: { mp4: 'clip_dvd.mp4' } } ).playbackUrl
+			).toBe( 'https://videos.files.wordpress.com/guid11/clip_dvd.mp4' );
+			expect(
+				withFiles( { hd: { mp4: 'clip_hd.mp4' }, std: { mp4: 'clip_std.mp4' } } ).playbackUrl
+			).toBe( 'https://videos.files.wordpress.com/guid11/clip_std.mp4' );
+			expect( withFiles( { hd: { mp4: 'clip_hd.mp4' } } ).playbackUrl ).toBe(
+				'https://videos.files.wordpress.com/guid11/clip_hd.mp4'
+			);
+			// No renditions yet (still transcoding): no playback URL.
+			expect( withFiles( undefined ).playbackUrl ).toBeUndefined();
+		} );
+
 		it( 'sends the privacy filter as a server param in a single request, totals from headers', async () => {
 			// Server-side filtering: the privacy filter is a query param, the
 			// server does the narrowing, and the hook reads X-WP-Total verbatim.

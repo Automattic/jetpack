@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { VisuallyHidden } from '@wordpress/ui';
+import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -32,9 +32,6 @@ export interface DrilldownLeafCellProps {
  * rows in this shell, which opts back out to body weight and restores the
  * link treatment DataViews' title styling suppresses. The link itself is
  * composed by the consumer — an external `Link` or an internal router link.
- *
- * @param {DrilldownLeafCellProps} props - The component props.
- * @return The leaf cell shell.
  */
 export function DrilldownLeafCell( { groupLabel, children }: DrilldownLeafCellProps ) {
 	return (

@@ -6,7 +6,9 @@ import {
 	GlobalErrorProvider,
 	queryClient,
 } from '@jetpack-premium-analytics/data';
+import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import type { AnchorHTMLAttributes, ReactElement, ReactNode } from 'react';
 /**
@@ -66,28 +68,69 @@ describe( 'AuthorsWidget', () => {
 		} );
 	} );
 
-	it( 'passes max zero through to request all authors', async () => {
+	it( 'requests the shared widget row limit', async () => {
 		renderInDashboard(
 			<AuthorsWidget
-				attributes={ { max: 0, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
 		await waitFor( () =>
 			expect( mockApiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( {
-					path: expect.stringMatching( /[?&]max=0(?:&|$)/ ),
+					path: expect.stringMatching( new RegExp( `[?&]max=${ WIDGET_ROW_LIMIT }(?:&|$)` ) ),
 				} )
 			)
 		);
 	} );
 
 	it( 'links to the Authors report', () => {
-		renderInDashboard( <AuthorsWidget attributes={ { max: 7 } } /> );
+		renderInDashboard( <AuthorsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'See report' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/authors' )
 		);
+	} );
+
+	it( 'links a drilled-down author post to its detail page', async () => {
+		const user = userEvent.setup();
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-07-17',
+			period: 'day',
+			summary: {
+				authors: [
+					{
+						author_id: 101,
+						name: 'Jane Cooper',
+						views: 20,
+						posts: [
+							{
+								id: 123,
+								title: 'Quarterly update',
+								url: 'https://example.com/quarterly-update/',
+								views: 20,
+							},
+						],
+					},
+				],
+			},
+		} );
+
+		renderInDashboard(
+			<AuthorsWidget
+				attributes={ {
+					reportParams: getDefaultQueryParams( false, 'last-7-days' ),
+				} }
+			/>
+		);
+
+		await user.click( await screen.findByRole( 'button', { name: 'View posts by Jane Cooper' } ) );
+
+		const link = screen.getByRole( 'link', { name: 'Quarterly update' } );
+		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
+
+		expect( url.pathname ).toBe( '/post/123' );
+		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/quarterly-update/' );
 	} );
 } );

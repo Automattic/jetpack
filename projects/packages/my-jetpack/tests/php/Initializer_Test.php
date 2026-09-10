@@ -237,4 +237,11 @@ class Initializer_Test extends BaseTestCase {
 
 		return $location;
 	}
+
+	/**
+	 * The AI card keeps its legacy action without a compatible Jetpack plugin.
+	 */
+	public function test_my_jetpack_flags_hide_the_ai_module_toggle_without_compatible_jetpack() {
+		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
+	}
 }

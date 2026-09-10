@@ -1,6 +1,7 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as LineChartStories from './index.stories';
 import * as GlyphStories from './glyph.stories';
+import * as TooltipStories from './tooltip.stories';
 
 <Meta title="JS Packages/Charts Library/Charts/Line Chart" of={ LineChartStories } />
 
@@ -77,7 +78,7 @@ The simplest line chart requires only a `data` prop with time-series data:
 
 **Visual Styling:**
 - **`curveType`**: Line curve style (`'smooth'`, `'linear'`, `'monotone'`)
-- **`smoothing`**: Legacy smoothing parameter (deprecated, use `curveType` instead)
+- **`smoothing`**: Catmull-Rom smoothing, on by default. Ignored when `curveType` is set
 - **`withGradientFill`**: Fill area under lines with gradient (`false` by default)
 - **`withStartGlyphs`**: Show markers at the first data point of each series (`false` by default)
 - **`renderGlyph`**: Custom glyph render function
@@ -96,6 +97,7 @@ The simplest line chart requires only a `data` prop with time-series data:
 **Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
 - **`legend`**: Legend configuration object (`ChartLegendConfig`) for controlling orientation, position, alignment, shape, interactivity, and styling
+- **`defaultHiddenSeries`**: Series labels hidden from the first defined value; later values for the same `chartId` are ignored
 - **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
 
 **Advanced:**
@@ -200,29 +202,33 @@ Use semantic line types to distinguish between different data categories with au
 
 ### Comparison type
 
-The `comparison` type can be used to differentiate comparison data from primary data series:
+The `comparison` type can be used to differentiate comparison data from primary data series. Give the primary series and its comparison overlay the same `group` so they pair up. By default each still gets its own legend item; set `legend.collapseGroups` to fold them into one:
 
-<Canvas of={ LineChartStories.Comparison } />
+<Canvas of={ LineChartStories.ComparisonSingle } />
 
 <Source
 	language="jsx"
 	code={ `<LineChart
 		data={[
 			{
-				label: 'This Year',
-				data: currentYearData,
-				options: {}
+				label: 'Views',
+				group: 'views',
+				data: currentPeriodData,
 			},
 			{
-				label: 'Last Year',
-				data: lastYearData,
-				options: {
-					type: 'comparison'
-				}
-			}
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' },
+				data: previousPeriodData,
+			},
 		]}
+		showLegend={true}
 	/>` }
 />
+
+Pair several metrics side by side, each with its own comparison overlay. With `legend.collapseGroups`, each group renders as a single item labelled by its primary series. Add `legend.interactive` and clicking that item toggles the metric's current and previous-period lines together — without `collapseGroups`, each line keeps its own item and toggles alone. By default the value axis rescales to the visible series as they are toggled; this story sets `rescaleYOnVisibilityChange={ false }` to pin it to the full data range so the baseline doesn't jump. When every series is hidden the axes are dropped and only the empty state is shown.
+
+<Canvas of={ LineChartStories.ComparisonMulti } />
 
 ### Theme Integration
 
@@ -470,6 +476,11 @@ Add contextual information to highlight specific data points or events. For comp
 
 Enable rich interactive tooltips with optional crosshair guides:
 
+The built-in tooltip names the bucket at its own granularity, down to the hour on
+hourly data. A custom `renderTooltip` is handed the same classification as
+`bucketInfo`, so it can label the bucket the way the chart's own axis does. See
+[Date Bucket Classification](?path=/docs/js-packages-charts-library-global-context--docs).
+
 <Source
 	language="jsx"
 	code={ `<LineChart
@@ -487,6 +498,40 @@ Enable rich interactive tooltips with optional crosshair guides:
 		)}
 	/>` }
 />
+
+Tooltips render inside the chart's own wrapper, not in a `document.body` portal, so they stack with the page like any other element and a sticky or fixed header paints over them. `detectBounds` flips the box to the side of the anchor that overflows less, measured against both the wrapper and the nearest ancestor that clips its overflow (`overflow: hidden`, `clip`, `auto` or `scroll`), so it stays inside the chart whenever it fits there; then it clamps the box inside that ancestor, or inside the viewport when nothing clips. A box larger than the wrapper may reach past it into that ancestor, where siblings later in the DOM can paint over it. Only an ancestor smaller than the box itself can still cut it off.
+
+### Below-Axis Tooltips
+
+Set `tooltipPlacement="below-axis"` to place the panel below the bottom x-axis label band with its pointer touching the bottom of that band at the active datum's x coordinate. The panel centers on the datum and clamps horizontally at the nearest clipping ancestor or viewport edge. The band ends at the plot bottom plus the bottom margin. The panel stays below the band even when there is insufficient vertical space; an ancestor that clips overflow can still cut it off. The default `"auto"` placement keeps the existing flipping and clamping behavior.
+
+<Canvas of={ TooltipStories.BelowAxisDefaultRenderer } />
+
+<Source
+	language="tsx"
+	code={ `import { LineChart } from '@automattic/charts';
+
+	<LineChart
+		data={ data }
+		tooltipPlacement="below-axis"
+		tooltipStyle={ {
+			background: 'var(--a8c-charts-color-tooltip-surface)',
+			color: 'var(--a8c-charts-color-label-inverse)',
+		} }
+		withTooltipCrosshairs={ {
+			showVertical: true,
+			verticalStyle: { strokeWidth: 40, strokeOpacity: 0.12 },
+		} }
+	/>` }
+/>
+
+Set `tooltipStyle` to customize the tooltip. With the default renderer, each supplied color or background changes only that content property. A color-only override retains the content's default `--a8c-charts-color-surface`; a background-only override retains its `--a8c-charts-color-label`, independently of the container's axis-label color. When both are supplied, both values are used. The below-axis pointer inherits the background. Choose colors with sufficient contrast. Non-color properties such as `boxShadow` retain the existing color defaults. A custom `renderTooltip` keeps control of its own content styles.
+
+The public `AccessibleTooltip` component's `style` prop also merges with the computed box styles instead of replacing them. Use its `unstyled` prop to strip the box styles.
+
+Use `withTooltipCrosshairs.verticalStyle` to turn the vertical guide into a broad translucent highlight, as shown above. Both `verticalStyle` and `horizontalStyle` accept paint properties (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`, `strokeLinecap`, and `opacity`), `className`, and a `style` object limited to those paint properties; their corresponding `showVertical` or `showHorizontal` option enables the guide.
+
+Leave space below the chart when it sits inside a clipping container. Below-axis placement supports the same keyboard controls, screen reader announcements, and custom `renderTooltip` content as automatic placement.
 
 ### Pointer Events
 
@@ -517,13 +562,13 @@ Set `zoomable` to let users drag horizontally across the plot to zoom the X axis
 	/>` }
 />
 
-Zoom behaviour:
+Zoom behavior:
 
 - Disabled by default (`zoomable={false}`).
 - Only the X axis rescales; the Y axis is unaffected.
 - A selection rectangle follows the pointer while dragging.
 - Drags shorter than 6px are ignored, so a click never zooms.
-- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain.
+- While zoomed, a "Reset zoom" button appears in the top-right to restore the full domain. It is reachable with Tab and activates with Enter or Space. A "Reset zoom" tooltip shows on hover and on keyboard focus, and Escape dismisses it.
 - Series are clipped to the plot area while zoomed, so lines never overflow the axes.
 - `zoomable` chains with your own `onPointerDown`/`onPointerMove`/`onPointerUp` handlers rather than replacing them.
 
@@ -548,22 +593,32 @@ Use the composition API to add a legend by placing `<LineChart.Legend />` as a c
 
 For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
+Use `defaultHiddenSeries` to hide selected series initially while keeping them available through an interactive legend. The first defined list is used; later values for the same `chartId` are ignored. The defaults are seeded once per `chartId`, so a series the reader reveals stays revealed even if the chart unmounts and comes back — swapping between chart types, or a tab the chart lives in going away and returning. Only a new `chartId` seeds again.
+
+<Canvas of={ LineChartStories.WithDefaultHiddenSeries } />
+
 ## Theming Integration
 
-Line Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Line Charts integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, LineChart, type ChartTheme } from '@automattic/charts';
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+		--a8c-charts-color-series-2: #4ECDC4;
+		--a8c-charts-color-series-3: #45B7D1;
+	}` }
+/>
 
-	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
-		gridColor: '#E0E0E0',
-	};
+For other catalog colors and their scoping rules, see [the token catalog](?path=/docs/js-packages-charts-library-providers-globalchartsprovider--docs). For local tooltip colors, see [Below-Axis Tooltips](#below-axis-tooltips).
 
-	<GlobalChartsProvider theme={customTheme}>
-		<LineChart data={data} />
-	</GlobalChartsProvider>` }
+<Source
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-grid: #E0E0E0;
+	}` }
 />
 
 ## Responsive Behavior

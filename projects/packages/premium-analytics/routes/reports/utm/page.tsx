@@ -1,13 +1,8 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
-import {
-	useDashboardLink,
-	useReportDateFilters,
-	useSectionTab,
-} from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportDrilldownTable,
@@ -19,16 +14,17 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import {
 	getReportUtmTabs,
+	getTabTitle,
 	getUtmFields,
 	getUtmTabLabel,
 	resolveSection,
@@ -51,8 +47,6 @@ const RECORDS_VIEW = {
 	},
 };
 
-const sortUtmCsvRows = ( a: UtmReportRow, b: UtmReportRow ) => b.views - a.views;
-
 /**
  * Stable row id for the UTM records table.
  *
@@ -74,16 +68,22 @@ function getUtmRowParentId( item: UtmReportRow ): string | undefined {
 }
 
 /**
+ * Keep nested posts identifiable after the UTM hierarchy is flattened into CSV rows.
+ *
+ * @param item - The UTM parent or nested post row.
+ * @return The UTM value or UTM-qualified post title.
+ */
+function getUtmCsvLabel( item: UtmReportRow ): string {
+	return item.groupLabel ? `${ item.groupLabel } > ${ item.label }` : item.label;
+}
+
+/**
  * Premium Analytics UTM report page.
  *
  * @return The UTM report page.
  */
 function UtmReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 	const tabs = useMemo( () => getReportUtmTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useUtmReportRecords( activeTab, reportParams );
@@ -91,7 +91,7 @@ function UtmReport(): JSX.Element {
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
 	const csvColumns = useMemo< CsvColumn< UtmReportRow >[] >(
 		() => [
-			{ label: getUtmTabLabel( activeTab ), getValue: row => row.label },
+			{ label: getUtmTabLabel( activeTab ), getValue: getUtmCsvLabel },
 			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
 		],
 		[ activeTab ]
@@ -105,23 +105,14 @@ function UtmReport(): JSX.Element {
 		filenamePrefix: `utm-${ activeTab }`,
 		range: reportParams,
 		status: records,
-		sort: sortUtmCsvRows,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	const { getLabel } = REPORTS.utm;
 
 	return (
 		<ReportPageShell
-			tabbed
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-						{ label: __( 'UTM', 'jetpack-premium-analytics-pkg' ) },
-					] }
-				/>
-			}
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -129,12 +120,9 @@ function UtmReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
+				dateFilters={ dateFilters }
 			>
 				{ records.isError ? (
 					<ReportErrorState
@@ -152,6 +140,8 @@ function UtmReport(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
+						collapsible
+						defaultExpanded="none"
 					/>
 				) }
 			</ReportPageLayout>

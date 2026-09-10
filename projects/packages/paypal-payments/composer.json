@@ -4,10 +4,11 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
@@ -54,7 +55,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.7.x-dev"
+			"dev-trunk": "0.8.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-paypal-payments/compare/v${old}...v${new}"

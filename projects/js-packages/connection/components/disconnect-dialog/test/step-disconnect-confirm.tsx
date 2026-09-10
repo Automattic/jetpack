@@ -21,6 +21,12 @@ describe( 'StepDisconnectConfirm', () => {
 		);
 	} );
 
+	it( 'renders the decorative card with the unlink glyph, hidden from assistive technology', () => {
+		render( <StepDisconnectConfirm { ...testProps } /> );
+		expect( screen.getByTestId( 'decorative-card' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByTestId( 'decorative-card_icon' ) ).toBeInTheDocument();
+	} );
+
 	describe( 'when feedback can be provided', () => {
 		it( 'renders the "Help us improve" button and "No thank you" link, not the "Back to my website" button', () => {
 			render( <StepDisconnectConfirm { ...testProps } canProvideFeedback /> );

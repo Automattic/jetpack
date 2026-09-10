@@ -34,7 +34,9 @@ use function is_wp_error;
 use function register_rest_route;
 use function rest_authorization_required_code;
 use function rest_ensure_response;
+use function wp_cache_flush;
 use function wp_remote_retrieve_response_code;
+use function wp_using_ext_object_cache;
 
 /**
  * Registers the REST routes for Backup.
@@ -229,6 +231,17 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_backup_preflight',
 				'permission_callback' => __NAMESPACE__ . '\Jetpack_Backup::backups_permissions_callback',
+			)
+		);
+
+		// Flush the object cache, which a database restore leaves stale.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/cache/flush',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => __CLASS__ . '::flush_object_cache',
+				'permission_callback' => __CLASS__ . '::backup_permissions_callback',
 			)
 		);
 	}
@@ -583,7 +596,11 @@ class REST_Controller {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		// Cast: `wp_remote_retrieve_response_code()` hands back whatever the
+		// transport put there, and a numeric-string `'200'` fails this
+		// strict comparison — so a perfectly good answer is discarded and
+		// the route reports that the site has no rewindable event to undo.
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return null;
 		}
 
@@ -701,7 +718,12 @@ class REST_Controller {
 	/**
 	 * Fetch backup preflight status
 	 *
-	 * @return array
+	 * The `array` this used to advertise was never a shape it could return;
+	 * both branches below hand back an object. Corrected because Phan reads
+	 * it, and a caller that believed it would be calling array offsets on a
+	 * `WP_REST_Response`.
+	 *
+	 * @return \WP_REST_Response|WP_Error The preflight payload, or a WP_Error if WordPress.com refused or could not be reached.
 	 */
 	public static function get_site_backup_preflight() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -722,17 +744,70 @@ class REST_Controller {
 			);
 		}
 
-		$response_code = wp_remote_retrieve_response_code( $response );
+		// Cast and then clamp, and this route needs both more than any
+		// other in the package. `wp_remote_retrieve_response_code()` hands
+		// back whatever the transport put there, so an uncast `'200'` fails
+		// the comparison below — and this is the one place that then
+		// forwards the status it just read straight into `data.status`.
+		// WordPress runs that through `absint()`, so the error envelope is
+		// served as HTTP 200: `apiFetch` resolves, nothing throws, and a
+		// failure arrives at the caller looking like a successful preflight.
+		//
+		// The clamp covers what the cast cannot. `(int)` is total, so an
+		// absent or unparseable code becomes `0` and `'2 Bad'` becomes `2`,
+		// and neither is a status `status_header()` can emit. The same
+		// reasoning, written out at length, is on
+		// `REST\Rest_Controller::upstream_error()`; it is open-coded here
+		// rather than borrowed because that helper also attaches
+		// WordPress.com's own reason under a `wpcom` key, which would change
+		// this route's response shape for callers we do not control.
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $response_code ) {
 			return new WP_Error(
 				'http_error_fetch_preflight',
 				wp_remote_retrieve_response_message( $response ),
-				array( 'status' => $response_code )
+				array( 'status' => $response_code >= 400 && $response_code <= 599 ? $response_code : 500 )
 			);
 		}
 
 		$body = json_decode( $response['body'], true );
 		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Flush the object cache.
+	 *
+	 * A database restore writes MySQL directly and never tells WordPress, so
+	 * a site with a persistent cache keeps serving pre-restore rows until
+	 * something busts it.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return \WP_REST_Response Whether the cache was flushed, carrying a `reason` whenever it was not.
+	 */
+	public static function flush_object_cache() {
+		if ( ! wp_using_ext_object_cache() ) {
+			return rest_ensure_response(
+				array(
+					'flushed' => false,
+					'reason'  => 'no_ext_object_cache',
+				)
+			);
+		}
+
+		// Core documents false as the only failure signal, so a drop-in whose
+		// flush() returns nothing must not be reported as a failed flush.
+		if ( false === wp_cache_flush() ) {
+			return rest_ensure_response(
+				array(
+					'flushed' => false,
+					'reason'  => 'flush_failed',
+				)
+			);
+		}
+
+		return rest_ensure_response( array( 'flushed' => true ) );
 	}
 
 	/**

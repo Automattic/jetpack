@@ -21,12 +21,18 @@ export declare global {
 					gmtOffset: number;
 					timezoneString: string;
 					locale: string;
-					hasVideoPressAccess: boolean;
-					isVideoPress1TB?: boolean;
-					isVideoPressUnlimited?: boolean;
+					hasVideoPressAccess: boolean | null;
+					isVideoPress1TB?: boolean | null;
+					isVideoPressUnlimited?: boolean | null;
 				};
 				assets: {
 					buildUrl: string;
+				};
+				// Feature gates mirrored from the PHP-side filters (see
+				// `Admin_UI::is_chapters_editor_enabled()`). Optional so payloads
+				// rendered before the gates existed still typecheck.
+				features?: {
+					chaptersEditor: boolean;
 				};
 				// Authoritative accepted-upload map (extension => mimetype) from the
 				// server's `Admin_UI::get_allowed_video_extensions()`.

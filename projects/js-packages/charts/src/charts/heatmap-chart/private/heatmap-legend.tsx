@@ -15,7 +15,7 @@ export interface HeatmapLegendProps {
 
 export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel, moreLabel } ) => {
 	const context = useContext( HeatmapContext );
-	const { legend, backgroundColor } = useGlobalChartsTheme();
+	const { legend } = useGlobalChartsTheme();
 	if ( ! context ) {
 		return null;
 	}
@@ -24,7 +24,11 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 
 	return (
 		<Stack direction="row" gap="xs" align="center">
-			<Text variant="body-sm" style={ labelStyle }>
+			<Text
+				variant="body-sm"
+				className={ styles[ 'heatmap-chart__legend-label' ] }
+				style={ labelStyle }
+			>
 				{ lessLabel ?? __( 'Less', 'jetpack-charts' ) }
 			</Text>
 			<Stack direction="row" gap="xs">
@@ -38,7 +42,6 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 							style={
 								{
 									'--a8c-charts-color-heatmap-primary': primaryColorHex,
-									'--a8c-charts-color-heatmap-background': backgroundColor,
 									'--a8c-charts-heatmap-cell-intensity': intensity,
 								} as CSSProperties
 							}
@@ -46,7 +49,11 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 					);
 				} ) }
 			</Stack>
-			<Text variant="body-sm" style={ labelStyle }>
+			<Text
+				variant="body-sm"
+				className={ styles[ 'heatmap-chart__legend-label' ] }
+				style={ labelStyle }
+			>
 				{ moreLabel ?? __( 'More', 'jetpack-charts' ) }
 			</Text>
 		</Stack>

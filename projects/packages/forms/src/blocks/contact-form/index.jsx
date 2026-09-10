@@ -123,5 +123,4 @@ export const settings = {
 	deprecated,
 	// Custom label for List View - shows form title with status for synced forms
 	label: getFormLabel,
-	__experimentalLabel: getFormLabel, // Backwards compatibility with WP < 7.0
 };

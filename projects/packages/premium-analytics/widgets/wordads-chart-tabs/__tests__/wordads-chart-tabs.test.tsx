@@ -3,22 +3,65 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
+import WordAdsChartTabsWidget from '../render';
 import useWordAdsChart from '../use-wordads-chart';
+import wordAdsChartTabsWidget, { type WordAdsChartTabsAttributes } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { ReactNode } from 'react';
+import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
+import type { ComponentType, ReactNode } from 'react';
 
-jest.mock( '@wordpress/api-fetch' );
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
+// The chart itself is visx SVG rendering, outside this widget's concern. Keep
+// the metrics observable so the tests can assert what the widget charts.
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	MetricTabsChart: ( {
+		metrics,
+		chartType,
+	}: {
+		metrics: {
+			key: string;
+			label: string;
+			value: number;
+			current: { date: Date; value: number }[];
+			dataFormat?: { type: string };
+		}[];
+		chartType?: string;
+	} ) => (
+		<div
+			data-testid="metric-tabs-chart"
+			data-chart-type={ String( chartType ) }
+			data-metrics={ JSON.stringify(
+				metrics.map( metric => ( {
+					key: metric.key,
+					label: metric.label,
+					value: metric.value,
+					format: metric.dataFormat?.type,
+					values: metric.current.map( point => point.value ),
+					firstDate: metric.current[ 0 ]?.date.toISOString(),
+					days: metric.current.map( point => point.date.getDate() ),
+				} ) )
+			) }
+		/>
+	),
+} ) );
 
-// Raw WPCOM `wordads/stats` matrix shape: two monthly buckets, so the summary
-// totals impressions (2000) and revenue (9.75), and CPM is the weighted average
-// revenue / impressions * 1000 = 4.875.
+// WidgetRoot reads URL search params as a fallback for report params; outside
+// a matched route the real hook warns and throws.
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
+
+const mockApiFetch = apiFetch as unknown as jest.Mock;
+
+// Raw WPCOM `wordads/stats` matrix: two monthly buckets, summing to impressions
+// 2000 / revenue 9.75, with CPM the weighted average 4.875.
 const PRIMARY_RESPONSE = {
 	unit: 'month',
 	fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
@@ -28,7 +71,7 @@ const PRIMARY_RESPONSE = {
 	],
 };
 
-// Lower comparison period so the previous-period value is distinct.
+// Distinct data proves the comparison is omitted.
 const COMPARISON_RESPONSE = {
 	unit: 'month',
 	fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
@@ -74,47 +117,11 @@ describe( 'useWordAdsChart', () => {
 		expect( metrics[ 0 ].dataFormat ).toBeUndefined();
 		expect( metrics[ 1 ].dataFormat?.type ).toBe( 'currency' );
 		expect( metrics[ 2 ].dataFormat?.type ).toBe( 'currency' );
-		// One chart point per period; no comparison overlay without comparison params.
 		expect( metrics[ 0 ].current ).toHaveLength( 2 );
+		// Comparison is unsupported regardless of report parameters.
 		expect( metrics[ 0 ].previous ).toBeUndefined();
 		expect( metrics[ 0 ].previousValue ).toBeUndefined();
 		expect( result.current.isEmpty ).toBe( false );
-	} );
-
-	it( 'shows only the selected metrics, in canonical order', async () => {
-		const reportParams: ReportParams = {
-			from: '2026-05-01',
-			to: '2026-06-30',
-			interval: 'month',
-		};
-
-		// Pass the ids out of canonical order to prove the tab order is resolved
-		// against the definitions, not the selection order.
-		const { result } = renderHook(
-			() => useWordAdsChart( reportParams, 'month', [ 'revenue', 'impressions' ] ),
-			{ wrapper }
-		);
-
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
-
-		expect( result.current.metrics.map( metric => metric.key ) ).toEqual( [
-			'impressions',
-			'revenue',
-		] );
-	} );
-
-	it( 'yields no metric tabs when the selection is empty', async () => {
-		const reportParams: ReportParams = {
-			from: '2026-05-01',
-			to: '2026-06-30',
-			interval: 'month',
-		};
-
-		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month', [] ), {
-			wrapper,
-		} );
-
-		expect( result.current.metrics ).toHaveLength( 0 );
 	} );
 
 	it( 'requests the wordads/stats endpoint honouring the range and granularity', async () => {
@@ -161,7 +168,7 @@ describe( 'useWordAdsChart', () => {
 		expect( result.current.metrics[ 0 ].current ).toHaveLength( 0 );
 	} );
 
-	it( 'maps previous-period totals when comparison params are present', async () => {
+	it( 'draws no comparison even when the params carry one', async () => {
 		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 			Promise.resolve( path.includes( 'date=2026-03-31' ) ? COMPARISON_RESPONSE : PRIMARY_RESPONSE )
 		);
@@ -177,65 +184,179 @@ describe( 'useWordAdsChart', () => {
 
 		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
 
-		await waitFor( () => expect( result.current.metrics[ 0 ].previousValue ).toBe( 500 ) );
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
-		const metrics = result.current.metrics;
-		expect( metrics[ 0 ].previous ).toHaveLength( 1 );
-		expect( metrics[ 1 ].previousValue ).toBeCloseTo( 4 );
-		expect( metrics[ 2 ].previousValue ).toBeCloseTo( 2 );
+		expect( result.current.metrics[ 0 ].previous ).toBeUndefined();
+		expect( result.current.metrics[ 0 ].previousValue ).toBeUndefined();
+	} );
+} );
 
-		const requestedPaths = mockApiFetch.mock.calls.map(
-			( [ { path } ]: [ { path: string } ] ) => path
-		);
-		expect( requestedPaths.some( p => p.includes( 'date=2026-06-30' ) ) ).toBe( true );
-		expect( requestedPaths.some( p => p.includes( 'date=2026-03-31' ) ) ).toBe( true );
+describe( 'WordAdsChartTabsWidget', () => {
+	beforeEach( () => {
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
 	} );
 
-	it( 'aligns a longer comparison window to the primary bucket count', async () => {
-		// The primary window is clamped to end yesterday (WordAds is computed
-		// nightly), so a range ending today loses its trailing bucket. The
-		// comparison window sits in the past and keeps every bucket, so it comes
-		// back one bucket longer. Here: primary has 2 buckets, comparison 3. The
-		// hook must trim the comparison to the primary's 2 (dropping the trailing
-		// bucket) so the delta compares equal-length windows and the overlay
-		// aligns point-for-point.
-		const LONGER_COMPARISON_RESPONSE = {
-			unit: 'month',
-			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
-			data: [
-				[ '2026-01', 300, 1.5, 5.0 ],
-				[ '2026-02', 400, 2.0, 5.0 ],
-				// Trailing bucket that has no counterpart in the clamped primary.
-				[ '2026-03', 500, 3.0, 6.0 ],
-			],
-		};
-		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
-			Promise.resolve(
-				path.includes( 'date=2026-03-31' ) ? LONGER_COMPARISON_RESPONSE : PRIMARY_RESPONSE
-			)
+	// A failed assertion would skip a reset written into the test body, leaking
+	// the URL state to whatever runs next.
+	afterEach( () => setMockRouteSearch( {} ) );
+
+	// The widget's body carries no Group by control: the bucket size is the one
+	// its header control saved, clamped to what this chart supports.
+	it( 'buckets by the interval its attributes carry', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2026-05-01', to: '2026-06-30', interval: 'week' },
+				} }
+			/>
 		);
 
-		const reportParams: ReportParams = {
-			from: '2026-05-01',
-			to: '2026-06-30',
-			interval: 'month',
-			comp: '1',
-			compare_from: '2026-01-01',
-			compare_to: '2026-03-31',
-		};
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
 
-		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'unit=week' );
+	} );
 
-		await waitFor( () => expect( result.current.metrics[ 0 ].previous ).toHaveLength( 2 ) );
+	// This chart draws day through year, so `hour` is the one interval the range
+	// can still carry that it has no bucket for, and it clamps to the finest.
+	it( 'clamps an unsupported interval to the closest supported bucket', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2026-06-29', to: '2026-06-30', interval: 'hour' },
+				} }
+			/>
+		);
 
-		const metrics = result.current.metrics;
-		// Current stays at its 2 buckets; previous is trimmed to match, not 3.
-		expect( metrics[ 0 ].current ).toHaveLength( 2 );
-		// previousValue totals only the retained (leading) buckets: 300 + 400.
-		expect( metrics[ 0 ].previousValue ).toBe( 700 );
-		// Revenue sums the retained buckets (1.5 + 2.0); CPM is their weighted
-		// average (3.5 / 700 * 1000), not the value over all three buckets.
-		expect( metrics[ 2 ].previousValue ).toBeCloseTo( 3.5 );
-		expect( metrics[ 1 ].previousValue ).toBeCloseTo( 5 );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'unit=day' );
+	} );
+
+	/*
+	 * The Ads default layout saves this widget with no attributes; `render.tsx`'s
+	 * own fallback must win over WidgetRoot's URL fallback for a missing `reportParams`.
+	 */
+	it( 'ignores the URL range for an instance saved without report params', async () => {
+		setMockRouteSearch( { from: '2020-01-01', to: '2020-01-31', interval: 'month' } );
+
+		render( <WordAdsChartTabsWidget attributes={ {} } /> );
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).not.toContain( 'date=2020-01-31' );
+	} );
+
+	// `offersComparison={ false }` makes `WidgetRoot` strip comparison params before
+	// the fetch — that must mean no second request, not one with the dates removed.
+	it( 'issues one request even when its attributes carry a comparison', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: {
+						from: '2026-05-01',
+						to: '2026-06-30',
+						interval: 'month',
+						comp: '1',
+						compare_from: '2026-03-01',
+						compare_to: '2026-03-31',
+					},
+				} }
+			/>
+		);
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 1 ) );
+	} );
+} );
+
+describe( 'WordAdsChartTabsWidget date control', () => {
+	type FieldProps = DataFormControlProps< WordAdsChartTabsAttributes >;
+
+	// Only the DataForm plumbing is cast away, so `data` stays type-checked and a
+	// renamed attribute breaks the build rather than passing silently.
+	function renderDateControl( props: Pick< FieldProps, 'data' | 'onChange' > ) {
+		const [ { Edit } ] = wordAdsChartTabsWidget.attributes;
+		const Field = Edit as ComponentType< FieldProps >;
+
+		render( <Field { ...( props as FieldProps ) } /> );
+	}
+
+	it( 'offers no window shorter than the report can fill', async () => {
+		const user = userEvent.setup();
+		const onChange = jest.fn();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-30-days', interval: 'day' } },
+			onChange,
+		} );
+
+		await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+
+		const menu = screen.getByRole( 'menu', { name: 'Period' } );
+
+		expect(
+			within( menu )
+				.getAllByRole( 'menuitemradio' )
+				.map( item => item.textContent )
+		).toEqual( [ 'Last 7 days', 'Last 30 days', 'Last 12 months', 'Custom range' ] );
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toBeChecked();
+
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Last 7 days' } ) );
+
+		expect( onChange ).toHaveBeenCalledWith( {
+			reportParams: expect.objectContaining( { preset: 'last-7-days' } ),
+		} );
+	} );
+
+	it( 'moves an instance saved on the last 24 hours onto an offered window', () => {
+		const onChange = jest.fn();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-24-hours', interval: 'hour' } },
+			onChange,
+		} );
+
+		expect( onChange ).toHaveBeenCalledWith( {
+			reportParams: expect.objectContaining( { preset: 'last-30-days' } ),
+		} );
+	} );
+
+	// The menu and `render.tsx` read the same grain, so this fails if the widget
+	// stops handing it over.
+	it( 'offers no bucket the chart cannot draw', async () => {
+		const user = userEvent.setup();
+
+		// Two to six days is the window that puts hours on offer.
+		renderDateControl( {
+			data: {
+				reportParams: { from: '2026-06-01', to: '2026-06-03T23:59:59', interval: 'day' },
+			},
+			onChange: jest.fn(),
+		} );
+
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
+
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By days',
+		] );
+	} );
+
+	it( 'offers months alone on its longest window', async () => {
+		const user = userEvent.setup();
+
+		renderDateControl( {
+			data: { reportParams: { preset: 'last-12-months', interval: 'month' } },
+			onChange: jest.fn(),
+		} );
+
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
+
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By months',
+		] );
 	} );
 } );

@@ -114,6 +114,75 @@ class Settings_Test extends BaseTestCase {
 		$this->assertFalse( Settings::sanitize_explicit( null ) );
 	}
 
+	public function test_feed_limit_clamps_stored_values_on_read() {
+		update_option( 'podcasting_feed_limit', 999999 );
+		$this->assertSame( Settings::FEED_LIMIT_MAX, Settings::feed_limit() );
+
+		update_option( 'posts_per_rss', 12 );
+		update_option( 'podcasting_feed_limit', -5 );
+		$this->assertSame( 12, Settings::feed_limit() );
+
+		delete_option( 'posts_per_rss' );
+		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+	}
+
+	public function test_feed_limit_seeds_from_the_site_feed_length_until_it_is_set() {
+		Settings::register_settings();
+
+		update_option( 'posts_per_rss', 12 );
+		$this->assertSame( 12, Settings::feed_limit() );
+
+		update_option( 'podcasting_feed_limit', 40 );
+		$this->assertSame( 40, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+		delete_option( 'posts_per_rss' );
+	}
+
+	/**
+	 * A registered default other than the unset sentinel makes that one value
+	 * unsavable: `update_option()` reads it back as the current value and returns
+	 * before creating the row, so the save no-ops and the read reseeds from
+	 * `posts_per_rss`.
+	 */
+	public function test_feed_limit_persists_a_value_matching_the_package_default() {
+		Settings::register_settings();
+		update_option( 'posts_per_rss', 12 );
+
+		$this->assertTrue( update_option( 'podcasting_feed_limit', Settings::FEED_LIMIT_DEFAULT ) );
+		$this->assertSame( Settings::FEED_LIMIT_DEFAULT, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+		delete_option( 'posts_per_rss' );
+	}
+
+	public function test_feed_limit_max_filter_moves_the_ceiling_both_ways() {
+		update_option( 'podcasting_feed_limit', 900 );
+		add_filter(
+			'jetpack_podcast_feed_limit_max',
+			function () {
+				return 1000;
+			}
+		);
+		$this->assertSame( 900, Settings::feed_limit() );
+
+		remove_all_filters( 'jetpack_podcast_feed_limit_max' );
+		add_filter(
+			'jetpack_podcast_feed_limit_max',
+			function () {
+				return 100;
+			}
+		);
+		$this->assertSame( 100, Settings::feed_limit() );
+
+		delete_option( 'podcasting_feed_limit' );
+		$this->assertSame( 100, Settings::feed_limit() );
+
+		remove_all_filters( 'jetpack_podcast_feed_limit_max' );
+	}
+
 	public function test_sanitize_show_urls_merges_partial_patch_into_stored_value() {
 		update_option(
 			'podcasting_show_urls',

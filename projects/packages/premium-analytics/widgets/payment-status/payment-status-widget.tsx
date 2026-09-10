@@ -5,6 +5,7 @@ import { useReportOrders } from '@jetpack-premium-analytics/data';
 import { payment } from '@jetpack-premium-analytics/icons';
 import {
 	DonutChart,
+	DonutChartSkeleton,
 	PAYMENT_STATUS_FILTERS,
 	WidgetState,
 	buildPaymentStatusData,
@@ -12,7 +13,7 @@ import {
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -20,19 +21,8 @@ import { useMemo } from 'react';
 import styles from './style.module.css';
 
 /**
- * Payment Status Widget Component
- *
- * Displays a donut chart comparing revenue from paid orders vs unpaid orders.
- * Shows the total revenue in the center with a breakdown in the legend.
- *
- * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <PaymentStatusWidget />
- * </WidgetRoot>
- * ```
+ * Paid vs unpaid order revenue donut. Must render inside a `WidgetRoot`, which
+ * supplies `reportParams` through context.
  */
 export function PaymentStatusWidget() {
 	const { reportParams } = useWidgetRootContext();
@@ -52,7 +42,7 @@ export function PaymentStatusWidget() {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading && ! hasData }
+			isLoading={ isLoading }
 			isFetching={ isFetching }
 			// The report queries keep the previous period's data as placeholder across
 			// range changes, so only surface the error when there is nothing to show.
@@ -69,6 +59,7 @@ export function PaymentStatusWidget() {
 				icon: payment,
 				description: __( 'No order revenue in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
+			renderLoading={ <DonutChartSkeleton /> }
 		>
 			<Stack className={ styles.container } direction="column" align="center" justify="center">
 				<DonutChart

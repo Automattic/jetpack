@@ -25,6 +25,8 @@ import {
 } from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../shared/analytics-url';
+import { chartBarRange } from './chart-bar-range';
 import DashStatsBottom from './dash-stats-bottom';
 
 export class DashStats extends Component {
@@ -55,8 +57,39 @@ export class DashStats extends Component {
 		}
 	};
 
+	/**
+	 * Off-site to WordPress.com when Odyssey is disabled, otherwise into the
+	 * site's own analytics UI. Only the dashboard link carries the bar's period;
+	 * the Stats deep link it replaces always pointed at a single day.
+	 *
+	 * @param {string} date - The bar's date, as a UTC-midnight ISO string.
+	 * @param {string} unit - The active chart tab: 'day', 'week', or 'month'.
+	 *
+	 * @return {?string} The bar's link, or null when there is nowhere to send the user.
+	 */
+	barLink( date, unit ) {
+		const { siteAdminUrl, siteRawUrl } = this.props;
+
+		if ( this.shouldLinkToWpcomStats() ) {
+			return getRedirectUrl( `calypso-stats-${ unit }`, {
+				site: siteRawUrl,
+				query: `startDate=${ date }`,
+			} );
+		}
+
+		if ( hasAnalyticsDashboard() ) {
+			return getAnalyticsUrl( {
+				view: 'dashboard',
+				section: 'traffic',
+				range: chartBarRange( date, unit ),
+			} );
+		}
+
+		return `${ siteAdminUrl }admin.php?page=stats#!/stats/day/${ siteRawUrl }?startDate=${ date }`;
+	}
+
 	statsChart( unit ) {
-		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
+		const { statsData } = this.props,
 			s = [];
 
 		if ( 'object' !== typeof statsData[ unit ] ) {
@@ -108,12 +141,7 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: ! this.shouldLinkToWpcomStats()
-						? `${ siteAdminUrl }admin.php?page=stats#!/stats/day/${ siteRawUrl }?startDate=${ date }`
-						: getRedirectUrl( `calypso-stats-${ unit }`, {
-								site: siteRawUrl,
-								query: `startDate=${ date }`,
-						  } ),
+					link: this.barLink( date, unit ),
 				},
 				tooltipData: [
 					{

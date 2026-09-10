@@ -1,4 +1,3 @@
-// Resource-specific processing
 export * from './orders';
 export * from './customers';
 export * from './products';

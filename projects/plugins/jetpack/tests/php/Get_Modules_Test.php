@@ -213,7 +213,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 
 		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		$this->assertSame( 'Offline mode', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+		$this->assertSame( 'Unavailable in Offline mode', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		StatusCache::clear();
 

@@ -10,7 +10,10 @@
  */
 class PCG_Rollout {
 
-	const DEFAULT_PERCENTAGE = 20;
+	/**
+	 * Off by default; wpcomsh sets the live percentage.
+	 */
+	const DEFAULT_PERCENTAGE = 0;
 
 	/**
 	 * Priority 100 leaves room for emergency overrides at higher priorities.
@@ -30,28 +33,32 @@ class PCG_Rollout {
 		if ( ! $enabled ) {
 			return $enabled;
 		}
-		return self::is_enabled_for_blog( get_current_blog_id() );
+		// Simple sites can't install plugins, so there's nothing to guard.
+		if ( ! \Automattic\Jetpack\Constants::is_true( 'IS_ATOMIC' ) ) {
+			return false;
+		}
+		return self::is_enabled_for_blog( (int) get_wpcom_blog_id() );
 	}
 
 	/**
-	 * On single-site, `get_current_blog_id()` is always 1, so the site is
-	 * wholly in or wholly out at any given percentage.
+	 * Bucketing is stable, so raising the percentage only ever adds blogs.
 	 *
-	 * @param int $blog_id Blog ID under test.
+	 * @param int $blog_id WP.com blog ID under test.
 	 * @return bool
 	 */
 	public static function is_enabled_for_blog( $blog_id ) {
-		$blog_id = (int) $blog_id;
-		if ( $blog_id <= 0 ) {
-			return false;
-		}
-
 		$percentage = (int) apply_filters( 'pcg_rollout_percentage', self::DEFAULT_PERCENTAGE );
 		if ( $percentage <= 0 ) {
 			return false;
 		}
 		if ( $percentage >= 100 ) {
 			return true;
+		}
+
+		// A partial rollout needs a real ID to bucket on.
+		$blog_id = (int) $blog_id;
+		if ( $blog_id <= 0 ) {
+			return false;
 		}
 
 		return self::blog_bucket( $blog_id ) < $percentage;

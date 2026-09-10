@@ -5,7 +5,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
-import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
 import useProductInfo from '../../hooks/use-product-info';
 import { store as socialStore } from '../../social-store';
 import { getRefreshPlanQuery, getSocialScriptData } from '../../utils';
@@ -61,12 +61,10 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 	// the legacy pricing page's behaviour.
 	const { is_publicize_enabled: isSocialEnabled } = getSocialScriptData();
 
-	const onGetSocial = useCallback( () => {
-		window.location.href = getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
-			site: blogID ? blogID.toString() : siteSuffix,
-			query: getRefreshPlanQuery(),
-		} );
-	}, [ blogID, siteSuffix ] );
+	const getSocialUrl = getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
+		site: blogID ? blogID.toString() : siteSuffix,
+		query: getRefreshPlanQuery(),
+	} );
 
 	const onStartForFree = useCallback( async () => {
 		if ( ! isSocialEnabled ) {
@@ -136,9 +134,9 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 						) ) }
 					</Stack>
 					<Stack className="jetpack-social-gate__actions" direction="row" justify="center" gap="md">
-						<Button variant="solid" onClick={ onGetSocial }>
+						<LinkButton variant="solid" href={ getSocialUrl }>
 							{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
-						</Button>
+						</LinkButton>
 						<Button
 							variant="outline"
 							onClick={ onStartForFree }

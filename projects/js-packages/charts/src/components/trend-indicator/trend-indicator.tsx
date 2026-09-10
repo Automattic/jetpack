@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import styles from './trend-indicator.module.scss';
 import type { TrendIndicatorProps, TrendDirection } from './types';
 
@@ -47,10 +48,12 @@ export function TrendIndicator( {
 	showIcon = true,
 }: TrendIndicatorProps ) {
 	const ariaLabel = `${ DIRECTION_LABELS[ direction ] }: ${ value }`;
+	const standaloneScopeClass = useStandaloneScopeClass();
 
 	return (
 		<span
 			className={ clsx(
+				standaloneScopeClass,
 				styles[ 'trend-indicator' ],
 				styles[ `trend-indicator--${ direction }` ],
 				className

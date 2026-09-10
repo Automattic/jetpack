@@ -43,6 +43,11 @@ class LCP_Optimize_Bg_Image {
 				continue;
 			}
 
+			// The field is optional, and an undefined key here is a warning on wp_head.
+			if ( ! isset( $lcp_data['selector'] ) ) {
+				continue;
+			}
+
 			if ( in_array( $lcp_data['selector'], $selectors, true ) ) {
 				// If we already printed the styling for this element, skip it.
 				continue;
@@ -78,6 +83,11 @@ class LCP_Optimize_Bg_Image {
 		foreach ( $this->lcp_data as $lcp_data ) {
 			$lcp_optimizer = new LCP_Optimization_Util( $lcp_data );
 			if ( ! $lcp_optimizer->can_optimize() ) {
+				continue;
+			}
+
+			// The field is optional, and an undefined key here is a warning on wp_head.
+			if ( ! isset( $lcp_data['selector'] ) ) {
 				continue;
 			}
 
@@ -129,7 +139,9 @@ class LCP_Optimize_Bg_Image {
 	}
 
 	private function get_responsive_image_rules( $lcp_data ) {
-		if ( $lcp_data['type'] !== LCP::TYPE_BACKGROUND_IMAGE || empty( $lcp_data['breakpoints'] ) ) {
+		// is_array() as well as empty(): empty( 'not-an-array' ) is false, so a string
+		// breakpoints field would reach array_reverse() as a TypeError on wp_head.
+		if ( $lcp_data['type'] !== LCP::TYPE_BACKGROUND_IMAGE || empty( $lcp_data['breakpoints'] ) || ! is_array( $lcp_data['breakpoints'] ) ) {
 			return array();
 		}
 
@@ -160,6 +172,12 @@ class LCP_Optimize_Bg_Image {
 
 			// The Cloud should always return a fixed pixel width for background images, so catering for that is easy peasy.
 			if ( empty( $breakpoint['imageDimensions'] ) || ! is_array( $breakpoint['imageDimensions'] ) ) {
+				continue;
+			}
+
+			// Non-empty and an array does not mean it has an index 0.
+			// @phan-suppress-next-line PhanTypeMismatchDimFetch -- The isset() is the check phan asks for.
+			if ( ! isset( $breakpoint['imageDimensions'][0] ) || ! is_array( $breakpoint['imageDimensions'][0] ) ) {
 				continue;
 			}
 

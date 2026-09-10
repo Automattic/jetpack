@@ -57,3 +57,23 @@
 	min-inline-size: 84px;
 	min-block-size: 40px;
 }
+
+// The Organization details + local-business group. The hairline separating it
+// from the Breadcrumbs toggle is a border on the container — the settings-list
+// pattern from `title-structure-field.module.scss` — rather than a separate
+// `<hr>`, which would add an unnamed separator to the accessibility tree for
+// what is a purely visual cue.
+.entityGroup {
+	// `fieldset` gets a UA `min-width: min-content` that @wordpress/ui's reset
+	// doesn't clear; without this the `.pairedFields` grid inside refuses to
+	// shrink on narrow viewports.
+	min-inline-size: 0;
+	padding-block-start: var(--wpds-dimension-gap-lg);
+	border-block-start:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+}
+
+.saveError {
+	color: var(--wpds-color-foreground-content-error-weak);
+}

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Videos report: fix the report showing no data; the table now lists each video's views, impressions, watch time, and retention for the selected date range.

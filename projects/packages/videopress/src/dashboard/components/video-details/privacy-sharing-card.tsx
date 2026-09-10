@@ -1,6 +1,6 @@
 import { SelectControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Card, Stack } from '@wordpress/ui';
+import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import type { LibraryItemPrivacy } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -25,6 +25,13 @@ const PRIVACY_OPTIONS: { label: string; value: LibraryItemPrivacy }[] = [
  * Form card for privacy and sharing controls: a privacy SelectControl
  * and two ToggleControls for sharing and downloads.
  *
+ * Collapsible, and collapsed by default. These are set-once settings that sit
+ * beside the read-outs, so leaving all three expanded made the right-hand
+ * column 400px taller than the canvas it sits next to. The current privacy
+ * value rides in the header via `CollapsibleCard.HeaderDescription`, so
+ * collapsing costs no information at a glance — you still see "Public" or
+ * "Private" without opening anything.
+ *
  * @param props                - Component props.
  * @param props.privacy        - Current privacy value.
  * @param props.displayEmbed   - Whether the share menu is displayed.
@@ -38,12 +45,20 @@ export default function PrivacySharingCard( {
 	allowDownloads,
 	onChange,
 }: Props ): ReactElement {
+	const currentPrivacyLabel =
+		PRIVACY_OPTIONS.find( option => option.value === privacy )?.label ?? '';
+
 	return (
-		<Card.Root>
-			<Card.Header>
-				<Card.Title>{ __( 'Privacy & sharing', 'jetpack-videopress-pkg' ) }</Card.Title>
-			</Card.Header>
-			<Card.Content>
+		<CollapsibleCard.Root>
+			<CollapsibleCard.Header>
+				<Stack direction="row" gap="sm" align="center" justify="space-between">
+					<Card.Title>{ __( 'Privacy & sharing', 'jetpack-videopress-pkg' ) }</Card.Title>
+					<CollapsibleCard.HeaderDescription>
+						<Text className="vp-video-details__summary">{ currentPrivacyLabel }</Text>
+					</CollapsibleCard.HeaderDescription>
+				</Stack>
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
 				<Stack direction="column" gap="md">
 					<SelectControl
 						__nextHasNoMarginBottom
@@ -73,7 +88,7 @@ export default function PrivacySharingCard( {
 						onChange={ next => onChange( { allowDownloads: next } ) }
 					/>
 				</Stack>
-			</Card.Content>
-		</Card.Root>
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
 	);
 }

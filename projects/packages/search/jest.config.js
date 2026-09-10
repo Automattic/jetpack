@@ -27,6 +27,13 @@ module.exports = {
 		'tiny-lru/lib/tiny-lru.esm$': '<rootDir>/src/instant-search/lib/test-helpers/tiny-lru.mock.js',
 		'instant-search/components/gridicon':
 			'<rootDir>/src/instant-search/components/gridicon/index.jsx',
+		// Mirror the customberg webpack resolution (tools/webpack.customberg.config.js):
+		// `instant-search` is an alias and `hooks/*` resolves against src/customberg.
+		// Exact-name hook entries so dashboard's own `hooks/*` resolution is untouched.
+		'^instant-search/(.*)$': '<rootDir>/src/instant-search/$1',
+		'^hooks/use-search-options$': '<rootDir>/src/customberg/hooks/use-search-options.js',
+		'^hooks/use-loading-state$': '<rootDir>/src/customberg/hooks/use-loading-state.js',
+		'^hooks/use-entity-record-state$': '<rootDir>/src/customberg/hooks/use-entity-record-state.js',
 	},
 	moduleDirectories: [ 'node_modules', '<rootDir>/src/dashboard' ],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],

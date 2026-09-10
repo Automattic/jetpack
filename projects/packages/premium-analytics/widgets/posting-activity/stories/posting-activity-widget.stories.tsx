@@ -37,9 +37,6 @@ const STREAK_DAYS = 365;
  * The story-local streak middleware below would otherwise shadow
  * `setReportMockState`, so use the shared story-side override helper that
  * re-registers ahead of story-local middleware when a forced state is set.
- *
- * @param state - The forced report-mock state.
- * @return The `beforeEach` cleanup callback.
  */
 function forceStreakState( state: 'loading' | 'error' | 'empty' ) {
 	forceStatsMockState( STATS_STREAK_PATH_FRAGMENT, state );
@@ -53,8 +50,6 @@ function forceStreakState( state: 'loading' | 'error' | 'empty' ) {
  * matching the raw `stats/streak` payload the sanitizer reads (`{ data: { <ts>:
  * count } }`). A seeded pseudo-random walk leaves clear gaps and busy stretches
  * so the heatmap reads as real posting activity rather than uniform noise.
- *
- * @return The raw streak response.
  */
 function buildStreakResponse() {
 	const today = startOfDay( new Date() );

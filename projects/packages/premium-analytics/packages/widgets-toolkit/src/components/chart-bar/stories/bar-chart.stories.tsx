@@ -1,6 +1,8 @@
+import { WidgetCard } from '../../../stories/widget-card';
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { BarChart, type BarChartStyle } from '../bar-chart';
-import type { SeriesData } from '@automattic/charts';
+import { BarChartSkeleton } from '../bar-chart-skeleton';
+import type { SeriesData } from '@jetpack-premium-analytics/externals';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof BarChart > = {
@@ -346,4 +348,33 @@ export const EmptyState: Story = {
 			},
 		},
 	},
+};
+
+type SkeletonStory = StoryObj< typeof BarChartSkeleton >;
+
+/**
+ * The loading shape widgets pass through `WidgetState`'s `renderLoading`: a
+ * bottom-aligned row of columns, here at the default four. Widgets that know
+ * their bar count up front pass it through `columns`; the rest keep the default
+ * rather than deriving one from a response that has not arrived, which would
+ * land as the jump the placeholder is there to prevent.
+ */
+export const Skeleton: SkeletonStory = {
+	render: () => (
+		<WidgetCard width="360px" height="260px">
+			<BarChartSkeleton />
+		</WidgetCard>
+	),
+};
+
+/**
+ * A height-1 dashboard tile. The columns are sized as a share of the body, so
+ * they shrink with it instead of pushing past the widget.
+ */
+export const SkeletonShortTile: SkeletonStory = {
+	render: () => (
+		<WidgetCard width="360px" height="140px">
+			<BarChartSkeleton />
+		</WidgetCard>
+	),
 };

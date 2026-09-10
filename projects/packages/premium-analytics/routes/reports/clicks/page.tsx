@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportErrorState,
@@ -14,14 +13,14 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getClickCsvGroup, getClicksFields, useClicksReportRecords, type ClickRow } from './config';
 
 const ROUTE_FROM = route.path;
@@ -68,11 +67,7 @@ type ClickCsvRow = ClickRow & { group: string };
  * @return The Clicks report page.
  */
 function ClicksReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 
 	const records = useClicksReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );
@@ -111,36 +106,21 @@ function ClicksReport(): JSX.Element {
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
 	const isTableLoading = records.isLoading || records.isFetching;
+
+	const { getLabel, getTitle } = REPORTS.clicks;
 
 	return (
 		<ReportPageShell
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{
-							label: __( 'Stats', 'jetpack-premium-analytics-pkg' ),
-							to: dashboardLink,
-						},
-						{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ) },
-					] }
-				/>
-			}
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ exportRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
+			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load clicks', 'jetpack-premium-analytics-pkg' ) }
@@ -156,6 +136,8 @@ function ClicksReport(): JSX.Element {
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
+						collapsible
+						defaultExpanded="none"
 					/>
 				) }
 			</ReportPageLayout>

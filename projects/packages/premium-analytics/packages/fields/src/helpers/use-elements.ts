@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useEffect, useMemo, useState } from '@wordpress/element';
-import type { Option } from '@wordpress/dataviews';
+import type { Option } from '@jetpack-premium-analytics/externals';
 
 type UseElementsParams = {
 	elements?: Option[];

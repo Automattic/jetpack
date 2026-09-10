@@ -217,12 +217,6 @@ function renderTopPerformingBookingsOnPreset( preset: SelectablePresetId ) {
 	);
 }
 
-/**
- * Story wrapper for rendering the top performing bookings widget in dashboard chrome.
- *
- * @param {TopPerformingBookingsDashboardStoryProps} props - Story controls.
- * @return The rendered Storybook story.
- */
 function TopPerformingBookingsDashboardStory( {
 	withComparison,
 	preset,

@@ -192,7 +192,7 @@ class Script_Data {
 	 * @return string
 	 */
 	protected static function get_site_title() {
-		$title = get_bloginfo( 'name' );
+		$title = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 
 		return $title ? $title : esc_url_raw( ( get_site_url() ) );
 	}

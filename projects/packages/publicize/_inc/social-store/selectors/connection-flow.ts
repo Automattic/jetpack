@@ -1,3 +1,4 @@
+import { EMPTY_OBJECT } from '../constants';
 import { getPreviousStep } from '../reducer/connection-flow';
 import { SocialStoreState } from '../types';
 
@@ -39,6 +40,16 @@ export function getConnectionFlowOrigin( state: SocialStoreState ) {
  */
 export function isConnectionFlowActive( state: SocialStoreState ) {
 	return Boolean( state.connectionFlow?.step );
+}
+
+/**
+ * The values entered on the connection flow's input step.
+ *
+ * @param state - State object.
+ * @return The entered values, keyed by input name.
+ */
+export function getConnectionFlowInputs( state: SocialStoreState ): Record< string, string > {
+	return state.connectionFlow?.inputs ?? EMPTY_OBJECT;
 }
 
 /**

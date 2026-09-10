@@ -80,12 +80,15 @@ function get_subscriber_login_url( $redirect ) {
 }
 
 /**
- * Determines whether the current visitor is a logged in user or a subscriber.
+ * Determines whether the visitor has a subscriber session for the login UI.
+ *
+ * WordPress sessions count on Simple; other hosts require the subscriber cookie.
+ * Content access validates the token separately.
  *
  * @return bool
  */
 function is_subscriber_logged_in() {
-	return is_user_logged_in() || Abstract_Token_Subscription_Service::has_token_from_cookie();
+	return ( ( new Host() )->is_wpcom_simple() && is_user_logged_in() ) || Abstract_Token_Subscription_Service::has_token_from_cookie();
 }
 
 /**
@@ -111,7 +114,12 @@ function render_login_button_block( $attributes, $content ) {
 	$redirect_url = get_current_url();
 	$url          = get_subscriber_login_url( $redirect_url );
 
-	return preg_replace( '/(<a\b[^><]*)>/i', '$1 href="' . esc_url( $url ) . '">', $content );
+	$content = preg_replace( '/(<a\b[^><]*)>/i', '$1 href="' . esc_url( $url ) . '">', $content );
+
+	// Defense in depth: the label is inner block content (KSES-filtered on save for
+	// roles without `unfiltered_html`), but escape it again on output so a stored
+	// payload can never render as live markup.
+	return wp_kses_post( $content );
 }
 
 /**

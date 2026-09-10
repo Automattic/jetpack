@@ -22,7 +22,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Report_Data_Fetcher;
  * Note: This is a ranked list report, not a time-series report.
  * Comparison mode is supported using ID-based merging (matching by tax_rate_id).
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Tax_Rate_Breakdown_Controller extends Abstract_Csv_Report_Controller {
 

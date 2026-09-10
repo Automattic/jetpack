@@ -20,7 +20,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Note: This is a ranked list report, not a time-series report.
  * Comparison mode is supported using ID-based merging (matching by coupon_code).
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Sales_By_Coupon_Controller extends Abstract_Csv_Report_Controller {
 

@@ -15,12 +15,10 @@ interface Props {
 // Labels resolved at module scope so the production minifier can't fold an
 // adjacent `cond ? __(A) : __(B)` into `__(cond ? A : B)`, which would erase
 // the literals from i18n extraction. See feedback_i18n_ternary_minifier_fold.
-const searchAllowedLabel = __( 'Search engines allowed', 'jetpack-seo' );
-const searchBlockedLabel = __( 'Search engines blocked', 'jetpack-seo' );
-const sitemapActiveLabel = __( 'Sitemap active', 'jetpack-seo' );
-const sitemapDisabledLabel = __( 'Sitemap disabled', 'jetpack-seo' );
-const seoToolsActiveLabel = __( 'SEO tools active', 'jetpack-seo' );
-const seoToolsInactiveLabel = __( 'SEO tools inactive', 'jetpack-seo' );
+const searchAllowedLabel = __( 'Open to search engines', 'jetpack-seo' );
+const searchBlockedLabel = __( 'Closed to search engines', 'jetpack-seo' );
+const sitemapActiveLabel = __( 'Sitemap published', 'jetpack-seo' );
+const sitemapDisabledLabel = __( 'Sitemap not published', 'jetpack-seo' );
 
 const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 	// A sitemap can't be generated or served while search engines are blocked, so
@@ -41,10 +39,9 @@ const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 						status={ sitemapActive ? 'ok' : 'warn' }
 						label={ sitemapActive ? sitemapActiveLabel : sitemapDisabledLabel }
 					/>
-					<StatusDot
-						status={ data.seo_tools_active ? 'ok' : 'warn' }
-						label={ data.seo_tools_active ? seoToolsActiveLabel : seoToolsInactiveLabel }
-					/>
+					{ /* No "SEO tools active" row: the Overview renders `EnableSeoCard`
+					     instead of these cards whenever SEO tools are off, so the row could
+					     only ever read "active" — a line that never varies. */ }
 				</Stack>
 				<Stack direction="row" justify="flex-end" className={ styles.footer }>
 					<Button variant="solid" size="compact" onClick={ onManage }>

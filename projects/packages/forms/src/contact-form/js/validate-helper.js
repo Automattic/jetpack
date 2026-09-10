@@ -98,6 +98,12 @@ export const isEmptyValue = value => {
 
 /**
  * return true or the field error.
+ *
+ * This is the fallback path only. Field types whose module registers `state.validators[ type ]`
+ * — currently `file` and `phone` — are never routed here; `validate()` in modules/form/view.js
+ * prefers the registered validator. That is why there is no `file` branch below: removing it is
+ * only safe while every validation path goes through `validate()`.
+ *
  * @param  type
  * @param  value
  * @param  isRequired
@@ -121,18 +127,6 @@ export const validateField = ( type, value, isRequired, extra = null ) => {
 
 	if ( 'number' === type ) {
 		return validateNumber( value, extra );
-	}
-
-	if ( 'file' === type ) {
-		if ( value.some( file => file.error ) ) {
-			return 'invalid_file_has_errors';
-		}
-
-		if ( value.some( file => ! file.isUploaded ) ) {
-			return 'invalid_file_uploading';
-		}
-
-		return 'yes';
 	}
 
 	let regex = null;

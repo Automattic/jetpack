@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Add the jetpack-feature-flags dependency used by the Automattician-only feature flag screen.
+
+

@@ -28,13 +28,7 @@ const PRESET_OPTIONS = SELECTABLE_PRESETS;
 type SalesByDeviceWidgetProps = ComponentProps< typeof SalesByDeviceRender >;
 
 interface SalesByDeviceStoryControls {
-	/**
-	 * Whether to include comparison report params.
-	 */
 	withComparison: boolean;
-	/**
-	 * Date-range preset used for report params.
-	 */
 	preset: SelectablePresetId;
 }
 
@@ -92,12 +86,6 @@ function renderSalesByDeviceOnPreset( preset: SelectablePresetId ) {
 	return <SalesByDeviceRender attributes={ getSalesByDeviceAttributes( false, preset ) } />;
 }
 
-/**
- * Story wrapper for rendering the sales by device widget in dashboard chrome.
- *
- * @param {SalesByDeviceDashboardStoryProps} props - Story controls.
- * @return The rendered Storybook story.
- */
 function SalesByDeviceDashboardStory( {
 	withComparison,
 	preset,

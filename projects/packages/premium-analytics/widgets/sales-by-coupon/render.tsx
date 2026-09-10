@@ -22,16 +22,6 @@ type SalesByCouponWidgetProps = WidgetRenderProps< SalesByCouponRenderAttributes
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-/**
- * Sales by coupon widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; SalesByCouponWidget fetches
- * the coupons report and renders the coupon revenue breakdown.
- *
- * @param {SalesByCouponWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function SalesByCouponRender( {
 	attributes = {},
 	setError,

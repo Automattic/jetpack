@@ -9,7 +9,6 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget as Dashboard_Stats_Widget;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 
 /**
  * Class that adds the Jetpack stats widget to the WordPress admin dashboard.
@@ -42,20 +41,6 @@ class Jetpack_Stats_Dashboard_Widget {
 	 * Sets up the Jetpack Stats widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
-		/*
-		 * The bundled Premium Analytics dashboard replaces the Stats widget when
-		 * enabled (WOOA7S-1595).
-		 *
-		 * Never on WordPress.com Simple. This file is required standalone there —
-		 * jetpack-mu-wpcom loads it on wp_dashboard_setup — into an environment where
-		 * `Jetpack` is wpcom's own class, not the plugin's, so the method below does
-		 * not exist and calling it fatals the whole dashboard. The plugin's bundled
-		 * package is not what Simple sites run anyway.
-		 */
-		if ( ! ( new Host() )->is_wpcom_simple() && Jetpack::is_premium_analytics_enabled() ) {
-			return;
-		}
-
 		/**
 		 * Filter whether the Jetpack Stats dashboard widget should be shown to the current user.
 		 * By default, the dashboard widget is shown to users who can view_stats.

@@ -1,3 +1,4 @@
+const { execFileSync } = require( 'child_process' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const debugload = require( 'debug' )( 'load-eslint-ignore:load' );
@@ -6,6 +7,36 @@ const debugrules = require( 'debug' )( 'load-eslint-ignore:rules' );
 const makeIgnore = require( 'ignore' );
 
 const rootdir = path.resolve( __dirname, '../..' ) + '/';
+
+/**
+ * Locate `info/exclude` for the repository rooted at `dir`.
+ *
+ * Ask git rather than reading `.git` ourselves: it resolves linked worktrees and submodules, and
+ * honours the GIT_DIR and GIT_COMMON_DIR overrides.
+ *
+ * @param {string} dir - Repository root.
+ * @return {string} Path to the exclude file. Not guaranteed to exist.
+ */
+function findGitInfoExclude( dir ) {
+	let gitdir = path.join( dir, '.git' );
+
+	try {
+		// Relative when it points at `<dir>/.git`, absolute from a linked worktree; resolve both.
+		const commondir = execFileSync( 'git', [ 'rev-parse', '--git-common-dir' ], {
+			cwd: dir,
+			encoding: 'utf8',
+			stdio: [ 'ignore', 'pipe', 'ignore' ],
+		} ).trim();
+		if ( commondir ) {
+			gitdir = path.resolve( dir, commondir );
+		}
+	} catch {
+		// No git, or not a repository. The fallback path simply won't exist.
+		debugload( ' -> `git rev-parse --git-common-dir` failed, assuming `.git`' );
+	}
+
+	return path.join( gitdir, 'info', 'exclude' );
+}
 
 /**
  * Load `.gitignore` and `.eslintignore` recursively.
@@ -23,8 +54,9 @@ function loadIgnorePatterns( basedir ) {
 	 * Load patterns from a gitignore-style file.
 	 *
 	 * @param {string} file - File to load from.
+	 * @param {string} dir  - Directory the patterns are relative to. Defaults to the file's own.
 	 */
-	function addIgnoreFile( file ) {
+	function addIgnoreFile( file, dir = path.dirname( file ) ) {
 		if ( ! fs.existsSync( file ) ) {
 			return;
 		}
@@ -32,7 +64,6 @@ function loadIgnorePatterns( basedir ) {
 		debugload( ` -> Loading ${ path.relative( rootdir, file ) }` );
 
 		// Escape various pattern characters in case someone has a weird directory name.
-		const dir = path.dirname( file );
 		const ignorePrefix = path.relative( rootdir, dir ).replace( /[*?[\\]/g, '\\$&' ) + '/';
 		let rulesPrefix = path.relative( basedir, dir ).replace( /^[!#]|[*?[\\]/g, '\\$&' ) + '/';
 		let reverseRulesPrefix = null;
@@ -121,6 +152,11 @@ function loadIgnorePatterns( basedir ) {
 	const stack = [ rootdir ];
 	while ( stack.length > 0 ) {
 		const dir = stack.pop();
+		// Note ordering is important: .git/info/exclude, then .gitignore, then .eslintignore, then subdirs.
+		if ( dir === rootdir ) {
+			addIgnoreFile( findGitInfoExclude( dir ), dir );
+		}
+
 		addIgnoreFile( path.join( dir, '.gitignore' ) );
 		if ( dir === rootdir ) {
 			addIgnoreFile( path.join( dir, '.eslintignore.root' ) );
@@ -132,6 +168,7 @@ function loadIgnorePatterns( basedir ) {
 			const subdir = path.join( dir, d.name ) + '/';
 			if (
 				d.isDirectory() &&
+				d.name !== '.git' &&
 				! ignore.ignores( path.relative( rootdir, subdir ) + '/' ) &&
 				( subdir.startsWith( basedir ) || basedir.startsWith( subdir ) )
 			) {

@@ -17,6 +17,13 @@ describe( 'StepThankYou', () => {
 		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'Thank you!' );
 	} );
 
+	it( 'renders the vertical decorative card, hidden from assistive technology', () => {
+		render( <StepThankYou { ...testProps } /> );
+		const card = screen.getByTestId( 'decorative-card' );
+		expect( card ).toHaveClass( 'jp-components__decorative-card--vertical' );
+		expect( card ).toHaveAttribute( 'aria-hidden', 'true' );
+	} );
+
 	it( 'renders the "Back to my website" button', () => {
 		render( <StepThankYou { ...testProps } /> );
 		expect( screen.getByRole( 'button', { name: 'Back to my website' } ) ).toBeInTheDocument();

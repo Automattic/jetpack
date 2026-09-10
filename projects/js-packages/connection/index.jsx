@@ -24,6 +24,7 @@ export { default as ConnectScreenLayout } from './components/connect-screen/layo
 export { default as ConnectScreenRequiredPlan } from './components/connect-screen/required-plan';
 export { default as ConnectButton } from './components/connect-button';
 export { default as ConnectionErrorNotice } from './components/connection-error-notice';
+export { default as ConnectionErrorSupportLink } from './components/connection-error-support-link';
 export { ConnectionError } from './hooks/use-connection-error-notice';
 export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
@@ -49,6 +50,20 @@ export { STORE_ID as CONNECTION_STORE_ID } from './state/store';
 export { default as useProductCheckoutWorkflow } from './hooks/use-product-checkout-workflow';
 export { default as useRestoreConnection } from './hooks/use-restore-connection';
 export { default as useConnectionErrorNotice } from './hooks/use-connection-error-notice';
+export {
+	isOtherUsersConnectionError,
+	getConnectionErrorUserScope,
+} from './hooks/use-connection-error-notice/viewer-scope';
+
+/**
+ * Connection-error presentation. The notice copy lives here so every consumer
+ * describes the same error the same way.
+ */
+export {
+	isConnectionErrorMap,
+	getConnectionErrorDetails,
+	formatConnectionErrorDetailLine,
+} from './hooks/use-connection-error-notice/error-details';
 
 /**
  * Public type contract for connection-error consumers. Forwarded via `export *`

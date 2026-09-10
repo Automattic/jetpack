@@ -53,6 +53,7 @@ const MapEdit = ( {
 } ) => {
 	const {
 		address,
+		align,
 		mapDetails,
 		points,
 		zoom,
@@ -213,6 +214,17 @@ const MapEdit = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
+	// Changing the alignment changes the width of the block, so the map needs to be resized to match.
+	useEffect( () => {
+		if ( ! mapRef.current?.sizeMap ) {
+			return;
+		}
+
+		// Allow one cycle for the alignment change to take effect.
+		const timeout = setTimeout( mapRef.current.sizeMap, 0 );
+		return () => clearTimeout( timeout );
+	}, [ align ] );
+
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect( geoCodeAddress, [ address ] );
 
@@ -300,7 +312,6 @@ const MapEdit = ( {
 						onKeyChange={ onKeyChange }
 						setPointVisibility={ () => setAddPointVisibility( true ) }
 						context="toolbar"
-						mapRef={ mapRef }
 						mapProvider={ mapProvider }
 					/>
 				</BlockControls>

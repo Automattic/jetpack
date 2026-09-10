@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stats: Only show the admin bar link when the Stats module is active.

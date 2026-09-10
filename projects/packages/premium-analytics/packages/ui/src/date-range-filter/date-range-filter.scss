@@ -1,7 +1,0 @@
-@use "../styles/preset-surface";
-
-// Preset pills plus the custom-range trigger presented as one control.
-.date-range-filter__group {
-
-	@include preset-surface.group;
-}

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
@@ -25,6 +26,8 @@ require_once __DIR__ . '/../../src/widget-availability.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_available_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_widget_support_context' )]
@@ -35,14 +38,23 @@ require_once __DIR__ . '/../../src/widget-availability.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types' )]
 class Widget_Availability_Test extends BaseTestCase {
 
 	/**
 	 * Reset constants and availability filters between tests.
+	 *
+	 * The support context reaches Host::is_wpcom_platform(), which memoizes `is_woa_site` into
+	 * the process-global status cache — clearing constants alone would leave a stale host verdict.
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
+		Cache::clear();
+		$GLOBALS['jpa_test_wpcom_features'] = array();
+		delete_option( 'jetpack_active_modules' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 
 		parent::tear_down();
 	}
@@ -61,6 +73,22 @@ class Widget_Availability_Test extends BaseTestCase {
 			array(
 				'name'     => 'jpa/file-downloads',
 				'category' => 'traffic',
+			),
+			array(
+				'name'     => 'jpa/videopress',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/video-detail-views-performance',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/shares',
+				'category' => 'traffic',
+			),
+			array(
+				'name'     => 'jpa/plan-usage',
+				'category' => 'stats',
 			),
 			array(
 				'name'     => 'jpa/hello-world',
@@ -100,17 +128,39 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Filters the standard candidates with explicit host context.
+	 * Candidate set spanning every store-report category, plus one served from
+	 * elsewhere.
+	 *
+	 * @return array[] List of widget candidates.
+	 */
+	private function store_report_widget_candidates() {
+		return array_merge(
+			$this->commerce_widget_candidates(),
+			array(
+				array(
+					'name'     => 'jpa/visitors-over-time',
+					'category' => 'visitors',
+				),
+			)
+		);
+	}
+
+	/**
+	 * Filters the standard candidates with an explicit support context.
 	 *
 	 * @param bool $is_wpcom_simple Whether the site is WPCOM Simple.
+	 * @param bool $has_videopress  Whether the site runs VideoPress.
 	 * @return string[] Remaining type names.
 	 */
-	private function available_names( $is_wpcom_simple ) {
+	private function available_names( $is_wpcom_simple, $has_videopress = true ) {
 		return array_column(
 			remove_unsupported_widget_items(
 				$this->widget_candidates(),
 				'name',
-				array( 'is_wpcom_simple' => $is_wpcom_simple )
+				array(
+					'is_wpcom_simple' => $is_wpcom_simple,
+					'has_videopress'  => $has_videopress,
+				)
 			),
 			'name'
 		);
@@ -134,6 +184,186 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Plan usage is held back regardless of host or features.
+	 */
+	public function test_type_policy_removes_plan_usage_everywhere() {
+		$this->assertNotContains( 'jpa/plan-usage', $this->available_names( false, false ) );
+		$this->assertNotContains( 'jpa/plan-usage', $this->available_names( true, true ) );
+	}
+
+	/**
+	 * Without VideoPress, every gated video widget is unavailable.
+	 */
+	public function test_type_policy_removes_video_widgets_without_videopress() {
+		$candidates = array_map(
+			static function ( $name ) {
+				return array(
+					'name'     => $name,
+					'category' => 'stats',
+				);
+			},
+			VIDEOPRESS_WIDGET_TYPES
+		);
+
+		$this->assertSame(
+			array(),
+			remove_unsupported_widget_items(
+				$candidates,
+				'name',
+				array(
+					'is_wpcom_simple' => true,
+					'has_videopress'  => false,
+				)
+			),
+			'Every type in VIDEOPRESS_WIDGET_TYPES must be dropped, not just the ones listed as candidates.'
+		);
+
+		$this->assertContains( 'jpa/hello-world', $this->available_names( true, false ) );
+	}
+
+	/**
+	 * With VideoPress, the video widgets stay available.
+	 */
+	public function test_type_policy_keeps_video_widgets_with_videopress() {
+		$names = $this->available_names( false, true );
+
+		$this->assertContains( 'jpa/videopress', $names );
+		$this->assertContains( 'jpa/video-detail-views-performance', $names );
+	}
+
+	/**
+	 * Every widget type name declared by a `widgets/*` manifest.
+	 *
+	 * Asserts rather than skips a malformed manifest, so a dropped one can't quietly narrow
+	 * what the callers compare against.
+	 *
+	 * @return string[] Declared widget type names.
+	 */
+	private function manifest_widget_names() {
+		$manifests = glob( __DIR__ . '/../../widgets/*/widget.json' );
+		$this->assertNotEmpty( $manifests, 'No widget manifests found — the glob path is wrong.' );
+
+		$names = array();
+		foreach ( $manifests as $manifest ) {
+			$raw = file_get_contents( $manifest ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$this->assertNotFalse( $raw, "Could not read $manifest" );
+
+			$widget = json_decode( $raw, true );
+			$this->assertIsArray( $widget, "Malformed manifest: $manifest" );
+			$this->assertArrayHasKey( 'name', $widget, "Manifest declares no name: $manifest" );
+
+			$names[] = $widget['name'];
+		}
+
+		return $names;
+	}
+
+	/**
+	 * The gate and the manifests agree in both directions: a renamed widget can't drop out of the
+	 * gate, and a new video widget can't be added without joining it.
+	 *
+	 * The second half rests on a naming heuristic: a VideoPress widget not named with `video` would
+	 * be missed, and an unrelated `video-*` widget wrongly demanded. Widget manifests have no
+	 * "requires" field to key on instead — read that here if one is ever added.
+	 */
+	public function test_videopress_widget_types_match_the_manifest() {
+		$video_names = array_filter(
+			$this->manifest_widget_names(),
+			static function ( $name ) {
+				return str_contains( $name, 'video' );
+			}
+		);
+
+		$gated = VIDEOPRESS_WIDGET_TYPES;
+		sort( $gated );
+		sort( $video_names );
+
+		$this->assertSame( $gated, $video_names, 'Every video widget must be listed in VIDEOPRESS_WIDGET_TYPES.' );
+	}
+
+	/**
+	 * Every held plan-usage type names a real manifest, so a renamed or moved widget
+	 * cannot lift the hold while the absence assertions above stay green.
+	 */
+	public function test_plan_usage_widget_types_match_the_manifest() {
+		$names = $this->manifest_widget_names();
+
+		foreach ( PLAN_USAGE_WIDGET_TYPES as $held ) {
+			$this->assertContains( $held, $names, "$held is held back but no manifest declares it." );
+		}
+	}
+
+	/**
+	 * The registry callback drops the video widgets when VideoPress is absent.
+	 */
+	public function test_registry_callback_removes_video_widgets_without_videopress() {
+		$names = array_column(
+			filter_registrable_widget_types_by_availability( $this->widget_candidates() ),
+			'name'
+		);
+
+		$this->assertNotContains( 'jpa/videopress', $names );
+	}
+
+	/**
+	 * Atomic reads the plan feature at the widget layer too — an active module is
+	 * not enough there, and the feature alone is.
+	 */
+	public function test_registry_callback_follows_the_plan_feature_on_atomic() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/plugins/wpcomsh/wpcomsh.php' );
+		update_option( 'jetpack_active_modules', array( 'videopress' ) );
+
+		$names = array_column(
+			filter_registrable_widget_types_by_availability( $this->widget_candidates() ),
+			'name'
+		);
+
+		$this->assertNotContains( 'jpa/videopress', $names, 'An active module does not stand in for the plan feature on Atomic.' );
+
+		$GLOBALS['jpa_test_wpcom_features'] = array( 'videopress' );
+
+		$names = array_column(
+			filter_registrable_widget_types_by_availability( $this->widget_candidates() ),
+			'name'
+		);
+
+		$this->assertContains( 'jpa/videopress', $names, 'The plan feature brings the video widgets back on Atomic.' );
+	}
+
+	/**
+	 * Forcing availability on puts them back, proving the context reads the helper.
+	 */
+	public function test_registry_callback_keeps_video_widgets_with_videopress() {
+		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
+
+		$names = array_column(
+			filter_registrable_widget_types_by_availability( $this->widget_candidates() ),
+			'name'
+		);
+
+		$this->assertContains( 'jpa/videopress', $names );
+	}
+
+	/**
+	 * Shares is unavailable outside WPCOM Simple, where nothing records a share.
+	 */
+	public function test_type_policy_removes_shares_on_non_simple() {
+		$names = $this->available_names( false );
+
+		$this->assertNotContains( 'jpa/shares', $names );
+		$this->assertContains( 'jpa/hello-world', $names );
+	}
+
+	/**
+	 * WPCOM Simple keeps Shares.
+	 */
+	public function test_type_policy_keeps_shares_on_simple() {
+		$this->assertContains( 'jpa/shares', $this->available_names( true ) );
+	}
+
+	/**
 	 * Non-array records pass through unchanged.
 	 */
 	public function test_type_policy_keeps_non_array_records() {
@@ -147,7 +377,10 @@ class Widget_Availability_Test extends BaseTestCase {
 					array( 'name' => 'jpa/file-downloads' ),
 				),
 				'name',
-				array( 'is_wpcom_simple' => false )
+				array(
+					'is_wpcom_simple' => false,
+					'has_videopress'  => false,
+				)
 			)
 		);
 	}
@@ -160,7 +393,14 @@ class Widget_Availability_Test extends BaseTestCase {
 
 		$this->assertSame(
 			$items,
-			remove_unsupported_widget_items( $items, 'type', array( 'is_wpcom_simple' => false ) )
+			remove_unsupported_widget_items(
+				$items,
+				'type',
+				array(
+					'is_wpcom_simple' => false,
+					'has_videopress'  => false,
+				)
+			)
 		);
 	}
 
@@ -171,7 +411,10 @@ class Widget_Availability_Test extends BaseTestCase {
 		$filtered = remove_unsupported_widget_items(
 			$this->widget_candidates(),
 			'name',
-			array( 'is_wpcom_simple' => false )
+			array(
+				'is_wpcom_simple' => false,
+				'has_videopress'  => false,
+			)
 		);
 
 		$this->assertSame( range( 0, count( $filtered ) - 1 ), array_keys( $filtered ), 'Filtered candidates must stay a JSON list.' );
@@ -259,9 +502,90 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The host callback removes File downloads on Atomic.
+	 * Every store-report category — the commerce ones and `visitors` — is dropped
+	 * for a reader without that access, since all they could collect from those
+	 * widgets is 403s.
 	 */
-	public function test_registry_callback_removes_file_downloads_on_atomic() {
+	public function test_store_report_widgets_removed_from_a_reader_without_access() {
+		$this->assertSame(
+			array( 'jpa/traffic-chart' ),
+			array_column(
+				remove_capability_gated_widget_types( $this->store_report_widget_candidates(), false ),
+				'name'
+			),
+			'Only the category served by another prefix survives.'
+		);
+	}
+
+	/**
+	 * Administrators keep every category.
+	 */
+	public function test_store_report_widgets_kept_for_a_user_with_access() {
+		$this->assertSame(
+			$this->store_report_widget_candidates(),
+			remove_capability_gated_widget_types( $this->store_report_widget_candidates(), true ),
+			'With prefix access no candidate is dropped.'
+		);
+	}
+
+	/**
+	 * The registry-time callback reads the current user, so the same manifest
+	 * yields different types depending on who is asking.
+	 */
+	public function test_registry_callback_follows_the_current_user() {
+		$reader = wp_insert_user(
+			array(
+				'user_login' => 'jpa_widget_reader',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $reader );
+
+		$this->assertSame(
+			array( 'jpa/traffic-chart' ),
+			array_column(
+				filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+				'name'
+			),
+			'An editor cannot read the store reports, so their categories are dropped.'
+		);
+
+		$admin = wp_insert_user(
+			array(
+				'user_login' => 'jpa_widget_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin );
+
+		$this->assertSame(
+			$this->store_report_widget_candidates(),
+			filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+			'An administrator keeps every category.'
+		);
+
+		wp_set_current_user( 0 );
+	}
+
+	/**
+	 * Candidates without a category are never capability-gated.
+	 */
+	public function test_uncategorized_widgets_are_not_capability_gated() {
+		$candidates = array( array( 'name' => 'jpa/no-category' ) );
+
+		$this->assertSame(
+			$candidates,
+			remove_capability_gated_widget_types( $candidates, false ),
+			'A candidate without a category must not be capability-gated.'
+		);
+	}
+
+	/**
+	 * The host callback removes the Simple-only types on Atomic.
+	 */
+	public function test_registry_callback_removes_simple_only_types_on_atomic() {
 		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
 
@@ -271,12 +595,13 @@ class Widget_Availability_Test extends BaseTestCase {
 		);
 
 		$this->assertNotContains( 'jpa/file-downloads', $names );
+		$this->assertNotContains( 'jpa/shares', $names );
 	}
 
 	/**
-	 * The host callback keeps File downloads on WPCOM Simple.
+	 * The host callback keeps the Simple-only types on WPCOM Simple.
 	 */
-	public function test_registry_callback_keeps_file_downloads_on_wpcom_simple() {
+	public function test_registry_callback_keeps_simple_only_types_on_wpcom_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 
 		$names = array_column(
@@ -285,6 +610,8 @@ class Widget_Availability_Test extends BaseTestCase {
 		);
 
 		$this->assertContains( 'jpa/file-downloads', $names );
+		$this->assertContains( 'jpa/shares', $names );
+		$this->assertNotContains( 'jpa/plan-usage', $names, 'The plan-usage hold applies on Simple too.' );
 	}
 
 	/**

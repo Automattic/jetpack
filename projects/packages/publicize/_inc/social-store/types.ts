@@ -1,5 +1,6 @@
 import { ConnectionService } from '../types';
 import { AttachedMedia, MediaSourceValue, SHARING_ACTIVITY_TABS } from '../utils';
+import type { Hyperlink } from '@automattic/social-previews';
 
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
@@ -127,6 +128,11 @@ export type ConnectionFlowState = {
 	step?: ConnectionFlowStep;
 	selectedServiceId?: string;
 	origin?: ConnectionFlowOrigin;
+	/**
+	 * Values entered on the `platform-input` step, keyed by input name. Held here
+	 * so they survive stepping back; cleared when the flow starts or is cancelled.
+	 */
+	inputs?: Record< string, string >;
 };
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
@@ -141,6 +147,7 @@ export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: numb
 export type RenderedMessageBatch = {
 	[ ConnectionId: string ]: {
 		rendered_message?: string;
+		hyperlinks?: Hyperlink[];
 		error?: { code: string; message: string };
 	};
 };
@@ -215,9 +222,24 @@ export interface KeyringAdditionalUser {
 	external_profile_picture: string;
 }
 
+/**
+ * Reason codes wpcom reports for an empty Instagram Business account list.
+ */
+export type AccountsEmptyReason =
+	| 'no_instagram_account'
+	| 'no_pages'
+	| 'page_access_denied'
+	| 'account_check_failed'
+	| 'service_error';
+
 export interface KeyringResult extends KeyringAdditionalUser {
 	ID: number;
 	additional_external_users: Array< KeyringAdditionalUser >;
+	/**
+	 * Why `additional_external_users` came back empty; null or absent means no
+	 * reason. Kept open because wpcom may add codes; unknown gets generic copy.
+	 */
+	additional_external_users_empty_reason?: AccountsEmptyReason | ( string & {} ) | null;
 	external_display: string;
 	label: string;
 	service: string;

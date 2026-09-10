@@ -30,20 +30,12 @@ interface AuthorsStoryControls {
 }
 
 function renderAuthors( { withComparison }: AuthorsStoryControls ) {
-	return (
-		<AuthorsRender
-			attributes={ { max: 7, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
+	return <AuthorsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderAuthorsOnPreset( preset: PresetType ) {
-	return (
-		<AuthorsRender
-			attributes={ { max: 7, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
-	);
+	return <AuthorsRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />;
 }
 
 function AuthorsDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -65,9 +57,8 @@ const meta = {
 			},
 		},
 	},
-	// The story args are the widget-specific controls, but `component` is the
-	// render component (host `WidgetRenderProps`). Intersect the two so
-	// `component` type-checks against the meta while the controls drive argTypes.
+	// Intersected so `component` type-checks against the meta while the
+	// widget-specific controls still drive argTypes.
 } satisfies Meta< ComponentProps< typeof AuthorsRender > & AuthorsStoryControls >;
 
 export default meta;
@@ -140,7 +131,7 @@ function AuthorsDashboardStory( { withComparison, ...dashboardArgs }: AuthorsDas
 			widgetType={ storyWidgetType }
 			renderModule={ AUTHORS_RENDER_MODULE }
 			renderComponent={ AuthorsDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 7, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }

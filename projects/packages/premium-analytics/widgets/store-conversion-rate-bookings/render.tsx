@@ -24,15 +24,7 @@ type StoreConversionRateBookingsWidgetProps =
 	};
 
 /**
- * Store conversion rate bookings widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; BookingConversionRateWidget
- * fetches the conversion-rate report with bookings filters and renders the
- * funnel.
- *
- * @param {StoreConversionRateBookingsWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * The conversion-rate report filtered to booking products, rendered as a funnel.
  */
 export default function StoreConversionRateBookingsRender( {
 	attributes = {},

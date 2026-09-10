@@ -7,7 +7,7 @@ This file provides guidance to AI coding agents when working with code in this r
 This package provides WordPress.com Stats tracking and API integration for Jetpack sites.
 
 - **Namespace**: `Automattic\Jetpack\Stats`
-- **Text Domain**: `jetpack-stats`
+- **Text Domain**: `jetpack-stats-pkg`
 
 ## Project Structure
 

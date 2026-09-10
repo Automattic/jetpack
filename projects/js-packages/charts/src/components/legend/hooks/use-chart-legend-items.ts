@@ -25,6 +25,11 @@ export interface ChartLegendOptions {
 	showValues?: boolean;
 	legendValueDisplay?: LegendValueDisplay;
 	legendShape?: LegendShape< SeriesData[], number >;
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series. Off by default, so every series gets its own item.
+	 */
+	collapseGroups?: boolean;
 }
 
 /**
@@ -95,13 +100,90 @@ function applyGlyphToLegendItem(
 	return baseItem;
 }
 
+type SeriesGroupMember = { series: SeriesData; index: number };
+
 /**
- * Processes SeriesData into legend items
+ * Buckets series by their `group`, preserving first-appearance order. Series with no group — or a
+ * group value unique to them — end up in a bucket of their own. Whether a multi-series bucket then
+ * collapses to a single legend item is decided by the caller: with `collapseGroups` on, every
+ * multi-member bucket collapses, and the comparison pattern only decides which member represents it.
+ * @param seriesData - The series data to group
+ * @return Ordered groups, each holding its member series with their original indices
+ */
+function groupSeriesForLegend( seriesData: SeriesData[] ): SeriesGroupMember[][] {
+	const groups: SeriesGroupMember[][] = [];
+	const groupIndexByKey = new Map< string, number >();
+
+	seriesData.forEach( ( series, index ) => {
+		const member: SeriesGroupMember = { series, index };
+		const key = series.group;
+
+		if ( key === undefined ) {
+			groups.push( [ member ] );
+			return;
+		}
+
+		const existing = groupIndexByKey.get( key );
+		if ( existing === undefined ) {
+			groupIndexByKey.set( key, groups.length );
+			groups.push( [ member ] );
+		} else {
+			groups[ existing ].push( member );
+		}
+	} );
+
+	return groups;
+}
+
+/**
+ * Builds a single legend item from a representative series, tagging it with the series it controls
+ * @param member           - The series (with its original index) that provides the label/colour
+ * @param seriesLabels     - Every series label this item toggles (grouped) or just its own
+ * @param getElementStyles - Function to get element styles
+ * @param showValues       - Whether to show values in legend
+ * @param withGlyph        - Whether to include glyph rendering
+ * @param glyphSize        - Size of the glyph
+ * @param renderGlyph      - Component to render the glyph
+ * @param legendShape      - The shape type for legend items (string literal or React component)
+ * @return The processed legend item
+ */
+function buildSeriesLegendItem(
+	member: SeriesGroupMember,
+	seriesLabels: string[],
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
+	showValues: boolean,
+	withGlyph: boolean,
+	glyphSize: number,
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
+	legendShape?: LegendShape< SeriesData[], number >
+): BaseLegendItem {
+	const { color, glyph, shapeStyles } = getElementStyles( {
+		data: member.series,
+		index: member.index,
+		legendShape,
+	} );
+
+	const baseItem: BaseLegendItem = {
+		label: member.series.label,
+		value: showValues ? member.series.data?.length?.toString() || '0' : '',
+		color,
+		shapeStyle: shapeStyles,
+		seriesLabels,
+	};
+
+	return applyGlyphToLegendItem( baseItem, withGlyph, glyph, renderGlyph, glyphSize );
+}
+
+/**
+ * Processes SeriesData into legend items. Every series keeps its own legend entry unless
+ * `collapseGroups` is set, in which case series sharing a `group` collapse to one item labelled by
+ * the group's primary (its first non-comparison member).
  * @param seriesData       - The series data to process
  * @param getElementStyles - Function to get element styles
  * @param showValues       - Whether to show values in legend
  * @param withGlyph        - Whether to include glyph rendering
  * @param glyphSize        - Size of the glyph
+ * @param collapseGroups   - Whether series sharing a group collapse to a single item
  * @param renderGlyph      - Component to render the glyph
  * @param legendShape      - The shape type for legend items (string literal or React component)
  * @return Array of processed legend items
@@ -112,27 +194,44 @@ function processSeriesData(
 	showValues: boolean,
 	withGlyph: boolean,
 	glyphSize: number,
+	collapseGroups: boolean,
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
 	legendShape?: LegendShape< SeriesData[], number >
 ): BaseLegendItem[] {
-	const mapper = ( series: SeriesData, index: number ) => {
-		const { color, glyph, shapeStyles } = getElementStyles( {
-			data: series,
-			index,
-			legendShape,
-		} );
+	const buildItem = ( member: SeriesGroupMember, seriesLabels: string[] ) =>
+		buildSeriesLegendItem(
+			member,
+			seriesLabels,
+			getElementStyles,
+			showValues,
+			withGlyph,
+			glyphSize,
+			renderGlyph,
+			legendShape
+		);
 
-		const baseItem: BaseLegendItem = {
-			label: series.label,
-			value: showValues ? series.data?.length?.toString() || '0' : '',
-			color,
-			shapeStyle: shapeStyles,
-		};
+	// Without collapsing there is no reason to bucket by group — mapping series directly keeps the
+	// original order, which matters for charts that already interleave grouped series for colour.
+	if ( ! collapseGroups ) {
+		return seriesData.map( ( series, index ) => buildItem( { series, index }, [ series.label ] ) );
+	}
 
-		return applyGlyphToLegendItem( baseItem, withGlyph, glyph, renderGlyph, glyphSize );
-	};
+	return groupSeriesForLegend( seriesData ).flatMap( members => {
+		if ( members.length > 1 ) {
+			const primary =
+				members.find( ( { series } ) => series.options?.type !== 'comparison' ) ?? members[ 0 ];
 
-	return seriesData.map( mapper );
+			// Primary first so the interactive visibility check reads the series that owns the swatch.
+			const seriesLabels = [
+				primary.series.label,
+				...members.filter( member => member !== primary ).map( ( { series } ) => series.label ),
+			];
+
+			return [ buildItem( primary, seriesLabels ) ];
+		}
+
+		return members.map( member => buildItem( member, [ member.series.label ] ) );
+	} );
 }
 
 /**
@@ -196,6 +295,7 @@ export function useChartLegendItems<
 		legendValueDisplay = 'percentage',
 		withGlyph = false,
 		glyphSize = 8,
+		collapseGroups = false,
 		renderGlyph,
 	} = options;
 	const { getElementStyles } = useGlobalChartsContext();
@@ -213,6 +313,7 @@ export function useChartLegendItems<
 				showValues,
 				withGlyph,
 				glyphSize,
+				collapseGroups,
 				renderGlyph,
 				legendShape
 			);
@@ -236,6 +337,7 @@ export function useChartLegendItems<
 		legendValueDisplay,
 		withGlyph,
 		glyphSize,
+		collapseGroups,
 		renderGlyph,
 		legendShape,
 	] );

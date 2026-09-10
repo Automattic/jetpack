@@ -33,6 +33,9 @@
 		<testsuite name="infinite-scroll">
 			<directory suffix="Test.php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
+		<testsuite name="theme-tools">
+			<directory suffix="Test.php">tests/php/modules/theme-tools</directory>
+		</testsuite>
 		<testsuite name="comment-likes">
 			<directory suffix="Test.php">tests/php/modules/comment-likes</directory>
 		</testsuite>
@@ -74,6 +77,9 @@
 		</testsuite>
 		<testsuite name="subscriptions">
 			<directory suffix="Test.php">tests/php/modules/subscriptions</directory>
+		</testsuite>
+		<testsuite name="memberships">
+			<directory suffix="Test.php">tests/php/modules/memberships</directory>
 		</testsuite>
 		<testsuite name="verification-tools">
 			<directory suffix="Test.php">tests/php/modules/verification-tools</directory>
@@ -131,6 +137,18 @@
 		</testsuite>
 		<testsuite name="autoloaded">
 			<directory suffix="Test.php">tests/php/src</directory>
+		</testsuite>
+		<testsuite name="block-manifest">
+			<file>tests/php/Block_Manifest_Test.php</file>
+		</testsuite>
+		<testsuite name="jetpack-admin">
+			<file>tests/php/Jetpack_Admin_Test.php</file>
+		</testsuite>
+		<testsuite name="unauth-file-upload">
+			<file>tests/php/Unauth_File_Upload_Test.php</file>
+		</testsuite>
+		<testsuite name="import">
+			<file>tests/php/Import_Post_Meta_Object_Injection_Test.php</file>
 		</testsuite>
 		<testsuite name="seo-module-migration">
 			<file>tests/php/SEO_Sitemap_Migration_Test.php</file>

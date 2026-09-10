@@ -8,6 +8,11 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 // helpers.php defines the shared option reader the listeners depend on, so it loads first.
@@ -57,8 +62,8 @@ class AI_Launchpad {
 		}
 
 		self::load_wp_build();
-		self::fix_boot_import_map_ordering();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_initial_state' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks' ), 20 );
 	}
 
 	/**
@@ -186,52 +191,53 @@ class AI_Launchpad {
 	}
 
 	/**
-	 * Fix import map ordering for the wp-build boot script.
+	 * Attach the page's Tracks preconditions: the transport itself on Atomic, and the standard
+	 * event properties as a global the client recorder reads.
 	 *
-	 * In wp-admin both _wp_footer_scripts and print_import_map hook admin_print_footer_scripts at priority 10, but
-	 * _wp_footer_scripts runs first, so the inline import("@wordpress/boot") executes before the import map exists.
-	 * This moves the import() call to a <script type="module"> printed at priority 20, after the import map.
+	 * On Simple, wpcom's stats.php loads the Tracks transport on every admin page and pushes
+	 * identifyUser and the blog_id super prop with it. On Atomic nothing does — wpcomsh only
+	 * enqueues jp-tracks inside the editor — so `window._tkq` stays an ordinary array, every
+	 * push accumulates in it, and the whole client-side funnel is discarded on unload.
 	 *
-	 * @todo Remove once @wordpress/build ships the loader.js fix upstream
-	 *       (WordPress/gutenberg#76870) and Jetpack updates the dependency.
+	 * The transport is only enqueued where tracking is actually permitted: "not Simple" also
+	 * covers jurassic.ninja / jurassic.tube and self-hosted sites running this package, where
+	 * the server recorder already stays silent under a declined ToS or offline mode. Gating
+	 * here mirrors `wpcom_enqueue_tracking_scripts()` in `src/common/index.php`. The props/
+	 * identity global below stays ungated: it is inert without the transport.
 	 */
-	private static function fix_boot_import_map_ordering() {
+	public static function enqueue_tracks() {
 		$handle = self::MENU_SLUG . '-prerequisites';
 
-		add_action(
-			'admin_enqueue_scripts',
-			static function () use ( $handle ) {
-				$data = wp_scripts()->get_data( $handle, 'after' );
-				if ( empty( $data ) ) {
-					return;
-				}
+		if ( ! wp_script_is( $handle, 'registered' ) ) {
+			return;
+		}
 
-				$boot_script = null;
-				$remaining   = array();
-				foreach ( $data as $line ) {
-					if ( strpos( $line, '@wordpress/boot' ) !== false ) {
-						$boot_script = $line;
-					} else {
-						$remaining[] = $line;
-					}
-				}
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			$tracking = new Tracking( 'jetpack-mu-wpcom', new Connection_Manager() );
+			if ( $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+				wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+			}
+		}
 
-				if ( $boot_script === null ) {
-					return;
-				}
-
-				wp_scripts()->add_data( $handle, 'after', $remaining );
-
-				// Re-emit as a module script after the import map.
-				add_action(
-					'admin_print_footer_scripts',
-					static function () use ( $boot_script ) {
-						wp_print_inline_script_tag( $boot_script, array( 'type' => 'module' ) );
-					},
-					20
-				);
-			},
-			PHP_INT_MAX
+		// JSON rather than wp_localize_script(), which stringifies every value: blog_id would
+		// reach Tracks as a string instead of an int.
+		$bootstrap = wp_json_encode(
+			array(
+				'props'    => wpcom_ai_launchpad_standard_props(),
+				'identity' => wpcom_ai_launchpad_tracks_identity(),
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
+
+		// WordPress concatenates every `before` inline script queued for this handle into one
+		// <script> tag, so a false here (encode failure) would emit a syntax error that also
+		// takes out the other scripts sharing the handle — including JP_CONNECTION_INITIAL_STATE
+		// and Jetpack_Editor_Initial_State.wpcomBlogId, the JWT and blog id the page needs to
+		// function at all. Fall back to an empty object so this global stays inert instead.
+		if ( false === $bootstrap ) {
+			$bootstrap = '{}';
+		}
+
+		wp_add_inline_script( $handle, 'window.wpcomAiLaunchpadTracks = ' . $bootstrap . ';', 'before' );
 	}
 }

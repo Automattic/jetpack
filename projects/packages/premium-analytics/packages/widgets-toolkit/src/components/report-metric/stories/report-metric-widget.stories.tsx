@@ -83,6 +83,7 @@ const createMockData = ( options: {
 					? createMockReportData( metricKey, comparisonValue, COMPARISON_DATE_RANGE )
 					: undefined,
 		},
+		timezone: 'UTC',
 		isLoading,
 		isFetching,
 		hasData,
@@ -111,10 +112,6 @@ export default meta;
 
 type Story = StoryObj< typeof ReportMetricWidget >;
 
-/**
- * Loading state - shows initial loading skeleton overlay
- * Triggered when `isLoading: true` and `hasData: false`
- */
 export const Loading: Story = {
 	args: {
 		metricKey: 'total_sales',
@@ -129,17 +126,13 @@ export const Loading: Story = {
 	},
 };
 
-/**
- * Updating state - shows spinner overlay while refetching
- * Triggered when `isLoading: true` (or `isFetching: true`) and `hasData: true`
- */
-export const Updating: Story = {
+export const Refetching: Story = {
 	args: {
 		metricKey: 'total_sales',
 		data: createMockData( {
 			metricKey: 'total_sales',
 			primaryValue: 45678.99,
-			isLoading: true,
+			isFetching: true,
 			hasData: true,
 		} ),
 		dataFormat: { type: 'currency' },

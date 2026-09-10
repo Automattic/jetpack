@@ -8,13 +8,17 @@
 	flex: 1 1 auto;
 	min-block-size: 0;
 
-	// Own stacking context, so in-panel layers (the sticky section header,
+	// The section's scroll container. Scrolling here rather than the boot
+	// stage keeps the page header out of the scroll flow entirely: `Page` is
+	// `height: 100%`, so a sticky header inside it runs out of containing
+	// block one viewport in and slides away. The tab list scrolls away with
+	// the content, which is interim until the sections move into `Page`'s
+	// navigation slot (WordPress/gutenberg#79746, not yet in
+	// `@wordpress/admin-ui`; WOOA7S-1931).
+	overflow-y: auto;
+
+	// Own stacking context, so in-panel layers (the pinned section header,
 	// widget focus rings) never compete with the page header above.
 	position: relative;
-	z-index: 0;
-}
-
-.tabList {
-	padding-inline: var(--wpds-dimension-padding-2xl);
 	z-index: 0;
 }

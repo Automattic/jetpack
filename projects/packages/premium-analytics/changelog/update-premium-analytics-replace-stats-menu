@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Move the Premium Analytics admin menu to the top position, directly under Dashboard, and remove the Jetpack Stats menu (when present) so Premium Analytics replaces it.

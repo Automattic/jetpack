@@ -27,9 +27,24 @@ jest.mock( '@wordpress/components', () => {
 
 jest.mock( '@wordpress/ui', () => {
 	const react = jest.requireActual( 'react' );
+	const Anchor = ( { children, ...props } ) => {
+		// Anchor-only props that shouldn't land on the DOM node.
+		delete props.variant;
+		delete props.tone;
+		delete props.size;
+		delete props.openInNewTab;
+		delete props.nativeButton;
+		delete props.loading;
+		delete props.loadingAnnouncement;
+		return react.createElement( 'a', props, children );
+	};
 	return {
 		Button: ( { children, render: renderProp, ...props } ) => {
 			// Button-only props that shouldn't land on the DOM node.
+			delete props.variant;
+			delete props.tone;
+			delete props.size;
+			delete props.openInNewTab;
 			delete props.nativeButton;
 			delete props.loading;
 			delete props.loadingAnnouncement;
@@ -37,7 +52,8 @@ jest.mock( '@wordpress/ui', () => {
 				? react.cloneElement( renderProp, props, children )
 				: react.createElement( 'button', props, children );
 		},
-		Link: ( { children, ...props } ) => react.createElement( 'a', props, children ),
+		Link: Anchor,
+		LinkButton: Anchor,
 	};
 } );
 

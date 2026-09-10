@@ -55,10 +55,9 @@ $bar-fill-soft: rgba(34, 113, 177, 0.18);
 		line-height: 1.4;
 	}
 
-	&__cta.components-button.is-primary {
+	&__cta {
 		// Match other primary CTAs in the dashboard.
 		min-width: 160px;
-		justify-content: center;
 	}
 
 	// --- Episodes preview table ---------------------------------------------

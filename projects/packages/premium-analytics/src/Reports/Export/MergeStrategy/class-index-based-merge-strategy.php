@@ -26,7 +26,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Support\Logger_Trait;
  * Empty value handling: Uses empty strings for missing data, which signals
  * "no data for this date" when period lengths don't match.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Index_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 
@@ -69,7 +69,6 @@ class Index_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 		for ( $i = 0; $i < $max_length; $i++ ) {
 			$merged_item = array();
 
-			// Add original data (or empty marker).
 			if ( isset( $original_items[ $i ] ) ) {
 				$merged_item = $original_items[ $i ];
 			} else {
@@ -77,7 +76,6 @@ class Index_Based_Merge_Strategy extends Abstract_Merge_Strategy {
 				$merged_item = $this->create_empty_item( $original_template, null );
 			}
 
-			// Add comparison data with prefix (or empty marker).
 			if ( isset( $comparison_items[ $i ] ) ) {
 				foreach ( $comparison_items[ $i ] as $key => $value ) {
 					$merged_item[ $prefix . $key ] = $value;

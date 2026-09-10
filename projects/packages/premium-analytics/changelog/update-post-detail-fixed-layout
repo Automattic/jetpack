@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Make the post detail page a fixed composition — render the Post highlights card by default and remove widget editing.

@@ -5,7 +5,7 @@ import { Button } from '@wordpress/components';
 import { useRegistry } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch, useNavigate } from '@wordpress/route';
+import { useNavigate } from '@wordpress/route';
 import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
@@ -34,7 +34,6 @@ export function ResponseActions( {
 	response: FormResponse;
 	onActionComplete: ( item: FormResponse ) => void;
 } ) {
-	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
 
 	const {
@@ -45,14 +44,7 @@ export function ResponseActions( {
 		deleteAction,
 		markAsReadAction,
 		markAsUnreadAction,
-	} = useMemo(
-		() =>
-			getActions( {
-				navigate,
-				searchParams,
-			} ),
-		[ navigate, searchParams ]
-	);
+	} = useMemo( () => getActions( { navigate } ), [ navigate ] );
 
 	const [ isMarkingAsSpam, setIsMarkingAsSpam ] = useState( false );
 	const [ isMarkingAsNotSpam, setIsMarkingAsNotSpam ] = useState( false );

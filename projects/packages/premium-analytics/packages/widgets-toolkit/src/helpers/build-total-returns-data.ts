@@ -3,12 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 import { formatLegendLabels } from './format-legend-labels';
-import type { SeriesData } from '@automattic/charts';
 import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
-
-/**
- * Internal dependencies
- */
+import type { SeriesData } from '@jetpack-premium-analytics/externals';
 
 export interface TotalReturnsData {
 	chartData: SeriesData[];
@@ -50,10 +46,8 @@ export function buildTotalReturnsData(
 	const { primary: primaryLabel, comparison: comparisonLabel } = formatLegendLabels( reportParams );
 	const totalSales = orders.summary.total_sales ?? 0;
 
-	// Net sales (total sales minus refunds)
 	const salesAmount = Math.max( 0, totalSales - refundsAmount );
 
-	// Build bar chart data - each category is a bar
 	const chartData: SeriesData[] = [
 		{
 			label: primaryLabel,
@@ -67,7 +61,6 @@ export function buildTotalReturnsData(
 		},
 	];
 
-	// Add comparison period if available
 	if ( comparisonOrders?.summary ) {
 		const comparisonTotalRefunds = comparisonOrders.summary.refunds || 0;
 		const comparisonTotalSales = comparisonOrders.summary.total_sales || 0;

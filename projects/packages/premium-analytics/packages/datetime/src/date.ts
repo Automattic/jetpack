@@ -12,6 +12,26 @@ export type DateIntervalDateParts = {
 
 const DATE_PART_FORMAT = 'yyyy-MM-dd';
 
+// date-fns needs a reference date. Every format here carries a year, which resets
+// the rest; a year-less format would silently inherit 2001.
+const REFERENCE_DATE = new Date( 2001, 0, 1 );
+
+/**
+ * Parse a label that must round-trip through its own format.
+ *
+ * `isValid` alone is not enough: date-fns reads `2025-W53` as a real date in 2026,
+ * and accepts a loosely written `2026-6-22`. Re-formatting catches both.
+ *
+ * @param label       - The label as written.
+ * @param labelFormat - The date-fns format the label must match exactly. Must carry a year.
+ * @return The parsed date, or null when the label does not name a real one.
+ */
+export function parseExactLabel( label: string, labelFormat: string ): Date | null {
+	const parsed = parse( label, labelFormat, REFERENCE_DATE );
+
+	return isValid( parsed ) && format( parsed, labelFormat ) === label ? parsed : null;
+}
+
 /**
  * Extract the calendar date part from a date-like string.
  *
@@ -23,19 +43,17 @@ export function getDatePart( value: unknown ): string | undefined {
 }
 
 /**
- * Format a date part and time into the Premium Analytics ISO-ish response shape.
+ * Format a date part and time into the Premium Analytics response shape.
+ *
+ * Deliberately offset-less: Stats bucket labels are site-local calendar dates,
+ * and a fabricated offset would assert an instant the bucket never named.
  *
  * @param datePart - Date part, normally `YYYY-MM-DD`.
  * @param time     - Time part, normally `HH:mm:ss`.
- * @param offset   - Timezone offset suffix.
- * @return Date-time string with offset.
+ * @return Timezone-naive date-time string.
  */
-export function formatDatePartWithTime(
-	datePart: string,
-	time: string,
-	offset = '+00:00'
-): string {
-	return `${ datePart }T${ time }${ offset }`;
+export function formatDatePartWithTime( datePart: string, time: string ): string {
+	return `${ datePart }T${ time }`;
 }
 
 /**

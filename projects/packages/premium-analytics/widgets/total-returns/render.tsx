@@ -22,14 +22,7 @@ type TotalReturnsWidgetProps = WidgetRenderProps< TotalReturnsRenderAttributes >
 };
 
 /**
- * Total returns widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; TotalReturnsWidget renders
- * refunds and net sales for the selected period.
- *
- * @param {TotalReturnsWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * Refunds and net sales for the selected period.
  */
 export default function TotalReturnsRender( {
 	attributes = {},

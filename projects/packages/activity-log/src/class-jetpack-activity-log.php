@@ -136,8 +136,7 @@ class Jetpack_Activity_Log {
 			'Activity Log',
 			'manage_options',
 			self::PAGE_SLUG,
-			$render_callback,
-			12
+			$render_callback
 		);
 
 		if ( $page_suffix ) {

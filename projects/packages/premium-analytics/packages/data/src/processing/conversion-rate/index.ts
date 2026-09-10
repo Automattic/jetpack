@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { fetchReportConversionRate } from '../../api/report-conversion-rate-fetch';
 import { safeParseInt } from '../../utils/parsing';
+import { withBucketStamps } from '../utils';
 import type { Override } from '../../utils/types';
 
 type ReportsConversionRateByDateResponse = Awaited<
@@ -25,12 +26,9 @@ type SanitizedConversionRateByDateItem = Override<
 	}
 >;
 
-/**
- * Sanitize/process a single conversion rate item by converting strings to numbers
- * and calculating the conversion rate
- */
 function sanitizeConversionRateItem(
-	item: RawConversionRateReportDataItem
+	item: RawConversionRateReportDataItem,
+	zone: string
 ): SanitizedConversionRateByDateItem {
 	const activeSessionsNum = safeParseInt( item.active_sessions );
 	const visitorsNum = safeParseInt( item.visitors );
@@ -43,7 +41,7 @@ function sanitizeConversionRateItem(
 	const conversionRate = activeSessionsNum > 0 ? completedCheckoutNum / activeSessionsNum : 0;
 
 	return {
-		...item,
+		...withBucketStamps( item, zone ),
 		active_sessions: activeSessionsNum,
 		visitors: visitorsNum,
 		with_cart_addition: withCartAdditionNum,
@@ -53,9 +51,6 @@ function sanitizeConversionRateItem(
 	};
 }
 
-/**
- * Funnel step for conversion rate visualization
- */
 type FunnelStep = {
 	id: string;
 	label: string;
@@ -63,9 +58,6 @@ type FunnelStep = {
 	rate: number;
 };
 
-/**
- * Processed response with funnel steps and overall conversion rate
- */
 type SanitizedConversionRateByDateResponse = {
 	summary: SanitizedConversionRateByDateItem;
 	data: SanitizedConversionRateByDateItem[];
@@ -74,14 +66,12 @@ type SanitizedConversionRateByDateResponse = {
 };
 
 /**
- * Sanitize the response from the sessions/by-conversion-rate endpoint
- * Converts string values to numbers for easier calculations and charting.
- *
  * The `summary` single item has basically the same structure
  * as the `data` array items, so we can use the same mapper function for both.
  */
 export const sanitizeReportConversionRateResponse = (
-	response: ReportsConversionRateByDateResponse
+	response: ReportsConversionRateByDateResponse,
+	zone: string
 ): SanitizedConversionRateByDateResponse => {
 	// Handle cases where response might not have the expected structure
 	const defaultSummary = {
@@ -94,9 +84,8 @@ export const sanitizeReportConversionRateResponse = (
 		date_end: '',
 	};
 
-	const sanitizedSummary = sanitizeConversionRateItem( response?.summary || defaultSummary );
+	const sanitizedSummary = sanitizeConversionRateItem( response?.summary || defaultSummary, zone );
 
-	// Create funnel steps from the summary data
 	const steps: FunnelStep[] = [
 		{
 			id: 'sessions',
@@ -135,7 +124,9 @@ export const sanitizeReportConversionRateResponse = (
 
 	return {
 		summary: sanitizedSummary,
-		data: response?.data ? response.data.map( sanitizeConversionRateItem ) : [],
+		data: response?.data
+			? response.data.map( item => sanitizeConversionRateItem( item, zone ) )
+			: [],
 		steps,
 		overallRate: sanitizedSummary.conversion_rate,
 	};

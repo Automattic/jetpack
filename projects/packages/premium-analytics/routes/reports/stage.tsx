@@ -1,12 +1,20 @@
 /**
  * External dependencies
  */
-import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { GlobalChartsProvider, useChartTheme } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	AnalyticsQueryClientProvider,
+	GlobalErrorProvider,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
+import {
+	GlobalChartsProvider,
+	siteChartFormatting,
+	useChartTheme,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useMemo } from '@wordpress/element';
 import { useParams } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -33,15 +41,8 @@ function ReportLoading(): JSX.Element {
 /**
  * Dispatcher for the `/reports/$report` route.
  *
- * Reads the `$report` path param, looks up the report definition in the
- * registry, and renders that report's page component lazily. It carries no
- * report-specific logic — page chrome (header, tabs, widget grid) belongs to
- * each report's own component.
- *
- * `route.ts`'s `beforeLoad` validates `$report` against the registry and
- * redirects unknown or missing reports to the dashboard, so a definition is
- * guaranteed to exist by the time this renders. The empty-definition branch
- * below only satisfies the type; it should never be reached at runtime.
+ * Page chrome (header, tabs, widget grid) belongs to each report's own
+ * component; this carries no report-specific logic.
  *
  * @return {JSX.Element} The report page.
  */
@@ -50,11 +51,8 @@ function ReportDispatcher(): JSX.Element {
 
 	const definition = getReportDefinition( report );
 
-	// Recreate the lazy component whenever the report id changes so each report
-	// loads its own page module. `React.lazy` memoizes the resolved component by
-	// its own identity, so a fresh `lazy()` per definition is what lets a switch
-	// mount a different report; keying the element by id below makes the remount
-	// explicit rather than relying on that identity change alone.
+	// `React.lazy` memoizes by component identity, so a fresh `lazy()` per definition is what
+	// lets switching reports mount a different page; `key` below makes the remount explicit.
 	const LazyReport = useMemo(
 		() => ( definition ? lazy( definition.load ) : null ),
 		[ definition ]
@@ -73,9 +71,8 @@ function ReportDispatcher(): JSX.Element {
 }
 
 /**
- * The report surface's provider stack, mounted once here so every report page
- * composes data hooks and chart components directly (`useSeriesStyles` +
- * `ComparativeLineChart`, same as widgets) without mounting its own providers.
+ * The report surface's provider stack, mounted once so no report page mounts its
+ * own.
  *
  * @param {object}    props          - The component props.
  * @param {ReactNode} props.children - The report page.
@@ -87,7 +84,13 @@ function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
 			<GlobalErrorProvider>
-				<GlobalChartsProvider theme={ chartTheme }>{ children }</GlobalChartsProvider>
+				<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
+					{ /*
+					 * A report names no compared period, so nothing below may fetch or
+					 * draw one. The params stay on the URL for the dashboard.
+					 */ }
+					<ReportScopeProvider offersComparison={ false }>{ children }</ReportScopeProvider>
+				</GlobalChartsProvider>
 			</GlobalErrorProvider>
 		</AnalyticsQueryClientProvider>
 	);

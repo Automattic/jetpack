@@ -37,7 +37,7 @@ Extends `Connection_Health_Test_Base` with all the connection-specific tests. It
 | `test__outbound_https` | Outbound HTTPS requests work |
 | `test__identity_crisis` | No URL mismatch with WordPress.com |
 | `test__connection_token_health` | Connection tokens are valid |
-| `test__wpcom_connection_test` | WordPress.com can reach the site |
+| `test__wpcom_connection_test` | WordPress.com can reach the site. Also keeps the `xmlrpc_request_blocked` connection error in sync: a blocked result reports it, a passing result clears it (see [error handling](error-handling.md)) |
 | `test__server_port_value` | Server port is standard |
 | `test__xml_parser_available` | PHP XML extension is available |
 
@@ -48,10 +48,12 @@ Integrates the health tests into WordPress Site Health. It:
 - Registers each `direct` test as a Site Health direct test (runs on page load).
 - Registers an async test suite entry (`jetpack-connection-health`) with a corresponding AJAX handler.
 - Defers to the legacy Jetpack debugger when an old Jetpack version is active (detected via `has_filter( 'site_status_tests', 'jetpack_debugger_site_status_tests' )`).
+- Runs `test__wpcom_connection_test` once a day via `do_daily_connection_check()` on the `jetpack_heartbeat` cron action, so the `xmlrpc_request_blocked` connection error stays fresh while the condition persists and clears within a day of it being resolved. The hook is deliberately the cron-only `jetpack_heartbeat` action, not `jetpack_heartbeat_stats_array`, which also fires in synchronous request contexts (XML-RPC, REST, WP-CLI) where a remote test would be slow and an amplification vector.
 
 ## When tests run
 
 - **Site Health page** (`/wp-admin/site-health.php`): Direct tests run synchronously on page load. The async test suite runs via an AJAX request after the page loads.
+- **Cron**: Core's weekly `wp_site_health_scheduled_check` event runs all direct tests (this feeds the dashboard "Site Health Status" widget counts). The daily `jetpack_v2_heartbeat` event runs `test__wpcom_connection_test` only, via `Site_Health::do_daily_connection_check()`.
 - **WP-CLI**: Tests can be run programmatically via `$tests = new Connection_Health_Tests(); $tests->output_results_for_cli();`.
 - **REST API / other consumers**: Instantiate `Connection_Health_Tests` and call `run_test()`, `pass()`, or `output_fails_as_wp_error()` as needed.
 
@@ -203,8 +205,8 @@ return self::connection_failing_test(
 The framework and individual tests are covered by PHPUnit tests in `tests/php/`:
 
 - **`Connection_Health_Test_Base_Test.php`** — Tests the base framework: test registration, execution, result helpers, output methods, encryption, filters, and the subclass extension pattern.
-- **`Connection_Health_Tests_Test.php`** — Tests individual health test methods: verifies skipped/pass/fail paths for each built-in test using partial mocks for helper methods.
-- **`Site_Health_Test.php`** — Tests Site Health integration: registration, legacy Jetpack detection, direct test callback invocation, and AJAX action registration.
+- **`Connection_Health_Tests_Test.php`** — Tests individual health test methods: verifies skipped/pass/fail paths for each built-in test using partial mocks for helper methods, including the reporting/clearing of the `xmlrpc_request_blocked` connection error by the WP.com connection test.
+- **`Site_Health_Test.php`** — Tests Site Health integration: registration, legacy Jetpack detection, direct test callback invocation, AJAX action registration, and the daily heartbeat check wiring.
 
 Run the tests from the package directory:
 

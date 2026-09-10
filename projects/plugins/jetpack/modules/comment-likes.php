@@ -81,15 +81,23 @@ class Jetpack_Comment_Likes {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( ! Jetpack::is_module_active( 'likes' ) ) {
-			$active = Jetpack::get_active_modules();
+			$active            = Jetpack::get_active_modules();
+			$sharedaddy_active = in_array( 'sharedaddy', $active, true );
 
-			if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
+			if ( $this->settings->needs_own_sharing_menu( $sharedaddy_active ) ) {
+				/*
+				 * Sharedaddy is what registers Settings > Sharing, and it is off, so we
+				 * register that screen ourselves; the Likes settings that gate comment
+				 * likes are displayed on it.
+				 */
+				add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
+			} elseif ( in_array( 'publicize', $active, true ) && ! $sharedaddy_active ) {
 				// we have a sharing page but not the global options area.
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
 			}
 
-			if ( ! in_array( 'sharedaddy', $active, true ) ) {
+			if ( ! $sharedaddy_active ) {
 				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
 				add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
 				add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );

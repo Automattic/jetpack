@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type BaseLegendItem, useGlobalChartsContext } from '@automattic/charts';
+import { type BaseLegendItem, useGlobalChartsContext } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -54,7 +54,6 @@ export function LegendWithTheme( {
 }: LegendWithThemeProps ) {
 	const { getElementStyles } = useGlobalChartsContext();
 
-	// Resolve all colors before passing to Legend
 	const itemsWithColors = items.map( ( item, index ) => ( {
 		...item,
 		color: resolveItemColor( item, index, chartItems, getElementStyles ),

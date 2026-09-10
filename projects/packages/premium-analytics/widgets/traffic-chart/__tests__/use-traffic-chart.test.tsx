@@ -3,7 +3,7 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -71,8 +71,6 @@ type ComparisonFixtures = {
 /**
  * Route each of the two concurrent requests (and their comparison variants) to
  * its own fixture.
- *
- * @param comparison - Optional per-pair comparison fixtures.
  */
 function routeRequests( comparison?: ComparisonFixtures ) {
 	mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
@@ -86,6 +84,19 @@ function routeRequests( comparison?: ComparisonFixtures ) {
 
 		return Promise.resolve( isViewsVisitors ? VIEWS_VISITORS_RESPONSE : LIKES_COMMENTS_RESPONSE );
 	} );
+}
+
+/**
+ * The `stats/visits` requests the hook issued. `apiFetch` is mocked wholesale
+ * and also records core-data's `/wp/v2/settings` traffic, so raw call counts
+ * would depend on when that warms.
+ *
+ * @return One path per visits request, in call order.
+ */
+function visitsPaths(): string[] {
+	return mockApiFetch.mock.calls
+		.map( ( [ options ] ) => ( options as { path?: string } )?.path ?? '' )
+		.filter( path => path.includes( 'stats/visits' ) );
 }
 
 function wrapper( { children }: { children: ReactNode } ) {
@@ -110,17 +121,15 @@ describe( 'useTrafficChart', () => {
 		expect( metrics.map( metric => metric.key ) ).toEqual( [
 			'views',
 			'visitors',
-			'likes',
 			'comments',
+			'likes',
 		] );
-		// This only proves `value` is each metric's correct total (not a
-		// hardcoded or swapped field) — sanitizeStatsTimeSeriesResponse derives
-		// the summary by summing these same rows, so it can't tell a
-		// summary-read apart from a re-sum of the points.
+		// Proves `value` is each metric's correct total, not that it's read from the
+		// summary field — sanitizeStatsTimeSeriesResponse sums these same rows either way.
 		expect( metrics[ 0 ].value ).toBe( 2000 );
 		expect( metrics[ 1 ].value ).toBe( 1500 );
-		expect( metrics[ 2 ].value ).toBe( 50 );
-		expect( metrics[ 3 ].value ).toBe( 20 );
+		expect( metrics[ 2 ].value ).toBe( 20 );
+		expect( metrics[ 3 ].value ).toBe( 50 );
 	} );
 
 	it( 'maps one chart point per period, oldest first', async () => {
@@ -159,17 +168,20 @@ describe( 'useTrafficChart', () => {
 
 		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
-		const metrics = result.current.metrics;
-		expect( metrics[ 0 ].previousValue ).toBe( 500 );
-		expect( metrics[ 1 ].previousValue ).toBe( 400 );
-		expect( metrics[ 2 ].previousValue ).toBe( 10 );
-		expect( metrics[ 3 ].previousValue ).toBe( 4 );
-		expect( metrics[ 0 ].previous ).toHaveLength( 1 );
+		// Keyed rather than indexed: tab order is the sibling test's subject, not
+		// this one's, so a reorder shouldn't silently re-point these totals.
+		const byKey = Object.fromEntries(
+			result.current.metrics.map( metric => [ metric.key, metric ] )
+		);
+		expect( byKey.views.previousValue ).toBe( 500 );
+		expect( byKey.visitors.previousValue ).toBe( 400 );
+		expect( byKey.likes.previousValue ).toBe( 10 );
+		expect( byKey.comments.previousValue ).toBe( 4 );
+		expect( byKey.views.previous ).toHaveLength( 1 );
 	} );
 
-	// The misleading-zero guard: an empty comparison response must read as "no
-	// previous period", not as a previous total of 0 (which would render a
-	// -100% delta against a real current value).
+	// Misleading-zero guard: an empty comparison response must read as "no
+	// previous period", not a previous total of 0 (would render a false -100% delta).
 	it( 'omits the previous period when the comparison request returns no rows', async () => {
 		// Shared between the views/visitors and likes/comments requests below, so
 		// `fields` names neither pair specifically; `data: []` means it's never read.
@@ -192,16 +204,80 @@ describe( 'useTrafficChart', () => {
 		}
 	} );
 
-	it( 'yields only the selected metrics, in canonical order', async () => {
-		// Ids passed out of canonical order to prove the order comes from the
-		// definitions, not the selection.
-		const { result } = renderHook(
-			() => useTrafficChart( RANGE, 'month', [ 'comments', 'views' ] ),
-			{ wrapper }
-		);
+	describe( 'hourly', () => {
+		const HOURLY_RANGE: ReportParams = {
+			from: '2026-06-15T00:00:00+00:00',
+			to: '2026-06-15T23:59:59+00:00',
+			interval: 'hour',
+		};
 
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+		// `stats/visits` fills Views alone at this grain, so the hook must not ask
+		// for the rest, and must say why they are missing rather than show a zero.
+		const HOURLY_VIEWS_RESPONSE = {
+			unit: 'hour',
+			fields: [ 'period', 'views' ],
+			data: [
+				[ '2026-06-15 09:00:00', 40 ],
+				[ '2026-06-15 10:00:00', 60 ],
+			],
+		};
 
-		expect( result.current.metrics.map( metric => metric.key ) ).toEqual( [ 'views', 'comments' ] );
+		beforeEach( () => {
+			mockApiFetch.mockImplementation( () => Promise.resolve( HOURLY_VIEWS_RESPONSE ) );
+		} );
+
+		it( 'requests only Views, as hourly buckets covering the range', async () => {
+			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const paths = visitsPaths();
+			expect( paths ).toHaveLength( 1 );
+			expect( paths[ 0 ] ).toContain( 'unit=hour' );
+			// The endpoint counts the hourly buckets from these two, so they have
+			// to reach it with their time of day intact.
+			expect( paths[ 0 ] ).toContain(
+				`start_date=${ encodeURIComponent( '2026-06-15T00:00:00+00:00' ) }`
+			);
+			expect( paths[ 0 ] ).toContain(
+				`date=${ encodeURIComponent( '2026-06-15T23:59:59+00:00' ) }`
+			);
+			expect( paths[ 0 ] ).toContain( 'stat_fields=views' );
+			expect( paths[ 0 ] ).not.toContain( 'visitors' );
+		} );
+
+		it( 'marks the metrics the endpoint cannot serve, leaving Views with its points', async () => {
+			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const [ views, visitors, likes, comments ] = result.current.metrics;
+			expect( views.unavailable ).toBeUndefined();
+			expect( views.value ).toBe( 100 );
+			expect( views.current ).toHaveLength( 2 );
+
+			for ( const metric of [ visitors, likes, comments ] ) {
+				expect( metric.unavailable ).toBe( "Hourly data isn't available for this metric." );
+			}
+		} );
+
+		// A manual refetch would ignore `enabled`; `useReport` gates its combined
+		// refetch on it, so the skipped request stays skipped through a retry.
+		it( 'still asks for Views alone when the retry action runs', async () => {
+			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			act( () => result.current.refetch() );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const paths = visitsPaths();
+			expect( paths ).toHaveLength( 2 );
+			for ( const path of paths ) {
+				expect( path ).toContain( 'stat_fields=views' );
+				expect( path ).not.toContain( 'likes' );
+			}
+		} );
 	} );
 } );

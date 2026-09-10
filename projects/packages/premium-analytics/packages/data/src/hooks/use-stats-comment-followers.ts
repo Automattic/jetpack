@@ -44,10 +44,6 @@ export function useStatsCommentFollowers(
  * `signal` stops further pages from being scheduled once the caller loses
  * interest. It cannot abort a request already in flight: `fetchQuery` owns each
  * page's own signal and takes no external one.
- *
- * @param queryClient - The React Query client.
- * @param signal      - Aborted when the consuming query is cancelled.
- * @return All normalized comment-followers pages.
  */
 export async function fetchAllStatsCommentFollowers(
 	queryClient: Pick< QueryClient, 'fetchQuery' >,
@@ -112,8 +108,6 @@ export async function fetchAllStatsCommentFollowers(
  * Individual page queries apply the shared retry policy through `fetchQuery`.
  * The aggregate query must not retry as well, or one page failure would
  * restart the entire batch after its own retries are exhausted.
- *
- * @return The all-pages query options.
  */
 export function statsCommentFollowersAllPagesQuery(): UseQueryOptions<
 	StatsCommentFollowersResponse[]
@@ -125,11 +119,7 @@ export function statsCommentFollowersAllPagesQuery(): UseQueryOptions<
 	};
 }
 
-/**
- * Fetch all comment-follower rows for client-side report controls.
- *
- * @return The query result containing every normalized endpoint page.
- */
+/** Fetch all comment-follower rows for client-side report controls. */
 export function useStatsCommentFollowersAllPages(): UseQueryResult<
 	StatsCommentFollowersResponse[]
 > {

@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
+import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Link } from '@wordpress/route';
-import { Link as UiLink } from '@wordpress/ui';
 
 /**
  * Route search param carrying a row's public URL to the post detail page.
@@ -21,9 +21,6 @@ export type PostTitleLinkProps = {
 	 */
 	id?: number | string;
 
-	/**
-	 * Visible row title.
-	 */
 	label: string;
 
 	/**
@@ -68,13 +65,6 @@ export type PostTitleLinkProps = {
  * no detail page, so the public URL becomes the link itself and takes the
  * marker.
  *
- * @param props            - Component props.
- * @param props.id         - Post or page ID.
- * @param props.label      - Visible row title.
- * @param props.link       - Public URL, used only without a post ID.
- * @param props.search     - Search parameters for the detail route.
- * @param props.classNames - Optional classes for each rendering branch.
- * @param props.title      - Optional native title attribute.
  * @return The linked or plain post title.
  */
 export function PostTitleLink( {
@@ -92,18 +82,25 @@ export function PostTitleLink( {
 	const href = safeHttpUrl( link );
 
 	if ( Number.isInteger( postId ) && postId > 0 ) {
+		// `UiLink` renders the router link so the anchor keeps the design
+		// system's unlayered guard, without which wp-admin repaints it blue.
 		return (
-			<Link
+			<UiLink
 				className={ classNames?.internal }
-				to="/post/$postId"
-				params={ { postId: String( postId ) } as unknown as never }
-				search={
-					( href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search ) as unknown as never
-				}
+				variant="unstyled"
 				title={ title }
+				render={
+					<Link
+						to="/post/$postId"
+						params={ { postId: String( postId ) } as unknown as never }
+						search={
+							( href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search ) as unknown as never
+						}
+					/>
+				}
 			>
 				{ text }
-			</Link>
+			</UiLink>
 		);
 	}
 

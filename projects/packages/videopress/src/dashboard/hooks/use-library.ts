@@ -5,6 +5,7 @@ import { useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { addQueryArgs } from '@wordpress/url';
 import { flattenVideoTracks } from '../../client/lib/video-tracks';
+import { pickPlaybackUrl } from '../../client/utils/video-chapters/pick-playback-url';
 import { buildShortcode } from '../utils/format';
 import type { VideoTracksResponseBodyProps } from '../../client/types';
 import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
@@ -26,7 +27,13 @@ export type ApiMediaItem = {
 		filesize?: number;
 		width?: number;
 		height?: number;
-		videopress?: { duration?: number; poster?: string; finished?: boolean };
+		videopress?: {
+			duration?: number;
+			poster?: string;
+			finished?: boolean;
+			file_url_base?: { https?: string };
+			files?: Record< string, { mp4?: string } >;
+		};
 		// WordPress.com Simple exposes the ready poster + duration directly on
 		// `media_details` (there's no `videopress` sub-object there).
 		thumb?: string;
@@ -257,6 +264,7 @@ export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
+		playbackUrl: pickPlaybackUrl( vpDetails ),
 		isProcessing,
 		orientation,
 		// The media REST field omits `tracks` today, so this is seed-only:

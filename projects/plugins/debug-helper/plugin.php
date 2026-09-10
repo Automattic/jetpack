@@ -123,6 +123,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'Broken XML-RPC',
 		'description' => 'Break XML-RPC API any way you want.',
 	),
+	'package-provenance'        => array(
+		'file'        => 'class-package-provenance-helper.php',
+		'name'        => 'Package Provenance',
+		'description' => 'Admin-bar badge with WP + Gutenberg versions and a floating panel showing which runtime (core, Gutenberg, wp-build polyfills, app) serves each WordPress package on the current screen.',
+	),
 );
 
 require_once __DIR__ . '/class-admin.php';

@@ -85,7 +85,7 @@ describe( 'useLatestPost', () => {
 		expect( result.current.post ).toBeNull();
 	} );
 
-	it( 'still renders content with zeroed metrics when stats/post fails (private site)', async () => {
+	it( 'still renders content, with metrics unknown, when stats/post fails (private site)', async () => {
 		mockApiFetch.mockImplementation(
 			( { path = '', url = '' }: { path?: string; url?: string } ) => {
 				const target = path || url;
@@ -115,11 +115,15 @@ describe( 'useLatestPost', () => {
 				date: '2026-06-22T10:00:00',
 				imageUrl: '',
 				imageAlt: '',
-				views: 0,
-				likeCount: 0,
-				commentCount: 0,
+				// Unknown rather than zero: the content request succeeded, so the post
+				// renders, but a 403 on the metrics endpoint must not be shown as a
+				// real count of zero.
+				views: undefined,
+				likeCount: undefined,
+				commentCount: undefined,
 			} )
 		);
+		// The content request — the widget's own report — succeeded.
 		expect( result.current.isError ).toBe( false );
 	} );
 } );

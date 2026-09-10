@@ -1,49 +1,39 @@
 /**
  * External dependencies
  */
+import { useReportScope } from '@jetpack-premium-analytics/data';
 import {
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
+	type IntervalType,
 	type PrimaryPresetId,
+	type QuickSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { BaseControl } from '@wordpress/components';
-import { useResizeObserver } from '@wordpress/compose';
-import { Stack } from '@wordpress/ui';
-import clsx from 'clsx';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
-import { DateRangeFilter } from '../date-range-filter';
-import {
-	MOBILE_CONTAINER_WIDTH_THRESHOLD,
-	WIDE_CALENDAR_CONTAINER_THRESHOLD,
-} from '../date-range-layout';
+import { DateIntervalDropdown } from '../date-interval-dropdown';
+import { DatePeriodDropdown } from '../date-period-dropdown';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 
 import './date-filters-panel.scss';
 
-type DateRangeFilterProps = Parameters< typeof DateRangeFilter >[ 0 ];
+type DatePeriodDropdownProps = Parameters< typeof DatePeriodDropdown >[ 0 ];
 
-export type DateRange = DateRangeFilterProps[ 'range' ];
+export type DateRange = DatePeriodDropdownProps[ 'range' ];
 
 export type DateFiltersPanelProps = {
-	/**
-	 * The current date range preset ID (e.g., 'last-7-days', 'last-30-days').
-	 */
-	presetId?: PrimaryPresetId;
-
-	/**
-	 * The current primary date range.
-	 */
 	range: DateRange;
 
 	/**
-	 * The applied (committed) preset ID. Used to label the picker's trigger
-	 * while the popover is closed, so a discarded draft shows the applied
-	 * preset. Falls back to `presetId` when omitted.
+	 * The applied (committed) preset ID, which names the picker's trigger. The
+	 * draft's own preset travels back out through `onChange` and never in: a
+	 * control naming it would rename itself to a range nothing has applied.
 	 */
 	appliedPresetId?: PrimaryPresetId;
 
@@ -59,15 +49,48 @@ export type DateFiltersPanelProps = {
 	comparisonPresetId?: ComparisonPresetId;
 
 	/**
-	 * Callback when the primary date range changes.
+	 * The periods the menu offers. Defaults to every selectable preset; a detail
+	 * page adds all time (`DETAIL_SURFACE_PRESETS`). The menu keeps its own
+	 * order whatever order they arrive in, so its grouping by scale holds.
 	 */
-	onChange: DateRangeFilterProps[ 'onChange' ];
+	presetIds?: readonly QuickSurfacePresetId[];
 
 	/**
-	 * Callback when the comparison date range changes.
-	 * Receives the calculated comparison range and the preset ID used.
+	 * Where all time starts, e.g. the resource's publish date. Only read when
+	 * `presetIds` includes it.
 	 */
+	allTimeStart?: Date;
+
+	/**
+	 * Whether to offer Custom range at the end of the menu. On by default; a
+	 * surface whose design lists common periods only turns it off.
+	 */
+	withCustomRange?: boolean;
+
+	/**
+	 * Whether to render the chart interval control. Off by default: only a
+	 * surface whose contents are bucketed by it — one carrying charts rather
+	 * than a records table — should offer it.
+	 */
+	withIntervalControl?: boolean;
+
+	/**
+	 * The chart interval the control shows as checked. Resolved against the range
+	 * being edited, so an open draft can move it off the applied one.
+	 */
+	interval?: IntervalType;
+
+	/**
+	 * The buckets to list, finest first. Derived upstream from the range and, for
+	 * a widget that owns its control, from what its chart draws.
+	 */
+	intervalOptions?: readonly IntervalType[];
+
+	onChange: DatePeriodDropdownProps[ 'onChange' ];
+
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
+
+	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**
 	 * Props for the date range popover.
@@ -80,19 +103,10 @@ export type DateFiltersPanelProps = {
 	 */
 	comparisonControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
 
-	/**
-	 * Callback when the primary date range is applied.
-	 */
-	onApply: DateRangeFilterProps[ 'onApply' ];
+	onApply: DatePeriodDropdownProps[ 'onApply' ];
 
-	/**
-	 * Callback when the primary date range is canceled.
-	 */
-	onCancel: DateRangeFilterProps[ 'onCancel' ];
+	onCancel: DatePeriodDropdownProps[ 'onCancel' ];
 
-	/**
-	 * Whether the primary date range can be applied.
-	 */
 	canApply?: boolean;
 
 	/**
@@ -102,28 +116,30 @@ export type DateFiltersPanelProps = {
 	timeZone: string;
 
 	/**
-	 * Optional external container element for responsive calculations.
-	 * When provided, the date-range filter will measure this container's width
-	 * instead of its own wrapper to determine compact/wide layouts.
+	 * Greys every control out but keeps them focusable, for a surface busy
+	 * elsewhere: the dashboard while its layout is being customized.
 	 */
-	containerElement?: HTMLElement | null;
+	disabled?: boolean;
 };
 
 /**
- * DateFiltersPanel - Manages date range selection and comparison controls
- *
- * This component serves as the container for date filtering functionality,
- * managing both the primary date range selection and the comparison date range.
- * It owns the comparison state and delegates to child components for UI.
+ * Container for the primary date range picker and the comparison dropdown. It
+ * owns the comparison state; children only render.
  */
 export function DateFiltersPanel( {
-	presetId,
 	range,
 	appliedPresetId,
 	appliedRange,
 	comparisonPresetId,
+	presetIds,
+	allTimeStart,
+	withCustomRange = true,
+	withIntervalControl = false,
+	interval,
+	intervalOptions,
 	onChange,
 	onComparisonChange,
+	onIntervalChange,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -136,24 +152,16 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
-	containerElement,
+	disabled = false,
 }: DateFiltersPanelProps ) {
-	/**
-	 * Validate and normalize the primary preset ID.
-	 * Only accepts built-in preset IDs (including 'custom').
-	 * Invalid/unknown values are treated as undefined, which allows
-	 * DateRangePopover to handle them gracefully (falls back to custom).
+	/*
+	 * Read rather than a prop, so this and the widgets share one declaration —
+	 * a header can never offer a comparison the widgets below aren't fetching.
 	 */
-	const validatedPresetId = useMemo( () => {
-		if ( ! presetId ) {
-			return undefined;
-		}
-		// Only accept known built-in presets
-		// Unknown/garbage values from URL are rejected to prevent UI inconsistency
-		return isPrimaryPreset( presetId ) ? presetId : undefined;
-	}, [ presetId ] );
+	const { offersComparison } = useReportScope();
 
-	// Same validation for the applied preset that labels the closed trigger.
+	// Unknown values (e.g. garbage from the URL) become undefined, which the
+	// dropdown reads as the custom preset.
 	const validatedAppliedPresetId = useMemo( () => {
 		if ( ! appliedPresetId ) {
 			return undefined;
@@ -161,27 +169,27 @@ export function DateFiltersPanel( {
 		return isPrimaryPreset( appliedPresetId ) ? appliedPresetId : undefined;
 	}, [ appliedPresetId ] );
 
-	// Validate and normalize the comparison preset ID
 	const validatedComparisonPresetId = useMemo( () => {
 		return isComparisonPresetId( comparisonPresetId ) ? comparisonPresetId : undefined;
 	}, [ comparisonPresetId ] );
 
-	// Derive comparison enabled state directly from validated prop
 	const comparisonEnabled = !! validatedComparisonPresetId;
 
 	/*
-	 * Track whether the primary picker popover is open so the comparison label
-	 * mirrors it: while the picker is open it previews the draft range, but once
-	 * closed without Apply it reverts to the applied range (just like the
-	 * picker's own trigger). Without this, the comparison label would keep
-	 * showing the un-applied draft's derived range.
+	 * Tracks whether the picker popover is open so the comparison label mirrors
+	 * it: previews the draft range while open, reverts to applied when closed
+	 * (like the picker's own trigger) — otherwise it'd show a stale draft.
 	 */
 	const [ isPrimaryPickerOpen, setIsPrimaryPickerOpen ] = useState( false );
 	const comparisonSourceRange = isPrimaryPickerOpen ? range : appliedRange ?? range;
+	// The draft's preset never reaches the panel, so an open draft is measured
+	// as read; the applied preset decides how a to-date window is measured.
+	const comparisonSourcePresetId = isPrimaryPickerOpen ? undefined : validatedAppliedPresetId;
 
 	// Available comparison presets, derived from whichever primary range the
-	// picker is currently reflecting (draft while open, applied while closed).
-	const presets = useComparisonDatePresets( comparisonSourceRange );
+	// picker is currently reflecting (draft while open, applied while closed)
+	// and from its preset, which decides how a to-date window is measured.
+	const presets = useComparisonDatePresets( comparisonSourceRange, comparisonSourcePresetId );
 
 	const presetChange = useCallback(
 		( id: ComparisonPresetId ) => {
@@ -191,82 +199,92 @@ export function DateFiltersPanel( {
 		[ onComparisonChange, presets ]
 	);
 
-	/**
-	 * Handles clearing the comparison completely.
-	 * Clears the selected preset and notifies parent.
-	 */
 	const clearComparison = useCallback( () => {
 		onComparisonChange( undefined, undefined );
 	}, [ onComparisonChange ] );
 
-	/*
-	 * Single source of truth for the responsive layout: measure the container
-	 * once here and derive both `isCompact` and `isWideScreen`. Children never
-	 * measure — the compact styling cascades from the `is-compact` root class,
-	 * and `isWideScreen` is forwarded only because the calendar needs it.
-	 */
-	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
+	const comparisonLabel =
+		typeof comparisonControlProps.label === 'string' ? comparisonControlProps.label : undefined;
 
-	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
-		const entry = entries[ 0 ];
-		if ( entry ) {
-			setContainerWidth( entry.contentRect.width );
-		}
-	}, [] );
+	const comparisonControl = useMemo(
+		() => (
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled={ comparisonEnabled }
+				presetId={ validatedComparisonPresetId }
+				label={ comparisonLabel }
+				disabled={ disabled }
+				onPresetChange={ presetChange }
+				onClear={ clearComparison }
+			/>
+		),
+		[
+			clearComparison,
+			comparisonEnabled,
+			comparisonLabel,
+			disabled,
+			presetChange,
+			presets,
+			validatedComparisonPresetId,
+		]
+	);
 
-	const setObserverRef = useResizeObserver< HTMLElement >( handleResize );
-
-	useEffect( () => {
-		setObserverRef( containerElement ?? document.body );
-	}, [ containerElement, setObserverRef ] );
-
-	const isCompact = containerWidth !== null && containerWidth < MOBILE_CONTAINER_WIDTH_THRESHOLD;
-	const isWideScreen =
-		containerWidth !== null && containerWidth >= WIDE_CALENDAR_CONTAINER_THRESHOLD;
+	const intervalControl = useMemo(
+		() =>
+			withIntervalControl && intervalOptions && onIntervalChange ? (
+				<DateIntervalDropdown
+					options={ intervalOptions }
+					value={ interval }
+					disabled={ disabled }
+					onChange={ onIntervalChange }
+				/>
+			) : null,
+		[ withIntervalControl, interval, intervalOptions, disabled, onIntervalChange ]
+	);
 
 	return (
-		<Stack
-			className={ clsx( 'date-filters-panel', { 'is-compact': isCompact } ) }
-			direction={ isCompact ? 'column' : 'row' }
-			wrap={ isCompact ? 'nowrap' : 'wrap' }
-			gap="sm"
-		>
-			<BaseControl
-				className="date-filters-panel__primary"
-				label={ rangeControlProps.label }
-				id="date-range-popover-button"
-				help={ rangeControlProps.help }
-			>
-				<DateRangeFilter
-					presetId={ validatedPresetId }
-					range={ range }
-					appliedPresetId={ validatedAppliedPresetId }
-					appliedRange={ appliedRange }
-					onChange={ onChange }
-					onApply={ onApply }
-					onCancel={ onCancel }
-					canApply={ canApply }
-					timeZone={ timeZone }
-					isCompact={ isCompact }
-					isWideScreen={ isWideScreen }
-					onOpenChange={ setIsPrimaryPickerOpen }
-				/>
-			</BaseControl>
+		<div className="date-filters-panel">
+			<Stack className="date-filters-panel__row" direction="row" gap="sm">
+				<BaseControl
+					className="date-filters-panel__primary"
+					label={ rangeControlProps.label }
+					id="date-range-popover-button"
+					help={ rangeControlProps.help }
+				>
+					<DatePeriodDropdown
+						appliedPresetId={ validatedAppliedPresetId }
+						appliedRange={ appliedRange ?? range }
+						range={ range }
+						onSelect={ ( nextRange, nextPresetId ) => {
+							onChange( nextRange, nextPresetId );
+							onApply();
+						} }
+						onChange={ onChange }
+						onApply={ onApply }
+						onCancel={ onCancel }
+						canApply={ canApply }
+						timeZone={ timeZone }
+						disabled={ disabled }
+						onOpenChange={ setIsPrimaryPickerOpen }
+						presetIds={ presetIds }
+						allTimeStart={ allTimeStart }
+						withCustomRange={ withCustomRange }
+					/>
+				</BaseControl>
 
-			<BaseControl className="date-filters-panel__comparison" help={ comparisonControlProps.help }>
-				<DateComparisonDropdown
-					presets={ presets }
-					enabled={ comparisonEnabled }
-					presetId={ validatedComparisonPresetId }
-					label={
-						typeof comparisonControlProps.label === 'string'
-							? comparisonControlProps.label
-							: undefined
-					}
-					onPresetChange={ presetChange }
-					onClear={ clearComparison }
-				/>
-			</BaseControl>
-		</Stack>
+				{ /* Comparison before the interval: it qualifies the range the
+				     presets just set, while the interval only buckets the charts. */ }
+				{ offersComparison && (
+					<BaseControl
+						className="date-filters-panel__comparison"
+						help={ comparisonControlProps.help }
+					>
+						{ comparisonControl }
+					</BaseControl>
+				) }
+
+				{ intervalControl }
+			</Stack>
+		</div>
 	);
 }

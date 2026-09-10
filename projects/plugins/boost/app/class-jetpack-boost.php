@@ -12,6 +12,7 @@
 
 namespace Automattic\Jetpack_Boost;
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Config as Jetpack_Config;
@@ -35,6 +36,7 @@ use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_Storage;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
@@ -136,6 +138,10 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_loaded', $this );
 
 		My_Jetpack_Initializer::init();
+
+		// Activity Log. Idempotent, so it no-ops when the Jetpack plugin already
+		// initialized the package on this request.
+		Jetpack_Activity_Log::initialize();
 
 		Deactivation_Handler::init( $this->plugin_name, __DIR__ . '/admin/deactivation-dialog.php' );
 
@@ -461,8 +467,9 @@ class Jetpack_Boost {
 		delete_site_option( 'jetpack_boost_404_tester_last_run' );
 		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
 
-		// Delete stored Critical CSS.
+		// Delete stored Critical CSS and LCP data.
 		( new Critical_CSS_Storage() )->clear();
+		( new LCP_Storage() )->clear();
 
 		// Delete all transients created by boost.
 		Transient::delete_bulk();

@@ -23,6 +23,7 @@ class Dashboard_Support_Routes_Test extends TestCase {
 		$wp_rest_server = null;
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'init' );
+		Capabilities::unregister();
 		parent::tearDown();
 	}
 
@@ -65,5 +66,23 @@ class Dashboard_Support_Routes_Test extends TestCase {
 
 		$this->assertArrayHasKey( '/wpcom/v2/widget-modules', $routes );
 		$this->assertCount( 1, $routes['/wpcom/v2/widget-modules'] );
+	}
+
+	/**
+	 * Booting standalone also maps the capability these routes are gated on.
+	 * WPCOM Simple takes this path without ever calling Analytics::init(), so
+	 * without the mapping every request to them would be refused.
+	 */
+	public function test_boot_routes_maps_the_dashboard_capability() {
+		Dashboard_Support_Routes::register();
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		do_action( 'init' );
+		do_action( 'rest_api_init' );
+
+		$this->assertNotFalse(
+			has_filter( 'map_meta_cap', array( Capabilities::class, 'map_meta_caps' ) )
+		);
 	}
 }

@@ -15,34 +15,57 @@ const CSS_VAR_NAME_PATTERN = /^--[\w-]+$/;
  * @param element - Optional DOM element to resolve the variable from (defaults to document.documentElement)
  * @return The resolved value, fallback value, or null if unresolvable
  */
-export const resolveCssVariable = (
-	value: string,
+export const resolveCssVariable = ( value: string, element?: HTMLElement | null ): string | null =>
+	createCssVariableResolver( element )( value );
+
+/**
+ * Builds a resolver that reads every value from one `getComputedStyle` snapshot.
+ *
+ * `getComputedStyle` is the expensive half of resolving a token: each call can force the browser to flush pending style, and a chart theme resolves five roles at once. Taking the snapshot once per build turns that into a single query. The reads that share a snapshot happen synchronously inside one memo body, so no style change can land between them — the resolver is single-pass by design and is not meant to be held across renders.
+ *
+ * @param element - The element to resolve against, or null/undefined for the document root.
+ * @return A resolver that resolves each value exactly as `resolveCssVariable` does.
+ */
+export function createCssVariableResolver(
 	element?: HTMLElement | null
-): string | null => {
-	if ( ! value ) {
-		return null;
-	}
+): ( value: string ) => string | null {
+	let styles: CSSStyleDeclaration | null = null;
 
-	// Check if it's a var() expression: var(--name) or var(--name, fallback)
-	// Parse manually to avoid regex backtracking vulnerabilities
-	if ( value.startsWith( 'var(' ) && value.endsWith( ')' ) ) {
-		const parsed = parseVarExpression( value );
-
-		if ( parsed ) {
-			const resolved = resolveVariableName( parsed.varName, element );
-
-			return resolved || parsed.fallback;
+	// Deferred so a resolver for a theme that turns out to hold only literals costs nothing. Only a successful read is kept: caching the null would leave a resolver built before its element is in the document dead for the rest of its life.
+	const getStyles = () => {
+		if ( ! styles ) {
+			styles = computedStyleFor( element );
 		}
-	}
 
-	// Check if it's a plain variable name (starts with --)
-	if ( value.startsWith( '--' ) ) {
-		return resolveVariableName( value, element );
-	}
+		return styles;
+	};
 
-	// Return regular values as-is (e.g., '#ffffff', 'red')
-	return value;
-};
+	return ( value: string ): string | null => {
+		if ( ! value ) {
+			return null;
+		}
+
+		// Check if it's a var() expression: var(--name) or var(--name, fallback)
+		// Parse manually to avoid regex backtracking vulnerabilities
+		if ( value.startsWith( 'var(' ) && value.endsWith( ')' ) ) {
+			const parsed = parseVarExpression( value );
+
+			if ( parsed ) {
+				const resolved = readCustomProperty( parsed.varName, getStyles() );
+
+				return resolved || parsed.fallback;
+			}
+		}
+
+		// Check if it's a plain variable name (starts with --)
+		if ( value.startsWith( '--' ) ) {
+			return readCustomProperty( value, getStyles() );
+		}
+
+		// Return regular values as-is (e.g., '#ffffff', 'red')
+		return value;
+	};
+}
 
 /**
  * Parses a var() expression into its variable name and optional fallback.
@@ -87,24 +110,42 @@ function parseVarExpression( expr: string ): { varName: string; fallback: string
 }
 
 /**
- * Resolves a plain CSS variable name to its computed value.
+ * Takes one computed-style snapshot, or null where there is nothing to read (SSR, or a detached element).
  *
- * @param varName - A CSS variable name like '--my-color'
- * @param element - Optional DOM element to resolve from
- * @return The computed value or null
+ * @param element - The element to read from, or null/undefined for the document root.
+ * @return The computed styles, or null.
  */
-function resolveVariableName( varName: string, element?: HTMLElement | null ): string | null {
+function computedStyleFor( element?: HTMLElement | null ): CSSStyleDeclaration | null {
 	if ( typeof window === 'undefined' || typeof document === 'undefined' ) {
 		return null;
 	}
 
 	try {
-		const targetElement = element || document.documentElement;
-		const computedValue = getComputedStyle( targetElement ).getPropertyValue( varName ).trim();
+		return getComputedStyle( element || document.documentElement );
+	} catch {
+		// getComputedStyle throws on a detached element.
+		return null;
+	}
+}
+
+/**
+ * Reads one custom property from a computed-style snapshot.
+ *
+ * @param varName - A CSS variable name like '--my-color'
+ * @param styles  - The snapshot to read from, or null
+ * @return The computed value or null
+ */
+function readCustomProperty( varName: string, styles: CSSStyleDeclaration | null ): string | null {
+	if ( ! styles ) {
+		return null;
+	}
+
+	try {
+		const computedValue = styles.getPropertyValue( varName ).trim();
 
 		return computedValue || null;
 	} catch {
-		// Return null if getComputedStyle throws (e.g., detached element)
+		// Belt and braces — no engine is known to throw here. Kept because a caller may hand in a stand-in for CSSStyleDeclaration; `resolve-css-var.test.ts` covers exactly that.
 		return null;
 	}
 }

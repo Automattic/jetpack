@@ -23,12 +23,15 @@ jest.mock( './config', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/',
 	useReportDateFilters: () => ( {} ),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
+	StatsBreadcrumbs: () => null,
+	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
@@ -143,10 +146,22 @@ describe( 'VideosReportPage', () => {
 		);
 
 		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
+		expect( columns.map( column => column.label ) ).toEqual( [
+			'Video ID',
+			'Video',
+			'Plays',
+			'Impressions',
+			'Watch time (hours)',
+			'Retention rate (%)',
+			'URL',
+		] );
 		expect( columns.map( column => column.getValue( rows[ 0 ] ) ) ).toEqual( [
+			441,
 			'Demo',
 			13,
 			22,
+			0.04,
+			64.5,
 			'https://example.com/video/441',
 		] );
 		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
@@ -166,10 +181,8 @@ describe( 'VideosReportPage', () => {
 	} );
 
 	it( 'keeps the rows on screen while a changed range is fetching', () => {
-		// The queries carry `placeholderData`, so a refetch triggered by a date or
-		// comparison change still has the previous rows. Handing the table an empty
-		// set would drop the user's search, sorting, and page position mid-refetch,
-		// so the rows stay mounted and only the loading state reflects the refetch.
+		// `placeholderData` keeps rows mounted through a date/comparison refetch — clearing them
+		// would drop the user's search, sort, and page position mid-refetch.
 		const rows = [
 			{
 				id: 12,

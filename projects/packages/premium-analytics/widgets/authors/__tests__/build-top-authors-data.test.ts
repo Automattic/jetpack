@@ -37,9 +37,6 @@ type AuthorSeed = {
 
 /**
  * Builds a single normalized top-authors item from a compact seed.
- *
- * @param {AuthorSeed} seed - The author seed.
- * @return A normalized top-authors item.
  */
 function makeAuthor( {
 	id,
@@ -73,9 +70,6 @@ function makeAuthor( {
  * Builds a normalized top-authors report. The Stats query layer summarizes
  * multi-day ranges server-side, so the report carries a single data point of
  * per-author totals — which is what the widget consumes.
- *
- * @param authors - The authors for the period, already ranked by the API.
- * @return A normalized top-authors report.
  */
 function makeReport( authors: AuthorSeed[] ): StatsNormalizedReport< StatsTopAuthorsItem > {
 	return {
@@ -214,6 +208,7 @@ describe( 'buildTopAuthorsData', () => {
 		expect( result[ 0 ].posts ).toEqual( [
 			{
 				id: '12',
+				postId: 12,
 				title: 'Hello world',
 				link: 'https://example.com/hello',
 				currentValue: 20,
@@ -224,6 +219,7 @@ describe( 'buildTopAuthorsData', () => {
 			},
 			{
 				id: 'post-1',
+				postId: undefined,
 				title: 'Second post',
 				link: null,
 				currentValue: 10,
@@ -312,6 +308,7 @@ describe( 'buildTopAuthorsData', () => {
 		expect( result[ 0 ].posts ).toEqual( [
 			{
 				id: '1',
+				postId: 1,
 				title: 'Still popular',
 				link: null,
 				currentValue: 20,
@@ -322,6 +319,7 @@ describe( 'buildTopAuthorsData', () => {
 			},
 			{
 				id: '2',
+				postId: 2,
 				title: 'New post',
 				link: null,
 				currentValue: 10,
@@ -332,6 +330,7 @@ describe( 'buildTopAuthorsData', () => {
 			},
 			{
 				id: '3',
+				postId: 3,
 				title: 'Dropped post',
 				link: null,
 				currentValue: 0,

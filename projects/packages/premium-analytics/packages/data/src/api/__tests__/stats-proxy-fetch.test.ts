@@ -164,6 +164,7 @@ describe( 'fetchStatsProxy', () => {
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/jetpack-premium-analytics/v1/proxy/v1.1/stats/top-posts?period=day',
 			method: 'GET',
+			parse: false,
 		} );
 	} );
 
@@ -181,6 +182,7 @@ describe( 'fetchStatsProxy', () => {
 			path: '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats-dashboard/modules',
 			method: 'POST',
 			data: body,
+			parse: false,
 		} );
 	} );
 
@@ -196,6 +198,7 @@ describe( 'fetchStatsProxy', () => {
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/rest/v1.1/stats/location-views/country?max=10&period=day',
 			method: 'GET',
+			parse: false,
 		} );
 	} );
 
@@ -209,6 +212,7 @@ describe( 'fetchStatsProxy', () => {
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/orders/by-date?from=2026-06-01&to=2026-06-30&interval=day',
 			method: 'GET',
+			parse: false,
 		} );
 	} );
 
@@ -220,6 +224,7 @@ describe( 'fetchStatsProxy', () => {
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/wpcom/v2/analytics/reports/sessions/by-device?from=2026-06-01&to=2026-06-30',
 			method: 'GET',
+			parse: false,
 		} );
 	} );
 
@@ -249,6 +254,7 @@ describe( 'fetchStatsProxy', () => {
 			path: '/rest/v1.2/upgrades?site=67890',
 			method: 'GET',
 			global: true,
+			parse: false,
 		} );
 	} );
 } );

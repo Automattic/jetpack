@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix duplicated squizlabs/php_codesniffer version constraint accumulated from Renovate security-update retries.

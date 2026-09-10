@@ -1,20 +1,21 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl } from '@wordpress/components';
+import { TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { check } from '@wordpress/icons';
+import { globe } from '@wordpress/icons';
 import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
 import GoogleVerificationField from './google-verification-field';
-import styles from './style.module.scss';
 import type { SettingStatus } from '../../components/status-indicator';
 import type { SettingsResponse, VerificationKey } from '../../data/settings-types';
 import type { FC } from 'react';
 
 interface Props {
 	value: SettingsResponse[ 'verification' ];
+	active: boolean;
+	onToggle: ( active: boolean ) => void;
 	onChange: ( key: VerificationKey, value: string ) => void;
 	/** Save the current value — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
@@ -64,6 +65,8 @@ const HINTS: Record< Exclude< VerificationKey, 'google' >, string > = {
 
 const VerificationCard: FC< Props > = ( {
 	value,
+	active,
+	onToggle,
 	onChange,
 	onCommit,
 	disabled,
@@ -71,11 +74,13 @@ const VerificationCard: FC< Props > = ( {
 	onOpenChange,
 } ) => {
 	const verifiedCount = VERIFICATION_SERVICES.filter( ( { key } ) => !! value[ key ] ).length;
+	const controlsDisabled = disabled || ! active;
 
 	// All five services are optional and almost nobody verifies with more than
 	// one, so a single verified service counts as done rather than a fraction of
 	// five (JETPACK-2051). This module therefore never reports 'in-progress'.
-	const verificationStatus: SettingStatus = verifiedCount > 0 ? 'complete' : 'not-started';
+	const verificationStatus: SettingStatus =
+		active && verifiedCount > 0 ? 'complete' : 'not-started';
 
 	// CollapsibleCard.Root takes either controlled (`open`/`onOpenChange`) or
 	// uncontrolled (`defaultOpen`) props — one at a time.
@@ -86,7 +91,9 @@ const VerificationCard: FC< Props > = ( {
 			<CollapsibleCard.Header render={ <h2 /> }>
 				<Stack direction="row" justify="space-between" align="center" gap="sm">
 					<Card.Title>
-						<CardTitleIcon icon={ check } title={ __( 'Site verification', 'jetpack-seo' ) } />
+						{ /* `globe`, matching the Overview card — and a checkmark would double up
+						     on the status indicator beside it. */ }
+						<CardTitleIcon icon={ globe } title={ __( 'Site verification', 'jetpack-seo' ) } />
 					</Card.Title>
 					<CollapsibleCard.HeaderDescription>
 						<StatusIndicator status={ verificationStatus } />
@@ -95,17 +102,28 @@ const VerificationCard: FC< Props > = ( {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
-					{ /* `body-sm` + muted matches every other explanatory paragraph on this
-					     tab (schema sections, social previews, title structure). */ }
-					<Text variant="body-sm" className={ styles.muted } render={ <p /> }>
+					{ /* Body copy: this is the module's own prose, not a hint attached to a
+					     field. The muted `body-sm` treatment is reserved for the latter. */ }
+					<Text variant="body-md" render={ <p /> }>
 						{ description }
 					</Text>
+					<ToggleControl
+						label={ __( 'Enable site verification', 'jetpack-seo' ) }
+						help={ __(
+							'Adds your saved verification codes to the site so supported services can confirm ownership.',
+							'jetpack-seo'
+						) }
+						checked={ active }
+						onChange={ onToggle }
+						disabled={ disabled }
+						__nextHasNoMarginBottom
+					/>
 					{ /* Google gets the keyring auto-verify flow; the rest are simple code fields. */ }
 					<GoogleVerificationField
 						value={ value.google }
 						onChange={ next => onChange( 'google', next ) }
 						onCommit={ onCommit }
-						disabled={ disabled }
+						disabled={ controlsDisabled }
 					/>
 					<Stack direction="column" gap="md">
 						{ VERIFICATION_SERVICES.filter( ( { key } ) => key !== 'google' ).map(
@@ -117,7 +135,7 @@ const VerificationCard: FC< Props > = ( {
 									onChange={ next => onChange( key, next ) }
 									onBlur={ onCommit }
 									help={ HINTS[ key ] }
-									disabled={ disabled }
+									disabled={ controlsDisabled }
 									__next40pxDefaultSize
 									__nextHasNoMarginBottom
 								/>

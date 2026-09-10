@@ -22,16 +22,6 @@ type SessionsByDeviceWidgetProps = WidgetRenderProps< SessionsByDeviceRenderAttr
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-/**
- * Sessions by device widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; SessionsByDeviceWidget
- * fetches the sessions-by-device report and renders the device breakdown.
- *
- * @param {SessionsByDeviceWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function SessionsByDeviceRender( {
 	attributes = {},
 	setError,

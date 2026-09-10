@@ -229,6 +229,14 @@ class Inline_Search extends Classic_Search {
 			'post_id',
 		);
 
+		if ( ! empty( $api_query_args['additional_blog_ids'] ) ) {
+			$api_query_args['fields'] = array_values(
+				array_unique(
+					array_merge( $api_query_args['fields'], Helper::MULTISITE_SEARCH_FIELD_NAMES )
+				)
+			);
+		}
+
 		// Do the actual search query!
 		$this->search_result = $this->search( $api_query_args );
 
@@ -344,11 +352,7 @@ class Inline_Search extends Classic_Search {
 			}
 		}
 
-		$highlight_fields = array(
-			'title',
-			'content',
-			'comments',
-		);
+		$highlight_fields = Helper::DEFAULT_INSTANT_SEARCH_HIGHLIGHT_FIELDS;
 
 		$fields = array(
 			'blog_id',
@@ -466,27 +470,7 @@ class Inline_Search extends Classic_Search {
 	 * @return array
 	 */
 	private function trigger_instant_search_query_args_filter( array $api_query_args ): array {
-		// this will trigger jetpack_instant_search_options filter
-		$options = Helper::generate_initial_javascript_state();
-
-		if ( isset( $options['adminQueryFilter'] ) ) {
-			$api_query_args['filter'] = array(
-				'bool' => array(
-					'filter' => $api_query_args['filter'],
-					'must'   => $options['adminQueryFilter'],
-				),
-			);
-		}
-
-		if ( ! empty( $options['highlightPhraseOnly'] ) ) {
-			$api_query_args['highlight_phrase_only'] = true;
-		}
-
-		if ( ! empty( $options['highlightFilterStopwords'] ) && is_array( $options['highlightFilterStopwords'] ) ) {
-			$api_query_args['highlight_filter_stopwords'] = array_values( $options['highlightFilterStopwords'] );
-		}
-
-		return $api_query_args;
+		return Helper::apply_instant_search_query_options_to_api_args( $api_query_args );
 	}
 
 	/**

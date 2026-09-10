@@ -6,6 +6,7 @@
  *
  */
 
+import { describeZonedParsing } from '../../test-utils/zoned-parsing-suite';
 import { parseAsLocalDate } from '../date-parsing';
 
 describe( 'parseAsLocalDate', () => {
@@ -304,7 +305,7 @@ describe( 'parseAsLocalDate', () => {
 			];
 
 			const startTime = performance.now();
-			const results = testDates.map( parseAsLocalDate );
+			const results = testDates.map( dateString => parseAsLocalDate( dateString ) );
 			const endTime = performance.now();
 
 			// Should complete quickly (this is more of a smoke test)
@@ -316,3 +317,7 @@ describe( 'parseAsLocalDate', () => {
 		} );
 	} );
 } );
+
+// The test script pins TZ=UTC, so this run is a second viewer zone for the same
+// table `date-parsing.auckland.test.ts` asserts.
+describeZonedParsing();

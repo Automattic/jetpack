@@ -142,6 +142,30 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertInstanceOf( Help_Center::class, Help_Center::get_instance() );
 	}
 
+	public function test_init_includes_configured_bot_slugs_in_payload() {
+		$help_center = Help_Center::init( null, 'new-interactions-bot', 'new-logged-out-interactions-bot' );
+		$data        = $help_center->get_help_center_data();
+
+		$this->assertSame( 'new-interactions-bot', $data['newInteractionsBotSlug'] );
+		$this->assertSame( 'new-logged-out-interactions-bot', $data['newLoggedOutInteractionsBotSlug'] );
+	}
+
+	public function test_init_omits_unset_bot_slugs_from_payload() {
+		$help_center = Help_Center::init();
+		$data        = $help_center->get_help_center_data();
+
+		$this->assertArrayNotHasKey( 'newInteractionsBotSlug', $data );
+		$this->assertArrayNotHasKey( 'newLoggedOutInteractionsBotSlug', $data );
+	}
+
+	public function test_init_omits_unset_logged_out_bot_slug_from_payload() {
+		$help_center = Help_Center::init( null, 'new-interactions-bot' );
+		$data        = $help_center->get_help_center_data();
+
+		$this->assertSame( 'new-interactions-bot', $data['newInteractionsBotSlug'] );
+		$this->assertArrayNotHasKey( 'newLoggedOutInteractionsBotSlug', $data );
+	}
+
 	public function test_consumer_can_load_logged_out_bundle_on_frontend() {
 		wp_set_current_user( 0 );
 		set_transient(

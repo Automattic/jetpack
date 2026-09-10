@@ -24,14 +24,9 @@ type NetSalesOverTimeWidgetProps = WidgetRenderProps< NetSalesOverTimeRenderAttr
 };
 
 /**
- * Net sales over time widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders the net sales metric over time.
- *
- * @param {NetSalesOverTimeWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function NetSalesOverTimeRender( {
 	attributes = {},
@@ -41,6 +36,7 @@ export default function NetSalesOverTimeRender( {
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget
 				metricKey="orders_value_net"
+				seriesLabel={ __( 'Net sales', 'jetpack-premium-analytics-pkg' ) }
 				emptyStateText={ __( 'No sales in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load net sales. Please try again in a moment.",

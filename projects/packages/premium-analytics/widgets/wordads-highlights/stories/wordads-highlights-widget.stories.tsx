@@ -44,12 +44,6 @@ interface WordAdsHighlightsStoryControls {
 	metrics: WordAdsEarningsMetricId[];
 }
 
-/**
- * Renders the data-connected widget with the selected metrics.
- *
- * @param {WordAdsHighlightsStoryControls} props - Story controls.
- * @return The rendered widget.
- */
 function renderWordAdsHighlights( { metrics }: WordAdsHighlightsStoryControls ) {
 	return (
 		<WordAdsHighlightsRender
@@ -145,12 +139,6 @@ interface WordAdsHighlightsDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
 		WordAdsHighlightsStoryControls {}
 
-/**
- * Renders the real registered widget through the shared dashboard harness.
- *
- * @param {WordAdsHighlightsDashboardStoryProps} props - Dashboard and widget controls.
- * @return The rendered dashboard with the widget.
- */
 function WordAdsHighlightsDashboardStory( {
 	metrics,
 	...dashboardArgs

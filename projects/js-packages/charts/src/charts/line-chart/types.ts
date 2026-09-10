@@ -1,13 +1,16 @@
 import type {
 	BaseChartProps,
+	BucketInfo,
 	DataPointDate,
 	SeriesData,
+	SeriesChartLegendConfig,
+	SeriesVisibilityProps,
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
-import type { RenderTooltipParams } from '../../visx/types';
+import type { CrosshairStyle, RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { GlyphProps } from '@visx/xychart';
-import type { ReactNode, SVGProps, FC } from 'react';
+import type { ReactNode, SVGProps, FC, CSSProperties } from 'react';
 
 export type LineChartAnnotationProps = {
 	datum: DataPointDate;
@@ -27,11 +30,26 @@ export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > &
 	position?: 'start' | 'end';
 };
 
-export interface LineChartProps extends BaseChartProps< SeriesData[] > {
+export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
+	/**
+	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
+	 */
+	legend?: SeriesChartLegendConfig;
 	withGradientFill: boolean;
 	smoothing?: boolean;
 	curveType?: CurveType;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	renderTooltip?: (
+		params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
+	) => ReactNode;
+	/**
+	 * Place the panel below the x-axis tick labels with a pointer at the datum x; horizontal bounds still apply.
+	 * @default 'auto'
+	 */
+	tooltipPlacement?: XyChartTooltipProps< DataPointDate >[ 'tooltipPlacement' ];
+	/**
+	 * Inline container styles; see Below-Axis Tooltips in stories/index.docs.mdx for content color overrides.
+	 */
+	tooltipStyle?: CSSProperties;
 	withStartGlyphs?: boolean;
 	withEndGlyphs?: boolean;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
@@ -40,6 +58,8 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withTooltipCrosshairs?: {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
+		verticalStyle?: CrosshairStyle;
+		horizontalStyle?: CrosshairStyle;
 	};
 	/**
 	 * Enable drag-to-zoom on the X axis. The user drags horizontally to
@@ -47,6 +67,15 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	 * button appears in the top-right of the chart while zoomed.
 	 */
 	zoomable?: boolean;
+	/**
+	 * Whether the Y axis rescales to fit only the visible series when the set of
+	 * visible series changes — via the interactive legend or otherwise.
+	 * Defaults to `true` (the pre-existing behaviour). Set to `false` to pin the Y
+	 * axis to the full data extent so hiding series does not move the chart's
+	 * baseline — useful for comparison charts. Matches `AreaChart`.
+	 * @default true
+	 */
+	rescaleYOnVisibilityChange?: boolean;
 	children?: ReactNode;
 }
 

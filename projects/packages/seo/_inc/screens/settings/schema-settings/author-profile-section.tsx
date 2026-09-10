@@ -39,7 +39,7 @@ const AuthorProfileSection: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg">
-			<Text variant="body-sm" className={ styles.muted }>
+			<Text variant="body-md" render={ <p /> }>
 				{ __(
 					'Adds Person schema to your articles and author archive. Name, bio, and website also update your WordPress profile.',
 					'jetpack-seo'

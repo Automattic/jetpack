@@ -24,6 +24,9 @@ await jest.unstable_mockModule( '@wordpress/element', () => ( {
 		mockUseRef( ref );
 		return ref;
 	},
+	// State is only a re-render signal here, so a no-op setter suffices; the behaviour
+	// it drives is covered in use-synced-form-auto-save.test.js.
+	useState: initialValue => [ initialValue, () => {} ],
 } ) );
 
 await jest.unstable_mockModule( '../../../src/blocks/contact-form/util/form-sync.ts', () => ( {

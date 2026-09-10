@@ -392,7 +392,7 @@ class Functions {
 		 * Return the main network site WPCOM ID for multi-site installs
 		 */
 		$current_network = get_network();
-		switch_to_blog( $current_network->blog_id );
+		switch_to_blog( (int) $current_network->blog_id );
 		$wpcom_blog_id = \Jetpack_Options::get_option( 'id' );
 		restore_current_blog();
 		return $wpcom_blog_id;

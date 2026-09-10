@@ -59,13 +59,18 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 					'callback'            => array( $this, 'add_subscribers' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
-						'emails' => array(
+						'emails'     => array(
 							'type'              => 'array',
 							'items'             => array( 'type' => 'string' ),
 							'required'          => true,
 							'validate_callback' => function ( $value ) {
 								return is_array( $value ) && count( $value ) > 0;
 							},
+						),
+						'categories' => array(
+							'type'    => 'array',
+							'items'   => array( 'type' => 'integer' ),
+							'default' => array(),
 						),
 					),
 				),
@@ -547,6 +552,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * subscribers (no invitation email); WP.com processes the job in the background and emails the
 	 * importing user a "Subscriber import completed" summary when it finishes.
 	 *
+	 * When the caller passes `categories` (newsletter category ids selected in the Add Subscribers
+	 * picker), they're forwarded so the imported subscribers are opted into those categories — the
+	 * same `categories` payload Calypso's `importCsvSubscribers` sends to this endpoint.
+	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -575,6 +584,24 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 			);
 		}
 
+		// Coerce category ids to positive integers and drop anything else — a category id is always
+		// a term id, so a zero or non-numeric value is noise we shouldn't forward to WP.com.
+		$categories = array_values(
+			array_filter(
+				array_map( 'absint', (array) $request->get_param( 'categories' ) )
+			)
+		);
+
+		$body = array(
+			'emails'     => $emails,
+			'parse_only' => false,
+		);
+		// Only include `categories` when the user actually selected some, so a plain import keeps
+		// the exact payload it sent before this feature existed.
+		if ( ! empty( $categories ) ) {
+			$body['categories'] = $categories;
+		}
+
 		// JSON body, not the form encoding Calypso submits: WP.com's Jetpack signature verifier
 		// canonicalizes `application/x-www-form-urlencoded` bodies differently from the Jetpack
 		// client (it re-encodes the parsed array as JSON before hashing), so a form-encoded POST
@@ -589,13 +616,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 				'method'  => 'POST',
 				'headers' => array( 'Content-Type' => 'application/json' ),
 			),
-			wp_json_encode(
-				array(
-					'emails'     => $emails,
-					'parse_only' => false,
-				),
-				JSON_UNESCAPED_SLASHES
-			),
+			wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
 

@@ -15,27 +15,34 @@ type MockRouteLinkProps = {
 	children: ReactNode;
 } & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
 
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( { to, params, search, children, ...props }: MockRouteLinkProps ) => {
-		const path = Object.entries( params ?? {} ).reduce(
-			( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
-			to
-		);
-		const query = new URLSearchParams();
-		Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
-			if ( value !== undefined && value !== null ) {
-				query.set( key, String( value ) );
-			}
-		} );
-		const queryString = query.toString();
+// `forwardRef`, because the design system link that renders this forwards a ref.
+jest.mock( '@wordpress/route', () => {
+	const { forwardRef } = jest.requireActual( 'react' ) as typeof import('react');
 
-		return (
-			<a href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
-				{ children }
-			</a>
-		);
-	},
-} ) );
+	return {
+		Link: forwardRef< HTMLAnchorElement, MockRouteLinkProps >(
+			( { to, params, search, children, ...props }, ref ) => {
+				const path = Object.entries( params ?? {} ).reduce(
+					( result, [ key, value ] ) => result.replace( `$${ key }`, String( value ) ),
+					to
+				);
+				const query = new URLSearchParams();
+				Object.entries( search ?? {} ).forEach( ( [ key, value ] ) => {
+					if ( value !== undefined && value !== null ) {
+						query.set( key, String( value ) );
+					}
+				} );
+				const queryString = query.toString();
+
+				return (
+					<a ref={ ref } href={ queryString ? `${ path }?${ queryString }` : path } { ...props }>
+						{ children }
+					</a>
+				);
+			}
+		),
+	};
+} );
 
 describe( 'PostTitleLink', () => {
 	it( 'routes a row with a post ID to the detail page, carrying the report window', () => {

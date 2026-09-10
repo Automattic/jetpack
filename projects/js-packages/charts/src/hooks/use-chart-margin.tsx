@@ -1,6 +1,6 @@
 import { createScale, getTicks } from '@visx/scale';
 import { useMemo } from 'react';
-import { getLongestTickWidth, resolveFontSize } from '../utils';
+import { getEdgeTickWidths, getLongestTickWidth, resolveFontSize } from '../utils';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../types';
 import type { XYChartTheme } from '@visx/xychart';
 
@@ -50,6 +50,33 @@ const DEFAULT_TICK_LENGTH = 8;
  */
 const DEFAULT_Y_TICK_WIDTH = 40;
 
+type LabelStyle = { fontSize?: number | string; letterSpacing?: number | string };
+
+/**
+ * Copy a label style with its lengths spelled out in px.
+ *
+ * `getStringWidth` applies the style through CSSOM. Blink resolves a bare number
+ * on an SVG `<text>`, but that is its own leniency rather than the CSS rule, and
+ * `buildChartTheme` hands us bare numbers.
+ *
+ * @param style - Raw label style from the theme.
+ * @return The same style with px-qualified lengths.
+ */
+const toMeasurableStyle = < T extends LabelStyle >( style?: T ) => {
+	if ( ! style ) {
+		return style;
+	}
+
+	const fontSize = resolveFontSize( style.fontSize );
+	const { letterSpacing } = style;
+
+	return {
+		...style,
+		...( fontSize === undefined ? {} : { fontSize: `${ fontSize }px` } ),
+		...( typeof letterSpacing === 'number' ? { letterSpacing: `${ letterSpacing }px` } : {} ),
+	};
+};
+
 const getXAxisLabelMetrics = ( theme: XYChartTheme, orientation: 'top' | 'bottom' ) => {
 	const xAxisStyles =
 		orientation === 'top' ? theme.axisStyles?.x?.top : theme.axisStyles?.x?.bottom;
@@ -61,7 +88,7 @@ const getXAxisLabelMetrics = ( theme: XYChartTheme, orientation: 'top' | 'bottom
 
 	const tickLength = xAxisStyles?.tickLength ?? DEFAULT_TICK_LENGTH;
 
-	return { fontSize, tickLength };
+	return { fontSize, tickLength, tickLabelStyle: toMeasurableStyle( xAxisStyles?.tickLabel ) };
 };
 
 export const useChartMargin = (
@@ -75,10 +102,9 @@ export const useChartMargin = (
 		const allDataPoints = data.flatMap( series => series.data as DataPointDate[] );
 
 		if ( horizontal ) {
-			// When horizontal, y ticks renders fixed tick labels.
-			return allDataPoints.map(
-				d => d.label || options.axis?.y?.tickFormat( d.date.getTime(), 0, [] )
-			);
+			// When horizontal, y ticks render the category values; leave them raw so
+			// the axis tick formatter is applied exactly once, when measuring below.
+			return allDataPoints.map( d => d.label || d.date?.getTime() );
 		}
 
 		if ( options.axis?.y?.tickValues?.length ) {
@@ -89,7 +115,9 @@ export const useChartMargin = (
 		const maxY = Math.max( ...allDataPoints.map( d => d.value ) );
 		const yScale = createScale( {
 			...options.yScale,
-			domain: [ minY, maxY ],
+			// A pinned domain is what the axis actually renders, so measure those
+			// ticks; the data's range would size the gutter for narrower labels.
+			domain: options.yScale?.domain ?? [ minY, maxY ],
 			range: [ height, 0 ],
 		} );
 
@@ -112,7 +140,7 @@ export const useChartMargin = (
 		const yTickWidth = getLongestTickWidth(
 			yTicks,
 			options.axis?.y?.tickFormat,
-			yAxisStyles.axisLabel
+			toMeasurableStyle( yAxisStyles.axisLabel )
 		);
 		// visx's default axis theme pushes y-axis tick labels a further 0.25em
 		// away from the axis (dx of -0.25em on the left, 0.25em on the right), so
@@ -126,17 +154,20 @@ export const useChartMargin = (
 			( yAxisStyles?.tickLength ?? 0 ) +
 			Math.ceil( yTickLabelFontSize * 0.25 );
 
-		if ( yAxisOrientation === 'right' ) {
-			defaultMargin.right = yMarginValue;
-		} else {
-			defaultMargin.left = yMarginValue;
+		// A hidden y axis reserves nothing; its gutter belongs to the plot area.
+		if ( options.axis?.y?.display !== false ) {
+			if ( yAxisOrientation === 'right' ) {
+				defaultMargin.right = yMarginValue;
+			} else {
+				defaultMargin.left = yMarginValue;
+			}
 		}
 
 		// Dynamically compute X-axis margin (bottom by default, or top if orientation is 'top').
 		// This mirrors Y-axis behavior where margin is based on label size and tick length,
 		// but keeps the padding minimal so consumers can control container spacing themselves.
 		const xOrientation = options.axis?.x?.orientation === 'top' ? 'top' : 'bottom';
-		const { fontSize, tickLength } = getXAxisLabelMetrics( theme, xOrientation );
+		const { fontSize, tickLength, tickLabelStyle } = getXAxisLabelMetrics( theme, xOrientation );
 		const computedXMargin = fontSize + tickLength;
 
 		if ( xOrientation === 'top' ) {
@@ -144,6 +175,19 @@ export const useChartMargin = (
 			defaultMargin.bottom = DEFAULT_BOTTOM_FOR_TOP_AXIS;
 		} else {
 			defaultMargin.bottom = Math.max( defaultMargin.bottom, computedXMargin );
+		}
+
+		// An X-axis label is centered on its tick, so the ones at either end of the
+		// scale hang half their width outside the plot area and clip at the SVG edge.
+		if ( options.axis?.x?.display !== false ) {
+			const { first, last } = getEdgeTickWidths(
+				options.axis?.x?.tickValues ?? [],
+				options.axis?.x?.tickFormat,
+				tickLabelStyle
+			);
+
+			defaultMargin.left = Math.max( defaultMargin.left, Math.ceil( first / 2 ) );
+			defaultMargin.right = Math.max( defaultMargin.right, Math.ceil( last / 2 ) );
 		}
 
 		return defaultMargin;

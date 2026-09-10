@@ -12,6 +12,7 @@ import { Card, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { Toggle } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
 
@@ -74,7 +75,7 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 							'jetpack-newsletter'
 						),
 						type: 'boolean' as const,
-						Edit: 'toggle' as const,
+						Edit: Toggle,
 					},
 			  ]
 			: [] ),

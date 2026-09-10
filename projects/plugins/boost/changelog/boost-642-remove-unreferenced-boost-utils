@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove unreferenced JavaScript utility modules. Webpack never bundled them, so there is no user-facing change.
+
+

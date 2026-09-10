@@ -453,7 +453,7 @@ class Search_Blocks {
 	 */
 	public static function woocommerce_version_supported( ?string $version = null ): bool {
 		// `constant()` keeps static analysis happy — WC isn't a dependency here.
-		$version = $version ?? ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
+		$version ??= ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
 		return '' !== $version && version_compare( $version, self::MIN_WOOCOMMERCE_VERSION, '>=' );
 	}
 
@@ -631,10 +631,18 @@ class Search_Blocks {
 	 * URL param key the inline search experience uses for the current request.
 	 * On the WP search route `s`; elsewhere `q` (see `NON_SEARCH_QUERY_PARAM`).
 	 *
+	 * Uses direct property access on `$wp_query` rather than the `is_search()`
+	 * global function, because the function calls `_doing_it_wrong()` when
+	 * invoked before the query has finished running (e.g. during block render).
+	 *
 	 * @return string
 	 */
 	public static function get_search_param_name(): string {
-		return function_exists( 'is_search' ) && is_search() ? 's' : self::NON_SEARCH_QUERY_PARAM;
+		global $wp_query;
+		if ( isset( $wp_query ) && ! empty( $wp_query->is_search ) ) {
+			return 's';
+		}
+		return self::NON_SEARCH_QUERY_PARAM;
 	}
 
 	/**
@@ -663,6 +671,7 @@ class Search_Blocks {
 			$asset['version'] ?? false,
 			true
 		);
+		wp_set_script_translations( 'jetpack-search-blocks-register', 'jetpack-search-pkg' );
 
 		// Surface PHP gates to the editor bundle so block edits and the
 		// registration loop branch consistently with server-side renders.
@@ -675,6 +684,7 @@ class Search_Blocks {
 					'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
 					'woocommerceOnlyBlocks'      => self::woocommerce_only_block_names(),
 					'supportsPaidSearch'         => self::supports_paid_search(),
+					'aiMasterEnabled'            => AI_Answers::should_enforce_master(),
 					'supportedCustomTaxonomies'  => self::supported_custom_taxonomies(),
 					'customTaxonomyMap'          => (object) self::custom_taxonomy_map(),
 					// Resolved the same way `search-results/render.php` resolves the
@@ -723,21 +733,7 @@ class Search_Blocks {
 
 		self::register_store_script_module();
 
-		$blocks_dir = __DIR__ . '/blocks';
-		$block_dirs = glob( $blocks_dir . '/*', GLOB_ONLYDIR );
-
-		if ( ! $block_dirs ) {
-			return;
-		}
-
-		$wc_blocks_enabled = self::woocommerce_blocks_enabled();
-		foreach ( $block_dirs as $block_dir ) {
-			if ( ! file_exists( $block_dir . '/block.json' ) ) {
-				continue;
-			}
-			if ( ! $wc_blocks_enabled && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
-				continue;
-			}
+		foreach ( self::block_directories() as $block_dir ) {
 			register_block_type( $block_dir );
 		}
 
@@ -1199,7 +1195,7 @@ class Search_Blocks {
 		// from `do_blocks()` land before the importmap prints — see
 		// AGENTS.md § Hydration & SSR seeding.
 		self::$block_template_overlay_rendered_html = trim(
-			do_blocks( static::get_overlay_template_content() )
+			No_Results::render_self_contained( static::get_overlay_template_content() )
 		);
 	}
 
@@ -2219,6 +2215,7 @@ HTML;
 		$price_range               = static::parse_url_price_range();
 		$is_initial_loading        = static::is_initial_loading();
 		$searching_text            = function_exists( '__' ) ? __( 'Searching…', 'jetpack-search-pkg' ) : 'Searching…';
+		$query_options             = static::get_instant_search_query_options();
 
 		return array(
 			// Connection / routing config.
@@ -2288,7 +2285,30 @@ HTML;
 			'aiExtendedLoadingHints'     => static::build_ai_extended_loading_hints(),
 
 			'wcStockStatusLabels'        => static::build_stock_status_labels(),
+
+			// Query customization from `jetpack_instant_search_options` — same
+			// keys Instant Search / Inline Search honor, so Embedded and the
+			// blocks Overlay stay compatible with those filters.
+			'highlightPhraseOnly'        => $query_options['highlightPhraseOnly'],
+			'highlightFilterStopwords'   => $query_options['highlightFilterStopwords'],
+			'highlightFields'            => $query_options['highlightFields'],
+			'additionalBlogIds'          => $query_options['additionalBlogIds'],
+			'adminQueryFilter'           => $query_options['adminQueryFilter'],
+			'customResults'              => $query_options['customResults'],
 		);
+	}
+
+	/**
+	 * Read Instant Search query-customization options for the blocks store.
+	 *
+	 * @since 7.4.0
+	 *
+	 * @return array Query options with keys:
+	 *               `highlightPhraseOnly`, `highlightFilterStopwords`, `highlightFields`,
+	 *               `additionalBlogIds`, `adminQueryFilter`, and `customResults`.
+	 */
+	public static function get_instant_search_query_options(): array {
+		return Helper::get_instant_search_query_options();
 	}
 
 	/**
@@ -2312,6 +2332,45 @@ HTML;
 			$labels[ $value ] = (string) ( $option['label'] ?? $value );
 		}
 		return $labels;
+	}
+
+	/**
+	 * Every block directory to register, parents first then their children.
+	 *
+	 * A block directory may nest child blocks that only ever render inside it
+	 * (`no-results/slot`). They live there rather than beside their parent so
+	 * the relationship is obvious in the tree, and they inherit the parent's
+	 * WooCommerce gating for free — a skipped parent is never descended into.
+	 *
+	 * @internal Public only so the registration walk can be asserted directly.
+	 *
+	 * @return string[] Absolute directory paths, each holding a `block.json`.
+	 */
+	public static function block_directories(): array {
+		$block_dirs = glob( __DIR__ . '/blocks/*', GLOB_ONLYDIR );
+		if ( ! $block_dirs ) {
+			return array();
+		}
+
+		$wc_blocks_enabled = self::woocommerce_blocks_enabled();
+		$directories       = array();
+		foreach ( $block_dirs as $block_dir ) {
+			if ( ! file_exists( $block_dir . '/block.json' ) ) {
+				continue;
+			}
+			if ( ! $wc_blocks_enabled && self::is_woocommerce_only_block( basename( $block_dir ) ) ) {
+				continue;
+			}
+			$directories[] = $block_dir;
+
+			foreach ( (array) glob( $block_dir . '/*', GLOB_ONLYDIR ) as $child_dir ) {
+				if ( file_exists( $child_dir . '/block.json' ) ) {
+					$directories[] = $child_dir;
+				}
+			}
+		}
+
+		return $directories;
 	}
 
 	/**

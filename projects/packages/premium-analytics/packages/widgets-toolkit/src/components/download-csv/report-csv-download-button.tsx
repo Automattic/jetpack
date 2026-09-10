@@ -26,9 +26,6 @@ export type ReportCsvDownloadButtonProps = Omit< CsvDownloadButtonProps, 'onDown
 /**
  * Download a complete server-generated report as CSV.
  *
- * @param props              - Component props.
- * @param props.reportType   - Report key supported by the export endpoint.
- * @param props.reportParams - Optional report params override.
  * @return The rendered action, or null when exports are unavailable.
  */
 export function ReportCsvDownloadButton( {

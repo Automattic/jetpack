@@ -169,7 +169,7 @@
 		overflow: hidden;
 	}
 
-	// Free-tier upsell rendered when the site has no MCP-capable plan.
+	// Callout card shared by the plan upsell and the connect-account card.
 	// Layout mirrors Activity Log's UpsellCallout: bordered card with copy
 	// on the left and the illustration on the right; stacks on narrow
 	// viewports. The breakpoint is tuned to the AI page's 660px content

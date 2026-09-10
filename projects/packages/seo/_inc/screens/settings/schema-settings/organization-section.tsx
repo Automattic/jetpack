@@ -2,13 +2,10 @@
 
 import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
-import ProfileUrlList, { hasProfileUrlErrors } from './profile-url-list';
-import styles from './style.module.scss';
+import { Stack, Text } from '@wordpress/ui';
+import ProfileUrlList from './profile-url-list';
 import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 import type { FC } from 'react';
-
-const saveLabel = __( 'Save', 'jetpack-seo' );
 
 interface Props {
 	/** The schema-settings form controller, owned by the Schema card group. */
@@ -16,33 +13,35 @@ interface Props {
 }
 
 /**
- * The Organization settings form.
+ * The Organization settings fields. Presentational only — the module's single
+ * Save button (which persists these values together with the LocalBusiness
+ * refinement below) lives in the parent Schema card.
  *
  * @param props      - Component props.
  * @param props.form - The shared schema-settings form controller.
- * @return The Organization settings form.
+ * @return The Organization settings fields.
  */
 const OrganizationSection: FC< Props > = ( { form } ) => {
-	const {
-		organization,
-		defaults,
-		isSaving,
-		isOrganizationDirty,
-		setOrganizationField,
-		saveOrganization,
-	} = form;
+	const { organization, defaults, isSaving, setOrganizationField } = form;
 	const { name, description, sameAs, email } = organization;
 
 	return (
 		<Stack direction="column" gap="lg">
-			<Text variant="body-sm" className={ styles.muted }>
-				{ __( 'Help search engines understand the organization behind this site.', 'jetpack-seo' ) }
+			<Text variant="body-md" render={ <p /> }>
+				{ __(
+					'About the organization behind this site. Your Site Logo or Site Icon is used as the logo.',
+					'jetpack-seo'
+				) }
 			</Text>
 
+			{ /* The visible label stays one word (WPDS renders control labels as 11px
+			     all-caps), but the Author profile card on this same tab also has a
+			     "Name" field — so the accessible name says which one this is. */ }
 			<TextControl
-				label={ __( 'Organization name', 'jetpack-seo' ) }
+				label={ __( 'Name', 'jetpack-seo' ) }
+				aria-label={ __( 'Organization name', 'jetpack-seo' ) }
 				help={ __(
-					'The name used for your site’s Organization schema. Leave blank to use your Site Title.',
+					'The organization’s name, as you want it to appear in search results. Leave blank to use your Site Title.',
 					'jetpack-seo'
 				) }
 				placeholder={ defaults.name }
@@ -56,7 +55,7 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 			<TextareaControl
 				label={ __( 'Description', 'jetpack-seo' ) }
 				help={ __(
-					'A short description of your organization. Leave blank to use your site Tagline.',
+					'A sentence or two about what the organization does. Leave blank to use your site Tagline.',
 					'jetpack-seo'
 				) }
 				placeholder={ defaults.description }
@@ -68,9 +67,9 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 			/>
 
 			<ProfileUrlList
-				label={ __( 'Social profiles', 'jetpack-seo' ) }
+				label={ __( 'Social & profile links', 'jetpack-seo' ) }
 				help={ __(
-					'Links to official profiles for this organization (for example Facebook, X, LinkedIn).',
+					'Links to the organization’s official profiles — Facebook, X, LinkedIn, a Wikipedia page. These help search engines confirm it’s the same organization across the web.',
 					'jetpack-seo'
 				) }
 				urls={ sameAs }
@@ -80,7 +79,7 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 
 			<TextControl
 				label={ __( 'Contact email', 'jetpack-seo' ) }
-				help={ __( 'A public contact email for this organization.', 'jetpack-seo' ) }
+				help={ __( 'A public contact email for the organization.', 'jetpack-seo' ) }
 				type="email"
 				value={ email }
 				onChange={ next => setOrganizationField( { email: next } ) }
@@ -88,16 +87,6 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
 			/>
-
-			<Stack direction="row" justify="flex-end">
-				<Button
-					onClick={ saveOrganization }
-					disabled={ isSaving || ! isOrganizationDirty || hasProfileUrlErrors( sameAs ) }
-					aria-label={ __( 'Save organization', 'jetpack-seo' ) }
-				>
-					{ saveLabel }
-				</Button>
-			</Stack>
 		</Stack>
 	);
 };

@@ -11,6 +11,7 @@ import useConnection from '@automattic/jetpack-connection/use-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
+import PageSubTitle from '../page-subtitle';
 import './style.scss';
 
 /**
@@ -62,7 +63,7 @@ export default function PricingUpsell() {
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
-			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+			subTitle={ <PageSubTitle /> }
 		>
 			<div className="vp-connection-gate__upsell">
 				<PricingTable title={ title } items={ pricingItems }>

@@ -1,7 +1,7 @@
 import { DecorativeCard } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { Button, Link, Stack } from '@wordpress/ui';
 import disconnectImage from '../images/disconnect-confirm.jpg';
 import type { MouseEvent } from 'react';
 
@@ -30,7 +30,12 @@ const StepDisconnectConfirm = ( {
 		<div className="jp-connection__disconnect-dialog__content">
 			<DecorativeCard icon="unlink" imageUrl={ disconnectImage } />
 
-			<div className="jp-connection__disconnect-dialog__step-copy jp-connection__disconnect-dialog__step-copy--narrow">
+			<Stack
+				className="jp-connection__disconnect-dialog__copy jp-connection__disconnect-dialog__step-copy jp-connection__disconnect-dialog__step-copy--narrow"
+				direction="column"
+				align="center"
+				gap="xl"
+			>
 				<h1>
 					{ createInterpolateElement(
 						__( 'Jetpack has been <br/>successfully disconnected.', 'jetpack-connection-js' ),
@@ -48,37 +53,28 @@ const StepDisconnectConfirm = ( {
 								'jetpack-connection-js'
 							) }
 						</p>
-						<p>
-							<Button
-								onClick={ onProvideFeedback }
-								className="jp-connection__disconnect-dialog__btn-back-to-wp"
-							>
-								{ __( 'Help us improve', 'jetpack-connection-js' ) }
-							</Button>
-						</p>
-						<a
+						<Button
+							onClick={ onProvideFeedback }
+							className="jp-connection__disconnect-dialog__btn-back-to-wp"
+						>
+							{ __( 'Help us improve', 'jetpack-connection-js' ) }
+						</Button>
+						<Link
 							className="jp-connection__disconnect-dialog__link jp-connection__disconnect-dialog__link--bold"
 							href="#"
 							onClick={ onExit }
 						>
 							{ __( 'No thank you', 'jetpack-connection-js' ) }
-						</a>
+						</Link>
 					</>
 				) }
 
 				{ ! canProvideFeedback && (
-					<>
-						<p>
-							<Button
-								onClick={ onExit }
-								className="jp-connection__disconnect-dialog__btn-back-to-wp"
-							>
-								{ __( 'Back to my website', 'jetpack-connection-js' ) }
-							</Button>
-						</p>
-					</>
+					<Button onClick={ onExit } className="jp-connection__disconnect-dialog__btn-back-to-wp">
+						{ __( 'Back to my website', 'jetpack-connection-js' ) }
+					</Button>
 				) }
-			</div>
+			</Stack>
 		</div>
 	);
 };

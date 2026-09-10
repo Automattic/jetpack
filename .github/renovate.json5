@@ -96,9 +96,12 @@
 			matchDepTypes: [ 'action' ],
 			matchPackageNames: [ 'docker/**' ],
 		},
+		{
+			groupName: 'tsdown monorepo',
+			matchPackageNames: [ 'tsdown', '@tsdown/**' ],
+		},
 
-		// QualityOps decided they want all these pinned to digests.
-		// They were going to have Dependabot create PRs automatically, but as we use Renovate, do it here instead.
+		// Pin GitHub Actions to digests.
 		// We'll leave major updates ungrouped though, as those likely need more individualized attention.
 		{
 			extends: [ 'helpers:pinGitHubActionDigests' ],
@@ -134,8 +137,15 @@
 				'@wordpress/boot',
 				'@wordpress/notices',
 				'@wordpress/private-apis',
+				'@wordpress/rich-text',
 				'@wordpress/route',
 				'@wordpress/theme',
+				// Bundled into the rich-text polyfill (rich-text unlocks its private
+				// APIs at module scope), so it must move in lockstep with rich-text.
+				'@wordpress/compose',
+				// Not polyfilled, but notices' store types are generated against data's generics
+				// (notices 5.53 needs data ^10.53), so data has to move on the same train as notices.
+				'@wordpress/data',
 				// @wordpress/build is still heavily developed; its dashboards share the same bundled
 				// packages and test surface, so exercising build alongside the rest is practical.
 				'@wordpress/build',
@@ -147,11 +157,12 @@
 			separateMajorMinor: false,
 			// Teams that can help test the update
 			additionalReviewers: [
-				'team:triforce', // Monorepo overall, Publicize, My Jetpack
+				'team:jetpack-social', // Social
+				'team:jetpack-my-jetpack', // My Jetpack
 				'team:loop', // Newsletter dashboard & subscriber management
-				'team:zap', // Forms, much of the recent componentry work.
-				'team:red', // Premium Analytics
-				'team:ventures', // Premium Analytics
+				'team:jetpack-newsletter', // Newsletter dashboard & subscriber management
+				'team:jetpack-forms', // Forms and related component work
+				'team:jetpack-stats', // Premium Analytics
 			],
 		},
 
@@ -168,7 +179,7 @@
 				'uuid',
 				'@testing-library/preact',
 			],
-			additionalReviewers: [ 'team:red' ],
+			additionalReviewers: [ 'team:jetpack-search' ],
 			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},
 	],

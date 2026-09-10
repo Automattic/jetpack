@@ -1,0 +1,10 @@
+{
+	"name": "jpa/traffic-views-activity",
+	"title": "Traffic views activity",
+	"description": "Daily views across the whole site, as a calendar heatmap.",
+	"help": {
+		"content": "Your daily views, shown as a heatmap to help you spot busy days and quieter stretches."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

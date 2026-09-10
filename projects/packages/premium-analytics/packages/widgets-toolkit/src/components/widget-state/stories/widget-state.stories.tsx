@@ -65,13 +65,12 @@ const meta: Meta< typeof WidgetState > = {
 		docs: {
 			description: {
 				component:
-					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready, plus a busy overlay on background refetch) from four boolean signals and renders it. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready and busy states show a mock bar chart standing in for real widget content.',
+					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready) from four boolean signals and renders it. The skeleton is reserved for `isLoading`, meaning nothing on screen answers the current params; a background revalidation (`isFetching` alone) draws nothing and only marks the widget busy. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready state shows a mock bar chart standing in for real widget content.',
 			},
 		},
 	},
 	// Every story renders inside the mock widget card; `withChartTheme` supplies
-	// the charts context so the mock `BarChart` renders, mirroring what
-	// `WidgetRoot` provides at the top of the widget tree in the app.
+	// the charts context, mirroring what `WidgetRoot` provides in the app.
 	decorators: [ withWidgetCard, withChartTheme ],
 };
 
@@ -111,10 +110,6 @@ const MockChart = () => (
 	</div>
 );
 
-/**
- * First load: a fetch is in flight and there is no data yet, so the loading
- * overlay is shown instead of the children.
- */
 export const Loading: Story = {
 	args: {
 		isLoading: true,
@@ -217,10 +212,10 @@ export const Ready: Story = {
 };
 
 /**
- * Background refetch: the chart stays visible under a non-blocking busy overlay
- * while fresh data loads.
+ * Unchanged params being revalidated. Identical to `Ready` by design — only
+ * `aria-busy` differs.
  */
-export const Busy: Story = {
+export const Refetching: Story = {
 	args: {
 		isLoading: false,
 		isFetching: true,

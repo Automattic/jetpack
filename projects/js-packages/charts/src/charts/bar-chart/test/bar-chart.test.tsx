@@ -1,8 +1,11 @@
-import { render, renderHook, screen } from '@testing-library/react';
+import { render, renderHook, screen, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
-import BarChart from '../bar-chart';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
+import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
+import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
+import type { SeriesData } from '../../../types';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -218,6 +221,711 @@ describe( 'BarChart', () => {
 		} );
 	} );
 
+	describe( 'Bar chart options memoization', () => {
+		const stableData: SeriesData[] = [
+			{
+				label: 'Views',
+				data: [
+					{ date: new Date( 2026, 0, 1 ), value: 1 },
+					{ date: new Date( 2026, 0, 2 ), value: 2 },
+				],
+				options: {},
+			},
+		];
+
+		test( 'returns the same options when the caller passes an equal object literal', () => {
+			// The literal is rebuilt on every render, so only a deep comparison can
+			// keep the memos below it from recomputing.
+			const { result, rerender } = renderHook( () =>
+				useBarChartOptions( stableData, false, { axis: { x: { numTicks: 6 } } } )
+			);
+			const first = result.current;
+
+			rerender();
+
+			expect( result.current ).toBe( first );
+		} );
+
+		test( 'still recomputes when the options actually change', () => {
+			const { result, rerender } = renderHook(
+				( { numTicks }: { numTicks: number } ) =>
+					useBarChartOptions( stableData, false, { axis: { x: { numTicks } } } ),
+				{ initialProps: { numTicks: 6 } }
+			);
+			const first = result.current;
+
+			rerender( { numTicks: 3 } );
+
+			expect( result.current ).not.toBe( first );
+			expect( result.current.axis.x.numTicks ).toBe( 3 );
+		} );
+
+		test( 'returns the same options when nothing changed and no options were passed', () => {
+			const { result, rerender } = renderHook( () => useBarChartOptions( stableData, false ) );
+			const first = result.current;
+
+			rerender();
+
+			expect( result.current ).toBe( first );
+		} );
+	} );
+
+	describe( 'Band domain', () => {
+		const dated = ( year: number, month: number, day: number, value: number ) => ( {
+			date: new Date( year, month, day ),
+			value,
+		} );
+
+		// Scoped to the chart: @visx/text parks a measuring node on document.body,
+		// which a negative assertion would otherwise match.
+		const inChart = () => within( screen.getByRole( 'grid', { name: /bar chart/i } ) );
+
+		test( 'leaves tick values alone when a bucket is labelled rather than dated', () => {
+			// visx builds the band domain from `label || date`, so a labelled bucket
+			// is not a `Date` on the axis at all. Choosing `Date` tick values for a
+			// domain like that puts a tick on a key `scaleBand` does not hold.
+			const { result } = renderHook( () =>
+				useBarChartOptions(
+					[
+						{
+							label: 'Views',
+							data: [
+								dated( 2026, 0, 1, 1 ),
+								{ ...dated( 2026, 0, 2, 2 ), label: 'Launch day' },
+								dated( 2026, 0, 3, 3 ),
+							],
+							options: {},
+						},
+					],
+					false
+				)
+			);
+
+			expect( result.current.axis.x.tickValues ).toBeUndefined();
+		} );
+
+		test( 'labels a bucket that carries a label, on an otherwise dated axis', () => {
+			// `hasLabels` samples only the first point, so this axis keeps the time
+			// formatter; the labelled bucket still has to render as itself rather
+			// than as a date parsed out of its label.
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Views',
+						data: [
+							dated( 2026, 0, 1, 1 ),
+							{ ...dated( 2026, 0, 2, 2 ), label: 'Launch day' },
+							dated( 2026, 0, 3, 3 ),
+						],
+						options: {},
+					},
+				],
+			} );
+
+			expect( inChart().getByText( 'Launch day' ) ).toBeInTheDocument();
+			expect( inChart().queryByText( /Invalid Date/ ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'ignores comparison series, which visx never puts on the band scale', () => {
+			// A comparison series carrying its own dates is a misuse the chart already
+			// warns about; the point here is that it does not also break the axis.
+			const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+
+			try {
+				renderWithTheme( {
+					data: [
+						{
+							label: 'This period',
+							data: [ dated( 2026, 0, 1, 1 ), dated( 2026, 0, 4, 2 ) ],
+							options: {},
+						},
+						{
+							label: 'Prior period',
+							data: [ dated( 2025, 11, 26, 1 ), dated( 2025, 11, 29, 2 ) ],
+							options: { type: 'comparison' },
+						},
+					],
+				} );
+
+				expect( inChart().queryByText( 'Dec 26' ) ).not.toBeInTheDocument();
+				expect( inChart().queryByText( 'Dec 29' ) ).not.toBeInTheDocument();
+				expect( inChart().getByText( 'Jan 1' ) ).toBeInTheDocument();
+			} finally {
+				warn.mockRestore();
+			}
+		} );
+
+		test( 'drops the buckets of a series the legend has hidden', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				chartId: 'hidden-series',
+				showLegend: true,
+				legend: { interactive: true },
+				data: [
+					{
+						label: 'Long',
+						data: [
+							dated( 2026, 0, 1, 1 ),
+							dated( 2026, 0, 3, 2 ),
+							dated( 2026, 0, 5, 3 ),
+							dated( 2026, 0, 7, 4 ),
+						],
+						options: {},
+					},
+					{
+						label: 'Short',
+						data: [ dated( 2026, 0, 1, 5 ), dated( 2026, 0, 3, 6 ) ],
+						options: {},
+					},
+				],
+			} );
+
+			await user.click( screen.getByText( 'Long' ) );
+
+			expect( inChart().queryByText( 'Jan 5' ) ).not.toBeInTheDocument();
+			expect( inChart().queryByText( 'Jan 7' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'labels a bucket that carries a label in the tooltip too', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions(
+					[
+						{
+							label: 'Views',
+							data: [ dated( 2026, 0, 1, 1 ), { ...dated( 2026, 0, 2, 2 ), label: 'Launch day' } ],
+							options: {},
+						},
+					],
+					false
+				)
+			);
+
+			// visx calls a tick formatter with (value, index, values).
+			const format = result.current.tooltip.labelFormatter;
+			expect( format( 'Launch day', 0, [] ) ).toBe( 'Launch day' );
+			expect( format( new Date( 2026, 0, 1 ), 0, [] ) ).toMatch( /2026/ );
+		} );
+
+		test( 'keeps only the later of two series sharing a label, as the registry does', () => {
+			const warn = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+
+			try {
+				const { result } = renderHook( () =>
+					useBarChartOptions(
+						[
+							{ label: 'Dup', data: [ dated( 2026, 0, 1, 1 ) ], options: {} },
+							{ label: 'Dup', data: [ dated( 2026, 0, 5, 2 ) ], options: {} },
+						],
+						false
+					)
+				);
+
+				expect( result.current.axis.x.tickValues ).toEqual( [ new Date( 2026, 0, 5 ) ] );
+			} finally {
+				warn.mockRestore();
+			}
+		} );
+
+		test( 'puts the band tick values on the y axis when horizontal', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions(
+					[
+						{
+							label: 'Views',
+							data: [ dated( 2026, 0, 1, 1 ), dated( 2026, 0, 2, 2 ) ],
+							options: {},
+						},
+					],
+					true
+				)
+			);
+
+			expect( result.current.axis.y.tickValues ).toEqual( [
+				new Date( 2026, 0, 1 ),
+				new Date( 2026, 0, 2 ),
+			] );
+			expect( result.current.axis.x.tickValues ).toBeUndefined();
+		} );
+
+		test( 'keeps every dated bucket across series, in the order visx concatenates them', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions(
+					[
+						{
+							label: 'A',
+							data: [ dated( 2026, 0, 1, 1 ), dated( 2026, 0, 3, 3 ) ],
+							options: {},
+						},
+						{
+							label: 'B',
+							data: [ dated( 2026, 0, 1, 4 ), dated( 2026, 0, 2, 5 ) ],
+							options: {},
+						},
+					],
+					false
+				)
+			);
+
+			expect( result.current.axis.x.tickValues ).toEqual( [
+				new Date( 2026, 0, 1 ),
+				new Date( 2026, 0, 3 ),
+				new Date( 2026, 0, 2 ),
+			] );
+		} );
+	} );
+
+	describe( 'Time axis ticks', () => {
+		const distinctTexts = ( elements: HTMLElement[] ) =>
+			new Set( elements.map( el => el.textContent ) );
+
+		// @visx/text measures label widths through one reusable <text> node parked
+		// on document.body, which outlives RTL's cleanup still holding the last
+		// string measured. Query inside the chart so a previous test's measurement
+		// can't answer for this one's axis.
+		const inChart = () => within( screen.getByRole( 'grid', { name: /bar chart/i } ) );
+
+		test( 'renders distinct date ticks for daily buckets within a year', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 14 }, ( _, i ) => ( {
+							date: new Date( 2024, 0, 1 + i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText(
+				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
+			);
+			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'keeps the derived date formatter when tickFormat is passed as undefined', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickFormat: undefined } } },
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 14 }, ( _, i ) => ( {
+							date: new Date( 2024, 0, 1 + i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /^Jan \d+$/ );
+			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
+			// A clobbered formatter falls back to raw `Date.toString()` ticks.
+			expect( screen.queryByText( /GMT/ ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'renders distinct hour ticks for sub-daily buckets in a single day', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 12 }, ( _, i ) => ( {
+							date: new Date( 2024, 0, 1, i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /^\d{1,2}\s(AM|PM)$/ );
+			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'renders date ticks, not hour ticks, for a two-point daily series', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( 2024, 0, 1 ), value: 10 },
+							{ date: new Date( 2024, 0, 2 ), value: 20 },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			expect( screen.getByText( 'Jan 1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Jan 2' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /12\sAM/ ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'renders distinct year ticks for series spanning multiple years', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 4 }, ( _, i ) => ( {
+							date: new Date( 2021 + i, 0, 1 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /^\d{4}$/ );
+			expect( distinctTexts( ticks ).size ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'renders date ticks for daily buckets whose gaps shrink to 23 hours', () => {
+			// The gaps are built at 23 hours rather than dated across a real
+			// spring-forward, because the suite pins TZ=UTC and so has no DST to
+			// straddle. A strict 24h rule would read these as sub-daily buckets and
+			// label them by the hour.
+			const start = new Date( 2026, 2, 8 );
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 23, 46 ].map( ( offsetHours, i ) => ( {
+							date: new Date( start.getTime() + offsetHours * 60 * 60 * 1000 ),
+							value: 10 * ( i + 1 ),
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			expect( screen.getAllByText( /^Mar \d+$/ ).length ).toBeGreaterThan( 0 );
+			expect( screen.queryByText( /\d{1,2}\s(AM|PM)/ ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'dates a midnight tick for sub-daily buckets spanning days', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 48 }, ( _, i ) => ( {
+							date: new Date( 2026, 7, 2, i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			// Band ticks are sampled by index, so without steering they land on
+			// bare hours belonging to days the axis never names.
+			expect( inChart().getByText( 'Aug 2' ) ).toBeInTheDocument();
+			expect( inChart().getByText( 'Aug 3' ) ).toBeInTheDocument();
+		} );
+
+		test( 'dates every tick for sub-daily buckets spanning a week', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 168 }, ( _, i ) => ( {
+							date: new Date( 2026, 7, 2, i ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			// Too long for a step within one day to fit the tick count, so the axis
+			// has to step whole days to keep naming them.
+			expect( inChart().queryByText( /\d{1,2}\s(AM|PM)/ ) ).not.toBeInTheDocument();
+			expect( inChart().getByText( 'Aug 2' ) ).toBeInTheDocument();
+			expect( inChart().getByText( 'Aug 8' ) ).toBeInTheDocument();
+		} );
+
+		test( 'names the year for monthly buckets that do not start in January', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 36 }, ( _, i ) => ( {
+							date: new Date( 2023, 6 + i, 1 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			const ticks = inChart().getAllByText( /^\d{4}$/ );
+			expect( distinctTexts( ticks ) ).toEqual( new Set( [ '2024', '2025', '2026' ] ) );
+		} );
+
+		test( 'reads tickResolution off the y axis on a horizontal chart', () => {
+			renderWithTheme( {
+				width: 800,
+				orientation: 'horizontal',
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( 2024, 0, 1, 13 ), value: 10 } ],
+						options: {},
+					},
+				],
+				options: { axis: { y: { tickResolution: 'hour' } } },
+			} );
+
+			// The dates move to the y axis with the orientation, so the hint has to
+			// follow them; read off `axis.x` this would fall back to a date tick.
+			expect( inChart().getByText( /^1\sPM$/ ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders an hour tick when tickResolution declares the buckets sub-daily', () => {
+			// A single bucket has no point spacing to infer the resolution from,
+			// so only the declared resolution can reach the hour format.
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( 2024, 0, 1, 13 ), value: 10 } ],
+						options: {},
+					},
+				],
+				options: { axis: { x: { tickResolution: 'hour' } } },
+			} );
+
+			expect( inChart().getByText( /^1\sPM$/ ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Time series tooltip labels', () => {
+		const optionsFor = (
+			data: Parameters< typeof useBarChartOptions >[ 0 ],
+			options?: Parameters< typeof useBarChartOptions >[ 2 ]
+		) => renderHook( () => useBarChartOptions( data, false, options ) ).result.current;
+
+		test( 'names the full date for daily buckets', () => {
+			const { tooltip } = optionsFor( [
+				{
+					label: 'Series A',
+					data: Array.from( { length: 14 }, ( _, i ) => ( {
+						date: new Date( 2024, 0, 1 + i ),
+						value: 10 + i,
+					} ) ),
+					options: {},
+				},
+			] );
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 3 ).getTime(), 0, [] ) ).toBe(
+				'January 3, 2024'
+			);
+		} );
+
+		test( 'names the month, without a day, for monthly buckets', () => {
+			const { tooltip } = optionsFor( [
+				{
+					label: 'Series A',
+					data: Array.from( { length: 24 }, ( _, i ) => ( {
+						date: new Date( 2024, i, 1 ),
+						value: 10 + i,
+					} ) ),
+					options: {},
+				},
+			] );
+
+			expect( tooltip.labelFormatter( new Date( 2025, 2, 1 ).getTime(), 0, [] ) ).toBe(
+				'March 2025'
+			);
+		} );
+
+		test( 'names only the year for yearly buckets', () => {
+			const { tooltip } = optionsFor( [
+				{
+					label: 'Series A',
+					data: Array.from( { length: 4 }, ( _, i ) => ( {
+						date: new Date( 2023 + i, 0, 1 ),
+						value: 10 + i,
+					} ) ),
+					options: {},
+				},
+			] );
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 1 ).getTime(), 0, [] ) ).toBe( '2024' );
+		} );
+
+		test( 'follows a declared tickResolution coarser than the point spacing', () => {
+			const { tooltip } = optionsFor(
+				[
+					{
+						label: 'Series A',
+						data: Array.from( { length: 24 }, ( _, i ) => ( {
+							date: new Date( 2024, i, 1 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+				{ axis: { x: { tickResolution: 'year' } } }
+			);
+
+			expect( tooltip.labelFormatter( new Date( 2025, 2, 1 ).getTime(), 0, [] ) ).toBe( '2025' );
+		} );
+
+		test( 'detects sub-daily resolution past a leading gap', () => {
+			const { tooltip } = optionsFor( [
+				{
+					label: 'Series A',
+					data: [
+						{ date: new Date( 2024, 0, 1 ), value: 10 },
+						{ date: new Date( 2024, 0, 3 ), value: 20 },
+						{ date: new Date( 2024, 0, 3, 6 ), value: 30 },
+					],
+					options: {},
+				},
+			] );
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 3, 6 ).getTime(), 0, [] ) ).toMatch(
+				/^January 3, 2024 at 6\sAM$/
+			);
+		} );
+
+		test( 'adds the hour for sub-daily buckets', () => {
+			const { tooltip } = optionsFor( [
+				{
+					label: 'Series A',
+					data: Array.from( { length: 12 }, ( _, i ) => ( {
+						date: new Date( 2024, 0, 1, i ),
+						value: 10 + i,
+					} ) ),
+					options: {},
+				},
+			] );
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 1, 6 ).getTime(), 0, [] ) ).toMatch(
+				/^January 1, 2024 at 6\sAM$/
+			);
+		} );
+
+		test( 'adds the hour when tickResolution declares the buckets sub-daily', () => {
+			const { tooltip } = optionsFor(
+				[
+					{
+						label: 'Series A',
+						data: [ { date: new Date( 2024, 0, 1, 13 ), value: 10 } ],
+						options: {},
+					},
+				],
+				{ axis: { x: { tickResolution: 'hour' } } }
+			);
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 1, 13 ).getTime(), 0, [] ) ).toMatch(
+				/^January 1, 2024 at 1\sPM$/
+			);
+		} );
+
+		test( 'names a declared weekly bucket as a week, not a single day', () => {
+			const { tooltip } = optionsFor(
+				[
+					{
+						label: 'Series A',
+						data: Array.from( { length: 8 }, ( _, i ) => ( {
+							date: new Date( 2026, 0, 5 + i * 7 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+				{ axis: { x: { tickResolution: 'week' } } }
+			);
+
+			expect( tooltip.labelFormatter( new Date( 2026, 0, 12 ).getTime(), 0, [] ) ).toBe(
+				'Week of January 12, 2026'
+			);
+		} );
+
+		test( 'follows tickResolution declared on the y axis of a horizontal chart', () => {
+			// The dates move to the y axis with the orientation, so the tooltip has
+			// to follow them the way the ticks do.
+			const { tooltip } = renderHook( () =>
+				useBarChartOptions(
+					[
+						{
+							label: 'Series A',
+							data: [ { date: new Date( 2024, 0, 1, 13 ), value: 10 } ],
+							options: {},
+						},
+					],
+					true,
+					{ axis: { y: { tickResolution: 'hour' } } }
+				)
+			).result.current;
+
+			expect( tooltip.labelFormatter( new Date( 2024, 0, 1, 13 ).getTime(), 0, [] ) ).toMatch(
+				/^January 1, 2024 at 1\sPM$/
+			);
+		} );
+
+		test( 'lets an explicit tickFormat override the resolution-derived label', () => {
+			const { tooltip } = optionsFor(
+				[
+					{
+						label: 'Series A',
+						data: Array.from( { length: 24 }, ( _, i ) => ( {
+							date: new Date( 2024, i, 1 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+				{
+					axis: {
+						x: {
+							tickResolution: 'month',
+							tickFormat: ( timestamp: number ) =>
+								new Date( timestamp ).toLocaleDateString( 'en-US', { dateStyle: 'short' } ),
+						},
+					},
+				}
+			);
+
+			expect( tooltip.labelFormatter( new Date( 2025, 2, 1 ).getTime(), 0, [] ) ).toBe( '3/1/25' );
+		} );
+
+		test( 'names the hovered bar bucket in the rendered tooltip', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				withTooltips: true,
+				data: [
+					{
+						label: 'Series A',
+						data: Array.from( { length: 24 }, ( _, i ) => ( {
+							date: new Date( 2024, i, 1 ),
+							value: 10 + i,
+						} ) ),
+						options: {},
+					},
+				],
+			} );
+
+			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			// The month tick reads "2024" here; the tooltip names the bucket itself.
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'January 2024: 10' );
+		} );
+	} );
+
 	describe( 'Pattern', () => {
 		test( 'renders with patterns', () => {
 			renderWithTheme( { withPatterns: true } );
@@ -288,6 +996,85 @@ describe( 'BarChart', () => {
 			} );
 		} );
 
+		describe( 'Activation', () => {
+			const SERIES_A = {
+				label: 'Series A',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 10 },
+					{ date: new Date( '2024-01-02' ), value: 20 },
+				],
+				options: {},
+			};
+			const SERIES_B = {
+				label: 'Series B',
+				data: [
+					{ date: new Date( '2024-01-01' ), value: 15 },
+					{ date: new Date( '2024-01-02' ), value: 25 },
+				],
+				options: {},
+			};
+
+			test( 'Enter hands the selected bar to onDatumActivate', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledTimes( 1 );
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_A.data[ 1 ],
+					index: 1,
+					key: 'Series A',
+				} );
+			} );
+
+			test( 'Space activates the selected bar too', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}[Space]' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_A.data[ 0 ],
+					index: 0,
+					key: 'Series A',
+				} );
+			} );
+
+			// The navigation index strides series-major within each data point, the
+			// order the highlight outlines bars in, so the second stop is the second
+			// series' first bar.
+			test( 'walks the series at each data point before the next point', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { withTooltips: true, data: [ SERIES_A, SERIES_B ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_B.data[ 0 ],
+					index: 0,
+					key: 'Series B',
+				} );
+			} );
+
+			test( 'Enter with no bar selected activates nothing', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{Enter}' );
+
+				expect( onDatumActivate ).not.toHaveBeenCalled();
+			} );
+		} );
+
 		describe( 'Arrow Key Navigation', () => {
 			test( 'right arrow key navigates to next data point', async () => {
 				const user = userEvent.setup();
@@ -331,6 +1118,64 @@ describe( 'BarChart', () => {
 				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
 				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
 				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'keeps the tooltip open once the chart re-renders under it', async () => {
+				// visx hides its tooltip on a debounce and cancels only the most recently
+				// scheduled hide, so anything that re-runs the tooltip effect while nothing
+				// is shown leaves a hide pending that lands on the next tooltip. Seeding a
+				// hidden series re-renders the chart right after mount, which is exactly
+				// that shape.
+				jest.useFakeTimers();
+
+				try {
+					const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+					renderWithTheme( {
+						withTooltips: true,
+						defaultHiddenSeries: [ 'Series B' ],
+						data: [
+							{
+								label: 'Series A',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+									{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+								],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+									{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+								],
+								options: {},
+							},
+						],
+					} );
+
+					const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+					chart.focus();
+
+					await user.keyboard( '{ArrowRight}' );
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+
+					// Well past any pending hide.
+					await act( async () => {
+						jest.advanceTimersByTime( 5000 );
+					} );
+
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toBeInTheDocument();
+
+					// Leaving navigation still closes it.
+					await user.keyboard( '{Escape}' );
+					await act( async () => {
+						jest.advanceTimersByTime( 5000 );
+					} );
+
+					expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				} finally {
+					jest.useRealTimers();
+				}
 			} );
 
 			test( 'left arrow key navigates to previous data point', async () => {
@@ -1193,6 +2038,316 @@ describe( 'BarChart', () => {
 			expect(
 				screen.getByText( /all series are hidden.*click legend items to show data/i )
 			).toBeInTheDocument();
+		} );
+
+		it( 'drops the value-axis ticks when all series are hidden so the axes do not collapse', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				gridVisibility: 'both',
+				legend: { interactive: true },
+				chartId: 'test-hidden-axes-bar-chart',
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// The value axis renders numeric tick labels while there is data to scale against.
+			// (Series labels carry no digits and the empty-state message is text-only, so a bare
+			// number can only be an axis tick.)
+			const numericTick = /^[\d,]+$/;
+			expect( screen.getAllByText( numericTick ).length ).toBeGreaterThan( 0 );
+
+			const legendItems = screen.getAllByRole( 'button' );
+			await user.click( legendItems[ 0 ] );
+			await user.click( legendItems[ 1 ] );
+
+			// With no visible data the value scale would collapse, so the axes are removed rather
+			// than rendered squished at the top — no tick labels remain.
+			expect( screen.queryAllByText( numericTick ) ).toHaveLength( 0 );
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
+
+		it( 'hides a series programmatically when the legend is not interactive', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<BarChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-bar"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-bar', 'Series A' );
+				context.toggleSeriesVisibility( 'test-programmatic-bar', 'Series B' );
+			} );
+
+			expect( screen.getByText( /all series are hidden/i ) ).toBeInTheDocument();
+		} );
+
+		it( 'omits the click instruction when the legend cannot be clicked', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<BarChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-empty-copy-bar"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-empty-copy-bar', 'Series A' );
+			} );
+
+			expect( screen.getByText( 'All series are hidden.' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /click legend items/i ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'still renders the other series when only one is hidden programmatically', () => {
+			// A test that hides every series would pass even if the chart still forced
+			// all series visible right up until `allSeriesHidden` short-circuited it —
+			// that shape of test masked a real bug in a sibling chart. Hiding exactly
+			// one of two series exercises the partial-hide render path: the bar count
+			// only drops to one if the hidden series' `BarSeries` is actually excluded
+			// from the `BarGroup`, not merely rendered with zero opacity.
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<BarChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-partial-bar"
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			// eslint-disable-next-line testing-library/no-node-access
+			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( svgElement?.querySelectorAll( '.visx-bar-group rect' ) ).toHaveLength( 2 );
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-partial-bar', 'Series B' );
+			} );
+
+			expect( screen.queryByText( /all series are hidden/i ) ).not.toBeInTheDocument();
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( svgElement?.querySelectorAll( '.visx-bar-group rect' ) ).toHaveLength( 1 );
+		} );
+	} );
+
+	describe( 'Legend group collapsing', () => {
+		const comparisonPair = [
+			{
+				label: 'Views',
+				group: 'views',
+				data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+			},
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+			},
+		];
+
+		it( 'renders one legend item per series by default', () => {
+			renderWithTheme( {
+				showLegend: true,
+				chartId: 'bar-legend-groups-default',
+				data: comparisonPair,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Views — previous' ) ).toBeInTheDocument();
+		} );
+
+		it( 'collapses a group to one item when legend.collapseGroups is set', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legend: { collapseGroups: true },
+				chartId: 'bar-legend-groups-collapsed',
+				data: comparisonPair,
+			} );
+
+			expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Views — previous' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'toggles only the clicked series when interactive without collapseGroups', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'bar-legend-groups-interactive',
+				data: comparisonPair,
+			} );
+
+			const buttons = screen.getAllByRole( 'button' );
+			await user.click( buttons[ 0 ] );
+
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect( buttons[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'toggles the whole group when interactive with collapseGroups', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legend: { interactive: true, collapseGroups: true },
+				chartId: 'bar-legend-groups-interactive-collapsed',
+				data: comparisonPair,
+			} );
+
+			const buttons = screen.getAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 1 );
+
+			await user.click( buttons[ 0 ] );
+
+			expect( buttons[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'defaultHiddenSeries', () => {
+		it( 'renders a series hidden when named in defaultHiddenSeries', () => {
+			render(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-default-hidden-bar"
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const items = screen.getAllByRole( 'button' );
+			expect( items[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+			expect( items[ 1 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'lets the user reveal a series seeded hidden', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-default-hidden-reveal-bar"
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ [
+							{
+								label: 'Series A',
+								data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			await user.click( screen.getAllByRole( 'button' )[ 1 ] );
+
+			expect( screen.getAllByRole( 'button' )[ 1 ] ).toHaveAttribute( 'aria-pressed', 'true' );
 		} );
 	} );
 } );

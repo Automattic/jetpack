@@ -1,9 +1,11 @@
 @use "@automattic/jetpack-base-styles/style";
 
+// Size, layout and elevation on top of @wordpress/ui's Card, which supplies the
+// surface itself (border radius, clipping, background).
 .jp-components__decorative-card {
-	display: flex;
-	border-radius: 8px;
-	overflow: hidden;
+	--wp-ui-card-padding: 2rem;
+
+	border: 0;
 	box-shadow: 0 0 15px var(--jp-gray);
 	position: relative;
 	width: 360px;
@@ -36,7 +38,6 @@
 
 	&__content {
 		background: #fff;
-		padding: 2rem;
 	}
 
 	&__icon-container {
@@ -51,47 +52,30 @@
 	}
 
 	&__icon {
-		width: 40px;
-		height: 40px;
 		position: absolute;
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		background-position: center, center;
-		background-repeat: no-repeat;
-
-		&--unlink {
-			background-image: url('data:image/svg+xml,<svg width="34" height="37" viewBox="0 0 34 37" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.3335 10.001H25.0002C29.4184 10.001 33.0002 13.5827 33.0002 18.001V19.7788C33.0002 24.197 29.4184 27.7788 25.0002 27.7788H22.3335" stroke="white" stroke-width="1.5" stroke-linecap="square"/> <path d="M11.6675 27.7783L9.00082 27.7783C4.58254 27.7783 1.00081 24.1966 1.00081 19.7783L1.00081 18.0005C1.00081 13.5823 4.58253 10.0005 9.00081 10.0005L11.6675 10.0005" stroke="white" stroke-width="1.5" stroke-linecap="square"/> <path d="M10.9998 19.167L16.9998 19.167" stroke="white" stroke-width="1.5"/> <path d="M8.99951 35.998L24.9995 0.998048" stroke="white"/> </svg>');
-		}
 	}
 
-	&__lines {
-		display: block;
+	// The column direction and the 16px gap between bars come from the `Stack`
+	// wrapping them.
+	&__line {
 		width: 100%;
 		height: 12px;
 		border-radius: 6px;
 		background: #e9eff5;
-		position: relative;
 
-		&::before,
-		&::after {
-			content: "";
-			display: block;
-			width: 100%;
-			height: 12px;
-			border-radius: 6px;
-			background: #e9eff5;
-			position: relative;
-			top: calc(100% + 16px);
-		}
-
-		&::after {
-			top: calc(100% + 32px);
+		&--short {
 			width: 75%;
 		}
 	}
 
 	// Variants
+	&--horizontal {
+		flex-direction: row;
+	}
+
 	&--vertical {
 		flex-direction: column;
 
@@ -103,14 +87,11 @@
 
 		.jp-components__decorative-card__lines {
 			max-width: 135px;
-			margin-left: auto;
-			margin-right: auto;
+			margin-inline: auto;
+		}
 
-			&::before,
-			&::after {
-				margin-left: auto;
-				margin-right: auto;
-			}
+		.jp-components__decorative-card__line {
+			margin-inline: auto;
 		}
 	}
 }

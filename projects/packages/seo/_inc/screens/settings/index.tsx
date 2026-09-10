@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -10,6 +11,7 @@ import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import UpsellBanner from '../../components/upsell-banner';
 import { isGated } from '../../data/is-gated';
+import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
@@ -33,6 +35,16 @@ const sitemapHelp = __(
 // search engines are discouraged, so the toggle is disabled until that's lifted.
 const sitemapBlockedHelp = __(
 	'Allow search engines to index this site to generate a sitemap.',
+	'jetpack-seo'
+);
+const indexingHelp = __(
+	'Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.',
+	'jetpack-seo'
+);
+// Shown when the site is unpublished: on WordPress.com a private or coming-soon
+// site isn't hidden from search by a setting, so no SEO toggle can reveal it.
+const indexingPrivateHelp = __(
+	'Your site is private, so search engines cannot see it at all. Make it public in your site visibility settings to change this.',
 	'jetpack-seo'
 );
 const sitemapViewLabel = __( 'View sitemap', 'jetpack-seo' );
@@ -178,6 +190,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						help={ frontPageHelp }
 						value={ local.front_page_description }
 						onChange={ next => setField( { front_page_description: next } ) }
+						maxLength={ 300 }
 						rows={ 3 }
 						disabled={ isSaving }
 						__nextHasNoMarginBottom
@@ -222,13 +235,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						<Stack direction="column" gap="lg">
 							<ToggleControl
 								label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
-								help={ __(
-									'Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.',
-									'jetpack-seo'
-								) }
+								help={ local.site_is_private ? indexingPrivateHelp : indexingHelp }
 								checked={ local.search_engines_visible }
 								onChange={ next => commit( { search_engines_visible: next } ) }
-								disabled={ isSaving }
+								// A private site is unpublished, not de-indexed. Turning this on would
+								// have to publish it, which is not this surface's decision to make.
+								disabled={ isSaving || local.site_is_private }
 								__nextHasNoMarginBottom
 							/>
 							<Stack direction="column" gap="xs">
@@ -262,6 +274,8 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			<div id="verification" className={ styles.section }>
 				<VerificationCard
 					value={ local.verification }
+					active={ local.verification_tools_active }
+					onToggle={ next => commit( { verification_tools_active: next } ) }
 					onChange={ setVerification }
 					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }
@@ -318,6 +332,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
 						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
 						titleSeparator={ local.title_separator }
+						editable={ local.title_formats_editable }
 						disabled={ isSaving }
 					/>
 
@@ -335,6 +350,13 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ frontPageDescriptionCard }
 				</div>
 			) }
+			{ /* Higher-risk settings last, after everything routine. Hidden on
+			   WordPress.com Simple, where `Modules::is_active()` reports every module
+			   active regardless of stored state, so turning SEO tools off would appear
+			   to do nothing. Outside the `gated` branch: a gated site still has the
+			   module and can still switch it off. */ }
+			{ ! isSimpleSite() && <AdvancedCard /> }
+
 			{ /* Not dismissible, so it sits below the settings rather than pushing them
 			   down; the Stack's lg gap keeps space between it and the last section. */ }
 			{ gated && <UpsellBanner /> }

@@ -105,6 +105,7 @@ describe( 'SearchResultsEdit', () => {
 				[ [ 'jetpack-search/results-count' ], [ 'jetpack-search/results-sort' ] ],
 			],
 			[ 'jetpack-search/results-list' ],
+			[ 'jetpack-search/no-results' ],
 			[ 'jetpack-search/results-load-more' ],
 			[ 'jetpack-search/powered-by' ],
 		] );
@@ -113,6 +114,7 @@ describe( 'SearchResultsEdit', () => {
 			'jetpack-search/results-count',
 			'jetpack-search/results-sort',
 			'jetpack-search/results-list',
+			'jetpack-search/no-results',
 			'jetpack-search/results-load-more',
 			'jetpack-search/powered-by',
 		] );

@@ -31,6 +31,8 @@ import FilterWcStockStatusEdit from '../blocks/filter-wc-stock-status/edit';
 import FiltersEdit, { save as filtersSave } from '../blocks/filters/edit';
 import FiltersPopoverEdit, { save as filtersPopoverSave } from '../blocks/filters-popover/edit';
 import FiltersProductEdit, { save as filtersProductSave } from '../blocks/filters-product/edit';
+import NoResultsEdit, { save as noResultsSave } from '../blocks/no-results/edit';
+import NoResultsSlotEdit, { save as noResultsSlotSave } from '../blocks/no-results/slot/edit';
 import PoweredByEdit from '../blocks/powered-by/edit';
 import ResultsCountEdit from '../blocks/results-count/edit';
 import ResultsListEdit from '../blocks/results-list/edit';
@@ -51,6 +53,8 @@ const BLOCKS = [
 	[ 'jetpack-search/ai-answer', AiAnswerEdit ],
 	[ 'jetpack-search/search-input', SearchInputEdit ],
 	[ 'jetpack-search/results-list', ResultsListEdit ],
+	[ 'jetpack-search/no-results', NoResultsEdit, noResultsSave ],
+	[ 'jetpack-search/no-results-slot', NoResultsSlotEdit, noResultsSlotSave ],
 	[ 'jetpack-search/filter-checkbox', FilterCheckboxEdit ],
 	[ 'jetpack-search/filter-date', FilterDateEdit ],
 	[ 'jetpack-search/active-filters', ActiveFiltersEdit ],

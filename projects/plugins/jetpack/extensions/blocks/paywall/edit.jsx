@@ -1,10 +1,15 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
-import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	InspectorControls,
+	useBlockProps,
+	store as blockEditorStore,
+} from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon, people, check } from '@wordpress/icons';
 import ConnectBanner from '../../shared/components/connect-banner';
@@ -14,22 +19,25 @@ import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
 import useIsUserConnected from '../../shared/use-is-user-connected';
 
-function PaywallEdit() {
+function PaywallEdit( { clientId } ) {
 	const blockProps = useBlockProps();
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
 	const isUserConnected = useIsUserConnected();
 	const setAccess = useSetAccess();
+	const { getBlock } = useSelect( blockEditorStore );
 
-	// Add cleanup effect to reset access level when paywall is removed
+	// useSetAccess returns a new function every render; the ref keeps the cleanup on unmount only.
+	const setAccessRef = useRef( setAccess );
+	setAccessRef.current = setAccess;
 	useEffect( () => {
-		// This function will run when the component unmounts
+		// Reset access level to "everybody" when the paywall block is removed.
 		return () => {
-			// Reset access level to "everybody" when the paywall block is removed
-			setAccess( accessOptions.everybody.key );
+			if ( ! getBlock( clientId ) ) {
+				setAccessRef.current( accessOptions.everybody.key );
+			}
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [ clientId, getBlock ] );
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -43,7 +51,8 @@ function PaywallEdit() {
 	const closeDialog = () => setShowDialog( false );
 
 	useEffect( () => {
-		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
+		// Change the access level from "everybody" to "subscribers" if the user adds a paywall block to a post.
+		if ( accessLevel === accessOptions.everybody.key ) {
 			setAccess( accessOptions.subscribers.key );
 		}
 	}, [ accessLevel, setAccess ] );
@@ -150,11 +159,13 @@ function PaywallEdit() {
 					initialOpen={ true }
 				>
 					<NewsletterAccessRadioButtons
-						isEditorPanel={ true }
 						accessLevel={ _accessLevel }
 						stripeConnectUrl={ stripeConnectUrl }
 						hasTierPlans={ hasTierPlans }
 						postHasPaywallBlock={ true }
+						// The block card above this panel already explains the paywall, so the
+						// notice would only repeat the heading it sits under.
+						explainPaywallConstraint={ false }
 					/>
 				</PanelBody>
 			</InspectorControls>

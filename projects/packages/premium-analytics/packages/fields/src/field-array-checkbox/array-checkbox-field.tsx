@@ -1,17 +1,17 @@
 /**
  * WordPress dependencies
  */
+import { Button, Fieldset, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { CheckboxControl, privateApis, Spinner } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { chevronDown } from '@wordpress/icons';
-import { Button, Fieldset, Icon, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import useElements from '../helpers/use-elements';
 import { unlock } from '../lock/unlock';
 import styles from './array-checkbox-field.module.css';
-import type { DataFormControlProps } from '@wordpress/dataviews';
+import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 
 const { Menu } = unlock( privateApis );
 

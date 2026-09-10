@@ -2,6 +2,10 @@
  * Shared dashboard constants (JS/TS).
  */
 import { __ } from '@wordpress/i18n';
+/**
+ * Types
+ */
+import type { QueryParams } from './inbox/stage/types.tsx';
 
 /**
  * All form status filter values, including the virtual "all" filter.
@@ -51,3 +55,84 @@ export function getFormStatusLabel( status: string ): string {
 			return status;
 	}
 }
+
+/**
+ * The response lists, named as the `/responses/$view` route segment names them.
+ */
+export const RESPONSE_VIEWS = [ 'inbox', 'spam', 'trash' ] as const;
+
+export type ResponseView = ( typeof RESPONSE_VIEWS )[ number ];
+
+/**
+ * The REST `status` value behind each response list.
+ *
+ * `inbox` spans two post statuses, which is why this can't be an identity
+ * mapping and why the literal `'draft,publish'` kept being rewritten by hand.
+ */
+export const RESPONSE_STATUS_BY_VIEW: Record< ResponseView, string > = {
+	inbox: 'draft,publish',
+	spam: 'spam',
+	trash: 'trash',
+};
+
+/**
+ * The REST `status` for a `/responses/$view` segment, defaulting to the inbox.
+ *
+ * @param view - The route segment, which is unvalidated URL input.
+ * @return The status filter to send.
+ */
+export function getResponseStatusFilter( view: string | undefined | null ): string {
+	// Membership is checked against the list rather than by indexing the map,
+	// because a bare lookup also finds inherited members — `?view=constructor`
+	// would resolve to `Object` and put a function into the REST query args.
+	return isResponseView( view ) ? RESPONSE_STATUS_BY_VIEW[ view ] : RESPONSE_STATUS_BY_VIEW.inbox;
+}
+
+/**
+ * Whether a value names one of the response lists.
+ *
+ * @param view - Unvalidated input, typically from the URL.
+ * @return Whether it is a known list.
+ */
+export function isResponseView( view: unknown ): view is ResponseView {
+	return RESPONSE_VIEWS.includes( view as ResponseView );
+}
+
+/**
+ * The response list a REST `status` filter belongs to.
+ *
+ * The inverse of {@link getResponseStatusFilter}, used to send a reader back to
+ * the list a response was opened from.
+ *
+ * @param status - The REST status filter.
+ * @return The matching route segment.
+ */
+export function getResponseViewForStatus( status: string | undefined ): ResponseView {
+	return RESPONSE_VIEWS.find( view => RESPONSE_STATUS_BY_VIEW[ view ] === status ) ?? 'inbox';
+}
+
+/**
+ * How many responses a list loads at a time.
+ *
+ * Shared so the responses list and anything reproducing its query agree. They
+ * must: `@wordpress/core-data` slices a query's results to `per_page` (defaulting
+ * to 10), so a query that omits it silently sees a shorter sequence than the list
+ * the reader is looking at.
+ */
+export const RESPONSES_PER_PAGE = 20;
+
+/**
+ * The query the responses list issues when nothing is filtered, searched or sorted.
+ *
+ * Frozen because it is handed out by reference (`getPinnedView` returns it as-is
+ * when no view is pinned), so a caller that mutated the query it received would
+ * corrupt the default for every later reader.
+ */
+export const DEFAULT_RESPONSES_QUERY: QueryParams = Object.freeze( {
+	status: RESPONSE_STATUS_BY_VIEW.inbox,
+	per_page: RESPONSES_PER_PAGE,
+	page: 1,
+	orderby: 'date',
+	order: 'desc',
+	fields_format: 'collection',
+} );

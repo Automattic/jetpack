@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-
-/**
  * Internal dependencies
  */
 import { fetchReportOrderAttributionSummary, fetchReportOrderAttributionByProduct } from '../api';
@@ -12,6 +8,7 @@ import {
 	type SanitizedOrderAttributionSummaryResponse,
 } from '../processing/order-attribution';
 import { hasProductFilters } from '../utils/product-filters';
+import { resolveReportTimeZone } from '../utils/report-timezone';
 import type { FilterCondition } from '../types/filter-condition';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
@@ -22,10 +19,8 @@ type ReportOrderAttributionSummaryParams = Parameters<
 };
 
 /**
- * Creates a query key for order attribution queries.
- *
- * Note: All comparison parameters are included in the query key because
- * order attribution returns both primary and comparison data in a single response.
+ * The comparison parameters belong in the query key: order attribution returns both
+ * primary and comparison data in a single response.
  */
 const getReportOrderAttributionQueryKey = ( params: ReportOrderAttributionSummaryParams ) =>
 	[
@@ -42,42 +37,32 @@ const getReportOrderAttributionQueryKey = ( params: ReportOrderAttributionSummar
 	] as const;
 
 /**
- * React Query configuration for order attribution summary data.
+ * Unlike other report queries, order attribution includes comparison data in the
+ * PRIMARY response, so `use-report`'s comparison query is a disabled no-op here.
  *
- * This query is designed to be used with `use-report` hook, which provides
- * standardized loading states and comparison handling.
- *
- * Important architectural notes:
- * - Unlike other report queries, order attribution includes comparison data in the
- *   PRIMARY response, not in a separate comparison query
- * - When used with `use-report`, the comparison query is disabled (it's a no-op)
- * - This query supports two API endpoints:
- *   1. Regular order-attribution API: Returns both periods in a single response
- *   2. By-product API: Fetches periods separately, then normalizes to match (1)
- *
- * @param params - Query parameters including date ranges and optional filters
- * @return React Query options with query key, fetch function, and enabled state
+ * Two API endpoints back this:
+ * 1. Regular order-attribution API: returns both periods in a single response.
+ * 2. By-product API: fetches the periods separately, then normalizes to match (1).
  */
 export function reportOrderAttributionSummaryQuery(
 	params: ReportOrderAttributionSummaryParams
 ): UseQueryOptions< SanitizedOrderAttributionSummaryResponse > {
+	const timezone = resolveReportTimeZone();
+
 	return {
-		queryKey: getReportOrderAttributionQueryKey( params ),
+		queryKey: [ ...getReportOrderAttributionQueryKey( params ), timezone ],
 		queryFn: async () => {
 			const hasProductFiltersValue = hasProductFilters( params.filters );
 
-			// Choose API based on whether product filters are present
 			if ( hasProductFiltersValue ) {
-				// By-product API path: Fetch primary and comparison periods in parallel
+				// By-product API path: the comparison period is a second request.
 				const { compare_from, compare_to } = params;
 
-				// Determine if we need to fetch comparison period
 				const shouldFetchComparison =
 					compare_from &&
 					compare_to &&
 					( compare_from !== params.from || compare_to !== params.to );
 
-				// Fetch both periods in parallel for better performance
 				const [ currentResponse, previousResponse ] = await Promise.all( [
 					fetchReportOrderAttributionByProduct( {
 						from: params.from,
@@ -99,30 +84,23 @@ export function reportOrderAttributionSummaryQuery(
 						: Promise.resolve( undefined ),
 				] );
 
-				// Normalize to match the regular API structure (includes both periods)
+				// Normalize to the regular API's shape, which nests both periods.
 				const normalizedResponse = normalizeOrderAttributionByProductResponse(
 					currentResponse,
 					previousResponse
 				);
 
-				return sanitizeReportOrderAttributionSummaryResponse( normalizedResponse );
+				return sanitizeReportOrderAttributionSummaryResponse( normalizedResponse, timezone );
 			}
 
 			// Regular API path: Returns both primary and comparison in one response
 			const response = await fetchReportOrderAttributionSummary( params );
-			return sanitizeReportOrderAttributionSummaryResponse( response );
+			return sanitizeReportOrderAttributionSummaryResponse( response, timezone );
 		},
 
-		/**
-		 * Enable the query only when all required parameters are present.
-		 * The 'view' parameter is required for order attribution queries.
-		 */
+		// `view` is required by the order attribution endpoints.
 		enabled: !! ( params.from && params.to && params.interval && params.view ),
 
-		/**
-		 * Keep previous data while fetching to prevent flash of empty state.
-		 * This provides a smoother user experience during data refetching.
-		 */
 		placeholderData: previousData => previousData,
 	};
 }

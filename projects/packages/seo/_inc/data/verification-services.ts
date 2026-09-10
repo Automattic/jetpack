@@ -18,3 +18,14 @@ export const VERIFICATION_SERVICES: ReadonlyArray< { key: VerificationKey; label
 export const VERIFICATION_KEYS: readonly VerificationKey[] = VERIFICATION_SERVICES.map(
 	service => service.key
 );
+
+// The services broadly relevant wherever a site is in the world. The Overview
+// card leads with these so its summary isn't padded out with rows most sites will
+// never use; the Settings module still offers all five, and any of the five still
+// completes verification on its own. Not a judgement about the other services —
+// purely which ones earn a permanent row on a dashboard summary.
+export const PRIMARY_VERIFICATION_KEYS: readonly VerificationKey[] = [
+	'google',
+	'bing',
+	'facebook',
+];

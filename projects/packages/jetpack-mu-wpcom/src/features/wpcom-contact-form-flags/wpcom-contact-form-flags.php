@@ -2,8 +2,16 @@
 /**
  * WordPress.com Contact Form feature flags.
  *
- * Controls the Central Forms Management rollout and disables the integrations
- * tab on WordPress.com sites. Works on both Simple and Atomic infrastructure.
+ * Central Forms Management is enabled for every WordPress.com site, so nothing here
+ * gates it any more. The `disable-central-forms-management` sticker is retired: it
+ * was a rollback valve for the CFM rollout, and there is no longer anything to roll
+ * back to. Every function below is kept and deprecated, so existing callers do not
+ * fatal; none of them is wired to anything.
+ *
+ * With no filter on `jetpack_block_editor_feature_flags` from here, the
+ * `central-form-management` flag falls through to the Forms package default, which
+ * is true — see Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block::register_central_form_management_default()
+ * in `packages/forms`, which this package does not depend on.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -14,11 +22,17 @@
  * Uses the appropriate sticker API depending on whether the site is
  * Simple (has_blog_sticker) or Atomic (wpcomsh_is_site_sticker_active).
  *
+ * Served the retired gating, and has no callers left.
+ *
+ * @deprecated $$next-version$$ The gating it served is retired.
+ *
  * @param string $sticker The sticker name to check.
  * @param int    $blog_id The blog ID to check.
  * @return bool
  */
 function wpcom_forms_has_blog_sticker( $sticker, $blog_id ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$' );
+
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 		return (bool) wpcomsh_is_site_sticker_active( $sticker );
 	} elseif ( function_exists( 'has_blog_sticker' ) ) {
@@ -31,56 +45,40 @@ function wpcom_forms_has_blog_sticker( $sticker, $blog_id ) {
 /**
  * Check if Central Forms Management is enabled for a given blog.
  *
- * Enabled for all WordPress.com sites except e2e test sites.
+ * @deprecated $$next-version$$ Central Forms Management is enabled for every site.
  *
- * @param int|null $blog_id Blog ID. Defaults to the current WP.com blog ID.
- * @return bool
+ * @param int|null $blog_id Blog ID. Unused.
+ * @return bool Always true.
  */
-function wpcom_is_central_forms_management_enabled( $blog_id = null ) {
-	if ( null === $blog_id ) {
-		$blog_id = function_exists( 'get_wpcom_blog_id' ) ? get_wpcom_blog_id() : get_current_blog_id();
-	}
-
-	// Exclude e2e test sites — their tests aren't ready for CFM yet.
-	if ( wpcom_forms_has_blog_sticker( 'a8c-e2e-test-blog', $blog_id ) ) {
-		return false;
-	}
-
-	// Allow disabling CFM for individual sites via blog sticker.
-	if ( wpcom_forms_has_blog_sticker( 'disable-central-forms-management', $blog_id ) ) {
-		return false;
-	}
+function wpcom_is_central_forms_management_enabled( $blog_id = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature kept for existing callers.
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$' );
 
 	return true;
 }
 
 /**
- * Disable Central Forms Management for excluded WordPress.com sites.
+ * No-op kept so existing callers do not fatal.
  *
- * CFM is now enabled by default in the Forms package. This function
- * explicitly disables it for sites that should be excluded (e2e test
- * sites, sites with the disable-central-forms-management sticker).
- *
- * Called immediately on file load since this file is required during
- * plugins_loaded (priority 10) inside load_wpcom_sites_features().
+ * @deprecated $$next-version$$ Nothing disables Central Forms Management any more.
  */
 function wpcom_maybe_disable_central_forms_management() {
-	if ( wpcom_is_central_forms_management_enabled() ) {
-		return;
-	}
-
-	add_filter( 'jetpack_forms_alpha', '__return_false', 999 );
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$' );
 }
-wpcom_maybe_disable_central_forms_management();
 
 /**
- * Set the 'central-form-management' block editor feature flag.
+ * Pass-through kept so existing callers do not fatal.
+ *
+ * Previously set the `central-form-management` block editor feature flag. No longer
+ * hooked: the Forms package already defaults the flag to true, so filtering here only
+ * ever restated the default.
+ *
+ * @deprecated $$next-version$$ The Forms package supplies the default.
  *
  * @param array $flags Existing feature flags.
- * @return array Modified feature flags.
+ * @return array Flags, unchanged.
  */
 function wpcom_contact_form_set_editor_feature_flags( $flags ) {
-	$flags['central-form-management'] = wpcom_is_central_forms_management_enabled();
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$' );
+
 	return $flags;
 }
-add_filter( 'jetpack_block_editor_feature_flags', 'wpcom_contact_form_set_editor_feature_flags', 1000 );

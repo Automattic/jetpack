@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Tests: fold the Verbum paragraph-class detection into a single WordPress 7.0 expectation.
+
+

@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import { withoutComparison, type ReportParams } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../widget-root';
 import { ReportLink } from '../report-link';
-import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 
 type MockRouteLinkProps = {
@@ -60,13 +60,16 @@ const mockUseWidgetRootContext = jest.mocked( useWidgetRootContext );
 
 describe( 'ReportLink', () => {
 	beforeEach( () => {
-		mockUseWidgetRootContext.mockReturnValue( { reportParams: REPORT_PARAMS } );
+		mockUseWidgetRootContext.mockReturnValue( {
+			reportParams: withoutComparison( REPORT_PARAMS ),
+			navigationParams: REPORT_PARAMS,
+		} );
 	} );
 
 	it( 'links to the report with shared date params and no page-owned params', () => {
 		render( <ReportLink report="posts" /> );
 
-		const link = screen.getByRole( 'link', { name: 'See report' } );
+		const link = screen.getByRole( 'link', { name: 'View all' } );
 		const href = link.getAttribute( 'href' ) ?? '';
 		const search = new URL( href, 'https://example.com' ).searchParams;
 
@@ -82,6 +85,14 @@ describe( 'ReportLink', () => {
 		expect( search.get( 'date_type' ) ).toBe( 'created' );
 		expect( search.has( 'period' ) ).toBe( false );
 		expect( search.has( 'section' ) ).toBe( false );
+	} );
+
+	it( 'renders through the design system link so it inherits the brand tone', () => {
+		render( <ReportLink report="posts" className="custom-link" /> );
+
+		const link = screen.getByRole( 'link', { name: 'View all' } );
+		expect( link ).toHaveClass( /is-brand/ );
+		expect( link ).toHaveClass( 'custom-link' );
 	} );
 
 	it( 'appends a section and renders custom visible and accessible labels', () => {

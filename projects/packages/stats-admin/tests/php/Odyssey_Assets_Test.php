@@ -32,7 +32,7 @@ class Odyssey_Assets_Test extends Stats_TestCase {
 	 */
 	public function test_odyssey_style_declares_wp_components_dependency() {
 		$this->reset_wp_styles();
-		wp_register_style( 'wp-components', false );
+		wp_register_style( 'wp-components', false, array(), 'irrelevant' );
 		$this->assertFalse( wp_style_is( 'wp-components', 'enqueued' ) );
 
 		// An asset name with no dist/ file forces the CDN branch regardless of what's on disk.

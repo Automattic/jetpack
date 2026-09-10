@@ -61,14 +61,22 @@ class User_Account_Status {
 	 * @return bool Whether there is a possible account mismatch.
 	 */
 	public function possible_account_mismatch( $current_user_email, $wpcom_user_email ) {
-		// If emails are the same or there's no WPCOM email, there's no mismatch.
-		if ( $current_user_email === $wpcom_user_email || ! $wpcom_user_email ) {
+		if ( ! $wpcom_user_email ) {
 			return false;
 		}
 
-		// Generate transient key with both wpcom email and user ID if available.
-		$transient_key  = 'jetpack_account_mismatch_';
-		$transient_key .= md5( $wpcom_user_email );
+		$normalized_wpcom_email = self::normalize_email( $wpcom_user_email );
+
+		// WordPress.com preserves the casing an address was registered with, while WordPress
+		// stores addresses lowercased, so the two can represent the same address. Compare them
+		// case-insensitively, the same way the get_user_by() lookup below matches.
+		if ( self::normalize_email( $current_user_email ) === $normalized_wpcom_email ) {
+			return false;
+		}
+
+		// The result depends only on the WordPress.com address, so it is cached per address
+		// rather than per user.
+		$transient_key = 'jetpack_account_mismatch_' . md5( $normalized_wpcom_email );
 
 		$cached_result = get_transient( $transient_key );
 
@@ -110,7 +118,20 @@ class User_Account_Status {
 			return;
 		}
 
-		$transient_key = 'jetpack_account_mismatch_' . md5( $email );
+		$transient_key = 'jetpack_account_mismatch_' . md5( self::normalize_email( $email ) );
 		delete_transient( $transient_key );
+	}
+
+	/**
+	 * Normalize an email address so that addresses differing only in case are treated as equal.
+	 *
+	 * @since 8.10.3
+	 *
+	 * @param string $email The email address to normalize.
+	 *
+	 * @return string The normalized email address.
+	 */
+	private static function normalize_email( $email ) {
+		return strtolower( trim( (string) $email ) );
 	}
 }

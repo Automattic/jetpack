@@ -1,8 +1,8 @@
-import { act, render, renderHook, screen } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useXZoom, ZoomResetButton } from '../index';
-import type { SingleChartRef } from '../../single-chart-context';
+import type { ChartInstanceRef } from '../../chart-instance-context';
 import type { EventHandlerParams } from '@visx/xychart';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
@@ -23,7 +23,7 @@ const makeChartRef = (
 			getScales: () => ( scale ? { xScale: scale, yScale: scale } : null ),
 			getChartDimensions: () => ( { width: 0, height: 0, margin: {} } ),
 		},
-	} ) as unknown as ReturnType< typeof useRef< SingleChartRef > >;
+	} ) as unknown as ReturnType< typeof useRef< ChartInstanceRef > >;
 
 const makeParams = ( x: number ): EventHandlerParams< object > =>
 	( {
@@ -147,17 +147,35 @@ const preventDefaultKeydown = ( event: ReactKeyboardEvent< HTMLDivElement > ) =>
 	event.preventDefault();
 
 describe( 'ZoomResetButton', () => {
-	test( 'renders a labelled button with a hover tooltip', () => {
+	test( 'renders a labelled button without a native title tooltip', () => {
 		const noop = jest.fn();
 		render( <ZoomResetButton onClick={ noop } /> );
 		const button = screen.getByTestId( 'chart-zoom-reset' );
 		expect( button.tagName ).toBe( 'BUTTON' );
 		expect( button ).toHaveClass( 'x-zoom__reset' );
 		expect( button ).toHaveAccessibleName( 'Reset zoom' );
-		// WPDS `IconButton` would supply a tooltip of its own, but it pulls in a
-		// CommonJS dependency that breaks Script Module consumers (see
-		// ZoomResetButton). `title` restores the hover hint on plain `Button`.
-		expect( button ).toHaveAttribute( 'title', 'Reset zoom' );
+		// IconButton renders a real tooltip, so the `title` fallback is gone —
+		// `title` is invisible to keyboard users and cannot be dismissed.
+		expect( button ).not.toHaveAttribute( 'title' );
+	} );
+
+	test( 'shows a tooltip on keyboard focus', async () => {
+		const noop = jest.fn();
+		render( <ZoomResetButton onClick={ noop } /> );
+		await userEvent.tab();
+		expect( screen.getByTestId( 'chart-zoom-reset' ) ).toHaveFocus();
+		// The button's only text is the tooltip's — its own label is an
+		// `aria-label` attribute, so this cannot match the trigger.
+		await expect( screen.findByText( 'Reset zoom' ) ).resolves.toBeVisible();
+	} );
+
+	test( 'dismisses the tooltip on Escape', async () => {
+		const noop = jest.fn();
+		render( <ZoomResetButton onClick={ noop } /> );
+		await userEvent.tab();
+		await expect( screen.findByText( 'Reset zoom' ) ).resolves.toBeVisible();
+		await userEvent.keyboard( '{Escape}' );
+		await waitFor( () => expect( screen.queryByText( 'Reset zoom' ) ).not.toBeInTheDocument() );
 	} );
 
 	test( 'fires onClick when activated', async () => {
@@ -165,6 +183,33 @@ describe( 'ZoomResetButton', () => {
 		render( <ZoomResetButton onClick={ onClick } /> );
 		await userEvent.click( screen.getByTestId( 'chart-zoom-reset' ) );
 		expect( onClick ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	test( 'leaves no orphaned tooltip when activation unmounts the button', async () => {
+		// Resetting the zoom unmounts this control while its tooltip is open.
+		// The tooltip renders in a portal outside the container, so a missed
+		// cleanup would strand it on the page rather than remove it with the
+		// button.
+		/**
+		 * Mirrors the host charts: the reset control exists only while zoomed.
+		 *
+		 * @return JSX element or null.
+		 */
+		function Host() {
+			const [ zoomed, setZoomed ] = useState( true );
+			const unzoom = useCallback( () => setZoomed( false ), [] );
+			return zoomed ? <ZoomResetButton onClick={ unzoom } /> : null;
+		}
+		render( <Host /> );
+		await userEvent.tab();
+		await expect( screen.findByText( 'Reset zoom' ) ).resolves.toBeVisible();
+
+		await userEvent.keyboard( '{Enter}' );
+
+		await waitFor( () =>
+			expect( screen.queryByTestId( 'chart-zoom-reset' ) ).not.toBeInTheDocument()
+		);
+		expect( document.body ).not.toHaveTextContent( 'Reset zoom' );
 	} );
 
 	test( 'keyboard activation survives the chart wrapper keydown handler', async () => {
