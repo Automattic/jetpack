@@ -32,8 +32,10 @@ const hasTimezone = ( dateString: string ): boolean => {
 
 // The wall clock, read off the string rather than back out of the parsed `Date`: date-fns
 // builds that with local setters, so a runtime zone whose own DST gap swallows the reading
-// hands back fields an hour out. Covers every naive shape in `formats` below.
-const NAIVE = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?)?$/;
+// hands back fields an hour out. Covers every naive shape in `formats` below, at the one to
+// N digits date-fns reads each field as; it takes a short fraction literally, so `.5` is 5ms.
+const NAIVE =
+	/^(\d{1,4})-(\d{1,2})-(\d{1,2})(?:[T ](\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d{1,3}))?)?)?$/;
 
 // `Date.UTC` reads a year below 100 as 1900 + year, which would silently re-date the first
 // century. `setUTCFullYear` has no such mapping.

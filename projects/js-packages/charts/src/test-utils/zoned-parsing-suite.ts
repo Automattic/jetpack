@@ -35,6 +35,11 @@ const CASES: Array< [ string, string, string ] > = [
 	// worth asserting, since Santiago deletes this local midnight and used to drag the
 	// answer an hour with it.
 	[ '2026-09-06', 'Asia/Tokyo', '2026-09-05T15:00:00.000Z' ],
+	// date-fns reads each field as one to N digits, so an unpadded string must land on the
+	// same instant as its padded twin. A one-digit fraction is 5ms to date-fns, not 500.
+	[ '2026-8-2', 'Asia/Tokyo', '2026-08-01T15:00:00.000Z' ],
+	[ '2026-08-02 9:30', 'Asia/Tokyo', '2026-08-02T00:30:00.000Z' ],
+	[ '2026-08-02T9:30:5.5', 'Asia/Tokyo', '2026-08-02T00:30:05.005Z' ],
 ];
 
 // A string carrying its own offset is already an instant, so the zone must not move it.
@@ -68,6 +73,7 @@ export const describeZonedParsing = () => {
 
 		it( 'keeps a year below 100 out of the 1900s', () => {
 			expect( parseAsLocalDate( '0099-08-02', 'Asia/Tokyo' ).getUTCFullYear() ).toBe( 99 );
+			expect( parseAsLocalDate( '99-08-02', 'Asia/Tokyo' ).getUTCFullYear() ).toBe( 99 );
 		} );
 
 		it( 'reads a naive string in the runtime zone when no zone is supplied', () => {
