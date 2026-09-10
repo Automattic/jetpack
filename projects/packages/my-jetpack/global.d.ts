@@ -473,6 +473,7 @@ type MainFeature = {
 	product: string;
 	module: string;
 	essential: boolean;
+	paid_highlights?: string[];
 	screenshot: string;
 	info_url: string;
 	docs_url: string;

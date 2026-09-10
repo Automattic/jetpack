@@ -1,5 +1,5 @@
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { check, chevronLeft, chevronRight } from '@wordpress/icons';
+import { check, chevronLeft, chevronRight, starFilled } from '@wordpress/icons';
 import { Badge, Button, Dialog, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
 import { getArrowStep } from './arrow-navigation';
@@ -124,18 +124,16 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 				<Dialog.Header>
 					<Stack direction="row" align="center" gap="md">
 						<FeatureIcon feature={ feature } />
-						<Stack direction="column" gap="xs">
+						<Stack direction="row" align="center" gap="sm" wrap="wrap">
 							<Dialog.Title>{ feature.name }</Dialog.Title>
-							<Stack direction="row" align="center" gap="sm" wrap="wrap">
-								<Badge intent={ isActive ? 'stable' : 'none' }>
-									{ isActive
-										? __( 'Active', 'jetpack-my-jetpack' )
-										: __( 'Inactive', 'jetpack-my-jetpack' ) }
-								</Badge>
-								{ feature.essential ? (
-									<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
-								) : null }
-							</Stack>
+							<Badge intent={ isActive ? 'stable' : 'none' }>
+								{ isActive
+									? __( 'Active', 'jetpack-my-jetpack' )
+									: __( 'Inactive', 'jetpack-my-jetpack' ) }
+							</Badge>
+							{ feature.essential ? (
+								<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
+							) : null }
 						</Stack>
 					</Stack>
 					<Dialog.CloseIcon />
@@ -161,6 +159,24 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 									</Stack>
 								</div>
 							) }
+
+							{ /* A paid-only feature's "What you get" is already the paid list, so this
+							     would only repeat it. Show it where there is a free tier to compare against. */ }
+							{ feature.paid_highlights?.length && state.action !== 'learn_more' ? (
+								<div className={ styles[ 'detail-highlights' ] }>
+									<Text variant="heading-md">
+										{ __( 'With a paid plan', 'jetpack-my-jetpack' ) }
+									</Text>
+									<Stack direction="column" gap="sm">
+										{ feature.paid_highlights.map( highlight => (
+											<Stack key={ highlight } direction="row" align="start" gap="sm">
+												<Icon icon={ starFilled } size={ 20 } />
+												<Text variant="body-md">{ highlight }</Text>
+											</Stack>
+										) ) }
+									</Stack>
+								</div>
+							) : null }
 
 							<FeatureLinks feature={ feature } isActive={ isActive } />
 						</Stack>
