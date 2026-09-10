@@ -849,6 +849,291 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertEquals( 'missing_line_items', $result->get_error_code() );
 	}
 
+	/**
+	 * Test that an update keeps the fields set outside the block form.
+	 *
+	 * A PUT replaces the whole resource at PayPal, so anything the route drops
+	 * here the merchant loses by pressing Update.
+	 */
+	public function test_update_keeps_fields_set_outside_the_form() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'                     => 'Widget',
+					'unit_amount'              => array(
+						'currency_code' => 'USD',
+						'value'         => '29.99',
+					),
+					'product_id'               => 'SKU-12345',
+					'shipping'                 => array(
+						array(
+							'type'                  => 'FLAT',
+							'value'                 => '5.00',
+							'additional_unit_value' => '2.00',
+						),
+					),
+					'handling'                 => array(
+						array(
+							'type'  => 'FLAT',
+							'value' => '4.00',
+						),
+					),
+					'discounts'                => array(
+						array(
+							'type'  => 'FLAT',
+							'value' => '2.00',
+						),
+					),
+					'collect_shipping_address' => false,
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$sent = $result->get_data()['line_items'][0];
+		$this->assertSame( 'SKU-12345', $sent['product_id'] );
+		$this->assertSame(
+			array(
+				'type'                  => 'FLAT',
+				'value'                 => '5.00',
+				'additional_unit_value' => '2.00',
+			),
+			$sent['shipping'][0]
+		);
+		$this->assertSame(
+			array(
+				'type'  => 'FLAT',
+				'value' => '4.00',
+			),
+			$sent['handling'][0]
+		);
+		$this->assertSame(
+			array(
+				'type'  => 'FLAT',
+				'value' => '2.00',
+			),
+			$sent['discounts'][0]
+		);
+		$this->assertFalse( $sent['collect_shipping_address'] );
+	}
+
+	/**
+	 * Test that an address-collecting payment stays one across an update.
+	 */
+	public function test_update_sends_address_collection_when_on() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'                     => 'Widget',
+					'unit_amount'              => array(
+						'currency_code' => 'USD',
+						'value'         => '29.99',
+					),
+					'collect_shipping_address' => true,
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertTrue( $result->get_data()['line_items'][0]['collect_shipping_address'] );
+	}
+
+	/**
+	 * Test that a zero amount survives an update.
+	 *
+	 * Zero-decimal currencies write a zero as "0", which PHP treats as empty - and
+	 * a dropped field is a deleted field once PayPal replaces the resource.
+	 */
+	public function test_update_keeps_a_zero_amount() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'JPY',
+						'value'         => '1000',
+					),
+					'product_id'  => '0',
+					'handling'    => array(
+						array(
+							'type'  => 'FLAT',
+							'value' => '0',
+						),
+					),
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$sent = $result->get_data()['line_items'][0];
+		$this->assertSame( '0', $sent['product_id'] );
+		$this->assertSame( '0', $sent['handling'][0]['value'] );
+	}
+
+	/**
+	 * Test that a tax without a name survives an update.
+	 *
+	 * PayPal supplies the label, so the block leaves the name empty and the
+	 * sanitizer must keep the tax anyway.
+	 */
+	public function test_update_keeps_a_tax_without_a_name() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '29.99',
+					),
+					'taxes'       => array(
+						array(
+							'type'  => 'PERCENTAGE',
+							'value' => '8.25',
+						),
+					),
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame(
+			array(
+				array(
+					'type'  => 'PERCENTAGE',
+					'value' => '8.25',
+				),
+			),
+			$result->get_data()['line_items'][0]['taxes']
+		);
+	}
+
+	/**
+	 * Test that an update keeps a tax name the payment already has.
+	 *
+	 * A payment made in PayPal's dashboard can carry one, and a PUT is a full
+	 * replacement, so leaving the key out would delete it.
+	 */
+	public function test_update_keeps_a_tax_name_the_payment_already_has() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '29.99',
+					),
+					'taxes'       => array(
+						array(
+							'name'  => 'ZZ Custom VAT Label',
+							'type'  => 'PERCENTAGE',
+							'value' => '8.25',
+						),
+					),
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame(
+			array(
+				array(
+					'name'  => 'ZZ Custom VAT Label',
+					'type'  => 'PERCENTAGE',
+					'value' => '8.25',
+				),
+			),
+			$result->get_data()['line_items'][0]['taxes']
+		);
+	}
+
+	/**
+	 * Test that a PayPal-profile tax without a name survives an update.
+	 */
+	public function test_update_keeps_a_paypal_profile_tax_without_a_name() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '29.99',
+					),
+					'taxes'       => array(
+						array(
+							'type'  => 'PREFERENCE',
+							'value' => 'PROFILE',
+						),
+					),
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$sent = $result->get_data()['line_items'][0]['taxes'][0];
+		$this->assertSame( 'PREFERENCE', $sent['type'] );
+		$this->assertSame( 'PROFILE', $sent['value'] );
+	}
+
 	// --- Constants ---
 
 	/**

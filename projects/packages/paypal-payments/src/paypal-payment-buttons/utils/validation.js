@@ -14,10 +14,11 @@ import { VALID_CURRENCY_CODES } from './currencies';
 import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
 
 /**
- * Validation constants — match server-side limits.
+ * Validation constants - PayPal's own limits, mirrored in `PayPal_Attribute_Mapper`.
+ * Change both together. A character over either is a 400 `INVALID_STRING_LENGTH`.
  */
 export const MAX_NAME_LENGTH = 127;
-export const MAX_DESCRIPTION_LENGTH = 256;
+export const MAX_DESCRIPTION_LENGTH = 2048;
 // PayPal rejects a third custom checkout field with a 400.
 export const MAX_CUSTOMER_NOTES = 2;
 

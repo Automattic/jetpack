@@ -356,7 +356,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	// --- validate_attributes: optional field length limits ---
 
 	/**
-	 * Test that description exceeding 256 characters is rejected.
+	 * Test that description exceeding 2048 characters is rejected.
 	 */
 	public function test_validate_rejects_description_too_long() {
 		$result = PayPal_Attribute_Mapper::validate_attributes(
@@ -364,12 +364,28 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 				'productName'        => 'Widget',
 				'price'              => '10.00',
 				'currencyCode'       => 'USD',
-				'productDescription' => str_repeat( 'D', 257 ),
+				'productDescription' => str_repeat( 'D', 2049 ),
 			)
 		);
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'description_too_long', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that a description at PayPal's 2048 limit is accepted.
+	 */
+	public function test_validate_accepts_description_at_max_length() {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'        => 'Widget',
+				'price'              => '10.00',
+				'currencyCode'       => 'USD',
+				'productDescription' => str_repeat( 'D', 2048 ),
+			)
+		);
+
+		$this->assertTrue( $result );
 	}
 
 	/**
@@ -539,6 +555,59 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 		$this->assertSame( '49.99', $attributes['price'] );
 		$this->assertEquals( 'A very fancy widget.', $attributes['productDescription'] );
 		$this->assertEquals( 'https://example.com/thanks', $attributes['returnUrl'] );
+	}
+
+	/**
+	 * Test that api_response_to_attributes reports address collection both ways.
+	 *
+	 * The block attribute defaults to on, so an absent key has to come back as off.
+	 * Otherwise a payment that skips address collection reads as one that asks for it.
+	 */
+	public function test_api_response_to_attributes_maps_address_collection_both_ways() {
+		$on  = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-ON',
+				'line_items' => array( array( 'collect_shipping_address' => true ) ),
+			)
+		);
+		$off = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-OFF',
+				'line_items' => array( array( 'name' => 'Widget' ) ),
+			)
+		);
+
+		$this->assertTrue( $on['collectShippingAddress'] );
+		$this->assertFalse( $off['collectShippingAddress'] );
+	}
+
+	/**
+	 * Test that api_response_to_attributes reads back a tax without a name.
+	 *
+	 * The block leaves the tax name empty, so the mapper fills in the default label.
+	 */
+	public function test_api_response_to_attributes_reads_a_tax_without_a_name() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TAX',
+				'line_items' => array(
+					array(
+						'name'  => 'Widget',
+						'taxes' => array(
+							array(
+								'type'  => 'PERCENTAGE',
+								'value' => '8.25',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertTrue( $attributes['taxEnabled'] );
+		$this->assertSame( 'PERCENTAGE', $attributes['taxType'] );
+		$this->assertSame( '8.25', $attributes['taxValue'] );
+		$this->assertSame( 'Sales Tax', $attributes['taxName'] );
 	}
 
 	/**
@@ -1008,7 +1077,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	 */
 	public function test_length_constants() {
 		$this->assertEquals( 127, PayPal_Attribute_Mapper::MAX_NAME_LENGTH );
-		$this->assertEquals( 256, PayPal_Attribute_Mapper::MAX_DESCRIPTION_LENGTH );
+		$this->assertEquals( 2048, PayPal_Attribute_Mapper::MAX_DESCRIPTION_LENGTH );
 		$this->assertEquals( 50, PayPal_Attribute_Mapper::MAX_BUTTON_TEXT_LENGTH );
 	}
 }

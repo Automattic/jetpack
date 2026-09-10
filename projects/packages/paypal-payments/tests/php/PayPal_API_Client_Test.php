@@ -268,18 +268,12 @@ class PayPal_API_Client_Test extends TestCase {
 	}
 
 	/**
-	 * Test update_resource returns parsed response on 200.
+	 * Test update_resource treats PayPal's 204 as success and echoes the saved resource.
 	 */
 	public function test_update_resource_success() {
 		$this->set_up_connected_state();
 
-		$expected_response = array(
-			'id'     => 'PLB-UPDATE123',
-			'type'   => 'BUY_NOW',
-			'status' => 'ACTIVE',
-		);
-
-		$this->mock_http_response( 200, $expected_response );
+		$this->mock_http_response( 204, '' );
 
 		$result = PayPal_API_Client::update_resource(
 			'PLB-UPDATE123',
@@ -298,6 +292,57 @@ class PayPal_API_Client_Test extends TestCase {
 		);
 
 		$this->assertIsArray( $result );
+		$this->assertEquals( 'PLB-UPDATE123', $result['id'] );
+		$this->assertEquals( 'Updated Widget', $result['line_items'][0]['name'] );
+	}
+
+	/**
+	 * Test a 200 on the update counts as success.
+	 *
+	 * PayPal may answer with a confirmation body instead of a bare 204.
+	 */
+	public function test_update_resource_accepts_200() {
+		$this->set_up_connected_state();
+
+		$this->mock_http_response(
+			200,
+			array(
+				'id'     => 'PLB-UPDATE123',
+				'status' => 'ACTIVE',
+			)
+		);
+
+		$result = PayPal_API_Client::update_resource(
+			'PLB-UPDATE123',
+			array( 'type' => 'BUY_NOW' )
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertEquals( 'PLB-UPDATE123', $result['id'] );
+		$this->assertEquals( 'BUY_NOW', $result['type'] );
+	}
+
+	/**
+	 * Test a body on a 204 is discarded and the update still succeeds.
+	 */
+	public function test_update_resource_discards_a_confirmation_body() {
+		$this->set_up_connected_state();
+
+		$this->mock_http_response(
+			204,
+			array(
+				'id'     => 'PLB-SOMETHINGELSE',
+				'status' => 'ACTIVE',
+			)
+		);
+
+		$result = PayPal_API_Client::update_resource(
+			'PLB-UPDATE123',
+			array( 'type' => 'BUY_NOW' )
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertArrayNotHasKey( 'status', $result );
 		$this->assertEquals( 'PLB-UPDATE123', $result['id'] );
 	}
 
@@ -585,10 +630,10 @@ class PayPal_API_Client_Test extends TestCase {
 				}
 				return array(
 					'response' => array(
-						'code'    => 200,
-						'message' => 'OK',
+						'code'    => 204,
+						'message' => 'No Content',
 					),
-					'body'     => wp_json_encode( array( 'id' => 'PLB-UPD123' ), JSON_UNESCAPED_SLASHES ),
+					'body'     => '',
 				);
 			},
 			10,

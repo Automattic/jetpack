@@ -64,7 +64,7 @@ Once connected:
 1. Enter a **Product Name** (max 127 characters)
 2. Enter a **Price** (positive number, up to 2 decimal places)
 3. Select a **Currency** from the dropdown (26 supported)
-4. Optionally add a **Description** (max 256 characters)
+4. Optionally add a **Description** (max 2048 characters)
 5. Click **Create New**
 
 A live preview appears showing exactly how your button will look on the published page.

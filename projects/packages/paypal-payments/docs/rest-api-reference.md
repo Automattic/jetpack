@@ -142,7 +142,7 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
 | `reusable` | string | No | `MULTIPLE` | `MULTIPLE` or `SINGLE` |
 | `line_items` | array | Yes | — | Array of line item objects (min 1) |
 | `line_items[].name` | string | Yes | — | Product name (max 127 chars) |
-| `line_items[].description` | string | No | — | Product description (max 256 chars) |
+| `line_items[].description` | string | No | — | Product description (max 2048 chars) |
 | `line_items[].unit_amount.currency_code` | string | Yes | — | ISO currency code |
 | `line_items[].unit_amount.value` | string | Yes | — | Price (positive, max 2 decimals) |
 | `line_items[].quantity` | string | No | `1` | Quantity |
@@ -211,7 +211,9 @@ Get a single payment resource.
 
 Full replacement update of a payment resource. Same request body as create.
 
-**Response (200):** Updated resource object.
+**Response (200):** The request body echoed back, plus `id`. PayPal answers a successful update with
+`204 No Content`, so `status`, `payment_link` and `links` are absent - use the GET route to read
+PayPal's actual state.
 
 ---
 

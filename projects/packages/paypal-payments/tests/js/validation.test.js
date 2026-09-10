@@ -124,14 +124,14 @@ describe( 'validateDescription', () => {
 	} );
 
 	it( 'returns an error when value exceeds MAX_DESCRIPTION_LENGTH', () => {
-		const longDesc = 'a'.repeat( 257 );
+		const longDesc = 'a'.repeat( 2049 );
 		expect( validateDescription( longDesc ) ).toBe(
 			`Description must be ${ MAX_DESCRIPTION_LENGTH } characters or fewer.`
 		);
 	} );
 
 	it( 'returns null for a description at exactly MAX_DESCRIPTION_LENGTH', () => {
-		const maxDesc = 'a'.repeat( 256 );
+		const maxDesc = 'a'.repeat( 2048 );
 		expect( validateDescription( maxDesc ) ).toBeNull();
 	} );
 } );
