@@ -164,7 +164,6 @@ describe( 'Freshly Pressed tab', () => {
 			'https://wordpress.com/reader/blogs/34/posts/12?algo=freshly-pressed&ref=dashboard_widget'
 		);
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', expect.stringContaining( 'noopener' ) );
 	} );
 
 	it( 'decodes HTML entities in post titles', async () => {

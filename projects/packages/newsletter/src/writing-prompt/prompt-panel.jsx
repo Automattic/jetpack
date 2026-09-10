@@ -52,7 +52,6 @@ const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onRead
 								tone="neutral"
 								href={ readerUrl }
 								openInNewTab={ openReaderInNewTab }
-								rel={ openReaderInNewTab ? 'noreferrer noopener' : undefined }
 								onClick={ onReaderClick }
 							/>
 						),
@@ -153,7 +152,6 @@ const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onRead
 							<Link
 								href={ new URL( prompt.answered_link ).toString() }
 								openInNewTab
-								rel="noreferrer noopener"
 								onClick={ recordViewResponsesClick }
 							>
 								{ __( 'View responses', 'jetpack-newsletter' ) }

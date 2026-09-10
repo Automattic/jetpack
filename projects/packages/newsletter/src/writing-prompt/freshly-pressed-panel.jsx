@@ -24,13 +24,7 @@ const FreshlyPressedPost = ( { post, position, siteType } ) => {
 	}, [ post, position, siteType ] );
 
 	return (
-		<Link
-			tone="neutral"
-			href={ post.permalink }
-			openInNewTab
-			rel="noreferrer noopener"
-			onClick={ recordClick }
-		>
+		<Link tone="neutral" href={ post.permalink } openInNewTab onClick={ recordClick }>
 			{ decodeEntities( post.title ) }
 		</Link>
 	);

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Drop redundant rel attributes from the writing prompt links; the Link component and modern browsers handle it.
+
+
