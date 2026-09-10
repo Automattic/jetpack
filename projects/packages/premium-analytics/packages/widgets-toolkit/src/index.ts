@@ -111,6 +111,7 @@ export {
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
 	PageOptionsMenu,
+	type PageOptionsMenuProps,
 	LocationsGeoChart,
 	type LocationsGeoChartProps,
 	type LocationsGeoFocusCountry,

@@ -555,3 +555,40 @@ describe( 'switching the new Traffic tab off', () => {
 		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus() );
 	} );
 } );
+
+describe( 'Customize', () => {
+	it( 'comes first where the page has a layout to arrange', async () => {
+		const user = userEvent.setup();
+		const onCustomize = jest.fn();
+		render( <PageOptionsMenu onCustomize={ onCustomize } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		const items = await screen.findAllByRole( 'menuitem' );
+
+		// One group: no separator before the way out.
+		expect( items.map( item => item.textContent ) ).toEqual( [
+			'Customize',
+			'Any feedback?',
+			'Switch off the preview',
+		] );
+		expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
+
+		await user.click( items[ 0 ] );
+
+		expect( onCustomize ).toHaveBeenCalledTimes( 1 );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		await waitFor( () => expect( screen.queryByRole( 'menuitem' ) ).not.toBeInTheDocument() );
+	} );
+
+	it( 'stays out where there is nothing to arrange', async () => {
+		const user = userEvent.setup();
+		render( <PageOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+	} );
+} );
