@@ -643,7 +643,6 @@ class Error_Handler {
 				'message_callback'         => array( $this, 'get_ssl_verification_failed_message' ),
 				'default_admin_notice'     => true,
 				'survives_owner_promotion' => true,
-				'support_link'             => true,
 				'notice_link'              => array(
 					'label' => __( 'Visit Site Health', 'jetpack-connection' ),
 					'url'   => admin_url( 'site-health.php' ),

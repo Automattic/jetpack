@@ -2184,9 +2184,10 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'SSL certificate', $error['error_message'] );
 		$this->assertStringContainsString( 'Site Health', $error['error_message'] );
 
-		// No reconnect CTA, but a support link alongside the notice.
+		// No reconnect CTA, and no extra support-link CTA stacked next to the
+		// notice's Site Health link.
 		$this->assertSame( 'none', $error['error_data']['action'] );
-		$this->assertTrue( $error['error_data']['support_link'] );
+		$this->assertFalse( isset( $error['error_data']['support_link'] ) );
 
 		// Site-wide audience: the blog, not a specific user, is affected.
 		$this->assertSame( 'site', $error['audience'] );

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: Surface SSL certificate verification failures reported by WordPress.com as a connection error notice.
