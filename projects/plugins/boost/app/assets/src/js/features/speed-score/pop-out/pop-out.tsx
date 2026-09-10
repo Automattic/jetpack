@@ -1,12 +1,11 @@
 import { animated, useSpring } from '@react-spring/web';
-import CloseButton from '../../ui/close-button/close-button';
+import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
 import { ReactNode, useState, useEffect } from 'react';
-import Button from '@automattic/jetpack-components/button';
-import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { useDismissibleAlertState } from '../../performance-history/lib/hooks';
-import { recordBoostEvent } from '../../../lib/utils/analytics';
+import { Button, getRedirectUrl } from '@automattic/jetpack-components';
+import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
