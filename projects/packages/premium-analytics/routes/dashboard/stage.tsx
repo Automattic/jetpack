@@ -115,9 +115,10 @@ function Dashboard(): JSX.Element {
 	);
 
 	const [ editMode, setEditMode ] = useState( false );
+	// The page options menu's way in; the dashboard's own button is off by policy.
+	const startCustomizing = useCallback( () => setEditMode( true ), [] );
 
 	// The tour's anchors, handed in by the elements below once they mount.
-	const [ actionsFrame, setActionsFrame ] = useState< HTMLDivElement | null >( null );
 	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
 	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
@@ -126,9 +127,6 @@ function Dashboard(): JSX.Element {
 		// Every tile is a section; the grid draws them in layout order.
 		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
 		dateControls: controlsAnchor,
-		// At rest the dashboard's first button is Customize; its own menu, when the
-		// policy allows one, comes after it.
-		customize: actionsFrame?.querySelector( 'button' ) ?? null,
 		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
 	} ).filter( step => step.anchor );
 
@@ -274,11 +272,9 @@ function Dashboard(): JSX.Element {
 							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 							actions={
 								<Stack direction="row" gap="sm">
-									<Stack ref={ setActionsFrame } direction="row">
-										<WidgetDashboard.Actions />
-									</Stack>
+									<WidgetDashboard.Actions />
 									<Stack ref={ setOptionsMenuFrame } direction="row">
-										<PageOptionsMenu />
+										<PageOptionsMenu onCustomize={ editMode ? undefined : startCustomizing } />
 									</Stack>
 								</Stack>
 							}

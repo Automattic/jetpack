@@ -28,11 +28,12 @@ describe( 'useDashboardPolicy', () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'lets everyone customize by moving and resizing, and keep editing attributes', () => {
+	it( 'lets everyone move and resize, and keep editing attributes', () => {
 		seedScriptData( { dashboard_composition_enabled: false } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
-		expect( result.current( { operation: 'customize' } ) ).toBe( true );
+		// The page options menu is the way in, not the dashboard's own button.
+		expect( result.current( { operation: 'customize' } ) ).toBe( false );
 		expect( result.current( { operation: 'move', widget, widgetType } ) ).toBe( true );
 		expect( result.current( { operation: 'resize', widget, widgetType } ) ).toBe( true );
 		expect( result.current( { operation: 'edit', widget, widgetType } ) ).toBe( true );

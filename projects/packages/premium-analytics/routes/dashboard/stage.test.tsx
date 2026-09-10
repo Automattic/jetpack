@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient, useReportScope } from '@jetpack-premium-analytics/data';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -101,7 +101,15 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	PageOptionsMenu: () => <div data-testid="page-options-menu" />,
+	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
+		<div data-testid="page-options-menu">
+			{ onCustomize && (
+				<button type="button" onClick={ onCustomize }>
+					Customize
+				</button>
+			) }
+		</div>
+	),
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -172,13 +180,13 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 	/**
 	 * The real dashboard hands `editMode` and `onEditChange` to `Actions` through its
-	 * context; the stand-in does the same so Customize, Done and Cancel round-trip.
+	 * context; the stand-in does the same so Done and Cancel round-trip. Customize is
+	 * the page options menu's, as the policy denies the dashboard its own.
 	 *
 	 * @return The stand-in edit toolbar.
 	 */
 	function Actions() {
 		const { editMode, onEditChange } = useContext( EditModeContext );
-		const enter = useCallback( () => onEditChange( true ), [ onEditChange ] );
 		const leave = useCallback( () => onEditChange( false ), [ onEditChange ] );
 
 		return (
@@ -192,11 +200,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 							Done
 						</button>
 					</>
-				) : (
-					<button type="button" onClick={ enter }>
-						Customize
-					</button>
-				) }
+				) : null }
 			</div>
 		);
 	}
@@ -416,9 +420,9 @@ describe( 'Dashboard options menu', () => {
 
 		const actions = screen.getByTestId( 'widget-dashboard-actions' );
 
-		// Each sits in its own frame, the tour's anchors; the menu's frame follows the actions'.
+		// The menu's frame, the tour's anchor, follows the dashboard's own actions.
 		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
-		expect( actions.parentElement?.nextElementSibling ).toContainElement(
+		expect( actions.nextElementSibling ).toContainElement(
 			screen.getByTestId( 'page-options-menu' )
 		);
 	} );
@@ -672,6 +676,20 @@ describe( 'Dashboard customizing', () => {
 
 		expect( screen.queryByText( 'year surface' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'interval control' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers Customize from the page options menu, and withdraws it while customizing', async () => {
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( within( menu ).queryByRole( 'button', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Done' } ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
+
+		expect( within( menu ).getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
 	} );
 
 	it.each( [ 'Done', 'Cancel' ] )( 'brings the date controls back on %s', async action => {

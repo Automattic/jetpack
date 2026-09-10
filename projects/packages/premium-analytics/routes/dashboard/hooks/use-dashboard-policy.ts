@@ -5,7 +5,8 @@ import type { CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
 /**
  * The application's answer to the dashboard policy seam.
  *
- * Customization is limited to moving and resizing widgets: adding, removing
+ * Customization is limited to moving and resizing widgets, entered from the
+ * page options menu rather than the dashboard's own button: adding, removing
  * and resetting sit behind the dashboard composition feature flag, whose
  * answer the server puts on the script data. Attribute editing stays open:
  * it is how widgets expose their views, in and out of customize mode.
@@ -18,6 +19,8 @@ export function useDashboardPolicy(): CanPerformDashboardOperation {
 
 		return request => {
 			switch ( request.operation ) {
+				case 'customize':
+					return false;
 				case 'insert':
 				case 'remove':
 				case 'reset':
