@@ -103,7 +103,9 @@ jest.mock( '@wordpress/components', () => ( {
 			<span className="components-base-control__label">{ children }</span>
 		),
 	},
-	Button: ( { children, onClick, disabled, variant, isBusy, ...rest } ) => (
+	// isDestructive and isSmall are destructured off rather than spread: the real
+	// Button turns them into classes, so letting them reach the DOM warns.
+	Button: ( { children, onClick, disabled, variant, isBusy, isDestructive, isSmall, ...rest } ) => (
 		<button
 			onClick={ onClick }
 			disabled={ disabled }
@@ -201,7 +203,17 @@ jest.mock( '@wordpress/components', () => ( {
 	},
 	// Real TextControl puts className and help on the BaseControl wrapper, not the input,
 	// which is what editor.scss's `.jetpack-paypal-payment-buttons__has-error .components-text-control__input` expects.
-	TextControl: ( { label, value, onChange, onBlur, type, help, className, ...rest } ) => (
+	TextControl: ( {
+		label,
+		value,
+		onChange,
+		onBlur,
+		type,
+		help,
+		className,
+		hideLabelFromVision,
+		...rest
+	} ) => (
 		<div data-testid={ `control-${ label }` } className={ className }>
 			<label htmlFor={ `field-${ label }` }>{ label }</label>
 			<input
@@ -405,6 +417,21 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		}
 
 		/**
+		 * Stop jsdom acting on the connect anchor's click.
+		 *
+		 * The anchor points at PayPal, so a real click on it makes jsdom log
+		 * "Not implemented: navigation to another Document". The listener runs
+		 * before the default action, and dies with the frame it is attached to.
+		 *
+		 * @param {HTMLIFrameElement} frame - The frame the anchor lives in.
+		 * @return {HTMLIFrameElement} The same frame.
+		 */
+		function blockFrameNavigation( frame ) {
+			frame.contentDocument.addEventListener( 'click', event => event.preventDefault() );
+			return frame;
+		}
+
+		/**
 		 * Get onto the welcome step and open the onboarding frame.
 		 *
 		 * @return {Promise<HTMLIFrameElement>} The frame PayPal's SDK runs in.
@@ -413,7 +440,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const user = userEvent.setup();
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 			await user.click( await screen.findByRole( 'button', { name: /Connect with PayPal/i } ) );
-			return screen.findByTitle( 'PayPal onboarding' );
+			return blockFrameNavigation( await screen.findByTitle( 'PayPal onboarding' ) );
 		}
 
 		/**
@@ -491,14 +518,19 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// Only the load-with-SDK path calls render(), so it is the only one
 			// where the target comes off.
 			if ( binds && sdk && 'load' === result ) {
-				/* eslint-disable testing-library/no-node-access -- The anchor is in
-				   the frame's document, out of reach of screen queries. */
-				await waitFor( () =>
-					expect(
-						frame.contentDocument.querySelector( 'a[data-paypal-button]' )
-					).not.toHaveAttribute( 'target' )
-				);
-				/* eslint-enable testing-library/no-node-access */
+				/* eslint-disable-next-line testing-library/no-unnecessary-act --
+				   The hook flips isSdkReady on the microtask after the attribute
+				   change, which lands once waitFor has put the act environment back. */
+				await act( async () => {
+					/* eslint-disable testing-library/no-node-access -- The anchor is in
+					   the frame's document, out of reach of screen queries. */
+					await waitFor( () =>
+						expect(
+							frame.contentDocument.querySelector( 'a[data-paypal-button]' )
+						).not.toHaveAttribute( 'target' )
+					);
+					/* eslint-enable testing-library/no-node-access */
+				} );
 			}
 
 			return renderSpy;
@@ -517,9 +549,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		async function openActiveOverlay() {
 			const user = userEvent.setup();
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-			const frame = await screen.findByTitle( 'PayPal onboarding' );
+			const frame = blockFrameNavigation( await screen.findByTitle( 'PayPal onboarding' ) );
 			await settlePartnerScript( frame );
-			const click = jest.spyOn( await findConnectLink( frame ), 'click' );
+			const click = track( jest.spyOn( await findConnectLink( frame ), 'click' ) );
 
 			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
 			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
@@ -552,15 +584,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'contentWindow'
 			).get;
 
-			jest
-				.spyOn( window.HTMLIFrameElement.prototype, 'contentWindow', 'get' )
-				.mockImplementation( function () {
-					const frameWindow = realGetter.call( this );
-					if ( frameWindow ) {
-						frameWindow.HTMLAnchorElement.prototype.click = click;
-					}
-					return frameWindow;
-				} );
+			track(
+				jest.spyOn( window.HTMLIFrameElement.prototype, 'contentWindow', 'get' )
+			).mockImplementation( function () {
+				const frameWindow = realGetter.call( this );
+				if ( frameWindow ) {
+					frameWindow.HTMLAnchorElement.prototype.click = click;
+				}
+				return frameWindow;
+			} );
 
 			return click;
 		}
@@ -577,6 +609,18 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		}
 
 		const keyListeners = [];
+		const spies = [];
+
+		/**
+		 * Restore this spy in afterEach.
+		 *
+		 * @param {object} spy - The spy to restore.
+		 * @return {object} The same spy.
+		 */
+		function track( spy ) {
+			spies.push( spy );
+			return spy;
+		}
 
 		/**
 		 * Watch keydown for the length of one test.
@@ -596,8 +640,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		afterEach( () => {
 			// clearAllMocks does not undo a spy, so one failure before a manual
 			// restore would leave window.open stubbed, or the contentWindow getter
-			// patched, for every later test.
-			jest.restoreAllMocks();
+			// patched, for every later test. Restore only what this suite spied on:
+			// restoreAllMocks would also undo the shared console guard, which is
+			// installed once at module load and never re-installed.
+			spies.splice( 0 ).forEach( spy => spy.mockRestore() );
 			delete window.PAYPAL;
 			delete window.jetpackPayPalOnboardComplete;
 			keyListeners
@@ -720,7 +766,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		it( 'never sends the merchant to a browser window of their own', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
-			const open = jest.spyOn( window, 'open' ).mockReturnValue( null );
+			const open = track( jest.spyOn( window, 'open' ).mockReturnValue( null ) );
 
 			// Open the overlay: the click that opens PayPal is where a popup
 			// would come from.
