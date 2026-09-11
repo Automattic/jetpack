@@ -26,6 +26,7 @@ import {
 	CheckboxControl,
 	PanelBody,
 	TextControl,
+	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -34,6 +35,9 @@ import { __ } from '@wordpress/i18n';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import FormatSwitcher from './format-switcher';
 import QrCodePreview from './qr-code-preview';
+
+// ToolsPanel and the dropdown inside it have to agree on the panel they belong to.
+const PANEL_ID = 'paypal-caption-color';
 
 const PRESET_WIDTHS = [ '25%', '50%', '75%', '100%' ];
 const WIDTH_UNITS = [
@@ -223,23 +227,36 @@ function QrCaptionPanels( { attributes, setAttributes } ) {
 
 	return (
 		<>
-			{ /* Color is core's own panel, so it carries the reset menu the frame
-			     draws and the compact labelled swatch row. */ }
-			<ColorGradientSettingsDropdown
-				__experimentalIsRenderedInSidebar
-				panelId="paypal-caption-color"
-				settings={ [
-					{
-						label: __( 'Text', 'jetpack-paypal-payments' ),
-						colorValue: captionColor,
-						onColorChange: value => setAttributes( { captionColor: value || '' } ),
-						clearable: true,
-					},
-				] }
-				{ ...colorSettings }
-				gradients={ [] }
-				disableCustomGradients
-			/>
+			{ /* ColorGradientSettingsDropdown renders a ToolsPanelItem, so it needs a
+			     ToolsPanel around it — which is also what gives Color the reset menu
+			     the frame draws. Core's own class names carry its row spacing. */ }
+			<ToolsPanel
+				className="color-block-support-panel"
+				label={ __( 'Color', 'jetpack-paypal-payments' ) }
+				resetAll={ () => setAttributes( { captionColor: '' } ) }
+				panelId={ PANEL_ID }
+				hasInnerWrapper
+				headingLevel={ 3 }
+				__experimentalFirstVisibleItemClass="first"
+				__experimentalLastVisibleItemClass="last"
+			>
+				<ColorGradientSettingsDropdown
+					__experimentalIsRenderedInSidebar
+					panelId={ PANEL_ID }
+					settings={ [
+						{
+							label: __( 'Text', 'jetpack-paypal-payments' ),
+							colorValue: captionColor,
+							onColorChange: value => setAttributes( { captionColor: value || '' } ),
+							clearable: true,
+							resetAllFilter: () => ( { captionColor: '' } ),
+						},
+					] }
+					{ ...colorSettings }
+					gradients={ [] }
+					disableCustomGradients
+				/>
+			</ToolsPanel>
 
 			<PanelBody title={ __( 'Typography', 'jetpack-paypal-payments' ) }>
 				<FontSizePicker
