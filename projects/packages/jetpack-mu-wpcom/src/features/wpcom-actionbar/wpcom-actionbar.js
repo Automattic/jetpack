@@ -696,7 +696,8 @@
 			 * Re-dispatch the intercepted event now that the stat has been sent.
 			 */
 			function dispatchOriginalEvent() {
-				const newEvent = new event.constructor( event.type, event );
+				const EventClass = event.constructor;
+				const newEvent = new EventClass( event.type, event );
 				completedEvents[ newEvent.timeStamp ] = true;
 				event.target.dispatchEvent( newEvent );
 			}
