@@ -1149,23 +1149,67 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 	// 10. Format Switcher (WOOPTP-389)
 	// ---------------------------------------------------------------
 	test.describe( 'Format Switcher', () => {
-		test( 'format switcher shows 3 options in creation form', async ( { page } ) => {
+		/**
+		 * Helper: open the block inspector's Styles tab and return the "Embed as" select.
+		 *
+		 * The switcher is a SelectControl inside an `InspectorControls` `group="styles"`
+		 * fill, so it renders in the sidebar -- the top document -- and only while the
+		 * Styles tab is the active one. None of it is in the editor-canvas iframe.
+		 *
+		 * @param {object} page  - Playwright page.
+		 * @param {object} block - Block locator inside the canvas.
+		 * @return {Promise<object>} The `Embed as` select locator.
+		 */
+		async function openFormatSwitcher( page, block ) {
+			const closeInserter = page.locator( 'button[aria-label="Close Block Inserter"]' );
+			if ( await closeInserter.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
+				await closeInserter.click();
+				await page.waitForTimeout( 300 );
+			}
+
+			// The inspector panels mount on block selection, not on the sidebar opening.
+			await block.click();
+			await page.waitForTimeout( 300 );
+
+			const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
+			const isPressed = await settingsBtn
+				.evaluate( el => el.classList.contains( 'is-pressed' ) )
+				.catch( () => false );
+			if ( ! isPressed ) {
+				await settingsBtn.click();
+				await page.waitForTimeout( 500 );
+			}
+
+			// By role, not by aria-label: the tab only carries an aria-label in icon-only
+			// mode -- with the editor's button text labels on it has visible text instead.
+			await page.getByRole( 'tab', { name: 'Styles' } ).click();
+
+			const switcher = page
+				.locator( '.interface-complementary-area' )
+				.locator( '.jetpack-paypal-payment-buttons__format-switcher select' );
+			await expect( switcher ).toBeVisible( { timeout: 5000 } );
+
+			return switcher;
+		}
+
+		test( 'format switcher offers the three display formats', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			const switcher = await openFormatSwitcher( page, block );
 
-			// All three format buttons should be visible in the creation form.
-			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__format-switcher option[value="BUTTON"]' )
-			).toBeVisible();
-			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__format-switcher option[value="LINK"]' )
-			).toBeVisible();
-			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__format-switcher option[value="QR"]' )
-			).toBeVisible();
+			// An <option> in a collapsed <select> has no layout box, so assert on the
+			// options being there and on their labels, never on visibility.
+			await expect( switcher.locator( 'option' ) ).toHaveText( [
+				'Single button',
+				'Link',
+				'QR code',
+			] );
+			await expect( switcher.locator( 'option[value="BUTTON"]' ) ).toHaveCount( 1 );
+			await expect( switcher.locator( 'option[value="LINK"]' ) ).toHaveCount( 1 );
+			await expect( switcher.locator( 'option[value="QR"]' ) ).toHaveCount( 1 );
 		} );
 
 		test( 'default format is Button', async ( { page } ) => {
@@ -1174,42 +1218,51 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			const canvas = await insertPayPalBlock( page );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
+			const switcher = await openFormatSwitcher( page, block );
 
+			await expect( switcher ).toHaveValue( 'BUTTON' );
+
+			// The canvas draws the button card, which only the BUTTON format renders.
 			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__format-switcher select' )
-			).toHaveValue( 'BUTTON' );
-
-			// The CTA is the commit action and does not name the format.
-			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toBeVisible();
+				block.locator( '.jetpack-paypal-button-preview__checkout-button' )
+			).toBeVisible();
+			await expect( block.locator( '.jetpack-paypal-button-preview--link' ) ).toHaveCount( 0 );
+			await expect( block.locator( '.jetpack-paypal-button-preview--qr' ) ).toHaveCount( 0 );
 		} );
 
-		test( 'selecting Link format selects the Link option', async ( { page } ) => {
+		test( 'selecting Link format switches the canvas preview to a link', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			const switcher = block.locator( '.jetpack-paypal-payment-buttons__format-switcher select' );
+			const switcher = await openFormatSwitcher( page, block );
 
 			await switcher.selectOption( 'LINK' );
 
 			await expect( switcher ).toHaveValue( 'LINK' );
+			await expect( block.locator( '.jetpack-paypal-button-preview--link' ) ).toBeVisible();
 		} );
 
-		test( 'selecting QR code format selects the QR option', async ( { page } ) => {
+		test( 'selecting QR code format switches the canvas preview to a QR code', async ( {
+			page,
+		} ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			const switcher = block.locator( '.jetpack-paypal-payment-buttons__format-switcher select' );
+			const switcher = await openFormatSwitcher( page, block );
 
 			await switcher.selectOption( 'QR' );
 
 			await expect( switcher ).toHaveValue( 'QR' );
+			await expect( block.locator( '.jetpack-paypal-button-preview--qr' ) ).toBeVisible();
 		} );
 
-		test( 'format switcher appears in InspectorControls after creation', async ( { page } ) => {
+		test( 'format switcher still drives the format after the button is created', async ( {
+			page,
+		} ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
@@ -1222,15 +1275,15 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				timeout: 5000,
 			} );
 
-			// Open sidebar.
-			await block.click();
-			const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
-			await settingsBtn.click();
-			await page.waitForTimeout( 500 );
+			// The switcher belongs to the block, not to the creation form, so it is still
+			// in the Styles tab once a payment link exists -- and it still works.
+			const switcher = await openFormatSwitcher( page, block );
+			await expect( switcher ).toHaveValue( 'BUTTON' );
 
-			// Format panel should be visible in sidebar (outside iframe, on page).
-			const formatPanel = page.locator( 'button[aria-label="Styles"]' );
-			await expect( formatPanel ).toBeVisible( { timeout: 5000 } );
+			await switcher.selectOption( 'QR' );
+
+			await expect( switcher ).toHaveValue( 'QR' );
+			await expect( block.locator( '.jetpack-paypal-button-preview--qr' ) ).toBeVisible();
 		} );
 
 		test( 'frontend renders Link format as anchor tag', async ( { page } ) => {
@@ -1240,14 +1293,17 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
-			// Choose Link format, fill form, create.
-			await block
-				.locator( '.jetpack-paypal-payment-buttons__format-switcher select' )
-				.selectOption( 'LINK' );
+			// Fill the form first: it is the Settings tab, and opening Styles unmounts it.
 			await fillButtonForm( canvas, { name: 'Link Widget', price: '5.00' } );
+
+			const switcher = await openFormatSwitcher( page, block );
+			await switcher.selectOption( 'LINK' );
+			await expect( switcher ).toHaveValue( 'LINK' );
+
+			// Saving the post creates the payment.
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
-			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
+			await expect( block.locator( '.jetpack-paypal-button-preview--link' ) ).toBeVisible( {
 				timeout: 5000,
 			} );
 
@@ -1271,14 +1327,15 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
-			// Choose QR format, fill form, create.
-			await block
-				.locator( '.jetpack-paypal-payment-buttons__format-switcher select' )
-				.selectOption( 'QR' );
 			await fillButtonForm( canvas, { name: 'QR Widget', price: '15.00' } );
+
+			const switcher = await openFormatSwitcher( page, block );
+			await switcher.selectOption( 'QR' );
+			await expect( switcher ).toHaveValue( 'QR' );
+
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
-			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
+			await expect( block.locator( '.jetpack-paypal-button-preview--qr' ) ).toBeVisible( {
 				timeout: 5000,
 			} );
 
@@ -1303,30 +1360,23 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				timeout: 5000,
 			} );
 
-			// Track API calls — switching format should NOT trigger a new POST to /buttons.
+			// Track API calls -- switching format should NOT trigger a new POST to /buttons.
+			// `fallback()`, not `continue()`: the mock in setupPayPalMocks is registered
+			// first, and only a fallback hands the request back down to it.
 			let createCallCount = 0;
-			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/buttons(\?|$)/, route => {
+			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/buttons(\?|$)/, route => {
 				if ( route.request().method() === 'POST' ) {
 					createCallCount++;
 				}
-				route.continue();
+				route.fallback();
 			} );
 
-			// Switch to QR format via InspectorControls.
-			await block.click();
-			const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
-			await settingsBtn.click();
-			await page.waitForTimeout( 500 );
+			// Switch to QR format in the inspector's Styles tab.
+			const switcher = await openFormatSwitcher( page, block );
+			await switcher.selectOption( 'QR' );
 
-			const formatPanel = page.locator( 'button[aria-label="Styles"]' );
-			if ( await formatPanel.isVisible( { timeout: 2000 } ).catch( () => false ) ) {
-				await formatPanel.click();
-				const switcher = page.locator( '.jetpack-paypal-payment-buttons__format-switcher select' );
-				if ( await switcher.isVisible( { timeout: 2000 } ).catch( () => false ) ) {
-					await switcher.selectOption( 'QR' );
-					await page.waitForTimeout( 500 );
-				}
-			}
+			await expect( switcher ).toHaveValue( 'QR' );
+			await expect( block.locator( '.jetpack-paypal-button-preview--qr' ) ).toBeVisible();
 
 			// No new API create calls should have been made.
 			expect( createCallCount ).toBe( 0 );

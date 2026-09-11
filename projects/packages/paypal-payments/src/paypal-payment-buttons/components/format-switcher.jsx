@@ -26,7 +26,7 @@ const FORMAT_HELP = {
 };
 
 /**
- * Format switcher — shared between the creation form and the Styles tab.
+ * Format switcher — the Styles tab's Embed as control.
  *
  * @param {object}   props          - Component props.
  * @param {string}   props.value    - Current format value ('BUTTON' | 'LINK' | 'QR').
