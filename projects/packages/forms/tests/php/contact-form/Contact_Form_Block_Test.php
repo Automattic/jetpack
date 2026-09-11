@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
+use Automattic\Jetpack\Forms\ContactForm\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -21,6 +22,28 @@ use WP_Block_Type_Registry;
  */
 #[CoversClass( \Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block::class )]
 class Contact_Form_Block_Test extends BaseTestCase {
+	/**
+	 * Contact Form declares support for preserving nested core Group wrappers.
+	 */
+	public function test_supports_nested_core_group_wrappers() {
+		$this->assertTrue( Contact_Form_Block::supports_nested_core_group_wrappers() );
+	}
+
+	/**
+	 * Forms advertises rendering capabilities when its runtime bootstrap loads.
+	 */
+	public function test_forms_bootstrap_advertises_contact_form_capabilities() {
+		remove_all_filters( 'jetpack_forms_contact_form_capabilities' );
+		Util::init();
+
+		$this->assertSame(
+			array( 'nested_core_group_wrappers' => true ),
+			apply_filters( 'jetpack_forms_contact_form_capabilities', array() )
+		);
+
+		remove_all_filters( 'jetpack_forms_contact_form_capabilities' );
+	}
+
 	/**
 	 * Test that ::find_nested_html_block works correctly.
 	 */

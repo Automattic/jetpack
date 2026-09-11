@@ -51,6 +51,7 @@ class Util {
 		// flags stay in Contact_Form_Block::register_feature(), hooked later from
 		// Contact_Form_Block::register_block() on `init` priority 9.
 		add_filter( 'jetpack_block_editor_feature_flags', '\Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block::register_central_form_management_default' );
+		add_filter( 'jetpack_forms_contact_form_capabilities', '\Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block::add_capabilities' );
 
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init', 9 );
 		add_action( 'grunion_scheduled_delete', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam' );

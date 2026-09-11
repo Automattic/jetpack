@@ -24,6 +24,27 @@ use Jetpack;
  */
 class Contact_Form_Block {
 	/**
+	 * Whether Contact Form preserves nested core Group wrappers around fields.
+	 *
+	 * @return bool
+	 */
+	public static function supports_nested_core_group_wrappers() {
+		return true;
+	}
+
+	/**
+	 * Advertise Contact Form rendering capabilities.
+	 *
+	 * @param array<string, bool> $capabilities Rendering capabilities advertised by Forms.
+	 * @return array<string, bool>
+	 */
+	public static function add_capabilities( $capabilities ) {
+		$capabilities['nested_core_group_wrappers'] = self::supports_nested_core_group_wrappers();
+
+		return $capabilities;
+	}
+
+	/**
 	 * Register the Contact Form block.
 	 * We are core block dependent only on whether the jetpack contact form plugin
 	 * is active or not. This is allowing us to make it more discoverable
