@@ -394,8 +394,10 @@
 // ---------------------------------------------------------------
 
 .jetpack-paypal-button-preview {
+	// Matches style.scss's .jetpack-paypal-button — the canvas and the published
+	// page have to start from the same box before any setting is applied.
 	max-width: 400px;
-	margin: 0;
+	margin: 24px 0;
 }
 
 // QR format — the code, then its caption.
@@ -697,7 +699,7 @@
 }
 
 // EMBED AS and the format's own output controls — a plain section with a
-// divider, which is what the frames draw. No collapsible panel header.
+// divider, no collapsible panel header.
 .jetpack-paypal-payment-buttons__format-section {
 	padding: 16px;
 	border-bottom: 1px solid #e0e0e0;
@@ -727,7 +729,8 @@
 	}
 }
 
-// The shared-link line — grey text under the inspector header, not a notice.
+// The shared-link line — grey text under the save-status notice, not a notice
+// itself.
 .jetpack-paypal-payment-buttons__shared-link-note {
 	margin: 8px 0 0;
 	color: #757575;

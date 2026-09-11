@@ -1,6 +1,6 @@
 /**
- * Label defaults, filled in at render rather than in block.json so merchants
- * get a translated label. render_api_managed_button() repeats them.
+ * Label defaults applied at render: block.json defaults cannot be translated.
+ * render_api_managed_button() repeats them.
  *
  * @package
  */

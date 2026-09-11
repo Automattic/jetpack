@@ -1,47 +1,20 @@
 /**
- * Width, margin, border and caption styles, as inline CSS.
+ * Width, margin, border and caption styles for the editor canvas.
  *
  * Margin and border live in `attributes.style`, the same shape core's block
- * supports use, so the published page can hand them straight to
- * wp_style_engine_get_styles(). The canvas has no style engine of its own —
- * `@wordpress/style-engine` is not a dependency here — so it builds the same
- * declarations from the same values.
+ * supports use, so core's own helpers turn them into CSS — the JS twin of the
+ * wp_style_engine_get_styles() call the published page makes. Using them rather
+ * than assembling declarations here is what keeps the canvas and the published
+ * page from drifting: preset expansion, longhand names and which sides are
+ * emitted all come from one implementation.
  *
  * @package
  */
 
-/**
- * Resolve a preset reference to the CSS variable it names.
- *
- * Core stores a chosen preset as `var:preset|spacing|50` rather than a value,
- * and resolves it at render. wp_style_engine_get_styles() does this on the
- * published page; this is the canvas's copy.
- *
- * @param {string} value - A raw style value.
- * @return {string} The value, with any preset reference expanded.
- */
-export function resolvePreset( value ) {
-	const raw = `${ value ?? '' }`.trim();
-	const preset = raw.match( /^var:preset\|([a-z0-9-]+)\|(.+)$/i );
-
-	return preset ? `var(--wp--preset--${ preset[ 1 ] }--${ preset[ 2 ] })` : raw;
-}
-
-/**
- * Build a `margin` shorthand from core's per-side object.
- *
- * @param {object} margin - `{ top, right, bottom, left }`, any side optional.
- * @return {string} The shorthand, or '' when no side is set.
- */
-function marginShorthand( margin ) {
-	const sides = [ 'top', 'right', 'bottom', 'left' ];
-
-	if ( ! margin || ! sides.some( side => margin[ side ] ) ) {
-		return '';
-	}
-
-	return sides.map( side => resolvePreset( margin[ side ] ) || '0' ).join( ' ' );
-}
+import {
+	__experimentalGetBorderClassesAndStyles as getBorderClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalGetSpacingClassesAndStyles as getSpacingClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/block-editor';
 
 /**
  * Block styles — Width Settings and Border Settings.
@@ -52,37 +25,20 @@ function marginShorthand( margin ) {
 export function getWrapperStyle( attributes = {} ) {
 	const { blockWidth, style } = attributes;
 	const border = style?.border || {};
-	const out = {};
 
-	// Width carries its own unit, so it goes through as typed.
-	if ( blockWidth ) {
-		out.maxWidth = blockWidth;
-	}
+	// Mirrors sanitize_border(): a half-set stroke renders inconsistently, so
+	// width, color and style go in together or not at all.
+	const hasStroke = !! border.width && !! border.color;
+	const borderStyle = hasStroke
+		? { ...border, style: border.style || 'solid' }
+		: { radius: border.radius };
 
-	const margin = marginShorthand( style?.spacing?.margin );
-	if ( margin ) {
-		out.margin = margin;
-	}
-
-	if ( border.radius ) {
-		// BorderRadiusControl gives a single value, or one per corner.
-		out.borderRadius =
-			typeof border.radius === 'string'
-				? border.radius
-				: [ 'topLeft', 'topRight', 'bottomRight', 'bottomLeft' ]
-						.map( corner => border.radius[ corner ] || '0' )
-						.join( ' ' );
-	}
-
-	// BorderControl hands back width, style and color together. Without a width
-	// there is nothing to draw, and without a color the browser would fall back
-	// to currentColor and draw a border the merchant never chose.
-	const borderColor = resolvePreset( border.color );
-	if ( border.width && borderColor ) {
-		out.border = `${ border.width } ${ border.style || 'solid' } ${ borderColor }`;
-	}
-
-	return out;
+	return {
+		// Width carries its own unit and has no core equivalent.
+		...( blockWidth ? { maxWidth: blockWidth } : {} ),
+		...getSpacingClassesAndStyles( { style: { spacing: style?.spacing } } ).style,
+		...getBorderClassesAndStyles( { style: { border: borderStyle } } ).style,
+	};
 }
 
 /**
@@ -93,15 +49,10 @@ export function getWrapperStyle( attributes = {} ) {
  */
 export function getCaptionStyle( attributes = {} ) {
 	const { captionColor, captionFontSize } = attributes;
-	const style = {};
+	const size = parseFloat( captionFontSize );
 
-	const color = resolvePreset( captionColor );
-	if ( color ) {
-		style.color = color;
-	}
-	if ( Number.isFinite( captionFontSize ) ) {
-		style.fontSize = `${ captionFontSize }px`;
-	}
-
-	return style;
+	return {
+		...( captionColor ? { color: captionColor } : {} ),
+		...( Number.isFinite( size ) ? { fontSize: `${ size }px` } : {} ),
+	};
 }

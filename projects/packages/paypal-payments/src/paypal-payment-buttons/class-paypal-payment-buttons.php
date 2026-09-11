@@ -25,6 +25,29 @@ class PayPal_Payment_Buttons {
 	public const BLOCK_NAME = 'jetpack/paypal-payment-buttons';
 
 	/**
+	 * Sides and corners the Border Settings panel can write.
+	 *
+	 * @var string[]
+	 */
+	private const BOX_SIDES = array(
+		'top',
+		'right',
+		'bottom',
+		'left',
+		'topLeft',
+		'topRight',
+		'bottomRight',
+		'bottomLeft',
+	);
+
+	/**
+	 * Border styles the stroke control offers.
+	 *
+	 * @var string[]
+	 */
+	private const BORDER_STYLES = array( 'solid', 'dashed', 'dotted', 'double', 'none' );
+
+	/**
 	 * PayPal partner attribution ID used for tracking.
 	 *
 	 * @var string
@@ -165,10 +188,14 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Block styles — Width Settings and Border Settings.
 	 *
-	 * Margin and border come from `attributes.style`, core's own shape, so the
-	 * style engine resolves any `var:preset|spacing|50` the merchant picked.
+	 * Every value is validated here, before the style engine sees it.
+	 * wp_style_engine_get_styles() is not a sanitizer: its only filter is
+	 * safecss_filter_attr(), which splits on `;` and keeps any extra declaration
+	 * whose property core allows — so an unchecked `0;position:fixed;…` in a
+	 * margin or radius renders verbatim on the published page.
+	 *
 	 * getWrapperStyle() in utils/block-styles.js builds the same declarations for
-	 * the canvas, and both land on the same element. Change one, change the other.
+	 * the canvas's .jetpack-paypal-button-preview. Change one, change the other.
 	 *
 	 * @param array $attributes The block attributes.
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
@@ -176,32 +203,25 @@ class PayPal_Payment_Buttons {
 	private static function get_wrapper_style( $attributes ) {
 		$rules = array();
 
-		// Width carries its own unit, so it goes through as typed. Core has no
-		// preset scale for it, so the style engine has nothing to add.
+		// Width carries its own unit, so it goes through as typed.
 		$width = self::sanitize_css_length( $attributes['blockWidth'] ?? '' );
 		if ( '' !== $width ) {
 			$rules[] = sprintf( 'max-width:%s', $width );
 		}
 
-		$style  = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
-		$border = isset( $style['border'] ) && is_array( $style['border'] ) ? $style['border'] : array();
+		$style = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
 
-		// wp_style_engine_get_styles() emits whatever value it is handed, so a
-		// color of `red; background:url(evil)` would come back out as two
-		// declarations. Check it before the engine sees it.
-		if ( isset( $border['color'] ) ) {
-			$border['color'] = self::sanitize_css_color( $border['color'] );
-		}
+		$border = self::sanitize_border( $style['border'] ?? null );
 
-		// A width with no color would fall back to currentColor and draw a border
-		// the merchant never chose, so drop a half-set stroke.
-		if ( empty( $border['width'] ) || empty( $border['color'] ) ) {
-			unset( $border['width'], $border['color'], $border['style'] );
-		}
+		// The style engine only emits a hex border-color, and a theme palette
+		// entry can be rgba() or hsl(). getBorderClassesAndStyles() keeps those on
+		// the canvas, so emit the validated value here rather than lose it.
+		$border_color = $border['color'] ?? '';
+		unset( $border['color'] );
 
 		$engine = wp_style_engine_get_styles(
 			array(
-				'spacing' => array( 'margin' => $style['spacing']['margin'] ?? null ),
+				'spacing' => array( 'margin' => self::sanitize_box( $style['spacing']['margin'] ?? null ) ),
 				'border'  => $border,
 			)
 		);
@@ -210,7 +230,82 @@ class PayPal_Payment_Buttons {
 			$rules[] = rtrim( $engine['css'], ';' );
 		}
 
+		if ( '' !== $border_color ) {
+			$rules[] = sprintf( 'border-color:%s', $border_color );
+		}
+
 		return self::css_rules( $rules );
+	}
+
+	/**
+	 * Validate a per-side box value — margin, or a per-corner radius.
+	 *
+	 * @param mixed $box A length string, or an array keyed by side or corner.
+	 * @return mixed The value with every side validated, or null when none survive.
+	 */
+	private static function sanitize_box( $box ) {
+		if ( is_string( $box ) ) {
+			$length = self::sanitize_css_length( $box );
+			return '' === $length ? null : $length;
+		}
+
+		if ( ! is_array( $box ) ) {
+			return null;
+		}
+
+		$clean = array();
+		foreach ( $box as $side => $value ) {
+			// sanitize_key() would let a hostile key through as a mangled one, so
+			// the side names are an allowlist.
+			if ( ! in_array( $side, self::BOX_SIDES, true ) ) {
+				continue;
+			}
+			$length = self::sanitize_css_length( $value );
+			if ( '' !== $length ) {
+				$clean[ $side ] = $length;
+			}
+		}
+
+		return empty( $clean ) ? null : $clean;
+	}
+
+	/**
+	 * Validate the border sub-array.
+	 *
+	 * Only the four keys the Border Settings panel writes are kept. The per-side
+	 * longhands core also understands (border.top and friends) are dropped — the
+	 * block has no UI for them, and they were a way past the color check.
+	 *
+	 * @param mixed $border The raw border attribute.
+	 * @return array The border array, with only validated values.
+	 */
+	private static function sanitize_border( $border ) {
+		if ( ! is_array( $border ) ) {
+			return array();
+		}
+
+		$clean = array();
+
+		$radius = self::sanitize_box( $border['radius'] ?? null );
+		if ( null !== $radius ) {
+			$clean['radius'] = $radius;
+		}
+
+		$width = self::sanitize_css_length( $border['width'] ?? '' );
+		$color = self::sanitize_css_color( $border['color'] ?? '' );
+
+		// A half-set stroke renders inconsistently, so width, color and style go
+		// in together or not at all.
+		if ( '' !== $width && '' !== $color ) {
+			$clean['width'] = $width;
+			$clean['color'] = $color;
+			// border-style defaults to `none`, so a width and a color on their own
+			// draw nothing. getWrapperStyle() defaults the same way.
+			$style          = (string) ( $border['style'] ?? '' );
+			$clean['style'] = in_array( $style, self::BORDER_STYLES, true ) ? $style : 'solid';
+		}
+
+		return $clean;
 	}
 
 	/**
@@ -251,17 +346,15 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Join declarations into an inline CSS list.
 	 *
-	 * The trailing semicolon matters: get_block_wrapper_attributes() joins two
-	 * style values with a space, so without it our last declaration would fuse
-	 * with the first one any future style-producing support adds.
+	 * The trailing semicolon keeps the list safe to concatenate with another
+	 * style value on the same element.
 	 *
 	 * @param array $rules The declarations.
 	 * @return string The declaration list, or '' when there are none.
 	 */
 	private static function css_rules( $rules ) {
-		// Values are checked individually before they reach the style engine —
-		// safecss_filter_attr() is no good here, it allows `background:url(…)`
-		// and strips the `var(--wp--preset--…)` a palette color needs.
+		// Each value is validated before it gets here — sanitize_css_length(),
+		// sanitize_css_color() — so the list is joined as-is.
 		return empty( $rules ) ? '' : implode( ';', $rules ) . ';';
 	}
 
@@ -303,7 +396,14 @@ class PayPal_Payment_Buttons {
 			return sprintf( 'var(--wp--preset--%s--%s)', $preset[1], $preset[2] );
 		}
 
-		return preg_match( '/^var\(--wp--[a-z0-9-]+\)$/i', $color ) ? $color : '';
+		if ( preg_match( '/^var\(--wp--[a-z0-9-]+\)$/i', $color ) ) {
+			return $color;
+		}
+
+		// A theme palette entry can be any CSS color, and ColorGradientControl
+		// hands back its raw value. Digits and separators only, so there is
+		// nothing to break out of the declaration with.
+		return preg_match( '/^(rgb|hsl)a?\([\d.,%\s\/]+\)$/i', $color ) ? $color : '';
 	}
 
 	/**

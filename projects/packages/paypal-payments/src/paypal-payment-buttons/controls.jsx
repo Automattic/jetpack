@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * The Settings tab — Style preset and connection info.
  *
- * EMBED AS and the format's own controls live in the Styles tab, in
+ * Embed as and the format's own controls live in the Styles tab, in
  * components/format-controls.jsx.
  *
  * @param {object}   props                    - Component props.

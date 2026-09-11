@@ -402,9 +402,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		</BlockControls>
 	) : null;
 
-	// Inspector sidebar — the Settings tab holds the Style preset and connection
-	// info, the Styles tab holds EMBED AS and the format's own controls. The
-	// second fill is what makes the editor draw the tab bar at all.
+	// Inspector sidebar — Settings holds the Style preset and connection info;
+	// the group="styles" fill adds the Styles tab with Embed as and the format's
+	// own controls.
 	const inspectorControls = (
 		<>
 			<PayPalInspectorControls
@@ -464,9 +464,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		</Notice>
 	) : null;
 
-	// A payment link can be used by blocks on any post, so warn whenever there is
-	// one. It sits at the top of the inspector form, not on the canvas: permanent
-	// canvas chrome defeats the spatial sense the preview exists to give.
+	// A payment link can be shared by blocks on any post, so warn whenever there
+	// is one. It reads in the inspector rather than on the canvas, which stays a
+	// clean preview.
 	const sharedResourceNotice = hasButton ? (
 		<p className="jetpack-paypal-payment-buttons__shared-link-note">
 			{ __(
