@@ -193,18 +193,19 @@ function BorderPanel( { attributes, setAttributes, showMargin } ) {
  * @return {Element} The QR preview, Download, and the caption toggle and field.
  */
 function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
-	const { qrShowCaption, qrCaption } = attributes;
-	// The inspector's copy carries the caption too, the way Create 188 draws it,
-	// so the merchant sees what they typed without looking back at the canvas.
-	const caption = `${ qrCaption ?? '' }`.trim() || DEFAULT_LABEL;
+	// Absent means on, the way the canvas and render_api_managed_button() read it.
+	const { qrShowCaption = true, qrCaption } = attributes;
 
 	return (
 		<>
 			<div className="jetpack-paypal-payment-buttons__qr-inspector-preview">
+				{ /* Caption the inspector's copy too, so the merchant sees what they
+				     typed without looking back at the canvas. */ }
 				<QrCodePreview
 					url={ qrUrl }
 					className="jetpack-paypal-button__qr-canvas"
-					caption={ qrShowCaption ? caption : '' }
+					showCaption={ qrShowCaption }
+					caption={ qrCaption }
 					captionStyle={ getCaptionStyle( attributes ) }
 					showDownload
 				/>
@@ -301,7 +302,7 @@ function QrCaptionPanels( { attributes, setAttributes } ) {
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
  * @param {string}   props.qrUrl         - The attributed payment URL to encode.
- * @param {boolean}  props.disabled      - Whether the format switcher is disabled.
+ * @param {boolean}  props.disabled      - Whether the format switcher and button text are locked.
  * @return {Element} The Styles tab contents.
  */
 export default function PayPalFormatControls( {
@@ -325,6 +326,18 @@ export default function PayPalFormatControls( {
 					onChange={ value => setAttributes( { format: value } ) }
 					disabled={ disabled }
 				/>
+
+				{ 'BUTTON' === format && (
+					<TextControl
+						label={ __( 'Button text', 'jetpack-paypal-payments' ) }
+						value={ attributes.buttonText || '' }
+						placeholder={ DEFAULT_LABEL }
+						onChange={ value => setAttributes( { buttonText: value } ) }
+						disabled={ disabled }
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+					/>
+				) }
 
 				{ 'QR' === format && (
 					<QrOutputControls

@@ -137,21 +137,19 @@ function QrPreview( {
 	// Encode the attributed URL, so the editor's code and the frontend's send a
 	// buyer through the same link.
 	const qrUrl = withPartnerAttribution( paymentLink, partnerAttributionId );
-	// Mirrors render_api_managed_button()'s QR branch: an empty caption falls
-	// back to the default rather than drawing a blank line.
-	const caption = `${ qrCaption ?? '' }`.trim() || DEFAULT_LABEL;
 
 	return (
 		<div
 			className="jetpack-paypal-button-preview jetpack-paypal-button-preview--qr"
 			style={ getWrapperStyle( attributes ) }
 		>
-			<QrCodePreview url={ qrUrl } className="jetpack-paypal-button__qr-canvas" />
-			{ qrShowCaption && (
-				<p className="jetpack-paypal-button__qr-caption" style={ getCaptionStyle( attributes ) }>
-					{ caption }
-				</p>
-			) }
+			<QrCodePreview
+				url={ qrUrl }
+				className="jetpack-paypal-button__qr-canvas"
+				showCaption={ qrShowCaption }
+				caption={ qrCaption }
+				captionStyle={ getCaptionStyle( attributes ) }
+			/>
 		</div>
 	);
 }

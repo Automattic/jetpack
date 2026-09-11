@@ -446,6 +446,8 @@ class PayPal_Payment_Buttons {
 		// `var:preset|color|primary` is what the editor stores for a palette entry.
 		// The style engine emits preset border colors as a class rather than inline
 		// CSS, so expand it here — getCaptionStyle() does the same for the canvas.
+		// Only color presets expand: a spacing or font preset is not a color, so it
+		// falls through and is refused, the way the canvas refuses it.
 		if ( preg_match( '/^var:preset\|color\|([a-z0-9-]+)$/i', $color, $preset ) ) {
 			return sprintf( 'var(--wp--preset--color--%s)', $preset[1] );
 		}

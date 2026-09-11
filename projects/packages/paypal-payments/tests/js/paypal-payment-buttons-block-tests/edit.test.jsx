@@ -81,11 +81,8 @@ jest.mock( '@wordpress/block-editor', () => ( {
 			{ children }
 		</div>
 	),
-	// The real control is a swatch popover, not a text field. Keep it a button so
-	// a test can't type a color into a UI that has no input.
-	// Core's color panel: a labeled swatch row per setting, with its own reset
-	// menu. The mock is a button per setting, not a text field — the real control
-	// has no input to type into.
+	// Core's color panel is a labeled swatch row per setting, not a text field.
+	// Keep the mock a button so a test can't type a color into a UI with no input.
 	__experimentalColorGradientSettingsDropdown: ( { settings } ) => (
 		<div data-testid="color-dropdown">
 			{ ( settings || [] ).map( setting => (
@@ -230,9 +227,14 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 	// Like TextControl, the real SelectControl hands className and help to the
 	// BaseControl wrapper rather than the <select>.
-	SelectControl: ( { label, value, options, onChange, help, className } ) => (
+	SelectControl: ( { label, value, options, onChange, help, className, disabled } ) => (
 		<div data-testid={ `control-${ label }` } className={ className }>
-			<select aria-label={ label } value={ value } onChange={ e => onChange( e.target.value ) }>
+			<select
+				aria-label={ label }
+				value={ value }
+				disabled={ disabled }
+				onChange={ e => onChange( e.target.value ) }
+			>
 				{ options &&
 					options.map( opt => (
 						<option key={ opt.value } value={ opt.value }>
@@ -3015,30 +3017,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
-	describe( 'Button appearance', () => {
-		beforeEach( () => {
-			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
-		} );
-
-		it( 'writes the button text', async () => {
-			const user = userEvent.setup();
-			renderForm( { buttonText: '' } );
-
-			await user.type( await screen.findByLabelText( 'Button Text' ), 'B' );
-
-			expect( setAttributes ).toHaveBeenCalledWith( { buttonText: 'B' } );
-		} );
-
-		// EMBED AS is a single choice of four, so a QR under the button has no
-		// home any more. The QR format draws one instead.
-		it( 'offers no QR toggle', async () => {
-			renderForm( {} );
-
-			await expect( screen.findByLabelText( 'Button Text' ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByLabelText( 'Show QR code' ) ).not.toBeInTheDocument();
-		} );
-	} );
-
 	describe( 'Notices', () => {
 		const saved = {
 			isApiManaged: true,
@@ -3215,8 +3193,91 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await expect( screen.findByText( 'Download' ) ).resolves.toBeInTheDocument();
 			} );
 
-			// Create 188 captions the inspector's copy of the code too, so the
-			// merchant reads what they typed without going back to the canvas.
+			// Button Text sits under Embed as so it follows the format, rather than
+			// in the Settings tab where QR and Link merchants saw a field that did
+			// nothing. Scoped to the styles fill: both fills render into one body,
+			// so an unscoped query passes wherever the control actually lives.
+			it( 'writes the button text from the styles tab', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON', buttonText: '' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				await user.type( within( styles ).getByLabelText( 'Button text' ), 'B' );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonText: 'B' } );
+			} );
+
+			// A block with no payment yet reaches the styles tab through a different
+			// render path, so it gets its own case.
+			it( 'offers the button text field before a button exists', async () => {
+				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+				renderForm( { format: 'BUTTON', buttonText: '' } );
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeInTheDocument();
+			} );
+
+			it( 'leaves no button text field in the settings tab', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				// The form and the connection panel are both ungrouped fills, so the
+				// settings tab is more than one node.
+				const settings = await screen.findAllByTestId( 'inspector-controls' );
+				settings.forEach( fill =>
+					expect( within( fill ).queryByLabelText( 'Button text' ) ).not.toBeInTheDocument()
+				);
+			} );
+
+			// Document-wide, not scoped: a QR merchant must not see the field
+			// anywhere, wherever a future change might put it.
+			it( 'keeps the button text field off QR and Link', async () => {
+				const { rerender } = render(
+					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
+				);
+
+				let styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Embed as' ) ).toHaveValue( 'QR' );
+				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Embed as' ) ).toHaveValue( 'LINK' );
+				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+			} );
+
+			// Embed as is a single choice, so a QR under the button has no home
+			// anymore. The QR format draws one instead.
+			it( 'offers no QR toggle', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Show QR code' ) ).not.toBeInTheDocument();
+			} );
+
+			// The inspector's copy carries the caption, so the merchant reads what
+			// they typed without going back to the canvas.
 			it( 'captions the inspector QR code, and drops it with the toggle', async () => {
 				const { rerender } = render(
 					<Edit
@@ -3225,7 +3286,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const inspector = await screen.findByTestId( 'inspector-controls-styles' );
+				let inspector = await screen.findByTestId( 'inspector-controls-styles' );
 				expect( within( inspector ).getByText( 'Scan to pay' ) ).toBeInTheDocument();
 
 				rerender(
@@ -3235,6 +3296,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
+				inspector = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( inspector ).getByText( 'Download' ) ).toBeInTheDocument();
 				expect( within( inspector ).queryByText( 'Scan to pay' ) ).not.toBeInTheDocument();
 			} );
 
@@ -3364,6 +3427,36 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				expect( panel( 'Width Settings' ) ).toBeUndefined();
 				expect( panel( 'Border Settings' ) ).toBeUndefined();
+			} );
+
+			// Both controls take the same busy flag, so a request in flight locks
+			// the format and its label together.
+			it( 'locks embed as and button text while a request is in flight', async () => {
+				const user = userEvent.setup();
+				// Hang the delete so the busy state is still on when we look at it.
+				apiFetch.mockImplementation( ( { method } ) =>
+					'DELETE' === method
+						? new Promise( () => {} )
+						: Promise.resolve( { connected: true, environment: 'sandbox' } )
+				);
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeEnabled();
+				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeEnabled();
+
+				await user.click( await screen.findByTestId( 'toolbar-Delete Payment Button' ) );
+				await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
+
+				await waitFor( () => {
+					expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeDisabled();
+				} );
+				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeDisabled();
 			} );
 
 			it( 'stores a width preset', async () => {
