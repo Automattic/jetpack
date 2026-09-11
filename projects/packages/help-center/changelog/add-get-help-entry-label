@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Admin bar: show a "Get Help" label beside the Help Center icon for users in the calypso_help_center_get_help_chat_forward experiment treatment.
+Admin bar: register the Help Center entry point on every request so the admin-bar REST endpoints return it, and show a "Get Help" label beside its icon for users in the calypso_help_center_get_help_chat_forward experiment treatment.

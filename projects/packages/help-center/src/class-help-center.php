@@ -103,6 +103,8 @@ class Help_Center {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
+		// After the Reader icon; before Agents Manager (100), which replaces this node when it takes over.
+		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_node' ), 12 );
 	}
 
 	/**
@@ -254,47 +256,6 @@ class Help_Center {
 		$script_dependencies = $dependencies ?? array();
 
 		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' || $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
-			add_action(
-				'admin_bar_menu',
-				function ( $wp_admin_bar ) use ( $variant ) {
-					$show_label  = in_array( $variant, array( 'wp-admin', 'gutenberg' ), true ) && $this->should_show_get_help_label();
-					$entry_label = __( 'Get Help', 'jetpack-help-center' );
-					$meta        = array(
-						'html'   => '<div id="help-center-masterbar" />',
-						'class'  => 'menupop',
-						'target' => '_blank',
-					);
-					if ( $show_label ) {
-						// `entry_label` is the client contract for the visible label; the class
-						// lets the admin bar script report whether the label was shown.
-						$meta['entry_label'] = $entry_label;
-						$meta['class']      .= ' has-help-entry-label';
-					}
-
-					$wp_admin_bar->add_menu(
-						array(
-							'id'     => 'help-center',
-							'title'  => '<span title="' . __( 'Help Center', 'jetpack-help-center' ) . '"><svg id="help-center-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-												<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
-											</svg>
-											<svg id="help-center-icon-with-notification" class="ab-icon"  width="24" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-												<path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM13 18H11V16H13V18ZM13 13.859V15H11V13C11 12.448 11.448 12 12 12C13.103 12 14 11.103 14 10C14 8.897 13.103 8 12 8C10.897 8 10 8.897 10 10H8C8 7.791 9.791 6 12 6C14.209 6 16 7.791 16 10C16 11.862 14.722 13.413 13 13.859Z" fill="currentColor"/>
-												<circle cx="20" cy="3.5" r="4.3" fill="#e65054" stroke="#1d2327" stroke-width="2"/>
-											</svg>
-										</span>'
-								. ( $show_label
-									? '<span class="help-center-entry-label" aria-hidden="true"><span>' . esc_html( $entry_label ) . '</span></span>'
-									: '' ),
-							'parent' => 'top-secondary',
-							'href'   => $this->get_help_center_url(),
-							'meta'   => $meta,
-						)
-					);
-				},
-				// Add the help center icon to the admin bar after the reader icon.
-				12
-			);
-
 			if ( is_user_logged_in() && $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
 				// Initialize the help center menu panel
 				require_once __DIR__ . '/class-help-center-menu-panel.php';
@@ -811,11 +772,16 @@ class Help_Center {
 	}
 
 	/**
-	 * Add icon to WP-ADMIN admin bar.
+	 * Which Help Center variant this request gets, or null when it gets none.
+	 *
+	 * Shared by add_admin_bar_node() and enqueue_wp_admin_scripts(), so the entry point and
+	 * the bundle can never disagree about who is eligible.
+	 *
+	 * @return string|null 'wp-admin', 'wp-admin-disconnected', 'gutenberg', 'gutenberg-disconnected', 'logged-out', or null.
 	 */
-	public function enqueue_wp_admin_scripts() {
+	private function get_active_variant() {
 		if ( $this->is_wc_admin_home_page() ) {
-			return;
+			return null;
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -842,12 +808,12 @@ class Help_Center {
 		// 3. On the front end of the site and the theme is not P2
 		// 4. If it is the frontend we show the disconnected version of the help center.
 		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site && ! $should_load_logged_out ) {
-			return;
+			return null;
 		}
 
 		// Do not load Help Center for logged-out users if we are not on support sites.
 		if ( ! is_user_logged_in() && ! $this->is_support_site && ! $should_load_logged_out ) {
-			return;
+			return null;
 		}
 
 		$suffix = $this->is_jetpack_disconnected() ? '-disconnected' : '';
@@ -864,6 +830,72 @@ class Help_Center {
 			$variant = 'wp-admin-disconnected';
 		} else {
 			$variant = ( $this->is_block_editor() ? 'gutenberg' : 'wp-admin' ) . $suffix;
+		}
+
+		return $variant;
+	}
+
+	/**
+	 * Add the Help Center "?" to the admin bar.
+	 *
+	 * Hooked unconditionally, with eligibility resolved here rather than at registration, so the
+	 * admin-bar REST endpoints — which fire `admin_bar_menu` with no enqueue hook — return the
+	 * same node as a page load and Calypso can render the entry point from the payload.
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
+	 */
+	public function add_admin_bar_node( $wp_admin_bar ) {
+		$variant = $this->get_active_variant();
+		if ( ! in_array( $variant, array( 'wp-admin', 'wp-admin-disconnected', 'gutenberg', 'gutenberg-disconnected' ), true ) ) {
+			return;
+		}
+
+		$show_label  = $this->should_show_get_help_label();
+		$entry_label = __( 'Get Help', 'jetpack-help-center' );
+		// `menu_title` and `icon` are the client contract Calypso renders the entry point from;
+		// `title` below is wp-admin markup. Same shape as the Agents Manager nodes.
+		$meta = array(
+			'menu_title' => __( 'Help Center', 'jetpack-help-center' ),
+			'icon'       => 'help',
+			'html'       => '<div id="help-center-masterbar" />',
+			'class'      => 'menupop',
+			'target'     => '_blank',
+		);
+		if ( $show_label ) {
+			// `entry_label` is the client contract for the visible label; the class
+			// lets the admin bar script report whether the label was shown.
+			$meta['entry_label'] = $entry_label;
+			$meta['class']      .= ' has-help-entry-label';
+		}
+
+		$wp_admin_bar->add_menu(
+			array(
+				'id'     => 'help-center',
+				'title'  => '<span title="' . __( 'Help Center', 'jetpack-help-center' ) . '"><svg id="help-center-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+									<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
+								</svg>
+								<svg id="help-center-icon-with-notification" class="ab-icon"  width="24" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM13 18H11V16H13V18ZM13 13.859V15H11V13C11 12.448 11.448 12 12 12C13.103 12 14 11.103 14 10C14 8.897 13.103 8 12 8C10.897 8 10 8.897 10 10H8C8 7.791 9.791 6 12 6C14.209 6 16 7.791 16 10C16 11.862 14.722 13.413 13 13.859Z" fill="currentColor"/>
+									<circle cx="20" cy="3.5" r="4.3" fill="#e65054" stroke="#1d2327" stroke-width="2"/>
+								</svg>
+							</span>'
+					. ( $show_label
+						? '<span class="help-center-entry-label" aria-hidden="true"><span>' . esc_html( $entry_label ) . '</span></span>'
+						: '' ),
+				'parent' => 'top-secondary',
+				'href'   => $this->get_help_center_url(),
+				'meta'   => $meta,
+			)
+		);
+	}
+
+	/**
+	 * Add icon to WP-ADMIN admin bar.
+	 */
+	public function enqueue_wp_admin_scripts() {
+		$variant = $this->get_active_variant();
+		if ( null === $variant ) {
+			return;
 		}
 
 		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';
