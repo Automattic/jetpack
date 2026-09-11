@@ -119,6 +119,32 @@ test( 'contains a render failure with the Overview error fallback', () => {
 	}
 } );
 
+test( 'keeps score errors silent while the Overview is hidden', async () => {
+	/* eslint-disable testing-library/no-node-access */
+	const region =
+		document.getElementById( 'a11y-speak-assertive' ) ?? document.createElement( 'div' );
+	region.id = 'a11y-speak-assertive';
+	region.className = 'a11y-speak-region';
+	region.textContent = '';
+	document.body.appendChild( region );
+	/* eslint-enable testing-library/no-node-access */
+	jest.mocked( requestSpeedScores ).mockRejectedValue( new Error( 'Score request failed' ) );
+	const { rerender } = render(
+		<div hidden>
+			<Overview isVisible={ false } />
+		</div>,
+		{ wrapper: queryWrapper() }
+	);
+	await expect( screen.findByText( 'Score request failed' ) ).resolves.toBeInTheDocument();
+	expect( region ).toBeEmptyDOMElement();
+	rerender(
+		<div>
+			<Overview isVisible />
+		</div>
+	);
+	expect( region ).toHaveTextContent( 'Failed to load Speed Scores' );
+} );
+
 test( 'loads online scores and regenerates them with refresh tracking and history invalidation', async () => {
 	const { client } = renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();

@@ -99,7 +99,7 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 			{ scoreState.status === 'error' && (
 				<Notice.Root
 					intent="error"
-					spokenMessage={ __( 'Failed to load Speed Scores', 'jetpack-boost' ) }
+					spokenMessage={ isVisible ? __( 'Failed to load Speed Scores', 'jetpack-boost' ) : '' }
 				>
 					<Notice.Title>{ __( 'Failed to load Speed Scores', 'jetpack-boost' ) }</Notice.Title>
 					<Notice.Description>{ scoreState.error?.message }</Notice.Description>
@@ -131,7 +131,7 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 			{ modules.isError && (
 				<Notice.Root
 					intent="error"
-					spokenMessage={ __( 'Failed to load module settings', 'jetpack-boost' ) }
+					spokenMessage={ isVisible ? __( 'Failed to load module settings', 'jetpack-boost' ) : '' }
 				>
 					<Notice.Title>{ __( 'Failed to load module settings', 'jetpack-boost' ) }</Notice.Title>
 					<Notice.Description>{ modules.error.message }</Notice.Description>
