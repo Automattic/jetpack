@@ -124,19 +124,13 @@ export const FormWelcomeGuide = () => {
 	 */
 	const currentSlide = useRef( 1 );
 
-	// Whether the guide was open on the previous render, so a new opening can be
-	// spotted. See the reset below.
-	const wasOpen = useRef( false );
-
 	const recordSlideView = useCallback(
 		( slide: number ) => {
 			/*
-			 * The tracker reports its slide whenever it mounts, and an opening
-			 * records its own first slide in the effect below — so the first
-			 * report of an opening is always a duplicate of one already made.
-			 * Comparing against the last slide recorded drops it. Unlike asking
-			 * the tracker whether this is its first run, that holds however
-			 * often `Guide` chooses to remount it.
+			 * The tracker reports its slide whenever it mounts, and the effect
+			 * below records the opening's own first slide — so an opening's
+			 * first report always duplicates one already made. Comparing
+			 * against the last slide recorded drops it.
 			 */
 			if ( slide === currentSlide.current ) {
 				return;
@@ -181,21 +175,6 @@ export const FormWelcomeGuide = () => {
 		isFormEditor &&
 		isWelcomeGuideOpen( { preference, isForced, isEligible, isClosed, isReopened } );
 
-	/*
-	 * Start each opening back at slide 1, and do it during render rather than in
-	 * the effect below. The tracker sits inside the guide, so its effects run
-	 * before this component's: a guide closed on slide 4 and then reopened would
-	 * have its first report compared against 4, pass as a navigation, and record
-	 * a slide 1 the effect is about to record again.
-	 *
-	 * Safe to write during render because it only ever restates the opening
-	 * value, so a repeated render cannot move it.
-	 */
-	if ( isOpen && ! wasOpen.current ) {
-		currentSlide.current = 1;
-	}
-	wasOpen.current = isOpen;
-
 	// One view per opening, not per render.
 	useEffect( () => {
 		if ( ! isOpen ) {
@@ -204,6 +183,16 @@ export const FormWelcomeGuide = () => {
 
 		record( VIEW_EVENT, { origin, slide_count: SLIDE_COUNT } );
 		record( SLIDE_VIEW_EVENT, { slide: 1, slide_count: SLIDE_COUNT, origin } );
+
+		/*
+		 * Rewind on the way out rather than on the way in. The tracker sits
+		 * inside the guide, so its effects run before this one: resetting when
+		 * the next opening starts would land after that opening's first report
+		 * had already been compared against the slide the user left on.
+		 */
+		return () => {
+			currentSlide.current = 1;
+		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- Only a change in `isOpen` is a new viewing; `origin` is fixed for one.
 	}, [ isOpen ] );
 

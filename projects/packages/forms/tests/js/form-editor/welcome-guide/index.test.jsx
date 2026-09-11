@@ -43,12 +43,8 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	),
 } ) );
 
-/*
- * Whether the mocked `Guide` throws its page away on every change instead of
- * reusing the element. Real `Guide` reuses it today, so that is the default —
- * but that is an implementation detail of @wordpress/components rather than
- * anything it promises, and the slide tracking has to survive either choice.
- */
+// Whether the mocked `Guide` throws its page away on every change instead of
+// reusing the element. Real `Guide` reuses it today, so that is the default.
 let guideRemountsPages = false;
 
 /*
@@ -421,11 +417,9 @@ describe( 'FormWelcomeGuide', () => {
 		} );
 
 		/*
-		 * The tracker reports by being mounted inside the page, so whether it
-		 * survives a page change is `Guide`'s decision rather than ours. If it
-		 * ever starts remounting, a tracker that suppressed its own first run
-		 * would suppress every slide instead of just the opening one, and every
-		 * test above would keep passing.
+		 * A tracker that suppressed its own first run would, under remounting,
+		 * suppress every slide instead of just the opening one — and every
+		 * other test in this file would keep passing.
 		 */
 		it( 'records the same slides whether or not Guide remounts each page', async () => {
 			guideRemountsPages = true;
@@ -463,6 +457,24 @@ describe( 'FormWelcomeGuide', () => {
 			).toEqual( [ 1, 2, 3, 1 ] );
 		} );
 
+		// The other route to a fresh opening: the component stays mounted while
+		// in-editor navigation leaves the form editor and comes back.
+		it( 'records the opening slide once after leaving the form editor and returning', async () => {
+			const user = userEvent.setup();
+			const { rerender } = render( <FormWelcomeGuide /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+
+			currentPostType = 'page';
+			rerender( <FormWelcomeGuide /> );
+			currentPostType = 'jetpack_form';
+			rerender( <FormWelcomeGuide /> );
+
+			expect(
+				allOf( 'jetpack_forms_welcome_guide_slide_view' ).map( props => props.slide )
+			).toEqual( [ 1, 2, 1 ] );
+		} );
+
 		it( 'reports how far the user got when they leave', async () => {
 			const user = userEvent.setup();
 			render( <FormWelcomeGuide /> );
@@ -486,6 +498,14 @@ describe( 'FormWelcomeGuide', () => {
 			const guideEvents = recordEvent.mock.calls.filter( ( [ name ] ) =>
 				name.startsWith( 'jetpack_forms_welcome_guide_' )
 			);
+
+			/*
+			 * Pinned to a real integer first: the comparison below comes from
+			 * the same module it is checking, so an absent constant would
+			 * otherwise match `undefined` against itself and pass. Tracks types
+			 * a field from its first value, and undefined would poison it.
+			 */
+			expect( GUIDE_VERSION ).toEqual( expect.any( Number ) );
 
 			// view, slide 1, slide 2, dismiss — so an event recorded without the
 			// version would have to be one of these four.

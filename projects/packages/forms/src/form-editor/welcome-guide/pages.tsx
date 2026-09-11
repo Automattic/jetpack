@@ -38,8 +38,6 @@ export const GUIDE_VERSION = 1;
  * Copy is held as thunks so `__()` runs when the guide is built rather than at
  * module load, which would translate before the locale data has arrived. Each
  * slide names its own artwork, so a slide can't drift away from its image.
- *
- * Editing these means deciding whether GUIDE_VERSION above needs bumping.
  */
 const SLIDES = [
 	{

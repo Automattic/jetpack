@@ -17,6 +17,8 @@ describe( 'welcome-guide/pages', () => {
 		expect( new Set( WELCOME_GUIDE_IMAGES ).size ).toBe( WELCOME_GUIDE_IMAGES.length );
 	} );
 
+	// Reordering or rewording this table means deciding whether GUIDE_VERSION
+	// needs bumping — see its docblock in pages.tsx.
 	test.each( [
 		[ 0, 'Welcome to the form editor', 'welcome.webp' ],
 		[ 1, 'Add fields', 'add-fields.webp' ],
