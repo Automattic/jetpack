@@ -9,6 +9,7 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { dispatch, select } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor'; // eslint-disable-line import/no-unresolved
 import { addFilter } from '@wordpress/hooks';
+import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices'; // eslint-disable-line import/no-unresolved
 import metadata from '../block.json';
 import { API_BASE } from './api-base';
@@ -79,6 +80,21 @@ export function registerSaveSync( isEnabled ) {
 				updateBlockAttributes: dispatch( blockEditorStore ).updateBlockAttributes,
 				reportError: message =>
 					dispatch( noticesStore ).createErrorNotice( message, { type: 'snackbar' } ),
+				// A block the merchant left incomplete is skipped, and the only other
+				// sign is a line in the block sidebar. Say so where the save is watched.
+				reportHeldBack: ( { clientId, attributes }, reason ) =>
+					dispatch( noticesStore ).createWarningNotice(
+						sprintf(
+							/* translators: 1: product name, 2: what to fix */
+							__(
+								'The PayPal button "%1$s" was not sent to PayPal: %2$s',
+								'jetpack-paypal-payments'
+							),
+							attributes.productName || __( 'Untitled', 'jetpack-paypal-payments' ),
+							reason
+						),
+						{ id: `jetpack-paypal-held-back-${ clientId }` }
+					),
 			} );
 
 			if ( ! changed ) {

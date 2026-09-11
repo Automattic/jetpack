@@ -16,7 +16,7 @@ import {
 } from '../components/variant-builder';
 import { API_BASE } from './api-base';
 import { buildRequestData, keepPayPalOnlyFields } from './request-data';
-import { getUserFriendlyError, getValidationErrors, hasBlockingError } from './validation';
+import { ADVISORY_ERROR_KEYS, getUserFriendlyError, getValidationErrors } from './validation';
 
 // The last body each block sent, so an unchanged block is not re-sent on every save.
 const lastSynced = new Map();
@@ -29,15 +29,15 @@ export function forgetSyncedRequests() {
 }
 
 /**
- * Whether a block's form is complete enough to send to PayPal.
+ * Why a block's form cannot be sent to PayPal yet, if it cannot.
  *
  * The same gate the editor shows the merchant: a blocking field error, or an
  * option group error, holds the payment back.
  *
  * @param {object} attributes - Block attributes.
- * @return {boolean} True when the payment can be created or updated.
+ * @return {string|null} The first thing to fix, or null when the payment can go.
  */
-export function isReadyForPayPal( attributes ) {
+export function heldBackReason( attributes ) {
 	const {
 		productName,
 		price,
@@ -63,10 +63,26 @@ export function isReadyForPayPal( attributes ) {
 		taxValue,
 	} );
 
-	return (
-		! hasBlockingError( errors ) &&
-		validateVariants( variantsEnabled, variants, currencyCode || 'USD' ).length === 0
+	const blocking = Object.entries( errors ).find(
+		( [ field, message ] ) => message && ! ADVISORY_ERROR_KEYS.includes( field )
 	);
+	if ( blocking ) {
+		return blocking[ 1 ];
+	}
+
+	const [ variantError ] = validateVariants( variantsEnabled, variants, currencyCode || 'USD' );
+
+	return variantError ? variantError.message : null;
+}
+
+/**
+ * Whether a block's form is complete enough to send to PayPal.
+ *
+ * @param {object} attributes - Block attributes.
+ * @return {boolean} True when the payment can be created or updated.
+ */
+export function isReadyForPayPal( attributes ) {
+	return heldBackReason( attributes ) === null;
 }
 
 /**
@@ -102,13 +118,16 @@ async function createPayment( request, body ) {
  * @param {Function} deps.request               - apiFetch or a stand-in.
  * @param {Function} deps.updateBlockAttributes - Writes attributes onto a block by clientId.
  * @param {Function} deps.reportError           - Shows the merchant a message.
+ * @param {Function} deps.reportHeldBack        - Tells the merchant a block was not sent, and why.
  * @return {Promise<boolean>} True when the block's attributes changed.
  */
 async function syncBlock(
 	{ clientId, attributes },
-	{ request, updateBlockAttributes, reportError }
+	{ request, updateBlockAttributes, reportError, reportHeldBack }
 ) {
-	if ( ! isReadyForPayPal( attributes ) ) {
+	const reason = heldBackReason( attributes );
+	if ( reason ) {
+		reportHeldBack?.( { clientId, attributes }, reason );
 		return false;
 	}
 

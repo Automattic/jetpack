@@ -63,6 +63,7 @@ function fakeDeps( respond ) {
 		request,
 		updateBlockAttributes: jest.fn(),
 		reportError: jest.fn(),
+		reportHeldBack: jest.fn(),
 	};
 }
 
@@ -139,17 +140,39 @@ describe( 'syncBlocksBeforeSave', () => {
 		} );
 	} );
 
-	it( 'leaves an incomplete block alone', async () => {
+	it( 'leaves an incomplete block alone and says why', async () => {
 		const deps = fakeDeps();
 
 		const changed = await syncBlocksBeforeSave(
-			[ { clientId: 'a', attributes: { ...product, productName: '' } } ],
+			[ { clientId: 'a', attributes: { ...product, price: '' } } ],
 			deps
 		);
 
 		expect( changed ).toBe( false );
 		expect( deps.request ).not.toHaveBeenCalled();
 		expect( deps.reportError ).not.toHaveBeenCalled();
+		expect( deps.reportHeldBack ).toHaveBeenCalledWith(
+			{ clientId: 'a', attributes: { ...product, price: '' } },
+			'Price is required.'
+		);
+	} );
+
+	it( 'names an option group error as the reason', async () => {
+		const deps = fakeDeps();
+		const variants = {
+			dimensions: [ { ...variantsWithPrices( [ '1' ] ).dimensions[ 0 ], name: '' } ],
+		};
+
+		await syncBlocksBeforeSave(
+			[ { clientId: 'a', attributes: { ...product, price: '', variantsEnabled: true, variants } } ],
+			deps
+		);
+
+		expect( deps.request ).not.toHaveBeenCalled();
+		expect( deps.reportHeldBack ).toHaveBeenCalledWith(
+			expect.anything(),
+			'Variant name is required.'
+		);
 	} );
 
 	// PayPal rejects a request carrying unit_amount at both levels.
