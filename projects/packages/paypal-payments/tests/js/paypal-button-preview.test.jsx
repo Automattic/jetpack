@@ -415,12 +415,12 @@ describe( 'PayPalButtonPreview', () => {
 					format="QR"
 					qrShowCaption
 					attributes={ {
-						blockWidth: 50,
+						blockWidth: '50%',
 						marginVertical: 12,
 						marginHorizontal: 4,
-						borderRadius: 8,
-						borderWidth: 2,
-						borderColor: '#ff0000',
+						blockBorderRadius: 8,
+						blockBorderWidth: 2,
+						blockBorderColor: '#ff0000',
 						captionColor: '#0000ff',
 						captionFontSize: 20,
 					} }
@@ -440,13 +440,56 @@ describe( 'PayPalButtonPreview', () => {
 			} );
 		} );
 
-		it( 'draws no border when the stroke has a width but no colour', () => {
-			// A colourless border would still take up space and shift the layout.
+		it( 'draws no border when the stroke has a width but no color', () => {
+			// Without a color the browser falls back to currentColor and draws a
+			// border the merchant never chose.
 			render(
-				<PayPalButtonPreview { ...defaultProps } format="QR" attributes={ { borderWidth: 4 } } />
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					attributes={ { blockBorderWidth: 4, blockBorderRadius: 8 } }
+				/>
 			);
-			expect( document.querySelector( '.jetpack-paypal-button-preview--qr' ) ).not.toHaveStyle( {
-				borderWidth: '4px',
+
+			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
+			// The radius still applies, so this proves the gate and not an empty style.
+			expect( wrapper ).toHaveStyle( { borderRadius: '8px' } );
+			expect( wrapper ).not.toHaveStyle( { borderStyle: 'solid' } );
+		} );
+
+		it( 'captions the code when the toggle was never touched', () => {
+			// render_api_managed_button() defaults it on, so the canvas must too.
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveTextContent(
+				'Buy Now'
+			);
+		} );
+
+		it( 'keeps a margin set on one axis only', () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					attributes={ { marginVertical: 12 } }
+				/>
+			);
+			expect( document.querySelector( '.jetpack-paypal-button-preview--qr' ) ).toHaveStyle( {
+				margin: '12px 0',
+			} );
+		} );
+
+		it( 'styles the button card too', () => {
+			// Width and Border are BUTTON and QR both, so the same helper feeds both.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="BUTTON"
+					attributes={ { blockWidth: '75%', blockBorderRadius: 6 } }
+				/>
+			);
+			expect( document.querySelector( '.jetpack-paypal-button-preview' ) ).toHaveStyle( {
+				maxWidth: '75%',
+				borderRadius: '6px',
 			} );
 		} );
 

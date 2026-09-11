@@ -398,7 +398,7 @@
 	margin: 0;
 }
 
-// QR format — the code, then its label.
+// QR format — the code, then its caption.
 .jetpack-paypal-button-preview--qr {
 
 	.jetpack-paypal-button__qr-canvas {
@@ -676,20 +676,6 @@
 	color: #757575;
 	margin: 0;
 	font-style: italic;
-}
-
-// ---------------------------------------------------------------
-// Display Format panel
-// ---------------------------------------------------------------
-
-.jetpack-paypal-payment-buttons__format-toggle {
-	display: flex;
-	margin-bottom: 12px;
-
-	.components-button {
-		flex: 1;
-		justify-content: center;
-	}
 }
 
 // ---------------------------------------------------------------

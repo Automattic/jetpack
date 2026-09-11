@@ -789,14 +789,14 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'paymentLink'      => 'https://www.paypal.com/ncp/payment/PLB-QRSTYLE',
 			'format'           => 'QR',
 			'qrCaption'        => 'Scan to pay',
-			'blockWidth'       => 50,
-			'marginVertical'   => 12,
-			'marginHorizontal' => 4,
-			'borderRadius'     => 8,
-			'borderWidth'      => 2,
-			'borderColor'      => '#ff0000',
-			'captionColor'     => '#0000ff',
-			'captionFontSize'  => 20,
+			'blockWidth'        => '50%',
+			'marginVertical'    => 12,
+			'marginHorizontal'  => 4,
+			'blockBorderRadius' => 8,
+			'blockBorderWidth'  => 2,
+			'blockBorderColor'  => '#ff0000',
+			'captionColor'      => '#0000ff',
+			'captionFontSize'   => 20,
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -807,23 +807,98 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringContainsString( 'margin:12px 4px', $result );
 		$this->assertStringContainsString( 'border-radius:8px', $result );
 		$this->assertStringContainsString( 'border:2px solid #ff0000', $result );
-		$this->assertStringContainsString( 'color:#0000ff', $result );
-		$this->assertStringContainsString( 'font-size:20px', $result );
+		// The caption's own styles belong on the caption, not the block.
+		$this->assertStringContainsString(
+			'<p class="jetpack-paypal-button__qr-caption" style="color:#0000ff;font-size:20px;">',
+			$result
+		);
 	}
 
 	/**
-	 * Test that a colour the picker cannot produce never reaches the style attribute.
+	 * Test that a theme palette color reaches the style attribute.
 	 */
-	public function test_render_block_rejects_an_unparseable_colour() {
+	public function test_render_block_accepts_a_theme_palette_color() {
+		$attributes = array(
+			'isApiManaged'      => true,
+			'resourceId'        => 'PLB-QRPALETTE',
+			'paymentLink'       => 'https://www.paypal.com/ncp/payment/PLB-QRPALETTE',
+			'format'            => 'QR',
+			'blockBorderWidth'  => 2,
+			'blockBorderColor'  => 'var(--wp--preset--color--primary)',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'border:2px solid var(--wp--preset--color--primary)',
+			$result
+		);
+	}
+
+	/**
+	 * Test that Width and Border settings reach a published BUTTON block too.
+	 */
+	public function test_render_block_button_applies_width_and_border_styles() {
+		$attributes = array(
+			'isApiManaged'      => true,
+			'resourceId'        => 'PLB-BTNSTYLE',
+			'paymentLink'       => 'https://www.paypal.com/ncp/payment/PLB-BTNSTYLE',
+			'productName'       => 'Premium Widget',
+			'price'             => '29.99',
+			'format'            => 'BUTTON',
+			'blockWidth'        => '75%',
+			'blockBorderRadius' => 6,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		// On .jetpack-paypal-button, the element style.scss caps at 400px — not
+		// the outer block wrapper, where it would not override that cap.
+		$this->assertStringContainsString(
+			'<div class="jetpack-paypal-button" style="max-width:75%;border-radius:6px;">',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a whitespace-only caption falls back to the default.
+	 */
+	public function test_render_block_qr_caption_whitespace_falls_back() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QRWS',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QRWS',
+			'format'       => 'QR',
+			'qrCaption'    => '   ',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<p class="jetpack-paypal-button__qr-caption">Buy Now</p>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a color the picker cannot produce never reaches the style attribute.
+	 */
+	public function test_render_block_rejects_an_unparseable_color() {
 		$attributes = array(
 			'isApiManaged'  => true,
 			'resourceId'    => 'PLB-QRBADCOL',
 			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-QRBADCOL',
 			'format'        => 'QR',
-			'borderWidth'   => 2,
-			'borderColor'   => 'red; background:url(evil)',
-			'captionColor'  => 'javascript:alert(1)',
-			'qrShowCaption' => true,
+			'blockBorderWidth' => 2,
+			'blockBorderColor' => 'red; background:url(evil)',
+			'captionColor'     => 'javascript:alert(1)',
+			'qrShowCaption'    => true,
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -832,7 +907,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'evil', $result );
 		$this->assertStringNotContainsString( 'javascript:', $result );
-		// The stroke needs both halves, so a rejected colour drops the border too.
+		// The stroke needs both halves, so a rejected color drops the border too.
 		$this->assertStringNotContainsString( 'border:2px', $result );
 	}
 

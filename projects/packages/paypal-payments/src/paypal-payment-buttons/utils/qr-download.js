@@ -7,7 +7,7 @@
  * @package
  */
 
-export const QR_FILENAME = 'paypal-payment-qr.png';
+const QR_FILENAME = 'paypal-payment-qr.png';
 
 /**
  * Download the canvas as a PNG.

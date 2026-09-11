@@ -1,24 +1,29 @@
 /**
  * Width, margin, border and caption styles, as inline CSS.
  *
- * The canvas and the frontend both draw from these, so a block styled in the
- * editor looks the same once published. The PHP side mirrors them in
- * PayPal_Payment_Buttons::get_wrapper_style() and ::get_caption_style() —
- * change one, change the other.
+ * The editor canvas draws from these; PayPal_Payment_Buttons::get_wrapper_style()
+ * and ::get_caption_style() mirror them for the published page, and both put the
+ * result on the same element. Change one, change the other.
  *
  * @package
  */
 
+// Mirrors PayPal_Payment_Buttons::sanitize_css_color(). The palette can hand
+// back a value PHP will not emit, and a color that renders in the editor and
+// vanishes on the published page is the bug this whole milestone exists to fix.
+const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const PRESET_VAR = /^var\(--wp--[a-z0-9-]+\)$/i;
+
 /**
- * Whether a numeric attribute was actually set.
+ * Accept only a color the published page will also emit.
  *
- * 0 is a value a merchant can pick, so the test is for null/undefined/'' only.
- *
- * @param {*} value - The attribute value.
- * @return {boolean} True when the attribute carries a number.
+ * @param {string} color - The raw attribute value.
+ * @return {string} The color, or '' when PHP would drop it.
  */
-function isSet( value ) {
-	return value !== undefined && value !== null && value !== '' && ! isNaN( value );
+function usableColor( color ) {
+	const value = `${ color ?? '' }`.trim();
+
+	return HEX.test( value ) || PRESET_VAR.test( value ) ? value : '';
 }
 
 /**
@@ -28,25 +33,37 @@ function isSet( value ) {
  * @return {object} A React style object, empty when nothing is configured.
  */
 export function getWrapperStyle( attributes = {} ) {
-	const { blockWidth, marginVertical, marginHorizontal, borderRadius, borderWidth, borderColor } =
-		attributes;
+	const {
+		blockWidth,
+		marginVertical,
+		marginHorizontal,
+		blockBorderRadius,
+		blockBorderWidth,
+		blockBorderColor,
+	} = attributes;
 	const style = {};
 
-	if ( isSet( blockWidth ) ) {
-		style.maxWidth = `${ blockWidth }%`;
+	// Width carries its own unit, so it goes through as typed.
+	if ( blockWidth ) {
+		style.maxWidth = blockWidth;
 	}
-	if ( isSet( marginVertical ) || isSet( marginHorizontal ) ) {
-		const vertical = isSet( marginVertical ) ? `${ marginVertical }px` : '0';
-		const horizontal = isSet( marginHorizontal ) ? `${ marginHorizontal }px` : '0';
+
+	// 0 is a margin a merchant can pick, so the test is for a number, not truth.
+	if ( Number.isFinite( marginVertical ) || Number.isFinite( marginHorizontal ) ) {
+		const vertical = Number.isFinite( marginVertical ) ? `${ marginVertical }px` : '0';
+		const horizontal = Number.isFinite( marginHorizontal ) ? `${ marginHorizontal }px` : '0';
 		style.margin = `${ vertical } ${ horizontal }`;
 	}
-	if ( isSet( borderRadius ) ) {
-		style.borderRadius = `${ borderRadius }px`;
+
+	if ( Number.isFinite( blockBorderRadius ) ) {
+		style.borderRadius = `${ blockBorderRadius }px`;
 	}
-	// A width with no colour would draw an invisible border and still take up
-	// space, so both have to be present.
-	if ( isSet( borderWidth ) && borderColor ) {
-		style.border = `${ borderWidth }px solid ${ borderColor }`;
+
+	// A width with no color would fall back to currentColor and draw a border
+	// the merchant never chose, so emit one only when both halves are set.
+	const borderColor = usableColor( blockBorderColor );
+	if ( Number.isFinite( blockBorderWidth ) && borderColor ) {
+		style.border = `${ blockBorderWidth }px solid ${ borderColor }`;
 	}
 
 	return style;
@@ -62,10 +79,11 @@ export function getCaptionStyle( attributes = {} ) {
 	const { captionColor, captionFontSize } = attributes;
 	const style = {};
 
-	if ( captionColor ) {
-		style.color = captionColor;
+	const color = usableColor( captionColor );
+	if ( color ) {
+		style.color = color;
 	}
-	if ( isSet( captionFontSize ) ) {
+	if ( Number.isFinite( captionFontSize ) ) {
 		style.fontSize = `${ captionFontSize }px`;
 	}
 

@@ -1,10 +1,6 @@
 /**
- * Label defaults.
- *
- * The attributes default to an empty string and the label is filled in at
- * render, so a merchant who never touches the control gets a translated label
- * rather than an English one baked into block.json. The PHP side repeats these
- * in render_api_managed_button().
+ * Label defaults, filled in at render rather than in block.json so merchants
+ * get a translated label. render_api_managed_button() repeats them.
  *
  * @package
  */
