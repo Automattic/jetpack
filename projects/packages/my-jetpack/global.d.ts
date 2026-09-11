@@ -490,7 +490,6 @@ type MainFeature = {
 interface Window {
 	myJetpackInitialState?: {
 		mainFeatures: MainFeature[];
-		recommendedModuleSlugs: string[];
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {

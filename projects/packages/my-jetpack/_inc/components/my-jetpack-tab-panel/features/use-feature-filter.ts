@@ -1,12 +1,10 @@
 import { __ } from '@wordpress/i18n';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import type { FeatureState } from './feature-state';
 
 export type FeatureFilter =
 	| 'all'
 	| 'active'
 	| 'inactive'
-	| 'recommended'
 	| 'essential'
 	| 'security'
 	| 'complete'
@@ -15,10 +13,13 @@ export type FeatureFilter =
 const PLANS = [ 'security', 'complete', 'growth' ];
 
 export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
-	[ 'all', 'active', 'inactive', 'recommended', 'essential', ...PLANS ].includes( value );
+	[ 'all', 'active', 'inactive', 'essential', ...PLANS ].includes( value );
 
 /**
  * The filters offered as pills, in the order they are shown.
+ *
+ * Complete is absent by choice: it stays a valid filter because a Complete plan badge
+ * in a feature's modal selects it, but it does not earn a pill of its own.
  *
  * @return One entry per filter, each with its label.
  */
@@ -26,10 +27,8 @@ export const getFeatureFilters = (): Array< { value: FeatureFilter; label: strin
 	{ value: 'all', label: __( 'All', 'jetpack-my-jetpack' ) },
 	{ value: 'active', label: __( 'Active', 'jetpack-my-jetpack' ) },
 	{ value: 'inactive', label: __( 'Inactive', 'jetpack-my-jetpack' ) },
-	{ value: 'recommended', label: __( 'Recommended', 'jetpack-my-jetpack' ) },
 	{ value: 'essential', label: __( 'Essential', 'jetpack-my-jetpack' ) },
 	{ value: 'security', label: __( 'Security', 'jetpack-my-jetpack' ) },
-	{ value: 'complete', label: __( 'Complete', 'jetpack-my-jetpack' ) },
 	{ value: 'growth', label: __( 'Growth', 'jetpack-my-jetpack' ) },
 ];
 
@@ -57,14 +56,5 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 		return !! state.feature.plans?.some( plan => plan.slug === filter );
 	}
 
-	if ( filter === 'essential' ) {
-		return !! state.feature.essential;
-	}
-
-	// `Recommended` is a tag Jetpack puts on the module behind a feature, and never
-	// reaches the browser on the feature itself.
-	const recommended = ( getMyJetpackWindowInitialState( 'recommendedModuleSlugs' ) ||
-		[] ) as unknown as string[];
-
-	return !! state.module?.module && recommended.includes( state.module.module );
+	return !! state.feature.essential;
 }

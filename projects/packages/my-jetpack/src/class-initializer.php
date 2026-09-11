@@ -359,7 +359,6 @@ class Initializer {
 					'items' => Products::get_products(),
 				),
 				'mainFeatures'           => Main_Features::get_features(),
-				'recommendedModuleSlugs' => Main_Features::get_recommended_modules(),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
