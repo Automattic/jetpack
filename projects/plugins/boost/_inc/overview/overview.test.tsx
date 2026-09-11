@@ -123,19 +123,33 @@ test.each( [
 	[ 'score', 'Failed to load Speed Scores' ],
 	[ 'performance-history', 'Failed to load performance history' ],
 	[ 'modules-state', 'Failed to load module settings' ],
+	[ 'offline', 'Website is not publicly available' ],
+	[ 'fallback', 'Unable to display performance scores' ],
 ] )( 'keeps %s errors silent while the Overview is hidden', async ( source, message ) => {
 	/* eslint-disable testing-library/no-node-access */
-	const region =
-		document.getElementById( 'a11y-speak-assertive' ) ?? document.createElement( 'div' );
-	region.id = 'a11y-speak-assertive';
+	const regionId = `a11y-speak-${ source === 'offline' ? 'polite' : 'assertive' }`;
+	const region = document.getElementById( regionId ) ?? document.createElement( 'div' );
+	region.id = regionId;
 	region.className = 'a11y-speak-region';
 	region.textContent = '';
 	document.body.appendChild( region );
 	/* eslint-enable testing-library/no-node-access */
 	const error = new Error( `${ source } request failed` );
-	if ( source === 'score' ) {
+	const scoreHook =
+		source === 'fallback'
+			? jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
+					throw error;
+			  } )
+			: undefined;
+	const consoleError =
+		source === 'fallback'
+			? jest.spyOn( console, 'error' ).mockImplementation( () => {} )
+			: undefined;
+	if ( source === 'offline' ) {
+		Jetpack_Boost.site.online = false;
+	} else if ( source === 'score' ) {
 		jest.mocked( requestSpeedScores ).mockRejectedValue( error );
-	} else {
+	} else if ( source !== 'fallback' ) {
 		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
 		jest
 			.mocked( apiFetch )
@@ -143,20 +157,36 @@ test.each( [
 				options.url?.endsWith( `/${ source }` ) ? Promise.reject( error ) : fetch( options )
 			);
 	}
-	const { rerender } = render(
-		<div hidden>
-			<Overview isVisible={ false } />
-		</div>,
-		{ wrapper: queryWrapper() }
+	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const wrapper = ( { children }: { children: React.ReactNode } ) => (
+		<QueryClientProvider client={ client }>{ children }</QueryClientProvider>
 	);
-	await expect( screen.findByText( error.message ) ).resolves.toBeInTheDocument();
-	expect( region ).toBeEmptyDOMElement();
-	rerender(
-		<div>
-			<Overview isVisible />
-		</div>
-	);
-	expect( region ).toHaveTextContent( message );
+	try {
+		const { rerender } = render(
+			<div hidden>
+				<Overview isVisible={ false } />
+			</div>,
+			{ wrapper }
+		);
+		await waitFor( () => {
+			expect( client.isFetching() ).toBe( 0 );
+			expect(
+				screen.getByText( source === 'offline' ? message : error.message )
+			).toBeInTheDocument();
+		} );
+		expect( region ).toBeEmptyDOMElement();
+		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+		rerender(
+			<div>
+				<Overview isVisible />
+			</div>
+		);
+		await waitFor( () => expect( region ).toHaveTextContent( message ) );
+	} finally {
+		scoreHook?.mockRestore();
+		consoleError?.mockRestore();
+		client.clear();
+	}
 } );
 
 test( 'loads online scores and regenerates them with refresh tracking and history invalidation', async () => {
