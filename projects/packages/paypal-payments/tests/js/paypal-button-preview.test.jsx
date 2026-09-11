@@ -69,8 +69,13 @@ describe( 'PayPalButtonPreview', () => {
 		expect( document.querySelector( '.jetpack-paypal-button__logo' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the attribution line, as the frontend does', () => {
+	it( 'leaves the attribution line off until the merchant asks for it', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
+		expect( screen.queryByText( 'Powered by PayPal' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the attribution line with showPoweredBy on, as the frontend does', () => {
+		render( <PayPalButtonPreview { ...defaultProps } attributes={ { showPoweredBy: true } } /> );
 		expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
 	} );
 

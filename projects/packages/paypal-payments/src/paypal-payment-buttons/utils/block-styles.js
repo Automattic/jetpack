@@ -146,6 +146,41 @@ export function getWrapperStyle( attributes = {} ) {
 }
 
 /**
+ * A validated color, with a chosen palette entry expanded.
+ *
+ * None of the Color panels go through the style engine, so the expansion
+ * sanitize_css_color() does for the page happens here for the canvas.
+ *
+ * @param {*} value - A raw attribute value.
+ * @return {string} The color, or '' when it is not one.
+ */
+function cssColor( value ) {
+	const clean = color( value );
+	const preset = clean.match( COLOR_PRESET );
+
+	return preset ? `var(--wp--preset--color--${ preset[ 1 ] })` : clean;
+}
+
+/**
+ * A validated font size, carrying its unit.
+ *
+ * @param {*} value - A raw attribute value.
+ * @return {string} The size, or '' when it is not one.
+ */
+function cssFontSize( value ) {
+	const size = `${ value ?? '' }`.trim();
+
+	// FontSizePicker hands back the size with its unit — `20px`, a theme preset's
+	// `1rem`, or a fluid `clamp(…)` — and drops the unit when the theme's own
+	// sizes are numbers. Core reads a bare number as px.
+	if ( UNITLESS.test( size ) ) {
+		return `${ size }px`;
+	}
+
+	return length( size ) || ( FONT_SIZE_VAR.test( size ) || FLUID_SIZE.test( size ) ? size : '' );
+}
+
+/**
  * Color and Typography, for the QR caption and the payment link.
  *
  * The caption and the link take the same validation — a value the published page
@@ -156,21 +191,33 @@ export function getWrapperStyle( attributes = {} ) {
  * @return {object} A React style object, empty when nothing is configured.
  */
 export function getTextStyle( textColor, textSize ) {
-	const size = `${ textSize ?? '' }`.trim();
-	// FontSizePicker hands back the size with its unit — `20px`, a theme preset's
-	// `1rem`, or a fluid `clamp(…)` — and drops the unit when the theme's own
-	// sizes are numbers. Core reads a bare number as px.
-	const fontSize = UNITLESS.test( size )
-		? `${ size }px`
-		: length( size ) || ( FONT_SIZE_VAR.test( size ) || FLUID_SIZE.test( size ) ? size : '' );
-
-	// Both panels skip the style engine, so a chosen palette entry is expanded
-	// here the way sanitize_css_color() expands it for the page.
-	const clean = color( textColor );
-	const preset = clean.match( COLOR_PRESET );
+	const clean = cssColor( textColor );
+	const fontSize = cssFontSize( textSize );
 
 	return {
-		...( clean ? { color: preset ? `var(--wp--preset--color--${ preset[ 1 ] })` : clean } : {} ),
+		...( clean ? { color: clean } : {} ),
 		...( fontSize ? { fontSize } : {} ),
+	};
+}
+
+/**
+ * Color, Styles and Typography for the checkout button.
+ *
+ * Mirrors get_button_style() in class-paypal-payment-buttons.php.
+ *
+ * @param {object} attributes - The block attributes.
+ * @return {object} A React style object, empty when nothing is configured.
+ */
+export function getButtonStyle( attributes = {} ) {
+	const { buttonStyle, buttonTextColor, buttonBackgroundColor, buttonFontSize } = attributes;
+
+	// Outline takes its transparent background and its currentColor border from
+	// style.scss. An inline background-color would beat that rule and fill the
+	// button back in, so the chosen background is dropped rather than emitted.
+	const background = 'outline' === buttonStyle ? '' : cssColor( buttonBackgroundColor );
+
+	return {
+		...getTextStyle( buttonTextColor, buttonFontSize ),
+		...( background ? { backgroundColor: background } : {} ),
 	};
 }

@@ -3309,6 +3309,185 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByLabelText( 'Show QR code' ) ).not.toBeInTheDocument();
 			} );
 
+			// Create 191 draws the button's Color panel with two rows. The other
+			// two formats colour one thing and draw one.
+			it( 'gives the button a Text and a Background swatch', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const colorPanel = await screen.findByTestId( 'tools-panel-Color' );
+				expect( within( colorPanel ).getByTestId( 'color-Text' ) ).toBeInTheDocument();
+				expect( within( colorPanel ).getByTestId( 'color-Background' ) ).toBeInTheDocument();
+			} );
+
+			it( 'stores the button text and background colors separately', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'color-Text' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonTextColor: '#111111' } );
+
+				await user.click( screen.getByTestId( 'color-Background' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonBackgroundColor: '#111111' } );
+			} );
+
+			// Reset All clears every row in the panel, not just the last one set.
+			it( 'clears both button colors at once', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ {
+							...qrAttributes,
+							format: 'BUTTON',
+							buttonTextColor: '#1e1e1e',
+							buttonBackgroundColor: '#ffd140',
+						} }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'color-clear' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonTextColor: '' } );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonBackgroundColor: '' } );
+			} );
+
+			it( 'offers Fill and Outline on the button, and defaults to Fill', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const toggle = within( styles ).getByTestId( 'toggle-group-Styles' );
+				expect( toggle ).toHaveAttribute( 'data-value', 'fill' );
+
+				await user.click( within( toggle ).getByText( 'Outline' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonStyle: 'outline' } );
+			} );
+
+			// Fill/Outline is the button's alone — a QR or a link has no face to
+			// fill. Document-wide, wherever a future change might put it.
+			it( 'keeps the Styles panel off QR and Link', async () => {
+				const { rerender } = render(
+					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+				expect( screen.queryByTestId( 'toggle-group-Styles' ) ).not.toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				expect( screen.queryByTestId( 'toggle-group-Styles' ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'starts with the attribution line off and toggles it on', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const checkbox = within( styles ).getByLabelText( 'Show "Powered by PayPal" text' );
+				expect( checkbox ).not.toBeChecked();
+
+				await user.click( checkbox );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { showPoweredBy: true } );
+			} );
+
+			// Julian, 2026-09-11: the button alone offers the choice. The QR draws
+			// the code and its caption and nothing else.
+			it( 'keeps the attribution checkbox off QR and Link', async () => {
+				const { rerender } = render(
+					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+				expect(
+					screen.queryByLabelText( 'Show "Powered by PayPal" text' )
+				).not.toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				expect(
+					screen.queryByLabelText( 'Show "Powered by PayPal" text' )
+				).not.toBeInTheDocument();
+			} );
+
+			// Create 191 puts Width Settings between Color and Typography; the QR
+			// frame does not. A shared Color+Typography component cannot draw both.
+			it( 'orders the button panels Color, Styles, Width, Typography, Border', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				// Both testids in one query, so the result comes back in document
+				// order. Only PanelBody carries a title; the Color panel is a
+				// ToolsPanel and is named by its testid.
+				const titles = within( styles )
+					.getAllByTestId( /^(tools-panel-Color|panel-body)$/ )
+					.map( node => node.getAttribute( 'data-title' ) || 'Color' );
+
+				expect( titles ).toEqual( [
+					'Color',
+					'Styles',
+					'Width Settings',
+					'Typography',
+					'Border Settings',
+				] );
+			} );
+
+			// The Light / Auto / Dark preset only ever changed the editor — the
+			// published page never emitted data-color-scheme — so it is gone.
+			it( 'offers no color scheme preset', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+
+				expect( screen.queryByText( 'Light' ) ).not.toBeInTheDocument();
+				expect( screen.queryByText( 'Auto' ) ).not.toBeInTheDocument();
+				expect( screen.queryByText( 'Dark' ) ).not.toBeInTheDocument();
+			} );
+
 			// The inspector's copy shows the caption too, so the merchant sees what
 			// they typed without going back to the canvas.
 			it( 'captions the inspector QR code, and drops it with the toggle', async () => {

@@ -41,7 +41,7 @@ import FormatSwitcher from './format-switcher';
 import QrCodePreview from './qr-code-preview';
 
 // ToolsPanel and the dropdown inside it have to agree on the panel they belong to.
-const PANEL_ID = 'paypal-text-color';
+const PANEL_ID = 'paypal-color';
 
 // Hoisted: the production build folds a ternary around __() and then fails the
 // i18n check on the result. Only that build does it, so it surfaces in CI.
@@ -271,63 +271,108 @@ function QrOutputControls( { attributes, setAttributes, qrUrl, disabled } ) {
 }
 
 /**
- * Color and Typography for a format's text — the QR caption, or the link.
+ * Color, for whatever the format colours — the QR caption, the link, or the
+ * button's text and background.
  *
- * Both draw the same two panels over their own attributes, differing only in
- * what the color row is called.
+ * One row per colour, so the button draws two and the other two formats draw one.
  *
  * @param {object}   props               - Component props.
- * @param {string}   props.label         - The color row's label.
- * @param {string}   props.colorKey      - Attribute holding the color.
+ * @param {Array}    props.rows          - `{ label, colorKey }` per swatch row.
+ * @param {object}   props.attributes    - The block attributes.
+ * @param {Function} props.setAttributes - Update block attributes.
+ * @return {Element} The Color panel.
+ */
+function ColorPanel( { rows, attributes, setAttributes } ) {
+	const colorSettings = useMultipleOriginColorsAndGradients();
+	const cleared = rows.reduce( ( out, { colorKey } ) => ( { ...out, [ colorKey ]: '' } ), {} );
+
+	return (
+		/* ColorGradientSettingsDropdown renders a ToolsPanelItem, so it needs a
+		   ToolsPanel around it, which also supplies the reset menu. Core's class
+		   name handles the row spacing. Leave hasInnerWrapper off: it lays the
+		   items out in two columns, which halves the row and truncates
+		   "Link text". */
+		<ToolsPanel
+			className="color-block-support-panel"
+			label={ __( 'Color', 'jetpack-paypal-payments' ) }
+			resetAll={ () => setAttributes( cleared ) }
+			panelId={ PANEL_ID }
+			__experimentalFirstVisibleItemClass="first"
+			__experimentalLastVisibleItemClass="last"
+		>
+			<ColorGradientSettingsDropdown
+				__experimentalIsRenderedInSidebar
+				panelId={ PANEL_ID }
+				settings={ rows.map( ( { label, colorKey } ) => ( {
+					label,
+					colorValue: attributes[ colorKey ],
+					onColorChange: value => setAttributes( { [ colorKey ]: value || '' } ),
+					clearable: true,
+					resetAllFilter: () => ( { [ colorKey ]: '' } ),
+				} ) ) }
+				{ ...colorSettings }
+				gradients={ [] }
+				disableCustomGradients
+			/>
+		</ToolsPanel>
+	);
+}
+
+/**
+ * Typography — one custom size.
+ *
+ * Its own panel rather than part of ColorPanel: the button puts Width Settings
+ * between the two, and the other formats do not.
+ *
+ * @param {object}   props               - Component props.
  * @param {string}   props.fontSizeKey   - Attribute holding the font size.
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
- * @return {Element} The Color and Typography panels.
+ * @return {Element} The Typography panel.
  */
-function TextStylePanels( { label, colorKey, fontSizeKey, attributes, setAttributes } ) {
-	const colorSettings = useMultipleOriginColorsAndGradients();
-
+function TypographyPanel( { fontSizeKey, attributes, setAttributes } ) {
 	return (
-		<>
-			{ /* ColorGradientSettingsDropdown renders a ToolsPanelItem, so it needs a
-			     ToolsPanel around it, which also supplies the reset menu. Core's
-			     class name handles the row spacing. Leave hasInnerWrapper off: it
-			     lays the items out in two columns, which halves the row and
-			     truncates "Link text". */ }
-			<ToolsPanel
-				className="color-block-support-panel"
-				label={ __( 'Color', 'jetpack-paypal-payments' ) }
-				resetAll={ () => setAttributes( { [ colorKey ]: '' } ) }
-				panelId={ PANEL_ID }
-				__experimentalFirstVisibleItemClass="first"
-				__experimentalLastVisibleItemClass="last"
-			>
-				<ColorGradientSettingsDropdown
-					__experimentalIsRenderedInSidebar
-					panelId={ PANEL_ID }
-					settings={ [
-						{
-							label,
-							colorValue: attributes[ colorKey ],
-							onColorChange: value => setAttributes( { [ colorKey ]: value || '' } ),
-							clearable: true,
-							resetAllFilter: () => ( { [ colorKey ]: '' } ),
-						},
-					] }
-					{ ...colorSettings }
-					gradients={ [] }
-					disableCustomGradients
-				/>
-			</ToolsPanel>
+		<PanelBody title={ __( 'Typography', 'jetpack-paypal-payments' ) }>
+			<FontSizePicker
+				value={ attributes[ fontSizeKey ] }
+				onChange={ value => setAttributes( { [ fontSizeKey ]: value } ) }
+				withReset={ false }
+			/>
+		</PanelBody>
+	);
+}
 
-			<PanelBody title={ __( 'Typography', 'jetpack-paypal-payments' ) }>
-				<FontSizePicker
-					value={ attributes[ fontSizeKey ] }
-					onChange={ value => setAttributes( { [ fontSizeKey ]: value } ) }
-					withReset={ false }
+/**
+ * Styles — Fill or Outline, on the button only.
+ *
+ * Not a `registerBlockStyle` variation: core renders `BlockStyles` first in the
+ * tab and as preview cards, and Create 191 draws this below Color as two plain
+ * buttons.
+ *
+ * @param {object}   props               - Component props.
+ * @param {string}   props.buttonStyle   - The chosen style.
+ * @param {Function} props.setAttributes - Update block attributes.
+ * @return {Element} The Styles panel.
+ */
+function StylesPanel( { buttonStyle, setAttributes } ) {
+	return (
+		<PanelBody title={ __( 'Styles', 'jetpack-paypal-payments' ) }>
+			<ToggleGroupControl
+				label={ __( 'Styles', 'jetpack-paypal-payments' ) }
+				hideLabelFromVision
+				value={ buttonStyle || 'fill' }
+				onChange={ value => setAttributes( { buttonStyle: value } ) }
+				isBlock
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+			>
+				<ToggleGroupControlOption value="fill" label={ __( 'Fill', 'jetpack-paypal-payments' ) } />
+				<ToggleGroupControlOption
+					value="outline"
+					label={ __( 'Outline', 'jetpack-paypal-payments' ) }
 				/>
-			</PanelBody>
-		</>
+			</ToggleGroupControl>
+		</PanelBody>
 	);
 }
 
@@ -412,9 +457,6 @@ export default function PayPalFormatControls( {
 	paymentUrl,
 	disabled,
 } ) {
-	// Width and Border apply to BUTTON and QR only; LINK has no box to size.
-	const hasBox = format !== 'LINK';
-
 	return (
 		<InspectorControls group="styles">
 			{ /* Embed as and the format's own controls sit in a plain section with
@@ -428,13 +470,26 @@ export default function PayPalFormatControls( {
 				/>
 
 				{ 'BUTTON' === format && (
-					<LabelField
-						label={ __( 'Button text', 'jetpack-paypal-payments' ) }
-						attribute="buttonText"
-						attributes={ attributes }
-						setAttributes={ setAttributes }
-						disabled={ disabled }
-					/>
+					<>
+						<LabelField
+							label={ __( 'Button text', 'jetpack-paypal-payments' ) }
+							attribute="buttonText"
+							attributes={ attributes }
+							setAttributes={ setAttributes }
+							disabled={ disabled }
+						/>
+
+						{ /* Create 191 draws a `Show payment method logos` checkbox above
+						     this one. That is REDESIGN-GAPS row 12, parked on Q15 — the
+						     card-network marks need legal sign-off. */ }
+						<CheckboxControl
+							label={ __( 'Show "Powered by PayPal" text', 'jetpack-paypal-payments' ) }
+							checked={ !! attributes.showPoweredBy }
+							onChange={ value => setAttributes( { showPoweredBy: value } ) }
+							disabled={ disabled }
+							__nextHasNoMarginBottom
+						/>
+					</>
 				) }
 
 				{ 'LINK' === format && (
@@ -456,34 +511,72 @@ export default function PayPalFormatControls( {
 				) }
 			</div>
 
-			{ 'LINK' === format && (
-				<TextStylePanels
-					label={ __( 'Link text', 'jetpack-paypal-payments' ) }
-					colorKey="linkColor"
-					fontSizeKey="linkFontSize"
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-				/>
-			) }
-
-			{ 'QR' === format && attributes.qrShowCaption && (
-				<TextStylePanels
-					label={ __( 'Text', 'jetpack-paypal-payments' ) }
-					colorKey="captionColor"
-					fontSizeKey="captionFontSize"
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-				/>
-			) }
-
-			{ hasBox && (
+			{ /* Each format's panels in the order its frame draws them. The button
+			     is the only one that puts Width Settings between Color and
+			     Typography, which is why Typography is its own panel. */ }
+			{ 'BUTTON' === format && (
 				<>
-					<WidthPanel blockWidth={ attributes.blockWidth } setAttributes={ setAttributes } />
-					<BorderPanel
+					<ColorPanel
+						rows={ [
+							{ label: __( 'Text', 'jetpack-paypal-payments' ), colorKey: 'buttonTextColor' },
+							{
+								label: __( 'Background', 'jetpack-paypal-payments' ),
+								colorKey: 'buttonBackgroundColor',
+							},
+						] }
 						attributes={ attributes }
 						setAttributes={ setAttributes }
-						showMargin={ 'QR' === format }
 					/>
+					<StylesPanel buttonStyle={ attributes.buttonStyle } setAttributes={ setAttributes } />
+					<WidthPanel blockWidth={ attributes.blockWidth } setAttributes={ setAttributes } />
+					<TypographyPanel
+						fontSizeKey="buttonFontSize"
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+					/>
+					<BorderPanel attributes={ attributes } setAttributes={ setAttributes } />
+				</>
+			) }
+
+			{ /* LINK has no box to size, so no Width or Border. */ }
+			{ 'LINK' === format && (
+				<>
+					<ColorPanel
+						rows={ [
+							{ label: __( 'Link text', 'jetpack-paypal-payments' ), colorKey: 'linkColor' },
+						] }
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+					/>
+					<TypographyPanel
+						fontSizeKey="linkFontSize"
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+					/>
+				</>
+			) }
+
+			{ 'QR' === format && (
+				<>
+					{ /* Nothing to colour or size until there is a caption. */ }
+					{ attributes.qrShowCaption && (
+						<>
+							<ColorPanel
+								rows={ [
+									{ label: __( 'Text', 'jetpack-paypal-payments' ), colorKey: 'captionColor' },
+								] }
+								attributes={ attributes }
+								setAttributes={ setAttributes }
+							/>
+							<TypographyPanel
+								fontSizeKey="captionFontSize"
+								attributes={ attributes }
+								setAttributes={ setAttributes }
+							/>
+						</>
+					) }
+					<WidthPanel blockWidth={ attributes.blockWidth } setAttributes={ setAttributes } />
+					<BorderPanel attributes={ attributes } setAttributes={ setAttributes } showMargin />
 				</>
 			) }
 		</InspectorControls>

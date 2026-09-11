@@ -59,6 +59,12 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'fontSize' => 'linkFontSize',
 			'selector' => 'class="jetpack-paypal-button__paypal-link"',
 		),
+		'button'  => array(
+			'format'   => 'BUTTON',
+			'color'    => 'buttonTextColor',
+			'fontSize' => 'buttonFontSize',
+			'selector' => 'class="jetpack-paypal-button__checkout-link wp-element-button"',
+		),
 	);
 
 	/**
@@ -558,10 +564,86 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			$result
 		);
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__logo', $result );
+	}
+
+	/**
+	 * Render the BUTTON format with the given attributes.
+	 *
+	 * @param array $attributes Attributes on top of a valid payment.
+	 * @return string The rendered HTML.
+	 */
+	private function render_button_format( array $attributes ) {
+		$attributes = array_merge(
+			array(
+				'isApiManaged' => true,
+				'resourceId'   => 'PLB-BUTTON',
+				'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-BUTTON',
+				'productName'  => 'Premium Widget',
+				'format'       => 'BUTTON',
+			),
+			$attributes
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		return PayPal_Payment_Buttons::render_block( $attributes, '' );
+	}
+
+	/**
+	 * Test that the attribution line is off until the merchant asks for it.
+	 */
+	public function test_render_button_hides_the_attribution_by_default() {
+		$result = $this->render_button_format( array() );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $result );
+		// Positive control: the button itself still rendered.
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $result );
+	}
+
+	/**
+	 * Test that showPoweredBy draws the attribution line.
+	 */
+	public function test_render_button_shows_the_attribution_when_asked() {
+		$result = $this->render_button_format( array( 'showPoweredBy' => true ) );
+
 		$this->assertStringContainsString(
 			'<p class="jetpack-paypal-button__attribution">Powered by PayPal</p>',
 			$result
 		);
+	}
+
+	/**
+	 * Test that Outline puts the style class on the anchor and Fill does not.
+	 *
+	 * The transparent background and the currentColor border come from
+	 * style.scss, so the class is the whole of the contract here.
+	 */
+	public function test_render_button_marks_the_outline_style() {
+		$outline = $this->render_button_format( array( 'buttonStyle' => 'outline' ) );
+		$fill    = $this->render_button_format( array( 'buttonStyle' => 'fill' ) );
+
+		$this->assertStringContainsString(
+			'class="jetpack-paypal-button__checkout-link wp-element-button is-style-outline"',
+			$outline
+		);
+		$this->assertStringNotContainsString( 'is-style-outline', $fill );
+	}
+
+	/**
+	 * Test that an unknown button style is treated as Fill.
+	 *
+	 * The attribute is an enum, so this only arrives hand-edited in code view.
+	 */
+	public function test_render_button_treats_an_unknown_style_as_fill() {
+		$result = $this->render_button_format(
+			array(
+				'buttonStyle'           => 'ghost',
+				'buttonBackgroundColor' => '#ffd140',
+			)
+		);
+
+		$this->assertStringNotContainsString( 'is-style-outline', $result );
+		$this->assertStringContainsString( 'background-color:#ffd140', $result );
 	}
 
 	/**
@@ -776,12 +858,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
 		$this->assertStringNotContainsString( 'Premium Widget', $result );
 
-		// The published QR still carries the branding line. Pinned so a change to
-		// it is a deliberate one.
-		$this->assertStringContainsString(
-			'<p class="jetpack-paypal-button__attribution">Powered by PayPal</p>',
-			$result
-		);
+		// The branding line is the button's alone — the QR draws the code and its
+		// caption and nothing else. Pinned so a change to it is a deliberate one.
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $result );
 	}
 
 	/**
@@ -1210,7 +1289,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$path    = __DIR__ . '/../fixtures/style-parity.json';
 		$fixture = json_decode( (string) file_get_contents( $path ), true );
 
-		foreach ( array( 'cases', 'textCases', 'rejectedCases', 'rejectedTextCases' ) as $table ) {
+		foreach ( array( 'cases', 'textCases', 'rejectedCases', 'rejectedTextCases', 'buttonCases' ) as $table ) {
 			if ( ! is_array( $fixture ) || empty( $fixture[ $table ] ) ) {
 				throw new \RuntimeException( 'Could not read ' . $table . ' from ' . $path );
 			}
@@ -1262,10 +1341,27 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			}
 		}
 
+		// The button's own — a background, and Outline dropping it. Outline puts
+		// a second class on the anchor, so the element to read the style off
+		// follows the case rather than being fixed.
+		foreach ( $fixture['buttonCases'] as $case ) {
+			$classes = 'outline' === ( $case['attributes']['buttonStyle'] ?? 'fill' )
+				? 'jetpack-paypal-button__checkout-link wp-element-button is-style-outline'
+				: 'jetpack-paypal-button__checkout-link wp-element-button';
+
+			$cases[ 'button: ' . $case['name'] ] = array(
+				$case['attributes'],
+				$case['declarations'],
+				'class="' . $classes . '"',
+				'BUTTON',
+			);
+		}
+
 		// A renamed or malformed fixture would otherwise yield an empty provider
 		// and a green run.
 		$expected = count( $fixture['cases'] )
 			+ count( $fixture['rejectedCases'] )
+			+ count( $fixture['buttonCases'] )
 			+ ( count( $fixture['textCases'] ) + count( $fixture['rejectedTextCases'] ) ) * count( self::TEXT_FORMATS );
 
 		if ( count( $cases ) !== $expected ) {

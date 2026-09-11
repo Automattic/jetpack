@@ -1,5 +1,5 @@
 {
-	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. textCases run twice on the PHP side — once as the QR caption, once as the payment link — because one helper serves both, and a branch that forgets to call it would otherwise pass. rejected* are values the published page refuses; the canvas has to refuse them too, or a block pasted in code view renders in the editor and vanishes on publish.",
+	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. textCases run twice on the PHP side — once as the QR caption, once as the payment link — because one helper serves both, and a branch that forgets to call it would otherwise pass. rejected* are values the published page refuses; the canvas has to refuse them too, or a block pasted in code view renders in the editor and vanishes on publish. buttonCases are the button's own: a background, and the Outline style dropping it so the stylesheet's transparent rule is not beaten by an inline declaration.",
 	"cases": [
 		{
 			"name": "a spacing preset",
@@ -367,6 +367,68 @@
 		{
 			"name": "a spacing preset used as a color",
 			"color": "var:preset|spacing|50"
+		}
+	],
+	"buttonCases": [
+		{
+			"name": "a background",
+			"attributes": {
+				"buttonBackgroundColor": "#ffd140"
+			},
+			"declarations": {
+				"background-color": "#ffd140"
+			}
+		},
+		{
+			"name": "a theme palette background",
+			"attributes": {
+				"buttonBackgroundColor": "var:preset|color|primary"
+			},
+			"declarations": {
+				"background-color": "var(--wp--preset--color--primary)"
+			}
+		},
+		{
+			"name": "text and background together",
+			"attributes": {
+				"buttonTextColor": "#1e1e1e",
+				"buttonBackgroundColor": "#ffd140"
+			},
+			"declarations": {
+				"color": "#1e1e1e",
+				"background-color": "#ffd140"
+			}
+		},
+		{
+			"name": "fill keeps the background",
+			"attributes": {
+				"buttonStyle": "fill",
+				"buttonBackgroundColor": "#ffd140"
+			},
+			"declarations": {
+				"background-color": "#ffd140"
+			}
+		},
+		{
+			"name": "outline drops the background and keeps the text color",
+			"attributes": {
+				"buttonStyle": "outline",
+				"buttonTextColor": "#1e1e1e",
+				"buttonBackgroundColor": "#ffd140"
+			},
+			"declarations": {
+				"color": "#1e1e1e"
+			}
+		},
+		{
+			"name": "a rejected background is dropped, the size beside it kept",
+			"attributes": {
+				"buttonBackgroundColor": "rebeccapurple",
+				"buttonFontSize": "18px"
+			},
+			"declarations": {
+				"font-size": "18px"
+			}
 		}
 	]
 }

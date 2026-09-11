@@ -7,10 +7,11 @@
  * Loaded on the frontend only (not in editor).
  *
  * The checkout button uses the `wp-element-button` class to inherit
- * the active theme's button styles (colors, typography, border-radius).
- * No PayPal branding on the button itself — the hosted payment page
- * handles payment method selection. "Powered by PayPal" attribution
- * is shown below the button for brand compliance.
+ * the active theme's button styles (colors, typography, border-radius),
+ * unless the Styles tab overrides them with an inline style. No PayPal
+ * branding on the button itself — the hosted payment page handles
+ * payment method selection. "Powered by PayPal" sits below the button
+ * when the merchant turns it on.
  *
  * @package automattic/jetpack-paypal-payments
  * @since 0.9.0
@@ -105,6 +106,19 @@ $paypal-blue: #0070ba;
 	text-align: center;
 	text-decoration: none;
 	cursor: pointer;
+}
+
+// The Outline style, on the published anchor and the canvas preview alike —
+// same declarations core's button block uses, so the two look the same.
+// `color: currentColor` is what stops the theme's button colour (usually white,
+// meant for a filled background) leaving the label invisible; a colour chosen
+// in the Styles tab arrives inline and wins over it.
+.jetpack-paypal-button__checkout-link.is-style-outline,
+.jetpack-paypal-button-preview__checkout-button.is-style-outline {
+	background-color: transparent;
+	background-image: none;
+	border: 2px solid currentColor;
+	color: currentColor;
 }
 
 // ---------------------------------------------------------------
@@ -229,72 +243,5 @@ $paypal-blue: #0070ba;
 	&:focus-visible {
 		outline: 2px solid $paypal-blue;
 		outline-offset: 2px;
-	}
-}
-
-// ---------------------------------------------------------------
-// Light / Dark preset overrides (WOOPTP-390)
-
-// When the merchant explicitly selects a color scheme preset, the
-// data-color-scheme attribute on the block wrapper activates these
-// rules. They use the CSS `color-scheme` property to hint the
-// browser, and inherit theme CSS custom properties when available
-// (Twenty Twenty-Four, et al.). Hardcoded fallbacks ensure a
-// reasonable appearance on themes that don't define the variables.
-
-// "auto" (default) leaves the block unstyled here — OS/theme
-// preference applies via prefers-color-scheme and wp-element-button
-// inheritance, which is the existing behavior.
-
-// Custom CSS targeting:
-//   .wp-block-jetpack-paypal-payment-buttons
-//   .wp-block-jetpack-paypal-payment-buttons[data-color-scheme="light"]
-//   .wp-block-jetpack-paypal-payment-buttons[data-color-scheme="dark"]
-// No !important used — custom CSS overrides naturally.
-// ---------------------------------------------------------------
-
-.wp-block-jetpack-paypal-payment-buttons[data-color-scheme="light"] {
-	color-scheme: light;
-
-	.jetpack-paypal-button__product-name,
-	.jetpack-paypal-button__product-price,
-	.jetpack-paypal-button__variant-name {
-		color: var(--wp--preset--color--foreground, #1e1e1e);
-	}
-
-	.jetpack-paypal-button__product-description,
-	.jetpack-paypal-button__attribution,
-	.jetpack-paypal-button__variants-label,
-	.jetpack-paypal-button__variant-price {
-		color: var(--wp--preset--color--foreground, #757575);
-		opacity: 0.7;
-	}
-
-	.jetpack-paypal-button__variant-option {
-		background: var(--wp--preset--color--background, #f0f0f0);
-		color: var(--wp--preset--color--foreground, #1e1e1e);
-	}
-}
-
-.wp-block-jetpack-paypal-payment-buttons[data-color-scheme="dark"] {
-	color-scheme: dark;
-
-	.jetpack-paypal-button__product-name,
-	.jetpack-paypal-button__product-price,
-	.jetpack-paypal-button__variant-name {
-		color: var(--wp--preset--color--foreground, #fff);
-	}
-
-	.jetpack-paypal-button__product-description,
-	.jetpack-paypal-button__attribution,
-	.jetpack-paypal-button__variants-label,
-	.jetpack-paypal-button__variant-price {
-		color: var(--wp--preset--color--foreground, #e0e0e0);
-		opacity: 0.7;
-	}
-
-	.jetpack-paypal-button__variant-option {
-		background: var(--wp--preset--color--background, #2e2e2e);
-		color: var(--wp--preset--color--foreground, #fff);
 	}
 }

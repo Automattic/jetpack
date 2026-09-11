@@ -36,7 +36,6 @@ export const API_MANAGED_BUTTONS_FLAG = 'paypal-payments-api-managed-buttons';
 function ApiManagedReadOnly( { attributes } ) {
 	const blockProps = useBlockProps();
 	const {
-		colorScheme,
 		format,
 		productName,
 		price,
@@ -53,7 +52,7 @@ function ApiManagedReadOnly( { attributes } ) {
 	} = attributes;
 
 	return (
-		<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
+		<div { ...blockProps }>
 			<Notice status="info" isDismissible={ false }>
 				{ __(
 					'This button is managed through your PayPal account and cannot be edited right now.',

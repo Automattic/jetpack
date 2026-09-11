@@ -322,6 +322,40 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * Color, Styles and Typography for the checkout button.
+	 *
+	 * Mirrors getButtonStyle() in utils/block-styles.js.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_button_style( $attributes ) {
+		$rules = array();
+
+		$color = self::sanitize_css_color( $attributes['buttonTextColor'] ?? '' );
+		if ( '' !== $color ) {
+			$rules[] = sprintf( 'color:%s', $color );
+		}
+
+		$size = self::sanitize_css_font_size( $attributes['buttonFontSize'] ?? '' );
+		if ( '' !== $size ) {
+			$rules[] = sprintf( 'font-size:%s', $size );
+		}
+
+		// Outline takes its transparent background and its currentColor border
+		// from style.scss. An inline background-color would beat that rule and
+		// fill the button back in, so the chosen background is dropped.
+		$background = 'outline' === ( $attributes['buttonStyle'] ?? 'fill' )
+			? ''
+			: self::sanitize_css_color( $attributes['buttonBackgroundColor'] ?? '' );
+		if ( '' !== $background ) {
+			$rules[] = sprintf( 'background-color:%s', $background );
+		}
+
+		return self::css_rules( $rules );
+	}
+
+	/**
 	 * The default label for a format's output.
 	 *
 	 * The button face, the QR caption and the payment link share it. Mirrors
@@ -709,9 +743,12 @@ class PayPal_Payment_Buttons {
 				)
 				: '';
 
+			// No attribution line: the `Show "Powered by PayPal" text` checkbox is
+			// the button's alone, so the QR draws the code and its caption and
+			// nothing else. Create 186, and Julian 2026-09-11.
 			return sprintf(
 				'<div %1$s>
-	<div class="jetpack-paypal-button jetpack-paypal-button--qr-format"%8$s>
+	<div class="jetpack-paypal-button jetpack-paypal-button--qr-format"%7$s>
 		<div class="jetpack-paypal-button__qr-standalone">
 			<canvas class="jetpack-paypal-button__qr-canvas jetpack-paypal-button__qr-canvas--standalone" data-qr-url="%3$s"></canvas>
 			%2$s
@@ -721,7 +758,6 @@ class PayPal_Payment_Buttons {
 			</div>
 			<button type="button" class="jetpack-paypal-button__qr-download">%6$s</button>
 		</div>
-		<p class="jetpack-paypal-button__attribution">%7$s</p>
 	</div>
 </div>',
 				$wrapper_attributes,
@@ -730,7 +766,6 @@ class PayPal_Payment_Buttons {
 				$copy_label,
 				$copied_label,
 				$download_label,
-				esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
 				$block_style
 			);
 		}
@@ -843,6 +878,22 @@ class PayPal_Payment_Buttons {
 		// fall back to the same default the editor preview uses.
 		$label = '' !== $button_text ? $button_text : self::default_label();
 
+		// Off unless the merchant asks for it, and this is the only format that
+		// offers the choice. Julian, 2026-09-11.
+		$attribution_html = empty( $attributes['showPoweredBy'] )
+			? ''
+			: sprintf(
+				'<p class="jetpack-paypal-button__attribution">%s</p>',
+				esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' )
+			);
+
+		// Outline draws its border in currentColor, so it needs no colour of its
+		// own. `is-style-outline` is the name core and the other Jetpack blocks
+		// already use for this.
+		$button_class = 'outline' === ( $attributes['buttonStyle'] ?? 'fill' )
+			? 'jetpack-paypal-button__checkout-link wp-element-button is-style-outline'
+			: 'jetpack-paypal-button__checkout-link wp-element-button';
+
 		return sprintf(
 			'<div %8$s>
 	<div class="jetpack-paypal-button"%11$s>
@@ -856,12 +907,12 @@ class PayPal_Payment_Buttons {
 		</div>
 		%7$s
 		<div class="jetpack-paypal-button__buttons">
-			<a href="%4$s" class="jetpack-paypal-button__checkout-link wp-element-button" target="_blank" rel="noopener noreferrer">
+			<a href="%4$s" class="%12$s"%13$s target="_blank" rel="noopener noreferrer">
 				<span class="jetpack-paypal-button__button-text">%5$s</span>
 				<span class="screen-reader-text">%10$s</span>
 			</a>
 		</div>
-		<p class="jetpack-paypal-button__attribution">%6$s</p>
+		%6$s
 	</div>
 </div>',
 			esc_html( $product_name ),
@@ -869,12 +920,14 @@ class PayPal_Payment_Buttons {
 			$price_html,
 			$action_url,
 			esc_html( $label ),
-			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
+			$attribution_html,
 			$variants_html,
 			$wrapper_attributes,
 			$image_html,
 			esc_html__( 'PayPal (opens in a new tab)', 'jetpack-paypal-payments' ),
-			$block_style
+			$block_style,
+			esc_attr( $button_class ),
+			self::style_attr( self::get_button_style( $attributes ) )
 		);
 	}
 

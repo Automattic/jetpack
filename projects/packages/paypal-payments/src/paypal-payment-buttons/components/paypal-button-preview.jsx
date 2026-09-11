@@ -14,7 +14,8 @@
  */
 
 import { __, sprintf } from '@wordpress/i18n';
-import { getTextStyle, getWrapperStyle } from '../utils/block-styles';
+import clsx from 'clsx';
+import { getButtonStyle, getTextStyle, getWrapperStyle } from '../utils/block-styles';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import { withPartnerAttribution } from '../utils/partner-attribution';
@@ -256,19 +257,25 @@ function ButtonPreview( {
 				</div>
 			) }
 
-			{ /* Checkout button preview — theme-native, labeled with the buttonText attribute. */ }
+			{ /* Checkout button preview — theme-native unless the Styles tab says
+			     otherwise, labeled with the buttonText attribute. */ }
 			<div className="jetpack-paypal-button-preview__buttons">
 				<div
-					className="jetpack-paypal-button-preview__checkout-button wp-element-button"
+					className={ clsx( 'jetpack-paypal-button-preview__checkout-button wp-element-button', {
+						'is-style-outline': 'outline' === attributes?.buttonStyle,
+					} ) }
+					style={ getButtonStyle( attributes ) }
 					aria-hidden="true"
 				>
 					<span className="jetpack-paypal-button__button-text">{ label }</span>
 				</div>
 			</div>
 
-			<p className="jetpack-paypal-button__attribution">
-				{ __( 'Powered by PayPal', 'jetpack-paypal-payments' ) }
-			</p>
+			{ attributes?.showPoweredBy && (
+				<p className="jetpack-paypal-button__attribution">
+					{ __( 'Powered by PayPal', 'jetpack-paypal-payments' ) }
+				</p>
+			) }
 		</div>
 	);
 }
