@@ -277,11 +277,13 @@ class Jetpack_AI_Page {
 					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
 				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
+				'isOfflineMode'     => ( new Status() )->is_offline_mode(),
+				// These three answer one question; a filter changing one alone leaves
+				// a label pointing at a page that is not there.
 				'hasMyJetpack'      => $has_my_jetpack,
-				// My Jetpack is removed on VIP, so that route dead-ends there.
-				'userConnectionUrl' => $host->is_vip_site()
-					? 'admin.php?page=jetpack#/connect-user'
-					: 'admin.php?page=my-jetpack#/connection',
+				'userConnectionUrl' => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/connection'
+					: 'admin.php?page=jetpack#/connect-user',
 				'manageUrl'         => $has_my_jetpack
 					? 'admin.php?page=my-jetpack#/products'
 					: 'admin.php?page=jetpack_modules',
@@ -294,10 +296,14 @@ class Jetpack_AI_Page {
 
 		$show_gated_views = ! empty( $config['showGatedViews'] );
 
-		// The page notice reads the connection store, and only the gated views
-		// render it. Initial_State can hit WordPress.com, so skip it elsewhere.
-		if ( $show_gated_views || $show_scheduled_tasks_view ) {
+		if ( $show_scheduled_tasks_view ) {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+			// Webpack reads this to load the lazy Scheduled tasks chunk; see _inc/client/ai/public-path.js.
+			wp_add_inline_script(
+				'jetpack-ai-admin',
+				'window.Jetpack_AI_Admin_Assets_Base_Url = ' . wp_json_encode( plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'before'
+			);
 		}
 
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array( 'name' => '' );
@@ -310,6 +316,7 @@ class Jetpack_AI_Page {
 			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ),
 			'manageUrl'         => esc_url_raw( $config['manageUrl'] ),
 			'hasMyJetpack'      => ! empty( $config['hasMyJetpack'] ),
+			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
@@ -423,11 +430,16 @@ class Jetpack_AI_Page {
 	 * Whether My Jetpack is loaded on this host.
 	 *
 	 * Hosts drop it with the `jetpack_my_jetpack_should_initialize` filter, so
-	 * neither its routes nor its labels can be assumed to exist.
+	 * neither its routes nor its labels can be assumed to exist. VIP removes it
+	 * from outside this codebase, where that filter cannot answer for it.
 	 *
 	 * @return bool
 	 */
 	private static function has_my_jetpack() {
+		if ( ( new Host() )->is_vip_site() ) {
+			return false;
+		}
+
 		return class_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer' )
 			&& method_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer', 'should_initialize' )
 			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();

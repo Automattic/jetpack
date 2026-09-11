@@ -1,12 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	ConnectButton,
-	ConnectionError,
-	useConnectionErrorNotice,
-} from '@automattic/jetpack-connection';
-import { ExternalLink } from '@wordpress/components';
+import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import { Link, Notice } from '@wordpress/ui';
+import { Notice } from '@wordpress/ui';
 import { GATED_VIEWS } from '../../constants';
 
 // Highest precedence first. FORCED_OFF has no content yet, so nothing resolves
@@ -14,6 +9,7 @@ import { GATED_VIEWS } from '../../constants';
 const PAGE_NOTICE_STATES = {
 	CONNECTION_ERROR: 'connection-error',
 	HOST_OFF: 'host-off',
+	OFFLINE_MODE: 'offline-mode',
 	FORCED_OFF: 'forced-off',
 	SITE_DISCONNECTED: 'site-disconnected',
 	USER_UNLINKED: 'user-unlinked',
@@ -29,6 +25,7 @@ const PAGE_NOTICE_STATES = {
  * @param {string}      options.view                 - The view being rendered.
  * @param {number}      [options.blogId]             - Site's blog ID; falsy when not connected.
  * @param {boolean}     [options.isUserConnected]    - Whether this user's account is linked.
+ * @param {boolean}     [options.isOfflineMode]      - Whether the site is in offline mode.
  * @param {object|null} [options.settings]           - Feature settings, null until fetched.
  * @param {boolean}     [options.hasConnectionError] - Whether the connection store reports a
  *                                                   connection the site cannot use.
@@ -38,6 +35,7 @@ export function getPageNoticeState( {
 	view,
 	blogId,
 	isUserConnected,
+	isOfflineMode,
 	settings,
 	hasConnectionError,
 } ) {
@@ -51,6 +49,12 @@ export function getPageNoticeState( {
 
 	if ( settings?.host_allows_ai === false ) {
 		return PAGE_NOTICE_STATES.HOST_OFF;
+	}
+
+	// Ahead of SITE_DISCONNECTED: offline mode is why the settings call reports
+	// no connection, and connecting is the one thing it forbids.
+	if ( isOfflineMode ) {
+		return PAGE_NOTICE_STATES.OFFLINE_MODE;
 	}
 
 	if ( ! blogId || settings?.is_connected === false ) {
@@ -68,76 +72,52 @@ export function getPageNoticeState( {
 	return null;
 }
 
-// Support doc per state, so a new state adds a slug here, not in the markup.
-const LEARN_MORE_SLUGS = {
-	[ PAGE_NOTICE_STATES.HOST_OFF ]: 'jetpack-ai-hub-docs-wp-supports-ai',
-};
+const LEARN_MORE_SLUG = 'jetpack-ai-hub-docs-wp-supports-ai';
 
 /**
- * The action for a site that is not connected.
- *
- * @param {object} pageData - Page data; see PageNotice's props.
- * @return {object} Component markup.
- */
-function getConnectAction( pageData ) {
-	const { blogId, userConnectionUrl, siteAdminUrl, apiRoot, apiNonce } = pageData;
-
-	// ConnectButton registers a site; with a blog ID there is nothing left to
-	// register, so a link to the connection screen fits better.
-	if ( blogId ) {
-		return (
-			<Notice.ActionLink href={ userConnectionUrl }>
-				{ __( 'Connect Jetpack', 'jetpack' ) }
-			</Notice.ActionLink>
-		);
-	}
-
-	return (
-		<ConnectButton
-			connectLabel={ __( 'Connect Jetpack', 'jetpack' ) }
-			redirectUri={ `${ siteAdminUrl }admin.php?page=jetpack-ai` }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-		/>
-	);
-}
-
-/**
- * Title, body and link for one state. Every field is plain data: the markup
- * lives in PageNotice, so a new state adds an entry rather than more JSX.
- *
- * Each message is its own literal `__()` call; a lookup built from a variable
- * would leave nothing to extract.
+ * Title, body and action for one state, as plain data.
  *
  * @param {string} state    - The state to render.
  * @param {object} pageData - Page data the states link to; see PageNotice's props.
- * @return {object|null} `{ title, description, link, actions }`, or null for a state with none.
+ * @return {object|null} `{ title, description, action }`, or null for a state with none.
  */
 function getNoticeContent( state, pageData ) {
 	switch ( state ) {
 		case PAGE_NOTICE_STATES.HOST_OFF:
 			return {
-				description: __( 'Jetpack AI is not available for this site.', 'jetpack' ),
-				link: {
-					href: getRedirectUrl( LEARN_MORE_SLUGS[ state ] ),
+				title: __( 'Jetpack AI is not available for this site.', 'jetpack' ),
+				action: {
+					href: getRedirectUrl( LEARN_MORE_SLUG ),
 					label: __( 'Learn more', 'jetpack' ),
-					isExternal: true,
+					openInNewTab: true,
+				},
+			};
+
+		case PAGE_NOTICE_STATES.OFFLINE_MODE:
+			return {
+				title: __( 'Jetpack AI is not available in offline mode.', 'jetpack' ),
+				action: {
+					href: getRedirectUrl( 'jetpack-support-development-mode' ),
+					label: __( 'Learn more', 'jetpack' ),
+					openInNewTab: true,
 				},
 			};
 
 		case PAGE_NOTICE_STATES.SITE_DISCONNECTED:
 			return {
 				title: __( 'This site is not connected to WordPress.com.', 'jetpack' ),
-				description: __( 'Connect your site to use Jetpack AI.', 'jetpack' ),
-				actions: getConnectAction( pageData ),
+				action: {
+					href: pageData.userConnectionUrl,
+					label: __( 'Connect Jetpack', 'jetpack' ),
+				},
 			};
 
 		case PAGE_NOTICE_STATES.USER_UNLINKED:
 			return {
-				title: __( 'Your WordPress.com account isn’t connected.', 'jetpack' ),
-				link: {
+				title: __( 'Your WordPress.com account isn\u2019t connected.', 'jetpack' ),
+				action: {
 					href: pageData.userConnectionUrl,
-					label: __( 'Connect your user account to use Jetpack AI.', 'jetpack' ),
+					label: __( 'Connect account', 'jetpack' ),
 				},
 			};
 
@@ -148,41 +128,17 @@ function getNoticeContent( state, pageData ) {
 					'Your feature settings are saved and will apply again when AI is turned back on.',
 					'jetpack'
 				),
-				link: {
+				action: {
 					href: pageData.manageUrl,
 					label: pageData.hasMyJetpack
 						? __( 'Manage in My Jetpack', 'jetpack' )
-						: __( 'Manage all Jetpack modules', 'jetpack' ),
-					// A short label reads badly broken across two lines.
-					noWrap: true,
+						: __( 'Manage in Jetpack modules', 'jetpack' ),
 				},
 			};
 
 		default:
 			return null;
 	}
-}
-
-/**
- * A notice's link, whether it ends a sentence or is the whole message.
- *
- * @param {object}  props              - Component props.
- * @param {string}  props.href         - Where the link goes.
- * @param {string}  props.label        - The link text.
- * @param {boolean} [props.isExternal] - Whether it leaves wp-admin.
- * @param {boolean} [props.noWrap]     - Whether to keep a short label on one line.
- * @return {object} Component markup.
- */
-function NoticeLink( { href, label, isExternal, noWrap } ) {
-	if ( isExternal ) {
-		return <ExternalLink href={ href }>{ label }</ExternalLink>;
-	}
-
-	return (
-		<Link href={ href } className={ noWrap ? 'jetpack-ai-admin__notice-link' : undefined }>
-			{ label }
-		</Link>
-	);
 }
 
 /**
@@ -193,22 +149,21 @@ function NoticeLink( { href, label, isExternal, noWrap } ) {
  * @param {string}      props.view                - The view being rendered.
  * @param {number}      [props.blogId]            - Site's blog ID; falsy when not connected.
  * @param {boolean}     [props.isUserConnected]   - Whether this user's account is linked.
+ * @param {boolean}     [props.isOfflineMode]     - Whether the site is in offline mode.
  * @param {object|null} [props.settings]          - Feature settings, null until fetched.
  * @param {string}      [props.userConnectionUrl] - Where this host links an account.
  * @param {string}      [props.manageUrl]         - Where this host manages the AI module.
- * @param {string}      [props.siteAdminUrl]      - wp-admin root, to return here after connecting.
- * @param {string}      [props.apiRoot]           - REST root, for the connect request.
- * @param {string}      [props.apiNonce]          - REST nonce, for the connect request.
  * @param {boolean}     [props.hasMyJetpack]      - Whether My Jetpack is loaded on this host.
  * @return {object|null} Component markup.
  */
 export default function PageNotice( props ) {
-	const { view, blogId, isUserConnected, settings } = props;
+	const { view, blogId, isUserConnected, isOfflineMode, settings } = props;
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const state = getPageNoticeState( {
 		view,
 		blogId,
 		isUserConnected,
+		isOfflineMode,
 		settings,
 		hasConnectionError,
 	} );
@@ -228,19 +183,21 @@ export default function PageNotice( props ) {
 		return null;
 	}
 
-	const { title, description, link, actions } = content;
+	const { title, description, action } = content;
 
-	// Keyed per state: swapping content into a live Notice breaks the hook that
-	// announces it on mount.
+	// Keyed per state: states render different children, and swapping them into a
+	// live Notice throws "Cannot read properties of undefined (reading 'length')".
 	return (
 		<Notice.Root key={ state } intent="warning" className="jetpack-ai-admin__page-notice">
 			{ title && <Notice.Title>{ title }</Notice.Title> }
-			<Notice.Description>
-				{ description }
-				{ description && link && ' ' }
-				{ link && <NoticeLink { ...link } /> }
-			</Notice.Description>
-			{ actions && <Notice.Actions>{ actions }</Notice.Actions> }
+			{ description && <Notice.Description>{ description }</Notice.Description> }
+			{ action && (
+				<Notice.Actions>
+					<Notice.ActionLink href={ action.href } openInNewTab={ action.openInNewTab }>
+						{ action.label }
+					</Notice.ActionLink>
+				</Notice.Actions>
+			) }
 		</Notice.Root>
 	);
 }

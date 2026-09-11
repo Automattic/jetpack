@@ -302,6 +302,15 @@ describe( 'AiOverview', () => {
 		expect( apiFetch ).not.toHaveBeenCalled();
 	} );
 
+	test( 'in flight: the card waits for the settings call rather than guessing', async () => {
+		// isConnected is undefined until the call lands, so a site that turns out
+		// to be unusable must not have fired the usage request in the meantime.
+		render( <AiOverview { ...PROPS } settingsAnswered={ false } /> );
+
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
 	test( 'connection error: no usage card, and no fetch that could only fail', async () => {
 		render( <AiOverview { ...PROPS } hasConnectionError={ true } /> );
 

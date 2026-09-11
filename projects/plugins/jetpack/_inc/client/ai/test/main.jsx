@@ -1,3 +1,4 @@
+import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
@@ -14,9 +15,8 @@ jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) 
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the GET/POST responses.
 jest.mock( '@automattic/jetpack-connection', () => ( {
-	ConnectButton: ( { connectLabel } ) => <button type="button">{ connectLabel }</button>,
 	ConnectionError: () => <div data-testid="connection-error" />,
-	useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
+	useConnectionErrorNotice: jest.fn( () => ( { hasConnectionError: false } ) ),
 } ) );
 jest.mock( '@wordpress/api-fetch' );
 
@@ -125,6 +125,7 @@ beforeEach( () => {
 	// measure keyframes via window.scrollTo — not implemented in jsdom.
 	jest.spyOn( window, 'scrollTo' ).mockImplementation();
 	apiFetch.mockReset();
+	useConnectionErrorNotice.mockReturnValue( { hasConnectionError: false } );
 	analytics.tracks.recordEvent.mockClear();
 	// The suite renders with the host-gated Features view available by default.
 	window.jetpackAiSettings = { showFeaturesView: true };
@@ -200,7 +201,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect(
-				screen.findByRole( 'link', { name: 'Manage all Jetpack modules' } )
+				screen.findByRole( 'link', { name: 'Manage in Jetpack modules' } )
 			).resolves.toHaveAttribute( 'href', 'admin.php?page=jetpack_modules' );
 			expect(
 				screen.queryByRole( 'link', { name: 'Manage in My Jetpack' } )
@@ -290,14 +291,25 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'not connected: the site notice carries the feature-neutral ask', async () => {
+		test( 'broken connection: the shared notice outranks the rest and hides the usage card', async () => {
+			useConnectionErrorNotice.mockReturnValue( { hasConnectionError: true } );
+			mockApiFetch( { featureGet: masterOffSettings() } );
+
+			render( <App /> );
+
+			await expect( screen.findByTestId( 'connection-error' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'not connected: one notice, not one per tab', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 0 };
 			mockApiFetch( { featureGet: { ...enabledSettings(), is_connected: false } } );
 
 			render( <App /> );
 
 			await expect(
-				screen.findByText( 'Connect your site to use Jetpack AI.', IGNORE_A11Y )
+				screen.findByRole( 'link', { name: 'Connect Jetpack' } )
 			).resolves.toBeInTheDocument();
 			// One page-level notice — AiFeatures must not render a second copy.
 			expect(
@@ -350,9 +362,10 @@ describe( 'AI admin page (main.jsx)', () => {
 		await expect(
 			screen.findByText( 'Your WordPress.com account isn’t connected.', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
-		expect(
-			screen.getByRole( 'link', { name: 'Connect your user account to use Jetpack AI.' } )
-		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
+		expect( screen.getByRole( 'link', { name: 'Connect account' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack#/connection'
+		);
 		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
 	} );
 

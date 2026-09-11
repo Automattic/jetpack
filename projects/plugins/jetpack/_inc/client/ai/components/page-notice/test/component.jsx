@@ -3,11 +3,6 @@ import { render, screen } from '@testing-library/react';
 import PageNotice, { getPageNoticeState } from '../index';
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
-	ConnectButton: ( { connectLabel, redirectUri } ) => (
-		<button type="button" data-redirect-uri={ redirectUri }>
-			{ connectLabel }
-		</button>
-	),
 	ConnectionError: () => <div data-testid="connection-error" />,
 	useConnectionErrorNotice: jest.fn(),
 } ) );
@@ -40,6 +35,12 @@ describe( 'getPageNoticeState', () => {
 	describe( 'one state at a time', () => {
 		it( 'reports the host switch', () => {
 			expect( resolve( { settings: connected( { host_allows_ai: false } ) } ) ).toBe( 'host-off' );
+		} );
+
+		it( 'reports offline mode ahead of the connection it disables', () => {
+			expect(
+				resolve( { isOfflineMode: true, settings: connected( { is_connected: false } ) } )
+			).toBe( 'offline-mode' );
 		} );
 
 		it( 'reports a site with no blog ID', () => {
@@ -153,7 +154,6 @@ describe( 'PageNotice', () => {
 				settings={ connected() }
 				userConnectionUrl="admin.php?page=my-jetpack#/connection"
 				manageUrl="admin.php?page=my-jetpack#/products"
-				siteAdminUrl="https://example.com/wp-admin/"
 				hasMyJetpack={ true }
 				{ ...overrides }
 			/>
@@ -172,7 +172,6 @@ describe( 'PageNotice', () => {
 		useConnectionErrorNotice.mockReturnValue( { hasConnectionError: true } );
 		renderNotice( { blogId: 0 } );
 		expect( screen.getByTestId( 'connection-error' ) ).toBeInTheDocument();
-		// The shared notice brings no page spacing of its own, so the wrapper has to.
 		// eslint-disable-next-line testing-library/no-node-access -- the wrapper is the assertion.
 		expect( screen.getByTestId( 'connection-error' ).parentElement ).toHaveClass(
 			'jetpack-ai-admin__page-notice'
@@ -187,29 +186,62 @@ describe( 'PageNotice', () => {
 		expect(
 			screen.getByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+		const learnMore = screen.getByRole( 'link', { name: /Learn more/ } );
+		expect( learnMore ).toHaveAttribute(
 			'href',
 			expect.stringContaining( 'source=jetpack-ai-hub-docs-wp-supports-ai' )
 		);
+		expect( learnMore ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	it( 'offers the shared connect button on a disconnected site', () => {
+	it( 'names offline mode rather than asking for a connection it forbids', () => {
+		renderNotice( { isOfflineMode: true, settings: connected( { is_connected: false } ) } );
+		expect(
+			screen.getByText( 'Jetpack AI is not available in offline mode.', IGNORE_A11Y )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'source=jetpack-support-development-mode' )
+		);
+	} );
+
+	it( 'sends an unregistered site to the connection screen', () => {
 		renderNotice( { blogId: 0 } );
 		expect(
 			screen.getByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
 		).toBeInTheDocument();
-		expect(
-			screen.getByText( 'Connect your site to use Jetpack AI.', IGNORE_A11Y )
-		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Connect Jetpack' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack#/connection'
+		);
 	} );
 
-	it( 'sends the reader back to the AI page after connecting', () => {
-		renderNotice( { blogId: 0 } );
-		expect( screen.getByRole( 'button', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
-			'data-redirect-uri',
-			'https://example.com/wp-admin/admin.php?page=jetpack-ai'
+	it( 'survives swapping from one state to another while mounted', () => {
+		const { rerender } = renderNotice( { settings: connected( { host_allows_ai: false } ) } );
+		expect(
+			screen.getByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
+		).toBeInTheDocument();
+
+		rerender(
+			<PageNotice
+				view="overview"
+				blogId={ 1 }
+				isUserConnected={ true }
+				settings={ connected( { master_enabled: false } ) }
+				userConnectionUrl="admin.php?page=my-jetpack#/connection"
+				manageUrl="admin.php?page=my-jetpack#/products"
+				hasMyJetpack={ true }
+			/>
 		);
+
+		expect(
+			screen.getByText( 'Jetpack AI is turned off for this site.', IGNORE_A11Y )
+		).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the connection notice off the views it does not own', () => {
@@ -235,9 +267,10 @@ describe( 'PageNotice', () => {
 		expect(
 			screen.getByText( 'Your WordPress.com account isn’t connected.', IGNORE_A11Y )
 		).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'link', { name: 'Connect your user account to use Jetpack AI.' } )
-		).toHaveAttribute( 'href', 'admin.php?page=jetpack#/connect-user' );
+		expect( screen.getByRole( 'link', { name: 'Connect account' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=jetpack#/connect-user'
+		);
 	} );
 
 	describe( 'the master switch notice', () => {
@@ -260,7 +293,7 @@ describe( 'PageNotice', () => {
 				hasMyJetpack: false,
 				manageUrl: 'admin.php?page=jetpack_modules',
 			} );
-			expect( screen.getByRole( 'link', { name: 'Manage all Jetpack modules' } ) ).toHaveAttribute(
+			expect( screen.getByRole( 'link', { name: 'Manage in Jetpack modules' } ) ).toHaveAttribute(
 				'href',
 				'admin.php?page=jetpack_modules'
 			);

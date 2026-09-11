@@ -350,6 +350,7 @@ function UsageCard( { upgradeUrl, planName } ) {
  *                                             also covers offline mode and a departed owner.
  * @param {boolean} [props.hasConnectionError] - Whether the connection is broken; the usage
  *                                             fetch would only add a second error to the page.
+ * @param {boolean} [props.settingsAnswered]   - Whether the settings call has returned.
  * @return {object} Component markup.
  */
 export default function AiOverview( {
@@ -362,9 +363,12 @@ export default function AiOverview( {
 	isUserConnected,
 	isConnected,
 	hasConnectionError,
+	settingsAnswered = true,
 } ) {
 	const hostBlocked = hostAllowsAi === false;
 	const userUnlinked = isUserConnected === false;
+	// settingsAnswered gates the card because isConnected is unknown while the
+	// settings call is in flight, and an unusable site must not request usage.
 	const siteUnusable = ! blogId || isConnected === false || hasConnectionError;
 	useRecordOnce( EVENTS.VIEWED, { tab: 'overview' } );
 	const recordLinkClick = ( linkType, slug ) => () =>
@@ -376,7 +380,7 @@ export default function AiOverview( {
 			     :empty rule drops the wrapper so the outer 3xl gap doesn't double. */ }
 			<Stack direction="column" gap="xl" className="jetpack-ai-overview__intro">
 				<AssistantBanner />
-				{ ! siteUnusable && ! hostBlocked && ! userUnlinked && (
+				{ settingsAnswered && ! siteUnusable && ! hostBlocked && ! userUnlinked && (
 					<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />
 				) }
 			</Stack>

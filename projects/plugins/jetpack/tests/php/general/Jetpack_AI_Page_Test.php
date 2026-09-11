@@ -280,6 +280,28 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Offline mode reaches the page, so the notice has to be able to name it.
+	 */
+	public function test_offline_mode_is_reported_to_the_page() {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['isOfflineMode'] );
+	}
+
+	/**
+	 * A site that is not in offline mode says so.
+	 */
+	public function test_offline_mode_is_false_by_default() {
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['isOfflineMode'] );
+	}
+
+	/**
 	 * The turned-off notice sends people to My Jetpack wherever it loads.
 	 */
 	public function test_manage_url_points_at_my_jetpack_when_it_loads() {
@@ -562,31 +584,37 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The page notice reads the connection store, so the gated views ship its state.
+	 * Webpack loads the Scheduled tasks chunk from this base URL.
 	 */
-	public function test_connection_initial_state_is_injected_for_the_gated_views() {
-		$this->given_woa( false );
+	public function test_chunk_base_url_is_injected_with_scheduled_tasks() {
+		unset( $GLOBALS['wp_scripts'] );
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
 
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringContainsString(
+			'window.Jetpack_AI_Admin_Assets_Base_Url = "' . plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ) . '";',
+			$inline
+		);
+	}
+
+	/**
+	 * Only the Scheduled tasks tab loads a chunk, so the base URL stays out by default.
+	 */
+	public function test_chunk_base_url_is_not_injected_by_default() {
 		unset( $GLOBALS['wp_scripts'] );
 
 		( new Jetpack_AI_Page() )->page_admin_scripts();
 
 		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
-		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+		$this->assertStringNotContainsString( 'Jetpack_AI_Admin_Assets_Base_Url', $inline );
 	}
 
 	/**
-	 * Without those views nothing reads the store, and Initial_State can call WordPress.com.
+	 * The Agents Manager connection state stays dormant with Scheduled tasks.
 	 */
-	public function test_connection_initial_state_is_skipped_without_the_gated_views() {
-		add_filter(
-			'jetpack_ai_admin_config',
-			function ( $config ) {
-				$config['showGatedViews'] = false;
-				return $config;
-			}
-		);
-
+	public function test_connection_initial_state_is_not_injected_by_default() {
 		unset( $GLOBALS['wp_scripts'] );
 
 		( new Jetpack_AI_Page() )->page_admin_scripts();
