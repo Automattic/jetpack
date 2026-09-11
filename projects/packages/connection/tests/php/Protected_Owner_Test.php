@@ -127,6 +127,43 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * Build a Manager whose WordPress.com ownership call is stubbed, so an attempted transfer
+	 * can be asserted on without a network round trip.
+	 *
+	 * @param int   $owner_id      What `get_connection_owner_id()` should report.
+	 * @param mixed $wpcom_matcher Invocation matcher for the WordPress.com ownership call.
+	 * @return \PHPUnit\Framework\MockObject\MockObject|Manager
+	 */
+	private function transfer_manager( $owner_id, $wpcom_matcher ) {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'get_connection_owner_id', 'get_tokens', 'update_connection_owner_wpcom' ) )
+			->getMock();
+
+		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
+		$manager->method( 'get_tokens' )->willReturn( $this->connected_tokens( $owner_id ) );
+		$manager->expects( $wpcom_matcher )->method( 'update_connection_owner_wpcom' )->willReturn( true );
+
+		return $manager;
+	}
+
+	/**
+	 * Create an administrator who could stand in as a new connection owner.
+	 *
+	 * @param string $login The user login.
+	 * @return int The new user's ID.
+	 */
+	private function candidate( $login = 'transfer_candidate' ) {
+		return wp_insert_user(
+			array(
+				'user_login' => $login,
+				'user_pass'  => 'pass',
+				'user_email' => $login . '@example.com',
+				'role'       => 'administrator',
+			)
+		);
+	}
+
+	/**
 	 * Write an anchor naming a WordPress.com user.
 	 *
 	 * @param int $wpcom_user_id The anchored WordPress.com user ID.
@@ -297,6 +334,80 @@ class Protected_Owner_Test extends TestCase {
 		add_filter( 'jetpack_connection_ownership_transferable', '__return_true' );
 
 		$this->assertFalse( ( new Manager() )->is_ownership_transferable() );
+	}
+
+	// ── update_connection_owner ──────────────────────────────────────────
+
+	/**
+	 * A locked anchor refuses an ownership transfer outright.
+	 */
+	public function test_a_locked_anchor_refuses_an_ownership_transfer() {
+		$this->anchor();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->never() );
+		$result  = $manager->update_connection_owner( $this->candidate() );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'ownership_not_transferable', $result->get_error_code() );
+		$this->assertFalse( Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * An owner who does not match the anchor is exactly who must not be able to pass ownership
+	 * on: local `master_user` can legitimately point at a non-anchored admin while the real
+	 * protected owner is away.
+	 */
+	public function test_an_owner_who_does_not_match_the_anchor_cannot_pass_ownership_on() {
+		$this->anchor();
+
+		$interloper = $this->candidate( 'transfer_interloper' );
+		Utils::set_wpcom_user_id( $interloper, 9999 );
+
+		$manager = $this->transfer_manager( $interloper, $this->never() );
+
+		$this->assertFalse( $manager->has_protected_owner(), 'Test setup: the owner should not match.' );
+
+		$result = $manager->update_connection_owner( $this->candidate() );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'ownership_not_transferable', $result->get_error_code() );
+	}
+
+	/**
+	 * The same chokepoint refuses a consumer that locked ownership through the filter, with no
+	 * anchor involved.
+	 */
+	public function test_a_consumer_locking_ownership_refuses_a_transfer() {
+		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->never() );
+		$result  = $manager->update_connection_owner( $this->candidate() );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'ownership_not_transferable', $result->get_error_code() );
+	}
+
+	/**
+	 * Refused before the candidate is validated, so a locked site never reports a problem with
+	 * the requested user and invites a retry that cannot work.
+	 */
+	public function test_the_lock_is_reported_ahead_of_an_invalid_candidate() {
+		$this->anchor();
+
+		$editor = wp_insert_user(
+			array(
+				'user_login' => 'transfer_editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'transfer_editor@example.com',
+				'role'       => 'editor',
+			)
+		);
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->never() );
+		$result  = $manager->update_connection_owner( $editor );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'ownership_not_transferable', $result->get_error_code() );
 	}
 
 	// ── requires_protected_owner ─────────────────────────────────────────

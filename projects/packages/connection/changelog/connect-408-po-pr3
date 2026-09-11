@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Refuse a connection ownership change while ownership is locked.
