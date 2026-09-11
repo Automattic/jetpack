@@ -1,15 +1,8 @@
 /**
  * Gives the Forms dashboard's `@wordpress/preferences` store somewhere to persist to.
  *
- * `useView` from `@wordpress/views` keeps a DataViews view in the preferences store, but
- * the store only holds it in memory: persisting is the host's job, and the host wires a
- * layer up during boot. wp-admin does that for the block editor; a wp-build dashboard is
- * not booted by Core and `@wordpress/boot` registers nothing, so without this the view
- * resolves from the defaults again on every reload and no preference ever survives.
- *
- * `localStorage` rather than user meta: a view is a per-browser convenience, and writing
- * it to user meta would mean a REST round trip on every column drag. The layer is the
- * only thing that would have to change to move it server-side later.
+ * Without this the store keeps the view in memory only: a wp-build dashboard is not booted
+ * by Core, and `@wordpress/boot` registers no layer, so nothing survives a reload.
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 
@@ -37,9 +30,8 @@ const getStorageKey = (): string => {
 /**
  * Reads the stored payload.
  *
- * Every access is wrapped: reading `localStorage` is not merely unreliable but throwing —
- * a private window, a browser set to block site data, or a full quota all raise rather
- * than return empty. A remembered column layout must never take the dashboard down.
+ * Wrapped because `localStorage` throws rather than returning empty in a private window or
+ * when site data is blocked, and a remembered view must never take the dashboard down.
  *
  * @return The stored payload, or an empty one when there is nothing to restore.
  */
@@ -58,9 +50,8 @@ let persistenceLayerRegistered = false;
 /**
  * Registers the persistence layer on the preferences store.
  *
- * The store calls `get()` once on registration to hydrate itself, then `set()` with its
- * whole payload on every change. Idempotent, because both dashboard implementations mount
- * this and a second registration would re-hydrate over unsaved state.
+ * Idempotent: both dashboard implementations mount this, and a second registration would
+ * re-hydrate over unsaved state.
  *
  * @param registerLayer - The preferences store's `setPersistenceLayer` action.
  */

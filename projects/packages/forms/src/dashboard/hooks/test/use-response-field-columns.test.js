@@ -1,11 +1,8 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
 
-/**
- * The answer columns each form has already offered, standing in for what the preferences
- * store holds. The hook only ever reads this, so driving it directly keeps these tests
- * about which columns get offered rather than about how the record is stored.
- */
+// Stands in for the stored record. The hook only reads it, so driving it directly keeps
+// these tests about which columns get offered, not about how the record is stored.
 const knownAnswerIdsByForm = new Map();
 
 await jest.unstable_mockModule( '../../response-column-preferences.ts', () => ( {

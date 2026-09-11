@@ -1,10 +1,7 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 
-/**
- * Stands in for the preferences store's own state. Importing the real store pulls the
- * whole `@wordpress/components` tree in behind it, and what matters here is the payload
- * the module reads and writes, not how the store keeps it.
- */
+// Stands in for the preferences store: importing the real one pulls the whole
+// `@wordpress/components` tree in behind it.
 const stored = new Map();
 
 const keyFor = ( scope, key ) => `${ scope }::${ key }`;

@@ -179,14 +179,11 @@ function StageInner() {
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 
-	// `useView` keeps the view in the preferences store, which only holds it in memory
-	// until something gives it somewhere to write to. A wp-build dashboard is not booted
-	// by Core, so nothing else will.
 	const { setPersistenceLayer } = useDispatch( preferencesStore );
 	ensurePreferencesPersistence( setPersistenceLayer );
 
-	// `page` is deliberately not in the URL — it never has been here — so it lives
-	// alongside the search term that is, and both reach the view as query params.
+	// `page` has never been in the URL here; it reaches the view as a query param anyway,
+	// because `useView` sources both `page` and `search` from there and nowhere else.
 	const [ page, setPage ] = useState( 1 );
 
 	const onChangeQueryParams = useCallback(
@@ -208,8 +205,7 @@ function StageInner() {
 	const { view, updateView } = useView( {
 		kind: 'postType',
 		name: 'feedback',
-		// One remembered view per form, plus one for the view spanning every form. A
-		// form's answer columns name its own fields, so sharing a view across forms
+		// One view per form: answer columns name that form's own fields, so a shared view
 		// would strand one form's columns on another.
 		slug: isSingleFormView ? `form-${ sourceIdNumber }` : 'all',
 		defaultView: DEFAULT_VIEW,
@@ -217,10 +213,8 @@ function StageInner() {
 		onChangeQueryParams,
 	} );
 
-	// `useView` takes a whole view, while the columns hook and the effects below think in
-	// updates to the previous one. The ref is what makes a second update in the same tick
-	// build on the first instead of clobbering it — the columns effect does exactly that
-	// when it drops the outgoing form's columns and adds the incoming form's.
+	// `useView` takes a whole view, while the callers below pass an updater. The ref is what
+	// lets two updates in the same tick build on each other, as the columns effect does.
 	const pendingViewRef = useRef< View >( view );
 	pendingViewRef.current = view;
 
@@ -342,11 +336,9 @@ function StageInner() {
 		[ isSingleFormView, navigate, searchParams, sourceIdNumber ]
 	);
 
-	// Keep the Folder filter in sync with the route param (CFM-on behavior). The filter is
-	// a real control here, so it cannot be locked out of what `useView` persists; a stored
-	// folder that disagrees with the route is corrected here instead. The responses
-	// themselves are queried from the route, never from this filter, so only the chip is
-	// ever briefly out of step.
+	// Keep the Folder filter in sync with the route param (CFM-on behavior). `useView`'s only
+	// way to exclude a filter, `isLocked`, would also make this one unclickable, so a stored
+	// folder disagreeing with the route is corrected here instead.
 	useEffect( () => {
 		if ( isSingleFormView ) {
 			return;

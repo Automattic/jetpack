@@ -94,12 +94,11 @@ function StageInner() {
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 	const hasClassicForms = useConfigValue( 'hasClassicForms' );
 
-	// Nothing else gives the preferences store `useView` writes to somewhere to persist.
 	const { setPersistenceLayer } = useDispatch( preferencesStore );
 	ensurePreferencesPersistence( setPersistenceLayer );
 
-	// `page` has never been in the URL on this screen, so it is held here and handed to
-	// the view as a query param, the way the search term in the URL is.
+	// `page` has never been in the URL here; it reaches the view as a query param anyway,
+	// because `useView` sources both `page` and `search` from there and nowhere else.
 	const [ page, setPage ] = useState( 1 );
 
 	const onChangeQueryParams = useCallback(
