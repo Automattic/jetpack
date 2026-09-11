@@ -556,6 +556,13 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 			{ toolbarControls }
 			<InspectorControls>
+				<div className="jetpack-paypal-payment-buttons__form-actions">
+					<Notice status={ isFormValid ? 'info' : 'warning' } isDismissible={ false }>
+						{ saveStatus }
+					</Notice>
+				</div>
+			</InspectorControls>
+			<InspectorControls>
 				<PanelBody title={ __( 'Details', 'jetpack-paypal-payments' ) } initialOpen={ true }>
 					<TextControl
 						label={ __( 'Product Name', 'jetpack-paypal-payments' ) }
@@ -953,13 +960,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			{ inspectorControls }
-			<InspectorControls>
-				<div className="jetpack-paypal-payment-buttons__form-actions">
-					<Notice status={ isFormValid ? 'info' : 'warning' } isDismissible={ false }>
-						{ saveStatus }
-					</Notice>
-				</div>
-			</InspectorControls>
 
 			<div className="jetpack-paypal-payment-buttons__preview">
 				<div className="jetpack-paypal-payment-buttons__preview-status">

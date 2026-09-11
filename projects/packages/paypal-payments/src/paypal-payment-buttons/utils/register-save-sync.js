@@ -43,6 +43,22 @@ async function isConnected() {
 	}
 }
 
+// How long a save notice stays on screen.
+const TOAST_MS = 5000;
+
+/**
+ * Show a short-lived snackbar, replacing an earlier one with the same id.
+ *
+ * @param {string} status  - 'error' or 'warning'.
+ * @param {string} message - What to say.
+ * @param {string} id      - Notice id, one per block and kind.
+ */
+function toast( status, message, id ) {
+	const { createNotice, removeNotice } = dispatch( noticesStore );
+	createNotice( status, message, { type: 'snackbar', id } );
+	setTimeout( () => removeNotice( id ), TOAST_MS );
+}
+
 /**
  * Sync the PayPal payments before the post is saved.
  *
@@ -78,12 +94,13 @@ export function registerSaveSync( isEnabled ) {
 			const changed = await syncBlocksBeforeSave( blocks, {
 				request: apiFetch,
 				updateBlockAttributes: dispatch( blockEditorStore ).updateBlockAttributes,
-				reportError: message =>
-					dispatch( noticesStore ).createErrorNotice( message, { type: 'snackbar' } ),
+				reportError: ( { clientId }, message ) =>
+					toast( 'error', message, `jetpack-paypal-sync-${ clientId }` ),
 				// A block the merchant left incomplete is skipped, and the only other
 				// sign is a line in the block sidebar. Say so where the save is watched.
 				reportHeldBack: ( { clientId, attributes }, reason ) =>
-					dispatch( noticesStore ).createWarningNotice(
+					toast(
+						'warning',
 						sprintf(
 							/* translators: 1: product name, 2: what to fix */
 							__(
@@ -93,7 +110,7 @@ export function registerSaveSync( isEnabled ) {
 							attributes.productName || __( 'Untitled', 'jetpack-paypal-payments' ),
 							reason
 						),
-						{ id: `jetpack-paypal-held-back-${ clientId }` }
+						`jetpack-paypal-held-back-${ clientId }`
 					),
 			} );
 

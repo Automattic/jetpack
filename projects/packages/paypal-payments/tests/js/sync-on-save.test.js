@@ -294,6 +294,7 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			expect( changed ).toBe( true );
 			expect( deps.reportError ).toHaveBeenCalledWith(
+				expect.objectContaining( { clientId: 'a' } ),
 				expect.stringContaining( 'PayPal turned the payment down.' )
 			);
 			expect( deps.updateBlockAttributes ).toHaveBeenCalledWith( 'b', expect.anything() );

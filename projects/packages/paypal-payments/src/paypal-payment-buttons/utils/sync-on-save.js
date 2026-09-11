@@ -117,7 +117,7 @@ async function createPayment( request, body ) {
  * @param {object}   deps                       - Collaborators.
  * @param {Function} deps.request               - apiFetch or a stand-in.
  * @param {Function} deps.updateBlockAttributes - Writes attributes onto a block by clientId.
- * @param {Function} deps.reportError           - Shows the merchant a message.
+ * @param {Function} deps.reportError           - Tells the merchant a block's save failed, and why.
  * @param {Function} deps.reportHeldBack        - Tells the merchant a block was not sent, and why.
  * @return {Promise<boolean>} True when the block's attributes changed.
  */
@@ -169,6 +169,7 @@ async function syncBlock(
 		lastSynced.set( clientId, key );
 	} catch ( err ) {
 		reportError(
+			{ clientId, attributes },
 			sprintf(
 				/* translators: 1: product name, 2: error message */
 				__( 'PayPal did not save "%1$s": %2$s', 'jetpack-paypal-payments' ),
