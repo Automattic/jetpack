@@ -324,8 +324,9 @@ class PayPal_Payment_Buttons {
 			$rules[] = sprintf( 'color:%s', $color );
 		}
 
-		if ( self::has_number( $attributes, 'captionFontSize' ) ) {
-			$rules[] = sprintf( 'font-size:%spx', (float) $attributes['captionFontSize'] );
+		$size = self::sanitize_css_font_size( $attributes['captionFontSize'] ?? '' );
+		if ( '' !== $size ) {
+			$rules[] = sprintf( 'font-size:%s', $size );
 		}
 
 		return self::css_rules( $rules );
@@ -359,6 +360,31 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * Accept only a font size the picker can produce.
+	 *
+	 * FontSizePicker hands back the size with its unit: a plain length, a theme
+	 * preset's CSS variable, or a fluid clamp()/calc() expression. The charset is
+	 * narrow enough that there is nothing to break out of the declaration with —
+	 * no semicolon, no url(), no quotes.
+	 *
+	 * @param string $size The raw attribute value.
+	 * @return string The size, or '' when it is not one.
+	 */
+	private static function sanitize_css_font_size( $size ) {
+		$size = trim( (string) $size );
+
+		if ( '' !== self::sanitize_css_length( $size ) ) {
+			return $size;
+		}
+
+		if ( preg_match( '/^var\(--wp--preset--font-size--[a-z0-9-]+\)$/i', $size ) ) {
+			return $size;
+		}
+
+		return preg_match( '/^(clamp|calc)\([a-z0-9.,%\s()+\-*\/]+\)$/i', $size ) ? $size : '';
+	}
+
+	/**
 	 * Accept only a length the width control can produce.
 	 *
 	 * @param string $length The raw attribute value, e.g. '50%' or '150px'.
@@ -367,7 +393,19 @@ class PayPal_Payment_Buttons {
 	private static function sanitize_css_length( $length ) {
 		$length = trim( (string) $length );
 
-		return preg_match( '/^\d+(\.\d+)?(%|px|em|rem)$/', $length ) ? $length : '';
+		// 0 is a length a merchant can pick — core's spacing scale starts there,
+		// and it is how you cancel the stylesheet's own margin.
+		if ( '0' === $length ) {
+			return $length;
+		}
+
+		// A chosen spacing preset. The style engine expands it, so it goes
+		// through as stored; the units match theme.json's `spacing.units`.
+		if ( preg_match( '/^var:preset\|spacing\|[a-z0-9-]+$/i', $length ) ) {
+			return $length;
+		}
+
+		return preg_match( '/^\d+(\.\d+)?(%|px|em|rem|pt|vw|vh)$/', $length ) ? $length : '';
 	}
 
 	/**
@@ -951,7 +989,7 @@ class PayPal_Payment_Buttons {
 			__FILE__,
 			array(
 				'css_path'   => '../../dist/paypal-payment-buttons/editor.css',
-				'textdomain' => 'jetpack-paypal-payments',
+				'textdomain' => 'no text domain is set in this in this project\'s .phpcs.dir.xml',
 			)
 		);
 		wp_enqueue_style( $handle );
@@ -967,7 +1005,7 @@ class PayPal_Payment_Buttons {
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-paypal-payments',
+				'textdomain' => 'no text domain is set in this in this project\'s .phpcs.dir.xml',
 				'enqueue'    => true,
 				// Editor styles are loaded separately, see load_editor_styles().
 				'css_path'   => null,
@@ -1023,7 +1061,7 @@ class PayPal_Payment_Buttons {
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-paypal-payments',
+				'textdomain' => 'no text domain is set in this in this project\'s .phpcs.dir.xml',
 				'enqueue'    => true,
 			)
 		);

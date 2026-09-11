@@ -263,8 +263,6 @@ function QrCaptionPanels( { attributes, setAttributes } ) {
 					value={ captionFontSize }
 					onChange={ value => setAttributes( { captionFontSize: value } ) }
 					withReset={ false }
-					__nextHasNoMarginBottom
-					__next40pxDefaultSize
 				/>
 			</PanelBody>
 		</>

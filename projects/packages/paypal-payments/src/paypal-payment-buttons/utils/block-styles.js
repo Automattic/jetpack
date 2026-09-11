@@ -49,10 +49,12 @@ export function getWrapperStyle( attributes = {} ) {
  */
 export function getCaptionStyle( attributes = {} ) {
 	const { captionColor, captionFontSize } = attributes;
-	const size = parseFloat( captionFontSize );
 
 	return {
 		...( captionColor ? { color: captionColor } : {} ),
-		...( Number.isFinite( size ) ? { fontSize: `${ size }px` } : {} ),
+		// FontSizePicker hands back the size with its unit — `20px`, a theme
+		// preset's `1rem`, or a fluid `clamp(…)` — so it goes through as given,
+		// the way sanitize_css_font_size() passes it on the published page.
+		...( captionFontSize ? { fontSize: captionFontSize } : {} ),
 	};
 }

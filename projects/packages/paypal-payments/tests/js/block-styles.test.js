@@ -10,6 +10,38 @@ import {
 	getCaptionStyle,
 	getWrapperStyle,
 } from '../../src/paypal-payment-buttons/utils/block-styles';
+import parity from '../fixtures/style-parity.json';
+
+/**
+ * React style keys are camelCase; the fixture and the published page use CSS
+ * property names.
+ *
+ * @param {object} style - A React style object.
+ * @return {object} The same declarations, keyed by CSS property name.
+ */
+const asDeclarations = style =>
+	Object.fromEntries(
+		Object.entries( style ).map( ( [ key, value ] ) => [
+			key.replace( /[A-Z]/g, letter => `-${ letter.toLowerCase() }` ),
+			value,
+		] )
+	);
+
+// The other half of this table runs in tests/php. A value one side drops and the
+// other keeps is the drift WOOPTP-491 exists to remove, so it fails here.
+describe( 'style parity with the published page', () => {
+	it.each( parity.cases.map( c => [ c.name, c ] ) )( '%s', ( _name, testCase ) => {
+		expect( asDeclarations( getWrapperStyle( testCase.attributes ) ) ).toEqual(
+			testCase.declarations
+		);
+	} );
+
+	it.each( parity.captionCases.map( c => [ c.name, c ] ) )( 'caption: %s', ( _name, testCase ) => {
+		expect( asDeclarations( getCaptionStyle( testCase.attributes ) ) ).toEqual(
+			testCase.declarations
+		);
+	} );
+} );
 
 describe( 'getWrapperStyle', () => {
 	it( 'is empty when nothing is configured', () => {
@@ -67,20 +99,21 @@ describe( 'getCaptionStyle', () => {
 		expect( getCaptionStyle( {} ) ).toEqual( {} );
 	} );
 
-	it( 'takes a color and a size', () => {
-		expect( getCaptionStyle( { captionColor: '#0000ff', captionFontSize: 20 } ) ).toEqual( {
+	it( 'takes the size with whatever unit the picker gave it', () => {
+		// FontSizePicker returns the size with its unit once the theme defines
+		// font-size presets as strings, which block themes do.
+		expect( getCaptionStyle( { captionColor: '#0000ff', captionFontSize: '20px' } ) ).toEqual( {
 			color: '#0000ff',
 			fontSize: '20px',
 		} );
 	} );
 
-	it( 'reads a numeric string, the way the frontend does', () => {
-		// PHP tests the value with is_numeric(), so a string must not render a size
-		// on the published page and nothing in the canvas.
-		expect( getCaptionStyle( { captionFontSize: '20' } ) ).toEqual( { fontSize: '20px' } );
-	} );
-
-	it( 'emits a font size of 0 rather than dropping it', () => {
-		expect( getCaptionStyle( { captionFontSize: 0 } ) ).toEqual( { fontSize: '0px' } );
+	it( 'passes a theme preset and a fluid size through untouched', () => {
+		expect( getCaptionStyle( { captionFontSize: 'var(--wp--preset--font-size--small)' } ) ).toEqual(
+			{ fontSize: 'var(--wp--preset--font-size--small)' }
+		);
+		expect( getCaptionStyle( { captionFontSize: 'clamp(0.875rem, 1vw, 1rem)' } ) ).toEqual( {
+			fontSize: 'clamp(0.875rem, 1vw, 1rem)',
+		} );
 	} );
 } );

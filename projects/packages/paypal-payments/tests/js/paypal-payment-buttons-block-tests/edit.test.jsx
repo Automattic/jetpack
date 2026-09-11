@@ -99,13 +99,28 @@ jest.mock( '@wordpress/block-editor', () => ( {
 					{ setting.label }
 				</button>
 			) ) }
+			{ /* The real control clears by calling onColorChange with no argument. */ }
+			<button
+				type="button"
+				data-testid="color-clear"
+				onClick={ () => ( settings || [] ).forEach( s2 => s2.onColorChange() ) }
+			>
+				clear
+			</button>
 		</div>
 	),
 	__experimentalUseMultipleOriginColorsAndGradients: () => ( { colors: [], gradients: [] } ),
+	// The real picker returns the size WITH its unit once the theme defines
+	// font-size presets as strings, which block themes do, and undefined on reset.
 	FontSizePicker: ( { value, onChange } ) => (
-		<button type="button" data-testid="font-size" onClick={ () => onChange( 20 ) }>
-			{ value ?? 'size' }
-		</button>
+		<>
+			<button type="button" data-testid="font-size" onClick={ () => onChange( '1.5rem' ) }>
+				{ value || 'size' }
+			</button>
+			<button type="button" data-testid="font-size-reset" onClick={ () => onChange( undefined ) }>
+				reset
+			</button>
+		</>
 	),
 	// Margin is core's axial spacing control; the test drives it by side.
 	__experimentalSpacingSizesControl: ( { label, values, onChange } ) => (
@@ -122,16 +137,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	__experimentalBorderRadiusControl: ( { values, onChange } ) => (
 		<button type="button" data-testid="border-radius" onClick={ () => onChange( '8px' ) }>
 			{ values || 'radius' }
-		</button>
-	),
-	__experimentalColorGradientControl: ( { label, colorValue, onColorChange } ) => (
-		<button
-			type="button"
-			data-testid={ `color-${ label }` }
-			data-value={ colorValue || '' }
-			onClick={ () => onColorChange( '#111111' ) }
-		>
-			{ label }
 		</button>
 	),
 	// open() calls onSelect straight away so the block's handler runs.
@@ -3238,6 +3243,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					screen.findByTestId( 'inspector-controls-styles' )
 				).resolves.toBeInTheDocument();
 
+				expect( screen.queryByTestId( 'tools-panel-Color' ) ).not.toBeInTheDocument();
 				expect( screen.queryByTestId( 'color-dropdown' ) ).not.toBeInTheDocument();
 				expect( screen.queryByTestId( 'font-size' ) ).not.toBeInTheDocument();
 				// Width and Border do not depend on the caption.
@@ -3253,8 +3259,48 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				await expect( screen.findByTestId( 'color-dropdown' ) ).resolves.toBeInTheDocument();
+				// The dropdown renders a ToolsPanelItem, so without a ToolsPanel
+				// around it the whole panel silently draws nothing.
+				const colorPanel = await screen.findByTestId( 'tools-panel-Color' );
+				expect( within( colorPanel ).getByTestId( 'color-dropdown' ) ).toBeInTheDocument();
 				expect( screen.getByTestId( 'font-size' ) ).toBeInTheDocument();
+			} );
+
+			it( 'stores the caption colour, and clears it', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: true } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'color-Text' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { captionColor: '#111111' } );
+
+				// The real control clears by calling back with no argument at all.
+				await user.click( screen.getByTestId( 'color-clear' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { captionColor: '' } );
+			} );
+
+			it( 'stores the caption size with its unit, and clears it', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: true } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'font-size' ) ).resolves.toBeInTheDocument();
+
+				// The unit comes with it — a bare number would not render on the
+				// published page, where the value is used verbatim.
+				await user.click( screen.getByTestId( 'font-size' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { captionFontSize: '1.5rem' } );
+
+				await user.click( screen.getByTestId( 'font-size-reset' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { captionFontSize: undefined } );
 			} );
 
 			it( 'gives the QR a margin control and the button none', async () => {
