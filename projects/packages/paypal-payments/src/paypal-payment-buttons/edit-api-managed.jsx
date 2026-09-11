@@ -72,7 +72,6 @@ const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
  */
 export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const {
-		colorScheme,
 		isApiManaged,
 		scriptSrc,
 		hostedButtonId,
@@ -325,7 +324,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	// Loading state while checking connection.
 	if ( connectionLoading ) {
 		return (
-			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
+			<div { ...blockProps }>
 				<div className="jetpack-paypal-payment-buttons__loading">
 					<Spinner />
 					<p>{ __( 'Checking PayPal connection…', 'jetpack-paypal-payments' ) }</p>
@@ -339,7 +338,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		return (
 			<LegacyBlock
 				setAttributes={ setAttributes }
-				colorScheme={ colorScheme }
 				buttonText={ buttonText }
 				blockProps={ blockProps }
 			/>
@@ -352,7 +350,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	// the merchant explicitly asked to reconnect.
 	if ( ! isConnected && ( ! hasButton || showReconnect ) ) {
 		return (
-			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
+			<div { ...blockProps }>
 				<ConnectionWizard
 					setIsConnected={ setIsConnected }
 					environment={ environment }
@@ -409,8 +407,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const inspectorControls = (
 		<>
 			<PayPalInspectorControls
-				setAttributes={ setAttributes }
-				colorScheme={ colorScheme }
 				resourceId={ resourceId }
 				isConnected={ isConnected }
 				environment={ environment }
@@ -490,7 +486,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const connectionLabel = isConnected ? labelConnected : labelDisconnected;
 
 	return (
-		<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
+		<div { ...blockProps }>
 			{ toolbarControls }
 			<InspectorControls>
 				<div className="jetpack-paypal-payment-buttons__form-actions">

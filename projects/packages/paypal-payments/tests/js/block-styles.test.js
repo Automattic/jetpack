@@ -6,7 +6,11 @@
  * these assert the shape both sides produce rather than a hand-built one.
  */
 
-import { getTextStyle, getWrapperStyle } from '../../src/paypal-payment-buttons/utils/block-styles';
+import {
+	getButtonStyle,
+	getTextStyle,
+	getWrapperStyle,
+} from '../../src/paypal-payment-buttons/utils/block-styles';
 import parity from '../fixtures/style-parity.json';
 
 /**
@@ -54,6 +58,14 @@ describe( 'style parity with the published page', () => {
 			expect( getTextStyle( testCase.color, testCase.fontSize ) ).toEqual( {} );
 		}
 	);
+
+	// The button's own — a background, and Outline dropping it. Its color and
+	// size go through getTextStyle, so the textCases above already cover those.
+	it.each( parity.buttonCases.map( c => [ c.name, c ] ) )( 'button: %s', ( _name, testCase ) => {
+		expect( asDeclarations( getButtonStyle( testCase.attributes ) ) ).toEqual(
+			testCase.declarations
+		);
+	} );
 } );
 
 describe( 'getWrapperStyle', () => {

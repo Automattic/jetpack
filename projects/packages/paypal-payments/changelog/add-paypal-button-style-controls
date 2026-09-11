@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Button blocks get their own settings in the editor's Styles tab: text and background colors, a Fill or Outline style, a text size, and a checkbox for the "Powered by PayPal" line. The published page honors all of them. That line is now off unless the merchant turns it on, and it belongs to the button format alone — the QR code draws the code and its caption and nothing else. The old Light / Auto / Dark preset is gone: it only ever changed the editor, never the published page.

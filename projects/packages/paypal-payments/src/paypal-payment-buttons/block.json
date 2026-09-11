@@ -15,11 +15,6 @@
 		"align": [ "wide", "full" ]
 	},
 	"attributes": {
-		"colorScheme": {
-			"type": "string",
-			"enum": [ "auto", "light", "dark" ],
-			"default": "auto"
-		},
 		"isApiManaged": {
 			"type": "boolean",
 			"default": false
@@ -131,6 +126,27 @@
 			"type": "string",
 			"enum": [ "BUTTON", "LINK", "QR" ],
 			"default": "BUTTON"
+		},
+		"showPoweredBy": {
+			"type": "boolean",
+			"default": false
+		},
+		"buttonStyle": {
+			"type": "string",
+			"enum": [ "fill", "outline" ],
+			"default": "fill"
+		},
+		"buttonTextColor": {
+			"type": "string",
+			"default": ""
+		},
+		"buttonBackgroundColor": {
+			"type": "string",
+			"default": ""
+		},
+		"buttonFontSize": {
+			"type": "string",
+			"default": ""
 		},
 		"qrShowCaption": {
 			"type": "boolean",
