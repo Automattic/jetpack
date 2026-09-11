@@ -28,9 +28,9 @@ export const getFeatureFilters = (): Array< { value: FeatureFilter; label: strin
 	{ value: 'inactive', label: __( 'Inactive', 'jetpack-my-jetpack' ) },
 	{ value: 'recommended', label: __( 'Recommended', 'jetpack-my-jetpack' ) },
 	{ value: 'essential', label: __( 'Essential', 'jetpack-my-jetpack' ) },
-	{ value: 'security', label: __( 'In Jetpack Security', 'jetpack-my-jetpack' ) },
-	{ value: 'complete', label: __( 'In Jetpack Complete', 'jetpack-my-jetpack' ) },
-	{ value: 'growth', label: __( 'In Jetpack Growth', 'jetpack-my-jetpack' ) },
+	{ value: 'security', label: __( 'Security', 'jetpack-my-jetpack' ) },
+	{ value: 'complete', label: __( 'Complete', 'jetpack-my-jetpack' ) },
+	{ value: 'growth', label: __( 'Growth', 'jetpack-my-jetpack' ) },
 ];
 
 /**

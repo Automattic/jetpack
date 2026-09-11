@@ -46,7 +46,7 @@ class Main_Features {
 				'docs_url'         => 'https://jetpack.com/support/backup/activity-log/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2020/05/421d9-95c1d-jetpack-activity-log-ui.png',
 				'name'             => __( 'Activity Log', 'jetpack-my-jetpack' ),
-				'description'      => __( 'See a chronological list of every change made to your site.', 'jetpack-my-jetpack' ),
+				'description'      => __( 'See a list of every change made to your site.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'See a chronological list of every change made to your site, from published posts to plugin updates and logins. When something breaks, the log tells you what changed and when.', 'jetpack-my-jetpack' ),
 				'icon'             => 'list',
 				'admin_page'       => 'jetpack-activity-log',

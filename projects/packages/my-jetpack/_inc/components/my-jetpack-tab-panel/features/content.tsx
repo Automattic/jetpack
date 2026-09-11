@@ -83,14 +83,6 @@ export function FeaturesContent() {
 
 	return (
 		<section className={ styles.content }>
-			<h2>{ __( 'Features', 'jetpack-my-jetpack' ) }</h2>
-			<p className={ styles.description }>
-				{ __(
-					'Manage and explore Jetpack features that boost growth, performance, and security.',
-					'jetpack-my-jetpack'
-				) }
-			</p>
-
 			<Toolbar
 				filter={ filter }
 				onFilterChange={ onFilterChange }

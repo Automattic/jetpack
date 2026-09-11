@@ -63,7 +63,7 @@ export function Toolbar( { filter, onFilterChange, search, onSearchChange }: Too
 				<Stack
 					direction="row"
 					align="center"
-					gap="xs"
+					gap="sm"
 					wrap="wrap"
 					role="group"
 					aria-label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
