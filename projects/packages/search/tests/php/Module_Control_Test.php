@@ -62,6 +62,49 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
+	 * `Modules::activate()` (the generic path `wp jetpack module activate search`
+	 * uses, bypassing Module_Control::activate()) fires `jetpack_pre_activate_module`
+	 * as its very first statement, then later checks plan support by reading a
+	 * cached option directly. This must force a fresh plan check for the search
+	 * module so that later check isn't gated on a stale/empty cache.
+	 */
+	public function test_refresh_plan_info_before_activation_refreshes_for_search_module() {
+		$plan = $this->createMock( Plan::class );
+		$plan->expects( $this->once() )->method( 'ensure_plan_info_populated' );
+
+		$module = new Module_Control( $plan );
+		$module->refresh_plan_info_before_activation( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
+	}
+
+	/**
+	 * Other modules activating must not trigger a Search plan check.
+	 */
+	public function test_refresh_plan_info_before_activation_ignores_other_modules() {
+		$plan = $this->createMock( Plan::class );
+		$plan->expects( $this->never() )->method( 'ensure_plan_info_populated' );
+
+		$module = new Module_Control( $plan );
+		$module->refresh_plan_info_before_activation( 'stats' );
+	}
+
+	/**
+	 * `Modules::activate()` no-ops when the module is already active, but only
+	 * after firing the hook — skip the forced check in that case since no
+	 * activation decision is actually being made.
+	 */
+	public function test_refresh_plan_info_before_activation_skips_when_already_active() {
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
+
+		$plan = $this->createMock( Plan::class );
+		$plan->expects( $this->never() )->method( 'ensure_plan_info_populated' );
+
+		$module = new Module_Control( $plan );
+		$module->refresh_plan_info_before_activation( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
+
+		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+	}
+
+	/**
 	 * Test static::$search_module->activate()
 	 */
 	public function test_activate_module_success() {

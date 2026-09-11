@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reduce unnecessary requests to WordPress.com for Search plan information.

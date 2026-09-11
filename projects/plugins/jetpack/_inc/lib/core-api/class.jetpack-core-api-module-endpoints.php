@@ -793,6 +793,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$updated = true;
 					} else {
 						$plan = new Automattic\Jetpack\Search\Plan();
+						$plan->ensure_plan_info_populated();
 						if ( ! $plan->supports_instant_search() ) {
 							$updated = new WP_Error( 'instant_search_not_supported', 'Instant Search is not supported by this site', array( 'status' => 400 ) );
 							$error   = $updated->get_error_message();
