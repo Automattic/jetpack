@@ -141,8 +141,8 @@ Calculates comparison date ranges based on predefined presets.
 
 ```typescript
 const reference = {
-	from: new Date( '2024-01-15' ),
-	to: new Date( '2024-01-21' ),
+	from: localTZDate( '2024-01-15', 'America/New_York' ),
+	to: localTZDate( '2024-01-21', 'America/New_York' ),
 };
 const comparison = getComparisonRangeFromPreset( reference, 'previous-period' );
 // Returns dates for Jan 8-14, 2024
@@ -221,10 +221,13 @@ twelve-month window as 12 months.
 
 ```typescript
 type DateRange = {
-	from?: Date;
-	to?: Date;
+	from?: TZDate;
+	to?: TZDate;
 };
 ```
+
+Both bounds stay optional: `resolveBucketStamp` returns `undefined` for a bound
+it cannot resolve, and the chart passes that straight through.
 
 ### `ComparisonPresetId`
 

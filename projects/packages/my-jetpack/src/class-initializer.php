@@ -43,7 +43,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.2.0';
+	const PACKAGE_VERSION = '6.2.1';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -430,6 +430,8 @@ class Initializer {
 			'isBlockTheme'            => function_exists( 'wp_is_block_theme' ) && wp_is_block_theme(),
 			'isSharingBlockAvailable' => isset( $block_availability['sharing-buttons'] )
 				&& $block_availability['sharing-buttons']['available'],
+			'isLikeBlockAvailable'    => isset( $block_availability['like'] )
+				&& $block_availability['like']['available'],
 			'activeThemeStylesheet'   => get_stylesheet(),
 		);
 

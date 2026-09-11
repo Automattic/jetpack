@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Sharing: Remove the unreachable block-theme fallbacks from the Like buttons and Sharing buttons settings cards. No user-visible change.

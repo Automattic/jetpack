@@ -586,6 +586,18 @@ describe( 'Dashboard header date control', () => {
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders neither the year surface nor the interval when a year section hands them over', () => {
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		mockSection( {
+			date_filter_options: { with_date_comparison: false, with_header_date_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( /^year surface/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /^interval/ ) ).not.toBeInTheDocument();
+	} );
+
 	// A payload served before the field existed carries no placement.
 	it( 'keeps the control for a section that carries no placement', () => {
 		mockSection( {

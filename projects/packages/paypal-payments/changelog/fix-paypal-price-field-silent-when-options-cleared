@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Say why the product price field is invalid when clearing the option prices brings it back, instead of disabling save with nothing on screen.

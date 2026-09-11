@@ -633,6 +633,37 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
+	 * Test detail view labels a tax without a name.
+	 *
+	 * PayPal labels the tax itself, so the block leaves the name empty and the row
+	 * shows the amount alone.
+	 */
+	public function test_detail_view_shows_a_tax_without_a_name() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$resource                           = $this->get_sample_resource();
+		$resource['line_items'][0]['taxes'] = array(
+			array(
+				'type'  => 'PERCENTAGE',
+				'value' => '8.25',
+			),
+		);
+		$this->mock_get_resource_response( $resource );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '8.25 (PERCENTAGE)', $output );
+		$this->assertStringNotContainsString( ': 8.25', $output );
+	}
+
+	/**
 	 * Test detail view shows adjustable quantity.
 	 */
 	public function test_detail_view_shows_adjustable_quantity() {

@@ -645,7 +645,9 @@ class PayPal_Admin_Page {
 			if ( ! empty( $line_item['taxes'] ) ) {
 				$tax_parts = array();
 				foreach ( $line_item['taxes'] as $tax ) {
-					$tax_parts[] = sprintf( '%s: %s (%s)', $tax['name'] ?? '', $tax['value'] ?? '', $tax['type'] ?? '' );
+					// PayPal labels the tax itself, so most payments leave the name empty.
+					$detail      = sprintf( '%s (%s)', $tax['value'] ?? '', $tax['type'] ?? '' );
+					$tax_parts[] = empty( $tax['name'] ) ? $detail : sprintf( '%s: %s', $tax['name'], $detail );
 				}
 				self::render_detail_row( __( 'Taxes', 'jetpack-paypal-payments' ), implode( ', ', $tax_parts ) );
 			}

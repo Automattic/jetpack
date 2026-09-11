@@ -10,12 +10,51 @@ import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
-import { getResourceAttributeUpdates } from '../utils/resource-sync';
+import { getResourceAttributeUpdates, withCurrency } from '../utils/resource-sync';
 import { getUserFriendlyError } from '../utils/validation';
 
 /**
+ * Line-item fields set outside the block form.
+ *
+ * A PUT is a full replacement, so a field the request leaves out is one the
+ * merchant deletes by pressing Update. These ride back out from the payment itself.
+ */
+const PAYPAL_ONLY_LINE_ITEM_FIELDS = [
+	'product_id',
+	'shipping',
+	'handling',
+	'discounts',
+	'collect_shipping_address',
+];
+
+/**
+ * Put the fields set outside the form back into an update request.
+ *
+ * @param {object} data     - The request built from the block's attributes.
+ * @param {object} resource - The payment as it currently stands at PayPal.
+ * @return {object} The request with those fields copied in.
+ */
+function keepPayPalOnlyFields( data, resource ) {
+	const stored = resource?.line_items?.[ 0 ];
+	if ( ! stored ) {
+		return data;
+	}
+
+	const kept = {};
+	PAYPAL_ONLY_LINE_ITEM_FIELDS.forEach( key => {
+		if ( stored[ key ] !== undefined && stored[ key ] !== null ) {
+			kept[ key ] = stored[ key ];
+		}
+	} );
+
+	// PayPal's stored value wins: for these the form only ever sends its own
+	// defaults.
+	return { ...data, line_items: [ { ...data.line_items[ 0 ], ...kept } ] };
+}
+
+/**
  * The PayPal payment resource this block points at: creating it, updating it,
- * deleting it, and reading back what PayPal holds.
+ * deleting it, and reading it back.
  *
  * @param {object}   props                      - Hook props.
  * @param {object}   props.attributes           - Block attributes.
@@ -41,7 +80,6 @@ export function usePayPalResource( {
 	const {
 		isApiManaged,
 		resourceId,
-		paymentLink,
 		productName,
 		price,
 		currencyCode,
@@ -56,6 +94,7 @@ export function usePayPalResource( {
 		taxType,
 		taxName,
 		taxValue,
+		collectShippingAddress,
 	} = attributes;
 
 	// Form state.
@@ -132,24 +171,33 @@ export function usePayPalResource( {
 								},
 						  } ),
 					...( productDescription ? { description: productDescription } : {} ),
-					...( variantsEnabled && variants ? { variants } : {} ),
+					...( variantsEnabled && variants
+						? { variants: withCurrency( variants, currencyCode || 'USD' ) }
+						: {} ),
 					...( adjustableQuantity && maxQuantity > 1
 						? { adjustable_quantity: { maximum: parseInt( maxQuantity, 10 ) } }
 						: {} ),
 					...( customerNotes?.length > 0
 						? { customer_notes: customerNotes.filter( n => n.label?.trim() ) }
 						: {} ),
-					...( taxEnabled && taxName
+					...( taxEnabled
 						? {
 								taxes: [
 									{
-										name: taxName,
+										// PayPal supplies the label, so the name is
+										// its own only when the payment already has
+										// one. Sending an empty one would overwrite it.
+										...( taxName ? { name: taxName } : {} ),
 										type: taxType || 'PERCENTAGE',
 										value: taxType === 'PREFERENCE' ? 'PROFILE' : taxValue || '0',
 									},
 								],
 						  }
 						: {} ),
+					// Omitting this makes PayPal collect an address whatever the
+					// payment said before, so it goes out on every request. On an
+					// update the payment's own value replaces this one.
+					collect_shipping_address: !! collectShippingAddress,
 				},
 			],
 			...( returnUrl ? { return_url: returnUrl } : {} ),
@@ -170,6 +218,7 @@ export function usePayPalResource( {
 			taxType,
 			taxName,
 			taxValue,
+			collectShippingAddress,
 		]
 	);
 
@@ -244,23 +293,28 @@ export function usePayPalResource( {
 
 		let isRecreating = false;
 
-		apiFetch( {
-			path: `${ API_BASE }/buttons/${ resourceId }`,
-			method: 'PUT',
-			data: buildRequestData(),
-		} )
-			.then( response => {
-				setAttributes( {
-					paymentLink: response.payment_link || paymentLink,
-				} );
+		// Read the payment first, and let a failed read stop the save: a blind PUT
+		// would delete the fields the read was there to copy.
+		apiFetch( { path: `${ API_BASE }/buttons/${ resourceId }` } )
+			.then( resource =>
+				apiFetch( {
+					path: `${ API_BASE }/buttons/${ resourceId }`,
+					method: 'PUT',
+					data: keepPayPalOnlyFields( buildRequestData(), resource ),
+				} )
+			)
+			.then( () => {
+				// An update answers 204, so the route echoes the request back and the
+				// payment link stays as it was.
 				setSuccessMessage( __( 'PayPal button updated successfully!', 'jetpack-paypal-payments' ) );
 				setIsEditing( false );
 				setTouchedFields( {} );
 			} )
 			.catch( err => {
-				// If the resource was deleted from PayPal (404), automatically
-				// re-create it as a new button with the same product data.
-				// This handles demo/playground blocks and buttons deleted outside WordPress.
+				// If the resource was deleted from PayPal (404 on either the read or
+				// the write), automatically re-create it as a new button with the same
+				// product data. This handles demo/playground blocks and buttons deleted
+				// outside WordPress.
 				if ( err.code === 'paypal_api_resource_not_found' || err.data?.status === 404 ) {
 					isRecreating = true;
 					apiFetch( {
@@ -299,15 +353,7 @@ export function usePayPalResource( {
 					setIsCreating( false );
 				}
 			} );
-	}, [
-		resourceId,
-		buildRequestData,
-		paymentLink,
-		setAttributes,
-		isFormValid,
-		setIsEditing,
-		setTouchedFields,
-	] );
+	}, [ resourceId, buildRequestData, setAttributes, isFormValid, setIsEditing, setTouchedFields ] );
 
 	/**
 	 * Request delete confirmation via ConfirmDialog.

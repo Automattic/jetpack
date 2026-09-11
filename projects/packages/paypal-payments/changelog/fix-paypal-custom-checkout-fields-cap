@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop offering a third custom checkout field, which PayPal rejects.

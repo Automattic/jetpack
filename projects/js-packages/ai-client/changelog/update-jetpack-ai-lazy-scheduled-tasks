@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `jwt` subpath export so consumers can import `requestJwt` without the rest of the client.
