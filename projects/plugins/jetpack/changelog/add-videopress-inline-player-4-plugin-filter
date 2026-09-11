@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+VideoPress: sites that return false from the jetpack_videopress_player_use_iframe filter now get the shared in-page player for the [videopress] shortcode, video blocks and embeds instead of one inline script per video.

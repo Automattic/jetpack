@@ -32,7 +32,19 @@ class Inline_Player {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		return Data::get_videopress_inline_player_enabled();
+		/**
+		 * Filter whether VideoPress videos are embedded with an iframe.
+		 *
+		 * Return false to render the player directly in the page from one shared
+		 * player script. Defaults to the inverse of the site's inline player setting.
+		 *
+		 * @module videopress
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param bool $use_iframe Whether to embed with an iframe.
+		 */
+		return ! apply_filters( 'jetpack_videopress_player_use_iframe', ! Data::get_videopress_inline_player_enabled() );
 	}
 
 	/**
