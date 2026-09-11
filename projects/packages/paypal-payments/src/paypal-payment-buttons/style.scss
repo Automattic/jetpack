@@ -3,8 +3,10 @@
 /**
  * PayPal Payment Buttons — Frontend Styles.
  *
- * Styles for the published page rendering of PayPal buttons.
- * Loaded on the frontend only (not in editor).
+ * Styles for the published page rendering of PayPal buttons. Loaded on the
+ * frontend and inside the editor canvas iframe, but not in the sidebar — so a
+ * rule for a frontend class belongs here and reaches both, while anything
+ * naming a `-preview__` class belongs in editor.scss.
  *
  * The checkout button uses the `wp-element-button` class to inherit
  * the active theme's button styles (colors, typography, border-radius),
@@ -108,17 +110,25 @@ $paypal-blue: #0070ba;
 	cursor: pointer;
 }
 
-// The Outline style, on the published anchor and the canvas preview alike —
-// same declarations core's button block uses, so the two look the same.
-// `color: currentColor` is what stops the theme's button colour (usually white,
-// meant for a filled background) leaving the label invisible; a colour chosen
-// in the Styles tab arrives inline and wins over it.
-.jetpack-paypal-button__checkout-link.is-style-outline,
-.jetpack-paypal-button-preview__checkout-button.is-style-outline {
-	background-color: transparent;
-	background-image: none;
-	border: 2px solid currentColor;
-	color: currentColor;
+// The Outline style. Same shape as the Jetpack button block's own outline
+// (extensions/blocks/button/view.scss): 1px, so the button does not
+// grow next to a Fill one, and no padding override so the theme keeps
+// sizing it. `color: currentColor` is what stops the theme's button color
+// (usually white, meant for a filled background) leaving the label
+// invisible; a color chosen in the Styles tab arrives inline and wins
+// over it. Hover and focus are listed
+// too, or the theme repaints the background on hover and fills it back in.
+.jetpack-paypal-button__checkout-link.is-style-outline {
+
+	&,
+	&:hover,
+	&:focus,
+	&:active {
+		background-color: transparent;
+		background-image: none;
+		border: solid 1px currentColor;
+		color: currentColor;
+	}
 }
 
 // ---------------------------------------------------------------

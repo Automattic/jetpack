@@ -269,6 +269,20 @@
 				"color": "#0000ff",
 				"font-size": "20px"
 			}
+		},
+		{
+			"name": "a fluid size containing **",
+			"fontSize": "calc(2px**3)",
+			"declarations": {
+				"font-size": "calc(2px**3)"
+			}
+		},
+		{
+			"name": "a fluid size containing //",
+			"fontSize": "calc(4px//2)",
+			"declarations": {
+				"font-size": "calc(4px//2)"
+			}
 		}
 	],
 	"rejectedCases": [
@@ -367,6 +381,14 @@
 		{
 			"name": "a spacing preset used as a color",
 			"color": "var:preset|spacing|50"
+		},
+		{
+			"name": "a size smuggling a css comment open",
+			"fontSize": "calc(2px)/*"
+		},
+		{
+			"name": "a size smuggling a css comment close",
+			"fontSize": "calc(2px)*/"
 		}
 	],
 	"buttonCases": [

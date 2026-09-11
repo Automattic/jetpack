@@ -31,8 +31,7 @@ const COLOR_PRESET = /^var:preset\|color\|([a-z0-9-]+)$/i;
 const CSS_VAR = /^var\(--wp--[a-z0-9-]+\)$/i;
 const COLOR_FUNCTION = /^(rgb|hsl)a?\([\d.,%\s/]+\)$/i;
 const FONT_SIZE_VAR = /^var\(--wp--preset--font-size--[a-z0-9-]+\)$/i;
-// No `/*` or `*/`: a CSS comment would swallow the declarations after it.
-const FLUID_SIZE = /^(?!.*[/*]{2})(clamp|calc)\([a-z0-9.,%\s()+\-*/]+\)$/i;
+const FLUID_SIZE = /^(clamp|calc)\([a-z0-9.,%\s()+\-*/]+\)$/i;
 const UNITLESS = /^\d+(\.\d+)?$/;
 
 // The sides and corners the Border Settings panel can write.
@@ -106,19 +105,56 @@ function box( sides ) {
 }
 
 /**
- * Block styles — Width Settings and Border Settings.
+ * The chosen width, with its unit.
  *
  * @param {object} attributes - The block attributes.
- * @return {object} A React style object, empty when nothing is configured.
+ * @return {string} The width, or '' when none is set.
  */
-export function getWrapperStyle( attributes = {} ) {
-	const { blockWidth, style } = attributes;
-	const border = style?.border || {};
-
+function chosenWidth( attributes ) {
 	// Width never reaches the style engine, so a spacing preset would be emitted
 	// raw. The width control cannot produce one; this keeps it that way.
-	const width = length( blockWidth );
-	const maxWidth = SPACING_PRESET.test( width ) ? '' : width;
+	const width = length( attributes.blockWidth );
+
+	return SPACING_PRESET.test( width ) ? '' : width;
+}
+
+/**
+ * Margin, and the width for the formats whose wrapper IS the thing on screen.
+ *
+ * The QR's wrapper is its card, so Width Settings caps it here. The button's
+ * wrapper is a product card around a button, so the button takes the width
+ * itself — see getButtonStyle().
+ *
+ * @param {object}  attributes  - The block attributes.
+ * @param {boolean} sizesItself - True when the wrapper is the element being sized.
+ * @return {object} A React style object, empty when nothing is configured.
+ */
+export function getWrapperStyle( attributes = {}, sizesItself = true ) {
+	const maxWidth = sizesItself ? chosenWidth( attributes ) : '';
+
+	return {
+		...( maxWidth ? { maxWidth } : {} ),
+		...getSpacingClassesAndStyles( {
+			style: { spacing: { margin: box( attributes.style?.spacing?.margin ) } },
+		} ).style,
+	};
+}
+
+/**
+ * Border Settings — the radius and the stroke.
+ *
+ * Its own function because the two formats hang it on different elements. The QR
+ * card is the thing the merchant sees, so its border goes on the wrapper. The
+ * button's wrapper is a product card with no background of its own, where a
+ * radius has no edge to round and a stroke boxes the card rather than the
+ * button — so the button hangs it on the button.
+ *
+ * @param {object}  attributes - The block attributes.
+ * @param {boolean} radiusOnly - Drop the stroke, for a button whose Outline style draws its own.
+ * @return {object} A React style object, empty when nothing is configured.
+ */
+export function getBorderStyle( attributes = {}, radiusOnly = false ) {
+	const border = attributes.style?.border || {};
 
 	const strokeWidth = length( border.width );
 	const strokeColor = color( border.color );
@@ -126,7 +162,7 @@ export function getWrapperStyle( attributes = {} ) {
 	// together or not at all. border-style defaults to `none`, so a width and a
 	// color on their own would draw nothing.
 	const stroke =
-		strokeWidth && strokeColor
+		strokeWidth && strokeColor && ! radiusOnly
 			? {
 					width: strokeWidth,
 					color: strokeColor,
@@ -134,15 +170,9 @@ export function getWrapperStyle( attributes = {} ) {
 			  }
 			: {};
 
-	return {
-		...( maxWidth ? { maxWidth } : {} ),
-		...getSpacingClassesAndStyles( {
-			style: { spacing: { margin: box( style?.spacing?.margin ) } },
-		} ).style,
-		...getBorderClassesAndStyles( {
-			style: { border: { ...stroke, radius: box( border.radius ) } },
-		} ).style,
-	};
+	return getBorderClassesAndStyles( {
+		style: { border: { ...stroke, radius: box( border.radius ) } },
+	} ).style;
 }
 
 /**
@@ -175,6 +205,14 @@ function cssFontSize( value ) {
 	// sizes are numbers. Core reads a bare number as px.
 	if ( UNITLESS.test( size ) ) {
 		return `${ size }px`;
+	}
+
+	// `/*` would open a comment that swallows every declaration after it. Spelled
+	// out rather than folded into FLUID_SIZE: a `[/*]{2}` character class also
+	// rejects `**` and `//`, which sanitize_css_font_size() accepts, and the two
+	// sides have to agree exactly.
+	if ( size.includes( '/*' ) || size.includes( '*/' ) ) {
+		return '';
 	}
 
 	return length( size ) || ( FONT_SIZE_VAR.test( size ) || FLUID_SIZE.test( size ) ? size : '' );
@@ -210,14 +248,22 @@ export function getTextStyle( textColor, textSize ) {
  */
 export function getButtonStyle( attributes = {} ) {
 	const { buttonStyle, buttonTextColor, buttonBackgroundColor, buttonFontSize } = attributes;
+	const isOutline = 'outline' === buttonStyle;
 
 	// Outline takes its transparent background and its currentColor border from
 	// style.scss. An inline background-color would beat that rule and fill the
 	// button back in, so the chosen background is dropped rather than emitted.
-	const background = 'outline' === buttonStyle ? '' : cssColor( buttonBackgroundColor );
+	const background = isOutline ? '' : cssColor( buttonBackgroundColor );
+
+	// Width and Border hang on the button, not the product card around it. The
+	// card has no background, so a radius there rounds nothing and a stroke boxes
+	// the card. Outline draws its own border, so a stroke on top would double it.
+	const width = chosenWidth( attributes );
 
 	return {
 		...getTextStyle( buttonTextColor, buttonFontSize ),
 		...( background ? { backgroundColor: background } : {} ),
+		...( width ? { width } : {} ),
+		...getBorderStyle( attributes, isOutline ),
 	};
 }

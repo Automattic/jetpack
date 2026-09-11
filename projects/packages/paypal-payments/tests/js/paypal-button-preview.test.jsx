@@ -79,6 +79,74 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
 	} );
 
+	// The canvas half of what render_api_managed_button() puts on the anchor.
+	// Without these the style and class wiring can be reverted and the suite
+	// stays green, which is the drift this whole milestone exists to stop.
+	it( 'styles the checkout button from its own color, background and size', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				attributes={ {
+					buttonTextColor: '#1e1e1e',
+					buttonBackgroundColor: '#ffd140',
+					buttonFontSize: '18px',
+				} }
+			/>
+		);
+
+		expect(
+			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+		).toHaveStyle( { color: '#1e1e1e', backgroundColor: '#ffd140', fontSize: '18px' } );
+	} );
+
+	it( 'marks the outline style and drops the background with it', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				attributes={ {
+					buttonStyle: 'outline',
+					buttonTextColor: '#1e1e1e',
+					buttonBackgroundColor: '#ffd140',
+				} }
+			/>
+		);
+
+		const button = document.querySelector( '.jetpack-paypal-button-preview__checkout-button' );
+		expect( button ).toHaveClass( 'is-style-outline' );
+		// The transparent background comes from the stylesheet, so an inline one
+		// would beat it and fill the button back in.
+		expect( button ).not.toHaveStyle( { backgroundColor: '#ffd140' } );
+		expect( button ).toHaveStyle( { color: '#1e1e1e' } );
+	} );
+
+	it( 'leaves the outline class off the fill style', () => {
+		render( <PayPalButtonPreview { ...defaultProps } attributes={ { buttonStyle: 'fill' } } /> );
+		expect(
+			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+		).not.toHaveClass( 'is-style-outline' );
+	} );
+
+	// Width and Border hang on the button, not the product card around it — the
+	// card has no background, so a radius there rounds nothing.
+	it( 'sizes and borders the button, not the card around it', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				attributes={ {
+					blockWidth: '75%',
+					style: { border: { radius: '8px', width: '2px', color: '#1e1e1e' } },
+				} }
+			/>
+		);
+
+		expect(
+			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+		).toHaveStyle( { width: '75%', borderRadius: '8px' } );
+		expect( document.querySelector( '.jetpack-paypal-button-preview' ) ).not.toHaveStyle( {
+			maxWidth: '75%',
+		} );
+	} );
+
 	it( 'never renders a debit/credit button', () => {
 		// The theme-native checkout button replaced the PayPal-branded
 		// gold + debit/credit pair, so neither layout renders one.
@@ -514,8 +582,9 @@ describe( 'PayPalButtonPreview', () => {
 			expect( wrapper ).not.toHaveStyle( { marginTop: '8px' } );
 		} );
 
-		it( 'styles the button card too', () => {
-			// Width and Border are BUTTON and QR both, so the same helper feeds both.
+		it( 'sizes and borders the button, leaving the card around it alone', () => {
+			// The card has no background of its own, so a radius there rounds
+			// nothing and a width there boxes the card instead of the button.
 			render(
 				<PayPalButtonPreview
 					{ ...defaultProps }
@@ -523,9 +592,11 @@ describe( 'PayPalButtonPreview', () => {
 					attributes={ { blockWidth: '75%', style: { border: { radius: '6px' } } } }
 				/>
 			);
-			expect( document.querySelector( '.jetpack-paypal-button-preview' ) ).toHaveStyle( {
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).toHaveStyle( { width: '75%', borderRadius: '6px' } );
+			expect( document.querySelector( '.jetpack-paypal-button-preview' ) ).not.toHaveStyle( {
 				maxWidth: '75%',
-				borderRadius: '6px',
 			} );
 		} );
 

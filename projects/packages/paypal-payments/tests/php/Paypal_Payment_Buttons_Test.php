@@ -42,7 +42,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG;
 
 	/**
-	 * The two formats that draw styled text, and the attributes each one reads.
+	 * The three formats that draw styled text, and the attributes each one reads.
 	 *
 	 * @var array<string, array<string, mixed>>
 	 */
@@ -643,7 +643,53 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		);
 
 		$this->assertStringNotContainsString( 'is-style-outline', $result );
-		$this->assertStringContainsString( 'background-color:#ffd140', $result );
+		// Anchored to the button: a declaration landing on the wrong element is how
+		// the last divergence shipped green.
+		$this->assertMatchesRegularExpression(
+			'/class="jetpack-paypal-button__checkout-link wp-element-button" style="[^"]*background-color:#ffd140/',
+			$result
+		);
+	}
+
+	/**
+	 * Test that the attribution line stays off the other two formats.
+	 *
+	 * The attribute is shared, so a merchant who ticks the box on BUTTON and then
+	 * switches format still carries the value.
+	 *
+	 * @dataProvider provide_non_button_formats
+	 * @param string $format The display format to render.
+	 */
+	#[DataProvider( 'provide_non_button_formats' )]
+	public function test_render_keeps_the_attribution_off_other_formats( $format ) {
+		$attributes = array(
+			'isApiManaged'  => true,
+			'resourceId'    => 'PLB-ATTRIB',
+			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-ATTRIB',
+			'productName'   => 'Premium Widget',
+			'format'        => $format,
+			'showPoweredBy' => true,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $result );
+		// Positive control: the format still drew something.
+		$this->assertNotSame( '', trim( (string) $result ) );
+	}
+
+	/**
+	 * The formats that never draw the attribution line.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public static function provide_non_button_formats() {
+		return array(
+			'QR'   => array( 'QR' ),
+			'LINK' => array( 'LINK' ),
+		);
 	}
 
 	/**
@@ -1444,7 +1490,10 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that Width and Border settings reach a published BUTTON block too.
+	 * Test that Width and Border settings land on the button, not the card.
+	 *
+	 * The product card has no background of its own, so a radius there rounds
+	 * nothing and a width there boxes the card instead of the button.
 	 */
 	public function test_render_block_button_applies_width_and_border_styles() {
 		$attributes = array(
@@ -1462,12 +1511,12 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
-		// On .jetpack-paypal-button, the element style.scss caps at 400px — not
-		// the outer block wrapper, where it would not override that cap.
-		$this->assertStringContainsString(
-			'max-width:75%;border-radius:6px;',
+		$this->assertMatchesRegularExpression(
+			'/class="jetpack-paypal-button__checkout-link wp-element-button" style="width:75%;border-radius:6px;"/',
 			$result
 		);
+		// And nothing lands on the card around it.
+		$this->assertStringNotContainsString( '<div class="jetpack-paypal-button" style=', $result );
 	}
 
 	/**

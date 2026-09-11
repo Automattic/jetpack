@@ -114,7 +114,7 @@ pnpm test:run
 | Token Pre-validation | ✅ | 403 shows Payment Links guidance + stays on Credentials, 403 clears partial state, 5xx does not block connection | WOOPTP-164 |
 | SVG Block Icon | ✅ | SVG in block inserter, SVG in block toolbar | WOOPTP-166 |
 | Format Switcher | ✅ | Button/Link/QR selection, switching format without recreating the product, front-end anchor and standalone QR canvas | WOOPTP-390 |
-| Style Preset | ✅ | Light/Auto/Dark selection and theme custom-property inheritance | WOOPTP-390 |
+| Button Styles | ✅ | Text and background color, Fill/Outline, font size, width and border on the button, optional "Powered by PayPal" line | WOOPTP-495 |
 
 **WP 6.9 compatibility notes:**
 - Block editor uses an iframe (`iframe[name="editor-canvas"]`) — all block locators go through `page.frameLocator()`
