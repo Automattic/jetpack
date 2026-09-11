@@ -76,7 +76,7 @@ export default function OnboardingChecklist(): JSX.Element {
 								{ step.complete ? (
 									<Text
 										render={ <span className="screen-reader-text" /> }
-										className="jetpack-newsletter-overview__step-title-complete"
+										className="jetpack-newsletter-overview__step-title--complete"
 									>
 										{ __( 'Complete', 'jetpack-newsletter' ) }
 									</Text>

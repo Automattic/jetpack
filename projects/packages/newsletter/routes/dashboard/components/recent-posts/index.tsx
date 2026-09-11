@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Button, Link, Stack, Text } from '@wordpress/ui';
-import { formatMetric, formatRate } from '../format-metric';
+import { formatMetric, formatRate } from '../helpers/format-metric';
 import './style.scss';
 
 export type RecentPost = {
@@ -197,11 +197,7 @@ export default function RecentPosts( {
 				justify="space-between"
 				className="jetpack-newsletter-recent-posts__header"
 			>
-				<Text
-					render={ <h3 /> }
-					variant="heading-lg"
-					className="jetpack-newsletter-recent-posts__title"
-				>
+				<Text render={ <h3 /> } variant="heading-lg">
 					{ __( 'Recent Posts', 'jetpack-newsletter' ) }
 				</Text>
 				{ viewAllUrl ? (

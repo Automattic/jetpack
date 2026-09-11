@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import RecentPosts, { type RecentPost } from '../routes/dashboard/components/recent-posts';
+import RecentPosts, { type RecentPost } from '..';
 
 const posts: RecentPost[] = [
 	{

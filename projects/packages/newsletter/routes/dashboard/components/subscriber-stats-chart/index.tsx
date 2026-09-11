@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Button, Icon, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
-import { formatMetric, formatRate } from '../format-metric';
+import { formatMetric, formatRate } from '../helpers/format-metric';
 import RecentPosts, { type RecentPost } from '../recent-posts';
 import './style.scss';
 
@@ -363,11 +363,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 				className="jetpack-newsletter-stats__chart-card"
 				render={ <section /> }
 			>
-				<Text
-					render={ <h3 /> }
-					variant="heading-lg"
-					className="jetpack-newsletter-stats__chart-title"
-				>
+				<Text render={ <h3 /> } variant="heading-lg">
 					{ __( 'Subscribers', 'jetpack-newsletter' ) }
 				</Text>
 				{ chartContent }

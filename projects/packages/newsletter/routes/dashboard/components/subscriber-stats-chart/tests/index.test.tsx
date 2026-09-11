@@ -23,7 +23,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import SubscriberStatsChart from '../routes/dashboard/components/subscriber-stats-chart';
+import SubscriberStatsChart from '..';
 
 const subscribersResponse = {
 	fields: [ 'period', 'subscribers', 'subscribers_paid' ],
