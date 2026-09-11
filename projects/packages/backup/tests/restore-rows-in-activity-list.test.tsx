@@ -135,9 +135,8 @@ function requestedPaths( fragment: string ): string[] {
 /**
  * The list's rows, in the order they are rendered.
  *
- * Awaited: DataViews' list layout commits each row's text a render before it
- * gives the row its `role`, so a synchronous read here finds no rows at all
- * for as long as that gap lasts.
+ * Awaited: the text callers wait on can render outside the list — the detail
+ * pane's heading, say — before the list has mounted any rows.
  *
  * @return Each row's text.
  */
