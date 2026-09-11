@@ -6,7 +6,7 @@ import { getTranslatableFeatureLabels, COMPLETE, COMPLETE_SLUG } from './shared-
 const crmLogoSvg = assetUrl( 'components/product-interstitial/logos/crm-logo.png' );
 
 const CrmLogo = ( { height = 42 } ) => {
-	return <img src={ crmLogoSvg } alt="CRM Logo" height={ height } />;
+	return <img src={ crmLogoSvg } alt="CRM Logo" height={ height } style={ { height } } />;
 };
 
 /**

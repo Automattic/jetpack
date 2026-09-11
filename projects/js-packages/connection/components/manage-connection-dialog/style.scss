@@ -44,17 +44,8 @@
 		box-sizing: border-box;
 	}
 
-	&__link {
-		color: var(--jp-black);
-
-		&:hover {
-			color: var(--jp-black);
-			text-decoration-thickness: var(--jp-underline-thickness);
-		}
-
-		&:focus {
-			color: var(--jp-black);
-		}
+	&__link:hover {
+		text-decoration-thickness: var(--jp-underline-thickness);
 	}
 
 	&__button-wrap button {
