@@ -125,16 +125,8 @@ final class Sharing_Section {
 
 	/**
 	 * The services list and its settings.
-	 *
-	 * Still rendered by `Sharing_Admin`, which owns the drag-and-drop UI, its
-	 * AJAX handlers and the new-service form. Moving those here is the second
-	 * half of CM-912.
 	 */
 	private static function render_services_config(): void {
-		global $sharing_admin;
-
-		if ( $sharing_admin instanceof \Sharing_Admin ) {
-			$sharing_admin->services_config_display();
-		}
+		( new Services_Config() )->render();
 	}
 }
