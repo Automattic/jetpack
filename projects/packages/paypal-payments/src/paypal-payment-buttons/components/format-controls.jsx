@@ -7,30 +7,31 @@
  * cannot do: block.json declares them once and they cannot follow a checkbox.
  *
  * Modelled on projects/plugins/jetpack/extensions/blocks/donations/style-controls.jsx:
- * one `group="styles"` fill with core's controls inside our own ToolsPanels,
- * borrowing core's color classes for their spacing and reset.
+ * one `group="styles"` fill holding core's own controls. Color is core's colour
+ * dropdown, which carries its reset menu; the rest are collapsible panels.
  *
  * @package
  */
 
 import {
+	FontSizePicker,
 	InspectorControls,
 	__experimentalBorderRadiusControl as BorderRadiusControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalColorGradientControl as ColorGradientControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalSpacingSizesControl as SpacingSizesControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import {
 	BorderControl,
 	CheckboxControl,
+	PanelBody,
 	TextControl,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { DEFAULT_QR_CAPTION } from '../utils/defaults';
+import { DEFAULT_LABEL } from '../utils/defaults';
 import FormatSwitcher from './format-switcher';
 import QrCodePreview from './qr-code-preview';
 
@@ -58,45 +59,32 @@ function WidthPanel( { blockWidth, setAttributes } ) {
 	const selectPreset = value => setAttributes( { blockWidth: blockWidth === value ? '' : value } );
 
 	return (
-		<ToolsPanel
-			label={ __( 'Width Settings', 'jetpack-paypal-payments' ) }
-			resetAll={ () => setAttributes( { blockWidth: '' } ) }
-			headingLevel={ 3 }
-			__experimentalFirstVisibleItemClass="first"
-			__experimentalLastVisibleItemClass="last"
-		>
-			<ToolsPanelItem
-				label={ __( 'Width', 'jetpack-paypal-payments' ) }
-				hasValue={ () => !! blockWidth }
-				onDeselect={ () => setAttributes( { blockWidth: '' } ) }
-				isShownByDefault
-			>
-				<div className="jetpack-paypal-payment-buttons__width-controls">
-					<ToggleGroupControl
-						label={ __( 'Width', 'jetpack-paypal-payments' ) }
-						hideLabelFromVision
-						value={ blockWidth }
-						onChange={ selectPreset }
-						isBlock
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-					>
-						{ PRESET_WIDTHS.map( preset => (
-							<ToggleGroupControlOption key={ preset } value={ preset } label={ preset } />
-						) ) }
-					</ToggleGroupControl>
-					<UnitControl
-						label={ __( 'Custom width', 'jetpack-paypal-payments' ) }
-						hideLabelFromVision
-						value={ blockWidth }
-						units={ WIDTH_UNITS }
-						min={ 0 }
-						onChange={ value => setAttributes( { blockWidth: value || '' } ) }
-						__next40pxDefaultSize
-					/>
-				</div>
-			</ToolsPanelItem>
-		</ToolsPanel>
+		<PanelBody title={ __( 'Width Settings', 'jetpack-paypal-payments' ) }>
+			<div className="jetpack-paypal-payment-buttons__width-controls">
+				<ToggleGroupControl
+					label={ __( 'Width', 'jetpack-paypal-payments' ) }
+					hideLabelFromVision
+					value={ blockWidth }
+					onChange={ selectPreset }
+					isBlock
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+				>
+					{ PRESET_WIDTHS.map( preset => (
+						<ToggleGroupControlOption key={ preset } value={ preset } label={ preset } />
+					) ) }
+				</ToggleGroupControl>
+				<UnitControl
+					label={ __( 'Custom width', 'jetpack-paypal-payments' ) }
+					hideLabelFromVision
+					value={ blockWidth }
+					units={ WIDTH_UNITS }
+					min={ 0 }
+					onChange={ value => setAttributes( { blockWidth: value || '' } ) }
+					__next40pxDefaultSize
+				/>
+			</div>
+		</PanelBody>
 	);
 }
 
@@ -114,6 +102,7 @@ function WidthPanel( { blockWidth, setAttributes } ) {
  * @return {Element} The Border Settings panel.
  */
 function BorderPanel( { attributes, setAttributes, showMargin } ) {
+	const { colors } = useMultipleOriginColorsAndGradients();
 	const style = attributes.style || {};
 	const margin = style.spacing?.margin;
 	const border = style.border || {};
@@ -145,76 +134,35 @@ function BorderPanel( { attributes, setAttributes, showMargin } ) {
 	};
 
 	return (
-		<ToolsPanel
-			label={ __( 'Border Settings', 'jetpack-paypal-payments' ) }
-			resetAll={ () =>
-				setAttributes( {
-					style: {
-						...style,
-						spacing: { ...style.spacing, margin: undefined },
-						border: undefined,
-					},
-				} )
-			}
-			headingLevel={ 3 }
-			__experimentalFirstVisibleItemClass="first"
-			__experimentalLastVisibleItemClass="last"
-		>
+		<PanelBody title={ __( 'Border Settings', 'jetpack-paypal-payments' ) }>
 			{ showMargin && (
-				<ToolsPanelItem
+				<SpacingSizesControl
 					label={ __( 'Margin', 'jetpack-paypal-payments' ) }
-					hasValue={ () => !! margin }
-					onDeselect={ () => setStyle( { spacing: { margin: undefined } } ) }
-					isShownByDefault
-				>
-					<SpacingSizesControl
-						label={ __( 'Margin', 'jetpack-paypal-payments' ) }
-						values={ margin }
-						onChange={ value => setStyle( { spacing: { margin: value } } ) }
-						sides={ [ 'vertical', 'horizontal' ] }
-					/>
-				</ToolsPanelItem>
+					values={ margin }
+					onChange={ value => setStyle( { spacing: { margin: value } } ) }
+					sides={ [ 'vertical', 'horizontal' ] }
+				/>
 			) }
 
-			<ToolsPanelItem
-				label={ __( 'Radius', 'jetpack-paypal-payments' ) }
-				hasValue={ () => !! border.radius }
-				onDeselect={ () => setStyle( { border: { radius: undefined } } ) }
-				isShownByDefault
-			>
-				<BorderRadiusControl
-					values={ border.radius }
-					onChange={ value => setStyle( { border: { radius: value } } ) }
-				/>
-			</ToolsPanelItem>
+			<BorderRadiusControl
+				values={ border.radius }
+				onChange={ value => setStyle( { border: { radius: value } } ) }
+			/>
 
-			<ToolsPanelItem
+			<BorderControl
 				label={ __( 'Stroke', 'jetpack-paypal-payments' ) }
-				hasValue={ () => !! border.width || !! border.color }
-				onDeselect={ () =>
-					setStyle( { border: { width: undefined, color: undefined, style: undefined } } )
+				colors={ colors }
+				value={ { color: border.color, style: border.style, width: border.width } }
+				onChange={ value =>
+					setStyle( {
+						border: { color: value?.color, style: value?.style, width: value?.width },
+					} )
 				}
-				isShownByDefault
-			>
-				<BorderControl
-					label={ __( 'Stroke', 'jetpack-paypal-payments' ) }
-					hideLabelFromVision
-					value={ { color: border.color, style: border.style, width: border.width } }
-					onChange={ value =>
-						setStyle( {
-							border: {
-								color: value?.color,
-								style: value?.style,
-								width: value?.width,
-							},
-						} )
-					}
-					withSlider
-					enableAlpha={ false }
-					__next40pxDefaultSize
-				/>
-			</ToolsPanelItem>
-		</ToolsPanel>
+				withSlider
+				enableAlpha={ false }
+				__next40pxDefaultSize
+			/>
+		</PanelBody>
 	);
 }
 
@@ -249,7 +197,7 @@ function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
 					label={ __( 'Caption', 'jetpack-paypal-payments' ) }
 					hideLabelFromVision
 					value={ qrCaption }
-					placeholder={ DEFAULT_QR_CAPTION }
+					placeholder={ DEFAULT_LABEL }
 					onChange={ value => setAttributes( { qrCaption: value } ) }
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
@@ -271,62 +219,37 @@ function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
  */
 function QrCaptionPanels( { attributes, setAttributes } ) {
 	const { captionColor, captionFontSize } = attributes;
+	const colorSettings = useMultipleOriginColorsAndGradients();
 
 	return (
 		<>
-			<ToolsPanel
-				className="color-block-support-panel"
-				label={ __( 'Color', 'jetpack-paypal-payments' ) }
-				resetAll={ () => setAttributes( { captionColor: '' } ) }
-				hasInnerWrapper
-				headingLevel={ 3 }
-				__experimentalFirstVisibleItemClass="first"
-				__experimentalLastVisibleItemClass="last"
-			>
-				<ToolsPanelItem
-					label={ __( 'Text', 'jetpack-paypal-payments' ) }
-					hasValue={ () => !! captionColor }
-					onDeselect={ () => setAttributes( { captionColor: '' } ) }
-					isShownByDefault
-				>
-					<div className="color-block-support-panel__inner-wrapper">
-						<ColorGradientControl
-							label={ __( 'Text', 'jetpack-paypal-payments' ) }
-							colorValue={ captionColor }
-							onColorChange={ value => setAttributes( { captionColor: value || '' } ) }
-							disableCustomGradients
-							enableAlpha={ false }
-							__experimentalIsRenderedInSidebar
-						/>
-					</div>
-				</ToolsPanelItem>
-			</ToolsPanel>
+			{ /* Color is core's own panel, so it carries the reset menu the frame
+			     draws and the compact labelled swatch row. */ }
+			<ColorGradientSettingsDropdown
+				__experimentalIsRenderedInSidebar
+				panelId="paypal-caption-color"
+				settings={ [
+					{
+						label: __( 'Text', 'jetpack-paypal-payments' ),
+						colorValue: captionColor,
+						onColorChange: value => setAttributes( { captionColor: value || '' } ),
+						clearable: true,
+					},
+				] }
+				{ ...colorSettings }
+				gradients={ [] }
+				disableCustomGradients
+			/>
 
-			<ToolsPanel
-				label={ __( 'Typography', 'jetpack-paypal-payments' ) }
-				resetAll={ () => setAttributes( { captionFontSize: undefined } ) }
-				headingLevel={ 3 }
-				__experimentalFirstVisibleItemClass="first"
-				__experimentalLastVisibleItemClass="last"
-			>
-				<ToolsPanelItem
-					label={ __( 'Size', 'jetpack-paypal-payments' ) }
-					hasValue={ () => captionFontSize !== undefined }
-					onDeselect={ () => setAttributes( { captionFontSize: undefined } ) }
-					isShownByDefault
-				>
-					<UnitControl
-						label={ __( 'Size', 'jetpack-paypal-payments' ) }
-						value={ captionFontSize === undefined ? '' : `${ captionFontSize }px` }
-						units={ [ { value: 'px', label: 'px' } ] }
-						onChange={ value => {
-							const parsed = parseFloat( value );
-							setAttributes( { captionFontSize: isNaN( parsed ) ? undefined : parsed } );
-						} }
-						__next40pxDefaultSize
-					/>
-				</ToolsPanelItem>
-			</ToolsPanel>
+			<PanelBody title={ __( 'Typography', 'jetpack-paypal-payments' ) }>
+				<FontSizePicker
+					value={ captionFontSize }
+					onChange={ value => setAttributes( { captionFontSize: value } ) }
+					withReset={ false }
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+				/>
+			</PanelBody>
 		</>
 	);
 }
