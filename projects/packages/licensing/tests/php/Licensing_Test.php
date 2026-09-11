@@ -435,8 +435,7 @@ class Licensing_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The activation screen appends file names to this base, so it has to address the package's
-	 * own assets/images/ directory and keep its trailing slash.
+	 * Covers the activation screen's image base URL.
 	 */
 	public function test_add_script_data_exposes_the_package_image_base_url() {
 		$data = Licensing::add_script_data( array( 'site' => array( 'title' => 'Example' ) ) );
@@ -450,8 +449,7 @@ class Licensing_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The files the base URL addresses must exist in the package, since nothing bundles them
-	 * any more and a missing one would only surface as a broken image in the browser.
+	 * The activation screen's illustrations ship in the package.
 	 */
 	public function test_the_addressed_images_are_committed_to_the_package() {
 		$images = dirname( __DIR__, 2 ) . '/assets/images/';
@@ -475,9 +473,7 @@ class Licensing_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Jetpack plugin renders the activation screen from its own route and never calls
-	 * initialize(), so the base URL must not depend on it. Moving the filter back into
-	 * initialize() has to turn this red.
+	 * The Jetpack plugin renders the activation screen without calling initialize().
 	 */
 	public function test_the_script_data_filter_does_not_depend_on_initialize() {
 		remove_all_filters( 'jetpack_admin_js_script_data' );

@@ -88,6 +88,10 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
+		// Before the gate: the Jetpack plugin renders this package's connection screen even
+		// where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_assets_script_data' ) );
+
 		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
 		}
@@ -107,10 +111,6 @@ class Initializer {
 
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
-
-		// Unconditional: other plugins render My Jetpack components on their own pages,
-		// where `myJetpackInitialState` is never localized.
-		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_assets_script_data' ) );
 
 		// Both of wp-build's deadlines fall later in this request: the `current_screen`
 		// alias must exist before `set_current_screen()`, and the render function
@@ -371,9 +371,8 @@ class Initializer {
 	/**
 	 * Alias the screen ID to satisfy wp-build's generated enqueue check.
 	 *
-	 * Permanent for the request: anything reading `get_current_screen()->id` after
-	 * `current_screen` sees `my-jetpack-dashboard`. The URL and the
-	 * `body.jetpack_page_my-jetpack` class both derive from `$hook_suffix`, not this.
+	 * Restored once that check has run, since JITM builds its message path from the
+	 * screen ID on `admin_notices`.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -385,7 +384,17 @@ class Initializer {
 			return;
 		}
 
-		$screen->id = 'my-jetpack-dashboard';
+		$original_id = $screen->id;
+		$screen->id  = 'my-jetpack-dashboard';
+
+		// The generated check hooks the default priority.
+		add_action(
+			'admin_enqueue_scripts',
+			static function () use ( $screen, $original_id ) {
+				$screen->id = $original_id;
+			},
+			11
+		);
 	}
 
 	/**

@@ -39,8 +39,7 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Jetpack plugin renders this package's connection screen on its own page, where
-	 * `myJetpackInitialState` is never localized.
+	 * Covers requests other than the My Jetpack page's own.
 	 */
 	public function test_the_image_base_url_is_registered_off_the_my_jetpack_page() {
 		Initializer::init();
@@ -49,5 +48,22 @@ class Script_Data_Test extends BaseTestCase {
 		$this->assertNotFalse(
 			has_filter( 'jetpack_admin_js_script_data', array( Initializer::class, 'add_assets_script_data' ) )
 		);
+	}
+
+	/**
+	 * Covers sites where `jetpack_my_jetpack_should_initialize` is false.
+	 */
+	public function test_the_image_base_url_is_registered_where_my_jetpack_is_off() {
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+		remove_all_filters( 'jetpack_admin_js_script_data' );
+
+		Initializer::init();
+
+		$this->assertFalse( Initializer::should_initialize() );
+		$this->assertNotFalse(
+			has_filter( 'jetpack_admin_js_script_data', array( Initializer::class, 'add_assets_script_data' ) )
+		);
+
+		remove_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
 	}
 }

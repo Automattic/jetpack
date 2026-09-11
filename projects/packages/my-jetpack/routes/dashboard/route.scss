@@ -2,9 +2,7 @@
 
 // No `:global` wrapper: unlike `.module.scss`, wp-build doesn't run
 // postcss-modules on plain `.scss`, so it would compile to a dead selector.
-// The wp-build variant adds defensive resets for wp-admin globals that leak
-// into admin-ui 2.x markup. Onboarding is excluded: it never renders through
-// wp-build and keeps its own full-viewport rules in _inc/style.module.scss.
+// Onboarding keeps its own full-viewport rules in _inc/style.module.scss.
 body.jetpack_page_my-jetpack:not(.jetpack-admin-full-screen) {
 
 	// This re-emits jetpack-admin-page-layout, which _inc/style.module.scss also
