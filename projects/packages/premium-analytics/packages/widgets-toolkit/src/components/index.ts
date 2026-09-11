@@ -92,6 +92,12 @@ export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
+export {
+	HighlightField,
+	HighlightGroup,
+	type HighlightFieldProps,
+	type HighlightGroupProps,
+} from './highlight-group';
 export { LeaderboardPostLabel, type LeaderboardPostLabelProps } from './leaderboard-post-label';
 export {
 	PostHighlightCard,
