@@ -79,6 +79,7 @@ export const useDismissibleAlertState = ( alertId: AlertIds ) => {
 		dismissedAlertsSchema,
 		{
 			mutation: {
+				scope: { id: 'jetpack_boost_dismissed_alerts' },
 				mutationFn: async () => {
 					const { rest_api, dismissed_alerts } = window.jetpack_boost_ds;
 					const response = await apiFetch< { JSON: unknown } >( {

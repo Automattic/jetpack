@@ -104,3 +104,65 @@ it( 'preserves Overview dismissals when the separate legacy client dismisses a n
 		jest.mocked( apiFetch ).mockReset();
 	}
 } );
+
+it.each( [ 'success', 'failure' ] )(
+	'queues a second legacy dismissal until the first delayed %s settles',
+	async outcome => {
+		let stored: Record< string, boolean > = { performance_history_fresh_start: true };
+		let releaseFirst: () => void;
+		const firstResponse = new Promise< void >( resolve => {
+			releaseFirst = resolve;
+		} );
+		window.jetpack_boost_ds = {
+			rest_api: { nonce: 'rest-nonce', value: 'https://example.org/wp-json/jetpack-boost-ds' },
+			dismissed_alerts: { nonce: 'alerts-nonce', value: { ...stored } },
+		};
+		jest.mocked( apiFetch ).mockImplementation( async ( { data } ) => {
+			const update = ( data as { JSON: Record< string, boolean > } ).JSON;
+			if ( update.score_increase ) {
+				await firstResponse;
+				if ( outcome === 'failure' ) {
+					throw new Error( 'Dismissal failed' );
+				}
+			}
+			stored = { ...stored, ...update };
+			return { status: 'success', JSON: { ...stored } };
+		} );
+		const wrapper = ( { children }: PropsWithChildren ) =>
+			createElement( QueryClientProvider, { client: legacyClient }, children );
+		try {
+			const { result } = renderHook(
+				() => ( {
+					first: useLegacyDismissal( 'score_increase' ),
+					second: useLegacyDismissal( 'legacy_minify_notice' ),
+				} ),
+				{ wrapper }
+			);
+			act( () => result.current.first[ 1 ]() );
+			await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
+			await act( async () => result.current.second[ 1 ]() );
+			expect( legacyClient.isMutating() ).toBe( 2 );
+			expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+			await act( async () => releaseFirst() );
+			await waitFor( () => expect( legacyClient.isMutating() ).toBe( 0 ) );
+			expect( apiFetch ).toHaveBeenNthCalledWith(
+				2,
+				expect.objectContaining( {
+					url: expect.stringMatching( /\/merge$/ ),
+					data: { JSON: { legacy_minify_notice: true } },
+				} )
+			);
+			const expected = {
+				performance_history_fresh_start: true,
+				...( outcome === 'success' ? { score_increase: true } : {} ),
+				legacy_minify_notice: true,
+			};
+			expect( stored ).toEqual( expected );
+			expect( legacyClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( expected );
+		} finally {
+			releaseFirst();
+			legacyClient.clear();
+			jest.mocked( apiFetch ).mockReset();
+		}
+	}
+);
