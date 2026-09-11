@@ -89,6 +89,19 @@ describe( 'buildAllTimeTrafficRows', () => {
 		expect( buildAllTimeTrafficRows( { years: RESPONSE.years }, 'average', TODAY ) ).toEqual( [] );
 	} );
 
+	it( 'carries the year figure the endpoint reports under each metric', () => {
+		expect( buildAllTimeTrafficRows( RESPONSE, 'total', TODAY ).map( row => row.total ) ).toEqual( [
+			45, 30,
+		] );
+		expect( buildAllTimeTrafficRows( RESPONSE, 'average', TODAY ).map( row => row.total ) ).toEqual(
+			[ 3, 1 ]
+		);
+		expect(
+			buildAllTimeTrafficRows( { years: { '2026': { months: { '1': 5 } } } }, 'total', TODAY )[ 0 ]
+				.total
+		).toBeNull();
+	} );
+
 	it( 'returns no rows without yearly stats', () => {
 		expect( buildAllTimeTrafficRows( undefined, 'total', TODAY ) ).toEqual( [] );
 		expect( buildAllTimeTrafficRows( { years: {} }, 'total', TODAY ) ).toEqual( [] );

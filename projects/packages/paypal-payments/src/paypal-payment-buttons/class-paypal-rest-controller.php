@@ -227,17 +227,21 @@ class PayPal_REST_Controller {
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
 					'args'                => array(
 						'page_size'  => array(
-							'required' => false,
-							'type'     => 'integer',
-							'default'  => 10,
-							'minimum'  => 1,
-							'maximum'  => 100,
+							'required'    => false,
+							'type'        => 'integer',
+							// PayPal has no server-side search, so callers filter
+							// client-side. Fetch a whole page by default.
+							'default'     => 100,
+							'minimum'     => 1,
+							'maximum'     => 100,
+							'description' => __( 'Payment resources per page.', 'jetpack-paypal-payments' ),
 						),
 						'page_token' => array(
 							'required'          => false,
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
+							'description'       => __( 'Cursor from the previous page\'s next link.', 'jetpack-paypal-payments' ),
 						),
 					),
 				),
@@ -826,6 +830,20 @@ class PayPal_REST_Controller {
 	 * @return array REST API args definition.
 	 */
 	private static function get_button_create_args() {
+		// Shipping, handling and discounts take the same fields.
+		$amount_list = array(
+			'type'     => 'array',
+			'required' => false,
+			'items'    => array(
+				'type'       => 'object',
+				'properties' => array(
+					'type'                  => array( 'type' => 'string' ),
+					'value'                 => array( 'type' => 'string' ),
+					'additional_unit_value' => array( 'type' => 'string' ),
+				),
+			),
+		);
+
 		return array(
 			'name'             => array(
 				'required'          => false,
@@ -872,17 +890,17 @@ class PayPal_REST_Controller {
 				'items'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'name'                => array(
+						'name'                     => array(
 							'type'     => 'string',
 							'required' => true,
 						),
-						'description'         => array(
+						'description'              => array(
 							'type'     => 'string',
 							'required' => false,
 						),
 						// Not required: omitted when the product options carry
 						// their own per-option prices.
-						'unit_amount'         => array(
+						'unit_amount'              => array(
 							'type'       => 'object',
 							'required'   => false,
 							'properties' => array(
@@ -896,12 +914,12 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						'quantity'            => array(
+						'quantity'                 => array(
 							'type'     => 'string',
 							'required' => false,
 							'default'  => '1',
 						),
-						'variants'            => array(
+						'variants'                 => array(
 							'type'       => 'object',
 							'required'   => false,
 							'properties' => array(
@@ -933,14 +951,14 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						'adjustable_quantity' => array(
+						'adjustable_quantity'      => array(
 							'type'       => 'object',
 							'required'   => false,
 							'properties' => array(
 								'maximum' => array( 'type' => 'integer' ),
 							),
 						),
-						'customer_notes'      => array(
+						'customer_notes'           => array(
 							'type'     => 'array',
 							'required' => false,
 							'items'    => array(
@@ -951,7 +969,7 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						'taxes'               => array(
+						'taxes'                    => array(
 							'type'     => 'array',
 							'required' => false,
 							'items'    => array(
@@ -960,11 +978,24 @@ class PayPal_REST_Controller {
 									'name'  => array( 'type' => 'string' ),
 									'type'  => array(
 										'type' => 'string',
-										'enum' => array( 'PERCENTAGE', 'PREFERENCE' ),
+										'enum' => array( 'PERCENTAGE', 'PREFERENCE', 'FLAT' ),
 									),
 									'value' => array( 'type' => 'string' ),
 								),
 							),
+						),
+						// Set outside the form, but a PUT replaces the whole resource,
+						// so the editor sends them back.
+						'product_id'               => array(
+							'type'     => 'string',
+							'required' => false,
+						),
+						'shipping'                 => $amount_list,
+						'handling'                 => $amount_list,
+						'discounts'                => $amount_list,
+						'collect_shipping_address' => array(
+							'type'     => 'boolean',
+							'required' => false,
 						),
 					),
 				),
@@ -1079,17 +1110,42 @@ class PayPal_REST_Controller {
 			// Tax configuration.
 			if ( ! empty( $item['taxes'] ) && is_array( $item['taxes'] ) ) {
 				$clean_taxes = array();
-				$valid_types = array( 'PERCENTAGE', 'PREFERENCE' );
+				$valid_types = array( 'PERCENTAGE', 'PREFERENCE', 'FLAT' );
 				foreach ( $item['taxes'] as $tax ) {
-					if ( is_array( $tax ) && ! empty( $tax['name'] ) ) {
-						$tax_type      = isset( $tax['type'] ) ? sanitize_text_field( $tax['type'] ) : 'PERCENTAGE';
-						$clean_taxes[] = array(
-							'name'  => sanitize_text_field( $tax['name'] ),
-							'type'  => in_array( $tax_type, $valid_types, true ) ? $tax_type : 'PERCENTAGE',
-							'value' => isset( $tax['value'] ) && 'PROFILE' !== $tax['value']
-							? (string) max( 0, floatval( $tax['value'] ) )
-							: ( 'PREFERENCE' === $tax_type ? 'PROFILE' : '0' ),
+					// No name: PayPal labels the tax itself, and requiring one here
+					// threw the whole tax away.
+					if ( is_array( $tax ) ) {
+						$tax_type = isset( $tax['type'] ) ? sanitize_text_field( $tax['type'] ) : 'PERCENTAGE';
+						if ( ! in_array( $tax_type, $valid_types, true ) ) {
+							$tax_type = 'PERCENTAGE';
+						}
+
+						if ( 'PREFERENCE' === $tax_type ) {
+							// The rate comes from the merchant's PayPal profile.
+							$tax_value = 'PROFILE';
+						} elseif ( 'FLAT' === $tax_type ) {
+							// A flat tax is an amount, not a rate - keep a string as sent
+							// so '1.50' does not become 1.5. PayPal validates it itself.
+							$tax_value = trim( sanitize_text_field( (string) ( $tax['value'] ?? '0' ) ) );
+							if ( '' === $tax_value ) {
+								$tax_value = '0';
+							}
+						} else {
+							$tax_value = (string) max( 0, floatval( $tax['value'] ?? 0 ) );
+						}
+
+						$clean_tax = array(
+							'type'  => $tax_type,
+							'value' => $tax_value,
 						);
+
+						// name is optional, so only send a real one - an empty string
+						// is not a name.
+						if ( ! empty( $tax['name'] ) ) {
+							$clean_tax['name'] = sanitize_text_field( $tax['name'] );
+						}
+
+						$clean_taxes[] = $clean_tax;
 					}
 				}
 				if ( ! empty( $clean_taxes ) ) {
@@ -1097,10 +1153,64 @@ class PayPal_REST_Controller {
 				}
 			}
 
+			// Copied back from the payment by the editor. Drop one here and Update
+			// deletes it at PayPal.
+			if ( isset( $item['product_id'] ) && '' !== $item['product_id'] ) {
+				$clean_item['product_id'] = sanitize_text_field( $item['product_id'] );
+			}
+			foreach ( array( 'shipping', 'handling', 'discounts' ) as $field ) {
+				if ( ! empty( $item[ $field ] ) && is_array( $item[ $field ] ) ) {
+					$clean_amounts = self::sanitize_amount_list( $item[ $field ] );
+					if ( ! empty( $clean_amounts ) ) {
+						$clean_item[ $field ] = $clean_amounts;
+					}
+				}
+			}
+
+			// Send it even when off - omit it and PayPal turns address collection back on.
+			if ( isset( $item['collect_shipping_address'] ) ) {
+				$clean_item['collect_shipping_address'] = (bool) $item['collect_shipping_address'];
+			}
+
 			$sanitized[] = $clean_item;
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Sanitize a shipping, handling or discount list for PayPal API submission.
+	 *
+	 * All three take a type, a value, and for per-unit shipping a rate for each
+	 * extra unit. The type passes straight through: these come back off the payment,
+	 * so anything PayPal accepted must survive the round trip.
+	 *
+	 * @param array $amounts Raw entries from the REST request.
+	 * @return array Sanitized entries.
+	 */
+	private static function sanitize_amount_list( $amounts ) {
+		$clean = array();
+
+		foreach ( $amounts as $amount ) {
+			// A zero is a legitimate amount, and in a zero-decimal currency it is
+			// written "0", which empty() would throw away.
+			if ( ! is_array( $amount ) || ! isset( $amount['value'] ) || '' === (string) $amount['value'] ) {
+				continue;
+			}
+
+			$clean_amount = array(
+				'type'  => isset( $amount['type'] ) ? sanitize_text_field( $amount['type'] ) : 'FLAT',
+				'value' => sanitize_text_field( (string) $amount['value'] ),
+			);
+
+			if ( isset( $amount['additional_unit_value'] ) && '' !== (string) $amount['additional_unit_value'] ) {
+				$clean_amount['additional_unit_value'] = sanitize_text_field( (string) $amount['additional_unit_value'] );
+			}
+
+			$clean[] = $clean_amount;
+		}
+
+		return $clean;
 	}
 
 	/**

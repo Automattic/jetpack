@@ -430,13 +430,10 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ), 10, 0 );
 		}
 
-		// Every admin, not only WordPress.com users: one who cannot renew is told
-		// whose plan it is, and the legacy notice the feature replaces stands
-		// down only once this has loaded. Agency-managed sites keep their plans
-		// out of the customer's hands, so they stay excluded.
-		if ( ! is_fully_managed_agency_site() ) {
-			require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
-		}
+		// Every admin, not only WordPress.com users: one who cannot renew, such as
+		// the client of an agency-managed site, is told whose plan it is, and the
+		// legacy notice the feature replaces stands down only once this has loaded.
+		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
 
 		if ( ! is_wpcom_user() ) {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';

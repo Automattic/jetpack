@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Give every variant option row a React key. Reconciliation is unchanged, so the only effect is removing a console warning.
+
+

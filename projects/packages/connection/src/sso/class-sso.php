@@ -232,14 +232,7 @@ class SSO {
 	 * @param int $user_id User to disconnect from the site.
 	 **/
 	public function xmlrpc_user_disconnect( $user_id ) {
-		$user_query = new WP_User_Query(
-			array(
-				'meta_key'   => 'wpcom_user_id',
-				'meta_value' => $user_id,
-			)
-		);
-		$user       = $user_query->get_results();
-		$user       = $user[0];
+		$user = self::get_user_by_wpcom_id( $user_id );
 
 		if ( $user instanceof WP_User ) {
 			$user = wp_set_current_user( $user->ID );
@@ -1082,8 +1075,8 @@ CSS;
 			$user_found_with = 'external_user_id';
 			$user            = get_user_by( 'id', (int) $user_data->external_user_id );
 			if ( $user ) {
-				$expected_id = get_user_meta( $user->ID, 'wpcom_user_id', true );
-				if ( $expected_id && $expected_id != $user_data->ID ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison, Universal.Operators.StrictComparisons.LooseNotEqual
+				$expected_id = Utils::get_wpcom_user_id( $user->ID );
+				if ( $expected_id && $expected_id !== (int) $user_data->ID ) {
 					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com user logged in.', 'jetpack-connection' ) );
 
 					$tracking->record_user_event(
@@ -1139,10 +1132,6 @@ CSS;
 					add_filter( 'login_message', array( Notices::class, 'error_unable_to_create_user' ) );
 					return;
 				}
-
-				// generate_user() sets wpcom_user_id meta on the new user,
-				// but another user may still have stale meta for this WP.com ID.
-				self::set_wpcom_user_id_meta( $user->ID, $user_data->ID );
 
 				$user_found_with = $new_user_override_role
 				? 'user_created_new_user_override'
@@ -1497,11 +1486,7 @@ CSS;
 	}
 
 	/**
-	 * Sets the wpcom_user_id meta on a local user, removing it from any other user first.
-	 *
-	 * Multiple local users should never share the same wpcom_user_id. This can happen
-	 * when user resolution changes (e.g., external_user_id points to a different local
-	 * user than the one that previously had the meta).
+	 * Sets the wpcom_user_id meta on a local user.
 	 *
 	 * @since 8.6.0
 	 *
@@ -1509,22 +1494,7 @@ CSS;
 	 * @param int $wpcom_user_id The WordPress.com user ID.
 	 */
 	private static function set_wpcom_user_id_meta( $user_id, $wpcom_user_id ) {
-		$existing = new WP_User_Query(
-			array(
-				'meta_key'   => 'wpcom_user_id',
-				'meta_value' => (int) $wpcom_user_id,
-				'exclude'    => array( $user_id ),
-				'fields'     => 'ID',
-			)
-		);
-
-		foreach ( $existing->get_results() as $stale_user_id ) {
-			delete_user_meta( $stale_user_id, 'wpcom_user_id' );
-			clean_user_cache( $stale_user_id );
-		}
-
-		update_user_meta( $user_id, 'wpcom_user_id', $wpcom_user_id );
-		clean_user_cache( $user_id );
+		Utils::set_wpcom_user_id( $user_id, $wpcom_user_id );
 	}
 
 	/**

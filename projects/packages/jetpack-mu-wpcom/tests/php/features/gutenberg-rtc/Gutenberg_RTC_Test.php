@@ -196,8 +196,8 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tests that features edge sticker returns false without wpcom functions.
 	 *
-	 * Neither `wpcomsh_is_site_sticker_active` nor `has_blog_sticker` exist
-	 * in the test environment.
+	 * `has_blog_sticker` does not exist in the test environment, and the
+	 * `wpcomsh_is_site_sticker_active` stub reports no stickers.
 	 */
 	public function test_features_edge_sticker_returns_false_without_wpcom_functions() {
 		$this->assertFalse( wpcom_has_features_edge_sticker() );

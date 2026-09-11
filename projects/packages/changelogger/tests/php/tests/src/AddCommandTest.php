@@ -62,6 +62,8 @@ class AddCommandTest extends CommandTestCase {
 			),
 		);
 		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
+		Utils::runCommand( array( 'git', 'config', '--local', 'gc.auto', '0' ), ...$args );
+		Utils::runCommand( array( 'git', 'config', '--local', 'maintenance.auto', 'false' ), ...$args );
 		Utils::runCommand( array( 'git', 'checkout', '-b', 'trunk' ), ...$args );
 		Utils::runCommand( array( 'git', 'commit', '--allow-empty', '-m', 'Empty' ), ...$args );
 		$this->assertMatchesRegularExpression( '/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d{6}$/', $w->getDefaultFilename( $output ) );

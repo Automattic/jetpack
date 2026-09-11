@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+One checkbox turns on per-variant pricing, and the price belongs to the first option group.

@@ -31,7 +31,7 @@ import {
 	resolveMetric,
 	type AllTimeTrafficMetric,
 } from './build-all-time-traffic-rows';
-import { monthRange } from './period-range';
+import { monthRange, yearRange } from './period-range';
 import styles from './style.module.css';
 import usePostAllTimeTraffic from './use-post-all-time-traffic';
 import type { PostAllTimeTrafficAttributes } from './widget';
@@ -61,7 +61,34 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 	// page's period, read over by the other cards while this one stays all-time.
 	const { onChange, onApply, timeZone } = useReportDateFilters();
 
-	const openMonth = useCallback(
+	// No per-cell label: the chart names a cell from its column and row, the
+	// month and the year here. A month without views reads 0, as the endpoint
+	// reports it; the months outside the post's life are filler. The last
+	// column is the year's roll-up, a summary column outside the colour scale.
+	const columns = useMemo< HeatmapColumn[] >(
+		() => [
+			...Array.from( { length: MONTHS_IN_YEAR }, ( _column, month ) => ( {
+				label: formatMonth( month, { short: true } ),
+				data: rows.map( row => {
+					const value = row.months[ month ];
+
+					if ( typeof value !== 'number' ) {
+						return { value: null, placeholder: true };
+					}
+
+					return { value };
+				} ),
+			} ) ),
+			{
+				label: __( 'Totals', 'jetpack-premium-analytics-pkg' ),
+				summary: true,
+				data: rows.map( row => ( { value: row.total } ) ),
+			},
+		],
+		[ rows ]
+	);
+
+	const openPeriod = useCallback(
 		( cell: Element ) => {
 			const row = rows[ Number( cell.getAttribute( 'data-row' ) ) ];
 
@@ -69,15 +96,19 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 				return;
 			}
 
-			const month = Number( cell.getAttribute( 'data-column' ) );
-			const range = monthRange( { year: row.year, month }, { lifeStartsAt, timeZone } );
+			const column = Number( cell.getAttribute( 'data-column' ) );
+			const bounds = { lifeStartsAt, timeZone };
+			// The year's roll-up opens the whole year.
+			const range = columns[ column ]?.summary
+				? yearRange( row.year, bounds )
+				: monthRange( { year: row.year, month: column }, bounds );
 
 			if ( range ) {
 				onChange( range, PRESET_CUSTOM );
 				onApply();
 			}
 		},
-		[ rows, lifeStartsAt, timeZone, onChange, onApply ]
+		[ rows, columns, lifeStartsAt, timeZone, onChange, onApply ]
 	);
 
 	// The chart owns the cells, so the click is read off its markup.
@@ -86,10 +117,10 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 			const cell = ( event.target as Element ).closest( CELL_SELECTOR );
 
 			if ( cell ) {
-				openMonth( cell );
+				openPeriod( cell );
 			}
 		},
-		[ openMonth ]
+		[ openPeriod ]
 	);
 
 	// The grid names the selected cell through `aria-activedescendant`; Enter
@@ -109,49 +140,33 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 
 			if ( cell && event.currentTarget.contains( cell ) && cell.matches( CELL_SELECTOR ) ) {
 				event.preventDefault();
-				openMonth( cell );
+				openPeriod( cell );
 			}
 		},
-		[ openMonth ]
+		[ openPeriod ]
 	);
 
 	// Keep stale rows visible when a background refetch fails.
 	const showError = isError && rows.length === 0;
 
-	// No per-cell label: the chart names a cell from its column and row, the
-	// month and the year here. A month without views reads 0, as the endpoint
-	// reports it; the months outside the post's life are filler.
-	const columns = useMemo< HeatmapColumn[] >(
-		() =>
-			Array.from( { length: MONTHS_IN_YEAR }, ( _column, month ) => ( {
-				label: formatMonth( month, { short: true } ),
-				data: rows.map( row => {
-					const value = row.months[ month ];
-
-					if ( typeof value !== 'number' ) {
-						return { value: null, placeholder: true };
-					}
-
-					return { value };
-				} ),
-			} ) ),
-		[ rows ]
-	);
-
 	const yearLabels = useMemo( () => rows.map( row => String( row.year ) ), [ rows ] );
 
 	const renderTooltip = useCallback(
-		( { value, columnLabel, rowLabel }: HeatmapTooltipData ) => (
+		( { value, columnLabel, rowLabel, column }: HeatmapTooltipData ) => (
 			<CalendarHeatmapTooltip
 				value={ value }
 				// Named from the column and row, the way the chart names a cell to a
-				// screen reader: "Aug 2026".
-				cellLabel={ `${ columnLabel ?? '' } ${ rowLabel ?? '' }`.trim() }
+				// screen reader: "Aug 2026". The year's roll-up is named by the year.
+				cellLabel={
+					columns[ column ]?.summary
+						? rowLabel ?? ''
+						: `${ columnLabel ?? '' } ${ rowLabel ?? '' }`.trim()
+				}
 				emptyLabel={ __( 'No views', 'jetpack-premium-analytics-pkg' ) }
 				formatValue={ metric === 'average' ? formatDailyViewCount : formatViewCount }
 			/>
 		),
-		[ metric ]
+		[ metric, columns ]
 	);
 
 	return (

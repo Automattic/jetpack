@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Move the product form fields into the block inspector and fit them to the sidebar column. The primary button is now Create New / Save instead of naming the display format.

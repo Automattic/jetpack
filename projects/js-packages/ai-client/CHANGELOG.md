@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.37] - 2026-09-09
+### Changed
+- Update dependencies. [#51438]
+
 ## [0.34.36] - 2026-09-08
 ### Changed
 - Update package dependencies. [#51701]
@@ -956,6 +960,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.34.37]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.36...v0.34.37
 [0.34.36]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.35...v0.34.36
 [0.34.35]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.34...v0.34.35
 [0.34.34]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.33...v0.34.34

@@ -22,7 +22,7 @@ type ScoreChangeMessage = {
 	ctaLink: string;
 };
 
-const fasterMessage: ScoreChangeMessage = {
+export const fasterMessage: ScoreChangeMessage = {
 	id: 'score_increase',
 	title: __( 'Your site got faster', 'jetpack-boost' ),
 	body: <p>{ __( `That's great! If you’re happy, why not rate Boost?`, 'jetpack-boost' ) }</p>,
@@ -30,7 +30,7 @@ const fasterMessage: ScoreChangeMessage = {
 	ctaLink: getRedirectUrl( 'boost-rate-plugin' ),
 };
 
-const slowerMessage: ScoreChangeMessage = {
+export const slowerMessage: ScoreChangeMessage = {
 	id: 'score_decrease',
 	title: __( 'Speed score has fallen', 'jetpack-boost' ),
 	body: (

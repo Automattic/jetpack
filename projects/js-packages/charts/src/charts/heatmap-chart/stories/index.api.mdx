@@ -60,6 +60,12 @@ type HeatmapColumn = {
 	label?: string;
 	/** Ordered array of cells for this column. */
 	data: HeatmapCell[];
+	/**
+	 * A per-row roll-up such as a total or an average. Left out of the color
+	 * scale, drawn unfilled with its figure always printed, on an `auto` track
+	 * one gap apart from the data beside it. The chart never computes it.
+	 */
+	summary?: boolean;
 };
 ```
 

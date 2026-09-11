@@ -119,7 +119,7 @@ type Story = StoryObj< VideoDetailViewsPerformanceStoryControls >;
  */
 export const Default: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { hasVideoScope: true, interval: 'day', chartType: 'line' },
+	args: { hasVideoScope: true, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -130,7 +130,7 @@ export const Default: Story = {
  */
 export const NoVideoScope: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { hasVideoScope: false, interval: 'day', chartType: 'line' },
+	args: { hasVideoScope: false, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 

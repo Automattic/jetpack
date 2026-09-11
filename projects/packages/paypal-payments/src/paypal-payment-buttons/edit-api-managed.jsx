@@ -10,28 +10,61 @@
  */
 
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
-import { BlockControls, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
-import { Notice, Spinner, ToolbarButton, ToolbarGroup } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import {
+	BlockControls,
+	InspectorControls,
+	MediaUpload,
+	MediaUploadCheck,
+	URLInput,
+	useBlockProps,
+} from '@wordpress/block-editor';
+import {
+	BaseControl,
+	Button,
+	Notice,
+	PanelBody,
+	SelectControl,
+	Spinner,
+	TextControl,
+	TextareaControl,
+	ToggleControl,
+	ToolbarButton,
+	ToolbarGroup,
+} from '@wordpress/components';
 import { useState, useCallback, useMemo } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import metadata from './block.json';
 import ConfirmDialogs from './components/confirm-dialogs';
 import ConnectionWizard from './components/connection-wizard';
 import { FORMAT_OPTIONS } from './components/format-switcher';
 import LegacyBlock from './components/legacy-block';
 import PayPalButtonPreview from './components/paypal-button-preview';
-import ProductForm from './components/product-form';
-import { hasVariantPricing, validateVariants } from './components/variant-builder';
+import VariantBuilder, {
+	hasVariantPricing,
+	isVariantPricingOn,
+	validateVariants,
+} from './components/variant-builder';
 import PayPalInspectorControls from './controls';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
 import { usePayPalResource } from './hooks/use-paypal-resource';
 import { API_BASE } from './utils/api-base';
-import { VALID_CURRENCY_CODES } from './utils/currencies';
-import { validatePrice, validateProductName, validateDescription } from './utils/validation';
+import { SUPPORTED_CURRENCIES } from './utils/currencies';
+import { getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
+import {
+	getValidationErrors,
+	hasBlockingError,
+	MAX_CUSTOMER_NOTES,
+	MAX_DESCRIPTION_LENGTH,
+	MAX_NAME_LENGTH,
+} from './utils/validation';
 
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
+
+const helpQtyOn = __( 'Customers can buy multiple units at checkout.', 'jetpack-paypal-payments' );
+const helpQtyOff = __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments' );
+const helpTaxOn = __( 'Tax will be added at PayPal checkout.', 'jetpack-paypal-payments' );
+const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
 
 /**
  * API-managed PayPal Payment Buttons edit component.
@@ -39,10 +72,9 @@ import { validatePrice, validateProductName, validateDescription } from './utils
  * @param {object}   props               - Block props.
  * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to update block attributes.
- * @param {string}   props.clientId      - The block's client ID (not the PayPal one).
  * @return {Element} Block editor UI.
  */
-export default function ApiManagedEdit( { attributes, setAttributes, clientId: blockClientId } ) {
+export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const {
 		colorScheme,
 		isApiManaged,
@@ -65,13 +97,16 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		customerNotes,
 		taxEnabled,
 		taxType,
-		taxName,
 		taxValue,
 		format,
 	} = attributes;
 
 	// Normalize — old blocks without the attribute default to BUTTON.
 	const activeFormat = format || 'BUTTON';
+
+	// PayPal rejects any decimal in JPY, HUF and TWD, so the input must not offer one.
+	const priceStep = getPriceStep( currencyCode || 'USD' );
+	const pricePlaceholder = getPricePlaceholder( currencyCode || 'USD' );
 
 	const blockProps = useBlockProps();
 
@@ -147,23 +182,50 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 	);
 
 	/**
+	 * Whether per-variant pricing is turned on.
+	 *
+	 * The product price field goes as soon as the toggle is on, before any option price
+	 * is typed - unlike `usesVariantPricing` above, which keys on the prices themselves
+	 * because the server sanitiser reads the same thing.
+	 */
+	const variantPricingOn = useMemo(
+		() => isVariantPricingOn( variantsEnabled, variants ),
+		[ variantsEnabled, variants ]
+	);
+
+	// PERCENTAGE is the only type that carries a rate, and a missing type counts as one -
+	// the request builder sends PERCENTAGE for it. PayPal also accepts FLAT, which this
+	// form cannot produce but can be handed by a link created elsewhere.
+	const taxIsPercentage = ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE';
+
+	/**
 	 * Compute validation errors for all form fields.
 	 * Memoized to avoid re-computing on every render.
 	 */
 	const validationErrors = useMemo(
-		() => ( {
-			productName: validateProductName( productName ),
-			// The product price is only required when the options aren't priced
-			// individually. A stray value is still validated so it can't be sent
-			// half-formed if the merchant clears the per-option prices later.
-			price: usesVariantPricing && ! price ? null : validatePrice( price, currencyCode || 'USD' ),
-			productDescription: validateDescription( productDescription ),
-			currencyCode:
-				currencyCode && ! VALID_CURRENCY_CODES.has( currencyCode )
-					? __( 'Unsupported currency.', 'jetpack-paypal-payments' )
-					: null,
-		} ),
-		[ productName, price, productDescription, currencyCode, usesVariantPricing ]
+		() =>
+			getValidationErrors( {
+				productName,
+				price,
+				productDescription,
+				returnUrl,
+				currencyCode,
+				variantPricingOn,
+				taxEnabled,
+				taxIsPercentage,
+				taxValue,
+			} ),
+		[
+			productName,
+			price,
+			productDescription,
+			returnUrl,
+			currencyCode,
+			variantPricingOn,
+			taxEnabled,
+			taxIsPercentage,
+			taxValue,
+		]
 	);
 
 	/**
@@ -177,12 +239,20 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 	/**
 	 * Whether the form is valid (no validation errors on required fields or variants).
 	 */
-	const isFormValid =
-		! validationErrors.productName &&
-		! validationErrors.price &&
-		! validationErrors.productDescription &&
-		! validationErrors.currencyCode &&
-		variantErrors.length === 0;
+	// The price field only hides while per-variant pricing is on, so seeing it with product
+	// options on means the merchant has been in the pricing UI - say what is wrong rather
+	// than wait for a blur on a field they never asked for.
+	const priceError =
+		( touchedFields.price || variantsEnabled ) && validationErrors.price
+			? validationErrors.price
+			: null;
+
+	const returnUrlError = touchedFields.returnUrl ? validationErrors.returnUrl : null;
+
+	// Derived over the errors rather than listed field by field, so a new one cannot be
+	// forgotten here. returnUrl stays out of the gate - a bad one warns and still saves,
+	// as it always has - which is what ADVISORY_ERROR_KEYS carries.
+	const isFormValid = ! hasBlockingError( validationErrors ) && variantErrors.length === 0;
 
 	const {
 		isCreating,
@@ -204,24 +274,6 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		setTouchedFields,
 		setShowDeleteConfirm,
 	} );
-
-	// Other blocks on this page pointing at the same PayPal payment.
-	const sharedResourceCount = useSelect(
-		select => {
-			if ( ! resourceId || ! blockClientId ) {
-				return 0;
-			}
-			const { getClientIdsWithDescendants, getBlockName, getBlockAttributes } =
-				select( blockEditorStore );
-			return getClientIdsWithDescendants().filter(
-				id =>
-					id !== blockClientId &&
-					getBlockName( id ) === metadata.name &&
-					getBlockAttributes( id )?.resourceId === resourceId
-			).length;
-		},
-		[ blockClientId, resourceId ]
-	);
 
 	/**
 	 * Handle PayPal disconnect with confirmation.
@@ -272,6 +324,11 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 	 * Whether the block has a created button to preview.
 	 */
 	const hasButton = isApiManaged && resourceId && paymentLink;
+
+	/**
+	 * Whether the block is showing that button rather than the form.
+	 */
+	const isPreviewingButton = !! hasButton && ! isEditing;
 
 	// Loading state while checking connection.
 	if ( connectionLoading ) {
@@ -382,6 +439,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 			handleDeleteButton={ handleDeleteButton }
 			handleDisconnect={ handleDisconnect }
 			hasButton={ hasButton }
+			isPreviewingButton={ isPreviewingButton }
 		/>
 	);
 
@@ -422,22 +480,15 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		</Notice>
 	) : null;
 
-	const sharedResourceMessage = sprintf(
-		/* translators: %d: number of other blocks on this page using the same PayPal payment */
-		_n(
-			'%d other block on this page uses this PayPal payment. Changing the product or price here changes it there too. To sell something different, add a new block and create a new payment.',
-			'%d other blocks on this page use this PayPal payment. Changing the product or price here changes it there too. To sell something different, add a new block and create a new payment.',
-			sharedResourceCount,
-			'jetpack-paypal-payments'
-		),
-		sharedResourceCount
-	);
-	const sharedResourceNotice =
-		sharedResourceCount > 0 ? (
-			<Notice status="info" isDismissible={ false }>
-				{ sharedResourceMessage }
-			</Notice>
-		) : null;
+	// A payment link can be used by blocks on any post, so warn whenever there is one.
+	const sharedResourceNotice = hasButton ? (
+		<Notice status="info" isDismissible={ false }>
+			{ __(
+				'Changes made will apply to all payment buttons with this link.',
+				'jetpack-paypal-payments'
+			) }
+		</Notice>
+	) : null;
 
 	const connectionStatus = (
 		<span
@@ -452,7 +503,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 	const connectionLabel = isConnected ? labelConnected : labelDisconnected;
 
 	// Connected + has button + preview mode — show live button preview.
-	if ( hasButton && ! isEditing ) {
+	if ( isPreviewingButton ) {
 		return (
 			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 				{ toolbarControls }
@@ -513,51 +564,488 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 	return (
 		<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 			{ toolbarControls }
-			{ inspectorControls }
+			<InspectorControls>
+				<PanelBody title={ __( 'Details', 'jetpack-paypal-payments' ) } initialOpen={ true }>
+					<TextControl
+						label={ __( 'Product Name', 'jetpack-paypal-payments' ) }
+						value={ productName || '' }
+						onChange={ value => setAttributes( { productName: value } ) }
+						onBlur={ () => markTouched( 'productName' ) }
+						disabled={ isCreating }
+						placeholder={ __( 'e.g., Premium Widget', 'jetpack-paypal-payments' ) }
+						help={
+							touchedFields.productName && validationErrors.productName
+								? validationErrors.productName
+								: sprintf(
+										/* translators: 1: current character count, 2: maximum allowed */
+										__( '%1$d / %2$d characters', 'jetpack-paypal-payments' ),
+										( productName || '' ).length,
+										MAX_NAME_LENGTH
+								  )
+						}
+						className={
+							touchedFields.productName && validationErrors.productName
+								? 'jetpack-paypal-payment-buttons__has-error'
+								: undefined
+						}
+					/>
 
-			<ProductForm
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				buttonText={ buttonText }
-				productName={ productName }
-				price={ price }
-				currencyCode={ currencyCode }
-				productDescription={ productDescription }
-				imageUrl={ imageUrl }
-				imageId={ imageId }
-				returnUrl={ returnUrl }
-				variantsEnabled={ variantsEnabled }
-				variants={ variants }
-				adjustableQuantity={ adjustableQuantity }
-				maxQuantity={ maxQuantity }
-				customerNotes={ customerNotes }
-				taxEnabled={ taxEnabled }
-				taxType={ taxType }
-				taxName={ taxName }
-				taxValue={ taxValue }
-				activeFormat={ activeFormat }
-				isConnected={ isConnected }
-				environment={ environment }
-				setIsEditing={ setIsEditing }
-				touchedFields={ touchedFields }
-				setTouchedFields={ setTouchedFields }
-				markTouched={ markTouched }
-				usesVariantPricing={ usesVariantPricing }
-				validationErrors={ validationErrors }
-				isFormValid={ isFormValid }
-				isCreating={ isCreating }
-				error={ error }
-				setError={ setError }
-				successMessage={ successMessage }
-				setSuccessMessage={ setSuccessMessage }
-				handleCreateButton={ handleCreateButton }
-				handleUpdateButton={ handleUpdateButton }
-				hasButton={ hasButton }
-				disconnectedNotice={ disconnectedNotice }
-				sharedResourceNotice={ sharedResourceNotice }
-				connectionStatus={ connectionStatus }
-				connectionLabel={ connectionLabel }
-			/>
+					<div className="jetpack-paypal-payment-buttons__price-row">
+						{ ! variantPricingOn && (
+							<div>
+								<TextControl
+									label={ __( 'Price', 'jetpack-paypal-payments' ) }
+									value={ price || '' }
+									onChange={ value => setAttributes( { price: value } ) }
+									onBlur={ () => markTouched( 'price' ) }
+									disabled={ isCreating }
+									type="number"
+									min={ priceStep }
+									step={ priceStep }
+									placeholder={ pricePlaceholder }
+									help={ priceError || undefined }
+									className={ priceError ? 'jetpack-paypal-payment-buttons__has-error' : undefined }
+								/>
+							</div>
+						) }
+						{ /* No touched-gate, for the same reason the tax rate has none: the menu
+						     only offers currencies PayPal takes, so a bad one arrived from a
+						     paste or an older block and there is no visit coming to wait for. */ }
+						<SelectControl
+							label={ __( 'Currency', 'jetpack-paypal-payments' ) }
+							value={ currencyCode || 'USD' }
+							options={ SUPPORTED_CURRENCIES }
+							onChange={ value => setAttributes( { currencyCode: value } ) }
+							help={ validationErrors.currencyCode || undefined }
+							className={
+								validationErrors.currencyCode
+									? 'jetpack-paypal-payment-buttons__has-error'
+									: undefined
+							}
+						/>
+					</div>
+
+					<TextareaControl
+						label={ __( 'Description (optional)', 'jetpack-paypal-payments' ) }
+						value={ productDescription || '' }
+						onChange={ value => setAttributes( { productDescription: value } ) }
+						onBlur={ () => markTouched( 'productDescription' ) }
+						help={
+							touchedFields.productDescription && validationErrors.productDescription ? (
+								validationErrors.productDescription
+							) : (
+								<>
+									{ __( 'Shown to customers at checkout.', 'jetpack-paypal-payments' ) }
+									<br />
+									{ sprintf(
+										/* translators: 1: current character count, 2: maximum allowed */
+										__( '%1$d / %2$d characters', 'jetpack-paypal-payments' ),
+										( productDescription || '' ).length,
+										MAX_DESCRIPTION_LENGTH
+									) }
+								</>
+							)
+						}
+						className={
+							touchedFields.productDescription && validationErrors.productDescription
+								? 'jetpack-paypal-payment-buttons__has-error'
+								: undefined
+						}
+					/>
+
+					<div className="jetpack-paypal-payment-buttons__image-field">
+						<BaseControl.VisualLabel>
+							{ __( 'Product Image (optional)', 'jetpack-paypal-payments' ) }
+						</BaseControl.VisualLabel>
+						{ imageUrl ? (
+							<div className="jetpack-paypal-payment-buttons__image-preview">
+								<img src={ imageUrl } alt={ productName || '' } />
+								<div className="jetpack-paypal-payment-buttons__image-actions">
+									<MediaUploadCheck>
+										<MediaUpload
+											onSelect={ media =>
+												setAttributes( { imageUrl: media.url, imageId: media.id } )
+											}
+											allowedTypes={ [ 'image' ] }
+											value={ imageId }
+											render={ ( { open } ) => (
+												<Button variant="secondary" onClick={ open } size="small">
+													{ __( 'Replace', 'jetpack-paypal-payments' ) }
+												</Button>
+											) }
+										/>
+									</MediaUploadCheck>
+									<Button
+										variant="link"
+										isDestructive
+										onClick={ () => setAttributes( { imageUrl: undefined, imageId: undefined } ) }
+										size="small"
+									>
+										{ __( 'Remove', 'jetpack-paypal-payments' ) }
+									</Button>
+								</div>
+							</div>
+						) : (
+							<MediaUploadCheck>
+								<MediaUpload
+									onSelect={ media => setAttributes( { imageUrl: media.url, imageId: media.id } ) }
+									allowedTypes={ [ 'image' ] }
+									value={ imageId }
+									render={ ( { open } ) => (
+										<Button
+											variant="secondary"
+											onClick={ open }
+											className="jetpack-paypal-payment-buttons__upload-button"
+										>
+											{ __( 'Upload Image', 'jetpack-paypal-payments' ) }
+										</Button>
+									) }
+								/>
+							</MediaUploadCheck>
+						) }
+					</div>
+				</PanelBody>
+				{ /* A closed panel renders no children, so open it when an option needs
+				     fixing - otherwise the error is invisible on a saved button. */ }
+				<PanelBody
+					title={ __( 'Product Options', 'jetpack-paypal-payments' ) }
+					initialOpen={ ! hasButton || variantErrors.length > 0 }
+				>
+					<VariantBuilder
+						enabled={ variantsEnabled }
+						variants={ variants }
+						currencyCode={ currencyCode || 'USD' }
+						onChange={ updates => setAttributes( updates ) }
+						disabled={ isCreating }
+						errors={ variantErrors }
+						touched={ touchedFields }
+						// A saved button's groups came out of storage already invalid, so
+						// there is no blur coming - the same reason the panel opens below.
+						showAll={ hasButton }
+						onTouch={ markTouched }
+					/>
+				</PanelBody>
+				{ /* Same again for the tax rate. initialOpen, not a controlled `opened`: the
+				     panel opens when there is an error, and the merchant can still close it. */ }
+				<PanelBody
+					title={ __( 'Checkout Options', 'jetpack-paypal-payments' ) }
+					initialOpen={ !! validationErrors.taxValue }
+				>
+					{ /* WOOPTP-170: Adjustable Quantity */ }
+					<ToggleControl
+						label={ __( 'Allow customers to adjust quantity', 'jetpack-paypal-payments' ) }
+						help={ adjustableQuantity ? helpQtyOn : helpQtyOff }
+						checked={ adjustableQuantity }
+						onChange={ value => setAttributes( { adjustableQuantity: value } ) }
+						disabled={ isCreating }
+					/>
+					{ adjustableQuantity && (
+						<TextControl
+							label={ __( 'Maximum quantity', 'jetpack-paypal-payments' ) }
+							value={ maxQuantity || '' }
+							onChange={ value => setAttributes( { maxQuantity: parseInt( value, 10 ) || 10 } ) }
+							type="number"
+							min={ 2 }
+							max={ 999 }
+							disabled={ isCreating }
+							help={ __(
+								'Customers can select from 1 to this number.',
+								'jetpack-paypal-payments'
+							) }
+						/>
+					) }
+
+					{ /* WOOPTP-172: Tax Configuration */ }
+					<ToggleControl
+						label={ __( 'Collect tax', 'jetpack-paypal-payments' ) }
+						help={ taxEnabled ? helpTaxOn : helpTaxOff }
+						checked={ taxEnabled }
+						onChange={ value => setAttributes( { taxEnabled: value } ) }
+						disabled={ isCreating }
+					/>
+					{ taxEnabled && (
+						<>
+							<SelectControl
+								label={ __( 'Tax type', 'jetpack-paypal-payments' ) }
+								value={ taxType || 'PERCENTAGE' }
+								options={ [
+									{
+										label: __( 'Fixed percentage', 'jetpack-paypal-payments' ),
+										value: 'PERCENTAGE',
+									},
+									{
+										label: __( 'Use PayPal profile settings', 'jetpack-paypal-payments' ),
+										value: 'PREFERENCE',
+									},
+								] }
+								onChange={ value => setAttributes( { taxType: value } ) }
+								disabled={ isCreating }
+							/>
+							{ taxIsPercentage && (
+								<TextControl
+									label={ __( 'Tax rate (%)', 'jetpack-paypal-payments' ) }
+									value={ taxValue || '' }
+									onChange={ value => setAttributes( { taxValue: value } ) }
+									type="number"
+									min="0.01"
+									max="99.99"
+									step="0.01"
+									placeholder="8.25"
+									disabled={ isCreating }
+									help={
+										validationErrors.taxValue ||
+										__( 'Percentage added to the product price.', 'jetpack-paypal-payments' )
+									}
+									className={
+										validationErrors.taxValue
+											? 'jetpack-paypal-payment-buttons__has-error'
+											: undefined
+									}
+								/>
+							) }
+						</>
+					) }
+
+					{ /* WOOPTP-171: Customer Notes */ }
+					<ToggleControl
+						label={ __( 'Custom checkout fields', 'jetpack-paypal-payments' ) }
+						help={
+							customerNotes?.length > 0
+								? sprintf(
+										/* translators: %d: number of custom fields */
+										__( '%d custom field(s) configured.', 'jetpack-paypal-payments' ),
+										customerNotes.length
+								  )
+								: __(
+										'Add fields for gift messages, personalization, etc.',
+										'jetpack-paypal-payments'
+								  )
+						}
+						checked={ customerNotes?.length > 0 }
+						onChange={ value => {
+							if ( value ) {
+								setAttributes( {
+									customerNotes: [ { label: '', required: false } ],
+								} );
+							} else {
+								setAttributes( { customerNotes: [] } );
+							}
+						} }
+						disabled={ isCreating }
+					/>
+					{ customerNotes?.length > 0 && (
+						<div className="jetpack-paypal-payment-buttons__customer-notes">
+							{ customerNotes.map( ( note, noteIndex ) => (
+								<div key={ noteIndex } className="jetpack-paypal-payment-buttons__customer-note">
+									<TextControl
+										label={ sprintf(
+											/* translators: %d: field number */
+											__( 'Field %d label', 'jetpack-paypal-payments' ),
+											noteIndex + 1
+										) }
+										value={ note.label || '' }
+										onChange={ value => {
+											const updated = [ ...customerNotes ];
+											updated[ noteIndex ] = {
+												...updated[ noteIndex ],
+												label: value,
+											};
+											setAttributes( { customerNotes: updated } );
+										} }
+										placeholder={ __( 'e.g., Gift Message', 'jetpack-paypal-payments' ) }
+										disabled={ isCreating }
+									/>
+									<div className="jetpack-paypal-payment-buttons__customer-note-controls">
+										<ToggleControl
+											label={ __( 'Required', 'jetpack-paypal-payments' ) }
+											checked={ note.required }
+											onChange={ value => {
+												const updated = [ ...customerNotes ];
+												updated[ noteIndex ] = {
+													...updated[ noteIndex ],
+													required: value,
+												};
+												setAttributes( { customerNotes: updated } );
+											} }
+											disabled={ isCreating }
+										/>
+										{ customerNotes.length > 1 && (
+											<Button
+												isSmall
+												isDestructive
+												variant="tertiary"
+												onClick={ () => {
+													const updated = customerNotes.filter( ( _, i ) => i !== noteIndex );
+													setAttributes( { customerNotes: updated } );
+												} }
+												disabled={ isCreating }
+												aria-label={ sprintf(
+													/* translators: %d: field number */
+													__( 'Remove field %d', 'jetpack-paypal-payments' ),
+													noteIndex + 1
+												) }
+											>
+												{ __( 'Remove', 'jetpack-paypal-payments' ) }
+											</Button>
+										) }
+									</div>
+								</div>
+							) ) }
+							{ customerNotes.length < MAX_CUSTOMER_NOTES && (
+								<Button
+									isSmall
+									variant="secondary"
+									onClick={ () =>
+										setAttributes( {
+											customerNotes: [ ...customerNotes, { label: '', required: false } ],
+										} )
+									}
+									disabled={ isCreating }
+								>
+									{ __( 'Add field', 'jetpack-paypal-payments' ) }
+								</Button>
+							) }
+						</div>
+					) }
+				</PanelBody>
+				<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>
+					{ /* URLInput takes no onBlur, so the wrapper catches it as it bubbles, and
+					     carries the error class too. URLInput gets exactly one class - it appends
+					     `__suggestions` to whatever it is given, and a second one in there
+					     would break the suggestion list's width. */ }
+					<div
+						className={ returnUrlError ? 'jetpack-paypal-payment-buttons__has-error' : undefined }
+						onBlur={ () => markTouched( 'returnUrl' ) }
+					>
+						<URLInput
+							label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
+							className="jetpack-paypal-payment-buttons__return-url"
+							value={ returnUrl || '' }
+							onChange={ value => setAttributes( { returnUrl: value } ) }
+							required={ false }
+							disabled={ isCreating }
+							help={
+								returnUrlError ||
+								__( 'Redirect customers here after payment.', 'jetpack-paypal-payments' )
+							}
+						/>
+					</div>
+				</PanelBody>
+				<PanelBody
+					title={ __( 'Button Appearance', 'jetpack-paypal-payments' ) }
+					initialOpen={ false }
+				>
+					<TextControl
+						label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
+						value={ buttonText || '' }
+						onChange={ value => setAttributes( { buttonText: value } ) }
+						disabled={ isCreating }
+					/>
+					<ToggleControl
+						label={ __( 'Show QR code', 'jetpack-paypal-payments' ) }
+						help={ __(
+							'Display a QR code below the button for in-person sharing.',
+							'jetpack-paypal-payments'
+						) }
+						checked={ attributes.showQrCode !== false }
+						onChange={ value => setAttributes( { showQrCode: value } ) }
+						disabled={ isCreating }
+					/>
+				</PanelBody>
+			</InspectorControls>
+			{ inspectorControls }
+			<InspectorControls>
+				<div className="jetpack-paypal-payment-buttons__form-actions">
+					<Button
+						variant="primary"
+						onClick={ hasButton ? handleUpdateButton : handleCreateButton }
+						isBusy={ isCreating }
+						disabled={ isCreating || ! isFormValid || ! isConnected }
+					>
+						{ isCreating && __( 'Saving…', 'jetpack-paypal-payments' ) }
+						{ ! isCreating && hasButton && __( 'Save', 'jetpack-paypal-payments' ) }
+						{ ! isCreating && ! hasButton && __( 'Create New', 'jetpack-paypal-payments' ) }
+					</Button>
+
+					<Button
+						variant="tertiary"
+						onClick={ () => {
+							if ( hasButton ) {
+								// Return to preview — discard unsaved edits.
+								setIsEditing( false );
+								setTouchedFields( {} );
+							} else {
+								// No saved button yet — reset form fields so merchant can
+								// remove the block if they want.
+								setAttributes( {
+									productName: metadata.attributes.productName.default,
+									price: metadata.attributes.price.default,
+									currencyCode: metadata.attributes.currencyCode.default,
+									productDescription: metadata.attributes.productDescription.default,
+									imageUrl: undefined,
+									imageId: undefined,
+									returnUrl: metadata.attributes.returnUrl.default,
+									variantsEnabled: metadata.attributes.variantsEnabled.default,
+									variants: undefined,
+									adjustableQuantity: metadata.attributes.adjustableQuantity.default,
+									maxQuantity: metadata.attributes.maxQuantity.default,
+									customerNotes: metadata.attributes.customerNotes.default,
+									taxEnabled: metadata.attributes.taxEnabled.default,
+									taxType: metadata.attributes.taxType.default,
+									taxName: metadata.attributes.taxName.default,
+									taxValue: metadata.attributes.taxValue.default,
+									buttonText: metadata.attributes.buttonText.default,
+									showQrCode: metadata.attributes.showQrCode.default,
+								} );
+								setTouchedFields( {} );
+								setError( null );
+							}
+						} }
+						disabled={ isCreating }
+					>
+						{ __( 'Cancel', 'jetpack-paypal-payments' ) }
+					</Button>
+				</div>
+			</InspectorControls>
+
+			<div className="jetpack-paypal-payment-buttons__preview">
+				<div className="jetpack-paypal-payment-buttons__preview-status">
+					{ connectionStatus }
+					{ connectionLabel }
+					{ environment === 'sandbox' && (
+						<span className="jetpack-paypal-payment-buttons__sandbox-badge">
+							{ __( 'Sandbox', 'jetpack-paypal-payments' ) }
+						</span>
+					) }
+				</div>
+
+				{ disconnectedNotice }
+				{ sharedResourceNotice }
+
+				{ error && (
+					<Notice status="error" isDismissible onDismiss={ () => setError( null ) }>
+						{ error }
+					</Notice>
+				) }
+
+				{ successMessage && (
+					<Notice status="success" isDismissible onDismiss={ () => setSuccessMessage( null ) }>
+						{ successMessage }
+					</Notice>
+				) }
+
+				<PayPalButtonPreview
+					productName={ productName }
+					price={ price }
+					currencyCode={ currencyCode }
+					productDescription={ productDescription }
+					paymentLink={ paymentLink }
+					variantsEnabled={ variantsEnabled }
+					variants={ variants }
+					imageUrl={ imageUrl }
+					partnerAttributionId={ partnerAttributionId }
+				/>
+			</div>
 
 			{ confirmDialogs }
 		</div>

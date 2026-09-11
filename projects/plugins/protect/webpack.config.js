@@ -19,7 +19,17 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: {
+					// Bundled, never one without the other — see #48173.
+					requestMap: {
+						'@wordpress/theme': { external: false },
+						'@wordpress/private-apis': { external: false },
+					},
+				},
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [

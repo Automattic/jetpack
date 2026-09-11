@@ -24,11 +24,6 @@
 		a:hover {
 			text-decoration: underline;
 		}
-
-		.dops-notice {
-			margin-top: rem.convert(-1px);
-			margin-bottom: rem.convert(-1px);
-		}
 	}
 }
 
@@ -124,14 +119,6 @@
 
 	.dops-button {
 		font-style: normal;
-	}
-
-	&.is-working,
-	&.is-premium-inactive {
-
-		.dops-section-header__actions {
-			color: colors.$gray-text-min;
-		}
 	}
 }
 
