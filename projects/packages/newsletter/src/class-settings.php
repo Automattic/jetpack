@@ -45,6 +45,11 @@ class Settings {
 	const OVERVIEW_FEATURE_FLAG = 'newsletter-overview';
 
 	/**
+	 * Feature flag for the Newsletter Stats tab and its REST endpoints.
+	 */
+	const STATS_FEATURE_FLAG = 'newsletter-stats';
+
+	/**
 	 * Whether the class has been initialized
 	 *
 	 * @var boolean
@@ -65,6 +70,21 @@ class Settings {
 				'owner'       => 'jetpack-newsletter',
 			)
 		);
+
+		Feature_Flags::register(
+			self::STATS_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Enable the Newsletter Stats tab and its REST endpoints.',
+				'owner'       => 'jetpack-newsletter',
+			)
+		);
+
+		// Registering the routes themselves stays behind the flag: unlike Overview,
+		// Stats exposes real subscriber/email data over REST, not just UI chrome.
+		if ( Feature_Flags::is_enabled( self::STATS_FEATURE_FLAG ) ) {
+			Subscriber_Stats_Controller::register();
+		}
 	}
 
 	/**
@@ -339,6 +359,7 @@ class Settings {
 			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom, $site_suffix, $blog_id ),
 			'subscriberManagementEnabled'     => (bool) $wp_admin_subscriber_management_enabled,
 			'overviewEnabled'                 => Feature_Flags::is_enabled( self::OVERVIEW_FEATURE_FLAG ),
+			'statsEnabled'                    => Feature_Flags::is_enabled( self::STATS_FEATURE_FLAG ),
 			'isSubscriptionSiteEditSupported' => $is_block_theme,
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),

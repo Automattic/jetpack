@@ -51,6 +51,7 @@ export interface NewsletterScriptData {
 	subscriberManagementUrl: string;
 	subscriberManagementEnabled: boolean;
 	overviewEnabled: boolean;
+	statsEnabled: boolean;
 	isSubscriptionSiteEditSupported: boolean;
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;

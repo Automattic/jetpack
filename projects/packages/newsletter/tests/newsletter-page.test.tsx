@@ -242,6 +242,69 @@ describe( 'NewsletterPage tab navigation', () => {
 	} );
 } );
 
+describe( 'NewsletterPage Stats tab gating', () => {
+	// Stats exposes real subscriber/email data over REST, so unlike Overview it
+	// must stay unreachable — not just hidden from nav — while its flag is off.
+	it( 'hides the Stats tab when statsEnabled is false', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: true,
+			statsEnabled: false,
+		} );
+
+		render(
+			<NewsletterPage activeTab="overview">
+				<div>panel body</div>
+			</NewsletterPage>
+		);
+
+		expect(
+			screen.queryAllByRole( 'tab' ).find( tab => tab.getAttribute( 'data-tab-value' ) === 'stats' )
+		).toBeUndefined();
+	} );
+
+	it( 'shows the Stats tab and navigates to it when statsEnabled is true', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: true,
+			statsEnabled: true,
+		} );
+
+		render(
+			<NewsletterPage activeTab="overview">
+				<div>panel body</div>
+			</NewsletterPage>
+		);
+
+		screen
+			.getAllByRole( 'tab' )
+			.find( tab => tab.getAttribute( 'data-tab-value' ) === 'stats' )
+			?.click();
+
+		const navArg = mockNavigate.mock.calls[ 0 ][ 0 ] as { search: Record< string, unknown > };
+		expect( navArg.search.tab ).toBe( 'stats' );
+	} );
+
+	it( 'ignores a direct onValueChange("stats") call when statsEnabled is false', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: true,
+			statsEnabled: false,
+		} );
+
+		render(
+			<NewsletterPage activeTab="overview">
+				<div>panel body</div>
+			</NewsletterPage>
+		);
+
+		expect( mockTabsOnValueChange.current ).not.toBeNull();
+		mockTabsOnValueChange.current?.( 'stats' );
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+} );
+
 describe( 'NewsletterPage AdminPage wiring', () => {
 	it( 'passes the REST API root and nonce from script data to AdminPage', () => {
 		// AdminPage's effect calls restApi.setApiRoot(apiRoot); with the default

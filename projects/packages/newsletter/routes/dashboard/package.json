@@ -2,6 +2,7 @@
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
+		"@automattic/charts": "workspace:*",
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
@@ -14,6 +15,7 @@
 		"@wordpress/admin-ui": "2.9.0",
 		"@wordpress/api-fetch": "7.54.0",
 		"@wordpress/components": "40.0.0",
+		"@wordpress/compose": "8.7.0",
 		"@wordpress/data": "10.54.0",
 		"@wordpress/dataviews": "18.1.0",
 		"@wordpress/date": "5.54.0",

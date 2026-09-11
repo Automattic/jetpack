@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Newsletter\Settings;
+use Automattic\Jetpack\Newsletter\Subscriber_Stats_Controller;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -40,6 +41,17 @@ class Settings_Test extends BaseTestCase {
 		}
 		$property->setValue( null, false );
 
+		// Reset Subscriber_Stats_Controller's own static registration guard, and the
+		// rest_api_init hook it may have attached in an earlier test, so route
+		// presence assertions don't depend on test execution order.
+		$stats_reflection = new \ReflectionClass( Subscriber_Stats_Controller::class );
+		$stats_property   = $stats_reflection->getProperty( 'registered' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$stats_property->setAccessible( true );
+		}
+		$stats_property->setValue( null, false );
+		remove_all_actions( 'rest_api_init' );
+
 		// Clear any existing hooks.
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'admin_init' );
@@ -49,6 +61,7 @@ class Settings_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::STATS_FEATURE_FLAG );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 
 		// Clear the load action registered by add_wp_admin_menu on success.
@@ -70,6 +83,7 @@ class Settings_Test extends BaseTestCase {
 		remove_all_filters( 'home_url' );
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::STATS_FEATURE_FLAG );
 		Feature_Flags::reset();
 
 		// Dequeue any scripts that may have leaked into globals during the test.
@@ -273,6 +287,83 @@ class Settings_Test extends BaseTestCase {
 		$data = ( new Settings() )->add_script_data( array() );
 
 		$this->assertTrue( $data['newsletter']['overviewEnabled'] );
+	}
+
+	/**
+	 * Test that the Stats feature flag is registered disabled by default.
+	 */
+	public function test_register_feature_flags_registers_stats_disabled_by_default() {
+		Settings::register_feature_flags();
+
+		$this->assertSame(
+			array(
+				'default'     => false,
+				'description' => 'Enable the Newsletter Stats tab and its REST endpoints.',
+				'owner'       => 'jetpack-newsletter',
+				'name'        => Settings::STATS_FEATURE_FLAG,
+			),
+			Feature_Flags::get( Settings::STATS_FEATURE_FLAG )
+		);
+	}
+
+	/**
+	 * Test that script data exposes the disabled Stats feature flag.
+	 */
+	public function test_add_script_data_exposes_stats_disabled_by_default() {
+		Settings::register_feature_flags();
+
+		$data = ( new Settings() )->add_script_data( array() );
+
+		$this->assertFalse( $data['newsletter']['statsEnabled'] );
+	}
+
+	/**
+	 * Test that script data exposes an enabled Stats feature flag.
+	 */
+	public function test_add_script_data_exposes_enabled_stats() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::STATS_FEATURE_FLAG, '__return_true' );
+		Settings::register_feature_flags();
+
+		$data = ( new Settings() )->add_script_data( array() );
+
+		$this->assertTrue( $data['newsletter']['statsEnabled'] );
+	}
+
+	/**
+	 * Test that the Stats REST routes are not registered while the flag is disabled.
+	 *
+	 * Unlike Overview, Stats exposes real subscriber/email data over REST, so the
+	 * routes themselves — not just the UI — must stay unregistered while off.
+	 */
+	public function test_register_feature_flags_does_not_register_stats_routes_when_disabled() {
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		Settings::register_feature_flags();
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayNotHasKey( '/jetpack/v4/newsletter/stats/subscribers', $routes );
+		$this->assertArrayNotHasKey( '/jetpack/v4/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayNotHasKey( '/jetpack/v4/newsletter/stats/recent-posts', $routes );
+	}
+
+	/**
+	 * Test that the Stats REST routes are registered once the flag is enabled.
+	 */
+	public function test_register_feature_flags_registers_stats_routes_when_enabled() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::STATS_FEATURE_FLAG, '__return_true' );
+
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		Settings::register_feature_flags();
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayHasKey( '/jetpack/v4/newsletter/stats/subscribers', $routes );
+		$this->assertArrayHasKey( '/jetpack/v4/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayHasKey( '/jetpack/v4/newsletter/stats/recent-posts', $routes );
 	}
 
 	/**

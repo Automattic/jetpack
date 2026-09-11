@@ -90,6 +90,11 @@ jest.mock( '../routes/dashboard/components/overview-body', () => ( {
 	default: () => null,
 } ) );
 
+jest.mock( '../routes/dashboard/components/subscriber-stats-chart', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="subscriber-stats-chart" />,
+} ) );
+
 jest.mock( '../src/settings/script-data', () => ( {
 	getNewsletterScriptData: () => mockGetNewsletterScriptData(),
 } ) );
@@ -289,5 +294,37 @@ describe( 'Newsletter dashboard Stage import-poll gating', () => {
 		render( <Stage /> );
 
 		expect( mockImportRefreshEnabled ).toBe( false );
+	} );
+} );
+
+describe( 'Newsletter dashboard Stage Stats tab gating', () => {
+	// Stats exposes real subscriber/email data over REST, so unlike Overview it
+	// must stay unreachable — not just hidden from nav — while its flag is off.
+	it( 'does not render the Stats panel when statsEnabled is false, even via ?tab=stats', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: true,
+			statsEnabled: false,
+			tracksUserData: { userid: 1, username: 'tester' },
+		} );
+		mockSearch.mockReturnValue( { tab: 'stats' } );
+
+		render( <Stage /> );
+
+		expect( screen.queryByTestId( 'subscriber-stats-chart' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the Stats panel when statsEnabled is true and the route deep-links to ?tab=stats', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: true,
+			statsEnabled: true,
+			tracksUserData: { userid: 1, username: 'tester' },
+		} );
+		mockSearch.mockReturnValue( { tab: 'stats' } );
+
+		render( <Stage /> );
+
+		expect( screen.getByTestId( 'subscriber-stats-chart' ) ).toBeInTheDocument();
 	} );
 } );
