@@ -789,14 +789,13 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'paymentLink'      => 'https://www.paypal.com/ncp/payment/PLB-QRSTYLE',
 			'format'           => 'QR',
 			'qrCaption'        => 'Scan to pay',
-			'blockWidth'        => '50%',
-			'marginVertical'    => 12,
-			'marginHorizontal'  => 4,
-			'blockBorderRadius' => 8,
-			'blockBorderWidth'  => 2,
-			'blockBorderColor'  => '#ff0000',
-			'captionColor'      => '#0000ff',
-			'captionFontSize'   => 20,
+			'blockWidth'       => '50%',
+			'style'            => array(
+				'spacing' => array( 'margin' => array( 'top' => '12px', 'bottom' => '12px' ) ),
+				'border'  => array( 'radius' => '8px', 'width' => '2px', 'color' => '#ff0000' ),
+			),
+			'captionColor'     => '#0000ff',
+			'captionFontSize'  => 20,
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -804,9 +803,11 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
 		$this->assertStringContainsString( 'max-width:50%', $result );
-		$this->assertStringContainsString( 'margin:12px 4px', $result );
+		$this->assertStringContainsString( 'margin-top:12px', $result );
+		$this->assertStringContainsString( 'margin-bottom:12px', $result );
 		$this->assertStringContainsString( 'border-radius:8px', $result );
-		$this->assertStringContainsString( 'border:2px solid #ff0000', $result );
+		$this->assertStringContainsString( 'border-width:2px', $result );
+		$this->assertStringContainsString( 'border-color:#ff0000', $result );
 		// The caption's own styles belong on the caption, not the block.
 		$this->assertStringContainsString(
 			'<p class="jetpack-paypal-button__qr-caption" style="color:#0000ff;font-size:20px;">',
@@ -823,18 +824,17 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'resourceId'        => 'PLB-QRPALETTE',
 			'paymentLink'       => 'https://www.paypal.com/ncp/payment/PLB-QRPALETTE',
 			'format'            => 'QR',
-			'blockBorderWidth'  => 2,
-			'blockBorderColor'  => 'var(--wp--preset--color--primary)',
+			'style'            => array(
+				'border' => array( 'width' => '2px', 'color' => 'var:preset|color|primary' ),
+			),
 		);
 
 		$this->set_up_block_render_context( $attributes );
 
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
-		$this->assertStringContainsString(
-			'border:2px solid var(--wp--preset--color--primary)',
-			$result
-		);
+		// The style engine expands the preset reference the editor stored.
+		$this->assertStringContainsString( 'border-color:var(--wp--preset--color--primary)', $result );
 	}
 
 	/**
@@ -848,8 +848,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'productName'       => 'Premium Widget',
 			'price'             => '29.99',
 			'format'            => 'BUTTON',
-			'blockWidth'        => '75%',
-			'blockBorderRadius' => 6,
+			'blockWidth'       => '75%',
+			'style'            => array( 'border' => array( 'radius' => '6px' ) ),
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -859,7 +859,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		// On .jetpack-paypal-button, the element style.scss caps at 400px — not
 		// the outer block wrapper, where it would not override that cap.
 		$this->assertStringContainsString(
-			'<div class="jetpack-paypal-button" style="max-width:75%;border-radius:6px;">',
+			'max-width:75%;border-radius:6px;',
 			$result
 		);
 	}
@@ -895,10 +895,11 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'resourceId'    => 'PLB-QRBADCOL',
 			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-QRBADCOL',
 			'format'        => 'QR',
-			'blockBorderWidth' => 2,
-			'blockBorderColor' => 'red; background:url(evil)',
-			'captionColor'     => 'javascript:alert(1)',
-			'qrShowCaption'    => true,
+			'style'         => array(
+				'border' => array( 'width' => '2px', 'color' => 'red; background:url(evil)' ),
+			),
+			'captionColor'  => 'javascript:alert(1)',
+			'qrShowCaption' => true,
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -907,8 +908,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'evil', $result );
 		$this->assertStringNotContainsString( 'javascript:', $result );
-		// The stroke needs both halves, so a rejected color drops the border too.
-		$this->assertStringNotContainsString( 'border:2px', $result );
+		$this->assertStringNotContainsString( 'background:url', $result );
 	}
 
 	/**

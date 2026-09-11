@@ -464,14 +464,16 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		</Notice>
 	) : null;
 
-	// A payment link can be used by blocks on any post, so warn whenever there is one.
+	// A payment link can be used by blocks on any post, so warn whenever there is
+	// one. It sits at the top of the inspector form, not on the canvas: permanent
+	// canvas chrome defeats the spatial sense the preview exists to give.
 	const sharedResourceNotice = hasButton ? (
-		<Notice status="info" isDismissible={ false }>
+		<p className="jetpack-paypal-payment-buttons__shared-link-note">
 			{ __(
 				'Changes made will apply to all payment buttons with this link.',
 				'jetpack-paypal-payments'
 			) }
-		</Notice>
+		</p>
 	) : null;
 
 	const connectionStatus = (
@@ -494,6 +496,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					<Notice status={ isFormValid ? 'info' : 'warning' } isDismissible={ false }>
 						{ saveStatus }
 					</Notice>
+					{ sharedResourceNotice }
 				</div>
 			</InspectorControls>
 			<InspectorControls>
@@ -906,7 +909,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				</div>
 
 				{ disconnectedNotice }
-				{ sharedResourceNotice }
 
 				{ error && (
 					<Notice status="error" isDismissible onDismiss={ () => setError( null ) }>

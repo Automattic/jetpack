@@ -165,8 +165,10 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Block styles — Width Settings and Border Settings.
 	 *
-	 * Mirrors getWrapperStyle() in utils/block-styles.js, and lands on the same
-	 * element the editor preview puts it on. Change one, change the other.
+	 * Margin and border come from `attributes.style`, core's own shape, so the
+	 * style engine resolves any `var:preset|spacing|50` the merchant picked.
+	 * getWrapperStyle() in utils/block-styles.js builds the same declarations for
+	 * the canvas, and both land on the same element. Change one, change the other.
 	 *
 	 * @param array $attributes The block attributes.
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
@@ -174,27 +176,38 @@ class PayPal_Payment_Buttons {
 	private static function get_wrapper_style( $attributes ) {
 		$rules = array();
 
-		// Width carries its own unit, so it goes through as typed.
+		// Width carries its own unit, so it goes through as typed. Core has no
+		// preset scale for it, so the style engine has nothing to add.
 		$width = self::sanitize_css_length( $attributes['blockWidth'] ?? '' );
 		if ( '' !== $width ) {
 			$rules[] = sprintf( 'max-width:%s', $width );
 		}
 
-		if ( self::has_number( $attributes, 'marginVertical' ) || self::has_number( $attributes, 'marginHorizontal' ) ) {
-			$vertical   = self::has_number( $attributes, 'marginVertical' ) ? (float) $attributes['marginVertical'] . 'px' : '0';
-			$horizontal = self::has_number( $attributes, 'marginHorizontal' ) ? (float) $attributes['marginHorizontal'] . 'px' : '0';
-			$rules[]    = sprintf( 'margin:%s %s', $vertical, $horizontal );
-		}
+		$style  = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
+		$border = isset( $style['border'] ) && is_array( $style['border'] ) ? $style['border'] : array();
 
-		if ( self::has_number( $attributes, 'blockBorderRadius' ) ) {
-			$rules[] = sprintf( 'border-radius:%spx', (float) $attributes['blockBorderRadius'] );
+		// wp_style_engine_get_styles() emits whatever value it is handed, so a
+		// color of `red; background:url(evil)` would come back out as two
+		// declarations. Check it before the engine sees it.
+		if ( isset( $border['color'] ) ) {
+			$border['color'] = self::sanitize_css_color( $border['color'] );
 		}
 
 		// A width with no color would fall back to currentColor and draw a border
-		// the merchant never chose, so emit one only when both halves are set.
-		$border_color = self::sanitize_css_color( $attributes['blockBorderColor'] ?? '' );
-		if ( self::has_number( $attributes, 'blockBorderWidth' ) && '' !== $border_color ) {
-			$rules[] = sprintf( 'border:%spx solid %s', (float) $attributes['blockBorderWidth'], $border_color );
+		// the merchant never chose, so drop a half-set stroke.
+		if ( empty( $border['width'] ) || empty( $border['color'] ) ) {
+			unset( $border['width'], $border['color'], $border['style'] );
+		}
+
+		$engine = wp_style_engine_get_styles(
+			array(
+				'spacing' => array( 'margin' => $style['spacing']['margin'] ?? null ),
+				'border'  => $border,
+			)
+		);
+
+		if ( ! empty( $engine['css'] ) ) {
+			$rules[] = rtrim( $engine['css'], ';' );
 		}
 
 		return self::css_rules( $rules );
@@ -246,6 +259,9 @@ class PayPal_Payment_Buttons {
 	 * @return string The declaration list, or '' when there are none.
 	 */
 	private static function css_rules( $rules ) {
+		// Values are checked individually before they reach the style engine —
+		// safecss_filter_attr() is no good here, it allows `background:url(…)`
+		// and strips the `var(--wp--preset--…)` a palette color needs.
 		return empty( $rules ) ? '' : implode( ';', $rules ) . ';';
 	}
 
@@ -277,6 +293,14 @@ class PayPal_Payment_Buttons {
 		$hex = sanitize_hex_color( $color );
 		if ( ! empty( $hex ) ) {
 			return $hex;
+		}
+
+		// `var:preset|color|primary` is what the editor stores for a palette entry.
+		// The style engine emits preset border colors as a class rather than inline
+		// CSS, so expand it here — resolvePreset() in utils/block-styles.js does the
+		// same for the canvas.
+		if ( preg_match( '/^var:preset\|([a-z0-9-]+)\|([a-z0-9-]+)$/i', $color, $preset ) ) {
+			return sprintf( 'var(--wp--preset--%s--%s)', $preset[1], $preset[2] );
 		}
 
 		return preg_match( '/^var\(--wp--[a-z0-9-]+\)$/i', $color ) ? $color : '';

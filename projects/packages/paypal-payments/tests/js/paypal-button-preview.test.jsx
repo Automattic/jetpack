@@ -416,11 +416,10 @@ describe( 'PayPalButtonPreview', () => {
 					qrShowCaption
 					attributes={ {
 						blockWidth: '50%',
-						marginVertical: 12,
-						marginHorizontal: 4,
-						blockBorderRadius: 8,
-						blockBorderWidth: 2,
-						blockBorderColor: '#ff0000',
+						style: {
+							spacing: { margin: { top: '12px', bottom: '12px', left: '4px', right: '4px' } },
+							border: { radius: '8px', width: '2px', color: '#ff0000' },
+						},
 						captionColor: '#0000ff',
 						captionFontSize: 20,
 					} }
@@ -430,7 +429,7 @@ describe( 'PayPalButtonPreview', () => {
 			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
 			expect( wrapper ).toHaveStyle( {
 				maxWidth: '50%',
-				margin: '12px 4px',
+				margin: '12px 4px 12px 4px',
 				borderRadius: '8px',
 				border: '2px solid #ff0000',
 			} );
@@ -447,7 +446,7 @@ describe( 'PayPalButtonPreview', () => {
 				<PayPalButtonPreview
 					{ ...defaultProps }
 					format="QR"
-					attributes={ { blockBorderWidth: 4, blockBorderRadius: 8 } }
+					attributes={ { style: { border: { width: '4px', radius: '8px' } } } }
 				/>
 			);
 
@@ -470,11 +469,13 @@ describe( 'PayPalButtonPreview', () => {
 				<PayPalButtonPreview
 					{ ...defaultProps }
 					format="QR"
-					attributes={ { marginVertical: 12 } }
+					attributes={ {
+						style: { spacing: { margin: { top: '12px', bottom: '12px' } } },
+					} }
 				/>
 			);
 			expect( document.querySelector( '.jetpack-paypal-button-preview--qr' ) ).toHaveStyle( {
-				margin: '12px 0',
+				margin: '12px 0 12px 0',
 			} );
 		} );
 
@@ -484,7 +485,7 @@ describe( 'PayPalButtonPreview', () => {
 				<PayPalButtonPreview
 					{ ...defaultProps }
 					format="BUTTON"
-					attributes={ { blockWidth: '75%', blockBorderRadius: 6 } }
+					attributes={ { blockWidth: '75%', style: { border: { radius: '6px' } } } }
 				/>
 			);
 			expect( document.querySelector( '.jetpack-paypal-button-preview' ) ).toHaveStyle( {

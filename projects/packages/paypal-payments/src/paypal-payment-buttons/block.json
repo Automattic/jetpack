@@ -151,21 +151,8 @@
 			"type": "string",
 			"default": ""
 		},
-		"marginVertical": {
-			"type": "number"
-		},
-		"marginHorizontal": {
-			"type": "number"
-		},
-		"blockBorderRadius": {
-			"type": "number"
-		},
-		"blockBorderWidth": {
-			"type": "number"
-		},
-		"blockBorderColor": {
-			"type": "string",
-			"default": ""
+		"style": {
+			"type": "object"
 		}
 	}
 }

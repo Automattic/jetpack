@@ -15,12 +15,13 @@
 
 import {
 	InspectorControls,
+	__experimentalBorderRadiusControl as BorderRadiusControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalColorGradientControl as ColorGradientControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalSpacingSizesControl as SpacingSizesControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import {
-	BaseControl,
+	BorderControl,
 	CheckboxControl,
-	RangeControl,
 	TextControl,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -29,7 +30,6 @@ import {
 	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { getCaptionStyle } from '../utils/block-styles';
 import { DEFAULT_QR_CAPTION } from '../utils/defaults';
 import FormatSwitcher from './format-switcher';
 import QrCodePreview from './qr-code-preview';
@@ -101,111 +101,107 @@ function WidthPanel( { blockWidth, setAttributes } ) {
 }
 
 /**
- * Border Settings — margin, radius and stroke in one panel.
+ * Border Settings — radius and stroke, plus margin on the QR only.
  *
- * Core splits these up: margin lives in Dimensions and radius in Border.
+ * Create 191 draws the button's panel with radius and stroke alone; Create 188
+ * adds margin for the QR. The three controls are core's own, so margin snaps to
+ * the theme's spacing scale and the whole panel matches the frame on any block
+ * theme. Core groups them differently — margin in Dimensions, radius in Border —
+ * which is why the panel is ours and the controls are not.
  *
  * @param {object}   props               - Component props.
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
+ * @param {boolean}  props.showMargin    - Whether this format's panel carries margin.
  * @return {Element} The Border Settings panel.
  */
-function BorderPanel( { attributes, setAttributes } ) {
-	const {
-		marginVertical,
-		marginHorizontal,
-		blockBorderRadius,
-		blockBorderWidth,
-		blockBorderColor,
-	} = attributes;
-	const hasMargin = marginVertical !== undefined || marginHorizontal !== undefined;
+function BorderPanel( { attributes, setAttributes, showMargin } ) {
+	const style = attributes.style || {};
+	const margin = style.spacing?.margin;
+	const border = style.border || {};
+
+	// Merge into attributes.style rather than replacing it, so the panels do not
+	// clobber each other.
+	const setStyle = next =>
+		setAttributes( {
+			style: {
+				...style,
+				...next,
+				spacing: { ...style.spacing, ...next.spacing },
+				border: { ...border, ...next.border },
+			},
+		} );
 
 	return (
 		<ToolsPanel
 			label={ __( 'Border Settings', 'jetpack-paypal-payments' ) }
 			resetAll={ () =>
 				setAttributes( {
-					marginVertical: undefined,
-					marginHorizontal: undefined,
-					blockBorderRadius: undefined,
-					blockBorderWidth: undefined,
-					blockBorderColor: '',
+					style: {
+						...style,
+						spacing: { ...style.spacing, margin: undefined },
+						border: undefined,
+					},
 				} )
 			}
 			headingLevel={ 3 }
 			__experimentalFirstVisibleItemClass="first"
 			__experimentalLastVisibleItemClass="last"
 		>
-			<ToolsPanelItem
-				label={ __( 'Margin', 'jetpack-paypal-payments' ) }
-				hasValue={ () => hasMargin }
-				onDeselect={ () =>
-					setAttributes( { marginVertical: undefined, marginHorizontal: undefined } )
-				}
-				isShownByDefault
-			>
-				<BaseControl.VisualLabel>
-					{ __( 'Margin', 'jetpack-paypal-payments' ) }
-				</BaseControl.VisualLabel>
-				<RangeControl
-					label={ __( 'Vertical', 'jetpack-paypal-payments' ) }
-					value={ marginVertical }
-					onChange={ value => setAttributes( { marginVertical: value } ) }
-					min={ 0 }
-					max={ 100 }
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-				/>
-				<RangeControl
-					label={ __( 'Horizontal', 'jetpack-paypal-payments' ) }
-					value={ marginHorizontal }
-					onChange={ value => setAttributes( { marginHorizontal: value } ) }
-					min={ 0 }
-					max={ 100 }
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-				/>
-			</ToolsPanelItem>
+			{ showMargin && (
+				<ToolsPanelItem
+					label={ __( 'Margin', 'jetpack-paypal-payments' ) }
+					hasValue={ () => !! margin }
+					onDeselect={ () => setStyle( { spacing: { margin: undefined } } ) }
+					isShownByDefault
+				>
+					<SpacingSizesControl
+						label={ __( 'Margin', 'jetpack-paypal-payments' ) }
+						values={ margin }
+						onChange={ value => setStyle( { spacing: { margin: value } } ) }
+						sides={ [ 'vertical', 'horizontal' ] }
+						allowReset={ false }
+						splitOnAxis
+					/>
+				</ToolsPanelItem>
+			) }
 
 			<ToolsPanelItem
 				label={ __( 'Radius', 'jetpack-paypal-payments' ) }
-				hasValue={ () => blockBorderRadius !== undefined }
-				onDeselect={ () => setAttributes( { blockBorderRadius: undefined } ) }
+				hasValue={ () => !! border.radius }
+				onDeselect={ () => setStyle( { border: { radius: undefined } } ) }
 				isShownByDefault
 			>
-				<RangeControl
-					label={ __( 'Radius', 'jetpack-paypal-payments' ) }
-					value={ blockBorderRadius }
-					onChange={ value => setAttributes( { blockBorderRadius: value } ) }
-					min={ 0 }
-					max={ 50 }
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
+				<BorderRadiusControl
+					values={ border.radius }
+					onChange={ value => setStyle( { border: { radius: value } } ) }
 				/>
 			</ToolsPanelItem>
 
 			<ToolsPanelItem
 				label={ __( 'Stroke', 'jetpack-paypal-payments' ) }
-				hasValue={ () => blockBorderWidth !== undefined || !! blockBorderColor }
-				onDeselect={ () => setAttributes( { blockBorderWidth: undefined, blockBorderColor: '' } ) }
+				hasValue={ () => !! border.width || !! border.color }
+				onDeselect={ () =>
+					setStyle( { border: { width: undefined, color: undefined, style: undefined } } )
+				}
 				isShownByDefault
 			>
-				<RangeControl
+				<BorderControl
 					label={ __( 'Stroke', 'jetpack-paypal-payments' ) }
-					value={ blockBorderWidth }
-					onChange={ value => setAttributes( { blockBorderWidth: value } ) }
-					min={ 0 }
-					max={ 20 }
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
-				/>
-				<ColorGradientControl
-					label={ __( 'Stroke color', 'jetpack-paypal-payments' ) }
-					colorValue={ blockBorderColor }
-					onColorChange={ value => setAttributes( { blockBorderColor: value || '' } ) }
-					disableCustomGradients
+					hideLabelFromVision
+					value={ { color: border.color, style: border.style, width: border.width } }
+					onChange={ value =>
+						setStyle( {
+							border: {
+								color: value?.color,
+								style: value?.style,
+								width: value?.width,
+							},
+						} )
+					}
+					withSlider
 					enableAlpha={ false }
-					__experimentalIsRenderedInSidebar
+					__next40pxDefaultSize
 				/>
 			</ToolsPanelItem>
 		</ToolsPanel>
@@ -224,20 +220,11 @@ function BorderPanel( { attributes, setAttributes } ) {
  */
 function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
 	const { qrShowCaption, qrCaption } = attributes;
-	// The inspector's copy of the code carries the caption too, so the merchant
-	// sees what they typed without looking back at the canvas.
-	const caption = `${ qrCaption ?? '' }`.trim() || DEFAULT_QR_CAPTION;
 
 	return (
 		<>
 			<div className="jetpack-paypal-payment-buttons__qr-inspector-preview">
-				<QrCodePreview
-					url={ qrUrl }
-					className="jetpack-paypal-button__qr-canvas"
-					caption={ qrShowCaption ? caption : '' }
-					captionStyle={ getCaptionStyle( attributes ) }
-					showDownload
-				/>
+				<QrCodePreview url={ qrUrl } className="jetpack-paypal-button__qr-canvas" showDownload />
 			</div>
 
 			<CheckboxControl
@@ -386,7 +373,11 @@ export default function PayPalFormatControls( {
 			{ hasBox && (
 				<>
 					<WidthPanel blockWidth={ attributes.blockWidth } setAttributes={ setAttributes } />
-					<BorderPanel attributes={ attributes } setAttributes={ setAttributes } />
+					<BorderPanel
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						showMargin={ 'QR' === format }
+					/>
 				</>
 			) }
 		</InspectorControls>

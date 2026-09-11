@@ -726,3 +726,11 @@
 		flex-shrink: 0;
 	}
 }
+
+// The shared-link line — grey text under the inspector header, not a notice.
+.jetpack-paypal-payment-buttons__shared-link-note {
+	margin: 8px 0 0;
+	color: #757575;
+	font-size: 12px;
+	line-height: 1.4;
+}
