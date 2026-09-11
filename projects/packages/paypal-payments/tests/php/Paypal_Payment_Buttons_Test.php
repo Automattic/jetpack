@@ -754,6 +754,14 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			$result,
 			'An unset caption should fall back to the default label, not the product name'
 		);
+
+		// The canvas deliberately drops this line for QR while the frontend keeps
+		// it — a recorded divergence. Pinned so it cannot drift unnoticed either
+		// way before the frontend pass lands. See QrPreview's TODO.
+		$this->assertStringContainsString(
+			'<p class="jetpack-paypal-button__attribution">Powered by PayPal</p>',
+			$result
+		);
 	}
 
 	/**
@@ -786,18 +794,27 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 */
 	public function test_render_block_qr_applies_width_border_and_caption_styles() {
 		$attributes = array(
-			'isApiManaged'     => true,
-			'resourceId'       => 'PLB-QRSTYLE',
-			'paymentLink'      => 'https://www.paypal.com/ncp/payment/PLB-QRSTYLE',
-			'format'           => 'QR',
-			'qrCaption'        => 'Scan to pay',
-			'blockWidth'       => '50%',
-			'style'            => array(
-				'spacing' => array( 'margin' => array( 'top' => '12px', 'bottom' => '12px' ) ),
-				'border'  => array( 'radius' => '8px', 'width' => '2px', 'color' => '#ff0000' ),
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-QRSTYLE',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-QRSTYLE',
+			'format'          => 'QR',
+			'qrCaption'       => 'Scan to pay',
+			'blockWidth'      => '50%',
+			'style'           => array(
+				'spacing' => array(
+					'margin' => array(
+						'top'    => '12px',
+						'bottom' => '12px',
+					),
+				),
+				'border'  => array(
+					'radius' => '8px',
+					'width'  => '2px',
+					'color'  => '#ff0000',
+				),
 			),
-			'captionColor'     => '#0000ff',
-			'captionFontSize'  => 20,
+			'captionColor'    => '#0000ff',
+			'captionFontSize' => '20px',
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -825,12 +842,15 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 */
 	public function test_render_block_accepts_a_theme_palette_color() {
 		$attributes = array(
-			'isApiManaged'      => true,
-			'resourceId'        => 'PLB-QRPALETTE',
-			'paymentLink'       => 'https://www.paypal.com/ncp/payment/PLB-QRPALETTE',
-			'format'            => 'QR',
-			'style'            => array(
-				'border' => array( 'width' => '2px', 'color' => 'var:preset|color|primary' ),
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QRPALETTE',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QRPALETTE',
+			'format'       => 'QR',
+			'style'        => array(
+				'border' => array(
+					'width' => '2px',
+					'color' => 'var:preset|color|primary',
+				),
 			),
 		);
 
@@ -845,9 +865,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	/**
 	 * Test that a style value cannot smuggle extra declarations into the markup.
 	 *
-	 * wp_style_engine_get_styles() is not a sanitizer — it splits on `;` and keeps
-	 * any declaration core's allowlist permits, so an unchecked value renders a
-	 * full-viewport overlay on a payments block.
+	 * The style engine is not a sanitizer: wp_style_engine_get_styles() splits on
+	 * `;` and keeps any declaration core's allowlist permits, so an unchecked
+	 * value renders a full-viewport overlay on a payments block.
 	 *
 	 * @dataProvider provide_css_injection_payloads
 	 * @param array $style The hostile style attribute.
@@ -887,8 +907,23 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'margin string'      => array( array( 'spacing' => array( 'margin' => $overlay ) ) ),
 			'border radius'      => array( array( 'border' => array( 'radius' => $overlay ) ) ),
 			'border radius side' => array( array( 'border' => array( 'radius' => array( 'topLeft' => $overlay ) ) ) ),
-			'border width'       => array( array( 'border' => array( 'color' => '#ffffff', 'width' => $overlay ) ) ),
-			'border style'       => array( array( 'border' => array( 'color' => '#ffffff', 'width' => '1px', 'style' => 'solid;' . $overlay ) ) ),
+			'border width'       => array(
+				array(
+					'border' => array(
+						'color' => '#ffffff',
+						'width' => $overlay,
+					),
+				),
+			),
+			'border style'       => array(
+				array(
+					'border' => array(
+						'color' => '#ffffff',
+						'width' => '1px',
+						'style' => 'solid;' . $overlay,
+					),
+				),
+			),
 			'border longhand'    => array( array( 'border' => array( 'top' => array( 'color' => 'red;' . $overlay ) ) ) ),
 		);
 	}
@@ -910,7 +945,12 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'resourceId'   => 'PLB-RAWCOL',
 			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-RAWCOL',
 			'format'       => 'QR',
-			'style'        => array( 'border' => array( 'width' => '2px', 'color' => $color ) ),
+			'style'        => array(
+				'border' => array(
+					'width' => '2px',
+					'color' => $color,
+				),
+			),
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -935,6 +975,138 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * Test that the font sizes FontSizePicker can hand back all render.
+	 *
+	 * The picker returns the size with its unit once the theme defines font-size
+	 * presets as strings, which block themes do — a plain length, a preset
+	 * variable, or a fluid clamp().
+	 *
+	 * @dataProvider provide_font_sizes
+	 * @param string $size     The size the picker hands back.
+	 * @param bool   $accepted Whether it should reach the markup.
+	 */
+	#[DataProvider( 'provide_font_sizes' )]
+	public function test_render_block_caption_font_sizes( $size, $accepted ) {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-FONTSIZE',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-FONTSIZE',
+			'format'          => 'QR',
+			'captionFontSize' => $size,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		if ( $accepted ) {
+			$this->assertStringContainsString( 'font-size:' . $size, $result );
+		} else {
+			$this->assertStringNotContainsString( 'font-size', $result );
+		}
+	}
+
+	/**
+	 * Font sizes the picker can produce, and one that it cannot.
+	 *
+	 * @return array<string, array<int, mixed>>
+	 */
+	public static function provide_font_sizes() {
+		return array(
+			'px'       => array( '20px', true ),
+			'rem'      => array( '1.5rem', true ),
+			'preset'   => array( 'var(--wp--preset--font-size--small)', true ),
+			'fluid'    => array( 'clamp(0.875rem, 0.875rem + 1vw, 1rem)', true ),
+			'injected' => array( '20px;background-image:url(https://evil.example/x.png)', false ),
+		);
+	}
+
+	/**
+	 * Test that the published page emits what the canvas emits.
+	 *
+	 * The other half of this table runs in tests/js/block-styles.test.js against
+	 * getWrapperStyle()/getCaptionStyle(). A value one side drops and the other
+	 * keeps is the drift WOOPTP-491 exists to remove, so it fails here.
+	 *
+	 * @dataProvider provide_style_parity_cases
+	 * @param array  $attributes   The block attributes.
+	 * @param array  $declarations The CSS each side has to produce.
+	 * @param string $selector     The element the declarations belong on.
+	 */
+	#[DataProvider( 'provide_style_parity_cases' )]
+	public function test_render_block_matches_the_canvas( $attributes, $declarations, $selector ) {
+		$attributes = array_merge(
+			array(
+				'isApiManaged' => true,
+				'resourceId'   => 'PLB-PARITY',
+				'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-PARITY',
+				'format'       => 'QR',
+			),
+			$attributes
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		if ( empty( $declarations ) ) {
+			$this->assertStringNotContainsString( $selector . ' style=', $result );
+			return;
+		}
+
+		// Read the style off the element itself. Anchoring on the element matters:
+		// a declaration landing on the wrong one is how the last divergence
+		// shipped green. Order is not part of the contract, so compare as a set.
+		$this->assertSame(
+			1,
+			preg_match( '/' . preg_quote( $selector, '/' ) . ' style="([^"]*)"/', $result, $matches ),
+			'No style attribute on ' . $selector
+		);
+
+		$actual = array();
+		foreach ( array_filter( explode( ';', $matches[1] ) ) as $declaration ) {
+			list( $property, $value ) = explode( ':', $declaration, 2 );
+			$actual[ $property ]      = $value;
+		}
+
+		ksort( $actual );
+		ksort( $declarations );
+		$this->assertSame( $declarations, $actual );
+	}
+
+	/**
+	 * The shared style fixture, read from the file the JS suite reads.
+	 *
+	 * @return array<string, array<int, mixed>>
+	 */
+	public static function provide_style_parity_cases() {
+		$fixture = json_decode(
+			(string) file_get_contents( __DIR__ . '/../fixtures/style-parity.json' ),
+			true
+		);
+
+		$cases = array();
+
+		foreach ( $fixture['cases'] as $case ) {
+			$cases[ $case['name'] ] = array(
+				$case['attributes'],
+				$case['declarations'],
+				'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
+			);
+		}
+
+		foreach ( $fixture['captionCases'] as $case ) {
+			$cases[ 'caption: ' . $case['name'] ] = array(
+				$case['attributes'],
+				$case['declarations'],
+				'class="jetpack-paypal-button__qr-caption"',
+			);
+		}
+
+		return $cases;
+	}
+
+	/**
 	 * Test that a margin set on one axis leaves the other axis alone.
 	 */
 	public function test_render_block_margin_on_one_axis() {
@@ -944,7 +1116,12 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-MARGIN1',
 			'format'       => 'QR',
 			'style'        => array(
-				'spacing' => array( 'margin' => array( 'left' => '8px', 'right' => '8px' ) ),
+				'spacing' => array(
+					'margin' => array(
+						'left'  => '8px',
+						'right' => '8px',
+					),
+				),
 			),
 		);
 
@@ -986,14 +1163,14 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 */
 	public function test_render_block_button_applies_width_and_border_styles() {
 		$attributes = array(
-			'isApiManaged'      => true,
-			'resourceId'        => 'PLB-BTNSTYLE',
-			'paymentLink'       => 'https://www.paypal.com/ncp/payment/PLB-BTNSTYLE',
-			'productName'       => 'Premium Widget',
-			'price'             => '29.99',
-			'format'            => 'BUTTON',
-			'blockWidth'       => '75%',
-			'style'            => array( 'border' => array( 'radius' => '6px' ) ),
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-BTNSTYLE',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-BTNSTYLE',
+			'productName'  => 'Premium Widget',
+			'price'        => '29.99',
+			'format'       => 'BUTTON',
+			'blockWidth'   => '75%',
+			'style'        => array( 'border' => array( 'radius' => '6px' ) ),
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -1040,7 +1217,10 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-QRBADCOL',
 			'format'        => 'QR',
 			'style'         => array(
-				'border' => array( 'width' => '2px', 'color' => 'red; background:url(evil)' ),
+				'border' => array(
+					'width' => '2px',
+					'color' => 'red; background:url(evil)',
+				),
 			),
 			'captionColor'  => 'javascript:alert(1)',
 			'qrShowCaption' => true,

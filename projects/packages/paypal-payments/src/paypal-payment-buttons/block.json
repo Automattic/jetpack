@@ -145,7 +145,8 @@
 			"default": ""
 		},
 		"captionFontSize": {
-			"type": "number"
+			"type": "string",
+			"default": ""
 		},
 		"blockWidth": {
 			"type": "string",

@@ -126,7 +126,7 @@ async function connectThroughWizard( page, canvas ) {
 	await block.locator( 'input[type="password"]' ).fill( 'valid_client_secret' );
 
 	// After connect POST, return connected state.
-	await page.route( /\/wp-json\/jetpack\/v4\/paypal\/connection(\?|$)/, route => {
+	await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
 		route.fulfill( {
 			status: 200,
 			contentType: 'application/json',
@@ -410,7 +410,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await inputs.first().fill( 'AValidClientId123456789' );
 			await block.locator( 'input[type="password"]' ).fill( 'valid_client_secret' );
 
-			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/connection(\?|$)/, route => {
+			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
 				route.fulfill( {
 					status: 200,
 					contentType: 'application/json',
@@ -593,7 +593,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 		test( 'shows API error message in notice', async ( { page } ) => {
 			// Override create endpoint to return 400 error.
 			await setupPayPalMocks( page );
-			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/buttons(\?|$)/, route => {
+			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/buttons(\?|$)/, route => {
 				if ( route.request().method() === 'POST' ) {
 					return route.fulfill( {
 						status: 400,
@@ -754,7 +754,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await connectionPanel.click( { force: true } );
 
 			// After disconnect, mock returns disconnected state.
-			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/connection(\?|$)/, route => {
+			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
 				route.fulfill( {
 					status: 200,
 					contentType: 'application/json',
@@ -935,7 +935,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			// Intercept the connect POST to verify it hits the production domain.
 			let connectRequestBody = null;
-			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/connect(\?|$)/, route => {
+			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connect(\?|$)/, route => {
 				connectRequestBody = route.request().postDataJSON();
 				route.fulfill( {
 					status: 200,
@@ -957,7 +957,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await inputs.first().fill( 'AValidClientId123456789' );
 			await block.locator( 'input[type="password"]' ).fill( 'valid_client_secret' );
 
-			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/connection(\?|$)/, route => {
+			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
 				route.fulfill( {
 					status: 200,
 					contentType: 'application/json',
@@ -992,7 +992,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupDisconnectedMocks( page );
 
 			// Mock connect to return a 403 -- app lacks Payment Links scope.
-			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/connect(\?|$)/, route => {
+			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connect(\?|$)/, route => {
 				route.fulfill( {
 					status: 403,
 					contentType: 'application/json',
@@ -1029,7 +1029,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupDisconnectedMocks( page );
 
 			// First connect returns 403.
-			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/connect(\?|$)/, route => {
+			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connect(\?|$)/, route => {
 				route.fulfill( {
 					status: 403,
 					contentType: 'application/json',
@@ -1065,7 +1065,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupDisconnectedMocks( page );
 
 			// Connect returns success despite PayPal 5xx during validation.
-			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/connect(\?|$)/, route => {
+			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connect(\?|$)/, route => {
 				route.fulfill( {
 					status: 200,
 					contentType: 'application/json',
@@ -1087,7 +1087,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await block.locator( 'input[type="password"]' ).fill( 'valid_client_secret' );
 
 			// After connect POST succeeds, subsequent connection checks return connected.
-			await page.route( /\/wp-json\/jetpack\/v4\/paypal\/connection(\?|$)/, route => {
+			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
 				route.fulfill( {
 					status: 200,
 					contentType: 'application/json',

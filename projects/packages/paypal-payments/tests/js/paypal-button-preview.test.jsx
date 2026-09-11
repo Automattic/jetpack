@@ -420,7 +420,7 @@ describe( 'PayPalButtonPreview', () => {
 							border: { radius: '8px', width: '2px', color: '#ff0000' },
 						},
 						captionColor: '#0000ff',
-						captionFontSize: 20,
+						captionFontSize: '20px',
 					} }
 				/>
 			);
