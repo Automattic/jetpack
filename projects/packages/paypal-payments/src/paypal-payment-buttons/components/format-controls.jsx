@@ -7,7 +7,7 @@
  * cannot do: block.json declares them once and they cannot follow a checkbox.
  *
  * Modelled on projects/plugins/jetpack/extensions/blocks/donations/style-controls.jsx:
- * one `group="styles"` fill holding core's own controls. Color is core's colour
+ * one `group="styles"` fill holding core's own controls. Color is core's color
  * dropdown, which carries its reset menu; the rest are collapsible panels.
  *
  * @package
@@ -39,6 +39,25 @@ import QrCodePreview from './qr-code-preview';
 // ToolsPanel and the dropdown inside it have to agree on the panel they belong to.
 const PANEL_ID = 'paypal-caption-color';
 
+/**
+ * Drop empty branches so they are not persisted into the post content.
+ *
+ * @param {*} value - A style object, or a leaf.
+ * @return {*} The value, or undefined when nothing is left.
+ */
+function prune( value ) {
+	if ( ! value || typeof value !== 'object' ) {
+		return value === '' ? undefined : value;
+	}
+
+	const kept = Object.entries( value ).reduce( ( out, [ key, child ] ) => {
+		const pruned = prune( child );
+		return pruned === undefined ? out : { ...out, [ key ]: pruned };
+	}, {} );
+
+	return Object.keys( kept ).length ? kept : undefined;
+}
+
 const PRESET_WIDTHS = [ '25%', '50%', '75%', '100%' ];
 const WIDTH_UNITS = [
 	{ value: '%', label: '%', default: 100 },
@@ -59,8 +78,9 @@ const WIDTH_UNITS = [
  * @return {Element} The Width Settings panel.
  */
 function WidthPanel( { blockWidth, setAttributes } ) {
-	// Clicking the selected preset clears it, the way the plugin's control does.
-	const selectPreset = value => setAttributes( { blockWidth: blockWidth === value ? '' : value } );
+	// isDeselectable is what makes clicking the selected preset clear it; without
+	// it ToggleGroupControl is a radio group and never fires for the active option.
+	const selectPreset = value => setAttributes( { blockWidth: value ?? '' } );
 
 	return (
 		<PanelBody title={ __( 'Width Settings', 'jetpack-paypal-payments' ) }>
@@ -71,6 +91,7 @@ function WidthPanel( { blockWidth, setAttributes } ) {
 					value={ blockWidth }
 					onChange={ selectPreset }
 					isBlock
+					isDeselectable
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 				>
@@ -124,17 +145,7 @@ function BorderPanel( { attributes, setAttributes, showMargin } ) {
 			merged.border = { ...border, ...next.border };
 		}
 
-		Object.keys( merged ).forEach( key => {
-			const value = merged[ key ];
-			const isEmpty =
-				value === undefined ||
-				( value && typeof value === 'object' && ! Object.values( value ).some( Boolean ) );
-			if ( isEmpty ) {
-				delete merged[ key ];
-			}
-		} );
-
-		setAttributes( { style: Object.keys( merged ).length ? merged : undefined } );
+		setAttributes( { style: prune( merged ) } );
 	};
 
 	return (
