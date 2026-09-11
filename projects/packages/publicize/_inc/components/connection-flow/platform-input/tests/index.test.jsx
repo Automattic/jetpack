@@ -5,7 +5,7 @@ import { PlatformInput } from '..';
 import { store } from '../../../../social-store';
 import { setup } from '../../../../utils/test-factory';
 
-// Nothing else in this suite submits, so stubbing the connect call is contained.
+// Only the submit tests connect, so stubbing the connect call is contained.
 const mockRequestAccess = jest.fn();
 
 jest.mock( '../../../services/use-request-access', () => ( {
@@ -46,6 +46,7 @@ const getSubmitButton = () => screen.getByRole( 'button', { name: 'Submit' } );
 describe( 'PlatformInput', () => {
 	beforeEach( () => {
 		setup();
+		mockRequestAccess.mockResolvedValue( 'request-1' );
 		jest.spyOn( getStoreSelect(), 'getServicesList' ).mockReturnValue( SERVICES );
 		// Starting the flow also clears anything a previous test entered, but the
 		// reconnecting account lives outside the flow state, so reset it too.
@@ -182,6 +183,38 @@ describe( 'PlatformInput', () => {
 		expect( getSubmitButton() ).toHaveAttribute( 'aria-disabled', 'false' );
 	} );
 
+	test( 'submitting opens the popup with the entered values, then advances', async () => {
+		const user = userEvent.setup();
+		renderStep( 'mastodon' );
+
+		await user.type( getHandleField(), '@user@mastodon.social' );
+		await user.click( getSubmitButton() );
+
+		const [ service, formData ] = mockRequestAccess.mock.calls[ 0 ];
+		expect( service.id ).toBe( 'mastodon' );
+		expect( Object.fromEntries( formData ) ).toEqual( { instance: '@user@mastodon.social' } );
+		expect( getStoreSelect().getConnectionFlowStep() ).toBe( 'authorizing' );
+	} );
+
+	test( 'stays put and explains a blocked popup', async () => {
+		const user = userEvent.setup();
+		mockRequestAccess.mockImplementation( ( service, formData, options ) => {
+			options.onError( 'The connection window could not be opened.' );
+
+			return Promise.resolve( null );
+		} );
+		renderStep( 'mastodon' );
+
+		await user.type( getHandleField(), '@user@mastodon.social' );
+		await user.click( getSubmitButton() );
+
+		expect( getStoreSelect().getConnectionFlowStep() ).toBe( 'platform-input' );
+		// The Notice mirrors the message into a live region, so it appears twice.
+		expect(
+			screen.getAllByText( 'The connection window could not be opened.' ).length
+		).toBeGreaterThan( 0 );
+	} );
+
 	test( 'recovers when the connect request rejects', async () => {
 		const user = userEvent.setup();
 		mockRequestAccess.mockRejectedValueOnce( new Error( 'boom' ) );
@@ -194,5 +227,27 @@ describe( 'PlatformInput', () => {
 		await waitFor( () => expect( getSubmitButton() ).toHaveAttribute( 'aria-disabled', 'false' ) );
 		expect( getStoreSelect().getConnectionFlowStep() ).toBe( 'platform-input' );
 		expect( screen.getAllByText( /Could not start the connection/ ).length ).toBeGreaterThan( 0 );
+	} );
+
+	test( 'sends the reconnect handle even when the field is untouched', async () => {
+		const user = userEvent.setup();
+		const account = {
+			connection_id: '1',
+			service_name: 'mastodon',
+			external_handle: '@user@mastodon.social',
+		};
+
+		dispatchToStore( ( { setConnections, setReconnectingAccount } ) => {
+			setConnections( [ account ] );
+			setReconnectingAccount( account );
+		} );
+
+		render( <PlatformInput /> );
+		await user.click( getSubmitButton() );
+
+		const [ , formData, options ] = mockRequestAccess.mock.calls[ 0 ];
+		expect( Object.fromEntries( formData ) ).toEqual( { instance: '@user@mastodon.social' } );
+		// Keyring re-auths the existing account in place rather than duplicating it.
+		expect( options.refresh ).toBe( true );
 	} );
 } );
