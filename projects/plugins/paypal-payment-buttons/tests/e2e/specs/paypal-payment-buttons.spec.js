@@ -467,18 +467,18 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( block.locator( 'text=Currency' ) ).toBeVisible();
 		} );
 
-		test( 'Create button is disabled when form is empty', async ( { page } ) => {
+		test( 'holds the payment back while the form is empty', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
-			const canvas = await insertPayPalBlock( page );
+			await insertPayPalBlock( page );
 
-			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			const createBtn = block.locator( 'button:text-is("Create New")' );
-
-			await expect( createBtn ).toBeDisabled();
+			// The payment is written with the post, so the sidebar says what the save will do.
+			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toContainText(
+				'Complete the highlighted fields'
+			);
 		} );
 
-		test( 'creates button and shows preview after successful API call', async ( { page } ) => {
+		test( 'creates the button on save and shows the preview', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
@@ -486,10 +486,12 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await fillButtonForm( canvas, { name: 'Test Product', price: '29.99' } );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			const createBtn = block.locator( 'button:text-is("Create New")' );
+			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toContainText(
+				'created on PayPal when you save'
+			);
 
-			await expect( createBtn ).toBeEnabled();
-			await createBtn.click();
+			// Saving the post creates the payment.
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
@@ -499,14 +501,14 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			);
 		} );
 
-		test( 'shows edit/preview toggle toolbar after creation', async ( { page } ) => {
+		test( 'shows edit/preview toggle toolbar after the first save', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
 			await fillButtonForm( canvas );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
@@ -527,7 +529,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await fillButtonForm( canvas, { name: 'My Widget', price: '49.99' } );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
@@ -555,7 +557,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await fillButtonForm( canvas, { name: 'Frontend Widget', price: '19.99' } );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
@@ -583,7 +585,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await fillButtonForm( canvas );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
 			} );
@@ -612,7 +614,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			// Fill only price, leave name empty.
 			await block.locator( 'input[placeholder="29.99"]' ).fill( '10.00' );
 
-			await expect( block.locator( 'button:text-is("Create New")' ) ).toBeDisabled();
+			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toContainText(
+				'Complete the highlighted fields'
+			);
 		} );
 
 		test( 'Create button disabled when price is zero', async ( { page } ) => {
@@ -628,7 +632,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			// Blur the price field to trigger validation.
 			await block.locator( 'input[placeholder="e.g., Premium Widget"]' ).click();
 
-			await expect( block.locator( 'button:text-is("Create New")' ) ).toBeDisabled();
+			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toContainText(
+				'Complete the highlighted fields'
+			);
 		} );
 
 		test( 'shows field validation error after blurring empty product name', async ( { page } ) => {
@@ -668,7 +674,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await fillButtonForm( canvas );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.components-notice.is-error' ) ).toBeVisible( {
 				timeout: 5000,
@@ -843,7 +849,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await fillButtonForm( canvas );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
@@ -912,7 +918,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await fillButtonForm( canvas );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
@@ -1243,7 +1249,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await expect( buttonOption ).toHaveAttribute( 'aria-pressed', 'true' );
 
 			// The CTA is the commit action and does not name the format.
-			await expect( block.locator( 'button:text-is("Create New")' ) ).toBeVisible();
+			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toBeVisible();
 		} );
 
 		test( 'selecting Link format presses the Link option', async ( { page } ) => {
@@ -1298,7 +1304,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
 				.click();
 			await fillButtonForm( canvas, { name: 'Link Product', price: '9.99' } );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			// Preview should show format badge.
 			await expect(
@@ -1313,7 +1319,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await fillButtonForm( canvas );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
@@ -1342,7 +1348,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
 				.click();
 			await fillButtonForm( canvas, { name: 'Link Widget', price: '5.00' } );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
@@ -1373,7 +1379,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")' )
 				.click();
 			await fillButtonForm( canvas, { name: 'QR Widget', price: '15.00' } );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
@@ -1397,7 +1403,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await fillButtonForm( canvas, { name: 'Format Switch Test', price: '25.00' } );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await block.locator( 'button:text-is("Create New")' ).click();
+			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
 			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
 				timeout: 5000,
