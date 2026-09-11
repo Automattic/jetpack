@@ -100,7 +100,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 			<button
 				type="button"
 				data-testid="color-clear"
-				onClick={ () => ( settings || [] ).forEach( s2 => s2.onColorChange() ) }
+				onClick={ () => ( settings || [] ).forEach( setting => setting.onColorChange() ) }
 			>
 				clear
 			</button>
@@ -3193,7 +3193,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await expect( screen.findByText( 'Download' ) ).resolves.toBeInTheDocument();
 			} );
 
-			// Button Text sits under Embed as so it follows the format, rather than
+			// Button text goes under Embed as so it follows the format, rather than
 			// in the Settings tab where QR and Link merchants saw a field that did
 			// nothing. Scoped to the styles fill: both fills render into one body,
 			// so an unscoped query passes wherever the control actually lives.
@@ -3212,7 +3212,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( setAttributes ).toHaveBeenCalledWith( { buttonText: 'B' } );
 			} );
 
-			// A block with no payment yet reaches the styles tab through a different
+			// A block with no payment yet draws the styles tab down a different
 			// render path, so it gets its own case.
 			it( 'offers the button text field before a button exists', async () => {
 				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
@@ -3276,7 +3276,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByLabelText( 'Show QR code' ) ).not.toBeInTheDocument();
 			} );
 
-			// The inspector's copy carries the caption, so the merchant reads what
+			// The inspector's copy shows the caption too, so the merchant sees what
 			// they typed without going back to the canvas.
 			it( 'captions the inspector QR code, and drops it with the toggle', async () => {
 				const { rerender } = render(
@@ -3433,7 +3433,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// the format and its label together.
 			it( 'locks embed as and button text while a request is in flight', async () => {
 				const user = userEvent.setup();
-				// Hang the delete so the busy state is still on when we look at it.
+				// Hang the delete so the busy state is still on when it is checked.
 				apiFetch.mockImplementation( ( { method } ) =>
 					'DELETE' === method
 						? new Promise( () => {} )
