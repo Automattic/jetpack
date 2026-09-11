@@ -516,3 +516,45 @@ describe( 'evaluateLogic — multiple groups', () => {
 		expect( visible ).toBe( true );
 	} );
 } );
+
+/**
+ * Containment parity with PHP.
+ *
+ * Reads the same table Conditional_Logic_Containment_Test.php does. Containment is written
+ * twice -- applyContainment here, Conditional_Logic_Container::apply_containment there -- and
+ * both feed the same fixed point, so a divergence means the browser and the server enforce
+ * different fields.
+ */
+describe( 'containment parity with PHP', () => {
+	const fixture = JSON.parse(
+		readFileSync(
+			path.join( process.cwd(), 'tests/fixtures/conditional-logic-containment.json' ),
+			'utf8'
+		)
+	);
+
+	it.each( fixture.cases.map( testCase => [ testCase.name, testCase ] ) )(
+		'%s',
+		( name, testCase ) => {
+			const descriptors = {};
+			for ( const id in testCase.fields ) {
+				const field = testCase.fields[ id ];
+				descriptors[ id ] = {
+					type: 'text',
+					logic: field.rule
+						? {
+								enabled: true,
+								action: field.action || 'show',
+								logicalOperator: 'all',
+								groups: [ { logicalOperator: 'all', rules: [ field.rule ] } ],
+						  }
+						: null,
+				};
+			}
+
+			const resolved = resolveVisibility( descriptors, testCase.values, testCase.contains );
+
+			expect( resolved ).toEqual( testCase.expect );
+		}
+	);
+} );

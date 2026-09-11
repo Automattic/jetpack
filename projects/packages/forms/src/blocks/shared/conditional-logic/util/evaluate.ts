@@ -445,6 +445,44 @@ export const evaluateLogic = (
 };
 
 /**
+ * Hide every field enclosed by a hidden container.
+ *
+ * Mirrors Conditional_Logic_Container::apply_containment in PHP and MUST stay in sync: the
+ * browser decides what the visitor sees and the server decides what is validated and stored,
+ * so a disagreement either blocks the form on a field nobody was shown or accepts an answer
+ * for one that was hidden.
+ *
+ * Returns a new map rather than mutating, because resolveVisibility calls this once per pass
+ * against a verdict it has to keep.
+ *
+ * @param visibility - Map of id to bool.
+ * @param contains   - Map of container id to the field ids it encloses.
+ * @return A new map, with enclosed fields hidden.
+ */
+export const applyContainment = (
+	visibility: Record< string, boolean >,
+	contains?: Record< string, string[] >
+): Record< string, boolean > => {
+	if ( ! contains ) {
+		return visibility;
+	}
+
+	const shown = { ...visibility };
+
+	for ( const containerId in contains ) {
+		if ( false !== shown[ containerId ] ) {
+			continue;
+		}
+
+		for ( const fieldId of contains[ containerId ] ) {
+			shown[ fieldId ] = false;
+		}
+	}
+
+	return shown;
+};
+
+/**
  * Resolve visibility for every field in a form at once.
  *
  * Runs to a fixed point so a hidden field's value reads as empty for everyone else: if the
@@ -452,13 +490,24 @@ export const evaluateLogic = (
  * ambiguity — circular rules, or passes exhausted — the field is left visible, because a
  * stray value in a response is recoverable and a silently discarded answer is not.
  *
- * @param fields - Map of field id to its logic and comparison behavior.
- * @param values - Map of field id to submitted value.
+ * Containment participates in the fixed point rather than being applied to its result. A field
+ * inside a hidden container is hidden for the same reason a field with an unmet rule is, so it
+ * has to read as empty for everyone else too — otherwise the form keeps a conclusion while
+ * discarding its premise, validating a field that was unlocked by an answer it drops.
+ *
+ * Containment is kept apart from `visible`, which stays a field's own verdict. Folding it in
+ * would put the two in a loop: containment forces false, the field's own rules say true, and
+ * the pass counter reads that as a cycle and fails open.
+ *
+ * @param fields   - Map of field id to its logic and comparison behavior.
+ * @param values   - Map of field id to submitted value.
+ * @param contains - Map of container id to the field ids it encloses.
  * @return Map of field id to visibility.
  */
 export const resolveVisibility = (
 	fields: Record< string, FieldDescriptor >,
-	values: FormValues
+	values: FormValues,
+	contains?: Record< string, string[] >
 ): Record< string, boolean > => {
 	const ids = Object.keys( fields );
 	const visible: Record< string, boolean > = {};
@@ -468,7 +517,7 @@ export const resolveVisibility = (
 
 	const withLogic = ids.filter( id => fields[ id ]?.logic?.enabled );
 	if ( 0 === withLogic.length ) {
-		return visible;
+		return applyContainment( visible, contains );
 	}
 
 	const fieldTypes: Record< string, string > = {};
@@ -491,9 +540,10 @@ export const resolveVisibility = (
 	const unstable = new Set< string >();
 
 	for ( let pass = 0; pass < maxPasses; pass++ ) {
+		const shown = applyContainment( visible, contains );
 		const effective: FormValues = {};
 		ids.forEach( id => {
-			effective[ id ] = visible[ id ] ? values[ id ] : '';
+			effective[ id ] = shown[ id ] ? values[ id ] : '';
 		} );
 
 		let changedCount = 0;
@@ -509,7 +559,7 @@ export const resolveVisibility = (
 		} );
 
 		if ( 0 === changedCount ) {
-			return visible; // Fixed point.
+			return applyContainment( visible, contains ); // Fixed point.
 		}
 	}
 
@@ -518,5 +568,8 @@ export const resolveVisibility = (
 		visible[ id ] = true;
 	} );
 
-	return visible;
+	// Containment still applies. A container's own rules failing open leaves it visible, and
+	// applyContainment then hides nothing — but a container that settled hidden must keep its
+	// fields hidden even when some unrelated chain was circular.
+	return applyContainment( visible, contains );
 };

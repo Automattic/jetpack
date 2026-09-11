@@ -17,6 +17,46 @@ const MATCH_OPTIONS = [
 ];
 
 /**
+ * The line stating what happens before any condition is met.
+ *
+ * Four literals rather than a sentence assembled from parts, and the two branches of each
+ * ternary MUST differ in arity. Identically shaped __() calls get folded by the production
+ * minifier into __( cond ? 'a' : 'b', domain ), whose msgid is no longer a literal and so
+ * cannot be extracted -- which fails the production build, not just the translation pass. The
+ * trailing 0 is the difference; it is ignored at runtime. Putting it on both branches makes
+ * them identical again and reintroduces the fold, so add it to exactly one.
+ *
+ * @param {string}  action      - `show` or `hide`.
+ * @param {boolean} isContainer - Whether the subject is a container block rather than a field.
+ * @return {string} A sentence ending in a colon.
+ */
+const getDefaultStateHint = ( action, isContainer ) => {
+	if ( isContainer ) {
+		return 'hide' === action
+			? __(
+					'This group is visible by default, until the following conditions are met:',
+					'jetpack-forms'
+			  )
+			: __(
+					'This group is hidden by default, until the following conditions are met:',
+					'jetpack-forms',
+					0
+			  );
+	}
+
+	return 'hide' === action
+		? __(
+				'This field is visible by default, until the following conditions are met:',
+				'jetpack-forms'
+		  )
+		: __(
+				'This field is hidden by default, until the following conditions are met:',
+				'jetpack-forms',
+				0
+		  );
+};
+
+/**
  * The rule builder, in a dialog rather than the inspector.
  *
  * The inspector column is about 280px wide, and a condition needs three controls. Stacked in
@@ -35,6 +75,7 @@ const MATCH_OPTIONS = [
  * @param {Array}    props.fields            - Fields available as rule subjects.
  * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
  * @param {Function} props.onFixDuplicateIds - Called with ids to make unique.
+ * @param {boolean}  props.isContainer       - Whether the panel belongs to a container block.
  * @param {Function} props.onActionChange    - Called with the next show/hide action.
  * @param {Function} props.onMatchChange     - Called with the next any/all operator.
  * @param {Function} props.onRulesChange     - Called with the group's next rules.
@@ -48,6 +89,7 @@ const ConditionalLogicModal = ( {
 	fields,
 	duplicateFieldIds = NO_DUPLICATE_IDS,
 	onFixDuplicateIds,
+	isContainer = false,
 	onActionChange,
 	onMatchChange,
 	onRulesChange,
@@ -98,16 +140,7 @@ const ConditionalLogicModal = ( {
 				     visible until something hides it. Without this an author has to infer
 				     what happens before any condition is met. */ }
 				<Text variant="body-sm" className="jetpack-contact-form__conditional-logic-hint">
-					{ 'hide' === logic.action
-						? __(
-								'This field is visible by default, until the following conditions are met:',
-								'jetpack-forms'
-						  )
-						: __(
-								'This field is hidden by default, until the following conditions are met:',
-								'jetpack-forms',
-								0
-						  ) }
+					{ getDefaultStateHint( logic.action, isContainer ) }
 				</Text>
 
 				{ /* Named rather than merely counted, because fixing this means finding the
