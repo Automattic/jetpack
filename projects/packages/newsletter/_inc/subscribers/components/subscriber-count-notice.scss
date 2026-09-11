@@ -1,0 +1,5 @@
+// Sits above the data view, which has no outer padding of its own.
+.jetpack-newsletter-subscriber-count-notice {
+	margin-block: var(--wpds-dimension-padding-lg) 0;
+	margin-inline: var(--wpds-dimension-padding-lg);
+}
