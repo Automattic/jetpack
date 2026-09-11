@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Align bar chart grid lines with explicit axis ticks and grid options.
