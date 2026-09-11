@@ -87,7 +87,7 @@ export function parseModulesState( value: unknown ): ModulesState {
 	return modulesStateSchema.parse( value );
 }
 
-export const modulesStateQueryKey = [ 'modules_state' ] as const;
+const modulesStateQueryKey = [ 'modules_state' ] as const;
 
 export function useModulesState() {
 	const initial = modulesStateSchema.safeParse( window.jetpack_boost_ds?.modules_state?.value );
