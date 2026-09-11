@@ -3,11 +3,11 @@ import { check, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Button, Dialog, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
 import { getArrowStep } from './arrow-navigation';
+import { FeatureBand } from './feature-band';
 import { FeatureDelivery } from './feature-delivery';
 import { FeatureIcon } from './feature-icon';
 import { FeatureLinks } from './feature-links';
 import { FeaturePaid } from './feature-paid';
-import { FeatureScreenshot } from './feature-screenshot';
 import { FeatureSwitch } from './feature-switch';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
@@ -133,55 +133,61 @@ export function FeatureModal( {
 				className={ styles[ 'modal-popup' ] }
 				initialFocus={ initialFocus }
 			>
-				<Dialog.Header>
-					<Stack direction="row" align="center" gap="md">
+				{ /* Full-bleed, so it sits outside Dialog.Content's padding. Close renders
+				     before the artwork so a keyboard user reaches it in one Tab. */ }
+				<div className={ styles[ 'modal-band' ] }>
+					<Dialog.CloseIcon className={ styles[ 'modal-band__close' ] } />
+					<FeatureBand feature={ feature } />
+				</div>
+
+				<Dialog.Content className={ styles[ 'modal-body' ] }>
+					<Stack direction="row" align="center" gap="md" className={ styles[ 'modal-identity' ] }>
 						<FeatureIcon feature={ feature } />
-						<Stack direction="row" align="center" gap="sm" wrap="wrap">
+						<Stack direction="column" gap="xs">
 							<Dialog.Title>{ feature.name }</Dialog.Title>
-							<Badge intent={ isActive ? 'stable' : 'none' }>
-								{ isActive
-									? __( 'Active', 'jetpack-my-jetpack' )
-									: __( 'Inactive', 'jetpack-my-jetpack' ) }
-							</Badge>
-							{ feature.essential ? (
-								<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
-							) : null }
+							<Stack direction="row" align="center" gap="sm" wrap="wrap">
+								<Badge intent={ isActive ? 'stable' : 'none' }>
+									{ isActive
+										? __( 'Active', 'jetpack-my-jetpack' )
+										: __( 'Inactive', 'jetpack-my-jetpack' ) }
+								</Badge>
+								{ feature.essential ? (
+									<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
+								) : null }
+							</Stack>
 						</Stack>
 					</Stack>
-					<Dialog.CloseIcon />
-				</Dialog.Header>
 
-				<Dialog.Content>
-					<div className={ styles[ 'modal-body' ] }>
+					<Dialog.Description>
+						{ feature.long_description || product?.longDescription || feature.description }
+					</Dialog.Description>
+
+					{ /* auto-fit rather than two fixed tracks: Activity Log, Blaze, Newsletter
+					     and Podcast have no highlights, and an empty track leaves a gutter. */ }
+					<div className={ styles[ 'modal-panels' ] }>
+						{ highlights.length > 0 && (
+							<section className={ styles[ 'detail-section' ] }>
+								<Text variant="heading-sm" render={ <h3 /> }>
+									{ __( 'What you get', 'jetpack-my-jetpack' ) }
+								</Text>
+								<Stack direction="column" gap="sm">
+									{ highlights.map( highlight => (
+										<Stack key={ highlight } direction="row" align="start" gap="sm">
+											<Icon icon={ check } size={ 20 } />
+											<Text variant="body-md">{ highlight }</Text>
+										</Stack>
+									) ) }
+								</Stack>
+							</section>
+						) }
+
 						<Stack direction="column" gap="lg">
-							<Dialog.Description>
-								{ feature.long_description || product?.longDescription || feature.description }
-							</Dialog.Description>
-
 							<FeatureDelivery state={ state } />
-
-							{ highlights.length > 0 && (
-								<div className={ styles[ 'detail-highlights' ] }>
-									<Text variant="heading-md">{ __( 'What you get', 'jetpack-my-jetpack' ) }</Text>
-									<Stack direction="column" gap="sm">
-										{ highlights.map( highlight => (
-											<Stack key={ highlight } direction="row" align="start" gap="sm">
-												<Icon icon={ check } size={ 20 } />
-												<Text variant="body-md">{ highlight }</Text>
-											</Stack>
-										) ) }
-									</Stack>
-								</div>
-							) }
-
-							<FeatureLinks feature={ feature } isActive={ isActive } />
-						</Stack>
-
-						<Stack direction="column" gap="lg">
-							<FeatureScreenshot feature={ feature } />
 							<FeaturePaid state={ state } onFilterByPlan={ onFilterByPlan } />
 						</Stack>
 					</div>
+
+					<FeatureLinks feature={ feature } isActive={ isActive } />
 				</Dialog.Content>
 
 				<Dialog.Footer>
