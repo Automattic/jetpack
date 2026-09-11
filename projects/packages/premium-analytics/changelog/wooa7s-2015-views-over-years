@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Insights: Replace the daily Traffic views activity heatmap with a Views over years table of monthly views, with a Totals column and a Total views / Daily average switch; picking a month opens the Traffic tab over it.
