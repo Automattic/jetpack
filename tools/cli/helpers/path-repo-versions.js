@@ -9,6 +9,8 @@
 import fsSync from 'fs';
 import fs from 'fs/promises';
 import npath from 'path';
+import { fileURLToPath } from 'url';
+import { execa } from 'execa';
 
 /**
  * Build the composer-name → version map to pin path repo packages to.
@@ -59,6 +61,42 @@ export function pinPathRepoVersions( composerJson, versions ) {
  */
 export function shouldPinProject( project, lockedProjects, argv ) {
 	return ! argv.forMirrors && ! lockedProjects.has( project );
+}
+
+const HASH_SCRIPT = fileURLToPath( new URL( 'composer-content-hash.php', import.meta.url ) );
+
+/**
+ * Composer's content-hash for a composer.json, as `composer validate --check-lock` computes it.
+ *
+ * @param {string} composerJsonPath - Path to a composer.json.
+ * @return {Promise<string>} Hex md5.
+ */
+export async function composerContentHash( composerJsonPath ) {
+	const { stdout } = await execa( 'php', [ HASH_SCRIPT, composerJsonPath ] );
+	return stdout.trim();
+}
+
+/**
+ * Point a lock written from the pinned manifest back at the restored one.
+ *
+ * Composer's lock content-hash covers `repositories`, so a lock written while pinned fails
+ * `validate --check-lock` once the pin is removed — which silently demotes every later install,
+ * in this and other commands, from `composer install` to a full `composer update`.
+ *
+ * @param {string} cwd - Project directory.
+ */
+async function restampLock( cwd ) {
+	const lockPath = npath.join( cwd, 'composer.lock' );
+	const lock = await fs.readFile( lockPath, 'utf8' ).catch( () => null );
+	if ( lock === null ) {
+		return;
+	}
+	const hash = await composerContentHash( npath.join( cwd, 'composer.json' ) );
+	// Patch the one field rather than re-encoding, so the lock's formatting is untouched.
+	const updated = lock.replace( /("content-hash":\s*")[0-9a-f]{32}(")/, `$1${ hash }$2` );
+	if ( updated !== lock ) {
+		await fs.writeFile( lockPath, updated );
+	}
 }
 
 // Paths pinned right now, mapped to their original contents, so an interrupted build can put them
@@ -142,6 +180,7 @@ export async function withPinnedComposerJson( cwd, versions, fn ) {
 			// rewritten file behind with nothing left to put it back. Re-restoring is idempotent.
 			await fs.writeFile( file, original );
 			pinned.delete( file );
+			await restampLock( cwd );
 		}
 	}
 }

@@ -4,6 +4,7 @@ import npath from 'path';
 import {
 	buildPackageVersionMap,
 	withPinnedComposerJson,
+	composerContentHash,
 	restorePinnedComposerJsonSync,
 	pinPathRepoVersions,
 	shouldPinProject,
@@ -162,5 +163,53 @@ describe( 'withPinnedComposerJson', () => {
 		} );
 		expect( pinnedDuring ).not.toBe( before );
 		await expect( read() ).resolves.toBe( before );
+	} );
+} );
+
+describe( 'lock re-stamping', () => {
+	const versions = { 'automattic/jetpack-connection': '9.1.x-dev' };
+	const monorepoJson = {
+		name: 'automattic/jetpack-test',
+		require: { 'automattic/jetpack-connection': '^9.1' },
+		repositories: [ { type: 'path', url: '../../packages/*', options: { monorepo: true } } ],
+	};
+	let dir;
+
+	const lockText = hash =>
+		`{\n    "_readme": [],\n    "content-hash": "${ hash }",\n    "packages": []\n}\n`;
+	const lockPath = () => npath.join( dir, 'composer.lock' );
+
+	beforeEach( async () => {
+		dir = await fs.mkdtemp( npath.join( os.tmpdir(), 'jp-lock-' ) );
+		await fs.writeFile(
+			npath.join( dir, 'composer.json' ),
+			JSON.stringify( monorepoJson, null, '\t' )
+		);
+	} );
+	afterEach( async () => await fs.rm( dir, { recursive: true, force: true } ) );
+
+	test( 'leaves the lock validating against the restored composer.json', async () => {
+		await fs.writeFile( lockPath(), lockText( '0'.repeat( 32 ) ) );
+		await withPinnedComposerJson( dir, versions, async () => {
+			// Stand in for composer: rewrite the lock from the pinned manifest.
+			await fs.writeFile( lockPath(), lockText( 'f'.repeat( 32 ) ) );
+		} );
+		const expected = await composerContentHash( npath.join( dir, 'composer.json' ) );
+		expect( JSON.parse( await fs.readFile( lockPath(), 'utf8' ) )[ 'content-hash' ] ).toBe(
+			expected
+		);
+	} );
+
+	test( 'preserves the rest of the lock file byte-for-byte', async () => {
+		await fs.writeFile( lockPath(), lockText( '0'.repeat( 32 ) ) );
+		await withPinnedComposerJson( dir, versions, async () => {} );
+		const after = await fs.readFile( lockPath(), 'utf8' );
+		const hash = await composerContentHash( npath.join( dir, 'composer.json' ) );
+		expect( after ).toBe( lockText( hash ) );
+	} );
+
+	test( 'does nothing when the project has no lock file', async () => {
+		await withPinnedComposerJson( dir, versions, async () => {} );
+		await expect( fs.access( lockPath() ) ).rejects.toThrow();
 	} );
 } );
