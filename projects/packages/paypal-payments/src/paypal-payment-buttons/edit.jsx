@@ -47,6 +47,7 @@ function ApiManagedReadOnly( { attributes } ) {
 		variants,
 		imageUrl,
 		buttonText,
+		linkText,
 		qrShowCaption,
 		qrCaption,
 	} = attributes;
@@ -71,6 +72,7 @@ function ApiManagedReadOnly( { attributes } ) {
 					variants={ variants }
 					imageUrl={ imageUrl }
 					buttonText={ buttonText }
+					linkText={ linkText }
 					qrShowCaption={ qrShowCaption }
 					qrCaption={ qrCaption }
 					attributes={ attributes }

@@ -297,22 +297,23 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * QR caption styles — Color and Typography.
+	 * Color and Typography, for the QR caption and the payment link.
 	 *
-	 * Mirrors getCaptionStyle() in utils/block-styles.js.
+	 * Mirrors getTextStyle() in utils/block-styles.js.
 	 *
-	 * @param array $attributes The block attributes.
+	 * @param string $text_color The chosen color.
+	 * @param string $text_size  The chosen font size.
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
 	 */
-	private static function get_caption_style( $attributes ) {
+	private static function get_text_style( $text_color, $text_size ) {
 		$rules = array();
 
-		$color = self::sanitize_css_color( $attributes['captionColor'] ?? '' );
+		$color = self::sanitize_css_color( $text_color );
 		if ( '' !== $color ) {
 			$rules[] = sprintf( 'color:%s', $color );
 		}
 
-		$size = self::sanitize_css_font_size( $attributes['captionFontSize'] ?? '' );
+		$size = self::sanitize_css_font_size( $text_size );
 		if ( '' !== $size ) {
 			$rules[] = sprintf( 'font-size:%s', $size );
 		}
@@ -321,14 +322,24 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * The block element's style attribute, or nothing when it is unstyled.
+	 * The default label for a format's output.
 	 *
-	 * @param array $attributes The block attributes.
-	 * @return string ` style="…"`, or '' when no setting is configured.
+	 * The button face, the QR caption and the payment link share it. Mirrors
+	 * DEFAULT_LABEL in utils/defaults.js.
+	 *
+	 * @return string The label.
 	 */
-	private static function block_style_attr( $attributes ) {
-		$style = self::get_wrapper_style( $attributes );
+	private static function default_label() {
+		return __( 'Buy now', 'jetpack-paypal-payments' );
+	}
 
+	/**
+	 * A style attribute built from a declaration list, or nothing when it is empty.
+	 *
+	 * @param string $style An inline CSS declaration list.
+	 * @return string ` style="…"`, or '' when there is nothing to set.
+	 */
+	private static function style_attr( $style ) {
 		return '' !== $style ? ' style="' . esc_attr( $style ) . '"' : '';
 	}
 
@@ -445,7 +456,7 @@ class PayPal_Payment_Buttons {
 
 		// `var:preset|color|primary` is what the editor stores for a palette entry.
 		// The style engine emits preset border colors as a class rather than inline
-		// CSS, so expand it here — getCaptionStyle() does the same for the canvas.
+		// CSS, so expand it here — getTextStyle() does the same for the canvas.
 		// Only color presets expand: a spacing or font preset is not a color, so it
 		// falls through and is refused, the way the canvas refuses it.
 		if ( preg_match( '/^var:preset\|color\|([a-z0-9-]+)$/i', $color, $preset ) ) {
@@ -623,8 +634,9 @@ class PayPal_Payment_Buttons {
 		$variants            = $attributes['variants'] ?? null;
 		$format              = $attributes['format'] ?? 'BUTTON';
 		$button_text         = trim( (string) ( $attributes['buttonText'] ?? '' ) );
-		$qr_show_caption     = ! empty( $attributes['qrShowCaption'] ?? true );
+		$qr_show_caption     = ! empty( $attributes['qrShowCaption'] );
 		$qr_caption          = trim( (string) ( $attributes['qrCaption'] ?? '' ) );
+		$link_text           = trim( (string) ( $attributes['linkText'] ?? '' ) );
 
 		// Validate — only known format values are accepted.
 		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR' ), true ) ) {
@@ -654,16 +666,21 @@ class PayPal_Payment_Buttons {
 		// ─── LINK format: plain anchor ───────────────────────────────────
 		if ( 'LINK' === $format ) {
 			$wrapper_attributes = get_block_wrapper_attributes();
-			$link_label         = ! empty( $product_name )
-				? $product_name
-				: __( 'Pay with PayPal', 'jetpack-paypal-payments' );
+			// An empty label falls back to the default, the same way the button
+			// face and the QR caption do.
+			$link_label = '' !== $link_text ? $link_text : self::default_label();
+			$link_style = self::get_text_style(
+				$attributes['linkColor'] ?? '',
+				$attributes['linkFontSize'] ?? ''
+			);
 
 			return sprintf(
-				'<div %1$s><a href="%2$s" class="jetpack-paypal-button__paypal-link" target="_blank" rel="noopener noreferrer">%3$s<span class="screen-reader-text">%4$s</span></a></div>',
+				'<div %1$s><a href="%2$s" class="jetpack-paypal-button__paypal-link"%5$s target="_blank" rel="noopener noreferrer">%3$s<span class="screen-reader-text">%4$s</span></a></div>',
 				$wrapper_attributes,
 				$action_url,
 				esc_html( $link_label ),
-				esc_html__( '(opens in a new tab)', 'jetpack-paypal-payments' )
+				esc_html__( '(opens in a new tab)', 'jetpack-paypal-payments' ),
+				self::style_attr( $link_style )
 			);
 		}
 
@@ -672,19 +689,22 @@ class PayPal_Payment_Buttons {
 			$wrapper_attributes = get_block_wrapper_attributes();
 			// Goes on .jetpack-paypal-button, not the block wrapper: style.scss caps
 			// that element at 400px, and the editor preview styles the same one.
-			$block_style    = self::block_style_attr( $attributes );
+			$block_style    = self::style_attr( self::get_wrapper_style( $attributes ) );
 			$download_label = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
 			$copy_label     = esc_html__( 'Copy Link', 'jetpack-paypal-payments' );
 			$copied_label   = esc_attr__( 'Copied!', 'jetpack-paypal-payments' );
 
 			// An empty caption falls back to the default rather than drawing a
 			// blank line, the same way the button label does.
-			$caption_text  = '' !== $qr_caption ? $qr_caption : __( 'Buy Now', 'jetpack-paypal-payments' );
-			$caption_style = self::get_caption_style( $attributes );
+			$caption_text  = '' !== $qr_caption ? $qr_caption : self::default_label();
+			$caption_style = self::get_text_style(
+				$attributes['captionColor'] ?? '',
+				$attributes['captionFontSize'] ?? ''
+			);
 			$caption_html  = $qr_show_caption
 				? sprintf(
 					'<p class="jetpack-paypal-button__qr-caption"%s>%s</p>',
-					'' !== $caption_style ? ' style="' . esc_attr( $caption_style ) . '"' : '',
+					self::style_attr( $caption_style ),
 					esc_html( $caption_text )
 				)
 				: '';
@@ -816,12 +836,12 @@ class PayPal_Payment_Buttons {
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes();
-		$block_style        = self::block_style_attr( $attributes );
+		$block_style        = self::style_attr( self::get_wrapper_style( $attributes ) );
 
 		// No wordmark on the button face — the "Powered by PayPal" line below it
 		// is the branding. A blank label would draw an unreadable button, so
 		// fall back to the same default the editor preview uses.
-		$label = '' !== $button_text ? $button_text : __( 'Buy Now', 'jetpack-paypal-payments' );
+		$label = '' !== $button_text ? $button_text : self::default_label();
 
 		return sprintf(
 			'<div %8$s>

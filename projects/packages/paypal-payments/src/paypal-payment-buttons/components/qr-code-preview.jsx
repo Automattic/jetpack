@@ -25,7 +25,7 @@ import { QR_OPTIONS } from '../utils/qr-options';
  * @param {string}  props.url          - The URL to encode, with the attribution code already appended.
  * @param {string}  props.className    - Class names for the canvas element.
  * @param {boolean} props.showDownload - Whether to draw the Download button under the code.
- * @param {boolean} props.showCaption  - Whether to caption the code. Defaults on, as render_api_managed_button() does.
+ * @param {boolean} props.showCaption  - Whether to caption the code. Off by default, matching render_api_managed_button().
  * @param {string}  props.caption      - The caption. Falls back to the shared default when blank.
  * @param {object}  props.captionStyle - Inline style for the caption.
  * @return {?Element} The QR canvas, or nothing until there is a link to encode.
@@ -34,7 +34,7 @@ export default function QrCodePreview( {
 	url,
 	className,
 	showDownload,
-	showCaption = true,
+	showCaption = false,
 	caption,
 	captionStyle,
 } ) {

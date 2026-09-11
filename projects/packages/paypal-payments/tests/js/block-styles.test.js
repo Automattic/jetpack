@@ -6,10 +6,7 @@
  * these assert the shape both sides produce rather than a hand-built one.
  */
 
-import {
-	getCaptionStyle,
-	getWrapperStyle,
-} from '../../src/paypal-payment-buttons/utils/block-styles';
+import { getTextStyle, getWrapperStyle } from '../../src/paypal-payment-buttons/utils/block-styles';
 import parity from '../fixtures/style-parity.json';
 
 /**
@@ -36,8 +33,11 @@ describe( 'style parity with the published page', () => {
 		);
 	} );
 
-	it.each( parity.captionCases.map( c => [ c.name, c ] ) )( 'caption: %s', ( _name, testCase ) => {
-		expect( asDeclarations( getCaptionStyle( testCase.attributes ) ) ).toEqual(
+	// One helper serves the QR caption and the payment link. The PHP half runs
+	// each of these twice, once per format, to catch a branch that forgets to
+	// call it.
+	it.each( parity.textCases.map( c => [ c.name, c ] ) )( 'text: %s', ( _name, testCase ) => {
+		expect( asDeclarations( getTextStyle( testCase.color, testCase.fontSize ) ) ).toEqual(
 			testCase.declarations
 		);
 	} );
@@ -46,8 +46,14 @@ describe( 'style parity with the published page', () => {
 	// a hand-edited block renders in the editor and vanishes on publish.
 	it.each( parity.rejectedCases.map( c => [ c.name, c ] ) )( 'refuses %s', ( _name, testCase ) => {
 		expect( getWrapperStyle( testCase.attributes ) ).toEqual( {} );
-		expect( getCaptionStyle( testCase.attributes ) ).toEqual( {} );
 	} );
+
+	it.each( parity.rejectedTextCases.map( c => [ c.name, c ] ) )(
+		'refuses %s as text',
+		( _name, testCase ) => {
+			expect( getTextStyle( testCase.color, testCase.fontSize ) ).toEqual( {} );
+		}
+	);
 } );
 
 describe( 'getWrapperStyle', () => {
@@ -101,25 +107,25 @@ describe( 'getWrapperStyle', () => {
 	} );
 } );
 
-describe( 'getCaptionStyle', () => {
+describe( 'getTextStyle', () => {
 	it( 'is empty when nothing is configured', () => {
-		expect( getCaptionStyle( {} ) ).toEqual( {} );
+		expect( getTextStyle() ).toEqual( {} );
 	} );
 
 	it( 'takes the size with whatever unit the picker gave it', () => {
 		// FontSizePicker returns the size with its unit once the theme defines
 		// font-size presets as strings, which block themes do.
-		expect( getCaptionStyle( { captionColor: '#0000ff', captionFontSize: '20px' } ) ).toEqual( {
+		expect( getTextStyle( '#0000ff', '20px' ) ).toEqual( {
 			color: '#0000ff',
 			fontSize: '20px',
 		} );
 	} );
 
 	it( 'passes a theme preset and a fluid size through untouched', () => {
-		expect( getCaptionStyle( { captionFontSize: 'var(--wp--preset--font-size--small)' } ) ).toEqual(
-			{ fontSize: 'var(--wp--preset--font-size--small)' }
-		);
-		expect( getCaptionStyle( { captionFontSize: 'clamp(0.875rem, 1vw, 1rem)' } ) ).toEqual( {
+		expect( getTextStyle( '', 'var(--wp--preset--font-size--small)' ) ).toEqual( {
+			fontSize: 'var(--wp--preset--font-size--small)',
+		} );
+		expect( getTextStyle( '', 'clamp(0.875rem, 1vw, 1rem)' ) ).toEqual( {
 			fontSize: 'clamp(0.875rem, 1vw, 1rem)',
 		} );
 	} );

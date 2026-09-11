@@ -38,8 +38,12 @@ jest.mock( '@wordpress/element', () => {
 	return {
 		createElement: React.createElement,
 		Fragment: React.Fragment,
+		// The Copy button's hook comes from @wordpress/compose, which builds a
+		// context at import time and reaches for useLayoutEffect when it runs.
+		createContext: React.createContext,
 		useState: React.useState,
 		useEffect: React.useEffect,
+		useLayoutEffect: React.useLayoutEffect,
 		useCallback: React.useCallback,
 		useMemo: React.useMemo,
 		useRef: React.useRef,
@@ -160,6 +164,24 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	),
 } ) );
 
+// jsdom has no clipboard, so the real useCopyToClipboard never calls back and the
+// "Copied!" state is unreachable. Stub the write and record what it was handed,
+// so a Copy button wired to the wrong URL fails. The name has to start with
+// `mock` for jest to allow the factory to reach it.
+const mockCopiedText = { last: null };
+
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useCopyToClipboard: ( text, onCopy ) => node => {
+		if ( node ) {
+			node.addEventListener( 'click', () => {
+				mockCopiedText.last = text;
+				onCopy();
+			} );
+		}
+	},
+} ) );
+
 // Mock WordPress components with simple HTML equivalents.
 jest.mock( '@wordpress/components', () => ( {
 	BaseControl: {
@@ -169,27 +191,35 @@ jest.mock( '@wordpress/components', () => ( {
 	},
 	// isDestructive, isSmall and the __next* opt-ins are destructured off rather
 	// than spread: the real Button consumes them, so letting them reach the DOM warns.
-	Button: ( {
-		children,
-		onClick,
-		disabled,
-		variant,
-		isBusy,
-		isDestructive,
-		isSmall,
-		__next40pxDefaultSize,
-		__nextHasNoMarginBottom,
-		...rest
-	} ) => (
-		<button
-			onClick={ onClick }
-			disabled={ disabled }
-			data-variant={ variant }
-			data-busy={ isBusy }
-			{ ...rest }
-		>
-			{ children }
-		</button>
+	// forwardRef because the real one is — the Copy button hands it a ref. The
+	// require is inline because jest hoists this factory above mockReact.
+	Button: require( 'react' ).forwardRef(
+		(
+			{
+				children,
+				onClick,
+				disabled,
+				variant,
+				isBusy,
+				isDestructive,
+				isSmall,
+				__next40pxDefaultSize,
+				__nextHasNoMarginBottom,
+				...rest
+			},
+			ref
+		) => (
+			<button
+				ref={ ref }
+				onClick={ onClick }
+				disabled={ disabled }
+				data-variant={ variant }
+				data-busy={ isBusy }
+				{ ...rest }
+			>
+				{ children }
+			</button>
+		)
 	),
 	ButtonGroup: ( { children } ) => <div data-testid="button-group">{ children }</div>,
 	__experimentalConfirmDialog: ( { children, title, confirmButtonText, onConfirm, onCancel } ) => (
@@ -453,6 +483,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		// One test runs on fake timers; leaving them on hangs every test after it.
+		jest.useRealTimers();
+		mockCopiedText.last = null;
 		// Clear persisted wizard step to ensure tests start from 'welcome'.
 		window.localStorage.removeItem( 'jetpack-paypal-wizard-step' );
 		// Default: connection check returns not connected.
@@ -3301,6 +3334,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( within( inspector ).queryByText( 'Scan to pay' ) ).not.toBeInTheDocument();
 			} );
 
+			// A fresh QR block draws a bare code; the caption is opt-in.
+			it( 'starts with the caption off', async () => {
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+
+				expect( within( styles ).getByLabelText( 'Show text under QR code' ) ).not.toBeChecked();
+				expect( within( styles ).queryByLabelText( 'Caption' ) ).not.toBeInTheDocument();
+			} );
+
 			it( 'toggles the caption off', async () => {
 				const user = userEvent.setup();
 				render(
@@ -3414,6 +3456,178 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.getByTestId( 'border-Stroke' ) ).toBeInTheDocument();
 			} );
 
+			it( 'writes the link text from the styles tab', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK', linkText: '' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				await user.type( within( styles ).getByLabelText( 'Link text' ), 'B' );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { linkText: 'B' } );
+			} );
+
+			// LINK is the only format with a URL, so this is the one place in the
+			// block a merchant can copy it.
+			it( 'offers the attributed payment URL and a Copy button for LINK', async () => {
+				// The BN code rides the connection response, not the block.
+				apiFetch.mockResolvedValue( {
+					connected: true,
+					environment: 'sandbox',
+					partner_attribution_id: 'BN-TEST',
+				} );
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				// The BN code has to be on it: a merchant shares this link
+				// directly, so it must attribute the same way the anchor does.
+				await waitFor( () =>
+					expect( within( styles ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
+				);
+				expect( within( styles ).getByLabelText( 'URL' ).value ).toContain(
+					'paypal.com/paymentpage/PLB-TEST123'
+				);
+				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+			} );
+
+			it( 'copies the attributed URL and goes back to Copy', async () => {
+				jest.useFakeTimers();
+				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+				apiFetch.mockResolvedValue( {
+					connected: true,
+					environment: 'sandbox',
+					partner_attribution_id: 'BN-TEST',
+				} );
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				await waitFor( () =>
+					expect( within( styles ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
+				);
+
+				await user.click( within( styles ).getByText( 'Copy' ) );
+
+				// The clipboard gets the same attributed URL the field shows.
+				expect( mockCopiedText.last ).toBe( within( styles ).getByLabelText( 'URL' ).value );
+				expect( within( styles ).getByText( 'Copied!' ) ).toBeInTheDocument();
+
+				// The label goes back on its own rather than sticking at "Copied!".
+				await act( async () => {
+					jest.advanceTimersByTime( 2000 );
+				} );
+				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+			} );
+
+			// No payment link until the post is saved, so there is nothing to copy.
+			it( 'restarts the confirmation when Copy is clicked twice', async () => {
+				jest.useFakeTimers();
+				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				await user.click( within( styles ).getByText( 'Copy' ) );
+
+				// Most of the way through the first window, then copy again.
+				await act( async () => {
+					jest.advanceTimersByTime( 1500 );
+				} );
+				await user.click( within( styles ).getByText( 'Copied!' ) );
+
+				// The first timer would have fired by now; the second one has not.
+				await act( async () => {
+					jest.advanceTimersByTime( 1000 );
+				} );
+				expect( within( styles ).getByText( 'Copied!' ) ).toBeInTheDocument();
+
+				await act( async () => {
+					jest.advanceTimersByTime( 1000 );
+				} );
+				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+			} );
+
+			it( 'leaves out the URL row before a button exists', async () => {
+				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+				renderForm( { format: 'LINK', linkText: '' } );
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeInTheDocument();
+				expect( within( styles ).queryByLabelText( 'URL' ) ).not.toBeInTheDocument();
+			} );
+
+			// The panels are shared with the QR caption, so the thing worth
+			// asserting is which attributes they write — wiring LINK to the
+			// caption's would draw an identical tab.
+			it( 'stores the link color, and clears it', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'color-Link text' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { linkColor: '#111111' } );
+
+				await user.click( screen.getByTestId( 'color-clear' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { linkColor: '' } );
+			} );
+
+			it( 'stores the link size with its unit, and clears it', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'font-size' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'font-size' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { linkFontSize: '1.5rem' } );
+
+				await user.click( screen.getByTestId( 'font-size-reset' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { linkFontSize: undefined } );
+			} );
+
+			it( 'gives LINK no button text or caption field', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				// Positive control: the link's own field is there, so the case
+				// covers the wrong field being dropped rather than the whole tab.
+				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeInTheDocument();
+				expect( within( styles ).queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+				expect(
+					within( styles ).queryByLabelText( 'Show text under QR code' )
+				).not.toBeInTheDocument();
+			} );
+
 			it( 'gives LINK no Width or Border panel', async () => {
 				render(
 					<Edit
@@ -3425,30 +3639,36 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					screen.findByTestId( 'inspector-controls-styles' )
 				).resolves.toBeInTheDocument();
 
+				// Positive control: Typography still draws, so an empty styles tab
+				// cannot pass this.
+				expect( panel( 'Typography' ) ).toBeInTheDocument();
 				expect( panel( 'Width Settings' ) ).toBeUndefined();
 				expect( panel( 'Border Settings' ) ).toBeUndefined();
 			} );
 
 			// Both controls take the same busy flag, so a request in flight locks
 			// the format and its label together.
-			it( 'locks embed as and button text while a request is in flight', async () => {
+			/**
+			 * Put a block into the busy state and hand back its styles fill.
+			 *
+			 * Hangs the delete so the busy flag is still on when it is checked.
+			 *
+			 * @param {object} attributes - Attributes on top of qrAttributes.
+			 * @return {Element} The styles fill, once the controls have locked.
+			 */
+			const lockedStylesTab = async attributes => {
 				const user = userEvent.setup();
-				// Hang the delete so the busy state is still on when it is checked.
 				apiFetch.mockImplementation( ( { method } ) =>
 					'DELETE' === method
 						? new Promise( () => {} )
 						: Promise.resolve( { connected: true, environment: 'sandbox' } )
 				);
 				render(
-					<Edit
-						attributes={ { ...qrAttributes, format: 'BUTTON' } }
-						setAttributes={ setAttributes }
-					/>
+					<Edit attributes={ { ...qrAttributes, ...attributes } } setAttributes={ setAttributes } />
 				);
 
 				const styles = await screen.findByTestId( 'inspector-controls-styles' );
 				expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeEnabled();
-				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeEnabled();
 
 				await user.click( await screen.findByTestId( 'toolbar-Delete Payment Button' ) );
 				await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
@@ -3456,7 +3676,30 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await waitFor( () => {
 					expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeDisabled();
 				} );
+
+				return styles;
+			};
+
+			// Every control in the tab takes the same busy flag, so a request in
+			// flight locks the format and the text that goes with it.
+			it( 'locks embed as and button text while a request is in flight', async () => {
+				const styles = await lockedStylesTab( { format: 'BUTTON' } );
+
 				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeDisabled();
+			} );
+
+			it( 'locks the link text and Copy while a request is in flight', async () => {
+				const styles = await lockedStylesTab( { format: 'LINK' } );
+
+				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeDisabled();
+				expect( within( styles ).getByText( 'Copy' ) ).toBeDisabled();
+			} );
+
+			it( 'locks the caption controls while a request is in flight', async () => {
+				const styles = await lockedStylesTab( { format: 'QR', qrShowCaption: true } );
+
+				expect( within( styles ).getByLabelText( 'Show text under QR code' ) ).toBeDisabled();
+				expect( within( styles ).getByLabelText( 'Caption' ) ).toBeDisabled();
 			} );
 
 			it( 'stores a width preset', async () => {

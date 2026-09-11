@@ -1,5 +1,5 @@
 {
-	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. rejectedCases are values the published page refuses — the canvas has to refuse them too, or a block pasted in code view renders in the editor and vanishes on publish.",
+	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. textCases run twice on the PHP side — once as the QR caption, once as the payment link — because one helper serves both, and a branch that forgets to call it would otherwise pass. rejected* are values the published page refuses; the canvas has to refuse them too, or a block pasted in code view renders in the editor and vanishes on publish.",
 	"cases": [
 		{
 			"name": "a spacing preset",
@@ -204,77 +204,70 @@
 			}
 		}
 	],
-	"captionCases": [
+	"textCases": [
 		{
 			"name": "a size with its unit",
-			"attributes": {
-				"captionFontSize": "1.5rem"
-			},
+			"fontSize": "1.5rem",
 			"declarations": {
 				"font-size": "1.5rem"
 			}
 		},
 		{
 			"name": "a theme preset size",
-			"attributes": {
-				"captionFontSize": "var(--wp--preset--font-size--small)"
-			},
+			"fontSize": "var(--wp--preset--font-size--small)",
 			"declarations": {
 				"font-size": "var(--wp--preset--font-size--small)"
 			}
 		},
 		{
 			"name": "a color",
-			"attributes": {
-				"captionColor": "#0000ff"
-			},
+			"color": "#0000ff",
 			"declarations": {
 				"color": "#0000ff"
 			}
 		},
 		{
 			"name": "a unitless size, which core reads as px",
-			"attributes": {
-				"captionFontSize": "20"
-			},
+			"fontSize": "20",
 			"declarations": {
 				"font-size": "20px"
 			}
 		},
 		{
 			"name": "a fluid size",
-			"attributes": {
-				"captionFontSize": "clamp(0.875rem, 1vw, 1rem)"
-			},
+			"fontSize": "clamp(0.875rem, 1vw, 1rem)",
 			"declarations": {
 				"font-size": "clamp(0.875rem, 1vw, 1rem)"
 			}
 		},
 		{
 			"name": "an rgba color",
-			"attributes": {
-				"captionColor": "rgba(0, 0, 255, 0.8)"
-			},
+			"color": "rgba(0, 0, 255, 0.8)",
 			"declarations": {
 				"color": "rgba(0, 0, 255, 0.8)"
 			}
 		},
 		{
 			"name": "an alpha hex",
-			"attributes": {
-				"captionColor": "#3858e980"
-			},
+			"color": "#3858e980",
 			"declarations": {
 				"color": "#3858e980"
 			}
 		},
 		{
 			"name": "a palette preset, expanded on both sides",
-			"attributes": {
-				"captionColor": "var:preset|color|primary"
-			},
+			"color": "var:preset|color|primary",
 			"declarations": {
 				"color": "var(--wp--preset--color--primary)"
+			}
+		},
+		{
+			"name": "a color and a size together",
+			"color": "#0000ff",
+			"fontSize": "20px",
+			"declarations": {
+				"color": "#0000ff",
+				"font-size": "20px"
 			}
 		}
 	],
@@ -289,8 +282,7 @@
 						}
 					}
 				}
-			},
-			"selector": "wrapper"
+			}
 		},
 		{
 			"name": "an unsupported unit",
@@ -302,15 +294,13 @@
 						}
 					}
 				}
-			},
-			"selector": "wrapper"
+			}
 		},
 		{
 			"name": "a hand-pasted calc width",
 			"attributes": {
 				"blockWidth": "calc(100% - 10px)"
-			},
-			"selector": "wrapper"
+			}
 		},
 		{
 			"name": "a named border color",
@@ -321,15 +311,13 @@
 						"color": "rebeccapurple"
 					}
 				}
-			},
-			"selector": "wrapper"
+			}
 		},
 		{
 			"name": "a spacing preset as a width",
 			"attributes": {
 				"blockWidth": "var:preset|spacing|50"
-			},
-			"selector": "wrapper"
+			}
 		},
 		{
 			"name": "a side key the panel cannot write",
@@ -341,8 +329,7 @@
 						}
 					}
 				}
-			},
-			"selector": "wrapper"
+			}
 		},
 		{
 			"name": "a spacing preset used as a border color",
@@ -353,50 +340,33 @@
 						"color": "var:preset|spacing|50"
 					}
 				}
-			},
-			"selector": "wrapper"
-		},
+			}
+		}
+	],
+	"rejectedTextCases": [
 		{
-			"name": "a named caption color",
-			"attributes": {
-				"captionColor": "rebeccapurple"
-			},
-			"selector": "caption"
+			"name": "a named color",
+			"color": "rebeccapurple"
 		},
 		{
 			"name": "a color function the sanitizer does not know",
-			"attributes": {
-				"captionColor": "color-mix(in srgb, red, blue)"
-			},
-			"selector": "caption"
+			"color": "color-mix(in srgb, red, blue)"
 		},
 		{
 			"name": "transparent",
-			"attributes": {
-				"captionColor": "transparent"
-			},
-			"selector": "caption"
+			"color": "transparent"
 		},
 		{
 			"name": "modern hsl syntax the sanitizer does not know",
-			"attributes": {
-				"captionColor": "hsl(220deg 13% 91%)"
-			},
-			"selector": "caption"
+			"color": "hsl(220deg 13% 91%)"
 		},
 		{
 			"name": "a css comment in a fluid size",
-			"attributes": {
-				"captionFontSize": "clamp(/*)"
-			},
-			"selector": "caption"
+			"fontSize": "clamp(/*)"
 		},
 		{
-			"name": "a spacing preset used as a caption color",
-			"attributes": {
-				"captionColor": "var:preset|spacing|50"
-			},
-			"selector": "caption"
+			"name": "a spacing preset used as a color",
+			"color": "var:preset|spacing|50"
 		}
 	]
 }

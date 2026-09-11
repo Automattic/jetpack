@@ -716,6 +716,26 @@
 	}
 }
 
+// The payment URL beside its Copy button. Same layout as the Jetpack plugin's
+// shared clipboard row, which a package cannot import across the project
+// boundary. The field takes the leftover width so a long URL truncates rather
+// than pushing Copy out of the sidebar.
+// @see projects/plugins/jetpack/extensions/shared/clipboard-input.scss
+.jetpack-paypal-payment-buttons__link-url {
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+
+	.components-base-control {
+		flex: 1;
+		min-width: 0;
+		// flex-end lines up the margin box, so the field's own bottom margin has
+		// to go or Copy sits 16px below the input it belongs beside.
+		margin-bottom: 0;
+	}
+}
+
+
 // Width Settings — presets beside a free value. Same layout as the Jetpack
 // plugin's shared width control; without the explicit widths the presets
 // collapse on top of each other.

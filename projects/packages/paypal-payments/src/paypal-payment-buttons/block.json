@@ -134,7 +134,7 @@
 		},
 		"qrShowCaption": {
 			"type": "boolean",
-			"default": true
+			"default": false
 		},
 		"qrCaption": {
 			"type": "string",
@@ -145,6 +145,18 @@
 			"default": ""
 		},
 		"captionFontSize": {
+			"type": "string",
+			"default": ""
+		},
+		"linkText": {
+			"type": "string",
+			"default": ""
+		},
+		"linkColor": {
+			"type": "string",
+			"default": ""
+		},
+		"linkFontSize": {
 			"type": "string",
 			"default": ""
 		},

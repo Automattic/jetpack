@@ -14,7 +14,7 @@
  */
 
 import { __, sprintf } from '@wordpress/i18n';
-import { getCaptionStyle, getWrapperStyle } from '../utils/block-styles';
+import { getTextStyle, getWrapperStyle } from '../utils/block-styles';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import { withPartnerAttribution } from '../utils/partner-attribution';
@@ -90,14 +90,16 @@ function getVariantGroups( variants, productPrice ) {
  * The LINK format — a bare anchor, the same as the frontend.
  *
  * @param {object} props                      - Component props.
- * @param {string} props.productName          - Product name, which is also the link label.
+ * @param {string} props.linkText             - The link label, empty for the default.
  * @param {string} props.paymentLink          - PayPal payment URL, once one has been issued.
  * @param {string} props.partnerAttributionId - PayPal partner attribution (BN) code.
+ * @param {object} props.attributes           - The block attributes, for the style mapping.
  * @return {Element} Link preview element.
  */
-function LinkPreview( { productName, paymentLink, partnerAttributionId } ) {
-	// Mirrors render_api_managed_button()'s LINK branch.
-	const label = productName || __( 'Pay with PayPal', 'jetpack-paypal-payments' );
+function LinkPreview( { linkText, paymentLink, partnerAttributionId, attributes = {} } ) {
+	// Mirrors render_api_managed_button()'s LINK branch: an empty label falls
+	// back to the default rather than drawing a bare anchor.
+	const label = `${ linkText ?? '' }`.trim() || DEFAULT_LABEL;
 
 	return (
 		<div className="jetpack-paypal-button-preview jetpack-paypal-button-preview--link">
@@ -105,6 +107,7 @@ function LinkPreview( { productName, paymentLink, partnerAttributionId } ) {
 			<a
 				href={ withPartnerAttribution( paymentLink, partnerAttributionId ) }
 				className="jetpack-paypal-button__paypal-link"
+				style={ getTextStyle( attributes.linkColor, attributes.linkFontSize ) }
 				onClick={ event => event.preventDefault() }
 			>
 				{ label }
@@ -120,7 +123,7 @@ function LinkPreview( { productName, paymentLink, partnerAttributionId } ) {
  * draws the code on its own.
  *
  * @param {object}  props                      - Component props.
- * @param {boolean} props.qrShowCaption        - Whether to draw the caption under the code. Defaults on, as render_api_managed_button() does.
+ * @param {boolean} props.qrShowCaption        - Whether to draw the caption under the code. Off by default, matching render_api_managed_button().
  * @param {string}  props.qrCaption            - Caption text, empty for the default.
  * @param {string}  props.paymentLink          - PayPal payment URL, once one has been issued.
  * @param {string}  props.partnerAttributionId - PayPal partner attribution (BN) code.
@@ -128,11 +131,11 @@ function LinkPreview( { productName, paymentLink, partnerAttributionId } ) {
  * @return {Element} QR preview element.
  */
 function QrPreview( {
-	qrShowCaption = true,
+	qrShowCaption = false,
 	qrCaption,
 	paymentLink,
 	partnerAttributionId,
-	attributes,
+	attributes = {},
 } ) {
 	// Encode the attributed URL, so the editor's code and the frontend's send a
 	// buyer through the same link.
@@ -148,7 +151,7 @@ function QrPreview( {
 				className="jetpack-paypal-button__qr-canvas"
 				showCaption={ qrShowCaption }
 				caption={ qrCaption }
-				captionStyle={ getCaptionStyle( attributes ) }
+				captionStyle={ getTextStyle( attributes.captionColor, attributes.captionFontSize ) }
 			/>
 		</div>
 	);
