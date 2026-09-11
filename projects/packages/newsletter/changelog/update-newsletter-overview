@@ -1,4 +1,3 @@
-Significance: minor
-Type: added
-
-Add an Overview dashboard for getting started and finding guides.
+Significance: patch
+Type: changed
+Comment: Develop the Newsletter Overview dashboard behind a disabled feature flag.
