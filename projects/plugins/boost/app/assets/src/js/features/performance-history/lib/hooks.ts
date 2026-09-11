@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { z } from 'zod';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { queryClient, useDataSync } from '@automattic/jetpack-react-data-sync-client';
 
 const periodsSchema = z.object( {
 	timestamp: z.number(),
@@ -79,7 +79,25 @@ export const useDismissibleAlertState = ( alertId: AlertIds ) => {
 		dismissedAlertsSchema,
 		{
 			mutation: {
+				// Serialize dismissals so a late response cannot overwrite a newer dismissal.
 				scope: { id: 'jetpack_boost_dismissed_alerts' },
+				onError: ( _error, _variables, context ) => {
+					const previous = (
+						context as { previousValue?: z.infer< typeof dismissedAlertsSchema > }
+					 )?.previousValue?.[ alertId ];
+					queryClient.setQueryData< z.infer< typeof dismissedAlertsSchema > >(
+						[ 'dismissed_alerts' ],
+						current => {
+							const restored = { ...current };
+							if ( previous === undefined ) {
+								delete restored[ alertId ];
+							} else {
+								restored[ alertId ] = previous;
+							}
+							return restored;
+						}
+					);
+				},
 				mutationFn: async () => {
 					const { rest_api, dismissed_alerts } = window.jetpack_boost_ds;
 					const response = await apiFetch< { JSON: unknown } >( {

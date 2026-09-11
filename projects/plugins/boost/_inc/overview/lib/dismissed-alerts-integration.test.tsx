@@ -105,7 +105,7 @@ it( 'preserves Overview dismissals when the separate legacy client dismisses a n
 	}
 } );
 
-it.each( [ 'success', 'failure' ] )(
+it.each( [ 'success', 'failure', 'both failures' ] )(
 	'queues a second legacy dismissal until the first delayed %s settles',
 	async outcome => {
 		let stored: Record< string, boolean > = { performance_history_fresh_start: true };
@@ -121,9 +121,12 @@ it.each( [ 'success', 'failure' ] )(
 			const update = ( data as { JSON: Record< string, boolean > } ).JSON;
 			if ( update.score_increase ) {
 				await firstResponse;
-				if ( outcome === 'failure' ) {
+				if ( outcome !== 'success' ) {
 					throw new Error( 'Dismissal failed' );
 				}
+			}
+			if ( outcome === 'both failures' ) {
+				throw new Error( 'Second dismissal failed' );
 			}
 			stored = { ...stored, ...update };
 			return { status: 'success', JSON: { ...stored } };
@@ -155,7 +158,7 @@ it.each( [ 'success', 'failure' ] )(
 			const expected = {
 				performance_history_fresh_start: true,
 				...( outcome === 'success' ? { score_increase: true } : {} ),
-				legacy_minify_notice: true,
+				...( outcome === 'both failures' ? {} : { legacy_minify_notice: true } ),
 			};
 			expect( stored ).toEqual( expected );
 			expect( legacyClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( expected );
