@@ -1,1 +1,1 @@
-export { PageOptionsMenu } from './page-options-menu';
+export { PageOptionsMenu, type PageOptionsMenuProps } from './page-options-menu';
