@@ -9,11 +9,17 @@
  */
 
 import { render, screen } from '@testing-library/react';
+import QRCode from 'qrcode';
 import PayPalButtonPreview from '../../src/paypal-payment-buttons/components/paypal-button-preview';
+import { QR_OPTIONS } from '../../src/paypal-payment-buttons/utils/qr-options';
+
+// jsdom has no 2D context, so a real draw fails. Unlike qr-code.test.js's mock
+// this one resolves, because the preview chains .catch() on the returned promise.
+jest.mock( 'qrcode', () => ( {
+	toCanvas: jest.fn( () => Promise.resolve() ),
+} ) );
 
 const defaultProps = {
-	buttonText: '',
-	buttonType: 'stacked',
 	productName: 'Premium Widget',
 	price: '29.99',
 	currencyCode: 'USD',
@@ -74,6 +80,9 @@ describe( 'PayPalButtonPreview', () => {
 		// Preview buttons are divs (not links) — non-interactive in the editor.
 		expect( button.tagName ).toBe( 'DIV' );
 		expect( button ).toHaveAttribute( 'aria-hidden', 'true' );
+		// Theme button styles key off `.wp-element-button`, like the frontend
+		// checkout link, so the preview carries it too.
+		expect( button ).toHaveClass( 'wp-element-button' );
 	} );
 
 	it( 'renders product image when imageUrl is provided', () => {
@@ -186,5 +195,96 @@ describe( 'PayPalButtonPreview', () => {
 		);
 		expect( screen.getByText( 'From $12.50' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'From $5.00' ) ).not.toBeInTheDocument();
+	} );
+
+	// One smoke test per Display Format branch, checking only which preview renders.
+	describe( 'Display Format', () => {
+		beforeEach( () => {
+			QRCode.toCanvas.mockClear();
+		} );
+
+		it( 'draws the button card for BUTTON', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="BUTTON" /> );
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).toBeInTheDocument();
+		} );
+
+		it( 'draws the button card for a format it does not know', () => {
+			// render_api_managed_button() validates the same way server-side.
+			render( <PayPalButtonPreview { ...defaultProps } format="STACKED" /> );
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).toBeInTheDocument();
+		} );
+
+		it( 'draws the product name as a link for LINK', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="LINK" /> );
+			expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveTextContent(
+				'Premium Widget'
+			);
+		} );
+
+		it( 'falls back to Pay with PayPal when the product has no name', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="LINK" productName="" /> );
+			expect( screen.getByText( 'Pay with PayPal' ) ).toBeInTheDocument();
+		} );
+
+		it( 'draws a QR canvas for QR', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+			expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
+			// The label sits under the code, as it does on the frontend.
+			expect(
+				document.querySelector( '.jetpack-paypal-button__qr-product-name' )
+			).toHaveTextContent( 'Premium Widget' );
+		} );
+
+		it( 'draws no code until a payment link exists', () => {
+			// Until the merchant presses Create New there is nothing to encode, and
+			// an undrawn canvas is a blank box.
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" paymentLink="" /> );
+			expect(
+				document.querySelector( '.jetpack-paypal-button__qr-canvas' )
+			).not.toBeInTheDocument();
+			expect( QRCode.toCanvas ).not.toHaveBeenCalled();
+		} );
+
+		it( 'still renders when the draw fails', () => {
+			QRCode.toCanvas.mockRejectedValueOnce( new Error( 'no 2d context' ) );
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+			expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
+		} );
+
+		it( 'encodes the attributed link, not the bare one', () => {
+			// The frontend encodes the link with its at_code. A QR built from the
+			// raw link pays through a different URL, and the two images look alike.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					partnerAttributionId="WooNCPS_Ecom_Wordpress"
+				/>
+			);
+			expect( QRCode.toCanvas ).toHaveBeenCalledTimes( 1 );
+			const [ , encoded, options ] = QRCode.toCanvas.mock.calls[ 0 ];
+			expect( encoded ).toBe(
+				'https://www.paypal.com/ncp/payment/ABC123?at_code=WooNCPS_Ecom_Wordpress'
+			);
+			// The frontend script draws from this same object.
+			expect( options ).toBe( QR_OPTIONS );
+		} );
+
+		it.each( [ [ 'LINK' ], [ 'QR' ] ] )(
+			'leaves out the product card and the payment link row for %s',
+			format => {
+				render( <PayPalButtonPreview { ...defaultProps } format={ format } /> );
+				expect( screen.queryByText( '$29.99' ) ).not.toBeInTheDocument();
+				expect( screen.queryByText( 'Payment link:' ) ).not.toBeInTheDocument();
+				expect(
+					document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+				).not.toBeInTheDocument();
+			}
+		);
 	} );
 } );

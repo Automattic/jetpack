@@ -398,6 +398,14 @@
 	margin: 0 auto;
 }
 
+// QR format — the code, then its label.
+.jetpack-paypal-button-preview--qr {
+
+	.jetpack-paypal-button__qr-canvas {
+		display: block;
+	}
+}
+
 // Product image in preview
 .jetpack-paypal-button-preview__image {
 	margin-bottom: 12px;
@@ -471,16 +479,9 @@
 	justify-content: center;
 	gap: 6px;
 	width: 100%;
-	padding: 14px 24px;
-	background: #1e1e1e;
-	border: none;
-	border-radius: 4px;
 	cursor: default;
 	text-align: center;
 	text-decoration: none;
-	font-size: 15px;
-	font-weight: 600;
-	color: #fff;
 
 	.jetpack-paypal-button__logo {
 		height: 18px;

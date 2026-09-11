@@ -116,6 +116,10 @@ $paypal-blue: #0070ba;
 // "Powered by PayPal" attribution
 // ---------------------------------------------------------------
 
+.jetpack-paypal-button__qr-product-name {
+	margin: 8px 0 0;
+}
+
 .jetpack-paypal-button__attribution {
 	margin: 8px 0 0;
 	padding: 0;

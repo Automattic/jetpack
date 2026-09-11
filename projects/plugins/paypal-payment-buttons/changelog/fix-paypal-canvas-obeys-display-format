@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show the chosen Display Format in the editor. Picking Link or QR code now changes the block preview, which always showed a button before, and the preview button picks up your theme's button style.

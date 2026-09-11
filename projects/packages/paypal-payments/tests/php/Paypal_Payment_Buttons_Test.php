@@ -566,6 +566,12 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			$result,
 			'The standalone QR canvas should carry the payment link with the attribution code'
 		);
+
+		$this->assertLessThan(
+			strpos( $result, 'jetpack-paypal-button__qr-product-name' ),
+			strpos( $result, 'jetpack-paypal-button__qr-canvas' ),
+			'The product name should read below the QR code, not above it'
+		);
 	}
 
 	/**

@@ -81,7 +81,7 @@ All files live in `projects/packages/paypal-payments/tests/js/`. Modules contain
 |---|---|
 | `validation.test.js` | `validatePrice`, `validateProductName`, `validateDescription`, `getUserFriendlyError`, currency set |
 | `edit.test.jsx` | Wizard flow (WOOPTP-162): navigate Welcome → Dashboard → Credentials before asserting fields; the environment field is a link-button toggle, not a SelectControl; the connect label is "Connect", not "Connect PayPal" |
-| `paypal-button-preview.test.jsx` | Product card rendering, currency formatting, theme-native button styling, click prevention, "Powered by PayPal" attribution |
+| `paypal-button-preview.test.jsx` | Display Format dispatch (button, link, QR), QR attribution encoding, product card rendering, currency formatting, theme-native button styling, click prevention, "Powered by PayPal" attribution |
 | `save.test.jsx` | API-managed rendering, legacy rendering, wp-element-button output, empty fallback |
 | `deprecated.test.js` | `isEligible` detection, `migrate` attribute transformation, deprecated save markup |
 | `controls.test.jsx`, `validate.test.js` | Shared block controls and attribute validation |

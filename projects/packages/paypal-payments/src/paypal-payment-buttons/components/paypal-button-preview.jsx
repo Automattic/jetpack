@@ -2,9 +2,9 @@
 /**
  * PayPal Button Preview Component.
  *
- * Renders a styled preview of the PayPal payment button in the block editor.
- * Visually matches the frontend PayPal button rendering so merchants see
- * a WYSIWYG representation of what visitors will see on the published page.
+ * Renders the block's Display Format in the editor canvas — a button card, a
+ * payment link, or a QR code. Each is an abbreviated view of what the frontend
+ * renders for that format, so the canvas shows which one the merchant picked.
  *
  * Updated for WOOPTP-156: Removed hardcoded SVG dimensions; sizing is now
  * controlled exclusively by CSS to ensure consistency across editor and
@@ -20,6 +20,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
 import { withPartnerAttribution } from '../utils/partner-attribution';
 import PayPalLogo from './paypal-logo';
+import QrCodePreview from './qr-code-preview';
 import { getPrimaryDimension, hasVariantPricing } from './variant-builder';
 
 /**
@@ -105,10 +106,62 @@ function CopyablePaymentLink( { paymentLink, partnerAttributionId } ) {
 }
 
 /**
- * PayPal button preview component.
+ * The LINK format — a bare anchor, the same as the frontend.
  *
- * Renders a styled button that visually matches the PayPal-branded button
- * appearance on the frontend. Clicking is disabled in the editor.
+ * @param {object} props                      - Component props.
+ * @param {string} props.productName          - Product name, which is also the link label.
+ * @param {string} props.paymentLink          - PayPal payment URL, once one has been issued.
+ * @param {string} props.partnerAttributionId - PayPal partner attribution (BN) code.
+ * @return {Element} Link preview element.
+ */
+function LinkPreview( { productName, paymentLink, partnerAttributionId } ) {
+	// Mirrors render_api_managed_button()'s LINK branch.
+	const label = productName || __( 'Pay with PayPal', 'jetpack-paypal-payments' );
+
+	return (
+		<div className="jetpack-paypal-button-preview jetpack-paypal-button-preview--link">
+			{ /* A real anchor, so the theme styles it the way it styles the published one. */ }
+			<a
+				href={ withPartnerAttribution( paymentLink, partnerAttributionId ) }
+				className="jetpack-paypal-button__paypal-link"
+				onClick={ event => event.preventDefault() }
+			>
+				{ label }
+			</a>
+		</div>
+	);
+}
+
+/**
+ * The QR format — the code, its label, and the attribution line.
+ *
+ * Copy and Download belong to the frontend and the inspector, so the canvas
+ * draws the code on its own.
+ *
+ * @param {object} props                      - Component props.
+ * @param {string} props.productName          - Product name shown below the code.
+ * @param {string} props.paymentLink          - PayPal payment URL, once one has been issued.
+ * @param {string} props.partnerAttributionId - PayPal partner attribution (BN) code.
+ * @return {Element} QR preview element.
+ */
+function QrPreview( { productName, paymentLink, partnerAttributionId } ) {
+	// Encode the attributed URL, so the editor's code and the frontend's send a
+	// buyer through the same link.
+	const qrUrl = withPartnerAttribution( paymentLink, partnerAttributionId );
+
+	return (
+		<div className="jetpack-paypal-button-preview jetpack-paypal-button-preview--qr">
+			<QrCodePreview url={ qrUrl } className="jetpack-paypal-button__qr-canvas" />
+			{ productName && <p className="jetpack-paypal-button__qr-product-name">{ productName }</p> }
+			<p className="jetpack-paypal-button__attribution">
+				{ __( 'Powered by PayPal', 'jetpack-paypal-payments' ) }
+			</p>
+		</div>
+	);
+}
+
+/**
+ * The BUTTON format — the product card and a theme-native checkout button.
  *
  * @param {object}  props                      - Component props.
  * @param {string}  props.productName          - Product name to display.
@@ -122,7 +175,7 @@ function CopyablePaymentLink( { paymentLink, partnerAttributionId } ) {
  * @param {string}  props.partnerAttributionId - PayPal partner attribution (BN) code.
  * @return {Element} Button preview element.
  */
-export default function PayPalButtonPreview( {
+function ButtonPreview( {
 	productName,
 	price,
 	currencyCode = 'USD',
@@ -187,7 +240,10 @@ export default function PayPalButtonPreview( {
 
 			{ /* Checkout button preview — theme-native style with PayPal wordmark */ }
 			<div className="jetpack-paypal-button-preview__buttons">
-				<div className="jetpack-paypal-button-preview__checkout-button" aria-hidden="true">
+				<div
+					className="jetpack-paypal-button-preview__checkout-button wp-element-button"
+					aria-hidden="true"
+				>
 					<span>{ __( 'Buy Now With', 'jetpack-paypal-payments' ) }</span>
 					<PayPalLogo />
 				</div>
@@ -202,4 +258,24 @@ export default function PayPalButtonPreview( {
 			) }
 		</div>
 	);
+}
+
+/**
+ * The block's canvas preview, by Display Format.
+ *
+ * @param {object} props        - Component props. The rest go to the format's own preview.
+ * @param {string} props.format - Display format: BUTTON, LINK or QR.
+ * @return {Element} The preview for that format.
+ */
+export default function PayPalButtonPreview( { format, ...props } ) {
+	// An unknown format falls back to the button, the same way
+	// render_api_managed_button() validates it server-side.
+	switch ( format ) {
+		case 'LINK':
+			return <LinkPreview { ...props } />;
+		case 'QR':
+			return <QrPreview { ...props } />;
+		default:
+			return <ButtonPreview { ...props } />;
+	}
 }
