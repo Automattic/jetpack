@@ -4,38 +4,50 @@
  * @package
  */
 
+import { CURRENCY_SYMBOLS } from './currency-symbols';
+
 /**
- * Supported currencies for the currency selector.
+ * Supported currency codes.
  * Matches PayPal_Attribute_Mapper::SUPPORTED_CURRENCIES on the server.
  */
-export const SUPPORTED_CURRENCIES = [
-	{ label: 'USD — US Dollar', value: 'USD' },
-	{ label: 'EUR — Euro', value: 'EUR' },
-	{ label: 'GBP — British Pound', value: 'GBP' },
-	{ label: 'CAD — Canadian Dollar', value: 'CAD' },
-	{ label: 'AUD — Australian Dollar', value: 'AUD' },
-	{ label: 'JPY — Japanese Yen', value: 'JPY' },
-	{ label: 'CHF — Swiss Franc', value: 'CHF' },
-	{ label: 'SEK — Swedish Krona', value: 'SEK' },
-	{ label: 'NOK — Norwegian Krone', value: 'NOK' },
-	{ label: 'DKK — Danish Krone', value: 'DKK' },
-	{ label: 'NZD — New Zealand Dollar', value: 'NZD' },
-	{ label: 'SGD — Singapore Dollar', value: 'SGD' },
-	{ label: 'HKD — Hong Kong Dollar', value: 'HKD' },
-	{ label: 'MXN — Mexican Peso', value: 'MXN' },
-	{ label: 'BRL — Brazilian Real', value: 'BRL' },
-	{ label: 'PLN — Polish Zloty', value: 'PLN' },
-	{ label: 'CZK — Czech Koruna', value: 'CZK' },
-	{ label: 'HUF — Hungarian Forint', value: 'HUF' },
-	{ label: 'ILS — Israeli Shekel', value: 'ILS' },
-	{ label: 'MYR — Malaysian Ringgit', value: 'MYR' },
-	{ label: 'PHP — Philippine Peso', value: 'PHP' },
-	{ label: 'TWD — Taiwan Dollar', value: 'TWD' },
-	{ label: 'THB — Thai Baht', value: 'THB' },
-	{ label: 'CNY — Chinese Yuan', value: 'CNY' },
+const SUPPORTED_CURRENCY_CODES = [
+	'USD',
+	'EUR',
+	'GBP',
+	'CAD',
+	'AUD',
+	'JPY',
+	'CHF',
+	'SEK',
+	'NOK',
+	'DKK',
+	'NZD',
+	'SGD',
+	'HKD',
+	'MXN',
+	'BRL',
+	'PLN',
+	'CZK',
+	'HUF',
+	'ILS',
+	'MYR',
+	'PHP',
+	'TWD',
+	'THB',
+	'CNY',
 ];
+
+/**
+ * Options for the currency selector — the code and its symbol, the way Simple
+ * Payments and the Donations block label theirs.
+ */
+export const SUPPORTED_CURRENCIES = SUPPORTED_CURRENCY_CODES.map( value => {
+	const symbol = CURRENCY_SYMBOLS[ value ] || value;
+	// Don't print CHF twice when the symbol is the code.
+	return { label: symbol === value ? value : `${ value } ${ symbol }`, value };
+} );
 
 /**
  * Currency code set for fast lookup.
  */
-export const VALID_CURRENCY_CODES = new Set( SUPPORTED_CURRENCIES.map( c => c.value ) );
+export const VALID_CURRENCY_CODES = new Set( SUPPORTED_CURRENCY_CODES );

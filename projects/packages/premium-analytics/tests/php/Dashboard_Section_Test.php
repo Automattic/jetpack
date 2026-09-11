@@ -430,7 +430,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Ads alone moves its date control to widgets; Ads and Insights disable comparison.
+	 * Ads and Insights move their date control to widgets and disable comparison.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
 		// Store needs both gates: the filter stands in for WooCommerce being active,
@@ -448,7 +448,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				),
 				'insights'    => array(
 					'with_date_comparison'     => false,
-					'with_header_date_control' => true,
+					'with_header_date_control' => false,
 				),
 				'subscribers' => array(
 					'with_date_comparison'     => true,
@@ -874,7 +874,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'date_filter'         => 'year',
 					'date_filter_options' => array(
 						'with_date_comparison'     => false,
-						'with_header_date_control' => true,
+						'with_header_date_control' => false,
 					),
 					'requires_sync'       => false,
 				),

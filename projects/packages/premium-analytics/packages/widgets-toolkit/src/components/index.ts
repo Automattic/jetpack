@@ -144,8 +144,6 @@ export {
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
-	DetailPageTabPanel,
-	DetailPageTabs,
 	useDetailPageCustomize,
 	type DetailPageActionsProps,
 	type DetailPageBreadcrumbsProps,
@@ -154,9 +152,6 @@ export {
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
-	type DetailPageTab,
-	type DetailPageTabPanelProps,
-	type DetailPageTabsProps,
 } from './detail-page';
 export {
 	ReportCsvDownloadButton,

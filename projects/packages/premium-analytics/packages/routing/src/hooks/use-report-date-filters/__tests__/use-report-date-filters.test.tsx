@@ -18,6 +18,7 @@ jest.mock( '@wordpress/route', () => ( {
 /**
  * External dependencies
  */
+import { TZDate } from '@date-fns/tz';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -102,8 +103,8 @@ describe( 'useReportDateFilters', () => {
 		act( () => {
 			result.current.onChange(
 				{
-					from: new Date( '2026-07-24T00:00:00.000Z' ),
-					to: new Date( '2026-07-30T23:59:59.999Z' ),
+					from: new TZDate( '2026-07-24T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 				},
 				'last-7-days'
 			);
@@ -138,8 +139,8 @@ describe( 'useReportDateFilters', () => {
 		act( () => {
 			result.current.onChange(
 				{
-					from: new Date( '2026-07-24T00:00:00.000Z' ),
-					to: new Date( '2026-07-30T23:59:59.999Z' ),
+					from: new TZDate( '2026-07-24T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 				},
 				'last-7-days'
 			);
@@ -162,8 +163,8 @@ describe( 'useReportDateFilters', () => {
 		act( () => {
 			result.current.onComparisonChange(
 				{
-					from: new Date( '2026-06-01T00:00:00.000Z' ),
-					to: new Date( '2026-06-30T23:59:59.999Z' ),
+					from: new TZDate( '2026-06-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-06-30T23:59:59.999Z', 'UTC' ),
 				},
 				'previous-period'
 			);
@@ -255,8 +256,8 @@ describe( 'useReportDateFilters', () => {
 		act( () =>
 			result.current.onChange(
 				{
-					from: new Date( '2026-07-10T00:00:00.000Z' ),
-					to: new Date( '2026-07-30T23:59:59.999Z' ),
+					from: new TZDate( '2026-07-10T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 				},
 				'custom'
 			)
@@ -264,8 +265,8 @@ describe( 'useReportDateFilters', () => {
 		act( () =>
 			result.current.onComparisonChange(
 				{
-					from: new Date( '2026-06-01T00:00:00.000Z' ),
-					to: new Date( '2026-06-30T23:59:59.999Z' ),
+					from: new TZDate( '2026-06-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-06-30T23:59:59.999Z', 'UTC' ),
 				},
 				'previous-period'
 			)
@@ -274,8 +275,8 @@ describe( 'useReportDateFilters', () => {
 		act( () =>
 			result.current.onChange(
 				{
-					from: new Date( '2026-07-01T00:00:00.000Z' ),
-					to: new Date( '2026-07-30T23:59:59.999Z' ),
+					from: new TZDate( '2026-07-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 				},
 				'custom'
 			)
@@ -319,8 +320,8 @@ describe( 'useReportDateFilters', () => {
 		act( () => {
 			result.current.onChange(
 				{
-					from: new Date( '2026-07-28T00:00:00.000Z' ),
-					to: new Date( '2026-07-30T23:59:59.999Z' ),
+					from: new TZDate( '2026-07-28T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 				},
 				'custom'
 			);
@@ -345,8 +346,8 @@ describe( 'useReportDateFilters', () => {
 		act( () => {
 			result.current.onChange(
 				{
-					from: new Date( '2026-07-24T00:00:00.000Z' ),
-					to: new Date( '2026-07-30T23:59:59.999Z' ),
+					from: new TZDate( '2026-07-24T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 				},
 				'last-7-days'
 			);
@@ -354,8 +355,8 @@ describe( 'useReportDateFilters', () => {
 		act( () => {
 			result.current.onComparisonChange(
 				{
-					from: new Date( '2026-06-01T00:00:00.000Z' ),
-					to: new Date( '2026-06-30T23:59:59.999Z' ),
+					from: new TZDate( '2026-06-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-06-30T23:59:59.999Z', 'UTC' ),
 				},
 				'previous-period'
 			);
@@ -385,8 +386,8 @@ describe( 'useReportDateFilters', () => {
 		act( () =>
 			result.current.replaceRange(
 				{
-					from: new Date( '2026-07-24T00:00:00.000Z' ),
-					to: new Date( '2026-07-30T23:59:59.999Z' ),
+					from: new TZDate( '2026-07-24T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 				},
 				'last-7-days'
 			)
@@ -433,7 +434,7 @@ describe( 'useReportDateFilters', () => {
 				interval: 'day',
 			} );
 
-			act( () => result.current.drillDown( new Date( '2026-07-21T13:45:00.000Z' ) ) );
+			act( () => result.current.drillDown( new TZDate( '2026-07-21T13:45:00.000Z', 'UTC' ) ) );
 			rerender();
 
 			expect( mockSearch ).toMatchObject( {
@@ -452,7 +453,7 @@ describe( 'useReportDateFilters', () => {
 				interval: 'week',
 			} );
 
-			act( () => result.current.drillDown( new Date( '2026-07-22T00:00:00.000Z' ) ) );
+			act( () => result.current.drillDown( new TZDate( '2026-07-22T00:00:00.000Z', 'UTC' ) ) );
 			rerender();
 
 			expect( mockSearch ).toMatchObject( {
@@ -470,7 +471,7 @@ describe( 'useReportDateFilters', () => {
 				interval: 'month',
 			} );
 
-			act( () => result.current.drillDown( new Date( '2026-02-14T00:00:00.000Z' ) ) );
+			act( () => result.current.drillDown( new TZDate( '2026-02-14T00:00:00.000Z', 'UTC' ) ) );
 			rerender();
 
 			expect( mockSearch ).toMatchObject( {
@@ -488,7 +489,7 @@ describe( 'useReportDateFilters', () => {
 				interval: 'year',
 			} );
 
-			act( () => result.current.drillDown( new Date( '2024-05-09T00:00:00.000Z' ) ) );
+			act( () => result.current.drillDown( new TZDate( '2024-05-09T00:00:00.000Z', 'UTC' ) ) );
 			rerender();
 
 			expect( mockSearch ).toMatchObject( {
@@ -511,7 +512,9 @@ describe( 'useReportDateFilters', () => {
 				interval: 'year',
 			} );
 
-			act( () => result.current.drillDown( new Date( '2026-02-14T00:00:00.000Z' ), 'month' ) );
+			act( () =>
+				result.current.drillDown( new TZDate( '2026-02-14T00:00:00.000Z', 'UTC' ), 'month' )
+			);
 			rerender();
 
 			expect( mockSearch ).toMatchObject( {
@@ -529,7 +532,7 @@ describe( 'useReportDateFilters', () => {
 				interval: 'day',
 			} );
 
-			act( () => result.current.drillDown( new Date( '2026-07-21T13:45:00.000Z' ) ) );
+			act( () => result.current.drillDown( new TZDate( '2026-07-21T13:45:00.000Z', 'UTC' ) ) );
 
 			expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 			expect( mockNavigate.mock.calls[ 0 ][ 0 ].replace ).toBeFalsy();
@@ -543,7 +546,7 @@ describe( 'useReportDateFilters', () => {
 				interval: 'hour',
 			} );
 
-			act( () => result.current.drillDown( new Date( '2026-07-21T13:00:00.000Z' ) ) );
+			act( () => result.current.drillDown( new TZDate( '2026-07-21T13:00:00.000Z', 'UTC' ) ) );
 
 			expect( mockNavigate ).not.toHaveBeenCalled();
 		} );
@@ -560,7 +563,7 @@ describe( 'useReportDateFilters', () => {
 				interval: 'day',
 			} );
 
-			act( () => result.current.drillDown( new Date( '2026-09-05T00:00:00.000Z' ) ) );
+			act( () => result.current.drillDown( new TZDate( '2026-09-05T00:00:00.000Z', 'UTC' ) ) );
 
 			expect( mockNavigate ).not.toHaveBeenCalled();
 		} );
@@ -574,7 +577,7 @@ describe( 'useReportDateFilters', () => {
 				interval: 'week',
 			} );
 
-			act( () => result.current.drillDown( new Date( '2026-07-23T00:00:00.000Z' ) ) );
+			act( () => result.current.drillDown( new TZDate( '2026-07-23T00:00:00.000Z', 'UTC' ) ) );
 			rerender();
 
 			expect( mockSearch ).toMatchObject( {
@@ -593,7 +596,7 @@ describe( 'useReportDateFilters', () => {
 
 			const cancelBeforeDrill = result.current.onCancel;
 
-			act( () => result.current.drillDown( new Date( '2026-07-21T13:45:00.000Z' ) ) );
+			act( () => result.current.drillDown( new TZDate( '2026-07-21T13:45:00.000Z', 'UTC' ) ) );
 			rerender();
 
 			act( () => cancelBeforeDrill() );

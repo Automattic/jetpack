@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+HeatmapChart: Fix an endless re-render when the keyboard tooltip opens on a chart without row labels.

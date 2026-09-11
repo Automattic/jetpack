@@ -54,6 +54,9 @@ test.describe( 'Dashboard modernization', () => {
 		await expect( page.getByRole( 'tab', { name: 'Settings', exact: true } ) ).toBeVisible();
 		await expect( page.locator( '#jb-settings-tab-mount' ) ).toHaveCount( 1 );
 		await expect( page.locator( '#jb-subpage-mount' ) ).toHaveCount( 1 );
+
+		// The mount is only useful once the webpack app has rendered Settings into it.
+		await expect( page.locator( '#jb-settings-tab-mount .jb-modern-settings' ) ).toHaveCount( 1 );
 		await expect( page.locator( '#jb-admin-settings' ) ).toHaveCount( 0 );
 	} );
 

@@ -2,7 +2,7 @@
  * Small data store to manage which inspector panel should be opened.
  * This allows the pre-publish panel to communicate with the block's edit component.
  */
-import { createReduxStore, register } from '@wordpress/data';
+import { createReduxStore, register, select } from '@wordpress/data';
 
 export const PANEL_STATE_STORE = 'jetpack-forms/panel-state';
 
@@ -56,6 +56,8 @@ const store = createReduxStore( PANEL_STATE_STORE, {
 	selectors,
 } );
 
-register( store );
+if ( ! select( PANEL_STATE_STORE ) ) {
+	register( store );
+}
 
 export { store, actions, selectors, reducer, DEFAULT_STATE };

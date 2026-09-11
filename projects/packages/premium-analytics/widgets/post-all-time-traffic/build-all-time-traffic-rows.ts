@@ -33,6 +33,8 @@ export type AllTimeTrafficRow = {
 	year: number;
 	/** One entry per calendar month, January first. */
 	months: AllTimeTrafficMonth[];
+	/** The year's own figure under the same metric; `null` when the endpoint has none. */
+	total: number | null;
 };
 
 const monthOrder = ( { year, month }: MonthKey ) => year * MONTHS_IN_YEAR + month;
@@ -49,8 +51,9 @@ function reportedMonths( years: Record< string, StatsPostYear > ): number[] {
 /**
  * Turns the endpoint's per-year tables into one row per year, newest first.
  *
- * `years` carries each month's views and `averages` its views per day; the
- * months reported come from `years` under both metrics. A month the endpoint
+ * `years` carries each month's views and the year's total, `averages` its views
+ * per day with the year under `overall`; the months reported come from `years`
+ * under both metrics. A month the endpoint
  * leaves out inside the post's life is a zero, so the grid stays complete, the
  * way the daily heatmap draws every day of its range.
  *
@@ -104,7 +107,9 @@ export function buildAllTimeTrafficRows(
 			}
 		);
 
-		rows.push( { year, months } );
+		const total = ( metric === 'average' ? stats?.overall : stats?.total ) ?? null;
+
+		rows.push( { year, months, total } );
 	}
 
 	return rows;

@@ -113,7 +113,7 @@
 		},
 		"collectShippingAddress": {
 			"type": "boolean",
-			"default": false
+			"default": true
 		},
 		"shippingEnabled": {
 			"type": "boolean",

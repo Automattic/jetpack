@@ -9,6 +9,7 @@ export const VIDEO_DETAIL_LAYOUT: DashboardWidget[] = [
 	{
 		uuid: 'video-detail-views-performance',
 		type: 'jpa/video-detail-views-performance',
+		attributes: { chartType: 'bar' },
 		placement: { width: PA_COLUMN_COUNT, height: 2, order: 1 },
 	},
 	{

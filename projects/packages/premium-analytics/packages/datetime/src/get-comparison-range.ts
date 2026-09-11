@@ -25,8 +25,15 @@ import {
  */
 import { completeToDateRange } from './to-date-range';
 import type { PrimaryPresetId } from './presets/types';
+import type { TZDate } from '@date-fns/tz';
 
-export type DateRange = { from?: Date; to?: Date };
+/**
+ * An inclusive range of instants, each anchored to the zone it was read in.
+ *
+ * Zoned rather than plain, so `getDateRangeSpan` cuts day boundaries on the
+ * site's clock; a plain `Date` cuts them on the browser's and lands a day out.
+ */
+export type DateRange = { from?: TZDate; to?: TZDate };
 
 export const COMPARISON_PREVIOUS_PERIOD = 'previous-period' as const;
 export const COMPARISON_PREVIOUS_WEEK = 'previous-week' as const;
@@ -62,7 +69,7 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
  * @param to   - Range end.
  * @return The inclusive day count.
  */
-function getInclusiveDayCount( from: Date, to: Date ): number {
+function getInclusiveDayCount( from: TZDate, to: TZDate ): number {
 	return differenceInDays( to, from ) + 1;
 }
 
@@ -79,7 +86,7 @@ function getInclusiveDayCount( from: Date, to: Date ): number {
  * @param to   - Range end.
  * @return The month count, or null.
  */
-export function getWholeMonthCount( from: Date, to: Date ): number | null {
+export function getWholeMonthCount( from: TZDate, to: TZDate ): number | null {
 	const isDayAligned =
 		from.getTime() === startOfDay( from ).getTime() && to.getTime() === endOfDay( to ).getTime();
 
@@ -145,7 +152,7 @@ export function getComparisonRangeFromPreset(
 	// duration: a calendar shift clamps day-of-month and would collapse the window.
 	if ( ! isDayAligned ) {
 		const windowMs = differenceInMilliseconds( refTo, refFrom );
-		let to: Date;
+		let to: TZDate;
 
 		if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
 			// Both ends are inclusive, so the window lasts `windowMs + 1`; shifting
@@ -167,7 +174,9 @@ export function getComparisonRangeFromPreset(
 		};
 	}
 
-	const clampDayBound = ( date: Date, bound: 0 | 1 ) =>
+	// Annotated: a nested `date-fns` call has no contextual type to infer the
+	// zoned subclass from, and would widen the result back to a plain `Date`.
+	const clampDayBound = ( date: TZDate, bound: 0 | 1 ): TZDate =>
 		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
 
 	if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {

@@ -5,13 +5,13 @@ import TimeAgo from '../time-ago/time-ago';
 import InfoIcon from '$svg/info';
 import RefreshIcon from '$svg/refresh';
 import { createInterpolateElement } from '@wordpress/element';
-import { Link } from 'react-router';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import { Button } from '@automattic/jetpack-components';
 import styles from './status.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import { subpageHref } from '$lib/modern/routes';
 import type { FC } from 'react';
 
 type StatusTypes = {
@@ -96,7 +96,13 @@ const Status: FC< StatusTypes > = ( {
 									providersWithErrors.length
 								),
 								{
-									advanced: <Link to="/critical-css-advanced" onClick={ handleAdvancedClick } />,
+									advanced: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content -- createInterpolateElement supplies the content.
+										<a
+											href={ subpageHref( 'critical-css-advanced' ) }
+											onClick={ handleAdvancedClick }
+										/>
+									),
 								}
 							) }
 						</>

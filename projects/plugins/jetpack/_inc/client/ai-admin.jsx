@@ -4,6 +4,8 @@
  * Mounts the React app into the #jetpack-ai-root div rendered by Jetpack_AI_Page::page_render().
  */
 
+// Must run before any module that can trigger a chunk load.
+import './ai/public-path';
 import apiFetch from '@wordpress/api-fetch';
 import * as WPElement from '@wordpress/element';
 import analytics from 'lib/analytics';

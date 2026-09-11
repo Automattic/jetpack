@@ -6,6 +6,12 @@ export {
 } from './get-comparison-range';
 export type { ComparisonRangeOptions } from './get-comparison-range';
 
+/**
+ * Re-exported so a consumer naming a `DateRange` bound does not have to take a
+ * direct dependency on `@date-fns/tz`.
+ */
+export type { TZDate } from '@date-fns/tz';
+
 export {
 	createTZDateFromParts,
 	toLocalTZ,

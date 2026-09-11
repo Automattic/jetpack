@@ -7,6 +7,7 @@ let integrations = [];
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	createReduxStore: jest.fn(),
 	register: jest.fn(),
+	select: jest.fn(),
 	useDispatch: () => ( { __unstableMarkNextChangeAsNotPersistent: markNextChangeAsNotPersistent } ),
 	useSelect: selector =>
 		selector( () => ( {

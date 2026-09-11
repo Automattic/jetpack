@@ -3,7 +3,7 @@
  *
  * Covers client-side validation functions extracted from edit.js:
  * validatePrice, validateProductName, validateDescription,
- * getUserFriendlyError, and the VALID_CURRENCY_CODES constant.
+ * validateTaxRate, validateReturnUrl, getUserFriendlyError.
  *
  * @package
  */
@@ -20,8 +20,9 @@ import {
 	validatePrice,
 	validateProductName,
 	validateDescription,
+	validateTaxRate,
+	validateReturnUrl,
 	getUserFriendlyError,
-	VALID_CURRENCY_CODES,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
 } from '../../src/paypal-payment-buttons/utils/validation';
@@ -123,15 +124,70 @@ describe( 'validateDescription', () => {
 	} );
 
 	it( 'returns an error when value exceeds MAX_DESCRIPTION_LENGTH', () => {
-		const longDesc = 'a'.repeat( 257 );
+		const longDesc = 'a'.repeat( 2049 );
 		expect( validateDescription( longDesc ) ).toBe(
 			`Description must be ${ MAX_DESCRIPTION_LENGTH } characters or fewer.`
 		);
 	} );
 
 	it( 'returns null for a description at exactly MAX_DESCRIPTION_LENGTH', () => {
-		const maxDesc = 'a'.repeat( 256 );
+		const maxDesc = 'a'.repeat( 2048 );
 		expect( validateDescription( maxDesc ) ).toBeNull();
+	} );
+} );
+
+describe( 'validateTaxRate', () => {
+	const required = 'To continue, add the requested info or turn off this feature.';
+
+	it.each( [ null, undefined, '', '   ' ] )( 'returns an error for %p', value => {
+		expect( validateTaxRate( value ) ).toBe( required );
+	} );
+
+	it( 'returns an error when the rate is zero', () => {
+		expect( validateTaxRate( '0' ) ).toBe( required );
+	} );
+
+	it( 'returns an error when the rate is negative', () => {
+		expect( validateTaxRate( '-5' ) ).toBe( required );
+	} );
+
+	it( 'returns an error when the rate is not a number', () => {
+		expect( validateTaxRate( 'abc' ) ).toBe( required );
+	} );
+
+	it( 'returns null for a rate above zero', () => {
+		expect( validateTaxRate( '8.25' ) ).toBeNull();
+	} );
+
+	it( 'returns null for the smallest rate the control allows', () => {
+		expect( validateTaxRate( '0.01' ) ).toBeNull();
+	} );
+
+	// The control's max attribute is the only upper bound; PayPal's own is unmeasured.
+	it( 'accepts a rate above the control’s maximum', () => {
+		expect( validateTaxRate( '150' ) ).toBeNull();
+	} );
+} );
+
+describe( 'validateReturnUrl', () => {
+	const httpsOnly = 'Return URL must use HTTPS (e.g., https://example.com/thank-you).';
+
+	// The field is optional, so no URL is a valid answer.
+	it.each( [ null, undefined, '' ] )( 'returns null for %p', value => {
+		expect( validateReturnUrl( value ) ).toBeNull();
+	} );
+
+	it( 'returns null for an HTTPS URL', () => {
+		expect( validateReturnUrl( 'https://example.com/thanks' ) ).toBeNull();
+	} );
+
+	it.each( [
+		[ 'plain HTTP', 'http://example.com/thanks' ],
+		[ 'a scheme-relative URL', '//example.com/thanks' ],
+		[ 'a bare host', 'example.com' ],
+		[ 'the scheme on its own', 'https://' ],
+	] )( 'returns an error for %s', ( _label, value ) => {
+		expect( validateReturnUrl( value ) ).toBe( httpsOnly );
 	} );
 } );
 
@@ -151,15 +207,5 @@ describe( 'getUserFriendlyError', () => {
 	it( 'returns a generic fallback for unknown errors', () => {
 		const err = {};
 		expect( getUserFriendlyError( err ) ).toBe( 'An unexpected error occurred. Please try again.' );
-	} );
-} );
-
-describe( 'VALID_CURRENCY_CODES', () => {
-	it.each( [ 'USD', 'EUR', 'GBP', 'JPY' ] )( 'contains %s', code => {
-		expect( VALID_CURRENCY_CODES.has( code ) ).toBe( true );
-	} );
-
-	it( 'does not contain an invalid currency code', () => {
-		expect( VALID_CURRENCY_CODES.has( 'XYZ' ) ).toBe( false );
 	} );
 } );
