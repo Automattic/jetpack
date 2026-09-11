@@ -15,9 +15,9 @@ export type FeatureState = {
 	action: FeatureAction;
 	product?: ProductCamelCase;
 	module?: MyJetpackModule;
-	// Whether the row can take part in a bulk action. A feature that needs a paid plan
-	// or has nothing to switch cannot, so its checkbox is disabled.
-	selectable: boolean;
+	// Whether the card has something local to switch. A feature that needs a paid plan,
+	// or is pinned by a filter, has no state the card could put it into.
+	switchable: boolean;
 };
 
 const stateForFeature = (
@@ -36,7 +36,7 @@ const stateForFeature = (
 			product,
 			action,
 			status: action === 'running' ? 'active' : 'inactive',
-			selectable: action === 'install' || action === 'activate' || action === 'running',
+			switchable: action === 'install' || action === 'activate' || action === 'running',
 		};
 	}
 
@@ -44,7 +44,7 @@ const stateForFeature = (
 		const $module = modules?.[ feature.module as JetpackModuleSlug ];
 
 		if ( ! $module ) {
-			return { feature, action: 'link_only', status: feature.status, selectable: false };
+			return { feature, action: 'link_only', status: feature.status, switchable: false };
 		}
 
 		return {
@@ -53,11 +53,11 @@ const stateForFeature = (
 			action: $module.activated ? 'running' : 'activate',
 			status: $module.activated ? 'active' : 'inactive',
 			// An overridden module is pinned on or off by a filter, so it cannot be toggled.
-			selectable: $module.available && ! $module.override,
+			switchable: $module.available && ! $module.override,
 		};
 	}
 
-	return { feature, action: 'link_only', status: feature.status, selectable: false };
+	return { feature, action: 'link_only', status: feature.status, switchable: false };
 };
 
 /**

@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Replace the Overview and Products tabs with a single Features tab listing all Jetpack features, with bulk activation and per-feature detail pages.
+Add a Features tab listing every Jetpack feature as a card, each with an on/off switch and a details panel.

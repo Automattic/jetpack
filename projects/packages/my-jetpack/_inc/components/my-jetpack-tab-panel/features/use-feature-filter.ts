@@ -1,5 +1,6 @@
+import { __ } from '@wordpress/i18n';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
-import type { BulkTarget } from './partition-selection';
+import type { FeatureState } from './feature-state';
 
 export type FeatureFilter =
 	| 'all'
@@ -17,46 +18,53 @@ export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
 	[ 'all', 'active', 'inactive', 'recommended', 'essential', ...PLANS ].includes( value );
 
 /**
- * Whether a target passes the current filter.
+ * The filters offered as pills, in the order they are shown.
  *
- * `essential` is a property of the main features only, and `recommended` a tag Jetpack
- * puts on modules, so each filter naturally narrows to one of the two lists.
- *
- * @param target - The feature or module to test.
- * @param filter - The active filter.
- * @return True when the row should be shown.
+ * @return One entry per filter, each with its label.
  */
-export function matchesFilter( target: BulkTarget, filter: FeatureFilter ): boolean {
+export const getFeatureFilters = (): Array< { value: FeatureFilter; label: string } > => [
+	{ value: 'all', label: __( 'All', 'jetpack-my-jetpack' ) },
+	{ value: 'active', label: __( 'Active', 'jetpack-my-jetpack' ) },
+	{ value: 'inactive', label: __( 'Inactive', 'jetpack-my-jetpack' ) },
+	{ value: 'recommended', label: __( 'Recommended', 'jetpack-my-jetpack' ) },
+	{ value: 'essential', label: __( 'Essential', 'jetpack-my-jetpack' ) },
+	{ value: 'security', label: __( 'In Jetpack Security', 'jetpack-my-jetpack' ) },
+	{ value: 'complete', label: __( 'In Jetpack Complete', 'jetpack-my-jetpack' ) },
+	{ value: 'growth', label: __( 'In Jetpack Growth', 'jetpack-my-jetpack' ) },
+];
+
+/**
+ * Whether a feature passes the current filter.
+ *
+ * @param state  - Live state for the feature to test.
+ * @param filter - The active filter.
+ * @return True when the card should be shown.
+ */
+export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boolean {
 	if ( filter === 'all' ) {
 		return true;
 	}
 
-	const isActive =
-		target.kind === 'feature' ? target.state.status === 'active' : target.module.activated;
-
 	if ( filter === 'active' ) {
-		return isActive;
+		return state.status === 'active';
 	}
 
 	if ( filter === 'inactive' ) {
-		return ! isActive;
+		return state.status !== 'active';
 	}
 
 	if ( PLANS.includes( filter ) ) {
-		return (
-			target.kind === 'feature' &&
-			!! target.state.feature.plans?.some( plan => plan.slug === filter )
-		);
+		return !! state.feature.plans?.some( plan => plan.slug === filter );
 	}
 
 	if ( filter === 'essential' ) {
-		return target.kind === 'feature' && !! target.state.feature.essential;
+		return !! state.feature.essential;
 	}
 
+	// `Recommended` is a tag Jetpack puts on the module behind a feature, and never
+	// reaches the browser on the feature itself.
 	const recommended = ( getMyJetpackWindowInitialState( 'recommendedModuleSlugs' ) ||
 		[] ) as unknown as string[];
 
-	const moduleSlug = target.kind === 'feature' ? target.state.module?.module : target.module.module;
-
-	return !! moduleSlug && recommended.includes( moduleSlug );
+	return !! state.module?.module && recommended.includes( state.module.module );
 }

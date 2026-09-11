@@ -10,21 +10,33 @@ $feature-icon-foreground: #0ced57;
 	gap: var(--wpds-dimension-gap-sm);
 }
 
-.feature-list {
-	background: var(--wpds-color-background-surface-neutral-strong);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	border-radius: var(--wpds-border-radius-md);
-	overflow: hidden;
+.feature-grid {
+	display: grid;
+	gap: var(--wpds-dimension-gap-md);
+	grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
 }
 
 .feature-item {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
 	padding: var(--wpds-dimension-padding-lg);
+}
 
-	& + & {
-		border-block-start-color: var(--wpds-color-stroke-surface-neutral-weak);
-		border-block-start-style: solid;
-		border-block-start-width: var(--wpds-border-width-xs);
-	}
+.feature-item__heading {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+.feature-item__description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// Pinned to the bottom of the card so Learn more lines up across a row of
+// cards with descriptions of different lengths.
+.feature-item__footer {
+	margin-block-start: auto;
+	margin-inline-start: calc(var(--wpds-dimension-gap-sm) * -1);
 }
 
 .feature-icon {
@@ -57,12 +69,6 @@ $feature-icon-foreground: #0ced57;
 		fill: currentColor;
 		inline-size: 28px;
 	}
-}
-
-
-.feature-item__details {
-	flex: 1;
-	min-inline-size: 0;
 }
 
 
@@ -160,8 +166,8 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
-// Matches the rendered width of a FormToggle, so rows without
-// one keep the column.
+// Matches the rendered width of a FormToggle, so cards without
+// one keep the same heading width.
 .feature-toggle-slot {
 	display: flex;
 	flex-shrink: 0;
@@ -246,14 +252,14 @@ $feature-icon-foreground: #0ced57;
 }
 
 
-.search-heading {
+.empty-heading {
 
 	@include gb.heading-x-large;
 	margin-block: 0;
 }
 
-// Sticky so a selection made far down a long list can still be
-// acted on. The offset clears the wp-admin bar, which is fixed.
+// Sticky so the filters stay reachable while scrolling a long grid. The
+// offset clears the wp-admin bar, which is fixed.
 .toolbar {
 	background: var(--wpds-color-background-surface-neutral-strong);
 	border-color: var(--wpds-color-stroke-surface-neutral-weak);
@@ -267,12 +273,14 @@ $feature-icon-foreground: #0ced57;
 	z-index: 10;
 }
 
-.toolbar__status {
-	color: var(--wpds-color-foreground-content-neutral-weak);
+.pills {
+	flex: 1;
+	min-inline-size: 0;
 }
 
-.toolbar__end {
+.search {
 	margin-inline-start: auto;
+	min-inline-size: 16rem;
 }
 
 
