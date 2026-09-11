@@ -28,7 +28,14 @@ export default function OverviewBody(): JSX.Element {
 				{ title }
 			</Text>
 			<Card.Root className="jetpack-newsletter-overview__intro-card">
-				<Card.Header className="jetpack-newsletter-overview__intro-header">
+				<Stack
+					className="jetpack-newsletter-overview__intro-header"
+					render={ <Card.Header /> }
+					direction="row"
+					gap="md"
+					align="center"
+					justify="space-between"
+				>
 					<Card.Title>
 						<Stack direction="row" align="center" gap="sm">
 							<span className="jetpack-newsletter-overview__icons" aria-hidden="true">
@@ -44,7 +51,7 @@ export default function OverviewBody(): JSX.Element {
 							</Text>
 						</Stack>
 					</Card.Title>
-				</Card.Header>
+				</Stack>
 				<Card.Content className="jetpack-newsletter-overview__content">
 					<Text render={ <p /> } className="jetpack-newsletter-overview__description">
 						{ __(

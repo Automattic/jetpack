@@ -17,12 +17,6 @@
 		inline-size: 100%;
 	}
 
-	&__intro-header {
-		display: flex;
-		gap: var(--wpds-dimension-gap-md);
-		align-items: center;
-		justify-content: space-between;
-	}
 
 	&__icons {
 		display: inline-grid;
