@@ -10,11 +10,11 @@ function addDays( date: string, days: number ): string {
 	return calendarDate.toISOString().slice( 0, 10 );
 }
 
-export function getHistoryWindow( offset: number, now = new Date() ): HistoryWindow {
+export function getHistoryWindow( offset: number, now = new Date(), dayCount = 30 ): HistoryWindow {
 	const today = dateI18n( 'Y-m-d', now, false );
-	const lastDay = addDays( today, -30 * Math.max( 0, Math.trunc( offset ) ) );
+	const lastDay = addDays( today, -dayCount * Math.max( 0, Math.trunc( offset ) ) );
 	return {
-		startDate: getDate( `${ addDays( lastDay, -29 ) }T00:00:00` ).getTime(),
+		startDate: getDate( `${ addDays( lastDay, 1 - dayCount ) }T00:00:00` ).getTime(),
 		endDate: getDate( `${ addDays( lastDay, 1 ) }T00:00:00` ).getTime() - 1,
 	};
 }
@@ -47,7 +47,12 @@ export function bucketHistoryDays(
 		}
 	}
 	const firstDay = dateI18n( 'Y-m-d', window.startDate, false );
-	return Array.from( { length: 30 }, ( _, index ) => {
+	const lastDay = dateI18n( 'Y-m-d', window.endDate, false );
+	const length = Math.max(
+		0,
+		Math.round( ( Date.parse( lastDay ) - Date.parse( firstDay ) ) / 86400000 ) + 1
+	);
+	return Array.from( { length }, ( _, index ) => {
 		const date = addDays( firstDay, index );
 		return { date, period: byDay.get( date ) };
 	} );

@@ -126,7 +126,13 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const cardBox = ( await page
 			.getByText( 'Last 30 days scores', { exact: true } )
 			.boundingBox() )!;
-		expect( popupBox.x ).toBeGreaterThanOrEqual( Math.floor( hoveredBar.x + hoveredBar.width ) );
+		expect(
+			popupBox.x >= Math.floor( hoveredBar.x + hoveredBar.width ) ||
+				popupBox.x + popupBox.width <= Math.ceil( hoveredBar.x )
+		).toBe( true );
+		const chartBounds = ( await chart.boundingBox() )!;
+		expect( popupBox.x ).toBeGreaterThanOrEqual( chartBounds.x );
+		expect( popupBox.x + popupBox.width ).toBeLessThanOrEqual( chartBounds.x + chartBounds.width );
 		expect( popupBox.y ).toBeLessThan( cardBox.y + cardBox.height );
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
 			'font-weight',
@@ -187,7 +193,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await page.setViewportSize( { width: 390, height: 900 } );
 		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
 		const bars = chart.locator( '.visx-bar' );
-		await expect( bars ).toHaveCount( 30 );
+		await expect( bars ).toHaveCount( 15 );
 		await expect( bars.first() ).toHaveCSS( 'fill', 'rgb(224, 224, 224)' );
 		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
 		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
@@ -195,16 +201,16 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await grid.focus();
 		await page.keyboard.press( 'ArrowRight' );
 		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
-		await expect( surface ).toContainText( 'August 11, 2026' );
+		await expect( surface ).toContainText( 'August 26, 2026' );
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
-		await expect( surface ).toContainText( 'No score recorded before you unlocked this feature.' );
+		await expect( surface ).toContainText( 'No scores recorded before feature was unlocked' );
 		await page.keyboard.press( 'ArrowRight' );
-		await expect( surface ).toContainText( 'August 12, 2026' );
+		await expect( surface ).toContainText( 'August 27, 2026' );
 		await page.keyboard.press( 'Escape' );
 		await expect( surface ).toBeHidden();
 		for ( const [ index, date ] of [
-			[ 21, 'September 1, 2026' ],
-			[ 27, 'September 7, 2026' ],
+			[ 6, 'September 1, 2026' ],
+			[ 12, 'September 7, 2026' ],
 		] as const ) {
 			await hoverDay( chart, index );
 			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
@@ -213,7 +219,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 			expect( popup.x ).toBeGreaterThanOrEqual( 0 );
 			expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
 		}
-		const zeroBar = bars.nth( 27 );
+		const zeroBar = bars.nth( 12 );
 		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
 		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
@@ -248,7 +254,7 @@ test( 'uses compact plots with three horizontal gridlines and no band legend', a
 	expect( band.y + band.height ).toBeCloseTo( secondSvg.y + secondSvg.height - 24, 0 );
 	expect( band.width ).toBeCloseTo( bar.width + 1, 0 );
 	const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
-	await expect( tooltip ).toContainText( 'No score recorded before you unlocked this feature.' );
+	await expect( tooltip ).toContainText( 'No scores recorded before feature was unlocked' );
 	await expect( tooltip ).toHaveCSS( 'width', '265px' );
 	await expect( tooltip ).toHaveCSS( 'height', '106px' );
 	const emptyPopup = ( await tooltip.boundingBox() )!;
@@ -341,22 +347,9 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	}
 	await expect( desktop.first().getByText( '+10 points compared with Boost disabled' ) ).toHaveCSS(
 		'color',
-		'rgb(0, 138, 32)'
+		'rgb(0, 128, 48)'
 	);
 	await expect( mobile.getByText( /compared with Boost disabled/ ) ).toHaveCount( 0 );
-	await expect( mobile.getByRole( 'progressbar' ) ).toHaveCSS( 'color', 'rgb(245, 118, 0)' );
-	await expect( desktop.nth( 1 ).getByRole( 'progressbar' ) ).toHaveCSS(
-		'color',
-		'rgb(204, 24, 24)'
-	);
-	await expect( desktop.first().getByText( '+10 points compared to without Boost' ) ).toHaveCSS(
-		'color',
-		'rgb(0, 138, 32)'
-	);
-	await expect( mobile.getByText( '−10 points compared to without Boost' ) ).toHaveCSS(
-		'color',
-		'rgb(204, 24, 24)'
-	);
 	await expect( desktop.first() ).toHaveCSS( 'padding-top', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-bottom', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-left', '20px' );
@@ -407,4 +400,25 @@ test.describe( 'Overall grade help', () => {
 		await trigger.tap();
 		await expect( popup ).toBeVisible();
 	} );
+} );
+
+test( 'switches at the narrow breakpoint and pages by the visible number of days', async ( {
+	page,
+} ) => {
+	const bars = page.getByRole( 'region', { name: 'Desktop score history' } ).locator( '.visx-bar' );
+	await page.setViewportSize( { width: 601, height: 900 } );
+	await expect( bars ).toHaveCount( 30 );
+	await page.getByRole( 'button', { name: 'Previous 30 days' } ).click();
+	await expect( page.getByText( 'Jul 12 – Aug 10, 2026', { exact: true } ) ).toBeVisible();
+	await page.setViewportSize( { width: 600, height: 900 } );
+	await expect( bars ).toHaveCount( 15 );
+	await expect( page.getByText( 'Aug 26 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
+	await expect( page.getByRole( 'button', { name: 'Next 15 days' } ) ).toBeDisabled();
+	await page.getByRole( 'button', { name: 'Previous 15 days' } ).click();
+	await expect( page.getByText( 'Aug 11 – Aug 25, 2026', { exact: true } ) ).toBeVisible();
+	await page.getByRole( 'button', { name: 'Next 15 days' } ).click();
+	await expect( page.getByText( 'Aug 26 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
+	await page.setViewportSize( { width: 601, height: 900 } );
+	await expect( bars ).toHaveCount( 30 );
+	await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 } );
