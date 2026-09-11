@@ -75,6 +75,28 @@ describe( 'buildViewsOverYearsRows', () => {
 		expect( rows.map( row => row.total ) ).toEqual( [ 8, 15 ] );
 	} );
 
+	it( 'keeps a bucket after today rather than hiding its views', () => {
+		const rows = buildViewsOverYearsRows(
+			[ ...BUCKETS, { date: '2026-04-01', views: 999 } ],
+			'total',
+			TODAY
+		);
+
+		expect( rows[ 0 ].months.slice( 2, 5 ) ).toEqual( [ 450, 999, null ] );
+		expect( rows[ 0 ].total ).toBe( 1604 );
+	} );
+
+	it( 'divides the current month by one day on the first', () => {
+		const rows = buildViewsOverYearsRows( [ { date: '2026-03-01', views: 42 } ], 'average', {
+			year: 2026,
+			month: 2,
+			day: 1,
+		} );
+
+		expect( rows[ 0 ].months[ 2 ] ).toBe( 42 );
+		expect( rows[ 0 ].total ).toBe( 42 );
+	} );
+
 	it( 'fills a silent year between two with views', () => {
 		const rows = buildViewsOverYearsRows(
 			[

@@ -14,8 +14,8 @@ import { useMemo } from 'react';
  */
 import { buildViewsOverYearsRows } from './build-views-over-years';
 
-// Before any WordPress.com site existed. The endpoint walks no further back
-// than the site's own registration, so this costs nothing beyond its history.
+// Before any WordPress.com site existed. The endpoint's DB walk stops at the
+// site's registration; the response still pads zero months back to this date.
 const EARLIEST_STATS_DATE = '2005-01-01';
 
 export interface ViewsOverYearsState {
