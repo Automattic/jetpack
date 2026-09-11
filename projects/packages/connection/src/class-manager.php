@@ -1364,10 +1364,6 @@ class Manager {
 	 * token on top of that is what keeps a row written by another subsystem from ever satisfying
 	 * this: both halves are load-bearing, and there are tests for each.
 	 *
-	 * Known gap: if the owner subscribes to their own site under a different WordPress.com
-	 * account, Premium Content overwrites their row and this goes false until the owner is
-	 * established again.
-	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
@@ -1402,6 +1398,10 @@ class Manager {
 	/**
 	 * Record a user as the protected owner and promote them to connection owner.
 	 *
+	 * Gated on `jetpack_connect` rather than on a role: a host can narrow that capability and
+	 * multisite does. It is false while the package is unconfigured, so a caller that has not
+	 * registered the connection's capabilities is refused rather than trusted.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @param int    $user_id      The local user to anchor.
@@ -1409,6 +1409,16 @@ class Manager {
 	 * @return true|WP_Error True on success, WP_Error otherwise.
 	 */
 	public function set_protected_owner( $user_id, $confirmed_by ) {
+		// Authorization precedes validation, so an unauthorized caller cannot use the argument
+		// errors below to learn which users are administrators or hold a token.
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return new WP_Error(
+				'protected_owner_forbidden',
+				__( 'You do not have permission to manage the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		$user_id = absint( $user_id );
 		$roles   = new Roles();
 
@@ -1462,13 +1472,36 @@ class Manager {
 	/**
 	 * Drop the protected owner anchor, unlocking ownership.
 	 *
+	 * Gated on `jetpack_connect` like establishing one, releasing a lock being the more
+	 * consequential half. The `@internal` tag is documentation; the capability is enforcement.
+	 *
 	 * @internal Recovery and support flows only. Consumers must not call this.
 	 * @since $$next-version$$
 	 *
-	 * @return bool Whether the anchor was deleted.
+	 * @return true|WP_Error True once no anchor is set, WP_Error otherwise.
 	 */
 	public function clear_protected_owner() {
-		return Protected_Owner::clear();
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return new WP_Error(
+				'protected_owner_forbidden',
+				__( 'You do not have permission to manage the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		Protected_Owner::clear();
+
+		// Asked of the outcome rather than of `delete_option()`, which also reports false for an
+		// anchor that was already absent — the state the caller asked for.
+		if ( Protected_Owner::get() ) {
+			return new WP_Error(
+				'protected_owner_not_cleared',
+				__( 'Could not clear the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return true;
 	}
 
 	/**
