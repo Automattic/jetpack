@@ -5,7 +5,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 } ) );
 
 import { render, screen } from '@testing-library/react';
-import OverviewBody from '../routes/dashboard/components/overview-body';
+import OverviewBody from '..';
 
 beforeEach( () => {
 	mockGetScriptData.mockReset();

@@ -58,7 +58,7 @@ jest.mock( '@wordpress/ui', () => ( {
 // records the `importRefreshEnabled` prop so we can assert the poll gating.
 let mockImportRefreshEnabled: boolean | undefined;
 
-jest.mock( '../_inc/subscribers/components/subscribers-body', () => ( {
+jest.mock( '../../../_inc/subscribers/components/subscribers-body', () => ( {
 	__esModule: true,
 	default: ( {
 		importRefreshEnabled,
@@ -72,49 +72,49 @@ jest.mock( '../_inc/subscribers/components/subscribers-body', () => ( {
 	},
 } ) );
 
-jest.mock( '../_inc/subscribers/components/connection-gate', () => ( {
+jest.mock( '../../../_inc/subscribers/components/connection-gate', () => ( {
 	__esModule: true,
 	default: () => <div data-testid="connection-gate" />,
 } ) );
 
-jest.mock( '../_inc/subscribers/lib/query-client', () => ( {
+jest.mock( '../../../_inc/subscribers/lib/query-client', () => ( {
 	queryClient: {},
 } ) );
 
-jest.mock( '../src/settings/newsletter-settings', () => ( {
+jest.mock( '../../../src/settings/newsletter-settings', () => ( {
 	NewsletterSettingsBody: () => null,
 } ) );
 
-jest.mock( '../routes/dashboard/components/overview-body', () => ( {
+jest.mock( '../components/overview-body', () => ( {
 	__esModule: true,
 	default: () => null,
 } ) );
 
-jest.mock( '../routes/dashboard/components/subscriber-stats-chart', () => ( {
+jest.mock( '../components/subscriber-stats-chart', () => ( {
 	__esModule: true,
 	default: () => <div data-testid="subscriber-stats-chart" />,
 } ) );
 
-jest.mock( '../src/settings/script-data', () => ( {
+jest.mock( '../../../src/settings/script-data', () => ( {
 	getNewsletterScriptData: () => mockGetNewsletterScriptData(),
 } ) );
 
 // NewsletterPage's render output is irrelevant for the analytics contract;
 // reduce it to a children passthrough so the test doesn't depend on the
 // shell's tab nav, AdminPage wiring, or SCSS imports.
-jest.mock( '../_inc/components/newsletter-page', () => ( {
+jest.mock( '../../../_inc/components/newsletter-page', () => ( {
 	__esModule: true,
 	default: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
 } ) );
 
 // SCSS side-effect imports — no-op in jest.
-jest.mock( '../src/settings/style.scss', () => ( {} ), { virtual: true } );
-jest.mock( '../routes/dashboard/route.scss', () => ( {} ), { virtual: true } );
+jest.mock( '../../../src/settings/style.scss', () => ( {} ), { virtual: true } );
+jest.mock( '../route.scss', () => ( {} ), { virtual: true } );
 
 // Imports must come after the jest.mock factories above.
 import { render, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
-import { stage as Stage } from '../routes/dashboard/stage';
+import { stage as Stage } from '../stage';
 
 beforeEach( () => {
 	mockRecordEvent.mockReset();

@@ -91,13 +91,13 @@ jest.mock( '@wordpress/ui', () => {
 	};
 } );
 
-jest.mock( '../src/settings/script-data', () => ( {
+jest.mock( '../../../src/settings/script-data', () => ( {
 	getNewsletterScriptData: () => mockGetNewsletterScriptData(),
 } ) );
 
 // Imports must come after the jest.mock factories above.
 import { render, screen } from '@testing-library/react';
-import NewsletterPage from '../_inc/components/newsletter-page';
+import NewsletterPage from '../newsletter-page';
 
 beforeEach( () => {
 	mockNavigate.mockReset();
