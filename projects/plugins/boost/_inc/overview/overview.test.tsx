@@ -122,6 +122,7 @@ test( 'contains a render failure with the Overview error fallback', () => {
 test.each( [
 	[ 'score', 'Failed to load Speed Scores' ],
 	[ 'performance-history', 'Failed to load performance history' ],
+	[ 'modules-state', 'Failed to load module settings' ],
 ] )( 'keeps %s errors silent while the Overview is hidden', async ( source, message ) => {
 	/* eslint-disable testing-library/no-node-access */
 	const region =
