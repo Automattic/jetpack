@@ -637,12 +637,11 @@
 	margin-top: 8px;
 }
 
+// Matches .jetpack-paypal-variants__group above: no card, no side indent, so
+// the field gets the panel's full width.
 .jetpack-paypal-payment-buttons__customer-note {
-	border: 1px solid #e0e0e0;
-	border-radius: 4px;
-	padding: 12px;
+	padding: 12px 0;
 	margin-bottom: 8px;
-	background: #fff;
 }
 
 .jetpack-paypal-payment-buttons__customer-note-controls {
