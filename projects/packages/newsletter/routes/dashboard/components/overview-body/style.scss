@@ -108,7 +108,7 @@
 		text-decoration: none;
 
 		/** start styles to fix focus outline being cut off by the border */
-		margin-inline: 1px;
+		margin-inline: 3px;
 		margin-block: 1px;
 		border-radius: var(--wpds-border-radius-lg);
 
@@ -121,9 +121,10 @@
 
 	/** style to fix the last guide link having a bottom border radius */
 	&__guide:last-child &__guide-link {
-		margin-block-end: 2px;
-		border-end-start-radius: var(--wpds-border-radius-md);
 		border-end-end-radius: var(--wpds-border-radius-md);
+		border-end-start-radius: var(--wpds-border-radius-md);
+		margin-block-end: 3px;
+		margin-inline: 3px;
 	}
 
 	/** end style to fix the last guide link having a bottom border radius */
