@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+JSON API: avoid a PHP warning and silently-truncated input when a POST body exceeds max_input_vars.
