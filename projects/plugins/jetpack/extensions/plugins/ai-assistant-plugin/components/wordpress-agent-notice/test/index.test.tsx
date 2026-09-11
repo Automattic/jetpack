@@ -118,6 +118,20 @@ describe( 'WordPressAgentNotice', () => {
 			// who had dismissed the notice while it was on.
 			expect( stateFor( false, true ) ).toEqual( { isVisible: false, isDismissed: false } );
 		} );
+
+		it( 'brings the notice back where the Agent was turned off after a dismissal', () => {
+			mockIsAgentEnabled = false;
+			mockCanOpenAgent = false;
+
+			expect( stateFor( true, true ) ).toEqual( { isVisible: true, isDismissed: false } );
+		} );
+
+		it( 'honours a dismissal where there is a chat to open, whatever the server flag says', () => {
+			mockIsAgentEnabled = false;
+			mockCanOpenAgent = true;
+
+			expect( stateFor( true, true ) ).toEqual( { isVisible: false, isDismissed: true } );
+		} );
 	} );
 
 	describe( 'when the chat is already on screen', () => {
@@ -281,13 +295,10 @@ describe( 'WordPressAgentNotice', () => {
 			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toBeInTheDocument();
 		} );
 
-		it( 'can still be dismissed', async () => {
-			const user = userEvent.setup();
+		it( 'cannot be dismissed, being the only way to the Agent', () => {
 			render( <WordPressAgentNotice placement="document-settings" /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
-
-			expect( isDismissed() ).toBe( true );
+			expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) ).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -317,6 +328,15 @@ describe( 'WordPressAgentNotice', () => {
 			expect(
 				screen.queryByRole( 'button', { name: 'Open WordPress Agent' } )
 			).not.toBeInTheDocument();
+		} );
+
+		it( 'can still be dismissed', async () => {
+			const user = userEvent.setup();
+			render( <WordPressAgentNotice placement="document-settings" /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+
+			expect( isDismissed() ).toBe( true );
 		} );
 	} );
 
