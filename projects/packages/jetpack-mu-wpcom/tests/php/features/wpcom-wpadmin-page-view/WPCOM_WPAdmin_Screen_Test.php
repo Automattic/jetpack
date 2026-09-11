@@ -55,6 +55,7 @@ class WPCOM_WPAdmin_Screen_Test extends \WorDBless\BaseTestCase {
 
 		$props = wpcom_get_admin_screen_event_props( $this->login_and_set_screen( 'edit-post' ) );
 
+		$this->assertIsArray( $props );
 		$this->assertSame( 'edit-post', $props['screen_id'] );
 		$this->assertSame( 'false', $props['is_block_editor'] );
 		$this->assertSame( 'simple', $props['platform'] );
@@ -72,6 +73,7 @@ class WPCOM_WPAdmin_Screen_Test extends \WorDBless\BaseTestCase {
 
 		$props = wpcom_get_admin_screen_event_props( $this->login_and_set_screen() );
 
+		$this->assertIsArray( $props );
 		$this->assertSame( 'dashboard', $props['screen_id'] );
 		$this->assertSame( 'atomic', $props['platform'] );
 	}
