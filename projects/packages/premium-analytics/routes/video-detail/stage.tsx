@@ -95,10 +95,14 @@ function VideoDetail(): JSX.Element {
 
 	// Without cards there is nothing to arrange, and a refetch that fails
 	// mid-customize would otherwise hide Cancel and Done along with the grid.
-	const { isCustomizing, canPerform, startCustomizing, onEditChange } = useDetailPageCustomize(
-		layout,
-		{ enabled: canRenderWidgets }
-	);
+	const {
+		isCustomizing,
+		canCustomize,
+		canPerform,
+		startCustomizing,
+		resetToDefault,
+		onEditChange,
+	} = useDetailPageCustomize( layout, { enabled: canRenderWidgets, onLayoutReset: resetLayout } );
 
 	// Error and not-found responses have no trustworthy title, so only a
 	// resolved video adds the title crumb.
@@ -161,16 +165,13 @@ function VideoDetail(): JSX.Element {
 							<StatsBreadcrumbs items={ breadcrumbs } />
 						</DetailPageBreadcrumbs>
 					}
-					// Without cards there is nothing to arrange, so the menu waits for the
-					// video to resolve.
 					actions={
-						canRenderWidgets ? (
-							<DetailPageActions
-								isCustomizing={ isCustomizing }
-								onCustomize={ startCustomizing }
-								editingActions={ <WidgetDashboard.Actions /> }
-							/>
-						) : undefined
+						<DetailPageActions
+							isCustomizing={ isCustomizing }
+							onCustomize={ canCustomize ? startCustomizing : undefined }
+							onReset={ resetToDefault }
+							editingActions={ <WidgetDashboard.Actions /> }
+						/>
 					}
 				>
 					<DetailPageLayout
