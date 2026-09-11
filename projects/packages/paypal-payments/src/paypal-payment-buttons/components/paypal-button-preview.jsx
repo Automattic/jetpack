@@ -6,10 +6,8 @@
  * payment link, or a QR code. Each is an abbreviated view of what the frontend
  * renders for that format, so the canvas shows which one the merchant picked.
  *
- * Updated for WOOPTP-156: Removed hardcoded SVG dimensions; sizing is now
- * controlled exclusively by CSS to ensure consistency across editor and
- * frontend views. Logo height is set via .jetpack-paypal-button__logo in
- * editor.scss.
+ * Sizing comes from CSS alone, and anything that carries a frontend class picks
+ * up style.scss, which the canvas iframe also loads.
  *
  * @package
  * @since 0.8.0
@@ -19,7 +17,6 @@ import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
 import { withPartnerAttribution } from '../utils/partner-attribution';
-import PayPalLogo from './paypal-logo';
 import QrCodePreview from './qr-code-preview';
 import { getPrimaryDimension, hasVariantPricing } from './variant-builder';
 
@@ -58,6 +55,33 @@ function getLowestVariantPrice( variants ) {
 	} );
 
 	return lowest;
+}
+
+/**
+ * Build the variant summary the way render_api_managed_button() builds it.
+ *
+ * Drops nameless dimensions and unlabelled options, and hides an option price
+ * that only repeats the product price above it.
+ *
+ * @param {object} variants     - Variants data with dimensions.
+ * @param {string} productPrice - The headline price, or '' when the options carry their own.
+ * @return {Array} Groups of `{ name, options: [ { label, price } ] }`.
+ */
+function getVariantGroups( variants, productPrice ) {
+	return ( variants?.dimensions || [] )
+		.map( dimension => ( {
+			name: dimension.name || '',
+			options: ( dimension.options || [] )
+				.filter( option => option.label )
+				.map( option => {
+					const value = option.unit_amount?.value;
+					return {
+						label: option.label,
+						price: value && value !== productPrice ? value : '',
+					};
+				} ),
+		} ) )
+		.filter( group => group.name && group.options.length > 0 );
 }
 
 /**
@@ -173,6 +197,7 @@ function QrPreview( { productName, paymentLink, partnerAttributionId } ) {
  * @param {object}  props.variants             - Variants data with dimensions.
  * @param {string}  props.imageUrl             - Optional product image URL.
  * @param {string}  props.partnerAttributionId - PayPal partner attribution (BN) code.
+ * @param {string}  props.buttonText           - Label on the checkout button.
  * @return {Element} Button preview element.
  */
 function ButtonPreview( {
@@ -185,12 +210,17 @@ function ButtonPreview( {
 	variants,
 	imageUrl,
 	partnerAttributionId,
+	buttonText,
 } ) {
 	// Mirrors render_api_managed_button(): PayPal drops the product-level amount
 	// once the options have their own prices, but the block keeps what was typed.
 	const productPrice = hasVariantPricing( variantsEnabled, variants ) ? '' : price;
 	const lowestVariantPrice =
 		! productPrice && variantsEnabled ? getLowestVariantPrice( variants ) : null;
+	const variantGroups = variantsEnabled ? getVariantGroups( variants, productPrice ) : [];
+	// A blank label would draw an unreadable button, so fall back to the
+	// block.json default, the same as render_api_managed_button() does.
+	const label = `${ buttonText ?? '' }`.trim() || __( 'Buy Now', 'jetpack-paypal-payments' );
 
 	return (
 		<div className="jetpack-paypal-button-preview">
@@ -227,27 +257,46 @@ function ButtonPreview( {
 				) }
 			</div>
 
-			{ /* Variant summary */ }
-			{ variantsEnabled && variants?.dimensions?.length > 0 && (
-				<div className="jetpack-paypal-button-preview__variants">
-					{ variants.dimensions.map( ( dim, i ) => (
-						<span key={ i } className="jetpack-paypal-button-preview__variant-badge">
-							{ dim.name }: { dim.options?.length || 0 }
-						</span>
+			{ /* Variant summary — the frontend's shape and classes, so both sides look alike. */ }
+			{ variantGroups.length > 0 && (
+				<div className="jetpack-paypal-button__variants">
+					<p className="jetpack-paypal-button__variants-label">
+						{ __( 'Options available — select at checkout:', 'jetpack-paypal-payments' ) }
+					</p>
+					{ variantGroups.map( ( group, i ) => (
+						<div key={ i } className="jetpack-paypal-button__variant-group">
+							<span className="jetpack-paypal-button__variant-name">{ group.name }:</span>{ ' ' }
+							{ group.options.map( ( option, j ) => (
+								<span key={ j } className="jetpack-paypal-button__variant-option">
+									{ option.label }
+									{ option.price && (
+										<>
+											{ ' ' }
+											<span className="jetpack-paypal-button__variant-price">
+												{ formatPrice( option.price, currencyCode ) }
+											</span>
+										</>
+									) }
+								</span>
+							) ) }
+						</div>
 					) ) }
 				</div>
 			) }
 
-			{ /* Checkout button preview — theme-native style with PayPal wordmark */ }
+			{ /* Checkout button preview — theme-native, labelled by the buttonText attribute. */ }
 			<div className="jetpack-paypal-button-preview__buttons">
 				<div
 					className="jetpack-paypal-button-preview__checkout-button wp-element-button"
 					aria-hidden="true"
 				>
-					<span>{ __( 'Buy Now With', 'jetpack-paypal-payments' ) }</span>
-					<PayPalLogo />
+					<span className="jetpack-paypal-button__button-text">{ label }</span>
 				</div>
 			</div>
+
+			<p className="jetpack-paypal-button__attribution">
+				{ __( 'Powered by PayPal', 'jetpack-paypal-payments' ) }
+			</p>
 
 			{ /* Payment link with copy button — only once PayPal has issued one. */ }
 			{ paymentLink && (

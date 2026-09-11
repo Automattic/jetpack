@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Show the chosen Display Format in the editor. Picking Link or QR code now changes the block preview, which always showed a button before, and the preview button picks up your theme's button style.
+Show the chosen Display Format in the editor. Picking Link or QR code now changes the block preview, which always showed a button before, and the preview matches the published block's button text, options list and "Powered by PayPal" line. The button reads "Buy Now" without the PayPal wordmark on it, and the QR code that sat under the button is gone — pick the QR code format for one.

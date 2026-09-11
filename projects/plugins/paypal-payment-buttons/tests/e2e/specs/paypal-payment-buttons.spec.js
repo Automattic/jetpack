@@ -533,27 +533,6 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			const href = await paypalLink.getAttribute( 'href' );
 			expect( href ).toContain( 'paypal.com' );
 		} );
-
-		test( 'stacked layout shows QR code toggle on frontend', async ( { page } ) => {
-			await setupPayPalMocks( page );
-			await goToNewPost( page );
-			const canvas = await insertPayPalBlock( page );
-			await fillButtonForm( canvas );
-
-			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await page.getByRole( 'button', { name: 'Save draft' } ).click();
-			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
-				timeout: 5000,
-			} );
-
-			const postUrl = await publishPost( page );
-			await page.goto( postUrl );
-
-			// Frontend -- no iframe. "Show Link or QR Code" toggle is rendered.
-			const qrToggle = page.locator( '.jetpack-paypal-button__qr-toggle' );
-			await expect( qrToggle ).toBeVisible();
-			await expect( qrToggle ).toHaveText( 'Show Link or QR Code' );
-		} );
 	} );
 
 	// ---------------------------------------------------------------
@@ -1329,9 +1308,6 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			// Frontend: QR format renders a standalone canvas (no toggle button).
 			const standaloneCanvas = page.locator( '.jetpack-paypal-button__qr-canvas--standalone' );
 			await expect( standaloneCanvas ).toBeAttached( { timeout: 5000 } );
-
-			// Should NOT render a toggle button (that belongs to BUTTON format).
-			await expect( page.locator( '.jetpack-paypal-button__qr-toggle' ) ).toBeHidden();
 		} );
 
 		test( 'changing format does not require recreating the PayPal product', async ( { page } ) => {
