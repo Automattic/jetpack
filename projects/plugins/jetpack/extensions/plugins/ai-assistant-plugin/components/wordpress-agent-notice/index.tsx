@@ -67,6 +67,16 @@ function getEnableAgentUrl(): string {
 		: 'https://wordpress.com/sites';
 }
 
+/**
+ * Whether the site has the WordPress Agent on. A site with a chat to open has
+ * it on, whatever the server flag says.
+ *
+ * @return {boolean} True once the Agent is on.
+ */
+function isWordPressAgentOn(): boolean {
+	return isAgentActionAvailable() || getFeatureAvailability( AGENT_ENABLED_FEATURE );
+}
+
 function useEventProperties(
 	placement: WordPressAgentNoticePlacement
 ): WordPressAgentNoticeEventProperties {
@@ -92,8 +102,9 @@ function useEventProperties(
  * Whether to show the notice, or nothing at all in its place.
  *
  * Both are false where the site has no WordPress Agent, leaving the AI panel as
- * it was. One shared preference backs the dismissal, so closing the notice in
- * any placement closes it in all of them.
+ * it was. A dismissal only counts once the Agent is on: until then the notice
+ * is the only way to it. One shared preference backs the dismissal, so closing
+ * the notice in any placement closes it in all of them.
  *
  * @return {{isVisible: boolean, isDismissed: boolean}} The notice's state.
  */
@@ -107,19 +118,21 @@ export function useWordPressAgentNotice(): { isVisible: boolean; isDismissed: bo
 		[]
 	);
 
-	const isAvailable = getFeatureAvailability( AGENT_NOTICE_FEATURE );
+	if ( ! getFeatureAvailability( AGENT_NOTICE_FEATURE ) ) {
+		return { isVisible: false, isDismissed: false };
+	}
 
-	return {
-		isVisible: isAvailable && ! hasDismissed,
-		isDismissed: isAvailable && hasDismissed,
-	};
+	const isDismissed = isWordPressAgentOn() && hasDismissed;
+
+	return { isVisible: ! isDismissed, isDismissed };
 }
 
 /**
  * Points people at the WordPress Agent from where the Jetpack AI panel used to be.
  *
- * Only the close button dismisses. Opening the Agent leaves the notice in place,
- * so someone who tries it still finds it on their next visit.
+ * Only the close button dismisses, and only once the Agent is on. Opening the
+ * Agent leaves the notice in place, so someone who tries it still finds it on
+ * their next visit.
  *
  * @param {object} props           - Component props.
  * @param {string} props.placement - Where the notice is rendered, recorded with each event.
@@ -134,8 +147,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	const canOpenAgent = isAgentActionAvailable();
 	const isAgentReady = useIsWordPressAgentReady();
 	const isChatOnScreen = useIsWordPressAgentChatVisible();
-	// A site with a chat to open has the Agent on, whatever the server flag says.
-	const isAgentOn = canOpenAgent || getFeatureAvailability( AGENT_ENABLED_FEATURE );
+	const isAgentOn = isWordPressAgentOn();
 	const disabledReasonId = useId();
 
 	const openAgent = () => {
@@ -235,7 +247,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 				</Notice.ActionLink>
 			</Notice.Actions>
 
-			<Notice.CloseIcon onClick={ dismiss } />
+			{ isAgentOn && <Notice.CloseIcon onClick={ dismiss } /> }
 		</Notice.Root>
 	);
 }
