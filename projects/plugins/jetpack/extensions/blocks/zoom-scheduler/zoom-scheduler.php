@@ -25,7 +25,6 @@ function register_block() {
 		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\load_assets',
-			'plan_check'      => true,
 		)
 	);
 }
