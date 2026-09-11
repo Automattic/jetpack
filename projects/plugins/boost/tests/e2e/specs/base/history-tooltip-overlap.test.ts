@@ -35,6 +35,7 @@ test.use( {
 	storageState: { cookies: [], origins: [] },
 } );
 
+// history-tooltip.webpack.cjs disables DependencyExtractionPlugin; CSS checks use bundled npm @wordpress/components and design tokens, not core copies.
 test.beforeAll( async () => {
 	test.setTimeout( 120000 );
 	fixtureDirectory = await mkdtemp( path.join( tmpdir(), 'boost-history-tooltip-' ) );
