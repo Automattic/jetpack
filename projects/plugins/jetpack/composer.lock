@@ -2522,7 +2522,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/newsletter",
-                "reference": "c0a5f6068f47462346634f42ad9b01ad77e9e665"
+                "reference": "9fc99e01ff8f4eaa89efed9d04602e3fb44f033a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
