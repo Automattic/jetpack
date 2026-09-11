@@ -1,5 +1,7 @@
 import { DataContext, TooltipContext } from '@visx/xychart';
 import { useContext, useEffect, useMemo, useRef } from 'react';
+import { useDeepMemo } from '../../../hooks';
+import { CATALOG_POINTERS } from '../../../providers/chart-context/private/catalog-pointers';
 import type { DataPointDate } from '../../../types';
 
 export type CategoryHighlightSelection = {
@@ -64,28 +66,12 @@ export function CategoryHighlight( { visible, horizontal, onChange }: Props ) {
 		innerHeight,
 	] );
 
-	const lastNotification = useRef< {
-		callback: Props[ 'onChange' ];
-		selection: CategoryHighlightSelection | null;
-	} >();
+	const stableSelection = useDeepMemo( selection );
+	const onChangeRef = useRef( onChange );
+	onChangeRef.current = onChange;
 	useEffect( () => {
-		const previous = lastNotification.current;
-		const unchanged =
-			previous?.callback === onChange &&
-			( previous?.selection === selection ||
-				( previous?.selection &&
-					selection &&
-					previous.selection.datum === selection.datum &&
-					previous.selection.x === selection.x &&
-					previous.selection.y === selection.y &&
-					previous.selection.width === selection.width &&
-					previous.selection.height === selection.height ) );
-		if ( unchanged ) {
-			return;
-		}
-		lastNotification.current = { callback: onChange, selection };
-		onChange?.( selection );
-	}, [ onChange, selection ] );
+		onChangeRef.current?.( stableSelection );
+	}, [ stableSelection ] );
 
 	if ( ! visible || ! selection ) {
 		return null;
@@ -99,7 +85,7 @@ export function CategoryHighlight( { visible, horizontal, onChange }: Props ) {
 			height={ height }
 			data-testid="bar-chart-category-highlight"
 			pointerEvents="none"
-			fill="var(--a8c-charts-color-category-highlight, var(--wpds-color-background-surface-neutral-weak))"
+			fill={ CATALOG_POINTERS.surfaceSecondary }
 		/>
 	);
 }

@@ -181,7 +181,3 @@ These names no longer resolve. Set the replacement instead:
 | `--a8c--charts--leaderboard--bar--border-radius` | `--a8c-charts-border-radius-leaderboard-bar` |
 | `--a8c-charts-color-focus` | `--wpds-color-stroke-focus` |
 | `--a8c-charts-color-label-on-fill` | `--a8c-charts-color-label-inverse` |
-
-### Bar category highlight
-
-`BarChart` accepts an optional `withCategoryHighlight` prop. Its SVG highlight uses `--a8c-charts-color-category-highlight`, falling back to `--wpds-color-background-surface-neutral-weak`. The token is read directly by the SVG fill, so CSS overrides remain responsive to theme changes.

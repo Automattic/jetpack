@@ -1,8 +1,9 @@
+import { scaleBand } from '@visx/scale';
 import { DataContext, TooltipContext, useEventEmitter } from '@visx/xychart';
 import { useCallback, useContext } from 'react';
 
 /**
- * Find a category by its painted centre, including outer padding and reversed ranges.
+ * Find a category by its painted center, including outer padding and reversed ranges.
  * @param data     - Registered series points.
  * @param accessor - Category accessor.
  * @param scale    - Rendered category band scale.
@@ -33,11 +34,12 @@ export function nearestBandIndex< Datum >(
 
 /**
  * Correct visx's range-based band inversion, which omits outer padding.
- * @param root0      - Registered series selection.
- * @param root0.keys - Visible series keys.
+ * @param root0              - Registered series selection.
+ * @param root0.keys         - Visible series keys.
+ * @param root0.groupPadding - Padding between grouped bars.
  * @return No visual content.
  */
-export function BandTooltip( { keys }: { keys: string[] } ) {
+export function BandTooltip( { keys, groupPadding }: { keys: string[]; groupPadding: number } ) {
 	const { xScale, yScale, dataRegistry, horizontal } = useContext( DataContext );
 	const { showTooltip } = useContext( TooltipContext );
 	const handlePointer = useCallback< NonNullable< Parameters< typeof useEventEmitter >[ 1 ] > >(
@@ -47,6 +49,11 @@ export function BandTooltip( { keys }: { keys: string[] } ) {
 			if ( ! point || ! scale?.bandwidth ) {
 				return;
 			}
+			const groupScale = scaleBand( {
+				domain: keys,
+				range: [ 0, scale.bandwidth() ],
+				padding: groupPadding,
+			} );
 			for ( const key of keys ) {
 				const entry = dataRegistry?.get( key );
 				if ( ! entry ) {
@@ -63,17 +70,22 @@ export function BandTooltip( { keys }: { keys: string[] } ) {
 					continue;
 				}
 				const datum = entry.data[ index ];
+				const start = Number( scale( accessor( datum ) ) ) + Number( groupScale( key ) );
+				const end = start + groupScale.step();
+				const position = horizontal ? point.y : point.x;
+				const distance =
+					position >= start && position <= end ? 0 : Math.abs( position - ( start + end ) / 2 );
 				showTooltip( {
 					key,
 					datum,
 					index,
 					svgPoint: point,
-					distanceX: Math.abs( Number( xScale?.( entry.xAccessor( datum ) ) ) - point.x ),
-					distanceY: Math.abs( Number( yScale?.( entry.yAccessor( datum ) ) ) - point.y ),
+					distanceX: horizontal ? 0 : distance,
+					distanceY: horizontal ? distance : 0,
 				} );
 			}
 		},
-		[ xScale, yScale, dataRegistry, horizontal, keys, showTooltip ]
+		[ xScale, yScale, dataRegistry, horizontal, keys, groupPadding, showTooltip ]
 	);
 	useEventEmitter( 'pointermove', handlePointer );
 	useEventEmitter( 'pointerdown', handlePointer );

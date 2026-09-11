@@ -19,7 +19,7 @@ Main chart component with responsive behavior by default.
 | `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
-| `withCategoryHighlight` | `boolean` | `false` | Highlight the active category across the plot; requires tooltips. Fill uses `--a8c-charts-color-category-highlight`, falling back to the WPDS neutral weak surface. |
+| `withCategoryHighlight` | `boolean` | `false` | Highlight the active category across the plot; requires tooltips. Uses the `--a8c-charts-color-surface-secondary` catalog role. |
 | `onCategoryHighlightChange` | `(selection: CategoryHighlightSelection \| null) => void` | - | Receive active datum and `x`, `y`, `width`, `height` in SVG coordinates, including when the highlight is disabled. Dismissal emits null. |
 | `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Vertical bars rise from the bottom; horizontal bars stretch from the left. Automatically respects user's `prefers-reduced-motion` system setting |
@@ -95,7 +95,7 @@ type DataPointDate = {
 	dateString?: string; // Multiple formats supported
 	value: number | null;
 	label?: string;
-	color?: string;
+	color?: string; // BarChart only
 };
 ```
 
