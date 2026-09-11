@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Wpadmin_Page_View;
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 use WPCOMSH_Support_Session_Detect;
 
 /**
@@ -65,6 +66,91 @@ function wpcom_nosara_track_admin_page_views() {
 	<?php
 }
 add_action( 'admin_footer', __NAMESPACE__ . '\wpcom_nosara_track_admin_page_views' );
+
+/**
+ * Build the properties for the server-side `wpcom_admin_screen` Tracks event.
+ *
+ * The event is recorded for every admin screen from PHP, so it does not depend on the
+ * client-side beacon in `wpcom_nosara_track_admin_page_views()`. Comparing the two events
+ * measures how many admin page views the client event misses.
+ *
+ * @param mixed $screen The screen passed to the `current_screen` action.
+ * @return array|null Event properties, or null when the request should not be tracked.
+ */
+function wpcom_get_admin_screen_event_props( $screen ) {
+	if ( ! $screen instanceof \WP_Screen || wp_doing_ajax() || ! is_user_logged_in() ) {
+		return null;
+	}
+
+	if ( do_not_track_a11ns() ) {
+		return null;
+	}
+
+	/**
+	 * Allow disabling the server-side `wpcom_admin_screen` event without a deploy.
+	 *
+	 * @param bool $enabled Whether the event is recorded. Default true.
+	 */
+	if ( ! apply_filters( 'wpcom_admin_screen_tracking_enabled', true ) ) {
+		return null;
+	}
+
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+	return array(
+		'screen_id'       => $screen->id,
+		'is_block_editor' => $screen->is_block_editor ? 'true' : 'false',
+		'platform'        => $is_simple_site ? 'simple' : 'atomic',
+		'blog_id'         => (string) wpcom_get_admin_screen_blog_id( $is_simple_site ),
+		'source'          => 'wp-admin',
+	);
+}
+
+/**
+ * Get the blog ID to attach to the `wpcom_admin_screen` event.
+ *
+ * @param bool $is_simple_site Whether this is a Simple site.
+ * @return int|null
+ */
+function wpcom_get_admin_screen_blog_id( $is_simple_site ) {
+	if ( $is_simple_site ) {
+		global $current_blog;
+
+		return $current_blog instanceof \WP_Site ? (int) $current_blog->blog_id : null;
+	}
+
+	return function_exists( '_wpcom_get_current_blog_id' ) ? (int) _wpcom_get_current_blog_id() : null;
+}
+
+/**
+ * Remember the admin screen that is rendering, and record it once the response is complete.
+ *
+ * Recording happens on `shutdown` so the Tracks request never delays the admin page. On
+ * Atomic, `fastcgi_finish_request()` closes the connection to the browser first; Simple
+ * sites keep their own request lifecycle.
+ *
+ * @param mixed $screen The screen passed to the `current_screen` action.
+ */
+function wpcom_capture_admin_screen( $screen ) {
+	$props = wpcom_get_admin_screen_event_props( $screen );
+
+	if ( null === $props ) {
+		return;
+	}
+
+	add_action(
+		'shutdown',
+		function () use ( $props ) {
+			if ( 'atomic' === $props['platform'] && function_exists( 'fastcgi_finish_request' ) ) {
+				fastcgi_finish_request();
+			}
+
+			Common\wpcom_record_tracks_event( 'wpcom_admin_screen', $props );
+		},
+		PHP_INT_MAX
+	);
+}
+add_action( 'current_screen', __NAMESPACE__ . '\wpcom_capture_admin_screen' );
 
 /**
  * Track non-calypso Customizer views if the user is linked from the frontend.
