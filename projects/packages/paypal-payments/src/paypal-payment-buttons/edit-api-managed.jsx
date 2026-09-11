@@ -867,16 +867,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						onChange={ value => setAttributes( { buttonText: value } ) }
 						disabled={ isBusy }
 					/>
-					<ToggleControl
-						label={ __( 'Show QR code', 'jetpack-paypal-payments' ) }
-						help={ __(
-							'Display a QR code below the button for in-person sharing.',
-							'jetpack-paypal-payments'
-						) }
-						checked={ attributes.showQrCode !== false }
-						onChange={ value => setAttributes( { showQrCode: value } ) }
-						disabled={ isBusy }
-					/>
 				</PanelBody>
 			</InspectorControls>
 			{ inspectorControls }
@@ -918,6 +908,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					variants={ variants }
 					imageUrl={ imageUrl }
 					partnerAttributionId={ partnerAttributionId }
+					buttonText={ buttonText }
 				/>
 			</div>
 

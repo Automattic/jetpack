@@ -470,9 +470,8 @@
 	margin-bottom: 12px;
 }
 
-// Checkout button preview — mirrors the theme-native wp-element-button
-// appearance. Uses WordPress default dark style as a representative
-// preview since the editor doesn't have access to frontend theme styles.
+// Checkout button preview — layout only, the same as the frontend's
+// __checkout-link. Appearance comes from the theme via wp-element-button.
 .jetpack-paypal-button-preview__checkout-button {
 	display: flex;
 	align-items: center;
@@ -482,12 +481,6 @@
 	cursor: default;
 	text-align: center;
 	text-decoration: none;
-
-	.jetpack-paypal-button__logo {
-		height: 18px;
-		width: auto;
-		flex-shrink: 0;
-	}
 }
 
 // Payment link reference
@@ -596,23 +589,6 @@
 		justify-content: center;
 		width: 100%;
 	}
-}
-
-// Variant summary badges in preview.
-.jetpack-paypal-button-preview__variants {
-	display: flex;
-	gap: 6px;
-	flex-wrap: wrap;
-	margin-bottom: 8px;
-}
-
-.jetpack-paypal-button-preview__variant-badge {
-	display: inline-block;
-	padding: 2px 8px;
-	border-radius: 10px;
-	background: #e8e8e8;
-	font-size: 11px;
-	color: #555;
 }
 
 .jetpack-paypal-payment-buttons__destructive-actions {

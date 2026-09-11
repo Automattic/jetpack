@@ -48,16 +48,25 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.queryByText( 'A high-quality widget for your needs.' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the PayPal logo SVG', () => {
-		render( <PayPalButtonPreview { ...defaultProps } /> );
-		const logo = document.querySelector( '.jetpack-paypal-button__logo' );
-		expect( logo ).toBeInTheDocument();
-		expect( logo.tagName.toLowerCase() ).toBe( 'svg' );
+	it( 'labels the checkout button with buttonText', () => {
+		render( <PayPalButtonPreview { ...defaultProps } buttonText="Checkout" /> );
+		expect( screen.getByText( 'Checkout' ) ).toBeInTheDocument();
 	} );
 
-	it( 'labels the checkout button with the PayPal wordmark copy', () => {
+	it( 'falls back to Buy Now when buttonText is empty', () => {
+		render( <PayPalButtonPreview { ...defaultProps } buttonText="" /> );
+		expect( screen.getByText( 'Buy Now' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the wordmark off the button face', () => {
+		// Create 191 puts the branding on the attribution line instead.
 		render( <PayPalButtonPreview { ...defaultProps } /> );
-		expect( screen.getByText( 'Buy Now With' ) ).toBeInTheDocument();
+		expect( document.querySelector( '.jetpack-paypal-button__logo' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the attribution line, as the frontend does', () => {
+		render( <PayPalButtonPreview { ...defaultProps } /> );
+		expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
 	} );
 
 	it( 'never renders a debit/credit button', () => {
@@ -195,6 +204,85 @@ describe( 'PayPalButtonPreview', () => {
 		);
 		expect( screen.getByText( 'From $12.50' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'From $5.00' ) ).not.toBeInTheDocument();
+	} );
+
+	// The canvas and render_api_managed_button() have to draw the same summary,
+	// so these mirror the frontend's rules.
+	describe( 'variant summary', () => {
+		const sized = {
+			dimensions: [
+				{
+					name: 'Size',
+					primary: true,
+					options: [
+						{ label: 'Small', unit_amount: { currency_code: 'USD', value: '12.50' } },
+						{ label: 'Large', unit_amount: { currency_code: 'USD', value: '20.00' } },
+					],
+				},
+			],
+		};
+
+		it( 'draws the labelled group the frontend draws, not a count badge', () => {
+			render(
+				<PayPalButtonPreview { ...defaultProps } price="" variantsEnabled variants={ sized } />
+			);
+			expect( screen.getByText( 'Options available — select at checkout:' ) ).toBeInTheDocument();
+			expect( document.querySelector( '.jetpack-paypal-button__variant-name' ) ).toHaveTextContent(
+				'Size:'
+			);
+			expect( screen.getByText( 'Small' ) ).toHaveClass( 'jetpack-paypal-button__variant-option' );
+			expect( screen.getByText( '$20.00' ) ).toHaveClass( 'jetpack-paypal-button__variant-price' );
+		} );
+
+		it( 'hides an option price that only repeats the product price', () => {
+			// Only a non-primary group gets here: a priced primary group blanks
+			// the product price first, in both renderers.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					price="29.99"
+					variantsEnabled
+					variants={ {
+						dimensions: [
+							{
+								name: 'Color',
+								options: [
+									{ label: 'Red', unit_amount: { currency_code: 'USD', value: '29.99' } },
+									{ label: 'Blue', unit_amount: { currency_code: 'USD', value: '35.00' } },
+								],
+							},
+						],
+					} }
+				/>
+			);
+			expect( screen.getByText( '$35.00' ) ).toHaveClass( 'jetpack-paypal-button__variant-price' );
+			expect( screen.queryAllByText( '$29.99' ) ).toHaveLength( 1 );
+		} );
+
+		it( 'skips a nameless group and an unlabelled option', () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					variantsEnabled
+					variants={ {
+						dimensions: [
+							{ name: '', primary: true, options: [ { label: 'Small' } ] },
+							{ name: 'Color', options: [ { label: '' } ] },
+						],
+					} }
+				/>
+			);
+			expect(
+				document.querySelector( '.jetpack-paypal-button__variants' )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'draws nothing when variants are off', () => {
+			render( <PayPalButtonPreview { ...defaultProps } variants={ sized } /> );
+			expect(
+				document.querySelector( '.jetpack-paypal-button__variants' )
+			).not.toBeInTheDocument();
+		} );
 	} );
 
 	// One smoke test per Display Format branch, checking only which preview renders.

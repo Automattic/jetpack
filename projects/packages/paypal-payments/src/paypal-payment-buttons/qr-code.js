@@ -2,8 +2,8 @@
  * PayPal Payment Buttons — QR Code Frontend Script.
  *
  * Generates a QR code for the PayPal payment link on pages containing
- * a PayPal payment button. The BUTTON toggle panel and the standalone QR
- * format both read the link from the canvas `data-qr-url` attribute.
+ * a PayPal payment button in the QR format. The link comes from the canvas
+ * `data-qr-url` attribute.
  *
  * Enqueued from the block's render callback, so it only loads on pages
  * that actually render the block.
@@ -59,57 +59,6 @@ function wireCopyButton( copyBtn, url ) {
 }
 
 /**
- * Initialize toggle-based QR codes (BUTTON format with showQrCode enabled).
- */
-function initQRToggles() {
-	const toggles = document.querySelectorAll( '.jetpack-paypal-button__qr-toggle' );
-
-	toggles.forEach( toggle => {
-		const container = toggle.closest( '.wp-block-jetpack-paypal-payment-buttons' );
-		if ( ! container ) {
-			return;
-		}
-
-		const qrWrapper = container.querySelector( '.jetpack-paypal-button__qr-wrapper' );
-		const canvas = container.querySelector( '.jetpack-paypal-button__qr-canvas' );
-
-		if ( ! qrWrapper || ! canvas ) {
-			return;
-		}
-
-		const qrUrl = canvas.dataset.qrUrl;
-		const downloadBtn = container.querySelector( '.jetpack-paypal-button__qr-download' );
-		const copyBtn = container.querySelector( '.jetpack-paypal-button__qr-copy' );
-		let generated = false;
-
-		toggle.addEventListener( 'click', () => {
-			const isVisible = qrWrapper.style.display !== 'none';
-
-			if ( isVisible ) {
-				qrWrapper.style.display = 'none';
-				toggle.textContent = toggle.dataset.showLabel;
-				toggle.setAttribute( 'aria-expanded', 'false' );
-				return;
-			}
-
-			// Generate QR on first open. The render callback always writes the URL, so a
-			// missing one means stale markup — open the panel anyway, the link is still in it.
-			if ( ! generated && qrUrl ) {
-				QRCode.toCanvas( canvas, qrUrl, QR_OPTIONS );
-				generated = true;
-			}
-
-			qrWrapper.style.display = 'block';
-			toggle.textContent = toggle.dataset.hideLabel;
-			toggle.setAttribute( 'aria-expanded', 'true' );
-		} );
-
-		wireDownloadButton( downloadBtn, canvas );
-		wireCopyButton( copyBtn, qrUrl );
-	} );
-}
-
-/**
  * Initialize standalone QR codes (QR format — no toggle, renders immediately on load).
  *
  * The PHP render callback emits a `<canvas class="jetpack-paypal-button__qr-canvas--standalone"
@@ -139,17 +88,9 @@ function initStandaloneQRCodes() {
 	} );
 }
 
-/**
- * Initialize all QR code variants on the page.
- */
-function initQRCodes() {
-	initQRToggles();
-	initStandaloneQRCodes();
-}
-
 // Run on DOMContentLoaded.
 if ( document.readyState === 'loading' ) {
-	document.addEventListener( 'DOMContentLoaded', initQRCodes );
+	document.addEventListener( 'DOMContentLoaded', initStandaloneQRCodes );
 } else {
-	initQRCodes();
+	initStandaloneQRCodes();
 }

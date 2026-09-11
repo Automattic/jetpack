@@ -46,6 +46,7 @@ function ApiManagedReadOnly( { attributes } ) {
 		variantsEnabled,
 		variants,
 		imageUrl,
+		buttonText,
 	} = attributes;
 
 	return (
@@ -67,6 +68,7 @@ function ApiManagedReadOnly( { attributes } ) {
 					variantsEnabled={ variantsEnabled }
 					variants={ variants }
 					imageUrl={ imageUrl }
+					buttonText={ buttonText }
 				/>
 			</div>
 		</div>

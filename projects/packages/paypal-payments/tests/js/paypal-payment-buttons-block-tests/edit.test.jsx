@@ -2900,27 +2900,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( { buttonText: 'B' } );
 		} );
 
-		it( 'writes the QR code setting when it is turned on', async () => {
-			const user = userEvent.setup();
-			renderForm( { showQrCode: false } );
-
-			await user.click( await screen.findByLabelText( 'Show QR code' ) );
-
-			expect( setAttributes ).toHaveBeenCalledWith( { showQrCode: true } );
-		} );
-
-		// A block saved before the attribute existed has no value, and the QR code
-		// shows anyway - so the toggle starts on and the click turns it off.
-		it( 'shows the QR code when the attribute is unset', async () => {
-			const user = userEvent.setup();
+		// EMBED AS is a single choice of four, so a QR under the button has no
+		// home any more. The QR format draws one instead.
+		it( 'offers no QR toggle', async () => {
 			renderForm( {} );
 
-			const toggle = await screen.findByLabelText( 'Show QR code' );
-			expect( toggle ).toBeChecked();
-
-			await user.click( toggle );
-
-			expect( setAttributes ).toHaveBeenCalledWith( { showQrCode: false } );
+			await expect( screen.findByLabelText( 'Button Text' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Show QR code' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

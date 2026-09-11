@@ -292,27 +292,6 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Official PayPal two-tone wordmark SVG for inline button rendering.
-	 *
-	 * Sourced from paypalobjects.com/paypal-ui/logos/svg/paypal-color.svg
-	 * (wordmark paths only). Navy (#003087) for "Pay", blue (#0070E0) for "Pal".
-	 *
-	 * @return string SVG markup.
-	 */
-	private static function get_paypal_logo_svg() {
-		// Uses currentColor so the wordmark inherits the button's text color,
-		// guaranteeing contrast on both light and dark backgrounds.
-		return '<svg class="jetpack-paypal-button__logo" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="50 8 118 36" aria-hidden="true" focusable="false">'
-			. '<path fill="currentColor" d="M62.56 28.672a10.111 10.111 0 0 0 9.983-8.56c.78-4.967-3.101-9.303-8.6-9.303H55.08a.689.689 0 0 0-.69.585l-3.95 25.072a.643.643 0 0 0 .634.742h4.69a.689.689 0 0 0 .688-.585l1.162-7.365a.689.689 0 0 1 .689-.586h4.257Zm3.925-8.786c-.29 1.836-1.709 3.189-4.425 3.189h-3.474l1.053-6.68h3.411c2.81.006 3.723 1.663 3.435 3.496v-.005Z"/>'
-			. '<path fill="currentColor" d="M92.863 18.706H88.41a.69.69 0 0 0-.69.585l-.144.924s-3.457-3.775-9.575-1.225c-3.51 1.461-5.194 4.48-5.91 6.69 0 0-2.277 6.718 2.87 10.417 0 0 4.771 3.556 10.145-.22l-.093.589a.642.642 0 0 0 .634.742h4.451a.689.689 0 0 0 .69-.585l2.708-17.175a.643.643 0 0 0-.634-.742Zm-6.547 9.492a4.996 4.996 0 0 1-4.996 4.276 4.513 4.513 0 0 1-1.397-.205c-1.92-.616-3.015-2.462-2.7-4.462a4.996 4.996 0 0 1 5.014-4.277c.474-.005.946.065 1.398.206 1.913.614 3.001 2.46 2.686 4.462h-.005Z"/>'
-			. '<path fill="currentColor" d="m109.205 19.131-5.367 9.059-2.723-8.992a.69.69 0 0 0-.664-.492h-4.842a.516.516 0 0 0-.496.689l4.88 15.146-4.413 7.138a.517.517 0 0 0 .442.794h5.217a.858.858 0 0 0 .741-.418l13.632-22.552a.516.516 0 0 0-.446-.789h-5.215a.858.858 0 0 0-.746.417Z"/>'
-			. '<path fill="currentColor" d="M126.672 28.672a10.115 10.115 0 0 0 9.992-8.56c.779-4.967-3.101-9.303-8.602-9.303h-8.86a.69.69 0 0 0-.689.585l-3.962 25.079a.637.637 0 0 0 .365.683.64.64 0 0 0 .269.06h4.691a.69.69 0 0 0 .689-.586l1.163-7.365a.688.688 0 0 1 .689-.586l4.255-.007Zm3.925-8.786c-.29 1.836-1.709 3.189-4.426 3.189h-3.473l1.054-6.68h3.411c2.808.006 3.723 1.663 3.434 3.496v-.005Z"/>'
-			. '<path fill="currentColor" d="M156.974 18.706h-4.448a.69.69 0 0 0-.689.585l-.146.924s-3.456-3.775-9.574-1.225c-3.509 1.461-5.194 4.48-5.911 6.69 0 0-2.276 6.718 2.87 10.417 0 0 4.772 3.556 10.146-.22l-.093.589a.637.637 0 0 0 .365.683c.084.04.176.06.269.06h4.451a.686.686 0 0 0 .689-.586l2.709-17.175a.657.657 0 0 0-.148-.518.632.632 0 0 0-.49-.224Zm-6.546 9.492a4.986 4.986 0 0 1-4.996 4.276 4.513 4.513 0 0 1-1.399-.205c-1.921-.616-3.017-2.462-2.702-4.462a4.996 4.996 0 0 1 4.996-4.277c.475-.005.947.064 1.399.206 1.933.614 3.024 2.46 2.707 4.462h-.005Z"/>'
-			. '<path fill="currentColor" d="m161.982 11.387-3.962 25.079a.637.637 0 0 0 .365.683c.084.04.176.06.269.06h4.689a.688.688 0 0 0 .689-.586l3.963-25.079a.637.637 0 0 0-.146-.517.645.645 0 0 0-.488-.225h-4.69a.69.69 0 0 0-.689.585Z"/>'
-			. '</svg>';
-	}
-
-	/**
 	 * Render an API-managed PayPal payment button on the frontend.
 	 *
 	 * @param array $attributes The block attributes.
@@ -328,8 +307,8 @@ class PayPal_Payment_Buttons {
 		$image_url           = $attributes['imageUrl'] ?? '';
 		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
 		$variants            = $attributes['variants'] ?? null;
-		$show_qr_code        = $attributes['showQrCode'] ?? true;
 		$format              = $attributes['format'] ?? 'BUTTON';
+		$button_text         = trim( (string) ( $attributes['buttonText'] ?? '' ) );
 
 		// Validate — only known format values are accepted.
 		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR' ), true ) ) {
@@ -348,11 +327,9 @@ class PayPal_Payment_Buttons {
 
 		self::register_hooks();
 
-		// QR script needed for BUTTON (toggle) and QR (standalone) formats.
-		if ( 'LINK' !== $format ) {
-			if ( 'QR' === $format || $show_qr_code ) {
-				self::enqueue_qr_script();
-			}
+		// Only the standalone QR format draws a code.
+		if ( 'QR' === $format ) {
+			self::enqueue_qr_script();
 		}
 
 		// Append BN code for revenue attribution tracking.
@@ -509,33 +486,17 @@ class PayPal_Payment_Buttons {
 			}
 		}
 
-		// QR code toggle section (conditionally rendered for BUTTON format).
-		$qr_html = '';
-		if ( $show_qr_code ) {
-			$qr_show     = esc_attr__( 'Show Link or QR Code', 'jetpack-paypal-payments' );
-			$qr_hide     = esc_attr__( 'Hide Link or QR Code', 'jetpack-paypal-payments' );
-			$qr_download = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
-			$copy_label  = esc_attr__( 'Copy Link', 'jetpack-paypal-payments' );
-			$qr_html     = '<div class="jetpack-paypal-button__qr-section">'
-				. '<button type="button" class="jetpack-paypal-button__qr-toggle" data-show-label="' . $qr_show . '" data-hide-label="' . $qr_hide . '" aria-expanded="false">' . $qr_show . '</button>'
-				. '<div class="jetpack-paypal-button__qr-wrapper" style="display:none;">'
-				. '<div class="jetpack-paypal-button__qr-content">'
-				. '<canvas class="jetpack-paypal-button__qr-canvas" data-qr-url="' . esc_attr( $action_url ) . '"></canvas>'
-				. '<div class="jetpack-paypal-button__qr-link">'
-				. '<input type="text" readonly class="jetpack-paypal-button__qr-link-input" value="' . esc_attr( $action_url ) . '" />'
-				. '<button type="button" class="jetpack-paypal-button__qr-copy" data-copy-label="' . $copy_label . '" data-copied-label="' . esc_attr__( 'Copied!', 'jetpack-paypal-payments' ) . '">' . $copy_label . '</button>'
-				. '</div>'
-				. '</div>'
-				. '<button type="button" class="jetpack-paypal-button__qr-download">' . $qr_download . '</button>'
-				. '</div></div>';
-		}
-
 		$wrapper_attributes = get_block_wrapper_attributes();
 
+		// The wordmark is off the button face; "Powered by PayPal" underneath
+		// carries the branding, per the Create 191 design. A blank label would
+		// draw an unreadable button, so fall back to the block.json default.
+		$label = '' !== $button_text ? $button_text : __( 'Buy Now', 'jetpack-paypal-payments' );
+
 		return sprintf(
-			'<div %9$s>
+			'<div %8$s>
 	<div class="jetpack-paypal-button">
-		%10$s
+		%9$s
 		<div class="jetpack-paypal-button__product">
 			<div class="jetpack-paypal-button__product-info">
 				<span class="jetpack-paypal-button__product-name">%1$s</span>
@@ -547,26 +508,22 @@ class PayPal_Payment_Buttons {
 		<div class="jetpack-paypal-button__buttons">
 			<a href="%4$s" class="jetpack-paypal-button__checkout-link wp-element-button" target="_blank" rel="noopener noreferrer">
 				<span class="jetpack-paypal-button__button-text">%5$s</span>
-				%12$s
-				<span class="screen-reader-text">%11$s</span>
+				<span class="screen-reader-text">%10$s</span>
 			</a>
 		</div>
 		<p class="jetpack-paypal-button__attribution">%6$s</p>
-		%8$s
 	</div>
 </div>',
 			esc_html( $product_name ),
 			$description_html,
 			$price_html,
 			$action_url,
-			esc_html__( 'Buy Now With', 'jetpack-paypal-payments' ),
+			esc_html( $label ),
 			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
 			$variants_html,
-			$qr_html,
 			$wrapper_attributes,
 			$image_html,
-			esc_html__( 'PayPal (opens in a new tab)', 'jetpack-paypal-payments' ),
-			self::get_paypal_logo_svg()
+			esc_html__( 'PayPal (opens in a new tab)', 'jetpack-paypal-payments' )
 		);
 	}
 

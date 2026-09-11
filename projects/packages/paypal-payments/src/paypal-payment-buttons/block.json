@@ -56,7 +56,7 @@
 		},
 		"buttonText": {
 			"type": "string",
-			"default": "Buy Now With PayPal"
+			"default": "Buy Now"
 		},
 		"buttonType": {
 			"type": "string",
@@ -126,10 +126,6 @@
 		"shippingValue": {
 			"type": "string",
 			"default": ""
-		},
-		"showQrCode": {
-			"type": "boolean",
-			"default": true
 		},
 		"format": {
 			"type": "string",
