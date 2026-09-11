@@ -570,6 +570,11 @@ class Help_Center {
 			$data['newLoggedOutInteractionsBotSlug'] = $this->new_logged_out_interactions_bot_slug;
 		}
 
+		// The editor toolbar draws its own entry point, so it gets the label the admin bar node carries.
+		if ( $this->should_show_get_help_label() ) {
+			$data['entryLabel'] = __( 'Get Help', 'jetpack-help-center' );
+		}
+
 		return array_replace( $data, $overrides );
 	}
 
