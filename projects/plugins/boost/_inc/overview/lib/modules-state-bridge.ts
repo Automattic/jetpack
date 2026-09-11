@@ -10,9 +10,12 @@ export function observeLegacyModulesState( client: QueryClient ) {
 		if (
 			event.type === 'updated' &&
 			event.action.type === 'success' &&
+			event.action.manual &&
 			relayedQueryKeys.some( key => event.query.queryKey[ 0 ] === key )
 		) {
-			window.dispatchEvent( new Event( OVERVIEW_MODULES_CHANGE_EVENT ) );
+			window.dispatchEvent(
+				new CustomEvent( OVERVIEW_MODULES_CHANGE_EVENT, { detail: event.query.queryKey[ 0 ] } )
+			);
 		}
 	} );
 }

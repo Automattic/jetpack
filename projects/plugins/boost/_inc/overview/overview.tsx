@@ -52,8 +52,9 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 	const isLoading = scoreState.status === 'loading';
 
 	useEffect( () => {
-		const onModulesChange = () => {
-			for ( const key of relayedQueryKeys ) {
+		const onModulesChange = ( event: Event ) => {
+			const key = ( event as CustomEvent< string > ).detail;
+			if ( relayedQueryKeys.includes( key ) ) {
 				queryClient.invalidateQueries( { queryKey: [ key ] } );
 			}
 		};

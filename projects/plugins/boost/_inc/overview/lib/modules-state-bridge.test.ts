@@ -23,6 +23,7 @@ test.each( [ 'modules_state', 'critical_css_state', 'lcp_state' ] )(
 	key => {
 		client.setQueryData( [ key ], {} );
 		expect( onChange ).toHaveBeenCalledTimes( 1 );
+		expect( onChange ).toHaveBeenCalledWith( expect.objectContaining( { detail: key } ) );
 	}
 );
 
