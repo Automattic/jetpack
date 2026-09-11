@@ -148,7 +148,8 @@
 			"type": "number"
 		},
 		"blockWidth": {
-			"type": "number"
+			"type": "string",
+			"default": ""
 		},
 		"marginVertical": {
 			"type": "number"
@@ -156,13 +157,13 @@
 		"marginHorizontal": {
 			"type": "number"
 		},
-		"borderRadius": {
+		"blockBorderRadius": {
 			"type": "number"
 		},
-		"borderWidth": {
+		"blockBorderWidth": {
 			"type": "number"
 		},
-		"borderColor": {
+		"blockBorderColor": {
 			"type": "string",
 			"default": ""
 		}

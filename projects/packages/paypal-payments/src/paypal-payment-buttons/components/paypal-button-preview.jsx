@@ -120,14 +120,20 @@ function LinkPreview( { productName, paymentLink, partnerAttributionId } ) {
  * draws the code on its own.
  *
  * @param {object}  props                      - Component props.
- * @param {boolean} props.qrShowCaption        - Whether to draw the caption under the code.
+ * @param {boolean} props.qrShowCaption        - Whether to draw the caption under the code. Defaults on, as render_api_managed_button() does.
  * @param {string}  props.qrCaption            - Caption text, empty for the default.
  * @param {string}  props.paymentLink          - PayPal payment URL, once one has been issued.
  * @param {string}  props.partnerAttributionId - PayPal partner attribution (BN) code.
  * @param {object}  props.attributes           - The block attributes, for the style mapping.
  * @return {Element} QR preview element.
  */
-function QrPreview( { qrShowCaption, qrCaption, paymentLink, partnerAttributionId, attributes } ) {
+function QrPreview( {
+	qrShowCaption = true,
+	qrCaption,
+	paymentLink,
+	partnerAttributionId,
+	attributes,
+} ) {
 	// Encode the attributed URL, so the editor's code and the frontend's send a
 	// buyer through the same link.
 	const qrUrl = withPartnerAttribution( paymentLink, partnerAttributionId );

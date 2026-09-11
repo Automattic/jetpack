@@ -1158,17 +1158,13 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			// All three format buttons should be visible in the creation form.
 			await expect(
-				block.locator(
-					'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Button")'
-				)
+				block.locator( '.jetpack-paypal-payment-buttons__format-switcher option[value="BUTTON"]' )
 			).toBeVisible();
 			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
+				block.locator( '.jetpack-paypal-payment-buttons__format-switcher option[value="LINK"]' )
 			).toBeVisible();
 			await expect(
-				block.locator(
-					'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
-				)
+				block.locator( '.jetpack-paypal-payment-buttons__format-switcher option[value="QR"]' )
 			).toBeVisible();
 		} );
 
@@ -1179,54 +1175,38 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
-			// Button option should have primary variant (aria-pressed="true").
-			const buttonOption = block.locator(
-				'.jetpack-paypal-payment-buttons__format-switcher button:has-text("Button")'
-			);
-			await expect( buttonOption ).toHaveAttribute( 'aria-pressed', 'true' );
+			await expect(
+				block.locator( '.jetpack-paypal-payment-buttons__format-switcher select' )
+			).toHaveValue( 'BUTTON' );
 
 			// The CTA is the commit action and does not name the format.
 			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toBeVisible();
 		} );
 
-		test( 'selecting Link format presses the Link option', async ( { page } ) => {
+		test( 'selecting Link format selects the Link option', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			const switcher = block.locator( '.jetpack-paypal-payment-buttons__format-switcher' );
+			const switcher = block.locator( '.jetpack-paypal-payment-buttons__format-switcher select' );
 
-			await switcher.locator( 'button:has-text("Link")' ).click();
+			await switcher.selectOption( 'LINK' );
 
-			await expect( switcher.locator( 'button:has-text("Link")' ) ).toHaveAttribute(
-				'aria-pressed',
-				'true'
-			);
-			await expect( switcher.locator( 'button:has-text("Button")' ) ).toHaveAttribute(
-				'aria-pressed',
-				'false'
-			);
+			await expect( switcher ).toHaveValue( 'LINK' );
 		} );
 
-		test( 'selecting QR Code format presses the QR Code option', async ( { page } ) => {
+		test( 'selecting QR code format selects the QR option', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			const switcher = block.locator( '.jetpack-paypal-payment-buttons__format-switcher' );
+			const switcher = block.locator( '.jetpack-paypal-payment-buttons__format-switcher select' );
 
-			await switcher.locator( 'button:has-text("QR Code")' ).click();
+			await switcher.selectOption( 'QR' );
 
-			await expect( switcher.locator( 'button:has-text("QR Code")' ) ).toHaveAttribute(
-				'aria-pressed',
-				'true'
-			);
-			await expect( switcher.locator( 'button:has-text("Button")' ) ).toHaveAttribute(
-				'aria-pressed',
-				'false'
-			);
+			await expect( switcher ).toHaveValue( 'QR' );
 		} );
 
 		test( 'format switcher appears in InspectorControls after creation', async ( { page } ) => {
@@ -1249,7 +1229,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await page.waitForTimeout( 500 );
 
 			// Format panel should be visible in sidebar (outside iframe, on page).
-			const formatPanel = page.locator( 'button:has-text("Display Format")' );
+			const formatPanel = page.locator( 'button[aria-label="Styles"]' );
 			await expect( formatPanel ).toBeVisible( { timeout: 5000 } );
 		} );
 
@@ -1262,8 +1242,8 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			// Choose Link format, fill form, create.
 			await block
-				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
-				.click();
+				.locator( '.jetpack-paypal-payment-buttons__format-switcher select' )
+				.selectOption( 'LINK' );
 			await fillButtonForm( canvas, { name: 'Link Widget', price: '5.00' } );
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
@@ -1293,8 +1273,8 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			// Choose QR format, fill form, create.
 			await block
-				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")' )
-				.click();
+				.locator( '.jetpack-paypal-payment-buttons__format-switcher select' )
+				.selectOption( 'QR' );
 			await fillButtonForm( canvas, { name: 'QR Widget', price: '15.00' } );
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
 
@@ -1338,14 +1318,12 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await settingsBtn.click();
 			await page.waitForTimeout( 500 );
 
-			const formatPanel = page.locator( 'button:has-text("Display Format")' );
+			const formatPanel = page.locator( 'button[aria-label="Styles"]' );
 			if ( await formatPanel.isVisible( { timeout: 2000 } ).catch( () => false ) ) {
 				await formatPanel.click();
-				const qrOption = page.locator(
-					'.jetpack-paypal-payment-buttons__format-switcher button:has-text("QR Code")'
-				);
-				if ( await qrOption.isVisible( { timeout: 2000 } ).catch( () => false ) ) {
-					await qrOption.click();
+				const switcher = page.locator( '.jetpack-paypal-payment-buttons__format-switcher select' );
+				if ( await switcher.isVisible( { timeout: 2000 } ).catch( () => false ) ) {
+					await switcher.selectOption( 'QR' );
 					await page.waitForTimeout( 500 );
 				}
 			}

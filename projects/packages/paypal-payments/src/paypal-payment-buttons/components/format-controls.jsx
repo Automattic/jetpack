@@ -2,14 +2,13 @@
 /**
  * PayPal Payment Buttons — the Styles tab.
  *
- * EMBED AS and everything under it. The panel set changes per format and, for
- * QR, per the caption toggle — which is why these are our own panels rather
- * than block supports: a supports list in block.json is static per block type
- * and cannot grow a panel when a checkbox flips.
+ * The Styles tab — Embed as and the per-format output controls. The panel set
+ * changes per format and, for QR, per the caption toggle, which block supports
+ * cannot do: block.json declares them once and they cannot follow a checkbox.
  *
- * Built the way extensions/blocks/donations/style-controls.jsx builds its own:
- * one `group="styles"` fill, core's controls inside ToolsPanels of ours,
- * borrowing core's colour classes so the rows get its spacing and reset.
+ * Modelled on projects/plugins/jetpack/extensions/blocks/donations/style-controls.jsx:
+ * one `group="styles"` fill with core's controls inside our own ToolsPanels,
+ * borrowing core's color classes for their spacing and reset.
  *
  * @package
  */
@@ -32,32 +31,46 @@ import {
 	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { getCaptionStyle } from '../utils/block-styles';
 import { DEFAULT_QR_CAPTION } from '../utils/defaults';
 import FormatSwitcher from './format-switcher';
 import QrCodePreview from './qr-code-preview';
 
+const PRESET_WIDTHS = [ '25%', '50%', '75%', '100%' ];
+const WIDTH_UNITS = [
+	{ value: '%', label: '%', default: 100 },
+	{ value: 'px', label: 'px', default: 150 },
+];
+
 /**
- * Width Settings — the frame's 25/50/75/100 presets plus a free percentage.
+ * Width Settings — 25/50/75/100 presets beside a free value.
  *
- * Core has no matching control: core/button's width ToggleGroupControl has the
- * presets but no custom field.
+ * Same shape as the Jetpack plugin's shared width control, which a package
+ * cannot import across the project boundary.
+ *
+ * @see projects/plugins/jetpack/extensions/shared/width-panel.jsx
  *
  * @param {object}   props               - Component props.
- * @param {number}   props.blockWidth    - Current width, as a percentage.
+ * @param {string}   props.blockWidth    - Current width, with its unit.
  * @param {Function} props.setAttributes - Update block attributes.
  * @return {Element} The Width Settings panel.
  */
 function WidthPanel( { blockWidth, setAttributes } ) {
+	// Clicking the selected preset clears it, the way the plugin's control does.
+	const selectPreset = value => setAttributes( { blockWidth: blockWidth === value ? '' : value } );
+
 	return (
 		<ToolsPanel
 			label={ __( 'Width Settings', 'jetpack-paypal-payments' ) }
-			resetAll={ () => setAttributes( { blockWidth: undefined } ) }
+			resetAll={ () => setAttributes( { blockWidth: '' } ) }
 			headingLevel={ 3 }
+			__experimentalFirstVisibleItemClass="first"
+			__experimentalLastVisibleItemClass="last"
 		>
 			<ToolsPanelItem
 				label={ __( 'Width', 'jetpack-paypal-payments' ) }
-				hasValue={ () => blockWidth !== undefined }
-				onDeselect={ () => setAttributes( { blockWidth: undefined } ) }
+				hasValue={ () => !! blockWidth }
+				onDeselect={ () => setAttributes( { blockWidth: '' } ) }
 				isShownByDefault
 			>
 				<Flex align="flex-end" gap={ 2 }>
@@ -66,17 +79,13 @@ function WidthPanel( { blockWidth, setAttributes } ) {
 							label={ __( 'Width', 'jetpack-paypal-payments' ) }
 							hideLabelFromVision
 							value={ blockWidth }
-							onChange={ value => setAttributes( { blockWidth: value } ) }
+							onChange={ selectPreset }
 							isBlock
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 						>
-							{ [ 25, 50, 75, 100 ].map( preset => (
-								<ToggleGroupControlOption
-									key={ preset }
-									value={ preset }
-									label={ `${ preset }%` }
-								/>
+							{ PRESET_WIDTHS.map( preset => (
+								<ToggleGroupControlOption key={ preset } value={ preset } label={ preset } />
 							) ) }
 						</ToggleGroupControl>
 					</FlexItem>
@@ -84,12 +93,9 @@ function WidthPanel( { blockWidth, setAttributes } ) {
 						<UnitControl
 							label={ __( 'Custom width', 'jetpack-paypal-payments' ) }
 							hideLabelFromVision
-							value={ blockWidth === undefined ? '' : `${ blockWidth }%` }
-							units={ [ { value: '%', label: '%', default: 100 } ] }
-							onChange={ value => {
-								const parsed = parseFloat( value );
-								setAttributes( { blockWidth: isNaN( parsed ) ? undefined : parsed } );
-							} }
+							value={ blockWidth }
+							units={ WIDTH_UNITS }
+							onChange={ value => setAttributes( { blockWidth: value || '' } ) }
 							__next40pxDefaultSize
 						/>
 					</FlexItem>
@@ -100,10 +106,9 @@ function WidthPanel( { blockWidth, setAttributes } ) {
 }
 
 /**
- * Border Settings — MARGIN, RADIUS and STROKE, one box.
+ * Border Settings — margin, radius and stroke in one panel.
  *
- * The frame groups margin with border, which core has no panel for: core puts
- * margin in Dimensions and radius in Border.
+ * Core splits these up: margin lives in Dimensions and radius in Border.
  *
  * @param {object}   props               - Component props.
  * @param {object}   props.attributes    - The block attributes.
@@ -111,7 +116,13 @@ function WidthPanel( { blockWidth, setAttributes } ) {
  * @return {Element} The Border Settings panel.
  */
 function BorderPanel( { attributes, setAttributes } ) {
-	const { marginVertical, marginHorizontal, borderRadius, borderWidth, borderColor } = attributes;
+	const {
+		marginVertical,
+		marginHorizontal,
+		blockBorderRadius,
+		blockBorderWidth,
+		blockBorderColor,
+	} = attributes;
 	const hasMargin = marginVertical !== undefined || marginHorizontal !== undefined;
 
 	return (
@@ -121,12 +132,14 @@ function BorderPanel( { attributes, setAttributes } ) {
 				setAttributes( {
 					marginVertical: undefined,
 					marginHorizontal: undefined,
-					borderRadius: undefined,
-					borderWidth: undefined,
-					borderColor: '',
+					blockBorderRadius: undefined,
+					blockBorderWidth: undefined,
+					blockBorderColor: '',
 				} )
 			}
 			headingLevel={ 3 }
+			__experimentalFirstVisibleItemClass="first"
+			__experimentalLastVisibleItemClass="last"
 		>
 			<ToolsPanelItem
 				label={ __( 'Margin', 'jetpack-paypal-payments' ) }
@@ -161,14 +174,14 @@ function BorderPanel( { attributes, setAttributes } ) {
 
 			<ToolsPanelItem
 				label={ __( 'Radius', 'jetpack-paypal-payments' ) }
-				hasValue={ () => borderRadius !== undefined }
-				onDeselect={ () => setAttributes( { borderRadius: undefined } ) }
+				hasValue={ () => blockBorderRadius !== undefined }
+				onDeselect={ () => setAttributes( { blockBorderRadius: undefined } ) }
 				isShownByDefault
 			>
 				<RangeControl
 					label={ __( 'Radius', 'jetpack-paypal-payments' ) }
-					value={ borderRadius }
-					onChange={ value => setAttributes( { borderRadius: value } ) }
+					value={ blockBorderRadius }
+					onChange={ value => setAttributes( { blockBorderRadius: value } ) }
 					min={ 0 }
 					max={ 50 }
 					__next40pxDefaultSize
@@ -178,14 +191,14 @@ function BorderPanel( { attributes, setAttributes } ) {
 
 			<ToolsPanelItem
 				label={ __( 'Stroke', 'jetpack-paypal-payments' ) }
-				hasValue={ () => borderWidth !== undefined || !! borderColor }
-				onDeselect={ () => setAttributes( { borderWidth: undefined, borderColor: '' } ) }
+				hasValue={ () => blockBorderWidth !== undefined || !! blockBorderColor }
+				onDeselect={ () => setAttributes( { blockBorderWidth: undefined, blockBorderColor: '' } ) }
 				isShownByDefault
 			>
 				<RangeControl
 					label={ __( 'Stroke', 'jetpack-paypal-payments' ) }
-					value={ borderWidth }
-					onChange={ value => setAttributes( { borderWidth: value } ) }
+					value={ blockBorderWidth }
+					onChange={ value => setAttributes( { blockBorderWidth: value } ) }
 					min={ 0 }
 					max={ 20 }
 					__next40pxDefaultSize
@@ -193,8 +206,8 @@ function BorderPanel( { attributes, setAttributes } ) {
 				/>
 				<ColorGradientControl
 					label={ __( 'Stroke color', 'jetpack-paypal-payments' ) }
-					colorValue={ borderColor }
-					onColorChange={ value => setAttributes( { borderColor: value || '' } ) }
+					colorValue={ blockBorderColor }
+					onColorChange={ value => setAttributes( { blockBorderColor: value || '' } ) }
 					disableCustomGradients
 					enableAlpha={ false }
 					__experimentalIsRenderedInSidebar
@@ -205,7 +218,8 @@ function BorderPanel( { attributes, setAttributes } ) {
 }
 
 /**
- * The QR output section — Create 186 and 188, above the first divider.
+ * The QR output controls — the code with a Download button, plus the caption
+ * toggle and its text field.
  *
  * @param {object}   props               - Component props.
  * @param {object}   props.attributes    - The block attributes.
@@ -215,11 +229,20 @@ function BorderPanel( { attributes, setAttributes } ) {
  */
 function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
 	const { qrShowCaption, qrCaption } = attributes;
+	// The inspector's copy of the code carries the caption too, so the merchant
+	// sees what they typed without looking back at the canvas.
+	const caption = `${ qrCaption ?? '' }`.trim() || DEFAULT_QR_CAPTION;
 
 	return (
 		<>
 			<div className="jetpack-paypal-payment-buttons__qr-inspector-preview">
-				<QrCodePreview url={ qrUrl } className="jetpack-paypal-button__qr-canvas" showDownload />
+				<QrCodePreview
+					url={ qrUrl }
+					className="jetpack-paypal-button__qr-canvas"
+					caption={ qrShowCaption ? caption : '' }
+					captionStyle={ getCaptionStyle( attributes ) }
+					showDownload
+				/>
 			</div>
 
 			<CheckboxControl
@@ -247,9 +270,7 @@ function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
 /**
  * Colour and size for the QR caption.
  *
- * These exist only while the caption does, which is what captures 12 and 17
- * draw: the same frame, checkbox off then on. A block support could not do
- * this — it is declared once in block.json and cannot follow a checkbox.
+ * Only rendered while the caption is on.
  *
  * @param {object}   props               - Component props.
  * @param {object}   props.attributes    - The block attributes.
@@ -267,6 +288,8 @@ function QrCaptionPanels( { attributes, setAttributes } ) {
 				resetAll={ () => setAttributes( { captionColor: '' } ) }
 				hasInnerWrapper
 				headingLevel={ 3 }
+				__experimentalFirstVisibleItemClass="first"
+				__experimentalLastVisibleItemClass="last"
 			>
 				<ToolsPanelItem
 					label={ __( 'Text', 'jetpack-paypal-payments' ) }
@@ -291,6 +314,8 @@ function QrCaptionPanels( { attributes, setAttributes } ) {
 				label={ __( 'Typography', 'jetpack-paypal-payments' ) }
 				resetAll={ () => setAttributes( { captionFontSize: undefined } ) }
 				headingLevel={ 3 }
+				__experimentalFirstVisibleItemClass="first"
+				__experimentalLastVisibleItemClass="last"
 			>
 				<ToolsPanelItem
 					label={ __( 'Size', 'jetpack-paypal-payments' ) }
@@ -301,7 +326,7 @@ function QrCaptionPanels( { attributes, setAttributes } ) {
 					<UnitControl
 						label={ __( 'Size', 'jetpack-paypal-payments' ) }
 						value={ captionFontSize === undefined ? '' : `${ captionFontSize }px` }
-						units={ [ { value: 'px', label: 'px', default: 16 } ] }
+						units={ [ { value: 'px', label: 'px' } ] }
 						onChange={ value => {
 							const parsed = parseFloat( value );
 							setAttributes( { captionFontSize: isNaN( parsed ) ? undefined : parsed } );
@@ -335,15 +360,14 @@ export default function PayPalFormatControls( {
 	qrUrl,
 	disabled,
 } ) {
-	// Width and Border are BUTTON and QR only — Create 187 draws neither for LINK.
+	// Width and Border apply to BUTTON and QR only; LINK has no box to size.
 	const hasBox = format !== 'LINK';
 
 	return (
 		<InspectorControls group="styles">
-			{ /* EMBED AS and the format's own output controls sit in a plain
-			     section — the frames give them a label and a divider, not a
-			     collapsible panel header. Only Color, Typography, Width and
-			     Border are panels. */ }
+			{ /* Embed as and the format's own controls sit in a plain section with
+			     a divider, not a collapsible panel. Only Color, Typography, Width
+			     and Border are panels. */ }
 			<div className="jetpack-paypal-payment-buttons__format-section">
 				<FormatSwitcher
 					value={ format }

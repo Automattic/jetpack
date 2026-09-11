@@ -81,16 +81,17 @@ jest.mock( '@wordpress/block-editor', () => ( {
 			{ children }
 		</div>
 	),
+	// The real control is a swatch popover, not a text field. Keep it a button so
+	// a test can't type a color into a UI that has no input.
 	__experimentalColorGradientControl: ( { label, colorValue, onColorChange } ) => (
-		<div data-testid={ `color-${ label }` }>
-			<label htmlFor={ `color-field-${ label }` }>{ label }</label>
-			<input
-				id={ `color-field-${ label }` }
-				type="text"
-				value={ colorValue || '' }
-				onChange={ e => onColorChange( e.target.value ) }
-			/>
-		</div>
+		<button
+			type="button"
+			data-testid={ `color-${ label }` }
+			data-value={ colorValue || '' }
+			onClick={ () => onColorChange( '#111111' ) }
+		>
+			{ label }
+		</button>
 	),
 	// open() calls onSelect straight away so the block's handler runs.
 	MediaUpload: ( { onSelect, render: renderProp } ) =>
@@ -283,8 +284,8 @@ jest.mock( '@wordpress/components', () => ( {
 	ToolbarGroup: ( { children } ) => <div data-testid="toolbar-group">{ children }</div>,
 	Flex: ( { children } ) => <div>{ children }</div>,
 	FlexItem: ( { children } ) => <div>{ children }</div>,
-	// The panels only group controls, so they render as their contents. A test
-	// that needs one asserts on the control inside it, not on the panel.
+	// The panels only group controls, so they render as their contents under a
+	// testid named for the label.
 	__experimentalToolsPanel: ( { children, label } ) => (
 		<div data-testid={ `tools-panel-${ label }` }>{ children }</div>
 	),
@@ -3138,15 +3139,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'BUTTON'
 			);
 
-			// EMBED AS is a dropdown in the Styles tab, the way every frame draws it.
+			// Embed as is a dropdown in the Styles tab.
 			await user.selectOptions( screen.getByLabelText( 'Embed as' ), 'QR' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { format: 'QR' } );
 		} );
 
-		// The Styles tab. Its panel set changes per format and, for QR, per the
-		// caption toggle — which is the reason these are our own panels rather
-		// than block supports.
+		// The Styles tab — the panel set changes per format and, for QR, per the
+		// caption toggle.
 		describe( 'the Styles tab', () => {
 			const qrAttributes = {
 				isApiManaged: true,
@@ -3241,7 +3241,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				await user.click( screen.getByText( '50%' ) );
 
-				expect( setAttributes ).toHaveBeenCalledWith( { blockWidth: 50 } );
+				expect( setAttributes ).toHaveBeenCalledWith( { blockWidth: '50%' } );
 			} );
 		} );
 
