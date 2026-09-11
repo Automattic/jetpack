@@ -80,7 +80,7 @@ export function LeaderboardChart( {
 	legendLabels,
 	dataFormat = {
 		type: 'currency',
-		options: { useMultipliers: true, decimals: 2 },
+		options: { useMultipliers: true },
 	},
 	emptyStateIcon,
 	emptyStateText,

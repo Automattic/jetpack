@@ -13,7 +13,9 @@ import styles from './abbreviated-value.module.scss';
 import type { DataFormat } from '../../types';
 
 export type AbbreviatedTextProps = {
+	/** The shortened text to show, e.g. `'18.4K'`. */
 	display: string;
+	/** The full text restored in a tooltip and for assistive tech, e.g. `'18,432'`. */
 	exact: string;
 	className?: string;
 };
@@ -48,7 +50,8 @@ export type AbbreviatedValueProps = {
 	dataFormat?: DataFormat;
 
 	/**
-	 * ISO 4217 currency code (e.g. `'USD'`, `'EUR'`).
+	 * ISO 4217 currency code (e.g. `'USD'`, `'EUR'`); overrides
+	 * `dataFormat.options.currencyCode` when set.
 	 */
 	currencyCode?: string;
 
@@ -57,7 +60,7 @@ export type AbbreviatedValueProps = {
 
 /**
  * Formats a metric value, restoring the full figure (`18,432`) behind a
- * compact one (`18K`).
+ * compact one (`18.4K`).
  */
 export function AbbreviatedValue( {
 	value,

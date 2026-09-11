@@ -67,6 +67,19 @@ describe( 'AbbreviatedValue', () => {
 		expect( screen.getByText( '€1,500.00' ) ).toBeInTheDocument();
 	} );
 
+	it( 'lets the currencyCode prop override the data format', () => {
+		render(
+			<AbbreviatedValue
+				value={ 1500 }
+				dataFormat={ { type: 'currency', options: { useMultipliers: true, currencyCode: 'EUR' } } }
+				currencyCode="USD"
+			/>
+		);
+
+		expect( screen.getByText( '$1.5K' ) ).toBeInTheDocument();
+		expect( screen.getByText( '$1,500.00' ) ).toBeInTheDocument();
+	} );
+
 	it( 'formats currency through the same rule', () => {
 		render(
 			<AbbreviatedValue

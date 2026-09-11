@@ -42,8 +42,8 @@ formatMetricValue( 192088, 'currency', {
 | ------------------------ | ----------------------------------------------------- | ---------------------------------------- | ---------------------------------------------- |
 | `value`                  | `string \| number \| null`                            |                                          | Value to format                                |
 | `type`                   | `'number' \| 'currency' \| 'percentage' \| 'average'` | `'number'`                               | Formatting strategy                            |
-| `options.decimals`       | `number`                                              | varies by type                           | Decimal precision of the full value (0 for number, 2 for others) |
-| `options.useMultipliers` | `boolean`                                             | `false`                                  | Compact notation above 999: one decimal while the mantissa has two digits (1.2K, 54.3K), none from three (234K) |
+| `options.decimals`       | `number`                                              | varies by type                           | Decimal precision of the full value (0 for number, 2 for average/percentage; currency ignores it and prints its own minor units) |
+| `options.useMultipliers` | `boolean`                                             | `false`                                  | Compact notation above 999: one decimal while the mantissa has two digits (1.2K, 54.3K), none from three (234K). Locales that group by 10⁴ (ja, zh, ko) keep ICU's own units |
 | `options.signDisplay`    | `Intl` sign mode                                      | `'auto'` (`'exceptZero'` for percentage) | Sign display                                   |
 | `options.currencyCode`   | `string`                                              | `'USD'`                                  | ISO 4217 currency code                         |
 

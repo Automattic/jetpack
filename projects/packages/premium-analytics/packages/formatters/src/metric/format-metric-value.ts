@@ -12,7 +12,7 @@ import {
  * Metric type that determines the formatting strategy.
  *
  * - `number`     → `formatNumber` / `formatNumberCompact` (decimals default: 0)
- * - `currency`   → `formatCurrency` with symbol positioning (decimals default: 2)
+ * - `currency`   → `formatCurrency` with symbol positioning (decimals from the currency)
  * - `percentage` → `Intl` percent style, signDisplay defaults to `exceptZero` (decimals default: 2)
  * - `average`    → `formatNumber` (decimals default: 2), em dash for Infinity
  */
@@ -21,13 +21,15 @@ export type MetricType = 'number' | 'average' | 'currency' | 'percentage';
 export type FormatMetricValueOptions = {
 	/**
 	 * Decimal precision of the full value; compact output picks its own.
-	 * Defaults vary by type: 0 for number, 2 for average/currency/percentage.
+	 * Defaults to 0 for number and 2 for average/percentage; currency ignores it
+	 * and prints its own minor units.
 	 */
 	decimals?: number;
 
 	/**
 	 * Use compact notation with K/M suffixes above 999: one decimal while the
-	 * mantissa has two digits (1.2K, 54.3K), none from three (234K).
+	 * mantissa has two digits (1.2K, 54.3K), none from three (234K). Locales
+	 * that group by 10⁴ (ja, zh, ko) keep ICU's own units, so the digit count differs.
 	 * @default false
 	 */
 	useMultipliers?: boolean;
@@ -49,7 +51,8 @@ const COMPACT_THRESHOLD = 1000;
 
 /**
  * Fraction digits for compact notation: one decimal until the mantissa
- * reaches three digits.
+ * reaches three digits. Assumes thousands grouping; ICU's 10⁴ units (ja, zh,
+ * ko) pick a different exponent.
  */
 function compactFractionDigits(
 	absoluteValue: number

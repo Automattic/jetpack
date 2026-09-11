@@ -45,7 +45,7 @@ export function PeakDistribution( {
 		valueUnit === 'views-per-day'
 			? /* translators: %s is the average number of views per day, e.g. "1.4". */
 			  _n( '%s view per day', '%s views per day', displayedValue, 'jetpack-premium-analytics-pkg' )
-			: /* translators: %s is a number of views, e.g. "166.9K". */
+			: /* translators: %s is a number of views, e.g. "167K". */
 			  _n( '%s view', '%s views', displayedValue, 'jetpack-premium-analytics-pkg' );
 	/* translators: %s is a views figure with its unit, e.g. "0.1 views per day". */
 	const belowTemplate = __( 'Fewer than %s', 'jetpack-premium-analytics-pkg' );
