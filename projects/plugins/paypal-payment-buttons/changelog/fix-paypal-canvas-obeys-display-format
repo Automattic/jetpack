@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Show the chosen Display Format in the editor. Picking Link or QR code now changes the block preview, which always showed a button before, and the preview matches the published block's button text, options list and "Powered by PayPal" line. The button reads "Buy Now" without the PayPal wordmark on it, and the QR code that sat under the button is gone — pick the QR code format for one.
+Show the chosen Display Format in the editor. Picking Link or QR code now changes the block preview, which always showed a button before, and the preview matches the published block's button text, options list and "Powered by PayPal" line. The button reads "Buy Now" with no PayPal wordmark on it. Two things the preview used to show and the published button never did are gone: the QR code under the button, which you now get by picking the QR code format, and the row for copying the payment link, which is still on the Payment Links admin screen.

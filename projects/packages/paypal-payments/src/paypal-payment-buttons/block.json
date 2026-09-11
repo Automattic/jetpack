@@ -56,7 +56,7 @@
 		},
 		"buttonText": {
 			"type": "string",
-			"default": "Buy Now"
+			"default": ""
 		},
 		"buttonType": {
 			"type": "string",

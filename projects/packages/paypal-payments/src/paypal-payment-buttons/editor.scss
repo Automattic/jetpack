@@ -476,34 +476,10 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
 	width: 100%;
 	cursor: default;
 	text-align: center;
 	text-decoration: none;
-}
-
-// Payment link reference
-.jetpack-paypal-button-preview__link-ref {
-	display: flex;
-	align-items: baseline;
-	gap: 6px;
-	padding-top: 8px;
-	border-top: 1px solid #e0e0e0;
-}
-
-.jetpack-paypal-button-preview__link-label {
-	font-size: 11px;
-	color: #757575;
-	white-space: nowrap;
-}
-
-.jetpack-paypal-button-preview__link-url {
-	font-size: 11px;
-	color: #2271b1;
-	word-break: break-all;
-	background: none;
-	padding: 0;
 }
 
 // ---------------------------------------------------------------

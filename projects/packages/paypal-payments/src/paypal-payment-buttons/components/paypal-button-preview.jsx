@@ -6,14 +6,13 @@
  * payment link, or a QR code. Each is an abbreviated view of what the frontend
  * renders for that format, so the canvas shows which one the merchant picked.
  *
- * Sizing comes from CSS alone, and anything that carries a frontend class picks
- * up style.scss, which the canvas iframe also loads.
+ * Sizing comes from CSS alone. Anything using a frontend class name is styled by
+ * style.scss, which the canvas iframe loads too.
  *
  * @package
  * @since 0.8.0
  */
 
-import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
 import { withPartnerAttribution } from '../utils/partner-attribution';
@@ -60,7 +59,7 @@ function getLowestVariantPrice( variants ) {
 /**
  * Build the variant summary the way render_api_managed_button() builds it.
  *
- * Drops nameless dimensions and unlabelled options, and hides an option price
+ * Drops nameless dimensions and unlabeled options, and hides an option price
  * that only repeats the product price above it.
  *
  * @param {object} variants     - Variants data with dimensions.
@@ -69,64 +68,20 @@ function getLowestVariantPrice( variants ) {
  */
 function getVariantGroups( variants, productPrice ) {
 	return ( variants?.dimensions || [] )
+		.filter( dimension => dimension.name && dimension.options?.length )
 		.map( dimension => ( {
-			name: dimension.name || '',
-			options: ( dimension.options || [] )
+			name: dimension.name,
+			options: dimension.options
 				.filter( option => option.label )
 				.map( option => {
-					const value = option.unit_amount?.value;
+					const value = `${ option.unit_amount?.value ?? '' }`;
 					return {
 						label: option.label,
-						price: value && value !== productPrice ? value : '',
+						price: value !== '' && value !== productPrice ? value : '',
 					};
 				} ),
 		} ) )
-		.filter( group => group.name && group.options.length > 0 );
-}
-
-/**
- * Copyable payment link with a "Copy" button.
- *
- * @param {object} props                      - Component props.
- * @param {string} props.paymentLink          - The payment link URL.
- * @param {string} props.partnerAttributionId - PayPal partner attribution (BN) code.
- * @return {Element} Payment link with copy button.
- */
-function CopyablePaymentLink( { paymentLink, partnerAttributionId } ) {
-	const [ copied, setCopied ] = useState( false );
-
-	const copiedLabel = __( 'Copied!', 'jetpack-paypal-payments' );
-	const copyLabel = __( 'Copy', 'jetpack-paypal-payments' );
-
-	// Merchants share this link directly, so it carries the same attribution
-	// code the rendered button appends.
-	const shareableLink = withPartnerAttribution( paymentLink, partnerAttributionId );
-
-	const handleCopy = () => {
-		if ( navigator.clipboard ) {
-			navigator.clipboard.writeText( shareableLink ).then( () => {
-				setCopied( true );
-				setTimeout( () => setCopied( false ), 2000 );
-			} );
-		}
-	};
-
-	return (
-		<div className="jetpack-paypal-button-preview__link-ref">
-			<span className="jetpack-paypal-button-preview__link-label">
-				{ __( 'Payment link:', 'jetpack-paypal-payments' ) }
-			</span>
-			<code className="jetpack-paypal-button-preview__link-url">{ shareableLink }</code>
-			<button
-				type="button"
-				className="jetpack-paypal-button-preview__copy-button"
-				onClick={ handleCopy }
-				aria-label={ __( 'Copy payment link to clipboard', 'jetpack-paypal-payments' ) }
-			>
-				{ copied ? copiedLabel : copyLabel }
-			</button>
-		</div>
-	);
+		.filter( group => group.options.length > 0 );
 }
 
 /**
@@ -187,17 +142,15 @@ function QrPreview( { productName, paymentLink, partnerAttributionId } ) {
 /**
  * The BUTTON format — the product card and a theme-native checkout button.
  *
- * @param {object}  props                      - Component props.
- * @param {string}  props.productName          - Product name to display.
- * @param {string}  props.price                - Price value string.
- * @param {string}  props.currencyCode         - ISO currency code.
- * @param {string}  props.productDescription   - Optional product description.
- * @param {string}  props.paymentLink          - PayPal payment URL, once one has been issued.
- * @param {boolean} props.variantsEnabled      - Whether variants are active.
- * @param {object}  props.variants             - Variants data with dimensions.
- * @param {string}  props.imageUrl             - Optional product image URL.
- * @param {string}  props.partnerAttributionId - PayPal partner attribution (BN) code.
- * @param {string}  props.buttonText           - Label on the checkout button.
+ * @param {object}  props                    - Component props.
+ * @param {string}  props.productName        - Product name to display.
+ * @param {string}  props.price              - Price value string.
+ * @param {string}  props.currencyCode       - ISO currency code.
+ * @param {string}  props.productDescription - Optional product description.
+ * @param {boolean} props.variantsEnabled    - Whether variants are active.
+ * @param {object}  props.variants           - Variants data with dimensions.
+ * @param {string}  props.imageUrl           - Optional product image URL.
+ * @param {string}  props.buttonText         - Label on the checkout button.
  * @return {Element} Button preview element.
  */
 function ButtonPreview( {
@@ -205,18 +158,17 @@ function ButtonPreview( {
 	price,
 	currencyCode = 'USD',
 	productDescription,
-	paymentLink,
 	variantsEnabled,
 	variants,
 	imageUrl,
-	partnerAttributionId,
 	buttonText,
 } ) {
 	// Mirrors render_api_managed_button(): PayPal drops the product-level amount
 	// once the options have their own prices, but the block keeps what was typed.
-	const productPrice = hasVariantPricing( variantsEnabled, variants ) ? '' : price;
+	// Prices stay strings, because PayPal accepts 0 and the empty test is ''.
+	const productPrice = hasVariantPricing( variantsEnabled, variants ) ? '' : `${ price ?? '' }`;
 	const lowestVariantPrice =
-		! productPrice && variantsEnabled ? getLowestVariantPrice( variants ) : null;
+		productPrice === '' && variantsEnabled ? getLowestVariantPrice( variants ) : null;
 	const variantGroups = variantsEnabled ? getVariantGroups( variants, productPrice ) : [];
 	// A blank label would draw an unreadable button, so fall back to the
 	// block.json default, the same as render_api_managed_button() does.
@@ -241,12 +193,12 @@ function ButtonPreview( {
 						</span>
 					) }
 				</div>
-				{ productPrice && (
+				{ productPrice !== '' && (
 					<span className="jetpack-paypal-button-preview__product-price">
 						{ formatPrice( productPrice, currencyCode ) }
 					</span>
 				) }
-				{ ! productPrice && lowestVariantPrice && (
+				{ productPrice === '' && lowestVariantPrice !== null && (
 					<span className="jetpack-paypal-button-preview__product-price">
 						{ sprintf(
 							/* translators: %s: formatted price, e.g. "$29.99" */
@@ -257,7 +209,7 @@ function ButtonPreview( {
 				) }
 			</div>
 
-			{ /* Variant summary — the frontend's shape and classes, so both sides look alike. */ }
+			{ /* Variant summary — the frontend's markup and class names, so both sides look alike. */ }
 			{ variantGroups.length > 0 && (
 				<div className="jetpack-paypal-button__variants">
 					<p className="jetpack-paypal-button__variants-label">
@@ -284,7 +236,7 @@ function ButtonPreview( {
 				</div>
 			) }
 
-			{ /* Checkout button preview — theme-native, labelled by the buttonText attribute. */ }
+			{ /* Checkout button preview — theme-native, labeled with the buttonText attribute. */ }
 			<div className="jetpack-paypal-button-preview__buttons">
 				<div
 					className="jetpack-paypal-button-preview__checkout-button wp-element-button"
@@ -297,14 +249,6 @@ function ButtonPreview( {
 			<p className="jetpack-paypal-button__attribution">
 				{ __( 'Powered by PayPal', 'jetpack-paypal-payments' ) }
 			</p>
-
-			{ /* Payment link with copy button — only once PayPal has issued one. */ }
-			{ paymentLink && (
-				<CopyablePaymentLink
-					paymentLink={ paymentLink }
-					partnerAttributionId={ partnerAttributionId }
-				/>
-			) }
 		</div>
 	);
 }

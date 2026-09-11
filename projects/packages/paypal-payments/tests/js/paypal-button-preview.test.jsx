@@ -53,8 +53,13 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.getByText( 'Checkout' ) ).toBeInTheDocument();
 	} );
 
-	it( 'falls back to Buy Now when buttonText is empty', () => {
-		render( <PayPalButtonPreview { ...defaultProps } buttonText="" /> );
+	it( 'falls back to the default text with no buttonText', () => {
+		render( <PayPalButtonPreview { ...defaultProps } /> );
+		expect( screen.getByText( 'Buy Now' ) ).toBeInTheDocument();
+	} );
+
+	it( 'falls back to the default text with a whitespace-only buttonText', () => {
+		render( <PayPalButtonPreview { ...defaultProps } buttonText="   " /> );
 		expect( screen.getByText( 'Buy Now' ) ).toBeInTheDocument();
 	} );
 
@@ -76,10 +81,12 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.queryByText( 'Debit or Credit Card' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the payment link reference', () => {
+	it( 'leaves the payment link to the LINK format', () => {
+		// Copying the link belongs to the LINK format and the Payment Links admin
+		// screen. The published button has none, so the canvas matches it.
 		render( <PayPalButtonPreview { ...defaultProps } /> );
-		expect( screen.getByText( 'Payment link:' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'https://www.paypal.com/ncp/payment/ABC123' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Payment link:' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Copy' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders non-interactive preview buttons as div elements', () => {
@@ -222,7 +229,7 @@ describe( 'PayPalButtonPreview', () => {
 			],
 		};
 
-		it( 'draws the labelled group the frontend draws, not a count badge', () => {
+		it( 'draws the labeled group the frontend draws, not a count badge', () => {
 			render(
 				<PayPalButtonPreview { ...defaultProps } price="" variantsEnabled variants={ sized } />
 			);
@@ -259,7 +266,7 @@ describe( 'PayPalButtonPreview', () => {
 			expect( screen.queryAllByText( '$29.99' ) ).toHaveLength( 1 );
 		} );
 
-		it( 'skips a nameless group and an unlabelled option', () => {
+		it( 'skips a nameless group and an unlabeled option', () => {
 			render(
 				<PayPalButtonPreview
 					{ ...defaultProps }
@@ -275,6 +282,56 @@ describe( 'PayPalButtonPreview', () => {
 			expect(
 				document.querySelector( '.jetpack-paypal-button__variants' )
 			).not.toBeInTheDocument();
+		} );
+
+		it( 'shows an option price of 0', () => {
+			// PayPal accepts a price of 0.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					price=""
+					variantsEnabled
+					variants={ {
+						dimensions: [
+							{
+								name: 'Size',
+								primary: true,
+								options: [
+									{ label: 'Free', unit_amount: { currency_code: 'USD', value: '0' } },
+									{ label: 'Large', unit_amount: { currency_code: 'USD', value: '20.00' } },
+								],
+							},
+						],
+					} }
+				/>
+			);
+			expect( screen.getByText( '$0' ) ).toHaveClass( 'jetpack-paypal-button__variant-price' );
+		} );
+
+		it( 'shows a product price of 0', () => {
+			render( <PayPalButtonPreview { ...defaultProps } price="0" /> );
+			expect( screen.getByText( '$0' ) ).toHaveClass(
+				'jetpack-paypal-button-preview__product-price'
+			);
+		} );
+
+		it( 'keeps a group named 0 and an option labeled 0', () => {
+			// '0' passes the form's validation, so both renderers have to keep it.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					variantsEnabled
+					variants={ {
+						dimensions: [
+							{ name: 'Size', primary: true, options: [ { label: '0' } ] },
+							{ name: '0', options: [ { label: 'Red' } ] },
+						],
+					} }
+				/>
+			);
+			expect( screen.getByText( 'Size:' ) ).toBeInTheDocument();
+			expect( screen.getByText( '0:' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Red' ) ).toBeInTheDocument();
 		} );
 
 		it( 'draws nothing when variants are off', () => {
@@ -363,16 +420,12 @@ describe( 'PayPalButtonPreview', () => {
 			expect( options ).toBe( QR_OPTIONS );
 		} );
 
-		it.each( [ [ 'LINK' ], [ 'QR' ] ] )(
-			'leaves out the product card and the payment link row for %s',
-			format => {
-				render( <PayPalButtonPreview { ...defaultProps } format={ format } /> );
-				expect( screen.queryByText( '$29.99' ) ).not.toBeInTheDocument();
-				expect( screen.queryByText( 'Payment link:' ) ).not.toBeInTheDocument();
-				expect(
-					document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
-				).not.toBeInTheDocument();
-			}
-		);
+		it.each( [ [ 'LINK' ], [ 'QR' ] ] )( 'leaves out the product card for %s', format => {
+			render( <PayPalButtonPreview { ...defaultProps } format={ format } /> );
+			expect( screen.queryByText( '$29.99' ) ).not.toBeInTheDocument();
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).not.toBeInTheDocument();
+		} );
 	} );
 } );
