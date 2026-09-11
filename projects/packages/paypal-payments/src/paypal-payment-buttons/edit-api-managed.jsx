@@ -908,6 +908,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				) }
 
 				<PayPalButtonPreview
+					format={ activeFormat }
 					productName={ productName }
 					price={ price }
 					currencyCode={ currencyCode }

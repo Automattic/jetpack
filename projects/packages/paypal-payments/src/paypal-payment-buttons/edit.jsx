@@ -37,6 +37,7 @@ function ApiManagedReadOnly( { attributes } ) {
 	const blockProps = useBlockProps();
 	const {
 		colorScheme,
+		format,
 		productName,
 		price,
 		currencyCode,
@@ -57,6 +58,7 @@ function ApiManagedReadOnly( { attributes } ) {
 			</Notice>
 			<div className="jetpack-paypal-payment-buttons__preview">
 				<PayPalButtonPreview
+					format={ format }
 					productName={ productName }
 					price={ price }
 					currencyCode={ currencyCode }

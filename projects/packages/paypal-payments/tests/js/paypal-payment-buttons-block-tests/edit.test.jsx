@@ -256,6 +256,7 @@ jest.mock( '../../../src/paypal-payment-buttons/components/paypal-button-preview
 			<div
 				data-testid="paypal-button-preview"
 				data-product-name={ props.productName }
+				data-format={ props.format }
 			>
 				Preview: { props.productName } - { props.price } { props.currencyCode }
 			</div>
@@ -2249,7 +2250,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			[ 'no rate at all', '' ],
 			[ 'a rate of zero', '0' ],
 		] )( 'refuses to save tax with %s', async ( _label, taxValue ) => {
-			const user = userEvent.setup();
 			mockConnected();
 
 			render(
@@ -2272,7 +2272,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// A missing type saves as a percentage, so it has to ask for a rate like one -
 		// and show the field it is asking about.
 		it( 'asks for a rate when the tax type is missing', async () => {
-			const user = userEvent.setup();
 			mockConnected();
 
 			render(
@@ -2334,7 +2333,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 
 		it( 'saves a rate that is filled in', async () => {
-			const user = userEvent.setup();
 			mockConnected();
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
@@ -2354,7 +2352,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			[ 'PayPal keeps the rate', 'PREFERENCE' ],
 			[ 'the tax is a flat amount', 'FLAT' ],
 		] )( 'asks for no rate when %s', async ( _label, taxType ) => {
-			const user = userEvent.setup();
 			mockConnected();
 
 			render(
@@ -3047,6 +3044,36 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
 		} );
 
+		// Display Format used to change nothing on the canvas, because the preview
+		// was never handed the attribute.
+		it( 'hands the chosen Display Format to the preview', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<Edit
+					attributes={ {
+						isApiManaged: true,
+						resourceId: 'PLB-TEST123',
+						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			// No format attribute yet, so the block is a button.
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toHaveAttribute(
+				'data-format',
+				'BUTTON'
+			);
+
+			await user.click( screen.getByText( 'QR Code' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { format: 'QR' } );
+		} );
+
 		it( 'offers the delete toolbar button when a button exists', async () => {
 			render(
 				<Edit
@@ -3089,7 +3116,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
 		} );
-
 	} );
 
 	describe( 'API Error Handling', () => {

@@ -15,19 +15,7 @@
  */
 
 import QRCode from 'qrcode';
-
-/**
- * Shared QR generation options.
- */
-const QR_OPTIONS = {
-	width: 200,
-	margin: 2,
-	errorCorrectionLevel: 'M',
-	color: {
-		dark: '#253B80', // PayPal dark blue
-		light: '#FFFFFF',
-	},
-};
+import { QR_OPTIONS } from './utils/qr-options';
 
 /**
  * Wire a download button to a canvas — convert canvas to PNG on click.

@@ -390,9 +390,9 @@ class PayPal_Payment_Buttons {
 			return sprintf(
 				'<div %1$s>
 	<div class="jetpack-paypal-button jetpack-paypal-button--qr-format">
-		%2$s
 		<div class="jetpack-paypal-button__qr-standalone">
 			<canvas class="jetpack-paypal-button__qr-canvas jetpack-paypal-button__qr-canvas--standalone" data-qr-url="%3$s"></canvas>
+			%2$s
 			<div class="jetpack-paypal-button__qr-link">
 				<input type="text" readonly class="jetpack-paypal-button__qr-link-input" value="%3$s" />
 				<button type="button" class="jetpack-paypal-button__qr-copy" data-copy-label="%4$s" data-copied-label="%5$s">%4$s</button>
