@@ -2153,7 +2153,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 */
 	private function get_ssl_verification_error() {
 		return Error_Handler::build_connection_wp_error(
-			'ssl_verification_failed',
+			'wpcom_ssl_verification_failed',
 			'WordPress.com cannot verify the SSL certificate of the site',
 			array( 'token' => '' ),
 			Error_Handler::ERROR_TYPE_LOCAL_STATE,
@@ -2168,16 +2168,16 @@ class Error_Handler_Test extends BaseTestCase {
 	/**
 	 * Test the SSL-verification error is displayable with its own message and no reconnect CTA.
 	 */
-	public function test_displayable_errors_ssl_verification_failed() {
+	public function test_displayable_errors_wpcom_ssl_verification_failed() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->report_error( $this->get_ssl_verification_error(), false, true );
 
 		$displayable_errors = $this->error_handler->get_displayable_errors();
 
-		$this->assertArrayHasKey( 'ssl_verification_failed', $displayable_errors );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', $displayable_errors );
 
-		$error = $displayable_errors['ssl_verification_failed']['0'];
+		$error = $displayable_errors['wpcom_ssl_verification_failed']['0'];
 
 		// The message is deliberately brief — Site Health carries the detailed
 		// diagnosis — but names the condition and points there.

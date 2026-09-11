@@ -477,7 +477,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * exercised without performing a signed remote request.
 	 *
 	 * Besides producing the Site Health result, this also keeps the Error_Handler
-	 * state for `xmlrpc_request_blocked` and `ssl_verification_failed` in sync: a
+	 * state for `xmlrpc_request_blocked` and `wpcom_ssl_verification_failed` in sync: a
 	 * result carrying one of those codes reports the matching error (making it
 	 * visible on Error_Handler surfaces such as admin notices and the dashboard),
 	 * and a connected result clears both. Runs from every entry point of the test:
@@ -522,8 +522,8 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		// this signed request is the only evidence, and reconnecting would be rejected
 		// the same way. A stored blocked error is preserved: a failed handshake proves
 		// nothing about a blockage, and ERROR_LIFE_TIME bounds any staleness.
-		if ( isset( $result->error_code ) && 'ssl_verification_failed' === $result->error_code ) {
-			$this->report_connection_state_error( 'ssl_verification_failed', 'WordPress.com cannot verify the SSL certificate of the site' );
+		if ( isset( $result->error_code ) && 'wpcom_ssl_verification_failed' === $result->error_code ) {
+			$this->report_connection_state_error( 'wpcom_ssl_verification_failed', 'WordPress.com cannot verify the SSL certificate of the site' );
 
 			return $this->ssl_verification_failing_test( $name );
 		}
@@ -532,10 +532,13 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		// WP.com actually ran its test and did not report a blockage or a certificate
 		// failure — a definitive other failure, so a lingering blocked or SSL error is
 		// stale and its suppressed-reconnect presentation would be wrong for this
-		// failure. Malformed bodies and service-error envelopes (no `connected`
-		// property) are inconclusive: preserve any existing errors, as with timeouts
-		// and 404s. A wrongly preserved error is bounded by ERROR_LIFE_TIME anyway.
-		if ( is_object( $result ) && property_exists( $result, 'connected' ) ) {
+		// failure. The exception is a result WP.com marked `inconclusive` (a transport
+		// failure it could not classify, e.g. a timeout): that neither confirms nor
+		// disproves a stored error, so preserve it — clearing would flap the notice
+		// for a broken site that is also occasionally slow. Malformed bodies and
+		// service-error envelopes (no `connected` property) are likewise preserved.
+		// A wrongly preserved error is bounded by ERROR_LIFE_TIME anyway.
+		if ( is_object( $result ) && property_exists( $result, 'connected' ) && empty( $result->inconclusive ) ) {
 			$this->clear_blocked_request_error();
 			$this->clear_ssl_verification_error();
 		}
@@ -614,7 +617,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	}
 
 	/**
-	 * Clears a stored `ssl_verification_failed` error, when the loaded Error_Handler supports it.
+	 * Clears a stored `wpcom_ssl_verification_failed` error, when the loaded Error_Handler supports it.
 	 *
 	 * As with clear_blocked_request_error(), state sync is best-effort and skipped when a
 	 * stale Error_Handler predating the method is loaded mid-plugin-update.
@@ -623,7 +626,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 */
 	private function clear_ssl_verification_error() {
 		if ( method_exists( Error_Handler::class, 'delete_error_by_code' ) ) {
-			Error_Handler::get_instance()->delete_error_by_code( 'ssl_verification_failed' );
+			Error_Handler::get_instance()->delete_error_by_code( 'wpcom_ssl_verification_failed' );
 		}
 	}
 

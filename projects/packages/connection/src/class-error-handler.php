@@ -217,7 +217,7 @@ class Error_Handler {
 		// Connection state problems (Manager::get_connection_owner, Connection_Health_Tests).
 		'invalid_connection_owner',  // The connection owner cannot be resolved: token missing or WP user deleted.
 		'xmlrpc_request_blocked',    // WP.com reached the site but the request was rejected (firewall, WAF, or server rule).
-		'ssl_verification_failed',   // WP.com could not verify the site's SSL certificate when connecting to it (expired, self-signed, or incomplete chain).
+		'wpcom_ssl_verification_failed',   // WP.com could not verify the site's SSL certificate when connecting to it (expired, self-signed, or incomplete chain).
 	);
 
 	/**
@@ -564,59 +564,59 @@ class Error_Handler {
 		$configs = array(
 			// Attacker-controllable garbage in an incoming request. Nothing about this
 			// site's own connection is wrong.
-			'malformed_user_id'        => false,
+			'malformed_user_id'             => false,
 			// Expected after a user is deleted, and the owner flavor is covered by
 			// invalid_connection_owner. Incoming reports also drive WP.com-side
 			// self-healing, so a notice would surface a problem already resolving itself.
-			'unknown_user'             => false,
-			'malformed_token'          => array(),
+			'unknown_user'                  => false,
+			'malformed_token'               => array(),
 			// Never connecting a WordPress.com account is expected, not broken. The owner
 			// flavor is covered by invalid_connection_owner.
-			'no_user_tokens'           => false,
+			'no_user_tokens'                => false,
 			// Same, for a site that has never had an owner. invalid_connection_owner
 			// covers the case where there was one and it broke.
-			'empty_master_user_option' => false,
+			'empty_master_user_option'      => false,
 			// As no_user_tokens, for a single requested user.
-			'no_token_for_user'        => false,
-			'token_malformed'          => array(),
+			'no_token_for_user'             => false,
+			'token_malformed'               => array(),
 			// Corrupt local token data, but for one user only, and the
 			// no_valid_user_token/token_malformed pair surfaces it when it actually
 			// blocks a request.
-			'user_id_mismatch'         => false,
-			'no_possible_tokens'       => array(),
-			'no_valid_user_token'      => array(),
-			'no_valid_blog_token'      => array(),
-			'unknown_token'            => array(),
-			'could_not_sign'           => array(),
+			'user_id_mismatch'              => false,
+			'no_possible_tokens'            => array(),
+			'no_valid_user_token'           => array(),
+			'no_valid_blog_token'           => array(),
+			'unknown_token'                 => array(),
+			'could_not_sign'                => array(),
 			// Both are about the URL being signed, not the connection: a code bug or an
 			// exotic site URL, which reconnecting does not change.
-			'invalid_scheme'           => false,
-			'unknown_scheme_port'      => false,
+			'invalid_scheme'                => false,
+			'unknown_scheme_port'           => false,
 			// Corrupt local token data like token_malformed above, caught at signing time
 			// rather than lookup time. Reconnect fixes it the same way.
-			'invalid_secret'           => array(),
-			'invalid_token'            => array(),
-			'token_mismatch'           => array(),
+			'invalid_secret'                => array(),
+			'invalid_token'                 => array(),
+			'token_mismatch'                => array(),
 			// Per-request and transport-level, so unaffected by the state of the connection.
-			'invalid_body'             => false,
+			'invalid_body'                  => false,
 			// Environmental in both directions — a malformed parameter or clock skew,
 			// neither of which a reconnect fixes.
-			'invalid_signature'        => false,
+			'invalid_signature'             => false,
 			// Something altered the request in transit. Not a token problem, and
 			// signature_mismatch carries the same diagnosis with usable copy.
-			'invalid_body_hash'        => false,
+			'invalid_body_hash'             => false,
 			// A replay, or object-cache trouble. Self-resolving per request.
-			'invalid_nonce'            => false,
+			'invalid_nonce'                 => false,
 			// Ambiguous cause: could be a genuine secret desync (reconnect fixes it) or a
 			// proxy/CDN/WAF/security plugin altering the request in transit (reconnect
 			// doesn't help). Uses the generic message — support_link offers an
 			// alternative either way.
-			'signature_mismatch'       => array(
+			'signature_mismatch'            => array(
 				'support_link' => true,
 			),
 			// Two flavors with different remedies — see
 			// get_invalid_connection_owner_message().
-			'invalid_connection_owner' => array(
+			'invalid_connection_owner'      => array(
 				'message_callback' => array( $this, 'get_invalid_connection_owner_message' ),
 			),
 			// The token can be perfectly valid here: the site is rejecting WordPress.com's
@@ -625,7 +625,7 @@ class Error_Handler {
 			// Site Health holds the full diagnosis. Ships a default admin notice because
 			// no other detection path can see this — WP.com's requests never arrive. And
 			// it outlives a broken owner, whose reconnect the same rule would block.
-			'xmlrpc_request_blocked'   => array(
+			'xmlrpc_request_blocked'        => array(
 				'message_callback'         => array( $this, 'get_blocked_request_message' ),
 				'default_admin_notice'     => true,
 				'survives_owner_promotion' => true,
@@ -639,8 +639,8 @@ class Error_Handler {
 			// reconnect CTA, and it outlives a broken owner. Ships a default admin notice
 			// for the same reason as the blocked error above: WP.com's requests never
 			// arrive, so no other detection path can see this.
-			'ssl_verification_failed'  => array(
-				'message_callback'         => array( $this, 'get_ssl_verification_failed_message' ),
+			'wpcom_ssl_verification_failed' => array(
+				'message_callback'         => array( $this, 'get_wpcom_ssl_verification_failed_message' ),
 				'default_admin_notice'     => true,
 				'survives_owner_promotion' => true,
 				'notice_link'              => array(
@@ -705,7 +705,7 @@ class Error_Handler {
 	 * @param array $error The stored error array (unused; part of the message_callback contract).
 	 * @return string The message.
 	 */
-	private function get_ssl_verification_failed_message( $error ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	private function get_wpcom_ssl_verification_failed_message( $error ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return __( 'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. See Site Health for details and next steps.', 'jetpack-connection' );
 	}
 

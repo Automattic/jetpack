@@ -457,7 +457,7 @@ class Connection_Health_Tests_Test extends TestCase {
 			array(
 				'connected'  => false,
 				'message'    => 'Example Site is not connected.',
-				'error_code' => 'ssl_verification_failed',
+				'error_code' => 'wpcom_ssl_verification_failed',
 			)
 		);
 
@@ -466,12 +466,12 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertStringContainsString( 'SSL certificate', $result['short_description'] );
 
 		$verified_errors = Error_Handler::get_instance()->get_verified_errors();
-		$this->assertArrayHasKey( 'ssl_verification_failed', $verified_errors );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', $verified_errors );
 
 		// Attributed to the site (blog token), not a user.
-		$this->assertArrayHasKey( '0', $verified_errors['ssl_verification_failed'] );
+		$this->assertArrayHasKey( '0', $verified_errors['wpcom_ssl_verification_failed'] );
 
-		$error = $verified_errors['ssl_verification_failed']['0'];
+		$error = $verified_errors['wpcom_ssl_verification_failed']['0'];
 		$this->assertSame( Error_Handler::ERROR_TYPE_LOCAL_STATE, $error['error_type'] );
 		$this->assertSame( '', $error['error_direction'] );
 		// The reporter declares the remedy with the error: no reconnect CTA.
@@ -487,15 +487,15 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->evaluate_response(
 			array(
 				'connected'  => false,
-				'error_code' => 'ssl_verification_failed',
+				'error_code' => 'wpcom_ssl_verification_failed',
 			)
 		);
-		$this->assertArrayHasKey( 'ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 
 		$this->evaluate_response( array( 'connected' => true ) );
 
-		$this->assertArrayNotHasKey( 'ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
-		$this->assertArrayNotHasKey( 'ssl_verification_failed', Error_Handler::get_instance()->get_stored_errors() );
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_stored_errors() );
 	}
 
 	/**
@@ -510,10 +510,10 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->evaluate_response(
 			array(
 				'connected'  => false,
-				'error_code' => 'ssl_verification_failed',
+				'error_code' => 'wpcom_ssl_verification_failed',
 			)
 		);
-		$this->assertArrayHasKey( 'ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 
 		$this->evaluate_response(
 			array(
@@ -523,7 +523,7 @@ class Connection_Health_Tests_Test extends TestCase {
 			)
 		);
 
-		$this->assertArrayNotHasKey( 'ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
 	}
 
@@ -548,12 +548,12 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->evaluate_response(
 			array(
 				'connected'  => false,
-				'error_code' => 'ssl_verification_failed',
+				'error_code' => 'wpcom_ssl_verification_failed',
 			)
 		);
 
 		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
-		$this->assertArrayHasKey( 'ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 	}
 
 	/**
@@ -565,10 +565,10 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->evaluate_response(
 			array(
 				'connected'  => false,
-				'error_code' => 'ssl_verification_failed',
+				'error_code' => 'wpcom_ssl_verification_failed',
 			)
 		);
-		$this->assertArrayHasKey( 'ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 
 		$this->evaluate_response(
 			array(
@@ -577,7 +577,37 @@ class Connection_Health_Tests_Test extends TestCase {
 			)
 		);
 
-		$this->assertArrayNotHasKey( 'ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test an inconclusive result preserves previously reported local_state errors.
+	 *
+	 * WP.com flags probe failures it could not classify (e.g. timeouts) as
+	 * inconclusive; they neither confirm nor disprove a stored error, and clearing
+	 * on them would flap the notice for a broken site that is occasionally slow.
+	 */
+	public function test_wpcom_connection_test_inconclusive_result_preserves_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+
+		$result = $this->evaluate_response(
+			array(
+				'connected'    => false,
+				'message'      => 'Example Site is not connected.',
+				'inconclusive' => true,
+			)
+		);
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 	}
 
 	// -------------------------------------------------------------------------

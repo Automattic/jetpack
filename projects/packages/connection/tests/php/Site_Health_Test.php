@@ -236,7 +236,7 @@ class Site_Health_Test extends TestCase {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 		Error_Handler::get_instance()->report_error(
 			Error_Handler::build_connection_wp_error(
-				'ssl_verification_failed',
+				'wpcom_ssl_verification_failed',
 				'WordPress.com cannot verify the SSL certificate of the site',
 				array( 'token' => '' ),
 				Error_Handler::ERROR_TYPE_LOCAL_STATE,
@@ -249,7 +249,7 @@ class Site_Health_Test extends TestCase {
 			false,
 			true
 		);
-		$this->assertArrayHasKey( 'ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 
 		add_filter(
 			'pre_http_request',
@@ -274,7 +274,7 @@ class Site_Health_Test extends TestCase {
 
 		Site_Health::do_daily_connection_check();
 
-		$this->assertArrayNotHasKey( 'ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 	}
 
 	/**
