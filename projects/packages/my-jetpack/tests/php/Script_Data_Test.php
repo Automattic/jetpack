@@ -7,12 +7,12 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use PHPUnit\Framework\TestCase;
+use WorDBless\BaseTestCase;
 
 /**
  * Tests the My Jetpack addition to the unified script data object.
  */
-class Script_Data_Test extends TestCase {
+class Script_Data_Test extends BaseTestCase {
 
 	/**
 	 * Site Editor data is added without replacing existing script data.
@@ -34,7 +34,7 @@ class Script_Data_Test extends TestCase {
 		$data = Initializer::add_assets_script_data( array( 'existing' => 'value' ) );
 
 		$this->assertSame( 'value', $data['existing'] );
-		$this->assertStringEndsWith( '/my-jetpack/build/images', $data['myJetpack']['assetsUrl'] );
+		$this->assertStringEndsWith( '/my-jetpack/build/images/', $data['myJetpack']['assetsUrl'] );
 		$this->assertSame( Initializer::get_assets_url(), $data['myJetpack']['assetsUrl'] );
 	}
 

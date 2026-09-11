@@ -64,7 +64,21 @@ class Licensing {
 		add_action( 'update_option_' . self::LICENSES_OPTION_NAME, array( $this, 'attach_stored_licenses' ) );
 		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'attach_stored_licenses_on_connection' ) );
 		add_action( 'rest_api_init', array( $this, 'initialize_endpoints' ) );
-		add_filter( 'jetpack_admin_js_script_data', array( $this, 'add_script_data' ) );
+	}
+
+	/**
+	 * Register the hooks the package needs on every request.
+	 *
+	 * Separate from `initialize()`, which consumers call only when they offer the
+	 * licensing UI: the activation screen also renders from the Jetpack plugin's
+	 * own route, so the illustrations need a URL there too.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function configure() {
+		add_filter( 'jetpack_admin_js_script_data', array( self::class, 'add_script_data' ) );
 	}
 
 	/**
@@ -78,7 +92,7 @@ class Licensing {
 	 * @param array $data Script data.
 	 * @return array
 	 */
-	public function add_script_data( $data ) {
+	public static function add_script_data( $data ) {
 		$data['licensing']['assetsUrl'] = trailingslashit( plugins_url( 'assets/images/', __DIR__ ) );
 
 		return $data;

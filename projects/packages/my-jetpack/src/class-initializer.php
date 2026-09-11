@@ -355,15 +355,25 @@ class Initializer {
 	}
 
 	/**
+	 * Whether this request is the onboarding takeover rather than the dashboard.
+	 *
+	 * Loading wp-build, enqueueing scripts and rendering the page must all agree,
+	 * so they share this one expression.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_takeover() {
+		return self::is_onboarding_request() && self::is_onboarding_available();
+	}
+
+	/**
 	 * Alias the screen ID to satisfy wp-build's generated enqueue check.
 	 *
-	 * The wp-admin slug stays `my-jetpack`, so the URL is unchanged. WordPress
-	 * derives the admin body class from `$hook_suffix`, not the screen ID, so
-	 * `body.jetpack_page_my-jetpack` — which every My Jetpack rule keys off —
-	 * is unaffected.
-	 *
-	 * The alias is permanent for the request, so anything reading
-	 * `get_current_screen()->id` after `current_screen` sees `my-jetpack-dashboard`.
+	 * Permanent for the request: anything reading `get_current_screen()->id` after
+	 * `current_screen` sees `my-jetpack-dashboard`. The URL and the
+	 * `body.jetpack_page_my-jetpack` class both derive from `$hook_suffix`, not this.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -386,13 +396,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function maybe_load_wp_build() {
-		// The onboarding condition must match `admin_page()`'s exactly. Checking
-		// `is_onboarding_request()` alone would disagree on WordPress.com Simple,
-		// where onboarding is unavailable: wp-build would not load, and the
-		// dispatcher would then silently fall through to the legacy container.
-		$is_onboarding = self::is_onboarding_request() && self::is_onboarding_available();
-
-		if ( ! self::is_modernized() || ! self::is_my_jetpack_admin_request() || $is_onboarding ) {
+		if ( ! self::is_modernized() || ! self::is_my_jetpack_admin_request() || self::is_onboarding_takeover() ) {
 			return;
 		}
 
@@ -464,12 +468,10 @@ class Initializer {
 		do_action( 'myjetpack_enqueue_scripts' );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
 
-		// Same onboarding condition as `maybe_load_wp_build()` and `admin_page()`.
-		$is_onboarding = self::is_onboarding_request() && self::is_onboarding_available();
 		// Gate on the render function too, not just the flag: the loader ran back on
 		// `admin_menu` priority 1, so a filter registered later leaves wp-build unloaded
 		// and this request would get neither the legacy bundle nor the wp-build module.
-		$is_wp_build = self::is_modernized() && ! $is_onboarding && function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page' );
+		$is_wp_build = self::is_modernized() && ! self::is_onboarding_takeover() && function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page' );
 
 		if ( $is_wp_build ) {
 			// wp-build enqueues the app itself; this empty handle exists only to
@@ -618,14 +620,14 @@ class Initializer {
 	}
 
 	/**
-	 * Get the base URL of the package's built images.
+	 * Get the base URL of the package's built images, with a trailing slash.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string
 	 */
 	public static function get_assets_url() {
-		return Assets::normalize_path( plugins_url( '../build/images/', __FILE__ ) );
+		return trailingslashit( Assets::normalize_path( plugins_url( '../build/images/', __FILE__ ) ) );
 	}
 
 	/**
@@ -774,11 +776,10 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		// No connection check needed here: admin_init() has already redirected connected users away from onboarding.
-		// Availability IS re-checked on purpose: this render can run even when that redirect did not,
-		// and the check below is what keeps the onboarding route off WordPress.com Simple sites.
-		// Same expression as `maybe_load_wp_build()` and `enqueue_scripts()`; they must not drift.
-		$is_onboarding = self::is_onboarding_request() && self::is_onboarding_available();
+		// No connection check needed here: admin_init() has already redirected connected users
+		// away from onboarding. Availability is re-checked inside the helper on purpose — this
+		// render can run even when that redirect did not.
+		$is_onboarding = self::is_onboarding_takeover();
 
 		if ( ! $is_onboarding && self::is_modernized() && function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page' ) ) {
 			jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/pages/, which Phan excludes.

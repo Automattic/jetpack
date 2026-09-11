@@ -1,10 +1,8 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 
 /**
- * Build a runtime URL for a raster image copied into `build/images/`.
- *
- * wp-build's esbuild pipeline has no image loader, so WebP and PNG assets are
- * copied at build time and addressed by URL rather than imported.
+ * Build a runtime URL for a raster image copied into `build/images/` by
+ * `bin/copy-raster-images.mjs`.
  *
  * @param relativePath - Path to the image, relative to `_inc/`.
  * @return Absolute URL, or `undefined` when no base is available.
