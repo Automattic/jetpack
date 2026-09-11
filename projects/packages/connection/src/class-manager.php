@@ -1666,12 +1666,23 @@ class Manager {
 	 * Update the connection owner.
 	 *
 	 * @since 1.29.0
+	 * @since $$next-version$$ Refused while ownership is locked.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
 	 *
 	 * @return true|WP_Error True if owner successfully changed, WP_Error otherwise.
 	 */
 	public function update_connection_owner( $new_owner_id ) {
+		// Answered before the arguments are validated: no candidate is valid while ownership is
+		// locked, and an argument error would suggest a retry that cannot work.
+		if ( ! $this->is_ownership_transferable() ) {
+			return new WP_Error(
+				'ownership_not_transferable',
+				__( 'The connection owner cannot be changed on this site.', 'jetpack-connection' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		$roles = new Roles();
 		if ( ! user_can( $new_owner_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			return new WP_Error(
