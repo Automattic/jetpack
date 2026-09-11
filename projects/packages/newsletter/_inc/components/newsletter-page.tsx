@@ -79,7 +79,6 @@ export default function NewsletterPage( {
 	const newsletterData = getNewsletterScriptData();
 	const subscribersEnabled = newsletterData?.subscriberManagementEnabled !== false;
 	const overviewEnabled = newsletterData?.overviewEnabled === true;
-	const statsEnabled = newsletterData?.statsEnabled === true;
 
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
@@ -91,7 +90,7 @@ export default function NewsletterPage( {
 		( next: string | null ) => {
 			if (
 				( next === 'overview' && ! overviewEnabled ) ||
-				( next === 'stats' && ! statsEnabled ) ||
+				( next === 'stats' && ! overviewEnabled ) ||
 				( next !== 'overview' && next !== 'stats' && next !== 'subscribers' && next !== 'settings' )
 			) {
 				return;
@@ -105,7 +104,7 @@ export default function NewsletterPage( {
 				},
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate, overviewEnabled, statsEnabled ]
+		[ navigate, overviewEnabled ]
 	);
 
 	const contentClass = contentHasPadding
@@ -132,7 +131,7 @@ export default function NewsletterPage( {
 							{ overviewEnabled ? (
 								<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-newsletter' ) }</Tabs.Tab>
 							) : null }
-							{ statsEnabled ? (
+							{ overviewEnabled ? (
 								<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-newsletter' ) }</Tabs.Tab>
 							) : null }
 							<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>

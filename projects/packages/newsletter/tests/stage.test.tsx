@@ -298,13 +298,14 @@ describe( 'Newsletter dashboard Stage import-poll gating', () => {
 } );
 
 describe( 'Newsletter dashboard Stage Stats tab gating', () => {
-	// Stats exposes real subscriber/email data over REST, so unlike Overview it
-	// must stay unreachable — not just hidden from nav — while its flag is off.
-	it( 'does not render the Stats panel when statsEnabled is false, even via ?tab=stats', () => {
+	// Stats exposes real subscriber/email data over REST, so it must stay
+	// unreachable — not just hidden from nav — while the shared Overview flag
+	// that also gates it is off. Stats is a temporary standalone page that
+	// shares Overview's flag rather than getting its own.
+	it( 'does not render the Stats panel when overviewEnabled is false, even via ?tab=stats', () => {
 		mockGetNewsletterScriptData.mockReturnValue( {
 			subscriberManagementEnabled: true,
-			overviewEnabled: true,
-			statsEnabled: false,
+			overviewEnabled: false,
 			tracksUserData: { userid: 1, username: 'tester' },
 		} );
 		mockSearch.mockReturnValue( { tab: 'stats' } );
@@ -314,11 +315,10 @@ describe( 'Newsletter dashboard Stage Stats tab gating', () => {
 		expect( screen.queryByTestId( 'subscriber-stats-chart' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the Stats panel when statsEnabled is true and the route deep-links to ?tab=stats', () => {
+	it( 'renders the Stats panel when overviewEnabled is true and the route deep-links to ?tab=stats', () => {
 		mockGetNewsletterScriptData.mockReturnValue( {
 			subscriberManagementEnabled: true,
 			overviewEnabled: true,
-			statsEnabled: true,
 			tracksUserData: { userid: 1, username: 'tester' },
 		} );
 		mockSearch.mockReturnValue( { tab: 'stats' } );

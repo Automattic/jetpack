@@ -73,7 +73,9 @@ function getRecentPostsContent( {
 				gap="md"
 				className="jetpack-newsletter-recent-posts__state"
 			>
-				<p>{ __( 'Recent posts could not be loaded.', 'jetpack-newsletter' ) }</p>
+				<Text render={ <p /> }>
+					{ __( 'Recent posts could not be loaded.', 'jetpack-newsletter' ) }
+				</Text>
 				<Button onClick={ onRetry }>{ __( 'Retry', 'jetpack-newsletter' ) }</Button>
 			</Stack>
 		);
@@ -88,7 +90,7 @@ function getRecentPostsContent( {
 				gap="md"
 				className="jetpack-newsletter-recent-posts__state"
 			>
-				<p>{ __( 'No posts yet.', 'jetpack-newsletter' ) }</p>
+				<Text render={ <p /> }>{ __( 'No posts yet.', 'jetpack-newsletter' ) }</Text>
 				<Link href={ createPostUrl }>{ __( 'Create a post', 'jetpack-newsletter' ) }</Link>
 			</Stack>
 		);

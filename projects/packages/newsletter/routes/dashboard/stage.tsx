@@ -57,11 +57,10 @@ const Stage = () => {
 	const newsletterData = getNewsletterScriptData();
 	const subscribersEnabled = newsletterData?.subscriberManagementEnabled !== false;
 	const overviewEnabled = newsletterData?.overviewEnabled === true;
-	const statsEnabled = newsletterData?.statsEnabled === true;
 	let activeTab: NewsletterTab = overviewEnabled ? 'overview' : 'subscribers';
 	if ( ! subscribersEnabled || search.tab === 'settings' ) {
 		activeTab = 'settings';
-	} else if ( search.tab === 'stats' && statsEnabled ) {
+	} else if ( search.tab === 'stats' && overviewEnabled ) {
 		activeTab = 'stats';
 	} else if ( search.tab === 'subscribers' ) {
 		activeTab = 'subscribers';
@@ -155,7 +154,7 @@ const Stage = () => {
 											{ activeTab === 'overview' ? <OverviewBody /> : null }
 										</Tabs.Panel>
 									) : null }
-									{ statsEnabled ? (
+									{ overviewEnabled ? (
 										<Tabs.Panel value="stats">
 											{ activeTab === 'stats' ? <SubscriberStatsChart /> : null }
 										</Tabs.Panel>

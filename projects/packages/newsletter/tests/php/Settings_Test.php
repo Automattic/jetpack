@@ -61,7 +61,6 @@ class Settings_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::STATS_FEATURE_FLAG );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 
 		// Clear the load action registered by add_wp_admin_menu on success.
@@ -83,7 +82,6 @@ class Settings_Test extends BaseTestCase {
 		remove_all_filters( 'home_url' );
 		remove_all_filters( 'jetpack_feature_flag_enabled' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::STATS_FEATURE_FLAG );
 		Feature_Flags::reset();
 
 		// Dequeue any scripts that may have leaked into globals during the test.
@@ -290,52 +288,15 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the Stats feature flag is registered disabled by default.
-	 */
-	public function test_register_feature_flags_registers_stats_disabled_by_default() {
-		Settings::register_feature_flags();
-
-		$this->assertSame(
-			array(
-				'default'     => false,
-				'description' => 'Enable the Newsletter Stats tab and its REST endpoints.',
-				'owner'       => 'jetpack-newsletter',
-				'name'        => Settings::STATS_FEATURE_FLAG,
-			),
-			Feature_Flags::get( Settings::STATS_FEATURE_FLAG )
-		);
-	}
-
-	/**
-	 * Test that script data exposes the disabled Stats feature flag.
-	 */
-	public function test_add_script_data_exposes_stats_disabled_by_default() {
-		Settings::register_feature_flags();
-
-		$data = ( new Settings() )->add_script_data( array() );
-
-		$this->assertFalse( $data['newsletter']['statsEnabled'] );
-	}
-
-	/**
-	 * Test that script data exposes an enabled Stats feature flag.
-	 */
-	public function test_add_script_data_exposes_enabled_stats() {
-		add_filter( 'jetpack_feature_flag_enabled_' . Settings::STATS_FEATURE_FLAG, '__return_true' );
-		Settings::register_feature_flags();
-
-		$data = ( new Settings() )->add_script_data( array() );
-
-		$this->assertTrue( $data['newsletter']['statsEnabled'] );
-	}
-
-	/**
-	 * Test that the Stats REST routes are not registered while the flag is disabled.
+	 * Test that the Stats REST routes are not registered while the Overview flag
+	 * that also gates them is disabled (the default).
 	 *
-	 * Unlike Overview, Stats exposes real subscriber/email data over REST, so the
-	 * routes themselves — not just the UI — must stay unregistered while off.
+	 * Unlike Overview's own UI chrome, Stats exposes real subscriber/email data
+	 * over REST, so the routes themselves — not just the UI — must stay
+	 * unregistered while off. Stats is a temporary standalone page that shares
+	 * Overview's flag rather than getting its own.
 	 */
-	public function test_register_feature_flags_does_not_register_stats_routes_when_disabled() {
+	public function test_register_feature_flags_does_not_register_stats_routes_when_overview_disabled() {
 		global $wp_rest_server;
 		$wp_rest_server = new \WP_REST_Server();
 
@@ -349,10 +310,11 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the Stats REST routes are registered once the flag is enabled.
+	 * Test that the Stats REST routes are registered once the shared Overview
+	 * flag is enabled.
 	 */
-	public function test_register_feature_flags_registers_stats_routes_when_enabled() {
-		add_filter( 'jetpack_feature_flag_enabled_' . Settings::STATS_FEATURE_FLAG, '__return_true' );
+	public function test_register_feature_flags_registers_stats_routes_when_overview_enabled() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_true' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new \WP_REST_Server();

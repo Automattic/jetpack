@@ -206,7 +206,9 @@ export default function SubscriberStatsChart(): JSX.Element {
 				gap="md"
 				className="jetpack-newsletter-stats__state"
 			>
-				<p>{ __( 'Subscriber stats could not be loaded.', 'jetpack-newsletter' ) }</p>
+				<Text render={ <p /> }>
+					{ __( 'Subscriber stats could not be loaded.', 'jetpack-newsletter' ) }
+				</Text>
 				<Button onClick={ retrySubscribers }>{ __( 'Retry', 'jetpack-newsletter' ) }</Button>
 			</Stack>
 		);

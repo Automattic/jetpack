@@ -243,17 +243,18 @@ describe( 'NewsletterPage tab navigation', () => {
 } );
 
 describe( 'NewsletterPage Stats tab gating', () => {
-	// Stats exposes real subscriber/email data over REST, so unlike Overview it
-	// must stay unreachable — not just hidden from nav — while its flag is off.
-	it( 'hides the Stats tab when statsEnabled is false', () => {
+	// Stats exposes real subscriber/email data over REST, so it must stay
+	// unreachable — not just hidden from nav — while the shared Overview flag
+	// that also gates it is off. Stats is a temporary standalone page that
+	// shares Overview's flag rather than getting its own.
+	it( 'hides the Stats tab when overviewEnabled is false', () => {
 		mockGetNewsletterScriptData.mockReturnValue( {
 			subscriberManagementEnabled: true,
-			overviewEnabled: true,
-			statsEnabled: false,
+			overviewEnabled: false,
 		} );
 
 		render(
-			<NewsletterPage activeTab="overview">
+			<NewsletterPage activeTab="subscribers">
 				<div>panel body</div>
 			</NewsletterPage>
 		);
@@ -263,11 +264,10 @@ describe( 'NewsletterPage Stats tab gating', () => {
 		).toBeUndefined();
 	} );
 
-	it( 'shows the Stats tab and navigates to it when statsEnabled is true', () => {
+	it( 'shows the Stats tab and navigates to it when overviewEnabled is true', () => {
 		mockGetNewsletterScriptData.mockReturnValue( {
 			subscriberManagementEnabled: true,
 			overviewEnabled: true,
-			statsEnabled: true,
 		} );
 
 		render(
@@ -285,11 +285,10 @@ describe( 'NewsletterPage Stats tab gating', () => {
 		expect( navArg.search.tab ).toBe( 'stats' );
 	} );
 
-	it( 'ignores a direct onValueChange("stats") call when statsEnabled is false', () => {
+	it( 'ignores a direct onValueChange("stats") call when overviewEnabled is false', () => {
 		mockGetNewsletterScriptData.mockReturnValue( {
 			subscriberManagementEnabled: true,
-			overviewEnabled: true,
-			statsEnabled: false,
+			overviewEnabled: false,
 		} );
 
 		render(
