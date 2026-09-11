@@ -4,7 +4,7 @@ import { ProductConfig } from '../types';
 import { getTranslatableFeatureLabels, SECURITY, SECURITY_SLUG } from './shared-labels';
 
 const AntiSpamLogo = ( { height = 42 } ) => {
-	return <img src={ antispamLogo } alt="Anti-Spam Logo" height={ height } />;
+	return <img src={ antispamLogo } alt="Anti-Spam Logo" height={ height } style={ { height } } />;
 };
 
 /**
