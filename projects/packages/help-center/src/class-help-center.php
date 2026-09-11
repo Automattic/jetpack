@@ -890,7 +890,7 @@ class Help_Center {
 	}
 
 	/**
-	 * Add icon to WP-ADMIN admin bar.
+	 * Enqueue the Help Center bundle for this request's variant.
 	 */
 	public function enqueue_wp_admin_scripts() {
 		$variant = $this->get_active_variant();
