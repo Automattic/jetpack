@@ -26,7 +26,6 @@ let mockActiveSectionSlug = 'insights';
 let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
-let mockCanCompose = false;
 const mockResetLayout = jest.fn();
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 
@@ -257,7 +256,6 @@ jest.mock( '../widget-module-i18n', () => ( {
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
-	isDashboardCompositionEnabled: () => mockCanCompose,
 	useDashboardPolicy: () => () => true,
 	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
@@ -700,8 +698,7 @@ describe( 'Dashboard customizing', () => {
 		expect( within( menu ).getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
 	} );
 
-	it( "offers Reset to default beside the dashboard's own actions while customizing, behind the composition flag", async () => {
-		mockCanCompose = true;
+	it( "offers Reset to default beside the dashboard's own actions while customizing", async () => {
 		render( <Dashboard /> );
 		const menu = screen.getByTestId( 'page-options-menu' );
 		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) ).not.toBeInTheDocument();
@@ -712,16 +709,6 @@ describe( 'Dashboard customizing', () => {
 		expect( mockResetLayout ).toHaveBeenCalledTimes( 1 );
 		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
 		expect( within( menu ).getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
-		mockCanCompose = false;
-	} );
-
-	it( 'keeps Reset to default from customers', async () => {
-		render( <Dashboard /> );
-		const menu = screen.getByTestId( 'page-options-menu' );
-
-		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
-
-		expect( screen.queryByRole( 'button', { name: 'Reset to default' } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [ 'Done', 'Cancel' ] )( 'brings the date controls back on %s', async action => {

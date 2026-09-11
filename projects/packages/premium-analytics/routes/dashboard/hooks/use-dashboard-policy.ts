@@ -3,8 +3,8 @@ import { useMemo } from 'react';
 import type { CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
 
 /**
- * Whether the dashboard composition feature flag is on: adding, removing and
- * resetting widgets are for its holders only.
+ * Whether the dashboard composition feature flag is on: adding and removing
+ * widgets are for its holders only.
  *
  * @return The flag's answer, off when the script data carries none.
  */
