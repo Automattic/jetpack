@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Button Text now sits with the rest of the button's appearance settings, under Embed as. It no longer shows for QR codes and links, where it did nothing.

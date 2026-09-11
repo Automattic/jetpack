@@ -345,6 +345,18 @@
 			"selector": "wrapper"
 		},
 		{
+			"name": "a spacing preset used as a border color",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "var:preset|spacing|50"
+					}
+				}
+			},
+			"selector": "wrapper"
+		},
+		{
 			"name": "a named caption color",
 			"attributes": {
 				"captionColor": "rebeccapurple"
@@ -378,18 +390,6 @@
 				"captionFontSize": "clamp(/*)"
 			},
 			"selector": "caption"
-		},
-		{
-			"name": "a spacing preset used as a border color",
-			"attributes": {
-				"style": {
-					"border": {
-						"width": "2px",
-						"color": "var:preset|spacing|50"
-					}
-				}
-			},
-			"selector": "wrapper"
 		},
 		{
 			"name": "a spacing preset used as a caption color",

@@ -696,6 +696,13 @@
 		max-width: 100%;
 		height: auto;
 	}
+
+	// style.scss gives this an 8px top margin, but it only loads on the front end
+	// and inside the canvas iframe, not the sidebar. The flex gap above does the
+	// spacing here, so drop the margin rather than let the two stack.
+	.jetpack-paypal-button__qr-caption {
+		margin: 0;
+	}
 }
 
 // EMBED AS and the format's own output controls — a plain section with a

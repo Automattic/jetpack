@@ -883,17 +883,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						/>
 					</div>
 				</PanelBody>
-				<PanelBody
-					title={ __( 'Button Appearance', 'jetpack-paypal-payments' ) }
-					initialOpen={ false }
-				>
-					<TextControl
-						label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
-						value={ buttonText || '' }
-						onChange={ value => setAttributes( { buttonText: value } ) }
-						disabled={ isBusy }
-					/>
-				</PanelBody>
 			</InspectorControls>
 			{ inspectorControls }
 

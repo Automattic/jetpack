@@ -1,10 +1,9 @@
 /**
  * The default label for a format's output.
  *
- * Button text and the QR caption are the same label
- * in three places, so they share one default. Applied at render rather than in
- * block.json, whose defaults cannot be translated.
- * render_api_managed_button() repeats it.
+ * The button face and the QR caption carry the same label, so they share one
+ * default. Applied at render rather than in block.json, whose defaults cannot be
+ * translated. render_api_managed_button() repeats it.
  *
  * @package
  */

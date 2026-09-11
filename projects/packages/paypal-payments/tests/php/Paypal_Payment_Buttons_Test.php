@@ -780,11 +780,14 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
+		// Positive control: the caption rendered, so a render that bailed out whole
+		// cannot pass this.
+		$this->assertStringContainsString( 'jetpack-paypal-button__qr-caption', $result );
 		$this->assertStringNotContainsString( '<script>alert(1)</script>', $result );
 		$this->assertStringContainsString(
 			'&lt;script&gt;alert(1)&lt;/script&gt;',
 			$result,
-			'The caption should reach the markup escaped'
+			'The caption should be escaped in the markup'
 		);
 	}
 
@@ -1050,7 +1053,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 *
 	 * The other half of this table runs in tests/js/block-styles.test.js against
 	 * getWrapperStyle()/getCaptionStyle(). A value one side drops and the other
-	 * keeps is drift between the two, so it fails here.
+	 * keeps is drift between the canvas and the published page, so it fails here.
 	 *
 	 * @dataProvider provide_style_parity_cases
 	 * @param array  $attributes   The block attributes.
@@ -1075,8 +1078,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		if ( empty( $declarations ) ) {
 			$this->assertStringNotContainsString( $selector . ' style=', $result );
-			// Positive control: the block still rendered, it was not dropped whole.
-			$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+			// Positive control: the element itself still rendered, so the case is
+			// pinning a dropped style rather than a dropped element.
+			$this->assertStringContainsString( $selector, $result );
 			return;
 		}
 
