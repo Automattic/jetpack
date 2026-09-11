@@ -23,6 +23,7 @@ import {
 } from '@wordpress/block-editor';
 import {
 	BorderControl,
+	Button,
 	CheckboxControl,
 	PanelBody,
 	TextControl,
@@ -31,14 +32,21 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useCopyToClipboard } from '@wordpress/compose';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getCaptionStyle } from '../utils/block-styles';
+import { getTextStyle } from '../utils/block-styles';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import FormatSwitcher from './format-switcher';
 import QrCodePreview from './qr-code-preview';
 
 // ToolsPanel and the dropdown inside it have to agree on the panel they belong to.
-const PANEL_ID = 'paypal-caption-color';
+const PANEL_ID = 'paypal-text-color';
+
+// Hoisted: the production build folds a ternary around __() and then fails the
+// i18n check on the result. Only that build does it, so it surfaces in CI.
+const COPY_LABEL = __( 'Copy', 'jetpack-paypal-payments' );
+const COPIED_LABEL = __( 'Copied!', 'jetpack-paypal-payments' );
 
 /**
  * Drop empty branches so they are not persisted into the post content.
@@ -183,6 +191,34 @@ function BorderPanel( { attributes, setAttributes, showMargin } ) {
 }
 
 /**
+ * The text field for a format's label — the button face, the link, the QR
+ * caption. All three share one default, so they share one control.
+ *
+ * @param {object}   props               - Component props.
+ * @param {string}   props.label         - The field's label.
+ * @param {boolean}  props.hideLabel     - Whether the label is for screen readers only.
+ * @param {string}   props.attribute     - Attribute holding the text.
+ * @param {object}   props.attributes    - The block attributes.
+ * @param {Function} props.setAttributes - Update block attributes.
+ * @param {boolean}  props.disabled      - Whether the field is locked.
+ * @return {Element} The text field.
+ */
+function LabelField( { label, hideLabel, attribute, attributes, setAttributes, disabled } ) {
+	return (
+		<TextControl
+			label={ label }
+			hideLabelFromVision={ hideLabel }
+			value={ attributes[ attribute ] || '' }
+			placeholder={ DEFAULT_LABEL }
+			onChange={ value => setAttributes( { [ attribute ]: value } ) }
+			disabled={ disabled }
+			__next40pxDefaultSize
+			__nextHasNoMarginBottom
+		/>
+	);
+}
+
+/**
  * The QR output controls — the code with a Download button, plus the caption
  * toggle and its text field.
  *
@@ -190,11 +226,12 @@ function BorderPanel( { attributes, setAttributes, showMargin } ) {
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
  * @param {string}   props.qrUrl         - The attributed payment URL to encode.
+ * @param {boolean}  props.disabled      - Whether the caption controls are locked.
  * @return {Element} The QR preview, Download, and the caption toggle and field.
  */
-function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
-	// Absent means on, the way the canvas and render_api_managed_button() read it.
-	const { qrShowCaption = true, qrCaption } = attributes;
+function QrOutputControls( { attributes, setAttributes, qrUrl, disabled } ) {
+	// Absent means off, the way the canvas and render_api_managed_button() read it.
+	const { qrShowCaption = false, qrCaption } = attributes;
 
 	return (
 		<>
@@ -206,7 +243,7 @@ function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
 					className="jetpack-paypal-button__qr-canvas"
 					showCaption={ qrShowCaption }
 					caption={ qrCaption }
-					captionStyle={ getCaptionStyle( attributes ) }
+					captionStyle={ getTextStyle( attributes.captionColor, attributes.captionFontSize ) }
 					showDownload
 				/>
 			</div>
@@ -215,18 +252,18 @@ function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
 				label={ __( 'Show text under QR code', 'jetpack-paypal-payments' ) }
 				checked={ !! qrShowCaption }
 				onChange={ value => setAttributes( { qrShowCaption: value } ) }
+				disabled={ disabled }
 				__nextHasNoMarginBottom
 			/>
 
 			{ qrShowCaption && (
-				<TextControl
+				<LabelField
 					label={ __( 'Caption', 'jetpack-paypal-payments' ) }
-					hideLabelFromVision
-					value={ qrCaption }
-					placeholder={ DEFAULT_LABEL }
-					onChange={ value => setAttributes( { qrCaption: value } ) }
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
+					hideLabel
+					attribute="qrCaption"
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					disabled={ disabled }
 				/>
 			) }
 		</>
@@ -234,31 +271,34 @@ function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
 }
 
 /**
- * Color and size for the QR caption.
+ * Color and Typography for a format's text — the QR caption, or the link.
  *
- * Only rendered while the caption is on.
+ * Both draw the same two panels over their own attributes, differing only in
+ * what the color row is called.
  *
  * @param {object}   props               - Component props.
+ * @param {string}   props.label         - The color row's label.
+ * @param {string}   props.colorKey      - Attribute holding the color.
+ * @param {string}   props.fontSizeKey   - Attribute holding the font size.
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
  * @return {Element} The Color and Typography panels.
  */
-function QrCaptionPanels( { attributes, setAttributes } ) {
-	const { captionColor, captionFontSize } = attributes;
+function TextStylePanels( { label, colorKey, fontSizeKey, attributes, setAttributes } ) {
 	const colorSettings = useMultipleOriginColorsAndGradients();
 
 	return (
 		<>
 			{ /* ColorGradientSettingsDropdown renders a ToolsPanelItem, so it needs a
-			     ToolsPanel around it — which is also what gives Color the reset menu
-			     the frame draws. Core's own class names carry its row spacing. */ }
+			     ToolsPanel around it, which also supplies the reset menu. Core's
+			     class name handles the row spacing. Leave hasInnerWrapper off: it
+			     lays the items out in two columns, which halves the row and
+			     truncates "Link text". */ }
 			<ToolsPanel
 				className="color-block-support-panel"
 				label={ __( 'Color', 'jetpack-paypal-payments' ) }
-				resetAll={ () => setAttributes( { captionColor: '' } ) }
+				resetAll={ () => setAttributes( { [ colorKey ]: '' } ) }
 				panelId={ PANEL_ID }
-				hasInnerWrapper
-				headingLevel={ 3 }
 				__experimentalFirstVisibleItemClass="first"
 				__experimentalLastVisibleItemClass="last"
 			>
@@ -267,11 +307,11 @@ function QrCaptionPanels( { attributes, setAttributes } ) {
 					panelId={ PANEL_ID }
 					settings={ [
 						{
-							label: __( 'Text', 'jetpack-paypal-payments' ),
-							colorValue: captionColor,
-							onColorChange: value => setAttributes( { captionColor: value || '' } ),
+							label,
+							colorValue: attributes[ colorKey ],
+							onColorChange: value => setAttributes( { [ colorKey ]: value || '' } ),
 							clearable: true,
-							resetAllFilter: () => ( { captionColor: '' } ),
+							resetAllFilter: () => ( { [ colorKey ]: '' } ),
 						},
 					] }
 					{ ...colorSettings }
@@ -282,11 +322,71 @@ function QrCaptionPanels( { attributes, setAttributes } ) {
 
 			<PanelBody title={ __( 'Typography', 'jetpack-paypal-payments' ) }>
 				<FontSizePicker
-					value={ captionFontSize }
-					onChange={ value => setAttributes( { captionFontSize: value } ) }
+					value={ attributes[ fontSizeKey ] }
+					onChange={ value => setAttributes( { [ fontSizeKey ]: value } ) }
 					withReset={ false }
 				/>
 			</PanelBody>
+		</>
+	);
+}
+
+/**
+ * The LINK output controls — the label, and the payment URL with a Copy button.
+ *
+ * LINK is the only format with a URL, so the Copy button lives here.
+ *
+ * @param {object}   props               - Component props.
+ * @param {object}   props.attributes    - The block attributes.
+ * @param {Function} props.setAttributes - Update block attributes.
+ * @param {string}   props.paymentUrl    - The attributed payment URL.
+ * @param {boolean}  props.disabled      - Whether the label field is locked.
+ * @return {Element} The link text field and the URL row.
+ */
+function LinkOutputControls( { attributes, setAttributes, paymentUrl, disabled } ) {
+	// Counted rather than a flag: copying again inside the window has to restart
+	// the timer, and setting a true flag true again does not re-run the effect.
+	const [ copies, setCopies ] = useState( 0 );
+	const copyRef = useCopyToClipboard( paymentUrl, () => setCopies( n => n + 1 ) );
+
+	useEffect( () => {
+		if ( ! copies ) {
+			return;
+		}
+
+		const timer = setTimeout( () => setCopies( 0 ), 2000 );
+		return () => clearTimeout( timer );
+	}, [ copies ] );
+
+	return (
+		<>
+			<LabelField
+				label={ __( 'Link text', 'jetpack-paypal-payments' ) }
+				attribute="linkText"
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				disabled={ disabled }
+			/>
+
+			{ /* No URL until the post is saved and the payment exists. */ }
+			{ !! paymentUrl && (
+				<div className="jetpack-paypal-payment-buttons__link-url">
+					<TextControl
+						label={ __( 'URL', 'jetpack-paypal-payments' ) }
+						value={ paymentUrl }
+						readOnly
+						disabled={ disabled }
+						onFocus={ event => event.target.select() }
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+					/>
+					{ /* Locked with the rest while a request is in flight: the link
+					     is being rewritten, so copying it hands out a stale URL. */ }
+					<Button ref={ copyRef } variant="secondary" disabled={ disabled } __next40pxDefaultSize>
+						{ copies ? COPIED_LABEL : COPY_LABEL }
+					</Button>
+				</div>
+			) }
 		</>
 	);
 }
@@ -301,15 +401,15 @@ function QrCaptionPanels( { attributes, setAttributes } ) {
  * @param {string}   props.format        - Display format: BUTTON, LINK or QR.
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
- * @param {string}   props.qrUrl         - The attributed payment URL to encode.
- * @param {boolean}  props.disabled      - Whether the format switcher and button text are locked.
+ * @param {string}   props.paymentUrl    - The attributed payment URL — encoded by QR, copied by LINK.
+ * @param {boolean}  props.disabled      - Whether the format switcher and the per-format output controls are locked.
  * @return {Element} The Styles tab contents.
  */
 export default function PayPalFormatControls( {
 	format,
 	attributes,
 	setAttributes,
-	qrUrl,
+	paymentUrl,
 	disabled,
 } ) {
 	// Width and Border apply to BUTTON and QR only; LINK has no box to size.
@@ -328,14 +428,21 @@ export default function PayPalFormatControls( {
 				/>
 
 				{ 'BUTTON' === format && (
-					<TextControl
+					<LabelField
 						label={ __( 'Button text', 'jetpack-paypal-payments' ) }
-						value={ attributes.buttonText || '' }
-						placeholder={ DEFAULT_LABEL }
-						onChange={ value => setAttributes( { buttonText: value } ) }
+						attribute="buttonText"
+						attributes={ attributes }
+						setAttributes={ setAttributes }
 						disabled={ disabled }
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
+					/>
+				) }
+
+				{ 'LINK' === format && (
+					<LinkOutputControls
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						paymentUrl={ paymentUrl }
+						disabled={ disabled }
 					/>
 				) }
 
@@ -343,13 +450,30 @@ export default function PayPalFormatControls( {
 					<QrOutputControls
 						attributes={ attributes }
 						setAttributes={ setAttributes }
-						qrUrl={ qrUrl }
+						qrUrl={ paymentUrl }
+						disabled={ disabled }
 					/>
 				) }
 			</div>
 
+			{ 'LINK' === format && (
+				<TextStylePanels
+					label={ __( 'Link text', 'jetpack-paypal-payments' ) }
+					colorKey="linkColor"
+					fontSizeKey="linkFontSize"
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+				/>
+			) }
+
 			{ 'QR' === format && attributes.qrShowCaption && (
-				<QrCaptionPanels attributes={ attributes } setAttributes={ setAttributes } />
+				<TextStylePanels
+					label={ __( 'Text', 'jetpack-paypal-payments' ) }
+					colorKey="captionColor"
+					fontSizeKey="captionFontSize"
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+				/>
 			) }
 
 			{ hasBox && (

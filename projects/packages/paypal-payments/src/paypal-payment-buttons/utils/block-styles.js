@@ -1,5 +1,5 @@
 /**
- * Width, margin, border and caption styles for the editor canvas.
+ * Width, margin, border and text styles for the editor canvas.
  *
  * Margin and border live in `attributes.style`, the same shape core's block
  * supports use, so core's own helpers turn them into CSS — the JS twin of the
@@ -146,14 +146,17 @@ export function getWrapperStyle( attributes = {} ) {
 }
 
 /**
- * QR caption styles — Color and Typography.
+ * Color and Typography, for the QR caption and the payment link.
  *
- * @param {object} attributes - The block attributes.
+ * The caption and the link take the same validation — a value the published page
+ * refuses has to be refused here too, whichever format wrote it.
+ *
+ * @param {string} textColor - The chosen color.
+ * @param {string} textSize  - The chosen font size, with or without its unit.
  * @return {object} A React style object, empty when nothing is configured.
  */
-export function getCaptionStyle( attributes = {} ) {
-	const { captionColor, captionFontSize } = attributes;
-	const size = `${ captionFontSize ?? '' }`.trim();
+export function getTextStyle( textColor, textSize ) {
+	const size = `${ textSize ?? '' }`.trim();
 	// FontSizePicker hands back the size with its unit — `20px`, a theme preset's
 	// `1rem`, or a fluid `clamp(…)` — and drops the unit when the theme's own
 	// sizes are numbers. Core reads a bare number as px.
@@ -161,9 +164,9 @@ export function getCaptionStyle( attributes = {} ) {
 		? `${ size }px`
 		: length( size ) || ( FONT_SIZE_VAR.test( size ) || FLUID_SIZE.test( size ) ? size : '' );
 
-	// The caption never goes through the style engine, so a chosen palette entry
-	// is expanded here the way sanitize_css_color() expands it for the page.
-	const clean = color( captionColor );
+	// Both panels skip the style engine, so a chosen palette entry is expanded
+	// here the way sanitize_css_color() expands it for the page.
+	const clean = color( textColor );
 	const preset = clean.match( COLOR_PRESET );
 
 	return {

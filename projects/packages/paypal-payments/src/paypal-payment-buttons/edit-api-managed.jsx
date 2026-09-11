@@ -77,6 +77,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		scriptSrc,
 		hostedButtonId,
 		buttonText,
+		linkText,
 		resourceId,
 		paymentLink,
 		productName,
@@ -423,7 +424,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				format={ activeFormat }
 				attributes={ attributes }
 				setAttributes={ setAttributes }
-				qrUrl={ withPartnerAttribution( paymentLink, partnerAttributionId ) }
+				paymentUrl={ withPartnerAttribution( paymentLink, partnerAttributionId ) }
 				disabled={ isBusy }
 			/>
 		</>
@@ -923,6 +924,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					imageUrl={ imageUrl }
 					partnerAttributionId={ partnerAttributionId }
 					buttonText={ buttonText }
+					linkText={ linkText }
 					qrShowCaption={ qrShowCaption }
 					qrCaption={ qrCaption }
 					attributes={ attributes }

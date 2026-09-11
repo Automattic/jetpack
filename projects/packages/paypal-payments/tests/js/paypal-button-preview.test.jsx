@@ -55,12 +55,12 @@ describe( 'PayPalButtonPreview', () => {
 
 	it( 'falls back to the default text with no buttonText', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
-		expect( screen.getByText( 'Buy Now' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Buy now' ) ).toBeInTheDocument();
 	} );
 
 	it( 'falls back to the default text with a whitespace-only buttonText', () => {
 		render( <PayPalButtonPreview { ...defaultProps } buttonText="   " /> );
-		expect( screen.getByText( 'Buy Now' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Buy now' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the wordmark off the button face', () => {
@@ -363,16 +363,34 @@ describe( 'PayPalButtonPreview', () => {
 			).toBeInTheDocument();
 		} );
 
-		it( 'draws the product name as a link for LINK', () => {
-			render( <PayPalButtonPreview { ...defaultProps } format="LINK" /> );
+		it( 'draws the link text as the label for LINK', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="LINK" linkText="Get yours" /> );
 			expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveTextContent(
-				'Premium Widget'
+				'Get yours'
 			);
 		} );
 
-		it( 'falls back to Pay with PayPal when the product has no name', () => {
-			render( <PayPalButtonPreview { ...defaultProps } format="LINK" productName="" /> );
-			expect( screen.getByText( 'Pay with PayPal' ) ).toBeInTheDocument();
+		it( 'falls back to the default label when the link text is blank', () => {
+			// A blank label falls back the way the button face and the caption do,
+			// and the product name does not stand in for it.
+			render( <PayPalButtonPreview { ...defaultProps } format="LINK" linkText="   " /> );
+			expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveTextContent(
+				'Buy now'
+			);
+		} );
+
+		it( 'styles the link from its own color and size', () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="LINK"
+					attributes={ { linkColor: '#0000ff', linkFontSize: '20px' } }
+				/>
+			);
+			expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveStyle( {
+				color: '#0000ff',
+				fontSize: '20px',
+			} );
 		} );
 
 		it( 'draws a QR canvas for QR', () => {
@@ -380,7 +398,7 @@ describe( 'PayPalButtonPreview', () => {
 			expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
 			// The caption sits under the code, as it does on the frontend.
 			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveTextContent(
-				'Buy Now'
+				'Buy now'
 			);
 		} );
 
@@ -460,11 +478,17 @@ describe( 'PayPalButtonPreview', () => {
 			expect( wrapper ).not.toHaveStyle( { borderWidth: '4px' } );
 		} );
 
-		it( 'captions the code when the toggle was never touched', () => {
-			// render_api_managed_button() defaults it on, so the canvas must too.
+		it( 'leaves the code bare when the toggle was never touched', () => {
+			// render_api_managed_button() defaults it off, so the canvas must too.
 			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+			expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toBeNull();
+		} );
+
+		it( 'falls back to the default label once the caption is on', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" qrShowCaption /> );
 			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveTextContent(
-				'Buy Now'
+				'Buy now'
 			);
 		} );
 
@@ -512,7 +536,7 @@ describe( 'PayPalButtonPreview', () => {
 
 		it( 'still renders when the draw fails', () => {
 			QRCode.toCanvas.mockRejectedValueOnce( new Error( 'no 2d context' ) );
-			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" qrShowCaption /> );
 			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toBeInTheDocument();
 		} );
 

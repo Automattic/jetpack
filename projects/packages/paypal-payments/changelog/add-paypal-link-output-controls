@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Link blocks get their own settings in the editor's Styles tab: the link text, the payment URL with a Copy button, and color and size settings that the published page honors too. The link text replaces the product name that used to label a published payment link, and defaults to "Buy now" — the same default the button face and the QR caption use.
