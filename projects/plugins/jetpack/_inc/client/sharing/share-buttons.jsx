@@ -68,9 +68,9 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			const sharingModuleSupportUrl = getRedirectUrl( 'jetpack-support-sharing' );
 
 			/**
-			 * Legacy sharing configuration link, for the themes that can still use it.
+			 * Legacy sharing configuration link.
 			 *
-			 * Block themes get the Sharing Buttons block through moduleAction() instead.
+			 * Block themes that ship the Sharing Buttons block get it through moduleAction() instead.
 			 *
 			 * @return {import('react').ReactNode} A card with the sharing configuration link.
 			 */
