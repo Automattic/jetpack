@@ -706,3 +706,23 @@
 		margin-top: 16px;
 	}
 }
+
+// Width Settings — presets beside a free value. Same layout as the Jetpack
+// plugin's shared width control; without the explicit widths the presets
+// collapse on top of each other.
+// @see projects/plugins/jetpack/extensions/shared/width-panel.scss
+.jetpack-paypal-payment-buttons__width-controls {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+
+	> .components-base-control {
+		width: 65%;
+		margin-bottom: 8px;
+	}
+
+	.components-unit-control-wrapper {
+		flex: 1;
+		flex-shrink: 0;
+	}
+}
