@@ -9,7 +9,7 @@
  * emitted all come from one implementation.
  *
  * The values are validated the same way first. The published page refuses
- * anything its sanitizers do not recognise, so a block whose attributes were
+ * anything its sanitizers do not recognize, so a block whose attributes were
  * hand-edited in code view has to be refused here too — otherwise it renders in
  * the editor and vanishes on publish. tests/fixtures/style-parity.json holds the
  * cases both sides are checked against.

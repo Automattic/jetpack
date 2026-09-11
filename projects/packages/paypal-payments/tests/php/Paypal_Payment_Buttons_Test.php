@@ -764,6 +764,31 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * Test that the caption is escaped. It is merchant free text printed into the markup.
+	 */
+	public function test_render_block_escapes_the_qr_caption() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QRESC',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QRESC',
+			'productName'  => 'Premium Widget',
+			'format'       => 'QR',
+			'qrCaption'    => '<script>alert(1)</script>',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( '<script>alert(1)</script>', $result );
+		$this->assertStringContainsString(
+			'&lt;script&gt;alert(1)&lt;/script&gt;',
+			$result,
+			'The caption should reach the markup escaped'
+		);
+	}
+
+	/**
 	 * Test that Show text under QR code, when off, removes the caption.
 	 */
 	public function test_render_block_qr_caption_can_be_switched_off() {
@@ -1025,7 +1050,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 *
 	 * The other half of this table runs in tests/js/block-styles.test.js against
 	 * getWrapperStyle()/getCaptionStyle(). A value one side drops and the other
-	 * keeps is the drift WOOPTP-491 exists to remove, so it fails here.
+	 * keeps is drift between the two, so it fails here.
 	 *
 	 * @dataProvider provide_style_parity_cases
 	 * @param array  $attributes   The block attributes.

@@ -32,6 +32,7 @@ import {
 	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { getCaptionStyle } from '../utils/block-styles';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import FormatSwitcher from './format-switcher';
 import QrCodePreview from './qr-code-preview';
@@ -193,11 +194,20 @@ function BorderPanel( { attributes, setAttributes, showMargin } ) {
  */
 function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
 	const { qrShowCaption, qrCaption } = attributes;
+	// The inspector's copy carries the caption too, the way Create 188 draws it,
+	// so the merchant sees what they typed without looking back at the canvas.
+	const caption = `${ qrCaption ?? '' }`.trim() || DEFAULT_LABEL;
 
 	return (
 		<>
 			<div className="jetpack-paypal-payment-buttons__qr-inspector-preview">
-				<QrCodePreview url={ qrUrl } className="jetpack-paypal-button__qr-canvas" showDownload />
+				<QrCodePreview
+					url={ qrUrl }
+					className="jetpack-paypal-button__qr-canvas"
+					caption={ qrShowCaption ? caption : '' }
+					captionStyle={ getCaptionStyle( attributes ) }
+					showDownload
+				/>
 			</div>
 
 			<CheckboxControl
@@ -223,7 +233,7 @@ function QrOutputControls( { attributes, setAttributes, qrUrl } ) {
 }
 
 /**
- * Colour and size for the QR caption.
+ * Color and size for the QR caption.
  *
  * Only rendered while the caption is on.
  *
