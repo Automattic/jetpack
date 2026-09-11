@@ -24,8 +24,10 @@ $font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans,
 $paypal-blue: #0070ba;
 
 .jetpack-paypal-button {
+	// Left-aligned in every frame. Width Settings overrides max-width with an
+	// inline style, so this is only the unconfigured default.
 	max-width: 400px;
-	margin: 24px auto;
+	margin: 24px 0;
 	font-family: $font-stack;
 }
 
@@ -109,7 +111,7 @@ $paypal-blue: #0070ba;
 // "Powered by PayPal" attribution
 // ---------------------------------------------------------------
 
-.jetpack-paypal-button__qr-product-name {
+.jetpack-paypal-button__qr-caption {
 	margin: 8px 0 0;
 }
 

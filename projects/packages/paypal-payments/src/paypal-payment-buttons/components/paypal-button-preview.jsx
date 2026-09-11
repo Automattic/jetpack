@@ -14,7 +14,9 @@
  */
 
 import { __, sprintf } from '@wordpress/i18n';
+import { getCaptionStyle, getWrapperStyle } from '../utils/block-styles';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
+import { DEFAULT_BUTTON_TEXT, DEFAULT_QR_CAPTION } from '../utils/defaults';
 import { withPartnerAttribution } from '../utils/partner-attribution';
 import QrCodePreview from './qr-code-preview';
 import { getPrimaryDimension, hasVariantPricing } from './variant-builder';
@@ -112,26 +114,38 @@ function LinkPreview( { productName, paymentLink, partnerAttributionId } ) {
 }
 
 /**
- * The QR format — the code, its label, and the attribution line.
+ * The QR format — the code, its caption, and the attribution line.
  *
  * Copy and Download belong to the frontend and the inspector, so the canvas
  * draws the code on its own.
  *
- * @param {object} props                      - Component props.
- * @param {string} props.productName          - Product name shown below the code.
- * @param {string} props.paymentLink          - PayPal payment URL, once one has been issued.
- * @param {string} props.partnerAttributionId - PayPal partner attribution (BN) code.
+ * @param {object}  props                      - Component props.
+ * @param {boolean} props.qrShowCaption        - Whether to draw the caption under the code.
+ * @param {string}  props.qrCaption            - Caption text, empty for the default.
+ * @param {string}  props.paymentLink          - PayPal payment URL, once one has been issued.
+ * @param {string}  props.partnerAttributionId - PayPal partner attribution (BN) code.
+ * @param {object}  props.attributes           - The block attributes, for the style mapping.
  * @return {Element} QR preview element.
  */
-function QrPreview( { productName, paymentLink, partnerAttributionId } ) {
+function QrPreview( { qrShowCaption, qrCaption, paymentLink, partnerAttributionId, attributes } ) {
 	// Encode the attributed URL, so the editor's code and the frontend's send a
 	// buyer through the same link.
 	const qrUrl = withPartnerAttribution( paymentLink, partnerAttributionId );
+	// Mirrors render_api_managed_button()'s QR branch: an empty caption falls
+	// back to the default rather than drawing a blank line.
+	const caption = `${ qrCaption ?? '' }`.trim() || DEFAULT_QR_CAPTION;
 
 	return (
-		<div className="jetpack-paypal-button-preview jetpack-paypal-button-preview--qr">
+		<div
+			className="jetpack-paypal-button-preview jetpack-paypal-button-preview--qr"
+			style={ getWrapperStyle( attributes ) }
+		>
 			<QrCodePreview url={ qrUrl } className="jetpack-paypal-button__qr-canvas" />
-			{ productName && <p className="jetpack-paypal-button__qr-product-name">{ productName }</p> }
+			{ qrShowCaption && (
+				<p className="jetpack-paypal-button__qr-caption" style={ getCaptionStyle( attributes ) }>
+					{ caption }
+				</p>
+			) }
 			<p className="jetpack-paypal-button__attribution">
 				{ __( 'Powered by PayPal', 'jetpack-paypal-payments' ) }
 			</p>
@@ -151,6 +165,7 @@ function QrPreview( { productName, paymentLink, partnerAttributionId } ) {
  * @param {object}  props.variants           - Variants data with dimensions.
  * @param {string}  props.imageUrl           - Optional product image URL.
  * @param {string}  props.buttonText         - Label on the checkout button.
+ * @param {object}  props.attributes         - The block attributes, for the style mapping.
  * @return {Element} Button preview element.
  */
 function ButtonPreview( {
@@ -162,6 +177,7 @@ function ButtonPreview( {
 	variants,
 	imageUrl,
 	buttonText,
+	attributes,
 } ) {
 	// Mirrors render_api_managed_button(): PayPal drops the product-level amount
 	// once the options have their own prices, but the block keeps what was typed.
@@ -172,10 +188,10 @@ function ButtonPreview( {
 	const variantGroups = variantsEnabled ? getVariantGroups( variants, productPrice ) : [];
 	// A blank label would draw an unreadable button, so fall back to the
 	// block.json default, the same as render_api_managed_button() does.
-	const label = `${ buttonText ?? '' }`.trim() || __( 'Buy Now', 'jetpack-paypal-payments' );
+	const label = `${ buttonText ?? '' }`.trim() || DEFAULT_BUTTON_TEXT;
 
 	return (
-		<div className="jetpack-paypal-button-preview">
+		<div className="jetpack-paypal-button-preview" style={ getWrapperStyle( attributes ) }>
 			{ /* Product image */ }
 			{ imageUrl && (
 				<div className="jetpack-paypal-button-preview__image">

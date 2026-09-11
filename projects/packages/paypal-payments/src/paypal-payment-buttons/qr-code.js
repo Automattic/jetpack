@@ -15,6 +15,7 @@
  */
 
 import QRCode from 'qrcode';
+import { downloadQrCanvas } from './utils/qr-download';
 import { QR_OPTIONS } from './utils/qr-options';
 
 /**
@@ -27,13 +28,7 @@ function wireDownloadButton( downloadBtn, canvas ) {
 	if ( ! downloadBtn ) {
 		return;
 	}
-	downloadBtn.addEventListener( 'click', () => {
-		const dataUrl = canvas.toDataURL( 'image/png' );
-		const link = document.createElement( 'a' );
-		link.download = 'paypal-payment-qr.png';
-		link.href = dataUrl;
-		link.click();
-	} );
+	downloadBtn.addEventListener( 'click', () => downloadQrCanvas( canvas ) );
 }
 
 /**

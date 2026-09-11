@@ -47,6 +47,8 @@ function ApiManagedReadOnly( { attributes } ) {
 		variants,
 		imageUrl,
 		buttonText,
+		qrShowCaption,
+		qrCaption,
 	} = attributes;
 
 	return (
@@ -69,6 +71,9 @@ function ApiManagedReadOnly( { attributes } ) {
 					variants={ variants }
 					imageUrl={ imageUrl }
 					buttonText={ buttonText }
+					qrShowCaption={ qrShowCaption }
+					qrCaption={ qrCaption }
+					attributes={ attributes }
 				/>
 			</div>
 		</div>

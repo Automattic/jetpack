@@ -376,13 +376,78 @@ describe( 'PayPalButtonPreview', () => {
 		} );
 
 		it( 'draws a QR canvas for QR', () => {
-			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" qrShowCaption /> );
 			expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
-			// The label sits under the code, as it does on the frontend.
+			// The caption sits under the code, as it does on the frontend.
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveTextContent(
+				'Buy Now'
+			);
+		} );
+
+		it( 'draws the caption the merchant typed', () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					qrShowCaption
+					qrCaption="Scan to pay"
+				/>
+			);
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveTextContent(
+				'Scan to pay'
+			);
+		} );
+
+		it( 'drops the caption when Show text under QR code is off', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" qrShowCaption={ false } /> );
 			expect(
-				document.querySelector( '.jetpack-paypal-button__qr-product-name' )
-			).toHaveTextContent( 'Premium Widget' );
+				document.querySelector( '.jetpack-paypal-button__qr-caption' )
+			).not.toBeInTheDocument();
+			// The code itself is unaffected.
+			expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
+		} );
+
+		it( 'puts Width and Border Settings on the wrapper, and caption styles on the caption', () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					qrShowCaption
+					attributes={ {
+						blockWidth: 50,
+						marginVertical: 12,
+						marginHorizontal: 4,
+						borderRadius: 8,
+						borderWidth: 2,
+						borderColor: '#ff0000',
+						captionColor: '#0000ff',
+						captionFontSize: 20,
+					} }
+				/>
+			);
+
+			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
+			expect( wrapper ).toHaveStyle( {
+				maxWidth: '50%',
+				margin: '12px 4px',
+				borderRadius: '8px',
+				border: '2px solid #ff0000',
+			} );
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveStyle( {
+				color: '#0000ff',
+				fontSize: '20px',
+			} );
+		} );
+
+		it( 'draws no border when the stroke has a width but no colour', () => {
+			// A colourless border would still take up space and shift the layout.
+			render(
+				<PayPalButtonPreview { ...defaultProps } format="QR" attributes={ { borderWidth: 4 } } />
+			);
+			expect( document.querySelector( '.jetpack-paypal-button-preview--qr' ) ).not.toHaveStyle( {
+				borderWidth: '4px',
+			} );
 		} );
 
 		it( 'draws no code until a payment link exists', () => {
