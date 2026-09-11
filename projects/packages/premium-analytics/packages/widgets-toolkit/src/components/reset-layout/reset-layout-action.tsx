@@ -3,7 +3,7 @@
  */
 import { IconButton } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { reset } from '@wordpress/icons';
+import { rotateLeft } from '@wordpress/icons';
 import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
@@ -31,7 +31,7 @@ export function ResetLayoutAction( { onReset }: ResetLayoutActionProps ) {
 	return (
 		<>
 			<IconButton
-				icon={ reset }
+				icon={ rotateLeft }
 				label={ __( 'Reset to default', 'jetpack-premium-analytics-pkg' ) }
 				variant="minimal"
 				tone="brand"
