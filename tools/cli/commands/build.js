@@ -14,9 +14,14 @@ import UpdateRenderer from 'listr-update-renderer';
 import pLimit from 'p-limit';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import formatDuration from '../helpers/format-duration.js';
-import { getInstallArgs, projectDir } from '../helpers/install.js';
+import { getInstallArgs, projectDir, batchLockFileStatus } from '../helpers/install.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
+import {
+	buildPackageVersionMap,
+	shouldPinProject,
+	withPinnedComposerJson,
+} from '../helpers/path-repo-versions.js';
 import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
@@ -82,12 +87,36 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",
 		} )
+		.option( 'pin-path-repo-versions', {
+			type: 'boolean',
+			description:
+				"Pin the monorepo path repo's package versions before installing, so Composer skips version guessing. Much faster for cold builds.",
+		} )
 		.option( 'timing-output', {
 			type: 'string',
 			normalize: true,
 			description:
 				'Write machine-readable timing data (JSON) to the given file. Implies --timing-summary.',
 		} );
+}
+
+/**
+ * Read the version to pin each monorepo package to.
+ *
+ * Every project's monorepo path repo globs to `projects/packages/*`, whichever relative url it uses.
+ *
+ * @return {Promise<object>} Map of composer package name to version.
+ */
+async function readPathRepoVersions() {
+	const jsons = await Promise.all(
+		[ ...allProjectsByType( 'packages' ) ].map( project =>
+			fs
+				.readFile( projectDir( project, 'composer.json' ), 'utf8' )
+				.then( JSON.parse )
+				.catch( () => null )
+		)
+	);
+	return buildPackageVersionMap( jsons.filter( Boolean ) );
 }
 
 /**
@@ -111,6 +140,10 @@ export async function handler( argv ) {
 	if ( argv.timingOutput ) {
 		argv.timingSummary = true;
 	}
+
+	// One `git ls-files` for the whole monorepo instead of one per project.
+	const lockedProjects = await batchLockFileStatus();
+	const pathRepoVersions = argv.pinPathRepoVersions ? await readPathRepoVersions() : null;
 
 	let dependencies = await getDependencies( process.cwd(), 'build' );
 	const listr = new Listr( [], {
@@ -239,6 +272,8 @@ export async function handler( argv ) {
 		promises: {},
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
+		lockedProjects,
+		pathRepoVersions,
 		// When `--timing-summary` is set, collect a flat list of phase timings to summarize at the end.
 		timings: argv.timingSummary ? { overallStart: Date.now(), entries: [], buildOrder } : null,
 	};
@@ -873,13 +908,25 @@ async function buildProject( t ) {
 	if ( skipInstall ) {
 		await t.output( `Skipping composer install for CI build of non-plugin with no build script\n` );
 	} else {
-		await t.time( 'install', async () =>
-			t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
-				cwd: t.cwd,
-				stdio: [ 'ignore', 'inherit', 'inherit' ],
-				buffer: false,
-			} )
-		);
+		// getInstallArgs runs `composer validate --check-lock`, so it must see the same pinned
+		// composer.json the lock was written from or it'd fall back to the slow `update` path.
+		const install = () =>
+			t.time( 'install', async () =>
+				t.execa(
+					'composer',
+					await getInstallArgs( t.project, 'composer', t.argv, t.ctx.lockedProjects ),
+					{
+						cwd: t.cwd,
+						stdio: [ 'ignore', 'inherit', 'inherit' ],
+						buffer: false,
+					}
+				)
+			);
+		if ( t.ctx.pathRepoVersions && shouldPinProject( t.project, t.ctx.lockedProjects, t.argv ) ) {
+			await withPinnedComposerJson( t.cwd, t.ctx.pathRepoVersions, install );
+		} else {
+			await install();
+		}
 	}
 
 	// Build.
