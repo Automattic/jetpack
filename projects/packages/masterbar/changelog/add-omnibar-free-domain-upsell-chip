@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin menu: Add the jetpack_masterbar_upsell_nudge filter so the rendered upsell nudge can be suppressed.

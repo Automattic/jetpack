@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Admin bar: Return the WordPress.com free domain upsell chip from the site admin-bar endpoint so the omnibar renders it.
