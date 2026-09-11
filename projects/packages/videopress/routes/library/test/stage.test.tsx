@@ -97,8 +97,23 @@ jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
 jest.mock( '../../../src/dashboard/hooks/use-persisted-view', () => ( {
 	usePersistedView: ( fallback: unknown ) => [ fallback, jest.fn() ],
 } ) );
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( {
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
+	__esModule: true,
+	default: () => ( { hasConnectionError: false } ),
+	ConnectionError: () => null,
+} ) );
+
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
 		createInfoNotice: jest.fn(),

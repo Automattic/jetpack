@@ -5,7 +5,6 @@ import ScanPage, { type ScanTab } from '../../_inc/components/scan-page';
 import Gates from '../../src/js/gates';
 import { HeaderActionsProvider } from '../../src/js/header-actions-context';
 import MockBanner from '../../src/js/mock-banner';
-import NoticesList from '../../src/js/notices-list';
 import ActiveThreats from '../../src/js/screens/overview/active-threats';
 import ScanHistory from '../../src/js/screens/overview/scan-history';
 import './route.scss';
@@ -54,7 +53,6 @@ function Stage(): JSX.Element {
 							{ activeTab === 'history' ? <ScanHistory /> : null }
 						</Tabs.Panel>
 					</Gates>
-					<NoticesList />
 				</ScanPage>
 			</HeaderActionsProvider>
 		</QueryClientProvider>

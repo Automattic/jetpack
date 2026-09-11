@@ -1,17 +1,11 @@
 /*
  * External dependencies
  */
-import {
-	ActionButton,
-	AdminPage,
-	Col,
-	Container,
-	GlobalNotices,
-	Notice,
-} from '@automattic/jetpack-components';
+import { ActionButton, AdminPage, Col, Container, Notice } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { SnackbarNotices } from '@wordpress/notices';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
@@ -199,7 +193,7 @@ export default function MyJetpackScreen() {
 			<MyJetpackTabPanel
 				beforeContent={
 					<>
-						<GlobalNotices />
+						<SnackbarNotices className={ styles[ 'snackbar-notices' ] } />
 						{ ! isNewUser && (
 							<Container horizontalSpacing={ 0 }>
 								<Col>

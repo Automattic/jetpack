@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use core snackbar notice placement instead of overriding boot styles.

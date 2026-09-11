@@ -13,16 +13,13 @@
  * MCP hub as the landing view and no tab bar.
  */
 
-import {
-	AdminPage,
-	GlobalNotices,
-	useGlobalNotices,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
+import { AdminPage, getRedirectUrl } from '@automattic/jetpack-components';
 import { Spinner, ExternalLink } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
+import { store as noticesStore, SnackbarNotices } from '@wordpress/notices';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
 import MasterOffNotice from './components/master-off-notice';
 import AiFeatures from './features/index';
@@ -199,10 +196,8 @@ export default function App() {
 		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
-	// Save feedback goes through the shared GlobalNotices snackbars (the
-	// design-system SnackbarList behind @wordpress/notices): transient,
-	// auto-dismissing, no page-level styling needed.
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	// Save feedback goes through core SnackbarNotices (@wordpress/notices).
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const mcpViewedRecorded = useRef( false );
 	// Strict false: older page data (undefined) must not read as unlinked.
 	const userUnlinked = isUserConnected === false;
@@ -259,6 +254,7 @@ export default function App() {
 				// makes the store replace the previous outcome for this surface,
 				// so retries never show stale results alongside fresh ones.
 				createErrorNotice( __( 'Failed to save MCP settings. Please try again.', 'jetpack' ), {
+					type: 'snackbar',
 					id: 'jetpack-mcp-save-status',
 					explicitDismiss: true,
 				} );
@@ -276,6 +272,7 @@ export default function App() {
 					// The shared id keeps this surface last-outcome-wins: a
 					// success replaces a sticky error from an earlier attempt.
 					createSuccessNotice( __( 'Your AI settings have been saved.', 'jetpack' ), {
+						type: 'snackbar',
 						id: 'jetpack-ai-save-status',
 					} );
 					return true;
@@ -283,6 +280,7 @@ export default function App() {
 				() => {
 					// Errors must not auto-vanish before they're read.
 					createErrorNotice( __( 'Failed to save AI settings. Please try again.', 'jetpack' ), {
+						type: 'snackbar',
 						id: 'jetpack-ai-save-status',
 						explicitDismiss: true,
 					} );
@@ -410,7 +408,7 @@ export default function App() {
 				{ isSubView && (
 					<BackEyebrow label={ VIEW_TITLES[ activeTab ] } onNavigate={ navigateToParent } />
 				) }
-				<GlobalNotices />
+				<SnackbarNotices className="jetpack-ai-admin__snackbar-notices" />
 
 				{ ! masterEnabled &&
 					MASTER_SWITCH_VIEWS.includes( view ) &&
