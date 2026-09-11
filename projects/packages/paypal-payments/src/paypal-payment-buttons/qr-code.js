@@ -3,7 +3,7 @@
  *
  * Generates a QR code for the PayPal payment link on pages containing
  * a PayPal payment button in the QR format. The link comes from the canvas
- * `data-qr-url` attribute.
+ * `data-qr-url` attribute, written by the render callback.
  *
  * Enqueued from the block's render callback, so it only loads on pages
  * that actually render the block.

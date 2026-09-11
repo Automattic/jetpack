@@ -417,8 +417,10 @@ class PayPal_Payment_Buttons {
 		}
 
 		// Headline price: the product price, or the cheapest option when there is none.
+		// PayPal accepts a price of 0, so the empty test is '' — empty() drops it.
+		$price      = (string) $price;
 		$price_html = '';
-		if ( ! empty( $price ) ) {
+		if ( '' !== $price ) {
 			$price_html = sprintf(
 				'<span class="jetpack-paypal-button__product-price">%s</span>',
 				esc_html( self::format_price( $price, $currency ) )
@@ -445,22 +447,23 @@ class PayPal_Payment_Buttons {
 			$variant_groups = array();
 			foreach ( $variants['dimensions'] as $dimension ) {
 				$dim_name = esc_html( $dimension['name'] ?? '' );
-				if ( empty( $dim_name ) || empty( $dimension['options'] ) ) {
+				if ( '' === $dim_name || empty( $dimension['options'] ) ) {
 					continue;
 				}
 
 				$options_html = array();
 				foreach ( $dimension['options'] as $option ) {
 					$label = esc_html( $option['label'] ?? '' );
-					if ( empty( $label ) ) {
+					if ( '' === $label ) {
 						continue;
 					}
 
 					// Show the option's price, unless it repeats the product price above.
+					$option_value = (string) ( $option['unit_amount']['value'] ?? '' );
 					$option_price = '';
-					if ( ! empty( $option['unit_amount']['value'] ) && $option['unit_amount']['value'] !== $price ) {
+					if ( '' !== $option_value && $option_value !== $price ) {
 						$option_price = ' <span class="jetpack-paypal-button__variant-price">'
-							. esc_html( self::format_price( $option['unit_amount']['value'], $currency ) )
+							. esc_html( self::format_price( $option_value, $currency ) )
 							. '</span>';
 					}
 
@@ -488,9 +491,9 @@ class PayPal_Payment_Buttons {
 
 		$wrapper_attributes = get_block_wrapper_attributes();
 
-		// The wordmark is off the button face; "Powered by PayPal" underneath
-		// carries the branding, per the Create 191 design. A blank label would
-		// draw an unreadable button, so fall back to the block.json default.
+		// No wordmark on the button face — the "Powered by PayPal" line below it
+		// is the branding. A blank label would draw an unreadable button, so
+		// fall back to the same default the editor preview uses.
 		$label = '' !== $button_text ? $button_text : __( 'Buy Now', 'jetpack-paypal-payments' );
 
 		return sprintf(

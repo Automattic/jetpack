@@ -516,7 +516,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the checkout button carries the buttonText attribute, wordmark-free.
+	 * Test that the checkout button uses the buttonText attribute, with no wordmark.
 	 */
 	public function test_render_block_labels_the_button_with_button_text() {
 		$attributes = array(
@@ -537,8 +537,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'<span class="jetpack-paypal-button__button-text">Checkout</span>',
 			$result
 		);
-		// Create 191 keeps the wordmark off the button face; the attribution
-		// line below it carries the branding.
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__logo', $result );
 		$this->assertStringContainsString(
 			'<p class="jetpack-paypal-button__attribution">Powered by PayPal</p>',
@@ -547,9 +545,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that an empty buttonText falls back to Buy Now.
+	 * Test that a block with no buttonText falls back to the default label.
 	 */
-	public function test_render_block_falls_back_to_buy_now() {
+	public function test_render_block_falls_back_to_default_text_with_no_button_text() {
 		$attributes = array(
 			'isApiManaged' => true,
 			'resourceId'   => 'PLB-LABEL2',
@@ -565,6 +563,139 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringContainsString(
 			'<span class="jetpack-paypal-button__button-text">Buy Now</span>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a whitespace-only buttonText falls back to the default label.
+	 */
+	public function test_render_block_falls_back_to_default_text_with_whitespace_button_text() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-LABEL3',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-LABEL3',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'buttonText'   => '   ',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__button-text">Buy Now</span>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a price of 0 renders, since PayPal accepts one.
+	 */
+	public function test_render_block_shows_a_price_of_zero() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-ZERO2',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-ZERO2',
+			'productName'     => 'Widget',
+			'price'           => '0',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array(
+								'label'       => 'Free',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '0',
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__variant-price">$0</span>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a product price of 0 renders when no option is priced.
+	 */
+	public function test_render_block_shows_a_product_price_of_zero() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-ZERO3',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-ZERO3',
+			'productName'  => 'Widget',
+			'price'        => '0',
+			'currencyCode' => 'USD',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__product-price">$0</span>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a group named 0 and an option labeled 0 both render.
+	 */
+	public function test_render_block_keeps_a_variant_named_zero() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-ZERO1',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-ZERO1',
+			'productName'     => 'Widget',
+			'price'           => '10.00',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array( array( 'label' => '0' ) ),
+					),
+					array(
+						'name'    => '0',
+						'options' => array( array( 'label' => 'Red' ) ),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__variant-name">Size:</span>',
+			$result
+		);
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__variant-name">0:</span>',
+			$result
+		);
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__variant-option">0</span>',
 			$result
 		);
 	}

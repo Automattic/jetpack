@@ -99,7 +99,6 @@ $paypal-blue: #0070ba;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
 	width: 100%;
 	text-align: center;
 	text-decoration: none;
@@ -161,7 +160,7 @@ $paypal-blue: #0070ba;
 	font-size: 11px;
 }
 
-// QR Code section.
+// QR code canvas.
 .jetpack-paypal-button__qr-canvas {
 	border-radius: 4px;
 }
