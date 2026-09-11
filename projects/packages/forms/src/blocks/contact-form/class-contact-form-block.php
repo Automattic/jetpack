@@ -966,8 +966,12 @@ class Contact_Form_Block {
 			}
 		}
 
-		// Dynamic block callbacks receive content rendered by WordPress already.
-		// Rendering it again can flatten nested core/group wrappers around fields.
+		// Dynamic block callbacks receive rendered content, but direct callers may
+		// legitimately provide raw serialized block content.
+		if ( has_blocks( $content ) ) {
+			$content = do_blocks( $content );
+		}
+
 		return Contact_Form::parse( $atts, $content );
 	}
 

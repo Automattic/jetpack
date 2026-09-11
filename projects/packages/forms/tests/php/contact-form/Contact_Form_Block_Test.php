@@ -828,6 +828,30 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Direct callers can provide raw serialized inner blocks rather than the
+	 * already-rendered content supplied by WordPress's block callback.
+	 */
+	public function test_gutenblock_render_form_renders_raw_inner_blocks() {
+		Contact_Form_Block::register_block();
+		Contact_Form_Block::register_child_blocks();
+
+		$output = Contact_Form_Block::gutenblock_render_form(
+			array( 'to' => 'test@example.com' ),
+			'<!-- wp:group {"className":"outer-group"} -->' .
+			'<div class="wp-block-group outer-group">' .
+			'<!-- wp:group {"className":"inner-group"} -->' .
+			'<div class="wp-block-group inner-group">' .
+			'<!-- wp:jetpack/field-text {"label":"Name","id":"name"} /-->' .
+			'</div><!-- /wp:group -->' .
+			'</div><!-- /wp:group -->'
+		);
+
+		$this->assertStringContainsString( 'outer-group', $output );
+		$this->assertStringContainsString( 'inner-group', $output );
+		$this->assertStringContainsString( 'id="name"', $output );
+	}
+
+	/**
 	 * Group attributes are handled by core's renderer before the form consumes them.
 	 */
 	public function test_group_renderer_drops_unsupported_attributes_inside_a_contact_form_block() {
