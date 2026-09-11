@@ -707,7 +707,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											) ) }
 										</BarGroup>
 										{ withTooltips && (
-											<BandTooltip keys={ primaryEntries.map( ( { series } ) => series.label ) } />
+											<BandTooltip keys={ primaryKeys } groupPadding={ groupPadding } />
 										) }
 
 										{ /* With every series hidden there is no data to build the value scale from, so

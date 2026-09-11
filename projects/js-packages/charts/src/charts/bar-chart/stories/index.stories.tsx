@@ -124,6 +124,70 @@ export const SingleSeries: Story = {
 	},
 };
 
+export const PerPointColors: Story = {
+	args: {
+		...SingleSeries.args,
+		options: { yScale: { zero: true } },
+		data: [
+			{
+				label: 'Daily score',
+				data: [
+					{ label: 'Monday', value: 92, color: 'var(--a8c-charts-color-trend-up)' },
+					{ label: 'Tuesday', value: 35, color: 'var(--a8c-charts-color-trend-down)' },
+					{ label: 'Wednesday', value: 88, color: 'var(--a8c-charts-color-trend-up)' },
+					{ label: 'Thursday', value: 65 },
+				],
+			},
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Point colors override the series fill. Thursday has no override and keeps the series color. Enable patterns to check that they take precedence.',
+			},
+		},
+	},
+};
+
+export const CategoryHighlight: Story = {
+	args: {
+		...SingleSeries.args,
+		withCategoryHighlight: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Hover a bar or focus the chart and use arrow keys to highlight its category across the plot. Escape dismisses the tooltip and highlight.',
+			},
+		},
+	},
+};
+
+export const BesideTooltip: Story = {
+	args: {
+		...CategoryHighlight.args,
+		tooltipPlacement: 'beside',
+		tooltipAnchorTop: 40,
+	},
+	argTypes: {
+		tooltipPlacement: {
+			control: 'radio',
+			options: [ 'auto', 'beside' ],
+		},
+		tooltipAnchorTop: { control: 'number' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Hover the first and last bars to check horizontal flipping. The tooltip stays at the SVG top anchor, subject to clipping bounds. Change tooltipAnchorTop to move that anchor, including above the plot with negative values.',
+			},
+		},
+	},
+};
+
 // Story with single data series
 export const TimeSeries: Story = {
 	args: {
