@@ -184,7 +184,6 @@ export default function App() {
 		planName,
 		isUserConnected,
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
-		siteAdminUrl = '',
 		manageUrl = 'admin.php?page=my-jetpack#/products',
 		hasMyJetpack = true,
 		showFeaturesView = false,
@@ -410,9 +409,6 @@ export default function App() {
 					settings={ aiSettings }
 					userConnectionUrl={ userConnectionUrl }
 					manageUrl={ manageUrl }
-					siteAdminUrl={ siteAdminUrl }
-					apiRoot={ apiRoot }
-					apiNonce={ apiNonce }
 					hasMyJetpack={ hasMyJetpack }
 				/>
 
@@ -489,6 +485,7 @@ export default function App() {
 						planName={ planName }
 						isUserConnected={ isUserConnected }
 						isConnected={ aiSettings?.is_connected }
+						settingsAnswered={ !! aiSettings }
 						hasConnectionError={ hasConnectionError }
 						hostAllowsAi={ aiSettings?.host_allows_ai }
 						// Same preconditions the MCP hub applies to its copy of the

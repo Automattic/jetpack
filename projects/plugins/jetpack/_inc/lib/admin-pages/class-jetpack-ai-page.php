@@ -278,10 +278,9 @@ class Jetpack_AI_Page {
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
 				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
 				'hasMyJetpack'      => $has_my_jetpack,
-				// My Jetpack is removed on VIP, so that route dead-ends there.
-				'userConnectionUrl' => $host->is_vip_site()
-					? 'admin.php?page=jetpack#/connect-user'
-					: 'admin.php?page=my-jetpack#/connection',
+				'userConnectionUrl' => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/connection'
+					: 'admin.php?page=jetpack#/connect-user',
 				'manageUrl'         => $has_my_jetpack
 					? 'admin.php?page=my-jetpack#/products'
 					: 'admin.php?page=jetpack_modules',
@@ -294,9 +293,7 @@ class Jetpack_AI_Page {
 
 		$show_gated_views = ! empty( $config['showGatedViews'] );
 
-		// The page notice reads the connection store, and only the gated views
-		// render it. Initial_State can hit WordPress.com, so skip it elsewhere.
-		if ( $show_gated_views || $show_scheduled_tasks_view ) {
+		if ( $show_scheduled_tasks_view ) {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 		}
 
@@ -423,11 +420,16 @@ class Jetpack_AI_Page {
 	 * Whether My Jetpack is loaded on this host.
 	 *
 	 * Hosts drop it with the `jetpack_my_jetpack_should_initialize` filter, so
-	 * neither its routes nor its labels can be assumed to exist.
+	 * neither its routes nor its labels can be assumed to exist. VIP removes it
+	 * from outside this codebase, where that filter cannot answer for it.
 	 *
 	 * @return bool
 	 */
 	private static function has_my_jetpack() {
+		if ( ( new Host() )->is_vip_site() ) {
+			return false;
+		}
+
 		return class_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer' )
 			&& method_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer', 'should_initialize' )
 			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();

@@ -1,12 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	ConnectButton,
-	ConnectionError,
-	useConnectionErrorNotice,
-} from '@automattic/jetpack-connection';
-import { ExternalLink } from '@wordpress/components';
+import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import { Link, Notice } from '@wordpress/ui';
+import { Notice } from '@wordpress/ui';
 import { GATED_VIEWS } from '../../constants';
 
 // Highest precedence first. FORCED_OFF has no content yet, so nothing resolves
@@ -68,76 +63,43 @@ export function getPageNoticeState( {
 	return null;
 }
 
-// Support doc per state, so a new state adds a slug here, not in the markup.
-const LEARN_MORE_SLUGS = {
-	[ PAGE_NOTICE_STATES.HOST_OFF ]: 'jetpack-ai-hub-docs-wp-supports-ai',
-};
+const LEARN_MORE_SLUG = 'jetpack-ai-hub-docs-wp-supports-ai';
 
 /**
- * The action for a site that is not connected.
- *
- * @param {object} pageData - Page data; see PageNotice's props.
- * @return {object} Component markup.
- */
-function getConnectAction( pageData ) {
-	const { blogId, userConnectionUrl, siteAdminUrl, apiRoot, apiNonce } = pageData;
-
-	// ConnectButton registers a site; with a blog ID there is nothing left to
-	// register, so a link to the connection screen fits better.
-	if ( blogId ) {
-		return (
-			<Notice.ActionLink href={ userConnectionUrl }>
-				{ __( 'Connect Jetpack', 'jetpack' ) }
-			</Notice.ActionLink>
-		);
-	}
-
-	return (
-		<ConnectButton
-			connectLabel={ __( 'Connect Jetpack', 'jetpack' ) }
-			redirectUri={ `${ siteAdminUrl }admin.php?page=jetpack-ai` }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-		/>
-	);
-}
-
-/**
- * Title, body and link for one state. Every field is plain data: the markup
+ * Title, body and action for one state. Every field is plain data: the markup
  * lives in PageNotice, so a new state adds an entry rather than more JSX.
- *
- * Each message is its own literal `__()` call; a lookup built from a variable
- * would leave nothing to extract.
  *
  * @param {string} state    - The state to render.
  * @param {object} pageData - Page data the states link to; see PageNotice's props.
- * @return {object|null} `{ title, description, link, actions }`, or null for a state with none.
+ * @return {object|null} `{ title, description, action }`, or null for a state with none.
  */
 function getNoticeContent( state, pageData ) {
 	switch ( state ) {
 		case PAGE_NOTICE_STATES.HOST_OFF:
 			return {
-				description: __( 'Jetpack AI is not available for this site.', 'jetpack' ),
-				link: {
-					href: getRedirectUrl( LEARN_MORE_SLUGS[ state ] ),
+				title: __( 'Jetpack AI is not available for this site.', 'jetpack' ),
+				action: {
+					href: getRedirectUrl( LEARN_MORE_SLUG ),
 					label: __( 'Learn more', 'jetpack' ),
-					isExternal: true,
+					openInNewTab: true,
 				},
 			};
 
 		case PAGE_NOTICE_STATES.SITE_DISCONNECTED:
 			return {
 				title: __( 'This site is not connected to WordPress.com.', 'jetpack' ),
-				description: __( 'Connect your site to use Jetpack AI.', 'jetpack' ),
-				actions: getConnectAction( pageData ),
+				action: {
+					href: pageData.userConnectionUrl,
+					label: __( 'Connect Jetpack', 'jetpack' ),
+				},
 			};
 
 		case PAGE_NOTICE_STATES.USER_UNLINKED:
 			return {
-				title: __( 'Your WordPress.com account isn’t connected.', 'jetpack' ),
-				link: {
+				title: __( 'Your WordPress.com account isn\u2019t connected.', 'jetpack' ),
+				action: {
 					href: pageData.userConnectionUrl,
-					label: __( 'Connect your user account to use Jetpack AI.', 'jetpack' ),
+					label: __( 'Connect account', 'jetpack' ),
 				},
 			};
 
@@ -148,41 +110,17 @@ function getNoticeContent( state, pageData ) {
 					'Your feature settings are saved and will apply again when AI is turned back on.',
 					'jetpack'
 				),
-				link: {
+				action: {
 					href: pageData.manageUrl,
 					label: pageData.hasMyJetpack
 						? __( 'Manage in My Jetpack', 'jetpack' )
-						: __( 'Manage all Jetpack modules', 'jetpack' ),
-					// A short label reads badly broken across two lines.
-					noWrap: true,
+						: __( 'Manage in Jetpack modules', 'jetpack' ),
 				},
 			};
 
 		default:
 			return null;
 	}
-}
-
-/**
- * A notice's link, whether it ends a sentence or is the whole message.
- *
- * @param {object}  props              - Component props.
- * @param {string}  props.href         - Where the link goes.
- * @param {string}  props.label        - The link text.
- * @param {boolean} [props.isExternal] - Whether it leaves wp-admin.
- * @param {boolean} [props.noWrap]     - Whether to keep a short label on one line.
- * @return {object} Component markup.
- */
-function NoticeLink( { href, label, isExternal, noWrap } ) {
-	if ( isExternal ) {
-		return <ExternalLink href={ href }>{ label }</ExternalLink>;
-	}
-
-	return (
-		<Link href={ href } className={ noWrap ? 'jetpack-ai-admin__notice-link' : undefined }>
-			{ label }
-		</Link>
-	);
 }
 
 /**
@@ -196,9 +134,6 @@ function NoticeLink( { href, label, isExternal, noWrap } ) {
  * @param {object|null} [props.settings]          - Feature settings, null until fetched.
  * @param {string}      [props.userConnectionUrl] - Where this host links an account.
  * @param {string}      [props.manageUrl]         - Where this host manages the AI module.
- * @param {string}      [props.siteAdminUrl]      - wp-admin root, to return here after connecting.
- * @param {string}      [props.apiRoot]           - REST root, for the connect request.
- * @param {string}      [props.apiNonce]          - REST nonce, for the connect request.
  * @param {boolean}     [props.hasMyJetpack]      - Whether My Jetpack is loaded on this host.
  * @return {object|null} Component markup.
  */
@@ -228,19 +163,21 @@ export default function PageNotice( props ) {
 		return null;
 	}
 
-	const { title, description, link, actions } = content;
+	const { title, description, action } = content;
 
 	// Keyed per state: swapping content into a live Notice breaks the hook that
 	// announces it on mount.
 	return (
 		<Notice.Root key={ state } intent="warning" className="jetpack-ai-admin__page-notice">
 			{ title && <Notice.Title>{ title }</Notice.Title> }
-			<Notice.Description>
-				{ description }
-				{ description && link && ' ' }
-				{ link && <NoticeLink { ...link } /> }
-			</Notice.Description>
-			{ actions && <Notice.Actions>{ actions }</Notice.Actions> }
+			{ description && <Notice.Description>{ description }</Notice.Description> }
+			{ action && (
+				<Notice.Actions>
+					<Notice.ActionLink href={ action.href } openInNewTab={ action.openInNewTab }>
+						{ action.label }
+					</Notice.ActionLink>
+				</Notice.Actions>
+			) }
 		</Notice.Root>
 	);
 }

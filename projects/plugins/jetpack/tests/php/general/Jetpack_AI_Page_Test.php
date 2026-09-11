@@ -549,53 +549,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The Agents Manager JWT client receives the connection state it needs.
-	 */
-	public function test_connection_initial_state_is_injected() {
-		unset( $GLOBALS['wp_scripts'] );
-		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
-
-		( new Jetpack_AI_Page() )->page_admin_scripts();
-
-		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
-		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
-	}
-
-	/**
-	 * The page notice reads the connection store, so the gated views ship its state.
-	 */
-	public function test_connection_initial_state_is_injected_for_the_gated_views() {
-		$this->given_woa( false );
-
-		unset( $GLOBALS['wp_scripts'] );
-
-		( new Jetpack_AI_Page() )->page_admin_scripts();
-
-		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
-		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
-	}
-
-	/**
-	 * Without those views nothing reads the store, and Initial_State can call WordPress.com.
-	 */
-	public function test_connection_initial_state_is_skipped_without_the_gated_views() {
-		add_filter(
-			'jetpack_ai_admin_config',
-			function ( $config ) {
-				$config['showGatedViews'] = false;
-				return $config;
-			}
-		);
-
-		unset( $GLOBALS['wp_scripts'] );
-
-		( new Jetpack_AI_Page() )->page_admin_scripts();
-
-		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
-		$this->assertStringNotContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
-	}
-
-	/**
 	 * The Tracks sender is enqueued once tracking is consented to.
 	 */
 	public function test_tracks_script_is_enqueued_with_tracking_consent() {

@@ -296,7 +296,7 @@ describe( 'AiOverview', () => {
 	test( 'settings report no connection: no usage card, and no fetch', async () => {
 		// Offline mode and a departed connection owner keep their blog ID, so
 		// the card must follow the settings call, not the ID alone.
-		render( <AiOverview { ...PROPS } isConnected={ false } /> );
+		render( <AiOverview { ...PROPS } settingsAnswered={ false } /> );
 
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( apiFetch ).not.toHaveBeenCalled();

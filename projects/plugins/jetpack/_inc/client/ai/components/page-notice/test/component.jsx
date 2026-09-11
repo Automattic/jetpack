@@ -3,11 +3,6 @@ import { render, screen } from '@testing-library/react';
 import PageNotice, { getPageNoticeState } from '../index';
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
-	ConnectButton: ( { connectLabel, redirectUri } ) => (
-		<button type="button" data-redirect-uri={ redirectUri }>
-			{ connectLabel }
-		</button>
-	),
 	ConnectionError: () => <div data-testid="connection-error" />,
 	useConnectionErrorNotice: jest.fn(),
 } ) );
@@ -172,7 +167,6 @@ describe( 'PageNotice', () => {
 		useConnectionErrorNotice.mockReturnValue( { hasConnectionError: true } );
 		renderNotice( { blogId: 0 } );
 		expect( screen.getByTestId( 'connection-error' ) ).toBeInTheDocument();
-		// The shared notice brings no page spacing of its own, so the wrapper has to.
 		// eslint-disable-next-line testing-library/no-node-access -- the wrapper is the assertion.
 		expect( screen.getByTestId( 'connection-error' ).parentElement ).toHaveClass(
 			'jetpack-ai-admin__page-notice'
@@ -193,22 +187,15 @@ describe( 'PageNotice', () => {
 		);
 	} );
 
-	it( 'offers the shared connect button on a disconnected site', () => {
+	it( 'sends an unregistered site to the connection screen', () => {
 		renderNotice( { blogId: 0 } );
 		expect(
 			screen.getByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
 		).toBeInTheDocument();
-		expect(
-			screen.getByText( 'Connect your site to use Jetpack AI.', IGNORE_A11Y )
-		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Connect Jetpack' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'sends the reader back to the AI page after connecting', () => {
-		renderNotice( { blogId: 0 } );
-		expect( screen.getByRole( 'button', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
-			'data-redirect-uri',
-			'https://example.com/wp-admin/admin.php?page=jetpack-ai'
+		expect( screen.queryByRole( 'button', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack#/connection'
 		);
 	} );
 
@@ -235,9 +222,10 @@ describe( 'PageNotice', () => {
 		expect(
 			screen.getByText( 'Your WordPress.com account isn’t connected.', IGNORE_A11Y )
 		).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'link', { name: 'Connect your user account to use Jetpack AI.' } )
-		).toHaveAttribute( 'href', 'admin.php?page=jetpack#/connect-user' );
+		expect( screen.getByRole( 'link', { name: 'Connect account' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=jetpack#/connect-user'
+		);
 	} );
 
 	describe( 'the master switch notice', () => {
@@ -260,7 +248,7 @@ describe( 'PageNotice', () => {
 				hasMyJetpack: false,
 				manageUrl: 'admin.php?page=jetpack_modules',
 			} );
-			expect( screen.getByRole( 'link', { name: 'Manage all Jetpack modules' } ) ).toHaveAttribute(
+			expect( screen.getByRole( 'link', { name: 'Manage in Jetpack modules' } ) ).toHaveAttribute(
 				'href',
 				'admin.php?page=jetpack_modules'
 			);

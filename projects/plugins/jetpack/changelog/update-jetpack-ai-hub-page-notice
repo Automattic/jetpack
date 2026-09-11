@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: enhancement
 
-Jetpack AI: Show the site's AI status in one notice, worded the same on the Overview and AI Features tabs.
+AI Hub: Show one notice explaining why Jetpack AI is unavailable, including a broken WordPress.com connection, and word it the same on the Overview and AI Features tabs.

@@ -222,10 +222,8 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	// Children keep their saved values while the master switch is off, rather
 	// than misreporting the user's choices as off. PageNotice explains why.
 	const masterEnabled = settings?.master_enabled !== false;
-	// The connection gate sits outside the master switch: false covers both a
-	// site without a connected owner and one in offline mode, and in either
-	// case no AI feature can load. Saved values stay visible but inert, and
-	// the connection ask comes before any upgrade messaging.
+	// False covers both a site without a connected owner and one in offline
+	// mode; either way no AI feature can load, so saved values stay inert.
 	const isConnected = settings?.is_connected !== false;
 	// The user gate is separate: the site can be connected while this admin's
 	// own account is not.

@@ -200,9 +200,6 @@ body.jetpack_page_jetpack-ai {
 }
 
 // Keeps the notice link on one line, so it does not wrap mid-phrase.
-.jetpack-ai-admin__notice-link {
-	white-space: nowrap;
-}
 
 // Page-level notices render above whichever view is active; the views own no
 // spacing toward them, so the gap lives here.

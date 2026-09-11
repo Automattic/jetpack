@@ -14,7 +14,6 @@ jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) 
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the GET/POST responses.
 jest.mock( '@automattic/jetpack-connection', () => ( {
-	ConnectButton: ( { connectLabel } ) => <button type="button">{ connectLabel }</button>,
 	ConnectionError: () => <div data-testid="connection-error" />,
 	useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
 } ) );
@@ -200,7 +199,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect(
-				screen.findByRole( 'link', { name: 'Manage all Jetpack modules' } )
+				screen.findByRole( 'link', { name: 'Manage in Jetpack modules' } )
 			).resolves.toHaveAttribute( 'href', 'admin.php?page=jetpack_modules' );
 			expect(
 				screen.queryByRole( 'link', { name: 'Manage in My Jetpack' } )
@@ -290,14 +289,14 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'not connected: the site notice carries the feature-neutral ask', async () => {
+		test( 'not connected: one notice, not one per tab', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 0 };
 			mockApiFetch( { featureGet: { ...enabledSettings(), is_connected: false } } );
 
 			render( <App /> );
 
 			await expect(
-				screen.findByText( 'Connect your site to use Jetpack AI.', IGNORE_A11Y )
+				screen.findByRole( 'link', { name: 'Connect Jetpack' } )
 			).resolves.toBeInTheDocument();
 			// One page-level notice — AiFeatures must not render a second copy.
 			expect(
@@ -350,9 +349,10 @@ describe( 'AI admin page (main.jsx)', () => {
 		await expect(
 			screen.findByText( 'Your WordPress.com account isn’t connected.', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
-		expect(
-			screen.getByRole( 'link', { name: 'Connect your user account to use Jetpack AI.' } )
-		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
+		expect( screen.getByRole( 'link', { name: 'Connect account' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack#/connection'
+		);
 		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
 	} );
 
