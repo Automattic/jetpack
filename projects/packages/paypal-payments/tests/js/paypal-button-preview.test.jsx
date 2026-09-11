@@ -378,7 +378,6 @@ describe( 'PayPalButtonPreview', () => {
 		it( 'draws a QR canvas for QR', () => {
 			render( <PayPalButtonPreview { ...defaultProps } format="QR" qrShowCaption /> );
 			expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
 			// The caption sits under the code, as it does on the frontend.
 			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveTextContent(
 				'Buy Now'
@@ -514,7 +513,14 @@ describe( 'PayPalButtonPreview', () => {
 		it( 'still renders when the draw fails', () => {
 			QRCode.toCanvas.mockRejectedValueOnce( new Error( 'no 2d context' ) );
 			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
-			expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toBeInTheDocument();
+		} );
+
+		it( 'leaves the attribution line off the QR', () => {
+			// The design drops it for QR. The frontend still prints it, so this is a
+			// known divergence until that pass lands — see QrPreview's TODO.
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+			expect( screen.queryByText( 'Powered by PayPal' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'encodes the attributed link, not the bare one', () => {
