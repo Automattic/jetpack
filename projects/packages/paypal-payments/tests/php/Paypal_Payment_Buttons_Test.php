@@ -755,9 +755,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'An unset caption should fall back to the default label, not the product name'
 		);
 
-		// The canvas deliberately drops this line for QR while the frontend keeps
-		// it — a recorded divergence. Pinned so it cannot drift unnoticed either
-		// way before the frontend pass lands. See QrPreview's TODO.
+		// The published QR still carries the branding line. Pinned so a change to
+		// it is a deliberate one.
 		$this->assertStringContainsString(
 			'<p class="jetpack-paypal-button__attribution">Powered by PayPal</p>',
 			$result

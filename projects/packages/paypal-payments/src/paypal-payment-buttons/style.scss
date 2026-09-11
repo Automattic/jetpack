@@ -164,6 +164,10 @@ $paypal-blue: #0070ba;
 
 // QR code canvas.
 .jetpack-paypal-button__qr-canvas {
+	// The code is drawn at a fixed 200px, so without this a narrow Width setting
+	// shrinks the block around it and the code hangs out of the box.
+	max-width: 100%;
+	height: auto;
 	border-radius: 4px;
 }
 

@@ -517,8 +517,7 @@ describe( 'PayPalButtonPreview', () => {
 		} );
 
 		it( 'leaves the attribution line off the QR', () => {
-			// The design drops it for QR. The frontend still prints it, so this is a
-			// known divergence until that pass lands — see QrPreview's TODO.
+			// The button carries the branding; the QR does not.
 			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
 			expect( screen.queryByText( 'Powered by PayPal' ) ).not.toBeInTheDocument();
 		} );
