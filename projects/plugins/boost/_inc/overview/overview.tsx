@@ -24,7 +24,11 @@ export default function Overview( props: { isVisible?: boolean } ) {
 			fallback={ error => (
 				<Notice.Root
 					intent="error"
-					spokenMessage={ __( 'Unable to display performance scores', 'jetpack-boost' ) }
+					spokenMessage={
+						props.isVisible !== false
+							? __( 'Unable to display performance scores', 'jetpack-boost' )
+							: ''
+					}
 				>
 					<Notice.Title>
 						{ __( 'Unable to display performance scores', 'jetpack-boost' ) }
@@ -78,7 +82,9 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 			<div className="jetpack-boost-overview">
 				<Notice.Root
 					intent="info"
-					spokenMessage={ __( 'Website is not publicly available', 'jetpack-boost' ) }
+					spokenMessage={
+						isVisible ? __( 'Website is not publicly available', 'jetpack-boost' ) : ''
+					}
 				>
 					<Notice.Title>
 						{ __( 'Website is not publicly available', 'jetpack-boost' ) }

@@ -119,7 +119,10 @@ test( 'contains a render failure with the Overview error fallback', () => {
 	}
 } );
 
-test( 'keeps score errors silent while the Overview is hidden', async () => {
+test.each( [
+	[ 'score', 'Failed to load Speed Scores' ],
+	[ 'performance-history', 'Failed to load performance history' ],
+] )( 'keeps %s errors silent while the Overview is hidden', async ( source, message ) => {
 	/* eslint-disable testing-library/no-node-access */
 	const region =
 		document.getElementById( 'a11y-speak-assertive' ) ?? document.createElement( 'div' );
@@ -128,21 +131,31 @@ test( 'keeps score errors silent while the Overview is hidden', async () => {
 	region.textContent = '';
 	document.body.appendChild( region );
 	/* eslint-enable testing-library/no-node-access */
-	jest.mocked( requestSpeedScores ).mockRejectedValue( new Error( 'Score request failed' ) );
+	const error = new Error( `${ source } request failed` );
+	if ( source === 'score' ) {
+		jest.mocked( requestSpeedScores ).mockRejectedValue( error );
+	} else {
+		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+		jest
+			.mocked( apiFetch )
+			.mockImplementation( options =>
+				options.url?.endsWith( `/${ source }` ) ? Promise.reject( error ) : fetch( options )
+			);
+	}
 	const { rerender } = render(
 		<div hidden>
 			<Overview isVisible={ false } />
 		</div>,
 		{ wrapper: queryWrapper() }
 	);
-	await expect( screen.findByText( 'Score request failed' ) ).resolves.toBeInTheDocument();
+	await expect( screen.findByText( error.message ) ).resolves.toBeInTheDocument();
 	expect( region ).toBeEmptyDOMElement();
 	rerender(
 		<div>
 			<Overview isVisible />
 		</div>
 	);
-	expect( region ).toHaveTextContent( 'Failed to load Speed Scores' );
+	expect( region ).toHaveTextContent( message );
 } );
 
 test( 'loads online scores and regenerates them with refresh tracking and history invalidation', async () => {
