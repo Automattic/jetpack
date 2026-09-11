@@ -21,8 +21,8 @@ import styles from './monthly-heatmap.module.scss';
 export type MonthlyHeatmapRow = {
 	year: number;
 	/**
-	 * One entry per calendar month, January first. `null` is filler: a month
-	 * outside the covered span, drawn faded and skipped by hover and keyboard.
+	 * Up to twelve entries, January first. A `null` or missing entry is filler:
+	 * a month outside the covered span, drawn faded and skipped by hover and keyboard.
 	 */
 	months: ( number | null )[];
 	/** The year's roll-up in the summary column; `null` leaves the slot blank. */
@@ -37,7 +37,7 @@ export type MonthlyHeatmapTarget = {
 };
 
 export type MonthlyHeatmapProps = {
-	/** Newest year first, as the table reads top to bottom. */
+	/** In any order; the table draws the newest year first. */
 	rows: MonthlyHeatmapRow[];
 	/** Renders a non-null value in the tooltip, already pluralized. */
 	formatValue: ( value: number ) => string;
@@ -63,13 +63,15 @@ const CELL_SELECTOR = '[role="gridcell"][data-column][data-row]';
  * only the grid scrolls and the scale stays put beneath it.
  */
 export function MonthlyHeatmap( {
-	rows,
+	rows: givenRows,
 	formatValue,
 	emptyLabel,
 	lessLabel,
 	moreLabel,
 	onSelect,
 }: MonthlyHeatmapProps ) {
+	const rows = useMemo( () => [ ...givenRows ].sort( ( a, b ) => b.year - a.year ), [ givenRows ] );
+
 	// No per-cell label: the chart names a cell from its column and row.
 	const columns = useMemo< HeatmapColumn[] >(
 		() => [

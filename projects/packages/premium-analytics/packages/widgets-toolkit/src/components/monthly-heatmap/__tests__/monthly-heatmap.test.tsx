@@ -47,6 +47,19 @@ describe( 'MonthlyHeatmap', () => {
 		expect( screen.getByText( 'Fewer' ) ).toBeInTheDocument();
 	} );
 
+	it( 'draws the newest year first whatever order the rows arrive in', () => {
+		render( <MonthlyHeatmap rows={ [ ...ROWS ].reverse() } { ...LABELS } /> );
+
+		expect( screen.getByRole( 'gridcell', { name: 'Jan 2026: 5' } ) ).toHaveAttribute(
+			'data-row',
+			'0'
+		);
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) ).toHaveAttribute(
+			'data-row',
+			'1'
+		);
+	} );
+
 	it( 'draws a missing month as filler rather than a live cell', () => {
 		render(
 			<MonthlyHeatmap rows={ [ { year: 2026, months: [ 5, 0, 40 ], total: 45 } ] } { ...LABELS } />
@@ -89,6 +102,8 @@ describe( 'MonthlyHeatmap', () => {
 
 		const grid = screen.getByRole( 'grid' );
 		grid.focus();
+		// Nothing is selected until an arrow key moves the selection.
+		await user.keyboard( '{Enter}' );
 		await user.keyboard( '{ArrowRight}' );
 		expect( onSelect ).not.toHaveBeenCalled();
 
