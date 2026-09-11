@@ -5,7 +5,7 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { createBlock, store as blocksStore } from '@wordpress/blocks';
-import { Button, Modal, SelectControl } from '@wordpress/components';
+import { Button, Modal, SelectControl, VisuallyHidden } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -15,7 +15,6 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import clsx from 'clsx';
 import { FORM_POST_TYPE } from '../shared/util/constants.js';
-import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.jsx';
 import './util/form-styles.js';
 import applyVariationToFormBlock from './util/apply-variation.js';
 import { createSyncedForm } from './util/create-synced-form.ts';
@@ -100,6 +99,10 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 		// Each translated string is assigned to a variable to prevent the minifier
 		// from collapsing them into a single __() call with a ternary argument,
 		// which breaks the i18n string literal requirement.
+		if ( isCreatingForm ) {
+			const msg = __( 'Creating your form…', 'jetpack-forms' );
+			return msg;
+		}
 		if ( isCentralFormManagementEnabled && showFormPicker ) {
 			const msg = __(
 				'Start by selecting one of these templates or select an existing form below.',
@@ -201,55 +204,61 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 		}
 	};
 
-	// Both branches above replace this block's content, so the picker unmounts on
-	// success; the skeleton only shows while the form post is being created.
-	if ( isCreatingForm ) {
-		return (
-			<div className={ clsx( classNames, 'is-placeholder' ) }>
-				<ContactFormSkeletonLoader />
-			</div>
-		);
-	}
+	const instructions = getInstructions();
 
 	return (
 		<div className={ clsx( classNames, 'is-placeholder' ) }>
-			<BlockVariationPicker
-				icon={ blockType?.icon?.src }
-				label={ blockType?.title }
-				instructions={ getInstructions() }
-				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
-				onSelect={ onVariationSelect }
-			/>
-			{ ! isCentralFormManagementEnabled && (
-				<div className="form-placeholder__shell">
-					<Button
-						__next40pxDefaultSize
-						variant="secondary"
-						onClick={ () => setIsPatternsModalOpen( true ) }
-					>
-						{ __( 'Browse form patterns', 'jetpack-forms' ) }
-					</Button>
-				</div>
-			) }
-			{ showFormPicker && (
-				<div className="form-placeholder__shell">
-					<SelectControl
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-						label={ __( 'Or select an existing form', 'jetpack-forms' ) }
-						options={ [
-							{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
-							...jetpackForms.map( form => ( {
-								label:
-									decodeEntities( form.title?.rendered || '' ) ||
-									__( '(Untitled)', 'jetpack-forms' ),
-								value: form.id.toString(),
-							} ) ),
-						] }
-						onChange={ onFormSelect }
-					/>
-				</div>
-			) }
+			{ /* Mounted unconditionally: a live region inserted together with its text
+			     is not announced, and inert hides the visible copy from assistive tech. */ }
+			<VisuallyHidden role="status">
+				{ isCreatingForm ? __( 'Creating your form…', 'jetpack-forms' ) : '' }
+			</VisuallyHidden>
+			{ /* inert stops clicks that would otherwise go nowhere; it is not what
+			     prevents the duplicate form. */ }
+			<div
+				className={ clsx( 'form-placeholder__body', {
+					'is-creating-form': isCreatingForm,
+				} ) }
+				inert={ isCreatingForm ? '' : undefined }
+			>
+				<BlockVariationPicker
+					icon={ blockType?.icon?.src }
+					label={ blockType?.title }
+					instructions={ instructions }
+					variations={ variations.filter( v => ! v.hiddenFromPicker ) }
+					onSelect={ onVariationSelect }
+				/>
+				{ ! isCentralFormManagementEnabled && (
+					<div className="form-placeholder__shell">
+						<Button
+							__next40pxDefaultSize
+							variant="secondary"
+							onClick={ () => setIsPatternsModalOpen( true ) }
+						>
+							{ __( 'Browse form patterns', 'jetpack-forms' ) }
+						</Button>
+					</div>
+				) }
+				{ showFormPicker && (
+					<div className="form-placeholder__shell">
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Or select an existing form', 'jetpack-forms' ) }
+							options={ [
+								{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
+								...jetpackForms.map( form => ( {
+									label:
+										decodeEntities( form.title?.rendered || '' ) ||
+										__( '(Untitled)', 'jetpack-forms' ),
+									value: form.id.toString(),
+								} ) ),
+							] }
+							onChange={ onFormSelect }
+						/>
+					</div>
+				) }
+			</div>
 			{ isPatternsModalOpen && (
 				<Modal
 					className="form-placeholder__patterns-modal"

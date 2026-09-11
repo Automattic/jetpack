@@ -280,6 +280,27 @@
 			text-align: left;
 		}
 	}
+
+	// The placeholder root is a flex container with a block gap, so this
+	// wrapper re-creates it or the picker and the shells below lose spacing.
+	.form-placeholder__body {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wp--style--block-gap, 1.5rem);
+	}
+
+	.form-placeholder__body.is-creating-form {
+		// Belt and braces: inert already covers every supported browser, but it is
+		// a no-op on React 19, where an empty-string attribute is dropped.
+		pointer-events: none;
+
+		// Dim the controls only. The instructions line doubles as the status
+		// message while the form is being created, so it stays at full contrast.
+		.block-editor-block-variation-picker__variations,
+		.form-placeholder__shell {
+			opacity: 0.5;
+		}
+	}
 }
 
 .is-form-empty .block-editor-inserter {

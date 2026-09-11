@@ -38,18 +38,22 @@ await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils', ()
  */
 const VariationButton = ( { variation, onSelect } ) => {
 	const handleClick = useCallback( () => onSelect( variation ), [ variation, onSelect ] );
+	// ds-allow: button -- test double for Gutenberg's picker; the real Button is mocked away.
 	return <button onClick={ handleClick }>{ variation.title }</button>;
 };
 
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
-	__experimentalBlockVariationPicker: ( { variations, onSelect } ) => (
-		<ul>
-			{ variations.map( variation => (
-				<li key={ variation.name }>
-					<VariationButton variation={ variation } onSelect={ onSelect } />
-				</li>
-			) ) }
-		</ul>
+	__experimentalBlockVariationPicker: ( { variations, onSelect, instructions } ) => (
+		<>
+			<p>{ instructions }</p>
+			<ul>
+				{ variations.map( variation => (
+					<li key={ variation.name }>
+						<VariationButton variation={ variation } onSelect={ onSelect } />
+					</li>
+				) ) }
+			</ul>
+		</>
 	),
 	__experimentalBlockPatternSetup: () => <div />,
 	store: 'core/block-editor',
@@ -61,9 +65,11 @@ await jest.unstable_mockModule( '@wordpress/blocks', () => ( {
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/components', () => ( {
+	// ds-allow: button -- this mock IS the Button stand-in for @wordpress/components.
 	Button: ( { children, ...props } ) => <button { ...props }>{ children }</button>,
 	Modal: ( { children } ) => <div>{ children }</div>,
 	SelectControl: () => <div />,
+	VisuallyHidden: ( { children, ...props } ) => <span { ...props }>{ children }</span>,
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/core-data', () => ( { store: 'core' } ) );
@@ -114,11 +120,6 @@ await jest.unstable_mockModule(
 	() => ( {} )
 );
 
-await jest.unstable_mockModule(
-	'../../../src/blocks/contact-form/components/jetpack-contact-form-skeleton-loader.jsx',
-	() => ( { default: () => <div data-testid="skeleton-loader" /> } )
-);
-
 await jest.unstable_mockModule( '../../../src/blocks/shared/util/constants.js', () => ( {
 	FORM_POST_TYPE: 'jetpack_form',
 } ) );
@@ -137,6 +138,9 @@ const renderPicker = () =>
 		/>
 	);
 
+// eslint-disable-next-line testing-library/no-node-access -- inert sits on a presentational wrapper with no role or accessible name, and jsdom does not simulate its effect; no accessible query reaches it.
+const placeholderBody = container => container.querySelector( '.form-placeholder__body' );
+
 describe( 'VariationPicker', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -152,20 +156,32 @@ describe( 'VariationPicker', () => {
 		expect( mockSetAttributes ).toHaveBeenCalledWith( { ref: 99 } );
 	} );
 
-	it( 'hides the variations while the form is being created', async () => {
+	it( 'keeps the templates on screen but inert while the form is being created', async () => {
 		mockCreateSyncedForm.mockReturnValue( new Promise( () => {} ) );
 
-		renderPicker();
+		const { container } = renderPicker();
 		await userEvent.click( screen.getByRole( 'button', { name: 'Contact Form' } ) );
 
-		expect( screen.queryByRole( 'button', { name: 'Contact Form' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'RSVP Form' } ) ).not.toBeInTheDocument();
-		expect( screen.getByTestId( 'skeleton-loader' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Contact Form' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'RSVP Form' } ) ).toBeInTheDocument();
+
+		const body = placeholderBody( container );
+		expect( body ).toHaveAttribute( 'inert' );
+		expect( body ).toHaveClass( 'is-creating-form' );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Creating your form…' );
+		expect( screen.getByText( 'Creating your form…', { selector: 'p' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'announces nothing until a form is actually being created', () => {
+		renderPicker();
+
+		// The region must already be mounted, or the later text swap is not announced.
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 	} );
 
 	/*
-	 * userEvent awaits a re-render between clicks, which is what now hides the
-	 * buttons; batching the clicks in one act() is what reaches the guard itself.
+	 * userEvent awaits a re-render between clicks, which is what makes the body
+	 * inert; batching the clicks in one act() is what reaches the guard itself.
 	 */
 	/* eslint-disable testing-library/no-unnecessary-act, testing-library/prefer-user-event */
 	it( 'creates one form only, even when clicks land before the picker re-renders', async () => {
@@ -195,5 +211,9 @@ describe( 'VariationPicker', () => {
 		expect( mockSetAttributes ).toHaveBeenCalledWith( VARIATIONS[ 0 ].attributes );
 		expect( mockReplaceInnerBlocks ).toHaveBeenCalled();
 		expect( screen.getByRole( 'button', { name: 'Contact Form' } ) ).toBeInTheDocument();
+
+		// Visible is not the same as usable: the ref guard must have been released too.
+		await userEvent.click( screen.getByRole( 'button', { name: 'Contact Form' } ) );
+		expect( mockCreateSyncedForm ).toHaveBeenCalledTimes( 2 );
 	} );
 } );
