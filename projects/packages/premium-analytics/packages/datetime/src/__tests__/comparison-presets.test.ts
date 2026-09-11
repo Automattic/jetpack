@@ -3,6 +3,37 @@
  */
 import { COMPARISON_PRESETS, isComparisonPresetId } from '../get-comparison-range';
 import { getComparisonOptions } from '../presets';
+import { createTZDateFromParts } from '../tz';
+import type { TZDate } from '@date-fns/tz';
+/**
+ * A site timezone with a fixed offset, so every expectation below holds
+ * whatever timezone the machine running the suite is in.
+ */
+const SITE_ZONE = 'Asia/Taipei';
+
+/**
+ * Build a site-local date from the parts `new Date()` takes.
+ *
+ * @param year    - Full year.
+ * @param month   - 0-indexed month.
+ * @param day     - Day of month.
+ * @param hours   - Hour of day.
+ * @param minutes - Minute of hour.
+ * @param seconds - Second of minute.
+ * @param ms      - Millisecond of second.
+ * @return The date.
+ */
+function siteDate(
+	year: number,
+	month: number,
+	day: number,
+	hours = 0,
+	minutes = 0,
+	seconds = 0,
+	ms = 0
+): TZDate {
+	return createTZDateFromParts( [ year, month, day, hours, minutes, seconds, ms ], SITE_ZONE );
+}
 
 /**
  * A day-aligned range, inclusive on both ends. Months are 0-based.
@@ -10,8 +41,8 @@ import { getComparisonOptions } from '../presets';
  * @param to
  */
 const daysRange = ( from: [ number, number, number ], to: [ number, number, number ] ) => ( {
-	from: new Date( from[ 0 ], from[ 1 ], from[ 2 ], 0, 0, 0, 0 ),
-	to: new Date( to[ 0 ], to[ 1 ], to[ 2 ], 23, 59, 59, 999 ),
+	from: siteDate( from[ 0 ], from[ 1 ], from[ 2 ], 0, 0, 0, 0 ),
+	to: siteDate( to[ 0 ], to[ 1 ], to[ 2 ], 23, 59, 59, 999 ),
 } );
 
 const ids = ( range: Parameters< typeof getComparisonOptions >[ 0 ] ) =>
@@ -42,7 +73,7 @@ describe( 'comparison options', () => {
 
 	it( 'returns nothing for an incomplete or inverted range', () => {
 		expect( getComparisonOptions( {} ) ).toEqual( [] );
-		expect( getComparisonOptions( { from: new Date( 2026, 7, 30 ) } ) ).toEqual( [] );
+		expect( getComparisonOptions( { from: siteDate( 2026, 7, 30 ) } ) ).toEqual( [] );
 		expect( getComparisonOptions( daysRange( [ 2026, 7, 30 ], [ 2026, 7, 29 ] ) ) ).toEqual( [] );
 	} );
 
@@ -65,8 +96,8 @@ describe( 'comparison options', () => {
 
 	it( 'reads a rolling 24-hour window in hours', () => {
 		const last24Hours = {
-			from: new Date( 2026, 7, 30, 15, 0, 0, 0 ),
-			to: new Date( 2026, 7, 31, 14, 59, 59, 999 ),
+			from: siteDate( 2026, 7, 30, 15, 0, 0, 0 ),
+			to: siteDate( 2026, 7, 31, 14, 59, 59, 999 ),
 		};
 
 		const options = getComparisonOptions( last24Hours );
@@ -79,8 +110,8 @@ describe( 'comparison options', () => {
 		] );
 		expect( options[ 0 ].label ).toBe( 'Previous 24 hours' );
 		expect( options[ 1 ].range ).toEqual( {
-			from: new Date( 2026, 7, 23, 15, 0, 0, 0 ),
-			to: new Date( 2026, 7, 24, 14, 59, 59, 999 ),
+			from: siteDate( 2026, 7, 23, 15, 0, 0, 0 ),
+			to: siteDate( 2026, 7, 24, 14, 59, 59, 999 ),
 		} );
 	} );
 
@@ -199,16 +230,16 @@ describe( 'comparison options', () => {
 
 	it( 'reads a drilled single hour as the previous hour', () => {
 		const hour = {
-			from: new Date( 2026, 7, 31, 14, 0, 0, 0 ),
-			to: new Date( 2026, 7, 31, 14, 59, 59, 999 ),
+			from: siteDate( 2026, 7, 31, 14, 0, 0, 0 ),
+			to: siteDate( 2026, 7, 31, 14, 59, 59, 999 ),
 		};
 
 		const options = getComparisonOptions( hour );
 
 		expect( options[ 0 ].label ).toBe( 'Previous hour' );
 		expect( options[ 0 ].range ).toEqual( {
-			from: new Date( 2026, 7, 31, 13, 0, 0, 0 ),
-			to: new Date( 2026, 7, 31, 13, 59, 59, 999 ),
+			from: siteDate( 2026, 7, 31, 13, 0, 0, 0 ),
+			to: siteDate( 2026, 7, 31, 13, 59, 59, 999 ),
 		} );
 	} );
 

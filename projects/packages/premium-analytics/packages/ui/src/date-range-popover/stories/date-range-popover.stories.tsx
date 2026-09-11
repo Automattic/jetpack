@@ -1,7 +1,8 @@
+import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { useState } from 'react';
 import { DateRangePopoverContent } from '../date-range-filter';
-import type { DateRange } from '../date-range-filter';
+import type { DateRange } from '@jetpack-premium-analytics/datetime';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof DateRangePopoverContent > = {
@@ -20,14 +21,14 @@ export default meta;
 
 type Story = StoryObj< typeof DateRangePopoverContent >;
 
-const today = new Date();
+// Default timezone for Storybook - avoids dependency on WordPress stores
+const STORYBOOK_TIMEZONE = 'America/New_York';
+
+const today = toLocalTZ( undefined, STORYBOOK_TIMEZONE );
 const defaultRange: DateRange = {
 	from: startOfDay( subDays( today, 7 ) ),
 	to: endOfDay( subDays( today, 1 ) ),
 };
-
-// Default timezone for Storybook - avoids dependency on WordPress stores
-const STORYBOOK_TIMEZONE = 'America/New_York';
 
 function PopoverContentWithState( { isWideScreen = false } ) {
 	const [ range, setRange ] = useState< DateRange >( defaultRange );

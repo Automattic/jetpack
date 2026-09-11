@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Mount the dashboard inside the modernization chassis when its filter is on. No change with the filter off.
+
+

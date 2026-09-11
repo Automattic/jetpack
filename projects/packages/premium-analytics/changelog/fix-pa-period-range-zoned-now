@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+All-time traffic: Read the clock in the site timezone when a cell opens the current month or year.

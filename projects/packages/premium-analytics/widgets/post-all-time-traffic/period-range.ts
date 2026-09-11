@@ -5,6 +5,7 @@ import {
 	createTZDateFromParts,
 	drillDateRange,
 	startOfDayTZ,
+	toLocalTZ,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 /**
@@ -42,12 +43,12 @@ function clampToLife( bucket: DateRange | null, { lifeStartsAt, timeZone }: Peri
  * @return The range to apply, or `null`.
  */
 export function monthRange( key: MonthKey, bounds: PeriodBounds ): DateRange | null {
-	const { timeZone, now = new Date() } = bounds;
-	// The bucket the traffic chart opens on a click, cut at the clock.
+	const { timeZone, now } = bounds;
+	// The bucket the traffic chart opens on a click, cut at the site's clock.
 	const bucket = drillDateRange(
 		createTZDateFromParts( [ key.year, key.month, 1 ], timeZone ),
 		'month',
-		now
+		toLocalTZ( now, timeZone )
 	);
 
 	return clampToLife( bucket, bounds );
@@ -61,8 +62,12 @@ export function monthRange( key: MonthKey, bounds: PeriodBounds ): DateRange | n
  * @return The range to apply, or `null`.
  */
 export function yearRange( year: number, bounds: PeriodBounds ): DateRange | null {
-	const { timeZone, now = new Date() } = bounds;
-	const bucket = drillDateRange( createTZDateFromParts( [ year, 0, 1 ], timeZone ), 'year', now );
+	const { timeZone, now } = bounds;
+	const bucket = drillDateRange(
+		createTZDateFromParts( [ year, 0, 1 ], timeZone ),
+		'year',
+		toLocalTZ( now, timeZone )
+	);
 
 	return clampToLife( bucket, bounds );
 }

@@ -268,18 +268,12 @@ class PayPal_API_Client_Test extends TestCase {
 	}
 
 	/**
-	 * Test update_resource returns parsed response on 200.
+	 * Test update_resource treats PayPal's 204 as success and echoes the saved resource.
 	 */
 	public function test_update_resource_success() {
 		$this->set_up_connected_state();
 
-		$expected_response = array(
-			'id'     => 'PLB-UPDATE123',
-			'type'   => 'BUY_NOW',
-			'status' => 'ACTIVE',
-		);
-
-		$this->mock_http_response( 200, $expected_response );
+		$this->mock_http_response( 204, '' );
 
 		$result = PayPal_API_Client::update_resource(
 			'PLB-UPDATE123',
@@ -298,6 +292,57 @@ class PayPal_API_Client_Test extends TestCase {
 		);
 
 		$this->assertIsArray( $result );
+		$this->assertEquals( 'PLB-UPDATE123', $result['id'] );
+		$this->assertEquals( 'Updated Widget', $result['line_items'][0]['name'] );
+	}
+
+	/**
+	 * Test a 200 on the update counts as success.
+	 *
+	 * PayPal may answer with a confirmation body instead of a bare 204.
+	 */
+	public function test_update_resource_accepts_200() {
+		$this->set_up_connected_state();
+
+		$this->mock_http_response(
+			200,
+			array(
+				'id'     => 'PLB-UPDATE123',
+				'status' => 'ACTIVE',
+			)
+		);
+
+		$result = PayPal_API_Client::update_resource(
+			'PLB-UPDATE123',
+			array( 'type' => 'BUY_NOW' )
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertEquals( 'PLB-UPDATE123', $result['id'] );
+		$this->assertEquals( 'BUY_NOW', $result['type'] );
+	}
+
+	/**
+	 * Test a body on a 204 is discarded and the update still succeeds.
+	 */
+	public function test_update_resource_discards_a_confirmation_body() {
+		$this->set_up_connected_state();
+
+		$this->mock_http_response(
+			204,
+			array(
+				'id'     => 'PLB-SOMETHINGELSE',
+				'status' => 'ACTIVE',
+			)
+		);
+
+		$result = PayPal_API_Client::update_resource(
+			'PLB-UPDATE123',
+			array( 'type' => 'BUY_NOW' )
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertArrayNotHasKey( 'status', $result );
 		$this->assertEquals( 'PLB-UPDATE123', $result['id'] );
 	}
 
@@ -585,10 +630,10 @@ class PayPal_API_Client_Test extends TestCase {
 				}
 				return array(
 					'response' => array(
-						'code'    => 200,
-						'message' => 'OK',
+						'code'    => 204,
+						'message' => 'No Content',
 					),
-					'body'     => wp_json_encode( array( 'id' => 'PLB-UPD123' ), JSON_UNESCAPED_SLASHES ),
+					'body'     => '',
 				);
 			},
 			10,
@@ -601,37 +646,27 @@ class PayPal_API_Client_Test extends TestCase {
 	}
 
 	/**
-	 * Test that list_resources sends correct URL with page_size query parameter.
+	 * Test that list_resources sends both page_size and page_token.
 	 */
-	public function test_list_resources_pagination_params() {
-		$this->set_up_connected_state();
-
-		$captured_url = null;
-
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( &$captured_url ) {
-				if ( strpos( $url, '/v1/checkout/payment-resources' ) !== false
-					&& strpos( $url, '/v1/oauth2/token' ) === false ) {
-					$captured_url = $url;
-				}
-				return array(
-					'response' => array(
-						'code'    => 200,
-						'message' => 'OK',
-					),
-					'body'     => wp_json_encode( array( 'items' => array() ), JSON_UNESCAPED_SLASHES ),
-				);
-			},
-			10,
-			3
-		);
-
-		PayPal_API_Client::list_resources( 25, 'cursor_abc123' );
+	public function test_list_resources_sends_page_size_and_page_token() {
+		$captured_url = $this->capture_list_url( 25, 'cursor_abc123' );
 
 		$this->assertNotNull( $captured_url );
 		$this->assertStringContainsString( 'page_size=25', $captured_url );
 		$this->assertStringContainsString( 'page_token=cursor_abc123', $captured_url );
+	}
+
+	/**
+	 * Test that list_resources sends total_required, which PayPal needs before
+	 * it returns a count at all.
+	 */
+	public function test_list_resources_sends_total_required() {
+		$captured_url = $this->capture_list_url();
+
+		$this->assertNotNull( $captured_url );
+
+		// The literal string 'true' - a boolean would render as total_required=1.
+		$this->assertStringContainsString( 'total_required=true', $captured_url );
 	}
 
 	/**
@@ -667,6 +702,41 @@ class PayPal_API_Client_Test extends TestCase {
 	}
 
 	// --- Helpers ---
+
+	/**
+	 * Call list_resources against a mocked PayPal and return the URL it built.
+	 *
+	 * @param int    $page_size  Number of results per page.
+	 * @param string $page_token Pagination cursor.
+	 * @return string|null The requested URL.
+	 */
+	private function capture_list_url( $page_size = 10, $page_token = '' ) {
+		$this->set_up_connected_state();
+
+		$captured_url = null;
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$captured_url ) {
+				if ( strpos( $url, '/v1/checkout/payment-resources' ) !== false ) {
+					$captured_url = $url;
+				}
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'body'     => wp_json_encode( array( 'resources' => array() ), JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+
+		PayPal_API_Client::list_resources( $page_size, $page_token );
+
+		return $captured_url;
+	}
 
 	/**
 	 * Set up a simulated connected state with credentials and a cached token.

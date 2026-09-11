@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop turning a flat tax into a percentage. A payment link carrying a fixed tax amount now saves with that amount intact instead of being rejected or rewritten, a tax with no name is kept rather than dropped, and a tax set to follow the PayPal profile always sends the profile setting instead of a stray rate.

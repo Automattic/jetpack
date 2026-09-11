@@ -174,6 +174,16 @@ describe( 'parseAsLocalDate', () => {
 			expect( isNaN( result.getTime() ) ).toBe( false );
 		} );
 
+		test( 'should read an hour-only offset as the instant it names', () => {
+			// ISO 8601 allows a bare `±hh`, and it must not be read as a naive wall clock.
+			expect( parseAsLocalDate( '2025-01-15T14:30:45+05', 'Asia/Tokyo' ).toISOString() ).toBe(
+				parseAsLocalDate( '2025-01-15T14:30:45+05:00', 'Asia/Tokyo' ).toISOString()
+			);
+			expect( parseAsLocalDate( '2025-01-15T14:30:45+05' ).toISOString() ).toBe(
+				'2025-01-15T09:30:45.000Z'
+			);
+		} );
+
 		test( 'should handle UTC with milliseconds', () => {
 			const result = parseAsLocalDate( '2025-01-15T14:30:45.123Z' );
 

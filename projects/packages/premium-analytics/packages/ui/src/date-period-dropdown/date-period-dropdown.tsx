@@ -6,6 +6,7 @@ import {
 	getMenuSurfacePresetGroups,
 	getPresetLabel,
 	PRESET_CUSTOM,
+	type DateRange,
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
@@ -19,7 +20,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { DateRangePopoverContent, type DateRange } from '../date-range-popover';
+import { DateRangePopoverContent } from '../date-range-popover';
 import './date-period-dropdown.scss';
 
 /**

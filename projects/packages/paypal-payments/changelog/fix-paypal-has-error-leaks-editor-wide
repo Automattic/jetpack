@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop the form's error styling applying to every block editor screen.
