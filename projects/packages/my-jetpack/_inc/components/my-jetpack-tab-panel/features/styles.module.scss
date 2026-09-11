@@ -103,12 +103,14 @@ $feature-icon-foreground: #0ced57;
 
 // A portrait dialog, pinned: letting the height follow the content resized the
 // dialog under the cursor on every step between features.
+// The popup centres itself with `top: 50%` and a -50% translate, so the height
+// must leave room on both sides: at 52rem the top edge landed off-screen and
+// the dialog read as stuck to the top. No `inset-block-start` lift either —
+// that only works for a dialog far shorter than the viewport.
 .modal-popup {
-	block-size: min(52rem, calc(100dvh - 3rem));
+	block-size: min(48rem, calc(100dvh - 6rem));
 	inline-size: min(47.5rem, calc(100vw - 3rem));
 	max-inline-size: min(47.5rem, calc(100vw - 3rem));
-	// Band-heavy dialogs read better lifted off true centre.
-	inset-block-start: 42%;
 }
 
 // Fixed height, not an aspect ratio: the artwork is third-party marketing
@@ -166,11 +168,22 @@ $feature-icon-foreground: #0ced57;
 }
 
 // A lone control over artwork earns a 44px hit target; the visual stays 32px.
-.modal-band__close {
+// Nested so the white wins over the design system's own dark foreground, which
+// is invisible against the band.
+.modal-band .modal-band__close {
+	background: rgba(0, 0, 0, 0.35);
+	border-radius: 50%;
+	color: #fff;
 	inset-block-start: var(--wpds-dimension-padding-lg);
 	inset-inline-end: var(--wpds-dimension-padding-lg);
 	position: absolute;
 	z-index: 1;
+
+	&:hover,
+	&:focus-visible {
+		background: rgba(0, 0, 0, 0.55);
+		color: #fff;
+	}
 
 	&::after {
 		content: "";
