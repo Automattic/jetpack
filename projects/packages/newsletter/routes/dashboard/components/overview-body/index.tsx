@@ -24,7 +24,9 @@ export default function OverviewBody(): JSX.Element {
 
 	return (
 		<Stack className="jetpack-newsletter-overview" gap="2xl" direction="column" align="flex-start">
-			<h2 className="jetpack-newsletter-overview__title">{ title }</h2>
+			<Text className="jetpack-newsletter-overview__title" render={ <h2 /> } variant="heading-2xl">
+				{ title }
+			</Text>
 			<Card.Root className="jetpack-newsletter-overview__intro-card">
 				<Card.Header className="jetpack-newsletter-overview__intro-header">
 					<Card.Title>
