@@ -459,9 +459,9 @@ test( 'shows a score decrease with guidance and persists permanent dismissal', a
 	await waitFor( () =>
 		expect( apiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				url: 'https://example.org/wp-json/jetpack-boost-ds/dismissed-alerts/set',
+				url: 'https://example.org/wp-json/jetpack-boost-ds/dismissed-alerts/merge',
 				method: 'POST',
-				data: { JSON: { performance_history_fresh_start: true, score_decrease: true } },
+				data: { JSON: { score_decrease: true } },
 			} )
 		)
 	);

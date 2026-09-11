@@ -51,12 +51,8 @@ export function useDismissibleAlertState(
 		},
 		mutationFn: async () => {
 			await queryClient.cancelQueries( { queryKey: dismissedAlertsQueryKey } );
-			const dismissed =
-				queryClient.getQueryData< z.infer< typeof dismissedAlertsSchema > >(
-					dismissedAlertsQueryKey
-				) ?? {};
 			return dismissedAlertsSchema.parse(
-				await requestDataSync( 'dismissed_alerts', { ...dismissed, [ alertId ]: true } )
+				await requestDataSync( 'dismissed_alerts', { [ alertId ]: true }, 'merge' )
 			);
 		},
 		onError: ( _error, _variables, context ) => {
