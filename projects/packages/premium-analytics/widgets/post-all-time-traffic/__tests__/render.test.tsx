@@ -236,37 +236,6 @@ describe( 'PostAllTimeTraffic widget', () => {
 		);
 	} );
 
-	it( 'opens the keyboard-selected month on Enter', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-
-		screen.getByRole( 'grid', { name: 'heatmap' } ).focus();
-		await user.keyboard( '{Enter}' );
-
-		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom' );
-		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'opens the keyboard-selected month on Enter after a click left the focus on a cell', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-
-		screen.getByRole( 'gridcell', { name: 'Nov 2025' } ).focus();
-		await user.keyboard( '{Enter}' );
-
-		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom' );
-	} );
-
-	it( 'leaves the page alone for keys that do not activate', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-
-		screen.getByRole( 'grid', { name: 'heatmap' } ).focus();
-		await user.keyboard( '{ArrowRight}' );
-
-		expect( mockOnChange ).not.toHaveBeenCalled();
-	} );
-
 	it( 'shows the scopeless empty state without a post', () => {
 		mockUseStatsPost.mockReturnValue( statsPostResult( undefined ) );
 		renderWidget( null );

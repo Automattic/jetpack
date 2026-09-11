@@ -80,6 +80,12 @@ export {
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
 } from './calendar-heatmap';
+export {
+	MonthlyHeatmap,
+	type MonthlyHeatmapProps,
+	type MonthlyHeatmapRow,
+	type MonthlyHeatmapTarget,
+} from './monthly-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
 export {
 	WidgetState,
