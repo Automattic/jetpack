@@ -230,7 +230,7 @@ export const useKeyboardNavigation = ( {
 	// Returning focus from the tooltip must not restore the selection Escape just cleared.
 	const onChartFocus = useCallback(
 		( event: React.FocusEvent< HTMLDivElement > ) => {
-			if ( event.currentTarget.contains( event.relatedTarget ) ) {
+			if ( event.currentTarget.contains( event.relatedTarget as Node | null ) ) {
 				return;
 			}
 			if ( ! isNavigating && selectedIndex !== undefined ) {

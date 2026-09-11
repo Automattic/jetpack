@@ -1,4 +1,4 @@
-import { render, renderHook, screen, within, act } from '@testing-library/react';
+import { render, renderHook, screen, within, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
@@ -39,6 +39,62 @@ describe( 'BarChart', () => {
 			</GlobalChartsProvider>
 		);
 	};
+
+	test( 'reports category bounds without drawing an overlay and clears them on Escape', async () => {
+		const user = userEvent.setup();
+		const onCategoryHighlightChange = jest.fn();
+		renderWithTheme( { withTooltips: true, onCategoryHighlightChange } );
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		expect( onCategoryHighlightChange ).toHaveBeenLastCalledWith(
+			expect.objectContaining( {
+				datum: expect.objectContaining( { value: 10 } ),
+				x: expect.any( Number ),
+				y: expect.any( Number ),
+				width: expect.any( Number ),
+				height: expect.any( Number ),
+			} )
+		);
+		expect( screen.queryByTestId( 'bar-chart-category-highlight' ) ).not.toBeInTheDocument();
+		await user.keyboard( '{Escape}' );
+		await waitFor( () => expect( onCategoryHighlightChange ).toHaveBeenLastCalledWith( null ) );
+	} );
+
+	test.each( [ 'vertical', 'horizontal' ] )(
+		'draws the active category across a %s plot',
+		async orientation => {
+			const user = userEvent.setup();
+			const onCategoryHighlightChange = jest.fn();
+			renderWithTheme( {
+				withTooltips: true,
+				withCategoryHighlight: true,
+				orientation,
+				onCategoryHighlightChange,
+			} );
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			const highlight = screen.getByTestId( 'bar-chart-category-highlight' );
+			const bounds = onCategoryHighlightChange.mock.calls.at( -1 )[ 0 ];
+			expect( Number( highlight.getAttribute( 'width' ) ) ).toBe( bounds.width );
+			expect( Number( highlight.getAttribute( 'height' ) ) ).toBe( bounds.height );
+			expect( bounds.width ).toBeGreaterThan( 0 );
+			expect( bounds.height ).toBeGreaterThan( 0 );
+		}
+	);
+
+	test( 'aligns horizontal grid lines with explicit value ticks', () => {
+		const { container } = renderWithTheme( {
+			gridVisibility: 'x',
+			options: {
+				axis: { y: { tickValues: [ 0, 50, 100 ] } },
+				scale: { y: { domain: [ 0, 100 ] } },
+			},
+		} );
+		// Grid lines have no accessible role; inspect the SVG geometry.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		const lines = container.querySelectorAll( '.visx-rows line' );
+		expect( lines ).toHaveLength( 3 );
+	} );
 
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {
@@ -927,6 +983,55 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'Pattern', () => {
+		test( 'uses point colors with a series fallback and preserves pattern fills', () => {
+			const data: SeriesData[] = [
+				{
+					label: 'Scores',
+					data: [
+						{
+							label: 'First day',
+							value: 80,
+							color: 'var(--wpds-color-foreground-content-success-weak)',
+						},
+						{
+							label: 'Second day',
+							value: 40,
+							color: 'var(--wpds-color-foreground-content-error-weak)',
+						},
+						{ label: 'Third day', value: 60 },
+					],
+				},
+			];
+			const { rerender } = render( <BarChart { ...defaultProps } data={ data } /> );
+			// eslint-disable-next-line testing-library/no-node-access -- SVG bars have no roles; verify their rendered fills.
+			const getBars = () => screen.getByRole( 'grid' ).querySelectorAll( '.visx-bar-group rect' );
+			const bars = getBars();
+			expect( bars ).toHaveLength( 3 );
+			expect( bars[ 0 ] ).toHaveAttribute( 'fill', data[ 0 ].data[ 0 ].color );
+			expect( bars[ 1 ] ).toHaveAttribute( 'fill', data[ 0 ].data[ 1 ].color );
+			const fallbackFill = bars[ 2 ].getAttribute( 'fill' );
+			expect( fallbackFill ).toBeTruthy();
+			rerender(
+				<BarChart
+					{ ...defaultProps }
+					data={ [
+						{
+							...data[ 0 ],
+							data: data[ 0 ].data.map( point => ( { ...point, color: undefined } ) ),
+						},
+					] }
+				/>
+			);
+			expect( getBars()[ 0 ] ).toHaveAttribute( 'fill', fallbackFill );
+			rerender( <BarChart { ...defaultProps } data={ data } withPatterns /> );
+			for ( const bar of getBars() ) {
+				expect( bar ).toHaveAttribute(
+					'fill',
+					expect.stringMatching( /^url\(#bar-pattern-.+-0\)$/ )
+				);
+			}
+		} );
+
 		test( 'renders with patterns', () => {
 			renderWithTheme( { withPatterns: true } );
 			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();

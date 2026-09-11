@@ -19,6 +19,8 @@ Main chart component with responsive behavior by default.
 | `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
+| `withCategoryHighlight` | `boolean` | `false` | Highlight the active category across the plot; requires tooltips. Fill uses `--a8c-charts-color-category-highlight`, falling back to the WPDS neutral weak surface. |
+| `onCategoryHighlightChange` | `(selection: CategoryHighlightSelection \| null) => void` | - | Receive active datum and `x`, `y`, `width`, `height` in SVG coordinates, including when the highlight is disabled. Dismissal emits null. |
 | `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Vertical bars rise from the bottom; horizontal bars stretch from the left. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
@@ -26,6 +28,8 @@ Main chart component with responsive behavior by default.
 | `legend` | `SeriesChartLegendConfig` | `undefined` | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
 | `defaultHiddenSeries` | `readonly string[]` | — | Series labels to hide the first time the provider sees this `chartId`. User changes persist across remounts, and reset only on a `chartId` change; later values for the same ID are ignored. |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
+| `tooltipPlacement` | `'auto' \| 'beside'` | `'auto'` | Beside placement flips horizontally while keeping the top anchor, clamped to viewport or clipping bounds. |
+| `tooltipAnchorTop` | `number` | - | Override the top anchor in SVG coordinates; negative values align with content above the plot. |
 | `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
 | `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
@@ -91,8 +95,11 @@ type DataPointDate = {
 	dateString?: string; // Multiple formats supported
 	value: number | null;
 	label?: string;
+	color?: string;
 };
 ```
+
+See [bar color configuration](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#theming-integration) for point color precedence.
 
 ## ChartOptions Type
 
@@ -144,3 +151,5 @@ type SeriesChartLegendConfig = {
 	shapeStyles?: LegendShapeStyles;
 };
 ```
+
+Grid lines follow explicit `options.axis.x.tickValues` and `options.axis.y.tickValues` when supplied.

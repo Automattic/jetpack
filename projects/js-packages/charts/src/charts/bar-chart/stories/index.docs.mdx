@@ -406,7 +406,9 @@ Bar Charts integrate seamlessly with the chart theming system. The default theme
 	}` }
 />
 
-Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
+Set a data point's optional `color` to override the series color for that bar. Points without a color retain the series color. When `withPatterns` is enabled, pattern fills take precedence over point colors.
+
+For other catalog colors, declare the corresponding role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
 <Source
 	language="css"

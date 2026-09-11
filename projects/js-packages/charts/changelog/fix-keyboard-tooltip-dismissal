@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep keyboard tooltips dismissed when Escape restores chart focus.
