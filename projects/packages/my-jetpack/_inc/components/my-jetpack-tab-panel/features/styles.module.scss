@@ -278,6 +278,43 @@ $feature-icon-foreground: #0ced57;
 	min-inline-size: 0;
 }
 
+// A capsule, not a button: WPDS has no full-round radius token, so the radius
+// is literal and large enough that the height can change without squaring off.
+.pill {
+	background: var(--wpds-color-background-interactive-neutral-weak);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+	border-radius: 999px;
+	color: var(--wpds-color-foreground-interactive-neutral);
+	cursor: pointer;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	padding-block: 0.3125rem;
+	padding-inline: 0.75rem;
+	white-space: nowrap;
+
+	&:hover {
+		background: var(--wpds-color-background-interactive-neutral-weak-active);
+		color: var(--wpds-color-foreground-interactive-neutral-active);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--wpds-color-stroke-interactive-neutral-strong);
+		outline-offset: 2px;
+	}
+}
+
+.pill--selected {
+	background: var(--wpds-color-background-interactive-neutral-strong);
+	border-color: var(--wpds-color-background-interactive-neutral-strong);
+	color: var(--wpds-color-foreground-interactive-neutral-strong);
+
+	&:hover {
+		background: var(--wpds-color-background-interactive-neutral-strong-active);
+		border-color: var(--wpds-color-background-interactive-neutral-strong-active);
+		color: var(--wpds-color-foreground-interactive-neutral-strong-active);
+	}
+}
+
 .search {
 	margin-inline-start: auto;
 	min-inline-size: 16rem;

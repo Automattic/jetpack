@@ -1,6 +1,7 @@
 import { SearchControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, Stack } from '@wordpress/ui';
+import { Stack } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
 import { getFeatureFilters } from './use-feature-filter';
@@ -27,15 +28,14 @@ function FilterPill( { value, label, isActive, onSelect }: FilterPillProps ) {
 	const onClick = useCallback( () => onSelect( value ), [ onSelect, value ] );
 
 	return (
-		<Button
-			variant={ isActive ? 'solid' : 'outline' }
-			tone={ isActive ? 'brand' : 'neutral' }
-			size="compact"
+		<button
+			type="button"
+			className={ clsx( styles.pill, isActive && styles[ 'pill--selected' ] ) }
 			aria-pressed={ isActive }
 			onClick={ onClick }
 		>
 			{ label }
-		</Button>
+		</button>
 	);
 }
 
