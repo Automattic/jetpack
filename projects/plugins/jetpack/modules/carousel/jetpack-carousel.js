@@ -956,6 +956,19 @@
 				args.maxHeight = args.maxHeight * window.devicePixelRatio;
 			}
 
+			/*
+			`maxWidth`/`maxHeight` now describe the device resolution. Anything beyond that is
+			headroom for zooming, so only the zoom request asks for it. The multiplier is folded
+			in here -- ahead of the size checks below -- so the zoom rendition keeps its extra
+			resolution even when the unzoomed one is already covered by `data-large-file`.
+			Without it, every slide would fetch ~4x the pixels the screen can show.
+			*/
+			var headroom = args.zoomHeadroom || 1;
+			if ( headroom > 1 ) {
+				args.maxWidth = args.maxWidth * headroom;
+				args.maxHeight = args.maxHeight * headroom;
+			}
+
 			if ( largeWidth >= args.maxWidth || largeHeight >= args.maxHeight ) {
 				return args.largeFile;
 			}
@@ -973,9 +986,8 @@
 				// If we have a really large image load a smaller version
 				// that is closer to the viewable size
 				if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
-					// @2x the max sizes so we get a high enough resolution for zooming.
-					args.origMaxWidth = args.maxWidth * 2;
-					args.origMaxHeight = args.maxHeight * 2;
+					args.origMaxWidth = args.maxWidth;
+					args.origMaxHeight = args.maxHeight;
 					// Add the fit arg to the list of Photon args.
 					sanitizedUrl.searchParams.set( 'fit', args.origMaxWidth + ',' + args.origMaxHeight );
 				}
@@ -1366,8 +1378,14 @@
 			fullImage.addEventListener(
 				'load',
 				function () {
-					// Cached by this point, so swapping it in is effectively instant.
-					image.src = attrs.src;
+					/*
+					If the visitor zoomed while this was still downloading, a larger rendition
+					is already in place -- don't downgrade it back to the fit-to-screen src.
+					*/
+					if ( ! image.hasAttribute( 'data-zoom-loaded' ) ) {
+						// Cached by this point, so swapping it in is effectively instant.
+						image.src = attrs.src;
+					}
 					image.style.filter = '';
 				},
 				{ once: true }
@@ -1382,6 +1400,28 @@
 			);
 
 			fullImage.src = attrs.src;
+		}
+
+		/**
+		 * Swap in a higher-resolution rendition now that the visitor is zoomed in.
+		 *
+		 * The zoomed-out slide only ever loads what the screen can actually show. The browser
+		 * keeps painting the image it already has until this one decodes, so the picture
+		 * sharpens rather than blanking.
+		 * @param {object} slide - The slide being zoomed.
+		 */
+		function loadZoomImage( slide ) {
+			if ( ! slide || ! slide.attrs.zoomSrc || slide.attrs.zoomSrc === slide.attrs.src ) {
+				return;
+			}
+
+			var image = slide.el.querySelector( 'img' );
+			if ( ! image || image.hasAttribute( 'data-zoom-loaded' ) ) {
+				return;
+			}
+
+			image.setAttribute( 'data-zoom-loaded', 1 );
+			image.src = slide.attrs.zoomSrc;
 		}
 
 		function preloadAdjacentImages( currentIndex ) {
@@ -1539,14 +1579,26 @@
 				if ( typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.generateImgSrc ) {
 					attrs.src = wpcom.carousel.generateImgSrc( item, max );
 				} else {
-					attrs.src = selectBestImageUrl( {
-						origFile: attrs.src,
-						origWidth: attrs.origWidth,
-						origHeight: attrs.origHeight,
-						maxWidth: max.width,
-						maxHeight: max.height,
-						largeFile: attrs.largeFile,
-					} );
+					var urlArgs = function ( zoomHeadroom ) {
+						// A fresh object each time: selectBestImageUrl() mutates what it is given.
+						return {
+							origFile: attrs.src,
+							origWidth: attrs.origWidth,
+							origHeight: attrs.origHeight,
+							maxWidth: max.width,
+							maxHeight: max.height,
+							largeFile: attrs.largeFile,
+							zoomHeadroom: zoomHeadroom,
+						};
+					};
+
+					/*
+					The zoom rendition is kept aside until the visitor actually zooms. On sources
+					that cannot serve a larger one it comes back identical to `src`, and nothing
+					ever happens.
+					*/
+					attrs.zoomSrc = selectBestImageUrl( urlArgs( 2 ) );
+					attrs.src = selectBestImageUrl( urlArgs( 1 ) );
 				}
 
 				// Set the final src.
@@ -1702,6 +1754,7 @@
 
 			swiper.on( 'zoomChange', function ( swiper, scale ) {
 				if ( scale > 1 ) {
+					loadZoomImage( carousel.currentSlide );
 					carousel.overlay.classList.add( 'jp-carousel-hide-controls' );
 				}
 
