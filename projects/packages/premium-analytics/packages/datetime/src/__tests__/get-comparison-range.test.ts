@@ -224,6 +224,55 @@ describe( 'getComparisonRangeFromPreset', () => {
 			} );
 		} );
 
+		/*
+		 * A range starting on the 1st compares with the same calendar dates
+		 * (UNI-767): a day-count rebuild across a leap February would start Year
+		 * to date on 31 December or 2 January instead of 1 January.
+		 */
+		it.each( [
+			[
+				'a leap year',
+				siteDate( 2028, 0, 1, 0, 0, 0, 0 ),
+				siteDate( 2028, 2, 1, 23, 59, 59, 999 ),
+				siteDate( 2027, 0, 1, 0, 0, 0, 0 ),
+				siteDate( 2027, 2, 1, 23, 59, 59, 999 ),
+			],
+			[
+				'the year after a leap year',
+				siteDate( 2029, 0, 1, 0, 0, 0, 0 ),
+				siteDate( 2029, 2, 1, 23, 59, 59, 999 ),
+				siteDate( 2028, 0, 1, 0, 0, 0, 0 ),
+				siteDate( 2028, 2, 1, 23, 59, 59, 999 ),
+			],
+			[
+				'a start on the 1st of a later month',
+				siteDate( 2028, 1, 1, 0, 0, 0, 0 ),
+				siteDate( 2028, 2, 15, 23, 59, 59, 999 ),
+				siteDate( 2027, 1, 1, 0, 0, 0, 0 ),
+				siteDate( 2027, 2, 15, 23, 59, 59, 999 ),
+			],
+		] )(
+			'keeps the calendar dates for previous-year from a 1st-of-month start in %s',
+			( _label, from, to, expectedFrom, expectedTo ) => {
+				expect( getComparisonRangeFromPreset( { from, to }, 'previous-year' ) ).toEqual( {
+					from: expectedFrom,
+					to: expectedTo,
+				} );
+			}
+		);
+
+		it( 'clamps the end of a 1st-of-month start for previous-month in a shorter month', () => {
+			const reference = {
+				from: siteDate( 2026, 2, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 2, 30, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( reference, 'previous-month' ) ).toEqual( {
+				from: siteDate( 2026, 1, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 1, 28, 23, 59, 59, 999 ),
+			} );
+		} );
+
 		it.each( COMPARISON_PRESETS )(
 			'covers the same number of days as the reference for %s',
 			presetId => {
