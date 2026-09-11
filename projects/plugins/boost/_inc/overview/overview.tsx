@@ -42,7 +42,7 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
-	const history = usePerformanceHistory();
+	const history = usePerformanceHistory( modules.data?.performance_history?.available === true );
 	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
 		'performance_history_fresh_start'
 	);
@@ -141,7 +141,7 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 			<HistoryChartCard
 				isVisible={ isVisible }
 				data={ modules.isPending ? undefined : history.data }
-				isLoading={ modules.isPending || ( history.isFetching && ! history.data?.periods.length ) }
+				isLoading={ modules.isPending || history.isPending }
 				isError={ history.isError && ! history.isFetching }
 				error={ history.error }
 				onRetry={ () => history.refetch() }

@@ -358,12 +358,17 @@ test( 'hides stale and absent baselines while preserving measured scores', () =>
 	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
 } );
 
-test( 'selects the free history upgrade using module availability', async () => {
+test( 'shows the free history upgrade without requesting history', async () => {
 	window.jetpack_boost_ds!.modules_state!.value = {
 		performance_history: { available: false, active: false },
 	};
 	renderOverview();
 	await expect( screen.findByRole( 'button', { name: 'Upgrade now' } ) ).resolves.toBeTruthy();
+	expect( apiFetch ).not.toHaveBeenCalledWith(
+		expect.objectContaining( {
+			url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history',
+		} )
+	);
 	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
 } );
 
