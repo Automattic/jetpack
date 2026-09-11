@@ -46,8 +46,6 @@ export type MonthlyHeatmapProps = {
 	emptyLabel: string;
 	lessLabel: string;
 	moreLabel: string;
-	/** Heads the summary column. Defaults to "Totals". */
-	summaryLabel?: string;
 	/** Called on click, or Enter and Space on the keyboard-selected cell. */
 	onSelect?: ( target: MonthlyHeatmapTarget ) => void;
 };
@@ -71,7 +69,6 @@ export function MonthlyHeatmap( {
 	emptyLabel,
 	lessLabel,
 	moreLabel,
-	summaryLabel,
 	onSelect,
 }: MonthlyHeatmapProps ) {
 	// No per-cell label: the chart names a cell from its column and row.
@@ -82,16 +79,17 @@ export function MonthlyHeatmap( {
 				data: rows.map( row => {
 					const value = row.months[ month ];
 
-					return value === null ? { value: null, placeholder: true } : { value };
+					// Anything but a number is filler, a missing entry included.
+					return typeof value === 'number' ? { value } : { value: null, placeholder: true };
 				} ),
 			} ) ),
 			{
-				label: summaryLabel ?? __( 'Totals', 'jetpack-premium-analytics-pkg' ),
+				label: __( 'Totals', 'jetpack-premium-analytics-pkg' ),
 				summary: true,
 				data: rows.map( row => ( { value: row.total } ) ),
 			},
 		],
-		[ rows, summaryLabel ]
+		[ rows ]
 	);
 
 	const select = useCallback(
@@ -104,9 +102,11 @@ export function MonthlyHeatmap( {
 
 			const column = Number( cell.getAttribute( 'data-column' ) );
 
-			onSelect( column < MONTHS_IN_YEAR ? { year: row.year, month: column } : { year: row.year } );
+			onSelect(
+				columns[ column ]?.summary ? { year: row.year } : { year: row.year, month: column }
+			);
 		},
-		[ rows, onSelect ]
+		[ rows, columns, onSelect ]
 	);
 
 	// The chart owns the cells, so the click is read off its markup.

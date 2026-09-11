@@ -47,10 +47,27 @@ describe( 'MonthlyHeatmap', () => {
 		expect( screen.getByText( 'Fewer' ) ).toBeInTheDocument();
 	} );
 
-	it( 'heads the summary column with the given label', () => {
-		render( <MonthlyHeatmap rows={ ROWS } { ...LABELS } summaryLabel="Year" /> );
+	it( 'draws a missing month as filler rather than a live cell', () => {
+		render(
+			<MonthlyHeatmap rows={ [ { year: 2026, months: [ 5, 0, 40 ], total: 45 } ] } { ...LABELS } />
+		);
 
-		expect( screen.getByRole( 'gridcell', { name: 'Year 2026: 45' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 40' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'gridcell', { name: /Dec 2026/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'names a hovered month by month and year, and a hovered roll-up by the year alone', async () => {
+		const user = userEvent.setup();
+		render( <MonthlyHeatmap rows={ ROWS } { ...LABELS } /> );
+
+		await user.hover( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( '10 views' );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Nov 2025' );
+
+		await user.hover( screen.getByRole( 'gridcell', { name: 'Totals 2025: 30' } ) );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( '30 views' );
+		expect( screen.getByRole( 'tooltip' ) ).not.toHaveTextContent( 'Totals' );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( '2025' );
 	} );
 
 	it( 'reports a clicked month and a clicked roll-up', async () => {
