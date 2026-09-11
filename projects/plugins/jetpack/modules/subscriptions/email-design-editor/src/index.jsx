@@ -106,7 +106,11 @@ export function buildEditorConfig( bundle, data ) {
 	Object.entries( urls ).forEach( ( [ key, value ] ) => assertNavigableUrl( value, key ) );
 
 	return {
-		editorSettings: { ...bundle.editor_settings, ...editorSettings },
+		// Forced last so neither half can turn it off. The package renders core's `FullscreenMode`
+		// on this, which hides the admin menu — without it a full-viewport editor sits beside a menu
+		// whose flyouts open over the canvas, and no z-index satisfies both. Forced rather than the
+		// `fullscreenMode` preference so it is not a per-user toggle; it also brings the back button.
+		editorSettings: { ...bundle.editor_settings, ...editorSettings, isFullScreenForced: true },
 		theme: bundle.editor_theme,
 		urls,
 		userEmail,

@@ -282,7 +282,25 @@ describe( 'Email design editor entry point', () => {
 				styles: [ { css: 'body{}' } ],
 				allowedIframeStyleHandles: [ 'wp-block-library' ],
 				__unstableResolvedAssets: { styles: '' },
+				isFullScreenForced: true,
 			} );
+		} );
+
+		// Without it the admin menu stays, and its flyouts open over a full-viewport canvas that
+		// no z-index can sit both above and below. Forced last so neither half can turn it off.
+		it.each( [
+			[ 'WordPress.com', 'bundle' ],
+			[ 'the page', 'page' ],
+		] )( 'keeps fullscreen forced even when %s asks for it off', async ( _label, half ) => {
+			const off = { isFullScreenForced: false };
+			mockApiFetch.mockResolvedValue(
+				bootstrapBundle( 'bundle' === half ? { editor_settings: off } : {} )
+			);
+			window.JetpackEmailDesignEditor = pageData( 'page' === half ? { editorSettings: off } : {} );
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.editorSettings.isFullScreenForced ).toBe( true );
 		} );
 
 		it( 'does not pass the bundle through in its own shape', async () => {
