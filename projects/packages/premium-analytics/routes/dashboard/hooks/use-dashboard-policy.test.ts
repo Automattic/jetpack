@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useDashboardPolicy } from './use-dashboard-policy';
+import { isDashboardCompositionEnabled, useDashboardPolicy } from './use-dashboard-policy';
 import type { WidgetType } from '@wordpress/widget-primitives';
 
 const widgetType: WidgetType = {
@@ -28,11 +28,12 @@ describe( 'useDashboardPolicy', () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'lets everyone customize by moving and resizing, and keep editing attributes', () => {
+	it( 'lets everyone move and resize, and keep editing attributes', () => {
 		seedScriptData( { dashboard_composition_enabled: false } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
-		expect( result.current( { operation: 'customize' } ) ).toBe( true );
+		// The page options menu is the way in, not the dashboard's own button.
+		expect( result.current( { operation: 'customize' } ) ).toBe( false );
 		expect( result.current( { operation: 'move', widget, widgetType } ) ).toBe( true );
 		expect( result.current( { operation: 'resize', widget, widgetType } ) ).toBe( true );
 		expect( result.current( { operation: 'edit', widget, widgetType } ) ).toBe( true );
@@ -61,7 +62,8 @@ describe( 'useDashboardPolicy', () => {
 
 		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( true );
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( true );
-		expect( result.current( { operation: 'reset' } ) ).toBe( true );
+		// Reset to default is the page options menu's, behind the same flag.
+		expect( result.current( { operation: 'reset' } ) ).toBe( false );
 	} );
 
 	it( 'keeps the same callback across renders', () => {
@@ -72,5 +74,19 @@ describe( 'useDashboardPolicy', () => {
 		rerender();
 
 		expect( result.current ).toBe( first );
+	} );
+} );
+
+describe( 'isDashboardCompositionEnabled', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it( 'answers the flag, and off without one', () => {
+		seedScriptData( { dashboard_composition_enabled: true } );
+		expect( isDashboardCompositionEnabled() ).toBe( true );
+
+		seedScriptData();
+		expect( isDashboardCompositionEnabled() ).toBe( false );
 	} );
 } );
