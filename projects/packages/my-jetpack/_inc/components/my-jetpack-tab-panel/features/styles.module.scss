@@ -59,10 +59,10 @@ $feature-icon-foreground: #0ced57;
 }
 
 .feature-icon {
-	block-size: 3.5rem;
+	block-size: 4rem;
 	border-radius: var(--wpds-border-radius-lg);
 	flex-shrink: 0;
-	inline-size: 3.5rem;
+	inline-size: 4rem;
 	overflow: hidden;
 
 	svg {
@@ -84,9 +84,9 @@ $feature-icon-foreground: #0ced57;
 	justify-content: center;
 
 	svg {
-		block-size: 32px;
+		block-size: 36px;
 		fill: currentColor;
-		inline-size: 32px;
+		inline-size: 36px;
 	}
 }
 
