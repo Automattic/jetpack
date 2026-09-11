@@ -28,7 +28,16 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return string Canonical URL rebuilt from the validated components, or an empty string when the URL is not allowed.
  */
 function get_validated_script_url( $url ) {
-	if ( ! is_string( $url ) || str_contains( $url, '\\' ) ) {
+	if ( ! is_string( $url ) ) {
+		return '';
+	}
+
+	// Posts saved on WordPress.com Simple store this attribute with encoded ampersands,
+	// which would otherwise parse as `amp;`-prefixed parameter names. The decode table is
+	// limited to & < > " ' and so cannot introduce a path or authority delimiter.
+	$url = wp_specialchars_decode( $url, ENT_QUOTES );
+
+	if ( str_contains( $url, '\\' ) ) {
 		return '';
 	}
 

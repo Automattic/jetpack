@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Goodreads: Fix the block rendering empty on the front end of WordPress.com Simple sites.
