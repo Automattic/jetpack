@@ -297,11 +297,19 @@ class Help_Center {
 			$version
 		);
 
-		// The "Get Help" label beside the icon; hidden at the admin bar's mobile breakpoint.
+		// The "Get Help" label beside the icon. The bundle's stylesheet sizes the item for
+		// an icon alone (fixed width, absolutely positioned svg), so the labelled item lays
+		// out as a row instead; at the admin bar's mobile breakpoint the label is hidden.
 		wp_add_inline_style(
 			'help-center-' . $variant . '-style',
-			'#wpadminbar #wp-admin-bar-help-center .help-center-entry-label{display:inline-block;padding-inline-start:6px;}'
-			. '@media (max-width:782px){#wpadminbar #wp-admin-bar-help-center .help-center-entry-label{display:none;}}'
+			'#wpadminbar #wp-toolbar #wp-admin-bar-help-center .help-center-entry-label{display:none;padding-inline-start:6px;white-space:nowrap;}'
+			. '@media (min-width:783px){'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center .help-center-entry-label{display:block;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label{width:auto;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label>.ab-item{display:flex;align-items:center;padding:0 11px;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label>.ab-item>span:first-child{display:flex;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label svg{position:static;float:none;margin:0;padding:4px 0;}'
+			. '}'
 		);
 
 		// In the block editor the Help Center is already present in the editor toolbar
