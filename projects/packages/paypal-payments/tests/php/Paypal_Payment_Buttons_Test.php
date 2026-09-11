@@ -1050,6 +1050,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		if ( empty( $declarations ) ) {
 			$this->assertStringNotContainsString( $selector . ' style=', $result );
+			// Positive control: the block still rendered, it was not dropped whole.
+			$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
 			return;
 		}
 
@@ -1076,13 +1078,16 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	/**
 	 * The shared style fixture, read from the file the JS suite reads.
 	 *
+	 * @throws \RuntimeException When the fixture is unreadable or has duplicate names.
 	 * @return array<string, array<int, mixed>>
 	 */
 	public static function provide_style_parity_cases() {
-		$fixture = json_decode(
-			(string) file_get_contents( __DIR__ . '/../fixtures/style-parity.json' ),
-			true
-		);
+		$path    = __DIR__ . '/../fixtures/style-parity.json';
+		$fixture = json_decode( (string) file_get_contents( $path ), true );
+
+		if ( ! is_array( $fixture ) || empty( $fixture['cases'] ) ) {
+			throw new \RuntimeException( 'Could not read ' . $path );
+		}
 
 		$cases = array();
 
@@ -1100,6 +1105,25 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 				$case['declarations'],
 				'class="jetpack-paypal-button__qr-caption"',
 			);
+		}
+
+		// The canvas refuses these too, so neither side may emit a declaration.
+		// Each names the element it belongs on, or a caption case would be checked
+		// against the wrapper and pass whatever the caption did.
+		foreach ( $fixture['rejectedCases'] as $case ) {
+			$cases[ 'refuses ' . $case['name'] ] = array(
+				$case['attributes'],
+				array(),
+				'caption' === $case['selector']
+					? 'class="jetpack-paypal-button__qr-caption"'
+					: 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
+			);
+		}
+
+		// A renamed or malformed fixture would otherwise yield an empty provider
+		// and a green run.
+		if ( count( $cases ) !== count( $fixture['cases'] ) + count( $fixture['captionCases'] ) + count( $fixture['rejectedCases'] ) ) {
+			throw new \RuntimeException( 'style-parity.json has duplicate case names' );
 		}
 
 		return $cases;

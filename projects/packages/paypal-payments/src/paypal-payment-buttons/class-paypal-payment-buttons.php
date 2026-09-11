@@ -172,20 +172,6 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Whether a numeric attribute was actually set.
-	 *
-	 * 0 is a value a merchant can pick, so check for present-and-numeric rather
-	 * than truthy.
-	 *
-	 * @param array  $attributes The block attributes.
-	 * @param string $key        The attribute name.
-	 * @return bool True when the attribute carries a number.
-	 */
-	private static function has_number( $attributes, $key ) {
-		return isset( $attributes[ $key ] ) && is_numeric( $attributes[ $key ] );
-	}
-
-	/**
 	 * Block styles — Width Settings and Border Settings.
 	 *
 	 * Every value is validated here, before the style engine sees it.
@@ -203,9 +189,11 @@ class PayPal_Payment_Buttons {
 	private static function get_wrapper_style( $attributes ) {
 		$rules = array();
 
-		// Width carries its own unit, so it goes through as typed.
+		// Width carries its own unit, so it goes through as typed. It never reaches
+		// the style engine, so a spacing preset would be emitted raw — the width
+		// control cannot produce one, and this keeps it that way.
 		$width = self::sanitize_css_length( $attributes['blockWidth'] ?? '' );
-		if ( '' !== $width ) {
+		if ( '' !== $width && ! str_starts_with( $width, 'var:preset' ) ) {
 			$rules[] = sprintf( 'max-width:%s', $width );
 		}
 
@@ -371,7 +359,17 @@ class PayPal_Payment_Buttons {
 	 * @return string The size, or '' when it is not one.
 	 */
 	private static function sanitize_css_font_size( $size ) {
+		if ( ! is_scalar( $size ) ) {
+			return '';
+		}
+
 		$size = trim( (string) $size );
+
+		// FontSizePicker drops the unit when the theme's own sizes are numbers.
+		// Core reads a bare number as px, so both sides do the same.
+		if ( preg_match( '/^\d+(\.\d+)?$/', $size ) ) {
+			return $size . 'px';
+		}
 
 		if ( '' !== self::sanitize_css_length( $size ) ) {
 			return $size;
@@ -379,6 +377,11 @@ class PayPal_Payment_Buttons {
 
 		if ( preg_match( '/^var\(--wp--preset--font-size--[a-z0-9-]+\)$/i', $size ) ) {
 			return $size;
+		}
+
+		// `/*` would open a comment that swallows every declaration after it.
+		if ( str_contains( $size, '/*' ) || str_contains( $size, '*/' ) ) {
+			return '';
 		}
 
 		return preg_match( '/^(clamp|calc)\([a-z0-9.,%\s()+\-*\/]+\)$/i', $size ) ? $size : '';
@@ -391,6 +394,10 @@ class PayPal_Payment_Buttons {
 	 * @return string The length, or '' when it is not one.
 	 */
 	private static function sanitize_css_length( $length ) {
+		if ( ! is_scalar( $length ) ) {
+			return '';
+		}
+
 		$length = trim( (string) $length );
 
 		// 0 is a length a merchant can pick — core's spacing scale starts there,
@@ -419,6 +426,10 @@ class PayPal_Payment_Buttons {
 	 * @return string The color, or '' when it is not one.
 	 */
 	private static function sanitize_css_color( $color ) {
+		if ( ! is_scalar( $color ) ) {
+			return '';
+		}
+
 		$color = trim( (string) $color );
 
 		$hex = sanitize_hex_color( $color );
@@ -426,10 +437,15 @@ class PayPal_Payment_Buttons {
 			return $hex;
 		}
 
+		// sanitize_hex_color() stops at 6 digits. The palette editor's picker has
+		// alpha on, so a custom colour is stored as #rrggbbaa.
+		if ( preg_match( '/^#([0-9a-f]{4}|[0-9a-f]{8})$/i', $color ) ) {
+			return $color;
+		}
+
 		// `var:preset|color|primary` is what the editor stores for a palette entry.
 		// The style engine emits preset border colors as a class rather than inline
-		// CSS, so expand it here — resolvePreset() in utils/block-styles.js does the
-		// same for the canvas.
+		// CSS, so expand it here — getCaptionStyle() does the same for the canvas.
 		if ( preg_match( '/^var:preset\|([a-z0-9-]+)\|([a-z0-9-]+)$/i', $color, $preset ) ) {
 			return sprintf( 'var(--wp--preset--%s--%s)', $preset[1], $preset[2] );
 		}
@@ -989,7 +1005,7 @@ class PayPal_Payment_Buttons {
 			__FILE__,
 			array(
 				'css_path'   => '../../dist/paypal-payment-buttons/editor.css',
-				'textdomain' => 'no text domain is set in this in this project\'s .phpcs.dir.xml',
+				'textdomain' => 'jetpack-paypal-payments',
 			)
 		);
 		wp_enqueue_style( $handle );
@@ -1005,7 +1021,7 @@ class PayPal_Payment_Buttons {
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'no text domain is set in this in this project\'s .phpcs.dir.xml',
+				'textdomain' => 'jetpack-paypal-payments',
 				'enqueue'    => true,
 				// Editor styles are loaded separately, see load_editor_styles().
 				'css_path'   => null,
@@ -1061,7 +1077,7 @@ class PayPal_Payment_Buttons {
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'no text domain is set in this in this project\'s .phpcs.dir.xml',
+				'textdomain' => 'jetpack-paypal-payments',
 				'enqueue'    => true,
 			)
 		);

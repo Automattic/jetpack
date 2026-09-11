@@ -41,6 +41,13 @@ describe( 'style parity with the published page', () => {
 			testCase.declarations
 		);
 	} );
+
+	// The published page refuses these, so the canvas has to as well — otherwise
+	// a hand-edited block renders in the editor and vanishes on publish.
+	it.each( parity.rejectedCases.map( c => [ c.name, c ] ) )( 'refuses %s', ( _name, testCase ) => {
+		expect( getWrapperStyle( testCase.attributes ) ).toEqual( {} );
+		expect( getCaptionStyle( testCase.attributes ) ).toEqual( {} );
+	} );
 } );
 
 describe( 'getWrapperStyle', () => {

@@ -1,59 +1,383 @@
 {
-	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. The premise of WOOPTP-491 is that the canvas and the published page agree; this is the file that enforces it.",
+	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. The premise of WOOPTP-491 is that the canvas and the published page agree; this is the file that enforces it. rejectedCases are values the published page refuses — the canvas has to refuse them too, or a block pasted in code view renders in the editor and vanishes on publish.",
 	"cases": [
 		{
 			"name": "a spacing preset",
-			"attributes": { "style": { "spacing": { "margin": { "top": "var:preset|spacing|50" } } } },
-			"declarations": { "margin-top": "var(--wp--preset--spacing--50)" }
+			"attributes": {
+				"style": {
+					"spacing": {
+						"margin": {
+							"top": "var:preset|spacing|50"
+						}
+					}
+				}
+			},
+			"declarations": {
+				"margin-top": "var(--wp--preset--spacing--50)"
+			}
 		},
 		{
 			"name": "zero margin cancels the stylesheet",
-			"attributes": { "style": { "spacing": { "margin": { "top": "0", "bottom": "0" } } } },
-			"declarations": { "margin-top": "0", "margin-bottom": "0" }
+			"attributes": {
+				"style": {
+					"spacing": {
+						"margin": {
+							"top": "0",
+							"bottom": "0"
+						}
+					}
+				}
+			},
+			"declarations": {
+				"margin-top": "0",
+				"margin-bottom": "0"
+			}
 		},
 		{
 			"name": "one axis only, the other left to the stylesheet",
-			"attributes": { "style": { "spacing": { "margin": { "left": "8px", "right": "8px" } } } },
-			"declarations": { "margin-left": "8px", "margin-right": "8px" }
+			"attributes": {
+				"style": {
+					"spacing": {
+						"margin": {
+							"left": "8px",
+							"right": "8px"
+						}
+					}
+				}
+			},
+			"declarations": {
+				"margin-left": "8px",
+				"margin-right": "8px"
+			}
 		},
 		{
 			"name": "a full stroke",
-			"attributes": { "style": { "border": { "width": "2px", "color": "#ff0000" } } },
-			"declarations": { "border-width": "2px", "border-color": "#ff0000", "border-style": "solid" }
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "#ff0000"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-color": "#ff0000",
+				"border-style": "solid"
+			}
 		},
 		{
 			"name": "a half stroke draws nothing",
-			"attributes": { "style": { "border": { "width": "2px" } } },
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px"
+					}
+				}
+			},
 			"declarations": {}
 		},
 		{
 			"name": "a radius per corner",
 			"attributes": {
-				"style": { "border": { "radius": { "topLeft": "4px", "bottomRight": "9px" } } }
+				"style": {
+					"border": {
+						"radius": {
+							"topLeft": "4px",
+							"bottomRight": "9px"
+						}
+					}
+				}
 			},
-			"declarations": { "border-top-left-radius": "4px", "border-bottom-right-radius": "9px" }
+			"declarations": {
+				"border-top-left-radius": "4px",
+				"border-bottom-right-radius": "9px"
+			}
 		},
 		{
 			"name": "width with its unit",
-			"attributes": { "blockWidth": "75%" },
-			"declarations": { "max-width": "75%" }
+			"attributes": {
+				"blockWidth": "75%"
+			},
+			"declarations": {
+				"max-width": "75%"
+			}
+		},
+		{
+			"name": "a preset border colour, expanded by hand in PHP and by the engine in JS",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "var:preset|color|primary"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-color": "var(--wp--preset--color--primary)",
+				"border-style": "solid"
+			}
+		},
+		{
+			"name": "an rgba palette colour",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "1px",
+						"color": "rgba(255, 0, 0, 0.5)"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "1px",
+				"border-color": "rgba(255, 0, 0, 0.5)",
+				"border-style": "solid"
+			}
+		},
+		{
+			"name": "a dashed stroke",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "#000000",
+						"style": "dashed"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-color": "#000000",
+				"border-style": "dashed"
+			}
+		},
+		{
+			"name": "a radius as one string",
+			"attributes": {
+				"style": {
+					"border": {
+						"radius": "8px"
+					}
+				}
+			},
+			"declarations": {
+				"border-radius": "8px"
+			}
+		},
+		{
+			"name": "nothing configured",
+			"attributes": {},
+			"declarations": {}
+		},
+		{
+			"name": "a border style the panel cannot write falls back to solid",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "#000000",
+						"style": "groove"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-color": "#000000",
+				"border-style": "solid"
+			}
+		},
+		{
+			"name": "an alpha hex, which the palette editor stores",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "#3858e980"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-color": "#3858e980",
+				"border-style": "solid"
+			}
 		}
 	],
 	"captionCases": [
 		{
 			"name": "a size with its unit",
-			"attributes": { "captionFontSize": "1.5rem" },
-			"declarations": { "font-size": "1.5rem" }
+			"attributes": {
+				"captionFontSize": "1.5rem"
+			},
+			"declarations": {
+				"font-size": "1.5rem"
+			}
 		},
 		{
 			"name": "a theme preset size",
-			"attributes": { "captionFontSize": "var(--wp--preset--font-size--small)" },
-			"declarations": { "font-size": "var(--wp--preset--font-size--small)" }
+			"attributes": {
+				"captionFontSize": "var(--wp--preset--font-size--small)"
+			},
+			"declarations": {
+				"font-size": "var(--wp--preset--font-size--small)"
+			}
 		},
 		{
 			"name": "a colour",
-			"attributes": { "captionColor": "#0000ff" },
-			"declarations": { "color": "#0000ff" }
+			"attributes": {
+				"captionColor": "#0000ff"
+			},
+			"declarations": {
+				"color": "#0000ff"
+			}
+		},
+		{
+			"name": "a unitless size, which core reads as px",
+			"attributes": {
+				"captionFontSize": "20"
+			},
+			"declarations": {
+				"font-size": "20px"
+			}
+		},
+		{
+			"name": "a fluid size",
+			"attributes": {
+				"captionFontSize": "clamp(0.875rem, 1vw, 1rem)"
+			},
+			"declarations": {
+				"font-size": "clamp(0.875rem, 1vw, 1rem)"
+			}
+		},
+		{
+			"name": "an rgba colour",
+			"attributes": {
+				"captionColor": "rgba(0, 0, 255, 0.8)"
+			},
+			"declarations": {
+				"color": "rgba(0, 0, 255, 0.8)"
+			}
+		},
+		{
+			"name": "an alpha hex",
+			"attributes": {
+				"captionColor": "#3858e980"
+			},
+			"declarations": {
+				"color": "#3858e980"
+			}
+		},
+		{
+			"name": "a palette preset, expanded on both sides",
+			"attributes": {
+				"captionColor": "var:preset|color|primary"
+			},
+			"declarations": {
+				"color": "var(--wp--preset--color--primary)"
+			}
+		}
+	],
+	"rejectedCases": [
+		{
+			"name": "a negative length",
+			"attributes": {
+				"style": {
+					"spacing": {
+						"margin": {
+							"top": "-8px"
+						}
+					}
+				}
+			},
+			"selector": "wrapper"
+		},
+		{
+			"name": "an unsupported unit",
+			"attributes": {
+				"style": {
+					"spacing": {
+						"margin": {
+							"top": "2ch"
+						}
+					}
+				}
+			},
+			"selector": "wrapper"
+		},
+		{
+			"name": "a hand-pasted calc width",
+			"attributes": {
+				"blockWidth": "calc(100% - 10px)"
+			},
+			"selector": "wrapper"
+		},
+		{
+			"name": "a named border colour",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "rebeccapurple"
+					}
+				}
+			},
+			"selector": "wrapper"
+		},
+		{
+			"name": "a spacing preset as a width",
+			"attributes": {
+				"blockWidth": "var:preset|spacing|50"
+			},
+			"selector": "wrapper"
+		},
+		{
+			"name": "a side key the panel cannot write",
+			"attributes": {
+				"style": {
+					"border": {
+						"top": {
+							"color": "#ff0000"
+						}
+					}
+				}
+			},
+			"selector": "wrapper"
+		},
+		{
+			"name": "a named caption colour",
+			"attributes": {
+				"captionColor": "rebeccapurple"
+			},
+			"selector": "caption"
+		},
+		{
+			"name": "a colour function the sanitizer does not know",
+			"attributes": {
+				"captionColor": "color-mix(in srgb, red, blue)"
+			},
+			"selector": "caption"
+		},
+		{
+			"name": "transparent",
+			"attributes": {
+				"captionColor": "transparent"
+			},
+			"selector": "caption"
+		},
+		{
+			"name": "modern hsl syntax the sanitizer does not know",
+			"attributes": {
+				"captionColor": "hsl(220deg 13% 91%)"
+			},
+			"selector": "caption"
+		},
+		{
+			"name": "a css comment in a fluid size",
+			"attributes": {
+				"captionFontSize": "clamp(/*)"
+			},
+			"selector": "caption"
 		}
 	]
 }
