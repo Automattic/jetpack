@@ -29,6 +29,7 @@ These filters control behavior and are used by other plugins (like Big Sky) to i
 | `agents_manager_enabled_in_ciab` | Enable/disable in CIAB | `true` |
 | `agents_manager_enabled_in_block_editor` | Enable in the block editor without the Help Center takeover (block-editor-only mode; see Concepts) | `false` |
 | `jetpack_ai_sidebar_agents_manager_data` | Add host-specific data to `agentsManagerData` | `current inline data` |
+| `agents_manager_show_help_entry_label` | Show a visible label beside the help entry point icon. The host owns the assignment, so wp-admin and the Calypso omnibar read one source | `false` |
 
 ## Pitfalls
 

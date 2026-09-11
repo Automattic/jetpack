@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin bar: allow the host to show a "Get Help" label beside the help entry point icon, via the new agents_manager_show_help_entry_label filter.

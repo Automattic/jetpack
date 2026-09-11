@@ -10,6 +10,7 @@
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Get_Help_Label_Experiment;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 
@@ -537,3 +538,13 @@ function wpcom_add_stats_to_site_menu( $wp_admin_bar ) {
 	);
 }
 add_action( 'admin_bar_menu', 'wpcom_add_stats_to_site_menu', 40 );
+
+/**
+ * Whether the help entry point shows its "Get Help" label, per the ExPlat assignment.
+ *
+ * @return bool
+ */
+function wpcom_show_help_entry_label() {
+	return Get_Help_Label_Experiment::should_show_label();
+}
+add_filter( 'agents_manager_show_help_entry_label', 'wpcom_show_help_entry_label' );
