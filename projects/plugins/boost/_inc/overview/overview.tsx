@@ -100,9 +100,9 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 					<Notice.Title>{ __( 'Failed to load Speed Scores', 'jetpack-boost' ) }</Notice.Title>
 					<Notice.Description>{ scoreState.error?.message }</Notice.Description>
 					<Notice.Actions>
-						<Button onClick={ () => refreshScores( true ) }>
+						<Notice.ActionButton onClick={ () => refreshScores( true ) }>
 							{ __( 'Try again', 'jetpack-boost' ) }
-						</Button>
+						</Notice.ActionButton>
 					</Notice.Actions>
 				</Notice.Root>
 			) }
@@ -132,9 +132,9 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 					<Notice.Title>{ __( 'Failed to load module settings', 'jetpack-boost' ) }</Notice.Title>
 					<Notice.Description>{ modules.error.message }</Notice.Description>
 					<Notice.Actions>
-						<Button onClick={ () => modules.refetch() }>
+						<Notice.ActionButton onClick={ () => modules.refetch() }>
 							{ __( 'Try again', 'jetpack-boost' ) }
-						</Button>
+						</Notice.ActionButton>
 					</Notice.Actions>
 				</Notice.Root>
 			) }
