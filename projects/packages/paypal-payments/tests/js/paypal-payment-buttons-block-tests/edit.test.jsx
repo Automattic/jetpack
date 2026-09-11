@@ -241,8 +241,8 @@ jest.mock( '@wordpress/components', () => ( {
 			{ help && <span className="help-text">{ help }</span> }
 		</div>
 	),
-	ToolbarButton: ( { label, onClick, isPressed } ) => (
-		<button data-testid={ `toolbar-${ label }` } onClick={ onClick } data-pressed={ isPressed }>
+	ToolbarButton: ( { label, onClick } ) => (
+		<button data-testid={ `toolbar-${ label }` } onClick={ onClick }>
 			{ label }
 		</button>
 	),
@@ -253,7 +253,10 @@ jest.mock( '@wordpress/components', () => ( {
 jest.mock( '../../../src/paypal-payment-buttons/components/paypal-button-preview', () => {
 	return function MockPayPalButtonPreview( props ) {
 		return (
-			<div data-testid="paypal-button-preview" data-product-name={ props.productName }>
+			<div
+				data-testid="paypal-button-preview"
+				data-product-name={ props.productName }
+			>
 				Preview: { props.productName } - { props.price } { props.currencyCode }
 			</div>
 		);
@@ -1858,8 +1861,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					setAttributes={ setAttributes }
 				/>
 			);
-			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
-			await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 		};
 
 		/**
@@ -2128,9 +2130,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
 			);
 			expect( setAttributes ).not.toHaveBeenCalled();
+			// The shared-link notice and the save-status notice, both info. A 404 on
+			// the read leaves the payment alone rather than showing an error.
 			expect(
 				screen.queryAllByTestId( 'notice' ).map( n => n.getAttribute( 'data-status' ) )
-			).toEqual( [ 'info' ] );
+			).toEqual( [ 'info', 'info' ] );
 		} );
 
 		it( 'does not read the payment while PayPal is disconnected', async () => {
@@ -2220,22 +2224,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		}
 
 		/**
-		 * Open the block's edit form, without saving.
-		 *
-		 * @param {object} user - The userEvent instance driving the clicks.
+		 * Wait for the form, which renders once the connection check resolves.
 		 */
-		async function openEditForm( user ) {
-			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
-			await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+		async function waitForForm() {
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 		}
 
 		it( 'offers no tax name to fill in', async () => {
-			const user = userEvent.setup();
 			mockConnected();
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
-			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
-			await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+			await waitForForm();
 
 			expect( screen.queryByLabelText( 'Tax name' ) ).not.toBeInTheDocument();
 			expect( screen.getByLabelText( 'Tax rate (%)' ) ).toBeInTheDocument();
@@ -2260,7 +2259,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					clientId="a"
 				/>
 			);
-			await openEditForm( user );
+			await waitForForm();
 
 			expect( screen.getByText( missingRate ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).toHaveClass(
@@ -2283,7 +2282,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					clientId="a"
 				/>
 			);
-			await openEditForm( user );
+			await waitForForm();
 
 			expect( screen.getByLabelText( 'Tax rate (%)' ) ).toBeInTheDocument();
 			expect( screen.getByText( missingRate ) ).toBeInTheDocument();
@@ -2300,7 +2299,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					clientId="a"
 				/>
 			);
-			await openEditForm( user );
+			await waitForForm();
 			await user.click( screen.getByLabelText( 'Collect tax' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { taxEnabled: true } );
@@ -2311,7 +2310,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockConnected();
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
-			await openEditForm( user );
+			await waitForForm();
 			await user.selectOptions( screen.getByLabelText( 'Tax type' ), 'PREFERENCE' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { taxType: 'PREFERENCE' } );
@@ -2328,7 +2327,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					clientId="a"
 				/>
 			);
-			await openEditForm( user );
+			await waitForForm();
 			await user.type( screen.getByLabelText( 'Tax rate (%)' ), '8' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { taxValue: '8' } );
@@ -2339,7 +2338,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockConnected();
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
-			await openEditForm( user );
+			await waitForForm();
 
 			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).not.toHaveClass(
@@ -2365,7 +2364,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					clientId="a"
 				/>
 			);
-			await openEditForm( user );
+			await waitForForm();
 
 			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
@@ -2994,7 +2993,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
-	describe( 'Preview Mode (connected, has button)', () => {
+	describe( 'Saved Button (connected, has button)', () => {
 		beforeEach( () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 		} );
@@ -3048,7 +3047,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
 		} );
 
-		it( 'shows edit toolbar when button exists', async () => {
+		it( 'offers the delete toolbar button when a button exists', async () => {
 			render(
 				<Edit
 					attributes={ {
@@ -3063,13 +3062,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
-			expect( screen.getByTestId( 'toolbar-Preview' ) ).toBeInTheDocument();
+			await expect(
+				screen.findByTestId( 'toolbar-Delete Payment Button' )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTestId( 'toolbar-Edit' ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'toolbar-Preview' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'switches back to the preview when the Preview toolbar button is clicked', async () => {
-			const user = userEvent.setup();
-
+		// The form lives in the sidebar and the canvas draws the button, so both are
+		// on screen at once - there is no edit mode to switch into.
+		it( 'shows the form and the preview together', async () => {
 			render(
 				<Edit
 					attributes={ {
@@ -3084,40 +3086,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			await user.click( await screen.findByTestId( 'toolbar-Edit' ) );
-			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
-
-			await user.click( screen.getByTestId( 'toolbar-Preview' ) );
-
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
-			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'switches to edit mode when Edit toolbar button is clicked', async () => {
-			const user = userEvent.setup();
-
-			render(
-				<Edit
-					attributes={ {
-						isApiManaged: true,
-						resourceId: 'PLB-TEST123',
-						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
-						productName: 'Test Widget',
-						price: '29.99',
-						currencyCode: 'USD',
-					} }
-					setAttributes={ setAttributes }
-				/>
-			);
-
-			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
-			const editButton = screen.getByTestId( 'toolbar-Edit' );
-			await user.click( editButton );
-
-			// Should now show the edit form.
-			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
-			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
-		} );
 	} );
 
 	describe( 'API Error Handling', () => {

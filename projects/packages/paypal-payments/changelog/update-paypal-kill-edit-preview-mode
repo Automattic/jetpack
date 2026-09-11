@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Drop the block's Edit/Preview toggle. The form lives in the inspector, so both modes drew the same canvas. Cancel is no longer offered on a saved button, where it discarded nothing, and saving no longer clears a return-URL warning that is still true.
