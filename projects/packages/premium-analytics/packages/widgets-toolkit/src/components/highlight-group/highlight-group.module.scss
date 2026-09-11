@@ -1,0 +1,56 @@
+@use "../../styles/widget-container" as *;
+
+/* Column floor, above the widest value the widgets show at the 2xl size
+ * ("Wednesday" is ~172px). Two fields sit side by side once two such columns
+ * fit, so a one-column tile keeps the row on a desktop dashboard and stacks
+ * only at phone width; a longer localized value wraps inside its column. */
+$highlight-field-min-inline-size: 176px;
+
+/* Size containment takes the height from the widget body, so the short-tile
+ * query below can read it. Safe here for the reason `widget-state` gives: the
+ * body is always definite-height, so containment cannot collapse it. */
+.container {
+	container-type: size;
+	display: flex;
+	flex-direction: column;
+	block-size: 100%;
+}
+
+/* `flex: auto` with the default `min-block-size: auto`: the group fills a tile
+ * with room and grows past one without, so centering never has free space to
+ * push the first field past the top edge; the overflow falls below the fold,
+ * where the widget scrolls to it. `auto-fit` collapses the tracks the fields
+ * leave empty, so two fields always share the full width. */
+.group {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax($highlight-field-min-inline-size, 1fr));
+	align-content: center;
+	gap: var(--wpds-dimension-gap-xl);
+	flex: 1 1 auto;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+	min-inline-size: 0;
+}
+
+/* A height-1 tile is a hair shorter than label, value and caption with their
+ * gaps, which would draw a scrollbar for a 1px overflow. Shed the gaps there,
+ * at the threshold the other components use to drop chrome on a short tile. */
+@container (max-block-size: #{$widget-short-max-block-size}) {
+
+	.field {
+		gap: 0;
+	}
+}
+
+.label,
+.value {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.caption {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
