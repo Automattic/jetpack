@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI: Fix walkthrough thumbnails not loading when static file acceleration is enabled.

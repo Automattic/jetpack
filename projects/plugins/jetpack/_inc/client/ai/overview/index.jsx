@@ -15,10 +15,10 @@ import NavRow from '../components/nav-row';
 import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
 import AssistantBanner from './assistant-banner';
 import { chatGptIcon, claudeIcon } from './connector-icons';
-import buildPageThumb from './images/build-page.webp';
-import connectClaudeThumb from './images/connect-claude.webp';
-import mediaLibraryThumb from './images/media-library.webp';
-import optimizeSiteThumb from './images/optimize-site.webp';
+import buildPageThumb from './images/build-page.png';
+import connectClaudeThumb from './images/connect-claude.png';
+import mediaLibraryThumb from './images/media-library.png';
+import optimizeSiteThumb from './images/optimize-site.png';
 import { normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
