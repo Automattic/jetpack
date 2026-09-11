@@ -15,6 +15,8 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
+
 /**
  * Tests for the Analytics class. Also covers ensure_widget_registry_ready(): only
  * test_rest_request_still_serves_the_widget_manifest exercises it, and php-code-coverage
@@ -26,6 +28,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass( Analytics::class )]
 #[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )]
 class Analytics_Test extends TestCase {
+	use Widget_Manifest_Fixture_Trait;
 
 	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
 	const MENU_HOOKNAME = 'toplevel_page_' . self::MENU_SLUG;
@@ -428,24 +431,6 @@ class Analytics_Test extends TestCase {
 			Widget_Type_Registry::get_instance()->unregister( 'test/rest-gate-sentinel' );
 			unset( $GLOBALS['jpa_test_widget_manifest'] );
 		}
-	}
-
-	/**
-	 * Point the manifest require at the fixture manifest.
-	 *
-	 * @return string
-	 */
-	public function use_fixture_widget_manifest() {
-		return __DIR__ . '/fixtures/build-entry/widgets.php';
-	}
-
-	/**
-	 * Point the manifest at a missing file.
-	 *
-	 * @return string
-	 */
-	public function use_absent_widget_manifest() {
-		return __DIR__ . '/fixtures/build-entry/no-such-widgets.php';
 	}
 
 	/**

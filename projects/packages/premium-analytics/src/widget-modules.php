@@ -77,6 +77,8 @@ function get_widget_modules_response() {
 			'title'         => $widget_type->title,
 			'description'   => $widget_type->description,
 			'help'          => $widget_type->help,
+			'icon'          => $widget_type->icon,
+			'actions'       => $widget_type->actions,
 			'keywords'      => $widget_type->keywords,
 		);
 	}

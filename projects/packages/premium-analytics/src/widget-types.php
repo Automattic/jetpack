@@ -5,7 +5,8 @@
  * Copies the wp-build manifest (`jpa_get_registered_widget_modules()`) into the
  * in-memory Widget_Type_Registry, so the plugin queries the registry instead
  * of re-parsing the manifest. On the way in, user-facing metadata strings are
- * translated (per the widget-i18n.json schema) and the `help` note sanitized.
+ * translated (per the widget-i18n.json schema) and the `help`, `icon`, and
+ * `actions` fields sanitized.
  *
  * This is the problem-agnostic "core" layer (a PA-namespaced copy of the
  * experimental Gutenberg API): it exposes the hooks a consumer uses to scope
@@ -58,10 +59,11 @@ function get_widget_metadata_i18n_schema() {
 /**
  * Translates a widget's user-facing metadata strings.
  *
- * Runs `title`, `description`, `help`, and `keywords` through the widget
- * i18n schema, leaving every other key untouched. Unlike the upstream copy,
- * a widget with no `textdomain` falls back to the package text domain
- * instead of skipping translation: every bundled widget shares it.
+ * Runs `title`, `description`, `help`, `actions`, and `keywords` through
+ * the widget i18n schema, leaving every other key untouched. Unlike the
+ * upstream copy, a widget with no `textdomain` falls back to the package
+ * text domain instead of skipping translation: every bundled widget
+ * shares it.
  *
  * @param array $widget Widget data from the build manifest.
  * @return array Widget data with its translatable strings localized.
@@ -70,7 +72,7 @@ function translate_widget_metadata( $widget ) {
 	$textdomain  = ! empty( $widget['textdomain'] ) ? $widget['textdomain'] : 'jetpack-premium-analytics-pkg';
 	$i18n_schema = get_widget_metadata_i18n_schema();
 
-	foreach ( array( 'title', 'description', 'help', 'keywords' ) as $field ) {
+	foreach ( array( 'title', 'description', 'help', 'actions', 'keywords' ) as $field ) {
 		if ( isset( $widget[ $field ] ) && isset( $i18n_schema->$field ) ) {
 			$widget[ $field ] = translate_settings_using_i18n_schema( $i18n_schema->$field, $widget[ $field ], $textdomain );
 		}
@@ -126,6 +128,148 @@ function sanitize_widget_help( $help ) {
 }
 
 /**
+ * Resolves an action href to the form `esc_url_raw()` can judge.
+ *
+ * Absolute, scheme-relative, root-relative, and single-segment admin `.php`
+ * hrefs pass through unchanged. Returns '' for path traversal and for any
+ * other relative href, so `esc_url_raw()` cannot invent `http://filename`.
+ * Unlike upstream, widget-local files are never resolved: `widgets/` does
+ * not ship with the package, only its build output does.
+ *
+ * @param string $href Action href.
+ * @return string The href to escape, or ''.
+ */
+function resolve_widget_action_href( $href ) {
+	if ( ! is_string( $href ) || '' === $href ) {
+		return '';
+	}
+
+	// Absolute, scheme-relative, or schemed, including URLs with `..` in the path.
+	if ( preg_match( '#^([a-z][a-z0-9+.-]*:)?//#i', $href ) || str_contains( $href, ':' ) ) {
+		return $href;
+	}
+
+	// Root-relative paths (e.g. /wp-admin/..., /report.csv).
+	if ( str_starts_with( $href, '/' ) ) {
+		return $href;
+	}
+
+	if ( str_contains( $href, '..' ) ) {
+		return '';
+	}
+
+	$path_only = preg_split( '/[?#]/', $href, 2 )[0];
+	if ( str_ends_with( strtolower( $path_only ), '.php' ) ) {
+		// Single-segment admin entry points stay as-is. Deeper relative
+		// paths would come out of `esc_url_raw()` as `http://` URLs.
+		return str_contains( $path_only, '/' ) ? '' : $href;
+	}
+
+	return '';
+}
+
+/**
+ * Sanitizes widget actions to `id` / `label` / `href` (via `esc_url_raw()`),
+ * plus optional `download` / `openInNewTab` / `icon` / `relevance`. Drops
+ * incomplete or unsafe entries and reports dropped hrefs through
+ * `_doing_it_wrong()`; a malformed `icon` or `relevance` drops the key, never
+ * the action, and a `download` name that sanitizes to nothing becomes `true`.
+ *
+ * @param mixed $actions Actions from the build manifest.
+ * @return array|null Sanitized actions, or null when none survive.
+ */
+function sanitize_widget_actions( $actions ) {
+	if ( ! is_array( $actions ) ) {
+		return null;
+	}
+
+	$sanitized = array();
+	foreach ( $actions as $action ) {
+		if (
+			! is_array( $action ) ||
+			! isset( $action['id'] ) ||
+			! isset( $action['label'] ) ||
+			! isset( $action['href'] ) ||
+			! is_string( $action['id'] ) ||
+			! is_string( $action['label'] ) ||
+			! is_string( $action['href'] ) ||
+			'' === $action['id'] ||
+			'' === $action['label'] ||
+			'' === $action['href']
+		) {
+			continue;
+		}
+
+		$href = esc_url_raw( resolve_widget_action_href( $action['href'] ) );
+		if ( ! $href ) {
+			$message = sprintf(
+				/* translators: 1: Widget action id. 2: Declared action href. */
+				__( 'Dropped widget action "%1$s": href "%2$s" is not an allowed URL.', 'jetpack-premium-analytics-pkg' ),
+				$action['id'],
+				$action['href']
+			);
+			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
+			_doing_it_wrong( __FUNCTION__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+			continue;
+		}
+
+		$entry = array(
+			'id'    => $action['id'],
+			'label' => $action['label'],
+			'href'  => $href,
+		);
+
+		if ( isset( $action['download'] ) ) {
+			if ( is_bool( $action['download'] ) ) {
+				$entry['download'] = $action['download'];
+			} else {
+				// A name that sanitizes to nothing keeps the download under the original name; only `false` navigates.
+				$filename          = sanitize_file_name( (string) $action['download'] );
+				$entry['download'] = '' !== $filename ? $filename : true;
+			}
+		}
+
+		if ( isset( $action['openInNewTab'] ) ) {
+			$entry['openInNewTab'] = (bool) $action['openInNewTab'];
+		}
+
+		if ( isset( $action['icon'] ) ) {
+			$icon = sanitize_widget_icon( $action['icon'] );
+			if ( $icon ) {
+				$entry['icon'] = $icon;
+			}
+		}
+
+		if ( isset( $action['relevance'] ) && in_array( $action['relevance'], array( 'high', 'medium', 'low' ), true ) ) {
+			$entry['relevance'] = $action['relevance'];
+		}
+
+		$sanitized[] = $entry;
+	}
+
+	return $sanitized ? $sanitized : null;
+}
+
+/**
+ * Constrains a widget icon reference to a registered icon name
+ * (`collection/icon-name`); anything else drops silently to no icon.
+ *
+ * @param mixed $icon Icon reference from the build manifest.
+ * @return string|null The icon name, or null when the shape does not match.
+ */
+function sanitize_widget_icon( $icon ) {
+	if ( ! is_string( $icon ) || '' === $icon ) {
+		return null;
+	}
+
+	if ( ! preg_match( '#^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?/[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$#', $icon ) ) {
+		return null;
+	}
+
+	return $icon;
+}
+
+/**
  * Hydrates the widget type registry from the build manifest.
  *
  * Each manifest widget is copied into the registry, gated by
@@ -173,6 +317,8 @@ function register_widget_types() {
 				'title'         => $widget['title'] ?? null,
 				'description'   => $widget['description'] ?? null,
 				'help'          => sanitize_widget_help( $widget['help'] ?? null ),
+				'icon'          => sanitize_widget_icon( $widget['icon'] ?? null ),
+				'actions'       => sanitize_widget_actions( $widget['actions'] ?? null ),
 				'keywords'      => $widget['keywords'] ?? null,
 			)
 		);
