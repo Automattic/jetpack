@@ -11,9 +11,12 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
-	formatDailyViewCount,
-	formatViewCount,
+	monthRange,
+	monthlyHeatmapLabels,
+	resolveMonthlyHeatmapMetric,
 	useWidgetRootContext,
+	yearRange,
+	type MonthlyHeatmapMetric,
 	type MonthlyHeatmapRow,
 	type MonthlyHeatmapTarget,
 	type ReportParamsFieldAttributes,
@@ -23,8 +26,6 @@ import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { resolveMetric, type AllTimeTrafficMetric } from './build-all-time-traffic-rows';
-import { monthRange, yearRange } from './period-range';
 import usePostAllTimeTraffic from './use-post-all-time-traffic';
 import type { PostAllTimeTrafficAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -33,7 +34,7 @@ type PostAllTimeTrafficRenderAttributes = PostAllTimeTrafficAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type PostAllTimeTrafficWidgetProps = WidgetRenderProps< PostAllTimeTrafficRenderAttributes >;
 
-function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } ) {
+function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
@@ -44,8 +45,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 	// page's period, read over by the other cards while this one stays all-time.
 	const { onChange, onApply, timeZone } = useReportDateFilters();
 
-	// A month without views reads 0, as the endpoint reports it; the months
-	// outside the post's life are filler.
+	// The months outside the post's life ('before' / 'after') become filler.
 	const heatmapRows = useMemo< MonthlyHeatmapRow[] >(
 		() =>
 			rows.map( row => ( {
@@ -106,18 +106,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 		>
 			<MonthlyHeatmap
 				rows={ heatmapRows }
-				formatValue={ metric === 'average' ? formatDailyViewCount : formatViewCount }
-				emptyLabel={ __( 'No views', 'jetpack-premium-analytics-pkg' ) }
-				lessLabel={
-					metric === 'average'
-						? __( 'Fewer views per day', 'jetpack-premium-analytics-pkg' )
-						: __( 'Fewer views', 'jetpack-premium-analytics-pkg' )
-				}
-				moreLabel={
-					metric === 'average'
-						? __( 'More views per day', 'jetpack-premium-analytics-pkg' )
-						: __( 'More views', 'jetpack-premium-analytics-pkg' )
-				}
+				{ ...monthlyHeatmapLabels( metric ) }
 				onSelect={ openPeriod }
 			/>
 		</WidgetState>
@@ -127,7 +116,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 export default function PostAllTimeTraffic( { attributes = {} }: PostAllTimeTrafficWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<PostAllTimeTrafficInner metric={ resolveMetric( attributes.metric ) } />
+			<PostAllTimeTrafficInner metric={ resolveMonthlyHeatmapMetric( attributes.metric ) } />
 		</WidgetRoot>
 	);
 }

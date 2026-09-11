@@ -14,10 +14,9 @@ import { useCallback, useMemo, type KeyboardEvent, type MouseEvent } from 'react
 /**
  * Internal dependencies
  */
+import { MONTHS_IN_YEAR } from '../../helpers/month-key';
 import { CalendarHeatmapTooltip } from '../calendar-heatmap';
 import styles from './monthly-heatmap.module.scss';
-
-const MONTHS_IN_YEAR = 12;
 
 export type MonthlyHeatmapRow = {
 	year: number;
