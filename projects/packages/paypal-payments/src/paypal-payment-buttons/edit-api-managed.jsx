@@ -35,6 +35,7 @@ import { useState, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import ConfirmDialogs from './components/confirm-dialogs';
 import ConnectionWizard from './components/connection-wizard';
+import PayPalFormatControls from './components/format-controls';
 import LegacyBlock from './components/legacy-block';
 import PayPalButtonPreview from './components/paypal-button-preview';
 import VariantBuilder, { isVariantPricingOn, validateVariants } from './components/variant-builder';
@@ -44,6 +45,7 @@ import { usePayPalResource } from './hooks/use-paypal-resource';
 import { API_BASE } from './utils/api-base';
 import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
+import { withPartnerAttribution } from './utils/partner-attribution';
 import {
 	getValidationErrors,
 	hasBlockingError,
@@ -93,6 +95,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		taxType,
 		taxValue,
 		format,
+		qrShowCaption,
+		qrCaption,
 	} = attributes;
 
 	// Normalize — old blocks without the attribute default to BUTTON.
@@ -398,21 +402,31 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		</BlockControls>
 	) : null;
 
-	// Inspector sidebar — format switcher, Style preset, and connection info.
+	// Inspector sidebar — the Settings tab holds the Style preset and connection
+	// info, the Styles tab holds EMBED AS and the format's own controls. The
+	// second fill is what makes the editor draw the tab bar at all.
 	const inspectorControls = (
-		<PayPalInspectorControls
-			setAttributes={ setAttributes }
-			colorScheme={ colorScheme }
-			resourceId={ resourceId }
-			activeFormat={ activeFormat }
-			isConnected={ isConnected }
-			environment={ environment }
-			setShowReconnect={ setShowReconnect }
-			isBusy={ isBusy }
-			handleDeleteButton={ handleDeleteButton }
-			handleDisconnect={ handleDisconnect }
-			hasButton={ hasButton }
-		/>
+		<>
+			<PayPalInspectorControls
+				setAttributes={ setAttributes }
+				colorScheme={ colorScheme }
+				resourceId={ resourceId }
+				isConnected={ isConnected }
+				environment={ environment }
+				setShowReconnect={ setShowReconnect }
+				isBusy={ isBusy }
+				handleDeleteButton={ handleDeleteButton }
+				handleDisconnect={ handleDisconnect }
+				hasButton={ hasButton }
+			/>
+			<PayPalFormatControls
+				format={ activeFormat }
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				qrUrl={ withPartnerAttribution( paymentLink, partnerAttributionId ) }
+				disabled={ isBusy }
+			/>
+		</>
 	);
 
 	// Shared confirmation dialogs — extracted so they render regardless of which return branch is active.
@@ -918,6 +932,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					imageUrl={ imageUrl }
 					partnerAttributionId={ partnerAttributionId }
 					buttonText={ buttonText }
+					qrShowCaption={ qrShowCaption }
+					qrCaption={ qrCaption }
+					attributes={ attributes }
 				/>
 			</div>
 

@@ -8,34 +8,34 @@
 import { InspectorControls } from '@wordpress/block-editor';
 import { Button, ButtonGroup, PanelBody } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import FormatSwitcher from './components/format-switcher';
 
 /**
- * The inspector sidebar — format switcher, Style preset, and connection info.
+ * The Settings tab — Style preset and connection info.
+ *
+ * EMBED AS and the format's own controls live in the Styles tab, in
+ * components/format-controls.jsx.
  *
  * @param {object}   props                    - Component props.
  * @param {Function} props.setAttributes      - Function to update block attributes.
  * @param {string}   props.colorScheme        - The color scheme attribute.
  * @param {string}   props.resourceId         - The PayPal resource ID attribute.
- * @param {string}   props.activeFormat       - The display format, normalized.
  * @param {boolean}  props.isConnected        - Whether the site is connected to PayPal.
  * @param {string}   props.environment        - 'production' or 'sandbox'.
  * @param {Function} props.setShowReconnect   - Setter for the reconnect request.
- * @param {boolean}  props.isCreating         - Whether a create or update request is in flight.
+ * @param {boolean}  props.isBusy             - Whether a create or update request is in flight.
  * @param {Function} props.handleDeleteButton - Delete the PayPal payment.
  * @param {Function} props.handleDisconnect   - Disconnect the PayPal account.
  * @param {boolean}  props.hasButton          - Whether the block has a saved button.
- * @return {Element} The inspector sidebar.
+ * @return {Element} The Settings tab.
  */
 export default function PayPalInspectorControls( {
 	setAttributes,
 	colorScheme,
 	resourceId,
-	activeFormat,
 	isConnected,
 	environment,
 	setShowReconnect,
-	isCreating,
+	isBusy,
 	handleDeleteButton,
 	handleDisconnect,
 	hasButton,
@@ -81,14 +81,6 @@ export default function PayPalInspectorControls( {
 				</p>
 			</PanelBody>
 
-			<PanelBody title={ __( 'Display Format', 'jetpack-paypal-payments' ) } initialOpen={ false }>
-				<FormatSwitcher
-					value={ activeFormat }
-					onChange={ value => setAttributes( { format: value } ) }
-					disabled={ isCreating }
-				/>
-			</PanelBody>
-
 			{ hasButton && (
 				<PanelBody
 					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
@@ -105,7 +97,7 @@ export default function PayPalInspectorControls( {
 							variant="secondary"
 							isDestructive
 							onClick={ handleDeleteButton }
-							disabled={ isCreating || ! isConnected }
+							disabled={ isBusy || ! isConnected }
 						>
 							{ __( 'Delete Button', 'jetpack-paypal-payments' ) }
 						</Button>

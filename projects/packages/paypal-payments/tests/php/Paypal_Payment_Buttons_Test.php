@@ -727,10 +727,113 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		);
 
 		$this->assertLessThan(
-			strpos( $result, 'jetpack-paypal-button__qr-product-name' ),
+			strpos( $result, 'jetpack-paypal-button__qr-caption' ),
 			strpos( $result, 'jetpack-paypal-button__qr-canvas' ),
-			'The product name should read below the QR code, not above it'
+			'The caption should read below the QR code, not above it'
 		);
+	}
+
+	/**
+	 * Test that a QR block that never touched the control still captions the code.
+	 */
+	public function test_render_block_qr_caption_defaults_on() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QRCAP',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QRCAP',
+			'productName'  => 'Premium Widget',
+			'format'       => 'QR',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<p class="jetpack-paypal-button__qr-caption">Buy Now</p>',
+			$result,
+			'An unset caption should fall back to the default label, not the product name'
+		);
+	}
+
+	/**
+	 * Test that Show text under QR code, when off, removes the caption.
+	 */
+	public function test_render_block_qr_caption_can_be_switched_off() {
+		$attributes = array(
+			'isApiManaged'  => true,
+			'resourceId'    => 'PLB-QRNOCAP',
+			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-QRNOCAP',
+			'productName'   => 'Premium Widget',
+			'format'        => 'QR',
+			'qrShowCaption' => false,
+			'qrCaption'     => 'Scan to pay',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__qr-caption', $result );
+		$this->assertStringNotContainsString( 'Scan to pay', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+	}
+
+	/**
+	 * Test that Width, Border and caption settings reach the published markup.
+	 */
+	public function test_render_block_qr_applies_width_border_and_caption_styles() {
+		$attributes = array(
+			'isApiManaged'     => true,
+			'resourceId'       => 'PLB-QRSTYLE',
+			'paymentLink'      => 'https://www.paypal.com/ncp/payment/PLB-QRSTYLE',
+			'format'           => 'QR',
+			'qrCaption'        => 'Scan to pay',
+			'blockWidth'       => 50,
+			'marginVertical'   => 12,
+			'marginHorizontal' => 4,
+			'borderRadius'     => 8,
+			'borderWidth'      => 2,
+			'borderColor'      => '#ff0000',
+			'captionColor'     => '#0000ff',
+			'captionFontSize'  => 20,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'max-width:50%', $result );
+		$this->assertStringContainsString( 'margin:12px 4px', $result );
+		$this->assertStringContainsString( 'border-radius:8px', $result );
+		$this->assertStringContainsString( 'border:2px solid #ff0000', $result );
+		$this->assertStringContainsString( 'color:#0000ff', $result );
+		$this->assertStringContainsString( 'font-size:20px', $result );
+	}
+
+	/**
+	 * Test that a colour the picker cannot produce never reaches the style attribute.
+	 */
+	public function test_render_block_rejects_an_unparseable_colour() {
+		$attributes = array(
+			'isApiManaged'  => true,
+			'resourceId'    => 'PLB-QRBADCOL',
+			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-QRBADCOL',
+			'format'        => 'QR',
+			'borderWidth'   => 2,
+			'borderColor'   => 'red; background:url(evil)',
+			'captionColor'  => 'javascript:alert(1)',
+			'qrShowCaption' => true,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'evil', $result );
+		$this->assertStringNotContainsString( 'javascript:', $result );
+		// The stroke needs both halves, so a rejected colour drops the border too.
+		$this->assertStringNotContainsString( 'border:2px', $result );
 	}
 
 	/**

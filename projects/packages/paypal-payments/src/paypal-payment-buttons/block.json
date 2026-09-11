@@ -131,6 +131,40 @@
 			"type": "string",
 			"enum": [ "BUTTON", "LINK", "QR" ],
 			"default": "BUTTON"
+		},
+		"qrShowCaption": {
+			"type": "boolean",
+			"default": true
+		},
+		"qrCaption": {
+			"type": "string",
+			"default": ""
+		},
+		"captionColor": {
+			"type": "string",
+			"default": ""
+		},
+		"captionFontSize": {
+			"type": "number"
+		},
+		"blockWidth": {
+			"type": "number"
+		},
+		"marginVertical": {
+			"type": "number"
+		},
+		"marginHorizontal": {
+			"type": "number"
+		},
+		"borderRadius": {
+			"type": "number"
+		},
+		"borderWidth": {
+			"type": "number"
+		},
+		"borderColor": {
+			"type": "string",
+			"default": ""
 		}
 	}
 }

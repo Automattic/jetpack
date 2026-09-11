@@ -149,6 +149,102 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * Whether a numeric attribute was actually set.
+	 *
+	 * 0 is a value a merchant can pick, so the test is for missing only.
+	 *
+	 * @param array  $attributes The block attributes.
+	 * @param string $key        The attribute name.
+	 * @return bool True when the attribute carries a number.
+	 */
+	private static function has_number( $attributes, $key ) {
+		return isset( $attributes[ $key ] ) && is_numeric( $attributes[ $key ] );
+	}
+
+	/**
+	 * Block wrapper styles — Width Settings and Border Settings.
+	 *
+	 * Mirrors getWrapperStyle() in utils/block-styles.js, so a block styled in
+	 * the editor looks the same once published. Change one, change the other.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_wrapper_style( $attributes ) {
+		$rules = array();
+
+		if ( self::has_number( $attributes, 'blockWidth' ) ) {
+			$rules[] = sprintf( 'max-width:%s%%', (float) $attributes['blockWidth'] );
+		}
+
+		if ( self::has_number( $attributes, 'marginVertical' ) || self::has_number( $attributes, 'marginHorizontal' ) ) {
+			$vertical   = self::has_number( $attributes, 'marginVertical' ) ? (float) $attributes['marginVertical'] . 'px' : '0';
+			$horizontal = self::has_number( $attributes, 'marginHorizontal' ) ? (float) $attributes['marginHorizontal'] . 'px' : '0';
+			$rules[]    = sprintf( 'margin:%s %s', $vertical, $horizontal );
+		}
+
+		if ( self::has_number( $attributes, 'borderRadius' ) ) {
+			$rules[] = sprintf( 'border-radius:%spx', (float) $attributes['borderRadius'] );
+		}
+
+		// A width with no colour would draw an invisible border and still take
+		// up space, so both have to be present.
+		$border_color = self::sanitize_css_color( $attributes['borderColor'] ?? '' );
+		if ( self::has_number( $attributes, 'borderWidth' ) && '' !== $border_color ) {
+			$rules[] = sprintf( 'border:%spx solid %s', (float) $attributes['borderWidth'], $border_color );
+		}
+
+		return implode( ';', $rules );
+	}
+
+	/**
+	 * QR caption styles — Color and Typography.
+	 *
+	 * Mirrors getCaptionStyle() in utils/block-styles.js.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_caption_style( $attributes ) {
+		$rules = array();
+
+		$color = self::sanitize_css_color( $attributes['captionColor'] ?? '' );
+		if ( '' !== $color ) {
+			$rules[] = sprintf( 'color:%s', $color );
+		}
+
+		if ( self::has_number( $attributes, 'captionFontSize' ) ) {
+			$rules[] = sprintf( 'font-size:%spx', (float) $attributes['captionFontSize'] );
+		}
+
+		return implode( ';', $rules );
+	}
+
+	/**
+	 * Accept only a colour the picker can produce.
+	 *
+	 * ColorGradientControl hands back a hex value or a CSS variable reference
+	 * for a theme palette entry. Anything else is a merchant editing the post
+	 * source, and is dropped rather than written into a style attribute.
+	 *
+	 * @param string $color The raw attribute value.
+	 * @return string The colour, or '' when it is not one.
+	 */
+	private static function sanitize_css_color( $color ) {
+		$color = trim( (string) $color );
+
+		if ( preg_match( '/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $color ) ) {
+			return $color;
+		}
+
+		if ( preg_match( '/^var\(--wp--[a-z0-9-]+\)$/i', $color ) ) {
+			return $color;
+		}
+
+		return '';
+	}
+
+	/**
 	 * Append the partner attribution (BN) code to a PayPal payment URL.
 	 *
 	 * Every route a merchant can use to hand a payment link to a buyer — the
@@ -309,6 +405,8 @@ class PayPal_Payment_Buttons {
 		$variants            = $attributes['variants'] ?? null;
 		$format              = $attributes['format'] ?? 'BUTTON';
 		$button_text         = trim( (string) ( $attributes['buttonText'] ?? '' ) );
+		$qr_show_caption     = ! isset( $attributes['qrShowCaption'] ) || ! empty( $attributes['qrShowCaption'] );
+		$qr_caption          = trim( (string) ( $attributes['qrCaption'] ?? '' ) );
 
 		// Validate — only known format values are accepted.
 		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR' ), true ) ) {
@@ -353,14 +451,23 @@ class PayPal_Payment_Buttons {
 
 		// ─── QR format: standalone auto-rendering QR canvas ──────────────
 		if ( 'QR' === $format ) {
-			$wrapper_attributes = get_block_wrapper_attributes();
+			$wrapper_style      = self::get_wrapper_style( $attributes );
+			$wrapper_attributes = get_block_wrapper_attributes(
+				'' !== $wrapper_style ? array( 'style' => $wrapper_style ) : array()
+			);
 			$download_label     = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
 			$copy_label         = esc_html__( 'Copy Link', 'jetpack-paypal-payments' );
 			$copied_label       = esc_attr__( 'Copied!', 'jetpack-paypal-payments' );
-			$product_label      = ! empty( $product_name )
+
+			// An empty caption falls back to the default rather than drawing a
+			// blank line, the same way the button label does.
+			$caption_text  = '' !== $qr_caption ? $qr_caption : __( 'Buy Now', 'jetpack-paypal-payments' );
+			$caption_style = self::get_caption_style( $attributes );
+			$caption_html = $qr_show_caption
 				? sprintf(
-					'<p class="jetpack-paypal-button__qr-product-name">%s</p>',
-					esc_html( $product_name )
+					'<p class="jetpack-paypal-button__qr-caption"%s>%s</p>',
+					'' !== $caption_style ? ' style="' . esc_attr( $caption_style ) . '"' : '',
+					esc_html( $caption_text )
 				)
 				: '';
 
@@ -380,7 +487,7 @@ class PayPal_Payment_Buttons {
 	</div>
 </div>',
 				$wrapper_attributes,
-				$product_label,
+				$caption_html,
 				esc_attr( $action_url ),
 				$copy_label,
 				$copied_label,
@@ -489,7 +596,10 @@ class PayPal_Payment_Buttons {
 			}
 		}
 
-		$wrapper_attributes = get_block_wrapper_attributes();
+		$wrapper_style      = self::get_wrapper_style( $attributes );
+		$wrapper_attributes = get_block_wrapper_attributes(
+			'' !== $wrapper_style ? array( 'style' => $wrapper_style ) : array()
+		);
 
 		// No wordmark on the button face — the "Powered by PayPal" line below it
 		// is the branding. A blank label would draw an unreadable button, so

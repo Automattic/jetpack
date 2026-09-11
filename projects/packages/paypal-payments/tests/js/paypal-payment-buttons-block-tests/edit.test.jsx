@@ -57,6 +57,11 @@ jest.mock( '@wordpress/i18n', () => ( {
 	},
 } ) );
 
+// jsdom has no 2D context, so the inspector's QR preview cannot really draw.
+jest.mock( 'qrcode', () => ( {
+	toCanvas: jest.fn( () => Promise.resolve() ),
+} ) );
+
 const mockMarkNotPersistent = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { __unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent } ),
@@ -71,7 +76,22 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	store: { name: 'core/block-editor' },
 	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
 	BlockControls: ( { children } ) => <div data-testid="block-controls">{ children }</div>,
-	InspectorControls: ( { children } ) => <div data-testid="inspector-controls">{ children }</div>,
+	InspectorControls: ( { children, group } ) => (
+		<div data-testid={ group ? `inspector-controls-${ group }` : 'inspector-controls' }>
+			{ children }
+		</div>
+	),
+	__experimentalColorGradientControl: ( { label, colorValue, onColorChange } ) => (
+		<div data-testid={ `color-${ label }` }>
+			<label htmlFor={ `color-field-${ label }` }>{ label }</label>
+			<input
+				id={ `color-field-${ label }` }
+				type="text"
+				value={ colorValue || '' }
+				onChange={ e => onColorChange( e.target.value ) }
+			/>
+		</div>
+	),
 	// open() calls onSelect straight away so the block's handler runs.
 	MediaUpload: ( { onSelect, render: renderProp } ) =>
 		renderProp( { open: () => onSelect( mockSelectedMedia ) } ),
@@ -103,9 +123,20 @@ jest.mock( '@wordpress/components', () => ( {
 			<span className="components-base-control__label">{ children }</span>
 		),
 	},
-	// isDestructive and isSmall are destructured off rather than spread: the real
-	// Button turns them into classes, so letting them reach the DOM warns.
-	Button: ( { children, onClick, disabled, variant, isBusy, isDestructive, isSmall, ...rest } ) => (
+	// isDestructive, isSmall and the __next* opt-ins are destructured off rather
+	// than spread: the real Button consumes them, so letting them reach the DOM warns.
+	Button: ( {
+		children,
+		onClick,
+		disabled,
+		variant,
+		isBusy,
+		isDestructive,
+		isSmall,
+		__next40pxDefaultSize,
+		__nextHasNoMarginBottom,
+		...rest
+	} ) => (
 		<button
 			onClick={ onClick }
 			disabled={ disabled }
@@ -212,6 +243,9 @@ jest.mock( '@wordpress/components', () => ( {
 		help,
 		className,
 		hideLabelFromVision,
+		// The real TextControl consumes these; spreading them onto the input warns.
+		__next40pxDefaultSize,
+		__nextHasNoMarginBottom,
 		...rest
 	} ) => (
 		<div data-testid={ `control-${ label }` } className={ className }>
@@ -247,6 +281,55 @@ jest.mock( '@wordpress/components', () => ( {
 		</button>
 	),
 	ToolbarGroup: ( { children } ) => <div data-testid="toolbar-group">{ children }</div>,
+	Flex: ( { children } ) => <div>{ children }</div>,
+	FlexItem: ( { children } ) => <div>{ children }</div>,
+	// The panels only group controls, so they render as their contents. A test
+	// that needs one asserts on the control inside it, not on the panel.
+	__experimentalToolsPanel: ( { children, label } ) => (
+		<div data-testid={ `tools-panel-${ label }` }>{ children }</div>
+	),
+	__experimentalToolsPanelItem: ( { children } ) => <>{ children }</>,
+	RangeControl: ( { label, value, onChange, min, max } ) => (
+		<div data-testid={ `range-${ label }` }>
+			<label htmlFor={ `range-field-${ label }` }>{ label }</label>
+			<input
+				id={ `range-field-${ label }` }
+				type="range"
+				min={ min }
+				max={ max }
+				value={ value ?? '' }
+				onChange={ e => onChange( Number( e.target.value ) ) }
+			/>
+		</div>
+	),
+	__experimentalUnitControl: ( { label, value, onChange } ) => (
+		<div data-testid={ `unit-${ label }` }>
+			<label htmlFor={ `unit-field-${ label }` }>{ label }</label>
+			<input
+				id={ `unit-field-${ label }` }
+				type="text"
+				value={ value ?? '' }
+				onChange={ e => onChange( e.target.value ) }
+			/>
+		</div>
+	),
+	__experimentalToggleGroupControl: ( { children, label, value, onChange } ) => {
+		// Required here rather than imported: the factory is hoisted above the
+		// module body, so a top-level binding is still undefined when it runs.
+		const { Children, cloneElement } = require( 'react' );
+		return (
+			<div data-testid={ `toggle-group-${ label }` } data-value={ value }>
+				{ Children.map( children, child =>
+					child ? cloneElement( child, { onSelect: onChange } ) : null
+				) }
+			</div>
+		);
+	},
+	__experimentalToggleGroupControlOption: ( { value, label, onSelect } ) => (
+		<button type="button" onClick={ () => onSelect( value ) }>
+			{ label }
+		</button>
+	),
 } ) );
 
 // Mock PayPal button preview component.
@@ -3055,9 +3138,111 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'BUTTON'
 			);
 
-			await user.click( screen.getByText( 'QR Code' ) );
+			// EMBED AS is a dropdown in the Styles tab, the way every frame draws it.
+			await user.selectOptions( screen.getByLabelText( 'Embed as' ), 'QR' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { format: 'QR' } );
+		} );
+
+		// The Styles tab. Its panel set changes per format and, for QR, per the
+		// caption toggle — which is the reason these are our own panels rather
+		// than block supports.
+		describe( 'the Styles tab', () => {
+			const qrAttributes = {
+				isApiManaged: true,
+				resourceId: 'PLB-TEST123',
+				paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+				productName: 'Test Widget',
+				price: '29.99',
+				currencyCode: 'USD',
+				format: 'QR',
+			};
+
+			it( 'puts the format controls in the styles group, which is what draws the tab bar', async () => {
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+			} );
+
+			it( 'offers Download beside the inspector QR code', async () => {
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+				await expect( screen.findByText( 'Download' ) ).resolves.toBeInTheDocument();
+			} );
+
+			it( 'toggles the caption off', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: true } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByLabelText( 'Show text under QR code' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { qrShowCaption: false } );
+			} );
+
+			it( 'drops Color and Typography when the caption is off', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: false } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+
+				expect( screen.queryByTestId( 'tools-panel-Color' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'tools-panel-Typography' ) ).not.toBeInTheDocument();
+				// Width and Border do not depend on the caption.
+				expect( screen.getByTestId( 'tools-panel-Width Settings' ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'tools-panel-Border Settings' ) ).toBeInTheDocument();
+			} );
+
+			it( 'adds Color and Typography when the caption is on', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: true } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
+				expect( screen.getByTestId( 'tools-panel-Typography' ) ).toBeInTheDocument();
+			} );
+
+			it( 'gives LINK no Width or Border panel', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+
+				expect( screen.queryByTestId( 'tools-panel-Width Settings' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'tools-panel-Border Settings' ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'stores a width preset', async () => {
+				const user = userEvent.setup();
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByText( '50%' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { blockWidth: 50 } );
+			} );
 		} );
 
 		it( 'offers the delete toolbar button when a button exists', async () => {

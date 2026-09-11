@@ -395,7 +395,7 @@
 
 .jetpack-paypal-button-preview {
 	max-width: 400px;
-	margin: 0 auto;
+	margin: 0;
 }
 
 // QR format — the code, then its label.
@@ -689,5 +689,34 @@
 	.components-button {
 		flex: 1;
 		justify-content: center;
+	}
+}
+
+// ---------------------------------------------------------------
+// Styles tab — the inspector's own copy of the QR code
+// ---------------------------------------------------------------
+
+.jetpack-paypal-payment-buttons__qr-inspector-preview {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+
+	.jetpack-paypal-button__qr-canvas {
+		display: block;
+		max-width: 100%;
+		height: auto;
+	}
+}
+
+// EMBED AS and the format's own output controls — a plain section with a
+// divider, which is what the frames draw. No collapsible panel header.
+.jetpack-paypal-payment-buttons__format-section {
+	padding: 16px;
+	border-bottom: 1px solid #e0e0e0;
+
+	> * + * {
+		margin-top: 16px;
 	}
 }
