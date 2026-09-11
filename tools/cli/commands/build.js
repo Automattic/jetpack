@@ -12,6 +12,7 @@ import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
 import pLimit from 'p-limit';
+import { computeFingerprints, canSkip, writeManifest } from '../helpers/build-cache.js';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import formatDuration from '../helpers/format-duration.js';
 import { getInstallArgs, projectDir, batchLockFileStatus } from '../helpers/install.js';
@@ -87,6 +88,15 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",
 		} )
+		.option( 'cache', {
+			type: 'boolean',
+			description:
+				'Skip building projects whose inputs are unchanged since their last successful build. Ignored with --for-mirrors and in CI.',
+		} )
+		.option( 'force', {
+			type: 'boolean',
+			description: 'With --cache, rebuild every project but refresh the cache fingerprints.',
+		} )
 		.option( 'pin-path-repo-versions', {
 			type: 'boolean',
 			description:
@@ -145,7 +155,16 @@ export async function handler( argv ) {
 	const lockedProjects = await batchLockFileStatus();
 	const pathRepoVersions = argv.pinPathRepoVersions ? await readPathRepoVersions() : null;
 
-	let dependencies = await getDependencies( process.cwd(), 'build' );
+	// Keep the full, unfiltered graph around: the build cache fingerprints the whole graph so a
+	// project's fingerprint is stable whether it's built alone or via `--deps`.
+	const fullDependencies = await getDependencies( process.cwd(), 'build' );
+	let dependencies = fullDependencies;
+
+	// No persistent cache between CI runs, and mirror builds do extra work a skip would break.
+	const cacheEnabled = !! argv.cache && ! argv.forMirrors && ! process.env.CI;
+	const cacheFingerprints = cacheEnabled
+		? await computeFingerprints( fullDependencies, argv, execa )
+		: null;
 	const listr = new Listr( [], {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
 		concurrent: argv.concurrency > 1,
@@ -272,6 +291,9 @@ export async function handler( argv ) {
 		promises: {},
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
+		cache: cacheEnabled
+			? { force: !! argv.force, fingerprints: cacheFingerprints, cached: 0, built: 0 }
+			: null,
 		lockedProjects,
 		pathRepoVersions,
 		// When `--timing-summary` is set, collect a flat list of phase timings to summarize at the end.
@@ -286,6 +308,12 @@ export async function handler( argv ) {
 				for ( const project of missing ) {
 					console.error( wrap( `Project ${ project } was ignored as it does not exist.` ) );
 				}
+			}
+
+			if ( ctx.cache ) {
+				console.log(
+					chalkJetpackGreen( `Cache: ${ ctx.cache.cached } skipped, ${ ctx.cache.built } built.` )
+				);
 			}
 
 			// Print the timing summary (and optionally dump JSON) on both success and failure.
@@ -737,6 +765,17 @@ async function checkCollisions( basedir ) {
  * @param {object} t - Task object.
  */
 async function buildProject( t ) {
+	// Skip the whole project (install + build) when its inputs are unchanged and the outputs it
+	// produced last time are still present. `--force` rebuilds but still refreshes the manifest.
+	if ( t.ctx.cache && ! t.argv.forMirrors ) {
+		const fp = t.ctx.cache.fingerprints.get( t.project );
+		if ( fp && ! t.ctx.cache.force && ( await canSkip( t.project, fp, t.argv ) ) ) {
+			t.ctx.cache.cached++;
+			await t.setStatus( 'cached' );
+			return;
+		}
+	}
+
 	await t.setStatus( 'installing' );
 
 	let composerJson = JSON.parse(
@@ -945,6 +984,14 @@ async function buildProject( t ) {
 
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
 	if ( ! t.argv.forMirrors ) {
+		// Record this successful build so the next run can skip it.
+		if ( t.ctx.cache ) {
+			t.ctx.cache.built++;
+			const fp = t.ctx.cache.fingerprints.get( t.project );
+			if ( fp ) {
+				await writeManifest( t.project, fp, t.argv );
+			}
+		}
 		return;
 	}
 
