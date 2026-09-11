@@ -8,7 +8,7 @@ import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
 import { OVERVIEW_MODULES_CHANGE_EVENT, relayedQueryKeys } from './lib/modules-state-bridge';
-import { getHistoryWindow } from './lib/history-days';
+import { useHistoryRange } from './lib/use-history-range';
 import { isSiteOnline, useModulesState, useScoreRefreshState } from './lib/use-modules-state';
 import {
 	performanceHistoryQueryKey,
@@ -63,7 +63,8 @@ function OverviewContent( {
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
 	const historyAvailable = modules.data?.performance_history?.available === true;
-	const history = usePerformanceHistory( historyAvailable );
+	const { ref, range, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
+	const history = usePerformanceHistory( historyAvailable && isVisible, range );
 	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
 		'performance_history_fresh_start'
 	);
@@ -124,7 +125,7 @@ function OverviewContent( {
 
 	if ( ! online ) {
 		return (
-			<div className="jetpack-boost-overview">
+			<div ref={ ref } className="jetpack-boost-overview">
 				<Notice.Root
 					intent="info"
 					spokenMessage={
@@ -146,7 +147,7 @@ function OverviewContent( {
 	}
 
 	return (
-		<div className="jetpack-boost-overview">
+		<div ref={ ref } className="jetpack-boost-overview">
 			<ScoreCards
 				scores={ scoreState.scores }
 				isLoading={ isLoading }
@@ -178,7 +179,11 @@ function OverviewContent( {
 				</Notice.Root>
 			) }
 			<HistoryChartCard
-				now={ now }
+				range={ range }
+				dayCount={ dayCount }
+				onPrevious={ onPrevious }
+				onNext={ onNext }
+				canGoNext={ canGoNext }
 				isVisible={ isVisible }
 				data={ modules.isPending ? undefined : history.data }
 				isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }

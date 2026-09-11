@@ -1,4 +1,3 @@
-Significance: minor
+Significance: patch
 Type: changed
-
-Overview: Show daily score bands, detailed tooltips, and thirty-day history paging in the experimental dashboard.
+Comment: Show daily score bars and history paging in the Overview behind the disabled filter.

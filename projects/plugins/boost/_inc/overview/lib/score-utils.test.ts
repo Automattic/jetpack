@@ -5,7 +5,6 @@ import {
 	getScoreTier,
 	getScoreTierColor,
 	getScoreTierLabel,
-	getTrendDirection,
 } from './score-utils';
 
 test( 'uses the shared score card color tokens for each tier', () => {

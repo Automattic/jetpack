@@ -90,3 +90,14 @@ test( 'keeps all 30 slots empty when history has not started', () => {
 	expect( days[ 0 ].date ).toBe( '2026-08-11' );
 	expect( days[ 29 ].date ).toBe( '2026-09-09' );
 } );
+
+test( 'pages fifteen calendar days with contiguous windows and clamps future paging', () => {
+	const now = new Date( '2026-03-20T02:00:00Z' );
+	const current = getHistoryWindow( 0, now, 15 );
+	const previous = getHistoryWindow( 1, now, 15 );
+	expect( current.startDate ).toBe( Date.parse( '2026-03-05T05:00:00Z' ) );
+	expect( current.endDate ).toBe( Date.parse( '2026-03-20T04:00:00Z' ) - 1 );
+	expect( previous.endDate + 1 ).toBe( current.startDate );
+	expect( getHistoryWindow( -1, now, 15 ) ).toEqual( current );
+	expect( bucketHistoryDays( [], current ) ).toHaveLength( 15 );
+} );

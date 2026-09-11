@@ -8,18 +8,19 @@ import { __, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, desktop, mobile, Icon } from '@wordpress/icons';
 import { Button, Card, Notice } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
-import { bucketHistoryDays, getHistoryWindow, type HistoryDay } from './lib/history-days';
+import { bucketHistoryDays, type HistoryDay, type HistoryWindow } from './lib/history-days';
 import { getScoreTier, getScoreTierColor } from './lib/score-utils';
-import { usePerformanceHistory } from './lib/use-performance-history';
 import UpgradeCTA from './upgrade-cta';
 import './history-chart-card.scss';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 import type { CategoryHighlightSelection, SeriesData } from '@automattic/charts';
 
-type DeviceColors = { desktop?: string; mobile?: string };
-type History = PerformanceHistoryData;
 type Props = {
-	now?: Date;
+	range: HistoryWindow;
+	dayCount: 15 | 30;
+	onPrevious: () => void;
+	onNext: () => void;
+	canGoNext: boolean;
 	data?: PerformanceHistoryData | null;
 	isLoading?: boolean;
 	isVisible?: boolean;
@@ -55,7 +56,7 @@ export function EmptyDayTooltip( { date }: { date: string } ) {
 				{ dateI18n( 'F j, Y', getDate( `${ date }T12:00:00` ), false ) }
 			</div>
 			<div className="boost-daily-history__empty-copy">
-				{ __( 'No score recorded before you unlocked this feature.', 'jetpack-boost' ) }
+				{ __( 'No scores recorded before feature was unlocked', 'jetpack-boost' ) }
 			</div>
 		</div>
 	);
@@ -63,10 +64,8 @@ export function EmptyDayTooltip( { date }: { date: string } ) {
 
 export function HistoryTooltip( {
 	period,
-	colors,
 }: {
-	period: History[ 'periods' ][ number ];
-	colors?: DeviceColors;
+	period: PerformanceHistoryData[ 'periods' ][ number ];
 } ) {
 	const dimensions = period.dimensions;
 	const content = (
@@ -90,9 +89,9 @@ export function HistoryTooltip( {
 							<span
 								className="jetpack-boost-overview__series-swatch"
 								style={ {
-									backgroundColor:
-										colors?.[ device ] ??
-										getScoreTierColor( getScoreTier( dimensions[ `${ device }_overall_score` ] ) ),
+									backgroundColor: getScoreTierColor(
+										getScoreTier( dimensions[ `${ device }_overall_score` ] )
+									),
 								} }
 								aria-hidden="true"
 							/>
@@ -135,28 +134,23 @@ export function HistoryTooltip( {
 }
 
 export default function HistoryChartCard( {
-	now = new Date(),
-	data: currentData,
-	isLoading: currentLoading,
+	range,
+	dayCount,
+	onPrevious,
+	onNext,
+	canGoNext,
+	data,
+	isLoading,
 	isVisible = true,
-	isError: currentError,
-	error: currentErrorDetail,
-	onRetry: retryCurrent,
+	isError,
+	error,
+	onRetry,
 	needsUpgrade,
 	isFreshStart,
 	onDismissFreshStart,
 }: Props ) {
-	const [ offset, setOffset ] = useState( 0 );
-	const window = getHistoryWindow( offset, now );
-	const history = usePerformanceHistory( offset > 0 && isVisible && ! needsUpgrade, window );
-	const data = offset === 0 ? currentData : history.data;
-	const isLoading = offset === 0 ? currentLoading : history.isPending;
-	const isError = offset === 0 ? currentError : history.isError;
-	const error = offset === 0 ? currentErrorDetail : history.error;
-	const onRetry = offset === 0 ? retryCurrent : () => history.refetch();
-	const days = bucketHistoryDays( data?.periods ?? [], window );
+	const days = bucketHistoryDays( data?.periods ?? [], range );
 	const series = buildHistorySeries( days );
-	const [ chartKeys, setChartKeys ] = useState( [ 0, 0 ] );
 	const [ highlight, setHighlight ] = useState< CategoryHighlightSelection | null >( null );
 	const updateHighlight = useCallback( ( selection: CategoryHighlightSelection | null ) => {
 		setHighlight( previous =>
@@ -164,31 +158,9 @@ export default function HistoryChartCard( {
 		);
 	}, [] );
 	let content;
-	if ( isLoading && ! data?.periods.length ) {
+	if ( needsUpgrade ) {
 		content = (
-			<div className="jetpack-boost-overview__chart-loading">
-				<Spinner />
-			</div>
-		);
-	} else if ( isError && ! isLoading ) {
-		content = (
-			<Notice.Root
-				intent="error"
-				spokenMessage={ __( 'Failed to load performance history', 'jetpack-boost' ) }
-			>
-				<Notice.Title>{ __( 'Failed to load performance history', 'jetpack-boost' ) }</Notice.Title>
-				<Notice.Description>{ error?.message }</Notice.Description>
-				<Notice.Actions>
-					<Button onClick={ onRetry }>{ __( 'Try again', 'jetpack-boost' ) }</Button>
-				</Notice.Actions>
-			</Notice.Root>
-		);
-	} else if ( needsUpgrade ) {
-		content = (
-			<Notice.Root
-				intent="info"
-				spokenMessage={ __( 'Unlock historical performance', 'jetpack-boost' ) }
-			>
+			<Notice.Root intent="info" spokenMessage={ null }>
 				<Notice.Title>{ __( 'Unlock historical performance', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Description>
 					{ __( 'Upgrade and learn more about your site performance over time.', 'jetpack-boost' ) }
@@ -198,12 +170,30 @@ export default function HistoryChartCard( {
 				</Notice.Actions>
 			</Notice.Root>
 		);
-	} else if ( isFreshStart ) {
+	} else if ( isLoading && ! data?.periods.length ) {
+		content = (
+			<div className="jetpack-boost-overview__chart-loading">
+				<Spinner />
+			</div>
+		);
+	} else if ( isError && ! isLoading ) {
 		content = (
 			<Notice.Root
-				intent="success"
-				spokenMessage={ __( 'Your scores will be recorded from now on.', 'jetpack-boost' ) }
+				intent="error"
+				spokenMessage={
+					isVisible ? __( 'Failed to load performance history', 'jetpack-boost' ) : ''
+				}
 			>
+				<Notice.Title>{ __( 'Failed to load performance history', 'jetpack-boost' ) }</Notice.Title>
+				<Notice.Description>{ error?.message }</Notice.Description>
+				<Notice.Actions>
+					<Button onClick={ onRetry }>{ __( 'Try again', 'jetpack-boost' ) }</Button>
+				</Notice.Actions>
+			</Notice.Root>
+		);
+	} else if ( isFreshStart ) {
+		content = (
+			<Notice.Root intent="success" spokenMessage={ null }>
 				<Notice.Title>
 					{ __( 'Hello there! Jetpack Boost premium has been activated.', 'jetpack-boost' ) }
 				</Notice.Title>
@@ -244,18 +234,10 @@ export default function HistoryChartCard( {
 								<Icon icon={ index === 0 ? desktop : mobile } />
 								{ deviceSeries.label }
 							</h3>
-							<div
-								className="boost-daily-history__plot"
-								onBlur={ event => {
-									if ( ! event.currentTarget.contains( event.relatedTarget as Node | null ) )
-										setChartKeys( keys =>
-											keys.map( ( key, chartIndex ) => ( chartIndex === index ? key + 1 : key ) )
-										);
-								} }
-							>
+							<div className="boost-daily-history__plot">
 								{ isVisible && (
 									<BarChart
-										key={ `${ offset }-${ chartKeys[ index ] }` }
+										key={ `${ range.startDate }-${ range.endDate }` }
 										data={ [ deviceSeries ] }
 										withTooltips
 										gridVisibility="x"
@@ -277,7 +259,11 @@ export default function HistoryChartCard( {
 											axis: {
 												y: { tickValues: [ 0, 50, 100 ] },
 												x: {
-													tickValues: [ days[ 0 ].date, days[ 14 ].date, days[ 29 ].date ],
+													tickValues: [
+														days[ 0 ].date,
+														days[ Math.floor( ( days.length - 1 ) / 2 ) ].date,
+														days[ days.length - 1 ].date,
+													],
 													tickFormat: value =>
 														dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
 												},
@@ -306,31 +292,45 @@ export default function HistoryChartCard( {
 		<Card.Root className="jetpack-boost-overview__history-card">
 			<Card.Header className="boost-daily-history__card-header">
 				<div className="boost-daily-history__header">
-					<Card.Title render={ <h2 /> }>{ __( 'Last 30 days scores', 'jetpack-boost' ) }</Card.Title>
+					<Card.Title render={ <h2 /> }>
+						{ sprintf(
+							/* translators: %d is the number of days in the visible history window. */
+							__( 'Last %d days scores', 'jetpack-boost' ),
+							dayCount
+						) }
+					</Card.Title>
 					{ ! needsUpgrade && ! isFreshStart && (
 						<div className="boost-daily-history__paging">
 							<Button
 								variant="minimal"
 								size="compact"
-								aria-label={ __( 'Previous 30 days', 'jetpack-boost' ) }
-								onClick={ () => setOffset( value => value + 1 ) }
+								aria-label={ sprintf(
+									/* translators: %d is the number of days to page backward. */
+									__( 'Previous %d days', 'jetpack-boost' ),
+									dayCount
+								) }
+								onClick={ onPrevious }
 							>
 								<Icon icon={ chevronLeft } />
 							</Button>
 							<span aria-live="polite">
 								{ sprintf(
-									/* translators: 1: first date, 2: last date of the visible thirty-day window. */
+									/* translators: 1: first date, 2: last date of the visible history window. */
 									__( '%1$s – %2$s', 'jetpack-boost' ),
-									dateI18n( 'M j', window.startDate, false ),
-									dateI18n( 'M j, Y', window.endDate, false )
+									dateI18n( 'M j', range.startDate, false ),
+									dateI18n( 'M j, Y', range.endDate, false )
 								) }
 							</span>
 							<Button
 								variant="minimal"
 								size="compact"
-								aria-label={ __( 'Next 30 days', 'jetpack-boost' ) }
-								disabled={ offset === 0 }
-								onClick={ () => setOffset( value => Math.max( 0, value - 1 ) ) }
+								aria-label={ sprintf(
+									/* translators: %d is the number of days to page forward. */
+									__( 'Next %d days', 'jetpack-boost' ),
+									dayCount
+								) }
+								disabled={ ! canGoNext }
+								onClick={ onNext }
 							>
 								<Icon icon={ chevronRight } />
 							</Button>
