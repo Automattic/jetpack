@@ -108,9 +108,9 @@ $feature-icon-foreground: #0ced57;
 // the dialog read as stuck to the top. No `inset-block-start` lift either —
 // that only works for a dialog far shorter than the viewport.
 .modal-popup {
-	block-size: min(48rem, calc(100dvh - 6rem));
-	inline-size: min(47.5rem, calc(100vw - 3rem));
-	max-inline-size: min(47.5rem, calc(100vw - 3rem));
+	block-size: min(50rem, calc(100dvh - 5rem));
+	inline-size: min(42.5rem, calc(100vw - 3rem));
+	max-inline-size: min(42.5rem, calc(100vw - 3rem));
 }
 
 // Fixed height, not an aspect ratio: the artwork is third-party marketing
@@ -119,7 +119,7 @@ $feature-icon-foreground: #0ced57;
 .modal-band {
 	align-items: center;
 	background: $feature-icon-background;
-	block-size: 10rem;
+	block-size: 13rem;
 	color: $feature-icon-foreground;
 	display: flex;
 	flex: 0 0 auto;
