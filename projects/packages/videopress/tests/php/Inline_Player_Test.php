@@ -31,6 +31,7 @@ class Inline_Player_Test extends BaseTestCase {
 	public function tear_down() {
 		delete_option( 'videopress_inline_player_enabled' );
 		delete_option( 'videopress_player_preload_disabled' );
+		remove_all_filters( 'jetpack_videopress_player_use_iframe' );
 		remove_all_filters( 'jetpack_videopress_inline_player_options' );
 		wp_dequeue_script( Inline_Player::PLAYER_HANDLE );
 		wp_dequeue_script( Inline_Player::BOOT_HANDLE );
@@ -39,12 +40,21 @@ class Inline_Player_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Iframes stay the default; the option switches to the inline player.
+	 * Iframes stay the default; the option and the filter both switch to the inline player.
 	 */
-	public function test_is_enabled_follows_the_option() {
+	public function test_is_enabled_follows_the_option_and_the_filter() {
 		$this->assertFalse( Inline_Player::is_enabled() );
 
 		update_option( 'videopress_inline_player_enabled', true );
+		$this->assertTrue( Inline_Player::is_enabled() );
+
+		// The filter still has the last word, in both directions.
+		add_filter( 'jetpack_videopress_player_use_iframe', '__return_true' );
+		$this->assertFalse( Inline_Player::is_enabled() );
+
+		remove_all_filters( 'jetpack_videopress_player_use_iframe' );
+		delete_option( 'videopress_inline_player_enabled' );
+		add_filter( 'jetpack_videopress_player_use_iframe', '__return_false' );
 		$this->assertTrue( Inline_Player::is_enabled() );
 	}
 
