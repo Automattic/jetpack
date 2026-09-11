@@ -771,7 +771,16 @@ test( 'keeps numeric device tiers when the Overall letter is C', () => {
 
 test( 'owns history paging, retry, and the responsive fifteen-day window', async () => {
 	const originalMatchMedia = window.matchMedia;
-	const media = { matches: false, addEventListener: jest.fn(), removeEventListener: jest.fn() };
+	const media = {
+		matches: false,
+		media: '(max-width: 600px)',
+		onchange: null,
+		addListener: jest.fn(),
+		removeListener: jest.fn(),
+		addEventListener: jest.fn(),
+		removeEventListener: jest.fn(),
+		dispatchEvent: jest.fn(),
+	};
 	jest.spyOn( window, 'matchMedia' ).mockImplementation().mockReturnValue( media );
 	const computedStyle = window.getComputedStyle;
 	const style = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( element => {
