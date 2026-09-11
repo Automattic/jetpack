@@ -16,7 +16,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { getCaptionStyle, getWrapperStyle } from '../utils/block-styles';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
-import { DEFAULT_BUTTON_TEXT, DEFAULT_QR_CAPTION } from '../utils/defaults';
+import { DEFAULT_LABEL } from '../utils/defaults';
 import { withPartnerAttribution } from '../utils/partner-attribution';
 import QrCodePreview from './qr-code-preview';
 import { getPrimaryDimension, hasVariantPricing } from './variant-builder';
@@ -139,7 +139,7 @@ function QrPreview( {
 	const qrUrl = withPartnerAttribution( paymentLink, partnerAttributionId );
 	// Mirrors render_api_managed_button()'s QR branch: an empty caption falls
 	// back to the default rather than drawing a blank line.
-	const caption = `${ qrCaption ?? '' }`.trim() || DEFAULT_QR_CAPTION;
+	const caption = `${ qrCaption ?? '' }`.trim() || DEFAULT_LABEL;
 
 	return (
 		<div
@@ -194,7 +194,7 @@ function ButtonPreview( {
 	const variantGroups = variantsEnabled ? getVariantGroups( variants, productPrice ) : [];
 	// A blank label would draw an unreadable button, so fall back to the same
 	// default render_api_managed_button() uses.
-	const label = `${ buttonText ?? '' }`.trim() || DEFAULT_BUTTON_TEXT;
+	const label = `${ buttonText ?? '' }`.trim() || DEFAULT_LABEL;
 
 	return (
 		<div className="jetpack-paypal-button-preview" style={ getWrapperStyle( attributes ) }>

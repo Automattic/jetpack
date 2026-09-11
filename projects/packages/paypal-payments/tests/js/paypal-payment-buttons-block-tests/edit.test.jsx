@@ -83,6 +83,30 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	),
 	// The real control is a swatch popover, not a text field. Keep it a button so
 	// a test can't type a color into a UI that has no input.
+	// Core's colour panel: a labelled swatch row per setting, with its own reset
+	// menu. The mock is a button per setting, not a text field — the real control
+	// has no input to type into.
+	__experimentalColorGradientSettingsDropdown: ( { settings } ) => (
+		<div data-testid="color-dropdown">
+			{ ( settings || [] ).map( setting => (
+				<button
+					key={ setting.label }
+					type="button"
+					data-testid={ `color-${ setting.label }` }
+					data-value={ setting.colorValue || '' }
+					onClick={ () => setting.onColorChange( '#111111' ) }
+				>
+					{ setting.label }
+				</button>
+			) ) }
+		</div>
+	),
+	__experimentalUseMultipleOriginColorsAndGradients: () => ( { colors: [], gradients: [] } ),
+	FontSizePicker: ( { value, onChange } ) => (
+		<button type="button" data-testid="font-size" onClick={ () => onChange( 20 ) }>
+			{ value ?? 'size' }
+		</button>
+	),
 	// Margin is core's axial spacing control; the test drives it by side.
 	__experimentalSpacingSizesControl: ( { label, values, onChange } ) => (
 		<div data-testid={ `spacing-${ label }` }>
@@ -309,27 +333,12 @@ jest.mock( '@wordpress/components', () => ( {
 			stroke
 		</button>
 	),
-	Flex: ( { children } ) => <div>{ children }</div>,
-	FlexItem: ( { children } ) => <div>{ children }</div>,
 	// The panels only group controls, so they render as their contents under a
 	// testid named for the label.
 	__experimentalToolsPanel: ( { children, label } ) => (
 		<div data-testid={ `tools-panel-${ label }` }>{ children }</div>
 	),
 	__experimentalToolsPanelItem: ( { children } ) => <>{ children }</>,
-	RangeControl: ( { label, value, onChange, min, max } ) => (
-		<div data-testid={ `range-${ label }` }>
-			<label htmlFor={ `range-field-${ label }` }>{ label }</label>
-			<input
-				id={ `range-field-${ label }` }
-				type="range"
-				min={ min }
-				max={ max }
-				value={ value ?? '' }
-				onChange={ e => onChange( Number( e.target.value ) ) }
-			/>
-		</div>
-	),
 	__experimentalUnitControl: ( { label, value, onChange } ) => (
 		<div data-testid={ `unit-${ label }` }>
 			<label htmlFor={ `unit-field-${ label }` }>{ label }</label>
@@ -3229,11 +3238,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					screen.findByTestId( 'inspector-controls-styles' )
 				).resolves.toBeInTheDocument();
 
-				expect( screen.queryByTestId( 'tools-panel-Color' ) ).not.toBeInTheDocument();
-				expect( screen.queryByTestId( 'tools-panel-Typography' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'color-dropdown' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'font-size' ) ).not.toBeInTheDocument();
 				// Width and Border do not depend on the caption.
-				expect( screen.getByTestId( 'tools-panel-Width Settings' ) ).toBeInTheDocument();
-				expect( screen.getByTestId( 'tools-panel-Border Settings' ) ).toBeInTheDocument();
+				expect( panel( 'Width Settings' ) ).toBeInTheDocument();
+				expect( panel( 'Border Settings' ) ).toBeInTheDocument();
 			} );
 
 			it( 'adds Color and Typography when the caption is on', async () => {
@@ -3244,8 +3253,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
-				expect( screen.getByTestId( 'tools-panel-Typography' ) ).toBeInTheDocument();
+				await expect( screen.findByTestId( 'color-dropdown' ) ).resolves.toBeInTheDocument();
+				expect( screen.getByTestId( 'font-size' ) ).toBeInTheDocument();
 			} );
 
 			it( 'gives the QR a margin control and the button none', async () => {
@@ -3264,8 +3273,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 				await expect(
-					screen.findByTestId( 'tools-panel-Border Settings' )
+					screen.findByTestId( 'inspector-controls-styles' )
 				).resolves.toBeInTheDocument();
+				expect( panel( 'Border Settings' ) ).toBeInTheDocument();
 				expect( screen.queryByTestId( 'spacing-Margin' ) ).not.toBeInTheDocument();
 				// Radius and stroke still belong to the button.
 				expect( screen.getByTestId( 'border-radius' ) ).toBeInTheDocument();
@@ -3283,8 +3293,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					screen.findByTestId( 'inspector-controls-styles' )
 				).resolves.toBeInTheDocument();
 
-				expect( screen.queryByTestId( 'tools-panel-Width Settings' ) ).not.toBeInTheDocument();
-				expect( screen.queryByTestId( 'tools-panel-Border Settings' ) ).not.toBeInTheDocument();
+				expect( panel( 'Width Settings' ) ).toBeUndefined();
+				expect( panel( 'Border Settings' ) ).toBeUndefined();
 			} );
 
 			it( 'stores a width preset', async () => {
