@@ -188,6 +188,20 @@ function getGlobalStylesPostId( bundle ) {
  * @param {object} bundle - The response from the bootstrap route.
  * @return {object} Preload entries, empty when the bundle carries no global styles.
  */
+/**
+ * A theme.json half as an object, whatever shape it arrived in.
+ *
+ * Off Simple the bootstrap is proxied through `json_decode( …, true )`, so an empty `{}` comes
+ * back as `[]`. The editor writes edits onto whatever it finds, and a property set on an array is
+ * dropped by `JSON.stringify` — the swatch flashes and nothing persists. See NL-871.
+ *
+ * @param {*} value - `styles` or `settings` as it arrived.
+ * @return {object} The value when it is a usable object, an empty object otherwise.
+ */
+function objectOrEmpty( value ) {
+	return value && 'object' === typeof value && ! Array.isArray( value ) ? value : {};
+}
+
 function globalStylesPreloads( bundle ) {
 	const globalStyles = bundle?.global_styles;
 	const id = getGlobalStylesPostId( bundle );
@@ -201,7 +215,14 @@ function globalStylesPreloads( bundle ) {
 	// The GETs resolve after the OPTIONS, so omitting it here overwrites the OPTIONS answer with a
 	// flat no and the Styles panel never renders.
 	const allow = globalStyles.can_edit ? 'GET, POST, PUT' : 'GET';
-	const record = { body: globalStyles.record, headers: { Allow: allow } };
+	const record = {
+		body: {
+			...globalStyles.record,
+			styles: objectOrEmpty( globalStyles.record.styles ),
+			settings: objectOrEmpty( globalStyles.record.settings ),
+		},
+		headers: { Allow: allow },
+	};
 
 	return {
 		[ `/wp/v2/global-styles/${ id }` ]: record,
@@ -397,7 +418,11 @@ export function createDesignSaveMiddleware( id ) {
 			);
 		}
 
-		return { id, settings: design.settings ?? {}, styles: design.styles ?? {} };
+		return {
+			id,
+			settings: objectOrEmpty( design.settings ),
+			styles: objectOrEmpty( design.styles ),
+		};
 	};
 }
 

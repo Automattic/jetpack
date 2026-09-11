@@ -766,6 +766,73 @@ describe( 'Email design editor entry point', () => {
 		} );
 	} );
 
+	// Off Simple the bootstrap is proxied through `json_decode( …, true )`, so `{}` arrives as `[]`.
+	// The editor writes edits onto whatever it finds, and a property set on an array is dropped by
+	// JSON.stringify — the colour flashes and never persists. NL-871.
+	describe( 'the empty halves the proxy turns into arrays', () => {
+		const { buildPreloadMap, createDesignSaveMiddleware } = jest.requireActual( '../src/index' );
+		const ourId = 999999999;
+
+		const seed = design =>
+			dispatch( coreStore ).receiveEntityRecords( 'root', 'globalStyles', [
+				{ id: ourId, ...design },
+			] );
+
+		it( 'preloads them as objects the editor can write to', () => {
+			const preload = buildPreloadMap(
+				bootstrapBundle( {
+					global_styles: {
+						post_id: ourId,
+						can_edit: true,
+						record: { id: ourId, styles: [], settings: [] },
+					},
+				} ),
+				null
+			);
+
+			const body = preload[ `/wp/v2/global-styles/${ ourId }` ].body;
+
+			expect( Array.isArray( body.styles ) ).toBe( false );
+			expect( body.styles ).toEqual( {} );
+			expect( body.settings ).toEqual( {} );
+		} );
+
+		it( 'leaves a design that arrived intact alone', () => {
+			const styles = { color: { background: '#c0ffee' } };
+			const preload = buildPreloadMap(
+				bootstrapBundle( {
+					global_styles: {
+						post_id: ourId,
+						can_edit: true,
+						record: { id: ourId, styles, settings: {} },
+					},
+				} ),
+				null
+			);
+
+			expect( preload[ `/wp/v2/global-styles/${ ourId }` ].body.styles ).toEqual( styles );
+		} );
+
+		// The save response comes back through the same proxy, so a first save would otherwise hand
+		// core-data an array again and break every edit after it.
+		it( 'hands back objects after a save, not arrays', async () => {
+			mockApiFetch.mockResolvedValueOnce( {
+				blog_id: 1,
+				design: { styles: [], settings: [] },
+				discarded: false,
+			} );
+			seed( { styles: {}, settings: {} } );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: { styles: {} } },
+				jest.fn()
+			);
+
+			expect( Array.isArray( result.styles ) ).toBe( false );
+			expect( result ).toEqual( { id: ourId, styles: {}, settings: {} } );
+		} );
+	} );
+
 	describe( 'when the blog does not render through the email editor', () => {
 		const { reportInactiveEmailDesign } = jest.requireActual( '../src/index' );
 
