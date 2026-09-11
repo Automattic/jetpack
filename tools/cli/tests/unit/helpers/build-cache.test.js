@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import os from 'os';
 import npath from 'path';
+import { execa } from 'execa';
 import { fingerprintProjects, canSkip, writeManifest } from '../../../helpers/build-cache.js';
 
 // A tiny graph: B depends on A; C is independent.
@@ -115,15 +116,26 @@ describe( 'build-cache fingerprintProjects', () => {
 	} );
 } );
 
-// `projectDir` resolves against process.cwd(), so these run inside a throwaway monorepo-shaped tree.
+// `projectDir` resolves against process.cwd(), so these run inside a throwaway monorepo-shaped
+// git repo — outputs are derived from gitignore, so a real repo is part of what's under test.
 describe( 'canSkip / writeManifest', () => {
 	const SLUG = 'packages/thing';
 	let dir, cwd;
 
+	const projectPath = ( ...p ) => npath.join( dir, 'projects', SLUG, ...p );
+	const addOutput = async file => {
+		await fs.mkdir( npath.dirname( projectPath( file ) ), { recursive: true } );
+		await fs.writeFile( projectPath( file ), 'x' );
+	};
+
 	beforeEach( async () => {
 		cwd = process.cwd();
-		dir = await fs.mkdtemp( npath.join( os.tmpdir(), 'jp-cache-' ) );
-		await fs.mkdir( npath.join( dir, 'projects', SLUG, 'build' ), { recursive: true } );
+		dir = await fs.realpath( await fs.mkdtemp( npath.join( os.tmpdir(), 'jp-cache-' ) ) );
+		await fs.mkdir( projectPath(), { recursive: true } );
+		// Projects carry their own .gitignore, and a pattern with a slash anchors to that file's
+		// directory — so these must live inside the project, not at the repo root.
+		await fs.writeFile( projectPath( '.gitignore' ), '/build/\n/app/assets/dist/\n' );
+		await execa( 'git', [ 'init', '-q' ], { cwd: dir } );
 		process.chdir( dir );
 	} );
 	afterEach( async () => {
@@ -132,28 +144,41 @@ describe( 'canSkip / writeManifest', () => {
 	} );
 
 	test( 'does not skip a project that has never been built', async () => {
+		await addOutput( 'build/out.js' );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 
 	test( 'skips a project rebuilt with the same fingerprint', async () => {
+		await addOutput( 'build/out.js' );
 		await writeManifest( SLUG, 'fp1', {} );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
 	} );
 
 	test( 'does not skip when the fingerprint changed', async () => {
+		await addOutput( 'build/out.js' );
 		await writeManifest( SLUG, 'fp1', {} );
 		await expect( canSkip( SLUG, 'fp2' ) ).resolves.toBe( false );
 	} );
 
-	test( 'does not skip when a recorded output directory was deleted', async () => {
+	test( 'does not skip when a recorded output was deleted', async () => {
+		await addOutput( 'build/out.js' );
 		await writeManifest( SLUG, 'fp1', {} );
-		await fs.rm( npath.join( dir, 'projects', SLUG, 'build' ), { recursive: true } );
+		await fs.rm( projectPath( 'build' ), { recursive: true } );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 
-	test( 'does not skip a project that produced no recognised outputs', async () => {
-		await fs.rm( npath.join( dir, 'projects', SLUG, 'build' ), { recursive: true } );
+	test( 'does not skip a project that produced no output at all', async () => {
 		await writeManifest( SLUG, 'fp1', {} );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+	} );
+
+	// The case a fixed list of output dirs missed: plugins/boost emits into app/**/dist, so its
+	// manifest recorded only `vendor` and losing the real output still counted as a hit.
+	test( 'tracks outputs in nested directories a fixed list would not name', async () => {
+		await addOutput( 'app/assets/dist/bundle.js' );
+		await writeManifest( SLUG, 'fp1', {} );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
+		await fs.rm( projectPath( 'app/assets/dist' ), { recursive: true } );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 } );

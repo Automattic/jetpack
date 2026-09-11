@@ -535,7 +535,13 @@ function createBuildTask( project, argv, title, build ) {
 								ok: taskOk,
 							} );
 						}
-						await t.setStatus( argv.timing ? formatDuration( dur ) + 's' : 'complete' );
+						let finalStatus = 'complete';
+						if ( t.cached ) {
+							finalStatus = 'cached';
+						} else if ( argv.timing ) {
+							finalStatus = formatDuration( dur ) + 's';
+						}
+						await t.setStatus( finalStatus );
 					}
 				} );
 			} )().then(
@@ -766,7 +772,7 @@ async function buildProject( t ) {
 		const fp = t.ctx.cache.fingerprints.get( t.project );
 		if ( fp && ( await canSkip( t.project, fp ) ) ) {
 			t.ctx.cache.cached++;
-			await t.setStatus( 'cached' );
+			t.cached = true;
 			return;
 		}
 	}

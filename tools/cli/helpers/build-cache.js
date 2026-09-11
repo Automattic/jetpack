@@ -8,19 +8,8 @@ import { projectDir } from './install.js';
 // Bump to invalidate every cached build when the fingerprint algorithm or manifest format changes.
 const SCHEMA_VERSION = 1;
 
-// Candidate build-output directories checked for presence before trusting a cache hit.
-// If `jetpack clean` (or a manual `rm`) removed any that were present at build time, we rebuild.
-// Must cover where projects actually emit: composer `vendor`/`jetpack_vendor`, JS `build`/`dist`,
-// and the jetpack plugin's `_inc/build`, `_inc/blocks`, `css`.
-const OUTPUT_DIRS = [
-	'vendor',
-	'jetpack_vendor',
-	'build',
-	'dist',
-	'_inc/build',
-	'_inc/blocks',
-	'css',
-];
+// Ignored entries that are never build output, so deleting them shouldn't force a rebuild.
+const NON_OUTPUT = [ '.cache/', 'node_modules/' ];
 
 const exists = p =>
 	fs.access( p ).then(
@@ -263,14 +252,30 @@ async function readManifest( project ) {
 }
 
 /**
- * Which of the candidate output dirs currently exist for a project.
+ * A project's build outputs: everything gitignored inside it, minus caches and dependencies.
+ *
+ * Derived rather than hardcoded because projects emit to wildly different places — `plugins/boost`
+ * to several `app/**` dirs, `plugins/jetpack` to loose files under `modules/` — and a fixed list
+ * silently fails to protect whatever it omits.
  *
  * @param {string} project - Slug.
- * @return {Promise<string[]>} Present output dir names.
+ * @return {Promise<string[]>} Project-relative paths.
  */
-async function presentOutputs( project ) {
-	const ok = await Promise.all( OUTPUT_DIRS.map( d => exists( projectDir( project, d ) ) ) );
-	return OUTPUT_DIRS.filter( ( d, i ) => ok[ i ] );
+async function projectOutputs( project ) {
+	const { stdout } = await execa(
+		'git',
+		[
+			'-c',
+			'core.quotepath=off',
+			'ls-files',
+			'--others',
+			'--ignored',
+			'--exclude-standard',
+			'--directory',
+		],
+		{ cwd: projectDir( project ) }
+	);
+	return stdout.split( '\n' ).filter( p => p && ! NON_OUTPUT.some( n => p.startsWith( n ) ) );
 }
 
 /**
@@ -278,8 +283,7 @@ async function presentOutputs( project ) {
  * recorded at build time still exists on disk.
  *
  * A project with no recorded outputs is never skipped: an empty set would make the presence check
- * vacuously true, so a project whose build target isn't among OUTPUT_DIRS would be skipped forever
- * even after its output is deleted. Rebuilding it (cheaply) is safer than serving a phantom hit.
+ * vacuously true. Rebuilding it (cheaply) is safer than serving a phantom hit.
  *
  * @param {string} project - Slug.
  * @param {string} fp      - Current fingerprint.
@@ -290,8 +294,10 @@ export async function canSkip( project, fp ) {
 	if ( ! m || m.inputHash !== fp || ! m.outputs?.length ) {
 		return false;
 	}
-	const present = new Set( await presentOutputs( project ) );
-	return m.outputs.every( o => present.has( o ) );
+	const present = await Promise.all(
+		m.outputs.map( output => exists( projectDir( project, output ) ) )
+	);
+	return present.every( Boolean );
 }
 
 /**
@@ -306,7 +312,7 @@ export async function writeManifest( project, fp, argv ) {
 		schemaVersion: SCHEMA_VERSION,
 		inputHash: fp,
 		mode: argv.production ? 'production' : 'development',
-		outputs: await presentOutputs( project ),
+		outputs: await projectOutputs( project ),
 		builtAt: new Date().toISOString(),
 	};
 	await fs.mkdir( projectDir( project, '.cache/build' ), { recursive: true } );
