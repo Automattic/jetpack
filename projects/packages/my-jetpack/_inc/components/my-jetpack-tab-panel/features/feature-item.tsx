@@ -33,30 +33,33 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 			<Stack direction="row" align="start" gap="md">
 				<FeatureIcon feature={ feature } />
 
-				<Stack direction="column" gap="xs" className={ styles[ 'feature-item__heading' ] }>
-					<Text variant="heading-md">{ feature.name }</Text>
-					<Stack direction="row" align="center" gap="sm" wrap="wrap">
+				<Stack direction="column" gap="xs" className={ styles[ 'feature-item__details' ] }>
+					<Stack direction="row" align="center" gap="xs" wrap="wrap">
+						<Text variant="heading-md">{ feature.name }</Text>
+						{ feature.essential ? (
+							<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
+						) : null }
+					</Stack>
+
+					<div>
 						<Badge intent={ isActive ? 'stable' : 'none' }>
 							{ isActive
 								? __( 'Active', 'jetpack-my-jetpack' )
 								: __( 'Inactive', 'jetpack-my-jetpack' ) }
 						</Badge>
-						{ feature.essential ? (
-							<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
-						) : null }
-					</Stack>
+					</div>
+
+					<Text variant="body-sm" className={ styles[ 'feature-item__description' ] }>
+						{ feature.description }
+					</Text>
 				</Stack>
 
-				{ /* Reserved whether or not this feature has a toggle, so the heading keeps
-				     the same width across the row. */ }
+				{ /* Reserved whether or not this feature has a toggle, so the details column
+				     keeps the same width across the grid. */ }
 				<div className={ styles[ 'feature-toggle-slot' ] }>
 					<FeatureToggle state={ state } />
 				</div>
 			</Stack>
-
-			<Text variant="body-sm" className={ styles[ 'feature-item__description' ] }>
-				{ feature.description }
-			</Text>
 
 			<div className={ styles[ 'feature-item__footer' ] }>
 				<FeatureChevron state={ state } onOpen={ onOpen } />

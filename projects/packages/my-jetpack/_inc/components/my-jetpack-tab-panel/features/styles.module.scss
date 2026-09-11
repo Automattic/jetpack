@@ -12,24 +12,43 @@ $feature-icon-foreground: #0ced57;
 
 .feature-grid {
 	display: grid;
-	gap: var(--wpds-dimension-gap-md);
-	grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+	gap: var(--wpds-dimension-gap-lg);
+	grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
 }
 
 .feature-item {
 	background: var(--wpds-color-background-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	border-radius: var(--wpds-border-radius-md);
-	padding: var(--wpds-dimension-padding-lg);
+	border-radius: var(--wpds-border-radius-lg);
+	padding: var(--wpds-dimension-padding-xl);
+	transition: border-color 120ms ease-out;
+
+	&:hover {
+		border-color: var(--wpds-color-stroke-surface-neutral);
+	}
 }
 
-.feature-item__heading {
+@media (prefers-reduced-motion: reduce) {
+
+	.feature-item {
+		transition: none;
+	}
+}
+
+.feature-item__details {
 	flex: 1;
 	min-inline-size: 0;
 }
 
+// Clamped so a long description cannot make one card taller than the rest of
+// its row; the modal carries the full text.
 .feature-item__description {
+	-webkit-box-orient: vertical;
 	color: var(--wpds-color-foreground-content-neutral-weak);
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	overflow: hidden;
 }
 
 // Pinned to the bottom of the card so Learn more lines up across a row of
@@ -40,10 +59,10 @@ $feature-icon-foreground: #0ced57;
 }
 
 .feature-icon {
-	block-size: 3rem;
-	border-radius: var(--wpds-border-radius-md);
+	block-size: 3.5rem;
+	border-radius: var(--wpds-border-radius-lg);
 	flex-shrink: 0;
-	inline-size: 3rem;
+	inline-size: 3.5rem;
 	overflow: hidden;
 
 	svg {
@@ -65,9 +84,9 @@ $feature-icon-foreground: #0ced57;
 	justify-content: center;
 
 	svg {
-		block-size: 28px;
+		block-size: 32px;
 		fill: currentColor;
-		inline-size: 28px;
+		inline-size: 32px;
 	}
 }
 
