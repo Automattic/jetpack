@@ -1,18 +1,17 @@
 import crypto from 'crypto';
 import fs from 'fs/promises';
+import { execa } from 'execa';
 import { infrastructureBuildFiles } from '../commands/dependencies.js';
 import { getBuildOrder } from './dependencyAnalysis.js';
 import { projectDir } from './install.js';
 
 // Bump to invalidate every cached build when the fingerprint algorithm or manifest format changes.
-export const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 1;
 
 // Candidate build-output directories checked for presence before trusting a cache hit.
 // If `jetpack clean` (or a manual `rm`) removed any that were present at build time, we rebuild.
 // Must cover where projects actually emit: composer `vendor`/`jetpack_vendor`, JS `build`/`dist`,
-// and the jetpack plugin's `_inc/build`, `_inc/blocks`, `css`. A project whose outputs match none
-// of these records an empty output set and is treated as un-skippable (see `canSkip`), so a missing
-// build target can never masquerade as a cache hit.
+// and the jetpack plugin's `_inc/build`, `_inc/blocks`, `css`.
 const OUTPUT_DIRS = [
 	'vendor',
 	'jetpack_vendor',
@@ -22,6 +21,23 @@ const OUTPUT_DIRS = [
 	'_inc/blocks',
 	'css',
 ];
+
+const exists = p =>
+	fs.access( p ).then(
+		() => true,
+		() => false
+	);
+
+/**
+ * Filter a list of paths down to those that exist, checking them concurrently.
+ *
+ * @param {string[]} paths - Paths to check.
+ * @return {Promise<string[]>} The subset that exists.
+ */
+async function filterExisting( paths ) {
+	const ok = await Promise.all( paths.map( exists ) );
+	return paths.filter( ( p, i ) => ok[ i ] );
+}
 
 /**
  * Whether a path is irrelevant to a build for caching purposes.
@@ -33,7 +49,11 @@ const OUTPUT_DIRS = [
  * @return {boolean} True to ignore.
  */
 function isIgnoredInput( path ) {
-	return /\.(?:md|txt)$/i.test( path ) || path.includes( '/.cache/' );
+	return (
+		/\.(?:md|txt)$/i.test( path ) ||
+		path.includes( '/.cache/build/' ) ||
+		path.includes( '/changelog/' )
+	);
 }
 
 /**
@@ -43,18 +63,16 @@ function isIgnoredInput( path ) {
  * @return {string|null} Project slug.
  */
 function slugOf( path ) {
-	const m = path.match( /^projects\/([^/]+\/[^/]+)\// );
-	return m ? m[ 1 ] : null;
+	return path.match( /^projects\/([^/]+\/[^/]+)\// )?.[ 1 ] ?? 'monorepo';
 }
 
 /**
  * Hash the working-tree contents of a set of files in a single `git hash-object` call.
  *
- * @param {Function}      execa - execa function.
  * @param {Array<string>} paths - Repo-relative paths (must exist on disk).
  * @return {Promise<Map<string,string>>} path -> blob sha.
  */
-async function hashWorkingTree( execa, paths ) {
+async function hashWorkingTree( paths ) {
 	const out = new Map();
 	if ( ! paths.length ) {
 		return out;
@@ -74,24 +92,12 @@ async function hashWorkingTree( execa, paths ) {
  * Editing any of these (build.js, install.js, pnpm-lock.yaml, …) invalidates every project's cache,
  * matching the `infrastructureFileSets.build` semantics used by `--git-changed`.
  *
- * @param {Function} execa - execa function.
  * @return {Promise<string>} Hex digest.
  */
-export async function buildToolVersion( execa ) {
-	const files = [ ...infrastructureBuildFiles ].sort();
+async function buildToolVersion() {
 	// Only hash files that exist (a set entry may reference a not-yet-present path).
-	const existing = [];
-	for ( const f of files ) {
-		if (
-			await fs.access( f ).then(
-				() => true,
-				() => false
-			)
-		) {
-			existing.push( f );
-		}
-	}
-	const hashes = await hashWorkingTree( execa, existing );
+	const existing = await filterExisting( [ ...infrastructureBuildFiles ].sort() );
+	const hashes = await hashWorkingTree( existing );
 	const h = crypto.createHash( 'sha256' );
 	for ( const f of existing ) {
 		h.update( `${ f }:${ hashes.get( f ) }\n` );
@@ -102,15 +108,16 @@ export async function buildToolVersion( execa ) {
 /**
  * Collect git state for fingerprinting in a small, fixed number of subprocesses (not per-project).
  *
- * @param {Function} execa - execa function.
  * @return {Promise<{committed: Map<string,string[]>, dirty: Map<string,string[]>}>} Per-project committed and dirty-overlay lines.
  */
-export async function collectGitState( execa ) {
+async function collectGitState() {
 	const committed = new Map();
 	const dirty = new Map();
 
 	// 1. All committed blobs with their SHAs (one process; SHAs are git's content hashes).
-	const { stdout: lsf } = await execa( 'git', [ 'ls-files', '-s' ], { cwd: process.cwd() } );
+	const { stdout: lsf } = await execa( 'git', [ '-c', 'core.quotepath=off', 'ls-files', '-s' ], {
+		cwd: process.cwd(),
+	} );
 	for ( const line of lsf.split( '\n' ) ) {
 		if ( ! line ) {
 			continue;
@@ -131,33 +138,23 @@ export async function collectGitState( execa ) {
 	// 2. Uncommitted changes (modified/added/untracked/deleted) overlaid with working-tree hashes.
 	// `-uall` lists every untracked file individually; without it porcelain collapses a wholly-new
 	// directory to one `?? dir/` entry, which we'd skip below and thus fingerprint as unchanged.
-	const { stdout: st } = await execa( 'git', [ 'status', '--porcelain', '--no-renames', '-uall' ], {
-		cwd: process.cwd(),
-	} );
+	const { stdout: st } = await execa(
+		'git',
+		[ '-c', 'core.quotepath=off', 'status', '--porcelain', '--no-renames', '-uall' ],
+		{ cwd: process.cwd() }
+	);
 	const dirtyPaths = [];
 	for ( const line of st.split( '\n' ) ) {
 		if ( ! line ) {
 			continue;
 		}
 		const path = line.slice( 3 );
-		// Skip any remaining directory entries (defensive), ignored inputs, non-projects.
-		if ( path.endsWith( '/' ) || isIgnoredInput( path ) || ! slugOf( path ) ) {
+		if ( path.endsWith( '/' ) || isIgnoredInput( path ) ) {
 			continue;
 		}
 		dirtyPaths.push( path );
 	}
-	const existing = [];
-	for ( const p of dirtyPaths ) {
-		if (
-			await fs.access( p ).then(
-				() => true,
-				() => false
-			)
-		) {
-			existing.push( p );
-		}
-	}
-	const wtHashes = await hashWorkingTree( execa, existing );
+	const wtHashes = await hashWorkingTree( await filterExisting( dirtyPaths ) );
 	for ( const path of dirtyPaths ) {
 		const slug = slugOf( path );
 		if ( ! dirty.has( slug ) ) {
@@ -179,6 +176,7 @@ export async function collectGitState( execa ) {
  * @param {string[]}             o.buildOrder   - Project slugs in build order.
  * @param {Map<string,Set>}      o.dependencies - slug -> set of dependency slugs.
  * @param {string}               o.mode         - 'production' or 'development'.
+ * @param {string}               o.flags        - Other build flags that change output.
  * @param {string}               o.toolVersion  - Tool-version hash.
  * @param {Map<string,string[]>} o.committed    - Per-project committed lines.
  * @param {Map<string,string[]>} o.dirty        - Per-project dirty overlay lines.
@@ -188,6 +186,7 @@ export function fingerprintProjects( {
 	buildOrder,
 	dependencies,
 	mode,
+	flags,
 	toolVersion,
 	committed,
 	dirty,
@@ -201,7 +200,9 @@ export function fingerprintProjects( {
 			.sort()
 			.map( d => `${ d }:${ fps.get( d ) }` );
 		const h = crypto.createHash( 'sha256' );
-		h.update( JSON.stringify( { v: SCHEMA_VERSION, mode, toolVersion, files, changes, deps } ) );
+		h.update(
+			JSON.stringify( { v: SCHEMA_VERSION, mode, flags, toolVersion, files, changes, deps } )
+		);
 		fps.set( slug, h.digest( 'hex' ) );
 	}
 	return fps;
@@ -216,10 +217,9 @@ export function fingerprintProjects( {
  *
  * @param {Map<string,Set>} dependencies - Full (unfiltered) dependency map.
  * @param {object}          argv         - Argv (uses .production).
- * @param {Function}        execa        - execa function.
  * @return {Promise<Map<string,string>>} slug -> fingerprint.
  */
-export async function computeFingerprints( dependencies, argv, execa ) {
+export async function computeFingerprints( dependencies, argv ) {
 	// getBuildOrder mutates its input, so hand it a clone.
 	const clone = new Map();
 	for ( const [ slug, deps ] of dependencies ) {
@@ -228,13 +228,18 @@ export async function computeFingerprints( dependencies, argv, execa ) {
 	const buildOrder = getBuildOrder( clone ).flat();
 
 	const [ toolVersion, { committed, dirty } ] = await Promise.all( [
-		buildToolVersion( execa ),
-		collectGitState( execa ),
+		buildToolVersion(),
+		collectGitState(),
 	] );
 	return fingerprintProjects( {
 		buildOrder,
 		dependencies,
 		mode: argv.production ? 'production' : 'development',
+		// Pinning resolves path packages to their branch-alias rather than dev-trunk, so a cached
+		// build from a pinned run must not be reused for an unpinned one.
+		flags: `pin:${ !! argv.pinPathRepoVersions } lock:${
+			argv.useUncommittedComposerLock !== false
+		}`,
 		toolVersion,
 		committed,
 		dirty,
@@ -249,7 +254,7 @@ const manifestPath = project => projectDir( project, '.cache/build/manifest.json
  * @param {string} project - Slug.
  * @return {Promise<object|null>} Manifest.
  */
-export async function readManifest( project ) {
+async function readManifest( project ) {
 	try {
 		return JSON.parse( await fs.readFile( manifestPath( project ), 'utf8' ) );
 	} catch {
@@ -264,18 +269,8 @@ export async function readManifest( project ) {
  * @return {Promise<string[]>} Present output dir names.
  */
 async function presentOutputs( project ) {
-	const present = [];
-	for ( const dir of OUTPUT_DIRS ) {
-		if (
-			await fs.access( projectDir( project, dir ) ).then(
-				() => true,
-				() => false
-			)
-		) {
-			present.push( dir );
-		}
-	}
-	return present;
+	const ok = await Promise.all( OUTPUT_DIRS.map( d => exists( projectDir( project, d ) ) ) );
+	return OUTPUT_DIRS.filter( ( d, i ) => ok[ i ] );
 }
 
 /**
@@ -288,21 +283,15 @@ async function presentOutputs( project ) {
  *
  * @param {string} project - Slug.
  * @param {string} fp      - Current fingerprint.
- * @param {object} argv    - Argv (uses .production).
  * @return {Promise<boolean>} True to skip.
  */
-export async function canSkip( project, fp, argv ) {
-	const mode = argv.production ? 'production' : 'development';
+export async function canSkip( project, fp ) {
 	const m = await readManifest( project );
-	if ( ! m || m.schemaVersion !== SCHEMA_VERSION || m.inputHash !== fp || m.mode !== mode ) {
-		return false;
-	}
-	const outputs = m.outputs || [];
-	if ( outputs.length === 0 ) {
+	if ( ! m || m.inputHash !== fp || ! m.outputs?.length ) {
 		return false;
 	}
 	const present = new Set( await presentOutputs( project ) );
-	return outputs.every( o => present.has( o ) );
+	return m.outputs.every( o => present.has( o ) );
 }
 
 /**

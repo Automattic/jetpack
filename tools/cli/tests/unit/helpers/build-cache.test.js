@@ -1,4 +1,7 @@
-import { fingerprintProjects } from '../../../helpers/build-cache.js';
+import fs from 'fs/promises';
+import os from 'os';
+import npath from 'path';
+import { fingerprintProjects, canSkip, writeManifest } from '../../../helpers/build-cache.js';
 
 // A tiny graph: B depends on A; C is independent.
 const baseInputs = () => ( {
@@ -109,5 +112,48 @@ describe( 'build-cache fingerprintProjects', () => {
 		expect( fingerprintProjects( ordered ).get( 'packages/a' ) ).toBe(
 			fingerprintProjects( reversed ).get( 'packages/a' )
 		);
+	} );
+} );
+
+// `projectDir` resolves against process.cwd(), so these run inside a throwaway monorepo-shaped tree.
+describe( 'canSkip / writeManifest', () => {
+	const SLUG = 'packages/thing';
+	let dir, cwd;
+
+	beforeEach( async () => {
+		cwd = process.cwd();
+		dir = await fs.mkdtemp( npath.join( os.tmpdir(), 'jp-cache-' ) );
+		await fs.mkdir( npath.join( dir, 'projects', SLUG, 'build' ), { recursive: true } );
+		process.chdir( dir );
+	} );
+	afterEach( async () => {
+		process.chdir( cwd );
+		await fs.rm( dir, { recursive: true, force: true } );
+	} );
+
+	test( 'does not skip a project that has never been built', async () => {
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+	} );
+
+	test( 'skips a project rebuilt with the same fingerprint', async () => {
+		await writeManifest( SLUG, 'fp1', {} );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
+	} );
+
+	test( 'does not skip when the fingerprint changed', async () => {
+		await writeManifest( SLUG, 'fp1', {} );
+		await expect( canSkip( SLUG, 'fp2' ) ).resolves.toBe( false );
+	} );
+
+	test( 'does not skip when a recorded output directory was deleted', async () => {
+		await writeManifest( SLUG, 'fp1', {} );
+		await fs.rm( npath.join( dir, 'projects', SLUG, 'build' ), { recursive: true } );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+	} );
+
+	test( 'does not skip a project that produced no recognised outputs', async () => {
+		await fs.rm( npath.join( dir, 'projects', SLUG, 'build' ), { recursive: true } );
+		await writeManifest( SLUG, 'fp1', {} );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 } );

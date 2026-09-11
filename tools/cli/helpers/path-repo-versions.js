@@ -2,8 +2,8 @@
  * Pin versions for the monorepo path repository, so Composer doesn't guess them.
  *
  * Without a `version`, Composer's VersionGuesser runs `git branch -a` once per globbed package
- * directory — 86 times per install against a repo with ~16k refs. CI has pinned these since 2021;
- * see `.github/files/setup-wordpress-env.sh`.
+ * directory, which dominates install time. CI has pinned these since 2021; see
+ * `.github/files/setup-wordpress-env.sh`.
  */
 
 import fsSync from 'fs';
@@ -92,10 +92,15 @@ function installRestoreHandlers() {
 	}
 	handlersInstalled = true;
 	process.on( 'exit', restorePinnedComposerJsonSync );
-	for ( const sig of [ 'SIGINT', 'SIGTERM', 'SIGHUP' ] ) {
+	for ( const [ sig, num ] of [
+		[ 'SIGINT', 2 ],
+		[ 'SIGTERM', 15 ],
+		[ 'SIGHUP', 1 ],
+		[ 'SIGQUIT', 3 ],
+	] ) {
 		process.on( sig, () => {
 			restorePinnedComposerJsonSync();
-			process.exit( 128 + { SIGINT: 2, SIGTERM: 15, SIGHUP: 1 }[ sig ] );
+			process.exit( 128 + num );
 		} );
 	}
 }
@@ -104,11 +109,14 @@ function installRestoreHandlers() {
  * Run `fn` with the project's composer.json temporarily pinned, then restore it.
  *
  * @param {string}   cwd      - Project directory.
- * @param {object}   versions - Map from `buildPackageVersionMap`.
+ * @param {?object}  versions - Map from `buildPackageVersionMap`, or null to just run `fn`.
  * @param {Function} fn       - Callback to run while pinned.
  * @return {Promise<*>} Whatever `fn` returns.
  */
 export async function withPinnedComposerJson( cwd, versions, fn ) {
+	if ( ! versions ) {
+		return await fn();
+	}
 	const file = npath.join( cwd, 'composer.json' );
 	const original = await fs.readFile( file, 'utf8' );
 	const updated = pinPathRepoVersions( JSON.parse( original ), versions );
@@ -118,13 +126,22 @@ export async function withPinnedComposerJson( cwd, versions, fn ) {
 
 	installRestoreHandlers();
 	pinned.set( file, original );
-	await fs.writeFile( file, JSON.stringify( updated, null, '\t' ) + '\n' );
+	// Rename, not truncate-and-write: concurrent installs glob every package's composer.json, so a
+	// torn read would surface as a JSON parse error in an unrelated project. The temp lives in the
+	// already-gitignored .cache/build so a hard kill can't leave an untracked file behind.
+	const tmpDir = npath.join( cwd, '.cache/build' );
+	await fs.mkdir( tmpDir, { recursive: true } );
+	const tmp = npath.join( tmpDir, `composer.json.pin-${ process.pid }` );
+	await fs.writeFile( tmp, JSON.stringify( updated, null, '\t' ) + '\n' );
+	await fs.rename( tmp, file );
 	try {
 		return await fn();
 	} finally {
 		if ( pinned.has( file ) ) {
-			pinned.delete( file );
+			// Restore before dropping the bookkeeping: dying in between would otherwise leave the
+			// rewritten file behind with nothing left to put it back. Re-restoring is idempotent.
 			await fs.writeFile( file, original );
+			pinned.delete( file );
 		}
 	}
 }

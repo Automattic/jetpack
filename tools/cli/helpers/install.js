@@ -116,8 +116,14 @@ export async function getInstallArgs( project, pkgMgr, argv, lockedProjects = nu
 	// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
 	// For pnpm, the lockfile is always checked in thanks to the workspace thing.
 	if ( pkgMgr === 'composer' ) {
+		// The batch set is git-only, so a tracked lock can still be absent from disk (e.g. after
+		// `jetpack clean <plugin> composer.lock`), and `composer install` would fail on it.
 		const hasLock = lockedProjects
-			? lockedProjects.has( project )
+			? lockedProjects.has( project ) &&
+			  ( await fs.access( projectDir( project, 'composer.lock' ) ).then(
+					() => true,
+					() => false
+			  ) )
 			: await hasLockFile( projectDir( project ), 'composer.lock' );
 		if ( hasLock ) {
 			args.push( 'install' );

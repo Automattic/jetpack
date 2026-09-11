@@ -16,6 +16,7 @@ import { computeFingerprints, canSkip, writeManifest } from '../helpers/build-ca
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import formatDuration from '../helpers/format-duration.js';
 import { getInstallArgs, projectDir, batchLockFileStatus } from '../helpers/install.js';
+import { readComposerJson } from '../helpers/json.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import {
@@ -115,18 +116,14 @@ export function builder( yargs ) {
  *
  * Every project's monorepo path repo globs to `projects/packages/*`, whichever relative url it uses.
  *
- * @return {Promise<object>} Map of composer package name to version.
+ * @return {object} Map of composer package name to version.
  */
-async function readPathRepoVersions() {
-	const jsons = await Promise.all(
-		[ ...allProjectsByType( 'packages' ) ].map( project =>
-			fs
-				.readFile( projectDir( project, 'composer.json' ), 'utf8' )
-				.then( JSON.parse )
-				.catch( () => null )
-		)
+function readPathRepoVersions() {
+	return buildPackageVersionMap(
+		[ ...allProjectsByType( 'packages' ) ]
+			.map( project => readComposerJson( project, false ) )
+			.filter( Boolean )
 	);
-	return buildPackageVersionMap( jsons.filter( Boolean ) );
 }
 
 /**
@@ -152,19 +149,19 @@ export async function handler( argv ) {
 	}
 
 	// One `git ls-files` for the whole monorepo instead of one per project.
-	const lockedProjects = await batchLockFileStatus();
-	const pathRepoVersions = argv.pinPathRepoVersions ? await readPathRepoVersions() : null;
-
-	// Keep the full, unfiltered graph around: the build cache fingerprints the whole graph so a
-	// project's fingerprint is stable whether it's built alone or via `--deps`.
-	const fullDependencies = await getDependencies( process.cwd(), 'build' );
-	let dependencies = fullDependencies;
+	// Independent of each other, so overlap them.
+	const lockedProjectsPromise = batchLockFileStatus();
+	let dependencies = await getDependencies( process.cwd(), 'build' );
+	const lockedProjects = await lockedProjectsPromise;
+	const pathRepoVersions =
+		argv.pinPathRepoVersions && ! argv.forMirrors ? readPathRepoVersions() : null;
 
 	// No persistent cache between CI runs, and mirror builds do extra work a skip would break.
-	const cacheEnabled = !! argv.cache && ! argv.forMirrors && ! process.env.CI;
-	const cacheFingerprints = cacheEnabled
-		? await computeFingerprints( fullDependencies, argv, execa )
-		: null;
+	// Fingerprint before `filterDeps` narrows the graph; see `computeFingerprints`.
+	const cacheFingerprints =
+		argv.cache && ! argv.forMirrors && ! process.env.CI
+			? await computeFingerprints( dependencies, argv )
+			: null;
 	const listr = new Listr( [], {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
 		concurrent: argv.concurrency > 1,
@@ -291,9 +288,7 @@ export async function handler( argv ) {
 		promises: {},
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
-		cache: cacheEnabled
-			? { force: !! argv.force, fingerprints: cacheFingerprints, cached: 0, built: 0 }
-			: null,
+		cache: cacheFingerprints ? { fingerprints: cacheFingerprints, cached: 0, built: 0 } : null,
 		lockedProjects,
 		pathRepoVersions,
 		// When `--timing-summary` is set, collect a flat list of phase timings to summarize at the end.
@@ -767,9 +762,9 @@ async function checkCollisions( basedir ) {
 async function buildProject( t ) {
 	// Skip the whole project (install + build) when its inputs are unchanged and the outputs it
 	// produced last time are still present. `--force` rebuilds but still refreshes the manifest.
-	if ( t.ctx.cache && ! t.argv.forMirrors ) {
+	if ( t.ctx.cache && ! t.argv.force ) {
 		const fp = t.ctx.cache.fingerprints.get( t.project );
-		if ( fp && ! t.ctx.cache.force && ( await canSkip( t.project, fp, t.argv ) ) ) {
+		if ( fp && ( await canSkip( t.project, fp ) ) ) {
 			t.ctx.cache.cached++;
 			await t.setStatus( 'cached' );
 			return;
@@ -949,7 +944,10 @@ async function buildProject( t ) {
 	} else {
 		// getInstallArgs runs `composer validate --check-lock`, so it must see the same pinned
 		// composer.json the lock was written from or it'd fall back to the slow `update` path.
-		const install = () =>
+		const versions = shouldPinProject( t.project, t.ctx.lockedProjects, t.argv )
+			? t.ctx.pathRepoVersions
+			: null;
+		await withPinnedComposerJson( t.cwd, versions, () =>
 			t.time( 'install', async () =>
 				t.execa(
 					'composer',
@@ -960,12 +958,8 @@ async function buildProject( t ) {
 						buffer: false,
 					}
 				)
-			);
-		if ( t.ctx.pathRepoVersions && shouldPinProject( t.project, t.ctx.lockedProjects, t.argv ) ) {
-			await withPinnedComposerJson( t.cwd, t.ctx.pathRepoVersions, install );
-		} else {
-			await install();
-		}
+			)
+		);
 	}
 
 	// Build.
@@ -984,7 +978,6 @@ async function buildProject( t ) {
 
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
 	if ( ! t.argv.forMirrors ) {
-		// Record this successful build so the next run can skip it.
 		if ( t.ctx.cache ) {
 			t.ctx.cache.built++;
 			const fp = t.ctx.cache.fingerprints.get( t.project );
