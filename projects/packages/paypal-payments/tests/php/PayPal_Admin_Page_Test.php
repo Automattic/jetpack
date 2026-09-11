@@ -147,6 +147,34 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertTrue( true );
 	}
 
+	/**
+	 * The post being saved can be left out of the count, so its own block does not
+	 * keep the link alive.
+	 */
+	public function test_count_published_embeds_can_leave_one_post_out() {
+		$post = new \WP_Post(
+			(object) array(
+				'ID'           => 1000,
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_content' => '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-ABC123"} /-->',
+				'filter'       => 'raw',
+			)
+		);
+		add_filter(
+			'posts_pre_query',
+			function () use ( $post ) {
+				return array( $post );
+			}
+		);
+
+		$this->assertSame( 1, PayPal_Admin_Page::count_published_embeds()['PLB-ABC123'] );
+		$this->assertArrayNotHasKey( 'PLB-ABC123', PayPal_Admin_Page::count_published_embeds( 1000 ) );
+		$this->assertSame( 1, PayPal_Admin_Page::count_published_embeds( 999 )['PLB-ABC123'] );
+
+		remove_all_filters( 'posts_pre_query' );
+	}
+
 	// --- Delete confirmation ---
 
 	/**

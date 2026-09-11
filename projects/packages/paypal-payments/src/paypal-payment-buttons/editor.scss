@@ -340,12 +340,14 @@
 // Renders as a bare child of the inspector fill rather than inside a PanelBody,
 // so it has to supply the separator and the 16px inset a panel would have given
 // it. Without them it reads as the footer of whichever panel sits above.
+// The line at the top of the sidebar saying what the save will do.
 .jetpack-paypal-payment-buttons__form-actions {
-	display: flex;
-	align-items: center;
-	gap: 12px;
 	padding: 16px;
-	border-top: 1px solid #e0e0e0;
+	border-block-end: 1px solid #e0e0e0;
+
+	.components-notice {
+		margin: 0;
+	}
 }
 
 // Image upload field in the create/edit form.
