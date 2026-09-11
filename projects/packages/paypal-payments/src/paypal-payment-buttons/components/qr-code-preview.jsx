@@ -23,9 +23,11 @@ import { QR_OPTIONS } from '../utils/qr-options';
  * @param {string}  props.url          - The URL to encode, with the attribution code already appended.
  * @param {string}  props.className    - Class names for the canvas element.
  * @param {boolean} props.showDownload - Whether to draw the Download button under the code.
+ * @param {string}  props.caption      - Text to read under the code. Omitted when empty.
+ * @param {object}  props.captionStyle - Inline style for the caption.
  * @return {?Element} The QR canvas, or nothing until there is a link to encode.
  */
-export default function QrCodePreview( { url, className, showDownload } ) {
+export default function QrCodePreview( { url, className, showDownload, caption, captionStyle } ) {
 	const canvasRef = useRef( null );
 
 	useEffect( () => {
@@ -46,6 +48,11 @@ export default function QrCodePreview( { url, className, showDownload } ) {
 	return (
 		<>
 			<canvas ref={ canvasRef } className={ className } />
+			{ caption && (
+				<p className="jetpack-paypal-button__qr-caption" style={ captionStyle }>
+					{ caption }
+				</p>
+			) }
 			{ showDownload && (
 				<Button
 					variant="secondary"

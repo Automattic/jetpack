@@ -28,7 +28,7 @@ const asDeclarations = style =>
 	);
 
 // The other half of this table runs in tests/php. A value one side drops and the
-// other keeps is the drift WOOPTP-491 exists to remove, so it fails here.
+// other keeps is drift between the two, so it fails here.
 describe( 'style parity with the published page', () => {
 	it.each( parity.cases.map( c => [ c.name, c ] ) )( '%s', ( _name, testCase ) => {
 		expect( asDeclarations( getWrapperStyle( testCase.attributes ) ) ).toEqual(

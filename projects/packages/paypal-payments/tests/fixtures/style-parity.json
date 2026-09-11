@@ -1,5 +1,5 @@
 {
-	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. The premise of WOOPTP-491 is that the canvas and the published page agree; this is the file that enforces it. rejectedCases are values the published page refuses — the canvas has to refuse them too, or a block pasted in code view renders in the editor and vanishes on publish.",
+	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. rejectedCases are values the published page refuses — the canvas has to refuse them too, or a block pasted in code view renders in the editor and vanishes on publish.",
 	"cases": [
 		{
 			"name": "a spacing preset",
@@ -104,7 +104,7 @@
 			}
 		},
 		{
-			"name": "a preset border colour, expanded by hand in PHP and by the engine in JS",
+			"name": "a preset border color, expanded by hand in PHP and by the engine in JS",
 			"attributes": {
 				"style": {
 					"border": {
@@ -120,7 +120,7 @@
 			}
 		},
 		{
-			"name": "an rgba palette colour",
+			"name": "an rgba palette color",
 			"attributes": {
 				"style": {
 					"border": {
@@ -224,7 +224,7 @@
 			}
 		},
 		{
-			"name": "a colour",
+			"name": "a color",
 			"attributes": {
 				"captionColor": "#0000ff"
 			},
@@ -251,7 +251,7 @@
 			}
 		},
 		{
-			"name": "an rgba colour",
+			"name": "an rgba color",
 			"attributes": {
 				"captionColor": "rgba(0, 0, 255, 0.8)"
 			},
@@ -313,7 +313,7 @@
 			"selector": "wrapper"
 		},
 		{
-			"name": "a named border colour",
+			"name": "a named border color",
 			"attributes": {
 				"style": {
 					"border": {
@@ -345,14 +345,14 @@
 			"selector": "wrapper"
 		},
 		{
-			"name": "a named caption colour",
+			"name": "a named caption color",
 			"attributes": {
 				"captionColor": "rebeccapurple"
 			},
 			"selector": "caption"
 		},
 		{
-			"name": "a colour function the sanitizer does not know",
+			"name": "a color function the sanitizer does not know",
 			"attributes": {
 				"captionColor": "color-mix(in srgb, red, blue)"
 			},
@@ -376,6 +376,25 @@
 			"name": "a css comment in a fluid size",
 			"attributes": {
 				"captionFontSize": "clamp(/*)"
+			},
+			"selector": "caption"
+		},
+		{
+			"name": "a spacing preset used as a border color",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "var:preset|spacing|50"
+					}
+				}
+			},
+			"selector": "wrapper"
+		},
+		{
+			"name": "a spacing preset used as a caption color",
+			"attributes": {
+				"captionColor": "var:preset|spacing|50"
 			},
 			"selector": "caption"
 		}

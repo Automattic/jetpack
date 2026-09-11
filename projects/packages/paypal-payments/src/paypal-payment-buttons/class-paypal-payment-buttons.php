@@ -438,7 +438,7 @@ class PayPal_Payment_Buttons {
 		}
 
 		// sanitize_hex_color() stops at 6 digits. The palette editor's picker has
-		// alpha on, so a custom colour is stored as #rrggbbaa.
+		// alpha on, so a custom color is stored as #rrggbbaa.
 		if ( preg_match( '/^#([0-9a-f]{4}|[0-9a-f]{8})$/i', $color ) ) {
 			return $color;
 		}
@@ -446,8 +446,8 @@ class PayPal_Payment_Buttons {
 		// `var:preset|color|primary` is what the editor stores for a palette entry.
 		// The style engine emits preset border colors as a class rather than inline
 		// CSS, so expand it here — getCaptionStyle() does the same for the canvas.
-		if ( preg_match( '/^var:preset\|([a-z0-9-]+)\|([a-z0-9-]+)$/i', $color, $preset ) ) {
-			return sprintf( 'var(--wp--preset--%s--%s)', $preset[1], $preset[2] );
+		if ( preg_match( '/^var:preset\|color\|([a-z0-9-]+)$/i', $color, $preset ) ) {
+			return sprintf( 'var(--wp--preset--color--%s)', $preset[1] );
 		}
 
 		if ( preg_match( '/^var\(--wp--[a-z0-9-]+\)$/i', $color ) ) {

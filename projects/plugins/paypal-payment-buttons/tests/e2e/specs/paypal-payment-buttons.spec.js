@@ -1421,7 +1421,8 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				await page.waitForTimeout( 500 );
 			}
 
-			const stylePanel = page.locator( 'button:has-text("Style")' ).first();
+			// Exact, or it substring-matches the Styles tab that sits above the panels.
+			const stylePanel = page.getByRole( 'button', { name: 'Style', exact: true } ).first();
 
 			// Retry if Block tab not active yet.
 			for ( let attempt = 0; attempt < 3; attempt++ ) {

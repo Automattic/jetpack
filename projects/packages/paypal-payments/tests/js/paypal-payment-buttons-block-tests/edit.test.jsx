@@ -83,7 +83,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	),
 	// The real control is a swatch popover, not a text field. Keep it a button so
 	// a test can't type a color into a UI that has no input.
-	// Core's colour panel: a labelled swatch row per setting, with its own reset
+	// Core's color panel: a labeled swatch row per setting, with its own reset
 	// menu. The mock is a button per setting, not a text field — the real control
 	// has no input to type into.
 	__experimentalColorGradientSettingsDropdown: ( { settings } ) => (
@@ -3215,6 +3215,29 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await expect( screen.findByText( 'Download' ) ).resolves.toBeInTheDocument();
 			} );
 
+			// Create 188 captions the inspector's copy of the code too, so the
+			// merchant reads what they typed without going back to the canvas.
+			it( 'captions the inspector QR code, and drops it with the toggle', async () => {
+				const { rerender } = render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: true, qrCaption: 'Scan to pay' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const inspector = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( inspector ).getByText( 'Scan to pay' ) ).toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: false, qrCaption: 'Scan to pay' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				expect( within( inspector ).queryByText( 'Scan to pay' ) ).not.toBeInTheDocument();
+			} );
+
 			it( 'toggles the caption off', async () => {
 				const user = userEvent.setup();
 				render(
@@ -3266,7 +3289,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.getByTestId( 'font-size' ) ).toBeInTheDocument();
 			} );
 
-			it( 'stores the caption colour, and clears it', async () => {
+			it( 'stores the caption color, and clears it', async () => {
 				const user = userEvent.setup();
 				render(
 					<Edit
