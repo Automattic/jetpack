@@ -36,8 +36,8 @@ export default function OverviewBody(): JSX.Element {
 					align="center"
 					justify="space-between"
 				>
-					<Card.Title>
-						<Stack direction="row" align="center" gap="sm">
+					<Card.Title render={ <h3 /> }>
+						<Stack render={ <span /> } direction="row" align="center" gap="sm">
 							<span className="jetpack-newsletter-overview__icons" aria-hidden="true">
 								<Icon
 									className="jetpack-newsletter-overview__wordpress-icon"
@@ -46,9 +46,7 @@ export default function OverviewBody(): JSX.Element {
 								/>
 								<JetpackIcon className="jetpack-newsletter-overview__jetpack-icon" size={ 22 } />
 							</span>
-							<Text render={ <h2 /> } variant="heading-lg">
-								{ __( 'Newsletters on WordPress.com', 'jetpack-newsletter' ) }
-							</Text>
+							{ __( 'Newsletters on WordPress.com', 'jetpack-newsletter' ) }
 						</Stack>
 					</Card.Title>
 				</Stack>
