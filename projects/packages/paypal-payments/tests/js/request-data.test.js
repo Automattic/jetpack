@@ -107,6 +107,27 @@ describe( 'buildRequestData', () => {
 
 		expect( item ).not.toHaveProperty( 'image_url' );
 	} );
+
+	// PayPal renders its own label to the buyer, so the merchant's string goes
+	// nowhere - and requiring one threw the whole tax away.
+	it( 'collects tax without a tax name', () => {
+		const [ tax ] = buildRequestData( { ...attributes, taxName: '' }, true ).line_items[ 0 ].taxes;
+
+		expect( tax ).toEqual( { type: 'PERCENTAGE', value: '7.5' } );
+	} );
+
+	it( 'leaves taxes out when tax collection is off', () => {
+		expect(
+			buildRequestData( { ...attributes, taxEnabled: false }, true ).line_items[ 0 ]
+		).not.toHaveProperty( 'taxes' );
+	} );
+
+	it( 'sends PayPal’s own profile rate as PROFILE', () => {
+		const [ tax ] = buildRequestData( { ...attributes, taxType: 'PREFERENCE', taxName: '' }, true )
+			.line_items[ 0 ].taxes;
+
+		expect( tax ).toEqual( { type: 'PREFERENCE', value: 'PROFILE' } );
+	} );
 } );
 
 describe( 'keepPayPalOnlyFields', () => {

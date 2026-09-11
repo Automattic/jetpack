@@ -284,6 +284,18 @@ class PayPal_REST_Controller {
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( __CLASS__, 'handle_delete_button' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
+					'args'                => array(
+						'unused_only' => array(
+							'type'        => 'boolean',
+							'default'     => false,
+							'description' => __( 'Keep the payment link when another published post still embeds it.', 'jetpack-paypal-payments' ),
+						),
+						'post_id'     => array(
+							'type'        => 'integer',
+							'default'     => 0,
+							'description' => __( 'The post being saved, which does not count as still embedding the link.', 'jetpack-paypal-payments' ),
+						),
+					),
 				),
 			)
 		);
@@ -699,6 +711,32 @@ class PayPal_REST_Controller {
 	 */
 	public static function handle_delete_button( WP_REST_Request $request ) {
 		$resource_id = $request->get_param( 'resource_id' );
+
+		// The editor deletes a link when a post is saved without its block, but a
+		// link is shared by every block that points at it, on any post.
+		if ( $request->get_param( 'unused_only' ) ) {
+			$embeds = PayPal_Admin_Page::count_published_embeds( absint( $request->get_param( 'post_id' ) ) );
+			$others = $embeds[ $resource_id ] ?? 0;
+			if ( $others > 0 ) {
+				return new WP_REST_Response(
+					array(
+						'deleted'     => false,
+						'resource_id' => $resource_id,
+						'message'     => sprintf(
+							/* translators: %d: number of published posts */
+							_n(
+								'Kept the payment link: %d other published post still uses it.',
+								'Kept the payment link: %d other published posts still use it.',
+								$others,
+								'jetpack-paypal-payments'
+							),
+							$others
+						),
+					),
+					200
+				);
+			}
+		}
 
 		$result = PayPal_API_Client::delete_resource( $resource_id );
 

@@ -33,17 +33,12 @@ import {
 } from '@wordpress/components';
 import { useState, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import metadata from './block.json';
 import ConfirmDialogs from './components/confirm-dialogs';
 import ConnectionWizard from './components/connection-wizard';
 import { FORMAT_OPTIONS } from './components/format-switcher';
 import LegacyBlock from './components/legacy-block';
 import PayPalButtonPreview from './components/paypal-button-preview';
-import VariantBuilder, {
-	hasVariantPricing,
-	isVariantPricingOn,
-	validateVariants,
-} from './components/variant-builder';
+import VariantBuilder, { isVariantPricingOn, validateVariants } from './components/variant-builder';
 import PayPalInspectorControls from './controls';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
 import { usePayPalResource } from './hooks/use-paypal-resource';
@@ -170,23 +165,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	}, [] );
 
 	/**
-	 * Whether the options group carries its own per-option prices.
-	 *
-	 * PayPal rejects a request with `unit_amount` at both the product and the
-	 * variant level, so per-option prices replace the product-level price
-	 * rather than sitting alongside it.
-	 */
-	const usesVariantPricing = useMemo(
-		() => hasVariantPricing( variantsEnabled, variants ),
-		[ variantsEnabled, variants ]
-	);
-
-	/**
 	 * Whether per-variant pricing is turned on.
 	 *
 	 * The product price field goes as soon as the toggle is on, before any option price
-	 * is typed - unlike `usesVariantPricing` above, which keys on the prices themselves
-	 * because the server sanitiser reads the same thing.
+	 * is typed. The request itself keys on the prices, in utils/sync-on-save.js.
 	 */
 	const variantPricingOn = useMemo(
 		() => isVariantPricingOn( variantsEnabled, variants ),
@@ -255,23 +237,18 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const isFormValid = ! hasBlockingError( validationErrors ) && variantErrors.length === 0;
 
 	const {
-		isCreating,
+		isBusy,
 		error,
 		setError,
 		successMessage,
 		setSuccessMessage,
-		handleCreateButton,
-		handleUpdateButton,
 		handleDeleteButton,
 		executeDeleteButton,
 	} = usePayPalResource( {
 		attributes,
 		setAttributes,
 		isConnected,
-		usesVariantPricing,
-		isFormValid,
 		setIsEditing,
-		setTouchedFields,
 		setShowDeleteConfirm,
 	} );
 
@@ -324,6 +301,20 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	 * Whether the block has a created button to preview.
 	 */
 	const hasButton = isApiManaged && resourceId && paymentLink;
+
+	// The payment is written with the post, so the sidebar says what the save will do.
+	let saveStatus = __(
+		'Complete the highlighted fields. Until then the button is not sent to PayPal when you save.',
+		'jetpack-paypal-payments'
+	);
+	if ( isFormValid ) {
+		saveStatus = hasButton
+			? __( 'Changes are sent to PayPal when you save the post.', 'jetpack-paypal-payments' )
+			: __(
+					'The payment button is created on PayPal when you save or publish the post.',
+					'jetpack-paypal-payments'
+			  );
+	}
 
 	/**
 	 * Whether the block is showing that button rather than the form.
@@ -418,7 +409,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					icon="trash"
 					label={ __( 'Delete Payment Button', 'jetpack-paypal-payments' ) }
 					onClick={ handleDeleteButton }
-					disabled={ isCreating || ! isConnected }
+					disabled={ isBusy || ! isConnected }
 					isDestructive
 				/>
 			</ToolbarGroup>
@@ -435,7 +426,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			isConnected={ isConnected }
 			environment={ environment }
 			setShowReconnect={ setShowReconnect }
-			isCreating={ isCreating }
+			isBusy={ isBusy }
 			handleDeleteButton={ handleDeleteButton }
 			handleDisconnect={ handleDisconnect }
 			hasButton={ hasButton }
@@ -571,7 +562,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						value={ productName || '' }
 						onChange={ value => setAttributes( { productName: value } ) }
 						onBlur={ () => markTouched( 'productName' ) }
-						disabled={ isCreating }
+						disabled={ isBusy }
 						placeholder={ __( 'e.g., Premium Widget', 'jetpack-paypal-payments' ) }
 						help={
 							touchedFields.productName && validationErrors.productName
@@ -598,7 +589,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									value={ price || '' }
 									onChange={ value => setAttributes( { price: value } ) }
 									onBlur={ () => markTouched( 'price' ) }
-									disabled={ isCreating }
+									disabled={ isBusy }
 									type="number"
 									min={ priceStep }
 									step={ priceStep }
@@ -724,7 +715,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						variants={ variants }
 						currencyCode={ currencyCode || 'USD' }
 						onChange={ updates => setAttributes( updates ) }
-						disabled={ isCreating }
+						disabled={ isBusy }
 						errors={ variantErrors }
 						touched={ touchedFields }
 						// A saved button's groups came out of storage already invalid, so
@@ -745,7 +736,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						help={ adjustableQuantity ? helpQtyOn : helpQtyOff }
 						checked={ adjustableQuantity }
 						onChange={ value => setAttributes( { adjustableQuantity: value } ) }
-						disabled={ isCreating }
+						disabled={ isBusy }
 					/>
 					{ adjustableQuantity && (
 						<TextControl
@@ -755,7 +746,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 							type="number"
 							min={ 2 }
 							max={ 999 }
-							disabled={ isCreating }
+							disabled={ isBusy }
 							help={ __(
 								'Customers can select from 1 to this number.',
 								'jetpack-paypal-payments'
@@ -769,7 +760,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						help={ taxEnabled ? helpTaxOn : helpTaxOff }
 						checked={ taxEnabled }
 						onChange={ value => setAttributes( { taxEnabled: value } ) }
-						disabled={ isCreating }
+						disabled={ isBusy }
 					/>
 					{ taxEnabled && (
 						<>
@@ -787,7 +778,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									},
 								] }
 								onChange={ value => setAttributes( { taxType: value } ) }
-								disabled={ isCreating }
+								disabled={ isBusy }
 							/>
 							{ taxIsPercentage && (
 								<TextControl
@@ -799,7 +790,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									max="99.99"
 									step="0.01"
 									placeholder="8.25"
-									disabled={ isCreating }
+									disabled={ isBusy }
 									help={
 										validationErrors.taxValue ||
 										__( 'Percentage added to the product price.', 'jetpack-paypal-payments' )
@@ -839,7 +830,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 								setAttributes( { customerNotes: [] } );
 							}
 						} }
-						disabled={ isCreating }
+						disabled={ isBusy }
 					/>
 					{ customerNotes?.length > 0 && (
 						<div className="jetpack-paypal-payment-buttons__customer-notes">
@@ -861,7 +852,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 											setAttributes( { customerNotes: updated } );
 										} }
 										placeholder={ __( 'e.g., Gift Message', 'jetpack-paypal-payments' ) }
-										disabled={ isCreating }
+										disabled={ isBusy }
 									/>
 									<div className="jetpack-paypal-payment-buttons__customer-note-controls">
 										<ToggleControl
@@ -875,7 +866,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 												};
 												setAttributes( { customerNotes: updated } );
 											} }
-											disabled={ isCreating }
+											disabled={ isBusy }
 										/>
 										{ customerNotes.length > 1 && (
 											<Button
@@ -886,7 +877,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 													const updated = customerNotes.filter( ( _, i ) => i !== noteIndex );
 													setAttributes( { customerNotes: updated } );
 												} }
-												disabled={ isCreating }
+												disabled={ isBusy }
 												aria-label={ sprintf(
 													/* translators: %d: field number */
 													__( 'Remove field %d', 'jetpack-paypal-payments' ),
@@ -908,7 +899,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 											customerNotes: [ ...customerNotes, { label: '', required: false } ],
 										} )
 									}
-									disabled={ isCreating }
+									disabled={ isBusy }
 								>
 									{ __( 'Add field', 'jetpack-paypal-payments' ) }
 								</Button>
@@ -931,7 +922,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 							value={ returnUrl || '' }
 							onChange={ value => setAttributes( { returnUrl: value } ) }
 							required={ false }
-							disabled={ isCreating }
+							disabled={ isBusy }
 							help={
 								returnUrlError ||
 								__( 'Redirect customers here after payment.', 'jetpack-paypal-payments' )
@@ -947,7 +938,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
 						value={ buttonText || '' }
 						onChange={ value => setAttributes( { buttonText: value } ) }
-						disabled={ isCreating }
+						disabled={ isBusy }
 					/>
 					<ToggleControl
 						label={ __( 'Show QR code', 'jetpack-paypal-payments' ) }
@@ -957,62 +948,16 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						) }
 						checked={ attributes.showQrCode !== false }
 						onChange={ value => setAttributes( { showQrCode: value } ) }
-						disabled={ isCreating }
+						disabled={ isBusy }
 					/>
 				</PanelBody>
 			</InspectorControls>
 			{ inspectorControls }
 			<InspectorControls>
 				<div className="jetpack-paypal-payment-buttons__form-actions">
-					<Button
-						variant="primary"
-						onClick={ hasButton ? handleUpdateButton : handleCreateButton }
-						isBusy={ isCreating }
-						disabled={ isCreating || ! isFormValid || ! isConnected }
-					>
-						{ isCreating && __( 'Saving…', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && hasButton && __( 'Save', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && ! hasButton && __( 'Create New', 'jetpack-paypal-payments' ) }
-					</Button>
-
-					<Button
-						variant="tertiary"
-						onClick={ () => {
-							if ( hasButton ) {
-								// Return to preview — discard unsaved edits.
-								setIsEditing( false );
-								setTouchedFields( {} );
-							} else {
-								// No saved button yet — reset form fields so merchant can
-								// remove the block if they want.
-								setAttributes( {
-									productName: metadata.attributes.productName.default,
-									price: metadata.attributes.price.default,
-									currencyCode: metadata.attributes.currencyCode.default,
-									productDescription: metadata.attributes.productDescription.default,
-									imageUrl: undefined,
-									imageId: undefined,
-									returnUrl: metadata.attributes.returnUrl.default,
-									variantsEnabled: metadata.attributes.variantsEnabled.default,
-									variants: undefined,
-									adjustableQuantity: metadata.attributes.adjustableQuantity.default,
-									maxQuantity: metadata.attributes.maxQuantity.default,
-									customerNotes: metadata.attributes.customerNotes.default,
-									taxEnabled: metadata.attributes.taxEnabled.default,
-									taxType: metadata.attributes.taxType.default,
-									taxName: metadata.attributes.taxName.default,
-									taxValue: metadata.attributes.taxValue.default,
-									buttonText: metadata.attributes.buttonText.default,
-									showQrCode: metadata.attributes.showQrCode.default,
-								} );
-								setTouchedFields( {} );
-								setError( null );
-							}
-						} }
-						disabled={ isCreating }
-					>
-						{ __( 'Cancel', 'jetpack-paypal-payments' ) }
-					</Button>
+					<Notice status={ isFormValid ? 'info' : 'warning' } isDismissible={ false }>
+						{ saveStatus }
+					</Notice>
 				</div>
 			</InspectorControls>
 

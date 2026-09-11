@@ -45,6 +45,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		// Remove any HTTP request filters.
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'posts_pre_query' );
 
 		// Drop the REST server and its handlers so each route-registration test starts clean.
 		remove_all_actions( 'rest_api_init' );
@@ -925,6 +926,70 @@ class PayPal_REST_Controller_Test extends TestCase {
 			$sent['discounts'][0]
 		);
 		$this->assertFalse( $sent['collect_shipping_address'] );
+	}
+
+	/**
+	 * A post saved without its block asks for the link to go, but only if no other
+	 * published post still embeds it.
+	 */
+	public function test_delete_button_keeps_a_link_other_published_posts_use() {
+		$this->set_up_connected_admin_state();
+		$this->embed_in_published_post( 1000, 'PLB-42' );
+
+		$requests = array();
+		$this->mock_http_routes( array( '/v1/checkout/payment-resources' => $this->http_response( 204, array() ) ), $requests );
+
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'unused_only', true );
+		$request->set_param( 'post_id', 1 );
+
+		$result = PayPal_REST_Controller::handle_delete_button( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertFalse( $result->get_data()['deleted'] );
+		$this->assertStringContainsString( '1 other published post', $result->get_data()['message'] );
+		$this->assertEmpty( $requests, 'PayPal was asked to delete a link another post uses.' );
+	}
+
+	/**
+	 * The post being saved does not count: its block is the one going away.
+	 */
+	public function test_delete_button_ignores_the_post_being_saved() {
+		$this->set_up_connected_admin_state();
+		$this->embed_in_published_post( 1000, 'PLB-42' );
+
+		$requests = array();
+		$this->mock_http_routes( array( '/v1/checkout/payment-resources' => $this->http_response( 204, array() ) ), $requests );
+
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'unused_only', true );
+		$request->set_param( 'post_id', 1000 );
+
+		$result = PayPal_REST_Controller::handle_delete_button( $request );
+
+		$this->assertTrue( $result->get_data()['deleted'] );
+		$this->assertCount( 1, $requests );
+		$this->assertSame( 'DELETE', $requests[0]['args']['method'] );
+	}
+
+	/**
+	 * The delete route declares the guard the editor sends.
+	 */
+	public function test_delete_route_declares_the_unused_only_guard() {
+		$routes = $this->register_paypal_routes();
+
+		$args = null;
+		foreach ( $routes['/wpcom/v2/paypal/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)'] as $endpoint ) {
+			if ( ! empty( $endpoint['methods']['DELETE'] ) ) {
+				$args = $endpoint['args'];
+			}
+		}
+
+		$this->assertNotNull( $args, 'No DELETE endpoint registered.' );
+		$this->assertArrayHasKey( 'unused_only', $args );
+		$this->assertArrayHasKey( 'post_id', $args );
 	}
 
 	/**
@@ -1960,6 +2025,30 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertNotEmpty( $requests, 'No list request was sent to PayPal.' );
 
 		return (string) $requests[0]['url'];
+	}
+
+	/**
+	 * Pretend one published post embeds a payment link.
+	 *
+	 * @param int    $post_id     The post's id.
+	 * @param string $resource_id The link it embeds.
+	 */
+	private function embed_in_published_post( $post_id, $resource_id ) {
+		$post = new \WP_Post(
+			(object) array(
+				'ID'           => $post_id,
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_content' => '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"' . $resource_id . '"} /-->',
+				'filter'       => 'raw',
+			)
+		);
+		add_filter(
+			'posts_pre_query',
+			function () use ( $post ) {
+				return array( $post );
+			}
+		);
 	}
 
 	/**
