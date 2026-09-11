@@ -1,8 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import { media, upload } from '@wordpress/icons';
 import { Card, Field, Skeleton, Stack, Text } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
-import { usePosterUrl } from '../../hooks/use-poster-url';
+import { usePlaybackTokenQuery, usePosterUrl } from '../../hooks/use-poster-url';
 import { useUpdateVideoPoster } from '../../hooks/use-update-video-poster';
 import { selectImageFromMediaLibrary } from '../../utils/select-image-from-media-library';
 import SelectFrameDialog from './select-frame-dialog';
@@ -34,6 +35,17 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 	const updatePoster = useUpdateVideoPoster();
 	const posterUrl = usePosterUrl( video );
 	const [ dialogOpen, setDialogOpen ] = useState( false );
+	const playbackToken = usePlaybackTokenQuery( video.guid, video.isPrivate && dialogOpen );
+	const sourceUrl = video.playbackUrl ?? video.sourceUrl;
+	const isSourceLoading = video.isPrivate && ! playbackToken.data && playbackToken.isFetching;
+	const hasSourceError = video.isPrivate && ! playbackToken.data && ! isSourceLoading;
+	let frameSourceUrl = sourceUrl;
+	if ( video.isPrivate ) {
+		frameSourceUrl =
+			sourceUrl && playbackToken.data
+				? addQueryArgs( sourceUrl, { metadata_token: playbackToken.data } )
+				: undefined;
+	}
 
 	/*
 	 * `usePosterUrl` returns null both when there is no poster at all and
@@ -112,7 +124,7 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 						<ThumbnailTile
 							icon={ media }
 							label={ __( 'Select from video', 'jetpack-videopress-pkg' ) }
-							disabled={ isBusy || ! video.sourceUrl }
+							disabled={ isBusy || ! sourceUrl }
 							onClick={ () => setDialogOpen( true ) }
 						/>
 					</Stack>
@@ -125,8 +137,11 @@ function EditableThumbnailCard( { video }: Props ): ReactElement {
 				</Field.Root>
 			</Card.Content>
 			<SelectFrameDialog
-				src={ video.sourceUrl ?? '' }
+				src={ frameSourceUrl }
 				isOpen={ dialogOpen }
+				isLoading={ isSourceLoading }
+				hasError={ hasSourceError }
+				onRetry={ () => playbackToken.refetch() }
 				onClose={ () => setDialogOpen( false ) }
 				onConfirm={ handleConfirmFrame }
 			/>
