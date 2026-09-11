@@ -1,18 +1,5 @@
-// Shared by both dashboards; three legacy-only tokens stay in style.scss.
+// Shared by both dashboards; legacy-only tokens stay in style.scss.
 :root {
-	// Forms-specific variables
-	--jp-forms-font-size-regular: 14px;
 	--jp-forms-border-color: #dcdcde;
 	--jp-forms-border-radius: var(--jp-border-radius, 4px);
-	--jp-forms-white: var(--jp-white, #fff);
-	--jp-forms-input-wrapper-height: var(--jp-input-wrapper-height, 40px);
-	--jp-forms-spacing-base: var(--spacing-base, 8px);
-	--jp-forms-page-padding-inline: 20px;
-	--jp-forms-black: var(--jp-black, #000);
-
-	--jp-forms-color-darker-10: var(--jp-black-80, #2c3338);
-
-	--jp-forms-focus-shadow: 0 0 0 1px var(--jp-forms-white), 0 0 0 3px var(--jp-forms-color-darker-10);// jetpack color would be nicer: #0b9e08;
-
-	--jp-forms-z-modal: 10010;
 }
