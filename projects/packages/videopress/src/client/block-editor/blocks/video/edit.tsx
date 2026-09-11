@@ -30,6 +30,7 @@ import {
 	isVideoPressModuleActive,
 } from '../../../lib/connection';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
+import { getInlinePlayerConfig } from '../../hooks/use-inline-player';
 import { usePreview } from '../../hooks/use-preview';
 import { useSyncMedia } from '../../hooks/use-sync-media';
 import { isVideoFile } from '../../utils/video';
@@ -468,9 +469,10 @@ export default function VideoPressEdit( {
 		);
 	}
 
-	// Generating video preview.
+	// Generating video preview. The in-page player does not need it to render.
 	if (
 		( isRequestingEmbedPreview || ! preview.html ) &&
+		! getInlinePlayerConfig() &&
 		generatingPreviewCounter > 0 &&
 		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
 	) {
@@ -488,7 +490,11 @@ export default function VideoPressEdit( {
 	}
 
 	// 5 - Generating video preview failed.
-	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview.html ) {
+	if (
+		generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT &&
+		! preview.html &&
+		! getInlinePlayerConfig()
+	) {
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				<PlaceholderWrapper

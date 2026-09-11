@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Inline player mode: the block editor previews video blocks with the same shared player instead of one frame per block.
