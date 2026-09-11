@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Premium Analytics: Remove Total views, Total visitors, Popular days and Popular hours from the default Insights layout and from the widget picker for now.
