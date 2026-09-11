@@ -694,6 +694,29 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * An anchor that survives the delete must not report success: a caller told the lock was
+	 * released carries on as though ownership were open.
+	 */
+	public function test_clear_protected_owner_reports_an_anchor_that_could_not_be_deleted() {
+		$this->anchor();
+		$this->act_as_administrator();
+
+		// `protected_owner` is compact, so deleting it rewrites the `jetpack_options` row.
+		$block = static function ( $value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_jetpack_options', $block, 10, 2 );
+
+		$result = ( new Manager() )->clear_protected_owner();
+
+		remove_filter( 'pre_update_option_jetpack_options', $block, 10 );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_not_cleared', $result->get_error_code() );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The lock is still in place.' );
+	}
+
+	/**
 	 * An anchor already absent is the state the caller asked for, so clearing again succeeds.
 	 */
 	public function test_clear_protected_owner_succeeds_when_there_is_no_anchor() {

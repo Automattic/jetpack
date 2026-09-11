@@ -1385,17 +1385,6 @@ class Manager {
 	}
 
 	/**
-	 * Get the protected owner anchor.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return array|null The anchor, or null when none is set.
-	 */
-	public function get_protected_owner() {
-		return Protected_Owner::get();
-	}
-
-	/**
 	 * Record a user as the protected owner and promote them to connection owner.
 	 *
 	 * Gated on `jetpack_connect` rather than on a role: a host can narrow that capability and
