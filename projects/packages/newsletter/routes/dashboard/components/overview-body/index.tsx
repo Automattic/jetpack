@@ -24,11 +24,20 @@ export default function OverviewBody(): JSX.Element {
 
 	return (
 		<Stack className="jetpack-newsletter-overview" gap="2xl" direction="column" align="flex-start">
-			<h2 className="jetpack-newsletter-overview__title">{ title }</h2>
+			<Text className="jetpack-newsletter-overview__title" render={ <h2 /> } variant="heading-2xl">
+				{ title }
+			</Text>
 			<Card.Root className="jetpack-newsletter-overview__intro-card">
-				<Card.Header className="jetpack-newsletter-overview__intro-header">
-					<Card.Title>
-						<Stack direction="row" align="center" gap="sm">
+				<Stack
+					className="jetpack-newsletter-overview__intro-header"
+					render={ <Card.Header /> }
+					direction="row"
+					gap="md"
+					align="center"
+					justify="space-between"
+				>
+					<Card.Title render={ <h3 /> }>
+						<Stack render={ <span /> } direction="row" align="center" gap="sm">
 							<span className="jetpack-newsletter-overview__icons" aria-hidden="true">
 								<Icon
 									className="jetpack-newsletter-overview__wordpress-icon"
@@ -37,12 +46,10 @@ export default function OverviewBody(): JSX.Element {
 								/>
 								<JetpackIcon className="jetpack-newsletter-overview__jetpack-icon" size={ 22 } />
 							</span>
-							<Text render={ <h2 /> } variant="heading-lg">
-								{ __( 'Newsletters on WordPress.com', 'jetpack-newsletter' ) }
-							</Text>
+							{ __( 'Newsletters on WordPress.com', 'jetpack-newsletter' ) }
 						</Stack>
 					</Card.Title>
-				</Card.Header>
+				</Stack>
 				<Card.Content className="jetpack-newsletter-overview__content">
 					<Text render={ <p /> } className="jetpack-newsletter-overview__description">
 						{ __(

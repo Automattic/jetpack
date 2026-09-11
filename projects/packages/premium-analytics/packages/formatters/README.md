@@ -154,10 +154,10 @@ formatDateRange( { from, to } ); // 'June 20 – 21, 2025'
 formatDateRange( { from, to }, { collapseSingleDay: true } ); // 'June 21, 2025'
 ```
 
-| Parameter                   | Type                         | Default | Description                                   |
-| --------------------------- | ---------------------------- | ------- | --------------------------------------------- |
-| `range`                     | `{ from?: Date; to?: Date }` |         | Date range object                             |
-| `options.collapseSingleDay` | `boolean`                    | `false` | Name a window of a day or less by its end day |
+| Parameter                   | Type                             | Default | Description                                   |
+| --------------------------- | -------------------------------- | ------- | --------------------------------------------- |
+| `range`                     | `{ from?: TZDate; to?: TZDate }` |         | Date range object                             |
+| `options.collapseSingleDay` | `boolean`                        | `false` | Name a window of a day or less by its end day |
 
 ## `formatDateRangeCompact( range? )` and `formatDateRangeMinimal( range? )`
 
@@ -228,11 +228,11 @@ formatDateRangeLong( { from, to }, { calendarScale: true } );
 // without the flag, the last of those reads 'Thursday, January 1 – Saturday, January 3'
 ```
 
-| Parameter               | Type                         | Default      | Description                                   |
-| ----------------------- | ---------------------------- | ------------ | --------------------------------------------- |
-| `range`                 | `{ from?: Date; to?: Date }` |              | Date range object                             |
-| `options.referenceYear` | `number`                     | current year | Year against which the year is redundant      |
-| `options.calendarScale` | `boolean`                    | `false`      | Force the calendar shape whatever it measures |
+| Parameter               | Type                             | Default      | Description                                   |
+| ----------------------- | -------------------------------- | ------------ | --------------------------------------------- |
+| `range`                 | `{ from?: TZDate; to?: TZDate }` |              | Date range object                             |
+| `options.referenceYear` | `number`                         | current year | Year against which the year is redundant      |
+| `options.calendarScale` | `boolean`                        | `false`      | Force the calendar shape whatever it measures |
 
 ## Implementation
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Warn on every payment button that changes apply to every button sharing the same payment link, wherever it is used.

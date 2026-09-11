@@ -5,13 +5,15 @@ import {
 } from '../../../stories/chart-decorator';
 import {
 	heatmapActivityMatrix,
+	heatmapActivityMatrixWithTotals,
 	heatmapCalendarSeries,
 	heatmapLargeValueMatrix,
 	heatmapPartialMonthCalendarSeries,
 } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
-import { HeatmapChart } from '../index';
-import { buildCalendarHeatmapData } from '../private';
+import { HeatmapChart, useCalendarHeatmapData } from '../index';
+import type { DataPointDate } from '../../../types';
+import type { CalendarHeatmapOptions } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
@@ -72,6 +74,13 @@ export const LargeValues: Story = {
 	},
 };
 
+export const WithSummaryColumn: Story = {
+	args: {
+		...Default.args,
+		data: heatmapActivityMatrixWithTotals,
+	},
+};
+
 export const MaximumCellSize: Story = {
 	args: {
 		...Default.args,
@@ -92,41 +101,64 @@ export const MinimumCellSize: Story = {
 	},
 };
 
-export const Calendar: StoryObj<
-	StoryArgs & { weekStartsOn: 0 | 1; hideOutOfRangeDays: boolean }
-> = {
-	render: ( { weekStartsOn, hideOutOfRangeDays, ...args } ) => {
-		// A mid-week span (Wed to Wed) so both calendar edges are ragged.
-		const { data, rowLabels } = buildCalendarHeatmapData( heatmapCalendarSeries.slice( 2, 115 ), {
-			weekStartsOn,
-			hideOutOfRangeDays,
-		} );
-		return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
+type CalendarStoryArgs = StoryArgs & CalendarHeatmapOptions;
+
+const CalendarGrid = ( {
+	series,
+	weekStartsOn,
+	hideOutOfRangeDays,
+	locale,
+	timeZone,
+	...args
+}: CalendarStoryArgs & { series: DataPointDate[] } ) => {
+	const { data, rowLabels } = useCalendarHeatmapData( series, {
+		weekStartsOn,
+		hideOutOfRangeDays,
+		locale: locale || undefined,
+		timeZone: timeZone || undefined,
+	} );
+	return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
+};
+
+const calendarArgTypes = {
+	weekStartsOn: {
+		control: { type: 'inline-radio' as const, labels: { 0: 'Sunday', 1: 'Monday' } },
+		options: [ 1, 0 ],
+		table: { category: 'Calendar' },
 	},
+	hideOutOfRangeDays: { control: 'boolean' as const, table: { category: 'Calendar' } },
+	locale: {
+		control: 'text' as const,
+		description: "BCP-47 tag for the labels. Empty falls back to the provider, then the runtime's.",
+		table: { category: 'Calendar' },
+	},
+	timeZone: {
+		control: 'text' as const,
+		description: 'IANA zone the series is bucketed into days in.',
+		table: { category: 'Calendar' },
+	},
+};
+
+// A mid-week span (Wed to Wed) so both calendar edges are ragged. Sliced once, not per
+// render, since `useCalendarHeatmapData` holds the series by reference.
+const raggedCalendarSeries = heatmapCalendarSeries.slice( 2, 115 );
+
+export const Calendar: StoryObj< CalendarStoryArgs > = {
+	render: args => <CalendarGrid { ...args } series={ raggedCalendarSeries } />,
 	args: {
 		...sharedThemeArgs,
 		withTooltips: true,
 		weekStartsOn: 1,
 		hideOutOfRangeDays: true,
+		locale: '',
+		timeZone: '',
 	},
-	argTypes: {
-		weekStartsOn: {
-			control: { type: 'inline-radio', labels: { 0: 'Sunday', 1: 'Monday' } },
-			options: [ 1, 0 ],
-			table: { category: 'Calendar' },
-		},
-		hideOutOfRangeDays: { control: 'boolean', table: { category: 'Calendar' } },
-	},
+	argTypes: calendarArgTypes,
 };
 
 // Regression story for a one-column first month label in compact mode.
-export const CompactCalendarPartialMonth: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
-	render: ( { weekStartsOn, ...args } ) => {
-		const { data, rowLabels } = buildCalendarHeatmapData( heatmapPartialMonthCalendarSeries, {
-			weekStartsOn,
-		} );
-		return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
-	},
+export const CompactCalendarPartialMonth: StoryObj< CalendarStoryArgs > = {
+	render: args => <CalendarGrid { ...args } series={ heatmapPartialMonthCalendarSeries } />,
 	args: { ...sharedThemeArgs, compact: true, withTooltips: true, weekStartsOn: 1 },
 	argTypes: {
 		weekStartsOn: {

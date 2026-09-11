@@ -1,7 +1,7 @@
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
-import { Card } from '@wordpress/ui';
+import { Card, Link, Stack } from '@wordpress/ui';
 
 const GUIDES = [
 	{
@@ -36,11 +36,11 @@ export default function GuidesCard(): JSX.Element {
 				<ul className="jetpack-newsletter-overview__guides-list">
 					{ GUIDES.map( guide => (
 						<li key={ guide.title } className="jetpack-newsletter-overview__guide">
-							<a
+							<Link
 								className="jetpack-newsletter-overview__guide-link"
 								href={ guide.url }
-								target="_blank"
-								rel="noreferrer"
+								render={ <a target="_blank" rel="noreferrer" /> }
+								variant="unstyled"
 							>
 								<span>
 									{ guide.title }{ ' ' }
@@ -48,11 +48,17 @@ export default function GuidesCard(): JSX.Element {
 										{ __( 'Opens in a new tab', 'jetpack-newsletter' ) }
 									</span>
 								</span>
-								<span className="jetpack-newsletter-overview__guide-meta">
+								<Stack
+									className="jetpack-newsletter-overview__guide-meta"
+									render={ <span /> }
+									direction="row"
+									gap="md"
+									align="center"
+								>
 									<span>{ guide.duration }</span>
 									<Icon icon={ external } size={ 20 } aria-hidden="true" />
-								</span>
-							</a>
+								</Stack>
+							</Link>
 						</li>
 					) ) }
 				</ul>

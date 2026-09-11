@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: keep the four-column layout regardless of a stored columns preference.

@@ -6,10 +6,7 @@
 
 	&__title {
 		max-inline-size: 100%;
-		margin: 0;
 		overflow: hidden;
-		font-size: var(--wpds-typography-font-size-2xl);
-		line-height: var(--wpds-typography-line-height-2xl);
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
@@ -20,12 +17,6 @@
 		inline-size: 100%;
 	}
 
-	&__intro-header {
-		display: flex;
-		gap: var(--wpds-dimension-gap-md);
-		align-items: center;
-		justify-content: space-between;
-	}
 
 	&__icons {
 		display: inline-grid;
@@ -42,9 +33,9 @@
 		z-index: 1;
 		grid-row: 1;
 		grid-column: 2;
-		border: solid 2px #fff;
+		border: solid 2px var(--wpds-color-background-surface-neutral-strong);
 		border-radius: 20px;
-		fill: #069e08;
+		fill: var(--jp-green-primary);
 	}
 
 	&__description,
@@ -117,7 +108,7 @@
 		text-decoration: none;
 
 		/** start styles to fix focus outline being cut off by the border */
-		margin-inline: 1px;
+		margin-inline: 3px;
 		margin-block: 1px;
 		border-radius: var(--wpds-border-radius-lg);
 
@@ -130,17 +121,15 @@
 
 	/** style to fix the last guide link having a bottom border radius */
 	&__guide:last-child &__guide-link {
-		margin-block-end: 2px;
-		border-bottom-left-radius: 4px;
-		border-bottom-right-radius: 4px;
+		border-end-end-radius: var(--wpds-border-radius-md);
+		border-end-start-radius: var(--wpds-border-radius-md);
+		margin-block-end: 3px;
+		margin-inline: 3px;
 	}
 
 	/** end style to fix the last guide link having a bottom border radius */
 
 	&__guide-meta {
-		display: flex;
-		gap: var(--wpds-dimension-gap-md);
-		align-items: center;
 		color: var(--wpds-color-foreground-content-neutral-weak);
 		white-space: nowrap;
 	}

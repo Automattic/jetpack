@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-09-09
+### Changed
+- Internal updates.
+
+## [0.6.0] - 2026-09-08
+### Added
+- Add an "Any feedback?" action to the dashboard header. [#51870]
+- Dashboard: Add a page option that switches the new Traffic tab off, asks why on the way out, and returns to classic Stats. [#52025]
+- Dashboard: Show the onboarding again to a reader who switches the new Traffic tab back on. [#52038]
+- Date controls: Add a dropdown for common periods and a calendar for custom ranges. [#51835]
+- Detail pages: Add a page options menu with a Customize action to the post, email, and video detail pages; card arrangement persists per page and tab. [#51772]
+- Expose the dashboard opt-in as a site setting. [#51864]
+- Onboarding: Add the welcome modal shell. [#51938]
+- Onboarding: Add the widget grid animation for the welcome modal. [#51934]
+- Onboarding: Follow the welcome modal with a three-step spotlight tour of the customization menu, the date controls and the widgets. [#51949]
+- Onboarding: Open the welcome modal the first time a reader reaches the dashboard. [#51948]
+- Send dashboard feedback on to Jetpack support, so it is not lost when analytics are blocked. [#51921]
+
+### Changed
+- Comparison control: Mark an active comparison with a "vs" prefix, and name the compared window in the trigger's tooltip. [#51820]
+- Dashboard: Disable the date controls while customizing the layout. [#52024]
+- Dashboard: Hide the report pages behind tabs the dashboard does not show. [#51983]
+- Dashboard: Limit customization to moving and resizing widgets. [#51986]
+- Dashboard: Move the feedback action into a page options menu. [#52023]
+- Date controls: Pick the period from a dropdown instead of a row of buttons, with the calendar beside it on Custom range. [#51842]
+- Detail pages: Even out the header spacing on the post page to match the video page. [#51875]
+- Detail pages: Lay out post and video widgets on the dashboard's three-column grid. [#52044]
+- Detail pages: Match the post and video page headers to the layout used across the rest of Analytics. [#51875]
+- Display the dashboard on a three-column grid and rearrange the default Traffic widgets. [#51873]
+- Feedback modal: Render with the design system Dialog and TextareaControl. [#51968]
+- Match the Jetpack logo in the Stats header to the 20px size used by the other Jetpack admin pages. [#52060]
+- Onboarding: Revise the welcome modal copy and reorder the tour to start from the widgets and end on the page options menu. [#52025]
+- Reports: Open the Authors, Clicks and UTM reports folded to their top-level groups, and move the drill-down control to the right of the row title. [#51806]
+- Update package dependencies. [#51701] [#51853]
+
+### Removed
+- Plan usage: Remove the widget and its upgrade link from the dashboard. [#51834]
+- Remove the segmented date preset control, replaced by the period dropdown. [#51881]
+
+### Fixed
+- Comparison control: Stop showing a comparison as active when there is no window behind it. [#51820]
+- Dashboard: Keep the four-column layout regardless of a stored columns preference. [#51939]
+- Dashboard sections: Stop requiring `Enablement_Setting` by path, which caused errors on sites that include this package in more than one plugin. [#52029]
+- Date controls: Include the current day in last-N-day ranges and calculate 12-month ranges in whole calendar months. [#51428]
+- Insights: Collapse the year buttons into a select as soon as they stop fitting, instead of letting them run past the edge on a phone. [#51882]
+- Keep the date picker on the range a chart drill-down applies. [#51924]
+- Onboarding: Keep keyboard focus inside the tour card and let screen reader users skip the tour. [#51975]
+- Posting activity: Count published posts by the site's calendar day rather than the UTC one. [#51878]
+- Show chart dates in the site's timezone and locale, and name the hour on hourly charts. [#51814]
+- Show published dates in the site's language and date format. [#51967]
+
 ## [0.5.0] - 2026-09-01
 ### Added
 - Add a year dropdown to the Year in review (Highlights) widget header, defaulting to the current year, and drop its metric selector so the card always shows posts, words, likes, and comments. [#51638]
@@ -233,6 +284,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.6.1]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.6.0...0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.2.0...0.3.0

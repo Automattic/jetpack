@@ -28,7 +28,9 @@ import {
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
 	PRESET_LAST_365_DAYS,
+	PRESET_MONTH_TO_DATE,
 	PRESET_LAST_MONTH,
+	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
@@ -46,18 +48,19 @@ import {
 	type YearSurfacePresetId,
 } from './types';
 import type { DateRange } from '../get-comparison-range';
+import type { TZDate } from '@date-fns/tz';
 
 /**
  * Shared date calculations used by multiple presets.
  */
 type DateContext = {
-	now: Date;
-	initOfToday: Date;
-	endOfToday: Date;
-	endOfYesterday: Date;
-	lastMonth: Date;
-	endOfLastMonth: Date;
-	lastYear: Date;
+	now: TZDate;
+	initOfToday: TZDate;
+	endOfToday: TZDate;
+	endOfYesterday: TZDate;
+	lastMonth: TZDate;
+	endOfLastMonth: TZDate;
+	lastYear: TZDate;
 	timeZone: string;
 };
 
@@ -140,11 +143,27 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		} ),
 	},
 	{
+		id: PRESET_MONTH_TO_DATE,
+		getLabel: () => __( 'Month to date', 'jetpack-premium-analytics-pkg' ),
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfMonth( initOfToday ),
+			to: endOfToday,
+		} ),
+	},
+	{
 		id: PRESET_LAST_MONTH,
 		getLabel: () => __( 'Last month', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { lastMonth, endOfLastMonth } ) => ( {
 			from: startOfMonth( lastMonth ),
 			to: endOfLastMonth,
+		} ),
+	},
+	{
+		id: PRESET_YEAR_TO_DATE,
+		getLabel: () => __( 'Year to date', 'jetpack-premium-analytics-pkg' ),
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfYear( initOfToday ),
+			to: endOfToday,
 		} ),
 	},
 	{
@@ -214,7 +233,9 @@ function buildDateContext( timeZone: string ): DateContext {
 	const nowWithTZ = toLocalTZ( undefined, timeZone );
 	const initOfToday = startOfDay( nowWithTZ );
 	const endOfToday = endOfDay( nowWithTZ );
-	const endOfYesterday = endOfDay( subDays( initOfToday, 1 ) );
+	// A nested `date-fns` call has no contextual type, and widens the result to `Date`.
+	const initOfYesterday = subDays( initOfToday, 1 );
+	const endOfYesterday = endOfDay( initOfYesterday );
 	const lastMonth = subMonths( initOfToday, 1 );
 	const endOfLastMonth = endOfMonth( lastMonth );
 	const lastYear = subYears( initOfToday, 1 );

@@ -201,7 +201,7 @@ add_action( 'wp_after_insert_post', 'jetpack_mark_if_post_answers_blogging_promp
  * Call this only after the endpoint file is required, so its routes are in
  * place by the time `rest_get_server()` fires `rest_api_init`.
  *
- * @since $$next-version$$
+ * @since 16.2
  *
  * @param int $prompt_id ID of the prompt to fetch.
  * @return string REST route for that prompt.

@@ -113,6 +113,37 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	background: color-mix(in sRGB, var(--a8c-charts-color-track) 45%, transparent);
 }
 
+// A roll-up beside the grid, on another scale from it: no fill, its figure
+// always printed and emphasised.
+.heatmap-chart__cell--summary {
+	background: none;
+}
+
+.heatmap-chart__col-label--summary {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.heatmap-chart__cell--summary .heatmap-chart__cell-value {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+// Compact rows are `compactCellSize` tall, so the figure shrinks to fit them.
+.heatmap-chart__grid--compact .heatmap-chart__cell--summary .heatmap-chart__cell-value {
+	font-size: var(--wpds-typography-font-size-xs);
+	line-height: 1;
+}
+
+// Deliberately on top of the grid gap: one extra gap sets a summary column
+// apart from the data beside it, on cells and label alike, and the auto track
+// grows by the same amount.
+.heatmap-chart__gap-start {
+	margin-inline-start: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs));
+}
+
+.heatmap-chart__gap-end {
+	margin-inline-end: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs));
+}
+
 // Floor the mix at 15% so the lowest value stays visibly tinted, distinct from
 // an empty cell.
 .heatmap-chart__cell--filled {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Open PayPal onboarding in a sized window instead of a stray browser tab when PayPal's onboarding script is unavailable.

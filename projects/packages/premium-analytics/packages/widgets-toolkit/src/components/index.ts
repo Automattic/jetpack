@@ -64,6 +64,13 @@ export {
 } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
 export {
+	LocationsGeoChart,
+	type LocationsGeoChartProps,
+	type LocationsGeoFocusCountry,
+	type LocationsGeoMode,
+	type LocationsGeoRow,
+} from './locations-geo-chart';
+export {
 	AdaptiveCalendarHeatmap,
 	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
@@ -101,8 +108,10 @@ export {
 	type SubscriberListSkeletonProps,
 } from './subscriber-list';
 export {
+	ReportChartSection,
 	ReportDrilldownTable,
 	ReportErrorState,
+	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageShell,
@@ -114,8 +123,10 @@ export {
 	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
+	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
 	type ReportErrorStateProps,
+	type ReportLocationsMapProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
 	type ReportPageShellProps,
@@ -132,8 +143,6 @@ export {
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
-	DetailPageTabPanel,
-	DetailPageTabs,
 	useDetailPageCustomize,
 	type DetailPageActionsProps,
 	type DetailPageBreadcrumbsProps,
@@ -142,9 +151,6 @@ export {
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
-	type DetailPageTab,
-	type DetailPageTabPanelProps,
-	type DetailPageTabsProps,
 } from './detail-page';
 export {
 	ReportCsvDownloadButton,

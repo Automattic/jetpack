@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix selecting thumbnail frames from private videos and prefer browser-compatible video renditions.

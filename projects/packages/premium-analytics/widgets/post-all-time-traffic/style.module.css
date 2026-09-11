@@ -1,0 +1,56 @@
+/* The height chain from the tile down: WidgetState's blocks are 100%, so is
+ * this, and the chart below fills it rather than hugging its rows. */
+.root {
+	block-size: 100%;
+}
+
+.root [role="gridcell"][data-column] {
+	cursor: pointer;
+}
+
+/* A height-capped chart sizes itself to its rows. Here it fills the tile so
+ * the grid alone scrolls and the scale stays put under it; the selectors are
+ * specific enough to beat the chart's own modifier classes. */
+.root .chart {
+	block-size: 100%;
+}
+
+/* `align-content: start`: the label row is the grid's only auto track, so
+ * stretching would hand it the leftover height. */
+.root .chart [role="grid"] {
+	flex: 1 1 0;
+	min-block-size: 0;
+	block-size: auto;
+	align-content: start;
+	overflow: auto;
+}
+
+/* The chart starts its column labels at the track's edge, which suits a
+ * calendar; here each label names its column, so it sits over the middle. */
+.root .chart [role="row"][aria-hidden="true"] > span {
+	text-align: center;
+}
+
+/* The grid is the scroll container, so the label row and the year column stay
+ * in view while a long history scrolls; the corner covers where they cross. */
+.root .chart [role="row"][aria-hidden="true"] > span,
+.root .chart [role="row"][aria-rowindex] > span:first-child {
+	position: sticky;
+	z-index: 1;
+
+	/* The chart's own background, which its cell fills mix against too. */
+	background: var(--a8c-charts-color-background);
+}
+
+.root .chart [role="row"][aria-hidden="true"] > span {
+	inset-block-start: 0;
+}
+
+.root .chart [role="row"][aria-rowindex] > span:first-child {
+	inset-inline-start: 0;
+}
+
+.root .chart [role="row"][aria-hidden="true"] > span:first-child {
+	inset-inline-start: 0;
+	z-index: 2;
+}

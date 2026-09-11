@@ -1,0 +1,11 @@
+.settings {
+	display: flex;
+
+	// display:flex here would otherwise beat the UA rule for the hidden attribute.
+	&[hidden] {
+		display: none;
+	}
+
+	flex-direction: column;
+	gap: 24px;
+}

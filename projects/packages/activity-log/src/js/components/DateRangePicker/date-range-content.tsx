@@ -4,7 +4,7 @@
  * with local imports and Calypso's tiny `ButtonStack` wrapper inlined
  * (it was just an HStack with a fixed spacing).
  */
-import { DateRangeCalendar, TZDate } from '@automattic/ui';
+import { TZDate } from '@date-fns/tz';
 import {
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
@@ -12,6 +12,7 @@ import {
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import { RangeCalendar } from '@wordpress/ui';
 import { startOfMonth, subMonths } from 'date-fns';
 import { useState } from 'react';
 import { DateInputs } from './date-inputs';
@@ -171,13 +172,18 @@ export function DateRangeContent( props: DateRangeContentProps ) {
 
 	const endMonth = makeTZMonthFromDate( siteMonthStart );
 
-	const selected =
-		timeZoneForCalendar && ( fromDraft || toDraft )
-			? {
-					from: fromDraft ? new TZDate( +fromDraft, timeZoneForCalendar ) : undefined,
-					to: toDraft ? new TZDate( +toDraft, timeZoneForCalendar ) : undefined,
-			  }
-			: { from: fromDraft ?? undefined, to: toDraft ?? undefined };
+	const selected = ( () => {
+		if ( ! fromDraft && ! toDraft ) {
+			return null;
+		}
+		if ( timeZoneForCalendar ) {
+			return {
+				from: fromDraft ? new TZDate( +fromDraft, timeZoneForCalendar ) : undefined,
+				to: toDraft ? new TZDate( +toDraft, timeZoneForCalendar ) : undefined,
+			};
+		}
+		return { from: fromDraft ?? undefined, to: toDraft ?? undefined };
+	} )();
 
 	return (
 		<VStack as="div" spacing={ 3 } style={ { padding: 12 } }>
@@ -303,30 +309,22 @@ export function DateRangeContent( props: DateRangeContentProps ) {
 				) }
 
 				<div className="daterange-calendar">
-					<DateRangeCalendar
+					<RangeCalendar
 						timeZone={ timeZoneForCalendar }
 						numberOfMonths={ isSmall ? 1 : 2 }
 						defaultMonth={ defaultMonth }
 						endMonth={ endMonth }
 						disabled={ disableFuture ? { after: today } : undefined }
 						excludeDisabled
-						selected={ selected }
-						onSelect={ range => {
+						value={ selected }
+						onValueChange={ range => {
 							const toNative = ( d?: Date ) => ( d ? new Date( d.getTime() ) : undefined );
-							if ( range?.from ) {
-								const from = toNative( range.from );
-								setFromDraft( from );
-								if ( from ) {
-									setFromStr( formatYmd( from, timezoneString, gmtOffset ) );
-								}
-							}
-							if ( range?.to ) {
-								const to = toNative( range.to );
-								setToDraft( to );
-								if ( to ) {
-									setToStr( formatYmd( to, timezoneString, gmtOffset ) );
-								}
-							}
+							const from = toNative( range?.from );
+							const to = toNative( range?.to );
+							setFromDraft( from );
+							setToDraft( to );
+							setFromStr( from ? formatYmd( from, timezoneString, gmtOffset ) : '' );
+							setToStr( to ? formatYmd( to, timezoneString, gmtOffset ) : '' );
 							setIsTyping( false );
 						} }
 					/>

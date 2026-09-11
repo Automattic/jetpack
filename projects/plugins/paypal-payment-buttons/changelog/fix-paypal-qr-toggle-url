@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Encode the PayPal payment link in the QR code behind the button's Show Link or QR Code toggle, instead of the page the button sits on.

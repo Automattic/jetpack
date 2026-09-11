@@ -6,12 +6,14 @@ import { SEARCH_RESULTS_CLASS_NAME, SEARCH_RESULTS_LOAD_MORE_OFFSET } from '../l
 import './scroll-button.scss';
 
 class ScrollButton extends Component {
-	scrollElement = document.getElementsByClassName( SEARCH_RESULTS_CLASS_NAME )[ 0 ];
 	componentDidMount() {
-		this.scrollElement.addEventListener( 'scroll', this.checkScroll );
+		this.scrollElement = document.getElementsByClassName( SEARCH_RESULTS_CLASS_NAME )[ 0 ];
+		this.scrollElement?.addEventListener( 'scroll', this.checkScroll );
 	}
-	componentDidUnmount() {
-		this.scrollElement.removeEventListener( 'scroll', this.checkScroll );
+
+	componentWillUnmount() {
+		this.scrollElement?.removeEventListener( 'scroll', this.checkScroll );
+		this.checkScroll.clear();
 	}
 
 	checkScroll = debounce( () => {

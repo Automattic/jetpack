@@ -1,4 +1,5 @@
 /* eslint-disable testing-library/no-node-access */
+import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { act, fireEvent, render, screen } from '@testing-library/react';
@@ -6,6 +7,13 @@ import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
 const mockNavigate = jest.fn();
+
+jest.mock( '../../_inc/overview/overview', () => ( {
+	__esModule: true,
+	default: ( { isVisible }: { isVisible: boolean } ) => (
+		<div data-visible={ isVisible }>Performance Overview</div>
+	),
+} ) );
 
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( { tab: new URLSearchParams( globalThis.location.search ).get( 'tab' ) } ),
@@ -45,6 +53,10 @@ describe( 'Boost dashboard stage', () => {
 			screen.getByRole( 'tab', { name: tab } )
 		);
 		expect( getSubpageMount()?.hidden ).toBe( true );
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
+			'data-visible',
+			String( tab === 'Overview' )
+		);
 		expect( getSettingsMount() ).not.toBeNull();
 		expect( screen.getByRole( 'tabpanel' ).tabIndex ).toBe( 0 );
 		expect( screen.getByRole( 'tabpanel' ).contains( getSettingsMount() ) ).toBe(
@@ -62,6 +74,7 @@ describe( 'Boost dashboard stage', () => {
 		render( <Stage /> );
 
 		expect( getSubpageMount()?.hidden ).toBe( false );
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'false' );
 		expect( getSubpageMount()?.closest( '[role="tabpanel"]' ) ).toBeNull();
 		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
 		expect( getSettingsMount() ).not.toBeNull();
@@ -109,8 +122,9 @@ describe( 'Boost dashboard stage', () => {
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
 	} );
 
-	it( 'keeps both mount nodes across tab changes and subpage visits', () => {
+	it( 'keeps Overview and both mount nodes across tab changes and subpage visits', () => {
 		const { rerender } = render( <Stage /> );
+		const overview = screen.getByText( 'Performance Overview' );
 		const settingsMount = getSettingsMount();
 		const subpageMount = getSubpageMount();
 
@@ -126,6 +140,7 @@ describe( 'Boost dashboard stage', () => {
 			} );
 			rerender( <Stage /> );
 
+			expect( screen.getByText( 'Performance Overview' ) ).toBe( overview );
 			expect( getSettingsMount() ).toBe( settingsMount );
 			expect( getSubpageMount() ).toBe( subpageMount );
 		}
@@ -139,5 +154,23 @@ describe( 'Boost dashboard stage', () => {
 		fireEvent.click( screen.getByRole( 'tab', { name: 'Settings' } ) );
 
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
+	} );
+
+	it( 'does not re-navigate when the Settings redirect rewrites history', () => {
+		mockNavigate.mockImplementation( () => {
+			window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings#/' );
+		} );
+		render( <Stage /> );
+
+		act( () => {
+			window.history.pushState( null, '', '/?page=jetpack-boost#/cache-debug-log' );
+		} );
+
+		act( () => {
+			window.history.replaceState( null, '', '/?page=jetpack-boost#/' );
+		} );
+
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
 	} );
 } );

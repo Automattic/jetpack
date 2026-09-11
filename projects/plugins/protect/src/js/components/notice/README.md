@@ -13,4 +13,4 @@ A simple notice component for displaying alerts and messages to the user.
 
 ## Props
 
-Supported `type` values are `info`, `success`, and `error`.
+Supported `type` values are `info`, `success`, `warning`, and `error`.

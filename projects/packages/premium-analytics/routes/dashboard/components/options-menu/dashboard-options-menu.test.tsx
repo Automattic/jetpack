@@ -41,6 +41,9 @@ jest.mock( './return-to-classic-stats', () => ( {
 
 const mockApiFetch = jest.fn();
 
+const READY = "Yes, I'd be happy to switch now";
+const ALMOST = 'Almost — there are a few things missing';
+
 // What the settings route echoes once the opt-in is off.
 const SETTINGS_OFF = { jetpack_premium_analytics_enabled: false };
 
@@ -108,22 +111,24 @@ describe( 'DashboardOptionsMenu', () => {
 		);
 	} );
 
-	it( 'reports the rating and comment as one event', async () => {
+	it( 'reports the readiness answer and comment as one event', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: 'A bit better' } ) );
+		await user.click( screen.getByRole( 'radio', { name: ALMOST } ) );
 		await user.type( screen.getByRole( 'textbox' ), '  Needs a date picker  ' );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ rating: 4, comment: 'Needs a date picker' }
+			{ readiness: 'almost', comment: 'Needs a date picker' }
 		);
 	} );
 
-	it( 'holds the submission until a rating is picked', async () => {
+	it( 'holds the submission until an answer is picked', async () => {
 		const user = await openModal();
 		const submit = screen.getByRole( 'button', { name: 'Send feedback' } );
+
+		expect( submit ).toHaveAttribute( 'aria-disabled', 'true' );
 
 		await user.click( submit );
 
@@ -132,25 +137,29 @@ describe( 'DashboardOptionsMenu', () => {
 			expect.anything()
 		);
 
-		await user.click( screen.getByRole( 'radio', { name: 'Much worse' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Not yet' } ) );
 		await user.click( submit );
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ rating: 1, comment: '' }
+			{ readiness: 'not_yet', comment: '' }
 		);
 	} );
 
 	it( 'confirms the send rather than just closing', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: 'About the same' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Not yet' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
 		// Scoped to the dialog: `Notice` also mirrors the text into the a11y-speak live
 		// region on `body`, so an unscoped query matches twice.
+		const dialog = within( screen.getByRole( 'dialog' ) );
+		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
-			within( screen.getByRole( 'dialog' ) ).getByText( 'Thank you. This helps.' )
+			dialog.getByText(
+				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu."
+			)
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'radiogroup' ) ).not.toBeInTheDocument();
 
@@ -162,7 +171,7 @@ describe( 'DashboardOptionsMenu', () => {
 	it( 'sends nothing when the reader backs out', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: 'Much better' } ) );
+		await user.click( screen.getByRole( 'radio', { name: READY } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
@@ -179,28 +188,42 @@ describe( 'DashboardOptionsMenu', () => {
 	} );
 } );
 
-describe( 'the rating scale', () => {
+describe( 'the readiness question', () => {
 	it( 'names the group with the question it answers', async () => {
 		await openModal();
 
 		expect( screen.getByRole( 'radiogroup' ) ).toHaveAccessibleName(
-			'Compared with the existing Traffic tab in Stats, the new Traffic tab is:'
+			'Is the new Traffic tab ready to replace the old one?'
 		);
 	} );
 
-	it( 'offers the five points worst to best', async () => {
+	it( 'offers the three answers, readiest first', async () => {
 		await openModal();
 
-		const scale = screen.getAllByRole< HTMLInputElement >( 'radio' );
+		const answers = screen.getAllByRole< HTMLInputElement >( 'radio' );
 
-		expect( scale.map( point => point.labels?.[ 0 ]?.textContent ) ).toEqual( [
-			'Much worse',
-			'A bit worse',
-			'About the same',
-			'A bit better',
-			'Much better',
+		expect( answers.map( answer => answer.labels?.[ 0 ]?.textContent ) ).toEqual( [
+			READY,
+			ALMOST,
+			'Not yet',
 		] );
-		expect( scale.map( point => point.value ) ).toEqual( [ '1', '2', '3', '4', '5' ] );
+		expect( answers.map( answer => answer.value ) ).toEqual( [ 'ready', 'almost', 'not_yet' ] );
+	} );
+
+	it( 'asks what is missing under it', async () => {
+		await openModal();
+
+		expect( screen.getByRole( 'textbox', { name: "What's missing?" } ) ).toBeInTheDocument();
+	} );
+
+	it( 'asks for anything else instead once the answer is that nothing is missing', async () => {
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: READY } ) );
+
+		expect(
+			screen.getByRole( 'textbox', { name: "Any other feedback you'd like to share?" } )
+		).toBeInTheDocument();
 	} );
 } );
 
@@ -208,7 +231,7 @@ describe( 'the Tracks identity', () => {
 	it( 'identifies the reader and pins blog_id once, not per event', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: 'About the same' } ) );
+		await user.click( screen.getByRole( 'radio', { name: READY } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 2 );
@@ -254,10 +277,15 @@ describe( 'the Tracks identity', () => {
 } );
 
 describe( 'the Happiness copy of the feedback', () => {
-	it( 'sends the message and the rating to the WPCOM feedback endpoint', async () => {
+	// The endpoint has no readiness field, so the answer has to survive as message text.
+	it.each( [
+		[ READY, 'Yes, ready to switch now' ],
+		[ ALMOST, 'Almost, a few things missing' ],
+		[ 'Not yet', 'Not yet' ],
+	] )( 'sends "%s" as message text, and no rating', async ( label, answer ) => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: 'A bit worse' } ) );
+		await user.click( screen.getByRole( 'radio', { name: label } ) );
 		await user.type( screen.getByRole( 'textbox' ), '  Missing the date picker  ' );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
@@ -268,22 +296,21 @@ describe( 'the Happiness copy of the feedback', () => {
 				data: {
 					source_url: window.location.href,
 					product_name: 'Jetpack Stats v2',
-					feedback: 'Missing the date picker',
-					rating: 2,
+					feedback: `[Ready to replace the old Traffic tab? ${ answer }] Missing the date picker`,
 				},
 			} )
 		);
 	} );
 
-	it( 'keeps a bare rating out of the support queue', async () => {
+	it( 'keeps a bare answer out of the support queue', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: 'Much better' } ) );
+		await user.click( screen.getByRole( 'radio', { name: READY } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ rating: 5, comment: '' }
+			{ readiness: 'ready', comment: '' }
 		);
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
@@ -292,12 +319,16 @@ describe( 'the Happiness copy of the feedback', () => {
 		mockApiFetch.mockRejectedValue( new Error( 'throttled' ) );
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: 'About the same' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Not yet' } ) );
 		await user.type( screen.getByRole( 'textbox' ), 'Charts load slowly' );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
+		const dialog = within( screen.getByRole( 'dialog' ) );
+		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
-			within( screen.getByRole( 'dialog' ) ).getByText( 'Thank you. This helps.' )
+			dialog.getByText(
+				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu."
+			)
 		).toBeInTheDocument();
 	} );
 } );
@@ -337,12 +368,14 @@ describe( 'switching the new Traffic tab off', () => {
 
 		const dialog = screen.getByRole( 'dialog', { name: 'Switch off the new Traffic tab?' } );
 		expect( dialog ).toHaveTextContent(
-			"You'll go back to your current Stats. You can switch the new Traffic tab on again from the banner there."
+			"You'll go back to your current Stats. You can switch the new Traffic tab on again from the Modules Visibility setting."
 		);
 		// The reason is asked for, never required: the button is live with nothing filled in.
-		expect( within( dialog ).getByRole( 'radiogroup' ) ).toBeInTheDocument();
+		expect( within( dialog ).getByRole( 'radiogroup' ) ).toHaveAccessibleName(
+			'Before you go — is the new Traffic tab ready to replace the old one?'
+		);
 		expect(
-			within( dialog ).getByRole( 'textbox', { name: 'What made you switch it off?' } )
+			within( dialog ).getByRole( 'textbox', { name: "What's missing?" } )
 		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Switch it off' } ) ).toBeEnabled();
 		expect( mockApiFetch ).not.toHaveBeenCalled();
@@ -353,6 +386,25 @@ describe( 'switching the new Traffic tab off', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
 		expect( mockReturnToClassicStats ).not.toHaveBeenCalled();
+	} );
+
+	it( 'asks the same readiness question as the feedback modal', async () => {
+		const user = await openConfirmation();
+
+		const answers = screen.getAllByRole< HTMLInputElement >( 'radio' );
+
+		expect( answers.map( answer => answer.labels?.[ 0 ]?.textContent ) ).toEqual( [
+			READY,
+			ALMOST,
+			'Not yet',
+		] );
+		expect( answers.map( answer => answer.value ) ).toEqual( [ 'ready', 'almost', 'not_yet' ] );
+
+		await user.click( screen.getByRole( 'radio', { name: READY } ) );
+
+		expect(
+			screen.getByRole( 'textbox', { name: "Any other feedback you'd like to share?" } )
+		).toBeInTheDocument();
 	} );
 
 	it( 'writes the opt-in off, reports it, and returns the reader to classic Stats', async () => {
@@ -381,24 +433,25 @@ describe( 'switching the new Traffic tab off', () => {
 	it( 'carries the reason on the event and hands the comment to Happiness', async () => {
 		const user = await openConfirmation();
 
-		await user.click( screen.getByRole( 'radio', { name: 'A bit worse' } ) );
+		await user.click( screen.getByRole( 'radio', { name: ALMOST } ) );
 		await user.type( screen.getByRole( 'textbox' ), '  Too slow on my phone  ' );
 		await user.click( screen.getByRole( 'button', { name: 'Switch it off' } ) );
 
 		await waitFor( () => expect( mockReturnToClassicStats ).toHaveBeenCalledTimes( 1 ) );
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_preview_disable', {
-			rating: 2,
+			readiness: 'almost',
 			comment: 'Too slow on my phone',
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				path: '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/user-feedback',
 				method: 'POST',
-				data: expect.objectContaining( {
+				data: {
+					source_url: window.location.href,
 					product_name: 'Jetpack Stats v2 (switched off)',
-					feedback: 'Too slow on my phone',
-					rating: 2,
-				} ),
+					feedback:
+						'[Ready to replace the old Traffic tab? Almost, a few things missing] Too slow on my phone',
+				},
 			} )
 		);
 		expect( mockApiFetch ).toHaveBeenCalledWith(
@@ -422,6 +475,12 @@ describe( 'switching the new Traffic tab off', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_preview_disable', {
 			comment: 'No comparison on the map',
 		} );
+		// No answer picked, so the comment goes to Happiness without a readiness prefix.
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				data: expect.objectContaining( { feedback: 'No comparison on the map' } ),
+			} )
+		);
 		expect( warn ).toHaveBeenCalledTimes( 1 );
 		warn.mockRestore();
 	} );
@@ -478,7 +537,7 @@ describe( 'switching the new Traffic tab off', () => {
 	it( 'starts over after Cancel', async () => {
 		const user = await openConfirmation();
 
-		await user.click( screen.getByRole( 'radio', { name: 'A bit worse' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Not yet' } ) );
 		await user.type( screen.getByRole( 'textbox' ), 'Too slow' );
 		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 		await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
@@ -486,7 +545,7 @@ describe( 'switching the new Traffic tab off', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Switch off the preview' } ) );
 
-		expect( screen.getByRole( 'radio', { name: 'A bit worse' } ) ).not.toBeChecked();
+		expect( screen.getByRole( 'radio', { name: 'Not yet' } ) ).not.toBeChecked();
 		expect( screen.getByRole( 'textbox' ) ).toHaveValue( '' );
 	} );
 

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Turn on the shared jest console guard.
+
+

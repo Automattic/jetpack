@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Verify that the modern dashboard history tooltip clears date labels behind the disabled modernization filter.
+
+

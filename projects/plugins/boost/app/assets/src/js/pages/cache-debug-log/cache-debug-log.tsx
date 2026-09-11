@@ -3,16 +3,16 @@ import { check, copy } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
 import clsx from 'clsx';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import { useDebugLog } from '$features/page-cache/lib/stores';
+import { useBoostNavigation } from '$lib/navigation/navigation-context';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './cache-debug-log.module.scss';
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDebugLog();
-	const navigate = useNavigate();
+	const { returnToSettings, settingsHref } = useBoostNavigation();
 	const [ hasCopied, setHasCopied ] = useState( false );
 	const copyTimer = useRef< ReturnType< typeof setTimeout > | undefined >();
 
@@ -31,7 +31,7 @@ const CacheDebugLog = () => {
 			current_page: window.location.href.replace( window.location.origin, '' ),
 			destination: '/',
 		} );
-		navigate( '/' );
+		returnToSettings();
 	};
 
 	const handleCopy = () => {
@@ -53,7 +53,7 @@ const CacheDebugLog = () => {
 			<ul className={ styles.breadcrumbs }>
 				<li>
 					<Text variant="body-lg">
-						<Link tone="neutral" href="#/" onClick={ handleBack }>
+						<Link tone="neutral" href={ settingsHref } onClick={ handleBack }>
 							{ 'Boost' /** "Boost" is a product name, do not translate. */ }
 						</Link>
 					</Text>

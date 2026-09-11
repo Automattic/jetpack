@@ -17,7 +17,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.11.1';
+	const PACKAGE_VERSION = '0.11.3';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -114,7 +114,7 @@ class Admin_Menu {
 					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
 
 					// Add an Anti-spam menu item for Jetpack.
-					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ), 6 );
+					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 				},
 				4
 			);
@@ -130,9 +130,12 @@ class Admin_Menu {
 	public static function admin_menu_hook_callback() {
 		$can_see_toplevel_menu  = true;
 		$jetpack_plugin_present = class_exists( 'Jetpack_React_Page' );
-		$icon                   = method_exists( '\Automattic\Jetpack\Assets\Logo', 'get_base64_logo' )
-			? ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_logo()
-			: 'dashicons-admin-plugins';
+		$icon                   = 'dashicons-admin-plugins';
+		if ( method_exists( '\Automattic\Jetpack\Assets\Logo', 'get_base64_admin_menu_logo' ) ) {
+			$icon = ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_admin_menu_logo();
+		} elseif ( method_exists( '\Automattic\Jetpack\Assets\Logo', 'get_base64_logo' ) ) {
+			$icon = ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_logo();
+		}
 
 		if ( ! $jetpack_plugin_present ) {
 			add_menu_page(
@@ -164,7 +167,9 @@ class Admin_Menu {
 				$result     = $position_a <=> $position_b;
 
 				if ( 0 === $result ) {
-					$result = strcmp( $a['menu_title'], $b['menu_title'] );
+					// Case-insensitive and number-aware, so "eCommerce" sorts with the Es.
+					// Still a byte compare: a leading accented character sorts after Z.
+					$result = strnatcasecmp( $a['menu_title'], $b['menu_title'] );
 				}
 
 				return $result;

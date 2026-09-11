@@ -35,15 +35,25 @@ const label = __( 'All pages' );
 
 - **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
   Stats breadcrumbs and page-level actions.
-- **`ReportPageLayout`** — the report content scaffold: optional internal tabs,
-  the section header, and stacked sections.
+- **`ReportPageLayout`** — the scroll area below the page header: optional
+  internal tabs, the section header pinned at its top, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
 
+- **`ReportChartSection`** — a chart in its own card, with the control below it
+  that collapses the card. Every chart above a records table renders through it, so
+  the toggle reads and behaves the same on every report. It also carries the
+  optional heading, icon and info tip a chart names itself with. The collapsed
+  state lasts as long as the section stays mounted: hiding a chart is a per-visit
+  preference, not a stored one. The chart stays mounted while collapsed so the
+  card animates shut, and the stylesheet takes it out of the tab order.
 - **`ReportPerformanceChart`** — the multi-metric visits chart
   (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
-  metric show/hide menu, the time-bucket selector (owned by the page — it
-  changes the query), and a collapse toggle. With exactly one visible metric
-  and comparison data, the previous period draws as a dashed overlay.
+  metric show/hide menu and the time-bucket selector (owned by the page — it
+  changes the query). With exactly one visible metric and comparison data, the
+  previous period draws as a dashed overlay.
+- **`ReportLocationsMap`** — the Locations report's map of views by location,
+  over the rows the records table already fetched. It renders the shared
+  `LocationsGeoChart`, which the Locations dashboard widget also uses.
 - **`ReportRecordsTable`** — a Core DataViews table over the module's
   summarized rows; search, sorting, column config, and pagination run
   client-side via `filterSortAndPaginate`.
@@ -82,8 +92,9 @@ set. `title` is the third: `getTabTitle( activeTab )` on a tabbed report, which
 falls back to the tab's label, and the report's `getTitle()` otherwise.
 
 Omit `dateFilters` on a report with no date window; the header is then the title
-alone. It does not pin, unlike the dashboard's — that lives in the surface's own
-CSS (`routes/dashboard/stage.module.scss`).
+alone. It pins at the top of the layout's scroll area and condenses on scroll,
+as the dashboard's does: the layout only declares the timeline scope the
+header's own pin marker publishes into.
 
 Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to the shell's
 `breadcrumbs` slot. It owns the leading `Stats` crumb and links it back to the
