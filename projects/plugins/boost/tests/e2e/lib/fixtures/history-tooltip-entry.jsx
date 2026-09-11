@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import HistoryChartCard from '../../../../_inc/overview/history-chart-card';
+import { useHistoryRange } from '../../../../_inc/overview/lib/use-history-range';
 import ScoreCards from '../../../../_inc/overview/score-cards';
 import '../../../../_inc/overview/overview.scss';
 // Boost also loads My Jetpack styles, so verify the tooltip with that stylesheet present.
@@ -42,18 +43,20 @@ const noop = () => {};
 const queryClient = new QueryClient();
 
 const HistoryFixture = () => {
+	const { ref, ...paging } = useHistoryRange();
 	const [ isVisible, setVisible ] = useState( true );
 	const toggleVisibility = useCallback( () => setVisible( visible => ! visible ), [] );
 	return (
-		<>
+		<div ref={ ref }>
 			<button onClick={ toggleVisibility }>Toggle history</button>
 			<HistoryChartCard
+				{ ...paging }
 				data={ data }
 				isVisible={ isVisible }
 				onRetry={ noop }
 				onDismissFreshStart={ noop }
 			/>
-		</>
+		</div>
 	);
 };
 

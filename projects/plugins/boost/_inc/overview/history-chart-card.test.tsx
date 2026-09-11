@@ -45,7 +45,15 @@ const history: PerformanceHistoryData = {
 	],
 	annotations: [],
 };
-const callbacks = { onRetry: jest.fn(), onDismissFreshStart: jest.fn() };
+const callbacks = {
+	onRetry: jest.fn(),
+	onDismissFreshStart: jest.fn(),
+	onPrevious: jest.fn(),
+	onNext: jest.fn(),
+	range: window,
+	dayCount: 30 as const,
+	canGoNext: false,
+};
 let queryClient: QueryClient;
 function wrapper( { children }: PropsWithChildren ) {
 	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
@@ -175,7 +183,7 @@ test( 'shows empty days after loading and explains them on keyboard focus', asyn
 	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
 	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 	expect( tooltip ).toHaveTextContent( dateI18n( 'F j, Y', timestamp, false ) );
-	expect( tooltip ).toHaveTextContent( 'No score recorded before you unlocked this feature.' );
+	expect( tooltip ).toHaveTextContent( 'No scores recorded before feature was unlocked' );
 } );
 
 test( 'explains every empty day as preceding feature access', async () => {
@@ -186,43 +194,33 @@ test( 'explains every empty day as preceding feature access', async () => {
 			fireEvent.keyDown( chart, { key: 'ArrowRight' } );
 		}
 		const tooltip = await screen.findByRole( 'tooltip' );
-		expect( tooltip ).toHaveTextContent( 'No score recorded before you unlocked this feature.' );
+		expect( tooltip ).toHaveTextContent( 'No scores recorded before feature was unlocked' );
 	}
 } );
 
-test( 'pages thirty days back and returns to today without allowing a future page', async () => {
-	const now = new Date( '2026-03-20T12:00:00Z' );
-	const previousWindow = getHistoryWindow( 1, now );
-	fetchMock.mockResolvedValue( {
-		status: 'success',
-		JSON: { ...previousWindow, periods: [], annotations: [] },
-	} );
-	render( <HistoryChartCard now={ now } data={ history } { ...callbacks } />, { wrapper } );
-	expect( screen.getByRole( 'button', { name: 'Next 30 days' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	fireEvent.click( screen.getByRole( 'button', { name: 'Previous 30 days' } ) );
-	await waitFor( () =>
-		expect( fetchMock ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				method: 'POST',
-				data: { JSON: { ...previousWindow, periods: [], annotations: [] } },
-			} )
-		)
-	);
-	await waitFor( () => expect( screen.getAllByRole( 'grid' ) ).toHaveLength( 2 ) );
-	expect( screen.getByRole( 'button', { name: 'Next 30 days' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'false'
-	);
-	fireEvent.click( screen.getByRole( 'button', { name: 'Next 30 days' } ) );
-	expect( screen.getByRole( 'button', { name: 'Next 30 days' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	expect( fetchMock ).toHaveBeenCalledTimes( 1 );
-} );
+test.each( [ 15, 30 ] as const )(
+	'delegates %i-day paging and disables the future window',
+	dayCount => {
+		const { rerender } = render(
+			<HistoryChartCard data={ history } { ...callbacks } dayCount={ dayCount } />,
+			{ wrapper }
+		);
+		expect( screen.getByRole( 'button', { name: `Next ${ dayCount } days` } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: `Next ${ dayCount } days` } ) );
+		expect( callbacks.onNext ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: `Previous ${ dayCount } days` } ) );
+		expect( callbacks.onPrevious ).toHaveBeenCalledTimes( 1 );
+		rerender(
+			<HistoryChartCard data={ history } { ...callbacks } dayCount={ dayCount } canGoNext />
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: `Next ${ dayCount } days` } ) );
+		expect( callbacks.onNext ).toHaveBeenCalledTimes( 1 );
+		expect( fetchMock ).not.toHaveBeenCalled();
+	}
+);
 
 test.each( [ { isError: true, data: history }, { isLoading: true } ] )(
 	'offers the premium upgrade before errors or loading without rendering paid history (%o)',
@@ -238,25 +236,11 @@ test( 'leaving one chart resets its tooltip without remounting the next chart', 
 	const [ desktop, mobile ] = screen.getAllByRole( 'grid' );
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
 	fireEvent.blur( desktop, { relatedTarget: mobile } );
 	expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
 	expect( screen.getAllByRole( 'grid' )[ 1 ] ).toBe( mobile );
-	expect( desktop ).not.toBeInTheDocument();
-} );
-
-test( 'retries a failed older history window', async () => {
-	const previousWindow = getHistoryWindow( 1 );
-	fetchMock.mockRejectedValueOnce( new Error( 'History service unavailable' ) );
-	fetchMock.mockResolvedValue( {
-		status: 'success',
-		JSON: { ...previousWindow, periods: [], annotations: [] },
-	} );
-	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Previous 30 days' } ) );
-	await expect( screen.findByText( 'History service unavailable' ) ).resolves.toBeInTheDocument();
-	fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
-	await waitFor( () => expect( screen.getAllByRole( 'grid' ) ).toHaveLength( 2 ) );
-	expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+	expect( screen.getAllByRole( 'grid' )[ 0 ] ).toBe( desktop );
 } );
 
 test( 'offers the premium upgrade without rendering paid history', () => {
@@ -295,13 +279,15 @@ test( 'keeps the header, axis, and empty tooltip on the same day in a UTC+14 sit
 		const visibleWindow = getHistoryWindow( 0 );
 		const firstDay = dateI18n( 'M j', visibleWindow.startDate, false );
 		const lastDay = dateI18n( 'M j, Y', visibleWindow.endDate, false );
-		render( <HistoryChartCard data={ null } { ...callbacks } />, { wrapper } );
+		render( <HistoryChartCard data={ null } { ...callbacks } range={ visibleWindow } />, {
+			wrapper,
+		} );
 		expect( screen.getByText( `${ firstDay } – ${ lastDay }` ) ).toBeInTheDocument();
 		await waitFor( () => expect( screen.getAllByText( firstDay ) ).toHaveLength( 2 ) );
 		fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
 		const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 		expect( tooltip ).toHaveTextContent( dateI18n( 'F j, Y', visibleWindow.startDate, false ) );
-		expect( tooltip ).toHaveTextContent( 'No score recorded before you unlocked this feature.' );
+		expect( tooltip ).toHaveTextContent( 'No scores recorded before feature was unlocked' );
 	} finally {
 		setSettings( settings );
 	}

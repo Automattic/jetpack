@@ -1,11 +1,5 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
-import {
-	formatScoreDelta,
-	getScoreDelta,
-	getScoreTier,
-	getScoreTierColor,
-	getTrendDirection,
-} from './score-utils';
+import { formatScoreDelta, getScoreDelta, getScoreTier, getScoreTierColor } from './score-utils';
 
 test( 'uses the shared score card color tokens for each tier', () => {
 	expect( getScoreTierColor( 'good' ) ).toBe( 'var(--jetpack-boost-score-good)' );

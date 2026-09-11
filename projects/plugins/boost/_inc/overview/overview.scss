@@ -3,8 +3,9 @@
 @use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
 
 .jetpack-boost-overview {
-	--jetpack-boost-score-good: var(--studio-green-50, #008a20);
-	--jetpack-boost-score-medium: #f57600;
+	--jetpack-boost-history-narrow-query: (max-width: #{wpbreakpoints.$break-small});
+	--jetpack-boost-score-good: var(--wpds-color-foreground-content-success-weak);
+	--jetpack-boost-score-medium: var(--wpds-color-foreground-content-warning-weak);
 	--jetpack-boost-score-poor: var(--wpds-color-foreground-content-error-weak);
 	--jetpack-boost-history-empty: #{wpcolors.$gray-200};
 	--jetpack-boost-history-axis: #{wpcolors.$gray-600};
