@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	PRESET_CUSTOM,
-	type DateRange,
-	type PrimaryPresetId,
-} from '@jetpack-premium-analytics/datetime';
+import { PRESET_CUSTOM, type DateRange } from '@jetpack-premium-analytics/datetime';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -18,15 +14,11 @@ import { useStagedSearch } from '../use-staged-search';
 
 type SectionRangeSearch = ReportQuerySearchParams & { section?: string };
 
-export type OpenSectionRange = (
-	section: string,
-	range: Required< DateRange >,
-	presetId?: PrimaryPresetId
-) => void;
+export type OpenSectionRange = ( section: string, range: Required< DateRange > ) => void;
 
 /**
- * Open a dashboard section over a date range in one history entry, so Back
- * returns to the section and range the reader left.
+ * Open a dashboard section over an exact date range, stored as a custom
+ * period, in one history entry so Back returns to where the reader left.
  *
  * @return The navigation, taking the section slug and the range to apply.
  */
@@ -34,10 +26,10 @@ export function useOpenSectionRange(): OpenSectionRange {
 	const { effective, stage, commit } = useStagedSearch< SectionRangeSearch, string >( {} );
 
 	return useCallback(
-		( section, range, presetId = PRESET_CUSTOM ) => {
+		( section, range ) => {
 			const patch = buildRangePatch( {
 				nextRange: range,
-				nextPresetId: presetId,
+				nextPresetId: PRESET_CUSTOM,
 				exactRange: true,
 				effective,
 			} );

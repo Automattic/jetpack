@@ -155,6 +155,18 @@ describe( 'ViewsOverYears widget', () => {
 		expect( screen.getByText( 'No views yet.' ) ).toBeInTheDocument();
 	} );
 
+	it( 'keeps the drawn rows when a background refetch fails', () => {
+		mockUseStatsVisits.mockReturnValue(
+			visitsResult( ROWS, { isError: true, error: new Error( 'boom' ) } )
+		);
+		renderWidget();
+
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( "We couldn't load your views. Please try again in a moment." )
+		).not.toBeInTheDocument();
+	} );
+
 	it( 'offers a retry when the request fails with nothing on screen', async () => {
 		const refetch = jest.fn();
 		mockUseStatsVisits.mockReturnValue(

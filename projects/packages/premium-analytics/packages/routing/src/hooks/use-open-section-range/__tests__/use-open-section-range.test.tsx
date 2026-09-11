@@ -71,13 +71,4 @@ describe( 'useOpenSectionRange', () => {
 
 		expect( mockSearch.to ).toBe( '2026-03-15T12:00:00.000+00:00' );
 	} );
-
-	it( 'stores the preset it is given', () => {
-		mockSearch = {};
-		const { result } = renderHook( () => useOpenSectionRange() );
-
-		act( () => result.current( 'traffic', NOVEMBER, 'last-30-days' ) );
-
-		expect( mockSearch.preset ).toBe( 'last-30-days' );
-	} );
 } );
