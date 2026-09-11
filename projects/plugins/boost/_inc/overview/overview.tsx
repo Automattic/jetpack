@@ -8,7 +8,12 @@ import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
 import { OVERVIEW_MODULES_CHANGE_EVENT } from './lib/modules-state-bridge';
-import { isSiteOnline, useModulesState, useScoreRefreshState } from './lib/use-modules-state';
+import {
+	isSiteOnline,
+	modulesStateQueryKey,
+	useModulesState,
+	useScoreRefreshState,
+} from './lib/use-modules-state';
 import {
 	performanceHistoryQueryKey,
 	useDismissibleAlertState,
@@ -52,7 +57,7 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 
 	useEffect( () => {
 		const onModulesChange = () => {
-			queryClient.invalidateQueries( { queryKey: [ 'modules_state' ] } );
+			queryClient.invalidateQueries( { queryKey: modulesStateQueryKey } );
 		};
 		window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onModulesChange );
 		return () => window.removeEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onModulesChange );

@@ -87,10 +87,12 @@ export function parseModulesState( value: unknown ): ModulesState {
 	return modulesStateSchema.parse( value );
 }
 
+export const modulesStateQueryKey = [ 'modules_state' ] as const;
+
 export function useModulesState() {
 	const initial = modulesStateSchema.safeParse( window.jetpack_boost_ds?.modules_state?.value );
 	return useQuery( {
-		queryKey: [ 'modules_state' ],
+		queryKey: modulesStateQueryKey,
 		queryFn: async () => parseModulesState( await requestDataSync( 'modules_state' ) ),
 		initialData: initial.success ? initial.data : undefined,
 		enabled: isSiteOnline(),
