@@ -1,7 +1,7 @@
 /**
  * The default label for a format's output.
  *
- * The button face and the QR caption carry the same label, so they share one
+ * The button face and the QR caption use the same label, so they share one
  * default. Applied at render rather than in block.json, whose defaults cannot be
  * translated. render_api_managed_button() repeats it.
  *

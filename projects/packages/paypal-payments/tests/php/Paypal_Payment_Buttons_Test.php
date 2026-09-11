@@ -764,7 +764,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the caption is escaped. It is merchant free text printed into the markup.
+	 * Test that the caption is escaped. It is merchant free text rendered into the markup.
 	 */
 	public function test_render_block_escapes_the_qr_caption() {
 		$attributes = array(
@@ -1078,8 +1078,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		if ( empty( $declarations ) ) {
 			$this->assertStringNotContainsString( $selector . ' style=', $result );
-			// Positive control: the element itself still rendered, so the case is
-			// pinning a dropped style rather than a dropped element.
+			// Positive control: the element itself still rendered, so the case covers
+			// a dropped style rather than a dropped element.
 			$this->assertStringContainsString( $selector, $result );
 			return;
 		}

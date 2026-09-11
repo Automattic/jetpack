@@ -670,9 +670,8 @@ class PayPal_Payment_Buttons {
 		// ─── QR format: standalone auto-rendering QR canvas ──────────────
 		if ( 'QR' === $format ) {
 			$wrapper_attributes = get_block_wrapper_attributes();
-			// Lands on .jetpack-paypal-button, not the block wrapper: that is the
-			// element style.scss caps at 400px, and the one the editor preview
-			// carries the same style on.
+			// Goes on .jetpack-paypal-button, not the block wrapper: style.scss caps
+			// that element at 400px, and the editor preview styles the same one.
 			$block_style    = self::block_style_attr( $attributes );
 			$download_label = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
 			$copy_label     = esc_html__( 'Copy Link', 'jetpack-paypal-payments' );
