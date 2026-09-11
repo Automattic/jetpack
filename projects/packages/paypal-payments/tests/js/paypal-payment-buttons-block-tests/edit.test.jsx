@@ -83,6 +83,23 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	),
 	// The real control is a swatch popover, not a text field. Keep it a button so
 	// a test can't type a color into a UI that has no input.
+	// Margin is core's axial spacing control; the test drives it by side.
+	__experimentalSpacingSizesControl: ( { label, values, onChange } ) => (
+		<div data-testid={ `spacing-${ label }` }>
+			<button
+				type="button"
+				data-testid={ `spacing-${ label }-vertical` }
+				onClick={ () => onChange( { ...values, top: '12px', bottom: '12px' } ) }
+			>
+				vertical
+			</button>
+		</div>
+	),
+	__experimentalBorderRadiusControl: ( { values, onChange } ) => (
+		<button type="button" data-testid="border-radius" onClick={ () => onChange( '8px' ) }>
+			{ values || 'radius' }
+		</button>
+	),
 	__experimentalColorGradientControl: ( { label, colorValue, onColorChange } ) => (
 		<button
 			type="button"
@@ -282,6 +299,16 @@ jest.mock( '@wordpress/components', () => ( {
 		</button>
 	),
 	ToolbarGroup: ( { children } ) => <div data-testid="toolbar-group">{ children }</div>,
+	// The real BorderControl returns width, style and color as one value.
+	BorderControl: ( { label, value, onChange } ) => (
+		<button
+			type="button"
+			data-testid={ `border-${ label }` }
+			onClick={ () => onChange( { ...value, width: '2px', color: '#ff0000' } ) }
+		>
+			stroke
+		</button>
+	),
 	Flex: ( { children } ) => <div>{ children }</div>,
 	FlexItem: ( { children } ) => <div>{ children }</div>,
 	// The panels only group controls, so they render as their contents under a
@@ -2215,11 +2242,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
 			);
 			expect( setAttributes ).not.toHaveBeenCalled();
-			// The shared-link notice and the save-status notice, both info. A 404 on
-			// the read leaves the payment alone rather than showing an error.
+			// Only the save-status notice. A 404 on the read leaves the payment alone
+			// rather than showing an error.
 			expect(
 				screen.queryAllByTestId( 'notice' ).map( n => n.getAttribute( 'data-status' ) )
-			).toEqual( [ 'info', 'info' ] );
+			).toEqual( [ 'info' ] );
+			// The shared-link line is inspector text, not a notice.
+			expect(
+				screen.getByText( 'Changes made will apply to all payment buttons with this link.' )
+			).toHaveClass( 'jetpack-paypal-payment-buttons__shared-link-note' );
 		} );
 
 		it( 'does not read the payment while PayPal is disconnected', async () => {
@@ -3215,6 +3246,30 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
 				expect( screen.getByTestId( 'tools-panel-Typography' ) ).toBeInTheDocument();
+			} );
+
+			it( 'gives the QR a margin control and the button none', async () => {
+				// Create 188 draws margin for the QR; Create 191's button panel is
+				// radius and stroke alone.
+				const { unmount } = render(
+					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
+				);
+				await expect( screen.findByTestId( 'spacing-Margin' ) ).resolves.toBeInTheDocument();
+				unmount();
+
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect(
+					screen.findByTestId( 'tools-panel-Border Settings' )
+				).resolves.toBeInTheDocument();
+				expect( screen.queryByTestId( 'spacing-Margin' ) ).not.toBeInTheDocument();
+				// Radius and stroke still belong to the button.
+				expect( screen.getByTestId( 'border-radius' ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'border-Stroke' ) ).toBeInTheDocument();
 			} );
 
 			it( 'gives LINK no Width or Border panel', async () => {

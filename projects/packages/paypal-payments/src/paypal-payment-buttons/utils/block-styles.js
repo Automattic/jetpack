@@ -1,72 +1,88 @@
 /**
  * Width, margin, border and caption styles, as inline CSS.
  *
- * The editor canvas draws from these; PayPal_Payment_Buttons::get_wrapper_style()
- * and ::get_caption_style() mirror them for the published page, and both put the
- * result on the same element. Change one, change the other.
+ * Margin and border live in `attributes.style`, the same shape core's block
+ * supports use, so the published page can hand them straight to
+ * wp_style_engine_get_styles(). The canvas has no style engine of its own —
+ * `@wordpress/style-engine` is not a dependency here — so it builds the same
+ * declarations from the same values.
  *
  * @package
  */
 
-// Mirrors PayPal_Payment_Buttons::sanitize_css_color(). The palette can hand
-// back a value PHP will not emit, and a color that renders in the editor and
-// vanishes on the published page is the bug this whole milestone exists to fix.
-const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
-const PRESET_VAR = /^var\(--wp--[a-z0-9-]+\)$/i;
-
 /**
- * Accept only a color the published page will also emit.
+ * Resolve a preset reference to the CSS variable it names.
  *
- * @param {string} color - The raw attribute value.
- * @return {string} The color, or '' when PHP would drop it.
+ * Core stores a chosen preset as `var:preset|spacing|50` rather than a value,
+ * and resolves it at render. wp_style_engine_get_styles() does this on the
+ * published page; this is the canvas's copy.
+ *
+ * @param {string} value - A raw style value.
+ * @return {string} The value, with any preset reference expanded.
  */
-function usableColor( color ) {
-	const value = `${ color ?? '' }`.trim();
+export function resolvePreset( value ) {
+	const raw = `${ value ?? '' }`.trim();
+	const preset = raw.match( /^var:preset\|([a-z0-9-]+)\|(.+)$/i );
 
-	return HEX.test( value ) || PRESET_VAR.test( value ) ? value : '';
+	return preset ? `var(--wp--preset--${ preset[ 1 ] }--${ preset[ 2 ] })` : raw;
 }
 
 /**
- * Block wrapper styles — Width Settings and Border Settings.
+ * Build a `margin` shorthand from core's per-side object.
+ *
+ * @param {object} margin - `{ top, right, bottom, left }`, any side optional.
+ * @return {string} The shorthand, or '' when no side is set.
+ */
+function marginShorthand( margin ) {
+	const sides = [ 'top', 'right', 'bottom', 'left' ];
+
+	if ( ! margin || ! sides.some( side => margin[ side ] ) ) {
+		return '';
+	}
+
+	return sides.map( side => resolvePreset( margin[ side ] ) || '0' ).join( ' ' );
+}
+
+/**
+ * Block styles — Width Settings and Border Settings.
  *
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
  */
 export function getWrapperStyle( attributes = {} ) {
-	const {
-		blockWidth,
-		marginVertical,
-		marginHorizontal,
-		blockBorderRadius,
-		blockBorderWidth,
-		blockBorderColor,
-	} = attributes;
-	const style = {};
+	const { blockWidth, style } = attributes;
+	const border = style?.border || {};
+	const out = {};
 
 	// Width carries its own unit, so it goes through as typed.
 	if ( blockWidth ) {
-		style.maxWidth = blockWidth;
+		out.maxWidth = blockWidth;
 	}
 
-	// 0 is a margin a merchant can pick, so the test is for a number, not truth.
-	if ( Number.isFinite( marginVertical ) || Number.isFinite( marginHorizontal ) ) {
-		const vertical = Number.isFinite( marginVertical ) ? `${ marginVertical }px` : '0';
-		const horizontal = Number.isFinite( marginHorizontal ) ? `${ marginHorizontal }px` : '0';
-		style.margin = `${ vertical } ${ horizontal }`;
+	const margin = marginShorthand( style?.spacing?.margin );
+	if ( margin ) {
+		out.margin = margin;
 	}
 
-	if ( Number.isFinite( blockBorderRadius ) ) {
-		style.borderRadius = `${ blockBorderRadius }px`;
+	if ( border.radius ) {
+		// BorderRadiusControl gives a single value, or one per corner.
+		out.borderRadius =
+			typeof border.radius === 'string'
+				? border.radius
+				: [ 'topLeft', 'topRight', 'bottomRight', 'bottomLeft' ]
+						.map( corner => border.radius[ corner ] || '0' )
+						.join( ' ' );
 	}
 
-	// A width with no color would fall back to currentColor and draw a border
-	// the merchant never chose, so emit one only when both halves are set.
-	const borderColor = usableColor( blockBorderColor );
-	if ( Number.isFinite( blockBorderWidth ) && borderColor ) {
-		style.border = `${ blockBorderWidth }px solid ${ borderColor }`;
+	// BorderControl hands back width, style and color together. Without a width
+	// there is nothing to draw, and without a color the browser would fall back
+	// to currentColor and draw a border the merchant never chose.
+	const borderColor = resolvePreset( border.color );
+	if ( border.width && borderColor ) {
+		out.border = `${ border.width } ${ border.style || 'solid' } ${ borderColor }`;
 	}
 
-	return style;
+	return out;
 }
 
 /**
@@ -79,7 +95,7 @@ export function getCaptionStyle( attributes = {} ) {
 	const { captionColor, captionFontSize } = attributes;
 	const style = {};
 
-	const color = usableColor( captionColor );
+	const color = resolvePreset( captionColor );
 	if ( color ) {
 		style.color = color;
 	}

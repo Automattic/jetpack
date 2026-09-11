@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Format options for the format switcher.
  */
 export const FORMAT_OPTIONS = [
-	{ value: 'BUTTON', label: __( 'Button', 'jetpack-paypal-payments' ) },
+	{ value: 'BUTTON', label: __( 'Single button', 'jetpack-paypal-payments' ) },
 	{ value: 'LINK', label: __( 'Link', 'jetpack-paypal-payments' ) },
 	{ value: 'QR', label: __( 'QR code', 'jetpack-paypal-payments' ) },
 ];
