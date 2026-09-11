@@ -17,16 +17,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		} );
 	}
 
-	// The help entry point, so the "sees it -> clicks it" step of the funnel is measured in
-	// wp-admin as well as the omnibar. The label's presence marks the treatment; ExPlat holds
-	// the assignment itself, so it is not repeated here.
+	// The help entry point's impression, the one funnel step wp-admin never reported. Clicks
+	// already arrive as `calypso_inlinehelp_show` from the Agents Manager bundle. The node's
+	// marker class says whether the label was shown; ExPlat holds the assignment itself.
 	const helpEntryPoint = document.querySelector( '#wp-admin-bar-agents-manager' );
 	if ( helpEntryPoint ) {
-		const props = { has_label: helpEntryPoint.classList.contains( 'has-help-entry-label' ) };
-		wpcomTrackEvent( 'wpcom_adminbar_help_impression', props );
-		// The node carries a link only in the disconnected variant; otherwise core renders a div.
-		helpEntryPoint.querySelector( '.ab-item' )?.addEventListener( 'click', () => {
-			wpcomTrackEvent( 'wpcom_adminbar_help_clicked', props );
+		wpcomTrackEvent( 'wpcom_adminbar_help_impression', {
+			has_label: helpEntryPoint.classList.contains( 'has-help-entry-label' ),
 		} );
 	}
 } );

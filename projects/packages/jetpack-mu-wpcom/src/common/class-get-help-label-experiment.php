@@ -86,8 +86,9 @@ class Get_Help_Label_Experiment {
 			return null;
 		}
 
-		// Atomic: no local ExPlat engine — ask wpcom as the connected user.
-		$request_path = '/experiments/0.1.0/assignments/calypso';
+		// Atomic: no local ExPlat engine — ask wpcom as the connected user. The experiment is
+		// registered on the `wpcom` platform, so the assignment must be fetched from there.
+		$request_path = '/experiments/0.1.0/assignments/wpcom';
 		$response     = Client::wpcom_json_api_request_as_user(
 			add_query_arg( array( 'experiment_names' => self::EXPERIMENT_NAME ), $request_path ),
 			'v2'
