@@ -400,6 +400,7 @@ test( 'shows the free history upgrade without requesting history', async () => {
 	};
 	renderOverview();
 	await expect( screen.findByRole( 'button', { name: 'Upgrade now' } ) ).resolves.toBeTruthy();
+	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
 			url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history',
@@ -569,12 +570,15 @@ test( 'reports module request errors independently and retries only modules', as
 		}
 		return { status: 'success', JSON: null };
 	} );
-	renderOverview();
+	const { container } = renderOverview();
 	await expect( screen.findByText( 'Module settings unavailable' ) ).resolves.toBeTruthy();
 	expect(
 		screen.getByText( 'Failed to load module settings', { selector: 'span' } )
 	).toBeInTheDocument();
 	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+	expect( screen.getByText( /Performance history will appear/ ) ).toBeVisible();
+	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+	expect( container.querySelector( '.jetpack-boost-overview__chart-loading' ) ).toBeNull();
 	jest.mocked( apiFetch ).mockClear();
 	fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 	await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );

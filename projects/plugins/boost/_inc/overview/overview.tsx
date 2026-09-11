@@ -42,7 +42,8 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
-	const history = usePerformanceHistory( modules.data?.performance_history?.available === true );
+	const historyAvailable = modules.data?.performance_history?.available === true;
+	const history = usePerformanceHistory( historyAvailable );
 	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
 		'performance_history_fresh_start'
 	);
@@ -143,13 +144,11 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 			<HistoryChartCard
 				isVisible={ isVisible }
 				data={ modules.isPending ? undefined : history.data }
-				isLoading={ modules.isPending || history.isPending }
+				isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }
 				isError={ history.isError && ! history.isFetching }
 				error={ history.error }
 				onRetry={ () => history.refetch() }
-				needsUpgrade={
-					modules.data !== undefined && modules.data.performance_history?.available !== true
-				}
+				needsUpgrade={ modules.data !== undefined && ! historyAvailable }
 				isFreshStart={ ! freshStartCompleted }
 				onDismissFreshStart={ dismissFreshStart }
 			/>
