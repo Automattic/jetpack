@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-The editor canvas draws the block's Display Format. A Link block shows the link and a QR block shows the code, instead of both showing the button. The canvas also uses the Button Text setting, shows the "Powered by PayPal" line and lists variant options the way the published block does. The PayPal wordmark comes off the button face on both sides. Two things the canvas used to show and the published button never did are gone: the QR code under the button, which the QR format now draws instead, and the row for copying the payment link.
+The editor canvas draws the block's Display Format. A Link block shows the link and a QR block shows the code, instead of both showing the button. The canvas also uses the Button Text setting and lists variant options the way the published block does. The PayPal wordmark comes off the button face on both sides. Two things the canvas used to show and the published button never did are gone: the QR code under the button, which the QR format now draws instead, and the row for copying the payment link.

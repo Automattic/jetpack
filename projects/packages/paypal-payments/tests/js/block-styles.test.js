@@ -9,6 +9,7 @@
 import {
 	getButtonStyle,
 	getTextStyle,
+	getBorderStyle,
 	getWrapperStyle,
 } from '../../src/paypal-payment-buttons/utils/block-styles';
 import parity from '../fixtures/style-parity.json';
@@ -28,13 +29,24 @@ const asDeclarations = style =>
 		] )
 	);
 
+/**
+ * The QR wrapper's style — Width, margin and Border all land on the one element.
+ *
+ * @param {object} attributes - The block attributes.
+ * @return {object} A React style object.
+ */
+const qrWrapper = attributes => ( {
+	...getWrapperStyle( attributes ),
+	...getBorderStyle( attributes ),
+} );
+
 // The other half of this table runs in tests/php. A value one side drops and the
 // other keeps is drift between the canvas and the published page, so it fails here.
 describe( 'style parity with the published page', () => {
 	it.each( parity.cases.map( c => [ c.name, c ] ) )( '%s', ( _name, testCase ) => {
-		expect( asDeclarations( getWrapperStyle( testCase.attributes ) ) ).toEqual(
-			testCase.declarations
-		);
+		// The QR wrapper carries both, so the table is checked against the pair the
+		// way QrPreview and the QR branch of render_api_managed_button() compose it.
+		expect( asDeclarations( qrWrapper( testCase.attributes ) ) ).toEqual( testCase.declarations );
 	} );
 
 	// One helper serves the QR caption and the payment link. The PHP half runs
@@ -49,7 +61,7 @@ describe( 'style parity with the published page', () => {
 	// The published page refuses these, so the canvas has to as well — otherwise
 	// a hand-edited block renders in the editor and vanishes on publish.
 	it.each( parity.rejectedCases.map( c => [ c.name, c ] ) )( 'refuses %s', ( _name, testCase ) => {
-		expect( getWrapperStyle( testCase.attributes ) ).toEqual( {} );
+		expect( qrWrapper( testCase.attributes ) ).toEqual( {} );
 	} );
 
 	it.each( parity.rejectedTextCases.map( c => [ c.name, c ] ) )(
@@ -90,26 +102,28 @@ describe( 'getWrapperStyle', () => {
 	} );
 
 	it( 'takes a per-corner radius as well as a single one', () => {
-		expect( getWrapperStyle( { style: { border: { radius: '8px' } } } ) ).toEqual( {
+		expect( getBorderStyle( { style: { border: { radius: '8px' } } } ) ).toEqual( {
 			borderRadius: '8px',
 		} );
 		expect(
-			getWrapperStyle( { style: { border: { radius: { topLeft: '4px', bottomRight: '9px' } } } } )
+			getBorderStyle( { style: { border: { radius: { topLeft: '4px', bottomRight: '9px' } } } } )
 		).toEqual( { borderTopLeftRadius: '4px', borderBottomRightRadius: '9px' } );
 	} );
 
 	it( 'draws no stroke unless it has both a width and a color', () => {
 		// Half a stroke renders inconsistently — border-style defaults to `none`,
 		// so a width and color with no style would draw nothing on the frontend.
-		expect( getWrapperStyle( { style: { border: { width: '2px' } } } ) ).toEqual( {} );
-		expect( getWrapperStyle( { style: { border: { color: '#ff0000' } } } ) ).toEqual( {} );
-		expect( getWrapperStyle( { style: { border: { width: '2px', color: '#ff0000' } } } ) ).toEqual(
-			{ borderWidth: '2px', borderColor: '#ff0000', borderStyle: 'solid' }
-		);
+		expect( getBorderStyle( { style: { border: { width: '2px' } } } ) ).toEqual( {} );
+		expect( getBorderStyle( { style: { border: { color: '#ff0000' } } } ) ).toEqual( {} );
+		expect( getBorderStyle( { style: { border: { width: '2px', color: '#ff0000' } } } ) ).toEqual( {
+			borderWidth: '2px',
+			borderColor: '#ff0000',
+			borderStyle: 'solid',
+		} );
 	} );
 
 	it( 'keeps a radius when the stroke is dropped', () => {
-		expect( getWrapperStyle( { style: { border: { width: '2px', radius: '8px' } } } ) ).toEqual( {
+		expect( getBorderStyle( { style: { border: { width: '2px', radius: '8px' } } } ) ).toEqual( {
 			borderRadius: '8px',
 		} );
 	} );

@@ -85,6 +85,15 @@ jest.mock( '@wordpress/block-editor', () => ( {
 			{ children }
 		</div>
 	),
+	// Core reads the two colors and warns when the pair is unreadable. The real
+	// one renders nothing until it has both, so the mock records what it was given.
+	ContrastChecker: ( { textColor, backgroundColor } ) => (
+		<div
+			data-testid="contrast-checker"
+			data-text={ textColor }
+			data-background={ backgroundColor }
+		/>
+	),
 	// Core's color panel is a labeled swatch row per setting, not a text field.
 	// Keep the mock a button so a test can't type a color into a UI with no input.
 	__experimentalColorGradientSettingsDropdown: ( { settings } ) => (
@@ -372,8 +381,16 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 	// The panels only group controls, so they render as their contents under a
 	// testid named for the label.
-	__experimentalToolsPanel: ( { children, label } ) => (
-		<div data-testid={ `tools-panel-${ label }` }>{ children }</div>
+	// Reset All is the panel's own menu item in the real control, so the mock
+	// exposes it as a button — without it the panel's resetAll never runs and a
+	// test cannot tell a one-key reset from an all-keys one.
+	__experimentalToolsPanel: ( { children, label, resetAll } ) => (
+		<div data-testid={ `tools-panel-${ label }` }>
+			<button type="button" data-testid="tools-panel-reset" onClick={ () => resetAll() }>
+				reset all
+			</button>
+			{ children }
+		</div>
 	),
 	__experimentalToolsPanelItem: ( { children } ) => <>{ children }</>,
 	__experimentalUnitControl: ( { label, value, onChange } ) => (
@@ -3309,8 +3326,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByLabelText( 'Show QR code' ) ).not.toBeInTheDocument();
 			} );
 
-			// Create 191 draws the button's Color panel with two rows. The other
-			// two formats colour one thing and draw one.
+			// The button colors two things, so its Color panel has two rows; the
+			// other formats color one and draw one.
 			it( 'gives the button a Text and a Background swatch', async () => {
 				render(
 					<Edit
@@ -3357,10 +3374,59 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				);
 				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
 
-				await user.click( screen.getByTestId( 'color-clear' ) );
+				// The panel's own Reset All, not the per-swatch clear — one write
+				// covering every row is what the panel promises.
+				await user.click( screen.getByTestId( 'tools-panel-reset' ) );
 
-				expect( setAttributes ).toHaveBeenCalledWith( { buttonTextColor: '' } );
-				expect( setAttributes ).toHaveBeenCalledWith( { buttonBackgroundColor: '' } );
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					buttonTextColor: '',
+					buttonBackgroundColor: '',
+				} );
+			} );
+
+			// The swatch would fill in and change nothing: both renderers drop the
+			// background under Outline, because the transparent one comes from CSS.
+			it( 'drops the background swatch and the contrast warning under Outline', async () => {
+				const { rerender } = render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON', buttonStyle: 'fill' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				let styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByTestId( 'color-Background' ) ).toBeInTheDocument();
+				expect( within( styles ).getByTestId( 'contrast-checker' ) ).toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON', buttonStyle: 'outline' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByTestId( 'color-Text' ) ).toBeInTheDocument();
+				expect( within( styles ).queryByTestId( 'color-Background' ) ).not.toBeInTheDocument();
+				expect( within( styles ).queryByTestId( 'contrast-checker' ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'hands the contrast checker both button colors', async () => {
+				render(
+					<Edit
+						attributes={ {
+							...qrAttributes,
+							format: 'BUTTON',
+							buttonTextColor: '#1e1e1e',
+							buttonBackgroundColor: '#ffd140',
+						} }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const checker = await screen.findByTestId( 'contrast-checker' );
+				expect( checker ).toHaveAttribute( 'data-text', '#1e1e1e' );
+				expect( checker ).toHaveAttribute( 'data-background', '#ffd140' );
 			} );
 
 			it( 'offers Fill and Outline on the button, and defaults to Fill', async () => {
@@ -3419,8 +3485,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( setAttributes ).toHaveBeenCalledWith( { showPoweredBy: true } );
 			} );
 
-			// Julian, 2026-09-11: the button alone offers the choice. The QR draws
-			// the code and its caption and nothing else.
+			// Only the button format offers the choice; the QR draws the code and its
+			// caption and nothing else.
 			it( 'keeps the attribution checkbox off QR and Link', async () => {
 				const { rerender } = render(
 					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
@@ -3443,8 +3509,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				).not.toBeInTheDocument();
 			} );
 
-			// Create 191 puts Width Settings between Color and Typography; the QR
-			// frame does not. A shared Color+Typography component cannot draw both.
+			// The button puts Width Settings between Color and Typography; QR does
+			// not, so one shared Color+Typography component cannot draw both.
 			it( 'orders the button panels Color, Styles, Width, Typography, Border', async () => {
 				render(
 					<Edit
@@ -3459,7 +3525,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				// ToolsPanel and is named by its testid.
 				const titles = within( styles )
 					.getAllByTestId( /^(tools-panel-Color|panel-body)$/ )
-					.map( node => node.getAttribute( 'data-title' ) || 'Color' );
+					.map( node =>
+						node.dataset.testid === 'tools-panel-Color'
+							? 'Color'
+							: node.getAttribute( 'data-title' )
+					);
 
 				expect( titles ).toEqual( [
 					'Color',
@@ -3479,13 +3549,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
 
-				expect( screen.queryByText( 'Light' ) ).not.toBeInTheDocument();
-				expect( screen.queryByText( 'Auto' ) ).not.toBeInTheDocument();
-				expect( screen.queryByText( 'Dark' ) ).not.toBeInTheDocument();
+				// Scoped to the Settings fills, where the preset used to live —
+				// unscoped, this would pass just as well if the tab stopped
+				// rendering for some unrelated reason.
+				const settings = await screen.findAllByTestId( 'inspector-controls' );
+				settings.forEach( fill => {
+					expect( within( fill ).queryByText( 'Light' ) ).not.toBeInTheDocument();
+					expect( within( fill ).queryByText( 'Auto' ) ).not.toBeInTheDocument();
+					expect( within( fill ).queryByText( 'Dark' ) ).not.toBeInTheDocument();
+				} );
 			} );
 
 			// The inspector's copy shows the caption too, so the merchant sees what

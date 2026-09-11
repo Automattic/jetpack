@@ -14,6 +14,7 @@
  */
 
 import {
+	ContrastChecker,
 	FontSizePicker,
 	InspectorControls,
 	__experimentalBorderRadiusControl as BorderRadiusControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -271,49 +272,55 @@ function QrOutputControls( { attributes, setAttributes, qrUrl, disabled } ) {
 }
 
 /**
- * Color, for whatever the format colours — the QR caption, the link, or the
- * button's text and background.
- *
- * One row per colour, so the button draws two and the other two formats draw one.
+ * Color for whatever the format colors — the QR caption, the link, or the
+ * button's text and background. One row per color, so the button draws two and
+ * the others draw one.
  *
  * @param {object}   props               - Component props.
  * @param {Array}    props.rows          - `{ label, colorKey }` per swatch row.
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
+ * @param {Element}  props.children      - Rendered under the swatches, for the contrast warning.
  * @return {Element} The Color panel.
  */
-function ColorPanel( { rows, attributes, setAttributes } ) {
+function ColorPanel( { rows, attributes, setAttributes, children } ) {
 	const colorSettings = useMultipleOriginColorsAndGradients();
-	const cleared = rows.reduce( ( out, { colorKey } ) => ( { ...out, [ colorKey ]: '' } ), {} );
+	const cleared = Object.fromEntries( rows.map( ( { colorKey } ) => [ colorKey, '' ] ) );
 
 	return (
-		/* ColorGradientSettingsDropdown renders a ToolsPanelItem, so it needs a
-		   ToolsPanel around it, which also supplies the reset menu. Core's class
-		   name handles the row spacing. Leave hasInnerWrapper off: it lays the
-		   items out in two columns, which halves the row and truncates
-		   "Link text". */
+		/* Same shape as core's own ColorToolsPanel — the dropdown renders a
+		   ToolsPanelItem, so it needs a ToolsPanel around it, and the class,
+		   hasInnerWrapper and the inner div all go together: core's row-gap and
+		   first-item rules key off `__inner-wrapper`, so the class without the
+		   wrapper leaves every swatch its own tall box.
+		   @see @wordpress/block-editor/src/components/global-styles/color-panel.js */
 		<ToolsPanel
 			className="color-block-support-panel"
 			label={ __( 'Color', 'jetpack-paypal-payments' ) }
 			resetAll={ () => setAttributes( cleared ) }
 			panelId={ PANEL_ID }
+			hasInnerWrapper
+			headingLevel={ 3 }
 			__experimentalFirstVisibleItemClass="first"
 			__experimentalLastVisibleItemClass="last"
 		>
-			<ColorGradientSettingsDropdown
-				__experimentalIsRenderedInSidebar
-				panelId={ PANEL_ID }
-				settings={ rows.map( ( { label, colorKey } ) => ( {
-					label,
-					colorValue: attributes[ colorKey ],
-					onColorChange: value => setAttributes( { [ colorKey ]: value || '' } ),
-					clearable: true,
-					resetAllFilter: () => ( { [ colorKey ]: '' } ),
-				} ) ) }
-				{ ...colorSettings }
-				gradients={ [] }
-				disableCustomGradients
-			/>
+			<div className="color-block-support-panel__inner-wrapper">
+				<ColorGradientSettingsDropdown
+					__experimentalIsRenderedInSidebar
+					panelId={ PANEL_ID }
+					settings={ rows.map( ( { label, colorKey } ) => ( {
+						label,
+						colorValue: attributes[ colorKey ],
+						onColorChange: value => setAttributes( { [ colorKey ]: value || '' } ),
+						clearable: true,
+						resetAllFilter: () => ( { [ colorKey ]: '' } ),
+					} ) ) }
+					{ ...colorSettings }
+					gradients={ [] }
+					disableCustomGradients
+				/>
+				{ children }
+			</div>
 		</ToolsPanel>
 	);
 }
@@ -337,6 +344,8 @@ function TypographyPanel( { fontSizeKey, attributes, setAttributes } ) {
 				value={ attributes[ fontSizeKey ] }
 				onChange={ value => setAttributes( { [ fontSizeKey ]: value } ) }
 				withReset={ false }
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
 			/>
 		</PanelBody>
 	);
@@ -346,7 +355,7 @@ function TypographyPanel( { fontSizeKey, attributes, setAttributes } ) {
  * Styles — Fill or Outline, on the button only.
  *
  * Not a `registerBlockStyle` variation: core renders `BlockStyles` first in the
- * tab and as preview cards, and Create 191 draws this below Color as two plain
+ * tab and as preview cards, and the design puts this below Color as two plain
  * buttons.
  *
  * @param {object}   props               - Component props.
@@ -457,6 +466,8 @@ export default function PayPalFormatControls( {
 	paymentUrl,
 	disabled,
 } ) {
+	const isOutline = 'outline' === attributes.buttonStyle;
+
 	return (
 		<InspectorControls group="styles">
 			{ /* Embed as and the format's own controls sit in a plain section with
@@ -479,9 +490,9 @@ export default function PayPalFormatControls( {
 							disabled={ disabled }
 						/>
 
-						{ /* Create 191 draws a `Show payment method logos` checkbox above
-						     this one. That is REDESIGN-GAPS row 12, parked on Q15 — the
-						     card-network marks need legal sign-off. */ }
+						{ /* TODO: add a `Show payment method logos` checkbox above this one
+						     (WOOPTP-495) — blocked on legal sign-off for the card-network
+						     marks. */ }
 						<CheckboxControl
 							label={ __( 'Show "Powered by PayPal" text', 'jetpack-paypal-payments' ) }
 							checked={ !! attributes.showPoweredBy }
@@ -511,22 +522,37 @@ export default function PayPalFormatControls( {
 				) }
 			</div>
 
-			{ /* Each format's panels in the order its frame draws them. The button
-			     is the only one that puts Width Settings between Color and
-			     Typography, which is why Typography is its own panel. */ }
+			{ /* Each format's panels in the order the design draws them. Only the
+			     button puts Width Settings between Color and Typography, which is
+			     why Typography is its own panel. */ }
 			{ 'BUTTON' === format && (
 				<>
 					<ColorPanel
 						rows={ [
 							{ label: __( 'Text', 'jetpack-paypal-payments' ), colorKey: 'buttonTextColor' },
-							{
-								label: __( 'Background', 'jetpack-paypal-payments' ),
-								colorKey: 'buttonBackgroundColor',
-							},
+							// Outline renders on the theme's own background, so both
+							// renderers drop this value. Leaving the swatch up would fill
+							// it in and change nothing.
+							...( isOutline
+								? []
+								: [
+										{
+											label: __( 'Background', 'jetpack-paypal-payments' ),
+											colorKey: 'buttonBackgroundColor',
+										},
+								  ] ),
 						] }
 						attributes={ attributes }
 						setAttributes={ setAttributes }
-					/>
+					>
+						{ ! isOutline && (
+							<ContrastChecker
+								textColor={ attributes.buttonTextColor }
+								backgroundColor={ attributes.buttonBackgroundColor }
+								isLargeText={ false }
+							/>
+						) }
+					</ColorPanel>
 					<StylesPanel buttonStyle={ attributes.buttonStyle } setAttributes={ setAttributes } />
 					<WidthPanel blockWidth={ attributes.blockWidth } setAttributes={ setAttributes } />
 					<TypographyPanel

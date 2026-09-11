@@ -15,7 +15,12 @@
 
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { getButtonStyle, getTextStyle, getWrapperStyle } from '../utils/block-styles';
+import {
+	getBorderStyle,
+	getButtonStyle,
+	getTextStyle,
+	getWrapperStyle,
+} from '../utils/block-styles';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import { withPartnerAttribution } from '../utils/partner-attribution';
@@ -118,7 +123,7 @@ function LinkPreview( { linkText, paymentLink, partnerAttributionId, attributes 
 }
 
 /**
- * The QR format — the code, its caption, and the attribution line.
+ * The QR format — the code and its caption.
  *
  * Copy and Download belong to the frontend and the inspector, so the canvas
  * draws the code on its own.
@@ -145,7 +150,7 @@ function QrPreview( {
 	return (
 		<div
 			className="jetpack-paypal-button-preview jetpack-paypal-button-preview--qr"
-			style={ getWrapperStyle( attributes ) }
+			style={ { ...getWrapperStyle( attributes ), ...getBorderStyle( attributes ) } }
 		>
 			<QrCodePreview
 				url={ qrUrl }
@@ -182,7 +187,7 @@ function ButtonPreview( {
 	variants,
 	imageUrl,
 	buttonText,
-	attributes,
+	attributes = {},
 } ) {
 	// Mirrors render_api_managed_button(): PayPal drops the product-level amount
 	// once the options have their own prices, but the block keeps what was typed.
@@ -195,8 +200,9 @@ function ButtonPreview( {
 	// default render_api_managed_button() uses.
 	const label = `${ buttonText ?? '' }`.trim() || DEFAULT_LABEL;
 
+	// Width and Border ride on the button, not this card — see getButtonStyle().
 	return (
-		<div className="jetpack-paypal-button-preview" style={ getWrapperStyle( attributes ) }>
+		<div className="jetpack-paypal-button-preview" style={ getWrapperStyle( attributes, false ) }>
 			{ /* Product image */ }
 			{ imageUrl && (
 				<div className="jetpack-paypal-button-preview__image">
@@ -261,8 +267,8 @@ function ButtonPreview( {
 			     otherwise, labeled with the buttonText attribute. */ }
 			<div className="jetpack-paypal-button-preview__buttons">
 				<div
-					className={ clsx( 'jetpack-paypal-button-preview__checkout-button wp-element-button', {
-						'is-style-outline': 'outline' === attributes?.buttonStyle,
+					className={ clsx( 'jetpack-paypal-button-preview__checkout-button', 'wp-element-button', {
+						'is-style-outline': 'outline' === attributes.buttonStyle,
 					} ) }
 					style={ getButtonStyle( attributes ) }
 					aria-hidden="true"
@@ -271,7 +277,7 @@ function ButtonPreview( {
 				</div>
 			</div>
 
-			{ attributes?.showPoweredBy && (
+			{ attributes.showPoweredBy && (
 				<p className="jetpack-paypal-button__attribution">
 					{ __( 'Powered by PayPal', 'jetpack-paypal-payments' ) }
 				</p>
