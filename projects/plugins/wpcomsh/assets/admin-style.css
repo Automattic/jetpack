@@ -31,13 +31,7 @@
 
 /************* Plugins Page **************/
 
-.wp-list-table tr[data-slug="akismet"] > *,
-.wp-list-table tr[data-slug="full-site-editing"] > *,
-.wp-list-table tr[data-slug="gutenberg"] > *,
-.wp-list-table tr[data-slug="jetpack"] > *,
-.wp-list-table tr[data-slug="layout-grid"] > *,
-.wp-list-table tr[data-slug="coblocks"] > *,
-.wp-list-table tr[data-slug="page-optimize"] > * {
+.wp-list-table tr:has(+ .wpcomsh-managed-plugin-notice) > * {
 	box-shadow: none !important; /* Can otherwise be overridden by https://core.trac.wordpress.org/browser/tags/5.2.1/src/wp-admin/css/list-tables.css#L1217 */
 }
 
