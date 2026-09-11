@@ -2032,10 +2032,10 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 				switch ( $args['method'] ) {
 					case 'POST':
-						$store = json_decode( $args['body'], true );
+						$store = (array) json_decode( $args['body'], true );
 						return $this->http_response( 201, $resource );
 					case 'PUT':
-						$store = json_decode( $args['body'], true );
+						$store = (array) json_decode( $args['body'], true );
 						return array(
 							'response' => array(
 								'code'    => 204,
