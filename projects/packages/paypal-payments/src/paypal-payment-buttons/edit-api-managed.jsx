@@ -303,17 +303,23 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const hasButton = isApiManaged && resourceId && paymentLink;
 
 	// The payment is written with the post, so the sidebar says what the save will do.
+	// Three separate calls, not one behind a ternary: the minifier would fold that
+	// into a single __() with a non-literal msgid, which the production build rejects.
 	let saveStatus = __(
 		'Complete the highlighted fields. Until then the button is not sent to PayPal when you save.',
 		'jetpack-paypal-payments'
 	);
-	if ( isFormValid ) {
-		saveStatus = hasButton
-			? __( 'Changes are sent to PayPal when you save the post.', 'jetpack-paypal-payments' )
-			: __(
-					'The payment button is created on PayPal when you save or publish the post.',
-					'jetpack-paypal-payments'
-			  );
+	if ( isFormValid && hasButton ) {
+		saveStatus = __(
+			'Changes are sent to PayPal when you save the post.',
+			'jetpack-paypal-payments'
+		);
+	}
+	if ( isFormValid && ! hasButton ) {
+		saveStatus = __(
+			'The payment button is created on PayPal when you save or publish the post.',
+			'jetpack-paypal-payments'
+		);
 	}
 
 	/**
