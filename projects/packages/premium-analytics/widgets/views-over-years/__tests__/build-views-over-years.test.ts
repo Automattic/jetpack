@@ -112,6 +112,20 @@ describe( 'buildViewsOverYearsRows', () => {
 			[]
 		);
 	} );
+
+	it( 'drops a bucket whose month is out of range rather than aliasing it into the next year', () => {
+		const rows = buildViewsOverYearsRows(
+			[
+				{ date: '2026-13-01', views: 999 },
+				{ date: '2026-01-01', views: 10 },
+			],
+			'total',
+			TODAY
+		);
+
+		expect( rows.map( row => row.year ) ).toEqual( [ 2026 ] );
+		expect( rows[ 0 ].months ).not.toContain( 999 );
+	} );
 } );
 
 describe( 'resolveMetric', () => {

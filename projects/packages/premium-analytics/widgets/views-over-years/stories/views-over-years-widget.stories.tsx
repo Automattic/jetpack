@@ -1,13 +1,6 @@
 /**
- * The Views over years widget is the Insights tab's all-time views card: every
- * month of the site's views, one row per year closed by the year's roll-up, as
- * total views or views per day (the `metric` attribute, which the framed host
- * offers in the header). It reads the whole history whatever year the section
- * shows, and picking a month opens the Traffic tab over it.
- *
- * Data comes from the proxied `stats/visits` endpoint at `unit=month`, covered
- * by the shared report mocks, whose series trends up to today so only the most
- * recent years carry views.
+ * Data comes from the proxied `stats/visits` endpoint at `unit=month`, covered by
+ * the shared report mocks, whose series trends to zero a couple of years back.
  */
 /**
  * External dependencies
@@ -116,7 +109,8 @@ export const DailyAverage: Story = {
 export const Loading: Story = {
 	render: renderViewsOverYears,
 	args: { metric: 'total' },
-	// Off the shared autodocs page — path-keyed override; see setReportMockState.
+	// The forced states are off the shared autodocs page: setReportMockState is
+	// path-keyed, so they would bleed into the sibling stories.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -131,7 +125,6 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: renderViewsOverYears,
 	args: { metric: 'total' },
-	// Off the shared autodocs page — path-keyed override; see setReportMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -147,7 +140,6 @@ export const Error: Story = {
 export const ErrorRetryable: Story = {
 	render: renderViewsOverYears,
 	args: { metric: 'total' },
-	// Off the shared autodocs page — path-keyed override; see setReportMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -162,7 +154,6 @@ export const ErrorRetryable: Story = {
 export const Empty: Story = {
 	render: renderViewsOverYears,
 	args: { metric: 'total' },
-	// Off the shared autodocs page — path-keyed override; see setReportMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
