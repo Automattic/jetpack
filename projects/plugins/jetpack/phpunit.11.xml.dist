@@ -66,6 +66,9 @@
 		<testsuite name="sharedaddy">
 			<directory suffix="Test.php">tests/php/modules/sharedaddy</directory>
 		</testsuite>
+		<testsuite name="sharing-settings">
+			<directory suffix="Test.php">tests/php/sharing-settings</directory>
+		</testsuite>
 		<testsuite name="shortcodes">
 			<directory suffix="Test.php">tests/php/modules/shortcodes</directory>
 		</testsuite>
