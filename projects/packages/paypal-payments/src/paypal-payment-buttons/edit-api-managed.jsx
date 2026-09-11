@@ -660,6 +660,14 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						{ imageUrl ? (
 							<div className="jetpack-paypal-payment-buttons__image-preview">
 								<img src={ imageUrl } alt={ productName || '' } />
+								{ ! /^https:\/\//i.test( imageUrl ) && (
+									<Notice status="warning" isDismissible={ false }>
+										{ __(
+											'PayPal only shows images served from a public HTTPS address, so this one will not appear at checkout.',
+											'jetpack-paypal-payments'
+										) }
+									</Notice>
+								) }
 								<div className="jetpack-paypal-payment-buttons__image-actions">
 									<MediaUploadCheck>
 										<MediaUpload

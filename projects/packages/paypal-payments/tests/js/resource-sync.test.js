@@ -7,6 +7,7 @@
 import {
 	getResourceAttributeUpdates,
 	normalizeResourceVariants,
+	RESOURCE_ATTRIBUTES,
 	withCurrency,
 } from '../../src/paypal-payment-buttons/utils/resource-sync';
 
@@ -164,6 +165,59 @@ describe( 'getResourceAttributeUpdates', () => {
 		};
 
 		expect( getResourceAttributeUpdates( current, fromResource ) ).toEqual( {} );
+	} );
+} );
+
+describe( 'a block built from a fully populated payment', () => {
+	const fromResource = {
+		isApiManaged: true,
+		resourceId: 'PLB-2',
+		paymentLink: 'https://www.paypal.com/ncp/payment/PLB-2',
+		productName: 'Widget',
+		currencyCode: 'USD',
+		productDescription: 'A fine widget.',
+		imageUrl: 'https://example.com/widget.png',
+		variantsEnabled: true,
+		variants: {
+			dimensions: [
+				{
+					name: 'Size',
+					primary: true,
+					options: [
+						{ label: 'Small', unit_amount: { currency_code: 'USD', value: '10.00' } },
+						{ label: 'Large', unit_amount: { currency_code: 'USD', value: '20.00' } },
+					],
+				},
+				{ name: 'Color', primary: false, options: [ { label: 'Red' } ] },
+			],
+		},
+		adjustableQuantity: true,
+		maxQuantity: 5,
+		customerNotes: [ { label: 'Engraving', required: true } ],
+		taxEnabled: true,
+		taxType: 'PERCENTAGE',
+		taxName: 'VAT',
+		taxValue: '7.5',
+		returnUrl: 'https://example.com/thanks',
+		collectShippingAddress: false,
+	};
+
+	it( 'needs no update', () => {
+		const current = {
+			...fromResource,
+			price: '',
+			variants: normalizeResourceVariants( fromResource.variants ),
+			imageUrl: 'https://example.com/local.png',
+			imageId: 12,
+			format: 'QR',
+		};
+
+		expect( getResourceAttributeUpdates( current, fromResource ) ).toEqual( {} );
+	} );
+
+	it( 'keeps its own image: the payment never overwrites it', () => {
+		expect( RESOURCE_ATTRIBUTES ).not.toContain( 'imageUrl' );
+		expect( RESOURCE_ATTRIBUTES ).not.toContain( 'imageId' );
 	} );
 } );
 

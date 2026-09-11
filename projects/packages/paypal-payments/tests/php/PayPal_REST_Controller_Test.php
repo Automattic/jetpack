@@ -1275,6 +1275,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		}
 
 		$this->assertTrue( $create_args['line_items']['required'], 'line_items should be required.' );
+		$this->assertArrayHasKey( 'image_url', $create_args['line_items']['items']['properties'], 'The product image is not declared on the line item.' );
 	}
 
 	// --- List route ---
@@ -1338,6 +1339,180 @@ class PayPal_REST_Controller_Test extends TestCase {
 			0,
 			preg_match( '#^/wpcom/v2/paypal/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)$#', '/wpcom/v2/paypal/buttons/PLB-' )
 		);
+	}
+
+	// --- Round trip ---
+
+	/**
+	 * Every field the editor can set survives create, read, update and read again.
+	 *
+	 * PayPal is stood in for by a store that keeps what it was sent, so this covers
+	 * the route and the mapper, not PayPal.
+	 */
+	public function test_create_and_update_round_trip_keeps_every_field() {
+		$this->set_up_connected_admin_state();
+		$this->register_paypal_routes();
+
+		$store = array();
+		$this->mock_paypal_store( $store );
+
+		$sent_item = array(
+			'name'                     => 'Widget',
+			'description'              => 'A fine widget.',
+			'image_url'                => 'https://example.com/widget.png',
+			'variants'                 => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array(
+								'label'       => 'Small',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '10.00',
+								),
+							),
+							array(
+								'label'       => 'Large',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '20.00',
+								),
+							),
+						),
+					),
+					array(
+						'name'    => 'Color',
+						'primary' => false,
+						'options' => array(
+							array(
+								'label'       => 'Red',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '',
+								),
+							),
+							array( 'label' => 'Blue' ),
+						),
+					),
+				),
+			),
+			'adjustable_quantity'      => array( 'maximum' => 5 ),
+			'customer_notes'           => array(
+				array(
+					'label'    => 'Engraving',
+					'required' => true,
+				),
+			),
+			'taxes'                    => array(
+				array(
+					'name'  => 'VAT',
+					'type'  => 'PERCENTAGE',
+					'value' => '7.5',
+				),
+			),
+			'product_id'               => 'SKU-1',
+			'shipping'                 => array(
+				array(
+					'type'                  => 'FLAT',
+					'value'                 => '5.00',
+					'additional_unit_value' => '2.00',
+				),
+			),
+			'handling'                 => array(
+				array(
+					'type'  => 'FLAT',
+					'value' => '4.00',
+				),
+			),
+			'discounts'                => array(
+				array(
+					'type'  => 'FLAT',
+					'value' => '2.00',
+				),
+			),
+			'collect_shipping_address' => false,
+		);
+
+		$body = array(
+			'line_items' => array( $sent_item ),
+			'return_url' => 'https://example.com/thanks',
+		);
+
+		// The same item minus the empty amount on the unpriced option. No product
+		// price either: the options carry it.
+		$expected_item = $sent_item;
+		unset( $expected_item['variants']['dimensions'][1]['options'][0]['unit_amount'] );
+
+		$create = $this->dispatch_json( 'POST', '/wpcom/v2/paypal/buttons', $body );
+		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertEquals( $expected_item, $store['line_items'][0], 'Create sent PayPal a different item.' );
+		$this->assertSame( 'https://example.com/thanks', $store['return_url'] );
+
+		$first_read = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-RT1' ) );
+		$this->assertSame( 200, $first_read->get_status(), wp_json_encode( $first_read->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$data = $first_read->get_data();
+		$this->assertEquals( $expected_item, $data['line_items'][0], 'The read back item differs from what was created.' );
+		$this->assertSame( 'https://example.com/thanks', $data['return_url'] );
+
+		$attributes = $data['attributes'];
+		$this->assertSame( 'Widget', $attributes['productName'] );
+		$this->assertSame( 'A fine widget.', $attributes['productDescription'] );
+		$this->assertSame( 'https://example.com/widget.png', $attributes['imageUrl'] );
+		$this->assertTrue( $attributes['variantsEnabled'] );
+		$this->assertEquals( $expected_item['variants'], $attributes['variants'] );
+		$this->assertSame( 'USD', $attributes['currencyCode'] );
+		$this->assertArrayNotHasKey( 'price', $attributes );
+		$this->assertTrue( $attributes['adjustableQuantity'] );
+		$this->assertSame( 5, $attributes['maxQuantity'] );
+		$this->assertSame( $expected_item['customer_notes'], $attributes['customerNotes'] );
+		$this->assertTrue( $attributes['taxEnabled'] );
+		$this->assertSame( 'PERCENTAGE', $attributes['taxType'] );
+		$this->assertSame( 'VAT', $attributes['taxName'] );
+		$this->assertSame( '7.5', $attributes['taxValue'] );
+		$this->assertFalse( $attributes['collectShippingAddress'] );
+		$this->assertSame( 'https://example.com/thanks', $attributes['returnUrl'] );
+
+		$update = $this->dispatch_json( 'PUT', '/wpcom/v2/paypal/buttons/PLB-RT1', $body );
+		$this->assertSame( 200, $update->get_status(), wp_json_encode( $update->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertEquals( $expected_item, $update->get_data()['line_items'][0], 'The update route echoed a different item.' );
+		$this->assertEquals( $expected_item, $store['line_items'][0], 'Update sent PayPal a different item.' );
+
+		$second_read = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-RT1' ) );
+		$this->assertEquals( $first_read->get_data(), $second_read->get_data(), 'An update with no changes changed the payment.' );
+	}
+
+	/**
+	 * PayPal fetches the image itself, so a URL it cannot fetch is left out
+	 * rather than failing the save.
+	 */
+	public function test_create_button_drops_a_non_https_image_url() {
+		$this->set_up_connected_admin_state();
+		$this->register_paypal_routes();
+
+		$store = array();
+		$this->mock_paypal_store( $store );
+
+		$create = $this->dispatch_json(
+			'POST',
+			'/wpcom/v2/paypal/buttons',
+			array(
+				'line_items' => array(
+					array(
+						'name'        => 'Widget',
+						'unit_amount' => array(
+							'currency_code' => 'USD',
+							'value'         => '10.00',
+						),
+						'image_url'   => 'http://example.com/widget.png',
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertArrayNotHasKey( 'image_url', $store['line_items'][0] );
 	}
 
 	// --- Helpers ---
@@ -1809,6 +1984,70 @@ class PayPal_REST_Controller_Test extends TestCase {
 					),
 					'body'     => is_array( $body ) ? wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) : $body,
 				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Dispatch a JSON body through the REST server, so the argument schema runs.
+	 *
+	 * @param string $method HTTP method.
+	 * @param string $route  Route to dispatch against.
+	 * @param array  $body   Request body.
+	 * @return \WP_REST_Response
+	 */
+	private function dispatch_json( $method, $route, array $body ) {
+		$request = new \WP_REST_Request( $method, $route );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
+
+		return rest_get_server()->dispatch( $request );
+	}
+
+	/**
+	 * Stand in for PayPal with a single stored payment: POST and PUT keep the
+	 * body they were sent, GET hands it back.
+	 *
+	 * @param array $store Filled by reference with the last body PayPal was sent.
+	 */
+	private function mock_paypal_store( array &$store ) {
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$store ) {
+				if ( false === strpos( $url, '/v1/checkout/payment-resources' ) ) {
+					return $preempt;
+				}
+
+				$resource = array(
+					'id'    => 'PLB-RT1',
+					'links' => array(
+						array(
+							'rel'  => 'payment_link',
+							'href' => 'https://www.paypal.com/ncp/payment/RT1',
+						),
+					),
+				);
+
+				switch ( $args['method'] ) {
+					case 'POST':
+						$store = json_decode( $args['body'], true );
+						return $this->http_response( 201, $resource );
+					case 'PUT':
+						$store = json_decode( $args['body'], true );
+						return array(
+							'response' => array(
+								'code'    => 204,
+								'message' => 'No Content',
+							),
+							'body'     => '',
+						);
+					case 'GET':
+						return $this->http_response( 200, array_merge( $store, $resource ) );
+				}
+
+				return $preempt;
 			},
 			10,
 			3

@@ -898,6 +898,11 @@ class PayPal_REST_Controller {
 							'type'     => 'string',
 							'required' => false,
 						),
+						// Shown on the PayPal checkout. The sanitizer keeps it only when HTTPS.
+						'image_url'                => array(
+							'type'     => 'string',
+							'required' => false,
+						),
 						// Not required: omitted when the product options carry
 						// their own per-option prices.
 						'unit_amount'              => array(
@@ -1042,7 +1047,8 @@ class PayPal_REST_Controller {
 	/**
 	 * Sanitize line items array for PayPal API submission.
 	 *
-	 * Applies sanitize_text_field to string values and esc_url_raw to image URLs.
+	 * Applies sanitize_text_field to string values and keeps an image URL only when
+	 * it is HTTPS.
 	 *
 	 * @param array $line_items Raw line items from the REST request.
 	 * @return array Sanitized line items.
@@ -1077,6 +1083,15 @@ class PayPal_REST_Controller {
 			// Optional fields.
 			if ( ! empty( $item['description'] ) ) {
 				$clean_item['description'] = sanitize_text_field( $item['description'] );
+			}
+
+			// PayPal fetches the image itself, so anything but a public HTTPS URL is
+			// dropped rather than rejected: an http:// site can still save its button.
+			if ( ! empty( $item['image_url'] ) ) {
+				$image_url = esc_url_raw( (string) $item['image_url'], array( 'https' ) );
+				if ( 0 === strpos( $image_url, 'https://' ) ) {
+					$clean_item['image_url'] = $image_url;
+				}
 			}
 			if ( ! empty( $item['quantity'] ) ) {
 				$clean_item['quantity'] = (string) max( 1, absint( $item['quantity'] ) );

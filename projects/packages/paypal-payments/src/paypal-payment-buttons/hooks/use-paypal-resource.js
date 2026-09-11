@@ -10,47 +10,9 @@ import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
-import { getResourceAttributeUpdates, withCurrency } from '../utils/resource-sync';
+import { buildRequestData, keepPayPalOnlyFields } from '../utils/request-data';
+import { getResourceAttributeUpdates } from '../utils/resource-sync';
 import { getUserFriendlyError } from '../utils/validation';
-
-/**
- * Line-item fields set outside the block form.
- *
- * A PUT is a full replacement, so a field the request leaves out is one the
- * merchant deletes by pressing Update. These ride back out from the payment itself.
- */
-const PAYPAL_ONLY_LINE_ITEM_FIELDS = [
-	'product_id',
-	'shipping',
-	'handling',
-	'discounts',
-	'collect_shipping_address',
-];
-
-/**
- * Put the fields set outside the form back into an update request.
- *
- * @param {object} data     - The request built from the block's attributes.
- * @param {object} resource - The payment as it currently stands at PayPal.
- * @return {object} The request with those fields copied in.
- */
-function keepPayPalOnlyFields( data, resource ) {
-	const stored = resource?.line_items?.[ 0 ];
-	if ( ! stored ) {
-		return data;
-	}
-
-	const kept = {};
-	PAYPAL_ONLY_LINE_ITEM_FIELDS.forEach( key => {
-		if ( stored[ key ] !== undefined && stored[ key ] !== null ) {
-			kept[ key ] = stored[ key ];
-		}
-	} );
-
-	// PayPal's stored value wins: for these the form only ever sends its own
-	// defaults.
-	return { ...data, line_items: [ { ...data.line_items[ 0 ], ...kept } ] };
-}
 
 /**
  * The PayPal payment resource this block points at: creating it, updating it,
@@ -77,25 +39,7 @@ export function usePayPalResource( {
 	setTouchedFields,
 	setShowDeleteConfirm,
 } ) {
-	const {
-		isApiManaged,
-		resourceId,
-		productName,
-		price,
-		currencyCode,
-		productDescription,
-		returnUrl,
-		variantsEnabled,
-		variants,
-		adjustableQuantity,
-		maxQuantity,
-		customerNotes,
-		taxEnabled,
-		taxType,
-		taxName,
-		taxValue,
-		collectShippingAddress,
-	} = attributes;
+	const { isApiManaged, resourceId } = attributes;
 
 	// Form state.
 	const [ isCreating, setIsCreating ] = useState( false );
@@ -146,80 +90,9 @@ export function usePayPalResource( {
 		__unstableMarkNextChangeAsNotPersistent,
 	] );
 
-	/**
-	 * Build the line_items payload from current attributes.
-	 *
-	 * @return {object} API request data.
-	 */
-	const buildRequestData = useCallback(
-		() => ( {
-			type: 'BUY_NOW',
-			integration_mode: 'LINK',
-			reusable: 'MULTIPLE',
-			line_items: [
-				{
-					name: productName,
-					// PayPal errors with "unit_amount is specified at both product
-					// level and variant level" when both are present, so the
-					// product-level amount is dropped once options are priced.
-					...( usesVariantPricing
-						? {}
-						: {
-								unit_amount: {
-									currency_code: currencyCode || 'USD',
-									value: price,
-								},
-						  } ),
-					...( productDescription ? { description: productDescription } : {} ),
-					...( variantsEnabled && variants
-						? { variants: withCurrency( variants, currencyCode || 'USD' ) }
-						: {} ),
-					...( adjustableQuantity && maxQuantity > 1
-						? { adjustable_quantity: { maximum: parseInt( maxQuantity, 10 ) } }
-						: {} ),
-					...( customerNotes?.length > 0
-						? { customer_notes: customerNotes.filter( n => n.label?.trim() ) }
-						: {} ),
-					...( taxEnabled
-						? {
-								taxes: [
-									{
-										// PayPal supplies the label, so the name is
-										// its own only when the payment already has
-										// one. Sending an empty one would overwrite it.
-										...( taxName ? { name: taxName } : {} ),
-										type: taxType || 'PERCENTAGE',
-										value: taxType === 'PREFERENCE' ? 'PROFILE' : taxValue || '0',
-									},
-								],
-						  }
-						: {} ),
-					// Omitting this makes PayPal collect an address whatever the
-					// payment said before, so it goes out on every request. On an
-					// update the payment's own value replaces this one.
-					collect_shipping_address: !! collectShippingAddress,
-				},
-			],
-			...( returnUrl ? { return_url: returnUrl } : {} ),
-		} ),
-		[
-			productName,
-			price,
-			currencyCode,
-			productDescription,
-			returnUrl,
-			variantsEnabled,
-			variants,
-			usesVariantPricing,
-			adjustableQuantity,
-			maxQuantity,
-			customerNotes,
-			taxEnabled,
-			taxType,
-			taxName,
-			taxValue,
-			collectShippingAddress,
-		]
+	const buildRequest = useCallback(
+		() => buildRequestData( attributes, usesVariantPricing ),
+		[ attributes, usesVariantPricing ]
 	);
 
 	/**
@@ -245,7 +118,7 @@ export function usePayPalResource( {
 		apiFetch( {
 			path: `${ API_BASE }/buttons`,
 			method: 'POST',
-			data: buildRequestData(),
+			data: buildRequest(),
 		} )
 			.then( response => {
 				setAttributes( {
@@ -265,7 +138,7 @@ export function usePayPalResource( {
 			.finally( () => {
 				setIsCreating( false );
 			} );
-	}, [ buildRequestData, setAttributes, isFormValid, setIsEditing, setTouchedFields ] );
+	}, [ buildRequest, setAttributes, isFormValid, setIsEditing, setTouchedFields ] );
 
 	/**
 	 * Update an existing PayPal payment button via the API.
@@ -300,7 +173,7 @@ export function usePayPalResource( {
 				apiFetch( {
 					path: `${ API_BASE }/buttons/${ resourceId }`,
 					method: 'PUT',
-					data: keepPayPalOnlyFields( buildRequestData(), resource ),
+					data: keepPayPalOnlyFields( buildRequest(), resource ),
 				} )
 			)
 			.then( () => {
@@ -320,7 +193,7 @@ export function usePayPalResource( {
 					apiFetch( {
 						path: `${ API_BASE }/buttons`,
 						method: 'POST',
-						data: buildRequestData(),
+						data: buildRequest(),
 					} )
 						.then( response => {
 							setAttributes( {
@@ -353,7 +226,7 @@ export function usePayPalResource( {
 					setIsCreating( false );
 				}
 			} );
-	}, [ resourceId, buildRequestData, setAttributes, isFormValid, setIsEditing, setTouchedFields ] );
+	}, [ resourceId, buildRequest, setAttributes, isFormValid, setIsEditing, setTouchedFields ] );
 
 	/**
 	 * Request delete confirmation via ConfirmDialog.
