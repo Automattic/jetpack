@@ -20,8 +20,6 @@ import {
 import {
 	BaseControl,
 	CheckboxControl,
-	Flex,
-	FlexItem,
 	RangeControl,
 	TextControl,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -73,33 +71,30 @@ function WidthPanel( { blockWidth, setAttributes } ) {
 				onDeselect={ () => setAttributes( { blockWidth: '' } ) }
 				isShownByDefault
 			>
-				<Flex align="flex-end" gap={ 2 }>
-					<FlexItem isBlock>
-						<ToggleGroupControl
-							label={ __( 'Width', 'jetpack-paypal-payments' ) }
-							hideLabelFromVision
-							value={ blockWidth }
-							onChange={ selectPreset }
-							isBlock
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-						>
-							{ PRESET_WIDTHS.map( preset => (
-								<ToggleGroupControlOption key={ preset } value={ preset } label={ preset } />
-							) ) }
-						</ToggleGroupControl>
-					</FlexItem>
-					<FlexItem>
-						<UnitControl
-							label={ __( 'Custom width', 'jetpack-paypal-payments' ) }
-							hideLabelFromVision
-							value={ blockWidth }
-							units={ WIDTH_UNITS }
-							onChange={ value => setAttributes( { blockWidth: value || '' } ) }
-							__next40pxDefaultSize
-						/>
-					</FlexItem>
-				</Flex>
+				<div className="jetpack-paypal-payment-buttons__width-controls">
+					<ToggleGroupControl
+						label={ __( 'Width', 'jetpack-paypal-payments' ) }
+						hideLabelFromVision
+						value={ blockWidth }
+						onChange={ selectPreset }
+						isBlock
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+					>
+						{ PRESET_WIDTHS.map( preset => (
+							<ToggleGroupControlOption key={ preset } value={ preset } label={ preset } />
+						) ) }
+					</ToggleGroupControl>
+					<UnitControl
+						label={ __( 'Custom width', 'jetpack-paypal-payments' ) }
+						hideLabelFromVision
+						value={ blockWidth }
+						units={ WIDTH_UNITS }
+						min={ 0 }
+						onChange={ value => setAttributes( { blockWidth: value || '' } ) }
+						__next40pxDefaultSize
+					/>
+				</div>
 			</ToolsPanelItem>
 		</ToolsPanel>
 	);
