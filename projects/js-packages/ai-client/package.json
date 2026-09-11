@@ -19,6 +19,11 @@
 			"jetpack:src": "./src/index.ts",
 			"types": "./build/index.d.ts",
 			"default": "./build/index.js"
+		},
+		"./jwt": {
+			"jetpack:src": "./src/jwt/index.ts",
+			"types": "./build/jwt/index.d.ts",
+			"default": "./build/jwt/index.js"
 		}
 	},
 	"main": "./build/index.js",
