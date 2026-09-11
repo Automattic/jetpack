@@ -64,7 +64,7 @@ describe( 'PayPalButtonPreview', () => {
 	} );
 
 	it( 'keeps the wordmark off the button face', () => {
-		// Create 191 puts the branding on the attribution line instead.
+		// The branding reads on the attribution line, not the button face.
 		render( <PayPalButtonPreview { ...defaultProps } /> );
 		expect( document.querySelector( '.jetpack-paypal-button__logo' ) ).not.toBeInTheDocument();
 	} );
@@ -429,9 +429,14 @@ describe( 'PayPalButtonPreview', () => {
 			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
 			expect( wrapper ).toHaveStyle( {
 				maxWidth: '50%',
-				margin: '12px 4px 12px 4px',
+				marginTop: '12px',
+				marginBottom: '12px',
+				marginLeft: '4px',
+				marginRight: '4px',
 				borderRadius: '8px',
-				border: '2px solid #ff0000',
+				borderWidth: '2px',
+				borderColor: '#ff0000',
+				borderStyle: 'solid',
 			} );
 			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveStyle( {
 				color: '#0000ff',
@@ -453,7 +458,7 @@ describe( 'PayPalButtonPreview', () => {
 			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
 			// The radius still applies, so this proves the gate and not an empty style.
 			expect( wrapper ).toHaveStyle( { borderRadius: '8px' } );
-			expect( wrapper ).not.toHaveStyle( { borderStyle: 'solid' } );
+			expect( wrapper ).not.toHaveStyle( { borderWidth: '4px' } );
 		} );
 
 		it( 'captions the code when the toggle was never touched', () => {
@@ -464,19 +469,21 @@ describe( 'PayPalButtonPreview', () => {
 			);
 		} );
 
-		it( 'keeps a margin set on one axis only', () => {
+		it( 'leaves the other axis to the stylesheet when only one is set', () => {
+			// The published page emits only the sides that are set, so the canvas
+			// must not zero-fill the rest.
 			render(
 				<PayPalButtonPreview
 					{ ...defaultProps }
 					format="QR"
 					attributes={ {
-						style: { spacing: { margin: { top: '12px', bottom: '12px' } } },
+						style: { spacing: { margin: { left: '8px', right: '8px' } } },
 					} }
 				/>
 			);
-			expect( document.querySelector( '.jetpack-paypal-button-preview--qr' ) ).toHaveStyle( {
-				margin: '12px 0 12px 0',
-			} );
+			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
+			expect( wrapper ).toHaveStyle( { marginLeft: '8px', marginRight: '8px' } );
+			expect( wrapper ).not.toHaveStyle( { marginTop: '8px' } );
 		} );
 
 		it( 'styles the button card too', () => {

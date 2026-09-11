@@ -103,11 +103,9 @@ function WidthPanel( { blockWidth, setAttributes } ) {
 /**
  * Border Settings — radius and stroke, plus margin on the QR only.
  *
- * Create 191 draws the button's panel with radius and stroke alone; Create 188
- * adds margin for the QR. The three controls are core's own, so margin snaps to
- * the theme's spacing scale and the whole panel matches the frame on any block
- * theme. Core groups them differently — margin in Dimensions, radius in Border —
- * which is why the panel is ours and the controls are not.
+ * All three are core controls, so margin snaps to the theme's spacing scale.
+ * Core splits them across Dimensions and Border, which is why the panel is ours
+ * and the controls are not.
  *
  * @param {object}   props               - Component props.
  * @param {object}   props.attributes    - The block attributes.
@@ -121,16 +119,30 @@ function BorderPanel( { attributes, setAttributes, showMargin } ) {
 	const border = style.border || {};
 
 	// Merge into attributes.style rather than replacing it, so the panels do not
-	// clobber each other.
-	const setStyle = next =>
-		setAttributes( {
-			style: {
-				...style,
-				...next,
-				spacing: { ...style.spacing, ...next.spacing },
-				border: { ...border, ...next.border },
-			},
+	// clobber each other. Empty sub-objects are dropped rather than persisted as
+	// husks in the post content.
+	const setStyle = next => {
+		const merged = { ...style };
+
+		if ( next.spacing ) {
+			merged.spacing = { ...style.spacing, ...next.spacing };
+		}
+		if ( next.border ) {
+			merged.border = { ...border, ...next.border };
+		}
+
+		Object.keys( merged ).forEach( key => {
+			const value = merged[ key ];
+			const isEmpty =
+				value === undefined ||
+				( value && typeof value === 'object' && ! Object.values( value ).some( Boolean ) );
+			if ( isEmpty ) {
+				delete merged[ key ];
+			}
 		} );
+
+		setAttributes( { style: Object.keys( merged ).length ? merged : undefined } );
+	};
 
 	return (
 		<ToolsPanel
@@ -160,8 +172,6 @@ function BorderPanel( { attributes, setAttributes, showMargin } ) {
 						values={ margin }
 						onChange={ value => setStyle( { spacing: { margin: value } } ) }
 						sides={ [ 'vertical', 'horizontal' ] }
-						allowReset={ false }
-						splitOnAxis
 					/>
 				</ToolsPanelItem>
 			) }

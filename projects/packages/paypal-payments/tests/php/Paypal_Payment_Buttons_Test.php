@@ -776,6 +776,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__qr-caption', $result );
 		$this->assertStringNotContainsString( 'Scan to pay', $result );
+		// The caption replaced the product name that used to print here.
+		$this->assertStringNotContainsString( 'Premium Widget', $result );
 		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
 	}
 
@@ -808,6 +810,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringContainsString( 'border-radius:8px', $result );
 		$this->assertStringContainsString( 'border-width:2px', $result );
 		$this->assertStringContainsString( 'border-color:#ff0000', $result );
+		// Without a style the browser defaults to `none` and draws no border at
+		// all, so the canvas would show one where the published page shows none.
+		$this->assertStringContainsString( 'border-style:solid', $result );
 		// The caption's own styles belong on the caption, not the block.
 		$this->assertStringContainsString(
 			'<p class="jetpack-paypal-button__qr-caption" style="color:#0000ff;font-size:20px;">',
@@ -835,6 +840,145 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		// The style engine expands the preset reference the editor stored.
 		$this->assertStringContainsString( 'border-color:var(--wp--preset--color--primary)', $result );
+	}
+
+	/**
+	 * Test that a style value cannot smuggle extra declarations into the markup.
+	 *
+	 * wp_style_engine_get_styles() is not a sanitizer — it splits on `;` and keeps
+	 * any declaration core's allowlist permits, so an unchecked value renders a
+	 * full-viewport overlay on a payments block.
+	 *
+	 * @dataProvider provide_css_injection_payloads
+	 * @param array $style The hostile style attribute.
+	 */
+	#[DataProvider( 'provide_css_injection_payloads' )]
+	public function test_render_block_refuses_smuggled_declarations( $style ) {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-INJECT',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-INJECT',
+			'format'       => 'QR',
+			'style'        => $style,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		foreach ( array( 'position:fixed', 'background-image', 'z-index', 'evil.example', '100vw' ) as $smuggled ) {
+			$this->assertStringNotContainsString( $smuggled, $result, "Smuggled `$smuggled` reached the markup" );
+		}
+
+		// Positive control: the block still rendered, it was not simply dropped.
+		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+	}
+
+	/**
+	 * Hostile style attributes, one per value the Border Settings panel writes.
+	 *
+	 * @return array<string, array<int, array>>
+	 */
+	public static function provide_css_injection_payloads() {
+		$overlay = '0;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;background-image:url(https://evil.example/overlay.png)';
+
+		return array(
+			'margin side'        => array( array( 'spacing' => array( 'margin' => array( 'top' => $overlay ) ) ) ),
+			'margin string'      => array( array( 'spacing' => array( 'margin' => $overlay ) ) ),
+			'border radius'      => array( array( 'border' => array( 'radius' => $overlay ) ) ),
+			'border radius side' => array( array( 'border' => array( 'radius' => array( 'topLeft' => $overlay ) ) ) ),
+			'border width'       => array( array( 'border' => array( 'color' => '#ffffff', 'width' => $overlay ) ) ),
+			'border style'       => array( array( 'border' => array( 'color' => '#ffffff', 'width' => '1px', 'style' => 'solid;' . $overlay ) ) ),
+			'border longhand'    => array( array( 'border' => array( 'top' => array( 'color' => 'red;' . $overlay ) ) ) ),
+		);
+	}
+
+	/**
+	 * Test that a theme palette color the picker hands back raw still renders.
+	 *
+	 * ColorGradientControl returns the palette entry's own value, which a theme is
+	 * free to define as rgba() or hsl(). Dropping those made the canvas show a
+	 * color the published page did not.
+	 *
+	 * @dataProvider provide_palette_colors
+	 * @param string $color The color the picker hands back.
+	 */
+	#[DataProvider( 'provide_palette_colors' )]
+	public function test_render_block_accepts_a_raw_palette_color( $color ) {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-RAWCOL',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-RAWCOL',
+			'format'       => 'QR',
+			'style'        => array( 'border' => array( 'width' => '2px', 'color' => $color ) ),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'border-color:' . $color, $result );
+	}
+
+	/**
+	 * Colors a theme palette can legitimately hand back.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public static function provide_palette_colors() {
+		return array(
+			'hex'  => array( '#ff0000' ),
+			'rgb'  => array( 'rgb(255,0,0)' ),
+			'rgba' => array( 'rgba(255, 0, 0, 0.5)' ),
+			'hsl'  => array( 'hsl(0, 100%, 50%)' ),
+		);
+	}
+
+	/**
+	 * Test that a margin set on one axis leaves the other axis alone.
+	 */
+	public function test_render_block_margin_on_one_axis() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-MARGIN1',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-MARGIN1',
+			'format'       => 'QR',
+			'style'        => array(
+				'spacing' => array( 'margin' => array( 'left' => '8px', 'right' => '8px' ) ),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		// Only the sides that were set — top and bottom fall through to the
+		// stylesheet, and the canvas must do the same.
+		$this->assertStringContainsString(
+			'jetpack-paypal-button--qr-format" style="margin-left:8px;margin-right:8px;"',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a hostile width cannot smuggle declarations either.
+	 */
+	public function test_render_block_refuses_a_hostile_width() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-WIDTH',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-WIDTH',
+			'format'       => 'QR',
+			'blockWidth'   => '50%;background-image:url(https://evil.example/x.png)',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'evil.example', $result );
+		$this->assertStringNotContainsString( 'max-width', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
 	}
 
 	/**

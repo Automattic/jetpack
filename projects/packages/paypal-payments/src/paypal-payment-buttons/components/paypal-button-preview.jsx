@@ -192,8 +192,8 @@ function ButtonPreview( {
 	const lowestVariantPrice =
 		productPrice === '' && variantsEnabled ? getLowestVariantPrice( variants ) : null;
 	const variantGroups = variantsEnabled ? getVariantGroups( variants, productPrice ) : [];
-	// A blank label would draw an unreadable button, so fall back to the
-	// block.json default, the same as render_api_managed_button() does.
+	// A blank label would draw an unreadable button, so fall back to the same
+	// default render_api_managed_button() uses.
 	const label = `${ buttonText ?? '' }`.trim() || DEFAULT_BUTTON_TEXT;
 
 	return (

@@ -3249,8 +3249,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 
 			it( 'gives the QR a margin control and the button none', async () => {
-				// Create 188 draws margin for the QR; Create 191's button panel is
-				// radius and stroke alone.
+				// Margin belongs to the QR panel only; the button panel is radius
+				// and stroke.
 				const { unmount } = render(
 					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
 				);

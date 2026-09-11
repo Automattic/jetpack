@@ -1,50 +1,35 @@
 /**
  * The canvas half of the style mapping.
  *
- * These mirror PayPal_Payment_Buttons::get_wrapper_style(), which runs the same
- * values through wp_style_engine_get_styles() on the published page. A change
- * here that is not made there puts the canvas back to lying about the output.
+ * Margin and border go through core's own block-support helpers, the JS twin of
+ * the wp_style_engine_get_styles() call render_api_managed_button() makes, so
+ * these assert the shape both sides produce rather than a hand-built one.
  */
 
 import {
 	getCaptionStyle,
 	getWrapperStyle,
-	resolvePreset,
 } from '../../src/paypal-payment-buttons/utils/block-styles';
-
-describe( 'resolvePreset', () => {
-	it( 'expands a preset reference to its CSS variable', () => {
-		// Core stores a chosen preset this way and expands it at render.
-		expect( resolvePreset( 'var:preset|spacing|50' ) ).toBe( 'var(--wp--preset--spacing--50)' );
-		expect( resolvePreset( 'var:preset|color|primary' ) ).toBe(
-			'var(--wp--preset--color--primary)'
-		);
-	} );
-
-	it( 'leaves a plain value alone', () => {
-		expect( resolvePreset( '12px' ) ).toBe( '12px' );
-		expect( resolvePreset( '#ff0000' ) ).toBe( '#ff0000' );
-		expect( resolvePreset( undefined ) ).toBe( '' );
-	} );
-} );
 
 describe( 'getWrapperStyle', () => {
 	it( 'is empty when nothing is configured', () => {
 		expect( getWrapperStyle( {} ) ).toEqual( {} );
 	} );
 
-	it( 'builds a margin shorthand, filling unset sides with 0', () => {
+	it( 'emits a longhand per set side and leaves the rest alone', () => {
+		// The published page emits only the sides that are set, so a shorthand
+		// here would zero-fill the rest and override theme margin it leaves alone.
 		expect(
-			getWrapperStyle( { style: { spacing: { margin: { top: '12px', bottom: '12px' } } } } )
-		).toEqual( { margin: '12px 0 12px 0' } );
+			getWrapperStyle( { style: { spacing: { margin: { left: '8px', right: '8px' } } } } )
+		).toEqual( { marginLeft: '8px', marginRight: '8px' } );
 	} );
 
-	it( 'resolves a spacing preset inside the shorthand', () => {
+	it( 'expands a spacing preset to its CSS variable', () => {
+		// Core stores a chosen preset as `var:preset|spacing|50` and expands it at
+		// render; the published page does the same through the style engine.
 		expect(
-			getWrapperStyle( {
-				style: { spacing: { margin: { top: 'var:preset|spacing|50' } } },
-			} )
-		).toEqual( { margin: 'var(--wp--preset--spacing--50) 0 0 0' } );
+			getWrapperStyle( { style: { spacing: { margin: { top: 'var:preset|spacing|50' } } } } )
+		).toEqual( { marginTop: 'var(--wp--preset--spacing--50)' } );
 	} );
 
 	it( 'takes a per-corner radius as well as a single one', () => {
@@ -52,20 +37,24 @@ describe( 'getWrapperStyle', () => {
 			borderRadius: '8px',
 		} );
 		expect(
-			getWrapperStyle( {
-				style: { border: { radius: { topLeft: '4px', bottomRight: '9px' } } },
-			} )
-		).toEqual( { borderRadius: '4px 0 9px 0' } );
+			getWrapperStyle( { style: { border: { radius: { topLeft: '4px', bottomRight: '9px' } } } } )
+		).toEqual( { borderTopLeftRadius: '4px', borderBottomRightRadius: '9px' } );
 	} );
 
-	it( 'draws no border unless the stroke has both a width and a color', () => {
-		// Without a color the browser falls back to currentColor and draws a
-		// border the merchant never chose.
+	it( 'draws no stroke unless it has both a width and a color', () => {
+		// Half a stroke renders inconsistently — border-style defaults to `none`,
+		// so a width and color with no style would draw nothing on the frontend.
 		expect( getWrapperStyle( { style: { border: { width: '2px' } } } ) ).toEqual( {} );
 		expect( getWrapperStyle( { style: { border: { color: '#ff0000' } } } ) ).toEqual( {} );
 		expect( getWrapperStyle( { style: { border: { width: '2px', color: '#ff0000' } } } ) ).toEqual(
-			{ border: '2px solid #ff0000' }
+			{ borderWidth: '2px', borderColor: '#ff0000', borderStyle: 'solid' }
 		);
+	} );
+
+	it( 'keeps a radius when the stroke is dropped', () => {
+		expect( getWrapperStyle( { style: { border: { width: '2px', radius: '8px' } } } ) ).toEqual( {
+			borderRadius: '8px',
+		} );
 	} );
 
 	it( 'passes the width through with its unit', () => {
@@ -78,13 +67,20 @@ describe( 'getCaptionStyle', () => {
 		expect( getCaptionStyle( {} ) ).toEqual( {} );
 	} );
 
-	it( 'takes a color and a size, including a palette preset', () => {
-		expect(
-			getCaptionStyle( { captionColor: 'var:preset|color|primary', captionFontSize: 20 } )
-		).toEqual( { color: 'var(--wp--preset--color--primary)', fontSize: '20px' } );
+	it( 'takes a color and a size', () => {
+		expect( getCaptionStyle( { captionColor: '#0000ff', captionFontSize: 20 } ) ).toEqual( {
+			color: '#0000ff',
+			fontSize: '20px',
+		} );
 	} );
 
-	it( 'keeps a font size of 0 out rather than emitting 0px', () => {
+	it( 'reads a numeric string, the way the frontend does', () => {
+		// PHP tests the value with is_numeric(), so a string must not render a size
+		// on the published page and nothing in the canvas.
+		expect( getCaptionStyle( { captionFontSize: '20' } ) ).toEqual( { fontSize: '20px' } );
+	} );
+
+	it( 'emits a font size of 0 rather than dropping it', () => {
 		expect( getCaptionStyle( { captionFontSize: 0 } ) ).toEqual( { fontSize: '0px' } );
 	} );
 } );
