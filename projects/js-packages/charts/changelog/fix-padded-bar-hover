@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep bar chart hover tooltips aligned with categories when the scale has outer padding.

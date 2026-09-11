@@ -55,7 +55,7 @@ const findClippingAncestor = ( wrapper: Element ): Element | null => {
  * @param params.offsetTop  - Gap between the anchor and the box, vertically.
  * @param params.box        - Rendered size of the box.
  * @param params.wrapper    - The wrapper's own edges, in wrapper coordinates.
- * @param params.placement  - Fixed below-axis placement or automatic flipping.
+ * @param params.placement  - Below-axis, fixed-top beside placement, or automatic flipping.
  * @param params.bounds     - Edges the box must keep inside, in wrapper coordinates.
  * @return The box's top-left corner; fixed placement preserves the axis's subpixel y.
  */
@@ -103,7 +103,10 @@ export const getBoundedPosition = ( {
 	const upY = top - offsetTop - box.height;
 	const downOverflow = downY + box.height - fit.bottom;
 	const upOverflow = fit.top - upY;
-	let y = downOverflow > 0 && downOverflow > upOverflow ? upY : downY;
+	let y = top;
+	if ( placement !== 'beside' ) {
+		y = downOverflow > 0 && downOverflow > upOverflow ? upY : downY;
+	}
 
 	x = clamp( x, bounds.left, bounds.right, box.width );
 	y = clamp( y, bounds.top, bounds.bottom, box.height );
@@ -133,7 +136,7 @@ export const getBoundedPosition = ( {
  * @param props.style      - Box styles; visx's defaults unless `unstyled`.
  * @param props.unstyled   - Skip `style` and leave the box bare.
  * @param props.children   - Box content.
- * @param props.placement  - Fixed below-axis placement or automatic flipping.
+ * @param props.placement  - Below-axis, fixed-top beside placement, or automatic flipping.
  * @return The tooltip box.
  */
 export const BoundedTooltip = ( {

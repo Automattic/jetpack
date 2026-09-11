@@ -95,7 +95,7 @@ export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './compone
 
 // Previously available via '@automattic/charts/bar-chart', '@automattic/charts/line-chart', etc.
 export type { AreaChartProps } from './charts/area-chart';
-export type { BarChartProps } from './charts/bar-chart';
+export type { BarChartProps, CategoryHighlightSelection } from './charts/bar-chart';
 export type {
 	BarListChartProps,
 	RenderLabelProps,
