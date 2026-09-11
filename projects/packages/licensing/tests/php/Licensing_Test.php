@@ -20,7 +20,8 @@ use WP_Error;
  */
 class Licensing_Test extends BaseTestCase {
 	/**
-	 * Drops the process-wide hooks that initialize() registers, so later tests are unaffected.
+	 * Drops the process-wide hooks configure() and initialize() register, so later tests
+	 * are unaffected.
 	 */
 	protected function tearDown(): void {
 		parent::tearDown();
@@ -438,7 +439,7 @@ class Licensing_Test extends BaseTestCase {
 	 * own assets/images/ directory and keep its trailing slash.
 	 */
 	public function test_add_script_data_exposes_the_package_image_base_url() {
-		$data = ( new Licensing() )->add_script_data( array( 'site' => array( 'title' => 'Example' ) ) );
+		$data = Licensing::add_script_data( array( 'site' => array( 'title' => 'Example' ) ) );
 
 		$this->assertSame(
 			trailingslashit( plugins_url( 'assets/images/', dirname( __DIR__, 2 ) . '/src' ) ),
@@ -462,12 +463,32 @@ class Licensing_Test extends BaseTestCase {
 	/**
 	 * Nothing else registers the filter, so without this wiring the illustrations never get a URL.
 	 */
-	public function test_initialize_registers_the_script_data_filter() {
-		$licensing = new Licensing();
-		$licensing->initialize();
+	public function test_configure_registers_the_script_data_filter() {
+		// actions.php already registered it for the process; start from nothing.
+		remove_all_filters( 'jetpack_admin_js_script_data' );
+
+		Licensing::configure();
 
 		$this->assertNotFalse(
-			has_filter( 'jetpack_admin_js_script_data', array( $licensing, 'add_script_data' ) )
+			has_filter( 'jetpack_admin_js_script_data', array( Licensing::class, 'add_script_data' ) )
 		);
+	}
+
+	/**
+	 * The Jetpack plugin renders the activation screen from its own route and never calls
+	 * initialize(), so the base URL must not depend on it. Moving the filter back into
+	 * initialize() has to turn this red.
+	 */
+	public function test_the_script_data_filter_does_not_depend_on_initialize() {
+		remove_all_filters( 'jetpack_admin_js_script_data' );
+		remove_all_actions( 'rest_api_init' );
+
+		( new Licensing() )->initialize();
+
+		$this->assertFalse(
+			has_filter( 'jetpack_admin_js_script_data', array( Licensing::class, 'add_script_data' ) )
+		);
+		// Witness that initialize() ran at all, so the assertion above cannot pass vacuously.
+		$this->assertNotFalse( has_action( 'rest_api_init' ) );
 	}
 }

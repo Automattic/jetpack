@@ -480,7 +480,8 @@ interface Window {
 		};
 		IDCContainerID: string;
 		adminUrl: string;
-		// Localized on the My Jetpack page only; `assetUrl()` falls back to script data.
+		// Localized on the My Jetpack page only, with a trailing slash; `assetUrl()`
+		// falls back to script data elsewhere.
 		assetsUrl?: string;
 		blogID: string;
 		fileSystemWriteAccess: 'yes' | 'no';

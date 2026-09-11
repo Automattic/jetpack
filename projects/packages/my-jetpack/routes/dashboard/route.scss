@@ -7,6 +7,9 @@
 // wp-build and keeps its own full-viewport rules in _inc/style.module.scss.
 body.jetpack_page_my-jetpack:not(.jetpack-admin-full-screen) {
 
+	// This re-emits jetpack-admin-page-layout, which _inc/style.module.scss also
+	// includes on the same selector at the same specificity. Keep the two in sync:
+	// when they conflict, source order decides, and that order is not guaranteed.
 	@include jetpack-admin-page-layout-wp-build;
 
 	// Matches legacy: onboarding-screen/styles.module.scss has a `:global(body)`

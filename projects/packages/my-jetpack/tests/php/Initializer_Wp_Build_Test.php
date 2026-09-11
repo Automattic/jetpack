@@ -179,4 +179,44 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 		$this->assertTrue( wp_script_is( 'my_jetpack_main_app', 'registered' ) );
 		$this->assertFalse( wp_script_is( Initializer::DATA_SCRIPT_HANDLE, 'registered' ) );
 	}
+
+	/**
+	 * With wp-build loaded, the three state payloads have to move to the data handle —
+	 * the app is a script module there, so the legacy handle never gets printed.
+	 *
+	 * Stubs the render function rather than requiring a built checkout, so this covers
+	 * the branch on CI too.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @return void
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enqueue_scripts_moves_the_state_to_the_data_handle_when_wp_build_loaded() {
+		$_GET['page'] = 'my-jetpack';
+		add_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+
+		// Stands in for the generated build/pages/ render function the flag-on path gates on.
+		require_once __DIR__ . '/stubs/wp-build-render-page.php';
+
+		wp_register_script( 'wp-jp-i18n-loader', 'https://example.org/i18n.js', array(), '1.0.0', true );
+
+		Initializer::enqueue_scripts();
+
+		$this->assertTrue( wp_script_is( Initializer::DATA_SCRIPT_HANDLE, 'registered' ) );
+		$this->assertFalse( wp_script_is( 'my_jetpack_main_app', 'registered' ) );
+
+		// The esbuild bundles don't depend on the loader, so it needs enqueueing by hand.
+		$this->assertTrue( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
+
+		// wp_localize_script() writes to `data`; Connection_Initial_State uses an inline `before`.
+		$localized = wp_scripts()->get_data( Initializer::DATA_SCRIPT_HANDLE, 'data' );
+		$this->assertStringContainsString( 'myJetpackInitialState', $localized );
+		$this->assertStringContainsString( 'myJetpackRest', $localized );
+
+		$before = implode( '', (array) wp_scripts()->get_data( Initializer::DATA_SCRIPT_HANDLE, 'before' ) );
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $before );
+	}
 }
