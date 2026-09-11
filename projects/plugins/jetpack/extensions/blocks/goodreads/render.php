@@ -32,10 +32,10 @@ function get_validated_script_url( $url ) {
 		return '';
 	}
 
-	// Posts saved on WordPress.com Simple store this attribute with encoded ampersands,
-	// which would otherwise parse as `amp;`-prefixed parameter names. The decode table is
-	// limited to & < > " ' and so cannot introduce a path or authority delimiter.
-	$url = wp_specialchars_decode( $url, ENT_QUOTES );
+	// A link whose query separators are HTML-encoded parses as `amp;`-prefixed parameter
+	// names and fails the allowlist below. The decode table cannot produce a path or
+	// authority delimiter, so normalizing here does not widen what is accepted.
+	$url = wp_specialchars_decode( $url );
 
 	if ( str_contains( $url, '\\' ) ) {
 		return '';
