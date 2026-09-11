@@ -929,63 +929,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the help entry point is icon-only until the host opts into the label.
-	 */
-	public function test_help_menu_is_icon_only_by_default() {
-		global $wp_admin_bar;
-
-		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
-		$wp_admin_bar = new \WP_Admin_Bar();
-		$wp_admin_bar->initialize();
-
-		$this->agents_manager->add_help_menu( $wp_admin_bar, false );
-
-		$node = $wp_admin_bar->get_node( 'agents-manager' );
-		$this->assertStringNotContainsString( 'agents-manager-ai-chat-label', $node->title );
-		$this->assertArrayNotHasKey( 'entry_label', $node->meta );
-		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] ?? '' );
-	}
-
-	/**
-	 * Tests that the host filter adds the visible label to the markup and to the client meta.
-	 *
-	 * @param bool $use_disconnected Whether the disconnected variant is rendered.
-	 */
-	#[DataProvider( 'provide_help_menu_label_connection_states' )]
-	public function test_help_menu_renders_the_label_when_filtered_on( $use_disconnected ) {
-		global $wp_admin_bar;
-
-		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
-		$wp_admin_bar = new \WP_Admin_Bar();
-		$wp_admin_bar->initialize();
-
-		add_filter( 'agents_manager_show_help_entry_label', '__return_true' );
-		$this->agents_manager->add_help_menu( $wp_admin_bar, $use_disconnected );
-		remove_filter( 'agents_manager_show_help_entry_label', '__return_true' );
-
-		$node = $wp_admin_bar->get_node( 'agents-manager' );
-		$this->assertStringContainsString(
-			'<span class="agents-manager-ai-chat-label" aria-hidden="true"><span>Get Help</span></span>',
-			$node->title
-		);
-		$this->assertSame( 'Get Help', $node->meta['entry_label'] );
-		// The marker the admin bar script reports `has_label` from.
-		$this->assertStringContainsString( 'has-help-entry-label', $node->meta['class'] );
-		// The accessible name stays the menu title either way.
-		$this->assertSame( 'Help Center', $node->meta['menu_title'] );
-	}
-
-	/**
-	 * Connection states the help node is built for.
-	 */
-	public static function provide_help_menu_label_connection_states() {
-		return array(
-			'connected'    => array( false ),
-			'disconnected' => array( true ),
-		);
-	}
-
-	/**
 	 * Tests that the full UI mount target belongs to the AI chat button rather than Help.
 	 */
 	public function test_ai_chat_button_owns_full_ui_mount_target() {

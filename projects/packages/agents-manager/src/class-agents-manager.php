@@ -99,23 +99,9 @@ class Agents_Manager {
 	public function add_help_menu( $wp_admin_bar, $use_disconnected ) {
 		$wp_admin_bar->remove_node( 'help-center' );
 
-		/**
-		 * Whether the help entry point shows a visible label beside its icon.
-		 *
-		 * Resolved by the host so the label and its experiment assignment have a single
-		 * source; wp-admin and the Calypso omnibar both read what this produces.
-		 *
-		 * @param bool $show_label Whether to render the label. Default false.
-		 */
-		$show_label  = (bool) apply_filters( 'agents_manager_show_help_entry_label', false );
-		$entry_label = __( 'Get Help', 'jetpack-agents-manager' );
-
 		$menu_args = array(
 			'id'     => 'agents-manager',
-			'title'  => '<span title="' . esc_attr__( 'Help Center', 'jetpack-agents-manager' ) . '">' . $this->get_icon( 'help' ) . '</span>'
-				. ( $show_label
-					? '<span class="agents-manager-ai-chat-label" aria-hidden="true"><span>' . esc_html( $entry_label ) . '</span></span>'
-					: '' ),
+			'title'  => '<span title="' . esc_attr__( 'Help Center', 'jetpack-agents-manager' ) . '">' . $this->get_icon( 'help' ) . '</span>',
 			'parent' => 'top-secondary',
 		);
 
@@ -133,13 +119,6 @@ class Agents_Manager {
 				'icon'       => 'help',
 				'class'      => 'menupop',
 			);
-		}
-
-		if ( $show_label ) {
-			$menu_args['meta']['entry_label'] = $entry_label;
-			// A marker the admin bar script reads to report whether the label was shown;
-			// keyed here rather than on the styling class, which is shared and may be renamed.
-			$menu_args['meta']['class'] = trim( ( $menu_args['meta']['class'] ?? '' ) . ' has-help-entry-label' );
 		}
 
 		$wp_admin_bar->add_menu( $menu_args );

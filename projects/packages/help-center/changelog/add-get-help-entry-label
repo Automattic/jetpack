@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin bar: show a "Get Help" label beside the Help Center icon for users in the calypso_help_center_get_help_chat_forward experiment treatment.

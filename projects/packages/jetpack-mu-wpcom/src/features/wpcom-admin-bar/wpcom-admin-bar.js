@@ -17,10 +17,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		} );
 	}
 
-	// The help entry point's impression, the one funnel step wp-admin never reported. Clicks
-	// already arrive as `calypso_inlinehelp_show` from the Agents Manager bundle. The node's
-	// marker class says whether the label was shown; ExPlat holds the assignment itself.
-	const helpEntryPoint = document.querySelector( '#wp-admin-bar-agents-manager' );
+	// The Help Center entry point's impression, the one funnel step wp-admin never reported.
+	// The node's marker class says whether the label was shown; ExPlat holds the assignment.
+	const helpEntryPoint = document.querySelector( '#wp-admin-bar-help-center' );
 	if ( helpEntryPoint ) {
 		wpcomTrackEvent( 'wpcom_adminbar_help_impression', {
 			has_label: helpEntryPoint.classList.contains( 'has-help-entry-label' ),

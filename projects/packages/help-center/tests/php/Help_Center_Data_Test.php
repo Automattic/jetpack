@@ -166,6 +166,62 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertArrayNotHasKey( 'newLoggedOutInteractionsBotSlug', $data );
 	}
 
+	public function test_admin_bar_help_node_is_icon_only_by_default() {
+		$node = $this->render_help_center_admin_bar_node();
+
+		$this->assertNotNull( $node );
+		$this->assertStringNotContainsString( 'help-center-entry-label', $node->title );
+		$this->assertArrayNotHasKey( 'entry_label', $node->meta );
+		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
+	}
+
+	public function test_admin_bar_help_node_shows_the_label_for_the_treatment() {
+		$force_treatment = static function () {
+			return 'treatment';
+		};
+		add_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+
+		try {
+			$node = $this->render_help_center_admin_bar_node();
+		} finally {
+			remove_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+		}
+
+		$this->assertStringContainsString(
+			'<span class="help-center-entry-label" aria-hidden="true"><span>Get Help</span></span>',
+			$node->title
+		);
+		$this->assertSame( 'Get Help', $node->meta['entry_label'] );
+		$this->assertStringContainsString( 'has-help-entry-label', $node->meta['class'] );
+		// The accessible name stays "Help Center".
+		$this->assertStringContainsString( 'title="Help Center"', $node->title );
+	}
+
+	/**
+	 * Registers the wp-admin bundle, runs the admin bar, and returns the Help Center node.
+	 *
+	 * @return \WP_Admin_Bar_Node|null
+	 */
+	private function render_help_center_admin_bar_node() {
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+
+		try {
+			$this->help_center->enqueue_script( 'wp-admin', array(), 'test-version' );
+
+			// Not initialize()d: that looks up the user's blogs, which the node does not need.
+			$wp_admin_bar = new \WP_Admin_Bar();
+			do_action_ref_array( 'admin_bar_menu', array( &$wp_admin_bar ) );
+
+			return $wp_admin_bar->get_node( 'help-center' );
+		} finally {
+			remove_all_actions( 'admin_bar_menu' );
+			wp_dequeue_script( 'help-center' );
+			wp_deregister_script( 'help-center' );
+			wp_dequeue_style( 'help-center-wp-admin-style' );
+			wp_deregister_style( 'help-center-wp-admin-style' );
+		}
+	}
+
 	public function test_consumer_can_load_logged_out_bundle_on_frontend() {
 		wp_set_current_user( 0 );
 		set_transient(

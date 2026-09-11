@@ -256,7 +256,21 @@ class Help_Center {
 		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' || $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
 			add_action(
 				'admin_bar_menu',
-				function ( $wp_admin_bar ) {
+				function ( $wp_admin_bar ) use ( $variant ) {
+					$show_label  = in_array( $variant, array( 'wp-admin', 'gutenberg' ), true ) && $this->should_show_get_help_label();
+					$entry_label = __( 'Get Help', 'jetpack-help-center' );
+					$meta        = array(
+						'html'   => '<div id="help-center-masterbar" />',
+						'class'  => 'menupop',
+						'target' => '_blank',
+					);
+					if ( $show_label ) {
+						// `entry_label` is the client contract for the visible label; the class
+						// lets the admin bar script report whether the label was shown.
+						$meta['entry_label'] = $entry_label;
+						$meta['class']      .= ' has-help-entry-label';
+					}
+
 					$wp_admin_bar->add_menu(
 						array(
 							'id'     => 'help-center',
@@ -267,14 +281,13 @@ class Help_Center {
 												<path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM13 18H11V16H13V18ZM13 13.859V15H11V13C11 12.448 11.448 12 12 12C13.103 12 14 11.103 14 10C14 8.897 13.103 8 12 8C10.897 8 10 8.897 10 10H8C8 7.791 9.791 6 12 6C14.209 6 16 7.791 16 10C16 11.862 14.722 13.413 13 13.859Z" fill="currentColor"/>
 												<circle cx="20" cy="3.5" r="4.3" fill="#e65054" stroke="#1d2327" stroke-width="2"/>
 											</svg>
-										</span>',
+										</span>'
+								. ( $show_label
+									? '<span class="help-center-entry-label" aria-hidden="true"><span>' . esc_html( $entry_label ) . '</span></span>'
+									: '' ),
 							'parent' => 'top-secondary',
 							'href'   => $this->get_help_center_url(),
-							'meta'   => array(
-								'html'   => '<div id="help-center-masterbar" />',
-								'class'  => 'menupop',
-								'target' => '_blank',
-							),
+							'meta'   => $meta,
 						)
 					);
 				},
@@ -321,6 +334,13 @@ class Help_Center {
 			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
 			$version
+		);
+
+		// The "Get Help" label beside the icon; hidden at the admin bar's mobile breakpoint.
+		wp_add_inline_style(
+			'help-center-' . $variant . '-style',
+			'#wpadminbar #wp-admin-bar-help-center .help-center-entry-label{display:inline-block;padding-inline-start:6px;}'
+			. '@media (max-width:782px){#wpadminbar #wp-admin-bar-help-center .help-center-entry-label{display:none;}}'
 		);
 
 		// In the block editor the Help Center is already present in the editor toolbar
@@ -407,6 +427,65 @@ class Help_Center {
 		}
 
 		// Cache the result for 1 hour.
+		set_transient( $cache_key, $result ? 1 : 0, HOUR_IN_SECONDS );
+
+		return $result;
+	}
+
+	/**
+	 * Whether the current user is in the treatment of the "Get Help" chat-forward experiment,
+	 * which labels the Help Center entry point.
+	 *
+	 * Simple sites assign through the native ExPlat helpers; Atomic sites fetch the assignment
+	 * over the connected-user endpoint. Rendering the entry point is the exposure, so this
+	 * assigns rather than only reads. Cached per user for an hour, like is_menu_panel_enabled().
+	 *
+	 * @return bool
+	 */
+	private function should_show_get_help_label() {
+		$experiment_name      = 'calypso_help_center_get_help_chat_forward';
+		$experiment_variation = 'treatment';
+
+		/**
+		 * Overrides the resolved variation (testing / manual QA). Return a variation name, or null to use ExPlat.
+		 *
+		 * @param string|null $override The forced variation, or null.
+		 */
+		$override = apply_filters( 'wpcom_help_center_get_help_label_variation', null );
+		if ( null !== $override ) {
+			return $experiment_variation === $override;
+		}
+
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$cache_key     = 'help-center-get-help-label-' . $user_id . '-' . $experiment_name;
+		$cached_result = get_transient( $cache_key );
+		if ( false !== $cached_result ) {
+			return (bool) $cached_result;
+		}
+
+		$result = false;
+
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			// The \ExPlat\ helpers live in wpcom, outside this monorepo, so Phan can't see them.
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			$result = $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
+		} elseif ( $this->wpcom_request_client->is_user_connected() ) {
+			$request_path = '/experiments/0.1.0/assignments/wpcom';
+			$response     = $this->wpcom_request_client->request(
+				add_query_arg( array( 'experiment_names' => $experiment_name ), $request_path ),
+				'v2'
+			);
+
+			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+				$data   = json_decode( wp_remote_retrieve_body( $response ), true );
+				$result = $experiment_variation === ( $data['variations'][ $experiment_name ] ?? null );
+			}
+		}
+
 		set_transient( $cache_key, $result ? 1 : 0, HOUR_IN_SECONDS );
 
 		return $result;

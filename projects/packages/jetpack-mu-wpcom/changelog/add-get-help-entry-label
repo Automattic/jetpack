@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Admin bar: show the "Get Help" label on the help entry point for users in the calypso_help_center_get_help_chat_forward experiment treatment, and record an impression when that entry point renders.
+Admin bar: record an impression when the Help Center entry point renders, noting whether it carried the "Get Help" label.
