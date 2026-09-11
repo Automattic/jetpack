@@ -36,6 +36,13 @@ class Protected_Owner_Test extends TestCase {
 	private $owner_id;
 
 	/**
+	 * Manager supplying the connection's capability mapping.
+	 *
+	 * @var Manager
+	 */
+	private $caps_manager;
+
+	/**
 	 * Initialize the testing environment.
 	 */
 	public function setUp(): void {
@@ -50,6 +57,9 @@ class Protected_Owner_Test extends TestCase {
 			)
 		);
 		wp_set_current_user( 0 );
+
+		$this->caps_manager = new Manager();
+		add_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1, 4 );
 	}
 
 	/**
@@ -57,6 +67,7 @@ class Protected_Owner_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
+		remove_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1 );
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_connection_ownership_transferable' );
@@ -124,6 +135,34 @@ class Protected_Owner_Test extends TestCase {
 		}
 
 		return $manager;
+	}
+
+	/**
+	 * Act as the connection owner, an administrator, who holds the capability the setters need.
+	 */
+	private function act_as_administrator() {
+		wp_set_current_user( $this->owner_id );
+	}
+
+	/**
+	 * Create a user in a role to act as, or 0 for nobody logged in.
+	 *
+	 * @param string|null $role The role to create, or null for no user at all.
+	 * @return int The user ID, or 0.
+	 */
+	private function actor( $role ) {
+		if ( null === $role ) {
+			return 0;
+		}
+
+		return wp_insert_user(
+			array(
+				'user_login' => 'actor_' . $role,
+				'user_pass'  => 'pass',
+				'user_email' => 'actor_' . $role . '@example.com',
+				'role'       => $role,
+			)
+		);
 	}
 
 	/**
@@ -338,6 +377,8 @@ class Protected_Owner_Test extends TestCase {
 	 * Anchoring a confirmed administrator locks the anchor and promotes them.
 	 */
 	public function test_set_protected_owner_writes_the_anchor_and_promotes_the_owner() {
+		$this->act_as_administrator();
+
 		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
 
 		$this->assertTrue( $manager->set_protected_owner( $this->owner_id, 'recovery' ) );
@@ -371,6 +412,8 @@ class Protected_Owner_Test extends TestCase {
 			)
 		);
 
+		$this->act_as_administrator();
+
 		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->never() );
 		$result  = $manager->set_protected_owner( $subscriber, 'popup' );
 
@@ -383,6 +426,8 @@ class Protected_Owner_Test extends TestCase {
 	 * An identity WordPress.com cannot confirm is never anchored.
 	 */
 	public function test_set_protected_owner_rejects_an_unconfirmed_identity() {
+		$this->act_as_administrator();
+
 		$manager = $this->manager( $this->owner_id, false );
 		$result  = $manager->set_protected_owner( $this->owner_id, 'popup' );
 
@@ -440,6 +485,8 @@ class Protected_Owner_Test extends TestCase {
 	 * Provenance that sanitizes away is not provenance, and is refused rather than stored blank.
 	 */
 	public function test_set_protected_owner_rejects_provenance_that_sanitizes_to_nothing() {
+		$this->act_as_administrator();
+
 		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->never() );
 		$result  = $manager->set_protected_owner( $this->owner_id, '!!!' );
 
@@ -453,6 +500,8 @@ class Protected_Owner_Test extends TestCase {
 	 * moved with nothing locking it, and the caller would have been told it worked.
 	 */
 	public function test_set_protected_owner_does_not_promote_when_the_anchor_cannot_be_stored() {
+		$this->act_as_administrator();
+
 		$block = static function ( $value, $old_value ) {
 			return $old_value;
 		};
@@ -475,12 +524,71 @@ class Protected_Owner_Test extends TestCase {
 	public function test_clear_protected_owner_removes_the_anchor_and_leaves_the_owner_alone() {
 		$this->anchor();
 		Jetpack_Options::update_option( 'master_user', $this->owner_id );
+		$this->act_as_administrator();
 
-		( new Manager() )->clear_protected_owner();
+		$this->assertTrue( ( new Manager() )->clear_protected_owner() );
 
 		$this->assertNull( Protected_Owner::get() );
 		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
 		$this->assertTrue( ( new Manager() )->is_ownership_transferable() );
+	}
+
+	/**
+	 * Establishing a protected owner needs permission to manage the connection, and refuses
+	 * before it looks anything up — so an unauthorized caller cannot use the argument errors to
+	 * learn which users are administrators or hold a token.
+	 *
+	 * @dataProvider unauthorized_actors
+	 *
+	 * @param string|null $role The role to act as, or null for nobody logged in.
+	 */
+	#[DataProvider( 'unauthorized_actors' )]
+	public function test_set_protected_owner_refuses_an_unauthorized_actor( $role ) {
+		wp_set_current_user( $this->actor( $role ) );
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->never() );
+		$result  = $manager->set_protected_owner( $this->owner_id, 'popup' );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_forbidden', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertFalse( Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * Actors who cannot manage the connection. Nobody logged in covers WP-CLI and cron.
+	 *
+	 * @return array
+	 */
+	public static function unauthorized_actors() {
+		return array(
+			'nobody logged in' => array( null ),
+			'a subscriber'     => array( 'subscriber' ),
+			'an editor'        => array( 'editor' ),
+		);
+	}
+
+	/**
+	 * Releasing the lock needs the same permission as taking it.
+	 */
+	public function test_clear_protected_owner_refuses_an_unauthorized_actor() {
+		$this->anchor();
+		wp_set_current_user( $this->actor( 'subscriber' ) );
+
+		$result = ( new Manager() )->clear_protected_owner();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_forbidden', $result->get_error_code() );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The lock must survive a refused clear.' );
+	}
+
+	/**
+	 * An anchor already absent is the state the caller asked for, so clearing again succeeds.
+	 */
+	public function test_clear_protected_owner_succeeds_when_there_is_no_anchor() {
+		$this->act_as_administrator();
+
+		$this->assertTrue( ( new Manager() )->clear_protected_owner() );
 	}
 
 	// ── anchor shape ─────────────────────────────────────────────────────
