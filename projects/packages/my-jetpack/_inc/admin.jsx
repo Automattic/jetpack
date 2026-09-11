@@ -8,12 +8,12 @@ import { createRoot } from '@wordpress/element';
 import App from './app';
 import OnboardingScreen from './components/onboarding-screen';
 import Providers from './providers';
+import './design-tokens.scss';
 
 const MyJetpack = () => {
 	const container = document.getElementById( 'my-jetpack-container' );
 
-	// The onboarding takeover is legacy-only: it hides all wp-admin chrome and
-	// never renders through wp-build, so it stays behind this entry's container.
+	// Legacy-only; see Initializer::is_onboarding_takeover().
 	if ( container?.dataset?.route === 'onboarding' ) {
 		return (
 			<Providers>

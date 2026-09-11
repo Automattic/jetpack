@@ -24,8 +24,7 @@ class Connection_Assets_Test extends TestCase {
 	}
 
 	/**
-	 * The disconnect dialog appends file names to this base, so it has to address the package's
-	 * own assets/images/ directory and keep its trailing slash.
+	 * Covers the disconnect dialog's image base URL.
 	 */
 	public function test_add_script_data_exposes_the_package_image_base_url() {
 		$data = Connection_Assets::add_script_data( array( 'site' => array( 'title' => 'Example' ) ) );
@@ -39,8 +38,7 @@ class Connection_Assets_Test extends TestCase {
 	}
 
 	/**
-	 * The files the base URL addresses must exist in the package, since nothing bundles them
-	 * any more and a missing one would only surface as a broken image in the browser.
+	 * The disconnect dialog's illustrations ship in the package.
 	 */
 	public function test_the_addressed_images_are_committed_to_the_package() {
 		$images = dirname( __DIR__, 2 ) . '/assets/images/';
@@ -50,8 +48,7 @@ class Connection_Assets_Test extends TestCase {
 	}
 
 	/**
-	 * Initial_State::set_connection_script_data() replaces the whole `connection` key, so the
-	 * base URL has to be added after it or it is silently dropped.
+	 * Covers the filter order against Initial_State::set_connection_script_data().
 	 */
 	public function test_the_image_base_url_survives_the_connection_state_filter() {
 		remove_all_filters( 'jetpack_admin_js_script_data' );

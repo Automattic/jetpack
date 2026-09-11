@@ -102,12 +102,38 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Register stubs for the legacy bundle's build-time dependencies.
+	 * The alias only has to hold for wp-build's enqueue check.
 	 *
-	 * WordPress notices when a script is enqueued against unregistered
-	 * dependencies, and `failOnNotice` turns that into a failure. The list comes
-	 * from the built asset file, so read it rather than hard-coding it — an
-	 * unbuilt checkout (CI) declares none.
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @return void
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_alias_screen_id_ends_after_the_wp_build_enqueue_check() {
+		set_current_screen( 'jetpack_page_my-jetpack' );
+		Initializer::alias_screen_id_for_wp_build( get_current_screen() );
+
+		// Stands in for the generated check, which hooks the default priority.
+		$id_during_enqueue = null;
+		add_action(
+			'admin_enqueue_scripts',
+			static function () use ( &$id_during_enqueue ) {
+				$id_during_enqueue = get_current_screen()->id;
+			}
+		);
+
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_my-jetpack' );
+
+		$this->assertSame( 'my-jetpack-dashboard', $id_during_enqueue );
+		$this->assertSame( 'jetpack_page_my-jetpack', get_current_screen()->id );
+	}
+
+	/**
+	 * Stub the built bundle's dependencies, or `failOnNotice` fails the enqueue.
+	 *
+	 * Unbuilt checkouts (CI) declare none.
 	 *
 	 * @return void
 	 */
@@ -129,7 +155,7 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 
 	/**
 	 * With the flag off, every site keeps the legacy bundle. This is the safety
-	 * property all nine bundling plugins depend on.
+	 * property every bundling plugin depends on.
 	 *
 	 * Runs isolated: enqueue_scripts() makes a real is_connected() call, which sets
 	 * a process-wide flag WorDBless teardown cannot reset (see Initializer_Test).
@@ -152,12 +178,8 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A flag that turns on after the loader already ran must not cost the request
-	 * its legacy bundle: wp-build is not loaded, so nothing would render.
-	 *
-	 * This is what the `function_exists()` term in enqueue_scripts() buys. Removing
-	 * it must turn this test red. Boost reaches the same shape from its own page,
-	 * where it declares `my_jetpack_main_app` a hard dependency of its dashboard.
+	 * A flag added after admin_menu must not cost the request its legacy bundle;
+	 * Boost depends on that handle.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
