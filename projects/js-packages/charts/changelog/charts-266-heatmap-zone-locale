@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Heatmap: add `locale` and `timeZone` options and a `useCalendarHeatmapData` hook, so a host can bucket and label the calendar in its own zone and language instead of the viewer's. Labels with no `locale` now follow the runtime locale rather than always rendering in English, and a calendar `dateString` must start `yyyy-MM-dd`.
