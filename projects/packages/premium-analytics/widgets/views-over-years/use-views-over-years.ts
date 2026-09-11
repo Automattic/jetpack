@@ -3,13 +3,16 @@
  */
 import { useStatsVisits, type StatsVisitsParams } from '@jetpack-premium-analytics/data';
 import { localTZDate } from '@jetpack-premium-analytics/datetime';
+import type {
+	MonthlyHeatmapMetric,
+	MonthlyHeatmapRow,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildViewsOverYearsRows, type ViewsOverYearsMetric } from './build-views-over-years';
-import type { MonthlyHeatmapRow } from '@jetpack-premium-analytics/widgets-toolkit';
+import { buildViewsOverYearsRows } from './build-views-over-years';
 
 // Before any WordPress.com site existed. The endpoint walks no further back
 // than the site's own registration, so this costs nothing beyond its history.
@@ -32,7 +35,7 @@ export interface ViewsOverYearsState {
  * @param metric - Which number each cell reports.
  * @return The rows and the request's state.
  */
-export default function useViewsOverYears( metric: ViewsOverYearsMetric ): ViewsOverYearsState {
+export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): ViewsOverYearsState {
 	// Read in the site timezone so the months fall on the site's own calendar;
 	// one reading, so a render across midnight cannot split the window and the rows.
 	const today = format( localTZDate(), 'yyyy-MM-dd' );

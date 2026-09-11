@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { buildViewsOverYearsRows, resolveMetric } from '../build-views-over-years';
+import { buildViewsOverYearsRows } from '../build-views-over-years';
 
 // Month buckets the way the sanitizer labels them, including the zero months
 // the endpoint pads back to the requested start.
@@ -125,14 +125,5 @@ describe( 'buildViewsOverYearsRows', () => {
 
 		expect( rows.map( row => row.year ) ).toEqual( [ 2026 ] );
 		expect( rows[ 0 ].months ).not.toContain( 999 );
-	} );
-} );
-
-describe( 'resolveMetric', () => {
-	it( 'reads anything but average as the total', () => {
-		expect( resolveMetric( 'average' ) ).toBe( 'average' );
-		expect( resolveMetric( 'total' ) ).toBe( 'total' );
-		expect( resolveMetric( undefined ) ).toBe( 'total' );
-		expect( resolveMetric( 'median' ) ).toBe( 'total' );
 	} );
 } );

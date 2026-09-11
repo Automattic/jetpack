@@ -1,32 +1,16 @@
 /**
  * External dependencies
  */
-import type { MonthlyHeatmapRow } from '@jetpack-premium-analytics/widgets-toolkit';
-
-const MONTHS_IN_YEAR = 12;
-
-/** Which number each cell reports: the month's views, or its views per day. */
-export type ViewsOverYearsMetric = 'total' | 'average';
-
-export const DEFAULT_METRIC: ViewsOverYearsMetric = 'total';
-
-/**
- * The metric a stored instance names; anything that is not one reads as the default.
- *
- * @param value - The raw `metric` attribute.
- * @return The metric to draw.
- */
-export function resolveMetric( value: unknown ): ViewsOverYearsMetric {
-	return value === 'average' ? 'average' : DEFAULT_METRIC;
-}
-
-/** A calendar month; `month` is zero-based, as `Date` counts it. */
-export type MonthKey = { year: number; month: number };
+import {
+	MONTHS_IN_YEAR,
+	monthOrder,
+	type MonthKey,
+	type MonthlyHeatmapMetric,
+	type MonthlyHeatmapRow,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 /** One `stats/visits` month bucket: its first day and its views. */
 export type MonthBucket = { date: string; views: number };
-
-const monthOrder = ( { year, month }: MonthKey ) => year * MONTHS_IN_YEAR + month;
 
 /** The bucket's month, from a `yyyy-MM` or `yyyy-MM-dd` label. */
 function readMonthKey( date: string ): MonthKey | null {
@@ -63,7 +47,7 @@ function daysCovered( key: MonthKey, today: MonthKey & { day: number } ): number
  */
 export function buildViewsOverYearsRows(
 	buckets: MonthBucket[],
-	metric: ViewsOverYearsMetric,
+	metric: MonthlyHeatmapMetric,
 	today: MonthKey & { day: number }
 ): MonthlyHeatmapRow[] {
 	const viewsByOrder = new Map< number, number >();
@@ -72,10 +56,9 @@ export function buildViewsOverYearsRows(
 		const key = readMonthKey( bucket.date );
 
 		if ( key ) {
-			viewsByOrder.set(
-				monthOrder( key ),
-				( viewsByOrder.get( monthOrder( key ) ) ?? 0 ) + bucket.views
-			);
+			const order = monthOrder( key );
+
+			viewsByOrder.set( order, ( viewsByOrder.get( order ) ?? 0 ) + bucket.views );
 		}
 	}
 
