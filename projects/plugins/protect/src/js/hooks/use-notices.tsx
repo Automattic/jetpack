@@ -10,7 +10,7 @@ interface NoticeState {
 	message?: string | JSX.Element;
 	spokenMessage?: string;
 	// Stamped by the provider on every notice, so an identical repeat still announces.
-	id?: number;
+	noticeId?: number;
 	dismissable?: boolean;
 	duration?: number;
 	type?: 'success' | 'info' | 'warning' | 'error';
@@ -21,7 +21,7 @@ interface NoticeContextValue {
 	setNotice: Dispatch< SetStateAction< NoticeState > >;
 }
 
-let noticeId = 0;
+let lastNoticeId = 0;
 
 const NoticeContext = createContext< NoticeContextValue | undefined >( undefined );
 
@@ -29,11 +29,11 @@ export const NoticeProvider: FC< { children: ReactNode } > = ( { children } ) =>
 	const [ notice, setNoticeState ] = useState< NoticeState >( null );
 
 	const setNotice: Dispatch< SetStateAction< NoticeState > > = useCallback( value => {
-		const id = ++noticeId;
+		const noticeId = ++lastNoticeId;
 
 		setNoticeState( previous => {
 			const next = 'function' === typeof value ? value( previous ) : value;
-			return next ? { ...next, id } : next;
+			return next ? { ...next, noticeId } : next;
 		} );
 	}, [] );
 
@@ -90,8 +90,7 @@ export default function useNotices() {
 				type: 'error',
 				dismissable: true,
 				// The same translated string, minus the one interpolation tag it carries.
-				// Named rather than generic: a `<[^>]+>` strip reads as HTML sanitization
-				// and CodeQL flags it, though nothing here ever reaches innerHTML.
+				// Strip it by name: a generic tag strip trips CodeQL's sanitization rule.
 				spokenMessage: `${ error } ${ advice.replace( /<\/?supportLink>/g, '' ) }`,
 				message: (
 					<>

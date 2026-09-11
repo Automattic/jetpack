@@ -17,8 +17,8 @@ const Notice = ( {
 	dismissable = false,
 	duration = null,
 	floating = false,
-	id = 0,
 	message,
+	noticeId = 0,
 	spokenMessage,
 	type = 'success',
 } ) => {
@@ -30,13 +30,13 @@ const Notice = ( {
 
 	const spoken = spokenMessage ?? ( 'string' === typeof message ? message : null );
 
-	// Keyed on the notice, not the message: `Notice.Root` announces only when the value
-	// it is handed changes, so an identical repeat would never announce twice.
+	// Keyed on `noticeId`: effect deps compare by value, so an identical repeat would not re-fire.
 	useEffect( () => {
+		// Toast only: notices rendered inside a modal are not announced today.
 		if ( floating && 'string' === typeof spoken ) {
 			speak( spoken, 'error' === type ? 'assertive' : 'polite' );
 		}
-	}, [ id, floating, spoken, type ] );
+	}, [ noticeId, floating, spoken, type ] );
 
 	/**
 	 * Clears the notice automatically after {duration} milliseconds.
@@ -49,7 +49,7 @@ const Notice = ( {
 		}
 
 		return () => clearTimeout( timeout );
-	}, [ clearNotice, duration, id ] );
+	}, [ clearNotice, duration, noticeId ] );
 
 	return (
 		<WPNotice.Root
@@ -59,8 +59,8 @@ const Notice = ( {
 				styles[ `notice--${ type }` ],
 				floating && styles[ 'notice--floating' ]
 			) }
-			// Always null, never undefined: the default is the children, which
-			// `Notice.Root` renders mid-render, corrupting hook order on a JSX message.
+			// Null, not omitted: the default is the children, which `Notice.Root` serializes
+			// mid-render, corrupting hook order. Drop with the prop (WordPress/gutenberg#82737).
 			spokenMessage={ null }
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
