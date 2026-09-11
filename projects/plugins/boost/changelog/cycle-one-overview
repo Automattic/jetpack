@@ -1,3 +1,3 @@
 Significance: patch
 Type: changed
-Comment: Add Overview presentation behind the disabled modern dashboard filter.
+Comment: Add disabled modern Overview presentation and shared dashboard event registration.
