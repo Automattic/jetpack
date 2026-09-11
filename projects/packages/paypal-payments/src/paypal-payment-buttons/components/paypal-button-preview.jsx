@@ -152,12 +152,6 @@ function QrPreview( {
 					{ caption }
 				</p>
 			) }
-			{ /* TODO: the QR branch of render_api_managed_button() still prints
-			     "Powered by PayPal" under the code, so a published QR shows a line
-			     the canvas does not. The design drops it for QR — Julian,
-			     2026-09-11 — and the frontend follows in a later pass, together
-			     with the Show "Powered by PayPal" checkbox that is blocked on
-			     whether PayPal's terms require the mark. */ }
 		</div>
 	);
 }

@@ -147,15 +147,21 @@ async function connectThroughWizard( page, canvas ) {
 /**
  * Fill in the button creation form.
  *
- * @param {import('@playwright/test').FrameLocator|import('@playwright/test').Page} canvas        - The editor canvas (iframe or page).
- * @param {object}                                                                  options       - Form field values.
- * @param {string}                                                                  options.name  - Product name.
- * @param {string}                                                                  options.price - Product price.
+ * The product form lives in `InspectorControls`, so it is portalled to the
+ * sidebar in the top document — none of it is inside the editor-canvas iframe.
+ *
+ * @param {import('@playwright/test').Page} page          - Playwright page instance.
+ * @param {object}                          options       - Form field values.
+ * @param {string}                          options.name  - Product name.
+ * @param {string}                          options.price - Product price.
  */
-async function fillButtonForm( canvas, { name = 'Test Product', price = '29.99' } = {} ) {
-	const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-	await block.locator( 'input[placeholder="e.g., Premium Widget"]' ).fill( name );
-	await block.locator( 'input[placeholder="29.99"]' ).fill( price );
+async function fillButtonForm( page, { name = 'Test Product', price = '29.99' } = {} ) {
+	const sidebar = page.locator( '.interface-complementary-area' );
+	await expect( sidebar.locator( 'input[placeholder="e.g., Premium Widget"]' ) ).toBeVisible( {
+		timeout: 10000,
+	} );
+	await sidebar.locator( 'input[placeholder="e.g., Premium Widget"]' ).fill( name );
+	await sidebar.locator( 'input[placeholder="29.99"]' ).fill( price );
 }
 
 /**
@@ -483,7 +489,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
 
-			await fillButtonForm( canvas, { name: 'Test Product', price: '29.99' } );
+			await fillButtonForm( page, { name: 'Test Product', price: '29.99' } );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 			await expect( page.locator( '.jetpack-paypal-payment-buttons__form-actions' ) ).toContainText(
@@ -510,7 +516,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
-			await fillButtonForm( canvas, { name: 'Frontend Widget', price: '19.99' } );
+			await fillButtonForm( page, { name: 'Frontend Widget', price: '19.99' } );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
@@ -606,7 +612,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
-			await fillButtonForm( canvas );
+			await fillButtonForm( page );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
@@ -783,7 +789,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
-			await fillButtonForm( canvas );
+			await fillButtonForm( page );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
@@ -852,7 +858,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
-			await fillButtonForm( canvas );
+			await fillButtonForm( page );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
@@ -1266,7 +1272,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
-			await fillButtonForm( canvas );
+			await fillButtonForm( page );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
@@ -1294,7 +1300,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
 			// Fill the form first: it is the Settings tab, and opening Styles unmounts it.
-			await fillButtonForm( canvas, { name: 'Link Widget', price: '5.00' } );
+			await fillButtonForm( page, { name: 'Link Widget', price: '5.00' } );
 
 			const switcher = await openFormatSwitcher( page, block );
 			await switcher.selectOption( 'LINK' );
@@ -1327,7 +1333,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 
-			await fillButtonForm( canvas, { name: 'QR Widget', price: '15.00' } );
+			await fillButtonForm( page, { name: 'QR Widget', price: '15.00' } );
 
 			const switcher = await openFormatSwitcher( page, block );
 			await switcher.selectOption( 'QR' );
@@ -1351,7 +1357,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
-			await fillButtonForm( canvas, { name: 'Format Switch Test', price: '25.00' } );
+			await fillButtonForm( page, { name: 'Format Switch Test', price: '25.00' } );
 
 			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
 			await page.getByRole( 'button', { name: 'Save draft' } ).click();
