@@ -121,30 +121,37 @@ describe( 'BarChart', () => {
 			await waitFor( () => expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Jan 1' ) );
 		} );
 
-		test( 'selects the tall grouped bar when hovering near its base', async () => {
-			renderWithTheme( {
-				withTooltips: true,
-				data: [
-					{
-						label: 'Series A',
-						data: [
-							{ label: 'Jan 1', value: 100 },
-							{ label: 'Jan 2', value: 100 },
-						],
-					},
-					{
-						label: 'Series B',
-						data: [
-							{ label: 'Jan 1', value: 10 },
-							{ label: 'Jan 2', value: 10 },
-						],
-					},
-				],
-			} );
-			const [ [ x, y, width, height ] ] = barGeometry();
-			hover( x + width / 2, y + height - 2 );
-			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( 'Series A' );
-		} );
+		test.each( [ 'vertical', 'horizontal' ] )(
+			'selects the long grouped bar near its base in a %s chart',
+			async orientation => {
+				renderWithTheme( {
+					withTooltips: true,
+					orientation,
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ label: 'Jan 1', value: 100 },
+								{ label: 'Jan 2', value: 100 },
+							],
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ label: 'Jan 1', value: 10 },
+								{ label: 'Jan 2', value: 10 },
+							],
+						},
+					],
+				} );
+				const [ [ x, y, width, height ] ] = barGeometry();
+				hover(
+					orientation === 'horizontal' ? x + 2 : x + width / 2,
+					orientation === 'horizontal' ? y + height / 2 : y + height - 2
+				);
+				await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( 'Series A' );
+			}
+		);
 	} );
 
 	test( 'reports category bounds without drawing an overlay and clears them on Escape', async () => {
