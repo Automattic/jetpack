@@ -1,0 +1,429 @@
+@use "$css/main/variables";
+
+// PROTOTYPE — THROWAWAY. See loading-filmstrip.tsx.
+
+.filmstrip {
+	background: variables.$primary-white;
+	border: 1px solid variables.$gray_5;
+	border-radius: variables.$border-radius;
+	padding: variables.$halfling;
+	margin-block-start: variables.$halfling;
+}
+
+.header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: variables.$spacing-unit;
+}
+
+.title {
+	display: flex;
+	align-items: center;
+	gap: variables.$spacing-unit;
+	margin: 0;
+	font-size: 18px;
+	color: variables.$gray_90;
+}
+
+.badge {
+	background: variables.$jetpack_green_0;
+	color: variables.$jetpack_green_70;
+	border-radius: 2px;
+	padding: 2px 6px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.caption {
+	margin: 4px 0 0;
+	color: variables.$gray_60;
+	font-size: 13px;
+	max-inline-size: 70ch;
+}
+
+.devices {
+	display: flex;
+	border: 1px solid variables.$gray_5;
+	border-radius: variables.$border-radius;
+	overflow: hidden;
+}
+
+.device,
+.device-active {
+	appearance: none;
+	border: 0;
+	cursor: pointer;
+	padding: 6px 14px;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.device {
+	background: variables.$primary-white;
+	color: variables.$gray_60;
+}
+
+.device-active {
+	background: variables.$gray_0;
+	color: variables.$gray_90;
+	font-weight: 600;
+}
+
+.summary {
+	margin: variables.$halfling 0 0;
+	color: variables.$gray_90;
+	font-size: 15px;
+}
+
+// --- Player -----------------------------------------------------------------
+
+.player {
+	margin-block-start: variables.$halfling;
+	background: variables.$gray_0;
+	border: 1px solid variables.$gray_5;
+	border-radius: variables.$border-radius;
+	padding: variables.$halfling;
+}
+
+.screens {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	gap: variables.$padding;
+}
+
+.screen {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	min-inline-size: 0;
+}
+
+.screen-label {
+	font-size: 14px;
+	font-weight: 600;
+	color: variables.$gray_90;
+}
+
+.screen-state {
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+	color: variables.$gray_50;
+}
+
+.stage,
+.stage-portrait {
+	background: variables.$primary-white;
+	border: 1px solid variables.$gray_10;
+	border-radius: 6px;
+	overflow: hidden;
+	box-shadow: 0 1px 3px rgb(0 0 0 / 12%);
+
+	img {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: cover;
+		object-position: top center;
+	}
+}
+
+.stage {
+	inline-size: 420px;
+	max-inline-size: 100%;
+}
+
+.stage-portrait {
+	inline-size: 230px;
+	max-inline-size: 100%;
+}
+
+// --- Transport --------------------------------------------------------------
+
+.transport {
+	display: flex;
+	align-items: center;
+	gap: variables.$halfling;
+	margin-block-start: variables.$halfling;
+}
+
+.play-button {
+	appearance: none;
+	flex: 0 0 auto;
+	inline-size: 44px;
+	block-size: 44px;
+	border: 0;
+	border-radius: 50%;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: variables.$gray_90;
+	color: variables.$primary-white;
+	padding-inline-start: 2px; // optically centre the play triangle
+
+	&:hover {
+		background: variables.$gray_100;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--wp-admin-theme-color);
+		outline-offset: 2px;
+	}
+}
+
+.timecode {
+	flex: 0 0 auto;
+	font-size: 13px;
+	font-variant-numeric: tabular-nums;
+	color: variables.$gray_90;
+	min-inline-size: 96px;
+}
+
+.timecode-total {
+	color: variables.$gray_30;
+}
+
+.track-wrap {
+	position: relative;
+	flex: 1;
+	min-inline-size: 0;
+	block-size: 34px;
+	display: flex;
+	align-items: center;
+}
+
+.track {
+	position: absolute;
+	inset-inline: 0;
+	block-size: 6px;
+	border-radius: 3px;
+	background: variables.$gray_10;
+	overflow: hidden;
+}
+
+.track-fill {
+	block-size: 100%;
+	background: variables.$jetpack_green_40;
+}
+
+// The real control sits over the painted track, keeping keyboard and drag
+// behaviour intact.
+.scrubber {
+	position: relative;
+	inline-size: 100%;
+	margin: 0;
+	background: transparent;
+	appearance: none;
+	block-size: 34px;
+
+	&::-webkit-slider-runnable-track {
+		background: transparent;
+		block-size: 6px;
+	}
+
+	&::-moz-range-track {
+		background: transparent;
+		block-size: 6px;
+	}
+
+	&::-webkit-slider-thumb {
+		appearance: none;
+		inline-size: 14px;
+		block-size: 14px;
+		border-radius: 50%;
+		background: variables.$gray_90;
+		border: 2px solid variables.$primary-white;
+		margin-block-start: -4px;
+		cursor: pointer;
+	}
+
+	&::-moz-range-thumb {
+		inline-size: 14px;
+		block-size: 14px;
+		border-radius: 50%;
+		background: variables.$gray_90;
+		border: 2px solid variables.$primary-white;
+		cursor: pointer;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--wp-admin-theme-color);
+		outline-offset: 2px;
+	}
+}
+
+.pips-above,
+.pips-below {
+	position: absolute;
+	inset-inline: 0;
+	block-size: 8px;
+}
+
+.pips-above {
+	inset-block-start: 2px;
+}
+
+.pips-below {
+	inset-block-end: 2px;
+}
+
+.pip {
+	position: absolute;
+	inline-size: 2px;
+	block-size: 8px;
+	background: currentColor;
+	border-radius: 1px;
+}
+
+.legend {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: variables.$halfling;
+	margin: variables.$spacing-unit 0 0;
+	font-size: 12px;
+	color: variables.$gray_60;
+}
+
+.legend-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.legend-dot {
+	inline-size: 8px;
+	block-size: 8px;
+	border-radius: 2px;
+	background: currentColor;
+}
+
+.legend-note {
+	color: variables.$gray_50;
+	font-style: italic;
+}
+
+.tone-fcp {
+	color: variables.$blue_50;
+}
+
+.tone-lcp {
+	color: variables.$jetpack_green_50;
+}
+
+.tone-load {
+	color: variables.$gray_50;
+}
+
+// --- Frame-by-frame disclosure ----------------------------------------------
+
+.disclosure {
+	appearance: none;
+	background: none;
+	border: 0;
+	padding: 0;
+	margin-block-start: variables.$halfling;
+	cursor: pointer;
+	font-size: 13px;
+	color: var(--wp-admin-theme-color);
+	text-decoration: underline;
+
+	&:focus-visible {
+		outline: 2px solid var(--wp-admin-theme-color);
+		outline-offset: 2px;
+	}
+}
+
+.frames {
+	margin-block-start: variables.$spacing-unit;
+}
+
+.row {
+	margin-block-start: variables.$halfling;
+}
+
+.row-label {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: variables.$spacing-unit;
+	margin: 0 0 6px;
+	font-size: 13px;
+	font-weight: 600;
+	color: variables.$gray_90;
+}
+
+.row-metrics {
+	font-weight: 400;
+	font-variant-numeric: tabular-nums;
+	color: variables.$gray_60;
+}
+
+// Equal columns spanning the full width, so both rows and the axis line up.
+.strip,
+.axis {
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: 1fr;
+	gap: variables.$spacing-unit;
+}
+
+.thumb,
+.thumb-active {
+	appearance: none;
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	display: block;
+	min-inline-size: 0;
+}
+
+.thumb-image {
+	display: block;
+	inline-size: 100%;
+	block-size: 118px;
+	overflow: hidden;
+	border: 1px solid variables.$gray_5;
+	border-radius: 2px;
+	background: variables.$gray_0;
+
+	// Show the whole viewport, not a crop — the empty parts are the point.
+	img {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: contain;
+		object-position: top center;
+	}
+}
+
+.thumb-active .thumb-image {
+	border-color: variables.$jetpack_green_40;
+	box-shadow: 0 0 0 1px variables.$jetpack_green_40;
+}
+
+.axis {
+	margin-block-start: variables.$spacing-unit;
+	border-block-start: 1px solid variables.$gray_5;
+	padding-block-start: 6px;
+}
+
+.axis-tick {
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+	color: variables.$gray_60;
+	text-align: center;
+}
+
+.disclaimer {
+	margin: variables.$halfling 0 0;
+	font-size: 12px;
+	color: variables.$gray_50;
+}
