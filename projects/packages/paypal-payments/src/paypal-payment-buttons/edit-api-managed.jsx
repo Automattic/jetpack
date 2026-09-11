@@ -762,7 +762,16 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					{ customerNotes?.length > 0 && (
 						<div className="jetpack-paypal-payment-buttons__customer-notes">
 							{ customerNotes.map( ( note, noteIndex ) => (
-								<div key={ noteIndex } className="jetpack-paypal-payment-buttons__customer-note">
+								<div
+									key={ noteIndex }
+									className="jetpack-paypal-payment-buttons__customer-note"
+									role="group"
+									aria-label={ sprintf(
+										/* translators: %d: field number */
+										__( 'Custom field %d', 'jetpack-paypal-payments' ),
+										noteIndex + 1
+									) }
+								>
 									<TextControl
 										label={ sprintf(
 											/* translators: %d: field number */
