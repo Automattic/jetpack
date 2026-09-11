@@ -55,6 +55,12 @@ When the subscriptions module is active, a notice is added to the wp-admin **Set
 
 `Writing_Prompt_Widget::init()` registers a `Daily Writing Prompt` dashboard widget for users who can `manage_options`. The widget renders a hydration container and enqueues the `writing-prompt` build assets, which mount a React app that fetches the latest blogging prompts from `/wpcom/v3/blogging-prompts` and lets the user jump into answering one.
 
+### Where "Post your answer" goes
+
+On WordPress.com-platform sites the answer link opens the Write editor; everywhere else it opens `post-new.php`, where the `jetpack/blogging-prompt` block editor script seeds the same prompt.
+
+Write itself can send someone back the other way, from its first-visit note or its Tips panel. When it does it sets `wpcom-write-block-editor-preferred` in localStorage, and this widget stops offering Write from then on. The key is shared by name only — Write ships from `jetpack-mu-wpcom`, which this package does not depend on — so changing it means changing both sides.
+
 ### Freshly Pressed
 
 When WordPress.com is featuring posts, the widget grows a second tab listing ten of them, each linking to the post in the WordPress.com Reader.

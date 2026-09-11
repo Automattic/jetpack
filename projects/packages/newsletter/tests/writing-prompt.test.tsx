@@ -432,7 +432,7 @@ describe( 'WritingPrompt widget analytics', () => {
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_newsletter_writing_prompt_post_answer_click',
-			{ site_type: 'jetpack', prompt_id: 1 }
+			{ site_type: 'jetpack', prompt_id: 1, editor: 'write' }
 		);
 	} );
 
@@ -473,6 +473,74 @@ describe( 'WritingPrompt widget analytics', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_newsletter_writing_prompt_reader_click',
 			{ site_type: 'jetpack' }
+		);
+	} );
+} );
+
+describe( 'WritingPrompt widget editor preference', () => {
+	// Written by the Write editor when someone leaves it for the Block editor.
+	// See projects/packages/jetpack-mu-wpcom/src/features/write/view.js.
+	const BLOCK_EDITOR_PREFERRED_STORAGE_KEY = 'wpcom-write-block-editor-preferred';
+
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockGetSiteData.mockReset();
+		mockGetSiteType.mockReset();
+		mockGetScriptData.mockReset();
+		mockIsWpcomPlatformSite.mockReset();
+		mockRecordEvent.mockReset();
+
+		mockApiFetch.mockResolvedValue( [ PROMPT ] );
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 12345 } } );
+		mockGetSiteType.mockReturnValue( 'jetpack' );
+		mockGetScriptData.mockReturnValue( {} );
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+
+		window.localStorage.clear();
+	} );
+
+	afterEach( () => {
+		window.localStorage.clear();
+		jest.restoreAllMocks();
+	} );
+
+	it( 'points Post your answer at the classic new-post screen once Write has been opted out of', async () => {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
+	} );
+
+	it( 'records the Block editor as the destination once Write has been opted out of', async () => {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		postAnswerLink.addEventListener( 'click', event => event.preventDefault() );
+		postAnswerLink.click();
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_newsletter_writing_prompt_post_answer_click',
+			{ site_type: 'jetpack', prompt_id: 1, editor: 'block' }
+		);
+	} );
+
+	it( 'still offers Write when localStorage cannot be read', async () => {
+		// Safari's private mode and a cookie-blocking profile both throw here,
+		// and the widget renders during the same tick that reads the flag.
+		jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
+			throw new Error( 'storage disabled' );
+		} );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
 		);
 	} );
 } );
