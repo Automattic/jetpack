@@ -966,7 +966,9 @@ class Contact_Form_Block {
 			}
 		}
 
-		return Contact_Form::parse( $atts, do_blocks( $content ) );
+		// Dynamic block callbacks receive content rendered by WordPress already.
+		// Rendering it again can flatten nested core/group wrappers around fields.
+		return Contact_Form::parse( $atts, $content );
 	}
 
 	/**

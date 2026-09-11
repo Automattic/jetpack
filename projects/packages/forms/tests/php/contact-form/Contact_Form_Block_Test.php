@@ -781,4 +781,71 @@ class Contact_Form_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'contact-field', do_blocks( $shown ) );
 		$this->assertStringContainsString( 'Keep me', do_blocks( $shown ) );
 	}
+
+	/**
+	 * Nested Group blocks retain their rendered hierarchy around form fields.
+	 */
+	public function test_nested_groups_are_preserved_when_rendering_a_contact_form_block() {
+		Contact_Form_Block::register_block();
+		Contact_Form_Block::register_child_blocks();
+
+		$output = do_blocks(
+			'<!-- wp:jetpack/contact-form {"to":"test@example.com"} -->' .
+			'<!-- wp:group {"className":"outer-group","anchor":"form-section","style":{"spacing":{"padding":{"top":"1rem"}}}} -->' .
+			'<div id="form-section" class="wp-block-group outer-group" style="padding-top:1rem">' .
+			'<!-- wp:group {"className":"inner-group"} -->' .
+			'<div class="wp-block-group inner-group">' .
+			'<!-- wp:jetpack/field-text {"label":"Name","required":true} /-->' .
+			'<!-- wp:jetpack/field-email {"label":"Email","required":true} /-->' .
+			'</div><!-- /wp:group -->' .
+			'</div><!-- /wp:group -->' .
+			'<!-- /wp:jetpack/contact-form -->'
+		);
+
+		$document = new \DOMDocument();
+		$previous_libxml_errors = libxml_use_internal_errors( true );
+		$document->loadHTML( $output );
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous_libxml_errors );
+
+		$xpath       = new \DOMXPath( $document );
+		$outer_group = $xpath->query( '//div[@id="form-section" and contains(concat(" ", normalize-space(@class), " "), " outer-group ")]' )->item( 0 );
+
+		$this->assertNotNull( $outer_group );
+		$inner_group = $xpath->query( './div[contains(concat(" ", normalize-space(@class), " "), " inner-group ")]', $outer_group )->item( 0 );
+		$this->assertNotNull( $inner_group );
+		$this->assertStringContainsString( 'padding-top:1rem', $outer_group->getAttribute( 'style' ) );
+
+		$name_input = $xpath->query( './/input[@type="text"]', $inner_group )->item( 0 );
+		$this->assertNotNull( $name_input );
+		$name_label = $xpath->query( './/label[@for="' . $name_input->getAttribute( 'id' ) . '"]', $inner_group )->item( 0 );
+		$name_error = $xpath->query( './/input[@id="' . $name_input->getAttribute( 'id' ) . '"]/following-sibling::*[1][@id="' . $name_input->getAttribute( 'id' ) . '-text-error"]', $inner_group )->item( 0 );
+
+		$this->assertNotNull( $name_label );
+		$this->assertNotNull( $name_error );
+		$this->assertStringContainsString( 'Name', $name_label->textContent );
+		$this->assertCount( 2, $xpath->query( './/input', $inner_group ) );
+	}
+
+	/**
+	 * Group attributes are handled by core's renderer before the form consumes them.
+	 */
+	public function test_group_renderer_drops_unsupported_attributes_inside_a_contact_form_block() {
+		Contact_Form_Block::register_block();
+		Contact_Form_Block::register_child_blocks();
+
+		$output = do_blocks(
+			'<!-- wp:jetpack/contact-form {"to":"test@example.com"} -->' .
+			'<!-- wp:group {"className":"safe-group","anchor":"safe-anchor","onclick":"alert(1)","data-unsupported":"bad"} -->' .
+			'<div id="safe-anchor" class="wp-block-group safe-group">' .
+			'<!-- wp:jetpack/field-text {"label":"Name"} /-->' .
+			'</div><!-- /wp:group -->' .
+			'<!-- /wp:jetpack/contact-form -->'
+		);
+
+		$this->assertStringContainsString( 'safe-group', $output );
+		$this->assertStringContainsString( 'safe-anchor', $output );
+		$this->assertStringNotContainsString( 'onclick=', $output );
+		$this->assertStringNotContainsString( 'data-unsupported=', $output );
+	}
 }
