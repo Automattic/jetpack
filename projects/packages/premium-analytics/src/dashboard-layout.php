@@ -347,71 +347,41 @@ function get_dashboard_default_section_layouts() {
 				2,
 				2
 			),
-			// Row 5: the period totals and the weekday and hour-of-day
-			// distributions.
-			get_dashboard_default_widget_instance(
-				'default-total-views-widget-instance',
-				'jpa/total-views',
-				7,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-total-visitors-widget-instance',
-				'jpa/total-visitors',
-				8,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-popular-days-widget-instance',
-				'jpa/popular-days',
-				9,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-popular-hours-widget-instance',
-				'jpa/popular-hours',
-				10,
-				1,
-				1
-			),
-			// Row 6: daily views heatmap. Two rows tall, as in the prototype: cells are sized
+			// Row 5: daily views heatmap. Two rows tall, as in the prototype: cells are sized
 			// from the tile's height, and only here do they fit each day's view count.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
-				11,
+				7,
 				4,
 				2
 			),
-			// Row 7: the comment leaderboards, shares, and tags.
+			// Row 6: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				12,
+				8,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				13,
+				9,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				14,
+				10,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				15,
+				11,
 				1,
 				2
 			),
