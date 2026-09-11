@@ -417,28 +417,35 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_SUBSCRIBERS_SECTION_ID => array(
-			// Subscriber highlights is intentionally not a default: the design
-			// opens on the chart. It stays available from the widget picker.
+			// Rows fill the three-column grid in the prototype's order.
 			// Row 1: subscribers chart.
 			get_dashboard_default_widget_instance(
 				'default-subscribers-chart-widget-instance',
 				'jpa/subscribers-chart',
 				0,
-				4,
+				3,
 				2
 			),
-			// Row 2: latest subscribers + latest emails sent.
+			// Row 2: subscriber highlights.
+			get_dashboard_default_widget_instance(
+				'default-subscriber-highlights-widget-instance',
+				'jpa/subscriber-highlights',
+				1,
+				3,
+				1
+			),
+			// Row 3: latest subscribers + the wider latest emails sent table.
 			get_dashboard_default_widget_instance(
 				'default-subscribers-list-widget-instance',
 				'jpa/subscribers-list',
-				1,
 				2,
+				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-subscribers-emails-widget-instance',
 				'jpa/stats-emails',
-				2,
+				3,
 				2,
 				2,
 				array(
