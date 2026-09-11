@@ -943,6 +943,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$node = $wp_admin_bar->get_node( 'agents-manager' );
 		$this->assertStringNotContainsString( 'agents-manager-ai-chat-label', $node->title );
 		$this->assertArrayNotHasKey( 'entry_label', $node->meta );
+		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] ?? '' );
 	}
 
 	/**
@@ -968,6 +969,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			$node->title
 		);
 		$this->assertSame( 'Get Help', $node->meta['entry_label'] );
+		// The marker the admin bar script reports `has_label` from.
+		$this->assertStringContainsString( 'has-help-entry-label', $node->meta['class'] );
 		// The accessible name stays the menu title either way.
 		$this->assertSame( 'Help Center', $node->meta['menu_title'] );
 	}

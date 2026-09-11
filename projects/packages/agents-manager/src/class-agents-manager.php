@@ -137,6 +137,9 @@ class Agents_Manager {
 
 		if ( $show_label ) {
 			$menu_args['meta']['entry_label'] = $entry_label;
+			// A marker the admin bar script reads to report whether the label was shown;
+			// keyed here rather than on the styling class, which is shared and may be renamed.
+			$menu_args['meta']['class'] = trim( ( $menu_args['meta']['class'] ?? '' ) . ' has-help-entry-label' );
 		}
 
 		$wp_admin_bar->add_menu( $menu_args );
