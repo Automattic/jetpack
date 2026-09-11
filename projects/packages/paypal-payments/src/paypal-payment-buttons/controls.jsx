@@ -24,8 +24,7 @@ import FormatSwitcher from './components/format-switcher';
  * @param {boolean}  props.isCreating         - Whether a create or update request is in flight.
  * @param {Function} props.handleDeleteButton - Delete the PayPal payment.
  * @param {Function} props.handleDisconnect   - Disconnect the PayPal account.
- * @param {string}   props.hasButton          - The block's payment link, empty when it has no button.
- * @param {boolean}  props.isPreviewingButton - Whether the block shows that button rather than the form.
+ * @param {boolean}  props.hasButton          - Whether the block has a saved button.
  * @return {Element} The inspector sidebar.
  */
 export default function PayPalInspectorControls( {
@@ -40,15 +39,11 @@ export default function PayPalInspectorControls( {
 	handleDeleteButton,
 	handleDisconnect,
 	hasButton,
-	isPreviewingButton,
 } ) {
 	return (
 		<InspectorControls>
 			{ /* Style preset: Light / Auto / Dark — overrides the OS/theme auto-detect */ }
-			<PanelBody
-				title={ __( 'Style', 'jetpack-paypal-payments' ) }
-				initialOpen={ isPreviewingButton }
-			>
+			<PanelBody title={ __( 'Style', 'jetpack-paypal-payments' ) } initialOpen={ false }>
 				<p className="jetpack-paypal-payment-buttons__scheme-label">
 					{ __(
 						'Choose how the button adapts to your site theme. "Auto" follows the visitor\'s OS preference.',

@@ -35,7 +35,6 @@ import { useState, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import ConfirmDialogs from './components/confirm-dialogs';
 import ConnectionWizard from './components/connection-wizard';
-import { FORMAT_OPTIONS } from './components/format-switcher';
 import LegacyBlock from './components/legacy-block';
 import PayPalButtonPreview from './components/paypal-button-preview';
 import VariantBuilder, { isVariantPricingOn, validateVariants } from './components/variant-builder';
@@ -149,9 +148,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const [ showDeleteConfirm, setShowDeleteConfirm ] = useState( false );
 	const [ showDisconnectConfirm, setShowDisconnectConfirm ] = useState( false );
 
-	// Edit/preview mode toggle. Start in preview if button already exists.
-	const [ isEditing, setIsEditing ] = useState( ! ( isApiManaged && resourceId && paymentLink ) );
-
 	// Inline validation state — track which fields have been touched.
 	const [ touchedFields, setTouchedFields ] = useState( {} );
 
@@ -248,7 +244,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		attributes,
 		setAttributes,
 		isConnected,
-		setIsEditing,
 		setShowDeleteConfirm,
 	} );
 
@@ -300,7 +295,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	/**
 	 * Whether the block has a created button to preview.
 	 */
-	const hasButton = isApiManaged && resourceId && paymentLink;
+	const hasButton = !! ( isApiManaged && resourceId && paymentLink );
 
 	// The payment is written with the post, so the sidebar says what the save will do.
 	// Three separate calls, not one behind a ternary: the minifier would fold that
@@ -321,11 +316,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			'jetpack-paypal-payments'
 		);
 	}
-
-	/**
-	 * Whether the block is showing that button rather than the form.
-	 */
-	const isPreviewingButton = !! hasButton && ! isEditing;
 
 	// Loading state while checking connection.
 	if ( connectionLoading ) {
@@ -393,23 +383,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		);
 	}
 
-	// Toolbar controls for edit/preview toggle (only when button exists).
+	// Toolbar control to delete the payment button.
 	const toolbarControls = hasButton ? (
 		<BlockControls>
-			<ToolbarGroup>
-				<ToolbarButton
-					icon="visibility"
-					label={ __( 'Preview', 'jetpack-paypal-payments' ) }
-					isPressed={ ! isEditing }
-					onClick={ () => setIsEditing( false ) }
-				/>
-				<ToolbarButton
-					icon="edit"
-					label={ __( 'Edit', 'jetpack-paypal-payments' ) }
-					isPressed={ isEditing }
-					onClick={ () => setIsEditing( true ) }
-				/>
-			</ToolbarGroup>
 			<ToolbarGroup>
 				<ToolbarButton
 					icon="trash"
@@ -436,7 +412,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			handleDeleteButton={ handleDeleteButton }
 			handleDisconnect={ handleDisconnect }
 			hasButton={ hasButton }
-			isPreviewingButton={ isPreviewingButton }
 		/>
 	);
 
@@ -451,8 +426,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			executeDisconnect={ executeDisconnect }
 		/>
 	);
-
-	const formatLabel = FORMAT_OPTIONS.find( o => o.value === activeFormat )?.label || activeFormat;
 
 	// The PayPal connection is site-wide, so a block can still hold a working
 	// button after the account was disconnected — from this post, another post,
@@ -499,65 +472,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 
 	const connectionLabel = isConnected ? labelConnected : labelDisconnected;
 
-	// Connected + has button + preview mode — show live button preview.
-	if ( isPreviewingButton ) {
-		return (
-			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
-				{ toolbarControls }
-				{ inspectorControls }
-
-				<div className="jetpack-paypal-payment-buttons__preview">
-					<div className="jetpack-paypal-payment-buttons__preview-status">
-						{ connectionStatus }
-						{ connectionLabel }
-						<span className="jetpack-paypal-payment-buttons__format-badge">
-							{ sprintf(
-								/* translators: %s: format label (Button, Link, or QR Code) */
-								__( 'Format: %s', 'jetpack-paypal-payments' ),
-								formatLabel
-							) }
-						</span>
-						{ environment === 'sandbox' && (
-							<span className="jetpack-paypal-payment-buttons__sandbox-badge">
-								{ __( 'Sandbox', 'jetpack-paypal-payments' ) }
-							</span>
-						) }
-					</div>
-
-					{ disconnectedNotice }
-					{ sharedResourceNotice }
-
-					{ successMessage && (
-						<Notice status="success" isDismissible onDismiss={ () => setSuccessMessage( null ) }>
-							{ successMessage }
-						</Notice>
-					) }
-
-					{ error && (
-						<Notice status="error" isDismissible onDismiss={ () => setError( null ) }>
-							{ error }
-						</Notice>
-					) }
-
-					<PayPalButtonPreview
-						productName={ productName }
-						price={ price }
-						currencyCode={ currencyCode }
-						productDescription={ productDescription }
-						paymentLink={ paymentLink }
-						variantsEnabled={ variantsEnabled }
-						variants={ variants }
-						imageUrl={ imageUrl }
-						partnerAttributionId={ partnerAttributionId }
-					/>
-				</div>
-
-				{ confirmDialogs }
-			</div>
-		);
-	}
-
-	// Connected — edit mode (either creating new or editing existing).
 	return (
 		<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 			{ toolbarControls }

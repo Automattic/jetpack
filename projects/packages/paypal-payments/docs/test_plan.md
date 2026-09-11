@@ -105,7 +105,7 @@ pnpm test:run
 | Section | Status | Covers | Ticket |
 |---|---|---|---|
 | Credential Wizard Flow | ✅ | Welcome → Dashboard → Credentials → Success wizard, show/hide toggle, dashboard link URL, whitespace trimming, Client ID format warning, environment default, sandbox toggle + warning, inline error on bad credentials, back nav preserves data, Success CTA transition | WOOPTP-162 |
-| Create Button Flow | ✅ | Form rendering, disabled state, button creation + preview, edit/preview toolbar toggle, edit mode with existing data | WOOPTP-154 |
+| Create Button Flow | ✅ | Form rendering, disabled state, button creation + preview | WOOPTP-154 |
 | Frontend Rendering | ✅ | Published post "Buy Now" button + payment link, "Powered by PayPal" attribution | WOOPTP-154 |
 | Error Flow | ✅ | Empty name disabled, zero price disabled, blur field error, API 400 notice | WOOPTP-154 |
 | Legacy Block Compatibility | ✅ | Legacy paste-code indicator in the editor, front-end rendering of V1 markup | WOOPTP-154 |
@@ -113,7 +113,7 @@ pnpm test:run
 | Production Default | ✅ | Connected badge, environment defaults to production | WOOPTP-163 |
 | Token Pre-validation | ✅ | 403 shows Payment Links guidance + stays on Credentials, 403 clears partial state, 5xx does not block connection | WOOPTP-164 |
 | SVG Block Icon | ✅ | SVG in block inserter, SVG in block toolbar | WOOPTP-166 |
-| Format Switcher | ✅ | Button/Link/QR selection, format badge in preview, switching format without recreating the product, front-end anchor and standalone QR canvas | WOOPTP-390 |
+| Format Switcher | ✅ | Button/Link/QR selection, switching format without recreating the product, front-end anchor and standalone QR canvas | WOOPTP-390 |
 | Style Preset | ✅ | Light/Auto/Dark selection and theme custom-property inheritance | WOOPTP-390 |
 
 **WP 6.9 compatibility notes:**

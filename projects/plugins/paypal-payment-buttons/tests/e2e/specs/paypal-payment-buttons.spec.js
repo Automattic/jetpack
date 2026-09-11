@@ -500,50 +500,6 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				'Test Product'
 			);
 		} );
-
-		test( 'shows edit/preview toggle toolbar after the first save', async ( { page } ) => {
-			await setupPayPalMocks( page );
-			await goToNewPost( page );
-			const canvas = await insertPayPalBlock( page );
-			await fillButtonForm( canvas );
-
-			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await page.getByRole( 'button', { name: 'Save draft' } ).click();
-
-			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
-				timeout: 5000,
-			} );
-
-			await block.click();
-
-			// Toolbar is outside the iframe, on `page`.
-			const toolbar = page.locator( '.block-editor-block-toolbar' );
-			await expect( toolbar.locator( 'button[aria-label="Preview"]' ) ).toBeVisible();
-			await expect( toolbar.locator( 'button[aria-label="Edit"]' ) ).toBeVisible();
-		} );
-
-		test( 'edit toggle switches back to form with existing data', async ( { page } ) => {
-			await setupPayPalMocks( page );
-			await goToNewPost( page );
-			const canvas = await insertPayPalBlock( page );
-			await fillButtonForm( canvas, { name: 'My Widget', price: '49.99' } );
-
-			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-			await page.getByRole( 'button', { name: 'Save draft' } ).click();
-
-			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible( {
-				timeout: 5000,
-			} );
-
-			await block.click();
-			// Edit button is on the toolbar outside the iframe.
-			await page.locator( 'button[aria-label="Edit"]' ).click();
-
-			await expect( block.locator( 'h3' ) ).toHaveText( 'Edit PayPal Payment Button' );
-
-			await block.locator( 'button:has-text("Cancel")' ).click();
-			await expect( block.locator( '.jetpack-paypal-button-preview' ) ).toBeVisible();
-		} );
 	} );
 
 	// ---------------------------------------------------------------
@@ -842,7 +798,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			} );
 		} );
 
-		test( 'delete button clears block state and returns to edit mode', async ( { page } ) => {
+		test( 'delete button clears block state and shows the empty creation form', async ( {
+			page,
+		} ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );
@@ -909,7 +867,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			} );
 		} );
 
-		test( 'delete button via toolbar clears block state and returns to edit mode', async ( {
+		test( 'delete button via toolbar clears block state and shows the empty creation form', async ( {
 			page,
 		} ) => {
 			await setupPayPalMocks( page );
@@ -1290,26 +1248,6 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				'aria-pressed',
 				'false'
 			);
-		} );
-
-		test( 'Link format shows format badge in preview after creation', async ( { page } ) => {
-			await setupPayPalMocks( page );
-			await goToNewPost( page );
-			const canvas = await insertPayPalBlock( page );
-
-			const block = canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' );
-
-			// Select Link format then create.
-			await block
-				.locator( '.jetpack-paypal-payment-buttons__format-switcher button:has-text("Link")' )
-				.click();
-			await fillButtonForm( canvas, { name: 'Link Product', price: '9.99' } );
-			await page.getByRole( 'button', { name: 'Save draft' } ).click();
-
-			// Preview should show format badge.
-			await expect(
-				block.locator( '.jetpack-paypal-payment-buttons__format-badge:has-text("Link")' )
-			).toBeVisible( { timeout: 5000 } );
 		} );
 
 		test( 'format switcher appears in InspectorControls after creation', async ( { page } ) => {

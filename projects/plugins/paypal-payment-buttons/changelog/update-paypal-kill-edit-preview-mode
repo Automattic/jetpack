@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Drop the payment button's Edit/Preview toolbar toggle. The product form is in the block settings sidebar and the canvas always shows the button.

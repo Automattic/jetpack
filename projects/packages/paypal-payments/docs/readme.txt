@@ -94,7 +94,6 @@ This plugin is designed for standalone PayPal payment buttons on posts and pages
 * **New:** Live button preview in the block editor with theme-native styling
 * **New:** Frontend rendering matches block editor preview exactly — currency symbols, product info card, "Powered by PayPal" attribution
 * **New:** Product description field with truncation on the published page
-* **New:** Edit/preview mode toggle for existing buttons
 * **New:** Client-side and server-side input validation
 * **New:** Automatic token refresh on expiry with retry logic
 * **New:** Exponential backoff for transient API errors (500/502/503)
