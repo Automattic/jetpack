@@ -120,6 +120,13 @@ describe( 'XyChartTooltip', () => {
 		} );
 	} );
 
+	test( 'pins beside placement to the explicit SVG top anchor', async () => {
+		renderChart( { tooltipPlacement: 'beside', tooltipAnchorTop: 20, snapTooltipToDatumY: true } );
+		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
+			transform: 'translate(133px, 20px)',
+		} );
+	} );
+
 	test( 'snaps the box to the nearest datum', async () => {
 		renderChart( { snapTooltipToDatumX: true, snapTooltipToDatumY: true } );
 
