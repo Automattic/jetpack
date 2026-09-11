@@ -144,6 +144,42 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 	);
 } );
 
+test( 'refetches Overview generation state after a legacy critical CSS update', async () => {
+	window.jetpack_boost_ds!.modules_state!.value = {
+		critical_css: { available: true, active: true },
+		performance_history: { available: true, active: true },
+	};
+	window.jetpack_boost_ds!.critical_css_state = { nonce: 'css-nonce', value: undefined };
+	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+	jest
+		.mocked( apiFetch )
+		.mockImplementation( options =>
+			options.url?.endsWith( '/critical-css-state' )
+				? Promise.resolve( { status: 'success', JSON: { status: 'generated', updated: 1 } } )
+				: fetch( options )
+		);
+	legacyQueryClient.clear();
+	const stopObserving = observeLegacyModulesState( legacyQueryClient );
+	const { client } = renderOverview();
+	try {
+		await waitFor( () =>
+			expect( client.getQueryState( [ 'critical_css_state' ] )?.dataUpdateCount ).toBe( 1 )
+		);
+		act( () => {
+			legacyQueryClient.setQueryData( [ 'critical_css_state' ], {
+				status: 'generated',
+				updated: 2,
+			} );
+		} );
+		await waitFor( () =>
+			expect( client.getQueryState( [ 'critical_css_state' ] )?.dataUpdateCount ).toBe( 2 )
+		);
+	} finally {
+		stopObserving();
+		legacyQueryClient.clear();
+	}
+} );
+
 test( 'regenerates scores after a Settings toggle and return to the mounted Overview', async () => {
 	const initialModules = {
 		performance_history: { available: true, active: true },
