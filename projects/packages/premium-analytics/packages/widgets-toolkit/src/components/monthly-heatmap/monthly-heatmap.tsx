@@ -8,7 +8,7 @@ import {
 	type HeatmapTooltipData,
 } from '@jetpack-premium-analytics/externals';
 import { formatMonth } from '@jetpack-premium-analytics/formatters';
-import { __ } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useMemo, type KeyboardEvent, type MouseEvent } from 'react';
 /**
@@ -153,7 +153,12 @@ export function MonthlyHeatmap( {
 				cellLabel={
 					columns[ column ]?.summary
 						? rowLabel ?? ''
-						: `${ columnLabel ?? '' } ${ rowLabel ?? '' }`.trim()
+						: sprintf(
+								/* translators: 1: abbreviated month name, e.g. "Aug"; 2: year, e.g. "2026". */
+								_x( '%1$s %2$s', 'month and year', 'jetpack-premium-analytics-pkg' ),
+								columnLabel ?? '',
+								rowLabel ?? ''
+						  ).trim()
 				}
 				emptyLabel={ emptyLabel }
 				formatValue={ formatValue }
