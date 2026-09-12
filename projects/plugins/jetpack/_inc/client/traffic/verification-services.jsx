@@ -12,7 +12,7 @@ import SettingsGroup from 'components/settings-group';
 import TextInput from 'components/text-input';
 import GoogleVerificationService from './verification-services/google';
 
-class VerificationServicesComponent extends Component {
+export class VerificationServicesComponent extends Component {
 	static serviceIds = {
 		google: 'google-site-verification',
 		bing: 'msvalidate.01',
@@ -26,7 +26,7 @@ class VerificationServicesComponent extends Component {
 			return '';
 		}
 
-		if ( ! /^[a-z0-9_-]+$/i.test( content ) ) {
+		if ( ! /^(?!.*[<>"'])[!-~]+$/.test( content ) ) {
 			// User is probably editing the content
 			return content;
 		}
@@ -36,9 +36,11 @@ class VerificationServicesComponent extends Component {
 			return content;
 		}
 
+		const escapedContent = content.replace( /&(?!(?:#\d+|#x[\da-f]+|[a-z][\da-z]*);)/gi, '&amp;' );
+
 		return `<meta name="${
 			VerificationServicesComponent.serviceIds?.[ serviceName ] ?? ''
-		}" content="${ content }" />`;
+		}" content="${ escapedContent }" />`;
 	}
 
 	getSiteVerificationValue( service ) {

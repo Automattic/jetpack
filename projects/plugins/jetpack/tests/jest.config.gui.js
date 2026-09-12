@@ -20,6 +20,7 @@ module.exports = {
 		'<rootDir>/_inc/client/ai/test/public-path.js',
 		'<rootDir>/_inc/client/ai/test/tracks.js',
 		'<rootDir>/_inc/client/at-a-glance/stats/test/chart-bar-range.js',
+		'<rootDir>/_inc/client/traffic/test/verification-services.jsx',
 	],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
 	coverageDirectory: baseConfig.coverageDirectory + '/gui',
