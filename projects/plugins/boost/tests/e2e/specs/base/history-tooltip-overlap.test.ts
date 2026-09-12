@@ -194,7 +194,15 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
 		const bars = chart.locator( '.visx-bar' );
 		await expect( bars ).toHaveCount( 15 );
-		await expect( bars.first() ).toHaveCSS( 'fill', 'rgb(224, 224, 224)' );
+		const emptyColor = await page.evaluate( () => {
+			const swatch = document.createElement( 'span' );
+			swatch.style.color = 'var(--wpds-color-stroke-surface-neutral)';
+			document.body.append( swatch );
+			const color = getComputedStyle( swatch ).color;
+			swatch.remove();
+			return color;
+		} );
+		await expect( bars.first() ).toHaveCSS( 'fill', emptyColor );
 		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
 		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
 		const grid = chart.getByRole( 'grid' );
@@ -277,7 +285,15 @@ test( 'an all-zero window paints recorded scores separately from empty slots', a
 		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
 		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
-		await expect( bars.first() ).toHaveCSS( 'fill', 'rgb(224, 224, 224)' );
+		const emptyColor = await page.evaluate( () => {
+			const swatch = document.createElement( 'span' );
+			swatch.style.color = 'var(--wpds-color-stroke-surface-neutral)';
+			document.body.append( swatch );
+			const color = getComputedStyle( swatch ).color;
+			swatch.remove();
+			return color;
+		} );
+		await expect( bars.first() ).toHaveCSS( 'fill', emptyColor );
 		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
 		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
 	}

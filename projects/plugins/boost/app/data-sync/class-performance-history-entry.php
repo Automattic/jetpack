@@ -21,7 +21,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		$request = new Speed_Score_Graph_History_Request( $this->start_date, $this->end_date, array() );
 		$result  = $request->execute();
 
-		if ( is_wp_error( $result ) && apply_filters( Admin::MODERNIZATION_FILTER, false ) ) {
+		if ( is_wp_error( $result ) && Admin::is_modern_dashboard() ) {
 			throw new \RuntimeException( $result->get_error_message() );
 		}
 

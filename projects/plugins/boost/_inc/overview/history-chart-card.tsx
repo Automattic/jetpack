@@ -7,7 +7,7 @@ import { dateI18n, getDate } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, desktop, mobile, Icon } from '@wordpress/icons';
 import { Button, Card, Notice } from '@wordpress/ui';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { bucketHistoryDays, type HistoryDay, type HistoryWindow } from './lib/history-days';
 import { getScoreTier, getScoreTierColor } from './lib/score-utils';
 import UpgradeCTA from './upgrade-cta';
@@ -151,12 +151,22 @@ export default function HistoryChartCard( {
 }: Props ) {
 	const days = bucketHistoryDays( data?.periods ?? [], range );
 	const series = buildHistorySeries( days );
-	const [ highlight, setHighlight ] = useState< CategoryHighlightSelection | null >( null );
-	const updateHighlight = useCallback( ( selection: CategoryHighlightSelection | null ) => {
-		setHighlight( previous =>
-			previous?.x === selection?.x && previous?.width === selection?.width ? previous : selection
-		);
-	}, [] );
+	const [ activeHighlight, setActiveHighlight ] = useState< {
+		index: number;
+		selection: CategoryHighlightSelection;
+	} | null >( null );
+	const updateHighlight = useCallback(
+		( index: number, selection: CategoryHighlightSelection | null ) => {
+			setActiveHighlight( previous =>
+				selection ? { index, selection } : previous?.index === index ? null : previous
+			);
+		},
+		[]
+	);
+	useEffect( () => {
+		setActiveHighlight( null );
+	}, [ range.startDate, range.endDate, isVisible ] );
+	const highlight = isVisible ? activeHighlight?.selection : null;
 	let content;
 	if ( needsUpgrade ) {
 		content = (
@@ -215,75 +225,75 @@ export default function HistoryChartCard( {
 						<div
 							aria-hidden="true"
 							className="boost-daily-history__highlight"
+							data-testid="history-highlight"
 							style={ {
 								insetInlineStart: `calc(var(--wpds-dimension-padding-lg) + ${ highlight.x }px)`,
 								width: highlight.width,
 							} }
 						/>
 					) }
-					{ series.map( ( deviceSeries, index ) => (
-						<section
-							key={ deviceSeries.label }
-							aria-label={
-								index === 0
-									? __( 'Desktop score history', 'jetpack-boost' )
-									: __( 'Mobile score history', 'jetpack-boost' )
-							}
-						>
-							<h3 className="boost-daily-history__device">
-								<Icon icon={ index === 0 ? desktop : mobile } />
-								{ deviceSeries.label }
-							</h3>
-							<div className="boost-daily-history__plot">
-								{ isVisible && (
-									<BarChart
-										key={ `${ range.startDate }-${ range.endDate }` }
-										data={ [ deviceSeries ] }
-										withTooltips
-										gridVisibility="x"
-										onCategoryHighlightChange={ updateHighlight }
-										tooltipPlacement={
-											days.some( day => day.period && day.date === highlight?.datum.label )
-												? 'beside'
-												: 'auto'
-										}
-										tooltipAnchorTop={
-											days.some( day => day.period && day.date === highlight?.datum.label )
-												? -96 - index * 149
-												: undefined
-										}
-										margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
-										options={ {
-											xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
-											yScale: { domain: [ 0, 100 ], nice: false, zero: true },
-											axis: {
-												y: { tickValues: [ 0, 50, 100 ] },
-												x: {
-													tickValues: [
-														days[ 0 ].date,
-														days[ Math.floor( ( days.length - 1 ) / 2 ) ].date,
-														days[ days.length - 1 ].date,
-													],
-													tickFormat: value =>
-														dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
+					{ series.map( ( deviceSeries, index ) => {
+						const isRecordedHighlight =
+							activeHighlight?.index === index &&
+							days.some( day => day.period && day.date === highlight?.datum.label );
+						return (
+							<section
+								key={ deviceSeries.label }
+								aria-label={
+									index === 0
+										? __( 'Desktop score history', 'jetpack-boost' )
+										: __( 'Mobile score history', 'jetpack-boost' )
+								}
+							>
+								<h3 className="boost-daily-history__device">
+									<Icon icon={ index === 0 ? desktop : mobile } />
+									{ deviceSeries.label }
+								</h3>
+								<div className="boost-daily-history__plot">
+									{ isVisible && (
+										<BarChart
+											key={ `${ range.startDate }-${ range.endDate }` }
+											data={ [ deviceSeries ] }
+											withTooltips
+											gridVisibility="x"
+											onCategoryHighlightChange={ selection => updateHighlight( index, selection ) }
+											tooltipPlacement={ isRecordedHighlight ? 'beside' : 'auto' }
+											tooltipAnchorTop={ isRecordedHighlight ? -96 - index * 149 : undefined }
+											margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
+											options={ {
+												xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
+												yScale: { domain: [ 0, 100 ], nice: false, zero: true },
+												axis: {
+													y: { tickValues: [ 0, 50, 100 ] },
+													x: {
+														tickValues: days.length
+															? [
+																	days[ 0 ].date,
+																	days[ Math.floor( ( days.length - 1 ) / 2 ) ].date,
+																	days[ days.length - 1 ].date,
+															  ]
+															: [],
+														tickFormat: value =>
+															dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
+													},
 												},
-											},
-										} }
-										renderTooltip={ ( { tooltipData } ) => {
-											const day = days.find(
-												slot => slot.date === tooltipData?.nearestDatum?.datum.label
-											);
-											return day?.period ? (
-												<HistoryTooltip period={ day.period } />
-											) : day ? (
-												<EmptyDayTooltip date={ day.date } />
-											) : null;
-										} }
-									/>
-								) }
-							</div>
-						</section>
-					) ) }
+											} }
+											renderTooltip={ ( { tooltipData } ) => {
+												const day = days.find(
+													slot => slot.date === tooltipData?.nearestDatum?.datum.label
+												);
+												return day?.period ? (
+													<HistoryTooltip period={ day.period } />
+												) : day ? (
+													<EmptyDayTooltip date={ day.date } />
+												) : null;
+											} }
+										/>
+									) }
+								</div>
+							</section>
+						);
+					} ) }
 				</div>
 			</GlobalChartsProvider>
 		);

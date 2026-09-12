@@ -63,7 +63,7 @@ function OverviewContent( {
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
 	const historyAvailable = modules.data?.performance_history?.available === true;
-	const { ref, range, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
+	const { range, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
 	const history = usePerformanceHistory( historyAvailable && isVisible, range );
 	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
 		'performance_history_fresh_start'
@@ -125,7 +125,7 @@ function OverviewContent( {
 
 	if ( ! online ) {
 		return (
-			<div ref={ ref } className="jetpack-boost-overview">
+			<div className="jetpack-boost-overview">
 				<Notice.Root
 					intent="info"
 					spokenMessage={
@@ -147,7 +147,7 @@ function OverviewContent( {
 	}
 
 	return (
-		<div ref={ ref } className="jetpack-boost-overview">
+		<div className="jetpack-boost-overview">
 			<ScoreCards
 				scores={ scoreState.scores }
 				isLoading={ isLoading }
