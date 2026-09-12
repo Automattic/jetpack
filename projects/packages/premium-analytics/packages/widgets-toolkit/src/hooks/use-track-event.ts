@@ -3,7 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { useCallback } from '@wordpress/element';
+import { useCallback } from 'react';
 
 // The tracker is a page-wide singleton: identify once per page load, not per event
 // and not on every consumer's mount.

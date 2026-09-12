@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { returnToClassicStats } from './return-to-classic-stats';
+import { returnToClassicStats } from '../return-to-classic-stats';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getAdminUrl: ( path: string ) => `https://example.com/wp-admin/${ path }`,

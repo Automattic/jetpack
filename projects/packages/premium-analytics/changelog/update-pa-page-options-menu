@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Move the page options menu and its dialogs into the widgets toolkit, ahead of sharing them across pages. No visible change.

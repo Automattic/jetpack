@@ -7,17 +7,13 @@ import {
 	submitStatsUserFeedback,
 } from '@jetpack-premium-analytics/data';
 import { Button, Dialog, Notice, Stack } from '@jetpack-premium-analytics/externals';
-import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useCallback, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
-import {
-	ReadinessFields,
-	readinessSummary,
-	type StatsFeedbackReadiness,
-} from '../feedback/feedback-fields';
+import { ReadinessFields, readinessSummary, type StatsFeedbackReadiness } from './feedback-fields';
 import { returnToClassicStats } from './return-to-classic-stats';
 
 // Reaches Happiness as the subject line, so it tells exit feedback from the in-product kind.

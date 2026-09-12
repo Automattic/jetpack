@@ -6,7 +6,6 @@
 		"page": "jetpack-premium-analytics"
 	},
 	"dependencies": {
-		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-premium-analytics/data": "workspace:*",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
@@ -14,6 +13,7 @@
 		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@jetpack-premium-analytics/site-sync": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
+		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
 		"@wordpress/admin-ui": "2.9.0",
 		"@wordpress/api-fetch": "7.54.0",
 		"@wordpress/components": "40.0.0",

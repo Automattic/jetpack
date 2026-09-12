@@ -16,6 +16,7 @@ import {
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
+import { PageOptionsMenu } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -26,7 +27,6 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
-	DashboardOptionsMenu,
 	DashboardSections,
 	OnboardingTour,
 	onboardingTourSteps,
@@ -278,7 +278,7 @@ function Dashboard(): JSX.Element {
 										<WidgetDashboard.Actions />
 									</Stack>
 									<Stack ref={ setOptionsMenuFrame } direction="row">
-										<DashboardOptionsMenu />
+										<PageOptionsMenu />
 									</Stack>
 								</Stack>
 							}
