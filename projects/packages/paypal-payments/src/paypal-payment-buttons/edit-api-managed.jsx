@@ -401,7 +401,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		</BlockControls>
 	) : null;
 
-	// Inspector sidebar — Settings holds the connection info;
+	// Inspector sidebar — Settings has the connection info;
 	// the group="styles" fill adds the Styles tab with Embed as and the format's
 	// own controls.
 	const inspectorControls = (

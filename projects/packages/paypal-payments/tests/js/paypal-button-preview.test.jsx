@@ -81,9 +81,9 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
 	} );
 
-	// The canvas half of what render_api_managed_button() puts on the anchor —
-	// without these the class and style wiring can be reverted with the suite
-	// still green.
+	// The canvas half of what render_api_managed_button() puts on the anchor.
+	// Without these the class and style wiring can be removed and the suite
+	// still passes.
 	it( 'styles the checkout button from its own color, background and size', () => {
 		render(
 			<PayPalButtonPreview

@@ -172,7 +172,7 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * The QR card — Width, Border and margin all land on the one element the
+	 * The QR card — Width, Border and margin all go on the one element the
 	 * merchant sees.
 	 *
 	 * Every value is validated before the style engine sees it.
@@ -201,7 +201,7 @@ class PayPal_Payment_Buttons {
 	 * The button's product card — margin only.
 	 *
 	 * Width and Border belong to the button — see get_button_style(). Margin still
-	 * lands here, since a QR-to-BUTTON format switch can leave one behind.
+	 * goes here, since a QR-to-BUTTON format switch can leave one behind.
 	 *
 	 * Mirrors getCardStyle() in utils/block-styles.js.
 	 *
@@ -230,8 +230,8 @@ class PayPal_Payment_Buttons {
 	/**
 	 * The chosen width, with its unit.
 	 *
-	 * Width carries its own unit, so it goes through as typed. It never reaches
-	 * the style engine, so a spacing preset would be emitted raw — the width
+	 * Width has its own unit, so it goes through as typed. The style engine never
+	 * sees it, so a spacing preset would be emitted raw — the width
 	 * control cannot produce one, and this keeps it that way.
 	 *
 	 * @param array $attributes The block attributes.
@@ -572,8 +572,8 @@ class PayPal_Payment_Buttons {
 		// Only color presets expand: a spacing or font preset is not a color, so it
 		// falls through and is refused, the way the canvas refuses it.
 		if ( preg_match( '/^var:preset\|color\|([a-z0-9-]+)$/i', $color, $preset ) ) {
-			// Lowercased because that is the shape WP defines the custom property
-			// in — a `Vivid-Red` slug would resolve to nothing.
+			// Lowercased to match how WP defines the custom property — a
+			// `Vivid-Red` slug would not match anything.
 			return sprintf( 'var(--wp--preset--color--%s)', strtolower( $preset[1] ) );
 		}
 

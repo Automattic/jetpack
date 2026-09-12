@@ -292,8 +292,8 @@ function ColorPanel( { rows, ownedKeys, attributes, setAttributes, children } ) 
 	);
 
 	return (
-		/* Same shape as core's ColorToolsPanel: the class, hasInnerWrapper and the
-		   inner div go together, or each swatch gets its own tall box.
+		/* Same structure as core's ColorToolsPanel: the class, hasInnerWrapper and
+		   the inner div go together, or each swatch draws its own tall box.
 		   @see @wordpress/block-editor/src/components/global-styles/color-panel.js */
 		<ToolsPanel
 			className="color-block-support-panel"
@@ -578,7 +578,7 @@ export default function PayPalFormatControls( {
 
 			{ 'QR' === format && (
 				<>
-					{ /* Nothing to colour or size until there is a caption. */ }
+					{ /* Nothing to color or size until there is a caption. */ }
 					{ attributes.qrShowCaption && (
 						<>
 							<ColorPanel

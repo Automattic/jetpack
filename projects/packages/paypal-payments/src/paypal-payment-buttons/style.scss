@@ -5,7 +5,7 @@
  *
  * Styles for the published page rendering of PayPal buttons. Loaded on the
  * frontend and inside the editor canvas iframe, but not in the sidebar — so a
- * rule for a frontend class belongs here and reaches both, while anything
+ * rule for a frontend class belongs here and covers both, while anything
  * naming a `-preview__` class belongs in editor.scss.
  *
  * The checkout button uses the `wp-element-button` class to inherit
@@ -114,7 +114,8 @@ $paypal-blue: #0070ba;
 // 1px like extensions/blocks/button/view.scss, so an Outline button does not
 // sit larger than a Fill one, and no padding override so the theme keeps
 // sizing it. currentColor stops the theme's filled-button text color leaving
-// the label invisible; a color set in the Styles tab arrives inline and wins.
+// the label invisible; a color set in the Styles tab comes through inline
+// and wins.
 // The hover/focus/active copies stop the theme repainting the background.
 .jetpack-paypal-button__checkout-link.is-style-outline {
 

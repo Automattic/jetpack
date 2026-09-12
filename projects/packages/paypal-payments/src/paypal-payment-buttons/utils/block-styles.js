@@ -140,7 +140,7 @@ function plainBox( sides ) {
  * @return {string} The width, or '' when none is set.
  */
 function chosenWidth( attributes ) {
-	// Width never reaches the style engine, so a spacing preset would be emitted
+	// The style engine never sees the width, so a spacing preset would be emitted
 	// raw. The width control cannot produce one; this keeps it that way.
 	const width = length( attributes.blockWidth );
 
@@ -200,7 +200,7 @@ function getBorderStyle( attributes ) {
 }
 
 /**
- * The QR card — Width, Border and margin all land on the one element the
+ * The QR card — Width, Border and margin all go on the one element the
  * merchant sees. Mirrors get_qr_style().
  *
  * @param {object} attributes - The block attributes.
@@ -220,7 +220,7 @@ export function getQrStyle( attributes = {} ) {
  * The button's product card — margin only.
  *
  * Width and Border belong to the button — see getButtonStyle(). Margin still
- * lands here, since a QR-to-BUTTON format switch can leave one behind.
+ * goes here, since a QR-to-BUTTON format switch can leave one behind.
  * Mirrors get_card_style().
  *
  * @param {object} attributes - The block attributes.
@@ -235,8 +235,8 @@ export function getCardStyle( attributes = {} ) {
  *
  * None of the Color panels go through the style engine, so the expansion
  * sanitize_css_color() does for the page happens here for the canvas. The slug
- * is kebab-cased first, because that is the shape WP defines the custom
- * property in — a `Vivid-Red` slug resolves to nothing otherwise.
+ * is lowercased first, to match how WP defines the custom property — a
+ * `Vivid-Red` slug would not match anything.
  *
  * @param {*} value - A raw attribute value.
  * @return {string} The color, or '' when it is not one.
@@ -265,7 +265,7 @@ function cssFontSize( value ) {
 	}
 
 	// `/*` or `*/` would open a CSS comment and swallow the rest. Kept out of
-	// FLUID_SIZE so both languages reject exactly the same set: a `[/*]{2}` class
+	// FLUID_SIZE so both languages reject the same set: a `[/*]{2}` class
 	// also rejects `**` and `//`, which the PHP side accepts.
 	if ( size.includes( '/*' ) || size.includes( '*/' ) ) {
 		return '';
