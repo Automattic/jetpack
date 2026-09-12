@@ -58,11 +58,7 @@ class Dashboard {
 		// so the client-side router doesn't need a catch-all root route.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['p'] ) ) {
-			$default_tab = Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' )
-				? 'forms'
-				: 'inbox';
-
-			wp_safe_redirect( self::get_forms_admin_url( $default_tab ) );
+			wp_safe_redirect( self::get_forms_admin_url( self::get_default_tab() ) );
 
 			exit;
 		}
@@ -113,6 +109,20 @@ class Dashboard {
 	 * @var string
 	 */
 	const FORMS_WPBUILD_ADMIN_SLUG = 'jetpack-forms-responses-wp-admin';
+
+	/**
+	 * Cookie holding the top tab the user last chose.
+	 *
+	 * Written by src/dashboard/last-tab-cookie.ts; the two names have to stay in step.
+	 */
+	const LAST_TAB_COOKIE = 'jetpack_forms_last_tab';
+
+	/**
+	 * Top tabs the dashboard can reopen on.
+	 *
+	 * @var string[]
+	 */
+	const TOP_TABS = array( 'forms', 'responses' );
 
 	/**
 	 * Priority for the dashboard menu.
@@ -589,6 +599,25 @@ class Dashboard {
 	}
 
 	/**
+	 * The tab the standalone Forms page opens on when the URL names no route.
+	 *
+	 * A cookie, not a user preference: this redirect runs before any script could read one.
+	 *
+	 * @return string Tab slug understood by get_forms_admin_url().
+	 */
+	public static function get_default_tab() {
+		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
+			// The Forms tab is not rendered at all here, so honouring a stored 'forms'
+			// would strand the user on a tab they cannot leave.
+			return 'inbox';
+		}
+
+		$remembered = sanitize_key( wp_unslash( $_COOKIE[ self::LAST_TAB_COOKIE ] ?? '' ) );
+
+		return in_array( $remembered, self::TOP_TABS, true ) ? $remembered : 'forms';
+	}
+
+	/**
 	 * WP-Build path for the forms admin URL.
 	 *
 	 * @param string|null $tab    Tab to open.
@@ -610,6 +639,7 @@ class Dashboard {
 			'spam'            => '/responses/spam',
 			'trash'           => '/responses/trash',
 			'forms'           => '/forms',
+			'responses'       => '/responses/inbox',
 			'responses/inbox' => '/responses/inbox',
 		);
 

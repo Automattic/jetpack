@@ -32,7 +32,10 @@ export function getConfig() {
 }
 
 getConfig.isFulfilled = ( state: ConfigState ) => {
-	// Consider fulfilled if config exists or is currently loading
+	// Counting an in-flight fetch as fulfilled de-duplicates `useSelect` callers, which
+	// re-render when the data lands. It also makes `resolveSelect().getConfig()` resolve
+	// with a null config instead of waiting, so async callers must treat absent as
+	// "unknown" rather than as a value — see routes/forms/route.tsx.
 	return state.config !== null || state.isLoading;
 };
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Open the Forms tab when it is requested directly instead of falling back to Responses.

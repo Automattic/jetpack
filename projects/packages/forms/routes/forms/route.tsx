@@ -16,15 +16,20 @@ export const route = {
 	beforeLoad: async () => {
 		const config = await resolveSelect( CONFIG_STORE ).getConfig();
 
-		if ( ! config?.isCentralFormManagementEnabled ) {
+		// The resolver reports itself fulfilled while its fetch is still in flight, so a
+		// cold load arrives with no config at all — absent is not "disabled".
+		if ( config && ! config.isCentralFormManagementEnabled ) {
 			throw redirect( { href: '/responses/inbox' } );
 		}
 	},
 
 	/**
-	 * Preload data before the route renders.
+	 * Starts loading the tab counts as the route is entered.
+	 *
+	 * Deliberately not awaited: the router blocks navigation on a loader that returns a
+	 * promise, and the counts only feed the tab badges.
 	 */
-	loader: async () => {
-		await preloadGlobalTabCounts();
+	loader: () => {
+		preloadGlobalTabCounts().catch( () => {} );
 	},
 };
