@@ -104,6 +104,10 @@ afterAll( () => jest.restoreAllMocks() );
 
 test( 'renders thirty daily bars for each device using score band colours and empty slots', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	expect(
+		screen.getByRole( 'heading', { name: 'Last 30 days scores', level: 2 } )
+	).toBeInTheDocument();
+	expect( screen.getByRole( 'heading', { name: 'Desktop', level: 3 } ) ).toBeInTheDocument();
 	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
 	expect( screen.queryByText( 'Could be improved' ) ).not.toBeInTheDocument();
 	for ( const [ device, tiers ] of [

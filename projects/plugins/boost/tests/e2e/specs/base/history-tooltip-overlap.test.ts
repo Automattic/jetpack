@@ -295,6 +295,7 @@ test( 'an all-zero window paints recorded scores separately from empty slots', a
 		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
 		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
+		await expect( bars.first() ).toHaveAttribute( 'y', ( await zeroBar.getAttribute( 'y' ) )! );
 		const emptyColor = await getEmptyDayColor( page );
 		await expect( bars.first() ).toHaveCSS( 'fill', emptyColor );
 		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
