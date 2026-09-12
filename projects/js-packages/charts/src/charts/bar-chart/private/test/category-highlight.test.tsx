@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { scaleBand } from '@visx/scale';
 import { DataContext, TooltipContext } from '@visx/xychart';
 import { useState } from 'react';
+import { GlobalChartsProvider } from '../../../../providers';
 import { CATALOG_POINTERS } from '../../../../providers/chart-context/private/catalog-pointers';
+import { BarChartUnresponsive } from '../../bar-chart';
 import { CategoryHighlight } from '../category-highlight';
 import type { CategoryHighlightSelection } from '../category-highlight';
 
@@ -74,3 +77,34 @@ it( 'settles inline derived-state callbacks and notifies the latest callback on 
 	expect( notify ).toHaveBeenCalledTimes( 2 );
 	expect( notify ).toHaveBeenLastCalledWith( 'Feb' );
 } );
+
+it.each( [ { withTooltips: false }, { data: [] } ] )(
+	'clears the selected category when the highlight unmounts with %j',
+	async props => {
+		const user = userEvent.setup();
+		const onChange = jest.fn();
+		const chartProps = {
+			width: 500,
+			height: 300,
+			withTooltips: true,
+			onCategoryHighlightChange: onChange,
+			data: [ { label: 'Scores', data: [ { label: 'Jan', value: 50 } ] } ],
+		};
+		const { rerender } = render(
+			<GlobalChartsProvider>
+				<BarChartUnresponsive { ...chartProps } />
+			</GlobalChartsProvider>
+		);
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		expect( onChange ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { datum: expect.objectContaining( { label: 'Jan' } ) } )
+		);
+		rerender(
+			<GlobalChartsProvider>
+				<BarChartUnresponsive { ...chartProps } { ...props } />
+			</GlobalChartsProvider>
+		);
+		expect( onChange ).toHaveBeenLastCalledWith( null );
+	}
+);
