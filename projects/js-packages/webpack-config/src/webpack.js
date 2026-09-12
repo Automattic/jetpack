@@ -146,8 +146,31 @@ const defaultRequestMap = {
 	},
 };
 
-const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
-	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
+// @wordpress/ui pulls these in transitively; externalizing them targets script handles many pages
+// never register, so the whole bundle fails to enqueue. Bundle the pair jointly — split, the
+// module-scope lock() in @wordpress/theme and the per-instance consent map in
+// @wordpress/private-apis diverge at runtime. See PR #48173.
+const wpUiRequestMap = {
+	'@wordpress/theme': { external: false },
+	'@wordpress/private-apis': { external: false },
+};
+
+/**
+ * Build the DependencyExtractionWebpackPlugin.
+ *
+ * @param {object}  options                - Plugin options, passed through except for the two below.
+ * @param {object}  options.requestMap     - Per-request `{ external, handle }` overrides. Wins over every default.
+ * @param {boolean} options.bundleWpUiDeps - Bundle `@wordpress/theme` and `@wordpress/private-apis` instead of
+ *                                         externalizing them. Off by default; set it on an entry that renders
+ *                                         `@wordpress/ui` on a page that registers neither script handle.
+ * @return {object[]} The plugin.
+ */
+const DependencyExtractionPlugin = ( { requestMap, bundleWpUiDeps = false, ...options } = {} ) => {
+	const finalRequestMap = {
+		...defaultRequestMap,
+		...( bundleWpUiDeps ? wpUiRequestMap : {} ),
+		...requestMap,
+	};
 
 	const requestToExternal = request => {
 		return finalRequestMap[ request ]?.external;

@@ -226,9 +226,10 @@ By default, the following additional dependencies are extracted:
 - `@automattic/jetpack-connection`: Handle `jetpack-connection` provided by PHP package [automattic/jetpack-connection](https://packagist.org/packages/automattic/jetpack-connection).
 - `@automattic/jetpack-shared-stores`: Handle `jetpack-shared-stores` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets). The shared data stores resolve to one externalized bundle so they register only once.
 
-One additional option is recognized:
+Two additional options are recognized:
 
 - `requestMap`: An easier way to specify additional dependencies to extract, rather than redefining `requestToHandle` and `requestToExternal`. Key is the dependency, value is an object with `handle` and `external` keys corresponding to the return values of `requestToHandle` and `requestToExternal`.
+- `bundleWpUiDeps`: Bundle `@wordpress/theme` and `@wordpress/private-apis` instead of externalizing them to the `wp-theme` and `wp-private-apis` script handles. Defaults to `false`. Set it to `true` on an entry that renders `@wordpress/ui` on a page that registers neither handle, otherwise the whole bundle fails to enqueue. The pair is bundled jointly on purpose: see [#48173](https://github.com/Automattic/jetpack/pull/48173). Your own `requestMap` still wins over it.
 
 ##### `DuplicatePackageCheckerPlugin( options )`
 
