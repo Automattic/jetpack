@@ -27,6 +27,24 @@ add_filter( 'default_option_wpcom_is_staging_site', 'wpcomsh_is_staging_site_get
 add_filter( 'option_wpcom_is_staging_site', 'wpcomsh_is_staging_site_get_atomic_persistent_data' );
 
 /**
+ * Whether the site is running as a staging environment.
+ *
+ * @return bool True if the environment type is 'staging'.
+ */
+function wpcomsh_is_staging_environment() {
+	/**
+	 * Filters whether the site is treated as a staging environment.
+	 *
+	 * Core's `wp_get_environment_type()` caches for the life of the request and has no filter of its own.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $is_staging Whether the environment type is 'staging'.
+	 */
+	return (bool) apply_filters( 'wpcomsh_is_staging_environment', 'staging' === wp_get_environment_type() );
+}
+
+/**
  * Disables outgoing pingbacks/trackbacks in staging environments.
  *
  * Prevents the dispatch of pingbacks when the environment type is 'staging'
@@ -40,7 +58,7 @@ add_filter( 'option_wpcom_is_staging_site', 'wpcomsh_is_staging_site_get_atomic_
  * @param string[] $post_links Array of URLs to ping (passed by reference).
  */
 function wpcomsh_disable_outgoing_pings_in_non_production_envs( &$post_links ) {
-	if ( 'staging' === wp_get_environment_type() ) {
+	if ( wpcomsh_is_staging_environment() ) {
 		$post_links = array();
 	}
 }
@@ -59,7 +77,7 @@ add_action( 'pre_ping', 'wpcomsh_disable_outgoing_pings_in_non_production_envs' 
  * @return array<string, callable> Modified associative array of XML-RPC methods.
  */
 function wpcomsh_disable_incoming_pings_in_non_production_envs( $methods ) {
-	if ( 'staging' === wp_get_environment_type() ) {
+	if ( wpcomsh_is_staging_environment() ) {
 		unset( $methods['pingback.ping'] );
 	}
 
@@ -74,7 +92,7 @@ add_filter( 'xmlrpc_methods', 'wpcomsh_disable_incoming_pings_in_non_production_
  * @return string|false '0' on staging sites, false to allow normal behavior otherwise.
  */
 function wpcomsh_force_pingback_flag_off_on_staging() {
-	if ( 'staging' === wp_get_environment_type() ) {
+	if ( wpcomsh_is_staging_environment() ) {
 		return '0';
 	}
 
@@ -89,7 +107,7 @@ add_filter( 'pre_option_default_pingback_flag', 'wpcomsh_force_pingback_flag_off
  * @return string|false 'closed' on staging sites, false to allow normal behavior otherwise.
  */
 function wpcomsh_force_ping_status_closed_on_staging() {
-	if ( 'staging' === wp_get_environment_type() ) {
+	if ( wpcomsh_is_staging_environment() ) {
 		return 'closed';
 	}
 
@@ -102,7 +120,7 @@ add_filter( 'pre_option_default_ping_status', 'wpcomsh_force_ping_status_closed_
  * Settings page for staging sites.
  */
 function wpcomsh_disable_pingback_ui_on_staging() {
-	if ( 'staging' !== wp_get_environment_type() ) {
+	if ( ! wpcomsh_is_staging_environment() ) {
 		return;
 	}
 
