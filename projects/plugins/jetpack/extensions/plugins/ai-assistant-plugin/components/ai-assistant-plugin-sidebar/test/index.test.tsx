@@ -176,6 +176,7 @@ jest.mock( '@wordpress/components', () => ( {
 } ) );
 
 jest.mock( '@wordpress/ui', () => ( {
+	Icon: () => <span data-testid="agent-icon" />,
 	Button: Object.assign(
 		( { children, onClick }: { children: React.ReactNode; onClick?: () => void } ) => (
 			<button onClick={ onClick }>{ children }</button>
@@ -183,6 +184,9 @@ jest.mock( '@wordpress/ui', () => ( {
 		{ Icon: () => <span data-testid="button-icon" /> }
 	),
 	Link: ( { children, href }: { children: React.ReactNode; href: string } ) => (
+		<a href={ href }>{ children }</a>
+	),
+	LinkButton: ( { children, href }: { children: React.ReactNode; href: string } ) => (
 		<a href={ href }>{ children }</a>
 	),
 	Notice: {
@@ -277,6 +281,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 	afterEach( () => {
 		delete ( window as unknown as { __agentsManagerActions?: unknown } ).__agentsManagerActions;
+		delete ( window as unknown as { agentsManagerData?: unknown } ).agentsManagerData;
 	} );
 
 	describe( 'WordPress Agent notice', () => {
@@ -284,6 +289,9 @@ describe( 'AiAssistantPluginSidebar', () => {
 			jest
 				.mocked( getFeatureAvailability )
 				.mockImplementation( feature => feature === AGENT_NOTICE_FEATURE );
+			( window as unknown as { agentsManagerData?: unknown } ).agentsManagerData = {
+				jetpackAiSidebar: { agentNoticeActionAvailable: true },
+			};
 		} );
 
 		it( 'shows the notice in the Jetpack sidebar, the document panel and the pre-publish panel', () => {
@@ -321,7 +329,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			expect(
 				within( screen.getByTestId( 'document-panel' ) ).getByRole( 'button', {
-					name: 'WordPress Agent',
+					name: 'Open WordPress Agent',
 				} )
 			).toBeInTheDocument();
 		} );
@@ -336,7 +344,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			await user.click(
 				within( screen.getByTestId( testId ) ).getByRole( 'button', {
-					name: 'WordPress Agent',
+					name: 'Open WordPress Agent',
 				} )
 			);
 
@@ -344,6 +352,43 @@ describe( 'AiAssistantPluginSidebar', () => {
 				'jetpack_big_sky_agent_notice_click',
 				expect.objectContaining( { placement } )
 			);
+		} );
+
+		it( 'still replaces the AI panel, without the action, on a site merely eligible for the Agent', () => {
+			( window as unknown as { agentsManagerData?: unknown } ).agentsManagerData = {
+				jetpackAiSidebar: { agentNoticeActionAvailable: false },
+			};
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).getByText(
+					'AI tools have moved to the WordPress Agent.'
+				)
+			).toBeInTheDocument();
+			expect( screen.queryByText( 'Get Feedback' ) ).not.toBeInTheDocument();
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).queryByRole( 'button', {
+					name: 'Open WordPress Agent',
+				} )
+			).not.toBeInTheDocument();
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).getByRole( 'link', {
+					name: 'Enable WordPress Agent',
+				} )
+			).toBeInTheDocument();
+		} );
+
+		it( 'offers to enable the Agent when the server sends no payload at all', () => {
+			delete ( window as unknown as { agentsManagerData?: unknown } ).agentsManagerData;
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).getByRole( 'link', {
+					name: 'Enable WordPress Agent',
+				} )
+			).toBeInTheDocument();
 		} );
 
 		it( 'leaves the collapsed panels alone when there is no notice to show', () => {
