@@ -281,12 +281,6 @@ class Help_Center {
 				// Add the help center icon to the admin bar after the reader icon.
 				12
 			);
-
-			if ( is_user_logged_in() && $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
-				// Initialize the help center menu panel
-				require_once __DIR__ . '/class-help-center-menu-panel.php';
-				Help_Center_Menu_Panel::init();
-			}
 		}
 
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
@@ -364,52 +358,6 @@ class Help_Center {
 				$version
 			);
 		}
-	}
-
-	/**
-	 * Returns whether the menu panel experiment is enabled for the current user.
-	 *
-	 * @return boolean True if the menu panel experiment variation is enabled, false otherwise.
-	 */
-	private function is_menu_panel_enabled() {
-		$experiment_name      = 'calypso_help_center_menu_popover_increase_exposure';
-		$experiment_variation = 'menu_popover';
-		$user_id              = get_current_user_id();
-		$cache_key            = 'help-center-menu-panel-enabled-' . $user_id . '-' . $experiment_name;
-
-		// Check cache first.
-		$cached_result = get_transient( $cache_key );
-		if ( false !== $cached_result ) {
-			return (bool) $cached_result;
-		}
-
-		$result = false;
-
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			$result = $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
-		} elseif ( $this->wpcom_request_client->is_user_connected() ) {
-			$request_path = '/experiments/0.1.0/assignments/calypso';
-			$response     = $this->wpcom_request_client->request(
-				add_query_arg( array( 'experiment_name' => $experiment_name ), $request_path ),
-				'v2'
-			);
-
-			if ( ! is_wp_error( $response ) ) {
-				$response_code = wp_remote_retrieve_response_code( $response );
-				if ( 200 === $response_code ) {
-					$data = json_decode( wp_remote_retrieve_body( $response ), true );
-					if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
-						$variation = $data['variations'][ $experiment_name ];
-						$result    = $experiment_variation === $variation;
-					}
-				}
-			}
-		}
-
-		// Cache the result for 1 hour.
-		set_transient( $cache_key, $result ? 1 : 0, HOUR_IN_SECONDS );
-
-		return $result;
 	}
 
 	/**
