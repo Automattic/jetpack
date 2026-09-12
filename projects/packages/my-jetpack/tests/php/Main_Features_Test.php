@@ -123,54 +123,6 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * The More features tab is the modules screen minus this set, so a module leaving or
-	 * joining it silently moves between two lists. Pinned so that has to be deliberate.
-	 */
-	public function test_covered_modules_are_the_expected_set() {
-		$covered = Main_Features::get_covered_modules();
-		sort( $covered );
-
-		$this->assertSame(
-			array(
-				'ai',
-				'blaze',
-				'contact-form',
-				'podcast',
-				'protect',
-				'publicize',
-				'search',
-				'stats',
-				'subscriptions',
-				'videopress',
-			),
-			$covered
-		);
-	}
-
-	/**
-	 * A module in two groups would render twice; one in a group the features list
-	 * already covers would render above and below at once.
-	 */
-	public function test_module_groups_are_disjoint_and_uncovered() {
-		$covered = Main_Features::get_covered_modules();
-		$seen    = array();
-
-		foreach ( Main_Features::get_module_groups() as $group ) {
-			$this->assertNotEmpty( $group['label'] );
-
-			foreach ( $group['modules'] as $slug ) {
-				$this->assertNotContains( $slug, $seen, "{$slug} appears in two groups" );
-				$this->assertNotContains(
-					$slug,
-					$covered,
-					"{$slug} is grouped but already covered by a feature"
-				);
-				$seen[] = $slug;
-			}
-		}
-	}
-
-	/**
 	 * Slugs are the join key between the catalog and the UI, so they must be unique.
 	 */
 	public function test_feature_slugs_are_unique() {

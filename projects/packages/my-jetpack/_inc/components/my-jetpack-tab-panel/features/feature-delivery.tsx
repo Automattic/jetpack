@@ -84,8 +84,10 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	}
 
 	return (
-		<div className={ styles[ 'detail-highlights' ] }>
-			<Text variant="heading-md">{ __( 'How to get it', 'jetpack-my-jetpack' ) }</Text>
+		<section className={ styles[ 'detail-section' ] }>
+			<Text variant="heading-sm" render={ <h3 /> }>
+				{ __( 'How to get it', 'jetpack-my-jetpack' ) }
+			</Text>
 
 			<Stack direction="row" align="center" gap="sm" wrap="wrap">
 				{ inJetpack ? (
@@ -110,6 +112,6 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 			</Stack>
 
 			{ note ? <Text variant="body-sm">{ note }</Text> : null }
-		</div>
+		</section>
 	);
 }

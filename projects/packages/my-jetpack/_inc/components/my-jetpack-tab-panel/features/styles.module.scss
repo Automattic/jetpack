@@ -10,28 +10,76 @@ $feature-icon-foreground: #0ced57;
 	gap: var(--wpds-dimension-gap-sm);
 }
 
-.feature-list {
-	background: var(--wpds-color-background-surface-neutral-strong);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	border-radius: var(--wpds-border-radius-md);
-	overflow: hidden;
+// Pinned to three rather than auto-filled, so the row length stays the same
+// on a wide screen instead of growing to four cramped columns.
+.feature-grid {
+	display: grid;
+	gap: var(--wpds-dimension-gap-lg);
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.feature-item {
-	padding: var(--wpds-dimension-padding-lg);
+@media (max-width: 1280px) {
 
-	& + & {
-		border-block-start-color: var(--wpds-color-stroke-surface-neutral-weak);
-		border-block-start-style: solid;
-		border-block-start-width: var(--wpds-border-width-xs);
+	.feature-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
+// 782px is where wp-admin itself collapses the sidebar.
+@media (max-width: 782px) {
+
+	.feature-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.feature-item {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
+	padding: var(--wpds-dimension-padding-xl);
+	transition: border-color 120ms ease-out;
+
+	&:hover {
+		border-color: var(--wpds-color-stroke-surface-neutral);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.feature-item {
+		transition: none;
+	}
+}
+
+.feature-item__details {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+// Clamped so a long description cannot make one card taller than the rest of
+// its row; the modal carries the full text.
+.feature-item__description {
+	-webkit-box-orient: vertical;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	overflow: hidden;
+}
+
+// Pinned to the bottom of the card so Learn more lines up across a row of
+// cards with descriptions of different lengths.
+.feature-item__footer {
+	margin-block-start: auto;
+	margin-inline-start: calc(var(--wpds-dimension-gap-sm) * -1);
+}
+
 .feature-icon {
-	block-size: 3rem;
-	border-radius: var(--wpds-border-radius-md);
+	block-size: 4rem;
+	border-radius: var(--wpds-border-radius-lg);
 	flex-shrink: 0;
-	inline-size: 3rem;
+	inline-size: 4rem;
 	overflow: hidden;
 
 	svg {
@@ -53,16 +101,10 @@ $feature-icon-foreground: #0ced57;
 	justify-content: center;
 
 	svg {
-		block-size: 28px;
+		block-size: 36px;
 		fill: currentColor;
-		inline-size: 28px;
+		inline-size: 36px;
 	}
-}
-
-
-.feature-item__details {
-	flex: 1;
-	min-inline-size: 0;
 }
 
 
@@ -75,70 +117,154 @@ $feature-icon-foreground: #0ced57;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-.detail-highlights {
-	background: var(--wpds-color-background-surface-neutral-weak);
-	border-radius: var(--wpds-border-radius-md);
+
+// A portrait dialog, pinned: letting the height follow the content resized the
+// dialog under the cursor on every step between features.
+// The popup centres itself with `top: 50%` and a -50% translate, so the height
+// must leave room on both sides: at 52rem the top edge landed off-screen and
+// the dialog read as stuck to the top. No `inset-block-start` lift either —
+// that only works for a dialog far shorter than the viewport.
+.modal-popup {
+	block-size: min(50rem, calc(100dvh - 5rem));
+	inline-size: min(42.5rem, calc(100vw - 3rem));
+	max-inline-size: min(42.5rem, calc(100vw - 3rem));
+}
+
+// Fixed height, not an aspect ratio: the artwork is third-party marketing
+// imagery at a dozen ratios, and a ratio-driven band would resize the modal
+// on every step.
+.modal-band {
+	align-items: center;
+	background: $feature-icon-background;
+	block-size: 13rem;
+	color: $feature-icon-foreground;
 	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-md);
-	margin-block-start: var(--wpds-dimension-gap-2xl);
-	padding: var(--wpds-dimension-padding-xl);
-}
-
-
-// Reserves the image's space before it loads, so the remote asset
-// arriving cannot reflow the page around it.
-// Capped: left to its aspect ratio the artwork grows with the dialog and pushes
-// everything beside it out of view.
-.feature-screenshot__frame {
-	aspect-ratio: 16 / 10;
-	max-block-size: 20rem;
+	flex: 0 0 auto;
+	justify-content: center;
+	min-block-size: 0;
+	overflow: hidden;
 	position: relative;
-	inline-size: 100%;
 }
 
-.feature-screenshot__skeleton {
+// `contain`, not `cover`: every one of these assets is square or portrait, so
+// cropping to the band's 4.75:1 would land on empty canvas.
+.modal-band__image {
 	block-size: 100%;
-	border-radius: var(--wpds-border-radius-md);
-	inset: 0;
-	position: absolute;
 	inline-size: 100%;
-}
-
-.feature-screenshot {
-	block-size: 100%;
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	border-radius: var(--wpds-border-radius-md);
-	inline-size: 100%;
-	object-fit: cover;
+	object-fit: contain;
 	opacity: 0;
 	transition: opacity 200ms ease-out;
 }
 
-.feature-screenshot--loaded {
+.modal-band__image--loaded {
 	opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
 
-	.feature-screenshot {
+	.modal-band__image {
 		transition: none;
 	}
 }
 
-// Features with no artwork yet keep the page's shape rather than collapsing it.
-.feature-screenshot--placeholder {
+.modal-band__glyph {
 	align-items: center;
-	block-size: 100%;
-	border-color: var(--wpds-color-stroke-surface-neutral-weak);
-	border-style: dashed;
-	border-width: var(--wpds-border-width-xs);
-	border-radius: var(--wpds-border-radius-md);
-	color: var(--wpds-color-foreground-content-neutral-weak);
 	display: flex;
 	justify-content: center;
-	padding: var(--wpds-dimension-padding-xl);
-	text-align: center;
+
+	svg {
+		fill: currentColor;
+	}
+}
+
+.modal-band__skeleton {
+	block-size: 100%;
+	inset: 0;
+	position: absolute;
+	inline-size: 100%;
+}
+
+// A lone control over artwork earns a 44px hit target; the visual stays 32px.
+// Nested so the white wins over the design system's own dark foreground, which
+// is invisible against the band.
+.modal-band .modal-band__close {
+	background: rgba(0, 0, 0, 0.35);
+	border-radius: 50%;
+	color: #fff;
+	inset-block-start: var(--wpds-dimension-padding-lg);
+	inset-inline-end: var(--wpds-dimension-padding-lg);
+	position: absolute;
+	z-index: 1;
+
+	&:hover,
+	&:focus-visible {
+		background: rgba(0, 0, 0, 0.55);
+		color: #fff;
+	}
+
+	&::after {
+		content: "";
+		inset: -6px;
+		position: absolute;
+	}
+}
+
+.modal-body {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+// The card's 4rem tile is too tall for a row that also carries the title.
+.modal-identity .feature-icon {
+	block-size: 2.5rem;
+	inline-size: 2.5rem;
+}
+
+// auto-fit rather than three fixed tracks: Activity Log, Blaze, Newsletter and
+// Podcast render no highlights, and an empty track would leave a dead column.
+.modal-panels {
+	display: grid;
+	gap: var(--wpds-dimension-gap-xl);
+	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+// Replaces the filled panel, which cost 40px of padding and 32px of margin
+// per section — 216px across three, inside a 624px budget.
+.detail-section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	position: relative;
+
+	// Centred in the column gap rather than drawn as a border, so all three
+	// columns keep an identical content width.
+	& + &::before {
+		background: var(--wpds-color-stroke-surface-neutral-weak);
+		content: "";
+		inline-size: var(--wpds-border-width-xs);
+		inset-block: 0;
+		inset-inline-start: calc(var(--wpds-dimension-gap-xl) / -2);
+		position: absolute;
+	}
+}
+
+// The grid collapses when the MODAL narrows, not the viewport: the popup
+// shrinks long before any phone breakpoint would fire.
+@container (max-width: 34rem) {
+
+	.modal-panels {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	// Stacked now, so the rule between sections turns horizontal.
+	.detail-section + .detail-section::before {
+		block-size: var(--wpds-border-width-xs);
+		inline-size: auto;
+		inset-block: calc(var(--wpds-dimension-gap-xl) / -2) auto;
+		inset-inline: 0;
+	}
 }
 
 .modal-steps {
@@ -146,36 +272,13 @@ $feature-icon-foreground: #0ced57;
 }
 
 
-.modal-body {
-	align-items: start;
-	display: grid;
-	gap: var(--wpds-dimension-gap-xl);
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-}
-
-@media (max-width: 782px) {
-
-	.modal-body {
-		grid-template-columns: minmax(0, 1fr);
-	}
-}
-
-// Matches the rendered width of a FormToggle, so rows without
-// one keep the column.
+// Matches the rendered width of a FormToggle, so cards without
+// one keep the same heading width.
 .feature-toggle-slot {
 	display: flex;
 	flex-shrink: 0;
 	inline-size: 2rem;
 	justify-content: center;
-}
-
-// Fixed so the dialog does not resize as you step between features, and as
-// large as the viewport allows so its content rarely scrolls. Set here rather
-// than by the dialog's own `size`, which caps the width at 960px.
-.modal-popup {
-	block-size: min(50rem, calc(100vh - 4rem));
-	inline-size: min(72rem, calc(100vw - 4rem));
-	max-inline-size: min(72rem, calc(100vw - 4rem));
 }
 
 // Applied to a wp-admin menu item, which lives outside this
@@ -238,22 +341,14 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
-.description {
-
-	@include gb.body-medium;
-	color: #{gb.$gray-700};
-	margin: 0;
-}
-
-
-.search-heading {
+.empty-heading {
 
 	@include gb.heading-x-large;
 	margin-block: 0;
 }
 
-// Sticky so a selection made far down a long list can still be
-// acted on. The offset clears the wp-admin bar, which is fixed.
+// Sticky so the filters stay reachable while scrolling a long grid. The
+// offset clears the wp-admin bar, which is fixed.
 .toolbar {
 	background: var(--wpds-color-background-surface-neutral-strong);
 	border-color: var(--wpds-color-stroke-surface-neutral-weak);
@@ -267,12 +362,51 @@ $feature-icon-foreground: #0ced57;
 	z-index: 10;
 }
 
-.toolbar__status {
-	color: var(--wpds-color-foreground-content-neutral-weak);
+.pills {
+	flex: 1;
+	min-inline-size: 0;
 }
 
-.toolbar__end {
+// A capsule, not a button: WPDS has no full-round radius token, so the radius
+// is literal and large enough that the height can change without squaring off.
+.pill {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+	border-radius: 999px;
+	color: var(--wpds-color-foreground-interactive-neutral);
+	cursor: pointer;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	padding-block: 0.375rem;
+	padding-inline: 0.875rem;
+	white-space: nowrap;
+
+	&:hover {
+		background: var(--wpds-color-background-interactive-neutral-weak-active);
+		color: var(--wpds-color-foreground-interactive-neutral-active);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--wpds-color-stroke-interactive-neutral-strong);
+		outline-offset: 2px;
+	}
+}
+
+.pill--selected {
+	background: var(--wpds-color-background-interactive-neutral-strong);
+	border-color: var(--wpds-color-background-interactive-neutral-strong);
+	color: var(--wpds-color-foreground-interactive-neutral-strong);
+
+	&:hover {
+		background: var(--wpds-color-background-interactive-neutral-strong-active);
+		border-color: var(--wpds-color-background-interactive-neutral-strong-active);
+		color: var(--wpds-color-foreground-interactive-neutral-strong-active);
+	}
+}
+
+.search {
 	margin-inline-start: auto;
+	min-inline-size: 16rem;
 }
 
 

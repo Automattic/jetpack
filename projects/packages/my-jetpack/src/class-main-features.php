@@ -46,7 +46,7 @@ class Main_Features {
 				'docs_url'         => 'https://jetpack.com/support/backup/activity-log/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2020/05/421d9-95c1d-jetpack-activity-log-ui.png',
 				'name'             => __( 'Activity Log', 'jetpack-my-jetpack' ),
-				'description'      => __( 'See a chronological list of every change made to your site.', 'jetpack-my-jetpack' ),
+				'description'      => __( 'See a list of every change made to your site.', 'jetpack-my-jetpack' ),
 				'long_description' => __( 'See a chronological list of every change made to your site, from published posts to plugin updates and logins. When something breaks, the log tells you what changed and when.', 'jetpack-my-jetpack' ),
 				'icon'             => 'list',
 				'admin_page'       => 'jetpack-activity-log',
@@ -435,127 +435,6 @@ class Main_Features {
 		// Features with neither a product nor a module are hosted on WordPress.com and
 		// need the site connection to show anything at all.
 		return ( new Connection_Manager() )->is_connected() ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
-	}
-
-	/**
-	 * Modules Jetpack itself tags as recommended.
-	 *
-	 * The tag lives on the module definition and never reaches the browser, so the
-	 * Recommended filter needs it passed through explicitly.
-	 *
-	 * @return string[] Module slugs.
-	 */
-	public static function get_recommended_modules() {
-		$recommended = array();
-
-		$modules = new Modules();
-
-		foreach ( $modules->get_available() as $slug ) {
-			$module = $modules->get( $slug );
-
-			if ( in_array( 'Recommended', (array) ( $module['feature'] ?? array() ), true ) ) {
-				$recommended[] = $slug;
-			}
-		}
-
-		return $recommended;
-	}
-
-	/**
-	 * Headings for the modules the feature list does not cover.
-	 *
-	 * Grouped by the job a site owner is doing, not by Jetpack's own module tags, which
-	 * describe mechanism instead: the Image CDN is tagged Appearance though its job is
-	 * speed. A module missing from here falls into Other rather than disappearing.
-	 *
-	 * @return array Ordered groups, each with a label and its module slugs.
-	 */
-	public static function get_module_groups() {
-		return array(
-			array(
-				'label'   => __( 'Security', 'jetpack-my-jetpack' ),
-				'modules' => array( 'account-protection', 'monitor', 'sso', 'waf', 'vaultpress' ),
-			),
-			array(
-				'label'   => __( 'Performance', 'jetpack-my-jetpack' ),
-				'modules' => array( 'photon', 'photon-cdn' ),
-			),
-			array(
-				'label'   => __( 'Search engines', 'jetpack-my-jetpack' ),
-				'modules' => array( 'sitemaps', 'seo-tools', 'canonical-urls', 'verification-tools' ),
-			),
-			array(
-				'label'   => __( 'Engagement', 'jetpack-my-jetpack' ),
-				'modules' => array(
-					'comments',
-					'likes',
-					'comment-likes',
-					'gravatar-hovercards',
-					'related-posts',
-					'infinite-scroll',
-					'sharedaddy',
-				),
-			),
-			array(
-				'label'   => __( 'Writing', 'jetpack-my-jetpack' ),
-				'modules' => array(
-					'blocks',
-					'markdown',
-					'latex',
-					'shortcodes',
-					'copy-post',
-					'custom-content-types',
-					'post-by-email',
-					'post-list',
-					'carousel',
-					'tiled-gallery',
-					'shortlinks',
-				),
-			),
-			array(
-				'label'   => __( 'Design', 'jetpack-my-jetpack' ),
-				'modules' => array( 'google-fonts', 'widgets', 'widget-visibility' ),
-			),
-			array(
-				'label'   => __( 'Earn', 'jetpack-my-jetpack' ),
-				'modules' => array( 'wordads' ),
-			),
-			array(
-				'label'   => __( 'Analytics', 'jetpack-my-jetpack' ),
-				'modules' => array( 'woocommerce-analytics' ),
-			),
-		);
-	}
-
-	/**
-	 * The Jetpack modules the feature list already accounts for.
-	 *
-	 * Each feature either names a module outright or is backed by a product that runs
-	 * one. The remainder is what the More features tab has left to show, so this is the
-	 * single place that decides which side of that line a module falls on.
-	 *
-	 * @return string[] Module slugs, unsorted.
-	 */
-	public static function get_covered_modules() {
-		$modules = array();
-
-		foreach ( self::get_feature_definitions() as $definition ) {
-			if ( ! empty( $definition['module'] ) ) {
-				$modules[] = $definition['module'];
-			}
-
-			if ( empty( $definition['product'] ) ) {
-				continue;
-			}
-
-			$product_class = Products::get_product_class( $definition['product'] );
-
-			if ( $product_class && ! empty( $product_class::$module_name ) ) {
-				$modules[] = $product_class::$module_name;
-			}
-		}
-
-		return array_values( array_unique( $modules ) );
 	}
 
 	/**
