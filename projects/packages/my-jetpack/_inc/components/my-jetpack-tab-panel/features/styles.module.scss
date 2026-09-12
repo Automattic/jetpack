@@ -10,10 +10,27 @@ $feature-icon-foreground: #0ced57;
 	gap: var(--wpds-dimension-gap-sm);
 }
 
+// Pinned to three rather than auto-filled, so the row length stays the same
+// on a wide screen instead of growing to four cramped columns.
 .feature-grid {
 	display: grid;
 	gap: var(--wpds-dimension-gap-lg);
-	grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1280px) {
+
+	.feature-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+// 782px is where wp-admin itself collapses the sidebar.
+@media (max-width: 782px) {
+
+	.feature-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }
 
 .feature-item {
