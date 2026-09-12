@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { buildAllTimeTrafficRows, resolveMetric } from '../build-all-time-traffic-rows';
+import { buildAllTimeTrafficRows } from '../build-all-time-traffic-rows';
 import type { StatsPostResponse } from '@jetpack-premium-analytics/data';
 
 // The endpoint keys months `1`-`12` and leaves out months without views.
@@ -105,14 +105,5 @@ describe( 'buildAllTimeTrafficRows', () => {
 	it( 'returns no rows without yearly stats', () => {
 		expect( buildAllTimeTrafficRows( undefined, 'total', TODAY ) ).toEqual( [] );
 		expect( buildAllTimeTrafficRows( { years: {} }, 'total', TODAY ) ).toEqual( [] );
-	} );
-} );
-
-describe( 'resolveMetric', () => {
-	it( 'reads a stored metric and falls back to total views', () => {
-		expect( resolveMetric( 'average' ) ).toBe( 'average' );
-		expect( resolveMetric( 'total' ) ).toBe( 'total' );
-		expect( resolveMetric( undefined ) ).toBe( 'total' );
-		expect( resolveMetric( 'views' ) ).toBe( 'total' );
 	} );
 } );

@@ -3,36 +3,29 @@
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
-import { Stack } from '@jetpack-premium-analytics/externals';
-import { formatMonth } from '@jetpack-premium-analytics/formatters';
 import { reports } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
-	CalendarHeatmapTooltip,
-	HeatmapChart,
 	HeatmapSkeleton,
+	MonthlyHeatmap,
 	WidgetRoot,
 	WidgetState,
 	describeError,
-	formatDailyViewCount,
-	formatViewCount,
+	monthRange,
+	monthlyHeatmapLabels,
+	resolveMonthlyHeatmapMetric,
 	useWidgetRootContext,
-	type HeatmapColumn,
-	type HeatmapTooltipData,
+	yearRange,
+	type MonthlyHeatmapMetric,
+	type MonthlyHeatmapRow,
+	type MonthlyHeatmapTarget,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo, type KeyboardEvent, type MouseEvent } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	MONTHS_IN_YEAR,
-	resolveMetric,
-	type AllTimeTrafficMetric,
-} from './build-all-time-traffic-rows';
-import { monthRange, yearRange } from './period-range';
-import styles from './style.module.css';
 import usePostAllTimeTraffic from './use-post-all-time-traffic';
 import type { PostAllTimeTrafficAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -41,16 +34,7 @@ type PostAllTimeTrafficRenderAttributes = PostAllTimeTrafficAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type PostAllTimeTrafficWidgetProps = WidgetRenderProps< PostAllTimeTrafficRenderAttributes >;
 
-// Below the floors the grid scrolls rather than crushing its cells; the cap
-// keeps a young post's rows at the design height.
-const MIN_CELL_WIDTH = 56;
-const MIN_CELL_HEIGHT = 28;
-const MAX_CELL_HEIGHT = 40;
-
-// The chart's own cell markup, which a click or the keyboard selection lands on.
-const CELL_SELECTOR = '[role="gridcell"][data-column][data-row]';
-
-function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } ) {
+function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
@@ -61,113 +45,34 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 	// page's period, read over by the other cards while this one stays all-time.
 	const { onChange, onApply, timeZone } = useReportDateFilters();
 
-	// No per-cell label: the chart names a cell from its column and row, the
-	// month and the year here. A month without views reads 0, as the endpoint
-	// reports it; the months outside the post's life are filler. The last
-	// column is the year's roll-up, a summary column outside the colour scale.
-	const columns = useMemo< HeatmapColumn[] >(
-		() => [
-			...Array.from( { length: MONTHS_IN_YEAR }, ( _column, month ) => ( {
-				label: formatMonth( month, { short: true } ),
-				data: rows.map( row => {
-					const value = row.months[ month ];
-
-					if ( typeof value !== 'number' ) {
-						return { value: null, placeholder: true };
-					}
-
-					return { value };
-				} ),
+	// The months outside the post's life ('before' / 'after') become filler.
+	const heatmapRows = useMemo< MonthlyHeatmapRow[] >(
+		() =>
+			rows.map( row => ( {
+				year: row.year,
+				months: row.months.map( value => ( typeof value === 'number' ? value : null ) ),
+				total: row.total,
 			} ) ),
-			{
-				label: __( 'Totals', 'jetpack-premium-analytics-pkg' ),
-				summary: true,
-				data: rows.map( row => ( { value: row.total } ) ),
-			},
-		],
 		[ rows ]
 	);
 
 	const openPeriod = useCallback(
-		( cell: Element ) => {
-			const row = rows[ Number( cell.getAttribute( 'data-row' ) ) ];
-
-			if ( ! row ) {
-				return;
-			}
-
-			const column = Number( cell.getAttribute( 'data-column' ) );
+		( { year, month }: MonthlyHeatmapTarget ) => {
 			const bounds = { lifeStartsAt, timeZone };
 			// The year's roll-up opens the whole year.
-			const range = columns[ column ]?.summary
-				? yearRange( row.year, bounds )
-				: monthRange( { year: row.year, month: column }, bounds );
+			const range =
+				month === undefined ? yearRange( year, bounds ) : monthRange( { year, month }, bounds );
 
 			if ( range ) {
 				onChange( range, PRESET_CUSTOM );
 				onApply();
 			}
 		},
-		[ rows, columns, lifeStartsAt, timeZone, onChange, onApply ]
-	);
-
-	// The chart owns the cells, so the click is read off its markup.
-	const handleClick = useCallback(
-		( event: MouseEvent< HTMLDivElement > ) => {
-			const cell = ( event.target as Element ).closest( CELL_SELECTOR );
-
-			if ( cell ) {
-				openPeriod( cell );
-			}
-		},
-		[ openPeriod ]
-	);
-
-	// The grid names the selected cell through `aria-activedescendant`; Enter
-	// and Space open it the way a click does. A click leaves the focus on the
-	// cell itself (the chart gives cells `tabIndex={ -1 }`), so the grid is
-	// looked up from whichever of the two the key lands on.
-	const handleKeyDown = useCallback(
-		( event: KeyboardEvent< HTMLDivElement > ) => {
-			if ( event.key !== 'Enter' && event.key !== ' ' ) {
-				return;
-			}
-
-			const activeId = ( event.target as Element )
-				.closest( '[role="grid"]' )
-				?.getAttribute( 'aria-activedescendant' );
-			const cell = activeId ? document.getElementById( activeId ) : null;
-
-			if ( cell && event.currentTarget.contains( cell ) && cell.matches( CELL_SELECTOR ) ) {
-				event.preventDefault();
-				openPeriod( cell );
-			}
-		},
-		[ openPeriod ]
+		[ lifeStartsAt, timeZone, onChange, onApply ]
 	);
 
 	// Keep stale rows visible when a background refetch fails.
 	const showError = isError && rows.length === 0;
-
-	const yearLabels = useMemo( () => rows.map( row => String( row.year ) ), [ rows ] );
-
-	const renderTooltip = useCallback(
-		( { value, columnLabel, rowLabel, column }: HeatmapTooltipData ) => (
-			<CalendarHeatmapTooltip
-				value={ value }
-				// Named from the column and row, the way the chart names a cell to a
-				// screen reader: "Aug 2026". The year's roll-up is named by the year.
-				cellLabel={
-					columns[ column ]?.summary
-						? rowLabel ?? ''
-						: `${ columnLabel ?? '' } ${ rowLabel ?? '' }`.trim()
-				}
-				emptyLabel={ __( 'No views', 'jetpack-premium-analytics-pkg' ) }
-				formatValue={ metric === 'average' ? formatDailyViewCount : formatViewCount }
-			/>
-		),
-		[ metric, columns ]
-	);
 
 	return (
 		<WidgetState
@@ -199,38 +104,11 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 			} }
 			renderLoading={ <HeatmapSkeleton /> }
 		>
-			{ /* The grid inside is the interactive element; this only delegates its
-			     clicks and keyboard activation to the month they land on. */ }
-			{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */ }
-			<div className={ styles.root } onClick={ handleClick } onKeyDown={ handleKeyDown }>
-				<HeatmapChart
-					data={ columns }
-					rowLabels={ yearLabels }
-					minCellWidth={ MIN_CELL_WIDTH }
-					minCellHeight={ MIN_CELL_HEIGHT }
-					maxCellHeight={ MAX_CELL_HEIGHT }
-					primaryColor="var(--wp-admin-theme-color, #3858e9)"
-					withTooltips
-					renderTooltip={ renderTooltip }
-					className={ styles.chart }
-				>
-					{ /* Wrapped so the scale sits centred: the chart lays its trailing content out full width. */ }
-					<Stack direction="row" justify="center">
-						<HeatmapChart.Legend
-							lessLabel={
-								metric === 'average'
-									? __( 'Fewer views per day', 'jetpack-premium-analytics-pkg' )
-									: __( 'Fewer views', 'jetpack-premium-analytics-pkg' )
-							}
-							moreLabel={
-								metric === 'average'
-									? __( 'More views per day', 'jetpack-premium-analytics-pkg' )
-									: __( 'More views', 'jetpack-premium-analytics-pkg' )
-							}
-						/>
-					</Stack>
-				</HeatmapChart>
-			</div>
+			<MonthlyHeatmap
+				rows={ heatmapRows }
+				{ ...monthlyHeatmapLabels( metric ) }
+				onSelect={ openPeriod }
+			/>
 		</WidgetState>
 	);
 }
@@ -238,7 +116,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } )
 export default function PostAllTimeTraffic( { attributes = {} }: PostAllTimeTrafficWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<PostAllTimeTrafficInner metric={ resolveMetric( attributes.metric ) } />
+			<PostAllTimeTrafficInner metric={ resolveMonthlyHeatmapMetric( attributes.metric ) } />
 		</WidgetRoot>
 	);
 }
