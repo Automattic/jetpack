@@ -7,20 +7,21 @@ import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/format
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	describeError,
+	HighlightField,
+	HighlightGroup,
 	summaryCount,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Stack, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import type { MostPopularDayAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ReactNode } from 'react';
 
 // The highlight is site-wide and ignores report params, but the host may still
 // inject them via `attributes`, so the shape has to accept them.
@@ -35,36 +36,6 @@ type MostPopularDayHighlightProps = {
 	/** Fraction (0–1) of all-time views, or `undefined` with no all-time total. */
 	share?: number;
 };
-
-type MostPopularDayFieldProps = {
-	label: string;
-	value: ReactNode;
-	/** The unabbreviated value, exposed as a tooltip. */
-	valueTitle?: string;
-	caption?: string;
-};
-
-/**
- * A single labelled highlight: a small label, the prominent value, and a muted
- * caption beneath it (e.g. "Day" / "August 18" / "2020").
- */
-const MostPopularDayField = ( { label, value, valueTitle, caption }: MostPopularDayFieldProps ) => (
-	<Stack direction="column" gap="xs">
-		{ /* A heading, like the Most popular time card beside it: the labels carry
-		     the card's structure, so screen readers should hear it as structure. */ }
-		<Text variant="heading-md" render={ <h4 /> }>
-			{ label }
-		</Text>
-		<Text variant="heading-2xl" title={ valueTitle }>
-			{ value }
-		</Text>
-		{ caption !== undefined && (
-			<Text variant="body-md" className={ styles.caption }>
-				{ caption }
-			</Text>
-		) }
-	</Stack>
-);
 
 // `decimals: 0` would round 102,631 to "103K"; the design's headline keeps the
 // digit ("102.6K"). Below the first multiplier it is always ".0", so use plain there.
@@ -84,13 +55,13 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 	);
 
 	return (
-		<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
-			<MostPopularDayField
+		<HighlightGroup>
+			<HighlightField
 				label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
 				value={ formatDate( date, 'short' ) }
 				caption={ formatDate( date, 'year' ) }
 			/>
-			<MostPopularDayField
+			<HighlightField
 				label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
 				// An abbreviated headline is read aloud as "102.6 K", so the exact
 				// count is what reaches a screen reader.
@@ -117,7 +88,7 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 						  )
 				}
 			/>
-		</Stack>
+		</HighlightGroup>
 	);
 };
 
