@@ -477,11 +477,12 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * exercised without performing a signed remote request.
 	 *
 	 * Besides producing the Site Health result, this also keeps the Error_Handler
-	 * state for `xmlrpc_request_blocked` in sync: a blocked result reports the
-	 * error (making it visible on Error_Handler surfaces such as admin notices and
-	 * the dashboard), and a connected result clears it. Runs from every entry point
-	 * of the test: Site Health page loads, Core's weekly Site Health cron, and the
-	 * daily connection check on the heartbeat cron.
+	 * state for `xmlrpc_request_blocked` and `wpcom_ssl_verification_failed` in sync: a
+	 * result carrying one of those codes reports the matching error (making it
+	 * visible on Error_Handler surfaces such as admin notices and the dashboard),
+	 * and a connected result clears both. Runs from every entry point of the test:
+	 * Site Health page loads, Core's weekly Site Health cron, and the daily
+	 * connection check on the heartbeat cron.
 	 *
 	 * @param string      $name        The test name.
 	 * @param object|null $result      The JSON-decoded response body; null when the body was not valid JSON.
@@ -492,6 +493,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	public function evaluate_wpcom_connection_result( $name, $result, $status_code ) {
 		if ( ! empty( $result->connected ) ) {
 			$this->clear_blocked_request_error();
+			$this->clear_ssl_verification_error();
 			return self::passing_test( array( 'name' => $name ) );
 		}
 
@@ -501,46 +503,44 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		if ( isset( $result->error_code ) && 'xmlrpc_request_blocked' === $result->error_code ) {
 			$site_http_status = (int) ( $result->site_http_status ?? 0 );
 
-			// Skipping the WP.com verification round-trip is safe here: the error was
-			// derived from a response WP.com sent to a request this site initiated and
-			// signed, so it is self-evidencing (same trust model as the outgoing flow).
-			// The method_exists guard and the 'local_state' literal (which matches
-			// Error_Handler::ERROR_TYPE_LOCAL_STATE) protect mid-plugin-update requests,
-			// where a stale Error_Handler predating the factory and the constant can
-			// already be loaded: reporting is best-effort and must never fatal.
-			if ( method_exists( Error_Handler::class, 'build_connection_wp_error' ) ) {
-				Error_Handler::get_instance()->report_error(
-					Error_Handler::build_connection_wp_error(
-						'xmlrpc_request_blocked',
-						'WordPress.com requests to the site are blocked',
-						array( 'token' => '' ),
-						'local_state', // Error_Handler::ERROR_TYPE_LOCAL_STATE.
-						'', // The blocked state describes the site's environment, not one request, so it has no direction.
-						array(
-							'user_id'          => 0,
-							'site_http_status' => $site_http_status,
-							// Reconnecting would be rejected by the same rule that blocks WP.com,
-							// so the error carries its remedy: no reconnect CTA on any surface.
-							'action'           => 'none',
-						)
-					),
-					false,
-					true
-				);
-			}
+			$this->report_connection_state_error(
+				'xmlrpc_request_blocked',
+				'WordPress.com requests to the site are blocked',
+				array( 'site_http_status' => $site_http_status )
+			);
+
+			// A 4xx/5xx from the site means WP.com completed the TLS handshake to get
+			// it, so a lingering SSL-verification error is provably stale.
+			$this->clear_ssl_verification_error();
 
 			return $this->blocked_request_failing_test( $name, $site_http_status );
 		}
 
+		// WP.com could not verify the site's SSL certificate when connecting to it
+		// (expired, self-signed, or incomplete chain). The site itself never sees these
+		// failures — the TLS handshake dies before PHP runs — so WP.com's response to
+		// this signed request is the only evidence, and reconnecting would be rejected
+		// the same way. A stored blocked error is preserved: a failed handshake proves
+		// nothing about a blockage, and ERROR_LIFE_TIME bounds any staleness.
+		if ( isset( $result->error_code ) && 'wpcom_ssl_verification_failed' === $result->error_code ) {
+			$this->report_connection_state_error( 'wpcom_ssl_verification_failed', 'WordPress.com cannot verify the SSL certificate of the site' );
+
+			return $this->ssl_verification_failing_test( $name );
+		}
+
 		// An explicit `connected` property (falsy here, past the pass branch) proves
-		// WP.com actually ran its test and did not report a blockage — a definitive
-		// non-blocked failure, so a lingering blocked error is stale and its
-		// suppressed-reconnect presentation would be wrong for this failure.
-		// Malformed bodies and service-error envelopes (no `connected` property) are
-		// inconclusive: preserve any existing blocked error, as with timeouts and
-		// 404s. A wrongly preserved error is bounded by ERROR_LIFE_TIME anyway.
-		if ( is_object( $result ) && property_exists( $result, 'connected' ) ) {
+		// WP.com actually ran its test and did not report a blockage or a certificate
+		// failure — a definitive other failure, so a lingering blocked or SSL error is
+		// stale and its suppressed-reconnect presentation would be wrong for this
+		// failure. The exception is a result WP.com marked `inconclusive` (a transport
+		// failure it could not classify, e.g. a timeout): that neither confirms nor
+		// disproves a stored error, so preserve it — clearing would flap the notice
+		// for a broken site that is also occasionally slow. Malformed bodies and
+		// service-error envelopes (no `connected` property) are likewise preserved.
+		// A wrongly preserved error is bounded by ERROR_LIFE_TIME anyway.
+		if ( is_object( $result ) && property_exists( $result, 'connected' ) && empty( $result->inconclusive ) ) {
 			$this->clear_blocked_request_error();
+			$this->clear_ssl_verification_error();
 		}
 
 		$message = isset( $result->message ) && '' !== $result->message
@@ -557,6 +557,51 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	}
 
 	/**
+	 * Reports a verified `local_state` connection error derived from a WP.com
+	 * test-connection result.
+	 *
+	 * Skipping the WP.com verification round-trip is safe here: the error was
+	 * derived from a response WP.com sent to a request this site initiated and
+	 * signed, so it is self-evidencing (same trust model as the outgoing flow).
+	 * The method_exists guard and the 'local_state' literal (which matches
+	 * Error_Handler::ERROR_TYPE_LOCAL_STATE) protect mid-plugin-update requests,
+	 * where a stale Error_Handler predating the factory and the constant can
+	 * already be loaded: reporting is best-effort and must never fatal.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $error_code    The error code, one of Error_Handler::$known_errors.
+	 * @param string $error_message The stored error message (display copy is resolved by the Error_Handler).
+	 * @param array  $extra_data    Additional error data, merged over the defaults.
+	 */
+	private function report_connection_state_error( $error_code, $error_message, array $extra_data = array() ) {
+		if ( ! method_exists( Error_Handler::class, 'build_connection_wp_error' ) ) {
+			return;
+		}
+
+		Error_Handler::get_instance()->report_error(
+			Error_Handler::build_connection_wp_error(
+				$error_code,
+				$error_message,
+				array( 'token' => '' ),
+				'local_state', // Error_Handler::ERROR_TYPE_LOCAL_STATE.
+				'', // Connection-state errors describe the site's environment, not one request, so they have no direction.
+				array_merge(
+					array(
+						'user_id' => 0,
+						// Reconnecting cannot fix a connection-state error, so it carries
+						// its remedy: no reconnect CTA on any surface.
+						'action'  => 'none',
+					),
+					$extra_data
+				)
+			),
+			false,
+			true
+		);
+	}
+
+	/**
 	 * Clears a stored `xmlrpc_request_blocked` error, when the loaded Error_Handler supports it.
 	 *
 	 * During a plugin update, a stale Error_Handler predating `delete_error_by_code()` can
@@ -568,6 +613,20 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	private function clear_blocked_request_error() {
 		if ( method_exists( Error_Handler::class, 'delete_error_by_code' ) ) {
 			Error_Handler::get_instance()->delete_error_by_code( 'xmlrpc_request_blocked' );
+		}
+	}
+
+	/**
+	 * Clears a stored `wpcom_ssl_verification_failed` error, when the loaded Error_Handler supports it.
+	 *
+	 * As with clear_blocked_request_error(), state sync is best-effort and skipped when a
+	 * stale Error_Handler predating the method is loaded mid-plugin-update.
+	 *
+	 * @since $$next-version$$
+	 */
+	private function clear_ssl_verification_error() {
+		if ( method_exists( Error_Handler::class, 'delete_error_by_code' ) ) {
+			Error_Handler::get_instance()->delete_error_by_code( 'wpcom_ssl_verification_failed' );
 		}
 	}
 
@@ -594,6 +653,44 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 
 		$recommendation = __( 'Ask your host or security provider to allow requests from WordPress.com to your site\'s xmlrpc.php file. Reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' );
 
+		return $this->connection_state_failing_test( $name, $connection_error, $recommendation );
+	}
+
+	/**
+	 * Builds a failing result for the case where WordPress.com could not verify the
+	 * site's SSL certificate when connecting to it.
+	 *
+	 * No reconnect action is offered because a reconnect would fail certificate
+	 * verification the same way.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $name The test name.
+	 *
+	 * @return array Test results.
+	 */
+	protected function ssl_verification_failing_test( $name ) {
+		$connection_error = __( 'WordPress.com could not establish a secure connection to your site because your site\'s SSL certificate could not be verified. This is usually caused by an expired or self-signed certificate, or a missing intermediate certificate.', 'jetpack-connection' );
+
+		$recommendation = __( 'Ask your hosting provider to renew your site\'s SSL certificate or complete its certificate chain. Reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' );
+
+		return $this->connection_state_failing_test( $name, $connection_error, $recommendation );
+	}
+
+	/**
+	 * Builds a failing result for a connection-state failure that reconnecting cannot fix.
+	 *
+	 * No reconnect action is offered; contacting support is the only CTA.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $name             The test name.
+	 * @param string $connection_error The connection-specific error copy.
+	 * @param string $recommendation   The recommendation for resolving it.
+	 *
+	 * @return array Test results.
+	 */
+	protected function connection_state_failing_test( $name, $connection_error, $recommendation ) {
 		return self::failing_test(
 			array(
 				'name'              => $name,

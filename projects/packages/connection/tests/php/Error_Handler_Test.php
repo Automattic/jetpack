@@ -2157,6 +2157,87 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Builds the SSL-verification error the connection health tests report.
+	 *
+	 * @return \WP_Error
+	 */
+	private function get_ssl_verification_error() {
+		return Error_Handler::build_connection_wp_error(
+			'wpcom_ssl_verification_failed',
+			'WordPress.com cannot verify the SSL certificate of the site',
+			array( 'token' => '' ),
+			Error_Handler::ERROR_TYPE_LOCAL_STATE,
+			'',
+			array(
+				'user_id' => 0,
+				'action'  => 'none',
+			)
+		);
+	}
+
+	/**
+	 * Test the SSL-verification error is displayable with its own message and no reconnect CTA.
+	 */
+	public function test_displayable_errors_wpcom_ssl_verification_failed() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_ssl_verification_error(), false, true );
+
+		$displayable_errors = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', $displayable_errors );
+
+		$error = $displayable_errors['wpcom_ssl_verification_failed']['0'];
+
+		// The message is deliberately brief — Site Health carries the detailed
+		// diagnosis — but names the condition and points there.
+		$this->assertStringContainsString( 'SSL certificate', $error['error_message'] );
+		$this->assertStringContainsString( 'Site Health', $error['error_message'] );
+
+		// No reconnect CTA, and no extra support-link CTA stacked next to the
+		// notice's Site Health link.
+		$this->assertSame( 'none', $error['error_data']['action'] );
+		$this->assertFalse( isset( $error['error_data']['support_link'] ) );
+
+		// Site-wide audience: the blog, not a specific user, is affected.
+		$this->assertSame( 'site', $error['audience'] );
+	}
+
+	/**
+	 * Test the admin notice provides a default message for the SSL-verification error.
+	 */
+	public function test_generic_admin_notice_default_message_for_ssl_verification() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_ssl_verification_error(), false, true );
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_ssl_test',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		$received_default = null;
+		add_filter(
+			'jetpack_connection_error_notice_message',
+			static function ( $message ) use ( &$received_default ) {
+				$received_default = $message;
+				return ''; // Suppress the actual notice output.
+			}
+		);
+
+		$this->error_handler->generic_admin_notice_error();
+
+		$this->assertIsString( $received_default );
+		$this->assertStringContainsString( 'SSL certificate', $received_default );
+		$this->assertStringContainsString( 'Site Health', $received_default );
+	}
+
+	/**
 	 * Test caching functionality of get_displayable_errors method
 	 */
 	public function test_get_displayable_errors_caching() {
