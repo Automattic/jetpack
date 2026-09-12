@@ -1,4 +1,12 @@
-import { render, renderHook, screen, within, act } from '@testing-library/react';
+import {
+	render,
+	renderHook,
+	screen,
+	within,
+	act,
+	waitFor,
+	fireEvent,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
@@ -39,6 +47,168 @@ describe( 'BarChart', () => {
 			</GlobalChartsProvider>
 		);
 	};
+
+	describe( 'pointer selection and focus return', () => {
+		const screenTransform = Object.getOwnPropertyDescriptor( SVGElement.prototype, 'getScreenCTM' );
+		beforeAll( () => {
+			// jsdom lacks the SVG transform used by visx to convert pointer coordinates.
+			Object.defineProperty( SVGElement.prototype, 'getScreenCTM', {
+				configurable: true,
+				value: () => null,
+			} );
+		} );
+
+		afterAll( () => {
+			if ( screenTransform ) {
+				Object.defineProperty( SVGElement.prototype, 'getScreenCTM', screenTransform );
+			} else {
+				Reflect.deleteProperty( SVGElement.prototype, 'getScreenCTM' );
+			}
+		} );
+
+		const barGeometry = () => {
+			// visx renders these bars without accessible roles or configurable test IDs.
+			// eslint-disable-next-line testing-library/no-node-access
+			const bars = screen.getByRole( 'grid' ).querySelectorAll( '.visx-bar-group rect' );
+			return Array.from( bars, bar =>
+				[ 'x', 'y', 'width', 'height' ].map( name => Number( bar.getAttribute( name ) ) )
+			);
+		};
+
+		const hover = ( clientX: number, clientY: number ) => {
+			// visx owns the pointer capture rect and does not expose an attribute prop for it.
+			// eslint-disable-next-line testing-library/no-node-access
+			const target = screen.getByRole( 'grid' ).querySelector( 'svg > rect[fill="transparent"]' );
+			fireEvent( target, new MouseEvent( 'pointermove', { bubbles: true, clientX, clientY } ) );
+		};
+
+		test( 'Escape returns focus to the grid without reopening either tooltip', async () => {
+			jest.useFakeTimers();
+			try {
+				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+				renderWithTheme( { withTooltips: true } );
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				await user.tab();
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				await user.keyboard( '{Escape}' );
+				await act( async () => {
+					jest.advanceTimersByTime( 5000 );
+				} );
+				expect( chart ).toHaveFocus();
+				expect( screen.queryByTestId( /^chart-tooltip-\d+$/ ) ).not.toBeInTheDocument();
+				expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+			} finally {
+				jest.useRealTimers();
+			}
+		} );
+
+		test( 'selects the nearer padded band before and after an unrelated rerender', async () => {
+			const chart = ( className: string ) => (
+				<GlobalChartsProvider>
+					<BarChart { ...defaultProps } withTooltips className={ className } />
+				</GlobalChartsProvider>
+			);
+			const { rerender } = render( chart( 'before' ) );
+			const [ [ x0, , width ], [ x1 ] ] = barGeometry();
+			const clientX = ( x0 + width / 2 + x1 + width / 2 ) / 2 - 2;
+			hover( clientX, 150 );
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( 'Jan 1' );
+			rerender( chart( 'after' ) );
+			hover( x1 + width / 2, 150 );
+			await waitFor( () => expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Jan 2' ) );
+			hover( clientX, 150 );
+			await waitFor( () => expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Jan 1' ) );
+		} );
+
+		test.each( [ 'vertical', 'horizontal' ] )(
+			'selects the long grouped bar near its base in a %s chart',
+			async orientation => {
+				renderWithTheme( {
+					withTooltips: true,
+					orientation,
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ label: 'Jan 1', value: 100 },
+								{ label: 'Jan 2', value: 100 },
+							],
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ label: 'Jan 1', value: 10 },
+								{ label: 'Jan 2', value: 10 },
+							],
+						},
+					],
+				} );
+				const [ [ x, y, width, height ] ] = barGeometry();
+				hover(
+					orientation === 'horizontal' ? x + 2 : x + width / 2,
+					orientation === 'horizontal' ? y + height / 2 : y + height - 2
+				);
+				await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( 'Series A' );
+			}
+		);
+	} );
+
+	test( 'reports category bounds without drawing an overlay and clears them on Escape', async () => {
+		const user = userEvent.setup();
+		const onCategoryHighlightChange = jest.fn();
+		renderWithTheme( { withTooltips: true, onCategoryHighlightChange } );
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		expect( onCategoryHighlightChange ).toHaveBeenLastCalledWith(
+			expect.objectContaining( {
+				datum: expect.objectContaining( { value: 10 } ),
+				x: expect.any( Number ),
+				y: expect.any( Number ),
+				width: expect.any( Number ),
+				height: expect.any( Number ),
+			} )
+		);
+		expect( screen.queryByTestId( 'bar-chart-category-highlight' ) ).not.toBeInTheDocument();
+		await user.keyboard( '{Escape}' );
+		await waitFor( () => expect( onCategoryHighlightChange ).toHaveBeenLastCalledWith( null ) );
+	} );
+
+	test.each( [ 'vertical', 'horizontal' ] )(
+		'draws the active category across a %s plot',
+		async orientation => {
+			const user = userEvent.setup();
+			const onCategoryHighlightChange = jest.fn();
+			renderWithTheme( {
+				withTooltips: true,
+				withCategoryHighlight: true,
+				orientation,
+				onCategoryHighlightChange,
+			} );
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			const highlight = screen.getByTestId( 'bar-chart-category-highlight' );
+			const bounds = onCategoryHighlightChange.mock.calls.at( -1 )[ 0 ];
+			expect( Number( highlight.getAttribute( 'width' ) ) ).toBe( bounds.width );
+			expect( Number( highlight.getAttribute( 'height' ) ) ).toBe( bounds.height );
+			expect( bounds.width ).toBeGreaterThan( 0 );
+			expect( bounds.height ).toBeGreaterThan( 0 );
+		}
+	);
+
+	test( 'aligns horizontal grid lines with explicit value ticks', () => {
+		const { container } = renderWithTheme( {
+			gridVisibility: 'x',
+			options: {
+				axis: { y: { tickValues: [ 0, 50, 100 ] } },
+				scale: { y: { domain: [ 0, 100 ] } },
+			},
+		} );
+		// visx renders grid lines without accessible roles or configurable test IDs.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		const lines = container.querySelectorAll( '.visx-rows line' );
+		expect( lines ).toHaveLength( 3 );
+	} );
 
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {
@@ -927,6 +1097,55 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'Pattern', () => {
+		test( 'uses point colors with a series fallback and preserves pattern fills', () => {
+			const data: SeriesData[] = [
+				{
+					label: 'Scores',
+					data: [
+						{
+							label: 'First day',
+							value: 80,
+							color: 'var(--wpds-color-foreground-content-success-weak)',
+						},
+						{
+							label: 'Second day',
+							value: 40,
+							color: 'var(--wpds-color-foreground-content-error-weak)',
+						},
+						{ label: 'Third day', value: 60 },
+					],
+				},
+			];
+			const { rerender } = render( <BarChart { ...defaultProps } data={ data } /> );
+			// eslint-disable-next-line testing-library/no-node-access -- visx renders these bars without accessible roles or configurable test IDs.
+			const getBars = () => screen.getByRole( 'grid' ).querySelectorAll( '.visx-bar-group rect' );
+			const bars = getBars();
+			expect( bars ).toHaveLength( 3 );
+			expect( bars[ 0 ] ).toHaveAttribute( 'fill', data[ 0 ].data[ 0 ].color );
+			expect( bars[ 1 ] ).toHaveAttribute( 'fill', data[ 0 ].data[ 1 ].color );
+			const fallbackFill = bars[ 2 ].getAttribute( 'fill' );
+			expect( fallbackFill ).toBeTruthy();
+			rerender(
+				<BarChart
+					{ ...defaultProps }
+					data={ [
+						{
+							...data[ 0 ],
+							data: data[ 0 ].data.map( point => ( { ...point, color: undefined } ) ),
+						},
+					] }
+				/>
+			);
+			expect( getBars()[ 0 ] ).toHaveAttribute( 'fill', fallbackFill );
+			rerender( <BarChart { ...defaultProps } data={ data } withPatterns /> );
+			for ( const bar of getBars() ) {
+				expect( bar ).toHaveAttribute(
+					'fill',
+					expect.stringMatching( /^url\(#bar-pattern-.+-0\)$/ )
+				);
+			}
+		} );
+
 		test( 'renders with patterns', () => {
 			renderWithTheme( { withPatterns: true } );
 			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();

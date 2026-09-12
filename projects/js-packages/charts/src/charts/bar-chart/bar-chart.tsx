@@ -38,7 +38,10 @@ import {
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
 } from './private';
+import { BandTooltip } from './private/band-tooltip';
+import { CategoryHighlight } from './private/category-highlight';
 import type { ComparisonSeriesEntry } from './private';
+import type { CategoryHighlightSelection } from './private/category-highlight';
 import type {
 	BaseChartProps,
 	DataPointDate,
@@ -57,9 +60,17 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVis
 	 */
 	legend?: SeriesChartLegendConfig;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	/** Place the tooltip beside its category without vertical flipping. */
+	tooltipPlacement?: 'auto' | 'beside';
+	/** Tooltip top anchor in SVG coordinates; negative offsets are supported. */
+	tooltipAnchorTop?: number;
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
+	/** Highlight the active category across the plot when tooltips are enabled. */
+	withCategoryHighlight?: boolean;
+	/** Receive active category bounds in SVG coordinates, or null when dismissed. */
+	onCategoryHighlightChange?: ( selection: CategoryHighlightSelection | null ) => void;
 	children?: ReactNode;
 }
 
@@ -121,10 +132,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legend = {},
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
+	tooltipPlacement,
+	tooltipAnchorTop,
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
+	withCategoryHighlight = false,
+	onCategoryHighlightChange,
 	defaultHiddenSeries,
 	animation,
 	children,
@@ -342,10 +357,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	}, [ comparisonEntries.length, chartOptions.xScale, chartOptions.yScale, horizontal ] );
 
 	const getBarBackground = useCallback(
-		( index: number ) => () =>
+		( index: number ) => ( datum: DataPointDate ) =>
 			withPatterns
 				? `url(#${ getPatternId( chartId, index ) })`
-				: getElementStyles( { data: dataSorted[ index ], index } ).color,
+				: datum.color ?? getElementStyles( { data: dataSorted[ index ], index } ).color,
 		[ withPatterns, getElementStyles, dataSorted, chartId ]
 	);
 
@@ -581,6 +596,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					return (
 						<div
 							role="grid"
+							ref={ chartRef }
 							aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 							tabIndex={ 0 }
 							onKeyDown={ onChartKeyDown }
@@ -588,7 +604,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							onBlur={ onChartBlur }
 						>
 							{ chartHeight > 0 && (
-								<div ref={ chartRef } className={ plotStyles[ 'xy-plot' ] }>
+								<div className={ plotStyles[ 'xy-plot' ] }>
 									<XYChart
 										theme={ theme }
 										width={ width }
@@ -605,13 +621,30 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										pointerEventsDataKey="nearest"
 									>
 										{ ! allSeriesHidden && (
-											<Grid
-												columns={ gridVisibility.includes( 'y' ) }
-												rows={ gridVisibility.includes( 'x' ) }
-												numTicks={ 4 }
-											/>
+											<>
+												{ /* Visx forwards tickValues to its grid primitives but omits it from GridProps. */ }
+												<Grid
+													columns={ gridVisibility.includes( 'y' ) }
+													rows={ false }
+													numTicks={ 4 }
+													{ ...{ tickValues: chartOptions.axis.x.tickValues } }
+												/>
+												<Grid
+													columns={ false }
+													rows={ gridVisibility.includes( 'x' ) }
+													numTicks={ 4 }
+													{ ...{ tickValues: chartOptions.axis.y.tickValues } }
+												/>
+											</>
 										) }
 
+										{ withTooltips && ( withCategoryHighlight || onCategoryHighlightChange ) && (
+											<CategoryHighlight
+												visible={ withCategoryHighlight }
+												horizontal={ horizontal }
+												onChange={ onCategoryHighlightChange }
+											/>
+										) }
 										{ withPatterns && (
 											<>
 												<defs data-testid="bar-chart-patterns">
@@ -673,6 +706,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												/>
 											) ) }
 										</BarGroup>
+										{ withTooltips && (
+											<BandTooltip keys={ primaryKeys } groupPadding={ groupPadding } />
+										) }
 
 										{ /* With every series hidden there is no data to build the value scale from, so
 										     visx collapses the domain and the axes render squished at the top. Drop them
@@ -686,6 +722,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 										{ withTooltips && (
 											<AccessibleTooltip
+												tooltipPlacement={ tooltipPlacement }
+												tooltipAnchorTop={ tooltipAnchorTop }
 												detectBounds
 												snapTooltipToDatumX
 												snapTooltipToDatumY

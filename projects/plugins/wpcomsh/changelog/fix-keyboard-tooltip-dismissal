@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics and Podcast dashboards: Return focus to bar charts after pressing Escape or moving past the last bar, and keep hovered tooltips aligned with their bars.

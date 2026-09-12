@@ -364,6 +364,33 @@ Enable rich interactive tooltips that display detailed information on hover:
 	/>` }
 />
 
+### Category Highlight
+
+Set `withCategoryHighlight` alongside `withTooltips` to shade the active category across the plot. Hover a bar or use arrow keys after focusing the chart; Escape dismisses the highlight with the tooltip.
+
+<Canvas of={ BarChartStories.CategoryHighlight } />
+
+For an overlay outside the chart, `onCategoryHighlightChange` reports the active datum and the category rectangle in SVG coordinates, or `null` on dismissal. The callback also works without rendering the built-in highlight.
+
+### Beside Tooltips
+
+Use `tooltipPlacement="beside"` to keep the tooltip beside the active bar instead of flipping vertically. It flips horizontally near an edge and stays within the viewport or clipping ancestor. `tooltipAnchorTop` sets its top anchor in SVG coordinates; negative values place the anchor above the plot.
+
+<Canvas of={ BarChartStories.BesideTooltip } />
+
+<Source
+	language="tsx"
+	code={ `import { BarChart } from '@automattic/charts';
+
+	<BarChart
+		data={ data }
+		withTooltips={ true }
+		withCategoryHighlight={ true }
+		tooltipPlacement="beside"
+		tooltipAnchorTop={ 40 }
+	/>` }
+/>
+
 ### Keyboard Navigation
 
 Charts are fully keyboard accessible:
@@ -406,7 +433,11 @@ Bar Charts integrate seamlessly with the chart theming system. The default theme
 	}` }
 />
 
-Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
+Set a data point's optional `color` to override the series color for that bar. Points without a color retain the series color. When `withPatterns` is enabled, pattern fills take precedence over point colors. The shared point types expose this field, but only BarChart uses it.
+
+<Canvas of={ BarChartStories.PerPointColors } />
+
+For other catalog colors, declare the corresponding role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
 <Source
 	language="css"

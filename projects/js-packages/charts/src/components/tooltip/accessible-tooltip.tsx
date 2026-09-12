@@ -227,12 +227,18 @@ export const useKeyboardNavigation = ( {
 		[ preventTooltipScroll, selectedIndex ]
 	);
 
-	// On each focus of chart, reset the selectedIndex to 0, if keyboard navigation is not already active
-	const onChartFocus = useCallback( () => {
-		if ( ! isNavigating && selectedIndex !== undefined ) {
-			setSelectedIndex( 0 );
-		}
-	}, [ isNavigating, selectedIndex, setSelectedIndex ] );
+	// Returning focus from the tooltip must not restore the selection Escape just cleared.
+	const onChartFocus = useCallback(
+		( event: React.FocusEvent< HTMLDivElement > ) => {
+			if ( event.currentTarget.contains( event.relatedTarget as Node | null ) ) {
+				return;
+			}
+			if ( ! isNavigating && selectedIndex !== undefined ) {
+				setSelectedIndex( 0 );
+			}
+		},
+		[ isNavigating, selectedIndex, setSelectedIndex ]
+	);
 
 	// On each blur of chart, keyboard navigation should restart from first tooltip
 	const onChartBlur = useCallback( () => {
