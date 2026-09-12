@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Site Health: Give every connection test a readable heading instead of one derived from its internal name.
