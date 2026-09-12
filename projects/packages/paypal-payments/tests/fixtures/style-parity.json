@@ -1,5 +1,5 @@
 {
-	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. textCases run twice on the PHP side — once as the QR caption, once as the payment link — because one helper serves both, and a branch that forgets to call it would otherwise pass. rejected* are values the published page refuses; the canvas has to refuse them too, or a block pasted in code view renders in the editor and vanishes on publish. buttonCases are the button's own: a background, and the Outline style dropping it so the stylesheet's transparent rule is not beaten by an inline declaration.",
+	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. textCases run twice on the PHP side — once as the QR caption, once as the payment link — because one helper serves both, and a branch that forgets to call it would otherwise pass. rejected* are values the published page refuses; the canvas has to refuse them too, or a block pasted in code view renders in the editor and vanishes on publish. buttonCases are the button's own — width and border land there rather than on the card, and: a background, and the Outline style dropping it so the stylesheet's transparent rule is not beaten by an inline declaration.",
 	"cases": [
 		{
 			"name": "a spacing preset",
@@ -283,6 +283,13 @@
 			"declarations": {
 				"font-size": "calc(4px//2)"
 			}
+		},
+		{
+			"name": "a palette preset with a capitalised slug",
+			"color": "var:preset|color|Vivid-Red-2",
+			"declarations": {
+				"color": "var(--wp--preset--color--vivid-red-2)"
+			}
 		}
 	],
 	"rejectedCases": [
@@ -355,6 +362,39 @@
 					}
 				}
 			}
+		},
+		{
+			"name": "a spacing preset as a radius",
+			"attributes": {
+				"style": {
+					"border": {
+						"radius": "var:preset|spacing|30"
+					}
+				}
+			}
+		},
+		{
+			"name": "a spacing preset as a per-corner radius",
+			"attributes": {
+				"style": {
+					"border": {
+						"radius": {
+							"topLeft": "var:preset|spacing|30"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "a spacing preset as a stroke width",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "var:preset|spacing|20",
+						"color": "#ff0000"
+					}
+				}
+			}
 		}
 	],
 	"rejectedTextCases": [
@@ -389,6 +429,10 @@
 		{
 			"name": "a size smuggling a css comment close",
 			"fontSize": "calc(2px)*/"
+		},
+		{
+			"name": "a spacing preset as a font size",
+			"fontSize": "var:preset|spacing|50"
 		}
 	],
 	"buttonCases": [
@@ -450,6 +494,46 @@
 			},
 			"declarations": {
 				"font-size": "18px"
+			}
+		},
+		{
+			"name": "width and border land on the button",
+			"attributes": {
+				"blockWidth": "75%",
+				"style": {
+					"border": {
+						"radius": "6px",
+						"width": "2px",
+						"color": "#1e1e1e"
+					}
+				}
+			},
+			"declarations": {
+				"width": "75%",
+				"max-width": "100%",
+				"border-radius": "6px",
+				"border-width": "2px",
+				"border-style": "solid",
+				"border-color": "#1e1e1e"
+			}
+		},
+		{
+			"name": "outline keeps an explicit stroke",
+			"attributes": {
+				"buttonStyle": "outline",
+				"style": {
+					"border": {
+						"radius": "8px",
+						"width": "2px",
+						"color": "#1e1e1e"
+					}
+				}
+			},
+			"declarations": {
+				"border-radius": "8px",
+				"border-width": "2px",
+				"border-style": "solid",
+				"border-color": "#1e1e1e"
 			}
 		}
 	]

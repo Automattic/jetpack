@@ -172,44 +172,59 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Margin, and the width for the formats whose wrapper IS the thing on screen.
+	 * The QR card — Width, Border and margin all land on the one element the
+	 * merchant sees.
 	 *
-	 * The QR's wrapper is its card, so Width Settings caps it here. The button's
-	 * wrapper is a product card around a button, so the button takes the width
-	 * itself — see get_button_style().
-	 *
-	 * Every value is validated here, before the style engine sees it.
+	 * Every value is validated before the style engine sees it.
 	 * wp_style_engine_get_styles() is not a sanitizer: its only filter is
 	 * safecss_filter_attr(), which splits on `;` and keeps any extra declaration
-	 * whose property core allows — so an unchecked `0;position:fixed;…` in a
-	 * margin or radius renders verbatim on the published page.
+	 * whose property core allows — so an unchecked `0;position:fixed;…` renders
+	 * verbatim on the published page.
 	 *
-	 * getWrapperStyle() in utils/block-styles.js builds the same declarations for
-	 * the canvas's .jetpack-paypal-button-preview. Change one, change the other.
+	 * Mirrors getQrStyle() in utils/block-styles.js.
 	 *
-	 * @param array $attributes   The block attributes.
-	 * @param bool  $sizes_itself True when the wrapper is the element being sized.
+	 * @param array $attributes The block attributes.
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
 	 */
-	private static function get_wrapper_style( $attributes, $sizes_itself = true ) {
+	private static function get_qr_style( $attributes ) {
 		$rules = array();
 
 		$width = self::chosen_width( $attributes );
-		if ( $sizes_itself && '' !== $width ) {
+		if ( '' !== $width ) {
 			$rules[] = sprintf( 'max-width:%s', $width );
 		}
 
-		$style = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
+		return self::css_rules( $rules ) . self::get_margin_style( $attributes ) . self::get_border_style( $attributes );
+	}
 
+	/**
+	 * The button's product card — margin only.
+	 *
+	 * Width and Border belong to the button — see get_button_style(). Margin still
+	 * lands here, since a QR-to-BUTTON format switch can leave one behind.
+	 *
+	 * Mirrors getCardStyle() in utils/block-styles.js.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_card_style( $attributes ) {
+		return self::get_margin_style( $attributes );
+	}
+
+	/**
+	 * Margin, from the Border Settings panel.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_margin_style( $attributes ) {
+		$style  = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
 		$engine = wp_style_engine_get_styles(
 			array( 'spacing' => array( 'margin' => self::sanitize_box( $style['spacing']['margin'] ?? null ) ) )
 		);
 
-		if ( ! empty( $engine['css'] ) ) {
-			$rules[] = rtrim( $engine['css'], ';' );
-		}
-
-		return self::css_rules( $rules );
+		return empty( $engine['css'] ) ? '' : self::css_rules( array( rtrim( $engine['css'], ';' ) ) );
 	}
 
 	/**
@@ -229,32 +244,31 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Border Settings — the radius and the stroke.
+	 * Whether the button draws as an outline rather than a filled face.
 	 *
-	 * Its own method because the two formats hang it on different elements. The QR
-	 * card is the thing the merchant sees, so its border goes on the wrapper. The
-	 * button's wrapper is a product card with no background of its own, where a
-	 * radius has no edge to round and a stroke boxes the card rather than the
-	 * button — so the button hangs it on the button.
+	 * @param array $attributes The block attributes.
+	 * @return bool True when the Outline style is selected.
+	 */
+	private static function is_outline_button( $attributes ) {
+		return 'outline' === ( $attributes['buttonStyle'] ?? 'fill' );
+	}
+
+	/**
+	 * Border Settings — the radius and the stroke.
 	 *
 	 * Mirrors getBorderStyle() in utils/block-styles.js.
 	 *
-	 * @param array $attributes  The block attributes.
-	 * @param bool  $radius_only Drop the stroke, for a button whose Outline style draws its own.
+	 * @param array $attributes The block attributes.
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
 	 */
-	private static function get_border_style( $attributes, $radius_only = false ) {
+	private static function get_border_style( $attributes ) {
 		$rules  = array();
 		$style  = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
 		$border = self::sanitize_border( $style['border'] ?? null );
 
-		if ( $radius_only ) {
-			$border = array_intersect_key( $border, array( 'radius' => true ) );
-		}
-
-		// The style engine only emits a hex border-color, and a theme palette
-		// entry can be rgba() or hsl(). getBorderClassesAndStyles() keeps those on
-		// the canvas, so emit the validated value here rather than lose it.
+		// The style engine only emits a hex border-color, and a theme palette entry
+		// can be rgba() or hsl(). getBorderStyle() keeps those on the canvas, so
+		// emit the validated value here rather than lose it.
 		$border_color = $border['color'] ?? '';
 		unset( $border['color'] );
 
@@ -274,12 +288,18 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Validate a per-side box value — margin, or a per-corner radius.
 	 *
-	 * @param mixed $box A length string, or an array keyed by side or corner.
+	 * @param mixed $box           A length string, or an array keyed by side or corner.
+	 * @param bool  $allow_presets Keep spacing presets. False for border, where the
+	 *                             style engine expands them on the canvas and drops
+	 *                             them here — so a preset would render in one place only.
 	 * @return mixed The value with every side validated, or null when none survive.
 	 */
-	private static function sanitize_box( $box ) {
+	private static function sanitize_box( $box, $allow_presets = true ) {
 		if ( is_string( $box ) ) {
 			$length = self::sanitize_css_length( $box );
+			if ( ! $allow_presets && str_starts_with( $length, 'var:preset' ) ) {
+				return null;
+			}
 			return '' === $length ? null : $length;
 		}
 
@@ -295,6 +315,9 @@ class PayPal_Payment_Buttons {
 				continue;
 			}
 			$length = self::sanitize_css_length( $value );
+			if ( ! $allow_presets && str_starts_with( $length, 'var:preset' ) ) {
+				continue;
+			}
 			if ( '' !== $length ) {
 				$clean[ $side ] = $length;
 			}
@@ -320,12 +343,12 @@ class PayPal_Payment_Buttons {
 
 		$clean = array();
 
-		$radius = self::sanitize_box( $border['radius'] ?? null );
+		$radius = self::sanitize_box( $border['radius'] ?? null, false );
 		if ( null !== $radius ) {
 			$clean['radius'] = $radius;
 		}
 
-		$width = self::sanitize_css_length( $border['width'] ?? '' );
+		$width = (string) self::sanitize_box( $border['width'] ?? '', false );
 		$color = self::sanitize_css_color( $border['color'] ?? '' );
 
 		// A half-set stroke renders inconsistently, so width, color and style go
@@ -376,48 +399,32 @@ class PayPal_Payment_Buttons {
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
 	 */
 	private static function get_button_style( $attributes ) {
-		$is_outline = self::is_outline_button( $attributes );
+		$rules = array();
 
-		// Color and size are the same job get_text_style() already does, so the
-		// button reuses it rather than validating them a second way. getButtonStyle()
-		// composes getTextStyle() for the same reason. Both helpers return a list
-		// ending in `;`, so each is trimmed before joining or the result doubles it.
-		$rules = array(
-			rtrim( self::get_text_style( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' ), ';' ),
-		);
-
-		// Outline renders on the theme's own background, with a currentColor border
-		// from style.scss. An inline background-color would beat that rule and fill
-		// the button back in, so the chosen background is dropped.
-		$background = $is_outline
+		// Outline renders on the theme's own background, so an inline
+		// background-color would beat style.scss's transparent rule and fill the
+		// button back in.
+		$background = self::is_outline_button( $attributes )
 			? ''
 			: self::sanitize_css_color( $attributes['buttonBackgroundColor'] ?? '' );
 		if ( '' !== $background ) {
 			$rules[] = sprintf( 'background-color:%s', $background );
 		}
 
-		// Width and Border hang on the button, not the product card around it. The
-		// card has no background, so a radius there rounds nothing and a stroke
-		// boxes the card. Outline draws its own border, so a stroke on top would
-		// double it — only the radius carries over.
+		// Width and Border hang on the button, not the card — see get_card_style().
+		// The card still caps at 400px, so cap the button at the space it has or a
+		// wide value spills out of it.
 		$width = self::chosen_width( $attributes );
 		if ( '' !== $width ) {
 			$rules[] = sprintf( 'width:%s', $width );
+			$rules[] = 'max-width:100%';
 		}
 
-		$rules[] = rtrim( self::get_border_style( $attributes, $is_outline ), ';' );
-
-		return self::css_rules( array_filter( $rules ) );
-	}
-
-	/**
-	 * Whether the button draws as an outline rather than a filled face.
-	 *
-	 * @param array $attributes The block attributes.
-	 * @return bool True when the Outline style is selected.
-	 */
-	private static function is_outline_button( $attributes ) {
-		return 'outline' === ( $attributes['buttonStyle'] ?? 'fill' );
+		// Each helper returns a list ending in `;`, which is what makes them safe
+		// to concatenate.
+		return self::get_text_style( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' )
+			. self::css_rules( $rules )
+			. self::get_border_style( $attributes );
 	}
 
 	/**
@@ -479,6 +486,12 @@ class PayPal_Payment_Buttons {
 		// Core reads a bare number as px, so both sides do the same.
 		if ( preg_match( '/^\d+(\.\d+)?$/', $size ) ) {
 			return $size . 'px';
+		}
+
+		// A spacing preset is a length but not a font size — it would be emitted
+		// raw as `font-size:var:preset|spacing|50` and dropped by the browser.
+		if ( str_starts_with( $size, 'var:preset' ) ) {
+			return '';
 		}
 
 		if ( '' !== self::sanitize_css_length( $size ) ) {
@@ -559,7 +572,9 @@ class PayPal_Payment_Buttons {
 		// Only color presets expand: a spacing or font preset is not a color, so it
 		// falls through and is refused, the way the canvas refuses it.
 		if ( preg_match( '/^var:preset\|color\|([a-z0-9-]+)$/i', $color, $preset ) ) {
-			return sprintf( 'var(--wp--preset--color--%s)', $preset[1] );
+			// Lowercased because that is the shape WP defines the custom property
+			// in — a `Vivid-Red` slug would resolve to nothing.
+			return sprintf( 'var(--wp--preset--color--%s)', strtolower( $preset[1] ) );
 		}
 
 		if ( preg_match( '/^var\(--wp--[a-z0-9-]+\)$/i', $color ) ) {
@@ -788,7 +803,7 @@ class PayPal_Payment_Buttons {
 			$wrapper_attributes = get_block_wrapper_attributes();
 			// Goes on .jetpack-paypal-button, not the block wrapper: style.scss caps
 			// that element at 400px, and the editor preview styles the same one.
-			$block_style    = self::style_attr( self::get_wrapper_style( $attributes ) . self::get_border_style( $attributes ) );
+			$block_style    = self::style_attr( self::get_qr_style( $attributes ) );
 			$download_label = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
 			$copy_label     = esc_html__( 'Copy Link', 'jetpack-paypal-payments' );
 			$copied_label   = esc_attr__( 'Copied!', 'jetpack-paypal-payments' );
@@ -937,17 +952,13 @@ class PayPal_Payment_Buttons {
 
 		$wrapper_attributes = get_block_wrapper_attributes();
 		// Width and Border ride on the button, not this card — see get_button_style().
-		$block_style = self::style_attr( self::get_wrapper_style( $attributes, false ) );
+		$block_style = self::style_attr( self::get_card_style( $attributes ) );
 
-		// No wordmark on the button face, and "Powered by PayPal" below it only
-		// when the merchant turns it on — so by default the button carries no
-		// branding at all. A blank label would draw an unreadable button, so fall
-		// back to the same default the editor preview uses.
+		// A blank label would draw an unreadable button, so fall back to the same
+		// default the editor preview uses.
 		$label = '' !== $button_text ? $button_text : self::default_label();
 
-		// Off unless the merchant turns it on, and only the button format offers
-		// the choice.
-		$attribution_html = empty( $attributes['showPoweredBy'] )
+		$attribution_html = empty( $attributes['buttonShowPoweredBy'] )
 			? ''
 			: sprintf(
 				'<p class="jetpack-paypal-button__attribution">%s</p>',
@@ -955,7 +966,7 @@ class PayPal_Payment_Buttons {
 			);
 
 		// `is-style-outline` is the name core and the other Jetpack blocks already
-		// use for this, so themes recognise it.
+		// use, so themes recognize it.
 		$button_class = 'jetpack-paypal-button__checkout-link wp-element-button'
 			. ( self::is_outline_button( $attributes ) ? ' is-style-outline' : '' );
 		$button_style = self::style_attr( self::get_button_style( $attributes ) );

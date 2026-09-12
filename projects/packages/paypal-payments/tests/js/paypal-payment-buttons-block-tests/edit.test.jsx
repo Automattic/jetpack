@@ -87,13 +87,14 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	),
 	// Core reads the two colors and warns when the pair is unreadable. The real
 	// one renders nothing until it has both, so the mock records what it was given.
-	ContrastChecker: ( { textColor, backgroundColor } ) => (
-		<div
-			data-testid="contrast-checker"
-			data-text={ textColor }
-			data-background={ backgroundColor }
-		/>
-	),
+	ContrastChecker: ( { textColor, backgroundColor } ) =>
+		textColor && backgroundColor ? (
+			<div
+				data-testid="contrast-checker"
+				data-text={ textColor }
+				data-background={ backgroundColor }
+			/>
+		) : null,
 	// Core's color panel is a labeled swatch row per setting, not a text field.
 	// Keep the mock a button so a test can't type a color into a UI with no input.
 	__experimentalColorGradientSettingsDropdown: ( { settings } ) => (
@@ -3326,8 +3327,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByLabelText( 'Show QR code' ) ).not.toBeInTheDocument();
 			} );
 
-			// The button colors two things, so its Color panel has two rows; the
-			// other formats color one and draw one.
+			// The button colors text and background, so its Color panel has two
+			// rows; the other formats have one.
 			it( 'gives the button a Text and a Background swatch', async () => {
 				render(
 					<Edit
@@ -3372,11 +3373,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
+				const colorPanel = await screen.findByTestId( 'tools-panel-Color' );
 
 				// The panel's own Reset All, not the per-swatch clear — one write
-				// covering every row is what the panel promises.
-				await user.click( screen.getByTestId( 'tools-panel-reset' ) );
+				// covering every key the format owns is what the panel promises.
+				await user.click( within( colorPanel ).getByTestId( 'tools-panel-reset' ) );
 
 				expect( setAttributes ).toHaveBeenCalledWith( {
 					buttonTextColor: '',
@@ -3387,9 +3388,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// The swatch would fill in and change nothing: both renderers drop the
 			// background under Outline, because the transparent one comes from CSS.
 			it( 'drops the background swatch and the contrast warning under Outline', async () => {
+				// Both colors set: the real ContrastChecker draws nothing without them.
+				const colored = {
+					...qrAttributes,
+					format: 'BUTTON',
+					buttonTextColor: '#1e1e1e',
+					buttonBackgroundColor: '#ffd140',
+				};
 				const { rerender } = render(
 					<Edit
-						attributes={ { ...qrAttributes, format: 'BUTTON', buttonStyle: 'fill' } }
+						attributes={ { ...colored, buttonStyle: 'fill' } }
 						setAttributes={ setAttributes }
 					/>
 				);
@@ -3400,7 +3408,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				rerender(
 					<Edit
-						attributes={ { ...qrAttributes, format: 'BUTTON', buttonStyle: 'outline' } }
+						attributes={ { ...colored, buttonStyle: 'outline' } }
 						setAttributes={ setAttributes }
 					/>
 				);
@@ -3409,6 +3417,50 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( within( styles ).getByTestId( 'color-Text' ) ).toBeInTheDocument();
 				expect( within( styles ).queryByTestId( 'color-Background' ) ).not.toBeInTheDocument();
 				expect( within( styles ).queryByTestId( 'contrast-checker' ) ).not.toBeInTheDocument();
+			} );
+
+			// The row is hidden under Outline, but the value behind it is not — Reset
+			// All has to clear it or it comes back when the merchant picks Fill again.
+			it( 'clears the hidden background color under Outline', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ {
+							...qrAttributes,
+							format: 'BUTTON',
+							buttonStyle: 'outline',
+							buttonBackgroundColor: '#ffd140',
+						} }
+						setAttributes={ setAttributes }
+					/>
+				);
+				const colorPanel = await screen.findByTestId( 'tools-panel-Color' );
+
+				await user.click( within( colorPanel ).getByTestId( 'tools-panel-reset' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					buttonTextColor: '',
+					buttonBackgroundColor: '',
+				} );
+			} );
+
+			// The peer formats both have this; without it a wrong fontSizeKey on the
+			// button's TypographyPanel ships green.
+			it( 'writes the button font size, and clears it on reset', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'font-size' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'font-size' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonFontSize: '1.5rem' } );
+
+				await user.click( screen.getByTestId( 'font-size-reset' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonFontSize: undefined } );
 			} );
 
 			it( 'hands the contrast checker both button colors', async () => {
@@ -3448,7 +3500,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 
 			// Fill/Outline is the button's alone — a QR or a link has no face to
-			// fill. Document-wide, wherever a future change might put it.
+			// fill. Queried document-wide so the test holds if the panel moves.
 			it( 'keeps the Styles panel off QR and Link', async () => {
 				const { rerender } = render(
 					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
@@ -3482,7 +3534,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				await user.click( checkbox );
 
-				expect( setAttributes ).toHaveBeenCalledWith( { showPoweredBy: true } );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonShowPoweredBy: true } );
 			} );
 
 			// Only the button format offers the choice; the QR draws the code and its

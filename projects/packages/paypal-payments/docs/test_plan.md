@@ -16,11 +16,11 @@
 
 | Layer | Count | Status |
 |---|---|---|
-| PHP unit tests (PHPUnit) | 243 tests, 502 assertions | ✅ All passing |
-| JS unit tests (Jest) | 105 tests, 11 suites | ✅ All passing |
-| E2E tests (Playwright) | 50 specs, 0 skipped | ✅ All passing |
+| PHP unit tests (PHPUnit) | 532 tests, 1289 assertions | ✅ All passing |
+| JS unit tests (Jest) | 509 tests, 20 suites | ✅ All passing |
+| E2E tests (Playwright) | 42 specs, 0 skipped | ✅ All passing |
 | Manual-only test points | 13 | Pending |
-| **Total** | **398** | **PHPUnit + Jest + Playwright green** |
+| **Total** | **1083** | **PHPUnit + Jest + Playwright green** |
 
 ---
 
@@ -67,7 +67,7 @@ jp docker phpunit jetpack -- --filter=PayPal
 
 **Pass criteria:** 100% pass rate, zero skipped. ✅ Met
 
-### 2.2 JS Unit Tests — 105 tests, 11 suites ✅
+### 2.2 JS Unit Tests — 509 tests, 20 suites ✅
 
 **Run command:**
 ```bash
@@ -81,7 +81,7 @@ All files live in `projects/packages/paypal-payments/tests/js/`. Modules contain
 |---|---|
 | `validation.test.js` | `validatePrice`, `validateProductName`, `validateDescription`, `getUserFriendlyError`, currency set |
 | `edit.test.jsx` | Wizard flow (WOOPTP-162): navigate Welcome → Dashboard → Credentials before asserting fields; the environment field is a link-button toggle, not a SelectControl; the connect label is "Connect", not "Connect PayPal" |
-| `paypal-button-preview.test.jsx` | Display Format dispatch (button, link, QR), QR attribution encoding, product card rendering, currency formatting, theme-native button styling, click prevention, "Powered by PayPal" attribution |
+| `paypal-button-preview.test.jsx` | Display Format dispatch (button, link, QR), QR attribution encoding, product card rendering, currency formatting, theme-native button styling, Fill/Outline and the button's own color, size, width and border, click prevention, the optional "Powered by PayPal" line |
 | `save.test.jsx` | API-managed rendering, legacy rendering, wp-element-button output, empty fallback |
 | `deprecated.test.js` | `isEligible` detection, `migrate` attribute transformation, deprecated save markup |
 | `controls.test.jsx`, `validate.test.js` | Shared block controls and attribute validation |
@@ -89,7 +89,7 @@ All files live in `projects/packages/paypal-payments/tests/js/`. Modules contain
 
 **Pass criteria:** 100% pass rate, zero skipped. ✅ Met
 
-### 2.3 E2E Tests — 50 specs (Playwright) ✅ 0 skipped
+### 2.3 E2E Tests — 42 specs (Playwright) ✅ 0 skipped
 
 **Run command:**
 ```bash
@@ -106,7 +106,7 @@ pnpm test:run
 |---|---|---|---|
 | Credential Wizard Flow | ✅ | Welcome → Dashboard → Credentials → Success wizard, show/hide toggle, dashboard link URL, whitespace trimming, Client ID format warning, environment default, sandbox toggle + warning, inline error on bad credentials, back nav preserves data, Success CTA transition | WOOPTP-162 |
 | Create Button Flow | ✅ | Form rendering, disabled state, button creation + preview | WOOPTP-154 |
-| Frontend Rendering | ✅ | Published post "Buy Now" button + payment link, "Powered by PayPal" attribution | WOOPTP-154 |
+| Frontend Rendering | ✅ | Published post "Buy Now" button + payment link | WOOPTP-154 |
 | Error Flow | ✅ | Empty name disabled, zero price disabled, blur field error, API 400 notice | WOOPTP-154 |
 | Legacy Block Compatibility | ✅ | Legacy paste-code indicator in the editor, front-end rendering of V1 markup | WOOPTP-154 |
 | Disconnect Flow | ✅ | Disconnect and delete via sidebar InspectorControls | WOOPTP-154 |
@@ -114,7 +114,6 @@ pnpm test:run
 | Token Pre-validation | ✅ | 403 shows Payment Links guidance + stays on Credentials, 403 clears partial state, 5xx does not block connection | WOOPTP-164 |
 | SVG Block Icon | ✅ | SVG in block inserter, SVG in block toolbar | WOOPTP-166 |
 | Format Switcher | ✅ | Button/Link/QR selection, switching format without recreating the product, front-end anchor and standalone QR canvas | WOOPTP-390 |
-| Button Styles | ✅ | Text and background color, Fill/Outline, font size, width and border on the button, optional "Powered by PayPal" line | WOOPTP-495 |
 
 **WP 6.9 compatibility notes:**
 - Block editor uses an iframe (`iframe[name="editor-canvas"]`) — all block locators go through `page.frameLocator()`
@@ -241,9 +240,9 @@ All of the following must be true before the PR is submitted:
 
 | Criteria | Required | Status |
 |---|---|---|
-| PHP unit tests | 243/243 pass, 502 assertions | ✅ |
-| JS unit tests | 105/105 pass, 11 suites | ✅ |
-| E2E tests | 50/50 pass, 0 skipped | ✅ |
+| PHP unit tests | 532/532 pass, 1289 assertions | ✅ |
+| JS unit tests | 509/509 pass, 20 suites | ✅ |
+| E2E tests | 42/42 pass, 0 skipped | ✅ |
 | Manual checklist | All 13 points checked | Pending |
 | Zero critical security issues | From PHP adversarial council review (Priority 2) | Pending |
 | Product confirmations | BN code approach (WOOPTP-187) ✅ + RUB sanctions flag ✅ | ✅ Done — RUB confirmed NOT allowed on the Pay Links & Buttons API. Removed from readme. Never present in code. |

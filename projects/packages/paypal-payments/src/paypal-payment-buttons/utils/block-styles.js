@@ -105,6 +105,35 @@ function box( sides ) {
 }
 
 /**
+ * A length the style engine will not silently drop.
+ *
+ * `box()` accepts spacing presets because margin goes through the style engine,
+ * which expands them. Border does not: core's JS engine expands a preset radius
+ * and wp_style_engine_get_styles() drops it, so a preset would render on the
+ * canvas and vanish on the page. Refusing it on both sides keeps them equal.
+ *
+ * @param {*} sides - A length string, or an object keyed by side or corner.
+ * @return {*} The value with presets removed, or undefined when nothing is left.
+ */
+function plainBox( sides ) {
+	const kept = box( sides );
+
+	if ( typeof kept === 'string' ) {
+		return SPACING_PRESET.test( kept ) ? undefined : kept;
+	}
+
+	if ( ! kept ) {
+		return undefined;
+	}
+
+	const plain = Object.fromEntries(
+		Object.entries( kept ).filter( ( [ , value ] ) => ! SPACING_PRESET.test( value ) )
+	);
+
+	return Object.keys( plain ).length ? plain : undefined;
+}
+
+/**
  * The chosen width, with its unit.
  *
  * @param {object} attributes - The block attributes.
@@ -119,50 +148,45 @@ function chosenWidth( attributes ) {
 }
 
 /**
- * Margin, and the width for the formats whose wrapper IS the thing on screen.
+ * Whether the button draws as an outline rather than a filled face.
  *
- * The QR's wrapper is its card, so Width Settings caps it here. The button's
- * wrapper is a product card around a button, so the button takes the width
- * itself — see getButtonStyle().
+ * Mirrors is_outline_button() in class-paypal-payment-buttons.php.
  *
- * @param {object}  attributes  - The block attributes.
- * @param {boolean} sizesItself - True when the wrapper is the element being sized.
+ * @param {object} attributes - The block attributes.
+ * @return {boolean} True when the Outline style is selected.
+ */
+export function isOutlineButton( attributes = {} ) {
+	return 'outline' === attributes.buttonStyle;
+}
+
+/**
+ * Margin, from the Border Settings panel.
+ *
+ * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
  */
-export function getWrapperStyle( attributes = {}, sizesItself = true ) {
-	const maxWidth = sizesItself ? chosenWidth( attributes ) : '';
-
-	return {
-		...( maxWidth ? { maxWidth } : {} ),
-		...getSpacingClassesAndStyles( {
-			style: { spacing: { margin: box( attributes.style?.spacing?.margin ) } },
-		} ).style,
-	};
+function getMarginStyle( attributes ) {
+	return getSpacingClassesAndStyles( {
+		style: { spacing: { margin: box( attributes.style?.spacing?.margin ) } },
+	} ).style;
 }
 
 /**
  * Border Settings — the radius and the stroke.
  *
- * Its own function because the two formats hang it on different elements. The QR
- * card is the thing the merchant sees, so its border goes on the wrapper. The
- * button's wrapper is a product card with no background of its own, where a
- * radius has no edge to round and a stroke boxes the card rather than the
- * button — so the button hangs it on the button.
- *
- * @param {object}  attributes - The block attributes.
- * @param {boolean} radiusOnly - Drop the stroke, for a button whose Outline style draws its own.
+ * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
  */
-export function getBorderStyle( attributes = {}, radiusOnly = false ) {
+function getBorderStyle( attributes ) {
 	const border = attributes.style?.border || {};
 
-	const strokeWidth = length( border.width );
+	const strokeWidth = plainBox( border.width );
 	const strokeColor = color( border.color );
 	// A half-set stroke renders inconsistently, so width, color and style go in
 	// together or not at all. border-style defaults to `none`, so a width and a
 	// color on their own would draw nothing.
 	const stroke =
-		strokeWidth && strokeColor && ! radiusOnly
+		strokeWidth && strokeColor
 			? {
 					width: strokeWidth,
 					color: strokeColor,
@@ -171,15 +195,48 @@ export function getBorderStyle( attributes = {}, radiusOnly = false ) {
 			: {};
 
 	return getBorderClassesAndStyles( {
-		style: { border: { ...stroke, radius: box( border.radius ) } },
+		style: { border: { ...stroke, radius: plainBox( border.radius ) } },
 	} ).style;
+}
+
+/**
+ * The QR card — Width, Border and margin all land on the one element the
+ * merchant sees. Mirrors get_qr_style().
+ *
+ * @param {object} attributes - The block attributes.
+ * @return {object} A React style object, empty when nothing is configured.
+ */
+export function getQrStyle( attributes = {} ) {
+	const maxWidth = chosenWidth( attributes );
+
+	return {
+		...( maxWidth ? { maxWidth } : {} ),
+		...getMarginStyle( attributes ),
+		...getBorderStyle( attributes ),
+	};
+}
+
+/**
+ * The button's product card — margin only.
+ *
+ * Width and Border belong to the button — see getButtonStyle(). Margin still
+ * lands here, since a QR-to-BUTTON format switch can leave one behind.
+ * Mirrors get_card_style().
+ *
+ * @param {object} attributes - The block attributes.
+ * @return {object} A React style object, empty when nothing is configured.
+ */
+export function getCardStyle( attributes = {} ) {
+	return getMarginStyle( attributes );
 }
 
 /**
  * A validated color, with a chosen palette entry expanded.
  *
  * None of the Color panels go through the style engine, so the expansion
- * sanitize_css_color() does for the page happens here for the canvas.
+ * sanitize_css_color() does for the page happens here for the canvas. The slug
+ * is kebab-cased first, because that is the shape WP defines the custom
+ * property in — a `Vivid-Red` slug resolves to nothing otherwise.
  *
  * @param {*} value - A raw attribute value.
  * @return {string} The color, or '' when it is not one.
@@ -188,7 +245,7 @@ function cssColor( value ) {
 	const clean = color( value );
 	const preset = clean.match( COLOR_PRESET );
 
-	return preset ? `var(--wp--preset--color--${ preset[ 1 ] })` : clean;
+	return preset ? `var(--wp--preset--color--${ preset[ 1 ].toLowerCase() })` : clean;
 }
 
 /**
@@ -207,11 +264,16 @@ function cssFontSize( value ) {
 		return `${ size }px`;
 	}
 
-	// `/*` would open a comment that swallows every declaration after it. Spelled
-	// out rather than folded into FLUID_SIZE: a `[/*]{2}` character class also
-	// rejects `**` and `//`, which sanitize_css_font_size() accepts, and the two
-	// sides have to agree exactly.
+	// `/*` or `*/` would open a CSS comment and swallow the rest. Kept out of
+	// FLUID_SIZE so both languages reject exactly the same set: a `[/*]{2}` class
+	// also rejects `**` and `//`, which the PHP side accepts.
 	if ( size.includes( '/*' ) || size.includes( '*/' ) ) {
+		return '';
+	}
+
+	// A spacing preset is a length but not a font size — it would be emitted raw
+	// as `font-size:var:preset|spacing|50` and dropped by the browser.
+	if ( SPACING_PRESET.test( size ) ) {
 		return '';
 	}
 
@@ -219,10 +281,10 @@ function cssFontSize( value ) {
 }
 
 /**
- * Color and Typography, for the QR caption and the payment link.
+ * Color and Typography, for the QR caption, the payment link and the button face.
  *
- * The caption and the link take the same validation — a value the published page
- * refuses has to be refused here too, whichever format wrote it.
+ * All three take the same validation — a value the published page refuses has to
+ * be refused here too, whichever format wrote it.
  *
  * @param {string} textColor - The chosen color.
  * @param {string} textSize  - The chosen font size, with or without its unit.
@@ -247,23 +309,22 @@ export function getTextStyle( textColor, textSize ) {
  * @return {object} A React style object, empty when nothing is configured.
  */
 export function getButtonStyle( attributes = {} ) {
-	const { buttonStyle, buttonTextColor, buttonBackgroundColor, buttonFontSize } = attributes;
-	const isOutline = 'outline' === buttonStyle;
+	const { buttonTextColor, buttonBackgroundColor, buttonFontSize } = attributes;
 
-	// Outline takes its transparent background and its currentColor border from
-	// style.scss. An inline background-color would beat that rule and fill the
-	// button back in, so the chosen background is dropped rather than emitted.
-	const background = isOutline ? '' : cssColor( buttonBackgroundColor );
+	// Outline takes its transparent background from style.scss. An inline
+	// background-color would beat that rule and fill the button back in, so the
+	// chosen background is dropped rather than emitted.
+	const background = isOutlineButton( attributes ) ? '' : cssColor( buttonBackgroundColor );
 
-	// Width and Border hang on the button, not the product card around it. The
-	// card has no background, so a radius there rounds nothing and a stroke boxes
-	// the card. Outline draws its own border, so a stroke on top would double it.
+	// Width and Border hang on the button, not the product card — see
+	// getCardStyle(). The card still caps at 400px, so cap the button at the
+	// space it has or a wide value spills out of it.
 	const width = chosenWidth( attributes );
 
 	return {
 		...getTextStyle( buttonTextColor, buttonFontSize ),
 		...( background ? { backgroundColor: background } : {} ),
-		...( width ? { width } : {} ),
-		...getBorderStyle( attributes, isOutline ),
+		...( width ? { width, maxWidth: '100%' } : {} ),
+		...getBorderStyle( attributes ),
 	};
 }
