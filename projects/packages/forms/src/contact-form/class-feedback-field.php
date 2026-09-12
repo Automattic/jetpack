@@ -18,6 +18,18 @@ class Feedback_Field {
 	use Country_Code_Utils;
 
 	/**
+	 * Maximum number of rating icons to render.
+	 *
+	 * A rating submits "<selected>/<max>", so the scale is visitor input and every renderer
+	 * that loops over it needs this bound. Keep in sync with `MAX_RATING_ICONS` in
+	 * `blocks/field-rating/rating-icons.js`; `test_rating_icon_ceiling_matches_the_js_constant`
+	 * fails if they drift.
+	 *
+	 * @var int
+	 */
+	const MAX_RATING_ICONS = 10;
+
+	/**
 	 * Cached admin theme color.
 	 *
 	 * @var string|null
@@ -380,6 +392,10 @@ class Feedback_Field {
 		if ( $rating > $max ) {
 			return $this->value;
 		}
+
+		$max    = min( $max, self::MAX_RATING_ICONS );
+		$rating = min( $rating, $max );
+
 		// Get icon style from meta data (defaults to 'stars').
 		$icon_style = $this->get_meta_key_value( 'iconStyle' );
 		if ( empty( $icon_style ) ) {
@@ -636,6 +652,8 @@ class Feedback_Field {
 		if ( $max <= 0 ) {
 			return $this->render_email_default();
 		}
+
+		$max = min( $max, self::MAX_RATING_ICONS );
 
 		$stars = '';
 		for ( $i = 1; $i <= $max; $i++ ) {

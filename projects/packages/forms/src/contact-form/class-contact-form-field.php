@@ -3716,6 +3716,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// Read block attributes needed for rendering.
 		$max_attr   = $this->get_attribute( 'max' );
 		$max_rating = is_numeric( $max_attr ) && (int) $max_attr > 0 ? (int) $max_attr : 5;
+		// The editor caps this, but a hand-edited block or shortcode attribute does not.
+		$max_rating = min( $max_rating, Feedback_Field::MAX_RATING_ICONS );
 
 		$initial_rating = (int) $value ? (int) $value : 0;
 
