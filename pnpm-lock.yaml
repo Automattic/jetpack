@@ -520,9 +520,6 @@ importers:
 
   projects/js-packages/components:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../api
@@ -3497,9 +3494,6 @@ importers:
 
   projects/packages/newsletter:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3521,6 +3515,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@jetpack-newsletter/init':
         specifier: link:packages/init
         version: link:packages/init
