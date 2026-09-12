@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: Use the shared WooCommerce Analytics module from the jetpack-sync package and defer to the WooCommerce Analytics plugin's own module when it is active.
