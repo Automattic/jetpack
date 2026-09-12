@@ -1,0 +1,18 @@
+/**
+ * Shared editor and front-end styles for Zoom Scheduler
+ */
+.wp-block-jetpack-zoom-scheduler {
+
+	&__embed {
+		margin-inline: auto;
+		max-inline-size: 550px;
+	}
+
+	iframe {
+		border: 0;
+		display: block;
+		inline-size: 100%;
+		// Keep in sync with IFRAME_HEIGHT in render.php and edit.js.
+		min-block-size: 900px;
+	}
+}
