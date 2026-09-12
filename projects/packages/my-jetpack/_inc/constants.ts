@@ -5,6 +5,7 @@ export const MY_JETPACK_PRODUCT_CHECKOUT = 'my-jetpack-product-checkout';
 
 export const MyJetpackRoutes = {
 	Home: '/:section',
+	Features: '/features',
 	Connection: '/connection',
 	ConnectionSkipPricing: '/connection?skip_pricing=true',
 	AddAkismet: '/add-akismet',

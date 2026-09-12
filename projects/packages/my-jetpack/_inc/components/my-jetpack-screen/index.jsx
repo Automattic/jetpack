@@ -9,7 +9,6 @@ import {
 	GlobalNotices,
 	Notice,
 } from '@automattic/jetpack-components';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -33,6 +32,7 @@ import { useQueryParameter } from '../../hooks/use-query-parameter';
 import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
+import { useHighlightNewSidebarItem } from '../my-jetpack-tab-panel/features/sidebar-highlight';
 import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
 import { getDefaultMyJetpackSection, isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
@@ -80,17 +80,19 @@ export default function MyJetpackScreen() {
 	useNotificationWatcher();
 	// Replay a success notice persisted before a product toggle reloaded the page.
 	useReplayPendingNotice();
+	// Points at the sidebar item a just-activated feature added. Lives here, beside the
+	// notice replay, because the tab panel remounts its content on external navigation.
+	useHighlightNewSidebarItem();
 	const {
 		// no prettier please
 		adminUrl,
 		sandboxedDomain,
 		isDevVersion,
 		userIsAdmin,
-		isJetpackPluginActive,
 	} = getMyJetpackWindowInitialState();
 
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
+	const { apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -167,13 +169,8 @@ export default function MyJetpackScreen() {
 	}
 
 	const optionalMenuItems = buildOptionalMenuItems( {
-		adminUrl,
 		isDevVersion,
 		userIsAdmin,
-		isSiteConnected,
-		isJetpackPluginActive,
-		isSimpleSite: isSimpleSite(),
-		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
 		onResetClick: () => resetJetpackOptions(),
 		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
 	} );
