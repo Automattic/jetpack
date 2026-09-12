@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Keep keyboard tooltips dismissed when Escape restores chart focus.
+Return focus to bar charts after pressing Escape or moving past the last bar.

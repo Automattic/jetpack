@@ -73,6 +73,8 @@ export function CategoryHighlight( { visible, horizontal, onChange }: Props ) {
 		onChangeRef.current?.( stableSelection );
 	}, [ stableSelection ] );
 
+	useEffect( () => () => onChangeRef.current?.( null ), [] );
+
 	if ( ! visible || ! selection ) {
 		return null;
 	}
