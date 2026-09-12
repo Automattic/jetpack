@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Utils::url_is_public() to check whether a URL is a safe destination for a server-side request.
