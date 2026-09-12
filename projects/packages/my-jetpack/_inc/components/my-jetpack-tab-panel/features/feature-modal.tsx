@@ -162,8 +162,8 @@ export function FeatureModal( {
 						{ feature.long_description || product?.longDescription || feature.description }
 					</Dialog.Description>
 
-					{ /* auto-fit rather than two fixed tracks: Activity Log, Blaze, Newsletter
-					     and Podcast have no highlights, and an empty track leaves a gutter. */ }
+					{ /* auto-fit rather than three fixed tracks: a section that renders
+					     nothing would otherwise leave a dead column behind it. */ }
 					<div className={ styles[ 'modal-panels' ] }>
 						{ highlights.length > 0 && (
 							<section className={ styles[ 'detail-section' ] }>
@@ -181,10 +181,8 @@ export function FeatureModal( {
 							</section>
 						) }
 
-						<Stack direction="column" gap="lg">
-							<FeatureDelivery state={ state } />
-							<FeaturePaid state={ state } onFilterByPlan={ onFilterByPlan } />
-						</Stack>
+						<FeatureDelivery state={ state } />
+						<FeaturePaid state={ state } onFilterByPlan={ onFilterByPlan } />
 					</div>
 
 					<FeatureLinks feature={ feature } isActive={ isActive } />
