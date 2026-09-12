@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Drop a repeated client_id check when deciding whether WPCC activation was completed.
