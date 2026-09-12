@@ -512,40 +512,43 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_ADS_SECTION_ID         => array(
-			// Match the Calypso WordAds widget order.
-			get_dashboard_default_widget_instance(
-				'default-wordads-highlights-widget-instance',
-				'jpa/wordads-highlights',
-				0,
-				4,
-				1
-			),
+			// Rows fill the three-column grid in the prototype's order.
+			// Row 1: WordAds chart.
 			get_dashboard_default_widget_instance(
 				'default-wordads-chart-tabs-widget-instance',
 				'jpa/wordads-chart-tabs',
-				1,
-				4,
+				0,
+				3,
 				2
 			),
+			// Row 2: all-time balance.
+			get_dashboard_default_widget_instance(
+				'default-wordads-highlights-widget-instance',
+				'jpa/wordads-highlights',
+				1,
+				3,
+				1
+			),
+			// Row 3: earnings, sponsored content, and adjustments history.
 			get_dashboard_default_widget_instance(
 				'default-wordads-earnings-history-widget-instance',
 				'jpa/wordads-earnings-history',
 				2,
-				4,
+				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-wordads-sponsored-content-history-widget-instance',
 				'jpa/wordads-sponsored-content-history',
 				3,
-				2,
+				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-wordads-adjustments-history-widget-instance',
 				'jpa/wordads-adjustments-history',
 				4,
-				2,
+				1,
 				2
 			),
 		),
