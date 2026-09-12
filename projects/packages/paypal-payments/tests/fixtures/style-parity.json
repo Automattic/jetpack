@@ -1,5 +1,5 @@
 {
-	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php so a value one language drops fails a test in the other. textCases run twice on the PHP side — once as the QR caption, once as the payment link — because one helper serves both, and a branch that forgets to call it would otherwise pass. rejected* are values the published page refuses; the canvas has to refuse them too, or a block pasted in code view renders in the editor and vanishes on publish. buttonCases are the button's own — width and border land there rather than on the card, and: a background, and the Outline style dropping it so the stylesheet's transparent rule is not beaten by an inline declaration.",
+	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php, so a value one language drops fails a test in the other. textCases run three times on the PHP side — as the QR caption, the payment link and the button face — because one helper serves all three, and a branch that forgets to call it would otherwise pass. rejected* are values the published page refuses; the canvas has to refuse them too, or a block pasted in code view renders in the editor and disappears on publish. buttonCases are the button's own: its background, its width and border going on the button rather than the card, and the Outline style dropping the background so an inline declaration cannot beat the stylesheet.",
 	"cases": [
 		{
 			"name": "a spacing preset",
@@ -497,7 +497,7 @@
 			}
 		},
 		{
-			"name": "width and border land on the button",
+			"name": "width and border go on the button",
 			"attributes": {
 				"blockWidth": "75%",
 				"style": {

@@ -485,8 +485,8 @@
 }
 
 // Canvas twin of the .jetpack-paypal-button__checkout-link outline rule in
-// style.scss — change one, change the other. The theme's button styles reach
-// the canvas iframe too, so hover is guarded here as well.
+// style.scss — change one, change the other. The theme's button styles load
+// in the canvas iframe too, so hover needs the same override here.
 .jetpack-paypal-button-preview__checkout-button.is-style-outline {
 
 	&,

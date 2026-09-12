@@ -613,7 +613,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that Outline puts the style class on the anchor and Fill does not.
+	 * Test which style class each button style gets.
 	 *
 	 * The transparent background and the currentColor border come from
 	 * style.scss, so the class is the whole of the contract here.
@@ -632,7 +632,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	/**
 	 * Test that an unknown button style is treated as Fill.
 	 *
-	 * The attribute is an enum, so this only arrives hand-edited in code view.
+	 * The attribute is an enum, so this value can only come from hand-editing
+	 * the block in code view.
 	 */
 	public function test_render_button_treats_an_unknown_style_as_fill() {
 		$result = $this->render_button_format(
@@ -643,7 +644,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		);
 
 		$this->assertStringNotContainsString( 'is-style-outline', $result );
-		// Anchored to the button: the same declaration on the card would pass.
+		// Read off the button: the same declaration on the card would pass.
 		$this->assertMatchesRegularExpression(
 			'/class="jetpack-paypal-button__checkout-link wp-element-button" style="[^"]*background-color:#ffd140/',
 			$result
@@ -654,7 +655,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * Test that the attribution line stays off the other two formats.
 	 *
 	 * The attribute is shared, so a merchant who ticks the box on BUTTON and then
-	 * switches format still carries the value.
+	 * switches format still has the value.
 	 *
 	 * @dataProvider provide_non_button_formats
 	 * @param string $format The display format to render.
@@ -904,7 +905,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringNotContainsString( 'Premium Widget', $result );
 
 		// The branding line is the button's alone — the QR draws the code and its
-		// caption and nothing else. Pinned so a change to it is a deliberate one.
+		// caption and nothing else. Asserted so a change here has to be deliberate.
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $result );
 	}
 

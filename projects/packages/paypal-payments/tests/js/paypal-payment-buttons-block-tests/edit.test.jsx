@@ -3329,7 +3329,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			// The button colors text and background, so its Color panel has two
 			// rows; the other formats have one.
-			it( 'gives the button a Text and a Background swatch', async () => {
+			it( 'draws a Text and a Background swatch on the button', async () => {
 				render(
 					<Edit
 						attributes={ { ...qrAttributes, format: 'BUTTON' } }
@@ -3500,7 +3500,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 
 			// Fill/Outline is the button's alone — a QR or a link has no face to
-			// fill. Queried document-wide so the test holds if the panel moves.
+			// fill. Queried document-wide so the test still works if the panel moves.
 			it( 'keeps the Styles panel off QR and Link', async () => {
 				const { rerender } = render(
 					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
@@ -3573,7 +3573,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				const styles = await screen.findByTestId( 'inspector-controls-styles' );
 				// Both testids in one query, so the result comes back in document
-				// order. Only PanelBody carries a title; the Color panel is a
+				// order. Only PanelBody has a title; the Color panel is a
 				// ToolsPanel and is named by its testid.
 				const titles = within( styles )
 					.getAllByTestId( /^(tools-panel-Color|panel-body)$/ )
