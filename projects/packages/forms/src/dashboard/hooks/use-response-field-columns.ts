@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { readColumnPreference } from '../response-column-preferences.ts';
+import { readKnownAnswerIds } from '../response-column-preferences.ts';
 import {
 	getResponseFieldColumns,
 	mergeResponseFieldColumns,
@@ -115,24 +115,24 @@ export default function useResponseFieldColumns( {
 
 		if ( previous.formId !== formId ) {
 			const staleIds = new Set( previous.columns.map( column => column.id ) );
-			const restored = readColumnPreference( formId );
 
 			seen.current = {
 				formId,
 				columns: EMPTY_COLUMNS,
-				// The answer columns that were on offer when this form's choice was saved.
-				// Anything in here has already been offered to the user once, so it must
-				// not be re-added — that is what keeps a hidden column hidden.
-				restoredIds: new Set( restored?.knownAnswerIds ?? [] ),
+				// The answer columns that were on offer when this form's view was last
+				// changed. Anything in here has already been offered to the user once, so
+				// it must not be re-added — that is what keeps a hidden column hidden.
+				restoredIds: new Set( readKnownAnswerIds( formId ) ?? [] ),
 			};
 			setColumns( EMPTY_COLUMNS );
 
-			if ( restored || staleIds.size > 0 ) {
+			// Which columns are shown is restored by `useView` before this runs, so the
+			// only thing left to fix up is the outgoing form's answer columns: they name
+			// fields the incoming form does not have.
+			if ( staleIds.size > 0 ) {
 				setView( previousView => ( {
 					...previousView,
-					fields: restored
-						? restored.fields
-						: ( previousView.fields || [] ).filter( id => ! staleIds.has( id ) ),
+					fields: ( previousView.fields || [] ).filter( id => ! staleIds.has( id ) ),
 				} ) );
 			}
 		}
