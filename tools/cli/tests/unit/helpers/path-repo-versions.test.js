@@ -4,7 +4,6 @@ import npath from 'path';
 import {
 	buildPackageVersionMap,
 	withPinnedComposerJson,
-	composerContentHash,
 	restorePinnedComposerJsonSync,
 	pinPathRepoVersions,
 	shouldPinProject,
@@ -166,6 +165,10 @@ describe( 'withPinnedComposerJson', () => {
 	} );
 } );
 
+// Composer's content-hash for `monorepoJson` below. Hardcoded rather than computed by the code
+// under test, so a drift in the PHP script's key set fails here instead of passing silently.
+const FIXTURE_HASH = '1a87f40ba2e84248869bcae576f56e7e';
+
 describe( 'lock re-stamping', () => {
 	const versions = { 'automattic/jetpack-connection': '9.1.x-dev' };
 	const monorepoJson = {
@@ -188,28 +191,26 @@ describe( 'lock re-stamping', () => {
 	} );
 	afterEach( async () => await fs.rm( dir, { recursive: true, force: true } ) );
 
-	test( 'leaves the lock validating against the restored composer.json', async () => {
+	test( 'restamps the lock for the restored manifest, leaving the rest byte-for-byte', async () => {
 		await fs.writeFile( lockPath(), lockText( '0'.repeat( 32 ) ) );
-		await withPinnedComposerJson( dir, versions, async () => {
+		await withPinnedComposerJson( dir, versions, () =>
 			// Stand in for composer: rewrite the lock from the pinned manifest.
-			await fs.writeFile( lockPath(), lockText( 'f'.repeat( 32 ) ) );
-		} );
-		const expected = await composerContentHash( npath.join( dir, 'composer.json' ) );
-		expect( JSON.parse( await fs.readFile( lockPath(), 'utf8' ) )[ 'content-hash' ] ).toBe(
-			expected
+			fs.writeFile( lockPath(), lockText( 'f'.repeat( 32 ) ) )
 		);
-	} );
-
-	test( 'preserves the rest of the lock file byte-for-byte', async () => {
-		await fs.writeFile( lockPath(), lockText( '0'.repeat( 32 ) ) );
-		await withPinnedComposerJson( dir, versions, async () => {} );
-		const after = await fs.readFile( lockPath(), 'utf8' );
-		const hash = await composerContentHash( npath.join( dir, 'composer.json' ) );
-		expect( after ).toBe( lockText( hash ) );
+		await expect( fs.readFile( lockPath(), 'utf8' ) ).resolves.toBe( lockText( FIXTURE_HASH ) );
 	} );
 
 	test( 'does nothing when the project has no lock file', async () => {
 		await withPinnedComposerJson( dir, versions, async () => {} );
 		await expect( fs.access( lockPath() ) ).rejects.toThrow();
+	} );
+
+	test( 'does not throw out of the finally when the lock cannot be rewritten', async () => {
+		// Re-stamping is best effort; failing it costs a later `composer update`, whereas throwing
+		// from the finally would mask whatever actually failed the build.
+		await fs.writeFile( lockPath(), lockText( '0'.repeat( 32 ) ) );
+		await fs.chmod( lockPath(), 0o444 );
+		await expect( withPinnedComposerJson( dir, versions, async () => 'ok' ) ).resolves.toBe( 'ok' );
+		await fs.chmod( lockPath(), 0o644 );
 	} );
 } );

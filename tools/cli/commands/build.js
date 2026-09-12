@@ -535,13 +535,8 @@ function createBuildTask( project, argv, title, build ) {
 								ok: taskOk,
 							} );
 						}
-						let finalStatus = 'complete';
-						if ( t.cached ) {
-							finalStatus = 'cached';
-						} else if ( argv.timing ) {
-							finalStatus = formatDuration( dur ) + 's';
-						}
-						await t.setStatus( finalStatus );
+						const timedStatus = argv.timing ? formatDuration( dur ) + 's' : 'complete';
+						await t.setStatus( t.cached ? 'cached' : timedStatus );
 					}
 				} );
 			} )().then(
@@ -948,22 +943,20 @@ async function buildProject( t ) {
 	if ( skipInstall ) {
 		await t.output( `Skipping composer install for CI build of non-plugin with no build script\n` );
 	} else {
-		// getInstallArgs runs `composer validate --check-lock`, so it must see the same pinned
-		// composer.json the lock was written from or it'd fall back to the slow `update` path.
-		const versions = shouldPinProject( t.project, t.ctx.lockedProjects, t.argv )
-			? t.ctx.pathRepoVersions
-			: null;
+		// Pick the verb against the unpinned manifest, which is what the lock is stamped for.
+		// Installing from a lock never consults the path repo, so only an `update` needs pinning.
+		const args = await getInstallArgs( t.project, 'composer', t.argv, t.ctx.lockedProjects );
+		const versions =
+			args[ 0 ] === 'update' && shouldPinProject( t.project, t.ctx.lockedProjects, t.argv )
+				? t.ctx.pathRepoVersions
+				: null;
 		await withPinnedComposerJson( t.cwd, versions, () =>
 			t.time( 'install', async () =>
-				t.execa(
-					'composer',
-					await getInstallArgs( t.project, 'composer', t.argv, t.ctx.lockedProjects ),
-					{
-						cwd: t.cwd,
-						stdio: [ 'ignore', 'inherit', 'inherit' ],
-						buffer: false,
-					}
-				)
+				t.execa( 'composer', args, {
+					cwd: t.cwd,
+					stdio: [ 'ignore', 'inherit', 'inherit' ],
+					buffer: false,
+				} )
 			)
 		);
 	}
@@ -988,7 +981,7 @@ async function buildProject( t ) {
 			t.ctx.cache.built++;
 			const fp = t.ctx.cache.fingerprints.get( t.project );
 			if ( fp ) {
-				await writeManifest( t.project, fp, t.argv );
+				await writeManifest( t.project, fp );
 			}
 		}
 		return;

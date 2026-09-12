@@ -1,17 +1,25 @@
 import fs from 'fs/promises';
 import os from 'os';
 import npath from 'path';
-import { getInstallArgs } from '../../../helpers/install.js';
+import { execa } from 'execa';
+import { batchLockFileStatus } from '../../../helpers/install.js';
 
-// `projectDir` resolves against process.cwd(), so these run inside a throwaway monorepo-shaped tree.
-describe( 'getInstallArgs composer lock handling', () => {
+// Runs against a throwaway monorepo-shaped git repo, since the set is derived from git plus disk.
+describe( 'batchLockFileStatus', () => {
 	const SLUG = 'plugins/thing';
 	let dir, cwd;
 
+	const lockPath = () => npath.join( dir, 'projects', SLUG, 'composer.lock' );
+	const git = ( ...args ) => execa( 'git', args, { cwd: dir } );
+
 	beforeEach( async () => {
 		cwd = process.cwd();
-		dir = await fs.mkdtemp( npath.join( os.tmpdir(), 'jp-install-' ) );
-		await fs.mkdir( npath.join( dir, 'projects', SLUG ), { recursive: true } );
+		dir = await fs.realpath( await fs.mkdtemp( npath.join( os.tmpdir(), 'jp-locks-' ) ) );
+		await fs.mkdir( npath.dirname( lockPath() ), { recursive: true } );
+		await fs.writeFile( lockPath(), '{}' );
+		await git( 'init', '-q' );
+		await git( '-c', 'user.email=t@t', '-c', 'user.name=t', 'add', '-A' );
+		await git( '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-qm', 'lock' );
 		process.chdir( dir );
 	} );
 	afterEach( async () => {
@@ -19,19 +27,13 @@ describe( 'getInstallArgs composer lock handling', () => {
 		await fs.rm( dir, { recursive: true, force: true } );
 	} );
 
-	const lockPath = () => npath.join( dir, 'projects', SLUG, 'composer.lock' );
-
-	test( 'installs from a committed lock that is present on disk', async () => {
-		await fs.writeFile( lockPath(), '{}' );
-		await expect( getInstallArgs( SLUG, 'composer', {}, new Set( [ SLUG ] ) ) ).resolves.toEqual( [
-			'install',
-		] );
+	test( 'reports a committed lock that is present on disk', async () => {
+		expect( [ ...( await batchLockFileStatus() ) ] ).toEqual( [ SLUG ] );
 	} );
 
-	test( 'updates when a committed lock has been deleted from disk', async () => {
-		// `jetpack clean <plugin> composer.lock` does exactly this; `composer install` would fail.
-		await expect( getInstallArgs( SLUG, 'composer', {}, new Set( [ SLUG ] ) ) ).resolves.toEqual( [
-			'update',
-		] );
+	test( 'omits a committed lock that has been deleted from disk', async () => {
+		// `jetpack clean <plugin> composer.lock` does this; `composer install` would then fail.
+		await fs.rm( lockPath() );
+		expect( [ ...( await batchLockFileStatus() ) ] ).toEqual( [] );
 	} );
 } );

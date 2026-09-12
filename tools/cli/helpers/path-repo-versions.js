@@ -63,6 +63,31 @@ export function shouldPinProject( project, lockedProjects, argv ) {
 	return ! argv.forMirrors && ! lockedProjects.has( project );
 }
 
+const tmpDirFor = cwd => npath.join( cwd, '.cache/build' );
+
+/**
+ * Write via rename, so a reader never sees a truncated file.
+ *
+ * Concurrent composer installs glob every package's composer.json, so a torn read would surface as
+ * a JSON parse error in an unrelated project. The temp lives in the already-gitignored .cache/build
+ * so a hard kill can't leave an untracked file next to a tracked one.
+ *
+ * @param {string} file   - Destination.
+ * @param {string} data   - Contents.
+ * @param {string} tmpDir - Directory to stage the temp file in.
+ */
+async function writeAtomic( file, data, tmpDir ) {
+	await fs.mkdir( tmpDir, { recursive: true } );
+	const tmp = npath.join( tmpDir, `${ npath.basename( file ) }.tmp-${ process.pid }` );
+	try {
+		await fs.writeFile( tmp, data );
+		await fs.rename( tmp, file );
+	} catch ( e ) {
+		await fs.rm( tmp, { force: true } ).catch( () => null );
+		throw e;
+	}
+}
+
 const HASH_SCRIPT = fileURLToPath( new URL( 'composer-content-hash.php', import.meta.url ) );
 
 /**
@@ -71,7 +96,7 @@ const HASH_SCRIPT = fileURLToPath( new URL( 'composer-content-hash.php', import.
  * @param {string} composerJsonPath - Path to a composer.json.
  * @return {Promise<string>} Hex md5.
  */
-export async function composerContentHash( composerJsonPath ) {
+async function composerContentHash( composerJsonPath ) {
 	const { stdout } = await execa( 'php', [ HASH_SCRIPT, composerJsonPath ] );
 	return stdout.trim();
 }
@@ -91,7 +116,12 @@ async function restampLock( cwd ) {
 	if ( lock === null ) {
 		return;
 	}
-	const hash = await composerContentHash( npath.join( cwd, 'composer.json' ) );
+	// Runs from a `finally`, so it must never throw: failing to re-stamp costs a future
+	// `composer update`, while throwing here would mask whatever actually failed the build.
+	const hash = await composerContentHash( npath.join( cwd, 'composer.json' ) ).catch( () => null );
+	if ( hash === null ) {
+		return;
+	}
 	// Patch the one field rather than re-encoding, so the lock's formatting is untouched.
 	const updated = lock.replace( /("content-hash":\s*")[0-9a-f]{32}(")/, `$1${ hash }$2` );
 	if ( updated !== lock ) {
@@ -164,23 +194,16 @@ export async function withPinnedComposerJson( cwd, versions, fn ) {
 
 	installRestoreHandlers();
 	pinned.set( file, original );
-	// Rename, not truncate-and-write: concurrent installs glob every package's composer.json, so a
-	// torn read would surface as a JSON parse error in an unrelated project. The temp lives in the
-	// already-gitignored .cache/build so a hard kill can't leave an untracked file behind.
-	const tmpDir = npath.join( cwd, '.cache/build' );
-	await fs.mkdir( tmpDir, { recursive: true } );
-	const tmp = npath.join( tmpDir, `composer.json.pin-${ process.pid }` );
-	await fs.writeFile( tmp, JSON.stringify( updated, null, '\t' ) + '\n' );
-	await fs.rename( tmp, file );
+	await writeAtomic( file, JSON.stringify( updated, null, '\t' ) + '\n', tmpDirFor( cwd ) );
 	try {
 		return await fn();
 	} finally {
 		if ( pinned.has( file ) ) {
 			// Restore before dropping the bookkeeping: dying in between would otherwise leave the
 			// rewritten file behind with nothing left to put it back. Re-restoring is idempotent.
-			await fs.writeFile( file, original );
+			await writeAtomic( file, original, tmpDirFor( cwd ) );
 			pinned.delete( file );
-			await restampLock( cwd );
+			await restampLock( cwd ).catch( () => null );
 		}
 	}
 }

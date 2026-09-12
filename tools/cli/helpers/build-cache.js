@@ -8,8 +8,10 @@ import { projectDir } from './install.js';
 // Bump to invalidate every cached build when the fingerprint algorithm or manifest format changes.
 const SCHEMA_VERSION = 1;
 
-// Ignored entries that are never build output, so deleting them shouldn't force a rebuild.
-const NON_OUTPUT = [ '.cache/', 'node_modules/' ];
+// Ignored paths that are developer-local rather than build output, so losing one shouldn't force a
+// rebuild. Segment-anchored: prefix matching missed nested copies like tests/e2e/node_modules/.
+const NON_OUTPUT =
+	/(^|\/)(node_modules|\.cache|\.phpunit\.cache|\.claude|\.playwright-mcp)\/|(^|\/)\.DS_Store$/;
 
 const exists = p =>
 	fs.access( p ).then(
@@ -49,7 +51,7 @@ function isIgnoredInput( path ) {
  * Extract a `projects/<type>/<name>` slug from a repo-relative path, or null.
  *
  * @param {string} path - Repo-relative path.
- * @return {string|null} Project slug.
+ * @return {string} Project slug, or `monorepo` for repo-root paths.
  */
 function slugOf( path ) {
 	return path.match( /^projects\/([^/]+\/[^/]+)\// )?.[ 1 ] ?? 'monorepo';
@@ -114,10 +116,10 @@ async function collectGitState() {
 		const tab = line.indexOf( '\t' );
 		const sha = line.slice( 0, tab ).split( ' ' )[ 1 ];
 		const path = line.slice( tab + 1 );
-		const slug = slugOf( path );
-		if ( ! slug || isIgnoredInput( path ) ) {
+		if ( isIgnoredInput( path ) ) {
 			continue;
 		}
+		const slug = slugOf( path );
 		if ( ! committed.has( slug ) ) {
 			committed.set( slug, [] );
 		}
@@ -226,9 +228,7 @@ export async function computeFingerprints( dependencies, argv ) {
 		mode: argv.production ? 'production' : 'development',
 		// Pinning resolves path packages to their branch-alias rather than dev-trunk, so a cached
 		// build from a pinned run must not be reused for an unpinned one.
-		flags: `pin:${ !! argv.pinPathRepoVersions } lock:${
-			argv.useUncommittedComposerLock !== false
-		}`,
+		flags: `pin:${ !! argv.pinPathRepoVersions } lock:${ argv.useUncommittedComposerLock }`,
 		toolVersion,
 		committed,
 		dirty,
@@ -275,7 +275,7 @@ async function projectOutputs( project ) {
 		],
 		{ cwd: projectDir( project ) }
 	);
-	return stdout.split( '\n' ).filter( p => p && ! NON_OUTPUT.some( n => p.startsWith( n ) ) );
+	return stdout.split( '\n' ).filter( p => p && ! NON_OUTPUT.test( p ) );
 }
 
 /**
@@ -305,13 +305,10 @@ export async function canSkip( project, fp ) {
  *
  * @param {string} project - Slug.
  * @param {string} fp      - Fingerprint that was just built.
- * @param {object} argv    - Argv (uses .production).
  */
-export async function writeManifest( project, fp, argv ) {
+export async function writeManifest( project, fp ) {
 	const manifest = {
-		schemaVersion: SCHEMA_VERSION,
 		inputHash: fp,
-		mode: argv.production ? 'production' : 'development',
 		outputs: await projectOutputs( project ),
 		builtAt: new Date().toISOString(),
 	};

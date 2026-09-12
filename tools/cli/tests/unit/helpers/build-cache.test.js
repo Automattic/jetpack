@@ -172,8 +172,6 @@ describe( 'canSkip / writeManifest', () => {
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 
-	// The case a fixed list of output dirs missed: plugins/boost emits into app/**/dist, so its
-	// manifest recorded only `vendor` and losing the real output still counted as a hit.
 	test( 'tracks outputs in nested directories a fixed list would not name', async () => {
 		await addOutput( 'app/assets/dist/bundle.js' );
 		await writeManifest( SLUG, 'fp1', {} );

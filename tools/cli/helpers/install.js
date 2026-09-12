@@ -47,30 +47,34 @@ async function isComposerLockOk( dir ) {
  *
  * Replaces per-project `git ls-files` calls with a single invocation.
  *
- * @return {Promise<Set<string>>} Set of project slugs that have a committed composer.lock.
+ * @return {Promise<Set<string>>} Slugs whose committed composer.lock is also present on disk.
  */
 export async function batchLockFileStatus() {
 	const { stdout } = await execa( 'git', [ 'ls-files', '--', 'composer.lock', '*/composer.lock' ], {
 		cwd: process.cwd(),
 	} );
 
-	const lockedProjects = new Set();
-
-	stdout
+	const tracked = stdout
 		.split( '\n' )
 		.filter( Boolean )
-		.forEach( p => {
-			if ( p === 'composer.lock' ) {
-				lockedProjects.add( 'monorepo' );
-			} else {
-				const m = p.match( /^projects\/([^/]+\/[^/]+)\/composer\.lock$/ );
-				if ( m ) {
-					lockedProjects.add( m[ 1 ] );
-				}
-			}
-		} );
+		.map( p =>
+			p === 'composer.lock'
+				? 'monorepo'
+				: p.match( /^projects\/([^/]+\/[^/]+)\/composer\.lock$/ )?.[ 1 ]
+		)
+		.filter( Boolean );
 
-	return lockedProjects;
+	// A tracked lock can still be absent from disk (`jetpack clean <plugin> composer.lock`), and
+	// `composer install` would fail on it.
+	const onDisk = await Promise.all(
+		tracked.map( project =>
+			fs.access( projectDir( project, 'composer.lock' ) ).then(
+				() => true,
+				() => false
+			)
+		)
+	);
+	return new Set( tracked.filter( ( project, i ) => onDisk[ i ] ) );
 }
 
 /**
