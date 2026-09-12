@@ -614,7 +614,9 @@ test( 'passes the history server error message to the notice', async () => {
 		expect.objectContaining( {
 			url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history/set',
 			method: 'POST',
-			data: { JSON: { ...getHistoryWindow( 0 ), periods: [], annotations: [] } },
+			data: {
+				JSON: { ...getHistoryWindow( 0 ), periods: [], annotations: [], surfaceErrors: true },
+			},
 		} )
 	);
 	await expect( screen.findByRole( 'button', { name: 'Try again' } ) ).resolves.toBeEnabled();
@@ -663,7 +665,9 @@ test( 'temporarily closes the score decrease without persisting dismissal', asyn
 		expect.objectContaining( {
 			url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history/set',
 			method: 'POST',
-			data: { JSON: { ...getHistoryWindow( 0 ), periods: [], annotations: [] } },
+			data: {
+				JSON: { ...getHistoryWindow( 0 ), periods: [], annotations: [], surfaceErrors: true },
+			},
 		} )
 	);
 } );
@@ -807,6 +811,7 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 							...getHistoryWindow( offset, new Date(), dayCount ),
 							periods: [],
 							annotations: [],
+							surfaceErrors: true,
 						},
 					},
 				} )
