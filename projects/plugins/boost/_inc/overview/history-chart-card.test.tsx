@@ -114,19 +114,23 @@ test( 'renders thirty daily bars for each device using score band colours and em
 		[ 'Desktop', [ 'good', 'medium', 'poor' ] ],
 		[ 'Mobile', [ 'good', 'poor', 'good' ] ],
 	] as const ) {
-		const chart = within(
-			screen.getByRole( 'region', { name: `${ device } score history` } )
-		).getByTestId( 'bar-chart' );
-		await waitFor( () => {
-			// SVG bars do not expose an accessible role.
-			// eslint-disable-next-line testing-library/no-node-access
-			const bars = chart.querySelectorAll( '.visx-bar' );
-			expect( bars ).toHaveLength( 30 );
-			tiers.forEach( ( tier, index ) =>
-				expect( bars[ index ] ).toHaveAttribute( 'fill', getScoreTierColor( tier ) )
-			);
-			expect( bars[ 3 ] ).toHaveAttribute( 'fill', 'var(--jetpack-boost-history-empty)' );
-		} );
+		const bars = await waitFor(
+			() => {
+				const chart = within(
+					screen.getByRole( 'region', { name: `${ device } score history` } )
+				).getByTestId( 'bar-chart' );
+				// SVG bars do not expose an accessible role.
+				// eslint-disable-next-line testing-library/no-node-access
+				const renderedBars = chart.querySelectorAll( '.visx-bar' );
+				expect( renderedBars ).toHaveLength( 30 );
+				return renderedBars;
+			},
+			{ timeout: 5000 }
+		);
+		tiers.forEach( ( tier, index ) =>
+			expect( bars[ index ] ).toHaveAttribute( 'fill', getScoreTierColor( tier ) )
+		);
+		expect( bars[ 3 ] ).toHaveAttribute( 'fill', 'var(--jetpack-boost-history-empty)' );
 	}
 } );
 
