@@ -24,9 +24,9 @@ jest.mock( '@wordpress/ui', () => ( {
 	Stack: ( { children, ...rest } ) => <div { ...rest }>{ children }</div>,
 } ) );
 
-jest.mock( 'store', () => ( { STORE_ID: 'jetpack-search-singleton-template-actions-test' } ), {
-	virtual: true,
-} );
+jest.mock( '../../../store', () => ( {
+	STORE_ID: 'jetpack-search-singleton-template-actions-test',
+} ) );
 
 /* eslint-disable import/order -- mocks above must hoist before imports */
 import { useDispatch, useSelect } from '@wordpress/data';

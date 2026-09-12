@@ -21,7 +21,6 @@ import {
 } from '../lib/tracks';
 import {
 	clearQueryValues,
-	disableQueryStringIntegration,
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
@@ -87,12 +86,6 @@ class SearchApp extends Component {
 		this.aiExtendedController = null;
 		this.getAiAnswer = debounce( this.getAiAnswer, 500 );
 		this.props.enableAnalytics ? this.initializeAnalytics() : disableAnalytics();
-
-		if ( this.props.shouldIntegrateWithDom ) {
-			this.props.initializeQueryValues();
-		} else {
-			this.props.disableQueryStringIntegration();
-		}
 	}
 
 	static getDerivedStateFromProps( props, state ) {
@@ -111,6 +104,12 @@ class SearchApp extends Component {
 			this.props.isInCustomizer
 		) {
 			this.getResults();
+		} else if ( this.props.hasActiveQuery ) {
+			// The store is seeded from the URL before mount, so a deep link leaves
+			// componentDidUpdate with no prop change to react to. Kick off the first
+			// request here instead of relying on that.
+			this.onChangeQueryString( this.props.isHistoryNavigation );
+			this.getAiAnswer();
 		}
 
 		if ( this.props.hasActiveQuery && this.props.overlayOptions.enableFilteringOpensOverlay ) {
@@ -723,7 +722,6 @@ export default connect(
 	} ),
 	{
 		clearQueryValues,
-		disableQueryStringIntegration,
 		initializeQueryValues,
 		makeSearchRequest,
 		setStaticFilter,

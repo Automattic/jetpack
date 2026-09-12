@@ -36,13 +36,33 @@ When unsure which component to use, the `@wordpress/design-system-mcp` MCP is co
 - `@automattic/jetpack-script-data` → `isWpcomPlatformSite()` for WP.com detection
 - Store selectors via `useSelect( select => select( STORE_ID ).selectorName(), [] )` — always include `[]` dependency array
 
+## Instant Search redux store
+
+Instant Search has its own `redux` store (`src/instant-search/store/`) with `refx` middleware,
+separate from the `@wordpress/data` stores the dashboard and blocks use.
+
+The store is seeded at the mount site before the first render — `initializeQueryValues()` in
+`src/instant-search/index.jsx`, `disableQueryStringIntegration()` in
+`src/customberg/components/app-wrapper/index.jsx`. Keep it that way: never dispatch from a
+component constructor or a render method. A store write during the render phase is what caused
+an infinite render loop in the Jetpack plugin's react-redux 9 upgrade (#50246), and the two
+bundles here run different React implementations (preact/compat for Instant Search, real React
+18 for Customberg) which handle it differently.
+
+`tests/preact/` runs react-redux against preact/compat via `jest.preact.config.js`, since the
+main Jest config uses real React and cannot catch a regression on the shipping runtime. Run it
+with `pnpm test-preact`.
+
 ## Testing
 
-Always run all three suites when changing search code:
+Always run these when changing search code:
 
 ```bash
 # JS tests (from projects/packages/search/)
 pnpm test-scripts
+
+# react-redux against preact/compat, the Instant Search runtime
+pnpm test-preact
 
 # Search PHP tests
 jetpack test php packages/search -v
