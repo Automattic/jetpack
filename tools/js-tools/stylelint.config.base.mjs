@@ -84,19 +84,6 @@ const baseConfig = {
 			},
 		],
 	},
-	overrides: [
-		{
-			// Packages that still ship hardcoded WPDS fallbacks (no build-time inject yet).
-			files: [
-				'projects/js-packages/base-styles/**/*.{css,scss,sass}',
-				'projects/js-packages/components/**/*.{css,scss,sass}',
-				'projects/plugins/jetpack/**/*.{css,scss,sass}',
-			],
-			rules: {
-				'plugin-wpds/no-token-fallback-values': null,
-			},
-		},
-	],
 };
 
 export default baseConfig;

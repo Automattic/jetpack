@@ -181,9 +181,9 @@
 		gap: 24px;
 		margin: 24px auto 0;
 		padding: 24px;
-		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 		border-radius: 4px;
-		background-color: var(--wpds-color-background-surface-neutral, #fff);
+		background-color: var(--wpds-color-background-surface-neutral);
 
 		@media (min-width: 600px) {
 			flex-direction: row;
@@ -206,12 +206,12 @@
 		font-size: 20px;
 		line-height: 1.3;
 		font-weight: 500;
-		color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+		color: var(--wpds-color-foreground-content-neutral);
 	}
 
 	&__upsell-callout-description {
 		margin: 0;
-		color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	// The <Button variant="primary"> provides its own styling; align it to

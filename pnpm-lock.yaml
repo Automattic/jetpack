@@ -2279,9 +2279,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@csstools/postcss-global-data':
-        specifier: 4.0.0
-        version: 4.0.0(postcss@8.5.23)
       '@wordpress/browserslist-config':
         specifier: 6.54.0
         version: 6.54.0
@@ -3261,9 +3258,6 @@ importers:
       '@automattic/color-studio':
         specifier: 4.1.0
         version: 4.1.0
-      postcss-custom-properties:
-        specifier: 12.1.11
-        version: 12.1.11(postcss@8.5.23)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -3274,9 +3268,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@csstools/postcss-global-data':
-        specifier: 4.0.0
-        version: 4.0.0(postcss@8.5.23)
       '@wordpress/browserslist-config':
         specifier: 6.54.0
         version: 6.54.0
@@ -6088,9 +6079,6 @@ importers:
       photon:
         specifier: 4.1.1
         version: 4.1.1
-      postcss-custom-properties:
-        specifier: 12.1.11
-        version: 12.1.11(postcss@8.5.23)
       print-this:
         specifier: 2.0.0
         version: 2.0.0
@@ -6155,9 +6143,6 @@ importers:
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
-      '@csstools/postcss-global-data':
-        specifier: 4.0.0
-        version: 4.0.0(postcss@8.5.23)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -8125,6 +8110,10 @@ packages:
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
     engines: {node: '>=0.1.90'}
 
+  '@colors/colors@1.6.1':
+    resolution: {integrity: sha512-dTmUJzXSuayBK+hZydEaXd2mhx61qWQwkwaBBY6LyEOVx/L9aQU5ac8eFNEsd9nrD1+zb9zvDCphLSe8g1F4Qw==}
+    engines: {node: '>=0.1.90'}
+
   '@csstools/color-helpers@6.1.1':
     resolution: {integrity: sha512-gLNsunvwf3mCi5u5o46/Z/JcJMnhbHSaZ69rkgPzNM3J4s8hWwpPUQB6/tt0EDFyCiWzxANlx+2LJwpYj4zS1w==}
     engines: {node: '>=20.19.0'}
@@ -8168,12 +8157,6 @@ packages:
       '@csstools/css-parser-algorithms': ^4.0.0
       '@csstools/css-tokenizer': ^4.0.0
 
-  '@csstools/postcss-global-data@4.0.0':
-    resolution: {integrity: sha512-mPKrL3Tzt8k1V+hTkU8XTH6JKRekB97oKHv/MekC9nfmRa+gMf1swlHRt8YK722sYN4xOipl17FZst99jsScLA==}
-    engines: {node: '>=20.19.0'}
-    peerDependencies:
-      postcss: ^8.4
-
   '@csstools/selector-resolve-nested@4.0.1':
     resolution: {integrity: sha512-j3vdQu0XwLME5qOTWxm8cnmvsf423R2YL6DbKklCHZwkDm7UdKNu6RPlw4REIJhSlKBICY3B70/7QZdicLqZgg==}
     engines: {node: '>=20.19.0'}
@@ -8186,8 +8169,8 @@ packages:
     peerDependencies:
       postcss-selector-parser: ^7.1.1
 
-  '@dabh/diagnostics@2.0.8':
-    resolution: {integrity: sha512-R4MSXTVnuMzGD7bzHdW2ZhhdPC/igELENcq5IjEverBvq5hn1SXCWcsi6eSsdWP0/Ur+SItRRjAktmdoX/8R/Q==}
+  '@dabh/diagnostics@2.0.9':
+    resolution: {integrity: sha512-R6siwR65Hm+3yfgP7o8DKhNvputQAwfoz9zTc3kyDudnomj2/BcLmD+uGQQPICjuFUp8ounPBU+jmKsocwVVAg==}
 
   '@date-fns/tz@1.4.1':
     resolution: {integrity: sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA==}
@@ -9066,8 +9049,8 @@ packages:
   '@lezer/html@1.3.13':
     resolution: {integrity: sha512-oI7n6NJml729m7pjm9lvLvmXbdoMoi2f+1pwSDJkl9d68zGr7a9Btz8NdHTGQZtW2DA25ybeuv/SyDb9D5tseg==}
 
-  '@lezer/java@1.1.3':
-    resolution: {integrity: sha512-yHquUfujwg6Yu4Fd1GNHCvidIvJwi/1Xu2DaKl/pfWIA2c1oXkVvawH3NyXhCaFx4OdlYBVX5wvz2f7Aoa/4Xw==}
+  '@lezer/java@1.1.4':
+    resolution: {integrity: sha512-gQylJ2xHV2xXsVqtnAcJrcROvLZJaQiC0tR//+q0k961BxqvyYttusPkJ8d9T1fPDJKHJW2etUH8XbIn9jhVUg==}
 
   '@lezer/javascript@1.5.4':
     resolution: {integrity: sha512-vvYx3MhWqeZtGPwDStM2dwgljd5smolYD2lR2UyFcHfxbBQebqx8yjmFmxtJ/E6nN6u1D9srOiVWm3Rb4tmcUA==}
@@ -14224,10 +14207,6 @@ packages:
     resolution: {integrity: sha512-PMARsyh/JtqC20HoGqlFcIlQAyqUtW4PlI1rup1uhYJtKuwAjbvWi3GQMAn+STdHum/dk8xrKfUM1+5SAwpolA==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
-  expect@30.5.1:
-    resolution: {integrity: sha512-m8YrYgvKe9+9gEnWEuKz+qCGfHqkrff7PPfyDnOFkjsfYRKqiYyOxDFMFieCGAuhtk/VNm63tvNgKZVzVy+Hvg==}
-    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
-
   express@5.2.1:
     resolution: {integrity: sha512-hIS4idWWai69NezIdRt2xFVofaF4j+6INOpJlVOLDO8zXGpUVEVzIYk12UUi2JzjEzWL3IOAxcTubgz9Po0yXw==}
     engines: {node: '>= 18'}
@@ -15189,10 +15168,6 @@ packages:
 
   jest-message-util@30.4.1:
     resolution: {integrity: sha512-kwCKIvq0MCW1HzLoGola9Te6JUdzgV0loyKJ3Qghrkz9i5/RRIHsL95BMQc2HBBhlBKC4j22K9p11TGHH8RBpQ==}
-    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
-
-  jest-message-util@30.5.1:
-    resolution: {integrity: sha512-UdQlLdd9wL/Ys7xRErckqwD6wPlSZYueosSWuHc1r2ztGLwlgPvtSJq2+BPEgaEY13WLvfFbmhTj8pba0Sd1jg==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
   jest-mock@30.4.1:
@@ -16440,12 +16415,6 @@ packages:
     engines: {node: ^18.12.0 || ^20.9.0 || >=22.0}
     peerDependencies:
       postcss: ^8.5.13
-
-  postcss-custom-properties@12.1.11:
-    resolution: {integrity: sha512-0IDJYhgU8xDv1KY6+VgUwuQkVtmYzRwu+dMjnmdMafXYv86SWqfxkc7qdDvWS38vsjaEtv8e0vGOUQrAiMBLpQ==}
-    engines: {node: ^12 || ^14 || >=16}
-    peerDependencies:
-      postcss: ^8.2
 
   postcss-discard-comments@7.0.8:
     resolution: {integrity: sha512-CvvS5S9WrXblFXCEJ9nVo+4z+eA7zSC7Z88V1HEJuwlQhlFnYTIjg1xJY+BCUiG2bvICap2tXii4mP22BD108Q==}
@@ -20504,7 +20473,7 @@ snapshots:
   '@codemirror/lang-java@6.0.2':
     dependencies:
       '@codemirror/language': 6.11.2
-      '@lezer/java': 1.1.3
+      '@lezer/java': 1.1.4
 
   '@codemirror/lang-javascript@6.2.5':
     dependencies:
@@ -20688,6 +20657,8 @@ snapshots:
 
   '@colors/colors@1.6.0': {}
 
+  '@colors/colors@1.6.1': {}
+
   '@csstools/color-helpers@6.1.1': {}
 
   '@csstools/css-calc@3.3.0(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)':
@@ -20717,10 +20688,6 @@ snapshots:
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-tokenizer': 4.0.0
 
-  '@csstools/postcss-global-data@4.0.0(postcss@8.5.23)':
-    dependencies:
-      postcss: 8.5.23
-
   '@csstools/selector-resolve-nested@4.0.1(postcss-selector-parser@7.1.6)':
     dependencies:
       postcss-selector-parser: 7.1.6
@@ -20729,7 +20696,7 @@ snapshots:
     dependencies:
       postcss-selector-parser: 7.1.6
 
-  '@dabh/diagnostics@2.0.8':
+  '@dabh/diagnostics@2.0.9':
     dependencies:
       '@so-ric/colorspace': 1.1.6
       enabled: 2.0.0
@@ -21630,7 +21597,7 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.3
 
-  '@lezer/java@1.1.3':
+  '@lezer/java@1.1.4':
     dependencies:
       '@lezer/common': 1.3.0
       '@lezer/highlight': 1.2.3
@@ -23185,7 +23152,7 @@ snapshots:
 
   '@types/jest@30.0.0':
     dependencies:
-      expect: 30.5.1
+      expect: 30.4.1
       pretty-format: 30.5.1
 
   '@types/jquery@3.5.34':
@@ -34771,15 +34738,6 @@ snapshots:
       jest-mock: 30.4.1
       jest-util: 30.4.1
 
-  expect@30.5.1:
-    dependencies:
-      '@jest/expect-utils': 30.5.1
-      '@jest/get-type': 30.5.0
-      jest-matcher-utils: 30.5.1
-      jest-message-util: 30.5.1
-      jest-mock: 30.5.1
-      jest-util: 30.5.1
-
   express@5.2.1:
     dependencies:
       accepts: 2.0.0
@@ -35876,19 +35834,6 @@ snapshots:
       jest-util: 30.4.1
       picomatch: 4.0.4
       pretty-format: 30.4.1
-      slash: 3.0.0
-      stack-utils: 2.0.6
-
-  jest-message-util@30.5.1:
-    dependencies:
-      '@babel/code-frame': 7.29.7
-      '@jest/types': 30.5.1
-      '@types/stack-utils': 2.0.3
-      chalk: 4.1.2
-      graceful-fs: 4.2.11
-      jest-util: 30.5.1
-      picomatch: 4.0.4
-      pretty-format: 30.5.1
       slash: 3.0.0
       stack-utils: 2.0.6
 
@@ -37463,11 +37408,6 @@ snapshots:
   postcss-convert-values@7.0.12(postcss@8.5.23):
     dependencies:
       browserslist: 4.28.9
-      postcss: 8.5.23
-      postcss-value-parser: 4.2.0
-
-  postcss-custom-properties@12.1.11(postcss@8.5.23):
-    dependencies:
       postcss: 8.5.23
       postcss-value-parser: 4.2.0
 
@@ -40184,8 +40124,8 @@ snapshots:
 
   winston@3.17.0:
     dependencies:
-      '@colors/colors': 1.6.0
-      '@dabh/diagnostics': 2.0.8
+      '@colors/colors': 1.6.1
+      '@dabh/diagnostics': 2.0.9
       async: 3.2.6
       is-stream: 2.0.1
       logform: 2.7.0
