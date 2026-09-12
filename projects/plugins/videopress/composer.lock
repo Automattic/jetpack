@@ -1005,7 +1005,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "1c4534bdc401206cc45ee20600003ae6a1ab6a9c"
+                "reference": "df7dd4c9923b226c4b6c259904e2d50a8cca00c5"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1032,6 +1032,9 @@
                 }
             },
             "autoload": {
+                "files": [
+                    "actions.php"
+                ],
                 "classmap": [
                     "src/"
                 ]
@@ -1173,7 +1176,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "f2bf2241ea190c16615e61959c3e08aa38dd48e2"
+                "reference": "bc99e63a81c87489fec34f5fa58857d6259bd843"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1257,7 +1260,7 @@
                     "pnpm run build"
                 ],
                 "build-production": [
-                    "NODE_ENV=production pnpm run build"
+                    "pnpm run build-production"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",

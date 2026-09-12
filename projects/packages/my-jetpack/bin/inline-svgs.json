@@ -1,0 +1,16 @@
+{
+	"a4aBannerIcon": "components/a4a-banner/icon.svg",
+	"connectionScreenApple": "components/connection-screen/apple.svg",
+	"connectionScreenGithub": "components/connection-screen/github.svg",
+	"connectionScreenGoogle": "components/connection-screen/google.svg",
+	"connectionScreenWordpress": "components/connection-screen/wordpress.svg",
+	"connectionStatusCloud": "components/connection-status-card/cloud.svg",
+	"connectionStatusEmptyAvatar": "components/connection-status-card/empty-avatar.svg",
+	"connectionStatusJetpackGray": "components/connection-status-card/jetpack-gray.svg",
+	"connectionStatusJetpack": "components/connection-status-card/jetpack.svg",
+	"protectCardShieldInactive": "components/product-cards-section/protect-card/assets/shield-inactive.svg",
+	"protectCardShieldOff": "components/product-cards-section/protect-card/assets/shield-off.svg",
+	"protectCardShieldPartial": "components/product-cards-section/protect-card/assets/shield-partial.svg",
+	"protectCardShieldSuccess": "components/product-cards-section/protect-card/assets/shield-success.svg",
+	"productInterstitialAntispamLogo": "components/product-interstitial/logos/antispam-logo.svg"
+}

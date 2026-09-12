@@ -176,8 +176,8 @@ export const SCENARIOS = [
 		defaultUrl: 'http://localhost:8083',
 		header: 'My Jetpack (simulated WP.com connection)',
 		// The My Jetpack admin page - the heaviest Jetpack admin bundle. PHP emits an empty
-		// `<div id="my-jetpack-container">` and React (createRoot) renders MyJetpackScreen into
-		// it, so measure-lcp.js waits for the AdminPage frame (`.jp-admin-page`, a non-hashed
+		// `<div id="my-jetpack-container">` (the wp-build app root under the modernization flag)
+		// and React renders MyJetpackScreen into it, so measure-lcp.js waits for the AdminPage frame (`.jp-admin-page`, a non-hashed
 		// class from @automattic/jetpack-components) to appear so a run measures the rendered app,
 		// not the empty shell. Capture completeness then rests on the networkidle wait plus the
 		// stable resource count, not the frame selector (`.jp-admin-page` renders with its children
@@ -190,7 +190,8 @@ export const SCENARIOS = [
 		// offline by default): the simulate-wpcom-connection mu-plugin flips it. See the README
 		// offline-mode attribution note.
 		path: '/wp-admin/admin.php?page=my-jetpack',
-		waitForSelector: '#my-jetpack-container .jp-admin-page',
+		waitForSelector:
+			'#my-jetpack-container .jp-admin-page, #my-jetpack-dashboard-wp-admin-app .jp-admin-page',
 		expectUrlIncludes: 'page=my-jetpack',
 		// A healthy load of this page fetches ~92 resources (stable across iterations locally);
 		// measure-lcp.js fails the run if it captures fewer than this floor, so a truncated/partial

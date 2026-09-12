@@ -7,12 +7,12 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use PHPUnit\Framework\TestCase;
+use WorDBless\BaseTestCase;
 
 /**
  * Tests the My Jetpack addition to the unified script data object.
  */
-class Script_Data_Test extends TestCase {
+class Script_Data_Test extends BaseTestCase {
 
 	/**
 	 * Site Editor data is added without replacing existing script data.
@@ -25,5 +25,46 @@ class Script_Data_Test extends TestCase {
 		$this->assertIsBool( $data['myJetpack']['siteEditor']['isSharingBlockAvailable'] );
 		$this->assertIsBool( $data['myJetpack']['siteEditor']['isLikeBlockAvailable'] );
 		$this->assertSame( get_stylesheet(), $data['myJetpack']['siteEditor']['activeThemeStylesheet'] );
+	}
+
+	/**
+	 * The base has to address the package's own built images, and to match the value the
+	 * My Jetpack page localizes, so `assetUrl()` resolves the same URL either way.
+	 */
+	public function test_adds_the_image_base_url() {
+		$data = Initializer::add_assets_script_data( array( 'existing' => 'value' ) );
+
+		$this->assertSame( 'value', $data['existing'] );
+		$this->assertStringEndsWith( '/my-jetpack/build/images/', $data['myJetpack']['assetsUrl'] );
+		$this->assertSame( Initializer::get_assets_url(), $data['myJetpack']['assetsUrl'] );
+	}
+
+	/**
+	 * Covers requests other than the My Jetpack page's own.
+	 */
+	public function test_the_image_base_url_is_registered_off_the_my_jetpack_page() {
+		Initializer::init();
+
+		$this->assertSame( 0, did_action( 'admin_enqueue_scripts' ) );
+		$this->assertNotFalse(
+			has_filter( 'jetpack_admin_js_script_data', array( Initializer::class, 'add_assets_script_data' ) )
+		);
+	}
+
+	/**
+	 * Covers sites where `jetpack_my_jetpack_should_initialize` is false.
+	 */
+	public function test_the_image_base_url_is_registered_where_my_jetpack_is_off() {
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+		remove_all_filters( 'jetpack_admin_js_script_data' );
+
+		Initializer::init();
+
+		$this->assertFalse( Initializer::should_initialize() );
+		$this->assertNotFalse(
+			has_filter( 'jetpack_admin_js_script_data', array( Initializer::class, 'add_assets_script_data' ) )
+		);
+
+		remove_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
 	}
 }

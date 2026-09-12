@@ -1114,6 +1114,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../connection
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../script-data
       '@wordpress/api-fetch':
         specifier: 7.54.0
         version: 7.54.0
@@ -3355,12 +3358,21 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
+      '@jetpack-my-jetpack/init':
+        specifier: link:packages/init
+        version: link:packages/init
       '@tanstack/react-query':
         specifier: 5.102.8
         version: 5.102.8(react@18.3.1)
+      '@wordpress/admin-ui':
+        specifier: 2.9.0
+        version: 2.9.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.54.0
         version: 7.54.0
+      '@wordpress/base-styles':
+        specifier: 13.0.0
+        version: 13.0.0
       '@wordpress/components':
         specifier: 40.0.0
         version: 40.0.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3385,6 +3397,9 @@ importers:
       '@wordpress/icons':
         specifier: 15.5.0
         version: 15.5.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/route':
+        specifier: 0.20.0
+        version: 0.20.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/theme':
         specifier: 2.0.0
         version: 2.0.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3413,6 +3428,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
@@ -3449,9 +3467,15 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.54.0
         version: 6.54.0
+      '@wordpress/build':
+        specifier: 0.22.0
+        version: 0.22.0(patch_hash=6f3fbefb10df6ce84b2e3c307e3894b697d87a888315abc805b6ff67bf7de635)(@babel/core@7.29.7)(@wordpress/route@0.20.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@2.0.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.28.9)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.9
       concurrently:
         specifier: 10.0.5
         version: 10.0.5

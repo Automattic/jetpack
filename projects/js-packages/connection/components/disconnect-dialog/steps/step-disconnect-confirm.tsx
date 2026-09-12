@@ -1,8 +1,8 @@
 import { DecorativeCard } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Link, Stack } from '@wordpress/ui';
-import disconnectImage from '../images/disconnect-confirm.jpg';
 import type { MouseEvent } from 'react';
 
 interface StepDisconnectConfirmProps {
@@ -26,9 +26,14 @@ const StepDisconnectConfirm = ( {
 	canProvideFeedback,
 	onProvideFeedback,
 }: StepDisconnectConfirmProps ) => {
+	const assetsUrl = getScriptData()?.connection?.assetsUrl;
+
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
-			<DecorativeCard icon="unlink" imageUrl={ disconnectImage } />
+			<DecorativeCard
+				icon="unlink"
+				imageUrl={ assetsUrl ? `${ assetsUrl }disconnect-confirm.jpg` : undefined }
+			/>
 
 			<Stack
 				className="jp-connection__disconnect-dialog__copy jp-connection__disconnect-dialog__step-copy jp-connection__disconnect-dialog__step-copy--narrow"

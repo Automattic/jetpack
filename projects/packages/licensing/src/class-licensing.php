@@ -67,6 +67,38 @@ class Licensing {
 	}
 
 	/**
+	 * Register the hooks the package needs on every request.
+	 *
+	 * Separate from `initialize()`, which consumers call only when they offer the
+	 * licensing UI: the activation screen also renders from the Jetpack plugin's
+	 * own route, so the illustrations need a URL there too.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function configure() {
+		add_filter( 'jetpack_admin_js_script_data', array( self::class, 'add_script_data' ) );
+	}
+
+	/**
+	 * Add the package's image base URL to the admin script data.
+	 *
+	 * The license activation illustrations are served from the package rather than bundled,
+	 * because wp-build's esbuild pipeline has no image loader.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $data Script data.
+	 * @return array
+	 */
+	public static function add_script_data( $data ) {
+		$data['licensing']['assetsUrl'] = trailingslashit( plugins_url( 'assets/images/', __DIR__ ) );
+
+		return $data;
+	}
+
+	/**
 	 * Initialize endpoints required for Licensing package.
 	 *
 	 * @since 1.7.0

@@ -20,6 +20,19 @@ use WP_Error;
  */
 class Licensing_Test extends BaseTestCase {
 	/**
+	 * Drops the process-wide hooks configure() and initialize() register, so later tests
+	 * are unaffected.
+	 */
+	protected function tearDown(): void {
+		parent::tearDown();
+
+		remove_all_filters( 'jetpack_admin_js_script_data' );
+		remove_all_actions( 'add_option_' . Licensing::LICENSES_OPTION_NAME );
+		remove_all_actions( 'update_option_' . Licensing::LICENSES_OPTION_NAME );
+		remove_all_actions( 'jetpack_authorize_ending_authorized' );
+	}
+
+	/**
 	 * Test last_error().
 	 */
 	public function test_last_error() {
@@ -419,5 +432,59 @@ class Licensing_Test extends BaseTestCase {
 			->method( 'attach_stored_licenses' );
 
 		$licensing->attach_stored_licenses_on_connection();
+	}
+
+	/**
+	 * Covers the activation screen's image base URL.
+	 */
+	public function test_add_script_data_exposes_the_package_image_base_url() {
+		$data = Licensing::add_script_data( array( 'site' => array( 'title' => 'Example' ) ) );
+
+		$this->assertSame(
+			trailingslashit( plugins_url( 'assets/images/', dirname( __DIR__, 2 ) . '/src' ) ),
+			$data['licensing']['assetsUrl']
+		);
+		$this->assertStringEndsWith( '/assets/images/', $data['licensing']['assetsUrl'] );
+		$this->assertSame( array( 'title' => 'Example' ), $data['site'] );
+	}
+
+	/**
+	 * The activation screen's illustrations ship in the package.
+	 */
+	public function test_the_addressed_images_are_committed_to_the_package() {
+		$images = dirname( __DIR__, 2 ) . '/assets/images/';
+
+		$this->assertFileExists( $images . 'jetpack-license-activation-with-lock.png' );
+		$this->assertFileExists( $images . 'jetpack-license-activation-with-success.png' );
+	}
+
+	/**
+	 * Nothing else registers the filter, so without this wiring the illustrations never get a URL.
+	 */
+	public function test_configure_registers_the_script_data_filter() {
+		// actions.php already registered it for the process; start from nothing.
+		remove_all_filters( 'jetpack_admin_js_script_data' );
+
+		Licensing::configure();
+
+		$this->assertNotFalse(
+			has_filter( 'jetpack_admin_js_script_data', array( Licensing::class, 'add_script_data' ) )
+		);
+	}
+
+	/**
+	 * The Jetpack plugin renders the activation screen without calling initialize().
+	 */
+	public function test_the_script_data_filter_does_not_depend_on_initialize() {
+		remove_all_filters( 'jetpack_admin_js_script_data' );
+		remove_all_actions( 'rest_api_init' );
+
+		( new Licensing() )->initialize();
+
+		$this->assertFalse(
+			has_filter( 'jetpack_admin_js_script_data', array( Licensing::class, 'add_script_data' ) )
+		);
+		// Witness that initialize() ran at all, so the assertion above cannot pass vacuously.
+		$this->assertNotFalse( has_action( 'rest_api_init' ) );
 	}
 }

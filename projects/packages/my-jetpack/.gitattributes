@@ -5,6 +5,9 @@
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 _inc/**             production-exclude
+bin/**              production-exclude
+packages/**         production-exclude
+routes/**           production-exclude
 src/**/*.scss       production-exclude
 src/**/*.jsx        production-exclude
 global.d.ts         production-exclude
