@@ -177,6 +177,24 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'help', $node->meta['icon'] );
 	}
 
+	public function test_admin_bar_help_node_stays_icon_only_for_the_unified_experience() {
+		$force_treatment = static function () {
+			return 'treatment';
+		};
+		add_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+		add_filter( 'agents_manager_use_unified_experience', '__return_true' );
+
+		try {
+			$node = $this->render_help_center_admin_bar_node();
+		} finally {
+			remove_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+			remove_filter( 'agents_manager_use_unified_experience', '__return_true' );
+		}
+
+		$this->assertSame( 'Help Center', $node->meta['menu_title'] );
+		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
+	}
+
 	public function test_help_center_data_carries_the_entry_label_for_the_treatment() {
 		$force_treatment = static function () {
 			return 'treatment';
@@ -203,7 +221,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertNotNull( $node );
 		$this->assertStringNotContainsString( 'help-center-entry-label', $node->title );
-		$this->assertArrayNotHasKey( 'entry_label', $node->meta );
+		$this->assertSame( 'Help Center', $node->meta['menu_title'] );
 		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
 	}
 
@@ -223,10 +241,9 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 			'<span class="help-center-entry-label" aria-hidden="true"><span>Get Help</span></span>',
 			$node->title
 		);
-		$this->assertSame( 'Get Help', $node->meta['entry_label'] );
+		$this->assertSame( 'Get Help', $node->meta['menu_title'] );
 		$this->assertStringContainsString( 'has-help-entry-label', $node->meta['class'] );
-		// The accessible name stays "Help Center".
-		$this->assertStringContainsString( 'title="Help Center"', $node->title );
+		$this->assertStringContainsString( 'title="Get Help"', $node->title );
 	}
 
 	/**

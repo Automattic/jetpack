@@ -103,7 +103,7 @@ class Help_Center {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
-		// After the Reader icon; before Agents Manager (100), which replaces this node when it takes over.
+		// Before Agents Manager (100), which replaces this node when it takes over.
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_node' ), 12 );
 	}
 
@@ -297,9 +297,7 @@ class Help_Center {
 			$version
 		);
 
-		// The "Get Help" label beside the icon. The bundle's stylesheet sizes the item for
-		// an icon alone (fixed width, absolutely positioned svg), so the labelled item lays
-		// out as a row instead; at the admin bar's mobile breakpoint the label is hidden.
+		// The bundle stylesheet sizes the item for an icon alone; a labelled item lays out as a row.
 		wp_add_inline_style(
 			'help-center-' . $variant . '-style',
 			'#wpadminbar #wp-toolbar #wp-admin-bar-help-center .help-center-entry-label{display:none;padding-inline-start:6px;white-space:nowrap;}'
@@ -402,21 +400,23 @@ class Help_Center {
 	}
 
 	/**
-	 * Whether the current user is in the treatment of the "Get Help" chat-forward experiment,
-	 * which labels the Help Center entry point.
+	 * Whether the current user is in the treatment of the "Get Help" label experiment.
 	 *
-	 * Simple sites assign through the native ExPlat helpers; Atomic sites fetch the assignment
-	 * over the connected-user endpoint. Rendering the entry point is the exposure, so this
-	 * assigns rather than only reads. Cached per user for an hour, like is_menu_panel_enabled().
+	 * Assigns (rendering the entry point is the exposure) and caches per user for an hour.
 	 *
 	 * @return bool
 	 */
 	private function should_show_get_help_label() {
+		// The Agents Manager replaces this entry point for the unified experience; those users must stay unassigned.
+		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
+			return false;
+		}
+
 		$experiment_name      = 'calypso_help_center_get_help_chat_forward';
 		$experiment_variation = 'treatment';
 
 		/**
-		 * Overrides the resolved variation (testing / manual QA). Return a variation name, or null to use ExPlat.
+		 * Forces the variation, for QA. Return a variation name, or null to use ExPlat.
 		 *
 		 * @param string|null $override The forced variation, or null.
 		 */
@@ -439,8 +439,7 @@ class Help_Center {
 		$result = false;
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			// The \ExPlat\ helpers live in wpcom, outside this monorepo, so Phan can't see them.
-			// @phan-suppress-next-line PhanUndeclaredFunction
+			// @phan-suppress-next-line PhanUndeclaredFunction -- \ExPlat lives in wpcom.
 			$result = $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
 		} elseif ( $this->wpcom_request_client->is_user_connected() ) {
 			$request_path = '/experiments/0.1.0/assignments/wpcom';
@@ -570,7 +569,7 @@ class Help_Center {
 			$data['newLoggedOutInteractionsBotSlug'] = $this->new_logged_out_interactions_bot_slug;
 		}
 
-		// The editor toolbar draws its own entry point, so it gets the label the admin bar node carries.
+		// The editor toolbar draws its own entry point.
 		if ( $this->should_show_get_help_label() ) {
 			$data['entryLabel'] = __( 'Get Help', 'jetpack-help-center' );
 		}
@@ -787,9 +786,6 @@ class Help_Center {
 	/**
 	 * Which Help Center variant this request gets, or null when it gets none.
 	 *
-	 * Shared by add_admin_bar_node() and enqueue_wp_admin_scripts(), so the entry point and
-	 * the bundle can never disagree about who is eligible.
-	 *
 	 * @return string|null 'wp-admin', 'wp-admin-disconnected', 'gutenberg', 'gutenberg-disconnected', 'logged-out', or null.
 	 */
 	private function get_active_variant() {
@@ -851,9 +847,8 @@ class Help_Center {
 	/**
 	 * Add the Help Center "?" to the admin bar.
 	 *
-	 * Hooked unconditionally, with eligibility resolved here rather than at registration, so the
-	 * admin-bar REST endpoints — which fire `admin_bar_menu` with no enqueue hook — return the
-	 * same node as a page load and Calypso can render the entry point from the payload.
+	 * Eligibility is resolved here, not at hook time: the admin-bar REST endpoints fire
+	 * `admin_bar_menu` without enqueueing scripts.
 	 *
 	 * @param \WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
 	 */
@@ -863,28 +858,24 @@ class Help_Center {
 			return;
 		}
 
-		$show_label  = $this->should_show_get_help_label();
-		$entry_label = __( 'Get Help', 'jetpack-help-center' );
-		// `menu_title` and `icon` are the client contract Calypso renders the entry point from;
-		// `title` below is wp-admin markup. Same shape as the Agents Manager nodes.
+		$show_label = $this->should_show_get_help_label();
+		$menu_title = $show_label ? __( 'Get Help', 'jetpack-help-center' ) : __( 'Help Center', 'jetpack-help-center' );
+		// `menu_title` and `icon` are what Calypso renders; `title` below is wp-admin markup.
 		$meta = array(
-			'menu_title' => __( 'Help Center', 'jetpack-help-center' ),
+			'menu_title' => $menu_title,
 			'icon'       => 'help',
 			'html'       => '<div id="help-center-masterbar" />',
 			'class'      => 'menupop',
 			'target'     => '_blank',
 		);
 		if ( $show_label ) {
-			// `entry_label` is the client contract for the visible label; the class
-			// lets the admin bar script report whether the label was shown.
-			$meta['entry_label'] = $entry_label;
-			$meta['class']      .= ' has-help-entry-label';
+			$meta['class'] .= ' has-help-entry-label';
 		}
 
 		$wp_admin_bar->add_menu(
 			array(
 				'id'     => 'help-center',
-				'title'  => '<span title="' . __( 'Help Center', 'jetpack-help-center' ) . '"><svg id="help-center-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+				'title'  => '<span title="' . esc_attr( $menu_title ) . '"><svg id="help-center-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 									<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
 								</svg>
 								<svg id="help-center-icon-with-notification" class="ab-icon"  width="24" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -893,7 +884,7 @@ class Help_Center {
 								</svg>
 							</span>'
 					. ( $show_label
-						? '<span class="help-center-entry-label" aria-hidden="true"><span>' . esc_html( $entry_label ) . '</span></span>'
+						? '<span class="help-center-entry-label" aria-hidden="true"><span>' . esc_html( $menu_title ) . '</span></span>'
 						: '' ),
 				'parent' => 'top-secondary',
 				'href'   => $this->get_help_center_url(),

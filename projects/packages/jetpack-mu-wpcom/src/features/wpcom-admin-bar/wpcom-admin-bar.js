@@ -17,8 +17,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		} );
 	}
 
-	// The Help Center entry point's impression, the one funnel step wp-admin never reported.
-	// The node's marker class says whether the label was shown; ExPlat holds the assignment.
+	// `has_label` mirrors the node's marker class; the assignment itself lives in ExPlat.
 	const helpEntryPoint = document.querySelector( '#wp-admin-bar-help-center' );
 	if ( helpEntryPoint ) {
 		wpcomTrackEvent( 'wpcom_adminbar_help_impression', {
