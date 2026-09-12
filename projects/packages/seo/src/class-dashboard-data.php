@@ -195,6 +195,41 @@ class Dashboard_Data {
 	}
 
 	/**
+	 * Coerce the stored title formats into one `{ type, value }` token list per page type.
+	 *
+	 * The site-settings API stores a cleared page type as `''` (see JETPACK-2284), so the
+	 * option is looser than the Settings tab's type; anything not a token list becomes `array()`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $stored Raw option value.
+	 * @return array<string, array<int, array{type: string, value: string}>>
+	 */
+	public static function normalize_title_formats( $stored ) {
+		if ( ! is_array( $stored ) ) {
+			return array();
+		}
+
+		$normalized = array();
+		foreach ( $stored as $page_type => $format ) {
+			$tokens = array();
+			if ( is_array( $format ) ) {
+				foreach ( $format as $item ) {
+					if ( is_array( $item ) && isset( $item['type'] ) && isset( $item['value'] ) && is_string( $item['type'] ) && is_string( $item['value'] ) ) {
+						$tokens[] = array(
+							'type'  => $item['type'],
+							'value' => $item['value'],
+						);
+					}
+				}
+			}
+			$normalized[ (string) $page_type ] = $tokens;
+		}
+
+		return $normalized;
+	}
+
+	/**
 	 * Build the editable Settings state the Settings tab hydrates from.
 	 *
 	 * Read-only bootstrap only. Most writes go through the existing
@@ -211,10 +246,7 @@ class Dashboard_Data {
 		// Read the stored values directly: Jetpack_SEO_Titles::get_custom_title_formats()
 		// intentionally hides them while another SEO plugin controls output, but the
 		// dashboard must still show the saved values without allowing edits.
-		$title_formats = get_option( 'advanced_seo_title_formats', array() );
-		if ( ! is_array( $title_formats ) ) {
-			$title_formats = array();
-		}
+		$title_formats = self::normalize_title_formats( get_option( 'advanced_seo_title_formats', array() ) );
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
 		$title_formats_editable = class_exists( 'Jetpack_SEO_Utils' ) && Jetpack_SEO_Utils::is_enabled_jetpack_seo();
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
