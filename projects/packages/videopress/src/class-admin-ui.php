@@ -30,6 +30,15 @@ class Admin_UI {
 	const ADMIN_PAGE_SLUG = 'jetpack-videopress';
 
 	/**
+	 * The name hosts use for the VideoPress sidebar item in the visibility filter.
+	 *
+	 * Deliberately not ADMIN_PAGE_SLUG: this is a name hosts write into their own code, so
+	 * it has to survive a slug change. Both registrations below share it, since they are
+	 * mutually exclusive and a host hiding VideoPress should not have to know which is live.
+	 */
+	const VISIBILITY_KEY = 'jetpack-videopress';
+
+	/**
 	 * The My Jetpack interstitial where VideoPress can be activated, relative to wp-admin.
 	 *
 	 * Used as the target of the "Jetpack > VideoPress" menu item when VideoPress
@@ -183,7 +192,12 @@ class Admin_UI {
 			'VideoPress',
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
-			$callback
+			$callback,
+			null,
+			array(
+				'product' => 'videopress',
+				'key'     => self::VISIBILITY_KEY,
+			)
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 	}
@@ -240,7 +254,11 @@ class Admin_UI {
 			'VideoPress',
 			'manage_options',
 			self::MY_JETPACK_ADD_VIDEOPRESS_URI,
-			null
+			null,
+			null,
+			// Same key as the dashboard item: the two never register together, and a host
+			// hiding VideoPress means both.
+			array( 'key' => self::VISIBILITY_KEY )
 		);
 	}
 

@@ -358,7 +358,14 @@ class Dashboard {
 			'Forms',
 			'edit_pages',
 			self::FORMS_WPBUILD_ADMIN_SLUG,
-			$callback
+			$callback,
+			null,
+			// The key is not the slug: the page's URL still reads
+			// jetpack-forms-responses-wp-admin, which FORMS-795 tracks separately.
+			array(
+				'product' => 'jetpack-forms',
+				'key'     => 'jetpack-forms',
+			)
 		);
 	}
 

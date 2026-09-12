@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the Forms sidebar item when Forms is not active.
