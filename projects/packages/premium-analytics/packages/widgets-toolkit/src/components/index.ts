@@ -5,6 +5,7 @@ export {
 	type MetricTileGridSkeletonProps,
 } from './metric-tile';
 export { MetricList, type MetricListItem, type MetricListProps } from './metric-list';
+export { AbbreviatedValue, type AbbreviatedValueProps } from './abbreviated-value';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
 export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';

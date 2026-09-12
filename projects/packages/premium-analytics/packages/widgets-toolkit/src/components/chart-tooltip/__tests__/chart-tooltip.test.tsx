@@ -39,6 +39,23 @@ const swatchFills = () =>
 	screen.getAllByTestId( 'swatch' ).map( node => node.getAttribute( 'data-fill' ) );
 
 describe( 'ChartTooltip', () => {
+	it( 'spells a compact chart value out in full', () => {
+		render(
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: { Views: { datum: { value: 18432 }, index: 0, key: 'Views' } },
+				} }
+				dataFormat={ { type: 'number', options: { useMultipliers: true } } }
+				seriesStyles={ STYLES }
+				indicatorType="rect"
+				getLabel={ () => 'Views' }
+			/>
+		);
+
+		expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'pairs each row with its own series style when given series keys', () => {
 		render(
 			<ChartTooltip

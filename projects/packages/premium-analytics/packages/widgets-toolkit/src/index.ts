@@ -2,6 +2,8 @@
  * Components
  */
 export {
+	AbbreviatedValue,
+	type AbbreviatedValueProps,
 	MetricDelta,
 	MetricTileGrid,
 	MetricTileGridSkeleton,

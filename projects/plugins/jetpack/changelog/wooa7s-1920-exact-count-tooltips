@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Premium Analytics: Show the exact figure in a tooltip behind every abbreviated number, and abbreviate with one decimal until the mantissa has three digits (1.2K, 54.3K, 234K).

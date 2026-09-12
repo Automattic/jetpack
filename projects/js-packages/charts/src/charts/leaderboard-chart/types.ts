@@ -36,9 +36,9 @@ export interface LeaderboardChartProps
 	secondaryColor?: string;
 
 	/**
-	 * Formatter for values
+	 * Formatter for values. May return an element, e.g. to attach a tooltip.
 	 */
-	valueFormatter?: ( value: number ) => string;
+	valueFormatter?: ( value: number ) => ReactNode;
 
 	/**
 	 * Formatter for delta values

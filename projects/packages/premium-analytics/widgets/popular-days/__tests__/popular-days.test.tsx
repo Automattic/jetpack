@@ -102,8 +102,7 @@ describe( 'PopularDaysWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( '166.9K views' ) ).toBeInTheDocument();
-		expect( screen.getByTitle( '166,900' ) ).toBeInTheDocument();
+		expect( screen.getByText( '167K views' ) ).toBeInTheDocument();
 	} );
 
 	it( 'reads the exact figure to assistive tech, not the abbreviation', () => {
@@ -113,9 +112,7 @@ describe( 'PopularDaysWidget', () => {
 
 		renderWidget();
 
-		// `title` is not reliably announced, so the abbreviation must be hidden and the
-		// exact figure exposed in its place.
-		expect( screen.getByText( '166.9K views' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '167K views' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 		expect( screen.getByText( '166,900 views' ) ).toBeInTheDocument();
 	} );
 

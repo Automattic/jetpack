@@ -782,7 +782,10 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 - Widget title: use the framed widget host header via the widget definition/title/icon. Do not
   add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
   widgets.
-- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`.
+- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true } } }`.
+  Compact output picks its own precision (1.2K, 54.3K, 234K), and `MetricValue` / `LeaderboardChart`
+  restore the exact figure in a tooltip and for assistive tech; wrap a hand-rendered figure in
+  `<AbbreviatedValue>` to get the same.
   `widgets/tags` is the one exception — it passes `useMultipliers: false` because compacting
   ("1,240" → "1K") was reported as a data mismatch against the Jetpack Stats module it is read
   beside (WOOA7S-2018). Report tables already print in full, so the widgets are the outliers;

@@ -175,13 +175,10 @@ export function ComparativeBarChart( {
 		[ alignedSeries, getElementStyles ]
 	);
 
-	// Multipliers and 0 decimals keep the tick strings short.
+	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
 		() => ( value: number ) =>
-			formatMetricValue( value, dataFormat.type, {
-				useMultipliers: true,
-				decimals: 0,
-			} ),
+			formatMetricValue( value, dataFormat.type, { useMultipliers: true } ),
 		[ dataFormat ]
 	);
 

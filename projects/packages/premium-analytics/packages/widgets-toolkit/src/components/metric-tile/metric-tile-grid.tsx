@@ -48,12 +48,6 @@ type MetricTileGridItem = {
 	note?: string;
 
 	/**
-	 * `title` tooltip on the value, e.g. the exact count behind a shortened
-	 * display value (`18K` → `18,432`).
-	 */
-	valueTitle?: string;
-
-	/**
 	 * Format configuration for this tile's value. Falls back to the grid's
 	 * `dataFormat`.
 	 */
@@ -112,7 +106,7 @@ function MetricTileValue( {
 
 	if ( tile.previousValue !== undefined ) {
 		return (
-			<span className={ styles.comparison } title={ tile.valueTitle }>
+			<span className={ styles.comparison }>
 				<MetricWithComparison
 					value={ tile.value as number }
 					previousValue={ tile.previousValue }
@@ -128,7 +122,6 @@ function MetricTileValue( {
 			dataFormat={ tile.dataFormat ?? dataFormat }
 			currencyCode={ tile.currencyCode ?? currencyCode }
 			className={ styles.value }
-			title={ tile.valueTitle }
 		/>
 	);
 }

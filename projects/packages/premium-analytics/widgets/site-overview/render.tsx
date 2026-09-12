@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useStatsSummary, type StatsSummaryResponse } from '@jetpack-premium-analytics/data';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	MetricTileGrid,
 	MetricTileGridSkeleton,
@@ -125,9 +124,6 @@ function SiteOverviewReport( {
 			// layout instead of MetricTileGrid's responsive single-value sizing.
 			previousValue: hasComparison && comparisonSummary ? metricValue( comparisonSummary ) : null,
 			note,
-			// The tile shows a shortened count (e.g. 18K); the hover title carries
-			// the exact total, as the upstream Stats tooltip does.
-			valueTitle: formatMetricValue( value, 'number', { decimals: 0 } ),
 		};
 	} );
 
