@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { test, expect, type Locator } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 
 const pluginRoot = fileURLToPath( new URL( '../../../../', import.meta.url ) );
 let fixtureDirectory: string;
@@ -25,6 +25,23 @@ async function hoverDay( chart: Locator, index: number ) {
 			x: barBox.x + barBox.width / 2 - captureBox.x,
 			y: captureBox.height / 2,
 		},
+	} );
+}
+
+/**
+ * Resolve the empty-day token in the browser.
+ *
+ * @param page - Fixture page.
+ * @return Computed empty-day color.
+ */
+function getEmptyDayColor( page: Page ) {
+	return page.evaluate( () => {
+		const swatch = document.createElement( 'span' );
+		swatch.style.color = 'var(--wpds-color-stroke-surface-neutral)';
+		document.body.append( swatch );
+		const color = getComputedStyle( swatch ).color;
+		swatch.remove();
+		return color;
 	} );
 }
 
@@ -194,14 +211,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
 		const bars = chart.locator( '.visx-bar' );
 		await expect( bars ).toHaveCount( 15 );
-		const emptyColor = await page.evaluate( () => {
-			const swatch = document.createElement( 'span' );
-			swatch.style.color = 'var(--wpds-color-stroke-surface-neutral)';
-			document.body.append( swatch );
-			const color = getComputedStyle( swatch ).color;
-			swatch.remove();
-			return color;
-		} );
+		const emptyColor = await getEmptyDayColor( page );
 		await expect( bars.first() ).toHaveCSS( 'fill', emptyColor );
 		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
 		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
@@ -285,14 +295,7 @@ test( 'an all-zero window paints recorded scores separately from empty slots', a
 		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
 		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
-		const emptyColor = await page.evaluate( () => {
-			const swatch = document.createElement( 'span' );
-			swatch.style.color = 'var(--wpds-color-stroke-surface-neutral)';
-			document.body.append( swatch );
-			const color = getComputedStyle( swatch ).color;
-			swatch.remove();
-			return color;
-		} );
+		const emptyColor = await getEmptyDayColor( page );
 		await expect( bars.first() ).toHaveCSS( 'fill', emptyColor );
 		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
 		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
