@@ -243,6 +243,22 @@ test( 'leaving one chart resets its tooltip without remounting the next chart', 
 	expect( screen.getAllByRole( 'grid' )[ 0 ] ).toBe( desktop );
 } );
 
+test.each( [ { range: getHistoryWindow( 1 ) }, { isVisible: false } ] )(
+	'clears the active highlight when the chart window or visibility changes (%o)',
+	async state => {
+		const { rerender, unmount } = render( <HistoryChartCard data={ history } { ...callbacks } />, {
+			wrapper,
+		} );
+		fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'history-highlight' ) ).toBeInTheDocument();
+		rerender( <HistoryChartCard data={ history } { ...callbacks } { ...state } /> );
+		expect( screen.queryByTestId( 'history-highlight' ) ).not.toBeInTheDocument();
+		unmount();
+		expect( screen.queryByTestId( 'history-highlight' ) ).not.toBeInTheDocument();
+	}
+);
+
 test( 'offers the premium upgrade without rendering paid history', () => {
 	render( <HistoryChartCard data={ history } needsUpgrade { ...callbacks } />, { wrapper } );
 	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();

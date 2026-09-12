@@ -11,6 +11,7 @@ import {
 	within,
 } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { useViewportMatch } from '@wordpress/compose';
 import { useSingleModuleState } from '../../app/assets/src/js/features/module/lib/stores';
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
@@ -35,6 +36,10 @@ const { queryClient: legacyQueryClient } = jest.requireActual(
 	'@automattic/jetpack-react-data-sync-client'
 );
 jest.mock( '@wordpress/api-fetch' );
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useViewportMatch: jest.fn(),
+} ) );
 jest.mock( '../../app/assets/src/js/features/performance-history/lib/hooks', () => ( {
 	...jest.requireActual( '../../app/assets/src/js/features/performance-history/lib/hooks' ),
 	useDismissibleAlertState: jest.fn(),
@@ -61,6 +66,7 @@ const scores = {
 
 beforeEach( () => {
 	jest.clearAllMocks();
+	jest.mocked( useViewportMatch ).mockReturnValue( false );
 	Object.assign( window, {
 		Jetpack_Boost: { site: { url: 'https://example.org', online: true } },
 		wpApiSettings: { root: 'https://example.org/wp-json/', nonce: 'wp-nonce' },
@@ -770,28 +776,6 @@ test( 'keeps numeric device tiers when the Overall letter is C', () => {
 } );
 
 test( 'owns history paging, retry, and the responsive fifteen-day window', async () => {
-	const originalMatchMedia = window.matchMedia;
-	const media = {
-		matches: false,
-		media: '(max-width: 600px)',
-		onchange: null,
-		addListener: jest.fn(),
-		removeListener: jest.fn(),
-		addEventListener: jest.fn(),
-		removeEventListener: jest.fn(),
-		dispatchEvent: jest.fn(),
-	};
-	jest.spyOn( window, 'matchMedia' ).mockImplementation().mockReturnValue( media );
-	const computedStyle = window.getComputedStyle;
-	const style = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( element => {
-		const value = computedStyle( element );
-		const getPropertyValue = value.getPropertyValue.bind( value );
-		value.getPropertyValue = name =>
-			name === '--jetpack-boost-history-narrow-query'
-				? '(max-width: 600px)'
-				: getPropertyValue( name );
-		return value;
-	} );
 	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
 	let failPrevious = true;
 	jest.mocked( apiFetch ).mockImplementation( options => {
@@ -804,7 +788,15 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 		}
 		return fetch( options );
 	} );
-	const { client, unmount } = renderOverview();
+	const { client, unmount, rerender } = renderOverview();
+	const resize = ( isNarrow: boolean ) => {
+		jest.mocked( useViewportMatch ).mockReturnValue( isNarrow );
+		rerender(
+			<QueryClientProvider client={ client }>
+				<Overview />
+			</QueryClientProvider>
+		);
+	};
 	const expectWindow = async ( offset: number, dayCount: 15 | 30 ) => {
 		await waitFor( () =>
 			expect( apiFetch ).toHaveBeenCalledWith(
@@ -824,15 +816,12 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 	};
 	try {
 		await expectWindow( 0, 30 );
-		expect( window.matchMedia ).toHaveBeenCalledWith( '(max-width: 600px)' );
+		expect( useViewportMatch ).toHaveBeenCalledWith( 'small', '<' );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Previous 30 days' } ) );
 		await expect( screen.findByText( 'Previous window unavailable' ) ).resolves.toBeInTheDocument();
 		fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 		await expectWindow( 1, 30 );
-		act( () => {
-			media.matches = true;
-			media.addEventListener.mock.calls[ 0 ][ 1 ]();
-		} );
+		resize( true );
 		await expectWindow( 0, 15 );
 		expect( screen.getByRole( 'button', { name: 'Next 15 days' } ) ).toHaveAttribute(
 			'aria-disabled',
@@ -845,10 +834,9 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 			'aria-disabled',
 			'true'
 		);
-		act( () => {
-			media.matches = false;
-			media.addEventListener.mock.calls[ 0 ][ 1 ]();
-		} );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Previous 15 days' } ) );
+		resize( false );
+		await expectWindow( 0, 30 );
 		expect( screen.getByRole( 'button', { name: 'Next 30 days' } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
@@ -856,7 +844,5 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 	} finally {
 		unmount();
 		client.clear();
-		style.mockRestore();
-		window.matchMedia = originalMatchMedia;
 	}
 } );

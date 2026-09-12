@@ -43,11 +43,11 @@ const noop = () => {};
 const queryClient = new QueryClient();
 
 const HistoryFixture = () => {
-	const { ref, ...paging } = useHistoryRange();
+	const paging = useHistoryRange();
 	const [ isVisible, setVisible ] = useState( true );
 	const toggleVisibility = useCallback( () => setVisible( visible => ! visible ), [] );
 	return (
-		<div ref={ ref }>
+		<div>
 			<button onClick={ toggleVisibility }>Toggle history</button>
 			<HistoryChartCard
 				{ ...paging }
