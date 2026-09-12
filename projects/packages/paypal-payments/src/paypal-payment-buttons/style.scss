@@ -110,14 +110,12 @@ $paypal-blue: #0070ba;
 	cursor: pointer;
 }
 
-// The Outline style. Same shape as the Jetpack button block's own outline
-// (extensions/blocks/button/view.scss): 1px, so the button does not
-// grow next to a Fill one, and no padding override so the theme keeps
-// sizing it. `color: currentColor` is what stops the theme's button color
-// (usually white, meant for a filled background) leaving the label
-// invisible; a color chosen in the Styles tab arrives inline and wins
-// over it. Hover and focus are listed
-// too, or the theme repaints the background on hover and fills it back in.
+// The Outline style, after core's button block plus the hover states.
+// 1px like extensions/blocks/button/view.scss, so an Outline button does not
+// sit larger than a Fill one, and no padding override so the theme keeps
+// sizing it. currentColor stops the theme's filled-button text color leaving
+// the label invisible; a color set in the Styles tab arrives inline and wins.
+// The hover/focus/active copies stop the theme repainting the background.
 .jetpack-paypal-button__checkout-link.is-style-outline {
 
 	&,

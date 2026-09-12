@@ -36,7 +36,7 @@ import {
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getTextStyle } from '../utils/block-styles';
+import { getTextStyle, isOutlineButton } from '../utils/block-styles';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import FormatSwitcher from './format-switcher';
 import QrCodePreview from './qr-code-preview';
@@ -272,27 +272,28 @@ function QrOutputControls( { attributes, setAttributes, qrUrl, disabled } ) {
 }
 
 /**
- * Color for whatever the format colors — the QR caption, the link, or the
- * button's text and background. One row per color, so the button draws two and
- * the others draw one.
+ * The Color panel — one swatch row per color, so the button draws Text and
+ * Background and the other formats draw one.
  *
  * @param {object}   props               - Component props.
- * @param {Array}    props.rows          - `{ label, colorKey }` per swatch row.
+ * @param {Array}    props.rows          - `{ label, colorKey }` per visible swatch row.
+ * @param {Array}    props.ownedKeys     - Every color key the format owns, visible or not.
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
  * @param {Element}  props.children      - Rendered under the swatches, for the contrast warning.
  * @return {Element} The Color panel.
  */
-function ColorPanel( { rows, attributes, setAttributes, children } ) {
+function ColorPanel( { rows, ownedKeys, attributes, setAttributes, children } ) {
 	const colorSettings = useMultipleOriginColorsAndGradients();
-	const cleared = Object.fromEntries( rows.map( ( { colorKey } ) => [ colorKey, '' ] ) );
+	// Reset All clears every key the format owns, not just the rows on screen —
+	// a hidden one would otherwise survive and reappear when it comes back.
+	const cleared = Object.fromEntries(
+		( ownedKeys ?? rows.map( row => row.colorKey ) ).map( key => [ key, '' ] )
+	);
 
 	return (
-		/* Same shape as core's own ColorToolsPanel — the dropdown renders a
-		   ToolsPanelItem, so it needs a ToolsPanel around it, and the class,
-		   hasInnerWrapper and the inner div all go together: core's row-gap and
-		   first-item rules key off `__inner-wrapper`, so the class without the
-		   wrapper leaves every swatch its own tall box.
+		/* Same shape as core's ColorToolsPanel: the class, hasInnerWrapper and the
+		   inner div go together, or each swatch gets its own tall box.
 		   @see @wordpress/block-editor/src/components/global-styles/color-panel.js */
 		<ToolsPanel
 			className="color-block-support-panel"
@@ -466,7 +467,7 @@ export default function PayPalFormatControls( {
 	paymentUrl,
 	disabled,
 } ) {
-	const isOutline = 'outline' === attributes.buttonStyle;
+	const isOutline = isOutlineButton( attributes );
 
 	return (
 		<InspectorControls group="styles">
@@ -490,13 +491,12 @@ export default function PayPalFormatControls( {
 							disabled={ disabled }
 						/>
 
-						{ /* TODO: add a `Show payment method logos` checkbox above this one
-						     (WOOPTP-495) — blocked on legal sign-off for the card-network
-						     marks. */ }
+						{ /* TODO: add a `Show payment method logos` checkbox above this one,
+						     once legal signs off on the card-network marks. */ }
 						<CheckboxControl
 							label={ __( 'Show "Powered by PayPal" text', 'jetpack-paypal-payments' ) }
-							checked={ !! attributes.showPoweredBy }
-							onChange={ value => setAttributes( { showPoweredBy: value } ) }
+							checked={ !! attributes.buttonShowPoweredBy }
+							onChange={ value => setAttributes( { buttonShowPoweredBy: value } ) }
 							disabled={ disabled }
 							__nextHasNoMarginBottom
 						/>
@@ -522,26 +522,20 @@ export default function PayPalFormatControls( {
 				) }
 			</div>
 
-			{ /* Each format's panels in the order the design draws them. Only the
-			     button puts Width Settings between Color and Typography, which is
-			     why Typography is its own panel. */ }
+			{ /* Each format's panels, in render order. */ }
 			{ 'BUTTON' === format && (
 				<>
 					<ColorPanel
 						rows={ [
 							{ label: __( 'Text', 'jetpack-paypal-payments' ), colorKey: 'buttonTextColor' },
-							// Outline renders on the theme's own background, so both
-							// renderers drop this value. Leaving the swatch up would fill
-							// it in and change nothing.
-							...( isOutline
-								? []
-								: [
-										{
-											label: __( 'Background', 'jetpack-paypal-payments' ),
-											colorKey: 'buttonBackgroundColor',
-										},
-								  ] ),
-						] }
+							// Outline renders on the theme's background, so both renderers
+							// drop this value — the swatch would set an attribute nothing reads.
+							! isOutline && {
+								label: __( 'Background', 'jetpack-paypal-payments' ),
+								colorKey: 'buttonBackgroundColor',
+							},
+						].filter( Boolean ) }
+						ownedKeys={ [ 'buttonTextColor', 'buttonBackgroundColor' ] }
 						attributes={ attributes }
 						setAttributes={ setAttributes }
 					>
@@ -549,7 +543,7 @@ export default function PayPalFormatControls( {
 							<ContrastChecker
 								textColor={ attributes.buttonTextColor }
 								backgroundColor={ attributes.buttonBackgroundColor }
-								isLargeText={ false }
+								fontSize={ attributes.buttonFontSize }
 							/>
 						) }
 					</ColorPanel>

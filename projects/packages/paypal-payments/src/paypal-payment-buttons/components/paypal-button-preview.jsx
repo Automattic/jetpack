@@ -16,10 +16,11 @@
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
-	getBorderStyle,
 	getButtonStyle,
+	getCardStyle,
+	getQrStyle,
 	getTextStyle,
-	getWrapperStyle,
+	isOutlineButton,
 } from '../utils/block-styles';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
@@ -150,7 +151,7 @@ function QrPreview( {
 	return (
 		<div
 			className="jetpack-paypal-button-preview jetpack-paypal-button-preview--qr"
-			style={ { ...getWrapperStyle( attributes ), ...getBorderStyle( attributes ) } }
+			style={ getQrStyle( attributes ) }
 		>
 			<QrCodePreview
 				url={ qrUrl }
@@ -200,9 +201,8 @@ function ButtonPreview( {
 	// default render_api_managed_button() uses.
 	const label = `${ buttonText ?? '' }`.trim() || DEFAULT_LABEL;
 
-	// Width and Border ride on the button, not this card — see getButtonStyle().
 	return (
-		<div className="jetpack-paypal-button-preview" style={ getWrapperStyle( attributes, false ) }>
+		<div className="jetpack-paypal-button-preview" style={ getCardStyle( attributes ) }>
 			{ /* Product image */ }
 			{ imageUrl && (
 				<div className="jetpack-paypal-button-preview__image">
@@ -268,7 +268,7 @@ function ButtonPreview( {
 			<div className="jetpack-paypal-button-preview__buttons">
 				<div
 					className={ clsx( 'jetpack-paypal-button-preview__checkout-button', 'wp-element-button', {
-						'is-style-outline': 'outline' === attributes.buttonStyle,
+						'is-style-outline': isOutlineButton( attributes ),
 					} ) }
 					style={ getButtonStyle( attributes ) }
 					aria-hidden="true"
@@ -277,7 +277,7 @@ function ButtonPreview( {
 				</div>
 			</div>
 
-			{ attributes.showPoweredBy && (
+			{ attributes.buttonShowPoweredBy && (
 				<p className="jetpack-paypal-button__attribution">
 					{ __( 'Powered by PayPal', 'jetpack-paypal-payments' ) }
 				</p>

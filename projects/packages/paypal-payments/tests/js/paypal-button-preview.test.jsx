@@ -74,14 +74,16 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.queryByText( 'Powered by PayPal' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the attribution line with showPoweredBy on, as the frontend does', () => {
-		render( <PayPalButtonPreview { ...defaultProps } attributes={ { showPoweredBy: true } } /> );
+	it( 'renders the attribution line with buttonShowPoweredBy on, as the frontend does', () => {
+		render(
+			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: true } } />
+		);
 		expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
 	} );
 
-	// The canvas half of what render_api_managed_button() puts on the anchor.
-	// Without these the style and class wiring can be reverted and the suite
-	// stays green, which is the drift this whole milestone exists to stop.
+	// The canvas half of what render_api_managed_button() puts on the anchor —
+	// without these the class and style wiring can be reverted with the suite
+	// still green.
 	it( 'styles the checkout button from its own color, background and size', () => {
 		render(
 			<PayPalButtonPreview
@@ -141,10 +143,18 @@ describe( 'PayPalButtonPreview', () => {
 
 		expect(
 			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
-		).toHaveStyle( { width: '75%', borderRadius: '8px' } );
-		expect( document.querySelector( '.jetpack-paypal-button-preview' ) ).not.toHaveStyle( {
-			maxWidth: '75%',
+		).toHaveStyle( {
+			width: '75%',
+			maxWidth: '100%',
+			borderRadius: '8px',
+			borderWidth: '2px',
+			borderColor: '#1e1e1e',
+			borderStyle: 'solid',
 		} );
+
+		const card = document.querySelector( '.jetpack-paypal-button-preview' );
+		expect( card ).not.toHaveStyle( { maxWidth: '75%' } );
+		expect( card ).not.toHaveStyle( { borderRadius: '8px' } );
 	} );
 
 	it( 'never renders a debit/credit button', () => {
@@ -580,24 +590,6 @@ describe( 'PayPalButtonPreview', () => {
 			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
 			expect( wrapper ).toHaveStyle( { marginLeft: '8px', marginRight: '8px' } );
 			expect( wrapper ).not.toHaveStyle( { marginTop: '8px' } );
-		} );
-
-		it( 'sizes and borders the button, leaving the card around it alone', () => {
-			// The card has no background of its own, so a radius there rounds
-			// nothing and a width there boxes the card instead of the button.
-			render(
-				<PayPalButtonPreview
-					{ ...defaultProps }
-					format="BUTTON"
-					attributes={ { blockWidth: '75%', style: { border: { radius: '6px' } } } }
-				/>
-			);
-			expect(
-				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
-			).toHaveStyle( { width: '75%', borderRadius: '6px' } );
-			expect( document.querySelector( '.jetpack-paypal-button-preview' ) ).not.toHaveStyle( {
-				maxWidth: '75%',
-			} );
 		} );
 
 		it( 'draws no code until a payment link exists', () => {

@@ -484,15 +484,19 @@
 	text-decoration: none;
 }
 
-// The canvas half of the Outline style. Its published twin is the
-// .jetpack-paypal-button__checkout-link rule in style.scss — change one, change
-// the other. Separate because this class only exists in the editor, and the
-// preview draws a div rather than an anchor, so it has no hover state to guard.
+// Canvas twin of the .jetpack-paypal-button__checkout-link outline rule in
+// style.scss — change one, change the other. The theme's button styles reach
+// the canvas iframe too, so hover is guarded here as well.
 .jetpack-paypal-button-preview__checkout-button.is-style-outline {
-	background-color: transparent;
-	background-image: none;
-	border: solid 1px currentColor;
-	color: currentColor;
+
+	&,
+	&:hover,
+	&:focus {
+		background-color: transparent;
+		background-image: none;
+		border: solid 1px currentColor;
+		color: currentColor;
+	}
 }
 
 // ---------------------------------------------------------------
