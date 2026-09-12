@@ -590,6 +590,29 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * Test that the product card takes the margin and nothing else.
+	 *
+	 * Width and Border go on the button, so a revert that put them back on the
+	 * card has to fail here.
+	 */
+	public function test_render_button_leaves_width_and_border_off_the_card() {
+		$result = $this->render_button_format(
+			array(
+				'blockWidth' => '75%',
+				'style'      => array(
+					'border'  => array( 'radius' => '6px' ),
+					'spacing' => array( 'margin' => array( 'top' => '8px' ) ),
+				),
+			)
+		);
+
+		$this->assertMatchesRegularExpression(
+			'/<div class="jetpack-paypal-button" style="margin-top:8px;">/',
+			$result
+		);
+	}
+
+	/**
 	 * Test that the attribution line is off until the merchant asks for it.
 	 */
 	public function test_render_button_hides_the_attribution_by_default() {
@@ -1201,7 +1224,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * Test that the published page emits what the canvas emits.
 	 *
 	 * The other half of this table runs in tests/js/block-styles.test.js against
-	 * getWrapperStyle()/getTextStyle(). A value one side drops and the other
+	 * getQrStyle(), getButtonStyle() and getTextStyle(). A value one side drops and the other
 	 * keeps is drift between the canvas and the published page, so it fails here.
 	 *
 	 * @dataProvider provide_style_parity_cases
@@ -1367,12 +1390,20 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		}
 
 		// The canvas refuses these too, so neither side may emit a declaration.
+		// Run against the button as well: width and border are emitted a second
+		// time there, onto a different element.
 		foreach ( $fixture['rejectedCases'] as $case ) {
-			$cases[ 'refuses ' . $case['name'] ] = array(
+			$cases[ 'refuses ' . $case['name'] ]                    = array(
 				$case['attributes'],
 				array(),
 				'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
 				'QR',
+			);
+			$cases[ 'refuses ' . $case['name'] . ' on the button' ] = array(
+				$case['attributes'],
+				array(),
+				'class="jetpack-paypal-button__checkout-link wp-element-button"',
+				'BUTTON',
 			);
 		}
 
@@ -1406,7 +1437,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		// A renamed or malformed fixture would otherwise yield an empty provider
 		// and a green run.
 		$expected = count( $fixture['cases'] )
-			+ count( $fixture['rejectedCases'] )
+			+ count( $fixture['rejectedCases'] ) * 2
 			+ count( $fixture['buttonCases'] )
 			+ ( count( $fixture['textCases'] ) + count( $fixture['rejectedTextCases'] ) ) * count( self::TEXT_FORMATS );
 

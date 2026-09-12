@@ -1,5 +1,5 @@
 /**
- * Width, margin, border and text styles for the editor canvas.
+ * Width, margin, border, color and text styles for the editor canvas.
  *
  * Margin and border live in `attributes.style`, the same shape core's block
  * supports use, so core's own helpers turn them into CSS — the JS twin of the
@@ -21,6 +21,7 @@ import {
 	__experimentalGetBorderClassesAndStyles as getBorderClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalGetSpacingClassesAndStyles as getSpacingClassesAndStyles, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
+import { kebabCase } from 'lodash';
 
 // Mirrors sanitize_css_length(), sanitize_css_color() and
 // sanitize_css_font_size() in class-paypal-payment-buttons.php.
@@ -31,7 +32,9 @@ const COLOR_PRESET = /^var:preset\|color\|([a-z0-9-]+)$/i;
 const CSS_VAR = /^var\(--wp--[a-z0-9-]+\)$/i;
 const COLOR_FUNCTION = /^(rgb|hsl)a?\([\d.,%\s/]+\)$/i;
 const FONT_SIZE_VAR = /^var\(--wp--preset--font-size--[a-z0-9-]+\)$/i;
-const FLUID_SIZE = /^(clamp|calc)\([a-z0-9.,%\s()+\-*/]+\)$/i;
+// No doubled `/` or `*`: `/*` opens a comment that swallows the rest, and `**`
+// and `//` are not CSS operators.
+const FLUID_SIZE = /^(?!.*[/*]{2})(clamp|calc)\([a-z0-9.,%\s()+\-*/]+\)$/i;
 const UNITLESS = /^\d+(\.\d+)?$/;
 
 // The sides and corners the Border Settings panel can write.
@@ -105,32 +108,44 @@ function box( sides ) {
 }
 
 /**
- * A length the style engine will not silently drop.
+ * A length with no spacing preset in it.
  *
- * `box()` accepts spacing presets because margin goes through the style engine,
- * which expands them. Border does not: core's JS engine expands a preset radius
- * and wp_style_engine_get_styles() drops it, so a preset would render on the
- * canvas and vanish on the page. Refusing it on both sides keeps them equal.
+ * `length()` takes presets because margin goes through the style engine, which
+ * expands them. Width and border do not: core's JS engine expands a preset
+ * radius and wp_style_engine_get_styles() drops it, so a preset would render on
+ * the canvas and disappear on the page. Refusing it on both sides keeps them
+ * equal. Mirrors plain_length() in class-paypal-payment-buttons.php.
  *
- * @param {*} sides - A length string, or an object keyed by side or corner.
- * @return {*} The value with presets removed, or undefined when nothing is left.
+ * @param {*} value - A raw attribute value.
+ * @return {string} The length, or '' when it is not a plain one.
+ */
+function plainLength( value ) {
+	const clean = length( value );
+
+	return SPACING_PRESET.test( clean ) ? '' : clean;
+}
+
+/**
+ * A per-corner box with no spacing preset in it.
+ *
+ * @param {*} sides - A length string, or an object keyed by corner.
+ * @return {*} The value with every corner validated, or undefined when none survive.
  */
 function plainBox( sides ) {
-	const kept = box( sides );
-
-	if ( typeof kept === 'string' ) {
-		return SPACING_PRESET.test( kept ) ? undefined : kept;
+	if ( typeof sides === 'string' ) {
+		return plainLength( sides ) || undefined;
 	}
 
-	if ( ! kept ) {
+	if ( ! sides || typeof sides !== 'object' ) {
 		return undefined;
 	}
 
-	const plain = Object.fromEntries(
-		Object.entries( kept ).filter( ( [ , value ] ) => ! SPACING_PRESET.test( value ) )
-	);
+	const kept = Object.entries( sides ).reduce( ( out, [ side, value ] ) => {
+		const clean = BOX_SIDES.includes( side ) ? plainLength( value ) : '';
+		return clean ? { ...out, [ side ]: clean } : out;
+	}, {} );
 
-	return Object.keys( plain ).length ? plain : undefined;
+	return Object.keys( kept ).length ? kept : undefined;
 }
 
 /**
@@ -140,11 +155,7 @@ function plainBox( sides ) {
  * @return {string} The width, or '' when none is set.
  */
 function chosenWidth( attributes ) {
-	// The style engine never sees the width, so a spacing preset would be emitted
-	// raw. The width control cannot produce one; this keeps it that way.
-	const width = length( attributes.blockWidth );
-
-	return SPACING_PRESET.test( width ) ? '' : width;
+	return plainLength( attributes.blockWidth );
 }
 
 /**
@@ -162,10 +173,14 @@ export function isOutlineButton( attributes = {} ) {
 /**
  * Margin, from the Border Settings panel.
  *
+ * The button's product card takes this and nothing else — Width and Border go
+ * on the button, see getButtonStyle(). A QR-to-BUTTON format switch can still
+ * leave a margin behind, so the card keeps reading it.
+ *
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
  */
-function getMarginStyle( attributes ) {
+export function getMarginStyle( attributes = {} ) {
 	return getSpacingClassesAndStyles( {
 		style: { spacing: { margin: box( attributes.style?.spacing?.margin ) } },
 	} ).style;
@@ -180,7 +195,7 @@ function getMarginStyle( attributes ) {
 function getBorderStyle( attributes ) {
 	const border = attributes.style?.border || {};
 
-	const strokeWidth = plainBox( border.width );
+	const strokeWidth = plainLength( border.width );
 	const strokeColor = color( border.color );
 	// A half-set stroke renders inconsistently, so width, color and style go in
 	// together or not at all. border-style defaults to `none`, so a width and a
@@ -217,26 +232,13 @@ export function getQrStyle( attributes = {} ) {
 }
 
 /**
- * The button's product card — margin only.
- *
- * Width and Border belong to the button — see getButtonStyle(). Margin still
- * goes here, since a QR-to-BUTTON format switch can leave one behind.
- * Mirrors get_card_style().
- *
- * @param {object} attributes - The block attributes.
- * @return {object} A React style object, empty when nothing is configured.
- */
-export function getCardStyle( attributes = {} ) {
-	return getMarginStyle( attributes );
-}
-
-/**
  * A validated color, with a chosen palette entry expanded.
  *
  * None of the Color panels go through the style engine, so the expansion
  * sanitize_css_color() does for the page happens here for the canvas. The slug
- * is lowercased first, to match how WP defines the custom property — a
- * `Vivid-Red` slug would not match anything.
+ * is kebab-cased the way WP names the custom property, or a `heavenlyBlue` one
+ * points at a variable nothing defines. lodash's kebabCase is what core's own
+ * _wp_to_kebab_case() is a port of, so the two sides agree by construction.
  *
  * @param {*} value - A raw attribute value.
  * @return {string} The color, or '' when it is not one.
@@ -245,7 +247,7 @@ function cssColor( value ) {
 	const clean = color( value );
 	const preset = clean.match( COLOR_PRESET );
 
-	return preset ? `var(--wp--preset--color--${ preset[ 1 ].toLowerCase() })` : clean;
+	return preset ? `var(--wp--preset--color--${ kebabCase( preset[ 1 ] ) })` : clean;
 }
 
 /**
@@ -264,20 +266,11 @@ function cssFontSize( value ) {
 		return `${ size }px`;
 	}
 
-	// `/*` or `*/` would open a CSS comment and swallow the rest. Kept out of
-	// FLUID_SIZE so both languages reject the same set: a `[/*]{2}` class
-	// also rejects `**` and `//`, which the PHP side accepts.
-	if ( size.includes( '/*' ) || size.includes( '*/' ) ) {
-		return '';
-	}
-
 	// A spacing preset is a length but not a font size — it would be emitted raw
 	// as `font-size:var:preset|spacing|50` and dropped by the browser.
-	if ( SPACING_PRESET.test( size ) ) {
-		return '';
-	}
-
-	return length( size ) || ( FONT_SIZE_VAR.test( size ) || FLUID_SIZE.test( size ) ? size : '' );
+	return (
+		plainLength( size ) || ( FONT_SIZE_VAR.test( size ) || FLUID_SIZE.test( size ) ? size : '' )
+	);
 }
 
 /**

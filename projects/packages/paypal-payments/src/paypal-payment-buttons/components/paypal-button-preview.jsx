@@ -17,7 +17,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
 	getButtonStyle,
-	getCardStyle,
+	getMarginStyle,
 	getQrStyle,
 	getTextStyle,
 	isOutlineButton,
@@ -202,7 +202,7 @@ function ButtonPreview( {
 	const label = `${ buttonText ?? '' }`.trim() || DEFAULT_LABEL;
 
 	return (
-		<div className="jetpack-paypal-button-preview" style={ getCardStyle( attributes ) }>
+		<div className="jetpack-paypal-button-preview" style={ getMarginStyle( attributes ) }>
 			{ /* Product image */ }
 			{ imageUrl && (
 				<div className="jetpack-paypal-button-preview__image">

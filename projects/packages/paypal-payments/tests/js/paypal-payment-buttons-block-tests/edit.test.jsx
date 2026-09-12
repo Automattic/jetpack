@@ -3481,6 +3481,22 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( checker ).toHaveAttribute( 'data-background', '#ffd140' );
 			} );
 
+			// LINK and QR pass no ownedKeys, so they reset from the rows on screen.
+			it( 'clears the link color from its own panel', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK', linkColor: '#1e1e1e' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				const colorPanel = await screen.findByTestId( 'tools-panel-Color' );
+
+				await user.click( within( colorPanel ).getByTestId( 'tools-panel-reset' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { linkColor: '' } );
+			} );
+
 			it( 'offers Fill and Outline on the button, and defaults to Fill', async () => {
 				const user = userEvent.setup();
 				render(

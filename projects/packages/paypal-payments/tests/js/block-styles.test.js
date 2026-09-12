@@ -8,7 +8,7 @@
 
 import {
 	getButtonStyle,
-	getCardStyle,
+	getMarginStyle,
 	getQrStyle,
 	getTextStyle,
 } from '../../src/paypal-payment-buttons/utils/block-styles';
@@ -144,10 +144,10 @@ describe( 'getTextStyle', () => {
 	} );
 } );
 
-describe( 'getCardStyle', () => {
+describe( 'getMarginStyle', () => {
 	it( 'takes the margin and leaves width and border to the button', () => {
 		expect(
-			getCardStyle( {
+			getMarginStyle( {
 				blockWidth: '75%',
 				style: { border: { radius: '6px' }, spacing: { margin: { top: '8px' } } },
 			} )
