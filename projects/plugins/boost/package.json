@@ -54,6 +54,7 @@
 		"@wordpress/api-fetch": "7.54.0",
 		"@wordpress/base-styles": "13.0.0",
 		"@wordpress/components": "40.0.0",
+		"@wordpress/compose": "8.7.0",
 		"@wordpress/date": "5.54.0",
 		"@wordpress/element": "8.6.0",
 		"@wordpress/icons": "15.5.0",

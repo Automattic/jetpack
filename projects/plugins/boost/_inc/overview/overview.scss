@@ -2,8 +2,11 @@
 @use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
 
 .jetpack-boost-overview {
-	--jetpack-boost-overview-chart-desktop: var(--wpds-color-foreground-interactive-brand);
-	--jetpack-boost-overview-chart-mobile: var(--wpds-color-foreground-content-success-weak);
+	--jetpack-boost-score-good: var(--wpds-color-foreground-content-success-weak);
+	--jetpack-boost-score-medium: var(--wpds-color-foreground-content-warning-weak);
+	--jetpack-boost-score-poor: var(--wpds-color-foreground-content-error-weak);
+	--jetpack-boost-history-empty: var(--wpds-color-stroke-surface-neutral);
+	--jetpack-boost-history-axis: var(--wpds-color-foreground-content-neutral-weak);
 	// The surface width token intentionally sets the chart height.
 	--jetpack-boost-overview-chart-height: var(--wpds-dimension-surface-width-sm);
 
@@ -141,12 +144,6 @@
 
 .jetpack-boost-overview__history-card {
 	overflow: visible;
-}
-
-.jetpack-boost-overview__chart-canvas {
-	block-size: var(--jetpack-boost-overview-chart-height);
-	min-inline-size: 0;
-	isolation: isolate;
 }
 
 .jetpack-boost-overview__series-swatch {

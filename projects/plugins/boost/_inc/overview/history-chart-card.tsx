@@ -1,25 +1,26 @@
-import { GlobalChartsProvider, LineChart, useGlobalChartsContext } from '@automattic/charts';
+import { BarChart, GlobalChartsProvider } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { formatNumber } from '@automattic/number-formatters';
 import { Spinner } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
-import { RawHTML } from '@wordpress/element';
+import { dateI18n, getDate } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, info, trendingUp } from '@wordpress/icons';
-import { Card, EmptyState, Notice } from '@wordpress/ui';
-import { useCallback, useMemo, useState } from 'react';
+import { chevronLeft, chevronRight, desktop, mobile, Icon } from '@wordpress/icons';
+import { Button, Card, Notice } from '@wordpress/ui';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { bucketHistoryDays, type HistoryDay, type HistoryWindow } from './lib/history-days';
+import { getScoreTier, getScoreTierColor } from './lib/score-utils';
 import UpgradeCTA from './upgrade-cta';
-import type {
-	PerformanceHistoryData,
-	PerformanceHistoryPeriod,
-} from './lib/use-performance-history';
-import type { DataPointDate, SeriesData } from '@automattic/charts';
-import type { ComponentProps } from 'react';
-
-type DeviceColors = { desktop?: string; mobile?: string };
+import './history-chart-card.scss';
+import type { PerformanceHistoryData } from './lib/use-performance-history';
+import type { CategoryHighlightSelection, SeriesData } from '@automattic/charts';
 
 type Props = {
+	range: HistoryWindow;
+	dayCount: 15 | 30;
+	onPrevious: () => void;
+	onNext: () => void;
+	canGoNext: boolean;
 	data?: PerformanceHistoryData | null;
 	isLoading?: boolean;
 	isVisible?: boolean;
@@ -31,30 +32,40 @@ type Props = {
 	onDismissFreshStart: () => void;
 };
 
-export function buildHistorySeries(
-	data?: PerformanceHistoryData | null
-): ( SeriesData & { data: DataPointDate[] } )[] {
-	if ( ! data?.periods.length ) {
-		return [];
-	}
-	const periods = [ ...data.periods ].sort( ( a, b ) => a.timestamp - b.timestamp );
+// The empty-bar selector in history-chart-card.scss matches this fill.
+const emptyColor = 'var(--jetpack-boost-history-empty)';
+
+export function buildHistorySeries( days: HistoryDay[] ): SeriesData[] {
 	return ( [ 'desktop', 'mobile' ] as const ).map( device => ( {
 		label:
 			device === 'desktop' ? __( 'Desktop', 'jetpack-boost' ) : __( 'Mobile', 'jetpack-boost' ),
-		options: { stroke: `var(--jetpack-boost-overview-chart-${ device })` },
-		data: periods.map( period => ( {
-			date: new Date( period.timestamp ),
-			value: period.dimensions[ `${ device }_overall_score` ],
+		data: days.map( day => ( {
+			label: day.date,
+			value: day.period?.dimensions[ `${ device }_overall_score` ] ?? 0,
+			color: day.period
+				? getScoreTierColor( getScoreTier( day.period.dimensions[ `${ device }_overall_score` ] ) )
+				: emptyColor,
 		} ) ),
 	} ) );
 }
 
+export function EmptyDayTooltip( { date }: { date: string } ) {
+	return (
+		<div className="jetpack-boost-overview__history-tooltip boost-daily-history__empty-tooltip">
+			<div className="jetpack-boost-overview__tooltip-date">
+				{ dateI18n( 'F j, Y', getDate( `${ date }T12:00:00` ), false ) }
+			</div>
+			<div className="boost-daily-history__empty-copy">
+				{ __( 'No scores recorded before feature was unlocked', 'jetpack-boost' ) }
+			</div>
+		</div>
+	);
+}
+
 export function HistoryTooltip( {
 	period,
-	colors,
 }: {
-	period: PerformanceHistoryPeriod;
-	colors?: DeviceColors;
+	period: PerformanceHistoryData[ 'periods' ][ number ];
 } ) {
 	const dimensions = period.dimensions;
 	const content = (
@@ -62,29 +73,33 @@ export function HistoryTooltip( {
 			<div className="jetpack-boost-overview__tooltip-date">
 				{ dateI18n( 'F j, Y', new Date( period.timestamp ), false ) }
 			</div>
-			<div>
-				<dl className="jetpack-boost-overview__tooltip-section">
+			<dl>
+				<div className="jetpack-boost-overview__tooltip-section">
 					<dt>{ __( 'Overall score', 'jetpack-boost' ) }</dt>
 					<dd>
 						{ getScoreLetter( dimensions.mobile_overall_score, dimensions.desktop_overall_score ) }
 					</dd>
-				</dl>
+				</div>
 				{ ( [ 'desktop', 'mobile' ] as const ).map( device => (
-					<dl key={ device } className="jetpack-boost-overview__tooltip-section">
+					<div key={ device } className="jetpack-boost-overview__tooltip-section">
 						<dt>
+							{ device === 'desktop'
+								? __( 'Desktop', 'jetpack-boost' )
+								: __( 'Mobile', 'jetpack-boost' ) }
 							<span
 								className="jetpack-boost-overview__series-swatch"
-								style={ { backgroundColor: colors?.[ device ] } }
+								style={ {
+									backgroundColor: getScoreTierColor(
+										getScoreTier( dimensions[ `${ device }_overall_score` ] )
+									),
+								} }
 								aria-hidden="true"
 							/>
-							{ device === 'desktop'
-								? __( 'Desktop score', 'jetpack-boost' )
-								: __( 'Mobile score', 'jetpack-boost' ) }
 						</dt>
 						<dd>
 							{ sprintf(
 								/* translators: %d is the performance score. */
-								__( '%d / 100', 'jetpack-boost' ),
+								__( '%d/100', 'jetpack-boost' ),
 								dimensions[ `${ device }_overall_score` ]
 							) }
 						</dd>
@@ -106,31 +121,24 @@ export function HistoryTooltip( {
 						</dd>
 						<dt>{ __( 'Cumulative Layout Shift', 'jetpack-boost' ) }</dt>
 						<dd>{ formatNumber( dimensions[ `${ device }_cls` ], { decimals: 2 } ) }</dd>
-					</dl>
+					</div>
 				) ) }
-			</div>
+			</dl>
 		</>
 	);
-	return <div className="jetpack-boost-overview__history-tooltip">{ content }</div>;
-}
-
-function ThemedHistoryTooltip( {
-	series,
-	...props
-}: ComponentProps< typeof HistoryTooltip > & { series: SeriesData[] } ) {
-	const { getElementStyles } = useGlobalChartsContext();
 	return (
-		<HistoryTooltip
-			{ ...props }
-			colors={ {
-				desktop: getElementStyles( { data: series[ 0 ], index: 0 } ).color,
-				mobile: getElementStyles( { data: series[ 1 ], index: 1 } ).color,
-			} }
-		/>
+		<div className="jetpack-boost-overview__history-tooltip boost-daily-history__score-tooltip">
+			{ content }
+		</div>
 	);
 }
 
 export default function HistoryChartCard( {
+	range,
+	dayCount,
+	onPrevious,
+	onNext,
+	canGoNext,
 	data,
 	isLoading,
 	isVisible = true,
@@ -141,40 +149,39 @@ export default function HistoryChartCard( {
 	isFreshStart,
 	onDismissFreshStart,
 }: Props ) {
-	const series = useMemo( () => buildHistorySeries( data ), [ data ] );
-	const tickValues = useMemo( () => {
-		const dates = series[ 0 ]?.data.map( point => point.date ) ?? [];
-		const days = dates.filter(
-			( date, index ) =>
-				index === 0 ||
-				dateI18n( 'Y-m-d', date, false ) !== dateI18n( 'Y-m-d', dates[ index - 1 ], false )
-		);
-		const stride = Math.max( 1, Math.ceil( days.length / 5 ) );
-		return days.filter( ( _, index ) => index % stride === 0 );
-	}, [ series ] );
-	const [ chartKey, setChartKey ] = useState( 0 );
-	const dayBeforeEndDate = ( data?.endDate ?? 0 ) - 24 * 60 * 60 * 1000;
-	const firstTimestamp = series[ 0 ]?.data[ 0 ]?.date?.getTime();
-	const startDate =
-		firstTimestamp === undefined
-			? dayBeforeEndDate
-			: Math.min(
-					firstTimestamp - ( data?.periods.length === 1 ? 12 * 60 * 60 * 1000 : 0 ),
-					dayBeforeEndDate
-			  );
-	const renderTooltip = useCallback<
-		NonNullable< ComponentProps< typeof LineChart >[ 'renderTooltip' ] >
-	>(
-		( { tooltipData } ) => {
-			const timestamp = tooltipData?.nearestDatum?.datum.date?.getTime();
-			const period = data?.periods.find( entry => entry.timestamp === timestamp );
-			if ( ! period ) {
-				return null;
-			}
-			return <ThemedHistoryTooltip series={ series } period={ period } />;
-		},
-		[ data, series ]
+	const { startDate, endDate } = range;
+	const days = useMemo(
+		() => bucketHistoryDays( data?.periods ?? [], { startDate, endDate } ),
+		[ data?.periods, startDate, endDate ]
 	);
+	const series = useMemo( () => buildHistorySeries( days ), [ days ] );
+	const tickValues = useMemo(
+		() =>
+			days.length
+				? [
+						days[ 0 ].date,
+						days[ Math.floor( ( days.length - 1 ) / 2 ) ].date,
+						days[ days.length - 1 ].date,
+				  ]
+				: [],
+		[ days ]
+	);
+	const [ activeHighlight, setActiveHighlight ] = useState< {
+		index: number;
+		selection: CategoryHighlightSelection;
+	} | null >( null );
+	const updateHighlight = useCallback(
+		( index: number, selection: CategoryHighlightSelection | null ) => {
+			setActiveHighlight( previous =>
+				selection ? { index, selection } : previous?.index === index ? null : previous
+			);
+		},
+		[]
+	);
+	useEffect( () => {
+		setActiveHighlight( null );
+	}, [ range.startDate, range.endDate, isVisible ] );
+	const highlight = isVisible ? activeHighlight?.selection : null;
 	let content;
 	if ( needsUpgrade ) {
 		content = (
@@ -205,9 +212,7 @@ export default function HistoryChartCard( {
 				<Notice.Title>{ __( 'Failed to load performance history', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Description>{ error?.message }</Notice.Description>
 				<Notice.Actions>
-					<Notice.ActionButton onClick={ onRetry }>
-						{ __( 'Try again', 'jetpack-boost' ) }
-					</Notice.ActionButton>
+					<Button onClick={ onRetry }>{ __( 'Try again', 'jetpack-boost' ) }</Button>
 				</Notice.Actions>
 			</Notice.Root>
 		);
@@ -221,121 +226,138 @@ export default function HistoryChartCard( {
 					{ __( 'Your scores will be recorded from now on.', 'jetpack-boost' ) }
 				</Notice.Description>
 				<Notice.Actions>
-					<Notice.ActionButton onClick={ onDismissFreshStart }>
+					<Button onClick={ onDismissFreshStart }>
 						{ __( 'Okay, got it!', 'jetpack-boost' ) }
-					</Notice.ActionButton>
+					</Button>
 				</Notice.Actions>
 			</Notice.Root>
 		);
-	} else if ( ! data || ! series.length ) {
-		content = (
-			<EmptyState.Root>
-				<EmptyState.Icon icon={ trendingUp } />
-				<EmptyState.Title render={ <h3 /> }>
-					{ __( 'No performance history yet', 'jetpack-boost' ) }
-				</EmptyState.Title>
-				<EmptyState.Description>
-					{ __(
-						'Performance history will appear here once enough data has been collected.',
-						'jetpack-boost'
-					) }
-				</EmptyState.Description>
-			</EmptyState.Root>
-		);
 	} else {
 		content = (
-			<GlobalChartsProvider
-				theme={ {
-					legend: {
-						labelStyles: { fontSize: 'var(--wpds-typography-font-size-md)' },
-						containerStyles: { gap: 'var(--wpds-dimension-gap-xl)' },
-					},
-				} }
-			>
-				<div
-					className="jetpack-boost-overview__chart-canvas"
-					onBlur={ event => {
-						if ( ! event.currentTarget.contains( event.relatedTarget as Node | null ) ) {
-							// LineChart owns keyboard selection and does not expose a reset method.
-							setChartKey( key => key + 1 );
-						}
-					} }
-				>
-					{ isVisible && (
-						<LineChart
-							key={ chartKey }
-							data={ series }
-							showLegend
-							legend={ { position: 'bottom', alignment: 'center', interactive: false } }
-							withGradientFill={ false }
-							withTooltipCrosshairs={ {
-								showVertical: true,
-								verticalStyle: {
-									stroke: 'var(--wpds-color-background-surface-neutral-weak)',
-									strokeWidth: 'var(--wpds-dimension-size-lg)',
-								},
+			<GlobalChartsProvider>
+				<div className="boost-daily-history">
+					{ highlight && (
+						<div
+							aria-hidden="true"
+							className="boost-daily-history__highlight"
+							data-testid="history-highlight"
+							style={ {
+								insetInlineStart: `calc(var(--wpds-dimension-padding-lg) + ${ highlight.x }px)`,
+								width: highlight.width,
 							} }
-							curveType="linear"
-							withEndGlyphs={ data.periods.length === 1 }
-							renderTooltip={ renderTooltip }
-							tooltipPlacement="below-axis"
-							tooltipStyle={ {
-								background: 'var(--wpds-color-foreground-content-neutral)',
-								color: 'var(--wpds-color-background-surface-neutral)',
-								padding: 'var(--wpds-dimension-padding-lg)',
-								borderRadius: 'var(--wpds-border-radius-md)',
-								maxWidth: 'calc(100vw - var(--wpds-dimension-gap-lg))',
-								boxSizing: 'border-box',
-							} }
-							options={ {
-								axis: {
-									x: {
-										tickValues,
-										tickFormat: value => dateI18n( 'M j', new Date( value ), false ),
-									},
-								},
-								xScale: { domain: [ new Date( startDate ), new Date( data.endDate ) ] },
-								yScale: { domain: [ 0, 100 ], nice: false },
-							} }
-						>
-							<LineChart.AnnotationsOverlay>
-								{ data.annotations
-									.filter(
-										annotation =>
-											annotation.timestamp >= startDate && annotation.timestamp <= data.endDate
-									)
-									.map( ( annotation, index ) => (
-										<LineChart.Annotation
-											key={ `${ annotation.timestamp }-${ index }` }
-											datum={ { date: new Date( annotation.timestamp ), value: 100 } }
-											title={ sprintf(
-												/* translators: %s is a date. */
-												__( 'View performance history annotation for %s', 'jetpack-boost' ),
-												dateI18n( 'F j, Y', new Date( annotation.timestamp ), false )
-											) }
-											renderLabel={ () => <Icon icon={ info } /> }
-											renderLabelPopover={ () => (
-												// Annotation text is sanitised by wp_kses_post in app/data-sync/class-performance-history-entry.php.
-												<RawHTML>{ annotation.text }</RawHTML>
-											) }
-											subjectType="line-vertical"
-										/>
-									) ) }
-							</LineChart.AnnotationsOverlay>
-						</LineChart>
+						/>
 					) }
+					{ series.map( ( deviceSeries, index ) => {
+						const isRecordedHighlight =
+							activeHighlight?.index === index &&
+							days.some( day => day.period && day.date === highlight?.datum.label );
+						return (
+							<section
+								key={ deviceSeries.label }
+								aria-label={
+									index === 0
+										? __( 'Desktop score history', 'jetpack-boost' )
+										: __( 'Mobile score history', 'jetpack-boost' )
+								}
+							>
+								<h3 className="boost-daily-history__device">
+									<Icon icon={ index === 0 ? desktop : mobile } />
+									{ deviceSeries.label }
+								</h3>
+								<div className="boost-daily-history__plot">
+									{ isVisible && (
+										<BarChart
+											key={ `${ range.startDate }-${ range.endDate }` }
+											data={ [ deviceSeries ] }
+											withTooltips
+											gridVisibility="x"
+											onCategoryHighlightChange={ selection => updateHighlight( index, selection ) }
+											tooltipPlacement={ isRecordedHighlight ? 'beside' : 'auto' }
+											tooltipAnchorTop={ isRecordedHighlight ? -96 - index * 149 : undefined }
+											margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
+											options={ {
+												xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
+												yScale: { domain: [ 0, 100 ], nice: false, zero: true },
+												axis: {
+													y: { tickValues: [ 0, 50, 100 ] },
+													x: {
+														tickValues,
+														tickFormat: value =>
+															dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
+													},
+												},
+											} }
+											renderTooltip={ ( { tooltipData } ) => {
+												const day = days.find(
+													slot => slot.date === tooltipData?.nearestDatum?.datum.label
+												);
+												return day?.period ? (
+													<HistoryTooltip period={ day.period } />
+												) : day ? (
+													<EmptyDayTooltip date={ day.date } />
+												) : null;
+											} }
+										/>
+									) }
+								</div>
+							</section>
+						);
+					} ) }
 				</div>
 			</GlobalChartsProvider>
 		);
 	}
 	return (
 		<Card.Root className="jetpack-boost-overview__history-card">
-			<Card.Header>
-				<Card.Title render={ <h2 /> }>
-					{ __( 'Historical performance', 'jetpack-boost' ) }
-				</Card.Title>
+			<Card.Header className="boost-daily-history__card-header">
+				<div className="boost-daily-history__header">
+					<Card.Title render={ <h2 /> }>
+						{ sprintf(
+							/* translators: %d is the number of days in the visible history window. */
+							__( 'Last %d days scores', 'jetpack-boost' ),
+							dayCount
+						) }
+					</Card.Title>
+					{ ! needsUpgrade && ! isFreshStart && (
+						<div className="boost-daily-history__paging">
+							<Button
+								variant="minimal"
+								size="compact"
+								aria-label={ sprintf(
+									/* translators: %d is the number of days to page backward. */
+									__( 'Previous %d days', 'jetpack-boost' ),
+									dayCount
+								) }
+								onClick={ onPrevious }
+							>
+								<Icon icon={ chevronLeft } />
+							</Button>
+							<span aria-live="polite">
+								{ sprintf(
+									/* translators: 1: first date, 2: last date of the visible history window. */
+									__( '%1$s – %2$s', 'jetpack-boost' ),
+									dateI18n( 'M j', range.startDate, false ),
+									dateI18n( 'M j, Y', range.endDate, false )
+								) }
+							</span>
+							<Button
+								variant="minimal"
+								size="compact"
+								aria-label={ sprintf(
+									/* translators: %d is the number of days to page forward. */
+									__( 'Next %d days', 'jetpack-boost' ),
+									dayCount
+								) }
+								disabled={ ! canGoNext }
+								onClick={ onNext }
+							>
+								<Icon icon={ chevronRight } />
+							</Button>
+						</div>
+					) }
+				</div>
 			</Card.Header>
-			<Card.Content>{ content }</Card.Content>
+			<Card.Content className="boost-daily-history__body">{ content }</Card.Content>
 		</Card.Root>
 	);
 }

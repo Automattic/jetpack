@@ -4,29 +4,45 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { test, expect } from '@playwright/test';
-import type { Locator } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 
 const pluginRoot = fileURLToPath( new URL( '../../../../', import.meta.url ) );
 let fixtureDirectory: string;
 
 /**
- * Verify that the tooltip pointer leaves the entire date label band clear.
- * @param chart   - Chart containing the date labels.
- * @param pointer - Visible tooltip pointer.
+ * Hover a day through the chart's pointer-capture layer.
+ *
+ * @param chart - Chart region.
+ * @param index - Zero-based day index.
  */
-async function expectPointerBelowDateLabels( chart: Locator, pointer: Locator ) {
-	const labels = chart.locator( '.visx-axis-tick text' ).filter( {
-		hasText: /^[A-Z][a-z]{2} \d{1,2}$/,
+async function hoverDay( chart: Locator, index: number ) {
+	const capture = chart.locator( 'svg > rect[fill="transparent"]' );
+	await capture.scrollIntoViewIfNeeded();
+	const captureBox = ( await capture.boundingBox() )!;
+	const barBox = ( await chart.locator( '.visx-bar' ).nth( index ).boundingBox() )!;
+	await capture.hover( {
+		position: {
+			x: barBox.x + barBox.width / 2 - captureBox.x,
+			y: captureBox.height / 2,
+		},
 	} );
-	const dateLabels = await labels.all();
-	expect( dateLabels.length ).toBeGreaterThan( 0 );
-	const pointerBox = ( await pointer.boundingBox() )!;
-	for ( const label of dateLabels ) {
-		await expect( label ).toBeVisible();
-		const labelBox = ( await label.boundingBox() )!;
-		expect( pointerBox.y ).toBeGreaterThanOrEqual( labelBox.y + labelBox.height );
-	}
+}
+
+/**
+ * Resolve the empty-day token in the browser.
+ *
+ * @param page - Fixture page.
+ * @return Computed empty-day color.
+ */
+function getEmptyDayColor( page: Page ) {
+	return page.evaluate( () => {
+		const swatch = document.createElement( 'span' );
+		swatch.style.color = 'var(--wpds-color-stroke-surface-neutral)';
+		document.body.append( swatch );
+		const color = getComputedStyle( swatch ).color;
+		swatch.remove();
+		return color;
+	} );
 }
 
 test.use( {
@@ -49,11 +65,16 @@ test.beforeAll( async () => {
 			'--output-path',
 			fixtureDirectory,
 		],
-		{ cwd: pluginRoot, maxBuffer: 10 * 1024 * 1024 }
+		{
+			cwd: pluginRoot,
+			maxBuffer: 10 * 1024 * 1024,
+			env: { ...process.env, NPM_CONFIG_USERCONFIG: '/dev/null' },
+		}
 	);
 } );
 
 test.beforeEach( async ( { page } ) => {
+	await page.clock.setFixedTime( new Date( '2026-09-09T12:00:00Z' ) );
 	await page.route( 'http://boost-history.test/**', async route => {
 		const filename = new URL( route.request().url() ).pathname.slice( 1 );
 		if ( [ 'history-tooltip.js', 'history-tooltip.css' ].includes( filename ) ) {
@@ -75,199 +96,249 @@ test.afterAll( async () => {
 	}
 } );
 
-test( 'History tooltip stays below the date axis with matching series colors', async ( {
-	page,
-} ) => {
-	const chart = page.locator( '.jetpack-boost-overview__chart-canvas' );
-	await expect( chart.locator( '.visx-annotationlabel' ).first() ).toBeVisible();
-	const grid = chart.getByRole( 'grid' );
-	const bounds = await grid.boundingBox();
-	await grid.hover( { position: { x: bounds!.width / 2, y: 10 } } );
-	const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
-	await expect( surface ).toBeVisible();
-	await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCSS(
-		'background-color',
-		'rgb(30, 30, 30)'
-	);
-	const upperPosition = await surface.boundingBox();
-	const date = await surface.locator( ':scope > :first-child' ).textContent();
-	await grid.hover( { position: { x: bounds!.width / 2, y: bounds!.height - 40 } } );
-	await expect( surface.locator( ':scope > :first-child' ) ).toHaveText( date! );
-	await expect
-		.poll( async () => ( await surface.boundingBox() )!.y )
-		.toBeCloseTo( upperPosition!.y, 0 );
-	const axis = await chart.locator( '.visx-axis-tick line' ).first().boundingBox();
-	const pointer = page.getByTestId( 'tooltip-axis-pointer' );
-	const tooltipBox = page.getByTestId( 'bounded-tooltip' );
-	const pointerPosition = ( await pointer.boundingBox() )!;
-	await expectPointerBelowDateLabels( chart, pointer );
-	expect( ( await tooltipBox.boundingBox() )!.y ).toBeCloseTo(
-		pointerPosition.y + pointerPosition.height,
-		0
-	);
-	expect( upperPosition!.y ).toBeGreaterThan( axis!.y );
-	await expect( page.getByRole( 'tooltip' ) ).toContainText( 'Desktop score' );
-	await expect( page.getByRole( 'tooltip' ) ).toContainText( 'Mobile score' );
-	const hoverColumn = chart.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
-	await expect( hoverColumn ).toHaveCSS( 'visibility', 'visible' );
-	await expect( hoverColumn ).not.toHaveCSS( 'display', 'none' );
-	const columnWidth = await hoverColumn.evaluate( element =>
-		parseFloat( getComputedStyle( element ).strokeWidth )
-	);
-	expect.soft( columnWidth ).toBe( 40 );
-	await expect.soft( hoverColumn ).toHaveCSS( 'stroke', 'rgb(244, 244, 244)' );
-	await expect.soft( hoverColumn ).toHaveCSS( 'mix-blend-mode', 'normal' );
-	const columnBounds = await hoverColumn.evaluate( element => {
-		const { x, width, height } = element.getBoundingClientRect();
-		return { x, width, height };
-	} );
-	expect( columnBounds.height ).toBeGreaterThan( 0 );
-	const pointerBounds = ( await pointer.boundingBox() )!;
-	expect( columnBounds.x + columnBounds.width / 2 ).toBeCloseTo(
-		pointerBounds.x + pointerBounds.width / 2,
-		0
-	);
-
-	const painted = await surface.evaluate( popup => {
-		const box = popup.getBoundingClientRect();
-		const style = document.createElement( 'style' );
-		style.textContent =
-			'.jetpack-boost-overview__history-tooltip, .jetpack-boost-overview__history-tooltip * { pointer-events: auto !important; }';
-		document.head.append( style );
-		try {
-			const hit = document.elementFromPoint( box.x + box.width / 2, box.bottom - 1 );
-			return !! hit && popup.contains( hit );
-		} finally {
-			style.remove();
+for ( const device of [ 'Desktop', 'Mobile' ] ) {
+	test( `${ device } daily bars show recorded scores and matching tooltip dots`, async ( {
+		page,
+	} ) => {
+		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
+		const bars = chart.locator( '.visx-bar' );
+		await expect( bars ).toHaveCount( 30 );
+		await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
+		await expect( page.getByRole( 'button', { name: 'Next 30 days' } ) ).toBeDisabled();
+		await hoverDay( chart, 21 );
+		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		await expect( surface ).toBeVisible();
+		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
+		const coveredBars = await surface.evaluate( element => {
+			// Include the non-interactive tooltip in browser paint-order hit testing.
+			const surfaceElement = element as HTMLElement;
+			surfaceElement.style.pointerEvents = 'auto';
+			const popup = element.getBoundingClientRect();
+			const overlaps = Array.from( document.querySelectorAll( '.visx-bar' ) ).flatMap( bar => {
+				const rect = bar.getBoundingClientRect();
+				const left = Math.max( popup.left, rect.left );
+				const right = Math.min( popup.right, rect.right );
+				const top = Math.max( popup.top, rect.top );
+				const bottom = Math.min( popup.bottom, rect.bottom );
+				if ( left >= right || top >= bottom ) {
+					return [];
+				}
+				const painted = document.elementFromPoint( ( left + right ) / 2, ( top + bottom ) / 2 );
+				return [ element.contains( painted ) ];
+			} );
+			surfaceElement.style.removeProperty( 'pointer-events' );
+			return overlaps;
+		} );
+		expect( coveredBars.length ).toBeGreaterThan( 0 );
+		expect( coveredBars.every( covered => covered ) ).toBe( true );
+		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
+			'September 1, 2026'
+		);
+		await expect( surface ).toContainText( 'Overall score' );
+		await expect( surface ).toHaveCSS( 'width', '265px' );
+		await expect( surface ).toHaveCSS( 'height', '382px' );
+		await expect( surface ).toHaveCSS( 'padding', '17px' );
+		const popupBox = ( await surface.boundingBox() )!;
+		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
+		const cardBox = ( await page
+			.getByText( 'Last 30 days scores', { exact: true } )
+			.boundingBox() )!;
+		expect(
+			popupBox.x >= Math.floor( hoveredBar.x + hoveredBar.width ) ||
+				popupBox.x + popupBox.width <= Math.ceil( hoveredBar.x )
+		).toBe( true );
+		const chartBounds = ( await chart.boundingBox() )!;
+		expect( popupBox.x ).toBeGreaterThanOrEqual( chartBounds.x );
+		expect( popupBox.x + popupBox.width ).toBeLessThanOrEqual( chartBounds.x + chartBounds.width );
+		expect( popupBox.y ).toBeLessThan( cardBox.y + cardBox.height );
+		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
+			'font-weight',
+			'400'
+		);
+		const sections = surface.locator( '.jetpack-boost-overview__tooltip-section' );
+		for ( const [ index, label, score, metrics ] of [
+			[ 1, 'Desktop', '80/100', [ '1.20s', '0.10s', '0.01' ] ],
+			[ 2, 'Mobile', '65/100', [ '2.10s', '0.30s', '0.04' ] ],
+		] as const ) {
+			const section = sections.nth( index );
+			await expect( section.locator( 'dt' ).first() ).toHaveText( label );
+			await expect( section.locator( 'dd' ) ).toHaveText( [ score, ...metrics ] );
+			await expect( section.locator( 'dt' ) ).toHaveText( [
+				label,
+				'Largest Contentful Paint',
+				'Total Blocking Time',
+				'Cumulative Layout Shift',
+			] );
+			const dot = section.locator( '.jetpack-boost-overview__series-swatch' );
+			const recordedBar = page
+				.getByRole( 'region', { name: `${ index === 1 ? 'Desktop' : 'Mobile' } score history` } )
+				.locator( '.visx-bar' )
+				.nth( 21 );
+			const fill = await recordedBar.evaluate( element => getComputedStyle( element ).fill );
+			await expect( dot ).toHaveCSS( 'background-color', fill );
+			const shape = await dot.evaluate( element => {
+				const style = getComputedStyle( element );
+				return {
+					width: parseFloat( style.width ),
+					height: parseFloat( style.height ),
+					radius: parseFloat( style.borderRadius ),
+				};
+			} );
+			expect( shape.width ).toBeGreaterThan( 0 );
+			expect( shape.width ).toBe( 8 );
+			expect( shape.height ).toBe( 8 );
+			const dotPosition = await dot.evaluate( element => {
+				const labelElement = element.parentElement!;
+				const range = document.createRange();
+				range.selectNodeContents( labelElement.firstChild! );
+				return element.getBoundingClientRect().left - range.getBoundingClientRect().right;
+			} );
+			expect( dotPosition ).toBeCloseTo( 8, 0 );
+			const values = await section
+				.locator( 'dd' )
+				.evaluateAll( elements =>
+					elements.map( element => element.getBoundingClientRect().right )
+				);
+			expect( Math.max( ...values ) - Math.min( ...values ) ).toBeLessThan( 1 );
+			expect( shape.radius ).toBeGreaterThanOrEqual( shape.width / 2 );
 		}
 	} );
-	expect( painted, 'The tooltip content remains visible below the chart.' ).toBe( true );
-	const typography = await surface.evaluate( popup => {
-		const sections = Array.from(
-			popup.querySelectorAll( '.jetpack-boost-overview__tooltip-section' )
-		);
-		return {
-			dateWeight: getComputedStyle( popup.firstElementChild! ).fontWeight,
-			dateGap: parseFloat( getComputedStyle( popup.firstElementChild! ).marginBottom ),
-			devices: sections.slice( 1 ).map( section => ( {
-				headingWeight: getComputedStyle( section.children[ 0 ] ).fontWeight,
-				scoreWeight: getComputedStyle( section.children[ 1 ] ).fontWeight,
-				metricWeights: Array.from( section.children )
-					.slice( 2 )
-					.map( metric => getComputedStyle( metric ).fontWeight ),
-				rowGap: parseFloat( getComputedStyle( section ).rowGap ),
-				sectionGap: parseFloat( getComputedStyle( section ).marginTop ),
-			} ) ),
-		};
+
+	test( `${ device } empty days and recorded tooltips work at narrow widths`, async ( {
+		page,
+	} ) => {
+		await page.setViewportSize( { width: 390, height: 900 } );
+		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
+		const bars = chart.locator( '.visx-bar' );
+		await expect( bars ).toHaveCount( 15 );
+		const emptyColor = await getEmptyDayColor( page );
+		await expect( bars.first() ).toHaveCSS( 'fill', emptyColor );
+		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
+		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
+		const grid = chart.getByRole( 'grid' );
+		await grid.focus();
+		await page.keyboard.press( 'ArrowRight' );
+		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		await expect( surface ).toContainText( 'August 26, 2026' );
+		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
+		await expect( surface ).toContainText( 'No scores recorded before feature was unlocked' );
+		await page.keyboard.press( 'ArrowRight' );
+		await expect( surface ).toContainText( 'August 27, 2026' );
+		await page.keyboard.press( 'Escape' );
+		await expect( surface ).toBeHidden();
+		for ( const [ index, date ] of [
+			[ 6, 'September 1, 2026' ],
+			[ 12, 'September 7, 2026' ],
+		] as const ) {
+			await hoverDay( chart, index );
+			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
+
+			const popup = ( await surface.boundingBox() )!;
+			expect( popup.x ).toBeGreaterThanOrEqual( 0 );
+			expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
+		}
+		const zeroBar = bars.nth( 12 );
+		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
+		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
+		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
+		await expect( surface ).toContainText( '0/100' );
+		const flippedPopup = ( await surface.boundingBox() )!;
+		const rightmostBar = ( await zeroBar.boundingBox() )!;
+		expect( flippedPopup.x + flippedPopup.width ).toBeLessThan( rightmostBar.x );
 	} );
-	expect( Number( typography.dateWeight ) ).toBeGreaterThan( 400 );
-	expect( typography.dateGap ).toBeGreaterThan( 0 );
-	for ( const device of typography.devices ) {
-		expect( Number( device.headingWeight ) ).toBeGreaterThan( 400 );
-		expect( device.scoreWeight ).toBe( device.headingWeight );
-		expect( device.metricWeights ).toEqual( Array( 6 ).fill( '400' ) );
-		expect( device.rowGap ).toBeGreaterThan( 0 );
-		expect( device.sectionGap ).toBeGreaterThan( 0 );
+}
+
+test( 'uses compact plots with three horizontal gridlines and no band legend', async ( {
+	page,
+} ) => {
+	await expect( page.getByText( 'Could be improved', { exact: true } ) ).toHaveCount( 0 );
+	for ( const device of [ 'Desktop', 'Mobile' ] ) {
+		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
+		await expect( chart.locator( '.visx-rows line' ) ).toHaveCount( 3 );
+		await expect( chart.getByLabel( 'XYChart' ) ).toHaveCSS( 'height', '96px' );
 	}
-	const colors = await surface.evaluate( popup => {
-		const element = document;
-		const swatches = Array.from(
-			popup.querySelectorAll( '.jetpack-boost-overview__series-swatch' )
-		);
-		return {
-			labels: Array.from(
-				element.querySelectorAll( '[data-testid="legend-label"]' ),
-				node => node.textContent
-			),
-			tooltipLabels: swatches.map( node => node.parentElement!.textContent ),
-			swatches: swatches.map( node => getComputedStyle( node ).backgroundColor ),
-			legend: Array.from(
-				element.querySelectorAll( '.visx-legend-shape line' ),
-				node => getComputedStyle( node ).stroke
-			),
-			lines: Array.from(
-				element.querySelectorAll( 'path.visx-line' ),
-				node => getComputedStyle( node ).stroke
-			),
-			areas: Array.from(
-				element.querySelectorAll( 'path.visx-area' ),
-				node => getComputedStyle( node ).fill
-			),
-		};
-	} );
-	expect( colors.labels ).toEqual( [ 'Desktop', 'Mobile' ] );
-	expect( colors.tooltipLabels ).toEqual( [ 'Desktop score', 'Mobile score' ] );
-	expect( colors.swatches ).toHaveLength( 2 );
-	expect( new Set( colors.swatches ).size ).toBe( 2 );
-	expect( colors.legend ).toEqual( colors.swatches );
-	expect( colors.lines ).toEqual( colors.swatches );
-	expect( colors.lines ).toEqual( [ 'rgb(56, 88, 233)', 'rgb(0, 128, 48)' ] );
-	expect( colors.areas.every( fill => fill === 'none' || fill === 'rgba(0, 0, 0, 0)' ) ).toBe(
-		true
+
+	const desktop = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const mobile = page.getByRole( 'region', { name: 'Mobile score history' } );
+	await hoverDay( desktop, 0 );
+	const highlight = page.locator( '.boost-daily-history__highlight' );
+	await expect( highlight ).toHaveCount( 1 );
+	await expect( highlight ).toBeVisible();
+	const band = ( await highlight.boundingBox() )!;
+	const firstPanel = ( await desktop.boundingBox() )!;
+	const secondSvg = ( await mobile.getByLabel( 'XYChart' ).boundingBox() )!;
+	const bar = ( await desktop.locator( '.visx-bar' ).first().boundingBox() )!;
+	expect( band.y ).toBeCloseTo( firstPanel.y, 0 );
+	expect( band.y + band.height ).toBeCloseTo( secondSvg.y + secondSvg.height - 24, 0 );
+	expect( band.width ).toBeCloseTo( bar.width + 1, 0 );
+	const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
+	await expect( tooltip ).toContainText( 'No scores recorded before feature was unlocked' );
+	await expect( tooltip ).toHaveCSS( 'width', '265px' );
+	await expect( tooltip ).toHaveCSS( 'height', '106px' );
+	const emptyPopup = ( await tooltip.boundingBox() )!;
+	expect( emptyPopup.y ).toBeGreaterThanOrEqual( firstPanel.y );
+	expect( emptyPopup.y + emptyPopup.height ).toBeLessThanOrEqual( secondSvg.y + secondSvg.height );
+	await expect( tooltip.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
+		'font-weight',
+		'600'
 	);
 } );
 
-test( 'History tooltip follows the hovered date and stays within a narrow viewport', async ( {
+test( 'an all-zero window paints recorded scores separately from empty slots', async ( {
 	page,
 } ) => {
-	await page.setViewportSize( { width: 390, height: 900 } );
-	const chart = page.locator( '.jetpack-boost-overview__chart-canvas' );
-	const grid = chart.getByRole( 'grid' );
-	const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
-	await expect.poll( async () => ( await grid.boundingBox() )!.width ).toBeLessThan( 390 );
-	const axis = await chart.locator( '.visx-axis-tick line' ).first().boundingBox();
-	const positions = [];
-	for ( const [ fraction, date ] of [
-		[ 0, 'September 1, 2026' ],
-		[ 1, 'September 7, 2026' ],
-	] as const ) {
-		const datePoint = await chart
-			.locator( 'path.visx-line' )
-			.first()
-			.evaluate( ( element, end ) => {
-				const line = element as SVGPathElement;
-				const point = line.getPointAtLength( end * line.getTotalLength() );
-				const screenPoint = point.matrixTransform( line.getScreenCTM()! );
-				return { x: screenPoint.x, y: screenPoint.y };
-			}, fraction );
-		await page.mouse.move( datePoint.x, datePoint.y );
-		await expect( surface.locator( ':scope > :first-child' ) ).toHaveText( date );
-		const popup = ( await surface.boundingBox() )!;
-		expect( popup.x ).toBeGreaterThanOrEqual( 0 );
-		expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
-		expect( popup.y ).toBeGreaterThan( axis!.y );
-		const pointerElement = page.getByTestId( 'tooltip-axis-pointer' );
-		const pointer = ( await pointerElement.boundingBox() )!;
-		await expectPointerBelowDateLabels( chart, pointerElement );
-		expect( pointer.x + pointer.width / 2 ).toBeCloseTo( datePoint.x, 0 );
-		positions.push( popup );
+	await page.goto( 'http://boost-history.test/?zeros' );
+	for ( const device of [ 'Desktop', 'Mobile' ] ) {
+		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
+		const bars = chart.locator( '.visx-bar' );
+		const zeroBar = bars.nth( 21 );
+		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
+		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
+		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
+		await expect( bars.first() ).toHaveAttribute( 'y', ( await zeroBar.getAttribute( 'y' ) )! );
+		const emptyColor = await getEmptyDayColor( page );
+		await expect( bars.first() ).toHaveCSS( 'fill', emptyColor );
+		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
+		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
 	}
-	expect( positions[ 1 ].x ).toBeGreaterThan( positions[ 0 ].x );
-	expect( positions[ 1 ].y ).toBeCloseTo( positions[ 0 ].y, 0 );
-	await page.mouse.move( 0, 0 );
-	await grid.focus();
-	await grid.press( 'ArrowRight' );
-	await expect( surface ).toBeVisible();
-	const keyboardDate = await surface.locator( ':scope > :first-child' ).textContent();
-	await grid.press( 'ArrowRight' );
-	await expect( surface.locator( ':scope > :first-child' ) ).not.toHaveText( keyboardDate! );
-	expect( ( await surface.boundingBox() )!.y ).toBeCloseTo( positions[ 0 ].y, 0 );
-	await expectPointerBelowDateLabels( chart, page.getByTestId( 'tooltip-axis-pointer' ) );
+} );
+
+test( 'Tabbing between daily charts preserves focus and resets the previous tooltip', async ( {
+	page,
+} ) => {
+	const desktop = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
+	const mobile = page.getByRole( 'region', { name: 'Mobile score history' } ).getByRole( 'grid' );
+	const tooltip = page.getByRole( 'tooltip' );
+	await desktop.focus();
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( tooltip ).toContainText( 'August 11, 2026' );
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( tooltip ).toContainText( 'August 12, 2026' );
+	await page.keyboard.press( 'Tab' );
+	await expect( mobile ).toBeFocused();
+	await expect( tooltip ).toHaveCount( 0 );
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( tooltip ).toContainText( 'August 11, 2026' );
+	await page.keyboard.press( 'Shift+Tab' );
+	await expect( desktop ).toBeFocused();
+	await expect( tooltip ).toHaveCount( 0 );
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( tooltip ).toContainText( 'August 11, 2026' );
 } );
 
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
 	page,
 } ) => {
-	const grid = page.getByRole( 'grid' );
+	const grid = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
 	await grid.focus();
-	await grid.press( 'ArrowRight' );
+	await page.keyboard.press( 'ArrowRight' );
 	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
 	await grid.focus();
-	await grid.press( 'ArrowRight' );
+	await page.keyboard.press( 'ArrowRight' );
 	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
 } );
 
@@ -349,4 +420,25 @@ test.describe( 'Overall grade help', () => {
 		await trigger.tap();
 		await expect( popup ).toBeVisible();
 	} );
+} );
+
+test( 'switches at the narrow breakpoint and pages by the visible number of days', async ( {
+	page,
+} ) => {
+	const bars = page.getByRole( 'region', { name: 'Desktop score history' } ).locator( '.visx-bar' );
+	await page.setViewportSize( { width: 601, height: 900 } );
+	await expect( bars ).toHaveCount( 30 );
+	await page.getByRole( 'button', { name: 'Previous 30 days' } ).click();
+	await expect( page.getByText( 'Jul 12 – Aug 10, 2026', { exact: true } ) ).toBeVisible();
+	await page.setViewportSize( { width: 600, height: 900 } );
+	await expect( bars ).toHaveCount( 15 );
+	await expect( page.getByText( 'Aug 26 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
+	await expect( page.getByRole( 'button', { name: 'Next 15 days' } ) ).toBeDisabled();
+	await page.getByRole( 'button', { name: 'Previous 15 days' } ).click();
+	await expect( page.getByText( 'Aug 11 – Aug 25, 2026', { exact: true } ) ).toBeVisible();
+	await page.getByRole( 'button', { name: 'Next 15 days' } ).click();
+	await expect( page.getByText( 'Aug 26 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
+	await page.setViewportSize( { width: 601, height: 900 } );
+	await expect( bars ).toHaveCount( 30 );
+	await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 } );

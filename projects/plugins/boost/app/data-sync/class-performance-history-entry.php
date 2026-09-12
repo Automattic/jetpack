@@ -5,10 +5,12 @@ use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Graph_History_Request;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
+use Automattic\Jetpack_Boost\Admin\Admin;
 
 class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_Set {
 	private $start_date;
 	private $end_date;
+	private $surface_errors = false;
 
 	public function __construct() {
 		// Default to the last 30 days
@@ -19,6 +21,10 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	public function get( $_fallback = false ) {
 		$request = new Speed_Score_Graph_History_Request( $this->start_date, $this->end_date, array() );
 		$result  = $request->execute();
+
+		if ( is_wp_error( $result ) && $this->surface_errors && apply_filters( Admin::MODERNIZATION_FILTER, false ) ) {
+			throw new \RuntimeException( $result->get_error_message() );
+		}
 
 		if ( is_wp_error( $result ) || empty( $result['data'] ) ) {
 			return array(
@@ -47,7 +53,8 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	}
 
 	public function set( $value ) {
-		$this->start_date = $value['startDate'];
-		$this->end_date   = $value['endDate'];
+		$this->start_date     = $value['startDate'];
+		$this->end_date       = $value['endDate'];
+		$this->surface_errors = true === ( $value['surfaceErrors'] ?? false );
 	}
 }

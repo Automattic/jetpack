@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { performanceHistoryDataSchema } from '../../../app/assets/src/js/features/performance-history/lib/hooks';
+import { getHistoryWindow } from './history-days';
 import { isSiteOnline, requestDataSync } from './use-modules-state';
 
 export type PerformanceHistory = z.infer< typeof performanceHistoryDataSchema >;
@@ -13,10 +14,20 @@ export function parsePerformanceHistory( value: unknown ): PerformanceHistory {
 
 export const performanceHistoryQueryKey = [ 'performance_history' ] as const;
 
-export function usePerformanceHistory( enabled = true ) {
+export function usePerformanceHistory( enabled = true, window = getHistoryWindow( 0 ) ) {
+	const { startDate, endDate } = window;
 	return useQuery( {
-		queryKey: performanceHistoryQueryKey,
-		queryFn: async () => parsePerformanceHistory( await requestDataSync( 'performance_history' ) ),
+		queryKey: [ ...performanceHistoryQueryKey, startDate, endDate ],
+		queryFn: async () =>
+			parsePerformanceHistory(
+				await requestDataSync( 'performance_history', {
+					startDate,
+					endDate,
+					periods: [],
+					annotations: [],
+					surfaceErrors: true,
+				} )
+			),
 		enabled: enabled && isSiteOnline(),
 		staleTime: 12 * 60 * 60 * 1000,
 	} );

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Show daily score bars and history paging in the Overview behind the disabled filter. Add the WordPress Compose dependency for responsive history windows.
