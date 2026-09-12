@@ -32,9 +32,8 @@
 		// between search results and category browse — which changes the content
 		// height, and thus whether the scrollbar is present — doesn't shift the
 		// layout sideways. Most noticeable on Firefox / platforms with classic
-		// (space-consuming) scrollbars; a no-op where unsupported. The selector
-		// mirrors the "scrollable middle" defined by jetpack-admin-page-layout.
-		.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+		// (space-consuming) scrollbars; a no-op where unsupported.
+		@include jetpack-admin-page-scrollable-middle {
 			scrollbar-gutter: stable;
 		}
 	}

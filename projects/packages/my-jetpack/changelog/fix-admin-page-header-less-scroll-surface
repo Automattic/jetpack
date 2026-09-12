@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection screen: restore scrolling so the connect button is reachable on short viewports.
