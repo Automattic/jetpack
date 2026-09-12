@@ -19,7 +19,6 @@ import { INITIAL_VIEW } from '../src/dashboard/screens/overview';
 import type { View } from '@wordpress/dataviews';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
-const SETTLE = { timeout: 10000 };
 
 const row = ( id: string ) => ( {
 	activity_id: id,
@@ -92,7 +91,7 @@ it( 'keeps the rows reachable through a background refetch', async () => {
 		</QueryClientProvider>
 	);
 	await expect(
-		screen.findByRole( 'button', { name: /^Backup 1786600000/ }, SETTLE )
+		screen.findByRole( 'button', { name: /^Backup 1786600000/ } )
 	).resolves.toBeInTheDocument();
 
 	// Mount fires two queries of its own, so only a rise from here proves
@@ -120,7 +119,7 @@ it( 'still reports the page change the reader asked for', async () => {
 		</QueryClientProvider>
 	);
 	await expect(
-		screen.findByRole( 'button', { name: /^Backup 1786600000/ }, SETTLE )
+		screen.findByRole( 'button', { name: /^Backup 1786600000/ } )
 	).resolves.toBeInTheDocument();
 
 	const release = freezeNextFetch();

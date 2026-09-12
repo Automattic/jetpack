@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Token bridge: answer playback-token requests from the page's own window; groundwork for the inline player, no user-facing change.
+
+

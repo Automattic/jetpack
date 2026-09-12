@@ -36,17 +36,6 @@ const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected
 const CAPABILITIES = { hasBackupPlan: true, hasScan: false };
 
 /**
- * These render a whole route stage behind three sequential round-trips —
- * capabilities, then activity, then the file listing — each with its own
- * React Query state transitions. Testing Library's default `findBy`
- * window is 1s, which is comfortable locally and not on a loaded CI
- * runner under coverage instrumentation: this suite has taken 32s there
- * against 8s here. The wait is for a deterministic chain, so a longer
- * ceiling costs nothing when it passes.
- */
-const SETTLE = { timeout: 10000 };
-
-/**
  * Route requests by path so one endpoint can fail while the rest answer.
  * The gates have to pass before the body — and therefore the failure
  * under test — is ever rendered.
@@ -142,7 +131,7 @@ describe( 'activity list', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( "We couldn't load your site's activity.", undefined, SETTLE )
+			screen.findByText( "We couldn't load your site's activity." )
 		).resolves.toBeInTheDocument();
 		// The upstream reason is the only part a support agent can act on.
 		expect( screen.getByText( 'Service unavailable' ) ).toBeInTheDocument();
@@ -163,9 +152,7 @@ describe( 'activity list', () => {
 
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( 'No results', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'No results' ) ).resolves.toBeInTheDocument();
 		expect(
 			screen.queryByText( "We couldn't load your site's activity." )
 		).not.toBeInTheDocument();
@@ -184,7 +171,7 @@ describe( 'file browser', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( "We couldn't load this backup's files.", undefined, SETTLE )
+			screen.findByText( "We couldn't load this backup's files." )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Backup storage unreachable' ) ).toBeInTheDocument();
 		// The regression: a selection summary over a tree that isn't there.
@@ -217,13 +204,11 @@ describe( 'file browser', () => {
 
 		render( <OverviewStage /> );
 
-		await userEvent.click( await screen.findByRole( 'button', { name: /wp-content/ }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: /wp-content/ } ) );
 
 		// "we couldn't look inside" and "there is nothing inside" used to
 		// be the same output.
-		await expect(
-			screen.findByText( "Couldn't load this folder.", undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( "Couldn't load this folder." ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Empty' ) ).not.toBeInTheDocument();
 	} );
 } );

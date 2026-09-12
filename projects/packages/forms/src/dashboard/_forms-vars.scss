@@ -1,0 +1,5 @@
+// Shared by both dashboards; legacy-only tokens stay in style.scss.
+:root {
+	--jp-forms-border-color: #dcdcde;
+	--jp-forms-border-radius: var(--jp-border-radius, 4px);
+}

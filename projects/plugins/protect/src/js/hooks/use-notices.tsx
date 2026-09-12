@@ -8,6 +8,9 @@ import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 
 interface NoticeState {
 	message?: string | JSX.Element;
+	spokenMessage?: string;
+	// Stamped by the provider on every notice, so an identical repeat still announces.
+	noticeId?: number;
 	dismissable?: boolean;
 	duration?: number;
 	type?: 'success' | 'info' | 'warning' | 'error';
@@ -18,10 +21,21 @@ interface NoticeContextValue {
 	setNotice: Dispatch< SetStateAction< NoticeState > >;
 }
 
+let lastNoticeId = 0;
+
 const NoticeContext = createContext< NoticeContextValue | undefined >( undefined );
 
 export const NoticeProvider: FC< { children: ReactNode } > = ( { children } ) => {
-	const [ notice, setNotice ] = useState< NoticeState >( null );
+	const [ notice, setNoticeState ] = useState< NoticeState >( null );
+
+	const setNotice: Dispatch< SetStateAction< NoticeState > > = useCallback( value => {
+		const noticeId = ++lastNoticeId;
+
+		setNoticeState( previous => {
+			const next = 'function' === typeof value ? value( previous ) : value;
+			return next ? { ...next, noticeId } : next;
+		} );
+	}, [] );
 
 	return (
 		<NoticeContext.Provider value={ { notice, setNotice } }>{ children }</NoticeContext.Provider>
@@ -66,27 +80,30 @@ export default function useNotices() {
 
 	const showErrorNotice = useCallback(
 		( message: string ) => {
+			const error = message || __( 'An error occurred.', 'jetpack-protect' );
+			const advice = __(
+				'Please try again or <supportLink>contact support</supportLink>.',
+				'jetpack-protect'
+			);
+
 			setNotice( {
 				type: 'error',
 				dismissable: true,
+				// The same translated string, minus the one interpolation tag it carries.
+				// Strip it by name: a generic tag strip trips CodeQL's sanitization rule.
+				spokenMessage: `${ error } ${ advice.replace( /<\/?supportLink>/g, '' ) }`,
 				message: (
 					<>
-						{ message || __( 'An error occurred.', 'jetpack-protect' ) }{ ' ' }
-						{ createInterpolateElement(
-							__(
-								'Please try again or <supportLink>contact support</supportLink>.',
-								'jetpack-protect'
+						{ error }{ ' ' }
+						{ createInterpolateElement( advice, {
+							supportLink: (
+								<Link
+									openInNewTab
+									href={ hasPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
+									children={ null }
+								/>
 							),
-							{
-								supportLink: (
-									<Link
-										openInNewTab
-										href={ hasPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
-										children={ null }
-									/>
-								),
-							}
-						) }
+						} ) }
 					</>
 				),
 			} );

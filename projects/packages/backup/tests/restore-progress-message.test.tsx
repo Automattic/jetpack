@@ -25,7 +25,6 @@ import { queryClient } from '../src/dashboard/data/query-client';
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const RESTORE_ID = 912682;
 const REWIND_ID = '1786663613.9425';
-const SETTLE = { timeout: 10000 };
 
 /**
  * Answer capabilities and the initiate POST, then let the status poll
@@ -73,7 +72,7 @@ beforeEach( () => {
  * Start a restore with the default six-of-six checklist.
  */
 async function startRestore() {
-	await userEvent.click( await screen.findByRole( 'button', { name: /Confirm restore/ }, SETTLE ) );
+	await userEvent.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
 }
 
 describe( 'the Restore screen during a running restore', () => {
@@ -84,7 +83,7 @@ describe( 'the Restore screen during a running restore', () => {
 		await startRestore();
 
 		await expect(
-			screen.findByText( 'Checking remote files: 22396', undefined, SETTLE )
+			screen.findByText( 'Checking remote files: 22396' )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -95,16 +94,12 @@ describe( 'the Restore screen during a running restore', () => {
 		await startRestore();
 		// Wait for the phase first: the idle branch's own `role="status"` is still
 		// mounted, empty, until the submission settles.
-		await expect(
-			screen.findByText( '0% complete', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '0% complete' ) ).resolves.toBeInTheDocument();
 
 		// Exact, not `toHaveTextContent`: that matches a substring on any ancestor,
 		// so it passes with the role moved onto the whole block — which is the
 		// re-announce-every-poll regression this scoping exists to prevent.
-		await expect( screen.findByRole( 'status', undefined, SETTLE ) ).resolves.toHaveTextContent(
-			/^Restoring…$/
-		);
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent( /^Restoring…$/ );
 	} );
 
 	// Both figures, so a hardcoded `0%` cannot pass: the preflight pins it at
@@ -115,8 +110,6 @@ describe( 'the Restore screen during a running restore', () => {
 
 		await startRestore();
 
-		await expect(
-			screen.findByText( `${ percent }% complete`, undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( `${ percent }% complete` ) ).resolves.toBeInTheDocument();
 	} );
 } );

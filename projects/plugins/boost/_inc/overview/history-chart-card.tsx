@@ -198,7 +198,9 @@ export default function HistoryChartCard( {
 		content = (
 			<Notice.Root
 				intent="error"
-				spokenMessage={ __( 'Failed to load performance history', 'jetpack-boost' ) }
+				spokenMessage={
+					isVisible ? __( 'Failed to load performance history', 'jetpack-boost' ) : ''
+				}
 			>
 				<Notice.Title>{ __( 'Failed to load performance history', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Description>{ error?.message }</Notice.Description>

@@ -379,8 +379,9 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The editor paints notices and popovers against the viewport, so below #adminmenuwrap
-	 * (9990) they land behind the admin menu, and above #wpadminbar (100000) they cover it.
+	 * The screen runs in fullscreen mode, so the admin menu is gone and #wpadminbar (99999) is
+	 * the only thing left to sit below. The floor matters less than it did, but stays pinned so
+	 * the container cannot drop under page chrome.
 	 */
 	public function test_the_layout_lifts_the_editor_between_the_admin_menu_and_the_admin_bar() {
 		$css = $this->call_private( 'get_layout_css' );
@@ -388,8 +389,22 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		preg_match( '/z-index:\s*(\d+)/', $css, $matches );
 
 		$this->assertNotEmpty( $matches );
-		$this->assertGreaterThan( 9990, (int) $matches[1] );
-		$this->assertLessThan( 100000, (int) $matches[1] );
+		$this->assertGreaterThan( 9999, (int) $matches[1] );
+		$this->assertLessThan( 99999, (int) $matches[1] );
+	}
+
+	/**
+	 * `wp-edit-post` carries the rule that pins this, and the screen does not enqueue it, so
+	 * without one of our own the snackbar renders in flow beside the header.
+	 */
+	public function test_the_layout_pins_the_snackbar_over_the_canvas() {
+		$css = $this->call_private( 'get_layout_css' );
+
+		$this->assertMatchesRegularExpression(
+			'/#' . Jetpack_Email_Design_Editor::HANDLE . '\s+\.components-editor-notices__snackbar\s*\{[^}]*position:\s*absolute/',
+			$css
+		);
+		$this->assertMatchesRegularExpression( '/inset-block-end:/', $css );
 	}
 
 	public function test_the_layout_is_rtl_aware() {
@@ -397,6 +412,43 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'inset-inline', $css );
 		$this->assertDoesNotMatchRegularExpression( '/(?<!-)\b(left|right):/', $css );
+	}
+
+	/**
+	 * `wp-editor` hides the admin menu on this class. The editor also sets it from a React
+	 * component, but only once the bundle has loaded and the bootstrap has answered — so without
+	 * this the page spends a few seconds in the ordinary admin layout and then reflows.
+	 */
+	public function test_the_screen_asks_for_fullscreen_before_the_bundle_loads() {
+		$this->assertStringContainsString(
+			'is-fullscreen-mode',
+			Jetpack_Email_Design_Editor::add_fullscreen_body_class( 'existing-class' )
+		);
+	}
+
+	public function test_the_screen_actually_wires_the_fullscreen_class_up() {
+		Jetpack_Email_Design_Editor::on_load();
+
+		$this->assertNotFalse(
+			has_filter( 'admin_body_class', array( 'Jetpack_Email_Design_Editor', 'add_fullscreen_body_class' ) )
+		);
+	}
+
+	public function test_the_fullscreen_class_keeps_what_was_already_there() {
+		$this->assertStringContainsString(
+			'existing-class',
+			Jetpack_Email_Design_Editor::add_fullscreen_body_class( 'existing-class' )
+		);
+	}
+
+	/**
+	 * The admin menu is hidden, so an inset for it would leave a gap rather than clear anything.
+	 */
+	public function test_the_layout_leaves_no_room_for_the_admin_menu() {
+		$css = $this->call_private( 'get_layout_css' );
+
+		$this->assertStringNotContainsString( '160px', $css );
+		$this->assertStringNotContainsString( 'folded', $css );
 	}
 
 	public function test_nothing_is_enqueued_without_a_build() {

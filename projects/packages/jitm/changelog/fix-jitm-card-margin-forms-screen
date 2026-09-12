@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove a CSS rule targeting a body class no longer produced by any page.
+
+
