@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+wp-admin: Record a server-side wpcom_admin_screen Tracks event for every admin screen, to audit page view coverage.
