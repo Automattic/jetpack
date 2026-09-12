@@ -76,7 +76,7 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
-				100
+				Admin_Menu::POSITION_EXTERNAL
 			);
 		}
 
@@ -89,7 +89,7 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
-				100
+				Admin_Menu::POSITION_EXTERNAL
 			);
 		}
 
@@ -101,7 +101,7 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'calypso-backups' ) ),
 				null,
-				100
+				Admin_Menu::POSITION_EXTERNAL
 			);
 		}
 	}

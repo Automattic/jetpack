@@ -186,7 +186,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'jetpack_admin_page',
 				Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ),
 				null,
-				998
+				Admin_Menu::POSITION_LAST
 			);
 		}
 	}

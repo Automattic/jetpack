@@ -42,7 +42,7 @@ class Admin {
 			'update_plugins',
 			'jetpack-beta',
 			array( self::class, 'render' ),
-			998
+			Admin_Menu::POSITION_LAST
 		);
 
 		if ( false !== self::$hookname ) {

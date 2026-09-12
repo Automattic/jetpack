@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Name the five sidebar position tiers instead of passing bare ints.
+
+
