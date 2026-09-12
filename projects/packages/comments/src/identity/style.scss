@@ -3,17 +3,41 @@
  * the submit row when logged in.
  */
 
+// Hidden, not just collapsed, so nothing inside a closed tray can take focus.
+// The visibility flip waits for the rows to finish collapsing.
+.jetpack-comments__tray {
+	display: grid;
+	grid-template-rows: 0fr;
+	visibility: hidden;
+	transition:
+		grid-template-rows 0.3s ease-in-out,
+		visibility 0s linear 0.3s;
+
+	&.is-open {
+		grid-template-rows: 1fr;
+		visibility: visible;
+		transition:
+			grid-template-rows 0.3s ease-in-out,
+			visibility 0s;
+	}
+
+	> div {
+		overflow: hidden;
+	}
+}
+
 .jetpack-comments__identity {
 	padding: 16px;
 	border-block-start: 1px solid var(--jetpack-comments-border-color);
+	background: var(--jetpack-comments-wrapper-background-color);
 }
 
 .jetpack-comments__prompt {
 	all: unset;
 	display: block;
-	margin-block-end: 16px;
-	font-size: 14px;
-	line-height: 22px;
+	padding-block-end: 16px;
+	font-size: 18px;
+	font-weight: 400;
 	color: var(--jetpack-comments-font-color);
 }
 

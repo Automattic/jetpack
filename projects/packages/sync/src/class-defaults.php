@@ -833,6 +833,9 @@ class Defaults {
 		'hc_foreign_user_id',
 		'hc_post_as',
 		'hc_wpcom_id_sig',
+		'jetpack_comment_identity_avatar',
+		'jetpack_comment_identity_id',
+		'jetpack_comment_identity_provider',
 		'protocol',
 	);
 
