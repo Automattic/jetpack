@@ -17,6 +17,11 @@ class WP_Build_Admin_Frame_Test extends BaseTestCase {
 	const HOOKS = array( 'admin_head', 'in_admin_header' );
 
 	/**
+	 * Script the wp-build page template enqueues on its own page only.
+	 */
+	const PREREQUISITES_HANDLE = 'example-dashboard-wp-admin-prerequisites';
+
+	/**
 	 * Callbacks attached to HOOKS before the test, restored afterwards.
 	 *
 	 * @var array<string, \WP_Hook|null>
@@ -40,12 +45,15 @@ class WP_Build_Admin_Frame_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Restore the admin header hooks.
+	 * Restore the admin header hooks and drop the wp-build page script.
 	 *
 	 * @after
 	 */
 	#[After]
 	public function tear_down() {
+		wp_dequeue_script( self::PREREQUISITES_HANDLE );
+		wp_deregister_script( self::PREREQUISITES_HANDLE );
+
 		global $wp_filter;
 		foreach ( self::HOOKS as $hook ) {
 			if ( null === $this->original_hooks[ $hook ] ) {
@@ -68,6 +76,14 @@ class WP_Build_Admin_Frame_Test extends BaseTestCase {
 		do_action( 'admin_head' );
 		do_action( 'in_admin_header' );
 		return ob_get_clean();
+	}
+
+	/**
+	 * Enqueue the script the wp-build page template adds to its own page.
+	 */
+	private function enqueue_wp_build_page() {
+		wp_register_script( self::PREREQUISITES_HANDLE, '', array(), '1.0', true );
+		wp_enqueue_script( self::PREREQUISITES_HANDLE );
 	}
 
 	/**
@@ -135,6 +151,23 @@ class WP_Build_Admin_Frame_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Before boot mounts, the stylesheet paints its frame on the empty app container.
+	 */
+	public function test_styles_paint_the_frame_before_boot_mounts() {
+		ob_start();
+		WP_Build_Admin_Frame::print_styles();
+		$css = ob_get_clean();
+
+		$this->assertStringContainsString( 'body.js:has([id$="-wp-admin-app"]:empty) #wpbody,', $css );
+		$this->assertStringContainsString( 'body.js:has([id$="-wp-admin-app"]:empty) {', $css );
+		$this->assertStringContainsString( 'body.js [id$="-wp-admin-app"]:empty {', $css );
+		$this->assertStringContainsString( 'position: absolute;', $css );
+		$this->assertStringContainsString( 'inset-block: 0 8px;', $css );
+		$this->assertStringContainsString( 'inset-inline: 0 8px;', $css );
+		$this->assertStringContainsString( 'border-radius: var(--wpds-border-radius-xl, 12px);', $css );
+	}
+
+	/**
 	 * The script samples #adminmenuback into the custom property on the root element.
 	 */
 	public function test_script_samples_the_admin_menu_into_the_custom_property() {
@@ -151,5 +184,57 @@ class WP_Build_Admin_Frame_Test extends BaseTestCase {
 			$js
 		);
 		$this->assertStringNotContainsString( 'jQuery', $js );
+	}
+
+	/**
+	 * The script takes boot's stage out of cross-document transitions and gives it back on reveal.
+	 */
+	public function test_script_unnames_the_stage_for_cross_document_transitions() {
+		ob_start();
+		WP_Build_Admin_Frame::print_script();
+		$js = ob_get_clean();
+
+		$this->assertStringContainsString( "window.addEventListener( 'pageswap'", $js );
+		$this->assertStringContainsString( 'event.viewTransition', $js );
+		$this->assertStringContainsString( '.boot-layout__stage', $js );
+		$this->assertStringContainsString( '[class*="__layout-single-page"] [class*="__stage"]', $js );
+		$this->assertStringContainsString( "style.viewTransitionName = 'none'", $js );
+		$this->assertStringContainsString( "window.addEventListener( 'pagereveal'", $js );
+	}
+
+	/**
+	 * Registration holds the first render of a wp-build page, once.
+	 */
+	public function test_registration_holds_the_first_render_on_wp_build_pages() {
+		$this->enqueue_wp_build_page();
+		WP_Build_Admin_Frame::register();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- The second call must be a no-op.
+		WP_Build_Admin_Frame::register();
+
+		$this->assertSame( 1, substr_count( $this->render_admin_header(), 'blocking="render"' ) );
+	}
+
+	/**
+	 * Admin pages that are not wp-build pages keep rendering as soon as they can.
+	 */
+	public function test_render_hold_is_skipped_outside_wp_build_pages() {
+		ob_start();
+		WP_Build_Admin_Frame::print_render_hold();
+		$this->assertSame( '', ob_get_clean() );
+	}
+
+	/**
+	 * The hold is a render-blocking module with a body: an empty inline script is never prepared.
+	 */
+	public function test_render_hold_is_a_non_empty_render_blocking_module() {
+		$this->enqueue_wp_build_page();
+
+		ob_start();
+		WP_Build_Admin_Frame::print_render_hold();
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'type="module"', $html );
+		$this->assertStringContainsString( 'blocking="render"', $html );
+		$this->assertMatchesRegularExpression( '#<script[^>]*>\s*\S[^<]*</script>#', $html );
 	}
 }
