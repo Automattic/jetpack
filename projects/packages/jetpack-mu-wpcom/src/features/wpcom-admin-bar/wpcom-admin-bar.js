@@ -16,4 +16,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			wpcomTrackEvent( 'wpcom_adminbar_command_palette_clicked' );
 		} );
 	}
+
+	// `has_label` mirrors the node's marker class; the assignment itself lives in ExPlat.
+	const helpEntryPoint = document.querySelector( '#wp-admin-bar-help-center' );
+	if ( helpEntryPoint ) {
+		wpcomTrackEvent( 'wpcom_adminbar_help_impression', {
+			has_label: helpEntryPoint.classList.contains( 'has-help-entry-label' ),
+		} );
+	}
 } );

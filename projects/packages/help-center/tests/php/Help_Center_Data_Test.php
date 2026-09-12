@@ -70,6 +70,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		remove_action( 'wp_enqueue_scripts', array( $instance, 'enqueue_wp_admin_scripts' ), 100 );
 		remove_action( 'next_admin_init', array( $instance, 'enqueue_wp_admin_scripts' ), 1000 );
 		remove_filter( 'in_admin_header', array( $instance, 'jetpack_remove_core_help_tab' ) );
+		remove_action( 'admin_bar_menu', array( $instance, 'add_admin_bar_node' ), 12 );
 	}
 
 	public function test_payload_has_stable_top_level_keys() {
@@ -164,6 +165,109 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'new-interactions-bot', $data['newInteractionsBotSlug'] );
 		$this->assertArrayNotHasKey( 'newLoggedOutInteractionsBotSlug', $data );
+	}
+
+	public function test_admin_bar_help_node_is_registered_without_a_script_enqueue() {
+		$node = $this->render_help_center_admin_bar_node();
+
+		$this->assertNotNull( $node );
+		$this->assertFalse( wp_script_is( 'help-center', 'enqueued' ) );
+		// The client contract Calypso renders the entry point from.
+		$this->assertArrayHasKey( 'menu_title', $node->meta );
+		$this->assertSame( 'help', $node->meta['icon'] );
+	}
+
+	public function test_admin_bar_help_node_stays_icon_only_for_the_unified_experience() {
+		$force_treatment = static function () {
+			return 'treatment';
+		};
+		add_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+		add_filter( 'agents_manager_use_unified_experience', '__return_true' );
+
+		try {
+			$node = $this->render_help_center_admin_bar_node();
+		} finally {
+			remove_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+			remove_filter( 'agents_manager_use_unified_experience', '__return_true' );
+		}
+
+		$this->assertSame( '', $node->meta['menu_title'] );
+		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
+	}
+
+	public function test_help_center_data_carries_the_entry_label_for_the_treatment() {
+		$force_treatment = static function () {
+			return 'treatment';
+		};
+		add_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+
+		try {
+			$data = $this->help_center->get_help_center_data( 'gutenberg' );
+		} finally {
+			remove_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+		}
+
+		$this->assertSame( 'Get Help', $data['entryLabel'] );
+	}
+
+	public function test_admin_bar_help_node_is_absent_for_logged_out_users() {
+		wp_set_current_user( 0 );
+
+		$this->assertNull( $this->render_help_center_admin_bar_node() );
+	}
+
+	public function test_admin_bar_help_node_is_icon_only_by_default() {
+		$node = $this->render_help_center_admin_bar_node();
+
+		$this->assertNotNull( $node );
+		$this->assertStringNotContainsString( 'help-center-entry-label', $node->title );
+		$this->assertSame( '', $node->meta['menu_title'] );
+		$this->assertStringContainsString( 'title="Help Center"', $node->title );
+		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
+	}
+
+	public function test_admin_bar_help_node_shows_the_label_for_the_treatment() {
+		$force_treatment = static function () {
+			return 'treatment';
+		};
+		add_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+
+		try {
+			$node = $this->render_help_center_admin_bar_node();
+		} finally {
+			remove_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+		}
+
+		$this->assertStringContainsString(
+			'<span class="help-center-entry-label" aria-hidden="true"><span>Get Help</span></span>',
+			$node->title
+		);
+		$this->assertSame( 'Get Help', $node->meta['menu_title'] );
+		$this->assertStringContainsString( 'has-help-entry-label', $node->meta['class'] );
+		$this->assertStringContainsString( 'title="Get Help"', $node->title );
+	}
+
+	/**
+	 * Runs the admin bar as a wp-admin request — no script enqueue — and returns the Help Center node.
+	 *
+	 * @return \WP_Admin_Bar_Node|null
+	 */
+	private function render_help_center_admin_bar_node() {
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		try {
+			set_current_screen( 'dashboard' );
+
+			// Not initialize()d: that looks up the user's blogs, which the node does not need.
+			$wp_admin_bar = new \WP_Admin_Bar();
+			do_action_ref_array( 'admin_bar_menu', array( &$wp_admin_bar ) );
+
+			return $wp_admin_bar->get_node( 'help-center' );
+		} finally {
+			$GLOBALS['current_screen'] = null;
+		}
 	}
 
 	public function test_consumer_can_load_logged_out_bundle_on_frontend() {

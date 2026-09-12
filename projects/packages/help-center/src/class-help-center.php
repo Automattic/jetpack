@@ -103,6 +103,8 @@ class Help_Center {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
+		// Before Agents Manager (100), which replaces this node when it takes over.
+		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_node' ), 12 );
 	}
 
 	/**
@@ -253,36 +255,6 @@ class Help_Center {
 	public function enqueue_script( $variant, $dependencies, $version ) {
 		$script_dependencies = $dependencies ?? array();
 
-		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' || $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
-			add_action(
-				'admin_bar_menu',
-				function ( $wp_admin_bar ) {
-					$wp_admin_bar->add_menu(
-						array(
-							'id'     => 'help-center',
-							'title'  => '<span title="' . __( 'Help Center', 'jetpack-help-center' ) . '"><svg id="help-center-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-												<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
-											</svg>
-											<svg id="help-center-icon-with-notification" class="ab-icon"  width="24" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-												<path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM13 18H11V16H13V18ZM13 13.859V15H11V13C11 12.448 11.448 12 12 12C13.103 12 14 11.103 14 10C14 8.897 13.103 8 12 8C10.897 8 10 8.897 10 10H8C8 7.791 9.791 6 12 6C14.209 6 16 7.791 16 10C16 11.862 14.722 13.413 13 13.859Z" fill="currentColor"/>
-												<circle cx="20" cy="3.5" r="4.3" fill="#e65054" stroke="#1d2327" stroke-width="2"/>
-											</svg>
-										</span>',
-							'parent' => 'top-secondary',
-							'href'   => $this->get_help_center_url(),
-							'meta'   => array(
-								'html'   => '<div id="help-center-masterbar" />',
-								'class'  => 'menupop',
-								'target' => '_blank',
-							),
-						)
-					);
-				},
-				// Add the help center icon to the admin bar after the reader icon.
-				12
-			);
-		}
-
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
 			$locale = self::determine_iso_639_locale();
 
@@ -315,6 +287,19 @@ class Help_Center {
 			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
 			$version
+		);
+
+		// The bundle stylesheet sizes the item for an icon alone; a labelled item lays out as a row.
+		wp_add_inline_style(
+			'help-center-' . $variant . '-style',
+			'#wpadminbar #wp-toolbar #wp-admin-bar-help-center .help-center-entry-label{display:none;padding-inline-start:6px;white-space:nowrap;}'
+			. '@media (min-width:783px){'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center .help-center-entry-label{display:block;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label{width:auto;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label>.ab-item{display:flex;align-items:center;padding:0 11px;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label>.ab-item>span:first-child{display:flex;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label svg{position:static;float:none;margin:0;padding:4px 0;}'
+			. '}'
 		);
 
 		// In the block editor the Help Center is already present in the editor toolbar
@@ -358,6 +343,66 @@ class Help_Center {
 				$version
 			);
 		}
+	}
+
+	/**
+	 * Whether the current user is in the treatment of the "Get Help" label experiment.
+	 *
+	 * Assigns (rendering the entry point is the exposure) and caches per user for an hour.
+	 *
+	 * @return bool
+	 */
+	private function should_show_get_help_label() {
+		// The Agents Manager replaces this entry point for the unified experience; those users must stay unassigned.
+		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
+			return false;
+		}
+
+		$experiment_name      = 'calypso_help_center_get_help_chat_forward';
+		$experiment_variation = 'treatment';
+
+		/**
+		 * Forces the variation, for QA. Return a variation name, or null to use ExPlat.
+		 *
+		 * @param string|null $override The forced variation, or null.
+		 */
+		$override = apply_filters( 'wpcom_help_center_get_help_label_variation', null );
+		if ( null !== $override ) {
+			return $experiment_variation === $override;
+		}
+
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$cache_key     = 'help-center-get-help-label-' . $user_id . '-' . $experiment_name;
+		$cached_result = get_transient( $cache_key );
+		if ( false !== $cached_result ) {
+			return (bool) $cached_result;
+		}
+
+		$result = false;
+
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- \ExPlat lives in wpcom.
+			$result = $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
+		} elseif ( $this->wpcom_request_client->is_user_connected() ) {
+			$request_path = '/experiments/0.1.0/assignments/wpcom';
+			$response     = $this->wpcom_request_client->request(
+				add_query_arg( array( 'experiment_names' => $experiment_name ), $request_path ),
+				'v2'
+			);
+
+			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+				$data   = json_decode( wp_remote_retrieve_body( $response ), true );
+				$result = $experiment_variation === ( $data['variations'][ $experiment_name ] ?? null );
+			}
+		}
+
+		set_transient( $cache_key, $result ? 1 : 0, HOUR_IN_SECONDS );
+
+		return $result;
 	}
 
 	/**
@@ -468,6 +513,11 @@ class Help_Center {
 
 		if ( null !== $this->new_logged_out_interactions_bot_slug ) {
 			$data['newLoggedOutInteractionsBotSlug'] = $this->new_logged_out_interactions_bot_slug;
+		}
+
+		// The editor toolbar draws its own entry point.
+		if ( $this->should_show_get_help_label() ) {
+			$data['entryLabel'] = __( 'Get Help', 'jetpack-help-center' );
 		}
 
 		return array_replace( $data, $overrides );
@@ -680,11 +730,13 @@ class Help_Center {
 	}
 
 	/**
-	 * Add icon to WP-ADMIN admin bar.
+	 * Which Help Center variant this request gets, or null when it gets none.
+	 *
+	 * @return string|null 'wp-admin', 'wp-admin-disconnected', 'gutenberg', 'gutenberg-disconnected', 'logged-out', or null.
 	 */
-	public function enqueue_wp_admin_scripts() {
+	private function get_active_variant() {
 		if ( $this->is_wc_admin_home_page() ) {
-			return;
+			return null;
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -711,12 +763,12 @@ class Help_Center {
 		// 3. On the front end of the site and the theme is not P2
 		// 4. If it is the frontend we show the disconnected version of the help center.
 		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site && ! $should_load_logged_out ) {
-			return;
+			return null;
 		}
 
 		// Do not load Help Center for logged-out users if we are not on support sites.
 		if ( ! is_user_logged_in() && ! $this->is_support_site && ! $should_load_logged_out ) {
-			return;
+			return null;
 		}
 
 		$suffix = $this->is_jetpack_disconnected() ? '-disconnected' : '';
@@ -733,6 +785,68 @@ class Help_Center {
 			$variant = 'wp-admin-disconnected';
 		} else {
 			$variant = ( $this->is_block_editor() ? 'gutenberg' : 'wp-admin' ) . $suffix;
+		}
+
+		return $variant;
+	}
+
+	/**
+	 * Add the Help Center "?" to the admin bar.
+	 *
+	 * Eligibility is resolved here, not at hook time: the admin-bar REST endpoints fire
+	 * `admin_bar_menu` without enqueueing scripts.
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
+	 */
+	public function add_admin_bar_node( $wp_admin_bar ) {
+		$variant = $this->get_active_variant();
+		if ( ! in_array( $variant, array( 'wp-admin', 'wp-admin-disconnected', 'gutenberg', 'gutenberg-disconnected' ), true ) ) {
+			return;
+		}
+
+		$show_label = $this->should_show_get_help_label();
+		// Calypso renders `menu_title` as the entry point's label, so it stays empty without one.
+		$menu_title = $show_label ? __( 'Get Help', 'jetpack-help-center' ) : '';
+		$tooltip    = $show_label ? $menu_title : __( 'Help Center', 'jetpack-help-center' );
+		$meta       = array(
+			'menu_title' => $menu_title,
+			'icon'       => 'help',
+			'html'       => '<div id="help-center-masterbar" />',
+			'class'      => 'menupop',
+			'target'     => '_blank',
+		);
+		if ( $show_label ) {
+			$meta['class'] .= ' has-help-entry-label';
+		}
+
+		$wp_admin_bar->add_menu(
+			array(
+				'id'     => 'help-center',
+				'title'  => '<span title="' . esc_attr( $tooltip ) . '"><svg id="help-center-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+									<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
+								</svg>
+								<svg id="help-center-icon-with-notification" class="ab-icon"  width="24" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM13 18H11V16H13V18ZM13 13.859V15H11V13C11 12.448 11.448 12 12 12C13.103 12 14 11.103 14 10C14 8.897 13.103 8 12 8C10.897 8 10 8.897 10 10H8C8 7.791 9.791 6 12 6C14.209 6 16 7.791 16 10C16 11.862 14.722 13.413 13 13.859Z" fill="currentColor"/>
+									<circle cx="20" cy="3.5" r="4.3" fill="#e65054" stroke="#1d2327" stroke-width="2"/>
+								</svg>
+							</span>'
+					. ( $show_label
+						? '<span class="help-center-entry-label" aria-hidden="true"><span>' . esc_html( $menu_title ) . '</span></span>'
+						: '' ),
+				'parent' => 'top-secondary',
+				'href'   => $this->get_help_center_url(),
+				'meta'   => $meta,
+			)
+		);
+	}
+
+	/**
+	 * Enqueue the Help Center bundle for this request's variant.
+	 */
+	public function enqueue_wp_admin_scripts() {
+		$variant = $this->get_active_variant();
+		if ( null === $variant ) {
+			return;
 		}
 
 		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';
