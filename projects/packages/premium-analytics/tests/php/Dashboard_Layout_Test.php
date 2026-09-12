@@ -494,25 +494,25 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	public function test_seed_default_dashboard_layout_adds_subscribers_widgets() {
 		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_SUBSCRIBERS_SECTION_ID );
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
-		$layout_types   = array_column( $layout, 'type' );
 
-		// uuid => [ type, width, order ]; widths are still authored for four columns.
+		// uuid => [ type, width, height, order ]; each row fills the three-column grid.
 		$expected = array(
-			'default-subscribers-chart-widget-instance'  => array( 'jpa/subscribers-chart', 4, 0 ),
-			'default-subscribers-list-widget-instance'   => array( 'jpa/subscribers-list', 2, 1 ),
-			'default-subscribers-emails-widget-instance' => array( 'jpa/stats-emails', 2, 2 ),
+			'default-subscribers-chart-widget-instance'  => array( 'jpa/subscribers-chart', 3, 2, 0 ),
+			'default-subscriber-highlights-widget-instance' => array( 'jpa/subscriber-highlights', 3, 1, 1 ),
+			'default-subscribers-list-widget-instance'   => array( 'jpa/subscribers-list', 1, 2, 2 ),
+			'default-subscribers-emails-widget-instance' => array( 'jpa/stats-emails', 2, 2, 3 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
 
 		foreach ( $expected as $uuid => $instance ) {
-			list( $type, $width, $order ) = $instance;
+			list( $type, $width, $height, $order ) = $instance;
 
 			$this->assertSame( $type, $layout_by_uuid[ $uuid ]['type'], $uuid );
 			$this->assertSame(
 				array(
 					'width'  => $width,
-					'height' => 2,
+					'height' => $height,
 					'order'  => $order,
 				),
 				$layout_by_uuid[ $uuid ]['placement'],
@@ -520,8 +520,8 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			);
 		}
 
-		// Subscriber highlights is intentionally not a default.
-		$this->assertNotContains( 'jpa/subscriber-highlights', $layout_types );
+		// No attributes, so the highlights show every metric the widget offers.
+		$this->assertArrayNotHasKey( 'attributes', $layout_by_uuid['default-subscriber-highlights-widget-instance'] );
 
 		$this->assertSame(
 			array(
