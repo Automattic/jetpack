@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Treat a mapped class file that no longer exists on disk as an autoloader miss instead of a fatal error, so a classmap that went stale mid-request (for example during a plugin update) cannot take the site down.
