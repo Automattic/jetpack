@@ -12,12 +12,12 @@ Accept payments with PayPal — create theme-native Buy Now buttons and shareabl
 
 == Description ==
 
-PayPal Payment Buttons lets you accept payments on your WordPress site using PayPal's Pay Links & Buttons API. Create theme-native Buy Now buttons — and shareable payment links — without leaving the block editor. Buttons inherit your active theme's styles using the `wp-element-button` CSS class, with "Powered by PayPal" attribution displayed below. Every payment resource you create includes both an embeddable button and a direct PayPal-hosted payment URL you can share or embed anywhere.
+PayPal Payment Buttons lets you accept payments on your WordPress site using PayPal's Pay Links & Buttons API. Create theme-native Buy Now buttons — and shareable payment links — without leaving the block editor. Buttons inherit your active theme's styles using the `wp-element-button` CSS class, and you can set the text and background colors, a Fill or Outline style, the text size, the width and the border yourself, plus an optional "Powered by PayPal" line below. Every payment resource you create includes both an embeddable button and a direct PayPal-hosted payment URL you can share or embed anywhere.
 
 **Key Features:**
 
 * **API-driven button and link creation** — Fill in product name, price, and currency; the plugin creates a PayPal payment resource automatically — giving you both an embeddable button and a shareable payment link
-* **Theme-native buttons** — A single "Buy Now" button that inherits your active theme's styles (wp-element-button class), with "Powered by PayPal" attribution below
+* **Theme-native buttons** — A single "Buy Now" button that inherits your active theme's styles (wp-element-button class), with Fill and Outline styles and optional "Powered by PayPal" attribution below
 * **Live preview** — See exactly how your button will look before publishing — the frontend renders identically to the editor preview
 * **25 currencies supported** — USD, EUR, GBP, JPY, and 21 more with proper currency symbol formatting
 * **Secure credential storage** — OAuth credentials are encrypted at rest using authenticated encryption (libsodium)
@@ -29,7 +29,7 @@ PayPal Payment Buttons lets you accept payments on your WordPress site using Pay
 2. Add the PayPal Payment Buttons block to any post or page
 3. Enter your product details (name, price, currency, and optional description)
 4. Click "Create New" — the plugin creates a payment link via PayPal's API
-5. Publish your post — visitors see a theme-native "Buy Now" button with "Powered by PayPal" attribution that links to checkout. The payment link URL is also available to share directly or embed in text links.
+5. Publish your post — visitors see a theme-native "Buy Now" button that links to checkout. The payment link URL is also available to share directly or embed in text links.
 
 == Installation ==
 
@@ -94,7 +94,6 @@ This plugin is designed for standalone PayPal payment buttons on posts and pages
 * **New:** Live button preview in the block editor with theme-native styling
 * **New:** Frontend rendering matches block editor preview exactly — currency symbols, product info card, "Powered by PayPal" attribution
 * **New:** Product description field with truncation on the published page
-* **New:** Edit/preview mode toggle for existing buttons
 * **New:** Client-side and server-side input validation
 * **New:** Automatic token refresh on expiry with retry logic
 * **New:** Exponential backoff for transient API errors (500/502/503)
@@ -136,4 +135,4 @@ Major update: API-driven PayPal button creation replaces the paste-code workflow
 1. Connect PayPal — Enter API credentials from the PayPal Developer Dashboard.
 2. Create New — Fill in product name, price, and currency in the block editor.
 3. Live Preview — See the theme-native "Buy Now" button preview before publishing.
-4. Frontend — Published "Buy Now" button with product info, "Powered by PayPal" attribution, and payment link.
+4. Frontend — Published "Buy Now" button with product info and payment link.

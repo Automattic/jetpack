@@ -9,11 +9,17 @@
  */
 
 import { render, screen } from '@testing-library/react';
+import QRCode from 'qrcode';
 import PayPalButtonPreview from '../../src/paypal-payment-buttons/components/paypal-button-preview';
+import { QR_OPTIONS } from '../../src/paypal-payment-buttons/utils/qr-options';
+
+// jsdom has no 2D context, so a real draw fails. Unlike qr-code.test.js's mock
+// this one resolves, because the preview chains .catch() on the returned promise.
+jest.mock( 'qrcode', () => ( {
+	toCanvas: jest.fn( () => Promise.resolve() ),
+} ) );
 
 const defaultProps = {
-	buttonText: '',
-	buttonType: 'stacked',
 	productName: 'Premium Widget',
 	price: '29.99',
 	currencyCode: 'USD',
@@ -42,16 +48,118 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.queryByText( 'A high-quality widget for your needs.' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the PayPal logo SVG', () => {
-		render( <PayPalButtonPreview { ...defaultProps } /> );
-		const logo = document.querySelector( '.jetpack-paypal-button__logo' );
-		expect( logo ).toBeInTheDocument();
-		expect( logo.tagName.toLowerCase() ).toBe( 'svg' );
+	it( 'labels the checkout button with buttonText', () => {
+		render( <PayPalButtonPreview { ...defaultProps } buttonText="Checkout" /> );
+		expect( screen.getByText( 'Checkout' ) ).toBeInTheDocument();
 	} );
 
-	it( 'labels the checkout button with the PayPal wordmark copy', () => {
+	it( 'falls back to the default text with no buttonText', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
-		expect( screen.getByText( 'Buy Now With' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Buy now' ) ).toBeInTheDocument();
+	} );
+
+	it( 'falls back to the default text with a whitespace-only buttonText', () => {
+		render( <PayPalButtonPreview { ...defaultProps } buttonText="   " /> );
+		expect( screen.getByText( 'Buy now' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the wordmark off the button face', () => {
+		// The branding reads on the attribution line, not the button face.
+		render( <PayPalButtonPreview { ...defaultProps } /> );
+		expect( document.querySelector( '.jetpack-paypal-button__logo' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves the attribution line off until the merchant asks for it', () => {
+		render( <PayPalButtonPreview { ...defaultProps } /> );
+		expect( screen.queryByText( 'Powered by PayPal' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the attribution line with buttonShowPoweredBy on, as the frontend does', () => {
+		render(
+			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: true } } />
+		);
+		expect( screen.getByText( 'Powered by PayPal' ) ).toBeInTheDocument();
+	} );
+
+	// The canvas half of what render_api_managed_button() puts on the anchor.
+	// Without these the class and style wiring can be removed and the suite
+	// still passes.
+	it( 'styles the checkout button from its own color, background and size', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				attributes={ {
+					buttonTextColor: '#1e1e1e',
+					buttonBackgroundColor: '#ffd140',
+					buttonFontSize: '18px',
+				} }
+			/>
+		);
+
+		expect(
+			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+		).toHaveStyle( { color: '#1e1e1e', backgroundColor: '#ffd140', fontSize: '18px' } );
+	} );
+
+	it( 'marks the outline style and drops the background with it', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				attributes={ {
+					buttonStyle: 'outline',
+					buttonTextColor: '#1e1e1e',
+					buttonBackgroundColor: '#ffd140',
+				} }
+			/>
+		);
+
+		const button = document.querySelector( '.jetpack-paypal-button-preview__checkout-button' );
+		expect( button ).toHaveClass( 'is-style-outline' );
+		// The transparent background comes from the stylesheet, so an inline one
+		// would beat it and fill the button back in.
+		expect( button ).not.toHaveStyle( { backgroundColor: '#ffd140' } );
+		expect( button ).toHaveStyle( { color: '#1e1e1e' } );
+	} );
+
+	it( 'leaves the outline class off the fill style', () => {
+		render( <PayPalButtonPreview { ...defaultProps } attributes={ { buttonStyle: 'fill' } } /> );
+		expect(
+			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+		).not.toHaveClass( 'is-style-outline' );
+	} );
+
+	// Width and Border hang on the button, not the product card around it — the
+	// card has no background, so a radius there rounds nothing.
+	it( 'sizes and borders the button, not the card around it', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				attributes={ {
+					blockWidth: '75%',
+					style: {
+						border: { radius: '8px', width: '2px', color: '#1e1e1e' },
+						spacing: { margin: { top: '8px' } },
+					},
+				} }
+			/>
+		);
+
+		expect(
+			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+		).toHaveStyle( {
+			width: '75%',
+			maxWidth: '100%',
+			borderRadius: '8px',
+			borderWidth: '2px',
+			borderColor: '#1e1e1e',
+			borderStyle: 'solid',
+		} );
+
+		// The card takes the margin and nothing else.
+		const card = document.querySelector( '.jetpack-paypal-button-preview' );
+		expect( card ).toHaveStyle( { marginTop: '8px' } );
+		expect( card ).not.toHaveStyle( { maxWidth: '75%' } );
+		expect( card ).not.toHaveStyle( { borderRadius: '8px' } );
 	} );
 
 	it( 'never renders a debit/credit button', () => {
@@ -61,10 +169,12 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.queryByText( 'Debit or Credit Card' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the payment link reference', () => {
+	it( 'leaves the payment link to the LINK format', () => {
+		// Copying the link belongs to the LINK format and the Payment Links admin
+		// screen. The published button has none, so the canvas matches it.
 		render( <PayPalButtonPreview { ...defaultProps } /> );
-		expect( screen.getByText( 'Payment link:' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'https://www.paypal.com/ncp/payment/ABC123' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Payment link:' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Copy' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders non-interactive preview buttons as div elements', () => {
@@ -74,6 +184,9 @@ describe( 'PayPalButtonPreview', () => {
 		// Preview buttons are divs (not links) — non-interactive in the editor.
 		expect( button.tagName ).toBe( 'DIV' );
 		expect( button ).toHaveAttribute( 'aria-hidden', 'true' );
+		// Theme button styles key off `.wp-element-button`, like the frontend
+		// checkout link, so the preview carries it too.
+		expect( button ).toHaveClass( 'wp-element-button' );
 	} );
 
 	it( 'renders product image when imageUrl is provided', () => {
@@ -186,5 +299,351 @@ describe( 'PayPalButtonPreview', () => {
 		);
 		expect( screen.getByText( 'From $12.50' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'From $5.00' ) ).not.toBeInTheDocument();
+	} );
+
+	// The canvas and render_api_managed_button() have to draw the same summary,
+	// so these mirror the frontend's rules.
+	describe( 'variant summary', () => {
+		const sized = {
+			dimensions: [
+				{
+					name: 'Size',
+					primary: true,
+					options: [
+						{ label: 'Small', unit_amount: { currency_code: 'USD', value: '12.50' } },
+						{ label: 'Large', unit_amount: { currency_code: 'USD', value: '20.00' } },
+					],
+				},
+			],
+		};
+
+		it( 'draws the labeled group the frontend draws, not a count badge', () => {
+			render(
+				<PayPalButtonPreview { ...defaultProps } price="" variantsEnabled variants={ sized } />
+			);
+			expect( screen.getByText( 'Options available — select at checkout:' ) ).toBeInTheDocument();
+			expect( document.querySelector( '.jetpack-paypal-button__variant-name' ) ).toHaveTextContent(
+				'Size:'
+			);
+			expect( screen.getByText( 'Small' ) ).toHaveClass( 'jetpack-paypal-button__variant-option' );
+			expect( screen.getByText( '$20.00' ) ).toHaveClass( 'jetpack-paypal-button__variant-price' );
+		} );
+
+		it( 'hides an option price that only repeats the product price', () => {
+			// Only a non-primary group gets here: a priced primary group blanks
+			// the product price first, in both renderers.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					price="29.99"
+					variantsEnabled
+					variants={ {
+						dimensions: [
+							{
+								name: 'Color',
+								options: [
+									{ label: 'Red', unit_amount: { currency_code: 'USD', value: '29.99' } },
+									{ label: 'Blue', unit_amount: { currency_code: 'USD', value: '35.00' } },
+								],
+							},
+						],
+					} }
+				/>
+			);
+			expect( screen.getByText( '$35.00' ) ).toHaveClass( 'jetpack-paypal-button__variant-price' );
+			expect( screen.queryAllByText( '$29.99' ) ).toHaveLength( 1 );
+		} );
+
+		it( 'skips a nameless group and an unlabeled option', () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					variantsEnabled
+					variants={ {
+						dimensions: [
+							{ name: '', primary: true, options: [ { label: 'Small' } ] },
+							{ name: 'Color', options: [ { label: '' } ] },
+						],
+					} }
+				/>
+			);
+			expect(
+				document.querySelector( '.jetpack-paypal-button__variants' )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'shows an option price of 0', () => {
+			// PayPal accepts a price of 0.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					price=""
+					variantsEnabled
+					variants={ {
+						dimensions: [
+							{
+								name: 'Size',
+								primary: true,
+								options: [
+									{ label: 'Free', unit_amount: { currency_code: 'USD', value: '0' } },
+									{ label: 'Large', unit_amount: { currency_code: 'USD', value: '20.00' } },
+								],
+							},
+						],
+					} }
+				/>
+			);
+			expect( screen.getByText( '$0' ) ).toHaveClass( 'jetpack-paypal-button__variant-price' );
+		} );
+
+		it( 'shows a product price of 0', () => {
+			render( <PayPalButtonPreview { ...defaultProps } price="0" /> );
+			expect( screen.getByText( '$0' ) ).toHaveClass(
+				'jetpack-paypal-button-preview__product-price'
+			);
+		} );
+
+		it( 'keeps a group named 0 and an option labeled 0', () => {
+			// '0' passes the form's validation, so both renderers have to keep it.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					variantsEnabled
+					variants={ {
+						dimensions: [
+							{ name: 'Size', primary: true, options: [ { label: '0' } ] },
+							{ name: '0', options: [ { label: 'Red' } ] },
+						],
+					} }
+				/>
+			);
+			expect( screen.getByText( 'Size:' ) ).toBeInTheDocument();
+			expect( screen.getByText( '0:' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Red' ) ).toBeInTheDocument();
+		} );
+
+		it( 'draws nothing when variants are off', () => {
+			render( <PayPalButtonPreview { ...defaultProps } variants={ sized } /> );
+			expect(
+				document.querySelector( '.jetpack-paypal-button__variants' )
+			).not.toBeInTheDocument();
+		} );
+	} );
+
+	// One smoke test per Display Format branch, checking only which preview renders.
+	describe( 'Display Format', () => {
+		beforeEach( () => {
+			QRCode.toCanvas.mockClear();
+		} );
+
+		it( 'draws the button card for BUTTON', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="BUTTON" /> );
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).toBeInTheDocument();
+		} );
+
+		it( 'draws the button card for a format it does not know', () => {
+			// render_api_managed_button() validates the same way server-side.
+			render( <PayPalButtonPreview { ...defaultProps } format="STACKED" /> );
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).toBeInTheDocument();
+		} );
+
+		it( 'draws the link text as the label for LINK', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="LINK" linkText="Get yours" /> );
+			expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveTextContent(
+				'Get yours'
+			);
+		} );
+
+		it( 'falls back to the default label when the link text is blank', () => {
+			// A blank label falls back the way the button face and the caption do,
+			// and the product name does not stand in for it.
+			render( <PayPalButtonPreview { ...defaultProps } format="LINK" linkText="   " /> );
+			expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveTextContent(
+				'Buy now'
+			);
+		} );
+
+		it( 'styles the link from its own color and size', () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="LINK"
+					attributes={ { linkColor: '#0000ff', linkFontSize: '20px' } }
+				/>
+			);
+			expect( document.querySelector( '.jetpack-paypal-button__paypal-link' ) ).toHaveStyle( {
+				color: '#0000ff',
+				fontSize: '20px',
+			} );
+		} );
+
+		it( 'draws a QR canvas for QR', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" qrShowCaption /> );
+			expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
+			// The caption sits under the code, as it does on the frontend.
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveTextContent(
+				'Buy now'
+			);
+		} );
+
+		it( 'draws the caption the merchant typed', () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					qrShowCaption
+					qrCaption="Scan to pay"
+				/>
+			);
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveTextContent(
+				'Scan to pay'
+			);
+		} );
+
+		it( 'drops the caption when Show text under QR code is off', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" qrShowCaption={ false } /> );
+			expect(
+				document.querySelector( '.jetpack-paypal-button__qr-caption' )
+			).not.toBeInTheDocument();
+			// The code itself is unaffected.
+			expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
+		} );
+
+		it( 'puts Width and Border Settings on the wrapper, and caption styles on the caption', () => {
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					qrShowCaption
+					attributes={ {
+						blockWidth: '50%',
+						style: {
+							spacing: { margin: { top: '12px', bottom: '12px', left: '4px', right: '4px' } },
+							border: { radius: '8px', width: '2px', color: '#ff0000' },
+						},
+						captionColor: '#0000ff',
+						captionFontSize: '20px',
+					} }
+				/>
+			);
+
+			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
+			expect( wrapper ).toHaveStyle( {
+				maxWidth: '50%',
+				marginTop: '12px',
+				marginBottom: '12px',
+				marginLeft: '4px',
+				marginRight: '4px',
+				borderRadius: '8px',
+				borderWidth: '2px',
+				borderColor: '#ff0000',
+				borderStyle: 'solid',
+			} );
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveStyle( {
+				color: '#0000ff',
+				fontSize: '20px',
+			} );
+		} );
+
+		it( 'draws no border when the stroke has a width but no color', () => {
+			// Without a color the browser falls back to currentColor and draws a
+			// border the merchant never chose.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					attributes={ { style: { border: { width: '4px', radius: '8px' } } } }
+				/>
+			);
+
+			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
+			// The radius still applies, so this proves the gate and not an empty style.
+			expect( wrapper ).toHaveStyle( { borderRadius: '8px' } );
+			expect( wrapper ).not.toHaveStyle( { borderWidth: '4px' } );
+		} );
+
+		it( 'leaves the code bare when the toggle was never touched', () => {
+			// render_api_managed_button() defaults it off, so the canvas must too.
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+			expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toBeNull();
+		} );
+
+		it( 'falls back to the default label once the caption is on', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" qrShowCaption /> );
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveTextContent(
+				'Buy now'
+			);
+		} );
+
+		it( 'leaves the other axis to the stylesheet when only one is set', () => {
+			// The published page emits only the sides that are set, so the canvas
+			// must not zero-fill the rest.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					attributes={ {
+						style: { spacing: { margin: { left: '8px', right: '8px' } } },
+					} }
+				/>
+			);
+			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
+			expect( wrapper ).toHaveStyle( { marginLeft: '8px', marginRight: '8px' } );
+			expect( wrapper ).not.toHaveStyle( { marginTop: '8px' } );
+		} );
+
+		it( 'draws no code until a payment link exists', () => {
+			// Until the merchant presses Create New there is nothing to encode, and
+			// an undrawn canvas is a blank box.
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" paymentLink="" /> );
+			expect(
+				document.querySelector( '.jetpack-paypal-button__qr-canvas' )
+			).not.toBeInTheDocument();
+			expect( QRCode.toCanvas ).not.toHaveBeenCalled();
+		} );
+
+		it( 'still renders when the draw fails', () => {
+			QRCode.toCanvas.mockRejectedValueOnce( new Error( 'no 2d context' ) );
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" qrShowCaption /> );
+			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toBeInTheDocument();
+		} );
+
+		it( 'leaves the attribution line off the QR', () => {
+			// The button carries the branding; the QR does not.
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+			expect( screen.queryByText( 'Powered by PayPal' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'encodes the attributed link, not the bare one', () => {
+			// The frontend encodes the link with its at_code. A QR built from the
+			// raw link pays through a different URL, and the two images look alike.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					partnerAttributionId="WooNCPS_Ecom_Wordpress"
+				/>
+			);
+			expect( QRCode.toCanvas ).toHaveBeenCalledTimes( 1 );
+			const [ , encoded, options ] = QRCode.toCanvas.mock.calls[ 0 ];
+			expect( encoded ).toBe(
+				'https://www.paypal.com/ncp/payment/ABC123?at_code=WooNCPS_Ecom_Wordpress'
+			);
+			// The frontend script draws from this same object.
+			expect( options ).toBe( QR_OPTIONS );
+		} );
+
+		it.each( [ [ 'LINK' ], [ 'QR' ] ] )( 'leaves out the product card for %s', format => {
+			render( <PayPalButtonPreview { ...defaultProps } format={ format } /> );
+			expect( screen.queryByText( '$29.99' ) ).not.toBeInTheDocument();
+			expect(
+				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+			).not.toBeInTheDocument();
+		} );
 	} );
 } );

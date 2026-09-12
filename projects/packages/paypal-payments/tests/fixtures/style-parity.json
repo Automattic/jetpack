@@ -1,0 +1,570 @@
+{
+	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php, so a value one language drops fails a test in the other. textCases run three times on the PHP side — as the QR caption, the payment link and the button face — because one helper serves all three, and a branch that forgets to call it would otherwise pass. rejected* are values the published page refuses; the canvas has to refuse them too, or a block pasted in code view renders in the editor and disappears on publish. buttonCases are the button's own: its background, its width and border going on the button rather than the card, and the Outline style dropping the background so an inline declaration cannot beat the stylesheet.",
+	"cases": [
+		{
+			"name": "a spacing preset",
+			"attributes": {
+				"style": {
+					"spacing": {
+						"margin": {
+							"top": "var:preset|spacing|50"
+						}
+					}
+				}
+			},
+			"declarations": {
+				"margin-top": "var(--wp--preset--spacing--50)"
+			}
+		},
+		{
+			"name": "zero margin cancels the stylesheet",
+			"attributes": {
+				"style": {
+					"spacing": {
+						"margin": {
+							"top": "0",
+							"bottom": "0"
+						}
+					}
+				}
+			},
+			"declarations": {
+				"margin-top": "0",
+				"margin-bottom": "0"
+			}
+		},
+		{
+			"name": "one axis only, the other left to the stylesheet",
+			"attributes": {
+				"style": {
+					"spacing": {
+						"margin": {
+							"left": "8px",
+							"right": "8px"
+						}
+					}
+				}
+			},
+			"declarations": {
+				"margin-left": "8px",
+				"margin-right": "8px"
+			}
+		},
+		{
+			"name": "a full stroke",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "#ff0000"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-color": "#ff0000",
+				"border-style": "solid"
+			}
+		},
+		{
+			"name": "a half stroke draws nothing",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px"
+					}
+				}
+			},
+			"declarations": {}
+		},
+		{
+			"name": "a radius per corner",
+			"attributes": {
+				"style": {
+					"border": {
+						"radius": {
+							"topLeft": "4px",
+							"bottomRight": "9px"
+						}
+					}
+				}
+			},
+			"declarations": {
+				"border-top-left-radius": "4px",
+				"border-bottom-right-radius": "9px"
+			}
+		},
+		{
+			"name": "width with its unit",
+			"attributes": {
+				"blockWidth": "75%"
+			},
+			"declarations": {
+				"max-width": "75%"
+			}
+		},
+		{
+			"name": "a preset border color, expanded by hand in PHP and by the engine in JS",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "var:preset|color|primary"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-color": "var(--wp--preset--color--primary)",
+				"border-style": "solid"
+			}
+		},
+		{
+			"name": "an rgba palette color",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "1px",
+						"color": "rgba(255, 0, 0, 0.5)"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "1px",
+				"border-color": "rgba(255, 0, 0, 0.5)",
+				"border-style": "solid"
+			}
+		},
+		{
+			"name": "a dashed stroke",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "#000000",
+						"style": "dashed"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-color": "#000000",
+				"border-style": "dashed"
+			}
+		},
+		{
+			"name": "a radius as one string",
+			"attributes": {
+				"style": {
+					"border": {
+						"radius": "8px"
+					}
+				}
+			},
+			"declarations": {
+				"border-radius": "8px"
+			}
+		},
+		{
+			"name": "nothing configured",
+			"attributes": {},
+			"declarations": {}
+		},
+		{
+			"name": "a border style the panel cannot write falls back to solid",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "#000000",
+						"style": "groove"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-color": "#000000",
+				"border-style": "solid"
+			}
+		},
+		{
+			"name": "an alpha hex, which the palette editor stores",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "#3858e980"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-color": "#3858e980",
+				"border-style": "solid"
+			}
+		},
+		{
+			"name": "a camelCase palette preset as a border color",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "var:preset|color|heavenlyBlue"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-style": "solid",
+				"border-color": "var(--wp--preset--color--heavenly-blue)"
+			}
+		}
+	],
+	"textCases": [
+		{
+			"name": "a size with its unit",
+			"fontSize": "1.5rem",
+			"declarations": {
+				"font-size": "1.5rem"
+			}
+		},
+		{
+			"name": "a theme preset size",
+			"fontSize": "var(--wp--preset--font-size--small)",
+			"declarations": {
+				"font-size": "var(--wp--preset--font-size--small)"
+			}
+		},
+		{
+			"name": "a color",
+			"color": "#0000ff",
+			"declarations": {
+				"color": "#0000ff"
+			}
+		},
+		{
+			"name": "a unitless size, which core reads as px",
+			"fontSize": "20",
+			"declarations": {
+				"font-size": "20px"
+			}
+		},
+		{
+			"name": "a fluid size",
+			"fontSize": "clamp(0.875rem, 1vw, 1rem)",
+			"declarations": {
+				"font-size": "clamp(0.875rem, 1vw, 1rem)"
+			}
+		},
+		{
+			"name": "an rgba color",
+			"color": "rgba(0, 0, 255, 0.8)",
+			"declarations": {
+				"color": "rgba(0, 0, 255, 0.8)"
+			}
+		},
+		{
+			"name": "an alpha hex",
+			"color": "#3858e980",
+			"declarations": {
+				"color": "#3858e980"
+			}
+		},
+		{
+			"name": "a palette preset, expanded on both sides",
+			"color": "var:preset|color|primary",
+			"declarations": {
+				"color": "var(--wp--preset--color--primary)"
+			}
+		},
+		{
+			"name": "a color and a size together",
+			"color": "#0000ff",
+			"fontSize": "20px",
+			"declarations": {
+				"color": "#0000ff",
+				"font-size": "20px"
+			}
+		},
+		{
+			"name": "a palette preset with a capitalised slug",
+			"color": "var:preset|color|Vivid-Red-2",
+			"declarations": {
+				"color": "var(--wp--preset--color--vivid-red-2)"
+			}
+		},
+		{
+			"name": "a palette preset with a camelCase slug",
+			"color": "var:preset|color|heavenlyBlue",
+			"declarations": {
+				"color": "var(--wp--preset--color--heavenly-blue)"
+			}
+		}
+	],
+	"rejectedCases": [
+		{
+			"name": "a negative length",
+			"attributes": {
+				"style": {
+					"spacing": {
+						"margin": {
+							"top": "-8px"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "an unsupported unit",
+			"attributes": {
+				"style": {
+					"spacing": {
+						"margin": {
+							"top": "2ch"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "a hand-pasted calc width",
+			"attributes": {
+				"blockWidth": "calc(100% - 10px)"
+			}
+		},
+		{
+			"name": "a named border color",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "rebeccapurple"
+					}
+				}
+			}
+		},
+		{
+			"name": "a spacing preset as a width",
+			"attributes": {
+				"blockWidth": "var:preset|spacing|50"
+			}
+		},
+		{
+			"name": "a side key the panel cannot write",
+			"attributes": {
+				"style": {
+					"border": {
+						"top": {
+							"color": "#ff0000"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "a spacing preset used as a border color",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "var:preset|spacing|50"
+					}
+				}
+			}
+		},
+		{
+			"name": "a spacing preset as a radius",
+			"attributes": {
+				"style": {
+					"border": {
+						"radius": "var:preset|spacing|30"
+					}
+				}
+			}
+		},
+		{
+			"name": "a spacing preset as a per-corner radius",
+			"attributes": {
+				"style": {
+					"border": {
+						"radius": {
+							"topLeft": "var:preset|spacing|30"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "a spacing preset as a stroke width",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "var:preset|spacing|20",
+						"color": "#ff0000"
+					}
+				}
+			}
+		},
+		{
+			"name": "an object where the stroke width should be a length",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": {
+							"top": "2px"
+						},
+						"color": "#ff0000"
+					}
+				}
+			}
+		}
+	],
+	"rejectedTextCases": [
+		{
+			"name": "a named color",
+			"color": "rebeccapurple"
+		},
+		{
+			"name": "a color function the sanitizer does not know",
+			"color": "color-mix(in srgb, red, blue)"
+		},
+		{
+			"name": "transparent",
+			"color": "transparent"
+		},
+		{
+			"name": "modern hsl syntax the sanitizer does not know",
+			"color": "hsl(220deg 13% 91%)"
+		},
+		{
+			"name": "a css comment in a fluid size",
+			"fontSize": "clamp(/*)"
+		},
+		{
+			"name": "a spacing preset used as a color",
+			"color": "var:preset|spacing|50"
+		},
+		{
+			"name": "a size smuggling a css comment open",
+			"fontSize": "calc(2px)/*"
+		},
+		{
+			"name": "a size smuggling a css comment close",
+			"fontSize": "calc(2px)*/"
+		},
+		{
+			"name": "a spacing preset as a font size",
+			"fontSize": "var:preset|spacing|50"
+		},
+		{
+			"name": "a fluid size containing **",
+			"fontSize": "calc(2px**3)"
+		},
+		{
+			"name": "a fluid size containing //",
+			"fontSize": "calc(4px//2)"
+		}
+	],
+	"buttonCases": [
+		{
+			"name": "a background",
+			"attributes": {
+				"buttonBackgroundColor": "#ffd140"
+			},
+			"declarations": {
+				"background-color": "#ffd140"
+			}
+		},
+		{
+			"name": "a theme palette background",
+			"attributes": {
+				"buttonBackgroundColor": "var:preset|color|primary"
+			},
+			"declarations": {
+				"background-color": "var(--wp--preset--color--primary)"
+			}
+		},
+		{
+			"name": "text and background together",
+			"attributes": {
+				"buttonTextColor": "#1e1e1e",
+				"buttonBackgroundColor": "#ffd140"
+			},
+			"declarations": {
+				"color": "#1e1e1e",
+				"background-color": "#ffd140"
+			}
+		},
+		{
+			"name": "fill keeps the background",
+			"attributes": {
+				"buttonStyle": "fill",
+				"buttonBackgroundColor": "#ffd140"
+			},
+			"declarations": {
+				"background-color": "#ffd140"
+			}
+		},
+		{
+			"name": "outline drops the background and keeps the text color",
+			"attributes": {
+				"buttonStyle": "outline",
+				"buttonTextColor": "#1e1e1e",
+				"buttonBackgroundColor": "#ffd140"
+			},
+			"declarations": {
+				"color": "#1e1e1e"
+			}
+		},
+		{
+			"name": "a rejected background is dropped, the size beside it kept",
+			"attributes": {
+				"buttonBackgroundColor": "rebeccapurple",
+				"buttonFontSize": "18px"
+			},
+			"declarations": {
+				"font-size": "18px"
+			}
+		},
+		{
+			"name": "width and border go on the button",
+			"attributes": {
+				"blockWidth": "75%",
+				"style": {
+					"border": {
+						"radius": "6px",
+						"width": "2px",
+						"color": "#1e1e1e"
+					}
+				}
+			},
+			"declarations": {
+				"width": "75%",
+				"max-width": "100%",
+				"border-radius": "6px",
+				"border-width": "2px",
+				"border-style": "solid",
+				"border-color": "#1e1e1e"
+			}
+		},
+		{
+			"name": "outline keeps an explicit stroke",
+			"attributes": {
+				"buttonStyle": "outline",
+				"style": {
+					"border": {
+						"radius": "8px",
+						"width": "2px",
+						"color": "#1e1e1e"
+					}
+				}
+			},
+			"declarations": {
+				"border-radius": "8px",
+				"border-width": "2px",
+				"border-style": "solid",
+				"border-color": "#1e1e1e"
+			}
+		}
+	]
+}

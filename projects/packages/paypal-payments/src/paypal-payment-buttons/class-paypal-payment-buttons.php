@@ -25,6 +25,29 @@ class PayPal_Payment_Buttons {
 	public const BLOCK_NAME = 'jetpack/paypal-payment-buttons';
 
 	/**
+	 * Sides and corners the Border Settings panel can write.
+	 *
+	 * @var string[]
+	 */
+	private const BOX_SIDES = array(
+		'top',
+		'right',
+		'bottom',
+		'left',
+		'topLeft',
+		'topRight',
+		'bottomRight',
+		'bottomLeft',
+	);
+
+	/**
+	 * Border styles the stroke control offers.
+	 *
+	 * @var string[]
+	 */
+	private const BORDER_STYLES = array( 'solid', 'dashed', 'dotted', 'double', 'none' );
+
+	/**
 	 * PayPal partner attribution ID used for tracking.
 	 *
 	 * @var string
@@ -146,6 +169,467 @@ class PayPal_Payment_Buttons {
 		}
 
 		return $sanitized_url;
+	}
+
+	/**
+	 * The QR card — Width, Border and margin all go on the one element the
+	 * merchant sees.
+	 *
+	 * Every value is validated before the style engine sees it.
+	 * wp_style_engine_get_styles() is not a sanitizer: its only filter is
+	 * safecss_filter_attr(), which splits on `;` and keeps any extra declaration
+	 * whose property core allows — so an unchecked `0;position:fixed;…` renders
+	 * verbatim on the published page.
+	 *
+	 * Mirrors getQrStyle() in utils/block-styles.js.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_qr_style( $attributes ) {
+		$rules = array();
+
+		$width = self::chosen_width( $attributes );
+		if ( '' !== $width ) {
+			$rules[] = sprintf( 'max-width:%s', $width );
+		}
+
+		return self::css_rules(
+			array_merge( $rules, self::get_margin_rules( $attributes ), self::get_border_rules( $attributes ) )
+		);
+	}
+
+	/**
+	 * Margin, from the Border Settings panel.
+	 *
+	 * The button's product card takes this and nothing else — Width and Border go
+	 * on the button, see get_button_style(). A QR-to-BUTTON format switch can
+	 * still leave a margin behind, so the card keeps reading it.
+	 *
+	 * Mirrors getMarginStyle() in utils/block-styles.js.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_margin_style( $attributes ) {
+		return self::css_rules( self::get_margin_rules( $attributes ) );
+	}
+
+	/**
+	 * The margin declarations, for a composer to join with its own.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return array A list of CSS declarations, empty when nothing is configured.
+	 */
+	private static function get_margin_rules( $attributes ) {
+		$style  = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
+		$engine = wp_style_engine_get_styles(
+			array( 'spacing' => array( 'margin' => self::sanitize_box( $style['spacing']['margin'] ?? null ) ) )
+		);
+
+		return empty( $engine['css'] ) ? array() : array( rtrim( $engine['css'], ';' ) );
+	}
+
+	/**
+	 * The chosen width, with its unit.
+	 *
+	 * Width has its own unit, so it goes through as typed. The style engine never
+	 * sees it, so a spacing preset would be emitted raw — the width
+	 * control cannot produce one, and this keeps it that way.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string The width, or '' when none is set.
+	 */
+	private static function chosen_width( $attributes ) {
+		return self::plain_length( $attributes['blockWidth'] ?? '' );
+	}
+
+	/**
+	 * Whether the button draws as an outline rather than a filled face.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return bool True when the Outline style is selected.
+	 */
+	private static function is_outline_button( $attributes ) {
+		return 'outline' === ( $attributes['buttonStyle'] ?? 'fill' );
+	}
+
+	/**
+	 * Border Settings — the radius and the stroke.
+	 *
+	 * Mirrors getBorderStyle() in utils/block-styles.js.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return array A list of CSS declarations, empty when nothing is configured.
+	 */
+	private static function get_border_rules( $attributes ) {
+		$rules  = array();
+		$style  = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
+		$border = self::sanitize_border( $style['border'] ?? null );
+
+		// The style engine only emits a hex border-color, and a theme palette entry
+		// can be rgba() or hsl(). getBorderStyle() keeps those on the canvas, so
+		// emit the validated value here rather than lose it.
+		$border_color = $border['color'] ?? '';
+		unset( $border['color'] );
+
+		$engine = wp_style_engine_get_styles( array( 'border' => $border ) );
+
+		if ( ! empty( $engine['css'] ) ) {
+			$rules[] = rtrim( $engine['css'], ';' );
+		}
+
+		if ( '' !== $border_color ) {
+			$rules[] = sprintf( 'border-color:%s', $border_color );
+		}
+
+		return $rules;
+	}
+
+	/**
+	 * Validate a per-side box value — margin, or a per-corner radius.
+	 *
+	 * @param mixed $box A length string, or an array keyed by side or corner.
+	 * @return mixed The value with every side validated, or null when none survive.
+	 */
+	private static function sanitize_box( $box ) {
+		return self::validate_box( $box, false );
+	}
+
+	/**
+	 * A per-corner box with no spacing preset in it.
+	 *
+	 * Mirrors plainBox() in utils/block-styles.js.
+	 *
+	 * @param mixed $box A length string, or an array keyed by corner.
+	 * @return mixed The value with every corner validated, or null when none survive.
+	 */
+	private static function plain_box( $box ) {
+		return self::validate_box( $box, true );
+	}
+
+	/**
+	 * The shared body of sanitize_box() and plain_box().
+	 *
+	 * @param mixed $box   A length string, or an array keyed by side or corner.
+	 * @param bool  $plain Refuse spacing presets.
+	 * @return mixed The value with every side validated, or null when none survive.
+	 */
+	private static function validate_box( $box, $plain ) {
+		if ( is_string( $box ) ) {
+			$length = $plain ? self::plain_length( $box ) : self::sanitize_css_length( $box );
+			return '' === $length ? null : $length;
+		}
+
+		if ( ! is_array( $box ) ) {
+			return null;
+		}
+
+		$clean = array();
+		foreach ( $box as $side => $value ) {
+			// sanitize_key() would let a hostile key through as a mangled one, so
+			// the side names are an allowlist.
+			if ( ! in_array( $side, self::BOX_SIDES, true ) ) {
+				continue;
+			}
+			$length = $plain ? self::plain_length( $value ) : self::sanitize_css_length( $value );
+			if ( '' !== $length ) {
+				$clean[ $side ] = $length;
+			}
+		}
+
+		return empty( $clean ) ? null : $clean;
+	}
+
+	/**
+	 * A length with no spacing preset in it.
+	 *
+	 * Margin takes presets, because it goes through the style engine, which
+	 * expands them. Width and border do not: core's JS engine
+	 * expands a preset radius and wp_style_engine_get_styles() drops it, so a
+	 * preset would render on the canvas and disappear on the page.
+	 *
+	 * Mirrors plainLength() in utils/block-styles.js.
+	 *
+	 * @param mixed $value A raw attribute value.
+	 * @return string The length, or '' when it is not a plain one.
+	 */
+	private static function plain_length( $value ) {
+		$length = self::sanitize_css_length( $value );
+
+		return str_starts_with( $length, 'var:preset' ) ? '' : $length;
+	}
+
+	/**
+	 * Validate the border sub-array.
+	 *
+	 * Only the four keys the Border Settings panel writes are kept. The per-side
+	 * longhands core also understands (border.top and friends) are dropped — the
+	 * block has no UI for them, and they were a way past the color check.
+	 *
+	 * @param mixed $border The raw border attribute.
+	 * @return array The border array, with only validated values.
+	 */
+	private static function sanitize_border( $border ) {
+		if ( ! is_array( $border ) ) {
+			return array();
+		}
+
+		$clean = array();
+
+		$radius = self::plain_box( $border['radius'] ?? null );
+		if ( null !== $radius ) {
+			$clean['radius'] = $radius;
+		}
+
+		$width = self::plain_length( $border['width'] ?? '' );
+		$color = self::sanitize_css_color( $border['color'] ?? '' );
+
+		// A half-set stroke renders inconsistently, so width, color and style go
+		// in together or not at all.
+		if ( '' !== $width && '' !== $color ) {
+			$clean['width'] = $width;
+			$clean['color'] = $color;
+			// border-style defaults to `none`, so a width and a color on their own
+			// draw nothing. getBorderStyle() defaults the same way.
+			$style          = (string) ( $border['style'] ?? '' );
+			$clean['style'] = in_array( $style, self::BORDER_STYLES, true ) ? $style : 'solid';
+		}
+
+		return $clean;
+	}
+
+	/**
+	 * Color and Typography, for the QR caption, the payment link and the button face.
+	 *
+	 * Mirrors getTextStyle() in utils/block-styles.js.
+	 *
+	 * @param string $text_color The chosen color.
+	 * @param string $text_size  The chosen font size.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_text_style( $text_color, $text_size ) {
+		return self::css_rules( self::get_text_rules( $text_color, $text_size ) );
+	}
+
+	/**
+	 * The color and size declarations, for a composer to join with its own.
+	 *
+	 * @param string $text_color The chosen color.
+	 * @param string $text_size  The chosen font size.
+	 * @return array A list of CSS declarations, empty when nothing is configured.
+	 */
+	private static function get_text_rules( $text_color, $text_size ) {
+		$rules = array();
+
+		$color = self::sanitize_css_color( $text_color );
+		if ( '' !== $color ) {
+			$rules[] = sprintf( 'color:%s', $color );
+		}
+
+		$size = self::sanitize_css_font_size( $text_size );
+		if ( '' !== $size ) {
+			$rules[] = sprintf( 'font-size:%s', $size );
+		}
+
+		return $rules;
+	}
+
+	/**
+	 * Color, Styles and Typography for the checkout button.
+	 *
+	 * Mirrors getButtonStyle() in utils/block-styles.js.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 */
+	private static function get_button_style( $attributes ) {
+		$rules = array();
+
+		// Outline renders on the theme's own background, so an inline
+		// background-color would beat style.scss's transparent rule and fill the
+		// button back in.
+		$background = self::is_outline_button( $attributes )
+			? ''
+			: self::sanitize_css_color( $attributes['buttonBackgroundColor'] ?? '' );
+		if ( '' !== $background ) {
+			$rules[] = sprintf( 'background-color:%s', $background );
+		}
+
+		// Width and Border go on the button, not the card — see get_margin_style().
+		// The card still caps at 400px, so cap the button at the space it has or a
+		// wide value spills out of it.
+		$width = self::chosen_width( $attributes );
+		if ( '' !== $width ) {
+			$rules[] = sprintf( 'width:%s', $width );
+			$rules[] = 'max-width:100%';
+		}
+
+		return self::css_rules(
+			array_merge(
+				self::get_text_rules( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' ),
+				$rules,
+				self::get_border_rules( $attributes )
+			)
+		);
+	}
+
+	/**
+	 * The default label for a format's output.
+	 *
+	 * The button face, the QR caption and the payment link share it. Mirrors
+	 * DEFAULT_LABEL in utils/defaults.js.
+	 *
+	 * @return string The label.
+	 */
+	private static function default_label() {
+		return __( 'Buy now', 'jetpack-paypal-payments' );
+	}
+
+	/**
+	 * A style attribute built from a declaration list, or nothing when it is empty.
+	 *
+	 * @param string $style An inline CSS declaration list.
+	 * @return string ` style="…"`, or '' when there is nothing to set.
+	 */
+	private static function style_attr( $style ) {
+		return '' !== $style ? ' style="' . esc_attr( $style ) . '"' : '';
+	}
+
+	/**
+	 * Join declarations into an inline CSS list.
+	 *
+	 * The trailing semicolon keeps the list safe to concatenate with another
+	 * style value on the same element.
+	 *
+	 * @param array $rules The declarations.
+	 * @return string The declaration list, or '' when there are none.
+	 */
+	private static function css_rules( $rules ) {
+		// Each value is validated before it gets here — sanitize_css_length(),
+		// sanitize_css_color() — so the list is joined as-is.
+		return empty( $rules ) ? '' : implode( ';', $rules ) . ';';
+	}
+
+	/**
+	 * Accept only a font size the picker can produce.
+	 *
+	 * FontSizePicker hands back the size with its unit: a plain length, a theme
+	 * preset's CSS variable, or a fluid clamp()/calc() expression. The charset is
+	 * narrow enough that there is nothing to break out of the declaration with —
+	 * no semicolon, no url(), no quotes.
+	 *
+	 * @param string $size The raw attribute value.
+	 * @return string The size, or '' when it is not one.
+	 */
+	private static function sanitize_css_font_size( $size ) {
+		if ( ! is_scalar( $size ) ) {
+			return '';
+		}
+
+		$size = trim( (string) $size );
+
+		// FontSizePicker drops the unit when the theme's own sizes are numbers.
+		// Core reads a bare number as px, so both sides do the same.
+		if ( preg_match( '/^\d+(\.\d+)?$/', $size ) ) {
+			return $size . 'px';
+		}
+
+		// A spacing preset is a length but not a font size — it would be emitted
+		// raw as `font-size:var:preset|spacing|50` and dropped by the browser.
+		if ( '' !== self::plain_length( $size ) ) {
+			return $size;
+		}
+
+		if ( preg_match( '/^var\(--wp--preset--font-size--[a-z0-9-]+\)$/i', $size ) ) {
+			return $size;
+		}
+
+		// No doubled `/` or `*`: `/*` opens a comment that swallows the rest, and
+		// `**` and `//` are not CSS operators.
+		if ( preg_match( '#[/*]{2}#', $size ) ) {
+			return '';
+		}
+
+		return preg_match( '/^(clamp|calc)\([a-z0-9.,%\s()+\-*\/]+\)$/i', $size ) ? $size : '';
+	}
+
+	/**
+	 * Accept only a length the width control can produce.
+	 *
+	 * @param string $length The raw attribute value, e.g. '50%' or '150px'.
+	 * @return string The length, or '' when it is not one.
+	 */
+	private static function sanitize_css_length( $length ) {
+		if ( ! is_scalar( $length ) ) {
+			return '';
+		}
+
+		$length = trim( (string) $length );
+
+		// 0 is a length a merchant can pick — core's spacing scale starts there,
+		// and it is how you cancel the stylesheet's own margin.
+		if ( '0' === $length ) {
+			return $length;
+		}
+
+		// A chosen spacing preset. The style engine expands it, so it goes
+		// through as stored; the units match theme.json's `spacing.units`.
+		if ( preg_match( '/^var:preset\|spacing\|[a-z0-9-]+$/i', $length ) ) {
+			return $length;
+		}
+
+		return preg_match( '/^\d+(\.\d+)?(%|px|em|rem|pt|vw|vh)$/', $length ) ? $length : '';
+	}
+
+	/**
+	 * Accept only a color the picker can produce.
+	 *
+	 * ColorGradientControl hands back a hex value or a CSS variable reference for
+	 * a theme palette entry. Anything else is a hand-edited or injected value and
+	 * is dropped rather than written into a style attribute.
+	 *
+	 * @param string $color The raw attribute value.
+	 * @return string The color, or '' when it is not one.
+	 */
+	private static function sanitize_css_color( $color ) {
+		if ( ! is_scalar( $color ) ) {
+			return '';
+		}
+
+		$color = trim( (string) $color );
+
+		$hex = sanitize_hex_color( $color );
+		if ( ! empty( $hex ) ) {
+			return $hex;
+		}
+
+		// sanitize_hex_color() stops at 6 digits. The palette editor's picker has
+		// alpha on, so a custom color is stored as #rrggbbaa.
+		if ( preg_match( '/^#([0-9a-f]{4}|[0-9a-f]{8})$/i', $color ) ) {
+			return $color;
+		}
+
+		// `var:preset|color|primary` is what the editor stores for a palette entry.
+		// The style engine emits preset border colors as a class rather than inline
+		// CSS, so expand it here — getTextStyle() does the same for the canvas.
+		// Only color presets expand: a spacing or font preset is not a color, so it
+		// falls through and is refused, the way the canvas refuses it.
+		if ( preg_match( '/^var:preset\|color\|([a-z0-9-]+)$/i', $color, $preset ) ) {
+			// Kebab-cased the way WP names the custom property, or a `heavenlyBlue`
+			// slug points at a variable nothing defines. cssColor() uses lodash's
+			// kebabCase, which this function is a port of.
+			return sprintf( 'var(--wp--preset--color--%s)', _wp_to_kebab_case( $preset[1] ) );
+		}
+
+		if ( preg_match( '/^var\(--wp--[a-z0-9-]+\)$/i', $color ) ) {
+			return $color;
+		}
+
+		// A theme palette entry can be any CSS color, and ColorGradientControl
+		// hands back its raw value. Digits and separators only, so there is
+		// nothing to break out of the declaration with.
+		return preg_match( '/^(rgb|hsl)a?\([\d.,%\s\/]+\)$/i', $color ) ? $color : '';
 	}
 
 	/**
@@ -292,27 +776,6 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Official PayPal two-tone wordmark SVG for inline button rendering.
-	 *
-	 * Sourced from paypalobjects.com/paypal-ui/logos/svg/paypal-color.svg
-	 * (wordmark paths only). Navy (#003087) for "Pay", blue (#0070E0) for "Pal".
-	 *
-	 * @return string SVG markup.
-	 */
-	private static function get_paypal_logo_svg() {
-		// Uses currentColor so the wordmark inherits the button's text color,
-		// guaranteeing contrast on both light and dark backgrounds.
-		return '<svg class="jetpack-paypal-button__logo" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="50 8 118 36" aria-hidden="true" focusable="false">'
-			. '<path fill="currentColor" d="M62.56 28.672a10.111 10.111 0 0 0 9.983-8.56c.78-4.967-3.101-9.303-8.6-9.303H55.08a.689.689 0 0 0-.69.585l-3.95 25.072a.643.643 0 0 0 .634.742h4.69a.689.689 0 0 0 .688-.585l1.162-7.365a.689.689 0 0 1 .689-.586h4.257Zm3.925-8.786c-.29 1.836-1.709 3.189-4.425 3.189h-3.474l1.053-6.68h3.411c2.81.006 3.723 1.663 3.435 3.496v-.005Z"/>'
-			. '<path fill="currentColor" d="M92.863 18.706H88.41a.69.69 0 0 0-.69.585l-.144.924s-3.457-3.775-9.575-1.225c-3.51 1.461-5.194 4.48-5.91 6.69 0 0-2.277 6.718 2.87 10.417 0 0 4.771 3.556 10.145-.22l-.093.589a.642.642 0 0 0 .634.742h4.451a.689.689 0 0 0 .69-.585l2.708-17.175a.643.643 0 0 0-.634-.742Zm-6.547 9.492a4.996 4.996 0 0 1-4.996 4.276 4.513 4.513 0 0 1-1.397-.205c-1.92-.616-3.015-2.462-2.7-4.462a4.996 4.996 0 0 1 5.014-4.277c.474-.005.946.065 1.398.206 1.913.614 3.001 2.46 2.686 4.462h-.005Z"/>'
-			. '<path fill="currentColor" d="m109.205 19.131-5.367 9.059-2.723-8.992a.69.69 0 0 0-.664-.492h-4.842a.516.516 0 0 0-.496.689l4.88 15.146-4.413 7.138a.517.517 0 0 0 .442.794h5.217a.858.858 0 0 0 .741-.418l13.632-22.552a.516.516 0 0 0-.446-.789h-5.215a.858.858 0 0 0-.746.417Z"/>'
-			. '<path fill="currentColor" d="M126.672 28.672a10.115 10.115 0 0 0 9.992-8.56c.779-4.967-3.101-9.303-8.602-9.303h-8.86a.69.69 0 0 0-.689.585l-3.962 25.079a.637.637 0 0 0 .365.683.64.64 0 0 0 .269.06h4.691a.69.69 0 0 0 .689-.586l1.163-7.365a.688.688 0 0 1 .689-.586l4.255-.007Zm3.925-8.786c-.29 1.836-1.709 3.189-4.426 3.189h-3.473l1.054-6.68h3.411c2.808.006 3.723 1.663 3.434 3.496v-.005Z"/>'
-			. '<path fill="currentColor" d="M156.974 18.706h-4.448a.69.69 0 0 0-.689.585l-.146.924s-3.456-3.775-9.574-1.225c-3.509 1.461-5.194 4.48-5.911 6.69 0 0-2.276 6.718 2.87 10.417 0 0 4.772 3.556 10.146-.22l-.093.589a.637.637 0 0 0 .365.683c.084.04.176.06.269.06h4.451a.686.686 0 0 0 .689-.586l2.709-17.175a.657.657 0 0 0-.148-.518.632.632 0 0 0-.49-.224Zm-6.546 9.492a4.986 4.986 0 0 1-4.996 4.276 4.513 4.513 0 0 1-1.399-.205c-1.921-.616-3.017-2.462-2.702-4.462a4.996 4.996 0 0 1 4.996-4.277c.475-.005.947.064 1.399.206 1.933.614 3.024 2.46 2.707 4.462h-.005Z"/>'
-			. '<path fill="currentColor" d="m161.982 11.387-3.962 25.079a.637.637 0 0 0 .365.683c.084.04.176.06.269.06h4.689a.688.688 0 0 0 .689-.586l3.963-25.079a.637.637 0 0 0-.146-.517.645.645 0 0 0-.488-.225h-4.69a.69.69 0 0 0-.689.585Z"/>'
-			. '</svg>';
-	}
-
-	/**
 	 * Render an API-managed PayPal payment button on the frontend.
 	 *
 	 * @param array $attributes The block attributes.
@@ -328,8 +791,11 @@ class PayPal_Payment_Buttons {
 		$image_url           = $attributes['imageUrl'] ?? '';
 		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
 		$variants            = $attributes['variants'] ?? null;
-		$show_qr_code        = $attributes['showQrCode'] ?? true;
 		$format              = $attributes['format'] ?? 'BUTTON';
+		$button_text         = trim( (string) ( $attributes['buttonText'] ?? '' ) );
+		$qr_show_caption     = ! empty( $attributes['qrShowCaption'] );
+		$qr_caption          = trim( (string) ( $attributes['qrCaption'] ?? '' ) );
+		$link_text           = trim( (string) ( $attributes['linkText'] ?? '' ) );
 
 		// Validate — only known format values are accepted.
 		if ( ! in_array( $format, array( 'BUTTON', 'LINK', 'QR' ), true ) ) {
@@ -348,11 +814,9 @@ class PayPal_Payment_Buttons {
 
 		self::register_hooks();
 
-		// QR script needed for BUTTON (toggle) and QR (standalone) formats.
-		if ( 'LINK' !== $format ) {
-			if ( 'QR' === $format || $show_qr_code ) {
-				self::enqueue_qr_script();
-			}
+		// Only the standalone QR format draws a code.
+		if ( 'QR' === $format ) {
+			self::enqueue_qr_script();
 		}
 
 		// Append BN code for revenue attribution tracking.
@@ -361,54 +825,73 @@ class PayPal_Payment_Buttons {
 		// ─── LINK format: plain anchor ───────────────────────────────────
 		if ( 'LINK' === $format ) {
 			$wrapper_attributes = get_block_wrapper_attributes();
-			$link_label         = ! empty( $product_name )
-				? $product_name
-				: __( 'Pay with PayPal', 'jetpack-paypal-payments' );
+			// An empty label falls back to the default, the same way the button
+			// face and the QR caption do.
+			$link_label = '' !== $link_text ? $link_text : self::default_label();
+			$link_style = self::get_text_style(
+				$attributes['linkColor'] ?? '',
+				$attributes['linkFontSize'] ?? ''
+			);
 
 			return sprintf(
-				'<div %1$s><a href="%2$s" class="jetpack-paypal-button__paypal-link" target="_blank" rel="noopener noreferrer">%3$s<span class="screen-reader-text">%4$s</span></a></div>',
+				'<div %1$s><a href="%2$s" class="jetpack-paypal-button__paypal-link"%5$s target="_blank" rel="noopener noreferrer">%3$s<span class="screen-reader-text">%4$s</span></a></div>',
 				$wrapper_attributes,
 				$action_url,
 				esc_html( $link_label ),
-				esc_html__( '(opens in a new tab)', 'jetpack-paypal-payments' )
+				esc_html__( '(opens in a new tab)', 'jetpack-paypal-payments' ),
+				self::style_attr( $link_style )
 			);
 		}
 
 		// ─── QR format: standalone auto-rendering QR canvas ──────────────
 		if ( 'QR' === $format ) {
 			$wrapper_attributes = get_block_wrapper_attributes();
-			$download_label     = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
-			$copy_label         = esc_html__( 'Copy Link', 'jetpack-paypal-payments' );
-			$copied_label       = esc_attr__( 'Copied!', 'jetpack-paypal-payments' );
-			$product_label      = ! empty( $product_name )
+			// Goes on .jetpack-paypal-button, not the block wrapper: style.scss caps
+			// that element at 400px, and the editor preview styles the same one.
+			$block_style    = self::style_attr( self::get_qr_style( $attributes ) );
+			$download_label = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
+			$copy_label     = esc_html__( 'Copy Link', 'jetpack-paypal-payments' );
+			$copied_label   = esc_attr__( 'Copied!', 'jetpack-paypal-payments' );
+
+			// An empty caption falls back to the default rather than drawing a
+			// blank line, the same way the button label does.
+			$caption_text  = '' !== $qr_caption ? $qr_caption : self::default_label();
+			$caption_style = self::get_text_style(
+				$attributes['captionColor'] ?? '',
+				$attributes['captionFontSize'] ?? ''
+			);
+			$caption_html  = $qr_show_caption
 				? sprintf(
-					'<p class="jetpack-paypal-button__qr-product-name">%s</p>',
-					esc_html( $product_name )
+					'<p class="jetpack-paypal-button__qr-caption"%s>%s</p>',
+					self::style_attr( $caption_style ),
+					esc_html( $caption_text )
 				)
 				: '';
 
+			// No attribution line: the `Show "Powered by PayPal" text` checkbox is
+			// the button's alone, so the QR draws the code and its caption and
+			// nothing else.
 			return sprintf(
 				'<div %1$s>
-	<div class="jetpack-paypal-button jetpack-paypal-button--qr-format">
-		%2$s
+	<div class="jetpack-paypal-button jetpack-paypal-button--qr-format"%7$s>
 		<div class="jetpack-paypal-button__qr-standalone">
 			<canvas class="jetpack-paypal-button__qr-canvas jetpack-paypal-button__qr-canvas--standalone" data-qr-url="%3$s"></canvas>
+			%2$s
 			<div class="jetpack-paypal-button__qr-link">
 				<input type="text" readonly class="jetpack-paypal-button__qr-link-input" value="%3$s" />
 				<button type="button" class="jetpack-paypal-button__qr-copy" data-copy-label="%4$s" data-copied-label="%5$s">%4$s</button>
 			</div>
 			<button type="button" class="jetpack-paypal-button__qr-download">%6$s</button>
 		</div>
-		<p class="jetpack-paypal-button__attribution">%7$s</p>
 	</div>
 </div>',
 				$wrapper_attributes,
-				$product_label,
+				$caption_html,
 				esc_attr( $action_url ),
 				$copy_label,
 				$copied_label,
 				$download_label,
-				esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' )
+				$block_style
 			);
 		}
 
@@ -440,8 +923,10 @@ class PayPal_Payment_Buttons {
 		}
 
 		// Headline price: the product price, or the cheapest option when there is none.
+		// PayPal accepts a price of 0, so the empty test is '' — empty() drops it.
+		$price      = (string) $price;
 		$price_html = '';
-		if ( ! empty( $price ) ) {
+		if ( '' !== $price ) {
 			$price_html = sprintf(
 				'<span class="jetpack-paypal-button__product-price">%s</span>',
 				esc_html( self::format_price( $price, $currency ) )
@@ -468,22 +953,23 @@ class PayPal_Payment_Buttons {
 			$variant_groups = array();
 			foreach ( $variants['dimensions'] as $dimension ) {
 				$dim_name = esc_html( $dimension['name'] ?? '' );
-				if ( empty( $dim_name ) || empty( $dimension['options'] ) ) {
+				if ( '' === $dim_name || empty( $dimension['options'] ) ) {
 					continue;
 				}
 
 				$options_html = array();
 				foreach ( $dimension['options'] as $option ) {
 					$label = esc_html( $option['label'] ?? '' );
-					if ( empty( $label ) ) {
+					if ( '' === $label ) {
 						continue;
 					}
 
 					// Show the option's price, unless it repeats the product price above.
+					$option_value = (string) ( $option['unit_amount']['value'] ?? '' );
 					$option_price = '';
-					if ( ! empty( $option['unit_amount']['value'] ) && $option['unit_amount']['value'] !== $price ) {
+					if ( '' !== $option_value && $option_value !== $price ) {
 						$option_price = ' <span class="jetpack-paypal-button__variant-price">'
-							. esc_html( self::format_price( $option['unit_amount']['value'], $currency ) )
+							. esc_html( self::format_price( $option_value, $currency ) )
 							. '</span>';
 					}
 
@@ -509,33 +995,31 @@ class PayPal_Payment_Buttons {
 			}
 		}
 
-		// QR code toggle section (conditionally rendered for BUTTON format).
-		$qr_html = '';
-		if ( $show_qr_code ) {
-			$qr_show     = esc_attr__( 'Show Link or QR Code', 'jetpack-paypal-payments' );
-			$qr_hide     = esc_attr__( 'Hide Link or QR Code', 'jetpack-paypal-payments' );
-			$qr_download = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
-			$copy_label  = esc_attr__( 'Copy Link', 'jetpack-paypal-payments' );
-			$qr_html     = '<div class="jetpack-paypal-button__qr-section">'
-				. '<button type="button" class="jetpack-paypal-button__qr-toggle" data-show-label="' . $qr_show . '" data-hide-label="' . $qr_hide . '" aria-expanded="false">' . $qr_show . '</button>'
-				. '<div class="jetpack-paypal-button__qr-wrapper" style="display:none;">'
-				. '<div class="jetpack-paypal-button__qr-content">'
-				. '<canvas class="jetpack-paypal-button__qr-canvas" data-qr-url="' . esc_attr( $action_url ) . '"></canvas>'
-				. '<div class="jetpack-paypal-button__qr-link">'
-				. '<input type="text" readonly class="jetpack-paypal-button__qr-link-input" value="' . esc_attr( $action_url ) . '" />'
-				. '<button type="button" class="jetpack-paypal-button__qr-copy" data-copy-label="' . $copy_label . '" data-copied-label="' . esc_attr__( 'Copied!', 'jetpack-paypal-payments' ) . '">' . $copy_label . '</button>'
-				. '</div>'
-				. '</div>'
-				. '<button type="button" class="jetpack-paypal-button__qr-download">' . $qr_download . '</button>'
-				. '</div></div>';
-		}
-
 		$wrapper_attributes = get_block_wrapper_attributes();
+		// Width and Border go on the button, not this card — see get_button_style().
+		$block_style = self::style_attr( self::get_margin_style( $attributes ) );
+
+		// A blank label would draw an unreadable button, so fall back to the same
+		// default the editor preview uses.
+		$label = '' !== $button_text ? $button_text : self::default_label();
+
+		$attribution_html = empty( $attributes['buttonShowPoweredBy'] )
+			? ''
+			: sprintf(
+				'<p class="jetpack-paypal-button__attribution">%s</p>',
+				esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' )
+			);
+
+		// `is-style-outline` is the name core and the other Jetpack blocks already
+		// use, so themes recognize it.
+		$button_class = 'jetpack-paypal-button__checkout-link wp-element-button'
+			. ( self::is_outline_button( $attributes ) ? ' is-style-outline' : '' );
+		$button_style = self::style_attr( self::get_button_style( $attributes ) );
 
 		return sprintf(
-			'<div %9$s>
-	<div class="jetpack-paypal-button">
-		%10$s
+			'<div %8$s>
+	<div class="jetpack-paypal-button"%11$s>
+		%9$s
 		<div class="jetpack-paypal-button__product">
 			<div class="jetpack-paypal-button__product-info">
 				<span class="jetpack-paypal-button__product-name">%1$s</span>
@@ -545,28 +1029,27 @@ class PayPal_Payment_Buttons {
 		</div>
 		%7$s
 		<div class="jetpack-paypal-button__buttons">
-			<a href="%4$s" class="jetpack-paypal-button__checkout-link wp-element-button" target="_blank" rel="noopener noreferrer">
+			<a href="%4$s" class="%12$s"%13$s target="_blank" rel="noopener noreferrer">
 				<span class="jetpack-paypal-button__button-text">%5$s</span>
-				%12$s
-				<span class="screen-reader-text">%11$s</span>
+				<span class="screen-reader-text">%10$s</span>
 			</a>
 		</div>
-		<p class="jetpack-paypal-button__attribution">%6$s</p>
-		%8$s
+		%6$s
 	</div>
 </div>',
 			esc_html( $product_name ),
 			$description_html,
 			$price_html,
 			$action_url,
-			esc_html__( 'Buy Now With', 'jetpack-paypal-payments' ),
-			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
+			esc_html( $label ),
+			$attribution_html,
 			$variants_html,
-			$qr_html,
 			$wrapper_attributes,
 			$image_html,
 			esc_html__( 'PayPal (opens in a new tab)', 'jetpack-paypal-payments' ),
-			self::get_paypal_logo_svg()
+			$block_style,
+			esc_attr( $button_class ),
+			$button_style
 		);
 	}
 

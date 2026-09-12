@@ -22,7 +22,6 @@ import { getUserFriendlyError } from '../utils/validation';
  * @param {object}   props.attributes           - Block attributes.
  * @param {Function} props.setAttributes        - Function to update block attributes.
  * @param {boolean}  props.isConnected          - Whether the site is connected to PayPal.
- * @param {Function} props.setIsEditing         - Setter for the edit/preview mode toggle.
  * @param {Function} props.setShowDeleteConfirm - Setter for the delete confirmation dialog.
  * @return {object} Resource state, its setters, and the delete handlers.
  */
@@ -30,7 +29,6 @@ export function usePayPalResource( {
 	attributes,
 	setAttributes,
 	isConnected,
-	setIsEditing,
 	setShowDeleteConfirm,
 } ) {
 	const { isApiManaged, resourceId } = attributes;
@@ -112,7 +110,6 @@ export function usePayPalResource( {
 					resourceId: undefined,
 					paymentLink: undefined,
 				} );
-				setIsEditing( true );
 				setSuccessMessage( __( 'PayPal button deleted.', 'jetpack-paypal-payments' ) );
 			} )
 			.catch( err => {
@@ -123,7 +120,6 @@ export function usePayPalResource( {
 						resourceId: undefined,
 						paymentLink: undefined,
 					} );
-					setIsEditing( true );
 					setSuccessMessage(
 						__( 'Button was already removed from PayPal.', 'jetpack-paypal-payments' )
 					);
@@ -134,7 +130,7 @@ export function usePayPalResource( {
 			.finally( () => {
 				setIsBusy( false );
 			} );
-	}, [ resourceId, setAttributes, setIsEditing, setShowDeleteConfirm ] );
+	}, [ resourceId, setAttributes, setShowDeleteConfirm ] );
 
 	return {
 		isBusy,

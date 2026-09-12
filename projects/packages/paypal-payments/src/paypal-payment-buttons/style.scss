@@ -3,14 +3,17 @@
 /**
  * PayPal Payment Buttons — Frontend Styles.
  *
- * Styles for the published page rendering of PayPal buttons.
- * Loaded on the frontend only (not in editor).
+ * Styles for the published page rendering of PayPal buttons. Loaded on the
+ * frontend and inside the editor canvas iframe, but not in the sidebar — so a
+ * rule for a frontend class belongs here and covers both, while anything
+ * naming a `-preview__` class belongs in editor.scss.
  *
  * The checkout button uses the `wp-element-button` class to inherit
- * the active theme's button styles (colors, typography, border-radius).
- * No PayPal branding on the button itself — the hosted payment page
- * handles payment method selection. "Powered by PayPal" attribution
- * is shown below the button for brand compliance.
+ * the active theme's button styles (colors, typography, border-radius),
+ * unless the Styles tab overrides them with an inline style. No PayPal
+ * branding on the button itself — the hosted payment page handles
+ * payment method selection. "Powered by PayPal" sits below the button
+ * when the merchant turns it on.
  *
  * @package automattic/jetpack-paypal-payments
  * @since 0.9.0
@@ -24,8 +27,10 @@ $font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans,
 $paypal-blue: #0070ba;
 
 .jetpack-paypal-button {
+	// Defaults only — Width and Border Settings override max-width and margin
+	// with an inline style on this same element.
 	max-width: 400px;
-	margin: 24px auto;
+	margin: 24px 0;
 	font-family: $font-stack;
 }
 
@@ -99,22 +104,39 @@ $paypal-blue: #0070ba;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
 	width: 100%;
 	text-align: center;
 	text-decoration: none;
 	cursor: pointer;
+}
 
-	.jetpack-paypal-button__logo {
-		height: 18px;
-		width: auto;
-		flex-shrink: 0;
+// The Outline style, after core's button block plus the hover states.
+// 1px like extensions/blocks/button/view.scss, so an Outline button does not
+// sit larger than a Fill one, and no padding override so the theme keeps
+// sizing it. currentColor stops the theme's filled-button text color leaving
+// the label invisible; a color set in the Styles tab comes through inline
+// and wins.
+// The hover/focus/active copies stop the theme repainting the background.
+.jetpack-paypal-button__checkout-link.is-style-outline {
+
+	&,
+	&:hover,
+	&:focus,
+	&:active {
+		background-color: transparent;
+		background-image: none;
+		border: solid 1px currentColor;
+		color: currentColor;
 	}
 }
 
 // ---------------------------------------------------------------
 // "Powered by PayPal" attribution
 // ---------------------------------------------------------------
+
+.jetpack-paypal-button__qr-caption {
+	margin: 8px 0 0;
+}
 
 .jetpack-paypal-button__attribution {
 	margin: 8px 0 0;
@@ -163,48 +185,12 @@ $paypal-blue: #0070ba;
 	font-size: 11px;
 }
 
-// QR Code section.
-.jetpack-paypal-button__qr-section {
-	text-align: center;
-	margin-top: 12px;
-}
-
-.jetpack-paypal-button__qr-toggle {
-	background: none;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	padding: 6px 16px;
-	font-size: 13px;
-	color: #555;
-	cursor: pointer;
-	transition: border-color 0.15s;
-
-	&:hover {
-		border-color: #999;
-	}
-
-	&:focus-visible {
-		outline: 2px solid $paypal-blue;
-		outline-offset: 2px;
-	}
-}
-
-.jetpack-paypal-button__qr-wrapper {
-	margin-top: 12px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 12px;
-}
-
-.jetpack-paypal-button__qr-content {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 12px;
-}
-
+// QR code canvas.
 .jetpack-paypal-button__qr-canvas {
+	// The code is drawn at a fixed 200px, so without this a narrow Width setting
+	// shrinks the block around it and the code hangs out of the box.
+	max-width: 100%;
+	height: auto;
 	border-radius: 4px;
 }
 
@@ -266,77 +252,5 @@ $paypal-blue: #0070ba;
 	&:focus-visible {
 		outline: 2px solid $paypal-blue;
 		outline-offset: 2px;
-	}
-}
-
-// Hide QR toggle when JS is unavailable.
-noscript + .jetpack-paypal-button__qr-section {
-	display: none;
-}
-
-// ---------------------------------------------------------------
-// Light / Dark preset overrides (WOOPTP-390)
-
-// When the merchant explicitly selects a color scheme preset, the
-// data-color-scheme attribute on the block wrapper activates these
-// rules. They use the CSS `color-scheme` property to hint the
-// browser, and inherit theme CSS custom properties when available
-// (Twenty Twenty-Four, et al.). Hardcoded fallbacks ensure a
-// reasonable appearance on themes that don't define the variables.
-
-// "auto" (default) leaves the block unstyled here — OS/theme
-// preference applies via prefers-color-scheme and wp-element-button
-// inheritance, which is the existing behavior.
-
-// Custom CSS targeting:
-//   .wp-block-jetpack-paypal-payment-buttons
-//   .wp-block-jetpack-paypal-payment-buttons[data-color-scheme="light"]
-//   .wp-block-jetpack-paypal-payment-buttons[data-color-scheme="dark"]
-// No !important used — custom CSS overrides naturally.
-// ---------------------------------------------------------------
-
-.wp-block-jetpack-paypal-payment-buttons[data-color-scheme="light"] {
-	color-scheme: light;
-
-	.jetpack-paypal-button__product-name,
-	.jetpack-paypal-button__product-price,
-	.jetpack-paypal-button__variant-name {
-		color: var(--wp--preset--color--foreground, #1e1e1e);
-	}
-
-	.jetpack-paypal-button__product-description,
-	.jetpack-paypal-button__attribution,
-	.jetpack-paypal-button__variants-label,
-	.jetpack-paypal-button__variant-price {
-		color: var(--wp--preset--color--foreground, #757575);
-		opacity: 0.7;
-	}
-
-	.jetpack-paypal-button__variant-option {
-		background: var(--wp--preset--color--background, #f0f0f0);
-		color: var(--wp--preset--color--foreground, #1e1e1e);
-	}
-}
-
-.wp-block-jetpack-paypal-payment-buttons[data-color-scheme="dark"] {
-	color-scheme: dark;
-
-	.jetpack-paypal-button__product-name,
-	.jetpack-paypal-button__product-price,
-	.jetpack-paypal-button__variant-name {
-		color: var(--wp--preset--color--foreground, #fff);
-	}
-
-	.jetpack-paypal-button__product-description,
-	.jetpack-paypal-button__attribution,
-	.jetpack-paypal-button__variants-label,
-	.jetpack-paypal-button__variant-price {
-		color: var(--wp--preset--color--foreground, #e0e0e0);
-		opacity: 0.7;
-	}
-
-	.jetpack-paypal-button__variant-option {
-		background: var(--wp--preset--color--background, #2e2e2e);
-		color: var(--wp--preset--color--foreground, #fff);
 	}
 }

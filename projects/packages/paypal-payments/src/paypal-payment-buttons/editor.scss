@@ -394,8 +394,18 @@
 // ---------------------------------------------------------------
 
 .jetpack-paypal-button-preview {
+	// Matches style.scss's .jetpack-paypal-button — the canvas and the published
+	// page have to start from the same box before any setting is applied.
 	max-width: 400px;
-	margin: 0 auto;
+	margin: 24px 0;
+}
+
+// QR format — the code, then its caption.
+.jetpack-paypal-button-preview--qr {
+
+	.jetpack-paypal-button__qr-canvas {
+		display: block;
+	}
 }
 
 // Product image in preview
@@ -462,54 +472,32 @@
 	margin-bottom: 12px;
 }
 
-// Checkout button preview — mirrors the theme-native wp-element-button
-// appearance. Uses WordPress default dark style as a representative
-// preview since the editor doesn't have access to frontend theme styles.
+// Checkout button preview — layout only, the same as the frontend's
+// __checkout-link. Appearance comes from the theme via wp-element-button.
 .jetpack-paypal-button-preview__checkout-button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
 	width: 100%;
-	padding: 14px 24px;
-	background: #1e1e1e;
-	border: none;
-	border-radius: 4px;
 	cursor: default;
 	text-align: center;
 	text-decoration: none;
-	font-size: 15px;
-	font-weight: 600;
-	color: #fff;
+}
 
-	.jetpack-paypal-button__logo {
-		height: 18px;
-		width: auto;
-		flex-shrink: 0;
+// Canvas twin of the .jetpack-paypal-button__checkout-link outline rule in
+// style.scss — change one, change the other. The theme's button styles load
+// in the canvas iframe too, so hover needs the same override here.
+.jetpack-paypal-button-preview__checkout-button.is-style-outline {
+
+	&,
+	&:hover,
+	&:focus,
+	&:active {
+		background-color: transparent;
+		background-image: none;
+		border: solid 1px currentColor;
+		color: currentColor;
 	}
-}
-
-// Payment link reference
-.jetpack-paypal-button-preview__link-ref {
-	display: flex;
-	align-items: baseline;
-	gap: 6px;
-	padding-top: 8px;
-	border-top: 1px solid #e0e0e0;
-}
-
-.jetpack-paypal-button-preview__link-label {
-	font-size: 11px;
-	color: #757575;
-	white-space: nowrap;
-}
-
-.jetpack-paypal-button-preview__link-url {
-	font-size: 11px;
-	color: #2271b1;
-	word-break: break-all;
-	background: none;
-	padding: 0;
 }
 
 // ---------------------------------------------------------------
@@ -597,23 +585,6 @@
 	}
 }
 
-// Variant summary badges in preview.
-.jetpack-paypal-button-preview__variants {
-	display: flex;
-	gap: 6px;
-	flex-wrap: wrap;
-	margin-bottom: 8px;
-}
-
-.jetpack-paypal-button-preview__variant-badge {
-	display: inline-block;
-	padding: 2px 8px;
-	border-radius: 10px;
-	background: #e8e8e8;
-	font-size: 11px;
-	color: #555;
-}
-
 .jetpack-paypal-payment-buttons__destructive-actions {
 	display: flex;
 	gap: 8px;
@@ -684,12 +655,11 @@
 	margin-top: 8px;
 }
 
+// Matches .jetpack-paypal-variants__group above: no card, no side indent, so
+// the field gets the panel's full width.
 .jetpack-paypal-payment-buttons__customer-note {
-	border: 1px solid #e0e0e0;
-	border-radius: 4px;
-	padding: 12px;
+	padding: 12px 0;
 	margin-bottom: 8px;
-	background: #fff;
 }
 
 .jetpack-paypal-payment-buttons__customer-note-controls {
@@ -700,42 +670,86 @@
 }
 
 // ---------------------------------------------------------------
-// Style preset panel (WOOPTP-390)
+// Styles tab — the inspector's own copy of the QR code
 // ---------------------------------------------------------------
 
-.jetpack-paypal-payment-buttons__scheme-label {
+.jetpack-paypal-payment-buttons__qr-inspector-preview {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+
+	.jetpack-paypal-button__qr-canvas {
+		display: block;
+		max-width: 100%;
+		height: auto;
+	}
+
+	// style.scss sets an 8px top margin here, but it only loads on the front
+	// end and inside the canvas iframe, not the sidebar. The flex gap above
+	// handles the spacing instead, so clear the margin rather than stack both.
+	.jetpack-paypal-button__qr-caption {
+		margin: 0;
+	}
+}
+
+// Embed as and the format's own output controls — a plain section with a
+// divider, no collapsible panel header.
+.jetpack-paypal-payment-buttons__format-section {
+	padding: 16px;
+	border-bottom: 1px solid #e0e0e0;
+
+	> * + * {
+		margin-top: 16px;
+	}
+}
+
+// The payment URL beside its Copy button. Same layout as the Jetpack plugin's
+// shared clipboard row, which a package cannot import across the project
+// boundary. The field takes the leftover width so a long URL truncates rather
+// than pushing Copy out of the sidebar.
+// @see projects/plugins/jetpack/extensions/shared/clipboard-input.scss
+.jetpack-paypal-payment-buttons__link-url {
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+
+	.components-base-control {
+		flex: 1;
+		min-width: 0;
+		// flex-end lines up the margin box, so the field's own bottom margin has
+		// to go or Copy sits 16px below the input it belongs beside.
+		margin-bottom: 0;
+	}
+}
+
+
+// Width Settings — presets beside a free value. Same layout as the Jetpack
+// plugin's shared width control; without the explicit widths the presets
+// collapse on top of each other.
+// @see projects/plugins/jetpack/extensions/shared/width-panel.scss
+.jetpack-paypal-payment-buttons__width-controls {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+
+	> .components-base-control {
+		width: 65%;
+		margin-bottom: 8px;
+	}
+
+	.components-unit-control-wrapper {
+		flex: 1;
+		flex-shrink: 0;
+	}
+}
+
+// The shared-link line — grey text under the save-status notice, not a notice
+// itself.
+.jetpack-paypal-payment-buttons__shared-link-note {
+	margin: 8px 0 0;
+	color: #757575;
 	font-size: 12px;
-	color: #757575;
-	margin: 0 0 10px;
-}
-
-.jetpack-paypal-payment-buttons__scheme-toggle {
-	display: flex;
-	margin-bottom: 12px;
-
-	.components-button {
-		flex: 1;
-		justify-content: center;
-	}
-}
-
-.jetpack-paypal-payment-buttons__scheme-hint {
-	font-size: 11px;
-	color: #757575;
-	margin: 0;
-	font-style: italic;
-}
-
-// ---------------------------------------------------------------
-// Display Format panel
-// ---------------------------------------------------------------
-
-.jetpack-paypal-payment-buttons__format-toggle {
-	display: flex;
-	margin-bottom: 12px;
-
-	.components-button {
-		flex: 1;
-		justify-content: center;
-	}
+	line-height: 1.4;
 }

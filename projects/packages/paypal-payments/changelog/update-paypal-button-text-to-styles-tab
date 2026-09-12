@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Move Button Text from the Settings tab to the Styles tab, under Embed as, so it renders only for the Button format.

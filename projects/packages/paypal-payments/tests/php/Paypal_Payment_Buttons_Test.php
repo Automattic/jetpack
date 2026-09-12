@@ -42,6 +42,32 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG;
 
 	/**
+	 * The three formats that draw styled text, and the attributes each one reads.
+	 *
+	 * @var array<string, array<string, mixed>>
+	 */
+	private const TEXT_FORMATS = array(
+		'caption' => array(
+			'format'   => 'QR',
+			'color'    => 'captionColor',
+			'fontSize' => 'captionFontSize',
+			'selector' => 'class="jetpack-paypal-button__qr-caption"',
+		),
+		'link'    => array(
+			'format'   => 'LINK',
+			'color'    => 'linkColor',
+			'fontSize' => 'linkFontSize',
+			'selector' => 'class="jetpack-paypal-button__paypal-link"',
+		),
+		'button'  => array(
+			'format'   => 'BUTTON',
+			'color'    => 'buttonTextColor',
+			'fontSize' => 'buttonFontSize',
+			'selector' => 'class="jetpack-paypal-button__checkout-link wp-element-button"',
+		),
+	);
+
+	/**
 	 * Register the PayPal routes the way production does -- on rest_api_init --
 	 * and return the resulting route table.
 	 *
@@ -515,21 +541,18 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__product-image', $result );
 	}
 
-	// --- QR code ---
-
 	/**
-	 * Test that render_block puts the attributed payment link on the button panel's QR canvas.
+	 * Test that the checkout button uses the buttonText attribute, with no wordmark.
 	 */
-	public function test_render_block_button_qr_canvas_carries_payment_link() {
+	public function test_render_block_labels_the_button_with_button_text() {
 		$attributes = array(
 			'isApiManaged' => true,
-			'resourceId'   => 'PLB-QR123',
-			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QR123',
+			'resourceId'   => 'PLB-LABEL1',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-LABEL1',
 			'productName'  => 'Widget',
 			'price'        => '10.00',
 			'currencyCode' => 'USD',
-			'format'       => 'BUTTON',
-			'showQrCode'   => true,
+			'buttonText'   => 'Checkout',
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -537,24 +560,332 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
 		$this->assertStringContainsString(
-			'data-qr-url="https://www.paypal.com/ncp/payment/PLB-QR123?at_code=' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID . '"',
-			$result,
-			'The QR canvas should carry the payment link with the attribution code'
+			'<span class="jetpack-paypal-button__button-text">Checkout</span>',
+			$result
+		);
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__logo', $result );
+	}
+
+	/**
+	 * Render the BUTTON format with the given attributes.
+	 *
+	 * @param array $attributes Attributes on top of a valid payment.
+	 * @return string The rendered HTML.
+	 */
+	private function render_button_format( array $attributes ) {
+		$attributes = array_merge(
+			array(
+				'isApiManaged' => true,
+				'resourceId'   => 'PLB-BUTTON',
+				'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-BUTTON',
+				'productName'  => 'Premium Widget',
+				'format'       => 'BUTTON',
+			),
+			$attributes
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		return PayPal_Payment_Buttons::render_block( $attributes, '' );
+	}
+
+	/**
+	 * Test that the product card takes the margin and nothing else.
+	 *
+	 * Width and Border go on the button, so a revert that put them back on the
+	 * card has to fail here.
+	 */
+	public function test_render_button_leaves_width_and_border_off_the_card() {
+		$result = $this->render_button_format(
+			array(
+				'blockWidth' => '75%',
+				'style'      => array(
+					'border'  => array( 'radius' => '6px' ),
+					'spacing' => array( 'margin' => array( 'top' => '8px' ) ),
+				),
+			)
+		);
+
+		$this->assertMatchesRegularExpression(
+			'/<div class="jetpack-paypal-button" style="margin-top:8px;">/',
+			$result
 		);
 	}
+
+	/**
+	 * Test that the attribution line is off until the merchant asks for it.
+	 */
+	public function test_render_button_hides_the_attribution_by_default() {
+		$result = $this->render_button_format( array() );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $result );
+		// Positive control: the button itself still rendered.
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $result );
+	}
+
+	/**
+	 * Test that buttonShowPoweredBy draws the attribution line.
+	 */
+	public function test_render_button_shows_the_attribution_when_asked() {
+		$result = $this->render_button_format( array( 'buttonShowPoweredBy' => true ) );
+
+		$this->assertStringContainsString(
+			'<p class="jetpack-paypal-button__attribution">Powered by PayPal</p>',
+			$result
+		);
+	}
+
+	/**
+	 * Test which style class each button style gets.
+	 *
+	 * The transparent background and the currentColor border come from
+	 * style.scss, so the class is the whole of the contract here.
+	 */
+	public function test_render_button_marks_the_outline_style() {
+		$outline = $this->render_button_format( array( 'buttonStyle' => 'outline' ) );
+		$fill    = $this->render_button_format( array( 'buttonStyle' => 'fill' ) );
+
+		$this->assertStringContainsString(
+			'class="jetpack-paypal-button__checkout-link wp-element-button is-style-outline"',
+			$outline
+		);
+		$this->assertStringNotContainsString( 'is-style-outline', $fill );
+	}
+
+	/**
+	 * Test that an unknown button style is treated as Fill.
+	 *
+	 * The attribute is an enum, so this value can only come from hand-editing
+	 * the block in code view.
+	 */
+	public function test_render_button_treats_an_unknown_style_as_fill() {
+		$result = $this->render_button_format(
+			array(
+				'buttonStyle'           => 'ghost',
+				'buttonBackgroundColor' => '#ffd140',
+			)
+		);
+
+		$this->assertStringNotContainsString( 'is-style-outline', $result );
+		// Read off the button: the same declaration on the card would pass.
+		$this->assertMatchesRegularExpression(
+			'/class="jetpack-paypal-button__checkout-link wp-element-button" style="[^"]*background-color:#ffd140/',
+			$result
+		);
+	}
+
+	/**
+	 * Test that the attribution line stays off the other two formats.
+	 *
+	 * The attribute is shared, so a merchant who ticks the box on BUTTON and then
+	 * switches format still has the value.
+	 *
+	 * @dataProvider provide_non_button_formats
+	 * @param string $format The display format to render.
+	 */
+	#[DataProvider( 'provide_non_button_formats' )]
+	public function test_render_keeps_the_attribution_off_other_formats( $format ) {
+		$attributes = array(
+			'isApiManaged'        => true,
+			'resourceId'          => 'PLB-ATTRIB',
+			'paymentLink'         => 'https://www.paypal.com/ncp/payment/PLB-ATTRIB',
+			'productName'         => 'Premium Widget',
+			'format'              => $format,
+			'buttonShowPoweredBy' => true,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $result );
+		// Positive control: the format still drew something.
+		$this->assertNotSame( '', trim( (string) $result ) );
+	}
+
+	/**
+	 * The formats that never draw the attribution line.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public static function provide_non_button_formats() {
+		return array(
+			'QR'   => array( 'QR' ),
+			'LINK' => array( 'LINK' ),
+		);
+	}
+
+	/**
+	 * Test that a block with no buttonText falls back to the default label.
+	 */
+	public function test_render_block_falls_back_to_default_text_with_no_button_text() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-LABEL2',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-LABEL2',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__button-text">Buy now</span>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a whitespace-only buttonText falls back to the default label.
+	 */
+	public function test_render_block_falls_back_to_default_text_with_whitespace_button_text() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-LABEL3',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-LABEL3',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'buttonText'   => '   ',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__button-text">Buy now</span>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a price of 0 renders, since PayPal accepts one.
+	 */
+	public function test_render_block_shows_a_price_of_zero() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-ZERO2',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-ZERO2',
+			'productName'     => 'Widget',
+			'price'           => '0',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array(
+								'label'       => 'Free',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '0',
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__variant-price">$0</span>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a product price of 0 renders when no option is priced.
+	 */
+	public function test_render_block_shows_a_product_price_of_zero() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-ZERO3',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-ZERO3',
+			'productName'  => 'Widget',
+			'price'        => '0',
+			'currencyCode' => 'USD',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__product-price">$0</span>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a group named 0 and an option labeled 0 both render.
+	 */
+	public function test_render_block_keeps_a_variant_named_zero() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-ZERO1',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-ZERO1',
+			'productName'     => 'Widget',
+			'price'           => '10.00',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array( array( 'label' => '0' ) ),
+					),
+					array(
+						'name'    => '0',
+						'options' => array( array( 'label' => 'Red' ) ),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__variant-name">Size:</span>',
+			$result
+		);
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__variant-name">0:</span>',
+			$result
+		);
+		$this->assertStringContainsString(
+			'<span class="jetpack-paypal-button__variant-option">0</span>',
+			$result
+		);
+	}
+
+	// --- QR code ---
 
 	/**
 	 * Test that render_block puts the same link on the standalone QR canvas.
 	 */
 	public function test_render_block_standalone_qr_canvas_carries_payment_link() {
 		$attributes = array(
-			'isApiManaged' => true,
-			'resourceId'   => 'PLB-QR456',
-			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QR456',
-			'productName'  => 'Widget',
-			'price'        => '10.00',
-			'currencyCode' => 'USD',
-			'format'       => 'QR',
+			'isApiManaged'  => true,
+			'resourceId'    => 'PLB-QR456',
+			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-QR456',
+			'productName'   => 'Widget',
+			'price'         => '10.00',
+			'currencyCode'  => 'USD',
+			'format'        => 'QR',
+			'qrShowCaption' => true,
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -566,12 +897,684 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			$result,
 			'The standalone QR canvas should carry the payment link with the attribution code'
 		);
+
+		$this->assertLessThan(
+			strpos( $result, 'jetpack-paypal-button__qr-caption' ),
+			strpos( $result, 'jetpack-paypal-button__qr-canvas' ),
+			'The caption should read below the QR code, not above it'
+		);
 	}
 
 	/**
-	 * Test that render_block omits the QR section when showQrCode is off.
+	 * Test that a QR block that never touched the control draws a bare code.
 	 */
-	public function test_render_block_omits_qr_canvas_when_disabled() {
+	public function test_render_block_qr_caption_defaults_off() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QRCAP',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QRCAP',
+			'productName'  => 'Premium Widget',
+			'format'       => 'QR',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__qr-caption', $result );
+		// Positive control: the code itself still drew, and the product name does
+		// not stand in for the caption.
+		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+		$this->assertStringNotContainsString( 'Premium Widget', $result );
+
+		// The branding line is the button's alone — the QR draws the code and its
+		// caption and nothing else. Asserted so a change here has to be deliberate.
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $result );
+	}
+
+	/**
+	 * Test that the caption is escaped. It is merchant free text rendered into the markup.
+	 */
+	public function test_render_block_escapes_the_qr_caption() {
+		$attributes = array(
+			'isApiManaged'  => true,
+			'resourceId'    => 'PLB-QRESC',
+			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-QRESC',
+			'productName'   => 'Premium Widget',
+			'format'        => 'QR',
+			'qrShowCaption' => true,
+			'qrCaption'     => '<script>alert(1)</script>',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		// Positive control: the caption rendered, so a render that bailed out whole
+		// cannot pass this.
+		$this->assertStringContainsString( 'jetpack-paypal-button__qr-caption', $result );
+		$this->assertStringNotContainsString( '<script>alert(1)</script>', $result );
+		$this->assertStringContainsString(
+			'&lt;script&gt;alert(1)&lt;/script&gt;',
+			$result,
+			'The caption should be escaped in the markup'
+		);
+	}
+
+	/**
+	 * Test that Show text under QR code, when off, removes the caption.
+	 */
+	public function test_render_block_qr_caption_can_be_switched_off() {
+		$attributes = array(
+			'isApiManaged'  => true,
+			'resourceId'    => 'PLB-QRNOCAP',
+			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-QRNOCAP',
+			'productName'   => 'Premium Widget',
+			'format'        => 'QR',
+			'qrShowCaption' => false,
+			'qrCaption'     => 'Scan to pay',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__qr-caption', $result );
+		$this->assertStringNotContainsString( 'Scan to pay', $result );
+		// The caption replaced the product name that used to print here.
+		$this->assertStringNotContainsString( 'Premium Widget', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+	}
+
+	/**
+	 * Test that Width, Border and caption settings reach the published markup.
+	 */
+	public function test_render_block_qr_applies_width_border_and_caption_styles() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-QRSTYLE',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-QRSTYLE',
+			'format'          => 'QR',
+			'qrShowCaption'   => true,
+			'qrCaption'       => 'Scan to pay',
+			'blockWidth'      => '50%',
+			'style'           => array(
+				'spacing' => array(
+					'margin' => array(
+						'top'    => '12px',
+						'bottom' => '12px',
+					),
+				),
+				'border'  => array(
+					'radius' => '8px',
+					'width'  => '2px',
+					'color'  => '#ff0000',
+				),
+			),
+			'captionColor'    => '#0000ff',
+			'captionFontSize' => '20px',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'max-width:50%', $result );
+		$this->assertStringContainsString( 'margin-top:12px', $result );
+		$this->assertStringContainsString( 'margin-bottom:12px', $result );
+		$this->assertStringContainsString( 'border-radius:8px', $result );
+		$this->assertStringContainsString( 'border-width:2px', $result );
+		$this->assertStringContainsString( 'border-color:#ff0000', $result );
+		// Without a style the browser defaults to `none` and draws no border at
+		// all, so the canvas would show one where the published page shows none.
+		$this->assertStringContainsString( 'border-style:solid', $result );
+		// The caption's own styles belong on the caption, not the block.
+		$this->assertStringContainsString(
+			'<p class="jetpack-paypal-button__qr-caption" style="color:#0000ff;font-size:20px;">',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a theme palette color reaches the style attribute.
+	 */
+	public function test_render_block_accepts_a_theme_palette_color() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QRPALETTE',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QRPALETTE',
+			'format'       => 'QR',
+			'style'        => array(
+				'border' => array(
+					'width' => '2px',
+					'color' => 'var:preset|color|primary',
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		// The style engine expands the preset reference the editor stored.
+		$this->assertStringContainsString( 'border-color:var(--wp--preset--color--primary)', $result );
+	}
+
+	/**
+	 * Test that a style value cannot smuggle extra declarations into the markup.
+	 *
+	 * The style engine is not a sanitizer: wp_style_engine_get_styles() splits on
+	 * `;` and keeps any declaration core's allowlist permits, so an unchecked
+	 * value renders a full-viewport overlay on a payments block.
+	 *
+	 * @dataProvider provide_css_injection_payloads
+	 * @param array $style The hostile style attribute.
+	 */
+	#[DataProvider( 'provide_css_injection_payloads' )]
+	public function test_render_block_refuses_smuggled_declarations( $style ) {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-INJECT',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-INJECT',
+			'format'       => 'QR',
+			'style'        => $style,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		foreach ( array( 'position:fixed', 'background-image', 'z-index', 'evil.example', '100vw' ) as $smuggled ) {
+			$this->assertStringNotContainsString( $smuggled, $result, "Smuggled `$smuggled` reached the markup" );
+		}
+
+		// Positive control: the block still rendered, it was not simply dropped.
+		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+	}
+
+	/**
+	 * Hostile style attributes, one per value the Border Settings panel writes.
+	 *
+	 * @return array<string, array<int, array>>
+	 */
+	public static function provide_css_injection_payloads() {
+		$overlay = '0;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;background-image:url(https://evil.example/overlay.png)';
+
+		return array(
+			'margin side'        => array( array( 'spacing' => array( 'margin' => array( 'top' => $overlay ) ) ) ),
+			'margin string'      => array( array( 'spacing' => array( 'margin' => $overlay ) ) ),
+			'border radius'      => array( array( 'border' => array( 'radius' => $overlay ) ) ),
+			'border radius side' => array( array( 'border' => array( 'radius' => array( 'topLeft' => $overlay ) ) ) ),
+			'border width'       => array(
+				array(
+					'border' => array(
+						'color' => '#ffffff',
+						'width' => $overlay,
+					),
+				),
+			),
+			'border style'       => array(
+				array(
+					'border' => array(
+						'color' => '#ffffff',
+						'width' => '1px',
+						'style' => 'solid;' . $overlay,
+					),
+				),
+			),
+			'border longhand'    => array( array( 'border' => array( 'top' => array( 'color' => 'red;' . $overlay ) ) ) ),
+		);
+	}
+
+	/**
+	 * Test that a theme palette color the picker hands back raw still renders.
+	 *
+	 * ColorGradientControl returns the palette entry's own value, which a theme is
+	 * free to define as rgba() or hsl(). Dropping those made the canvas show a
+	 * color the published page did not.
+	 *
+	 * @dataProvider provide_palette_colors
+	 * @param string $color The color the picker hands back.
+	 */
+	#[DataProvider( 'provide_palette_colors' )]
+	public function test_render_block_accepts_a_raw_palette_color( $color ) {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-RAWCOL',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-RAWCOL',
+			'format'       => 'QR',
+			'style'        => array(
+				'border' => array(
+					'width' => '2px',
+					'color' => $color,
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'border-color:' . $color, $result );
+	}
+
+	/**
+	 * Colors a theme palette can legitimately hand back.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public static function provide_palette_colors() {
+		return array(
+			'hex'  => array( '#ff0000' ),
+			'rgb'  => array( 'rgb(255,0,0)' ),
+			'rgba' => array( 'rgba(255, 0, 0, 0.5)' ),
+			'hsl'  => array( 'hsl(0, 100%, 50%)' ),
+		);
+	}
+
+	/**
+	 * Test that the font sizes FontSizePicker can hand back all render.
+	 *
+	 * The picker returns the size with its unit once the theme defines font-size
+	 * presets as strings, which block themes do — a plain length, a preset
+	 * variable, or a fluid clamp().
+	 *
+	 * @dataProvider provide_font_sizes
+	 * @param string $size     The size the picker hands back.
+	 * @param bool   $accepted Whether it should reach the markup.
+	 */
+	#[DataProvider( 'provide_font_sizes' )]
+	public function test_render_block_caption_font_sizes( $size, $accepted ) {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-FONTSIZE',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-FONTSIZE',
+			'format'          => 'QR',
+			'qrShowCaption'   => true,
+			'captionFontSize' => $size,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		if ( $accepted ) {
+			$this->assertStringContainsString( 'font-size:' . $size, $result );
+		} else {
+			$this->assertStringNotContainsString( 'font-size', $result );
+		}
+	}
+
+	/**
+	 * Font sizes the picker can produce, and one that it cannot.
+	 *
+	 * @return array<string, array<int, mixed>>
+	 */
+	public static function provide_font_sizes() {
+		return array(
+			'px'       => array( '20px', true ),
+			'rem'      => array( '1.5rem', true ),
+			'preset'   => array( 'var(--wp--preset--font-size--small)', true ),
+			'fluid'    => array( 'clamp(0.875rem, 0.875rem + 1vw, 1rem)', true ),
+			'injected' => array( '20px;background-image:url(https://evil.example/x.png)', false ),
+		);
+	}
+
+	/**
+	 * Test that the published page emits what the canvas emits.
+	 *
+	 * The other half of this table runs in tests/js/block-styles.test.js against
+	 * getQrStyle(), getButtonStyle() and getTextStyle(). A value one side drops and the other
+	 * keeps is drift between the canvas and the published page, so it fails here.
+	 *
+	 * @dataProvider provide_style_parity_cases
+	 * @param array  $attributes   The block attributes.
+	 * @param array  $declarations The CSS each side has to produce.
+	 * @param string $selector     The element the declarations belong on.
+	 * @param string $format       The display format to render.
+	 */
+	#[DataProvider( 'provide_style_parity_cases' )]
+	public function test_render_block_matches_the_canvas( $attributes, $declarations, $selector, $format ) {
+		$attributes = array_merge(
+			array(
+				'isApiManaged'  => true,
+				'resourceId'    => 'PLB-PARITY',
+				'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-PARITY',
+				'format'        => $format,
+				// The text cases are about the style, not the toggle, and the QR
+				// caption is off until a merchant asks for it.
+				'qrShowCaption' => true,
+			),
+			$attributes
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		if ( empty( $declarations ) ) {
+			$this->assertStringNotContainsString( $selector . ' style=', $result );
+			// Positive control: the element itself still rendered, so the case covers
+			// a dropped style rather than a dropped element.
+			$this->assertStringContainsString( $selector, $result );
+			return;
+		}
+
+		// Read the style off the element itself. Anchoring on the element matters:
+		// a declaration landing on the wrong one is how the last divergence
+		// shipped green. Order is not part of the contract, so compare as a set.
+		$this->assertSame(
+			1,
+			preg_match( '/' . preg_quote( $selector, '/' ) . ' style="([^"]*)"/', $result, $matches ),
+			'No style attribute on ' . $selector
+		);
+
+		$actual = array();
+		foreach ( array_filter( explode( ';', $matches[1] ) ) as $declaration ) {
+			list( $property, $value ) = explode( ':', $declaration, 2 );
+			$actual[ $property ]      = $value;
+		}
+
+		ksort( $actual );
+		ksort( $declarations );
+		$this->assertSame( $declarations, $actual );
+	}
+
+	/**
+	 * Render the LINK format with the given attributes.
+	 *
+	 * @param array $attributes Attributes on top of a valid payment.
+	 * @return string The rendered HTML.
+	 */
+	private function render_link_format( array $attributes ) {
+		$attributes = array_merge(
+			array(
+				'isApiManaged' => true,
+				'resourceId'   => 'PLB-LINK',
+				'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-LINK',
+				'productName'  => 'Premium Widget',
+				'format'       => 'LINK',
+			),
+			$attributes
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		return PayPal_Payment_Buttons::render_block( $attributes, '' );
+	}
+
+	/**
+	 * Test that the LINK format labels the anchor with the link text.
+	 */
+	public function test_render_link_uses_the_link_text() {
+		$result = $this->render_link_format( array( 'linkText' => 'Get yours' ) );
+
+		$this->assertStringContainsString( '>Get yours<', $result );
+	}
+
+	/**
+	 * Test that a blank link text falls back to the shared default.
+	 *
+	 * The product name was the label before the control existed, so this is also
+	 * the check that it no longer leaks into the anchor.
+	 */
+	public function test_render_link_falls_back_to_the_default_label() {
+		$result = $this->render_link_format( array( 'linkText' => '  ' ) );
+
+		$this->assertStringContainsString( '>Buy now<', $result );
+		$this->assertStringNotContainsString( 'Premium Widget', $result );
+	}
+
+	/**
+	 * Test that the link text is escaped.
+	 *
+	 * It is merchant free text landing straight in the anchor.
+	 */
+	public function test_render_link_escapes_the_link_text() {
+		$result = $this->render_link_format( array( 'linkText' => '<script>alert(1)</script>' ) );
+
+		$this->assertStringNotContainsString( '<script>alert(1)</script>', $result );
+		$this->assertStringContainsString( '&lt;script&gt;', $result );
+	}
+
+	/**
+	 * Test that the LINK format draws no product card.
+	 */
+	public function test_render_link_draws_nothing_but_the_anchor() {
+		$result = $this->render_link_format( array() );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__paypal-link', $result );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__checkout-link', $result );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $result );
+	}
+
+	/**
+	 * The shared style fixture, read from the file the JS suite reads.
+	 *
+	 * @throws \RuntimeException When the fixture is unreadable or has duplicate names.
+	 * @return array<string, array<int, mixed>>
+	 */
+	public static function provide_style_parity_cases() {
+		$path    = __DIR__ . '/../fixtures/style-parity.json';
+		$fixture = json_decode( (string) file_get_contents( $path ), true );
+
+		foreach ( array( 'cases', 'textCases', 'rejectedCases', 'rejectedTextCases', 'buttonCases' ) as $table ) {
+			if ( ! is_array( $fixture ) || empty( $fixture[ $table ] ) ) {
+				throw new \RuntimeException( 'Could not read ' . $table . ' from ' . $path );
+			}
+		}
+
+		$cases = array();
+
+		foreach ( $fixture['cases'] as $case ) {
+			$cases[ $case['name'] ] = array(
+				$case['attributes'],
+				$case['declarations'],
+				'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
+				'QR',
+			);
+		}
+
+		// One helper styles the QR caption and the payment link, so every text case
+		// runs against both. A branch that never calls it would otherwise pass on
+		// the strength of the other one.
+		foreach ( $fixture['textCases'] as $case ) {
+			foreach ( self::TEXT_FORMATS as $label => $format ) {
+				$cases[ $label . ': ' . $case['name'] ] = array(
+					self::text_attributes( $format, $case ),
+					$case['declarations'],
+					$format['selector'],
+					$format['format'],
+				);
+			}
+		}
+
+		// The canvas refuses these too, so neither side may emit a declaration.
+		// Run against the button as well: width and border are emitted a second
+		// time there, onto a different element.
+		foreach ( $fixture['rejectedCases'] as $case ) {
+			$cases[ 'refuses ' . $case['name'] ]                    = array(
+				$case['attributes'],
+				array(),
+				'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
+				'QR',
+			);
+			$cases[ 'refuses ' . $case['name'] . ' on the button' ] = array(
+				$case['attributes'],
+				array(),
+				'class="jetpack-paypal-button__checkout-link wp-element-button"',
+				'BUTTON',
+			);
+		}
+
+		foreach ( $fixture['rejectedTextCases'] as $case ) {
+			foreach ( self::TEXT_FORMATS as $label => $format ) {
+				$cases[ 'refuses ' . $case['name'] . ' as ' . $label ] = array(
+					self::text_attributes( $format, $case ),
+					array(),
+					$format['selector'],
+					$format['format'],
+				);
+			}
+		}
+
+		// The button's own — a background, and Outline dropping it. Outline puts
+		// a second class on the anchor, so the element to read the style off
+		// follows the case rather than being fixed.
+		foreach ( $fixture['buttonCases'] as $case ) {
+			$classes = 'outline' === ( $case['attributes']['buttonStyle'] ?? 'fill' )
+				? 'jetpack-paypal-button__checkout-link wp-element-button is-style-outline'
+				: 'jetpack-paypal-button__checkout-link wp-element-button';
+
+			$cases[ 'button: ' . $case['name'] ] = array(
+				$case['attributes'],
+				$case['declarations'],
+				'class="' . $classes . '"',
+				'BUTTON',
+			);
+		}
+
+		// A renamed or malformed fixture would otherwise yield an empty provider
+		// and a green run.
+		$expected = count( $fixture['cases'] )
+			+ count( $fixture['rejectedCases'] ) * 2
+			+ count( $fixture['buttonCases'] )
+			+ ( count( $fixture['textCases'] ) + count( $fixture['rejectedTextCases'] ) ) * count( self::TEXT_FORMATS );
+
+		if ( count( $cases ) !== $expected ) {
+			throw new \RuntimeException( 'style-parity.json has duplicate case names' );
+		}
+
+		return $cases;
+	}
+
+	/**
+	 * Turn a fixture text case into the attributes one format writes.
+	 *
+	 * @param array $format The entry from TEXT_FORMATS.
+	 * @param array $case   The fixture case, with an optional color and fontSize.
+	 * @return array The block attributes.
+	 */
+	private static function text_attributes( $format, $case ) {
+		$attributes = array();
+
+		if ( isset( $case['color'] ) ) {
+			$attributes[ $format['color'] ] = $case['color'];
+		}
+		if ( isset( $case['fontSize'] ) ) {
+			$attributes[ $format['fontSize'] ] = $case['fontSize'];
+		}
+
+		return $attributes;
+	}
+
+	/**
+	 * Test that a margin set on one axis leaves the other axis alone.
+	 */
+	public function test_render_block_margin_on_one_axis() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-MARGIN1',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-MARGIN1',
+			'format'       => 'QR',
+			'style'        => array(
+				'spacing' => array(
+					'margin' => array(
+						'left'  => '8px',
+						'right' => '8px',
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		// Only the sides that were set — top and bottom fall through to the
+		// stylesheet, and the canvas must do the same.
+		$this->assertStringContainsString(
+			'jetpack-paypal-button--qr-format" style="margin-left:8px;margin-right:8px;"',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a hostile width cannot smuggle declarations either.
+	 */
+	public function test_render_block_refuses_a_hostile_width() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-WIDTH',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-WIDTH',
+			'format'       => 'QR',
+			'blockWidth'   => '50%;background-image:url(https://evil.example/x.png)',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'evil.example', $result );
+		$this->assertStringNotContainsString( 'max-width', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+	}
+
+	/**
+	 * Test that a whitespace-only caption falls back to the default.
+	 */
+	public function test_render_block_qr_caption_whitespace_falls_back() {
+		$attributes = array(
+			'isApiManaged'  => true,
+			'resourceId'    => 'PLB-QRWS',
+			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-QRWS',
+			'format'        => 'QR',
+			'qrShowCaption' => true,
+			'qrCaption'     => '   ',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'<p class="jetpack-paypal-button__qr-caption">Buy now</p>',
+			$result
+		);
+	}
+
+	/**
+	 * Test that a color the picker cannot produce never reaches the style attribute.
+	 */
+	public function test_render_block_rejects_an_unparseable_color() {
+		$attributes = array(
+			'isApiManaged'  => true,
+			'resourceId'    => 'PLB-QRBADCOL',
+			'paymentLink'   => 'https://www.paypal.com/ncp/payment/PLB-QRBADCOL',
+			'format'        => 'QR',
+			'style'         => array(
+				'border' => array(
+					'width' => '2px',
+					'color' => 'red; background:url(evil)',
+				),
+			),
+			'captionColor'  => 'javascript:alert(1)',
+			'qrShowCaption' => true,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'evil', $result );
+		$this->assertStringNotContainsString( 'javascript:', $result );
+		$this->assertStringNotContainsString( 'background:url', $result );
+	}
+
+	/**
+	 * Test that the BUTTON format draws no QR code — EMBED AS picks one output.
+	 */
+	public function test_render_block_button_format_draws_no_qr_code() {
 		$attributes = array(
 			'isApiManaged' => true,
 			'resourceId'   => 'PLB-QR789',
@@ -580,7 +1583,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'price'        => '10.00',
 			'currencyCode' => 'USD',
 			'format'       => 'BUTTON',
-			'showQrCode'   => false,
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -588,6 +1590,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__qr-toggle', $result );
 	}
 
 	// --- Partner attribution ---

@@ -38,8 +38,12 @@ jest.mock( '@wordpress/element', () => {
 	return {
 		createElement: React.createElement,
 		Fragment: React.Fragment,
+		// The Copy button's hook comes from @wordpress/compose, which builds a
+		// context at import time and reaches for useLayoutEffect when it runs.
+		createContext: React.createContext,
 		useState: React.useState,
 		useEffect: React.useEffect,
+		useLayoutEffect: React.useLayoutEffect,
 		useCallback: React.useCallback,
 		useMemo: React.useMemo,
 		useRef: React.useRef,
@@ -57,6 +61,11 @@ jest.mock( '@wordpress/i18n', () => ( {
 	},
 } ) );
 
+// jsdom has no 2D context, so the inspector's QR preview cannot really draw.
+jest.mock( 'qrcode', () => ( {
+	toCanvas: jest.fn( () => Promise.resolve() ),
+} ) );
+
 const mockMarkNotPersistent = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { __unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent } ),
@@ -71,7 +80,76 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	store: { name: 'core/block-editor' },
 	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
 	BlockControls: ( { children } ) => <div data-testid="block-controls">{ children }</div>,
-	InspectorControls: ( { children } ) => <div data-testid="inspector-controls">{ children }</div>,
+	InspectorControls: ( { children, group } ) => (
+		<div data-testid={ group ? `inspector-controls-${ group }` : 'inspector-controls' }>
+			{ children }
+		</div>
+	),
+	// Core reads the two colors and warns when the pair is unreadable. The real
+	// one renders nothing until it has both, so the mock records what it was given.
+	ContrastChecker: ( { textColor, backgroundColor } ) =>
+		textColor && backgroundColor ? (
+			<div
+				data-testid="contrast-checker"
+				data-text={ textColor }
+				data-background={ backgroundColor }
+			/>
+		) : null,
+	// Core's color panel is a labeled swatch row per setting, not a text field.
+	// Keep the mock a button so a test can't type a color into a UI with no input.
+	__experimentalColorGradientSettingsDropdown: ( { settings } ) => (
+		<div data-testid="color-dropdown">
+			{ ( settings || [] ).map( setting => (
+				<button
+					key={ setting.label }
+					type="button"
+					data-testid={ `color-${ setting.label }` }
+					data-value={ setting.colorValue || '' }
+					onClick={ () => setting.onColorChange( '#111111' ) }
+				>
+					{ setting.label }
+				</button>
+			) ) }
+			{ /* The real control clears by calling onColorChange with no argument. */ }
+			<button
+				type="button"
+				data-testid="color-clear"
+				onClick={ () => ( settings || [] ).forEach( setting => setting.onColorChange() ) }
+			>
+				clear
+			</button>
+		</div>
+	),
+	__experimentalUseMultipleOriginColorsAndGradients: () => ( { colors: [], gradients: [] } ),
+	// The real picker returns the size WITH its unit once the theme defines
+	// font-size presets as strings, which block themes do, and undefined on reset.
+	FontSizePicker: ( { value, onChange } ) => (
+		<>
+			<button type="button" data-testid="font-size" onClick={ () => onChange( '1.5rem' ) }>
+				{ value || 'size' }
+			</button>
+			<button type="button" data-testid="font-size-reset" onClick={ () => onChange( undefined ) }>
+				reset
+			</button>
+		</>
+	),
+	// Margin is core's axial spacing control; the test drives it by side.
+	__experimentalSpacingSizesControl: ( { label, values, onChange } ) => (
+		<div data-testid={ `spacing-${ label }` }>
+			<button
+				type="button"
+				data-testid={ `spacing-${ label }-vertical` }
+				onClick={ () => onChange( { ...values, top: '12px', bottom: '12px' } ) }
+			>
+				vertical
+			</button>
+		</div>
+	),
+	__experimentalBorderRadiusControl: ( { values, onChange } ) => (
+		<button type="button" data-testid="border-radius" onClick={ () => onChange( '8px' ) }>
+			{ values || 'radius' }
+		</button>
+	),
 	// open() calls onSelect straight away so the block's handler runs.
 	MediaUpload: ( { onSelect, render: renderProp } ) =>
 		renderProp( { open: () => onSelect( mockSelectedMedia ) } ),
@@ -96,6 +174,24 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	),
 } ) );
 
+// jsdom has no clipboard, so the real useCopyToClipboard never calls back and the
+// "Copied!" state is unreachable. Stub the write and record what it was handed,
+// so a Copy button wired to the wrong URL fails. The name has to start with
+// `mock` for jest to allow the factory to reach it.
+const mockCopiedText = { last: null };
+
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useCopyToClipboard: ( text, onCopy ) => node => {
+		if ( node ) {
+			node.addEventListener( 'click', () => {
+				mockCopiedText.last = text;
+				onCopy();
+			} );
+		}
+	},
+} ) );
+
 // Mock WordPress components with simple HTML equivalents.
 jest.mock( '@wordpress/components', () => ( {
 	BaseControl: {
@@ -103,18 +199,37 @@ jest.mock( '@wordpress/components', () => ( {
 			<span className="components-base-control__label">{ children }</span>
 		),
 	},
-	// isDestructive and isSmall are destructured off rather than spread: the real
-	// Button turns them into classes, so letting them reach the DOM warns.
-	Button: ( { children, onClick, disabled, variant, isBusy, isDestructive, isSmall, ...rest } ) => (
-		<button
-			onClick={ onClick }
-			disabled={ disabled }
-			data-variant={ variant }
-			data-busy={ isBusy }
-			{ ...rest }
-		>
-			{ children }
-		</button>
+	// isDestructive, isSmall and the __next* opt-ins are destructured off rather
+	// than spread: the real Button consumes them, so letting them reach the DOM warns.
+	// forwardRef because the real one is — the Copy button hands it a ref. The
+	// require is inline because jest hoists this factory above mockReact.
+	Button: require( 'react' ).forwardRef(
+		(
+			{
+				children,
+				onClick,
+				disabled,
+				variant,
+				isBusy,
+				isDestructive,
+				isSmall,
+				__next40pxDefaultSize,
+				__nextHasNoMarginBottom,
+				...rest
+			},
+			ref
+		) => (
+			<button
+				ref={ ref }
+				onClick={ onClick }
+				disabled={ disabled }
+				data-variant={ variant }
+				data-busy={ isBusy }
+				{ ...rest }
+			>
+				{ children }
+			</button>
+		)
 	),
 	ButtonGroup: ( { children } ) => <div data-testid="button-group">{ children }</div>,
 	__experimentalConfirmDialog: ( { children, title, confirmButtonText, onConfirm, onCancel } ) => (
@@ -152,9 +267,14 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 	// Like TextControl, the real SelectControl hands className and help to the
 	// BaseControl wrapper rather than the <select>.
-	SelectControl: ( { label, value, options, onChange, help, className } ) => (
+	SelectControl: ( { label, value, options, onChange, help, className, disabled } ) => (
 		<div data-testid={ `control-${ label }` } className={ className }>
-			<select aria-label={ label } value={ value } onChange={ e => onChange( e.target.value ) }>
+			<select
+				aria-label={ label }
+				value={ value }
+				disabled={ disabled }
+				onChange={ e => onChange( e.target.value ) }
+			>
 				{ options &&
 					options.map( opt => (
 						<option key={ opt.value } value={ opt.value }>
@@ -212,6 +332,9 @@ jest.mock( '@wordpress/components', () => ( {
 		help,
 		className,
 		hideLabelFromVision,
+		// The real TextControl consumes these; spreading them onto the input warns.
+		__next40pxDefaultSize,
+		__nextHasNoMarginBottom,
 		...rest
 	} ) => (
 		<div data-testid={ `control-${ label }` } className={ className }>
@@ -241,19 +364,75 @@ jest.mock( '@wordpress/components', () => ( {
 			{ help && <span className="help-text">{ help }</span> }
 		</div>
 	),
-	ToolbarButton: ( { label, onClick, isPressed } ) => (
-		<button data-testid={ `toolbar-${ label }` } onClick={ onClick } data-pressed={ isPressed }>
+	ToolbarButton: ( { label, onClick } ) => (
+		<button data-testid={ `toolbar-${ label }` } onClick={ onClick }>
 			{ label }
 		</button>
 	),
 	ToolbarGroup: ( { children } ) => <div data-testid="toolbar-group">{ children }</div>,
+	// The real BorderControl returns width, style and color as one value.
+	BorderControl: ( { label, value, onChange } ) => (
+		<button
+			type="button"
+			data-testid={ `border-${ label }` }
+			onClick={ () => onChange( { ...value, width: '2px', color: '#ff0000' } ) }
+		>
+			stroke
+		</button>
+	),
+	// The panels only group controls, so they render as their contents under a
+	// testid named for the label.
+	// Reset All is the panel's own menu item in the real control, so the mock
+	// exposes it as a button — without it the panel's resetAll never runs and a
+	// test cannot tell a one-key reset from an all-keys one.
+	__experimentalToolsPanel: ( { children, label, resetAll } ) => (
+		<div data-testid={ `tools-panel-${ label }` }>
+			<button type="button" data-testid="tools-panel-reset" onClick={ () => resetAll() }>
+				reset all
+			</button>
+			{ children }
+		</div>
+	),
+	__experimentalToolsPanelItem: ( { children } ) => <>{ children }</>,
+	__experimentalUnitControl: ( { label, value, onChange } ) => (
+		<div data-testid={ `unit-${ label }` }>
+			<label htmlFor={ `unit-field-${ label }` }>{ label }</label>
+			<input
+				id={ `unit-field-${ label }` }
+				type="text"
+				value={ value ?? '' }
+				onChange={ e => onChange( e.target.value ) }
+			/>
+		</div>
+	),
+	__experimentalToggleGroupControl: ( { children, label, value, onChange } ) => {
+		// Required here rather than imported: the factory is hoisted above the
+		// module body, so a top-level binding is still undefined when it runs.
+		const { Children, cloneElement } = require( 'react' );
+		return (
+			<div data-testid={ `toggle-group-${ label }` } data-value={ value }>
+				{ Children.map( children, child =>
+					child ? cloneElement( child, { onSelect: onChange } ) : null
+				) }
+			</div>
+		);
+	},
+	__experimentalToggleGroupControlOption: ( { value, label, onSelect } ) => (
+		<button type="button" onClick={ () => onSelect( value ) }>
+			{ label }
+		</button>
+	),
 } ) );
 
 // Mock PayPal button preview component.
 jest.mock( '../../../src/paypal-payment-buttons/components/paypal-button-preview', () => {
 	return function MockPayPalButtonPreview( props ) {
 		return (
-			<div data-testid="paypal-button-preview" data-product-name={ props.productName }>
+			<div
+				data-testid="paypal-button-preview"
+				data-product-name={ props.productName }
+				data-format={ props.format }
+			>
 				Preview: { props.productName } - { props.price } { props.currencyCode }
 			</div>
 		);
@@ -322,6 +501,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		// One test runs on fake timers; leaving them on hangs every test after it.
+		jest.useRealTimers();
+		mockCopiedText.last = null;
 		// Clear persisted wizard step to ensure tests start from 'welcome'.
 		window.localStorage.removeItem( 'jetpack-paypal-wizard-step' );
 		// Default: connection check returns not connected.
@@ -1858,8 +2040,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					setAttributes={ setAttributes }
 				/>
 			);
-			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
-			await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 		};
 
 		/**
@@ -2128,9 +2309,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
 			);
 			expect( setAttributes ).not.toHaveBeenCalled();
+			// Only the save-status notice. A 404 on the read leaves the payment alone
+			// rather than showing an error.
 			expect(
 				screen.queryAllByTestId( 'notice' ).map( n => n.getAttribute( 'data-status' ) )
 			).toEqual( [ 'info' ] );
+			// The shared-link line is inspector text, not a notice.
+			expect(
+				screen.getByText( 'Changes made will apply to all payment buttons with this link.' )
+			).toHaveClass( 'jetpack-paypal-payment-buttons__shared-link-note' );
 		} );
 
 		it( 'does not read the payment while PayPal is disconnected', async () => {
@@ -2220,22 +2407,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		}
 
 		/**
-		 * Open the block's edit form, without saving.
-		 *
-		 * @param {object} user - The userEvent instance driving the clicks.
+		 * Wait for the form, which renders once the connection check resolves.
 		 */
-		async function openEditForm( user ) {
-			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
-			await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+		async function waitForForm() {
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 		}
 
 		it( 'offers no tax name to fill in', async () => {
-			const user = userEvent.setup();
 			mockConnected();
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
-			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
-			await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+			await waitForForm();
 
 			expect( screen.queryByLabelText( 'Tax name' ) ).not.toBeInTheDocument();
 			expect( screen.getByLabelText( 'Tax rate (%)' ) ).toBeInTheDocument();
@@ -2250,7 +2432,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			[ 'no rate at all', '' ],
 			[ 'a rate of zero', '0' ],
 		] )( 'refuses to save tax with %s', async ( _label, taxValue ) => {
-			const user = userEvent.setup();
 			mockConnected();
 
 			render(
@@ -2260,7 +2441,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					clientId="a"
 				/>
 			);
-			await openEditForm( user );
+			await waitForForm();
 
 			expect( screen.getByText( missingRate ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).toHaveClass(
@@ -2273,7 +2454,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// A missing type saves as a percentage, so it has to ask for a rate like one -
 		// and show the field it is asking about.
 		it( 'asks for a rate when the tax type is missing', async () => {
-			const user = userEvent.setup();
 			mockConnected();
 
 			render(
@@ -2283,7 +2463,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					clientId="a"
 				/>
 			);
-			await openEditForm( user );
+			await waitForForm();
 
 			expect( screen.getByLabelText( 'Tax rate (%)' ) ).toBeInTheDocument();
 			expect( screen.getByText( missingRate ) ).toBeInTheDocument();
@@ -2300,7 +2480,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					clientId="a"
 				/>
 			);
-			await openEditForm( user );
+			await waitForForm();
 			await user.click( screen.getByLabelText( 'Collect tax' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { taxEnabled: true } );
@@ -2311,7 +2491,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockConnected();
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
-			await openEditForm( user );
+			await waitForForm();
 			await user.selectOptions( screen.getByLabelText( 'Tax type' ), 'PREFERENCE' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { taxType: 'PREFERENCE' } );
@@ -2328,18 +2508,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					clientId="a"
 				/>
 			);
-			await openEditForm( user );
+			await waitForForm();
 			await user.type( screen.getByLabelText( 'Tax rate (%)' ), '8' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { taxValue: '8' } );
 		} );
 
 		it( 'saves a rate that is filled in', async () => {
-			const user = userEvent.setup();
 			mockConnected();
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
-			await openEditForm( user );
+			await waitForForm();
 
 			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).not.toHaveClass(
@@ -2355,7 +2534,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			[ 'PayPal keeps the rate', 'PREFERENCE' ],
 			[ 'the tax is a flat amount', 'FLAT' ],
 		] )( 'asks for no rate when %s', async ( _label, taxType ) => {
-			const user = userEvent.setup();
 			mockConnected();
 
 			render(
@@ -2365,7 +2543,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					clientId="a"
 				/>
 			);
-			await openEditForm( user );
+			await waitForForm();
 
 			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
@@ -2890,44 +3068,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
-	describe( 'Button appearance', () => {
-		beforeEach( () => {
-			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
-		} );
-
-		it( 'writes the button text', async () => {
-			const user = userEvent.setup();
-			renderForm( { buttonText: '' } );
-
-			await user.type( await screen.findByLabelText( 'Button Text' ), 'B' );
-
-			expect( setAttributes ).toHaveBeenCalledWith( { buttonText: 'B' } );
-		} );
-
-		it( 'writes the QR code setting when it is turned on', async () => {
-			const user = userEvent.setup();
-			renderForm( { showQrCode: false } );
-
-			await user.click( await screen.findByLabelText( 'Show QR code' ) );
-
-			expect( setAttributes ).toHaveBeenCalledWith( { showQrCode: true } );
-		} );
-
-		// A block saved before the attribute existed has no value, and the QR code
-		// shows anyway - so the toggle starts on and the click turns it off.
-		it( 'shows the QR code when the attribute is unset', async () => {
-			const user = userEvent.setup();
-			renderForm( {} );
-
-			const toggle = await screen.findByLabelText( 'Show QR code' );
-			expect( toggle ).toBeChecked();
-
-			await user.click( toggle );
-
-			expect( setAttributes ).toHaveBeenCalledWith( { showQrCode: false } );
-		} );
-	} );
-
 	describe( 'Notices', () => {
 		const saved = {
 			isApiManaged: true,
@@ -2994,7 +3134,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
-	describe( 'Preview Mode (connected, has button)', () => {
+	describe( 'Saved Button (connected, has button)', () => {
 		beforeEach( () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 		} );
@@ -3048,26 +3188,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
 		} );
 
-		it( 'shows edit toolbar when button exists', async () => {
-			render(
-				<Edit
-					attributes={ {
-						isApiManaged: true,
-						resourceId: 'PLB-TEST123',
-						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
-						productName: 'Test Widget',
-						price: '29.99',
-						currencyCode: 'USD',
-					} }
-					setAttributes={ setAttributes }
-				/>
-			);
-
-			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
-			expect( screen.getByTestId( 'toolbar-Preview' ) ).toBeInTheDocument();
-		} );
-
-		it( 'switches back to the preview when the Preview toolbar button is clicked', async () => {
+		// Display Format used to change nothing on the canvas, because the preview
+		// was never handed the attribute.
+		it( 'hands the chosen Display Format to the preview', async () => {
 			const user = userEvent.setup();
 
 			render(
@@ -3084,39 +3207,875 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			await user.click( await screen.findByTestId( 'toolbar-Edit' ) );
-			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			// No format attribute yet, so the block is a button.
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toHaveAttribute(
+				'data-format',
+				'BUTTON'
+			);
 
-			await user.click( screen.getByTestId( 'toolbar-Preview' ) );
+			// Embed as is a dropdown in the Styles tab.
+			await user.selectOptions( screen.getByLabelText( 'Embed as' ), 'QR' );
 
+			expect( setAttributes ).toHaveBeenCalledWith( { format: 'QR' } );
+		} );
+
+		// The Styles tab — the panel set changes per format and, for QR, per the
+		// caption toggle.
+		describe( 'the Styles tab', () => {
+			const qrAttributes = {
+				isApiManaged: true,
+				resourceId: 'PLB-TEST123',
+				paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+				productName: 'Test Widget',
+				price: '29.99',
+				currencyCode: 'USD',
+				format: 'QR',
+			};
+
+			it( 'puts the format controls in the styles group, which is what draws the tab bar', async () => {
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+			} );
+
+			it( 'offers Download beside the inspector QR code', async () => {
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+				await expect( screen.findByText( 'Download' ) ).resolves.toBeInTheDocument();
+			} );
+
+			// Button text goes under Embed as so it follows the format, rather than
+			// in the Settings tab where QR and Link merchants saw a field that did
+			// nothing. Scoped to the styles fill: both fills render into one body,
+			// so an unscoped query passes wherever the control actually lives.
+			it( 'writes the button text from the styles tab', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON', buttonText: '' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				await user.type( within( styles ).getByLabelText( 'Button text' ), 'B' );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonText: 'B' } );
+			} );
+
+			// A block with no payment yet draws the styles tab down a different
+			// render path, so it gets its own case.
+			it( 'offers the button text field before a button exists', async () => {
+				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+				renderForm( { format: 'BUTTON', buttonText: '' } );
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeInTheDocument();
+			} );
+
+			it( 'leaves no button text field in the settings tab', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				// The form and the connection panel are both ungrouped fills, so the
+				// settings tab is more than one node.
+				const settings = await screen.findAllByTestId( 'inspector-controls' );
+				settings.forEach( fill =>
+					expect( within( fill ).queryByLabelText( 'Button text' ) ).not.toBeInTheDocument()
+				);
+			} );
+
+			// Document-wide, not scoped: a QR merchant must not see the field
+			// anywhere, wherever a future change might put it.
+			it( 'keeps the button text field off QR and Link', async () => {
+				const { rerender } = render(
+					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
+				);
+
+				let styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Embed as' ) ).toHaveValue( 'QR' );
+				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Embed as' ) ).toHaveValue( 'LINK' );
+				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+			} );
+
+			// Embed as is a single choice, so a QR under the button has no home
+			// anymore. The QR format draws one instead.
+			it( 'offers no QR toggle', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Show QR code' ) ).not.toBeInTheDocument();
+			} );
+
+			// The button colors text and background, so its Color panel has two
+			// rows; the other formats have one.
+			it( 'draws a Text and a Background swatch on the button', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const colorPanel = await screen.findByTestId( 'tools-panel-Color' );
+				expect( within( colorPanel ).getByTestId( 'color-Text' ) ).toBeInTheDocument();
+				expect( within( colorPanel ).getByTestId( 'color-Background' ) ).toBeInTheDocument();
+			} );
+
+			it( 'stores the button text and background colors separately', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'color-Text' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonTextColor: '#111111' } );
+
+				await user.click( screen.getByTestId( 'color-Background' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonBackgroundColor: '#111111' } );
+			} );
+
+			// Reset All clears every row in the panel, not just the last one set.
+			it( 'clears both button colors at once', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ {
+							...qrAttributes,
+							format: 'BUTTON',
+							buttonTextColor: '#1e1e1e',
+							buttonBackgroundColor: '#ffd140',
+						} }
+						setAttributes={ setAttributes }
+					/>
+				);
+				const colorPanel = await screen.findByTestId( 'tools-panel-Color' );
+
+				// The panel's own Reset All, not the per-swatch clear — one write
+				// covering every key the format owns is what the panel promises.
+				await user.click( within( colorPanel ).getByTestId( 'tools-panel-reset' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					buttonTextColor: '',
+					buttonBackgroundColor: '',
+				} );
+			} );
+
+			// The swatch would fill in and change nothing: both renderers drop the
+			// background under Outline, because the transparent one comes from CSS.
+			it( 'drops the background swatch and the contrast warning under Outline', async () => {
+				// Both colors set: the real ContrastChecker draws nothing without them.
+				const colored = {
+					...qrAttributes,
+					format: 'BUTTON',
+					buttonTextColor: '#1e1e1e',
+					buttonBackgroundColor: '#ffd140',
+				};
+				const { rerender } = render(
+					<Edit
+						attributes={ { ...colored, buttonStyle: 'fill' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				let styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByTestId( 'color-Background' ) ).toBeInTheDocument();
+				expect( within( styles ).getByTestId( 'contrast-checker' ) ).toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ { ...colored, buttonStyle: 'outline' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByTestId( 'color-Text' ) ).toBeInTheDocument();
+				expect( within( styles ).queryByTestId( 'color-Background' ) ).not.toBeInTheDocument();
+				expect( within( styles ).queryByTestId( 'contrast-checker' ) ).not.toBeInTheDocument();
+			} );
+
+			// The row is hidden under Outline, but the value behind it is not — Reset
+			// All has to clear it or it comes back when the merchant picks Fill again.
+			it( 'clears the hidden background color under Outline', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ {
+							...qrAttributes,
+							format: 'BUTTON',
+							buttonStyle: 'outline',
+							buttonBackgroundColor: '#ffd140',
+						} }
+						setAttributes={ setAttributes }
+					/>
+				);
+				const colorPanel = await screen.findByTestId( 'tools-panel-Color' );
+
+				await user.click( within( colorPanel ).getByTestId( 'tools-panel-reset' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					buttonTextColor: '',
+					buttonBackgroundColor: '',
+				} );
+			} );
+
+			// The peer formats both have this; without it a wrong fontSizeKey on the
+			// button's TypographyPanel ships green.
+			it( 'writes the button font size, and clears it on reset', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'font-size' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'font-size' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonFontSize: '1.5rem' } );
+
+				await user.click( screen.getByTestId( 'font-size-reset' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonFontSize: undefined } );
+			} );
+
+			it( 'hands the contrast checker both button colors', async () => {
+				render(
+					<Edit
+						attributes={ {
+							...qrAttributes,
+							format: 'BUTTON',
+							buttonTextColor: '#1e1e1e',
+							buttonBackgroundColor: '#ffd140',
+						} }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const checker = await screen.findByTestId( 'contrast-checker' );
+				expect( checker ).toHaveAttribute( 'data-text', '#1e1e1e' );
+				expect( checker ).toHaveAttribute( 'data-background', '#ffd140' );
+			} );
+
+			// LINK and QR pass no ownedKeys, so they reset from the rows on screen.
+			it( 'clears the link color from its own panel', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK', linkColor: '#1e1e1e' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				const colorPanel = await screen.findByTestId( 'tools-panel-Color' );
+
+				await user.click( within( colorPanel ).getByTestId( 'tools-panel-reset' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { linkColor: '' } );
+			} );
+
+			it( 'offers Fill and Outline on the button, and defaults to Fill', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const toggle = within( styles ).getByTestId( 'toggle-group-Styles' );
+				expect( toggle ).toHaveAttribute( 'data-value', 'fill' );
+
+				await user.click( within( toggle ).getByText( 'Outline' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonStyle: 'outline' } );
+			} );
+
+			// Fill/Outline is the button's alone — a QR or a link has no face to
+			// fill. Queried document-wide so the test still works if the panel moves.
+			it( 'keeps the Styles panel off QR and Link', async () => {
+				const { rerender } = render(
+					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+				expect( screen.queryByTestId( 'toggle-group-Styles' ) ).not.toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				expect( screen.queryByTestId( 'toggle-group-Styles' ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'starts with the attribution line off and toggles it on', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const checkbox = within( styles ).getByLabelText( 'Show "Powered by PayPal" text' );
+				expect( checkbox ).not.toBeChecked();
+
+				await user.click( checkbox );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { buttonShowPoweredBy: true } );
+			} );
+
+			// Only the button format offers the choice; the QR draws the code and its
+			// caption and nothing else.
+			it( 'keeps the attribution checkbox off QR and Link', async () => {
+				const { rerender } = render(
+					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+				expect(
+					screen.queryByLabelText( 'Show "Powered by PayPal" text' )
+				).not.toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				expect(
+					screen.queryByLabelText( 'Show "Powered by PayPal" text' )
+				).not.toBeInTheDocument();
+			} );
+
+			// The button puts Width Settings between Color and Typography; QR does
+			// not, so one shared Color+Typography component cannot draw both.
+			it( 'orders the button panels Color, Styles, Width, Typography, Border', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				// Both testids in one query, so the result comes back in document
+				// order. Only PanelBody has a title; the Color panel is a
+				// ToolsPanel and is named by its testid.
+				const titles = within( styles )
+					.getAllByTestId( /^(tools-panel-Color|panel-body)$/ )
+					.map( node =>
+						node.dataset.testid === 'tools-panel-Color'
+							? 'Color'
+							: node.getAttribute( 'data-title' )
+					);
+
+				expect( titles ).toEqual( [
+					'Color',
+					'Styles',
+					'Width Settings',
+					'Typography',
+					'Border Settings',
+				] );
+			} );
+
+			// The Light / Auto / Dark preset only ever changed the editor — the
+			// published page never emitted data-color-scheme — so it is gone.
+			it( 'offers no color scheme preset', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				// Scoped to the Settings fills, where the preset used to live —
+				// unscoped, this would pass just as well if the tab stopped
+				// rendering for some unrelated reason.
+				const settings = await screen.findAllByTestId( 'inspector-controls' );
+				settings.forEach( fill => {
+					expect( within( fill ).queryByText( 'Light' ) ).not.toBeInTheDocument();
+					expect( within( fill ).queryByText( 'Auto' ) ).not.toBeInTheDocument();
+					expect( within( fill ).queryByText( 'Dark' ) ).not.toBeInTheDocument();
+				} );
+			} );
+
+			// The inspector's copy shows the caption too, so the merchant sees what
+			// they typed without going back to the canvas.
+			it( 'captions the inspector QR code, and drops it with the toggle', async () => {
+				const { rerender } = render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: true, qrCaption: 'Scan to pay' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				let inspector = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( inspector ).getByText( 'Scan to pay' ) ).toBeInTheDocument();
+
+				rerender(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: false, qrCaption: 'Scan to pay' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				inspector = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( inspector ).getByText( 'Download' ) ).toBeInTheDocument();
+				expect( within( inspector ).queryByText( 'Scan to pay' ) ).not.toBeInTheDocument();
+			} );
+
+			// A fresh QR block draws a bare code; the caption is opt-in.
+			it( 'starts with the caption off', async () => {
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+
+				expect( within( styles ).getByLabelText( 'Show text under QR code' ) ).not.toBeChecked();
+				expect( within( styles ).queryByLabelText( 'Caption' ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'toggles the caption off', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: true } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByLabelText( 'Show text under QR code' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { qrShowCaption: false } );
+			} );
+
+			it( 'drops Color and Typography when the caption is off', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: false } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+
+				expect( screen.queryByTestId( 'tools-panel-Color' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'color-dropdown' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'font-size' ) ).not.toBeInTheDocument();
+				// Width and Border do not depend on the caption.
+				expect( panel( 'Width Settings' ) ).toBeInTheDocument();
+				expect( panel( 'Border Settings' ) ).toBeInTheDocument();
+			} );
+
+			it( 'adds Color and Typography when the caption is on', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: true } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				// The dropdown renders a ToolsPanelItem, so without a ToolsPanel
+				// around it the whole panel silently draws nothing.
+				const colorPanel = await screen.findByTestId( 'tools-panel-Color' );
+				expect( within( colorPanel ).getByTestId( 'color-dropdown' ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'font-size' ) ).toBeInTheDocument();
+			} );
+
+			it( 'stores the caption color, and clears it', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: true } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'color-Text' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { captionColor: '#111111' } );
+
+				// The real control clears by calling back with no argument at all.
+				await user.click( screen.getByTestId( 'color-clear' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { captionColor: '' } );
+			} );
+
+			it( 'stores the caption size with its unit, and clears it', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, qrShowCaption: true } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'font-size' ) ).resolves.toBeInTheDocument();
+
+				// The unit comes with it — a bare number would not render on the
+				// published page, where the value is used verbatim.
+				await user.click( screen.getByTestId( 'font-size' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { captionFontSize: '1.5rem' } );
+
+				await user.click( screen.getByTestId( 'font-size-reset' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { captionFontSize: undefined } );
+			} );
+
+			it( 'gives the QR a margin control and the button none', async () => {
+				// Margin belongs to the QR panel only; the button panel is radius
+				// and stroke.
+				const { unmount } = render(
+					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
+				);
+				await expect( screen.findByTestId( 'spacing-Margin' ) ).resolves.toBeInTheDocument();
+				unmount();
+
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+				expect( panel( 'Border Settings' ) ).toBeInTheDocument();
+				expect( screen.queryByTestId( 'spacing-Margin' ) ).not.toBeInTheDocument();
+				// Radius and stroke still belong to the button.
+				expect( screen.getByTestId( 'border-radius' ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'border-Stroke' ) ).toBeInTheDocument();
+			} );
+
+			it( 'writes the link text from the styles tab', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK', linkText: '' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				await user.type( within( styles ).getByLabelText( 'Link text' ), 'B' );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { linkText: 'B' } );
+			} );
+
+			// LINK is the only format with a URL, so this is the one place in the
+			// block a merchant can copy it.
+			it( 'offers the attributed payment URL and a Copy button for LINK', async () => {
+				// The BN code rides the connection response, not the block.
+				apiFetch.mockResolvedValue( {
+					connected: true,
+					environment: 'sandbox',
+					partner_attribution_id: 'BN-TEST',
+				} );
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				// The BN code has to be on it: a merchant shares this link
+				// directly, so it must attribute the same way the anchor does.
+				await waitFor( () =>
+					expect( within( styles ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
+				);
+				expect( within( styles ).getByLabelText( 'URL' ).value ).toContain(
+					'paypal.com/paymentpage/PLB-TEST123'
+				);
+				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+			} );
+
+			it( 'copies the attributed URL and goes back to Copy', async () => {
+				jest.useFakeTimers();
+				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+				apiFetch.mockResolvedValue( {
+					connected: true,
+					environment: 'sandbox',
+					partner_attribution_id: 'BN-TEST',
+				} );
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				await waitFor( () =>
+					expect( within( styles ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
+				);
+
+				await user.click( within( styles ).getByText( 'Copy' ) );
+
+				// The clipboard gets the same attributed URL the field shows.
+				expect( mockCopiedText.last ).toBe( within( styles ).getByLabelText( 'URL' ).value );
+				expect( within( styles ).getByText( 'Copied!' ) ).toBeInTheDocument();
+
+				// The label goes back on its own rather than sticking at "Copied!".
+				await act( async () => {
+					jest.advanceTimersByTime( 2000 );
+				} );
+				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+			} );
+
+			// No payment link until the post is saved, so there is nothing to copy.
+			it( 'restarts the confirmation when Copy is clicked twice', async () => {
+				jest.useFakeTimers();
+				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				await user.click( within( styles ).getByText( 'Copy' ) );
+
+				// Most of the way through the first window, then copy again.
+				await act( async () => {
+					jest.advanceTimersByTime( 1500 );
+				} );
+				await user.click( within( styles ).getByText( 'Copied!' ) );
+
+				// The first timer would have fired by now; the second one has not.
+				await act( async () => {
+					jest.advanceTimersByTime( 1000 );
+				} );
+				expect( within( styles ).getByText( 'Copied!' ) ).toBeInTheDocument();
+
+				await act( async () => {
+					jest.advanceTimersByTime( 1000 );
+				} );
+				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+			} );
+
+			it( 'leaves out the URL row before a button exists', async () => {
+				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+				renderForm( { format: 'LINK', linkText: '' } );
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeInTheDocument();
+				expect( within( styles ).queryByLabelText( 'URL' ) ).not.toBeInTheDocument();
+			} );
+
+			// The panels are shared with the QR caption, so the thing worth
+			// asserting is which attributes they write — wiring LINK to the
+			// caption's would draw an identical tab.
+			it( 'stores the link color, and clears it', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'tools-panel-Color' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'color-Link text' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { linkColor: '#111111' } );
+
+				await user.click( screen.getByTestId( 'color-clear' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { linkColor: '' } );
+			} );
+
+			it( 'stores the link size with its unit, and clears it', async () => {
+				const user = userEvent.setup();
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect( screen.findByTestId( 'font-size' ) ).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByTestId( 'font-size' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { linkFontSize: '1.5rem' } );
+
+				await user.click( screen.getByTestId( 'font-size-reset' ) );
+				expect( setAttributes ).toHaveBeenCalledWith( { linkFontSize: undefined } );
+			} );
+
+			it( 'gives LINK no button text or caption field', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				// Positive control: the link's own field is there, so the case
+				// covers the wrong field being dropped rather than the whole tab.
+				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeInTheDocument();
+				expect( within( styles ).queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+				expect(
+					within( styles ).queryByLabelText( 'Show text under QR code' )
+				).not.toBeInTheDocument();
+			} );
+
+			it( 'gives LINK no Width or Border panel', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'LINK' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+
+				// Positive control: Typography still draws, so an empty styles tab
+				// cannot pass this.
+				expect( panel( 'Typography' ) ).toBeInTheDocument();
+				expect( panel( 'Width Settings' ) ).toBeUndefined();
+				expect( panel( 'Border Settings' ) ).toBeUndefined();
+			} );
+
+			// Both controls take the same busy flag, so a request in flight locks
+			// the format and its label together.
+			/**
+			 * Put a block into the busy state and hand back its styles fill.
+			 *
+			 * Hangs the delete so the busy flag is still on when it is checked.
+			 *
+			 * @param {object} attributes - Attributes on top of qrAttributes.
+			 * @return {Element} The styles fill, once the controls have locked.
+			 */
+			const lockedStylesTab = async attributes => {
+				const user = userEvent.setup();
+				apiFetch.mockImplementation( ( { method } ) =>
+					'DELETE' === method
+						? new Promise( () => {} )
+						: Promise.resolve( { connected: true, environment: 'sandbox' } )
+				);
+				render(
+					<Edit attributes={ { ...qrAttributes, ...attributes } } setAttributes={ setAttributes } />
+				);
+
+				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeEnabled();
+
+				await user.click( await screen.findByTestId( 'toolbar-Delete Payment Button' ) );
+				await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
+
+				await waitFor( () => {
+					expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeDisabled();
+				} );
+
+				return styles;
+			};
+
+			// Every control in the tab takes the same busy flag, so a request in
+			// flight locks the format and the text that goes with it.
+			it( 'locks embed as and button text while a request is in flight', async () => {
+				const styles = await lockedStylesTab( { format: 'BUTTON' } );
+
+				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeDisabled();
+			} );
+
+			it( 'locks the link text and Copy while a request is in flight', async () => {
+				const styles = await lockedStylesTab( { format: 'LINK' } );
+
+				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeDisabled();
+				expect( within( styles ).getByText( 'Copy' ) ).toBeDisabled();
+			} );
+
+			it( 'locks the caption controls while a request is in flight', async () => {
+				const styles = await lockedStylesTab( { format: 'QR', qrShowCaption: true } );
+
+				expect( within( styles ).getByLabelText( 'Show text under QR code' ) ).toBeDisabled();
+				expect( within( styles ).getByLabelText( 'Caption' ) ).toBeDisabled();
+			} );
+
+			it( 'stores a width preset', async () => {
+				const user = userEvent.setup();
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+				await expect(
+					screen.findByTestId( 'inspector-controls-styles' )
+				).resolves.toBeInTheDocument();
+
+				await user.click( screen.getByText( '50%' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( { blockWidth: '50%' } );
+			} );
+		} );
+
+		it( 'offers the delete toolbar button when a button exists', async () => {
+			render(
+				<Edit
+					attributes={ {
+						isApiManaged: true,
+						resourceId: 'PLB-TEST123',
+						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect(
+				screen.findByTestId( 'toolbar-Delete Payment Button' )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTestId( 'toolbar-Edit' ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'toolbar-Preview' ) ).not.toBeInTheDocument();
+		} );
+
+		// The form lives in the sidebar and the canvas draws the button, so both are
+		// on screen at once - there is no edit mode to switch into.
+		it( 'shows the form and the preview together', async () => {
+			render(
+				<Edit
+					attributes={ {
+						isApiManaged: true,
+						resourceId: 'PLB-TEST123',
+						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
-			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'switches to edit mode when Edit toolbar button is clicked', async () => {
-			const user = userEvent.setup();
-
-			render(
-				<Edit
-					attributes={ {
-						isApiManaged: true,
-						resourceId: 'PLB-TEST123',
-						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
-						productName: 'Test Widget',
-						price: '29.99',
-						currencyCode: 'USD',
-					} }
-					setAttributes={ setAttributes }
-				/>
-			);
-
-			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
-			const editButton = screen.getByTestId( 'toolbar-Edit' );
-			await user.click( editButton );
-
-			// Should now show the edit form.
-			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
-			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 		} );
 	} );
 

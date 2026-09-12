@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+QR blocks get their own settings in the editor's Styles tab: a copy of the code with a Download button, a "Show text under QR code" checkbox with the caption field, and color, size, width and border settings that the published page honors too. A published QR code now prints nothing under it unless the merchant turns the caption on, where it used to print the product name. The block now sits at the left of the column rather than centered.
