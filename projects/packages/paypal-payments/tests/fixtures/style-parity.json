@@ -202,6 +202,22 @@
 				"border-color": "#3858e980",
 				"border-style": "solid"
 			}
+		},
+		{
+			"name": "a camelCase palette preset as a border color",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "var:preset|color|heavenlyBlue"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-style": "solid",
+				"border-color": "var(--wp--preset--color--heavenly-blue)"
+			}
 		}
 	],
 	"textCases": [
@@ -271,24 +287,17 @@
 			}
 		},
 		{
-			"name": "a fluid size containing **",
-			"fontSize": "calc(2px**3)",
-			"declarations": {
-				"font-size": "calc(2px**3)"
-			}
-		},
-		{
-			"name": "a fluid size containing //",
-			"fontSize": "calc(4px//2)",
-			"declarations": {
-				"font-size": "calc(4px//2)"
-			}
-		},
-		{
 			"name": "a palette preset with a capitalised slug",
 			"color": "var:preset|color|Vivid-Red-2",
 			"declarations": {
 				"color": "var(--wp--preset--color--vivid-red-2)"
+			}
+		},
+		{
+			"name": "a palette preset with a camelCase slug",
+			"color": "var:preset|color|heavenlyBlue",
+			"declarations": {
+				"color": "var(--wp--preset--color--heavenly-blue)"
 			}
 		}
 	],
@@ -395,6 +404,19 @@
 					}
 				}
 			}
+		},
+		{
+			"name": "an object where the stroke width should be a length",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": {
+							"top": "2px"
+						},
+						"color": "#ff0000"
+					}
+				}
+			}
 		}
 	],
 	"rejectedTextCases": [
@@ -433,6 +455,14 @@
 		{
 			"name": "a spacing preset as a font size",
 			"fontSize": "var:preset|spacing|50"
+		},
+		{
+			"name": "a fluid size containing **",
+			"fontSize": "calc(2px**3)"
+		},
+		{
+			"name": "a fluid size containing //",
+			"fontSize": "calc(4px//2)"
 		}
 	],
 	"buttonCases": [

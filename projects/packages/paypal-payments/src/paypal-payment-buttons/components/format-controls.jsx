@@ -277,7 +277,7 @@ function QrOutputControls( { attributes, setAttributes, qrUrl, disabled } ) {
  *
  * @param {object}   props               - Component props.
  * @param {Array}    props.rows          - `{ label, colorKey }` per visible swatch row.
- * @param {Array}    props.ownedKeys     - Every color key the format owns, visible or not.
+ * @param {Array}    [props.ownedKeys]   - Every color key the format owns, visible or not. Defaults to the visible rows.
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
  * @param {Element}  props.children      - Rendered under the swatches, for the contrast warning.
@@ -314,7 +314,6 @@ function ColorPanel( { rows, ownedKeys, attributes, setAttributes, children } ) 
 						colorValue: attributes[ colorKey ],
 						onColorChange: value => setAttributes( { [ colorKey ]: value || '' } ),
 						clearable: true,
-						resetAllFilter: () => ( { [ colorKey ]: '' } ),
 					} ) ) }
 					{ ...colorSettings }
 					gradients={ [] }
@@ -543,7 +542,7 @@ export default function PayPalFormatControls( {
 							<ContrastChecker
 								textColor={ attributes.buttonTextColor }
 								backgroundColor={ attributes.buttonBackgroundColor }
-								fontSize={ attributes.buttonFontSize }
+								isLargeText={ false }
 							/>
 						) }
 					</ColorPanel>

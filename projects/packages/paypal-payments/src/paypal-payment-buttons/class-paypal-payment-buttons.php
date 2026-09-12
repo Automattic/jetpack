@@ -194,37 +194,40 @@ class PayPal_Payment_Buttons {
 			$rules[] = sprintf( 'max-width:%s', $width );
 		}
 
-		return self::css_rules( $rules ) . self::get_margin_style( $attributes ) . self::get_border_style( $attributes );
-	}
-
-	/**
-	 * The button's product card — margin only.
-	 *
-	 * Width and Border belong to the button — see get_button_style(). Margin still
-	 * goes here, since a QR-to-BUTTON format switch can leave one behind.
-	 *
-	 * Mirrors getCardStyle() in utils/block-styles.js.
-	 *
-	 * @param array $attributes The block attributes.
-	 * @return string An inline CSS declaration list, empty when nothing is configured.
-	 */
-	private static function get_card_style( $attributes ) {
-		return self::get_margin_style( $attributes );
+		return self::css_rules(
+			array_merge( $rules, self::get_margin_rules( $attributes ), self::get_border_rules( $attributes ) )
+		);
 	}
 
 	/**
 	 * Margin, from the Border Settings panel.
 	 *
+	 * The button's product card takes this and nothing else — Width and Border go
+	 * on the button, see get_button_style(). A QR-to-BUTTON format switch can
+	 * still leave a margin behind, so the card keeps reading it.
+	 *
+	 * Mirrors getMarginStyle() in utils/block-styles.js.
+	 *
 	 * @param array $attributes The block attributes.
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
 	 */
 	private static function get_margin_style( $attributes ) {
+		return self::css_rules( self::get_margin_rules( $attributes ) );
+	}
+
+	/**
+	 * The margin declarations, for a composer to join with its own.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return array A list of CSS declarations, empty when nothing is configured.
+	 */
+	private static function get_margin_rules( $attributes ) {
 		$style  = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
 		$engine = wp_style_engine_get_styles(
 			array( 'spacing' => array( 'margin' => self::sanitize_box( $style['spacing']['margin'] ?? null ) ) )
 		);
 
-		return empty( $engine['css'] ) ? '' : self::css_rules( array( rtrim( $engine['css'], ';' ) ) );
+		return empty( $engine['css'] ) ? array() : array( rtrim( $engine['css'], ';' ) );
 	}
 
 	/**
@@ -238,9 +241,7 @@ class PayPal_Payment_Buttons {
 	 * @return string The width, or '' when none is set.
 	 */
 	private static function chosen_width( $attributes ) {
-		$width = self::sanitize_css_length( $attributes['blockWidth'] ?? '' );
-
-		return str_starts_with( $width, 'var:preset' ) ? '' : $width;
+		return self::plain_length( $attributes['blockWidth'] ?? '' );
 	}
 
 	/**
@@ -259,9 +260,9 @@ class PayPal_Payment_Buttons {
 	 * Mirrors getBorderStyle() in utils/block-styles.js.
 	 *
 	 * @param array $attributes The block attributes.
-	 * @return string An inline CSS declaration list, empty when nothing is configured.
+	 * @return array A list of CSS declarations, empty when nothing is configured.
 	 */
-	private static function get_border_style( $attributes ) {
+	private static function get_border_rules( $attributes ) {
 		$rules  = array();
 		$style  = isset( $attributes['style'] ) && is_array( $attributes['style'] ) ? $attributes['style'] : array();
 		$border = self::sanitize_border( $style['border'] ?? null );
@@ -282,24 +283,41 @@ class PayPal_Payment_Buttons {
 			$rules[] = sprintf( 'border-color:%s', $border_color );
 		}
 
-		return self::css_rules( $rules );
+		return $rules;
 	}
 
 	/**
 	 * Validate a per-side box value — margin, or a per-corner radius.
 	 *
-	 * @param mixed $box           A length string, or an array keyed by side or corner.
-	 * @param bool  $allow_presets Keep spacing presets. False for border, where the
-	 *                             style engine expands them on the canvas and drops
-	 *                             them here — so a preset would render in one place only.
+	 * @param mixed $box A length string, or an array keyed by side or corner.
 	 * @return mixed The value with every side validated, or null when none survive.
 	 */
-	private static function sanitize_box( $box, $allow_presets = true ) {
+	private static function sanitize_box( $box ) {
+		return self::validate_box( $box, false );
+	}
+
+	/**
+	 * A per-corner box with no spacing preset in it.
+	 *
+	 * Mirrors plainBox() in utils/block-styles.js.
+	 *
+	 * @param mixed $box A length string, or an array keyed by corner.
+	 * @return mixed The value with every corner validated, or null when none survive.
+	 */
+	private static function plain_box( $box ) {
+		return self::validate_box( $box, true );
+	}
+
+	/**
+	 * The shared body of sanitize_box() and plain_box().
+	 *
+	 * @param mixed $box   A length string, or an array keyed by side or corner.
+	 * @param bool  $plain Refuse spacing presets.
+	 * @return mixed The value with every side validated, or null when none survive.
+	 */
+	private static function validate_box( $box, $plain ) {
 		if ( is_string( $box ) ) {
-			$length = self::sanitize_css_length( $box );
-			if ( ! $allow_presets && str_starts_with( $length, 'var:preset' ) ) {
-				return null;
-			}
+			$length = $plain ? self::plain_length( $box ) : self::sanitize_css_length( $box );
 			return '' === $length ? null : $length;
 		}
 
@@ -314,16 +332,32 @@ class PayPal_Payment_Buttons {
 			if ( ! in_array( $side, self::BOX_SIDES, true ) ) {
 				continue;
 			}
-			$length = self::sanitize_css_length( $value );
-			if ( ! $allow_presets && str_starts_with( $length, 'var:preset' ) ) {
-				continue;
-			}
+			$length = $plain ? self::plain_length( $value ) : self::sanitize_css_length( $value );
 			if ( '' !== $length ) {
 				$clean[ $side ] = $length;
 			}
 		}
 
 		return empty( $clean ) ? null : $clean;
+	}
+
+	/**
+	 * A length with no spacing preset in it.
+	 *
+	 * Margin takes presets, because it goes through the style engine, which
+	 * expands them. Width and border do not: core's JS engine
+	 * expands a preset radius and wp_style_engine_get_styles() drops it, so a
+	 * preset would render on the canvas and disappear on the page.
+	 *
+	 * Mirrors plainLength() in utils/block-styles.js.
+	 *
+	 * @param mixed $value A raw attribute value.
+	 * @return string The length, or '' when it is not a plain one.
+	 */
+	private static function plain_length( $value ) {
+		$length = self::sanitize_css_length( $value );
+
+		return str_starts_with( $length, 'var:preset' ) ? '' : $length;
 	}
 
 	/**
@@ -343,12 +377,12 @@ class PayPal_Payment_Buttons {
 
 		$clean = array();
 
-		$radius = self::sanitize_box( $border['radius'] ?? null, false );
+		$radius = self::plain_box( $border['radius'] ?? null );
 		if ( null !== $radius ) {
 			$clean['radius'] = $radius;
 		}
 
-		$width = (string) self::sanitize_box( $border['width'] ?? '', false );
+		$width = self::plain_length( $border['width'] ?? '' );
 		$color = self::sanitize_css_color( $border['color'] ?? '' );
 
 		// A half-set stroke renders inconsistently, so width, color and style go
@@ -357,7 +391,7 @@ class PayPal_Payment_Buttons {
 			$clean['width'] = $width;
 			$clean['color'] = $color;
 			// border-style defaults to `none`, so a width and a color on their own
-			// draw nothing. getWrapperStyle() defaults the same way.
+			// draw nothing. getBorderStyle() defaults the same way.
 			$style          = (string) ( $border['style'] ?? '' );
 			$clean['style'] = in_array( $style, self::BORDER_STYLES, true ) ? $style : 'solid';
 		}
@@ -366,7 +400,7 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Color and Typography, for the QR caption and the payment link.
+	 * Color and Typography, for the QR caption, the payment link and the button face.
 	 *
 	 * Mirrors getTextStyle() in utils/block-styles.js.
 	 *
@@ -375,6 +409,17 @@ class PayPal_Payment_Buttons {
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
 	 */
 	private static function get_text_style( $text_color, $text_size ) {
+		return self::css_rules( self::get_text_rules( $text_color, $text_size ) );
+	}
+
+	/**
+	 * The color and size declarations, for a composer to join with its own.
+	 *
+	 * @param string $text_color The chosen color.
+	 * @param string $text_size  The chosen font size.
+	 * @return array A list of CSS declarations, empty when nothing is configured.
+	 */
+	private static function get_text_rules( $text_color, $text_size ) {
 		$rules = array();
 
 		$color = self::sanitize_css_color( $text_color );
@@ -387,7 +432,7 @@ class PayPal_Payment_Buttons {
 			$rules[] = sprintf( 'font-size:%s', $size );
 		}
 
-		return self::css_rules( $rules );
+		return $rules;
 	}
 
 	/**
@@ -411,7 +456,7 @@ class PayPal_Payment_Buttons {
 			$rules[] = sprintf( 'background-color:%s', $background );
 		}
 
-		// Width and Border hang on the button, not the card — see get_card_style().
+		// Width and Border go on the button, not the card — see get_margin_style().
 		// The card still caps at 400px, so cap the button at the space it has or a
 		// wide value spills out of it.
 		$width = self::chosen_width( $attributes );
@@ -420,11 +465,13 @@ class PayPal_Payment_Buttons {
 			$rules[] = 'max-width:100%';
 		}
 
-		// Each helper returns a list ending in `;`, which is what makes them safe
-		// to concatenate.
-		return self::get_text_style( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' )
-			. self::css_rules( $rules )
-			. self::get_border_style( $attributes );
+		return self::css_rules(
+			array_merge(
+				self::get_text_rules( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' ),
+				$rules,
+				self::get_border_rules( $attributes )
+			)
+		);
 	}
 
 	/**
@@ -490,11 +537,7 @@ class PayPal_Payment_Buttons {
 
 		// A spacing preset is a length but not a font size — it would be emitted
 		// raw as `font-size:var:preset|spacing|50` and dropped by the browser.
-		if ( str_starts_with( $size, 'var:preset' ) ) {
-			return '';
-		}
-
-		if ( '' !== self::sanitize_css_length( $size ) ) {
+		if ( '' !== self::plain_length( $size ) ) {
 			return $size;
 		}
 
@@ -502,8 +545,9 @@ class PayPal_Payment_Buttons {
 			return $size;
 		}
 
-		// `/*` would open a comment that swallows every declaration after it.
-		if ( str_contains( $size, '/*' ) || str_contains( $size, '*/' ) ) {
+		// No doubled `/` or `*`: `/*` opens a comment that swallows the rest, and
+		// `**` and `//` are not CSS operators.
+		if ( preg_match( '#[/*]{2}#', $size ) ) {
 			return '';
 		}
 
@@ -572,9 +616,10 @@ class PayPal_Payment_Buttons {
 		// Only color presets expand: a spacing or font preset is not a color, so it
 		// falls through and is refused, the way the canvas refuses it.
 		if ( preg_match( '/^var:preset\|color\|([a-z0-9-]+)$/i', $color, $preset ) ) {
-			// Lowercased to match how WP defines the custom property — a
-			// `Vivid-Red` slug would not match anything.
-			return sprintf( 'var(--wp--preset--color--%s)', strtolower( $preset[1] ) );
+			// Kebab-cased the way WP names the custom property, or a `heavenlyBlue`
+			// slug points at a variable nothing defines. cssColor() uses lodash's
+			// kebabCase, which this function is a port of.
+			return sprintf( 'var(--wp--preset--color--%s)', _wp_to_kebab_case( $preset[1] ) );
 		}
 
 		if ( preg_match( '/^var\(--wp--[a-z0-9-]+\)$/i', $color ) ) {
@@ -951,8 +996,8 @@ class PayPal_Payment_Buttons {
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes();
-		// Width and Border ride on the button, not this card — see get_button_style().
-		$block_style = self::style_attr( self::get_card_style( $attributes ) );
+		// Width and Border go on the button, not this card — see get_button_style().
+		$block_style = self::style_attr( self::get_margin_style( $attributes ) );
 
 		// A blank label would draw an unreadable button, so fall back to the same
 		// default the editor preview uses.

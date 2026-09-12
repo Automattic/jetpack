@@ -136,7 +136,10 @@ describe( 'PayPalButtonPreview', () => {
 				{ ...defaultProps }
 				attributes={ {
 					blockWidth: '75%',
-					style: { border: { radius: '8px', width: '2px', color: '#1e1e1e' } },
+					style: {
+						border: { radius: '8px', width: '2px', color: '#1e1e1e' },
+						spacing: { margin: { top: '8px' } },
+					},
 				} }
 			/>
 		);
@@ -152,7 +155,9 @@ describe( 'PayPalButtonPreview', () => {
 			borderStyle: 'solid',
 		} );
 
+		// The card takes the margin and nothing else.
 		const card = document.querySelector( '.jetpack-paypal-button-preview' );
+		expect( card ).toHaveStyle( { marginTop: '8px' } );
 		expect( card ).not.toHaveStyle( { maxWidth: '75%' } );
 		expect( card ).not.toHaveStyle( { borderRadius: '8px' } );
 	} );

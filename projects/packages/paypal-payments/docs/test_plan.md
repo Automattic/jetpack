@@ -82,7 +82,6 @@ All files live in `projects/packages/paypal-payments/tests/js/`. Modules contain
 | `validation.test.js` | `validatePrice`, `validateProductName`, `validateDescription`, `getUserFriendlyError`, currency set |
 | `edit.test.jsx` | Wizard flow (WOOPTP-162): navigate Welcome → Dashboard → Credentials before asserting fields; the environment field is a link-button toggle, not a SelectControl; the connect label is "Connect", not "Connect PayPal" |
 | `paypal-button-preview.test.jsx` | Display Format dispatch (button, link, QR), QR attribution encoding, product card rendering, currency formatting, theme-native button styling, Fill/Outline and the button's own color, size, width and border, click prevention, the optional "Powered by PayPal" line |
-| `save.test.jsx` | API-managed rendering, legacy rendering, wp-element-button output, empty fallback |
 | `deprecated.test.js` | `isEligible` detection, `migrate` attribute transformation, deprecated save markup |
 | `controls.test.jsx`, `validate.test.js` | Shared block controls and attribute validation |
 | `paypal-payment-buttons-block-tests/`, `simple-payments-block-tests/` | Block-level editor and V1 → V2 migration fixtures |
@@ -114,6 +113,7 @@ pnpm test:run
 | Token Pre-validation | ✅ | 403 shows Payment Links guidance + stays on Credentials, 403 clears partial state, 5xx does not block connection | WOOPTP-164 |
 | SVG Block Icon | ✅ | SVG in block inserter, SVG in block toolbar | WOOPTP-166 |
 | Format Switcher | ✅ | Button/Link/QR selection, switching format without recreating the product, front-end anchor and standalone QR canvas | WOOPTP-390 |
+| Button Style Controls | Jest only | Text and background color, Fill/Outline, font size, width and border on the button, the "Powered by PayPal" checkbox. No Playwright spec yet | WOOPTP-495 |
 
 **WP 6.9 compatibility notes:**
 - Block editor uses an iframe (`iframe[name="editor-canvas"]`) — all block locators go through `page.frameLocator()`

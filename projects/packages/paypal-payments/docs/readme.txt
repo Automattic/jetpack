@@ -135,4 +135,4 @@ Major update: API-driven PayPal button creation replaces the paste-code workflow
 1. Connect PayPal — Enter API credentials from the PayPal Developer Dashboard.
 2. Create New — Fill in product name, price, and currency in the block editor.
 3. Live Preview — See the theme-native "Buy Now" button preview before publishing.
-4. Frontend — Published "Buy Now" button with product info, "Powered by PayPal" attribution, and payment link.
+4. Frontend — Published "Buy Now" button with product info and payment link.
