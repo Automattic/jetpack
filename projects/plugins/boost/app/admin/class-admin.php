@@ -100,16 +100,6 @@ class Admin {
 	}
 
 	/**
-	 * Whether this admin or REST request opts into the modern dashboard.
-	 *
-	 * @return bool Whether modernization is enabled for this dashboard request.
-	 */
-	public static function is_modern_dashboard_request() {
-		/** This filter is documented in projects/plugins/boost/app/admin/class-admin.php */
-		return apply_filters( self::MODERNIZATION_FILTER, false ) && ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) );
-	}
-
-	/**
 	 * Load the modern dashboard only on an opted-in Boost admin request.
 	 */
 	private function maybe_load_wp_build() {

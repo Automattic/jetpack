@@ -19,7 +19,7 @@ class Performance_History implements Feature, Is_Always_On, Has_Data_Sync {
 	public function register_data_sync( Data_Sync $instance ) {
 		$performance_history_schema = Schema::as_assoc_array(
 			array(
-				'periods'     => Schema::as_array(
+				'periods'       => Schema::as_array(
 					Schema::as_assoc_array(
 						array(
 							'timestamp'  => Schema::as_number(),
@@ -38,7 +38,7 @@ class Performance_History implements Feature, Is_Always_On, Has_Data_Sync {
 						)
 					)
 				),
-				'annotations' => Schema::as_array(
+				'annotations'   => Schema::as_array(
 					Schema::as_assoc_array(
 						array(
 							'timestamp' => Schema::as_number(),
@@ -46,8 +46,9 @@ class Performance_History implements Feature, Is_Always_On, Has_Data_Sync {
 						)
 					)
 				),
-				'startDate'   => Schema::as_number(),
-				'endDate'     => Schema::as_number(),
+				'startDate'     => Schema::as_number(),
+				'endDate'       => Schema::as_number(),
+				'surfaceErrors' => Schema::as_boolean()->nullable(),
 			)
 		);
 
