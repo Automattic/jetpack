@@ -1,0 +1,668 @@
+div#actionbar .no-display {
+	display: none !important;
+}
+
+div#actionbar * {
+	box-sizing: border-box;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+div#actionbar {
+	background: #fff;
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	border: 0;
+	border-radius: 4px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
+	opacity: 0.7;
+	height: 30px;
+	margin: 0;
+	padding: 0 2px;
+	box-sizing: border-box;
+	line-height: 1;
+	z-index: 100000;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+
+	transition: all 0.2s ease-in-out;
+
+	-webkit-backface-visibility: hidden;
+	-webkit-perspective: 1000;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+div#actionbar.actnbr-hidden {
+	-webkit-transform: translate3d(0, 150px, 0);
+	transform: translate3d(0, 150px, 0);
+}
+
+div#actionbar:hover,
+div#actionbar:focus-within {
+	opacity: 1;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
+}
+
+div#actionbar ul {
+	margin: 0;
+	padding: 0;
+	line-height: 1;
+	text-align: left;
+	font-size: 1rem;
+}
+
+div#actionbar > ul {
+	display: flex;
+	align-items: center;
+	height: 100%;
+}
+
+div#actionbar li {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	line-height: 1;
+}
+
+div#actionbar > ul > li {
+	display: flex;
+	align-items: center;
+	height: 100%;
+}
+
+div#actionbar li::before {
+	display: none;
+}
+
+div#actionbar li.actnbr-btn {
+	position: relative;
+	margin: 0;
+}
+
+div#actionbar li.actnbr-btn > a {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 26px;
+	padding: 0 9px;
+	border-radius: 3px;
+	color: #2c3338;
+	font-size: 13px;
+	font-weight: 500;
+	text-decoration: none;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	line-height: 1;
+	transition: background-color 0.1s ease-in-out;
+	border: none;
+	box-shadow: none;
+}
+
+div#actionbar li.actnbr-btn > a:hover {
+	color: #1e1e1e;
+	background: #f0f0f1;
+}
+
+div#actionbar li.actnbr-btn > a .actnbr-icon {
+	color: #2c3338;
+	width: 18px;
+	height: 18px;
+	flex: none;
+}
+
+div#actionbar li.actnbr-btn a:hover .actnbr-icon {
+	color: #1e1e1e;
+}
+
+div#actionbar li.actnbr-btn a.actnbr-actn-following,
+div#actionbar li.actnbr-btn a.actnbr-actn-following:hover {
+	color: #008a20;
+}
+
+div#actionbar li.actnbr-btn a.actnbr-actn-following .actnbr-icon,
+div#actionbar li.actnbr-btn a.actnbr-actn-following:hover .actnbr-icon {
+	color: #008a20;
+}
+
+div#actionbar.actnbr-folded .actnbr-btn span,
+div#actionbar .actnbr-live {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+div#actionbar.actnbr-folded li.actnbr-btn > a {
+	gap: 0;
+	padding: 0 6px;
+}
+
+div#actionbar li.actnbr-ellipsis {
+	position: relative;
+}
+
+div#actionbar .actnbr-more-toggle {
+	display: inline-flex;
+	align-items: center;
+	height: 26px;
+	margin: 0;
+	padding: 0 4px;
+	border: 0;
+	border-radius: 3px;
+	background: none;
+	color: #2c3338;
+	cursor: pointer;
+	transition: background-color 0.1s ease-in-out;
+}
+
+div#actionbar .actnbr-more-toggle:hover {
+	background: #f0f0f1;
+	color: #1e1e1e;
+}
+
+div#actionbar .actnbr-more-toggle .actnbr-icon {
+	transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+div#actionbar .actnbr-ellipsis:not(.actnbr-hidden) .actnbr-more-toggle .actnbr-icon {
+	transform: rotate(90deg);
+}
+
+/* Focus rings only for keyboard focus. */
+div#actionbar :focus:not(:focus-visible) {
+	outline: none;
+}
+
+div#actionbar :focus-visible {
+	outline: 1.5px solid #3858e9;
+	outline-offset: 1px;
+}
+
+/* ⋯ menu, after the editor's DropdownMenu. */
+div#actionbar .actnbr-menu__group + .actnbr-menu__group,
+div#actionbar .actnbr-panel__group + .actnbr-panel__group {
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid #ddd;
+}
+
+div#actionbar .actnbr-menu__item {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	min-height: 32px;
+	padding: 6px 8px;
+	border: 0;
+	border-radius: 2px;
+	background: none;
+	box-shadow: none;
+	color: #1e1e1e;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.4;
+	text-align: left;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+div#actionbar .actnbr-menu__item:hover,
+div#actionbar .actnbr-menu__item:focus-visible {
+	color: #3858e9;
+	background: none;
+	text-decoration: none;
+}
+
+div#actionbar .actnbr-menu__item:focus-visible {
+	outline-offset: -1.5px;
+}
+
+div#actionbar .actnbr-menu__label {
+	display: inline-flex;
+	align-items: center;
+	margin-right: auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+div#actionbar .actnbr-menu__icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	margin-left: 24px;
+	color: currentColor;
+}
+
+div#actionbar .actnbr-menu__item img {
+	width: 24px;
+	height: 24px;
+	margin: -2px 8px -2px 0;
+	padding: 0;
+	border-radius: 2px;
+	display: inline;
+}
+
+div#actionbar .actnbr-sitename {
+	font-weight: 600;
+}
+
+div#actionbar .actnbr-shortlink .actnbr-shortlink__icon-copied,
+div#actionbar .actnbr-shortlink.actnbr-shortlink__copied .actnbr-shortlink__icon {
+	display: none;
+}
+
+div#actionbar .actnbr-shortlink.actnbr-shortlink__copied .actnbr-shortlink__icon-copied {
+	display: inline-flex;
+}
+
+div#actionbar .actnbr-shortlink.actnbr-shortlink__copied,
+div#actionbar .actnbr-shortlink.actnbr-shortlink__copied:hover {
+	color: #008a20;
+	pointer-events: none;
+}
+
+div#actionbar .actnbr-shortlink textarea {
+	position: fixed;
+	opacity: 0;
+	z-index: -1;
+	left: -9999px;
+}
+
+/* Both popovers share the editor's popover surface. */
+div#actionbar .actnbr-popover {
+	position: absolute;
+	right: 0;
+	bottom: 40px;
+	z-index: 1000;
+	width: 280px;
+	margin: 0;
+	padding: 8px;
+	background: #fff;
+	border-radius: 4px;
+	box-shadow: 0 0 0 1px #ccc, 0 2px 3px rgba(0, 0, 0, 0.05), 0 4px 5px rgba(0, 0, 0, 0.04), 0 12px 12px rgba(0, 0, 0, 0.03), 0 16px 16px rgba(0, 0, 0, 0.02);
+	color: #1e1e1e;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 13px;
+	line-height: 1.4;
+	text-align: left;
+}
+
+div#actionbar .actnbr-notice form {
+	margin: 0;
+	padding: 6px 8px 2px;
+}
+
+div#actionbar .actnbr-follow-count {
+	margin: 0 0 8px;
+	font-size: 12px;
+	color: #757575;
+}
+
+div#actionbar .actnbr-notice form input[type="email"] {
+	display: block;
+	width: 100%;
+	height: 32px;
+	margin: 0 0 8px;
+	padding: 0 8px;
+	border: 1px solid #949494;
+	border-radius: 2px;
+	background: #fff;
+	box-shadow: none;
+	color: #1e1e1e;
+	font-family: inherit;
+	font-size: 13px;
+	line-height: normal;
+	text-indent: 0;
+	user-select: text;
+	-webkit-user-select: text;
+}
+
+div#actionbar .actnbr-notice form input[type="email"]::placeholder {
+	color: #757575;
+}
+
+div#actionbar .actnbr-notice form input[type="email"]:focus {
+	border-color: #3858e9;
+	box-shadow: 0 0 0 0.5px #3858e9;
+}
+
+div#actionbar .actnbr-notice form button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 32px;
+	margin: 0;
+	padding: 0 12px;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	background: #3858e9;
+	box-shadow: none;
+	color: #fff;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1;
+	text-decoration: none;
+	text-shadow: none;
+	text-transform: none;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+}
+
+div#actionbar .actnbr-notice form button:hover {
+	background: #2145e6;
+	color: #fff;
+}
+
+div#actionbar .actnbr-notice form button[disabled] {
+	opacity: 0.6;
+	cursor: default;
+}
+
+div#actionbar .actnbr-login-nudge {
+	margin: 8px 0 0;
+	padding: 0 8px 6px;
+	color: #757575;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+div#actionbar .actnbr-login-nudge a,
+div#actionbar .actnbr-message a {
+	color: #3858e9;
+	text-decoration: underline;
+}
+
+div#actionbar .actnbr-message {
+	padding: 6px 8px;
+	color: #1e1e1e;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+div#actionbar .actnbr-message h3 {
+	margin: 0 0 4px;
+	padding: 0;
+	color: #1e1e1e;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	font-style: normal;
+	line-height: 1.4;
+	text-transform: none;
+}
+
+div#actionbar .actnbr-hidden .actnbr-popover {
+	display: none;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings {
+	display: flex;
+	flex-direction: column;
+	color: #1e1e1e;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__setting {
+	padding: 6px 8px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__setting label.components-toggle-control__label {
+	color: #1e1e1e;
+	margin: 0;
+	font-style: normal;
+	font-size: 13px;
+	font-weight: 400;
+	width: 100%;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings p.actnbr-site-settings__details {
+	margin: 0 0 4px;
+	line-height: 1.4;
+}
+
+div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle {
+	position: relative;
+	display: inline-block;
+	margin-right: 12px;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input[type="checkbox"] {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	margin: 0;
+	padding: 0;
+	z-index: 1;
+	border: none;
+	cursor: pointer;
+}
+
+div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__track {
+	display: inline-block;
+	vertical-align: top;
+	background-color: #fff;
+	border: 1px solid #1e1e1e;
+	width: 36px;
+	height: 18px;
+	border-radius: 9px;
+	transition: 0.2s background ease;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input:checked ~ span.actnbr-site-settings__toggle__track {
+	background-color: #000;
+}
+
+div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__thumb {
+	display: block;
+	position: absolute;
+	box-sizing: border-box;
+	top: 3px;
+	left: 3px;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	transition: 0.1s transform ease;
+	background-color: #1e1e1e;
+	border: 5px solid #1e1e1e;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input:checked ~ span.actnbr-site-settings__toggle__thumb {
+	background-color: #fff;
+	border-width: 0;
+	transform: translateX(18px);
+}
+
+div#actionbar .actnbr-site-settings__details {
+	padding: 0 8px;
+	color: #757575;
+	font-size: 12px;
+}
+
+div#actionbar .actnbr-site-settings__details#email-new-posts-details {
+	display: none;
+	margin: 0 0 4px;
+}
+
+div#actionbar .actnbr-site-settings__details.is-visible#email-new-posts-details {
+	display: block;
+}
+
+div#actionbar .segmented-control {
+	display: flex;
+	margin: 0;
+	border-radius: 2px;
+	list-style: none;
+}
+
+div#actionbar .segmented-control__item {
+	flex: 1 1 auto;
+	cursor: pointer;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__item:first-of-type a.segmented-control__link {
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__item:last-of-type a.segmented-control__link {
+	border-right: solid 1px #c3c4c7;
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+div#actionbar .segmented-control__item:has(> [aria-checked="true"]) + .segmented-control__item .segmented-control__link {
+	border-left: none;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__link {
+	display: block;
+	padding: 4px 8px;
+	border: solid 1px #c3c4c7;
+	border-right: none;
+	font-size: 12px;
+	line-height: 16px;
+	color: #646970;
+	text-align: center;
+	transition: color 0.1s linear, background-color 0.1s linear;
+	min-width: 0;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__link[aria-checked="true"] {
+	border: 1px solid #3c434a;
+	color: #3c434a;
+}
+
+/* Responsive Styles */
+@media ( max-width: 660px ) {
+
+	div#actionbar {
+		bottom: 0;
+		right: 0;
+		padding: 0 8px;
+		border-radius: 0;
+		width: 100%;
+		height: 40px;
+	}
+
+	div#actionbar.actnbr-folded {
+		opacity: 0.9;
+		width: auto;
+		padding: 0 4px;
+	}
+
+	div#actionbar > ul {
+		justify-content: flex-end;
+	}
+
+}
+
+/***** Position adjustments for specific themes that conflict with action bar */
+
+div#actionbar.actnbr-premium-espresso { /* Espresso */
+	right: 70px;
+}
+
+div#actionbar.actnbr-premium-shelf { /* Shelf */
+	left: 10px;
+	right: auto;
+}
+
+div#actionbar.actnbr-premium-shelf .actnbr-popover {
+	right: auto;
+	left: -35px;
+}
+
+div#actionbar.actnbr-premium-shelf li.actnbr-btn .actnbr-popover,
+div#actionbar.actnbr-premium-shelf.actnbr-folded li.actnbr-btn .actnbr-popover {
+	right: 102px;
+	left: -26px;
+}
+
+body.has-playbar div#actionbar.actnbr-premium-obsidian { /* Obsidian */
+	bottom: 50px;
+}
+
+div#actionbar.actnbr-pub-boardwalk { /* Nowhere to go in boardwalk */
+	display: none;
+}
+
+body #habla_window_div.habla_window_div_base { /* Move the live chat box when needed */
+	margin-right: 160px !important;
+}
+
+div#translator-launcher { /* Move community translator tool when needed */
+	bottom: 67px;
+	right: 10px;
+	left: auto;
+}
+
+@media ( min-width: 876px ) { /* Move o2 dock count on desktop. */
+	div#o2-dock {
+		right: 230px;
+	}
+}
+
+@media ( max-width: 876px ) { /* Prioritize the o2 dock count in small screens, on top of Actionbar. */
+	div#o2-dock {
+		z-index: 50001;
+	}
+}
+
+#scrollUp,
+.to-top,
+#back-to-top { /* Up arrow on some themes */
+	bottom: 55px;
+	right: 18px;
+}
+
+#colophon #searchform input.search-field { /* Onigiri search box */
+	bottom: 65px;
+}
+
+#container #masthead #site-branding { /* Suidobashi site title */
+	z-index: 49999;
+	bottom: 65px;
+}
+
+/***** End theme adjustments */
+
+/* Hide Admin bar items */
+li#wp-admin-bar-follow,
+ul#wp-admin-bar-blog-secondary {
+	display: none !important;
+}
+
+/* Hide when printing */
+@media print {
+
+	#actionbar {
+		display: none !important;
+	}
+}
+
+/* Near-instant transitions for users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+
+	div#actionbar,
+	div#actionbar * {
+		transition-duration: 1ms !important;
+	}
+}

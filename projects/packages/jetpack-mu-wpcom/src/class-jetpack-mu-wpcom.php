@@ -105,6 +105,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'rest_api_init', array( __CLASS__, 'load_wpcom_simple_premium_analytics_enablement_setting' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_actionbar' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
 		}
 
@@ -932,6 +933,18 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_random_redirect() {
 		require_once __DIR__ . '/features/random-redirect/random-redirect.php';
+	}
+
+	/**
+	 * Load the front-end Action Bar on WordPress.com Simple sites.
+	 *
+	 * Skipped while wpcom still ships its own copy in mu-plugins, so the two never load together.
+	 */
+	public static function load_wpcom_actionbar() {
+		if ( function_exists( 'wpcom_actionbar_enqueue_scripts' ) ) {
+			return;
+		}
+		require_once __DIR__ . '/features/wpcom-actionbar/wpcom-actionbar.php';
 	}
 
 	/**
