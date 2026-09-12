@@ -23,7 +23,6 @@ class Performance_History_Entry_Test extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
-		Functions\when( 'is_admin' )->justReturn( true );
 	}
 
 	protected function tearDown(): void {
@@ -53,6 +52,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_modern_history_surfaces_upstream_error() {
+		Functions\when( 'is_admin' )->justReturn( true );
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
 		$entry = $this->history_entry( $this->upstream_error(), true );
 		$this->expectException( \RuntimeException::class );
@@ -61,6 +61,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_legacy_history_preserves_empty_error_fallback() {
+		Functions\when( 'is_admin' )->justReturn( true );
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( false );
 		$this->assertSame(
 			array(
@@ -73,7 +74,17 @@ class Performance_History_Entry_Test extends TestCase {
 		);
 	}
 
-	public function test_non_admin_history_preserves_empty_error_fallback_when_filter_is_enabled() {
+	public function test_rest_history_surfaces_upstream_error_when_filter_is_enabled() {
+		define( 'REST_REQUEST', true );
+		Functions\when( 'is_admin' )->justReturn( false );
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
+		$entry = $this->history_entry( $this->upstream_error(), true );
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'History service unavailable' );
+		$entry->get();
+	}
+
+	public function test_non_admin_non_rest_history_preserves_empty_error_fallback_when_filter_is_enabled() {
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
 		Functions\when( 'is_admin' )->justReturn( false );
 		$this->assertSame(
@@ -88,6 +99,7 @@ class Performance_History_Entry_Test extends TestCase {
 	}
 
 	public function test_modern_empty_history_remains_successful() {
+		Functions\when( 'is_admin' )->justReturn( true );
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( true );
 		$this->assertSame(
 			array(
