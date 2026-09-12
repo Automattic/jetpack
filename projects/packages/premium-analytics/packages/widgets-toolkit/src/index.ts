@@ -294,6 +294,7 @@ export {
 	HeatmapChartUnresponsive,
 	Sparkline,
 	buildCalendarHeatmapData,
+	useCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,
 	type GeoData,

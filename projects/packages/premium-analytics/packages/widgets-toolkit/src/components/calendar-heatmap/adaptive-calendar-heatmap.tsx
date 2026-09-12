@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { buildCalendarHeatmapData } from '@jetpack-premium-analytics/externals';
+import { useCalendarHeatmapData } from '@jetpack-premium-analytics/externals';
 import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -96,14 +96,15 @@ export function AdaptiveCalendarHeatmap( {
 
 	// A short period opens backwards into filler columns to fill the tile without
 	// reaching outside it (WOOA7S-1963); a long period passes through untouched.
-	const { data: heatmapData, rowLabels } = useMemo( () => {
-		const gridStart = resolveCalendarHeatmapGridStart( period.endDate, fitColumns );
-
-		return buildCalendarHeatmapData(
-			daySeries,
-			gridStart ? { gridSpan: { start: gridStart } } : {}
-		);
-	}, [ daySeries, period.endDate, fitColumns ] );
+	const gridStart = useMemo(
+		() => resolveCalendarHeatmapGridStart( period.endDate, fitColumns ),
+		[ period.endDate, fitColumns ]
+	);
+	// The hook, not the plain function, so the labels take the site's locale rather than the
+	// browser's. The days are bare `yyyy-MM-dd`, so the site's zone cannot re-date them.
+	const { data: heatmapData, rowLabels } = useCalendarHeatmapData( daySeries, {
+		gridSpan: { start: gridStart ?? undefined },
+	} );
 
 	// `compact` mode isn't used: its theme-fixed cells need ~104px and a one-row
 	// tile offers ~86px, so `overflow: hidden` sliced off labels and the last row.

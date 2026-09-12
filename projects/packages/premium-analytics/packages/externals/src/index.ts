@@ -31,6 +31,7 @@ export {
 	getBucketInfo,
 	lightenHexColor,
 	normalizeColorToHex,
+	useCalendarHeatmapData,
 	useGlobalChartsContext,
 	type BaseLegendItem,
 	type BucketInfo,
