@@ -25,6 +25,7 @@ export function usePerformanceHistory( enabled = true, window = getHistoryWindow
 					endDate,
 					periods: [],
 					annotations: [],
+					surfaceErrors: true,
 				} )
 			),
 		enabled: enabled && isSiteOnline(),

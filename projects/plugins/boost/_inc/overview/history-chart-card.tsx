@@ -7,7 +7,7 @@ import { dateI18n, getDate } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, desktop, mobile, Icon } from '@wordpress/icons';
 import { Button, Card, Notice } from '@wordpress/ui';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { bucketHistoryDays, type HistoryDay, type HistoryWindow } from './lib/history-days';
 import { getScoreTier, getScoreTierColor } from './lib/score-utils';
 import UpgradeCTA from './upgrade-cta';
@@ -149,8 +149,23 @@ export default function HistoryChartCard( {
 	isFreshStart,
 	onDismissFreshStart,
 }: Props ) {
-	const days = bucketHistoryDays( data?.periods ?? [], range );
-	const series = buildHistorySeries( days );
+	const { startDate, endDate } = range;
+	const days = useMemo(
+		() => bucketHistoryDays( data?.periods ?? [], { startDate, endDate } ),
+		[ data?.periods, startDate, endDate ]
+	);
+	const series = useMemo( () => buildHistorySeries( days ), [ days ] );
+	const tickValues = useMemo(
+		() =>
+			days.length
+				? [
+						days[ 0 ].date,
+						days[ Math.floor( ( days.length - 1 ) / 2 ) ].date,
+						days[ days.length - 1 ].date,
+				  ]
+				: [],
+		[ days ]
+	);
 	const [ activeHighlight, setActiveHighlight ] = useState< {
 		index: number;
 		selection: CategoryHighlightSelection;
@@ -266,13 +281,7 @@ export default function HistoryChartCard( {
 												axis: {
 													y: { tickValues: [ 0, 50, 100 ] },
 													x: {
-														tickValues: days.length
-															? [
-																	days[ 0 ].date,
-																	days[ Math.floor( ( days.length - 1 ) / 2 ) ].date,
-																	days[ days.length - 1 ].date,
-															  ]
-															: [],
+														tickValues,
 														tickFormat: value =>
 															dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
 													},

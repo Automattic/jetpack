@@ -31,17 +31,19 @@ class Performance_History_Entry_Test extends TestCase {
 		parent::tearDown();
 	}
 
-	private function history_entry( $result, $is_error ) {
+	private function history_entry( $result, $is_error, $surface_errors = null ) {
 		$request = Mockery::mock( 'overload:' . Speed_Score_Graph_History_Request::class );
 		$request->shouldReceive( 'execute' )->once()->andReturn( $result );
 		Functions\when( 'is_wp_error' )->justReturn( $is_error );
 		$entry = new Performance_History_Entry();
-		$entry->set(
-			array(
-				'startDate' => 1000,
-				'endDate'   => 2000,
-			)
+		$value = array(
+			'startDate' => 1000,
+			'endDate'   => 2000,
 		);
+		if ( null !== $surface_errors ) {
+			$value['surfaceErrors'] = $surface_errors;
+		}
+		$entry->set( $value );
 		return $entry;
 	}
 
@@ -51,18 +53,34 @@ class Performance_History_Entry_Test extends TestCase {
 		return $error;
 	}
 
-	public function test_modern_history_surfaces_upstream_error() {
+	public function test_filter_off_preserves_empty_error_fallback_with_opt_in() {
 		Functions\when( 'is_admin' )->justReturn( true );
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( false );
+		$this->assertSame(
+			array(
+				'startDate'   => 1000,
+				'endDate'     => 2000,
+				'periods'     => array(),
+				'annotations' => array(),
+			),
+			$this->history_entry( $this->upstream_error(), true, true )->get()
+		);
+	}
+
+	public function test_modern_rest_history_surfaces_upstream_error_with_opt_in() {
+		define( 'REST_REQUEST', true );
+		Functions\when( 'is_admin' )->justReturn( false );
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
-		$entry = $this->history_entry( $this->upstream_error(), true );
+		$entry = $this->history_entry( $this->upstream_error(), true, true );
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'History service unavailable' );
 		$entry->get();
 	}
 
-	public function test_legacy_history_preserves_empty_error_fallback() {
-		Functions\when( 'is_admin' )->justReturn( true );
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( false );
+	public function test_cli_history_preserves_empty_error_fallback_without_opt_in() {
+		define( 'WP_CLI', true );
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
+		Functions\when( 'is_admin' )->justReturn( false );
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,
@@ -74,19 +92,17 @@ class Performance_History_Entry_Test extends TestCase {
 		);
 	}
 
-	public function test_rest_history_surfaces_upstream_error_when_filter_is_enabled() {
+	public function test_legacy_rest_history_preserves_empty_error_fallback_without_opt_in() {
 		define( 'REST_REQUEST', true );
-		Functions\when( 'is_admin' )->justReturn( false );
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
-		$entry = $this->history_entry( $this->upstream_error(), true );
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'History service unavailable' );
-		$entry->get();
-	}
-
-	public function test_non_admin_non_rest_history_preserves_empty_error_fallback_when_filter_is_enabled() {
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
 		Functions\when( 'is_admin' )->justReturn( false );
+		$entry = $this->history_entry( $this->upstream_error(), true, true );
+		$entry->set(
+			array(
+				'startDate' => 1000,
+				'endDate'   => 2000,
+			)
+		);
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,
@@ -94,7 +110,7 @@ class Performance_History_Entry_Test extends TestCase {
 				'periods'     => array(),
 				'annotations' => array(),
 			),
-			$this->history_entry( $this->upstream_error(), true )->get()
+			$entry->get()
 		);
 	}
 
@@ -108,7 +124,7 @@ class Performance_History_Entry_Test extends TestCase {
 				'periods'     => array(),
 				'annotations' => array(),
 			),
-			$this->history_entry( array( 'data' => array() ), false )->get()
+			$this->history_entry( array( 'data' => array() ), false, true )->get()
 		);
 	}
 }

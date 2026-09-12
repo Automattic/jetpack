@@ -79,7 +79,7 @@ it( 'fetches authenticated history and keeps it fresh for twelve hours', async (
 	expect( fetchMock ).toHaveBeenCalledWith( {
 		url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history/set',
 		method: 'POST',
-		data: { JSON: { ...historyWindow, periods: [], annotations: [] } },
+		data: { JSON: { ...historyWindow, periods: [], annotations: [], surfaceErrors: true } },
 		credentials: 'same-origin',
 		headers: { 'X-WP-Nonce': 'rest-nonce', 'X-Jetpack-WP-JS-Sync-Nonce': 'history-nonce' },
 	} );
@@ -116,7 +116,7 @@ it( 'requests each page separately and reuses its cached history when paging bac
 	await waitFor( () => expect( result.current.data ).toEqual( previousHistory ) );
 	expect( fetchMock ).toHaveBeenLastCalledWith(
 		expect.objectContaining( {
-			data: { JSON: { ...previousWindow, periods: [], annotations: [] } },
+			data: { JSON: { ...previousWindow, periods: [], annotations: [], surfaceErrors: true } },
 		} )
 	);
 	rerender( historyWindow );
