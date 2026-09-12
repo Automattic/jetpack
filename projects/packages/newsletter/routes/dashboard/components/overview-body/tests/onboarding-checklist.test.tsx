@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import OnboardingChecklist from '../routes/dashboard/components/overview-body/onboarding-checklist';
+import OnboardingChecklist from '../onboarding-checklist';
 
 const getStep = ( name: RegExp ) => screen.getByRole( 'button', { name } );
 
