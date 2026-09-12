@@ -1,6 +1,7 @@
 <?php
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 
 /**
@@ -24,6 +25,68 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 		$config_data = new Odyssey_Config_Data();
 		$this->assertTrue( strpos( $config_data->get_js_config_data( 'configData', array( 'testtesttest' ) ), 'window.configData' ) === 0 );
 		$this->assertTrue( strpos( $config_data->get_js_config_data( 'configData', array( 'testtesttest' ) ), 'testtesttest' ) > 0 );
+	}
+
+	/**
+	 * The app paywalls on the feature list printed here and has no route to refresh it, so a site
+	 * that can answer for itself must not be described by a plan it cached before its last
+	 * purchase. See STATS-475.
+	 */
+	public function test_config_data_features_come_from_the_site_itself_on_atomic() {
+		update_option( Current_Plan::PLAN_OPTION, array( 'product_slug' => 'jetpack_free' ), true );
+		$this->make_site_atomic();
+
+		$data = ( new Odyssey_Config_Data() )->get_data();
+
+		$this->assertSame(
+			array( 'stats-paid', 'support' ),
+			$data['intial_state']['sites']['features']['999']['data']['active']
+		);
+	}
+
+	/**
+	 * A registry with nothing in it cannot be told apart from a site that bought nothing, so the
+	 * cached plan is still the better answer.
+	 */
+	public function test_config_data_features_fall_back_when_the_registry_has_no_purchases() {
+		update_option(
+			Current_Plan::PLAN_OPTION,
+			array(
+				'product_slug' => 'personal-bundle',
+				'features'     => array( 'active' => array( 'stats-paid' ) ),
+			),
+			true
+		);
+		$this->make_site_atomic();
+		$GLOBALS['wpcom_test_site_purchases'] = array();
+
+		$data = ( new Odyssey_Config_Data() )->get_data();
+
+		$this->assertSame(
+			array( 'stats-paid' ),
+			$data['intial_state']['sites']['features']['999']['data']['active']
+		);
+	}
+
+	/**
+	 * A site carrying no WordPress.com feature registry has only its cached plan to go on.
+	 */
+	public function test_config_data_features_fall_back_to_the_cached_plan() {
+		update_option(
+			Current_Plan::PLAN_OPTION,
+			array(
+				'product_slug' => 'personal-bundle',
+				'features'     => array( 'active' => array( 'stats-paid' ) ),
+			),
+			true
+		);
+
+		$data = ( new Odyssey_Config_Data() )->get_data();
+
+		$this->assertSame(
+			array( 'stats-paid' ),
+			$data['intial_state']['sites']['features']['999']['data']['active']
+		);
 	}
 
 	/**
