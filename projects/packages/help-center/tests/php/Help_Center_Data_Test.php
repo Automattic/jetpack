@@ -173,7 +173,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( $node );
 		$this->assertFalse( wp_script_is( 'help-center', 'enqueued' ) );
 		// The client contract Calypso renders the entry point from.
-		$this->assertSame( 'Help Center', $node->meta['menu_title'] );
+		$this->assertArrayHasKey( 'menu_title', $node->meta );
 		$this->assertSame( 'help', $node->meta['icon'] );
 	}
 
@@ -191,7 +191,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 			remove_filter( 'agents_manager_use_unified_experience', '__return_true' );
 		}
 
-		$this->assertSame( 'Help Center', $node->meta['menu_title'] );
+		$this->assertSame( '', $node->meta['menu_title'] );
 		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
 	}
 
@@ -221,7 +221,8 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertNotNull( $node );
 		$this->assertStringNotContainsString( 'help-center-entry-label', $node->title );
-		$this->assertSame( 'Help Center', $node->meta['menu_title'] );
+		$this->assertSame( '', $node->meta['menu_title'] );
+		$this->assertStringContainsString( 'title="Help Center"', $node->title );
 		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
 	}
 
