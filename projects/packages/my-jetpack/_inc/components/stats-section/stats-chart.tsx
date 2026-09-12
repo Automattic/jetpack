@@ -1,11 +1,12 @@
 import { BarChart, DataPointDate } from '@automattic/charts';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import { Suspense, useCallback, useMemo } from 'react';
 import LoadingBlock from '../loading-block';
 import StatsChartTooltip from './stats-chart-tooltip';
 import styles from './stats-chart.module.scss';
-import type { ReactElement, KeyboardEvent, FC } from 'react';
+import type { ReactElement, FC } from 'react';
 
 interface ChartDataPoint {
 	date: Date;
@@ -23,8 +24,8 @@ interface ChartSeries {
 interface StatsChartProps {
 	data: ChartSeries[];
 	isLoading: boolean;
+	href?: string;
 	onClick: () => void;
-	onKeyDown: ( e: KeyboardEvent< HTMLDivElement > ) => void;
 	selectedMetric: string;
 	metricIcon: ReactElement;
 }
@@ -34,18 +35,12 @@ interface StatsChartProps {
  * @param {object}   props            - Component props.
  * @param {object}   props.data       - Chart data.
  * @param {boolean}  props.isLoading  - Whether the chart is loading.
+ * @param {string}   props.href       - Destination of the detailed stats link.
  * @param {Function} props.onClick    - Click handler.
- * @param {Function} props.onKeyDown  - Keydown handler.
  * @param {object}   props.metricIcon - The icon JSX element for the selected metric.
  * @return {object} StatsChart React component.
  */
-const StatsChart: FC< StatsChartProps > = ( {
-	data,
-	isLoading,
-	onClick,
-	onKeyDown,
-	metricIcon,
-} ) => {
+const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, metricIcon } ) => {
 	// Check if there's data for the selected metric specifically
 	const isEmpty = useMemo( () => {
 		return ! isLoading && data?.[ 0 ]?.data?.every( item => item.value === 0 );
@@ -81,12 +76,12 @@ const StatsChart: FC< StatsChartProps > = ( {
 	);
 
 	return (
-		<div
+		<Link
+			variant="unstyled"
 			className={ styles[ 'chart-container' ] }
-			onClick={ onClick }
-			role="button"
-			tabIndex={ 0 }
-			onKeyDown={ onKeyDown }
+			href={ href }
+			onClick={ href ? onClick : undefined }
+			aria-label={ __( 'View detailed stats', 'jetpack-my-jetpack' ) }
 		>
 			{ isEmpty && (
 				<div className={ styles[ 'chart-empty' ] }>
@@ -163,7 +158,7 @@ const StatsChart: FC< StatsChartProps > = ( {
 					/>
 				</Suspense>
 			) }
-		</div>
+		</Link>
 	);
 };
 

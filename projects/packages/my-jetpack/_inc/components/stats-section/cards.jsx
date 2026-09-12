@@ -1,5 +1,6 @@
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty, chevronRight } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState, useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
@@ -112,6 +113,7 @@ const getDynamicTitle = metric => {
  * @param {number}   props.headingLevel         - Heading level between 1 and 6.
  * @param {Array}    props.chartData            - Chart data for the bar chart visualization.
  * @param {boolean}  props.isLoading            - Whether the data is loading.
+ * @param {string}   props.detailedStatsHref    - Destination of the detailed stats link.
  * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.
  *
  * @return {object} StatsCards React component.
@@ -122,6 +124,7 @@ const StatsCards = ( {
 	headingLevel,
 	chartData,
 	isLoading,
+	detailedStatsHref,
 	onDetailedStatsClick,
 } ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
@@ -155,15 +158,6 @@ const StatsCards = ( {
 		[ handleMetricSelect ]
 	);
 
-	const handleKeyDown = useCallback(
-		e => {
-			if ( e.key === 'Enter' || e.key === ' ' ) {
-				onDetailedStatsClick();
-			}
-		},
-		[ onDetailedStatsClick ]
-	);
-
 	// Get icon for selected metric
 	const getMetricIcon = useCallback( metric => {
 		const icons = {
@@ -177,12 +171,11 @@ const StatsCards = ( {
 
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
-			<div
+			<Link
+				tone="neutral"
 				className={ styles[ 'section-title-container' ] }
-				onClick={ onDetailedStatsClick }
-				role="button"
-				tabIndex={ 0 }
-				onKeyDown={ handleKeyDown }
+				href={ detailedStatsHref }
+				onClick={ detailedStatsHref ? onDetailedStatsClick : undefined }
 			>
 				<Heading className={ styles[ 'section-title' ] }>
 					<span>{ getDynamicTitle( selectedMetric ) }</span>
@@ -190,13 +183,13 @@ const StatsCards = ( {
 				<div>
 					<Icon icon={ chevronRight } />
 				</div>
-			</div>
+			</Link>
 
 			<StatsChart
 				data={ transformedChartData }
 				isLoading={ isLoading }
+				href={ detailedStatsHref }
 				onClick={ onDetailedStatsClick }
-				onKeyDown={ handleKeyDown }
 				selectedMetric={ selectedMetric }
 				metricIcon={ getMetricIcon( selectedMetric ) }
 			/>
