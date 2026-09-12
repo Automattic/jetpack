@@ -100,6 +100,7 @@ export const PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE = [ 'jetpack-ai', 'jetpack-for
  */
 export const JETPACK_NON_PAID_MODULES = [
 	'account-protection',
+	'activity-log',
 	'ai',
 	'blaze',
 	'blocks',
