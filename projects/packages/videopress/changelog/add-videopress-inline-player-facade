@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Inline player: show each video's poster and load the player only when it is played.
