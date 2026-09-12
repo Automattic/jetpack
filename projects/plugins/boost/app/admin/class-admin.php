@@ -85,16 +85,25 @@ class Admin {
 	}
 
 	/**
-	 * Load the modern dashboard only on an opted-in Boost admin request.
+	 * Whether this request opts into the modern admin dashboard.
+	 *
+	 * @return bool Whether modernization is enabled for this admin request.
 	 */
-	private function maybe_load_wp_build() {
+	public static function is_modern_dashboard() {
 		/**
 		 * Enable the modern Boost dashboard.
 		 *
 		 * @since $$next-version$$
 		 * @param bool $enabled Whether to enable the modern dashboard. Default false.
 		 */
-		if ( ! apply_filters( self::MODERNIZATION_FILTER, false ) || ! is_admin() ) {
+		return apply_filters( self::MODERNIZATION_FILTER, false ) && is_admin();
+	}
+
+	/**
+	 * Load the modern dashboard only on an opted-in Boost admin request.
+	 */
+	private function maybe_load_wp_build() {
+		if ( ! self::is_modern_dashboard() ) {
 			return;
 		}
 

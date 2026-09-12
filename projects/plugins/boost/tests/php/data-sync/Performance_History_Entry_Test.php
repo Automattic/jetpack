@@ -23,6 +23,7 @@ class Performance_History_Entry_Test extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
+		Functions\when( 'is_admin' )->justReturn( true );
 	}
 
 	protected function tearDown(): void {
@@ -61,6 +62,20 @@ class Performance_History_Entry_Test extends TestCase {
 
 	public function test_legacy_history_preserves_empty_error_fallback() {
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( false );
+		$this->assertSame(
+			array(
+				'startDate'   => 1000,
+				'endDate'     => 2000,
+				'periods'     => array(),
+				'annotations' => array(),
+			),
+			$this->history_entry( $this->upstream_error(), true )->get()
+		);
+	}
+
+	public function test_non_admin_history_preserves_empty_error_fallback_when_filter_is_enabled() {
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
+		Functions\when( 'is_admin' )->justReturn( false );
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,
