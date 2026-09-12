@@ -12,11 +12,18 @@ import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
 import pLimit from 'p-limit';
+import { computeFingerprints, canSkip, writeManifest } from '../helpers/build-cache.js';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import formatDuration from '../helpers/format-duration.js';
-import { getInstallArgs, projectDir } from '../helpers/install.js';
+import { getInstallArgs, projectDir, batchLockFileStatus } from '../helpers/install.js';
+import { readComposerJson } from '../helpers/json.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
+import {
+	buildPackageVersionMap,
+	shouldPinProject,
+	withPinnedComposerJson,
+} from '../helpers/path-repo-versions.js';
 import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
@@ -82,12 +89,41 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",
 		} )
+		.option( 'cache', {
+			type: 'boolean',
+			description:
+				'Skip building projects whose inputs are unchanged since their last successful build. Ignored with --for-mirrors and in CI.',
+		} )
+		.option( 'force', {
+			type: 'boolean',
+			description: 'With --cache, rebuild every project but refresh the cache fingerprints.',
+		} )
+		.option( 'pin-path-repo-versions', {
+			type: 'boolean',
+			description:
+				"Pin the monorepo path repo's package versions before installing, so Composer skips version guessing. Much faster for cold builds.",
+		} )
 		.option( 'timing-output', {
 			type: 'string',
 			normalize: true,
 			description:
 				'Write machine-readable timing data (JSON) to the given file. Implies --timing-summary.',
 		} );
+}
+
+/**
+ * Read the version to pin each monorepo package to.
+ *
+ * Every project's monorepo path repo globs to `projects/packages/*`, whichever relative url it uses.
+ *
+ * @return {object} Map of composer package name to version.
+ */
+function readPathRepoVersions() {
+	return buildPackageVersionMap(
+		[ ...allProjectsByType( 'packages' ) ]
+			.map( project => readComposerJson( project, false ) )
+			.filter( Boolean )
+	);
 }
 
 /**
@@ -112,7 +148,20 @@ export async function handler( argv ) {
 		argv.timingSummary = true;
 	}
 
+	// One `git ls-files` for the whole monorepo instead of one per project.
+	// Independent of each other, so overlap them.
+	const lockedProjectsPromise = batchLockFileStatus();
 	let dependencies = await getDependencies( process.cwd(), 'build' );
+	const lockedProjects = await lockedProjectsPromise;
+	const pathRepoVersions =
+		argv.pinPathRepoVersions && ! argv.forMirrors ? readPathRepoVersions() : null;
+
+	// No persistent cache between CI runs, and mirror builds do extra work a skip would break.
+	// Fingerprint before `filterDeps` narrows the graph; see `computeFingerprints`.
+	const cacheFingerprints =
+		argv.cache && ! argv.forMirrors && ! process.env.CI
+			? await computeFingerprints( dependencies, argv )
+			: null;
 	const listr = new Listr( [], {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
 		concurrent: argv.concurrency > 1,
@@ -239,6 +288,9 @@ export async function handler( argv ) {
 		promises: {},
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
+		cache: cacheFingerprints ? { fingerprints: cacheFingerprints, cached: 0, built: 0 } : null,
+		lockedProjects,
+		pathRepoVersions,
 		// When `--timing-summary` is set, collect a flat list of phase timings to summarize at the end.
 		timings: argv.timingSummary ? { overallStart: Date.now(), entries: [], buildOrder } : null,
 	};
@@ -251,6 +303,12 @@ export async function handler( argv ) {
 				for ( const project of missing ) {
 					console.error( wrap( `Project ${ project } was ignored as it does not exist.` ) );
 				}
+			}
+
+			if ( ctx.cache ) {
+				console.log(
+					chalkJetpackGreen( `Cache: ${ ctx.cache.cached } skipped, ${ ctx.cache.built } built.` )
+				);
 			}
 
 			// Print the timing summary (and optionally dump JSON) on both success and failure.
@@ -477,7 +535,8 @@ function createBuildTask( project, argv, title, build ) {
 								ok: taskOk,
 							} );
 						}
-						await t.setStatus( argv.timing ? formatDuration( dur ) + 's' : 'complete' );
+						const timedStatus = argv.timing ? formatDuration( dur ) + 's' : 'complete';
+						await t.setStatus( t.cached ? 'cached' : timedStatus );
 					}
 				} );
 			} )().then(
@@ -702,6 +761,17 @@ async function checkCollisions( basedir ) {
  * @param {object} t - Task object.
  */
 async function buildProject( t ) {
+	// Skip the whole project (install + build) when its inputs are unchanged and the outputs it
+	// produced last time are still present. `--force` rebuilds but still refreshes the manifest.
+	if ( t.ctx.cache && ! t.argv.force ) {
+		const fp = t.ctx.cache.fingerprints.get( t.project );
+		if ( fp && ( await canSkip( t.project, fp ) ) ) {
+			t.ctx.cache.cached++;
+			t.cached = true;
+			return;
+		}
+	}
+
 	await t.setStatus( 'installing' );
 
 	let composerJson = JSON.parse(
@@ -873,12 +943,21 @@ async function buildProject( t ) {
 	if ( skipInstall ) {
 		await t.output( `Skipping composer install for CI build of non-plugin with no build script\n` );
 	} else {
-		await t.time( 'install', async () =>
-			t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
-				cwd: t.cwd,
-				stdio: [ 'ignore', 'inherit', 'inherit' ],
-				buffer: false,
-			} )
+		// Pick the verb against the unpinned manifest, which is what the lock is stamped for.
+		// Installing from a lock never consults the path repo, so only an `update` needs pinning.
+		const args = await getInstallArgs( t.project, 'composer', t.argv, t.ctx.lockedProjects );
+		const versions =
+			args[ 0 ] === 'update' && shouldPinProject( t.project, t.ctx.lockedProjects, t.argv )
+				? t.ctx.pathRepoVersions
+				: null;
+		await withPinnedComposerJson( t.cwd, versions, () =>
+			t.time( 'install', async () =>
+				t.execa( 'composer', args, {
+					cwd: t.cwd,
+					stdio: [ 'ignore', 'inherit', 'inherit' ],
+					buffer: false,
+				} )
+			)
 		);
 	}
 
@@ -898,6 +977,13 @@ async function buildProject( t ) {
 
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
 	if ( ! t.argv.forMirrors ) {
+		if ( t.ctx.cache ) {
+			t.ctx.cache.built++;
+			const fp = t.ctx.cache.fingerprints.get( t.project );
+			if ( fp ) {
+				await writeManifest( t.project, fp );
+			}
+		}
 		return;
 	}
 
