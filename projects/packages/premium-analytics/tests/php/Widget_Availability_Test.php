@@ -91,6 +91,22 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'stats',
 			),
 			array(
+				'name'     => 'jpa/total-views',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/total-visitors',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/popular-days',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/popular-hours',
+				'category' => 'stats',
+			),
+			array(
 				'name'     => 'jpa/hello-world',
 				'category' => 'demo',
 			),
@@ -192,6 +208,19 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The period widgets are held back regardless of host or features (WOOA7S-2020).
+	 */
+	public function test_type_policy_removes_period_widgets_everywhere() {
+		$period = array( 'jpa/total-views', 'jpa/total-visitors', 'jpa/popular-days', 'jpa/popular-hours' );
+
+		foreach ( $period as $name ) {
+			$this->assertNotContains( $name, $this->available_names( false, false ), $name );
+			$this->assertNotContains( $name, $this->available_names( true, true ), $name );
+		}
+		$this->assertContains( 'jpa/hello-world', $this->available_names( false, false ) );
+	}
+
+	/**
 	 * Without VideoPress, every gated video widget is unavailable.
 	 */
 	public function test_type_policy_removes_video_widgets_without_videopress() {
@@ -289,6 +318,17 @@ class Widget_Availability_Test extends BaseTestCase {
 		$names = $this->manifest_widget_names();
 
 		foreach ( PLAN_USAGE_WIDGET_TYPES as $held ) {
+			$this->assertContains( $held, $names, "$held is held back but no manifest declares it." );
+		}
+	}
+
+	/**
+	 * Same guard for the held period widgets: each names a real manifest.
+	 */
+	public function test_period_widget_types_match_the_manifest() {
+		$names = $this->manifest_widget_names();
+
+		foreach ( PERIOD_WIDGET_TYPES as $held ) {
 			$this->assertContains( $held, $names, "$held is held back but no manifest declares it." );
 		}
 	}

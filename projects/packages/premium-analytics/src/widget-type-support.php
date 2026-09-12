@@ -35,6 +35,16 @@ const PLAN_USAGE_WIDGET_TYPES = array(
 );
 
 /**
+ * Period widgets whose sparkline reads the section's date range.
+ */
+const PERIOD_WIDGET_TYPES = array(
+	'jpa/total-views',
+	'jpa/total-visitors',
+	'jpa/popular-days',
+	'jpa/popular-hours',
+);
+
+/**
  * Returns the current widget support context.
  *
  * @return array{is_wpcom_simple:bool,has_videopress:bool} Widget support context.
@@ -56,6 +66,10 @@ function get_unsupported_widget_types( $context ) {
 	// Usage and upgrade UX stays out of Stats v2 on every site until the paid plan is
 	// settled (STATS-459); it returns through the configurations drawer (WOOA7S-2037).
 	$unsupported = PLAN_USAGE_WIDGET_TYPES;
+
+	// Temporary: the period widgets are held back on every site until product decides
+	// whether they return or go (WOOA7S-2020). Their code stays.
+	$unsupported = array_merge( $unsupported, PERIOD_WIDGET_TYPES );
 
 	// File download tracking is served only on WPCOM Simple. Calypso applies
 	// the same boundary, which excludes self-hosted Jetpack and Atomic sites.
