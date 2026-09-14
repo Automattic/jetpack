@@ -20,18 +20,29 @@ keyframes. The result is one self-contained HTML file.
 
 ## Before you start
 
-Needs Playwright (a Jetpack monorepo checkout, or `PLAYWRIGHT_ROOT` pointing at one) and Python
-with Pillow. Check both, and set the two paths every command below uses:
+The scripts live in this skill and find the monorepo from their own location, so nothing here
+depends on where the checkout sits. Run them from the repo root:
 
 ```bash
-SKILL=.agents/skills/jetpack-ui-hero   # from the monorepo root
-export PLAYWRIGHT_ROOT=~/a8c/jetpack          # absolute; a relative path hangs the resolver
+SKILL=.agents/skills/jetpack-ui-hero
 python3 -c 'import PIL' || python3 -m pip install --user Pillow
 ```
 
-Exporting to MP4 or GIF additionally needs `ffmpeg` (`brew install ffmpeg`); nothing else does.
+Playwright comes from the monorepo's own `node_modules` — no setup. If you ever run the scripts
+from a different checkout, point `PLAYWRIGHT_ROOT` at one that has it (an absolute path; a
+relative one used to hang the resolver). Exporting MP4 or GIF also needs `ffmpeg`
+(`brew install ffmpeg`); nothing else does.
 
-Pick a working directory for the build and stay in it — steps 3 to 6 all use the same one.
+**Work in a folder beside the monorepo, never inside it.** Captures and builds are large binaries
+that must not be committed; keeping them adjacent also means they survive branch switches and
+never dirty `git status`. Ask the scripts where that is, create it, and stay in it for steps 3-6:
+
+```bash
+python3 "$SKILL"/scripts/build-page.py --where forms     # e.g. /path/to/jetpack-ui-heroes/forms
+```
+
+Tell the user that path when you start, and again when you finish — it is where all their files
+are, and it is not somewhere they would think to look.
 
 ## Workflow
 
@@ -133,14 +144,18 @@ Then look at the frames, and check:
 ### 6. Publish, deliver and report
 
 Publish `index.html` with whatever artifact or hosting tool is available; if there is none, hand
-over the absolute path, since the file is self-contained and opens from `file://`. Copy the working
-directory to `~/a8c/plans/<topic>/` — planning artifacts live outside the repo.
+over the absolute path, since the file is self-contained and opens from `file://`.
 
 Ask where the piece is actually going, and read `references/output.md`: a WordPress page wants
 `build-page.py --embed`, which writes a style-isolated fragment per piece; a deck or a P2 wants
 `scripts/export.mjs`, which renders MP4/WebM/GIF by seeking the timeline.
 
-**Delete `state.json` from the copy.** It holds live session cookies for the capture site.
+**Delete `state.json` before sharing the directory anywhere.** It holds live session cookies for
+the capture site.
+
+Then tell the user, explicitly and with the absolute path, where everything lives — the working
+directory beside the monorepo, and what is in it (`index.html`, the plates and crops, `capture.mjs`,
+and any `embed-*.html` or exported `.mp4`/`.gif`). They did not choose that location, so name it.
 
 State plainly what was verified and what was not: headless rendering is not the same as having
 seen it in a real browser, and say so.

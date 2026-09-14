@@ -8,8 +8,8 @@
  */
 import { execFileSync } from 'node:child_process';
 import { readdirSync, existsSync } from 'node:fs';
-import { join, dirname, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { join, dirname, resolve, basename } from 'node:path';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 
 /**
  * Pause for a number of milliseconds.
@@ -38,7 +38,13 @@ export async function playwright( from = process.cwd() ) {
 	} catch {
 		/* fall through */
 	}
-	const roots = [ process.env.PLAYWRIGHT_ROOT, from ]
+	// The skill lives inside the monorepo, so its own location finds the checkout
+	// whatever directory the caller happens to be in.
+	const roots = [
+		process.env.PLAYWRIGHT_ROOT,
+		fileURLToPath( new URL( '.', import.meta.url ) ),
+		from,
+	]
 		.filter( Boolean )
 		.map( r => resolve( r.replace( /^~(?=$|\/)/, process.env.HOME || '~' ) ) );
 	for ( const root of roots ) {
@@ -63,7 +69,7 @@ export async function playwright( from = process.cwd() ) {
 	throw new Error(
 		'playwright not found. Run this from inside the Jetpack monorepo, or set ' +
 			'PLAYWRIGHT_ROOT to a checkout that has it installed:\n' +
-			'  PLAYWRIGHT_ROOT=~/a8c/jetpack node <script>'
+			'  PLAYWRIGHT_ROOT=/path/to/jetpack node <script>'
 	);
 }
 
@@ -496,6 +502,29 @@ im.convert(mode).save(${ JSON.stringify( webp ) }, 'WEBP', lossless=True, qualit
 }
 
 /* Check the tools this kit shells out to, before a capture run spends a JN site. */
+/**
+ * Where a hero's working files belong: a folder beside the monorepo, never inside it.
+ *
+ * Keeping it adjacent means captures and builds are never at risk of being committed,
+ * never dirty `git status`, and survive branch switches — while still sitting next to
+ * the checkout rather than in someone's home directory.
+ *
+ * @param {string} [topic] - Subfolder for this set, e.g. "forms".
+ * @param {string} [from]  - Directory to locate the checkout from.
+ * @return {string} Absolute path, e.g. `/path/to/jetpack-ui-heroes/forms`.
+ */
+export function outputDir( topic = '', from = fileURLToPath( new URL( '.', import.meta.url ) ) ) {
+	let repo = resolve( from );
+	for ( let dir = repo, prev; dir !== prev; prev = dir, dir = dirname( dir ) ) {
+		if ( existsSync( join( dir, '.git' ) ) ) {
+			repo = dir;
+			break;
+		}
+	}
+	const sibling = join( dirname( repo ), `${ basename( repo ) }-ui-heroes` );
+	return topic ? join( sibling, topic ) : sibling;
+}
+
 /**
  * Check the tools this kit shells out to, before a capture run spends a site.
  *

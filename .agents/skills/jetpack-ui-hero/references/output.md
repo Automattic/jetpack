@@ -42,14 +42,18 @@ but a theme's content column can be narrower than the text in the screenshot sta
 ## Exporting MP4 or GIF
 
 ```bash
-node "$SKILL"/scripts/export.mjs <dir>/index.html <id>-box \
-  --duration 9 --format mp4,gif --width 1000 --out response-lands
+node "$SKILL"/scripts/export.mjs <dir>/index.html --all --format mp4,gif --width 1000
 ```
+
+`--all` exports every piece on the page, naming each file after its heading. Durations are
+measured from each timeline — the last animation to finish, plus a hold — so an export is never
+truncated by a guess. Files land next to `index.html` unless `--outDir` says otherwise.
 
 Frames are captured by **seeking**, not by screen-recording, so the output is deterministic — the
 same bytes on a slow machine as a fast one. Needs `ffmpeg` (`brew install ffmpeg`).
 
-Real numbers for a 9s 1280×820 piece exported at 1000px wide: **MP4 174 KB, GIF 767 KB.** The GIF
+Real numbers for four 1280×820 pieces exported at 900px wide: **MP4 43-153 KB, GIF 215-761 KB** —
+MP4 is 3-5x smaller for the same piece. The GIF
 uses one shared palette (`palettegen stats_mode=diff`) with bayer dithering, which keeps flat UI
 from crawling between frames and keeps small text readable.
 
