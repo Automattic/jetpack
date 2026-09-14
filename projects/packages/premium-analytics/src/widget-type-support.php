@@ -35,7 +35,7 @@ const PLAN_USAGE_WIDGET_TYPES = array(
 );
 
 /**
- * Period widgets whose sparkline reads the section's date range.
+ * Period widgets whose chart reads the section's date range.
  */
 const PERIOD_WIDGET_TYPES = array(
 	'jpa/total-views',
