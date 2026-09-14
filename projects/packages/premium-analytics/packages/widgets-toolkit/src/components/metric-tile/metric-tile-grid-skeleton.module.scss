@@ -1,11 +1,5 @@
-/* Placeholder treatment from the design prototype's highlights skeleton: flat
- * label and value stand-ins, without the loaded tile's dividers or type scale,
- * arranged by the same four layouts as `metric-tile-grid.module.scss` so a
- * stand-in sits where the tile it replaces will land.
- *
- * Lengths use WPDS dimension tokens wherever the scale expresses them. What
- * stays literal is what no token reaches: the proportional widths, and the two
- * stand-ins sized from the text they replace. */
+/* Flat label and value stand-ins, arranged by the same layout picker as the
+ * loaded grid. Only the lengths no WPDS token reaches stay literal. */
 $row-label-inline-size: 45%;
 
 /* Stands in for the formatted count at the end of a list row ("12.8k"), which

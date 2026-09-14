@@ -8,9 +8,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useElementSize } from '../../hooks/use-element-size';
 
 /**
- * How a metric tile grid arranges its tiles: `compact` and `stacked` are
- * vertical lists (scrolling, or stretched to fill), `row` a single line of
- * centered tiles, `grid` two columns of them.
+ * How a metric tile grid arranges its tiles; see `pickMetricTileLayout`.
  */
 export type MetricTileLayout = 'compact' | 'stacked' | 'row' | 'grid';
 
@@ -33,8 +31,10 @@ type MetricTileLayoutInput = {
 };
 
 /**
- * Picks the layout for a widget body of the given size, matching the design
- * prototype: one-column widgets are lists, wider ones are tiles.
+ * Picks the layout for a widget body, as the design prototype does: a
+ * one-column widget is a list, `stacked` when each row has room and `compact`
+ * (scrolling) when not; a wider widget is a `row` of centered tiles, or a
+ * two-column `grid` once the body is tall enough for every tile row.
  */
 export function pickMetricTileLayout( {
 	width,

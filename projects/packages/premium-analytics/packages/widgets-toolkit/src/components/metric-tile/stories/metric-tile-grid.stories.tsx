@@ -186,6 +186,16 @@ export const SkeletonStacked: SkeletonStory = {
 };
 
 /**
+ * A one-column widget at height 1: the stand-ins keep their own height, as the
+ * compact list does.
+ */
+export const SkeletonCompact: SkeletonStory = {
+	render: args => <MetricTileGridSkeleton { ...args } />,
+	args: { tiles: 4 },
+	decorators: [ makeCanvas( '360px', '170px' ) ],
+};
+
+/**
  * A wide, height-1 widget: the stand-ins sit on one row.
  */
 export const SkeletonRow: SkeletonStory = {

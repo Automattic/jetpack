@@ -128,12 +128,8 @@ function MetricTileValue( {
 }
 
 /**
- * Container for metric tiles that lays them out the way the design prototype
- * does, from the widget's dashboard column span and body height (see
- * `pickMetricTileLayout`): a one-column widget gets a vertical list, stretched
- * when the rows have room and compact and scrolling when they do not; a wider
- * widget gets a single row of centered tiles, or a two-column grid when the
- * body is tall enough for every tile row.
+ * Lays metric tiles out by widget column span and body height; the four
+ * layouts and their thresholds live in `pickMetricTileLayout`.
  *
  * The grid is a size container, so it takes no height of its own: render it
  * inside a definite-height flex column (or a `height: 100%` chain) or it

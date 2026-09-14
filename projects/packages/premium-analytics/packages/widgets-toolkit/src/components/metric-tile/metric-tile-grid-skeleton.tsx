@@ -31,7 +31,7 @@ export function MetricTileGridSkeleton( {
 	return (
 		<SkeletonRoot>
 			<div ref={ containerRef } className={ styles.container }>
-				<div className={ styles.tiles } data-layout={ layout }>
+				<div className={ styles.tiles } data-layout={ layout } data-testid="skeleton-tiles">
 					{ Array.from( { length: tileCount }, ( _, index ) => (
 						<div key={ index } className={ styles.tile } data-testid="skeleton-tile">
 							<Skeleton className={ styles.label } />
