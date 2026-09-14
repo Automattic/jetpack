@@ -1,4 +1,5 @@
 import { useRaisePeriodChange, useReportScope } from '@jetpack-premium-analytics/data';
+import { createTZDateFromParts } from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -82,6 +83,12 @@ jest.mock(
 		)
 );
 
+// The range the routing mock above applies, as the card would raise it.
+const JUNE_2026 = {
+	from: createTZDateFromParts( [ 2026, 5, 1 ], 'UTC' ),
+	to: createTZDateFromParts( [ 2026, 5, 16 ], 'UTC' ),
+};
+
 /**
  * Reads the scope from where the page's widgets render.
  *
@@ -91,11 +98,7 @@ function MockScopeProbe() {
 	const { offersComparison } = useReportScope();
 	const raisePeriodChange = useRaisePeriodChange();
 	const openJune = useCallback(
-		() =>
-			raisePeriodChange( 'post:41', {
-				from: new Date( 2026, 5, 1 ),
-				to: new Date( 2026, 5, 16 ),
-			} ),
+		() => raisePeriodChange( 'post:41', JUNE_2026 ),
 		[ raisePeriodChange ]
 	);
 
@@ -109,7 +112,6 @@ function MockScopeProbe() {
 	);
 }
 
-// Stands in for the period trigger: shows the id it was handed and can end it.
 /**
  * Stands in for the period trigger: shows the id it was handed and can end it.
  *
@@ -350,9 +352,6 @@ describe( 'post detail stage', () => {
 		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith( 41, mockEmailScope.reportParams, false );
 	} );
 
-	// A card can set the page's period (WOOA7S-2036): the control draws
-	// attention to it and the change is read out, then the id is let go so a
-	// remount does not replay it.
 	it( 'draws attention to a period a card set, and lets it go once shown', async () => {
 		const user = userEvent.setup();
 		mockSummary();
@@ -363,9 +362,8 @@ describe( 'post detail stage', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Open June from a card' } ) );
 
 		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
-		await expect( screen.findByText( /Date range updated to/ ) ).resolves.toHaveAttribute(
-			'role',
-			'status'
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
+			/Date range updated to/
 		);
 
 		await user.click( screen.getByRole( 'button', { name: 'End attention' } ) );

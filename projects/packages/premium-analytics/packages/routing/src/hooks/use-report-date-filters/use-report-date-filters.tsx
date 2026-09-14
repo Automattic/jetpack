@@ -60,7 +60,16 @@ export type ReportDateFilters = {
 	 */
 	intervalOptions: IntervalType[];
 
-	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
+	/**
+	 * Stage a primary range edit. `exactRange` stores the ends as given rather
+	 * than widening `to` to the end of its day: for a range a card computed,
+	 * not one the reader picked from the calendar.
+	 */
+	onChange: (
+		range?: DateRange,
+		presetId?: PrimaryPresetId,
+		options?: { exactRange?: boolean }
+	) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
 
@@ -139,8 +148,17 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	const onChange = useCallback(
-		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
+		(
+			nextRange?: DateRange,
+			nextPresetId?: PrimaryPresetId,
+			options?: { exactRange?: boolean }
+		) => {
+			const patch = buildRangePatch( {
+				nextRange,
+				nextPresetId,
+				exactRange: options?.exactRange,
+				effective,
+			} );
 
 			if ( patch ) {
 				stage( patch );

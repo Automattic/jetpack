@@ -8,6 +8,7 @@ export { ReportScopeProvider, useReportScope, type ReportScope } from './report-
 
 export {
 	PeriodChangeSignalProvider,
+	postSurface,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
 	type PeriodChangeAttention,

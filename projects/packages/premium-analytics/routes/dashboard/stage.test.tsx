@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { queryClient, useRaisePeriodChange, useReportScope } from '@jetpack-premium-analytics/data';
+import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
@@ -24,8 +25,11 @@ import type { ForwardedRef, ReactNode } from 'react';
 // Base UI's `Tabs.Panel` defaults to `keepMounted={false}`, so only the active
 // section is ever in the DOM; `mockMountedSectionSlugs` keeps extras for one frame.
 let mockActiveSectionSlug = 'insights';
-const JULY_2026 = { from: new Date( 2026, 6, 1 ), to: new Date( 2026, 6, 31, 23, 59, 59, 999 ) };
-let mockAppliedRange: { from?: Date; to?: Date } = { from: undefined, to: undefined };
+const JULY_2026 = {
+	from: createTZDateFromParts( [ 2026, 6, 1 ], 'UTC' ),
+	to: endOfDayTZ( createTZDateFromParts( [ 2026, 6, 31 ], 'UTC' ), 'UTC' ),
+};
+let mockAppliedRange: Partial< typeof JULY_2026 > = { from: undefined, to: undefined };
 let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
@@ -189,7 +193,6 @@ function MockScopeProbe() {
 	);
 }
 
-// Stands in for the period trigger: shows the id it was handed and can end it.
 /**
  * Stands in for the period trigger: shows the id it was handed and can end it.
  *
@@ -469,8 +472,6 @@ describe( 'Dashboard period change signal', () => {
 		mockAppliedRange = { from: undefined, to: undefined };
 	} );
 
-	// A widget on one section can open another over a month (WOOA7S-2036): the
-	// period control there draws attention to it and the change is read out.
 	it( 'draws attention to a period a widget set once the section shows it', async () => {
 		const user = userEvent.setup();
 		const { rerender } = render( <Dashboard /> );
@@ -485,9 +486,9 @@ describe( 'Dashboard period change signal', () => {
 		rerender( <Dashboard /> );
 
 		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
-		await expect(
-			screen.findByText( 'Date range updated to July 2026.' )
-		).resolves.toHaveAttribute( 'role', 'status' );
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
+			'Date range updated to July 2026.'
+		);
 
 		await user.click( screen.getByRole( 'button', { name: 'End attention' } ) );
 		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );

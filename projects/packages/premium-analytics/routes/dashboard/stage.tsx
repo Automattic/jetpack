@@ -270,7 +270,6 @@ function Dashboard(): JSX.Element {
 
 	return (
 		<GlobalErrorProvider>
-			{ /* Outlives the sections' headers, so it is in place before a change to read out. */ }
 			<PeriodChangeStatus
 				attentionId={ attentionId }
 				appliedPresetId={ dateFilters.appliedPresetId }

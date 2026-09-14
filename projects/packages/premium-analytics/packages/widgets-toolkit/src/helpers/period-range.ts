@@ -23,7 +23,10 @@ export type PeriodBounds = {
 };
 
 /** The bucket cut to the life, or `null` when none of it is inside. */
-function clampToLife( bucket: DateRange | null, { lifeStartsAt, timeZone }: PeriodBounds ) {
+function clampToLife(
+	bucket: DateRange | null,
+	{ lifeStartsAt, timeZone }: PeriodBounds
+): Required< DateRange > | null {
 	if ( ! bucket?.from || ! bucket.to ) {
 		return null;
 	}
@@ -42,7 +45,7 @@ function clampToLife( bucket: DateRange | null, { lifeStartsAt, timeZone }: Peri
  * @param bounds - The life and the clock.
  * @return The range to apply, or `null`.
  */
-export function monthRange( key: MonthKey, bounds: PeriodBounds ): DateRange | null {
+export function monthRange( key: MonthKey, bounds: PeriodBounds ): Required< DateRange > | null {
 	const { timeZone, now } = bounds;
 	// The bucket the traffic chart opens on a click, cut at the site's clock.
 	const bucket = drillDateRange(
@@ -61,7 +64,7 @@ export function monthRange( key: MonthKey, bounds: PeriodBounds ): DateRange | n
  * @param bounds - The life and the clock.
  * @return The range to apply, or `null`.
  */
-export function yearRange( year: number, bounds: PeriodBounds ): DateRange | null {
+export function yearRange( year: number, bounds: PeriodBounds ): Required< DateRange > | null {
 	const { timeZone, now } = bounds;
 	const bucket = drillDateRange(
 		createTZDateFromParts( [ year, 0, 1 ], timeZone ),

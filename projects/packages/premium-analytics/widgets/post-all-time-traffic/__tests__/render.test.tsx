@@ -3,9 +3,11 @@
  */
 import {
 	PeriodChangeSignalProvider,
+	postSurface,
 	useSettlePeriodChange,
 	useStatsPost,
 } from '@jetpack-premium-analytics/data';
+import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
@@ -65,8 +67,8 @@ const RESPONSE = {
 };
 
 const NOVEMBER_2025 = {
-	from: new Date( '2025-11-10T00:00:00.000Z' ),
-	to: new Date( '2025-11-30T23:59:59.999Z' ),
+	from: createTZDateFromParts( [ 2025, 10, 10 ], 'UTC' ),
+	to: endOfDayTZ( createTZDateFromParts( [ 2025, 10, 30 ], 'UTC' ), 'UTC' ),
 };
 
 // The current year closes the table, so the clock is pinned: the rows are 2026 and 2025.
@@ -150,7 +152,8 @@ describe( 'PostAllTimeTraffic widget', () => {
 				from: new Date( '2025-11-10T00:00:00.000Z' ),
 				to: new Date( '2025-12-31T23:59:59.999Z' ),
 			},
-			'custom'
+			'custom',
+			{ exactRange: true }
 		);
 		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
 	} );
@@ -161,16 +164,14 @@ describe( 'PostAllTimeTraffic widget', () => {
 
 		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
 
-		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom' );
+		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom', { exactRange: true } );
 		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	// The page's date control draws attention to a period the card set, so the
-	// reader notices the numbers around it changed (WOOA7S-2036).
 	it( 'signals the period change to the page it is on', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		function DateControlProbe() {
-			const { attentionId } = useSettlePeriodChange( 'post:779', NOVEMBER_2025, true );
+			const { attentionId } = useSettlePeriodChange( postSurface( 779 ), NOVEMBER_2025, true );
 
 			return <output>{ attentionId ?? 'none' }</output>;
 		}
@@ -208,7 +209,8 @@ describe( 'PostAllTimeTraffic widget', () => {
 				from: new Date( '2025-11-01T00:00:00.000Z' ),
 				to: new Date( '2025-11-30T23:59:59.999Z' ),
 			},
-			'custom'
+			'custom',
+			{ exactRange: true }
 		);
 	} );
 

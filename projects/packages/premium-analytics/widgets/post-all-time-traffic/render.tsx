@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { toPostId, useRaisePeriodChange } from '@jetpack-premium-analytics/data';
+import { postSurface, toPostId, useRaisePeriodChange } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
@@ -65,9 +65,8 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 				month === undefined ? yearRange( year, bounds ) : monthRange( { year, month }, bounds );
 
 			if ( range ) {
-				// Raised first, so the page's date control knows the change is not the reader's.
-				raisePeriodChange( `post:${ postId }`, range );
-				onChange( range, PRESET_CUSTOM );
+				raisePeriodChange( postSurface( postId ), range );
+				onChange( range, PRESET_CUSTOM, { exactRange: true } );
 				onApply();
 			}
 		},

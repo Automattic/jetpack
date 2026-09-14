@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { type DateRange } from '@jetpack-premium-analytics/datetime';
 import {
 	createContext,
 	useCallback,
@@ -14,13 +15,10 @@ import {
 
 /**
  * How long a raised signal may wait for its navigation to land before it is
- * dropped. Navigations here are synchronous, so this only has to outlive a
- * few renders; it keeps a click that went nowhere from firing on a later,
+ * dropped. Keeps a click that went nowhere from firing on a later,
  * hand-picked visit to the same range.
  */
 export const PERIOD_CHANGE_SIGNAL_TTL_MS = 5000;
-
-type PeriodChangeRange = { from?: Date; to?: Date };
 
 type PeriodChangeSignal = {
 	id: number;
@@ -31,7 +29,7 @@ type PeriodChangeSignal = {
 
 type PeriodChangeSignalContextValue = {
 	signal: PeriodChangeSignal | null;
-	raise: ( surface: string, range: PeriodChangeRange ) => void;
+	raise: ( surface: string, range: Required< DateRange > ) => void;
 	settle: ( id: number ) => void;
 };
 
@@ -43,8 +41,19 @@ const INERT: PeriodChangeSignalContextValue = {
 
 const PeriodChangeSignalContext = createContext< PeriodChangeSignalContextValue >( INERT );
 
-function rangeKey( range?: PeriodChangeRange ): string | undefined {
+function rangeKey( range?: DateRange ): string | undefined {
 	return range?.from && range.to ? `${ range.from.getTime() }:${ range.to.getTime() }` : undefined;
+}
+
+/**
+ * The surface key of a post detail page, shared by the card that raises the
+ * signal and the page that settles it.
+ *
+ * @param postId - The post the page shows.
+ * @return The surface key.
+ */
+export function postSurface( postId: number ): string {
+	return `post:${ postId }`;
 }
 
 /**
@@ -59,13 +68,14 @@ export function PeriodChangeSignalProvider( { children }: { children: ReactNode 
 	const [ signal, setSignal ] = useState< PeriodChangeSignal | null >( null );
 	const nextId = useRef( 0 );
 
-	const raise = useCallback( ( surface: string, range: PeriodChangeRange ) => {
-		const key = rangeKey( range );
-		if ( ! key ) {
-			return;
-		}
+	const raise = useCallback( ( surface: string, range: Required< DateRange > ) => {
 		nextId.current += 1;
-		setSignal( { id: nextId.current, surface, rangeKey: key, raisedAt: Date.now() } );
+		setSignal( {
+			id: nextId.current,
+			surface,
+			rangeKey: `${ range.from.getTime() }:${ range.to.getTime() }`,
+			raisedAt: Date.now(),
+		} );
 	}, [] );
 
 	const settle = useCallback( ( id: number ) => {
@@ -83,7 +93,9 @@ export function PeriodChangeSignalProvider( { children }: { children: ReactNode 
 
 /**
  * Raise a signal before committing a navigation that applies `range` on
- * `surface`: a dashboard section slug, or a detail page's own key.
+ * `surface`: a dashboard section slug, or a detail page's own key. The signal
+ * is matched against the applied range by instant, so the navigation must
+ * commit `range` exactly as given (`exactRange`), not the day-rounded form.
  *
  * @return The raise function.
  */
@@ -110,7 +122,7 @@ export type PeriodChangeAttention = {
  */
 export function useSettlePeriodChange(
 	surface: string,
-	appliedRange: PeriodChangeRange | undefined,
+	appliedRange: DateRange | undefined,
 	isShown: boolean
 ): PeriodChangeAttention {
 	const { signal, settle } = useContext( PeriodChangeSignalContext );
