@@ -315,10 +315,33 @@ function wpcom_expiry_notices_enqueue_surface( string $script, string $global, a
 	}
 	$handle = jetpack_mu_wpcom_enqueue_assets( $script, array( 'js' ) );
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $handle );
+	wpcom_expiry_notices_scope_rest_paths_to_site( $handle );
 	wp_add_inline_script( $handle, 'window.' . $global . ' = ' . $json . ';', 'before' );
 	if ( null !== $style ) {
 		jetpack_mu_wpcom_enqueue_assets( $style, array( 'css' ) );
 	}
+}
+
+/**
+ * Point the dismissal write at this site on the centralized API.
+ *
+ * On a WordPress.com site `apiFetch` reaches public-api.wordpress.com, where
+ * `/wp/v2/users/me` only exists under `/wp/v2/sites/{id}/`. wp-admin gets that
+ * rewrite from the block editor's middleware; the front end has none, so this
+ * supplies it where that middleware is not registered.
+ *
+ * @param string $handle The surface script the middleware must precede.
+ */
+function wpcom_expiry_notices_scope_rest_paths_to_site( string $handle ): void {
+	if ( ! Constants::is_true( 'IS_WPCOM' ) || wp_script_is( 'gutenberg-wpcom-apifetch', 'registered' ) ) {
+		return;
+	}
+	$site_id = (int) get_current_blog_id();
+	$script  = 'wp.apiFetch.use( function ( options, next ) {'
+		. " if ( 'string' === typeof options.path && 0 === options.path.indexOf( '/wp/v2/users/me' ) ) {"
+		. " options.path = '/wp/v2/sites/{$site_id}/' + options.path.slice( '/wp/v2/'.length ); }"
+		. ' return next( options ); } );';
+	wp_add_inline_script( $handle, $script, 'before' );
 }
 
 /**
@@ -571,6 +594,22 @@ add_action( 'init', 'wpcom_expiry_notices_register_meta' ); // @codeCoverageIgno
 // on `parse_request`, after `init`, and a write to an unregistered key is a
 // silent 200. Every dismissal arrives over REST.
 add_action( 'rest_api_init', 'wpcom_expiry_notices_register_meta' ); // @codeCoverageIgnore
+
+/**
+ * Register the keys once more after the centralized API has switched to the
+ * site. On WordPress.com the `rest_api_init` registration runs on the API's own
+ * blog, before `rest_pre_dispatch` switches to the site a `/sites/{id}/` route
+ * is for, so its keys carry that blog's prefix and the site's own key is
+ * unregistered when the write arrives; core drops it with a 200.
+ *
+ * @param mixed $response Response to replace the request with, or null.
+ * @return mixed
+ */
+function wpcom_expiry_notices_register_meta_for_request( $response ) {
+	wpcom_expiry_notices_register_meta();
+	return $response;
+}
+add_filter( 'rest_request_before_callbacks', 'wpcom_expiry_notices_register_meta_for_request' ); // @codeCoverageIgnore
 
 /**
  * The URL of the current page, for checkout to send the user back to.

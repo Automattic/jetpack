@@ -302,6 +302,17 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'Renew now', wpcom_expiry_notices_banner_urls( $state, '' )['primary']['label'] );
 	}
 
+	public function test_the_keys_are_registered_again_once_the_api_has_switched_to_the_site(): void {
+		$this->assertNotFalse( has_filter( 'rest_request_before_callbacks', 'wpcom_expiry_notices_register_meta_for_request' ) );
+
+		$key = Expiry_Notice_Dismiss::banner_meta_key();
+		$this->assertFalse( registered_meta_key_exists( 'user', $key ) );
+
+		$response = new \WP_REST_Response();
+		$this->assertSame( $response, wpcom_expiry_notices_register_meta_for_request( $response ) );
+		$this->assertTrue( registered_meta_key_exists( 'user', $key ) );
+	}
+
 	public function test_the_sentence_joins_heading_and_body(): void {
 		$this->assertSame(
 			'Your Business plan expires in 5 days. Your site will move to the Free plan and you’ll lose plugins, custom themes, and 50 GB of storage. Renew now to keep everything in place.',
