@@ -1,0 +1,32 @@
+@use "../../styles/widget-container" as *;
+
+/* Size containment so the short-tile query below can read the body height.
+ * Safe here for the reason `widget-state` gives: the body is always
+ * definite-height, so containment cannot collapse it. */
+.root {
+	container-type: size;
+	block-size: 100%;
+}
+
+/* The chart fills the tile and centres the grid in the leftover height; `safe`
+ * keeps the first row reachable on a tile shorter than the grid. */
+.root .chart {
+	block-size: 100%;
+	justify-content: safe center;
+}
+
+/* The grid is the scroll container, so the legend stays put while the months
+ * scroll. A grouped compact grid otherwise refuses to shrink below its cells
+ * plus the minimum gaps and overflows the tile instead. */
+.root .chart [role="grid"] {
+	min-inline-size: 0;
+	overflow-x: auto;
+}
+
+/* On a one-row tile the legend would take the room the month blocks need. */
+@container (max-block-size: #{$widget-short-max-block-size}) {
+
+	.legend {
+		display: none;
+	}
+}
