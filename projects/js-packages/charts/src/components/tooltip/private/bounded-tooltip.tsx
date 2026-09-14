@@ -42,7 +42,7 @@ const findClippingAncestor = ( wrapper: Element ): Element | null => {
  * Where the box goes, in wrapper coordinates. Automatic placement flips to
  * the side that clips less, then clamps inside `bounds`; below-axis placement
  * is centered on the anchor and clamped horizontally; beside placement preserves
- * the anchor’s y and only flips horizontally before bounds clamping.
+ * the anchor's y and only flips horizontally before bounds clamping.
  *
  * The flip measures against the visible part of the wrapper, its intersection
  * with `bounds`. Only the clamp is bound by the page: a box that fits inside the
