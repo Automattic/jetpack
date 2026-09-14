@@ -114,6 +114,8 @@ Each axis names itself: `--a8c-charts-color-axis-x` / `-tick-x` paint the x axis
 
 Gridlines also stay on one role, `--a8c-charts-color-grid`: visx paints rows and columns from a single style object, so the grid is genuinely one thing rather than two.
 
+Under `forced-colors: active`, the axis label role uses `CanvasText`, and the grid, x-axis line, and x-axis tick roles use `GrayText`. The y-axis line and ticks remain hidden by default.
+
 The terminal `none` in each chain is explicit rather than load-bearing: `stroke` already starts at `none`, so an undeclared role paints nothing either way.
 
 **It would be load-bearing on a `fill`.** A `var()` naming an undeclared property with no fallback is invalid at computed-value time, which drops the declaration rather than leaving it absent — and `fill` starts at *black*. That is why `--a8c-charts-color-label-background` carries a terminal `transparent`: without it, an undeclared role would put a black plate behind every pie label. Give any role read by a `fill` a terminal literal, even when the intent is "paint nothing".

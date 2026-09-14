@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { compileString } from 'sass-embedded';
 
 const stylesheet = readFileSync( join( __dirname, '..', 'chart-scope.scss' ), 'utf8' );
 const tokensDoc = readFileSync( join( __dirname, '..', '..', '..', 'TOKENS.md' ), 'utf8' );
@@ -19,7 +20,7 @@ type Entry = {
  * @return Every declared `--a8c-charts-*` property, keyed by name.
  */
 function parseStylesheet(): Map< string, Entry > {
-	const body = stylesheet.slice( stylesheet.indexOf( '{' ) + 1, stylesheet.lastIndexOf( '}' ) );
+	const body = stylesheet.slice( stylesheet.indexOf( '{' ) + 1, stylesheet.indexOf( '}' ) );
 	const entries = new Map< string, Entry >();
 
 	for ( const declaration of body
@@ -112,6 +113,39 @@ const declared = parseStylesheet();
 const documented = parseTokensDoc();
 
 describe( 'chart scope catalog', () => {
+	it( 'uses system colors for axis text and visible lines only under forced colors', () => {
+		const style = document.createElement( 'style' );
+		style.textContent = compileString( stylesheet ).css;
+		document.head.appendChild( style );
+
+		try {
+			const mediaRules = Array.from( style.sheet!.cssRules ).filter(
+				( rule ): rule is CSSMediaRule => rule.type === CSSRule.MEDIA_RULE
+			);
+			expect( mediaRules ).toHaveLength( 1 );
+			expect( mediaRules[ 0 ].conditionText ).toBe( '(forced-colors: active)' );
+			expect( mediaRules[ 0 ].cssRules ).toHaveLength( 1 );
+
+			const rule = mediaRules[ 0 ].cssRules[ 0 ] as CSSStyleRule;
+			expect( rule.selectorText ).toBe( ':where(.a8c-charts-scope)' );
+			expect(
+				Object.fromEntries(
+					Array.from( rule.style ).map( property => [
+						property,
+						rule.style.getPropertyValue( property ).trim().toLowerCase(),
+					] )
+				)
+			).toEqual( {
+				'--a8c-charts-color-label-axis': 'canvastext',
+				'--a8c-charts-color-grid': 'graytext',
+				'--a8c-charts-color-axis-x': 'graytext',
+				'--a8c-charts-color-tick-x': 'graytext',
+			} );
+		} finally {
+			style.remove();
+		}
+	} );
+
 	it( 'documents every declared role, and declares every documented one', () => {
 		expect( [ ...documented.keys() ].sort() ).toEqual( [ ...declared.keys() ].sort() );
 	} );

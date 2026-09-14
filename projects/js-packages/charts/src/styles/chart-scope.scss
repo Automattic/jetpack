@@ -86,3 +86,13 @@
 	--a8c-charts-dimension-leaderboard-row-gap: var(--wpds-dimension-gap-md);
 	--a8c-charts-dimension-leaderboard-column-gap: var(--wpds-dimension-gap-xs);
 }
+
+@media (forced-colors: active) {
+
+	:where(.a8c-charts-scope) {
+		--a8c-charts-color-label-axis: CanvasText;
+		--a8c-charts-color-grid: GrayText;
+		--a8c-charts-color-axis-x: GrayText;
+		--a8c-charts-color-tick-x: GrayText;
+	}
+}
