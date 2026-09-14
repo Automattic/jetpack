@@ -2,17 +2,17 @@
  * External dependencies
  */
 import { SelectField } from '@jetpack-premium-analytics/fields';
+import type { MonthlyHeatmapMetric } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, _x } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import type { AllTimeTrafficMetric } from './build-all-time-traffic-rows';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 export type PostAllTimeTrafficAttributes = {
 	/** Which number each cell reports; total views when unset. */
-	metric?: AllTimeTrafficMetric;
+	metric?: MonthlyHeatmapMetric;
 };
 
 // `relevance: 'high'`: the framed host draws the select in the widget header,

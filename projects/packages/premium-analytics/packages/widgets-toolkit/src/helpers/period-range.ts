@@ -11,10 +11,10 @@ import {
 /**
  * Internal dependencies
  */
-import type { MonthKey } from './build-all-time-traffic-rows';
+import type { MonthKey } from './month-key';
 
 export type PeriodBounds = {
-	/** Where the post's life starts; the range never starts before that day. */
+	/** Where the subject's life starts, a post's publish day say; the range never starts before it. */
 	lifeStartsAt?: Date;
 	/** The site timezone the calendar periods are read in. */
 	timeZone: string;
@@ -22,7 +22,7 @@ export type PeriodBounds = {
 	now?: Date;
 };
 
-/** The bucket cut to the post's life, or `null` when none of it is inside. */
+/** The bucket cut to the life, or `null` when none of it is inside. */
 function clampToLife( bucket: DateRange | null, { lifeStartsAt, timeZone }: PeriodBounds ) {
 	if ( ! bucket?.from || ! bucket.to ) {
 		return null;
@@ -35,11 +35,11 @@ function clampToLife( bucket: DateRange | null, { lifeStartsAt, timeZone }: Peri
 }
 
 /**
- * The page range for a month of the table: the calendar month in the site
- * timezone, cut to the post's life. `null` when none of it is inside.
+ * The calendar month in the site timezone, cut to the life and at the clock.
+ * `null` when none of it is inside.
  *
  * @param key    - The month to open.
- * @param bounds - The post's life.
+ * @param bounds - The life and the clock.
  * @return The range to apply, or `null`.
  */
 export function monthRange( key: MonthKey, bounds: PeriodBounds ): DateRange | null {
@@ -55,10 +55,10 @@ export function monthRange( key: MonthKey, bounds: PeriodBounds ): DateRange | n
 }
 
 /**
- * The page range for a year of the table, cut to the post's life.
+ * The calendar year in the site timezone, cut the same way as `monthRange`.
  *
  * @param year   - The year to open.
- * @param bounds - The post's life.
+ * @param bounds - The life and the clock.
  * @return The range to apply, or `null`.
  */
 export function yearRange( year: number, bounds: PeriodBounds ): DateRange | null {
