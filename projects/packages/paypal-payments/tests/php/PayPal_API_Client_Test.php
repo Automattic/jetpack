@@ -34,6 +34,7 @@ class PayPal_API_Client_Test extends TestCase {
 		remove_all_filters( 'pre_http_request' );
 
 		PayPal_API_Client::forget_cached_resources( 'PLB-CACHED1' );
+		delete_option( PayPal_API_Client::DELETED_RESOURCES_OPTION );
 	}
 
 	// --- Constants ---
@@ -519,6 +520,60 @@ class PayPal_API_Client_Test extends TestCase {
 
 		$this->assertNotFalse( get_transient( 'paypal_resource_plb-cached1' ) );
 		$this->assertSame( $before, (int) get_option( PayPal_API_Client::LIST_CACHE_VERSION_OPTION, 0 ) );
+	}
+
+	// --- Deleted links ---
+
+	/**
+	 * Test a successful delete is remembered, so the link's blocks stop rendering.
+	 */
+	public function test_delete_resource_remembers_the_deleted_link() {
+		$this->set_up_connected_state();
+		$this->mock_http_response( 204, '' );
+
+		PayPal_API_Client::delete_resource( 'PLB-GONE1' );
+
+		$this->assertTrue( PayPal_API_Client::is_deleted_resource( 'PLB-GONE1' ) );
+		$this->assertFalse( PayPal_API_Client::is_deleted_resource( 'PLB-ALIVE1' ) );
+	}
+
+	public function test_delete_resource_remembers_a_link_paypal_no_longer_has() {
+		$this->set_up_connected_state();
+		$this->mock_http_response(
+			404,
+			array(
+				'name'    => 'RESOURCE_NOT_FOUND',
+				'message' => 'Not found.',
+			)
+		);
+
+		PayPal_API_Client::delete_resource( 'PLB-GONE2' );
+
+		$this->assertTrue( PayPal_API_Client::is_deleted_resource( 'PLB-GONE2' ) );
+	}
+
+	public function test_a_failed_delete_is_not_remembered() {
+		$this->set_up_connected_state();
+		$this->mock_http_response( 500, array( 'message' => 'down' ) );
+
+		PayPal_API_Client::delete_resource( 'PLB-STILLHERE' );
+
+		$this->assertFalse( PayPal_API_Client::is_deleted_resource( 'PLB-STILLHERE' ) );
+	}
+
+	public function test_remember_deleted_resource_keeps_the_newest_and_drops_duplicates() {
+		for ( $i = 1; $i <= PayPal_API_Client::DELETED_RESOURCES_LIMIT + 5; $i++ ) {
+			PayPal_API_Client::remember_deleted_resource( 'PLB-N' . $i );
+		}
+		PayPal_API_Client::remember_deleted_resource( 'PLB-N50' );
+
+		$deleted = get_option( PayPal_API_Client::DELETED_RESOURCES_OPTION );
+
+		$this->assertCount( PayPal_API_Client::DELETED_RESOURCES_LIMIT, $deleted );
+		$this->assertSame( 'PLB-N50', $deleted[0] );
+		$this->assertCount( 1, array_keys( $deleted, 'PLB-N50', true ) );
+		$this->assertFalse( PayPal_API_Client::is_deleted_resource( 'PLB-N1' ) );
+		$this->assertTrue( PayPal_API_Client::is_deleted_resource( 'PLB-N105' ) );
 	}
 
 	// --- Error handling ---

@@ -64,6 +64,20 @@ class PayPal_API_Client {
 	const RESOURCE_CACHE_TTL = 300;
 
 	/**
+	 * Links deleted through this site, newest first, so their blocks stop rendering.
+	 *
+	 * @var string
+	 */
+	const DELETED_RESOURCES_OPTION = 'jetpack_paypal_payment_buttons_deleted_resources';
+
+	/**
+	 * How many deleted links are remembered. Older ones fall off the end.
+	 *
+	 * @var int
+	 */
+	const DELETED_RESOURCES_LIMIT = 100;
+
+	/**
 	 * Default timeout for API requests in seconds.
 	 *
 	 * @var int
@@ -339,13 +353,54 @@ class PayPal_API_Client {
 			$error_data = $result->get_error_data();
 			if ( isset( $error_data['status'] ) && 404 === (int) $error_data['status'] ) {
 				self::forget_cached_resources( $resource_id );
+				self::remember_deleted_resource( $resource_id );
 			}
 			return $result;
 		}
 
 		self::forget_cached_resources( $resource_id );
+		self::remember_deleted_resource( $resource_id );
 
 		return true;
+	}
+
+	/**
+	 * Record a deleted link, so a published block still pointing at it renders nothing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id PayPal resource ID.
+	 * @return void
+	 */
+	public static function remember_deleted_resource( $resource_id ) {
+		$deleted = self::deleted_resources();
+		array_unshift( $deleted, $resource_id );
+		$deleted = array_slice( array_values( array_unique( $deleted ) ), 0, self::DELETED_RESOURCES_LIMIT );
+
+		update_option( self::DELETED_RESOURCES_OPTION, $deleted, false );
+	}
+
+	/**
+	 * Whether a link was deleted through this site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id PayPal resource ID.
+	 * @return bool
+	 */
+	public static function is_deleted_resource( $resource_id ) {
+		return in_array( $resource_id, self::deleted_resources(), true );
+	}
+
+	/**
+	 * The remembered deleted links, newest first.
+	 *
+	 * @return string[]
+	 */
+	private static function deleted_resources() {
+		$deleted = get_option( self::DELETED_RESOURCES_OPTION, array() );
+
+		return is_array( $deleted ) ? $deleted : array();
 	}
 
 	/**
