@@ -68,7 +68,9 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 
 		$this->set_reverted( 15 );
 		$this->assertTrue( wpcom_expiry_notices_frontend_banner_is_due() );
-		$this->assertTrue( wpcom_expiry_notices_frontend_banner_data()['is_dismissible'] );
+		$data = wpcom_expiry_notices_frontend_banner_data();
+		$this->assertNotNull( $data );
+		$this->assertTrue( $data['is_dismissible'] );
 
 		$this->set_reverted( 30 );
 		$this->assertFalse( wpcom_expiry_notices_frontend_banner_is_due() );

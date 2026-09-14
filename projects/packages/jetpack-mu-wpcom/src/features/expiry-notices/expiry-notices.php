@@ -63,11 +63,13 @@ if ( ! function_exists( 'wpcom_expiry_get_reverted_transfer' ) ) {
 		$cached = Expiry_Wpcom::remember(
 			'wpcom_expiry_notices_reverted_transfer_' . $blog_id,
 			static function () use ( $blog_id ): ?string {
+				// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists() above.
 				$transfer = woa_get_latest_transfer( $blog_id );
 				if ( ! is_object( $transfer ) || is_wp_error( $transfer ) || 'reverted' !== (string) ( $transfer->status ?? '' ) ) {
 					return Expiry_Wpcom::NONE;
 				}
 				$transfer_id = (int) ( $transfer->atomic_transfer_id ?? 0 );
+				// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists() above.
 				$reverted_at = $transfer_id ? woa_get_transfer_meta( $transfer_id, 'reverted_at' ) : null;
 				$reverted_ts = is_string( $reverted_at ) ? strtotime( $reverted_at ) : false;
 				if ( false === $reverted_ts ) {
@@ -76,6 +78,7 @@ if ( ! function_exists( 'wpcom_expiry_get_reverted_transfer' ) ) {
 				return wp_json_encode(
 					array(
 						'reverted_at'      => $reverted_ts,
+						// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists() above.
 						'for_expired_plan' => (bool) woa_is_revert_for_expired_plan( $transfer_id ),
 					),
 					JSON_UNESCAPED_SLASHES

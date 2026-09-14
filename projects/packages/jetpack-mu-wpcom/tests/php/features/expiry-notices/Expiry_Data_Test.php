@@ -168,10 +168,14 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		);
 		try {
 			$GLOBALS['wpcom_get_site_purchases_test_value'] = array();
-			$this->assertSame( Expiry_Data::STATE_EXPIRED, Expiry_Data::get_expiry_state()['state'] );
+			$state = Expiry_Data::get_expiry_state();
+			$this->assertNotNull( $state );
+			$this->assertSame( Expiry_Data::STATE_EXPIRED, $state['state'] );
 
 			$GLOBALS['wpcom_get_site_purchases_test_value'] = array( $this->purchase( 'business-bundle', -40 ) );
-			$this->assertSame( Expiry_Data::STATE_EXPIRED_GRACE, Expiry_Data::get_expiry_state()['state'] );
+			$state = Expiry_Data::get_expiry_state();
+			$this->assertNotNull( $state );
+			$this->assertSame( Expiry_Data::STATE_EXPIRED_GRACE, $state['state'] );
 
 			unset( $GLOBALS['wpcom_expiry_reverted_transfer_test_value'] );
 			$GLOBALS['wpcom_get_site_purchases_test_value'] = array();
