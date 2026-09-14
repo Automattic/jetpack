@@ -1,5 +1,5 @@
-/* The default tile is two rows tall, where both fields fit. Resized down to one
- * row the display figures outgrow the body, so scroll rather than clip. */
+/* Stacked highlights (a phone-width tile, or a value too wide to share a row)
+ * outgrow a one-row body, so scroll rather than clip. */
 .root {
 	block-size: 100%;
 	overflow-x: hidden;
