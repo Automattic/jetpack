@@ -8,20 +8,21 @@ import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	AbbreviatedValue,
 	describeError,
+	HighlightField,
+	HighlightGroup,
 	summaryCount,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
 import type { MostPopularDayAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ReactNode } from 'react';
 
 // The highlight is site-wide and ignores report params, but the host may still
 // inject them via `attributes`, so the shape has to accept them.
@@ -37,32 +38,6 @@ type MostPopularDayHighlightProps = {
 	share?: number;
 };
 
-type MostPopularDayFieldProps = {
-	label: string;
-	value: ReactNode;
-	caption?: string;
-};
-
-/**
- * A single labelled highlight: a small label, the prominent value, and a muted
- * caption beneath it (e.g. "Day" / "August 18" / "2020").
- */
-const MostPopularDayField = ( { label, value, caption }: MostPopularDayFieldProps ) => (
-	<Stack direction="column" gap="xs">
-		{ /* A heading, like the Most popular time card beside it: the labels carry
-		     the card's structure, so screen readers should hear it as structure. */ }
-		<Text variant="heading-md" render={ <h4 /> }>
-			{ label }
-		</Text>
-		<Text variant="heading-2xl">{ value }</Text>
-		{ caption !== undefined && (
-			<Text variant="body-md" className={ styles.caption }>
-				{ caption }
-			</Text>
-		) }
-	</Stack>
-);
-
 const VIEWS_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
 
 /**
@@ -71,13 +46,13 @@ const VIEWS_FORMAT = { type: 'number' as const, options: { useMultipliers: true 
  */
 export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayHighlightProps ) => {
 	return (
-		<Stack className={ styles.highlight } direction="column" gap="xl" justify="center">
-			<MostPopularDayField
+		<HighlightGroup>
+			<HighlightField
 				label={ __( 'Day', 'jetpack-premium-analytics-pkg' ) }
 				value={ formatDate( date, 'short' ) }
 				caption={ formatDate( date, 'year' ) }
 			/>
-			<MostPopularDayField
+			<HighlightField
 				label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
 				value={ <AbbreviatedValue value={ views } dataFormat={ VIEWS_FORMAT } /> }
 				// A summary without an all-time total gives no share to state; "0% of
@@ -92,7 +67,7 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 						  )
 				}
 			/>
-		</Stack>
+		</HighlightGroup>
 	);
 };
 
