@@ -47,9 +47,12 @@ function wpcom_marketplace_tab_enabled() {
 }
 
 /**
- * Adds the tab to the Add Plugins screen, after Featured.
+ * Adds the tab to the Add Plugins screen, ahead of Featured.
  *
- * Not first: core lands on whichever tab comes first here when none is requested.
+ * Core lands on whichever tab comes first when none is requested, so this also
+ * makes Marketplace the screen's default view. Placed before Featured rather than
+ * at the very front, which leaves core's own Search Results and Beta Testing tabs
+ * first on the screens that add them.
  *
  * @param string[] $tabs Tabs shown on the Add Plugins screen.
  * @return string[]
@@ -63,14 +66,13 @@ function wpcom_marketplace_add_tab( $tabs ) {
 
 	$position = array_search( 'featured', array_keys( $tabs ), true );
 	if ( false === $position ) {
-		$tabs[ WPCOM_MARKETPLACE_TAB ] = $label;
-		return $tabs;
+		return array_merge( array( WPCOM_MARKETPLACE_TAB => $label ), $tabs );
 	}
 
 	return array_merge(
-		array_slice( $tabs, 0, $position + 1, true ),
+		array_slice( $tabs, 0, $position, true ),
 		array( WPCOM_MARKETPLACE_TAB => $label ),
-		array_slice( $tabs, $position + 1, null, true )
+		array_slice( $tabs, $position, null, true )
 	);
 }
 add_filter( 'install_plugins_tabs', 'wpcom_marketplace_add_tab' );

@@ -171,9 +171,10 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The tab sits after Featured, leaving the screen's default view unchanged.
+	 * Coming first is also what makes it the default: core lands on whichever tab
+	 * comes first when none is requested.
 	 */
-	public function test_tab_is_registered_after_featured() {
+	public function test_tab_is_registered_first_and_becomes_the_default() {
 		$this->enable_tab();
 
 		$tabs = wpcom_marketplace_add_tab(
@@ -185,10 +186,42 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame(
-			array( 'featured', WPCOM_MARKETPLACE_TAB, 'popular', 'recommended' ),
+			array( WPCOM_MARKETPLACE_TAB, 'featured', 'popular', 'recommended' ),
 			array_keys( $tabs )
 		);
-		$this->assertSame( 'featured', array_key_first( $tabs ) );
+		$this->assertSame( WPCOM_MARKETPLACE_TAB, array_key_first( $tabs ) );
+	}
+
+	/**
+	 * Core puts Search Results and Beta Testing ahead of Featured on the screens that
+	 * add them, and means those to be the landing tab there.
+	 */
+	public function test_tab_does_not_displace_cores_own_leading_tabs() {
+		$this->enable_tab();
+
+		$tabs = wpcom_marketplace_add_tab(
+			array(
+				'beta'     => 'Beta Testing',
+				'featured' => 'Featured',
+				'popular'  => 'Popular',
+			)
+		);
+
+		$this->assertSame(
+			array( 'beta', WPCOM_MARKETPLACE_TAB, 'featured', 'popular' ),
+			array_keys( $tabs )
+		);
+	}
+
+	/**
+	 * Falls back to the front when core has no Featured tab to anchor against.
+	 */
+	public function test_tab_goes_first_without_a_featured_anchor() {
+		$this->enable_tab();
+
+		$tabs = wpcom_marketplace_add_tab( array( 'popular' => 'Popular' ) );
+
+		$this->assertSame( array( WPCOM_MARKETPLACE_TAB, 'popular' ), array_keys( $tabs ) );
 	}
 
 	/**
