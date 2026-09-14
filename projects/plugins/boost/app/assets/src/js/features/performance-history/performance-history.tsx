@@ -32,12 +32,9 @@ const PerformanceHistoryBody = () => {
 
 	if ( isError && ! isFetching ) {
 		return (
-			<Notice.Root intent="error" className={ styles[ 'error-notice' ] }>
+			<Notice.Root intent="error">
 				<Notice.Title>{ __( 'Failed to load performance history', 'jetpack-boost' ) }</Notice.Title>
-				<Notice.Description>
-					{ standardizeError( error ).message }
-					<pre className={ styles[ 'error-data' ] }>{ JSON.stringify( error, null, 2 ) }</pre>
-				</Notice.Description>
+				<Notice.Description>{ standardizeError( error ).message }</Notice.Description>
 				<Notice.Actions>
 					<Notice.ActionButton onClick={ refetch }>
 						{ __( 'Try again', 'jetpack-boost' ) }

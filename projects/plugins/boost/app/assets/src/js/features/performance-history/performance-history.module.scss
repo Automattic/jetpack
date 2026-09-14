@@ -14,17 +14,3 @@
 		border-color: transparent;
 	}
 }
-
-.error-notice {
-	// Notice.Root defaults to `container-type: inline-size`, which collapses
-	// to zero width inside this panel's shrink-to-fit flex row.
-	container-type: normal;
-}
-
-.error-data {
-	background-color: var(--gray-0);
-	padding: 16px;
-	margin-block-start: 12px;
-	white-space: pre-wrap;
-	border-radius: 4px;
-}
