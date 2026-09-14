@@ -1,15 +1,15 @@
-/* The loaded chart's geometry: a compact month block is seven 11px cells across
- * and six down, 2px apart, with a label line beneath. The blocks share the
- * leftover width down to the theme's group gap plus the cell gap either side;
- * past that the row clips where the chart would scroll. */
-$block-inline-size: 89px;
-$block-block-size: 76px;
-$group-gap: 20px;
+/* A month block is seven compact cells across and six down, a label line
+ * beneath; the cell size and gaps arrive from the chart theme as custom
+ * properties. The blocks share the leftover width down to the group gap plus
+ * the cell gap either side, as the loaded grid does; past that the row clips
+ * where the chart would scroll. */
+$weekdays: 7;
+$weeks: 6;
 
 .months {
 	display: flex;
 	justify-content: space-between;
-	gap: $group-gap;
+	gap: calc(var(--jpa-month-group-gap) + 2 * var(--jpa-month-cell-gap));
 	margin-block: auto;
 	overflow: hidden;
 }
@@ -23,8 +23,8 @@ $group-gap: 20px;
 }
 
 .grid {
-	inline-size: $block-inline-size;
-	block-size: $block-block-size;
+	inline-size: calc($weekdays * var(--jpa-month-cell-size) + ($weekdays - 1) * var(--jpa-month-cell-gap));
+	block-size: calc($weeks * var(--jpa-month-cell-size) + ($weeks - 1) * var(--jpa-month-cell-gap));
 	border-radius: var(--wpds-border-radius-sm);
 }
 

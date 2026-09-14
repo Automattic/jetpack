@@ -8,13 +8,6 @@ import userEvent from '@testing-library/user-event';
  */
 import { MonthCalendarHeatmap } from '../month-calendar-heatmap';
 
-// The chart's responsive wrapper asks for a ResizeObserver jsdom does not have.
-class ResizeObserverStub {
-	observe() {}
-	unobserve() {}
-	disconnect() {}
-}
-
 const VALUE_BY_DAY = { '2025-10-03': 2, '2026-09-14': 1 };
 const RANGE = { start: '2025-10-01', end: '2026-09-14' };
 
@@ -27,11 +20,7 @@ const LABELS = {
 };
 
 describe( 'MonthCalendarHeatmap', () => {
-	beforeAll( () => {
-		( globalThis as { ResizeObserver?: unknown } ).ResizeObserver = ResizeObserverStub;
-	} );
-
-	it( 'draws one grid of twelve named months on a shared scale', () => {
+	it( 'draws one grid of twelve named months on a shared scale, weeks from Monday', () => {
 		render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
 
 		const grid = screen.getByRole( 'grid', { name: 'Monthly posting activity' } );
@@ -53,6 +42,11 @@ describe( 'MonthCalendarHeatmap', () => {
 		] );
 		expect( screen.getByText( 'Fewer posts' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'More posts' ) ).toBeInTheDocument();
+		// October 2025 opens on a Wednesday: the third weekday column from Monday.
+		expect( screen.getByRole( 'gridcell', { name: 'Wed, Oct 1, 2025: No data' } ) ).toHaveAttribute(
+			'data-column',
+			'2'
+		);
 	} );
 
 	it( 'fades the days after the range end instead of reporting them', () => {
@@ -73,22 +67,5 @@ describe( 'MonthCalendarHeatmap', () => {
 
 		await user.hover( screen.getByRole( 'gridcell', { name: 'Sat, Oct 4, 2025: No data' } ) );
 		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No postsSat, Oct 4, 2025' );
-	} );
-
-	it( 'starts the weeks on Sunday when asked', () => {
-		render(
-			<MonthCalendarHeatmap
-				valueByDay={ VALUE_BY_DAY }
-				range={ RANGE }
-				weekStartsOn={ 0 }
-				{ ...LABELS }
-			/>
-		);
-
-		// October 2025 opens on a Wednesday: the fourth weekday column from Sunday, the third from Monday.
-		expect( screen.getByRole( 'gridcell', { name: 'Wed, Oct 1, 2025: No data' } ) ).toHaveAttribute(
-			'data-column',
-			'3'
-		);
 	} );
 } );

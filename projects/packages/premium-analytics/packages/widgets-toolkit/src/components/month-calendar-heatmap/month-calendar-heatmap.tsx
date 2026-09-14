@@ -31,14 +31,12 @@ export type MonthCalendarHeatmapProps = {
 	emptyLabel: string;
 	lessLabel: string;
 	moreLabel: string;
-	/** 0 = Sunday, 1 = Monday. Default 1. */
-	weekStartsOn?: 0 | 1;
 };
 
 /**
  * One mini calendar per month on a shared scale, months across and named
- * beneath. The blocks spread out in a wide tile; in a narrow one only the grid
- * scrolls, and a one-row tile drops the legend.
+ * beneath, weeks starting on Monday. The blocks spread out in a wide tile; in a
+ * narrow one only the grid scrolls, and a one-row tile drops the legend.
  */
 export function MonthCalendarHeatmap( {
 	valueByDay,
@@ -48,13 +46,10 @@ export function MonthCalendarHeatmap( {
 	emptyLabel,
 	lessLabel,
 	moreLabel,
-	weekStartsOn,
 }: MonthCalendarHeatmapProps ) {
 	// The locale comes from the enclosing chart provider, which WidgetRoot sets
 	// to the site's.
-	const { data, columnGroups } = useMonthCalendarHeatmapData( valueByDay, range, {
-		weekStartsOn,
-	} );
+	const { data, columnGroups } = useMonthCalendarHeatmapData( valueByDay, range );
 
 	const renderTooltip = useCallback(
 		( { value, cellLabel }: HeatmapTooltipData ) => (
@@ -80,7 +75,6 @@ export function MonthCalendarHeatmap( {
 				renderTooltip={ renderTooltip }
 				className={ styles.chart }
 			>
-				{ /* Wrapped so the scale sits centred: the chart lays its trailing content out full width. */ }
 				<Stack direction="row" justify="center" className={ styles.legend }>
 					<HeatmapChart.Legend lessLabel={ lessLabel } moreLabel={ moreLabel } />
 				</Stack>
