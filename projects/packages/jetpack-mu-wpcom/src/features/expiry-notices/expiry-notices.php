@@ -637,7 +637,7 @@ function wpcom_expiry_notices_ajax_dismiss(): void {
 	if ( 200 !== $result['status'] ) {
 		wp_send_json_error( $result['body'], $result['status'], $flags );
 	}
-	wp_send_json_success( $result['body'], null, $flags );
+	wp_send_json_success( $result['body'], $result['status'], $flags );
 }
 add_action( 'wp_ajax_wpcom_expiry_notice_dismiss', 'wpcom_expiry_notices_ajax_dismiss' ); // @codeCoverageIgnore
 
