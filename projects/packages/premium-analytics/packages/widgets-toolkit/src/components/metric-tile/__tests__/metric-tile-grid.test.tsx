@@ -22,6 +22,10 @@ function renderMetricGrid() {
 }
 
 describe( 'MetricTileGrid', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
 	it( 'renders metric tiles as a list', () => {
 		renderMetricGrid();
 
@@ -65,7 +69,6 @@ describe( 'MetricTileGrid', () => {
 		);
 
 		expect( screen.getByRole( 'list' ) ).toHaveAttribute( 'data-layout', 'grid' );
-		jest.restoreAllMocks();
 	} );
 
 	it( 'renders the placeholder for null and non-finite values', () => {

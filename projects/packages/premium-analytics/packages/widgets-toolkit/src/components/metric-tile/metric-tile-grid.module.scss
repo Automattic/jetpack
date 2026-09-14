@@ -1,13 +1,11 @@
 @use "../../styles/widget-container" as *;
+@use "./metric-tile-layouts";
 
 // Metrics are separated by a hairline rather than boxed: each tile draws the
 // rule on the edge it shares with the tile before it, and the outer edges stay
 // open. Same weak stroke as WidgetFooter's rule in the same card.
 $metric-tile-grid-divider: var(--wpds-border-width-xs) solid
 	var(--wpds-color-stroke-surface-neutral-weak);
-// Mirrored by `GRID_MIN_ROW_BLOCK_SIZE` in the layout picker, which only
-// chooses the grid when the body has this much height per tile row.
-$metric-tile-grid-cell-min-block-size: 96px;
 
 /* Size containment removes the container from auto sizing, so it must get its
  * height from outside: flex stretching in a flex parent, or the 100% chain
@@ -23,10 +21,8 @@ $metric-tile-grid-cell-min-block-size: 96px;
 }
 
 .grid {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-sm);
-	min-block-size: 100%;
+
+	@include metric-tile-layouts.layouts;
 }
 
 .tile {
@@ -99,47 +95,15 @@ $metric-tile-grid-cell-min-block-size: 96px;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-/* Compact: a scrolling list for a one-column widget too short to stretch. */
-.grid[data-layout="compact"] {
-	gap: var(--wpds-dimension-gap-xs);
-	min-block-size: 0;
-}
-
-.grid[data-layout="compact"] .tile {
-	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline: var(--wpds-dimension-padding-md);
-}
-
 .grid[data-layout="compact"] .tile .value,
 .grid[data-layout="compact"] .tile .placeholder {
 	font-size: var(--wpds-typography-font-size-lg);
-}
-
-/* Stacked: the rows share the body height evenly. */
-.grid[data-layout="stacked"] .tile {
-	flex: 1 1 0;
-	min-block-size: 0;
-	padding-inline: var(--wpds-dimension-padding-lg);
 }
 
 /* One column, so the shared edge is the row above. */
 .grid[data-layout="compact"] .tile + .tile,
 .grid[data-layout="stacked"] .tile + .tile {
 	border-block-start: $metric-tile-grid-divider;
-}
-
-/* Row and grid: centered tiles with the label above the value. */
-.grid[data-layout="row"],
-.grid[data-layout="grid"] {
-	gap: var(--wpds-dimension-gap-md);
-}
-
-.grid[data-layout="row"] .tile,
-.grid[data-layout="grid"] .tile {
-	flex-direction: column;
-	justify-content: center;
-	gap: var(--wpds-dimension-gap-sm);
-	text-align: center;
 }
 
 .grid[data-layout="row"] .header,
@@ -156,16 +120,6 @@ $metric-tile-grid-cell-min-block-size: 96px;
 	white-space: normal;
 }
 
-.grid[data-layout="row"] {
-	flex-direction: row;
-}
-
-.grid[data-layout="row"] .tile {
-	flex: 1 1 0;
-	padding-block: var(--wpds-dimension-padding-md);
-	padding-inline: var(--wpds-dimension-padding-lg);
-}
-
 /* One row, so the shared edge is the tile's leading side. */
 .grid[data-layout="row"] .tile + .tile {
 	border-inline-start: $metric-tile-grid-divider;
@@ -178,22 +132,6 @@ $metric-tile-grid-cell-min-block-size: 96px;
 	.grid[data-layout="row"] .tile {
 		padding-block: var(--wpds-dimension-padding-xs);
 	}
-}
-
-.grid[data-layout="grid"] {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	grid-auto-rows: minmax($metric-tile-grid-cell-min-block-size, 1fr);
-}
-
-.grid[data-layout="grid"] .tile {
-	padding: var(--wpds-dimension-padding-lg);
-}
-
-/* An odd count leaves the last row half empty and its divider stopping dead at
- * the midpoint, so the trailing tile takes the whole row instead. */
-.grid[data-layout="grid"] .tile:last-child:nth-child(odd) {
-	grid-column: 1 / -1;
 }
 
 /* Two columns: position decides the shared edge. Column two is always an even

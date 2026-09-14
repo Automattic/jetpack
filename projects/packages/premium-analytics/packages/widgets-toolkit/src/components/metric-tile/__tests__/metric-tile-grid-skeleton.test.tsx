@@ -8,6 +8,10 @@ import { render, screen } from '@testing-library/react';
 import { MetricTileGridSkeleton } from '../metric-tile-grid-skeleton';
 
 describe( 'MetricTileGridSkeleton', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
 	it( 'draws the tiles the widget asked for', () => {
 		render( <MetricTileGridSkeleton tiles={ 3 } /> );
 
@@ -34,7 +38,6 @@ describe( 'MetricTileGridSkeleton', () => {
 		);
 
 		expect( screen.getByTestId( 'skeleton-tiles' ) ).toHaveAttribute( 'data-layout', 'grid' );
-		jest.restoreAllMocks();
 	} );
 
 	it( 'fills the grid when every metric is switched off', () => {

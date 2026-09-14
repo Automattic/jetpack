@@ -16,11 +16,10 @@ const TILES = [
 	{ key: 'comments', icon: comment, label: 'Comments', value: 42 },
 ];
 
-/* Frames a story as a dashboard widget body: the tile's own box, inset by the
- * dashboard's `--wp-ui-card-padding` override, so a shape clears the card
- * border by the same distance it does in product. Outside a dashboard grid the
- * layout picker falls back to the width (380px and up counts as wide), so the
- * canvas width stands in for the column span. */
+/* Frames a story as a dashboard widget body, inset by the dashboard's
+ * `--wp-ui-card-padding` override. Outside a dashboard grid the layout picker
+ * falls back to `WIDE_MIN_INLINE_SIZE`, so the canvas width stands in for the
+ * column span. */
 const makeCanvas = ( width: string, height: string ): Decorator =>
 	function CanvasDecorator( Story ) {
 		return (

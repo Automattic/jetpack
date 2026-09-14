@@ -17,8 +17,11 @@ export type MetricTileLayout = 'compact' | 'stacked' | 'row' | 'grid';
 const WIDE_MIN_INLINE_SIZE = 380;
 // The list stretches only when each row gets at least this much height.
 const STACKED_MIN_ROW_BLOCK_SIZE = 68;
-// Mirrored by `$metric-tile-grid-cell-min-block-size` in the grid's stylesheet.
-const GRID_MIN_ROW_BLOCK_SIZE = 96;
+// A grid tile at its shortest: padding-lg above and below, the label's
+// line-height-sm, gap-sm, and the value's font-size-2xl at line-height 1.
+const GRID_MIN_ROW_BLOCK_SIZE = 16 * 2 + 20 + 8 + 32;
+// gap-md, between grid rows.
+const GRID_ROW_GAP = 12;
 
 type MetricTileLayoutInput = {
 	width: number;
@@ -45,21 +48,25 @@ export function pickMetricTileLayout( {
 	const isWide = columnSpan === null ? width >= WIDE_MIN_INLINE_SIZE : columnSpan > 1;
 
 	if ( ! isWide ) {
-		const rowBlockSize = tileCount > 0 ? height / tileCount : height;
-		return rowBlockSize >= STACKED_MIN_ROW_BLOCK_SIZE ? 'stacked' : 'compact';
+		return height / tileCount >= STACKED_MIN_ROW_BLOCK_SIZE ? 'stacked' : 'compact';
 	}
 
 	const gridRows = Math.ceil( tileCount / 2 );
-	return height >= GRID_MIN_ROW_BLOCK_SIZE * gridRows ? 'grid' : 'row';
+	const gridBlockSize = GRID_MIN_ROW_BLOCK_SIZE * gridRows + GRID_ROW_GAP * ( gridRows - 1 );
+	return height >= gridBlockSize ? 'grid' : 'row';
 }
 
+const SPAN_PATTERN = /^span (\d+)$/;
+
 /**
- * Reads the column span of the dashboard grid item containing `element`, from
- * the `grid-column-end: span N` the grid package sets on every item.
+ * Reads the column span of the dashboard grid item containing `element`. A 2D
+ * grid item carries `grid-column-end: span N`; a lanes item carries the
+ * shorthand, which computes onto the start longhand, so both are read.
  */
 export function readColumnSpan( element: Element ): number | null {
 	for ( let node = element.parentElement; node; node = node.parentElement ) {
-		const match = /^span (\d+)$/.exec( window.getComputedStyle( node ).gridColumnEnd );
+		const { gridColumnEnd, gridColumnStart } = window.getComputedStyle( node );
+		const match = SPAN_PATTERN.exec( gridColumnEnd ) ?? SPAN_PATTERN.exec( gridColumnStart );
 		if ( match ) {
 			return Number( match[ 1 ] );
 		}

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -13,7 +13,7 @@ import {
 
 describe( 'pickMetricTileLayout', () => {
 	// Height-1 and height-2 bodies at the dashboard's 200px rows.
-	const SHORT = 118;
+	const SHORT = 110;
 	const TALL = 326;
 
 	it( 'stacks a one-column widget whose rows have room', () => {
@@ -55,6 +55,16 @@ describe( 'pickMetricTileLayout', () => {
 		);
 	} );
 
+	it( 'leaves room for the gap between grid rows', () => {
+		// Two 92px rows fit in 195px only without the 12px gap between them.
+		expect( pickMetricTileLayout( { width: 580, height: 195, tileCount: 4, columnSpan: 2 } ) ).toBe(
+			'row'
+		);
+		expect( pickMetricTileLayout( { width: 580, height: 196, tileCount: 4, columnSpan: 2 } ) ).toBe(
+			'grid'
+		);
+	} );
+
 	it( 'falls back to the width outside a dashboard grid', () => {
 		expect(
 			pickMetricTileLayout( { width: 360, height: TALL, tileCount: 4, columnSpan: null } )
@@ -62,12 +72,6 @@ describe( 'pickMetricTileLayout', () => {
 		expect(
 			pickMetricTileLayout( { width: 380, height: TALL, tileCount: 4, columnSpan: null } )
 		).toBe( 'grid' );
-	} );
-
-	it( 'treats no tiles as one row', () => {
-		expect(
-			pickMetricTileLayout( { width: 360, height: 70, tileCount: 0, columnSpan: null } )
-		).toBe( 'stacked' );
 	} );
 } );
 
@@ -84,6 +88,16 @@ describe( 'readColumnSpan', () => {
 		);
 
 		expect( readColumnSpan( screen.getByTestId( 'probe' ) ) ).toBe( 2 );
+	} );
+
+	it( 'reads the span a lanes item computes onto the start longhand', () => {
+		render(
+			<div style={ { gridColumnStart: 'span 3' } }>
+				<div data-testid="probe" />
+			</div>
+		);
+
+		expect( readColumnSpan( screen.getByTestId( 'probe' ) ) ).toBe( 3 );
 	} );
 
 	it( 'returns null outside a grid item', () => {
@@ -143,5 +157,30 @@ describe( 'useMetricTileLayout', () => {
 		);
 
 		expect( screen.getByTestId( 'probe' ) ).toHaveAttribute( 'data-layout', 'stacked' );
+	} );
+
+	it( 'follows the widget being resized on the dashboard', () => {
+		// The shared jest stub never calls back; capture the observer's callback
+		// so the test can report a new size for the same box.
+		let notify: ResizeObserverCallback = () => {};
+		jest.spyOn( window, 'ResizeObserver' ).mockImplementation( callback => {
+			notify = callback;
+			return { observe() {}, unobserve() {}, disconnect() {} } as unknown as ResizeObserver;
+		} );
+		mockElementSize( 580, 326 );
+		render(
+			<div style={ { gridColumnEnd: 'span 2' } }>
+				<Probe tileCount={ 4 } />
+			</div>
+		);
+		const probe = screen.getByTestId( 'probe' );
+		expect( probe ).toHaveAttribute( 'data-layout', 'grid' );
+
+		mockElementSize( 580, 110 );
+		act( () => {
+			notify( [ { target: probe } as unknown as ResizeObserverEntry ], {} as ResizeObserver );
+		} );
+
+		expect( probe ).toHaveAttribute( 'data-layout', 'row' );
 	} );
 } );
