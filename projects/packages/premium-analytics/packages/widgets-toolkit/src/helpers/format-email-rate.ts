@@ -28,5 +28,6 @@ export function formatEmailRate( rate: number, total: number, unique: number ): 
 		return '—';
 	}
 
-	return formatMetricValue( rate / 100, 'percentage', { decimals: 2, signDisplay: 'never' } );
+	// `percentage` defaults to `exceptZero`, which would print `+12%`.
+	return formatMetricValue( rate / 100, 'percentage', { decimals: 2, signDisplay: 'auto' } );
 }
