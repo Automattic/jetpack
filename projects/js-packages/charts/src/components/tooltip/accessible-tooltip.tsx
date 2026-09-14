@@ -213,9 +213,13 @@ export const useKeyboardNavigation = ( {
 	onActivate,
 	preventTooltipScroll = false,
 }: UseKeyboardNavigationProps ) => {
+	const tooltipElement = useRef< HTMLDivElement | null >( null );
+
 	// Focus the tooltip as soon as it is rendered
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
+			tooltipElement.current = element;
+
 			if ( element && selectedIndex !== undefined ) {
 				if ( preventTooltipScroll ) {
 					element.focus( { preventScroll: true } );
@@ -228,19 +232,25 @@ export const useKeyboardNavigation = ( {
 	);
 
 	// The point count shrinks when a series is hidden, which can strand the selection past the end.
+	// Clear rather than clamp once focus has left the chart: a new tooltip would pull focus back.
 	useEffect( () => {
 		if ( selectedIndex === undefined || selectedIndex < totalPoints ) {
 			return;
 		}
 
-		if ( totalPoints === 0 ) {
+		const { activeElement } = document;
+		const focusIsInChart =
+			activeElement !== null &&
+			( chartRef.current?.contains( activeElement ) || tooltipElement.current === activeElement );
+
+		if ( totalPoints === 0 || ! focusIsInChart ) {
 			setSelectedIndex( undefined );
 			setIsNavigating( false );
 			return;
 		}
 
 		setSelectedIndex( totalPoints - 1 );
-	}, [ selectedIndex, totalPoints, setSelectedIndex, setIsNavigating ] );
+	}, [ selectedIndex, totalPoints, setSelectedIndex, setIsNavigating, chartRef ] );
 
 	// On each focus of chart, reset the selectedIndex to 0, if keyboard navigation is not already active
 	const onChartFocus = useCallback( () => {

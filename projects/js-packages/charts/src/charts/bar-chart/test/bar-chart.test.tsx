@@ -2468,6 +2468,48 @@ describe( 'BarChart', () => {
 			expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series A' );
 		} );
 
+		it( 'leaves focus on the legend item that hid the selected series', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				withTooltips: true,
+				showLegend: true,
+				legend: { interactive: true },
+				chartId: 'test-hide-from-legend-while-navigating',
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ label: 'Jan', value: 10 },
+							{ label: 'Feb', value: 20 },
+							{ label: 'Mar', value: 30 },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ label: 'Jan', value: 15 },
+							{ label: 'Feb', value: 25 },
+							{ label: 'Mar', value: 35 },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			for ( let i = 0; i < 6; i++ ) {
+				await user.keyboard( '{ArrowRight}' );
+			}
+
+			const seriesBToggle = screen.getByRole( 'button', { name: /Series B: visible/i } );
+			await user.click( seriesBToggle );
+
+			expect( seriesBToggle ).toHaveFocus();
+			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
+		} );
+
 		it( 'clears the selection when every series is hidden', async () => {
 			const user = userEvent.setup();
 			const toggle = mountWithVisibilityToggle();
