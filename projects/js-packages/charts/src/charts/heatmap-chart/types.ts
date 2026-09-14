@@ -36,6 +36,13 @@ export type HeatmapColumn = {
 	summary?: boolean;
 };
 
+/** A run of consecutive columns sharing one label beneath the grid. */
+export type HeatmapColumnGroup = {
+	label: string;
+	/** Columns covered; a positive integer. */
+	span: number;
+};
+
 export type HeatmapTooltipData = {
 	value: number | null;
 	rowLabel?: string;
@@ -49,6 +56,13 @@ export interface HeatmapChartProps
 	extends Omit< BaseChartProps< HeatmapColumn[] >, 'showLegend' | 'legend' | 'gridVisibility' > {
 	/** y-axis labels by row index. Empty entries render blank. */
 	rowLabels?: string[];
+	/**
+	 * Consecutive runs of columns sharing one label beneath the grid, set one
+	 * group gap apart. Runs from the first column; columns past the last group
+	 * stay ungrouped. Ignored, with a warning, when a span is not a positive
+	 * integer or the spans reach past the last column.
+	 */
+	columnGroups?: HeatmapColumnGroup[];
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */

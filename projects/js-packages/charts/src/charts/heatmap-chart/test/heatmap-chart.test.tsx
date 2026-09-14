@@ -425,12 +425,15 @@ describe( 'HeatmapChart keyboard tooltip', () => {
 } );
 
 describe( 'HeatmapChart tooltip position', () => {
+	// Restore only this spy: `restoreAllMocks` would also unspy jest-console, and
+	// every later `toHaveWarned` in the file would find no spy.
+	let rects: jest.SpyInstance;
 	afterEach( () => {
-		jest.restoreAllMocks();
+		rects.mockRestore();
 	} );
 
 	test( 'places the box relative to the chart root, at the pointer plus the offsets', async () => {
-		mockRects();
+		rects = mockRects();
 		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
 
 		await userEvent.setup().pointer( {
@@ -553,5 +556,86 @@ describe( 'HeatmapChart grid placement', () => {
 		expect( screen.getByText( 'Wed' ) ).toHaveStyle( { gridRow: '4' } );
 		expect( screen.getByText( 'W2' ) ).toHaveStyle( { gridColumn: '3' } );
 		expect( screen.getByText( 'W2' ) ).toHaveStyle( { gridRow: '1' } );
+	} );
+} );
+
+describe( 'HeatmapChart column groups', () => {
+	const grouped = [
+		{ data: [ { value: 1 }, { value: 2 } ] },
+		{ data: [ { value: 3 }, { value: 4 } ] },
+		{ data: [ { value: 5 }, { value: 6 } ] },
+		{ data: [ { value: 7 }, { value: 8 } ] },
+	];
+	const columnGroups = [
+		{ label: 'Jan', span: 2 },
+		{ label: 'Feb', span: 2 },
+	];
+
+	test( 'draws one label per group beneath the grid, outside the accessibility tree', () => {
+		renderChart( { data: grouped, columnGroups } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const labels = within( grid ).getAllByTestId( 'heatmap-group-label' );
+		expect( labels.map( label => label.textContent ) ).toEqual( [ 'Jan', 'Feb' ] );
+		const rows = within( grid ).getAllByRole( 'row', { hidden: true } );
+		const labelRow = rows[ rows.length - 1 ];
+		expect( labelRow ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( within( labelRow ).getAllByTestId( 'heatmap-group-label' ) ).toHaveLength( 2 );
+		// Two data rows plus the label row; no header row (no column labels).
+		expect( grid ).toHaveStyle( { gridTemplateRows: 'repeat(2, minmax(0px, 1fr)) auto' } );
+	} );
+
+	test( 'spans each label over its group and skips the gap track between groups', () => {
+		renderChart( { data: grouped, columnGroups } );
+		const [ jan, feb ] = screen.getAllByTestId( 'heatmap-group-label' );
+		expect( jan ).toHaveStyle( { gridColumn: '2 / span 2' } );
+		// Line 4 is the gap track, so Feb starts on 5.
+		expect( feb ).toHaveStyle( { gridColumn: '5 / span 2' } );
+		expect( feb ).toHaveStyle( { gridRow: '3' } );
+		const cell = screen
+			.getAllByTestId( 'heatmap-cell' )
+			.find( element => element.dataset.column === '2' && element.dataset.row === '0' );
+		expect( cell?.style.gridColumn ).toBe( '5' );
+	} );
+
+	test( 'inserts a gap track from the theme groupGap between groups', () => {
+		render(
+			<GlobalChartsProvider theme={ { heatmapChart: { groupGap: 30 } } }>
+				<HeatmapChart width={ 500 } height={ 300 } data={ grouped } columnGroups={ columnGroups } />
+			</GlobalChartsProvider>
+		);
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid ).toHaveStyle( {
+			gridTemplateColumns:
+				'auto minmax(0px, 1fr) minmax(0px, 1fr) 30px minmax(0px, 1fr) minmax(0px, 1fr)',
+		} );
+	} );
+
+	test( 'still counts only data columns for assistive technology', () => {
+		renderChart( { data: grouped, columnGroups } );
+		expect( screen.getByRole( 'grid', { name: /heatmap/i } ) ).toHaveAttribute(
+			'aria-colcount',
+			'4'
+		);
+	} );
+
+	test( 'draws no group row and warns once on an unusable span', () => {
+		renderChart( { data: grouped, columnGroups: [ { label: 'Jan', span: 5 } ] } );
+		expect( screen.queryByTestId( 'heatmap-group-label' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'grid', { name: /heatmap/i } ) ).toHaveStyle( {
+			gridTemplateRows: 'repeat(2, minmax(0px, 1fr))',
+		} );
+		expect( console ).toHaveWarned();
+	} );
+
+	test( 'keyboard navigation crosses a group boundary', async () => {
+		renderChart( { data: grouped, columnGroups } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+		grid.focus();
+		await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-2-0$/ )
+		);
 	} );
 } );
