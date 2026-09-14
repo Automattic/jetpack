@@ -56,6 +56,19 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		update_user_meta( $this->user_id, Expiry_Notice_Dismiss::meta_key( $base ), $when );
 	}
 
+	public function test_dismiss_stamps_now_for_each_of_this_sites_keys_only(): void {
+		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
+			$key = Expiry_Notice_Dismiss::meta_key( $base );
+			$this->assertTrue( Expiry_Notice_Dismiss::dismiss( $this->user_id, $key ) );
+			$this->assertEqualsWithDelta( time(), (int) get_user_meta( $this->user_id, $key, true ), 2 );
+		}
+
+		$this->assertFalse( Expiry_Notice_Dismiss::dismiss( $this->user_id, 'wp_999_' . Expiry_Notice_Dismiss::META_BANNER ) );
+		$this->assertFalse( Expiry_Notice_Dismiss::dismiss( $this->user_id, 'description' ) );
+		$this->assertSame( '', get_user_meta( $this->user_id, 'description', true ) );
+		$this->assertFalse( Expiry_Notice_Dismiss::dismiss( 0, Expiry_Notice_Dismiss::banner_meta_key() ) );
+	}
+
 	public function test_a_dismissal_holds_for_its_own_term_and_not_the_next(): void {
 		$expiry_ts = time() - 40 * DAY_IN_SECONDS;
 		$state     = $this->state( Expiry_Data::STATE_EXPIRED, $expiry_ts );

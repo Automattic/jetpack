@@ -313,6 +313,18 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( registered_meta_key_exists( 'user', $key ) );
 	}
 
+	public function test_the_dismiss_request_needs_an_admin_and_a_known_key(): void {
+		$key = Expiry_Notice_Dismiss::banner_meta_key();
+
+		$this->assertSame( 403, wpcom_expiry_notices_dismiss( $key, $this->subscriber_id )['status'] );
+		$this->assertSame( '', get_user_meta( $this->subscriber_id, $key, true ) );
+
+		$this->assertSame( 400, wpcom_expiry_notices_dismiss( 'description', $this->admin_id )['status'] );
+
+		$this->assertSame( 200, wpcom_expiry_notices_dismiss( $key, $this->admin_id )['status'] );
+		$this->assertEqualsWithDelta( time(), (int) get_user_meta( $this->admin_id, $key, true ), 2 );
+	}
+
 	public function test_the_sentence_joins_heading_and_body(): void {
 		$this->assertSame(
 			'Your Business plan expires in 5 days. Your site will move to the Free plan and you’ll lose plugins, custom themes, and 50 GB of storage. Renew now to keep everything in place.',

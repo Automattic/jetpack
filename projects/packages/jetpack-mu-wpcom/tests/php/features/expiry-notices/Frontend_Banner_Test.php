@@ -7,7 +7,6 @@
 
 declare( strict_types = 1 );
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 
@@ -156,29 +155,6 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( 'wpcom-expiry-frontend-banner__dismiss', $html );
 	}
 
-	public function test_on_a_wordpress_com_site_the_dismissal_write_is_scoped_to_the_site(): void {
-		// Inline data on the handle outlives a test; start from a fresh registration.
-		wp_deregister_script( 'jetpack-mu-wpcom-expiry-notices-banner' );
-		Constants::set_constant( 'IS_WPCOM', true );
-		$this->set_purchase( 5 );
-		wpcom_expiry_notices_enqueue_frontend_banner_assets();
-
-		$inline = wp_scripts()->get_inline_script_data( 'jetpack-mu-wpcom-expiry-notices-banner', 'before' );
-		$this->assertStringContainsString( "'/wp/v2/sites/" . get_current_blog_id() . "/'", $inline );
-		$this->assertStringContainsString( 'wp.apiFetch.use(', $inline );
-	}
-
-	public function test_on_an_atomic_site_the_dismissal_write_is_left_alone(): void {
-		// Inline data on the handle outlives a test; start from a fresh registration.
-		wp_deregister_script( 'jetpack-mu-wpcom-expiry-notices-banner' );
-		Constants::set_constant( 'IS_ATOMIC', true );
-		$this->set_purchase( 5 );
-		wpcom_expiry_notices_enqueue_frontend_banner_assets();
-
-		$inline = wp_scripts()->get_inline_script_data( 'jetpack-mu-wpcom-expiry-notices-banner', 'before' );
-		$this->assertStringNotContainsString( 'wp.apiFetch.use(', $inline );
-	}
-
 	public function test_the_script_carries_the_track_props(): void {
 		$this->set_purchase( 5 );
 		wpcom_expiry_notices_enqueue_frontend_banner_assets();
@@ -188,6 +164,9 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"is_plan_owner":"true"', $inline );
 		$this->assertStringContainsString( '"state":"approaching_expiry"', $inline );
 		$this->assertStringContainsString( '"surface":"frontend"', $inline );
+		$this->assertStringContainsString( 'window.wpcomExpiryDismiss = {', $inline );
+		$this->assertStringContainsString( 'admin-ajax.php', $inline );
+		$this->assertStringContainsString( '"nonce":"', $inline );
 	}
 
 	public function test_body_class_follows_the_banner(): void {

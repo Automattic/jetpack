@@ -315,33 +315,18 @@ function wpcom_expiry_notices_enqueue_surface( string $script, string $global, a
 	}
 	$handle = jetpack_mu_wpcom_enqueue_assets( $script, array( 'js' ) );
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $handle );
-	wpcom_expiry_notices_scope_rest_paths_to_site( $handle );
+	$dismiss = wp_json_encode(
+		array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'nonce'   => wp_create_nonce( 'wpcom_expiry_notice_dismiss' ),
+		),
+		JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS
+	);
+	wp_add_inline_script( $handle, 'window.wpcomExpiryDismiss = ' . $dismiss . ';', 'before' );
 	wp_add_inline_script( $handle, 'window.' . $global . ' = ' . $json . ';', 'before' );
 	if ( null !== $style ) {
 		jetpack_mu_wpcom_enqueue_assets( $style, array( 'css' ) );
 	}
-}
-
-/**
- * Point the dismissal write at this site on the centralized API.
- *
- * On a WordPress.com site `apiFetch` reaches public-api.wordpress.com, where
- * `/wp/v2/users/me` only exists under `/wp/v2/sites/{id}/`. wp-admin gets that
- * rewrite from the block editor's middleware; the front end has none, so this
- * supplies it where that middleware is not registered.
- *
- * @param string $handle The surface script the middleware must precede.
- */
-function wpcom_expiry_notices_scope_rest_paths_to_site( string $handle ): void {
-	if ( ! Constants::is_true( 'IS_WPCOM' ) || wp_script_is( 'gutenberg-wpcom-apifetch', 'registered' ) ) {
-		return;
-	}
-	$site_id = (int) get_current_blog_id();
-	$script  = 'wp.apiFetch.use( function ( options, next ) {'
-		. " if ( 'string' === typeof options.path && 0 === options.path.indexOf( '/wp/v2/users/me' ) ) {"
-		. " options.path = '/wp/v2/sites/{$site_id}/' + options.path.slice( '/wp/v2/'.length ); }"
-		. ' return next( options ); } );';
-	wp_add_inline_script( $handle, $script, 'before' );
 }
 
 /**
@@ -610,6 +595,51 @@ function wpcom_expiry_notices_register_meta_for_request( $response ) {
 	return $response;
 }
 add_filter( 'rest_request_before_callbacks', 'wpcom_expiry_notices_register_meta_for_request' ); // @codeCoverageIgnore
+
+/**
+ * Stamp a dismissal for a user, as the surfaces ask for it over admin-ajax.
+ *
+ * The site's own admin-ajax rather than the REST API: on WordPress.com the
+ * REST API lives on another origin, and the front end has no proxy to reach
+ * it through. The dashboard still writes the same key over REST.
+ *
+ * @param string $meta_key The key the surface was given.
+ * @param int    $user_id  The dismissing user.
+ * @return array{status:int,body:array<string,string>}
+ */
+function wpcom_expiry_notices_dismiss( string $meta_key, int $user_id ): array {
+	if ( ! wpcom_expiry_notices_is_enabled_for_site() || ! user_can( $user_id, 'manage_options' ) ) {
+		return array(
+			'status' => 403,
+			'body'   => array( 'message' => 'forbidden' ),
+		);
+	}
+	if ( ! Expiry_Notice_Dismiss::dismiss( $user_id, $meta_key ) ) {
+		return array(
+			'status' => 400,
+			'body'   => array( 'message' => 'unknown notice' ),
+		);
+	}
+	return array(
+		'status' => 200,
+		'body'   => array(),
+	);
+}
+
+/**
+ * The admin-ajax action behind wpcom_expiry_notices_dismiss().
+ */
+function wpcom_expiry_notices_ajax_dismiss(): void {
+	check_ajax_referer( 'wpcom_expiry_notice_dismiss' );
+	$meta_key = isset( $_POST['metaKey'] ) ? sanitize_text_field( wp_unslash( $_POST['metaKey'] ) ) : '';
+	$result   = wpcom_expiry_notices_dismiss( $meta_key, get_current_user_id() );
+	$flags    = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
+	if ( 200 !== $result['status'] ) {
+		wp_send_json_error( $result['body'], $result['status'], $flags );
+	}
+	wp_send_json_success( $result['body'], null, $flags );
+}
+add_action( 'wp_ajax_wpcom_expiry_notice_dismiss', 'wpcom_expiry_notices_ajax_dismiss' ); // @codeCoverageIgnore
 
 /**
  * The URL of the current page, for checkout to send the user back to.
