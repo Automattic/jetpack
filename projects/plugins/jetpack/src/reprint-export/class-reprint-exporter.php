@@ -36,14 +36,14 @@ class Reprint_Exporter {
 	 *
 	 * @var string
 	 */
-	const SECRET_TAG_OPTION = 'jetpack_reprint_exporter_secret_tag';
+	const SECRET_HASH_OPTION = 'jetpack_reprint_exporter_secret_hash';
 
 	/**
 	 * Option holding the HMAC of the window timestamp under AUTH_SALT.
 	 *
 	 * @var string
 	 */
-	const ENABLED_TAG_OPTION = 'jetpack_reprint_exporter_enabled_tag';
+	const ENABLED_HASH_OPTION = 'jetpack_reprint_exporter_enabled_hash';
 
 	/**
 	 * Clock-skew tolerance, in seconds, allowed for HMAC signatures.
@@ -53,7 +53,7 @@ class Reprint_Exporter {
 	const HMAC_CLOCK_SKEW = 300;
 
 	/**
-	 * Shortest AUTH_SALT the tags will be keyed with, in bytes.
+	 * Shortest AUTH_SALT the credential hashes will be keyed with, in bytes.
 	 *
 	 * @var int
 	 */
@@ -151,9 +151,9 @@ class Reprint_Exporter {
 	private static function guarded_options() {
 		return array(
 			self::SECRET_OPTION,
-			self::SECRET_TAG_OPTION,
+			self::SECRET_HASH_OPTION,
 			self::ENABLED_OPTION,
-			self::ENABLED_TAG_OPTION,
+			self::ENABLED_HASH_OPTION,
 		);
 	}
 
@@ -193,7 +193,7 @@ class Reprint_Exporter {
 		 * Fires when a Reprint export request ends in an export or an error.
 		 *
 		 * A request the handler ignores fires nothing, and no event carries the
-		 * secret, a salt tag or the signature. An export with no secret_rotated
+		 * secret, a credential hash or the signature. An export with no secret_rotated
 		 * or window_opened event before it used a secret this site did not
 		 * create.
 		 *
@@ -230,13 +230,13 @@ class Reprint_Exporter {
 	}
 
 	/**
-	 * Stores a newly created shared secret together with its salt tag.
+	 * Stores a newly created shared secret together with its salt-keyed hash.
 	 *
-	 * Writes nothing without a usable AUTH_SALT: an untagged secret would be
-	 * refused at request time, and failing here is where provisioning can see it.
+	 * Writes nothing without a usable AUTH_SALT: a secret without a hash would
+	 * be refused at request time, and failing here is where provisioning can see it.
 	 *
 	 * @param string $secret The new secret.
-	 * @return bool Whether the secret and its tag were written.
+	 * @return bool Whether the secret and its hash were written.
 	 */
 	public static function store_secret( $secret ) {
 		$salt = self::get_usable_salt();
@@ -245,16 +245,16 @@ class Reprint_Exporter {
 		}
 
 		$secret_stored = self::write_option( self::SECRET_OPTION, $secret );
-		$tag_stored    = self::write_option( self::SECRET_TAG_OPTION, self::compute_tag_hash( self::SECRET_TAG_OPTION, $secret, $salt ) );
+		$hash_stored   = self::write_option( self::SECRET_HASH_OPTION, self::compute_credential_hash( self::SECRET_HASH_OPTION, $secret, $salt ) );
 
-		return $secret_stored && $tag_stored;
+		return $secret_stored && $hash_stored;
 	}
 
 	/**
-	 * AUTH_SALT, when it is fit to key the credential tags with, or null.
+	 * AUTH_SALT, when it is fit to key the credential hashes with, or null.
 	 *
 	 * The constant rather than wp_salt(): without one, that helper falls back
-	 * to a salt kept in wp_options, the very table the tags exist to distrust.
+	 * to a salt kept in wp_options, the very table the hashes exist to distrust.
 	 *
 	 * @return string|null
 	 */
@@ -272,35 +272,35 @@ class Reprint_Exporter {
 	}
 
 	/**
-	 * Computes the tag binding a stored credential to AUTH_SALT.
+	 * Computes the HMAC binding a stored credential to AUTH_SALT.
 	 *
-	 * The tag option's name goes into the message so the two tags cannot stand
-	 * in for each other: a copied window pair must not pass as a secret.
+	 * The hash option's name goes into the message so the two hashes cannot
+	 * stand in for each other: a copied window pair must not pass as a secret.
 	 *
-	 * @param string     $tag_option The option the tag is stored in.
+	 * @param string     $hash_option The option the hash is stored in.
 	 * @param string|int $value      The stored value.
 	 * @param string     $salt       AUTH_SALT, as returned by get_usable_salt().
 	 * @return string
 	 */
-	private static function compute_tag_hash( $tag_option, $value, $salt ) {
-		return hash_hmac( 'sha256', $tag_option . "\0" . (string) $value, $salt );
+	private static function compute_credential_hash( $hash_option, $value, $salt ) {
+		return hash_hmac( 'sha256', $hash_option . "\0" . (string) $value, $salt );
 	}
 
 	/**
-	 * Whether the stored tag is the one AUTH_SALT gives for a stored credential.
+	 * Whether the stored hash is the one AUTH_SALT gives for a stored credential.
 	 *
-	 * @param string     $tag_option The option the tag is stored in.
+	 * @param string     $hash_option The option the hash is stored in.
 	 * @param string|int $value      The stored value.
 	 * @return bool
 	 */
-	private static function tag_hash_matches( $tag_option, $value ) {
-		$salt       = self::get_usable_salt();
-		$stored_tag = get_option( $tag_option );
-		if ( null === $salt || ! is_string( $stored_tag ) ) {
+	private static function credential_hash_matches( $hash_option, $value ) {
+		$salt        = self::get_usable_salt();
+		$stored_hash = get_option( $hash_option );
+		if ( null === $salt || ! is_string( $stored_hash ) ) {
 			return false;
 		}
 
-		return hash_equals( self::compute_tag_hash( $tag_option, $value, $salt ), $stored_tag );
+		return hash_equals( self::compute_credential_hash( $hash_option, $value, $salt ), $stored_hash );
 	}
 
 	/**
@@ -397,13 +397,13 @@ class Reprint_Exporter {
 			return;
 		}
 
-		// A secret this class did not tag under the current AUTH_SALT is no
+		// A secret this class did not hash under the current AUTH_SALT is no
 		// credential at all, so it never reaches signature verification.
-		if ( ! self::tag_hash_matches( self::SECRET_TAG_OPTION, $secret ) ) {
+		if ( ! self::credential_hash_matches( self::SECRET_HASH_OPTION, $secret ) ) {
 			if ( ! $window_open ) {
 				return;
 			}
-			self::record_event( 'credential_tag_mismatch' );
+			self::record_event( 'credential_hash_mismatch' );
 			$this->error( 503, 'Export credential invalidated: the stored secret does not match this site\'s AUTH_SALT. Please rotate the shared secret via POST /jetpack/v4/reprint/rotate-export-secret.' );
 			return;
 		}
@@ -469,15 +469,15 @@ class Reprint_Exporter {
 		return $enabled_at > 0
 			&& $enabled_at <= $now + self::HMAC_CLOCK_SKEW
 			&& ( $now - $enabled_at ) <= HOUR_IN_SECONDS
-			&& self::tag_hash_matches( self::ENABLED_TAG_OPTION, $enabled_at );
+			&& self::credential_hash_matches( self::ENABLED_HASH_OPTION, $enabled_at );
 	}
 
 	/**
 	 * Opens the export window by stamping the enabled option with the current
-	 * time and tagging the stamp.
+	 * time and hashing the stamp.
 	 *
-	 * Writes nothing without a usable AUTH_SALT, like store_secret(): an
-	 * untagged stamp never reads as open, so both callers check first.
+	 * Writes nothing without a usable AUTH_SALT, like store_secret(): a stamp
+	 * without a hash never reads as open, so both callers check first.
 	 *
 	 * @return int The unix timestamp the window was opened at.
 	 */
@@ -488,11 +488,11 @@ class Reprint_Exporter {
 			return $now;
 		}
 
-		// Value then tag: a crash between them leaves a mismatch, which reads
+		// Value then hash: a crash between them leaves a mismatch, which reads
 		// as closed. Each skips an unchanged value, so a busy client costs at
 		// most two writes per elapsed second.
 		self::write_option( self::ENABLED_OPTION, $now );
-		self::write_option( self::ENABLED_TAG_OPTION, self::compute_tag_hash( self::ENABLED_TAG_OPTION, $now, $salt ) );
+		self::write_option( self::ENABLED_HASH_OPTION, self::compute_credential_hash( self::ENABLED_HASH_OPTION, $now, $salt ) );
 
 		return $now;
 	}

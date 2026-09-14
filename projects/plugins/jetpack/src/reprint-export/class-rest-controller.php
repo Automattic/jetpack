@@ -73,7 +73,7 @@ class REST_Controller extends WP_REST_Controller {
 	 *                          a 500 error.
 	 */
 	public function enable_export() {
-		// A stamp made without a usable salt gets no tag, so it never reads as
+		// A stamp made without a usable salt gets no hash, so it never reads as
 		// open; better to say so here than to send the client off to silence.
 		if ( null === Reprint_Exporter::get_usable_salt() ) {
 			return $this->unusable_salt_response();
@@ -101,7 +101,7 @@ class REST_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response The new secret on success, or a 500 error.
 	 */
 	public function rotate_secret() {
-		// Checked before minting: the secret is stored with a tag keyed by
+		// Checked before minting: the secret is stored with a hash keyed by
 		// AUTH_SALT, and without a usable one no credential could be honoured.
 		if ( null === Reprint_Exporter::get_usable_salt() ) {
 			return $this->unusable_salt_response();
@@ -125,7 +125,7 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * The error both routes answer with when AUTH_SALT cannot key a tag.
+	 * The error both routes answer with when AUTH_SALT cannot key a hash.
 	 *
 	 * @return WP_REST_Response A 500 error.
 	 */
