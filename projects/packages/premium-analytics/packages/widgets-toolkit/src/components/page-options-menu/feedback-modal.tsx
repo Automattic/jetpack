@@ -3,8 +3,8 @@
  */
 import { submitStatsUserFeedback } from '@jetpack-premium-analytics/data';
 import { Button, Dialog, Notice, Stack } from '@jetpack-premium-analytics/externals';
-import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */

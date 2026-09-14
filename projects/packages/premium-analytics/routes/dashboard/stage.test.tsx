@@ -100,6 +100,10 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	StatsPageIcon: () => null,
 } ) );
 
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	PageOptionsMenu: () => <div data-testid="page-options-menu" />,
+} ) );
+
 jest.mock( '@wordpress/admin-ui', () => ( {
 	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
 		<div>
@@ -207,7 +211,6 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	DashboardOptionsMenu: () => <div data-testid="dashboard-options-menu" />,
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
 	// A marker, not the real notice, which reads a query cache these tests do not
@@ -416,7 +419,7 @@ describe( 'Dashboard options menu', () => {
 		// Each sits in its own frame, the tour's anchors; the menu's frame follows the actions'.
 		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
 		expect( actions.parentElement?.nextElementSibling ).toContainElement(
-			screen.getByTestId( 'dashboard-options-menu' )
+			screen.getByTestId( 'page-options-menu' )
 		);
 	} );
 } );

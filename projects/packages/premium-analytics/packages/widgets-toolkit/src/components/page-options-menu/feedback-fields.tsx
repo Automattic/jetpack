@@ -3,8 +3,8 @@
  */
 import { Stack, Text, TextareaControl } from '@jetpack-premium-analytics/externals';
 import { RadioControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 
 /** How ready the reader thinks the new tab is. The value is what reaches Tracks. */
 export type StatsFeedbackReadiness = 'ready' | 'almost' | 'not_yet';

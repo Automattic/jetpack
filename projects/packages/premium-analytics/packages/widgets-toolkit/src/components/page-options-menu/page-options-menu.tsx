@@ -1,27 +1,27 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { Icon, IconButton, Menu } from '@jetpack-premium-analytics/externals';
-import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { cancelCircleFilled, comment, moreVertical } from '@wordpress/icons';
+import { useCallback, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
-import { FeedbackModal } from '../feedback/feedback-modal';
+import { FeedbackModal } from './feedback-modal';
 import { SwitchOffDialog } from './switch-off-dialog';
 
 /**
- * The page options menu beside the dashboard's own actions: what the reader can do
- * on this page that is not a layout change. Feedback, and the way back to classic Stats.
+ * The page options menu of a Premium Analytics page: what the reader can do here
+ * that is not a layout change. Feedback, and the way back to classic Stats.
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2055).
  *
  * @return The menu, and whichever of its dialogs is open.
  */
-export function DashboardOptionsMenu() {
+export function PageOptionsMenu() {
 	const trackEvent = useTrackEvent();
 	const [ isFeedbackOpen, setIsFeedbackOpen ] = useState( false );
 	const [ isSwitchOffOpen, setIsSwitchOffOpen ] = useState( false );

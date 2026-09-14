@@ -9,25 +9,11 @@ import { store as preferencesStore } from '@wordpress/preferences';
  */
 import { DASHBOARD_ONBOARDING_KEY, DASHBOARD_PREFERENCES_SCOPE } from './constants';
 import { resetOnboardingForTesting, useOnboarding } from './use-onboarding';
-import { resetTracksIdentityForTesting } from './use-track-event';
 
 const mockRecordEvent = jest.fn();
 
-jest.mock( '@automattic/jetpack-analytics', () => ( {
-	__esModule: true,
-	default: {
-		setUser: jest.fn(),
-		identifyUser: jest.fn(),
-		assignSuperProps: jest.fn(),
-		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
-	},
-} ) );
-
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( {
-		site: { wpcom: { blog_id: 42 } },
-		user: { current_user: { wpcom: { ID: 7, login: 'reader' } } },
-	} ),
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	useTrackEvent: () => mockRecordEvent,
 } ) );
 
 type PreferencesSelectors = {
@@ -75,7 +61,6 @@ function eventNames(): string[] {
 describe( 'useOnboarding', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		resetTracksIdentityForTesting();
 		resetOnboardingForTesting();
 		// The preferences store registers on the shared default registry, so
 		// clear the key between tests.
