@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
 const MANAGE_LINKS_PATH = 'admin.php?page=paypal-payment-links';
 
 /**
- * The Settings tab — connection info — plus an Advanced-panel link to the admin page.
+ * The Settings tab — connection info, and a link to the admin page that lists every link.
  *
  * Embed as and everything that styles the output live in the Styles tab, in
  * components/format-controls.jsx.
@@ -43,71 +43,64 @@ export default function PayPalInspectorControls( {
 	hasButton,
 } ) {
 	return (
-		<>
-			<InspectorControls>
-				{ hasButton && (
-					<PanelBody
-						title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
-						initialOpen={ false }
-					>
-						<p>
-							{ __( 'Resource ID:', 'jetpack-paypal-payments' ) } <code>{ resourceId }</code>
-						</p>
-						<p>
-							{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
-						</p>
-						<div className="jetpack-paypal-payment-buttons__destructive-actions">
-							<Button
-								variant="secondary"
-								isDestructive
-								onClick={ handleDeleteButton }
-								disabled={ isBusy || ! isConnected }
-							>
-								{ __( 'Delete payment link', 'jetpack-paypal-payments' ) }
-							</Button>
-							{ isConnected ? (
-								<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
-									{ __( 'Disconnect', 'jetpack-paypal-payments' ) }
-								</Button>
-							) : (
-								<Button variant="secondary" onClick={ () => setShowReconnect( true ) }>
-									{ __( 'Reconnect', 'jetpack-paypal-payments' ) }
-								</Button>
-							) }
-						</div>
-					</PanelBody>
-				) }
-
-				{ ! hasButton && (
-					<PanelBody
-						title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
-						initialOpen={ false }
-					>
-						<p>
-							{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
-						</p>
+		<InspectorControls>
+			{ hasButton && (
+				<PanelBody
+					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
+					initialOpen={ false }
+				>
+					<p>
+						{ __( 'Resource ID:', 'jetpack-paypal-payments' ) } <code>{ resourceId }</code>
+					</p>
+					<p>
+						{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
+					</p>
+					<div className="jetpack-paypal-payment-buttons__destructive-actions">
+						<Button
+							variant="secondary"
+							isDestructive
+							onClick={ handleDeleteButton }
+							disabled={ isBusy || ! isConnected }
+						>
+							{ __( 'Delete payment link', 'jetpack-paypal-payments' ) }
+						</Button>
 						{ isConnected ? (
 							<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
-								{ __( 'Disconnect PayPal', 'jetpack-paypal-payments' ) }
+								{ __( 'Disconnect', 'jetpack-paypal-payments' ) }
 							</Button>
 						) : (
 							<Button variant="secondary" onClick={ () => setShowReconnect( true ) }>
-								{ __( 'Reconnect PayPal', 'jetpack-paypal-payments' ) }
+								{ __( 'Reconnect', 'jetpack-paypal-payments' ) }
 							</Button>
 						) }
-					</PanelBody>
-				) }
-			</InspectorControls>
-
-			{ hasButton && (
-				<InspectorControls group="advanced">
+					</div>
 					<p className="jetpack-paypal-payment-buttons__manage-links">
 						<ExternalLink href={ getAdminUrl( MANAGE_LINKS_PATH ) }>
 							{ __( 'Manage PayPal Payment Links', 'jetpack-paypal-payments' ) }
 						</ExternalLink>
 					</p>
-				</InspectorControls>
+				</PanelBody>
 			) }
-		</>
+
+			{ ! hasButton && (
+				<PanelBody
+					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
+					initialOpen={ false }
+				>
+					<p>
+						{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
+					</p>
+					{ isConnected ? (
+						<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
+							{ __( 'Disconnect PayPal', 'jetpack-paypal-payments' ) }
+						</Button>
+					) : (
+						<Button variant="secondary" onClick={ () => setShowReconnect( true ) }>
+							{ __( 'Reconnect PayPal', 'jetpack-paypal-payments' ) }
+						</Button>
+					) }
+				</PanelBody>
+			) }
+		</InspectorControls>
 	);
 }

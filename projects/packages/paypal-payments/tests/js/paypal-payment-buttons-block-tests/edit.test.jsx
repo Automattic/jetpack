@@ -3092,12 +3092,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-MANAGE1',
 		};
 
-		it( 'links to the admin page from the Advanced panel once the block has a saved link', async () => {
+		it( 'links to the admin page from the connection panel once the block has a saved link', async () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 			renderForm( saved );
 
-			const advanced = await screen.findByTestId( 'inspector-controls-advanced' );
-			const link = within( advanced ).getByRole( 'link', {
+			const connectionPanel = ( await screen.findAllByTestId( 'panel-body' ) ).find(
+				body => body.dataset.title === 'PayPal Connection'
+			);
+			const link = within( connectionPanel ).getByRole( 'link', {
 				name: 'Manage PayPal Payment Links',
 			} );
 
@@ -3114,7 +3116,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			renderForm();
 
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByTestId( 'inspector-controls-advanced' ) ).not.toBeInTheDocument();
 			expect(
 				screen.queryByRole( 'link', { name: 'Manage PayPal Payment Links' } )
 			).not.toBeInTheDocument();
