@@ -61,6 +61,7 @@ class Error_Handler_Test extends BaseTestCase {
 		// Reset viewer/owner state used by the audience-aware display tests.
 		wp_set_current_user( 0 );
 		\Jetpack_Options::delete_option( 'master_user' );
+		\Jetpack_Options::delete_option( 'id' );
 		\Jetpack_Options::delete_option( 'user_tokens' );
 
 		// Manager memoizes the connection owner, which jetpack_connect_user maps on.
@@ -480,6 +481,46 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test signing failures are not reported while the site has no registration.
+	 *
+	 * An unregistered site (or a stale cache view hiding a connected site's
+	 * options — see CONNECT-457) is expected to have no tokens; reporting would
+	 * plant a verified error that outlives the condition.
+	 */
+	public function test_check_signed_request_for_errors_skipped_when_unregistered() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->check_signed_request_for_errors(
+			new \WP_Error( 'no_possible_tokens', 'No blog token found' ),
+			'https://public-api.wordpress.com/wpcom/v2/sites/0/jetpack-search/plan',
+			'GET',
+			'rest'
+		);
+
+		$this->assertEmpty( $this->error_handler->get_stored_errors() );
+		$this->assertEmpty( $this->error_handler->get_verified_errors() );
+	}
+
+	/**
+	 * Test deletion purges a value that survives only in the object cache.
+	 *
+	 * Core's delete_option() returns before touching caches when the DB row is
+	 * absent — the state an alloptions race leaves behind (CONNECT-457) — so the
+	 * delete methods must purge the cache themselves.
+	 */
+	public function test_delete_verified_errors_purges_cache_orphaned_value() {
+		wp_cache_set(
+			Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
+			array( 'no_possible_tokens' => array( '0' => array( 'error_code' => 'no_possible_tokens' ) ) ),
+			'options'
+		);
+
+		$this->error_handler->delete_verified_errors();
+
+		$this->assertFalse( wp_cache_get( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, 'options' ) );
+	}
+
+	/**
 	 * Test that the body hash of the failed request is stored.
 	 */
 	public function test_check_api_response_for_errors_stores_body_hash() {
@@ -542,6 +583,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 * `check_api_response_for_errors()`.
 	 */
 	public function test_check_signed_request_for_errors_stores_signing_failure() {
+		\Jetpack_Options::update_option( 'id', 12345 );
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_signed_request_for_errors(
@@ -576,6 +618,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test that the request details carried by a `Jetpack_Signature` error are preserved.
 	 */
 	public function test_check_signed_request_for_errors_keeps_signature_details() {
+		\Jetpack_Options::update_option( 'id', 12345 );
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_signed_request_for_errors(
@@ -618,6 +661,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 * falling back to 'invalid'.
 	 */
 	public function test_check_signed_request_for_errors_attributes_to_the_given_user() {
+		\Jetpack_Options::update_option( 'id', 12345 );
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_signed_request_for_errors(
@@ -673,6 +717,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test that signing failures go through the hourly reporting gate like every other error.
 	 */
 	public function test_check_signed_request_for_errors_respects_the_gate() {
+		\Jetpack_Options::update_option( 'id', 12345 );
 		// No gate-bypass filter here: this test is about the gate.
 		$this->error_handler->check_signed_request_for_errors(
 			new \WP_Error( 'malformed_token' ),
@@ -700,6 +745,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 * `invalid_body` and `unknown_scheme_port` should not, even with valid attribution.
 	 */
 	public function test_signing_failures_are_not_displayable() {
+		\Jetpack_Options::update_option( 'id', 12345 );
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		foreach ( array( 'invalid_body', 'unknown_scheme_port' ) as $error_code ) {
@@ -719,6 +765,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test that a displayable signing error is shown once it has valid attribution.
 	 */
 	public function test_displayable_signing_failure_surfaces_a_notice() {
+		\Jetpack_Options::update_option( 'id', 12345 );
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
 		$this->error_handler->check_signed_request_for_errors(

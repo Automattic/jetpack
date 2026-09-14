@@ -1086,7 +1086,9 @@ class Error_Handler {
 			unset( $stored_errors[ $error_code ][ $keys[0] ] );
 		}
 
-		if ( update_option( self::STORED_ERRORS_OPTION, $stored_errors ) ) {
+		// Deliberately not autoloaded: keeps these ephemeral options out of the shared
+		// alloptions cache blob, whose write races can resurrect deleted values (CONNECT-457).
+		if ( update_option( self::STORED_ERRORS_OPTION, $stored_errors, false ) ) {
 			return $error_array;
 		}
 
@@ -1539,7 +1541,7 @@ class Error_Handler {
 		if ( is_array( $stored_errors ) && count( $stored_errors ) ) {
 			$stored_errors = array_filter( array_map( $type_filter, $stored_errors ) );
 			if ( count( $stored_errors ) ) {
-				update_option( static::STORED_ERRORS_OPTION, $stored_errors );
+				update_option( static::STORED_ERRORS_OPTION, $stored_errors, false );
 			} else {
 				delete_option( static::STORED_ERRORS_OPTION );
 			}
@@ -1549,11 +1551,13 @@ class Error_Handler {
 		if ( is_array( $verified_errors ) && count( $verified_errors ) ) {
 			$verified_errors = array_filter( array_map( $type_filter, $verified_errors ) );
 			if ( count( $verified_errors ) ) {
-				update_option( static::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+				update_option( static::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 			} else {
 				delete_option( static::STORED_VERIFIED_ERRORS_OPTION );
 			}
 		}
+
+		$this->purge_option_caches();
 
 		// Invalidate cache since we may have deleted verified errors
 		$this->invalidate_displayable_errors_cache();
@@ -1582,7 +1586,9 @@ class Error_Handler {
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
 	public function delete_stored_errors() {
-		return delete_option( self::STORED_ERRORS_OPTION );
+		$deleted = delete_option( self::STORED_ERRORS_OPTION );
+		$this->purge_option_caches();
+		return $deleted;
 	}
 
 	/**
@@ -1593,7 +1599,24 @@ class Error_Handler {
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
 	public function delete_verified_errors() {
-		return delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
+		$deleted = delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
+		$this->purge_option_caches();
+		return $deleted;
+	}
+
+	/**
+	 * Purges the object-cache entries for both error options.
+	 *
+	 * Core's delete_option() and update_option() return before touching caches
+	 * when the DB row is missing, so a value resurrected in cache by an alloptions
+	 * write race would otherwise outlive every cleanup path — including
+	 * reconnecting (CONNECT-457). Called from each delete path.
+	 *
+	 * @since $$next-version$$
+	 */
+	private function purge_option_caches() {
+		wp_cache_delete( self::STORED_ERRORS_OPTION, 'options' );
+		wp_cache_delete( self::STORED_VERIFIED_ERRORS_OPTION, 'options' );
 	}
 
 	/**
@@ -1624,7 +1647,7 @@ class Error_Handler {
 			unset( $stored_errors[ $error_code ] );
 			$deleted = true;
 			if ( count( $stored_errors ) ) {
-				update_option( self::STORED_ERRORS_OPTION, $stored_errors );
+				update_option( self::STORED_ERRORS_OPTION, $stored_errors, false );
 			} else {
 				delete_option( self::STORED_ERRORS_OPTION );
 			}
@@ -1635,13 +1658,14 @@ class Error_Handler {
 			unset( $verified_errors[ $error_code ] );
 			$deleted = true;
 			if ( count( $verified_errors ) ) {
-				update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+				update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 			} else {
 				delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
 			}
 		}
 
 		if ( $deleted ) {
+			$this->purge_option_caches();
 			$this->invalidate_displayable_errors_cache();
 		}
 
@@ -1690,7 +1714,7 @@ class Error_Handler {
 
 		$verified_errors[ $error_code ][ $user_id ] = $error;
 
-		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 
 		// Invalidate cache since we added a new verified error
 		$this->invalidate_displayable_errors_cache();
@@ -1936,6 +1960,13 @@ class Error_Handler {
 	 */
 	public function check_signed_request_for_errors( $signing_result, $url, $method, $error_type ) {
 		if ( ! is_wp_error( $signing_result ) ) {
+			return;
+		}
+
+		// A site with no registration has no tokens to sign with: failed token lookups
+		// are expected state there, not connection errors — and a stale cache view that
+		// hides a connected site's options must not plant a "verified" error either (CONNECT-457).
+		if ( ! \Jetpack_Options::get_option( 'id' ) ) {
 			return;
 		}
 
