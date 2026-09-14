@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 class Main_Features_Test extends TestCase {
 
 	/**
-	 * Every entry carries the fields the Features tab reads.
+	 * Every entry carries the fields a feature card needs.
 	 */
 	public function test_every_feature_carries_the_required_fields() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
@@ -27,7 +27,7 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * The UI reads live state through this key, so it must name a product the registry knows.
+	 * A product key must name a product the My Jetpack registry knows.
 	 */
 	public function test_product_keys_resolve_to_real_products() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
@@ -43,8 +43,8 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A feature switched by neither a product nor a module has nothing to toggle, so the
-	 * UI can only link to it. Only Activity Log is allowed in that state.
+	 * A feature switched by neither a product nor a module has nothing to toggle and can
+	 * only be linked to. Only Activity Log is allowed in that state.
 	 */
 	public function test_only_activity_log_has_no_product_or_module() {
 		$unswitchable = array_keys(
@@ -158,6 +158,36 @@ class Main_Features_Test extends TestCase {
 				empty( $feature['delivery']['standalone'] ),
 				empty( $feature['delivery']['standalone_url'] ),
 				"Feature {$slug} has a standalone plugin name or URL without the other."
+			);
+		}
+	}
+
+	/**
+	 * A feature without a product needs an admin page to link to.
+	 */
+	public function test_features_without_a_product_have_an_admin_page() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			if ( empty( $feature['product'] ) ) {
+				$this->assertNotEmpty( $feature['admin_page'] ?? '', "Feature {$slug} has neither a product nor an admin page." );
+			}
+		}
+	}
+
+	/**
+	 * The free flag of a product-backed feature must agree with the product's own free offering.
+	 */
+	public function test_free_flag_matches_the_product_free_offering() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			if ( empty( $feature['product'] ) ) {
+				continue;
+			}
+
+			$product_class = Products::get_product_class( $feature['product'] );
+
+			$this->assertSame(
+				(bool) $product_class::$has_free_offering,
+				$feature['delivery']['free'],
+				"Feature {$slug} disagrees with its product about having a free offering."
 			);
 		}
 	}

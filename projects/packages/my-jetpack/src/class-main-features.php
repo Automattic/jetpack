@@ -1,6 +1,6 @@
 <?php
 /**
- * Static catalog of the main Jetpack features shown on the My Jetpack Features tab.
+ * Static catalog of the main Jetpack features.
  *
  * @package automattic/my-jetpack
  */
@@ -15,17 +15,19 @@ class Main_Features {
 	/**
 	 * The static feature catalog.
 	 *
-	 * Keys are feature slugs. `product` names a My Jetpack product class to borrow state
-	 * from; features with no product class instead carry `admin_page`, plus `module` when
-	 * a Jetpack module governs them. `essential` marks a feature every site should run.
+	 * Keys are feature slugs. `product` names the My Jetpack product behind a feature;
+	 * features without one carry `admin_page` instead, plus `module` when a Jetpack module
+	 * governs them. `essential` marks a feature every site should run. `icon` is a short
+	 * icon key such as `shield`, and `interstitial` a My Jetpack route from `_inc/constants.ts`.
 	 * `image`, `info_url` and `docs_url` point at the feature's own public pages.
 	 *
-	 * How a site owner gets a feature: `delivery.in_jetpack` says the Jetpack plugin ships
-	 * it, `delivery.standalone` and `delivery.standalone_url` name a separate plugin that also
-	 * does and its WordPress.org page, and `delivery.free` says it can be used without paying. `paid_highlights` lists what paying adds,
-	 * `paid_product` names what to buy, and `plans` lists the bundles that include it.
+	 * How a site owner gets a feature: `delivery.in_jetpack` says the Jetpack plugin ships it,
+	 * `delivery.standalone` and `delivery.standalone_url` name a separate plugin that does and
+	 * its WordPress.org page, and `delivery.free` says it can be used without paying.
+	 * `paid_highlights` lists what paying adds, `paid_product` names what to buy, and `plans`
+	 * lists the bundles that include it.
 	 *
-	 * @return array
+	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
 	public static function get_feature_definitions() {
 		return array(
@@ -191,7 +193,7 @@ class Main_Features {
 				'image'            => 'https://jetpack.com/wp-content/uploads/2024/03/14c11-5f571-hero-forms-2x.png',
 				'name'             => __( 'Forms', 'jetpack-my-jetpack' ),
 				'description'      => __( 'From quick contact forms to multistep surveys, everything you need is included.', 'jetpack-my-jetpack' ),
-				'long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Secure file uploads keep harmful files off your server and your visitors’ files private.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Break long forms into steps with a progress bar, and get every response by email and in your dashboard, with no limit on responses. Upgrade to add secure file uploads that keep harmful files off your server.', 'jetpack-my-jetpack' ),
 				'icon'             => 'list-bullets',
 				'product'          => 'jetpack-forms',
 				'essential'        => true,
