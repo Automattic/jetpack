@@ -238,10 +238,12 @@ export const useKeyboardNavigation = ( {
 			return;
 		}
 
+		// `chartRef` sits inside the focusable grid, so the grid itself has to count as in the chart.
+		const chartRoot = chartRef.current?.closest( '[role="grid"]' ) ?? chartRef.current;
 		const { activeElement } = document;
 		const focusIsInChart =
 			activeElement !== null &&
-			( chartRef.current?.contains( activeElement ) || tooltipElement.current === activeElement );
+			( chartRoot?.contains( activeElement ) || tooltipElement.current === activeElement );
 
 		if ( totalPoints === 0 || ! focusIsInChart ) {
 			setSelectedIndex( undefined );
