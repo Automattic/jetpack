@@ -239,6 +239,7 @@ export {
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
 	formatDailyViewCount,
+	formatEmailRate,
 	formatViewCount,
 	MONTHS_IN_YEAR,
 	monthOrder,
