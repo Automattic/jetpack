@@ -62,6 +62,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	minCellHeight,
 	rowLabels = NO_ROW_LABELS,
 	columnGroups,
+	'aria-label': ariaLabel,
 	primaryColor,
 	gap = 'md',
 	withTooltips = false,
@@ -252,14 +253,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		}
 	}, [ withTooltips, selectedIndex, hideTooltip ] );
 
-	// Anchor the tooltip at the selected cell's center on keyboard nav. Cleared on blur/Escape,
-	// not here, so a mouse hover (no selection) isn't affected.
+	// Focus stays on the grid (aria-activedescendant), so the browser never scrolls
+	// the selected cell into a scroll container's view on its own. Then anchor the
+	// tooltip at the cell's center; cleared on blur/Escape, not here, so a mouse
+	// hover (no selection) isn't affected.
 	useEffect( () => {
-		if ( ! withTooltips || selectedIndex === undefined ) {
-			return;
-		}
-		const origin = getTooltipOrigin();
-		if ( ! origin ) {
+		if ( selectedIndex === undefined ) {
 			return;
 		}
 		const col = Math.floor( selectedIndex / rows );
@@ -268,6 +267,15 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			typeof document !== 'undefined'
 				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
 				: null;
+		cell?.scrollIntoView?.( { block: 'nearest', inline: 'nearest' } );
+
+		if ( ! withTooltips ) {
+			return;
+		}
+		const origin = getTooltipOrigin();
+		if ( ! origin ) {
+			return;
+		}
 		const rect = cell?.getBoundingClientRect();
 		showTooltip( {
 			tooltipLeft: rect ? rect.left + rect.width / 2 - origin.left : 0,
@@ -405,7 +413,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					<div
 						ref={ containerRef }
 						role="grid"
-						aria-label={ __( 'Heatmap chart', 'jetpack-charts' ) }
+						aria-label={ ariaLabel ?? __( 'Heatmap chart', 'jetpack-charts' ) }
 						aria-rowcount={ rows }
 						aria-colcount={ columns }
 						aria-activedescendant={ activeDescendant }
