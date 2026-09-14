@@ -71,6 +71,17 @@ abstract class Module_Product extends Product {
 	}
 
 	/**
+	 * Checks whether the site has switched the product on, whether or not it has a plan for it.
+	 *
+	 * Deliberately not is_active(): bundles override that with a plan check, and some products with one that ignores the module.
+	 *
+	 * @return boolean
+	 */
+	public static function is_activated() {
+		return static::is_jetpack_plugin_active() && static::is_module_active();
+	}
+
+	/**
 	 * Checks whether the Jetpack module is active
 	 *
 	 * @return bool

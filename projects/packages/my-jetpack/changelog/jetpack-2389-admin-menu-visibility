@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Resolve Jetpack sidebar menu visibility from the product classes, so a menu item and its product card agree on whether the product is active.
+Add a plan-free is_activated() check to the product classes and resolve Jetpack sidebar menu visibility from it, so a menu item follows whether the product is switched on without a request to WordPress.com.

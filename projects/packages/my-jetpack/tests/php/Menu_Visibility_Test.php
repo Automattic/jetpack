@@ -8,7 +8,11 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\My_Jetpack\Products\Backup;
+use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
+use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 
 require_once __DIR__ . '/class-sample-gated-product.php';
@@ -34,9 +38,32 @@ class Menu_Visibility_Test extends TestCase {
 		remove_filter( 'my_jetpack_products_classes', array( $this, 'replace_stats_product' ) );
 		Sample_Gated_Product::$active = true;
 		Admin_Menu::set_visibility_resolver( null );
+		$this->reset_admin_menu();
+		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
 		parent::tearDown();
+	}
+
+	/**
+	 * Drops the items and init flag Admin_Menu keeps statically, so they don't leak into later tests.
+	 *
+	 * @return void
+	 */
+	private function reset_admin_menu() {
+		$reflection = new \ReflectionClass( Admin_Menu::class );
+
+		foreach ( array(
+			'menu_items'  => array(),
+			'initialized' => false,
+		) as $property => $value ) {
+			$property = $reflection->getProperty( $property );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, $value );
+		}
 	}
 
 	/**
@@ -135,12 +162,48 @@ class Menu_Visibility_Test extends TestCase {
 	}
 
 	/**
+	 * A product whose plan has lapsed keeps its item, and resolving it never asks WordPress.com.
+	 */
+	public function test_lapsed_plan_keeps_the_item_without_a_wpcom_request() {
+		$plugin_dir = WP_PLUGIN_DIR . '/' . Backup::$plugin_slug;
+		if ( ! file_exists( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0777, true );
+		}
+		copy( __DIR__ . '/assets/backup-mock-plugin.txt', $plugin_dir . '/jetpack-backup.php' );
+		wp_cache_delete( 'plugins', 'plugins' );
+		activate_plugins( Backup::get_installed_plugin_filename() );
+
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		Jetpack_Options::update_option( 'id', 123 );
+
+		$requests      = 0;
+		$count_request = function () use ( &$requests ) {
+			++$requests;
+			return new \WP_Error( 'http_request_failed', 'No plan lookup expected.' );
+		};
+		add_filter( 'pre_http_request', $count_request );
+
+		$resolved             = Menu_Visibility::resolve( array( 'product' => 'backup' ) );
+		$requests_for_resolve = $requests;
+		$is_active            = Backup::is_active();
+
+		remove_filter( 'pre_http_request', $count_request );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
+
+		$this->assertTrue( $resolved );
+		$this->assertSame( 0, $requests_for_resolve );
+		$this->assertFalse( $is_active, 'With no plan, is_active() is what would have hidden the item.' );
+	}
+
+	/**
 	 * Deactivating a product removes the sidebar item that declared it.
 	 *
-	 * The end-to-end claim of the whole mechanism, across both packages: My Jetpack's answer
-	 * reaches the menu registration that Admin_Menu performs.
+	 * Goes through Initializer::init() rather than Menu_Visibility::init(), so dropping the
+	 * resolver's registration from My Jetpack's startup fails this test.
 	 */
 	public function test_deactivating_a_product_removes_its_menu_item() {
+		global $wp_actions;
+
 		wp_set_current_user(
 			wp_insert_user(
 				array(
@@ -150,7 +213,8 @@ class Menu_Visibility_Test extends TestCase {
 				)
 			)
 		);
-		Menu_Visibility::init();
+		unset( $wp_actions['my_jetpack_init'] );
+		Initializer::init();
 
 		Admin_Menu::add_menu( 'Stats', 'Stats', 'manage_options', 'gated-stats', '__return_null', null, array( 'product' => 'stats' ) );
 
@@ -170,6 +234,9 @@ class Menu_Visibility_Test extends TestCase {
 		$this->reset_submenu();
 
 		do_action( 'admin_menu' );
+		ob_start(); // Core prints head markup on admin_head.
+		do_action( 'admin_head' );
+		ob_end_clean();
 
 		global $submenu;
 
