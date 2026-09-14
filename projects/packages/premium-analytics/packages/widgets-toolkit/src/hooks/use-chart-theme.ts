@@ -46,13 +46,8 @@ export function useChartTheme(): ChartTheme {
 			leaderboardChart: {
 				labelSpacing: 'xs',
 			},
-			// Pinned rather than inherited so the month calendar skeleton can draw the
-			// loaded chart's geometry. The group gap lands between two cell gaps, so
-			// 16px reads as the 20px of the old Stats posting calendar; the chart's
-			// 24px default left twelve months short of a full-width card at 1600px.
+			// The chart's 24px default does not fit twelve month blocks in a full-width card.
 			heatmapChart: {
-				compactCellSize: 11,
-				compactCellGap: 2,
 				groupGap: 16,
 			},
 			lineChart: {

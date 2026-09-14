@@ -29,7 +29,9 @@ export type MonthCalendarHeatmapProps = {
 	formatValue: ( value: number ) => string;
 	/** Shown in the tooltip in place of a value when there is none. */
 	emptyLabel: string;
+	/** Label at the low end of the legend scale. */
 	lessLabel: string;
+	/** Label at the high end of the legend scale. */
 	moreLabel: string;
 };
 

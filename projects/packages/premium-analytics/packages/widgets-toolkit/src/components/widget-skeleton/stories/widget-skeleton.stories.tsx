@@ -1,4 +1,5 @@
 import { WidgetCard } from '../../../stories/widget-card';
+import { withChartTheme } from '../../../stories/with-chart-theme';
 import { AnnualHighlightsSkeleton } from '../annual-highlights-skeleton';
 import { GenericSkeleton } from '../generic-skeleton';
 import { HeatmapSkeleton } from '../heatmap-skeleton';
@@ -101,6 +102,7 @@ type MonthCalendarHeatmapStory = StoryObj< typeof MonthCalendarHeatmapSkeleton >
  * `renderLoading`: twelve month blocks sharing the width, a label under each.
  */
 export const MonthCalendarHeatmap: MonthCalendarHeatmapStory = {
+	decorators: [ withChartTheme ],
 	render: () => (
 		<WidgetCard width="1200px" height="320px">
 			<MonthCalendarHeatmapSkeleton />
@@ -113,6 +115,7 @@ export const MonthCalendarHeatmap: MonthCalendarHeatmapStory = {
  * fits the body and the rest clips where the loaded grid would scroll.
  */
 export const MonthCalendarHeatmapShortTile: MonthCalendarHeatmapStory = {
+	decorators: [ withChartTheme ],
 	render: () => (
 		<WidgetCard width="720px" height="140px">
 			<MonthCalendarHeatmapSkeleton />

@@ -1,8 +1,7 @@
 @use "../../styles/widget-container" as *;
 
 /* Size containment so the short-tile query below can read the body height.
- * Safe here for the reason `widget-state` gives: the body is always
- * definite-height, so containment cannot collapse it. */
+ * Safe for the reason `widget-state` gives: the body is definite-height. */
 .root {
 	container-type: size;
 	block-size: 100%;

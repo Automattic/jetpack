@@ -1,15 +1,23 @@
 /**
  * External dependencies
  */
+import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { useChartTheme } from '../../../hooks/use-chart-theme';
 import { MonthCalendarHeatmapSkeleton } from '../month-calendar-heatmap-skeleton';
+import type { ReactNode } from 'react';
+
+// The provider WidgetRoot supplies: the chart's defaults merged with the dashboard theme.
+function ChartThemeProvider( { children }: { children: ReactNode } ) {
+	return <GlobalChartsProvider theme={ useChartTheme() }>{ children }</GlobalChartsProvider>;
+}
 
 describe( 'MonthCalendarHeatmapSkeleton', () => {
-	it( 'draws twelve month blocks sized from the chart theme', () => {
-		render( <MonthCalendarHeatmapSkeleton /> );
+	it( 'draws twelve month blocks sized from the merged chart theme', () => {
+		render( <MonthCalendarHeatmapSkeleton />, { wrapper: ChartThemeProvider } );
 
 		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		const months = screen.getAllByTestId( 'skeleton-month' );
@@ -24,7 +32,7 @@ describe( 'MonthCalendarHeatmapSkeleton', () => {
 	it( 'keeps the months in their own wrapper', () => {
 		// SkeletonRoot's hidden label is a real element; months sharing its parent
 		// would take a share of the row.
-		render( <MonthCalendarHeatmapSkeleton /> );
+		render( <MonthCalendarHeatmapSkeleton />, { wrapper: ChartThemeProvider } );
 
 		const root = screen.getByTestId( 'widget-skeleton' );
 		// eslint-disable-next-line testing-library/no-node-access -- the wrapper is the assertion: the row must be one element beside the hidden label.
