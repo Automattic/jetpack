@@ -63,13 +63,7 @@ export default function SubscriberCountNotice(): JSX.Element | null {
 						'jetpack-newsletter'
 					),
 					{
-						a: (
-							<Link
-								href="https://wordpress.com/help/contact"
-								openInNewTab
-								onClick={ openHelpCenter }
-							/>
-						),
+						a: <Link href="https://wordpress.com/help/contact" onClick={ openHelpCenter } />,
 					}
 				) }
 			</Notice.Description>

@@ -91,16 +91,6 @@ class Settings {
 		// Priority 1 so this runs before the menu is built and the request is denied.
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_retired_subscribers_page' ), 1 );
 
-		// Admin-ajax rather than `/wp/v2/users/me`: WordPress.com's public API drops user meta it hasn't allowlisted.
-		add_action(
-			'wp_ajax_jetpack_newsletter_dismiss_subscriber_count_notice',
-			static function () {
-				check_ajax_referer( 'jetpack_newsletter_dismiss_subscriber_count_notice' );
-				update_user_meta( get_current_user_id(), 'jetpack_newsletter_subscriber_count_notice_dismissed', 1 );
-				wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );
-			}
-		);
-
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
 			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );
@@ -128,6 +118,18 @@ class Settings {
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
 		$host = new Host();
+
+		// Admin-ajax rather than `/wp/v2/users/me`: WordPress.com's public API drops user meta it hasn't allowlisted.
+		if ( $host->is_wpcom_platform() ) {
+			add_action(
+				'wp_ajax_jetpack_newsletter_dismiss_subscriber_count_notice',
+				static function () {
+					check_ajax_referer( 'jetpack_newsletter_dismiss_subscriber_count_notice' );
+					update_user_meta( get_current_user_id(), 'jetpack_newsletter_subscriber_count_notice_dismissed', 1 );
+					wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );
+				}
+			);
+		}
 
 		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php,
 		// which will call add_wp_admin_submenu() directly. Skip adding the menu here to avoid
@@ -329,7 +331,7 @@ class Settings {
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),
 			'tracksUserData'                  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'showSubscriberCountNotice'       => $is_wpcom && ! get_user_meta( $current_user->ID, 'jetpack_newsletter_subscriber_count_notice_dismissed', true ),
-			'subscriberCountNoticeNonce'      => wp_create_nonce( 'jetpack_newsletter_dismiss_subscriber_count_notice' ),
+			'subscriberCountNoticeNonce'      => $is_wpcom ? wp_create_nonce( 'jetpack_newsletter_dismiss_subscriber_count_notice' ) : '',
 		);
 
 		return $data;
