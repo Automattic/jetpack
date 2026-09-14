@@ -231,9 +231,6 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				// The licensing activation screen pulls in @wordpress/ui, and this page
-				// registers neither handle: WP < 7.0 has no core wp-theme, and the
-				// wp-build-polyfills shim is not loaded here.
 				bundleWpUiDeps: true,
 			} ),
 		],

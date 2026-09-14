@@ -1,5 +1,4 @@
-Significance: patch
-Type: changed
-Comment: Replace the duplicated DependencyExtractionPlugin requestMap block with an opt-in bundleWpUiDeps option. No build output changes.
+Significance: minor
+Type: added
 
-
+DependencyExtractionPlugin: Add a `bundleWpUiDeps` option to bundle `@wordpress/theme` and `@wordpress/private-apis`.

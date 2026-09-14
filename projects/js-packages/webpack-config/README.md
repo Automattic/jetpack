@@ -229,7 +229,7 @@ By default, the following additional dependencies are extracted:
 Two additional options are recognized:
 
 - `requestMap`: An easier way to specify additional dependencies to extract, rather than redefining `requestToHandle` and `requestToExternal`. Key is the dependency, value is an object with `handle` and `external` keys corresponding to the return values of `requestToHandle` and `requestToExternal`.
-- `bundleWpUiDeps`: Bundle `@wordpress/theme` and `@wordpress/private-apis` instead of externalizing them to the `wp-theme` and `wp-private-apis` script handles. Defaults to `false`. Set it to `true` on an entry that renders `@wordpress/ui` on a page that registers neither handle, otherwise the whole bundle fails to enqueue. The pair is bundled jointly on purpose: see [#48173](https://github.com/Automattic/jetpack/pull/48173). Your own `requestMap` still wins over it.
+- `bundleWpUiDeps`: Bundle `@wordpress/theme` and `@wordpress/private-apis` instead of externalizing them to the `wp-theme` and `wp-private-apis` script handles. Defaults to `false`. It is meant for entries that bundle `@wordpress/ui`, which is built against a newer `@wordpress/theme` than the one WordPress core registers. A bundled `@wordpress/private-apis` can only unlock private APIs that were locked inside the same bundle. So do not use this option on an entry that unlocks private APIs from an external `wp-*` script, for example bundled `@wordpress/dataviews` with an external `wp-components`. Your own `requestMap` still wins over it.
 
 ##### `DuplicatePackageCheckerPlugin( options )`
 

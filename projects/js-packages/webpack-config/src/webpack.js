@@ -146,10 +146,8 @@ const defaultRequestMap = {
 	},
 };
 
-// @wordpress/ui pulls these in transitively; externalizing them targets script handles many pages
-// never register, so the whole bundle fails to enqueue. Bundle the pair jointly — split, the
-// module-scope lock() in @wordpress/theme and the per-instance consent map in
-// @wordpress/private-apis diverge at runtime. See PR #48173.
+// A bundled @wordpress/private-apis unlocks only what its own bundle locked. So never bundle it
+// without @wordpress/theme, or in an entry that unlocks private APIs of an external wp-* script.
 const wpUiRequestMap = {
 	'@wordpress/theme': { external: false },
 	'@wordpress/private-apis': { external: false },
@@ -161,8 +159,9 @@ const wpUiRequestMap = {
  * @param {object}  options                - Plugin options, passed through except for the two below.
  * @param {object}  options.requestMap     - Per-request `{ external, handle }` overrides. Wins over every default.
  * @param {boolean} options.bundleWpUiDeps - Bundle `@wordpress/theme` and `@wordpress/private-apis` instead of
- *                                         externalizing them. Off by default; set it on an entry that renders
- *                                         `@wordpress/ui` on a page that registers neither script handle.
+ *                                         externalizing them. Off by default. For an entry that bundles
+ *                                         `@wordpress/ui`, which is built against a newer `@wordpress/theme`
+ *                                         than core's `wp-theme`.
  * @return {object[]} The plugin.
  */
 const DependencyExtractionPlugin = ( { requestMap, bundleWpUiDeps = false, ...options } = {} ) => {
