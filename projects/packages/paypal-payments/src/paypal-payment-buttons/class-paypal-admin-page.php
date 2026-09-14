@@ -154,7 +154,7 @@ class PayPal_Admin_Page {
 		add_submenu_page(
 			$parent_slug,
 			__( 'PayPal Payment Links', 'jetpack-paypal-payments' ),
-			__( 'Payment Links', 'jetpack-paypal-payments' ),
+			__( 'PayPal Payment Links', 'jetpack-paypal-payments' ),
 			self::CAPABILITY,
 			self::PAGE_SLUG,
 			array( __CLASS__, 'render_page' )
