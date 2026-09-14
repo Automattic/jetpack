@@ -59,7 +59,14 @@ const METRIC_SECTION: Record< EmailMetric, string > = {
 	clicks: 'email-clicks',
 };
 
-const COUNT_FORMAT: DataFormat = { type: 'number', options: { useMultipliers: true } };
+const COUNT_FORMAT: DataFormat = { type: 'number', options: { decimals: 0, useMultipliers: true } };
+
+function formatExactCount( count: number ): string {
+	return formatMetricValue( count, COUNT_FORMAT.type, {
+		...COUNT_FORMAT.options,
+		useMultipliers: false,
+	} );
+}
 
 type EmailsListProps = {
 	/** Email rows to render. */
@@ -69,7 +76,7 @@ type EmailsListProps = {
 };
 
 function describeOpens( opens: number, rate: string, isRateKnown: boolean ): string {
-	const exactOpens = formatMetricValue( opens, 'number', { decimals: 0, useMultipliers: false } );
+	const exactOpens = formatExactCount( opens );
 
 	if ( ! isRateKnown ) {
 		return sprintf(
@@ -98,7 +105,7 @@ function describeOpens( opens: number, rate: string, isRateKnown: boolean ): str
 }
 
 function describeClicks( clicks: number, rate: string, isRateKnown: boolean ): string {
-	const exactClicks = formatMetricValue( clicks, 'number', { decimals: 0, useMultipliers: false } );
+	const exactClicks = formatExactCount( clicks );
 
 	if ( ! isRateKnown ) {
 		return sprintf(
