@@ -145,7 +145,7 @@ class Utils {
 	 * not a cache of any one token: SSO and Premium Content read and write it too, and it outlives
 	 * the connection that first established it. Do not drop it because a token went away.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.2.0
 	 *
 	 * @param int $user_id The local WordPress user ID.
 	 * @return int The WordPress.com user ID, or 0 when none is bound.
@@ -162,7 +162,7 @@ class Utils {
 	 * Premium Content writes the same key directly, so uniqueness is not guaranteed site-wide. On
 	 * multisite the lookup is scoped to the current site.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.2.0
 	 *
 	 * @param int $user_id       The local WordPress user ID.
 	 * @param int $wpcom_user_id The WordPress.com user ID.
@@ -202,7 +202,7 @@ class Utils {
 	 * WordPress.com account. A disconnect does not make it wrong, and other subsystems store their
 	 * own meaning in this key.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.2.0
 	 *
 	 * @param int $user_id The local WordPress user ID.
 	 */
