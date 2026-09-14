@@ -33,6 +33,7 @@ import {
 	HeatmapContext,
 	HeatmapLegend,
 	isPresent,
+	resolveColumnGroups,
 } from './private';
 import type { HeatmapContextValue } from './private';
 import type { HeatmapChartProps, HeatmapTooltipData } from './types';
@@ -60,6 +61,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	minCellWidth,
 	minCellHeight,
 	rowLabels = NO_ROW_LABELS,
+	columnGroups,
 	primaryColor,
 	gap = 'md',
 	withTooltips = false,
@@ -123,8 +125,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const columns = data.length;
 	const rows = Math.max( 0, ...data.map( column => column.data.length ) );
+	const groupLayout = useMemo(
+		() => resolveColumnGroups( columnGroups, columns ),
+		[ columnGroups, columns ]
+	);
 
-	const { compactCellGap, compactCellSize } = heatmapChartSettings;
+	const { compactCellGap, compactCellSize, groupGap } = heatmapChartSettings;
 	const drawValues = showValues ?? ! compact;
 
 	const buildTooltipData = useCallback(
@@ -317,23 +323,34 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
 		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
 	const hasColumnLabels = data.some( column => Boolean( column.label ) );
+	const hasGroups = groupLayout.groups.length > 0;
 	// Every item is placed by hand rather than auto-flowed, so the template can
-	// carry tracks that hold no cell. Line 1 is the row-label track.
-	const columnLine = ( columnIndex: number ) => columnIndex + 2;
+	// carry gap tracks that hold no cell. Line 1 is the row-label track; a gap
+	// track precedes every group but the first.
+	const columnLine = ( columnIndex: number ) =>
+		columnIndex + 2 + groupLayout.gapsBefore[ columnIndex ];
+	const opensGroup = ( columnIndex: number ) =>
+		columnIndex > 0 &&
+		groupLayout.gapsBefore[ columnIndex ] > groupLayout.gapsBefore[ columnIndex - 1 ];
 	const firstDataRow = hasColumnLabels ? 2 : 1;
 	// A summary column takes a content-sized track: a roll-up is wider than a
 	// cell, and a shared track would stretch every cell to fit it. `max-content`
 	// as the max keeps the leftover width out of it once the data tracks hit
 	// `maxCellWidth`, where a plain `auto` would absorb it.
-	const columnTracks = data.some( column => column.summary )
-		? data
-				.map( column => ( column.summary ? 'minmax(auto, max-content)' : columnTrack ) )
-				.join( ' ' )
-		: `repeat(${ columns }, ${ columnTrack })`;
+	// The group gap is a track of its own: a margin cannot widen a fixed or
+	// minmax track the way it widens the summary's auto track.
+	const columnTracks = data
+		.map( ( column, columnIndex ) => {
+			const track = column.summary ? 'minmax(auto, max-content)' : columnTrack;
+			return opensGroup( columnIndex ) ? `${ groupGap }px ${ track }` : track;
+		} )
+		.join( ' ' );
 	const gridStyle: Record< string, string | number > = {
 		'--a8c-charts-color-heatmap-primary': primaryColorHex,
 		gridTemplateColumns: `auto ${ columnTracks }`,
-		gridTemplateRows: `${ hasColumnLabels ? 'auto ' : '' }repeat(${ rows }, ${ rowTrack })`,
+		gridTemplateRows: `${ hasColumnLabels ? 'auto ' : '' }repeat(${ rows }, ${ rowTrack })${
+			hasGroups ? ' auto' : ''
+		}`,
 	};
 	if ( compact ) {
 		gridStyle[ '--a8c-charts-dimension-heatmap-cell-gap' ] = `${ compactCellGap }px`;
@@ -539,6 +556,25 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 								</div>
 							);
 						} ) }
+						{ hasGroups && (
+							<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
+								{ groupLayout.groups.map( ( group, groupIndex ) => (
+									<span
+										key={ `group-${ groupIndex }` }
+										data-testid="heatmap-group-label"
+										className={ styles[ 'heatmap-chart__group-label' ] }
+										style={ {
+											gridColumn: `${ columnLine( groupLayout.starts[ groupIndex ] ) } / span ${
+												group.span
+											}`,
+											gridRow: firstDataRow + rows,
+										} }
+									>
+										{ group.label }
+									</span>
+								) ) }
+							</div>
+						) }
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
 						<BoundedTooltip top={ tooltipTop } left={ tooltipLeft }>

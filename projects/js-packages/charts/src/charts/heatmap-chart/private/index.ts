@@ -5,3 +5,5 @@ export { HeatmapContext } from './heatmap-context';
 export type { CalendarHeatmapOptions, CalendarHeatmapResult } from './build-calendar-data';
 export type { HeatmapLegendProps } from './heatmap-legend';
 export type { HeatmapContextValue } from './heatmap-context';
+export { resolveColumnGroups } from './column-groups';
+export type { ColumnGroupLayout } from './column-groups';

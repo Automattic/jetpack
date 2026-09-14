@@ -79,6 +79,15 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	text-align: left;
 }
 
+// Beneath its columns, set off from the last row by more than the cell gap.
+.heatmap-chart__group-label {
+	color: var(--a8c-charts-color-label-secondary);
+	font-size: var(--wpds-typography-font-size-xs);
+	white-space: nowrap;
+	text-align: center;
+	padding-block-start: var(--wpds-dimension-padding-xs);
+}
+
 .heatmap-chart__row-label {
 	align-self: center;
 	justify-self: end;
