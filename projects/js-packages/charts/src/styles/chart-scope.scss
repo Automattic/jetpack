@@ -42,9 +42,7 @@
 	// The literal is load-bearing: a `fill` reading a fallback-less var() on an
 	// undeclared property drops the declaration and paints black instead.
 	--a8c-charts-color-label-background: transparent;
-	// The SVG axis and tick labels. Narrower than --a8c-charts-color-label and
-	// derived from it, so setting the broad role moves every label at once while
-	// setting this one moves only the axis.
+	// See TOKENS.md's "Broad roles and narrow ones" for label inheritance.
 	--a8c-charts-color-label-axis: var(--a8c-charts-color-label);
 	--a8c-charts-color-annotation: var(--wpds-color-foreground-content-neutral);
 	--a8c-charts-color-trend-up: var(--wpds-color-foreground-content-success-weak);

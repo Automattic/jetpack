@@ -276,7 +276,7 @@ Two placements need care:
 
 Two roles are narrower than their obvious name, so that moving one thing does not move four:
 
-- `--a8c-charts-color-label-axis` derives from `--a8c-charts-color-label`. Set the broad one to move every label — legend labels, heatmap cell values, funnel labels, the line-chart tooltip — or the narrow one to move only the SVG axis labels.
+- For `--a8c-charts-color-label-axis` inheritance and forced-colors defaults, see TOKENS.md's "Broad roles and narrow ones" section.
 - `--a8c-charts-color-surface` — the annotation label, `.x-zoom__reset`, tooltips — is a sibling of `--a8c-charts-color-background`, not a child, so the chart's background and the surfaces over it move independently.
 
 The axes go the other way: there is no broad axis role, only `--a8c-charts-color-axis-x` / `-tick-x` and `--a8c-charts-color-axis-y` / `-tick-y`. The y pair resolves to `none`, so that axis carries labels only until you declare one.
