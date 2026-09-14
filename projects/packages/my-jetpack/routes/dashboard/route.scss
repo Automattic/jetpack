@@ -28,6 +28,11 @@ body.jetpack_page_my-jetpack:not(.jetpack-admin-full-screen) {
 		Arial,
 		sans-serif;
 
+	// Boot's stage sets #1e1e1e; legacy inherits wp-admin's body color.
+	.boot-layout__stage {
+		color: #3c434a;
+	}
+
 	// Mirrors the legacy path: keep the scrollable middle's gutter reserved
 	// so content-height changes don't shift the layout sideways.
 	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
