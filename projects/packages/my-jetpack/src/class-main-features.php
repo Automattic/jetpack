@@ -34,8 +34,8 @@ class Main_Features {
 	 * `image`, `info_url` and `docs_url` point at the feature's own public pages.
 	 *
 	 * How a site owner gets a feature: `delivery.in_jetpack` says the Jetpack plugin ships
-	 * it, `delivery.standalone` names a separate plugin that also does, and `delivery.free`
-	 * says it can be used without paying. `paid_highlights` lists what paying adds,
+	 * it, `delivery.standalone` and `delivery.standalone_url` name a separate plugin that also
+	 * does and its WordPress.org page, and `delivery.free` says it can be used without paying. `paid_highlights` lists what paying adds,
 	 * `paid_product` names what to buy, and `plans` lists the bundles that include it.
 	 *
 	 * @return array
@@ -78,9 +78,10 @@ class Main_Features {
 					__( 'Email support', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'in_jetpack' => false,
-					'standalone' => __( 'Akismet Anti-spam', 'jetpack-my-jetpack' ),
-					'free'       => true,
+					'in_jetpack'     => false,
+					'standalone'     => __( 'Akismet Anti-spam', 'jetpack-my-jetpack' ),
+					'standalone_url' => 'https://wordpress.org/plugins/akismet/',
+					'free'           => true,
 				),
 				'plans'            => array( 'security', 'complete' ),
 				'paid_product'     => __( 'Jetpack Akismet Anti-spam', 'jetpack-my-jetpack' ),
@@ -101,9 +102,10 @@ class Main_Features {
 					__( 'Move your site to any host without a developer', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'in_jetpack' => true,
-					'standalone' => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
-					'free'       => false,
+					'in_jetpack'     => true,
+					'standalone'     => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
+					'standalone_url' => 'https://wordpress.org/plugins/jetpack-backup/',
+					'free'           => false,
 				),
 				'plans'            => array( 'security', 'complete' ),
 				'paid_product'     => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
@@ -119,8 +121,10 @@ class Main_Features {
 				'admin_page'       => 'advertising',
 				'module'           => 'blaze',
 				'delivery'         => array(
-					'in_jetpack' => true,
-					'free'       => false,
+					'in_jetpack'     => true,
+					'standalone'     => __( 'Blaze Ads', 'jetpack-my-jetpack' ),
+					'standalone_url' => 'https://wordpress.org/plugins/blaze-ads/',
+					'free'           => false,
 				),
 			),
 			'boost'         => array(
@@ -140,9 +144,10 @@ class Main_Features {
 					__( 'Control over the quality and size of images from the image CDN', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'in_jetpack' => false,
-					'standalone' => __( 'Jetpack Boost', 'jetpack-my-jetpack' ),
-					'free'       => true,
+					'in_jetpack'     => false,
+					'standalone'     => __( 'Jetpack Boost', 'jetpack-my-jetpack' ),
+					'standalone_url' => 'https://wordpress.org/plugins/jetpack-boost/',
+					'free'           => true,
 				),
 				'plans'            => array( 'complete' ),
 				'paid_product'     => __( 'Jetpack Boost', 'jetpack-my-jetpack' ),
@@ -163,9 +168,10 @@ class Main_Features {
 					__( 'Sync contacts from Gravity Forms, Contact Form 7 and Mailchimp', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'in_jetpack' => false,
-					'standalone' => __( 'Jetpack CRM', 'jetpack-my-jetpack' ),
-					'free'       => true,
+					'in_jetpack'     => false,
+					'standalone'     => __( 'Jetpack CRM', 'jetpack-my-jetpack' ),
+					'standalone_url' => 'https://wordpress.org/plugins/zero-bs-crm/',
+					'free'           => true,
 				),
 				'plans'            => array( 'complete' ),
 				'paid_product'     => __( 'Jetpack CRM Entrepreneur', 'jetpack-my-jetpack' ),
@@ -272,9 +278,10 @@ class Main_Features {
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'in_jetpack' => true,
-					'standalone' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
-					'free'       => true,
+					'in_jetpack'     => true,
+					'standalone'     => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
+					'standalone_url' => 'https://wordpress.org/plugins/jetpack-protect/',
+					'free'           => true,
 				),
 				'plans'            => array( 'security', 'complete' ),
 				'paid_product'     => __( 'Jetpack Scan', 'jetpack-my-jetpack' ),
@@ -295,9 +302,10 @@ class Main_Features {
 					__( 'No Jetpack branding, plus priority support', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'in_jetpack' => true,
-					'standalone' => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
-					'free'       => true,
+					'in_jetpack'     => true,
+					'standalone'     => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
+					'standalone_url' => 'https://wordpress.org/plugins/jetpack-search/',
+					'free'           => true,
 				),
 				'plans'            => array( 'complete' ),
 				'paid_product'     => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
@@ -318,9 +326,10 @@ class Main_Features {
 					__( 'Branded share images from Social Image Generator', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'in_jetpack' => true,
-					'standalone' => __( 'Jetpack Social', 'jetpack-my-jetpack' ),
-					'free'       => true,
+					'in_jetpack'     => true,
+					'standalone'     => __( 'Jetpack Social', 'jetpack-my-jetpack' ),
+					'standalone_url' => 'https://wordpress.org/plugins/jetpack-social/',
+					'free'           => true,
 				),
 				'plans'            => array( 'growth', 'complete' ),
 				'paid_product'     => __( 'Jetpack Social', 'jetpack-my-jetpack' ),
@@ -363,9 +372,10 @@ class Main_Features {
 					__( 'Up to 1TB of video storage', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'in_jetpack' => true,
-					'standalone' => __( 'Jetpack VideoPress', 'jetpack-my-jetpack' ),
-					'free'       => true,
+					'in_jetpack'     => true,
+					'standalone'     => __( 'Jetpack VideoPress', 'jetpack-my-jetpack' ),
+					'standalone_url' => 'https://wordpress.org/plugins/jetpack-videopress/',
+					'free'           => true,
 				),
 				'plans'            => array( 'complete' ),
 				'paid_product'     => __( 'Jetpack VideoPress', 'jetpack-my-jetpack' ),
@@ -412,7 +422,7 @@ class Main_Features {
 		$features = array();
 
 		foreach ( self::get_feature_definitions() as $slug => $definition ) {
-			$standalone_plugin_url = self::get_standalone_plugin_url( $definition );
+			$standalone_plugin_url = $definition['delivery']['standalone_url'] ?? '';
 
 			$features[] = array(
 				'slug'                  => $slug,
@@ -591,26 +601,6 @@ class Main_Features {
 		}
 
 		return array_values( array_unique( $modules ) );
-	}
-
-	/**
-	 * The WordPress.org page of the plugin that ships a feature on its own, outside Jetpack.
-	 *
-	 * @param array $definition A single entry from the feature catalog.
-	 * @return string Plugin directory URL, or an empty string when only Jetpack ships the feature.
-	 */
-	private static function get_standalone_plugin_url( array $definition ) {
-		if ( empty( $definition['product'] ) ) {
-			return '';
-		}
-
-		$product_class = Products::get_product_class( $definition['product'] );
-
-		if ( ! $product_class || empty( $product_class::$plugin_slug ) || Product::JETPACK_PLUGIN_SLUG === $product_class::$plugin_slug ) {
-			return '';
-		}
-
-		return 'https://wordpress.org/plugins/' . $product_class::$plugin_slug . '/';
 	}
 
 	/**

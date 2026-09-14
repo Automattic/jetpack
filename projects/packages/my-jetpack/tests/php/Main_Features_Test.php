@@ -236,6 +236,7 @@ class Main_Features_Test extends TestCase {
 			array(
 				'anti-spam'  => 'https://wordpress.org/plugins/akismet/',
 				'backup'     => 'https://wordpress.org/plugins/jetpack-backup/',
+				'blaze'      => 'https://wordpress.org/plugins/blaze-ads/',
 				'boost'      => 'https://wordpress.org/plugins/jetpack-boost/',
 				'crm'        => 'https://wordpress.org/plugins/zero-bs-crm/',
 				'protect'    => 'https://wordpress.org/plugins/jetpack-protect/',
@@ -245,6 +246,30 @@ class Main_Features_Test extends TestCase {
 			),
 			$urls
 		);
+	}
+
+	/**
+	 * A product that declares its own plugin must link to that plugin, and a product that
+	 * only ships in Jetpack must not claim a standalone one.
+	 */
+	public function test_standalone_urls_match_the_product_plugin_slug() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			if ( '' === $feature['product'] ) {
+				continue;
+			}
+
+			$product_class = Products::get_product_class( $feature['product'] );
+			$slug          = $product_class::$plugin_slug;
+			$expected      = ( $slug && Product::JETPACK_PLUGIN_SLUG !== $slug )
+				? "https://wordpress.org/plugins/{$slug}/"
+				: '';
+
+			$this->assertSame(
+				$expected,
+				$feature['standalone_plugin_url'],
+				"Feature {$feature['slug']} links to the wrong standalone plugin."
+			);
+		}
 	}
 
 	/**
