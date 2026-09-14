@@ -17,11 +17,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		} );
 	}
 
-	// `has_label` mirrors the node's marker class; the assignment itself lives in ExPlat.
+	// Measured, not inferred from the markup: the label is hidden on narrow viewports and
+	// the block editor hides the whole item, so neither is an impression of the label.
 	const helpEntryPoint = document.querySelector( '#wp-admin-bar-help-center' );
-	if ( helpEntryPoint ) {
+	if ( helpEntryPoint && helpEntryPoint.getClientRects().length ) {
+		const entryLabel = helpEntryPoint.querySelector( '.help-center-entry-label' );
 		wpcomTrackEvent( 'wpcom_adminbar_help_impression', {
-			has_label: helpEntryPoint.classList.contains( 'has-help-entry-label' ),
+			has_label: !! entryLabel && entryLabel.getClientRects().length > 0,
 		} );
 	}
 } );

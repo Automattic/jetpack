@@ -1,0 +1,35 @@
+/* The bundle stylesheet sizes the item for an icon alone;
+   a labelled item lays out as a row. */
+#wpadminbar #wp-toolbar #wp-admin-bar-help-center .help-center-entry-label {
+	display: none;
+	padding-inline-start: 6px;
+	white-space: nowrap;
+}
+
+@media (min-width: 783px) {
+
+	#wpadminbar #wp-toolbar #wp-admin-bar-help-center .help-center-entry-label {
+		display: block;
+	}
+
+	#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label {
+		width: auto;
+	}
+
+	#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label > .ab-item {
+		display: flex;
+		align-items: center;
+		padding: 0 11px;
+	}
+
+	#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label > .ab-item > span:first-child {
+		display: flex;
+	}
+
+	#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label svg {
+		position: static;
+		float: none;
+		margin: 0;
+		padding: 4px 0;
+	}
+}
