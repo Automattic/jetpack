@@ -222,11 +222,7 @@ describe( 'Email design editor entry point', () => {
 		mockDispatchLog.length = 0;
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
-		jest
-			.spyOn( console, 'error' )
-			.mockImplementation( ( ...a ) =>
-				process.stderr.write( require( 'util' ).inspect( a, { depth: 2 } ) + '\n' )
-			);
+		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 	} );
 
 	afterEach( () => {
@@ -351,6 +347,43 @@ describe( 'Email design editor entry point', () => {
 			await loadEntryPoint();
 
 			expect( mountedEditorProps().config.editorSettings.isFullScreenForced ).toBe( true );
+		} );
+
+		// `core/post-featured-image` is a core block, so WordPress.com cannot describe it in `blocks`
+		// and no `preview_html` reaches it. It reports whether a send carries the image instead.
+		it( 'hides the featured image when WordPress.com says sends carry none', async () => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: false } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.editorSettings.styles ).toContainEqual( {
+				css: expect.stringContaining( '.wp-block-post-featured-image' ),
+			} );
+		} );
+
+		it( 'keeps the stylesheet WordPress.com sent rather than replacing it', async () => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: false } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// The email's own CSS travels in this array too, and the canvas paints from all of it.
+			expect( mountedEditorProps().config.editorSettings.styles ).toContainEqual( {
+				css: 'body{}',
+			} );
+		} );
+
+		it.each( [
+			[ 'says sends carry one', true ],
+			[ 'does not say either way', undefined ],
+		] )( 'leaves the featured image alone when WordPress.com %s', async ( _label, shows ) => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: shows } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.editorSettings.styles ).toEqual( [ { css: 'body{}' } ] );
 		} );
 
 		it( 'does not pass the bundle through in its own shape', async () => {

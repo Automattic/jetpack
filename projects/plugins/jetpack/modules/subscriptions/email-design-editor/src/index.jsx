@@ -114,7 +114,14 @@ export function buildEditorConfig( bundle, data ) {
 		// on this, which hides the admin menu — without it a full-viewport editor sits beside a menu
 		// whose flyouts open over the canvas, and no z-index satisfies both. Forced rather than the
 		// `fullscreenMode` preference so it is not a per-user toggle; it also brings the back button.
-		editorSettings: { ...bundle.editor_settings, ...editorSettings, isFullScreenForced: true },
+		editorSettings: withCanvasStyles(
+			{
+				...bundle.editor_settings,
+				...editorSettings,
+				isFullScreenForced: true,
+			},
+			bundle
+		),
 		theme: bundle.editor_theme,
 		urls,
 		userEmail,
@@ -125,6 +132,37 @@ export function buildEditorConfig( bundle, data ) {
 		// canvas while editing. Bundle first because it is a WordPress.com post id; the page stays
 		// a fallback. See NL-871.
 		globalStylesPostId: getGlobalStylesPostId( bundle ) ?? globalStylesPostId ?? null,
+	};
+}
+
+/**
+ * Add the canvas rules that depend on what the bundle reported, keeping the ones it sent.
+ *
+ * Appended to `styles` rather than replacing it: WordPress.com ships the email's own stylesheet
+ * through that same array, and the package reads the whole of it.
+ *
+ * The one rule so far hides the featured image. `core/post-featured-image` is a core block, so
+ * WordPress.com deliberately leaves it out of `blocks` — sending core definitions would replace
+ * this site's working implementations with placeholders — and no `preview_html` can reach it.
+ * Only WordPress.com knows whether a send carries the image, so the bundle reports that instead.
+ *
+ * @param {object} settings - The editor settings assembled so far.
+ * @param {object} bundle   - The response from the bootstrap route.
+ * @return {object} The settings, with any extra canvas rules appended.
+ */
+function withCanvasStyles( settings, bundle ) {
+	// Strictly false. A bundle from before WordPress.com reported this omits the key, and hiding
+	// the image on that reading would be a regression on every blog that does send one.
+	if ( false !== bundle?.shows_featured_image ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		styles: [
+			...( Array.isArray( settings.styles ) ? settings.styles : [] ),
+			{ css: '.wp-block-post-featured-image { display: none; }' },
+		],
 	};
 }
 
