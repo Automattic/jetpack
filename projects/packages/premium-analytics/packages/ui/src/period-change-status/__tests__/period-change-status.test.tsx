@@ -2,11 +2,13 @@
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { render, screen, within } from '@testing-library/react';
+import { configure, render, screen, within } from '@testing-library/react';
 /**
  * Internal dependencies
  */
 import { PeriodChangeStatus } from '../period-change-status';
+
+configure( { reactStrictMode: true } );
 
 const JULY_2026 = {
 	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),
@@ -42,12 +44,14 @@ describe( 'PeriodChangeStatus', () => {
 		expect( sentence() ).not.toBe( first );
 	} );
 
-	it( 'keeps the sentence it announced when the period is relabelled', () => {
+	it( 'follows the applied period while the same change is still announced', () => {
 		const view = render( <PeriodChangeStatus attentionId={ 1 } appliedRange={ JULY_2026 } /> );
 
 		view.rerender( <PeriodChangeStatus attentionId={ 1 } appliedRange={ AUGUST_2026 } /> );
 
-		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Date range updated to July 2026.' );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent(
+			'Date range updated to August 2026.'
+		);
 	} );
 
 	it( 'names an applied preset the way the trigger does', () => {

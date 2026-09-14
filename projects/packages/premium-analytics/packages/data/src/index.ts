@@ -3,11 +3,11 @@ export { GlobalErrorProvider, useGlobalError } from './providers/global-error-co
 export { globalErrorManager, type GlobalErrorType } from './providers/global-error-manager';
 export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
 export {
+	PERIOD_CHANGE_ATTENTION_MS,
 	PeriodChangeSignalProvider,
 	postSurface,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
-	type PeriodChangeAttention,
 } from './providers/period-change-signal';
 export * from './hooks';
 export { ensureDashboardEntities } from './entities/dashboard-entities';

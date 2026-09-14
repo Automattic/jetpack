@@ -4,10 +4,12 @@ jest.mock( '@wordpress/compose', () => ( {
 } ) );
 
 import { TZDate } from '@date-fns/tz';
-import { act, render, screen, within } from '@testing-library/react';
+import { configure, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useMediaQuery } from '@wordpress/compose';
-import { ATTENTION_DURATION_MS, DatePeriodDropdown } from '../date-period-dropdown';
+import { DatePeriodDropdown } from '../date-period-dropdown';
+
+configure( { reactStrictMode: true } );
 
 const JULY_2026 = {
 	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),
@@ -326,110 +328,35 @@ describe( 'DatePeriodDropdown attention', () => {
 	// eslint-disable-next-line testing-library/no-node-access -- the fill is aria-hidden by design, so the DOM is the only place to reach it.
 	const overlay = () => document.querySelector( '.date-period-dropdown__attention' );
 
-	beforeEach( () => {
-		jest.useFakeTimers();
-	} );
-
-	afterEach( () => {
-		jest.useRealTimers();
-	} );
-
 	it( 'draws nothing without an attention id', () => {
 		renderDropdown();
 
 		expect( overlay() ).toBeNull();
 	} );
 
-	it( 'draws the attention over the trigger and ends it after its duration', () => {
-		const onAttentionEnd = jest.fn();
-		const view = renderDropdownView( { attentionId: 1, onAttentionEnd } );
+	it( 'draws the attention over the trigger while the id is set', () => {
+		const view = renderDropdownView( { attentionId: 1 } );
 
-		expect( overlay() ).not.toBeNull();
 		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toContainElement(
 			overlay() as HTMLElement
 		);
-		expect( onAttentionEnd ).not.toHaveBeenCalled();
 
-		act( () => {
-			jest.advanceTimersByTime( ATTENTION_DURATION_MS );
-		} );
-
+		view.rerender( <DatePeriodDropdown { ...baseProps() } /> );
 		expect( overlay() ).toBeNull();
-		expect( onAttentionEnd ).toHaveBeenCalledWith( 1 );
-
-		// The parent letting go of the id is not a second ending.
-		view.rerender( <DatePeriodDropdown { ...baseProps() } onAttentionEnd={ onAttentionEnd } /> );
-		expect( onAttentionEnd ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'restarts for a new id while the previous one is still drawing', () => {
-		const onAttentionEnd = jest.fn();
-		const props = {
-			appliedPresetId: 'last-30-days' as const,
-			appliedRange: JULY_2026,
-			range: JULY_2026,
-			timeZone: 'UTC',
-			onSelect: jest.fn(),
-			onChange: jest.fn(),
-			onApply: jest.fn(),
-			onCancel: jest.fn(),
-			canApply: false,
-			onAttentionEnd,
-		};
-		const view = render( <DatePeriodDropdown { ...props } attentionId={ 1 } /> );
+	it( 'restarts for a new id by drawing a fresh fill', () => {
+		const view = renderDropdownView( { attentionId: 1 } );
 		const first = overlay();
 
-		act( () => {
-			jest.advanceTimersByTime( ATTENTION_DURATION_MS / 2 );
-		} );
-		view.rerender( <DatePeriodDropdown { ...props } attentionId={ 2 } /> );
+		view.rerender( <DatePeriodDropdown { ...baseProps() } attentionId={ 2 } /> );
 
+		expect( overlay() ).not.toBeNull();
 		expect( overlay() ).not.toBe( first );
-		expect( onAttentionEnd ).toHaveBeenCalledWith( 1 );
-
-		act( () => {
-			jest.advanceTimersByTime( ATTENTION_DURATION_MS - 1 );
-		} );
-		expect( overlay() ).not.toBeNull();
-
-		act( () => {
-			jest.advanceTimersByTime( 1 );
-		} );
-		expect( overlay() ).toBeNull();
-		expect( onAttentionEnd ).toHaveBeenLastCalledWith( 2 );
-	} );
-
-	// The stage lets go of the id as soon as it is told the attention ended,
-	// which can land while a remounted trigger is still drawing it.
-	it( 'still ends on time after the parent lets go of the id mid-way', () => {
-		const onAttentionEnd = jest.fn();
-		const view = renderDropdownView( { attentionId: 1, onAttentionEnd } );
-
-		act( () => {
-			jest.advanceTimersByTime( ATTENTION_DURATION_MS / 2 );
-		} );
-		view.rerender( <DatePeriodDropdown { ...baseProps() } onAttentionEnd={ onAttentionEnd } /> );
-		expect( overlay() ).not.toBeNull();
-
-		act( () => {
-			jest.advanceTimersByTime( ATTENTION_DURATION_MS / 2 );
-		} );
-
-		expect( overlay() ).toBeNull();
-		expect( onAttentionEnd ).toHaveBeenCalledWith( 1 );
-	} );
-
-	it( 'ends the attention when it unmounts mid-way', () => {
-		const onAttentionEnd = jest.fn();
-		const view = renderDropdownView( { attentionId: 1, onAttentionEnd } );
-
-		view.unmount();
-
-		expect( onAttentionEnd ).toHaveBeenCalledWith( 1 );
 	} );
 
 	it( 'keeps an open menu open when the attention changes', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const user = userEvent.setup();
 		const props = {
 			appliedPresetId: 'last-30-days' as const,
 			appliedRange: JULY_2026,

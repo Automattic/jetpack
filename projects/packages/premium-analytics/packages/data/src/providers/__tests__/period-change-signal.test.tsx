@@ -2,18 +2,22 @@
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { act, render, screen } from '@testing-library/react';
+import { act, configure, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import {
+	PERIOD_CHANGE_ATTENTION_MS,
 	PERIOD_CHANGE_SIGNAL_TTL_MS,
 	PeriodChangeSignalProvider,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
 } from '../period-change-signal';
+
+// Effects run, clean up and run again under Strict Mode, as they can in production.
+configure( { reactStrictMode: true } );
 
 const JULY = {
 	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),
@@ -49,21 +53,9 @@ type SurfaceProps = {
 };
 
 function Surface( { surface, applied, shown = true }: SurfaceProps ) {
-	const { attentionId, endAttention } = useSettlePeriodChange( surface, applied, shown );
-	const end = useCallback( () => {
-		if ( attentionId !== undefined ) {
-			endAttention( attentionId );
-		}
-	}, [ attentionId, endAttention ] );
+	const attentionId = useSettlePeriodChange( surface, applied, shown );
 
-	return (
-		<>
-			<output>{ attentionId ?? 'none' }</output>
-			<button type="button" onClick={ end }>
-				end
-			</button>
-		</>
-	);
+	return <output>{ attentionId ?? 'none' }</output>;
 }
 
 const attention = () => screen.getByRole( 'status' ).textContent;
@@ -90,9 +82,27 @@ describe( 'period change signal', () => {
 		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
 		expect( attention() ).toBe( 'none' );
 
+		view.rerender( <Scene surface={ INSIGHTS } applied={ AUGUST } /> );
+		view.rerender( <Scene surface={ INSIGHTS } applied={ AUGUST } /> );
+		expect( attention() ).toBe( 'none' );
+
 		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
 
 		expect( attention() ).not.toBe( 'none' );
+	} );
+
+	it( 'fires once for rapid repeated raises before the navigation lands', async () => {
+		const user = userEvent.setup();
+		const view = render( <Scene surface={ INSIGHTS } applied={ AUGUST } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+		const fired = attention();
+		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+
+		expect( fired ).not.toBe( 'none' );
+		expect( attention() ).toBe( fired );
 	} );
 
 	it( 'fires when the range is already applied and the section switches', async () => {
@@ -197,34 +207,68 @@ describe( 'period change signal', () => {
 		}
 	} );
 
-	it( 'drops the id once the control reports the attention ended', async () => {
+	it( 'lets the id go after the attention duration', async () => {
+		jest.useFakeTimers();
+		try {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+			expect( attention() ).not.toBe( 'none' );
+
+			act( () => {
+				jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS - 1 );
+			} );
+			expect( attention() ).not.toBe( 'none' );
+
+			act( () => {
+				jest.advanceTimersByTime( 1 );
+			} );
+			expect( attention() ).toBe( 'none' );
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'restarts the clock for a newer id while an older one is still drawing', async () => {
+		jest.useFakeTimers();
+		try {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+			act( () => {
+				jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS / 2 );
+			} );
+			await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+			const newer = attention();
+
+			act( () => {
+				jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS - 1 );
+			} );
+			expect( attention() ).toBe( newer );
+
+			act( () => {
+				jest.advanceTimersByTime( 1 );
+			} );
+			expect( attention() ).toBe( 'none' );
+		} finally {
+			jest.useRealTimers();
+		}
+	} );
+
+	it( 'lets the id go when the control leaves the screen and does not replay it', async () => {
 		const user = userEvent.setup();
-		render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+		const view = render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
 		expect( attention() ).not.toBe( 'none' );
 
-		await user.click( screen.getByRole( 'button', { name: 'end' } ) );
-
+		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } shown={ false } /> );
 		expect( attention() ).toBe( 'none' );
-	} );
 
-	it( 'keeps a newer id when an older attention reports its end', async () => {
-		const user = userEvent.setup();
-		render(
-			<PeriodChangeSignalProvider>
-				<Raiser surface={ TRAFFIC } range={ JULY } />
-				<LateEnder />
-			</PeriodChangeSignalProvider>
-		);
-
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
-		await user.click( screen.getByRole( 'button', { name: 'remember' } ) );
-		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
-		const latest = attention();
-		await user.click( screen.getByRole( 'button', { name: 'end remembered' } ) );
-
-		expect( attention() ).toBe( latest );
+		view.rerender( <Scene surface={ TRAFFIC } applied={ JULY } shown /> );
+		expect( attention() ).toBe( 'none' );
 	} );
 
 	it( 'is inert without a provider', async () => {
@@ -241,28 +285,3 @@ describe( 'period change signal', () => {
 		expect( attention() ).toBe( 'none' );
 	} );
 } );
-
-// Ends an attention it captured earlier, standing in for a control whose timer
-// outlives a newer signal.
-function LateEnder() {
-	const { attentionId, endAttention } = useSettlePeriodChange( TRAFFIC, JULY, true );
-	const [ remembered, setRemembered ] = useState< number >();
-	const remember = useCallback( () => setRemembered( attentionId ), [ attentionId ] );
-	const endRemembered = useCallback( () => {
-		if ( remembered !== undefined ) {
-			endAttention( remembered );
-		}
-	}, [ remembered, endAttention ] );
-
-	return (
-		<>
-			<output>{ attentionId ?? 'none' }</output>
-			<button type="button" onClick={ remember }>
-				remember
-			</button>
-			<button type="button" onClick={ endRemembered }>
-				end remembered
-			</button>
-		</>
-	);
-}

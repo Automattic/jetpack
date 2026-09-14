@@ -20,6 +20,12 @@ import {
  */
 export const PERIOD_CHANGE_SIGNAL_TTL_MS = 5000;
 
+/**
+ * How long a date control draws attention to a period set from elsewhere.
+ * The control's fade reads this too, so the fill and the id end together.
+ */
+export const PERIOD_CHANGE_ATTENTION_MS = 1600;
+
 type PeriodChangeSignal = {
 	id: number;
 	surface: string;
@@ -103,28 +109,24 @@ export function useRaisePeriodChange() {
 	return useContext( PeriodChangeSignalContext ).raise;
 }
 
-export type PeriodChangeAttention = {
-	/** The id of the signal that fired, held until the control ends it. */
-	attentionId: number | undefined;
-	endAttention: ( id: number ) => void;
-};
-
 /**
- * Settle the pending signal against what this surface shows. The signal
- * fires once the surface, a visible control and the applied range all match,
- * waits while a navigation is still landing, and is dropped as soon as the
- * surface moves anywhere else.
+ * Settle the pending signal against what this surface shows, and own the
+ * attention it fires. The signal fires once the surface, a visible control and
+ * the applied range all match, waits while a navigation is still landing, and
+ * is dropped as soon as the surface moves anywhere else. The fired id is held
+ * for `PERIOD_CHANGE_ATTENTION_MS`, or until the control leaves the screen, so
+ * a control that comes back does not replay it.
  *
  * @param surface      - The surface's key, as passed to raise.
  * @param appliedRange - The range its date control shows.
  * @param isShown      - Whether the date control is on screen.
- * @return The fired id and the callback the control ends it with.
+ * @return The id the control draws attention with, while it does.
  */
 export function useSettlePeriodChange(
 	surface: string,
 	appliedRange: DateRange | undefined,
 	isShown: boolean
-): PeriodChangeAttention {
+): number | undefined {
 	const { signal, settle } = useContext( PeriodChangeSignalContext );
 	const [ attentionId, setAttentionId ] = useState< number >();
 	const observed = useRef< string >();
@@ -159,9 +161,20 @@ export function useSettlePeriodChange(
 		}
 	}, [ signal, observation, surface, appliedKey, isShown, settle ] );
 
-	const endAttention = useCallback( ( id: number ) => {
-		setAttentionId( current => ( current === id ? undefined : current ) );
-	}, [] );
+	useEffect( () => {
+		if ( attentionId === undefined ) {
+			return;
+		}
+		if ( ! isShown ) {
+			setAttentionId( undefined );
+			return;
+		}
+		const timer = setTimeout( () => {
+			setAttentionId( current => ( current === attentionId ? undefined : current ) );
+		}, PERIOD_CHANGE_ATTENTION_MS );
 
-	return { attentionId, endAttention };
+		return () => clearTimeout( timer );
+	}, [ attentionId, isShown ] );
+
+	return attentionId;
 }
