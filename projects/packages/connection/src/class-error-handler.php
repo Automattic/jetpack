@@ -1557,7 +1557,10 @@ class Error_Handler {
 			}
 		}
 
-		$this->purge_option_caches();
+		// Per-key purge only (this warm path — a successful site-data fetch — must not
+		// drop the alloptions blob); a legacy blob orphan clears on the next reconnect.
+		wp_cache_delete( self::STORED_ERRORS_OPTION, 'options' );
+		wp_cache_delete( self::STORED_VERIFIED_ERRORS_OPTION, 'options' );
 
 		// Invalidate cache since we may have deleted verified errors
 		$this->invalidate_displayable_errors_cache();
@@ -1587,8 +1590,7 @@ class Error_Handler {
 	 */
 	public function delete_stored_errors() {
 		$deleted = delete_option( self::STORED_ERRORS_OPTION );
-		$this->purge_option_caches();
-		$this->maybe_purge_legacy_alloptions_orphan( self::STORED_ERRORS_OPTION, $deleted );
+		$this->purge_error_option_cache( self::STORED_ERRORS_OPTION, $deleted );
 		return $deleted;
 	}
 
@@ -1601,43 +1603,32 @@ class Error_Handler {
 	 */
 	public function delete_verified_errors() {
 		$deleted = delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
-		$this->purge_option_caches();
-		$this->maybe_purge_legacy_alloptions_orphan( self::STORED_VERIFIED_ERRORS_OPTION, $deleted );
+		$this->purge_error_option_cache( self::STORED_VERIFIED_ERRORS_OPTION, $deleted );
 		return $deleted;
 	}
 
 	/**
-	 * Drops the alloptions cache blob when a legacy orphaned value is detected.
+	 * Purges an error option's object caches after a delete.
 	 *
-	 * A value still readable after delete_option() reported no DB row and the
-	 * per-key cache was purged can only be served from the autoloaded alloptions
-	 * blob (rows created before these options stopped autoloading). The detection
-	 * keeps this blob-wide invalidation off every routine path.
+	 * Core's delete_option()/update_option() return before touching caches when the
+	 * DB row is missing, so a value resurrected in cache by an alloptions write race
+	 * would otherwise outlive the delete — including a reconnect (CONNECT-457). The
+	 * per-key delete covers a post-migration (non-autoloaded) orphan; when the delete
+	 * found no row yet the value is still in the autoloaded blob (a legacy row written
+	 * before these options stopped autoloading), drop that blob too. The blob check
+	 * reads the raw autoloaded set, so it is unaffected by option_* filters and adds
+	 * no query.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $option  The option name to probe.
-	 * @param bool   $deleted Whether delete_option() found and deleted a DB row.
+	 * @param string $option  The error option name.
+	 * @param bool   $deleted Whether delete_option() found and removed a DB row.
 	 */
-	private function maybe_purge_legacy_alloptions_orphan( $option, $deleted ) {
-		if ( ! $deleted && false !== get_option( $option ) ) {
+	private function purge_error_option_cache( $option, $deleted ) {
+		wp_cache_delete( $option, 'options' );
+		if ( ! $deleted && isset( wp_load_alloptions()[ $option ] ) ) {
 			wp_cache_delete( 'alloptions', 'options' );
 		}
-	}
-
-	/**
-	 * Purges the object-cache entries for both error options.
-	 *
-	 * Core's delete_option() and update_option() return before touching caches
-	 * when the DB row is missing, so a value resurrected in cache by an alloptions
-	 * write race would otherwise outlive every cleanup path — including
-	 * reconnecting (CONNECT-457). Called from each delete path.
-	 *
-	 * @since $$next-version$$
-	 */
-	private function purge_option_caches() {
-		wp_cache_delete( self::STORED_ERRORS_OPTION, 'options' );
-		wp_cache_delete( self::STORED_VERIFIED_ERRORS_OPTION, 'options' );
 	}
 
 	/**
@@ -1686,14 +1677,10 @@ class Error_Handler {
 		}
 
 		if ( $deleted ) {
-			$this->purge_option_caches();
-			// A legacy autoloaded orphan is served from the alloptions blob, which the
-			// per-key purge cannot reach: if the code still reads back, drop the blob.
-			$stored   = $this->get_stored_errors();
-			$verified = $this->get_verified_errors();
-			if ( isset( $stored[ $error_code ] ) || isset( $verified[ $error_code ] ) ) {
-				wp_cache_delete( 'alloptions', 'options' );
-			}
+			// Per-key purge only: a legacy blob orphan for these codes is cleared on the
+			// next reconnect via delete_all_errors(), and GC bounds its display meanwhile.
+			wp_cache_delete( self::STORED_ERRORS_OPTION, 'options' );
+			wp_cache_delete( self::STORED_VERIFIED_ERRORS_OPTION, 'options' );
 			$this->invalidate_displayable_errors_cache();
 		}
 
