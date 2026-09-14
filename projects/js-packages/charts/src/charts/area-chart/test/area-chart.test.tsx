@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createRef } from 'react';
 import { GlobalChartsProvider } from '../../../providers';
@@ -51,6 +51,29 @@ describe( 'AreaChart', () => {
 			</GlobalChartsProvider>
 		);
 	};
+
+	test.each( [
+		[ 'Escape', '{Escape}' ],
+		[ 'ArrowRight past the last point', '{ArrowRight}{ArrowRight}' ],
+	] )( 'returns focus to the grid after %s', async ( _name, keys ) => {
+		const user = userEvent.setup();
+		renderWithProvider();
+		const chart = screen.getByRole( 'grid', { name: /area chart/i } );
+
+		await user.tab();
+		expect( chart ).toHaveFocus();
+		await user.keyboard( '{ArrowRight}' );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveFocus();
+
+		await user.keyboard( keys );
+		expect( chart ).toHaveFocus();
+		await waitFor( () => expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument() );
+
+		await user.keyboard( '{ArrowRight}' );
+		const tooltip = await screen.findByRole( 'tooltip' );
+		expect( tooltip ).toHaveFocus();
+		expect( tooltip ).toHaveTextContent( 'Series A:10' );
+	} );
 
 	describe( 'Data Validation', () => {
 		test( 'shows error when data is empty', () => {
