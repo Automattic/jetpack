@@ -303,12 +303,7 @@ function get_dashboard_default_section_layouts() {
 				'jpa/all-time-stats',
 				1,
 				2,
-				2,
-				array(
-					// The design shows three totals; the widget's own default adds
-					// Comments, which the comment leaderboards below already cover.
-					'metrics' => array( 'views', 'visitors', 'posts' ),
-				)
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-day-widget-instance',
