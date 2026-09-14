@@ -26,6 +26,7 @@
 		"@tanstack/eslint-plugin-query": "5.102.8",
 		"@testing-library/dom": "^10.4.1",
 		"@testing-library/jest-dom": "6.9.1",
+		"@types/jsdom": "^30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/eslint-plugin": "25.10.0",
 		"@wordpress/jest-console": "9.2.0",
