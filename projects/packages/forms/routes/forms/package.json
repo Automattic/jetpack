@@ -17,8 +17,10 @@
 		"@wordpress/i18n": "6.27.0",
 		"@wordpress/icons": "15.5.0",
 		"@wordpress/notices": "5.54.0",
+		"@wordpress/preferences": "4.54.0",
 		"@wordpress/route": "0.20.0",
 		"@wordpress/ui": "0.21.0",
+		"@wordpress/views": "~1.21.0",
 		"clsx": "2.1.1"
 	},
 	"route": {

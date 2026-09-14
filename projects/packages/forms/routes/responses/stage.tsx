@@ -16,8 +16,10 @@ import { useMemo, useState, useCallback, useEffect, useRef } from '@wordpress/el
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { caution } from '@wordpress/icons';
+import { store as preferencesStore } from '@wordpress/preferences';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import { Badge, Link, Notice, Stack } from '@wordpress/ui';
+import { useView } from '@wordpress/views';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -28,7 +30,8 @@ import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.ts
 import { RESPONSES_PER_PAGE, getResponseStatusFilter } from '../../src/dashboard/constants.ts';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import useResponseFieldColumns from '../../src/dashboard/hooks/use-response-field-columns.ts';
-import { writeColumnPreference } from '../../src/dashboard/response-column-preferences.ts';
+import { ensurePreferencesPersistence } from '../../src/dashboard/preferences-persistence.ts';
+import { writeKnownAnswerIds } from '../../src/dashboard/response-column-preferences.ts';
 import {
 	buildResponseFieldColumns,
 	getFrozenColumnsClassName,
@@ -176,10 +179,53 @@ function StageInner() {
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 
-	const [ view, setView ] = useState< View >( () => ( {
-		...DEFAULT_VIEW,
-		search: searchParams?.search || '',
-	} ) );
+	const { setPersistenceLayer } = useDispatch( preferencesStore );
+	ensurePreferencesPersistence( setPersistenceLayer );
+
+	// `page` has never been in the URL here; it reaches the view as a query param anyway,
+	// because `useView` sources both `page` and `search` from there and nowhere else.
+	const [ page, setPage ] = useState( 1 );
+
+	const onChangeQueryParams = useCallback(
+		( next: { page: number; search: string } ) => {
+			setPage( next.page );
+
+			if ( next.search !== ( searchParams?.search || '' ) ) {
+				navigate( {
+					search: {
+						...searchParams,
+						search: next.search || undefined,
+					},
+				} );
+			}
+		},
+		[ navigate, searchParams ]
+	);
+
+	const { view, updateView } = useView( {
+		kind: 'postType',
+		name: 'feedback',
+		// One view per form: answer columns name that form's own fields, so a shared view
+		// would strand one form's columns on another.
+		slug: isSingleFormView ? `form-${ sourceIdNumber }` : 'all',
+		defaultView: DEFAULT_VIEW,
+		queryParams: { page, search: searchParams?.search || '' },
+		onChangeQueryParams,
+	} );
+
+	// `useView` takes a whole view, while the callers below pass an updater. The ref is what
+	// lets two updates in the same tick build on each other, as the columns effect does.
+	const pendingViewRef = useRef< View >( view );
+	pendingViewRef.current = view;
+
+	const setView = useCallback(
+		( updater: ( previousView: View ) => View ) => {
+			const next = updater( pendingViewRef.current );
+			pendingViewRef.current = next;
+			updateView( next );
+		},
+		[ updateView ]
+	);
 
 	// The form whose column choice is being read and written, or null on the view
 	// spanning every form.
@@ -205,13 +251,6 @@ function StageInner() {
 		currentQuery,
 	} = useInboxData( { status: statusView } );
 
-	useEffect( () => {
-		const urlSearch = searchParams?.search || '';
-		if ( urlSearch !== view.search ) {
-			setView( prev => ( { ...prev, search: urlSearch } ) );
-		}
-	}, [ searchParams?.search ] ); // eslint-disable-line react-hooks/exhaustive-deps
-
 	const onChangeView = useCallback(
 		( incomingView: View ) => {
 			const newView = keepColumnChoice(
@@ -228,10 +267,7 @@ function StageInner() {
 			// constantly and, while a form's responses are still loading, record an empty
 			// set of known answer columns over a choice that names several.
 			if ( ! isSameColumnChoice( newView.fields, view.fields ) ) {
-				writeColumnPreference( columnPreferenceFormId, {
-					fields: newView.fields ?? [],
-					knownAnswerIds: knownAnswerIdsRef.current,
-				} );
+				writeKnownAnswerIds( columnPreferenceFormId, knownAnswerIdsRef.current );
 			}
 
 			if ( ! isSingleFormView ) {
@@ -248,21 +284,14 @@ function StageInner() {
 							responseIds: undefined,
 						},
 					} );
-					setView( { ...newView, page: 1 } );
+					updateView( { ...newView, page: 1 } );
 					return;
 				}
 			}
 
-			setView( newView );
-
-			if ( newView.search !== view.search ) {
-				navigate( {
-					search: {
-						...searchParams,
-						search: newView.search || undefined,
-					},
-				} );
-			}
+			// The search term reaches the URL through `onChangeQueryParams`, which
+			// `updateView` calls whenever it changes.
+			updateView( newView );
 		},
 		[
 			columnPreferenceFormId,
@@ -271,6 +300,7 @@ function StageInner() {
 			navigate,
 			searchParams,
 			statusView,
+			updateView,
 			view,
 		]
 	);
@@ -306,7 +336,9 @@ function StageInner() {
 		[ isSingleFormView, navigate, searchParams, sourceIdNumber ]
 	);
 
-	// Keep the Folder filter in sync with the route param (CFM-on behavior).
+	// Keep the Folder filter in sync with the route param (CFM-on behavior). `useView`'s only
+	// way to exclude a filter, `isLocked`, would also make this one unclickable, so a stored
+	// folder disagreeing with the route is corrected here instead.
 	useEffect( () => {
 		if ( isSingleFormView ) {
 			return;
@@ -320,7 +352,7 @@ function StageInner() {
 			return {
 				...previousView,
 				filters: [
-					{ field: 'folder', operator: 'is', value: statusView },
+					{ field: 'folder', operator: 'is' as const, value: statusView },
 					...previousFilters.filter( filter => filter.field !== 'folder' ),
 				],
 			};

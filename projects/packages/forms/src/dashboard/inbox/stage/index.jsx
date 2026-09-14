@@ -35,7 +35,7 @@ import Page from '../../components/page/index.tsx';
 import TextWithFlag from '../../components/text-with-flag/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
 import useResponseFieldColumns from '../../hooks/use-response-field-columns.ts';
-import { writeColumnPreference } from '../../response-column-preferences.ts';
+import { writeKnownAnswerIds } from '../../response-column-preferences.ts';
 import {
 	buildResponseFieldColumns,
 	getFrozenColumnsClassName,
@@ -103,7 +103,7 @@ const setupSidebarWidthObserver = () => {
  * @return {import('react').JSX.Element} The DataViews component.
  */
 export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) {
-	const [ view, setView ] = useView();
+	const [ view, setView ] = useView( parentId );
 	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
 	const parent = useMemo( () => {
 		const id = Number( parentId );
@@ -323,10 +323,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			// constantly and, while a form's responses are still loading, record an empty
 			// set of known answer columns over a choice that names several.
 			if ( ! isSameColumnChoice( newView.fields, view.fields ) ) {
-				writeColumnPreference( parent, {
-					fields: newView.fields ?? [],
-					knownAnswerIds: knownAnswerIdsRef.current,
-				} );
+				writeKnownAnswerIds( parent, knownAnswerIdsRef.current );
 			}
 
 			if ( ! isInboxStatusToggleView ) {
