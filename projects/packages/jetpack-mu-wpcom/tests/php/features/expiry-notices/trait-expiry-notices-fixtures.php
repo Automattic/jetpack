@@ -80,6 +80,7 @@ trait Expiry_Notices_Fixtures {
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 		unset( $GLOBALS['wpcom_is_vip_test_value'] );
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
+		unset( $GLOBALS['wpcom_expiry_reverted_transfer_test_value'] );
 		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
 			delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::meta_key( $base ) );
 		}
@@ -145,6 +146,22 @@ trait Expiry_Notices_Fixtures {
 				'user_allows_auto_renew' => $auto_renew,
 				'subscription_id'        => $this->subscription_id,
 			),
+		);
+		$this->flush_expiry_memos();
+	}
+
+	/**
+	 * A Simple site with no plan purchase, reverted from Atomic `$days_ago`.
+	 *
+	 * @param int  $days_ago         Days since the revert.
+	 * @param bool $for_expired_plan Whether the revert was the automatic expiry one.
+	 */
+	protected function set_reverted( int $days_ago, bool $for_expired_plan = true ): void {
+		$this->pretend_reverted();
+		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
+		$GLOBALS['wpcom_expiry_reverted_transfer_test_value'] = array(
+			'reverted_at'      => time() - ( $days_ago * DAY_IN_SECONDS ),
+			'for_expired_plan' => $for_expired_plan,
 		);
 		$this->flush_expiry_memos();
 	}

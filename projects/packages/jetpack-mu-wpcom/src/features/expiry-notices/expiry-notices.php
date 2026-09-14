@@ -36,6 +36,42 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
 		return array();
 	}
 }
+
+if ( ! function_exists( 'wpcom_expiry_get_reverted_transfer' ) ) {
+	/**
+	 * The site's latest revert, when it was the automatic one that follows an
+	 * expired plan: when it happened, and whether it qualifies. Null on a site
+	 * that is Atomic, was never reverted, or where the WordPress.com helpers
+	 * are not loaded. Pre-definable by a test mu-plugin.
+	 *
+	 * @return array{reverted_at:int,for_expired_plan:bool}|null
+	 *
+	 * @phan-suppress PhanRedefineFunction -- phan sees both this and the test stub as definitions even though only one loads at runtime.
+	 */
+	function wpcom_expiry_get_reverted_transfer(): ?array {
+		if ( ! function_exists( 'woa_get_latest_transfer' ) || ! function_exists( 'woa_get_transfer_meta' ) || ! function_exists( 'woa_is_revert_for_expired_plan' ) ) {
+			return null;
+		}
+		$blog_id = get_wpcom_blog_id();
+		if ( ! $blog_id || ! wpcom_has_blog_sticker( 'blog-transfer-reverted', $blog_id ) ) {
+			return null;
+		}
+		$transfer = woa_get_latest_transfer( $blog_id );
+		if ( ! is_object( $transfer ) || is_wp_error( $transfer ) || 'reverted' !== (string) ( $transfer->status ?? '' ) ) {
+			return null;
+		}
+		$transfer_id = (int) ( $transfer->atomic_transfer_id ?? 0 );
+		$reverted_at = $transfer_id ? woa_get_transfer_meta( $transfer_id, 'reverted_at' ) : null;
+		$reverted_ts = is_string( $reverted_at ) ? strtotime( $reverted_at ) : false;
+		if ( false === $reverted_ts ) {
+			return null;
+		}
+		return array(
+			'reverted_at'      => $reverted_ts,
+			'for_expired_plan' => (bool) woa_is_revert_for_expired_plan( $transfer_id ),
+		);
+	}
+}
 // @codeCoverageIgnoreEnd
 
 /**
