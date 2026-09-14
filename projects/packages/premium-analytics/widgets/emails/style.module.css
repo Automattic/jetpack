@@ -20,3 +20,15 @@
 	min-inline-size: 0;
 	min-block-size: 0;
 }
+
+.values {
+	display: inline-flex;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+/* A fixed width keeps the counts aligned in a column across rows. */
+.rate {
+	min-inline-size: 6ch;
+	text-align: end;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

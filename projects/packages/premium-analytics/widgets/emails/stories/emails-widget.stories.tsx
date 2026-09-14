@@ -39,7 +39,7 @@ const meta: Meta< typeof EmailsList > = {
 		docs: {
 			description: {
 				component:
-					'Lists the latest emails with their open or click rate. Close-up stories use fixtures; the dashboard story uses a mocked report.',
+					'Lists the latest emails with their open or click count and rate. A rate with no attributable recipient shows an em dash. Close-up stories use fixtures; the dashboard story uses a mocked report.',
 			},
 		},
 	},
@@ -55,7 +55,11 @@ const mockRows: EmailRow[] = [
 		postId: 1,
 		link: 'https://example.com/stand-out/',
 		label: '4 Ways to Make Your Website Stand Out',
+		opens: 402,
+		uniqueOpens: 381,
 		opensRate: 38.1,
+		clicks: 41,
+		uniqueClicks: 38,
 		clicksRate: 3.81,
 	},
 	{
@@ -63,7 +67,11 @@ const mockRows: EmailRow[] = [
 		postId: 2,
 		link: 'https://example.com/develop-locally/',
 		label: 'Develop Locally on Linux with WordPress.com',
+		opens: 1287,
+		uniqueOpens: 1236,
 		opensRate: 41.2,
+		clicks: 190,
+		uniqueClicks: 179,
 		clicksRate: 5.98,
 	},
 	{
@@ -71,7 +79,11 @@ const mockRows: EmailRow[] = [
 		postId: 3,
 		link: 'https://example.com/new-themes/',
 		label: '10 Brand-New WordPress.com Themes for 2026',
+		opens: 18432,
+		uniqueOpens: 17850,
 		opensRate: 35.7,
+		clicks: 3702,
+		uniqueClicks: 3560,
 		clicksRate: 7.12,
 	},
 	{
@@ -79,15 +91,23 @@ const mockRows: EmailRow[] = [
 		postId: 4,
 		link: 'https://example.com/languages/',
 		label: 'WordPress.com Is Now Available in More Languages',
+		opens: 560,
+		uniqueOpens: 524,
 		opensRate: 52.4,
-		clicksRate: 8.93,
+		clicks: 12,
+		uniqueClicks: 0,
+		clicksRate: 0,
 	},
 	{
 		id: 5,
 		postId: 5,
 		link: 'https://example.com/wordcamp-europe/',
 		label: 'WordCamp Europe 2026: What to Expect',
+		opens: 498,
+		uniqueOpens: 479,
 		opensRate: 47.9,
+		clicks: 108,
+		uniqueClicks: 103,
 		clicksRate: 10.25,
 	},
 	{
@@ -95,8 +115,12 @@ const mockRows: EmailRow[] = [
 		postId: 6,
 		link: 'https://example.com/collaborate/',
 		label: 'Click, Comment, Done: A Better Way to Collaborate',
-		opensRate: 44.3,
-		clicksRate: 10.38,
+		opens: 0,
+		uniqueOpens: 0,
+		opensRate: 0,
+		clicks: 0,
+		uniqueClicks: 0,
+		clicksRate: 0,
 	},
 ];
 
@@ -107,7 +131,11 @@ const mockLongLabelRows: EmailRow[] = [
 		link: 'https://example.com/long-subject/',
 		label:
 			'An exhaustively long, keyword-stuffed subject line that almost certainly needs to be truncated before it overflows the row',
+		opens: 2250,
+		uniqueOpens: 2100,
 		opensRate: 22.5,
+		clicks: 410,
+		uniqueClicks: 395,
 		clicksRate: 4.1,
 	},
 	{
@@ -115,7 +143,11 @@ const mockLongLabelRows: EmailRow[] = [
 		postId: 2,
 		link: 'https://example.com/monthly-digest/',
 		label: 'Your monthly digest: billing, new features, and what is coming next',
+		opens: 338,
+		uniqueOpens: 320,
 		opensRate: 33.8,
+		clicks: 67,
+		uniqueClicks: 60,
 		clicksRate: 6.7,
 	},
 ];
@@ -127,7 +159,7 @@ const withEmailsWidgetRoot: Decorator = Story => (
 );
 
 /**
- * Default populated state — latest emails (newest first) with their open rate.
+ * Default populated state: latest emails (newest first) with their opens and open rate.
  */
 export const Default: Story = {
 	args: {
@@ -137,7 +169,7 @@ export const Default: Story = {
 };
 
 /**
- * Click-rate view — the `metric` attribute set to click rate instead of open rate.
+ * Clicks view: the `metric` attribute set to clicks and click rate instead of opens.
  */
 export const ByClickRate: Story = {
 	args: {
