@@ -103,6 +103,23 @@ describe( 'AccessibleTooltip', () => {
 		}
 	} );
 
+	it.each( [
+		[ 'Tab', '{Tab}' ],
+		[ 'Escape', '{Escape}' ],
+		[ 'ArrowRight past the last point', '{ArrowRight}{ArrowRight}' ],
+	] )( 'keeps default focus scrolling when returning focus after %s', async ( _name, keys ) => {
+		const user = userEvent.setup();
+		renderChart();
+		await openTooltip();
+		const focus = jest.spyOn( screen.getByRole( 'grid' ), 'focus' );
+		try {
+			await user.keyboard( keys );
+			expect( focus ).toHaveBeenCalledWith();
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
 	it( 'falls back to the catalog default when the role is unset', async () => {
 		renderChart();
 

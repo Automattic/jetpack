@@ -249,9 +249,17 @@ export const useKeyboardNavigation = ( {
 		( event: React.KeyboardEvent< HTMLDivElement > ) => {
 			if ( totalPoints === 0 ) return;
 
+			const focusChart = () => {
+				if ( preventTooltipScroll ) {
+					chartRef.current?.focus( { preventScroll: true } );
+				} else {
+					chartRef.current?.focus();
+				}
+			};
+
 			// Keep focus on the chart if tab is pressed
 			if ( event.key === 'Tab' ) {
-				chartRef.current?.focus( preventTooltipScroll ? { preventScroll: true } : undefined );
+				focusChart();
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
@@ -260,7 +268,7 @@ export const useKeyboardNavigation = ( {
 			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
 
 			if ( currentSelectedIndex + 1 >= totalPoints && [ 'ArrowRight' ].includes( event.key ) ) {
-				chartRef.current?.focus( preventTooltipScroll ? { preventScroll: true } : undefined );
+				focusChart();
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
@@ -277,7 +285,7 @@ export const useKeyboardNavigation = ( {
 			} else if ( event.key === 'Escape' ) {
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
-				chartRef.current?.focus( preventTooltipScroll ? { preventScroll: true } : undefined );
+				focusChart();
 			} else if ( ( event.key === 'Enter' || event.key === ' ' ) && selectedIndex !== undefined ) {
 				onActivate?.( selectedIndex );
 			}
