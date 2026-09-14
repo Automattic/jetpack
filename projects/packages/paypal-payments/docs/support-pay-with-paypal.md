@@ -79,6 +79,7 @@ A live preview appears showing exactly how your button will look on the publishe
 ### Editing and Deleting Payment Links
 
 - **Edit:** Update the product details in the block settings sidebar, then update or publish the post
+- **Manage all links:** Once a block has a saved link, the Advanced panel at the bottom of the block settings sidebar has a "Manage PayPal Payment Links" link. It opens the PayPal Payment Links admin page in a new tab, so the post you are editing stays where it is
 - **Delete:** Click "Delete payment link" in the block toolbar or the PayPal Connection panel, or use the Delete action on the PayPal Payment Links admin page
 
 #### Deleting is permanent
