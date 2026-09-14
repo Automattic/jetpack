@@ -171,7 +171,7 @@ class Menu_Visibility_Test extends TestCase {
 		}
 		copy( __DIR__ . '/assets/backup-mock-plugin.txt', $plugin_dir . '/jetpack-backup.php' );
 		wp_cache_delete( 'plugins', 'plugins' );
-		activate_plugins( Backup::get_installed_plugin_filename() );
+		activate_plugins( 'jetpack-backup/jetpack-backup.php' );
 
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -188,7 +188,7 @@ class Menu_Visibility_Test extends TestCase {
 		$is_active            = Backup::is_active();
 
 		remove_filter( 'pre_http_request', $count_request );
-		deactivate_plugins( Backup::get_installed_plugin_filename() );
+		deactivate_plugins( 'jetpack-backup/jetpack-backup.php' );
 
 		$this->assertTrue( $resolved );
 		$this->assertSame( 0, $requests_for_resolve );
