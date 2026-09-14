@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
+import { backup } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -45,7 +45,7 @@ export const DEFAULT_ALL_TIME_STATS_METRICS: AllTimeStatsMetricId[] = ALL_TIME_S
  * doubles as the defaults applied to new instances.
  */
 export default {
-	icon: trendingUp,
+	icon: backup,
 	attributes: [
 		{
 			id: 'metrics',
