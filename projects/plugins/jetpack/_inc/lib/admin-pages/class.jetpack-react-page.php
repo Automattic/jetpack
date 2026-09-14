@@ -33,7 +33,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @return string|false Return value from WordPress's `add_menu_page()`.
 	 */
 	public function get_page_hook() {
-		$icon = ( new Logo() )->get_base64_admin_menu_logo();
+		$logo = new Logo();
+		$icon = method_exists( $logo, 'get_base64_admin_menu_logo' ) ? $logo->get_base64_admin_menu_logo() : $logo->get_base64_logo();
 		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), $icon, 3 );
 	}
 
