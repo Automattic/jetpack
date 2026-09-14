@@ -4,7 +4,6 @@ import { createInterpolateElement, useCallback, useState } from '@wordpress/elem
 import { __ } from '@wordpress/i18n';
 import { Link, Notice } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../../src/settings/script-data';
-import './subscriber-count-notice.scss';
 import type { MouseEvent } from 'react';
 
 /**
@@ -52,7 +51,13 @@ export default function SubscriberCountNotice(): JSX.Element | null {
 	}
 
 	return (
-		<Notice.Root intent="info" className="jetpack-newsletter-subscriber-count-notice">
+		<Notice.Root
+			intent="info"
+			style={ {
+				marginBlockStart: 'var(--wpds-dimension-padding-lg)',
+				marginInline: 'var(--wpds-dimension-padding-lg)',
+			} }
+		>
 			<Notice.Title>
 				{ __( 'Your subscriber count is now more accurate.', 'jetpack-newsletter' ) }
 			</Notice.Title>
