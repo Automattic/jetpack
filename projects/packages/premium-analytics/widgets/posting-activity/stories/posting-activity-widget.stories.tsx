@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams, type PresetType } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import apiFetch from '@wordpress/api-fetch';
 import { getUnixTime, startOfDay, subDays } from 'date-fns';
 /**
@@ -104,17 +104,11 @@ apiFetch.use( streakMocksMiddleware );
 
 const POSTING_ACTIVITY_RENDER_MODULE = 'storybook/posting-activity';
 
+// The card draws its own pinned last-12-months window, so every story shares
+// one query key: `forceStatsMockState` evicts the cache on both edges, which is
+// what keeps the forced-state stories isolated from each other.
 function renderPostingActivity() {
 	return <PostingActivityRender attributes={ { reportParams: getDefaultQueryParams() } } />;
-}
-
-// Distinct preset → own query-cache entry; see forceStatsMockState.
-function renderPostingActivityOnPreset( preset: PresetType ) {
-	return (
-		<PostingActivityRender
-			attributes={ { reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
-	);
 }
 
 const meta = {
@@ -125,7 +119,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Posting activity" widget. Renders a calendar (contribution-style) heatmap of the number of posts published per day for the dashboard date range. The streak module has no comparison period, so the heatmap renders without deltas.',
+					'The "Posting activity" widget: one mini calendar per month of the last 12, shaded by the posts published each day, with the month names beneath. The window is the widget\'s own; the dashboard date range does not move it. The close-up canvas is a one-column cell, so the grid scrolls sideways there; `WidgetDashboardWithWidget` below shows the full-width placement, where the months spread out.',
 			},
 		},
 	},
@@ -136,7 +130,7 @@ export default meta;
 type Story = StoryObj< Partial< ComponentProps< typeof PostingActivityRender > > >;
 
 /**
- * Default populated state — a year of posting activity for the current period.
+ * Default populated state — the last 12 months of posting activity.
  */
 export const Default: Story = {
 	render: renderPostingActivity,
@@ -148,7 +142,7 @@ export const Default: Story = {
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderPostingActivityOnPreset( 'last-90-days' ),
+	render: renderPostingActivity,
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -160,18 +154,17 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderPostingActivityOnPreset( 'last-7-days' ),
+	render: renderPostingActivity,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceStreakState( 'error' ),
 };
 
 /**
- * Resolved with no posts in the range: the widget shows its empty state (the
- * neutral calendar glyph and the "posts will appear here" message).
+ * Resolved with no posts in the last 12 months: the widget shows its empty state.
  */
 export const Empty: Story = {
-	render: () => renderPostingActivityOnPreset( 'last-365-days' ),
+	render: renderPostingActivity,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => forceStreakState( 'empty' ),
@@ -193,6 +186,9 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 	render: args => <PostingActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		// The Insights default: full width, one row.
+		widgetWidth: 3,
+		widgetHeight: 1,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,

@@ -1,0 +1,34 @@
+/* The loaded chart's geometry: a compact month block is seven 11px cells across
+ * and six down, 2px apart, with a label line beneath. The blocks share the
+ * leftover width down to the chart's 24px group gap; past that the row clips
+ * where the chart would scroll. */
+$block-inline-size: 89px;
+$block-block-size: 76px;
+$group-gap: 24px;
+
+.months {
+	display: flex;
+	justify-content: space-between;
+	gap: $group-gap;
+	margin-block: auto;
+	overflow: hidden;
+}
+
+.month {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+.grid {
+	inline-size: $block-inline-size;
+	block-size: $block-block-size;
+	border-radius: var(--wpds-border-radius-sm);
+}
+
+.label {
+	inline-size: 28px;
+	block-size: var(--wpds-typography-line-height-xs);
+}
