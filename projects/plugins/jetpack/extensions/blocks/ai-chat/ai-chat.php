@@ -27,7 +27,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 // and load-jetpack.php never runs. Without it the is_ai_enabled() master-gate
 // check below would fatal there.
 require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
-require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-helper.php';
 
 /**
  * Registers our block for use in Gutenberg
@@ -58,12 +57,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr ) {
-	// Same gate as the REST routes, so the two can't disagree. Editor shows
-	// an upgrade prompt instead (edit.jsx). See SEARCH-351.
-	if ( ! \Jetpack_AI_Helper::is_ai_chat_enabled() ) {
-		return '';
-	}
-
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */

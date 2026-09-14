@@ -9,7 +9,6 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
-use Automattic\Jetpack\Search\Search_Blocks;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Visitor;
 
@@ -168,9 +167,6 @@ class Jetpack_AI_Helper {
 	/**
 	 * Return true if the AI chat feature should be active on the current site.
 	 *
-	 * The paid Search gate is enforced after filters so it cannot be
-	 * overridden. Shared by the REST and block render gates. See SEARCH-351.
-	 *
 	 * @todo IS_WPCOM (the endpoints need to be updated too).
 	 *
 	 * @return bool
@@ -179,7 +175,8 @@ class Jetpack_AI_Helper {
 		$default = false;
 
 		$connection = new Manager();
-		if ( $connection->is_connected() && self::supports_paid_search_plan() ) {
+		$plan       = new Search_Plan();
+		if ( $connection->is_connected() && $plan->supports_search() ) {
 			$default = true;
 		}
 
@@ -190,26 +187,7 @@ class Jetpack_AI_Helper {
 		 *
 		 * @param bool $default Is AI chat enabled? Defaults to false.
 		 */
-		return apply_filters( 'jetpack_ai_chat_enabled', $default ) && self::supports_paid_search_plan();
-	}
-
-	/**
-	 * Retry a missing plan at most once every five minutes after a failed
-	 * lookup, while allowing a paid site to recover on a successful fetch.
-	 *
-	 * @return bool
-	 */
-	private static function supports_paid_search_plan() {
-		if ( false === get_option( Search_Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) && get_transient( 'jetpack_ai_chat_plan_lookup_failed' ) ) {
-			return false;
-		}
-
-		$supports_paid_search = Search_Blocks::supports_paid_search();
-		if ( false === get_option( Search_Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) ) {
-			set_transient( 'jetpack_ai_chat_plan_lookup_failed', true, 5 * MINUTE_IN_SECONDS );
-		}
-
-		return $supports_paid_search;
+		return apply_filters( 'jetpack_ai_chat_enabled', $default );
 	}
 
 	/**

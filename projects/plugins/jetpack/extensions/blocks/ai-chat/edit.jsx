@@ -38,8 +38,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	);
 	const isUserConnected = useIsUserConnected();
 
-	// Mirrors the paid-plan gate in ai-chat.php. Defaults to "paid" when the
-	// flag isn't localized, so the gate is opt-in via an explicit `false`.
+	// Only the editor prompts for an upgrade; published blocks keep rendering.
+	// An absent plan flag leaves the existing editing UI in place.
 	// Connection issues take priority - don't upsell a plan before the
 	// author can even connect.
 	const supportsPaidSearch = window?.Jetpack_AIChatBlock?.jetpackSettings?.supports_paid_search;

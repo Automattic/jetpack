@@ -13,7 +13,6 @@
  */
 
 use Automattic\Jetpack\Search\Plan;
-use Automattic\Jetpack\Search\Search_Blocks;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -52,8 +51,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->activate_ai_module_for_test();
-		// @phan-suppress-next-line PhanAccessMethodInternal -- Reset the shared package memo between test cases.
-		Search_Blocks::reset_supports_paid_search_cache();
 	}
 
 	public function tear_down() {
@@ -66,14 +63,13 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
-		// @phan-suppress-next-line PhanAccessMethodInternal -- Reset the shared package memo between test cases.
-		Search_Blocks::reset_supports_paid_search_cache();
 
 		parent::tear_down();
 	}
 
 	/**
-	 * Simulate a blog-level connection so signed requests can be built.
+	 * Simulate a connected free Search site, where an existing AI Chat block
+	 * can still call the proxy and receive the upstream plan error.
 	 */
 	private function simulate_connection() {
 		\Jetpack_Options::update_option( 'id', 1234 );
@@ -81,8 +77,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		update_option(
 			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
 			array(
+				'supports_search'         => true,
 				'supports_instant_search' => true,
-				'effective_subscription'  => array( 'product_slug' => 'jetpack_search' ),
+				'effective_subscription'  => array( 'product_slug' => Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG ),
 			)
 		);
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
@@ -127,7 +124,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	 */
 	public function test_request_chat_with_site_forwards_upstream_error() {
 		$this->simulate_connection();
-		add_filter( 'jetpack_ai_chat_enabled', '__return_true' );
 		$this->mocked_wpcom_response_body   = array(
 			'code'    => 'ai_search_inactive',
 			'message' => 'This site is not able to use the Jetpack AI Search feature',
@@ -154,7 +150,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	 */
 	public function test_request_chat_with_site_falls_back_to_generic_error() {
 		$this->simulate_connection();
-		add_filter( 'jetpack_ai_chat_enabled', '__return_true' );
 		$this->mocked_wpcom_response_body   = array( 'unexpected' => 'shape' );
 		$this->mocked_wpcom_response_status = 200;
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ), 10, 3 );
@@ -174,7 +169,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	 */
 	public function test_request_chat_with_site_succeeds_with_code_and_cache_key_present() {
 		$this->simulate_connection();
-		add_filter( 'jetpack_ai_chat_enabled', '__return_true' );
 		$this->mocked_wpcom_response_body   = array(
 			'code'      => 'ok',
 			'cache_key' => 'jp-search-ai-123',
@@ -196,7 +190,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	 */
 	public function test_request_chat_with_site_falls_back_when_code_is_non_scalar() {
 		$this->simulate_connection();
-		add_filter( 'jetpack_ai_chat_enabled', '__return_true' );
 		$this->mocked_wpcom_response_body   = array(
 			'code'    => array( 'nested' => 'shape' ),
 			'message' => array( 'nested' => 'shape' ),
