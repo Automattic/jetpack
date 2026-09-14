@@ -1,40 +1,45 @@
 import { resolveColumnGroups } from '../private/column-groups';
 
+const lines = ( columns: { line: number }[] ) => columns.map( column => column.line );
+const gaps = ( columns: { gapBefore: boolean }[] ) => columns.map( column => column.gapBefore );
+
 describe( 'resolveColumnGroups', () => {
-	test( 'no groups: no gaps before any column', () => {
-		expect( resolveColumnGroups( undefined, 3 ) ).toEqual( {
-			groups: [],
-			starts: [],
-			gapsBefore: [ 0, 0, 0 ],
-		} );
-		expect( resolveColumnGroups( [], 2 ).gapsBefore ).toEqual( [ 0, 0 ] );
+	test( 'no groups: consecutive lines from the first, no gaps', () => {
+		const layout = resolveColumnGroups( undefined, 3, 2 );
+		expect( layout.groups ).toEqual( [] );
+		expect( lines( layout.columns ) ).toEqual( [ 2, 3, 4 ] );
+		expect( gaps( layout.columns ) ).toEqual( [ false, false, false ] );
+		expect( resolveColumnGroups( [], 2, 2 ).columns ).toHaveLength( 2 );
 	} );
 
 	test( 'no columns: no groups and no warning, whatever the spans', () => {
-		expect( resolveColumnGroups( [ { label: 'A', span: 3 } ], 0 ) ).toEqual( {
+		expect( resolveColumnGroups( [ { label: 'A', span: 3 } ], 0, 2 ) ).toEqual( {
+			columns: [],
 			groups: [],
-			starts: [],
-			gapsBefore: [],
 		} );
 		expect( console ).not.toHaveWarned();
 	} );
 
-	test( 'counts one gap before the first column of every group but the first', () => {
+	test( 'skips one line before the first column of every group but the first', () => {
 		const groups = [
 			{ label: 'A', span: 2 },
 			{ label: 'B', span: 1 },
 			{ label: 'C', span: 2 },
 		];
-		expect( resolveColumnGroups( groups, 5 ) ).toEqual( {
-			groups,
-			starts: [ 0, 2, 3 ],
-			gapsBefore: [ 0, 0, 1, 2, 2 ],
-		} );
+		const layout = resolveColumnGroups( groups, 5, 2 );
+		expect( lines( layout.columns ) ).toEqual( [ 2, 3, 5, 7, 8 ] );
+		expect( gaps( layout.columns ) ).toEqual( [ false, false, true, true, false ] );
+		expect( layout.groups ).toEqual( [
+			{ label: 'A', span: 2, line: 2 },
+			{ label: 'B', span: 1, line: 5 },
+			{ label: 'C', span: 2, line: 7 },
+		] );
 	} );
 
 	test( 'leaves columns past the last group ungrouped and ungapped', () => {
-		const groups = [ { label: 'A', span: 2 } ];
-		expect( resolveColumnGroups( groups, 4 ).gapsBefore ).toEqual( [ 0, 0, 0, 0 ] );
+		const layout = resolveColumnGroups( [ { label: 'A', span: 2 } ], 4, 2 );
+		expect( lines( layout.columns ) ).toEqual( [ 2, 3, 4, 5 ] );
+		expect( gaps( layout.columns ) ).toEqual( [ false, false, false, false ] );
 	} );
 
 	test.each( [
@@ -43,27 +48,29 @@ describe( 'resolveColumnGroups', () => {
 		[ 'fractional', 1.5 ],
 		[ 'NaN', NaN ],
 	] )( 'warns once and drops every group on a %s span', ( _, span ) => {
-		const result = resolveColumnGroups(
+		const layout = resolveColumnGroups(
 			[
 				{ label: 'A', span: 1 },
 				{ label: 'B', span },
 			],
-			4
+			4,
+			2
 		);
-		expect( result.groups ).toEqual( [] );
-		expect( result.gapsBefore ).toEqual( [ 0, 0, 0, 0 ] );
+		expect( layout.groups ).toEqual( [] );
+		expect( lines( layout.columns ) ).toEqual( [ 2, 3, 4, 5 ] );
 		expect( console ).toHaveWarned();
 	} );
 
 	test( 'warns once and drops every group when the spans reach past the last column', () => {
-		const result = resolveColumnGroups(
+		const layout = resolveColumnGroups(
 			[
 				{ label: 'A', span: 3 },
 				{ label: 'B', span: 2 },
 			],
-			4
+			4,
+			2
 		);
-		expect( result.groups ).toEqual( [] );
+		expect( layout.groups ).toEqual( [] );
 		expect( console ).toHaveWarned();
 	} );
 } );

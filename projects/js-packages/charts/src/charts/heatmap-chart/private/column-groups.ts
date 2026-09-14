@@ -2,12 +2,10 @@ import { warnOnce } from '../../../utils/warn-once';
 import type { HeatmapColumnGroup } from '../types';
 
 export type ColumnGroupLayout = {
-	/** The groups as given, or none when any was unusable. */
-	groups: HeatmapColumnGroup[];
-	/** Index of the first column of each group. */
-	starts: number[];
-	/** Group gaps before each column, cumulative: a column's track line is `2 + index + gapsBefore[ index ]`. */
-	gapsBefore: number[];
+	/** One per data column: its grid column line, and whether a gap track precedes it. */
+	columns: { line: number; gapBefore: boolean }[];
+	/** The groups as given, each with the grid column line its label starts on; none when any was unusable. */
+	groups: ( HeatmapColumnGroup & { line: number } )[];
 };
 
 const isSpan = ( span: number ) => Number.isInteger( span ) && span > 0;
@@ -17,21 +15,25 @@ const isSpan = ( span: number ) => Number.isInteger( span ) && span > 0;
  *
  * @param groups      - Groups as passed to the chart.
  * @param columnCount - Number of data columns.
- * @return Group starts and per-column gap counts; no groups when the input was unusable.
+ * @param firstLine   - Grid column line of the first data column.
+ * @return Grid column lines for every column and group; no groups when the input was unusable.
  */
 export const resolveColumnGroups = (
 	groups: HeatmapColumnGroup[] | undefined,
-	columnCount: number
+	columnCount: number,
+	firstLine: number
 ): ColumnGroupLayout => {
-	const none: ColumnGroupLayout = {
+	const ungrouped = (): ColumnGroupLayout => ( {
+		columns: Array.from( { length: columnCount }, ( _, index ) => ( {
+			line: firstLine + index,
+			gapBefore: false,
+		} ) ),
 		groups: [],
-		starts: [],
-		gapsBefore: new Array( columnCount ).fill( 0 ),
-	};
+	} );
 
 	// An empty grid draws nothing, so static groups awaiting data are not a misuse.
 	if ( ! groups || groups.length === 0 || columnCount === 0 ) {
-		return none;
+		return ungrouped();
 	}
 
 	const spans = groups.map( group => group.span );
@@ -43,21 +45,27 @@ export const resolveColumnGroups = (
 				spans
 			) } must be positive integers that fit the ${ columnCount } columns, so no groups are drawn.`
 		);
-		return none;
+		return ungrouped();
 	}
 
-	const starts: number[] = [];
-	const gapsBefore: number[] = [];
+	const columns: ColumnGroupLayout[ 'columns' ] = [];
+	const laidOut: ColumnGroupLayout[ 'groups' ] = [];
+	let line = firstLine;
 	groups.forEach( ( group, groupIndex ) => {
-		starts.push( gapsBefore.length );
+		if ( groupIndex > 0 ) {
+			line += 1;
+		}
+		laidOut.push( { ...group, line } );
 		for ( let offset = 0; offset < group.span; offset++ ) {
-			gapsBefore.push( groupIndex );
+			columns.push( { line, gapBefore: groupIndex > 0 && offset === 0 } );
+			line += 1;
 		}
 	} );
 	// An ungrouped tail opens no further gap.
-	while ( gapsBefore.length < columnCount ) {
-		gapsBefore.push( groups.length - 1 );
+	while ( columns.length < columnCount ) {
+		columns.push( { line, gapBefore: false } );
+		line += 1;
 	}
 
-	return { groups, starts, gapsBefore };
+	return { columns, groups: laidOut };
 };

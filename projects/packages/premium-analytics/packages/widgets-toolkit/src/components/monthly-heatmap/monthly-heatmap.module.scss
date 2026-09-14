@@ -17,12 +17,11 @@
 
 /* `align-content: start`: the label row is the grid's only auto track, so
  * stretching would hand it the leftover height. The scroll padding keeps a
- * keyboard-selected cell clear of the sticky labels, sized to match below. */
+ * keyboard-selected cell clear of the sticky labels, sized to match below: the
+ * row is the chart label's line-height, the column fits a four-digit year. */
 .root .chart [role="grid"] {
-	--jpa-heatmap-label-size: var(--wpds-typography-font-size-xs);
-	--jpa-heatmap-label-pad: var(--wpds-dimension-padding-xs);
-	--jpa-heatmap-label-row: calc(1.5 * var(--jpa-heatmap-label-size));
-	--jpa-heatmap-year-column: calc(3 * var(--jpa-heatmap-label-size) + var(--jpa-heatmap-label-pad));
+	--jpa-heatmap-label-row: var(--wpds-typography-line-height-xs);
+	--jpa-heatmap-year-column: calc(3 * var(--wpds-typography-font-size-xs) + var(--wpds-dimension-padding-xs));
 
 	flex: 1 1 0;
 	min-block-size: 0;

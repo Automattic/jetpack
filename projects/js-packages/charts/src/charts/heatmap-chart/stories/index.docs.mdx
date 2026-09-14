@@ -76,7 +76,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`maxCellWidth`** / **`maxCellHeight`**: cap how large cells may grow in non-compact mode
 - **`minCellWidth`** / **`minCellHeight`** (default: `0`): keep cells from shrinking below a readable size and let the grid overflow instead
 - **`columnGroups`**: consecutive runs of columns sharing a label beneath the grid, one group gap apart. See [Column Groups](#column-groups).
-- **`aria-label`**: accessible name of the grid. Defaults to "Heatmap chart".
+- **`ariaLabel`**: accessible name of the grid. Defaults to "Heatmap chart".
 - **`primaryColor`**: color the scale interpolates toward at the highest value. Defaults to the first series palette color, `--a8c-charts-color-series-1`
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
@@ -139,7 +139,7 @@ Pass `columnGroups` to set consecutive columns apart under one label: quarters o
 	/>` }
 />
 
-The gap between groups is the theme's `heatmapChart.groupGap`; see [Theming](#theming). When no column has a `label`, the row above the grid is not drawn at all.
+The gap between groups is the theme's `heatmapChart.groupGap`; see [Theming](#theming). In compact mode, where the cells are fixed, the gaps share the container's leftover width evenly and shrink to `groupGap` as it narrows; past that the grid keeps its width, so put it in an `overflow-x: auto` container. When no column has a `label`, the row above the grid is not drawn at all.
 
 ## Cell Size Bounds
 
@@ -262,7 +262,7 @@ Use `useMonthCalendarHeatmapData` to draw a day-keyed map as one calendar per mo
 
 Keys are calendar days, so there is no `timeZone` option: bucket instants into days before building the map. The grid is always Gregorian; `locale` changes the month and day text only.
 
-The chart renders at its natural width in compact mode. Place it in an `overflow-x: auto` container when the tile is narrower than twelve months; the keyboard selection scrolls into view.
+In a wide tile the months spread out evenly; as the tile narrows the gaps shrink to the theme's `groupGap`, and narrower still the grid overflows, so place it in an `overflow-x: auto` container. The keyboard selection scrolls into view.
 
 ## Fixed Dimensions
 
@@ -340,7 +340,7 @@ Use the prop for one chart, or move the palette slot in CSS to change every char
 	}` }
 />
 
-Everything else — the cell gap, in-cell value size and the empty-cell color — comes from the `--a8c-charts-*` token catalog in CSS (the empty-cell color from `--a8c-charts-color-track`), so it tracks the active design system theme automatically through the catalog's own `--wpds-*` mapping. The corner radius can be overridden via `--a8c-charts-border-radius-cell`, which maps to a WPDS token (`--wpds-border-radius-sm`) by default. There are no per-instance props for these. The `heatmapChart` theme section carries the compact sizing and `groupGap`, the pixel gap between column groups (default 24), neither of which has a catalog role behind it:
+Everything else — the cell gap, in-cell value size and the empty-cell color — comes from the `--a8c-charts-*` token catalog in CSS (the empty-cell color from `--a8c-charts-color-track`), so it tracks the active design system theme automatically through the catalog's own `--wpds-*` mapping. The corner radius can be overridden via `--a8c-charts-border-radius-cell`, which maps to a WPDS token (`--wpds-border-radius-sm`) by default. There are no per-instance props for these. The `heatmapChart` theme section carries the compact sizing and `groupGap`, the pixel gap between column groups (default 24; the minimum in compact mode, where the gaps grow with the container), neither of which has a catalog role behind it:
 
 <Source
 	language="tsx"
@@ -377,11 +377,10 @@ For more details on responsive behavior, see the [Responsive Design section](./?
 
 The heatmap chart is designed for full keyboard and screen reader access:
 
-- The grid container is a `<div role="grid">` with a localised `aria-label`; each visual row is a `role="row"` and each cell a `role="gridcell"`.
+- The grid container is a `<div role="grid">` named by `ariaLabel`, or a localised "Heatmap chart" by default; name it after what it shows ("Monthly posting activity"), not the chart type. Each visual row is a `role="row"` and each cell a `role="gridcell"`.
 - Each cell has an `aria-label` containing the cell name and value (or "No data"). An `aria-label` is used rather than a native `title` so no duplicate browser tooltip appears. Axis labels are decorative (`aria-hidden`) because the cell label already carries that text.
 - **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring, and (when `withTooltips` is set) its tooltip. Escape clears the selection.
 - The keyboard selection is scrolled into view (`block: 'nearest', inline: 'nearest'`), so a grid inside a scroll container keeps its selected cell visible. A consumer that pins labels with `position: sticky` should give the scroll container a matching `scroll-padding`, or the cell lands under them.
-- The grid takes an `aria-label`; name it after what it shows ("Monthly posting activity"), not the chart type.
 - With column groups the grid stays one `role="grid"`: `aria-colcount` counts every data column (84 for twelve months), arrow keys cross group boundaries as if the gap were not there, and group labels are decorative because each cell already names its date.
 - Color alone is never the sole indicator of value — every cell exposes its value via its accessible label, and `showValues` can render numeric labels inside cells.
 - **In-cell text contrast**: when values are shown, each cell chooses light or dark text from the luminance of its blended fill rather than the raw value, so the number stays legible across the whole scale — with any primary color and against a themed (including dark) chart background.

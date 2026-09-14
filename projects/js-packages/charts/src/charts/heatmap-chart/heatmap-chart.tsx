@@ -62,7 +62,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	minCellHeight,
 	rowLabels = NO_ROW_LABELS,
 	columnGroups,
-	'aria-label': ariaLabel,
+	ariaLabel,
 	primaryColor,
 	gap = 'md',
 	withTooltips = false,
@@ -126,8 +126,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const columns = data.length;
 	const rows = Math.max( 0, ...data.map( column => column.data.length ) );
+	// Line 1 is the row-label track, so the data columns start on line 2.
 	const groupLayout = useMemo(
-		() => resolveColumnGroups( columnGroups, columns ),
+		() => resolveColumnGroups( columnGroups, columns, 2 ),
 		[ columnGroups, columns ]
 	);
 
@@ -246,6 +247,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		[ withTooltips, showTooltip, buildTooltipData, getTooltipOrigin ]
 	);
 
+	const getCellElement = useCallback(
+		( col: number, row: number ) =>
+			typeof document !== 'undefined'
+				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
+				: null,
+		[ chartId ]
+	);
+
 	const handleCellMouseLeave = useCallback( () => {
 		// Keyboard selection owns the tooltip; don't let a mouse-out clear it.
 		if ( withTooltips && selectedIndex === undefined ) {
@@ -260,14 +269,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		if ( selectedIndex === undefined ) {
 			return;
 		}
-		const col = Math.floor( selectedIndex / rows );
-		const row = selectedIndex % rows;
-		const cell =
-			typeof document !== 'undefined'
-				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
-				: null;
+		const cell = getCellElement( Math.floor( selectedIndex / rows ), selectedIndex % rows );
 		cell?.scrollIntoView?.( { block: 'nearest', inline: 'nearest' } );
-	}, [ selectedIndex, rows, chartId ] );
+	}, [ selectedIndex, rows, getCellElement ] );
 
 	// Anchor the tooltip at the selected cell's center on keyboard nav. Cleared on blur/Escape,
 	// not here, so a mouse hover (no selection) isn't affected.
@@ -281,11 +285,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		}
 		const col = Math.floor( selectedIndex / rows );
 		const row = selectedIndex % rows;
-		const cell =
-			typeof document !== 'undefined'
-				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
-				: null;
-		const rect = cell?.getBoundingClientRect();
+		const rect = getCellElement( col, row )?.getBoundingClientRect();
 		showTooltip( {
 			tooltipLeft: rect ? rect.left + rect.width / 2 - origin.left : 0,
 			tooltipTop: rect ? rect.top + rect.height / 2 - origin.top : 0,
@@ -295,7 +295,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		selectedIndex,
 		withTooltips,
 		rows,
-		chartId,
+		getCellElement,
 		buildTooltipData,
 		showTooltip,
 		getTooltipOrigin,
@@ -342,25 +342,25 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const hasColumnLabels = data.some( column => Boolean( column.label ) );
 	const hasGroups = groupLayout.groups.length > 0;
 	// Every item is placed by hand rather than auto-flowed, so the template can
-	// carry gap tracks that hold no cell. Line 1 is the row-label track; a gap
-	// track precedes every group but the first.
-	const columnLine = ( columnIndex: number ) =>
-		columnIndex + 2 + groupLayout.gapsBefore[ columnIndex ];
-	const opensGroup = ( columnIndex: number ) =>
-		columnIndex > 0 &&
-		groupLayout.gapsBefore[ columnIndex ] > groupLayout.gapsBefore[ columnIndex - 1 ];
+	// carry gap tracks that hold no cell.
+	const columnLine = ( columnIndex: number ) => groupLayout.columns[ columnIndex ].line;
 	const firstDataRow = hasColumnLabels ? 2 : 1;
 	// A summary column takes a content-sized track: a roll-up is wider than a
 	// cell, and a shared track would stretch every cell to fit it. `max-content`
 	// as the max keeps the leftover width out of it once the data tracks hit
 	// `maxCellWidth`, where a plain `auto` would absorb it.
+	const dataTrack = ( column: ( typeof data )[ number ] ) =>
+		column.summary ? 'minmax(auto, max-content)' : columnTrack;
 	// The group gap is a track of its own: a margin cannot widen a fixed or
-	// minmax track the way it widens the summary's auto track.
+	// minmax track the way it widens the summary's auto track. Compact cells
+	// are fixed, so there the gaps share the leftover width instead.
+	const gapTrack = compact ? `minmax(${ groupGap }px, 1fr)` : `${ groupGap }px`;
 	const columnTracks = data
-		.map( ( column, columnIndex ) => {
-			const track = column.summary ? 'minmax(auto, max-content)' : columnTrack;
-			return opensGroup( columnIndex ) ? `${ groupGap }px ${ track }` : track;
-		} )
+		.map( ( column, columnIndex ) =>
+			groupLayout.columns[ columnIndex ].gapBefore
+				? `${ gapTrack } ${ dataTrack( column ) }`
+				: dataTrack( column )
+		)
 		.join( ' ' );
 	const gridStyle: Record< string, string | number > = {
 		'--a8c-charts-color-heatmap-primary': primaryColorHex,
@@ -431,11 +431,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						onKeyDown={ onChartKeyDown }
 						className={ clsx( styles[ 'heatmap-chart__grid' ], {
 							[ styles[ 'heatmap-chart__grid--compact' ] ]: compact,
+							[ styles[ 'heatmap-chart__grid--flex-gaps' ] ]: compact && hasGroups,
 							[ styles[ 'heatmap-chart__grid--height-capped' ] ]: heightCapped,
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>
-						{ /* Header row preserves the grid structure; cell aria-labels include this text. */ }
+						{ /* Decorative: cell aria-labels already carry the column name. */ }
 						{ hasColumnLabels && (
 							<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
 								<span style={ { gridColumn: 1, gridRow: 1 } } />
@@ -581,9 +582,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										data-testid="heatmap-group-label"
 										className={ styles[ 'heatmap-chart__group-label' ] }
 										style={ {
-											gridColumn: `${ columnLine( groupLayout.starts[ groupIndex ] ) } / span ${
-												group.span
-											}`,
+											gridColumn: `${ group.line } / span ${ group.span }`,
 											gridRow: firstDataRow + rows,
 										} }
 									>

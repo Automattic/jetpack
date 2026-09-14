@@ -15,8 +15,8 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | ---- | ---- | ------- | ----------- |
 | `data` | `HeatmapColumn[]` | - | **Required.** Array of columns; each column contains an optional label and an array of cells. |
 | `rowLabels` | `string[]` | `[]` | y-axis labels by row index. Empty entries render blank. |
-| `columnGroups` | `HeatmapColumnGroup[]` | - | Consecutive runs of columns sharing one label beneath the grid, one group gap apart. Runs from the first column; leftover columns stay ungrouped. Ignored with a warning when a span is not a positive integer or the spans reach past the last column. |
-| `aria-label` | `string` | `'Heatmap chart'` | Accessible name of the grid. |
+| `columnGroups` | `HeatmapColumnGroup[]` | - | Consecutive runs of columns sharing one label beneath the grid, one group gap apart (in compact mode the gaps share the leftover width, down to the theme's `groupGap`). Runs from the first column; leftover columns stay ungrouped. Ignored with a warning when a span is not a positive integer or the spans reach past the last column. |
+| `ariaLabel` | `string` | `'Heatmap chart'` | Accessible name of the grid. |
 | `compact` | `boolean` | `false` | Compact mode: tighten cell gaps, suppress in-cell values, and thin axis labels. |
 | `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell (compact notation for large numbers; the tooltip and aria-label keep full precision). |
 | `maxCellWidth` | `number` | - | Maximum cell width in pixels in non-compact mode. Cells stop growing at this width while narrower containers may still shrink them. |

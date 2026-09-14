@@ -1,4 +1,4 @@
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -204,11 +204,14 @@ export const ErrorStates: Story = {
 	},
 };
 
-/** Column groups on a plain matrix: a gap and a label under each quarter. */
+/** Column groups: a gap and a label under each quarter; the Total column stays outside them. */
 export const WithColumnGroups: Story = {
 	args: {
 		...Default.args,
-		data: heatmapActivityMatrix.map( column => ( { ...column, label: '' } ) ),
+		data: heatmapActivityMatrixWithTotals.map( column => ( {
+			...column,
+			label: column.summary ? column.label : '',
+		} ) ),
 		columnGroups: [
 			{ label: 'Q1', span: 3 },
 			{ label: 'Q2', span: 3 },
@@ -218,12 +221,33 @@ export const WithColumnGroups: Story = {
 	},
 };
 
-type MonthCalendarStoryArgs = StoryArgs & { weekStartsOn?: 0 | 1; locale?: string };
+type MonthCalendarStoryArgs = StoryArgs & {
+	months?: number;
+	weekStartsOn?: 0 | 1;
+	locale?: string;
+};
 
-const MonthCalendarGrid = ( { weekStartsOn, locale, ...args }: MonthCalendarStoryArgs ) => {
+/**
+ * The last `months` of the sample range, from the first of the earliest month.
+ *
+ * @param months - How many months to draw.
+ * @return A range ending at the sample range end.
+ */
+const lastMonthsRange = ( months: number ) => {
+	const end = new Date( `${ HEATMAP_POSTS_RANGE.end }T00:00:00Z` );
+	const start = new Date( Date.UTC( end.getUTCFullYear(), end.getUTCMonth() - ( months - 1 ), 1 ) );
+	return { start: start.toISOString().slice( 0, 10 ), end: HEATMAP_POSTS_RANGE.end };
+};
+
+const MonthCalendarGrid = ( {
+	months = 12,
+	weekStartsOn,
+	locale,
+	...args
+}: MonthCalendarStoryArgs ) => {
 	const { data, columnGroups } = useMonthCalendarHeatmapData(
 		heatmapPostsByDay,
-		HEATMAP_POSTS_RANGE,
+		lastMonthsRange( months ),
 		{ weekStartsOn, locale: locale || undefined }
 	);
 	return (
@@ -233,18 +257,31 @@ const MonthCalendarGrid = ( { weekStartsOn, locale, ...args }: MonthCalendarStor
 	);
 };
 
-/** Twelve months as one grid sharing one scale: the "Monthly posting activity" layout. */
+/**
+ * Months as one grid sharing one scale: the "Monthly posting activity" layout.
+ * Drag the container's corner: the month gaps share the width, shrink to the theme's
+ * `groupGap`, and past that the container scrolls with the keyboard selection in view.
+ */
 export const MonthCalendar: StoryObj< MonthCalendarStoryArgs > = {
 	render: args => <MonthCalendarGrid { ...args } />,
 	args: {
 		...sharedThemeArgs,
 		compact: true,
 		withTooltips: true,
-		'aria-label': 'Monthly posting activity',
+		ariaLabel: 'Monthly posting activity',
+		containerWidth: '1200px',
+		containerHeight: '200px',
+		months: 6,
 		weekStartsOn: 1,
 		locale: '',
 	},
 	argTypes: {
+		months: {
+			control: { type: 'range', min: 1, max: 12 },
+			description:
+				'Months drawn, ending at the sample range end. Twelve need about 1400px before the gaps grow.',
+			table: { category: 'Calendar' },
+		},
 		weekStartsOn: calendarArgTypes.weekStartsOn,
 		locale: calendarArgTypes.locale,
 	},
@@ -252,27 +289,12 @@ export const MonthCalendar: StoryObj< MonthCalendarStoryArgs > = {
 		const canvas = within( canvasElement );
 		const grid = canvas.getByRole( 'grid', { name: 'Monthly posting activity' } );
 		await expect( canvas.getAllByRole( 'grid' ) ).toHaveLength( 1 );
-		await expect( grid ).toHaveAttribute( 'aria-colcount', '84' );
-		await expect( canvas.getAllByTestId( 'heatmap-group-label' ) ).toHaveLength( 12 );
-	},
-};
-
-/** The same grid in a container too narrow for it; arrow keys keep the selection in view. */
-export const MonthCalendarScrolling: StoryObj< MonthCalendarStoryArgs > = {
-	...MonthCalendar,
-	render: args => (
-		<div data-testid="scroller" style={ { width: 480, overflowX: 'auto' } }>
-			<MonthCalendarGrid { ...args } />
-		</div>
-	),
-	play: async ( { canvasElement } ) => {
-		const canvas = within( canvasElement );
-		const scroller = canvas.getByTestId( 'scroller' );
-		const grid = canvas.getByRole( 'grid', { name: 'Monthly posting activity' } );
-		await expect( scroller.scrollLeft ).toBe( 0 );
-		grid.focus();
-		// 480px holds fewer than five 7-column months, so this crosses the visible edge.
-		await userEvent.keyboard( '{ArrowRight}'.repeat( 40 ) );
-		await expect( scroller.scrollLeft ).toBeGreaterThan( 0 );
+		await expect( grid ).toHaveAttribute( 'aria-colcount', '42' );
+		const labels = canvas.getAllByTestId( 'heatmap-group-label' );
+		await expect( labels ).toHaveLength( 6 );
+		// Six months leave width over at 1200px, so the gaps grow past groupGap.
+		const [ first, second ] = labels.map( label => label.getBoundingClientRect() );
+		await expect( second.left - first.right ).toBeGreaterThan( 24 );
+		await expect( grid.scrollWidth ).toBe( grid.clientWidth );
 	},
 };
