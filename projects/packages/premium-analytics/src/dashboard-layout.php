@@ -482,7 +482,6 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_ADS_SECTION_ID         => array(
-			// Rows fill the three-column grid in the prototype's order.
 			// Row 1: WordAds chart.
 			get_dashboard_default_widget_instance(
 				'default-wordads-chart-tabs-widget-instance',
