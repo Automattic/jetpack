@@ -137,11 +137,69 @@ class WPCOM_WPAdmin_Screen_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_capture_defers_recording_to_shutdown() {
+	public function test_current_screen_records_the_event_on_the_last_shutdown_callback() {
 		define( 'IS_WPCOM', false );
+		Functions\expect( 'wpcomsh_record_tracks_event' )->never();
 
-		wpcom_capture_admin_screen( $this->login_and_set_screen() );
+		$props = wpcom_get_admin_screen_event_props( $this->login_and_set_screen( 'edit-post' ) );
 
-		$this->assertNotFalse( has_action( 'shutdown' ) );
+		$callbacks = $GLOBALS['wp_filter']['shutdown']->callbacks[ PHP_INT_MAX ] ?? array();
+		$this->assertCount( 1, $callbacks );
+
+		Functions\expect( 'wpcomsh_record_tracks_event' )
+			->once()
+			->with( 'wpcom_admin_screen', $props );
+
+		call_user_func( reset( $callbacks )['function'] );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_current_screen_registers_nothing_for_untracked_requests() {
+		define( 'IS_WPCOM', false );
+		add_filter( 'wpcom_admin_screen_tracking_enabled', '__return_false' );
+
+		$this->login_and_set_screen();
+
+		$this->assertArrayNotHasKey( PHP_INT_MAX, $GLOBALS['wp_filter']['shutdown']->callbacks ?? array() );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_record_finishes_the_request_before_sending_the_event() {
+		$props = array(
+			'screen_id' => 'dashboard',
+			'platform'  => 'atomic',
+		);
+		$order = array();
+
+		Functions\expect( 'fastcgi_finish_request' )
+			->once()
+			->andReturnUsing(
+				function () use ( &$order ) {
+					$order[] = 'finish';
+					return true;
+				}
+			);
+		Functions\expect( 'wpcomsh_record_tracks_event' )
+			->once()
+			->with( 'wpcom_admin_screen', $props )
+			->andReturnUsing(
+				function () use ( &$order ) {
+					$order[] = 'record';
+				}
+			);
+
+		wpcom_record_admin_screen( $props );
+
+		$this->assertSame( array( 'finish', 'record' ), $order );
 	}
 }

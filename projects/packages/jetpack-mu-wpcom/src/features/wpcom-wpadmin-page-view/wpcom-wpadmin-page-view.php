@@ -125,9 +125,8 @@ function wpcom_get_admin_screen_blog_id( $is_simple_site ) {
 /**
  * Remember the admin screen that is rendering, and record it once the response is complete.
  *
- * Recording happens on `shutdown` so the Tracks request never delays the admin page. On
- * Atomic, `fastcgi_finish_request()` closes the connection to the browser first; Simple
- * sites keep their own request lifecycle.
+ * Recording is deferred to the last `shutdown` callback so the Tracks request runs after
+ * the page has been sent.
  *
  * @param mixed $screen The screen passed to the `current_screen` action.
  */
@@ -141,16 +140,29 @@ function wpcom_capture_admin_screen( $screen ) {
 	add_action(
 		'shutdown',
 		function () use ( $props ) {
-			if ( 'atomic' === $props['platform'] && function_exists( 'fastcgi_finish_request' ) ) {
-				fastcgi_finish_request();
-			}
-
-			Common\wpcom_record_tracks_event( 'wpcom_admin_screen', $props );
+			wpcom_record_admin_screen( $props );
 		},
 		PHP_INT_MAX
 	);
 }
 add_action( 'current_screen', __NAMESPACE__ . '\wpcom_capture_admin_screen' );
+
+/**
+ * Record the `wpcom_admin_screen` event.
+ *
+ * Under PHP-FPM, `fastcgi_finish_request()` closes the connection to the browser first so
+ * the Tracks request cannot delay the page. Without it the event is sent synchronously at
+ * the very end of the request.
+ *
+ * @param array $props Event properties from `wpcom_get_admin_screen_event_props()`.
+ */
+function wpcom_record_admin_screen( array $props ) {
+	if ( function_exists( 'fastcgi_finish_request' ) ) {
+		fastcgi_finish_request();
+	}
+
+	Common\wpcom_record_tracks_event( 'wpcom_admin_screen', $props );
+}
 
 /**
  * Track non-calypso Customizer views if the user is linked from the frontend.
