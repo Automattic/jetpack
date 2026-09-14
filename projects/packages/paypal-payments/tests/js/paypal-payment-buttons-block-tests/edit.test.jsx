@@ -3068,6 +3068,116 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
+	describe( 'Changed at PayPal', () => {
+		const saved = {
+			isApiManaged: true,
+			resourceId: 'PLB-CLEAR1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-CLEAR1',
+		};
+		// Everything renderForm's product holds, so a payment carrying this produces no
+		// update at all and only the field a test leaves out can raise the notice.
+		const carried = {
+			productName: 'Test Widget',
+			price: '29.99',
+			currencyCode: 'USD',
+			paymentLink: saved.paymentLink,
+		};
+		const notice =
+			/Some details were changed on this payment at PayPal and have been updated here\./;
+
+		/**
+		 * Answer the connection check, then hand back one payment.
+		 *
+		 * @param {object} attributes - What the payment carries.
+		 * @return {jest.Mock} The apiFetch mock.
+		 */
+		const mockPayment = attributes =>
+			apiFetch.mockImplementation( request =>
+				request.path.endsWith( '/connection' )
+					? Promise.resolve( { connected: true, environment: 'sandbox' } )
+					: Promise.resolve( { attributes } )
+			);
+
+		it( 'says so when the payment no longer carries a field the block held', async () => {
+			mockPayment( carried );
+			renderForm( { ...saved, productDescription: 'Hand made' } );
+
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			// Clearing the value is the reconcile working, so it still happens.
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( { productDescription: '' } )
+			);
+		} );
+
+		it( 'says nothing on the next open, once the reconcile has written the default', async () => {
+			mockPayment( carried );
+			const { unmount } = renderForm( { ...saved, productDescription: 'Hand made' } );
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			unmount();
+
+			renderForm( saved );
+
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
+		} );
+
+		// The read that finds nothing to update is the one that has to drop the warning,
+		// or it outlives the payment it described.
+		it( 'drops the warning when a later read finds the block already agrees', async () => {
+			const held = { ...saved, productDescription: 'Hand made' };
+			mockPayment( carried );
+			const { rerender } = render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						...held,
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+
+			mockPayment( { ...carried, productDescription: 'Hand made', paymentLink: undefined } );
+			rerender(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						...held,
+						resourceId: 'PLB-CLEAR2',
+						paymentLink: undefined,
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await waitFor( () => expect( screen.queryByText( notice ) ).not.toBeInTheDocument() );
+		} );
+
+		// A price edited at PayPal is the case that costs money - the block would
+		// otherwise take the new number with nothing said.
+		it( 'says so when the payment carries a different value', async () => {
+			mockPayment( { ...carried, price: '200.00' } );
+			renderForm( { ...saved, price: '100.00' } );
+
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( { price: '200.00' } )
+			);
+		} );
+
+		it( 'stays quiet when the block already agrees with the payment', async () => {
+			mockPayment( carried );
+			renderForm( saved );
+
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
+		} );
+	} );
+
 	describe( 'Notices', () => {
 		const saved = {
 			isApiManaged: true,
