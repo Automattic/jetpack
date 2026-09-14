@@ -36,10 +36,14 @@ class Menu_Visibility_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		remove_filter( 'my_jetpack_products_classes', array( $this, 'replace_stats_product' ) );
+		remove_filter( 'jetpack_active_modules', array( $this, 'activate_sample_module' ) );
+		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_sample_module' ) );
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'offer_sample_module_with_version' ) );
 		Sample_Gated_Product::$active = true;
 		Admin_Menu::set_visibility_resolver( null );
 		$this->reset_admin_menu();
 		$this->reset_resolved_gates();
+		$this->uninstall_backup_mock_plugin();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
@@ -64,6 +68,21 @@ class Menu_Visibility_Test extends TestCase {
 				$property->setAccessible( true );
 			}
 			$property->setValue( null, $value );
+		}
+	}
+
+	/**
+	 * Removes the stand-in Backup plugin one test installs, so it cannot outlive that test.
+	 *
+	 * @return void
+	 */
+	private function uninstall_backup_mock_plugin() {
+		$plugin_file = WP_PLUGIN_DIR . '/' . Backup::$plugin_slug . '/jetpack-backup.php';
+
+		if ( file_exists( $plugin_file ) ) {
+			deactivate_plugins( Backup::$plugin_slug . '/jetpack-backup.php' );
+			unlink( $plugin_file );
+			wp_cache_delete( 'plugins', 'plugins' );
 		}
 	}
 
@@ -133,12 +152,26 @@ class Menu_Visibility_Test extends TestCase {
 	 * that resolve() delegates — not how the Modules package computes availability.
 	 */
 	public function test_module_declaration_follows_the_module() {
+		$this->offer_sample_module_either_way();
 		add_filter( 'jetpack_active_modules', array( $this, 'activate_sample_module' ) );
 
 		$this->assertTrue( Menu_Visibility::resolve( array( 'module' => 'sample-module' ) ) );
-		$this->assertFalse( Menu_Visibility::resolve( array( 'module' => 'other-module' ) ) );
+	}
 
-		remove_filter( 'jetpack_active_modules', array( $this, 'activate_sample_module' ) );
+	/**
+	 * A module this site has, but has switched off, removes the item.
+	 */
+	public function test_available_but_inactive_module_resolves_false() {
+		$this->offer_sample_module_either_way();
+
+		$this->assertFalse( Menu_Visibility::resolve( array( 'module' => 'sample-module' ) ) );
+	}
+
+	/**
+	 * A name this site has no module for is unanswerable, so the item stays.
+	 */
+	public function test_unknown_module_resolves_null() {
+		$this->assertNull( Menu_Visibility::resolve( array( 'module' => 'not-a-module' ) ) );
 	}
 
 	/**
@@ -154,10 +187,45 @@ class Menu_Visibility_Test extends TestCase {
 	}
 
 	/**
+	 * Reports the sample module as one this site has, off the Jetpack plugin.
+	 *
+	 * @param array $modules Available module slugs.
+	 * @return array
+	 */
+	public function offer_sample_module( $modules ) {
+		$modules[] = 'sample-module';
+
+		return $modules;
+	}
+
+	/**
+	 * Reports the sample module as one this site has, with the Jetpack plugin loaded.
+	 *
+	 * @param array $modules Map of available module slug to the version that introduced it.
+	 * @return array
+	 */
+	public function offer_sample_module_with_version( $modules ) {
+		$modules['sample-module'] = '1.0';
+
+		return $modules;
+	}
+
+	/**
+	 * Makes the sample module one this site has, whichever way availability is computed.
+	 *
+	 * @return void
+	 */
+	private function offer_sample_module_either_way() {
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_sample_module' ) );
+		add_filter( 'jetpack_get_available_modules', array( $this, 'offer_sample_module_with_version' ) );
+	}
+
+	/**
 	 * A product declaration wins over a module declaration on the same item.
 	 */
 	public function test_product_takes_precedence_over_module() {
 		Sample_Gated_Product::$active = false;
+		$this->offer_sample_module_either_way();
 		add_filter( 'jetpack_active_modules', array( $this, 'activate_sample_module' ) );
 
 		$this->assertTrue(
@@ -172,8 +240,6 @@ class Menu_Visibility_Test extends TestCase {
 				)
 			)
 		);
-
-		remove_filter( 'jetpack_active_modules', array( $this, 'activate_sample_module' ) );
 	}
 
 	/**

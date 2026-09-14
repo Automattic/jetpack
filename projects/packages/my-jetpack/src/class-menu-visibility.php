@@ -70,22 +70,37 @@ class Menu_Visibility {
 		}
 
 		if ( ! empty( $args['module'] ) ) {
-			/*
-			 * A module counts as active only while it is also available, which off the Jetpack
-			 * plugin means a standalone plugin declaring it through
-			 * `jetpack_get_available_standalone_modules`. Matches Product::is_module_active(),
-			 * so the two gate types cannot disagree about the same module.
-			 */
 			$key = 'module:' . $args['module'];
 
 			if ( ! array_key_exists( $key, self::$resolved ) ) {
-				self::$resolved[ $key ] = ( new Modules() )->is_active( $args['module'] );
+				self::$resolved[ $key ] = self::is_module_activated( $args['module'] );
 			}
 
 			return self::$resolved[ $key ];
 		}
 
 		return null;
+	}
+
+	/**
+	 * Whether a Jetpack module gating an item is switched on.
+	 *
+	 * A name this site has no module for is unanswerable rather than off, so a typo in a gate
+	 * fails open like an unknown product slug does instead of silently removing the item. Off
+	 * the Jetpack plugin that covers any module a standalone plugin did not declare through
+	 * `jetpack_get_available_standalone_modules`.
+	 *
+	 * @param string $module_name A Jetpack module name.
+	 * @return bool|null Null when this site has no such module.
+	 */
+	private static function is_module_activated( $module_name ) {
+		$modules = new Modules();
+
+		if ( ! in_array( $module_name, $modules->get_available(), true ) ) {
+			return null;
+		}
+
+		return $modules->is_active( $module_name );
 	}
 
 	/**

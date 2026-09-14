@@ -417,7 +417,8 @@ class Admin_Menu {
 	 * never removes a menu item.
 	 *
 	 * This is the seam My Jetpack fills. Hosts wanting to shape the sidebar should use the
-	 * `jetpack_admin_menu_visibility` filter instead, which runs after whatever this answers.
+	 * `jetpack_admin_menu_visibility` filter instead, which takes precedence: an item the
+	 * filter names is never put to this callback at all.
 	 *
 	 * @param callable|null $resolver Resolver callback, or null to clear it.
 	 * @return void
