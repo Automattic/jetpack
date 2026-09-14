@@ -1,3 +1,4 @@
+import { seededRandom } from '../../../stories/mocks/data';
 import { WidgetCard } from '../../../stories/widget-card';
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { MonthCalendarHeatmap } from '../month-calendar-heatmap';
@@ -41,12 +42,7 @@ function buildPostsByDay( start: string ) {
 	const day = new Date( `${ start }T00:00:00Z` );
 	const end = new Date( `${ RANGE_END }T00:00:00Z` );
 
-	// Park–Miller LCG: deterministic, stays within safe-integer range, no bitwise ops.
-	let seed = 1337;
-	const nextRandom = () => {
-		seed = ( seed * 16807 ) % 2147483647;
-		return seed / 2147483647;
-	};
+	const nextRandom = seededRandom( 1337 );
 
 	for ( ; day.getTime() <= end.getTime(); day.setUTCDate( day.getUTCDate() + 1 ) ) {
 		if ( nextRandom() < 0.55 ) {

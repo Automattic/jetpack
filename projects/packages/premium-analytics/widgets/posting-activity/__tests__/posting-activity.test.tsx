@@ -75,8 +75,8 @@ describe( 'PostingActivityWidget', () => {
 		renderWidget();
 
 		expect( mockUseStatsStreak.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
-			startDate: '2025-10-01',
-			endDate: '2026-09-15',
+			from: expect.stringMatching( /^2025-10-01T/ ),
+			to: expect.stringMatching( /^2026-09-15T/ ),
 			max: 3000,
 		} );
 	} );

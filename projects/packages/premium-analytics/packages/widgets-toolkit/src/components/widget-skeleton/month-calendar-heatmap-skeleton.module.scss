@@ -1,8 +1,7 @@
-/* A month block is seven compact cells across and six down, a label line
- * beneath; the cell size and gaps arrive from the chart theme as custom
- * properties. The blocks share the leftover width down to the group gap plus
- * the cell gap either side, as the loaded grid does; past that the row clips
- * where the chart would scroll. */
+/* Cell size and gaps arrive from the chart theme as custom properties. The
+ * blocks share the leftover width down to the group gap plus a cell gap either
+ * side, as the loaded grid does; past that the row clips where it would
+ * scroll. */
 $weekdays: 7;
 $weeks: 6;
 

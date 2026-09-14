@@ -32,7 +32,7 @@ type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttrib
 const NO_POSTS_BY_DAY: Record< string, number | null > = {};
 
 // The endpoint keeps the newest 1095 posts unless told otherwise, which a busy
-// site outruns inside 12 months; the old Stats card asked for this many too.
+// site outruns inside 12 months.
 const STREAK_MAX_POSTS = 3000;
 
 const formatPostCount = ( count: number ) =>
@@ -49,20 +49,13 @@ const formatPostCount = ( count: number ) =>
 function PostingActivityInner() {
 	const { from, to, preset, interval } = getDefaultQueryParams( false, PRESET_LAST_12_MONTHS );
 	const range = useMemo(
-		() => ( { start: getDatePart( from ) ?? from, end: getDatePart( to ) ?? to } ),
+		() => ( { start: getDatePart( from ), end: getDatePart( to ) } ),
 		[ from, to ]
 	);
+	// The query derives the request's start and end days from `from` / `to` itself.
 	const streakParams = useMemo(
-		() => ( {
-			from,
-			to,
-			preset,
-			interval,
-			startDate: range.start,
-			endDate: range.end,
-			max: STREAK_MAX_POSTS,
-		} ),
-		[ from, to, preset, interval, range ]
+		() => ( { from, to, preset, interval, max: STREAK_MAX_POSTS } ),
+		[ from, to, preset, interval ]
 	);
 
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
