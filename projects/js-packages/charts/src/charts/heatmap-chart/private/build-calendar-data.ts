@@ -143,12 +143,19 @@ export const buildCalendarHeatmapData = (
 	const gridMaxDate = civilDate( gridMaxDayKey ) as CivilDate;
 
 	// The grid walks UTC proxies, so the label formatters read UTC. The host's zone
-	// was already spent on bucketing.
+	// was already spent on bucketing. `gregory` keeps a locale whose default calendar
+	// is not Gregorian (fa-IR) from splitting one grid month across two names.
 	const labelFormatting = { locale, timeZone: 'UTC' };
-	const formatWeekday = createDateFormatter( { weekday: 'short' }, labelFormatting );
-	const formatMonth = createDateFormatter( { month: 'short' }, labelFormatting );
+	const formatWeekday = createDateFormatter(
+		{ weekday: 'short', calendar: 'gregory' },
+		labelFormatting
+	);
+	const formatMonth = createDateFormatter(
+		{ month: 'short', calendar: 'gregory' },
+		labelFormatting
+	);
 	const formatDay = createDateFormatter(
-		{ weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' },
+		{ weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', calendar: 'gregory' },
 		labelFormatting
 	);
 
