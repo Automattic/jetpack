@@ -1,4 +1,4 @@
 Significance: patch
-Type: enhancement
+Type: other
 
-Reprint export: Bind the export credentials to the site's AUTH_SALT, so writing the database alone can no longer arm an export.
+Reprint export: Salt the export credentials with AUTH_SALT, ensuring they cannot be written without read access to wp-config.php.

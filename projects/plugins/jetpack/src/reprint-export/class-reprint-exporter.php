@@ -46,6 +46,18 @@ class Reprint_Exporter {
 	const ENABLED_HASH_OPTION = 'jetpack_reprint_exporter_enabled_hash';
 
 	/**
+	 * The options only this class may write.
+	 *
+	 * @var string[]
+	 */
+	const GUARDED_OPTIONS = array(
+		self::SECRET_OPTION,
+		self::SECRET_HASH_OPTION,
+		self::ENABLED_OPTION,
+		self::ENABLED_HASH_OPTION,
+	);
+
+	/**
 	 * Clock-skew tolerance, in seconds, allowed for HMAC signatures.
 	 *
 	 * @var int
@@ -101,7 +113,7 @@ class Reprint_Exporter {
 	 * two, but nothing catches a write made earlier in a normal request.
 	 */
 	public static function protect_options() {
-		foreach ( self::guarded_options() as $option ) {
+		foreach ( self::GUARDED_OPTIONS as $option ) {
 			// Last word: a later filter must not be able to reinstate the value.
 			add_filter( "pre_update_option_{$option}", array( __CLASS__, 'veto_foreign_update' ), PHP_INT_MAX, 2 );
 		}
@@ -128,7 +140,7 @@ class Reprint_Exporter {
 	 * @param string $option The option being added.
 	 */
 	public static function veto_foreign_add( $option ) {
-		if ( ! in_array( $option, self::guarded_options(), true ) ) {
+		if ( ! in_array( $option, self::GUARDED_OPTIONS, true ) ) {
 			return;
 		}
 
@@ -140,20 +152,6 @@ class Reprint_Exporter {
 			esc_html__( 'Reprint export options can only be written by Jetpack itself.', 'jetpack' ),
 			esc_html__( 'Forbidden', 'jetpack' ),
 			array( 'response' => 403 )
-		);
-	}
-
-	/**
-	 * The options only this class may write.
-	 *
-	 * @return string[]
-	 */
-	private static function guarded_options() {
-		return array(
-			self::SECRET_OPTION,
-			self::SECRET_HASH_OPTION,
-			self::ENABLED_OPTION,
-			self::ENABLED_HASH_OPTION,
 		);
 	}
 
@@ -215,7 +213,7 @@ class Reprint_Exporter {
 	 */
 	public static function discard_credentials() {
 		$had_any = false;
-		foreach ( self::guarded_options() as $option ) {
+		foreach ( self::GUARDED_OPTIONS as $option ) {
 			$had_any = delete_option( $option ) || $had_any;
 		}
 
