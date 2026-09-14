@@ -107,6 +107,9 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			$rest_api_notice
 		);
 
+		// Without this, core relocates other plugins' notices into the first module group heading below.
+		echo '<div class="wp-header-end"></div>';
+
 		if ( ! $this->is_rest_api_enabled() ) {
 			echo $rest_api_notice; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
