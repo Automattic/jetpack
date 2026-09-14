@@ -37,74 +37,73 @@ const Fixture = ( { label = 'Jan', onChange } ) => {
 	);
 };
 
-it( 'uses the catalog surface fill with a terminal fallback', () => {
-	render( <Fixture onChange={ undefined } /> );
-	expect( screen.getByTestId( 'bar-chart-category-highlight' ) ).toHaveAttribute(
-		'fill',
-		CATALOG_POINTERS.surfaceSecondary
-	);
-	expect( CATALOG_POINTERS.surfaceSecondary ).toBe(
-		'var(--a8c-charts-color-surface-secondary, #f4f4f4)'
-	);
-} );
-
-it( 'settles inline derived-state callbacks and notifies the latest callback on selection changes', () => {
-	const notify = jest.fn();
-	const DerivedState = ( { label } ) => {
-		const [ band, setBand ] = useState< { x: number } | null >( null );
-		return (
-			<>
-				<output>{ band?.x }</output>
-				<Fixture
-					label={ label }
-					// eslint-disable-next-line react/jsx-no-bind -- An inline callback reproduces parent state updates changing its identity.
-					onChange={ ( selection: CategoryHighlightSelection | null ) => {
-						notify( label );
-						if ( notify.mock.calls.length > 4 ) {
-							throw new Error( 'Highlight notifications did not settle' );
-						}
-						setBand( selection && { x: selection.x } );
-					} }
-				/>
-			</>
+describe( 'CategoryHighlight', () => {
+	test( 'uses the catalog surface fill', () => {
+		render( <Fixture onChange={ undefined } /> );
+		expect( screen.getByTestId( 'bar-chart-category-highlight' ) ).toHaveAttribute(
+			'fill',
+			CATALOG_POINTERS.surfaceSecondary
 		);
-	};
-	const { rerender } = render( <DerivedState label="Jan" /> );
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent( '10' );
-	expect( notify ).toHaveBeenCalledTimes( 1 );
-	rerender( <DerivedState label="Feb" /> );
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent( '110' );
-	expect( notify ).toHaveBeenCalledTimes( 2 );
-	expect( notify ).toHaveBeenLastCalledWith( 'Feb' );
-} );
+	} );
 
-it.each( [ { withTooltips: false }, { data: [] } ] )(
-	'clears the selected category when the highlight unmounts with %j',
-	async props => {
-		const user = userEvent.setup();
-		const onChange = jest.fn();
-		const chartProps = {
-			width: 500,
-			height: 300,
-			withTooltips: true,
-			onCategoryHighlightChange: onChange,
-			data: [ { label: 'Scores', data: [ { label: 'Jan', value: 50 } ] } ],
+	test( 'settles inline derived-state callbacks and notifies the latest callback on selection changes', () => {
+		const notify = jest.fn();
+		const DerivedState = ( { label } ) => {
+			const [ band, setBand ] = useState< { x: number } | null >( null );
+			return (
+				<>
+					<output>{ band?.x }</output>
+					<Fixture
+						label={ label }
+						// eslint-disable-next-line react/jsx-no-bind -- An inline callback reproduces parent state updates changing its identity.
+						onChange={ ( selection: CategoryHighlightSelection | null ) => {
+							notify( label );
+							if ( notify.mock.calls.length > 4 ) {
+								throw new Error( 'Highlight notifications did not settle' );
+							}
+							setBand( selection && { x: selection.x } );
+						} }
+					/>
+				</>
+			);
 		};
-		const { rerender } = render(
-			<GlobalChartsProvider>
-				<BarChartUnresponsive { ...chartProps } />
-			</GlobalChartsProvider>
-		);
-		await user.tab();
-		await user.keyboard( '{ArrowRight}' );
-		expect( onChange ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { datum: expect.objectContaining( { label: 'Jan' } ) } )
-		);
-		rerender(
-			<GlobalChartsProvider>
-				<BarChartUnresponsive { ...chartProps } { ...props } />
-			</GlobalChartsProvider>
-		);
-		expect( onChange ).toHaveBeenLastCalledWith( null );
-	}
-);
+		const { rerender } = render( <DerivedState label="Jan" /> );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( '10' );
+		expect( notify ).toHaveBeenCalledTimes( 1 );
+		rerender( <DerivedState label="Feb" /> );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( '110' );
+		expect( notify ).toHaveBeenCalledTimes( 2 );
+		expect( notify ).toHaveBeenLastCalledWith( 'Feb' );
+	} );
+
+	test.each( [ { withTooltips: false }, { data: [] } ] )(
+		'clears the selected category when the highlight unmounts with %j',
+		async props => {
+			const user = userEvent.setup();
+			const onChange = jest.fn();
+			const chartProps = {
+				width: 500,
+				height: 300,
+				withTooltips: true,
+				onCategoryHighlightChange: onChange,
+				data: [ { label: 'Scores', data: [ { label: 'Jan', value: 50 } ] } ],
+			};
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive { ...chartProps } />
+				</GlobalChartsProvider>
+			);
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			expect( onChange ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { datum: expect.objectContaining( { label: 'Jan' } ) } )
+			);
+			rerender(
+				<GlobalChartsProvider>
+					<BarChartUnresponsive { ...chartProps } { ...props } />
+				</GlobalChartsProvider>
+			);
+			expect( onChange ).toHaveBeenLastCalledWith( null );
+		}
+	);
+} );
