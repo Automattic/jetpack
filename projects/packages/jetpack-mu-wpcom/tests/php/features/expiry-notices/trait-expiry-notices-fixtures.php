@@ -85,6 +85,7 @@ trait Expiry_Notices_Fixtures {
 			delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::meta_key( $base ) );
 		}
 		delete_transient( $this->owner_cache_key() );
+		delete_transient( 'wpcom_expiry_notices_reverted_transfer_' . get_wpcom_blog_id() );
 		Constants::clear_constants();
 	}
 

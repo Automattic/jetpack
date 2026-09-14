@@ -142,6 +142,16 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
+	public function test_a_revert_in_the_future_clamps_days_remaining_to_zero(): void {
+		$revert = array(
+			'reverted_at'      => self::FIXED_NOW + DAY_IN_SECONDS,
+			'for_expired_plan' => true,
+		);
+		$state  = Expiry_Data::compute_state_from_revert( $revert, self::FIXED_NOW );
+		$this->assertNotNull( $state );
+		$this->assertSame( 0, $state['days_remaining'] );
+	}
+
 	public function test_a_revert_for_another_reason_has_no_state(): void {
 		$revert = array(
 			'reverted_at'      => self::FIXED_NOW - DAY_IN_SECONDS,

@@ -11,6 +11,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once __DIR__ . '/trait-expiry-notices-fixtures.php';
@@ -48,6 +49,44 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse( wpcom_expiry_notices_is_enabled_for_site() );
 		$this->assertSame( array( true, 100 ), $received );
+	}
+
+	public function test_the_reverted_transfer_lookup_is_not_called_once_remembered(): void {
+		// Same cache-key shape wpcom_expiry_get_reverted_transfer() uses for a blog id.
+		$cache_key = 'wpcom_expiry_notices_reverted_transfer_12345';
+		set_transient(
+			$cache_key,
+			wp_json_encode(
+				array(
+					'reverted_at'      => 111,
+					'for_expired_plan' => true,
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			HOUR_IN_SECONDS
+		);
+
+		try {
+			$lookup_called = false;
+			$value         = Expiry_Wpcom::remember(
+				$cache_key,
+				static function () use ( &$lookup_called ): ?string {
+					$lookup_called = true;
+					return null;
+				}
+			);
+
+			$this->assertFalse( $lookup_called, 'a remembered answer must not re-run the lookup' );
+			$this->assertSame(
+				array(
+					'reverted_at'      => 111,
+					'for_expired_plan' => true,
+				),
+				json_decode( (string) $value, true )
+			);
+		} finally {
+			delete_transient( $cache_key );
+		}
 	}
 
 	public function test_eligible_state_needs_an_admin_on_a_regular_site_with_a_lapsing_plan(): void {
@@ -230,7 +269,6 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_after_the_revert_the_body_and_cta_ask_for_support(): void {
-		$this->pretend_reverted();
 		$state = $this->message_state(
 			array(
 				'state'          => Expiry_Data::STATE_EXPIRED,

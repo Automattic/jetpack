@@ -149,8 +149,9 @@ class Expiry_Notice_Dismiss {
 	 * Whether this user has dismissed the notice for the term the state describes.
 	 *
 	 * A stamp older than the term's own expiry belongs to a purchase since
-	 * renewed and does not count: nothing is dismissible until 30 days past
-	 * expiry, so a dismissal of the current term is always the later one.
+	 * renewed and does not count: once the plan is gone, expiry_ts is the
+	 * revert time itself, so a dismissal from before the revert never
+	 * carries over into the state after it.
 	 *
 	 * @param int|null $user_id   Defaults to the current user.
 	 * @param string   $meta_key  A stored key, from meta_key().

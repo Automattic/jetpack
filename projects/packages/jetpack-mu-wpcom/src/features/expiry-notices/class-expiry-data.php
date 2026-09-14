@@ -82,8 +82,11 @@ class Expiry_Data {
 	}
 
 	/**
-	 * The normalized state of one plan purchase, or null when it is unusable or
-	 * too long expired to say anything about.
+	 * The normalized state of one plan purchase, or null when it is unusable.
+	 *
+	 * A purchase still present is billing's to renew however long ago it
+	 * expired, so there is no day limit on the grace state here; only the
+	 * revert, once the purchase is gone, can end it.
 	 *
 	 * @param object   $purchase Purchase object (see wpcom_get_site_purchases() shape).
 	 * @param int|null $now      Timestamp to judge against. Defaults to time().
@@ -155,7 +158,7 @@ class Expiry_Data {
 		}
 		$reverted_at = (int) $revert['reverted_at'];
 		$now       ??= time();
-		$days_since = (int) floor( ( $now - $reverted_at ) / DAY_IN_SECONDS );
+		$days_since = max( 0, (int) floor( ( $now - $reverted_at ) / DAY_IN_SECONDS ) );
 		if ( $days_since >= self::POST_GRACE_PERIOD_DAYS ) {
 			return null;
 		}

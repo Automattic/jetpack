@@ -86,11 +86,16 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
-	public function test_does_not_show_in_grace_on_a_reverted_site(): void {
-		// Reverted by an earlier lapse: the changes the grace copy promises are behind it.
+	public function test_shows_the_grace_modal_again_after_an_earlier_revert_while_still_atomic(): void {
+		// Reverted once before, back on a plan, and lapsing again while still Atomic.
 		$this->pretend_reverted();
+		Constants::set_constant( 'IS_ATOMIC', true );
 		$this->set_purchase( -5 );
-		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
+		$data = wpcom_expiry_notices_admin_modal_data();
+
+		$this->assertNotNull( $data );
+		$this->assertStringContainsString( 'will be moved to the Free plan', $data['description'] );
+		$this->assertSame( 'Renew now', $data['primary']['label'] );
 	}
 
 	public function test_a_present_purchase_past_its_date_is_still_the_grace_modal(): void {

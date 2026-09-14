@@ -9,6 +9,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Wpcom;
 
 // @codeCoverageIgnoreStart
 require_once __DIR__ . '/class-expiry-data.php';
@@ -49,26 +50,49 @@ if ( ! function_exists( 'wpcom_expiry_get_reverted_transfer' ) ) {
 	 * @phan-suppress PhanRedefineFunction -- phan sees both this and the test stub as definitions even though only one loads at runtime.
 	 */
 	function wpcom_expiry_get_reverted_transfer(): ?array {
-		if ( ! function_exists( 'woa_get_latest_transfer' ) || ! function_exists( 'woa_get_transfer_meta' ) || ! function_exists( 'woa_is_revert_for_expired_plan' ) ) {
+		if ( ! function_exists( 'get_wpcom_blog_id' ) || ! function_exists( 'woa_get_latest_transfer' ) || ! function_exists( 'woa_get_transfer_meta' ) || ! function_exists( 'woa_is_revert_for_expired_plan' ) ) {
 			return null;
 		}
 		$blog_id = get_wpcom_blog_id();
+		// A site that was never reverted must never pay for a transient, so the
+		// sticker is checked before the cache, not inside its lookup.
 		if ( ! $blog_id || ! wpcom_has_blog_sticker( 'blog-transfer-reverted', $blog_id ) ) {
 			return null;
 		}
-		$transfer = woa_get_latest_transfer( $blog_id );
-		if ( ! is_object( $transfer ) || is_wp_error( $transfer ) || 'reverted' !== (string) ( $transfer->status ?? '' ) ) {
+
+		$cached = Expiry_Wpcom::remember(
+			'wpcom_expiry_notices_reverted_transfer_' . $blog_id,
+			static function () use ( $blog_id ): ?string {
+				$transfer = woa_get_latest_transfer( $blog_id );
+				if ( ! is_object( $transfer ) || is_wp_error( $transfer ) || 'reverted' !== (string) ( $transfer->status ?? '' ) ) {
+					return Expiry_Wpcom::NONE;
+				}
+				$transfer_id = (int) ( $transfer->atomic_transfer_id ?? 0 );
+				$reverted_at = $transfer_id ? woa_get_transfer_meta( $transfer_id, 'reverted_at' ) : null;
+				$reverted_ts = is_string( $reverted_at ) ? strtotime( $reverted_at ) : false;
+				if ( false === $reverted_ts ) {
+					return Expiry_Wpcom::NONE;
+				}
+				return wp_json_encode(
+					array(
+						'reverted_at'      => $reverted_ts,
+						'for_expired_plan' => (bool) woa_is_revert_for_expired_plan( $transfer_id ),
+					),
+					JSON_UNESCAPED_SLASHES
+				);
+			}
+		);
+
+		if ( null === $cached || Expiry_Wpcom::NONE === $cached ) {
 			return null;
 		}
-		$transfer_id = (int) ( $transfer->atomic_transfer_id ?? 0 );
-		$reverted_at = $transfer_id ? woa_get_transfer_meta( $transfer_id, 'reverted_at' ) : null;
-		$reverted_ts = is_string( $reverted_at ) ? strtotime( $reverted_at ) : false;
-		if ( false === $reverted_ts ) {
+		$decoded = json_decode( $cached, true );
+		if ( ! is_array( $decoded ) || ! isset( $decoded['reverted_at'] ) || ! isset( $decoded['for_expired_plan'] ) ) {
 			return null;
 		}
 		return array(
-			'reverted_at'      => $reverted_ts,
-			'for_expired_plan' => (bool) woa_is_revert_for_expired_plan( $transfer_id ),
+			'reverted_at'      => (int) $decoded['reverted_at'],
+			'for_expired_plan' => (bool) $decoded['for_expired_plan'],
 		);
 	}
 }
@@ -240,6 +264,8 @@ function wpcom_expiry_notices_support_cta( array $state ): array {
 	return array(
 		'label'   => __( 'Contact support', 'jetpack-mu-wpcom' ),
 		'url'     => 'https://wordpress.com/help?help-center=home',
+		// STATE_EXPIRED carries no plan today, so this branch is unreachable from
+		// the revert state; kept for symmetry with the heading and body helpers.
 		'message' => '' === $plan
 			? __( 'My plan expired and I need your help getting it restored.', 'jetpack-mu-wpcom' )
 			/* translators: %s is the plan name (e.g. Business). */
