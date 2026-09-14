@@ -392,7 +392,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			<ToolbarGroup>
 				<ToolbarButton
 					icon="trash"
-					label={ __( 'Delete Payment Button', 'jetpack-paypal-payments' ) }
+					label={ __( 'Delete payment link', 'jetpack-paypal-payments' ) }
 					onClick={ handleDeleteButton }
 					disabled={ isBusy || ! isConnected }
 					isDestructive

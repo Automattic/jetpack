@@ -232,6 +232,14 @@ jest.mock( '@wordpress/components', () => ( {
 		)
 	),
 	ButtonGroup: ( { children } ) => <div data-testid="button-group">{ children }</div>,
+	Modal: ( { children, title, onRequestClose } ) => (
+		<div data-testid="modal" role="dialog" aria-label={ title }>
+			{ children }
+			<button data-testid="modal-close" onClick={ onRequestClose }>
+				Close
+			</button>
+		</div>
+	),
 	__experimentalConfirmDialog: ( { children, title, confirmButtonText, onConfirm, onCancel } ) => (
 		<div data-testid="confirm-dialog" role="dialog" aria-label={ title }>
 			<div>{ children }</div>
@@ -3068,6 +3076,88 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
+	describe( 'Delete confirmation', () => {
+		const saved = {
+			isApiManaged: true,
+			resourceId: 'PLB-DELETE1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-DELETE1',
+		};
+
+		/**
+		 * Answer the connection check and every delete, and record the deletes.
+		 *
+		 * @return {jest.Mock} The apiFetch mock.
+		 */
+		const mockConnectedRoutes = () =>
+			apiFetch.mockImplementation( request =>
+				request.path.endsWith( '/connection' )
+					? Promise.resolve( { connected: true, environment: 'sandbox' } )
+					: Promise.resolve( {} )
+			);
+
+		const deleteRequests = () =>
+			apiFetch.mock.calls.filter( ( [ request ] ) => 'DELETE' === request.method );
+
+		it( 'keeps the delete button disabled until the merchant acknowledges the warning', async () => {
+			const user = userEvent.setup();
+			mockConnectedRoutes();
+			renderForm( saved );
+
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			expect( within( dialog ).getByText( /cannot pause, deactivate, or restore/ ) ).toBeVisible();
+			const confirm = within( dialog ).getByRole( 'button', { name: 'Delete permanently' } );
+			expect( confirm ).toBeDisabled();
+
+			await user.click( confirm );
+			expect( deleteRequests() ).toHaveLength( 0 );
+
+			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
+			expect( confirm ).toBeEnabled();
+
+			await user.click( confirm );
+
+			await waitFor( () => expect( deleteRequests() ).toHaveLength( 1 ) );
+			expect( deleteRequests()[ 0 ][ 0 ].path ).toContain( '/buttons/PLB-DELETE1' );
+			await expect( screen.findByText( 'Payment link deleted.' ) ).resolves.toBeInTheDocument();
+		} );
+
+		it( 'cancelling closes the dialog without deleting', async () => {
+			const user = userEvent.setup();
+			mockConnectedRoutes();
+			renderForm( saved );
+
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+			expect(
+				screen.queryByRole( 'dialog', { name: 'Delete payment link' } )
+			).not.toBeInTheDocument();
+			expect( deleteRequests() ).toHaveLength( 0 );
+			expect( setAttributes ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { resourceId: undefined } )
+			);
+		} );
+
+		// The acknowledgement is for this delete, not the next one.
+		it( 'asks for the acknowledgement again when the dialog is reopened', async () => {
+			const user = userEvent.setup();
+			mockConnectedRoutes();
+			renderForm( saved );
+
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( screen.getByTestId( 'modal-close' ) );
+
+			await user.click( screen.getByTestId( 'toolbar-Delete payment link' ) );
+
+			expect( screen.getByLabelText( 'I understand this cannot be undone.' ) ).not.toBeChecked();
+			expect( screen.getByRole( 'button', { name: 'Delete permanently' } ) ).toBeDisabled();
+		} );
+	} );
+
 	describe( 'Notices', () => {
 		const saved = {
 			isApiManaged: true,
@@ -3101,8 +3191,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			renderForm( saved );
 
-			await user.click( await screen.findByTestId( 'toolbar-Delete Payment Button' ) );
-			await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
 
 			await expect( screen.findByText( refused ) ).resolves.toBeInTheDocument();
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
@@ -3990,8 +4081,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				const styles = await screen.findByTestId( 'inspector-controls-styles' );
 				expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeEnabled();
 
-				await user.click( await screen.findByTestId( 'toolbar-Delete Payment Button' ) );
-				await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
+				await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+				await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
+				await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
 
 				await waitFor( () => {
 					expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeDisabled();
@@ -4051,7 +4143,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			await expect(
-				screen.findByTestId( 'toolbar-Delete Payment Button' )
+				screen.findByTestId( 'toolbar-Delete payment link' )
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByTestId( 'toolbar-Edit' ) ).not.toBeInTheDocument();
 			expect( screen.queryByTestId( 'toolbar-Preview' ) ).not.toBeInTheDocument();

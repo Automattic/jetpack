@@ -653,6 +653,20 @@
 	}
 }
 
+.jetpack-paypal-payment-buttons__delete-dialog {
+
+	p {
+		margin: 0 0 12px;
+	}
+}
+
+.jetpack-paypal-payment-buttons__delete-dialog-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-block-start: 24px;
+}
+
 .jetpack-paypal-payment-buttons__confirm-body {
 
 	p {
