@@ -1,17 +1,20 @@
+import { expect, userEvent, within } from 'storybook/test';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
 import {
+	HEATMAP_POSTS_RANGE,
 	heatmapActivityMatrix,
 	heatmapActivityMatrixWithTotals,
 	heatmapCalendarSeries,
 	heatmapLargeValueMatrix,
 	heatmapPartialMonthCalendarSeries,
+	heatmapPostsByDay,
 } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
-import { HeatmapChart, useCalendarHeatmapData } from '../index';
+import { HeatmapChart, useCalendarHeatmapData, useMonthCalendarHeatmapData } from '../index';
 import type { DataPointDate } from '../../../types';
 import type { CalendarHeatmapOptions } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -21,6 +24,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Heatmap Chart',
 	component: HeatmapChart,
+	subcomponents: { 'HeatmapChart.Legend': HeatmapChart.Legend },
 	parameters: { layout: 'centered' },
 	decorators: [ chartDecorator ],
 	argTypes: {
@@ -197,5 +201,78 @@ export const ErrorStates: Story = {
 	args: {
 		...Default.args,
 		data: [],
+	},
+};
+
+/** Column groups on a plain matrix: a gap and a label under each quarter. */
+export const WithColumnGroups: Story = {
+	args: {
+		...Default.args,
+		data: heatmapActivityMatrix.map( column => ( { ...column, label: '' } ) ),
+		columnGroups: [
+			{ label: 'Q1', span: 3 },
+			{ label: 'Q2', span: 3 },
+			{ label: 'Q3', span: 3 },
+			{ label: 'Q4', span: 3 },
+		],
+	},
+};
+
+type MonthCalendarStoryArgs = StoryArgs & { weekStartsOn?: 0 | 1; locale?: string };
+
+const MonthCalendarGrid = ( { weekStartsOn, locale, ...args }: MonthCalendarStoryArgs ) => {
+	const { data, columnGroups } = useMonthCalendarHeatmapData(
+		heatmapPostsByDay,
+		HEATMAP_POSTS_RANGE,
+		{ weekStartsOn, locale: locale || undefined }
+	);
+	return (
+		<HeatmapChart { ...args } data={ data } columnGroups={ columnGroups }>
+			<HeatmapChart.Legend lessLabel="Fewer posts" moreLabel="More posts" />
+		</HeatmapChart>
+	);
+};
+
+/** Twelve months as one grid sharing one scale: the "Monthly posting activity" layout. */
+export const MonthCalendar: StoryObj< MonthCalendarStoryArgs > = {
+	render: args => <MonthCalendarGrid { ...args } />,
+	args: {
+		...sharedThemeArgs,
+		compact: true,
+		withTooltips: true,
+		'aria-label': 'Monthly posting activity',
+		weekStartsOn: 1,
+		locale: '',
+	},
+	argTypes: {
+		weekStartsOn: calendarArgTypes.weekStartsOn,
+		locale: calendarArgTypes.locale,
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const grid = canvas.getByRole( 'grid', { name: 'Monthly posting activity' } );
+		await expect( canvas.getAllByRole( 'grid' ) ).toHaveLength( 1 );
+		await expect( grid ).toHaveAttribute( 'aria-colcount', '84' );
+		await expect( canvas.getAllByTestId( 'heatmap-group-label' ) ).toHaveLength( 12 );
+	},
+};
+
+/** The same grid in a container too narrow for it; arrow keys keep the selection in view. */
+export const MonthCalendarScrolling: StoryObj< MonthCalendarStoryArgs > = {
+	...MonthCalendar,
+	render: args => (
+		<div data-testid="scroller" style={ { width: 480, overflowX: 'auto' } }>
+			<MonthCalendarGrid { ...args } />
+		</div>
+	),
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const scroller = canvas.getByTestId( 'scroller' );
+		const grid = canvas.getByRole( 'grid', { name: 'Monthly posting activity' } );
+		await expect( scroller.scrollLeft ).toBe( 0 );
+		grid.focus();
+		// 480px holds fewer than five 7-column months, so this crosses the visible edge.
+		await userEvent.keyboard( '{ArrowRight}'.repeat( 40 ) );
+		await expect( scroller.scrollLeft ).toBeGreaterThan( 0 );
 	},
 };
