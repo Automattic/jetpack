@@ -217,6 +217,52 @@ class Connections_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * A connection without a usable user ID would read as shared with everyone, so it is dropped.
+	 */
+	public function test_receive_updated_connections_drops_connections_without_a_user_id() {
+		$shared = array( 'connection_data' => array( 'user_id' => 0 ) );
+		$owned  = array( 'connection_data' => array( 'user_id' => 5 ) );
+
+		$request = new WP_REST_Request( 'POST', self::SYNC_ROUTE );
+		$request->set_param(
+			'connections',
+			array(
+				'facebook' => array(
+					'1' => $shared,
+					'2' => $owned,
+					'3' => array( 'connection_data' => array( 'token_id' => 9 ) ),
+					'4' => array( 'connection_data' => array( 'user_id' => null ) ),
+					'5' => array( 'connection_data' => 'not-an-array' ),
+					'6' => array(),
+				),
+				'tumblr'   => 'not-an-array',
+			)
+		);
+
+		$response = $this->controller->receive_updated_connections( $request );
+
+		$this->assertTrue( $response->get_data() );
+		$this->assertSame(
+			array(
+				'facebook' => array(
+					1 => $shared,
+					2 => $owned,
+				),
+			),
+			get_transient( Publicize::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT )
+		);
+	}
+
+	/**
+	 * An empty payload means the site has no connections left, and is stored as such.
+	 */
+	public function test_receive_updated_connections_accepts_an_empty_payload() {
+		$this->assertTrue( $this->publicize->receive_updated_publicize_connections( '' ) );
+
+		$this->assertSame( array(), get_transient( Publicize::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT ) );
+	}
+
+	/**
 	 * Short-circuit any outgoing HTTP request, so tests stay offline.
 	 *
 	 * @return \WP_Error

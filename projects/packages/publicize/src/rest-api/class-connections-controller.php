@@ -134,6 +134,8 @@ class Connections_Controller extends Base_Controller {
 						'callback'            => array( $this, 'receive_updated_connections' ),
 						'permission_callback' => array( Rest_Authentication::class, 'is_signed_with_user_token' ),
 						'args'                => array(
+							// An empty value is accepted on purpose: a site with no connections left
+							// syncs an empty payload, which arrives here as an empty object.
 							'connections' => array(
 								'type'        => 'object',
 								'required'    => true,
@@ -151,8 +153,11 @@ class Connections_Controller extends Base_Controller {
 	 *
 	 * REST replacement for the jetpack.updatePublicizeConnections XML-RPC method.
 	 *
+	 * Unusable connections are dropped rather than rejected: an error response would send
+	 * WPCOM down its XML-RPC fallback, which stores the same payload without the check.
+	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response|WP_Error
+	 * @return WP_REST_Response
 	 */
 	public function receive_updated_connections( $request ) {
 		/**
