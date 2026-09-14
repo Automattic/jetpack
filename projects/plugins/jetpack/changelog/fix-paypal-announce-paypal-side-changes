@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: say so when opening a post picks up changes made to the payment at PayPal. The block used to take them silently, so a price or description edited elsewhere changed under the merchant with nothing shown. Part of the API-managed payment buttons, behind a feature flag that is not yet enabled.

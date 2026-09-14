@@ -36,6 +36,7 @@ export function usePayPalResource( {
 	const [ isBusy, setIsBusy ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const [ successMessage, setSuccessMessage ] = useState( null );
+	const [ paymentChanged, setPaymentChanged ] = useState( false );
 
 	// Two blocks can share one PayPal payment — a duplicate, or one product
 	// shown as a button, a link and a QR code — and only the block that saved
@@ -50,6 +51,7 @@ export function usePayPalResource( {
 		}
 
 		let cancelled = false;
+		setPaymentChanged( false );
 
 		apiFetch( { path: `${ API_BASE }/buttons/${ resourceId }` } )
 			.then( response => {
@@ -60,7 +62,13 @@ export function usePayPalResource( {
 					latestAttributes.current,
 					response.attributes
 				);
-				if ( ! Object.keys( updates ).length ) {
+				// Taking PayPal's version is the reconcile working, so the block does not
+				// keep its own - it says so instead. Set before the early return: that is
+				// the path where the block already agrees, and a warning from a previous
+				// read has to go.
+				const hasUpdates = Object.keys( updates ).length > 0;
+				setPaymentChanged( hasUpdates );
+				if ( ! hasUpdates ) {
 					return;
 				}
 				// Opening a post must not mark it dirty.
@@ -138,6 +146,7 @@ export function usePayPalResource( {
 		setError,
 		successMessage,
 		setSuccessMessage,
+		paymentChanged,
 		handleDeleteButton,
 		executeDeleteButton,
 	};
