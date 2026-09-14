@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a "Manage PayPal Payment Links" link to the block's Advanced panel once the block has a saved link, so the admin page is one click away while editing.
