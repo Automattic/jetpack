@@ -4,15 +4,16 @@
 import { useStatsVisits, type StatsVisitsParams } from '@jetpack-premium-analytics/data';
 import { localTZDate } from '@jetpack-premium-analytics/datetime';
 import type {
+	MonthKey,
 	MonthlyHeatmapMetric,
 	MonthlyHeatmapRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildViewsOverYearsRows } from './build-views-over-years';
+import { buildViewsOverYearsRows, type MonthBucket } from './build-views-over-years';
 
 // Before any WordPress.com site existed. The endpoint's DB walk stops at the
 // site's registration; the response still pads zero months back to this date.
@@ -25,6 +26,13 @@ export interface ViewsOverYearsState {
 	isError: boolean;
 	error: unknown;
 	refetch: () => void;
+}
+
+/** The bucket's month from the sanitizer's `yyyy-MM-dd` label; a label it cannot read is dropped. */
+function readMonthKey( label: string ): MonthKey | null {
+	const date = parseISO( label );
+
+	return isValid( date ) ? { year: date.getFullYear(), month: date.getMonth() } : null;
 }
 
 /**
@@ -54,13 +62,13 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsVisits( params );
 
 	const rows = useMemo( () => {
-		const [ year, month, day ] = today.split( '-' ).map( Number );
-		const buckets = ( primary.data?.data ?? [] ).map( row => ( {
-			date: String( row.time_interval ?? '' ),
-			views: Number( row.views ?? 0 ),
-		} ) );
+		const buckets = ( primary.data?.data ?? [] ).flatMap( ( row ): MonthBucket[] => {
+			const month = readMonthKey( row.time_interval );
 
-		return buildViewsOverYearsRows( buckets, metric, { year, month: month - 1, day } );
+			return month ? [ { month, views: Number( row.views ?? 0 ) } ] : [];
+		} );
+
+		return buildViewsOverYearsRows( buckets, metric, parseISO( today ) );
 	}, [ primary.data, metric, today ] );
 
 	return { rows, isLoading, isFetching, isError, error, refetch };

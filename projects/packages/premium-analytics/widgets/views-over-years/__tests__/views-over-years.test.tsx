@@ -70,7 +70,6 @@ const ROWS: [ string, number ][] = [
 	[ '2026-03-01', 450 ],
 ];
 
-// The current month closes the table, so the clock is pinned to the fixture's.
 const NOW = new Date( '2026-03-15T12:00:00.000Z' );
 
 function renderWidget( attributes: Record< string, unknown > = {} ) {

@@ -63,7 +63,6 @@ function ViewsOverYearsInner( { metric }: { metric: MonthlyHeatmapMetric } ) {
 			isFetching={ isFetching }
 			isError={ showError }
 			isEmpty={ rows.length === 0 }
-			// Gated by the same predicate as `isError`, so the two cannot disagree.
 			error={
 				showError
 					? describeError( error, {

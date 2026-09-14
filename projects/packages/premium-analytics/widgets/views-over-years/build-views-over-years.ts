@@ -9,26 +9,13 @@ import {
 	type MonthlyHeatmapRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
-/** One `stats/visits` month bucket: its first day and its views. */
-export type MonthBucket = { date: string; views: number };
-
-/** The bucket's month, from a `yyyy-MM` or `yyyy-MM-dd` label. */
-function readMonthKey( date: string ): MonthKey | null {
-	const match = /^(\d{4})-(\d{2})/.exec( date );
-
-	if ( ! match ) {
-		return null;
-	}
-
-	const month = Number( match[ 2 ] ) - 1;
-
-	return month >= 0 && month < MONTHS_IN_YEAR ? { year: Number( match[ 1 ] ), month } : null;
-}
+/** One `stats/visits` month bucket: the month and its views. */
+export type MonthBucket = { month: MonthKey; views: number };
 
 /** Days in the month, counting the current one only up to today. */
-function daysCovered( key: MonthKey, today: MonthKey & { day: number } ): number {
-	if ( key.year === today.year && key.month === today.month ) {
-		return today.day;
+function daysCovered( key: MonthKey, today: Date ): number {
+	if ( key.year === today.getFullYear() && key.month === today.getMonth() ) {
+		return today.getDate();
 	}
 
 	return new Date( key.year, key.month + 1, 0 ).getDate();
@@ -36,9 +23,8 @@ function daysCovered( key: MonthKey, today: MonthKey & { day: number } ): number
 
 /**
  * Turns the monthly buckets into one row per year, newest first, from the
- * first month with views through the current one. Views per day divides a
- * month's views by its days as Calypso's `getSiteStatsViewSummary()` does; the
- * year's roll-up divides the year's views by the days it covers.
+ * first month with views through the current one; the year's roll-up divides
+ * the year's views by the days it covers, not the mean of its months.
  *
  * @param buckets - The `stats/visits` month buckets, in any order.
  * @param metric  - Which number each cell reports.
@@ -48,18 +34,14 @@ function daysCovered( key: MonthKey, today: MonthKey & { day: number } ): number
 export function buildViewsOverYearsRows(
 	buckets: MonthBucket[],
 	metric: MonthlyHeatmapMetric,
-	today: MonthKey & { day: number }
+	today: Date
 ): MonthlyHeatmapRow[] {
 	const viewsByOrder = new Map< number, number >();
 
-	for ( const bucket of buckets ) {
-		const key = readMonthKey( bucket.date );
+	for ( const { month, views } of buckets ) {
+		const order = monthOrder( month );
 
-		if ( key ) {
-			const order = monthOrder( key );
-
-			viewsByOrder.set( order, ( viewsByOrder.get( order ) ?? 0 ) + bucket.views );
-		}
+		viewsByOrder.set( order, ( viewsByOrder.get( order ) ?? 0 ) + views );
 	}
 
 	// The endpoint pads zero months back to the requested start, which says
@@ -70,8 +52,9 @@ export function buildViewsOverYearsRows(
 		return [];
 	}
 
+	const todayKey = { year: today.getFullYear(), month: today.getMonth() };
 	const firstOrder = Math.min( ...withViews.map( ( [ order ] ) => order ) );
-	const lastOrder = Math.max( monthOrder( today ), ...withViews.map( ( [ order ] ) => order ) );
+	const lastOrder = Math.max( monthOrder( todayKey ), ...withViews.map( ( [ order ] ) => order ) );
 	const firstYear = Math.floor( firstOrder / MONTHS_IN_YEAR );
 	const lastYear = Math.floor( lastOrder / MONTHS_IN_YEAR );
 	const rows: MonthlyHeatmapRow[] = [];
