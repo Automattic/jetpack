@@ -25,7 +25,7 @@ describe( 'GlobalNotice', () => {
 			notice_id: 'backup-failure',
 		} );
 
-		// Regression: a remount (e.g. from wrapping the Notice differently) fires it again.
+		// A re-render with the same notice id must not re-fire the view event.
 		rerender( <GlobalNotice message="Body" title="Title" options={ { id: 'backup-failure' } } /> );
 		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
 	} );
