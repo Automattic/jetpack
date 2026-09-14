@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { LineShape, RectShape, Stack } from '@jetpack-premium-analytics/externals';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -57,6 +58,13 @@ export type ChartTooltipProps< TDatum = unknown > = {
 
 	indicatorType: 'line' | 'rect';
 
+	/**
+	 * Rows read out for context rather than drawn, keyed by row key: no series
+	 * swatch, and a format of their own where the chart's does not fit them (a
+	 * count listed beside currencies). `undefined` keeps the chart's format.
+	 */
+	supplementaryRows?: Record< string, DataFormat | undefined >;
+
 	getLabel?: ( datum: TDatum, index: number, key: string ) => string;
 
 	getValue?: ( datum: TDatum ) => number;
@@ -72,6 +80,7 @@ export function ChartTooltip< TDatum >( {
 	seriesStyles,
 	seriesKeys,
 	indicatorType,
+	supplementaryRows,
 	getLabel = defaultGetLabel,
 	getValue = defaultGetValue,
 }: ChartTooltipProps< TDatum > ) {
@@ -92,14 +101,36 @@ export function ChartTooltip< TDatum >( {
 					return null;
 				}
 
+				const label = getLabel( entry.datum, index, entry.key );
+				const value = getValue( entry.datum );
+
+				if ( supplementaryRows && entry.key in supplementaryRows ) {
+					return (
+						<TooltipRow
+							key={ entry.key }
+							// Sized like the swatch it stands in for, so the labels stay aligned.
+							indicator={
+								<span
+									className={ clsx(
+										styles.indicatorSpacer,
+										indicatorType === 'line' ? styles.lineSpacer : styles.rectSpacer
+									) }
+									aria-hidden="true"
+								/>
+							}
+							label={ label }
+							value={ value }
+							dataFormat={ supplementaryRows[ entry.key ] ?? dataFormat }
+						/>
+					);
+				}
+
 				// No positional fallback once `seriesKeys` is given: that lookup is the bug
 				// the prop exists to fix, and on a miss it paints a plausible wrong swatch.
 				const style = seriesKeys
 					? seriesStyles[ seriesKeys.indexOf( entry.key ) ]
 					: seriesStyles[ index ];
 				const { stroke, ...lineShapeStyle } = style || seriesStyles[ 0 ];
-				const label = getLabel( entry.datum, index, entry.key );
-				const value = getValue( entry.datum );
 
 				return (
 					<TooltipRow

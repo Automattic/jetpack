@@ -531,3 +531,41 @@ describe( 'ComparativeBarChart', () => {
 		} );
 	} );
 } );
+
+describe( 'ComparativeBarChart tooltip extras', () => {
+	const CPM_EXTRA = {
+		label: 'Average CPM',
+		data: [ { date: JULY_1, value: 0.15 } ],
+		dataFormat: { type: 'currency' as const, options: { decimals: 2 } },
+	};
+
+	beforeEach( () => {
+		mockBarSpy.mockClear();
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+	} );
+
+	it( "adds each extra's value for the hovered bar, and nothing for a date it lacks", () => {
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+
+		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100, 'Average CPM': 0.15 } );
+		expect( tooltipRowsFor( JULY_2 ) ).toEqual( { July: 100 } );
+	} );
+
+	it( 'names the drawn row once extras are listed beside it', () => {
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+
+		expect( tooltipLabelFor( JULY_1 ) ).toBe( 'July · July 1, 2026' );
+	} );
+} );

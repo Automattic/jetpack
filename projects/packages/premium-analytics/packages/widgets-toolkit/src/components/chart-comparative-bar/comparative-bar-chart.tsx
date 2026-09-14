@@ -21,18 +21,20 @@ import { useCallback, useId, useMemo, useState } from 'react';
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
+	appendTooltipExtras,
 	formatTooltipSeriesLabel,
 	isEmptyChartData,
 	getFixedYAxis,
 	dateFormatForResolution,
 	resolveSeriesNames,
+	supplementaryRowsFor,
 } from '../../helpers';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
 import type { ComparativeBarChartSeries } from './types';
 import type { DataFormat } from '../../types';
-import type { ComparativeDatePointDate } from '../chart-comparative-line/types';
+import type { ComparativeDatePointDate, TooltipExtraSeries } from '../chart-comparative-line/types';
 import type { TooltipStyle } from '../chart-tooltip';
 import type { ComponentProps } from 'react';
 
@@ -106,6 +108,13 @@ export type ComparativeBarChartProps = {
 	 */
 	legendInteractive?: boolean;
 
+	/**
+	 * Series the tooltip reads out but the chart does not draw, each contributing
+	 * its row for the hovered date. With any present, every row leads with its
+	 * metric's name, so the drawn one is not mistaken for the only one.
+	 */
+	tooltipExtras?: TooltipExtraSeries[];
+
 	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
 	onPointerDown?: BarChartProps[ 'onPointerDown' ];
 
@@ -136,6 +145,7 @@ export function ComparativeBarChart( {
 	maxWidth = Infinity,
 	defaultHiddenSeries,
 	legendInteractive = false,
+	tooltipExtras,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
@@ -200,6 +210,17 @@ export function ComparativeBarChart( {
 		[ legendInteractive ]
 	);
 
+	// An extra is named after itself; with any present, the drawn rows are named too.
+	const tooltipNames = useMemo( () => {
+		if ( ! tooltipExtras?.length ) {
+			return seriesNames;
+		}
+		const names = new Map( seriesNames );
+		tooltipExtras.forEach( extra => names.set( extra.label, extra.label ) );
+		return names;
+	}, [ seriesNames, tooltipExtras ] );
+	const namesRows = isPaired || !! tooltipExtras?.length;
+
 	// Comparison points carry the primary's date for axis alignment, so read
 	// `realDate`; a multi-metric chart also prefixes the metric to avoid duplicate names.
 	const getTooltipLabel = useCallback(
@@ -208,13 +229,13 @@ export function ComparativeBarChart( {
 			if ( ! displayDate ) {
 				return key;
 			}
-			const name = seriesNames.get( key );
+			const name = tooltipNames.get( key );
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
 			// Without a name the row would otherwise lead with an internal label,
 			// so fall back to the date, which is always meaningful.
-			return isPaired && name ? formatTooltipSeriesLabel( name, date ) : date;
+			return namesRows && name ? formatTooltipSeriesLabel( name, date ) : date;
 		},
-		[ seriesNames, isPaired, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipNames, namesRows, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	/**
@@ -267,19 +288,37 @@ export function ComparativeBarChart( {
 	// `seriesStyles` follows `alignedSeries`; the tooltip's rows do not, so pair
 	// them by key (see `ChartTooltip`'s `seriesKeys`).
 	const seriesKeys = useMemo( () => alignedSeries.map( item => item.label ), [ alignedSeries ] );
+	const supplementaryRows = useMemo(
+		() => supplementaryRowsFor( tooltipExtras ),
+		[ tooltipExtras ]
+	);
 
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => (
 			<ChartTooltip
-				tooltipData={ withComparisonDatum( params.tooltipData ) }
+				tooltipData={ appendTooltipExtras(
+					withComparisonDatum( params.tooltipData ),
+					tooltipExtras,
+					alignedSeries.length
+				) }
 				dataFormat={ dataFormat }
 				seriesStyles={ seriesStyles }
 				seriesKeys={ seriesKeys }
 				indicatorType="rect"
+				supplementaryRows={ supplementaryRows }
 				getLabel={ getTooltipLabel }
 			/>
 		),
-		[ dataFormat, seriesStyles, seriesKeys, getTooltipLabel, withComparisonDatum ]
+		[
+			dataFormat,
+			seriesStyles,
+			seriesKeys,
+			getTooltipLabel,
+			withComparisonDatum,
+			tooltipExtras,
+			alignedSeries.length,
+			supplementaryRows,
+		]
 	);
 
 	/**

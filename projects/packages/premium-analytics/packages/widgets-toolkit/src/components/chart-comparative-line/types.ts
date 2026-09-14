@@ -6,6 +6,7 @@ import {
 	type DataPointDate,
 	type LineStyles,
 } from '@jetpack-premium-analytics/externals';
+import type { DataFormat } from '../../types';
 
 /**
  * Types
@@ -18,6 +19,17 @@ export type ComparativeDatePointDate = DataPointDate & {
 export type ComparativeLineChartSeries = SeriesData & {
 	// We expect SeriesData.data to be an array of DataPointDate.
 	data: ComparativeDatePointDate[];
+};
+
+/**
+ * A series the tooltip reads out but the chart does not draw: its point for the
+ * hovered date joins the rows, named after `label` and formatted its own way.
+ */
+export type TooltipExtraSeries = {
+	label: string;
+	data: ComparativeDatePointDate[];
+	/** Falls back to the chart's `dataFormat`. */
+	dataFormat?: DataFormat;
 };
 
 /**

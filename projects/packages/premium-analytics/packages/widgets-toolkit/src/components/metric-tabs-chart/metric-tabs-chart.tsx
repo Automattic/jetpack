@@ -23,7 +23,10 @@ import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tabs-chart.module.scss';
 import type { DataFormat } from '../../types';
-import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
+import type {
+	ComparativeLineChartSeries,
+	TooltipExtraSeries,
+} from '../chart-comparative-line/types';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
 /**
@@ -118,6 +121,12 @@ export interface MetricTabsChartProps {
 	 * date of that bucket. Omit to leave the chart non-interactive.
 	 */
 	onDatumClick?: ( date: Date ) => void;
+	/**
+	 * Which metrics the tooltip reads out at the hovered date: the drawn one
+	 * (`active`, the default), or every metric in the list (`all`), the way the
+	 * classic WordAds chart lists ads served, CPM and revenue whichever tab is up.
+	 */
+	tooltipMetrics?: 'active' | 'all';
 }
 
 /**
@@ -170,6 +179,7 @@ function buildSeries(
 function MetricChart( {
 	metric,
 	counterpart,
+	tooltipExtras,
 	dataFormat,
 	chartType,
 	chartId,
@@ -178,6 +188,7 @@ function MetricChart( {
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
+	tooltipExtras?: TooltipExtraSeries[];
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
 	chartId: string;
@@ -281,6 +292,7 @@ function MetricChart( {
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
+			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
@@ -294,6 +306,7 @@ function MetricChart( {
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
+			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
@@ -374,6 +387,7 @@ export function MetricTabsChart( {
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 	tickResolution,
 	onDatumClick,
+	tooltipMetrics = 'active',
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
@@ -397,6 +411,25 @@ export function MetricTabsChart( {
 			return counterpart?.unavailable ? undefined : counterpart;
 		},
 		[ metrics ]
+	);
+	// Every other metric's current period, each in its own format. A counterpart
+	// is included too: the chart lists a drawn series once, so revealing it from
+	// the legend does not duplicate its row.
+	const tooltipExtrasFor = useCallback(
+		( metric: MetricTab ): TooltipExtraSeries[] | undefined => {
+			if ( tooltipMetrics !== 'all' ) {
+				return undefined;
+			}
+
+			return metrics
+				.filter( candidate => candidate.key !== metric.key && ! candidate.unavailable )
+				.map( candidate => ( {
+					label: candidate.label,
+					data: candidate.current,
+					dataFormat: candidate.dataFormat ?? dataFormat,
+				} ) );
+		},
+		[ metrics, tooltipMetrics, dataFormat ]
 	);
 
 	// Controlled open state: the drag-sortable wrapper closes the popup (reason
@@ -462,6 +495,7 @@ export function MetricTabsChart( {
 					<MetricChart
 						metric={ activeMetric }
 						counterpart={ counterpartFor( activeMetric ) }
+						tooltipExtras={ tooltipExtrasFor( activeMetric ) }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
@@ -531,6 +565,7 @@ export function MetricTabsChart( {
 						<MetricChart
 							metric={ activeMetric }
 							counterpart={ counterpartFor( activeMetric ) }
+							tooltipExtras={ tooltipExtrasFor( activeMetric ) }
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
@@ -576,6 +611,7 @@ export function MetricTabsChart( {
 					<MetricChart
 						metric={ metric }
 						counterpart={ counterpartFor( metric ) }
+						tooltipExtras={ tooltipExtrasFor( metric ) }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }
