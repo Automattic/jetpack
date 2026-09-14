@@ -222,18 +222,25 @@ export const useKeyboardNavigation = ( {
 		[ chartRef ]
 	);
 
+	const focusWithoutScrollIfNeeded = useCallback(
+		( element: HTMLElement | null | undefined ) => {
+			if ( preventTooltipScroll ) {
+				element?.focus( { preventScroll: true } );
+			} else {
+				element?.focus();
+			}
+		},
+		[ preventTooltipScroll ]
+	);
+
 	// Focus the tooltip as soon as it is rendered
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
 			if ( element && selectedIndex !== undefined ) {
-				if ( preventTooltipScroll ) {
-					element.focus( { preventScroll: true } );
-				} else {
-					element.focus();
-				}
+				focusWithoutScrollIfNeeded( element );
 			}
 		},
-		[ preventTooltipScroll, selectedIndex ]
+		[ focusWithoutScrollIfNeeded, selectedIndex ]
 	);
 
 	const previousTotalPoints = useRef( totalPoints );
@@ -284,7 +291,7 @@ export const useKeyboardNavigation = ( {
 				if ( event.key === 'Escape' ) {
 					event.preventDefault();
 				}
-				getChartRoot()?.focus();
+				focusWithoutScrollIfNeeded( getChartRoot() );
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
@@ -307,7 +314,15 @@ export const useKeyboardNavigation = ( {
 				onActivate?.( selectedIndex );
 			}
 		},
-		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, getChartRoot, onActivate ]
+		[
+			totalPoints,
+			selectedIndex,
+			setSelectedIndex,
+			setIsNavigating,
+			getChartRoot,
+			focusWithoutScrollIfNeeded,
+			onActivate,
+		]
 	);
 
 	return {
