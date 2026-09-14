@@ -256,9 +256,11 @@ class Admin_UI {
 			self::MY_JETPACK_ADD_VIDEOPRESS_URI,
 			null,
 			null,
-			// Same key as the dashboard item: the two never register together, and a host
-			// hiding VideoPress means both.
-			array( 'key' => self::VISIBILITY_KEY )
+			// Hidden while VideoPress is off, unless a host forces the shared key visible.
+			array(
+				'product' => 'videopress',
+				'key'     => self::VISIBILITY_KEY,
+			)
 		);
 	}
 
