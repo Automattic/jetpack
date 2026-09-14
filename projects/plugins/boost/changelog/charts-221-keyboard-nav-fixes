@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep keyboard focus on the first or last data point when an arrow key reaches the end of the score history chart.
