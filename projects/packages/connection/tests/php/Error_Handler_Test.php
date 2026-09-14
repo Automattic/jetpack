@@ -541,6 +541,21 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test delete_error_by_code() also purges a legacy alloptions-blob orphan.
+	 */
+	public function test_delete_error_by_code_purges_legacy_alloptions_orphan() {
+		$alloptions = wp_load_alloptions();
+		$alloptions[ Error_Handler::STORED_VERIFIED_ERRORS_OPTION ] = maybe_serialize( array( 'xmlrpc_request_blocked' => array( '0' => array( 'error_code' => 'xmlrpc_request_blocked' ) ) ) );
+		wp_cache_set( 'alloptions', $alloptions, 'options' );
+
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', get_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION ) );
+
+		$this->error_handler->delete_error_by_code( 'xmlrpc_request_blocked' );
+
+		$this->assertFalse( get_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION ) );
+	}
+
+	/**
 	 * Test that the body hash of the failed request is stored.
 	 */
 	public function test_check_api_response_for_errors_stores_body_hash() {

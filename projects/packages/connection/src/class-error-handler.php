@@ -1687,6 +1687,13 @@ class Error_Handler {
 
 		if ( $deleted ) {
 			$this->purge_option_caches();
+			// A legacy autoloaded orphan is served from the alloptions blob, which the
+			// per-key purge cannot reach: if the code still reads back, drop the blob.
+			$stored   = $this->get_stored_errors();
+			$verified = $this->get_verified_errors();
+			if ( isset( $stored[ $error_code ] ) || isset( $verified[ $error_code ] ) ) {
+				wp_cache_delete( 'alloptions', 'options' );
+			}
 			$this->invalidate_displayable_errors_cache();
 		}
 
