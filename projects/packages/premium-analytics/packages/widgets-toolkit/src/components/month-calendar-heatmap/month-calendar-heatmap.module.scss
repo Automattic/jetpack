@@ -8,20 +8,16 @@
 	block-size: 100%;
 }
 
-/* The chart fills the tile, the grid at the top and the legend pinned to the
- * bottom, with the leftover height between them. */
+/* The chart fills the tile: the legend sits at the bottom and the grid's auto
+ * margins centre it in the height above. The grid is also the scroll container,
+ * so the legend stays put while the months scroll; a grouped compact grid
+ * otherwise refuses to shrink below its cells plus the minimum gaps. */
 .root .chart {
 	block-size: 100%;
 }
 
-.legend {
-	margin-block-start: auto;
-}
-
-/* The grid is the scroll container, so the legend stays put while the months
- * scroll. A grouped compact grid otherwise refuses to shrink below its cells
- * plus the minimum gaps and overflows the tile instead. */
 .root .chart [role="grid"] {
+	margin-block: auto;
 	min-inline-size: 0;
 	overflow-x: auto;
 }
