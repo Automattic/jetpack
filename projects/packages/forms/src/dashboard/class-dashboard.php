@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
@@ -100,6 +99,7 @@ class Dashboard {
 	 * Script handle for the JS file we enqueue in the Feedback admin page.
 	 *
 	 * @var string
+	 * @deprecated $$next-version$$ The legacy dashboard bundle was removed.
 	 */
 	const SCRIPT_HANDLE = 'jp-forms-dashboard';
 
@@ -205,36 +205,17 @@ class Dashboard {
 			return;
 		}
 
-		// The wp-build (script-module) dashboard renders its own UI from build/pages/…,
-		// so the legacy SPA bundle is dead weight there. Only enqueue it on the legacy
-		// dashboard. The shared inline data below (connection initial state + REST
-		// preload) is instead attached to the always-present wp-api-fetch handle so the
-		// wp-build app still receives it.
-		if ( self::is_wp_build_dashboard_page() ) {
-			$inline_handle    = 'wp-api-fetch';
-			$preload_position = 'after';
+		// Attach the shared inline data (connection initial state + REST preload) to
+		// wp-api-fetch, which is always on the page.
+		$inline_handle    = 'wp-api-fetch';
+		$preload_position = 'after';
 
-			// The i18n loader is registered on every admin page by jetpack-assets but
-			// only enqueued when depended on; the esbuild bundles don't pull it in.
-			// Enqueue it so the wp-build dashboard's init module can download its JS
-			// translation catalogs.
-			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
-				wp_enqueue_script( 'wp-jp-i18n-loader' );
-			}
-		} else {
-			$inline_handle    = self::SCRIPT_HANDLE;
-			$preload_position = 'before';
-
-			Assets::register_script(
-				self::SCRIPT_HANDLE,
-				'../../dist/dashboard/jetpack-forms-dashboard.js',
-				__FILE__,
-				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-forms',
-					'enqueue'    => true,
-				)
-			);
+		// The i18n loader is registered on every admin page by jetpack-assets but
+		// only enqueued when depended on; the esbuild bundles don't pull it in.
+		// Enqueue it so the wp-build dashboard's init module can download its JS
+		// translation catalogs.
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 
 		if ( Contact_Form_Plugin::can_use_analytics() ) {
@@ -672,12 +653,7 @@ class Dashboard {
 			return false;
 		}
 
-		$forms_admin_screens = array(
-			'jetpack_page_' . self::ADMIN_SLUG,
-			'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG,
-		);
-
-		return in_array( $screen->id, $forms_admin_screens, true );
+		return $screen->id === 'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG;
 	}
 
 	/**
