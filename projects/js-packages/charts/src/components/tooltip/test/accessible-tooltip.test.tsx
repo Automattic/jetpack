@@ -88,6 +88,39 @@ describe( 'AccessibleTooltip', () => {
 		}
 	} );
 
+	it( 'returns focus to the grid without scrolling when Escape dismisses a below-axis tooltip', async () => {
+		const focus = jest.spyOn( HTMLElement.prototype, 'focus' );
+		try {
+			renderChart( undefined, 'below-axis' );
+			await openTooltip();
+			focus.mockClear();
+
+			await userEvent.setup().keyboard( '{Escape}' );
+
+			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toHaveFocus();
+			expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
+			expect( focus ).not.toHaveBeenCalledWith();
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
+	it( 'returns focus to the grid with the default scrolling when Escape dismisses an automatic tooltip', async () => {
+		const focus = jest.spyOn( HTMLElement.prototype, 'focus' );
+		try {
+			renderChart();
+			await openTooltip();
+			focus.mockClear();
+
+			await userEvent.setup().keyboard( '{Escape}' );
+
+			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toHaveFocus();
+			expect( focus ).toHaveBeenLastCalledWith();
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
 	it( 'falls back to the catalog default when the role is unset', async () => {
 		renderChart();
 
