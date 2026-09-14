@@ -15,6 +15,8 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | ---- | ---- | ------- | ----------- |
 | `data` | `HeatmapColumn[]` | - | **Required.** Array of columns; each column contains an optional label and an array of cells. |
 | `rowLabels` | `string[]` | `[]` | y-axis labels by row index. Empty entries render blank. |
+| `columnGroups` | `HeatmapColumnGroup[]` | - | Consecutive runs of columns sharing one label beneath the grid, one group gap apart. Runs from the first column; leftover columns stay ungrouped. Ignored with a warning when a span is not a positive integer or the spans reach past the last column. |
+| `aria-label` | `string` | `'Heatmap chart'` | Accessible name of the grid. |
 | `compact` | `boolean` | `false` | Compact mode: tighten cell gaps, suppress in-cell values, and thin axis labels. |
 | `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell (compact notation for large numbers; the tooltip and aria-label keep full precision). |
 | `maxCellWidth` | `number` | - | Maximum cell width in pixels in non-compact mode. Cells stop growing at this width while narrower containers may still shrink them. |
@@ -66,6 +68,18 @@ type HeatmapColumn = {
 	 * one gap apart from the data beside it. The chart never computes it.
 	 */
 	summary?: boolean;
+};
+```
+
+## HeatmapColumnGroup Type
+
+A run of consecutive columns sharing one label beneath the grid.
+
+```typescript
+type HeatmapColumnGroup = {
+	label: string;
+	/** Columns covered; a positive integer. */
+	span: number;
 };
 ```
 
@@ -158,6 +172,72 @@ function useCalendarHeatmapData(
 **Parameters:** as for `buildCalendarHeatmapData`. An explicit `locale` or `timeZone` wins over the provider; `undefined` reads as unset and falls back to it.
 
 **Returns:** `CalendarHeatmapResult`
+
+## buildMonthCalendarHeatmapData
+
+Lays a day-keyed map out as one calendar per month, weekdays as columns and weeks as rows, for `HeatmapChart` with `columnGroups`.
+
+**Signature:**
+
+```typescript
+function buildMonthCalendarHeatmapData(
+	valueByDay: Record< string, number | null >,
+	range: MonthCalendarHeatmapRange,
+	options?: MonthCalendarHeatmapOptions
+): MonthCalendarHeatmapResult
+```
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `valueByDay` | `Record< string, number \| null >` | - | **Required.** Value per `yyyy-MM-dd`. A key of another shape is skipped with a warning; a missing day is `null`. |
+| `range.start` | `string` | - | **Required.** First measured day, `yyyy-MM-dd`. |
+| `range.end` | `string` | - | **Required.** Last measured day, `yyyy-MM-dd`, inclusive. Every month either bound falls in is drawn; in-month days outside the range are `placeholder` cells. An unparseable or reversed range returns an empty result with a warning. |
+| `options.weekStartsOn` | `0 \| 1` | `1` | Day the week starts on. |
+| `options.locale` | `string` | runtime locale | BCP-47 tag the month and day labels are written in. Always Gregorian. |
+
+**Returns:** `MonthCalendarHeatmapResult`
+
+## useMonthCalendarHeatmapData
+
+`buildMonthCalendarHeatmapData` with `locale` taken from `GlobalChartsProvider` where `options` names none. Must be called during render.
+
+**Signature:**
+
+```typescript
+function useMonthCalendarHeatmapData(
+	valueByDay: Record< string, number | null >,
+	range: MonthCalendarHeatmapRange,
+	options?: MonthCalendarHeatmapOptions
+): MonthCalendarHeatmapResult
+```
+
+## MonthCalendarHeatmapRange Type
+
+```typescript
+type MonthCalendarHeatmapRange = { start: string; end: string };
+```
+
+## MonthCalendarHeatmapOptions Type
+
+```typescript
+type MonthCalendarHeatmapOptions = {
+	weekStartsOn?: 0 | 1;
+	locale?: string;
+};
+```
+
+## MonthCalendarHeatmapResult Type
+
+```typescript
+type MonthCalendarHeatmapResult = {
+	/** Columns to pass to HeatmapChart's `data` prop: 7 per month, 6 cells each. */
+	data: HeatmapColumn[];
+	/** One group per month, to pass to HeatmapChart's `columnGroups` prop. */
+	columnGroups: HeatmapColumnGroup[];
+};
+```
 
 ## CalendarHeatmapOptions Type
 
