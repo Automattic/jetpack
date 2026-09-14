@@ -179,6 +179,7 @@ export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table'
 export {
 	EARNINGS_HISTORY_VIEW,
 	flattenEarningsBreakdown,
+	getEarningsStatus,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 } from './wordads-earnings-history';

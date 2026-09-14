@@ -165,6 +165,7 @@ export {
 	type WidgetDataTableProps,
 	EARNINGS_HISTORY_VIEW,
 	flattenEarningsBreakdown,
+	getEarningsStatus,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 	AnnualHighlightsSkeleton,
