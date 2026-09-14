@@ -15,17 +15,9 @@
 	flex: 1;
 }
 
-// Holds a swatch's width for a row that has none, so every label starts flush.
+// A row with no swatch holds its width, so every label starts flush.
 .indicatorSpacer {
 	flex: none;
-}
-
-.lineSpacer {
-	inline-size: 16px;
-}
-
-.rectSpacer {
-	inline-size: 8px;
 }
 
 // Override visx-tooltip ONLY when our custom tooltip components are used.

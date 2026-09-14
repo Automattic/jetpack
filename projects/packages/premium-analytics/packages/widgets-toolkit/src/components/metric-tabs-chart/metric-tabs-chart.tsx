@@ -179,7 +179,8 @@ function buildSeries(
 function MetricChart( {
 	metric,
 	counterpart,
-	tooltipExtras,
+	metrics,
+	tooltipMetrics,
 	dataFormat,
 	chartType,
 	chartId,
@@ -188,13 +189,31 @@ function MetricChart( {
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
-	tooltipExtras?: TooltipExtraSeries[];
+	metrics: MetricTab[];
+	tooltipMetrics: 'active' | 'all';
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
 	chartId: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
 } ) {
+	// Every other metric's current period, each in its own format. A counterpart
+	// is included too: the chart lists a drawn series once, so revealing it from
+	// the legend does not duplicate its row. Memoised so the chart's tooltip memos hold.
+	const tooltipExtras = useMemo( (): TooltipExtraSeries[] | undefined => {
+		if ( tooltipMetrics !== 'all' ) {
+			return undefined;
+		}
+
+		return metrics
+			.filter( candidate => candidate.key !== metric.key && ! candidate.unavailable )
+			.map( candidate => ( {
+				label: candidate.label,
+				data: candidate.current,
+				dataFormat: candidate.dataFormat ?? dataFormat,
+			} ) );
+	}, [ metrics, metric.key, tooltipMetrics, dataFormat ] );
+
 	const { series, defaultHiddenSeries } = useMemo( () => {
 		const active = buildSeries( metric, chartType );
 
@@ -412,25 +431,6 @@ export function MetricTabsChart( {
 		},
 		[ metrics ]
 	);
-	// Every other metric's current period, each in its own format. A counterpart
-	// is included too: the chart lists a drawn series once, so revealing it from
-	// the legend does not duplicate its row.
-	const tooltipExtrasFor = useCallback(
-		( metric: MetricTab ): TooltipExtraSeries[] | undefined => {
-			if ( tooltipMetrics !== 'all' ) {
-				return undefined;
-			}
-
-			return metrics
-				.filter( candidate => candidate.key !== metric.key && ! candidate.unavailable )
-				.map( candidate => ( {
-					label: candidate.label,
-					data: candidate.current,
-					dataFormat: candidate.dataFormat ?? dataFormat,
-				} ) );
-		},
-		[ metrics, tooltipMetrics, dataFormat ]
-	);
 
 	// Controlled open state: the drag-sortable wrapper closes the popup (reason
 	// 'none') right after it opens, so those closes are dropped; selection closes it explicitly.
@@ -495,7 +495,8 @@ export function MetricTabsChart( {
 					<MetricChart
 						metric={ activeMetric }
 						counterpart={ counterpartFor( activeMetric ) }
-						tooltipExtras={ tooltipExtrasFor( activeMetric ) }
+						metrics={ metrics }
+						tooltipMetrics={ tooltipMetrics }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
@@ -565,7 +566,8 @@ export function MetricTabsChart( {
 						<MetricChart
 							metric={ activeMetric }
 							counterpart={ counterpartFor( activeMetric ) }
-							tooltipExtras={ tooltipExtrasFor( activeMetric ) }
+							metrics={ metrics }
+							tooltipMetrics={ tooltipMetrics }
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
@@ -611,7 +613,8 @@ export function MetricTabsChart( {
 					<MetricChart
 						metric={ metric }
 						counterpart={ counterpartFor( metric ) }
-						tooltipExtras={ tooltipExtrasFor( metric ) }
+						metrics={ metrics }
+						tooltipMetrics={ tooltipMetrics }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }

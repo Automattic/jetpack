@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { LineShape, RectShape, Stack } from '@jetpack-premium-analytics/externals';
-import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -10,6 +9,9 @@ import styles from './chart-tooltip.module.scss';
 import { TooltipRow } from './tooltip-row';
 import { isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
+
+/** Swatch width per indicator type; a supplementary row's spacer takes the same. */
+const INDICATOR_WIDTH = { line: 16, rect: 8 } as const;
 
 /** Mirrors the `SeriesStyle` shape the chart components use. */
 export type TooltipStyle = {
@@ -108,13 +110,11 @@ export function ChartTooltip< TDatum >( {
 					return (
 						<TooltipRow
 							key={ entry.key }
-							// Sized like the swatch it stands in for, so the labels stay aligned.
+							// Holds the swatch's width, so the labels stay aligned.
 							indicator={
 								<span
-									className={ clsx(
-										styles.indicatorSpacer,
-										indicatorType === 'line' ? styles.lineSpacer : styles.rectSpacer
-									) }
+									className={ styles.indicatorSpacer }
+									style={ { inlineSize: INDICATOR_WIDTH[ indicatorType ] } }
 									aria-hidden="true"
 								/>
 							}
@@ -139,15 +139,15 @@ export function ChartTooltip< TDatum >( {
 							indicatorType === 'line' ? (
 								<LineShape
 									fill={ stroke || 'currentColor' }
-									width={ 16 }
+									width={ INDICATOR_WIDTH.line }
 									height={ 15 }
 									style={ lineShapeStyle }
 								/>
 							) : (
 								<RectShape
 									fill={ stroke || 'currentColor' }
-									height={ 8 }
-									width={ 8 }
+									height={ INDICATOR_WIDTH.rect }
+									width={ INDICATOR_WIDTH.rect }
 									style={ { opacity: lineShapeStyle.opacity } }
 								/>
 							)

@@ -27,7 +27,7 @@ import {
 	getFixedYAxis,
 	dateFormatForResolution,
 	resolveSeriesNames,
-	supplementaryRowsFor,
+	resolveTooltipNames,
 } from '../../helpers';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
@@ -196,16 +196,10 @@ export function ComparativeLineChart( {
 		[ legendInteractive ]
 	);
 
-	// An extra is named after itself; with any present, the drawn rows are named too.
-	const tooltipNames = useMemo( () => {
-		if ( ! tooltipExtras?.length ) {
-			return seriesNames;
-		}
-		const names = new Map( seriesNames );
-		tooltipExtras.forEach( extra => names.set( extra.label, extra.label ) );
-		return names;
-	}, [ seriesNames, tooltipExtras ] );
-	const namesRows = isPaired || !! tooltipExtras?.length;
+	const { names: tooltipNames, namesRows } = useMemo(
+		() => resolveTooltipNames( seriesNames, isPaired, tooltipExtras ),
+		[ seriesNames, isPaired, tooltipExtras ]
+	);
 
 	// Comparison points share the primary series' dates, so the tooltip reads back
 	// `realDate`; multi-metric charts also prefix each row so two rows don't share a date.
@@ -224,16 +218,17 @@ export function ComparativeLineChart( {
 	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them
 	// by key (see `ChartTooltip`'s `seriesKeys`).
 	const seriesKeys = useMemo( () => series.map( item => item.label ), [ series ] );
-	const supplementaryRows = useMemo(
-		() => supplementaryRowsFor( tooltipExtras ),
-		[ tooltipExtras ]
-	);
 
 	const renderTooltip = useCallback(
 		( params: RenderTooltipParams ) => {
+			const { tooltipData, supplementaryRows } = appendTooltipExtras(
+				params.tooltipData,
+				tooltipExtras
+			);
+
 			return (
 				<ChartTooltip
-					tooltipData={ appendTooltipExtras( params.tooltipData, tooltipExtras, series.length ) }
+					tooltipData={ tooltipData }
 					dataFormat={ dataFormat }
 					seriesStyles={ resolvedStyles }
 					seriesKeys={ seriesKeys }
@@ -243,15 +238,7 @@ export function ComparativeLineChart( {
 				/>
 			);
 		},
-		[
-			dataFormat,
-			resolvedStyles,
-			seriesKeys,
-			getTooltipLabel,
-			tooltipExtras,
-			series.length,
-			supplementaryRows,
-		]
+		[ dataFormat, resolvedStyles, seriesKeys, getTooltipLabel, tooltipExtras ]
 	);
 
 	// Multipliers keep the tick labels short.

@@ -27,7 +27,7 @@ import {
 	getFixedYAxis,
 	dateFormatForResolution,
 	resolveSeriesNames,
-	supplementaryRowsFor,
+	resolveTooltipNames,
 } from '../../helpers';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
@@ -210,16 +210,10 @@ export function ComparativeBarChart( {
 		[ legendInteractive ]
 	);
 
-	// An extra is named after itself; with any present, the drawn rows are named too.
-	const tooltipNames = useMemo( () => {
-		if ( ! tooltipExtras?.length ) {
-			return seriesNames;
-		}
-		const names = new Map( seriesNames );
-		tooltipExtras.forEach( extra => names.set( extra.label, extra.label ) );
-		return names;
-	}, [ seriesNames, tooltipExtras ] );
-	const namesRows = isPaired || !! tooltipExtras?.length;
+	const { names: tooltipNames, namesRows } = useMemo(
+		() => resolveTooltipNames( seriesNames, isPaired, tooltipExtras ),
+		[ seriesNames, isPaired, tooltipExtras ]
+	);
 
 	// Comparison points carry the primary's date for axis alignment, so read
 	// `realDate`; a multi-metric chart also prefixes the metric to avoid duplicate names.
@@ -288,37 +282,27 @@ export function ComparativeBarChart( {
 	// `seriesStyles` follows `alignedSeries`; the tooltip's rows do not, so pair
 	// them by key (see `ChartTooltip`'s `seriesKeys`).
 	const seriesKeys = useMemo( () => alignedSeries.map( item => item.label ), [ alignedSeries ] );
-	const supplementaryRows = useMemo(
-		() => supplementaryRowsFor( tooltipExtras ),
-		[ tooltipExtras ]
-	);
 
 	const renderTooltip = useCallback(
-		( params: RenderTooltipParams ) => (
-			<ChartTooltip
-				tooltipData={ appendTooltipExtras(
-					withComparisonDatum( params.tooltipData ),
-					tooltipExtras,
-					alignedSeries.length
-				) }
-				dataFormat={ dataFormat }
-				seriesStyles={ seriesStyles }
-				seriesKeys={ seriesKeys }
-				indicatorType="rect"
-				supplementaryRows={ supplementaryRows }
-				getLabel={ getTooltipLabel }
-			/>
-		),
-		[
-			dataFormat,
-			seriesStyles,
-			seriesKeys,
-			getTooltipLabel,
-			withComparisonDatum,
-			tooltipExtras,
-			alignedSeries.length,
-			supplementaryRows,
-		]
+		( params: RenderTooltipParams ) => {
+			const { tooltipData, supplementaryRows } = appendTooltipExtras(
+				withComparisonDatum( params.tooltipData ),
+				tooltipExtras
+			);
+
+			return (
+				<ChartTooltip
+					tooltipData={ tooltipData }
+					dataFormat={ dataFormat }
+					seriesStyles={ seriesStyles }
+					seriesKeys={ seriesKeys }
+					indicatorType="rect"
+					supplementaryRows={ supplementaryRows }
+					getLabel={ getTooltipLabel }
+				/>
+			);
+		},
+		[ dataFormat, seriesStyles, seriesKeys, getTooltipLabel, withComparisonDatum, tooltipExtras ]
 	);
 
 	/**

@@ -412,7 +412,7 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 
 		expect( tooltipData.datumByKey[ 'Average CPM' ] ).toEqual( {
 			datum: { date: JULY_1, value: 0.15 },
-			index: 1,
+			index: 0,
 			key: 'Average CPM',
 		} );
 		expect( supplementaryRows ).toEqual( { 'Average CPM': CURRENCY } );
@@ -446,6 +446,43 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 		expect( Object.keys( tooltipFor( JULY_2 ).props.tooltipData.datumByKey ) ).toEqual( [
 			'July',
 		] );
+	} );
+
+	it( 'keeps the swatch of a drawn series that is also listed as an extra', () => {
+		// A counterpart in `MetricTabsChart` is drawn (hidden until revealed) and
+		// listed; once the chart reports it, it must not turn into a spacer row.
+		const twoMetrics: ComparativeLineChartSeries[] = [
+			{ label: 'July', group: 'views', data: [ { date: JULY_1, value: 100 } ] },
+			{ label: 'Visitors', group: 'visitors', data: [ { date: JULY_1, value: 40 } ] },
+		];
+		render(
+			<ComparativeLineChart
+				series={ twoMetrics }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ { label: 'Visitors', data: twoMetrics[ 1 ].data }, CPM_EXTRA ] }
+			/>
+		);
+
+		const hovered = { date: JULY_1, value: 100 };
+
+		const tooltipNode = (
+			recordedProps().renderTooltip as unknown as ( params: unknown ) => TooltipNode
+		 )( {
+			tooltipData: {
+				nearestDatum: { datum: hovered, key: 'July' },
+				datumByKey: {
+					July: { datum: hovered, index: 0, key: 'July' },
+					Visitors: { datum: { date: JULY_1, value: 40 }, index: 1, key: 'Visitors' },
+				},
+			},
+		} );
+
+		expect( Object.keys( tooltipNode.props.tooltipData.datumByKey ) ).toEqual( [
+			'July',
+			'Visitors',
+			'Average CPM',
+		] );
+		expect( tooltipNode.props.supplementaryRows ).toEqual( { 'Average CPM': CURRENCY } );
 	} );
 
 	it( 'leaves the tooltip alone without extras', () => {
