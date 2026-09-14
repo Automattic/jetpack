@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Resolve the disconnect dialog illustrations from script data instead of importing them.
+Disconnect dialog: Load the illustrations from the URL the Connection PHP package adds to the admin script data.
