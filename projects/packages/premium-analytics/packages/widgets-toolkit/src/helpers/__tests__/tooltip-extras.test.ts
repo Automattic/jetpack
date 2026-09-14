@@ -94,4 +94,12 @@ describe( 'resolveTooltipNames', () => {
 		// The input map is not mutated.
 		expect( seriesNames.has( 'Average CPM' ) ).toBe( false );
 	} );
+
+	it( 'keeps the name resolved for a drawn series that is also listed as an extra', () => {
+		const { names } = resolveTooltipNames( new Map( [ [ 'July', 'Views' ] ] ), false, [
+			{ label: 'July', data: [] },
+		] );
+
+		expect( names.get( 'July' ) ).toBe( 'Views' );
+	} );
 } );

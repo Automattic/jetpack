@@ -568,4 +568,24 @@ describe( 'ComparativeBarChart tooltip extras', () => {
 
 		expect( tooltipLabelFor( JULY_1 ) ).toBe( 'July · July 1, 2026' );
 	} );
+
+	it( 'keeps the tooltip on for an all-zero drawn series once an extra has data', () => {
+		render(
+			<ComparativeBarChart
+				series={ ZERO_SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ { ...CPM_EXTRA, data: [ { date: JULY_1, value: 0 } ] } ] }
+			/>
+		);
+		expect( recordedProps().withTooltips ).toBe( false );
+
+		render(
+			<ComparativeBarChart
+				series={ ZERO_SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+		expect( recordedProps().withTooltips ).toBe( true );
+	} );
 } );

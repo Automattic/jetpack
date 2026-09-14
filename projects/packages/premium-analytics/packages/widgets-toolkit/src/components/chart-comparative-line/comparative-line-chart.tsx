@@ -132,10 +132,8 @@ export type ComparativeLineChartProps = {
 	legendInteractive?: boolean;
 
 	/**
-	 * Series the tooltip reads out but the chart does not draw, each contributing
-	 * its row for the hovered date. With any present, every row leads with its
-	 * metric's name, so the drawn one is not mistaken for the only one; that holds
-	 * at a date the extras have no point for, since the labels are set per chart.
+	 * Series the tooltip reads out but the chart does not draw; see
+	 * `TooltipExtraSeries` for what listing one changes about the rows.
 	 */
 	tooltipExtras?: TooltipExtraSeries[];
 } & Omit<
@@ -260,6 +258,11 @@ export function ComparativeLineChart( {
 	}, [ stylesProp, alignedSeries, resolvedStyles ] );
 
 	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
+	// An all-zero selected metric must not hide the extras that do have data.
+	const hasTooltipRows = useMemo(
+		() => ! isEmptyData || ! isEmptyChartData( tooltipExtras ?? [] ),
+		[ isEmptyData, tooltipExtras ]
+	);
 
 	// A pinned domain for percentage metrics and all-zero periods. Null lets the
 	// chart scale to the data.
@@ -313,7 +316,7 @@ export function ComparativeLineChart( {
 				showLegend={ false }
 				curveType="monotone"
 				withGradientFill
-				withTooltips={ !! renderTooltip && ! isEmptyData }
+				withTooltips={ !! renderTooltip && hasTooltipRows }
 				renderTooltip={ renderTooltip }
 				onPointerDown={ onPointerDown }
 				onPointerUp={ onPointerUp }

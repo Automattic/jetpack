@@ -41,8 +41,6 @@ export function appendTooltipExtras< T extends TooltipData >(
 		return { tooltipData, supplementaryRows: undefined };
 	}
 
-	// Comparison points carry their primary's date, so the hovered bucket is `date`
-	// on every series, never `realDate`.
 	const hoveredTime = hovered.date.getTime();
 	const augmented = { ...datumByKey };
 	const supplementaryRows: Record< string, DataFormat | undefined > = {};
@@ -69,8 +67,9 @@ export function appendTooltipExtras< T extends TooltipData >(
 
 /**
  * The names the tooltip leads each row with once extras join the drawn series:
- * an extra is named after itself, and with any present the drawn rows are
- * named too, so a date alone never labels two rows identically.
+ * an extra the chart did not already name is named after itself, and with any
+ * present the drawn rows are named too, so a date alone never labels two rows
+ * identically.
  *
  * @param seriesNames - The drawn series' names, keyed by series label.
  * @param isPaired    - Whether the chart draws more than one metric.
@@ -87,7 +86,11 @@ export function resolveTooltipNames(
 	}
 
 	const names = new Map( seriesNames );
-	extras.forEach( extra => names.set( extra.label, extra.label ) );
+	extras.forEach( extra => {
+		if ( ! names.has( extra.label ) ) {
+			names.set( extra.label, extra.label );
+		}
+	} );
 
 	return { names, namesRows: true };
 }

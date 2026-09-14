@@ -145,6 +145,7 @@ type RecordedLineProps = {
 	margin?: Record< string, number >;
 	options?: { yScale?: { domain?: [ number, number ] }; axis: { y: { display?: boolean } } };
 	renderTooltip: ( params: unknown ) => { props: { getLabel: GetTooltipLabel } };
+	withTooltips: boolean;
 };
 
 /**
@@ -493,5 +494,32 @@ describe( 'ComparativeLineChart tooltip extras', () => {
 		expect( Object.keys( tooltipData.datumByKey ) ).toEqual( [ 'July' ] );
 		expect( supplementaryRows ).toBeUndefined();
 		expect( getLabel( { date: JULY_1 }, 0, 'July' ) ).toBe( 'July 1, 2026' );
+	} );
+
+	it( 'keeps the tooltip on for an all-zero drawn series once an extra has data', () => {
+		const zeroSeries: ComparativeLineChartSeries[] = [
+			{ label: 'Revenue', group: 'revenue', data: [ { date: JULY_1, value: 0 } ] },
+		];
+
+		render( <ComparativeLineChart series={ zeroSeries } dataFormat={ DATA_FORMAT } /> );
+		expect( recordedProps().withTooltips ).toBe( false );
+
+		render(
+			<ComparativeLineChart
+				series={ zeroSeries }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ { ...CPM_EXTRA, data: [ { date: JULY_1, value: 0 } ] } ] }
+			/>
+		);
+		expect( recordedProps().withTooltips ).toBe( false );
+
+		render(
+			<ComparativeLineChart
+				series={ zeroSeries }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+		expect( recordedProps().withTooltips ).toBe( true );
 	} );
 } );

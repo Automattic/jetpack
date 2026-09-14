@@ -24,6 +24,9 @@ export type ComparativeLineChartSeries = SeriesData & {
 /**
  * A series the tooltip reads out but the chart does not draw: its point for the
  * hovered date joins the rows, named after `label` and formatted its own way.
+ * With any listed, every row leads with its metric's name, so the drawn one is
+ * not mistaken for the only one; the names are set per chart, so that holds at
+ * a date the extras have no point for.
  */
 export type TooltipExtraSeries = {
 	label: string;

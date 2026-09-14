@@ -109,10 +109,8 @@ export type ComparativeBarChartProps = {
 	legendInteractive?: boolean;
 
 	/**
-	 * Series the tooltip reads out but the chart does not draw, each contributing
-	 * its row for the hovered date. With any present, every row leads with its
-	 * metric's name, so the drawn one is not mistaken for the only one; that holds
-	 * at a date the extras have no point for, since the labels are set per chart.
+	 * Series the tooltip reads out but the chart does not draw; see
+	 * `TooltipExtraSeries` for what listing one changes about the rows.
 	 */
 	tooltipExtras?: TooltipExtraSeries[];
 
@@ -174,6 +172,11 @@ export function ComparativeBarChart( {
 	const alignedSeries = useMemo( () => alignSeriesDates( series ), [ series ] );
 
 	const isEmptyData = useMemo( () => isEmptyChartData( alignedSeries ), [ alignedSeries ] );
+	// An all-zero selected metric must not hide the extras that do have data.
+	const hasTooltipRows = useMemo(
+		() => ! isEmptyData || ! isEmptyChartData( tooltipExtras ?? [] ),
+		[ isEmptyData, tooltipExtras ]
+	);
 
 	// The opacity matters: a comparison series shares its primary's colour, dimmed
 	// only by the theme — without it the swatch reads as an identical twin.
@@ -353,7 +356,7 @@ export function ComparativeBarChart( {
 				// missing data. This draws it as a hairline stub instead.
 				showZeroValues
 				showLegend={ false }
-				withTooltips={ ! isEmptyData }
+				withTooltips={ hasTooltipRows }
 				renderTooltip={ renderTooltip }
 				onPointerDown={ onPointerDown }
 				onPointerUp={ onPointerUp }
