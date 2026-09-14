@@ -49,7 +49,7 @@
 		"@rollup/plugin-typescript": "12.1.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"concurrently": "10.0.5",
-		"jest": "30.4.2",
+		"jest": "30.5.1",
 		"postcss": "8.5.23",
 		"rollup": "3.30.0",
 		"rollup-plugin-postcss": "4.0.2",
