@@ -48,7 +48,7 @@ export function useDashboardSectionLayout(
 	);
 
 	// A reset has to change the layout's identity, or the dashboard keeps its staged
-	// edits: the same workaround as `useStoredDetailLayout`.
+	// edits: the same workaround as `useStoredDetailLayout` (WordPress/gutenberg#82850).
 	const [ resetCount, setResetCount ] = useState( 0 );
 	const layout = useMemo( () => {
 		if ( Object.hasOwn( sectionLayouts, activeSectionId ) ) {
