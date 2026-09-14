@@ -72,12 +72,23 @@ describe( 'buildMonthCalendarHeatmapData', () => {
 	} );
 
 	test( 'labels every day with its full date in the locale', () => {
+		// Read from Intl rather than spelled out: short month names drift between ICU builds.
+		const monthLabels = ( locale: string ) => {
+			const format = new Intl.DateTimeFormat( locale, {
+				month: 'short',
+				calendar: 'gregory',
+				timeZone: 'UTC',
+			} );
+			return [ '2026-08-01', '2026-09-01' ].map( day =>
+				format.format( new Date( `${ day }T00:00:00Z` ) )
+			);
+		};
 		const result = buildMonthCalendarHeatmapData( {}, range, { locale: 'en-US' } );
 		expect( cellAt( result, 0, 0, 1 ).label ).toBe( 'Mon, Aug 3, 2026' );
-		const french = buildMonthCalendarHeatmapData( {}, range, { locale: 'fr-FR' } );
-		expect( french.columnGroups.map( group => group.label ) ).toEqual( [ 'août', 'sept.' ] );
-		const japanese = buildMonthCalendarHeatmapData( {}, range, { locale: 'ja-JP' } );
-		expect( japanese.columnGroups.map( group => group.label ) ).toEqual( [ '8月', '9月' ] );
+		for ( const locale of [ 'fr-FR', 'ja-JP' ] ) {
+			const { columnGroups } = buildMonthCalendarHeatmapData( {}, range, { locale } );
+			expect( columnGroups.map( group => group.label ) ).toEqual( monthLabels( locale ) );
+		}
 	} );
 
 	test( 'labels Gregorian months under a locale whose default calendar is not Gregorian', () => {

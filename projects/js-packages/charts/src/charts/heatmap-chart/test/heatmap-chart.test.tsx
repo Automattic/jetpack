@@ -610,6 +610,13 @@ describe( 'HeatmapChart column groups', () => {
 		} );
 	} );
 
+	test( 'lets the gaps share the leftover width in compact mode, down to groupGap', () => {
+		renderChart( { data: grouped, columnGroups, compact: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.gridTemplateColumns ).toContain( 'minmax(24px, 1fr)' );
+		expect( grid.className ).toMatch( /flex-gaps/ );
+	} );
+
 	test( 'still counts only data columns for assistive technology', () => {
 		renderChart( { data: grouped, columnGroups } );
 		expect( screen.getByRole( 'grid', { name: /heatmap/i } ) ).toHaveAttribute(
@@ -641,8 +648,8 @@ describe( 'HeatmapChart column groups', () => {
 } );
 
 describe( 'HeatmapChart naming and focus', () => {
-	test( 'names the grid from aria-label when given', () => {
-		renderChart( { 'aria-label': 'Monthly posting activity' } );
+	test( 'names the grid from ariaLabel when given', () => {
+		renderChart( { ariaLabel: 'Monthly posting activity' } );
 		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'grid', { name: /heatmap chart/i } ) ).not.toBeInTheDocument();
 	} );

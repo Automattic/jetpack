@@ -64,7 +64,7 @@ export interface HeatmapChartProps
 	 */
 	columnGroups?: HeatmapColumnGroup[];
 	/** Accessible name of the grid. Defaults to a localized "Heatmap chart". */
-	'aria-label'?: string;
+	ariaLabel?: string;
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */
