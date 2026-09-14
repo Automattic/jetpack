@@ -706,6 +706,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												/>
 											) ) }
 										</BarGroup>
+										{ /* Mount after BarGroup so its same-key tooltip updates run before these corrections. */ }
 										{ withTooltips && (
 											<BandTooltip keys={ primaryKeys } groupPadding={ groupPadding } />
 										) }
