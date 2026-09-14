@@ -7,9 +7,13 @@ require __DIR__ . '/../../../../modules/verification-tools/verification-tools-ut
 /**
  * @covers ::jetpack_verification_validate
  * @covers ::jetpack_verification_validate_code
+ * @covers ::jetpack_verification_validate_codes
+ * @covers ::jetpack_verification_extract_code
  */
 #[CoversFunction( 'jetpack_verification_validate' )]
 #[CoversFunction( 'jetpack_verification_validate_code' )]
+#[CoversFunction( 'jetpack_verification_validate_codes' )]
+#[CoversFunction( 'jetpack_verification_extract_code' )]
 class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

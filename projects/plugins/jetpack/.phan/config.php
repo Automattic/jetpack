@@ -20,7 +20,7 @@ $config = make_phan_config(
 			// Standalone compatibility fixture that intentionally redefines a WordPress function.
 			'tests/php/fixtures/random-redirect-existing-function.php',
 			// Standalone compatibility fixture that intentionally redefines Jetpack symbols.
-			'tests/php/json-api/fixtures/site-settings-mixed-version-bootstrap.php',
+			'tests/php/json-api/fixtures/site-settings-partial-wpcom-bootstrap.php',
 			// Mocks of wpcom classes and functions.
 			'tests/php/lib/class-wpcom-features.php',
 			'tests/php/lib/class-email-verification.php',

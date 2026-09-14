@@ -182,10 +182,10 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The endpoint loads the matching verification helper in a mixed-version bootstrap.
+	 * The endpoint loads collision-free helpers in the partial WordPress.com bootstrap.
 	 */
-	public function test_loads_site_verification_helper_in_mixed_version_bootstrap() {
-		$script = __DIR__ . '/fixtures/site-settings-mixed-version-bootstrap.php';
+	public function test_loads_site_verification_helpers_in_partial_wpcom_bootstrap() {
+		$script = __DIR__ . '/fixtures/site-settings-partial-wpcom-bootstrap.php';
 
 		$output    = array();
 		$exit_code = 0;
@@ -195,7 +195,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		$this->assertSame(
 			0,
 			$exit_code,
-			"Mixed-version bootstrap failed:\n" . implode( "\n", $output )
+			"Partial WordPress.com bootstrap failed:\n" . implode( "\n", $output )
 		);
 		$this->assertSame( array( 'OK' ), $output );
 	}
@@ -224,10 +224,11 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 * A valid site verification meta tag is reduced to its content value and saved.
 	 */
 	public function test_post_saves_site_verification_code_from_meta_tag() {
+		$code    = '+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=';
 		$setting = wp_json_encode(
 			array(
 				'verification_services_codes' => array(
-					'bing' => '<meta name="msvalidate.01" content="12C1203B5086AECE94EB3A3D9830B2E" />',
+					'google' => '<meta name="google-site-verification" content="' . $code . '" />',
 				),
 			),
 			JSON_UNESCAPED_SLASHES
@@ -236,11 +237,11 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		$response = $this->make_post_request( $setting );
 
 		$this->assertSame(
-			array( 'bing' => '12C1203B5086AECE94EB3A3D9830B2E' ),
+			array( 'google' => $code ),
 			$response['updated']['verification_services_codes']
 		);
 		$this->assertSame(
-			array( 'bing' => '12C1203B5086AECE94EB3A3D9830B2E' ),
+			array( 'google' => $code ),
 			get_option( 'verification_services_codes' )
 		);
 	}
