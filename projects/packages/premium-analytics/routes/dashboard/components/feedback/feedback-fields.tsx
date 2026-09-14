@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { type StatsFeedbackRating } from '@jetpack-premium-analytics/data';
 import { Stack, Text, TextareaControl } from '@jetpack-premium-analytics/externals';
 import { RadioControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
@@ -13,21 +12,6 @@ export type StatsFeedbackReadiness = 'ready' | 'almost' | 'not_yet';
 // Tracks drops an event whose properties are oversized, so a pasted essay would
 // cost us the answer too.
 const COMMENT_MAX_LENGTH = 1000;
-
-/**
- * The comparison scale, worst to best. `value` is the score that reaches Tracks.
- *
- * @return The options, in scale order.
- */
-function ratingOptions() {
-	return [
-		{ value: '1', label: __( 'Much worse', 'jetpack-premium-analytics-pkg' ) },
-		{ value: '2', label: __( 'A bit worse', 'jetpack-premium-analytics-pkg' ) },
-		{ value: '3', label: __( 'About the same', 'jetpack-premium-analytics-pkg' ) },
-		{ value: '4', label: __( 'A bit better', 'jetpack-premium-analytics-pkg' ) },
-		{ value: '5', label: __( 'Much better', 'jetpack-premium-analytics-pkg' ) },
-	];
-}
 
 /**
  * The readiness answers, readiest first. `value` is what reaches Tracks.
@@ -113,69 +97,12 @@ function CommentField( { question, comment, onCommentChange }: CommentFieldProps
 	);
 }
 
-type ComparisonFieldsProps = {
-	rating: StatsFeedbackRating | undefined;
-	onRatingChange: ( rating: StatsFeedbackRating ) => void;
-	comment: string;
-	onCommentChange: ( comment: string ) => void;
-	commentQuestion: string;
-};
-
-/**
- * The comparison scale, above an open question the surface chooses.
- *
- * @param {ComparisonFieldsProps} props                 - Component props.
- * @param {number|undefined}      props.rating          - The score picked, if any.
- * @param {Function}              props.onRatingChange  - Called with the score picked.
- * @param {string}                props.comment         - The comment as typed.
- * @param {Function}              props.onCommentChange - Called with the comment as typed.
- * @param {string}                props.commentQuestion - The question above the comment box.
- * @return The two fields.
- */
-export function ComparisonFields( {
-	rating,
-	onRatingChange,
-	comment,
-	onCommentChange,
-	commentQuestion,
-}: ComparisonFieldsProps ) {
-	const comparisonQuestion = __(
-		'Compared with the existing Traffic tab in Stats, the new Traffic tab is:',
-		'jetpack-premium-analytics-pkg'
-	);
-
-	const selectRating = useCallback(
-		( value: string ) => onRatingChange( Number( value ) as StatsFeedbackRating ),
-		[ onRatingChange ]
-	);
-
-	return (
-		<>
-			<Stack direction="column" gap="sm">
-				<Question>{ comparisonQuestion }</Question>
-				<RadioControl
-					hideLabelFromVision
-					label={ comparisonQuestion }
-					options={ ratingOptions() }
-					selected={ rating?.toString() }
-					onChange={ selectRating }
-				/>
-			</Stack>
-
-			<CommentField
-				question={ commentQuestion }
-				comment={ comment }
-				onCommentChange={ onCommentChange }
-			/>
-		</>
-	);
-}
-
 type ReadinessFieldsProps = {
 	readiness: StatsFeedbackReadiness | undefined;
 	onReadinessChange: ( readiness: StatsFeedbackReadiness ) => void;
 	comment: string;
 	onCommentChange: ( comment: string ) => void;
+	question?: string;
 };
 
 /**
@@ -186,6 +113,7 @@ type ReadinessFieldsProps = {
  * @param {Function}             props.onReadinessChange - Called with the answer picked.
  * @param {string}               props.comment           - The comment as typed.
  * @param {Function}             props.onCommentChange   - Called with the comment as typed.
+ * @param {string}               props.question          - The readiness question, if the surface words it its own way.
  * @return The two fields.
  */
 export function ReadinessFields( {
@@ -193,11 +121,11 @@ export function ReadinessFields( {
 	onReadinessChange,
 	comment,
 	onCommentChange,
+	question,
 }: ReadinessFieldsProps ) {
-	const readinessQuestion = __(
-		'Is the new Traffic tab ready to replace the old one?',
-		'jetpack-premium-analytics-pkg'
-	);
+	const readinessQuestion =
+		question ??
+		__( 'Is the new Traffic tab ready to replace the old one?', 'jetpack-premium-analytics-pkg' );
 
 	// "What's missing?" reads oddly after "Yes", where nothing is missing by definition.
 	const commentQuestion =

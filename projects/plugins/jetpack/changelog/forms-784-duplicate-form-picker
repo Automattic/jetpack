@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Prevent extra forms from being created when the block placeholder is clicked more than once.

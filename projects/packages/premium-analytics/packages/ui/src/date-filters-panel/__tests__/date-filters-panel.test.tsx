@@ -1,3 +1,4 @@
+import { TZDate } from '@date-fns/tz';
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
 import { render, screen, within } from '@testing-library/react';
@@ -6,8 +7,8 @@ import { DateFiltersPanel } from '../date-filters-panel';
 import type { ComponentProps } from 'react';
 
 const PRESET_RANGE = {
-	from: new Date( '2026-07-01T00:00:00.000Z' ),
-	to: new Date( '2026-07-30T23:59:59.999Z' ),
+	from: new TZDate( '2026-07-01T00:00:00.000Z', 'UTC' ),
+	to: new TZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 };
 
 function panel( props: Partial< ComponentProps< typeof DateFiltersPanel > > = {} ) {
@@ -65,8 +66,8 @@ describe( 'DateFiltersPanel', () => {
 	// different ranges on screen at once (WOOA7S-1936).
 	it( 'names the applied preset on the trigger once one takes over', () => {
 		const customRange = {
-			from: new Date( '2026-01-30T00:00:00.000Z' ),
-			to: new Date( '2026-08-05T23:59:59.999Z' ),
+			from: new TZDate( '2026-01-30T00:00:00.000Z', 'UTC' ),
+			to: new TZDate( '2026-08-05T23:59:59.999Z', 'UTC' ),
 		};
 
 		const { rerender } = renderPanel( {
@@ -127,8 +128,8 @@ describe( 'DateFiltersPanel', () => {
 		// `last-12-months` as read on 20 August 2026. Measured by the day, the
 		// previous period would start on 12 September 2024.
 		const toDateRange = {
-			from: new Date( '2025-09-01T00:00:00.000Z' ),
-			to: new Date( '2026-08-20T23:59:59.999Z' ),
+			from: new TZDate( '2025-09-01T00:00:00.000Z', 'UTC' ),
+			to: new TZDate( '2026-08-20T23:59:59.999Z', 'UTC' ),
 		};
 		renderPanel( {
 			appliedPresetId: 'last-12-months',
@@ -142,8 +143,8 @@ describe( 'DateFiltersPanel', () => {
 
 		expect( onComparisonChange ).toHaveBeenCalledWith(
 			{
-				from: new Date( '2024-09-01T00:00:00.000Z' ),
-				to: new Date( '2025-08-20T23:59:59.999Z' ),
+				from: new TZDate( '2024-09-01T00:00:00.000Z', 'UTC' ),
+				to: new TZDate( '2025-08-20T23:59:59.999Z', 'UTC' ),
 			},
 			'previous-period'
 		);

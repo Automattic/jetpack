@@ -147,6 +147,34 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertTrue( true );
 	}
 
+	/**
+	 * The post being saved can be left out of the count, so its own block does not
+	 * keep the link alive.
+	 */
+	public function test_count_published_embeds_can_leave_one_post_out() {
+		$post = new \WP_Post(
+			(object) array(
+				'ID'           => 1000,
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_content' => '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-ABC123"} /-->',
+				'filter'       => 'raw',
+			)
+		);
+		add_filter(
+			'posts_pre_query',
+			function () use ( $post ) {
+				return array( $post );
+			}
+		);
+
+		$this->assertSame( 1, PayPal_Admin_Page::count_published_embeds()['PLB-ABC123'] );
+		$this->assertArrayNotHasKey( 'PLB-ABC123', PayPal_Admin_Page::count_published_embeds( 1000 ) );
+		$this->assertSame( 1, PayPal_Admin_Page::count_published_embeds( 999 )['PLB-ABC123'] );
+
+		remove_all_filters( 'posts_pre_query' );
+	}
+
 	// --- Delete confirmation ---
 
 	/**
@@ -630,6 +658,37 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'Configuration', $output );
 		$this->assertStringContainsString( 'Sales Tax', $output );
 		$this->assertStringContainsString( '8.25', $output );
+	}
+
+	/**
+	 * Test detail view labels a tax without a name.
+	 *
+	 * PayPal labels the tax itself, so the block leaves the name empty and the row
+	 * shows the amount alone.
+	 */
+	public function test_detail_view_shows_a_tax_without_a_name() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$resource                           = $this->get_sample_resource();
+		$resource['line_items'][0]['taxes'] = array(
+			array(
+				'type'  => 'PERCENTAGE',
+				'value' => '8.25',
+			),
+		);
+		$this->mock_get_resource_response( $resource );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '8.25 (PERCENTAGE)', $output );
+		$this->assertStringNotContainsString( ': 8.25', $output );
 	}
 
 	/**

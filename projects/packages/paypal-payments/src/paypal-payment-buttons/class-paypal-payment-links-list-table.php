@@ -158,10 +158,13 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 			}
 		}
 
-		// PayPal paginates by cursor and returns no total, so count what this page holds.
+		// Fall back to the row count when a response has no total.
+		// total_pages is 1 because this table pages by cursor: core's numbered
+		// links navigate by `paged`, which prepare_items() ignores.
 		$this->set_pagination_args(
 			array(
-				'total_items' => count( $this->items ),
+				'total_items' => absint( $result['total_items'] ?? count( $this->items ) ),
+				'total_pages' => 1,
 				'per_page'    => self::PER_PAGE,
 			)
 		);

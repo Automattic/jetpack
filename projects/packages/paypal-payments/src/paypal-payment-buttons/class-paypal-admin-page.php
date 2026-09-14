@@ -87,9 +87,10 @@ class PayPal_Admin_Page {
 	 *
 	 * @since $$next-version$$
 	 *
+	 * @param int $exclude_post_id A post to leave out, such as the one being saved.
 	 * @return array<string,int> Post counts keyed by resource id.
 	 */
-	public static function count_published_embeds() {
+	public static function count_published_embeds( $exclude_post_id = 0 ) {
 		$posts = get_posts(
 			array(
 				'post_type'              => 'any',
@@ -105,6 +106,9 @@ class PayPal_Admin_Page {
 
 		$counts = array();
 		foreach ( $posts as $post ) {
+			if ( $exclude_post_id && (int) $post->ID === (int) $exclude_post_id ) {
+				continue;
+			}
 			if ( ! preg_match_all( '/"resourceId":"(PLB-[A-Za-z0-9]+)"/', $post->post_content, $matches ) ) {
 				continue;
 			}
@@ -645,7 +649,9 @@ class PayPal_Admin_Page {
 			if ( ! empty( $line_item['taxes'] ) ) {
 				$tax_parts = array();
 				foreach ( $line_item['taxes'] as $tax ) {
-					$tax_parts[] = sprintf( '%s: %s (%s)', $tax['name'] ?? '', $tax['value'] ?? '', $tax['type'] ?? '' );
+					// PayPal labels the tax itself, so most payments leave the name empty.
+					$detail      = sprintf( '%s (%s)', $tax['value'] ?? '', $tax['type'] ?? '' );
+					$tax_parts[] = empty( $tax['name'] ) ? $detail : sprintf( '%s: %s', $tax['name'], $detail );
 				}
 				self::render_detail_row( __( 'Taxes', 'jetpack-paypal-payments' ), implode( ', ', $tax_parts ) );
 			}

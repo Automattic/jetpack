@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Tests: Set `maintenance.auto` false in git fixtures created during tests.
+
+

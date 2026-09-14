@@ -29,7 +29,7 @@ PayPal Payment Buttons lets you accept payments on your WordPress site using Pay
 1. Connect your PayPal account using API credentials from the PayPal Developer Dashboard
 2. Add the PayPal Payment Buttons block to any post or page
 3. Enter your product details (name, price, currency, and optional description)
-4. Click "Create Button" — the plugin creates a payment link via PayPal's API
+4. Click "Create New" — the plugin creates a payment link via PayPal's API
 5. Publish your post — visitors see a styled PayPal button that links to checkout
 
 == Installation ==
@@ -141,7 +141,7 @@ Major update: API-driven PayPal button creation replaces the paste-code workflow
 == Screenshots ==
 
 1. Connect PayPal — Enter API credentials from the PayPal Developer Dashboard.
-2. Create Button — Fill in product name, price, and currency in the block editor.
+2. Create New — Fill in product name, price, and currency in the block editor.
 3. Live Preview — See the PayPal-branded button preview before publishing.
 4. Frontend — Published PayPal button with product info and payment link.
 5. Stacked Layout — PayPal button with Debit/Credit Card secondary button.

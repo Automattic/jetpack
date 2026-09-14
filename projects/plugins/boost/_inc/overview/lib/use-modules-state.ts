@@ -54,7 +54,11 @@ export function isSiteOnline(): boolean {
 	return typeof Jetpack_Boost !== 'undefined' && Jetpack_Boost.site.online;
 }
 
-export async function requestDataSync( key: DataSyncKey, value?: unknown ): Promise< unknown > {
+export async function requestDataSync(
+	key: DataSyncKey,
+	value?: unknown,
+	action: 'set' | 'merge' = 'set'
+): Promise< unknown > {
 	if ( ! isSiteOnline() ) {
 		throw new Error( 'The site is not publicly available.' );
 	}
@@ -66,7 +70,7 @@ export async function requestDataSync( key: DataSyncKey, value?: unknown ): Prom
 	const route = key.replace( /_/g, '-' );
 	const response = await apiFetch( {
 		url: `${ config.rest_api.value.replace( /\/$/, '' ) }/${ route }${
-			value === undefined ? '' : '/set'
+			value === undefined ? '' : `/${ action }`
 		}`,
 		method: value === undefined ? 'GET' : 'POST',
 		credentials: 'same-origin',
@@ -83,10 +87,12 @@ export function parseModulesState( value: unknown ): ModulesState {
 	return modulesStateSchema.parse( value );
 }
 
+const modulesStateQueryKey = [ 'modules_state' ] as const;
+
 export function useModulesState() {
 	const initial = modulesStateSchema.safeParse( window.jetpack_boost_ds?.modules_state?.value );
 	return useQuery( {
-		queryKey: [ 'modules_state' ],
+		queryKey: modulesStateQueryKey,
 		queryFn: async () => parseModulesState( await requestDataSync( 'modules_state' ) ),
 		initialData: initial.success ? initial.data : undefined,
 		enabled: isSiteOnline(),

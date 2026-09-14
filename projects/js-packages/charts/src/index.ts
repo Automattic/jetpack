@@ -10,6 +10,7 @@ export {
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	buildCalendarHeatmapData,
+	useCalendarHeatmapData,
 } from './charts/heatmap-chart';
 export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
 export { LineChart, LineChartUnresponsive } from './charts/line-chart';
@@ -113,6 +114,7 @@ export type {
 	HeatmapColumn,
 	HeatmapCell,
 	HeatmapTooltipData,
+	CalendarHeatmapOptions,
 	CalendarHeatmapResult,
 } from './charts/heatmap-chart';
 export type { LeaderboardChartProps } from './charts/leaderboard-chart';

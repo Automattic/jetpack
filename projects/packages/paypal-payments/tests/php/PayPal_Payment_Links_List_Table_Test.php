@@ -140,6 +140,55 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	}
 
 	/**
+	 * Test that prepare_items counts every link, not just the page on screen.
+	 *
+	 * The table pages by cursor, so counting its own rows told a merchant with
+	 * more links than fit on a page that they had one page's worth.
+	 */
+	public function test_prepare_items_uses_paypals_total() {
+		$this->set_up_connected_state();
+		$this->mock_list_response( $this->get_sample_items(), 40 );
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+
+		$this->assertSame( 40, $table->get_pagination_arg( 'total_items' ) );
+	}
+
+	/**
+	 * Test that prepare_items sets total_pages to 1, which keeps core's
+	 * numbered pagination off.
+	 *
+	 * Paging is by cursor and prepare_items() ignores `paged`, so links built
+	 * from a computed page count would go nowhere.
+	 */
+	public function test_prepare_items_sets_total_pages_to_one() {
+		$this->set_up_connected_state();
+		$this->mock_list_response( $this->get_sample_items(), 40 );
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+
+		$this->assertSame( 1, $table->get_pagination_arg( 'total_pages' ) );
+	}
+
+	/**
+	 * Test that prepare_items falls back to the row count when the total is
+	 * missing.
+	 *
+	 * A cached or older response can come back with no total_items.
+	 */
+	public function test_prepare_items_falls_back_to_row_count() {
+		$this->set_up_connected_state();
+		$this->mock_list_response( $this->get_sample_items() );
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+
+		$this->assertSame( 2, $table->get_pagination_arg( 'total_items' ) );
+	}
+
+	/**
 	 * Test column_name renders product name from line_items.
 	 */
 	public function test_column_name_renders_product_name() {
@@ -338,9 +387,10 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	/**
 	 * Mock a list_resources API response.
 	 *
-	 * @param array $items The items to return.
+	 * @param array    $items The items to return.
+	 * @param int|null $total Optional. The account total PayPal reports.
 	 */
-	private function mock_list_response( $items ) {
+	private function mock_list_response( $items, $total = null ) {
 		$this->mock_http_response(
 			200,
 			array(
@@ -351,7 +401,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 						'href' => 'https://api.paypal.com/v1/checkout/payment-resources?page_size=20',
 					),
 				),
-			)
+			) + ( null === $total ? array() : array( 'total_items' => $total ) )
 		);
 	}
 

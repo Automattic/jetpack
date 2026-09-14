@@ -5,11 +5,17 @@ import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import analytics from 'lib/analytics';
 import App from '../main';
+// Compiles the lazy tab module before the tests run, so the flag test's 1s wait
+// covers the render and not Jest's cold transform of DataViews on CI.
+import '../scheduled-tasks/index';
 
 // main.jsx imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
-jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) );
+jest.mock( '@automattic/jetpack-ai-client/jwt', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
 
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the GET/POST responses.

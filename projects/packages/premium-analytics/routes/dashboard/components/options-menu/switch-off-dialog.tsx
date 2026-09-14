@@ -5,7 +5,6 @@ import {
 	disableDashboard,
 	getApiErrorCode,
 	submitStatsUserFeedback,
-	type StatsFeedbackRating,
 } from '@jetpack-premium-analytics/data';
 import { Button, Dialog, Notice, Stack } from '@jetpack-premium-analytics/externals';
 import { useCallback, useRef, useState } from '@wordpress/element';
@@ -14,7 +13,11 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
-import { ComparisonFields } from '../feedback/feedback-fields';
+import {
+	ReadinessFields,
+	readinessSummary,
+	type StatsFeedbackReadiness,
+} from '../feedback/feedback-fields';
 import { returnToClassicStats } from './return-to-classic-stats';
 
 // Reaches Happiness as the subject line, so it tells exit feedback from the in-product kind.
@@ -34,11 +37,11 @@ type SwitchOffDialogProps = {
  */
 export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 	const trackEvent = useTrackEvent();
-	const [ rating, setRating ] = useState< StatsFeedbackRating >();
+	const [ readiness, setReadiness ] = useState< StatsFeedbackReadiness >();
 	const [ comment, setComment ] = useState( '' );
 	const [ isSwitchingOff, setIsSwitchingOff ] = useState( false );
 	const [ hasFailed, setHasFailed ] = useState( false );
-	// A confirmation opens on its way out, not on the first point of a scale nobody has to fill in.
+	// A confirmation opens on its way out, not on the first of answers nobody has to pick.
 	const cancelRef = useRef< HTMLButtonElement >( null );
 
 	// Escape and the backdrop wait for the write too: a success would otherwise navigate away
@@ -73,15 +76,14 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 
 		// After the write so a retry counts once, before the navigation so the beacon is not cut short.
 		trackEvent( 'jetpack_premium_analytics_preview_disable', {
-			...( rating === undefined ? {} : { rating } ),
+			...( readiness === undefined ? {} : { readiness } ),
 			...( message ? { comment: message } : {} ),
 		} );
 
 		// Happiness gets the comment too; a failure there must not keep the reader here.
 		if ( message ) {
 			await submitStatsUserFeedback( {
-				rating,
-				comment: message,
+				comment: readiness ? `${ readinessSummary( readiness ) } ${ message }` : message,
 				productName: PRODUCT_NAME,
 			} ).catch( ( error: unknown ) => {
 				// eslint-disable-next-line no-console -- swallowed on purpose, so this is the only trace
@@ -90,7 +92,7 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 		}
 
 		returnToClassicStats();
-	}, [ comment, rating, trackEvent ] );
+	}, [ comment, readiness, trackEvent ] );
 
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
@@ -103,19 +105,19 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 							</Dialog.Title>
 							<Dialog.Description>
 								{ __(
-									"You'll go back to your current Stats. You can switch the new Traffic tab on again from the banner there.",
+									"You'll go back to your current Stats. You can switch the new Traffic tab on again from the Modules Visibility setting.",
 									'jetpack-premium-analytics-pkg'
 								) }
 							</Dialog.Description>
 						</Stack>
 
-						<ComparisonFields
-							rating={ rating }
-							onRatingChange={ setRating }
+						<ReadinessFields
+							readiness={ readiness }
+							onReadinessChange={ setReadiness }
 							comment={ comment }
 							onCommentChange={ setComment }
-							commentQuestion={ __(
-								'What made you switch it off?',
+							question={ __(
+								'Before you go — is the new Traffic tab ready to replace the old one?',
 								'jetpack-premium-analytics-pkg'
 							) }
 						/>

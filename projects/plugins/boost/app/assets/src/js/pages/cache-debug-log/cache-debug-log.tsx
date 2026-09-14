@@ -12,7 +12,7 @@ import styles from './cache-debug-log.module.scss';
 
 const CacheDebugLog = () => {
 	const [ { data: debugLog } ] = useDebugLog();
-	const { returnToSettings } = useBoostNavigation();
+	const { returnToSettings, settingsHref } = useBoostNavigation();
 	const [ hasCopied, setHasCopied ] = useState( false );
 	const copyTimer = useRef< ReturnType< typeof setTimeout > | undefined >();
 
@@ -53,7 +53,7 @@ const CacheDebugLog = () => {
 			<ul className={ styles.breadcrumbs }>
 				<li>
 					<Text variant="body-lg">
-						<Link tone="neutral" href="#/" onClick={ handleBack }>
+						<Link tone="neutral" href={ settingsHref } onClick={ handleBack }>
 							{ 'Boost' /** "Boost" is a product name, do not translate. */ }
 						</Link>
 					</Text>

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import BoostPage from '../../_inc/components/boost-page';
+import Overview from '../../_inc/overview/overview';
 import {
 	getSubpage,
 	LOCATION_CHANGE_EVENT,
@@ -88,8 +89,10 @@ function Stage() {
 			onTabChange={ onTabChange }
 			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
-			<Tabs.Panel value="overview">
-				<QueryClientProvider client={ queryClient }>{ null }</QueryClientProvider>
+			<Tabs.Panel value="overview" keepMounted>
+				<QueryClientProvider client={ queryClient }>
+					<Overview isVisible={ activeTab === 'overview' && subpage === null } />
+				</QueryClientProvider>
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>
 				<div id={ SETTINGS_SLOT_ID } />

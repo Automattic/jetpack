@@ -4,6 +4,9 @@ import { useModernRoute } from './use-modern-route';
 
 const BASE_URL = 'http://localhost/wp-admin/admin.php?page=jetpack-boost';
 
+/** The route arg as the chassis writes it. */
+const SETTINGS_ARG = '&p=%2F%3Ftab%3Dsettings';
+
 const goTo = ( suffix: string, event = LOCATION_CHANGE_EVENT ) => {
 	act( () => {
 		window.history.replaceState( null, '', `${ BASE_URL }${ suffix }` );
@@ -36,7 +39,7 @@ describe( 'useModernRoute', () => {
 	it( 'follows the chassis location event and history navigation', () => {
 		const { result } = renderHook( () => useModernRoute() );
 
-		goTo( '&tab=settings' );
+		goTo( SETTINGS_ARG );
 		expect( result.current.tab ).toBe( 'settings' );
 
 		goTo( '', 'popstate' );
@@ -49,7 +52,7 @@ describe( 'useModernRoute', () => {
 		goTo( '#/?tab=settings' );
 
 		expect( window.location.hash ).toBe( '' );
-		expect( window.location.search ).toContain( 'tab=settings' );
+		expect( window.location.search ).toContain( 'p=%2F%3Ftab%3Dsettings' );
 		expect( result.current ).toEqual( { subpage: null, tab: 'settings' } );
 	} );
 

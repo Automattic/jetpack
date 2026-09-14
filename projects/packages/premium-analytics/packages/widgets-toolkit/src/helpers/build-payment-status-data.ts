@@ -60,7 +60,6 @@ export function buildPaymentStatusData(
 			value: paidNetSales,
 			valueDisplay: formatMetricValue( paidNetSales, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 		},
 		{
@@ -68,7 +67,6 @@ export function buildPaymentStatusData(
 			value: unpaidNetSales,
 			valueDisplay: formatMetricValue( unpaidNetSales, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 		},
 	];
@@ -79,7 +77,6 @@ export function buildPaymentStatusData(
 			value: paidNetSales,
 			displayValue: formatMetricValue( paidNetSales, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 			comparison: comparisonOrders ? comparisonPaidNetSales : undefined,
 		},
@@ -88,7 +85,6 @@ export function buildPaymentStatusData(
 			value: unpaidNetSales,
 			displayValue: formatMetricValue( unpaidNetSales, 'currency', {
 				useMultipliers: true,
-				decimals: 0,
 			} ),
 			comparison: comparisonOrders ? comparisonUnpaidNetSales : undefined,
 		},

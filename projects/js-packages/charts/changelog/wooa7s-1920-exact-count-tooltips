@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+LeaderboardChart: Let valueFormatter return a React node, so a value can carry a tooltip.

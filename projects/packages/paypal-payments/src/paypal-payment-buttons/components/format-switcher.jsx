@@ -39,10 +39,7 @@ export default function FormatSwitcher( { value, onChange, disabled } ) {
 	const activeValue = value || 'BUTTON';
 	return (
 		<div className="jetpack-paypal-payment-buttons__format-switcher">
-			<p className="components-base-control__label">
-				{ __( 'Display Format', 'jetpack-paypal-payments' ) }
-			</p>
-			<ButtonGroup>
+			<ButtonGroup className="jetpack-paypal-payment-buttons__format-toggle">
 				{ FORMAT_OPTIONS.map( option => (
 					<Button
 						key={ option.value }

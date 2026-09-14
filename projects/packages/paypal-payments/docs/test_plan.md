@@ -113,7 +113,7 @@ pnpm test:run
 | Production Default | ✅ | Connected badge, environment defaults to production | WOOPTP-163 |
 | Token Pre-validation | ✅ | 403 shows Payment Links guidance + stays on Credentials, 403 clears partial state, 5xx does not block connection | WOOPTP-164 |
 | SVG Block Icon | ✅ | SVG in block inserter, SVG in block toolbar | WOOPTP-166 |
-| Format Switcher | ✅ | Button/Link/QR selection, CTA label changes, format badge in preview, switching format without recreating the product, front-end anchor and standalone QR canvas | WOOPTP-390 |
+| Format Switcher | ✅ | Button/Link/QR selection, format badge in preview, switching format without recreating the product, front-end anchor and standalone QR canvas | WOOPTP-390 |
 | Style Preset | ✅ | Light/Auto/Dark selection and theme custom-property inheritance | WOOPTP-390 |
 
 **WP 6.9 compatibility notes:**

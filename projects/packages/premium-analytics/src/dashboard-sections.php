@@ -303,11 +303,13 @@ function register_default_dashboard_sections() {
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Activity insights', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 20,
-			// Insights reads whole history: all time and single years instead of
-			// the rolling picker, with nothing to compare them against.
+			// Insights reads whole history: all time and single years, with nothing
+			// to compare them against. Most widgets have fixed periods of their own,
+			// so no header control; Highlights hosts the only year control.
 			'date_filter'         => Dashboard_Section::DATE_FILTER_YEAR,
 			'date_filter_options' => array(
-				'with_date_comparison' => false,
+				'with_date_comparison'     => false,
+				'with_header_date_control' => false,
 			),
 			'default_layout'      => static function () {
 				return get_dashboard_default_layout_for( 'analytics/insights' );

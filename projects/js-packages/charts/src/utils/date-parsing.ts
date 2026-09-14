@@ -14,10 +14,13 @@ import { warnOnce } from './warn-once';
 
 /**
  * Checks if a date string contains timezone information
+ *
+ * The minutes are optional because ISO 8601 allows a bare `±hh`, which `parseISO` reads.
+ *
  * @param {string} dateString - The date string to check for timezone information
  * @return {boolean} True if the date string contains timezone information, false otherwise
  */
-const hasTimezone = ( dateString: string ): boolean => {
+export const hasTimezone = ( dateString: string ): boolean => {
 	const tIndex = dateString.indexOf( 'T' );
 	if ( tIndex === -1 ) {
 		return false;
@@ -27,7 +30,7 @@ const hasTimezone = ( dateString: string ): boolean => {
 		return true;
 	}
 
-	return /[+-]\d{2}:?\d{2}$/.test( dateString.slice( tIndex + 1 ) );
+	return /[+-]\d{2}(?::?\d{2})?$/.test( dateString.slice( tIndex + 1 ) );
 };
 
 // The wall clock, read off the string rather than back out of the parsed `Date`: date-fns

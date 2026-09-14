@@ -220,13 +220,10 @@ export function ComparativeLineChart( {
 		[ dataFormat, resolvedStyles, seriesKeys, getTooltipLabel ]
 	);
 
-	// Multipliers and no decimals keep the y-axis tick labels short.
+	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
 		() => ( value: number ) =>
-			formatMetricValue( value, dataFormat.type, {
-				useMultipliers: true,
-				decimals: 0,
-			} ),
+			formatMetricValue( value, dataFormat.type, { useMultipliers: true } ),
 		[ dataFormat ]
 	);
 

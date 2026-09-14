@@ -91,12 +91,13 @@ zone, not just the parse: `parseAsLocalDate( '2026-08-02', timeZone )` and an
 `Intl.DateTimeFormat` constructed with the same `timeZone`. Moving only the parse
 is worse than moving neither, because the two no longer cancel.
 
-Two things neither prop reaches. `HeatmapChart` builds its labels in
-`buildCalendarHeatmapData`, a plain function the host calls outside the provider,
-so they stay in English on the browser's calendar. And the boundaries that promote
-a tick to its date or its year are read on the Gregorian calendar, so a
-non-Gregorian `locale` labels its own new year while the year tick still lands on
-January 1.
+One thing neither prop reaches: the boundaries that promote a tick to its date or
+its year are read on the Gregorian calendar, so a non-Gregorian `locale` labels its
+own new year while the year tick still lands on January 1.
+
+`HeatmapChart`'s calendar labels do follow both props, through
+`useCalendarHeatmapData`. Its plain-function form, `buildCalendarHeatmapData`, is
+called outside the provider and takes them as options instead.
 
 ## Color Coordination
 

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Improve Overview error handling and chart interaction, and preserve alert dismissals across dashboard bundles.

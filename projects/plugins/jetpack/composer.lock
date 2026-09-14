@@ -2522,12 +2522,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/newsletter",
-                "reference": "3cefdfbdcadab4ca6a1223add51af600b9788fef"
+                "reference": "9fc99e01ff8f4eaa89efed9d04602e3fb44f033a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",

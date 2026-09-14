@@ -3,14 +3,15 @@ jest.mock( '@wordpress/compose', () => ( {
 	useMediaQuery: jest.fn( () => false ),
 } ) );
 
+import { TZDate } from '@date-fns/tz';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useMediaQuery } from '@wordpress/compose';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 
 const JULY_2026 = {
-	from: new Date( 2026, 6, 1, 0, 0, 0, 0 ),
-	to: new Date( 2026, 6, 31, 23, 59, 59, 999 ),
+	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),
+	to: new TZDate( 2026, 6, 31, 23, 59, 59, 999, 'UTC' ),
 };
 
 function renderDropdown( overrides: Partial< Parameters< typeof DatePeriodDropdown >[ 0 ] > = {} ) {

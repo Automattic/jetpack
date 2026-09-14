@@ -24,7 +24,8 @@ import FormatSwitcher from './components/format-switcher';
  * @param {boolean}  props.isCreating         - Whether a create or update request is in flight.
  * @param {Function} props.handleDeleteButton - Delete the PayPal payment.
  * @param {Function} props.handleDisconnect   - Disconnect the PayPal account.
- * @param {boolean}  props.hasButton          - Whether the block has a created button.
+ * @param {string}   props.hasButton          - The block's payment link, empty when it has no button.
+ * @param {boolean}  props.isPreviewingButton - Whether the block shows that button rather than the form.
  * @return {Element} The inspector sidebar.
  */
 export default function PayPalInspectorControls( {
@@ -39,11 +40,15 @@ export default function PayPalInspectorControls( {
 	handleDeleteButton,
 	handleDisconnect,
 	hasButton,
+	isPreviewingButton,
 } ) {
 	return (
 		<InspectorControls>
 			{ /* Style preset: Light / Auto / Dark — overrides the OS/theme auto-detect */ }
-			<PanelBody title={ __( 'Style', 'jetpack-paypal-payments' ) } initialOpen={ true }>
+			<PanelBody
+				title={ __( 'Style', 'jetpack-paypal-payments' ) }
+				initialOpen={ isPreviewingButton }
+			>
 				<p className="jetpack-paypal-payment-buttons__scheme-label">
 					{ __(
 						'Choose how the button adapts to your site theme. "Auto" follows the visitor\'s OS preference.',
@@ -81,15 +86,13 @@ export default function PayPalInspectorControls( {
 				</p>
 			</PanelBody>
 
-			{ hasButton && (
-				<PanelBody title={ __( 'Display Format', 'jetpack-paypal-payments' ) } initialOpen={ true }>
-					<FormatSwitcher
-						value={ activeFormat }
-						onChange={ value => setAttributes( { format: value } ) }
-						disabled={ isCreating }
-					/>
-				</PanelBody>
-			) }
+			<PanelBody title={ __( 'Display Format', 'jetpack-paypal-payments' ) } initialOpen={ false }>
+				<FormatSwitcher
+					value={ activeFormat }
+					onChange={ value => setAttributes( { format: value } ) }
+					disabled={ isCreating }
+				/>
+			</PanelBody>
 
 			{ hasButton && (
 				<PanelBody

@@ -50,6 +50,7 @@ export interface NewsletterScriptData {
 	dateExample: string;
 	subscriberManagementUrl: string;
 	subscriberManagementEnabled: boolean;
+	overviewEnabled: boolean;
 	isSubscriptionSiteEditSupported: boolean;
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;

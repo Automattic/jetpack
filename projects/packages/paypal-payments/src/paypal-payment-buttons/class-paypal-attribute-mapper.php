@@ -91,9 +91,12 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Maximum description length.
 	 *
+	 * Anything longer is a 400 `INVALID_STRING_LENGTH` from PayPal. Mirrored in
+	 * `utils/validation.js`; change both together.
+	 *
 	 * @var int
 	 */
-	const MAX_DESCRIPTION_LENGTH = 256;
+	const MAX_DESCRIPTION_LENGTH = 2048;
 
 	/**
 	 * Maximum button text length.
@@ -245,6 +248,10 @@ class PayPal_Attribute_Mapper {
 				$attributes['productDescription'] = sanitize_text_field( $line_item['description'] );
 			}
 
+			if ( ! empty( $line_item['image_url'] ) ) {
+				$attributes['imageUrl'] = esc_url_raw( $line_item['image_url'] );
+			}
+
 			if ( ! empty( $line_item['variants']['dimensions'] ) ) {
 				$attributes['variantsEnabled'] = true;
 				$attributes['variants']        = $line_item['variants'];
@@ -294,9 +301,9 @@ class PayPal_Attribute_Mapper {
 				$attributes['shippingValue']   = 'PREFERENCE' === $attributes['shippingType'] ? '' : sanitize_text_field( $shipping['value'] ?? '' );
 			}
 
-			if ( ! empty( $line_item['collect_shipping_address'] ) ) {
-				$attributes['collectShippingAddress'] = true;
-			}
+			// Map it even when the key is absent: the block attribute defaults to
+			// on, so a missing key has to read as off.
+			$attributes['collectShippingAddress'] = ! empty( $line_item['collect_shipping_address'] );
 		}
 
 		// Extract return_url if present.
