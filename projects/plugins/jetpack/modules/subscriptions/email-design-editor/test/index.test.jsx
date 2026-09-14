@@ -46,6 +46,8 @@ jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) 
 
 // The real stores rather than mocks. Mocking `@wordpress/data` wholesale drops `combineReducers`,
 // which `@wordpress/components` needs at import time by way of `@wordpress/rich-text`.
+const { render, screen } = require( '@testing-library/react' );
+
 const { select, dispatch } = jest.requireActual( '@wordpress/data' );
 const { store: noticesStore } = jest.requireActual( '@wordpress/notices' );
 const { store: coreStore } = jest.requireActual( '@wordpress/core-data' );
@@ -696,6 +698,21 @@ describe( 'Email design editor entry point', () => {
 
 		const payload = blocks => ( { blocks } );
 
+		const HEADER_PREVIEW =
+			'<div class="email-header"><a href="https://example.com">A blog</a></div>';
+
+		/**
+		 * Render the `edit` of the block the last call registered.
+		 *
+		 * @return {void}
+		 */
+		function renderEdit() {
+			const [ , settings ] = mockRegisterBlockType.mock.calls[ 0 ];
+			const Edit = settings.edit;
+
+			render( <Edit /> );
+		}
+
 		it( 'registers each one the site has no definition for', () => {
 			registerEmailBlocks(
 				payload( [
@@ -747,6 +764,52 @@ describe( 'Email design editor entry point', () => {
 		] )( 'registers nothing given %s', ( _label, bundle ) => {
 			expect( () => registerEmailBlocks( bundle ) ).not.toThrow();
 			expect( mockRegisterBlockType ).not.toHaveBeenCalled();
+		} );
+
+		it( 'shows the structure WordPress.com rendered rather than the block name', () => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', preview_html: HEADER_PREVIEW },
+				] )
+			);
+
+			renderEdit();
+
+			expect( screen.getByText( 'A blog' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Email header' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'makes the preview inert, so a click selects the block instead of following a link', () => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', preview_html: HEADER_PREVIEW },
+				] )
+			);
+
+			renderEdit();
+
+			// No query expresses "this subtree is inert", which is the whole assertion: it is what
+			// keeps the email's own links from taking focus or navigating out of the canvas.
+			// eslint-disable-next-line testing-library/no-node-access -- see above.
+			expect( screen.getByText( 'A blog' ).closest( '[inert]' ) ).not.toBeNull();
+		} );
+
+		// A block WordPress.com could not render arrives without the key rather than with an empty
+		// one, so the label has to survive as the fallback.
+		it.each( [
+			[ 'sent no preview', undefined ],
+			[ 'sent an empty preview', '' ],
+			[ 'sent a preview that is not a string', { rendered: '<p>x</p>' } ],
+		] )( 'labels a block that %s with its title', ( _label, previewHtml ) => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', preview_html: previewHtml },
+				] )
+			);
+
+			renderEdit();
+
+			expect( screen.getByText( 'Email header' ) ).toBeInTheDocument();
 		} );
 
 		it( 'registers before the editor renders, not after', async () => {

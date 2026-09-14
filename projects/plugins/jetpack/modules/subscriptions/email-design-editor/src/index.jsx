@@ -14,10 +14,10 @@ import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { getBlockType, registerBlockType } from '@wordpress/blocks';
-import { Notice } from '@wordpress/components';
+import { Disabled, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select } from '@wordpress/data';
-import { createRoot, StrictMode } from '@wordpress/element';
+import { createRoot, RawHTML, StrictMode } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
@@ -313,8 +313,9 @@ export function getTemplateId( bundle ) {
  * a site is still free to have registered one itself, so anything already registered is left
  * alone rather than replaced by a placeholder.
  *
- * Dynamic blocks with no client-side edit, so the canvas shows a labelled placeholder. What the
- * subscriber receives is rendered server-side and is unaffected.
+ * Dynamic blocks with no client-side edit. Where WordPress.com sent the block's rendered structure
+ * the canvas shows that; otherwise it falls back to a labelled placeholder. What the subscriber
+ * receives is rendered server-side and is unaffected either way.
  *
  * @param {object} bundle - The response from the bootstrap route.
  * @return {void}
@@ -332,9 +333,26 @@ export function registerEmailBlocks( bundle ) {
 		// throws rather than rendering.
 		const title = typeof block.title === 'string' && block.title ? block.title : block.name;
 
+		// Server-rendered markup, trusted on the same footing as the rest of the bundle: it reaches
+		// us from WordPress.com over the route that already supplies `editor_settings`.
+		const preview =
+			typeof block.preview_html === 'string' && block.preview_html ? block.preview_html : '';
+
 		// Named and capitalised so it reads as a component: `useBlockProps` is a hook, and an
 		// anonymous arrow here trips rules-of-hooks.
-		const EmailBlockPlaceholder = () => <div { ...useBlockProps() }>{ title }</div>;
+		const EmailBlockEdit = () => (
+			<div { ...useBlockProps() }>
+				{ preview ? (
+					// `inert`, so clicking the email's own links selects the block rather than
+					// navigating, and tabbing skips them. The outline stays on the wrapper above.
+					<Disabled>
+						<RawHTML>{ preview }</RawHTML>
+					</Disabled>
+				) : (
+					title
+				) }
+			</div>
+		);
 
 		registerBlockType( block.name, {
 			apiVersion: 3,
@@ -346,7 +364,7 @@ export function registerEmailBlocks( bundle ) {
 			// Template furniture rather than blocks a creator adds by hand.
 			supports: { ...( block.supports || {} ), html: false, inserter: false },
 
-			edit: EmailBlockPlaceholder,
+			edit: EmailBlockEdit,
 			save: () => null,
 		} );
 	} );
