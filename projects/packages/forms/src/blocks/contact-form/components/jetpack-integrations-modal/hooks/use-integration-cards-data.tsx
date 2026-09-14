@@ -45,6 +45,8 @@ const useIntegrationCardsData = ( {
 					refreshIntegrations,
 					context,
 					handlers,
+					attributes,
+					setAttributes,
 				} );
 			case 'zero-bs-crm':
 				return buildJetpackCrmCard( {

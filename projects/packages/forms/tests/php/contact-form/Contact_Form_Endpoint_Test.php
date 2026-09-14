@@ -1562,4 +1562,70 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 
 		remove_filter( 'wordbless_wpdb_query_results', $capture_query, 10 );
 	}
+
+	/**
+	 * Build a Google Sheets setup request.
+	 *
+	 * @param array $params Parameters to set on the request.
+	 * @return WP_REST_Request
+	 */
+	private function get_google_sheets_setup_request( array $params = array() ) {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/integrations/google-sheets/setup' );
+
+		foreach ( array_merge( array( 'form_post_id' => 123 ), $params ) as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+
+		return $request;
+	}
+
+	/**
+	 * The route has to exist and be reachable, rather than 404.
+	 */
+	public function test_google_sheets_setup_route_is_registered() {
+		$routes = $this->server->get_routes();
+
+		$this->assertArrayHasKey( '/wp/v2/feedback/integrations/google-sheets/setup', $routes );
+	}
+
+	/**
+	 * Without the export capability the request is refused before any spreadsheet
+	 * work happens.
+	 *
+	 * Note the `form_post_id <= 0` guard inside the handler is not reachable from
+	 * here: it sits behind this capability check, and WorDBless grants no
+	 * capabilities to its roles - neither a `user_has_cap` filter nor
+	 * `get_userdata()->add_cap()` takes effect in this harness.
+	 */
+	public function test_google_sheets_setup_requires_the_export_capability() {
+		$response = $this->server->dispatch( $this->get_google_sheets_setup_request() );
+
+		$this->assertGreaterThanOrEqual( 400, $response->get_status() );
+	}
+
+	/**
+	 * Setting up a sync sends form responses to a third party, so it is gated on
+	 * the export capability rather than on being able to edit the form.
+	 */
+	public function test_google_sheets_setup_denies_a_logged_out_user() {
+		wp_set_current_user( 0 );
+
+		$response = $this->server->dispatch( $this->get_google_sheets_setup_request() );
+
+		$this->assertGreaterThanOrEqual( 400, $response->get_status() );
+
+		wp_set_current_user( self::$user_id );
+	}
+
+	/**
+	 * `mode` is constrained, so an unknown destination type never reaches the
+	 * spreadsheet layer.
+	 */
+	public function test_google_sheets_setup_rejects_an_unknown_mode() {
+		$response = $this->server->dispatch(
+			$this->get_google_sheets_setup_request( array( 'mode' => 'nonsense' ) )
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+	}
 }
