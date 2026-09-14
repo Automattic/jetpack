@@ -62,6 +62,7 @@ export const JETPACK_PRODUCTS_WITH_CARD = [
 ] as const;
 
 export const JETPACK_PRODUCTS_WITHOUT_CARD = [
+	'activity-log',
 	'complete',
 	'creator',
 	'extras',
