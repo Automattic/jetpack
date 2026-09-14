@@ -83,6 +83,12 @@ const NO_CUE_RANGES: CueRange[] = [];
 
 type CaptionPreviewPlayerProps = CaptionPreviewProps & {
 	cueRanges?: CueRange[];
+	/**
+	 * Text of the cue being edited, overlaid in place of the playhead cue so the
+	 * author sees their work while the video plays (an empty string shows
+	 * nothing). Undefined during playback review, so the overlay tracks time.
+	 */
+	editingCueText?: string;
 };
 
 /**
@@ -102,6 +108,7 @@ type CaptionPreviewPlayerProps = CaptionPreviewProps & {
  * @param props.isPrivate          - Whether the video is private, so the embed needs a playback token.
  * @param props.previewAspectRatio - Aspect ratio (`W / H`) to size the frame.
  * @param props.cueRanges          - Pre-parsed cue ranges for the active-cue overlay.
+ * @param props.editingCueText     - Text of the cue being edited, overlaid in place of the playhead cue.
  * @param ref                      - Imperative playback controls.
  * @return The preview panel.
  */
@@ -113,6 +120,7 @@ function CaptionPreviewPlayer(
 		isPrivate,
 		previewAspectRatio,
 		cueRanges = NO_CUE_RANGES,
+		editingCueText,
 	}: CaptionPreviewPlayerProps,
 	ref: ForwardedRef< CaptionPreviewPlayerHandle >
 ): ReactElement {
@@ -346,6 +354,9 @@ function CaptionPreviewPlayer(
 		[ seekTo, seekBy, togglePlayback, pauseWhileTypingNow ]
 	);
 
+	// While a cue is being edited its text overrides the playhead cue; otherwise track playback time.
+	const overlayText = editingCueText !== undefined ? editingCueText : activeCueText;
+
 	const nativePreviewSrc = isDirectVideoSource( videoSrc ) ? videoSrc : '';
 	// Hold the embed back until the playback-token fetch for a private video settles.
 	const isAwaitingPlaybackToken = !! isPrivate && playbackToken === null;
@@ -401,8 +412,8 @@ function CaptionPreviewPlayer(
 				}
 			>
 				{ previewElement }
-				{ activeCueText && (
-					<div className="videopress-caption-manager__caption-overlay">{ activeCueText }</div>
+				{ overlayText && (
+					<div className="videopress-caption-manager__caption-overlay">{ overlayText }</div>
 				) }
 			</div>
 			<CheckboxControl

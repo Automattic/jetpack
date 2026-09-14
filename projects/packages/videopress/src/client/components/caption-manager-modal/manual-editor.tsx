@@ -30,7 +30,7 @@ import type {
 } from './caption-preview-player';
 import type { CaptionCueBlock } from './track-helpers';
 import type { ManualWorkspace as ManualWorkspaceState } from './workspace-reducer';
-import type { KeyboardEvent, MutableRefObject, ReactElement, RefObject } from 'react';
+import type { FocusEvent, KeyboardEvent, MutableRefObject, ReactElement, RefObject } from 'react';
 
 const PREVIEW_SEEK_STEP_SECONDS = 5;
 /* Edits closer together than this merge into one undo level, so a burst of typing undoes as a unit. */
@@ -108,6 +108,8 @@ export default function ManualEditor( {
 	const isCompact = useViewportMatch( 'large', '<' );
 	const cueEditorRef = useRef< HTMLDivElement >( null );
 	const shouldScrollCueEditorToEndRef = useRef( false );
+	// The cue holding focus, so the preview overlays the cue being edited.
+	const [ editingCueClientId, setEditingCueClientId ] = useState< string | null >( null );
 
 	/*
 	 * The live cue blocks are editor-local state, so typing re-renders only this
@@ -222,6 +224,35 @@ export default function ManualEditor( {
 				.sort( ( a, b ) => a - b ),
 		[ cueRanges ]
 	);
+
+	/*
+	 * Live text of the focused cue, for the preview to overlay in place of the
+	 * cue under the playhead. Undefined when no cue is focused, so the overlay
+	 * reverts to time-synced captions for playback review.
+	 */
+	const editingCueText = useMemo( () => {
+		if ( editingCueClientId === null ) {
+			return undefined;
+		}
+		const block = cueBlocks.find( cueBlock => cueBlock.clientId === editingCueClientId );
+		return String( block?.attributes?.text ?? '' );
+	}, [ cueBlocks, editingCueClientId ] );
+
+	/*
+	 * Focus and blur bubble from the cue fields to the editor container. Identify
+	 * the focused cue by its block wrapper's `data-block` id, and clear it once
+	 * focus leaves the editor entirely (a blur whose next target is outside it).
+	 */
+	const handleCueEditorFocus = useCallback( ( event: FocusEvent< HTMLDivElement > ) => {
+		const block = ( event.target as HTMLElement ).closest( '[data-block]' );
+		setEditingCueClientId( block?.getAttribute( 'data-block' ) ?? null );
+	}, [] );
+
+	const handleCueEditorBlur = useCallback( ( event: FocusEvent< HTMLDivElement > ) => {
+		if ( ! event.relatedTarget || ! event.currentTarget.contains( event.relatedTarget as Node ) ) {
+			setEditingCueClientId( null );
+		}
+	}, [] );
 
 	useEffect( () => {
 		if ( ! shouldScrollCueEditorToEndRef.current ) {
@@ -415,7 +446,12 @@ export default function ManualEditor( {
 						</div>
 					</div>
 				) : (
-					<div className="videopress-caption-manager__cue-editor" ref={ cueEditorRef }>
+					<div
+						className="videopress-caption-manager__cue-editor"
+						ref={ cueEditorRef }
+						onFocus={ handleCueEditorFocus }
+						onBlur={ handleCueEditorBlur }
+					>
 						<BlockEditorProvider
 							value={ cueBlocks }
 							onInput={ handleCueBlocksChange }
@@ -448,7 +484,12 @@ export default function ManualEditor( {
 			</div>
 
 			{ ! isCompact && (
-				<CaptionPreviewPlayer ref={ playerRef } { ...preview } cueRanges={ cueRanges } />
+				<CaptionPreviewPlayer
+					ref={ playerRef }
+					{ ...preview }
+					cueRanges={ cueRanges }
+					editingCueText={ editingCueText }
+				/>
 			) }
 		</div>
 	);
