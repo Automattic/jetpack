@@ -421,12 +421,10 @@ export default function OnboardingModal(): ReactElement | null {
 
 				<Dialog.Content className="vp-onboarding-modal__body">
 					{ /*
-					 * Title and lede render at the design system's own dialog
-					 * type scale. The Figma spec drew them larger (32px/15px),
-					 * but Dialog.Title/Description expose no size variant, and
-					 * overriding their internals is not a stable API — if the
-					 * larger scale is wanted back, the ask is a variant prop on
-					 * the components, not a local override.
+					 * The title renders at Dialog.Title's own heading-xl. The
+					 * lede carries a class name because Dialog.Description pins
+					 * body-md and exposes no variant; the stylesheet lifts it to
+					 * body-lg from design-system tokens to match the card bodies.
 					 */ }
 					<Dialog.Title>
 						{ __( 'Your Video. Your Player.', 'jetpack-videopress-pkg' ) }
@@ -454,7 +452,7 @@ export default function OnboardingModal(): ReactElement | null {
 									{ card.title }
 								</Text>
 								<Text
-									variant="body-md"
+									variant="body-lg"
 									render={ <span /> }
 									className="vp-onboarding-modal__card-body"
 								>

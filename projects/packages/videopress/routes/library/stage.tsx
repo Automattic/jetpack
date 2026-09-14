@@ -404,6 +404,20 @@ const StageInner = () => {
 		/>
 	);
 
+	// The empty-library verdict, in the same order the viewport decides it
+	// below: a failed listing wins, then anything listable (fetched rows or
+	// in-flight uploads), then the undecided wait, and only then does a
+	// settled count of zero mean "empty". Shared with the header, which
+	// drops its Upload button while the dropzone owns that affordance —
+	// "Upload video" beside "Select a video to upload" was two buttons for
+	// one action.
+	const showsEmptyDropzone =
+		! isError &&
+		items.length === 0 &&
+		uploadQueue.length === 0 &&
+		totalPagination !== undefined &&
+		totalPagination.totalItems === 0;
+
 	// The viewport's four mutually exclusive surfaces, flattened out of
 	// nested ternaries so each branch can say why it exists. Order matters:
 	// error first, then anything already listable, then the undecided wait,
@@ -454,10 +468,11 @@ const StageInner = () => {
 		// An empty library gets an upload dropzone instead of DataViews'
 		// "No results" — a first-video invitation rather than a failed
 		// search. Dropping or picking files lands in the same
-		// `handleFilesSelected` pipeline as the page-wide DropZone and the
-		// header button, so the listing (with its spliced in-flight rows)
-		// takes over the moment anything enters the queue.
-		if ( totalPagination.totalItems === 0 ) {
+		// `handleFilesSelected` pipeline as the page-wide DropZone (and the
+		// header's Upload button, once the listing shows), so the listing
+		// (with its spliced in-flight rows) takes over the moment anything
+		// enters the queue.
+		if ( showsEmptyDropzone ) {
 			return (
 				<div className="vp-library__empty-state">
 					<Card.Root className="vp-library__empty-card">
@@ -492,35 +507,37 @@ const StageInner = () => {
 			activeTab="library"
 			hideFooter
 			actions={
-				<>
-					<input
-						ref={ filePickerRef }
-						type="file"
-						accept="video/*"
-						// The capped free tier can only ever host `limit` videos, so
-						// multi-select there would only produce skipped-file notices;
-						// paid and grandfathered-unlimited plans get bulk selection.
-						multiple={ ! isFree || isUnlimited }
-						style={ { display: 'none' } }
-						onChange={ onFilePicked }
-					/>
-					<Tooltip
-						text={
-							isAtLimit
-								? FREE_TIER_AT_LIMIT_MESSAGE
-								: __( 'Upload a new video', 'jetpack-videopress-pkg' )
-						}
-					>
-						<Button
-							className="vp-library__upload-button"
-							size="compact"
-							onClick={ onClickHeaderUpload }
-							aria-disabled={ isAtLimit }
+				showsEmptyDropzone ? undefined : (
+					<>
+						<input
+							ref={ filePickerRef }
+							type="file"
+							accept="video/*"
+							// The capped free tier can only ever host `limit` videos, so
+							// multi-select there would only produce skipped-file notices;
+							// paid and grandfathered-unlimited plans get bulk selection.
+							multiple={ ! isFree || isUnlimited }
+							style={ { display: 'none' } }
+							onChange={ onFilePicked }
+						/>
+						<Tooltip
+							text={
+								isAtLimit
+									? FREE_TIER_AT_LIMIT_MESSAGE
+									: __( 'Upload a new video', 'jetpack-videopress-pkg' )
+							}
 						>
-							{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</Tooltip>
-				</>
+							<Button
+								className="vp-library__upload-button"
+								size="compact"
+								onClick={ onClickHeaderUpload }
+								aria-disabled={ isAtLimit }
+							>
+								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</Tooltip>
+					</>
+				)
 			}
 		>
 			{ isAtLimit && (
