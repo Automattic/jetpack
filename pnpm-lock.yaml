@@ -6373,8 +6373,8 @@ importers:
         specifier: 5.102.8
         version: 5.102.8(react@18.3.1)
       '@wordpress/a11y':
-        specifier: 4.54.0
-        version: 4.54.0
+        specifier: 4.55.0
+        version: 4.55.0
       '@wordpress/api-fetch':
         specifier: 7.54.0
         version: 7.54.0
@@ -11212,10 +11212,6 @@ packages:
 
   '@woocommerce/email-editor@2.4.1':
     resolution: {integrity: sha512-VHcA04WtIKebeLmUe4gZxPiNSoXolexSXB+2gGPCI4sce86litIzT51QAFnrAB5/C+PORW8reXx3nmuYM6xffw==}
-
-  '@wordpress/a11y@4.54.0':
-    resolution: {integrity: sha512-nRB471rKurl32bTClZkdlL/1p5pLgzF4ltMpfYY2VUTm8RYX5VtsWj4tQbytk6Ch+KA2U47SgJRUyl6etEMolQ==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/a11y@4.55.0':
     resolution: {integrity: sha512-vhAsPgOgfOZ09IMNDBUf2KgERY1ZhzOADnpIr2JeH27EL2HtPOTLZGPB8pi30JdTHfff2ttZ8EWf1XU2iF17Tg==}
@@ -24186,11 +24182,6 @@ snapshots:
       - stylelint
       - supports-color
       - vite
-
-  '@wordpress/a11y@4.54.0':
-    dependencies:
-      '@wordpress/dom-ready': 4.54.0
-      '@wordpress/i18n': 6.27.0
 
   '@wordpress/a11y@4.55.0':
     dependencies:
