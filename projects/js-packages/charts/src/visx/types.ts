@@ -32,7 +32,7 @@ export type XyChartTooltipProps< Datum extends object > = {
 	renderGlyph?: ( params: RenderTooltipGlyphProps< Datum > ) => ReactNode;
 	/**
 	 * Use below-axis placement for centered axis anchoring, or beside placement for a fixed top.
-	 * Vertical bounds do not move this placement; clipping ancestors can still cut it off.
+	 * Only below-axis ignores vertical bounds; beside placement clamps to them.
 	 * @default 'auto'
 	 */
 	tooltipPlacement?: TooltipPlacement;
@@ -54,7 +54,7 @@ export type XyChartTooltipProps< Datum extends object > = {
 	 * that clips its overflow, or the viewport when there is none. The box may
 	 * leave the chart wrapper. (It used to keep a body-level portal inside the
 	 * viewport.)
-	 * Ignored by `below-axis`.
+	 * Non-auto placements always apply their own bounds handling.
 	 * @default true
 	 */
 	detectBounds?: boolean;
