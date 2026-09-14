@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Product ID field to the block, so a SKU can be set in the editor and survives an edit. Part of the API-managed payment buttons, behind a feature flag that is not yet enabled.

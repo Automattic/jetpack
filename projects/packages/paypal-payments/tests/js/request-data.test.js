@@ -42,6 +42,7 @@ const attributes = {
 	taxName: 'VAT',
 	taxValue: '7.5',
 	collectShippingAddress: false,
+	productId: 'SKU-1',
 };
 
 describe( 'buildRequestData', () => {
@@ -55,6 +56,7 @@ describe( 'buildRequestData', () => {
 				{
 					name: 'Widget',
 					description: 'A fine widget.',
+					product_id: 'SKU-1',
 					image_url: 'https://example.com/widget.png',
 					variants: {
 						dimensions: [
@@ -90,6 +92,19 @@ describe( 'buildRequestData', () => {
 				},
 			],
 		} );
+	} );
+
+	it( 'omits product_id when the field is blank', () => {
+		expect(
+			buildRequestData( { ...attributes, productId: '' }, true ).line_items[ 0 ]
+		).not.toHaveProperty( 'product_id' );
+	} );
+
+	// '0' is a product id PayPal stores, so the builder tests the string, not truthiness.
+	it( 'sends a product id of "0"', () => {
+		expect(
+			buildRequestData( { ...attributes, productId: '0' }, true ).line_items[ 0 ].product_id
+		).toBe( '0' );
 	} );
 
 	it( 'sends the product price when the options do not carry their own', () => {

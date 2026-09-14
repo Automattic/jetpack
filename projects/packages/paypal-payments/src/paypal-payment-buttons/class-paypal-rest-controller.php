@@ -1028,7 +1028,7 @@ class PayPal_REST_Controller {
 							),
 						),
 						// Set outside the form, but a PUT replaces the whole resource,
-						// so the editor sends them back.
+						// so the editor sends them back. product_id is in the form now.
 						'product_id'               => array(
 							'type'     => 'string',
 							'required' => false,

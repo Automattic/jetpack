@@ -13,7 +13,6 @@ import { withCurrency } from './resource-sync';
  * merchant deletes by pressing Update. These ride back out from the payment itself.
  */
 export const PAYPAL_ONLY_LINE_ITEM_FIELDS = [
-	'product_id',
 	'shipping',
 	'handling',
 	'discounts',
@@ -58,6 +57,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 		price,
 		currencyCode,
 		productDescription,
+		productId,
 		imageUrl,
 		returnUrl,
 		variantsEnabled,
@@ -91,6 +91,9 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 							},
 					  } ),
 				...( productDescription ? { description: productDescription } : {} ),
+				// Omitted rather than '' so a cleared field does not read as a change on
+				// every save. '0' is a product id, so the test is on the string.
+				...( '' !== ( productId ?? '' ) ? { product_id: productId } : {} ),
 				// The block owns the image: leaving it out here removes it at PayPal.
 				...( imageUrl ? { image_url: imageUrl } : {} ),
 				...( variantsEnabled && variants

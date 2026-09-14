@@ -43,6 +43,10 @@
 			"type": "string",
 			"default": ""
 		},
+		"productId": {
+			"type": "string",
+			"default": ""
+		},
 		"imageUrl": {
 			"type": "string"
 		},

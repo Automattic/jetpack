@@ -235,12 +235,14 @@ describe( 'syncBlocksBeforeSave', () => {
 			const [ item ] = deps.requests[ 1 ].data.line_items;
 			expect( item ).toMatchObject( {
 				name: 'Test Widget',
-				product_id: 'SKU-12345',
 				shipping: storedLineItem.shipping,
 				handling: storedLineItem.handling,
 				discounts: storedLineItem.discounts,
 				collect_shipping_address: true,
 			} );
+			// The form owns product_id now, so it is no longer copied off the payment -
+			// this block has none, so the update clears it, which is the merchant's edit.
+			expect( item ).not.toHaveProperty( 'product_id' );
 			expect( deps.updateBlockAttributes ).not.toHaveBeenCalled();
 		} );
 

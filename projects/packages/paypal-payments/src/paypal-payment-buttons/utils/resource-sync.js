@@ -22,6 +22,7 @@ export const RESOURCE_ATTRIBUTES = [
 	'price',
 	'currencyCode',
 	'productDescription',
+	'productId',
 	'variantsEnabled',
 	'variants',
 	'adjustableQuantity',

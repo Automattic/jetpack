@@ -19,6 +19,7 @@ const blockAttributes = {
 	price: '9.99',
 	currencyCode: 'USD',
 	productDescription: '',
+	productId: '',
 	variantsEnabled: false,
 	variants: null,
 	adjustableQuantity: false,
