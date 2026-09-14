@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
-import { queryClient, useReportScope } from '@jetpack-premium-analytics/data';
+import { queryClient, useRaisePeriodChange, useReportScope } from '@jetpack-premium-analytics/data';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { useCallback as useHandler } from 'react';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
@@ -23,6 +24,8 @@ import type { ForwardedRef, ReactNode } from 'react';
 // Base UI's `Tabs.Panel` defaults to `keepMounted={false}`, so only the active
 // section is ever in the DOM; `mockMountedSectionSlugs` keeps extras for one frame.
 let mockActiveSectionSlug = 'insights';
+const JULY_2026 = { from: new Date( 2026, 6, 1 ), to: new Date( 2026, 6, 31, 23, 59, 59, 999 ) };
+let mockAppliedRange: { from?: Date; to?: Date } = { from: undefined, to: undefined };
 let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
@@ -49,14 +52,17 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		<div ref={ ref }>{ children }</div>
 	) );
 	Stack.displayName = 'Stack';
+	const VisuallyHidden = ( { children, role }: { children: ReactNode; role?: string } ) => (
+		<div role={ role }>{ children }</div>
+	);
 
-	return { Stack };
+	return { Stack, VisuallyHidden };
 } );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useReportDateFilters: () => ( {
-		appliedRange: { from: undefined, to: undefined },
+		appliedRange: mockAppliedRange,
 		range: { from: undefined, to: undefined },
 		timeZone: 'UTC',
 		intervalOptions: [],
@@ -67,7 +73,17 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <MockHeaderScopeProbe />,
+	DateFiltersPanel: ( props: {
+		attentionId?: number;
+		onAttentionEnd?: ( id: number ) => void;
+	} ) => (
+		<>
+			<MockHeaderScopeProbe />
+			<MockAttentionProbe { ...props } />
+		</>
+	),
+	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
+		.PeriodChangeStatus,
 	DateIntervalDropdown: () => <span>interval control</span>,
 	DateYearFilter: ( { containerElement }: { containerElement?: HTMLElement | null } ) => (
 		<>
@@ -157,8 +173,52 @@ function MockHeaderScopeProbe() {
  */
 function MockScopeProbe() {
 	const { offersComparison } = useReportScope();
+	const raisePeriodChange = useRaisePeriodChange();
+	const openJuly = useHandler(
+		() => raisePeriodChange( 'traffic', JULY_2026 ),
+		[ raisePeriodChange ]
+	);
 
-	return <span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>;
+	return (
+		<>
+			<span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>
+			<button type="button" onClick={ openJuly }>
+				Open July from a widget
+			</button>
+		</>
+	);
+}
+
+// Stands in for the period trigger: shows the id it was handed and can end it.
+/**
+ * Stands in for the period trigger: shows the id it was handed and can end it.
+ *
+ * @param props                - The attention props the stage hands the panel.
+ * @param props.attentionId    - The id to show.
+ * @param props.onAttentionEnd - Called with that id from the End button.
+ * @return The probe.
+ */
+function MockAttentionProbe( {
+	attentionId,
+	onAttentionEnd,
+}: {
+	attentionId?: number;
+	onAttentionEnd?: ( id: number ) => void;
+} ) {
+	const end = useHandler( () => {
+		if ( attentionId !== undefined ) {
+			onAttentionEnd?.( attentionId );
+		}
+	}, [ attentionId, onAttentionEnd ] );
+
+	return (
+		<>
+			<span data-testid="attention">{ attentionId ?? 'no attention' }</span>
+			<button type="button" onClick={ end }>
+				End attention
+			</button>
+		</>
+	);
 }
 
 jest.mock( '@wordpress/widget-dashboard', () => {
@@ -383,6 +443,74 @@ describe( 'Dashboard report scope', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard period change signal', () => {
+	const sections = [
+		{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
+		{
+			slug: 'insights',
+			label: 'Insights',
+			title: 'Activity insights',
+			date_filter: DATE_FILTER_YEAR,
+		},
+	];
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useDashboardSectionsMock.mockReturnValue( {
+			sections,
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		mockAppliedRange = { from: undefined, to: undefined };
+	} );
+
+	// A widget on one section can open another over a month (WOOA7S-2036): the
+	// period control there draws attention to it and the change is read out.
+	it( 'draws attention to a period a widget set once the section shows it', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( <Dashboard /> );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+
+		await user.click( screen.getByRole( 'button', { name: 'Open July from a widget' } ) );
+
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockAppliedRange = JULY_2026;
+		rerender( <Dashboard /> );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
+		await expect(
+			screen.findByText( 'Date range updated to July 2026.' )
+		).resolves.toHaveAttribute( 'role', 'status' );
+
+		await user.click( screen.getByRole( 'button', { name: 'End attention' } ) );
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
+	} );
+
+	it( 'lets a signal go when the reader lands on another section instead', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( <Dashboard /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Open July from a widget' } ) );
+
+		useActiveSectionMock.mockReturnValue( [ 'store', jest.fn() ] );
+		mockActiveSectionSlug = 'store';
+		rerender( <Dashboard /> );
+
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockAppliedRange = JULY_2026;
+		rerender( <Dashboard /> );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 	} );
 } );
 

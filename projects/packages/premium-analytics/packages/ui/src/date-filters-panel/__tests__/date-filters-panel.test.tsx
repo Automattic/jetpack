@@ -1,7 +1,7 @@
 import { TZDate } from '@date-fns/tz';
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';
 import type { ComponentProps } from 'react';
@@ -165,5 +165,25 @@ describe( 'DateFiltersPanel', () => {
 		buttons.forEach( button => {
 			expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 		} );
+	} );
+
+	it( 'hands the attention to the period trigger', () => {
+		jest.useFakeTimers();
+		try {
+			const onAttentionEnd = jest.fn();
+			renderPanel( { appliedPresetId: 'last-30-days', attentionId: 3, onAttentionEnd } );
+
+			const trigger = screen.getByRole( 'button', { name: 'Last 30 days' } );
+			// eslint-disable-next-line testing-library/no-node-access -- the fill is aria-hidden by design, so the DOM is the only place to reach it.
+			expect( trigger.querySelector( '.date-period-dropdown__attention' ) ).not.toBeNull();
+
+			act( () => {
+				jest.runOnlyPendingTimers();
+			} );
+
+			expect( onAttentionEnd ).toHaveBeenCalledWith( 3 );
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 } );

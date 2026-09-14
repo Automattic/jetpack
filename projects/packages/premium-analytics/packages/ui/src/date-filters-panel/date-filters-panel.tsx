@@ -120,6 +120,11 @@ export type DateFiltersPanelProps = {
 	 * elsewhere: the dashboard while its layout is being customized.
 	 */
 	disabled?: boolean;
+
+	/** Passed to the period trigger; see `DatePeriodDropdown`. */
+	attentionId?: DatePeriodDropdownProps[ 'attentionId' ];
+
+	onAttentionEnd?: DatePeriodDropdownProps[ 'onAttentionEnd' ];
 };
 
 /**
@@ -153,6 +158,8 @@ export function DateFiltersPanel( {
 	canApply = true,
 	timeZone,
 	disabled = false,
+	attentionId,
+	onAttentionEnd,
 }: DateFiltersPanelProps ) {
 	/*
 	 * Read rather than a prop, so this and the widgets share one declaration —
@@ -269,6 +276,8 @@ export function DateFiltersPanel( {
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }
 						withCustomRange={ withCustomRange }
+						attentionId={ attentionId }
+						onAttentionEnd={ onAttentionEnd }
 					/>
 				</BaseControl>
 

@@ -16,7 +16,7 @@ import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpres
 import { useMediaQuery } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { calendar, check, chevronDown } from '@wordpress/icons';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 /**
  * Internal dependencies
  */
@@ -31,6 +31,18 @@ import './date-period-dropdown.scss';
  * popover and is bounded by the window rather than by the row it opens from.
  */
 const WIDE_MENU_THRESHOLD = 820;
+
+/**
+ * How long the trigger draws attention to a period set from elsewhere. The
+ * fill fades out over this, or holds still under reduced motion.
+ */
+export const ATTENTION_DURATION_MS = 1600;
+
+// The stylesheet reads the duration from here, so the fade and the timer that
+// ends it cannot drift apart.
+const ATTENTION_STYLE = {
+	'--date-period-dropdown-attention-duration': `${ ATTENTION_DURATION_MS }ms`,
+} as CSSProperties;
 
 type DatePeriodDropdownProps = {
 	/**
@@ -111,6 +123,15 @@ type DatePeriodDropdownProps = {
 	 * which follows the primary range).
 	 */
 	onOpenChange?: ( isOpen: boolean ) => void;
+
+	/**
+	 * Draws attention to the trigger: a fill in the brand color that fades,
+	 * for a period a navigation set rather than the reader. Each new id
+	 * restarts it; `onAttentionEnd` is told when it is over.
+	 */
+	attentionId?: number;
+
+	onAttentionEnd?: ( id: number ) => void;
 };
 
 /**
@@ -132,7 +153,45 @@ export function DatePeriodDropdown( {
 	withCustomRange = true,
 	disabled = false,
 	onOpenChange,
+	attentionId,
+	onAttentionEnd,
 }: DatePeriodDropdownProps ) {
+	// Held apart from the prop so the fill outlives a parent that has already
+	// let go of the id, and ends on its own clock.
+	const [ drawnAttentionId, setDrawnAttentionId ] = useState< number >();
+	const onAttentionEndRef = useRef( onAttentionEnd );
+	onAttentionEndRef.current = onAttentionEnd;
+
+	useEffect( () => {
+		if ( attentionId !== undefined ) {
+			setDrawnAttentionId( attentionId );
+		}
+	}, [ attentionId ] );
+
+	// Timed from what is drawn, not from the prop: the parent letting go of the
+	// id must not cut the fill short or leave it behind.
+	useEffect( () => {
+		if ( drawnAttentionId === undefined ) {
+			return;
+		}
+		let ended = false;
+		const end = () => {
+			if ( ! ended ) {
+				ended = true;
+				onAttentionEndRef.current?.( drawnAttentionId );
+			}
+		};
+		const timer = setTimeout( () => {
+			setDrawnAttentionId( current => ( current === drawnAttentionId ? undefined : current ) );
+			end();
+		}, ATTENTION_DURATION_MS );
+
+		// Restarted by a newer id or cut short by an unmount: either way this one is over.
+		return () => {
+			clearTimeout( timer );
+			end();
+		};
+	}, [ drawnAttentionId ] );
 	// The menu floats free of the row it opens from, so the window is what says
 	// whether a second month fits beside the list.
 	const isWideScreen = useMediaQuery( `(min-width: ${ WIDE_MENU_THRESHOLD }px)` );
@@ -208,6 +267,15 @@ export function DatePeriodDropdown( {
 						aria-expanded={ isOpen }
 						aria-haspopup="true"
 					>
+						{ drawnAttentionId !== undefined && (
+							// Keyed so a newer id starts the fade over without remounting the button.
+							<span
+								key={ drawnAttentionId }
+								className="date-period-dropdown__attention"
+								style={ ATTENTION_STYLE }
+								aria-hidden="true"
+							/>
+						) }
 						<Icon className="date-period-dropdown__glyph" icon={ calendar } size={ 18 } />
 						{ /* Own element so a label too wide for the trigger can ellipsize. */ }
 						<span className="date-period-dropdown__label">{ triggerLabel }</span>

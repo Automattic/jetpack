@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { toPostId } from '@jetpack-premium-analytics/data';
+import { toPostId, useRaisePeriodChange } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
@@ -44,6 +44,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 	// Bound to the route hosting the widget: a month picked here becomes the
 	// page's period, read over by the other cards while this one stays all-time.
 	const { onChange, onApply, timeZone } = useReportDateFilters();
+	const raisePeriodChange = useRaisePeriodChange();
 
 	// The months outside the post's life ('before' / 'after') become filler.
 	const heatmapRows = useMemo< MonthlyHeatmapRow[] >(
@@ -64,11 +65,13 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 				month === undefined ? yearRange( year, bounds ) : monthRange( { year, month }, bounds );
 
 			if ( range ) {
+				// Raised first, so the page's date control knows the change is not the reader's.
+				raisePeriodChange( `post:${ postId }`, range );
 				onChange( range, PRESET_CUSTOM );
 				onApply();
 			}
 		},
-		[ lifeStartsAt, timeZone, onChange, onApply ]
+		[ lifeStartsAt, timeZone, onChange, onApply, postId, raisePeriodChange ]
 	);
 
 	// Keep stale rows visible when a background refetch fails.

@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useStatsPost } from '@jetpack-premium-analytics/data';
+import {
+	PeriodChangeSignalProvider,
+	useSettlePeriodChange,
+	useStatsPost,
+} from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
@@ -159,6 +163,35 @@ describe( 'PostAllTimeTraffic widget', () => {
 
 		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom' );
 		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	// The page's date control draws attention to a period the card set, so the
+	// reader notices the numbers around it changed (WOOA7S-2036).
+	it( 'signals the period change to the page it is on', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		function DateControlProbe() {
+			const { attentionId } = useSettlePeriodChange( 'post:779', NOVEMBER_2025, true );
+
+			return <output>{ attentionId ?? 'none' }</output>;
+		}
+		render(
+			<PeriodChangeSignalProvider>
+				<DateControlProbe />
+				<PostAllTimeTrafficRender
+					attributes={ {
+						reportParams: {
+							from: '2026-01-01T00:00:00.000+00:00',
+							to: '2026-01-31T23:59:59.999+00:00',
+							post_id: 779,
+						},
+					} }
+				/>
+			</PeriodChangeSignalProvider>
+		);
+
+		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
+
+		expect( screen.getByRole( 'status' ) ).not.toHaveTextContent( 'none' );
 	} );
 
 	it( 'opens a month the endpoint reports before the publish day in full', async () => {
