@@ -73,7 +73,7 @@ abstract class Module_Product extends Product {
 	/**
 	 * Checks whether the site has switched the product on, whether or not it has a plan for it.
 	 *
-	 * Deliberately not is_active(): bundles override that with a plan check, and some products with one that ignores the module.
+	 * Deliberately not is_active(), which some products override with a plan check that ignores the module.
 	 *
 	 * @return boolean
 	 */

@@ -40,7 +40,10 @@ Admin_Menu::add_menu(
 	'jetpack-search',
 	array( $this, 'render' ),
 	null,
-	array( 'product' => 'search' )
+	array(
+		'product' => 'search',
+		'key'     => 'jetpack-search',
+	)
 );
 ```
 
@@ -54,15 +57,16 @@ Admin_Menu::add_menu(
 
 | Gated by | Example products |
 | -- | -- |
-| A Jetpack module | Stats, Forms, Newsletter, AI, Scan |
+| A Jetpack module | Stats, Forms, Newsletter, AI |
 | A standalone plugin | Boost, Akismet, CRM |
 | Either — the standalone plugin when it's installed, the module otherwise | Social, Search, VideoPress, Backup, Protect |
+| The Jetpack plugin alone, because the product has no module of its own | Scan |
 
 The product's `is_activated()` already knows which of those applies, so a registration site names the product and never has to work out which kind it is. It asks only whether the site has switched the product on, never whether it has a plan: a lapsed plan keeps the item, so the route back to upgrading survives, and resolving a gate never makes a request to WordPress.com.
 
 Reach for `module` only when a sidebar item has no product class at all. SEO is the example: it's gated by the `seo-tools` module and has no My Jetpack card, so there's no product to name. An item that declares neither is always shown.
 
-A standalone plugin using `module` must also declare that module through `jetpack_get_available_standalone_modules`, or it never reads as active.
+A name this site has no module for cannot be answered, so it keeps the item rather than removing it — a typo in a gate is inert. Off the Jetpack plugin that covers any module a standalone plugin has not declared through `jetpack_get_available_standalone_modules`, so declare one there before expecting a `module` gate to do anything.
 
 A `module` gate reads `Modules::is_active()`, which always answers true on WordPress.com Simple, so gates there never remove anything. Hosts on Simple shape the sidebar through the filter below.
 
