@@ -310,9 +310,17 @@ class Help_Center {
 			$version
 		);
 
+		// The bundle stylesheet sizes the item for an icon alone; a labelled item lays out as a row.
 		wp_add_inline_style(
 			'help-center-' . $variant . '-style',
-			self::read_stylesheet( 'entry-label.css' )
+			'#wpadminbar #wp-toolbar #wp-admin-bar-help-center .help-center-entry-label{display:none;padding-inline-start:6px;white-space:nowrap;}'
+			. '@media (min-width:783px){'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center .help-center-entry-label{display:block;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label{width:auto;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label>.ab-item{display:flex;align-items:center;padding:0 11px;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label>.ab-item>span:first-child{display:flex;}'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label svg{position:static;float:none;margin:0;padding:4px 0;}'
+			. '}'
 		);
 
 		// In the block editor the Help Center is already present in the editor toolbar
@@ -322,7 +330,7 @@ class Help_Center {
 		if ( $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
 			wp_add_inline_style(
 				'help-center-' . $variant . '-style',
-				self::read_stylesheet( 'editor-admin-bar.css' )
+				'@media (min-width:600px){#wpadminbar #wp-admin-bar-help-center{display:none!important;}}'
 			);
 		}
 
@@ -885,24 +893,6 @@ class Help_Center {
 			. '<path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM13 18H11V16H13V18ZM13 13.859V15H11V13C11 12.448 11.448 12 12 12C13.103 12 14 11.103 14 10C14 8.897 13.103 8 12 8C10.897 8 10 8.897 10 10H8C8 7.791 9.791 6 12 6C14.209 6 16 7.791 16 10C16 11.862 14.722 13.413 13 13.859Z" fill="currentColor"/>'
 			. '<circle cx="20" cy="3.5" r="4.3" fill="#e65054" stroke="#1d2327" stroke-width="2"/>'
 			. '</svg>';
-	}
-
-	/**
-	 * Reads a stylesheet shipped with this package.
-	 *
-	 * @param string $name File name inside the package's assets directory.
-	 * @return string The file's contents, or an empty string when it is missing.
-	 */
-	private static function read_stylesheet( $name ) {
-		static $cache = array();
-
-		if ( ! isset( $cache[ $name ] ) ) {
-			$path           = __DIR__ . '/../assets/' . $name;
-			$contents       = is_readable( $path ) ? file_get_contents( $path ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a file shipped with this package.
-			$cache[ $name ] = false === $contents ? '' : trim( $contents );
-		}
-
-		return $cache[ $name ];
 	}
 
 	/**

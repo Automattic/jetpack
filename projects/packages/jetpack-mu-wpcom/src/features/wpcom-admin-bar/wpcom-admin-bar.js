@@ -16,14 +16,4 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			wpcomTrackEvent( 'wpcom_adminbar_command_palette_clicked' );
 		} );
 	}
-
-	// Measured, not inferred from the markup: the label is hidden on narrow viewports and
-	// the block editor hides the whole item, so neither is an impression of the label.
-	const helpEntryPoint = document.querySelector( '#wp-admin-bar-help-center' );
-	if ( helpEntryPoint && helpEntryPoint.getClientRects().length ) {
-		const entryLabel = helpEntryPoint.querySelector( '.help-center-entry-label' );
-		wpcomTrackEvent( 'wpcom_adminbar_help_impression', {
-			has_label: !! entryLabel && entryLabel.getClientRects().length > 0,
-		} );
-	}
 } );
