@@ -284,93 +284,84 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_INSIGHTS_SECTION_ID    => array(
-			// Follows the prototype's rows (WOOA7S-1786). Emails lives on the
-			// Subscribers tab, so that row is absent.
+			// Rows follow the design (WOOA7S-2009); Emails lives on the Subscribers tab.
 			// Row 1: highlights banner.
 			get_dashboard_default_widget_instance(
 				'default-annual-highlights-widget-instance',
 				'jpa/annual-highlights',
 				0,
-				4,
+				3,
 				1
 			),
-			// Row 2: the at-a-glance cards, as the design pairs them. All three are
-			// two rows tall so their display-sized figures fit without scrolling: a
-			// 1x1 tile is 200px, which the two-field cards overflow. WOOA7S-2009
-			// settles the final widths.
+			// Row 2: at-a-glance cards. Two rows tall: their display-sized figures overflow a 200px tile.
 			get_dashboard_default_widget_instance(
 				'default-all-time-stats-widget-instance',
 				'jpa/all-time-stats',
 				1,
-				2,
-				2,
-				array(
-					// The design shows three totals; the widget's own default adds
-					// Comments, which the comment leaderboards below already cover.
-					'metrics' => array( 'views', 'visitors', 'posts' ),
-				)
-			),
-			get_dashboard_default_widget_instance(
-				'default-most-popular-day-widget-instance',
-				'jpa/most-popular-day',
-				2,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-popular-time-widget-instance',
 				'jpa/most-popular-time',
+				2,
+				1,
+				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-most-popular-day-widget-instance',
+				'jpa/most-popular-day',
 				3,
 				1,
 				2
 			),
-			// Row 3: posting-activity heatmap.
+			// Row 3: the two post spotlights.
 			get_dashboard_default_widget_instance(
-				'default-posting-activity-widget-instance',
-				'jpa/posting-activity',
+				'default-popular-post-widget-instance',
+				'jpa/popular-post',
 				4,
-				4,
-				1
+				2,
+				2
 			),
-			// Row 4: the two post spotlights.
 			get_dashboard_default_widget_instance(
 				'default-latest-post-widget-instance',
 				'jpa/latest-post',
 				5,
-				2,
+				1,
 				2
 			),
+			// Row 4: posting-activity heatmap.
 			get_dashboard_default_widget_instance(
-				'default-popular-post-widget-instance',
-				'jpa/popular-post',
+				'default-posting-activity-widget-instance',
+				'jpa/posting-activity',
 				6,
-				2,
-				2
+				3,
+				1
 			),
-			// Row 5: daily views heatmap. Two rows tall, as in the prototype: cells are sized
-			// from the tile's height, and only here do they fit each day's view count.
+			// Row 5: daily views heatmap. Two rows tall so the cells fit each day's count.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
 				7,
-				4,
+				3,
 				2
 			),
-			// Row 6: the comment leaderboards, shares, and tags.
+			// Row 6: tags + most commented posts.
+			get_dashboard_default_widget_instance(
+				'default-tags-widget-instance',
+				'jpa/tags',
+				8,
+				2,
+				2
+			),
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				8,
-				1,
-				2
-			),
-			get_dashboard_default_widget_instance(
-				'default-most-commented-authors-widget-instance',
-				'jpa/most-commented-authors',
 				9,
 				1,
 				2
 			),
+			// Row 7: shares + most commented authors.
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
@@ -379,10 +370,10 @@ function get_dashboard_default_section_layouts() {
 				2
 			),
 			get_dashboard_default_widget_instance(
-				'default-tags-widget-instance',
-				'jpa/tags',
+				'default-most-commented-authors-widget-instance',
+				'jpa/most-commented-authors',
 				11,
-				1,
+				2,
 				2
 			),
 		),
