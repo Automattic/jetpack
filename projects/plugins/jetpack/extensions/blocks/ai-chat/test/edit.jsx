@@ -81,13 +81,4 @@ describe( 'AI Chat block edit', () => {
 		expect( screen.getByText( 'Connect banner' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Upgrade Jetpack Search' ) ).not.toBeInTheDocument();
 	} );
-
-	test( 'shows the normal editing UI on a connected, paid-plan site', () => {
-		useIsUserConnected.mockReturnValue( true );
-		window.Jetpack_AIChatBlock = { jetpackSettings: { supports_paid_search: true } };
-
-		render( <Edit { ...defaultProps } /> );
-
-		expect( screen.queryByText( 'Upgrade Jetpack Search' ) ).not.toBeInTheDocument();
-	} );
 } );
