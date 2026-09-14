@@ -967,7 +967,12 @@ class Manager {
 			return false;
 		}
 
-		if ( $cached_user_data ) {
+		// Skip a successful cache while verified errors exist so the signed
+		// request can run; Initial_State reads connectionErrors after this call.
+		$has_verified_errors = method_exists( Error_Handler::class, 'get_verified_errors' )
+			&& ! empty( Error_Handler::get_instance()->get_verified_errors() );
+
+		if ( $cached_user_data && ! $has_verified_errors ) {
 			return $cached_user_data;
 		}
 

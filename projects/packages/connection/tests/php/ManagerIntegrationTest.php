@@ -1127,6 +1127,60 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that a successful user-data cache is skipped while verified connection
+	 * errors exist, so the signed request can run and clear them on HTTP 200.
+	 */
+	public function test_get_connected_user_data_bypasses_success_cache_when_verified_errors_exist() {
+		$user_id = $this->set_up_connected_user();
+
+		$cached = array(
+			'ID'    => 5,
+			'login' => 'cached_user',
+		);
+		set_transient( "jetpack_connected_user_data_$user_id", $cached, DAY_IN_SECONDS );
+
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->report_error(
+			Error_Handler::build_connection_wp_error(
+				'invalid_token',
+				'The token is invalid',
+				array( 'token' => 'blogkey:1:0' ),
+				Error_Handler::ERROR_TYPE_REST,
+				Error_Handler::DIRECTION_OUTGOING
+			),
+			false,
+			true
+		);
+
+		$payload             = array(
+			'ID'    => 99,
+			'login' => 'wpcom_user',
+		);
+		$this->http_response = array(
+			'headers'  => array(),
+			'body'     => wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+		);
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10, 3 );
+
+		$result        = $this->manager->get_connected_user_data( $user_id );
+		$requested_url = $this->intercepted_url;
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_user_data_request' ), 10 );
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		delete_transient( "jetpack_connected_user_data_$user_id" );
+		Error_Handler::get_instance()->delete_all_errors();
+
+		$this->assertSame( $payload, $result );
+		$this->assertStringContainsString( 'jetpack-wpcom-user-data', (string) $requested_url );
+		$this->assertArrayNotHasKey( 'invalid_token', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
 	 * Test that a failed fetch returns false and caches an `error` sentinel, so
 	 * the failing request is not repeated on every call.
 	 *

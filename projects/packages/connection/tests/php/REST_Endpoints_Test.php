@@ -390,6 +390,39 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * Testing that a successful reconnect clears stored connection errors.
+	 */
+	public function test_connection_reconnect_clears_verified_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->report_error(
+			Error_Handler::build_connection_wp_error(
+				'invalid_token',
+				'The token is invalid',
+				array( 'token' => 'blogkey:1:0' ),
+				Error_Handler::ERROR_TYPE_REST,
+				Error_Handler::DIRECTION_OUTGOING
+			),
+			false,
+			true
+		);
+		$this->assertNotEmpty( Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->setup_reconnect_test( null );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		remove_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		$this->shutdown_reconnect_test( null );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEmpty( Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
 	 * Testing the `connection/reconnect` endpoint, successful partial reconnect (blog token).
 	 */
 	public function test_connection_reconnect_partial_blog_token_success() {

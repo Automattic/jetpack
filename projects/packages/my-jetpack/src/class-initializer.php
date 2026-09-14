@@ -12,6 +12,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Error_Handler;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -726,9 +727,11 @@ class Initializer {
 			return $site_info;
 		}
 
-		// Check for a cached value before doing lookup
-		$stored_site_info = get_transient( self::MY_JETPACK_SITE_INFO_TRANSIENT_KEY );
-		if ( $stored_site_info !== false ) {
+		// Skip the cache while verified errors exist: this runs before Initial_State
+		// is printed, and a successful signed fetch is what clears those errors.
+		$stored_site_info    = get_transient( self::MY_JETPACK_SITE_INFO_TRANSIENT_KEY );
+		$has_verified_errors = ! empty( Error_Handler::get_instance()->get_verified_errors() );
+		if ( $stored_site_info !== false && ! $has_verified_errors ) {
 			return $stored_site_info;
 		}
 

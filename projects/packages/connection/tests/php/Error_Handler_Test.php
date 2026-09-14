@@ -480,6 +480,35 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that a 200 response clears previously stored xmlrpc/rest errors.
+	 */
+	public function test_check_api_response_for_errors_200_clears_api_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->error_handler->report_error( $this->get_sample_error( 'invalid_token', 0, 'rest', 'outgoing' ), false, true );
+		$this->error_handler->report_error( $this->get_sample_error( 'invalid_connection_owner', 1, Error_Handler::ERROR_TYPE_LOCAL_STATE, '' ), false, true );
+
+		$this->assertNotEmpty( $this->error_handler->get_verified_errors()['invalid_token'] ?? array() );
+
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 200,
+				),
+				'body'     => '{"ID":1}',
+			),
+			array( 'token' => 'blogkey:1:0' ),
+			'https://localhost/',
+			'GET',
+			'rest'
+		);
+
+		$verified_errors = $this->error_handler->get_verified_errors();
+		$this->assertArrayNotHasKey( 'invalid_token', $verified_errors );
+		$this->assertArrayHasKey( 'invalid_connection_owner', $verified_errors );
+	}
+
+	/**
 	 * Test that the body hash of the failed request is stored.
 	 */
 	public function test_check_api_response_for_errors_stores_body_hash() {

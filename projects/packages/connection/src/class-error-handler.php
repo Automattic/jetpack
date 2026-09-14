@@ -1848,10 +1848,15 @@ class Error_Handler {
 	 * round-trip used for incoming errors is unnecessary, because the error arrived in a
 	 * response to a request this site itself initiated and signed.
 	 *
+	 * A 200 response clears previously stored `xmlrpc`/`rest` errors: outgoing
+	 * errors are verified locally, so a later successful signed request is what
+	 * refutes them.
+	 *
 	 * Note: XML-RPC faults arrive as HTTP 200 responses with an XML body, so they are
 	 * invisible to this method — only errors surfaced at the HTTP level with a JSON error
 	 * envelope are captured. `Jetpack_IXR_Client::query()` reports faults itself, via
-	 * check_xmlrpc_fault_for_errors().
+	 * check_xmlrpc_fault_for_errors(), after this method has already run. Clearing API
+	 * errors on the 200 and then storing the fault leaves the fault as the current truth.
 	 *
 	 * @see wp_remote_request() For more information on the $http_response array format.
 	 * @param array|\WP_Error $http_response The response or WP_Error on failure.
@@ -1863,7 +1868,12 @@ class Error_Handler {
 	 * @return void
 	 */
 	public function check_api_response_for_errors( $http_response, $auth_data, $url, $method, $error_type ) {
-		if ( 200 === wp_remote_retrieve_response_code( $http_response ) || ! is_array( $auth_data ) || ! $url || ! $method ) {
+		if ( ! is_array( $auth_data ) || ! $url || ! $method ) {
+			return;
+		}
+
+		if ( 200 === wp_remote_retrieve_response_code( $http_response ) ) {
+			$this->delete_all_api_errors();
 			return;
 		}
 

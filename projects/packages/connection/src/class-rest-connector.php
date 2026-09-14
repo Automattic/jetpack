@@ -789,6 +789,12 @@ class REST_Connector {
 			$next = true === $result ? 'completed' : 'failed';
 		}
 
+		// Restore's own hooks usually clear errors, but some paths complete without
+		// them (token deletion prevented). A successful restore must dismiss the notice.
+		if ( 'authorize' === $next || 'completed' === $next ) {
+			Error_Handler::get_instance()->delete_all_errors();
+		}
+
 		switch ( $next ) {
 			case 'authorize':
 				$response['status']       = 'in_progress';

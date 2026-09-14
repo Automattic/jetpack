@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Clear a stale broken-connection notice when the site is actually connected.
