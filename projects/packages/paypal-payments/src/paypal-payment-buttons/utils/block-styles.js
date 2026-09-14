@@ -173,9 +173,9 @@ export function isOutlineButton( attributes = {} ) {
 /**
  * Margin, from the Border Settings panel.
  *
- * The button's product card takes this and nothing else — Width and Border go
- * on the button, see getButtonStyle(). A QR-to-BUTTON format switch can still
- * leave a margin behind, so the card keeps reading it.
+ * The button card and the QR card take this and nothing else — Width and Border
+ * go on the button or the QR frame. A QR-to-BUTTON format switch can leave a
+ * margin behind, so the card keeps reading it.
  *
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
@@ -197,17 +197,15 @@ function getBorderStyle( attributes ) {
 
 	const strokeWidth = plainLength( border.width );
 	const strokeColor = color( border.color );
-	// A half-set stroke renders inconsistently, so width, color and style go in
-	// together or not at all. border-style defaults to `none`, so a width and a
-	// color on their own would draw nothing.
-	const stroke =
-		strokeWidth && strokeColor
-			? {
-					width: strokeWidth,
-					color: strokeColor,
-					style: BORDER_STYLES.includes( border.style ) ? border.style : 'solid',
-			  }
-			: {};
+	// border-style defaults to `none`, so a width always gets a style. A color
+	// alone draws nothing, so it is dropped.
+	const stroke = strokeWidth
+		? {
+				width: strokeWidth,
+				style: BORDER_STYLES.includes( border.style ) ? border.style : 'solid',
+				...( strokeColor ? { color: strokeColor } : {} ),
+		  }
+		: {};
 
 	return getBorderClassesAndStyles( {
 		style: { border: { ...stroke, radius: plainBox( border.radius ) } },
@@ -215,18 +213,19 @@ function getBorderStyle( attributes ) {
 }
 
 /**
- * The QR card — Width, Border and margin all go on the one element the
- * merchant sees. Mirrors get_qr_style().
+ * Width and Border, for whichever element the format puts them on — the
+ * checkout button or the QR frame. Mirrors get_width_and_border_rules().
  *
  * @param {object} attributes - The block attributes.
  * @return {object} A React style object, empty when nothing is configured.
  */
-export function getQrStyle( attributes = {} ) {
-	const maxWidth = chosenWidth( attributes );
+export function getWidthAndBorderStyle( attributes = {} ) {
+	// max-width keeps a set Width inside the card. With no Width the stylesheet
+	// sizes the element.
+	const width = chosenWidth( attributes );
 
 	return {
-		...( maxWidth ? { maxWidth } : {} ),
-		...getMarginStyle( attributes ),
+		...( width ? { width, maxWidth: '100%' } : {} ),
 		...getBorderStyle( attributes ),
 	};
 }
@@ -309,15 +308,11 @@ export function getButtonStyle( attributes = {} ) {
 	// chosen background is dropped rather than emitted.
 	const background = isOutlineButton( attributes ) ? '' : cssColor( buttonBackgroundColor );
 
-	// Width and Border hang on the button, not the product card — see
-	// getCardStyle(). The card still caps at 400px, so cap the button at the
-	// space it has or a wide value spills out of it.
-	const width = chosenWidth( attributes );
-
 	return {
 		...getTextStyle( buttonTextColor, buttonFontSize ),
 		...( background ? { backgroundColor: background } : {} ),
-		...( width ? { width, maxWidth: '100%' } : {} ),
-		...getBorderStyle( attributes ),
+		// Width and Border go on the button, not the product card — see
+		// getMarginStyle().
+		...getWidthAndBorderStyle( attributes ),
 	};
 }

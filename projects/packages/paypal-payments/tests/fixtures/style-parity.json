@@ -1,8 +1,9 @@
 {
-	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php, so a value one language drops fails a test in the other. textCases run three times on the PHP side — as the QR caption, the payment link and the button face — because one helper serves all three, and a branch that forgets to call it would otherwise pass. rejected* are values the published page refuses; the canvas has to refuse them too, or a block pasted in code view renders in the editor and disappears on publish. buttonCases are the button's own: its background, its width and border going on the button rather than the card, and the Outline style dropping the background so an inline declaration cannot beat the stylesheet.",
+	"_comment": "Attribute sets and the CSS each side must produce. Read by tests/js/block-styles.test.js and tests/php/Paypal_Payment_Buttons_Test.php, so a value one language drops fails a test in the other. `target` says which element the declarations belong on: the QR card takes margin, the frame inside it takes Width and the stroke. textCases run three times on the PHP side — as the QR caption, the payment link and the button face — because one helper serves all three, and a branch that forgets to call it would otherwise pass. rejected* are values neither side emits — refused outright, or dropped because they draw nothing on their own; the canvas has to drop them too, or a block pasted in code view renders in the editor and disappears on publish. buttonCases are the button's own: its background, its width and border going on the button rather than the card, and the Outline style dropping the background so an inline declaration cannot beat the stylesheet.",
 	"cases": [
 		{
 			"name": "a spacing preset",
+			"target": "card",
 			"attributes": {
 				"style": {
 					"spacing": {
@@ -18,6 +19,7 @@
 		},
 		{
 			"name": "zero margin cancels the stylesheet",
+			"target": "card",
 			"attributes": {
 				"style": {
 					"spacing": {
@@ -35,6 +37,7 @@
 		},
 		{
 			"name": "one axis only, the other left to the stylesheet",
+			"target": "card",
 			"attributes": {
 				"style": {
 					"spacing": {
@@ -52,6 +55,7 @@
 		},
 		{
 			"name": "a full stroke",
+			"target": "frame",
 			"attributes": {
 				"style": {
 					"border": {
@@ -67,7 +71,8 @@
 			}
 		},
 		{
-			"name": "a half stroke draws nothing",
+			"name": "a stroke width with no color, left to currentColor",
+			"target": "frame",
 			"attributes": {
 				"style": {
 					"border": {
@@ -75,10 +80,14 @@
 					}
 				}
 			},
-			"declarations": {}
+			"declarations": {
+				"border-width": "2px",
+				"border-style": "solid"
+			}
 		},
 		{
 			"name": "a radius per corner",
+			"target": "frame",
 			"attributes": {
 				"style": {
 					"border": {
@@ -96,15 +105,18 @@
 		},
 		{
 			"name": "width with its unit",
+			"target": "frame",
 			"attributes": {
 				"blockWidth": "75%"
 			},
 			"declarations": {
-				"max-width": "75%"
+				"width": "75%",
+				"max-width": "100%"
 			}
 		},
 		{
 			"name": "a preset border color, expanded by hand in PHP and by the engine in JS",
+			"target": "frame",
 			"attributes": {
 				"style": {
 					"border": {
@@ -121,6 +133,7 @@
 		},
 		{
 			"name": "an rgba palette color",
+			"target": "frame",
 			"attributes": {
 				"style": {
 					"border": {
@@ -137,6 +150,7 @@
 		},
 		{
 			"name": "a dashed stroke",
+			"target": "frame",
 			"attributes": {
 				"style": {
 					"border": {
@@ -154,6 +168,7 @@
 		},
 		{
 			"name": "a radius as one string",
+			"target": "frame",
 			"attributes": {
 				"style": {
 					"border": {
@@ -167,11 +182,13 @@
 		},
 		{
 			"name": "nothing configured",
+			"target": "frame",
 			"attributes": {},
 			"declarations": {}
 		},
 		{
 			"name": "a border style the panel cannot write falls back to solid",
+			"target": "frame",
 			"attributes": {
 				"style": {
 					"border": {
@@ -189,6 +206,7 @@
 		},
 		{
 			"name": "an alpha hex, which the palette editor stores",
+			"target": "frame",
 			"attributes": {
 				"style": {
 					"border": {
@@ -205,6 +223,7 @@
 		},
 		{
 			"name": "a camelCase palette preset as a border color",
+			"target": "frame",
 			"attributes": {
 				"style": {
 					"border": {
@@ -217,6 +236,38 @@
 				"border-width": "2px",
 				"border-style": "solid",
 				"border-color": "var(--wp--preset--color--heavenly-blue)"
+			}
+		},
+		{
+			"name": "a named border color is dropped, the stroke beside it kept",
+			"target": "frame",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "rebeccapurple"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-style": "solid"
+			}
+		},
+		{
+			"name": "a preset color used as a stroke color is dropped, the stroke kept",
+			"target": "frame",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "var:preset|spacing|50"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-style": "solid"
 			}
 		}
 	],
@@ -333,17 +384,6 @@
 			}
 		},
 		{
-			"name": "a named border color",
-			"attributes": {
-				"style": {
-					"border": {
-						"width": "2px",
-						"color": "rebeccapurple"
-					}
-				}
-			}
-		},
-		{
 			"name": "a spacing preset as a width",
 			"attributes": {
 				"blockWidth": "var:preset|spacing|50"
@@ -357,17 +397,6 @@
 						"top": {
 							"color": "#ff0000"
 						}
-					}
-				}
-			}
-		},
-		{
-			"name": "a spacing preset used as a border color",
-			"attributes": {
-				"style": {
-					"border": {
-						"width": "2px",
-						"color": "var:preset|spacing|50"
 					}
 				}
 			}
@@ -413,6 +442,16 @@
 						"width": {
 							"top": "2px"
 						},
+						"color": "#ff0000"
+					}
+				}
+			}
+		},
+		{
+			"name": "a stroke color with no width",
+			"attributes": {
+				"style": {
+					"border": {
 						"color": "#ff0000"
 					}
 				}
@@ -564,6 +603,21 @@
 				"border-width": "2px",
 				"border-style": "solid",
 				"border-color": "#1e1e1e"
+			}
+		},
+		{
+			"name": "a rejected stroke color is dropped, the stroke beside it kept",
+			"attributes": {
+				"style": {
+					"border": {
+						"width": "2px",
+						"color": "rebeccapurple"
+					}
+				}
+			},
+			"declarations": {
+				"border-width": "2px",
+				"border-style": "solid"
 			}
 		}
 	]

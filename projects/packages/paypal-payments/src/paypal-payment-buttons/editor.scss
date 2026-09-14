@@ -400,11 +400,36 @@
 	margin: 24px 0;
 }
 
-// QR format — the code, then its caption.
+// The canvas preview has no link row, so it centers the frame and caption
+// itself.
 .jetpack-paypal-button-preview--qr {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
 
-	.jetpack-paypal-button__qr-canvas {
-		display: block;
+// No link to encode yet, so the canvas is sized but never drawn into. Opaque
+// on purpose: a see-through tint shows the frame's rounded border through it.
+.jetpack-paypal-button__qr-canvas--pending {
+	background-color: #eeeff5; // QR_OPTIONS.color.dark at 8% over white
+	background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+	background-repeat: no-repeat;
+	background-size: 200% 100%;
+	animation: jetpack-paypal-qr-shimmer 1.4s ease-in-out infinite;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+@keyframes jetpack-paypal-qr-shimmer {
+
+	from {
+		background-position: -100% 0;
+	}
+
+	to {
+		background-position: 100% 0;
 	}
 }
 
@@ -680,9 +705,17 @@
 	gap: 12px;
 	margin-bottom: 16px;
 
+	// style.scss has these for the front end and the canvas iframe, but it does
+	// not load in the sidebar.
+	.jetpack-paypal-button__qr-frame {
+		box-sizing: content-box;
+		width: fit-content;
+		max-width: 100%;
+	}
+
 	.jetpack-paypal-button__qr-canvas {
 		display: block;
-		max-width: 100%;
+		width: 100%;
 		height: auto;
 	}
 

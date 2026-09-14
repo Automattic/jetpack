@@ -48,6 +48,14 @@ class PayPal_Payment_Buttons {
 	private const BORDER_STYLES = array( 'solid', 'dashed', 'dotted', 'double', 'none' );
 
 	/**
+	 * Pixel size the QR canvas is drawn at. Keep in step with QR_OPTIONS.width in
+	 * utils/qr-options.js.
+	 *
+	 * @var int
+	 */
+	private const QR_SIZE = 200;
+
+	/**
 	 * PayPal partner attribution ID used for tracking.
 	 *
 	 * @var string
@@ -172,8 +180,8 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * The QR card — Width, Border and margin all go on the one element the
-	 * merchant sees.
+	 * Width and Border, for whichever element the format puts them on — the
+	 * checkout button or the QR frame.
 	 *
 	 * Every value is validated before the style engine sees it.
 	 * wp_style_engine_get_styles() is not a sanitizer: its only filter is
@@ -181,30 +189,41 @@ class PayPal_Payment_Buttons {
 	 * whose property core allows — so an unchecked `0;position:fixed;…` renders
 	 * verbatim on the published page.
 	 *
-	 * Mirrors getQrStyle() in utils/block-styles.js.
+	 * Mirrors getWidthAndBorderStyle() in utils/block-styles.js.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return array A list of CSS declarations, empty when nothing is configured.
+	 */
+	private static function get_width_and_border_rules( $attributes ) {
+		$rules = array();
+
+		// max-width keeps a set Width inside the card. With no Width the stylesheet
+		// sizes the element.
+		$width = self::chosen_width( $attributes );
+		if ( '' !== $width ) {
+			$rules[] = sprintf( 'width:%s', $width );
+			$rules[] = 'max-width:100%';
+		}
+
+		return array_merge( $rules, self::get_border_rules( $attributes ) );
+	}
+
+	/**
+	 * The QR frame — the element Width, the stroke and the radius go on.
 	 *
 	 * @param array $attributes The block attributes.
 	 * @return string An inline CSS declaration list, empty when nothing is configured.
 	 */
-	private static function get_qr_style( $attributes ) {
-		$rules = array();
-
-		$width = self::chosen_width( $attributes );
-		if ( '' !== $width ) {
-			$rules[] = sprintf( 'max-width:%s', $width );
-		}
-
-		return self::css_rules(
-			array_merge( $rules, self::get_margin_rules( $attributes ), self::get_border_rules( $attributes ) )
-		);
+	private static function get_qr_frame_style( $attributes ) {
+		return self::css_rules( self::get_width_and_border_rules( $attributes ) );
 	}
 
 	/**
 	 * Margin, from the Border Settings panel.
 	 *
-	 * The button's product card takes this and nothing else — Width and Border go
-	 * on the button, see get_button_style(). A QR-to-BUTTON format switch can
-	 * still leave a margin behind, so the card keeps reading it.
+	 * The button card and the QR card take this and nothing else — Width and Border
+	 * go on the button or the QR frame. A QR-to-BUTTON format switch can leave a
+	 * margin behind, so the card keeps reading it.
 	 *
 	 * Mirrors getMarginStyle() in utils/block-styles.js.
 	 *
@@ -383,17 +402,18 @@ class PayPal_Payment_Buttons {
 		}
 
 		$width = self::plain_length( $border['width'] ?? '' );
-		$color = self::sanitize_css_color( $border['color'] ?? '' );
 
-		// A half-set stroke renders inconsistently, so width, color and style go
-		// in together or not at all.
-		if ( '' !== $width && '' !== $color ) {
+		// border-style defaults to `none`, so a width always gets a style. A color
+		// alone draws nothing, so it is dropped. getBorderStyle() matches.
+		if ( '' !== $width ) {
 			$clean['width'] = $width;
-			$clean['color'] = $color;
-			// border-style defaults to `none`, so a width and a color on their own
-			// draw nothing. getBorderStyle() defaults the same way.
 			$style          = (string) ( $border['style'] ?? '' );
 			$clean['style'] = in_array( $style, self::BORDER_STYLES, true ) ? $style : 'solid';
+
+			$color = self::sanitize_css_color( $border['color'] ?? '' );
+			if ( '' !== $color ) {
+				$clean['color'] = $color;
+			}
 		}
 
 		return $clean;
@@ -456,20 +476,12 @@ class PayPal_Payment_Buttons {
 			$rules[] = sprintf( 'background-color:%s', $background );
 		}
 
-		// Width and Border go on the button, not the card — see get_margin_style().
-		// The card still caps at 400px, so cap the button at the space it has or a
-		// wide value spills out of it.
-		$width = self::chosen_width( $attributes );
-		if ( '' !== $width ) {
-			$rules[] = sprintf( 'width:%s', $width );
-			$rules[] = 'max-width:100%';
-		}
-
 		return self::css_rules(
 			array_merge(
 				self::get_text_rules( $attributes['buttonTextColor'] ?? '', $attributes['buttonFontSize'] ?? '' ),
 				$rules,
-				self::get_border_rules( $attributes )
+				// Width and Border go on the button, not the card — see get_margin_style().
+				self::get_width_and_border_rules( $attributes )
 			)
 		);
 	}
@@ -846,9 +858,10 @@ class PayPal_Payment_Buttons {
 		// ─── QR format: standalone auto-rendering QR canvas ──────────────
 		if ( 'QR' === $format ) {
 			$wrapper_attributes = get_block_wrapper_attributes();
-			// Goes on .jetpack-paypal-button, not the block wrapper: style.scss caps
-			// that element at 400px, and the editor preview styles the same one.
-			$block_style    = self::style_attr( self::get_qr_style( $attributes ) );
+			// Margin goes on .jetpack-paypal-button, which style.scss caps at 400px.
+			// Width and the stroke go on the frame inside it.
+			$block_style    = self::style_attr( self::get_margin_style( $attributes ) );
+			$frame_style    = self::style_attr( self::get_qr_frame_style( $attributes ) );
 			$download_label = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
 			$copy_label     = esc_html__( 'Copy Link', 'jetpack-paypal-payments' );
 			$copied_label   = esc_attr__( 'Copied!', 'jetpack-paypal-payments' );
@@ -875,7 +888,9 @@ class PayPal_Payment_Buttons {
 				'<div %1$s>
 	<div class="jetpack-paypal-button jetpack-paypal-button--qr-format"%7$s>
 		<div class="jetpack-paypal-button__qr-standalone">
-			<canvas class="jetpack-paypal-button__qr-canvas jetpack-paypal-button__qr-canvas--standalone" data-qr-url="%3$s"></canvas>
+			<div class="jetpack-paypal-button__qr-frame"%8$s>
+				<canvas class="jetpack-paypal-button__qr-canvas jetpack-paypal-button__qr-canvas--standalone" width="%9$d" height="%9$d" data-qr-url="%3$s"></canvas>
+			</div>
 			%2$s
 			<div class="jetpack-paypal-button__qr-link">
 				<input type="text" readonly class="jetpack-paypal-button__qr-link-input" value="%3$s" />
@@ -891,7 +906,9 @@ class PayPal_Payment_Buttons {
 				$copy_label,
 				$copied_label,
 				$download_label,
-				$block_style
+				$block_style,
+				$frame_style,
+				self::QR_SIZE
 			);
 		}
 

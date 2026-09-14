@@ -18,8 +18,8 @@ import clsx from 'clsx';
 import {
 	getButtonStyle,
 	getMarginStyle,
-	getQrStyle,
 	getTextStyle,
+	getWidthAndBorderStyle,
 	isOutlineButton,
 } from '../utils/block-styles';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
@@ -151,11 +151,12 @@ function QrPreview( {
 	return (
 		<div
 			className="jetpack-paypal-button-preview jetpack-paypal-button-preview--qr"
-			style={ getQrStyle( attributes ) }
+			style={ getMarginStyle( attributes ) }
 		>
 			<QrCodePreview
 				url={ qrUrl }
 				className="jetpack-paypal-button__qr-canvas"
+				frameStyle={ getWidthAndBorderStyle( attributes ) }
 				showCaption={ qrShowCaption }
 				caption={ qrCaption }
 				captionStyle={ getTextStyle( attributes.captionColor, attributes.captionFontSize ) }

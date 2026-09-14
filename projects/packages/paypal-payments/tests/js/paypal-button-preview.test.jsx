@@ -513,7 +513,7 @@ describe( 'PayPalButtonPreview', () => {
 			expect( document.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
 		} );
 
-		it( 'puts Width and Border Settings on the wrapper, and caption styles on the caption', () => {
+		it( 'splits margin onto the card and Width and the stroke onto the frame', () => {
 			render(
 				<PayPalButtonPreview
 					{ ...defaultProps }
@@ -531,27 +531,43 @@ describe( 'PayPalButtonPreview', () => {
 				/>
 			);
 
-			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
-			expect( wrapper ).toHaveStyle( {
-				maxWidth: '50%',
+			const card = document.querySelector( '.jetpack-paypal-button-preview--qr' );
+			expect( card ).toHaveStyle( {
 				marginTop: '12px',
 				marginBottom: '12px',
 				marginLeft: '4px',
 				marginRight: '4px',
+			} );
+			// The stroke goes on the frame only.
+			expect( card ).not.toHaveStyle( { borderWidth: '2px' } );
+			expect( card ).not.toHaveStyle( { width: '50%' } );
+
+			const frame = document.querySelector( '.jetpack-paypal-button__qr-frame' );
+			expect( frame ).toHaveStyle( {
+				width: '50%',
+				maxWidth: '100%',
 				borderRadius: '8px',
 				borderWidth: '2px',
 				borderColor: '#ff0000',
 				borderStyle: 'solid',
 			} );
+
 			expect( document.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toHaveStyle( {
 				color: '#0000ff',
 				fontSize: '20px',
 			} );
 		} );
 
-		it( 'draws no border when the stroke has a width but no color', () => {
-			// Without a color the browser falls back to currentColor and draws a
-			// border the merchant never chose.
+		it( 'wraps the code alone, leaving the caption outside the frame', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" qrShowCaption /> );
+
+			const frame = document.querySelector( '.jetpack-paypal-button__qr-frame' );
+			expect( frame.querySelector( '.jetpack-paypal-button__qr-canvas' ) ).toBeInTheDocument();
+			expect( frame.querySelector( '.jetpack-paypal-button__qr-caption' ) ).toBeNull();
+		} );
+
+		it( 'draws a stroke on the width alone', () => {
+			// border-style defaults to `none`, so the width sets a style too.
 			render(
 				<PayPalButtonPreview
 					{ ...defaultProps }
@@ -560,10 +576,11 @@ describe( 'PayPalButtonPreview', () => {
 				/>
 			);
 
-			const wrapper = document.querySelector( '.jetpack-paypal-button-preview--qr' );
-			// The radius still applies, so this proves the gate and not an empty style.
-			expect( wrapper ).toHaveStyle( { borderRadius: '8px' } );
-			expect( wrapper ).not.toHaveStyle( { borderWidth: '4px' } );
+			expect( document.querySelector( '.jetpack-paypal-button__qr-frame' ) ).toHaveStyle( {
+				borderRadius: '8px',
+				borderWidth: '4px',
+				borderStyle: 'solid',
+			} );
 		} );
 
 		it( 'leaves the code bare when the toggle was never touched', () => {
@@ -597,14 +614,43 @@ describe( 'PayPalButtonPreview', () => {
 			expect( wrapper ).not.toHaveStyle( { marginTop: '8px' } );
 		} );
 
-		it( 'draws no code until a payment link exists', () => {
-			// Until the merchant presses Create New there is nothing to encode, and
-			// an undrawn canvas is a blank box.
-			render( <PayPalButtonPreview { ...defaultProps } format="QR" paymentLink="" /> );
-			expect(
-				document.querySelector( '.jetpack-paypal-button__qr-canvas' )
-			).not.toBeInTheDocument();
+		it( "keeps the code's footprint until a payment link exists", () => {
+			// PayPal issues the link on save. Until then the canvas is sized but
+			// never drawn into, so the block stays the same size.
+			render(
+				<PayPalButtonPreview
+					{ ...defaultProps }
+					format="QR"
+					paymentLink=""
+					attributes={ { blockWidth: '50%' } }
+				/>
+			);
+
+			const canvas = screen.getByRole( 'img', {
+				name: 'The QR code appears once the post is saved.',
+			} );
+			expect( canvas ).toHaveClass( 'jetpack-paypal-button__qr-canvas--pending' );
+			expect( canvas ).toHaveAttribute( 'width', '200' );
+			expect( canvas ).toHaveAttribute( 'height', '200' );
+			// Inside the frame, so the Width setting and the stroke apply to it too.
+			expect( document.querySelector( '.jetpack-paypal-button__qr-frame' ) ).toContainElement(
+				canvas
+			);
+			expect( document.querySelector( '.jetpack-paypal-button__qr-frame' ) ).toHaveStyle( {
+				width: '50%',
+			} );
 			expect( QRCode.toCanvas ).not.toHaveBeenCalled();
+		} );
+
+		it( 'renders the code bare once there is a link to encode', () => {
+			render( <PayPalButtonPreview { ...defaultProps } format="QR" /> );
+
+			const canvas = document.querySelector( '.jetpack-paypal-button__qr-canvas' );
+			expect( canvas ).toHaveAttribute( 'width', '200' );
+			expect( canvas ).toHaveAttribute( 'height', '200' );
+			expect( canvas ).not.toHaveClass( 'jetpack-paypal-button__qr-canvas--pending' );
+			expect( canvas ).not.toHaveAttribute( 'aria-label' );
+			expect( QRCode.toCanvas ).toHaveBeenCalled();
 		} );
 
 		it( 'still renders when the draw fails', () => {

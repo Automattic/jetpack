@@ -9,8 +9,8 @@
 import {
 	getButtonStyle,
 	getMarginStyle,
-	getQrStyle,
 	getTextStyle,
+	getWidthAndBorderStyle,
 } from '../../src/paypal-payment-buttons/utils/block-styles';
 import parity from '../fixtures/style-parity.json';
 
@@ -29,11 +29,20 @@ const asDeclarations = style =>
 		] )
 	);
 
+// Each case says which element it belongs on — the card takes margin, the frame
+// takes Width and the stroke. The PHP half reads the same field.
+const QR_TARGETS = {
+	card: getMarginStyle,
+	frame: getWidthAndBorderStyle,
+};
+
 // The other half of this table runs in tests/php. A value one side drops and the
 // other keeps is drift between the canvas and the published page, so it fails here.
 describe( 'style parity with the published page', () => {
 	it.each( parity.cases.map( c => [ c.name, c ] ) )( '%s', ( _name, testCase ) => {
-		expect( asDeclarations( getQrStyle( testCase.attributes ) ) ).toEqual( testCase.declarations );
+		expect( asDeclarations( QR_TARGETS[ testCase.target ]( testCase.attributes ) ) ).toEqual(
+			testCase.declarations
+		);
 	} );
 
 	// One helper serves the QR caption and the payment link. The PHP half runs
@@ -48,7 +57,8 @@ describe( 'style parity with the published page', () => {
 	// The published page refuses these, so the canvas has to as well — otherwise
 	// a hand-edited block renders in the editor and vanishes on publish.
 	it.each( parity.rejectedCases.map( c => [ c.name, c ] ) )( 'refuses %s', ( _name, testCase ) => {
-		expect( getQrStyle( testCase.attributes ) ).toEqual( {} );
+		expect( getMarginStyle( testCase.attributes ) ).toEqual( {} );
+		expect( getWidthAndBorderStyle( testCase.attributes ) ).toEqual( {} );
 	} );
 
 	it.each( parity.rejectedTextCases.map( c => [ c.name, c ] ) )(
@@ -67,16 +77,16 @@ describe( 'style parity with the published page', () => {
 	} );
 } );
 
-describe( 'getQrStyle', () => {
+describe( 'getMarginStyle', () => {
 	it( 'is empty when nothing is configured', () => {
-		expect( getQrStyle( {} ) ).toEqual( {} );
+		expect( getMarginStyle( {} ) ).toEqual( {} );
 	} );
 
 	it( 'emits a longhand per set side and leaves the rest alone', () => {
 		// The published page emits only the sides that are set, so a shorthand
 		// here would zero-fill the rest and override theme margin it leaves alone.
 		expect(
-			getQrStyle( { style: { spacing: { margin: { left: '8px', right: '8px' } } } } )
+			getMarginStyle( { style: { spacing: { margin: { left: '8px', right: '8px' } } } } )
 		).toEqual( { marginLeft: '8px', marginRight: '8px' } );
 	} );
 
@@ -84,39 +94,70 @@ describe( 'getQrStyle', () => {
 		// Core stores a chosen preset as `var:preset|spacing|50` and expands it at
 		// render; the published page does the same through the style engine.
 		expect(
-			getQrStyle( { style: { spacing: { margin: { top: 'var:preset|spacing|50' } } } } )
+			getMarginStyle( { style: { spacing: { margin: { top: 'var:preset|spacing|50' } } } } )
 		).toEqual( { marginTop: 'var(--wp--preset--spacing--50)' } );
 	} );
 
+	it( 'takes the margin and leaves Width and the stroke to the button or the frame', () => {
+		expect(
+			getMarginStyle( {
+				blockWidth: '75%',
+				style: { border: { radius: '6px' }, spacing: { margin: { top: '8px' } } },
+			} )
+		).toEqual( { marginTop: '8px' } );
+	} );
+} );
+
+describe( 'getWidthAndBorderStyle', () => {
+	it( 'is empty when nothing is configured', () => {
+		expect( getWidthAndBorderStyle( {} ) ).toEqual( {} );
+	} );
+
 	it( 'takes a per-corner radius as well as a single one', () => {
-		expect( getQrStyle( { style: { border: { radius: '8px' } } } ) ).toEqual( {
+		expect( getWidthAndBorderStyle( { style: { border: { radius: '8px' } } } ) ).toEqual( {
 			borderRadius: '8px',
 		} );
 		expect(
-			getQrStyle( { style: { border: { radius: { topLeft: '4px', bottomRight: '9px' } } } } )
+			getWidthAndBorderStyle( {
+				style: { border: { radius: { topLeft: '4px', bottomRight: '9px' } } },
+			} )
 		).toEqual( { borderTopLeftRadius: '4px', borderBottomRightRadius: '9px' } );
 	} );
 
-	it( 'draws no stroke unless it has both a width and a color', () => {
-		// Half a stroke renders inconsistently — border-style defaults to `none`,
-		// so a width and color with no style would draw nothing on the frontend.
-		expect( getQrStyle( { style: { border: { width: '2px' } } } ) ).toEqual( {} );
-		expect( getQrStyle( { style: { border: { color: '#ff0000' } } } ) ).toEqual( {} );
-		expect( getQrStyle( { style: { border: { width: '2px', color: '#ff0000' } } } ) ).toEqual( {
+	it( 'draws a stroke on the width alone, leaving the color to currentColor', () => {
+		// border-style defaults to `none`, so the width sets a style too or nothing draws.
+		expect( getWidthAndBorderStyle( { style: { border: { width: '2px' } } } ) ).toEqual( {
 			borderWidth: '2px',
-			borderColor: '#ff0000',
 			borderStyle: 'solid',
 		} );
+		expect(
+			getWidthAndBorderStyle( { style: { border: { width: '2px', color: '#ff0000' } } } )
+		).toEqual( { borderWidth: '2px', borderColor: '#ff0000', borderStyle: 'solid' } );
+	} );
+
+	it( 'draws no stroke for a color on its own', () => {
+		expect( getWidthAndBorderStyle( { style: { border: { color: '#ff0000' } } } ) ).toEqual( {} );
 	} );
 
 	it( 'keeps a radius when the stroke is dropped', () => {
-		expect( getQrStyle( { style: { border: { width: '2px', radius: '8px' } } } ) ).toEqual( {
-			borderRadius: '8px',
+		expect(
+			getWidthAndBorderStyle( {
+				style: { border: { width: 'var:preset|spacing|20', radius: '8px' } },
+			} )
+		).toEqual( { borderRadius: '8px' } );
+	} );
+
+	it( 'sizes the frame rather than capping it, so the stroke follows the code', () => {
+		expect( getWidthAndBorderStyle( { blockWidth: '75%' } ) ).toEqual( {
+			width: '75%',
+			maxWidth: '100%',
 		} );
 	} );
 
-	it( 'passes the width through with its unit', () => {
-		expect( getQrStyle( { blockWidth: '75%' } ) ).toEqual( { maxWidth: '75%' } );
+	it( 'leaves margin to the card', () => {
+		expect( getWidthAndBorderStyle( { style: { spacing: { margin: { top: '8px' } } } } ) ).toEqual(
+			{}
+		);
 	} );
 } );
 
@@ -141,17 +182,6 @@ describe( 'getTextStyle', () => {
 		expect( getTextStyle( '', 'clamp(0.875rem, 1vw, 1rem)' ) ).toEqual( {
 			fontSize: 'clamp(0.875rem, 1vw, 1rem)',
 		} );
-	} );
-} );
-
-describe( 'getMarginStyle', () => {
-	it( 'takes the margin and leaves width and border to the button', () => {
-		expect(
-			getMarginStyle( {
-				blockWidth: '75%',
-				style: { border: { radius: '6px' }, spacing: { margin: { top: '8px' } } },
-			} )
-		).toEqual( { marginTop: '8px' } );
 	} );
 } );
 

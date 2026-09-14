@@ -246,6 +246,7 @@ function QrOutputControls( { attributes, setAttributes, qrUrl, disabled } ) {
 					caption={ qrCaption }
 					captionStyle={ getTextStyle( attributes.captionColor, attributes.captionFontSize ) }
 					showDownload
+					showPendingLabel={ false }
 				/>
 			</div>
 

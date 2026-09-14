@@ -10,7 +10,8 @@
 
 import QRCode from 'qrcode';
 
-jest.mock( 'qrcode', () => ( { toCanvas: jest.fn() } ) );
+// toCanvas returns a promise and drawQrCanvas chains onto it.
+jest.mock( 'qrcode', () => ( { toCanvas: jest.fn( () => Promise.resolve() ) } ) );
 
 const PAYMENT_URL = 'https://www.paypal.com/ncp/payment/PLB-QR123?at_code=WooNCPS_Ecom_Wordpress';
 

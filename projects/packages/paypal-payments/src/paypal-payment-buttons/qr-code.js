@@ -14,9 +14,8 @@
  * @since 0.9.0
  */
 
-import QRCode from 'qrcode';
 import { downloadQrCanvas } from './utils/qr-download';
-import { QR_OPTIONS } from './utils/qr-options';
+import { drawQrCanvas } from './utils/qr-draw';
 
 /**
  * Wire a download button to a canvas — convert canvas to PNG on click.
@@ -68,7 +67,7 @@ function initStandaloneQRCodes() {
 			return;
 		}
 
-		QRCode.toCanvas( canvas, qrUrl, QR_OPTIONS );
+		drawQrCanvas( canvas, qrUrl );
 
 		const container = canvas.closest( '.wp-block-jetpack-paypal-payment-buttons' );
 		if ( ! container ) {

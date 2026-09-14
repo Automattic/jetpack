@@ -987,7 +987,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that Width, Border and caption settings reach the published markup.
+	 * Test that Width, Border and caption settings go on the elements they belong on.
 	 */
 	public function test_render_block_qr_applies_width_border_and_caption_styles() {
 		$attributes = array(
@@ -1019,18 +1019,41 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
-		$this->assertStringContainsString( 'max-width:50%', $result );
-		$this->assertStringContainsString( 'margin-top:12px', $result );
-		$this->assertStringContainsString( 'margin-bottom:12px', $result );
-		$this->assertStringContainsString( 'border-radius:8px', $result );
-		$this->assertStringContainsString( 'border-width:2px', $result );
-		$this->assertStringContainsString( 'border-color:#ff0000', $result );
-		// Without a style the browser defaults to `none` and draws no border at
-		// all, so the canvas would show one where the published page shows none.
-		$this->assertStringContainsString( 'border-style:solid', $result );
+		// The card takes margin alone.
+		$this->assertSame(
+			array(
+				'margin-bottom' => '12px',
+				'margin-top'    => '12px',
+			),
+			$this->read_style( $result, 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"' )
+		);
+		// Width and the stroke go on the frame, which wraps the code alone. Without
+		// a border-style the browser draws nothing.
+		$this->assertSame(
+			array(
+				'border-color'  => '#ff0000',
+				'border-radius' => '8px',
+				'border-style'  => 'solid',
+				'border-width'  => '2px',
+				'max-width'     => '100%',
+				'width'         => '50%',
+			),
+			$this->read_style( $result, 'class="jetpack-paypal-button__qr-frame"' )
+		);
 		// The caption's own styles belong on the caption, not the block.
 		$this->assertStringContainsString(
 			'<p class="jetpack-paypal-button__qr-caption" style="color:#0000ff;font-size:20px;">',
+			$result
+		);
+		// The frame closes before the caption, so the border wraps the code alone.
+		$this->assertMatchesRegularExpression(
+			'#</canvas>\s*</div>\s*<p class="jetpack-paypal-button__qr-caption"#',
+			$result
+		);
+		// Sized up front, or the frame draws at the canvas default until the script
+		// runs. The editor sets the same size from QR_OPTIONS.width.
+		$this->assertStringContainsString(
+			'jetpack-paypal-button__qr-canvas--standalone" width="200" height="200"',
 			$result
 		);
 	}
@@ -1224,8 +1247,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * Test that the published page emits what the canvas emits.
 	 *
 	 * The other half of this table runs in tests/js/block-styles.test.js against
-	 * getQrStyle(), getButtonStyle() and getTextStyle(). A value one side drops and the other
-	 * keeps is drift between the canvas and the published page, so it fails here.
+	 * getMarginStyle(), getWidthAndBorderStyle(), getButtonStyle() and getTextStyle(). A value one side
+	 * drops and the other keeps is a divergence between the canvas and the published page, so it fails here.
 	 *
 	 * @dataProvider provide_style_parity_cases
 	 * @param array  $attributes   The block attributes.
@@ -1263,21 +1286,38 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		// Read the style off the element itself. Anchoring on the element matters:
 		// a declaration landing on the wrong one is how the last divergence
 		// shipped green. Order is not part of the contract, so compare as a set.
+		$actual = $this->read_style( $result, $selector );
+
+		ksort( $declarations );
+		$this->assertSame( $declarations, $actual );
+	}
+
+	/**
+	 * Read one element's inline style out of rendered markup, as a sorted map.
+	 *
+	 * Order is not part of the contract, so callers compare sets rather than the
+	 * declaration string.
+	 *
+	 * @param string $html     The rendered block.
+	 * @param string $selector The element's class attribute, verbatim.
+	 * @return array The declarations, keyed by property and sorted by it.
+	 */
+	private function read_style( $html, $selector ) {
 		$this->assertSame(
 			1,
-			preg_match( '/' . preg_quote( $selector, '/' ) . ' style="([^"]*)"/', $result, $matches ),
+			preg_match( '/' . preg_quote( $selector, '/' ) . ' style="([^"]*)"/', $html, $matches ),
 			'No style attribute on ' . $selector
 		);
 
-		$actual = array();
+		$style = array();
 		foreach ( array_filter( explode( ';', $matches[1] ) ) as $declaration ) {
 			list( $property, $value ) = explode( ':', $declaration, 2 );
-			$actual[ $property ]      = $value;
+			$style[ $property ]       = $value;
 		}
 
-		ksort( $actual );
-		ksort( $declarations );
-		$this->assertSame( $declarations, $actual );
+		ksort( $style );
+
+		return $style;
 	}
 
 	/**
@@ -1366,11 +1406,24 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$cases = array();
 
+		// The QR splits across two elements: the card takes margin, the frame
+		// inside it takes Width and the stroke. The JS half reads the same field.
+		$targets = array(
+			'card'  => 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
+			'frame' => 'class="jetpack-paypal-button__qr-frame"',
+		);
+
 		foreach ( $fixture['cases'] as $case ) {
+			// A typo'd target would give an empty selector, and the regex would match
+			// the first style attribute instead.
+			if ( ! isset( $targets[ $case['target'] ?? '' ] ) ) {
+				throw new \RuntimeException( 'Unknown target on style-parity case: ' . $case['name'] );
+			}
+
 			$cases[ $case['name'] ] = array(
 				$case['attributes'],
 				$case['declarations'],
-				'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
+				$targets[ $case['target'] ],
 				'QR',
 			);
 		}
@@ -1389,16 +1442,19 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			}
 		}
 
-		// The canvas refuses these too, so neither side may emit a declaration.
-		// Run against the button as well: width and border are emitted a second
-		// time there, onto a different element.
+		// The canvas refuses these too, so no element on either side may emit a
+		// declaration. Run against the button as well: width and border are emitted
+		// a second time there, onto a different element.
 		foreach ( $fixture['rejectedCases'] as $case ) {
-			$cases[ 'refuses ' . $case['name'] ]                    = array(
-				$case['attributes'],
-				array(),
-				'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
-				'QR',
-			);
+			foreach ( $targets as $target => $selector ) {
+				$cases[ 'refuses ' . $case['name'] . ' on the ' . $target ] = array(
+					$case['attributes'],
+					array(),
+					$selector,
+					'QR',
+				);
+			}
+
 			$cases[ 'refuses ' . $case['name'] . ' on the button' ] = array(
 				$case['attributes'],
 				array(),
@@ -1437,7 +1493,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		// A renamed or malformed fixture would otherwise yield an empty provider
 		// and a green run.
 		$expected = count( $fixture['cases'] )
-			+ count( $fixture['rejectedCases'] ) * 2
+			+ count( $fixture['rejectedCases'] ) * ( count( $targets ) + 1 )
 			+ count( $fixture['buttonCases'] )
 			+ ( count( $fixture['textCases'] ) + count( $fixture['rejectedTextCases'] ) ) * count( self::TEXT_FORMATS );
 
