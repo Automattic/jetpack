@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
-import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { localTZDate, parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
@@ -73,7 +73,7 @@ function PostingActivityInner() {
 
 	// One reading for both windows below, so a render across midnight cannot resolve
 	// them against different days.
-	const today = format( new Date(), 'yyyy-MM-dd' );
+	const today = format( localTZDate(), 'yyyy-MM-dd' );
 
 	// Both the request window and the range the heatmap draws and pages through:
 	// without a floor the two coincide, so paging can never leave the selection.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the product price field when the product options carry their own prices, and stop a leftover value there from blocking Update.

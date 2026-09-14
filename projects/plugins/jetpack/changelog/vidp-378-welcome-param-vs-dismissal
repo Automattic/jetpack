@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Make the welcome=1 review parameter reopen the dashboard welcome modal after it has been dismissed.

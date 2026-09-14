@@ -16,6 +16,7 @@ import {
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
+import { PageOptionsMenu } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -26,7 +27,6 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
-	DashboardOptionsMenu,
 	DashboardSections,
 	OnboardingTour,
 	onboardingTourSteps,
@@ -49,6 +49,7 @@ import {
 	useOnboarding,
 	useSectionDateFilter,
 } from './hooks';
+import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 
@@ -116,15 +117,20 @@ function Dashboard(): JSX.Element {
 	const [ editMode, setEditMode ] = useState( false );
 
 	// The tour's anchors, handed in by the elements below once they mount.
-	const [ actionsAnchor, setActionsAnchor ] = useState< HTMLDivElement | null >( null );
+	const [ actionsFrame, setActionsFrame ] = useState< HTMLDivElement | null >( null );
+	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
 	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
+	// A step without its anchor is left out, so the counter counts what is on the page.
 	const tourSteps = onboardingTourSteps( {
-		actions: actionsAnchor,
-		dateControls: controlsAnchor,
 		// Every tile is a section; the grid draws them in layout order.
 		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
-	} );
+		dateControls: controlsAnchor,
+		// At rest the dashboard's first button is Customize; its own menu, when the
+		// policy allows one, comes after it.
+		customize: actionsFrame?.querySelector( 'button' ) ?? null,
+		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
+	} ).filter( step => step.anchor );
 
 	// The journey introduces the default section at rest: not another tab, and
 	// not while the reader is already customizing.
@@ -183,6 +189,13 @@ function Dashboard(): JSX.Element {
 	// The year surface still measures: its pills collapse into a select where the
 	// header row runs short, and the row is what it has to measure, not the body.
 	const [ headerElement, setHeaderElement ] = useState< HTMLDivElement | null >( null );
+	// Ignore the unmount. Tab panels overlap for a frame, so the outgoing
+	// header would otherwise overwrite the incoming one with null (WOOA7S-2066).
+	const setHeaderRef = useCallback( ( el: HTMLDivElement | null ) => {
+		if ( el ) {
+			setHeaderElement( el );
+		}
+	}, [] );
 
 	// WidgetDashboard treats a transiently-empty layout as "no widgets" and
 	// force-opens edit mode, so it must not mount before the sections resolve.
@@ -197,10 +210,12 @@ function Dashboard(): JSX.Element {
 	/*
 	 * Tab panels unmount when unfocused, so only the active section's header renders
 	 * and one set of controls suffices; an opted-out section renders none at all.
+	 * Gone while customizing: reading controls take no part in arranging a layout,
+	 * and Done or Cancel bring them back over the applied range.
 	 */
 	let dateControls: JSX.Element | null = null;
 
-	if ( showHeaderDateControl ) {
+	if ( showHeaderDateControl && ! editMode ) {
 		dateControls =
 			dateFilterSurface === DATE_FILTER_YEAR ? (
 				/*
@@ -258,9 +273,13 @@ function Dashboard(): JSX.Element {
 							visual={ <StatsPageIcon /> }
 							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 							actions={
-								<Stack ref={ setActionsAnchor } direction="row" gap="sm">
-									<WidgetDashboard.Actions />
-									<DashboardOptionsMenu />
+								<Stack direction="row" gap="sm">
+									<Stack ref={ setActionsFrame } direction="row">
+										<WidgetDashboard.Actions />
+									</Stack>
+									<Stack ref={ setOptionsMenuFrame } direction="row">
+										<PageOptionsMenu />
+									</Stack>
 								</Stack>
 							}
 							className={ styles.dashboard }
@@ -276,25 +295,18 @@ function Dashboard(): JSX.Element {
 										value={ section.slug }
 										className={ styles.content }
 									>
-										{ /* Marks where the header below comes to rest, so it starts
-								     condensing there. Measured, never seen. */ }
-										<div className={ styles.pinMarker } aria-hidden="true" />
-
-										<div ref={ setHeaderElement } className={ styles.sectionHeader }>
-											<SectionHeader
-												title={ resolveSectionHeading( section ) }
-												condenseOnScroll
-												controlsRef={ setControlsAnchor }
-											>
-												{ dateControls }
-											</SectionHeader>
-											{ /* Inside the pinned band, so its Retry stays reachable however
-										     far the reader has scrolled. */ }
-											<RefreshFailureNotice className={ styles.refreshFailure } />
-										</div>
+										<SectionHeader
+											ref={ setHeaderRef }
+											title={ resolveSectionHeading( section ) }
+											pinned
+											notice={ <RefreshFailureNotice /> }
+											controlsRef={ setControlsAnchor }
+										>
+											{ dateControls }
+										</SectionHeader>
 
 										{ activeSection === section.slug ? (
-											<>
+											<div className={ styles.body }>
 												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
 													<SectionSyncNotice
 														percentage={ syncStatus?.percentage ?? 0 }
@@ -308,7 +320,7 @@ function Dashboard(): JSX.Element {
 												<div ref={ setWidgetsFrame }>
 													<WidgetDashboard.Widgets className={ styles.widgets } />
 												</div>
-											</>
+											</div>
 										) : null }
 									</SectionTabPanel>
 								) ) }

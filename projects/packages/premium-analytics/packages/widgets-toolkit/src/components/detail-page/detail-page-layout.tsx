@@ -19,6 +19,8 @@ export type DetailPageHeaderSlots = Pick<
 export interface DetailPageLayoutProps {
 	/** The resource's header slots, from the page's `*HeaderSlots` builder. */
 	header: DetailPageHeaderSlots;
+	/** Tab bar for a page with several views. It scrolls away with the content; the header pins. */
+	tabs?: ReactNode;
 	/** Date controls for the header row. Omit to leave the header's control cell out. */
 	controls?: ReactNode;
 	/** The stacked page sections (the widget grid, a notice, …). */
@@ -26,20 +28,19 @@ export interface DetailPageLayoutProps {
 }
 
 /**
- * Detail page scaffold: the scroll area holding the resource header and the
- * sections below it, so the header scrolls away with them.
+ * Detail page scaffold: the scroll area holding the tabs, the resource header
+ * pinned at its top, and the sections that scroll under it.
  *
  * @param {DetailPageLayoutProps} props - The component props.
  * @return The detail page scaffold.
  */
-export function DetailPageLayout( { header, controls, children }: DetailPageLayoutProps ) {
+export function DetailPageLayout( { header, tabs, controls, children }: DetailPageLayoutProps ) {
 	return (
 		<div className={ styles.root }>
-			<div className={ styles.header }>
-				<SectionHeader headingLevel={ 1 } { ...header }>
-					{ controls }
-				</SectionHeader>
-			</div>
+			{ tabs }
+			<SectionHeader pinned { ...header }>
+				{ controls }
+			</SectionHeader>
 			{ children }
 		</div>
 	);

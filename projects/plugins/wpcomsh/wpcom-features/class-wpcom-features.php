@@ -101,10 +101,6 @@ class WPCOM_Features {
 	private const WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY       = 'wooexpress-medium-bundle-yearly'; // 1055
 	private const WPCOM_WOOEXPRESS_SMALL_BUNDLE_MONTHLY       = 'wooexpress-small-bundle-monthly'; // 1054
 	private const WPCOM_WOOEXPRESS_SMALL_BUNDLE_YEARLY        = 'wooexpress-small-bundle-yearly'; // 1056
-	private const WOO_HOSTED_BASIC_PLAN_MONTHLY               = 'woo_hosted_basic_plan_monthly'; // 4001
-	private const WOO_HOSTED_BASIC_PLAN_YEARLY                = 'woo_hosted_basic_plan_yearly'; // 4002
-	private const WOO_HOSTED_PRO_PLAN_MONTHLY                 = 'woo_hosted_pro_plan_monthly'; // 4003
-	private const WOO_HOSTED_PRO_PLAN_YEARLY                  = 'woo_hosted_pro_plan_yearly'; // 4004
 	private const WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY        = 'wp_bundle_migration_trial_monthly'; // 1057
 	private const WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY          = 'wp_bundle_hosting_trial_monthly'; // 1058
 	private const WPCOM_STAGING_PRODUCT                       = 'wp_staging_site_lifetime'; // 1060
@@ -263,6 +259,10 @@ class WPCOM_Features {
 	private const A4A_JETPACK_SOCIAL_V1_MONTHLY               = 'a4a_jetpack_social_v1_monthly'; // 3339
 	private const A4A_JETPACK_CREATOR_YEARLY                  = 'a4a_jetpack_creator_yearly'; // 3340
 	private const A4A_JETPACK_CREATOR_MONTHLY                 = 'a4a_jetpack_creator_monthly'; // 3341
+	private const WOO_HOSTED_BASIC_PLAN_MONTHLY               = 'woo_hosted_basic_plan_monthly'; // 4001
+	private const WOO_HOSTED_BASIC_PLAN_YEARLY                = 'woo_hosted_basic_plan_yearly'; // 4002
+	private const WOO_HOSTED_PRO_PLAN_MONTHLY                 = 'woo_hosted_pro_plan_monthly'; // 4003
+	private const WOO_HOSTED_PRO_PLAN_YEARLY                  = 'woo_hosted_pro_plan_yearly'; // 4004
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS           = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -418,9 +418,9 @@ class WPCOM_Features {
 	public const BACKUPS                           = 'backups';
 	public const BACKUPS_DAILY                     = 'backups-daily';
 	public const BACKUPS_RESTORE                   = 'restore';
+	public const BIG_SKY                           = 'big-sky';
 	public const BACKUPS_SELF_SERVE                = 'backups-self-serve';
 	public const BACKUP_ONE_TIME                   = 'backup-one-time';
-	public const BIG_SKY                           = 'big-sky';
 	public const BLAZE_CREDITS_VOUCHER             = 'blaze-credits-voucher';
 	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
 	public const CALENDLY                          = 'calendly';
@@ -577,11 +577,8 @@ class WPCOM_Features {
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::AI_SEO_ENHANCER                   => array(
+			self::WPCOM_PREMIUM_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			array(
-				'required_sticker' => 'gating-business-q1',
-				self::WPCOM_PREMIUM_PLANS,
-			),
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS                => array(
@@ -593,17 +590,12 @@ class WPCOM_Features {
 		 * ADVANCED_SEO - Called seo-tools in Jetpack.
 		 *
 		 * Active for:
-		 * - Simple and Atomic sites with Business or up plan.
+		 * - Simple and Atomic sites with Premium or up plan.
 		 * - Jetpack sites with any plan.
 		 * - Not VIP sites.
 		 */
 		self::ADVANCED_SEO                      => array(
-			array(
-				'required_sticker' => 'gating-business-q1',
-				self::WPCOM_PREMIUM_PLANS,
-			),
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
 		self::AKISMET                           => array(
@@ -690,13 +682,14 @@ class WPCOM_Features {
 		),
 		self::BLAZE_CREDITS_VOUCHER             => array(
 			array(
-				'required_sticker' => 'gating-business-q1',
-				// Business (Excluding Monthly).
+				// Business.
 				self::BUSINESS_BUNDLE,
+				self::BUSINESS_BUNDLE_MONTHLY,
 				self::BUSINESS_BUNDLE_2Y,
 				self::BUSINESS_BUNDLE_3Y,
-				// Ecommerce (Excluding Monthly).
+				// Ecommerce.
 				self::ECOMMERCE_BUNDLE,
+				self::ECOMMERCE_BUNDLE_MONTHLY,
 				self::ECOMMERCE_BUNDLE_2Y,
 				self::ECOMMERCE_BUNDLE_3Y,
 			),
@@ -803,11 +796,11 @@ class WPCOM_Features {
 		),
 		self::DONATIONS                         => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_ALL_SITES,
 			),
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			),
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -867,7 +860,7 @@ class WPCOM_Features {
 		// See: https://github.com/Automattic/jetpack/pull/43177 / https://github.a8c.com/Automattic/wpcom/pull/179247
 		self::FIELD_FILE                        => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_PERSONAL_PLANS,
 				self::WPCOM_PREMIUM_PLANS,
 			),
@@ -877,7 +870,7 @@ class WPCOM_Features {
 		),
 		self::FORM_INTEGRATIONS                 => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			),
 			self::WPCOM_PRO_PLANS,
@@ -1022,10 +1015,7 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::MAILPOET_BUSINESS                 => array(
-			array(
-				'required_sticker' => 'gating-business-q1',
-				self::WPCOM_BUSINESS_PLANS,
-			),
+			self::WPCOM_BUSINESS_PLANS,
 			self::WPCOM_ECOMMERCE_PLANS,
 			self::WPCOM_WOOEXPRESS_PLANS,
 			self::WOO_HOSTED_PLANS,
@@ -1067,7 +1057,7 @@ class WPCOM_Features {
 		),
 		self::MULTISTEP_FORM                    => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_PERSONAL_PLANS,
 				self::WPCOM_PREMIUM_PLANS,
 			),
@@ -1095,7 +1085,7 @@ class WPCOM_Features {
 		),
 		self::PAYMENTS                          => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_PERSONAL_PLANS,
 			),
 			self::WPCOM_STARTER_PLANS,
@@ -1103,11 +1093,11 @@ class WPCOM_Features {
 		),
 		self::PAYMENT_BUTTONS                   => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_ALL_SITES,
 			),
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			),
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -1115,11 +1105,11 @@ class WPCOM_Features {
 		),
 		self::PAYPAL_PAYMENT_BUTTONS            => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_ALL_SITES,
 			),
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			),
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -1328,14 +1318,9 @@ class WPCOM_Features {
 			),
 		),
 		self::SEO_PREVIEW_TOOLS                 => array(
-			array(
-				'required_sticker' => 'gating-business-q1',
-				self::WPCOM_PREMIUM_PLANS,
-			),
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_ALL_SITES,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_PRO_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
 		self::SEND_A_MESSAGE                    => array(
@@ -1559,7 +1544,6 @@ class WPCOM_Features {
 		),
 		self::TITAN_MAIL_1YEAR_TRIAL            => array(
 			array(
-				'required_sticker' => 'gating-business-q1',
 				self::WPCOM_BUSINESS_PLANS,
 				self::WPCOM_ECOMMERCE_PLANS,
 			),
@@ -1676,7 +1660,7 @@ class WPCOM_Features {
 		 */
 		self::VIDEO_HOSTING                     => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_PREMIUM_PLANS,
 			),
 			self::WPCOM_PRO_PLANS,
@@ -1693,7 +1677,7 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_PLANS,
 			self::JETPACK_VIDEOPRESS_PLANS,
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_PREMIUM_PLANS,
 			),
 			self::WPCOM_PRO_PLANS,
@@ -1732,7 +1716,7 @@ class WPCOM_Features {
 		self::VIDEOPRESS_VIDEO                  => array(
 			self::WP_P2_PLUS_MONTHLY,
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before_feature_gating_2026' => true,
 				self::WPCOM_PREMIUM_PLANS,
 			),
 			self::WPCOM_PRO_PLANS,
@@ -2020,6 +2004,61 @@ class WPCOM_Features {
 	}
 
 	/**
+	 * Every blog sticker the products map gates on, in a stable order.
+	 *
+	 * @return string[]
+	 */
+	private static function get_map_sticker_slugs() {
+		static $slugs = null;
+
+		if ( null !== $slugs ) {
+			return $slugs;
+		}
+
+		$found = array();
+		$walk  = static function ( $node ) use ( &$walk, &$found ) {
+			foreach ( $node as $key => $value ) {
+				if ( 'required_sticker' === $key || 'sticker_not_present' === $key ) {
+					foreach ( (array) $value as $slug ) {
+						$found[ $slug ] = true;
+					}
+				} elseif ( is_array( $value ) ) {
+					$walk( $value );
+				}
+			}
+		};
+		$walk( self::FEATURES_MAP );
+
+		$slugs = array_keys( $found );
+		sort( $slugs );
+
+		return $slugs;
+	}
+
+	/**
+	 * A cache-key fragment covering every per-site input the products map consults.
+	 *
+	 * Feature resolution for a given product is not the same for every site, so anything caching it
+	 * outside a per-site key has to vary on this. The inputs are: before_feature_gating_2026 and
+	 * required_sticker / sticker_not_present.
+	 *
+	 * @param int $blog_id Blog ID to describe.
+	 *
+	 * @return string
+	 */
+	public static function get_site_gating_cache_suffix( $blog_id ) {
+		$suffix = self::is_legacy_gating_site( $blog_id ) ? '_pre_gating_2026' : '_gating_2026';
+
+		foreach ( self::get_map_sticker_slugs() as $slug ) {
+			if ( self::site_has_sticker( $slug, $blog_id ) ) {
+				$suffix .= '_' . $slug;
+			}
+		}
+
+		return $suffix;
+	}
+
+	/**
 	 * The products definition array ($products_map) may contain 1st-level sub-arrays with 'before' and/or 'after' keys
 	 * used to restrict access to a feature based on when the purchase was made. If the $purchase is included in
 	 * $products_map, and it was purchased within the defined date range (if a date range is defined), return true.
@@ -2076,6 +2115,14 @@ class WPCOM_Features {
 				$purchase_eligible_by_sticker = $purchase_eligible_by_sticker && ! $has_sticker;
 				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
 				unset( $product_definition['sticker_not_present'] );
+			}
+
+			// Check if the site has legacy/current features, previously use gating-business-q1 sticker
+			if ( isset( $product_definition['before_feature_gating_2026'] ) ) {
+				$purchase_eligible_by_sticker = $purchase_eligible_by_sticker
+					&& (bool) $product_definition['before_feature_gating_2026'] === self::is_legacy_gating_site( self::resolve_blog_id( $blog_id ) );
+				// Remove the key so $product_definition is clean for in_array_recursive search.
+				unset( $product_definition['before_feature_gating_2026'] );
 			}
 
 			// If 'before' & 'after' are empty, this is not a legacy feature.

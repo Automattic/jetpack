@@ -5,6 +5,7 @@ export {
 	type MetricTileGridSkeletonProps,
 } from './metric-tile';
 export { MetricList, type MetricListItem, type MetricListProps } from './metric-list';
+export { AbbreviatedValue, type AbbreviatedValueProps } from './abbreviated-value';
 export { MetricValue } from './metric-value';
 export { MetricWithComparison } from './metric-with-comparison';
 export { PeakDistribution, type PeakDistributionProps } from './peak-distribution';
@@ -64,6 +65,13 @@ export {
 } from './chart-bar';
 export { ChartEmptyState, type ChartEmptyStateProps } from './chart-empty-state';
 export {
+	LocationsGeoChart,
+	type LocationsGeoChartProps,
+	type LocationsGeoFocusCountry,
+	type LocationsGeoMode,
+	type LocationsGeoRow,
+} from './locations-geo-chart';
+export {
 	AdaptiveCalendarHeatmap,
 	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
@@ -73,6 +81,12 @@ export {
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
 } from './calendar-heatmap';
+export {
+	MonthlyHeatmap,
+	type MonthlyHeatmapProps,
+	type MonthlyHeatmapRow,
+	type MonthlyHeatmapTarget,
+} from './monthly-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
 export {
 	WidgetState,
@@ -85,6 +99,12 @@ export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
+export {
+	HighlightField,
+	HighlightGroup,
+	type HighlightFieldProps,
+	type HighlightGroupProps,
+} from './highlight-group';
 export { LeaderboardPostLabel, type LeaderboardPostLabelProps } from './leaderboard-post-label';
 export {
 	PostHighlightCard,
@@ -101,8 +121,10 @@ export {
 	type SubscriberListSkeletonProps,
 } from './subscriber-list';
 export {
+	ReportChartSection,
 	ReportDrilldownTable,
 	ReportErrorState,
+	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageShell,
@@ -114,8 +136,10 @@ export {
 	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
+	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
 	type ReportErrorStateProps,
+	type ReportLocationsMapProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
 	type ReportPageShellProps,
@@ -127,19 +151,21 @@ export {
 	type ReportCsvActionProps,
 } from './report-page';
 export {
+	DetailPageActions,
+	DetailPageBreadcrumbs,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
-	DetailPageTabPanel,
-	DetailPageTabs,
+	useDetailPageCustomize,
+	type DetailPageActionsProps,
+	type DetailPageBreadcrumbsProps,
+	type DetailPageCustomize,
 	type DetailPageHeaderSlots,
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
-	type DetailPageTab,
-	type DetailPageTabPanelProps,
-	type DetailPageTabsProps,
 } from './detail-page';
+export { PageOptionsMenu } from './page-options-menu';
 export {
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,

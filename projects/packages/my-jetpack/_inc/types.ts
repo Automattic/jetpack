@@ -26,6 +26,7 @@ export type MyJetpackModule = {
 export type SiteEditorData = {
 	isBlockTheme: boolean;
 	isSharingBlockAvailable: boolean;
+	isLikeBlockAvailable: boolean;
 	activeThemeStylesheet: string;
 };
 

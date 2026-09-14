@@ -16,13 +16,14 @@ import {
 } from './hooks';
 import { stage as Dashboard } from './stage';
 import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
-import type { ReactNode } from 'react';
+import type { ForwardedRef, ReactNode } from 'react';
 
 // Read inside the mocked functions, never at factory time — the factories run
 // while `./stage` is still importing, so these are in the temporal dead zone.
 // Base UI's `Tabs.Panel` defaults to `keepMounted={false}`, so only the active
-// section is ever in the DOM; the mock below models that.
+// section is ever in the DOM; `mockMountedSectionSlugs` keeps extras for one frame.
 let mockActiveSectionSlug = 'insights';
+let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
@@ -66,15 +67,41 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <MockHeaderScopeProbe />,
-	DateIntervalDropdown: () => null,
-	DateYearFilter: () => null,
+	DateIntervalDropdown: () => <span>interval control</span>,
+	DateYearFilter: ( { containerElement }: { containerElement?: HTMLElement | null } ) => (
+		<>
+			<span>year surface</span>
+			<span>{ containerElement ? 'measuring header' : 'measuring body' }</span>
+		</>
+	),
 	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
 		open ? <div data-testid="onboarding-welcome-modal" /> : null,
-	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	// Forwards the ref and marks the notice slot, since the stage relies on
+	// both: the ref feeds the year surface's measurement, and the notice's
+	// place in the slot is asserted below.
+	SectionHeader: jest
+		.requireActual< typeof import('react') >( 'react' )
+		.forwardRef(
+			(
+				{ children, notice }: { children: ReactNode; notice?: ReactNode },
+				ref: ForwardedRef< HTMLDivElement >
+			) => (
+				<div ref={ ref }>
+					<div>{ children }</div>
+					<div data-testid="section-header-notice">{ notice }</div>
+				</div>
+			)
+		),
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
-		value === mockActiveSectionSlug ? <div>{ children }</div> : null,
+		( mockMountedSectionSlugs ?? [ mockActiveSectionSlug ] ).includes( value ) ? (
+			<div>{ children }</div>
+		) : null,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
+} ) );
+
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	PageOptionsMenu: () => <div data-testid="page-options-menu" />,
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -121,8 +148,59 @@ function MockScopeProbe() {
 }
 
 jest.mock( '@wordpress/widget-dashboard', () => {
-	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <div>{ children }</div>;
-	WidgetDashboard.Actions = () => <div data-testid="widget-dashboard-actions" />;
+	const { createContext, useCallback, useContext, useMemo } = jest.requireActual( 'react' );
+
+	const EditModeContext = createContext( { editMode: false, onEditChange: () => {} } );
+
+	const WidgetDashboard = ( {
+		editMode = false,
+		onEditChange = () => {},
+		children,
+	}: {
+		editMode?: boolean;
+		onEditChange?: ( next: boolean ) => void;
+		children: ReactNode;
+	} ) => {
+		const value = useMemo( () => ( { editMode, onEditChange } ), [ editMode, onEditChange ] );
+
+		return (
+			<EditModeContext.Provider value={ value }>
+				<div>{ children }</div>
+			</EditModeContext.Provider>
+		);
+	};
+
+	/**
+	 * The real dashboard hands `editMode` and `onEditChange` to `Actions` through its
+	 * context; the stand-in does the same so Customize, Done and Cancel round-trip.
+	 *
+	 * @return The stand-in edit toolbar.
+	 */
+	function Actions() {
+		const { editMode, onEditChange } = useContext( EditModeContext );
+		const enter = useCallback( () => onEditChange( true ), [ onEditChange ] );
+		const leave = useCallback( () => onEditChange( false ), [ onEditChange ] );
+
+		return (
+			<div data-testid="widget-dashboard-actions">
+				{ editMode ? (
+					<>
+						<button type="button" onClick={ leave }>
+							Cancel
+						</button>
+						<button type="button" onClick={ leave }>
+							Done
+						</button>
+					</>
+				) : (
+					<button type="button" onClick={ enter }>
+						Customize
+					</button>
+				) }
+			</div>
+		);
+	}
+	WidgetDashboard.Actions = Actions;
 	WidgetDashboard.NoWidgetsState = () => null;
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 	WidgetDashboard.Commands = () => null;
@@ -133,14 +211,11 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	DashboardOptionsMenu: () => <div data-testid="dashboard-options-menu" />,
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
-	RefreshFailureNotice: ( { className }: { className?: string } ) => (
-		<div data-testid="refresh-failure-notice" className={ className } />
-	),
+	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
 	SectionSyncNotice: ( {
 		percentage,
 		hasError,
@@ -181,6 +256,7 @@ jest.mock( './hooks', () => ( {
 beforeEach( () => {
 	mockSyncState = { data: undefined, error: null, isComplete: false };
 	mockIsSyncFinished = false;
+	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
 } );
@@ -319,12 +395,9 @@ describe( 'Dashboard refresh-failure notice', () => {
 		const notices = screen.getAllByTestId( 'refresh-failure-notice' );
 		expect( notices ).toHaveLength( 1 );
 
-		// Pinned right after the header, not among the widgets, so it stays reachable
-		// however far scrolled; sibling order is the assertion Testing Library lacks.
-		// eslint-disable-next-line testing-library/no-node-access -- position in the header band is what this test is for.
-		expect( notices[ 0 ].previousElementSibling ).toContainElement(
-			screen.getByText( 'header offers comparison' )
-		);
+		// Through the header's slot, so it pins with the band rather than
+		// scrolling away among the widgets.
+		expect( screen.getByTestId( 'section-header-notice' ) ).toContainElement( notices[ 0 ] );
 	} );
 } );
 
@@ -343,8 +416,11 @@ describe( 'Dashboard options menu', () => {
 
 		const actions = screen.getByTestId( 'widget-dashboard-actions' );
 
+		// Each sits in its own frame, the tour's anchors; the menu's frame follows the actions'.
 		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
-		expect( actions.nextElementSibling ).toBe( screen.getByTestId( 'dashboard-options-menu' ) );
+		expect( actions.parentElement?.nextElementSibling ).toContainElement(
+			screen.getByTestId( 'page-options-menu' )
+		);
 	} );
 } );
 
@@ -510,6 +586,18 @@ describe( 'Dashboard header date control', () => {
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders neither the year surface nor the interval when a year section hands them over', () => {
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		mockSection( {
+			date_filter_options: { with_date_comparison: false, with_header_date_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( /^year surface/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /^interval/ ) ).not.toBeInTheDocument();
+	} );
+
 	// A payload served before the field existed carries no placement.
 	it( 'keeps the control for a section that carries no placement', () => {
 		mockSection( {
@@ -518,6 +606,92 @@ describe( 'Dashboard header date control', () => {
 		} );
 
 		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps measuring the header after a tab switch unmounts the previous panel', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{
+					slug: 'traffic',
+					label: 'Traffic',
+					title: 'Traffic',
+					date_filter: DATE_FILTER_RANGE,
+				},
+				{
+					slug: 'insights',
+					label: 'Insights',
+					title: 'Activity insights',
+					date_filter: DATE_FILTER_YEAR,
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		mockMountedSectionSlugs = [ 'traffic' ];
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		const { rerender } = render( <Dashboard /> );
+
+		// Tabs.Panel mounts the incoming panel a frame before the outgoing one
+		// unmounts. Model that overlap, then the leave, or the null never fires.
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		mockMountedSectionSlugs = [ 'traffic', 'insights' ];
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		rerender( <Dashboard /> );
+
+		mockMountedSectionSlugs = [ 'insights' ];
+		rerender( <Dashboard /> );
+
+		expect( screen.getByText( 'measuring header' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'measuring body' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard customizing', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+	} );
+
+	it( 'hides the date controls while customizing', async () => {
+		render( <Dashboard /> );
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
+		// The widgets keep reporting over the same range meanwhile.
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the year surface too', async () => {
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		mockSection();
+
+		render( <Dashboard /> );
+		expect( screen.getByText( 'year surface' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'interval control' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( screen.queryByText( 'year surface' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'interval control' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [ 'Done', 'Cancel' ] )( 'brings the date controls back on %s', async action => {
+		render( <Dashboard /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: action } ) );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
 	} );

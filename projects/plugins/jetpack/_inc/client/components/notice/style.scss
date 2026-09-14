@@ -113,10 +113,6 @@
 
 .dops-notice__text {
 
-	a.dops-notice__text-no-underline {
-		text-decoration: none;
-	}
-
 	a,
 	a:visited {
 		text-decoration: underline;
@@ -146,11 +142,6 @@
 			margin-top: 0;
 		}
 	}
-}
-
-.dops-notice__button {
-	cursor: pointer;
-	margin-left: 0.428em;
 }
 
 // "X" for dismissing a notice

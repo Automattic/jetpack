@@ -81,7 +81,7 @@ function get_available_dashboard_sections( $dashboard_name ) {
  * The site's own opt-in means the preview. Anything else that switches the dashboard on, the
  * WordPress.com blog sticker or the `jetpack_premium_analytics_enabled` filter, means us.
  *
- * @since $$next-version$$
+ * @since 0.6.0
  *
  * @return bool
  */
@@ -92,7 +92,7 @@ function is_dashboard_preview_scoped() {
 /**
  * Whether the preview exposes a dashboard section.
  *
- * @since $$next-version$$
+ * @since 0.6.0
  *
  * @param string $dashboard_name Dashboard identifier. Only this package's own dashboard is scoped.
  * @param string $slug           URL-facing section slug.
@@ -109,7 +109,7 @@ function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
 	 * `__return_true` restores the whole dashboard, which is how a development or test site
 	 * sees every tab.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @param bool   $in_scope       Whether the preview exposes the section.
 	 * @param string $slug           URL-facing section slug.
@@ -125,7 +125,7 @@ function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
  * behind. Null, never `array()`, before the registry is hydrated: an empty array is a
  * published scope that exposes nothing.
  *
- * @since $$next-version$$
+ * @since 0.6.0
  *
  * @return string[]|null
  */
@@ -147,7 +147,7 @@ function get_dashboard_preview_scope_sections() {
 /**
  * Configures the preview scope script data.
  *
- * @since $$next-version$$
+ * @since 0.6.0
  *
  * @return void
  */
@@ -161,7 +161,7 @@ function configure_dashboard_preview_scope() {
  * The same list travels over REST for the tab bar, but a report route reads no REST before
  * choosing its redirect, so it reads the scope from boot data instead.
  *
- * @since $$next-version$$
+ * @since 0.6.0
  *
  * @param array $data The script data passed by the assets package.
  * @return array
@@ -303,11 +303,13 @@ function register_default_dashboard_sections() {
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Activity insights', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 20,
-			// Insights reads whole history: all time and single years instead of
-			// the rolling picker, with nothing to compare them against.
+			// Insights reads whole history: all time and single years, with nothing
+			// to compare them against. Most widgets have fixed periods of their own,
+			// so no header control; Highlights hosts the only year control.
 			'date_filter'         => Dashboard_Section::DATE_FILTER_YEAR,
 			'date_filter_options' => array(
-				'with_date_comparison' => false,
+				'with_date_comparison'     => false,
+				'with_header_date_control' => false,
 			),
 			'default_layout'      => static function () {
 				return get_dashboard_default_layout_for( 'analytics/insights' );

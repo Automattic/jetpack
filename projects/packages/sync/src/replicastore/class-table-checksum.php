@@ -1068,7 +1068,7 @@ class Table_Checksum {
 	/**
 	 * Make sure the WooCommerce Analytics tables should be enabled for Checksum/Fix.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.1.0
 	 *
 	 * @return bool
 	 */
@@ -1078,7 +1078,7 @@ class Table_Checksum {
 		 * available while comparing table checksums. This override allows the
 		 * Analytics tables to be used there.
 		 *
-		 * @since $$next-version$$
+		 * @since 5.1.0
 		 *
 		 * @param bool $force_woocommerce_analytics_support Whether to force-enable WooCommerce Analytics table support.
 		 */

@@ -107,7 +107,7 @@ Verified, displayable errors reach the front end through two channels, built fro
 * **A generic wp-admin notice**, rendered by `handle_verified_errors()` on `admin_init`. This is a PHP-only fallback: plain text as well as a single action link for some codes (see [Display configuration](#display-configuration) below). It has no knowledge of React, and nothing to do with the JS consumers described next.
 * **`connectionErrors` in the React initial state**, populated by `Initial_State::get_data()` (`Automattic\Jetpack\Connection\Initial_State`) from the same `get_displayable_errors()` call but via `jetpack_react_dashboard_error()`, and printed to the page as `window.JP_CONNECTION_INITIAL_STATE.connectionErrors` (or merged into a consuming plugin's own `JetpackScriptData.connection.connectionErrors` via `set_connection_script_data()`). This is the channel every React-based consumer reads from.
 
-Only a subset of error codes is user-displayable (see `get_error_display_configs()`), and each displayable error is classified by audience — `site` (blog token), `owner` (the connection owner's token), or `user` (another user's token) — so consumers can render viewer-appropriate copy.
+Only a subset of error codes is user-displayable (see `get_error_display_configs()`), and each displayable error is classified by audience — `site` (blog token), `owner` (the connection owner's token), or `user` (a non-owner user's token, which only that user is ever shown — see the [viewer capability gate](#viewer-capability-gate)) — so consumers can render viewer-appropriate copy, and by the [viewer capability gate](#viewer-capability-gate) below.
 
 ### React/JS consumers: `@automattic/jetpack-connection`
 
@@ -132,6 +132,23 @@ Recognized config keys, all optional:
 ### Special-cased error codes
 
 The one code with special-cased copy today is `invalid_connection_owner`, via `get_invalid_connection_owner_message()`: it distinguishes a merely-missing owner token (the original owner can just reconnect) from an owner whose WordPress user was deleted entirely (nobody can reconnect *as* them; a different admin has to become the new owner). `get_displayable_errors()` further tailors this message per viewer: the owner reading their own missing-token error gets first-person copy (the deleted-user flavor has no such case — an owner who no longer exists can't be the viewer), while a secondary admin's copy of an owner error — and whether they get a reconnect CTA at all — depends on whether `Manager::is_ownership_transferable()` says ownership can move to them; when it can't, the CTA is suppressed with `action = 'none'`. `xmlrpc_request_blocked` remains the other special code: reconnecting would be rejected by the same firewall rule that broke the connection, so its display config sets `support_link` and its (deliberately brief) message names the real cause and points at Site Health — the source of truth with the detailed diagnosis — which the admin notice also links to via `notice_link`. It also sets `survives_owner_promotion`, since a blocked request isn't a token problem the owner reconnecting would fix.
+
+### Viewer capability gate
+
+`get_displayable_errors()` is viewer-specific: an error is dropped entirely for a viewer who lacks the capability to resolve it, rather than being shown without its call to action.
+
+Before capabilities are consulted at all, a `user`-audience error belonging to someone other than the viewer is skipped outright — another user's broken token is invisible, not merely non-actionable. `invalid_connection_owner` is exempt, since it lands in the `user` audience by ID alone when there is no current owner to compare against.
+
+The capability split then follows the scope of the remedy:
+
+* `user` audience (the viewer's own broken token, excluding `invalid_connection_owner`) needs `jetpack_connect_user`, which non-admins hold once the site has a connected owner — relinking their own account is self-service.
+* `site` and `owner` audiences, and `invalid_connection_owner` at any audience, need `jetpack_connect`. Their remedy is `Manager::restore()`, which for a broken blog token tears down the whole site connection and re-registers it — a `manage_options` action, and destructive for every other connected user.
+
+One case is kept but defused: a viewer holding only `jetpack_connect_user` sees their own token error with `action = 'none'`, because the notice's reconnect CTA is the site-scoped one they cannot use. The message stays; the working control is My Jetpack's connection card, which offers "Connect my account" to exactly these viewers.
+
+The gate applies only when there is a current user. Contexts with none (cron, WP-CLI, unauthenticated requests) render no UI and keep the unfiltered set. Errors injected by consumers through `jetpack_connection_get_verified_errors` run after the gate and are not subject to it; the wp-admin notice keeps its own `jetpack_connect` check for that reason.
+
+Because the result is viewer-dependent, the in-request cache is keyed by user ID.
 
 ### Owner-promotion reduction
 

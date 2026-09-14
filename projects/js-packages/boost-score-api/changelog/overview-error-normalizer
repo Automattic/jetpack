@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Expose the existing error normalizer for reuse by Boost dashboard adapters.
+
+

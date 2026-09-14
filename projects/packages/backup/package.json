@@ -40,7 +40,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@jetpack-backup/init": "link:packages/init",
-		"@tanstack/react-query": "5.101.2",
+		"@tanstack/react-query": "5.102.8",
 		"@wordpress/admin-ui": "2.9.0",
 		"@wordpress/api-fetch": "7.54.0",
 		"@wordpress/base-styles": "13.0.0",

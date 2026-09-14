@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Post, page and video detail pages: offer every period the dashboard's date picker does, plus a custom range.

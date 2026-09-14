@@ -38,10 +38,11 @@
 	}
 
 	// The calendar opens beside the list rather than replacing it, so the panel
-	// is the row holding both.
+	// is the row holding both. Both halves stretch: the seam below is drawn on
+	// the calendar, so a calendar shorter than the list would cut it short.
 	&__panel {
 		display: flex;
-		align-items: flex-start;
+		align-items: stretch;
 	}
 
 	// Owned here rather than by the calendar: it is the seam between the

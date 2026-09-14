@@ -187,14 +187,15 @@ function get_dashboard_default_widget_instance(
 function get_dashboard_default_section_layouts() {
 	return array(
 		DASHBOARD_TRAFFIC_SECTION_ID     => array(
-			// Rows fill the four-column grid. Plan usage is intentionally not a
-			// default; it stays available from the widget picker.
+			// Rows fill the three-column grid in the prototype's order. Plan usage
+			// is intentionally not a default; it stays available from the widget
+			// picker.
 			// Row 1: traffic chart.
 			get_dashboard_default_widget_instance(
 				'default-traffic-chart-widget-instance',
 				'jpa/traffic-chart',
 				0,
-				4,
+				3,
 				2
 			),
 			// Row 2: most-viewed posts + referrers + devices.
@@ -202,7 +203,7 @@ function get_dashboard_default_section_layouts() {
 				'default-stats-top-posts-widget-instance',
 				'jpa/stats-top-posts',
 				1,
-				2,
+				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
@@ -224,7 +225,7 @@ function get_dashboard_default_section_layouts() {
 				'default-locations-widget-instance',
 				'jpa/locations',
 				4,
-				3,
+				2,
 				2
 			),
 			get_dashboard_default_widget_instance(
@@ -234,13 +235,16 @@ function get_dashboard_default_section_layouts() {
 				1,
 				2
 			),
-			// Row 4: VideoPress (sites running VideoPress only) + clicks + authors.
+			// Row 4: UTM insights + clicks + VideoPress (sites running VideoPress only).
 			get_dashboard_default_widget_instance(
-				'default-videopress-widget-instance',
-				'jpa/videopress',
+				'default-utm-insights-widget-instance',
+				'jpa/utm-insights',
 				6,
 				1,
-				2
+				2,
+				array(
+					'utmDimension' => 'utm_source,utm_medium',
+				)
 			),
 			get_dashboard_default_widget_instance(
 				'default-clicks-widget-instance',
@@ -250,22 +254,19 @@ function get_dashboard_default_section_layouts() {
 				2
 			),
 			get_dashboard_default_widget_instance(
-				'default-authors-widget-instance',
-				'jpa/authors',
+				'default-videopress-widget-instance',
+				'jpa/videopress',
 				8,
-				2,
+				1,
 				2
 			),
-			// Row 5: UTM insights + search terms + file downloads (Simple only).
+			// Row 5: authors + search terms + file downloads (Simple only).
 			get_dashboard_default_widget_instance(
-				'default-utm-insights-widget-instance',
-				'jpa/utm-insights',
+				'default-authors-widget-instance',
+				'jpa/authors',
 				9,
-				2,
-				2,
-				array(
-					'utmDimension' => 'utm_source,utm_medium',
-				)
+				1,
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-search-terms-widget-instance',
@@ -346,98 +347,74 @@ function get_dashboard_default_section_layouts() {
 				2,
 				2
 			),
-			// Row 5: the period totals and the weekday and hour-of-day
-			// distributions.
-			get_dashboard_default_widget_instance(
-				'default-total-views-widget-instance',
-				'jpa/total-views',
-				7,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-total-visitors-widget-instance',
-				'jpa/total-visitors',
-				8,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-popular-days-widget-instance',
-				'jpa/popular-days',
-				9,
-				1,
-				1
-			),
-			get_dashboard_default_widget_instance(
-				'default-popular-hours-widget-instance',
-				'jpa/popular-hours',
-				10,
-				1,
-				1
-			),
-			// Row 6: daily views heatmap. Two rows tall, as in the prototype: cells are sized
+			// Row 5: daily views heatmap. Two rows tall, as in the prototype: cells are sized
 			// from the tile's height, and only here do they fit each day's view count.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
-				11,
+				7,
 				4,
 				2
 			),
-			// Row 7: the comment leaderboards, shares, and tags.
+			// Row 6: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				12,
+				8,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				13,
+				9,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				14,
+				10,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				15,
+				11,
 				1,
 				2
 			),
 		),
 		DASHBOARD_SUBSCRIBERS_SECTION_ID => array(
-			// Subscriber highlights is intentionally not a default: the design
-			// opens on the chart. It stays available from the widget picker.
 			// Row 1: subscribers chart.
 			get_dashboard_default_widget_instance(
 				'default-subscribers-chart-widget-instance',
 				'jpa/subscribers-chart',
 				0,
-				4,
+				3,
 				2
 			),
-			// Row 2: latest subscribers + latest emails sent.
+			// Row 2: subscriber highlights.
+			get_dashboard_default_widget_instance(
+				'default-subscriber-highlights-widget-instance',
+				'jpa/subscriber-highlights',
+				1,
+				3,
+				1
+			),
+			// Row 3: latest subscribers + the wider latest emails sent table.
 			get_dashboard_default_widget_instance(
 				'default-subscribers-list-widget-instance',
 				'jpa/subscribers-list',
-				1,
 				2,
+				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-subscribers-emails-widget-instance',
 				'jpa/stats-emails',
-				2,
+				3,
 				2,
 				2,
 				array(
@@ -511,40 +488,42 @@ function get_dashboard_default_section_layouts() {
 			),
 		),
 		DASHBOARD_ADS_SECTION_ID         => array(
-			// Match the Calypso WordAds widget order.
-			get_dashboard_default_widget_instance(
-				'default-wordads-highlights-widget-instance',
-				'jpa/wordads-highlights',
-				0,
-				4,
-				1
-			),
+			// Row 1: WordAds chart.
 			get_dashboard_default_widget_instance(
 				'default-wordads-chart-tabs-widget-instance',
 				'jpa/wordads-chart-tabs',
-				1,
-				4,
+				0,
+				3,
 				2
 			),
+			// Row 2: all-time balance.
+			get_dashboard_default_widget_instance(
+				'default-wordads-highlights-widget-instance',
+				'jpa/wordads-highlights',
+				1,
+				3,
+				1
+			),
+			// Row 3: earnings, sponsored content, and adjustments history.
 			get_dashboard_default_widget_instance(
 				'default-wordads-earnings-history-widget-instance',
 				'jpa/wordads-earnings-history',
 				2,
-				4,
+				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-wordads-sponsored-content-history-widget-instance',
 				'jpa/wordads-sponsored-content-history',
 				3,
-				2,
+				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-wordads-adjustments-history-widget-instance',
 				'jpa/wordads-adjustments-history',
 				4,
-				2,
+				1,
 				2
 			),
 		),

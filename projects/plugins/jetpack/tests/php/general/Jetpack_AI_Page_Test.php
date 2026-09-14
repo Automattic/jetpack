@@ -263,8 +263,20 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertTrue( $settings['showFeaturesView'] );
 		$this->assertFalse( $settings['showA12sBadge'] );
 		$this->assertFalse( $settings['isTest'] );
+		$this->assertSame( 'admin.php?page=my-jetpack#/connection', $settings['userConnectionUrl'] );
 		$this->assertArrayHasKey( 'featureFlags', $settings );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * VIP sites connect users through the legacy Jetpack connection screen.
+	 */
+	public function test_vip_site_uses_jetpack_user_connection_url() {
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( 'admin.php?page=jetpack#/connect-user', $settings['userConnectionUrl'] );
 	}
 
 	/**
@@ -522,6 +534,34 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
 		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * Webpack loads the Scheduled tasks chunk from this base URL.
+	 */
+	public function test_chunk_base_url_is_injected_with_scheduled_tasks() {
+		unset( $GLOBALS['wp_scripts'] );
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringContainsString(
+			'window.Jetpack_AI_Admin_Assets_Base_Url = "' . plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ) . '";',
+			$inline
+		);
+	}
+
+	/**
+	 * Only the Scheduled tasks tab loads a chunk, so the base URL stays out by default.
+	 */
+	public function test_chunk_base_url_is_not_injected_by_default() {
+		unset( $GLOBALS['wp_scripts'] );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringNotContainsString( 'Jetpack_AI_Admin_Assets_Base_Url', $inline );
 	}
 
 	/**

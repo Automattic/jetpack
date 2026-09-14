@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.3] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [0.9.2] - 2026-09-09
+### Fixed
+- Improve handling of protected content in generated metadata.
+- Move the dashboard's toast notices back to the top right. [#52096]
+
+## [0.9.1] - 2026-09-08
+### Changed
+- AI SEO: Only offer the AI SEO control where a surface it governs can actually run. [#51918]
+- Update package dependencies. [#51701]
+
 ## [0.9.0] - 2026-09-01
 ### Changed
 - Disable the SEO dashboard's AI SEO Enhancer toggle, and explain why, while AI SEO is turned off. [#51415]
@@ -162,6 +176,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.9.3]: https://github.com/Automattic/jetpack-seo/compare/0.9.2...0.9.3
+[0.9.2]: https://github.com/Automattic/jetpack-seo/compare/0.9.1...0.9.2
+[0.9.1]: https://github.com/Automattic/jetpack-seo/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/Automattic/jetpack-seo/compare/0.8.3...0.9.0
 [0.8.3]: https://github.com/Automattic/jetpack-seo/compare/0.8.2...0.8.3
 [0.8.2]: https://github.com/Automattic/jetpack-seo/compare/0.8.1...0.8.2

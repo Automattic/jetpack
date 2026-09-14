@@ -370,18 +370,18 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_types    = array_column( $layout, 'type' );
 		$utm_widget_uuid = 'default-utm-insights-widget-instance';
 
-		// uuid => [ type, width, order ]; widths fill the four-column grid.
+		// uuid => [ type, width, order ]; widths fill the three-column grid.
 		$expected = array(
-			'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 4, 0 ),
-			'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 2, 1 ),
+			'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 3, 0 ),
+			'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 1, 1 ),
 			'default-referrers-widget-instance'       => array( 'jpa/referrers', 1, 2 ),
 			'default-devices-widget-instance'         => array( 'jpa/devices', 1, 3 ),
-			'default-locations-widget-instance'       => array( 'jpa/locations', 3, 4 ),
+			'default-locations-widget-instance'       => array( 'jpa/locations', 2, 4 ),
 			'default-top-platforms-widget-instance'   => array( 'jpa/top-platforms', 1, 5 ),
-			'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 6 ),
+			'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 1, 6 ),
 			'default-clicks-widget-instance'          => array( 'jpa/clicks', 1, 7 ),
-			'default-authors-widget-instance'         => array( 'jpa/authors', 2, 8 ),
-			'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 2, 9 ),
+			'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 8 ),
+			'default-authors-widget-instance'         => array( 'jpa/authors', 1, 9 ),
 			'default-search-terms-widget-instance'    => array( 'jpa/search-terms', 1, 10 ),
 			'default-file-downloads-widget-instance'  => array( 'jpa/file-downloads', 1, 11 ),
 		);
@@ -423,8 +423,8 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_types   = array_column( $layout, 'type' );
 
 		// uuid => [ type, width, height, order ]. The at-a-glance cards share row 2
-		// as the design pairs them; WOOA7S-2009 settles the final widths. Every row
-		// fills the four-column grid.
+		// as the design pairs them; WOOA7S-2009 settles the final widths. Widths are
+		// still authored for four columns; the grid is now three.
 		$expected = array(
 			'default-annual-highlights-widget-instance'    => array( 'jpa/annual-highlights', 4, 1, 0 ),
 			'default-all-time-stats-widget-instance'       => array( 'jpa/all-time-stats', 2, 2, 1 ),
@@ -433,15 +433,11 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 4, 1, 4 ),
 			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 2, 2, 5 ),
 			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 6 ),
-			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 7 ),
-			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 8 ),
-			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 9 ),
-			'default-popular-hours-widget-instance'        => array( 'jpa/popular-hours', 1, 1, 10 ),
-			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 11 ),
-			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 12 ),
-			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 13 ),
-			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 14 ),
-			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 15 ),
+			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 7 ),
+			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 8 ),
+			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 9 ),
+			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 10 ),
+			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 11 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
@@ -467,6 +463,11 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		// The Comments module ships as two focused widgets, not one toggled widget.
 		$this->assertNotContains( 'jpa/comments', $layout_types );
+		// The period widgets are held back while their return is decided (WOOA7S-2020).
+		$this->assertNotContains( 'jpa/total-views', $layout_types );
+		$this->assertNotContains( 'jpa/total-visitors', $layout_types );
+		$this->assertNotContains( 'jpa/popular-days', $layout_types );
+		$this->assertNotContains( 'jpa/popular-hours', $layout_types );
 
 		// Highlights falls back to the widget's own default metric list.
 		$this->assertArrayNotHasKey(
@@ -494,25 +495,25 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	public function test_seed_default_dashboard_layout_adds_subscribers_widgets() {
 		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_SUBSCRIBERS_SECTION_ID );
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
-		$layout_types   = array_column( $layout, 'type' );
 
-		// uuid => [ type, width, order ]; widths fill the four-column grid.
+		// uuid => [ type, width, height, order ]; each row fills the three-column grid.
 		$expected = array(
-			'default-subscribers-chart-widget-instance'  => array( 'jpa/subscribers-chart', 4, 0 ),
-			'default-subscribers-list-widget-instance'   => array( 'jpa/subscribers-list', 2, 1 ),
-			'default-subscribers-emails-widget-instance' => array( 'jpa/stats-emails', 2, 2 ),
+			'default-subscribers-chart-widget-instance'  => array( 'jpa/subscribers-chart', 3, 2, 0 ),
+			'default-subscriber-highlights-widget-instance' => array( 'jpa/subscriber-highlights', 3, 1, 1 ),
+			'default-subscribers-list-widget-instance'   => array( 'jpa/subscribers-list', 1, 2, 2 ),
+			'default-subscribers-emails-widget-instance' => array( 'jpa/stats-emails', 2, 2, 3 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
 
 		foreach ( $expected as $uuid => $instance ) {
-			list( $type, $width, $order ) = $instance;
+			list( $type, $width, $height, $order ) = $instance;
 
 			$this->assertSame( $type, $layout_by_uuid[ $uuid ]['type'], $uuid );
 			$this->assertSame(
 				array(
 					'width'  => $width,
-					'height' => 2,
+					'height' => $height,
 					'order'  => $order,
 				),
 				$layout_by_uuid[ $uuid ]['placement'],
@@ -520,8 +521,8 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			);
 		}
 
-		// Subscriber highlights is intentionally not a default.
-		$this->assertNotContains( 'jpa/subscriber-highlights', $layout_types );
+		// No attributes, so the highlights show every metric the widget offers.
+		$this->assertArrayNotHasKey( 'attributes', $layout_by_uuid['default-subscriber-highlights-widget-instance'] );
 
 		$this->assertSame(
 			array(
@@ -554,19 +555,19 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Ads tab receives its WordAds widgets in the Calypso order.
+	 * The Ads tab receives its WordAds widgets in the prototype's order.
 	 */
 	public function test_seed_default_dashboard_layout_adds_ads_widgets() {
 		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_ADS_SECTION_ID );
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 
-		// uuid => [ type, width, height, order ]; widths fill the four-column grid.
+		// uuid => [ type, width, height, order ]; widths fill the three-column grid.
 		$expected = array(
-			'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 4, 1, 0 ),
-			'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 4, 2, 1 ),
-			'default-wordads-earnings-history-widget-instance' => array( 'jpa/wordads-earnings-history', 4, 2, 2 ),
-			'default-wordads-sponsored-content-history-widget-instance' => array( 'jpa/wordads-sponsored-content-history', 2, 2, 3 ),
-			'default-wordads-adjustments-history-widget-instance' => array( 'jpa/wordads-adjustments-history', 2, 2, 4 ),
+			'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 3, 2, 0 ),
+			'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 3, 1, 1 ),
+			'default-wordads-earnings-history-widget-instance' => array( 'jpa/wordads-earnings-history', 1, 2, 2 ),
+			'default-wordads-sponsored-content-history-widget-instance' => array( 'jpa/wordads-sponsored-content-history', 1, 2, 3 ),
+			'default-wordads-adjustments-history-widget-instance' => array( 'jpa/wordads-adjustments-history', 1, 2, 4 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );

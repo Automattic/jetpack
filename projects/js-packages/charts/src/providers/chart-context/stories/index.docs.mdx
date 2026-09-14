@@ -78,17 +78,26 @@ them.
 
 `timeZone` re-dates the instants you supply rather than relabeling them, so a
 value that is really a calendar day moves under it: `new Date( '2026-08-02' )` is
-UTC midnight, which is Aug 1 in `America/Los_Angeles`. A `dateString` point moves
-the same way but by a viewer-dependent amount, because `parseAsLocalDate` reads it
-as midnight in the browser's zone. Supply true instants alongside a `timeZone`, or
-set only `locale` for day-bucketed data. CHARTS-268 has the detail.
+UTC midnight, which is Aug 1 in `America/Los_Angeles`. A `dateString` point is not
+an instant, so it does not move: a naive string is read as midnight in the
+provider's `timeZone`, and every viewer reads the day you wrote. Pass day buckets
+as `dateString` and the round trip closes; pass them as `Date` and you are back to
+choosing which midnight you meant.
 
-Two things neither prop reaches. `HeatmapChart` builds its labels in
-`buildCalendarHeatmapData`, a plain function the host calls outside the provider,
-so they stay in English on the browser's calendar. And the boundaries that promote
-a tick to its date or its year are read on the Gregorian calendar, so a
-non-Gregorian `locale` labels its own new year while the year tick still lands on
-January 1.
+<Canvas of={ ChartContextStories.HostTimeZoneDatesDayStrings } />
+
+A host labeling the same point in its own markup needs **both** halves in that
+zone, not just the parse: `parseAsLocalDate( '2026-08-02', timeZone )` and an
+`Intl.DateTimeFormat` constructed with the same `timeZone`. Moving only the parse
+is worse than moving neither, because the two no longer cancel.
+
+One thing neither prop reaches: the boundaries that promote a tick to its date or
+its year are read on the Gregorian calendar, so a non-Gregorian `locale` labels its
+own new year while the year tick still lands on January 1.
+
+`HeatmapChart`'s calendar labels do follow both props, through
+`useCalendarHeatmapData`. Its plain-function form, `buildCalendarHeatmapData`, is
+called outside the provider and takes them as options instead.
 
 ## Color Coordination
 

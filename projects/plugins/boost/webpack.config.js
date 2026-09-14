@@ -22,7 +22,7 @@ module.exports = [
 	 */
 	{
 		entry: {
-			index: './app/assets/src/js/index.tsx',
+			index: [ './app/assets/src/js/index.tsx', './app/assets/src/js/modern-overview-upgrade.tsx' ],
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

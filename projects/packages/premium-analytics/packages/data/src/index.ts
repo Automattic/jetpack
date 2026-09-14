@@ -73,6 +73,7 @@ export {
 	type StoreInfo,
 } from './defaults';
 export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export { disableDashboard } from './api';
 export { submitStatsUserFeedback, type StatsFeedbackRating, type StatsUserFeedback } from './api';
 export type {
 	DownloadReportParams,

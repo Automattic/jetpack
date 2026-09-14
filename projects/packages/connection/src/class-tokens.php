@@ -48,7 +48,7 @@ class Tokens {
 		 * signal that the tokens backing the connection are gone. Anything holding derived
 		 * state — a memoized connection status, a cached credential — must recompute from here.
 		 *
-		 * @since $$next-version$$
+		 * @since 9.1.1
 		 */
 		do_action( 'jetpack_connection_tokens_deleted' );
 	}

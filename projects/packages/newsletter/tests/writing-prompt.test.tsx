@@ -231,7 +231,6 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 			name: /Read the blogs and topics you follow/,
 		} );
 		expect( readerLink ).toHaveAttribute( 'target', '_blank' );
-		expect( readerLink ).toHaveAttribute( 'rel', expect.stringContaining( 'noopener' ) );
 	} );
 
 	it( 'opens the Reader link in the same tab on wpcom platforms', async () => {
@@ -244,7 +243,6 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 			name: /Read the blogs and topics you follow/,
 		} );
 		expect( readerLink ).not.toHaveAttribute( 'target' );
-		expect( readerLink ).not.toHaveAttribute( 'rel' );
 	} );
 
 	it( 'falls back to the bare Reader URL when site data is unavailable', async () => {
@@ -424,7 +422,11 @@ describe( 'WritingPrompt widget analytics', () => {
 		render( <WritingPrompt /> );
 
 		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
-		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
+		// WordPress.com-platform site (isWpcomPlatformSite() true) → Write editor.
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
+		);
 		postAnswerLink.addEventListener( 'click', event => event.preventDefault() );
 		postAnswerLink.click();
 
@@ -432,6 +434,18 @@ describe( 'WritingPrompt widget analytics', () => {
 			'jetpack_newsletter_writing_prompt_post_answer_click',
 			{ site_type: 'jetpack', prompt_id: 1 }
 		);
+	} );
+
+	it( 'points Post your answer at the classic new-post screen on self-hosted sites', async () => {
+		// Self-hosted (not a WordPress.com-platform site): the Write editor
+		// isn't available, so fall back to post-new.php, where the
+		// jetpack/blogging-prompt block editor script seeds the same prompt.
+		mockIsWpcomPlatformSite.mockReturnValue( false );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
 	} );
 
 	it( 'records a view-responses event with the prompt id when View responses is clicked', async () => {

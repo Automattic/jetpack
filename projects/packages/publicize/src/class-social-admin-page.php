@@ -110,8 +110,7 @@ class Social_Admin_Page {
 			'Social',
 			'publish_posts',
 			'jetpack-social',
-			array( $this, 'render' ),
-			4
+			array( $this, 'render' )
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );

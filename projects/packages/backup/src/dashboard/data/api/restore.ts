@@ -4,17 +4,16 @@ import type { RestoreItems } from '../../types/restore';
 /**
  * Lifecycle of a restore, as the bridge reports it.
  *
- * Deliberately not WPCOM's own vocabulary. Upstream says
- * `running | success | fail | aborted | success-with-errors`; the bridge
- * maps those to these, reports a not-yet-visible restore as `queued`, and
- * anything it does not recognise as `unknown` rather than guessing. See
- * `Restore_Bridge::STATUS_MAP`.
+ * Deliberately not WPCOM's own vocabulary, which the bridge owns the
+ * translation of — see `Restore_Bridge::STATUS_MAP`.
  *
- * `unknown` exists so a status WPCOM adds later degrades into "keep
- * asking for a while" instead of a progress bar frozen at whatever
- * percentage happened to arrive first.
+ * `not-found` and `queued` render the same and mean opposite things:
+ * upstream has no record of the restore, versus upstream is holding one.
+ * `unknown` is a spelling WPCOM added that we do not know yet, kept live
+ * so it degrades into "keep asking" rather than a frozen progress bar.
  */
 export type RestoreStatus =
+	| 'not-found'
 	| 'queued'
 	| 'running'
 	| 'finished'
@@ -138,7 +137,7 @@ export function parseRestoreWhen( when: string ): number | null {
 }
 
 /** Statuses that mean the restore is still going, or might be. */
-const LIVE_STATUSES: RestoreStatus[] = [ 'queued', 'running', 'unknown' ];
+const LIVE_STATUSES: RestoreStatus[] = [ 'not-found', 'queued', 'running', 'unknown' ];
 
 /**
  * Whether a status reading ends the poll.
@@ -148,6 +147,35 @@ const LIVE_STATUSES: RestoreStatus[] = [ 'queued', 'running', 'unknown' ];
  */
 export function isTerminal( status: RestoreStatus | undefined ): boolean {
 	return status !== undefined && ! LIVE_STATUSES.includes( status );
+}
+
+/**
+ * Whether WordPress.com answered about this restore at all.
+ *
+ * `unknown` counts: the bridge mints it only for a status string upstream
+ * did send and we do not map, where `not-found` is a 404 and proof of
+ * nothing. Excluding it put a live restore under a spelling WPCOM added
+ * on a five-minute fuse.
+ *
+ * @param status - The status the bridge reported, if any.
+ * @return True when the reading is evidence rather than silence.
+ */
+export function isSignOfLife( status: RestoreStatus | undefined ): boolean {
+	return status === 'running' || status === 'queued' || status === 'unknown';
+}
+
+/**
+ * Whether a restore is actually under way.
+ *
+ * Stricter than `isSignOfLife`: an `unknown` reading proves upstream has
+ * a record but not that it is still running, and adopting a finished
+ * restore withholds the form with nothing left to give it back.
+ *
+ * @param status - The status the bridge reported, if any.
+ * @return True when upstream is holding a live restore.
+ */
+export function isRestoreInFlight( status: RestoreStatus | undefined ): boolean {
+	return status === 'running' || status === 'queued';
 }
 
 /**
@@ -169,7 +197,7 @@ export function isTerminal( status: RestoreStatus | undefined ): boolean {
  * @param target    - The rewind id this screen submitted.
  * @return True when both name the same backup.
  */
-function sameRewindId( candidate: string, target: string ): boolean {
+export function sameRewindId( candidate: string, target: string ): boolean {
 	if ( ! candidate || ! target ) {
 		return false;
 	}
@@ -317,7 +345,7 @@ export async function fetchRecentRestores(): Promise< RecentRestore[] | null > {
  * Two reads, because the collection alone cannot answer it: its rows
  * carry a status in a vocabulary that is not ours, so a row is only a
  * candidate until the status route — which speaks the vocabulary the
- * bridge maps — confirms it is `running`.
+ * bridge maps — confirms upstream is holding it.
  *
  * Deliberately separate from `useAdoptedRestore`, which asks the same
  * question at mount through two cached queries so its confirmation
@@ -333,5 +361,5 @@ export async function fetchRunningRestore(): Promise< RecentRestore | null > {
 		return null;
 	}
 	const status = await fetchRestoreStatus( candidate.restore_id );
-	return 'running' === status.status ? candidate : null;
+	return isRestoreInFlight( status.status ) ? candidate : null;
 }

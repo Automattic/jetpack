@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Comments: Fix a stored cross-site scripting vulnerability in social comment avatars.
