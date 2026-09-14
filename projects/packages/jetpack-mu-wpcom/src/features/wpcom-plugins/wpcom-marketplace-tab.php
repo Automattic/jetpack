@@ -200,6 +200,11 @@ add_filter( 'plugin_install_action_links', 'wpcom_marketplace_action_links', 10,
 function wpcom_marketplace_render_tab() {
 	add_filter( 'admin_body_class', 'wpcom_marketplace_body_class' );
 
+	// The banner points at the marketplace this tab replaces. Dequeued rather than
+	// unhooked because it is enqueued before core resolves which tab is being shown.
+	wp_dequeue_script( 'wpcom-plugins-banner' );
+	wp_dequeue_style( 'wpcom-plugins-banner-style' );
+
 	wp_enqueue_style(
 		'wpcom-marketplace-tab',
 		plugins_url( 'css/marketplace-tab.css', __FILE__ ),
@@ -208,24 +213,6 @@ function wpcom_marketplace_render_tab() {
 	);
 }
 add_action( 'install_plugins_pre_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_render_tab' );
-
-/**
- * Hides the Calypso marketplace banner on this tab.
- *
- * The banner points at the marketplace this tab replaces. Priority 9 because
- * `load-plugin-install.php` fires long before the tab's own render hook.
- *
- * @return void
- */
-function wpcom_marketplace_hide_banner() {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
-
-	if ( WPCOM_MARKETPLACE_TAB === $tab && wpcom_marketplace_tab_enabled() ) {
-		remove_action( 'load-plugin-install.php', 'wpcom_plugins_show_banner' );
-	}
-}
-add_action( 'load-plugin-install.php', 'wpcom_marketplace_hide_banner', 9 );
 
 /**
  * Flags the screen so the stylesheet can scope itself to this tab.
