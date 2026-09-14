@@ -128,7 +128,7 @@ div#actionbar li.actnbr-btn a.actnbr-actn-following:hover .actnbr-icon {
 	color: #008a20;
 }
 
-div#actionbar.actnbr-folded .actnbr-btn span,
+div#actionbar.actnbr-folded .actnbr-btn > a > span,
 div#actionbar .actnbr-live {
 	position: absolute;
 	width: 1px;
