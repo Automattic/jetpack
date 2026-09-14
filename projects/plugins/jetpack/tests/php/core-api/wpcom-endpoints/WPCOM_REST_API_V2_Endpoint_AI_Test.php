@@ -12,6 +12,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Search\Plan;
+use Automattic\Jetpack\Search\Search_Blocks;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -50,6 +52,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->activate_ai_module_for_test();
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Reset the shared package memo between test cases.
+		Search_Blocks::reset_supports_paid_search_cache();
 	}
 
 	public function tear_down() {
@@ -59,8 +63,11 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		remove_filter( 'jetpack_ai_chat_enabled', '__return_false' );
 		remove_filter( 'jetpack_ai_chat_enabled', '__return_true' );
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ) );
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Reset the shared package memo between test cases.
+		Search_Blocks::reset_supports_paid_search_cache();
 
 		parent::tear_down();
 	}
@@ -71,8 +78,27 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	private function simulate_connection() {
 		\Jetpack_Options::update_option( 'id', 1234 );
 		\Jetpack_Options::update_option( 'blog_token', 'asd.qwe' );
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => 'jetpack_search' ),
+			)
+		);
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 	}
+
+	/**
+	 * Body/status returned by mock_wpcom_ai_search_response(); set per test.
+	 *
+	 * @var array
+	 */
+	private $mocked_wpcom_response_body = array();
+
+	/**
+	 * @var int
+	 */
+	private $mocked_wpcom_response_status = 200;
 
 	/**
 	 * Stand-in for the wpcom `/jetpack-search/ai/search` response, hooked on
@@ -93,18 +119,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 			'response' => array( 'code' => $this->mocked_wpcom_response_status ),
 		);
 	}
-
-	/**
-	 * Body/status returned by mock_wpcom_ai_search_response(); set per test.
-	 *
-	 * @var array
-	 */
-	private $mocked_wpcom_response_body = array();
-
-	/**
-	 * @var int
-	 */
-	private $mocked_wpcom_response_status = 200;
 
 	/**
 	 * The proxy must forward the real upstream error code, message, and HTTP
@@ -151,6 +165,51 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'invalid_ask_response', $response->get_data()['code'] );
+	}
+
+	/**
+	 * A 200 response with a valid cache_key is a real answer, even if it
+	 * also carries an unrelated `code` field.
+	 */
+	public function test_request_chat_with_site_succeeds_with_code_and_cache_key_present() {
+		$this->simulate_connection();
+		add_filter( 'jetpack_ai_chat_enabled', '__return_true' );
+		$this->mocked_wpcom_response_body   = array(
+			'code'      => 'ok',
+			'cache_key' => 'jp-search-ai-123',
+		);
+		$this->mocked_wpcom_response_status = 200;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ), 10, 3 );
+
+		$this->register_routes_on_fresh_server();
+		$request = new WP_REST_Request( 'GET', self::CHAT_SEARCH_ROUTE );
+		$request->set_param( 'query', 'What is this website?' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+	}
+
+	/**
+	 * Non-scalar code/message in the upstream error body (unexpected JSON
+	 * shape) fall back to the generic error instead of fataling.
+	 */
+	public function test_request_chat_with_site_falls_back_when_code_is_non_scalar() {
+		$this->simulate_connection();
+		add_filter( 'jetpack_ai_chat_enabled', '__return_true' );
+		$this->mocked_wpcom_response_body   = array(
+			'code'    => array( 'nested' => 'shape' ),
+			'message' => array( 'nested' => 'shape' ),
+		);
+		$this->mocked_wpcom_response_status = 403;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ), 10, 3 );
+
+		$this->register_routes_on_fresh_server();
+		$request = new WP_REST_Request( 'GET', self::CHAT_SEARCH_ROUTE );
+		$request->set_param( 'query', 'What is this website?' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( 'invalid_ask_response', $response->get_data()['code'] );
 	}
 
@@ -245,6 +304,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		 * independently of the is_enabled() gate. Like the completions gate, it now runs at
 		 * rest_api_init, so a filter added before the hook fires reaches registration.
 		 */
+		$this->simulate_connection();
 		add_filter( 'jetpack_ai_chat_enabled', '__return_true' );
 
 		$routes = $this->register_routes_on_fresh_server();

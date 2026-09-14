@@ -12,8 +12,7 @@
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\AIChat;
 use Automattic\Jetpack\Search\Plan;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use Automattic\Jetpack\Search\Search_Blocks;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-chat/ai-chat.php';
 
@@ -44,6 +43,8 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		// Off-Simple the `ai` module is the AI master switch; activate it so the
 		// jetpack_ai_enabled gate reads on.
 		$this->activate_ai_module_for_test();
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional: a monorepo-sibling test resetting the memo between cases.
+		Search_Blocks::reset_supports_paid_search_cache();
 
 		$this->registered_block = WP_Block_Type_Registry::get_instance()->get_registered( self::BLOCK_NAME );
 		if ( $this->registered_block ) {
@@ -69,6 +70,9 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		delete_option( 'jetpack_ai_enabled' );
 		$this->disconnect_owner();
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		delete_transient( 'jetpack_ai_chat_plan_lookup_failed' );
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional: a monorepo-sibling test resetting the memo between cases.
+		Search_Blocks::reset_supports_paid_search_cache();
 
 		parent::tear_down();
 	}
@@ -80,6 +84,9 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+		// is_ai_chat_enabled() checks the blog-level connection, not just the owner.
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'asd.qwe' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 	}
 
@@ -89,6 +96,19 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	private function disconnect_owner() {
 		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens', 'id', 'blog_token' ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
+	 * Seed a paid-plan option.
+	 */
+	private function set_paid_search_plan() {
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => 'jetpack_search' ),
+			)
+		);
 	}
 
 	/**
@@ -138,15 +158,7 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	/**
 	 * Front-end render emits nothing on a free plan - mirrors ai-answer's
 	 * render.php gate; editor shows an upgrade prompt instead (edit.jsx).
-	 *
-	 * Runs in its own process: supports_paid_search() memoizes per-process,
-	 * and its test reset is @internal to packages/search.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_load_assets_renders_nothing_on_free_plan() {
 		update_option(
 			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
@@ -161,23 +173,22 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Front-end render renders the block markup on a paid plan.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_load_assets_renders_markup_on_paid_plan() {
-		update_option(
-			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
-			array(
-				'supports_instant_search' => true,
-				'effective_subscription'  => array( 'product_slug' => 'jetpack_search' ),
-			)
-		);
+		$this->set_paid_search_plan();
 
 		$markup = AIChat\load_assets( array() );
 
 		$this->assertStringContainsString( 'id="jetpack-ai-chat"', $markup );
+	}
+
+	/**
+	 * A missing plan with a recent failed lookup disables the render.
+	 */
+	public function test_load_assets_renders_nothing_when_plan_info_uncached() {
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		set_transient( 'jetpack_ai_chat_plan_lookup_failed', true, MINUTE_IN_SECONDS );
+
+		$this->assertSame( '', AIChat\load_assets( array() ) );
 	}
 }

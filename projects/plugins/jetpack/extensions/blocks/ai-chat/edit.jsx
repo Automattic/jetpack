@@ -40,9 +40,11 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	// Mirrors the paid-plan gate in ai-chat.php. Defaults to "paid" when the
 	// flag isn't localized, so the gate is opt-in via an explicit `false`.
+	// Connection issues take priority - don't upsell a plan before the
+	// author can even connect.
 	const supportsPaidSearch = window?.Jetpack_AIChatBlock?.jetpackSettings?.supports_paid_search;
 
-	if ( supportsPaidSearch === false ) {
+	if ( isUserConnected && supportsPaidSearch === false ) {
 		return (
 			<div { ...blockProps }>
 				<Placeholder

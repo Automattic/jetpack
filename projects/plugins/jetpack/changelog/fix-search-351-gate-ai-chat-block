@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: bugfix
 
 Search: Hide the AI Search block on sites without a paid Search plan instead of showing a broken box.
