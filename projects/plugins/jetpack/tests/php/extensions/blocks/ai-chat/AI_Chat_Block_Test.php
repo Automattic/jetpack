@@ -11,6 +11,9 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\AIChat;
+use Automattic\Jetpack\Search\Plan;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-chat/ai-chat.php';
 
@@ -65,6 +68,7 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		delete_option( 'jetpack_ai_enabled' );
 		$this->disconnect_owner();
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 
 		parent::tear_down();
 	}
@@ -129,5 +133,51 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		AIChat\register_block();
 
 		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
+	}
+
+	/**
+	 * Front-end render emits nothing on a free plan - mirrors ai-answer's
+	 * render.php gate; editor shows an upgrade prompt instead (edit.jsx).
+	 *
+	 * Runs in its own process: supports_paid_search() memoizes per-process,
+	 * and its test reset is @internal to packages/search.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_load_assets_renders_nothing_on_free_plan() {
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG ),
+			)
+		);
+
+		$this->assertSame( '', AIChat\load_assets( array() ) );
+	}
+
+	/**
+	 * Front-end render renders the block markup on a paid plan.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_load_assets_renders_markup_on_paid_plan() {
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => 'jetpack_search' ),
+			)
+		);
+
+		$markup = AIChat\load_assets( array() );
+
+		$this->assertStringContainsString( 'id="jetpack-ai-chat"', $markup );
 	}
 }

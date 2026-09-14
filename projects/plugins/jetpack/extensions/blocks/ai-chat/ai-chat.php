@@ -13,6 +13,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
+use Automattic\Jetpack\Search\Search_Blocks;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
@@ -56,6 +57,12 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr ) {
+	// Paid-plan gate: free/no-plan sites get nothing here; the editor shows
+	// an upgrade prompt instead (edit.jsx). See SEARCH-351.
+	if ( ! Search_Blocks::supports_paid_search() ) {
+		return '';
+	}
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
@@ -104,6 +111,7 @@ function add_ai_chat_block_data() {
 			'module_active'          => $search->is_active(),
 			'instant_search_enabled' => $search->is_instant_search_enabled(),
 			'plan_supports_search'   => $plan->supports_instant_search(),
+			'supports_paid_search'   => Search_Blocks::supports_paid_search(),
 		),
 	);
 	wp_add_inline_script(

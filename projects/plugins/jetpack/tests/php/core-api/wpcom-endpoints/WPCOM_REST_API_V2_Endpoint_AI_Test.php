@@ -58,8 +58,100 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		remove_filter( 'jetpack_ai_enabled', '__return_true' );
 		remove_filter( 'jetpack_ai_chat_enabled', '__return_false' );
 		remove_filter( 'jetpack_ai_chat_enabled', '__return_true' );
+		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ) );
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Simulate a blog-level connection so signed requests can be built.
+	 */
+	private function simulate_connection() {
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'asd.qwe' );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
+	 * Stand-in for the wpcom `/jetpack-search/ai/search` response, hooked on
+	 * `pre_http_request` so the underlying signed request never leaves the
+	 * process.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args    HTTP request arguments.
+	 * @param string $url     The request URL.
+	 * @return array|false
+	 */
+	public function mock_wpcom_ai_search_response( $preempt, $args, $url ) {
+		if ( strpos( $url, 'jetpack-search/ai/search' ) === false ) {
+			return $preempt;
+		}
+		return array(
+			'body'     => wp_json_encode( $this->mocked_wpcom_response_body, JSON_UNESCAPED_SLASHES ),
+			'response' => array( 'code' => $this->mocked_wpcom_response_status ),
+		);
+	}
+
+	/**
+	 * Body/status returned by mock_wpcom_ai_search_response(); set per test.
+	 *
+	 * @var array
+	 */
+	private $mocked_wpcom_response_body = array();
+
+	/**
+	 * @var int
+	 */
+	private $mocked_wpcom_response_status = 200;
+
+	/**
+	 * The proxy must forward the real upstream error code, message, and HTTP
+	 * status instead of collapsing every failure into invalid_ask_response /
+	 * 500. See SEARCH-351.
+	 */
+	public function test_request_chat_with_site_forwards_upstream_error() {
+		$this->simulate_connection();
+		add_filter( 'jetpack_ai_chat_enabled', '__return_true' );
+		$this->mocked_wpcom_response_body   = array(
+			'code'    => 'ai_search_inactive',
+			'message' => 'This site is not able to use the Jetpack AI Search feature',
+		);
+		$this->mocked_wpcom_response_status = 403;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ), 10, 3 );
+
+		$this->register_routes_on_fresh_server();
+		$request = new WP_REST_Request( 'GET', self::CHAT_SEARCH_ROUTE );
+		$request->set_param( 'query', 'What is this website?' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'ai_search_inactive', $response->get_data()['code'] );
+		$this->assertSame(
+			'This site is not able to use the Jetpack AI Search feature',
+			$response->get_data()['message']
+		);
+	}
+
+	/**
+	 * A response that is neither an upstream error nor a valid answer (no
+	 * `cache_key`, no `code`) still falls back to the generic error.
+	 */
+	public function test_request_chat_with_site_falls_back_to_generic_error() {
+		$this->simulate_connection();
+		add_filter( 'jetpack_ai_chat_enabled', '__return_true' );
+		$this->mocked_wpcom_response_body   = array( 'unexpected' => 'shape' );
+		$this->mocked_wpcom_response_status = 200;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ), 10, 3 );
+
+		$this->register_routes_on_fresh_server();
+		$request = new WP_REST_Request( 'GET', self::CHAT_SEARCH_ROUTE );
+		$request->set_param( 'query', 'What is this website?' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'invalid_ask_response', $response->get_data()['code'] );
 	}
 
 	/**

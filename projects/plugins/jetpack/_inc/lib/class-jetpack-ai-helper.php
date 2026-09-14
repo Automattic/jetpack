@@ -8,7 +8,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Search\Plan as Search_Plan;
+use Automattic\Jetpack\Search\Search_Blocks;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Visitor;
 
@@ -167,6 +167,9 @@ class Jetpack_AI_Helper {
 	/**
 	 * Return true if the AI chat feature should be active on the current site.
 	 *
+	 * Requires a paid Search plan - the wpcom endpoint rejects free-plan
+	 * sites outright. See SEARCH-351.
+	 *
 	 * @todo IS_WPCOM (the endpoints need to be updated too).
 	 *
 	 * @return bool
@@ -175,8 +178,7 @@ class Jetpack_AI_Helper {
 		$default = false;
 
 		$connection = new Manager();
-		$plan       = new Search_Plan();
-		if ( $connection->is_connected() && $plan->supports_search() ) {
+		if ( $connection->is_connected() && Search_Blocks::supports_paid_search() ) {
 			$default = true;
 		}
 
