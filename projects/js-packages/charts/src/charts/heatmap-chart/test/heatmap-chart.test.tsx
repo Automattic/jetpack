@@ -523,3 +523,35 @@ describe( 'HeatmapChart summary column', () => {
 		expect( within( screen.getByRole( 'tooltip' ) ).getByText( '400' ) ).toBeInTheDocument();
 	} );
 } );
+
+describe( 'HeatmapChart grid placement', () => {
+	test( 'omits the column-label row when no column has a label', () => {
+		renderChart( { data: data.map( column => ( { ...column, label: undefined } ) ) } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.gridTemplateRows.startsWith( 'auto' ) ).toBe( false );
+		// Three data rows, no header row.
+		expect( within( grid ).getAllByRole( 'row', { hidden: true } ) ).toHaveLength( 3 );
+	} );
+
+	test( 'keeps the column-label row when a column has a label', () => {
+		renderChart();
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.gridTemplateRows.startsWith( 'auto ' ) ).toBe( true );
+		expect( within( grid ).getAllByRole( 'row', { hidden: true } ) ).toHaveLength( 4 );
+	} );
+
+	test( 'places every cell and label on an explicit track', () => {
+		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const cell = screen
+			.getAllByTestId( 'heatmap-cell' )
+			.find( element => element.dataset.column === '1' && element.dataset.row === '2' );
+		// Column 1 sits on track line 3 (after the row-label track); row 2 sits on
+		// grid row 4 (after the label row).
+		expect( cell?.style.gridColumn ).toBe( '3' );
+		expect( cell?.style.gridRow ).toBe( '4' );
+		expect( screen.getByText( 'Wed' ) ).toHaveStyle( { gridColumn: '1' } );
+		expect( screen.getByText( 'Wed' ) ).toHaveStyle( { gridRow: '4' } );
+		expect( screen.getByText( 'W2' ) ).toHaveStyle( { gridColumn: '3' } );
+		expect( screen.getByText( 'W2' ) ).toHaveStyle( { gridRow: '1' } );
+	} );
+} );
