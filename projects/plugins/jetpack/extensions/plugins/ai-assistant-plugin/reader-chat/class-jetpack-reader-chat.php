@@ -82,7 +82,7 @@ class Jetpack_Reader_Chat {
 	 */
 	public static function register_settings(): void {
 		register_setting(
-			'general',
+			'jetpack_search',
 			'reader_chat',
 			array(
 				'type'              => 'boolean',

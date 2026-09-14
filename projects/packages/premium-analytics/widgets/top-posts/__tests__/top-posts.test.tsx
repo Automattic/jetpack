@@ -5,6 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import type { ReactNode } from 'react';
 /**
@@ -41,9 +42,8 @@ function DashboardWidgetChromeFixture( { children }: { children: ReactNode } ) {
 	);
 }
 
-// The widget requests a multi-day window, so the stats query layer summarizes
-// the views into the top-level `summary` bucket rather than per-day `days`
-// buckets.
+// A multi-day window makes the stats query layer summarize into the top-level
+// `summary` bucket rather than per-day `days` buckets.
 const TOP_POSTS_RESPONSE = {
 	date: '2026-06-10',
 	days: {},
@@ -88,10 +88,10 @@ describe( 'TopPostsWidget', () => {
 		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
 		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( '/post/1' ) );
 		expect( titleLink ).not.toHaveAttribute( 'target' );
+		expect( titleLink ).toHaveAttribute( 'title', 'Hello World Post' );
 
-		// A row with a detail page carries no link out to the live post: the
-		// external-link icon marks destinations outside the app, and the detail
-		// page holds that link.
+		// A row with a detail page carries no outbound link: the external-link
+		// icon marks destinations outside the app; the detail page holds that link.
 		expect(
 			screen.queryByRole( 'link', { name: /open hello world post in a new tab/i } )
 		).not.toBeInTheDocument();
@@ -100,6 +100,27 @@ describe( 'TopPostsWidget', () => {
 		).not.toBeInTheDocument();
 
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the exact count behind an abbreviated row value', async () => {
+		const user = userEvent.setup();
+		mockApiFetch.mockResolvedValue( {
+			...TOP_POSTS_RESPONSE,
+			summary: {
+				...TOP_POSTS_RESPONSE.summary,
+				postviews: [ { ...TOP_POSTS_RESPONSE.summary.postviews[ 0 ], views: 18432 } ],
+			},
+		} );
+		render( <TopPostsWidget attributes={ {} } /> );
+
+		const compact = await screen.findByText( '18.4K' );
+		expect( compact ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
+
+		await user.hover( compact );
+		await expect(
+			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
+		).resolves.toHaveTextContent( '18,432' );
 	} );
 
 	it( 'carries the dashboard date range into the post-detail link', async () => {
@@ -252,6 +273,108 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 
+	describe( 'CSV export', () => {
+		let blobs: Blob[];
+		let clickSpy: jest.SpyInstance;
+		let originalCreateObjectURL: typeof window.URL.createObjectURL;
+		let originalRevokeObjectURL: typeof window.URL.revokeObjectURL;
+
+		beforeEach( () => {
+			blobs = [];
+			originalCreateObjectURL = window.URL.createObjectURL;
+			originalRevokeObjectURL = window.URL.revokeObjectURL;
+			// jsdom defines neither, so `jest.spyOn` has nothing to wrap.
+			const createObjectURL = jest.fn( ( blob: Blob ) => {
+				blobs.push( blob );
+				return 'blob:mock';
+			} );
+			const revokeObjectURL = jest.fn();
+			window.URL.createObjectURL = createObjectURL;
+			window.URL.revokeObjectURL = revokeObjectURL;
+			// An anchor click would reach jsdom's unimplemented navigation.
+			clickSpy = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
+		} );
+
+		afterEach( () => {
+			clickSpy.mockRestore();
+			window.URL.createObjectURL = originalCreateObjectURL;
+			window.URL.revokeObjectURL = originalRevokeObjectURL;
+		} );
+
+		async function downloadCsvLines() {
+			// This package does not depend on @testing-library/user-event.
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
+
+			await waitFor( () => expect( blobs ).toHaveLength( 1 ) );
+
+			return ( await blobs[ 0 ].text() ).replace( '\ufeff', '' ).split( '\n' );
+		}
+
+		it( 'appends the previous-period column when a comparison is active', async () => {
+			const overlappingComparison = {
+				date: '2026-02-10',
+				days: {},
+				summary: {
+					postviews: [
+						{
+							id: 1,
+							href: 'https://example.com/hello-world/',
+							date: '2026-02-01',
+							title: 'Hello World Post',
+							type: 'post',
+							views: 20,
+						},
+					],
+					total_views: 20,
+				},
+			};
+			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+				Promise.resolve(
+					path.includes( 'date=2026-02-10' ) ? overlappingComparison : TOP_POSTS_RESPONSE
+				)
+			);
+
+			render(
+				<TopPostsWidget
+					attributes={ {
+						reportParams: {
+							from: '2026-03-01',
+							to: '2026-03-10',
+							comp: '1',
+							compare_from: '2026-02-01',
+							compare_to: '2026-02-10',
+						},
+					} }
+				/>
+			);
+
+			const lines = await downloadCsvLines();
+
+			expect( lines[ 0 ] ).toBe( '"Title","Views","Type","URL","Views (Previous Period)"' );
+			expect( lines[ 1 ] ).toBe(
+				'"Hello World Post","42","post","https://example.com/hello-world/","20"'
+			);
+			// About Page sits outside the comparison period's top rows, which is
+			// unmeasured rather than zero views.
+			expect( lines[ 2 ] ).toBe( '"About Page","7","page","https://example.com/about/",""' );
+		} );
+
+		it( 'omits the previous-period column when no comparison is active', async () => {
+			// The default range turns the comparison on, so this range is explicit.
+			render(
+				<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
+			);
+
+			const lines = await downloadCsvLines();
+
+			expect( lines[ 0 ] ).toBe( '"Title","Views","Type","URL"' );
+			expect( lines[ 1 ] ).toBe(
+				'"Hello World Post","42","post","https://example.com/hello-world/"'
+			);
+		} );
+	} );
+
 	it( 'exposes the CSV export beside the report link in the widget footer', async () => {
 		render(
 			<DashboardWidgetChromeFixture>
@@ -328,9 +451,9 @@ describe( 'TopPostsWidget', () => {
 		await waitFor( () =>
 			expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument()
 		);
-		// March's rows do not answer a question about May, so they give way to an
-		// announced skeleton.
-		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
+		// March's rows do not answer a question about May, so they give way to the
+		// skeleton.
+		await expect( screen.findByTestId( 'widget-skeleton' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^Hello World Post$/ } ) ).not.toBeInTheDocument();
 
 		// Once the new range settles, the export returns.
@@ -529,6 +652,7 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 		// The homepage entry has no URL — it must not render as a link.
 		expect( screen.queryByRole( 'link', { name: /Homepage/ } ) ).not.toBeInTheDocument();
+		expect( screen.getByTitle( 'Homepage (Latest posts)' ) ).toBeInTheDocument();
 	} );
 
 	it( 'gates archive comparison UI on overlapping archive types', async () => {

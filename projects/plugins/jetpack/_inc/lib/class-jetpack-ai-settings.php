@@ -143,9 +143,12 @@ class Jetpack_AI_Settings {
 			self::FEATURE_OPTIONS['ai_seo']            => __( 'Whether the Jetpack AI SEO features are enabled.', 'jetpack' ),
 		);
 
+		// These settings do not belong to Settings > General. A separate group
+		// prevents options.php from clearing values whose fields are absent from
+		// the General form.
 		foreach ( $options as $option => $description ) {
 			register_setting(
-				'general',
+				'jetpack_ai',
 				$option,
 				array(
 					'type'              => 'boolean',
@@ -206,17 +209,19 @@ class Jetpack_AI_Settings {
 
 	/**
 	 * Whether the AI controls — the master switch and the toggles this class owns
-	 * — take effect here. They are not publicly launched, so off Simple they apply
-	 * on internal testing environments only. Remove at public launch.
+	 * — take effect here. Simple keeps its existing option contract, self-hosted
+	 * sites use the Jetpack controls, and Atomic remains limited to internal testing.
 	 *
 	 * @return bool
 	 */
 	private static function should_enforce_ai_controls() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
 			return true;
 		}
 
-		return function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment();
+		return ! $host->is_woa_site()
+			|| ( function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment() );
 	}
 
 	/**
@@ -329,9 +334,9 @@ class Jetpack_AI_Settings {
 		}
 
 		// The toggles this class owns stay on wherever they do not apply: Simple keeps
-		// the existing wp.com settings contract, and elsewhere they are not publicly
-		// launched. The reused Search option ships today with its own settings
-		// surface, so it always honors its stored value.
+		// the existing wp.com settings contract, while Atomic keeps them hidden.
+		// The reused Search option has its own settings surface, so it always honors
+		// its stored value.
 		if ( in_array( $feature, self::OWNED_FEATURES, true )
 			&& ( ( new Host() )->is_wpcom_simple() || ! self::should_enforce_ai_controls() ) ) {
 			return true;
@@ -351,7 +356,7 @@ class Jetpack_AI_Settings {
 	 * Not {@see self::is_feature_enabled()} with `ai_seo`, which is the stored
 	 * toggle alone. This is the one load points and payloads should read.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @return bool
 	 */
@@ -359,7 +364,7 @@ class Jetpack_AI_Settings {
 		/**
 		 * Filter whether the Jetpack AI SEO feature is enabled.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param bool $enabled Whether the SEO feature toggle is on.
 		 */

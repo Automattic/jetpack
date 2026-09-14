@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
-import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { localTZDate, parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
 import { calendar } from '@jetpack-premium-analytics/icons';
 import {
@@ -59,28 +59,21 @@ function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
 }
 
 /**
- * The `stats/streak` endpoint returns a `{ 'yyyy-MM-dd': count }` map of posts
- * per day, with no comparison period.
- *
- * The date range comes from the dashboard picker via `reportParams`. The fetch
- * window is that range, capped at the history the widest possible tile could draw
- * so a long selection cannot request years the grid would throw away.
- *
- * `AdaptiveCalendarHeatmap` fits the grid to the tile: the height picks the cell
- * size, the width picks how many week columns are drawn.
+ * `stats/streak` returns a `{ 'yyyy-MM-dd': count }` map with no comparison
+ * period. The fetch window is capped at the widest tile's history, so a long
+ * selection can't request years the grid would discard.
  */
 function PostingActivityInner() {
 	const { reportParams } = useWidgetRootContext();
 
-	// Same window rule as the other calendar heatmap: a ceiling at the history the
-	// viewport could draw, and no floor. A floor would reach back past the selection,
-	// putting years outside the card's heading inside it (WOOA7S-1963).
+	// A ceiling but no floor: a floor would reach back past the selection, putting
+	// years outside the card's heading inside it (WOOA7S-1963).
 	const viewportWidth = useViewportWidth();
 	const windowDays = resolveCalendarHeatmapWindowDays( viewportWidth );
 
 	// One reading for both windows below, so a render across midnight cannot resolve
 	// them against different days.
-	const today = format( new Date(), 'yyyy-MM-dd' );
+	const today = format( localTZDate(), 'yyyy-MM-dd' );
 
 	// Both the request window and the range the heatmap draws and pages through:
 	// without a floor the two coincide, so paging can never leave the selection.
@@ -89,9 +82,8 @@ function PostingActivityInner() {
 		[ reportParams, windowDays, today ]
 	);
 
-	// The period as selected, before the ceiling. All time on a long-lived site
-	// reaches back past the window, and the empty state has to know the response
-	// says nothing about the years left out.
+	// The period as selected, before the ceiling: the empty state has to know the
+	// response says nothing about the years the ceiling left out.
 	const periodWindow = useMemo(
 		() => resolveCalendarHeatmapWindow( reportParams, {}, today ),
 		[ reportParams, today ]
@@ -104,10 +96,8 @@ function PostingActivityInner() {
 
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsStreak( streakParams );
 
-	// The endpoint returns only days with posts, so an empty response means the
-	// window has none — the component densifies the rest into empty cells. Days
-	// outside the range are still ruled out, so a stale response for a wider
-	// selection cannot suppress the empty state while the new one loads.
+	// The endpoint returns only days with posts. Days outside the range are ruled
+	// out so a stale response for a wider selection cannot suppress the empty state.
 	const postsByDay = data ?? NO_POSTS_BY_DAY;
 	const hasData = useMemo(
 		() =>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Remove the quarterly chart interval option, which never changed the chart.

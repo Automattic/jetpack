@@ -40,19 +40,13 @@ export type SubscriberListItem = {
 
 export type SubscriberListProps = {
 	items?: SubscriberListItem[];
-	/**
-	 * Empty-state message shown when there are no rows.
-	 */
 	emptyStateText?: string;
-	/**
-	 * Number of additional rows not included in `items`.
-	 */
+	/** Rows beyond `items`, counted into the "N more" footer. */
 	moreCount?: number;
 	/**
-	 * Show only the whole rows that fit the available height instead of letting
-	 * the roster grow and the widget host scroll it. Hidden rows are added to
-	 * the "N more" footer, so the footer can appear with `moreCount` at zero.
-	 * Requires an ancestor with a definite height.
+	 * Show only the whole rows that fit the available height, rather than letting the
+	 * host scroll the roster. Hidden rows join the "N more" footer, so the footer can
+	 * appear with `moreCount` at zero. Requires an ancestor with a definite height.
 	 * @default true
 	 */
 	fitRows?: boolean;
@@ -65,12 +59,9 @@ const DEFAULT_AVATAR_URL =
 	'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><circle cx="25" cy="25" r="25" fill="%23e5e7eb"/></svg>';
 
 /**
- * A roster of people — avatar, name, and an optional relative-time secondary
- * line per row, with an optional "N more" footer. Used by list-style Stats
- * widgets (e.g. the Subscribers card) where rows are ordered by recency rather
- * than ranked by a metric, so a bar leaderboard would not fit.
- * @param {SubscriberListProps} props - The component props.
- * @return The rendered list, or the empty state.
+ * A roster of people — avatar, name, and an optional relative-time secondary line per
+ * row. For Stats widgets whose rows are ordered by recency rather than ranked by a
+ * metric, where a bar leaderboard would not fit.
  */
 export function SubscriberList( {
 	items = [],

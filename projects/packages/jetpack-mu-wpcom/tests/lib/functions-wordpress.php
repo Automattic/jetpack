@@ -60,6 +60,33 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+	/**
+	 * A drop-in for the wpcomsh sticker check, which the package's
+	 * wpcom_has_blog_sticker() reads. Defaults to no stickers.
+	 *
+	 * @param string $sticker Blog sticker name.
+	 * @return bool
+	 */
+	function wpcomsh_is_site_sticker_active( $sticker ) {
+		return in_array( $sticker, $GLOBALS['wpcom_site_stickers_test_value'] ?? array(), true );
+	}
+}
+
+if ( ! function_exists( 'get_blog_details' ) ) {
+	/**
+	 * A drop-in for the multisite function WordPress.com keeps the unmapped
+	 * domain in. WorDBless is single-site, so it does not ship one.
+	 *
+	 * @param int $blog_id Blog ID. Unused: tests only ever have one site.
+	 * @return object|false
+	 */
+	function get_blog_details( $blog_id = 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- single-site test env.
+		$domain = $GLOBALS['wpcom_blog_details_domain_test_value'] ?? null;
+		return null === $domain ? false : (object) array( 'domain' => $domain );
+	}
+}
+
 if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
 	/**
 	 * A drop-in for a WordPress.com function.

@@ -1,0 +1,66 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+// Wider than the core block editor welcome guide's 312px, to give the
+// artwork more room. Core caps the frame at `calc(100vw - 32px)` below
+// break-small, so this is the ceiling rather than a fixed width.
+.jetpack-forms-welcome-guide {
+	max-inline-size: 400px;
+	inline-size: 400px;
+
+	// Slides differ in heading and body length, so left alone the modal
+	// resizes as you page through — and because it is vertically centered,
+	// the whole dialog shifts along with the Previous/Next buttons.
+	// Reserving the tallest slide's height on the guide's own container
+	// anchors both: the container is `justify-content: space-between`, so the
+	// artwork stays flush to the top edge and the footer sits on the bottom
+	// one no matter how short the copy is. It has to go here rather than on
+	// the modal frame — the container's `min-height: 100%` is a percentage
+	// against an auto-height parent, so it resolves to nothing. Scoped to
+	// break-small and up, matching where core applies the guide's own
+	// min-height, so narrow screens can still shrink to fit.
+	@include gb.break-small() {
+
+		.components-guide__container {
+			min-block-size: 496px;
+		}
+	}
+
+	// The close button floats over the artwork, which runs dark to the top
+	// edge of the modal. Without this the default dark icon disappears into it.
+	.components-modal__header .components-button svg {
+		fill: #fff;
+	}
+
+	.jetpack-forms-welcome-guide__image {
+		// Matches the artwork's own backdrop, so the slot stays the right
+		// color while the image is still loading.
+		background: #002c0f;
+		margin-block: 0 16px;
+
+		> img {
+			// Pinning the ratio keeps the modal from resizing between slides
+			// if a replacement illustration is exported at another size.
+			aspect-ratio: 800 / 520;
+			display: block;
+			inline-size: 100%;
+			object-fit: cover;
+		}
+	}
+
+	.jetpack-forms-welcome-guide__heading {
+		font-size: 22px;
+		font-weight: 600;
+		line-height: 1.4;
+		margin-block: 16px;
+		margin-inline: 0;
+		padding-inline: 24px;
+	}
+
+	.jetpack-forms-welcome-guide__text {
+		font-size: 13px;
+		line-height: 1.4;
+		margin-block: 0 24px;
+		margin-inline: 0;
+		padding-inline: 24px;
+	}
+}

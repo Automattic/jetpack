@@ -12,11 +12,8 @@ const mockDispatch = jest.fn( () => ( {
 	createErrorNotice: mockCreateErrorNotice,
 } ) );
 
-// Override `useRegistry` only, falling through to the real module for everything else:
-// the component's import graph now reaches other consumers of `@wordpress/data`
-// (rich-text's store calls `combineReducers` at import time), which a `useRegistry`-only
-// mock breaks. The fall-through has to resolve lazily — calling `requireActual` in the
-// factory body re-enters `@wordpress/data` while it is still initialising.
+// Override `useRegistry` only — a bare mock breaks other `@wordpress/data`
+// consumers; the fall-through resolves lazily since `requireActual` re-enters mid-init.
 jest.mock(
 	'@wordpress/data',
 	() =>

@@ -1,10 +1,23 @@
 import { useReportScope } from '@jetpack-premium-analytics/data';
-import { render, screen, within } from '@testing-library/react';
-import { usePostSummary } from './hooks';
+import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
+import { act, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+
+// The dashboard props the stage handed to the (mocked) WidgetDashboard.
+let mockDashboardProps: {
+	editMode?: boolean;
+	onEditChange?: ( next: boolean ) => void;
+	onLayoutChange?: ( next: unknown ) => void;
+	onLayoutReset?: () => void;
+} = {};
+
+// The policy the stage mounted above the (mocked) WidgetDashboard.
+let mockCanPerform: ( ( request: Record< string, unknown > ) => boolean ) | undefined;
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -18,7 +31,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
-		appliedRange: {},
+		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
 		replaceRange: () => {},
 		timeZone: 'UTC',
 		interval: 'day',
@@ -29,7 +42,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <div>Date filters</div>,
-	SectionTabPanel: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
+	SectionTabs: () => <div role="tablist" />,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
 	StatsPageIcon: () => null,
@@ -41,12 +55,8 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
-// Falls through to the real module for everything but `useSelect`. Reaching the
-// externals passthrough pulls `@wordpress/components` -> `@wordpress/rich-text`
-// into the graph, whose store calls `combineReducers` at import time; a
-// `useSelect`-only mock leaves that undefined and the suite fails to load.
-// `requireActual` has to stay lazy — calling it in the factory body re-enters
-// the module while it is still initialising.
+// Proxies `@wordpress/data` lazily: `requireActual` at import time would
+// re-enter `@wordpress/rich-text`'s module init via `combineReducers`.
 jest.mock(
 	'@wordpress/data',
 	() =>
@@ -73,8 +83,34 @@ function MockScopeProbe() {
 }
 
 jest.mock( '@wordpress/widget-dashboard', () => {
-	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
+	const WidgetDashboard = ( {
+		children,
+		editMode,
+		onEditChange,
+		onLayoutChange,
+		onLayoutReset,
+	}: {
+		children: ReactNode;
+		editMode?: boolean;
+		onEditChange?: ( next: boolean ) => void;
+		onLayoutChange?: ( next: unknown ) => void;
+		onLayoutReset?: () => void;
+	} ) => {
+		mockDashboardProps = { editMode, onEditChange, onLayoutChange, onLayoutReset };
+		return <>{ children }</>;
+	};
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
+	WidgetDashboard.Actions = () => <div data-testid="dashboard-actions" />;
+	WidgetDashboard.Policy = ( {
+		canPerform,
+		children,
+	}: {
+		canPerform: ( request: Record< string, unknown > ) => boolean;
+		children: ReactNode;
+	} ) => {
+		mockCanPerform = canPerform;
+		return <>{ children }</>;
+	};
 
 	return {
 		WidgetDashboard,
@@ -132,22 +168,67 @@ jest.mock( '@wordpress/route', () => ( {
 // the real report-origin validation.
 
 jest.mock( './components', () => ( {
-	PostDetailTabs: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	PostSummaryCard: () => <div>Post summary</div>,
+	postHeaderSlots: ( {
+		variant,
+		performanceRange,
+	}: {
+		variant?: string;
+		performanceRange?: { from?: Date; to?: Date };
+	} ) => ( {
+		title: 'Post summary',
+		subTitle: (
+			<>
+				<span data-testid="header-variant">{ variant }</span>
+				<span data-testid="performance-from">
+					{ performanceRange?.from?.toISOString() ?? 'none' }
+				</span>
+			</>
+		),
+	} ),
+} ) );
+
+let mockActiveTab = 'traffic';
+
+// The pinned email scope the stage hands to the tabs hook and the header.
+const mockEmailScope = {
+	range: { from: new Date( '2026-06-22T00:00:00Z' ), to: new Date( '2026-07-21T23:59:59Z' ) },
+	reportParams: {
+		post_id: 41,
+		from: '2026-06-22',
+		to: '2026-07-21',
+		interval: 'day',
+	},
+};
+
+// The stored arrangement is the toolkit's; the rest of the toolkit stays real.
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	useStoredDetailLayout: jest.fn( () => ( {
+		layout: [ { uuid: 'card', type: 'jpa/card' } ],
+		setLayout: () => {},
+		resetLayout: () => {},
+		hasCustomLayout: false,
+	} ) ),
 } ) );
 
 jest.mock( './hooks', () => ( {
 	usePostSummary: jest.fn(),
-	usePostDetailTabs: () => ( {
-		// One tab, so the panel carrying the widget grid actually mounts.
-		tabs: [ { id: 'traffic', label: 'Traffic' } ],
-		activeTab: 'traffic',
+	useEmailTabScope: jest.fn( () => mockEmailScope ),
+	usePostDetailTabs: jest.fn( () => ( {
+		// The active tab keys the section carrying the widget grid.
+		tabs: [
+			{ id: 'traffic', label: 'Traffic' },
+			{ id: 'email-opens', label: 'Email opens' },
+		],
+		activeTab: mockActiveTab,
 		setActiveTab: jest.fn(),
 		layout: [],
-	} ),
+	} ) ),
 } ) );
 
 const mockUsePostSummary = usePostSummary as jest.Mock;
+const mockUsePostDetailTabs = usePostDetailTabs as jest.Mock;
+const mockUseTabLayout = useStoredDetailLayout as jest.Mock;
 
 /**
  * Stub the post summary hook, defaulting to a resolved post with a public URL.
@@ -181,6 +262,161 @@ describe( 'post detail stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockSearch = { from: '2026-06-01', to: '2026-06-16', post_id: '41' };
+		mockActiveTab = 'traffic';
+	} );
+
+	it( 'shows the date filter on the traffic tab', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the date filter on the email tabs and pins them to the send window', () => {
+		mockActiveTab = 'email-opens';
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.queryByText( 'Date filters' ) ).not.toBeInTheDocument();
+		// The shared summary header still renders, in its email identity and over
+		// the pinned window.
+		expect( screen.getByText( 'Post summary' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'header-variant' ) ).toHaveTextContent( 'email' );
+		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent(
+			'2026-06-22T00:00:00.000Z'
+		);
+		// The tabs hook receives the pinned params for the email tabs' widgets.
+		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith( 41, mockEmailScope.reportParams, false );
+	} );
+
+	it( 'reports the traffic tab over the applied URL range', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByTestId( 'header-variant' ) ).toHaveTextContent( 'post' );
+		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent(
+			new Date( 2026, 5, 1 ).toISOString()
+		);
+	} );
+
+	it( 'offers Customize in a page options menu and hands the chrome to the dashboard', async () => {
+		const user = userEvent.setup();
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+
+		// The dashboard's own Cancel and Done take the actions slot while editing.
+		expect( mockDashboardProps.editMode ).toBe( true );
+		expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^View post/ } ) ).not.toBeInTheDocument();
+
+		// Cancel or Done report back through onEditChange.
+		act( () => mockDashboardProps.onEditChange?.( false ) );
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.queryByText( 'Customizing' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^View post/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'stores what the dashboard commits, and forgets it on reset', () => {
+		const setLayout = jest.fn();
+		const resetLayout = jest.fn();
+		mockUseTabLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout,
+			resetLayout,
+			hasCustomLayout: false,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		// The dashboard stages edits itself and fires onLayoutChange only on Done.
+		const rearranged = [ { uuid: 'card', type: 'jpa/card', placement: { order: 2 } } ];
+		act( () => mockDashboardProps.onLayoutChange?.( rearranged ) );
+		expect( setLayout ).toHaveBeenCalledWith( rearranged );
+
+		act( () => mockDashboardProps.onLayoutReset?.() );
+		expect( resetLayout ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'lets the reader rearrange cards but never add or remove them', async () => {
+		const user = userEvent.setup();
+		mockSummary();
+
+		render( stage() );
+
+		const widgetType = { name: 'jpa/card' };
+		expect( mockCanPerform?.( { operation: 'move' } ) ).toBe( true );
+		expect( mockCanPerform?.( { operation: 'resize' } ) ).toBe( true );
+		expect( mockCanPerform?.( { operation: 'edit' } ) ).toBe( true );
+		expect( mockCanPerform?.( { operation: 'insert', widgetType } ) ).toBe( false );
+		expect( mockCanPerform?.( { operation: 'remove' } ) ).toBe( false );
+		// The page options menu is the way in, not the dashboard's own button.
+		expect( mockCanPerform?.( { operation: 'customize' } ) ).toBe( false );
+		// Reset joins Cancel and Done while customizing, and is absent otherwise.
+		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( false );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+
+		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( true );
+	} );
+
+	it( 'ignores the dashboard\u2019s empty-layout edit request while a tab has no layout', () => {
+		mockUseTabLayout.mockReturnValue( {
+			layout: [],
+			setLayout: () => {},
+			resetLayout: () => {},
+			hasCustomLayout: false,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		// An empty layout makes the real dashboard request edit mode (its empty
+		// state invites customization); the stage must not let a pending email
+		// gate open the customize chrome.
+		act( () => mockDashboardProps.onEditChange?.( true ) );
+
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves customize mode when the tab changes under it', async () => {
+		const user = userEvent.setup();
+		mockUseTabLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout: () => {},
+			resetLayout: () => {},
+			hasCustomLayout: false,
+		} );
+		mockSummary();
+
+		const { rerender } = render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		// A tab click, Back, and a deep link all change the tab through the router;
+		// the dashboard drops staged edits with the committed layout, so this is a
+		// Cancel rather than a silent loss.
+		mockActiveTab = 'email-opens';
+		rerender( stage() );
+
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
+		mockActiveTab = 'traffic';
 	} );
 
 	it( 'puts a View post action in the page header, opening the live post in a new tab', () => {
@@ -224,9 +460,8 @@ describe( 'post detail stage', () => {
 		expect( screen.queryByRole( 'link', { name: /^View (post|page)/ } ) ).not.toBeInTheDocument();
 	} );
 
-	// One declaration drives both halves: the panel reads it to drop the Compare
-	// control (covered in the ui package) and `WidgetRoot` reads it to strip the
-	// params. This asserts the declaration the page makes.
+	// One declaration drives both halves: the panel drops the Compare control and
+	// `WidgetRoot` strips the params. This asserts the page's declaration.
 	it( 'declares no comparison for the widgets it renders', () => {
 		mockSummary();
 

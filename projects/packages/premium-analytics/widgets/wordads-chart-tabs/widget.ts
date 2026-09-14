@@ -1,27 +1,42 @@
 /**
+ * External dependencies
+ */
+import {
+	reportParamsAttributeField,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/fields';
+/**
  * WordPress dependencies
  */
 import { chartBar } from '@wordpress/icons';
-
 /**
- * The widget has no user-configurable attributes: the bucket size follows the
- * dashboard's chart interval control. Report params still reach it through
- * WidgetRoot: the dashboard date range, or `attributes.reportParams` when a
- * host injects them (e.g. Storybook and dashboard previews).
+ * Internal dependencies
  */
-export type WordAdsChartTabsAttributes = Record< never, never >;
+import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { WORDADS_GRAIN } from './grain';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
+
+/** The widget owns its date controls because other Ads widgets accept no dates. */
+export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes >;
 
 /**
- * Widget type definition.
+ * WordAds metric tabs with widget-owned date controls. Requires active WordAds.
  *
  * Ported from the Jetpack Stats `wordads-chart-tabs` card in wp-calypso (the
- * chart above the WordAds page). Renders the selected period's ads served,
- * average CPM, and revenue as selectable metric tabs — the upstream page's tab
- * labels and order — over a comparative line chart. The date range, comparison
- * state, and bucket size all come from the dashboard via `reportParams`. Which
- * metric is plotted is the chart's own tab selection.
- * Requires WordAds to be active on the site.
+ * chart above the WordAds page); the tab labels and order match it.
  */
 export default {
 	icon: chartBar,
+	attributes: [
+		// The chart's body is bucketed by the interval, so the control offers it.
+		reportParamsAttributeField< WordAdsChartTabsAttributes >( {
+			withIntervalControl: true,
+			grain: WORDADS_GRAIN,
+		} ),
+	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
+	example: {
+		attributes: {
+			reportParams: DEFAULT_REPORT_PARAMS,
+		},
+	},
 };

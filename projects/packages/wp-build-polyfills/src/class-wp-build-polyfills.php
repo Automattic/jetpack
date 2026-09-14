@@ -65,6 +65,13 @@ class WP_Build_Polyfills {
 	const GUTENBERG_RICH_TEXT_MIN_VERSION = '23.6.0';
 
 	/**
+	 * Minimum Gutenberg plugin version whose widget-primitives script module ships the
+	 * `WidgetHostProvider` / `useWidgetHost` seam that widget-dashboard >= 0.6.0 imports at
+	 * module scope (Gutenberg PR #81740, first released in 23.9.0).
+	 */
+	const GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION = '23.9.0';
+
+	/**
 	 * Tracks which polyfills have been requested and by which consumers.
 	 *
 	 * Keys are polyfill handles/module IDs, values are arrays of consumer names.
@@ -103,6 +110,9 @@ class WP_Build_Polyfills {
 	 * load time. Those companions show up in get_consumers() under the
 	 * requesting consumer's name.
 	 *
+	 * Every call also arms WP_Build_Admin_Frame for the request, so the boot
+	 * single-page backdrop follows the wp-admin menu color on every wp-build page.
+	 *
 	 * @param string   $consumer             A unique identifier for the consumer (e.g. plugin slug).
 	 * @param string[] $polyfills             List of polyfill handles/module IDs to register.
 	 *                                        Use class constants SCRIPT_HANDLES and MODULE_IDS for reference.
@@ -110,6 +120,8 @@ class WP_Build_Polyfills {
 	 *                                        are applied. Defaults to '7.0'.
 	 */
 	public static function register( $consumer, $polyfills, $wp_version_threshold = '7.0' ) {
+		WP_Build_Admin_Frame::register();
+
 		foreach ( $polyfills as $handle ) {
 			if ( ! in_array( $handle, self::SCRIPT_HANDLES, true ) && ! in_array( $handle, self::MODULE_IDS, true ) ) {
 				continue;
@@ -304,8 +316,9 @@ class WP_Build_Polyfills {
 	/**
 	 * Register polyfill script modules.
 	 *
-	 * Call to wp_register_script_module() silently ignores duplicate registrations (first wins),
-	 * so no explicit is_registered check is needed.
+	 * Calls to wp_register_script_module() silently ignore duplicate registrations (first wins), so an
+	 * already registered module is left alone unless the active Gutenberg's copy is known to be
+	 * too old for this package's current build, in which case it is replaced.
 	 *
 	 * @param string $build_dir Absolute path to the build directory.
 	 * @param string $base_file File path for plugins_url() computation.
@@ -315,9 +328,21 @@ class WP_Build_Polyfills {
 			return;
 		}
 
-		$modules = array( 'boot', 'route', 'a11y', 'widget-primitives' );
+		$gutenberg_version = defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null;
 
-		foreach ( $modules as $name ) {
+		$modules = array(
+			'boot'              => array(),
+			'route'             => array(),
+			'a11y'              => array(),
+			'widget-primitives' => array(
+				// Gutenberg re-registers Core's script modules with its own copies, and
+				// older ones lack exports widget-dashboard imports at module scope. The
+				// replacement only adds exports, so Gutenberg's own consumers keep working.
+				'gutenberg_min_version' => self::GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION,
+			),
+		);
+
+		foreach ( $modules as $name => $data ) {
 			$module_id = '@wordpress/' . $name;
 
 			if ( ! isset( self::$requested[ $module_id ] ) ) {
@@ -331,6 +356,14 @@ class WP_Build_Polyfills {
 			}
 
 			$asset = require $asset_file;
+
+			if (
+				isset( $data['gutenberg_min_version'] )
+				&& null !== $gutenberg_version
+				&& ! self::is_gutenberg_version_safe( $data['gutenberg_min_version'], $gutenberg_version )
+			) {
+				wp_deregister_script_module( $module_id );
+			}
 
 			wp_register_script_module(
 				$module_id,

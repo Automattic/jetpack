@@ -1,27 +1,25 @@
-import { WIDGET_DASHBOARD_COLUMN_COUNT } from '@wordpress/widget-dashboard';
+import { PA_COLUMN_COUNT } from '../../grid';
 import type { PostDetailTabId } from './tabs';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
- * Fixed widget composition for each post-detail tab.
- *
- * The post detail page is not user-customizable (WOOA7S-1622): each tab
- * renders a fixed arrangement so required widgets and their sizing cannot be
- * removed or reshaped. A tab stays hidden only while its composition is empty.
+ * Fixed widget composition for each post-detail tab (not user-customizable,
+ * WOOA7S-1622); a tab stays hidden only while its composition is empty.
+ * Widths fill the three-column detail grid.
  */
 export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[] > = {
 	'post-traffic': [
 		{
 			uuid: 'post-detail-highlights',
-			// Full-width row like the email highlights, per the updated design
-			// mocks; the widget spreads its three tiles across the span.
+			// Full-width row, matching the email highlights layout.
 			type: 'jpa/post-detail-highlights',
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: PA_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'post-views',
 			type: 'jpa/post-views',
-			placement: { width: 2, height: 2, order: 2 },
+			attributes: { chartType: 'bar' },
+			placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{
 			uuid: 'post-likes',
@@ -34,20 +32,20 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			placement: { width: 1, height: 2, order: 4 },
 		},
 		{
-			uuid: 'post-traffic-activity',
-			type: 'jpa/post-traffic-activity',
-			placement: { width: 3, height: 2, order: 5 },
-		},
-		{
 			uuid: 'post-utm',
 			// The alias carries the mock's "UTM" card title; the registry's
 			// global "UTM Insights" title is owned by the copy spreadsheet work.
 			type: 'jpa/utm-insights--utm',
-			// Detail-page widgets carry no "View all" action per the design
-			// mocks — the post detail page is itself the terminal page, and the
-			// site-wide UTM report would silently drop this post's scope.
+			// No "View all" action: this page is the terminal page, and the
+			// site-wide UTM report would drop this post's scope.
 			attributes: { utmDimension: 'utm_source,utm_medium', showReportLink: false },
-			placement: { width: 1, height: 2, order: 6 },
+			placement: { width: 1, height: 2, order: 5 },
+		},
+		{
+			uuid: 'post-all-time-traffic',
+			// Full width: the table lays twelve months out across its columns.
+			type: 'jpa/post-all-time-traffic',
+			placement: { width: PA_COLUMN_COUNT, height: 2, order: 6 },
 		},
 	],
 	'email-opens': [
@@ -55,13 +53,13 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-opens-highlights',
 			type: 'jpa/email-top-row',
 			attributes: { metric: 'opens' },
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: PA_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'email-opens-trend',
 			type: 'jpa/email-time-series--total-opens',
 			attributes: { metric: 'opens' },
-			placement: { width: 3, height: 2, order: 2 },
+			placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{
 			uuid: 'email-opens-countries',
@@ -87,7 +85,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-clicks-highlights',
 			type: 'jpa/email-top-row',
 			attributes: { metric: 'clicks' },
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: PA_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'email-clicks-trend',
@@ -109,15 +107,14 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		},
 		{
 			uuid: 'email-clicks-countries',
-			// The updated design mocks draw the country map beside the
-			// leaderboard again (the earlier mocks dropped it in #50928); the
-			// widget still unmounts the map below its 720px container floor.
+			// Keep width: 2 — the map unmounts below a 720px container floor.
 			type: 'jpa/email-breakdown--location-clicks',
 			attributes: { view: 'countries', metric: 'clicks', showMap: true },
 			placement: { width: 2, height: 2, order: 5 },
 		},
 		{
 			uuid: 'email-clicks-links',
+			// Two of three columns, per the design; the last row is left open.
 			type: 'jpa/email-breakdown--top-links',
 			attributes: { view: 'links', metric: 'clicks' },
 			placement: { width: 2, height: 2, order: 6 },

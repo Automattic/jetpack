@@ -2,18 +2,9 @@
 /**
  * TEMPORARY: interim port for WOOA7S-1550 — remove when the shared sync-modules composer package lands.
  *
- * Plain replacement for woocommerce-analytics' src/Internal/Jetpack/Sync/Configuration.php.
- * The upstream class is wired through a PHP-DI container and RegistrableInterface; the
- * monorepo package has no DI container, so this is a plain class invoked from
- * {@see \Automattic\Jetpack\PremiumAnalytics\Analytics::init()}.
- *
- * It registers the same Jetpack Sync filters upstream's Configuration does and ensures the
- * Sync feature so the `woocommerce_analytics` full-sync module runs. Connection bootstrap and
- * the admin-script enqueue from the upstream class are intentionally omitted — they are handled
- * elsewhere in the monorepo and are out of scope for this sync port.
- *
- * WooCommerce is a runtime (not composer) dependency, so {@see register()} guards on WooCommerce
- * being active before hooking anything; the ported module is only ever instantiated in that case.
+ * Plain replacement for woocommerce-analytics' src/Internal/Jetpack/Sync/Configuration.php, invoked
+ * from {@see \Automattic\Jetpack\PremiumAnalytics\Analytics::init()} since this package has no PHP-DI
+ * container to wire it through like upstream. Omits upstream's connection bootstrap and admin-script enqueue.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -39,7 +30,7 @@ class Configuration {
 
 	/**
 	 * List of post meta to add to Sync's post meta whitelist.
-	 * Any changes to these meta will by synced to WordPress.com.
+	 * Any changes to these meta will be synced to WordPress.com.
 	 *
 	 * @static
 	 * @var array
@@ -76,11 +67,8 @@ class Configuration {
 	public static function register(): void {
 		$instance = new self();
 
-		// Defer the WooCommerce-active guard and all hookups to plugins_loaded so they run after
-		// every plugin (including WooCommerce) has loaded, regardless of plugin load order.
-		// Analytics::init() runs during plugin include, before plugins_loaded fires; the priority-1
-		// timing also lets the Jetpack Config constructed below run its own on_plugins_loaded
-		// (priority 2) handler in the same cycle.
+		// Defer to plugins_loaded so the WooCommerce-active guard runs after every plugin loads; priority 1
+		// also lets the Jetpack Config constructed below run its on_plugins_loaded (priority 2) handler in the same cycle.
 		if ( did_action( 'plugins_loaded' ) ) {
 			$instance->configure_sync();
 		} else {
@@ -121,8 +109,6 @@ class Configuration {
 	/**
 	 * Add the WooCommerce Analytics module to the list of Jetpack Sync modules.
 	 *
-	 * Additive: appends to whatever module list is already configured rather than replacing it.
-	 *
 	 * @param array $modules The current list of sync module class names.
 	 * @return array
 	 */
@@ -143,7 +129,7 @@ class Configuration {
 		$jetpack_sync_modules = array_keys(
 			array_filter(
 				array(
-					WooCommerce_Analytics_Module::class => true, // WooCommerce Analytics module.
+					WooCommerce_Analytics_Module::class => true,
 					Meta_Module::class                  => true,
 					Posts_Module::class                 => true,
 					Terms_Module::class                 => true,
@@ -162,10 +148,8 @@ class Configuration {
 					'woocommerce_date_type', // Date used to determine the date range for analytics reports.
 				),
 				'jetpack_sync_constants_whitelist' => array(
-					// Syncing this triggers WPCom to provision the WC Analytics tables. Defined by the
-					// plugin at load (double underscore, per the JETPACK__VERSION convention). (WOOA7S-1643)
-					// WC_ANALYTICS_VERSION is intentionally omitted: it is defined and whitelisted by the
-					// standalone woocommerce-analytics plugin, and on a PA-only store would only sync null.
+					// Syncing this triggers WPCom to provision the WC Analytics tables (WOOA7S-1643).
+					// WC_ANALYTICS_VERSION is omitted: only woocommerce-analytics defines it, so a PA-only store would sync null.
 					'JETPACK_PREMIUM_ANALYTICS__VERSION',
 				),
 			)
@@ -252,7 +236,7 @@ class Configuration {
 
 	/**
 	 * Add WC Analytics post meta to Sync's post meta whitelist.
-	 * Any changes to these meta will by synced to WordPress.com.
+	 * Any changes to these meta will be synced to WordPress.com.
 	 *
 	 * @param array $whitelist Existing post meta whitelist.
 	 * @return array Updated post meta whitelist.

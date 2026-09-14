@@ -1311,7 +1311,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$expected_ip = '72.182.131.109';
 		foreach ( $result as $ip ) {
 			$this->assertEquals( $expected_ip, $ip['ip'] );
-			$this->assertTrue( is_int( $ip['expires_at'] ) );
+			$this->assertIsInt( $ip['expires_at'] );
 		}
 
 		// Test with another IP address

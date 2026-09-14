@@ -130,9 +130,7 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'amount',
 			label: __( 'Earnings', 'jetpack-premium-analytics-pkg' ),
-			render: ( { item } ) => (
-				<>{ formatMetricValue( item.amount, 'currency', { decimals: 2 } ) }</>
-			),
+			render: ( { item } ) => <>{ formatMetricValue( item.amount, 'currency' ) }</>,
 		},
 		{
 			id: 'pageviews',

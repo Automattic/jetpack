@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from Jetpack CRM 6.8.3
+ * Stubs automatically generated from Jetpack CRM 6.8.4
  * using the definition file `tools/stubs/zero-bs-crm-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.

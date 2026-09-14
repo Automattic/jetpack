@@ -1,8 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Flex, FlexItem, Notice } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+// Deep imports rather than the `../../utils` barrel, which pulls the social store in.
+import { features } from '../../utils/constants';
+import { getSimpleSiteUpgradeUrl, getUpgradePlanName } from '../../utils/script-data';
 
 /**
  * A notice for upgrading to a plan that supports the Enhanced Publishing feature.
@@ -10,20 +12,28 @@ import { __ } from '@wordpress/i18n';
  * @return The UpgradeNotice component.
  */
 export function UpgradeNotice() {
-	if ( isSimpleSite() ) {
-		// We don't have any upgrade options on Simple sites, yet.
-		return null;
-	}
+	const redirectUrl =
+		getSimpleSiteUpgradeUrl( features.ENHANCED_PUBLISHING, window.location.href ) ??
+		getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
+			site: getSiteFragment() || '',
+			query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+		} );
 
-	const redirectUrl = getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
-		site: getSiteFragment() || '',
-		query: 'redirect_to=' + encodeURIComponent( window.location.href ),
-	} );
-
-	const message = __(
+	const planName = getUpgradePlanName();
+	const genericMessage = __(
 		'Choose your social media image or video to share.',
 		'jetpack-publicize-pkg'
 	);
+	const message = planName
+		? sprintf(
+				/* translators: %s: name of the plan that unlocks the feature, e.g. "Business". */
+				__(
+					'Upgrade to the %s plan to choose your social media image or video to share.',
+					'jetpack-publicize-pkg'
+				),
+				planName
+		  )
+		: genericMessage;
 
 	return (
 		/**

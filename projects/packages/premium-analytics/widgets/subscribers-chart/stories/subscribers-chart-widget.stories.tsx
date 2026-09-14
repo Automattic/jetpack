@@ -14,6 +14,11 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
+import {
 	registerReportMocks,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
@@ -32,7 +37,7 @@ const SUBSCRIBERS_CHART_RENDER_MODULE = 'storybook/subscribers-chart';
 // story's settings drawer renders the real controls.
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
-interface SubscribersChartStoryControls {
+interface SubscribersChartStoryControls extends SiteTimeZoneControls {
 	withComparison: boolean;
 	chartType: SubscribersChartType;
 }
@@ -70,7 +75,9 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SubscribersChart',
 	component: SubscribersChartRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteTimeZone ],
 	argTypes: {
+		...siteTimeZoneArgTypes,
 		withComparison: { control: 'boolean' },
 		...CHART_TYPE_ARG_TYPES,
 	},

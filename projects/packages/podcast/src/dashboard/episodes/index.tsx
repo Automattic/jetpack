@@ -8,6 +8,7 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
+import { LinkButton } from '@wordpress/ui';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import LockedPreview from '../locked-preview';
 import './style.scss';
@@ -32,9 +33,9 @@ const EmptyEpisodes = () => (
 		<p>
 			{ __( 'Publish a podcast post in your chosen category to see it here.', 'jetpack-podcast' ) }
 		</p>
-		<Button variant="primary" href={ NEW_EPISODE_URL }>
+		<LinkButton variant="solid" href={ NEW_EPISODE_URL }>
 			{ __( 'Create episode', 'jetpack-podcast' ) }
-		</Button>
+		</LinkButton>
 	</div>
 );
 

@@ -93,11 +93,8 @@ describe( 'ClicksReportPage', () => {
 	} );
 
 	it( 'keeps the rows on screen while a background refetch is in flight', () => {
-		// The queries carry `placeholderData`, so a refetch triggered by a date or
-		// comparison change still has the previous rows. Handing the table an empty
-		// set would drop the user's search, sorting, page position, and the expanded
-		// state of every click group mid-refetch, so the rows stay mounted and only
-		// the loading state reflects the refetch.
+		// `placeholderData` keeps the previous rows during a refetch, so search/sort/
+		// expanded state survive a date or comparison change instead of resetting.
 		mockRecords( { isFetching: true } );
 
 		render( <ClicksReportPage /> );
@@ -113,7 +110,12 @@ describe( 'ClicksReportPage', () => {
 		render( <ClicksReportPage /> );
 
 		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { data: [ row ], isLoading: false } )
+			expect.objectContaining( {
+				data: [ row ],
+				isLoading: false,
+				collapsible: true,
+				defaultExpanded: 'none',
+			} )
 		);
 	} );
 } );

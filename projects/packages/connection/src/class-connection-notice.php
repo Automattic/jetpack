@@ -209,12 +209,10 @@ class Connection_Notice {
 	 * @return string
 	 */
 	private function get_connection_owner_script() {
-		$rest_url        = wp_json_encode( esc_url_raw( get_rest_url() . 'jetpack/v4/connection/owner' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		$rest_nonce      = wp_json_encode( wp_create_nonce( 'wp_rest' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		$success_message = wp_json_encode( esc_html__( 'Success!', 'jetpack-connection' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		$error_message   = wp_json_encode( esc_html__( 'Something went wrong. Please try again.', 'jetpack-connection' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+		$json_flags = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
 
-		return <<<JS
+		ob_start();
+		?>
 ( function() {
 	const switchOwnerButton = document.getElementById('jp-switch-connection-owner');
 	if ( ! switchOwnerButton ) {
@@ -235,15 +233,15 @@ class Connection_Notice {
 			submitBtn.disabled = false;
 
 			results.classList.add( 'error-message' );
-			results.innerHTML = message || {$error_message};
+			results.innerHTML = message || <?php echo wp_json_encode( esc_html__( 'Something went wrong. Please try again.', 'jetpack-connection' ), $json_flags ); ?>;
 		}
 
 		fetch(
-			{$rest_url},
+			<?php echo wp_json_encode( esc_url_raw( get_rest_url() . 'jetpack/v4/connection/owner' ), $json_flags ); ?>,
 			{
 				method: 'POST',
 				headers: {
-					'X-WP-Nonce': {$rest_nonce},
+					'X-WP-Nonce': <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ), $json_flags ); ?>,
 				},
 				body: new URLSearchParams( new FormData( this ) ),
 			}
@@ -252,7 +250,7 @@ class Connection_Notice {
 			.then( data => {
 				if ( data.hasOwnProperty( 'code' ) && data.code === 'success' ) {
 					// Owner successfully changed.
-					results.innerHTML = {$success_message};
+					results.innerHTML = <?php echo wp_json_encode( esc_html__( 'Success!', 'jetpack-connection' ), $json_flags ); ?>;
 					setTimeout(function () {
 						document.getElementById( 'jetpack-notice-switch-connection-owner' ).style.display = 'none';
 					}, 1000);
@@ -265,6 +263,7 @@ class Connection_Notice {
 			.catch( () => handleAPIError() );
 	});
 } )();
-JS;
+		<?php
+		return ob_get_clean();
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Stack } from '@jetpack-premium-analytics/externals';
+import { Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useState } from 'react';
@@ -9,12 +9,14 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import styles from './leaderboard-label.module.scss';
+import type { ComponentProps } from 'react';
 
 export type LeaderboardRowMedia =
 	| { kind: 'avatar'; url?: string; name: string }
 	| { kind: 'favicon'; url?: string }
 	| { kind: 'flag'; url?: string; country: string }
 	| { kind: 'thumbnail'; url?: string; alt: string }
+	| { kind: 'icon'; icon: ComponentProps< typeof Icon >[ 'icon' ] }
 	| { kind: 'none' };
 
 export type LeaderboardLabelProps = {
@@ -30,7 +32,9 @@ export type LeaderboardLabelProps = {
 const DEFAULT_IMAGE_URL =
 	'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><rect width="50" height="50" fill="%23e5e7eb"/></svg>';
 
-function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } > ) {
+function getMediaDetails(
+	media: Exclude< LeaderboardRowMedia, { kind: 'none' } | { kind: 'icon' } >
+) {
 	switch ( media.kind ) {
 		case 'avatar':
 			return {
@@ -82,7 +86,8 @@ export function LeaderboardLabel( {
 	decorativeMedia = false,
 }: LeaderboardLabelProps ) {
 	const [ failedImageUrl, setFailedImageUrl ] = useState< string >();
-	const mediaDetails = media.kind === 'none' ? null : getMediaDetails( media );
+	const mediaDetails =
+		media.kind === 'none' || media.kind === 'icon' ? null : getMediaDetails( media );
 	const shouldRenderImage =
 		mediaDetails &&
 		( mediaDetails.fallback === 'placeholder' || Boolean( mediaDetails.url ) ) &&
@@ -95,6 +100,9 @@ export function LeaderboardLabel( {
 			align="center"
 			className={ clsx( styles.container, mediaDetails?.className ) }
 		>
+			{ media.kind === 'icon' && (
+				<Icon icon={ media.icon } size={ 20 } className={ styles.icon } />
+			) }
 			{ shouldRenderImage && (
 				<img
 					src={ mediaDetails.url || DEFAULT_IMAGE_URL }

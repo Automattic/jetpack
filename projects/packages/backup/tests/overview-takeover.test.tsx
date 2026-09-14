@@ -23,30 +23,13 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { onlineManager } from '@tanstack/react-query';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
-import { queryClient } from '../src/dashboard/data/query-client';
+import { keys, queryClient } from '../src/dashboard/data/query-client';
+import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
-
-// Testing Library's default `findBy` window is one second. These stages
-// render behind several sequential requests, and a loaded CI runner under
-// coverage has taken well over that for the same work locally-green here.
-const SETTLE = { timeout: 10000 };
-
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row — which only happens here because
-// these are the first tests to render the list with a row in it.
-//
-// Defined rather than spied on: `jest.spyOn` requires the property to
-// already exist, and in jsdom it does not, so spying throws
-// "Property `scrollIntoView` does not exist in the provided object".
-// `defineProperty` also keeps `jest/prefer-spy-on` from rewriting this
-// back into a spy, which is how it broke the first time.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 /**
  * One rewindable-activity entry, in WPCOM's shape.
@@ -136,6 +119,12 @@ beforeEach( () => {
 	} as typeof window.JP_CONNECTION_INITIAL_STATE;
 } );
 
+afterEach( () => {
+	// `onlineManager` is a module singleton, so an offline test leaves every
+	// later one in this file parking its requests.
+	onlineManager.setOnline( true );
+} );
+
 describe( 'Overview takeover', () => {
 	it( 'replaces the body on a genuinely empty site', async () => {
 		mockEndpoints( { backups: [], activity: [] } );
@@ -168,6 +157,61 @@ describe( 'Overview takeover', () => {
 		).not.toBeInTheDocument();
 	} );
 
+	// JETPACK-2491 — `networkMode: 'online'` parks the activity read for an
+	// offline browser rather than failing it, so it is neither loading nor
+	// errored and holds no rows. The veto lifted on a question nobody asked,
+	// and an established site was told its first backup was on its way.
+	it( 'does not take over when the activity request was parked, not answered', async () => {
+		mockEndpoints( { backups: [] } );
+		// Warmed so the gate and the backup state both have an answer, leaving
+		// the activity log as the only read the offline browser parks.
+		queryClient.setQueryData( keys.capabilities(), { hasBackupPlan: true, hasScan: false } );
+		queryClient.setQueryData( keys.backups(), [] );
+		onlineManager.setOnline( false );
+
+		render( <OverviewStage /> );
+
+		// The header renders above the body either way, so waiting on it
+		// settles the render without deciding what this test asserts.
+		await expect(
+			screen.findByRole( 'button', { name: 'Back up now' } )
+		).resolves.toBeInTheDocument();
+
+		expect(
+			screen.queryByText( 'Your first cloud backup will be ready soon' )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'group', { name: 'Backup activity' } ) ).toBeInTheDocument();
+	} );
+
+	// The other half of JETPACK-2491: a parked *refetch* still holds its rows, so
+	// reporting it as unanswered would pull the panel off a site that really is empty.
+	it( 'still takes over when a refetch parks on an already-empty site', async () => {
+		mockEndpoints( { backups: [], activity: [] } );
+
+		render( <OverviewStage /> );
+		await expect(
+			screen.findByText( 'Your first cloud backup will be ready soon' )
+		).resolves.toBeInTheDocument();
+
+		// Offline after the answer landed, then something asks again.
+		onlineManager.setOnline( false );
+		await act( async () => {
+			await queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } );
+		} );
+		// The parked state reaches the observer after the invalidation settles, so
+		// asserting straight away passes without looking. Wait on the state itself
+		// rather than a fixed delay, which CI blows past.
+		await waitFor( () =>
+			expect(
+				queryClient.getQueryState(
+					keys.activityLogPage( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' )
+				)?.fetchStatus
+			).toBe( 'paused' )
+		);
+
+		expect( screen.getByText( 'Your first cloud backup will be ready soon' ) ).toBeInTheDocument();
+	} );
+
 	it( 'still takes over when the activity log holds no backup rows', async () => {
 		// A site with activity but no restore points — e.g. only post edits.
 		mockEndpoints( { backups: [ UNUSABLE_BACKUP ], activity: [ activityEntry( 'posts' ) ] } );
@@ -193,7 +237,7 @@ describe( 'Overview takeover', () => {
 
 		// The activity log says what went wrong...
 		await expect(
-			screen.findByText( "We couldn't load your site's activity.", undefined, SETTLE )
+			screen.findByText( "We couldn't load your site's activity." )
 		).resolves.toBeInTheDocument();
 		// ...instead of the panel claiming a first backup is coming.
 		expect(
@@ -213,9 +257,7 @@ describe( 'Failing backups with the takeover suppressed', () => {
 		render( <OverviewStage /> );
 
 		// The list is kept...
-		await expect(
-			screen.findByText( 'Backup complete', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		// ...and the reader is told anyway, with a way to get help.
 		expect( screen.getByText( "We're having trouble backing up your site." ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toBeInTheDocument();
@@ -227,7 +269,7 @@ describe( 'Failing backups with the takeover suppressed', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( "We're having trouble backing up your site.", undefined, SETTLE )
+			screen.findByText( "We're having trouble backing up your site." )
 		).resolves.toBeInTheDocument();
 	} );
 } );
@@ -245,7 +287,7 @@ describe( 'Backup-state read failure', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( "We couldn't check your site's backup status.", undefined, SETTLE )
+			screen.findByText( "We couldn't check your site's backup status." )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -258,9 +300,7 @@ describe( 'Backup-state read failure', () => {
 		// reader came for are still listed beside it. Both halves are
 		// asserted — the row alone renders on trunk too, so without the
 		// notice assertion this test would pass with the fix reverted.
-		await expect(
-			screen.findByText( 'Backup complete', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		expect(
 			screen.getByText( "We couldn't check your site's backup status." )
 		).toBeInTheDocument();

@@ -1,7 +1,4 @@
-export {
-	AnnualHighlightsSkeleton,
-	type AnnualHighlightsSkeletonProps,
-} from './annual-highlights-skeleton';
+export { AnnualHighlightsSkeleton } from './annual-highlights-skeleton';
 export { GenericSkeleton } from './generic-skeleton';
 export { HeatmapSkeleton } from './heatmap-skeleton';
 export {

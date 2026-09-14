@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__ . '/../../../../modules/widgets/milestone.php';
 
@@ -722,6 +723,63 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 
 		$response = $this->create_and_get_request( 'settings', array(), 'POST', array( 'show' => array( 'post', 'page' ) ) );
 		$this->assertResponseStatus( 200, $response );
+	}
+
+	/**
+	 * The Stats role settings reject values that are not a list of role slugs.
+	 *
+	 * A POST to /module/all is served by the /module/(?P<slug>[a-z\-]+) handler, whose args cover
+	 * every updateable setting, so both Stats role options are validated on that request. No user
+	 * is set because argument validation does not depend on the current user.
+	 *
+	 * @dataProvider provider_invalid_stats_roles
+	 *
+	 * @param string $param Name of the Stats role parameter.
+	 * @param mixed  $value Value to submit for that parameter.
+	 */
+	#[DataProvider( 'provider_invalid_stats_roles' )]
+	public function test_stats_roles_reject_values_that_are_not_a_list_of_roles( $param, $value ) {
+		wp_set_current_user( 0 );
+
+		$response = $this->create_and_get_request( 'module/all', array( $param => $value ), 'POST' );
+		$this->assertResponseStatus( 400, $response );
+
+		// Also reachable with a POST body that is not JSON encoded.
+		$response = $this->create_and_get_request( 'module/all', array(), 'POST', array( $param => $value ) );
+		$this->assertResponseStatus( 400, $response );
+	}
+
+	/**
+	 * Values the Stats role settings must refuse.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_invalid_stats_roles() {
+		return array(
+			'string roles'            => array( 'roles', 'http://example.com/x.png' ),
+			'string count_roles'      => array( 'count_roles', 'administrator' ),
+			'integer roles'           => array( 'roles', 42 ),
+			'nested array in roles'   => array( 'roles', array( array( 'administrator' ) ) ),
+			'non-string item in list' => array( 'roles', array( 'administrator', 42 ) ),
+		);
+	}
+
+	/**
+	 * The Stats role validator still accepts what it accepted before the type guard.
+	 */
+	public function test_stats_roles_accept_a_list_of_roles() {
+		$this->load_rest_endpoints_direct();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/settings' );
+
+		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::validate_stats_roles( array( 'administrator', 'editor' ), $request, 'roles' ) );
+
+		// An empty value is allowed; sanitize_stats_allowed_roles() turns it into 'administrator'.
+		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::validate_stats_roles( array(), $request, 'roles' ) );
+		$this->assertSame( array( 'administrator' ), Jetpack_Core_Json_Api_Endpoints::sanitize_stats_allowed_roles( array() ) );
+
+		// A list holding no editable role is still rejected.
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::validate_stats_roles( array( 'not-a-role' ), $request, 'roles' ) );
 	}
 
 	/**

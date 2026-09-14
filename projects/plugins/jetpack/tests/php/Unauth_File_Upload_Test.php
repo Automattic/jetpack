@@ -226,6 +226,13 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 			return '';
 		};
 
+		// This path leaves an operator breadcrumb via error_log(), which PHPUnit 12 captures and
+		// reports as unexpected output. Older PHPUnit versions do not capture it and have no
+		// such method, hence the guard.
+		if ( method_exists( $this, 'expectErrorLog' ) ) {
+			$this->expectErrorLog();
+		}
+
 		add_filter( 'jetpack_unauth_file_download_signing_key', $callback );
 		try {
 			// Passthrough is the URL handed in (callers omit an empty link) rather than a dead link.

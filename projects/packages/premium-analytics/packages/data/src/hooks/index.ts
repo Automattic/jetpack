@@ -210,3 +210,9 @@ export type {
 	StatsAppDashboardStoreModule,
 } from './use-stats-app-dashboard-modules';
 export type { UseStatsOptions } from './use-stats-report';
+export { REFRESH_NOTICE_META } from './refresh-failure-scope';
+export {
+	useRefreshFailure,
+	type RefreshFailure,
+	type RefreshFailureSnapshot,
+} from './use-refresh-failure';

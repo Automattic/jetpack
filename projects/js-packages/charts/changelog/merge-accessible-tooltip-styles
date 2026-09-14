@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AccessibleTooltip: Merge supplied styles with the default box styles instead of replacing them; use unstyled to remove the box styles.

@@ -18,32 +18,21 @@ const DEFAULT_ROW_COUNT = 5;
 const ALL_ROWS_COUNT = 12;
 
 /**
- * Which of the design's two leaderboard shapes to draw.
- *
- * `list` matches a chart drawn `withOverlayLabel`, where the label sits on the
- * bar and the row loads as one line. `bars` matches the plain chart, whose
- * label sits above its bar.
+ * Which of the design's two leaderboard shapes to draw. `list` matches a chart drawn
+ * `withOverlayLabel`, whose label sits on the bar; `bars` matches the plain chart,
+ * whose label sits above it.
  */
 export type LeaderboardSkeletonVariant = 'list' | 'bars';
 
 export interface LeaderboardSkeletonProps {
 	/** Rows to draw; pass the widget's own row count so the shape matches the list that will load. */
 	rows?: number;
-	/** Which shape to draw. */
 	variant?: LeaderboardSkeletonVariant;
 }
 
 /**
- * Loading shape for `LeaderboardChart`: a centred stack of rows.
- *
- * Rows past the tile's height are clipped rather than overflowing, mirroring
- * the chart's `fitRows` — a ten-row widget in a tile with room for three shows
- * three either way.
- *
- * @param props         - Component props.
- * @param props.rows    - Rows to draw.
- * @param props.variant - Which shape to draw.
- * @return The rendered skeleton.
+ * Loading shape for `LeaderboardChart`: a centred stack of rows. Rows past the tile's
+ * height are clipped rather than overflowing, mirroring the chart's `fitRows`.
  */
 export function LeaderboardSkeleton( {
 	rows = DEFAULT_ROW_COUNT,

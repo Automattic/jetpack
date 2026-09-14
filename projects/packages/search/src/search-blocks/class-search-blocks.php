@@ -684,6 +684,7 @@ class Search_Blocks {
 					'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
 					'woocommerceOnlyBlocks'      => self::woocommerce_only_block_names(),
 					'supportsPaidSearch'         => self::supports_paid_search(),
+					'aiMasterEnabled'            => AI_Answers::should_enforce_master(),
 					'supportedCustomTaxonomies'  => self::supported_custom_taxonomies(),
 					'customTaxonomyMap'          => (object) self::custom_taxonomy_map(),
 					// Resolved the same way `search-results/render.php` resolves the

@@ -14,6 +14,7 @@ type Visibility = OverviewResponse[ 'site_visibility' ];
  */
 const buildVisibility = ( overrides: Partial< Visibility > = {} ): Visibility => ( {
 	search_engines_visible: true,
+	site_is_private: false,
 	sitemap_active: true,
 	seo_tools_active: true,
 	...overrides,

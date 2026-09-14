@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers summary: Fix the help text to describe the cumulative subscriber total the chart plots, not new subscribers.

@@ -1,10 +1,8 @@
 /**
- * Date-only, MySQL datetime, or ISO datetime values used by Stats and report
- * params.
+ * Date-only, MySQL datetime, or ISO datetime values used by Stats and report params.
  *
- * The fractional second is matched at any length, and truncated below. Capping
- * it here would drop a value like `.123456` through to `Date`, which reads an
- * offset-less string in the *browser's* zone — the shift this package avoids.
+ * The fractional second is matched at any length: capping it here would drop
+ * `.123456` through to `Date`, which reads it in the browser's zone.
  */
 const SITE_TIMESTAMP =
 	/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-]\d{2}:?\d{2})?)?$/;

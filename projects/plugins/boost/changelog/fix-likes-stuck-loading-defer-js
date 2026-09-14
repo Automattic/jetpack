@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Defer JS: Stop moving the Jetpack Likes script out of place, so Like blocks and comment likes no longer stick on "Loading…".

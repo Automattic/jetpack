@@ -33,7 +33,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @return string|false Return value from WordPress's `add_menu_page()`.
 	 */
 	public function get_page_hook() {
-		$icon = ( new Logo() )->get_base64_logo();
+		$icon = ( new Logo() )->get_base64_admin_menu_logo();
 		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), $icon, 3 );
 	}
 
@@ -170,6 +170,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Jetpack Settings sub-link.
 	 *
+	 * Shares the bottom tier with Beta Tester so it lands below the alphabetical run
+	 * rather than inside it; the two sort by title within the tier. The upsell still
+	 * renders underneath — Admin_Menu appends that one after sorting, so it never
+	 * competes on position.
+	 *
 	 * @since 4.3.0
 	 * @since 9.7.0 If Connection does not have an owner, restrict it to admins
 	 */
@@ -181,7 +186,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'jetpack_admin_page',
 				Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ),
 				null,
-				13
+				998
 			);
 		}
 	}

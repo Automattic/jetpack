@@ -1,7 +1,7 @@
 # `@jetpack-premium-analytics/externals`
 
 A passthrough script module for the heavy third-party libraries the dashboard shares:
-`@automattic/charts`, `@automattic/ui`, `@wordpress/ui`, and `@wordpress/dataviews`.
+`@automattic/charts`, `@wordpress/ui`, and `@wordpress/dataviews`.
 
 ## Why this exists
 
@@ -38,9 +38,9 @@ change when the libraries themselves are upgraded. Feature work no longer rewrit
   `no-restricted-imports` again would *replace* the rule for those paths rather than add to it.
 - **Adding an export is cheap; adding a library is not.** A new library only belongs here if more
   than one module needs it, or if it is large enough that re-emitting it per module hurts.
-  `@automattic/ui` qualifies on the second count alone: `DateRangeCalendar` is its only consumer
-  in the package, but it reaches `react-day-picker` behind it, so leaving it in `packages/ui`
-  re-emitted ~55 KB of vendor code on every edit to that module.
+  `@wordpress/ui` qualifies on both: every module renders something from it, and its calendar
+  alone reaches `@daypicker/react` and `date-fns` behind it, so leaving it in `packages/ui`
+  would re-emit that vendor code on every edit to the module.
 
   `date-fns` deliberately stays out. It is imported directly by ~30 files across `data`,
   `datetime`, `routing`, `widgets/`, and `routes/`, and it is tree-shaken per function — routing it
@@ -83,5 +83,5 @@ done
 Today both report *still compiled in* (`@wordpress/ui` declares `wpScript: false`,
 `@wordpress/dataviews` declares nothing).
 
-`@automattic/charts` and `@automattic/ui` are third-party to WordPress and will never gain those
-fields, so they stay here regardless.
+`@automattic/charts` is third-party to WordPress and will never gain those fields, so it stays
+here regardless.

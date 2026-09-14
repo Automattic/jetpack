@@ -59,7 +59,7 @@
 	"eslint.nodePath": "tools/js-tools/node_modules",
 
 	// Set to the target minimum PHP version for the codebase. Unrelated to the monorepo tooling.
-	"intelephense.environment.phpVersion": "7.2.24",
+	"intelephense.environment.phpVersion": "7.4.33",
 	"[css][scss][sass]": {
 		"editor.formatOnSave": false,
 		"editor.defaultFormatter": "stylelint.vscode-stylelint"

@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from '@wordpress/element';
-import { fetchRecentRestores, fetchRestoreStatus, pickLiveRestore } from '../data/api/restore';
+import { fetchRestoreStatus, isRestoreInFlight, pickLiveRestore } from '../data/api/restore';
 import { keys } from '../data/query-client';
+import { useRecentRestores } from './use-recent-restores';
 
 export type AdoptedRestore = {
 	id: number;
@@ -23,7 +24,9 @@ type Result = {
  * second tab, or arriving after a restore started from Calypso all left
  * an armed **Confirm restore** button on screen. Following the only
  * control there would have started a second concurrent whole-site
- * restore, and nothing upstream is known to refuse that.
+ * restore. Upstream does guard against that — `endpoint-site-queue-rewind.php`
+ * calls `is_any_restore_running()` — but it answers as a bare failure the
+ * reader has to decode, which is a worse screen than not offering the button.
  *
  * Two reads, in order, because they answer different questions.
  *
@@ -48,11 +51,7 @@ type Result = {
  * @return The adopted restore, and whether the answer is still pending.
  */
 export function useAdoptedRestore( enabled: boolean ): Result {
-	const collection = useQuery( {
-		queryKey: keys.recentRestores(),
-		queryFn: fetchRecentRestores,
-		enabled,
-	} );
+	const collection = useRecentRestores( enabled );
 
 	// Any backup, not just this screen's: a restore of a different point
 	// overwrites the same live site, so a second one is wrong whichever
@@ -80,22 +79,11 @@ export function useAdoptedRestore( enabled: boolean ): Result {
 	const isChecking =
 		enabled && ( collection.isPending || ( candidate !== null && confirmation.isPending ) );
 
-	// Positive evidence only, and deliberately stricter than the poll's
-	// own `! isTerminal(…)`.
-	//
-	// That test counts `queued` as live, and `queued` is exactly what the
-	// bridge mints for a **404** — "that restore is not visible to this
-	// route" — so it reads absence of evidence as evidence of life. For a
-	// restore we are *watching*, erring that way is right: keep polling.
-	// For one we are deciding whether to adopt, it is backwards. A
-	// collection row spelled in a way we do not recognise as settled,
-	// pointing at a restore upstream cannot find, would take the form
-	// away and never give it back — and the adoption is what withholds
-	// the button that would have replaced it, so it cannot self-correct.
-	//
-	// The cost of being strict is a missed adoption, which is what this
-	// hook already accepts for a confirmation that fails to arrive.
-	const isLive = confirmation.data?.status === 'running';
+	// Positive evidence only, which is why `not-found` and `unknown` are
+	// both excluded: a row we cannot read as settled, pointing at a
+	// restore upstream cannot find or cannot describe, would take the form
+	// away and never give it back.
+	const isLive = isRestoreInFlight( confirmation.data?.status );
 
 	return {
 		adopted:

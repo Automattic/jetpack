@@ -35,6 +35,24 @@ describe( 'Stats email summary normalizer', () => {
 		);
 	} );
 
+	it( 'decodes HTML entities in the subject line', () => {
+		const report = sanitizeStatsEmailSummaryResponse(
+			{
+				posts: [
+					{
+						...emailSummaryFixture.posts[ 0 ],
+						title: 'Easiest &amp; Best Way to Back Up a WordPress Site&#8217;s Data',
+					},
+				],
+			},
+			{ period: 'day', date: '2026-06-16' }
+		);
+
+		expect( report.data[ 0 ].items[ 0 ].label ).toBe(
+			'Easiest & Best Way to Back Up a WordPress Site’s Data'
+		);
+	} );
+
 	it( 'returns empty data for empty email summaries', () => {
 		expect(
 			sanitizeStatsEmailSummaryResponse( {}, { period: 'day', date: '2026-06-16' } )

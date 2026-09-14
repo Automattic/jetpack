@@ -7,6 +7,7 @@
  *
  * This module provides dynamic fixture generation based on request parameters.
  */
+import { wooBucketStamp } from '../../../__fixtures__/woo-bucket-stamp';
 import type { fetchReportOrders } from '../../../../../data/src/api/report-orders-fetch/report-orders-fetch';
 
 /**
@@ -106,10 +107,6 @@ function generateDateIntervals(
 	return intervals;
 }
 
-function formatISODate( date: Date ): string {
-	return date.toISOString().replace( /\.\d{3}Z$/, '+00:00' );
-}
-
 // `time_interval` is a date-only field.
 function formatDateOnly( date: Date ): string {
 	return date.toISOString().split( 'T' )[ 0 ];
@@ -127,8 +124,8 @@ function generateIntervalData(
 	if ( ! hasOrders ) {
 		return {
 			time_interval: formatDateOnly( start ),
-			date_start: formatISODate( start ),
-			date_end: formatISODate( end ),
+			date_start: wooBucketStamp( start ),
+			date_end: wooBucketStamp( end ),
 			orders_no: '0',
 			orders_value_net: '0.0',
 			orders_value_gross: '0.0',
@@ -169,8 +166,8 @@ function generateIntervalData(
 
 	return {
 		time_interval: formatDateOnly( start ),
-		date_start: formatISODate( start ),
-		date_end: formatISODate( end ),
+		date_start: wooBucketStamp( start ),
+		date_end: wooBucketStamp( end ),
 		orders_no: ordersNo.toString(),
 		orders_value_net: ordersValueNet.toFixed( 2 ),
 		orders_value_gross: ordersValueGross.toFixed( 2 ),
@@ -250,8 +247,8 @@ function calculateSummary(
 		paid_net_sales: totals.paid_net_sales.toFixed( 2 ),
 		unpaid_orders_count: totals.unpaid_orders_count.toString(),
 		unpaid_net_sales: totals.unpaid_net_sales.toFixed( 2 ),
-		date_start: formatISODate( new Date( from ) ),
-		date_end: formatISODate( new Date( to ) ),
+		date_start: wooBucketStamp( new Date( from ) ),
+		date_end: wooBucketStamp( new Date( to ) ),
 	};
 }
 
@@ -331,8 +328,8 @@ export function recalculateSummary(
 			paid_net_sales: '0.0',
 			unpaid_orders_count: '0',
 			unpaid_net_sales: '0.0',
-			date_start: formatISODate( new Date( from ) ),
-			date_end: formatISODate( new Date( to ) ),
+			date_start: wooBucketStamp( new Date( from ) ),
+			date_end: wooBucketStamp( new Date( to ) ),
 		};
 	}
 

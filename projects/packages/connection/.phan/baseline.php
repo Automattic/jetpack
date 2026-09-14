@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 45+ occurrences
+    // PhanTypeMismatchArgument : 50+ occurrences
     // PhanTypeMismatchReturn : 15+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
@@ -21,7 +21,6 @@ return [
     // PhanPluginUnreachableCode : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 2 occurrences
-    // PhanTypePossiblyInvalidDimOffset : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
@@ -41,7 +40,7 @@ return [
         'src/class-secrets.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'src/class-server-sandbox.php' => ['PhanTypeMismatchArgument'],
         'src/class-tokens.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-tracking.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypePossiblyInvalidDimOffset'],
+        'src/class-tracking.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
         'src/sso/class-sso.php' => ['PhanTypeMismatchArgument'],
         'src/sso/class-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
         'src/webhooks/class-authorize-redirect.php' => ['PhanUndeclaredClassMethod'],

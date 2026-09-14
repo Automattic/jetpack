@@ -5,24 +5,9 @@ import { resolvePrimarySeriesByGroup } from '../../../helpers/resolve-series-nam
 import type { ComparativeLineChartSeries } from '../types';
 
 /**
- * Aligns comparison series dates to primary series dates by index.
- *
- * Each comparison point gets assigned the date of the corresponding primary point
- * (same index), ensuring both series align perfectly on the X-axis regardless of
- * their original date intervals. Original dates are preserved in realDate for tooltips.
- *
- * This approach handles:
- * - Different period lengths (e.g., weeks starting on different days)
- * - Partial intervals at period boundaries
- * - Any time granularity (daily, weekly, monthly)
- *
- * Only series marked `options.type: 'comparison'` are moved. A grouped
- * comparison aligns to its group's current period; an ungrouped one retains
- * the historical behavior of aligning to the first series. A second current
- * period is not moved.
- *
- * @param series - Array of series data to align by group and index
- * @return New array with aligned series (comparison dates match primary, originals in realDate)
+ * Aligns comparison points onto the primary series by index, keeping their real dates
+ * in `realDate` for tooltips. A grouped comparison aligns to its group's current
+ * period; an ungrouped one keeps the historical behavior of aligning to series[0].
  */
 export function alignSeriesDates(
 	series: ComparativeLineChartSeries[]

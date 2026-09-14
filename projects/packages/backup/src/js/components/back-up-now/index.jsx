@@ -15,6 +15,7 @@ export const BackupNowButton = ( { children, tooltipText, tracksEventName, onCli
 	const [ currentTooltip, setCurrentTooltip ] = useState( tooltipText );
 	const [ isEnqueuing, setIsEnqueuing ] = useState( false );
 	const [ enqueued, setEnqueued ] = useState( false );
+	const [ enqueueFailed, setEnqueueFailed ] = useState( false );
 	const areBackupsStopped = useSelect( select => select( STORE_ID ).getBackupStoppedFlag() );
 	const { backupState, fetchBackupsState } = useBackupsState( enqueued );
 	const backupCurrentlyInProgress = backupState === BACKUP_STATE.IN_PROGRESS;
@@ -26,12 +27,22 @@ export const BackupNowButton = ( { children, tooltipText, tracksEventName, onCli
 			}
 
 			setIsEnqueuing( true );
+			setEnqueueFailed( false );
 
-			apiFetch( { method: 'POST', path: `/jetpack/v4/site/backup/enqueue` } ).then( () => {
-				setIsEnqueuing( false );
-				setEnqueued( true );
-				fetchBackupsState();
-			} );
+			apiFetch( { method: 'POST', path: `/jetpack/v4/site/backup/enqueue` } ).then(
+				() => {
+					setIsEnqueuing( false );
+					setEnqueued( true );
+					fetchBackupsState();
+				},
+				() => {
+					// The route reports an unreachable WordPress.com as an error rather
+					// than an empty success, so without this branch the click leaves the
+					// button busy for good, with no way to retry short of a page reload.
+					setIsEnqueuing( false );
+					setEnqueueFailed( true );
+				}
+			);
 
 			if ( onClick ) {
 				onClick( event );
@@ -67,6 +78,11 @@ export const BackupNowButton = ( { children, tooltipText, tracksEventName, onCli
 		} else if ( enqueued ) {
 			setButtonContent( statusLabels.QUEUED );
 			setCurrentTooltip( statusTooltipTexts.QUEUED );
+		} else if ( enqueueFailed ) {
+			setButtonContent( children );
+			setCurrentTooltip(
+				__( 'The backup could not be queued. Please try again.', 'jetpack-backup-pkg' )
+			);
 		} else {
 			setButtonContent( children );
 			setCurrentTooltip( tooltipText );
@@ -78,6 +94,7 @@ export const BackupNowButton = ( { children, tooltipText, tracksEventName, onCli
 		children,
 		areBackupsStopped,
 		isEnqueuing,
+		enqueueFailed,
 	] );
 
 	const button = (

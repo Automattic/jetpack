@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Activity Log: Fix the page overlapping the admin menu in right-to-left languages.

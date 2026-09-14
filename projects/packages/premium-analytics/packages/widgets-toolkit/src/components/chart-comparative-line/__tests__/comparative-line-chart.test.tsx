@@ -10,9 +10,8 @@ import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeLineChart } from '../comparative-line-chart';
 import type { ComparativeLineChartSeries } from '../types';
 
-// Record the props handed to the underlying chart. The real one renders SVG
-// through a provider jsdom cannot lay out, and what matters here is the tooltip
-// renderer and the visibility settings this wrapper composes.
+// The real chart renders SVG through a provider jsdom cannot lay out, so record
+// the props instead: the tooltip renderer and visibility settings are the subject.
 const mockLineSpy = jest.fn();
 const mockLegendSpy = jest.fn();
 
@@ -30,6 +29,8 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 
 	return {
 		LineChart,
+		// The real classifier: this is what the tooltip format now follows.
+		getBucketInfo: jest.requireActual( '@automattic/charts' ).getBucketInfo,
 		LineShape: () => null,
 		RectShape: () => null,
 		// The wrapper measures this element, so the stand-in must take the ref.
@@ -42,9 +43,19 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	};
 } );
 
+// jsdom's ResizeObserver is a no-op stub, so the real hook's callback never fires
+// and the chart measures as infinitely tall, leaving `compactWhenShort` unreachable.
+let mockChartHeight = Infinity;
+
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
-	useResizeObserver: () => () => undefined,
+	useResizeObserver:
+		( onResize: ( entries: { contentRect: { height: number } }[] ) => void ) =>
+		( element: HTMLElement | null ) => {
+			if ( element ) {
+				onResize( [ { contentRect: { height: mockChartHeight } } ] );
+			}
+		},
 } ) );
 
 jest.mock( '../../../hooks', () => ( {
@@ -53,9 +64,8 @@ jest.mock( '../../../hooks', () => ( {
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
-// A tooltip label reads its point as the instant it is, in the site's timezone,
-// so these are instants and every assertion below fixes the site's zone. Callers
-// whose points are wall clocks instead pass their own `formatTooltipDate`.
+// A tooltip label reads its point as the instant it is, in the site's timezone, so
+// these are instants and every assertion below fixes the site's zone.
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 // 2pm on July 2 in Tokyo.
 const JULY_2 = new Date( '2026-07-02T05:00:00Z' );
@@ -68,6 +78,18 @@ const SERIES: ComparativeLineChartSeries[] = [
 		group: 'views',
 		data: [
 			{ date: JULY_1, value: 100 },
+			{ date: JULY_2, value: 200 },
+		],
+	},
+];
+
+// An hour apart, so the library reads the series as hourly on its own.
+const HOURLY_SERIES: ComparativeLineChartSeries[] = [
+	{
+		label: 'July',
+		group: 'views',
+		data: [
+			{ date: new Date( '2026-07-02T04:00:00Z' ), value: 100 },
 			{ date: JULY_2, value: 200 },
 		],
 	},
@@ -120,6 +142,8 @@ type RecordedLineProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
 	legend: { collapseGroups: boolean; interactive: boolean };
+	margin?: Record< string, number >;
+	options?: { yScale?: { domain?: [ number, number ] }; axis: { y: { display?: boolean } } };
 	renderTooltip: ( params: unknown ) => { props: { getLabel: GetTooltipLabel } };
 };
 
@@ -164,6 +188,42 @@ describe( 'ComparativeLineChart', () => {
 	beforeEach( () => {
 		mockLineSpy.mockClear();
 		mockLegendSpy.mockClear();
+		mockChartHeight = Infinity;
+	} );
+
+	describe( 'margin', () => {
+		it( 'never overrides the gutters the chart measured', () => {
+			render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+			expect( recordedProps().margin ).toBeUndefined();
+		} );
+
+		it( 'leaves the pinned domain to size its own gutter', () => {
+			render(
+				<ComparativeLineChart
+					series={ SERIES }
+					dataFormat={ { type: 'percentage', options: { decimals: 0 } } }
+				/>
+			);
+
+			// `useChartMargin` measures the pinned domain's own ticks, so there is
+			// nothing left for this component to override.
+			expect( recordedProps().options.yScale.domain ).toBeDefined();
+			expect( recordedProps().margin ).toBeUndefined();
+		} );
+
+		it( 'keeps the date labels on a sparkline', () => {
+			mockChartHeight = 80;
+
+			render(
+				<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
+			);
+
+			// The hidden y axis frees its gutter inside `useChartMargin`; zeroing the
+			// margin here would clip the first and last dates, which still render.
+			expect( recordedProps().options.axis.y.display ).toBe( false );
+			expect( recordedProps().margin ).toBeUndefined();
+		} );
 	} );
 
 	it( 'passes visibility settings through to the chart and legend', () => {
@@ -251,8 +311,30 @@ describe( 'ComparativeLineChart', () => {
 		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026 2:00 pm' );
 	} );
 
-	// How a point's date is read is the caller's to decide — Stats buckets are
-	// wall clocks rather than instants — while which format names it stays here.
+	// Most widgets declare no resolution, so reading the caller's prop alone left
+	// an hourly series naming all 24 of a day's points with the same date.
+	it( 'adds the hour for an hourly series that declares no resolution', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeLineChart series={ HOURLY_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026 2:00 pm' );
+	} );
+
+	it( 'lets a declared resolution override what the data looks like', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render(
+			<ComparativeLineChart
+				series={ HOURLY_SERIES }
+				dataFormat={ DATA_FORMAT }
+				tickResolution="day"
+			/>
+		);
+
+		expect( tooltipLabelFor( { date: JULY_2 } ) ).toBe( 'July 2, 2026' );
+	} );
+
+	// How a point's date reads is the caller's to decide; which format names it
+	// stays here.
 	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
 		const formatTooltipDate = jest.fn( () => 'the bucket' );
 		render(

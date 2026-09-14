@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Assistant banner: send the standard context props (channel, surface, screen, site_type, product_slug, is_test, is_a11n) on its Tracks events.

@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Status\Host;
 use WP_Post;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -517,11 +518,46 @@ class Jetpack_Ai extends Module_Product {
 	}
 
 	/**
-	 * Get the URL where the user manages the product
+	 * Whether My Jetpack should surface the AI feature controls.
+	 *
+	 * @return bool
+	 */
+	public static function is_feature_ui_enabled() {
+		if (
+			! self::is_plugin_active()
+			|| ! method_exists( '\\Jetpack', 'is_module' )
+			|| ! \Jetpack::is_module( 'ai' )
+			// @phan-suppress-next-line PhanUndeclaredClassReference -- Supplied by the optional Jetpack plugin.
+			|| ! method_exists( '\\Jetpack_AI_Settings', 'is_feature_enabled' )
+		) {
+			return false;
+		}
+
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() || ! $connection->has_connected_owner() ) {
+			return false;
+		}
+
+		$host = new Host();
+		if ( ! $host->is_wpcom_platform() ) {
+			return true;
+		}
+
+		return $host->is_woa_site()
+			&& function_exists( 'jetpack_is_internal_testing_environment' )
+			&& jetpack_is_internal_testing_environment();
+	}
+
+	/**
+	 * Get the URL where the user manages the product.
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		if ( self::is_feature_ui_enabled() ) {
+			return admin_url( 'admin.php?page=jetpack-ai' );
+		}
+
 		return admin_url( 'admin.php?page=my-jetpack#/jetpack-ai' );
 	}
 
@@ -567,22 +603,12 @@ class Jetpack_Ai extends Module_Product {
 	}
 
 	/**
-	 * Whether the 'ai' module backs this product.
-	 *
-	 * Pre-release gate: the module-backed card is limited to internal testing
-	 * environments. Everywhere else this reports the module as active so the
-	 * product's status and every card built from it match the pre-module
-	 * behavior — the module state never surfaces in My Jetpack.
-	 *
-	 * Remove this override when the AI settings page goes public.
+	 * Whether the 'ai' module backs this product's UI state.
 	 *
 	 * @return bool
 	 */
 	public static function is_module_active() {
-		if (
-			! function_exists( 'jetpack_is_internal_testing_environment' ) ||
-			! jetpack_is_internal_testing_environment()
-		) {
+		if ( ! self::is_feature_ui_enabled() ) {
 			return true;
 		}
 

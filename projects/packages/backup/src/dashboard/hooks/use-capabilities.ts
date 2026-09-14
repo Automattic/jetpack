@@ -50,6 +50,10 @@ export function useCapabilities( { enabled = true }: Args = {} ): Result {
 	// in the same render as the click — and this is the query whose error
 	// screen wraps the entire dashboard body.
 	const error = useStickyError( query.error ?? null, query.isFetching );
+	// `networkMode: 'online'` parks an offline request rather than failing it, so
+	// the first read sits pending with nothing to show and the gate reads that as
+	// an answered "no plan". `isPending` spares a paused refetch, which has data.
+	const isParkedOffline = query.isPending && query.isPaused;
 
 	return {
 		data: query.data,
@@ -58,7 +62,7 @@ export function useCapabilities( { enabled = true }: Args = {} ): Result {
 		// so on its own it would replace the error screen with a spinner
 		// for the whole round trip. The sticky error is what separates
 		// "nothing has ever been shown" from "we are asking again".
-		isLoading: query.isLoading && error === null,
+		isLoading: ( query.isLoading || isParkedOffline ) && error === null,
 		error,
 		// Not `query.isRefetching`: that is `isFetching && ! isPending`,
 		// and the rewind makes a retry pending, so it stays false exactly

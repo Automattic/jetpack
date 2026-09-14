@@ -33,7 +33,7 @@ class Manager {
 	 * Prefix of the transient holding the cached WordPress.com site record. The blog ID is
 	 * appended so a reconnect to a different site cannot read the previous site's record.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.0.0
 	 *
 	 * @var string
 	 */
@@ -172,6 +172,8 @@ class Manager {
 
 		Webhooks::init( $manager );
 
+		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' ), 10, 2 );
+
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
 		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 9, 1 );
@@ -219,6 +221,8 @@ class Manager {
 		// Force is_connected() to recompute after important actions.
 		add_action( 'jetpack_site_registered', array( $this, 'reset_connection_status' ) );
 		add_action( 'jetpack_site_disconnected', array( $this, 'reset_connection_status' ) );
+		// Deletion doesn't fire `pre_update_jetpack_option_*`; see the action's docblock in `Tokens::delete_all()`.
+		add_action( 'jetpack_connection_tokens_deleted', array( $this, 'reset_connection_status' ) );
 		add_action( 'jetpack_sync_register_user', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_id', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_blog_token', array( $this, 'reset_connection_status' ) );
@@ -1004,13 +1008,86 @@ class Manager {
 	}
 
 	/**
+	 * Returns the WordPress.com user ID of a connected user.
+	 *
+	 * Answers only for a user who currently holds a token: the binding outlives any one token, so
+	 * connectedness is checked here rather than inferred from a row existing. Resolving an unbound
+	 * user costs a blocking request to WordPress.com, so this is not safe to call per row.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|false $user_id The local user identifier. Default is the current user.
+	 * @return int The WordPress.com user ID, or 0 if it could not be determined.
+	 */
+	public function resolve_wpcom_user_id( $user_id = false ) {
+		$user_id = $user_id ? absint( $user_id ) : get_current_user_id();
+
+		// The cached ID outlives the token, unlike the transient behind `get_connected_user_data()`,
+		// so connectedness is checked here rather than left to the lookup below.
+		if ( ! $user_id || ! $this->is_user_connected( $user_id ) ) {
+			return 0;
+		}
+
+		$cached = Utils::get_wpcom_user_id( $user_id );
+
+		if ( $cached ) {
+			return $cached;
+		}
+
+		$user_data = $this->get_connected_user_data( $user_id );
+
+		// Callers must read 0 as "unknown", never as "no match": a failed lookup lands here too.
+		if ( empty( $user_data['ID'] ) ) {
+			return 0;
+		}
+
+		Utils::set_wpcom_user_id( $user_id, (int) $user_data['ID'] );
+
+		return (int) $user_data['ID'];
+	}
+
+	/**
+	 * Unbind the WordPress.com user ID of any user whose token is new.
+	 *
+	 * Every path that changes a user's token writes the `user_tokens` option, so this covers
+	 * authorize, remote connect and the REST endpoint alike. A token that is added or replaced can
+	 * name a different WordPress.com account, so any binding it would answer with is unverified. A
+	 * token merely removed leaves the binding correct, and other subsystems store their own meaning
+	 * in the same meta, so removals are left alone.
+	 *
+	 * @internal Hooked on `pre_update_jetpack_option_user_tokens`, which fires before the write.
+	 * @since $$next-version$$
+	 *
+	 * @param string $name  The option name.
+	 * @param mixed  $value The tokens about to be written.
+	 */
+	public function unbind_wpcom_user_ids_for_new_tokens( $name, $value ) {
+		if ( ! is_array( $value ) ) {
+			return;
+		}
+
+		// A site disconnect deletes the option outright, so the first write back has nothing to
+		// diff against — treat that as every token being new rather than skipping the check.
+		$previous = \Jetpack_Options::get_option( 'user_tokens' );
+		$previous = is_array( $previous ) ? $previous : array();
+
+		// Iterating the incoming tokens covers a token being added as well as replaced, and skips
+		// removal for free: a user absent from the new set is never visited.
+		foreach ( $value as $user_id => $token ) {
+			if ( ( $previous[ $user_id ] ?? null ) !== $token ) {
+				Utils::delete_wpcom_user_id( $user_id );
+			}
+		}
+	}
+
+	/**
 	 * Drop the cached WordPress.com site record.
 	 *
 	 * A caller that fetched the record by another route holds something newer than the cache can,
 	 * and `jetpack_site_data_fetched` fires on a cached read too. The cached copy has to go, or it
 	 * keeps announcing the older record and undoes what that caller stored.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.0.0
 	 *
 	 * @return void
 	 */
@@ -1101,7 +1178,7 @@ class Manager {
 		 * The record is passed as an array rather than the object this method returns, so that a
 		 * listener cannot mutate the instance that becomes the REST response.
 		 *
-		 * @since $$next-version$$
+		 * @since 9.0.0
 		 *
 		 * @param array $record The decoded site record from the WordPress.com `/sites/%d` endpoint.
 		 */
@@ -1116,7 +1193,7 @@ class Manager {
 	 * Returns a cacheable array rather than the decoded record so that both outcomes survive a
 	 * round trip through a transient.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.0.0
 	 *
 	 * @param int         $site_id        The WordPress.com blog ID.
 	 * @param string|null $sandbox_secret Sanitized store sandbox cookie value, or null when not sandboxed.

@@ -27,6 +27,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 const WPCOM_WRITE_PUBLISHED_MARKER = 'wpcom_write_published';
 
 /**
+ * Strip the post-publish query args from the author's address bar.
+ *
+ * The redirect tags the permalink so the post-publish surfaces know a publish
+ * just happened, but the author is left looking at their own live post with our
+ * bookkeeping attached — and would share that URL if they copied it. Cleaning up
+ * belongs here rather than in either card: both are conditional, and the writer
+ * who has already answered the survey sees no card at all, so nothing would run.
+ *
+ * Server-side state has already been read by the time this executes, so removing
+ * the args client-side changes nothing but the visible URL.
+ *
+ * @return void
+ */
+function wpcom_write_print_post_publish_url_cleanup() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only marker; writes nothing.
+	if ( ! isset( $_GET[ WPCOM_WRITE_PUBLISHED_MARKER ] ) || ! is_singular( 'post' ) ) {
+		return;
+	}
+
+	// `source` is only stripped alongside the marker, so a campaign link that
+	// carries its own `source` to a post is left alone.
+	// Hex-escaped so the encoded value can never break out of the inline script tag.
+	$args = wp_json_encode( array( WPCOM_WRITE_PUBLISHED_MARKER, 'source' ), JSON_HEX_TAG | JSON_HEX_AMP );
+
+	wp_print_inline_script_tag(
+		'( function () {
+			try {
+				var url = new URL( window.location.href );
+				' . $args . '.forEach( function ( arg ) { url.searchParams.delete( arg ); } );
+				window.history.replaceState( null, "", url.href );
+			} catch ( e ) {}
+		} )();'
+	);
+}
+add_action( 'wp_footer', 'wpcom_write_print_post_publish_url_cleanup', 5 );
+
+/**
  * Whether the post-publish checklist overlay should render on the current request.
  *
  * All of the following must hold:

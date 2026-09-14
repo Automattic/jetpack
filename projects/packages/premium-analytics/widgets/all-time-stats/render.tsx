@@ -26,16 +26,13 @@ import {
 } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// The host (and Storybook) may inject report params via `attributes`, but the
-// totals are all-time: the summary query takes no date params, so the picker's
-// range and comparison state do not change what this widget shows.
+// Report params arrive from the host but change nothing here: the all-time
+// summary query takes no date params.
 type AllTimeStatsRenderAttributes = AllTimeStatsAttributes & Partial< ReportParamsFieldAttributes >;
 type AllTimeStatsWidgetProps = WidgetRenderProps< AllTimeStatsRenderAttributes >;
 
 /**
- * The all-time summary carries dynamic WPCOM keys (`views`, `visitors`,
- * `posts`, `comments`, …); values arrive numeric or as numeric strings, so
- * each field is read defensively.
+ * Dynamic WPCOM keys, whose values arrive numeric or as numeric strings.
  */
 type StatsSummary = Record< string, unknown >;
 
@@ -45,9 +42,7 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 /**
- * Render-only config per metric: the tile icon. Ids and labels are shared with
- * the settings checkboxes via `ALL_TIME_STATS_METRICS` in `widget.ts`; the id
- * doubles as the summary field the tile reads.
+ * Render-only icon per metric; the id doubles as the summary field the tile reads.
  */
 const TILE_CONFIG: Record< AllTimeStatsMetricId, { icon: typeof seen } > = {
 	views: { icon: seen },
@@ -63,20 +58,11 @@ type AllTimeStatsTile = {
 	value: number;
 };
 
-/**
- * Fetches the all-time site summary through the designated `useStatsSite` hook
- * and renders the lifetime totals as a grid of metric tiles. Which tiles
- * appear is controlled by the `metrics` attribute; fields absent from the
- * response are skipped. There is no comparison period for this module, so each
- * value renders as a bare number.
- */
 function AllTimeStatsReport( {
 	metrics = DEFAULT_ALL_TIME_STATS_METRICS,
 }: {
 	metrics?: AllTimeStatsMetricId[];
 } ) {
-	// The summary is all-time, so the query takes no date params — its key stays
-	// stable across dashboard date-range and comparison changes.
 	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
 
 	const summary = ( data as { stats?: StatsSummary } | undefined )?.stats;
@@ -106,9 +92,8 @@ function AllTimeStatsReport( {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The query keeps prior data via `placeholderData`, so a transient
-				// refetch failure keeps the totals visible; only surface the error
-				// when there is nothing to show.
+				// `placeholderData` keeps the last totals on screen, so a transient
+				// refetch failure should not replace them with an error.
 				isError={ tiles.length === 0 && isError }
 				isEmpty={ tiles.length === 0 }
 				error={ {
@@ -127,9 +112,8 @@ function AllTimeStatsReport( {
 							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' )
 							: __( 'No stats recorded yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				// `tiles` is built from the summary, so it is empty until the
-				// response lands; the enabled metrics are the count the loaded
-				// grid will show.
+				// `tiles` is empty until the response lands, so the skeleton counts
+				// the enabled metrics instead.
 				renderLoading={ <MetricTileGridSkeleton tiles={ enabledMetrics.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
@@ -138,12 +122,6 @@ function AllTimeStatsReport( {
 	);
 }
 
-/**
- * WidgetRoot provides the analytics query client and chart theme the inner
- * report needs. This widget is all-time, so it does not read the dashboard date
- * range; report params still flow into WidgetRoot for parity with the other
- * Stats widgets.
- */
 export default function AllTimeStats( { attributes = {} }: AllTimeStatsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

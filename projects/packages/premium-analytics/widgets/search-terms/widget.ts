@@ -8,13 +8,8 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type SearchTermsAttributes = Record< never, never >;
 
 /**
- * Widget type definition for the Search Terms widget.
- *
- * Ported from the Jetpack Stats "Search Terms" module. Displays the top search
- * queries visitors used to reach the site, ranked by view count.
- *
- * Data: fetched via the PA proxy at `stats/search-terms`.
- * Date range comes from WidgetRoot's reportParams (the shared dashboard date picker).
+ * Ported from the Jetpack Stats "Search Terms" module; data via the PA proxy at
+ * `stats/search-terms`.
  */
 export default {
 	icon: search,

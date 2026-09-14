@@ -59,6 +59,9 @@ function MockRouteLink( { to, params, search, children, ...props }: MockRouteLin
 export const mockWordPressRoute = {
 	Link: MockRouteLink,
 	useSearch: () => currentSearch,
+	// Swallows the write. A component under test may hold a hook that commits to
+	// the URL, and rendering it must not need a router.
+	useNavigate: () => () => {},
 };
 
 /**

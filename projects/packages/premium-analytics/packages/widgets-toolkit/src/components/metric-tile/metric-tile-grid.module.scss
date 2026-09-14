@@ -1,31 +1,28 @@
 @use "../../styles/widget-container" as *;
+@use "./metric-tile-layouts";
 
-// Height at which a wide cell has room for a balanced two-row grid instead of a
-// single row of tiles. Tunable — below this, wide cells stay one row.
-$metric-tile-grid-grid-min-block-size: 360px;
-$metric-tile-grid-row-value-font-size-max: 40px;
-// The design spec pins highlight-tile values at 32px.
-$metric-tile-grid-tile-value-font-size: 32px;
-$metric-tile-grid-prominent-value-font-size-max: 44px;
-$metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-height-2xl) + var(--wpds-dimension-padding-2xl) + var(--wpds-dimension-padding-2xl) + var(--wpds-dimension-gap-lg));
+// Metrics are separated by a hairline rather than boxed: each tile draws the
+// rule on the edge it shares with the tile before it, and the outer edges stay
+// open. Same weak stroke as WidgetFooter's rule in the same card.
+$metric-tile-grid-divider: var(--wpds-border-width-xs) solid
+	var(--wpds-color-stroke-surface-neutral-weak);
 
 /* Size containment removes the container from auto sizing, so it must get its
  * height from outside: flex stretching in a flex parent, or the 100% chain
- * otherwise. Without either, the grid computes to 0x0 and renders nothing. */
+ * otherwise. Without either, the grid computes to 0x0 and renders nothing.
+ * That fixed box is also what the layout picker measures. */
 .container {
 	container-type: size;
 	flex: 1 1 0;
 	block-size: 100%;
 	min-block-size: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .grid {
-	display: grid;
-	grid-auto-rows: minmax(var(--wpds-typography-line-height-2xl), 1fr);
-	grid-template-columns: 1fr;
-	gap: var(--wpds-dimension-gap-sm);
-	block-size: 100%;
-	min-block-size: 0;
+
+	@include metric-tile-layouts.layouts;
 }
 
 .tile {
@@ -34,11 +31,6 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	justify-content: space-between;
 	gap: var(--wpds-dimension-gap-md);
 	min-inline-size: 0;
-	min-block-size: 0;
-	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline: var(--wpds-dimension-padding-lg);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-lg);
 }
 
 .header {
@@ -52,12 +44,14 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 
 .icon {
 	flex: 0 0 auto;
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 .label {
 	min-inline-size: 0;
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);
+	font-size: var(--wpds-typography-font-size-md);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
@@ -68,16 +62,15 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	max-inline-size: 100%;
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);
-	font-size: clamp(var(--wpds-typography-font-size-xl), 10cqh, $metric-tile-grid-row-value-font-size-max);
-	font-weight: var(--wpds-typography-font-weight-default);
-	line-height: 1.2;
+	font-size: var(--wpds-typography-font-size-2xl);
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
 /* Comparison tiles render value + delta through MetricWithComparison, which
- * manages its own value font size, so this cell only handles placement — it
- * mirrors `.value`'s flex slot without the responsive font clamp. */
+ * manages its own value font size, so this cell only handles placement. */
 .comparison {
 	display: flex;
 	flex: 0 0 auto;
@@ -88,8 +81,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 
 /* MetricValue emits the font-size token without a fallback, and the dashboard
  * runtime does not always inject the WPDS typography tokens, so pin the metric
- * total here with explicit fallbacks. Scoped to the comparison cell so the
- * plain `.value` path keeps its responsive clamp. */
+ * total here with explicit fallbacks. */
 .comparison span {
 	font-size: var(--wpds-typography-font-size-xl);
 	line-height: var(--wpds-typography-line-height-xl);
@@ -103,78 +95,52 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-/* Wide but short: one row of centered tiles. `grid-auto-flow: column` makes the
- * column count follow the tile count on its own — no explicit column value. */
-@container (min-inline-size: #{$widget-wide-min-inline-size}) {
+.grid[data-layout="compact"] .tile .value,
+.grid[data-layout="compact"] .tile .placeholder {
+	font-size: var(--wpds-typography-font-size-lg);
+}
 
-	.grid {
-		grid-template-columns: none;
-		grid-template-rows: 1fr;
-		grid-auto-flow: column;
-		grid-auto-columns: minmax(0, 1fr);
-		grid-auto-rows: unset;
-	}
+/* One column, so the shared edge is the row above. */
+.grid[data-layout="compact"] .tile + .tile,
+.grid[data-layout="stacked"] .tile + .tile {
+	border-block-start: $metric-tile-grid-divider;
+}
 
-	.tile {
-		flex-direction: column;
-		justify-content: center;
-		gap: var(--wpds-dimension-gap-sm);
-		padding-block: var(--wpds-dimension-padding-md);
-		padding-inline: var(--wpds-dimension-padding-md);
-		text-align: center;
-	}
+.grid[data-layout="row"] .header,
+.grid[data-layout="grid"] .header {
+	flex: 0 1 auto;
+	justify-content: center;
+	max-inline-size: 100%;
+}
 
-	.header {
-		flex: 0 1 auto;
-		justify-content: center;
-		max-inline-size: 100%;
-	}
+.grid[data-layout="row"] .label,
+.grid[data-layout="grid"] .label {
+	overflow: visible;
+	text-overflow: clip;
+	white-space: normal;
+}
 
-	.label {
-		overflow: visible;
-		text-overflow: clip;
-		white-space: normal;
-	}
+/* One row, so the shared edge is the tile's leading side. */
+.grid[data-layout="row"] .tile + .tile {
+	border-inline-start: $metric-tile-grid-divider;
+}
 
-	.tile .value,
-	.tile .placeholder {
-		font-size: $metric-tile-grid-tile-value-font-size;
+/* A height-1 body that also carries a footer is a few pixels shorter than a
+ * row tile, so shed the tile's block padding at the shared short threshold. */
+@container (max-block-size: #{$widget-short-max-block-size}) {
+
+	.grid[data-layout="row"] .tile {
+		padding-block: var(--wpds-dimension-padding-xs);
 	}
 }
 
-/* Wide but height-1 short: keep the columns — stacked rows are taller past one
- * tile — and tighten the tile so the value still fits. */
-@container (min-inline-size: #{$widget-wide-min-inline-size}) and (max-block-size: #{$widget-short-max-block-size}) {
-
-	.tile {
-		padding-block: var(--wpds-dimension-padding-sm);
-	}
-
-	.tile .value,
-	.tile .placeholder {
-		line-height: 1;
-	}
+/* Two columns: position decides the shared edge. Column two is always an even
+ * child and the first row is always the first two; counting children holds
+ * because the grid renders every tile in order and nothing else. */
+.grid[data-layout="grid"] .tile:nth-child(even) {
+	border-inline-start: $metric-tile-grid-divider;
 }
 
-/* Wide and tall: a balanced two-column grid of large centered tiles. Resets the
- * one-row flow set above so tiles wrap into rows again. */
-@container (min-inline-size: #{$widget-wide-min-inline-size}) and (min-block-size: #{$metric-tile-grid-grid-min-block-size}) {
-
-	.grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		grid-template-rows: none;
-		grid-auto-flow: row;
-		grid-auto-columns: auto;
-		grid-auto-rows: minmax($metric-tile-grid-large-row-min-block-size, 1fr);
-	}
-
-	.tile {
-		padding-block: var(--wpds-dimension-padding-2xl);
-		padding-inline: var(--wpds-dimension-padding-lg);
-	}
-
-	.tile .value,
-	.tile .placeholder {
-		font-size: clamp(var(--wpds-typography-font-size-2xl), 12cqh, $metric-tile-grid-prominent-value-font-size-max);
-	}
+.grid[data-layout="grid"] .tile:nth-child(n + 3) {
+	border-block-start: $metric-tile-grid-divider;
 }

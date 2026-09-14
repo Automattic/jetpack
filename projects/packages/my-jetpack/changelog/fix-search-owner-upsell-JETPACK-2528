@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: Offer to activate Search, rather than to buy a plan, when the site already owns it and the module is switched off.

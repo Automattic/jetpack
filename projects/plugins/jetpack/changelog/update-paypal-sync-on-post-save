@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+PayPal Payment Buttons: Create and update the payment when the post is saved, and remove it when the post is saved without the block, instead of from a Create New button.

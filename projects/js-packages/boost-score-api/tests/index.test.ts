@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import api from '../src/api';
 import {
 	requestSpeedScores,
@@ -25,19 +25,88 @@ const mockData = {
 };
 
 describe( 'requestSpeedScores', () => {
+	let post: jest.SpiedFunction< typeof api.post >;
+
 	beforeEach( () => {
-		jest.spyOn( api, 'post' );
+		post = jest.spyOn( api, 'post' );
 	} );
 
 	afterEach( () => {
 		jest.restoreAllMocks();
+		jest.useRealTimers();
 	} );
 
 	it( 'should return speed scores', async () => {
-		api.post.mockResolvedValue( mockData );
+		post.mockResolvedValue( mockData );
 
-		const scores = await requestSpeedScores( 'https://example.com' );
+		const scores = await requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce'
+		);
 		expect( scores ).toEqual( mockData.scores );
+		// Asserted through mock.calls rather than toHaveBeenCalledWith: the api.post
+		// signature takes a JSONObject, which is recursive, and matching against it
+		// pushes the checker past its instantiation limit.
+		expect( post.mock.calls[ 0 ] ).toEqual( [
+			'https://example.com/wp-json/',
+			'/speed-scores',
+			{ url: 'https://example.com' },
+			'nonce',
+		] );
+	} );
+
+	it( 'asks for a fresh measurement when forced', async () => {
+		post.mockResolvedValue( mockData );
+
+		const scores = await requestSpeedScores(
+			true,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce'
+		);
+
+		expect( scores ).toEqual( mockData.scores );
+		expect( post.mock.calls[ 0 ] ).toEqual( [
+			'https://example.com/wp-json/',
+			'/speed-scores/refresh',
+			{ url: 'https://example.com' },
+			'nonce',
+		] );
+	} );
+
+	it( 'waits 240 seconds before giving up on a pending score', async () => {
+		jest.useFakeTimers();
+		post.mockResolvedValue( { status: 'pending' } );
+
+		let settled = false;
+		const request = requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce'
+		);
+		const outcome = request.then(
+			() => {
+				settled = true;
+				return undefined;
+			},
+			error => {
+				settled = true;
+				return error;
+			}
+		);
+
+		// Let the initial request resolve as pending and start the polling timers.
+		await Promise.resolve();
+		await jest.advanceTimersByTimeAsync( 239999 );
+		expect( settled ).toBe( false );
+
+		await jest.advanceTimersByTimeAsync( 1 );
+		const error = await outcome;
+		expect( error ).toBeInstanceOf( Error );
+		expect( ( error as Error ).message ).toBe( 'Timed out while waiting for speed-score.' );
 	} );
 } );
 
@@ -78,6 +147,7 @@ describe( 'getScoreMovementPercentage', () => {
 				desktop: 90,
 				mobile: 80,
 			},
+			isStale: true,
 		};
 		changedMockData.scores = newScores;
 

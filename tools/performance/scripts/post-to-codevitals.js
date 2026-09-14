@@ -372,6 +372,11 @@ function resolvePostTimestamp( results, config ) {
  * dedup OPT-IN (off by default) until the read series is proven to be the write series.
  * See CODEVITALS_ENABLE_DEDUP. Do not enable it before then.
  *
+ * Related: the weekly digest (codevitals-digest.js) does its own READ-side duplicate
+ * handling, and that stays LOAD-BEARING even with dedup here enabled: this function reads a
+ * different backend/metric, fails open, and skips hash "unknown", so it can never guarantee
+ * the digest a duplicate-free series. See the digest for what a re-post can and cannot change.
+ *
  * @param {string} hash   - Monorepo commit hash about to be posted.
  * @param {string} branch - Branch to scope the evolution query to.
  * @param {object} config - Poster config (dedupBaseUrl, dedupRepo, dedupMetricId).

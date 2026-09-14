@@ -15,11 +15,28 @@ use WorDBless\BaseTestCase;
 class Video_Authorization_Test extends BaseTestCase {
 
 	/**
+	 * Set up before each test.
+	 */
+	protected function set_up() {
+		/*
+		 * The WorDBless write pipeline stores the kses-slashed content verbatim, which
+		 * corrupts block-attribute JSON ({"ref":1} becomes {\"ref\":1}). Real inserts by
+		 * users with unfiltered_html skip these filters, so removing them here keeps the
+		 * stored content faithful without changing what is being tested.
+		 */
+		kses_remove_filters();
+	}
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tear_down() {
 		wp_set_current_user( 0 );
 		\WorDBless\Posts::init()->clear_all_posts();
+		// Clear cached GUID-list transients: post ids are reused across tests once the
+		// posts table is emptied, so a stale videopress_guids_{id} entry from one test
+		// would otherwise satisfy (or poison) the lookup in the next.
+		\WorDBless\Options::init()->clear_options();
 	}
 
 	/**
@@ -225,6 +242,146 @@ class Video_Authorization_Test extends BaseTestCase {
 		$this->set_current_user_role( 'subscriber' );
 
 		$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( 'nOwHeRe0', 0 ) );
+	}
+
+	/**
+	 * A page that embeds the video only through a synced pattern (core/block ref) is a
+	 * legitimate embedding context: parse_blocks() does not expand the ref, so the
+	 * authorization scan must resolve it manually.
+	 */
+	public function test_subscriber_with_synced_pattern_embedded_post_id_is_authorized_for_private_video() {
+		$guid = 'sYnCed12';
+		$this->create_private_videopress_attachment( $guid );
+		$pattern_id = $this->create_synced_pattern(
+			'<!-- wp:videopress/video {"guid":"' . $guid . '"} /-->'
+		);
+		$embedding  = $this->create_embedding_post( '<!-- wp:block {"ref":' . $pattern_id . '} /-->' );
+		$this->set_current_user_role( 'subscriber' );
+
+		$this->assertTrue( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
+	 * A synced pattern nested inside another synced pattern is still resolved.
+	 */
+	public function test_subscriber_with_nested_synced_pattern_embedded_post_id_is_authorized_for_private_video() {
+		$guid = 'nEsTed12';
+		$this->create_private_videopress_attachment( $guid );
+		$inner_id  = $this->create_synced_pattern(
+			'<!-- wp:videopress/video {"guid":"' . $guid . '"} /-->'
+		);
+		$outer_id  = $this->create_synced_pattern(
+			'<!-- wp:block {"ref":' . $inner_id . '} /-->'
+		);
+		$embedding = $this->create_embedding_post( '<!-- wp:block {"ref":' . $outer_id . '} /-->' );
+		$this->set_current_user_role( 'subscriber' );
+
+		$this->assertTrue( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
+	 * A self-referencing synced pattern must terminate and deny when the guid is absent.
+	 */
+	public function test_self_referencing_synced_pattern_terminates_and_denies_unrelated_guid() {
+		$guid = 'cYcLe123';
+		$this->create_private_videopress_attachment( $guid );
+		$pattern_id = $this->create_synced_pattern( 'placeholder' );
+		wp_update_post(
+			array(
+				'ID'           => $pattern_id,
+				'post_content' => '<!-- wp:block {"ref":' . $pattern_id . '} /-->',
+			)
+		);
+		$embedding = $this->create_embedding_post( '<!-- wp:block {"ref":' . $pattern_id . '} /-->' );
+		$this->set_current_user_role( 'subscriber' );
+
+		$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
+	 * A ref pointing at a non-published pattern is not proof of embedding — core skips
+	 * rendering those, so authorization must not accept them either.
+	 */
+	public function test_subscriber_with_trashed_synced_pattern_is_denied() {
+		$guid = 'tRaShd12';
+		$this->create_private_videopress_attachment( $guid );
+		$pattern_id = $this->create_synced_pattern(
+			'<!-- wp:videopress/video {"guid":"' . $guid . '"} /-->'
+		);
+		wp_update_post(
+			array(
+				'ID'          => $pattern_id,
+				'post_status' => 'trash',
+			)
+		);
+		$embedding = $this->create_embedding_post( '<!-- wp:block {"ref":' . $pattern_id . '} /-->' );
+		$this->set_current_user_role( 'subscriber' );
+
+		$this->assertFalse( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
+	 * A page embedding the video through a Video Playlist block is a legitimate embedding
+	 * context: the guid lives in the playlist block's videos attribute, not in a
+	 * videopress/video block.
+	 */
+	public function test_subscriber_with_playlist_block_embedded_post_id_is_authorized_for_private_video() {
+		$guid = 'pLaYls12';
+		$this->create_private_videopress_attachment( $guid );
+		$embedding = $this->create_embedding_post(
+			'<!-- wp:videopress/playlist {"videos":[{"guid":"' . $guid . '","durationMs":1000,"height":720}]} /-->'
+		);
+		$this->set_current_user_role( 'subscriber' );
+
+		$this->assertTrue( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
+	 * A playlist block inside a synced pattern combines both resolution paths.
+	 */
+	public function test_subscriber_with_playlist_block_inside_synced_pattern_is_authorized_for_private_video() {
+		$guid = 'pLpAtt12';
+		$this->create_private_videopress_attachment( $guid );
+		$pattern_id = $this->create_synced_pattern(
+			'<!-- wp:videopress/playlist {"videos":[{"guid":"' . $guid . '","durationMs":1000,"height":720}]} /-->'
+		);
+		$embedding  = $this->create_embedding_post( '<!-- wp:block {"ref":' . $pattern_id . '} /-->' );
+		$this->set_current_user_role( 'subscriber' );
+
+		$this->assertTrue( Access_Control::instance()->is_current_user_authed_for_video( $guid, $embedding ) );
+	}
+
+	/**
+	 * Create a synced pattern (wp_block post) with the given content.
+	 *
+	 * @param string $content The pattern content.
+	 * @return int The pattern post id.
+	 */
+	private function create_synced_pattern( $content ) {
+		return (int) wp_insert_post(
+			array(
+				'post_title'   => 'Synced pattern',
+				'post_content' => $content,
+				'post_status'  => 'publish',
+				'post_type'    => 'wp_block',
+			)
+		);
+	}
+
+	/**
+	 * Create a published post embedding the given (possibly block-comment) content.
+	 *
+	 * @param string $content The post content.
+	 * @return int The post id.
+	 */
+	private function create_embedding_post( $content ) {
+		return (int) wp_insert_post(
+			array(
+				'post_title'   => 'Embedding post',
+				'post_content' => $content,
+				'post_status'  => 'publish',
+			)
+		);
 	}
 
 	/**

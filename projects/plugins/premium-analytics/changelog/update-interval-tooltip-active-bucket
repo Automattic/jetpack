@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Chart interval control: name the active interval in the button's tooltip, and give its menu a heading.

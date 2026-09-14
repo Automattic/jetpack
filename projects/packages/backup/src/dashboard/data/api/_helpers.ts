@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 
@@ -58,9 +58,16 @@ export function toIntRewindId( rewindId: string ): string {
 }
 
 /**
- * Error thrown by the data-layer fetchers when WPCOM (via the bridge)
- * responds with a known error code. Consumers branch on `code` to pick
- * the right user-facing message.
+ * Error thrown by the data-layer fetchers when a request fails.
+ *
+ * `code` is the bridge's own code for the operation, and every failure of
+ * one operation carries the same one — all three ways a restore can fail
+ * to start are `restore_initiate_failed` — so it names what failed and
+ * never why. Nothing branches on it, and nothing should: the parts that
+ * carry a verdict live on `data`, which is where both
+ * `isAmbiguousFailure` and `failureMessage` read. It is kept because it
+ * is the field `apiFetch` rejections already have, and because it names
+ * the operation in a bug report.
  */
 export class ApiError extends Error {
 	public readonly code: string;
@@ -193,8 +200,123 @@ export function requireTypes( items: Record< string, boolean > ): Record< string
 }
 
 /**
- * Thin wrapper around `@wordpress/api-fetch` that re-throws bridge errors
- * as `ApiError` so React Query's onError handlers can branch on `code`.
+ * The reason WordPress.com gave, as the bridges forward it.
+ *
+ * Both halves are optional: `code` when WordPress.com refused with a
+ * `WP_Error`, `message` when the refusal was prose (see
+ * `Rest_Controller::upstream_reason()`, which decides which is which).
+ * The bridge flattens and clips `message` to 200 characters, which is
+ * what makes it safe to put in front of a reader at all.
+ */
+type UpstreamReason = { code?: string; message?: string };
+
+/**
+ * The reason the bridge forwarded, if it forwarded one.
+ *
+ * @param data - The `data` from a bridge failure.
+ * @return The reason, with both halves normalized to strings.
+ */
+function upstreamReason( data: unknown ): UpstreamReason {
+	const wpcom = ( data as { wpcom?: UpstreamReason } | undefined )?.wpcom;
+	return {
+		code: typeof wpcom?.code === 'string' ? wpcom.code : '',
+		message: typeof wpcom?.message === 'string' ? wpcom.message : '',
+	};
+}
+
+/**
+ * What a failed request should say, given what WordPress.com said.
+ *
+ * This is the half of the change the bridges' `data.wpcom` exists for.
+ * Without it, forwarding the reason would improve nothing anyone sees:
+ * every surface that reports a failure — `<QueryError>`,
+ * `<CapabilitiesErrorScreen>`, the error boundary, and both screens —
+ * renders a `message` and nothing else, and the message they were
+ * getting is the bridge's one fixed line per operation. "Could not fetch
+ * site capabilities." reads the same whether the plan lapsed or the
+ * token did.
+ *
+ * The rule is: anything we can enumerate, map; anything we cannot,
+ * render. Which side a code falls on is a question about the code, not
+ * about how much we like the copy, and WordPress.com answers it.
+ *
+ * `no_connected_jetpack` is enumerable. It belongs to a small documented
+ * vocabulary of rewind-unavailability reasons — `missing_plan`,
+ * `wpcom_site`, `multisite_not_supported`, `host_not_supported`,
+ * `site_new` and a few more — where the code is itself the meaning and
+ * the message adds nothing. So it gets copy of our own, and any sibling
+ * added here later should too.
+ *
+ * `rewind_error` is not a meaning, it is a container. Upstream builds it
+ * from VaultPress's own sentence passed through verbatim, from
+ * "Unexpected response from VaultPress." as a 502, and from "You cannot
+ * enable Rewind for a free Jetpack site" and "…for a multisite" as 400s.
+ * One code, four unrelated situations, and the reason lives entirely in
+ * the message. Canned copy here was not merely vague but wrong: it
+ * prescribed a retry that can never succeed for the last two.
+ *
+ * `authorization_required` is a WordPress.com-wide generic, used by
+ * billing, domains, keyring and social alike. Within the rewind
+ * endpoints it covers "You are not allowed to rewind this site", "…to
+ * query this state", "…to rewind to the staging site" and an a12s-only
+ * guard. The message separates those; the code cannot. It also must not
+ * carry copy blaming the reader's account: `get_restore_status()` signs
+ * `as_blog`, so the credential at fault there is the site's token, not
+ * the person's.
+ *
+ * So everything that is not enumerable renders, inside a frame that says
+ * whose words these are. The frame is this package's existing pattern —
+ * `use-download.ts` already does `sprintf( __( 'Download failed: %s' ),
+ * … )` — and this is the safer version of it, because `use-download.ts`
+ * renders upstream text unbounded while the bridge has already flattened
+ * and clipped this to 200 characters. Keep that clip.
+ *
+ * The rendered half will usually be English even when the frame is
+ * translated. That is a real cost and a deliberate one: a specific
+ * reason in the wrong language beats an accurate translation of nothing.
+ * Naming WordPress.com in the frame is what makes it legible rather than
+ * merely untranslated — the reader can see the sentence is a quotation.
+ * Please do not "fix" this by canning the copy again; that is the change
+ * this function was rewritten to undo.
+ *
+ * Everything is a plain string that callers render as React children,
+ * which is what escapes it. Never put it through `dangerouslySetInnerHTML`
+ * or into an attribute.
+ *
+ * @param bridgeMessage - The bridge's own line, naming what failed.
+ * @param reason        - What WordPress.com said, if anything.
+ * @return The message to show the reader.
+ */
+function failureMessage( bridgeMessage: string, reason: UpstreamReason ): string {
+	// The enumerable side. Wording borrowed from My Jetpack, which has
+	// said this to Jetpack users for years — for familiarity, not for a
+	// free translation: that copy lives in the `jetpack-my-jetpack` text
+	// domain and GlotPress translates per domain, so this string starts
+	// its own cycle like any other.
+	if ( 'no_connected_jetpack' === reason.code ) {
+		return __(
+			"The site doesn't appear to be connected. Backup requires an active Jetpack connection in order to function properly.",
+			'jetpack-backup-pkg'
+		);
+	}
+
+	if ( reason.message ) {
+		return sprintf(
+			/* translators: 1: what failed, in our own words. 2: the reason WordPress.com gave, usually in English. */
+			__( '%1$s WordPress.com said: %2$s', 'jetpack-backup-pkg' ),
+			bridgeMessage,
+			reason.message
+		);
+	}
+
+	// A code with nothing beside it. Rendering the bare token would put
+	// `rewind_error` on screen, which is worse than the bridge's sentence.
+	return bridgeMessage;
+}
+
+/**
+ * Thin wrapper around `@wordpress/api-fetch` that re-throws every failure
+ * as an `ApiError`, so one place decides what a failed request says.
  *
  * Options are typed `APIFetchOptions< true >` — the parsing variant —
  * because every fetcher here wants the decoded JSON body rather than the
@@ -209,9 +331,11 @@ export async function apiCall< T >( options: APIFetchOptions< true > ): Promise<
 		return await apiFetch< T >( options );
 	} catch ( raw ) {
 		const err = raw as { code?: string; message?: string; data?: unknown };
+		const fallback = __( 'Request failed', 'jetpack-backup-pkg' );
+		const bridgeMessage = typeof err.message === 'string' ? err.message : fallback;
 		throw new ApiError(
 			typeof err.code === 'string' ? err.code : 'unknown',
-			typeof err.message === 'string' ? err.message : 'Request failed',
+			failureMessage( bridgeMessage, upstreamReason( err.data ) ),
 			err.data
 		);
 	}

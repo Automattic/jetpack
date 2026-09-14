@@ -205,8 +205,7 @@ class Jetpack_Scan {
 			'Scan',
 			'manage_options',
 			self::PAGE_SLUG,
-			$render,
-			6
+			$render
 		);
 
 		if ( $page_suffix ) {

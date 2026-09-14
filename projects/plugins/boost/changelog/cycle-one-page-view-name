@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Derive dashboard page-view event names from one function. The names are unchanged.
+
+

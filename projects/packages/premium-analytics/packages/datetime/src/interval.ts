@@ -1,7 +1,7 @@
 /**
  * Report time-series bucket sizes, ordered finest first.
  */
-export const INTERVAL_TYPES = [ 'hour', 'day', 'week', 'month', 'quarter', 'year' ] as const;
+export const INTERVAL_TYPES = [ 'hour', 'day', 'week', 'month', 'year' ] as const;
 
 /**
  * A report time-series bucket size, derived from the runtime tuple so both stay

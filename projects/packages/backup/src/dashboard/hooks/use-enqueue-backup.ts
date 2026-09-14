@@ -21,13 +21,15 @@ type Result = {
  * `POST /jetpack/v4/site/backup/enqueue` reports failure in three
  * different ways and only one of them is an HTTP error, so the success
  * path is validated rather than assumed. A rejected request (no
- * permission, network, expired nonce) throws. A non-200 from WPCOM is
- * flattened by PHP into HTTP 200 with a `null` body, which resolves.
- * And WPCOM can answer 200 with `{ success: false, error }`.
+ * permission, network, an unreachable WordPress.com, an expired nonce)
+ * throws. A 200 whose body will not decode is flattened by PHP into HTTP
+ * 200 with a `null` body, which resolves. And WPCOM can answer 200 with
+ * `{ success: false, error }`.
  *
- * The legacy button checks none of these — it has no rejection handler
- * and discards the body — so it reports "Backup enqueued" for every
- * outcome, then polls for a backup that will never arrive.
+ * The legacy button checks only the first — it clears its busy state on
+ * a rejection but discards the body — so it still reports "Backup
+ * enqueued" for the other two, then polls for a backup that will never
+ * arrive.
  *
  * @return Enqueue state and controls.
  */

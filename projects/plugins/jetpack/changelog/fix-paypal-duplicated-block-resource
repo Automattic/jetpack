@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: show the payment a duplicated block actually points at, so two blocks sharing one PayPal payment can no longer display different products or prices.

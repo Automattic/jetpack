@@ -2,12 +2,9 @@
 /**
  * Test fixture: stand-in for the generated wp-build entry point.
  *
- * Records that it was loaded so tests can assert whether Analytics::init()
- * reached the build on a given request type. The real build/ is gitignored and
- * CI runs no build step, so without this there is nothing to observe.
- *
- * Also provides the generated render callback and full-page interceptor. Their
- * names depend on the page slug, so both behaviors need test coverage.
+ * Records that it loaded so tests can tell whether Analytics::init() reached the build on a given
+ * request type — build/ is gitignored and CI runs no build step, so without this there's nothing
+ * to observe. Also provides the render callback and full-page interceptor, whose names depend on the page slug.
  *
  * @package automattic/jetpack-premium-analytics
  */

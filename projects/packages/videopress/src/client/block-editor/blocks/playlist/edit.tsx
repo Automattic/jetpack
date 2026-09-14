@@ -25,6 +25,7 @@ import { closeSmall, dragHandle, Icon } from '@wordpress/icons';
  * Internal dependencies
  */
 import { fetchVideoItem } from '../../../lib/fetch-video-item';
+import getMediaToken from '../../../lib/get-media-token';
 import { isVideoPressGuid, pickGUIDFromUrl } from '../../../lib/url';
 import { VideoPressIcon } from '../video/components/icons';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../video/constants';
@@ -36,6 +37,7 @@ import {
 	playlistEmbedUrl,
 	playlistRuntimeMs,
 	resolutionLabel,
+	withMetadataToken,
 } from './utils';
 import './editor.scss';
 /**
@@ -122,6 +124,45 @@ function liveMetadataFromApiResponse( item: Record< string, unknown > ): Playlis
 	}
 	if ( typeof item?.poster === 'string' && item.poster ) {
 		metadata.poster = item.poster;
+	}
+
+	return metadata;
+}
+
+/**
+ * Build an entry's live metadata, signing the poster URL for private videos:
+ * the API returns the poster's bare file URL, which the file host refuses
+ * without a token. The token comes from the same local cache fetchVideoItem
+ * used to read the metadata, so this rarely costs an extra request.
+ *
+ * @param guid - The video GUID.
+ * @param item - The videos API response.
+ * @return Live metadata.
+ */
+async function liveMetadataWithSignedPoster(
+	guid: string,
+	item: Record< string, unknown >
+): Promise< PlaylistLiveMetadata > {
+	const metadata = liveMetadataFromApiResponse( item );
+
+	if ( metadata.poster && item?.is_private === true ) {
+		try {
+			const { token } = await getMediaToken( 'playback', { guid } );
+			if ( token ) {
+				metadata.poster = withMetadataToken( metadata.poster, token );
+			} else {
+				// A poster the file host would refuse is worse than the fallback.
+				delete metadata.poster;
+				metadata.isPrivateLocked = true;
+			}
+		} catch {
+			delete metadata.poster;
+			metadata.isPrivateLocked = true;
+		}
+	}
+
+	if ( metadata.isPrivateLocked ) {
+		metadata.title = __( 'Private video', 'jetpack-videopress-pkg' );
 	}
 
 	return metadata;
@@ -254,11 +295,13 @@ function PlaylistPreview( {
 							<li className="videopress-playlist__entry" key={ `${ entry.guid }-${ index }` }>
 								<button
 									type="button"
-									className={
-										index === currentIndex
-											? 'videopress-playlist__select is-current'
-											: 'videopress-playlist__select'
-									}
+									className={ [
+										'videopress-playlist__select',
+										index === currentIndex ? 'is-current' : '',
+										liveMetadata[ entry.guid ]?.isPrivateLocked ? 'is-locked' : '',
+									]
+										.filter( Boolean )
+										.join( ' ' ) }
 									aria-current={ index === currentIndex ? 'true' : undefined }
 									onClick={ () => onSelect( index ) }
 								>
@@ -273,6 +316,20 @@ function PlaylistPreview( {
 										) }
 										<span className="videopress-playlist__entry-flag">
 											{ __( 'Playing', 'jetpack-videopress-pkg' ) }
+										</span>
+										{ /* Mirrors the server render: shown via the button's is-locked class. */ }
+										<span className="videopress-playlist__entry-lock">
+											<svg
+												viewBox="0 0 24 24"
+												xmlns="http://www.w3.org/2000/svg"
+												aria-hidden="true"
+												focusable="false"
+											>
+												<path d="M17 10h-1.2V7.3c0-2.1-1.7-3.8-3.8-3.8-2.1 0-3.8 1.7-3.8 3.8V10H7c-.6 0-1 .4-1 1v8c0 .6.4 1 1 1h10c.6 0 1-.4 1-1v-8c0-.6-.4-1-1-1Zm-2.7 0H9.7V7.3c0-1.3 1-2.3 2.3-2.3 1.3 0 2.3 1 2.3 2.3V10Z" />
+											</svg>
+											<span className="videopress-playlist__entry-lock-label">
+												{ __( 'Private video', 'jetpack-videopress-pkg' ) }
+											</span>
 										</span>
 										{ formatTimecode( entry.durationMs ) && (
 											<span className="videopress-playlist__entry-time">
@@ -398,14 +455,17 @@ export default function PlaylistEdit( {
 			metadataFetchesStarted.current.add( guid );
 
 			fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } )
-				.then( item =>
-					cacheLiveMetadata(
-						guid,
-						liveMetadataFromApiResponse( item as Record< string, unknown > )
-					)
-				)
-				.catch( () => {
-					// The entry keeps its GUID fallback when the video data isn't reachable.
+				.then( item => liveMetadataWithSignedPoster( guid, item as Record< string, unknown > ) )
+				.then( metadata => cacheLiveMetadata( guid, metadata ) )
+				.catch( ( error: Error & { cause?: { error?: string } } ) => {
+					// A video this user cannot authorize at all shows the lock
+					// placeholder; anything else keeps the GUID fallback.
+					if ( error?.cause?.error === 'auth' ) {
+						cacheLiveMetadata( guid, {
+							title: __( 'Private video', 'jetpack-videopress-pkg' ),
+							isPrivateLocked: true,
+						} );
+					}
 				} );
 		} );
 	}, [ videos ] );
@@ -458,7 +518,10 @@ export default function PlaylistEdit( {
 		try {
 			const item = await fetchVideoItem( { guid, isPrivate: false, skipRatingControl: true } );
 			metadataFetchesStarted.current.add( guid );
-			cacheLiveMetadata( guid, liveMetadataFromApiResponse( item as Record< string, unknown > ) );
+			cacheLiveMetadata(
+				guid,
+				await liveMetadataWithSignedPoster( guid, item as Record< string, unknown > )
+			);
 			setAttributes( {
 				videos: [ ...videos, entryFromApiResponse( guid, item as Record< string, unknown > ) ],
 			} );

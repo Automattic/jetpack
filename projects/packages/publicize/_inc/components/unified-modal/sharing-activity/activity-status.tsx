@@ -1,8 +1,8 @@
-import { Badge } from '@automattic/ui';
 import { Button, Dropdown, Flex } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
+import { Badge } from '@wordpress/ui';
 import styles from './styles.module.scss';
 import { SharingActivityItem } from './types';
 
@@ -47,17 +47,17 @@ export function ActivityStatus( { item }: ActivityStatusProps ) {
 	}, [ item ] );
 
 	if ( item.status === 'scheduled' ) {
-		return <Badge intent="info">{ __( 'Scheduled', 'jetpack-publicize-pkg' ) }</Badge>;
+		return <Badge intent="informational">{ __( 'Scheduled', 'jetpack-publicize-pkg' ) }</Badge>;
 	}
 
 	if ( item.status === 'success' ) {
-		return <Badge intent="success">{ __( 'Shared', 'jetpack-publicize-pkg' ) }</Badge>;
+		return <Badge intent="stable">{ __( 'Shared', 'jetpack-publicize-pkg' ) }</Badge>;
 	}
 
 	// Failure status - show badge with error details dropdown
 	return (
 		<Flex justify="start" gap={ 1 }>
-			<Badge intent="error">{ __( 'Failed', 'jetpack-publicize-pkg' ) }</Badge>
+			<Badge intent="high">{ __( 'Failed', 'jetpack-publicize-pkg' ) }</Badge>
 			<Dropdown
 				focusOnMount
 				popoverProps={ { placement: 'top-start' } }

@@ -2234,8 +2234,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 							<template data-wp-each--image="context.submission.images">
 								<div class="field-image-option" data-wp-class--is-empty="!context.image.src">
 									<figure class="field-image-option__image" data-wp-class--is-empty="!context.image.src">
-										<img data-wp-bind--src="context.image.src" data-wp-bind--hidden="!context.image.src" />
-										<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src" />
+										<img alt="" data-wp-bind--src="context.image.src" data-wp-bind--hidden="!context.image.src" />
+										<img alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src" />
 									</figure>
 									<div class="field-image-option__label-wrapper">
 										<span class="field-image-option__label-code" data-wp-text="context.image.letterCode"></span>
@@ -2312,8 +2312,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 							$html .= '<div data-wp-each-child class="field-image-option ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
 							$html .= '<figure class="field-image-option__image ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
-							$html .= '<img data-wp-bind--src="context.image.src" src="' . esc_attr( $image_src ) . '" data-wp-bind--hidden="!context.image.src"' . ( empty( $image_src ) ? ' hidden' : '' ) . '/>';
-							$html .= '<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src"' . ( empty( $image_src ) ? '' : ' hidden' ) . '/>';
+							$html .= '<img alt="" data-wp-bind--src="context.image.src" src="' . esc_attr( $image_src ) . '" data-wp-bind--hidden="!context.image.src"' . ( empty( $image_src ) ? ' hidden' : '' ) . '/>';
+							$html .= '<img alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src"' . ( empty( $image_src ) ? '' : ' hidden' ) . '/>';
 							$html .= '</figure>';
 							$html .= '<div class="field-image-option__label-wrapper">';
 							$html .= '<span class="field-image-option__label-code" data-wp-text="context.image.letterCode">' . esc_html( $image_letter_code ) . '</span>';

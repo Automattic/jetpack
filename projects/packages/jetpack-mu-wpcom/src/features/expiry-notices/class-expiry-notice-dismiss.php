@@ -1,21 +1,6 @@
 <?php
 /**
- * Expiry_Notice_Dismiss: dismiss logic for the banner and modal.
- *
- * Storage is per-site user_meta exposed via the WP REST `/wp/v2/users/me`
- * endpoint so Atomic JS and Calypso (via wpcom's site-proxy) can both write
- * the dismissal. `sanitize_callback` substitutes `time()` for whatever the
- * client posts, so clients don't need to be trusted with a timestamp. That
- * time is load-bearing rather than a record: it is what tells a dismissal of
- * this plan term from one of a term since renewed.
- *
- * Notices dismiss per surface and the modal dismisses everywhere, so they do
- * not share a key. Dismissing the reverted-site notice in the hosting
- * dashboard is meant to leave wp-admin's showing — "it'll show once again in
- * the admin" — whereas closing the modal on one page is meant to remove it
- * from all of them. Each notice surface therefore gets its own key; when the
- * hosting-dashboard notice lands it registers a sibling of META_BANNER rather
- * than reusing it.
+ * Expiry_Notice_Dismiss: who has already closed which expiry notice.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -25,30 +10,42 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
 /**
- * Show/hide decision plus REST registration for the dismiss meta.
+ * Dismissals live in user meta written through core's `/wp/v2/users/me`, so
+ * wp-admin and the front end read and write the same record.
+ *
+ * The `META_*` constants are base names; the stored key is per site (see meta_key()).
  */
 class Expiry_Notice_Dismiss {
 
-	// Scoped to wp-admin: this notice's dismissal is its own, not the platform's.
-	const META_BANNER = 'wpcom_plan_expiry_notice_dismiss_wp_admin';
-	// Not scoped: one dismissal of the modal clears it on every surface.
-	const META_MODAL = 'wpcom_plan_expiry_modal_dismiss';
+	// One key for every banner surface.
+	const META_BANNER = 'wpcom_plan_expiry_notice_dismiss';
+	const META_MODAL  = 'wpcom_plan_expiry_modal_dismiss';
+	// Separate from META_MODAL: a grace dismissal is stamped after `expiry_ts`
+	// and would otherwise satisfy the post-grace check for a modal never seen.
+	const META_MODAL_GRACE = 'wpcom_plan_expiry_modal_dismiss_grace';
 
 	const FINAL_WINDOW_DAYS = 7;
 
+	// Stands in for the "browser session" the design asks for: wp-admin and
+	// Calypso are separate origins, so the dismissal has to live server-side.
+	const MODAL_GRACE_DISMISS_TTL = DAY_IN_SECONDS;
+
 	/**
-	 * Register the banner + modal dismiss meta keys on the `user` object.
+	 * Register the dismiss meta keys for REST writes by the user themselves.
+	 *
+	 * The stored value is always the server's clock, whatever the client sent:
+	 * it is compared against the term's expiry to tell one lapse from the next.
 	 */
 	public static function register_user_meta(): void {
-		foreach ( array( self::META_BANNER, self::META_MODAL ) as $meta_key ) {
+		foreach ( array( self::META_BANNER, self::META_MODAL, self::META_MODAL_GRACE ) as $base ) {
 			register_meta(
 				'user',
-				$meta_key,
+				self::meta_key( $base ),
 				array(
 					'show_in_rest'      => true,
 					'single'            => true,
 					'type'              => 'integer',
-					'sanitize_callback' => static function ( $value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- $value is intentionally ignored; the server timestamp is the truth.
+					'sanitize_callback' => static function () {
 						return time();
 					},
 					'auth_callback'     => static function () {
@@ -60,13 +57,29 @@ class Expiry_Notice_Dismiss {
 	}
 
 	/**
-	 * Whether the notice for this state can be dismissed at all.
+	 * The stored meta key for a base name, prefixed per site the way core
+	 * keys per-site user settings: on Simple every site shares one usermeta
+	 * table, and a dismissal on one site must not silence another.
 	 *
-	 * Every stage from the first reminder through the grace period stays put:
-	 * the site still has something to lose, and the "remind me in X days"
-	 * system those stages used to offer was dropped in design review. Once the
-	 * grace period is over the revert has already happened, so there is nothing
-	 * left for the notice to prevent and it can be dismissed.
+	 * @param string $base One of the `META_*` constants.
+	 */
+	public static function meta_key( string $base ): string {
+		global $wpdb;
+		return $wpdb->get_blog_prefix() . $base;
+	}
+
+	/**
+	 * The key the banner dismisses to.
+	 */
+	public static function banner_meta_key(): string {
+		return self::meta_key( self::META_BANNER );
+	}
+
+	/**
+	 * Whether the banner for this state can be dismissed at all.
+	 *
+	 * Only once the revert has happened: before that the site still has
+	 * something to lose.
 	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
 	 */
@@ -75,55 +88,88 @@ class Expiry_Notice_Dismiss {
 	}
 
 	/**
-	 * Should the banner show for the given user right now?
+	 * Whether the banner should show for this user right now.
 	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
-	 * @param int|null            $user_id      Defaults to current user.
+	 * @param int|null            $user_id      Defaults to the current user.
 	 */
 	public static function should_show_banner( array $expiry_state, ?int $user_id = null ): bool {
 		return ! self::is_dismissible( $expiry_state )
-			|| ! self::is_dismissed( $user_id, self::META_BANNER, self::term_expiry_ts( $expiry_state ) );
+			|| ! self::is_dismissed( $user_id, self::banner_meta_key(), self::term_expiry_ts( $expiry_state ) );
 	}
 
 	/**
-	 * Should the expired-state modal show for the given user right now?
+	 * Whether the modal should show for this user right now.
 	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
-	 * @param int|null            $user_id      Defaults to current user.
+	 * @param int|null            $user_id      Defaults to the current user.
 	 */
 	public static function should_show_modal( array $expiry_state, ?int $user_id = null ): bool {
-		return ! self::is_dismissible( $expiry_state )
-			|| ! self::is_dismissed( $user_id, self::META_MODAL, self::term_expiry_ts( $expiry_state ) );
+		$dismissal = self::modal_dismissal( $expiry_state );
+		if ( null === $dismissal ) {
+			return false;
+		}
+		return ! self::is_dismissed( $user_id, $dismissal['key'], self::term_expiry_ts( $expiry_state ), $dismissal['ttl'] );
 	}
 
 	/**
-	 * Whether this user has already dismissed the given notice for the term the
-	 * state describes.
+	 * The meta key the modal dismisses to in this state, or null where it never shows.
 	 *
-	 * Dismissal never lapses on its own, but it does not carry across a
-	 * renewal. A stamp older than the term's own expiry was recorded against a
-	 * purchase that has since been renewed, so the site is lapsing again for
-	 * the first time and has something to say about it. The two can't be
-	 * confused: a notice is only dismissible once the revert has happened, 30
-	 * days past expiry, so a dismissal belonging to this term is always the
-	 * later of the two.
-	 *
-	 * @param int|null $user_id   Defaults to current user.
-	 * @param string   $meta_key  One of self::META_BANNER, self::META_MODAL.
-	 * @param int|null $expiry_ts Expiry of the term being judged. Null when the
-	 *                            caller has no term in hand, where any stored
-	 *                            dismissal counts.
+	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
 	 */
-	public static function is_dismissed( ?int $user_id, string $meta_key, ?int $expiry_ts = null ): bool {
+	public static function modal_meta_key( array $expiry_state ): ?string {
+		return self::modal_dismissal( $expiry_state )['key'] ?? null;
+	}
+
+	/**
+	 * How the modal dismisses in this state: in grace it comes back after a
+	 * day, after the revert saying so once is enough.
+	 *
+	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
+	 * @return array{key:string,ttl:int|null}|null
+	 */
+	private static function modal_dismissal( array $expiry_state ): ?array {
+		switch ( $expiry_state['state'] ?? '' ) {
+			case Expiry_Data::STATE_EXPIRED_GRACE:
+				return array(
+					'key' => self::meta_key( self::META_MODAL_GRACE ),
+					'ttl' => self::MODAL_GRACE_DISMISS_TTL,
+				);
+			case Expiry_Data::STATE_EXPIRED:
+				return array(
+					'key' => self::meta_key( self::META_MODAL ),
+					'ttl' => null,
+				);
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Whether this user has dismissed the notice for the term the state describes.
+	 *
+	 * A stamp older than the term's own expiry belongs to a purchase since
+	 * renewed and does not count: nothing is dismissible until 30 days past
+	 * expiry, so a dismissal of the current term is always the later one.
+	 *
+	 * @param int|null $user_id   Defaults to the current user.
+	 * @param string   $meta_key  A stored key, from meta_key().
+	 * @param int|null $expiry_ts Expiry of the term being judged; null counts any stored dismissal.
+	 * @param int|null $ttl       Seconds a dismissal holds for; null never lapses.
+	 */
+	public static function is_dismissed( ?int $user_id, string $meta_key, ?int $expiry_ts = null, ?int $ttl = null ): bool {
 		$dismissed_at = self::get_dismissed_at( $user_id, $meta_key );
 		if ( null === $dismissed_at ) {
+			return false;
+		}
+		if ( null !== $ttl && $dismissed_at < time() - $ttl ) {
 			return false;
 		}
 		return null === $expiry_ts || $dismissed_at >= $expiry_ts;
 	}
 
 	/**
-	 * The expiry timestamp carried by a state, or null if it has none.
+	 * The expiry timestamp a state carries, or null when it has none.
 	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
 	 */
@@ -132,10 +178,10 @@ class Expiry_Notice_Dismiss {
 	}
 
 	/**
-	 * Read the stored dismissal timestamp, or null if none.
+	 * The stored dismissal timestamp, or null if none.
 	 *
-	 * @param int|null $user_id  Defaults to current user.
-	 * @param string   $meta_key One of self::META_BANNER, self::META_MODAL.
+	 * @param int|null $user_id  Defaults to the current user.
+	 * @param string   $meta_key A stored key, from meta_key().
 	 */
 	private static function get_dismissed_at( ?int $user_id, string $meta_key ): ?int {
 		$user_id ??= get_current_user_id();

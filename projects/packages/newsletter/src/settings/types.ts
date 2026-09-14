@@ -32,6 +32,8 @@ export interface NewsletterSettings {
 		subscribe_modal_heading: string;
 	};
 	newsletter_has_active_plan: boolean;
+	/** WordPress.com Simple only — mirrors the `wpcom_hide_action_bar` blog option. */
+	wpcom_hide_action_bar?: boolean;
 	[ key: string ]: unknown;
 }
 
@@ -48,6 +50,7 @@ export interface NewsletterScriptData {
 	dateExample: string;
 	subscriberManagementUrl: string;
 	subscriberManagementEnabled: boolean;
+	overviewEnabled: boolean;
 	isSubscriptionSiteEditSupported: boolean;
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;

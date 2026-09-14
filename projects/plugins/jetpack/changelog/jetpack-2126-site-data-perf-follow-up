@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Connection: Cache the WordPress.com site record briefly so the Jetpack dashboard does not make a request per view.

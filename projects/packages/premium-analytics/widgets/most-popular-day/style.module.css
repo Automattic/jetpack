@@ -1,22 +1,14 @@
+/* Stacked highlights (a phone-width tile, or a value too wide to share a row)
+ * outgrow a one-row body, so scroll rather than clip. */
 .root {
-	container-type: inline-size;
-	height: 100%;
-	overflow: hidden;
+	block-size: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .content {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 0;
-	min-height: 0;
-}
-
-/* Fill the WidgetState ready area so the highlight stays centered. */
-.highlight {
-	height: 100%;
-}
-
-.caption {
-	color: var(--wpds-color-foreground-content-neutral-weak);
+	min-block-size: 0;
 }

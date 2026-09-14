@@ -701,4 +701,39 @@ class Admin_Menu_Test extends TestCase {
 		);
 		$this->assertEmpty( $found, 'Expected the upgrade menu item to be absent.' );
 	}
+
+	/**
+	 * Items sharing a position fall through to a case-insensitive, number-aware title sort.
+	 *
+	 * Menu titles mix translated strings with untranslated product names, so a plain strcmp()
+	 * would put every lowercase-leading label after the capitalised ones.
+	 */
+	public function test_equal_positions_sort_by_title_case_insensitively() {
+		global $submenu;
+
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_menu( 'Zebra', 'Zebra', 'manage_options', 'tiebreak-zebra', '__return_null' );
+		Admin_Menu::add_menu( 'eCommerce', 'eCommerce', 'manage_options', 'tiebreak-ecommerce', '__return_null' );
+		Admin_Menu::add_menu( 'Alpha 10', 'Alpha 10', 'manage_options', 'tiebreak-alpha-10', '__return_null' );
+		Admin_Menu::add_menu( 'Alpha 2', 'Alpha 2', 'manage_options', 'tiebreak-alpha-2', '__return_null' );
+
+		do_action( 'admin_menu' );
+
+		$slugs = array_column( $submenu['jetpack'], 2 );
+		$order = array_values(
+			array_filter(
+				$slugs,
+				function ( $slug ) {
+					return str_starts_with( $slug, 'tiebreak-' );
+				}
+			)
+		);
+
+		$this->assertSame(
+			array( 'tiebreak-alpha-2', 'tiebreak-alpha-10', 'tiebreak-ecommerce', 'tiebreak-zebra' ),
+			$order,
+			'Equal-position items should sort case-insensitively, with numbers in natural order.'
+		);
+	}
 }

@@ -25,6 +25,8 @@ class AiSeoTest extends SeoTestCase {
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 
+		\Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar::$is_host_enabled = false;
+
 		self::reset_plan();
 
 		parent::tearDown();
@@ -87,5 +89,50 @@ class AiSeoTest extends SeoTestCase {
 		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 
 		$this->assertFalse( Ai_Seo::is_available() );
+	}
+
+	/**
+	 * The editor's generation is reachable on a plan holding `ai-seo-enhancer`.
+	 */
+	public function test_has_reachable_surface_when_the_plan_supports_the_enhancer() {
+		self::set_plan( 'jetpack_business' );
+		self::set_seo_tools_active( true );
+
+		$this->assertTrue( Ai_Seo::has_reachable_surface() );
+	}
+
+	/**
+	 * A free plan off WordPress.com is entitled to AI SEO but reaches neither
+	 * surface: no sidebar on this host, no `ai-seo-enhancer` for the editor.
+	 */
+	public function test_has_no_reachable_surface_on_a_free_plan_without_the_sidebar() {
+		self::set_plan( 'jetpack_free' );
+		self::set_seo_tools_active( true );
+
+		$this->assertTrue( Ai_Seo::is_available() );
+		$this->assertFalse( Ai_Seo::has_reachable_surface() );
+	}
+
+	/**
+	 * A host that loads the sidebar reaches its SEO suggestions without the
+	 * enhancer entitlement.
+	 */
+	public function test_has_reachable_surface_when_the_host_loads_the_sidebar() {
+		self::set_plan( 'jetpack_free' );
+		self::set_seo_tools_active( true );
+		\Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar::$is_host_enabled = true;
+
+		$this->assertTrue( Ai_Seo::has_reachable_surface() );
+	}
+
+	/**
+	 * A falsified availability term vetoes a reachable surface too.
+	 */
+	public function test_has_no_reachable_surface_when_seo_tools_module_inactive() {
+		self::set_plan( 'jetpack_business' );
+		self::set_seo_tools_active( false );
+		\Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_AI_Sidebar::$is_host_enabled = true;
+
+		$this->assertFalse( Ai_Seo::has_reachable_surface() );
 	}
 }

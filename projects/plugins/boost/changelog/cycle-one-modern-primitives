@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Add the mode detection and URL rules the modernized dashboard will mount against. Inert until it is wired up.
+
+

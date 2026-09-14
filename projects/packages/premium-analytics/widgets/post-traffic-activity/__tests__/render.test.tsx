@@ -23,21 +23,16 @@ let mockAttachRef: ( ( element: HTMLElement | null ) => void ) | undefined;
 type ResizeHandler = ( entries: { contentRect: { width: number } }[] ) => void;
 let mockResizeHandlers: ResizeHandler[] = [];
 
-// jsdom's ResizeObserver never fires, so the real hook leaves the card unmeasured
-// and the width-driven page span is unreachable from a test. Drive it directly.
-// The widget consumes the hook twice — its own card-width observer plus the one
-// inside `useElementSize` — so a resize is broadcast to every handler: the width
-// handler reads the entry, while `useElementSize` falls back to measuring its
-// own element, and both dedupe repeats.
+// jsdom's ResizeObserver never fires, so tests drive width via the mock; the
+// widget consumes the hook twice, so a resize broadcasts to every handler.
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
 	useResizeObserver: ( onResize: ResizeHandler ) => {
 		mockResizeHandlers.push( onResize );
 		mockFireResize = width =>
 			mockResizeHandlers.forEach( handler => handler( [ { contentRect: { width } } ] ) );
-		// One stable ref callback for the whole file. A fresh arrow per render would
-		// make React detach and re-attach on every commit, replaying the mount width
-		// and undoing whatever a test fired.
+		// A fresh arrow per render would make React re-attach on every commit,
+		// replaying the mount width and undoing whatever a test fired.
 		mockAttachRef ??= element => {
 			if ( element && mockCardWidth !== undefined ) {
 				mockFireResize?.( mockCardWidth );
@@ -50,9 +45,8 @@ jest.mock( '@wordpress/compose', () => ( {
 
 type TooltipData = { value: number | null; cellLabel?: string; row: number; column: number };
 
-// Keep visx out of jsdom while exercising the widget's tooltip renderer with
-// one cell of each kind: a pre-range filler blank, an in-range blank, and
-// singular/plural counted cells.
+// Keeps visx out of jsdom while still exercising the widget's tooltip renderer
+// with one cell of each kind.
 jest.mock( '@jetpack-premium-analytics/externals', () => {
 	const actual = jest.requireActual( '@jetpack-premium-analytics/externals' );
 
@@ -157,9 +151,8 @@ describe( 'PostTrafficActivity tooltip', () => {
 	} );
 } );
 
-// The cell-height cap follows the measured chart area so the grid — month-label
-// header row included — never outgrows the tile and clips. jsdom reports a zero
-// rect by default, which doubles as the unmeasured initial render.
+// The cell-height cap follows the measured chart area so the grid never clips.
+// jsdom's default zero rect doubles as the unmeasured initial render.
 describe( 'PostTrafficActivity cell sizing', () => {
 	beforeEach( () => {
 		mockUsePostTrafficActivity.mockReset();

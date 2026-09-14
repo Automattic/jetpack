@@ -57,13 +57,9 @@ function toVisitsParams(
 }
 
 /**
- * Fetch the traffic time series for the dashboard's report params. Views and
- * visitors ride one request, likes and comments a second — split (rather than a
- * single four-field request) because the visits endpoint's latency grows with
- * the number of requested fields, so two smaller requests resolve faster in
- * parallel. Mirrors how Calypso's chart tabs fetch each pair. The likes and
- * comments request is skipped entirely at the hourly grain, which cannot fill
- * either field.
+ * Views/visitors and likes/comments ride separate requests — the visits
+ * endpoint's latency grows with requested fields, so two smaller requests
+ * resolve faster in parallel, mirroring Calypso's chart tabs.
  */
 export default function useTrafficChart(
 	reportParams: ReportParams,
@@ -92,9 +88,11 @@ export default function useTrafficChart(
 	const vvPrimary = viewsVisitors.primary.data as StatsVisitsResponse | undefined;
 	const vvComparison = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
 	const vvHasComparison = viewsVisitors.hasComparison;
+	const vvZone = viewsVisitors.timezone;
 	const lcPrimary = likesComments.primary.data as StatsVisitsResponse | undefined;
 	const lcComparison = likesComments.comparison.data as StatsVisitsResponse | undefined;
 	const lcHasComparison = likesComments.hasComparison;
+	const lcZone = likesComments.timezone;
 
 	// One tab per metric, in canonical definition order.
 	const metrics = useMemo(
@@ -108,6 +106,7 @@ export default function useTrafficChart(
 						hasComparison: isViewsVisitors ? vvHasComparison : lcHasComparison,
 						field: metric.id,
 						label: metric.label,
+						zone: isViewsVisitors ? vvZone : lcZone,
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
 					...( isServed( metric.id )
@@ -120,12 +119,21 @@ export default function useTrafficChart(
 						  } ),
 				};
 			} ),
-		[ isServed, vvPrimary, vvComparison, vvHasComparison, lcPrimary, lcComparison, lcHasComparison ]
+		[
+			isServed,
+			vvPrimary,
+			vvComparison,
+			vvHasComparison,
+			vvZone,
+			lcPrimary,
+			lcComparison,
+			lcHasComparison,
+			lcZone,
+		]
 	);
 
-	// Depend on the underlying refetch callbacks (each a stable `useReport`
-	// `useCallback`), not the fresh result objects, so this stays stable across
-	// renders.
+	// Depend on the underlying refetch callbacks (stable `useReport` `useCallback`s),
+	// not the fresh result objects, so this stays stable across renders.
 	const { refetch: refetchViewsVisitors } = viewsVisitors;
 	const { refetch: refetchLikesComments } = likesComments;
 	const refetch = useCallback( () => {
@@ -133,10 +141,8 @@ export default function useTrafficChart(
 		refetchLikesComments();
 	}, [ refetchViewsVisitors, refetchLikesComments ] );
 
-	// Gate the error per query — the two independent queries back separate tabs, so
-	// one failing on first load must surface an error rather than render as empty
-	// tabs beside the other's populated chart. `placeholderData` keeps a query's
-	// prior rows on a transient refetch failure, so a query with rows is not errored.
+	// Gate the error per query so a failed one surfaces beside the other's populated
+	// tabs instead of rendering empty; placeholder data spares a query that still has rows.
 	const isError =
 		( viewsVisitors.isError && ! vvPrimary?.data?.length ) ||
 		( likesComments.isError && ! lcPrimary?.data?.length );

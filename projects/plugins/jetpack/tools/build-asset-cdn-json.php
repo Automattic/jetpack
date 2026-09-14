@@ -55,10 +55,6 @@ foreach ( $regex as $path_to_file => $value ) {
 function do_proc_open( $cmd, &$pipes ) {
 	global $jetpack_path;
 
-	if ( is_array( $cmd ) && version_compare( PHP_VERSION, '7.4.0', '<' ) ) {
-		// PHP <7.4 doesn't support an array, so convert it to a string.
-		$cmd = implode( ' ', array_map( 'escapeshellarg', $cmd ) );
-	}
 	return proc_open(
 		$cmd,
 		array( array( 'pipe', 'r' ), array( 'pipe', 'w' ), STDERR ),

@@ -277,7 +277,6 @@ export const WithCompositionLegend: StoryObj< StoryArgs > = {
 		const legend = extractLegendConfig< ChartLegendConfig< SeriesData[] > >( args );
 		return (
 			<AreaChart
-				{ ...Default.args }
 				{ ...args }
 				legend={ { interactive: legend?.interactive } }
 				chartId="composition-area-chart"
@@ -286,7 +285,7 @@ export const WithCompositionLegend: StoryObj< StoryArgs > = {
 			</AreaChart>
 		);
 	},
-	args: { ...Default.args },
+	args: { ...Default.args, showLegend: false },
 	parameters: {
 		docs: {
 			description: {

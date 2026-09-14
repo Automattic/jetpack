@@ -52,10 +52,9 @@ describe( 'usePostTrafficActivity', () => {
 
 		const { days } = result.current;
 
-		// The 4-day range pads backward with the page snapped to week
-		// boundaries (Monday 2026-01-19), but stops at the range end: the
-		// week-completion days past it (2026-07-05) emit no points, so the
-		// chart's ragged-edge option hides their cells.
+		// The 4-day range pads backward to a week boundary (Monday 2026-01-19) but
+		// stops at the range end: the week-completion days past it emit no points,
+		// so the chart's ragged-edge option hides their cells.
 		expect( days ).toHaveLength( 167 );
 		expect( days[ 0 ].dateString ).toBe( '2026-01-19' );
 
@@ -71,7 +70,6 @@ describe( 'usePostTrafficActivity', () => {
 		// Filler days stay blank even where the history has views (2026-06-30).
 		expect( days.slice( 0, -4 ).every( day => day.value === null ) ).toBe( true );
 
-		// One page covers the range, so no pager.
 		expect( result.current.isPaged ).toBe( false );
 	} );
 

@@ -8,6 +8,41 @@ domReady( function() {
     // Site ID will be automatically added to the request.
     const JITM_ENDPOINT_URL = `/wpcom/v3/jitm`;
 
+    /*
+     * The wpcom/v3 route above is served by WordPress.com on Simple sites and by the
+     * Jetpack plugin on connected self-hosted sites. Standalone Jetpack plugins ship
+     * this script but not that route, so fall back to the one this package registers
+     * for itself in Rest_Api_Endpoints.
+     */
+    const JITM_FALLBACK_ENDPOINT_URL = `/jetpack/v4/jitm`;
+
+    // The route that answered last, reused for dismissals and later fetches.
+    let jitmEndpointUrl = JITM_ENDPOINT_URL;
+
+    const isMissingRoute = function(error) {
+        return !!error && ('rest_no_route' === error.code || 404 === error?.data?.status);
+    };
+
+    const fetchJitms = function(queryArgs) {
+        const request = function(path) {
+            return apiFetch({
+                path: addQueryArgs(path, queryArgs),
+                method: 'GET',
+            });
+        };
+
+        return request(jitmEndpointUrl).catch(function(error) {
+            if (jitmEndpointUrl !== JITM_ENDPOINT_URL || !isMissingRoute(error)) {
+                throw error;
+            }
+
+            // Remember the working route so subsequent fetches skip the 404.
+            jitmEndpointUrl = JITM_FALLBACK_ENDPOINT_URL;
+
+            return request(jitmEndpointUrl);
+        });
+    };
+
     const templates = {
         default: function(envelope) {
             const EXTERNAL_LINK_ICON = `
@@ -172,12 +207,15 @@ domReady( function() {
                 templateEl.style.display = 'none';
 
                 apiFetch({
-                    path: JITM_ENDPOINT_URL,
+                    path: jitmEndpointUrl,
                     method: 'POST',
                     data: {
                         id: response.id,
                         feature_class: response.feature_class,
                     },
+                }).catch(function() {
+                    // The banner is already hidden locally, so a failed dismissal
+                    // is not worth surfacing to the user.
                 });
             });
         }
@@ -333,19 +371,21 @@ domReady( function() {
 
             const full_jp_logo_exists = document.querySelector('.jetpack-logo__masthead') ? true : false;
 
-            apiFetch({
-                path: addQueryArgs(JITM_ENDPOINT_URL, {
-                    message_path,
-                    query,
-                    full_jp_logo_exists,
-                }),
-                method: 'GET',
-            }).then(function(messages) {
-                const message = messages?.[0];
-                if (message?.content) {
-                    setJITMContent(el, message, redirect);
-                }
-            });
+            fetchJitms({
+                message_path,
+                query,
+                full_jp_logo_exists,
+            })
+                .then(function(messages) {
+                    const message = messages?.[0];
+                    if (message?.content) {
+                        setJITMContent(el, message, redirect);
+                    }
+                })
+                .catch(function() {
+                    // JITMs are non-essential. Swallow the failure rather than
+                    // leaving an unhandled rejection in the console.
+                });
         });
     };
 

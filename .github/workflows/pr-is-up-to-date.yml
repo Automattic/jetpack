@@ -33,6 +33,7 @@ jobs:
       - name: Determine tags for PR or tag and paths for tag push
         id: determine
         env:
+          BASE: ${{ github.event.pull_request.base.sha }}
           REF: ${{ github.event.pull_request.head.sha }}
         run: |
           TAGS=()
@@ -44,8 +45,14 @@ jobs:
               PATHS="${TAG#pr-update-to-}"
             fi
           else
-            TMP="$(git -c core.quotepath=off diff --name-only "origin/trunk...${REF}" projects/*/*/ | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!pr-update-to-\1!p' | sort -u)"
-            mapfile -t TAGS <<<"$TMP"
+            while IFS= read -r T; do
+              if [[ -n "$( git ls-remote --tags origin "$T" 2>/dev/null )" ]]; then
+                echo "Touched $T"
+                TAGS+=( "$T" )
+              else
+                echo "Touched $T, but that hasn't been created yet so ignore it"
+              fi
+            done < <( git -c core.quotepath=off diff --name-only "${BASE}...${REF}" projects/ | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!pr-update-to-\1!p' | sort -u )
             TAGS+=( pr-update-to )
           fi
           echo "pr-tags=${TAGS[*]}" >> "$GITHUB_OUTPUT"

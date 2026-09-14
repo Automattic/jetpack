@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Open the file picker directly from the welcome modal's Upload a video button, then land on the Library to follow the upload's progress.

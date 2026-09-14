@@ -1,6 +1,5 @@
 import debug from './debug.ts';
-import type { OctokitClient } from '../types.ts';
-import type { IssueComment } from '@octokit/webhooks-types';
+import type { OctokitClient, IssueComment } from '../types.ts';
 
 // Cache for getComments.
 const cache: Record< string, IssueComment[] > = {};

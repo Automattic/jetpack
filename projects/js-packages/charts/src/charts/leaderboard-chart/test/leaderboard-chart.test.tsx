@@ -665,4 +665,18 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
 		} );
 	} );
+
+	describe( 'grid gaps', () => {
+		// eslint-disable-next-line testing-library/no-node-access -- The grid is rendered by `Grid` from @wordpress/components, which takes no test id.
+		const grid = () => document.querySelector( '[data-leaderboard-grid]' );
+
+		it( 'hands the catalog role to the grid', () => {
+			render( <LeaderboardChart data={ mockData } /> );
+
+			expect( grid() ).toHaveStyle( {
+				gridRowGap: 'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)',
+				gridColumnGap: 'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)',
+			} );
+		} );
+	} );
 } );

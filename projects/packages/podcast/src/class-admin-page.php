@@ -20,10 +20,11 @@ class Admin_Page {
 	const ADMIN_PAGE_SLUG = 'jetpack-podcast';
 
 	/**
-	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
+	 * Where the Podcast item used to sit in the Jetpack submenu on self-hosted.
 	 *
-	 * Placed after content/product items like Newsletter and Search (10), and
-	 * above Activity Log (12) so Activity Log stays immediately before Settings (13).
+	 * Unread since Podcast registers without a position; kept so consumers do not fatal.
+	 *
+	 * @deprecated 2.1.1
 	 */
 	const MENU_POSITION = 11;
 
@@ -87,8 +88,7 @@ class Admin_Page {
 				'Podcast',
 				'manage_options',
 				self::ADMIN_PAGE_SLUG,
-				$callback,
-				self::MENU_POSITION
+				$callback
 			);
 		}
 
