@@ -218,33 +218,49 @@ class Password_Checker_Test extends BaseTestCase {
 		$result = $this->password_checker->test( 'zzzzzz' );
 		$this->assertFalse( $result['passed'], 'Repetitive password must fail entropy requirement.' );
 		$this->assertNotEmpty( $result['test_results']['failed'], 'Failed suggestion tests should be returned.' );
+
+		$failed_names = array_column( $result['test_results']['failed'], 'test_name' );
+		$this->assertContains( 'has_mixed_case', $failed_names );
+		$this->assertContains( 'has_digit', $failed_names );
+		$this->assertContains( 'has_special_char', $failed_names );
 	}
 
 	/**
 	 * Test user data variations detection (suffix numbers, reversed username, etc.).
+	 *
+	 * @dataProvider user_data_variations_provider
+	 *
+	 * @param string $password        The password.
+	 * @param bool   $expected_passed Whether the test is expected to pass.
+	 * @param string $message          Failure message.
 	 */
-	public function test_user_data_variations() {
-		$tests = $this->password_checker->get_tests( 'compare_to_list' );
+	#[DataProvider( 'user_data_variations_provider' )]
+	public function test_user_data_variations( $password, $expected_passed, $message ) {
+		$tests   = $this->password_checker->get_tests( 'compare_to_list' );
+		$results = $this->password_checker->run_tests( $password, $tests );
 
-		// Username with appended numbers should fail.
-		$result_suffix = $this->password_checker->run_tests( 'test-user123', $tests );
-		$this->assertNotEmpty( $result_suffix['failed'], 'Username with appended digits must fail.' );
+		if ( $expected_passed ) {
+			$this->assertEmpty( $results['failed'], $message );
+		} else {
+			$this->assertNotEmpty( $results['failed'], $message );
+			$failed_names = array_column( $results['failed'], 'test_name' );
+			$this->assertContains( 'not_same_as_other_user_data', $failed_names, $message );
+		}
+	}
 
-		// Reversed username should fail.
-		$result_reversed = $this->password_checker->run_tests( 'resu-tset', $tests );
-		$this->assertNotEmpty( $result_reversed['failed'], 'Reversed username must fail.' );
-
-		// Reversed username with appended numbers should fail.
-		$result_reversed_suffix = $this->password_checker->run_tests( 'resu-tset99', $tests );
-		$this->assertNotEmpty( $result_reversed_suffix['failed'], 'Reversed username with digits must fail.' );
-
-		// First name with appended numbers should fail.
-		$result_name_suffix = $this->password_checker->run_tests( 'Test2026', $tests );
-		$this->assertNotEmpty( $result_name_suffix['failed'], 'User first name with digits must fail.' );
-
-		// Completely independent password should pass.
-		$result_clean = $this->password_checker->run_tests( 'UniqueUnrelatedPassword!', $tests );
-		$this->assertEmpty( $result_clean['failed'], 'Unrelated password must pass user data check.' );
+	/**
+	 * Data provider for user data variations tests.
+	 *
+	 * @return array
+	 */
+	public static function user_data_variations_provider() {
+		return array(
+			'suffix_numbers'         => array( 'test-user123', false, 'Username with appended digits must fail.' ),
+			'reversed_username'      => array( 'resu-tset', false, 'Reversed username must fail.' ),
+			'reversed_with_digits'   => array( 'resu-tset99', false, 'Reversed username with digits must fail.' ),
+			'first_name_with_digits' => array( 'Test2026', false, 'User first name with digits must fail.' ),
+			'unrelated_password'     => array( 'UniqueUnrelatedPassword!', true, 'Unrelated password must pass user data check.' ),
+		);
 	}
 
 	/**
@@ -253,10 +269,11 @@ class Password_Checker_Test extends BaseTestCase {
 	public function test_instantiation_with_current_user() {
 		wp_set_current_user( $this->user_id );
 		$checker = new Password_Checker();
-		$this->assertInstanceOf( Password_Checker::class, $checker );
 
-		$result = $checker->test( 'Str0ng#P@ssw0rd!2026' );
-		$this->assertTrue( $result['passed'], 'Password checker with current user should evaluate successfully.' );
+		$result = $checker->test( 'test-user123' );
+		$this->assertFalse( $result['passed'], 'Password containing current user data must fail.' );
+		$failed_names = array_column( $result['test_results']['failed'], 'test_name' );
+		$this->assertContains( 'not_same_as_other_user_data', $failed_names );
 	}
 
 	/**
@@ -265,6 +282,10 @@ class Password_Checker_Test extends BaseTestCase {
 	public function test_calculate_entropy_bits() {
 		$ref    = new \ReflectionClass( $this->password_checker );
 		$method = $ref->getMethod( 'calculate_entropy_bits' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$weak_entropy   = $method->invoke( $this->password_checker, 'aaaaaa' );
 		$strong_entropy = $method->invoke( $this->password_checker, 'C0mpl3x#P@ssw0rd!2026' );
