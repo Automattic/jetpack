@@ -123,6 +123,17 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $this->state( Expiry_Data::STATE_EXPIRED_GRACE, time() - 60 ), $this->user_id ) );
 	}
 
+	public function test_a_post_grace_dismissal_is_measured_against_the_revert(): void {
+		$reverted_at = time() - ( 10 * DAY_IN_SECONDS );
+		$state       = $this->state( Expiry_Data::STATE_EXPIRED, $reverted_at );
+
+		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, $reverted_at - DAY_IN_SECONDS );
+		$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ), 'a dismissal from before the revert belongs to a previous term' );
+
+		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, $reverted_at + DAY_IN_SECONDS );
+		$this->assertFalse( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ) );
+	}
+
 	public function test_a_dismissal_belongs_to_one_site(): void {
 		$state  = $this->state( Expiry_Data::STATE_EXPIRED, time() - 40 * DAY_IN_SECONDS );
 		$prefix = $GLOBALS['wpdb']->get_blog_prefix();
