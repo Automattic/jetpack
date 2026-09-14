@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Do not request the plan from WordPress.com when the site has no blog ID.
+Prevent a malformed WordPress.com request on unregistered sites that could record a spurious connection error.

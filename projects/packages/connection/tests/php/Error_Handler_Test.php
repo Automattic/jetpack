@@ -521,6 +521,26 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test deletion also purges a legacy orphan served from the alloptions blob.
+	 *
+	 * Rows created before these options stopped autoloading live inside the shared
+	 * alloptions cache entry, which a per-key purge cannot reach — the exact state
+	 * of the reported incident (CONNECT-457).
+	 */
+	public function test_delete_verified_errors_purges_legacy_alloptions_orphan() {
+		$alloptions = wp_load_alloptions();
+		$alloptions[ Error_Handler::STORED_VERIFIED_ERRORS_OPTION ] = maybe_serialize( array( 'no_possible_tokens' => array( '0' => array( 'error_code' => 'no_possible_tokens' ) ) ) );
+		wp_cache_set( 'alloptions', $alloptions, 'options' );
+
+		// Served from the blob; no DB row exists.
+		$this->assertNotEmpty( get_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION ) );
+
+		$this->error_handler->delete_verified_errors();
+
+		$this->assertFalse( get_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION ) );
+	}
+
+	/**
 	 * Test that the body hash of the failed request is stored.
 	 */
 	public function test_check_api_response_for_errors_stores_body_hash() {

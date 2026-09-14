@@ -1588,6 +1588,7 @@ class Error_Handler {
 	public function delete_stored_errors() {
 		$deleted = delete_option( self::STORED_ERRORS_OPTION );
 		$this->purge_option_caches();
+		$this->maybe_purge_legacy_alloptions_orphan( self::STORED_ERRORS_OPTION, $deleted );
 		return $deleted;
 	}
 
@@ -1601,7 +1602,27 @@ class Error_Handler {
 	public function delete_verified_errors() {
 		$deleted = delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
 		$this->purge_option_caches();
+		$this->maybe_purge_legacy_alloptions_orphan( self::STORED_VERIFIED_ERRORS_OPTION, $deleted );
 		return $deleted;
+	}
+
+	/**
+	 * Drops the alloptions cache blob when a legacy orphaned value is detected.
+	 *
+	 * A value still readable after delete_option() reported no DB row and the
+	 * per-key cache was purged can only be served from the autoloaded alloptions
+	 * blob (rows created before these options stopped autoloading). The detection
+	 * keeps this blob-wide invalidation off every routine path.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $option  The option name to probe.
+	 * @param bool   $deleted Whether delete_option() found and deleted a DB row.
+	 */
+	private function maybe_purge_legacy_alloptions_orphan( $option, $deleted ) {
+		if ( ! $deleted && false !== get_option( $option ) ) {
+			wp_cache_delete( 'alloptions', 'options' );
+		}
 	}
 
 	/**
