@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -17,13 +18,20 @@ use WorDBless\BaseTestCase;
 class Initializer_Wp_Build_Test extends BaseTestCase {
 
 	/**
+	 * Per-flag filter that forces the wp-build flag.
+	 */
+	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Initializer::WP_BUILD_FEATURE_FLAG;
+
+	/**
 	 * Reset the request between tests.
 	 *
 	 * @return void
 	 */
 	public function tear_down() {
 		unset( $_GET['page'], $_GET['step'], $GLOBALS['current_screen'] );
-		remove_all_filters( Initializer::MODERNIZATION_FILTER );
+		remove_all_filters( self::FLAG_FILTER );
+		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
+		Feature_Flags::reset();
 	}
 
 	/**
@@ -32,20 +40,36 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	 * @return void
 	 */
 	public function test_modernization_is_off_by_default() {
+		Initializer::register_feature_flags();
+
+		$this->assertSame( false, Feature_Flags::get( Initializer::WP_BUILD_FEATURE_FLAG )['default'] ?? null );
 		$this->assertFalse( Initializer::is_modernized() );
 	}
 
 	/**
-	 * Hosts can opt in through the documented filter.
+	 * The flag's per-flag filter turns it on.
 	 *
 	 * @return void
 	 */
-	public function test_modernization_filter_turns_it_on() {
-		add_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+	public function test_modernization_flag_turns_it_on() {
+		Initializer::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		$this->assertTrue( Initializer::is_modernized() );
+	}
 
-		remove_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+	/**
+	 * The flag is registered even where My Jetpack itself is off, so it stays listed.
+	 *
+	 * @return void
+	 */
+	public function test_init_registers_the_flag_where_my_jetpack_is_off() {
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		Initializer::init();
+
+		$this->assertFalse( Initializer::should_initialize() );
+		$this->assertNotNull( Feature_Flags::get( Initializer::WP_BUILD_FEATURE_FLAG ) );
 	}
 
 	/**
@@ -85,7 +109,7 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 		$_GET['page'] = 'my-jetpack';
 		$this->assertFalse( Initializer::should_load_wp_build(), 'Flag off.' );
 
-		add_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 		$this->assertTrue( Initializer::should_load_wp_build(), 'Flagged dashboard request.' );
 
 		$_GET['page'] = 'jetpack';
@@ -183,7 +207,7 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_admin_page_renders_through_wp_build_when_loaded() {
 		require_once __DIR__ . '/stubs/wp-build-render-page.php';
-		add_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		$html = $this->render_admin_page();
 
@@ -203,7 +227,7 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_admin_page_keeps_onboarding_on_the_legacy_container() {
 		require_once __DIR__ . '/stubs/wp-build-render-page.php';
-		add_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 		$_GET['step'] = 'onboarding';
 
 		$html = $this->render_admin_page();
@@ -287,7 +311,7 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 
 		// The loader runs on admin_menu priority 1 — before this filter exists.
 		Initializer::maybe_load_wp_build();
-		add_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		Initializer::enqueue_scripts();
 
@@ -311,7 +335,7 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_enqueue_scripts_moves_the_state_to_the_data_handle_when_wp_build_loaded() {
 		$_GET['page'] = 'my-jetpack';
-		add_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		// Stands in for the generated build/pages/ render function the flag-on path gates on.
 		require_once __DIR__ . '/stubs/wp-build-render-page.php';

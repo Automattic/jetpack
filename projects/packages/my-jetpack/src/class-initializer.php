@@ -18,6 +18,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\ExPlat;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Menu_Badges\Menu_Badges;
@@ -46,9 +47,9 @@ class Initializer {
 	const PACKAGE_VERSION = '6.2.2';
 
 	/**
-	 * Filter that opts a site into the wp-build My Jetpack dashboard.
+	 * Feature flag that opts a site into the wp-build My Jetpack dashboard.
 	 */
-	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_my_jetpack';
+	const WP_BUILD_FEATURE_FLAG = 'my-jetpack-wp-build';
 
 	/**
 	 * Handle for the classic script that carries the React initial state on the
@@ -100,6 +101,9 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
+		// Before the gate, so the flag stays listed while diagnosing why My Jetpack is off.
+		self::register_feature_flags();
+
 		// Before the gate: the Jetpack plugin renders this package's connection screen even
 		// where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_assets_script_data' ) );
@@ -314,24 +318,35 @@ class Initializer {
 	}
 
 	/**
+	 * Register the package's feature flags.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::WP_BUILD_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Serve the My Jetpack dashboard through the wp-build pipeline.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+	}
+
+	/**
 	 * Whether this site renders My Jetpack through wp-build.
 	 *
-	 * Defaults off while the port is verified; hosts opt in with
-	 * `add_filter( 'rsm_jetpack_ui_modernization_my_jetpack', '__return_true' );`.
+	 * Defaults off while the port is verified; enable it with
+	 * `wp companion feature-flag enable my-jetpack-wp-build`.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		/**
-		 * Render the My Jetpack dashboard through the wp-build pipeline.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $enabled Whether to serve the modernized dashboard. Default false.
-		 */
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return Feature_Flags::is_enabled( self::WP_BUILD_FEATURE_FLAG );
 	}
 
 	/**
