@@ -2,6 +2,7 @@ import {
 	AnalyticsQueryClientProvider,
 	GlobalErrorProvider,
 	PeriodChangeSignalProvider,
+	postSurface,
 	ReportScopeProvider,
 	useSettlePeriodChange,
 } from '@jetpack-premium-analytics/data';
@@ -147,7 +148,7 @@ function PostDetail(): JSX.Element {
 	// A card on this page can set the period (the All-time traffic card opens a
 	// month); the control then draws attention to it and the change is read out.
 	const { attentionId, endAttention } = useSettlePeriodChange(
-		`post:${ postId }`,
+		postSurface( postId ),
 		dateFilters.appliedRange,
 		! isEmailTab
 	);

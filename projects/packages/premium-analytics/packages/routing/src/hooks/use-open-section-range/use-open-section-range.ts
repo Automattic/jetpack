@@ -36,7 +36,6 @@ export function useOpenSectionRange(): OpenSectionRange {
 				effective,
 			} );
 
-			// Raised first, so the section's date control knows the change is not the reader's.
 			raisePeriodChange( section, range );
 			stage( { ...patch, section } );
 			commit( { replace: false } );

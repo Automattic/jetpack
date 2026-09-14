@@ -4,6 +4,7 @@ export { globalErrorManager, type GlobalErrorType } from './providers/global-err
 export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
 export {
 	PeriodChangeSignalProvider,
+	postSurface,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
 	type PeriodChangeAttention,

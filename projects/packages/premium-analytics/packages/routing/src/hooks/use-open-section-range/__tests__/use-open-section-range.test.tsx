@@ -64,8 +64,6 @@ describe( 'useOpenSectionRange', () => {
 		} );
 	} );
 
-	// The section's date control draws attention to a period it did not pick
-	// itself (WOOA7S-2036), so the navigation announces it first.
 	it( 'signals the period change to the section it opens', () => {
 		mockSearch = { section: 'insights' };
 		const wrapper = ( { children }: { children: ReactNode } ) => (
