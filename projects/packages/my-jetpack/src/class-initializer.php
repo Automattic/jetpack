@@ -58,6 +58,11 @@ class Initializer {
 	const DATA_SCRIPT_HANDLE = 'my-jetpack-data';
 
 	/**
+	 * The wp-build page ID, which the generated enqueue check expects as the screen ID.
+	 */
+	const WP_BUILD_PAGE_ID = 'my-jetpack-dashboard';
+
+	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
 	 */
 	private const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
@@ -81,6 +86,13 @@ class Initializer {
 	 * @var object
 	 */
 	public static $site_info;
+
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
 
 	/**
 	 * Initialize My Jetpack
@@ -112,9 +124,9 @@ class Initializer {
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
-		// Both of wp-build's deadlines fall later in this request: the `current_screen`
-		// alias must exist before `set_current_screen()`, and the render function
-		// before the page callback.
+		// Both of wp-build's deadlines fall later in this request: its enqueue check must be
+		// hooked before `admin_enqueue_scripts`, and its render function defined before
+		// the page callback.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
@@ -371,30 +383,66 @@ class Initializer {
 	/**
 	 * Alias the screen ID to satisfy wp-build's generated enqueue check.
 	 *
-	 * Restored once that check has run, since JITM builds its message path from the
-	 * screen ID on `admin_notices`.
-	 *
 	 * @since $$next-version$$
 	 *
-	 * @param \WP_Screen|null $screen The current screen object.
 	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( ! is_object( $screen ) ) {
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+
+		if ( ! $screen ) {
 			return;
 		}
 
-		$original_id = $screen->id;
-		$screen->id  = 'my-jetpack-dashboard';
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = self::WP_BUILD_PAGE_ID;
+	}
 
-		// The generated check hooks the default priority.
-		add_action(
-			'admin_enqueue_scripts',
-			static function () use ( $screen, $original_id ) {
-				$screen->id = $original_id;
-			},
-			11
-		);
+	/**
+	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Whether this request should load wp-build at all.
+	 *
+	 * Also what keeps WP_Build_Polyfills from replacing core scripts on every other admin page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function should_load_wp_build() {
+		return self::is_modernized() && self::is_my_jetpack_admin_request() && ! self::is_onboarding_takeover();
+	}
+
+	/**
+	 * Whether this request renders through wp-build rather than the legacy bundle.
+	 *
+	 * Checks the render function too: a flag registered after `admin_menu` priority 1 leaves
+	 * wp-build unloaded, and the request would otherwise get neither bundle.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function should_render_wp_build() {
+		return self::is_modernized()
+			&& ! self::is_onboarding_takeover()
+			&& function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page' );
 	}
 
 	/**
@@ -405,17 +453,31 @@ class Initializer {
 	 * @return void
 	 */
 	public static function maybe_load_wp_build() {
-		if ( ! self::is_modernized() || ! self::is_my_jetpack_admin_request() || self::is_onboarding_takeover() ) {
+		if ( ! self::should_load_wp_build() ) {
 			return;
 		}
 
 		$build_index = dirname( __DIR__ ) . '/build/build.php';
 
-		if ( ! file_exists( $build_index ) ) {
-			return;
+		if ( file_exists( $build_index ) ) {
+			self::load_wp_build( $build_index );
 		}
+	}
 
+	/**
+	 * Require the generated wp-build index and wire it into this request.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $build_index Path to the generated `build.php`.
+	 * @return void
+	 */
+	public static function load_wp_build( $build_index ) {
+		// Hooked on either side of the require, so the alias holds only for the generated
+		// enqueue check it registers at the same priority.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		require_once $build_index;
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
 
 		// wp-build hooks module registration to wp_default_scripts, which has
 		// already fired by admin_menu — call it directly or the init module
@@ -428,8 +490,6 @@ class Initializer {
 			'my-jetpack',
 			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
-
-		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
 	/**
@@ -477,12 +537,7 @@ class Initializer {
 		do_action( 'myjetpack_enqueue_scripts' );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
 
-		// Gate on the render function too, not just the flag: the loader ran back on
-		// `admin_menu` priority 1, so a filter registered later leaves wp-build unloaded
-		// and this request would get neither the legacy bundle nor the wp-build module.
-		$is_wp_build = self::is_modernized() && ! self::is_onboarding_takeover() && function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page' );
-
-		if ( $is_wp_build ) {
+		if ( self::should_render_wp_build() ) {
 			// wp-build enqueues the app itself; this empty handle exists only to
 			// print the initial state before boot runs on DOMContentLoaded.
 			$data_handle = self::DATA_SCRIPT_HANDLE;
@@ -792,8 +847,8 @@ class Initializer {
 		// render can run even when that redirect did not.
 		$is_onboarding = self::is_onboarding_takeover();
 
-		if ( ! $is_onboarding && self::is_modernized() && function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page' ) ) {
-			jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/pages/, which Phan excludes.
+		if ( self::should_render_wp_build() ) {
+			jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- should_render_wp_build() checks function_exists(); defined in the generated build/pages/, which Phan excludes.
 			return;
 		}
 

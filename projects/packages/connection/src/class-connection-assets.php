@@ -28,8 +28,7 @@ class Connection_Assets {
 	/**
 	 * Add the package's image base URL to the admin script data.
 	 *
-	 * The disconnect dialog's illustrations are served from the package rather than bundled,
-	 * because wp-build's esbuild pipeline has no image loader.
+	 * Other plugins' bundles request the disconnect dialog's images from this copy, so never rename one.
 	 *
 	 * @since $$next-version$$
 	 *

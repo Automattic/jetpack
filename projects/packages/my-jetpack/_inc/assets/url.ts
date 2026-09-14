@@ -4,6 +4,8 @@ import { getScriptData } from '@automattic/jetpack-script-data';
  * Build a runtime URL for a raster image copied into `build/images/` by
  * `bin/copy-raster-images.mjs`.
  *
+ * Another plugin's bundle can request these paths from this copy, so never rename an image.
+ *
  * @param relativePath - Path to the image, relative to `_inc/`.
  * @return Absolute URL, or `undefined` when no base is available.
  */

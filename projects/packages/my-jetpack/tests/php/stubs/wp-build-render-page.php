@@ -15,5 +15,7 @@ if ( ! function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render
 	 *
 	 * @return void
 	 */
-	function jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page() {}
+	function jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page() {
+		echo '<div id="my-jetpack-dashboard-wp-admin-app"></div>';
+	}
 }

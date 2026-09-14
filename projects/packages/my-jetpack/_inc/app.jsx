@@ -51,7 +51,7 @@ function ScrollToTop() {
 /**
  * The My Jetpack app tree, shared by the legacy entry and the wp-build stage.
  *
- * @return {object} The App component.
+ * @return {import('react').ReactElement} The App component.
  */
 export default function App() {
 	const { loadAddLicenseScreen } = getMyJetpackWindowInitialState();

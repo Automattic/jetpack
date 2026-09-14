@@ -176,8 +176,8 @@ export const SCENARIOS = [
 		defaultUrl: 'http://localhost:8083',
 		header: 'My Jetpack (simulated WP.com connection)',
 		// The My Jetpack admin page - the heaviest Jetpack admin bundle. PHP emits an empty
-		// `<div id="my-jetpack-container">` (the wp-build app root under the modernization flag)
-		// and React renders MyJetpackScreen into it, so measure-lcp.js waits for the AdminPage frame (`.jp-admin-page`, a non-hashed
+		// `<div id="my-jetpack-container">` (`#my-jetpack-dashboard-wp-admin-app` under the
+		// modernization flag) and React renders MyJetpackScreen into it, so measure-lcp.js waits for the AdminPage frame (`.jp-admin-page`, a non-hashed
 		// class from @automattic/jetpack-components) to appear so a run measures the rendered app,
 		// not the empty shell. Capture completeness then rests on the networkidle wait plus the
 		// stable resource count, not the frame selector (`.jp-admin-page` renders with its children

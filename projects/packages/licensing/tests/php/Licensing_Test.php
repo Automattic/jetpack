@@ -435,16 +435,17 @@ class Licensing_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Covers the activation screen's image base URL.
+	 * The activation screen's image base URL addresses the package's own images.
 	 */
 	public function test_add_script_data_exposes_the_package_image_base_url() {
-		$data = Licensing::add_script_data( array( 'site' => array( 'title' => 'Example' ) ) );
+		$root     = dirname( __DIR__, 2 );
+		$root_url = plugins_url( '', $root . '/composer.json' );
 
-		$this->assertSame(
-			trailingslashit( plugins_url( 'assets/images/', dirname( __DIR__, 2 ) . '/src' ) ),
-			$data['licensing']['assetsUrl']
-		);
-		$this->assertStringEndsWith( '/assets/images/', $data['licensing']['assetsUrl'] );
+		$data = Licensing::add_script_data( array( 'site' => array( 'title' => 'Example' ) ) );
+		$url  = $data['licensing']['assetsUrl'];
+
+		$this->assertStringStartsWith( $root_url . '/', $url );
+		$this->assertFileExists( $root . substr( $url, strlen( $root_url ) ) . 'jetpack-license-activation-with-lock.png' );
 		$this->assertSame( array( 'title' => 'Example' ), $data['site'] );
 	}
 

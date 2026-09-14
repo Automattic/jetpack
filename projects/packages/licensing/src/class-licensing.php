@@ -84,8 +84,7 @@ class Licensing {
 	/**
 	 * Add the package's image base URL to the admin script data.
 	 *
-	 * The license activation illustrations are served from the package rather than bundled,
-	 * because wp-build's esbuild pipeline has no image loader.
+	 * Other plugins' bundles request the activation screen's images from this copy, so never rename one.
 	 *
 	 * @since $$next-version$$
 	 *

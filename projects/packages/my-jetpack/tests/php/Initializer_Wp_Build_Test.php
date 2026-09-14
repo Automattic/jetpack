@@ -22,7 +22,8 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	 * @return void
 	 */
 	public function tear_down() {
-		unset( $_GET['page'], $_GET['step'] );
+		unset( $_GET['page'], $_GET['step'], $GLOBALS['current_screen'] );
+		remove_all_filters( Initializer::MODERNIZATION_FILTER );
 	}
 
 	/**
@@ -76,33 +77,45 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The screen alias satisfies wp-build's enqueue check without changing the URL.
+	 * Only the flagged My Jetpack dashboard request loads wp-build, and with it the polyfills.
 	 *
 	 * @return void
 	 */
-	public function test_alias_screen_id() {
+	public function test_should_load_wp_build_is_scoped_to_the_flagged_dashboard_request() {
+		$_GET['page'] = 'my-jetpack';
+		$this->assertFalse( Initializer::should_load_wp_build(), 'Flag off.' );
+
+		add_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+		$this->assertTrue( Initializer::should_load_wp_build(), 'Flagged dashboard request.' );
+
+		$_GET['page'] = 'jetpack';
+		$this->assertFalse( Initializer::should_load_wp_build(), 'Another admin page.' );
+
+		$_GET['page'] = 'my-jetpack';
+		$_GET['step'] = 'onboarding';
+		$this->assertFalse( Initializer::should_load_wp_build(), 'Onboarding takeover.' );
+	}
+
+	/**
+	 * The alias and its restore pair up, and do nothing without a screen.
+	 *
+	 * @return void
+	 */
+	public function test_alias_screen_id_round_trip() {
+		Initializer::alias_screen_id_for_wp_build();
+		Initializer::restore_screen_id_after_wp_build();
+
 		set_current_screen( 'jetpack_page_my-jetpack' );
-		$screen = get_current_screen();
 
-		Initializer::alias_screen_id_for_wp_build( $screen );
+		Initializer::alias_screen_id_for_wp_build();
+		$this->assertSame( Initializer::WP_BUILD_PAGE_ID, get_current_screen()->id );
 
-		$this->assertSame( 'my-jetpack-dashboard', $screen->id );
+		Initializer::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_my-jetpack', get_current_screen()->id );
 	}
 
 	/**
-	 * A non-object screen must not fatal. WordPress passes null on screens it
-	 * cannot resolve, and the `current_screen` action still fires there.
-	 *
-	 * @return void
-	 */
-	public function test_alias_screen_id_ignores_null() {
-		$this->expectNotToPerformAssertions();
-
-		Initializer::alias_screen_id_for_wp_build( null );
-	}
-
-	/**
-	 * The alias only has to hold for wp-build's enqueue check.
+	 * The alias holds for the generated enqueue check only, not for the callbacks around it.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -111,23 +124,103 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_alias_screen_id_ends_after_the_wp_build_enqueue_check() {
+	public function test_load_wp_build_aliases_the_screen_only_for_the_generated_check() {
 		set_current_screen( 'jetpack_page_my-jetpack' );
-		Initializer::alias_screen_id_for_wp_build( get_current_screen() );
 
-		// Stands in for the generated check, which hooks the default priority.
-		$id_during_enqueue = null;
+		$id_before = null;
 		add_action(
 			'admin_enqueue_scripts',
-			static function () use ( &$id_during_enqueue ) {
-				$id_during_enqueue = get_current_screen()->id;
+			static function () use ( &$id_before ) {
+				$id_before = get_current_screen()->id;
+			}
+		);
+
+		Initializer::load_wp_build( __DIR__ . '/stubs/wp-build-index.php' );
+
+		$id_after = null;
+		add_action(
+			'admin_enqueue_scripts',
+			static function () use ( &$id_after ) {
+				$id_after = get_current_screen()->id;
 			}
 		);
 
 		do_action( 'admin_enqueue_scripts', 'jetpack_page_my-jetpack' );
 
-		$this->assertSame( 'my-jetpack-dashboard', $id_during_enqueue );
-		$this->assertSame( 'jetpack_page_my-jetpack', get_current_screen()->id );
+		$this->assertSame( Initializer::WP_BUILD_PAGE_ID, $GLOBALS['my_jetpack_test_wp_build_check_screen_id'] );
+		$this->assertSame( 'jetpack_page_my-jetpack', $id_before );
+		$this->assertSame( 'jetpack_page_my-jetpack', $id_after );
+	}
+
+	/**
+	 * Flag off, the page keeps the legacy container even where the render function exists.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @return void
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_page_renders_the_legacy_container_when_the_flag_is_off() {
+		require_once __DIR__ . '/stubs/wp-build-render-page.php';
+
+		$html = $this->render_admin_page();
+
+		$this->assertStringContainsString( 'id="my-jetpack-container"', $html );
+		$this->assertStringNotContainsString( 'my-jetpack-dashboard-wp-admin-app', $html );
+	}
+
+	/**
+	 * Flag on, the page hands off to the wp-build render function.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @return void
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_page_renders_through_wp_build_when_loaded() {
+		require_once __DIR__ . '/stubs/wp-build-render-page.php';
+		add_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+
+		$html = $this->render_admin_page();
+
+		$this->assertStringContainsString( 'id="my-jetpack-dashboard-wp-admin-app"', $html );
+		$this->assertStringNotContainsString( 'my-jetpack-container', $html );
+	}
+
+	/**
+	 * Flag on, onboarding still takes the legacy path.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @return void
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_page_keeps_onboarding_on_the_legacy_container() {
+		require_once __DIR__ . '/stubs/wp-build-render-page.php';
+		add_filter( Initializer::MODERNIZATION_FILTER, '__return_true' );
+		$_GET['step'] = 'onboarding';
+
+		$html = $this->render_admin_page();
+
+		$this->assertStringContainsString( 'data-route="onboarding"', $html );
+		$this->assertStringNotContainsString( 'my-jetpack-dashboard-wp-admin-app', $html );
+	}
+
+	/**
+	 * Capture the admin page's markup.
+	 *
+	 * @return string
+	 */
+	private function render_admin_page() {
+		ob_start();
+		Initializer::admin_page();
+		return (string) ob_get_clean();
 	}
 
 	/**

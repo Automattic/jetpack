@@ -43,6 +43,8 @@ class Script_Data_Test extends BaseTestCase {
 	 * Covers requests other than the My Jetpack page's own.
 	 */
 	public function test_the_image_base_url_is_registered_off_the_my_jetpack_page() {
+		remove_all_filters( 'jetpack_admin_js_script_data' );
+
 		Initializer::init();
 
 		$this->assertSame( 0, did_action( 'admin_enqueue_scripts' ) );
