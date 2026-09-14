@@ -208,23 +208,31 @@ describe( 'LineChart', () => {
 		[ 'Escape', '{Escape}' ],
 		[ 'ArrowRight past the last point', '{ArrowRight}{ArrowRight}' ],
 	] )( 'returns focus to the grid after %s', async ( _name, keys ) => {
-		const user = userEvent.setup();
-		renderWithTheme();
-		const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+		jest.useFakeTimers();
+		try {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderWithTheme();
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
 
-		await user.tab();
-		expect( chart ).toHaveFocus();
-		await user.keyboard( '{ArrowRight}' );
-		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveFocus();
+			await user.tab();
+			expect( chart ).toHaveFocus();
+			await user.keyboard( '{ArrowRight}' );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveFocus();
 
-		await user.keyboard( keys );
-		expect( chart ).toHaveFocus();
-		await waitFor( () => expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument() );
+			await user.keyboard( keys );
+			await act( async () => {
+				jest.advanceTimersByTime( 5000 );
+			} );
+			expect( chart ).toHaveFocus();
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 
-		await user.keyboard( '{ArrowRight}' );
-		const tooltip = await screen.findByRole( 'tooltip' );
-		expect( tooltip ).toHaveFocus();
-		expect( tooltip ).toHaveTextContent( 'Series A:10' );
+			await user.keyboard( '{ArrowRight}' );
+			const tooltip = screen.getByRole( 'tooltip' );
+			expect( tooltip ).toHaveFocus();
+			expect( tooltip ).toHaveTextContent( 'Series A:10' );
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 
 	describe( 'Data Validation', () => {

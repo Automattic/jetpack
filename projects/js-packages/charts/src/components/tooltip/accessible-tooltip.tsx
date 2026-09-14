@@ -230,7 +230,7 @@ export const useKeyboardNavigation = ( {
 	// Returning focus from the tooltip must not restore the selection Escape just cleared.
 	const onChartFocus = useCallback(
 		( event: React.FocusEvent< HTMLDivElement > ) => {
-			if ( event.currentTarget.contains( event.relatedTarget as Node | null ) ) {
+			if ( event.currentTarget.contains( event.relatedTarget ) ) {
 				return;
 			}
 			if ( ! isNavigating && selectedIndex !== undefined ) {
@@ -251,7 +251,7 @@ export const useKeyboardNavigation = ( {
 
 			// Keep focus on the chart if tab is pressed
 			if ( event.key === 'Tab' ) {
-				chartRef.current?.focus();
+				chartRef.current?.focus( preventTooltipScroll ? { preventScroll: true } : undefined );
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
@@ -260,7 +260,7 @@ export const useKeyboardNavigation = ( {
 			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
 
 			if ( currentSelectedIndex + 1 >= totalPoints && [ 'ArrowRight' ].includes( event.key ) ) {
-				chartRef.current?.focus();
+				chartRef.current?.focus( preventTooltipScroll ? { preventScroll: true } : undefined );
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
@@ -277,12 +277,20 @@ export const useKeyboardNavigation = ( {
 			} else if ( event.key === 'Escape' ) {
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
-				chartRef.current?.focus();
+				chartRef.current?.focus( preventTooltipScroll ? { preventScroll: true } : undefined );
 			} else if ( ( event.key === 'Enter' || event.key === ' ' ) && selectedIndex !== undefined ) {
 				onActivate?.( selectedIndex );
 			}
 		},
-		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef, onActivate ]
+		[
+			totalPoints,
+			selectedIndex,
+			setSelectedIndex,
+			setIsNavigating,
+			chartRef,
+			onActivate,
+			preventTooltipScroll,
+		]
 	);
 
 	return {

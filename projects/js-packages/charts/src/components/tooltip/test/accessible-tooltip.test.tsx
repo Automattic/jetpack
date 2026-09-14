@@ -86,6 +86,23 @@ describe( 'AccessibleTooltip', () => {
 		}
 	} );
 
+	it.each( [
+		[ 'Tab', '{Tab}' ],
+		[ 'Escape', '{Escape}' ],
+		[ 'ArrowRight past the last point', '{ArrowRight}{ArrowRight}' ],
+	] )( 'requests scroll suppression when returning focus after %s', async ( _name, keys ) => {
+		const user = userEvent.setup();
+		renderChart( undefined, 'below-axis' );
+		await openTooltip();
+		const focus = jest.spyOn( screen.getByRole( 'grid' ), 'focus' );
+		try {
+			await user.keyboard( keys );
+			expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
 	it( 'falls back to the catalog default when the role is unset', async () => {
 		renderChart();
 
