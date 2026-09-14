@@ -120,6 +120,7 @@ export {
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
+	PageOptionsMenu,
 	LocationsGeoChart,
 	type LocationsGeoChartProps,
 	type LocationsGeoFocusCountry,
@@ -262,6 +263,7 @@ export {
 	useSegmentStyles,
 	useSeriesStyles,
 	useStoredDetailLayout,
+	useTrackEvent,
 	useViewportWidth,
 	useWidgetDrillDown,
 } from './hooks';

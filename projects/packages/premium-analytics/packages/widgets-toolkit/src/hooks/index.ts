@@ -6,5 +6,6 @@ export { useWidgetNavigationSearch } from './use-widget-navigation-search';
 export { useSegmentStyles } from '../widgets/common';
 export { useSeriesStyles } from './use-series-styles';
 export { useStoredDetailLayout } from './use-stored-detail-layout';
+export { useTrackEvent } from './use-track-event';
 export { useViewportWidth } from './use-viewport-width';
 export { useWidgetDrillDown } from './use-widget-drill-down';

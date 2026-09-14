@@ -165,6 +165,7 @@ export {
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
 } from './detail-page';
+export { PageOptionsMenu } from './page-options-menu';
 export {
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
