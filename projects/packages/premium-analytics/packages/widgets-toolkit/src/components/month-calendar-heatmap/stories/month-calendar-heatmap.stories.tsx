@@ -63,19 +63,15 @@ interface MonthCalendarHeatmapStoryControls {
 	months: number;
 	/** Width of the mock tile, in px. Drives whether the blocks spread or the grid scrolls. */
 	tileWidth: number;
-	/** Height of the mock tile, in px. Below 140px the legend is dropped. */
+	/** Height of the mock tile, in px. The legend is dropped once the body inside the card padding is under 140px. */
 	tileHeight: number;
 }
-
-type MonthCalendarHeatmapStoryArgs = MonthCalendarHeatmapStoryControls &
-	Pick< MonthCalendarHeatmapProps, 'weekStartsOn' >;
 
 function renderMonthCalendarHeatmap( {
 	months,
 	tileWidth,
 	tileHeight,
-	weekStartsOn,
-}: MonthCalendarHeatmapStoryArgs ) {
+}: MonthCalendarHeatmapStoryControls ) {
 	const start = rangeStart( months );
 
 	return (
@@ -83,7 +79,6 @@ function renderMonthCalendarHeatmap( {
 			<MonthCalendarHeatmap
 				valueByDay={ buildPostsByDay( start ) }
 				range={ { start, end: RANGE_END } }
-				weekStartsOn={ weekStartsOn }
 				{ ...LABELS }
 			/>
 		</WidgetCard>
@@ -106,11 +101,6 @@ const meta = {
 		months: { control: { type: 'range', min: 1, max: 12, step: 1 } },
 		tileWidth: { control: { type: 'range', min: 360, max: 1600, step: 20 } },
 		tileHeight: { control: { type: 'range', min: 100, max: 500, step: 8 } },
-		weekStartsOn: {
-			control: 'radio',
-			options: [ 1, 0 ],
-			labels: { 1: 'Monday', 0: 'Sunday' },
-		},
 	},
 	decorators: [ withChartTheme ],
 	// `component` is the component's own props, but the args are story controls:
@@ -119,13 +109,12 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj< MonthCalendarHeatmapStoryArgs >;
+type Story = StoryObj< MonthCalendarHeatmapStoryControls >;
 
-const DEFAULT_ARGS: MonthCalendarHeatmapStoryArgs = {
+const DEFAULT_ARGS: MonthCalendarHeatmapStoryControls = {
 	months: 12,
 	tileWidth: 1400,
 	tileHeight: 300,
-	weekStartsOn: 1,
 };
 
 /**
@@ -152,12 +141,4 @@ export const Scrolling: Story = {
 export const ShortTile: Story = {
 	render: renderMonthCalendarHeatmap,
 	args: { ...DEFAULT_ARGS, tileHeight: 140 },
-};
-
-/**
- * Weeks starting on Sunday, for a site set that way.
- */
-export const SundayStart: Story = {
-	render: renderMonthCalendarHeatmap,
-	args: { ...DEFAULT_ARGS, weekStartsOn: 0 },
 };

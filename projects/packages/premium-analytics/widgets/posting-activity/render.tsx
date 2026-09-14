@@ -31,6 +31,10 @@ type PostingActivityWidgetProps = WidgetRenderProps< PostingActivityRenderAttrib
 // every render, which would rebuild all twelve months each time.
 const NO_POSTS_BY_DAY: Record< string, number | null > = {};
 
+// The endpoint keeps the newest 1095 posts unless told otherwise, which a busy
+// site outruns inside 12 months; the old Stats card asked for this many too.
+const STREAK_MAX_POSTS = 3000;
+
 const formatPostCount = ( count: number ) =>
 	sprintf(
 		/* translators: %d: number of posts published that day, e.g. "3". */
@@ -43,15 +47,21 @@ const formatPostCount = ( count: number ) =>
  * the window the old Stats card showed, whatever date state the dashboard is in.
  */
 function PostingActivityInner() {
-	// Resolved per render rather than once at module load, so the window is never
-	// older than the render that reads it.
 	const { from, to, preset, interval } = getDefaultQueryParams( false, PRESET_LAST_12_MONTHS );
 	const range = useMemo(
-		() => ( { start: getDatePart( from ) ?? '', end: getDatePart( to ) ?? '' } ),
+		() => ( { start: getDatePart( from ) ?? from, end: getDatePart( to ) ?? to } ),
 		[ from, to ]
 	);
 	const streakParams = useMemo(
-		() => ( { from, to, preset, interval, startDate: range.start, endDate: range.end } ),
+		() => ( {
+			from,
+			to,
+			preset,
+			interval,
+			startDate: range.start,
+			endDate: range.end,
+			max: STREAK_MAX_POSTS,
+		} ),
 		[ from, to, preset, interval, range ]
 	);
 
