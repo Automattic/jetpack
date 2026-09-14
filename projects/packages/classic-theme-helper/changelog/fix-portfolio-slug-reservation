@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Portfolio/Testimonial: flush rewrite rules on the next request after toggling the option, so the slug is correctly freed or reserved.
