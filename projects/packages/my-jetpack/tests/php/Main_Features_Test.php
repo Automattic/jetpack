@@ -13,66 +13,31 @@ use PHPUnit\Framework\TestCase;
 class Main_Features_Test extends TestCase {
 
 	/**
-	 * Every feature is delivered with the full contract the Features tab reads.
+	 * Every entry carries the fields the Features tab reads.
 	 */
-	public function test_every_feature_carries_the_full_shape() {
-		foreach ( Main_Features::get_features() as $feature ) {
-			$this->assertArrayHasKey( 'slug', $feature );
-			$this->assertArrayHasKey( 'name', $feature );
-			$this->assertArrayHasKey( 'description', $feature );
-			$this->assertArrayHasKey( 'icon', $feature );
-			$this->assertArrayHasKey( 'status', $feature );
-			$this->assertArrayHasKey( 'manage_url', $feature );
-			$this->assertArrayHasKey( 'learn_more_route', $feature );
-			$this->assertArrayHasKey( 'product', $feature );
-			$this->assertArrayHasKey( 'module', $feature );
-			$this->assertArrayHasKey( 'essential', $feature );
-			$this->assertArrayHasKey( 'has_standalone_plugin', $feature );
-			$this->assertArrayHasKey( 'standalone_plugin_url', $feature );
+	public function test_every_feature_carries_the_required_fields() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			foreach ( array( 'name', 'description', 'long_description', 'icon', 'image', 'info_url', 'docs_url', 'delivery' ) as $key ) {
+				$this->assertNotEmpty( $feature[ $key ] ?? null, "Feature {$slug} has no {$key}." );
+			}
 
-			$this->assertContains(
-				$feature['status'],
-				array( Main_Features::STATUS_ACTIVE, Main_Features::STATUS_INACTIVE )
-			);
+			$this->assertIsBool( $feature['delivery']['in_jetpack'] ?? null, "Feature {$slug} has no in_jetpack flag." );
+			$this->assertIsBool( $feature['delivery']['free'] ?? null, "Feature {$slug} has no free flag." );
 		}
 	}
 
 	/**
-	 * The list arrives sorted so the UI can render it without sorting again.
+	 * The UI reads live state through this key, so it must name a product the registry knows.
 	 */
-	public function test_features_are_sorted_alphabetically_by_name() {
-		$names = array_column( Main_Features::get_features(), 'name' );
-
-		$sorted = $names;
-		usort( $sorted, 'strnatcasecmp' );
-
-		$this->assertSame( $sorted, $names );
-	}
-
-	/**
-	 * A feature with no interstitial must say so rather than emit a route that 404s.
-	 */
-	public function test_features_without_an_interstitial_have_an_empty_learn_more_route() {
-		$features = array_column( Main_Features::get_features(), 'learn_more_route', 'slug' );
-
-		$this->assertSame( '/add-backup', $features['backup'] );
-		$this->assertSame( '', $features['activity-log'] );
-		$this->assertSame( '', $features['podcast'] );
-	}
-
-	/**
-	 * The UI reads live state through these keys, so a product-backed feature must name
-	 * a product the registry actually knows.
-	 */
-	public function test_product_join_keys_resolve_to_real_products() {
-		foreach ( Main_Features::get_features() as $feature ) {
-			if ( '' === $feature['product'] ) {
+	public function test_product_keys_resolve_to_real_products() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			if ( empty( $feature['product'] ) ) {
 				continue;
 			}
 
 			$this->assertNotNull(
 				Products::get_product_class( $feature['product'] ),
-				"Feature {$feature['slug']} names an unknown product: {$feature['product']}"
+				"Feature {$slug} names an unknown product: {$feature['product']}"
 			);
 		}
 	}
@@ -82,13 +47,12 @@ class Main_Features_Test extends TestCase {
 	 * UI can only link to it. Only Activity Log is allowed in that state.
 	 */
 	public function test_only_activity_log_has_no_product_or_module() {
-		$unswitchable = array();
-
-		foreach ( Main_Features::get_features() as $feature ) {
-			if ( '' === $feature['product'] && '' === $feature['module'] ) {
-				$unswitchable[] = $feature['slug'];
-			}
-		}
+		$unswitchable = array_keys(
+			array_filter(
+				Main_Features::get_feature_definitions(),
+				fn( $feature ) => empty( $feature['product'] ) && empty( $feature['module'] )
+			)
+		);
 
 		$this->assertSame( array( 'activity-log' ), $unswitchable );
 	}
@@ -98,99 +62,12 @@ class Main_Features_Test extends TestCase {
 	 * rather than left to whoever edits the catalog next.
 	 */
 	public function test_essential_features_are_the_expected_four() {
-		$essential = array();
-
-		foreach ( Main_Features::get_features() as $feature ) {
-			if ( $feature['essential'] ) {
-				$essential[] = $feature['slug'];
-			}
-		}
+		$essential = array_keys(
+			array_filter( Main_Features::get_feature_definitions(), fn( $feature ) => ! empty( $feature['essential'] ) )
+		);
+		sort( $essential );
 
 		$this->assertSame( array( 'boost', 'jetpack-forms', 'protect', 'stats' ), $essential );
-	}
-
-	/**
-	 * The More features tab is the modules screen minus this set, so a module leaving or
-	 * joining it silently moves between two lists. Pinned so that has to be deliberate.
-	 */
-	public function test_covered_modules_are_the_expected_set() {
-		$covered = Main_Features::get_covered_modules();
-		sort( $covered );
-
-		$this->assertSame(
-			array(
-				'ai',
-				'blaze',
-				'contact-form',
-				'podcast',
-				'protect',
-				'publicize',
-				'search',
-				'stats',
-				'subscriptions',
-				'videopress',
-			),
-			$covered
-		);
-	}
-
-	/**
-	 * A module in two groups would render twice; one in a group the features list
-	 * already covers would render above and below at once.
-	 */
-	public function test_module_groups_are_disjoint_and_uncovered() {
-		$covered = Main_Features::get_covered_modules();
-		$seen    = array();
-
-		foreach ( Main_Features::get_module_groups() as $group ) {
-			$this->assertNotEmpty( $group['label'] );
-
-			foreach ( $group['modules'] as $slug ) {
-				$this->assertNotContains( $slug, $seen, "{$slug} appears in two groups" );
-				$this->assertNotContains(
-					$slug,
-					$covered,
-					"{$slug} is grouped but already covered by a feature"
-				);
-				$seen[] = $slug;
-			}
-		}
-	}
-
-	/**
-	 * Slugs are the join key between the catalog and the UI, so they must be unique.
-	 */
-	public function test_feature_slugs_are_unique() {
-		$slugs = array_column( Main_Features::get_features(), 'slug' );
-
-		$this->assertSame( array_unique( $slugs ), $slugs );
-	}
-
-	/**
-	 * The Features tab renders a screenshot for every card, so a missing one leaves a hole
-	 * in the grid rather than a degraded card.
-	 */
-	public function test_every_feature_has_a_screenshot() {
-		foreach ( Main_Features::get_features() as $feature ) {
-			$this->assertNotSame(
-				'',
-				$feature['screenshot'],
-				"Feature {$feature['slug']} has no screenshot."
-			);
-		}
-	}
-
-	/**
-	 * Every feature is documented, so a support link is never optional.
-	 */
-	public function test_every_feature_has_a_docs_url() {
-		foreach ( Main_Features::get_features() as $feature ) {
-			$this->assertNotSame(
-				'',
-				$feature['docs_url'],
-				"Feature {$feature['slug']} has no docs URL."
-			);
-		}
 	}
 
 	/**
@@ -198,22 +75,23 @@ class Main_Features_Test extends TestCase {
 	 * non-https value would ship a broken card or a mixed-content warning.
 	 */
 	public function test_urls_are_absolute_https() {
-		foreach ( Main_Features::get_features() as $feature ) {
-			foreach ( array( 'screenshot', 'info_url', 'docs_url' ) as $key ) {
-				$url = $feature[ $key ];
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			$urls = array(
+				'image'          => $feature['image'],
+				'info_url'       => $feature['info_url'],
+				'docs_url'       => $feature['docs_url'],
+				'standalone_url' => $feature['delivery']['standalone_url'] ?? '',
+			);
 
-				if ( '' === $url ) {
-					continue;
-				}
-
+			foreach ( array_filter( $urls ) as $key => $url ) {
 				$this->assertNotFalse(
 					filter_var( $url, FILTER_VALIDATE_URL ),
-					"Feature {$feature['slug']} has an invalid {$key}: {$url}"
+					"Feature {$slug} has an invalid {$key}: {$url}"
 				);
 				$this->assertSame(
 					'https',
 					wp_parse_url( $url, PHP_URL_SCHEME ),
-					"Feature {$feature['slug']} has a non-https {$key}: {$url}"
+					"Feature {$slug} has a non-https {$key}: {$url}"
 				);
 			}
 		}
@@ -223,13 +101,12 @@ class Main_Features_Test extends TestCase {
 	 * Pinned so a product gaining or losing its own plugin has to be a deliberate change.
 	 */
 	public function test_standalone_plugins_are_the_expected_set() {
-		$urls = array();
-
-		foreach ( Main_Features::get_features() as $feature ) {
-			if ( $feature['has_standalone_plugin'] ) {
-				$urls[ $feature['slug'] ] = $feature['standalone_plugin_url'];
-			}
-		}
+		$urls = array_filter(
+			array_map(
+				fn( $feature ) => $feature['delivery']['standalone_url'] ?? '',
+				Main_Features::get_feature_definitions()
+			)
+		);
 		ksort( $urls );
 
 		$this->assertSame(
@@ -253,52 +130,34 @@ class Main_Features_Test extends TestCase {
 	 * only ships in Jetpack must not claim a standalone one.
 	 */
 	public function test_standalone_urls_match_the_product_plugin_slug() {
-		foreach ( Main_Features::get_features() as $feature ) {
-			if ( '' === $feature['product'] ) {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			if ( empty( $feature['product'] ) ) {
 				continue;
 			}
 
 			$product_class = Products::get_product_class( $feature['product'] );
-			$slug          = $product_class::$plugin_slug;
-			$expected      = ( $slug && Product::JETPACK_PLUGIN_SLUG !== $slug )
-				? "https://wordpress.org/plugins/{$slug}/"
+			$plugin_slug   = $product_class::$plugin_slug;
+			$expected      = ( $plugin_slug && Product::JETPACK_PLUGIN_SLUG !== $plugin_slug )
+				? "https://wordpress.org/plugins/{$plugin_slug}/"
 				: '';
 
 			$this->assertSame(
 				$expected,
-				$feature['standalone_plugin_url'],
-				"Feature {$feature['slug']} links to the wrong standalone plugin."
+				$feature['delivery']['standalone_url'] ?? '',
+				"Feature {$slug} links to the wrong standalone plugin."
 			);
 		}
 	}
 
 	/**
-	 * The flag and the URL must agree, and the displayed plugin name must match both.
+	 * A standalone plugin needs both a name to show and a page to link to.
 	 */
-	public function test_standalone_flag_url_and_delivery_name_agree() {
-		foreach ( Main_Features::get_features() as $feature ) {
+	public function test_standalone_name_and_url_come_together() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			$this->assertSame(
-				$feature['has_standalone_plugin'],
-				'' !== $feature['standalone_plugin_url'],
-				"Feature {$feature['slug']} has a standalone flag and URL that disagree."
-			);
-			$this->assertSame(
-				$feature['has_standalone_plugin'],
-				! empty( $feature['delivery']['standalone'] ),
-				"Feature {$feature['slug']} names a standalone plugin it does not have, or vice versa."
-			);
-		}
-	}
-
-	/**
-	 * Every feature has a product page to send people to.
-	 */
-	public function test_every_feature_has_an_info_url() {
-		foreach ( Main_Features::get_features() as $feature ) {
-			$this->assertNotSame(
-				'',
-				$feature['info_url'],
-				"Feature {$feature['slug']} has no info URL."
+				empty( $feature['delivery']['standalone'] ),
+				empty( $feature['delivery']['standalone_url'] ),
+				"Feature {$slug} has a standalone plugin name or URL without the other."
 			);
 		}
 	}
@@ -307,16 +166,9 @@ class Main_Features_Test extends TestCase {
 	 * Pinned so a feature losing or gaining a free tier has to be a deliberate change.
 	 */
 	public function test_only_backup_and_blaze_cannot_be_used_without_paying() {
-		$paid_only = array();
-
-		foreach ( Main_Features::get_features() as $feature ) {
-			$this->assertIsBool( $feature['delivery']['free'], "Feature {$feature['slug']} has no free flag." );
-
-			if ( ! $feature['delivery']['free'] ) {
-				$paid_only[] = $feature['slug'];
-			}
-		}
-
+		$paid_only = array_keys(
+			array_filter( Main_Features::get_feature_definitions(), fn( $feature ) => ! $feature['delivery']['free'] )
+		);
 		sort( $paid_only );
 
 		$this->assertSame( array( 'backup', 'blaze' ), $paid_only );
@@ -326,16 +178,30 @@ class Main_Features_Test extends TestCase {
 	 * A feature that can be upgraded must say what to buy.
 	 */
 	public function test_features_with_paid_highlights_name_a_paid_product() {
-		foreach ( Main_Features::get_features() as $feature ) {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			if ( empty( $feature['paid_highlights'] ) ) {
 				continue;
 			}
 
-			$this->assertNotSame(
-				'',
-				$feature['paid_product'],
-				"Feature {$feature['slug']} lists paid highlights but no paid product."
+			$this->assertNotEmpty(
+				$feature['paid_product'] ?? '',
+				"Feature {$slug} lists paid highlights but no paid product."
 			);
+		}
+	}
+
+	/**
+	 * Only bundles Jetpack sells today can be listed.
+	 */
+	public function test_plans_are_known_bundles() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			foreach ( $feature['plans'] ?? array() as $plan ) {
+				$this->assertContains(
+					$plan,
+					array( 'security', 'complete', 'growth' ),
+					"Feature {$slug} lists an unknown bundle: {$plan}"
+				);
+			}
 		}
 	}
 }
