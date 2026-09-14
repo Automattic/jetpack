@@ -80,6 +80,10 @@ function normalizeCommentAvatar( avatar?: string | null ) {
 	return avatar ? `${ avatar.split( '?' )[ 0 ] }?d=mm` : null;
 }
 
+// The endpoint sends exactly one of these, with the value unencoded.
+const USER_ID_FRAGMENT = /^\?user_id=([1-9]\d*)$/;
+const EMAIL_FRAGMENT = /^\?s=(.+)$/;
+
 /**
  * Build the author row's link from the raw payload's `link`, which is not a URL
  * but a query fragment: `?user_id=<id>` for a WordPress.com user, `?s=<email>`
@@ -88,21 +92,20 @@ function normalizeCommentAvatar( avatar?: string | null ) {
  * list table filters on both parameters.
  *
  * @param link - The raw author `link` fragment.
- * @return The comments-admin URL, or null when the fragment carries neither.
+ * @return The comments-admin URL, or null when the fragment is neither shape.
  */
 function normalizeCommentAuthorLink( link: unknown ): string | null {
-	if ( typeof link !== 'string' || ! link.startsWith( '?' ) ) {
+	if ( typeof link !== 'string' ) {
 		return null;
 	}
 
-	const params = new URLSearchParams( link.slice( 1 ) );
-	const userId = params.get( 'user_id' );
+	const userId = link.match( USER_ID_FRAGMENT )?.[ 1 ];
 
-	if ( userId && /^[1-9]\d*$/.test( userId ) ) {
+	if ( userId ) {
 		return `edit-comments.php?user_id=${ userId }`;
 	}
 
-	const email = params.get( 's' );
+	const email = link.match( EMAIL_FRAGMENT )?.[ 1 ];
 
 	return email ? `edit-comments.php?s=${ encodeURIComponent( email ) }` : null;
 }

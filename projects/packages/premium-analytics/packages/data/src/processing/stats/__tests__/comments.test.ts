@@ -81,29 +81,44 @@ describe( 'Stats comments normalizer', () => {
 		] );
 	} );
 
-	// The endpoint sends `?s=` already URL-encoded; a raw `@` must encode the same.
-	it( 'does not double-encode an already encoded guest email', () => {
+	// The endpoint sends the email unencoded, so a `+` is a literal plus and
+	// must not be read as a form-encoded space.
+	it( 'keeps a plus-addressed guest email intact', () => {
 		const result = sanitizeStatsCommentsResponse( {
-			authors: [ { name: 'Aggie', comments: 2, link: '?s=aggie%40example.com' } ],
+			authors: [ { name: 'Aggie', comments: 2, link: '?s=aggie+tag@example.com' } ],
 		} );
 
 		expect( result.data[ 0 ].items[ 0 ].children[ 0 ].link ).toBe(
-			'edit-comments.php?s=aggie%40example.com'
+			'edit-comments.php?s=aggie%2Btag%40example.com'
 		);
 	} );
 
 	it( 'links WordPress.com users to the comment screen filtered by user id', () => {
 		const result = sanitizeStatsCommentsResponse( {
+			authors: [ { name: 'Bo', comments: 7, link: '?user_id=1662656' } ],
+		} );
+
+		expect( result.data[ 0 ].items[ 0 ].children[ 0 ].link ).toBe(
+			'edit-comments.php?user_id=1662656'
+		);
+	} );
+
+	it( 'leaves a row unlinked when the fragment is neither a user id nor an email', () => {
+		const result = sanitizeStatsCommentsResponse( {
 			authors: [
-				{ name: 'Bo', comments: 7, link: '?user_id=1662656' },
-				{ name: 'Mallory', comments: 1, link: '?user_id=1%20OR%201' },
-				{ name: 'Nobody', comments: 1, link: '?user_id=0' },
+				{ name: 'Zero', comments: 1, link: '?user_id=0' },
+				{ name: 'Negative', comments: 1, link: '?user_id=-3' },
+				{ name: 'Decimal', comments: 1, link: '?user_id=12.5' },
+				{ name: 'Both', comments: 1, link: '?user_id=abc&s=a@b.com' },
+				{ name: 'Empty', comments: 1, link: '?s=' },
 				{ name: 'Blank', comments: 1, link: '' },
 			],
 		} );
 
 		expect( result.data[ 0 ].items[ 0 ].children.map( child => child.link ) ).toEqual( [
-			'edit-comments.php?user_id=1662656',
+			null,
+			null,
+			null,
 			null,
 			null,
 			null,
