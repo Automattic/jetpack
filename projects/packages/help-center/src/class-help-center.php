@@ -399,7 +399,6 @@ class Help_Center {
 		$result = false;
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- \ExPlat lives in wpcom.
 			$result = $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
 		} elseif ( $this->wpcom_request_client->is_user_connected() ) {
 			$request_path = '/experiments/0.1.0/assignments/wpcom';

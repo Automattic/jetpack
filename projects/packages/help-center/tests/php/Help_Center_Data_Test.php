@@ -25,6 +25,13 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	 */
 	private $help_center;
 
+	/**
+	 * Filters added by a single test, removed in tear_down.
+	 *
+	 * @var array<array{0: string, 1: callable}>
+	 */
+	private $temporary_filters = array();
+
 	public function set_up() {
 		parent::set_up();
 
@@ -43,6 +50,11 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function tear_down() {
+		foreach ( $this->temporary_filters as list( $hook, $callback ) ) {
+			remove_filter( $hook, $callback );
+		}
+		$this->temporary_filters = array();
+
 		// The Help_Center constructor registers hooks against $this. Without this,
 		// each test would leak duplicate callbacks into later tests in the session.
 		self::remove_help_center_hooks( $this->help_center );
@@ -61,6 +73,27 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 
 		wp_set_current_user( 0 );
 		parent::tear_down();
+	}
+
+	/**
+	 * @param string   $hook     Filter name.
+	 * @param callable $callback Filter callback.
+	 */
+	private function add_temporary_filter( string $hook, $callback ): void {
+		add_filter( $hook, $callback );
+		$this->temporary_filters[] = array( $hook, $callback );
+	}
+
+	/**
+	 * @param string $variation Variation the experiment should report.
+	 */
+	private function force_label_variation( string $variation ): void {
+		$this->add_temporary_filter(
+			'wpcom_help_center_get_help_label_variation',
+			static function () use ( $variation ) {
+				return $variation;
+			}
+		);
 	}
 
 	private static function remove_help_center_hooks( Help_Center $instance ): void {
@@ -178,34 +211,19 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_admin_bar_help_node_stays_icon_only_for_the_unified_experience() {
-		$force_treatment = static function () {
-			return 'treatment';
-		};
-		add_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
-		add_filter( 'agents_manager_use_unified_experience', '__return_true' );
+		$this->force_label_variation( 'treatment' );
+		$this->add_temporary_filter( 'agents_manager_use_unified_experience', '__return_true' );
 
-		try {
-			$node = $this->render_help_center_admin_bar_node();
-		} finally {
-			remove_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
-			remove_filter( 'agents_manager_use_unified_experience', '__return_true' );
-		}
+		$node = $this->render_help_center_admin_bar_node();
 
 		$this->assertSame( '', $node->meta['menu_title'] );
 		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
 	}
 
 	public function test_help_center_data_carries_the_entry_label_for_the_treatment() {
-		$force_treatment = static function () {
-			return 'treatment';
-		};
-		add_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+		$this->force_label_variation( 'treatment' );
 
-		try {
-			$data = $this->help_center->get_help_center_data( 'gutenberg' );
-		} finally {
-			remove_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
-		}
+		$data = $this->help_center->get_help_center_data( 'gutenberg' );
 
 		$this->assertSame( 'Get Help', $data['entryLabel'] );
 		$this->assertSame(
@@ -215,16 +233,9 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_help_center_data_omits_the_experiment_variation_for_the_control() {
-		$force_control = static function () {
-			return 'control';
-		};
-		add_filter( 'wpcom_help_center_get_help_label_variation', $force_control );
+		$this->force_label_variation( 'control' );
 
-		try {
-			$data = $this->help_center->get_help_center_data( 'gutenberg' );
-		} finally {
-			remove_filter( 'wpcom_help_center_get_help_label_variation', $force_control );
-		}
+		$data = $this->help_center->get_help_center_data( 'gutenberg' );
 
 		$this->assertArrayNotHasKey( 'entryLabel', $data );
 		$this->assertArrayNotHasKey( 'experimentVariations', $data );
@@ -247,16 +258,9 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_admin_bar_help_node_shows_the_label_for_the_treatment() {
-		$force_treatment = static function () {
-			return 'treatment';
-		};
-		add_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
+		$this->force_label_variation( 'treatment' );
 
-		try {
-			$node = $this->render_help_center_admin_bar_node();
-		} finally {
-			remove_filter( 'wpcom_help_center_get_help_label_variation', $force_treatment );
-		}
+		$node = $this->render_help_center_admin_bar_node();
 
 		$this->assertStringContainsString(
 			'<span class="help-center-entry-label" aria-hidden="true"><span>Get Help</span></span>',
@@ -270,7 +274,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Runs the admin bar as a wp-admin request — no script enqueue — and returns the Help Center node.
 	 *
-	 * @return \WP_Admin_Bar_Node|null
+	 * @return object|null
 	 */
 	private function render_help_center_admin_bar_node() {
 		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
