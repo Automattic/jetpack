@@ -40,7 +40,10 @@ Admin_Menu::add_menu(
 	'jetpack-search',
 	array( $this, 'render' ),
 	null,
-	array( 'product' => 'search' )
+	array(
+		'product' => 'search',
+		'key'     => 'jetpack-search',
+	)
 );
 ```
 

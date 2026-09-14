@@ -340,6 +340,64 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * A hidden item does not become the destination of the top level Jetpack link.
+	 *
+	 * Deliberately stops at admin_menu: My Jetpack asks on admin_enqueue_scripts and the
+	 * connection package asks outside wp-admin, both before admin_head prunes $submenu.
+	 *
+	 * @return void
+	 */
+	public function test_first_menu_skips_a_hidden_item() {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['first-hidden'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+
+		Admin_Menu::init();
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'first-hidden', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'second-shown', '__return_null', 2 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame( 'second-shown', Admin_Menu::get_top_level_menu_item_slug() );
+	}
+
+	/**
+	 * Hiding every declared item still never yields a hidden one.
+	 *
+	 * The Upgrade entry this package adds itself declares no gate, so something is left to
+	 * return here; what matters is that it is not one of the items the host hid.
+	 *
+	 * @return void
+	 */
+	public function test_first_menu_never_returns_a_hidden_item() {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				return array_fill_keys( array_keys( $states ), Admin_Menu::VISIBILITY_HIDDEN );
+			}
+		);
+
+		Admin_Menu::init();
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-a', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-b', '__return_null', 2 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertNotContains(
+			Admin_Menu::get_top_level_menu_item_slug(),
+			array( 'all-hidden-a', 'all-hidden-b' )
+		);
+	}
+
+	/**
 	 * Upgrade item appears in the submenu for an administrator on a free plan.
 	 *
 	 * @return void
@@ -993,6 +1051,51 @@ class Admin_Menu_Test extends TestCase {
 				'offered-b' => Admin_Menu::VISIBILITY_DEFAULT,
 			),
 			$states
+		);
+	}
+
+	/**
+	 * A filter that returns something other than a map leaves every item alone.
+	 *
+	 * The is_array() guard is what keeps one host's broken filter from emptying the sidebar,
+	 * so it is worth pinning against a refactor that drops it.
+	 *
+	 * @param mixed $returned What the misbehaving filter hands back.
+	 *
+	 * @dataProvider non_array_filter_returns
+	 */
+	#[DataProvider( 'non_array_filter_returns' )]
+	public function test_non_array_filter_return_leaves_items_alone( $returned ) {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function () use ( $returned ) {
+				return $returned;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Ungated', 'Ungated', 'manage_options', 'broken-filter-ungated', '__return_null' );
+		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'broken-filter-gated', '__return_null', null, array( 'product' => 'stats' ) );
+		Admin_Menu::set_visibility_resolver( '__return_true' );
+
+		$this->render_menu();
+
+		$slugs = $this->get_submenu_slugs();
+		$this->assertContains( 'broken-filter-ungated', $slugs );
+		$this->assertContains( 'broken-filter-gated', $slugs );
+	}
+
+	/**
+	 * Return values a host filter might hand back instead of the state map.
+	 *
+	 * @return array
+	 */
+	public static function non_array_filter_returns() {
+		return array(
+			'null'   => array( null ),
+			'false'  => array( false ),
+			'string' => array( 'hidden' ),
 		);
 	}
 

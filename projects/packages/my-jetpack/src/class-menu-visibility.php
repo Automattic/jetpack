@@ -21,23 +21,52 @@ use Automattic\Jetpack\Modules;
 class Menu_Visibility {
 
 	/**
+	 * Gates already resolved this registration pass, keyed by type and slug.
+	 *
+	 * @var array<string, bool|null>
+	 */
+	private static $resolved = array();
+
+	/**
 	 * Registers this class as Admin_Menu's visibility resolver.
 	 *
 	 * @return void
 	 */
 	public static function init() {
 		Admin_Menu::set_visibility_resolver( array( __CLASS__, 'resolve' ) );
+
+		// Memoized answers last one registration pass, which is as long as they can stay true.
+		add_action( 'admin_menu', array( __CLASS__, 'forget_resolved_gates' ), 0 );
+		add_action( 'network_admin_menu', array( __CLASS__, 'forget_resolved_gates' ), 0 );
+	}
+
+	/**
+	 * Drops the gates resolved during the previous registration pass.
+	 *
+	 * @return void
+	 */
+	public static function forget_resolved_gates() {
+		self::$resolved = array();
 	}
 
 	/**
 	 * Answers whether a menu item's declared gate is satisfied.
+	 *
+	 * Answers are memoized for one registration pass: resolving a product rebuilds the product
+	 * class map and rescans the installed plugins, and the sidebar asks once per gated item.
 	 *
 	 * @param array $args The item's visibility declaration, as passed to Admin_Menu::add_menu().
 	 * @return bool|null True or false, or null when the gate cannot be resolved here.
 	 */
 	public static function resolve( $args ) {
 		if ( ! empty( $args['product'] ) ) {
-			return self::is_product_activated( $args['product'] );
+			$key = 'product:' . $args['product'];
+
+			if ( ! array_key_exists( $key, self::$resolved ) ) {
+				self::$resolved[ $key ] = self::is_product_activated( $args['product'] );
+			}
+
+			return self::$resolved[ $key ];
 		}
 
 		if ( ! empty( $args['module'] ) ) {
@@ -47,7 +76,13 @@ class Menu_Visibility {
 			 * `jetpack_get_available_standalone_modules`. Matches Product::is_module_active(),
 			 * so the two gate types cannot disagree about the same module.
 			 */
-			return ( new Modules() )->is_active( $args['module'] );
+			$key = 'module:' . $args['module'];
+
+			if ( ! array_key_exists( $key, self::$resolved ) ) {
+				self::$resolved[ $key ] = ( new Modules() )->is_active( $args['module'] );
+			}
+
+			return self::$resolved[ $key ];
 		}
 
 		return null;

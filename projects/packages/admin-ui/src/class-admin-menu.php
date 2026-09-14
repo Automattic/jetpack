@@ -155,9 +155,8 @@ class Admin_Menu {
 	/**
 	 * Callback that answers whether a menu item's declared gate is satisfied.
 	 *
-	 * Set by My Jetpack, which owns the product classes the gates are expressed in.
-	 * This package deliberately does not depend on My Jetpack: My Jetpack already
-	 * depends on this one, and not every plugin bundling admin-ui bundles it.
+	 * Set by My Jetpack, which owns the product classes the gates name. Stays null on a
+	 * site without it, where every gate then fails open.
 	 *
 	 * @var callable|null
 	 */
@@ -475,17 +474,8 @@ class Admin_Menu {
 		/**
 		 * Filters which Jetpack items appear in the wp-admin sidebar.
 		 *
-		 * Each item resolves to one of three states: 'default' derives visibility from whether
-		 * the item's feature is active, 'visible' forces it in, and 'hidden' keeps it out. A
-		 * host names only the items it cares about; anything it leaves alone stays 'default'.
-		 * Only the sidebar entry is affected: a hidden item's page stays reachable by URL.
-		 *
-		 * The whole map is passed at once so that two mu-plugins setting different keys merge
-		 * rather than clobber each other. 'visible' does not override the capability check —
-		 * a user who cannot see a page will not be shown it by this filter.
-		 *
-		 * Only items registered through Admin_Menu::add_menu() appear here. Anything added with
-		 * a bare add_submenu_page() is outside this filter's reach.
+		 * Governs the sidebar entry only — a hidden item's page stays reachable by URL, so this
+		 * is not an access control. See the admin-ui README for the states and their semantics.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -566,16 +556,27 @@ class Admin_Menu {
 	/**
 	 * Gets the slug for the first item under the Jetpack top level menu
 	 *
+	 * Skips hidden items rather than reading $submenu alone, because callers on admin_enqueue_scripts
+	 * and outside wp-admin ask before — or without — the admin_head pass that drops them.
+	 *
 	 * @return string|null
 	 */
 	public static function get_top_level_menu_item_slug() {
 		global $submenu;
-		if ( ! empty( $submenu['jetpack'] ) ) {
-			$item = reset( $submenu['jetpack'] );
-			if ( isset( $item[2] ) ) {
+
+		if ( empty( $submenu['jetpack'] ) ) {
+			return null;
+		}
+
+		$hidden = array_map( 'plugin_basename', self::$hidden_menu_slugs );
+
+		foreach ( $submenu['jetpack'] as $item ) {
+			if ( isset( $item[2] ) && ! in_array( $item[2], $hidden, true ) ) {
 				return $item[2];
 			}
 		}
+
+		return null;
 	}
 
 	/**

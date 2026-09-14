@@ -39,6 +39,7 @@ class Menu_Visibility_Test extends TestCase {
 		Sample_Gated_Product::$active = true;
 		Admin_Menu::set_visibility_resolver( null );
 		$this->reset_admin_menu();
+		$this->reset_resolved_gates();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
@@ -64,6 +65,20 @@ class Menu_Visibility_Test extends TestCase {
 			}
 			$property->setValue( null, $value );
 		}
+	}
+
+	/**
+	 * Drops the gates Menu_Visibility memoized, which outlive a request only in tests.
+	 *
+	 * @return void
+	 */
+	private function reset_resolved_gates() {
+		$property = new \ReflectionProperty( Menu_Visibility::class, 'resolved' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, array() );
 	}
 
 	/**
