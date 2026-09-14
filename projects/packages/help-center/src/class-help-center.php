@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Help_Center;
 
+use Automattic\Jetpack\ExPlat\Server_Assignment;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -394,9 +395,6 @@ class Help_Center {
 			return false;
 		}
 
-		$experiment_name      = self::GET_HELP_EXPERIMENT;
-		$experiment_variation = self::GET_HELP_VARIATION;
-
 		/**
 		 * Forces the variation, for QA. Return a variation name, or null to use ExPlat.
 		 *
@@ -404,46 +402,13 @@ class Help_Center {
 		 */
 		$override = apply_filters( 'wpcom_help_center_get_help_label_variation', null );
 		if ( null !== $override ) {
-			return $experiment_variation === $override;
+			return self::GET_HELP_VARIATION === $override;
 		}
 
-		$user_id = get_current_user_id();
-		if ( ! $user_id ) {
-			return false;
-		}
+		// Assigning: rendering the entry point is the exposure.
+		$variation = Server_Assignment::get_variation( self::GET_HELP_EXPERIMENT, array( 'assign' => true ) );
 
-		$cache_key     = 'help-center-get-help-label-' . $user_id . '-' . $experiment_name;
-		$cached_result = get_transient( $cache_key );
-		if ( false !== $cached_result ) {
-			return (bool) $cached_result;
-		}
-
-		// Null until ExPlat answers: an unanswered assignment must not be cached as the control.
-		$variation = null;
-
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			$variation = \ExPlat\assign_current_user( $experiment_name );
-		} elseif ( $this->wpcom_request_client->is_user_connected() ) {
-			$request_path = '/experiments/0.1.0/assignments/wpcom';
-			$response     = $this->wpcom_request_client->request(
-				add_query_arg( array( 'experiment_names' => $experiment_name ), $request_path ),
-				'v2'
-			);
-
-			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
-				$data      = json_decode( wp_remote_retrieve_body( $response ), true );
-				$variation = $data['variations'][ $experiment_name ] ?? null;
-			}
-		}
-
-		if ( null === $variation ) {
-			return false;
-		}
-
-		$result = $experiment_variation === $variation;
-		set_transient( $cache_key, $result ? 1 : 0, HOUR_IN_SECONDS );
-
-		return $result;
+		return self::GET_HELP_VARIATION === $variation;
 	}
 
 	/**

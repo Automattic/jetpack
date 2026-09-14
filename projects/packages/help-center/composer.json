@@ -6,6 +6,7 @@
 	"require": {
 		"php": ">=7.4",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-explat": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {

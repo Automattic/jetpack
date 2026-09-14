@@ -970,13 +970,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
-                "reference": "933ab516f5c53f07d12e96a1a451eccef2aeabeb"
+                "reference": "489762b8344c38f0bdf1b8b7305b4c9bf7aec14f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -1161,10 +1163,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/help-center",
-                "reference": "a24adfcd0992b5ba2a936a0296c56ebc70902f55"
+                "reference": "71928f91646d4bc33c0792fe67280c38ce850918"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-explat": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
             },
