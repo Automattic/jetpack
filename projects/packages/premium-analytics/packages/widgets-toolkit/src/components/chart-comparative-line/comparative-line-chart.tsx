@@ -134,7 +134,8 @@ export type ComparativeLineChartProps = {
 	/**
 	 * Series the tooltip reads out but the chart does not draw, each contributing
 	 * its row for the hovered date. With any present, every row leads with its
-	 * metric's name, so the drawn one is not mistaken for the only one.
+	 * metric's name, so the drawn one is not mistaken for the only one; that holds
+	 * at a date the extras have no point for, since the labels are set per chart.
 	 */
 	tooltipExtras?: TooltipExtraSeries[];
 } & Omit<

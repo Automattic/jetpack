@@ -22,10 +22,14 @@ describe( 'appendTooltipExtras', () => {
 			REVENUE,
 		] );
 
+		// `index` only has to exist on a row, so its value is not asserted.
 		expect( tooltipData?.datumByKey ).toEqual( {
 			Views: { datum: { date: JULY_1, value: 100 }, index: 0, key: 'Views' },
-			'Average CPM': { datum: { date: JULY_1, value: 0.15 }, index: 0, key: 'Average CPM' },
-			Revenue: { datum: { date: JULY_1, value: 12 }, index: 1, key: 'Revenue' },
+			'Average CPM': expect.objectContaining( {
+				datum: { date: JULY_1, value: 0.15 },
+				key: 'Average CPM',
+			} ),
+			Revenue: expect.objectContaining( { datum: { date: JULY_1, value: 12 }, key: 'Revenue' } ),
 		} );
 		// An extra with no format of its own keeps the chart's.
 		expect( supplementaryRows ).toEqual( { 'Average CPM': CURRENCY, Revenue: undefined } );

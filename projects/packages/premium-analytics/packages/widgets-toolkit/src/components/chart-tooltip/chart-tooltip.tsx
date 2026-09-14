@@ -10,8 +10,11 @@ import { TooltipRow } from './tooltip-row';
 import { isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
 
-/** Swatch width per indicator type; a supplementary row's spacer takes the same. */
-const INDICATOR_WIDTH = { line: 16, rect: 8 } as const;
+/** Swatch box per indicator type; a supplementary row's spacer takes the width. */
+const INDICATOR_SIZE = {
+	line: { width: 16, height: 15 },
+	rect: { width: 8, height: 8 },
+} as const;
 
 /** Mirrors the `SeriesStyle` shape the chart components use. */
 export type TooltipStyle = {
@@ -114,7 +117,7 @@ export function ChartTooltip< TDatum >( {
 							indicator={
 								<span
 									className={ styles.indicatorSpacer }
-									style={ { inlineSize: INDICATOR_WIDTH[ indicatorType ] } }
+									style={ { inlineSize: INDICATOR_SIZE[ indicatorType ].width } }
 									aria-hidden="true"
 								/>
 							}
@@ -139,15 +142,15 @@ export function ChartTooltip< TDatum >( {
 							indicatorType === 'line' ? (
 								<LineShape
 									fill={ stroke || 'currentColor' }
-									width={ INDICATOR_WIDTH.line }
-									height={ 15 }
+									width={ INDICATOR_SIZE.line.width }
+									height={ INDICATOR_SIZE.line.height }
 									style={ lineShapeStyle }
 								/>
 							) : (
 								<RectShape
 									fill={ stroke || 'currentColor' }
-									height={ INDICATOR_WIDTH.rect }
-									width={ INDICATOR_WIDTH.rect }
+									height={ INDICATOR_SIZE.rect.height }
+									width={ INDICATOR_SIZE.rect.width }
 									style={ { opacity: lineShapeStyle.opacity } }
 								/>
 							)

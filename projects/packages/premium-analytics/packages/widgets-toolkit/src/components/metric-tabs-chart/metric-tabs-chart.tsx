@@ -199,7 +199,8 @@ function MetricChart( {
 } ) {
 	// Every other metric's current period, each in its own format. A counterpart
 	// is included too: the chart lists a drawn series once, so revealing it from
-	// the legend does not duplicate its row. Memoised so the chart's tooltip memos hold.
+	// the legend does not duplicate its row, and hiding it again lists it as a
+	// supplementary row instead. Memoised so the chart's tooltip memos hold.
 	const tooltipExtras = useMemo( (): TooltipExtraSeries[] | undefined => {
 		if ( tooltipMetrics !== 'all' ) {
 			return undefined;

@@ -146,16 +146,16 @@ export const PairedMetrics: Story = {
 /**
  * The same pair as bars — four bars per interval once both metrics are shown.
  */
+export const PairedMetricsAsBars: Story = {
+	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
+};
+
 /**
  * `tooltipMetrics="all"`: hovering reads out every metric at that date, not only
  * the drawn one, as the WordAds chart does with ads served, CPM and revenue.
  */
 export const AllMetricsInTooltip: Story = {
 	args: { metrics: METRICS, dataFormat: DATA_FORMAT, tooltipMetrics: 'all' },
-};
-
-export const PairedMetricsAsBars: Story = {
-	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
 };
 
 type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;
