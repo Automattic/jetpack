@@ -13,15 +13,15 @@ import { useNavigate } from '@wordpress/route';
 import { Badge, Stack, Tabs } from '@wordpress/ui';
 import useConfigValue from '../../../../hooks/use-config-value.ts';
 import useFormStatusCounts from '../../../hooks/use-form-status-counts.ts';
+import { saveLastTab, type TopTab } from '../../../last-tab-cookie.ts';
 import { store as dashboardStore } from '../../../store/index.js';
 import InboxStatusToggle from '../inbox-status-toggle';
 import './style.scss';
 
-type ActiveTab = 'forms' | 'responses';
 type StatusTab = 'inbox' | 'spam' | 'trash';
 
 type DataViewsHeaderRowProps = {
-	activeTab: ActiveTab;
+	activeTab: TopTab;
 	isSingleFormView?: boolean;
 	activeStatus?: StatusTab;
 	statusCounts?: { inbox: number; spam: number; trash: number };
@@ -66,7 +66,11 @@ export default function DataViewsHeaderRow( {
 	}, [] );
 
 	const onTabChange = useCallback(
-		( nextValue: ActiveTab ) => {
+		( nextValue: TopTab ) => {
+			// Only a deliberate tab click is remembered, so arriving on a response through
+			// an email link cannot quietly change which tab the dashboard reopens on.
+			saveLastTab( nextValue );
+
 			if ( nextValue === 'forms' ) {
 				navigate( { href: '/forms' } );
 				return;
