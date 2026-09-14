@@ -53,12 +53,13 @@ function buildRecords( overrides: Partial< ReturnType< typeof useEarningsReportR
 }
 
 describe( 'EarningsReportPage', () => {
-	it( 'keeps Ads Served in the report, which the widget drops', () => {
+	it( 'renders a period with its earnings, ads served, and status label', () => {
 		useRecordsMock.mockReturnValue( buildRecords( { rows: [ earningsRow ] } ) );
 
 		render( <EarningsReportPage /> );
 
 		expect( screen.getByRole( 'columnheader', { name: /Ads Served/ } ) ).toBeInTheDocument();
+		expect( screen.getByText( '09-2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( '1,414,489' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Unpaid' ) ).toBeInTheDocument();
 	} );

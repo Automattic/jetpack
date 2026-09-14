@@ -23,10 +23,6 @@ import { __ } from '@wordpress/i18n';
 import { REPORTS } from '../registry';
 import { useEarningsReportRecords } from './config';
 
-/*
- * Newest period first. Sorting Period on the raw `YYYY-MM` key keeps it
- * chronological, as it does in the widget.
- */
 const RECORDS_VIEW = {
 	sort: { field: 'period', direction: 'desc' as const },
 	layout: {
@@ -47,6 +43,11 @@ const RECORDS_VIEW = {
 function getEarningsRowId( item: EarningsHistoryRow ): string {
 	return item.id;
 }
+
+// The payload arrives period-keyed in no particular order, so the export needs the
+// table's own ordering applied to it.
+const sortEarningsCsvRows = ( a: EarningsHistoryRow, b: EarningsHistoryRow ) =>
+	b.period.localeCompare( a.period );
 
 /**
  * Premium Analytics WordAds earnings report page.
@@ -80,6 +81,7 @@ function EarningsReport(): JSX.Element {
 		rows: records.rows,
 		filenamePrefix: 'earnings',
 		status: records,
+		sort: sortEarningsCsvRows,
 	} );
 	const retry = useReportRetry( records.refetch );
 
@@ -97,11 +99,6 @@ function EarningsReport(): JSX.Element {
 		>
 			{ /* No date filters: the `wordads/earnings` endpoint is all-time, and the Ads tab has no global date controls. */ }
 			<ReportPageLayout title={ getTitle() }>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s empty state is row-count based, so a failed
-				 * request would otherwise look like a legitimate empty report.
-				 */ }
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load earnings', 'jetpack-premium-analytics-pkg' ) }

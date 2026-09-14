@@ -9,9 +9,7 @@ import {
 import { useMemo } from '@wordpress/element';
 
 /**
- * Fetch the all-time WordAds earnings rows. Row order is left to the table's
- * own sort; the endpoint is not period-scoped, so nothing is read from report
- * params.
+ * Fetch the all-time WordAds earnings rows.
  *
  * @return Table rows and loading state.
  */
