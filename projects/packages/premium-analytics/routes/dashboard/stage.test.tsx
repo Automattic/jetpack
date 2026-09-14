@@ -187,7 +187,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	/**
 	 * The real dashboard hands `editMode` and `onEditChange` to `Actions` through its
 	 * context; the stand-in does the same so Done and Cancel round-trip. Customize is
-	 * the page options menu's, as the policy denies the dashboard its own.
+	 * the page options menu's, and the stage mounts this while customizing only.
 	 *
 	 * @return The stand-in edit toolbar.
 	 */
@@ -419,18 +419,24 @@ describe( 'Dashboard options menu', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
 
-	it( "follows the dashboard's own actions in the page header", () => {
+	it( "follows the dashboard's own actions and Reset to default while customizing", async () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+
+		expect( screen.queryByTestId( 'widget-dashboard-actions' ) ).not.toBeInTheDocument();
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
 
 		const actions = screen.getByTestId( 'widget-dashboard-actions' );
+		const reset = screen.getByRole( 'button', { name: 'Reset to default' } );
 
-		// The menu's frame, the tour's anchor, follows the dashboard's own actions.
+		// The menu's frame, the tour's anchor, comes last.
 		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
-		expect( actions.nextElementSibling ).toContainElement(
-			screen.getByTestId( 'page-options-menu' )
-		);
+		expect( actions.nextElementSibling ).toBe( reset );
+		// eslint-disable-next-line testing-library/no-node-access -- same order check.
+		expect( reset.nextElementSibling ).toContainElement( menu );
 	} );
 } );
 

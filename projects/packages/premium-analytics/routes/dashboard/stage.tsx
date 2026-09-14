@@ -115,7 +115,6 @@ function Dashboard(): JSX.Element {
 	);
 
 	const [ editMode, setEditMode ] = useState( false );
-	// The page options menu's way in and out; the dashboard's own are off by policy.
 	const startCustomizing = useCallback( () => setEditMode( true ), [] );
 	const resetToDefault = useCallback( () => {
 		resetLayout();
@@ -276,8 +275,13 @@ function Dashboard(): JSX.Element {
 							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 							actions={
 								<Stack direction="row" gap="sm">
-									<WidgetDashboard.Actions />
-									{ editMode && <ResetLayoutAction onReset={ resetToDefault } /> }
+									{ /* At rest these would add a second Customize beside the menu's. */ }
+									{ editMode && (
+										<>
+											<WidgetDashboard.Actions />
+											<ResetLayoutAction onReset={ resetToDefault } />
+										</>
+									) }
 									<Stack ref={ setOptionsMenuFrame } direction="row">
 										<PageOptionsMenu onCustomize={ editMode ? undefined : startCustomizing } />
 									</Stack>

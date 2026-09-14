@@ -15,12 +15,12 @@ export function isDashboardCompositionEnabled(): boolean {
 /**
  * The application's answer to the dashboard policy seam.
  *
- * Customization is limited to moving and resizing widgets, entered from the
- * page options menu rather than the dashboard's own button, which also holds
- * Reset to default: adding and removing sit behind the dashboard composition
- * feature flag, whose answer the server puts on the script data. Attribute
- * editing stays open: it is how widgets expose their views, in and out of
- * customize mode.
+ * Customization is limited to moving and resizing widgets: adding and removing
+ * sit behind the dashboard composition feature flag, whose answer the server
+ * puts on the script data. Attribute editing stays open: it is how widgets
+ * expose their views, in and out of customize mode. `reset` is denied so the
+ * toolkit's Reset to default button stands in for the dashboard's overflow
+ * entry, dialog and command.
  *
  * @return The policy callback for `WidgetDashboard.Policy`.
  */
@@ -30,7 +30,6 @@ export function useDashboardPolicy(): CanPerformDashboardOperation {
 
 		return request => {
 			switch ( request.operation ) {
-				case 'customize':
 				case 'reset':
 					return false;
 				case 'insert':
