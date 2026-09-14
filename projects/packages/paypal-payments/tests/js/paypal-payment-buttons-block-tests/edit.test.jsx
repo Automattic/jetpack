@@ -2326,11 +2326,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
 			);
 			expect( setAttributes ).not.toHaveBeenCalled();
-			// Only the save-status notice. A 404 on the read leaves the payment alone
-			// rather than showing an error.
+			// A 404 on the read leaves the payment alone: no error, just the
+			// save-status notice and a warning that the link is gone.
 			expect(
 				screen.queryAllByTestId( 'notice' ).map( n => n.getAttribute( 'data-status' ) )
-			).toEqual( [ 'info' ] );
+			).toEqual( [ 'info', 'warning' ] );
 			// The shared-link line is inspector text, not a notice.
 			expect(
 				screen.getByText( 'Changes made will apply to all payment buttons with this link.' )
@@ -3119,6 +3119,58 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect(
 				screen.queryByRole( 'link', { name: 'Manage PayPal Payment Links' } )
 			).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Deleted link', () => {
+		const saved = {
+			isApiManaged: true,
+			resourceId: 'PLB-GONE1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-GONE1',
+		};
+		const notice = /This payment link was deleted from PayPal/;
+
+		it( 'warns that the link is gone when PayPal no longer has it', async () => {
+			apiFetch.mockImplementation( request => {
+				if ( request.path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.reject( {
+					code: 'paypal_api_resource_not_found',
+					data: { status: 404 },
+					message: 'Not found.',
+				} );
+			} );
+			renderForm( saved );
+
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			// The preview stays, so the merchant can see what the page used to show.
+			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
+		} );
+
+		it( 'stays quiet while PayPal still has the link', async () => {
+			apiFetch.mockImplementation( request =>
+				request.path.endsWith( '/connection' )
+					? Promise.resolve( { connected: true, environment: 'sandbox' } )
+					: Promise.resolve( { attributes: {} } )
+			);
+			renderForm( saved );
+
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
+		} );
+
+		// Any other failure is not evidence the link is gone.
+		it( 'stays quiet when the lookup fails for another reason', async () => {
+			apiFetch.mockImplementation( request =>
+				request.path.endsWith( '/connection' )
+					? Promise.resolve( { connected: true, environment: 'sandbox' } )
+					: Promise.reject( { code: 'fetch_error', message: 'offline' } )
+			);
+			renderForm( saved );
+
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
 		} );
 	} );
 
