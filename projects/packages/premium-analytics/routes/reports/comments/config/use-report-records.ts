@@ -38,7 +38,7 @@ export function useCommentsReportRecords( activeTab: CommentsReportTabId ) {
 		);
 
 		// Author links are built locally by the data layer (a root-relative
-		// `edit-comments.php` search), so only the posts tab's remote permalinks
+		// `edit-comments.php` filter), so only the posts tab's remote permalinks
 		// need the scheme guard. Row identity is left untouched: it can key on
 		// the raw link, which must survive a rejected URL.
 		if ( activeTab === 'authors' ) {

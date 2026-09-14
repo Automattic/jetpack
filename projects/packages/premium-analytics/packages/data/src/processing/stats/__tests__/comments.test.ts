@@ -28,7 +28,7 @@ describe( 'Stats comments normalizer', () => {
 								value: 12,
 								iconClassName: 'avatar-user',
 								icon: 'https://secure.gravatar.com/avatar/5a83891a81b057fed56930a6aaaf7b3c?d=mm',
-								link: null,
+								link: 'edit-comments.php?user_id=1662656',
 								className: 'module-content-list-item-large',
 								actions: [ { type: 'follow', data: false } ],
 								children: null,
@@ -73,12 +73,40 @@ describe( 'Stats comments normalizer', () => {
 				children: [
 					expect.objectContaining( {
 						label: 'Aggie',
-						// Not a URL: the comment screen filtered to that author. WPCOM-user
-						// rows have no wp-admin equivalent and stay unlinked (covered above).
+						// Not a URL: the comment screen filtered to that author.
 						link: 'edit-comments.php?s=aggie%40example.com',
 					} ),
 				],
 			} ),
+		] );
+	} );
+
+	// The endpoint sends `?s=` already URL-encoded; a raw `@` must encode the same.
+	it( 'does not double-encode an already encoded guest email', () => {
+		const result = sanitizeStatsCommentsResponse( {
+			authors: [ { name: 'Aggie', comments: 2, link: '?s=aggie%40example.com' } ],
+		} );
+
+		expect( result.data[ 0 ].items[ 0 ].children[ 0 ].link ).toBe(
+			'edit-comments.php?s=aggie%40example.com'
+		);
+	} );
+
+	it( 'links WordPress.com users to the comment screen filtered by user id', () => {
+		const result = sanitizeStatsCommentsResponse( {
+			authors: [
+				{ name: 'Bo', comments: 7, link: '?user_id=1662656' },
+				{ name: 'Mallory', comments: 1, link: '?user_id=1%20OR%201' },
+				{ name: 'Nobody', comments: 1, link: '?user_id=0' },
+				{ name: 'Blank', comments: 1, link: '' },
+			],
+		} );
+
+		expect( result.data[ 0 ].items[ 0 ].children.map( child => child.link ) ).toEqual( [
+			'edit-comments.php?user_id=1662656',
+			null,
+			null,
+			null,
 		] );
 	} );
 
@@ -139,8 +167,7 @@ describe( 'selectStatsCommentsRows', () => {
 				label: 'Bo',
 				value: 7,
 				avatarUrl: 'g/bo?d=mm',
-				// WPCOM-user rows have no wp-admin equivalent, so they stay unlinked.
-				link: undefined,
+				link: 'edit-comments.php?user_id=1662656',
 			},
 			{
 				id: 'g/aggie?d=mm',

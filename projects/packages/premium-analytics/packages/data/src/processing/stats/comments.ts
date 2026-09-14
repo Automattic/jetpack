@@ -82,18 +82,27 @@ function normalizeCommentAvatar( avatar?: string | null ) {
 
 /**
  * Build the author row's link from the raw payload's `link`, which is not a URL
- * but a `?s=<email>` search fragment. The dashboard runs inside wp-admin, so a
- * relative `edit-comments.php` href resolves to the comment management screen.
+ * but a query fragment: `?user_id=<id>` for a WordPress.com user, `?s=<email>`
+ * for a guest. The dashboard runs inside wp-admin, so a relative
+ * `edit-comments.php` href resolves to the comment screen, and the comments
+ * list table filters on both parameters.
  *
  * @param link - The raw author `link` fragment.
- * @return The comments-admin search URL, or null when there is no email.
+ * @return The comments-admin URL, or null when the fragment carries neither.
  */
 function normalizeCommentAuthorLink( link: unknown ): string | null {
-	if ( typeof link !== 'string' || ! link.startsWith( '?s=' ) ) {
+	if ( typeof link !== 'string' || ! link.startsWith( '?' ) ) {
 		return null;
 	}
 
-	const email = link.slice( '?s='.length );
+	const params = new URLSearchParams( link.slice( 1 ) );
+	const userId = params.get( 'user_id' );
+
+	if ( userId && /^[1-9]\d*$/.test( userId ) ) {
+		return `edit-comments.php?user_id=${ userId }`;
+	}
+
+	const email = params.get( 's' );
 
 	return email ? `edit-comments.php?s=${ encodeURIComponent( email ) }` : null;
 }
@@ -160,7 +169,7 @@ export type StatsCommentsGroup = 'authors' | 'posts';
  * A flat Comments report row, shared by every consumer of the report.
  *
  * `link` is the value the report carries: a locally built, root-relative
- * `edit-comments.php` search for authors, and a remote permalink for posts.
+ * `edit-comments.php` filter for authors, and a remote permalink for posts.
  * Consumers that render the post link must pass it through `safeHttpUrl`
  * first — the guard cannot live here, because the row id falls back to the raw
  * link and must stay stable even when the URL is rejected.
