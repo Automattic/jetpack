@@ -1022,16 +1022,16 @@ class Manager {
 	public function resolve_wpcom_user_id( $user_id = false ) {
 		$user_id = $user_id ? absint( $user_id ) : get_current_user_id();
 
-		// The cached ID outlives the token, unlike the transient behind `get_connected_user_data()`,
+		// The binding outlives the token, unlike the transient behind `get_connected_user_data()`,
 		// so connectedness is checked here rather than left to the lookup below.
 		if ( ! $user_id || ! $this->is_user_connected( $user_id ) ) {
 			return 0;
 		}
 
-		$cached = Utils::get_wpcom_user_id( $user_id );
+		$bound = Utils::get_wpcom_user_id( $user_id );
 
-		if ( $cached ) {
-			return $cached;
+		if ( $bound ) {
+			return $bound;
 		}
 
 		$user_data = $this->get_connected_user_data( $user_id );
@@ -1299,16 +1299,24 @@ class Manager {
 	/**
 	 * Determines whether the connection ownership can be transferred to another user.
 	 *
-	 * The default Jetpack connection uses a transferable ownership model. A consumer
-	 * can declare ownership locked by returning `false` from the `jetpack_connection_ownership_transferable`
-	 * filter. This is the single chokepoint used both when deciding which connection-error
-	 * CTA to surface and (eventually) when performing an ownership change.
+	 * The default Jetpack connection uses a transferable ownership model. A set protected owner
+	 * anchor locks it outright; otherwise a consumer can declare ownership locked by returning
+	 * `false` from the `jetpack_connection_ownership_transferable` filter. This is the single
+	 * chokepoint used both when deciding which connection-error CTA to surface and (eventually)
+	 * when performing an ownership change.
 	 *
 	 * @since 8.8.0
+	 * @since $$next-version$$ A locked protected owner anchor makes ownership non-transferable.
 	 *
 	 * @return bool True if ownership can be transferred, false if it is locked.
 	 */
 	public function is_ownership_transferable() {
+		// Keyed on the anchor, never on has_protected_owner(): an owner who does not match the
+		// anchor is exactly when ownership must stay locked.
+		if ( Protected_Owner::is_locked() ) {
+			return false;
+		}
+
 		/**
 		 * Filters whether the Jetpack connection ownership can be transferred.
 		 *
@@ -1319,6 +1327,170 @@ class Manager {
 		 * @param bool $transferable Whether ownership can be transferred. Default true.
 		 */
 		return (bool) apply_filters( 'jetpack_connection_ownership_transferable', true );
+	}
+
+	/**
+	 * Whether a protected owner is required right now.
+	 *
+	 * Evaluated at the moment of the request, not as a standing declaration: a consumer may
+	 * legitimately answer false while it is installed and active — running in test mode, say —
+	 * and true only at the lifecycle moment that binds something to the owner's identity.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool True if a protected owner is required at this moment. Default false.
+	 */
+	public function requires_protected_owner() {
+		/**
+		 * Filters whether a protected owner is required at this moment.
+		 *
+		 * Return `true` at the point a feature is about to bind to the connection owner's
+		 * identity. Answering false at other times is expected and supported.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $required Whether a protected owner is required. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_connection_requires_protected_owner', false );
+	}
+
+	/**
+	 * Whether the connection owner is the protected owner the anchor names.
+	 *
+	 * This is the question consumers gate on before binding anything to the owner's identity.
+	 *
+	 * Reads the binding of the current owner rather than searching for whoever holds the anchored
+	 * ID, so a row on any other user cannot affect the answer. Requiring the owner to hold a live
+	 * token on top of that is what keeps a row written by another subsystem from ever satisfying
+	 * this: both halves are load-bearing, and there are tests for each.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function has_protected_owner() {
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			return false;
+		}
+
+		$owner_id = $this->get_connection_owner_id();
+
+		if ( ! $owner_id ) {
+			return false;
+		}
+
+		return $this->resolve_wpcom_user_id( $owner_id ) === (int) $anchor['wpcom_user_id'];
+	}
+
+	/**
+	 * Record a user as the protected owner and promote them to connection owner.
+	 *
+	 * Gated on `jetpack_connect` rather than on a role: a host can narrow that capability and
+	 * multisite does. It is false while the package is unconfigured, so a caller that has not
+	 * registered the connection's capabilities is refused rather than trusted.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int    $user_id      The local user to anchor.
+	 * @param string $confirmed_by How the confirmation was obtained, e.g. `popup` or `recovery`.
+	 * @return true|WP_Error True on success, WP_Error otherwise.
+	 */
+	public function set_protected_owner( $user_id, $confirmed_by ) {
+		// Authorization precedes validation, so an unauthorized caller cannot use the argument
+		// errors below to learn which users are administrators or hold a token.
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return new WP_Error(
+				'protected_owner_forbidden',
+				__( 'You do not have permission to manage the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$user_id = absint( $user_id );
+		$roles   = new Roles();
+
+		if ( ! sanitize_key( $confirmed_by ) ) {
+			return new WP_Error(
+				'protected_owner_missing_provenance',
+				__( 'Recording a protected owner requires naming how it was confirmed.', 'jetpack-connection' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( ! user_can( $user_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
+			return new WP_Error(
+				'protected_owner_not_admin',
+				__( 'The protected owner must be an administrator.', 'jetpack-connection' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Fail closed: this is false for a user with no token and for one WordPress.com cannot
+		// confirm, and an unverified identity must never be written down and locked.
+		$owner_data = $this->get_connected_user_data( $user_id );
+
+		if ( empty( $owner_data['ID'] ) ) {
+			return new WP_Error(
+				'protected_owner_not_verified',
+				__( 'Could not confirm the protected owner with WordPress.com.', 'jetpack-connection' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Store the binding the anchor will be compared against, so the gate reads local state from
+		// here on. Routed through the deduping writer, which clears the ID off any previous holder.
+		Utils::set_wpcom_user_id( $user_id, (int) $owner_data['ID'] );
+
+		if ( ! Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by ) ) {
+			return new WP_Error(
+				'protected_owner_not_stored',
+				__( 'Could not store the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		// Written directly rather than through update_connection_owner(): that round-trips to
+		// WordPress.com first, and its ownership-change guard will refuse the anchor just set here.
+		\Jetpack_Options::update_option( 'master_user', $user_id );
+
+		return true;
+	}
+
+	/**
+	 * Drop the protected owner anchor, unlocking ownership.
+	 *
+	 * Gated on `jetpack_connect` like establishing one, releasing a lock being the more
+	 * consequential half. The `@internal` tag is documentation; the capability is enforcement.
+	 *
+	 * @internal Recovery and support flows only. Consumers must not call this.
+	 * @since $$next-version$$
+	 *
+	 * @return true|WP_Error True once no anchor is set, WP_Error otherwise.
+	 */
+	public function clear_protected_owner() {
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return new WP_Error(
+				'protected_owner_forbidden',
+				__( 'You do not have permission to manage the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		Protected_Owner::clear();
+
+		// Asked of the outcome rather than of `delete_option()`, which also reports false for an
+		// anchor that was already absent — the state the caller asked for.
+		if ( Protected_Owner::get() ) {
+			return new WP_Error(
+				'protected_owner_not_cleared',
+				__( 'Could not clear the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return true;
 	}
 
 	/**
