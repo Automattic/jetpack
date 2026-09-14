@@ -105,28 +105,69 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
-	/**
-	 * Grace is 0-29 days past expiry, self-serve restore 30-59, and past that no
-	 * surface renders yet, so the state must stay absent rather than fall through.
-	 */
-	public function test_post_expiry_window_boundaries(): void {
-		$windows = array(
-			-1  => Expiry_Data::STATE_EXPIRED_GRACE,
-			-29 => Expiry_Data::STATE_EXPIRED_GRACE,
-			-30 => Expiry_Data::STATE_EXPIRED,
-			-59 => Expiry_Data::STATE_EXPIRED,
-			-60 => null,
-			-90 => null,
-		);
-		foreach ( $windows as $days => $expected ) {
+	public function test_a_present_purchase_past_its_date_is_grace_however_long_ago(): void {
+		foreach ( array( -1, -29, -30, -59, -60, -90 ) as $days ) {
 			$state = Expiry_Data::compute_state_from_purchase( $this->purchase( 'business-bundle', $days ), self::FIXED_NOW );
+			$this->assertNotNull( $state, "{$days} days past expiry should still be grace" );
+			$this->assertSame( Expiry_Data::STATE_EXPIRED_GRACE, $state['state'], "wrong state {$days} days past expiry" );
+			$this->assertSame( $days, $state['days_remaining'] );
+		}
+	}
+
+	public function test_a_revert_for_an_expired_plan_is_post_grace_for_thirty_days(): void {
+		$windows = array(
+			0  => Expiry_Data::STATE_EXPIRED,
+			1  => Expiry_Data::STATE_EXPIRED,
+			29 => Expiry_Data::STATE_EXPIRED,
+			30 => null,
+			45 => null,
+		);
+		foreach ( $windows as $days_ago => $expected ) {
+			$revert = array(
+				'reverted_at'      => self::FIXED_NOW - ( $days_ago * DAY_IN_SECONDS ),
+				'for_expired_plan' => true,
+			);
+			$state  = Expiry_Data::compute_state_from_revert( $revert, self::FIXED_NOW );
 			if ( null === $expected ) {
-				$this->assertNull( $state, "{$days} days past expiry should produce no state" );
+				$this->assertNull( $state, "{$days_ago} days after the revert should produce no state" );
 				continue;
 			}
 			$this->assertNotNull( $state );
-			$this->assertSame( $expected, $state['state'], "wrong state {$days} days past expiry" );
-			$this->assertSame( $days, $state['days_remaining'] );
+			$this->assertSame( $expected, $state['state'] );
+			$this->assertSame( $revert['reverted_at'], $state['expiry_ts'] );
+			$this->assertSame( -$days_ago, $state['days_remaining'] );
+			$this->assertSame( '', $state['product_slug'] );
+			$this->assertSame( '', $state['subscription_id'] );
+			$this->assertFalse( $state['auto_renew'] );
+		}
+	}
+
+	public function test_a_revert_for_another_reason_has_no_state(): void {
+		$revert = array(
+			'reverted_at'      => self::FIXED_NOW - DAY_IN_SECONDS,
+			'for_expired_plan' => false,
+		);
+		$this->assertNull( Expiry_Data::compute_state_from_revert( $revert, self::FIXED_NOW ) );
+		$this->assertNull( Expiry_Data::compute_state_from_revert( array( 'for_expired_plan' => true ), self::FIXED_NOW ) );
+	}
+
+	public function test_get_expiry_state_prefers_the_purchase_and_falls_back_to_the_revert(): void {
+		$GLOBALS['wpcom_expiry_reverted_transfer_test_value'] = array(
+			'reverted_at'      => time() - ( 5 * DAY_IN_SECONDS ),
+			'for_expired_plan' => true,
+		);
+		try {
+			$GLOBALS['wpcom_get_site_purchases_test_value'] = array();
+			$this->assertSame( Expiry_Data::STATE_EXPIRED, Expiry_Data::get_expiry_state()['state'] );
+
+			$GLOBALS['wpcom_get_site_purchases_test_value'] = array( $this->purchase( 'business-bundle', -40 ) );
+			$this->assertSame( Expiry_Data::STATE_EXPIRED_GRACE, Expiry_Data::get_expiry_state()['state'] );
+
+			unset( $GLOBALS['wpcom_expiry_reverted_transfer_test_value'] );
+			$GLOBALS['wpcom_get_site_purchases_test_value'] = array();
+			$this->assertNull( Expiry_Data::get_expiry_state() );
+		} finally {
+			unset( $GLOBALS['wpcom_get_site_purchases_test_value'], $GLOBALS['wpcom_expiry_reverted_transfer_test_value'] );
 		}
 	}
 
