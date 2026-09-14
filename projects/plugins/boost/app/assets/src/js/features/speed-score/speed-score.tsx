@@ -144,7 +144,7 @@ const SpeedScore = () => {
 					) }
 
 					{ status === 'error' && (
-						<Notice.Root intent="error">
+						<Notice.Root intent="error" className={ styles[ 'error-notice' ] }>
 							<Notice.Title>{ __( 'Failed to load Speed Scores', 'jetpack-boost' ) }</Notice.Title>
 							<Notice.Description>{ standardizeError( error ).message }</Notice.Description>
 							<Notice.Actions>
