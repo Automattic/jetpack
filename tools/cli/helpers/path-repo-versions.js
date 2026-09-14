@@ -195,15 +195,22 @@ export async function withPinnedComposerJson( cwd, versions, fn ) {
 	installRestoreHandlers();
 	pinned.set( file, original );
 	await writeAtomic( file, JSON.stringify( updated, null, '\t' ) + '\n', tmpDirFor( cwd ) );
+	let installed = false;
 	try {
-		return await fn();
+		const result = await fn();
+		installed = true;
+		return result;
 	} finally {
 		if ( pinned.has( file ) ) {
 			// Restore before dropping the bookkeeping: dying in between would otherwise leave the
 			// rewritten file behind with nothing left to put it back. Re-restoring is idempotent.
 			await writeAtomic( file, original, tmpDirFor( cwd ) );
 			pinned.delete( file );
-			await restampLock( cwd ).catch( () => null );
+			// Only if composer succeeded: stamping a lock it didn't write would mark a stale one
+			// valid, and the next build would install that dependency set with no signal.
+			if ( installed ) {
+				await restampLock( cwd ).catch( () => null );
+			}
 		}
 	}
 }

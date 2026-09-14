@@ -200,6 +200,19 @@ describe( 'lock re-stamping', () => {
 		await expect( fs.readFile( lockPath(), 'utf8' ) ).resolves.toBe( lockText( FIXTURE_HASH ) );
 	} );
 
+	// A failed `composer update` leaves whatever lock was already there; stamping it valid would
+	// make the next build install an unrelated dependency set with no signal.
+	test( 'does not restamp when the install failed', async () => {
+		const stale = lockText( '0'.repeat( 32 ) );
+		await fs.writeFile( lockPath(), stale );
+		await expect(
+			withPinnedComposerJson( dir, versions, async () => {
+				throw new Error( 'composer update failed' );
+			} )
+		).rejects.toThrow( 'composer update failed' );
+		await expect( fs.readFile( lockPath(), 'utf8' ) ).resolves.toBe( stale );
+	} );
+
 	test( 'does nothing when the project has no lock file', async () => {
 		await withPinnedComposerJson( dir, versions, async () => {} );
 		await expect( fs.access( lockPath() ) ).rejects.toThrow();

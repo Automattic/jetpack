@@ -150,9 +150,11 @@ export async function handler( argv ) {
 
 	// One `git ls-files` for the whole monorepo instead of one per project.
 	// Independent of each other, so overlap them.
-	const lockedProjectsPromise = batchLockFileStatus();
-	let dependencies = await getDependencies( process.cwd(), 'build' );
-	const lockedProjects = await lockedProjectsPromise;
+	const [ lockedProjects, fullDependencies ] = await Promise.all( [
+		batchLockFileStatus(),
+		getDependencies( process.cwd(), 'build' ),
+	] );
+	let dependencies = fullDependencies;
 	const pathRepoVersions =
 		argv.pinPathRepoVersions && ! argv.forMirrors ? readPathRepoVersions() : null;
 

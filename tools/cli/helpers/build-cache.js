@@ -13,6 +13,14 @@ const SCHEMA_VERSION = 1;
 const NON_OUTPUT =
 	/(^|\/)(node_modules|\.cache|\.phpunit\.cache|\.claude|\.playwright-mcp)\/|(^|\/)\.DS_Store$/;
 
+// isFile, not just exists: `git hash-object` fails on a directory, and fs.access follows a
+// symlink to one — an untracked symlink in the tree would abort the whole build.
+const isFile = p =>
+	fs.stat( p ).then(
+		st => st.isFile(),
+		() => false
+	);
+
 const exists = p =>
 	fs.access( p ).then(
 		() => true,
@@ -20,13 +28,13 @@ const exists = p =>
 	);
 
 /**
- * Filter a list of paths down to those that exist, checking them concurrently.
+ * Filter a list of paths down to the regular files, checking them concurrently.
  *
  * @param {string[]} paths - Paths to check.
  * @return {Promise<string[]>} The subset that exists.
  */
 async function filterExisting( paths ) {
-	const ok = await Promise.all( paths.map( exists ) );
+	const ok = await Promise.all( paths.map( isFile ) );
 	return paths.filter( ( p, i ) => ok[ i ] );
 }
 

@@ -150,31 +150,31 @@ describe( 'canSkip / writeManifest', () => {
 
 	test( 'skips a project rebuilt with the same fingerprint', async () => {
 		await addOutput( 'build/out.js' );
-		await writeManifest( SLUG, 'fp1', {} );
+		await writeManifest( SLUG, 'fp1' );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
 	} );
 
 	test( 'does not skip when the fingerprint changed', async () => {
 		await addOutput( 'build/out.js' );
-		await writeManifest( SLUG, 'fp1', {} );
+		await writeManifest( SLUG, 'fp1' );
 		await expect( canSkip( SLUG, 'fp2' ) ).resolves.toBe( false );
 	} );
 
 	test( 'does not skip when a recorded output was deleted', async () => {
 		await addOutput( 'build/out.js' );
-		await writeManifest( SLUG, 'fp1', {} );
+		await writeManifest( SLUG, 'fp1' );
 		await fs.rm( projectPath( 'build' ), { recursive: true } );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 
 	test( 'does not skip a project that produced no output at all', async () => {
-		await writeManifest( SLUG, 'fp1', {} );
+		await writeManifest( SLUG, 'fp1' );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 
 	test( 'tracks outputs in nested directories a fixed list would not name', async () => {
 		await addOutput( 'app/assets/dist/bundle.js' );
-		await writeManifest( SLUG, 'fp1', {} );
+		await writeManifest( SLUG, 'fp1' );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
 		await fs.rm( projectPath( 'app/assets/dist' ), { recursive: true } );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
