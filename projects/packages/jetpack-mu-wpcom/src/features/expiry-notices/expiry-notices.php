@@ -211,16 +211,16 @@ function wpcom_expiry_notices_expired_heading( array $state ): string {
 /**
  * Whether the revert this feature describes applies to this site, now.
  *
- * Past the grace period this waits on the sticker rather than the date: the
- * revert runs off the subscription-removal record and can lag the state by days.
+ * Post-grace is the revert: the state only exists once the site has been
+ * reverted for its expired plan. Before that, only an Atomic site has a
+ * revert ahead of it.
  *
  * @param array<string,mixed> $state Expiry state.
  */
 function wpcom_expiry_notices_revert_applies_to_site( array $state ): bool {
 	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
-		return wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() );
+		return true;
 	}
-
 	return Constants::is_true( 'IS_ATOMIC' );
 }
 
@@ -316,8 +316,7 @@ function wpcom_expiry_notices_render_cta_link( array $cta, string $cta_id, strin
 }
 
 /**
- * CTA URLs for a banner surface: support once the site is reverted, a
- * "Restore site" checkout for one that only lost plan features.
+ * CTA URLs for a banner surface: support once the site is reverted.
  *
  * @param array<string,mixed> $state       Expiry state.
  * @param string              $redirect_to Where checkout sends the user back to.
@@ -325,14 +324,8 @@ function wpcom_expiry_notices_render_cta_link( array $cta, string $cta_id, strin
  */
 function wpcom_expiry_notices_banner_urls( array $state, string $redirect_to ): array {
 	$urls = Expiry_Data::get_cta_urls( $state, $redirect_to );
-	if ( Expiry_Data::STATE_EXPIRED !== ( $state['state'] ?? '' ) ) {
-		return $urls;
-	}
-
-	if ( wpcom_expiry_notices_revert_applies_to_site( $state ) ) {
+	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
 		$urls['primary'] = wpcom_expiry_notices_support_cta( $state );
-	} else {
-		$urls['primary']['label'] = __( 'Restore site', 'jetpack-mu-wpcom' );
 	}
 	return $urls;
 }
@@ -403,26 +396,15 @@ function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): strin
 		return __( 'This plan was purchased by a different WordPress.com account. To manage this plan, log in to that account or contact the account owner.', 'jetpack-mu-wpcom' );
 	}
 
-	$storage_gb  = Expiry_Data::get_plan_storage_gb( isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '' );
-	$days        = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
-	$auto_renew  = ! empty( $state['auto_renew'] );
-	$stage       = $state['state'] ?? '';
-	$is_reverted = Expiry_Data::STATE_EXPIRED === $stage && wpcom_expiry_notices_revert_applies_to_site( $state );
+	$storage_gb = Expiry_Data::get_plan_storage_gb( isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '' );
+	$days       = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
+	$auto_renew = ! empty( $state['auto_renew'] );
+	$stage      = $state['state'] ?? '';
 
-	// Past grace by the calendar but still Atomic and un-reverted: none of what
-	// the post-grace copy claims has happened yet, and renewing still prevents it.
-	if ( Expiry_Data::STATE_EXPIRED === $stage && ! $is_reverted && Constants::is_true( 'IS_ATOMIC' ) ) {
-		$stage = Expiry_Data::STATE_EXPIRED_GRACE;
-	}
-
-	if ( $is_reverted ) {
+	if ( Expiry_Data::STATE_EXPIRED === $stage ) {
 		/* translators: %d is a number of gigabytes of storage. */
 		$with_storage    = __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or %d GB of storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
 		$without_storage = __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
-	} elseif ( Expiry_Data::STATE_EXPIRED === $stage ) {
-		/* translators: %d is a number of gigabytes of storage. */
-		$with_storage    = __( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or %d GB of storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
-		$without_storage = __( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or additional storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
 	} elseif ( Expiry_Data::STATE_EXPIRED_GRACE === $stage && $auto_renew ) {
 		/* translators: %d is a number of gigabytes of storage. */
 		$with_storage    = __( 'If renewal doesn’t go through, your site will move to the Free plan. That means losing plugins, custom themes, and %d GB of storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' );

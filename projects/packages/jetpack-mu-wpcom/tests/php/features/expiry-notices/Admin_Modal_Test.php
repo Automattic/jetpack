@@ -57,8 +57,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_shows_after_grace_with_the_post_revert_copy(): void {
-		$this->pretend_reverted();
-		$this->set_purchase( -45 );
+		$this->set_reverted( 15 );
 		$data = wpcom_expiry_notices_admin_modal_data();
 
 		$this->assertNotNull( $data );
@@ -94,10 +93,14 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
-	public function test_waits_for_the_revert_rather_than_the_date(): void {
-		// Post-grace by date, but the revert lags the subscription-removal record.
+	public function test_a_present_purchase_past_its_date_is_still_the_grace_modal(): void {
+		Constants::set_constant( 'IS_ATOMIC', true );
 		$this->set_purchase( -45 );
-		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
+		$data = wpcom_expiry_notices_admin_modal_data();
+
+		$this->assertNotNull( $data );
+		$this->assertStringContainsString( 'will be moved to the Free plan', $data['description'] );
+		$this->assertSame( 'Renew now', $data['primary']['label'] );
 	}
 
 	public function test_does_not_show_to_an_admin_who_cannot_renew(): void {

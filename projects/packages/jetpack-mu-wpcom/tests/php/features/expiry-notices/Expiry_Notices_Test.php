@@ -7,6 +7,7 @@
 
 declare( strict_types = 1 );
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
@@ -197,7 +198,7 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 					'state'          => Expiry_Data::STATE_EXPIRED,
 					'days_remaining' => -45,
 				),
-				'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or 50 GB of storage. Upgrade your plan to restore your site.',
+				'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or 50 GB of storage. Contact support to get help restoring it.',
 			),
 			array(
 				array( 'product_slug' => 'mystery-bundle' ),
@@ -233,24 +234,34 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 		$state = $this->message_state(
 			array(
 				'state'          => Expiry_Data::STATE_EXPIRED,
-				'days_remaining' => -45,
+				'days_remaining' => -15,
+				'product_slug'   => '',
 			)
 		);
 
 		$this->assertSame(
-			'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or 50 GB of storage. Contact support to get help restoring it.',
+			'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Contact support to get help restoring it.',
 			wpcom_expiry_notices_banner_body( $state, true )
 		);
+		$this->assertSame( 'Your plan has expired', wpcom_expiry_notices_expired_heading( $state ) );
 
 		$cta = wpcom_expiry_notices_banner_urls( $state, '' )['primary'];
 		$this->assertSame( 'Contact support', $cta['label'] );
-		$this->assertSame( 'My Business plan expired and I need your help getting it restored.', $cta['message'] );
+		$this->assertSame( 'My plan expired and I need your help getting it restored.', $cta['message'] );
 		$this->assertStringContainsString( 'wordpress.com/help', $cta['url'] );
+	}
 
-		$this->assertSame(
-			'My plan expired and I need your help getting it restored.',
-			wpcom_expiry_notices_support_cta( array( 'product_slug' => 'mystery-bundle' ) )['message']
+	public function test_a_present_purchase_past_its_date_keeps_the_grace_copy_on_atomic(): void {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$state = $this->message_state(
+			array(
+				'state'          => Expiry_Data::STATE_EXPIRED_GRACE,
+				'days_remaining' => -45,
+			)
 		);
+
+		$this->assertStringStartsWith( 'Your site will move to the Free plan.', wpcom_expiry_notices_banner_body( $state, true ) );
+		$this->assertSame( 'Renew now', wpcom_expiry_notices_banner_urls( $state, '' )['primary']['label'] );
 	}
 
 	public function test_the_sentence_joins_heading_and_body(): void {
