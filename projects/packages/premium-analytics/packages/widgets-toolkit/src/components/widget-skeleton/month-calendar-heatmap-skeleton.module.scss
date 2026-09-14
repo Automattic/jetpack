@@ -1,10 +1,10 @@
 /* The loaded chart's geometry: a compact month block is seven 11px cells across
  * and six down, 2px apart, with a label line beneath. The blocks share the
- * leftover width down to the chart's 24px group gap; past that the row clips
- * where the chart would scroll. */
+ * leftover width down to the theme's group gap plus the cell gap either side;
+ * past that the row clips where the chart would scroll. */
 $block-inline-size: 89px;
 $block-block-size: 76px;
-$group-gap: 24px;
+$group-gap: 20px;
 
 .months {
 	display: flex;

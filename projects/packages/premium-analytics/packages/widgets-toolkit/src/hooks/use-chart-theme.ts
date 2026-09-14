@@ -46,6 +46,12 @@ export function useChartTheme(): ChartTheme {
 			leaderboardChart: {
 				labelSpacing: 'xs',
 			},
+			// Between month blocks the cell gap lands on both sides of the group track,
+			// so this reads as the 20px of the old Stats posting calendar; the chart's
+			// 24px default leaves twelve months short of a full-width card at 1600px.
+			heatmapChart: {
+				groupGap: 16,
+			},
 			lineChart: {
 				lineStyles: {
 					comparison: {

@@ -8,11 +8,14 @@
 	block-size: 100%;
 }
 
-/* The chart fills the tile and centres the grid in the leftover height; `safe`
- * keeps the first row reachable on a tile shorter than the grid. */
+/* The chart fills the tile, the grid at the top and the legend pinned to the
+ * bottom, with the leftover height between them. */
 .root .chart {
 	block-size: 100%;
-	justify-content: safe center;
+}
+
+.legend {
+	margin-block-start: auto;
 }
 
 /* The grid is the scroll container, so the legend stays put while the months
