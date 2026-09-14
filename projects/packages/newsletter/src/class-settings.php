@@ -91,22 +91,13 @@ class Settings {
 		// Priority 1 so this runs before the menu is built and the request is denied.
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_retired_subscribers_page' ), 1 );
 
-		// Lets the subscriber-count notice record its dismissal through `/wp/v2/users/me`.
+		// Admin-ajax rather than `/wp/v2/users/me`: WordPress.com's public API drops user meta it hasn't allowlisted.
 		add_action(
-			'rest_api_init',
+			'wp_ajax_jetpack_newsletter_dismiss_subscriber_count_notice',
 			static function () {
-				register_meta(
-					'user',
-					'jetpack_newsletter_subscriber_count_notice_dismissed',
-					array(
-						'show_in_rest'  => true,
-						'single'        => true,
-						'type'          => 'boolean',
-						'auth_callback' => static function () {
-							return current_user_can( 'manage_options' );
-						},
-					)
-				);
+				check_ajax_referer( 'jetpack_newsletter_dismiss_subscriber_count_notice' );
+				update_user_meta( get_current_user_id(), 'jetpack_newsletter_subscriber_count_notice_dismissed', 1 );
+				wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );
 			}
 		);
 
@@ -338,6 +329,7 @@ class Settings {
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),
 			'tracksUserData'                  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'showSubscriberCountNotice'       => $is_wpcom && ! get_user_meta( $current_user->ID, 'jetpack_newsletter_subscriber_count_notice_dismissed', true ),
+			'subscriberCountNoticeNonce'      => wp_create_nonce( 'jetpack_newsletter_dismiss_subscriber_count_notice' ),
 		);
 
 		return $data;

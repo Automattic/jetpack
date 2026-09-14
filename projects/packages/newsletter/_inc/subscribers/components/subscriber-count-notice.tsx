@@ -1,4 +1,4 @@
-import apiFetch from '@wordpress/api-fetch';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { dispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -31,19 +31,23 @@ function openHelpCenter( event: MouseEvent ) {
  */
 export default function SubscriberCountNotice(): JSX.Element | null {
 	const [ isDismissed, setDismissed ] = useState( false );
+	const scriptData = getNewsletterScriptData();
+	const nonce = scriptData?.subscriberCountNoticeNonce ?? '';
 
 	const dismiss = useCallback( () => {
 		setDismissed( true );
-		apiFetch( {
-			path: '/wp/v2/users/me',
+		fetch( getAdminUrl( 'admin-ajax.php' ), {
 			method: 'POST',
-			data: { meta: { jetpack_newsletter_subscriber_count_notice_dismissed: true } },
+			body: new URLSearchParams( {
+				action: 'jetpack_newsletter_dismiss_subscriber_count_notice',
+				_ajax_nonce: nonce,
+			} ),
 		} ).catch( () => {
 			// A failed write only means the notice returns on the next load.
 		} );
-	}, [] );
+	}, [ nonce ] );
 
-	if ( isDismissed || ! getNewsletterScriptData()?.showSubscriberCountNotice ) {
+	if ( isDismissed || ! scriptData?.showSubscriberCountNotice ) {
 		return null;
 	}
 
