@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: prevent persistent "Review 1 change" in the editor caused by unnecessary setAttributes calls when the videoPressClassNames and videoPressTracks values have not changed.
