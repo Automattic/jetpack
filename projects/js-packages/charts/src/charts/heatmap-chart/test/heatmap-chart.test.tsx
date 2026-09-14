@@ -639,3 +639,31 @@ describe( 'HeatmapChart column groups', () => {
 		);
 	} );
 } );
+
+describe( 'HeatmapChart naming and focus', () => {
+	test( 'names the grid from aria-label when given', () => {
+		renderChart( { 'aria-label': 'Monthly posting activity' } );
+		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'grid', { name: /heatmap chart/i } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'scrolls the keyboard-selected cell into view', async () => {
+		// jsdom has no scrollIntoView; the assertion is that the chart asks for it.
+		const scrollIntoView = jest.fn();
+		Element.prototype.scrollIntoView = scrollIntoView;
+		try {
+			renderChart();
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			const user = userEvent.setup();
+			grid.focus();
+			await user.keyboard( '{ArrowRight}' );
+			expect( scrollIntoView ).toHaveBeenLastCalledWith( { block: 'nearest', inline: 'nearest' } );
+			expect( ( scrollIntoView.mock.instances[ 0 ] as Element ).id ).toBe(
+				grid.getAttribute( 'aria-activedescendant' )
+			);
+		} finally {
+			// Back to jsdom's default, which has no scrollIntoView.
+			delete ( Element.prototype as Partial< Element > ).scrollIntoView;
+		}
+	} );
+} );
