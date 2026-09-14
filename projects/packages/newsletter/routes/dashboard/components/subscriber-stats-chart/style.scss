@@ -1,0 +1,115 @@
+.jetpack-newsletter-stats {
+	inline-size: 100%;
+	max-inline-size: 1024px;
+	margin-inline: auto;
+
+	&__greeting {
+		max-inline-size: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__metrics,
+	&__chart-card {
+		inline-size: 100%;
+		box-sizing: border-box;
+		overflow: hidden;
+		background: var(--wpds-color-background-surface-neutral);
+		border: 1px solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+	}
+
+	&__metric {
+		box-sizing: border-box;
+		flex: 1 1 0%;
+		min-block-size: 118px;
+		padding: var(--wpds-dimension-padding-lg);
+		border-inline-end: 1px solid var(--wpds-color-stroke-surface-neutral);
+
+		&:last-child {
+			border-inline-end: 0;
+		}
+	}
+
+	&__metric-label {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-size: 13px;
+		font-weight: 500;
+		letter-spacing: 0.02em;
+		line-height: 1.4;
+		text-transform: uppercase;
+	}
+
+	&__metric-value {
+		color: var(--wpds-color-foreground-content-neutral);
+		font-size: 38px;
+		font-weight: 400;
+		line-height: 1;
+	}
+
+	&__metric-info {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__chart-card {
+		padding: var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-xl);
+	}
+
+	&__chart {
+		block-size: 420px;
+		inline-size: 100%;
+	}
+
+	&__state {
+		min-block-size: 420px;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	@media ( max-width: 960px ) {
+
+		&__metric {
+			flex-basis: 50%;
+			border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral);
+
+			&:nth-child(2n) {
+				border-inline-end: 0;
+			}
+
+			&:nth-last-child(-n + 2) {
+				border-block-end: 0;
+			}
+		}
+	}
+
+	@media ( max-width: 600px ) {
+
+		&__metric {
+			flex-basis: 100%;
+			min-block-size: 56px;
+			border-inline-end: 0;
+
+			&:nth-last-child(2) {
+				border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral);
+			}
+		}
+
+		&__chart-card {
+			padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-md);
+		}
+
+		&__metric-label {
+			font-size: var(--wpds-typography-font-size-xs);
+		}
+
+		&__metric-value {
+			font-size: var(--wpds-typography-font-size-xl);
+		}
+
+		// !important beats Text's same-specificity heading-2xl variant class.
+		// No font-size token matches 24px; nearest are xl (20px) and 2xl (32px).
+		&__greeting {
+			font-size: 24px !important;
+		}
+	}
+}

@@ -41,6 +41,11 @@ class Settings {
 
 	/**
 	 * Feature flag for the Newsletter Overview tab.
+	 *
+	 * Also gates the Stats tab and its REST endpoints: Stats is a temporary,
+	 * standalone page that eases development of the Overview dashboard's
+	 * eventual stats section -- it ships and retires with the same flag rather
+	 * than getting an independent one.
 	 */
 	const OVERVIEW_FEATURE_FLAG = 'newsletter-overview';
 
@@ -65,6 +70,12 @@ class Settings {
 				'owner'       => 'jetpack-newsletter',
 			)
 		);
+
+		// Registering the routes themselves stays behind the flag: unlike Overview's
+		// own UI chrome, Stats exposes real subscriber/email data over REST.
+		if ( Feature_Flags::is_enabled( self::OVERVIEW_FEATURE_FLAG ) ) {
+			Subscriber_Stats_Controller::register();
+		}
 	}
 
 	/**

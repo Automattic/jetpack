@@ -91,13 +91,13 @@ jest.mock( '@wordpress/ui', () => {
 	};
 } );
 
-jest.mock( '../src/settings/script-data', () => ( {
+jest.mock( '../../../src/settings/script-data', () => ( {
 	getNewsletterScriptData: () => mockGetNewsletterScriptData(),
 } ) );
 
 // Imports must come after the jest.mock factories above.
 import { render, screen } from '@testing-library/react';
-import NewsletterPage from '../_inc/components/newsletter-page';
+import NewsletterPage from '../newsletter-page';
 
 beforeEach( () => {
 	mockNavigate.mockReset();
@@ -239,6 +239,68 @@ describe( 'NewsletterPage tab navigation', () => {
 		);
 
 		expect( screen.getByTestId( 'jetpack-footer' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'NewsletterPage Stats tab gating', () => {
+	// Stats exposes real subscriber/email data over REST, so it must stay
+	// unreachable — not just hidden from nav — while the shared Overview flag
+	// that also gates it is off. Stats is a temporary standalone page that
+	// shares Overview's flag rather than getting its own.
+	it( 'hides the Stats tab when overviewEnabled is false', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: false,
+		} );
+
+		render(
+			<NewsletterPage activeTab="subscribers">
+				<div>panel body</div>
+			</NewsletterPage>
+		);
+
+		expect(
+			screen.queryAllByRole( 'tab' ).find( tab => tab.getAttribute( 'data-tab-value' ) === 'stats' )
+		).toBeUndefined();
+	} );
+
+	it( 'shows the Stats tab and navigates to it when overviewEnabled is true', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: true,
+		} );
+
+		render(
+			<NewsletterPage activeTab="overview">
+				<div>panel body</div>
+			</NewsletterPage>
+		);
+
+		screen
+			.getAllByRole( 'tab' )
+			.find( tab => tab.getAttribute( 'data-tab-value' ) === 'stats' )
+			?.click();
+
+		const navArg = mockNavigate.mock.calls[ 0 ][ 0 ] as { search: Record< string, unknown > };
+		expect( navArg.search.tab ).toBe( 'stats' );
+	} );
+
+	it( 'ignores a direct onValueChange("stats") call when overviewEnabled is false', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: false,
+		} );
+
+		render(
+			<NewsletterPage activeTab="overview">
+				<div>panel body</div>
+			</NewsletterPage>
+		);
+
+		expect( mockTabsOnValueChange.current ).not.toBeNull();
+		mockTabsOnValueChange.current?.( 'stats' );
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 } );
 
