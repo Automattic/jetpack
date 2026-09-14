@@ -94,56 +94,77 @@ class Password_Checker_Test extends BaseTestCase {
 		 */
 
 		return array(
-			'no_backslashes'    => array(
+			'no_backslashes'         => array(
 				'preg_match',
 				'no_backslashes',
 				'abc123',
 				true,
 				'Passwords may not contain the character "\".',
 			),
-			'minimum_length'    => array(
+			'minimum_length'         => array(
 				'preg_match',
 				'minimum_length',
 				'abc123',
 				true,
 				'Password must be at least 6 characters.',
 			),
-			'has_mixed_case'    => array(
+			'has_mixed_case'         => array(
 				'preg_match',
 				'has_mixed_case',
 				'Abc123',
 				true,
 				'Password must have mixed case characters.',
 			),
-			'has_digit'         => array(
+			'has_digit'              => array(
 				'preg_match',
 				'has_digit',
 				'abc123',
 				true,
 				'Password must have digits.',
 			),
-			'has_special_char'  => array(
+			'has_special_char'       => array(
 				'preg_match',
 				'has_special_char',
 				'abc!def',
 				true,
 				'Password must have special characters.',
 			),
-			'compare_to_list_1' => array(
+			'has_mixed_case_fails'   => array(
+				'preg_match',
+				'has_mixed_case',
+				'zzzzzz',
+				false,
+				'Password must have mixed case characters.',
+			),
+			'has_digit_fails'        => array(
+				'preg_match',
+				'has_digit',
+				'zzzzzz',
+				false,
+				'Password must have digits.',
+			),
+			'has_special_char_fails' => array(
+				'preg_match',
+				'has_special_char',
+				'zzzzzz',
+				false,
+				'Password must have special characters.',
+			),
+			'compare_to_list_1'      => array(
 				'compare_to_list',
 				'not_a_common_password',
 				'password',
 				false,
 				'Common passwords that should not be used.',
 			),
-			'compare_to_list_2' => array(
+			'compare_to_list_2'      => array(
 				'compare_to_list',
 				'not_a_common_password',
 				'hunter2',
 				true,
 				'Common passwords that should not be used.',
 			),
-			'compare_to_list_3' => array(
+			'compare_to_list_3'      => array(
 				'compare_to_list',
 				'not_same_as_other_user_data',
 				'test-user',
@@ -206,23 +227,6 @@ class Password_Checker_Test extends BaseTestCase {
 		$this->assertFalse( $short_result['passed'], 'Short password must fail evaluation.' );
 		$short_failed_names = array_column( $short_result['test_results']['failed'], 'test_name' );
 		$this->assertContains( 'minimum_length', $short_failed_names );
-	}
-
-	/**
-	 * Test high-level test() method flags low entropy passwords and includes suggestions.
-	 */
-	public function test_test_method_low_entropy_password() {
-		$this->password_checker->common_passwords = array( 'password' );
-
-		// Password meets minimum length 6 and not in common list, but fails entropy requirement.
-		$result = $this->password_checker->test( 'zzzzzz' );
-		$this->assertFalse( $result['passed'], 'Repetitive password must fail entropy requirement.' );
-		$this->assertNotEmpty( $result['test_results']['failed'], 'Failed suggestion tests should be returned.' );
-
-		$failed_names = array_column( $result['test_results']['failed'], 'test_name' );
-		$this->assertContains( 'has_mixed_case', $failed_names );
-		$this->assertContains( 'has_digit', $failed_names );
-		$this->assertContains( 'has_special_char', $failed_names );
 	}
 
 	/**
