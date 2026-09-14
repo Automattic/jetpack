@@ -63,7 +63,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		delete_transient( 'paypal_resource_plb-abc123' );
 		delete_transient( 'paypal_resource_plb-notfound' );
 		delete_transient( 'paypal_resource_plb-deleted' );
-		delete_transient( 'paypal_list_cache_' . md5( '' ) );
+		PayPal_API_Client::forget_cached_resources();
 
 		// Reset $_GET superglobal.
 		$_GET = array();
@@ -521,6 +521,61 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'Back to Payment Links', $output );
 		// Should show resource ID.
 		$this->assertStringContainsString( 'PLB-ABC123', $output );
+	}
+
+	/**
+	 * Test the detail view is read fresh right after the link is edited.
+	 */
+	public function test_detail_view_reads_fresh_after_an_update() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+		$this->set_up_connected_state();
+
+		$resource = $this->get_sample_resource();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$resource ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				if ( 'PUT' === $args['method'] ) {
+					return array(
+						'response' => array(
+							'code'    => 204,
+							'message' => '',
+						),
+						'body'     => '',
+					);
+				}
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => '',
+					),
+					'body'     => wp_json_encode( $resource, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$this->assertStringContainsString( 'Premium Widget', ob_get_clean() );
+
+		// Renamed on PayPal, but the cache is still warm.
+		$resource['line_items'][0]['name'] = 'Renamed Widget';
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$this->assertStringContainsString( 'Premium Widget', ob_get_clean() );
+
+		PayPal_API_Client::update_resource( 'PLB-ABC123', array( 'type' => 'BUY_NOW' ) );
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$this->assertStringContainsString( 'Renamed Widget', ob_get_clean() );
 	}
 
 	/**
