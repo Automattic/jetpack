@@ -2,13 +2,14 @@ import {
 	getScoreLetter,
 	didScoresChange,
 	getScoreMovementPercentage,
+	standardizeError,
 } from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, Button } from '@automattic/jetpack-components';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import ContextTooltip from './context-tooltip/context-tooltip';
 import RefreshIcon from '$svg/refresh';
 import PerformanceHistory from '$features/performance-history/performance-history';
-import ErrorNotice from '$features/error-notice/error-notice';
 import clsx from 'clsx';
 import { useEffect, useMemo, useCallback } from 'react';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
@@ -143,14 +144,15 @@ const SpeedScore = () => {
 					) }
 
 					{ status === 'error' && (
-						<ErrorNotice
-							title={ __( 'Failed to load Speed Scores', 'jetpack-boost' ) }
-							error={ error }
-							suggestion={ __( '<action>Try again</action>', 'jetpack-boost' ) }
-							vars={ {
-								action: <Button size="small" variant="link" onClick={ () => loadScore( true ) } />,
-							} }
-						/>
+						<Notice.Root intent="error">
+							<Notice.Title>{ __( 'Failed to load Speed Scores', 'jetpack-boost' ) }</Notice.Title>
+							<Notice.Description>{ standardizeError( error ).message }</Notice.Description>
+							<Notice.Actions>
+								<Notice.ActionButton onClick={ () => loadScore( true ) }>
+									{ __( 'Try again', 'jetpack-boost' ) }
+								</Notice.ActionButton>
+							</Notice.Actions>
+						</Notice.Root>
 					) }
 
 					<BoostScoreBar
