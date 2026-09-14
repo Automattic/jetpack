@@ -666,4 +666,32 @@ describe( 'HeatmapChart naming and focus', () => {
 			delete ( Element.prototype as Partial< Element > ).scrollIntoView;
 		}
 	} );
+
+	test( 'does not scroll again when the data is replaced but the selection stays', async () => {
+		const scrollIntoView = jest.fn();
+		Element.prototype.scrollIntoView = scrollIntoView;
+		try {
+			const { rerender } = renderChart();
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			const user = userEvent.setup();
+			grid.focus();
+			await user.keyboard( '{ArrowRight}' );
+			expect( scrollIntoView ).toHaveBeenCalledTimes( 1 );
+
+			rerender(
+				<GlobalChartsProvider>
+					<HeatmapChart width={ 500 } height={ 300 } data={ [ ...data ] } />
+				</GlobalChartsProvider>
+			);
+			expect( scrollIntoView ).toHaveBeenCalledTimes( 1 );
+		} finally {
+			delete ( Element.prototype as Partial< Element > ).scrollIntoView;
+		}
+	} );
+
+	test( 'renders the empty state without a warning when static groups await data', () => {
+		renderChart( { data: [], columnGroups: [ { label: 'Q1', span: 3 } ] } );
+		expect( screen.getByText( 'No data available' ) ).toBeInTheDocument();
+		expect( console ).not.toHaveWarned();
+	} );
 } );

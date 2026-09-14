@@ -254,9 +254,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	}, [ withTooltips, selectedIndex, hideTooltip ] );
 
 	// Focus stays on the grid (aria-activedescendant), so the browser never scrolls
-	// the selected cell into a scroll container's view on its own. Then anchor the
-	// tooltip at the cell's center; cleared on blur/Escape, not here, so a mouse
-	// hover (no selection) isn't affected.
+	// the selected cell into a scroll container's view on its own. Keyed on the
+	// selection alone: a data refresh must not scroll the user back to it.
 	useEffect( () => {
 		if ( selectedIndex === undefined ) {
 			return;
@@ -268,14 +267,24 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
 				: null;
 		cell?.scrollIntoView?.( { block: 'nearest', inline: 'nearest' } );
+	}, [ selectedIndex, rows, chartId ] );
 
-		if ( ! withTooltips ) {
+	// Anchor the tooltip at the selected cell's center on keyboard nav. Cleared on blur/Escape,
+	// not here, so a mouse hover (no selection) isn't affected.
+	useEffect( () => {
+		if ( ! withTooltips || selectedIndex === undefined ) {
 			return;
 		}
 		const origin = getTooltipOrigin();
 		if ( ! origin ) {
 			return;
 		}
+		const col = Math.floor( selectedIndex / rows );
+		const row = selectedIndex % rows;
+		const cell =
+			typeof document !== 'undefined'
+				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
+				: null;
 		const rect = cell?.getBoundingClientRect();
 		showTooltip( {
 			tooltipLeft: rect ? rect.left + rect.width / 2 - origin.left : 0,

@@ -1,6 +1,12 @@
-import { createDateFormatter, sanitizeFormatting } from '../../../utils/date-formatting';
+import { sanitizeFormatting } from '../../../utils/date-formatting';
 import { warnOnce } from '../../../utils/warn-once';
-import { addCivilDays, civilDate, civilKey, startOfCivilWeek } from './civil-day';
+import {
+	addCivilDays,
+	civilDate,
+	civilKey,
+	civilLabelFormatters,
+	startOfCivilWeek,
+} from './civil-day';
 import { isPresent } from './use-heatmap-colors';
 import type { HeatmapCell, HeatmapColumn, HeatmapColumnGroup } from '../types';
 import type { CivilDate, DayKey } from './civil-day';
@@ -86,17 +92,7 @@ export const buildMonthCalendarHeatmapData = (
 		return isPresent( value ) ? value : null;
 	};
 
-	// Formatters read UTC proxies. `gregory` keeps a locale whose default calendar
-	// is not Gregorian (fa-IR) from naming one grid month twice.
-	const labelFormatting = { locale, timeZone: 'UTC' };
-	const formatMonth = createDateFormatter(
-		{ month: 'short', calendar: 'gregory' },
-		labelFormatting
-	);
-	const formatDay = createDateFormatter(
-		{ weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', calendar: 'gregory' },
-		labelFormatting
-	);
+	const { formatMonth, formatDay } = civilLabelFormatters( locale );
 
 	const data: HeatmapColumn[] = [];
 	const columnGroups: HeatmapColumnGroup[] = [];
