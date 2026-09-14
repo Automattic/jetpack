@@ -2,6 +2,7 @@ export { useAttributesWithSearchFallback } from './use-attributes-with-search-fa
 export { useChartTheme } from './use-chart-theme';
 export { useDelayedLoading } from './use-delayed-loading';
 export { useElementSize, type ElementSize } from './use-element-size';
+export { useNormalizedReportParams } from './use-normalized-report-params';
 export { useWidgetNavigationSearch } from './use-widget-navigation-search';
 export { useSegmentStyles } from '../widgets/common';
 export { useSeriesStyles } from './use-series-styles';

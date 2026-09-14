@@ -89,10 +89,14 @@ function PostDetail(): JSX.Element {
 
 	// Each tab is its own layout, so leaving the tab, by click, Back, or a deep
 	// link, leaves customize mode with it.
-	const { isCustomizing, canPerform, startCustomizing, onEditChange } = useDetailPageCustomize(
-		layout,
-		{ layoutId: activeTab }
-	);
+	const {
+		isCustomizing,
+		canCustomize,
+		canPerform,
+		startCustomizing,
+		resetToDefault,
+		onEditChange,
+	} = useDetailPageCustomize( layout, { layoutId: activeTab, onLayoutReset: resetLayout } );
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
@@ -169,7 +173,8 @@ function PostDetail(): JSX.Element {
 						actions={
 							<DetailPageActions
 								isCustomizing={ isCustomizing }
-								onCustomize={ startCustomizing }
+								onCustomize={ canCustomize ? startCustomizing : undefined }
+								onReset={ resetToDefault }
 								editingActions={ <WidgetDashboard.Actions /> }
 							>
 								{ publicUrl ? (
