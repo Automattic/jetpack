@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Content Research: Remove the editor sidebar, its proxy REST endpoints, and the a8c-only enqueue.

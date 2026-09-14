@@ -121,4 +121,19 @@ describe( 'useDashboardSectionLayout', () => {
 
 		expect( storedLayouts() ).toBe( stored );
 	} );
+
+	it( 'hands out a fresh copy of the default on reset when nothing is stored', () => {
+		const { result } = renderHook( () => useDashboardSectionLayout( 'traffic', sections ) );
+
+		act( () => result.current[ 2 ]() );
+		const firstReset = result.current[ 0 ];
+
+		expect( firstReset ).not.toBe( trafficDefault );
+		expect( firstReset ).toEqual( trafficDefault );
+
+		act( () => result.current[ 2 ]() );
+
+		expect( result.current[ 0 ] ).not.toBe( firstReset );
+		expect( result.current[ 0 ] ).toEqual( trafficDefault );
+	} );
 } );
