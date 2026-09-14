@@ -147,11 +147,17 @@ class Password_Checker {
 
 		$entropy_bits = $this->calculate_entropy_bits( $password );
 
-		// If we have failed the entropy bits test, run the regex tests so we can suggest improvements.
 		if ( $entropy_bits < $this->minimum_entropy_bits ) {
-			$results['failed']['entropy_bits'] = $entropy_bits;
-			// Run the tests.
-			$results = array_merge( $results, $this->run_tests( $password, $this->get_tests( 'preg_match' ) ) );
+			$results['failed'][] = array(
+				'test_name'   => 'entropy_bits',
+				'explanation' => __( 'This password is too easy to guess: you can improve it by making it longer.', 'jetpack-password-checker' ),
+			);
+
+			// The regex tests suggest improvements; the first pass skipped the non-required ones.
+			if ( $required_only ) {
+				$suggestions       = $this->run_tests( $password, $this->get_tests( 'preg_match' ) );
+				$results['failed'] = array_merge( $results['failed'], $suggestions['failed'] );
+			}
 		}
 
 		return ( array(

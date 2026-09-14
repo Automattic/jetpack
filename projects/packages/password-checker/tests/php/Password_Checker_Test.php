@@ -152,4 +152,37 @@ class Password_Checker_Test extends BaseTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test that a password below the minimum entropy fails even when every rule passes.
+	 */
+	public function test_low_entropy_password_fails() {
+		$result = $this->password_checker->test( 'Aa1!bc' );
+
+		$this->assertFalse( $result['passed'] );
+		$this->assertSame( array( 'entropy_bits' ), array_column( $result['test_results']['failed'], 'test_name' ) );
+	}
+
+	/**
+	 * Test that required-only mode reports the skipped regex rules alongside the entropy failure.
+	 */
+	public function test_low_entropy_password_fails_with_suggestions_when_required_only() {
+		$result = $this->password_checker->test( 'yuiops', true );
+
+		$this->assertFalse( $result['passed'] );
+		$this->assertSame(
+			array( 'entropy_bits', 'has_mixed_case', 'has_digit', 'has_special_char' ),
+			array_column( $result['test_results']['failed'], 'test_name' )
+		);
+	}
+
+	/**
+	 * Test that a password above the minimum entropy passes.
+	 */
+	public function test_password_above_minimum_entropy_passes() {
+		$result = $this->password_checker->test( 'Aa1!Aa1!' );
+
+		$this->assertTrue( $result['passed'] );
+		$this->assertSame( array(), $result['test_results']['failed'] );
+	}
 }
