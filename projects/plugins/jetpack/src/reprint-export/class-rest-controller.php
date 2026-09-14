@@ -69,9 +69,16 @@ class REST_Controller extends WP_REST_Controller {
 	 * Registered only where the feature is available, so clients also use a 404
 	 * from here to tell whether the site supports export at all.
 	 *
-	 * @return WP_REST_Response The unix timestamp the window was opened at.
+	 * @return WP_REST_Response The unix timestamp the window was opened at, or
+	 *                          a 500 error.
 	 */
 	public function enable_export() {
+		// A stamp made without a usable salt gets no tag, so it never reads as
+		// open; better to say so here than to send the client off to silence.
+		if ( null === Reprint_Exporter::get_usable_salt() ) {
+			return $this->unusable_salt_response();
+		}
+
 		$enabled_at = Reprint_Exporter::open_export_window();
 
 		Reprint_Exporter::record_event(
@@ -94,6 +101,12 @@ class REST_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response The new secret on success, or a 500 error.
 	 */
 	public function rotate_secret() {
+		// Checked before minting: the secret is stored with a tag keyed by
+		// AUTH_SALT, and without a usable one no credential could be honoured.
+		if ( null === Reprint_Exporter::get_usable_salt() ) {
+			return $this->unusable_salt_response();
+		}
+
 		$secret = bin2hex( random_bytes( 32 ) );
 
 		if ( ! Reprint_Exporter::store_secret( $secret ) ) {
@@ -109,6 +122,18 @@ class REST_Controller extends WP_REST_Controller {
 		);
 
 		return new WP_REST_Response( array( 'secret' => $secret ), 200 );
+	}
+
+	/**
+	 * The error both routes answer with when AUTH_SALT cannot key a tag.
+	 *
+	 * @return WP_REST_Response A 500 error.
+	 */
+	private function unusable_salt_response() {
+		return new WP_REST_Response(
+			array( 'error' => 'AUTH_SALT in wp-config.php is missing, too short or a placeholder, so export credentials cannot be protected. Set a unique AUTH_SALT of at least 32 characters and try again.' ),
+			500
+		);
 	}
 
 	/**

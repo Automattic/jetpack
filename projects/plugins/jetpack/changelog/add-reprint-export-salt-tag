@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Reprint export: Bind the export credentials to the site's AUTH_SALT, so writing the database alone can no longer arm an export.

@@ -43,6 +43,16 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	private $recorded_events = array();
 
 	/**
+	 * Test set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+		// The WordPress test config fills every salt with the placeholder, which
+		// the exporter refuses, so give the tests a salt it will accept.
+		$this->use_usable_salt();
+	}
+
+	/**
 	 * Test tear down.
 	 */
 	public function tear_down() {
@@ -55,8 +65,21 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_reprint_export_available' );
 		delete_option( Reprint_Exporter::SECRET_OPTION );
 		delete_option( Reprint_Exporter::ENABLED_OPTION );
+		delete_option( Reprint_Exporter::SECRET_TAG_OPTION );
+		delete_option( Reprint_Exporter::ENABLED_TAG_OPTION );
 		unset( $_GET['reprint-api-jetpack'], $_GET['endpoint'], $_SERVER['REQUEST_METHOD'] );
 		parent::tear_down();
+	}
+
+	/**
+	 * Sets AUTH_SALT to a value the exporter accepts.
+	 *
+	 * @param string $salt The salt; defaults to one long enough to pass.
+	 * @return string The salt in force.
+	 */
+	private function use_usable_salt( $salt = 'first-usable-salt-value-first-usable-salt-value-first-usable-salt' ) {
+		Constants::set_constant( 'AUTH_SALT', $salt );
+		return $salt;
 	}
 
 	/**
@@ -77,6 +100,22 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		update_option( $option, $value );
 
 		Reprint_Exporter::protect_options();
+	}
+
+	/**
+	 * Plants a window timestamp with the tag the current AUTH_SALT gives it.
+	 *
+	 * Stands in for a stamp the exporter itself made at some other time, which
+	 * open_export_window() cannot produce because it always stamps now.
+	 *
+	 * @param int $enabled_at Unix timestamp to store.
+	 */
+	private function plant_window( $enabled_at ) {
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $enabled_at );
+		$this->plant_option(
+			Reprint_Exporter::ENABLED_TAG_OPTION,
+			hash_hmac( 'sha256', Reprint_Exporter::ENABLED_TAG_OPTION . "\0" . $enabled_at, Constants::get_constant( 'AUTH_SALT' ) )
+		);
 	}
 
 	/**
@@ -335,7 +374,9 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 
 		update_option( Reprint_Exporter::ENABLED_OPTION, time() );
 
-		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+		// The option itself, not the window state: an untagged stamp reads as
+		// closed anyway, so that alone would not show the guard held.
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_OPTION ) );
 	}
 
 	/**
@@ -420,6 +461,79 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A foreign write to either tag is refused, as for the two original options.
+	 *
+	 * A tag an attacker could rewrite would be no tag at all: they would store
+	 * their own secret and then a tag for it.
+	 */
+	public function test_foreign_update_of_the_tags_is_refused() {
+		Reprint_Exporter::store_secret( 'the-real-secret' );
+		Reprint_Exporter::open_export_window();
+		Reprint_Exporter::protect_options();
+		$secret_tag = get_option( Reprint_Exporter::SECRET_TAG_OPTION );
+		$window_tag = get_option( Reprint_Exporter::ENABLED_TAG_OPTION );
+		$this->assertNotFalse( $secret_tag, 'Fixture must have stored a secret tag.' );
+		$this->assertNotFalse( $window_tag, 'Fixture must have stored a window tag.' );
+
+		update_option( Reprint_Exporter::SECRET_TAG_OPTION, 'attacker-chosen' );
+		update_option( Reprint_Exporter::ENABLED_TAG_OPTION, 'attacker-chosen' );
+
+		$this->assertSame( $secret_tag, get_option( Reprint_Exporter::SECRET_TAG_OPTION ) );
+		$this->assertSame( $window_tag, get_option( Reprint_Exporter::ENABLED_TAG_OPTION ) );
+	}
+
+	/**
+	 * A foreign write cannot create either tag from scratch either.
+	 */
+	public function test_foreign_write_cannot_create_the_tags() {
+		Reprint_Exporter::protect_options();
+
+		update_option( Reprint_Exporter::SECRET_TAG_OPTION, 'attacker-chosen' );
+		update_option( Reprint_Exporter::ENABLED_TAG_OPTION, 'attacker-chosen' );
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_TAG_OPTION ) );
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_TAG_OPTION ) );
+	}
+
+	/**
+	 * A direct add_option() of a tag stops the request.
+	 */
+	public function test_foreign_add_option_of_a_tag_aborts() {
+		Reprint_Exporter::protect_options();
+
+		$this->expectException( WPDieException::class );
+		add_option( Reprint_Exporter::ENABLED_TAG_OPTION, 'attacker-chosen' );
+	}
+
+	/**
+	 * Discarding clears the tags along with the values they cover.
+	 */
+	public function test_discard_credentials_clears_the_tags() {
+		Reprint_Exporter::store_secret( 'a-secret' );
+		Reprint_Exporter::open_export_window();
+		$this->assertNotFalse( get_option( Reprint_Exporter::SECRET_TAG_OPTION ), 'Fixture must have stored a secret tag.' );
+		$this->assertNotFalse( get_option( Reprint_Exporter::ENABLED_TAG_OPTION ), 'Fixture must have stored a window tag.' );
+
+		Reprint_Exporter::discard_credentials();
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_TAG_OPTION ) );
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_TAG_OPTION ) );
+	}
+
+	/**
+	 * Discarding reports a stray tag too, not only a stray value.
+	 */
+	public function test_discard_reports_a_planted_tag() {
+		$this->capture_events();
+		$this->plant_option( Reprint_Exporter::SECRET_TAG_OPTION, 'planted-by-someone-else' );
+
+		Reprint_Exporter::discard_credentials();
+
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_TAG_OPTION ) );
+		$this->assertSame( array( 'credentials_discarded' ), array_column( $this->recorded_events, 0 ) );
+	}
+
+	/**
 	 * Activation throws away credentials it did not mint.
 	 *
 	 * Anything in these options at activation was written while Jetpack was
@@ -428,7 +542,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_discard_credentials_clears_planted_values() {
 		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->plant_window( time() );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must look usable before activation.' );
 
 		Reprint_Exporter::discard_credentials();
@@ -445,7 +559,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_activation_discards_planted_credentials() {
 		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-while-deactivated' );
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->plant_window( time() );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must look usable before activation.' );
 
 		Jetpack::plugin_activation( false );
@@ -463,7 +577,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	 */
 	public function test_connecting_discards_planted_credentials() {
 		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-while-disconnected' );
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->plant_window( time() );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must look usable before connecting.' );
 
 		do_action( 'jetpack_site_registered' );
@@ -607,18 +721,74 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * No event ever carries the secret.
+	 * No event ever carries the secret or either tag.
+	 *
+	 * Runs the whole lifecycle, mismatches included, so every event name the
+	 * exporter can fire is in the capture.
 	 */
-	public function test_events_never_carry_the_secret() {
+	public function test_events_never_carry_the_secret_or_a_tag() {
 		$this->capture_events();
 
 		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
-		$response = ( new REST_Controller() )->rotate_secret();
-		$secret   = $response->get_data()['secret'];
+		$response   = ( new REST_Controller() )->rotate_secret();
+		$secret     = $response->get_data()['secret'];
+		$secret_tag = get_option( Reprint_Exporter::SECRET_TAG_OPTION );
+		( new REST_Controller() )->enable_export();
+		$window_tag = get_option( Reprint_Exporter::ENABLED_TAG_OPTION );
+		$this->assertNotFalse( $secret_tag, 'Fixture must have stored a secret tag.' );
+		$this->assertNotFalse( $window_tag, 'Fixture must have stored a window tag.' );
 
-		$this->assertNotEmpty( $this->recorded_events );
-		$this->assertStringNotContainsString( $secret, wp_json_encode( $this->recorded_events, JSON_UNESCAPED_SLASHES ) );
+		$stub = $this->make_ready_stub();
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+		$this->assertTrue( $stub->served, 'Fixture must serve before the salt changes.' );
+
+		$this->use_usable_salt( 'second-usable-salt-value-second-usable-salt-value-second-salt' );
+		( new REST_Controller() )->enable_export();
+		$this->run_handler( new Reprint_Exporter_Test_Stub(), $this->make_wp( '' ) );
+
+		$names = array_column( $this->recorded_events, 0 );
+		$this->assertContains( 'credential_tag_mismatch', $names, 'Fixture must have produced a mismatch event.' );
+
+		$serialized = wp_json_encode( $this->recorded_events, JSON_UNESCAPED_SLASHES );
+		$this->assertStringNotContainsString( $secret, $serialized );
+		$this->assertStringNotContainsString( $secret_tag, $serialized );
+		$this->assertStringNotContainsString( $window_tag, $serialized );
+	}
+
+	/**
+	 * A secret whose tag does not match reports an event.
+	 */
+	public function test_secret_tag_mismatch_reports_an_event() {
+		$this->capture_events();
+
+		$stub = $this->make_ready_stub();
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertCount( 1, array_filter( $this->recorded_events, fn( $e ) => 'credential_tag_mismatch' === $e[0] ) );
+	}
+
+	/**
+	 * A current window timestamp whose tag does not match gets the same 409 as
+	 * a lapsed one.
+	 *
+	 * The caller holds the real secret, and re-arming fixes both cases, so
+	 * there is nothing to tell apart.
+	 */
+	public function test_window_tag_mismatch_returns_409() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		Reprint_Exporter::store_secret( 'a-secret' );
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->plant_option( Reprint_Exporter::ENABLED_TAG_OPTION, 'planted-by-someone-else' );
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 409, $stub->error_code );
+		$this->assertFalse( $stub->served );
 	}
 
 	/**
@@ -783,6 +953,125 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Rotating stores a tag binding the secret to AUTH_SALT.
+	 */
+	public function test_rotate_secret_stores_a_salt_tag() {
+		$salt     = $this->use_usable_salt();
+		$response = ( new REST_Controller() )->rotate_secret();
+		$secret   = $response->get_data()['secret'];
+
+		$this->assertSame(
+			hash_hmac( 'sha256', Reprint_Exporter::SECRET_TAG_OPTION . "\0" . $secret, $salt ),
+			get_option( Reprint_Exporter::SECRET_TAG_OPTION )
+		);
+	}
+
+	/**
+	 * Rotation refuses, storing nothing, when AUTH_SALT is not defined.
+	 *
+	 * The test config defines AUTH_SALT, so a null through the constants
+	 * manager stands in for an undefined one.
+	 */
+	public function test_rotate_secret_refuses_without_auth_salt() {
+		Constants::set_constant( 'AUTH_SALT', null );
+
+		$this->assert_rotation_refused();
+	}
+
+	/**
+	 * Rotation refuses a short AUTH_SALT.
+	 */
+	public function test_rotate_secret_refuses_a_short_auth_salt() {
+		$this->use_usable_salt( str_repeat( 's', 31 ) );
+
+		$this->assert_rotation_refused();
+	}
+
+	/**
+	 * Exactly 32 bytes is enough.
+	 */
+	public function test_rotate_secret_accepts_a_32_byte_auth_salt() {
+		$this->use_usable_salt( str_repeat( 's', 32 ) );
+
+		$this->assertSame( 200, ( new REST_Controller() )->rotate_secret()->get_status() );
+	}
+
+	/**
+	 * Rotation refuses the wp-config placeholder.
+	 *
+	 * The length check already rejects the English placeholder; this pins the
+	 * literal comparison so a shorter placeholder cannot slip through.
+	 */
+	public function test_rotate_secret_refuses_the_placeholder_auth_salt() {
+		$this->use_usable_salt( 'put your unique phrase here' );
+
+		$this->assert_rotation_refused();
+	}
+
+	/**
+	 * Asserts that rotation answers 500 and leaves no credential behind.
+	 */
+	private function assert_rotation_refused() {
+		$response = ( new REST_Controller() )->rotate_secret();
+
+		$this->assertSame( 500, $response->get_status() );
+		$this->assertArrayHasKey( 'error', $response->get_data() );
+		$this->assertStringContainsString( 'AUTH_SALT', $response->get_data()['error'] );
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_TAG_OPTION ) );
+	}
+
+	/**
+	 * Enabling refuses without a usable salt rather than stamping a window
+	 * that can never read as open.
+	 *
+	 * A 200 here would send the client off to an export endpoint that answers
+	 * nothing, with no clue why.
+	 */
+	public function test_enable_export_refuses_without_a_usable_salt() {
+		$this->capture_events();
+		$this->use_usable_salt( 'put your unique phrase here' );
+
+		$response = ( new REST_Controller() )->enable_export();
+
+		$this->assertSame( 500, $response->get_status() );
+		$this->assertStringContainsString( 'AUTH_SALT', $response->get_data()['error'] );
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_OPTION ) );
+		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_TAG_OPTION ) );
+		$this->assertNotContains( 'window_opened', array_column( $this->recorded_events, 0 ) );
+	}
+
+	/**
+	 * Storing a secret refuses without a usable salt rather than keeping a
+	 * secret it could not tag.
+	 */
+	public function test_store_secret_refuses_without_a_usable_salt() {
+		$this->use_usable_salt( 'put your unique phrase here' );
+
+		$this->assertFalse( Reprint_Exporter::store_secret( 'a-secret' ) );
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
+		$this->assertFalse( get_option( Reprint_Exporter::SECRET_TAG_OPTION ) );
+	}
+
+	/**
+	 * Rotate, open, export: the normal path end to end.
+	 */
+	public function test_rotate_open_and_export_round_trip() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		$secret = ( new REST_Controller() )->rotate_secret()->get_data()['secret'];
+		( new REST_Controller() )->enable_export();
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertTrue( $stub->served );
+		$this->assertNull( $stub->error_code );
+		$this->assertSame( $secret, $stub->verified_secret );
+	}
+
+	/**
 	 * Enabling the export opens the window without minting a secret.
 	 */
 	public function test_enable_export_opens_window_without_secret() {
@@ -813,20 +1102,49 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( Reprint_Exporter::is_export_window_open( $now ) );
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now - ( HOUR_IN_SECONDS + 1 ) );
+		$this->plant_window( $now - ( HOUR_IN_SECONDS + 1 ) );
 		$this->assertFalse( Reprint_Exporter::is_export_window_open( $now ), 'A second past the hour is stale.' );
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now - HOUR_IN_SECONDS );
+		$this->plant_window( $now - HOUR_IN_SECONDS );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open( $now ), 'Exactly an hour old still counts.' );
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now + $skew + 1 );
+		$this->plant_window( $now + $skew + 1 );
 		$this->assertFalse( Reprint_Exporter::is_export_window_open( $now ), 'A second past the skew tolerance is rejected.' );
 
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $now + $skew );
+		$this->plant_window( $now + $skew );
 		$this->assertTrue( Reprint_Exporter::is_export_window_open( $now ), 'Exactly the skew tolerance is allowed.' );
 
 		Reprint_Exporter::open_export_window();
 		$this->assertTrue( Reprint_Exporter::is_export_window_open() );
+	}
+
+	/**
+	 * A current timestamp with no tag, or the wrong tag, reads as closed.
+	 *
+	 * Without this, someone who can read a real secret from the database and
+	 * write one row could reopen a lapsed window at will.
+	 */
+	public function test_export_window_closed_when_tag_is_missing_or_wrong() {
+		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open(), 'No tag at all.' );
+
+		$this->plant_option( Reprint_Exporter::ENABLED_TAG_OPTION, 'planted-by-someone-else' );
+		$this->assertFalse( Reprint_Exporter::is_export_window_open(), 'Wrong tag.' );
+
+		Reprint_Exporter::open_export_window();
+		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'The exporter\'s own stamp still opens it.' );
+	}
+
+	/**
+	 * A window opened under one AUTH_SALT reads as closed under another.
+	 */
+	public function test_export_window_closed_after_auth_salt_changes() {
+		Reprint_Exporter::open_export_window();
+		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must be open before the salt changes.' );
+
+		$this->use_usable_salt( 'second-usable-salt-value-second-usable-salt-value-second-salt' );
+
+		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
 	}
 
 	// -- Export request handler -----------------------------------------------
@@ -988,6 +1306,110 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A secret with no tag is refused before its signature is even checked.
+	 *
+	 * Writing the secret row alone, which is all a database write can do, must
+	 * not arm the exporter.
+	 */
+	public function test_planted_secret_without_a_tag_is_refused() {
+		$stub = $this->make_ready_stub();
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
+
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 503, $stub->error_code );
+		$this->assertStringContainsString( 'rotate', $body );
+		$this->assertNull( $stub->verified_secret, 'An untagged secret must not reach HMAC verification.' );
+		$this->assertFalse( $stub->served );
+	}
+
+	/**
+	 * A secret whose tag was made without the salt is refused the same way.
+	 */
+	public function test_planted_secret_with_a_wrong_tag_is_refused() {
+		$stub = $this->make_ready_stub();
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
+		$this->plant_option(
+			Reprint_Exporter::SECRET_TAG_OPTION,
+			hash_hmac( 'sha256', Reprint_Exporter::SECRET_TAG_OPTION . "\0planted-by-someone-else", 'a-guessed-salt' )
+		);
+
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 503, $stub->error_code );
+		$this->assertStringContainsString( 'rotate', $body );
+		$this->assertNull( $stub->verified_secret );
+		$this->assertFalse( $stub->served );
+	}
+
+	/**
+	 * A window pair copied into the secret options is not a tagged secret.
+	 *
+	 * Both tags are HMACs under the same salt, so without a purpose prefix a
+	 * stored timestamp and its tag would pass as a secret the attacker knows.
+	 */
+	public function test_window_pair_replayed_as_a_secret_is_refused() {
+		$stub = $this->make_ready_stub();
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, (string) get_option( Reprint_Exporter::ENABLED_OPTION ) );
+		$this->plant_option( Reprint_Exporter::SECRET_TAG_OPTION, get_option( Reprint_Exporter::ENABLED_TAG_OPTION ) );
+
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 503, $stub->error_code );
+		$this->assertNull( $stub->verified_secret );
+		$this->assertFalse( $stub->served );
+	}
+
+	/**
+	 * A new AUTH_SALT invalidates the credential with a message that says so.
+	 *
+	 * The window has to be re-opened first, since the old window tag no longer
+	 * matches either and a closed window stays silent. Once it is, the client
+	 * learns it must rotate, rather than a signature failure it cannot act on.
+	 */
+	public function test_changing_auth_salt_invalidates_the_credential() {
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		( new REST_Controller() )->rotate_secret();
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$this->use_usable_salt( 'second-usable-salt-value-second-usable-salt-value-second-salt' );
+		( new REST_Controller() )->enable_export();
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( 503, $stub->error_code );
+		$this->assertStringContainsString( 'invalidated', $body );
+		$this->assertStringContainsString( 'rotate-export-secret', $body );
+		$this->assertStringNotContainsString( 'Export not configured', $body );
+		$this->assertNull( $stub->verified_secret );
+		$this->assertFalse( $stub->served );
+	}
+
+	/**
+	 * A closed window says nothing about a bad tag either.
+	 *
+	 * So an idle site stays indistinguishable from one without the feature,
+	 * and a stray probe fires no event.
+	 */
+	public function test_closed_window_stays_silent_with_a_bad_tag() {
+		$this->capture_events();
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		$this->plant_option( Reprint_Exporter::SECRET_OPTION, 'planted-by-someone-else' );
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+
+		$stub = new Reprint_Exporter_Test_Stub();
+		$body = $this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertNull( $stub->error_code );
+		$this->assertSame( '', $body );
+		$this->assertFalse( $stub->terminated );
+		$this->assertSame( array(), $this->recorded_events );
+	}
+
+	/**
 	 * Invalid HMAC returns 403.
 	 */
 	public function test_invalid_hmac_returns_403() {
@@ -1007,7 +1429,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	public function test_valid_hmac_serves_export() {
 		$stub = $this->make_ready_stub();
 		Reprint_Exporter::store_secret( 'a-secret' );
-		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, time() - 30 );
+		$this->plant_window( time() - 30 );
 
 		$this->run_handler( $stub, $this->make_wp( '' ) );
 
