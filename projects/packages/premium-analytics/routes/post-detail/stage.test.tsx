@@ -1,7 +1,8 @@
-import { useReportScope } from '@jetpack-premium-analytics/data';
+import { useRaisePeriodChange, useReportScope } from '@jetpack-premium-analytics/data';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useCallback } from 'react';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
@@ -41,7 +42,17 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <div>Date filters</div>,
+	DateFiltersPanel: ( props: {
+		attentionId?: number;
+		onAttentionEnd?: ( id: number ) => void;
+	} ) => (
+		<div>
+			Date filters
+			<MockAttentionProbe { ...props } />
+		</div>
+	),
+	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
+		.PeriodChangeStatus,
 	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
 	SectionTabs: () => <div role="tablist" />,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
@@ -78,8 +89,56 @@ jest.mock(
  */
 function MockScopeProbe() {
 	const { offersComparison } = useReportScope();
+	const raisePeriodChange = useRaisePeriodChange();
+	const openJune = useCallback(
+		() =>
+			raisePeriodChange( 'post:41', {
+				from: new Date( 2026, 5, 1 ),
+				to: new Date( 2026, 5, 16 ),
+			} ),
+		[ raisePeriodChange ]
+	);
 
-	return <div>{ offersComparison ? 'Post widgets' : 'Post widgets without comparison' }</div>;
+	return (
+		<div>
+			{ offersComparison ? 'Post widgets' : 'Post widgets without comparison' }
+			<button type="button" onClick={ openJune }>
+				Open June from a card
+			</button>
+		</div>
+	);
+}
+
+// Stands in for the period trigger: shows the id it was handed and can end it.
+/**
+ * Stands in for the period trigger: shows the id it was handed and can end it.
+ *
+ * @param props                - The attention props the stage hands the panel.
+ * @param props.attentionId    - The id to show.
+ * @param props.onAttentionEnd - Called with that id from the End button.
+ * @return The probe.
+ */
+function MockAttentionProbe( {
+	attentionId,
+	onAttentionEnd,
+}: {
+	attentionId?: number;
+	onAttentionEnd?: ( id: number ) => void;
+} ) {
+	const end = useCallback( () => {
+		if ( attentionId !== undefined ) {
+			onAttentionEnd?.( attentionId );
+		}
+	}, [ attentionId, onAttentionEnd ] );
+
+	return (
+		<>
+			<span data-testid="attention">{ attentionId ?? 'no attention' }</span>
+			<button type="button" onClick={ end }>
+				End attention
+			</button>
+		</>
+	);
 }
 
 jest.mock( '@wordpress/widget-dashboard', () => {
@@ -289,6 +348,29 @@ describe( 'post detail stage', () => {
 		);
 		// The tabs hook receives the pinned params for the email tabs' widgets.
 		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith( 41, mockEmailScope.reportParams, false );
+	} );
+
+	// A card can set the page's period (WOOA7S-2036): the control draws
+	// attention to it and the change is read out, then the id is let go so a
+	// remount does not replay it.
+	it( 'draws attention to a period a card set, and lets it go once shown', async () => {
+		const user = userEvent.setup();
+		mockSummary();
+
+		render( stage() );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+
+		await user.click( screen.getByRole( 'button', { name: 'Open June from a card' } ) );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
+		await expect( screen.findByText( /Date range updated to/ ) ).resolves.toHaveAttribute(
+			'role',
+			'status'
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'End attention' } ) );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
 	} );
 
 	it( 'reports the traffic tab over the applied URL range', () => {
