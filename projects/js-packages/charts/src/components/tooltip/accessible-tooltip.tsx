@@ -213,13 +213,16 @@ export const useKeyboardNavigation = ( {
 	onActivate,
 	preventTooltipScroll = false,
 }: UseKeyboardNavigationProps ) => {
-	const tooltipElement = useRef< HTMLDivElement | null >( null );
+	// `chartRef` sits inside the focusable grid, so the grid is what focus returns to and is measured against.
+	const getChartRoot = useCallback(
+		(): HTMLElement | null =>
+			chartRef.current?.closest< HTMLElement >( '[role="grid"]' ) ?? chartRef.current,
+		[ chartRef ]
+	);
 
 	// Focus the tooltip as soon as it is rendered
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
-			tooltipElement.current = element;
-
 			if ( element && selectedIndex !== undefined ) {
 				if ( preventTooltipScroll ) {
 					element.focus( { preventScroll: true } );
@@ -231,19 +234,20 @@ export const useKeyboardNavigation = ( {
 		[ preventTooltipScroll, selectedIndex ]
 	);
 
-	// The point count shrinks when a series is hidden, which can strand the selection past the end.
+	const previousTotalPoints = useRef( totalPoints );
+
+	// A change in the point count (a series hidden or shown) moves every index onto a different bar.
 	// Clear rather than clamp once focus has left the chart: a new tooltip would pull focus back.
 	useEffect( () => {
-		if ( selectedIndex === undefined || selectedIndex < totalPoints ) {
+		const countChanged = previousTotalPoints.current !== totalPoints;
+		previousTotalPoints.current = totalPoints;
+
+		if ( ! countChanged || selectedIndex === undefined ) {
 			return;
 		}
 
-		// `chartRef` sits inside the focusable grid, so the grid itself has to count as in the chart.
-		const chartRoot = chartRef.current?.closest( '[role="grid"]' ) ?? chartRef.current;
 		const { activeElement } = document;
-		const focusIsInChart =
-			activeElement !== null &&
-			( chartRoot?.contains( activeElement ) || tooltipElement.current === activeElement );
+		const focusIsInChart = activeElement !== null && !! getChartRoot()?.contains( activeElement );
 
 		if ( totalPoints === 0 || ! focusIsInChart ) {
 			setSelectedIndex( undefined );
@@ -251,8 +255,8 @@ export const useKeyboardNavigation = ( {
 			return;
 		}
 
-		setSelectedIndex( totalPoints - 1 );
-	}, [ selectedIndex, totalPoints, setSelectedIndex, setIsNavigating, chartRef ] );
+		setSelectedIndex( Math.min( selectedIndex, totalPoints - 1 ) );
+	}, [ selectedIndex, totalPoints, setSelectedIndex, setIsNavigating, getChartRoot ] );
 
 	// On each focus of chart, reset the selectedIndex to 0, if keyboard navigation is not already active
 	const onChartFocus = useCallback( () => {
@@ -268,39 +272,34 @@ export const useKeyboardNavigation = ( {
 
 	const onChartKeyDown = useCallback(
 		( event: React.KeyboardEvent< HTMLDivElement > ) => {
-			if ( totalPoints === 0 ) return;
-
-			// Keep focus on the chart if tab is pressed
-			if ( event.key === 'Tab' ) {
-				chartRef.current?.focus();
+			if ( event.key === 'Tab' || event.key === 'Escape' ) {
+				if ( event.key === 'Escape' ) {
+					event.preventDefault();
+				}
+				getChartRoot()?.focus();
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
 			}
 
+			if ( totalPoints === 0 ) return;
+
 			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
 
 			event.preventDefault();
 
-			if ( [ 'ArrowRight' ].includes( event.key ) ) {
+			// WAI-ARIA grid: arrows stop at the first and last cell.
+			if ( event.key === 'ArrowRight' ) {
 				setIsNavigating( true );
-				// Follow the WAI-ARIA grid pattern: at the last cell focus does not move.
-				// Stay on the last point (keep the highlight/tooltip) instead of escaping or wrapping.
 				setSelectedIndex( Math.min( currentSelectedIndex + 1, totalPoints - 1 ) );
-			} else if ( [ 'ArrowLeft' ].includes( event.key ) ) {
+			} else if ( event.key === 'ArrowLeft' ) {
 				setIsNavigating( true );
-				// Follow the WAI-ARIA grid pattern: at the first cell focus does not move.
-				// Stay on the first point instead of wrapping to the last.
 				setSelectedIndex( Math.max( currentSelectedIndex - 1, 0 ) );
-			} else if ( event.key === 'Escape' ) {
-				setSelectedIndex( undefined );
-				setIsNavigating( false );
-				chartRef.current?.focus();
 			} else if ( ( event.key === 'Enter' || event.key === ' ' ) && selectedIndex !== undefined ) {
 				onActivate?.( selectedIndex );
 			}
 		},
-		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef, onActivate ]
+		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, getChartRoot, onActivate ]
 	);
 
 	return {

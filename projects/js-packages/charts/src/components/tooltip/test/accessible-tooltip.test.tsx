@@ -114,6 +114,7 @@ const NavigationHarness = ( { totalPoints }: { totalPoints: number } ) => {
 			<div role="grid" aria-label="Harness" tabIndex={ 0 } onKeyDown={ onChartKeyDown }>
 				<div ref={ chartRef } data-testid="selected-index">
 					{ selectedIndex ?? 'none' }
+					<button type="button">Inside</button>
 				</div>
 			</div>
 			<button type="button">Outside</button>
@@ -122,34 +123,63 @@ const NavigationHarness = ( { totalPoints }: { totalPoints: number } ) => {
 };
 
 describe( 'useKeyboardNavigation', () => {
-	const navigateToLastOfSix = async () => {
+	const navigate = async ( presses: number ) => {
 		const user = userEvent.setup();
 		const view = render( <NavigationHarness totalPoints={ 6 } /> );
 
 		screen.getByRole( 'grid', { name: 'Harness' } ).focus();
-		for ( let i = 0; i < 6; i++ ) {
+		for ( let i = 0; i < presses; i++ ) {
 			await user.keyboard( '{ArrowRight}' );
 		}
-		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '5' );
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( String( presses - 1 ) );
 
-		return view;
+		return { user, view };
 	};
 
 	it( 'moves the selection to the last point when the count shrinks while the grid has focus', async () => {
-		const { rerender } = await navigateToLastOfSix();
+		const { view } = await navigate( 6 );
 
-		rerender( <NavigationHarness totalPoints={ 3 } /> );
+		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '2' );
 		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
 	it( 'clears the selection when the count shrinks after focus has left the chart', async () => {
-		const { rerender } = await navigateToLastOfSix();
+		const { view } = await navigate( 6 );
 
 		screen.getByRole( 'button', { name: 'Outside' } ).focus();
-		rerender( <NavigationHarness totalPoints={ 3 } /> );
+		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+	} );
+
+	it( 'clears an in-range selection when the count changes after focus has left the chart', async () => {
+		const { view } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Outside' } ).focus();
+		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+	} );
+
+	it( 'returns focus to the grid on Escape', async () => {
+		const { user } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		await user.keyboard( '{Escape}' );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+	} );
+
+	it( 'returns focus to the grid on Escape when there are no points', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 0 } /> );
+
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		await user.keyboard( '{Escape}' );
+
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 } );

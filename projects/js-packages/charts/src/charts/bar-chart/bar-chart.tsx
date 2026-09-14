@@ -219,7 +219,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	const totalPoints =
-		Math.max( 0, ...primaryEntries.map( e => e.series.data.length || 0 ) ) * primaryEntries.length;
+		Math.max( 0, ...primaryEntries.map( e => e.series.data.length ) ) * primaryEntries.length;
 
 	const primaryKeys = useMemo(
 		() => primaryEntries.map( ( { series } ) => series.label ),

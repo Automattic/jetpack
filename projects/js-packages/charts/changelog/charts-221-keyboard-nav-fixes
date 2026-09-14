@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: fixed
 
 Keep keyboard focus on the first or last data point when an arrow key reaches the end of a chart, and skip hidden series during bar chart keyboard navigation.

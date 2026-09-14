@@ -1277,6 +1277,32 @@ describe( 'BarChart', () => {
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
 				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
 			} );
+
+			test( 'left arrow as the first key selects the first point', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( { withTooltips: true, data: twoPointData } );
+
+				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				await user.keyboard( '{ArrowLeft}' );
+
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+			} );
+
+			test( 'escape closes the tooltip and returns focus to the chart', async () => {
+				const user = userEvent.setup();
+				renderWithTheme( { withTooltips: true, data: twoPointData } );
+
+				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				chart.focus();
+				await user.keyboard( '{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+
+				await user.keyboard( '{Escape}' );
+
+				expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
+				expect( chart ).toHaveFocus();
+			} );
 		} );
 
 		describe( 'Comparison tooltip', () => {
