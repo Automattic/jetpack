@@ -191,7 +191,7 @@ function buildMonthCalendarHeatmapData(
 
 | Parameter | Type | Default | Description |
 | --------- | ---- | ------- | ----------- |
-| `valueByDay` | `Record< string, number \| null >` | - | **Required.** Value per `yyyy-MM-dd`. A key of another shape is skipped with a warning; a missing day is `null`. |
+| `valueByDay` | `Record< string, number \| null >` | - | **Required.** Value per `yyyy-MM-dd`. A key of another shape is skipped with a warning; a key outside `range` is ignored; a missing day is `null`. |
 | `range.start` | `string` | - | **Required.** First measured day, `yyyy-MM-dd`. |
 | `range.end` | `string` | - | **Required.** Last measured day, `yyyy-MM-dd`, inclusive. Every month either bound falls in is drawn; in-month days outside the range are `placeholder` cells. An unparseable or reversed range returns an empty result with a warning. |
 | `options.weekStartsOn` | `0 \| 1` | `1` | Day the week starts on. |

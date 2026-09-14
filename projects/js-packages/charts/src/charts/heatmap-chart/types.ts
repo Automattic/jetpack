@@ -63,7 +63,7 @@ export interface HeatmapChartProps
 	 * integer or the spans reach past the last column.
 	 */
 	columnGroups?: HeatmapColumnGroup[];
-	/** Accessible name of the grid. Defaults to a localised "Heatmap chart". */
+	/** Accessible name of the grid. Defaults to a localized "Heatmap chart". */
 	'aria-label'?: string;
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;

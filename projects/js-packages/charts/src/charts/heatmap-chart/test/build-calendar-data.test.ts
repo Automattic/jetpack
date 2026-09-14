@@ -292,7 +292,7 @@ describe( 'buildCalendarHeatmapData with a grid wider than the series', () => {
 			timeZone: 'UTC',
 		} );
 
-		// The grid opens on Mon Aug 31, whose one-week month goes unlabelled, so the
+		// The grid opens on Mon Aug 31, whose one-week month goes unlabeled, so the
 		// month label sits on the first September-starting column.
 		expect( data.map( column => column.label ).filter( Boolean ) ).toEqual( [
 			gregorianMonth.format( new Date( '2026-09-01T00:00:00Z' ) ),

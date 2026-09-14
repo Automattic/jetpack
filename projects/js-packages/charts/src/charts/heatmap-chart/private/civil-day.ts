@@ -1,4 +1,5 @@
 import { parseISO } from 'date-fns';
+import { createDateFormatter } from '../../../utils/date-formatting';
 import { hasTimezone } from '../../../utils/date-parsing';
 import type { DataPointDate } from '../../../types';
 
@@ -26,6 +27,27 @@ const KEY_OPTIONS: Intl.DateTimeFormatOptions = {
 };
 
 const DATE_PREFIX = /^(\d{4})-(\d{2})-(\d{2})/;
+
+/**
+ * Label formatters for UTC proxies, so both calendar layouts name a day alike.
+ *
+ * `gregory` keeps a locale whose default calendar is not Gregorian (fa-IR) from
+ * splitting one grid month across two names.
+ *
+ * @param locale - BCP 47 locale.
+ * @return Weekday, month and full-day formatters.
+ */
+export const civilLabelFormatters = ( locale: string ) => {
+	const formatting = { locale, timeZone: 'UTC' };
+	return {
+		formatWeekday: createDateFormatter( { weekday: 'short', calendar: 'gregory' }, formatting ),
+		formatMonth: createDateFormatter( { month: 'short', calendar: 'gregory' }, formatting ),
+		formatDay: createDateFormatter(
+			{ weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', calendar: 'gregory' },
+			formatting
+		),
+	};
+};
 
 const pad = ( value: number, length: number ) => String( value ).padStart( length, '0' );
 

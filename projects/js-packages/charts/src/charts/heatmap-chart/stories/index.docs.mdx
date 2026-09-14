@@ -380,7 +380,7 @@ The heatmap chart is designed for full keyboard and screen reader access:
 - The grid container is a `<div role="grid">` with a localised `aria-label`; each visual row is a `role="row"` and each cell a `role="gridcell"`.
 - Each cell has an `aria-label` containing the cell name and value (or "No data"). An `aria-label` is used rather than a native `title` so no duplicate browser tooltip appears. Axis labels are decorative (`aria-hidden`) because the cell label already carries that text.
 - **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring, and (when `withTooltips` is set) its tooltip. Escape clears the selection.
-- The keyboard selection is scrolled into view (`block: 'nearest', inline: 'nearest'`), so a grid inside a scroll container keeps its selected cell visible.
+- The keyboard selection is scrolled into view (`block: 'nearest', inline: 'nearest'`), so a grid inside a scroll container keeps its selected cell visible. A consumer that pins labels with `position: sticky` should give the scroll container a matching `scroll-padding`, or the cell lands under them.
 - The grid takes an `aria-label`; name it after what it shows ("Monthly posting activity"), not the chart type.
 - With column groups the grid stays one `role="grid"`: `aria-colcount` counts every data column (84 for twelve months), arrow keys cross group boundaries as if the gap were not there, and group labels are decorative because each cell already names its date.
 - Color alone is never the sole indicator of value — every cell exposes its value via its accessible label, and `showValues` can render numeric labels inside cells.

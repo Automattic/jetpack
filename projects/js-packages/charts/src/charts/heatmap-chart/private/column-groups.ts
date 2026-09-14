@@ -29,7 +29,8 @@ export const resolveColumnGroups = (
 		gapsBefore: new Array( columnCount ).fill( 0 ),
 	};
 
-	if ( ! groups || groups.length === 0 ) {
+	// An empty grid draws nothing, so static groups awaiting data are not a misuse.
+	if ( ! groups || groups.length === 0 || columnCount === 0 ) {
 		return none;
 	}
 

@@ -10,6 +10,15 @@ describe( 'resolveColumnGroups', () => {
 		expect( resolveColumnGroups( [], 2 ).gapsBefore ).toEqual( [ 0, 0 ] );
 	} );
 
+	test( 'no columns: no groups and no warning, whatever the spans', () => {
+		expect( resolveColumnGroups( [ { label: 'A', span: 3 } ], 0 ) ).toEqual( {
+			groups: [],
+			starts: [],
+			gapsBefore: [],
+		} );
+		expect( console ).not.toHaveWarned();
+	} );
+
 	test( 'counts one gap before the first column of every group but the first', () => {
 		const groups = [
 			{ label: 'A', span: 2 },
