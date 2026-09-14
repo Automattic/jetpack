@@ -229,6 +229,21 @@ export const useKeyboardNavigation = ( {
 		[ preventTooltipScroll, selectedIndex ]
 	);
 
+	// The point count shrinks when a series is hidden, which can strand the selection past the end.
+	useEffect( () => {
+		if ( selectedIndex === undefined || selectedIndex < totalPoints ) {
+			return;
+		}
+
+		if ( totalPoints === 0 ) {
+			setSelectedIndex( undefined );
+			setIsNavigating( false );
+			return;
+		}
+
+		setSelectedIndex( totalPoints - 1 );
+	}, [ selectedIndex, totalPoints, setSelectedIndex, setIsNavigating ] );
+
 	// Returning focus from the tooltip must not restore the selection Escape just cleared.
 	const onChartFocus = useCallback(
 		( event: React.FocusEvent< HTMLDivElement > ) => {
