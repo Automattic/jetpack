@@ -42,6 +42,48 @@ jest.mock( '@wordpress/blocks', () => ( {
 	getBlockType: ( ...args ) => mockGetBlockType( ...args ),
 } ) );
 
+// A stand-in registered under the name the entry point dispatches to.
+//
+// Registered rather than spied on, because `dispatch()` answers null for a store the registry does
+// not hold. The real `@wordpress/block-editor` store cannot be loaded here — it resolves core's
+// private APIs at import time and throws — which is also why the entry point addresses it by name.
+//
+// Recorded outside the reducer's state so the assertions read plain values. The lockdown is
+// exercised by calling it directly, as the notice and block cases below are: `loadEntryPoint()`
+// imports the entry through `jest.isolateModules`, whose registry this store is not in.
+const mockBlockEditingModes = {};
+const mockDispatchLog = [];
+
+( () => {
+	const { createReduxStore, register } = jest.requireActual( '@wordpress/data' );
+
+	register(
+		createReduxStore( 'core/block-editor', {
+			reducer: ( state = null, action ) => {
+				if ( 'MARK_NOT_PERSISTENT' === action.type ) {
+					mockDispatchLog.push( action.type );
+				}
+
+				if ( 'SET_BLOCK_EDITING_MODE' === action.type ) {
+					mockDispatchLog.push( action.type );
+					mockBlockEditingModes[ action.clientId ] = action.mode;
+				}
+
+				return state;
+			},
+			actions: {
+				setBlockEditingMode: ( clientId = '', mode ) => ( {
+					type: 'SET_BLOCK_EDITING_MODE',
+					clientId,
+					mode,
+				} ),
+				__unstableMarkNextChangeAsNotPersistent: () => ( { type: 'MARK_NOT_PERSISTENT' } ),
+			},
+			selectors: { getNothing: () => null },
+		} )
+	);
+} )();
+
 jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) );
 
 // The real stores rather than mocks. Mocking `@wordpress/data` wholesale drops `combineReducers`,
@@ -176,9 +218,15 @@ describe( 'Email design editor entry point', () => {
 		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
 		dispatch( noticesStore ).removeAllNotices( 'default' );
 		dispatch( noticesStore ).removeAllNotices( 'default', 'email-editor' );
+		Object.keys( mockBlockEditingModes ).forEach( key => delete mockBlockEditingModes[ key ] );
+		mockDispatchLog.length = 0;
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
-		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+		jest
+			.spyOn( console, 'error' )
+			.mockImplementation( ( ...a ) =>
+				process.stderr.write( require( 'util' ).inspect( a, { depth: 2 } ) + '\n' )
+			);
 	} );
 
 	afterEach( () => {
@@ -826,6 +874,26 @@ describe( 'Email design editor entry point', () => {
 			// The template is parsed on first render and resolved against the registry then, so
 			// registering afterwards leaves the same unsupported-block errors.
 			expect( order ).toEqual( [ 'register', 'render' ] );
+		} );
+	} );
+
+	// The template's core blocks arrive with their own inspector controls, and nothing here saves
+	// template edits — so every one of them is offered and then silently does nothing.
+	describe( 'the block editing the canvas takes away', () => {
+		const { lockCanvasEditing } = jest.requireActual( '../src/index' );
+
+		it( 'disables editing on the root, which covers blocks the bundle never describes', () => {
+			lockCanvasEditing();
+
+			expect( mockBlockEditingModes ).toEqual( { '': 'disabled' } );
+		} );
+
+		it( 'does not leave the editor holding a change to save', () => {
+			lockCanvasEditing();
+
+			// A mode is a view setting. Unmarked, it lands as an undo step and the editor opens
+			// believing the creator has unsaved work.
+			expect( mockDispatchLog ).toEqual( [ 'MARK_NOT_PERSISTENT', 'SET_BLOCK_EDITING_MODE' ] );
 		} );
 	} );
 

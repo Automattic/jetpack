@@ -34,6 +34,10 @@ const TEMPLATE_POST_TYPE = 'wp_template';
 // and `data:` would execute rather than navigate.
 const NAVIGABLE_PROTOCOLS = [ 'http:', 'https:' ];
 
+// Addressed by name rather than by importing the store descriptor: importing it pulls
+// `@wordpress/block-editor`'s own store module, which resolves core's private APIs at load time.
+const BLOCK_EDITOR_STORE = 'core/block-editor';
+
 // A save arrives as any of these, depending on whether core-data creates or updates.
 const WRITE_METHODS = [ 'POST', 'PUT', 'PATCH' ];
 
@@ -371,6 +375,34 @@ export function registerEmailBlocks( bundle ) {
 }
 
 /**
+ * Take block editing away from the canvas, leaving the Styles panel as the only control.
+ *
+ * The template's core blocks arrive with their own inspector controls — a background on the
+ * "Email Content" group, say — and nothing on this screen saves template edits, so every one of
+ * them is offered and then silently does nothing. `templateLock` does not help: it stops blocks
+ * being moved or removed and leaves the settings panel exactly where it was.
+ *
+ * Set on the root, which the store's derived modes propagate down to every descendant, so this
+ * covers blocks the bundle never describes. Marked not-persistent because a mode is a view
+ * setting: without it the editor opens holding an undo step and believing it has changes to save.
+ *
+ * @return {void}
+ */
+export function lockCanvasEditing() {
+	// `dispatch()` answers null for a store the registry does not hold. Controls that do nothing are
+	// a worse screen; no screen at all is worse still, so this declines rather than throwing into
+	// the mount's catch.
+	const blockEditor = dispatch( BLOCK_EDITOR_STORE );
+
+	if ( ! blockEditor ) {
+		return;
+	}
+
+	blockEditor.__unstableMarkNextChangeAsNotPersistent();
+	blockEditor.setBlockEditingMode( '', 'disabled' );
+}
+
+/**
  * Catch the Styles panel's save and send it to WordPress.com instead.
  *
  * The editor writes a core-data `globalStyles` entity, but the design is stored in a WordPress.com
@@ -526,6 +558,7 @@ export async function mountEmailDesignEditor() {
 		// resolved against the registry at that moment. Registering later leaves the same
 		// unsupported-block errors, which looks identical to this never running.
 		registerEmailBlocks( bundle );
+		lockCanvasEditing();
 		reportInactiveEmailDesign( bundle );
 
 		const postId = getTemplateId( bundle );
