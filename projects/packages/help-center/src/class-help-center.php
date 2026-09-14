@@ -312,7 +312,7 @@ class Help_Center {
 
 		wp_add_inline_style(
 			'help-center-' . $variant . '-style',
-			self::read_asset_file( 'entry-label.css' )
+			self::read_stylesheet( 'entry-label.css' )
 		);
 
 		// In the block editor the Help Center is already present in the editor toolbar
@@ -322,7 +322,7 @@ class Help_Center {
 		if ( $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
 			wp_add_inline_style(
 				'help-center-' . $variant . '-style',
-				self::read_asset_file( 'editor-admin-bar.css' )
+				self::read_stylesheet( 'editor-admin-bar.css' )
 			);
 		}
 
@@ -854,7 +854,7 @@ class Help_Center {
 			$meta['class'] .= ' has-help-entry-label';
 		}
 
-		$title = '<span title="' . esc_attr( $tooltip ) . '">' . self::read_asset_file( 'admin-bar-icons.svg' ) . '</span>';
+		$title = '<span title="' . esc_attr( $tooltip ) . '">' . self::get_admin_bar_icons() . '</span>';
 		if ( $show_label ) {
 			$title .= '<span class="help-center-entry-label" aria-hidden="true"><span>' . esc_html( $menu_title ) . '</span></span>';
 		}
@@ -871,12 +871,29 @@ class Help_Center {
 	}
 
 	/**
-	 * Reads a markup or stylesheet asset shipped with this package.
+	 * The entry point's icons: the default one, and the one the unread badge swaps in.
+	 *
+	 * Both are always rendered; the stylesheet shows one at a time.
+	 *
+	 * @return string
+	 */
+	private static function get_admin_bar_icons() {
+		return '<svg id="help-center-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
+			. '<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />'
+			. '</svg>'
+			. '<svg id="help-center-icon-with-notification" class="ab-icon" width="24" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">'
+			. '<path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM13 18H11V16H13V18ZM13 13.859V15H11V13C11 12.448 11.448 12 12 12C13.103 12 14 11.103 14 10C14 8.897 13.103 8 12 8C10.897 8 10 8.897 10 10H8C8 7.791 9.791 6 12 6C14.209 6 16 7.791 16 10C16 11.862 14.722 13.413 13 13.859Z" fill="currentColor"/>'
+			. '<circle cx="20" cy="3.5" r="4.3" fill="#e65054" stroke="#1d2327" stroke-width="2"/>'
+			. '</svg>';
+	}
+
+	/**
+	 * Reads a stylesheet shipped with this package.
 	 *
 	 * @param string $name File name inside the package's assets directory.
 	 * @return string The file's contents, or an empty string when it is missing.
 	 */
-	private static function read_asset_file( $name ) {
+	private static function read_stylesheet( $name ) {
 		static $cache = array();
 
 		if ( ! isset( $cache[ $name ] ) ) {
