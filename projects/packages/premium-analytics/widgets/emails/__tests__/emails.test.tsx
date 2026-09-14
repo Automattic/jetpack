@@ -16,21 +16,6 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-const rows: EmailRow[] = [
-	{
-		id: 12,
-		postId: 12,
-		link: 'https://example.com/newsletter/',
-		label: 'Monthly newsletter',
-		opens: 420,
-		uniqueOpens: 400,
-		opensRate: 42,
-		clicks: 75,
-		uniqueClicks: 70,
-		clicksRate: 7,
-	},
-];
-
 function row( overrides: Partial< EmailRow > & Pick< EmailRow, 'id' | 'label' > ): EmailRow {
 	return {
 		opens: 0,
@@ -42,6 +27,21 @@ function row( overrides: Partial< EmailRow > & Pick< EmailRow, 'id' | 'label' > 
 		...overrides,
 	};
 }
+
+const rows: EmailRow[] = [
+	row( {
+		id: 12,
+		postId: 12,
+		link: 'https://example.com/newsletter/',
+		label: 'Monthly newsletter',
+		opens: 420,
+		uniqueOpens: 400,
+		opensRate: 42,
+		clicks: 75,
+		uniqueClicks: 70,
+		clicksRate: 7,
+	} ),
+];
 
 function renderEmailsList( metric: EmailMetric ) {
 	return render(
@@ -85,6 +85,26 @@ describe( 'EmailsList', () => {
 		expect( screen.getByText( count ) ).toBeInTheDocument();
 		expect( screen.getByText( rate ) ).toBeInTheDocument();
 		expect( screen.getByText( description ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps rows in the same order for either metric', () => {
+		const orderRows = [
+			row( { id: 1, label: 'Newer', opens: 5, clicks: 50 } ),
+			row( { id: 2, label: 'Older', opens: 50, clicks: 5 } ),
+		];
+		const labelsFor = ( metric: EmailMetric ) => {
+			const { unmount } = render(
+				<WidgetRoot attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-30' } } }>
+					<EmailsList rows={ orderRows } metric={ metric } />
+				</WidgetRoot>
+			);
+			const labels = screen.getAllByRole( 'listitem' ).map( item => item.textContent );
+			unmount();
+			return labels;
+		};
+
+		expect( labelsFor( 'opens' )[ 0 ] ).toContain( 'Newer' );
+		expect( labelsFor( 'clicks' )[ 0 ] ).toContain( 'Newer' );
 	} );
 
 	it( 'renders the rate at two decimals, trimming a trailing zero', () => {

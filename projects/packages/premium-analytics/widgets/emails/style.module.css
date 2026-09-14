@@ -26,7 +26,7 @@
 	gap: var(--wpds-dimension-gap-md);
 }
 
-/* A fixed width keeps the counts aligned in a column across rows. */
+/* A minimum width keeps the counts aligned in a column across rows. */
 .rate {
 	min-inline-size: 6ch;
 	text-align: end;
