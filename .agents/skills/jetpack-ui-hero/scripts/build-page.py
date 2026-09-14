@@ -6,6 +6,11 @@ published as an Artifact or dropped into a worker unchanged.
 
 Usage:  build-page.py <dir>            # <dir> holds pieces.json and everything it names
         build-page.py <dir> --embed    # also write embed-<id>.html per piece
+        build-page.py --where [topic]  # print where a hero's files belong, and exit
+
+Work in a folder BESIDE the monorepo, never inside it — `--where` prints the path.
+Captures and builds are large binaries that must never be committed; keeping them
+adjacent also means they survive branch switches and never dirty `git status`.
 
 `--embed` writes one standalone fragment per piece, scoped so it cannot leak styles
 into a host page: paste it straight into a WordPress Custom HTML block. Nothing in it
@@ -40,6 +45,22 @@ import base64, html, json, mimetypes, sys
 from pathlib import Path
 
 SKILL_ASSETS = Path(__file__).resolve().parent.parent / 'assets'
+
+
+def repo_root() -> Path:
+    """The checkout this script lives in."""
+    here = Path(__file__).resolve()
+    for parent in [here, *here.parents]:
+        if (parent / '.git').exists():
+            return parent
+    return here.parents[4]
+
+
+def output_dir(topic: str = '') -> Path:
+    """A folder beside the checkout: <repo>/../<repo>-ui-heroes."""
+    repo = repo_root()
+    sibling = repo.parent / f'{repo.name}-ui-heroes'
+    return sibling / topic if topic else sibling
 
 esc = html.escape
 
@@ -274,6 +295,12 @@ def build(root: Path, embed: bool = False) -> Path:
 
 if __name__ == '__main__':
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    if '--where' in sys.argv:
+        print(output_dir(args[0] if args else ''))
+        raise SystemExit(0)
     root = Path(args[0] if args else '.').resolve()
     path = build(root, embed='--embed' in sys.argv)
     print(f'wrote {path} — {round(path.stat().st_size / 1024)} KB')
+    if repo_root() in path.parents:
+        print(f'  WARNING: that is inside the monorepo. Move this working directory beside it,'
+              f'\n           e.g. {output_dir("<topic>")}, so the captures are never committed.')

@@ -27,7 +27,8 @@ consumed, a fresh site is cheaper than repairing one; but use **one site per set
 disagree about whose site they are showing.
 
 **`storageState` is a credential.** It holds live session cookies. Keep it in the working
-directory, and delete it before copying that directory anywhere.
+directory — which belongs beside the monorepo, never inside it — and delete it before sharing that
+directory anywhere.
 
 Renaming the admin user takes **two saves**: WordPress builds the `display_name` dropdown from the
 *saved* name, so the new option does not exist on the page you are submitting. Save first/last
@@ -48,8 +49,9 @@ response is not a valid JSON response." Back off ~75s rather than debugging the 
 ## Playwright in the monorepo
 
 `import 'playwright'` fails everywhere — it is hoisted into pnpm's store and no package the scripts
-run from depends on it. Use `playwright()` from `scripts/capture-kit.mjs`, and run from inside the
-monorepo or set `PLAYWRIGHT_ROOT`. It is CommonJS, so a direct import needs `.default`.
+run from depends on it. Use `playwright()` from `scripts/capture-kit.mjs`, which finds it from the
+skill's own location inside the monorepo; `PLAYWRIGHT_ROOT` overrides that for a different
+checkout, and must be absolute. It is CommonJS, so a direct import needs `.default`.
 
 Capture at `deviceScaleFactor: 2` and place the image at logical size in the scene.
 
