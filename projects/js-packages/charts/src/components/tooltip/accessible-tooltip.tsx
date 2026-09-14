@@ -227,6 +227,21 @@ export const useKeyboardNavigation = ( {
 		[ preventTooltipScroll, selectedIndex ]
 	);
 
+	// The point count shrinks when a series is hidden, which can strand the selection past the end.
+	useEffect( () => {
+		if ( selectedIndex === undefined || selectedIndex < totalPoints ) {
+			return;
+		}
+
+		if ( totalPoints === 0 ) {
+			setSelectedIndex( undefined );
+			setIsNavigating( false );
+			return;
+		}
+
+		setSelectedIndex( totalPoints - 1 );
+	}, [ selectedIndex, totalPoints, setSelectedIndex, setIsNavigating ] );
+
 	// On each focus of chart, reset the selectedIndex to 0, if keyboard navigation is not already active
 	const onChartFocus = useCallback( () => {
 		if ( ! isNavigating && selectedIndex !== undefined ) {

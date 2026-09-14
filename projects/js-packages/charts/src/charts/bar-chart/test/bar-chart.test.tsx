@@ -2406,6 +2406,84 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'Keyboard navigation with a hidden primary series', () => {
+		const mountWithVisibilityToggle = () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<BarChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withTooltips
+						chartId="test-hide-while-navigating"
+						data={ [
+							{
+								label: 'Series A',
+								data: [
+									{ label: 'Jan', value: 10 },
+									{ label: 'Feb', value: 20 },
+									{ label: 'Mar', value: 30 },
+								],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [
+									{ label: 'Jan', value: 15 },
+									{ label: 'Feb', value: 25 },
+									{ label: 'Mar', value: 35 },
+								],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			return ( label: string ) =>
+				act( () => context.toggleSeriesVisibility( 'test-hide-while-navigating', label ) );
+		};
+
+		it( 'moves the selection onto a visible bar when the selected series is hidden', async () => {
+			const user = userEvent.setup();
+			const toggle = mountWithVisibilityToggle();
+
+			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			for ( let i = 0; i < 6; i++ ) {
+				await user.keyboard( '{ArrowRight}' );
+			}
+			expect( screen.getByTestId( 'chart-tooltip-5' ) ).toHaveTextContent( 'Series B' );
+
+			toggle( 'Series B' );
+
+			expect( screen.getByTestId( 'chart-tooltip-2' ) ).toHaveTextContent( 'Series A' );
+			expect( screen.queryByTestId( 'chart-tooltip-5' ) ).not.toBeInTheDocument();
+
+			await user.keyboard( '{ArrowLeft}' );
+			expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series A' );
+		} );
+
+		it( 'clears the selection when every series is hidden', async () => {
+			const user = userEvent.setup();
+			const toggle = mountWithVisibilityToggle();
+
+			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			for ( let i = 0; i < 4; i++ ) {
+				await user.keyboard( '{ArrowRight}' );
+			}
+
+			toggle( 'Series A' );
+			toggle( 'Series B' );
+			toggle( 'Series A' );
+
+			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
+		} );
+
 		it( 'stops at the last visible slot on a standard chart', async () => {
 			const user = userEvent.setup();
 
