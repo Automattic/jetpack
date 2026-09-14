@@ -164,6 +164,41 @@ class REST_Controller_Test extends Stats_TestCase {
 	}
 
 	/**
+	 * Test '/jetpack/v4/stats-app/sites/999/media/{media_id}'
+	 */
+	public function test_get_single_media_item() {
+		wp_set_current_user( $this->admin_id );
+
+		$attachment_id = wp_insert_attachment(
+			array(
+				'post_title'     => 'Test video',
+				'post_mime_type' => 'video/mp4',
+				'post_status'    => 'inherit',
+			)
+		);
+		wp_update_attachment_metadata( $attachment_id, array( 'length' => 95 ) );
+
+		$request = new WP_REST_Request(
+			'GET',
+			sprintf( '/jetpack/v4/stats-app/sites/999/media/%d', $attachment_id )
+		);
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'Test video', $data['title'] );
+		$this->assertEquals( 95, $data['length'] );
+
+		// Unknown media items return 404.
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/stats-app/sites/999/media/987654' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+	}
+
+	/**
 	 * Test '/jetpack/v4/stats-app/sites/999/site-has-never-published-post'
 	 */
 	public function test_site_has_never_published_post() {

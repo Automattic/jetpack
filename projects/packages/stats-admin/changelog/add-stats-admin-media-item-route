@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Stats: expose a single media item route on the stats-app proxy, so the Odyssey video details page can show the video's title, date, thumbnail, and duration.
