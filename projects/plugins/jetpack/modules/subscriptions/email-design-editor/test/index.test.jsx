@@ -54,9 +54,7 @@ jest.mock( '@wordpress/blocks', () => ( {
 const mockBlockEditingModes = {};
 const mockDispatchLog = [];
 
-( () => {
-	const { createReduxStore, register } = jest.requireActual( '@wordpress/data' );
-
+function mockRegisterBlockEditorStore( { createReduxStore, register } ) {
 	register(
 		createReduxStore( 'core/block-editor', {
 			reducer: ( state = null, action ) => {
@@ -82,7 +80,9 @@ const mockDispatchLog = [];
 			selectors: { getNothing: () => null },
 		} )
 	);
-} )();
+}
+
+mockRegisterBlockEditorStore( jest.requireActual( '@wordpress/data' ) );
 
 jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) );
 
@@ -170,6 +170,9 @@ function pageData( overrides = {} ) {
  */
 async function loadEntryPoint() {
 	jest.isolateModules( () => {
+		// The isolated registry is a different one, so the stand-in store has to be registered in it
+		// too — otherwise the mount's own lockdown dispatch finds nothing and silently no-ops.
+		mockRegisterBlockEditorStore( require( '@wordpress/data' ) );
 		require( '../src/index' );
 	} );
 
@@ -919,6 +922,23 @@ describe( 'Email design editor entry point', () => {
 			lockCanvasEditing();
 
 			expect( mockBlockEditingModes ).toEqual( { '': 'disabled' } );
+		} );
+
+		it( 'locks the canvas as part of mounting, not only when called directly', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mockBlockEditingModes ).toEqual( { '': 'disabled' } );
+		} );
+
+		it( 'does not lock a canvas that never loaded', async () => {
+			mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mockBlockEditingModes ).toEqual( {} );
 		} );
 
 		it( 'does not leave the editor holding a change to save', () => {
