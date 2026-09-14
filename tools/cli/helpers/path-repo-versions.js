@@ -15,6 +15,11 @@ import { execa } from 'execa';
 /**
  * Build the composer-name → version map to pin path repo packages to.
  *
+ * Every package gets `dev-trunk`, which is what VersionGuesser resolves them to anyway — so the
+ * recorded version matches an unpinned install exactly, and `extra.branch-alias` still satisfies
+ * callers' `^x.y` constraints. Pinning to the alias itself resolves too, but records a version
+ * `Version_Selector::is_dev_version()` rejects, breaking `JETPACK_AUTOLOAD_DEV`.
+ *
  * @param {object[]} composerJsons - Parsed composer.json contents of the monorepo's packages.
  * @return {object} Map of composer package name to version.
  */
@@ -22,7 +27,7 @@ export function buildPackageVersionMap( composerJsons ) {
 	const versions = {};
 	for ( const json of composerJsons ) {
 		if ( json?.name ) {
-			versions[ json.name ] = json.extra?.[ 'branch-alias' ]?.[ 'dev-trunk' ] ?? 'dev-trunk';
+			versions[ json.name ] = 'dev-trunk';
 		}
 	}
 	return versions;
@@ -174,43 +179,58 @@ function installRestoreHandlers() {
 }
 
 /**
- * Run `fn` with the project's composer.json temporarily pinned, then restore it.
+ * Pin several projects' composer.json for as long as the returned handle is open.
  *
- * @param {string}   cwd      - Project directory.
- * @param {?object}  versions - Map from `buildPackageVersionMap`, or null to just run `fn`.
- * @param {Function} fn       - Callback to run while pinned.
- * @return {Promise<*>} Whatever `fn` returns.
+ * One window for the whole install phase, not one per project: Composer derives a path package's
+ * `dist.reference` from its sibling's composer.json bytes, and siblings are globbed by every
+ * concurrent install — so pinning per project would make the recorded reference depend on task
+ * scheduling, and land that in tracked plugin lockfiles.
+ *
+ * @param {string[]} cwds     - Project directories to pin.
+ * @param {object}   versions - Map from `buildPackageVersionMap`.
+ * @return {Promise<{restore: Function}>} Handle whose `restore( succeeded )` undoes the pin.
  */
-export async function withPinnedComposerJson( cwd, versions, fn ) {
-	if ( ! versions ) {
-		return await fn();
-	}
-	const file = npath.join( cwd, 'composer.json' );
-	const original = await fs.readFile( file, 'utf8' );
-	const updated = pinPathRepoVersions( JSON.parse( original ), versions );
-	if ( updated === null ) {
-		return await fn();
-	}
-
-	installRestoreHandlers();
-	pinned.set( file, original );
-	await writeAtomic( file, JSON.stringify( updated, null, '\t' ) + '\n', tmpDirFor( cwd ) );
-	let installed = false;
-	try {
-		const result = await fn();
-		installed = true;
-		return result;
-	} finally {
-		if ( pinned.has( file ) ) {
-			// Restore before dropping the bookkeeping: dying in between would otherwise leave the
-			// rewritten file behind with nothing left to put it back. Re-restoring is idempotent.
-			await writeAtomic( file, original, tmpDirFor( cwd ) );
-			pinned.delete( file );
-			// Only if composer succeeded: stamping a lock it didn't write would mark a stale one
-			// valid, and the next build would install that dependency set with no signal.
-			if ( installed ) {
-				await restampLock( cwd ).catch( () => null );
+export async function pinProjects( cwds, versions ) {
+	const originals = new Map();
+	if ( versions ) {
+		installRestoreHandlers();
+		for ( const cwd of cwds ) {
+			const file = npath.join( cwd, 'composer.json' );
+			const original = await fs.readFile( file, 'utf8' ).catch( () => null );
+			const updated =
+				original === null ? null : pinPathRepoVersions( JSON.parse( original ), versions );
+			if ( updated === null ) {
+				continue;
 			}
+			originals.set( cwd, original );
+			pinned.set( file, original );
+			await writeAtomic( file, JSON.stringify( updated, null, '\t' ) + '\n', tmpDirFor( cwd ) );
 		}
 	}
+
+	return {
+		/**
+		 * Restore every pinned composer.json, re-stamping the locks composer actually rewrote.
+		 *
+		 * @param {Set<string>} succeeded - Directories whose install completed.
+		 */
+		restore: async succeeded => {
+			for ( const [ cwd, original ] of originals ) {
+				const file = npath.join( cwd, 'composer.json' );
+				if ( ! pinned.has( file ) ) {
+					continue;
+				}
+				// Restore before dropping the bookkeeping: dying in between would otherwise leave
+				// the rewritten file behind with nothing left to put it back.
+				await writeAtomic( file, original, tmpDirFor( cwd ) );
+				pinned.delete( file );
+				// Only where composer succeeded: stamping a lock it didn't write would mark a
+				// stale one valid, and the next build would install that set with no signal.
+				if ( succeeded.has( cwd ) ) {
+					await restampLock( cwd ).catch( () => null );
+				}
+			}
+			originals.clear();
+		},
+	};
 }

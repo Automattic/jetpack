@@ -21,12 +21,6 @@ const isFile = p =>
 		() => false
 	);
 
-const exists = p =>
-	fs.access( p ).then(
-		() => true,
-		() => false
-	);
-
 /**
  * Filter a list of paths down to the regular files, checking them concurrently.
  *
@@ -267,31 +261,29 @@ async function readManifest( project ) {
  * silently fails to protect whatever it omits.
  *
  * @param {string} project - Slug.
- * @return {Promise<string[]>} Project-relative paths.
+ * @return {Promise<{count: number, hash: string}>} File count and a digest of the listing.
  */
 async function projectOutputs( project ) {
 	const { stdout } = await execa(
 		'git',
-		[
-			'-c',
-			'core.quotepath=off',
-			'ls-files',
-			'--others',
-			'--ignored',
-			'--exclude-standard',
-			'--directory',
-		],
+		[ '-c', 'core.quotepath=off', 'ls-files', '--others', '--ignored', '--exclude-standard' ],
 		{ cwd: projectDir( project ) }
 	);
-	return stdout.split( '\n' ).filter( p => p && ! NON_OUTPUT.test( p ) );
+	const files = stdout.split( '\n' ).filter( p => p && ! NON_OUTPUT.test( p ) );
+	// A hash rather than the list: jetpack alone emits ~5900 files (335 KB of paths). Any add,
+	// delete or rename changes it, so an extra ignored file costs a rebuild — safe, not silent.
+	return {
+		count: files.length,
+		hash: crypto.createHash( 'sha256' ).update( files.sort().join( '\n' ) ).digest( 'hex' ),
+	};
 }
 
 /**
  * Whether a project can be skipped: manifest matches the current fingerprint/mode and every output
  * recorded at build time still exists on disk.
  *
- * A project with no recorded outputs is never skipped: an empty set would make the presence check
- * vacuously true. Rebuilding it (cheaply) is safer than serving a phantom hit.
+ * A project that recorded no outputs is never skipped: an empty set would match vacuously.
+ * Rebuilding it (cheaply) is safer than serving a phantom hit.
  *
  * @param {string} project - Slug.
  * @param {string} fp      - Current fingerprint.
@@ -299,13 +291,11 @@ async function projectOutputs( project ) {
  */
 export async function canSkip( project, fp ) {
 	const m = await readManifest( project );
-	if ( ! m || m.inputHash !== fp || ! m.outputs?.length ) {
+	if ( ! m || m.inputHash !== fp || ! m.outputs?.count ) {
 		return false;
 	}
-	const present = await Promise.all(
-		m.outputs.map( output => exists( projectDir( project, output ) ) )
-	);
-	return present.every( Boolean );
+	const now = await projectOutputs( project );
+	return now.count === m.outputs.count && now.hash === m.outputs.hash;
 }
 
 /**

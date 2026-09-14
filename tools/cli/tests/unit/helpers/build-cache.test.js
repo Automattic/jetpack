@@ -167,6 +167,25 @@ describe( 'canSkip / writeManifest', () => {
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 
+	// `--directory` collapsed a whole ignored dir to one entry, so losing a file inside it left the
+	// directory present and the project skipped with a half-empty output tree.
+	test( 'does not skip when a single file inside an output directory is deleted', async () => {
+		await addOutput( 'build/one.js' );
+		await addOutput( 'build/two.js' );
+		await writeManifest( SLUG, 'fp1' );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
+		await fs.rm( projectPath( 'build/two.js' ) );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+	} );
+
+	// Count alone would miss this: a rename leaves the same number of files behind.
+	test( 'does not skip when an output file is renamed', async () => {
+		await addOutput( 'build/one.js' );
+		await writeManifest( SLUG, 'fp1' );
+		await fs.rename( projectPath( 'build/one.js' ), projectPath( 'build/renamed.js' ) );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+	} );
+
 	test( 'does not skip a project that produced no output at all', async () => {
 		await writeManifest( SLUG, 'fp1' );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );

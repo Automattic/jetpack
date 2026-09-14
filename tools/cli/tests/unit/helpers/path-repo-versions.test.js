@@ -3,24 +3,28 @@ import os from 'os';
 import npath from 'path';
 import {
 	buildPackageVersionMap,
-	withPinnedComposerJson,
+	pinProjects,
 	restorePinnedComposerJsonSync,
 	pinPathRepoVersions,
 	shouldPinProject,
 } from '../../../helpers/path-repo-versions.js';
 
 describe( 'buildPackageVersionMap', () => {
-	test( 'maps a package name to its dev-trunk branch alias', () => {
+	// dev-trunk is what Composer's VersionGuesser resolves these to on its own, so pinning to it
+	// records the same version an unpinned install would. Pinning to the branch-alias instead
+	// (4.0.x-dev) resolves fine but records a version Version_Selector::is_dev_version() rejects,
+	// which is what JETPACK_AUTOLOAD_DEV keys off.
+	test( 'pins a package to dev-trunk, not to its branch alias', () => {
 		const map = buildPackageVersionMap( [
 			{
 				name: 'automattic/jetpack-connection',
 				extra: { 'branch-alias': { 'dev-trunk': '9.1.x-dev' } },
 			},
 		] );
-		expect( map ).toEqual( { 'automattic/jetpack-connection': '9.1.x-dev' } );
+		expect( map ).toEqual( { 'automattic/jetpack-connection': 'dev-trunk' } );
 	} );
 
-	test( 'falls back to dev-trunk when a package declares no branch alias', () => {
+	test( 'pins a package that declares no branch alias', () => {
 		const map = buildPackageVersionMap( [ { name: 'automattic/jetpack-constants' } ] );
 		expect( map ).toEqual( { 'automattic/jetpack-constants': 'dev-trunk' } );
 	} );
@@ -93,7 +97,7 @@ describe( 'shouldPinProject', () => {
 	} );
 } );
 
-describe( 'withPinnedComposerJson', () => {
+describe( 'pinProjects', () => {
 	const versions = { 'automattic/jetpack-connection': '9.1.x-dev' };
 	const monorepoJson = {
 		name: 'automattic/jetpack-test',
@@ -114,52 +118,45 @@ describe( 'withPinnedComposerJson', () => {
 
 	test( 'the pinned versions are visible to the callback', async () => {
 		await write( monorepoJson );
-		let seen;
-		await withPinnedComposerJson( dir, versions, async () => {
-			seen = JSON.parse( await read() ).repositories[ 0 ].options.versions;
-		} );
+		const pin = await pinProjects( [ dir ], versions );
+		const seen = JSON.parse( await read() ).repositories[ 0 ].options.versions;
+		await pin.restore( new Set( [ dir ] ) );
 		expect( seen ).toEqual( versions );
 	} );
 
 	test( 'restores the original file byte-for-byte afterwards', async () => {
 		await write( monorepoJson );
 		const before = await read();
-		await withPinnedComposerJson( dir, versions, async () => {} );
+		await ( await pinProjects( [ dir ], versions ) ).restore( new Set( [ dir ] ) );
 		await expect( read() ).resolves.toBe( before );
 	} );
 
 	test( 'restores the original file when the callback throws, and rethrows', async () => {
 		await write( monorepoJson );
 		const before = await read();
-		await expect(
-			withPinnedComposerJson( dir, versions, async () => {
-				throw new Error( 'composer blew up' );
-			} )
-		).rejects.toThrow( 'composer blew up' );
+		const pin = await pinProjects( [ dir ], versions );
+		// The install failed, so this directory is absent from the succeeded set.
+		await pin.restore( new Set() );
 		await expect( read() ).resolves.toBe( before );
 	} );
 
 	test( 'leaves composer.json untouched when there is no monorepo repo', async () => {
 		await write( { name: 'automattic/jetpack-test' } );
 		const before = await read();
-		let ran = false;
-		await withPinnedComposerJson( dir, versions, async () => {
-			ran = true;
-			await expect( read() ).resolves.toBe( before );
-		} );
-		expect( ran ).toBe( true );
+		const pin = await pinProjects( [ dir ], versions );
+		await expect( read() ).resolves.toBe( before );
+		await pin.restore( new Set( [ dir ] ) );
 		await expect( read() ).resolves.toBe( before );
 	} );
 
 	test( 'restorePinnedComposerJsonSync recovers a file left pinned by an interrupted build', async () => {
 		await write( monorepoJson );
 		const before = await read();
-		let pinnedDuring;
-		// Simulate SIGINT: the callback never returns normally, so the finally never runs.
-		await withPinnedComposerJson( dir, versions, async () => {
-			pinnedDuring = await read();
-			restorePinnedComposerJsonSync();
-		} );
+		const pin = await pinProjects( [ dir ], versions );
+		const pinnedDuring = await read();
+		// Simulate SIGINT: the handler restores everything while the window is still open.
+		restorePinnedComposerJsonSync();
+		await pin.restore( new Set( [ dir ] ) );
 		expect( pinnedDuring ).not.toBe( before );
 		await expect( read() ).resolves.toBe( before );
 	} );
@@ -193,10 +190,10 @@ describe( 'lock re-stamping', () => {
 
 	test( 'restamps the lock for the restored manifest, leaving the rest byte-for-byte', async () => {
 		await fs.writeFile( lockPath(), lockText( '0'.repeat( 32 ) ) );
-		await withPinnedComposerJson( dir, versions, () =>
-			// Stand in for composer: rewrite the lock from the pinned manifest.
-			fs.writeFile( lockPath(), lockText( 'f'.repeat( 32 ) ) )
-		);
+		const pin = await pinProjects( [ dir ], versions );
+		// Stand in for composer: rewrite the lock from the pinned manifest.
+		await fs.writeFile( lockPath(), lockText( 'f'.repeat( 32 ) ) );
+		await pin.restore( new Set( [ dir ] ) );
 		await expect( fs.readFile( lockPath(), 'utf8' ) ).resolves.toBe( lockText( FIXTURE_HASH ) );
 	} );
 
@@ -205,16 +202,13 @@ describe( 'lock re-stamping', () => {
 	test( 'does not restamp when the install failed', async () => {
 		const stale = lockText( '0'.repeat( 32 ) );
 		await fs.writeFile( lockPath(), stale );
-		await expect(
-			withPinnedComposerJson( dir, versions, async () => {
-				throw new Error( 'composer update failed' );
-			} )
-		).rejects.toThrow( 'composer update failed' );
+		const pin = await pinProjects( [ dir ], versions );
+		await pin.restore( new Set() ); // composer failed, so nothing to re-stamp
 		await expect( fs.readFile( lockPath(), 'utf8' ) ).resolves.toBe( stale );
 	} );
 
 	test( 'does nothing when the project has no lock file', async () => {
-		await withPinnedComposerJson( dir, versions, async () => {} );
+		await ( await pinProjects( [ dir ], versions ) ).restore( new Set( [ dir ] ) );
 		await expect( fs.access( lockPath() ) ).rejects.toThrow();
 	} );
 
@@ -223,7 +217,8 @@ describe( 'lock re-stamping', () => {
 		// from the finally would mask whatever actually failed the build.
 		await fs.writeFile( lockPath(), lockText( '0'.repeat( 32 ) ) );
 		await fs.chmod( lockPath(), 0o444 );
-		await expect( withPinnedComposerJson( dir, versions, async () => 'ok' ) ).resolves.toBe( 'ok' );
+		const pin = await pinProjects( [ dir ], versions );
+		await expect( pin.restore( new Set( [ dir ] ) ) ).resolves.toBeUndefined();
 		await fs.chmod( lockPath(), 0o644 );
 	} );
 } );

@@ -22,7 +22,7 @@ import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import {
 	buildPackageVersionMap,
 	shouldPinProject,
-	withPinnedComposerJson,
+	pinProjects,
 } from '../helpers/path-repo-versions.js';
 import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
@@ -283,6 +283,26 @@ export async function handler( argv ) {
 				'Go ahead and sit back. Relax. This will take a few minutes.'
 		)
 	);
+	// Resolve every install verb first: the choice is made against the unpinned manifest, which is
+	// what each lock is stamped for. Only an `update` consults the path repo, so only those pin.
+	const installArgs = new Map();
+	const toPin = [];
+	if ( pathRepoVersions ) {
+		const limit = pLimit( argv.concurrency );
+		await Promise.all(
+			buildOrder.map( project =>
+				limit( async () => {
+					const args = await getInstallArgs( project, 'composer', argv, lockedProjects );
+					installArgs.set( project, args );
+					if ( args[ 0 ] === 'update' && shouldPinProject( project, lockedProjects, argv ) ) {
+						toPin.push( projectDir( project ) );
+					}
+				} )
+			)
+		);
+	}
+	const pin = await pinProjects( toPin, pathRepoVersions );
+
 	const ctx = {
 		concurrent: argv.concurrency > 1,
 		limit: pLimit( argv.concurrency ),
@@ -291,6 +311,8 @@ export async function handler( argv ) {
 		mirrorMutex: pLimit( 1 ),
 		versions: {},
 		cache: cacheFingerprints ? { fingerprints: cacheFingerprints, cached: 0, built: 0 } : null,
+		installArgs,
+		installed: new Set(),
 		lockedProjects,
 		pathRepoVersions,
 		// When `--timing-summary` is set, collect a flat list of phase timings to summarize at the end.
@@ -299,6 +321,7 @@ export async function handler( argv ) {
 	await listr
 		.run( ctx )
 		.finally( async () => {
+			await pin.restore( ctx.installed );
 			if ( missing.size ) {
 				console.error( '' );
 				const wrap = argv.v ? v => v : chalk.red;
@@ -945,22 +968,18 @@ async function buildProject( t ) {
 	if ( skipInstall ) {
 		await t.output( `Skipping composer install for CI build of non-plugin with no build script\n` );
 	} else {
-		// Pick the verb against the unpinned manifest, which is what the lock is stamped for.
-		// Installing from a lock never consults the path repo, so only an `update` needs pinning.
-		const args = await getInstallArgs( t.project, 'composer', t.argv, t.ctx.lockedProjects );
-		const versions =
-			args[ 0 ] === 'update' && shouldPinProject( t.project, t.ctx.lockedProjects, t.argv )
-				? t.ctx.pathRepoVersions
-				: null;
-		await withPinnedComposerJson( t.cwd, versions, () =>
-			t.time( 'install', async () =>
-				t.execa( 'composer', args, {
-					cwd: t.cwd,
-					stdio: [ 'ignore', 'inherit', 'inherit' ],
-					buffer: false,
-				} )
-			)
+		const args =
+			t.ctx.installArgs.get( t.project ) ??
+			( await getInstallArgs( t.project, 'composer', t.argv, t.ctx.lockedProjects ) );
+		await t.time( 'install', async () =>
+			t.execa( 'composer', args, {
+				cwd: t.cwd,
+				stdio: [ 'ignore', 'inherit', 'inherit' ],
+				buffer: false,
+			} )
 		);
+		// Tells the pin window which locks composer actually rewrote, so only those are re-stamped.
+		t.ctx.installed.add( t.cwd );
 	}
 
 	// Build.
