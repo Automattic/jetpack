@@ -4,18 +4,27 @@
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 
 /**
- * Format an email summary rate, which the endpoint reports as a 0–100 percentage.
+ * Whether an email rate can be known. Rates count unique recipients, so events with no
+ * attributable recipient (link scanners, view-in-browser clicks) make the rate unknown, not 0%.
  *
- * Rates count unique recipients, so events with no attributable recipient (link scanners,
- * view-in-browser clicks) make the rate unknown rather than 0%, shown as an em dash.
+ * @param total  - Total event count.
+ * @param unique - Unique (attributed) event count.
+ * @return False when events exist but none is attributed to a recipient.
+ */
+export function isEmailRateKnown( total: number, unique: number ): boolean {
+	return total === 0 || unique > 0;
+}
+
+/**
+ * Format an email summary rate, which the endpoint reports as a 0–100 percentage.
  *
  * @param rate   - The 0–100 rate.
  * @param total  - Total event count.
  * @param unique - Unique (attributed) event count.
- * @return The formatted percentage, or an em dash when not attributable.
+ * @return The formatted percentage, or an em dash when the rate is unknown.
  */
 export function formatEmailRate( rate: number, total: number, unique: number ): string {
-	if ( total > 0 && unique === 0 ) {
+	if ( ! isEmailRateKnown( total, unique ) ) {
 		return '—';
 	}
 

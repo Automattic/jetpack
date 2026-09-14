@@ -2,9 +2,12 @@
  * External dependencies
  */
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
+import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	AbbreviatedValue,
 	formatEmailRate,
+	isEmailRateKnown,
 	LeaderboardSkeleton,
 	MetricList,
 	PostTitleLink,
@@ -19,7 +22,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -65,10 +68,78 @@ type EmailsListProps = {
 	metric?: EmailMetric;
 };
 
+function describeOpens( opens: number, rate: string, isRateKnown: boolean ): string {
+	const exactOpens = formatMetricValue( opens, 'number', { decimals: 0, useMultipliers: false } );
+
+	if ( ! isRateKnown ) {
+		return sprintf(
+			/* translators: %s: number of email opens, e.g. "1,287". */
+			_n(
+				'%s open, open rate unknown',
+				'%s opens, open rate unknown',
+				opens,
+				'jetpack-premium-analytics-pkg'
+			),
+			exactOpens
+		);
+	}
+
+	return sprintf(
+		/* translators: 1: number of email opens, e.g. "1,287". 2: open rate, e.g. "41.2%". */
+		_n(
+			'%1$s open, %2$s open rate',
+			'%1$s opens, %2$s open rate',
+			opens,
+			'jetpack-premium-analytics-pkg'
+		),
+		exactOpens,
+		rate
+	);
+}
+
+function describeClicks( clicks: number, rate: string, isRateKnown: boolean ): string {
+	const exactClicks = formatMetricValue( clicks, 'number', { decimals: 0, useMultipliers: false } );
+
+	if ( ! isRateKnown ) {
+		return sprintf(
+			/* translators: %s: number of email link clicks, e.g. "190". */
+			_n(
+				'%s click, click rate unknown',
+				'%s clicks, click rate unknown',
+				clicks,
+				'jetpack-premium-analytics-pkg'
+			),
+			exactClicks
+		);
+	}
+
+	return sprintf(
+		/* translators: 1: number of email link clicks, e.g. "190". 2: click rate, e.g. "5.98%". */
+		_n(
+			'%1$s click, %2$s click rate',
+			'%1$s clicks, %2$s click rate',
+			clicks,
+			'jetpack-premium-analytics-pkg'
+		),
+		exactClicks,
+		rate
+	);
+}
+
 function metricValues( row: EmailRow, metric: EmailMetric ) {
-	return metric === 'clicks'
-		? { count: row.clicks, rate: formatEmailRate( row.clicksRate, row.clicks, row.uniqueClicks ) }
-		: { count: row.opens, rate: formatEmailRate( row.opensRate, row.opens, row.uniqueOpens ) };
+	if ( metric === 'clicks' ) {
+		const rate = formatEmailRate( row.clicksRate, row.clicks, row.uniqueClicks );
+		const isRateKnown = isEmailRateKnown( row.clicks, row.uniqueClicks );
+		return {
+			count: row.clicks,
+			rate,
+			description: describeClicks( row.clicks, rate, isRateKnown ),
+		};
+	}
+
+	const rate = formatEmailRate( row.opensRate, row.opens, row.uniqueOpens );
+	const isRateKnown = isEmailRateKnown( row.opens, row.uniqueOpens );
+	return { count: row.opens, rate, description: describeOpens( row.opens, rate, isRateKnown ) };
 }
 
 /** Render the latest emails with their open or click count and rate. */
@@ -76,7 +147,7 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 	const search = useWidgetNavigationSearch( METRIC_SECTION[ metric ] );
 
 	const items: MetricListItem[] = rows.map( row => {
-		const { count, rate } = metricValues( row, metric );
+		const { count, rate, description } = metricValues( row, metric );
 
 		return {
 			id: row.id,
@@ -90,10 +161,13 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 				/>
 			),
 			value: (
-				<span className={ styles.values }>
-					<AbbreviatedValue value={ count } dataFormat={ COUNT_FORMAT } />
-					<span className={ styles.rate }>{ rate }</span>
-				</span>
+				<>
+					<span className={ styles.values } aria-hidden="true">
+						<AbbreviatedValue value={ count } dataFormat={ COUNT_FORMAT } />
+						<span className={ styles.rate }>{ rate }</span>
+					</span>
+					<VisuallyHidden render={ <span /> }>{ description }</VisuallyHidden>
+				</>
 			),
 		};
 	} );

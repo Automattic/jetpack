@@ -241,6 +241,7 @@ export {
 	formatDailyViewCount,
 	formatEmailRate,
 	formatViewCount,
+	isEmailRateKnown,
 	MONTHS_IN_YEAR,
 	monthOrder,
 	type MonthKey,

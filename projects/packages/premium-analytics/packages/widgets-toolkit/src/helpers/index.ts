@@ -79,7 +79,7 @@ export {
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
-export { formatEmailRate } from './format-email-rate';
+export { formatEmailRate, isEmailRateKnown } from './format-email-rate';
 export { formatDailyViewCount, formatViewCount } from './format-view-count';
 export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
 export {
