@@ -1014,7 +1014,7 @@ class Manager {
 	 * connectedness is checked here rather than inferred from a row existing. Resolving an unbound
 	 * user costs a blocking request to WordPress.com, so this is not safe to call per row.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.2.0
 	 *
 	 * @param int|false $user_id The local user identifier. Default is the current user.
 	 * @return int The WordPress.com user ID, or 0 if it could not be determined.
@@ -1056,7 +1056,7 @@ class Manager {
 	 * in the same meta, so removals are left alone.
 	 *
 	 * @internal Hooked on `pre_update_jetpack_option_user_tokens`, which fires before the write.
-	 * @since $$next-version$$
+	 * @since 9.2.0
 	 *
 	 * @param string $name  The option name.
 	 * @param mixed  $value The tokens about to be written.
