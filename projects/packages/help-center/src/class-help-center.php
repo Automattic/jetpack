@@ -21,6 +21,20 @@ class Help_Center {
 	const PACKAGE_VERSION = '0.3.2';
 
 	/**
+	 * ExPlat experiment behind the "Get Help" label and the chat-forward opening.
+	 *
+	 * @var string
+	 */
+	const GET_HELP_EXPERIMENT = 'calypso_help_center_get_help_chat_forward';
+
+	/**
+	 * Variation of GET_HELP_EXPERIMENT that gets both changes.
+	 *
+	 * @var string
+	 */
+	const GET_HELP_VARIATION = 'treatment';
+
+	/**
 	 * Class instance.
 	 *
 	 * @var Help_Center|null
@@ -358,8 +372,8 @@ class Help_Center {
 			return false;
 		}
 
-		$experiment_name      = 'calypso_help_center_get_help_chat_forward';
-		$experiment_variation = 'treatment';
+		$experiment_name      = self::GET_HELP_EXPERIMENT;
+		$experiment_variation = self::GET_HELP_VARIATION;
 
 		/**
 		 * Forces the variation, for QA. Return a variation name, or null to use ExPlat.
@@ -518,6 +532,8 @@ class Help_Center {
 		// The editor toolbar draws its own entry point.
 		if ( $this->should_show_get_help_label() ) {
 			$data['entryLabel'] = __( 'Get Help', 'jetpack-help-center' );
+			// The Help Center reads the variation from here and opens on the AI chat.
+			$data['experimentVariations'] = array( self::GET_HELP_EXPERIMENT => self::GET_HELP_VARIATION );
 		}
 
 		return array_replace( $data, $overrides );

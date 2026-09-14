@@ -208,6 +208,26 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		}
 
 		$this->assertSame( 'Get Help', $data['entryLabel'] );
+		$this->assertSame(
+			array( Help_Center::GET_HELP_EXPERIMENT => Help_Center::GET_HELP_VARIATION ),
+			$data['experimentVariations']
+		);
+	}
+
+	public function test_help_center_data_omits_the_experiment_variation_for_the_control() {
+		$force_control = static function () {
+			return 'control';
+		};
+		add_filter( 'wpcom_help_center_get_help_label_variation', $force_control );
+
+		try {
+			$data = $this->help_center->get_help_center_data( 'gutenberg' );
+		} finally {
+			remove_filter( 'wpcom_help_center_get_help_label_variation', $force_control );
+		}
+
+		$this->assertArrayNotHasKey( 'entryLabel', $data );
+		$this->assertArrayNotHasKey( 'experimentVariations', $data );
 	}
 
 	public function test_admin_bar_help_node_is_absent_for_logged_out_users() {
