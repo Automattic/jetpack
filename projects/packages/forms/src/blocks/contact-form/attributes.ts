@@ -93,4 +93,16 @@ export default {
 		type: 'array',
 		default: [],
 	},
+	// Payments (prototype). Follows the same per-form shape as salesforceData /
+	// mailpoet / hostingerReach, so it travels with the form for free.
+	payments: {
+		type: 'object',
+		default: {
+			enabled: false,
+			currency: 'USD',
+			amountMode: 'fixed', // 'fixed' | 'buyer' ('computed' is phase 3)
+			amount: 25,
+			amountField: '',
+		},
+	},
 };

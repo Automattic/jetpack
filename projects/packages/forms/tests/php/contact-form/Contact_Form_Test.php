@@ -3110,6 +3110,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$expected_attributes['confirmationType']       = 'text';
 		$expected_attributes['hostingerReach']         = '';
 		$expected_attributes['ref']                    = '';
+		$expected_attributes['payments']               = '';
 		$expected_attributes['formTitle']              = 'Test Form';
 		$form = new Contact_Form(
 			$attributes,

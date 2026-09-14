@@ -63,6 +63,7 @@ import FormStatusNotice from './components/form-status-notice.tsx';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.jsx';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.jsx';
 import NotificationsSettings from './components/notifications-settings.jsx';
+import PaymentsSettings from './components/payments-settings.jsx';
 import WebhooksSettings from './components/webhooks-settings.jsx';
 import WidgetEditorReadonlyView from './components/widget-editor-readonly-view.tsx';
 import { useCreateSyncedFormOnInsertion } from './hooks/use-create-synced-form-on-insertion.ts';
@@ -1279,6 +1280,7 @@ function JetpackContactFormEdit( {
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
+					<PaymentsSettings attributes={ attributes } setAttributes={ setAttributes } />
 					{ showWebhooks && (
 						<PanelBody
 							title={ __( 'Webhooks', 'jetpack-forms' ) }
