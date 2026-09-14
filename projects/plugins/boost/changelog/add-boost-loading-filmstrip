@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Prototype exploring a before/after page-load player in the Boost dashboard; for discussion only, not intended to ship.
+
+

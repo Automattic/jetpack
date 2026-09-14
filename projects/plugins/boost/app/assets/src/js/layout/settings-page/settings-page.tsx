@@ -1,4 +1,6 @@
 import SpeedScore from '$features/speed-score/speed-score';
+// PROTOTYPE — THROWAWAY. Remove with the loading-filmstrip feature directory.
+import LoadingFilmstrip from '$features/loading-filmstrip/loading-filmstrip';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import Support from './support/support';
 import Tips from './tips/tips';
@@ -25,6 +27,8 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 					<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
 						<div className="jb-section jb-section--alt jb-section--scores">
 							<SpeedScore />
+							{ /* PROTOTYPE — THROWAWAY. */ }
+							<LoadingFilmstrip />
 						</div>
 
 						{ children && (
