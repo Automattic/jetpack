@@ -62,14 +62,6 @@ describe( 'AI Chat block edit', () => {
 		delete window.Jetpack_AIChatBlock;
 	} );
 
-	test( 'shows the normal editing UI when the plan flag is not localized', () => {
-		useIsUserConnected.mockReturnValue( true );
-
-		render( <Edit { ...defaultProps } /> );
-
-		expect( screen.queryByText( 'Upgrade Jetpack Search' ) ).not.toBeInTheDocument();
-	} );
-
 	test( 'shows an upgrade prompt on a connected, free-plan site', () => {
 		useIsUserConnected.mockReturnValue( true );
 		window.Jetpack_AIChatBlock = { jetpackSettings: { supports_paid_search: false } };

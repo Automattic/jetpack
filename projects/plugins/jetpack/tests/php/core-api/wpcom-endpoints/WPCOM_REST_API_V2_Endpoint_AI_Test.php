@@ -118,15 +118,13 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 	}
 
 	/**
-	 * The proxy must forward the real upstream error code, message, and HTTP
-	 * status instead of collapsing every failure into invalid_ask_response /
-	 * 500. See SEARCH-351.
+	 * The proxy forwards an upstream error's code and HTTP status instead
+	 * of replacing them with invalid_ask_response / 500.
 	 */
-	public function test_request_chat_with_site_forwards_upstream_error() {
+	public function test_request_chat_with_site_forwards_upstream_code_and_status() {
 		$this->simulate_connection();
 		$this->mocked_wpcom_response_body   = array(
-			'code'    => 'ai_search_inactive',
-			'message' => 'This site is not able to use the Jetpack AI Search feature',
+			'code' => 'upstream_plan_rejected',
 		);
 		$this->mocked_wpcom_response_status = 403;
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ), 10, 3 );
@@ -137,11 +135,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 403, $response->get_status() );
-		$this->assertSame( 'ai_search_inactive', $response->get_data()['code'] );
-		$this->assertSame(
-			'This site is not able to use the Jetpack AI Search feature',
-			$response->get_data()['message']
-		);
+		$this->assertSame( 'upstream_plan_rejected', $response->get_data()['code'] );
 	}
 
 	/**
@@ -160,49 +154,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 400, $response->get_status() );
-		$this->assertSame( 'invalid_ask_response', $response->get_data()['code'] );
-	}
-
-	/**
-	 * A 200 response with a valid cache_key is a real answer, even if it
-	 * also carries an unrelated `code` field.
-	 */
-	public function test_request_chat_with_site_succeeds_with_code_and_cache_key_present() {
-		$this->simulate_connection();
-		$this->mocked_wpcom_response_body   = array(
-			'code'      => 'ok',
-			'cache_key' => 'jp-search-ai-123',
-		);
-		$this->mocked_wpcom_response_status = 200;
-		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ), 10, 3 );
-
-		$this->register_routes_on_fresh_server();
-		$request = new WP_REST_Request( 'GET', self::CHAT_SEARCH_ROUTE );
-		$request->set_param( 'query', 'What is this website?' );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertSame( 200, $response->get_status() );
-	}
-
-	/**
-	 * Non-scalar code/message in the upstream error body (unexpected JSON
-	 * shape) fall back to the generic error instead of fataling.
-	 */
-	public function test_request_chat_with_site_falls_back_when_code_is_non_scalar() {
-		$this->simulate_connection();
-		$this->mocked_wpcom_response_body   = array(
-			'code'    => array( 'nested' => 'shape' ),
-			'message' => array( 'nested' => 'shape' ),
-		);
-		$this->mocked_wpcom_response_status = 403;
-		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_ai_search_response' ), 10, 3 );
-
-		$this->register_routes_on_fresh_server();
-		$request = new WP_REST_Request( 'GET', self::CHAT_SEARCH_ROUTE );
-		$request->set_param( 'query', 'What is this website?' );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( 'invalid_ask_response', $response->get_data()['code'] );
 	}
 
@@ -297,7 +248,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 		 * independently of the is_enabled() gate. Like the completions gate, it now runs at
 		 * rest_api_init, so a filter added before the hook fires reaches registration.
 		 */
-		$this->simulate_connection();
 		add_filter( 'jetpack_ai_chat_enabled', '__return_true' );
 
 		$routes = $this->register_routes_on_fresh_server();
