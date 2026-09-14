@@ -31,13 +31,6 @@ class Settings {
 	const RETIRED_SUBSCRIBERS_PAGE_SLUG = 'jetpack-subscribers';
 
 	/**
-	 * User meta stamped when the subscriber-count notice is dismissed.
-	 *
-	 * @var string
-	 */
-	const SUBSCRIBER_COUNT_NOTICE_DISMISSED_META = 'jetpack_newsletter_subscriber_count_notice_dismissed';
-
-	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
 	 * When this filter returns true, "Jetpack > Newsletter" renders the new
@@ -97,7 +90,25 @@ class Settings {
 	public function init_hooks() {
 		// Priority 1 so this runs before the menu is built and the request is denied.
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_retired_subscribers_page' ), 1 );
-		add_action( 'rest_api_init', array( __CLASS__, 'register_subscriber_count_notice_meta' ) );
+
+		// Lets the subscriber-count notice record its dismissal through `/wp/v2/users/me`.
+		add_action(
+			'rest_api_init',
+			static function () {
+				register_meta(
+					'user',
+					'jetpack_newsletter_subscriber_count_notice_dismissed',
+					array(
+						'show_in_rest'  => true,
+						'single'        => true,
+						'type'          => 'boolean',
+						'auth_callback' => static function () {
+							return current_user_can( 'manage_options' );
+						},
+					)
+				);
+			}
+		);
 
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
@@ -138,24 +149,6 @@ class Settings {
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
-	}
-
-	/**
-	 * Register the dismissal meta so the notice can write it through `/wp/v2/users/me`.
-	 */
-	public static function register_subscriber_count_notice_meta() {
-		register_meta(
-			'user',
-			self::SUBSCRIBER_COUNT_NOTICE_DISMISSED_META,
-			array(
-				'show_in_rest'  => true,
-				'single'        => true,
-				'type'          => 'boolean',
-				'auth_callback' => static function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
 	}
 
 	/**
@@ -344,8 +337,7 @@ class Settings {
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),
 			'tracksUserData'                  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'showSubscriberCountNotice'       => $is_wpcom && ! get_user_meta( $current_user->ID, self::SUBSCRIBER_COUNT_NOTICE_DISMISSED_META, true ),
-			'subscriberCountNoticeMetaKey'    => self::SUBSCRIBER_COUNT_NOTICE_DISMISSED_META,
+			'showSubscriberCountNotice'       => $is_wpcom && ! get_user_meta( $current_user->ID, 'jetpack_newsletter_subscriber_count_notice_dismissed', true ),
 		);
 
 		return $data;

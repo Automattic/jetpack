@@ -54,7 +54,6 @@ export interface NewsletterScriptData {
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;
 	showSubscriberCountNotice: boolean;
-	subscriberCountNoticeMetaKey: string;
 	tracksUserData?:
 		| {
 				userid: number;
