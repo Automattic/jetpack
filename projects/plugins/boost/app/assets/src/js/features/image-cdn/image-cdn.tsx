@@ -19,7 +19,7 @@ const ImageCdn = () => {
 			description={
 				<p>
 					{ __(
-						`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
+						"Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.",
 						'jetpack-boost'
 					) }
 				</p>

@@ -26,7 +26,7 @@ const CloudCssModule = () => {
 					<p>
 						{ createInterpolateElement(
 							__(
-								`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+								'Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.',
 								'jetpack-boost'
 							),
 							{
@@ -39,7 +39,7 @@ const CloudCssModule = () => {
 					<p>
 						{ createInterpolateElement(
 							__(
-								`<b>Boost will automatically generate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+								'<b>Boost will automatically generate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.',
 								'jetpack-boost'
 							),
 							{

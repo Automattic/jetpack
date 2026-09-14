@@ -17,7 +17,7 @@ const RenderBlockingJs = () => {
 				<p>
 					{ createInterpolateElement(
 						__(
-							`Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <link>web.dev</link>.`,
+							'Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <link>web.dev</link>.',
 							'jetpack-boost'
 						),
 						{
