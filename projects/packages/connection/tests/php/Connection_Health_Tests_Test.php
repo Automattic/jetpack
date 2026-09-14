@@ -599,6 +599,34 @@ class Connection_Health_Tests_Test extends TestCase {
 	}
 
 	/**
+	 * Test the skip names the earlier failure. Offline mode, safe mode, and the
+	 * connection are all checked first, so each has to be ruled out to reach it.
+	 */
+	public function test_wpcom_connection_test_skip_reports_earlier_failure() {
+		$this->disable_offline_and_safe_mode();
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		( new Manager() )->reset_connection_status();
+
+		// Only run_tests() sets this, and it would need an earlier test to fail first.
+		$reflection = new \ReflectionClass( Connection_Health_Tests::class );
+		$property   = $reflection->getProperty( 'pass' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $this->tests, false );
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertSame( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'A previous connection health test failed, so this test was skipped.',
+			$result['short_description']
+		);
+	}
+
+	/**
 	 * Evaluate a decoded WP.com test-connection response via the protected helper.
 	 *
 	 * Avoids performing a signed remote request, which can't be mocked in a unit test.
