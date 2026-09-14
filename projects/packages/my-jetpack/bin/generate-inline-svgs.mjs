@@ -18,8 +18,8 @@ const SVGS = JSON.parse(
 
 const entries = await Promise.all(
 	Object.entries( SVGS ).map( async ( [ name, relative ] ) => {
-		const svg = await readFile( path.join( ROOT, '_inc', relative ) );
-		return `export const ${ name } =\n\t'data:image/svg+xml;base64,${ svg.toString( 'base64' ) }';`;
+		const base64 = await readFile( path.join( ROOT, '_inc', relative ), 'base64' );
+		return `// Source: _inc/${ relative }\nexport const ${ name } =\n\t'data:image/svg+xml;base64,${ base64 }';`;
 	} )
 );
 

@@ -11,3 +11,6 @@ routes/**           production-exclude
 src/**/*.scss       production-exclude
 src/**/*.jsx        production-exclude
 global.d.ts         production-exclude
+
+# Collapsed in GitHub diffs: review the source SVGs, not the generated base64.
+_inc/assets/inline-svgs.ts linguist-generated=true
