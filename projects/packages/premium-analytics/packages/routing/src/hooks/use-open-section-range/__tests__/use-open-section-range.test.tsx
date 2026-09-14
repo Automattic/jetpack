@@ -79,7 +79,7 @@ describe( 'useOpenSectionRange', () => {
 
 		act( () => result.current.open( 'traffic', NOVEMBER ) );
 
-		expect( result.current.traffic.attentionId ).toEqual( expect.any( Number ) );
+		expect( result.current.traffic ).toEqual( expect.any( Number ) );
 	} );
 
 	it( 'keeps the range ends exactly as given', () => {

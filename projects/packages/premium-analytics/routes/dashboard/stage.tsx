@@ -181,7 +181,7 @@ function Dashboard(): JSX.Element {
 	// section shows the period control, it draws attention to the new period.
 	const showsPeriodControl =
 		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
-	const { attentionId, endAttention } = useSettlePeriodChange(
+	const attentionId = useSettlePeriodChange(
 		activeSection,
 		dateFilters.appliedRange,
 		showsPeriodControl
@@ -259,12 +259,7 @@ function Dashboard(): JSX.Element {
 				 * Report pages mount this same panel over records tables, which have no
 				 * interval, so the control is asked for rather than implied.
 				 */
-				<DateFiltersPanel
-					{ ...dateFilters }
-					withIntervalControl
-					attentionId={ attentionId }
-					onAttentionEnd={ endAttention }
-				/>
+				<DateFiltersPanel { ...dateFilters } withIntervalControl attentionId={ attentionId } />
 			);
 	}
 

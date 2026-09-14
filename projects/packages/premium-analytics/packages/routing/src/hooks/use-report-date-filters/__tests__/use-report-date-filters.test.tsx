@@ -448,7 +448,7 @@ describe( 'useReportDateFilters', () => {
 		} );
 		rerender();
 
-		expect( result.current.control.attentionId ).toEqual( expect.any( Number ) );
+		expect( result.current.control ).toEqual( expect.any( Number ) );
 	} );
 
 	it( 'binds to the route it is given', () => {

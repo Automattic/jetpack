@@ -1,4 +1,8 @@
-import { useRaisePeriodChange, useReportScope } from '@jetpack-premium-analytics/data';
+import {
+	PERIOD_CHANGE_ATTENTION_MS,
+	useRaisePeriodChange,
+	useReportScope,
+} from '@jetpack-premium-analytics/data';
 import { createTZDateFromParts } from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
@@ -43,10 +47,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( props: {
-		attentionId?: number;
-		onAttentionEnd?: ( id: number ) => void;
-	} ) => (
+	DateFiltersPanel: ( props: { attentionId?: number } ) => (
 		<div>
 			Date filters
 			<MockAttentionProbe { ...props } />
@@ -113,34 +114,14 @@ function MockScopeProbe() {
 }
 
 /**
- * Stands in for the period trigger: shows the id it was handed and can end it.
+ * Stands in for the period trigger: shows the id it was handed.
  *
- * @param props                - The attention props the stage hands the panel.
- * @param props.attentionId    - The id to show.
- * @param props.onAttentionEnd - Called with that id from the End button.
+ * @param props             - The attention props the stage hands the panel.
+ * @param props.attentionId - The id to show.
  * @return The probe.
  */
-function MockAttentionProbe( {
-	attentionId,
-	onAttentionEnd,
-}: {
-	attentionId?: number;
-	onAttentionEnd?: ( id: number ) => void;
-} ) {
-	const end = useCallback( () => {
-		if ( attentionId !== undefined ) {
-			onAttentionEnd?.( attentionId );
-		}
-	}, [ attentionId, onAttentionEnd ] );
-
-	return (
-		<>
-			<span data-testid="attention">{ attentionId ?? 'no attention' }</span>
-			<button type="button" onClick={ end }>
-				End attention
-			</button>
-		</>
-	);
+function MockAttentionProbe( { attentionId }: { attentionId?: number } ) {
+	return <span data-testid="attention">{ attentionId ?? 'no attention' }</span>;
 }
 
 jest.mock( '@wordpress/widget-dashboard', () => {
@@ -353,7 +334,8 @@ describe( 'post detail stage', () => {
 	} );
 
 	it( 'draws attention to a period a card set, and lets it go once shown', async () => {
-		const user = userEvent.setup();
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		mockSummary();
 
 		render( stage() );
@@ -366,9 +348,12 @@ describe( 'post detail stage', () => {
 			/Date range updated to/
 		);
 
-		await user.click( screen.getByRole( 'button', { name: 'End attention' } ) );
-
+		act( () => {
+			jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS );
+		} );
 		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+		jest.useRealTimers();
 	} );
 
 	it( 'reports the traffic tab over the applied URL range', () => {

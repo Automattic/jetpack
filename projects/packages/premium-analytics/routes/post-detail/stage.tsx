@@ -147,7 +147,7 @@ function PostDetail(): JSX.Element {
 
 	// A card on this page can set the period (the All-time traffic card opens a
 	// month); the control then draws attention to it and the change is read out.
-	const { attentionId, endAttention } = useSettlePeriodChange(
+	const attentionId = useSettlePeriodChange(
 		postSurface( postId ),
 		dateFilters.appliedRange,
 		! isEmailTab
@@ -158,12 +158,7 @@ function PostDetail(): JSX.Element {
 	// traffic tab keeps its selection. The design has no comparison on this page
 	// either — the panel reads that from the scope the stage declares.
 	const dateFiltersPanel = isEmailTab ? null : (
-		<DateFiltersPanel
-			{ ...dateFilters }
-			{ ...dateControls }
-			attentionId={ attentionId }
-			onAttentionEnd={ endAttention }
-		/>
+		<DateFiltersPanel { ...dateFilters } { ...dateControls } attentionId={ attentionId } />
 	);
 
 	return (

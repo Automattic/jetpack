@@ -171,7 +171,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 	it( 'signals the period change to the page it is on', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		function DateControlProbe() {
-			const { attentionId } = useSettlePeriodChange( postSurface( 779 ), NOVEMBER_2025, true );
+			const attentionId = useSettlePeriodChange( postSurface( 779 ), NOVEMBER_2025, true );
 
 			return <output>{ attentionId ?? 'none' }</output>;
 		}
