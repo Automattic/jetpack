@@ -1,7 +1,15 @@
 /**
  * Internal dependencies
  */
-import { formatEmailRate } from '../format-email-rate';
+import { formatEmailRate, isEmailRateKnown } from '../format-email-rate';
+
+describe( 'isEmailRateKnown', () => {
+	it( 'is unknown only when events exist without an attributed recipient', () => {
+		expect( isEmailRateKnown( 0, 0 ) ).toBe( true );
+		expect( isEmailRateKnown( 12, 10 ) ).toBe( true );
+		expect( isEmailRateKnown( 12, 0 ) ).toBe( false );
+	} );
+} );
 
 describe( 'formatEmailRate', () => {
 	it( 'formats a 0–100 rate at up to two decimals', () => {

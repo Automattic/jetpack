@@ -77,13 +77,14 @@ describe( 'EmailsList', () => {
 	} );
 
 	it.each( [
-		[ 'opens', '420', '42%' ],
-		[ 'clicks', '75', '7%' ],
-	] as const )( 'shows the %s count beside its rate', ( metric, count, rate ) => {
+		[ 'opens', '420', '42%', '420 opens, 42% open rate' ],
+		[ 'clicks', '75', '7%', '75 clicks, 7% click rate' ],
+	] as const )( 'shows the %s count beside its rate', ( metric, count, rate, description ) => {
 		renderEmailsList( metric );
 
 		expect( screen.getByText( count ) ).toBeInTheDocument();
 		expect( screen.getByText( rate ) ).toBeInTheDocument();
+		expect( screen.getByText( description ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the rate at two decimals, trimming a trailing zero', () => {
@@ -115,6 +116,7 @@ describe( 'EmailsList', () => {
 
 		expect( screen.getByText( '12' ) ).toBeInTheDocument();
 		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+		expect( screen.getByText( '12 clicks, click rate unknown' ) ).toBeInTheDocument();
 	} );
 
 	it( 'restores the exact count behind an abbreviated one', () => {
