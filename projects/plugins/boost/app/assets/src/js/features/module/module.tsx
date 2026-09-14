@@ -11,6 +11,8 @@ import { useNotices } from '$features/notice/context';
 import { createInterpolateElement } from '@wordpress/element';
 import { Notice, Link } from '@wordpress/ui';
 import Pill from '$features/ui/pill/pill';
+import ModuleRow from './module-row';
+import { useModuleSurface } from './surface';
 import type { ReactNode } from 'react';
 
 type ModuleProps = {
@@ -39,6 +41,7 @@ const Module = ( {
 	onMountEnable,
 }: ModuleProps ) => {
 	const { site } = Jetpack_Boost;
+	const surface = useModuleSurface();
 	const { setNotice } = useNotices();
 	const [ status, setStatus ] = useSingleModuleState( slug, active => {
 		const activatedMessage = __( 'Module activated', 'jetpack-boost' );
@@ -104,6 +107,38 @@ const Module = ( {
 		return null;
 	}
 
+	const label = (
+		<>
+			{ title }
+			{ Jetpack_Boost.developmentFeatures.includes( slug ) && (
+				<Pill text={ __( 'Under Development', 'jetpack-boost' ) } variant="red" />
+			) }
+		</>
+	);
+	const extras = showOfflineMessage ? offlineMessage : isModuleActive && children;
+
+	if ( surface === 'row' ) {
+		return (
+			<ModuleRow
+				testId={ `module-${ slug }` }
+				label={ label }
+				description={ description }
+				toggle={
+					toggle
+						? {
+								className: `jb-feature-toggle-${ slug }`,
+								checked: isModuleActive || isFakeActive,
+								disabled: ! isModuleAvailable,
+								onChange: handleToggle,
+						  }
+						: undefined
+				}
+			>
+				{ extras }
+			</ModuleRow>
+		);
+	}
+
 	return (
 		<div className={ styles.module } data-testid={ `module-${ slug }` }>
 			<div className={ styles.toggle }>
@@ -119,16 +154,11 @@ const Module = ( {
 			</div>
 
 			<div className={ styles.content }>
-				<h3>
-					{ title }
-					{ Jetpack_Boost.developmentFeatures.includes( slug ) && (
-						<Pill text={ __( 'Under Development', 'jetpack-boost' ) } variant="red" />
-					) }
-				</h3>
+				<h3>{ label }</h3>
 
 				<div className={ styles.description }>{ description }</div>
 
-				{ showOfflineMessage ? offlineMessage : isModuleActive && children }
+				{ extras }
 			</div>
 		</div>
 	);
