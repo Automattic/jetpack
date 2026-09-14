@@ -316,6 +316,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const rowTrack = compact
 		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
 		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
+	const hasColumnLabels = data.some( column => Boolean( column.label ) );
+	// Every item is placed by hand rather than auto-flowed, so the template can
+	// carry tracks that hold no cell. Line 1 is the row-label track.
+	const columnLine = ( columnIndex: number ) => columnIndex + 2;
+	const firstDataRow = hasColumnLabels ? 2 : 1;
 	// A summary column takes a content-sized track: a roll-up is wider than a
 	// cell, and a shared track would stretch every cell to fit it. `max-content`
 	// as the max keeps the leftover width out of it once the data tracks hit
@@ -328,7 +333,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const gridStyle: Record< string, string | number > = {
 		'--a8c-charts-color-heatmap-primary': primaryColorHex,
 		gridTemplateColumns: `auto ${ columnTracks }`,
-		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
+		gridTemplateRows: `${ hasColumnLabels ? 'auto ' : '' }repeat(${ rows }, ${ rowTrack })`,
 	};
 	if ( compact ) {
 		gridStyle[ '--a8c-charts-dimension-heatmap-cell-gap' ] = `${ compactCellGap }px`;
@@ -397,23 +402,27 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						style={ gridStyle as CSSProperties }
 					>
 						{ /* Header row preserves the grid structure; cell aria-labels include this text. */ }
-						<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
-							<span />
-							{ data.map( ( column, columnIndex ) => (
-								<span
-									key={ `col-${ columnIndex }` }
-									className={ clsx( styles[ 'heatmap-chart__col-label' ], {
-										[ styles[ 'heatmap-chart__col-label--summary' ] ]: column.summary,
-										...summaryGaps( columnIndex ),
-									} ) }
-								>
-									{ column.label }
-								</span>
-							) ) }
-						</div>
+						{ hasColumnLabels && (
+							<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
+								<span style={ { gridColumn: 1, gridRow: 1 } } />
+								{ data.map( ( column, columnIndex ) => (
+									<span
+										key={ `col-${ columnIndex }` }
+										style={ { gridColumn: columnLine( columnIndex ), gridRow: 1 } }
+										className={ clsx( styles[ 'heatmap-chart__col-label' ], {
+											[ styles[ 'heatmap-chart__col-label--summary' ] ]: column.summary,
+											...summaryGaps( columnIndex ),
+										} ) }
+									>
+										{ column.label }
+									</span>
+								) ) }
+							</div>
+						) }
 
 						{ Array.from( { length: rows } ).map( ( _row, rowIndex ) => {
 							const labelVisible = ! compact || rowIndex % 2 === 0;
+							const gridRow = firstDataRow + rowIndex;
 							return (
 								<div
 									key={ `row-${ rowIndex }` }
@@ -421,11 +430,16 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 									aria-rowindex={ rowIndex + 1 }
 									className={ styles[ 'heatmap-chart__row' ] }
 								>
-									<span aria-hidden="true" className={ styles[ 'heatmap-chart__row-label' ] }>
+									<span
+										aria-hidden="true"
+										className={ styles[ 'heatmap-chart__row-label' ] }
+										style={ { gridColumn: 1, gridRow } }
+									>
 										{ labelVisible ? rowLabels[ rowIndex ] ?? '' : '' }
 									</span>
 									{ data.map( ( column, columnIndex ) => {
 										const cell = column.data[ rowIndex ];
+										const placement = { gridColumn: columnLine( columnIndex ), gridRow };
 
 										// A hidden cell keeps its grid slot (so the rest of the
 										// column doesn't shift) but paints nothing and takes no
@@ -436,6 +450,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 													key={ `cell-${ columnIndex }-${ rowIndex }` }
 													data-testid="heatmap-cell-hidden"
 													aria-hidden="true"
+													style={ placement }
 													className={ clsx(
 														styles[ 'heatmap-chart__cell' ],
 														styles[ 'heatmap-chart__cell--hidden' ]
@@ -454,6 +469,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 													key={ `cell-${ columnIndex }-${ rowIndex }` }
 													data-testid="heatmap-cell-placeholder"
 													aria-hidden="true"
+													style={ placement }
 													className={ clsx(
 														styles[ 'heatmap-chart__cell' ],
 														styles[ 'heatmap-chart__cell--placeholder' ]
@@ -501,11 +517,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 														selectedIndex === flatIndex,
 												} ) }
 												style={
-													filled
-														? ( {
-																'--a8c-charts-heatmap-cell-intensity': normalized,
-														  } as CSSProperties )
-														: undefined
+													{
+														...placement,
+														...( filled
+															? { '--a8c-charts-heatmap-cell-intensity': normalized }
+															: {} ),
+													} as CSSProperties
 												}
 												onMouseMove={ handleCellMouseMove }
 												onMouseLeave={ handleCellMouseLeave }
