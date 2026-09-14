@@ -58,13 +58,15 @@ Admin_Menu::add_menu(
 | A standalone plugin | Boost, Akismet, CRM |
 | Either — the standalone plugin when it's installed, the module otherwise | Social, Search, VideoPress, Backup, Protect |
 
-`is_active()` already knows which of those applies, so a registration site names the product and never has to work out which kind it is.
+The product's `is_activated()` already knows which of those applies, so a registration site names the product and never has to work out which kind it is. It asks only whether the site has switched the product on, never whether it has a plan: a lapsed plan keeps the item, so the route back to upgrading survives, and resolving a gate never makes a request to WordPress.com.
 
 Reach for `module` only when a sidebar item has no product class at all. SEO is the example: it's gated by the `seo-tools` module and has no My Jetpack card, so there's no product to name. An item that declares neither is always shown.
 
 A standalone plugin using `module` must also declare that module through `jetpack_get_available_standalone_modules`, or it never reads as active.
 
-**Always declare a `key`.** The menu slug is a poor identifier to hand a host. Several items register a URL as their slug (`admin.php?page=my-jetpack#/add-videopress`), Blaze's slug is filterable, and VideoPress registers under one slug when its module is active and another when it isn't — so a host naming a slug is naming something that can move, or is naming half an item. A key is a name we control and can keep stable across all of that.
+A `module` gate reads `Modules::is_active()`, which always answers true on WordPress.com Simple, so gates there never remove anything. Hosts on Simple shape the sidebar through the filter below.
+
+**Always declare a `key`**, as a fixed string rather than a reference to the page's slug constant, so renaming a page never renames what hosts have written into their filters.
 
 Everything fails open. An item that declares no gate, a gate naming a product that isn't registered, and a site where My Jetpack didn't initialize all leave the item in place, so declaring a gate can only ever remove an item deliberately.
 
@@ -79,6 +81,8 @@ Declaring a gate is a commitment that the page renders something sensible when t
 | `default` | Show the item if its gate is satisfied. What every item does unless a host says otherwise. |
 | `visible` | Show the item whatever its gate says. |
 | `hidden` | Keep the item out whatever its gate says. |
+
+Every state governs the sidebar entry only. An item that is hidden, or whose gate is unsatisfied, still registers its page, so `admin.php?page=…` keeps working for My Jetpack's Manage buttons, bookmarks, and support links.
 
 ```PHP
 add_filter(

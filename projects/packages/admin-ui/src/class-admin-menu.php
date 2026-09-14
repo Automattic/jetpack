@@ -36,10 +36,9 @@ class Admin_Menu {
 	const UPGRADE_MENU_FALLBACK_URL = 'https://jetpack.com/upgrade/';
 
 	/*
-	 * The sidebar's five tiers. Items sharing a tier sort alphabetically by menu title, so a
-	 * product should pass no position at all and land in POSITION_DEFAULT. Reach for another
-	 * tier only to express one of the roles below — an int of your own silently opts the item
-	 * out of alphabetical order, which is how three curation efforts overwrote it before.
+	 * The sidebar's position tiers. Items sharing a tier sort alphabetically by menu title, so a
+	 * product should pass no position and land in POSITION_DEFAULT. Reach for another tier only
+	 * for one of the roles below; an int of your own silently opts the item out of that order.
 	 */
 
 	/**
@@ -165,6 +164,13 @@ class Admin_Menu {
 	private static $visibility_resolver = null;
 
 	/**
+	 * Menu slugs registered this request but kept out of the rendered sidebar.
+	 *
+	 * @var string[]
+	 */
+	private static $hidden_menu_slugs = array();
+
+	/**
 	 * Initialize the class and set up the main hook
 	 *
 	 * @return void
@@ -175,6 +181,7 @@ class Admin_Menu {
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
+			add_action( 'admin_head', array( __CLASS__, 'remove_hidden_menu_items' ) );
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_design_tokens' ) );
 		}
@@ -259,21 +266,22 @@ class Admin_Menu {
 
 		$visibility = self::get_visibility_states();
 
+		self::$hidden_menu_slugs = array();
+
 		foreach ( self::$menu_items as $menu_item ) {
-			/*
-			 * Neither check can expose a page: add_submenu_page() refuses one the user lacks the
-			 * capability for, whatever we pass it. Both run here so that an item the user cannot
-			 * see, or a host has hidden, does not keep the empty Jetpack top level menu alive.
-			 */
 			if ( ! current_user_can( $menu_item['capability'] ) ) {
 				continue;
 			}
 
-			if ( ! self::is_menu_item_visible( $menu_item, $visibility ) ) {
-				continue;
+			/*
+			 * A hidden item is still registered, so its page keeps resolving for links into it.
+			 * It leaves the submenu on admin_head instead: core's access check reads $submenu.
+			 */
+			if ( self::is_menu_item_visible( $menu_item, $visibility ) ) {
+				$can_see_toplevel_menu = true;
+			} else {
+				self::$hidden_menu_slugs[] = $menu_item['menu_slug'];
 			}
-
-			$can_see_toplevel_menu = true;
 
 			add_submenu_page(
 				'jetpack',
@@ -317,10 +325,7 @@ class Admin_Menu {
 	 *                                   - 'product' (string) My Jetpack product slug whose activation gates the item.
 	 *                                   - 'module'  (string) Jetpack module name, for items with no product class.
 	 *                                   - 'key'     (string) The name hosts use for this item in the visibility
-	 *                                                        filter. Declare one on every item: menu slugs are
-	 *                                                        sometimes URLs, sometimes filterable, and sometimes
-	 *                                                        differ between two registrations of the same item.
-	 *                                                        Falls back to $menu_slug when absent.
+	 *                                                        filter. Declare one on every item; see get_item_key().
 	 *                                   An item that declares no gate is always shown.
 	 *
 	 * @return string The resulting page's hook_suffix
@@ -423,6 +428,20 @@ class Admin_Menu {
 	}
 
 	/**
+	 * Takes hidden items out of the Jetpack submenu before the sidebar renders.
+	 *
+	 * Runs on admin_head, after core's access check has already resolved the current page
+	 * against $submenu, so a hidden item's page stays reachable while its entry disappears.
+	 *
+	 * @return void
+	 */
+	public static function remove_hidden_menu_items() {
+		foreach ( self::$hidden_menu_slugs as $menu_slug ) {
+			remove_submenu_page( 'jetpack', plugin_basename( $menu_slug ) );
+		}
+	}
+
+	/**
 	 * Returns the name a host uses for a menu item in the visibility filter.
 	 *
 	 * The menu slug is only a fallback. It is the wrong thing to hand a host as an identifier:
@@ -459,6 +478,7 @@ class Admin_Menu {
 		 * Each item resolves to one of three states: 'default' derives visibility from whether
 		 * the item's feature is active, 'visible' forces it in, and 'hidden' keeps it out. A
 		 * host names only the items it cares about; anything it leaves alone stays 'default'.
+		 * Only the sidebar entry is affected: a hidden item's page stays reachable by URL.
 		 *
 		 * The whole map is passed at once so that two mu-plugins setting different keys merge
 		 * rather than clobber each other. 'visible' does not override the capability check —
@@ -478,7 +498,7 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Decides whether a single menu item should be registered.
+	 * Decides whether a single menu item should appear in the sidebar.
 	 *
 	 * @param array $menu_item  A registered menu item.
 	 * @param array $visibility The resolved state map from get_visibility_states().

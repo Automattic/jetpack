@@ -748,7 +748,7 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'Ungated', 'Ungated', 'manage_options', 'gate-none', '__return_null' );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertContains( 'gate-none', $this->get_submenu_slugs() );
 	}
@@ -762,7 +762,7 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'gate-on', '__return_null', null, array( 'product' => 'stats' ) );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertContains( 'gate-on', $this->get_submenu_slugs() );
 	}
@@ -776,7 +776,7 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'gate-off', '__return_null', null, array( 'product' => 'stats' ) );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertNotContains( 'gate-off', $this->get_submenu_slugs() );
 	}
@@ -796,7 +796,7 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'gate-args', '__return_null', null, array( 'module' => 'seo-tools' ) );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertSame( array( array( 'module' => 'seo-tools' ) ), $seen );
 	}
@@ -812,7 +812,7 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'gate-no-resolver', '__return_null', null, array( 'product' => 'stats' ) );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertContains( 'gate-no-resolver', $this->get_submenu_slugs() );
 	}
@@ -826,7 +826,7 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'gate-unknown', '__return_null', null, array( 'product' => 'not-a-product' ) );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertContains( 'gate-unknown', $this->get_submenu_slugs() );
 	}
@@ -848,7 +848,7 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::add_menu( 'Hidden', 'Hidden', 'manage_options', 'host-hidden', '__return_null' );
 		Admin_Menu::add_menu( 'Kept', 'Kept', 'manage_options', 'host-kept', '__return_null' );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$slugs = $this->get_submenu_slugs();
 		$this->assertNotContains( 'host-hidden', $slugs );
@@ -872,7 +872,7 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'Forced', 'Forced', 'manage_options', 'host-forced', '__return_null', null, array( 'product' => 'stats' ) );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertContains( 'host-forced', $this->get_submenu_slugs() );
 	}
@@ -902,7 +902,7 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'A', 'A', 'manage_options', 'lonely-a', '__return_null' );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertNotContains( 'jetpack', array_column( $menu, 2 ) );
 	}
@@ -911,8 +911,9 @@ class Admin_Menu_Test extends TestCase {
 	 * Forcing an item visible does not hand it to a user who lacks the capability.
 	 */
 	public function test_forced_visible_still_respects_capability() {
-		wp_set_current_user( self::$editor_user_id );
+		global $submenu;
 
+		Admin_Menu::set_visibility_resolver( '__return_false' );
 		add_filter(
 			'jetpack_admin_menu_visibility',
 			function ( $states ) {
@@ -921,10 +922,15 @@ class Admin_Menu_Test extends TestCase {
 			}
 		);
 
-		Admin_Menu::add_menu( 'Forced', 'Forced', 'manage_options', 'host-forced-caps', '__return_null' );
+		Admin_Menu::add_menu( 'Forced', 'Forced', 'manage_options', 'host-forced-caps', '__return_null', null, array( 'product' => 'stats' ) );
 
-		do_action( 'admin_menu' );
+		wp_set_current_user( self::$admin_user_id );
+		$this->render_menu();
+		$this->assertContains( 'host-forced-caps', $this->get_submenu_slugs(), 'An admin should see the forced item, or the editor case below proves nothing.' );
 
+		$submenu = array();
+		wp_set_current_user( self::$editor_user_id );
+		$this->render_menu();
 		$this->assertNotContains( 'host-forced-caps', $this->get_submenu_slugs() );
 	}
 
@@ -953,7 +959,7 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::add_menu( 'B', 'B', 'manage_options', 'merge-b', '__return_null' );
 		Admin_Menu::add_menu( 'C', 'C', 'manage_options', 'merge-c', '__return_null' );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$slugs = $this->get_submenu_slugs();
 		$this->assertNotContains( 'merge-a', $slugs );
@@ -979,7 +985,7 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::add_menu( 'A', 'A', 'manage_options', 'offered-a', '__return_null' );
 		Admin_Menu::add_menu( 'B', 'B', 'manage_options', 'offered-b', '__return_null' );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertSame(
 			array(
@@ -1009,7 +1015,7 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'Manage', 'Manage', 'manage_options', 'https://example.org/manage', '__return_null', null, array( 'key' => 'jetpack-manage' ) );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertNotContains( 'https://example.org/manage', $this->get_submenu_slugs() );
 	}
@@ -1039,7 +1045,7 @@ class Admin_Menu_Test extends TestCase {
 
 		Admin_Menu::add_menu( 'VideoPress', 'VideoPress', 'manage_options', $slug, '__return_null', null, array( 'key' => 'jetpack-videopress' ) );
 
-		do_action( 'admin_menu' );
+		$this->render_menu();
 
 		$this->assertNotContains( $slug, $this->get_submenu_slugs() );
 	}
@@ -1057,33 +1063,80 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Hiding an item takes its page with it, not just its place in the sidebar.
+	 * Hiding an item removes its sidebar entry but leaves its page reachable.
 	 *
-	 * Worth pinning because it is not what "hidden" sounds like: the page stops being
-	 * registered at all, so its URL 404s and anything linking to it — a My Jetpack card's
-	 * Manage button, a bookmark, an email — breaks too.
+	 * Core's access check runs between admin_menu and admin_head and reads $submenu, so the
+	 * entry has to survive until admin_head for a link into the page to load.
+	 *
+	 * @param string $how Whether a host hid the item or its gate is unsatisfied.
+	 *
+	 * @dataProvider hidden_item_data
 	 */
-	public function test_hiding_an_item_unregisters_its_page() {
-		global $_registered_pages;
+	#[DataProvider( 'hidden_item_data' )]
+	public function test_hidden_item_keeps_its_page_reachable( $how ) {
+		global $_registered_pages, $pagenow, $plugin_page;
 
 		wp_set_current_user( self::$admin_user_id );
 		$_registered_pages = array();
 
-		add_filter(
-			'jetpack_admin_menu_visibility',
-			function ( $states ) {
-				$states['page-hidden'] = Admin_Menu::VISIBILITY_HIDDEN;
-				return $states;
-			}
-		);
+		if ( 'host' === $how ) {
+			add_filter(
+				'jetpack_admin_menu_visibility',
+				function ( $states ) {
+					$states['page-hidden'] = Admin_Menu::VISIBILITY_HIDDEN;
+					return $states;
+				}
+			);
+			$args = array();
+		} else {
+			Admin_Menu::set_visibility_resolver( '__return_false' );
+			$args = array( 'product' => 'stats' );
+		}
 
-		Admin_Menu::add_menu( 'Hidden', 'Hidden', 'manage_options', 'page-hidden', '__return_null' );
+		Admin_Menu::add_menu( 'Hidden', 'Hidden', 'manage_options', 'page-hidden', '__return_null', null, $args );
 		Admin_Menu::add_menu( 'Shown', 'Shown', 'manage_options', 'page-shown', '__return_null' );
 
 		do_action( 'admin_menu' );
 
-		$this->assertArrayHasKey( 'jetpack_page_page-shown', $_registered_pages );
-		$this->assertArrayNotHasKey( 'jetpack_page_page-hidden', $_registered_pages );
+		$pagenow     = 'admin.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$plugin_page = 'page-hidden'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->assertArrayHasKey( 'jetpack_page_page-hidden', $_registered_pages );
+		$this->assertTrue( user_can_access_admin_page() );
+
+		ob_start();
+		do_action( 'admin_head' );
+		ob_end_clean();
+
+		$slugs = $this->get_submenu_slugs();
+		$this->assertNotContains( 'page-hidden', $slugs );
+		$this->assertContains( 'page-shown', $slugs );
+
+		$pagenow     = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$plugin_page = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
+
+	/**
+	 * The two ways an item ends up hidden.
+	 *
+	 * @return array
+	 */
+	public static function hidden_item_data() {
+		return array(
+			'hidden by a host' => array( 'host' ),
+			'gate unsatisfied' => array( 'gate' ),
+		);
+	}
+
+	/**
+	 * Fires the two hooks between which the sidebar is built and then trimmed for rendering.
+	 *
+	 * @return void
+	 */
+	private function render_menu() {
+		do_action( 'admin_menu' );
+		ob_start(); // Core prints head markup on admin_head.
+		do_action( 'admin_head' );
+		ob_end_clean();
 	}
 
 	/**
