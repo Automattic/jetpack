@@ -18,7 +18,9 @@ const TILES = [
 
 /* Frames a story as a dashboard widget body: the tile's own box, inset by the
  * dashboard's `--wp-ui-card-padding` override, so a shape clears the card
- * border by the same distance it does in product. */
+ * border by the same distance it does in product. Outside a dashboard grid the
+ * layout picker falls back to the width (380px and up counts as wide), so the
+ * canvas width stands in for the column span. */
 const makeCanvas = ( width: string, height: string ): Decorator =>
 	function CanvasDecorator( Story ) {
 		return (
@@ -49,12 +51,12 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Responsive grid of metric tiles that follows the widget cell size and picks its ' +
-					'own layout — no column count needed. A narrow cell renders compact rows (icon ' +
-					'and label on the left, value on the right); a wide but short cell spreads the ' +
-					'tiles across a single row; a wide and tall cell uses a balanced two-column grid ' +
-					'of large centered tiles, the last one taking the whole row when the tile count ' +
-					'is odd.',
+					'Metric tiles laid out from the widget size, as in the design prototype. A ' +
+					'one-column widget gets a vertical list (icon and label on the left, value on ' +
+					'the right): stretched to fill when each row has room, compact and scrolling ' +
+					'when it does not. A wider widget gets a single row of centered tiles, or a ' +
+					'two-column grid once the body is tall enough for every tile row, the last tile ' +
+					'taking the whole row when the count is odd.',
 			},
 		},
 	},
@@ -65,47 +67,45 @@ export default meta;
 type Story = StoryObj< ComponentProps< typeof MetricTileGrid > >;
 
 /**
- * Wide and tall: a balanced two-column grid of large centered tiles.
+ * Wide and tall: a two-column grid of centered tiles.
  */
 export const Default: Story = {
 	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
-	decorators: [ makeCanvas( '100%', '480px' ) ],
+	decorators: [ makeCanvas( '100%', '380px' ) ],
 };
 
 /**
- * A narrow container renders the compact row layout regardless of the
- * viewport, because the grid follows its own rendered size.
+ * A one-column widget at height 2: the rows stretch to share the body.
  */
-export const NarrowContainer: Story = {
+export const Stacked: Story = {
 	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
-	decorators: [ makeCanvas( '360px', '480px' ) ],
+	decorators: [ makeCanvas( '360px', '380px' ) ],
 };
 
 /**
- * A wide but short container spreads the tiles across a single row — the column
- * count follows the number of tiles, so four tiles render one-by-four.
+ * A one-column widget at height 1: each row keeps its own height and the list
+ * scrolls.
  */
-export const WideShort: Story = {
+export const Compact: Story = {
 	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
-	decorators: [ makeCanvas( '100%', '220px' ) ],
+	decorators: [ makeCanvas( '360px', '170px' ) ],
 };
 
 /**
- * The same tiles in a very wide, short cell — still one row, just more room per
- * tile. This mirrors the wide dashboard-cell case.
+ * A wide widget at height 1: one row of centered tiles.
  */
-export const WideShortRoomy: Story = {
+export const Row: Story = {
 	args: { tiles: TILES, dataFormat: COUNT_FORMAT },
-	decorators: [ makeCanvas( '1026px', '280px' ) ],
+	decorators: [ makeCanvas( '100%', '170px' ) ],
 };
 
 /**
- * Three tiles in a tall cell: an odd count still balances, because the trailing
- * tile takes the last row rather than leaving half of it empty.
+ * Three tiles in a tall cell: the trailing tile takes the last row rather than
+ * leaving half of it empty.
  */
 export const ThreeTiles: Story = {
 	args: { tiles: TILES.slice( 0, 3 ), dataFormat: COUNT_FORMAT },
-	decorators: [ makeCanvas( '100%', '480px' ) ],
+	decorators: [ makeCanvas( '100%', '380px' ) ],
 };
 
 /**
@@ -166,33 +166,30 @@ export const WithPlaceholderValue: Story = {
 type SkeletonStory = StoryObj< ComponentProps< typeof MetricTileGridSkeleton > >;
 
 /**
- * The loading shape widgets pass through `WidgetState`'s `renderLoading`, wide
- * enough for the side-by-side arrangement: one label and value placeholder per
- * metric, centred in the widget body.
+ * The loading shape widgets pass through `WidgetState`'s `renderLoading`: one
+ * label and value placeholder per metric, in the grid arrangement here.
  */
 export const Skeleton: SkeletonStory = {
 	render: args => <MetricTileGridSkeleton { ...args } />,
 	args: { tiles: 4 },
-	decorators: [ makeCanvas( '100%', '480px' ) ],
+	decorators: [ makeCanvas( '100%', '380px' ) ],
 };
 
 /**
- * A 360px dashboard tile — the common width, and below the threshold where the
- * loaded grid lays its tiles out in a row. The shape stacks full-width rows to
- * match, rather than wrapping into a block of cards.
+ * The stand-ins for a one-column widget at height 2 stretch like the loaded
+ * rows do.
  */
-export const SkeletonNarrowTile: SkeletonStory = {
+export const SkeletonStacked: SkeletonStory = {
 	render: args => <MetricTileGridSkeleton { ...args } />,
 	args: { tiles: 4 },
-	decorators: [ makeCanvas( '360px', '320px' ) ],
+	decorators: [ makeCanvas( '360px', '380px' ) ],
 };
 
 /**
- * A wide, height-1 dashboard tile: the tiles stay on one row and the shape
- * centres in what little height the cell has.
+ * A wide, height-1 widget: the stand-ins sit on one row.
  */
-export const SkeletonShortTile: SkeletonStory = {
+export const SkeletonRow: SkeletonStory = {
 	render: args => <MetricTileGridSkeleton { ...args } />,
 	args: { tiles: 4 },
-	decorators: [ makeCanvas( '720px', '140px' ) ],
+	decorators: [ makeCanvas( '720px', '170px' ) ],
 };
