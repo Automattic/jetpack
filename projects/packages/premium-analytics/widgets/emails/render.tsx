@@ -2,8 +2,9 @@
  * External dependencies
  */
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
+	AbbreviatedValue,
+	formatEmailRate,
 	LeaderboardSkeleton,
 	MetricList,
 	PostTitleLink,
@@ -13,6 +14,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetNavigationSearch,
+	type DataFormat,
 	type MetricListItem,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -39,8 +41,12 @@ export type EmailRow = {
 	link?: string | null;
 	/** Email subject. */
 	label: string;
+	opens: number;
+	uniqueOpens: number;
 	/** Open rate from 0 to 100. */
 	opensRate: number;
+	clicks: number;
+	uniqueClicks: number;
 	/** Click rate from 0 to 100. */
 	clicksRate: number;
 };
@@ -50,19 +56,27 @@ const METRIC_SECTION: Record< EmailMetric, string > = {
 	clicks: 'email-clicks',
 };
 
+const COUNT_FORMAT: DataFormat = { type: 'number', options: { useMultipliers: true } };
+
 type EmailsListProps = {
 	/** Email rows to render. */
 	rows?: EmailRow[];
-	/** Rate to display. */
+	/** Count and rate to display. */
 	metric?: EmailMetric;
 };
 
-/** Render the latest emails with their open or click rate. */
+function metricValues( row: EmailRow, metric: EmailMetric ) {
+	return metric === 'clicks'
+		? { count: row.clicks, rate: formatEmailRate( row.clicksRate, row.clicks, row.uniqueClicks ) }
+		: { count: row.opens, rate: formatEmailRate( row.opensRate, row.opens, row.uniqueOpens ) };
+}
+
+/** Render the latest emails with their open or click count and rate. */
 export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) => {
 	const search = useWidgetNavigationSearch( METRIC_SECTION[ metric ] );
 
 	const items: MetricListItem[] = rows.map( row => {
-		const rate = metric === 'clicks' ? row.clicksRate : row.opensRate;
+		const { count, rate } = metricValues( row, metric );
 
 		return {
 			id: row.id,
@@ -75,10 +89,12 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 					title={ row.label }
 				/>
 			),
-			value: formatMetricValue( rate / 100, 'percentage', {
-				decimals: 2,
-				signDisplay: 'never',
-			} ),
+			value: (
+				<span className={ styles.values }>
+					<AbbreviatedValue value={ count } dataFormat={ COUNT_FORMAT } />
+					<span className={ styles.rate }>{ rate }</span>
+				</span>
+			),
 		};
 	} );
 
@@ -96,7 +112,11 @@ function toEmailRows( report: StatsEmailSummary | undefined, max: number ): Emai
 		postId: item.id,
 		link: typeof item.link === 'string' ? item.link : null,
 		label: String( item.label ?? '' ),
+		opens: item.opens,
+		uniqueOpens: item.unique_opens,
 		opensRate: item.opens_rate,
+		clicks: item.clicks,
+		uniqueClicks: item.unique_clicks,
 		clicksRate: item.clicks_rate,
 	} ) );
 }
