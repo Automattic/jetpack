@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { BarSeries, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
+import { BarSeries, buildChartTheme, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
 import { useContext, useEffect } from 'react';
 import { XyChartTooltip } from '../xy-chart-tooltip';
 import type { XyChartTooltipProps } from '../../../visx/types';
-import type { EventHandlerParams } from '@visx/xychart';
+import type { EventHandlerParams, XYChartTheme } from '@visx/xychart';
 
 type Datum = { x: number; y: number };
 
@@ -76,7 +76,8 @@ const renderChart = (
 	params: EventHandlerParams< Datum >[] = [
 		{ key: 'A', index: 1, datum: SERIES_A[ 1 ], svgPoint: { x: 123, y: 45 } },
 	],
-	margin = NO_MARGIN
+	margin = NO_MARGIN,
+	theme?: XYChartTheme
 ) =>
 	render(
 		<div data-testid="wrapper" style={ { position: 'relative' } }>
@@ -84,6 +85,7 @@ const renderChart = (
 				width={ 200 }
 				height={ 100 }
 				margin={ margin }
+				theme={ theme }
 				xScale={ { type: 'linear', domain: [ 0, 10 ] } }
 				yScale={ { type: 'linear', domain: [ 0, 100 ] } }
 			>
@@ -100,6 +102,23 @@ const renderChart = (
 	);
 
 describe( 'XyChartTooltip', () => {
+	test.each( [
+		[ 'CanvasText', '0 1px 2px #22222255' ],
+		[ '#123456', '0 1px 2px #12345655' ],
+	] )( 'renders a valid shadow for htmlLabel color %s', async ( color, boxShadow ) => {
+		const theme = buildChartTheme( {
+			backgroundColor: '#ffffff',
+			colors: [ '#123456' ],
+			tickLength: 4,
+			gridColor: '#dddddd',
+			gridColorDark: '#222222',
+			htmlLabel: { color },
+		} );
+		renderChart( {}, undefined, undefined, theme );
+
+		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( { boxShadow } );
+	} );
+
 	test( 'renders the tooltip box inside the chart wrapper, not in a body-level portal', async () => {
 		const { container } = renderChart();
 
