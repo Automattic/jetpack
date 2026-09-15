@@ -271,6 +271,28 @@ describe( 'period change signal', () => {
 		expect( attention() ).toBe( 'none' );
 	} );
 
+	it( 'lets the id go when the section switches inside the attention window', async () => {
+		const user = userEvent.setup();
+		const view = render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		expect( attention() ).not.toBe( 'none' );
+
+		view.rerender( <Scene surface={ INSIGHTS } applied={ JULY } /> );
+		expect( attention() ).toBe( 'none' );
+	} );
+
+	it( 'lets the id go when the range changes by hand inside the attention window', async () => {
+		const user = userEvent.setup();
+		const view = render( <Scene surface={ TRAFFIC } applied={ JULY } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'raise' } ) );
+		expect( attention() ).not.toBe( 'none' );
+
+		view.rerender( <Scene surface={ TRAFFIC } applied={ AUGUST } /> );
+		expect( attention() ).toBe( 'none' );
+	} );
+
 	it( 'is inert without a provider', async () => {
 		const user = userEvent.setup();
 		render(
