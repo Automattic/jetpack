@@ -34,6 +34,13 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useStatsPost: jest.fn(),
 } ) );
 
+// The page's scroll area is the layout's; a recorder stands in for it.
+const mockScrollToTop = jest.fn();
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	useDetailPageScrollToTop: () => mockScrollToTop,
+} ) );
+
 const mockUseStatsPost = jest.mocked( useStatsPost );
 
 function statsPostResult( data: unknown, overrides: Record< string, unknown > = {} ) {
@@ -92,6 +99,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 	beforeEach( () => {
 		mockOnChange.mockReset();
 		mockOnApply.mockReset();
+		mockScrollToTop.mockReset();
 		mockUseStatsPost.mockReset();
 		mockUseStatsPost.mockReturnValue( statsPostResult( RESPONSE ) );
 		jest.useFakeTimers();
@@ -159,6 +167,18 @@ describe( 'PostAllTimeTraffic widget', () => {
 
 		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom' );
 		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'brings the page back to the top once the month is applied', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
+
+		expect( mockScrollToTop ).toHaveBeenCalledTimes( 1 );
+		expect( mockScrollToTop.mock.invocationCallOrder[ 0 ] ).toBeGreaterThan(
+			mockOnApply.mock.invocationCallOrder[ 0 ]
+		);
 	} );
 
 	it( 'opens a month the endpoint reports before the publish day in full', async () => {

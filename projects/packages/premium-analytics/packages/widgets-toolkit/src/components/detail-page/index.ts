@@ -1,6 +1,7 @@
 export {
 	DetailPageLayout,
 	DetailPageSection,
+	useDetailPageScrollToTop,
 	type DetailPageHeaderSlots,
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
