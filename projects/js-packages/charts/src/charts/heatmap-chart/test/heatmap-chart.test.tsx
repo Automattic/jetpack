@@ -425,12 +425,15 @@ describe( 'HeatmapChart keyboard tooltip', () => {
 } );
 
 describe( 'HeatmapChart tooltip position', () => {
+	// Restore only this spy: `restoreAllMocks` would also unspy jest-console, and
+	// every later `toHaveWarned` in the file would find no spy.
+	let rects: jest.SpyInstance;
 	afterEach( () => {
-		jest.restoreAllMocks();
+		rects.mockRestore();
 	} );
 
 	test( 'places the box relative to the chart root, at the pointer plus the offsets', async () => {
-		mockRects();
+		rects = mockRects();
 		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
 
 		await userEvent.setup().pointer( {
@@ -521,5 +524,181 @@ describe( 'HeatmapChart summary column', () => {
 			expect.stringMatching( /-cell-2-0$/ )
 		);
 		expect( within( screen.getByRole( 'tooltip' ) ).getByText( '400' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'HeatmapChart grid placement', () => {
+	test( 'omits the column-label row when no column has a label', () => {
+		renderChart( { data: data.map( column => ( { ...column, label: undefined } ) ) } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.gridTemplateRows.startsWith( 'auto' ) ).toBe( false );
+		// Three data rows, no header row.
+		expect( within( grid ).getAllByRole( 'row', { hidden: true } ) ).toHaveLength( 3 );
+	} );
+
+	test( 'keeps the column-label row when a column has a label', () => {
+		renderChart();
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.gridTemplateRows.startsWith( 'auto ' ) ).toBe( true );
+		expect( within( grid ).getAllByRole( 'row', { hidden: true } ) ).toHaveLength( 4 );
+	} );
+
+	test( 'places every cell and label on an explicit track', () => {
+		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		const cell = screen
+			.getAllByTestId( 'heatmap-cell' )
+			.find( element => element.dataset.column === '1' && element.dataset.row === '2' );
+		// Column 1 sits on track line 3 (after the row-label track); row 2 sits on
+		// grid row 4 (after the label row).
+		expect( cell?.style.gridColumn ).toBe( '3' );
+		expect( cell?.style.gridRow ).toBe( '4' );
+		expect( screen.getByText( 'Wed' ) ).toHaveStyle( { gridColumn: '1' } );
+		expect( screen.getByText( 'Wed' ) ).toHaveStyle( { gridRow: '4' } );
+		expect( screen.getByText( 'W2' ) ).toHaveStyle( { gridColumn: '3' } );
+		expect( screen.getByText( 'W2' ) ).toHaveStyle( { gridRow: '1' } );
+	} );
+} );
+
+describe( 'HeatmapChart column groups', () => {
+	const grouped = [
+		{ data: [ { value: 1 }, { value: 2 } ] },
+		{ data: [ { value: 3 }, { value: 4 } ] },
+		{ data: [ { value: 5 }, { value: 6 } ] },
+		{ data: [ { value: 7 }, { value: 8 } ] },
+	];
+	const columnGroups = [
+		{ label: 'Jan', span: 2 },
+		{ label: 'Feb', span: 2 },
+	];
+
+	test( 'draws one label per group beneath the grid, outside the accessibility tree', () => {
+		renderChart( { data: grouped, columnGroups } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const labels = within( grid ).getAllByTestId( 'heatmap-group-label' );
+		expect( labels.map( label => label.textContent ) ).toEqual( [ 'Jan', 'Feb' ] );
+		const rows = within( grid ).getAllByRole( 'row', { hidden: true } );
+		const labelRow = rows[ rows.length - 1 ];
+		expect( labelRow ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( within( labelRow ).getAllByTestId( 'heatmap-group-label' ) ).toHaveLength( 2 );
+		// Two data rows plus the label row; no header row (no column labels).
+		expect( grid ).toHaveStyle( { gridTemplateRows: 'repeat(2, minmax(0px, 1fr)) auto' } );
+	} );
+
+	test( 'spans each label over its group and skips the gap track between groups', () => {
+		renderChart( { data: grouped, columnGroups } );
+		const [ jan, feb ] = screen.getAllByTestId( 'heatmap-group-label' );
+		expect( jan ).toHaveStyle( { gridColumn: '2 / span 2' } );
+		// Line 4 is the gap track, so Feb starts on 5.
+		expect( feb ).toHaveStyle( { gridColumn: '5 / span 2' } );
+		expect( feb ).toHaveStyle( { gridRow: '3' } );
+		const cell = screen
+			.getAllByTestId( 'heatmap-cell' )
+			.find( element => element.dataset.column === '2' && element.dataset.row === '0' );
+		expect( cell?.style.gridColumn ).toBe( '5' );
+	} );
+
+	test( 'inserts a gap track from the theme groupGap between groups', () => {
+		render(
+			<GlobalChartsProvider theme={ { heatmapChart: { groupGap: 30 } } }>
+				<HeatmapChart width={ 500 } height={ 300 } data={ grouped } columnGroups={ columnGroups } />
+			</GlobalChartsProvider>
+		);
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid ).toHaveStyle( {
+			gridTemplateColumns:
+				'auto minmax(0px, 1fr) minmax(0px, 1fr) 30px minmax(0px, 1fr) minmax(0px, 1fr)',
+		} );
+	} );
+
+	test( 'lets the gaps share the leftover width in compact mode, down to groupGap', () => {
+		renderChart( { data: grouped, columnGroups, compact: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		expect( grid.style.gridTemplateColumns ).toContain( 'minmax(24px, 1fr)' );
+		expect( grid.className ).toMatch( /flex-gaps/ );
+	} );
+
+	test( 'still counts only data columns for assistive technology', () => {
+		renderChart( { data: grouped, columnGroups } );
+		expect( screen.getByRole( 'grid', { name: /heatmap/i } ) ).toHaveAttribute(
+			'aria-colcount',
+			'4'
+		);
+	} );
+
+	test( 'draws no group row and warns once on an unusable span', () => {
+		renderChart( { data: grouped, columnGroups: [ { label: 'Jan', span: 5 } ] } );
+		expect( screen.queryByTestId( 'heatmap-group-label' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'grid', { name: /heatmap/i } ) ).toHaveStyle( {
+			gridTemplateRows: 'repeat(2, minmax(0px, 1fr))',
+		} );
+		expect( console ).toHaveWarned();
+	} );
+
+	test( 'keyboard navigation crosses a group boundary', async () => {
+		renderChart( { data: grouped, columnGroups } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+		grid.focus();
+		await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}' );
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-2-0$/ )
+		);
+	} );
+} );
+
+describe( 'HeatmapChart naming and focus', () => {
+	test( 'names the grid from ariaLabel when given', () => {
+		renderChart( { ariaLabel: 'Monthly posting activity' } );
+		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'grid', { name: /heatmap chart/i } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'scrolls the keyboard-selected cell into view', async () => {
+		// jsdom has no scrollIntoView; the assertion is that the chart asks for it.
+		const scrollIntoView = jest.fn();
+		Element.prototype.scrollIntoView = scrollIntoView;
+		try {
+			renderChart();
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			const user = userEvent.setup();
+			grid.focus();
+			await user.keyboard( '{ArrowRight}' );
+			expect( scrollIntoView ).toHaveBeenLastCalledWith( { block: 'nearest', inline: 'nearest' } );
+			expect( ( scrollIntoView.mock.instances[ 0 ] as Element ).id ).toBe(
+				grid.getAttribute( 'aria-activedescendant' )
+			);
+		} finally {
+			// Back to jsdom's default, which has no scrollIntoView.
+			delete ( Element.prototype as Partial< Element > ).scrollIntoView;
+		}
+	} );
+
+	test( 'does not scroll again when the data is replaced but the selection stays', async () => {
+		const scrollIntoView = jest.fn();
+		Element.prototype.scrollIntoView = scrollIntoView;
+		try {
+			const { rerender } = renderChart();
+			const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+			const user = userEvent.setup();
+			grid.focus();
+			await user.keyboard( '{ArrowRight}' );
+			expect( scrollIntoView ).toHaveBeenCalledTimes( 1 );
+
+			rerender(
+				<GlobalChartsProvider>
+					<HeatmapChart width={ 500 } height={ 300 } data={ [ ...data ] } />
+				</GlobalChartsProvider>
+			);
+			expect( scrollIntoView ).toHaveBeenCalledTimes( 1 );
+		} finally {
+			delete ( Element.prototype as Partial< Element > ).scrollIntoView;
+		}
+	} );
+
+	test( 'renders the empty state without a warning when static groups await data', () => {
+		renderChart( { data: [], columnGroups: [ { label: 'Q1', span: 3 } ] } );
+		expect( screen.getByText( 'No data available' ) ).toBeInTheDocument();
+		expect( console ).not.toHaveWarned();
 	} );
 } );

@@ -424,6 +424,8 @@ export type ChartTheme = {
 		compactCellGap?: number;
 		/** Fixed square cell size in px for compact mode */
 		compactCellSize?: number;
+		/** Gap in px between adjacent column groups; in compact mode the minimum, as the gaps share leftover width */
+		groupGap?: number;
 	};
 };
 

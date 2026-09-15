@@ -53,6 +53,13 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	min-height: 0;
 }
 
+// Grouped compact grids fill the container so the flexible gap tracks can share
+// the leftover width, and never shrink below the cells plus the minimum gaps.
+.heatmap-chart__grid--flex-gaps {
+	width: 100%;
+	min-width: max-content;
+}
+
 // A cell-height cap makes the row tracks content-bound, so the grid must not
 // stretch: leftover container height would otherwise be absorbed by the auto
 // label row. A width-only cap does not change vertical flex sizing.
@@ -70,6 +77,8 @@ $focus-ring-width: var(--wpds-border-width-focus);
 .heatmap-chart__row-label {
 	color: var(--a8c-charts-color-label-secondary);
 	font-size: var(--wpds-typography-font-size-xs);
+	// Pinned so the label height does not follow the host's line-height.
+	line-height: var(--wpds-typography-line-height-xs);
 	white-space: nowrap;
 	overflow: visible;
 }
@@ -77,6 +86,16 @@ $focus-ring-width: var(--wpds-border-width-focus);
 .heatmap-chart__col-label {
 	align-self: end;
 	text-align: left;
+}
+
+// Beneath its columns, set off from the last row by more than the cell gap.
+.heatmap-chart__group-label {
+	color: var(--a8c-charts-color-label-secondary);
+	font-size: var(--wpds-typography-font-size-xs);
+	line-height: var(--wpds-typography-line-height-xs);
+	white-space: nowrap;
+	text-align: center;
+	padding-block-start: var(--wpds-dimension-padding-xs);
 }
 
 .heatmap-chart__row-label {

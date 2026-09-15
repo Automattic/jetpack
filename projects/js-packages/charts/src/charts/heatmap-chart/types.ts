@@ -36,6 +36,13 @@ export type HeatmapColumn = {
 	summary?: boolean;
 };
 
+/** A run of consecutive columns sharing one label beneath the grid. */
+export type HeatmapColumnGroup = {
+	label: string;
+	/** Columns covered; a positive integer. */
+	span: number;
+};
+
 export type HeatmapTooltipData = {
 	value: number | null;
 	rowLabel?: string;
@@ -49,6 +56,15 @@ export interface HeatmapChartProps
 	extends Omit< BaseChartProps< HeatmapColumn[] >, 'showLegend' | 'legend' | 'gridVisibility' > {
 	/** y-axis labels by row index. Empty entries render blank. */
 	rowLabels?: string[];
+	/**
+	 * Consecutive runs of columns sharing one label beneath the grid, set one
+	 * group gap apart. Runs from the first column; columns past the last group
+	 * stay ungrouped. Ignored, with a warning, when a span is not a positive
+	 * integer or the spans reach past the last column.
+	 */
+	columnGroups?: HeatmapColumnGroup[];
+	/** Accessible name of the grid. Defaults to a localized "Heatmap chart". */
+	ariaLabel?: string;
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */
@@ -110,4 +126,23 @@ export type CalendarHeatmapOptions = {
 	 * runtime's zone. A `dateString` carrying no offset is taken as written.
 	 */
 	timeZone?: string;
+};
+
+export type MonthCalendarHeatmapRange = {
+	/** First measured day, `yyyy-MM-dd`. */
+	start: string;
+	/** Last measured day, `yyyy-MM-dd`, inclusive. */
+	end: string;
+};
+
+export type MonthCalendarHeatmapOptions = {
+	/** 0 = Sunday, 1 = Monday. Default 1. */
+	weekStartsOn?: 0 | 1;
+	/** BCP-47 tag the month and day labels are written in. Defaults to the runtime's locale. */
+	locale?: string;
+};
+
+export type MonthCalendarHeatmapResult = {
+	data: HeatmapColumn[];
+	columnGroups: HeatmapColumnGroup[];
 };

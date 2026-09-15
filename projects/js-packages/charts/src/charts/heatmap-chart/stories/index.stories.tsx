@@ -1,17 +1,20 @@
+import { expect, within } from 'storybook/test';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
 import {
+	HEATMAP_POSTS_RANGE,
 	heatmapActivityMatrix,
 	heatmapActivityMatrixWithTotals,
 	heatmapCalendarSeries,
 	heatmapLargeValueMatrix,
 	heatmapPartialMonthCalendarSeries,
+	heatmapPostsByDay,
 } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
-import { HeatmapChart, useCalendarHeatmapData } from '../index';
+import { HeatmapChart, useCalendarHeatmapData, useMonthCalendarHeatmapData } from '../index';
 import type { DataPointDate } from '../../../types';
 import type { CalendarHeatmapOptions } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -21,6 +24,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Heatmap Chart',
 	component: HeatmapChart,
+	subcomponents: { 'HeatmapChart.Legend': HeatmapChart.Legend },
 	parameters: { layout: 'centered' },
 	decorators: [ chartDecorator ],
 	argTypes: {
@@ -197,5 +201,100 @@ export const ErrorStates: Story = {
 	args: {
 		...Default.args,
 		data: [],
+	},
+};
+
+/** Column groups: a gap and a label under each quarter; the Total column stays outside them. */
+export const WithColumnGroups: Story = {
+	args: {
+		...Default.args,
+		data: heatmapActivityMatrixWithTotals.map( column => ( {
+			...column,
+			label: column.summary ? column.label : '',
+		} ) ),
+		columnGroups: [
+			{ label: 'Q1', span: 3 },
+			{ label: 'Q2', span: 3 },
+			{ label: 'Q3', span: 3 },
+			{ label: 'Q4', span: 3 },
+		],
+	},
+};
+
+type MonthCalendarStoryArgs = StoryArgs & {
+	months?: number;
+	weekStartsOn?: 0 | 1;
+	locale?: string;
+};
+
+/**
+ * The last `months` of the sample range, from the first of the earliest month.
+ *
+ * @param months - How many months to draw.
+ * @return A range ending at the sample range end.
+ */
+const lastMonthsRange = ( months: number ) => {
+	const end = new Date( `${ HEATMAP_POSTS_RANGE.end }T00:00:00Z` );
+	const start = new Date( Date.UTC( end.getUTCFullYear(), end.getUTCMonth() - ( months - 1 ), 1 ) );
+	return { start: start.toISOString().slice( 0, 10 ), end: HEATMAP_POSTS_RANGE.end };
+};
+
+const MonthCalendarGrid = ( {
+	months = 12,
+	weekStartsOn,
+	locale,
+	...args
+}: MonthCalendarStoryArgs ) => {
+	const { data, columnGroups } = useMonthCalendarHeatmapData(
+		heatmapPostsByDay,
+		lastMonthsRange( months ),
+		{ weekStartsOn, locale: locale || undefined }
+	);
+	return (
+		<HeatmapChart { ...args } data={ data } columnGroups={ columnGroups }>
+			<HeatmapChart.Legend lessLabel="Fewer posts" moreLabel="More posts" />
+		</HeatmapChart>
+	);
+};
+
+/**
+ * Months as one grid sharing one scale: the "Monthly posting activity" layout.
+ * Drag the container's corner: the month gaps share the width, shrink to the theme's
+ * `groupGap`, and past that the container scrolls with the keyboard selection in view.
+ */
+export const MonthCalendar: StoryObj< MonthCalendarStoryArgs > = {
+	render: args => <MonthCalendarGrid { ...args } />,
+	args: {
+		...sharedThemeArgs,
+		compact: true,
+		withTooltips: true,
+		ariaLabel: 'Monthly posting activity',
+		containerWidth: '1200px',
+		containerHeight: '200px',
+		months: 6,
+		weekStartsOn: 1,
+		locale: '',
+	},
+	argTypes: {
+		months: {
+			control: { type: 'range', min: 1, max: 12 },
+			description:
+				'Months drawn, ending at the sample range end. Twelve need about 1400px before the gaps grow.',
+			table: { category: 'Calendar' },
+		},
+		weekStartsOn: calendarArgTypes.weekStartsOn,
+		locale: calendarArgTypes.locale,
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const grid = canvas.getByRole( 'grid', { name: 'Monthly posting activity' } );
+		await expect( canvas.getAllByRole( 'grid' ) ).toHaveLength( 1 );
+		await expect( grid ).toHaveAttribute( 'aria-colcount', '42' );
+		const labels = canvas.getAllByTestId( 'heatmap-group-label' );
+		await expect( labels ).toHaveLength( 6 );
+		// Six months leave width over at 1200px, so the gaps grow past groupGap.
+		const [ first, second ] = labels.map( label => label.getBoundingClientRect() );
+		await expect( second.left - first.right ).toBeGreaterThan( 24 );
+		await expect( grid.scrollWidth ).toBe( grid.clientWidth );
 	},
 };

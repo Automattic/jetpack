@@ -33,6 +33,7 @@ import {
 	HeatmapContext,
 	HeatmapLegend,
 	isPresent,
+	resolveColumnGroups,
 } from './private';
 import type { HeatmapContextValue } from './private';
 import type { HeatmapChartProps, HeatmapTooltipData } from './types';
@@ -60,6 +61,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	minCellWidth,
 	minCellHeight,
 	rowLabels = NO_ROW_LABELS,
+	columnGroups,
+	ariaLabel,
 	primaryColor,
 	gap = 'md',
 	withTooltips = false,
@@ -123,8 +126,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const columns = data.length;
 	const rows = Math.max( 0, ...data.map( column => column.data.length ) );
+	// Line 1 is the row-label track, so the data columns start on line 2.
+	const groupLayout = useMemo(
+		() => resolveColumnGroups( columnGroups, columns, 2 ),
+		[ columnGroups, columns ]
+	);
 
-	const { compactCellGap, compactCellSize } = heatmapChartSettings;
+	const { compactCellGap, compactCellSize, groupGap } = heatmapChartSettings;
 	const drawValues = showValues ?? ! compact;
 
 	const buildTooltipData = useCallback(
@@ -239,12 +247,31 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		[ withTooltips, showTooltip, buildTooltipData, getTooltipOrigin ]
 	);
 
+	const getCellElement = useCallback(
+		( col: number, row: number ) =>
+			typeof document !== 'undefined'
+				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
+				: null,
+		[ chartId ]
+	);
+
 	const handleCellMouseLeave = useCallback( () => {
 		// Keyboard selection owns the tooltip; don't let a mouse-out clear it.
 		if ( withTooltips && selectedIndex === undefined ) {
 			hideTooltip();
 		}
 	}, [ withTooltips, selectedIndex, hideTooltip ] );
+
+	// Focus stays on the grid (aria-activedescendant), so the browser never scrolls
+	// the selected cell into a scroll container's view on its own. Keyed on the
+	// selection alone: a data refresh must not scroll the user back to it.
+	useEffect( () => {
+		if ( selectedIndex === undefined ) {
+			return;
+		}
+		const cell = getCellElement( Math.floor( selectedIndex / rows ), selectedIndex % rows );
+		cell?.scrollIntoView?.( { block: 'nearest', inline: 'nearest' } );
+	}, [ selectedIndex, rows, getCellElement ] );
 
 	// Anchor the tooltip at the selected cell's center on keyboard nav. Cleared on blur/Escape,
 	// not here, so a mouse hover (no selection) isn't affected.
@@ -258,11 +285,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		}
 		const col = Math.floor( selectedIndex / rows );
 		const row = selectedIndex % rows;
-		const cell =
-			typeof document !== 'undefined'
-				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
-				: null;
-		const rect = cell?.getBoundingClientRect();
+		const rect = getCellElement( col, row )?.getBoundingClientRect();
 		showTooltip( {
 			tooltipLeft: rect ? rect.left + rect.width / 2 - origin.left : 0,
 			tooltipTop: rect ? rect.top + rect.height / 2 - origin.top : 0,
@@ -272,7 +295,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		selectedIndex,
 		withTooltips,
 		rows,
-		chartId,
+		getCellElement,
 		buildTooltipData,
 		showTooltip,
 		getTooltipOrigin,
@@ -316,19 +339,35 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const rowTrack = compact
 		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
 		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
+	const hasColumnLabels = data.some( column => Boolean( column.label ) );
+	const hasGroups = groupLayout.groups.length > 0;
+	// Every item is placed by hand rather than auto-flowed, so the template can
+	// carry gap tracks that hold no cell.
+	const columnLine = ( columnIndex: number ) => groupLayout.columns[ columnIndex ].line;
+	const firstDataRow = hasColumnLabels ? 2 : 1;
 	// A summary column takes a content-sized track: a roll-up is wider than a
 	// cell, and a shared track would stretch every cell to fit it. `max-content`
 	// as the max keeps the leftover width out of it once the data tracks hit
 	// `maxCellWidth`, where a plain `auto` would absorb it.
-	const columnTracks = data.some( column => column.summary )
-		? data
-				.map( column => ( column.summary ? 'minmax(auto, max-content)' : columnTrack ) )
-				.join( ' ' )
-		: `repeat(${ columns }, ${ columnTrack })`;
+	const dataTrack = ( column: ( typeof data )[ number ] ) =>
+		column.summary ? 'minmax(auto, max-content)' : columnTrack;
+	// The group gap is a track of its own: a margin cannot widen a fixed or
+	// minmax track the way it widens the summary's auto track. Compact cells
+	// are fixed, so there the gaps share the leftover width instead.
+	const gapTrack = compact ? `minmax(${ groupGap }px, 1fr)` : `${ groupGap }px`;
+	const columnTracks = data
+		.map( ( column, columnIndex ) =>
+			groupLayout.columns[ columnIndex ].gapBefore
+				? `${ gapTrack } ${ dataTrack( column ) }`
+				: dataTrack( column )
+		)
+		.join( ' ' );
 	const gridStyle: Record< string, string | number > = {
 		'--a8c-charts-color-heatmap-primary': primaryColorHex,
 		gridTemplateColumns: `auto ${ columnTracks }`,
-		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
+		gridTemplateRows: `${ hasColumnLabels ? 'auto ' : '' }repeat(${ rows }, ${ rowTrack })${
+			hasGroups ? ' auto' : ''
+		}`,
 	};
 	if ( compact ) {
 		gridStyle[ '--a8c-charts-dimension-heatmap-cell-gap' ] = `${ compactCellGap }px`;
@@ -383,7 +422,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 					<div
 						ref={ containerRef }
 						role="grid"
-						aria-label={ __( 'Heatmap chart', 'jetpack-charts' ) }
+						aria-label={ ariaLabel ?? __( 'Heatmap chart', 'jetpack-charts' ) }
 						aria-rowcount={ rows }
 						aria-colcount={ columns }
 						aria-activedescendant={ activeDescendant }
@@ -392,28 +431,33 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						onKeyDown={ onChartKeyDown }
 						className={ clsx( styles[ 'heatmap-chart__grid' ], {
 							[ styles[ 'heatmap-chart__grid--compact' ] ]: compact,
+							[ styles[ 'heatmap-chart__grid--flex-gaps' ] ]: compact && hasGroups,
 							[ styles[ 'heatmap-chart__grid--height-capped' ] ]: heightCapped,
 						} ) }
 						style={ gridStyle as CSSProperties }
 					>
-						{ /* Header row preserves the grid structure; cell aria-labels include this text. */ }
-						<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
-							<span />
-							{ data.map( ( column, columnIndex ) => (
-								<span
-									key={ `col-${ columnIndex }` }
-									className={ clsx( styles[ 'heatmap-chart__col-label' ], {
-										[ styles[ 'heatmap-chart__col-label--summary' ] ]: column.summary,
-										...summaryGaps( columnIndex ),
-									} ) }
-								>
-									{ column.label }
-								</span>
-							) ) }
-						</div>
+						{ /* Decorative: cell aria-labels already carry the column name. */ }
+						{ hasColumnLabels && (
+							<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
+								<span style={ { gridColumn: 1, gridRow: 1 } } />
+								{ data.map( ( column, columnIndex ) => (
+									<span
+										key={ `col-${ columnIndex }` }
+										style={ { gridColumn: columnLine( columnIndex ), gridRow: 1 } }
+										className={ clsx( styles[ 'heatmap-chart__col-label' ], {
+											[ styles[ 'heatmap-chart__col-label--summary' ] ]: column.summary,
+											...summaryGaps( columnIndex ),
+										} ) }
+									>
+										{ column.label }
+									</span>
+								) ) }
+							</div>
+						) }
 
 						{ Array.from( { length: rows } ).map( ( _row, rowIndex ) => {
 							const labelVisible = ! compact || rowIndex % 2 === 0;
+							const gridRow = firstDataRow + rowIndex;
 							return (
 								<div
 									key={ `row-${ rowIndex }` }
@@ -421,11 +465,16 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 									aria-rowindex={ rowIndex + 1 }
 									className={ styles[ 'heatmap-chart__row' ] }
 								>
-									<span aria-hidden="true" className={ styles[ 'heatmap-chart__row-label' ] }>
+									<span
+										aria-hidden="true"
+										className={ styles[ 'heatmap-chart__row-label' ] }
+										style={ { gridColumn: 1, gridRow } }
+									>
 										{ labelVisible ? rowLabels[ rowIndex ] ?? '' : '' }
 									</span>
 									{ data.map( ( column, columnIndex ) => {
 										const cell = column.data[ rowIndex ];
+										const placement = { gridColumn: columnLine( columnIndex ), gridRow };
 
 										// A hidden cell keeps its grid slot (so the rest of the
 										// column doesn't shift) but paints nothing and takes no
@@ -436,6 +485,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 													key={ `cell-${ columnIndex }-${ rowIndex }` }
 													data-testid="heatmap-cell-hidden"
 													aria-hidden="true"
+													style={ placement }
 													className={ clsx(
 														styles[ 'heatmap-chart__cell' ],
 														styles[ 'heatmap-chart__cell--hidden' ]
@@ -454,6 +504,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 													key={ `cell-${ columnIndex }-${ rowIndex }` }
 													data-testid="heatmap-cell-placeholder"
 													aria-hidden="true"
+													style={ placement }
 													className={ clsx(
 														styles[ 'heatmap-chart__cell' ],
 														styles[ 'heatmap-chart__cell--placeholder' ]
@@ -501,11 +552,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 														selectedIndex === flatIndex,
 												} ) }
 												style={
-													filled
-														? ( {
-																'--a8c-charts-heatmap-cell-intensity': normalized,
-														  } as CSSProperties )
-														: undefined
+													{
+														...placement,
+														...( filled
+															? { '--a8c-charts-heatmap-cell-intensity': normalized }
+															: {} ),
+													} as CSSProperties
 												}
 												onMouseMove={ handleCellMouseMove }
 												onMouseLeave={ handleCellMouseLeave }
@@ -522,6 +574,23 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 								</div>
 							);
 						} ) }
+						{ hasGroups && (
+							<div role="row" aria-hidden="true" className={ styles[ 'heatmap-chart__row' ] }>
+								{ groupLayout.groups.map( ( group, groupIndex ) => (
+									<span
+										key={ `group-${ groupIndex }` }
+										data-testid="heatmap-group-label"
+										className={ styles[ 'heatmap-chart__group-label' ] }
+										style={ {
+											gridColumn: `${ group.line } / span ${ group.span }`,
+											gridRow: firstDataRow + rows,
+										} }
+									>
+										{ group.label }
+									</span>
+								) ) }
+							</div>
+						) }
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
 						<BoundedTooltip top={ tooltipTop } left={ tooltipLeft }>
