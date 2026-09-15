@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix the Jetpack dashboard and Jetpack AI pages failing to load on WordPress.com-hosted sites.

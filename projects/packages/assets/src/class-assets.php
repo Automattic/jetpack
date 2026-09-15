@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Assets\Semver;
+use Automattic\Jetpack\Assets\Shared_Stores_Assets;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use InvalidArgumentException;
 
@@ -467,6 +468,24 @@ class Assets {
 		if ( wp_scripts()->get_data( $handle, 'Jetpack::Assets::hascss' ) ) {
 			wp_enqueue_style( $handle );
 		}
+	}
+
+	/**
+	 * Hook the package bootstraps that an older copy's `actions.php` does not know about.
+	 *
+	 * A sibling plugin bundling this package under a plain `vendor/` — wpcomsh is an mu-plugin,
+	 * so it loads first — runs its own `actions.php` and wins the files-autoload race, while
+	 * classes still resolve to the newest copy. Anything added to `actions.php` after that copy
+	 * shipped then never bootstraps, and every script depending on it is silently dropped.
+	 * Re-hooking is safe: `add_action()` dedupes an identical callback at the same priority.
+	 *
+	 * Callers must be reachable from an `actions.php` old enough to be in the wild, and must run
+	 * before `wp_loaded`. See JETPACK-2649.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function ensure_package_bootstrap() {
+		Shared_Stores_Assets::configure();
 	}
 
 	/**

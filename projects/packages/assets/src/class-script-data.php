@@ -29,6 +29,10 @@ class Script_Data {
 	 * Configure.
 	 */
 	public static function configure() {
+		// This runs on plugins_loaded from every actions.php version in the wild, so it is
+		// where the package recovers bootstraps an older sibling copy skipped. JETPACK-2649.
+		Assets::ensure_package_bootstrap();
+
 		/**
 		 * Ensure that assets are registered on wp_loaded,
 		 * which is fired before *_enqueue_scripts actions.

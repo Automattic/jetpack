@@ -97,4 +97,33 @@ class SharedStoresAssetsTest extends TestCase {
 		$this->assertStringContainsString( 'jetpack-shared-stores.js', $registered_url );
 		$this->assertTrue( $registered_in_footer );
 	}
+
+	/**
+	 * An older sibling copy of this package can win the files-autoload race and run an
+	 * actions.php that predates Shared_Stores_Assets, leaving the handle unregistered while
+	 * classes still resolve here. Script_Data::configure() is hooked by every actions.php
+	 * version, so it has to carry the bootstrap too. See JETPACK-2649.
+	 */
+	public function test_script_data_configure_bootstraps_shared_stores() {
+		$actions = array();
+
+		Functions\when( 'is_admin' )->justReturn( true );
+		Functions\when( 'add_action' )->alias(
+			function ( ...$args ) use ( &$actions ) {
+				$actions[] = $args;
+			}
+		);
+
+		Script_Data::configure();
+
+		$hooked = array_filter(
+			$actions,
+			function ( $action ) {
+				return array( Shared_Stores_Assets::class, 'register_assets' ) === $action[1];
+			}
+		);
+
+		$this->assertCount( 1, $hooked, 'Script_Data::configure() must bootstrap the shared stores registration.' );
+		$this->assertSame( 'wp_loaded', reset( $hooked )[0] );
+	}
 }
