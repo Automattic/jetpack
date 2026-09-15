@@ -1,0 +1,118 @@
+services:
+  jetpack-ai:
+    build: .
+    # Container names take an optional ${WP_VERIFY_INSTANCE} suffix so two
+    # concurrent stacks (e.g. parallel agent workspaces) can coexist on the
+    # same Docker daemon. Default — env unset — keeps the historical names
+    # (`jetpack-ai-sandbox`, `jetpack-ai-mysql`, etc.) so existing flows
+    # are unaffected. wp-verify.sh derives matching `docker inspect`/`exec`
+    # targets and a per-instance Compose project name so volumes + networks
+    # isolate too.
+    container_name: jetpack-ai-sandbox${WP_VERIFY_INSTANCE:+-${WP_VERIFY_INSTANCE}}
+    volumes:
+      - ${HOME:?HOME not set}/.claude:/home/dev/.claude
+      - ../../:/home/dev/jetpack
+      - jetpack_node_modules:/home/dev/jetpack/node_modules
+    working_dir: /home/dev/jetpack
+    stdin_open: true
+    tty: true
+
+  # ── wp-verify services ──────────────────────────────────────────────────────
+  # Start with: tools/ai-sandbox/wp-verify.sh up
+  # Stop with:  tools/ai-sandbox/wp-verify.sh down
+  # The agent controls these via the Docker socket mounted into jetpack-ai by
+  # docker-compose.wp-verify.yml (the socket is NOT mounted in this base file).
+  # JETPACK_HOST_PATH bind mounts are also defined there, so this base file
+  # works without any environment variables.
+
+  mysql:
+    image: mysql:8.0
+    container_name: jetpack-ai-mysql${WP_VERIFY_INSTANCE:+-${WP_VERIFY_INSTANCE}}
+    profiles: ["wp-verify"]
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    volumes:
+      - wp_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "wordpress", "-pwordpress"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  wordpress:
+    image: wordpress:6.8-php8.4-apache
+    container_name: jetpack-ai-wordpress${WP_VERIFY_INSTANCE:+-${WP_VERIFY_INSTANCE}}
+    profiles: ["wp-verify"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      # Make WP serve URLs (siteurl, home, redirects, admin links) based on
+      # the incoming Host header instead of the value baked into the options
+      # table at install time. Without this, a request from the host at
+      # http://localhost:${WP_VERIFY_HOST_PORT:-18080} redirects to
+      # http://wordpress/wp-admin/ (the install-time --url=http://wordpress),
+      # which the host browser can't resolve. The constant overrides win at site_url() / home_url() call
+      # sites, so login + admin pages now correctly route back to whichever
+      # network the client reached WP on (`http://wordpress` from inside the
+      # sandbox, `http://localhost:${WP_VERIFY_HOST_PORT:-18080}` from the host).
+      #
+      # The Host header is unvalidated input, so an attacker who can reach
+      # WP with an arbitrary Host could poison admin URLs (host-header
+      # poisoning → phishing-style admin links). Two-layer defense:
+      # 1. The port is bound to 127.0.0.1 (see docker-compose.wp-verify.yml),
+      #    so only local processes can reach WP at all.
+      # 2. WORDPRESS_CONFIG_EXTRA below explicitly allowlists the expected
+      #    host values; unknown hosts fall back to WP's options-table siteurl.
+      WORDPRESS_CONFIG_EXTRA: |
+        if ( ! empty( $$_SERVER['HTTP_HOST'] ) ) {
+            $$wp_verify_allowed_hosts = array( 'wordpress', 'localhost', '127.0.0.1' );
+            $$wp_verify_host_no_port = strtolower( explode( ':', $$_SERVER['HTTP_HOST'] )[0] );
+            if ( in_array( $$wp_verify_host_no_port, $$wp_verify_allowed_hosts, true ) ) {
+                define( 'WP_SITEURL', ( ! empty( $$_SERVER['HTTPS'] ) ? 'https' : 'http' ) . '://' . $$_SERVER['HTTP_HOST'] );
+                define( 'WP_HOME', WP_SITEURL );
+            }
+        }
+    volumes:
+      - wp_html:/var/www/html
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/wp-login.php"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  wpcli:
+    image: wordpress:cli-2.11.0-php8.4
+    container_name: jetpack-ai-wpcli${WP_VERIFY_INSTANCE:+-${WP_VERIFY_INSTANCE}}
+    profiles: ["wp-verify"]
+    user: "33:33"
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wp_html:/var/www/html
+    # Install WordPress once on startup; subsequent runs are no-ops.
+    # Fail fast on install errors so a broken environment surfaces immediately.
+    command: |
+      sh -c "
+        wp core is-installed 2>/dev/null || wp core install --url=http://wordpress --title='Analytics Test' --admin_user=admin --admin_password=password --admin_email=admin@test.local || exit 1
+        wp plugin is-active gutenberg 2>/dev/null || { wp plugin install gutenberg --version=23.1.0 && wp plugin activate gutenberg; } || exit 1
+        sleep infinity
+      "
+
+volumes:
+  jetpack_node_modules:
+  wp_mysql_data:
+  wp_html:
