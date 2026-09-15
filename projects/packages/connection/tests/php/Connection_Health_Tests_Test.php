@@ -447,6 +447,169 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertFalse( $result['pass'] );
 	}
 
+	/**
+	 * Test an SSL-verification result reports a verified local_state error to the Error_Handler.
+	 */
+	public function test_wpcom_connection_test_ssl_failure_reports_connection_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$result = $this->evaluate_response(
+			array(
+				'connected'  => false,
+				'message'    => 'Example Site is not connected.',
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+
+		$this->assertFalse( $result['pass'] );
+		// The dedicated result names the real cause and offers no reconnect.
+		$this->assertStringContainsString( 'SSL certificate', $result['short_description'] );
+
+		$verified_errors = Error_Handler::get_instance()->get_verified_errors();
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', $verified_errors );
+
+		// Attributed to the site (blog token), not a user.
+		$this->assertArrayHasKey( '0', $verified_errors['wpcom_ssl_verification_failed'] );
+
+		$error = $verified_errors['wpcom_ssl_verification_failed']['0'];
+		$this->assertSame( Error_Handler::ERROR_TYPE_LOCAL_STATE, $error['error_type'] );
+		$this->assertSame( '', $error['error_direction'] );
+		// The reporter declares the remedy with the error: no reconnect CTA.
+		$this->assertSame( 'none', $error['error_data']['action'] );
+	}
+
+	/**
+	 * Test a connected result clears a previously reported SSL-verification error.
+	 */
+	public function test_wpcom_connection_test_pass_clears_ssl_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response( array( 'connected' => true ) );
+
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_stored_errors() );
+	}
+
+	/**
+	 * Test a blocked result clears a previously reported SSL-verification error.
+	 *
+	 * A 4xx/5xx from the site means WP.com completed the TLS handshake to get it,
+	 * so a lingering SSL error is provably stale.
+	 */
+	public function test_wpcom_connection_test_blocked_result_clears_ssl_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test an SSL-verification result preserves a previously reported blocked error.
+	 *
+	 * A failed TLS handshake proves nothing about a blockage, so the blocked error
+	 * is inconclusive-preserved (bounded by ERROR_LIFE_TIME).
+	 */
+	public function test_wpcom_connection_test_ssl_result_preserves_blocked_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+
+		$this->assertArrayHasKey( 'xmlrpc_request_blocked', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test a definitive non-SSL failure clears a previously reported SSL error.
+	 */
+	public function test_wpcom_connection_test_other_failure_clears_ssl_error() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+
+		$this->evaluate_response(
+			array(
+				'connected' => false,
+				'message'   => 'Invalid token.',
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test an inconclusive result preserves previously reported local_state errors.
+	 *
+	 * WP.com flags probe failures it could not classify (e.g. timeouts) as
+	 * inconclusive; they neither confirm nor disprove a stored error, and clearing
+	 * on them would flap the notice for a broken site that is occasionally slow.
+	 */
+	public function test_wpcom_connection_test_inconclusive_result_preserves_errors() {
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+
+		$this->evaluate_response(
+			array(
+				'connected'  => false,
+				'error_code' => 'wpcom_ssl_verification_failed',
+			)
+		);
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+
+		$result = $this->evaluate_response(
+			array(
+				'connected'    => false,
+				'message'      => 'Example Site is not connected.',
+				'inconclusive' => true,
+			)
+		);
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
 	// -------------------------------------------------------------------------
 	// test__identity_crisis
 	// -------------------------------------------------------------------------

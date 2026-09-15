@@ -422,22 +422,20 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 		$layout_types   = array_column( $layout, 'type' );
 
-		// uuid => [ type, width, height, order ]. The at-a-glance cards share row 2
-		// as the design pairs them; WOOA7S-2009 settles the final widths. Widths are
-		// still authored for four columns; the grid is now three.
+		// uuid => [ type, width, height, order ], in the design's three-column rows.
 		$expected = array(
-			'default-annual-highlights-widget-instance'    => array( 'jpa/annual-highlights', 4, 1, 0 ),
-			'default-all-time-stats-widget-instance'       => array( 'jpa/all-time-stats', 2, 2, 1 ),
-			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 2, 2 ),
-			'default-most-popular-time-widget-instance'    => array( 'jpa/most-popular-time', 1, 2, 3 ),
-			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 4, 1, 4 ),
-			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 2, 2, 5 ),
-			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 6 ),
-			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 7 ),
-			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 8 ),
-			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 9 ),
+			'default-annual-highlights-widget-instance'    => array( 'jpa/annual-highlights', 3, 1, 0 ),
+			'default-all-time-stats-widget-instance'       => array( 'jpa/all-time-stats', 1, 2, 1 ),
+			'default-most-popular-time-widget-instance'    => array( 'jpa/most-popular-time', 1, 2, 2 ),
+			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 2, 3 ),
+			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 4 ),
+			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 1, 2, 5 ),
+			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 3, 1, 6 ),
+			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 3, 2, 7 ),
+			'default-tags-widget-instance'                 => array( 'jpa/tags', 2, 2, 8 ),
+			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
 			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 10 ),
-			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 11 ),
+			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 2, 2, 11 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
@@ -475,12 +473,10 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			$layout_by_uuid['default-annual-highlights-widget-instance']
 		);
 
-		// All-time stats narrows the widget's own default, which also has Comments.
-		$this->assertSame(
-			array(
-				'metrics' => array( 'views', 'visitors', 'posts' ),
-			),
-			$layout_by_uuid['default-all-time-stats-widget-instance']['attributes']
+		// All-time stats has no attributes: it always shows every total.
+		$this->assertArrayNotHasKey(
+			'attributes',
+			$layout_by_uuid['default-all-time-stats-widget-instance']
 		);
 
 		$this->assertSame(

@@ -63,8 +63,8 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.7",
-		"@testing-library/dom": "10.4.1",
-		"@testing-library/react": "16.3.2",
+		"@testing-library/dom": "10.4.2",
+		"@testing-library/react": "16.3.3",
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.31",
 		"@types/react-dom": "18.3.7",
@@ -72,7 +72,7 @@
 		"@wordpress/browserslist-config": "6.55.0",
 		"@wordpress/build": "0.23.0",
 		"browserslist": "^4.24.0",
-		"jest": "30.4.2",
+		"jest": "30.5.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},

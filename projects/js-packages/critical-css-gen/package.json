@@ -49,7 +49,7 @@
 		"@types/node": "^24.12.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"express": "5.2.1",
-		"jest": "30.4.2",
+		"jest": "30.5.1",
 		"path-browserify": "1.0.1",
 		"playwright": "1.60.0",
 		"playwright-core": "^1.45.1",

@@ -15,11 +15,6 @@
 		"align": [ "wide", "full" ]
 	},
 	"attributes": {
-		"colorScheme": {
-			"type": "string",
-			"enum": [ "auto", "light", "dark" ],
-			"default": "auto"
-		},
 		"isApiManaged": {
 			"type": "boolean",
 			"default": false
@@ -56,7 +51,7 @@
 		},
 		"buttonText": {
 			"type": "string",
-			"default": "Buy Now With PayPal"
+			"default": ""
 		},
 		"buttonType": {
 			"type": "string",
@@ -127,14 +122,66 @@
 			"type": "string",
 			"default": ""
 		},
-		"showQrCode": {
-			"type": "boolean",
-			"default": true
-		},
 		"format": {
 			"type": "string",
 			"enum": [ "BUTTON", "LINK", "QR" ],
 			"default": "BUTTON"
+		},
+		"buttonShowPoweredBy": {
+			"type": "boolean",
+			"default": false
+		},
+		"buttonStyle": {
+			"type": "string",
+			"enum": [ "fill", "outline" ],
+			"default": "fill"
+		},
+		"buttonTextColor": {
+			"type": "string",
+			"default": ""
+		},
+		"buttonBackgroundColor": {
+			"type": "string",
+			"default": ""
+		},
+		"buttonFontSize": {
+			"type": "string",
+			"default": ""
+		},
+		"qrShowCaption": {
+			"type": "boolean",
+			"default": false
+		},
+		"qrCaption": {
+			"type": "string",
+			"default": ""
+		},
+		"captionColor": {
+			"type": "string",
+			"default": ""
+		},
+		"captionFontSize": {
+			"type": "string",
+			"default": ""
+		},
+		"linkText": {
+			"type": "string",
+			"default": ""
+		},
+		"linkColor": {
+			"type": "string",
+			"default": ""
+		},
+		"linkFontSize": {
+			"type": "string",
+			"default": ""
+		},
+		"blockWidth": {
+			"type": "string",
+			"default": ""
+		},
+		"style": {
+			"type": "object"
 		}
 	}
 }

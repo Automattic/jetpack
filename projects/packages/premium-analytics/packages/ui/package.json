@@ -29,8 +29,8 @@
 	"devDependencies": {
 		"@date-fns/tz": "1.4.1",
 		"@storybook/react": "10.4.6",
-		"@testing-library/react": "16.3.2",
-		"@testing-library/user-event": "14.6.1",
+		"@testing-library/react": "16.3.3",
+		"@testing-library/user-event": "14.6.7",
 		"@wordpress/date": "5.55.0",
 		"date-fns": "4.1.0"
 	}
