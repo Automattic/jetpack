@@ -310,8 +310,10 @@ class Checkpoint {
 		} elseif ( $on_passport ) {
 			$identity = Passport::read();
 
+			// The form showed a name the passport no longer backs, say after a
+			// log-out in another tab. Refusing beats publishing as a guest.
 			if ( null === $identity ) {
-				return;
+				self::refuse( new WP_Error( 'code_expired', '', array( 'status' => 403 ) ) );
 			}
 		} else {
 			return;

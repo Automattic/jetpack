@@ -50,9 +50,15 @@ export const LoggedOut = () => {
 		return isReply ? strings.logInOptionalReply : strings.logInOptional;
 	};
 
-	const cancel = () => {
+	// Bumping the attempt means a code the popup posted on its way out is ignored.
+	const abandon = () => {
+		attempt.current++;
 		popup.current?.close();
 		popup.current = null;
+	};
+
+	const cancel = () => {
+		abandon();
 		activeService.value = restingService;
 	};
 
@@ -88,16 +94,17 @@ export const LoggedOut = () => {
 
 	const choose = ( service: Provider | 'mail' ) => {
 		if ( activeService.value === service ) {
-			if ( service === 'mail' ) {
-				activeService.value = '';
-			} else {
+			if ( service !== 'mail' ) {
 				cancel();
+			} else if ( restingService !== 'mail' ) {
+				// Required fields stay open, or the browser could not validate them.
+				activeService.value = '';
 			}
 			return;
 		}
 
 		if ( isSigningIn.value ) {
-			popup.current?.close();
+			abandon();
 		}
 
 		if ( service === 'mail' ) {
