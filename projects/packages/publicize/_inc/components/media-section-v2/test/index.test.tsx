@@ -610,8 +610,7 @@ describe( 'MediaSectionV2', () => {
 
 		it( 'should update media options when filter handler calls onImageSelect', () => {
 			let capturedOnImageSelect:
-				| ( ( image: { id: number; url: string; mime?: string } ) => void )
-				| null = null;
+				( ( image: { id: number; url: string; mime?: string } ) => void ) | null = null;
 
 			mockApplyFilters.mockImplementation(
 				(
@@ -648,8 +647,7 @@ describe( 'MediaSectionV2', () => {
 
 		it( 'should default to image/png mime type when not provided', () => {
 			let capturedOnImageSelect:
-				| ( ( image: { id: number; url: string; mime?: string } ) => void )
-				| null = null;
+				( ( image: { id: number; url: string; mime?: string } ) => void ) | null = null;
 
 			mockApplyFilters.mockImplementation(
 				(

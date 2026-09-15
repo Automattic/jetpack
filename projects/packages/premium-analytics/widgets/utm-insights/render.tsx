@@ -41,11 +41,7 @@ type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParams
 type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
 type UtmReportSection =
-	| 'source-medium'
-	| 'campaign-source-medium'
-	| 'source'
-	| 'medium'
-	| 'campaign';
+	'source-medium' | 'campaign-source-medium' | 'source' | 'medium' | 'campaign';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 

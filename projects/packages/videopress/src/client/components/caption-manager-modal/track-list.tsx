@@ -47,9 +47,7 @@ export type CaptionTrackRow = ManagedTrackRow | DraftTrackRow;
  * whole list; keyed actions also mark their own row as busy.
  */
 export type TrackListBusy =
-	| { action: 'upload' | 'publish' }
-	| { action: 'delete' | 'download'; key: string }
-	| null;
+	{ action: 'upload' | 'publish' } | { action: 'delete' | 'download'; key: string } | null;
 
 type TrackListProps = {
 	rows: CaptionTrackRow[];

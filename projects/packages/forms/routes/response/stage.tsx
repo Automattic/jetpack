@@ -114,13 +114,11 @@ function Stage(): React.JSX.Element {
 			// without `fields_format=collection`, overwriting the shared record and
 			// stripping the rich field rendering.
 			const records = core.getEntityRecords( 'postType', 'feedback', responseQuery ) as
-				| FormResponse[]
-				| null;
+				FormResponse[] | null;
 
 			// See `pick-record.ts` for why the list's copy is used as a stand-in.
 			const listRecords = core.getEntityRecords( 'postType', 'feedback', pinned ) as
-				| FormResponse[]
-				| null;
+				FormResponse[] | null;
 			const rawRecord = pickResponseRecord( records, listRecords, id );
 
 			const edits = (
@@ -153,8 +151,7 @@ function Stage(): React.JSX.Element {
 				return '';
 			}
 			const record = select( coreStore ).getEntityRecord( 'postType', 'jetpack_form', formId ) as
-				| { title?: { rendered?: string } }
-				| undefined;
+				{ title?: { rendered?: string } } | undefined;
 			return record ? decodeEntities( record.title?.rendered || '' ) : '';
 		},
 		[ response?.form_id ]

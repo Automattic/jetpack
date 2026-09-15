@@ -69,8 +69,7 @@ export function withRoomLimit(
 			const config = window.jetpackRtcNotices;
 			if ( config && ! config.isAdmin && config.postId ) {
 				const wp = ( window as Record< string, unknown > ).wp as
-					| { apiFetch?: ( opts: Record< string, unknown > ) => Promise< unknown > }
-					| undefined;
+					{ apiFetch?: ( opts: Record< string, unknown > ) => Promise< unknown > } | undefined;
 				wp
 					?.apiFetch?.( {
 						path: '/wpcom/v2/rtc-notices/join-request',

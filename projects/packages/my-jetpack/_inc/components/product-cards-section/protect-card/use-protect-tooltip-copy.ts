@@ -8,10 +8,7 @@ import useAnalytics from '../../../hooks/use-analytics';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 
 type TooltipType =
-	| 'pluginsThemesTooltip'
-	| 'scanThreatsTooltip'
-	| 'autoFirewallTooltip'
-	| 'blockedLoginsTooltip';
+	'pluginsThemesTooltip' | 'scanThreatsTooltip' | 'autoFirewallTooltip' | 'blockedLoginsTooltip';
 export type TooltipContent = {
 	[ key in TooltipType ]: {
 		title: ReactElement | string;

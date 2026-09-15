@@ -106,8 +106,7 @@ export default function useConnection( {
 				( select( STORE_ID ).getUserConnectionData() as UserConnectionData | undefined ) ||
 				EMPTY_USER_CONNECTION_DATA,
 			connectedPlugins: select( STORE_ID ).getConnectedPlugins() as
-				| Record< string, unknown >
-				| unknown[],
+				Record< string, unknown > | unknown[],
 			connectionOwner: isConnectionOwner( owner ) ? owner : null,
 			connectionErrors: select( STORE_ID ).getConnectionErrors() as Array< string | object >,
 			// Always a code→user→error map (selector defaults to `{}`), unlike

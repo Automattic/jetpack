@@ -11,12 +11,7 @@ import type { MetricKey } from '@jetpack-premium-analytics/widgets-toolkit';
  * Identifier of one store metric tab.
  */
 export type StorePerformanceMetricId =
-	| 'net-sales'
-	| 'orders'
-	| 'bookings'
-	| 'visitors'
-	| 'conversion-rate'
-	| 'customers';
+	'net-sales' | 'orders' | 'bookings' | 'visitors' | 'conversion-rate' | 'customers';
 
 /**
  * A selectable store metric: which report powers it (`metricType`) and which

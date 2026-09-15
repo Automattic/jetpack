@@ -566,8 +566,7 @@ export default function PlaylistEdit( {
 
 	const addFromLibrary = (
 		selection:
-			| AdminAjaxQueryAttachmentsResponseItemProps
-			| AdminAjaxQueryAttachmentsResponseItemProps[]
+			AdminAjaxQueryAttachmentsResponseItemProps | AdminAjaxQueryAttachmentsResponseItemProps[]
 	) => {
 		const items = Array.isArray( selection ) ? selection : [ selection ];
 		const entries: PlaylistEntry[] = [];

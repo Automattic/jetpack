@@ -70,9 +70,7 @@ export type StatsCommentsGroupItem = StatsNormalizedItemBase<
 };
 
 export type StatsCommentsItem =
-	| StatsCommentsAuthorItem
-	| StatsCommentsPostItem
-	| StatsCommentsGroupItem;
+	StatsCommentsAuthorItem | StatsCommentsPostItem | StatsCommentsGroupItem;
 
 export type StatsCommentsResponse = StatsNormalizedReport< StatsCommentsItem >;
 
@@ -262,8 +260,7 @@ export function selectStatsCommentsRows(
 ): StatsCommentsRow[] {
 	const items = report?.data?.[ 0 ]?.items ?? [];
 	const groupItem = items.find( item => item.label === group ) as
-		| StatsCommentsGroupItem
-		| undefined;
+		StatsCommentsGroupItem | undefined;
 
 	const rows = ( groupItem?.children ?? [] )
 		.map( child => toCommentsRow( child, group ) )

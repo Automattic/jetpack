@@ -10,13 +10,7 @@
  * restore point, so those rows are merged in from `GET /jetpack/v4/restores`.
  */
 export type ActivityKind =
-	| 'backup'
-	| 'restore'
-	| 'post'
-	| 'upload'
-	| 'plugin-update'
-	| 'theme-update'
-	| 'other';
+	'backup' | 'restore' | 'post' | 'upload' | 'plugin-update' | 'theme-update' | 'other';
 
 export type ActivityActor = {
 	type: 'Application' | 'Person';

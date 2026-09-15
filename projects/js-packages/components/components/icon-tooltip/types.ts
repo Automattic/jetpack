@@ -4,12 +4,7 @@ import type { ComponentProps, ReactNode } from 'react';
 export type Placement = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 
 export type Position =
-	| 'top left'
-	| 'top center'
-	| 'top right'
-	| 'bottom left'
-	| 'bottom center'
-	| 'bottom right';
+	'top left' | 'top center' | 'top right' | 'bottom left' | 'bottom center' | 'bottom right';
 
 export type IconTooltipProps = {
 	/**
