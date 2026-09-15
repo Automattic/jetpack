@@ -8,6 +8,7 @@ import { GATED_VIEWS } from '../../constants';
 const PAGE_NOTICE_STATES = {
 	CONNECTION_ERROR: 'connection-error',
 	HOST_OFF: 'host-off',
+	FORCED_OFF: 'forced-off',
 	OFFLINE_MODE: 'offline-mode',
 	SITE_DISCONNECTED: 'site-disconnected',
 	USER_UNLINKED: 'user-unlinked',
@@ -49,6 +50,11 @@ export function getPageNoticeState( {
 		return PAGE_NOTICE_STATES.HOST_OFF;
 	}
 
+	// Below HOST_OFF: a host that offers no AI at all is the fuller answer.
+	if ( settings?.master_forced_off ) {
+		return PAGE_NOTICE_STATES.FORCED_OFF;
+	}
+
 	// Ahead of SITE_DISCONNECTED: offline mode is why the settings call reports
 	// no connection, and connecting is the one thing it forbids.
 	if ( isOfflineMode ) {
@@ -71,6 +77,7 @@ export function getPageNoticeState( {
 }
 
 const HOST_OFF_SLUG = 'jetpack-ai-hub-docs-wp-supports-ai';
+const FORCED_OFF_SLUG = 'jetpack-ai-hub-docs-module-forced-off';
 const OFFLINE_SLUG = 'jetpack-support-development-mode';
 
 /**
@@ -87,6 +94,16 @@ function getNoticeContent( state, pageData ) {
 				title: __( 'Jetpack AI is not available for this site.', 'jetpack' ),
 				action: {
 					href: getRedirectUrl( HOST_OFF_SLUG ),
+					label: __( 'Learn more', 'jetpack' ),
+					openInNewTab: true,
+				},
+			};
+
+		case PAGE_NOTICE_STATES.FORCED_OFF:
+			return {
+				title: __( 'Jetpack AI is turned off by custom code on this site.', 'jetpack' ),
+				action: {
+					href: getRedirectUrl( FORCED_OFF_SLUG ),
 					label: __( 'Learn more', 'jetpack' ),
 					openInNewTab: true,
 				},

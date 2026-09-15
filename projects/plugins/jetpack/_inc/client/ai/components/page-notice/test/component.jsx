@@ -35,6 +35,12 @@ describe( 'getPageNoticeState', () => {
 			expect( resolve( { settings: connected( { host_allows_ai: false } ) } ) ).toBe( 'host-off' );
 		} );
 
+		it( 'reports a module a filter holds off', () => {
+			expect( resolve( { settings: connected( { master_forced_off: true } ) } ) ).toBe(
+				'forced-off'
+			);
+		} );
+
 		it( 'reports offline mode ahead of the connection it disables', () => {
 			expect(
 				resolve( { isOfflineMode: true, settings: connected( { is_connected: false } ) } )
@@ -185,6 +191,18 @@ describe( 'PageNotice', () => {
 			expect.stringContaining( 'source=jetpack-ai-hub-docs-wp-supports-ai' )
 		);
 		expect( learnMore ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'names the filter holding the module off, and offers no switch', () => {
+		renderNotice( { settings: connected( { master_forced_off: true } ) } );
+		expect(
+			screen.getByText( 'Jetpack AI is turned off by custom code on this site.', IGNORE_A11Y )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'source=jetpack-ai-hub-docs-module-forced-off' )
+		);
+		expect( screen.queryByRole( 'link', { name: /Manage in/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'names offline mode rather than asking for a connection it forbids', () => {
