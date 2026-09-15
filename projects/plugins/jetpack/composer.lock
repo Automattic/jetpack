@@ -1025,10 +1025,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "3fbf003a1a3e41b7a54c3cc280dd4c215cdb9df8"
+                "reference": "7f46009fb0f0efbeb4501986e8743386b7b0ee50"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "php": ">=7.4"
             },
@@ -1062,12 +1063,12 @@
                 "build-production": [
                     "pnpm run build-production"
                 ],
+                "typecheck": [
+                    "pnpm run typecheck"
+                ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
-                ],
-                "typecheck": [
-                    "pnpm run typecheck"
                 ]
             },
             "license": [
