@@ -31,6 +31,8 @@ type ReportData = {
 type ReportHookResult = {
 	primary: { data?: ReportData };
 	comparison: { data?: ReportData };
+	/** The zone both reports were built and normalized under. */
+	timezone: string;
 	isLoading: boolean;
 	isFetching: boolean;
 	hasData: boolean;
@@ -101,6 +103,7 @@ export function ReportMetricWidget( {
 		},
 		comparison: comparisonData,
 		metricKey,
+		zone: data.timezone,
 		emptyDataFallback: 'empty-array',
 		label: seriesLabel,
 	} );

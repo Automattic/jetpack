@@ -221,11 +221,14 @@ class Restore_Bridge {
 	/**
 	 * WPCOM's restore statuses, mapped to the vocabulary the client uses.
 	 *
-	 * The client used to test for `in-progress`, `queued`, `finished` and
-	 * `failed`, none of which WPCOM has ever returned — so the poll never
-	 * recognised a live restore and no terminal state was reachable. That
-	 * went unnoticed because the v1 call this bridge used to make answered
-	 * 401 before any status could come back.
+	 * Two engines write this field and the v2 route serves whichever ran:
+	 * a Rewind restore — which is every restore this package starts —
+	 * reports `queued | running | finished | fail`, a legacy VaultPress one
+	 * `success | success-with-errors | aborted`.
+	 *
+	 * The Rewind half comes from Calypso's typed contract for this same
+	 * endpoint, not from the v1 endpoint's docblock: that list omits
+	 * `finished`, so every successful restore once reported `unknown`.
 	 *
 	 * Mapped here rather than in the client for the same reason the
 	 * download bridge derives its own status: the wire vocabulary is
@@ -240,10 +243,12 @@ class Restore_Bridge {
 	 * @var array<string, string>
 	 */
 	private const STATUS_MAP = array(
+		'queued'              => 'queued',
 		'running'             => 'running',
+		'finished'            => 'finished',
+		'fail'                => 'failed',
 		'success'             => 'finished',
 		'success-with-errors' => 'finished-with-errors',
-		'fail'                => 'failed',
 		'aborted'             => 'aborted',
 	);
 
@@ -296,11 +301,15 @@ class Restore_Bridge {
 		// would turn the ordinary opening seconds of every restore into a
 		// user-visible failure.
 		//
+		// Reported as `not-found` and never as `queued`, which upstream
+		// also returns: the client reads the two the same way on screen
+		// but must not treat "no record of it" as a sign of life.
+		//
 		// Safe to treat softly only because the upstream route now
 		// answers 502 for an unparseable VaultPress reply — before that, a
 		// 404 could quietly have meant "upstream is down".
 		if ( 404 === $status_code ) {
-			return rest_ensure_response( self::project_status( array(), $restore_id, 'queued' ) );
+			return rest_ensure_response( self::project_status( array(), $restore_id, 'not-found' ) );
 		}
 
 		if ( 200 !== $status_code ) {
@@ -336,9 +345,13 @@ class Restore_Bridge {
 		if ( null !== $force ) {
 			$mapped = $force;
 		} elseif ( '' === $raw ) {
-			// Present but silent about status: the restore exists and has
-			// not started reporting yet.
-			$mapped = 'queued';
+			// A record that arrived without a status is queued and has not
+			// started reporting. An empty payload is not a record, and
+			// calling it `queued` would claim upstream is holding a
+			// restore it never mentioned — enough to refuse the reader a
+			// new one. Tested on emptiness rather than on one key, so a
+			// record spelled with fields we do not read still counts.
+			$mapped = empty( $status ) ? 'not-found' : 'queued';
 		} else {
 			// Anything unrecognised is reported as such rather than
 			// guessed at. The client keeps polling through `unknown` under

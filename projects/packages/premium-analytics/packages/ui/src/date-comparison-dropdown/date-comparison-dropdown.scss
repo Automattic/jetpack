@@ -19,6 +19,10 @@
 		white-space: nowrap;
 	}
 
+	&.is-disabled &__prefix {
+		color: var(--wpds-color-foreground-interactive-neutral-disabled);
+	}
+
 	.date-comparison-dropdown__toggle {
 
 		@include menu-trigger.toggle;

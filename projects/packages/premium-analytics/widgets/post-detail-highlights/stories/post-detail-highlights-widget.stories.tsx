@@ -213,7 +213,7 @@ export const WidgetDashboardWithWidget: StoryObj< PostDetailHighlightsDashboardS
 	render: args => <PostDetailHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 4,
+		widgetWidth: 3,
 		widgetHeight: 1,
 		withComparison: true,
 		hasPostScope: true,

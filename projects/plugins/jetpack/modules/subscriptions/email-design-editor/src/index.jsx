@@ -1,0 +1,549 @@
+/**
+ * Client-side entry point for the newsletter email design screen.
+ *
+ * The editor's bootstrap bundle lives on the WordPress.com shadow blog and is
+ * fetched from the browser rather than inlined, so the screen paints without a
+ * blocking proxy request on Atomic and self-hosted. It also carries records the
+ * editor would otherwise fetch — see `buildPreloadMap()`.
+ *
+ * The page that renders the container and localises
+ * `window.JetpackEmailDesignEditor` lands separately; until then nothing enqueues
+ * this bundle and the mount below returns. See NL-848 and NL-851.
+ */
+import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
+import apiFetch from '@wordpress/api-fetch';
+import { useBlockProps } from '@wordpress/block-editor';
+import { getBlockType, registerBlockType } from '@wordpress/blocks';
+import { Notice } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { dispatch, select } from '@wordpress/data';
+import { createRoot, StrictMode } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
+import { addQueryArgs } from '@wordpress/url';
+
+// Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
+// the browser calls one local URL everywhere.
+const BOOTSTRAP_PATH = '/wpcom/v2/email-editor-bootstrap';
+
+// The design is a block template. Unlike the template's id, this is the same
+// everywhere, so the page does not supply it.
+const TEMPLATE_POST_TYPE = 'wp_template';
+
+// The editor assigns these straight to `window.location.href`, so `javascript:`
+// and `data:` would execute rather than navigate.
+const NAVIGABLE_PROTOCOLS = [ 'http:', 'https:' ];
+
+// A save arrives as any of these, depending on whether core-data creates or updates.
+const WRITE_METHODS = [ 'POST', 'PUT', 'PATCH' ];
+
+/**
+ * Check that a URL the editor will navigate to is one the browser can navigate to.
+ *
+ * Reads the parsed protocol rather than testing the string: relative resolution
+ * does not neutralise a scheme, and the parser strips leading whitespace that a
+ * `startsWith( 'javascript:' )` test would miss.
+ *
+ * @param {*}      value - The configured URL.
+ * @param {string} key   - Its key, named in the error so the page can be fixed.
+ * @throws {Error} If the value is not a URL the browser can navigate to.
+ * @return {void}
+ */
+function assertNavigableUrl( value, key ) {
+	if ( typeof value !== 'string' ) {
+		throw new Error( `JetpackEmailDesignEditor.urls.${ key } must be a string.` );
+	}
+
+	let resolved;
+
+	try {
+		resolved = new URL( value, window.location.href );
+	} catch {
+		throw new Error( `JetpackEmailDesignEditor.urls.${ key } is not a valid URL.` );
+	}
+
+	if ( ! NAVIGABLE_PROTOCOLS.includes( resolved.protocol ) ) {
+		throw new Error( `JetpackEmailDesignEditor.urls.${ key } must be an http or https URL.` );
+	}
+}
+
+/**
+ * Translate the page's data and the fetched bundle into the editor's configuration.
+ *
+ * Not a pass-through: the bundle is snake_cased (`editor_settings`, `editor_theme`)
+ * while the package's store reads `editorSettings`, `theme`, `urls`, `userEmail`
+ * and `globalStylesPostId`. Passing it unmapped boots the editor with no settings
+ * and no theme, and reports nothing.
+ *
+ * `editorSettings` merges both halves — WordPress.com strips the two settings that
+ * describe the installation rather than the design, and the page supplies this
+ * site's own — with the page's half last so it wins.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @param {object} data   - The value of `window.JetpackEmailDesignEditor`.
+ * @throws {Error} If either half left out something the editor cannot start without.
+ * @return {object} The editor's `config` prop.
+ */
+export function buildEditorConfig( bundle, data ) {
+	const { editorSettings, urls, userEmail, globalStylesPostId } = data;
+
+	// Nothing validates these on the `config` prop path, so an omission would
+	// otherwise surface as an unrelated failure deep in the editor.
+	if ( ! bundle?.editor_settings ) {
+		throw new Error( 'The email editor bundle is missing editor_settings.' );
+	}
+
+	if ( ! bundle?.editor_theme ) {
+		throw new Error( 'The email editor bundle is missing editor_theme.' );
+	}
+
+	if ( typeof urls?.back !== 'string' || typeof urls?.listings !== 'string' ) {
+		throw new Error( 'JetpackEmailDesignEditor.urls.back and .listings are required strings.' );
+	}
+
+	// These all end up assigned to `window.location.href` by the editor's header
+	// buttons.
+	Object.entries( urls ).forEach( ( [ key, value ] ) => assertNavigableUrl( value, key ) );
+
+	return {
+		// Forced last so neither half can turn it off. The package renders core's `FullscreenMode`
+		// on this, which hides the admin menu — without it a full-viewport editor sits beside a menu
+		// whose flyouts open over the canvas, and no z-index satisfies both. Forced rather than the
+		// `fullscreenMode` preference so it is not a per-user toggle; it also brings the back button.
+		editorSettings: { ...bundle.editor_settings, ...editorSettings, isFullScreenForced: true },
+		theme: bundle.editor_theme,
+		urls,
+		userEmail,
+
+		// Dereferenced, not merely a flag: null makes the package generate no canvas CSS at all,
+		// and any valid id has its record fetched — which the preload answers. The record's
+		// `styles` and `settings` are merged last over `editor_theme`, which is what paints the
+		// canvas while editing. Bundle first because it is a WordPress.com post id; the page stays
+		// a fallback. See NL-871.
+		globalStylesPostId: getGlobalStylesPostId( bundle ) ?? globalStylesPostId ?? null,
+	};
+}
+
+/**
+ * Everything the editor would otherwise fetch, keyed by the path it asks for.
+ *
+ * The canvas templates and the global-styles record are registered only while
+ * WordPress.com builds the bootstrap bundle, so a request from the browser cannot
+ * reach them and the editor waits forever on a record it will never get.
+ *
+ * Registering them for every REST request would fix that, but would also list the
+ * email templates in the Site Editor — a visible regression on every enrolled blog.
+ * Preloading confines them to this page.
+ *
+ * The records come from the bundle rather than being assembled here: the editor
+ * reads fields a four-field summary cannot stand in for, including `post_types`
+ * with no optional chaining.
+ *
+ * @param {object} bundle     - The response from the bootstrap route.
+ * @param {string} templateId - The id of the template the editor opens.
+ * @return {object|null} A map for `createPreloadingMiddleware`, or null when the bundle
+ *                       carries nothing to preload.
+ */
+export function buildPreloadMap( bundle, templateId ) {
+	const map = {
+		...templatePreloads( bundle, templateId ),
+		...globalStylesPreloads( bundle ),
+	};
+
+	return Object.keys( map ).length > 0 ? map : null;
+}
+
+/**
+ * The id of the global-styles record the bundle points at, or null when it sent no usable one.
+ *
+ * Validated because it is interpolated into the preload's path keys, which are
+ * deliberately exact — an id carrying a slash or query string would widen what we
+ * answer for, and the site's own global-styles record has to keep reaching the
+ * network untouched.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {number|null} The record's id, or null.
+ */
+function getGlobalStylesPostId( bundle ) {
+	const id = bundle?.global_styles?.post_id;
+
+	return Number.isInteger( id ) && id > 0 ? id : null;
+}
+
+/**
+ * The global-styles record the editor reads its design from.
+ *
+ * The `GET` and the `OPTIONS` both matter, and both carry `Allow`: core-data derives the
+ * record's permissions from either response, last one winning.
+ *
+ * The body has to be the record WordPress.com sent, not a placeholder — the canvas
+ * takes its colours from these contents.
+ *
+ * `can_edit` decides whether the Styles panel exists at all. Without update permission the
+ * package's sidebar returns nothing; it does not render a read-only panel.
+ *
+ * Only this exact id, never a pattern — the editor loads the site's own global-styles
+ * record alongside ours, and that one must keep reaching the network.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {object} Preload entries, empty when the bundle carries no global styles.
+ */
+/**
+ * A theme.json half as an object, whatever shape it arrived in.
+ *
+ * Off Simple the bootstrap is proxied through `json_decode( …, true )`, so an empty `{}` comes
+ * back as `[]`. The editor writes edits onto whatever it finds, and a property set on an array is
+ * dropped by `JSON.stringify` — the swatch flashes and nothing persists. See NL-871.
+ *
+ * @param {*} value - `styles` or `settings` as it arrived.
+ * @return {object} The value when it is a usable object, an empty object otherwise.
+ */
+function objectOrEmpty( value ) {
+	return value && 'object' === typeof value && ! Array.isArray( value ) ? value : {};
+}
+
+function globalStylesPreloads( bundle ) {
+	const globalStyles = bundle?.global_styles;
+	const id = getGlobalStylesPostId( bundle );
+
+	if ( ! id || ! globalStyles?.record ) {
+		return {};
+	}
+
+	// A preloaded GET carries permissions as well as data: core-data reads `Allow` off the record's
+	// own response too, and reads a missing header as "nothing is permitted" rather than as silence.
+	// The GETs resolve after the OPTIONS, so omitting it here overwrites the OPTIONS answer with a
+	// flat no and the Styles panel never renders.
+	const allow = globalStyles.can_edit ? 'GET, POST, PUT' : 'GET';
+	const record = {
+		body: {
+			...globalStyles.record,
+			styles: objectOrEmpty( globalStyles.record.styles ),
+			settings: objectOrEmpty( globalStyles.record.settings ),
+		},
+		headers: { Allow: allow },
+	};
+
+	return {
+		[ `/wp/v2/global-styles/${ id }` ]: record,
+		[ `/wp/v2/global-styles/${ id }?context=view` ]: record,
+		[ `/wp/v2/global-styles/${ id }?context=edit` ]: record,
+
+		// OPTIONS responses live under their own top-level key in the preload format.
+		OPTIONS: {
+			[ `/wp/v2/global-styles/${ id }` ]: { body: {}, headers: { Allow: allow } },
+		},
+	};
+}
+
+/**
+ * The template records the editor resolves its canvas from.
+ *
+ * @param {object} bundle     - The response from the bootstrap route.
+ * @param {string} templateId - The id of the template the editor opens.
+ * @return {object} Preload entries, empty when the bundle carries no template records.
+ */
+function templatePreloads( bundle, templateId ) {
+	const templates = bundle?.templates;
+
+	if ( ! Array.isArray( templates ) || 0 === templates.length ) {
+		return {};
+	}
+
+	// `parse: false` callers build a Response from these and read `headers`
+	// unconditionally, so every entry carries one even when empty.
+	const collection = {
+		body: templates,
+		headers: {
+			'X-WP-Total': String( templates.length ),
+			'X-WP-TotalPages': '1',
+		},
+	};
+
+	// The context asked for varies by platform (`?context=edit` on WordPress 7.1, none
+	// on WordPress.com). An unmatched key costs nothing; a miss leaves the editor
+	// waiting forever.
+	const map = {
+		'/wp/v2/templates': collection,
+		'/wp/v2/templates?context=edit': collection,
+		'/wp/v2/templates?context=view': collection,
+	};
+
+	const item = templates.find( template => template?.id === templateId );
+
+	if ( item ) {
+		// Explicitly read-only, for the reason above: the header is an assertion, not decoration.
+		// Nothing on this screen edits the template, and granting writes here would hand the
+		// editor a template it believes it may save.
+		const record = { body: item, headers: { Allow: 'GET' } };
+
+		map[ `/wp/v2/templates/${ templateId }` ] = record;
+		map[ `/wp/v2/templates/${ templateId }?context=edit` ] = record;
+	}
+
+	return map;
+}
+
+/**
+ * The id of the template the editor opens.
+ *
+ * Read from the bundle, never derived: the package builds it from the stylesheet of
+ * whichever installation registered the template, so computing it locally is right on
+ * Simple and wrong on Atomic and self-hosted.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @throws {Error} If the bundle carries no template.
+ * @return {string} The template's id.
+ */
+export function getTemplateId( bundle ) {
+	const id = bundle?.template?.id;
+
+	if ( typeof id !== 'string' || '' === id ) {
+		throw new Error( 'The email editor bundle is missing its template id.' );
+	}
+
+	return id;
+}
+
+/**
+ * Register the email blocks the bootstrap describes and no client defines.
+ *
+ * They are registered in PHP only, on every host including Simple, so without this the editor
+ * reports each one as an unsupported block. WordPress.com allowlists the namespaces it owns, but
+ * a site is still free to have registered one itself, so anything already registered is left
+ * alone rather than replaced by a placeholder.
+ *
+ * Dynamic blocks with no client-side edit, so the canvas shows a labelled placeholder. What the
+ * subscriber receives is rendered server-side and is unaffected.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {void}
+ */
+export function registerEmailBlocks( bundle ) {
+	const blocks = Array.isArray( bundle?.blocks ) ? bundle.blocks : [];
+
+	blocks.forEach( block => {
+		if ( ! block?.name || getBlockType( block.name ) ) {
+			return;
+		}
+
+		// Falls back to the slug on anything that is not a usable string. A non-string title is
+		// not just unlabelled: it reaches the placeholder as a React child, and an object there
+		// throws rather than rendering.
+		const title = typeof block.title === 'string' && block.title ? block.title : block.name;
+
+		// Named and capitalised so it reads as a component: `useBlockProps` is a hook, and an
+		// anonymous arrow here trips rules-of-hooks.
+		const EmailBlockPlaceholder = () => <div { ...useBlockProps() }>{ title }</div>;
+
+		registerBlockType( block.name, {
+			apiVersion: 3,
+			title,
+			description: block.description || '',
+			category: block.category || 'design',
+			attributes: block.attributes || {},
+
+			// Template furniture rather than blocks a creator adds by hand.
+			supports: { ...( block.supports || {} ), html: false, inserter: false },
+
+			edit: EmailBlockPlaceholder,
+			save: () => null,
+		} );
+	} );
+}
+
+/**
+ * Catch the Styles panel's save and send it to WordPress.com instead.
+ *
+ * The editor writes a core-data `globalStyles` entity, but the design is stored in a WordPress.com
+ * blog option rather than a post, so the write has to be re-addressed to the bootstrap route.
+ *
+ * Matched on this one record's exact path and nothing else. The editor also holds the *site's* own
+ * global-styles record, at edit context, so anything broader would push the site's design through
+ * the email endpoint — and would look correct while doing it on Simple, where the site and the
+ * shadow blog are the same database.
+ *
+ * @param {number} id - The global-styles id the bundle named.
+ * @return {Function} An `apiFetch` middleware.
+ */
+export function createDesignSaveMiddleware( id ) {
+	const target = `/wp/v2/global-styles/${ id }`;
+
+	return async ( options, next ) => {
+		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const method = ( options.method || 'GET' ).toUpperCase();
+
+		if ( target !== path || ! WRITE_METHODS.includes( method ) ) {
+			return next( options );
+		}
+
+		// Only the theme.json halves: core-data hands over its whole record, and its `id` is the
+		// sentinel that stands in for a post that does not exist. Sanitizing drops it either way,
+		// but sending it makes every save look like it lost a property to anything comparing what
+		// was sent against what was stored. `version` and `isGlobalStylesUserThemeJSON` are the
+		// store's to set, so they are not ours to send.
+		// core-data drops unchanged keys from its edits, so `options.data` routinely carries one half
+		// — a styles-only save is the ordinary case here, not an anomaly. The store replaces the
+		// whole document rather than merging, so sending that half alone would destroy the other.
+		// The editor's own view — persisted record plus pending edits — is what the creator means.
+		const edited = select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', id );
+
+		if ( ! edited ) {
+			throw new Error( 'Email design save found no global styles record to read.' );
+		}
+
+		const submitted = { styles: edited.styles ?? {}, settings: edited.settings ?? {} };
+
+		const saved = await apiFetch( {
+			path: BOOTSTRAP_PATH,
+			method: 'POST',
+			data: { design: submitted },
+		} );
+
+		// The route answers with an envelope — `{ blog_id, design, discarded }` — around a read-back
+		// of what was stored, since sanitizing drops anything outside the theme.json schema. Unwrap
+		// it: core-data takes what comes back as the record itself, and the canvas is drawn by
+		// merging that record's `styles` and `settings` over the theme, so handing back the envelope
+		// leaves both undefined and the canvas snaps to its pre-edit design.
+		const design = saved?.design ?? {};
+
+		// `discarded` means the save succeeded and kept none of it: sanitizing drops whatever falls
+		// outside the theme.json schema. Without saying so, the panel goes clean and the creator is
+		// told their edit was saved when the stored design no longer contains it.
+		if ( saved?.discarded ) {
+			dispatch( noticesStore ).createNotice(
+				'error',
+				__( 'Those changes could not be saved to your email design.', 'jetpack' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+		}
+
+		return {
+			id,
+			settings: objectOrEmpty( design.settings ),
+			styles: objectOrEmpty( design.styles ),
+		};
+	};
+}
+
+/**
+ * Tell the creator when a design saved here would never reach anyone.
+ *
+ * `renders_through_email_editor` is the blog's state, not the reader's — independent of
+ * `can_edit`, which asks whether *this person* may edit. Only `false` warns: `null` means
+ * WordPress.com could not determine it during a deploy window, and warning a creator whose blog is
+ * fine is a false alarm they cannot act on. Pinned, not a snackbar — it is a standing condition.
+ * See NL-864.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {void}
+ */
+export function reportInactiveEmailDesign( bundle ) {
+	if ( false !== bundle?.renders_through_email_editor ) {
+		return;
+	}
+
+	dispatch( noticesStore ).createNotice(
+		'warning',
+		__(
+			'Email design is not active on this site, so changes saved here will not affect the emails your subscribers receive.',
+			'jetpack'
+		),
+		// The editor's pinned notice list reads this context and this type; the default context
+		// only reaches its snackbars.
+		{ context: 'email-editor', type: 'default', isDismissible: false }
+	);
+}
+
+/**
+ * What the screen shows when it could not load.
+ *
+ * The design lives on another site, so without this "nothing appeared" and "your
+ * design is empty" look identical to whoever opened the page.
+ *
+ * @return {import('react').ReactElement} The error notice.
+ */
+function LoadError() {
+	return (
+		<Notice status="error" isDismissible={ false }>
+			{ __(
+				'The email design editor could not be loaded. Please reload the page to try again.',
+				'jetpack'
+			) }
+		</Notice>
+	);
+}
+
+/**
+ * Fetch the bootstrap bundle and mount the editor into the page's container.
+ *
+ * @return {Promise<void>} Resolves once the editor or an error has rendered.
+ */
+export async function mountEmailDesignEditor() {
+	const data = window.JetpackEmailDesignEditor;
+
+	// Not our page — the bundle is only enqueued on the design screen.
+	if ( ! data || typeof data !== 'object' ) {
+		return;
+	}
+
+	const container = document.getElementById( data.elementId );
+
+	if ( ! container ) {
+		return;
+	}
+
+	const root = createRoot( container );
+
+	try {
+		const bundle = await apiFetch( {
+			path: data.templateSlug
+				? addQueryArgs( BOOTSTRAP_PATH, { template_slug: data.templateSlug } )
+				: BOOTSTRAP_PATH,
+		} );
+
+		const config = buildEditorConfig( bundle, data );
+
+		// Before the render, not after: the template is parsed on first render and its blocks are
+		// resolved against the registry at that moment. Registering later leaves the same
+		// unsupported-block errors, which looks identical to this never running.
+		registerEmailBlocks( bundle );
+		reportInactiveEmailDesign( bundle );
+
+		const postId = getTemplateId( bundle );
+		const preload = buildPreloadMap( bundle, postId );
+
+		if ( config.globalStylesPostId ) {
+			apiFetch.use( createDesignSaveMiddleware( config.globalStylesPostId ) );
+		}
+
+		if ( preload ) {
+			// Registered last so it runs first: api-fetch applies middlewares right to
+			// left, so this sees `options.path` before the rewriting middlewares. Must be
+			// installed before the editor mounts, which resolves the template on first
+			// render.
+			apiFetch.use( apiFetch.createPreloadingMiddleware( preload ) );
+		}
+
+		root.render(
+			<StrictMode>
+				<ExperimentalEmailEditor
+					postId={ postId }
+					postType={ TEMPLATE_POST_TYPE }
+					config={ config }
+				/>
+			</StrictMode>
+		);
+	} catch ( error ) {
+		// The notice deliberately does not name which half failed; this does.
+		// eslint-disable-next-line no-console
+		console.error( 'Jetpack email design editor:', error );
+		root.render( <LoadError /> );
+	}
+}
+
+if ( document.readyState === 'loading' ) {
+	document.addEventListener( 'DOMContentLoaded', mountEmailDesignEditor, { once: true } );
+} else {
+	mountEmailDesignEditor();
+}

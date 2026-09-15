@@ -254,8 +254,9 @@ const DEFAULT_FEATURES = [
 ];
 const withFeatures = ( features: string[] ) =>
 	jest.mocked( getFeatureAvailability ).mockImplementation( f => features.includes( f ) );
+const AGENT_NOTICE_START = 'AI tools have moved';
 const AGENT_NOTICE_TEXT =
-	'AI tools have moved to the WordPress Agent. Look for the "Ask AI" button at the top of the screen.';
+	'AI tools have moved to the WordPress Agent. Look for the "Agent" button at the top of the screen.';
 
 describe( 'AiAssistantPluginSidebar', () => {
 	beforeEach( () => {
@@ -289,14 +290,20 @@ describe( 'AiAssistantPluginSidebar', () => {
 			render( <AiAssistantPluginSidebar /> );
 
 			expect(
-				within( screen.getByTestId( 'jetpack-sidebar' ) ).getByText( AGENT_NOTICE_TEXT )
-			).toBeInTheDocument();
+				within( screen.getByTestId( 'jetpack-sidebar' ) ).getByText( AGENT_NOTICE_START, {
+					exact: false,
+				} )
+			).toHaveTextContent( AGENT_NOTICE_TEXT );
 			expect(
-				within( screen.getByTestId( 'document-panel' ) ).getByText( AGENT_NOTICE_TEXT )
-			).toBeInTheDocument();
+				within( screen.getByTestId( 'document-panel' ) ).getByText( AGENT_NOTICE_START, {
+					exact: false,
+				} )
+			).toHaveTextContent( AGENT_NOTICE_TEXT );
 			expect(
-				within( screen.getByTestId( 'pre-publish-panel' ) ).getByText( AGENT_NOTICE_TEXT )
-			).toBeInTheDocument();
+				within( screen.getByTestId( 'pre-publish-panel' ) ).getByText( AGENT_NOTICE_START, {
+					exact: false,
+				} )
+			).toHaveTextContent( AGENT_NOTICE_TEXT );
 		} );
 
 		it( 'takes the place of the AI tools rather than sitting beside them', () => {
@@ -390,7 +397,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			render( <AiAssistantPluginSidebar /> );
 
-			expect( screen.queryByText( AGENT_NOTICE_TEXT ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( AGENT_NOTICE_START, { exact: false } ) ).not.toBeInTheDocument();
 			expect(
 				within( screen.getByTestId( 'document-panel' ) ).getByText( 'Get Feedback' )
 			).toBeInTheDocument();

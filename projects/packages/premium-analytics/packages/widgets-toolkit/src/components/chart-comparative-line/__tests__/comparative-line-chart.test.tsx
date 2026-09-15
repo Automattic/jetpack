@@ -43,9 +43,19 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	};
 } );
 
+// jsdom's ResizeObserver is a no-op stub, so the real hook's callback never fires
+// and the chart measures as infinitely tall, leaving `compactWhenShort` unreachable.
+let mockChartHeight = Infinity;
+
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
-	useResizeObserver: () => () => undefined,
+	useResizeObserver:
+		( onResize: ( entries: { contentRect: { height: number } }[] ) => void ) =>
+		( element: HTMLElement | null ) => {
+			if ( element ) {
+				onResize( [ { contentRect: { height: mockChartHeight } } ] );
+			}
+		},
 } ) );
 
 jest.mock( '../../../hooks', () => ( {
@@ -132,6 +142,8 @@ type RecordedLineProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
 	legend: { collapseGroups: boolean; interactive: boolean };
+	margin?: Record< string, number >;
+	options?: { yScale?: { domain?: [ number, number ] }; axis: { y: { display?: boolean } } };
 	renderTooltip: ( params: unknown ) => { props: { getLabel: GetTooltipLabel } };
 };
 
@@ -176,6 +188,42 @@ describe( 'ComparativeLineChart', () => {
 	beforeEach( () => {
 		mockLineSpy.mockClear();
 		mockLegendSpy.mockClear();
+		mockChartHeight = Infinity;
+	} );
+
+	describe( 'margin', () => {
+		it( 'never overrides the gutters the chart measured', () => {
+			render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+			expect( recordedProps().margin ).toBeUndefined();
+		} );
+
+		it( 'leaves the pinned domain to size its own gutter', () => {
+			render(
+				<ComparativeLineChart
+					series={ SERIES }
+					dataFormat={ { type: 'percentage', options: { decimals: 0 } } }
+				/>
+			);
+
+			// `useChartMargin` measures the pinned domain's own ticks, so there is
+			// nothing left for this component to override.
+			expect( recordedProps().options.yScale.domain ).toBeDefined();
+			expect( recordedProps().margin ).toBeUndefined();
+		} );
+
+		it( 'keeps the date labels on a sparkline', () => {
+			mockChartHeight = 80;
+
+			render(
+				<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
+			);
+
+			// The hidden y axis frees its gutter inside `useChartMargin`; zeroing the
+			// margin here would clip the first and last dates, which still render.
+			expect( recordedProps().options.axis.y.display ).toBe( false );
+			expect( recordedProps().margin ).toBeUndefined();
+		} );
 	} );
 
 	it( 'passes visibility settings through to the chart and legend', () => {

@@ -79,7 +79,14 @@ export {
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
-export { formatViewCount } from './format-view-count';
+export { formatDailyViewCount, formatViewCount } from './format-view-count';
+export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
+export {
+	monthlyHeatmapLabels,
+	resolveMonthlyHeatmapMetric,
+	type MonthlyHeatmapMetric,
+} from './monthly-heatmap-metric';
+export { monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatTooltipSeriesLabel } from './format-tooltip-series-label';

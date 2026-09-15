@@ -2,8 +2,8 @@
 
 .social-icons-list {
 	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
+	justify-content: space-between;
+	flex-wrap: nowrap;
 }
 
 .social-icon-button {

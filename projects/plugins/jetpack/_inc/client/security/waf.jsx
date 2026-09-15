@@ -111,6 +111,7 @@ export const Waf = class extends Component {
 				this.props.removeNotice( 'module-setting-update' );
 				this.props.createNotice( 'is-success', __( 'Updated Settings.', 'jetpack' ), {
 					id: 'module-setting-update-success',
+					duration: 2000,
 				} );
 			} )
 			.catch( error => {

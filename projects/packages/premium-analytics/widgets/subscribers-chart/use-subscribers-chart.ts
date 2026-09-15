@@ -7,7 +7,7 @@ import {
 	type StatsSubscribersResponse,
 	type StatsSubscribersUnit,
 } from '@jetpack-premium-analytics/data';
-import { parseBucketStart } from '@jetpack-premium-analytics/datetime';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from '@wordpress/element';
 
 /**
@@ -40,9 +40,12 @@ export interface SubscribersChartState {
 	refetch: () => void;
 }
 
-function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersChartPoint[] {
+function toPoints(
+	report: StatsSubscribersResponse | undefined,
+	zone: string
+): SubscribersChartPoint[] {
 	return ( report?.data ?? [] ).flatMap( point => {
-		const date = parseBucketStart( point.date_start );
+		const date = resolveBucketStamp( point.date_start, zone );
 
 		return date
 			? [
@@ -67,8 +70,15 @@ export default function useSubscribersChart(
 	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
 	const report = useStatsSubscribersReport( params );
 
-	const current = useMemo( () => toPoints( report.primary.data ), [ report.primary.data ] );
-	const previous = useMemo( () => toPoints( report.comparison.data ), [ report.comparison.data ] );
+	const zone = report.timezone;
+	const current = useMemo(
+		() => toPoints( report.primary.data, zone ),
+		[ report.primary.data, zone ]
+	);
+	const previous = useMemo(
+		() => toPoints( report.comparison.data, zone ),
+		[ report.comparison.data, zone ]
+	);
 
 	return {
 		current,

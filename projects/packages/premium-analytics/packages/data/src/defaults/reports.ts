@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
-import { getComparisonRangeFromPreset } from '@jetpack-premium-analytics/datetime';
+import {
+	dateToISOStringWithLocalTZ,
+	getComparisonRangeFromPreset,
+	localTZDate,
+} from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, startOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
 import {
-	localTZDate,
-	dateToISOStringWithLocalTZ,
 	getDefaultIntervalForPeriod,
 	computeDateRangeFromPreset,
 	type PresetType,
@@ -78,8 +80,8 @@ export const getDefaultQueryParams = (
 		};
 	}
 
-	const from = localTZDate( new Date( fromString ) );
-	const to = localTZDate( new Date( toString ) );
+	const from = localTZDate( fromString );
+	const to = localTZDate( toString );
 
 	const comparisonParams = getComparisonRangeFromPreset( { from, to }, 'previous-period', {
 		primaryPresetId: preset,

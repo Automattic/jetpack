@@ -168,7 +168,7 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			'Hours watched',
 			'Retention rate',
 		] );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 
 		// One point per calendar day of the 7-day window, zero-filled around the
 		// two returned days; the headline is the response's canonical total.
@@ -248,17 +248,17 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( retention.values[ 2 ] ).toBe( 0 );
 	} );
 
-	it( 'draws bars when the chartType attribute says so', async () => {
+	it( 'draws a line when the chartType attribute says so', async () => {
 		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
 
 		render(
 			<VideoDetailViewsPerformanceWidget
-				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } }
+				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } }
 			/>
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 	} );
 
 	it( 'ignores comparison report params: one request, single-period series', async () => {

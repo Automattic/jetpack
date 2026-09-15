@@ -332,7 +332,7 @@ class Jetpack_AI_Sidebar {
 	 * with Big Sky enabled, past the filter and the master switch. Public and
 	 * feature-free so the AI SEO gate can ask without asking back through it.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @return bool
 	 */

@@ -8,6 +8,7 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},

@@ -1,0 +1,107 @@
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
+
+$banner-height: 48px;
+$wpcom-blue: #3858e9;
+$wpcom-blue-hover: #2145e6;
+
+// Fixed under the admin bar. Themes that respect the admin-bar height variable
+// get pushed down by the same amount through the body class.
+body.has-wpcom-expiry-banner {
+	--wp-admin--admin-bar--height: var(--wpcom-expiry-banner-height, #{$banner-height});
+	margin-block-start: var(--wpcom-expiry-banner-height, #{$banner-height});
+
+	&.admin-bar {
+		--wp-admin--admin-bar--height: calc(#{variables.$admin-bar-height} + var(--wpcom-expiry-banner-height, #{$banner-height}));
+	}
+}
+
+.wpcom-expiry-frontend-banner {
+	position: fixed;
+	min-block-size: $banner-height;
+	inset-block-start: 0;
+	inset-inline: 0;
+	// One below #wpadminbar, above everything a theme fixes to the top.
+	z-index: 99998;
+	box-sizing: border-box;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: variables.$grid-unit-10 variables.$grid-unit-20;
+	padding: variables.$grid-unit-10 variables.$grid-unit-20;
+	border-block-start: 1px solid rgba(255, 255, 255, 0.1);
+	background: colors.$gray-900;
+	color: colors.$gray-200;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 14px;
+	line-height: 20px;
+
+	body.admin-bar & {
+		inset-block-start: variables.$admin-bar-height;
+	}
+
+	&__text {
+		text-align: center;
+	}
+
+	&__cta {
+		flex-shrink: 0;
+		padding: 6px variables.$grid-unit-15;
+		border-radius: 2px;
+		background: $wpcom-blue;
+		color: colors.$white;
+		font-weight: 500;
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			background: $wpcom-blue-hover;
+			color: colors.$white;
+		}
+	}
+
+	// Only post-grace has the close button, so only then is room kept for it,
+	// on both sides so the text stays centered.
+	&--dismissible {
+		padding-inline: variables.$grid-unit-80;
+	}
+
+	&__dismiss {
+		position: absolute;
+		inset-inline-end: variables.$grid-unit-20;
+		inset-block-start: variables.$grid-unit-10;
+		padding: variables.$grid-unit-05;
+		border: 0;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
+		line-height: 0;
+	}
+
+	// The bar is the first tab stop on the page and themes often reset outlines.
+	&__cta:focus-visible,
+	&__dismiss:focus-visible {
+		outline: 2px solid colors.$white;
+		outline-offset: 2px;
+	}
+}
+
+@media screen and (max-width: 782px) {
+
+	body.has-wpcom-expiry-banner.admin-bar {
+		--wp-admin--admin-bar--height: calc(#{variables.$admin-bar-height-big} + var(--wpcom-expiry-banner-height, #{$banner-height}));
+	}
+
+	body.admin-bar .wpcom-expiry-frontend-banner {
+		inset-block-start: variables.$admin-bar-height-big;
+	}
+}
+
+@media screen and (max-width: 600px) {
+
+	// Core makes #wpadminbar absolute here; a fixed bar would float away from it.
+	.wpcom-expiry-frontend-banner {
+		position: absolute;
+	}
+}

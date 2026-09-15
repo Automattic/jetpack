@@ -119,7 +119,10 @@ Five shapes exceed the budget however well they explain themselves:
 - **Provenance that rots** — upstream file-and-line citations, "before this PR…", benchmark
   numbers, mutation-testing counts. A stable link survives; a line number does not.
 - **The same explanation in more than one place.** Put it in the file that owns the thing,
-  nowhere else. N copies drift independently, so a reader cannot tell which is current.
+  nowhere else. N copies drift independently, so a reader cannot tell which is current. This is
+  the one rule here you cannot check from the file you are typing in: before writing a rationale,
+  grep a distinctive phrase from it. If one already exists, don't add the second — improve the
+  first where it lives.
 
 Keep every functional annotation regardless: `@param`, `@return`, `@covers`, `translators:`,
 `phpcs:ignore`, `eslint-disable`, `@ts-expect-error`. Those are required tooling or load-bearing

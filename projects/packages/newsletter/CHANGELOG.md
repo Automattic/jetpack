@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.1] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [0.14.0] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+- Writing Prompt: Open the Write editor to answer a prompt on WordPress.com sites. [#51671]
+
+### Removed
+- Remove the transitional Subscribers announcement page and redirect its URL to Newsletter. [#51906]
+
 ## [0.13.0] - 2026-09-01
 ### Changed
 - Make writing-prompt, paid-plan, and subscribers-announcement actions real links. [#51558]
@@ -347,6 +359,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.14.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.7...v0.13.0
 [0.12.7]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.6...v0.12.7
 [0.12.6]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.5...v0.12.6

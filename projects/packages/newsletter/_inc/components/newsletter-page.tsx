@@ -8,7 +8,7 @@ import { getNewsletterScriptData } from '../../src/settings/script-data';
 import './newsletter-page.scss';
 import type { ReactNode } from 'react';
 
-export type NewsletterTab = 'subscribers' | 'settings';
+export type NewsletterTab = 'overview' | 'subscribers' | 'settings';
 
 type Props = {
 	activeTab: NewsletterTab;
@@ -37,6 +37,7 @@ type Props = {
 const PRODUCT_NAME = 'Newsletter'; /** "Newsletter" is a product name, do not translate. */
 
 const SUBTITLES: Record< NewsletterTab, () => string > = {
+	overview: () => __( 'View a summary of your newsletter.', 'jetpack-newsletter' ),
 	subscribers: () => __( 'Manage everyone subscribed to your site.', 'jetpack-newsletter' ),
 	settings: () =>
 		__(
@@ -74,7 +75,9 @@ export default function NewsletterPage( {
 	children,
 }: Props ): JSX.Element {
 	const navigate = useNavigate();
-	const subscribersEnabled = getNewsletterScriptData()?.subscriberManagementEnabled !== false;
+	const newsletterData = getNewsletterScriptData();
+	const subscribersEnabled = newsletterData?.subscriberManagementEnabled !== false;
+	const overviewEnabled = newsletterData?.overviewEnabled === true;
 
 	// Keep the route at `/` and toggle tabs via a `?tab=` search param so the
 	// `Tabs.Root` mounts once and the active-tab indicator can animate.
@@ -84,18 +87,22 @@ export default function NewsletterPage( {
 	// this reset the inspector hitchhikes across to Settings.
 	const onTabChange = useCallback(
 		( next: string | null ) => {
-			if ( next !== 'subscribers' && next !== 'settings' ) {
+			if (
+				( next === 'overview' && ! overviewEnabled ) ||
+				( next !== 'overview' && next !== 'subscribers' && next !== 'settings' )
+			) {
 				return;
 			}
+			// SAFETY: This is the dashboard's complete search state, but generated route types are unavailable.
 			navigate( {
 				search: {
-					tab: next === 'settings' ? 'settings' : undefined,
+					tab: next === 'overview' ? undefined : next,
 					subscriber: undefined,
 					u: undefined,
 				},
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate ]
+		[ navigate, overviewEnabled ]
 	);
 
 	const contentClass = contentHasPadding
@@ -119,6 +126,9 @@ export default function NewsletterPage( {
 				>
 					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 						<Tabs.List variant="minimal">
+							{ overviewEnabled ? (
+								<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-newsletter' ) }</Tabs.Tab>
+							) : null }
 							<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>
 						</Tabs.List>

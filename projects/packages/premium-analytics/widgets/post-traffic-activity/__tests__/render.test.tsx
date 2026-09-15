@@ -2,9 +2,11 @@
  * External dependencies
  */
 import { act, render, screen } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { ES_ES_SETTINGS } from '../../../packages/formatters/src/date/__fixtures__/wp-date-settings';
 import PostTrafficActivityRender from '../render';
 import usePostTrafficActivity from '../use-post-traffic-activity';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
@@ -55,12 +57,15 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		HeatmapChartUnresponsive: ( {
 			renderTooltip,
 			maxCellHeight,
+			rowLabels,
 		}: {
 			renderTooltip?: ( data: TooltipData ) => ReactNode;
 			maxCellHeight?: number;
+			rowLabels?: string[];
 		} ) => (
 			<>
 				<div data-testid="max-cell-height">{ maxCellHeight }</div>
+				<div data-testid="row-labels">{ rowLabels?.join( '|' ) }</div>
 				<div data-testid="tooltip-filler-blank">
 					{ renderTooltip?.( {
 						value: null,
@@ -148,6 +153,20 @@ describe( 'PostTrafficActivity tooltip', () => {
 
 		// The date stays in the tooltip, below the count.
 		expect( screen.getByTestId( 'tooltip-filler-blank' ) ).toHaveTextContent( 'Mon, Jul 6, 2026' );
+	} );
+} );
+
+describe( 'PostTrafficActivity labels', () => {
+	const baseSettings = getSettings();
+
+	afterEach( () => setSettings( baseSettings ) );
+
+	it( "writes the weekday labels in the site's locale", () => {
+		setSettings( ES_ES_SETTINGS );
+
+		render( <PostTrafficActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+
+		expect( screen.getByTestId( 'row-labels' ) ).toHaveTextContent( 'lun||mié||vie||' );
 	} );
 } );
 

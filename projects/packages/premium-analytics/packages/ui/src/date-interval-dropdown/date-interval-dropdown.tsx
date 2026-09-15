@@ -26,6 +26,9 @@ type DateIntervalDropdownProps = {
 	 */
 	label?: string;
 
+	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
+
 	onChange: ( interval: IntervalType ) => void;
 };
 
@@ -72,6 +75,7 @@ export function DateIntervalDropdown( {
 	options,
 	value,
 	label,
+	disabled = false,
 	onChange,
 }: DateIntervalDropdownProps ) {
 	return (
@@ -80,7 +84,13 @@ export function DateIntervalDropdown( {
 			icon={ chartBar }
 			label={ label ?? getTriggerLabel( value ) }
 			popoverProps={ { placement: 'bottom-end' } }
-			toggleProps={ { className: 'date-interval-dropdown__toggle' } }
+			// An aria-disabled Button drops clicks but not keys, so the arrow shortcut is shut apart.
+			disableOpenOnArrowDown={ disabled }
+			toggleProps={ {
+				className: 'date-interval-dropdown__toggle',
+				disabled,
+				accessibleWhenDisabled: true,
+			} }
 		>
 			{ ( { onClose } ) => (
 				<MenuGroup label={ __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }>

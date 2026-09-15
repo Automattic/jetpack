@@ -4,7 +4,9 @@
 import {
 	computePrimaryRange,
 	getMenuSurfacePresetGroups,
+	getPresetLabel,
 	PRESET_CUSTOM,
+	type DateRange,
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
@@ -18,7 +20,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { DateRangePopoverContent, type DateRange } from '../date-range-popover';
+import { DateRangePopoverContent } from '../date-range-popover';
 import './date-period-dropdown.scss';
 
 /**
@@ -95,10 +97,13 @@ type DatePeriodDropdownProps = {
 	canApply: boolean;
 
 	/**
-	 * Whether to offer Custom range. On by default; the detail pages' design has
-	 * common periods only.
+	 * Whether to offer Custom range. On by default; a surface whose design lists
+	 * common periods only turns it off.
 	 */
 	withCustomRange?: boolean;
+
+	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
 
 	/**
 	 * Notifies the parent as the menu opens and closes, so it can mirror the
@@ -125,6 +130,7 @@ export function DatePeriodDropdown( {
 	onCancel,
 	canApply,
 	withCustomRange = true,
+	disabled = false,
 	onOpenChange,
 }: DatePeriodDropdownProps ) {
 	// The menu floats free of the row it opens from, so the window is what says
@@ -171,12 +177,17 @@ export function DatePeriodDropdown( {
 		[ allTimeStart, onSelect, timeZone ]
 	);
 
-	// The preset names the period where one drives it; a hand-picked range is
-	// named by the period it covers, and falls back to its own dates.
+	/*
+	 * The preset names the period where one drives it; a hand-picked range is
+	 * named by the period it covers, and falls back to its own dates. Read past
+	 * the menu, so a saved period the menu no longer offers still names itself.
+	 */
 	const triggerLabel = useMemo( () => {
 		const applied = groups.flat().find( preset => preset.id === appliedPresetId );
 
-		return applied?.label ?? formatDateRangeNatural( appliedRange );
+		return (
+			applied?.label ?? getPresetLabel( appliedPresetId ) ?? formatDateRangeNatural( appliedRange )
+		);
 	}, [ appliedPresetId, appliedRange, groups ] );
 
 	return (
@@ -192,6 +203,7 @@ export function DatePeriodDropdown( {
 						className="date-period-dropdown__toggle"
 						variant="minimal"
 						tone="neutral"
+						disabled={ disabled }
 						onClick={ onToggle }
 						aria-expanded={ isOpen }
 						aria-haspopup="true"

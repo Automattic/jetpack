@@ -3,11 +3,36 @@ import { DataContext, TooltipContext } from '@visx/xychart';
 import { useCallback, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { BoundedTooltip } from './private/bounded-tooltip';
-import type { RenderTooltipGlyphProps, XyChartTooltipProps } from '../../visx/types';
+import type {
+	CrosshairStyle,
+	RenderTooltipGlyphProps,
+	XyChartTooltipProps,
+} from '../../visx/types';
 import type { TooltipContextType } from '@visx/xychart';
 import type { CSSProperties, ReactNode } from 'react';
 
 const CROSSHAIR_STROKE_WIDTH = 1.5;
+const CROSSHAIR_PAINT_PROPERTIES = new Set( [
+	'stroke',
+	'strokeWidth',
+	'strokeOpacity',
+	'strokeDasharray',
+	'strokeLinecap',
+	'opacity',
+] );
+
+const crosshairPaintProps = ( props: CrosshairStyle = {} ) => {
+	const pickPaint = ( value: object ) =>
+		Object.fromEntries(
+			Object.entries( value ).filter( ( [ key ] ) => CROSSHAIR_PAINT_PROPERTIES.has( key ) )
+		);
+
+	return {
+		...pickPaint( props ),
+		...( props.className === undefined ? {} : { className: props.className } ),
+		...( props.style === undefined ? {} : { style: pickPaint( props.style ) } ),
+	};
+};
 const DEFAULT_GLYPH_RADIUS = 4;
 const FALLBACK_COLOR = '#222';
 // Above the chart's own overlays (the zoom reset button sits at 2). The chart
@@ -83,7 +108,9 @@ const XyChartTooltipContent = < Datum extends object >( {
 	verticalCrosshairStyle,
 	horizontalCrosshairStyle,
 	detectBounds = true,
+	tooltipPlacement = 'auto',
 	zIndex = DEFAULT_TOOLTIP_Z_INDEX,
+	style,
 	...rest
 }: XyChartTooltipContentProps< Datum > ) => {
 	const tooltipProps = Object.fromEntries(
@@ -125,9 +152,12 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const nearestDatum = tooltipContext.tooltipData?.nearestDatum;
 	let { tooltipLeft, tooltipTop } = tooltipContext;
 
-	if ( nearestDatum && ( snapTooltipToDatumX || snapTooltipToDatumY ) ) {
+	if (
+		nearestDatum &&
+		( snapTooltipToDatumX || snapTooltipToDatumY || tooltipPlacement === 'below-axis' )
+	) {
 		const { left, top } = getDatumLeftTop( nearestDatum.key, nearestDatum.datum );
-		if ( snapTooltipToDatumX && isValidNumber( left ) ) {
+		if ( ( snapTooltipToDatumX || tooltipPlacement === 'below-axis' ) && isValidNumber( left ) ) {
 			tooltipLeft = left;
 		}
 		if ( snapTooltipToDatumY && isValidNumber( top ) ) {
@@ -183,15 +213,17 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const marginTop = margin?.top ?? 0;
 	const marginLeft = margin?.left ?? 0;
 
-	const TooltipComponent = detectBounds ? BoundedTooltip : Tooltip;
+	const TooltipComponent =
+		detectBounds || tooltipPlacement === 'below-axis' ? BoundedTooltip : Tooltip;
 	const boxStyle: CSSProperties = {
 		...defaultStyles,
 		zIndex,
-		background: theme?.backgroundColor ?? 'white',
+		backgroundColor: theme?.backgroundColor ?? 'white',
 		boxShadow: `0 1px 2px ${
 			theme?.htmlLabel?.color ? `${ theme.htmlLabel.color }55` : '#22222255'
 		}`,
 		...theme?.htmlLabel,
+		...style,
 	};
 
 	return (
@@ -201,26 +233,26 @@ const XyChartTooltipContent = < Datum extends object >( {
 					<line
 						className="visx-crosshair visx-crosshair-vertical"
 						data-testid="xy-chart-tooltip-crosshair-vertical"
+						stroke={ crosshairStroke }
+						strokeWidth={ CROSSHAIR_STROKE_WIDTH }
+						{ ...crosshairPaintProps( verticalCrosshairStyle ) }
 						x1={ tooltipLeft }
 						x2={ tooltipLeft }
 						y1={ marginTop }
 						y2={ marginTop + innerHeight }
-						stroke={ crosshairStroke }
-						strokeWidth={ CROSSHAIR_STROKE_WIDTH }
-						{ ...verticalCrosshairStyle }
 					/>
 				) }
 				{ showHorizontalCrosshair && isValidNumber( tooltipTop ) && (
 					<line
 						className="visx-crosshair visx-crosshair-horizontal"
 						data-testid="xy-chart-tooltip-crosshair-horizontal"
+						stroke={ crosshairStroke }
+						strokeWidth={ CROSSHAIR_STROKE_WIDTH }
+						{ ...crosshairPaintProps( horizontalCrosshairStyle ) }
 						x1={ marginLeft }
 						x2={ marginLeft + innerWidth }
 						y1={ tooltipTop }
 						y2={ tooltipTop }
-						stroke={ crosshairStroke }
-						strokeWidth={ CROSSHAIR_STROKE_WIDTH }
-						{ ...horizontalCrosshairStyle }
 					/>
 				) }
 				{ glyphs }
@@ -229,10 +261,15 @@ const XyChartTooltipContent = < Datum extends object >( {
 				createPortal(
 					<TooltipComponent
 						left={ tooltipLeft }
-						top={ tooltipTop }
+						top={
+							tooltipPlacement === 'below-axis'
+								? marginTop + innerHeight + ( margin?.bottom ?? 0 )
+								: tooltipTop
+						}
 						style={ boxStyle }
 						applyPositionStyle
 						{ ...tooltipProps }
+						{ ...( tooltipPlacement === 'below-axis' && { placement: tooltipPlacement } ) }
 					>
 						{ tooltipContent }
 					</TooltipComponent>,
@@ -259,7 +296,8 @@ const XyChartTooltipContent = < Datum extends object >( {
  * isolation keeps the box's `zIndex` from competing with page chrome. The box
  * flips and clamps to stay inside the nearest ancestor that clips its overflow
  * (or the viewport), so it may extend past the chart wrapper but is never cut
- * off unless that ancestor is smaller than the box itself.
+ * off unless that ancestor is smaller than the box itself. Below-axis placement
+ * pins it beneath the x-axis and applies horizontal bounds only.
  *
  * @param props - visx's `Tooltip` options. `scroll`, `debounce` and `resizeObserverPolyfill` are accepted and ignored.
  * @return An anchor in the SVG, plus the overlay and the tooltip box while the tooltip is open.

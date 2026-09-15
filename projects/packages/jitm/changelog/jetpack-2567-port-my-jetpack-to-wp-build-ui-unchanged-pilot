@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show JITMs on dashboards that render their notices area after the page loads.

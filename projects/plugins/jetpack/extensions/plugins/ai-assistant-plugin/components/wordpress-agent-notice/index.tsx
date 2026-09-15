@@ -112,7 +112,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 
 	const openAgent = () => {
 		tracks.recordEvent( 'jetpack_big_sky_agent_notice_click', eventProperties );
-		// Reset the view first, as the editor's Ask AI button does, so the chat
+		// Reset the view first, as the editor's Agent button does, so the chat
 		// always opens on the same screen however it was last left.
 		resumeWordPressAgentChat();
 		setWordPressAgentChatOpen( true );
@@ -137,15 +137,19 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 		>
 			<Notice.Description>
 				{ createInterpolateElement(
-					// translators: <icon /> is replaced with the WordPress Agent's icon, so keep the tag
-					// as written. "Ask AI" is the label on a button in the editor toolbar.
+					// translators: <icon/> is the WordPress Agent's icon. "Agent" is the label on an editor toolbar button.
 					__(
-						'AI tools have moved to the WordPress Agent. Look for the "Ask AI" <icon /> button at the top of the screen.',
+						'AI tools have moved to the WordPress Agent. Look for the <label>"<icon/>Agent"</label> button at the top of the screen.',
 						'jetpack'
 					),
 					{
+						label: <span style={ { whiteSpace: 'nowrap' } } />,
 						icon: (
-							<Icon icon={ bigSkyIcon } size={ 16 } style={ { verticalAlign: 'text-bottom' } } />
+							<Icon
+								icon={ bigSkyIcon }
+								size={ 16 }
+								style={ { verticalAlign: 'text-bottom', marginInlineEnd: '0.25em' } }
+							/>
 						),
 					}
 				) }

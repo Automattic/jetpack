@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+PayPal Payment Buttons: the editor canvas draws what the published block will look like, and each format gets its own settings in a new Styles tab - colors, Fill or Outline, text size, width and border. Part of the API-managed payment buttons, behind a feature flag that is not yet enabled.

@@ -59,7 +59,7 @@ const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
  */
 async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
-	// So change `^` to `>=` and hope any breaking changes will not really break.
+	// So change `^` to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
 	if (
 		pkg.name === '@automattic/api-core' ||
 		pkg.name === '@automattic/components' ||
@@ -90,12 +90,35 @@ async function fixDeps( pkg ) {
 			];
 	}
 
+	// WooCommerce packages pin `@wordpress/*` deps to versions from the lowest Core version the plugin supports.
+	// Change to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
+	if ( pkg.name === '@woocommerce/email-editor' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@wordpress/' ) ) {
+				if ( ver.startsWith( '^' ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+				} else if ( ver.match( /^\d/ ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver;
+				}
+			}
+		}
+	}
+
 	// Unused, vulnerable dep.
 	if (
 		pkg.name === '@automattic/components' &&
 		pkg.dependencies[ 'react-router-dom' ]?.startsWith( '^6' )
 	) {
 		delete pkg.dependencies[ 'react-router-dom' ];
+	}
+
+	// Oddly pinned dep.
+	if (
+		pkg.name === '@automattic/components' &&
+		pkg.dependencies.colord &&
+		! pkg.dependencies.colord.startsWith( '^' )
+	) {
+		pkg.dependencies.colord = '^' + pkg.dependencies.colord;
 	}
 
 	// Breaking change in @wordpress/icons v11.
@@ -333,7 +356,6 @@ function fixPeerDeps( pkg ) {
 		'eslint-plugin-jsx-a11y', // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1075
 		'eslint-plugin-react', // https://github.com/jsx-eslint/eslint-plugin-react/issues/3977
 		'@babel/eslint-parser', // https://github.com/babel/babel/issues/17951
-		'eslint-plugin-jest-dom', // https://github.com/testing-library/eslint-plugin-jest-dom/issues/418
 	] );
 	if ( eslintOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'eslint' ] ) {

@@ -23,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.5.0';
+	const PACKAGE_VERSION = '0.6.1';
 
 	/**
 	 * Whether the class has been initialized.
@@ -338,6 +338,7 @@ class Analytics {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
 			require_once __DIR__ . '/dashboard-sections.php';
 		}
+		configure_dashboard_preview_scope();
 
 		// Default-on CSV export settings and server-side disable filter.
 		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {

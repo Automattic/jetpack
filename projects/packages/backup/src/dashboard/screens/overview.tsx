@@ -14,6 +14,7 @@ import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
 import ReviewRequest from '../components/review-request';
 import StorageSpace from '../components/storage-space';
+import { isRestoreRowId } from '../data/normalize/restores';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	ACTIVITY_LOG_NEWEST_FIRST,
@@ -433,8 +434,8 @@ function RightPane( {
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
 				{ /*
 				 * Neither the upstream reason nor a retry: the list beside this pane
-				 * reports the same failed query with both, and a second copy of each
-				 * is two error notices and two buttons for one thing to fix.
+				 * reports the activity feed's failure with both, and a second copy of
+				 * each is two error notices and two buttons for one thing to fix.
 				 */ }
 				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } />
 			</div>
@@ -453,12 +454,19 @@ function RightPane( {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
 				<Stack direction="column" gap="sm" align="center">
-					{ /* Only loaded pages were searched, so "gone" is not ours to claim. */ }
 					<Text>
-						{ __(
-							"That item isn't on this page of the activity log. It may be on another page, or no longer available.",
-							'jetpack-backup-pkg'
-						) }
+						{ isRestoreRowId( selectedId )
+							? // The collection is the last ten restores and has no pages,
+							  // so there is nowhere else to send the reader.
+							  __(
+									"That restore isn't among this site's most recent ones any more.",
+									'jetpack-backup-pkg'
+							  )
+							: // Only loaded pages were searched, so "gone" is not ours to claim.
+							  __(
+									"That item isn't on this page of the activity log. It may be on another page, or no longer available.",
+									'jetpack-backup-pkg'
+							  ) }
 					</Text>
 					<Button variant="outline" onClick={ onClearSelected }>
 						{ __( 'Clear selection', 'jetpack-backup-pkg' ) }

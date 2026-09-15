@@ -55,6 +55,16 @@ describe( 'useUploadIntake', () => {
 		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 	} );
 
+	it( 'leaves unknown-plan uploads to the server without a quota upsell', () => {
+		mockFreeTier = { ...mockFreeTier, isFree: null, videoCount: 4 };
+		const files = [ video( 'a.mp4' ), video( 'b.mp4' ) ];
+
+		expect( intake()( files ) ).toBe( 2 );
+		expect( mockStartUpload ).toHaveBeenCalledTimes( 2 );
+		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
+		expect( mockRunUpgrade ).not.toHaveBeenCalled();
+	} );
+
 	it( 'refuses a selection with no videos in it', () => {
 		const files = [ new File( [ 'x' ], 'doc.pdf', { type: 'application/pdf' } ) ];
 

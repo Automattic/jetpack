@@ -156,6 +156,33 @@ class PostSchemaNodeTest extends TestCase {
 	}
 
 	/**
+	 * A gated post publishes no FAQPage: render_block() skips `the_content`, so
+	 * the paywall never sees the answers this node would expose.
+	 */
+	public function test_faq_is_null_for_gated_post() {
+		\Jetpack_SEO_Posts::$schema_type = 'faq';
+
+		$content  = '<!-- wp:details -->';
+		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
+		$content .= '<!-- wp:paragraph --><p>Search engine optimization.</p><!-- /wp:paragraph -->';
+		$content .= '</details><!-- /wp:details -->';
+
+		// Control: the same body does build an FAQPage when nothing gates it.
+		$this->assertIsArray( Post_Schema_Node::build( $this->make_post( array( 'post_content' => $content ) ) ) );
+
+		$this->assertNull(
+			Post_Schema_Node::build(
+				$this->make_post(
+					array(
+						'post_content'  => $content,
+						'post_password' => 'hunter2',
+					)
+				)
+			)
+		);
+	}
+
+	/**
 	 * A "faq" override with no `core/details` blocks yields no node, rather than
 	 * an empty/invalid FAQPage.
 	 */

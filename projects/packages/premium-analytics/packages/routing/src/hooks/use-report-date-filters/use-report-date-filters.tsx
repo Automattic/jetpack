@@ -7,12 +7,9 @@ import {
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
 import {
-	clampRangeEndToToday,
-	completeToDateRange,
 	drillDateRange,
 	PRESET_CUSTOM,
 	reportingTimeZone,
-	stepDateRange,
 	toLocalTZ,
 } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
@@ -28,19 +25,16 @@ import type {
 	DateRange,
 	IntervalType,
 	PrimaryPresetId,
-	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
-
-type PickerRange = { from: Date | undefined; to: Date | undefined };
 
 /**
  * The values and callbacks that drive `DateFiltersPanel`.
  */
 export type ReportDateFilters = {
 	presetId?: PrimaryPresetId;
-	range: PickerRange;
+	range: DateRange;
 	appliedPresetId?: PrimaryPresetId;
-	appliedRange: PickerRange;
+	appliedRange: DateRange;
 	comparisonPresetId?: ComparisonPresetId;
 	appliedComparisonPresetId?: ComparisonPresetId;
 
@@ -69,11 +63,6 @@ export type ReportDateFilters = {
 	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
-
-	/**
-	 * Step the applied window backward or forward by its own length.
-	 */
-	onStep: ( direction: StepDirection ) => void;
 
 	/**
 	 * Open the chart bucket containing a date, narrowing to the next finer
@@ -259,46 +248,9 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	/*
-	 * Commits and pushes a history entry so Back undoes the step. Steps the
-	 * applied range, not the staged one — the arrows sit outside the picker,
-	 * so stepping must not apply an open draft.
-	 */
-	const onStep = useCallback(
-		( direction: StepDirection ) => {
-			// A to-date window steps as its completed window, so the arrows move
-			// "12 months" by whole months rather than by the days read so far.
-			const stepped = stepDateRange(
-				completeToDateRange( appliedRange, appliedPresetId ),
-				direction
-			);
-
-			if ( ! stepped ) {
-				return;
-			}
-
-			const patch = buildRangePatch( {
-				// A forward step closes the running unit the window was measured
-				// against, which reaches past today. Stepping forward out of
-				// "12 months" returns the to-date window, not a month of empty
-				// buckets.
-				nextRange: clampRangeEndToToday( stepped, toLocalTZ( undefined, timeZone ) ),
-				nextPresetId: PRESET_CUSTOM,
-				exactRange: true,
-				effective,
-			} );
-
-			if ( patch ) {
-				stage( patch );
-				commit();
-			}
-		},
-		[ appliedPresetId, appliedRange, commit, effective, stage, timeZone ]
-	);
-
-	/*
-	 * Commits and pushes a history entry, like `onStep`, so Back exits a
-	 * drill-down. Reads the applied range/interval, not the staged one: the
-	 * chart draws what's applied, so the click belongs to that window.
+	 * Commits and pushes a history entry, so Back exits a drill-down. Reads the
+	 * applied range/interval, not the staged one: the chart draws what's
+	 * applied, so the click belongs to that window.
 	 */
 	const drillDown = useCallback(
 		( date: Date, bucketInterval: IntervalType = appliedInterval ) => {
@@ -307,7 +259,11 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 			 * on the clock of the date passed in, and a plain instant would cut it
 			 * on the browser's clock instead.
 			 */
-			const drilled = drillDateRange( toLocalTZ( date, timeZone ), bucketInterval, new Date() );
+			const drilled = drillDateRange(
+				toLocalTZ( date, timeZone ),
+				bucketInterval,
+				toLocalTZ( undefined, timeZone )
+			);
 
 			if ( ! drilled?.from || ! drilled.to ) {
 				return;
@@ -375,7 +331,6 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
-		onStep,
 		drillDown,
 		onApply,
 		onCancel,

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Stats: Return a validation error when the role settings are submitted in the wrong format.
