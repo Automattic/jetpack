@@ -54,7 +54,7 @@ describe( 'Stripe nudge component', () => {
 			render( <StripeNudge blockName="donations" /> );
 
 			await expect(
-				screen.findByRole( 'link', { name: /View Stripe requirements/ } )
+				screen.findByRole( 'link', { name: /requirements for accepting donations/ } )
 			).resolves.toBeInTheDocument();
 		} );
 	} );
