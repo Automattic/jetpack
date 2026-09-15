@@ -130,7 +130,7 @@ $metric-tile-grid-divider: var(--wpds-border-width-xs) solid
 @container (max-block-size: #{$widget-short-max-block-size}) {
 
 	.grid[data-layout="row"] .tile {
-		padding-block: var(--wpds-dimension-padding-xs);
+		padding-block: 0;
 	}
 }
 

@@ -18,7 +18,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { calendar, comment, paragraph, postList, starEmpty } from '@wordpress/icons';
+import { calendar, comment, page, postContent, starEmpty } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -60,13 +60,13 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 		? [
 				{
 					key: 'posts',
-					icon: postList,
+					icon: page,
 					label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
 					value: totals.total_posts,
 				},
 				{
 					key: 'words',
-					icon: paragraph,
+					icon: postContent,
 					label: __( 'Words', 'jetpack-premium-analytics-pkg' ),
 					value: totals.total_words,
 				},
