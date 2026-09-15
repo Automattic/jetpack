@@ -22,7 +22,7 @@ class Marketplace_Catalog {
 	 * Bumped whenever the shape of a cached card or description changes, so sites
 	 * do not keep serving data built by the previous version until it expires.
 	 */
-	const CACHE_VERSION = 2;
+	const CACHE_VERSION = 3;
 
 	/**
 	 * Transient holding the normalized product list.
@@ -355,7 +355,14 @@ class Marketplace_Catalog {
 	 * @return array<int, array> Keyed by product id.
 	 */
 	private static function fetch_store_products() {
-		$response = self::request( '/products', '1.1', 'rest' );
+		// Site-scoped first, so prices come back in the site's own currency. Calypso
+		// reads the same two paths in the same order, for the same reason.
+		$blog_id  = function_exists( 'get_wpcom_blog_id' ) ? (int) get_wpcom_blog_id() : 0;
+		$response = $blog_id > 0 ? self::request( '/sites/' . $blog_id . '/products', '1.1', 'rest' ) : null;
+
+		if ( ! is_array( $response ) ) {
+			$response = self::request( '/products', '1.1', 'rest' );
+		}
 
 		if ( ! is_array( $response ) ) {
 			return array();
