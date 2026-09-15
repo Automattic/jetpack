@@ -17,7 +17,9 @@ chdir( __DIR__ . '/../' );
 /**
  * The sidebar's position tiers, by constant name.
  *
- * Keep in sync with the POSITION_* constants on Automattic\Jetpack\Admin_UI\Admin_Menu.
+ * Keep in sync with the POSITION_* constants on Automattic\Jetpack\Admin_UI\Admin_Menu, except
+ * POSITION_UPGRADE: the free-plan upsell is appended after the sort, through core rather than
+ * through add_menu(), so nothing here should ever claim it.
  */
 const TIERS = array(
 	'POSITION_FIRST'          => -10,
