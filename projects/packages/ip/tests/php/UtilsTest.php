@@ -34,6 +34,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 		Monkey\tearDown();
+		\Jetpack_IP_Test_Resolver::reset();
 	}
 
 	/**
@@ -336,6 +337,290 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 		foreach ( $non_public_ips as $non_public_ip ) {
 			$this->assertFalse( Utils::ip_is_public( $non_public_ip ), "$non_public_ip should not be public" );
 		}
+	}
+
+	/**
+	 * `url_is_public` accepts URLs whose host is a public address.
+	 *
+	 * Core's gate is stubbed open throughout these tests so the assertions are
+	 * about this helper's own check and not wp_http_validate_url()'s blocklist.
+	 * IP-literal hosts keep the whole set off DNS.
+	 */
+	public function test_url_is_public_accepts_public_hosts() {
+		$this->stub_url_helpers();
+
+		$public_urls = array(
+			'http://8.8.8.8/image.jpg',
+			'https://1.1.1.1/a/b?c=d#e',
+			'https://[2606:4700:4700::1111]/image.jpg',
+			'https://[::ffff:8.8.8.8]/image.jpg',
+		);
+		foreach ( $public_urls as $url ) {
+			$this->assertTrue( Utils::url_is_public( $url ), "$url should be public" );
+		}
+	}
+
+	/**
+	 * `url_is_public` rejects URLs pointing at reserved or internal addresses.
+	 *
+	 * Several of these are also rejected by core's wp_http_validate_url(); stubbing
+	 * it open is what makes this a test of our own check rather than of core's.
+	 */
+	public function test_url_is_public_rejects_reserved_hosts() {
+		$this->stub_url_helpers();
+
+		$rejected_urls = array(
+			'http://169.254.169.254/latest/meta-data/',  // Cloud metadata.
+			'http://168.63.129.16/metadata',             // Azure "Wire Server".
+			'http://100.64.0.1/',                        // CGNAT.
+			'http://198.18.0.1/',                        // Benchmarking.
+			'http://192.0.0.1/',                         // IETF protocol assignments.
+			'http://127.0.0.1/internal',                 // Loopback.
+			'http://10.0.0.1/internal',                  // Private.
+			'http://[::1]/internal',                     // IPv6 loopback.
+			'http://[fe80::1]/internal',                 // IPv6 link-local.
+			'http://[fd00::1]/internal',                 // IPv6 unique-local.
+			'http://[::ffff:169.254.169.254]/',          // IPv4-mapped metadata.
+			'http://169%2e254%2e169%2e254/',             // Percent-encoded metadata host.
+			'http://8.8.8.8%foo/',                       // Zone id on a non-IPv6 host.
+		);
+		foreach ( $rejected_urls as $url ) {
+			$this->assertFalse( Utils::url_is_public( $url ), "$url should not be public" );
+		}
+	}
+
+	/**
+	 * A host that resolves to nothing is rejected rather than passed to the request layer.
+	 */
+	public function test_url_is_public_rejects_unresolvable_host() {
+		$this->stub_url_helpers();
+
+		// RFC 2606 reserves .invalid, so this can never resolve.
+		$this->assertFalse( Utils::url_is_public( 'http://jetpack-ip-test.invalid/x' ) );
+	}
+
+	/**
+	 * Input that is not a usable URL is rejected before any lookup.
+	 */
+	public function test_url_is_public_rejects_malformed_input() {
+		$this->stub_url_helpers();
+
+		$malformed = array( '', 'not a url', '/relative/path', 'http:///nohost' );
+		foreach ( $malformed as $url ) {
+			$this->assertFalse( Utils::url_is_public( $url ), 'malformed input should not be public' );
+		}
+	}
+
+	/**
+	 * A URL core rejects stays rejected, whatever its host resolves to.
+	 */
+	public function test_url_is_public_defers_to_core_validation() {
+		Functions\when( 'wp_http_validate_url' )->justReturn( false );
+
+		$this->assertFalse( Utils::url_is_public( 'http://8.8.8.8/image.jpg' ) );
+	}
+
+	/**
+	 * The host checked is the one core handed back, not the one we passed in.
+	 *
+	 * Core returns a normalized URL, so parsing the argument instead would check a
+	 * host it never approved.
+	 */
+	public function test_url_is_public_checks_the_url_core_returned() {
+		$this->stub_url_helpers();
+		Functions\when( 'wp_http_validate_url' )->justReturn( 'http://169.254.169.254/' );
+
+		$this->assertFalse( Utils::url_is_public( 'http://8.8.8.8/image.jpg' ) );
+	}
+
+	/**
+	 * `resolve_host_ips` returns IP literals as-is, after undoing the encodings a
+	 * caller could hide one behind.
+	 */
+	public function test_resolve_host_ips_normalizes_literals() {
+		$literals = array(
+			'8.8.8.8'               => '8.8.8.8',
+			'[::1]'                 => '::1',
+			'169%2e254%2e169%2e254' => '169.254.169.254', // Percent-encoded dots.
+			'fe80::1%25eth0'        => 'fe80::1',         // Encoded IPv6 zone id.
+		);
+		foreach ( $literals as $host => $expected ) {
+			$this->assertSame( array( $expected ), Utils::resolve_host_ips( (string) $host ) );
+		}
+	}
+
+	/**
+	 * A '%' outside an IPv6 address is malformed, so the host resolves to nothing.
+	 *
+	 * Trimming it back to the prefix instead would launder a bad host into a public
+	 * one, undoing the same guard ip_is_public() applies.
+	 */
+	public function test_resolve_host_ips_rejects_zone_id_on_non_ipv6_host() {
+		$malformed = array( '8.8.8.8%foo', '8.8.8.8%25foo', 'example.com%foo' );
+		foreach ( $malformed as $host ) {
+			$this->assertSame( array(), Utils::resolve_host_ips( $host ), "$host should resolve to nothing" );
+			$this->assertFalse( Utils::ip_is_public( $host ), "$host should not be public" );
+		}
+	}
+
+	/**
+	 * A host that decodes to nothing, or to bytes no host name can hold, is rejected.
+	 *
+	 * Reaching the lookup at all would be a fatal rather than a failed resolution:
+	 * gethostbynamel() throws a ValueError on a NUL byte.
+	 */
+	public function test_resolve_host_ips_rejects_empty_and_control_character_hosts() {
+		$malformed = array( '[]', '%00', 'example%00.com', 'exa%09mple.com', 'exa%20mple.com' );
+		foreach ( $malformed as $host ) {
+			$this->assertSame( array(), Utils::resolve_host_ips( $host ), "$host should resolve to nothing" );
+		}
+	}
+
+	/**
+	 * A URL whose host decodes to a NUL byte is rejected, not fatal.
+	 */
+	public function test_url_is_public_rejects_control_character_host() {
+		$this->stub_url_helpers();
+
+		$this->assertFalse( Utils::url_is_public( 'http://example%00.com/image.jpg' ) );
+	}
+
+	/**
+	 * Whatever a resolver returns, the list holds valid, distinct IP addresses.
+	 *
+	 * The lookup needs DNS, so the assertions are on the shape of the result rather
+	 * than a fixed set of addresses; with no network the list is empty and they hold
+	 * trivially.
+	 */
+	public function test_resolve_host_ips_returns_only_valid_distinct_addresses() {
+		$ips = Utils::resolve_host_ips( 'dns.google' );
+
+		$this->assertSame( array_values( array_unique( $ips ) ), $ips );
+		foreach ( $ips as $ip ) {
+			$this->assertIsString( $ip );
+			$this->assertNotFalse( filter_var( $ip, FILTER_VALIDATE_IP ), "$ip should be an IP address" );
+		}
+	}
+
+	/**
+	 * A host is public only when every address it resolves to is public.
+	 *
+	 * This is the whole point of the helper, and the one behaviour real DNS cannot
+	 * pin down, so the answers are supplied rather than looked up.
+	 */
+	public function test_url_is_public_requires_every_resolved_address_to_be_public() {
+		$this->stub_url_helpers();
+		$this->require_aaaa_lookups();
+
+		\Jetpack_IP_Test_Resolver::$answers = array(
+			'all-public.test'    => array( 'ipv4' => array( '8.8.8.8', '1.1.1.1' ) ),
+			'one-internal.test'  => array( 'ipv4' => array( '8.8.8.8', '169.254.169.254' ) ),
+			'public-dual.test'   => array(
+				'ipv4' => array( '8.8.8.8' ),
+				'ipv6' => array( '2606:4700:4700::1111' ),
+			),
+			'internal-v6.test'   => array(
+				'ipv4' => array( '8.8.8.8' ),
+				'ipv6' => array( '2606:4700:4700::1111', 'fd00::1' ),
+			),
+			'only-internal.test' => array( 'ipv4' => array( '10.0.0.1' ) ),
+		);
+
+		$this->assertTrue( Utils::url_is_public( 'http://all-public.test/x' ) );
+		$this->assertTrue( Utils::url_is_public( 'http://public-dual.test/x' ) );
+
+		$this->assertFalse( Utils::url_is_public( 'http://one-internal.test/x' ), 'one internal A record rejects the host' );
+		$this->assertFalse( Utils::url_is_public( 'http://internal-v6.test/x' ), 'one internal AAAA record rejects the host' );
+		$this->assertFalse( Utils::url_is_public( 'http://only-internal.test/x' ) );
+	}
+
+	/**
+	 * Both the A and the AAAA answers are returned, not just whichever came first.
+	 */
+	public function test_resolve_host_ips_returns_both_a_and_aaaa_records() {
+		$this->require_aaaa_lookups();
+		\Jetpack_IP_Test_Resolver::$answers = array(
+			'dual.test'   => array(
+				'ipv4' => array( '8.8.8.8', '8.8.4.4' ),
+				'ipv6' => array( '2001:4860:4860::8888' ),
+			),
+			'v6only.test' => array( 'ipv6' => array( '2001:4860:4860::8888' ) ),
+		);
+
+		$this->assertSame(
+			array( '8.8.8.8', '8.8.4.4', '2001:4860:4860::8888' ),
+			Utils::resolve_host_ips( 'dual.test' )
+		);
+		$this->assertSame( array( '2001:4860:4860::8888' ), Utils::resolve_host_ips( 'v6only.test' ) );
+	}
+
+	/**
+	 * Anything a resolver returns that is not an address is dropped, repeats included.
+	 */
+	public function test_resolve_host_ips_drops_junk_and_duplicates() {
+		$this->require_aaaa_lookups();
+		\Jetpack_IP_Test_Resolver::$answers = array(
+			'noisy.test' => array(
+				'ipv4' => array( '8.8.8.8', 'not-an-ip', '8.8.8.8', '' ),
+				'ipv6' => array( '2001:4860:4860::8888', 'nonsense', '2001:4860:4860::8888' ),
+			),
+		);
+
+		$this->assertSame(
+			array( '8.8.8.8', '2001:4860:4860::8888' ),
+			Utils::resolve_host_ips( 'noisy.test' )
+		);
+	}
+
+	/**
+	 * Only a single wrapping bracket pair is stripped; anything else is rejected.
+	 *
+	 * Trimming every bracket would turn input like "]8.8.8.8[" into a clean address,
+	 * the same laundering the '%' handling above exists to prevent.
+	 */
+	public function test_resolve_host_ips_only_unwraps_a_single_bracket_pair() {
+		$this->assertSame( array( '::1' ), Utils::resolve_host_ips( '[::1]' ) );
+		$this->assertSame( array( 'fe80::1' ), Utils::resolve_host_ips( '[fe80::1%25eth0]' ) );
+
+		$malformed = array( '[[8.8.8.8]]', '[8.8.8.8', '8.8.8.8]', ']8.8.8.8[', '[[[::1]]]', '%5B8.8.8.8%5D' );
+		foreach ( $malformed as $host ) {
+			$this->assertSame( array(), Utils::resolve_host_ips( $host ), "$host should resolve to nothing" );
+		}
+	}
+
+	/**
+	 * An unresolvable or empty host yields no addresses, which callers treat as unsafe.
+	 */
+	public function test_resolve_host_ips_returns_empty_for_unresolvable_host() {
+		$this->assertSame( array(), Utils::resolve_host_ips( '' ) );
+		$this->assertSame( array(), Utils::resolve_host_ips( 'jetpack-ip-test.invalid' ) );
+	}
+
+	/**
+	 * Skips a test whose expectations need AAAA records.
+	 *
+	 * They are only looked up when ext-dns supplies dns_get_record(), and the package
+	 * does not require the extension.
+	 */
+	private function require_aaaa_lookups() {
+		if ( ! function_exists( 'dns_get_record' ) ) {
+			$this->markTestSkipped( 'AAAA lookups need dns_get_record() from ext-dns.' );
+		}
+	}
+
+	/**
+	 * Stubs the WordPress functions `url_is_public` depends on.
+	 *
+	 * Core's wp_http_validate_url() is stubbed to accept everything, so each URL is
+	 * judged by this package's own check alone.
+	 */
+	private function stub_url_helpers() {
+		Functions\when( 'wp_http_validate_url' )->returnArg();
+		Functions\when( 'wp_parse_url' )->alias(
+			function ( $url, $component = -1 ) {
+				return parse_url( $url, $component ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- This stub is what wp_parse_url() wraps.
+			}
+		);
 	}
 
 	/**
