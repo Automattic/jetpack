@@ -3,21 +3,22 @@
  */
 import { useAiFeature } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteType } from '@automattic/jetpack-script-data';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { getMyJetpackUrl, getSiteType } from '@automattic/jetpack-script-data';
+import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { speak } from '@wordpress/a11y';
-import { Button, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { Notice } from '@wordpress/ui';
+import { Button, Icon, LinkButton, Notice, VisuallyHidden } from '@wordpress/ui';
+import { useId } from 'react';
 /**
  * Internal dependencies
  */
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import bigSkyIcon from './big-sky-icon';
 import {
+	isAgentActionAvailable,
 	resumeWordPressAgentChat,
 	setWordPressAgentChatOpen,
 	useIsWordPressAgentChatVisible,
@@ -36,6 +37,7 @@ import type {
 } from './types';
 
 export const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
+export const AGENT_ENABLED_FEATURE = 'ai-sidebar-agent-enabled';
 export const PREFERENCE_SCOPE = 'jetpack/ai-assistant';
 export const DISMISSED_PREFERENCE = 'wordpressAgentNoticeDismissed';
 
@@ -44,6 +46,36 @@ const DOCS_URL = getRedirectUrl( 'jetpack-ai-docs-wordpress-agent' );
 // Addressed as a string on purpose: importing the store object would register
 // it as a side effect.
 const EDITOR_STORE = 'core/editor';
+
+// Keeps a label on one line in a narrow sidebar; the docs link wraps instead.
+const ACTION_BUTTON_STYLE = { flexShrink: 0 } as const;
+
+/**
+ * Where a site turns the WordPress Agent on, matching the wpcom dashboard banner.
+ *
+ * @return {string} The settings URL.
+ */
+function getEnableAgentUrl(): string {
+	if ( getSiteType() === 'jetpack' ) {
+		return getMyJetpackUrl( '#/overview' );
+	}
+
+	const siteFragment = getSiteFragment();
+
+	return siteFragment
+		? `https://wordpress.com/sites/${ siteFragment }/settings/ai-tools`
+		: 'https://wordpress.com/sites';
+}
+
+/**
+ * Whether the site has the WordPress Agent on. A site with a chat to open has
+ * it on, whatever the server flag says.
+ *
+ * @return {boolean} True once the Agent is on.
+ */
+function isWordPressAgentOn(): boolean {
+	return isAgentActionAvailable() || getFeatureAvailability( AGENT_ENABLED_FEATURE );
+}
 
 function useEventProperties(
 	placement: WordPressAgentNoticePlacement
@@ -70,8 +102,9 @@ function useEventProperties(
  * Whether to show the notice, or nothing at all in its place.
  *
  * Both are false where the site has no WordPress Agent, leaving the AI panel as
- * it was. One shared preference backs the dismissal, so closing the notice in
- * any placement closes it in all of them.
+ * it was. A dismissal only counts once the Agent is on: until then the notice
+ * is the only way to it. One shared preference backs the dismissal, so closing
+ * the notice in any placement closes it in all of them.
  *
  * @return {{isVisible: boolean, isDismissed: boolean}} The notice's state.
  */
@@ -85,19 +118,21 @@ export function useWordPressAgentNotice(): { isVisible: boolean; isDismissed: bo
 		[]
 	);
 
-	const isAvailable = getFeatureAvailability( AGENT_NOTICE_FEATURE );
+	if ( ! getFeatureAvailability( AGENT_NOTICE_FEATURE ) ) {
+		return { isVisible: false, isDismissed: false };
+	}
 
-	return {
-		isVisible: isAvailable && ! hasDismissed,
-		isDismissed: isAvailable && hasDismissed,
-	};
+	const isDismissed = isWordPressAgentOn() && hasDismissed;
+
+	return { isVisible: ! isDismissed, isDismissed };
 }
 
 /**
  * Points people at the WordPress Agent from where the Jetpack AI panel used to be.
  *
- * Only the close button dismisses. Opening the Agent leaves the notice in place,
- * so someone who tries it still finds it on their next visit.
+ * Only the close button dismisses, and only once the Agent is on. Opening the
+ * Agent leaves the notice in place, so someone who tries it still finds it on
+ * their next visit.
  *
  * @param {object} props           - Component props.
  * @param {string} props.placement - Where the notice is rendered, recorded with each event.
@@ -107,15 +142,30 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	const { tracks } = useAnalytics();
 	const { set } = useDispatch( preferencesStore );
 	const eventProperties = useEventProperties( placement );
+	// Both needed: eligible-only sites reach here with no chat, and a mounted
+	// chat may belong to another provider.
+	const canOpenAgent = isAgentActionAvailable();
 	const isAgentReady = useIsWordPressAgentReady();
 	const isChatOnScreen = useIsWordPressAgentChatVisible();
+	const isAgentOn = isWordPressAgentOn();
+	const disabledReasonId = useId();
 
 	const openAgent = () => {
-		tracks.recordEvent( 'jetpack_big_sky_agent_notice_click', eventProperties );
+		tracks.recordEvent( 'jetpack_big_sky_agent_notice_click', {
+			...eventProperties,
+			action: 'open',
+		} );
 		// Reset the view first, as the editor's Agent button does, so the chat
 		// always opens on the same screen however it was last left.
 		resumeWordPressAgentChat();
 		setWordPressAgentChatOpen( true );
+	};
+
+	const recordEnableClick = () => {
+		tracks.recordEvent( 'jetpack_big_sky_agent_notice_click', {
+			...eventProperties,
+			action: 'enable',
+		} );
 	};
 
 	const dismiss = () => {
@@ -136,46 +186,60 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 			style={ { gridTemplateColumns: 'auto minmax(0, 1fr) auto' } }
 		>
 			<Notice.Description>
-				{ createInterpolateElement(
-					// translators: <icon/> is the WordPress Agent's icon. "Agent" is the label on an editor toolbar button.
-					__(
-						'AI tools have moved to the WordPress Agent. Look for the <label>"<icon/>Agent"</label> button at the top of the screen.',
-						'jetpack'
-					),
-					{
-						label: <span style={ { whiteSpace: 'nowrap' } } />,
-						icon: (
-							<Icon
-								icon={ bigSkyIcon }
-								size={ 16 }
-								style={ { verticalAlign: 'text-bottom', marginInlineEnd: '0.25em' } }
-							/>
-						),
-					}
-				) }
+				{ isAgentOn
+					? createInterpolateElement(
+							// translators: <icon/> is the WordPress Agent's icon. "Agent" is the label on an editor toolbar button.
+							__(
+								'AI tools have moved to the WordPress Agent. Look for the <label>"<icon/>Agent"</label> button at the top of the screen.',
+								'jetpack'
+							),
+							{
+								label: <span style={ { whiteSpace: 'nowrap' } } />,
+								icon: (
+									<Icon
+										icon={ bigSkyIcon }
+										size={ 16 }
+										style={ { verticalAlign: 'text-bottom', marginInlineEnd: '0.25em' } }
+									/>
+								),
+							}
+					  )
+					: /* translators: "WordPress Agent" is a product name. */
+					  __( 'AI tools have moved to the WordPress Agent.', 'jetpack' ) }
 			</Notice.Description>
 
 			<Notice.Actions>
-				{ isAgentReady && (
+				{ canOpenAgent && isAgentReady && (
 					<Button
-						variant="secondary"
-						icon={ bigSkyIcon }
+						variant="outline"
+						style={ ACTION_BUTTON_STYLE }
 						onClick={ openAgent }
 						disabled={ isChatOnScreen }
-						accessibleWhenDisabled
-						showTooltip={ isChatOnScreen }
-						// Secondary buttons set `white-space: nowrap` and a fixed height, so a
-						// long label cannot fit a narrow sidebar. Wrapping suits any translation.
-						style={ { whiteSpace: 'normal', height: 'auto', minHeight: '36px' } }
-						// This prop replaces the accessible name, so it repeats the visible
-						// text before saying why the button is disabled.
-						label={
-							isChatOnScreen ? __( 'WordPress Agent is already open', 'jetpack' ) : undefined
-						}
+						aria-describedby={ isChatOnScreen ? disabledReasonId : undefined }
 					>
 						{ /* translators: Button that opens the WordPress Agent chat. "WordPress Agent" is a product name. */ }
-						{ __( 'WordPress Agent', 'jetpack' ) }
+						{ __( 'Open WordPress Agent', 'jetpack' ) }
 					</Button>
+				) }
+
+				{ isChatOnScreen && (
+					<VisuallyHidden id={ disabledReasonId }>
+						{ /* translators: Read out to explain why the button is disabled. "WordPress Agent" is a product name. */ }
+						{ __( 'WordPress Agent is already open', 'jetpack' ) }
+					</VisuallyHidden>
+				) }
+
+				{ ! isAgentOn && (
+					<LinkButton
+						variant="outline"
+						style={ ACTION_BUTTON_STYLE }
+						// Same tab: the editor's unsaved-changes prompt guards the draft.
+						href={ getEnableAgentUrl() }
+						onClick={ recordEnableClick }
+					>
+						{ /* translators: Button that leads to the settings page where the WordPress Agent is turned on. "WordPress Agent" is a product name. */ }
+						{ __( 'Enable WordPress Agent', 'jetpack' ) }
+					</LinkButton>
 				) }
 
 				<Notice.ActionLink href={ DOCS_URL } openInNewTab>
@@ -183,7 +247,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 				</Notice.ActionLink>
 			</Notice.Actions>
 
-			<Notice.CloseIcon onClick={ dismiss } />
+			{ isAgentOn && <Notice.CloseIcon onClick={ dismiss } /> }
 		</Notice.Root>
 	);
 }
