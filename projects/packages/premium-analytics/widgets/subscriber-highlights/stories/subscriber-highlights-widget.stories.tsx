@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -16,9 +16,10 @@ import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
 	setReportMockState,
+	type ReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscriberHighlightsRender from '../render';
-import widgetDefinition, { DEFAULT_SUBSCRIBER_METRICS, type SubscriberMetricId } from '../widget';
+import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -28,174 +29,97 @@ registerReportMocks();
 
 const SUBSCRIBER_HIGHLIGHTS_RENDER_MODULE = 'storybook/subscriber-highlights';
 
-// Carry the widget's metadata, including the metric-visibility attribute schema
-// so the dashboard story's settings drawer renders the real checkboxes.
-// Presentation is left unset so the host frames the widget and renders its
-// identity (title + icon), matching widget.json.
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
-
-interface SubscriberHighlightsStoryControls {
-	/**
-	 * Metric tiles to show in the widget body.
-	 */
-	metrics: SubscriberMetricId[];
+function renderSubscriberHighlights() {
+	return <SubscriberHighlightsRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
-function renderSubscriberHighlights( { metrics }: SubscriberHighlightsStoryControls ) {
-	return (
-		<SubscriberHighlightsRender
-			attributes={ {
-				reportParams: getDefaultQueryParams(),
-				metrics,
-			} }
-		/>
-	);
+// The fragment matches both requests the widget makes: `subscribers/counts` and `stats/subscribers`.
+function forceSubscribersState( state: ReportMockState ) {
+	return () => {
+		setReportMockState( 'subscribers', state );
+		return () => setReportMockState( 'subscribers', null );
+	};
 }
-
-const METRIC_ARG_TYPES = {
-	metrics: {
-		control: 'check',
-		options: DEFAULT_SUBSCRIBER_METRICS,
-	},
-} as const;
-
-const ALL_METRICS_ARGS = {
-	metrics: DEFAULT_SUBSCRIBER_METRICS,
-} as const;
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SubscriberHighlights',
 	component: SubscriberHighlightsRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		...METRIC_ARG_TYPES,
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Subscriber highlights" widget. Shows current subscriber totals — total, paid, free, and social followers — as a grid of metric tiles. Which tiles appear is controlled by the `metrics` attribute (`relevance: \'high\'`), exposed inline in the widget header and in the settings drawer. Data comes from the designated `useStatsSubscribersCounts` hook; in Storybook it is served by `registerReportMocks()` (the `subscribers/counts` handler). The counts module has no comparison period, so the tiles show bare counts.',
+					'The "Subscriber highlights" widget, ported from the Jetpack Stats Subscribers "All-time stats" card. Shows total subscribers from `useStatsSubscribersCounts`, next to the subscriber count 30, 60, and 90 days ago from `useStatsSubscribersDaysAgo`. The counts do not follow the dashboard date range. In Storybook, `registerReportMocks()` serves both endpoints.',
 			},
 		},
 	},
-} satisfies Meta<
-	ComponentProps< typeof SubscriberHighlightsRender > & SubscriberHighlightsStoryControls
->;
+} satisfies Meta< ComponentProps< typeof SubscriberHighlightsRender > >;
 
 export default meta;
 
-type Story = StoryObj< SubscriberHighlightsStoryControls >;
+type Story = StoryObj< ComponentProps< typeof SubscriberHighlightsRender > >;
 
 /**
- * The widget on its own, populated from the mocked subscribers/counts payload.
+ * The widget on its own, populated from the mocked subscriber endpoints.
  */
 export const Default: Story = {
 	render: renderSubscriberHighlights,
-	args: { ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
-// The counts endpoint takes no params, so its query key is static and every
-// story in this file shares one cache entry (a distinct date preset can't
-// separate them — the query does not key on report params). Dropping the query
-// on story enter and exit gives each forced-state story a fresh fetch, and
-// clears a never-settling `loading` fetch before the other stories reuse the key.
-function resetSubscribersCountsQuery() {
-	queryClient.removeQueries( { queryKey: [ 'stats', 'subscribers-counts' ] } );
-}
-
 /**
- * First load: the fetch is in flight, so the widget shows its loading state. The
- * mock is forced to never resolve for the duration of this story.
+ * First load: the fetches are in flight, so the widget shows its loading state.
  */
 export const Loading: Story = {
 	render: renderSubscriberHighlights,
-	args: { ...ALL_METRICS_ARGS },
-	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	// Off the shared autodocs page: the override is keyed by path.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: () => {
-		resetSubscribersCountsQuery();
-		setReportMockState( 'subscribers/counts', 'loading' );
-		return () => {
-			setReportMockState( 'subscribers/counts', null );
-			resetSubscribersCountsQuery();
-		};
-	},
+	beforeEach: forceSubscribersState( 'loading' ),
 };
 
 /**
- * The fetch failed: the widget shows its error state with a Retry action (which
- * re-runs the query — still mocked as failing while this story is active).
+ * Every fetch failed: the widget shows its error state with a Retry action.
  */
 export const Error: Story = {
 	render: renderSubscriberHighlights,
-	args: { ...ALL_METRICS_ARGS },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: () => {
-		resetSubscribersCountsQuery();
-		setReportMockState( 'subscribers/counts', 'error' );
-		return () => {
-			setReportMockState( 'subscribers/counts', null );
-			resetSubscribersCountsQuery();
-		};
-	},
+	beforeEach: forceSubscribersState( 'error' ),
 };
 
 /**
- * Resolved without counts: the widget shows its empty state (the neutral
- * customer glyph and "No subscriber counts available yet.").
+ * Resolved without counts: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: renderSubscriberHighlights,
-	args: { ...ALL_METRICS_ARGS },
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
-	beforeEach: () => {
-		resetSubscribersCountsQuery();
-		setReportMockState( 'subscribers/counts', 'empty' );
-		return () => {
-			setReportMockState( 'subscribers/counts', null );
-			resetSubscribersCountsQuery();
-		};
-	},
+	beforeEach: forceSubscribersState( 'empty' ),
 };
 
-interface SubscriberHighlightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SubscriberHighlightsStoryControls {}
-
-function SubscriberHighlightsDashboardStory( {
-	metrics,
-	...dashboardArgs
-}: SubscriberHighlightsDashboardStoryProps ) {
+function SubscriberHighlightsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ storyWidgetType }
+			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ SUBSCRIBER_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={
 				SubscriberHighlightsRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ {
-				reportParams: getDefaultQueryParams( true ),
-				metrics,
-			} }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< SubscriberHighlightsDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <SubscriberHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 1,
+		widgetWidth: 3,
 		widgetHeight: 1,
-		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		...METRIC_ARG_TYPES,
 	},
 };
