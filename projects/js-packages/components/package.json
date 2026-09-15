@@ -82,7 +82,6 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",

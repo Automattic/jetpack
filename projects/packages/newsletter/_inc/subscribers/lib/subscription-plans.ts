@@ -1,4 +1,4 @@
-import formatCurrency from '@automattic/format-currency';
+import { formatCurrency } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import type { Subscriber, SubscriptionPlan } from '../data/types';
 
@@ -83,7 +83,7 @@ export function getSubscriptionType( subscriber: Subscriber ): 'paid' | 'comp' |
 }
 
 /**
- * Format a price using `@automattic/format-currency`. Returns an empty string when either
+ * Format a price using `@automattic/number-formatters`. Returns an empty string when either
  * the amount or currency is missing, or when the formatter can't produce a value.
  *
  * @param amount   - Numeric amount.
