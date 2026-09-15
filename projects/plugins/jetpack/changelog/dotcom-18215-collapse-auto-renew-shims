@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Site settings endpoint: read the auto-renew flag off the declared site purchase shape.
