@@ -3,6 +3,7 @@
  */
 import { SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
+import { createContext, useCallback, useContext, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -27,6 +28,18 @@ export interface DetailPageLayoutProps {
 	children: ReactNode;
 }
 
+const DetailPageScrollContext = createContext< () => void >( () => {} );
+
+/**
+ * Bring the detail page's scroll area back to its top, for a card that has
+ * re-scoped the cards above it. A no-op outside a detail page.
+ *
+ * @return The scroll function.
+ */
+export function useDetailPageScrollToTop() {
+	return useContext( DetailPageScrollContext );
+}
+
 /**
  * Detail page scaffold: the scroll area holding the tabs, the resource header
  * pinned at its top, and the sections that scroll under it.
@@ -35,14 +48,22 @@ export interface DetailPageLayoutProps {
  * @return The detail page scaffold.
  */
 export function DetailPageLayout( { header, tabs, controls, children }: DetailPageLayoutProps ) {
+	const scrollArea = useRef< HTMLDivElement >( null );
+	const scrollToTop = useCallback( () => {
+		const reduceMotion = window.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches;
+		scrollArea.current?.scrollTo?.( { top: 0, behavior: reduceMotion ? 'auto' : 'smooth' } );
+	}, [] );
+
 	return (
-		<div className={ styles.root }>
-			{ tabs }
-			<SectionHeader pinned { ...header }>
-				{ controls }
-			</SectionHeader>
-			{ children }
-		</div>
+		<DetailPageScrollContext.Provider value={ scrollToTop }>
+			<div ref={ scrollArea } className={ styles.root }>
+				{ tabs }
+				<SectionHeader pinned { ...header }>
+					{ controls }
+				</SectionHeader>
+				{ children }
+			</div>
+		</DetailPageScrollContext.Provider>
 	);
 }
 
