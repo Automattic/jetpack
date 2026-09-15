@@ -1,9 +1,9 @@
 {
 	"name": "jpa/wordads-earnings-history",
 	"title": "Earnings History",
-	"description": "Your WordAds earnings by period, with amounts, ads served, and payment status.",
+	"description": "Your WordAds earnings by period, with amounts and payment status.",
 	"help": {
-		"content": "Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression."
+		"content": "Each row is one payment period, with what you earned and whether it has been paid. Open the full report for ads served and the rest of the history."
 	},
 	"category": "stats",
 	"presentation": "framed"

@@ -50,7 +50,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The WordAds "Earnings History" widget — WordAds earnings by period (amount, ads served, payment status), ported from the Jetpack Stats WordAds page.',
+					'The WordAds "Earnings History" widget — WordAds earnings by period (amount, payment status), ported from the Jetpack Stats WordAds page. Ads served lives in the full report.',
 			},
 		},
 	},
