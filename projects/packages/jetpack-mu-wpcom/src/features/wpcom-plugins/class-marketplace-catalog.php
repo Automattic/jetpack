@@ -101,18 +101,6 @@ class Marketplace_Catalog {
 	}
 
 	/**
-	 * Whether a slug belongs to the marketplace catalog.
-	 *
-	 * @param string $slug Plugin slug.
-	 * @return bool
-	 */
-	public static function has_product( $slug ) {
-		$products = self::get_products();
-
-		return isset( $products[ $slug ] );
-	}
-
-	/**
 	 * One product's card data, as it appears in the browse list.
 	 *
 	 * @param string $slug Plugin slug.
