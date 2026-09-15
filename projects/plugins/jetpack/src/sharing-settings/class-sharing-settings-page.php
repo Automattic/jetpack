@@ -69,6 +69,32 @@ final class Sharing_Settings_Page {
 	}
 
 	/**
+	 * Render whichever sections apply, ruled off from one another.
+	 *
+	 * Each section is its own form with its own save button, so the boundary
+	 * says which settings a given save covers.
+	 */
+	private static function render_sections(): void {
+		$sections = array( array( Sharing_Section::class, 'render' ) );
+
+		if ( Environment::likes_supported() ) {
+			$sections[] = array( Likes_Section::class, 'render' );
+		}
+
+		if ( Section_State::shows_placement( Environment::sharing_enabled(), Environment::likes_enabled() ) ) {
+			$sections[] = array( Placement_Section::class, 'render' );
+		}
+
+		foreach ( $sections as $index => $section ) {
+			if ( $index > 0 ) {
+				echo '<hr />';
+			}
+
+			call_user_func( $section );
+		}
+	}
+
+	/**
 	 * Confirm a save, when one just happened.
 	 */
 	private static function render_saved_notice(): void {
@@ -96,15 +122,7 @@ final class Sharing_Settings_Page {
 			/** This action is documented in modules/sharedaddy/sharing.php */
 			do_action( 'pre_admin_screen_sharing' );
 
-			Sharing_Section::render();
-
-			if ( Environment::likes_supported() ) {
-				Likes_Section::render();
-			}
-
-			if ( Section_State::shows_placement( Environment::sharing_enabled(), Environment::likes_enabled() ) ) {
-				Placement_Section::render();
-			}
+			self::render_sections();
 			?>
 		</div>
 		<?php
