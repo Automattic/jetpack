@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Plans;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Publicize\Services as Publicize_Services;
@@ -18,6 +19,11 @@ use Automattic\Jetpack\Status\Host;
  * Publicize_Script_Data class.
  */
 class Publicize_Script_Data {
+
+	/**
+	 * The WordPress.com plan that unlocks Social's paid features on Simple sites.
+	 */
+	private const UPGRADE_PLAN_SLUG = 'business-bundle';
 
 	/**
 	 * Get the publicize instance - properly typed
@@ -116,6 +122,7 @@ class Publicize_Script_Data {
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'message_templates'    => array(),
 			'supported_services'   => array(),
+			'upgrade'              => self::get_upgrade_data(),
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
 			'plugin_info'          => self::get_plugin_info(),
@@ -143,6 +150,30 @@ class Publicize_Script_Data {
 					'placeholders' => Message_Templates_Placeholders::get_all(),
 				),
 			)
+		);
+	}
+
+	/**
+	 * Get the plan a site needs to unlock Social's paid features.
+	 *
+	 * Null off Simple, which keeps the uncached `Plans::get_plan_short_name()` lookup
+	 * away from a path the block editor runs on every post edit.
+	 *
+	 * @return array|null The plan slug and short name, or null when there's nothing to upsell.
+	 */
+	public static function get_upgrade_data() {
+
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			return null;
+		}
+
+		if ( Current_Plan::supports( 'social-enhanced-publishing' ) ) {
+			return null;
+		}
+
+		return array(
+			'plan_slug' => self::UPGRADE_PLAN_SLUG,
+			'plan_name' => Plans::get_plan_short_name( self::UPGRADE_PLAN_SLUG ),
 		);
 	}
 

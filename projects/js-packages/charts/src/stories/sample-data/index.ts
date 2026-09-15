@@ -1036,6 +1036,30 @@ export const heatmapActivityMatrix: HeatmapColumn[] = Array.from(
 );
 
 /**
+ * Activity matrix with a trailing summary column (13 columns × 7 rows)
+ *
+ * The activity matrix plus a `Total` column flagged `summary`, holding each
+ * row's sum: outside the colour scale, unfilled, emphasised.
+ * - Category: matrix
+ * - Data points: 91
+ * - Suitable for: HeatmapChart (summary column)
+ */
+export const heatmapActivityMatrixWithTotals: HeatmapColumn[] = [
+	...heatmapActivityMatrix,
+	{
+		label: 'Total',
+		summary: true,
+		data: Array.from( { length: 7 }, ( _row, row ) => ( {
+			label: `Total, Row ${ row + 1 }`,
+			value: heatmapActivityMatrix.reduce(
+				( sum, column ) => sum + ( column.data[ row ].value ?? 0 ),
+				0
+			),
+		} ) ),
+	},
+];
+
+/**
  * Large-value matrix for the heatmap chart (12 columns × 7 rows)
  *
  * Same shape as the activity matrix but with values up to ~1,000,000, to exercise

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Expiry notices: Show the plan-expiry notice on the site front-end to logged-in admins.

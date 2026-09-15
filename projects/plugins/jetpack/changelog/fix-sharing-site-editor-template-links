@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: Open the post template instead of the template list when linking to the Site Editor.

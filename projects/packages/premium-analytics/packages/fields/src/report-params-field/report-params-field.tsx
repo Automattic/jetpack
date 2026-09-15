@@ -7,24 +7,25 @@ import {
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	getStoreInfo,
+	hasComparisonEnabled,
 	normalizeReportParams,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
-	endOfDayTZ,
 	type IntervalType,
-	isPrimaryPreset,
 	QUICK_SURFACE_PRESETS,
 	type QuickSurfacePresetId,
-	siteTimeZone,
+	reportingTimeZone,
 	type DateRange,
+	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import {
 	decodeDateSearchParam,
 	deriveComparisonRange,
 	encodeDateToSearchParam,
+	encodeRangeToSearchParams,
 	hasPrimaryDateDraft,
 	useStagedValue,
 } from '@jetpack-premium-analytics/routing';
@@ -197,19 +198,21 @@ function ReportParamsControl( {
 	}, [ isUnofferedPreset, fallbackPreset ] );
 
 	const stageDateRange = useCallback(
-		( nextRange?: DateRange, nextPresetId?: string ) => {
+		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
 			const patch: Partial< ReportParams > = {};
 
 			if ( nextRange?.from && nextRange?.to ) {
-				patch.from = encodeDateToSearchParam( nextRange.from );
-				patch.to = encodeDateToSearchParam(
-					// The site's day boundary, not the visitor's (see build-range-patch).
-					endOfDayTZ( nextRange.to, siteTimeZone() )
+				Object.assign(
+					patch,
+					encodeRangeToSearchParams(
+						{ from: nextRange.from, to: nextRange.to },
+						{ presetId: nextPresetId }
+					)
 				);
 			}
 
 			if ( nextPresetId ) {
-				patch.preset = isPrimaryPreset( nextPresetId ) ? nextPresetId : undefined;
+				patch.preset = nextPresetId;
 			}
 
 			if ( reportParams.comp === '1' ) {
@@ -284,16 +287,17 @@ function ReportParamsControl( {
 		<Stack direction="column" gap="sm">
 			<DateFiltersPanel
 				range={ range }
-				presetId={ stagedReportParams.preset ?? reportParams.preset }
 				appliedPresetId={ appliedParams.preset }
 				appliedRange={ appliedRange }
-				comparisonPresetId={ stagedReportParams.compare_preset }
+				comparisonPresetId={
+					hasComparisonEnabled( stagedReportParams ) ? stagedReportParams.compare_preset : undefined
+				}
 				onChange={ stageDateRange }
 				onComparisonChange={ changeComparisonRange }
 				onApply={ commit }
 				canApply={ isDateRangeDirty }
 				onCancel={ revert }
-				timeZone={ siteTimeZone() }
+				timeZone={ reportingTimeZone() }
 				presetIds={ presetIds }
 				withIntervalControl={ withIntervalControl }
 				interval={ interval }

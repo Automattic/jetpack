@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * This class serves as a container for what previously were standalone grunion functions.
  * In the long term we should aim to move things to other classes and gradually get rid of this rather than adding more.
@@ -185,6 +187,17 @@ class Util {
 					<!-- /wp:jetpack/contact-form -->',
 			),
 		);
+
+		/*
+		 * The Lead Capture pattern is the twin of the 'lead-capture-form' block variation, which is
+		 * hidden on WordPress.com Simple and WoA sites: there the Subscribe block owns newsletter
+		 * signups, and a form with a Subscribe button subscribes nobody. Drop the pattern on those
+		 * hosts too, so it isn't the last remaining route into a form that looks like a signup and
+		 * silently isn't one.
+		 */
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			unset( $patterns['newsletter-form'] );
+		}
 
 		foreach ( $patterns as $name => $pattern ) {
 			register_block_pattern( $name, $pattern );

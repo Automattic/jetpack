@@ -11,7 +11,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { ensureDashboardEntities } from '../dashboard-entities';
+import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
 
 type VideoDetailParams = { videoId?: string };
@@ -45,6 +45,12 @@ export const route = {
 		// Kept apart from the id check below: an unsupported site and a malformed id
 		// are different events, even though both currently land on the dashboard.
 		if ( ! isVideoPressAvailable() ) {
+			throw redirect( { to: '/' } );
+		}
+
+		// This is the Videos report's detail page, so it follows that report out of
+		// scope rather than declaring a tab of its own.
+		if ( ! getReportDefinition( 'videos' ) ) {
 			throw redirect( { to: '/' } );
 		}
 
@@ -97,7 +103,5 @@ export const route = {
 				search: seeded as unknown as never,
 			} );
 		}
-
-		ensureDashboardEntities();
 	},
 };

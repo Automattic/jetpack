@@ -2,6 +2,7 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { Group } from '@visx/group';
 import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
+import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
 import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
 import { isValidHexColor, lightenHexColor } from '../../utils';
@@ -231,6 +232,7 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 		bottom: 0,
 		top: 0,
 	},
+	className,
 	...rest
 } ) => {
 	const { getElementStyles } = useGlobalChartsContext();
@@ -298,6 +300,9 @@ const BarListChartInternal: FC< BarListChartProps > = ( {
 		<BarChartUnresponsive
 			orientation="horizontal"
 			gridVisibility={ 'none' }
+			// The root carries `bar-chart` too, since a bar list renders through one. This class is
+			// how a consumer reaches a bar list without reaching every bar chart.
+			className={ clsx( 'bar-list-chart', className ) }
 			data={ tintedData }
 			width={ width }
 			height={ height }

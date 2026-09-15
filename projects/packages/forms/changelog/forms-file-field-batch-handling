@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-File upload field: Fix several problems with adding more than one file at once, and with uploads that stall or fail.

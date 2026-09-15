@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show a notice when a refresh fails, instead of silently leaving the previous numbers on screen.

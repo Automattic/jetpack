@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+RTC: Skip unnecessary eligibility checks when real-time collaboration is disabled.

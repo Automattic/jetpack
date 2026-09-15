@@ -352,24 +352,21 @@ describe( 'HeatmapChart', () => {
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#abcdef' );
 	} );
 
-	test( 'resolves primaryColor from the chart theme', () => {
-		render(
-			<GlobalChartsProvider theme={ { heatmapChart: { primaryColor: '#0a0b0c' } } }>
-				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
-			</GlobalChartsProvider>
-		);
-		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#0a0b0c' );
-	} );
+	test( 'falls back to the first palette slot when no primaryColor prop is set', () => {
+		const scope = document.createElement( 'div' );
+		scope.style.setProperty( '--a8c-charts-color-series-1', '#0a0b0c' );
+		document.body.appendChild( scope );
 
-	test( 'falls back to the palette colors[0] when no prop or theme primaryColor is set', () => {
 		render(
-			<GlobalChartsProvider theme={ { colors: [ '#0a0b0c' ] } }>
+			<GlobalChartsProvider>
 				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
-			</GlobalChartsProvider>
+			</GlobalChartsProvider>,
+			{ container: scope }
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#0a0b0c' );
+
+		document.body.removeChild( scope );
 	} );
 
 	test( 'the unresponsive export pins explicit width and height', () => {
@@ -391,5 +388,138 @@ describe( 'HeatmapChart', () => {
 		const chart = screen.getByTestId( 'heatmap-chart' );
 		expect( chart ).not.toHaveStyle( { width: '500px' } );
 		expect( chart ).not.toHaveStyle( { height: '300px' } );
+	} );
+} );
+
+// Chart container at (100, 50); the tooltip box measures 120x40. Everything
+// else the charts measure (wrapper, clipping lookups) reports the container.
+const mockRects = () =>
+	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+		this: Element
+	) {
+		const box = this.classList.contains( 'visx-tooltip' );
+		return {
+			left: box ? 0 : 100,
+			top: box ? 0 : 50,
+			width: box ? 120 : 400,
+			height: box ? 40 : 300,
+			right: box ? 120 : 500,
+			bottom: box ? 40 : 350,
+			x: box ? 0 : 100,
+			y: box ? 0 : 50,
+			toJSON: () => ( {} ),
+		} as DOMRect;
+	} );
+
+describe( 'HeatmapChart keyboard tooltip', () => {
+	test( 'opens on the selected cell without row labels', async () => {
+		renderChart( { withTooltips: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		grid.focus();
+		await user.keyboard( '{ArrowDown}' );
+
+		expect( within( screen.getByRole( 'tooltip' ) ).getByText( '1' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'HeatmapChart tooltip position', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	test( 'places the box relative to the chart root, at the pointer plus the offsets', async () => {
+		mockRects();
+		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+
+		await userEvent.setup().pointer( {
+			target: screen.getAllByTestId( 'heatmap-cell' )[ 0 ],
+			coords: { clientX: 180, clientY: 140 },
+		} );
+
+		// (180, 140) is (80, 90) inside the root; the box adds 10px each way.
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			transform: 'translate(90px, 100px)',
+		} );
+	} );
+} );
+
+describe( 'HeatmapChart summary column', () => {
+	const withTotals: HeatmapColumn[] = [
+		...data,
+		{ label: 'Total', summary: true, data: [ { value: 400 }, { value: 200 }, { value: null } ] },
+	];
+
+	test( 'keeps the summary column out of the color scale', () => {
+		renderChart( { data: withTotals } );
+		// 4 is still the data maximum, so it keeps full intensity.
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'W2: 4' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '1' );
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'Total: 400' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '' );
+	} );
+
+	test( 'draws every summary cell, printing its figure even in compact mode', () => {
+		renderChart( { data: withTotals, compact: true } );
+		expect( screen.getAllByTestId( 'heatmap-cell-summary' ) ).toHaveLength( 3 );
+		expect( screen.getByRole( 'gridcell', { name: 'Total: 400' } ) ).toHaveTextContent( '400' );
+		expect( screen.getByRole( 'gridcell', { name: 'Total: No data' } ) ).toBeEmptyDOMElement();
+		expect( screen.getByRole( 'grid' ) ).toHaveAttribute( 'aria-colcount', '3' );
+	} );
+
+	test( 'sets a summary apart from the data on either side, but not from another summary', () => {
+		renderChart( {
+			data: [
+				{ label: 'Lead', summary: true, data: [ { value: 7 }, { value: 8 }, { value: 9 } ] },
+				...withTotals,
+				{ label: 'Mean', summary: true, data: [ { value: 2 }, { value: 1 }, { value: 3 } ] },
+			],
+		} );
+
+		const lead = screen.getByRole( 'gridcell', { name: 'Lead: 7' } );
+		expect( lead ).toHaveClass( 'heatmap-chart__gap-end' );
+		expect( lead ).not.toHaveClass( 'heatmap-chart__gap-start' );
+
+		const total = screen.getByRole( 'gridcell', { name: 'Total: 400' } );
+		expect( total ).toHaveClass( 'heatmap-chart__gap-start' );
+		expect( total ).not.toHaveClass( 'heatmap-chart__gap-end' );
+
+		const mean = screen.getByRole( 'gridcell', { name: 'Mean: 2' } );
+		expect( mean ).not.toHaveClass( 'heatmap-chart__gap-start' );
+		expect( mean ).not.toHaveClass( 'heatmap-chart__gap-end' );
+		expect( screen.getByRole( 'gridcell', { name: 'W1: 1' } ) ).not.toHaveClass(
+			'heatmap-chart__gap-start'
+		);
+	} );
+
+	test( 'keeps the summary track content-sized when the data tracks are capped', () => {
+		renderChart( { data: withTotals, maxCellWidth: 32 } );
+
+		expect( screen.getByRole( 'grid', { name: /heatmap/i } ) ).toHaveStyle( {
+			gridTemplateColumns: 'auto minmax(0px, 32px) minmax(0px, 32px) minmax(auto, max-content)',
+		} );
+	} );
+
+	test( 'reaches the summary column by keyboard, with its tooltip', async () => {
+		renderChart( { data: withTotals, withTooltips: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		grid.focus();
+		await user.keyboard( '{ArrowDown}{ArrowRight}{ArrowRight}' );
+
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-2-0$/ )
+		);
+		expect( within( screen.getByRole( 'tooltip' ) ).getByText( '400' ) ).toBeInTheDocument();
 	} );
 } );

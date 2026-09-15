@@ -176,7 +176,7 @@ Use `gapScale` to add spacing between chart segments:
 
 ### Custom Colors
 
-Override theme colors by providing color values in data:
+Override the palette by providing color values in data:
 
 <Source
 	language="jsx"
@@ -212,40 +212,31 @@ Override theme colors by providing color values in data:
 
 <Canvas of={ PieChartStories.CustomLabelColors } />
 
-The Pie Chart supports customizable label colors through the theme system:
+Label colors are CSS custom properties, set anywhere inside the provider tree:
 
 <Source
-	language="jsx"
-	code={ `import { GlobalChartsProvider } from '@automattic/charts';
-
-const customTheme = {
-	...defaultTheme,
-	labelTextColor: '#FFFFFF', // White text for labels
-	labelBackgroundColor: 'rgba(0, 0, 0, 0.8)', // Enable dark background (transparent by default)
-};
-
-<GlobalChartsProvider theme={ customTheme }>
-	<PieChart data={ data } />
-</GlobalChartsProvider>` }
+	language="css"
+	code={ `.my-pie-chart {
+	--a8c-charts-color-label-inverse: #FFFFFF;
+	--a8c-charts-color-label-background: rgba(0, 0, 0, 0.8);
+}` }
 />
 
-**Label Color Properties:**
+**Label Color Roles:**
 
-Both props are deprecated in favor of the catalog roles they now point at. Declaring the role in CSS anywhere inside the provider tree beats either prop.
-
-- **`labelTextColor`** - Controls the color of text displayed on pie chart segments. Defaults to `var(--a8c-charts-color-label-on-fill, #FFFFFF)`, so labels are white until the role is declared.
-- **`labelBackgroundColor`** - Controls the background color of labels. Defaults to `var(--a8c-charts-color-label-background, transparent)`, so a label reads straight off the slice. Any color value creates a rounded rectangle behind each label for enhanced readability, transparency included (e.g., `rgba(0, 0, 0, 0.7)`).
+- **`--a8c-charts-color-label-inverse`** - Label text on a filled surface: a pie segment here, a heatmap cell elsewhere.
+- **`--a8c-charts-color-label-background`** - The plate behind a label. Defaults to `transparent`, so the label reads straight off the segment. Set any color to get a rounded rectangle behind each label; a semi-transparent one (`rgba()`) keeps the segment color visible through it.
 
 **Best Practices:**
-- Use high contrast between `labelTextColor` and `labelBackgroundColor` for optimal readability
+- Use high contrast between the label text and its plate for optimal readability
 - Consider semi-transparent backgrounds (`rgba()`) to maintain visual connection to segment colors
 - Test with different segment colors to ensure labels remain visible
-- Use `labelBackgroundColor` when segment colors are too varied or bright for consistent text visibility
+- Set `--a8c-charts-color-label-background` when segment colors are too varied or bright for consistent text visibility
 - Consider accessibility guidelines when choosing color combinations
 
 ## Theming Integration
 
-Pie Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+Pie Charts integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
 
 **Segment colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 

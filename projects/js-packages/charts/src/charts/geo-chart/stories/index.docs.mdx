@@ -261,11 +261,11 @@ Tooltips are automatically enabled and positioned for optimal readability.
 
 The chart automatically scales colors based on data values:
 
-- **No data**: Countries without values use the default theme color (`datalessRegionColor`)
+- **No data**: Countries without values use `--a8c-charts-color-surface-secondary` (`datalessRegionColor`)
 - **Low values**: Displayed with lighter colors
-- **High values**: Displayed with the full primary theme color
+- **High values**: Displayed with the full first palette color
 
-The color scale is configured via Google Charts' `colorAxis` option, using the theme's primary color range.
+The color scale is configured via Google Charts' `colorAxis` option, from `--a8c-charts-color-series-1` and a lightened version of it.
 
 ## Styling and Customization
 
@@ -289,7 +289,7 @@ Add custom styles using the `className` prop:
 
 ## Theming Integration
 
-Geo Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+Geo Charts integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
 
 **The color axis range comes from the first palette custom property, not the theme object:**
 

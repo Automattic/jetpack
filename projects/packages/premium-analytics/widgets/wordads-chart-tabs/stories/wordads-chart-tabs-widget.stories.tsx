@@ -14,12 +14,17 @@ import {
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
 import WordAdsChartTabsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { IntervalType } from '@jetpack-premium-analytics/datetime';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 registerReportMocks();
@@ -39,6 +44,10 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/WordAdsChartTabs',
 	component: WordAdsChartTabsRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteTimeZone ],
+	argTypes: {
+		...siteTimeZoneArgTypes,
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -47,12 +56,12 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof WordAdsChartTabsRender >;
+} satisfies Meta< ComponentProps< typeof WordAdsChartTabsRender > & SiteTimeZoneControls >;
 
 export default meta;
 
-type Story = StoryObj< Record< string, never > >;
-type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls >;
+type Story = StoryObj< SiteTimeZoneControls >;
+type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls & SiteTimeZoneControls >;
 
 /**
  * The widget on its own, on the range its header control defaults to.
@@ -105,7 +114,9 @@ export const Empty: Story = {
 	},
 };
 
-function WordAdsChartTabsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
+function WordAdsChartTabsDashboardStory( {
+	...dashboardArgs
+}: WidgetDashboardWithWidgetControls & SiteTimeZoneControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }

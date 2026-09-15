@@ -20,6 +20,11 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
 import VideoDetailViewsPerformanceRender from '../render';
 import widgetDefinition, { type VideoDetailViewsPerformanceChartType } from '../widget';
 import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
@@ -36,7 +41,7 @@ const MOCK_VIDEO_ID = 105;
 
 const VIDEO_DETAIL_VIEWS_PERFORMANCE_RENDER_MODULE = 'storybook/video-detail-views-performance';
 
-interface VideoDetailViewsPerformanceStoryControls {
+interface VideoDetailViewsPerformanceStoryControls extends SiteTimeZoneControls {
 	hasVideoScope: boolean;
 	interval: StatsChartBucketPeriod;
 	chartType: VideoDetailViewsPerformanceChartType;
@@ -72,7 +77,9 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/VideoDetailViewsPerformance',
 	component: VideoDetailViewsPerformanceRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteTimeZone ],
 	argTypes: {
+		...siteTimeZoneArgTypes,
 		hasVideoScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the video detail page seeds from its URL.',
@@ -112,7 +119,7 @@ type Story = StoryObj< VideoDetailViewsPerformanceStoryControls >;
  */
 export const Default: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { hasVideoScope: true, interval: 'day', chartType: 'line' },
+	args: { hasVideoScope: true, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -123,7 +130,7 @@ export const Default: Story = {
  */
 export const NoVideoScope: Story = {
 	render: renderVideoDetailViewsPerformance,
-	args: { hasVideoScope: false, interval: 'day', chartType: 'line' },
+	args: { hasVideoScope: false, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 

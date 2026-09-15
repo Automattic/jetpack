@@ -56,6 +56,5 @@ unreadable.
 ## Y-axis domain
 
 Percentage metrics are pinned to 0%–100% and an all-zero period gets a readable axis instead of a
-flat baseline, both via the shared `getFixedYAxis` helper, which also supplies the left margin such
-a pinned domain needs. Zero-value bars are drawn as hairline stubs (`showZeroValues`) so a quiet day
-reads as zero rather than missing data.
+flat baseline, both via the shared `getFixedYAxis` helper. Zero-value bars are drawn as hairline
+stubs (`showZeroValues`) so a quiet day reads as zero rather than missing data.

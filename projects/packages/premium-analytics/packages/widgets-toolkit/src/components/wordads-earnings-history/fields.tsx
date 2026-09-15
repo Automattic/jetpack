@@ -76,8 +76,7 @@ export function getEarningsStatus( status: number | undefined ): {
 
 /**
  * Flatten a period-keyed earnings breakdown into table rows. Row order is left
- * to the view's own sort (`EARNINGS_HISTORY_VIEW`), which the sortable column
- * headers drive.
+ * to each consumer's own view sort, which the sortable column headers drive.
  *
  * @param breakdown - The normalized breakdown map, or undefined.
  * @return The rows for the table.
@@ -121,18 +120,18 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			// `getValue` is omitted on the fields below: DataViews defaults to
 			// `item[ field.id ]`, and each id already matches its row property.
-			// Sorting Period on the raw `YYYY-MM` key keeps it chronological.
 			id: 'period',
 			label: __( 'Period', 'jetpack-premium-analytics-pkg' ),
 			enableHiding: false,
+			// Searches and sorts the raw `YYYY-MM`, which keeps the order chronological.
+			// A query therefore matches a year or `2026-09`, not the `09-2026` on screen.
+			enableGlobalSearch: true,
 			render: ( { item } ) => <>{ formatPeriodLabel( item.period ) }</>,
 		},
 		{
 			id: 'amount',
 			label: __( 'Earnings', 'jetpack-premium-analytics-pkg' ),
-			render: ( { item } ) => (
-				<>{ formatMetricValue( item.amount, 'currency', { decimals: 2 } ) }</>
-			),
+			render: ( { item } ) => <>{ formatMetricValue( item.amount, 'currency' ) }</>,
 		},
 		{
 			id: 'pageviews',
@@ -142,7 +141,8 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'status',
 			label: __( 'Status', 'jetpack-premium-analytics-pkg' ),
-			// Sorts by the visible label rather than the numeric code.
+			enableGlobalSearch: true,
+			// Sorts and searches by the visible label rather than the numeric code.
 			getValue: ( { item } ) => getEarningsStatus( item.status ).label,
 			render: ( { item } ) => {
 				const { label, tooltip } = getEarningsStatus( item.status );

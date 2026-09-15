@@ -133,7 +133,7 @@ describe( 'PopularPostWidget', () => {
 		// The window's own bounds are asserted in the hook's suite; what only shows
 		// here is that the injected year never displaces them.
 		const [ ranking ] = topPostsRequests().map( decodeURIComponent );
-		expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
+		expect( ranking ).toContain( 'start_date=2025-09-01T00:00:00' );
 		expect( ranking ).not.toContain( '2022' );
 
 		// A different section year is the change this card must ignore: it reads
@@ -159,8 +159,8 @@ describe( 'PopularPostWidget', () => {
 		const { searchParams: search } = getMockRouteLinkUrl( link );
 
 		expect( search.get( 'preset' ) ).toBe( 'last-12-months' );
-		expect( search.get( 'from' ) ).toContain( '2025-08-27T00:00:00' );
-		expect( search.get( 'to' ) ).toContain( '2026-08-26T23:59:59' );
+		expect( search.get( 'from' ) ).toContain( '2025-09-01T00:00:00' );
+		expect( search.get( 'to' ) ).toContain( '2026-08-27T23:59:59' );
 
 		// A complete window, so the detail route reseeds the URL from these params
 		// rather than from its own defaults. (It does reseed either way — its
@@ -185,6 +185,6 @@ describe( 'PopularPostWidget', () => {
 		await expect( screen.findByText( 'Winning post' ) ).resolves.toBeInTheDocument();
 
 		const [ ranking ] = topPostsRequests().map( decodeURIComponent );
-		expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
+		expect( ranking ).toContain( 'start_date=2025-09-01T00:00:00' );
 	} );
 } );

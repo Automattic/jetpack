@@ -12,10 +12,11 @@ import {
 	isSameDay,
 	startOfDay,
 } from 'date-fns';
+import type { DateRange } from './get-comparison-range';
+import type { TZDate } from '@date-fns/tz';
 /**
  * Internal dependencies
  */
-import type { DateRange } from './get-comparison-range';
 
 /**
  * The unit a range's length is best described in.
@@ -58,7 +59,7 @@ const MONTHS_PER_YEAR = 12;
  * @param to   - Range end.
  * @return Whether both ends sit on a day boundary.
  */
-function coversWholeDays( from: Date, to: Date ): boolean {
+function coversWholeDays( from: TZDate, to: TZDate ): boolean {
 	return isEqual( from, startOfDay( from ) ) && isEqual( to, endOfDay( to ) );
 }
 
@@ -72,9 +73,7 @@ function coversWholeDays( from: Date, to: Date ): boolean {
  * @param to   - Range end.
  * @return The month count, or null when the range is not a whole number of months.
  */
-function getWholeMonths( from: Date, to: Date ): number | null {
-	// `addDays` keeps the input's `Date` subclass, so a site-timezone `TZDate`
-	// stays anchored to that zone rather than the browser's.
+function getWholeMonths( from: TZDate, to: TZDate ): number | null {
 	const dayAfterTo = startOfDay( addDays( to, 1 ) );
 	const months = differenceInCalendarMonths( dayAfterTo, from );
 
@@ -97,13 +96,20 @@ function getWholeMonths( from: Date, to: Date ): number | null {
  * open-ended range measures by the day it is read on.
  *
  * @param range - The range to measure.
- * @return The span, or null when the range is missing an end.
+ * @return The span, or null when the range is missing an end or runs backwards.
  */
 export function getDateRangeSpan( range?: DateRange ): DateRangeSpan | null {
 	const from = range?.from;
 	const to = range?.to;
 
 	if ( ! from || ! to ) {
+		return null;
+	}
+
+	// A hand-edited URL can name an end before its start. Every measurement
+	// below floors at 1, so a backwards range would otherwise report a
+	// plausible-looking one-hour window rather than no window at all.
+	if ( to.getTime() < from.getTime() ) {
 		return null;
 	}
 

@@ -24,34 +24,40 @@ function wpcom_profile_settings_add_links_to_wpcom() {
 
 	$is_wpcom_atomic = is_woa_site();
 
+	$wpcom_profile_settings_text = __( 'Edit account settings on WordPress.com ↗', 'jetpack-mu-wpcom' );
+
 	wp_localize_script(
 		'wpcom-profile-settings-link-to-wpcom',
 		'wpcomProfileSettingsLinkToWpcom',
 		array(
 			'language'      => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
+				'text' => $wpcom_profile_settings_text,
+			),
+			'username'      => array(
+				'link' => esc_url( 'https://wordpress.com/me/account' ),
+				'text' => $wpcom_profile_settings_text,
 			),
 			'name'          => array(
 				'link'  => esc_url( 'https://wordpress.com/me' ),
-				'text'  => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
+				'text'  => $wpcom_profile_settings_text,
 				'title' => __( 'Name', 'jetpack-mu-wpcom' ),
 			),
 			'website'       => array(
 				'link' => esc_url( 'https://wordpress.com/me' ),
-				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
+				'text' => $wpcom_profile_settings_text,
 			),
 			'bio'           => array(
 				'link' => esc_url( 'https://wordpress.com/me' ),
-				'text' => __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
+				'text' => $wpcom_profile_settings_text,
 			),
 			'email'         => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => $is_wpcom_atomic ? __( 'Or manage your WP.com account email ↗', 'jetpack-mu-wpcom' ) : __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
+				'text' => $is_wpcom_atomic ? __( 'Or manage your WordPress.com account email ↗', 'jetpack-mu-wpcom' ) : $wpcom_profile_settings_text,
 			),
 			'password'      => array(
 				'link' => esc_url( 'https://wordpress.com/me/security' ),
-				'text' => $is_wpcom_atomic ? __( 'Or manage your WP.com account password ↗', 'jetpack-mu-wpcom' ) : __( 'Manage on WP.com ↗', 'jetpack-mu-wpcom' ),
+				'text' => $is_wpcom_atomic ? __( 'Or manage your WordPress.com account password ↗', 'jetpack-mu-wpcom' ) : $wpcom_profile_settings_text,
 			),
 			'isWpcomAtomic' => $is_wpcom_atomic,
 		)

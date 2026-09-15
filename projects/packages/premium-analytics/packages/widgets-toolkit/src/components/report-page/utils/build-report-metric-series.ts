@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { localTZDate } from '@jetpack-premium-analytics/data';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -26,11 +26,16 @@ type ReportTimeSeriesResponse = {
  * `StatsTimeSeriesDataPoint` carries every requested `stat_fields` metric as a raw
  * field keyed by name (`views`, `visitors`, …).
  */
-function toChartPoints( report: StatsTimeSeriesReport, key: string ): ComparativeDatePointDate[] {
-	return ( report.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
-		value: Number( point[ key ] ?? 0 ),
-	} ) );
+function toChartPoints(
+	report: StatsTimeSeriesReport,
+	key: string,
+	zone: string
+): ComparativeDatePointDate[] {
+	return ( report.data ?? [] ).flatMap( point => {
+		const date = resolveBucketStamp( point.date_start, zone );
+
+		return date ? [ { date, value: Number( point[ key ] ?? 0 ) } ] : [];
+	} );
 }
 
 /**
@@ -65,7 +70,8 @@ function toTimeSeriesResponse(
 function buildSingleMetricSeries(
 	primary: StatsTimeSeriesReport,
 	comparison: StatsTimeSeriesReport | undefined,
-	metric: ReportChartMetric
+	metric: ReportChartMetric,
+	zone: string
 ): ComparativeLineChartSeries[] {
 	const series = buildTimeSeriesChartData( {
 		primary: toTimeSeriesResponse( primary, metric.key ),
@@ -73,6 +79,7 @@ function buildSingleMetricSeries(
 			? toTimeSeriesResponse( comparison, metric.key )
 			: undefined,
 		metricKey: metric.key,
+		zone,
 		label: metric.label,
 	} );
 
@@ -106,10 +113,13 @@ export function buildReportMetricSeries( {
 	primary,
 	comparison,
 	metrics,
+	zone,
 }: {
 	primary?: StatsTimeSeriesReport;
 	comparison?: StatsTimeSeriesReport;
 	metrics: ReportChartMetric[];
+	/** The timezone the reports were built and normalized under. */
+	zone: string;
 } ): ComparativeLineChartSeries[] {
 	if ( ! primary?.data?.length ) {
 		return [];
@@ -117,13 +127,13 @@ export function buildReportMetricSeries( {
 
 	const single = metrics.length === 1 ? metrics[ 0 ] : undefined;
 	if ( single ) {
-		return buildSingleMetricSeries( primary, comparison, single );
+		return buildSingleMetricSeries( primary, comparison, single, zone );
 	}
 
 	const series: ComparativeLineChartSeries[] = metrics.map( metric => ( {
 		label: metric.label,
 		group: metric.key,
-		data: toChartPoints( primary, metric.key ),
+		data: toChartPoints( primary, metric.key, zone ),
 	} ) );
 
 	return series;

@@ -4,6 +4,7 @@
 import {
 	BarChart,
 	Stack,
+	getBucketInfo,
 	useGlobalChartsContext,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
@@ -34,9 +35,6 @@ import type { DataFormat } from '../../types';
 import type { ComparativeDatePointDate } from '../chart-comparative-line/types';
 import type { TooltipStyle } from '../chart-tooltip';
 import type { ComponentProps } from 'react';
-
-/** The y-axis is on the left, so the right margin is always 0. */
-const DEFAULT_MARGIN = { right: 0 };
 
 /**
  * Chart-area height (px) below which `compactWhenShort` degrades the chart to
@@ -76,8 +74,7 @@ export type ComparativeBarChartProps = {
 
 	/**
 	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Callers whose points are wall clocks (see `chart-date.ts`)
-	 * pass a variant that re-anchors them first; defaults to `formatDate`.
+	 * picked for it. Defaults to `formatDate`.
 	 */
 	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
 
@@ -143,7 +140,9 @@ export function ComparativeBarChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution( tickResolution );
+	const tooltipDateFormat = dateFormatForResolution(
+		getBucketInfo( series, tickResolution ).displayResolution
+	);
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
 	const { getElementStyles } = useGlobalChartsContext();
@@ -176,13 +175,10 @@ export function ComparativeBarChart( {
 		[ alignedSeries, getElementStyles ]
 	);
 
-	// Multipliers and 0 decimals keep the tick strings short.
+	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
 		() => ( value: number ) =>
-			formatMetricValue( value, dataFormat.type, {
-				useMultipliers: true,
-				decimals: 0,
-			} ),
+			formatMetricValue( value, dataFormat.type, { useMultipliers: true } ),
 		[ dataFormat ]
 	);
 
@@ -287,12 +283,12 @@ export function ComparativeBarChart( {
 	);
 
 	/**
-	 * A pinned domain for percentage metrics and all-zero periods, with the left
-	 * margin its widest tick needs. Null lets the chart scale to the data.
+	 * A pinned domain for percentage metrics and all-zero periods. Null lets the
+	 * chart scale to the data.
 	 */
 	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData, yTickFormat ),
-		[ dataFormat.type, isEmptyData, yTickFormat ]
+		() => getFixedYAxis( dataFormat.type, isEmptyData ),
+		[ dataFormat.type, isEmptyData ]
 	);
 
 	const chartOptions = useMemo( () => {
@@ -317,15 +313,6 @@ export function ComparativeBarChart( {
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
 	}, [ xTickFormat, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
 
-	const margin = useMemo( () => {
-		// With the y-axis hidden, reclaim its reserved left margin for the bars.
-		if ( isCompact ) {
-			return { ...DEFAULT_MARGIN, left: 0 };
-		}
-
-		return fixedYAxis ? { ...DEFAULT_MARGIN, left: fixedYAxis.marginLeft } : DEFAULT_MARGIN;
-	}, [ isCompact, fixedYAxis ] );
-
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
 			<BarChart
@@ -335,7 +322,6 @@ export function ComparativeBarChart( {
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }
-				margin={ margin }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }

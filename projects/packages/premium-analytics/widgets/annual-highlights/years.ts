@@ -10,7 +10,7 @@ import {
 	PRESET_ALL_TIME,
 	getPresetYear,
 	getYearSurfacePresets,
-	siteTimeZone,
+	reportingTimeZone,
 	toLocalTZ,
 	type YearPresetId,
 } from '@jetpack-premium-analytics/datetime';
@@ -43,7 +43,7 @@ function findStartYear( data: StatsInsightsResponse | undefined ): number | unde
 export async function getYearElements(): Promise< Option[] > {
 	const data = await queryClient.fetchQuery( statsInsightsQuery() ).catch( () => undefined );
 
-	return getYearSurfacePresets( siteTimeZone(), { startYear: findStartYear( data ) } )
+	return getYearSurfacePresets( reportingTimeZone(), { startYear: findStartYear( data ) } )
 		.filter( preset => preset.id !== PRESET_ALL_TIME )
 		.map( preset => ( { value: preset.id, label: preset.label } ) );
 }
@@ -53,5 +53,5 @@ export async function getYearElements(): Promise< Option[] > {
  * reads as the current year, which the dropdown lists first.
  */
 export function resolveSelectedYear( year: YearPresetId | undefined ): number {
-	return getPresetYear( year ) ?? toLocalTZ( undefined, siteTimeZone() ).getFullYear();
+	return getPresetYear( year ) ?? toLocalTZ( undefined, reportingTimeZone() ).getFullYear();
 }

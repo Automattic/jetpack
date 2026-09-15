@@ -224,6 +224,60 @@ class Site_Health_Test extends TestCase {
 	}
 
 	/**
+	 * Test that on a connected site the daily check clears a previously reported
+	 * SSL verification error when WP.com reports the site connected.
+	 */
+	public function test_do_daily_connection_check_clears_ssl_error() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		// Seed a previously reported SSL verification error.
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		Error_Handler::get_instance()->report_error(
+			Error_Handler::build_connection_wp_error(
+				'wpcom_ssl_verification_failed',
+				'WordPress.com cannot verify the SSL certificate of the site',
+				array( 'token' => '' ),
+				Error_Handler::ERROR_TYPE_LOCAL_STATE,
+				'',
+				array(
+					'user_id' => 0,
+					'action'  => 'none',
+				)
+			),
+			false,
+			true
+		);
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+
+		add_filter(
+			'pre_http_request',
+			static function ( $preempt, $parsed_args, $url ) {
+				if ( false !== strpos( $url, '/test-connection' ) ) {
+					return array(
+						'headers'  => array(),
+						'response' => array(
+							'code'    => 200,
+							'message' => 'OK',
+						),
+						'body'     => wp_json_encode( array( 'connected' => true ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+						'cookies'  => array(),
+						'filename' => null,
+					);
+				}
+				return $preempt;
+			},
+			10,
+			3
+		);
+
+		Site_Health::do_daily_connection_check();
+
+		$this->assertArrayNotHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
 	 * Test that invoking a direct test callback returns valid Site Health structure for a passing test.
 	 */
 	public function test_direct_callback_returns_site_health_format_for_passing_test() {

@@ -108,9 +108,13 @@ export class Traffic extends Component {
 					/>
 				) }
 				{ seoMovedToDashboard && foundMovedToDashboard && (
-					<SimpleNotice status="is-info" showDismiss={ false } className="jp-seo-moved-banner">
+					<SimpleNotice
+						status="is-info"
+						showDismiss={ false }
+						className="jp-seo-moved-banner"
+						title={ __( 'Jetpack SEO has its own dashboard', 'jetpack' ) }
+					>
 						<div className="jp-seo-moved-banner__content">
-							<strong>{ __( 'Jetpack SEO has its own dashboard', 'jetpack' ) }</strong>
 							<p>
 								{ __(
 									'Manage your search engine optimization settings from the redesigned SEO dashboard.',

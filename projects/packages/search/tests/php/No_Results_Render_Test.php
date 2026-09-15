@@ -262,12 +262,9 @@ class No_Results_Render_Test extends TestCase {
 		// condition, not loose in the container. Only the nesting is asserted:
 		// the paragraph's attributes come from core, and WP 7.0 adds a
 		// `wp-block-paragraph` class to them.
-		$this->assertSame(
-			1,
-			preg_match(
-				'/<div class="jetpack-search-no-results__variant"[^>]*>\s*<p[^>]*>STRAY COPY<\/p>\s*<\/div>/',
-				$markup
-			),
+		$this->assertMatchesRegularExpression(
+			'/<div class="jetpack-search-no-results__variant"[^>]*>\s*<p[^>]*>STRAY COPY<\/p>\s*<\/div>/',
+			$markup,
 			'the stray block must be wrapped in an unscoped variant'
 		);
 		$this->assertStringContainsString( 'data-wp-bind--hidden="!state.showNoResultsFiltered"', $markup );

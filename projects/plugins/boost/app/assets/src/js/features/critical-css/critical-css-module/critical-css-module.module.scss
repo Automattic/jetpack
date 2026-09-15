@@ -1,0 +1,27 @@
+.tooltip-wrapper {
+	margin: 1em 0;
+
+	p {
+		display: inline;
+	}
+
+	:global(.icon-tooltip-content) {
+
+		p {
+			display: block;
+		}
+	}
+}
+
+@media (max-width: 768px) {
+
+	.tooltip-wrapper :global(.icon-tooltip-wrapper) {
+		display: block;
+		margin-left: 50%;
+		left: -12px;
+
+		:global(.icon-tooltip-container .components-popover__content) {
+			width: 70vw;
+		}
+	}
+}

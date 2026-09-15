@@ -1,8 +1,17 @@
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, cloud, image, post, plugins as pluginsIcon, color, info } from '@wordpress/icons';
+import {
+	Icon,
+	cloud,
+	image,
+	post,
+	plugins as pluginsIcon,
+	color,
+	info,
+	rotateLeft,
+} from '@wordpress/icons';
 import { Card, Stack, Text } from '@wordpress/ui';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
 import { isBackupItem } from '../../types/activity';
@@ -14,6 +23,7 @@ import type { Field, View } from '@wordpress/dataviews';
 
 const ICON_BY_KIND: Record< ActivityKind, typeof cloud > = {
 	backup: cloud,
+	restore: rotateLeft,
 	upload: image,
 	post,
 	'plugin-update': pluginsIcon,
@@ -81,6 +91,40 @@ function MediaCell( { item }: { item: ActivityItem } ) {
 }
 
 /**
+ * The row's timestamp, formatted once for both the name and the visible line.
+ *
+ * Drift between the two would announce a different restore point than the one
+ * on screen, on the control that picks what Restore and Download act on.
+ *
+ * @param item - The activity item.
+ * @return The formatted timestamp.
+ */
+function rowDate( item: ActivityItem ): string {
+	return dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined );
+}
+
+/**
+ * Title cell — the visible summary, plus the timestamp for assistive tech.
+ *
+ * DataViews points the row's `aria-labelledby` at this cell alone, so without
+ * the date every row announces the same sentence and a screen-reader user
+ * cannot tell which restore point they are about to open, download or restore.
+ *
+ * @param props      - Component props.
+ * @param props.item - The activity item.
+ * @return The rendered title.
+ */
+function TitleCell( { item }: { item: ActivityItem } ) {
+	return (
+		<>
+			{ item.title }
+			{ /* JSX drops the newline, and the name computation adds nothing back. */ }{ ' ' }
+			<span className="jpb-visually-hidden">{ rowDate( item ) }</span>
+		</>
+	);
+}
+
+/**
  * Descriptions cell — single muted line with the timestamp + optional
  * summary, joined by a thin separator.
  *
@@ -92,10 +136,14 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 	return (
 		<Stack direction="row" align="center" gap="xs">
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
-				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
+				{ rowDate( item ) }
 			</Text>
+			{ /*
+			 * `auto`, not `ltr`: WPCOM may legitimately translate this line into RTL.
+			 * Same everywhere `stats` and `summary` are rendered.
+			 */ }
 			{ item.summary && (
-				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__summary">
+				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__summary" dir="auto">
 					{ item.summary }
 				</Text>
 			) }
@@ -124,7 +172,17 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
  */
 export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
 	const { page, pageSize, sortOrder } = activityQueryArgs( view );
-	const { items, totalItems, totalPages, isLoading, isFetching, error, refetch } = useActivityLog( {
+	const {
+		items,
+		totalItems,
+		totalPages,
+		isLoading,
+		isFetching,
+		isPlaceholderData,
+		isPaused,
+		error,
+		refetch,
+	} = useActivityLog( {
 		page,
 		pageSize,
 		sortOrder,
@@ -141,12 +199,22 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 		[ onChangeView, sortOrder ]
 	);
 
+	// A remembered page can outlive its log, and DataViews hides the footer at one
+	// page — so nothing on screen would offer a way back. `totalPages` falls back to
+	// 1, so in flight, paused offline and failed all read as a one-page log; a
+	// literal 0 survives that `??`, which is what `>= 1` guards against.
+	useEffect( () => {
+		if ( ! isFetching && ! isPaused && ! error && totalPages >= 1 && page > totalPages ) {
+			onChangeView( { ...view, page: totalPages } );
+		}
+	}, [ isFetching, isPaused, error, totalPages, page, view, onChangeView ] );
+
 	// DataViews shows its own "No results" whenever `data` is empty, and a
 	// failed request leaves it empty — so without this a 5xx tells the
 	// reader their site has no activity. The `empty` slot is the same node
 	// that copy renders in, so replacing it puts the reason exactly where
 	// the wrong answer used to be.
-	const emptyState = error ? (
+	const failure = error ? (
 		<QueryError
 			title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
 			error={ error }
@@ -154,6 +222,10 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 			isRetrying={ isFetching }
 		/>
 	) : undefined;
+
+	// A stale page DataViews kept, or a merged restore row, leaves the `empty`
+	// slot unrendered — so a failure then needs somewhere else to report from.
+	const reportsAboveList = failure !== undefined && items.length > 0;
 
 	// Every field opts out of filtering, and all but `description` out of sorting:
 	// `/activity/rewindable` takes no search term and orders only on the event
@@ -175,6 +247,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				id: 'title',
 				type: 'text',
 				label: __( 'Title', 'jetpack-backup-pkg' ),
+				render: TitleCell,
 				getValue: ( { item } ) => item.title,
 				enableSorting: false,
 				filterBy: false,
@@ -185,9 +258,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				label: __( 'When', 'jetpack-backup-pkg' ),
 				render: DescriptionCell,
 				getValue: ( { item } ) =>
-					`${ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }${
-						item.summary ? ` ${ item.summary }` : ''
-					}`,
+					`${ rowDate( item ) }${ item.summary ? ` ${ item.summary }` : '' }`,
 				enableHiding: false,
 				filterBy: false,
 			},
@@ -216,16 +287,23 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	// itself told DataViews nothing was happening while the reader looked
 	// at rows from the page they had just left.
 	//
-	// This cannot swallow `emptyState`: DataViews initialises
+	// This cannot swallow the `empty` slot: DataViews initialises
 	// `hasInitiallyLoaded` to `!isLoading` and latches it true on the first
 	// non-loading render, and the spinner branch that would replace the
-	// `empty` slot is gated on `!hasInitiallyLoaded`. Past the first load a
-	// truthy `isLoading` only reaches the footer, which marks itself inert
-	// while the next page is fetched.
-	const isBusy = isLoading || isFetching;
+	// `empty` slot is gated on `!hasInitiallyLoaded`.
+	//
+	// Placeholder data is the qualifier, not `isFetching` alone: DataViews
+	// puts `inert` on the composite that owns every row, so reporting a
+	// background refetch — the one a finished backup triggers — would blur
+	// the reader out of the list mid-read. A page or sort change still
+	// inerts them, and the footer's own copy of this flag inerts the
+	// control the reader just used; DataViews offers no way to separate
+	// those, so that case is unchanged rather than fixed.
+	const isBusy = isLoading || ( isFetching && isPlaceholderData );
 
 	return (
 		<Card.Root className="jpb-activity-list" aria-busy={ isBusy }>
+			{ reportsAboveList && <div className="jpb-activity-list__failure">{ failure }</div> }
 			<DataViews< ActivityItem >
 				data={ items }
 				fields={ fields }
@@ -238,7 +316,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				onChangeSelection={ onChangeSelection }
 				isLoading={ isBusy }
 				search={ false }
-				empty={ emptyState }
+				empty={ reportsAboveList ? undefined : failure }
 			/>
 		</Card.Root>
 	);

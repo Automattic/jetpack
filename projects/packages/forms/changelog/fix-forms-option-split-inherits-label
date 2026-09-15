@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent a new choice option from inheriting the previous option's label when pressing Enter.

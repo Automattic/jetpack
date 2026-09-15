@@ -19,7 +19,7 @@ const SECTIONS: DashboardSection[] = [
 		id: 'analytics/insights',
 		slug: 'insights',
 		label: 'Insights',
-		title: 'Activity insights',
+		title: 'Site insights',
 		order: 20,
 		date_filter: 'year',
 		default_layout: [],

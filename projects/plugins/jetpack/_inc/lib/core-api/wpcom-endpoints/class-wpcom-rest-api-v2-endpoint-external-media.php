@@ -275,6 +275,19 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			);
 		}
 
+		// Attaching media to a post requires the ability to edit that post, mirroring
+		// WP_REST_Attachments_Controller::create_item_permissions_check(). Without this
+		// check any user with upload_files could parent an attachment to a post they
+		// cannot edit.
+		$post_id = (int) $request->get_param( 'post_id' );
+		if ( $post_id > 0 && ! current_user_can( 'edit_post', $post_id ) ) {
+			return new WP_Error(
+				'rest_cannot_edit',
+				__( 'Sorry, you are not allowed to upload media to this post.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		return true;
 	}
 
@@ -400,9 +413,16 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		$post_id      = $request->get_param( 'post_id' );
+		$post_id      = (int) $request->get_param( 'post_id' );
 		$should_proxy = $request->get_param( 'should_proxy' );
 		$service      = rawurlencode( $request->get_param( 'service' ) );
+
+		// Fail closed: never parent an attachment to a post the caller cannot edit,
+		// even if a future change lets an unauthorized request reach this handler.
+		// The permission callback already rejects such requests with a 403.
+		if ( $post_id > 0 && ! current_user_can( 'edit_post', $post_id ) ) {
+			$post_id = 0;
+		}
 
 		$responses = array();
 

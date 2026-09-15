@@ -436,17 +436,9 @@ function wpcom_add_jetpack_submenu() {
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
-	// The unified Newsletter page now owns the Subscribers tab on every site: the
-	// legacy Calypso "Subscribers" submenu is retired and replaced by a transitional
-	// announcement page that points there. (The wp-admin subscriber-management variant
-	// was removed with the subscribers-dashboard package and isn't restored.) Hosts
-	// (and a11ns who want the legacy view back) can still force the old submenu back
-	// with add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' ).
-	//
-	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
-	// Subscribers entry, so the announcement page is registered here for both
-	// platforms; the standalone plugin's subscriptions module defers to it on
-	// wpcom to avoid a duplicate.
+	// The unified Newsletter page owns the Subscribers tab on every site, so the legacy
+	// Calypso "Subscribers" submenu is retired. add_filter( 'rsm_jetpack_ui_modernization_newsletter',
+	// '__return_false' ) brings it back — the Calypso link only, not a wp-admin dashboard.
 	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 		add_submenu_page(
 			'jetpack',
@@ -456,9 +448,6 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/subscribers/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-	} elseif ( class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple, standalone plugin on Atomic).
-		\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_wp_admin_submenu();
 	}
 
 	// Atomic loads Podcast through the Jetpack module, which the owner can switch
@@ -762,7 +751,6 @@ function wpcom_add_tools_menu() {
 		array(
 			'tools.php',
 			'advertising-moved',
-			'marketing',
 			'monetize',
 			'import',
 			'export.php',
@@ -776,6 +764,39 @@ function wpcom_add_tools_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_tools_menu', 999999 );
+
+/**
+ * Sends the retired Tools > Marketing URL to the dashboard.
+ *
+ * The page was removed in DOTCOM-18531. Nothing links to it any more, but the
+ * Calypso sidebar pointed at this exact URL until the removal shipped, so it is
+ * still in plenty of browser histories and bookmarks. Left alone, WordPress
+ * answers an unregistered page slug with a bare "Cannot load
+ * wpcom-marketing-tools.", which reads like a broken install rather than a page
+ * that went away. The dashboard mirrors where the Calypso URL now lands.
+ *
+ * This runs on admin_init, which fires before the point in wp-admin/admin.php
+ * where core gives up on the slug.
+ *
+ * Tombstone: delete this function and its hook by 2027-09-10. A year is long
+ * enough for the stale bookmarks to age out, and after that the redirect is
+ * just a puzzle for whoever reads this next.
+ */
+function wpcom_redirect_retired_marketing_page() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading a menu slug from a GET request, no state changes.
+	if ( ! isset( $_GET['page'] ) ) {
+		return;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- As above.
+	if ( 'wpcom-marketing-tools' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
+		return;
+	}
+
+	wp_safe_redirect( admin_url() );
+	exit; // @codeCoverageIgnore -- the tests unwind from the wp_redirect filter before this line.
+}
+add_action( 'admin_init', 'wpcom_redirect_retired_marketing_page' ); // @codeCoverageIgnore
 
 /**
  * Displays an Export/Erase Personal Date page for Simple sites.

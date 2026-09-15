@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Internal refactor and added test coverage for the responses table's frozen columns.
-
-

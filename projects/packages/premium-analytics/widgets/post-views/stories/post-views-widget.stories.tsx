@@ -19,6 +19,11 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
 import PostViewsRender from '../render';
 import widgetDefinition, { type PostViewsChartType } from '../widget';
 import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
@@ -35,7 +40,7 @@ const MOCK_POST_ID = 779;
 
 const POST_VIEWS_RENDER_MODULE = 'storybook/post-views';
 
-interface PostViewsStoryControls {
+interface PostViewsStoryControls extends SiteTimeZoneControls {
 	hasPostScope: boolean;
 	interval: StatsChartBucketPeriod;
 	chartType: PostViewsChartType;
@@ -67,7 +72,9 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostViews',
 	component: PostViewsRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteTimeZone ],
 	argTypes: {
+		...siteTimeZoneArgTypes,
 		hasPostScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
@@ -88,7 +95,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"The \"Post views\" widget: the scoped post's view trend over the dashboard date range as a line chart — the legacy Calypso post summary chart. The view series comes from `stats/post`'s full daily history, zero-filled and bucketed client-side at the page's chart interval. The post detail page has no comparison control, so comparison report params are ignored. Without a post scope the widget renders a scopeless empty state.",
+					"The \"Post views\" widget: the scoped post's view trend over the dashboard date range as a bar chart by default. The view series comes from `stats/post`'s full daily history, zero-filled and bucketed client-side at the page's chart interval. The post detail page has no comparison control, so comparison report params are ignored. Without a post scope the widget renders a scopeless empty state.",
 			},
 		},
 	},
@@ -99,12 +106,11 @@ export default meta;
 type Story = StoryObj< PostViewsStoryControls >;
 
 /**
- * Default — the scoped post's views for the selected period: a single
- * "Views" line.
+ * Default — the scoped post's views for the selected period as bars.
  */
 export const Default: Story = {
 	render: renderPostViews,
-	args: { hasPostScope: true, interval: 'day', chartType: 'line' },
+	args: { hasPostScope: true, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -115,7 +121,7 @@ export const Default: Story = {
  */
 export const NoPostScope: Story = {
 	render: renderPostViews,
-	args: { hasPostScope: false, interval: 'day', chartType: 'line' },
+	args: { hasPostScope: false, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 

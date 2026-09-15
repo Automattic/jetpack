@@ -75,7 +75,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`showValues`** (default: `!compact`): render the numeric value inside each cell (compact notation for large numbers; the tooltip keeps full precision)
 - **`maxCellWidth`** / **`maxCellHeight`**: cap how large cells may grow in non-compact mode
 - **`minCellWidth`** / **`minCellHeight`** (default: `0`): keep cells from shrinking below a readable size and let the grid overflow instead
-- **`primaryColor`**: color the scale interpolates toward at the highest value (prop > `heatmapChart.primaryColor` > the first series palette color, `--a8c-charts-color-series-1`)
+- **`primaryColor`**: color the scale interpolates toward at the highest value. Defaults to the first series palette color, `--a8c-charts-color-series-1`
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
@@ -105,6 +105,20 @@ Use `compact` for narrow widgets or dashboards where vertical space is limited. 
 In-cell values use compact notation (e.g. `748.5K`, `1.2M`) so large numbers fit the cell. The tooltip and each cell's accessible label keep the full, precise value.
 
 <Canvas of={ HeatmapStories.LargeValues } />
+
+## Summary Column
+
+A column flagged `summary: true` is a per-row roll-up, such as a total or an average, and sits outside the color scale: its values never feed the extent, its cells draw no fill and always print their figure (smaller in compact mode), emphasised, on a track wide enough for it, one gap apart from the data on either side. It draws wherever it appears in `data`, and hover, tooltips and keyboard navigation reach it like any other column. The chart never computes the roll-up: pass the figures to show.
+
+<Canvas of={ HeatmapStories.WithSummaryColumn } />
+
+<Source
+	language="tsx"
+	code={ `<HeatmapChart
+		data={ [ ...columns, { label: 'Total', summary: true, data: rowTotals } ] }
+		rowLabels={ rowLabels }
+	/>` }
+/>
 
 ## Cell Size Bounds
 
@@ -142,22 +156,22 @@ Cell size bounds are ignored in compact mode, which uses the theme's fixed `comp
 
 ## Calendar Layout
 
-Use `buildCalendarHeatmapData` to convert a flat `DataPointDate[]` series into the column/row structure expected by the chart. This produces the GitHub-style contribution graph layout.
+Use `useCalendarHeatmapData` to convert a flat `DataPointDate[]` series into the column/row structure expected by the chart. This produces the GitHub-style contribution graph layout.
 
 <Canvas of={ HeatmapStories.Calendar } />
 
 <Source
 	language="jsx"
-	code={ `import { HeatmapChart, buildCalendarHeatmapData } from '@automattic/charts';
+	code={ `import { HeatmapChart, useCalendarHeatmapData } from '@automattic/charts';
 
 	const series = [
-		{ date: new Date( '2024-01-01' ), value: 3 },
-		{ date: new Date( '2024-01-02' ), value: 0 },
+		{ dateString: '2024-01-01', value: 3 },
+		{ dateString: '2024-01-02', value: 0 },
 		// ...
 	];
 
 	function CalendarHeatmap() {
-		const { data, rowLabels } = buildCalendarHeatmapData( series );
+		const { data, rowLabels } = useCalendarHeatmapData( series );
 		return (
 			<HeatmapChart
 				data={ data }
@@ -168,11 +182,33 @@ Use `buildCalendarHeatmapData` to convert a flat `DataPointDate[]` series into t
 	}` }
 />
 
-`buildCalendarHeatmapData` accepts an optional `options` object:
+`useCalendarHeatmapData` is `buildCalendarHeatmapData` with the locale and time zone taken from `GlobalChartsProvider`, so a host that already set them for its other charts does not name them again. **Prefer the hook.** `buildCalendarHeatmapData` is the escape hatch for what it cannot serve: outside a component, or where the values do not come from the provider.
+
+Both accept an optional `options` object:
 
 - **`weekStartsOn`** (`0 | 1`, default `1`): `0` = Sunday, `1` = Monday
 - **`hideOutOfRangeDays`** (`boolean`, default `true`): render the week-completion days outside the series' date span as empty grid slots instead of blank cells, giving the calendar ragged edges. Days inside the span stay blank cells even when the series has no entry for them. Hidden slots keep their grid position but paint nothing, and hover and keyboard navigation skip them. Pass `false` to keep out-of-range days as blank cells.
 - **`gridSpan`** (`{ start?: string; end?: string }`, `yyyy-MM-dd` bounds): draw the grid over this span instead of the series' own, so a series too short to fill its container still does. Days inside the grid but outside the series become `placeholder` cells: faded empty slots that keep the grid continuous but report nothing to a pointer, the keyboard or a screen reader, since they stand for days that were never measured. A `start` is drawn from the beginning of its week, so the grid opens on a whole column. Bounds narrower than the series are ignored — the grid never drops a day that carries data.
+- **`locale`** (BCP-47 tag, e.g. `de-DE`): the language the row, month and cell labels are written in. Defaults to the runtime's locale.
+- **`timeZone`** (IANA name, e.g. `Asia/Tokyo`, or a UTC offset such as `+09:00`): the zone the series' instants are bucketed into days in. Defaults to the runtime's zone.
+
+### Time zone and locale
+
+Both options default to the viewer's browser. Set them from the site's own settings, or every viewer sees the grid bucketed on their own midnights and labeled in their own language.
+
+How a point's date is read depends on what it carries:
+
+| Point | Read as | Day it lands on |
+| ----- | ------- | --------------- |
+| `date` (a `Date`), or a `dateString` carrying `Z` or an offset | an instant | its day in `timeZone` |
+| `dateString` of `yyyy-MM-dd` | a calendar day | as written, under any `timeZone` |
+| `dateString` with a time but no offset | a wall clock in `timeZone` | its date part, as written |
+
+A bare `yyyy-MM-dd` is therefore safe to mix with a `timeZone`, unlike on the time axis, where `ChartFormatting` re-dates it.
+
+A `dateString` must start `yyyy-MM-dd`. Other ISO 8601 shapes — basic format (`20240103`), a bare month or year, ordinal (`2024-003`) and week (`2024-W05-1`) dates — name no day the calendar can key, and their points are left out of the grid with a console warning outside production.
+
+`weekStartsOn` is never derived from `locale`: a grid keeps the week start the caller asked for, or Monday.
 
 ## Fixed Dimensions
 
@@ -230,9 +266,9 @@ Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard na
 
 ## Theming
 
-The heatmap resolves its full-intensity color in this order: the `primaryColor` prop wins, then `heatmapChart.primaryColor` from the active theme, then the first series palette color (`--a8c-charts-color-series-1`). The resolved color is fed to CSS `color-mix`, which derives the lighter shades for lower values.
+The heatmap resolves its full-intensity color in this order: the `primaryColor` prop wins, then the first series palette color (`--a8c-charts-color-series-1`). The resolved color is fed to CSS `color-mix`, which derives the lighter shades for lower values.
 
-Use the prop for one chart, or move the palette slot in CSS to change every chart at once. `heatmapChart.primaryColor` is deprecated and does neither better.
+Use the prop for one chart, or move the palette slot in CSS to change every chart at once.
 
 <Source
 	language="tsx"
@@ -250,7 +286,7 @@ Use the prop for one chart, or move the palette slot in CSS to change every char
 	}` }
 />
 
-Everything else — the cell gap, in-cell value size and the empty-cell color — comes from the `--a8c-charts-*` token catalog in CSS (the empty-cell color from `--a8c-charts-color-track`), so it tracks the active design system theme automatically through the catalog's own `--wpds-*` mapping. The corner radius can be overridden via `--a8c-charts-border-radius-cell`, which maps to a WPDS token (`--wpds-border-radius-sm`) by default. There are no per-instance props for these. What is left of the `heatmapChart` theme section is the compact sizing, which has no catalog role behind it and is not deprecated:
+Everything else — the cell gap, in-cell value size and the empty-cell color — comes from the `--a8c-charts-*` token catalog in CSS (the empty-cell color from `--a8c-charts-color-track`), so it tracks the active design system theme automatically through the catalog's own `--wpds-*` mapping. The corner radius can be overridden via `--a8c-charts-border-radius-cell`, which maps to a WPDS token (`--wpds-border-radius-sm`) by default. There are no per-instance props for these. The `heatmapChart` theme section carries the compact sizing, which has no catalog role behind it:
 
 <Source
 	language="tsx"

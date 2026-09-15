@@ -18,9 +18,14 @@ body.jetpack_page_jetpack-ai {
 	&__content {
 		box-sizing: border-box;
 		width: 100%;
-		max-width: 660px;
+		max-width: 708px;
 		margin: 0 auto;
 		padding: 24px;
+		// Match @wordpress/components Card (MCP Settings): CONFIG.surfaceBorderColor.
+		// Card.Root reads --wpds-color-stroke-surface-neutral-weak at runtime (CSS
+		// modules, not inlined by this package's PostCSS).
+		// stylelint-disable-next-line plugin-wpds/no-setting-wpds-custom-properties -- deliberate scoped override: Card.Root reads this token at runtime (see above).
+		--wpds-color-stroke-surface-neutral-weak: rgba(0, 0, 0, 0.1);
 
 		&--scheduled-tasks {
 			max-width: 1280px;
@@ -83,6 +88,40 @@ body.jetpack_page_jetpack-ai {
 
 	&__breadcrumb-current {
 		margin: 0;
+	}
+
+	// Back-link eyebrow above sub-view content ("‹ MCP Settings"), quiet at
+	// rest with a rounded pill background on hover/focus (ChatGPT-style back
+	// control, translated to light mode). The pill padding is always present
+	// and cancelled by negative margins, so the label sits flush with the
+	// content edge at rest and the pill appears without any layout shift.
+	&__back-eyebrow {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		background: none;
+		border: none;
+		border-radius: 4px;
+		padding: 4px 12px 4px 6px;
+		margin-inline-start: -7px;
+		margin-block: 0 20px;
+		cursor: pointer;
+		font-size: var(--wpds-typography-font-size-md, 13px);
+		font-weight: var(--wpds-typography-font-weight-default, 400);
+		line-height: var(--wpds-typography-line-height-sm, 20px);
+		color: var(--wp-components-color-gray-700, var(--wpds-color-foreground-content-neutral-weak, #707070));
+		transition: background 0.1s ease-in-out, color 0.1s ease-in-out;
+
+		svg {
+			fill: currentColor;
+		}
+
+		&:hover,
+		&:focus-visible {
+			// Light-mode counterpart of the reference's dark hover pill.
+			background: var(--wpds-color-background-surface-neutral-weak, #f6f7f7);
+			color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
+		}
 	}
 
 	&__loading {
@@ -161,8 +200,14 @@ body.jetpack_page_jetpack-ai {
 }
 
 // Keeps the notice link on one line, so it does not wrap mid-phrase.
-.jetpack-ai-features__notice-link {
+.jetpack-ai-admin__notice-link {
 	white-space: nowrap;
+}
+
+// Page-level notices render above whichever view is active; the views own no
+// spacing toward them, so the gap lives here.
+.jetpack-ai-admin__page-notice {
+	margin-block-end: 16px;
 }
 
 // Feature rows: the design aligns the action link with the label's text
@@ -173,8 +218,8 @@ body.jetpack_page_jetpack-ai {
 	margin-inline-start: 40px;
 }
 
-// The Agent capabilities card, values read off the Figma (AI-Settings
-// node 6021-4152): 20px card padding with 24px above the title. The
+// The feature card, values read off the Figma (AI-Settings
+// node 6021-4152): 20px card padding with 24px above the first group. The
 // Card.FullBleed dividers inherit the same padding var for their
 // edge-to-edge negative margins, so they stay in sync.
 .jetpack-ai-features__card {
@@ -182,25 +227,18 @@ body.jetpack_page_jetpack-ai {
 }
 
 .jetpack-ai-features__card-content {
-	padding-block-start: var(--wpds-dimension-padding-2xl, 24px);
+	padding-block-start: var(--wp-ui-card-padding, 20px);
 }
 
-// Figma: Body SM in foreground/content/neutral-weak.
-.jetpack-ai-features__card-subtitle {
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
-}
-
-// Section divider inside the Agent capabilities card. Card.FullBleed already
+// Section divider inside the feature card. Card.FullBleed already
 // pulls the hr edge-to-edge past the card padding (margin-inline); this only
 // draws the rule and sets the vertical rhythm.
 .jetpack-ai-features__divider {
 	border: 0;
-	// Fallbacks match the token values — the theme token sheet is not loaded
-	// on this page, and two undefined vars would invalidate the whole
-	// shorthand (no rule drawn at all).
-	border-block-start:
-		var(--wpds-border-width-xs, 1px) solid
-		var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+	// Same rgba as MCP Settings' @wordpress/components Card / CardDivider
+	// (CONFIG.surfaceBorderColor). Do not use the WPDS stroke tokens here —
+	// PostCSS inlines them to #dbdbdb / #f0f0f0, which are not the MCP color.
+	border-block-start: var(--wpds-border-width-xs, 1px) solid rgba(0, 0, 0, 0.1);
 	// Figma rhythm: 20px after a section's rows, 16px before the next header;
 	// the first divider sits 16px under the card subtitle instead.
 	margin-block: var(--wpds-dimension-padding-xl, 20px) var(--wpds-dimension-padding-lg, 16px);

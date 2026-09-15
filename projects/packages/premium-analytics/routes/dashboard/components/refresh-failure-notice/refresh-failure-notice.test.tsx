@@ -60,7 +60,7 @@ function renderDashboard( queryFn: () => Promise< unknown > ) {
 	render(
 		<AnalyticsQueryClientProvider>
 			<Widget queryFn={ queryFn } />
-			<RefreshFailureNotice className="refresh-failure" />
+			<RefreshFailureNotice />
 		</AnalyticsQueryClientProvider>
 	);
 }
@@ -135,7 +135,7 @@ describe( 'RefreshFailureNotice', () => {
 			<AnalyticsQueryClientProvider>
 				{ /* No `meta`: a thumbnail or a settings read, not a figure on screen. */ }
 				<UnscopedWidget queryFn={ queryFn } />
-				<RefreshFailureNotice className="refresh-failure" />
+				<RefreshFailureNotice />
 			</AnalyticsQueryClientProvider>
 		);
 

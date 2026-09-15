@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Only load the Jetpack plugin compatibility layer when the Jetpack plugin is actually present.

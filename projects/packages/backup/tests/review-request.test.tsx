@@ -41,23 +41,12 @@ import { resetPageViewForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-// These stages render behind several sequential requests; Testing
-// Library's one-second default has not been enough on a loaded runner.
-const SETTLE = { timeout: 10000 };
-
 const RESTORE_QUESTION = 'Was it easy to restore your site?';
-const BACKUPS_QUESTION = 'Do you enjoy the peace of mind of having real-time backups?';
+const BACKUPS_QUESTION = 'Do you enjoy the peace of mind of having backups?';
 // Matched loosely: `Link` appends its own "opens in a new tab" text to
 // the accessible name, so an exact match would pin this test to that
 // wording rather than to ours.
 const CTA = /Please leave a review and help us spread the word!/;
-
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 /**
  * One rewindable-activity entry, so the list has a row to render and the
@@ -240,9 +229,7 @@ function mockEndpoints( {
  */
 async function renderSettledOverview() {
 	render( <OverviewStage /> );
-	await expect(
-		screen.findByText( 'Backup complete', undefined, SETTLE )
-	).resolves.toBeInTheDocument();
+	await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 }
 
 beforeEach( () => {

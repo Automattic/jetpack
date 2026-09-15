@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Podcast: Scope the generated episodes list to the posts the current user can edit, matching the Posts screen.

@@ -1,0 +1,21 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+body:has(.jetpack-boost-page) {
+
+	@include jetpack-admin-page-layout-wp-build;
+
+	&,
+	.jp-admin-page,
+	.jp-admin-page__page {
+		background-color: #fcfcfc;
+	}
+
+	.jetpack-boost-page__content {
+		padding: var(--wpds-dimension-padding-2xl);
+	}
+
+	// Hide the admin-ui page header while a full-page subpage is visible.
+	.jetpack-boost-page--subpage .jp-admin-page__page > :is([class$="__header"], [class*="__header "]) {
+		display: none;
+	}
+}

@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import domReady from '@wordpress/dom-ready';
+import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
@@ -124,10 +125,12 @@ export function hydratePlaylistMetadata( root: HTMLElement ): Promise< void[] > 
 			const metadata = result;
 
 			if ( typeof metadata.title === 'string' && metadata.title ) {
-				entry.dataset.title = metadata.title;
+				// The API returns titles HTML-encoded; decode them like the editor does.
+				const title = decodeEntities( metadata.title );
+				entry.dataset.title = title;
 				const titleElement = entry.querySelector( '.videopress-playlist__entry-title' );
 				if ( titleElement ) {
-					titleElement.textContent = metadata.title;
+					titleElement.textContent = title;
 				}
 			}
 

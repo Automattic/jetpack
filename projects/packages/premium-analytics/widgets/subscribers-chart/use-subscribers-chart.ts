@@ -7,7 +7,7 @@ import {
 	type StatsSubscribersResponse,
 	type StatsSubscribersUnit,
 } from '@jetpack-premium-analytics/data';
-import { toChartDate } from '@jetpack-premium-analytics/widgets-toolkit';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from '@wordpress/element';
 
 /**
@@ -40,14 +40,23 @@ export interface SubscribersChartState {
 	refetch: () => void;
 }
 
-// Wall clocks, not instants — the chart reads them back via
-// `pointsAreWallClocks` (rationale in `chart-date.ts`).
-function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersChartPoint[] {
-	return ( report?.data ?? [] ).map( point => ( {
-		date: toChartDate( point.date_start ),
-		subscribers: Number( point.subscribers ?? point.value ?? 0 ),
-		paid: Number( point.subscribers_paid ?? 0 ),
-	} ) );
+function toPoints(
+	report: StatsSubscribersResponse | undefined,
+	zone: string
+): SubscribersChartPoint[] {
+	return ( report?.data ?? [] ).flatMap( point => {
+		const date = resolveBucketStamp( point.date_start, zone );
+
+		return date
+			? [
+					{
+						date,
+						subscribers: Number( point.subscribers ?? point.value ?? 0 ),
+						paid: Number( point.subscribers_paid ?? 0 ),
+					},
+			  ]
+			: [];
+	} );
 }
 
 /**
@@ -61,8 +70,15 @@ export default function useSubscribersChart(
 	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
 	const report = useStatsSubscribersReport( params );
 
-	const current = useMemo( () => toPoints( report.primary.data ), [ report.primary.data ] );
-	const previous = useMemo( () => toPoints( report.comparison.data ), [ report.comparison.data ] );
+	const zone = report.timezone;
+	const current = useMemo(
+		() => toPoints( report.primary.data, zone ),
+		[ report.primary.data, zone ]
+	);
+	const previous = useMemo(
+		() => toPoints( report.comparison.data, zone ),
+		[ report.comparison.data, zone ]
+	);
 
 	return {
 		current,

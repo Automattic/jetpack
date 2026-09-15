@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { _x } from '@wordpress/i18n';
-import { pin } from '@wordpress/icons';
+import { calendar } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -27,7 +27,7 @@ export type AnnualHighlightsAttributes = {
  * depend on the site's own data, so a new instance starts on the current year.
  */
 export default {
-	icon: pin,
+	icon: calendar,
 	attributes: [
 		{
 			id: 'year',

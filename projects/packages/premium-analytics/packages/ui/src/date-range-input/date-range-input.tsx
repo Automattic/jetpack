@@ -5,6 +5,7 @@ import {
 	createTZDateFromParts,
 	formatToTimezoneNaiveString,
 	getDatePart,
+	type TZDate,
 } from '@jetpack-premium-analytics/datetime';
 import { FormField, Input, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
@@ -12,11 +13,11 @@ import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { DateRangePopover } from '../date-range-popover/date-range-filter';
+import { DateRangePopoverContent } from '../date-range-popover/date-range-filter';
 import './date-range-input.scss';
 
 type DateRangeInputProps = Pick<
-	Parameters< typeof DateRangePopover >[ 0 ],
+	Parameters< typeof DateRangePopoverContent >[ 0 ],
 	'range' | 'onChange'
 > & {
 	timeZone: string;
@@ -24,8 +25,8 @@ type DateRangeInputProps = Pick<
 
 type DateInputProps = Pick< DateRangeInputProps, 'timeZone' > & {
 	label: string;
-	date?: Date;
-	onChange: ( date?: Date ) => void;
+	date?: TZDate;
+	onChange: ( date?: TZDate ) => void;
 };
 
 const formatToString = ( date: Date | undefined, timeZone: string ) =>

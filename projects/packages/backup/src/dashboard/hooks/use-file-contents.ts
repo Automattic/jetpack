@@ -4,6 +4,8 @@ import { keys } from '../data/query-client';
 
 type Result = {
 	content: string | null;
+	isText: boolean;
+	truncated: boolean;
 	isLoading: boolean;
 	error: Error | null;
 };
@@ -40,7 +42,7 @@ function encodeManifestPath( manifestPath: string ): string {
  * @param filePeriod   - The file's own snapshot timestamp (from /ls `period`).
  * @param manifestPath - The volume-prefixed manifest path (from /ls `manifest_path`, e.g. `f5:/wp-config.php`). Base64-encoded before sending.
  * @param enabled      - When false, the query is skipped (an extension the preview card cannot render).
- * @return Content + loading state.
+ * @return Content, the bridge's text and truncation verdicts, and loading state.
  */
 export function useFileContents(
 	filePeriod: string | undefined,
@@ -57,6 +59,10 @@ export function useFileContents(
 
 	return {
 		content: query.data?.content ?? null,
+		// Both fall back to the innocent answer, so a query that has not
+		// resolved cannot make the card call a file unreadable or clipped.
+		isText: query.data?.is_text ?? true,
+		truncated: query.data?.truncated ?? false,
 		isLoading: query.isLoading,
 		error: query.error ?? null,
 	};

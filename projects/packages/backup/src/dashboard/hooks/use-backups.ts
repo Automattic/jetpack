@@ -189,13 +189,8 @@ type Result = BackupsSummary & {
  * and signed with the blog token, so unlike the modernized bridges it
  * needs no new PHP.
  *
- * That route would in fact answer without a user-level WPCOM connection
- * — its permission callback is a bare `manage_options` check. The query
- * is gated on one anyway, because every screen that reads this hook sits
- * behind `<Gates>`, which blocks the page for those users regardless:
- * issuing the request would only spend a round trip on a page nobody is
- * going to see. The looser route is a property worth knowing about if a
- * future caller does need to read backups outside the gate.
+ * Every consumer mounts only behind a `ready` gate verdict, so this never fetches — or
+ * polls — for a site that cannot use the answer; `useCanQueryWpcom` is the backstop.
  *
  * @param args           - Hook args.
  * @param args.forcePoll - Poll regardless of derived state.

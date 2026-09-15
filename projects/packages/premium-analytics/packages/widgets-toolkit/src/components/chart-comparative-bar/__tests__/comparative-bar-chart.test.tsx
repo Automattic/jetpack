@@ -30,6 +30,8 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	};
 
 	return {
+		// The real classifier: this is what the tooltip format now follows.
+		getBucketInfo: jest.requireActual( '@automattic/charts' ).getBucketInfo,
 		BarChart,
 		// The wrapper measures this element, so the stand-in must take the ref.
 		Stack: forwardRef(
@@ -88,6 +90,18 @@ const SERIES: ComparativeBarChartSeries[] = [
 
 // Comparison points already carry the primary axis dates (that is what
 // `alignSeriesDates` does), with the real previous-period date in `realDate`.
+// An hour apart, so the library reads the series as hourly on its own.
+const HOURLY_SERIES: ComparativeBarChartSeries[] = [
+	{
+		label: 'July',
+		group: 'views',
+		data: [
+			{ date: new Date( '2026-07-02T04:00:00Z' ), value: 100 },
+			{ date: JULY_2_2PM_TOKYO, value: 200 },
+		],
+	},
+];
+
 const SERIES_WITH_COMPARISON: ComparativeBarChartSeries[] = [
 	SERIES[ 0 ],
 	{
@@ -268,8 +282,30 @@ describe( 'ComparativeBarChart', () => {
 		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026 2:00 pm' );
 	} );
 
-	// How a point's date is read is the caller's to decide — Stats buckets are
-	// wall clocks rather than instants — while which format names it stays here.
+	// Most widgets declare no resolution, so reading the caller's prop alone left
+	// an hourly series naming all 24 of a day's points with the same date.
+	it( 'adds the hour for an hourly series that declares no resolution', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeBarChart series={ HOURLY_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026 2:00 pm' );
+	} );
+
+	it( 'lets a declared resolution override what the data looks like', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render(
+			<ComparativeBarChart
+				series={ HOURLY_SERIES }
+				dataFormat={ DATA_FORMAT }
+				tickResolution="day"
+			/>
+		);
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026' );
+	} );
+
+	// How a point's date reads is the caller's to decide; which format names it
+	// stays here.
 	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
 		const formatTooltipDate = jest.fn( () => 'the bucket' );
 		render(
@@ -442,19 +478,21 @@ describe( 'ComparativeBarChart', () => {
 			expect( recordedOptions().yScale?.domain ).toEqual( [ 0, 1 ] );
 		} );
 
-		it( 'reserves a left margin for a pinned domain', () => {
+		it( 'leaves the pinned domain to size its own gutter', () => {
 			render( <ComparativeBarChart series={ ZERO_SERIES } dataFormat={ DATA_FORMAT } /> );
 
-			// `useChartMargin` sizes the gutter from the data's own min/max, so the
-			// pinned domain's widest tick would otherwise be clipped.
-			expect( recordedProps().margin.left ).toBeGreaterThan( 0 );
+			// `useChartMargin` measures the pinned domain's own ticks, so there is
+			// nothing left for this component to override.
+			expect( recordedOptions().yScale.domain ).toBeDefined();
+			expect( recordedProps().margin ).toBeUndefined();
 		} );
 
 		it( 'lets the chart scale to the data otherwise', () => {
 			render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
 			expect( recordedOptions() ).not.toHaveProperty( 'yScale' );
-			expect( recordedProps().margin ).toEqual( { right: 0 } );
+			// No override, so the chart keeps the gutters `useChartMargin` measured.
+			expect( recordedProps().margin ).toBeUndefined();
 		} );
 	} );
 
@@ -467,8 +505,9 @@ describe( 'ComparativeBarChart', () => {
 
 			expect( recordedOptions().axis.y.display ).toBe( false );
 			expect( recordedProps().gridVisibility ).toBe( 'none' );
-			// The hidden axis frees its gutter for the bars.
-			expect( recordedProps().margin ).toEqual( { right: 0, left: 0 } );
+			// The hidden axis frees its gutter inside `useChartMargin`, so the bars
+			// gain the room without this component clipping the date labels away.
+			expect( recordedProps().margin ).toBeUndefined();
 			expect( screen.queryByTestId( 'bar-chart-legend' ) ).not.toBeInTheDocument();
 		} );
 

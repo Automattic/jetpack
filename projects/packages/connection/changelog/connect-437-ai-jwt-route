@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-REST API: Add the `jetpack/v4/jetpack-ai-jwt` route, moved from the Agents Manager package.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Launch: Source the site launch celebration modal from the shared site-launch-modals package.

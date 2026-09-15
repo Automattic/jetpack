@@ -1,3 +1,0 @@
-Significance: patch
-Type: added
-Comment: Backup: show when the next full backup runs on the modernized dashboard, above the storage section. Reads /site/backup/schedule and stays silent when the site has no schedule or WordPress.com has stopped backing it up. Legacy's Calypso "Modify" link is deliberately not ported, pending JETPACK-2329. No-op when the modernization filter is off.

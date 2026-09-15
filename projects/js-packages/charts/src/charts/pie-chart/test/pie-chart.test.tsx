@@ -123,18 +123,9 @@ describe( 'PieChart', () => {
 		test( 'hides labels when showLabels is false', () => {
 			renderWithTheme( { showLabels: false } );
 
-			// When showLabels is false, the chart should not display the data labels
-			// We filter out measurement elements by checking that text is not inside measurement element
-			const labelElements = screen.queryAllByText( ( content, element ) => {
-				// Check if this text element is not the measurement element
-				return (
-					( content === 'A' || content === 'B' ) &&
-					element?.id !== '__react_svg_text_measurement_id'
-				);
-			} );
-
-			// Labels should not be present in the rendered output (excluding measurement text)
-			expect( labelElements ).toHaveLength( 0 );
+			// A plain query, so this also fails if the measurement node stops being
+			// ignored — see tests/setup-text-measurement.js.
+			expect( screen.queryAllByText( /^[AB]$/ ) ).toHaveLength( 0 );
 		} );
 
 		test( 'shows labels when showLabels is explicitly true', () => {
@@ -618,6 +609,62 @@ describe( 'PieChart', () => {
 
 			expect( screen.getByText( 'All segments are hidden.' ) ).toBeInTheDocument();
 			expect( screen.queryByText( /Click legend items to show data/i ) ).not.toBeInTheDocument();
+		} );
+	} );
+} );
+
+// Chart container at (100, 50); the tooltip box measures 120x40. Everything
+// else the charts measure (wrapper, clipping lookups) reports the container.
+const mockRects = () =>
+	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+		this: Element
+	) {
+		const box = this.classList.contains( 'visx-tooltip' );
+		return {
+			left: box ? 0 : 100,
+			top: box ? 0 : 50,
+			width: box ? 120 : 400,
+			height: box ? 40 : 300,
+			right: box ? 120 : 500,
+			bottom: box ? 40 : 350,
+			x: box ? 0 : 100,
+			y: box ? 0 : 50,
+			toJSON: () => ( {} ),
+		} as DOMRect;
+	} );
+
+describe( 'PieChart tooltip position', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	test( 'places the box relative to the chart container, at the pointer plus the offsets', async () => {
+		mockRects();
+		const user = userEvent.setup();
+		render(
+			<GlobalChartsProvider>
+				<PieChart
+					data={ [
+						{ label: 'A', value: 60, valueDisplay: '60' },
+						{ label: 'B', value: 40, valueDisplay: '40' },
+					] }
+					width={ 400 }
+					height={ 300 }
+					withTooltips
+				/>
+			</GlobalChartsProvider>
+		);
+
+		await user.pointer( {
+			target: screen.getAllByTestId( 'pie-segment' )[ 0 ],
+			coords: { clientX: 150, clientY: 120 },
+		} );
+
+		// Pointer at (150, 120) is (50, 70) inside the container; the default
+		// -15px vertical offset makes that (50, 55), and the box adds 10px each way.
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			transform: 'translate(60px, 65px)',
 		} );
 	} );
 } );

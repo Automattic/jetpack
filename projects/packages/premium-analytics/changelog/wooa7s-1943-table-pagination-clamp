@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Tables: fall back to the last page instead of reporting no results when a date range returns fewer rows than the current page.

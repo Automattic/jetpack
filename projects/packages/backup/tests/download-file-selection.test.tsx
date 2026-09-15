@@ -1,9 +1,5 @@
 // The file browser's selection has to survive the trip to the Download screen,
-// and the screen has to act on it. What travels is the opaque per-entry `id`
-// from `/rewind/backup/ls`, comma-joined as one string, since an id can itself
-// contain a comma. The checklist is skipped when files are named because
-// upstream models `paths` as one *of* the six categories, not a filter across
-// them — so a request naming files cannot also name categories.
+// and the screen has to send it.
 
 const mockApiFetch = jest.fn();
 const mockSearch = jest.fn< Record< string, unknown >, [] >();
@@ -51,8 +47,6 @@ import type { BackupActivityItem } from '../src/dashboard/types/activity';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-const SETTLE = { timeout: 10000 };
-
 const ITEM: BackupActivityItem = {
 	id: 'act-cloud',
 	kind: 'backup',
@@ -71,9 +65,9 @@ const ITEM: BackupActivityItem = {
 // mocked out here, so these do not exercise a URL round trip.
 const WP_CONFIG_ID = 'ZjU6L3dwLWNvbmZpZy5waHA=';
 const README_ID = 'ZjI6L3JlYWRtZS5odG1s';
-// A directory id, which is itself a comma-joined token pair (`base64("r2:")
-// + "," + base64("f2:/")`). It is why the include list is one comma-joined
-// string upstream flattens, rather than a list of discrete values.
+// A directory id, itself a comma-joined token pair (`base64("r2:") + "," +
+// base64("f2:/")`) — the comma is upstream's own separator, so this single
+// tree entry is two entries in the path list.
 const THEMES_DIR_ID = 'cjI6,ZjI6Lw==';
 
 /**
@@ -167,8 +161,19 @@ beforeEach( () => {
  */
 function postCalls() {
 	return mockApiFetch.mock.calls
-		.map( ( [ options ] ) => options as { method?: string; path?: string } | undefined )
+		.map(
+			( [ options ] ) => options as { method?: string; path?: string; data?: unknown } | undefined
+		)
 		.filter( options => options?.method === 'POST' );
+}
+
+/**
+ * The initiate POSTs, which the file browser's own `ls` calls are not.
+ *
+ * @return The matching apiFetch option objects, in call order.
+ */
+function initiateCalls() {
+	return postCalls().filter( options => options?.path?.includes( '/backups/download/' ) );
 }
 
 describe( 'Download link carrying the file selection', () => {
@@ -179,7 +184,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: wp-config.php' } )
 		).resolves.toBeInTheDocument();
 
 		expect( screen.getByRole( 'link', { name: /Download backup/ } ) ).toHaveAttribute(
@@ -195,7 +200,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'File: wp-config.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: wp-config.php' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select wp-config.php' } ) );
@@ -204,8 +209,6 @@ describe( 'Download link carrying the file selection', () => {
 		const link = await screen.findByRole( 'link', { name: /Download 2 selected items/ } );
 		const href = link.getAttribute( 'href' ) ?? '';
 		const query = new URLSearchParams( href.slice( href.indexOf( '?' ) ) );
-		// Comma-joined as one string, not repeated params: upstream flattens
-		// on comma, and an id can contain one.
 		expect( query.get( 'files' ) ).toBe( `${ WP_CONFIG_ID },${ README_ID }` );
 
 		// Restore is the outside witness. It sits beside Download and looks
@@ -232,7 +235,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'Folder: themes' }, SETTLE )
+			screen.findByRole( 'button', { name: 'Folder: themes' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select themes' } ) );
@@ -259,7 +262,7 @@ describe( 'Download link carrying the file selection', () => {
 			</QueryClientProvider>
 		);
 		await expect(
-			screen.findByRole( 'button', { name: 'File: orphan.php' }, SETTLE )
+			screen.findByRole( 'button', { name: 'File: orphan.php' } )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select orphan.php' } ) );
@@ -293,7 +296,7 @@ describe( 'Download screen without a file selection', () => {
 		// on it: the button exists and is armed, which only makes sense
 		// alongside a list of categories to arm it.
 		await expect(
-			screen.findByRole( 'button', { name: /Generate download/ }, SETTLE )
+			screen.findByRole( 'button', { name: /Generate download/ } )
 		).resolves.toBeInTheDocument();
 		for ( const label of ITEM_LABELS ) {
 			expect( screen.getByRole( 'checkbox', { name: label } ) ).toBeChecked();
@@ -319,7 +322,7 @@ describe( 'Download screen without a file selection', () => {
 		render( <DownloadStage /> );
 
 		await expect(
-			screen.findByRole( 'button', { name: /Generate download/ }, SETTLE )
+			screen.findByRole( 'button', { name: /Generate download/ } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Preparing download…' ) ).not.toBeInTheDocument();
 		expect( postCalls() ).toHaveLength( 0 );
@@ -337,9 +340,7 @@ describe( 'Download screen with a file selection', () => {
 		// Sibling witness rather than bare absence: the screen has moved on
 		// to preparing the archive, which is the state that replaces the
 		// checklist. A screen that rendered nothing at all would fail here.
-		await expect(
-			screen.findByText( 'Preparing download…', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
 
 		for ( const label of ITEM_LABELS ) {
 			expect( screen.queryByRole( 'checkbox', { name: label } ) ).not.toBeInTheDocument();
@@ -347,16 +348,67 @@ describe( 'Download screen with a file selection', () => {
 		expect( screen.queryByRole( 'button', { name: /Generate download/ } ) ).not.toBeInTheDocument();
 	} );
 
+	// The bare role query is unambiguous: the checklist branch that carries the
+	// screen's other `role="status"` never renders alongside a file selection.
+	it( 'announces that the archive is being prepared, and only that line', async () => {
+		render( <DownloadStage /> );
+
+		// Exact, for the reason given in `restore-progress-message.test.tsx`.
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
+			/^Preparing download…$/
+		);
+	} );
+
 	it( 'asks WordPress.com for the archive once, without being clicked', async () => {
 		render( <DownloadStage /> );
 
-		await expect(
-			screen.findByText( 'Preparing download…', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
 
 		const posts = postCalls();
 		expect( posts ).toHaveLength( 1 );
 		expect( posts[ 0 ]?.path ).toContain( '/backups/download/1786644531.123' );
+	} );
+
+	// The pairing the bridge guards and upstream does not.
+	it( 'names the paths type and the entries, and no other category', async () => {
+		render( <DownloadStage /> );
+
+		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
+
+		expect( initiateCalls()[ 0 ]?.data ).toEqual( {
+			types: { paths: true },
+			include_path_list: [ WP_CONFIG_ID, README_ID ],
+		} );
+	} );
+
+	it( 'retries with the file selection rather than the whole site', async () => {
+		let attempts = 0;
+		mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
+			const path = o?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
+			}
+			if ( path.includes( '/backups/download/' ) && path.includes( '/status' ) ) {
+				return Promise.resolve( downloadStatus );
+			}
+			if ( path.includes( '/backups/download/' ) ) {
+				attempts += 1;
+				return attempts === 1
+					? Promise.reject( { code: 'download_initiate_failed', message: 'No luck.' } )
+					: Promise.resolve( { id: 4242 } );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		render( <DownloadStage /> );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: /Try again/ } ) );
+
+		await waitFor( () => expect( initiateCalls() ).toHaveLength( 2 ) );
+		expect( initiateCalls()[ 1 ]?.data ).toEqual( {
+			types: { paths: true },
+			include_path_list: [ WP_CONFIG_ID, README_ID ],
+		} );
 	} );
 
 	// StrictMode is load-bearing: its simulated unmount detaches React Query's
@@ -373,10 +425,10 @@ describe( 'Download screen with a file selection', () => {
 		// the job queued — so waiting on the element alone would pass on a
 		// bar that never took a number from the poll. The polled value is
 		// the assertion that matters.
-		const bar = await screen.findByRole( 'progressbar', undefined, SETTLE );
+		const bar = await screen.findByRole( 'progressbar' );
 		// A number, not a string: `toHaveValue` on `<progress>` reads
 		// `element.value`, which the DOM has already coerced.
-		await waitFor( () => expect( bar ).toHaveValue( 36 ), SETTLE );
+		await waitFor( () => expect( bar ).toHaveValue( 36 ) );
 		// The spinner is the state the bar replaces, so its departure is
 		// half the behaviour. `Spinner` renders an explicit
 		// `role="presentation"`, which is the handle on it.
@@ -394,9 +446,7 @@ describe( 'Download screen with a file selection', () => {
 
 		// Wait for a live poll first, so the flip below lands on a screen
 		// that is genuinely waiting rather than one still mid-POST.
-		await expect(
-			screen.findByRole( 'progressbar', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'progressbar' ) ).resolves.toBeInTheDocument();
 
 		downloadStatus = {
 			id: 4242,
@@ -407,8 +457,9 @@ describe( 'Download screen with a file selection', () => {
 			error: '',
 		};
 
-		const link = await screen.findByRole( 'link', { name: 'Download the file' }, SETTLE );
+		const link = await screen.findByRole( 'link', { name: 'Download the file' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/archive.zip' );
+		expect( link ).toHaveAttribute( 'download' );
 		// `Notice` also speaks its text through `wp.a11y.speak`, which
 		// mirrors the string into a live region — so an unscoped query
 		// matches twice. The visible notice is the one under assertion.
@@ -427,8 +478,47 @@ describe( 'Download screen with a file selection', () => {
 		render( <DownloadStage /> );
 
 		await expect(
-			screen.findByText( "This download link isn't valid.", undefined, SETTLE )
+			screen.findByText( "This download link isn't valid." )
 		).resolves.toBeInTheDocument();
 		expect( postCalls() ).toHaveLength( 0 );
+	} );
+} );
+
+describe( 'From the file browser to the request', () => {
+	// The one place the label's list and the request's list are checked
+	// against each other, by carrying the real `?files=` between them.
+	it( 'sends the entries the detail pane counted', async () => {
+		lsContents = {
+			themes: { type: 'dir', has_children: true, id: THEMES_DIR_ID },
+			'wp-config.php': TWO_FILES[ 'wp-config.php' ],
+		};
+		const view = render(
+			<QueryClientProvider>
+				<BackupDetail item={ ITEM } />
+			</QueryClientProvider>
+		);
+		await expect(
+			screen.findByRole( 'button', { name: 'Folder: themes' } )
+		).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select themes' } ) );
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select wp-config.php' } ) );
+
+		const link = await screen.findByRole( 'link', { name: /Download 2 selected items/ } );
+		const href = link.getAttribute( 'href' ) ?? '';
+		view.unmount();
+
+		mockSearch.mockReturnValue( {
+			files: new URLSearchParams( href.slice( href.indexOf( '?' ) ) ).get( 'files' ) ?? '',
+		} );
+		render( <DownloadStage /> );
+		await expect( screen.findByText( 'Preparing download…' ) ).resolves.toBeInTheDocument();
+
+		// Three entries for two ticked rows: the folder's id is itself a
+		// comma-joined pair.
+		expect( initiateCalls()[ 0 ]?.data ).toEqual( {
+			types: { paths: true },
+			include_path_list: [ 'cjI6', 'ZjI6Lw==', WP_CONFIG_ID ],
+		} );
 	} );
 } );

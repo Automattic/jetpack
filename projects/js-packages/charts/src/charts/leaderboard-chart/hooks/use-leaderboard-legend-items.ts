@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { useGlobalChartsTheme, useGlobalChartsContext } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { LeaderboardEntry } from '../../../types';
 
@@ -35,7 +35,6 @@ export function useLeaderboardLegendItems( {
 		comparison?: string;
 	};
 } ): BaseLegendItem[] {
-	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
 	const { getElementStyles } = useGlobalChartsContext();
 
 	return useMemo( () => {
@@ -48,7 +47,7 @@ export function useLeaderboardLegendItems( {
 		// Add current period legend item
 		const { color: resolvedPrimaryColor } = getElementStyles( {
 			index: 0,
-			overrideColor: primaryColor || leaderboardChartSettings.primaryColor,
+			overrideColor: primaryColor,
 		} );
 
 		items.push( {
@@ -60,7 +59,7 @@ export function useLeaderboardLegendItems( {
 		if ( withComparison && ! withOverlayLabel ) {
 			const { color: resolvedSecondaryColor } = getElementStyles( {
 				index: 1,
-				overrideColor: secondaryColor || leaderboardChartSettings.secondaryColor,
+				overrideColor: secondaryColor,
 			} );
 
 			items.push( {
@@ -76,7 +75,6 @@ export function useLeaderboardLegendItems( {
 		secondaryColor,
 		withComparison,
 		legendLabels,
-		leaderboardChartSettings,
 		getElementStyles,
 		withOverlayLabel,
 	] );

@@ -89,7 +89,7 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 							) }
 							className={ styles.avatar }
 						/>
-						<span>{ name }</span>
+						<span className={ styles.name }>{ name }</span>
 					</Stack>
 				);
 			},

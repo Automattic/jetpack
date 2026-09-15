@@ -10,6 +10,7 @@ import analytics from 'lib/analytics';
 export const EVENTS = {
 	VIEWED: 'jetpack_ai_hub_viewed',
 	LINK_CLICK: 'jetpack_ai_hub_link_click',
+	FEATURE_TOGGLED: 'jetpack_ai_feature_toggled',
 };
 
 /**

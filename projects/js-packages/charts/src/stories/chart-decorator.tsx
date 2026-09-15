@@ -4,6 +4,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { GlobalChartsProvider } from '../providers';
 import {
 	CHART_THEME_MAP,
+	CHART_THEME_ROLES,
 	DEFAULT_ACCENT_COLOR,
 	NO_ADMIN_COLOR_SCHEME,
 	WP_ADMIN_COLOR_SCHEMES,
@@ -177,6 +178,7 @@ const StoryChartProvider = ( {
 	}, [] );
 
 	const theme = CHART_THEME_MAP[ themeName ];
+	const roles = CHART_THEME_ROLES[ themeName ];
 
 	// Only seed a custom primary color when the custom theme is active.
 	// Other themes use ThemeProvider's built-in default.
@@ -206,6 +208,11 @@ const StoryChartProvider = ( {
 					...adminColorSchemeStyle( adminColorScheme ),
 				} }
 			>
+				{ roles && (
+					<style>{ `.a8c-charts-scope { ${ Object.entries( roles )
+						.map( ( [ role, value ] ) => `${ role }: ${ value };` )
+						.join( ' ' ) } }` }</style>
+				) }
 				<GlobalChartsProvider key={ providerKey } theme={ theme }>
 					{ children }
 				</GlobalChartsProvider>

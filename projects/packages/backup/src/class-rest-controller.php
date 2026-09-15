@@ -34,7 +34,9 @@ use function is_wp_error;
 use function register_rest_route;
 use function rest_authorization_required_code;
 use function rest_ensure_response;
+use function wp_cache_flush;
 use function wp_remote_retrieve_response_code;
+use function wp_using_ext_object_cache;
 
 /**
  * Registers the REST routes for Backup.
@@ -229,6 +231,17 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_backup_preflight',
 				'permission_callback' => __NAMESPACE__ . '\Jetpack_Backup::backups_permissions_callback',
+			)
+		);
+
+		// Flush the object cache, which a database restore leaves stale.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/cache/flush',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => __CLASS__ . '::flush_object_cache',
+				'permission_callback' => __CLASS__ . '::backup_permissions_callback',
 			)
 		);
 	}
@@ -759,6 +772,42 @@ class REST_Controller {
 
 		$body = json_decode( $response['body'], true );
 		return rest_ensure_response( $body );
+	}
+
+	/**
+	 * Flush the object cache.
+	 *
+	 * A database restore writes MySQL directly and never tells WordPress, so
+	 * a site with a persistent cache keeps serving pre-restore rows until
+	 * something busts it.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return \WP_REST_Response Whether the cache was flushed, carrying a `reason` whenever it was not.
+	 */
+	public static function flush_object_cache() {
+		if ( ! wp_using_ext_object_cache() ) {
+			return rest_ensure_response(
+				array(
+					'flushed' => false,
+					'reason'  => 'no_ext_object_cache',
+				)
+			);
+		}
+
+		// Core documents false as the only failure signal, so a drop-in whose
+		// flush() returns nothing must not be reported as a failed flush.
+		if ( false === wp_cache_flush() ) {
+			return rest_ensure_response(
+				array(
+					'flushed' => false,
+					'reason'  => 'flush_failed',
+				)
+			);
+		}
+
+		return rest_ensure_response( array( 'flushed' => true ) );
 	}
 
 	/**

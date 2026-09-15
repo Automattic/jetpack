@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Bar and line charts: Report a click through the pointer event handlers and Enter or Space through an activation callback, so a chart can open the point under the pointer or the keyboard selection.

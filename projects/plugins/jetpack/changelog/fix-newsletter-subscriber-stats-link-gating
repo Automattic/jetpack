@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: Hide the "View delivery details" stats link in the publish panels when the Stats module is disabled, so the copy no longer points to an unavailable page.

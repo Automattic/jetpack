@@ -35,3 +35,34 @@ export function isPremiumAnalyticsInitialSyncFinished(): boolean {
 export function isVideoPressAvailable(): boolean {
 	return getScriptData()?.premium_analytics?.has_videopress ?? false;
 }
+
+/**
+ * URL-facing slugs of the dashboard tabs, mirroring the section ids in `src/dashboard-layout.php`.
+ *
+ * A rename on the PHP side would hide every report behind that tab in silence, so
+ * `Dashboard_Section_Test::test_preview_scope_sections_list_every_tab_when_unscoped` pins it there.
+ */
+export const DASHBOARD_SECTION_SLUGS = [
+	'traffic',
+	'insights',
+	'subscribers',
+	'store',
+	'ads',
+] as const;
+
+export type DashboardSectionSlug = ( typeof DASHBOARD_SECTION_SLUGS )[ number ];
+
+/**
+ * Check whether the dashboard exposes a section.
+ *
+ * Defaults to true, so a build whose server never published the list keeps every surface:
+ * an absent list is "not scoped", not "nothing is in scope".
+ *
+ * @param section - Slug of the section the surface belongs to.
+ * @return Whether the dashboard exposes the section.
+ */
+export function isDashboardSectionInPreviewScope( section: DashboardSectionSlug ): boolean {
+	const sections = getScriptData()?.premium_analytics?.preview_sections;
+
+	return ! Array.isArray( sections ) || sections.includes( section );
+}

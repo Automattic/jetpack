@@ -6,7 +6,7 @@ import { ChartScopeContext } from '../../../providers/chart-scope';
 import type { ReactNode } from 'react';
 
 // A real chart is the harness rather than the subject: the crosshairs render only once visx has a data context and an open tooltip. The unresponsive export is what lets the test own the scope element — `withResponsive` otherwise provides its own wrapper as the scope.
-const renderChart = ( scope?: HTMLElement ) => {
+const renderChart = ( scope?: HTMLElement, tooltipPlacement?: 'auto' | 'below-axis' ) => {
 	const chart = (
 		<LineChartUnresponsive
 			width={ 500 }
@@ -22,6 +22,7 @@ const renderChart = ( scope?: HTMLElement ) => {
 				},
 			] }
 			withTooltips
+			tooltipPlacement={ tooltipPlacement }
 			withTooltipCrosshairs={ { showVertical: true } }
 			withGradientFill={ false }
 		/>
@@ -42,12 +43,11 @@ const openTooltip = async () => {
 	screen.getByRole( 'grid', { name: /line chart/i } ).focus();
 	await user.keyboard( '{ArrowRight}' );
 
-	// eslint-disable-next-line testing-library/no-node-access -- visx owns the crosshair and hardcodes its class name, so there is no attribute to reach it by.
-	return document.querySelector( '.visx-crosshair-vertical line' );
+	return screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
 };
 
 describe( 'AccessibleTooltip', () => {
-	// The crosshair is painted in a portal outside the scope element; see TOKENS.md#the-svg-bridge.
+	// The stroke is read at the scope element, not inherited through the DOM; see TOKENS.md#the-svg-bridge.
 	it( 'reads the grid role from the scope element', async () => {
 		const scope = document.createElement( 'div' );
 		scope.style.setProperty( '--a8c-charts-color-grid', 'rgb(1, 2, 3)' );
@@ -58,6 +58,32 @@ describe( 'AccessibleTooltip', () => {
 		await expect( openTooltip() ).resolves.toHaveAttribute( 'stroke', 'rgb(1, 2, 3)' );
 
 		document.body.removeChild( scope );
+	} );
+
+	it( 'keeps the existing focus scrolling for automatic tooltips', async () => {
+		const focus = jest.spyOn( HTMLElement.prototype, 'focus' );
+		try {
+			renderChart();
+			await openTooltip();
+
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expect( focus ).toHaveBeenLastCalledWith();
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
+	it( 'focuses below-axis keyboard tooltips without scrolling their ancestors', async () => {
+		const focus = jest.spyOn( HTMLElement.prototype, 'focus' );
+		try {
+			renderChart( undefined, 'below-axis' );
+			await openTooltip();
+
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
+		} finally {
+			focus.mockRestore();
+		}
 	} );
 
 	it( 'falls back to the catalog default when the role is unset', async () => {
