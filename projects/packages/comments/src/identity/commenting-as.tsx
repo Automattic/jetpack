@@ -2,7 +2,6 @@ import clsx from 'clsx';
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { GearIcon } from './checkpoint/icons';
-import { markTraySeen } from './tray';
 
 import './style.scss';
 
@@ -41,7 +40,6 @@ export const CommentingAs = () => {
 
 	const toggle = () => {
 		document.querySelector< HTMLTextAreaElement >( '.jetpack-comments__textarea' )?.focus();
-		markTraySeen();
 		isTrayOpen.value = ! isTrayOpen.value;
 	};
 

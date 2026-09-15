@@ -2,7 +2,6 @@ import clsx from 'clsx';
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 import { CommentingAs, Identity } from '../identity';
-import { markTraySeen, traySeen } from '../identity/tray';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
@@ -20,31 +19,16 @@ type CommentFormProps = {
 const DRAFT_DEBOUNCE_MS = 300;
 
 const CommentForm = ( { form }: CommentFormProps ) => {
-	const {
-		formSettings,
-		commentParent,
-		commentValue,
-		isEmptyComment,
-		isSavingComment,
-		isTrayOpen,
-		signedIn,
-	} = useContext( CommentSignals );
+	const { formSettings, commentParent, commentValue, isEmptyComment, isSavingComment, isTrayOpen } =
+		useContext( CommentSignals );
 	const isSubmitting = useRef( false );
 
-	// Typing opens the tray, so a guest meets the sign-in row before the button
-	// and a signed-in reader sees who they are, once.
+	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence sticks.
 	useEffect( () => {
-		if ( isEmptyComment.value || isTrayOpen.value ) {
-			return;
-		}
-
-		if ( ! signedIn.value ) {
-			isTrayOpen.value = true;
-		} else if ( ! traySeen() ) {
-			markTraySeen();
+		if ( ! isEmptyComment.value ) {
 			isTrayOpen.value = true;
 		}
-	}, [ isEmptyComment.value, signedIn.value, isTrayOpen ] );
+	}, [ isEmptyComment.value, isTrayOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
