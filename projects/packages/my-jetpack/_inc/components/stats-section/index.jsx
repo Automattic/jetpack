@@ -204,6 +204,7 @@ const StatsSection = () => {
 				headingLevel={ 3 }
 				chartData={ chartData }
 				isLoading={ isVisitsDataLoading }
+				detailedStatsHref={ viewStatsHref }
 				onDetailedStatsClick={ onDetailedStatsClick }
 			/>
 		</ProductCard>
