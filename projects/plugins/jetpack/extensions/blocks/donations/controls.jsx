@@ -483,7 +483,7 @@ const Controls = props => {
 					</p>
 					<p>
 						<ExternalLink href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }>
-							{ __( "Review Stripe's requirements for accepting donations", 'jetpack' ) }
+							{ __( 'Review Stripe’s requirements for accepting donations', 'jetpack' ) }
 						</ExternalLink>
 					</p>
 				</PanelBody>
