@@ -14,12 +14,14 @@ jest.mock( '@wordpress/route', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
+import { PeriodChangeSignalProvider, useSettlePeriodChange } from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import { useOpenSectionRange } from '../use-open-section-range';
+import type { ReactNode } from 'react';
 
 setSettings( {
 	...getSettings(),
@@ -60,6 +62,24 @@ describe( 'useOpenSectionRange', () => {
 			to: '2025-11-30T23:59:59.999+00:00',
 			interval: 'day',
 		} );
+	} );
+
+	it( 'signals the period change to the section it opens', () => {
+		mockSearch = { section: 'insights' };
+		const wrapper = ( { children }: { children: ReactNode } ) => (
+			<PeriodChangeSignalProvider>{ children }</PeriodChangeSignalProvider>
+		);
+		const { result } = renderHook(
+			() => ( {
+				open: useOpenSectionRange(),
+				traffic: useSettlePeriodChange( 'traffic', NOVEMBER, true ),
+			} ),
+			{ wrapper }
+		);
+
+		act( () => result.current.open( 'traffic', NOVEMBER ) );
+
+		expect( result.current.traffic ).toEqual( expect.any( Number ) );
 	} );
 
 	it( 'keeps the range ends exactly as given', () => {
