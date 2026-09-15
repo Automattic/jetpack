@@ -35,7 +35,12 @@ class Activity_Log_Product_Test extends TestCase {
 		activate_plugins( 'jetpack/jetpack.php' );
 
 		// Manager memoizes the connection owner across tests in the same process.
-		( new \ReflectionProperty( Connection_Manager::class, 'connection_owner_id' ) )->setValue( null, null );
+		$owner_id = new \ReflectionProperty( Connection_Manager::class, 'connection_owner_id' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$owner_id->setAccessible( true );
+		}
+		$owner_id->setValue( null, null );
 
 		self::$user_id = wp_insert_user(
 			array(
@@ -64,7 +69,7 @@ class Activity_Log_Product_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
-		\Jetpack::$active_modules = array();
+		$this->set_active_modules( array() );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
@@ -94,10 +99,10 @@ class Activity_Log_Product_Test extends TestCase {
 	 * just the presence of the Jetpack plugin.
 	 */
 	public function test_is_active_follows_module_state() {
-		\Jetpack::$active_modules = array();
+		$this->set_active_modules( array() );
 		$this->assertFalse( Activity_Log::is_active() );
 
-		\Jetpack::$active_modules = array( 'activity-log' );
+		$this->set_active_modules( array( 'activity-log' ) );
 		$this->assertTrue( Activity_Log::is_active() );
 	}
 
@@ -106,7 +111,7 @@ class Activity_Log_Product_Test extends TestCase {
 	 * module state is only reachable once one exists.
 	 */
 	public function test_status_requires_a_connected_owner() {
-		\Jetpack::$active_modules = array( 'activity-log' );
+		$this->set_active_modules( array( 'activity-log' ) );
 		$this->assertSame( Products::STATUS_USER_CONNECTION_ERROR, Activity_Log::get_status() );
 	}
 
@@ -116,11 +121,22 @@ class Activity_Log_Product_Test extends TestCase {
 	public function test_status_follows_module_state() {
 		$this->connect_owner();
 
-		\Jetpack::$active_modules = array();
+		$this->set_active_modules( array() );
 		$this->assertSame( Products::STATUS_MODULE_DISABLED, Activity_Log::get_status() );
 
-		\Jetpack::$active_modules = array( 'activity-log' );
+		$this->set_active_modules( array( 'activity-log' ) );
 		$this->assertSame( Products::STATUS_ACTIVE, Activity_Log::get_status() );
+	}
+
+	/**
+	 * Sets which modules the mock Jetpack plugin reports as active.
+	 *
+	 * @param array $modules Module slugs.
+	 * @return void
+	 */
+	private function set_active_modules( array $modules ) {
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- It's declared on the mock from ./assets/jetpack-mock-plugin.txt
+		\Jetpack::$active_modules = $modules;
 	}
 
 	/**
