@@ -707,16 +707,16 @@ class Help_Center {
 
 	/**
 	 * Returns the URL for the Help Center redirect.
-	 * Used for the Help Center when disconnected.
+	 *
+	 * Always set on the admin bar node: without an href WordPress renders the item as a
+	 * div, which the keyboard cannot reach and the admin bar's hover styles skip. Where
+	 * the panel is available its bundle opens it and cancels the navigation, so this is
+	 * the fallback for disconnected sites and for a failed script load.
+	 *
+	 * @return string
 	 */
 	public function get_help_center_url() {
-		$help_url = 'https://wordpress.com/help?help-center=home';
-
-		if ( $this->is_jetpack_disconnected() || ( $this->is_loading_on_frontend() && ! $this->is_support_site ) ) {
-			return $help_url;
-		}
-
-		return false;
+		return 'https://wordpress.com/help?help-center=home';
 	}
 
 	/**
