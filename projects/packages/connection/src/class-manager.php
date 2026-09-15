@@ -188,6 +188,7 @@ class Manager {
 		Webhooks::init( $manager );
 
 		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' ), 10, 2 );
+		add_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
 
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
@@ -1454,6 +1455,46 @@ class Manager {
 			'status'                 => $status,
 			'is_current_user_the_po' => $is_current_user_the_po,
 		);
+	}
+
+	/**
+	 * Re-point the connection owner at the protected owner when they connect.
+	 *
+	 * Local only. The anchor names a WordPress.com identity that WordPress.com already holds as the
+	 * owner of record, so this corrects this site's pointer at that identity and asks WordPress.com
+	 * for nothing. It only ever promotes an owner already confirmed: with no anchor it does nothing
+	 * at all, so a first connection still lets whoever connects take a vacant master slot.
+	 *
+	 * The binding is resolved rather than read, because the token written moments earlier has just
+	 * invalidated any stored one. That single lookup is the re-heal, and it is the only network
+	 * call in the path.
+	 *
+	 * @internal Hooked on `jetpack_user_authorized`.
+	 * @since $$next-version$$
+	 */
+	public function promote_protected_owner_on_connect() {
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return;
+		}
+
+		if ( $this->resolve_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
+			return;
+		}
+
+		// The cached local ID moves with the owner even when the master slot already agrees.
+		Protected_Owner::repoint( $user_id );
+
+		if ( (int) \Jetpack_Options::get_option( 'master_user' ) !== $user_id ) {
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
 	}
 
 	/**

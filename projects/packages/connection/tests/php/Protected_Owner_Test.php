@@ -910,4 +910,131 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertSame( Manager::PO_STATE_CAN_ESTABLISH, $state['status'] );
 		$this->assertFalse( $state['is_current_user_the_po'] );
 	}
+	// ── promote_protected_owner_on_connect ───────────────────────────────
+
+	/**
+	 * The anchored identity reconnecting takes the master slot back from whoever holds it.
+	 */
+	public function test_the_protected_owner_reconnecting_takes_back_the_master_slot() {
+		$agency = $this->candidate( 'agency' );
+		$this->anchor();
+		Jetpack_Options::update_option( 'master_user', $agency );
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $agency, false, $this->never() );
+		$manager->promote_protected_owner_on_connect();
+
+		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * Somebody else connecting leaves the master slot exactly where it was.
+	 */
+	public function test_a_different_account_connecting_does_not_take_the_master_slot() {
+		$agency = $this->candidate( 'agency' );
+		$this->anchor();
+
+		// The slot must start with somebody else, or a wrongly promoting implementation would
+		// write the value already there and the assertion could not tell the difference.
+		Jetpack_Options::update_option( 'master_user', $this->owner_id );
+		Utils::set_wpcom_user_id( $agency, 9999 );
+		wp_set_current_user( $agency );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$manager->promote_protected_owner_on_connect();
+
+		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * With no anchor the hook does nothing, so a first connection still works as it always did.
+	 */
+	public function test_connecting_without_an_anchor_changes_no_ownership() {
+		$agency = $this->candidate( 'agency' );
+		Jetpack_Options::update_option( 'master_user', $agency );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$manager->promote_protected_owner_on_connect();
+
+		$this->assertSame( $agency, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * An unlocked anchor protects nobody, so it promotes nobody either.
+	 */
+	public function test_an_unlocked_anchor_does_not_promote_on_connect() {
+		$agency = $this->candidate( 'agency' );
+		Jetpack_Options::update_option(
+			Protected_Owner::OPTION,
+			array(
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+				'local_user_id' => $this->owner_id,
+				'locked'        => false,
+				'confirmed_at'  => '2026-01-01T00:00:00Z',
+				'confirmed_by'  => 'popup',
+			)
+		);
+		Jetpack_Options::update_option( 'master_user', $agency );
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $agency, false, $this->never() );
+		$manager->promote_protected_owner_on_connect();
+
+		$this->assertSame( $agency, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * Connecting re-heals a binding the new token invalidated, with a single lookup.
+	 */
+	public function test_connecting_reheals_the_binding_from_wpcom_once() {
+		$this->anchor();
+		Jetpack_Options::update_option( 'master_user', 0 );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->once() );
+		$manager->promote_protected_owner_on_connect();
+
+		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+		$this->assertSame( self::ANCHORED_WPCOM_ID, Utils::get_wpcom_user_id( $this->owner_id ) );
+	}
+
+	/**
+	 * The anchor's cached local ID follows the owner to whichever account they reconnect under.
+	 */
+	public function test_connecting_repoints_the_anchor_at_the_local_account_in_use() {
+		$second = $this->candidate( 'owner_second_account' );
+		$this->anchor();
+		Utils::set_wpcom_user_id( $second, self::ANCHORED_WPCOM_ID );
+		wp_set_current_user( $second );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$manager->promote_protected_owner_on_connect();
+
+		$anchor = Protected_Owner::get();
+
+		$this->assertIsArray( $anchor );
+		$this->assertSame( $second, (int) $anchor['local_user_id'] );
+		$this->assertSame( self::ANCHORED_WPCOM_ID, (int) $anchor['wpcom_user_id'], 'The match key must not move.' );
+	}
+
+	/**
+	 * Re-pointing is not a re-confirmation, so the provenance of the original claim survives.
+	 */
+	public function test_repointing_the_anchor_preserves_how_it_was_confirmed() {
+		$this->anchor();
+		$before = Protected_Owner::get();
+		$second = $this->candidate( 'owner_second_account' );
+
+		Protected_Owner::repoint( $second );
+		$after = Protected_Owner::get();
+
+		$this->assertIsArray( $before );
+		$this->assertIsArray( $after );
+		$this->assertSame( $second, (int) $after['local_user_id'] );
+		$this->assertSame( $before['confirmed_at'], $after['confirmed_at'] );
+		$this->assertSame( $before['confirmed_by'], $after['confirmed_by'] );
+	}
 }
