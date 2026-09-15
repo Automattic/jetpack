@@ -8,7 +8,7 @@ import { render } from '@testing-library/react';
 import { GlobalChartsProvider } from '../../../providers';
 import { useCalendarHeatmapData } from '../use-calendar-heatmap-data';
 import type { DataPointDate } from '../../../types';
-import type { CalendarHeatmapOptions, CalendarHeatmapResult } from '../private';
+import type { CalendarHeatmapOptions, CalendarHeatmapResult } from '../types';
 
 // 2026-08-03 08:00 in Asia/Tokyo, 2026-08-02 16:00 in America/Los_Angeles.
 const series: DataPointDate[] = [ { date: new Date( '2026-08-02T23:00:00Z' ), value: 7 } ];

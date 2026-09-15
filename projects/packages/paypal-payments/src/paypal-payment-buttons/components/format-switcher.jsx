@@ -1,20 +1,19 @@
-/* eslint-disable react/jsx-no-bind */
 /**
  * PayPal Payment Buttons — Display format switcher.
  *
  * @package
  */
 
-import { Button, ButtonGroup } from '@wordpress/components';
+import { SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Format options for the format switcher.
  */
-export const FORMAT_OPTIONS = [
-	{ value: 'BUTTON', label: __( 'Button', 'jetpack-paypal-payments' ) },
+const FORMAT_OPTIONS = [
+	{ value: 'BUTTON', label: __( 'Single button', 'jetpack-paypal-payments' ) },
 	{ value: 'LINK', label: __( 'Link', 'jetpack-paypal-payments' ) },
-	{ value: 'QR', label: __( 'QR Code', 'jetpack-paypal-payments' ) },
+	{ value: 'QR', label: __( 'QR code', 'jetpack-paypal-payments' ) },
 ];
 
 /**
@@ -27,7 +26,7 @@ const FORMAT_HELP = {
 };
 
 /**
- * Format switcher component — shared between the creation form and InspectorControls.
+ * Format switcher — the Styles tab's Embed as control.
  *
  * @param {object}   props          - Component props.
  * @param {string}   props.value    - Current format value ('BUTTON' | 'LINK' | 'QR').
@@ -37,22 +36,18 @@ const FORMAT_HELP = {
  */
 export default function FormatSwitcher( { value, onChange, disabled } ) {
 	const activeValue = value || 'BUTTON';
+
 	return (
-		<div className="jetpack-paypal-payment-buttons__format-switcher">
-			<ButtonGroup className="jetpack-paypal-payment-buttons__format-toggle">
-				{ FORMAT_OPTIONS.map( option => (
-					<Button
-						key={ option.value }
-						variant={ activeValue === option.value ? 'primary' : 'secondary' }
-						onClick={ () => onChange( option.value ) }
-						disabled={ disabled }
-						aria-pressed={ activeValue === option.value }
-					>
-						{ option.label }
-					</Button>
-				) ) }
-			</ButtonGroup>
-			<p className="jetpack-paypal-payment-buttons__format-help">{ FORMAT_HELP[ activeValue ] }</p>
-		</div>
+		<SelectControl
+			className="jetpack-paypal-payment-buttons__format-switcher"
+			label={ __( 'Embed as', 'jetpack-paypal-payments' ) }
+			value={ activeValue }
+			options={ FORMAT_OPTIONS }
+			onChange={ onChange }
+			disabled={ disabled }
+			help={ FORMAT_HELP[ activeValue ] }
+			__next40pxDefaultSize
+			__nextHasNoMarginBottom
+		/>
 	);
 }

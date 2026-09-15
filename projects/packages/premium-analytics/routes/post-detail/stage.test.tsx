@@ -317,7 +317,8 @@ describe( 'post detail stage', () => {
 		expect( mockDashboardProps.editMode ).toBe( true );
 		expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
+		// The menu stays, so feedback and the opt-out remain a click away.
+		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^View post/ } ) ).not.toBeInTheDocument();
 
 		// Cancel or Done report back through onEditChange.
@@ -363,13 +364,39 @@ describe( 'post detail stage', () => {
 		expect( mockCanPerform?.( { operation: 'remove' } ) ).toBe( false );
 		// The page options menu is the way in, not the dashboard's own button.
 		expect( mockCanPerform?.( { operation: 'customize' } ) ).toBe( false );
-		// Reset joins Cancel and Done while customizing, and is absent otherwise.
+		// Reset to default is ours too, so the dashboard never gets its own.
 		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( false );
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 
-		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( true );
+		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( false );
+	} );
+
+	it( 'resets the layout from the page options menu and leaves customize mode', async () => {
+		const user = userEvent.setup();
+		const resetLayout = jest.fn();
+		mockUseTabLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout: () => {},
+			resetLayout,
+			hasCustomLayout: false,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+		const dialog = await screen.findByRole( 'alertdialog' );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Reset' } ) );
+
+		expect( resetLayout ).toHaveBeenCalledTimes( 1 );
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.getByRole( 'link', { name: /^View post/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'ignores the dashboard\u2019s empty-layout edit request while a tab has no layout', () => {

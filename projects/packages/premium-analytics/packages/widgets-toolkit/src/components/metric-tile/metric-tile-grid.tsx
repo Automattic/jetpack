@@ -9,6 +9,7 @@ import clsx from 'clsx';
 import { MetricValue } from '../metric-value';
 import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tile-grid.module.scss';
+import { useMetricTileLayout } from './use-metric-tile-layout';
 import type { DataFormat } from '../../types';
 import type { ComponentProps } from 'react';
 
@@ -127,13 +128,8 @@ function MetricTileValue( {
 }
 
 /**
- * Responsive container for metric tiles. The layout tracks the widget cell size
- * and picks one of three shapes on its own, no column count needed:
- *
- * - narrow: a single column of compact rows (icon and label left, value right);
- * - wide but short: a single row of centered tiles (columns follow tile count);
- * - wide and tall: a balanced two-column grid of large centered tiles, the last
- *   one taking the whole row when the tile count is odd.
+ * Lays metric tiles out by widget column span and body height; the four
+ * layouts and their thresholds live in `pickMetricTileLayout`.
  *
  * The grid is a size container, so it takes no height of its own: render it
  * inside a definite-height flex column (or a `height: 100%` chain) or it
@@ -148,13 +144,15 @@ export function MetricTileGrid( {
 	dataFormat = { type: 'number' },
 	currencyCode,
 }: MetricTileGridProps ) {
+	const [ containerRef, layout ] = useMetricTileLayout< HTMLDivElement >( tiles.length );
+
 	return (
-		<div className={ clsx( styles.container, className ) }>
-			<div className={ styles.grid } role="list">
+		<div ref={ containerRef } className={ clsx( styles.container, className ) }>
+			<div className={ styles.grid } data-layout={ layout } role="list">
 				{ tiles.map( tile => (
 					<div key={ tile.key } className={ clsx( styles.tile, tile.className ) } role="listitem">
 						<div className={ styles.header } title={ tile.note }>
-							{ tile.icon && <Icon icon={ tile.icon } size={ 24 } className={ styles.icon } /> }
+							{ tile.icon && <Icon icon={ tile.icon } size={ 20 } className={ styles.icon } /> }
 							<Text className={ styles.label }>{ tile.label }</Text>
 							{ /* The `title` tooltip is invisible to keyboard and screen-reader
 							     users, so the caveat is repeated as visually hidden text. */ }

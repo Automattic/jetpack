@@ -73,6 +73,7 @@ module.exports = [
 
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
+			'lib/inline-player': './src/client/lib/inline-player/index.ts',
 
 			// VideoPress dashboard page
 			'admin/index': './src/client/admin/index.jsx',
