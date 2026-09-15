@@ -72,6 +72,10 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 		collectShippingAddress,
 	} = attributes;
 
+	// PREFERENCE takes its rate from the merchant's PayPal profile; the other types
+	// carry their own. Either way: no value, no tax - and '0' is a value.
+	const taxAmount = 'PREFERENCE' === taxType ? 'PROFILE' : taxValue;
+
 	return {
 		type: 'BUY_NOW',
 		integration_mode: 'LINK',
@@ -104,7 +108,9 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 				...( customerNotes?.length > 0
 					? { customer_notes: customerNotes.filter( n => n.label?.trim() ) }
 					: {} ),
-				...( taxEnabled
+				// Test the string: truthiness would drop a legitimate 0, which PayPal
+				// stores and reads back like any other rate.
+				...( taxEnabled && '' !== ( taxAmount ?? '' )
 					? {
 							taxes: [
 								{
@@ -113,7 +119,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 									// one. Sending an empty one would overwrite it.
 									...( taxName ? { name: taxName } : {} ),
 									type: taxType || 'PERCENTAGE',
-									value: taxType === 'PREFERENCE' ? 'PROFILE' : taxValue || '0',
+									value: taxAmount,
 								},
 							],
 					  }

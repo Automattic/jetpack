@@ -138,6 +138,30 @@ describe( 'buildRequestData', () => {
 		expect( tax ).toEqual( { type: 'PERCENTAGE', value: '7.5' } );
 	} );
 
+	// Blank is not zero. An omitted key is how this API is told "no tax"; '0' is a rate
+	// it stores and hands back, so the two cannot collapse into one another.
+	it( 'leaves taxes out when the rate is blank', () => {
+		expect(
+			buildRequestData( { ...attributes, taxValue: '', taxName: '' }, true ).line_items[ 0 ]
+		).not.toHaveProperty( 'taxes' );
+	} );
+
+	it( 'still sends a rate of zero', () => {
+		const [ tax ] = buildRequestData( { ...attributes, taxValue: '0', taxName: '' }, true )
+			.line_items[ 0 ].taxes;
+
+		expect( tax ).toEqual( { type: 'PERCENTAGE', value: '0' } );
+	} );
+
+	it( 'sends the profile rate even with no local value', () => {
+		const [ tax ] = buildRequestData(
+			{ ...attributes, taxType: 'PREFERENCE', taxValue: '', taxName: '' },
+			true
+		).line_items[ 0 ].taxes;
+
+		expect( tax ).toEqual( { type: 'PREFERENCE', value: 'PROFILE' } );
+	} );
+
 	it( 'leaves taxes out when tax collection is off', () => {
 		expect(
 			buildRequestData( { ...attributes, taxEnabled: false }, true ).line_items[ 0 ]
