@@ -96,7 +96,6 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 | `stats`                                          | `view_stats`               | `stats/referrers/spam/`         |
 | `wordads`                                        | `activate_wordads`         | —                               |
 | `subscribers` / `site-has-never-published-post`  | `view_stats`               | —                               |
-| `memberships` (pattern-constrained: only `products`) | `view_stats`           | —                               |
 | `jetpack-stats`                                  | `view_stats`               | `jetpack-stats/user-feedback`   |
 | `jetpack-stats-dashboard`                        | `view_stats`               | whole prefix (busts read cache) |
 | `commercial-classification`                      | `view_stats`               | exact path                      |
