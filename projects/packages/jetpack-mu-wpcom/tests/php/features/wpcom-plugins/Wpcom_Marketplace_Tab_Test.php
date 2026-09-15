@@ -291,9 +291,41 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 			wpcom_marketplace_serve_plugins_api( false, 'query_plugins', (object) array( 'browse' => 'popular' ) )
 		);
 
+		$GLOBALS['pagenow'] = 'plugin-install.php';
 		$this->assertFalse(
 			wpcom_marketplace_serve_plugins_api( false, 'plugin_information', (object) array( 'slug' => 'akismet' ) )
 		);
+		unset( $GLOBALS['pagenow'] );
+	}
+
+	/**
+	 * Details are served on the plugin screens, where the modal lives.
+	 */
+	public function test_details_are_served_on_the_plugin_install_screen() {
+		$this->enable_tab();
+		$this->seed_catalog( array( 'gravityforms' => Marketplace_Catalog::to_card( self::PRODUCT ) ) );
+
+		$GLOBALS['pagenow'] = 'plugin-install.php';
+		$result             = wpcom_marketplace_serve_plugins_api( false, 'plugin_information', (object) array( 'slug' => 'gravityforms' ) );
+		unset( $GLOBALS['pagenow'] );
+
+		$this->assertIsObject( $result );
+		$this->assertSame( 'gravityforms', $result->slug );
+	}
+
+	/**
+	 * Other admin screens call plugins_api( 'plugin_information' ) too, and none of
+	 * them should pay for a catalog read.
+	 */
+	public function test_details_are_not_served_off_the_plugin_screens() {
+		$this->enable_tab();
+		$this->seed_catalog( array( 'gravityforms' => Marketplace_Catalog::to_card( self::PRODUCT ) ) );
+
+		$GLOBALS['pagenow'] = 'admin.php';
+		$result             = wpcom_marketplace_serve_plugins_api( false, 'plugin_information', (object) array( 'slug' => 'gravityforms' ) );
+		unset( $GLOBALS['pagenow'] );
+
+		$this->assertFalse( $result );
 	}
 
 	/**

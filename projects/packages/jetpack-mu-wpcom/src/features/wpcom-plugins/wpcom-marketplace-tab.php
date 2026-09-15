@@ -135,9 +135,9 @@ function wpcom_marketplace_serve_plugins_api( $result, $action, $args ) {
 		);
 	}
 
-	// Only answered from a warm cache: plugins_api( 'plugin_information' ) is called
-	// from unrelated screens, and none of them should pay for a catalog fetch.
-	if ( 'plugin_information' === $action && ! empty( $args->slug ) && false !== get_transient( Marketplace_Catalog::LIST_CACHE_KEY ) ) {
+	// Scoped to the plugin screens: plugins_api( 'plugin_information' ) is called from
+	// unrelated admin pages too, and none of those should pay for a catalog fetch.
+	if ( 'plugin_information' === $action && ! empty( $args->slug ) && wpcom_marketplace_on_plugin_install_screen() ) {
 		$product = Marketplace_Catalog::get_product_details( (string) $args->slug );
 
 		if ( null !== $product ) {
@@ -148,6 +148,15 @@ function wpcom_marketplace_serve_plugins_api( $result, $action, $args ) {
 	return $result;
 }
 add_filter( 'plugins_api', 'wpcom_marketplace_serve_plugins_api', 10, 3 );
+
+/**
+ * Whether this request is the Add Plugins screen, the details modal included.
+ *
+ * @return bool
+ */
+function wpcom_marketplace_on_plugin_install_screen() {
+	return isset( $GLOBALS['pagenow'] ) && 'plugin-install.php' === $GLOBALS['pagenow'];
+}
 
 /**
  * Replaces "Install Now" with a link to the product's page on WordPress.com.
