@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Charts: Keep keyboard focus on the first or last data point when an arrow key reaches the end of a chart.
+Charts: Keep keyboard focus on the first or last data point when an arrow key reaches the end of a chart, and return focus to the chart when Escape closes a tooltip.
