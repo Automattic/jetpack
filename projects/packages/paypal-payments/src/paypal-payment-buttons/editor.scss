@@ -813,7 +813,23 @@
 }
 
 .jetpack-paypal-payment-buttons__links-create {
-	margin-block-end: 12px;
+	inline-size: 100%;
+	justify-content: center;
+}
+
+.jetpack-paypal-payment-buttons__links-section {
+	margin-block-start: 20px;
+	padding-block-start: 16px;
+	border-block-start: 1px solid #ddd;
+}
+
+.jetpack-paypal-payment-buttons__links-title {
+	margin: 0 0 8px;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.4;
+	text-transform: uppercase;
+	color: #1e1e1e;
 }
 
 .jetpack-paypal-payment-buttons__links {
@@ -822,30 +838,64 @@
 	padding: 0;
 	max-block-size: 320px;
 	overflow-y: auto;
+	border: 1px solid #ddd;
+	border-radius: 2px;
+}
 
-	li {
-		margin: 0;
-	}
+.jetpack-paypal-payment-buttons__links-item {
+	margin: 0;
 
-	.jetpack-paypal-payment-buttons__link {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		inline-size: 100%;
-		block-size: auto;
-		padding-block: 6px;
-		text-align: start;
+	& + & {
+		border-block-start: 1px solid #ddd;
 	}
+}
+
+.jetpack-paypal-payment-buttons__link.components-button {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	inline-size: 100%;
+	block-size: auto;
+	padding: 8px 12px;
+	border-radius: 0;
+	text-align: start;
+	color: #1e1e1e;
+
+	&:hover:not(:disabled),
+	&:focus:not(:disabled) {
+		background: #f0f0f0;
+		color: #1e1e1e;
+	}
+}
+
+.jetpack-paypal-payment-buttons__link-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 8px;
 }
 
 .jetpack-paypal-payment-buttons__link-name {
 	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-.jetpack-paypal-payment-buttons__link-meta,
+.jetpack-paypal-payment-buttons__link-price {
+	flex-shrink: 0;
+	color: #757575;
+	font-size: 12px;
+}
+
+.jetpack-paypal-payment-buttons__link-date,
 .jetpack-paypal-payment-buttons__links-empty {
 	color: #757575;
 	font-size: 12px;
+}
+
+.jetpack-paypal-payment-buttons__links-empty {
+	margin: 8px 0 0;
 }
 
 .jetpack-paypal-payment-buttons__links-hint {

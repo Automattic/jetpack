@@ -124,40 +124,53 @@ export default function ExistingLinksStep( { links, onCreateNew, onPick, isPicki
 			>
 				{ __( 'Create new', 'jetpack-paypal-payments' ) }
 			</Button>
-			{ links.length > SEARCH_THRESHOLD && (
-				<SearchControl
-					label={ __( 'Search payment links', 'jetpack-paypal-payments' ) }
-					placeholder={ __( 'Search by name, description or price', 'jetpack-paypal-payments' ) }
-					value={ search }
-					onChange={ setSearch }
-					__nextHasNoMarginBottom
-				/>
-			) }
-			{ isPicking && <Spinner /> }
-			<ul className="jetpack-paypal-payment-buttons__links" aria-busy={ isPicking }>
-				{ shown.map( link => (
-					<li key={ link.id }>
-						<Button
-							variant="tertiary"
-							className="jetpack-paypal-payment-buttons__link"
-							onClick={ () => onPick( link ) }
-							disabled={ isPicking }
-						>
-							<span className="jetpack-paypal-payment-buttons__link-name">
-								{ link.line_items?.[ 0 ]?.name || link.id }
-							</span>
-							<span className="jetpack-paypal-payment-buttons__link-meta">
-								{ [ linkPrice( link ), linkDate( link ) ].filter( Boolean ).join( ' · ' ) }
-							</span>
-						</Button>
-					</li>
-				) ) }
-			</ul>
-			{ shown.length === 0 && (
-				<p className="jetpack-paypal-payment-buttons__links-empty">
-					{ __( 'No payment links match your search.', 'jetpack-paypal-payments' ) }
-				</p>
-			) }
+			<div className="jetpack-paypal-payment-buttons__links-section">
+				<h3 className="jetpack-paypal-payment-buttons__links-title">
+					{ sprintf(
+						/* translators: %d: number of payment links the account already has */
+						__( 'Or reuse an existing link (%d)', 'jetpack-paypal-payments' ),
+						links.length
+					) }
+				</h3>
+				{ links.length > SEARCH_THRESHOLD && (
+					<SearchControl
+						label={ __( 'Search payment links', 'jetpack-paypal-payments' ) }
+						placeholder={ __( 'Search by name, description or price', 'jetpack-paypal-payments' ) }
+						value={ search }
+						onChange={ setSearch }
+						__nextHasNoMarginBottom
+					/>
+				) }
+				{ isPicking && <Spinner /> }
+				<ul className="jetpack-paypal-payment-buttons__links" aria-busy={ isPicking }>
+					{ shown.map( link => (
+						<li key={ link.id } className="jetpack-paypal-payment-buttons__links-item">
+							<Button
+								className="jetpack-paypal-payment-buttons__link"
+								onClick={ () => onPick( link ) }
+								disabled={ isPicking }
+							>
+								<span className="jetpack-paypal-payment-buttons__link-row">
+									<span className="jetpack-paypal-payment-buttons__link-name">
+										{ link.line_items?.[ 0 ]?.name || link.id }
+									</span>
+									<span className="jetpack-paypal-payment-buttons__link-price">
+										{ linkPrice( link ) }
+									</span>
+								</span>
+								<span className="jetpack-paypal-payment-buttons__link-date">
+									{ linkDate( link ) }
+								</span>
+							</Button>
+						</li>
+					) ) }
+				</ul>
+				{ shown.length === 0 && (
+					<p className="jetpack-paypal-payment-buttons__links-empty">
+						{ __( 'No payment links match your search.', 'jetpack-paypal-payments' ) }
+					</p>
+				) }
+			</div>
 		</PanelBody>
 	);
 }
