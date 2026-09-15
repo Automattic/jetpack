@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
@@ -100,6 +99,7 @@ class Dashboard {
 	 * Script handle for the JS file we enqueue in the Feedback admin page.
 	 *
 	 * @var string
+	 * @deprecated $$next-version$$ The legacy dashboard bundle was removed.
 	 */
 	const SCRIPT_HANDLE = 'jp-forms-dashboard';
 
@@ -205,36 +205,17 @@ class Dashboard {
 			return;
 		}
 
-		// The wp-build (script-module) dashboard renders its own UI from build/pages/…,
-		// so the legacy SPA bundle is dead weight there. Only enqueue it on the legacy
-		// dashboard. The shared inline data below (connection initial state + REST
-		// preload) is instead attached to the always-present wp-api-fetch handle so the
-		// wp-build app still receives it.
-		if ( self::is_wp_build_dashboard_page() ) {
-			$inline_handle    = 'wp-api-fetch';
-			$preload_position = 'after';
+		// Attach the shared inline data (connection initial state + REST preload) to
+		// wp-api-fetch, which is always on the page.
+		$inline_handle    = 'wp-api-fetch';
+		$preload_position = 'after';
 
-			// The i18n loader is registered on every admin page by jetpack-assets but
-			// only enqueued when depended on; the esbuild bundles don't pull it in.
-			// Enqueue it so the wp-build dashboard's init module can download its JS
-			// translation catalogs.
-			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
-				wp_enqueue_script( 'wp-jp-i18n-loader' );
-			}
-		} else {
-			$inline_handle    = self::SCRIPT_HANDLE;
-			$preload_position = 'before';
-
-			Assets::register_script(
-				self::SCRIPT_HANDLE,
-				'../../dist/dashboard/jetpack-forms-dashboard.js',
-				__FILE__,
-				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-forms',
-					'enqueue'    => true,
-				)
-			);
+		// The i18n loader is registered on every admin page by jetpack-assets but
+		// only enqueued when depended on; the esbuild bundles don't pull it in.
+		// Enqueue it so the wp-build dashboard's init module can download its JS
+		// translation catalogs.
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 
 		if ( Contact_Form_Plugin::can_use_analytics() ) {
@@ -391,7 +372,6 @@ class Dashboard {
 	 * The wp-build dashboard renders through a callback generated into `build/build.php`.
 	 * That file is missing when the package ships without a complete build, and it is
 	 * never loaded when a host application filters `jetpack_forms_load_wp_build` to false.
-	 * The legacy bundle is no fallback here: load_admin_scripts() skips it on this screen.
 	 * So report the problem instead of rendering a blank page.
 	 *
 	 * @since 7.25.0
@@ -576,9 +556,8 @@ class Dashboard {
 	/**
 	 * Returns the URL of the standalone single response page for a given response.
 	 *
-	 * The standalone page is a wp-build route (`/response/<id>`). The legacy
-	 * dashboard has no equivalent, so it falls back to the responses list with the
-	 * response selected — as does a missing/empty post ID.
+	 * The standalone page is a wp-build route (`/response/<id>`). A missing or empty
+	 * post ID falls back to the responses list.
 	 *
 	 * @since 7.25.0
 	 *
@@ -589,9 +568,6 @@ class Dashboard {
 	public static function get_single_response_admin_url( $post_id = null ) {
 		$post_id = ! empty( $post_id ) ? absint( $post_id ) : null;
 
-		// `get_forms_admin_url()` owns the URL scheme for both dashboards. The
-		// 'response' tab resolves to the standalone page on wp-build, and falls
-		// through to the responses list on legacy, which has no such route.
 		return self::get_forms_admin_url( $post_id ? 'response' : 'inbox', $post_id );
 	}
 
@@ -632,38 +608,6 @@ class Dashboard {
 	}
 
 	/**
-	 * Legacy (hash-based) URL suffix for the forms admin page.
-	 *
-	 * Unused since the legacy dashboard was retired: get_forms_admin_url() always builds
-	 * the wp-build URL now. Private, so nothing outside this class ever called it, which
-	 * is why it carries no deprecation notice — there is no audience for one. Goes with
-	 * the rest of the legacy tree.
-	 *
-	 * @param string|null $tab    Tab to open.
-	 * @param int|null    $post_id Post ID of response.
-	 * @return string URL suffix (e.g. '#/responses?status=inbox&r=123', or '#/forms').
-	 */
-	private static function get_forms_admin_suffix_legacy( $tab, $post_id ) {
-		$post_id    = ! empty( $post_id ) ? absint( $post_id ) : null;
-		$valid_tabs = array( 'spam', 'inbox', 'trash' );
-		$r_param    = ! empty( $post_id ) ? '&r=' . $post_id : '';
-
-		if ( in_array( $tab, $valid_tabs, true ) ) {
-			return '#/responses?status=' . $tab . $r_param;
-		}
-
-		if ( $tab === 'forms' ) {
-			return '#/forms';
-		}
-
-		if ( ! empty( $post_id ) ) {
-			return '#/responses?status=inbox' . $r_param;
-		}
-
-		return '';
-	}
-
-	/**
 	 * Returns true if the current screen is the Jetpack Forms admin page.
 	 *
 	 * @return boolean
@@ -679,12 +623,7 @@ class Dashboard {
 			return false;
 		}
 
-		$forms_admin_screens = array(
-			'jetpack_page_' . self::ADMIN_SLUG,
-			'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG,
-		);
-
-		return in_array( $screen->id, $forms_admin_screens, true );
+		return $screen->id === 'jetpack_page_' . self::FORMS_WPBUILD_ADMIN_SLUG;
 	}
 
 	/**
