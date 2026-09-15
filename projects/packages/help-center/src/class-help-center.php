@@ -323,6 +323,14 @@ class Help_Center {
 			. '}'
 		);
 
+		// Core recolours admin bar icons through `.ab-icon::before`, which only reaches the
+		// dashicon font. This icon is an SVG, so it has to follow the item's colour itself.
+		wp_add_inline_style(
+			'help-center-' . $variant . '-style',
+			'#wpadminbar #wp-toolbar #wp-admin-bar-help-center>.ab-item:hover .ab-icon,'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center>.ab-item:focus .ab-icon{color:inherit;}'
+		);
+
 		// In the block editor the Help Center is already present in the editor toolbar
 		// via SlotFill at viewports >= 600px. Hide the admin bar item at those widths
 		// to avoid showing it in two places; keep it visible on mobile where the admin
