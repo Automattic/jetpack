@@ -2,7 +2,6 @@
  * External dependencies
  */
 import {
-	useStatsMembershipProducts,
 	useStatsSubscribersCounts,
 	useStatsSubscribersDaysAgo,
 } from '@jetpack-premium-analytics/data';
@@ -51,16 +50,15 @@ type Tile = {
 };
 
 function SubscriberHighlightsReport() {
-	const products = useStatsMembershipProducts();
 	const counts = useStatsSubscribersCounts();
-
-	// A failed products request falls back to the history tiles rather than blocking the widget.
-	const hasPaidProducts = ( products.data?.productCount ?? 0 ) > 0;
-	const showsHistory = ! products.isLoading && ! hasPaidProducts;
-	const past = useStatsSubscribersDaysAgo( DAYS_AGO, { enabled: showsHistory } );
 
 	const total = counts.data?.total_subscribers;
 	const paid = counts.data?.paid_subscribers;
+
+	// A failed counts request falls back to the history tiles rather than blocking the widget.
+	const hasPaidSubscribers = ( paid ?? 0 ) > 0;
+	const showsHistory = ! counts.isLoading && ! hasPaidSubscribers;
+	const past = useStatsSubscribersDaysAgo( DAYS_AGO, { enabled: showsHistory } );
 
 	const breakdownTiles: Tile[] = [
 		{
@@ -106,18 +104,18 @@ function SubscriberHighlightsReport() {
 				'jetpack-premium-analytics-pkg'
 			),
 		},
-		...( hasPaidProducts ? breakdownTiles : historyTiles ),
+		...( hasPaidSubscribers ? breakdownTiles : historyTiles ),
 	];
 
 	const hasCounts = tiles.some( tile => tile.value !== null );
-	const isLoading = products.isLoading || counts.isLoading || ( showsHistory && past.isLoading );
+	const isLoading = counts.isLoading || ( showsHistory && past.isLoading );
 	const isError = counts.isError || ( showsHistory && past.isError );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ isLoading }
-				isFetching={ products.isFetching || counts.isFetching || past.isFetching }
+				isFetching={ counts.isFetching || past.isFetching }
 				// `placeholderData` keeps the last counts on screen, so a transient refetch failure should not replace them with an error.
 				isError={ isError && ! hasCounts }
 				isEmpty={ ! hasCounts }
@@ -130,7 +128,6 @@ function SubscriberHighlightsReport() {
 						{
 							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
 							onClick: () => {
-								products.refetch();
 								counts.refetch();
 								if ( showsHistory ) {
 									past.refetch();

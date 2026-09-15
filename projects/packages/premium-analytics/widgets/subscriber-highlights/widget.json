@@ -3,7 +3,7 @@
 	"title": "Subscriber highlights",
 	"description": "Your all-time subscribers, with paid, free, and social followers or how many you had 30, 60, and 90 days ago.",
 	"help": {
-		"content": "Your all-time subscribers. Sites with paid subscriptions also see paid subscribers, free subscribers, and social followers; other sites see their subscriber count 30, 60, and 90 days ago."
+		"content": "Your all-time subscribers. Sites with paid subscribers also see paid subscribers, free subscribers, and social followers; other sites see their subscriber count 30, 60, and 90 days ago."
 	},
 	"category": "subscribers",
 	"presentation": "framed"

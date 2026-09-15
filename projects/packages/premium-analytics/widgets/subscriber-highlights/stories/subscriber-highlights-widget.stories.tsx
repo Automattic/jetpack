@@ -19,6 +19,7 @@ import {
 	setReportMockState,
 	type ReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { mockStatsSubscribersCountsWithPaidData } from '../../../packages/widgets-toolkit/src/stories/mocks/data';
 import SubscriberHighlightsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
@@ -50,7 +51,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Subscriber highlights" widget, ported from the Jetpack Stats Subscribers "All-time stats" card. Shows total subscribers from `useStatsSubscribersCounts`. A site with paid subscription products (`useStatsMembershipProducts`) also sees paid subscribers, free subscribers, and social followers; any other site sees the subscriber count 30, 60, and 90 days ago from `useStatsSubscribersDaysAgo`. The counts do not follow the dashboard date range. In Storybook, `registerReportMocks()` serves every endpoint, with no products by default.',
+					'The "Subscriber highlights" widget, ported from the Jetpack Stats Subscribers "All-time stats" card. Shows all-time subscribers from `useStatsSubscribersCounts`. A site with paid subscribers also sees paid subscribers, free subscribers, and social followers; any other site sees the subscriber count 30, 60, and 90 days ago from `useStatsSubscribersDaysAgo`. The counts do not follow the dashboard date range. In Storybook, `registerReportMocks()` serves every endpoint, with no paid subscribers by default.',
 			},
 		},
 	},
@@ -69,16 +70,16 @@ export const Default: Story = {
 };
 
 /**
- * A site with paid subscription products: the widget shows paid subscribers, free subscribers, and social followers in place of the history.
+ * A site with paid subscribers: the widget shows paid subscribers, free subscribers, and social followers in place of the history.
  */
-export const WithPaidProducts: Story = {
+export const WithPaidSubscribers: Story = {
 	render: renderSubscriberHighlights,
 	// Off the shared autodocs page: the override is keyed by path.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
-		setReportMockResponse( 'memberships/products', { products: [ { id: 1 } ] } );
-		return () => setReportMockResponse( 'memberships/products', null );
+		setReportMockResponse( 'subscribers/counts', mockStatsSubscribersCountsWithPaidData );
+		return () => setReportMockResponse( 'subscribers/counts', null );
 	},
 };
 
