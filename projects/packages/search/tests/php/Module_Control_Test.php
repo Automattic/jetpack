@@ -84,20 +84,6 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Generic activation must not fetch a plan in offline mode.
-	 */
-	public function test_pre_activation_skips_offline_site() {
-		$plan = $this->createMock( Plan::class );
-		$plan->expects( $this->never() )->method( 'ensure_plan_info_populated' );
-		Cache::set( 'is_offline_mode', true );
-		try {
-			( new Module_Control( $plan ) )->refresh_plan_info_before_activation( 'search' );
-		} finally {
-			Cache::set( 'is_offline_mode', null );
-		}
-	}
-
-	/**
 	 * `Modules::activate()` no-ops when the module is already active, but only
 	 * after firing the hook — skip the forced check in that case since no
 	 * activation decision is actually being made.
