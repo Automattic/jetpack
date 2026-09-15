@@ -132,7 +132,7 @@ class Jetpack_Backup {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
-	 * Blog sticker that takes a site out of the Automattician preview.
+	 * Blog sticker that takes a site out of the internal preview.
 	 */
 	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
 
@@ -1211,14 +1211,14 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns true when the Automattician preview or the modernization filter is enabled.
+	 * Returns true when the internal preview or the modernization filter is enabled.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		if ( self::is_automattician_preview() ) {
+		if ( self::is_internal_preview() ) {
 			return true;
 		}
 
@@ -1226,13 +1226,13 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Whether an Automattician on the A8C proxy previews the dashboard. Not an authorization check.
+	 * Whether an internal user on the A8C proxy previews the dashboard. Not an authorization check.
 	 *
 	 * The proxy is checked first, so other requests never make the connected-user lookup.
 	 *
 	 * @return bool
 	 */
-	private static function is_automattician_preview() {
+	private static function is_internal_preview() {
 		if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) ) {
 			return false;
 		}
