@@ -89,10 +89,12 @@ export {
 } from './use-stats-comments';
 export {
 	useStatsSubscribersCounts,
+	useStatsSubscribersDaysAgo,
 	useStatsSubscribersReport,
 	type StatsSubscribersCounts,
 	type StatsSubscribersCountsParams,
 	type StatsSubscribersCountsResponse,
+	type StatsSubscribersDaysAgo,
 	type StatsSubscribersParams,
 	type StatsSubscribersResponse,
 	type StatsSubscribersUnit,

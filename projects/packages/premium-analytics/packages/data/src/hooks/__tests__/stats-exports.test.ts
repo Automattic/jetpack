@@ -28,6 +28,7 @@ const statsHookNames = [
 	'useStatsFollowers',
 	'useStatsComments',
 	'useStatsSubscribersCounts',
+	'useStatsSubscribersDaysAgo',
 	'useStatsSubscribersReport',
 	'useStatsStreak',
 	'useStatsVisits',
