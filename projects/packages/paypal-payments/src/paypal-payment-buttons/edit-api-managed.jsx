@@ -33,8 +33,15 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
-import { createInterpolateElement, useState, useCallback, useMemo } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import {
+	createInterpolateElement,
+	useState,
+	useCallback,
+	useEffect,
+	useMemo,
+} from '@wordpress/element';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
+import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import GridiconPlus from 'gridicons/dist/plus-small';
@@ -44,6 +51,7 @@ import ConnectionWizard, { OnboardingFrame } from './components/connection-wizar
 import ExistingLinksStep from './components/existing-links-step';
 import PayPalFormatControls from './components/format-controls';
 import LegacyBlock from './components/legacy-block';
+import LinkDetails from './components/link-details';
 import PayPalButtonPreview from './components/paypal-button-preview';
 import VariantBuilder, {
 	getComparisonPrice,
@@ -382,7 +390,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		variantErrors.length === 0 &&
 		customerNoteErrors.length === 0;
 
-	const { isBusy, linkDeleted, paymentChanged, handleDeleteButton, executeDeleteButton } =
+	const { resource, isBusy, linkDeleted, paymentChanged, handleDeleteButton, executeDeleteButton } =
 		usePayPalResource( {
 			attributes,
 			setAttributes,
@@ -500,6 +508,15 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 			customerNotes: [ ...customerNotes, { label: '', required: false } ],
 		} );
 	};
+
+	// A saved link opens on its details; the form is a menu click away. A link
+	// with something to fix opens on the form instead, or the error would be
+	// hidden behind a view that cannot show it.
+	const [ isEditing, setIsEditing ] = useState( false );
+	useEffect( () => {
+		setIsEditing( false );
+	}, [ resourceId ] );
+	const showDetails = hasButton && ! isEditing && isFormValid;
 
 	// A block with nothing in it yet first offers the links the account already
 	// has, and the step is skipped when there are none.
@@ -662,7 +679,6 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 	const inspectorControls = (
 		<>
 			<PayPalInspectorControls
-				resourceId={ resourceId }
 				isConnected={ isConnected }
 				environment={ environment }
 				setShowReconnect={ setShowReconnect }
@@ -755,11 +771,32 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		</InspectorControls>
 	);
 
+	const detailsView = (
+		<InspectorControls>
+			<LinkDetails
+				attributes={ attributes }
+				resource={ resource }
+				onEdit={ () => setIsEditing( true ) }
+			/>
+		</InspectorControls>
+	);
+
 	const formPanels = (
 		<>
 			{ /* Form-wide notices go here. A field's own notice renders next to that field. */ }
 			<InspectorControls>
 				<div className="jetpack-paypal-payment-buttons__form-actions">
+					{ hasButton && (
+						<Button
+							variant="tertiary"
+							icon={ isRTL() ? chevronRight : chevronLeft }
+							onClick={ () => setIsEditing( false ) }
+							disabled={ ! isFormValid }
+							className="jetpack-paypal-payment-buttons__back-to-details"
+						>
+							{ __( 'Link details', 'jetpack-paypal-payments' ) }
+						</Button>
+					) }
 					<Notice status={ isFormValid ? 'info' : 'warning' } isDismissible={ false }>
 						{ saveStatus }
 					</Notice>
@@ -1340,10 +1377,17 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		</>
 	);
 
+	let sidebar = formPanels;
+	if ( showLinkStep ) {
+		sidebar = linkStep;
+	} else if ( showDetails ) {
+		sidebar = detailsView;
+	}
+
 	return (
 		<div { ...blockProps }>
 			{ toolbarControls }
-			{ showLinkStep ? linkStep : formPanels }
+			{ sidebar }
 			{ inspectorControls }
 
 			<div className="jetpack-paypal-payment-buttons__preview">

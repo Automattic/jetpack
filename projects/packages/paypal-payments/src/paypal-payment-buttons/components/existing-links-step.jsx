@@ -9,6 +9,7 @@ import { Button, PanelBody, SearchControl, Spinner } from '@wordpress/components
 import { useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
+import { linkDate } from '../utils/link-date';
 
 /**
  * Lists longer than this get a search box.
@@ -58,20 +59,6 @@ export function linkPrice( resource ) {
 				__( 'From %s', 'jetpack-paypal-payments' ),
 				price
 			);
-}
-
-/**
- * The day a payment link was created, in the browser's locale.
- *
- * @param {object} resource - A payment resource from the list route.
- * @return {string} The date, or an empty string when the link has none.
- */
-export function linkDate( resource ) {
-	const time = resource?.create_time ? new Date( resource.create_time ) : null;
-	if ( ! time || Number.isNaN( time.getTime() ) ) {
-		return '';
-	}
-	return time.toLocaleDateString( undefined, { year: 'numeric', month: 'short', day: 'numeric' } );
 }
 
 /**

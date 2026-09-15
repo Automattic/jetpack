@@ -22,7 +22,6 @@ const MANAGE_LINKS_PATH = 'admin.php?page=paypal-payment-links';
  * components/format-controls.jsx.
  *
  * @param {object}   props                    - Component props.
- * @param {string}   props.resourceId         - The PayPal resource ID attribute.
  * @param {boolean}  props.isConnected        - Whether the site is connected to PayPal.
  * @param {string}   props.environment        - 'production' or 'sandbox'.
  * @param {Function} props.setShowReconnect   - Setter for the reconnect request.
@@ -33,7 +32,6 @@ const MANAGE_LINKS_PATH = 'admin.php?page=paypal-payment-links';
  * @return {Element} The Settings tab.
  */
 export default function PayPalInspectorControls( {
-	resourceId,
 	isConnected,
 	environment,
 	setShowReconnect,
@@ -49,9 +47,6 @@ export default function PayPalInspectorControls( {
 					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
 					initialOpen={ false }
 				>
-					<p>
-						{ __( 'Resource ID:', 'jetpack-paypal-payments' ) } <code>{ resourceId }</code>
-					</p>
 					<p>
 						{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
 					</p>

@@ -670,8 +670,10 @@ class PayPal_REST_Controller {
 		}
 
 		// The editor reads a payment back to line its block up with what PayPal
-		// holds, so hand it the block shape alongside the raw resource.
+		// holds, so hand it the block shape alongside the raw resource, and the
+		// published posts embedding it for the link details view.
 		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+		$result['embeds']     = PayPal_Admin_Page::count_published_embeds()[ $resource_id ] ?? 0;
 
 		return new WP_REST_Response( $result, 200 );
 	}

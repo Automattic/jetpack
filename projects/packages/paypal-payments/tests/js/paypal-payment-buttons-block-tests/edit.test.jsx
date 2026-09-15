@@ -80,10 +80,20 @@ jest.mock( '@wordpress/ui', () => ( {
 jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
 	_x: text => text,
+	_n: ( single, plural, count ) => ( count === 1 ? single : plural ),
+	isRTL: () => false,
 	sprintf: ( format, ...args ) => {
 		let i = 0;
 		return format.replace( /%[ds]/g, () => args[ i++ ] );
 	},
+} ) );
+
+// The icons build on forwardRef from @wordpress/element, which the mock above lacks.
+jest.mock( '@wordpress/icons', () => ( {
+	chevronLeft: 'chevron-left',
+	chevronRight: 'chevron-right',
+	moreVertical: 'more-vertical',
+	pencil: 'pencil',
 } ) );
 
 // jsdom has no 2D context, so the inspector's QR preview cannot really draw.
@@ -270,6 +280,7 @@ jest.mock( '@wordpress/components', () => ( {
 				onClick,
 				disabled,
 				variant,
+				icon,
 				isBusy,
 				isDestructive,
 				isSmall,
@@ -298,6 +309,16 @@ jest.mock( '@wordpress/components', () => ( {
 		)
 	),
 	ButtonGroup: ( { children } ) => <div data-testid="button-group">{ children }</div>,
+	// The real menu opens on click; the mock lays its items out flat.
+	DropdownMenu: ( { label, controls } ) => (
+		<div data-testid="dropdown-menu" aria-label={ label }>
+			{ ( controls || [] ).flat().map( control => (
+				<button key={ control.title } type="button" onClick={ control.onClick }>
+					{ control.title }
+				</button>
+			) ) }
+		</div>
+	),
 	ExternalLink: ( { children, href } ) => (
 		<a href={ href } target="_blank" rel="external noreferrer noopener">
 			{ children }
@@ -629,6 +650,24 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				setAttributes={ setAttributes }
 			/>
 		);
+
+	/**
+	 * Wait for a saved link's sidebar and open its form.
+	 *
+	 * A saved link opens on its details, with Edit in the menu beside the name;
+	 * one with an error to fix opens on the form already.
+	 */
+	const openSavedForm = async () => {
+		await waitFor( () => {
+			if ( ! screen.queryByLabelText( 'Product Name' ) ) {
+				expect( screen.getByRole( 'button', { name: 'Edit' } ) ).toBeInTheDocument();
+			}
+		} );
+		const edit = screen.queryByRole( 'button', { name: 'Edit' } );
+		if ( edit ) {
+			await userEvent.setup().click( edit );
+		}
+	};
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -2113,7 +2152,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				paymentLink: 'https://www.paypal.com/ncp/payment/PLB-A1',
 			} );
 
-			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByText( 'Hosted ID:' ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByRole( 'button', { name: 'Create new' } ) ).not.toBeInTheDocument();
 		} );
 	} );
@@ -2466,7 +2505,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					setAttributes={ setAttributes }
 				/>
 			);
-			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			await openSavedForm();
 		};
 
 		/**
@@ -2874,6 +2913,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
 			);
 			expect( setAttributes ).not.toHaveBeenCalled();
+			await openSavedForm();
 			// A 404 on the read leaves the payment alone: no error, just the
 			// save-status notice and a warning that the link is gone.
 			expect(
@@ -2900,6 +2940,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockResource( { ...attributes } );
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await openSavedForm();
 
 			await expect(
 				screen.findByText( 'Changes made will apply to all payment buttons with this link.' )
@@ -3092,7 +3133,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		 * Wait for the form, which renders once the connection check resolves.
 		 */
 		async function waitForForm() {
-			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			await openSavedForm();
 		}
 
 		it( 'offers no tax name to fill in', async () => {
@@ -6474,9 +6515,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByTestId( 'toolbar-Preview' ) ).not.toBeInTheDocument();
 		} );
 
-		// The form lives in the sidebar and the canvas draws the button, so both are
-		// on screen at once - there is no edit mode to switch into.
-		it( 'shows the form and the preview together', async () => {
+		// The sidebar opens on the link's details and the canvas draws the button;
+		// the form is a menu click away, and the preview stays either way.
+		it( 'opens on the link details, with the form behind Edit', async () => {
+			const user = userEvent.setup();
 			render(
 				<Edit
 					attributes={ {
@@ -6491,8 +6533,184 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByText( 'Hosted ID:' ) ).resolves.toBeInTheDocument();
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
+
+			await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+
+			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Hosted ID:' ) ).not.toBeInTheDocument();
+
+			await user.click( screen.getByRole( 'button', { name: 'Link details' } ) );
+
+			expect( screen.getByText( 'Hosted ID:' ) ).toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Link details', () => {
+		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-DETAIL1';
+		const saved = {
+			isApiManaged: true,
+			resourceId: 'PLB-DETAIL1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-DETAIL1',
+			productName: 'Croissant',
+			price: '12.00',
+			currencyCode: 'EUR',
+		};
+
+		/**
+		 * Answer the connection check as connected and the payment read with this resource.
+		 *
+		 * @param {object} resource - What reading the link back returns, or the error it fails with.
+		 * @param {string} outcome  - 'resolve' or 'reject'.
+		 */
+		function mockResource( resource, outcome = 'resolve' ) {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath ) {
+					return Promise[ outcome ]( resource );
+				}
+				return Promise.resolve( {} );
+			} );
+		}
+
+		/**
+		 * The value shown beside a details label.
+		 *
+		 * @param {string} label - The label, e.g. 'Created:'.
+		 * @return {string} The text of the value.
+		 */
+		const detail = label => screen.getByText( label ).nextElementSibling.textContent;
+
+		it( 'names the link, its price, and what PayPal and the site know about it', async () => {
+			mockResource( {
+				id: 'PLB-DETAIL1',
+				create_time: '2026-09-01T10:00:00Z',
+				embeds: 2,
+				attributes: saved,
+			} );
+
+			render( <Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" /> );
+
+			await expect(
+				screen.findByRole( 'heading', { name: 'Croissant' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByText( '€12.00' ) ).toBeInTheDocument();
+			await waitFor( () => expect( detail( 'Created:' ) ).toContain( '2026' ) );
+			expect( detail( 'Hosted ID:' ) ).toBe( 'PLB-DETAIL1' );
+			expect( detail( 'Link used on:' ) ).toBe( '2 published posts' );
+			expect( screen.queryByText( 'Max quantity:' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'dropdown-menu' ) ).toHaveAttribute(
+				'aria-label',
+				'Payment link options'
+			);
+		} );
+
+		it( 'counts one post in the singular, and shows the maximum quantity when buyers can pick one', async () => {
+			mockResource( { id: 'PLB-DETAIL1', embeds: 1, attributes: saved } );
+
+			render(
+				<Edit
+					attributes={ { ...saved, adjustableQuantity: true, maxQuantity: 5 } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+
+			await waitFor( () => expect( detail( 'Link used on:' ) ).toBe( '1 published post' ) );
+			expect( detail( 'Max quantity:' ) ).toBe( '5' );
+		} );
+
+		it( 'starts from the lowest option price when the options carry the prices', async () => {
+			mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+
+			render(
+				<Edit
+					attributes={ {
+						...saved,
+						price: '',
+						variantsEnabled: true,
+						variants: {
+							dimensions: [
+								{
+									_key: 'g1',
+									name: 'Size',
+									primary: true,
+									options: [
+										{
+											_key: 'o1',
+											label: 'Small',
+											unit_amount: { value: '3.50', currency_code: 'EUR' },
+										},
+										{
+											_key: 'o2',
+											label: 'Large',
+											unit_amount: { value: '2.50', currency_code: 'EUR' },
+										},
+									],
+								},
+							],
+						},
+					} }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+
+			await expect( screen.findByText( 'From €2.50' ) ).resolves.toBeInTheDocument();
+		} );
+
+		it( 'leaves the date and the count blank until the link is read back, and when it cannot be', async () => {
+			mockResource( { code: 'paypal_api_resource_not_found', data: { status: 404 } }, 'reject' );
+
+			render( <Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" /> );
+
+			await expect( screen.findByText( 'Hosted ID:' ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+			expect( detail( 'Created:' ) ).toBe( '—' );
+			expect( detail( 'Link used on:' ) ).toBe( '—' );
+		} );
+
+		// A closed form would hide the error, and the details view has nowhere to show it.
+		it( 'opens on the form when the saved link has something to fix, and stays there', async () => {
+			mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+
+			render(
+				<Edit
+					attributes={ { ...saved, taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( 'Hosted ID:' ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Link details' } ) ).toBeDisabled();
+		} );
+
+		it( 'offers no way back to details before the link exists', async () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+
+			renderForm();
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Link details' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'drops the id from the connection panel, which the details carry now', async () => {
+			mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
+
+			render( <Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" /> );
+
+			await expect( screen.findByText( 'Hosted ID:' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( 'Resource ID:' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

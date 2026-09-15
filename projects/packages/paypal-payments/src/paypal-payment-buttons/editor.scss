@@ -970,6 +970,62 @@
 	}
 }
 
+// The link details view — the sidebar's default for a saved link. A plain
+// section with a divider, like the format section, not a collapsible panel.
+.jetpack-paypal-payment-buttons__details {
+	padding: 16px;
+	border-block-end: 1px solid #e0e0e0;
+}
+
+.jetpack-paypal-payment-buttons__details-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.jetpack-paypal-payment-buttons__details-title {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.4;
+	overflow-wrap: anywhere;
+}
+
+.jetpack-paypal-payment-buttons__details-price {
+	margin: 4px 0 0;
+	color: #757575;
+}
+
+.jetpack-paypal-payment-buttons__details-separator {
+	margin-block: 16px;
+	border: 0;
+	border-block-start: 1px solid #ddd;
+}
+
+.jetpack-paypal-payment-buttons__details-list {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 8px 12px;
+	margin: 0;
+	font-size: 12px;
+
+	dt {
+		color: #757575;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+}
+
+// Above the save-status notice while a saved link's form is open.
+.jetpack-paypal-payment-buttons__back-to-details {
+	margin-block-end: 8px;
+	padding-inline-start: 0;
+}
+
 // The shared-link line — grey text under the save-status notice, not a notice
 // itself.
 .jetpack-paypal-payment-buttons__shared-link-note {

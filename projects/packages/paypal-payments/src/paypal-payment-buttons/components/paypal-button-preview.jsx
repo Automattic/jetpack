@@ -22,23 +22,11 @@ import {
 	getWidthAndBorderStyle,
 	isOutlineButton,
 } from '../utils/block-styles';
-import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
+import { formatPrice } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import { withPartnerAttribution } from '../utils/partner-attribution';
 import QrCodePreview from './qr-code-preview';
 import { getLowestVariantPrice, hasVariantPricing } from './variant-builder';
-
-/**
- * Format a price with currency symbol.
- *
- * @param {string} priceValue   - The price value string.
- * @param {string} currencyCode - The ISO currency code.
- * @return {string} Formatted price string.
- */
-function formatPrice( priceValue, currencyCode ) {
-	const symbol = CURRENCY_SYMBOLS[ currencyCode ] || currencyCode;
-	return `${ symbol }${ priceValue }`;
-}
 
 /**
  * Build the variant summary the way render_api_managed_button() builds it.
