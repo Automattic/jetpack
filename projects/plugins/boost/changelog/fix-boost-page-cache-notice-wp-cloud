@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: show the module as running, rather than unavailable, on WP Cloud hosts such as Pressable that already cache pages.

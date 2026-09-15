@@ -42,8 +42,9 @@ const PageCache = () => {
 	const showCacheEngineErrorNotice = useShowCacheEngineErrorNotice(
 		pageCacheSetup.isSuccess && !! moduleState?.active
 	);
+	const hasHostPageCache = isWoaHosting() || isWpCloudClient();
 	const showCacheFromHostingNotice =
-		! moduleState?.available && ( isWoaHosting() || isWpCloudClient() || hasConflictingCache() );
+		! moduleState?.available && ( hasHostPageCache || hasConflictingCache() );
 
 	const [ removePageCacheNotice ] = useMutationNotice(
 		'page-cache-setup',
@@ -105,15 +106,20 @@ const PageCache = () => {
 						) }
 					</p>
 					{ showCacheFromHostingNotice &&
-						( isWoaHosting() ? (
+						( hasHostPageCache ? (
 							<Notice.Root intent="success">
 								<Notice.Title>{ __( 'Page Cache is running', 'jetpack-boost' ) }</Notice.Title>
 								<Notice.Description>
 									<p>
-										{ __(
-											'Your website already has a page cache running on it powered by WordPress.com.',
-											'jetpack-boost'
-										) }
+										{ isWoaHosting()
+											? __(
+													'Your website already has a page cache running on it powered by WordPress.com.',
+													'jetpack-boost'
+											  )
+											: __(
+													'Your website already has a page cache running on it powered by your hosting provider.',
+													'jetpack-boost'
+											  ) }
 									</p>
 								</Notice.Description>
 							</Notice.Root>
