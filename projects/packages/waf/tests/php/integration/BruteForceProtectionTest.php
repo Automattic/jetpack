@@ -238,6 +238,58 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 		$this->instance->log_failed_attempt( 'username', $error );
 	}
 
+	/**
+	 * Test that the deprecated ip_is_whitelisted() wrapper delegates to ip_is_allowed().
+ *
+ * @return void
+	 */
+	public function test_ip_is_whitelisted_delegates_to_ip_is_allowed() {
+		$deprecated = array();
+		$capture    = static function ( $function ) use ( &$deprecated ) {
+			$deprecated[] = $function;
+		};
+
+		add_filter( 'deprecated_function_trigger_error', '__return_false' );
+		add_action( 'deprecated_function_run', $capture );
+
+		// @phan-suppress-next-line PhanDeprecatedFunction -- This test is the contract for the deprecated shim.
+		$result = Brute_Force_Protection::ip_is_whitelisted( '192.0.2.1' );
+
+		remove_action( 'deprecated_function_run', $capture );
+		remove_filter( 'deprecated_function_trigger_error', '__return_false' );
+
+		$this->assertContains( Brute_Force_Protection::class . '::ip_is_whitelisted', $deprecated );
+		$this->assertSame( Brute_Force_Protection::instance()->ip_is_allowed( '192.0.2.1' ), $result );
+	}
+
+	/**
+	 * Test that the deprecated is_current_ip_whitelisted() wrapper delegates to is_current_ip_allowed().
+	 *
+	 * @backupGlobals enabled
+ *
+ * @return void
+	 */
+	#[BackupGlobals( true )]
+	public function test_is_current_ip_whitelisted_delegates_to_is_current_ip_allowed() {
+		$_SERVER['REMOTE_ADDR'] = '192.0.2.1';
+		$deprecated             = array();
+		$capture                = static function ( $function ) use ( &$deprecated ) {
+			$deprecated[] = $function;
+		};
+
+		add_filter( 'deprecated_function_trigger_error', '__return_false' );
+		add_action( 'deprecated_function_run', $capture );
+
+		// @phan-suppress-next-line PhanDeprecatedFunction -- This test is the contract for the deprecated shim.
+		$result = Brute_Force_Protection::is_current_ip_whitelisted();
+
+		remove_action( 'deprecated_function_run', $capture );
+		remove_filter( 'deprecated_function_trigger_error', '__return_false' );
+
+		$this->assertContains( Brute_Force_Protection::class . '::is_current_ip_whitelisted', $deprecated );
+		$this->assertSame( Brute_Force_Protection::instance()->is_current_ip_allowed(), $result );
+	}
+
 	public static function non_integer_data_provider(): array {
 		return array(
 			array( true ),
