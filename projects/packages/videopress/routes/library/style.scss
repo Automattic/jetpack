@@ -71,7 +71,7 @@
 	// Override wp-build's boot `img { height: auto }` reset without referencing
 	// boot's class names. That reset is wrapped in `:where()` (0,0,1), and our
 	// own class chain is (0,3,0), so the img fills its parent in both grid
-	// (large) and table (32x32) cells.
+	// (large) and table cells.
 	&__viewport &__thumbnail &__thumbnail-image {
 		width: 100%;
 		height: 100%;
@@ -285,21 +285,8 @@
 		}
 	}
 
-	// Table view: DataViews gives a 32x32 cell slot but doesn't force the img,
-	// and its cell wrapper uses `align-items: center` — so an img with a non-
-	// square intrinsic ratio collapses the wrapper to its content height (e.g.
-	// 32x18 for 16:9), leaving white space above/below. Lock the wrapper to the
-	// 32x32 slot. Suppress overlays; status info moves into the title cell as a
-	// pill (see `&__status-pill` below). Keyed off our own `&__viewport--table`
-	// modifier (set from `view.type` in stage.tsx) instead of DataViews'
-	// internal `.dataviews-view-table`, so we don't depend on
-	// @wordpress/dataviews' private class names.
+	// Table thumbnails are too small for overlays; show status in the title cell.
 	&__viewport--table & {
-
-		&__thumbnail {
-			width: 32px;
-			height: 32px;
-		}
 
 		&__thumbnail-duration-badge,
 		&__placeholder,
