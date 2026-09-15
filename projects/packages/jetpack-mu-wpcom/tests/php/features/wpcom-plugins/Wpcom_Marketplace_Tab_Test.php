@@ -573,6 +573,33 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A wpcom outage empties the tab rather than breaking the screen, and is cached
+	 * briefly so the next page load does not repeat the request.
+	 */
+	public function test_catalog_degrades_when_wpcom_cannot_be_reached() {
+		$fail = static function () {
+			return new WP_Error( 'http_request_failed', 'offline' );
+		};
+		add_filter( 'pre_http_request', $fail );
+
+		$products = Marketplace_Catalog::get_products();
+
+		remove_filter( 'pre_http_request', $fail );
+
+		$this->assertSame( array(), $products );
+		$this->assertSame( array(), get_transient( Marketplace_Catalog::LIST_CACHE_KEY ) );
+	}
+
+	/**
+	 * A slug that is not ours has no details to serve.
+	 */
+	public function test_details_are_null_for_an_unknown_slug() {
+		$this->seed_catalog( array( 'gravityforms' => Marketplace_Catalog::to_card( self::PRODUCT ) ) );
+
+		$this->assertNull( Marketplace_Catalog::get_product_details( 'not-ours' ) );
+	}
+
+	/**
 	 * Checkout is addressed by store slug, which the marketplace payload does not
 	 * carry: it gives a numeric id that has to be resolved against the store catalog.
 	 */
