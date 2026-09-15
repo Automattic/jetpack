@@ -93,7 +93,7 @@ final class Sharing_Section {
 			return;
 		}
 
-		Post_Handler::render_activate_form(
+		Post_Handler::render_action_form(
 			'activate-sharing',
 			self::NONCE_ACTION,
 			__( 'Turn on sharing buttons', 'jetpack' )
@@ -105,11 +105,23 @@ final class Sharing_Section {
 	 */
 	private static function render_block_nudge(): void {
 		echo '<div class="notice notice-info inline"><p>';
-		echo esc_html__( 'Legacy sharing buttons cannot be customized on block themes.', 'jetpack' );
-		echo ' ';
-		echo esc_html__( 'We recommend turning them off below and adding the Sharing Buttons block to your theme’s template instead.', 'jetpack' );
+		echo esc_html__( 'Legacy sharing buttons cannot be customized on block themes. Use the Sharing Buttons block in your theme’s template instead.', 'jetpack' );
 		echo '</p></div>';
-		self::render_site_editor_link();
+
+		/*
+		 * Switching means turning the module off, which WordPress.com Simple has
+		 * no equivalent for: there the site editor link is the only useful step.
+		 */
+		if ( Environment::is_simple_site() ) {
+			self::render_site_editor_link();
+			return;
+		}
+
+		Post_Handler::render_action_form(
+			'switch-to-block-sharing',
+			self::NONCE_ACTION,
+			__( 'Switch to the Sharing Buttons block', 'jetpack' )
+		);
 	}
 
 	/**

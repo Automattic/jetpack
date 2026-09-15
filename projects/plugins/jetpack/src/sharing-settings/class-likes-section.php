@@ -92,7 +92,7 @@ final class Likes_Section {
 			'<p>%s</p>',
 			esc_html__( 'Like buttons are turned off for this site.', 'jetpack' )
 		);
-		Post_Handler::render_activate_form(
+		Post_Handler::render_action_form(
 			'activate-likes',
 			self::NONCE_ACTION,
 			__( 'Turn on Like buttons', 'jetpack' )
@@ -104,11 +104,23 @@ final class Likes_Section {
 	 */
 	private static function render_block_nudge(): void {
 		echo '<div class="notice notice-info inline"><p>';
-		echo esc_html__( 'Legacy Like buttons cannot be customized on block themes.', 'jetpack' );
-		echo ' ';
-		echo esc_html__( 'We recommend turning them off below and adding the Like block to your theme’s template instead.', 'jetpack' );
+		echo esc_html__( 'Legacy Like buttons cannot be customized on block themes. Use the Like block in your theme’s template instead.', 'jetpack' );
 		echo '</p></div>';
-		self::render_site_editor_link();
+
+		/*
+		 * Switching means turning the module off, which WordPress.com Simple has
+		 * no equivalent for: there the site editor link is the only useful step.
+		 */
+		if ( Environment::is_simple_site() ) {
+			self::render_site_editor_link();
+			return;
+		}
+
+		Post_Handler::render_action_form(
+			'switch-to-block-likes',
+			self::NONCE_ACTION,
+			__( 'Switch to the Like block', 'jetpack' )
+		);
 	}
 
 	/**

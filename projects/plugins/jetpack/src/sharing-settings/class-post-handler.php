@@ -59,6 +59,12 @@ final class Post_Handler {
 			case 'activate-sharing':
 				self::activate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
 				break;
+			case 'switch-to-block-likes':
+				self::deactivate_module( 'likes', Likes_Section::NONCE_ACTION );
+				break;
+			case 'switch-to-block-sharing':
+				self::deactivate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
+				break;
 			case 'save-likes':
 				self::save_likes();
 				break;
@@ -66,6 +72,24 @@ final class Post_Handler {
 				self::save_placement();
 				break;
 		}
+	}
+
+	/**
+	 * Stop producing legacy output, so the block can take over.
+	 *
+	 * This is a migration, not the section's off switch: it is what the Jetpack
+	 * dashboard's "Switch to the … block" button does, and it leaves the block
+	 * itself untouched.
+	 *
+	 * @param string $module       Module slug.
+	 * @param string $nonce_action Nonce action the submitting section uses.
+	 */
+	private static function deactivate_module( string $module, string $nonce_action ): void {
+		check_admin_referer( $nonce_action );
+
+		( new Modules() )->deactivate( $module );
+
+		self::redirect_saved();
 	}
 
 	/**
@@ -147,8 +171,8 @@ final class Post_Handler {
 	/**
 	 * Turn a module back on, then reload the screen.
 	 *
-	 * Only ever used to switch a feature on. Switching off is a setting on this
-	 * screen, not a module change, so the two never compete.
+	 * Reached only from the off variants, where nothing else on the site will
+	 * bring the feature back.
 	 *
 	 * @param string $module       Module slug.
 	 * @param string $nonce_action Nonce action the submitting section uses.
@@ -176,13 +200,13 @@ final class Post_Handler {
 	}
 
 	/**
-	 * Markup for a button that switches a feature back on.
+	 * Markup for a single-button form submitting one of the actions above.
 	 *
 	 * @param string $action       Action name, matching a case above.
 	 * @param string $nonce_action Nonce action for the submitting section.
 	 * @param string $label        Button label.
 	 */
-	public static function render_activate_form( string $action, string $nonce_action, string $label ): void {
+	public static function render_action_form( string $action, string $nonce_action, string $label ): void {
 		?>
 		<form method="post" action="">
 			<input type="hidden" name="<?php echo esc_attr( self::ACTION_FIELD ); ?>" value="<?php echo esc_attr( $action ); ?>" />

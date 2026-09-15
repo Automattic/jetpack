@@ -30,7 +30,7 @@ final class Placement_Section {
 		array_unshift( $choices, 'index' );
 		?>
 		<div class="jetpack-sharing-settings__section">
-			<h2><?php esc_html_e( 'Show buttons on', 'jetpack' ); ?></h2>
+			<h2><?php echo esc_html( self::heading() ); ?></h2>
 			<form method="post" action="">
 				<table class="form-table">
 					<tbody>
@@ -63,6 +63,26 @@ final class Placement_Section {
 			</form>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Heading naming the features this section governs.
+	 *
+	 * "Show buttons on" sat directly below the Like buttons section and read as
+	 * though it belonged to it. Naming the features makes the shared scope
+	 * legible without a second line of copy.
+	 */
+	private static function heading(): string {
+		$sharing = Environment::sharing_enabled();
+		$likes   = Environment::likes_enabled();
+
+		if ( $sharing && $likes ) {
+			return __( 'Where sharing and Like buttons appear', 'jetpack' );
+		}
+
+		return $sharing
+			? __( 'Where sharing buttons appear', 'jetpack' )
+			: __( 'Where Like buttons appear', 'jetpack' );
 	}
 
 	/**
