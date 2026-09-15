@@ -91,6 +91,7 @@ export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatTooltipSeriesLabel } from './format-tooltip-series-label';
 export { resolveSeriesNames, type ResolvedSeriesNames } from './resolve-series-names';
+export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,

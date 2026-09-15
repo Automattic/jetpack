@@ -37,6 +37,7 @@ export {
 	type WidgetRootContextValue,
 	type LegendItem,
 	type SeriesStyle,
+	type TooltipExtraSeries,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	type LeaderboardChartProps,

@@ -15,6 +15,11 @@
 	flex: 1;
 }
 
+// A row with no swatch holds its width, so every label starts flush.
+.indicatorSpacer {
+	flex: none;
+}
+
 // Override visx-tooltip ONLY when our custom tooltip components are used.
 // This applies to ChartTooltip (line/bar) and PieChartTooltip
 // (pie/semi-circle).
