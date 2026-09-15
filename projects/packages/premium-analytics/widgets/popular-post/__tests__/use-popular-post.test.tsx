@@ -395,6 +395,30 @@ describe( 'usePopularPost', () => {
 			expect( result.current.post ).toBeNull();
 		} );
 
+		it( 'reports an error, not an empty period, when the posts shortlist request fails', async () => {
+			const base = mockApiFetch.getMockImplementation();
+			mockApiFetch.mockImplementation( ( options: MockedFetchArgs ) =>
+				( options.path ?? '' ).startsWith( '/wp/v2/posts' )
+					? Promise.reject( { code: 'rest_forbidden', data: { status: 403 } } )
+					: base( options )
+			);
+
+			const { result } = renderHook(
+				() => usePopularPost( { authorId: 7, reportParams: authorReportParams } ),
+				{ wrapper }
+			);
+
+			await waitFor( () => expect( result.current.isError ).toBe( true ) );
+			expect( result.current.isLoading ).toBe( false );
+			expect( result.current.post ).toBeNull();
+
+			mockApiFetch.mockImplementation( base );
+			act( () => result.current.refetch() );
+
+			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
+			expect( result.current.isError ).toBe( false );
+		} );
+
 		it( 'returns a null post for an author with no views in the range', async () => {
 			const { result } = renderHook(
 				() => usePopularPost( { authorId: 42, reportParams: authorReportParams } ),

@@ -83,8 +83,9 @@ export type UsePopularPostResult = {
  * every displayed metric is an all-time total from `stats/post`, so the three
  * tiles cannot measure different periods.
  *
- * Only a ranking failure surfaces as an error; a failing content or metrics
- * request degrades to no image and unknown counts.
+ * Only a failure that leaves no winner surfaces as an error: the ranking
+ * request, or the author shortlist that decides which ranked rows are posts.
+ * A failing content or metrics request degrades to no image and unknown counts.
  *
  * @param scope - The author scope, when the page has one; omit to rank the whole site.
  * @return The winning post and request state.
@@ -186,12 +187,19 @@ export function usePopularPost( scope?: UsePopularPostScope ): UsePopularPostRes
 		( postId > 0 && ( contentResult.isLoading || postStatsResult.isLoading || isMetricsPending ) );
 	const isFetching =
 		rankingResult.isFetching || contentResult.isFetching || postStatsResult.isFetching;
+	// Author-scoped, the shortlist request decides the winner, so its failure
+	// would otherwise read as "no views" rather than as an error.
+	const isShortlistError =
+		isAuthorScoped && authorCandidateIds.length > 0 && authorContentResult.isError;
 	// Surfaced even with rows on screen: `placeholderData` only applies while
 	// pending, so rows surviving an error mean a failed background refetch.
-	const isError = rankingResult.isError;
+	const isError = rankingResult.isError || isShortlistError;
 
 	const refetch = () => {
 		void rankingResult.refetch();
+		if ( isShortlistError ) {
+			void authorContentResult.refetch();
+		}
 		// The dependent queries are disabled until a post ID resolves; refetching
 		// them while disabled would force a request for post 0.
 		if ( postId > 0 ) {
@@ -226,7 +234,7 @@ export function usePopularPost( scope?: UsePopularPostScope ): UsePopularPostRes
 		isLoading,
 		isFetching,
 		isError,
-		error: rankingResult.error,
+		error: rankingResult.error ?? ( isShortlistError ? authorContentResult.error : null ),
 		refetch,
 	};
 }
