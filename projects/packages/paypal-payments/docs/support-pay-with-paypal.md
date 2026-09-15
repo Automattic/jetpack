@@ -92,11 +92,10 @@ PayPal offers no way to pause, deactivate, or restore a payment link. Delete is 
 
 Because of this, every Delete action opens a confirmation that requires ticking "I understand this cannot be undone." before the Delete button becomes active. The admin page confirmation also says how many published posts still embed the link.
 
-Deleting from the admin page does not edit your posts. Instead:
+Deleting from the admin page also removes the block from the published posts that embed the link, and the success notice lists those posts with edit links. The rest of each post is left as it was, and the removal is saved as a revision. Drafts and other unpublished posts keep their block:
 
-- Published blocks that still point at the deleted link render nothing, so visitors never see a button that leads to PayPal's "not found" page.
-- The admin page lists those posts after the delete, with edit links.
 - Opening one of those posts in the editor shows a warning on the block. Updating the post creates a new link with a new URL and QR code; remove the block instead if you no longer sell that product.
+- A published block the delete could not remove (for example, on a site with more than 100 posts using the block) renders nothing, so visitors never see a button that leads to PayPal's "not found" page. The notice names such posts too.
 
 Removing the last block that uses a link and updating the post also deletes the link on PayPal. If another published post still embeds it, the link is kept.
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Remove the block from every published post embedding a payment link when the link is deleted from the admin page, and list those posts in the notice.

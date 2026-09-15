@@ -296,7 +296,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		$table  = new PayPal_Payment_Links_List_Table();
 		$output = $table->column_name( $this->get_sample_items()[0] );
 
-		$this->assertStringContainsString( 'embedded in 1 published post', $output );
+		$this->assertStringContainsString( 'removed from the 1 published post', $output );
 	}
 
 	/**

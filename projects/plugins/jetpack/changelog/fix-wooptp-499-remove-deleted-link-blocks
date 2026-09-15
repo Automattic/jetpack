@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+PayPal Payment Buttons: remove the block from every published post embedding a payment link when the link is deleted from the admin page.

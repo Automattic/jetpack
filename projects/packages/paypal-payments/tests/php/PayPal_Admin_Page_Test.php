@@ -175,30 +175,120 @@ class PayPal_Admin_Page_Test extends TestCase {
 		remove_all_filters( 'posts_pre_query' );
 	}
 
+	// --- Removing the blocks of a deleted link ---
+
+	/**
+	 * Test the block is removed from the published posts embedding the link and other blocks are kept.
+	 */
+	public function test_remove_published_embeds_strips_the_link_blocks_and_keeps_the_rest() {
+		$gone  = '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-GONE1","paymentLink":"https://www.paypal.com/ncp/payment/PLB-GONE1"} /-->';
+		$other = '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-OTHER1"} /-->';
+		$para  = '<!-- wp:paragraph --><p>Buy the croissant.</p><!-- /wp:paragraph -->';
+
+		$embedding = $this->insert_post( $para . "\n\n" . $gone . "\n\n" . $other . "\n\n" . $gone );
+		$unrelated = $this->insert_post( $para . "\n\n" . $other );
+		$this->feed_posts( array( $embedding, $unrelated ) );
+
+		$result = PayPal_Admin_Page::remove_published_embeds( 'PLB-GONE1' );
+
+		$this->assertSame( array( $embedding->ID ), wp_list_pluck( $result['updated'], 'ID' ) );
+		$this->assertSame( array(), $result['failed'] );
+		$this->assertSame( $para . "\n\n" . $other . "\n\n", $this->stored_content( $embedding->ID ) );
+		$this->assertSame( $unrelated->post_content, $this->stored_content( $unrelated->ID ) );
+	}
+
+	/**
+	 * Test a block nested inside another block is removed and the parent's markup survives.
+	 */
+	public function test_remove_published_embeds_reaches_nested_blocks() {
+		$content = '<!-- wp:group -->' . "\n" . '<div class="wp-block-group">'
+			. '<!-- wp:paragraph --><p>Left</p><!-- /wp:paragraph -->'
+			. '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-GONE1","paymentLink":"https://www.paypal.com/ncp/payment/PLB-GONE1"} /-->'
+			. '<!-- wp:paragraph --><p>Right</p><!-- /wp:paragraph -->'
+			. '</div>' . "\n" . '<!-- /wp:group -->';
+		$post    = $this->insert_post( $content );
+		$this->feed_posts( array( $post ) );
+
+		$result = PayPal_Admin_Page::remove_published_embeds( 'PLB-GONE1' );
+
+		$this->assertCount( 1, $result['updated'] );
+		$this->assertSame(
+			'<!-- wp:group -->' . "\n" . '<div class="wp-block-group">'
+			. '<!-- wp:paragraph --><p>Left</p><!-- /wp:paragraph -->'
+			. '<!-- wp:paragraph --><p>Right</p><!-- /wp:paragraph -->'
+			. '</div>' . "\n" . '<!-- /wp:group -->',
+			$this->stored_content( $post->ID )
+		);
+	}
+
+	/**
+	 * Test the surviving blocks keep their escaped attributes through the rewrite.
+	 */
+	public function test_remove_published_embeds_keeps_escaped_attributes_intact() {
+		$kept    = '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-OTHER1","productName":"Croissant \\u0022du jour\\u0022 \\u002d\\u002d fresh"} /-->';
+		$content = '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-GONE1"} /-->' . "\n\n" . $kept;
+		$post    = $this->insert_post( $content );
+		$this->feed_posts( array( $post ) );
+
+		PayPal_Admin_Page::remove_published_embeds( 'PLB-GONE1' );
+
+		$this->assertSame( $kept, $this->stored_content( $post->ID ) );
+	}
+
+	/**
+	 * Test a post that cannot be saved without the block is reported rather than rewritten.
+	 */
+	public function test_remove_published_embeds_reports_a_post_it_cannot_update() {
+		$content = '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-GONE1"} /-->';
+		$post    = $this->insert_post( $content );
+		$this->feed_posts( array( $post ) );
+
+		$result = PayPal_Admin_Page::remove_published_embeds( 'PLB-GONE1' );
+
+		$this->assertSame( array(), $result['updated'] );
+		$this->assertSame( array( $post->ID ), wp_list_pluck( $result['failed'], 'ID' ) );
+		$this->assertSame( $content, $this->stored_content( $post->ID ) );
+	}
+
 	// --- Deleted link notice ---
 
 	/**
-	 * Test the notice names the published posts that still embed the deleted link, with edit links.
+	 * Test the notice names the published posts the block was removed from, with edit links.
 	 */
-	public function test_deleted_link_notice_lists_the_posts_still_embedding_it() {
-		$embedding = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-GONE1"} /-->' );
-		$other     = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-OTHER1"} /-->' );
-		add_filter(
-			'posts_pre_query',
-			function () use ( $embedding, $other ) {
-				return array( $embedding, $other );
-			}
-		);
+	public function test_deleted_link_notice_lists_the_posts_the_block_was_removed_from() {
+		$embedding = $this->insert_post( '<!-- wp:paragraph --><p>Croissant</p><!-- /wp:paragraph --><!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-GONE1"} /-->' );
+		$other     = $this->insert_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-OTHER1"} /-->' );
+		$this->feed_posts( array( $embedding, $other ) );
 
 		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
 
 		$this->assertSame( 'success', $notice['type'] );
-		$this->assertStringContainsString( 'Payment link deleted successfully.', $notice['message'] );
-		$this->assertStringContainsString( '1 published post still embeds it and now shows nothing', $notice['message'] );
+		$this->assertSame( 'Payment link deleted successfully. Its block was removed from 1 published post.', $notice['message'] );
 		$this->assertCount( 1, $notice['links'] );
-		// make_post() gives the post no title.
+		// insert_post() gives the post no title.
 		$this->assertSame( '(no title)', $notice['links'][0]['label'] );
 		$this->assertStringContainsString( 'post=' . $embedding->ID, $notice['links'][0]['url'] );
+	}
+
+	/**
+	 * Test the notice becomes a warning naming the posts that could not be updated.
+	 */
+	public function test_deleted_link_notice_warns_about_posts_it_could_not_update() {
+		$block = '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-GONE1"} /-->';
+		$stuck = $this->insert_post( $block );
+		$fine  = $this->insert_post( '<!-- wp:paragraph --><p>Croissant</p><!-- /wp:paragraph -->' . $block );
+		$this->feed_posts( array( $stuck, $fine ) );
+
+		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
+
+		$this->assertSame( 'warning', $notice['type'] );
+		$this->assertSame(
+			'Payment link deleted successfully. Its block was removed from 1 published post. 1 published post could not be updated and still embeds it, showing nothing where the button was; edit it to remove the block.',
+			$notice['message']
+		);
+		$this->assertSame( array( '(no title)', '(no title) (block not removed)' ), wp_list_pluck( $notice['links'], 'label' ) );
+		$this->assertStringContainsString( 'post=' . $fine->ID . '&', $notice['links'][0]['url'] );
+		$this->assertStringContainsString( 'post=' . $stuck->ID . '&', $notice['links'][1]['url'] );
 	}
 
 	/**
@@ -209,8 +299,59 @@ class PayPal_Admin_Page_Test extends TestCase {
 
 		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
 
+		$this->assertSame( 'success', $notice['type'] );
 		$this->assertSame( 'Payment link deleted successfully.', $notice['message'] );
 		$this->assertSame( array(), $notice['links'] );
+	}
+
+	/**
+	 * Insert a published post with the given content and no title.
+	 *
+	 * WorDBless stores the slashed form wp_insert_post() was given, so the
+	 * returned copy carries the content the way a database row would.
+	 *
+	 * @param string $content Post content.
+	 * @return \WP_Post The post.
+	 */
+	private function insert_post( $content ) {
+		$id = wp_insert_post(
+			array(
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_content' => wp_slash( $content ),
+			),
+			true
+		);
+		$this->assertIsInt( $id );
+
+		$post               = clone get_post( $id );
+		$post->post_content = wp_unslash( $post->post_content );
+
+		return $post;
+	}
+
+	/**
+	 * The stored content of a post, unslashed the way a database row would be.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string
+	 */
+	private function stored_content( $post_id ) {
+		return wp_unslash( get_post( $post_id )->post_content );
+	}
+
+	/**
+	 * Serve these posts to every post query, since the test environment has no database behind WP_Query.
+	 *
+	 * @param \WP_Post[] $posts The posts.
+	 */
+	private function feed_posts( array $posts ) {
+		add_filter(
+			'posts_pre_query',
+			function () use ( $posts ) {
+				return $posts;
+			}
+		);
 	}
 
 	/**
@@ -255,15 +396,15 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Test the confirmation says how many published posts embed the link.
+	 * Test the confirmation says how many published posts the block will be removed from.
 	 */
 	public function test_delete_confirm_text_counts_embedding_posts() {
 		$this->assertStringContainsString(
-			'embedded in 1 published post, which will show a broken button.',
+			'The block will be removed from the 1 published post that embeds it.',
 			PayPal_Admin_Page::delete_confirm_text( 1 )
 		);
 		$this->assertStringContainsString(
-			'embedded in 3 published posts, which will show broken buttons.',
+			'The block will be removed from the 3 published posts that embed it.',
 			PayPal_Admin_Page::delete_confirm_text( 3 )
 		);
 	}

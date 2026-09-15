@@ -50,7 +50,7 @@ class PayPal_Admin_Page {
 	/**
 	 * The confirmation shown before a payment link is deleted from the admin.
 	 *
-	 * Deleting a link orphans every published block embedding it, so the
+	 * Deleting a link also removes every published block embedding it, so the
 	 * warning has to be at least as strong as the one the block itself shows.
 	 *
 	 * @since $$next-version$$
@@ -65,8 +65,8 @@ class PayPal_Admin_Page {
 			$text .= ' ' . sprintf(
 				/* translators: %d: number of published posts embedding the payment link */
 				_n(
-					'It is embedded in %d published post, which will show a broken button.',
-					'It is embedded in %d published posts, which will show broken buttons.',
+					'The block will be removed from the %d published post that embeds it.',
+					'The block will be removed from the %d published posts that embed it.',
 					$embed_count,
 					'jetpack-paypal-payments'
 				),
@@ -154,10 +154,133 @@ class PayPal_Admin_Page {
 	}
 
 	/**
-	 * The notice shown after a link is deleted, naming the posts that still embed it.
+	 * Remove the blocks pointing at a deleted link from the published posts that embed it.
 	 *
-	 * Those blocks render nothing until the post is updated, which creates a new
-	 * link, or the block is removed.
+	 * Covers the same capped set of posts as find_published_embeds(). A post
+	 * whose update fails, such as one left with no content, keeps its block.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id The deleted PayPal resource ID.
+	 * @return array{updated: \WP_Post[], failed: \WP_Post[]}
+	 */
+	public static function remove_published_embeds( $resource_id ) {
+		$updated = array();
+		$failed  = array();
+
+		foreach ( self::find_published_embeds( $resource_id ) as $post ) {
+			$removed = 0;
+			$blocks  = self::without_link_blocks( parse_blocks( $post->post_content ), $resource_id, $removed );
+			if ( 0 === $removed ) {
+				continue;
+			}
+
+			// wp_update_post() unslashes, and block attributes carry escaped quotes.
+			$result = wp_update_post(
+				array(
+					'ID'           => $post->ID,
+					'post_content' => wp_slash( serialize_blocks( $blocks ) ),
+				),
+				true
+			);
+
+			if ( is_wp_error( $result ) ) {
+				$failed[] = $post;
+			} else {
+				$updated[] = $post;
+			}
+		}
+
+		return array(
+			'updated' => $updated,
+			'failed'  => $failed,
+		);
+	}
+
+	/**
+	 * The parsed blocks with every payment button pointing at one link dropped, at any depth.
+	 *
+	 * The blank line after a dropped top-level block goes with it, so the
+	 * remaining blocks stay separated by one.
+	 *
+	 * @param array[] $blocks      Parsed blocks.
+	 * @param string  $resource_id PayPal resource ID.
+	 * @param int     $removed     Incremented once per dropped block.
+	 * @return array[]
+	 */
+	private static function without_link_blocks( array $blocks, $resource_id, &$removed ) {
+		$kept         = array();
+		$just_dropped = false;
+		foreach ( $blocks as $block ) {
+			if ( self::is_link_block( $block, $resource_id ) ) {
+				++$removed;
+				$just_dropped = true;
+				continue;
+			}
+			if ( $just_dropped && null === $block['blockName'] && '' === trim( $block['innerHTML'] ) ) {
+				$just_dropped = false;
+				continue;
+			}
+			$just_dropped = false;
+			$kept[]       = self::without_inner_link_blocks( $block, $resource_id, $removed );
+		}
+
+		return $kept;
+	}
+
+	/**
+	 * One parsed block with the payment buttons among its descendants dropped.
+	 *
+	 * Each inner block is a null in innerContent, in order, so the two lists are
+	 * walked together to keep them aligned for serialize_blocks().
+	 *
+	 * @param array  $block       Parsed block.
+	 * @param string $resource_id PayPal resource ID.
+	 * @param int    $removed     Incremented once per dropped block.
+	 * @return array
+	 */
+	private static function without_inner_link_blocks( array $block, $resource_id, &$removed ) {
+		if ( empty( $block['innerBlocks'] ) ) {
+			return $block;
+		}
+
+		$inner_blocks  = array();
+		$inner_content = array();
+		$position      = 0;
+		foreach ( $block['innerContent'] as $chunk ) {
+			if ( null !== $chunk ) {
+				$inner_content[] = $chunk;
+				continue;
+			}
+			$inner = $block['innerBlocks'][ $position++ ];
+			if ( self::is_link_block( $inner, $resource_id ) ) {
+				++$removed;
+				continue;
+			}
+			$inner_blocks[]  = self::without_inner_link_blocks( $inner, $resource_id, $removed );
+			$inner_content[] = null;
+		}
+
+		$block['innerBlocks']  = $inner_blocks;
+		$block['innerContent'] = $inner_content;
+
+		return $block;
+	}
+
+	/**
+	 * Whether a parsed block is a payment button pointing at one link.
+	 *
+	 * @param array  $block       Parsed block.
+	 * @param string $resource_id PayPal resource ID.
+	 * @return bool
+	 */
+	private static function is_link_block( array $block, $resource_id ) {
+		return 'jetpack/paypal-payment-buttons' === $block['blockName']
+			&& ( $block['attrs']['resourceId'] ?? '' ) === $resource_id;
+	}
+
+	/**
+	 * The notice shown after a link is deleted and its blocks removed from published posts.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -165,33 +288,65 @@ class PayPal_Admin_Page {
 	 * @return array{type: string, message: string, links: array<int, array{url: string, label: string}>}
 	 */
 	public static function deleted_link_notice( $resource_id ) {
-		$posts   = self::find_published_embeds( $resource_id );
+		$posts   = self::remove_published_embeds( $resource_id );
 		$message = __( 'Payment link deleted successfully.', 'jetpack-paypal-payments' );
 		$links   = array();
 
-		if ( $posts ) {
+		if ( $posts['updated'] ) {
 			$message .= ' ' . sprintf(
 				/* translators: %d: number of published posts */
 				_n(
-					'%d published post still embeds it and now shows nothing where the button was. Edit it to remove the block, or update it to create a new link:',
-					'%d published posts still embed it and now show nothing where the button was. Edit them to remove the block, or update them to create a new link:',
-					count( $posts ),
+					'Its block was removed from %d published post.',
+					'Its block was removed from %d published posts.',
+					count( $posts['updated'] ),
 					'jetpack-paypal-payments'
 				),
-				count( $posts )
+				count( $posts['updated'] )
 			);
-			foreach ( $posts as $post ) {
-				$links[] = array(
-					'url'   => admin_url( 'post.php?post=' . (int) $post->ID . '&action=edit' ),
-					'label' => get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' ),
+			foreach ( $posts['updated'] as $post ) {
+				$links[] = self::edit_link( $post );
+			}
+		}
+
+		if ( $posts['failed'] ) {
+			$message .= ' ' . sprintf(
+				/* translators: %d: number of published posts */
+				_n(
+					'%d published post could not be updated and still embeds it, showing nothing where the button was; edit it to remove the block.',
+					'%d published posts could not be updated and still embed it, showing nothing where the button was; edit them to remove the block.',
+					count( $posts['failed'] ),
+					'jetpack-paypal-payments'
+				),
+				count( $posts['failed'] )
+			);
+			foreach ( $posts['failed'] as $post ) {
+				$link          = self::edit_link( $post );
+				$link['label'] = sprintf(
+					/* translators: %s: post title */
+					__( '%s (block not removed)', 'jetpack-paypal-payments' ),
+					$link['label']
 				);
+				$links[] = $link;
 			}
 		}
 
 		return array(
-			'type'    => 'success',
+			'type'    => $posts['failed'] ? 'warning' : 'success',
 			'message' => $message,
 			'links'   => $links,
+		);
+	}
+
+	/**
+	 * An edit link for the notice.
+	 *
+	 * @param \WP_Post $post The post.
+	 * @return array{url: string, label: string}
+	 */
+	private static function edit_link( $post ) {
+		return array(
+			'url'   => admin_url( 'post.php?post=' . (int) $post->ID . '&action=edit' ),
+			'label' => get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' ),
 		);
 	}
 
