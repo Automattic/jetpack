@@ -34,6 +34,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 */
 	public function get_page_hook() {
 		$logo = new Logo();
+		// Keep this fallback in sync with Jetpack_Network::add_network_admin_menu().
 		$icon = method_exists( $logo, 'get_base64_admin_menu_logo' ) ? $logo->get_base64_admin_menu_logo() : $logo->get_base64_logo();
 		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), $icon, 3 );
 	}

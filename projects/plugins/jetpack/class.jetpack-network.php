@@ -282,6 +282,7 @@ class Jetpack_Network {
 	 */
 	public function add_network_admin_menu() {
 		$logo = new Logo();
+		// Another plugin may load an older Logo class before all Jetpack autoloaders register.
 		if ( method_exists( $logo, 'get_base64_admin_menu_logo' ) ) {
 			$icon = $logo->get_base64_admin_menu_logo();
 		} else {
