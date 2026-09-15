@@ -92,13 +92,13 @@ type Story = StoryObj< AuthorViewsStoryControls >;
 
 export const Default: Story = {
 	render: renderAuthorViews,
-	args: { hasAuthorScope: true, interval: 'day', chartType: 'line' },
+	args: { hasAuthorScope: true, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
 export const NoAuthorScope: Story = {
 	render: renderAuthorViews,
-	args: { hasAuthorScope: false, interval: 'day', chartType: 'line' },
+	args: { hasAuthorScope: false, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -131,7 +131,7 @@ export const WidgetDashboardWithWidget: StoryObj< AuthorViewsDashboardStoryProps
 		widgetHeight: 2,
 		hasAuthorScope: true,
 		interval: 'day',
-		chartType: 'line',
+		chartType: 'bar',
 	},
 	argTypes: { ...widgetDashboardWithWidgetArgTypes },
 };

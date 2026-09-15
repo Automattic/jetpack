@@ -31,7 +31,7 @@ export default {
 	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< AuthorViewsAttributes >[],
 	example: {
 		attributes: {
-			chartType: 'line',
+			chartType: 'bar',
 		},
 	},
 };

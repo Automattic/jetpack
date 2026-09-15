@@ -102,7 +102,7 @@ describe( 'AuthorViewsWidget', () => {
 		expect( metric.dates ).toEqual( [ '2026-07-01', '2026-07-02', '2026-07-03' ] );
 		expect( metric.values ).toEqual( [ 2, 0, 5 ] );
 		expect( metric.value ).toBe( 7 );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 
 		const requestedPath = decodeURIComponent( mockApiFetch.mock.calls[ 0 ][ 0 ].path as string );
 		expect( requestedPath ).toContain( 'stats/top-authors' );
@@ -147,16 +147,16 @@ describe( 'AuthorViewsWidget', () => {
 		);
 	} );
 
-	it( 'draws bars when the chartType attribute says so', async () => {
+	it( 'draws a line when the chartType attribute says so', async () => {
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
 
 		render(
-			<AuthorViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } } />
+			<AuthorViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } } />
 		);
 
 		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
 			'data-chart-type',
-			'bar'
+			'line'
 		);
 	} );
 
