@@ -75,6 +75,10 @@ if ( is_admin() ) {
 
 	\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
 
+	// Settings > Sharing owns its own screen, so it exists whichever modules are active.
+	\Automattic\Jetpack\Plugin\Sharing_Settings\Sharing_Settings_Page::init();
+	\Automattic\Jetpack\Plugin\Sharing_Settings\Post_Handler::init();
+
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
