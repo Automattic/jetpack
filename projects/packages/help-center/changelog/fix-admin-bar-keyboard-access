@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Help Center: give the admin bar entry point an href so the keyboard can reach it and the admin bar's hover styles apply.
+Help Center: make the admin bar entry point keyboard reachable and let its icon follow the item's hover colour.
