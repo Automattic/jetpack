@@ -43,6 +43,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
 		Jetpack_Options::delete_option( 'tos_agreed' );
 		Jetpack_Options::delete_option( 'user_tokens' );
 		wp_set_current_user( 0 );
@@ -256,6 +257,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 */
 	public function test_features_view_flag_is_on_for_self_hosted_site() {
 		$this->given_woa( false );
+		// My Jetpack does not initialise in offline mode, which is how CI runs.
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
 
 		$settings = $this->get_injected_settings();
 
@@ -277,6 +280,54 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertSame( 'admin.php?page=jetpack#/connect-user', $settings['userConnectionUrl'] );
+	}
+
+	/**
+	 * Offline mode reaches the page, so the notice has to be able to name it.
+	 */
+	public function test_offline_mode_is_reported_to_the_page() {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['isOfflineMode'] );
+	}
+
+	/**
+	 * A site that is not in offline mode says so.
+	 */
+	public function test_offline_mode_is_reported_as_false_when_the_site_is_online() {
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['isOfflineMode'] );
+	}
+
+	/**
+	 * The turned-off notice sends people to My Jetpack wherever it loads.
+	 */
+	public function test_manage_url_points_at_my_jetpack_when_it_loads() {
+		$this->given_woa( false );
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['hasMyJetpack'] );
+		$this->assertSame( 'admin.php?page=my-jetpack#/products', $settings['manageUrl'] );
+	}
+
+	/**
+	 * Hosts that keep My Jetpack out get the legacy modules page instead.
+	 */
+	public function test_manage_url_falls_back_to_the_modules_page_without_my_jetpack() {
+		$this->given_woa( false );
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['hasMyJetpack'] );
+		$this->assertSame( 'admin.php?page=jetpack_modules', $settings['manageUrl'] );
 	}
 
 	/**
