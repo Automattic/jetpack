@@ -21,6 +21,7 @@ jest.mock( '../../../utils/get-purchase-plan-url', () => ( {
 	default: () => 'https://example.org/purchase',
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: () => undefined,
 	getMyJetpackUrl: ( path = '' ) =>
 		`https://example.org/wp-admin/admin.php?page=my-jetpack${ path }`,
 } ) );

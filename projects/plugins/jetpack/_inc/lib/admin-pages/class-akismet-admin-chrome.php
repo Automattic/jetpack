@@ -34,6 +34,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+require_once __DIR__ . '/class.jetpack-admin-page.php';
+
 /**
  * Wires the unified Jetpack header, footer and contained layout onto Akismet's admin pages.
  */
@@ -336,10 +338,11 @@ class Akismet_Admin_Chrome {
 	public function render_footer() {
 		// Match wrap_ui(): link the byline to the local About page when Jetpack isn't connectable,
 		// otherwise to the external jetpack.com redirect.
-		$connectable = ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode();
-		$a8c_url     = ! $connectable
+		$connectable      = ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode();
+		$a8c_url          = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
+		$products_section = Jetpack_Admin_Page::get_my_jetpack_products_section();
 		?>
 		<footer class="jp-akismet-footer jetpack-footer" aria-label="<?php esc_attr_e( 'Jetpack', 'jetpack' ); ?>" role="contentinfo">
 			<div class="jp-akismet-footer__logo">
@@ -348,7 +351,7 @@ class Akismet_Admin_Chrome {
 			</div>
 			<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
 			<nav class="jp-akismet-footer__menu">
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/products' ) ); ?>"><?php echo esc_html_x( 'Products', 'Navigation item', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/' . $products_section['slug'] ) ); ?>"><?php echo esc_html( $products_section['label'] ); ?></a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>
 			</nav>
 			<?php endif; ?>
