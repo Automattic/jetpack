@@ -84,7 +84,7 @@ describe( 'JetpackFooter', () => {
 
 			render( <JetpackFooter /> );
 
-			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
 		} );
 

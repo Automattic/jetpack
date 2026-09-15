@@ -96,7 +96,7 @@ type SearchTerm = { text: string; wordRe: RegExp };
  * @param {string | undefined} search - The raw search term.
  * @return True when the term should trigger ranking/filtering.
  */
-function hasSearch( search: string | undefined ): search is string {
+export function hasSearch( search: string | undefined ): search is string {
 	return Boolean( search?.trim() );
 }
 
@@ -116,7 +116,7 @@ function escapeRegExp( value: string ): string {
  * @param {string} search - The search term.
  * @return The individual parsed terms.
  */
-function searchTerms( search: string ): Array< SearchTerm > {
+export function searchTerms( search: string ): Array< SearchTerm > {
 	return search
 		.toLowerCase()
 		.split( /\s+/ )
@@ -190,7 +190,7 @@ function scoreFields( terms: Array< SearchTerm >, fields: Array< ScoredField > )
  * @param {Function}          fieldsFor - Maps an item to its weighted fields.
  * @return The matching items with their scores, best match first.
  */
-function rankBy< T >(
+export function rankBy< T >(
 	items: Array< T >,
 	terms: Array< SearchTerm >,
 	fieldsFor: ( item: T ) => Array< ScoredField >
@@ -244,7 +244,10 @@ function cardFields( card: CardItem, categories?: string[] ): Array< ScoredField
  * @param {string[] | undefined} categories - The module's category labels.
  * @return The weighted fields to match against.
  */
-function moduleFields( module: MyJetpackModule, categories?: string[] ): Array< ScoredField > {
+export function moduleFields(
+	module: MyJetpackModule,
+	categories?: string[]
+): Array< ScoredField > {
 	return [
 		{ value: module.name, weight: 3 },
 		{ value: module.search_terms, weight: 2 },
