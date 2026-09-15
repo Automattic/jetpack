@@ -221,7 +221,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( surface ).toContainText( 'August 26, 2026' );
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
-		await expect( surface ).toContainText( 'No scores recorded before feature was unlocked' );
+		await expect( surface ).toContainText( 'No scores recorded for this day' );
 		await page.keyboard.press( 'ArrowRight' );
 		await expect( surface ).toContainText( 'August 27, 2026' );
 		await page.keyboard.press( 'Escape' );
@@ -272,7 +272,7 @@ test( 'uses compact plots with three horizontal gridlines and no band legend', a
 	expect( band.y + band.height ).toBeCloseTo( secondSvg.y + secondSvg.height - 24, 0 );
 	expect( band.width ).toBeCloseTo( bar.width + 1, 0 );
 	const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
-	await expect( tooltip ).toContainText( 'No scores recorded before feature was unlocked' );
+	await expect( tooltip ).toContainText( 'No scores recorded for this day' );
 	await expect( tooltip ).toHaveCSS( 'width', '265px' );
 	await expect( tooltip ).toHaveCSS( 'height', '106px' );
 	const emptyPopup = ( await tooltip.boundingBox() )!;
