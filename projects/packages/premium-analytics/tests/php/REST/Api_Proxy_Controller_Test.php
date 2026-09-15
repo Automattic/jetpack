@@ -697,6 +697,15 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/slug/likes' ) );
 	}
 
+	public function test_validate_data_endpoint_enforces_the_memberships_pattern() {
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'memberships/products' ) );
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'memberships/products/' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'memberships' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'memberships/products/123' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'memberships/subscribers' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'memberships/earnings' ) );
+	}
+
 	/**
 	 * Unsupported endpoints must not route at all — the request never reaches the handler and the
 	 * blog token is never forwarded. Covers other resources, foreign namespaces, prefix-extension
@@ -727,6 +736,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'prefix extension'      => array( 'statsfoo' ),
 			'analytics extension'   => array( 'analyticsx' ),
 			'deep unsupported path' => array( 'posts/123/revisions/456' ),
+			'memberships earnings'  => array( 'memberships/earnings' ),
 		);
 	}
 
@@ -868,6 +878,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 			// v2 / wpcom endpoints (view_stats).
 			'subscribers counts'   => array( 'subscribers/counts', $stats, false, '/sites/%d/subscribers/counts' ),
+			'membership products'  => array( 'memberships/products', $stats, false, '/sites/%d/memberships/products' ),
 			'never published'      => array( 'site-has-never-published-post', $stats, false, '/sites/%d/site-has-never-published-post' ),
 			'plan usage'           => array( 'jetpack-stats/usage', $stats, false, '/sites/%d/jetpack-stats/usage' ),
 			'user feedback'        => array( 'jetpack-stats/user-feedback', $stats, true, '/sites/%d/jetpack-stats/user-feedback' ),
