@@ -34,7 +34,7 @@ import {
 import { useState, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import ConfirmDialogs from './components/confirm-dialogs';
-import ConnectionWizard from './components/connection-wizard';
+import ConnectionWizard, { OnboardingFrame } from './components/connection-wizard';
 import ExistingLinksStep from './components/existing-links-step';
 import PayPalFormatControls from './components/format-controls';
 import LegacyBlock from './components/legacy-block';
@@ -385,44 +385,59 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		);
 	}
 
-	// Not connected — show the guided connection wizard. A block that already
-	// holds a saved button keeps showing its preview instead (e.g. demo posts in
-	// Playground, or a button created before the site was disconnected), unless
-	// the merchant explicitly asked to reconnect.
+	// Not connected — the canvas says what the block is for and the sidebar
+	// carries the connection wizard. A block that already holds a saved button
+	// keeps showing its preview instead (e.g. demo posts in Playground, or a
+	// button created before the site was disconnected), unless the merchant
+	// explicitly asked to reconnect.
 	if ( ! isConnected && ( ! hasButton || showReconnect ) ) {
 		return (
 			<div { ...blockProps }>
-				<ConnectionWizard
-					setIsConnected={ setIsConnected }
-					environment={ environment }
-					setEnvironment={ setEnvironment }
-					showReconnect={ showReconnect }
-					setShowReconnect={ setShowReconnect }
+				<div className="jetpack-paypal-payment-buttons__placeholder">
+					<h4>{ __( 'PayPal Payment Button', 'jetpack-paypal-payments' ) }</h4>
+					<p>
+						{ __(
+							'Log in to or create a PayPal business account to use payment buttons',
+							'jetpack-paypal-payments'
+						) }
+					</p>
+				</div>
+				<OnboardingFrame
 					signupUrl={ signupUrl }
-					setOnboardingRequested={ setOnboardingRequested }
 					isOverlayOpen={ isOverlayOpen }
-					isOpeningPayPal={ isOpeningPayPal }
 					setFrameNode={ setFrameNode }
-					clientId={ clientId }
-					clientSecret={ clientSecret }
-					connectError={ connectError }
-					setConnectError={ setConnectError }
-					connectErrorDismissed={ connectErrorDismissed }
-					setConnectErrorDismissed={ setConnectErrorDismissed }
-					isConnecting={ isConnecting }
-					isCompletingOnboarding={ isCompletingOnboarding }
-					wizardStep={ wizardStep }
-					setWizardStep={ setWizardStep }
-					showSecretField={ showSecretField }
-					setShowSecretField={ setShowSecretField }
-					partnerReferralsAvailable={ partnerReferralsAvailable }
-					handleClientIdChange={ handleClientIdChange }
-					handleClientSecretChange={ handleClientSecretChange }
-					clientIdWarning={ clientIdWarning }
-					handleConnect={ handleConnect }
-					fetchSignupLink={ fetchSignupLink }
 					cancelOnboarding={ cancelOnboarding }
 				/>
+				<InspectorControls>
+					<ConnectionWizard
+						setIsConnected={ setIsConnected }
+						environment={ environment }
+						setEnvironment={ setEnvironment }
+						showReconnect={ showReconnect }
+						setShowReconnect={ setShowReconnect }
+						signupUrl={ signupUrl }
+						setOnboardingRequested={ setOnboardingRequested }
+						isOpeningPayPal={ isOpeningPayPal }
+						clientId={ clientId }
+						clientSecret={ clientSecret }
+						connectError={ connectError }
+						setConnectError={ setConnectError }
+						connectErrorDismissed={ connectErrorDismissed }
+						setConnectErrorDismissed={ setConnectErrorDismissed }
+						isConnecting={ isConnecting }
+						isCompletingOnboarding={ isCompletingOnboarding }
+						wizardStep={ wizardStep }
+						setWizardStep={ setWizardStep }
+						showSecretField={ showSecretField }
+						setShowSecretField={ setShowSecretField }
+						partnerReferralsAvailable={ partnerReferralsAvailable }
+						handleClientIdChange={ handleClientIdChange }
+						handleClientSecretChange={ handleClientSecretChange }
+						clientIdWarning={ clientIdWarning }
+						handleConnect={ handleConnect }
+						fetchSignupLink={ fetchSignupLink }
+					/>
+				</InspectorControls>
 			</div>
 		);
 	}
