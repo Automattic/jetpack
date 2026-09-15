@@ -1,3 +1,17 @@
+@use "@wordpress/base-styles/colors" as *;
+@use "@wordpress/base-styles/variables" as *;
+
+// wp-admin palette values with no base-styles token. The bar shares them
+// with the Jetpack sharing buttons and the editor.
+$admin-gray-0: #f0f0f1;
+$admin-gray-10: #c3c4c7;
+$admin-gray-50: #646970;
+$admin-gray-60: #3c434a;
+$admin-gray-80: #2c3338;
+$admin-green-50: #008a20;
+$admin-theme-color: #3858e9;
+$admin-theme-color-darker-10: #2145e6;
+
 div#actionbar .no-display {
 	display: none !important;
 }
@@ -8,12 +22,12 @@ div#actionbar * {
 }
 
 div#actionbar {
-	background: #fff;
+	background: $white;
 	position: fixed;
 	bottom: 10px;
 	right: 10px;
 	border: 0;
-	border-radius: 4px;
+	border-radius: $radius-medium;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
 	opacity: 0.7;
 	height: 30px;
@@ -22,7 +36,7 @@ div#actionbar {
 	box-sizing: border-box;
 	line-height: 1;
 	z-index: 100000;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-family: $default-font;
 
 	-webkit-transform: translate3d(0, 0, 0);
 	transform: translate3d(0, 0, 0);
@@ -91,11 +105,11 @@ div#actionbar li.actnbr-btn > a {
 	height: 26px;
 	padding: 0 9px;
 	border-radius: 3px;
-	color: #2c3338;
-	font-size: 13px;
+	color: $admin-gray-80;
+	font-size: $font-size-medium;
 	font-weight: 500;
 	text-decoration: none;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-family: $default-font;
 	line-height: 1;
 	transition: background-color 0.1s ease-in-out;
 	border: none;
@@ -103,29 +117,29 @@ div#actionbar li.actnbr-btn > a {
 }
 
 div#actionbar li.actnbr-btn > a:hover {
-	color: #1e1e1e;
-	background: #f0f0f1;
+	color: $gray-900;
+	background: $admin-gray-0;
 }
 
 div#actionbar li.actnbr-btn > a .actnbr-icon {
-	color: #2c3338;
+	color: $admin-gray-80;
 	width: 18px;
 	height: 18px;
 	flex: none;
 }
 
 div#actionbar li.actnbr-btn a:hover .actnbr-icon {
-	color: #1e1e1e;
+	color: $gray-900;
 }
 
 div#actionbar li.actnbr-btn a.actnbr-actn-following,
 div#actionbar li.actnbr-btn a.actnbr-actn-following:hover {
-	color: #008a20;
+	color: $admin-green-50;
 }
 
 div#actionbar li.actnbr-btn a.actnbr-actn-following .actnbr-icon,
 div#actionbar li.actnbr-btn a.actnbr-actn-following:hover .actnbr-icon {
-	color: #008a20;
+	color: $admin-green-50;
 }
 
 div#actionbar.actnbr-folded .actnbr-btn > a > span,
@@ -155,18 +169,18 @@ div#actionbar .actnbr-more-toggle {
 	align-items: center;
 	height: 26px;
 	margin: 0;
-	padding: 0 4px;
+	padding: 0 $grid-unit-05;
 	border: 0;
 	border-radius: 3px;
 	background: none;
-	color: #2c3338;
+	color: $admin-gray-80;
 	cursor: pointer;
 	transition: background-color 0.1s ease-in-out;
 }
 
 div#actionbar .actnbr-more-toggle:hover {
-	background: #f0f0f1;
-	color: #1e1e1e;
+	background: $admin-gray-0;
+	color: $gray-900;
 }
 
 div#actionbar .actnbr-more-toggle .actnbr-icon {
@@ -183,33 +197,33 @@ div#actionbar :focus:not(:focus-visible) {
 }
 
 div#actionbar :focus-visible {
-	outline: 1.5px solid #3858e9;
+	outline: 1.5px solid $admin-theme-color;
 	outline-offset: 1px;
 }
 
 /* ⋯ menu, after the editor's DropdownMenu. */
 div#actionbar .actnbr-menu__group + .actnbr-menu__group,
 div#actionbar .actnbr-panel__group + .actnbr-panel__group {
-	margin-top: 8px;
-	padding-top: 8px;
-	border-top: 1px solid #ddd;
+	margin-top: $grid-unit-10;
+	padding-top: $grid-unit-10;
+	border-top: $border-width solid $gray-300;
 }
 
 div#actionbar .actnbr-menu__item {
 	display: flex;
 	align-items: center;
 	width: 100%;
-	min-height: 32px;
-	padding: 6px 8px;
+	min-height: $grid-unit-40;
+	padding: 6px $grid-unit-10;
 	border: 0;
-	border-radius: 2px;
+	border-radius: $radius-small;
 	background: none;
 	box-shadow: none;
-	color: #1e1e1e;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-	font-size: 13px;
+	color: $gray-900;
+	font-family: $default-font;
+	font-size: $font-size-medium;
 	font-weight: 400;
-	line-height: 1.4;
+	line-height: $default-line-height;
 	text-align: left;
 	text-decoration: none;
 	white-space: nowrap;
@@ -218,7 +232,7 @@ div#actionbar .actnbr-menu__item {
 
 div#actionbar .actnbr-menu__item:hover,
 div#actionbar .actnbr-menu__item:focus-visible {
-	color: #3858e9;
+	color: $admin-theme-color;
 	background: none;
 	text-decoration: none;
 }
@@ -239,16 +253,16 @@ div#actionbar .actnbr-menu__label {
 div#actionbar .actnbr-menu__icon {
 	display: inline-flex;
 	flex: 0 0 auto;
-	margin-left: 24px;
+	margin-left: $grid-unit-30;
 	color: currentColor;
 }
 
 div#actionbar .actnbr-menu__item img {
 	width: 24px;
 	height: 24px;
-	margin: -2px 8px -2px 0;
+	margin: -2px $grid-unit-10 -2px 0;
 	padding: 0;
-	border-radius: 2px;
+	border-radius: $radius-small;
 	display: inline;
 }
 
@@ -267,7 +281,7 @@ div#actionbar .actnbr-shortlink.actnbr-shortlink__copied .actnbr-shortlink__icon
 
 div#actionbar .actnbr-shortlink.actnbr-shortlink__copied,
 div#actionbar .actnbr-shortlink.actnbr-shortlink__copied:hover {
-	color: #008a20;
+	color: $admin-green-50;
 	pointer-events: none;
 }
 
@@ -286,41 +300,41 @@ div#actionbar .actnbr-popover {
 	z-index: 1000;
 	width: 280px;
 	margin: 0;
-	padding: 8px;
-	background: #fff;
-	border-radius: 4px;
-	box-shadow: 0 0 0 1px #ccc, 0 2px 3px rgba(0, 0, 0, 0.05), 0 4px 5px rgba(0, 0, 0, 0.04), 0 12px 12px rgba(0, 0, 0, 0.03), 0 16px 16px rgba(0, 0, 0, 0.02);
-	color: #1e1e1e;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-	font-size: 13px;
-	line-height: 1.4;
+	padding: $grid-unit-10;
+	background: $white;
+	border-radius: $radius-medium;
+	box-shadow: 0 0 0 $border-width $gray-400, $elevation-medium;
+	color: $gray-900;
+	font-family: $default-font;
+	font-size: $font-size-medium;
+	line-height: $default-line-height;
 	text-align: left;
 }
 
 div#actionbar .actnbr-notice form {
 	margin: 0;
-	padding: 6px 8px 2px;
+	padding: 6px $grid-unit-10 2px;
 }
 
 div#actionbar .actnbr-follow-count {
-	margin: 0 0 8px;
-	font-size: 12px;
-	color: #757575;
+	margin: 0 0 $grid-unit-10;
+	font-size: $font-size-small;
+	color: $gray-700;
 }
 
 div#actionbar .actnbr-notice form input[type="email"] {
 	display: block;
 	width: 100%;
-	height: 32px;
-	margin: 0 0 8px;
-	padding: 0 8px;
-	border: 1px solid #949494;
-	border-radius: 2px;
-	background: #fff;
+	height: $grid-unit-40;
+	margin: 0 0 $grid-unit-10;
+	padding: 0 $grid-unit-10;
+	border: $border-width solid $gray-600;
+	border-radius: $radius-small;
+	background: $white;
 	box-shadow: none;
-	color: #1e1e1e;
+	color: $gray-900;
 	font-family: inherit;
-	font-size: 13px;
+	font-size: $font-size-medium;
 	line-height: normal;
 	text-indent: 0;
 	user-select: text;
@@ -328,12 +342,12 @@ div#actionbar .actnbr-notice form input[type="email"] {
 }
 
 div#actionbar .actnbr-notice form input[type="email"]::placeholder {
-	color: #757575;
+	color: $gray-700;
 }
 
 div#actionbar .actnbr-notice form input[type="email"]:focus {
-	border-color: #3858e9;
-	box-shadow: 0 0 0 0.5px #3858e9;
+	border-color: $admin-theme-color;
+	box-shadow: 0 0 0 0.5px $admin-theme-color;
 }
 
 div#actionbar .actnbr-notice form button {
@@ -341,16 +355,16 @@ div#actionbar .actnbr-notice form button {
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-	height: 32px;
+	height: $grid-unit-40;
 	margin: 0;
-	padding: 0 12px;
-	border: 1px solid transparent;
-	border-radius: 2px;
-	background: #3858e9;
+	padding: 0 $grid-unit-15;
+	border: $border-width solid transparent;
+	border-radius: $radius-small;
+	background: $admin-theme-color;
 	box-shadow: none;
-	color: #fff;
+	color: $white;
 	font-family: inherit;
-	font-size: 13px;
+	font-size: $font-size-medium;
 	font-weight: 500;
 	line-height: 1;
 	text-decoration: none;
@@ -362,8 +376,8 @@ div#actionbar .actnbr-notice form button {
 }
 
 div#actionbar .actnbr-notice form button:hover {
-	background: #2145e6;
-	color: #fff;
+	background: $admin-theme-color-darker-10;
+	color: $white;
 }
 
 div#actionbar .actnbr-notice form button[disabled] {
@@ -372,35 +386,35 @@ div#actionbar .actnbr-notice form button[disabled] {
 }
 
 div#actionbar .actnbr-login-nudge {
-	margin: 8px 0 0;
-	padding: 0 8px 6px;
-	color: #757575;
-	font-size: 12px;
-	line-height: 1.4;
+	margin: $grid-unit-10 0 0;
+	padding: 0 $grid-unit-10 6px;
+	color: $gray-700;
+	font-size: $font-size-small;
+	line-height: $default-line-height;
 }
 
 div#actionbar .actnbr-login-nudge a,
 div#actionbar .actnbr-message a {
-	color: #3858e9;
+	color: $admin-theme-color;
 	text-decoration: underline;
 }
 
 div#actionbar .actnbr-message {
-	padding: 6px 8px;
-	color: #1e1e1e;
-	font-size: 13px;
-	line-height: 1.4;
+	padding: 6px $grid-unit-10;
+	color: $gray-900;
+	font-size: $font-size-medium;
+	line-height: $default-line-height;
 }
 
 div#actionbar .actnbr-message h3 {
-	margin: 0 0 4px;
+	margin: 0 0 $grid-unit-05;
 	padding: 0;
-	color: #1e1e1e;
+	color: $gray-900;
 	font-family: inherit;
-	font-size: 13px;
+	font-size: $font-size-medium;
 	font-weight: 600;
 	font-style: normal;
-	line-height: 1.4;
+	line-height: $default-line-height;
 	text-transform: none;
 }
 
@@ -411,34 +425,34 @@ div#actionbar .actnbr-hidden .actnbr-popover {
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings {
 	display: flex;
 	flex-direction: column;
-	color: #1e1e1e;
+	color: $gray-900;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings__setting {
-	padding: 6px 8px;
+	padding: 6px $grid-unit-10;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings__setting label.components-toggle-control__label {
-	color: #1e1e1e;
+	color: $gray-900;
 	margin: 0;
 	font-style: normal;
-	font-size: 13px;
+	font-size: $font-size-medium;
 	font-weight: 400;
 	width: 100%;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings p.actnbr-site-settings__details {
-	margin: 0 0 4px;
-	line-height: 1.4;
+	margin: 0 0 $grid-unit-05;
+	line-height: $default-line-height;
 }
 
 div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle {
 	position: relative;
 	display: inline-block;
-	margin-right: 12px;
+	margin-right: $grid-unit-15;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input[type="checkbox"] {
@@ -458,8 +472,8 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input[type="c
 div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__track {
 	display: inline-block;
 	vertical-align: top;
-	background-color: #fff;
-	border: 1px solid #1e1e1e;
+	background-color: $white;
+	border: $border-width solid $gray-900;
 	width: 36px;
 	height: 18px;
 	border-radius: 9px;
@@ -467,7 +481,7 @@ div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__track {
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input:checked ~ span.actnbr-site-settings__toggle__track {
-	background-color: #000;
+	background-color: $black;
 }
 
 div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__thumb {
@@ -478,27 +492,27 @@ div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__thumb {
 	left: 3px;
 	width: 12px;
 	height: 12px;
-	border-radius: 50%;
+	border-radius: $radius-round;
 	transition: 0.1s transform ease;
-	background-color: #1e1e1e;
-	border: 5px solid #1e1e1e;
+	background-color: $gray-900;
+	border: 5px solid $gray-900;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input:checked ~ span.actnbr-site-settings__toggle__thumb {
-	background-color: #fff;
+	background-color: $white;
 	border-width: 0;
 	transform: translateX(18px);
 }
 
 div#actionbar .actnbr-site-settings__details {
-	padding: 0 8px;
-	color: #757575;
-	font-size: 12px;
+	padding: 0 $grid-unit-10;
+	color: $gray-700;
+	font-size: $font-size-small;
 }
 
 div#actionbar .actnbr-site-settings__details#email-new-posts-details {
 	display: none;
-	margin: 0 0 4px;
+	margin: 0 0 $grid-unit-05;
 }
 
 div#actionbar .actnbr-site-settings__details.is-visible#email-new-posts-details {
@@ -508,7 +522,7 @@ div#actionbar .actnbr-site-settings__details.is-visible#email-new-posts-details 
 div#actionbar .segmented-control {
 	display: flex;
 	margin: 0;
-	border-radius: 2px;
+	border-radius: $radius-small;
 	list-style: none;
 }
 
@@ -518,14 +532,14 @@ div#actionbar .segmented-control__item {
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__item:first-of-type a.segmented-control__link {
-	border-top-left-radius: 2px;
-	border-bottom-left-radius: 2px;
+	border-top-left-radius: $radius-small;
+	border-bottom-left-radius: $radius-small;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__item:last-of-type a.segmented-control__link {
-	border-right: solid 1px #c3c4c7;
-	border-top-right-radius: 2px;
-	border-bottom-right-radius: 2px;
+	border-right: solid $border-width $admin-gray-10;
+	border-top-right-radius: $radius-small;
+	border-bottom-right-radius: $radius-small;
 }
 
 div#actionbar .segmented-control__item:has(> [aria-checked="true"]) + .segmented-control__item .segmented-control__link {
@@ -534,20 +548,20 @@ div#actionbar .segmented-control__item:has(> [aria-checked="true"]) + .segmented
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__link {
 	display: block;
-	padding: 4px 8px;
-	border: solid 1px #c3c4c7;
+	padding: $grid-unit-05 $grid-unit-10;
+	border: solid $border-width $admin-gray-10;
 	border-right: none;
-	font-size: 12px;
+	font-size: $font-size-small;
 	line-height: 16px;
-	color: #646970;
+	color: $admin-gray-50;
 	text-align: center;
 	transition: color 0.1s linear, background-color 0.1s linear;
 	min-width: 0;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__link[aria-checked="true"] {
-	border: 1px solid #3c434a;
-	color: #3c434a;
+	border: $border-width solid $admin-gray-60;
+	color: $admin-gray-60;
 }
 
 /* Responsive Styles */
@@ -556,7 +570,7 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__l
 	div#actionbar {
 		bottom: 0;
 		right: 0;
-		padding: 0 8px;
+		padding: 0 $grid-unit-10;
 		border-radius: 0;
 		width: 100%;
 		height: 40px;
@@ -565,7 +579,7 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__l
 	div#actionbar.actnbr-folded {
 		opacity: 0.9;
 		width: auto;
-		padding: 0 4px;
+		padding: 0 $grid-unit-05;
 	}
 
 	div#actionbar > ul {
