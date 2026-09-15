@@ -110,7 +110,13 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 			label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.opens_rate,
 			render: ( { item } ) => (
-				<>{ formatEmailRate( item.opens_rate, item.opens, item.unique_opens ) }</>
+				<>
+					{ formatEmailRate( item.opens_rate, {
+						total: item.opens,
+						unique: item.unique_opens,
+						sends: item.total_sends,
+					} ) }
+				</>
 			),
 		},
 		{
@@ -124,7 +130,13 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 			label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.clicks_rate,
 			render: ( { item } ) => (
-				<>{ formatEmailRate( item.clicks_rate, item.clicks, item.unique_clicks ) }</>
+				<>
+					{ formatEmailRate( item.clicks_rate, {
+						total: item.clicks,
+						unique: item.unique_clicks,
+						sends: item.total_sends,
+					} ) }
+				</>
 			),
 		},
 	];

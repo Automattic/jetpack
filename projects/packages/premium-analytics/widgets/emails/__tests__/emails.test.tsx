@@ -24,6 +24,7 @@ function row( overrides: Partial< EmailRow > & Pick< EmailRow, 'id' | 'label' > 
 		clicks: 0,
 		uniqueClicks: 0,
 		clicksRate: 0,
+		totalSends: 1000,
 		...overrides,
 	};
 }
@@ -137,6 +138,20 @@ describe( 'EmailsList', () => {
 		expect( screen.getByText( '12' ) ).toBeInTheDocument();
 		expect( screen.getByText( '—' ) ).toBeInTheDocument();
 		expect( screen.getByText( '12 clicks, click rate unknown' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows an em dash for an email with no recorded sends', () => {
+		render(
+			<WidgetRoot attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-30' } } }>
+				<EmailsList
+					rows={ [ row( { id: 1, label: 'Legacy send', totalSends: 0 } ) ] }
+					metric="opens"
+				/>
+			</WidgetRoot>
+		);
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+		expect( screen.getByText( '0 opens, open rate unknown' ) ).toBeInTheDocument();
 	} );
 
 	it( 'restores the exact count behind an abbreviated one', () => {
