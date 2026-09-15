@@ -415,6 +415,14 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Dashboard::init();
 
+		// The front-end Action Bar lives in the jetpack-newsletter package, which mu-wpcom does not
+		// composer-require; the class comes from the sibling Jetpack autoloader. Not in
+		// load_wpcom_user_features(): logged-out visitors are the bar's main audience.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Action_Bar' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Action_Bar::init();
+		}
+
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
@@ -488,12 +496,6 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( '\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
-		}
-
-		// The front-end Action Bar also lives in the jetpack-newsletter package; same guard as above.
-		if ( class_exists( '\Automattic\Jetpack\Newsletter\Action_Bar' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
-			\Automattic\Jetpack\Newsletter\Action_Bar::init();
 		}
 
 		// Only load the Masterbar features on WoA sites.
