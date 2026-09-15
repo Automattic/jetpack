@@ -73,6 +73,9 @@ class Marketplace_Catalog {
 	/**
 	 * Turns an endpoint response into the catalog we list.
 	 *
+	 * Order is load-bearing: wpcom ranks the response by active subscriptions, so
+	 * the best sellers arrive first. Do not sort or re-key what comes back.
+	 *
 	 * @param array $results Products as the marketplace endpoint returns them.
 	 * @return array<string, array> Normalized products, keyed by slug.
 	 */
