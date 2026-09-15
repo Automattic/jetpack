@@ -57,10 +57,11 @@ describe( 'Stats subscribers normalizers', () => {
 		} );
 	} );
 
-	it( 'counts the membership products', () => {
-		expect(
-			sanitizeStatsMembershipProductsResponse( { products: [ { id: 1 }, { id: 2 } ] } )
-		).toEqual( { productCount: 2 } );
+	it.each( [
+		[ 'a products object', { products: [ { id: 1 }, { id: 2 } ] } ],
+		[ 'a bare product array', [ { id: 1 }, { id: 2 } ] ],
+	] )( 'counts the membership products in %s', ( _name, response ) => {
+		expect( sanitizeStatsMembershipProductsResponse( response ) ).toEqual( { productCount: 2 } );
 	} );
 
 	it.each( [

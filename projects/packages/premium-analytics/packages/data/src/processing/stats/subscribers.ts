@@ -45,7 +45,8 @@ export type StatsMembershipProducts = {
 export function sanitizeStatsMembershipProductsResponse(
 	response: unknown
 ): StatsMembershipProducts {
-	return { productCount: coerceStatsArray( coerceStatsRecord( response ).products ).length };
+	const products = Array.isArray( response ) ? response : coerceStatsRecord( response ).products;
+	return { productCount: coerceStatsArray( products ).length };
 }
 
 function normalizeCountValue( value: unknown ) {
