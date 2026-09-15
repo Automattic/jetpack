@@ -109,11 +109,11 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 									onClick: trackFirewallSettingsLinkClick,
 								} ),
 							}
-					  )
+						)
 					: __(
 							'Brute Force Protection is disabled and not actively blocking malicious login attempts.',
 							'jetpack-my-jetpack'
-					  ),
+						),
 			};
 		}
 		// blockedLoginsCount is greator than 0 here.
@@ -145,11 +145,11 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 									onClick: trackFirewallSettingsLinkClick,
 								} ),
 							}
-					  )
+						)
 					: __(
 							'Brute Force Protection is disabled and not actively blocking malicious login attempts.',
 							'jetpack-my-jetpack'
-					  ),
+						),
 			};
 		}
 	}, [
@@ -208,7 +208,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 											onClick: trackProtectDashboardLinkClick,
 										} ),
 									}
-							  )
+								)
 							: createInterpolateElement(
 									sprintf(
 										/* translators: %1$s is the singular or plural of number of detected threats on the site, and %2$s is either "Scan" or "Protect" (the type of dashboard). */
@@ -229,15 +229,15 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 											onClick: trackProtectDashboardLinkClick,
 										} ),
 									}
-							  ),
-				  }
+								),
+					}
 				: {
 						title: __( 'Elevate your malware protection', 'jetpack-my-jetpack' ),
 						text: __(
 							'We’ve checked items against our database, and all appears well. For a more detailed, line-by-line malware scan, consider upgrading your plan.',
 							'jetpack-my-jetpack'
 						),
-				  },
+					},
 		autoFirewallTooltip:
 			( hasProtectPaidPlan && ( ! isAutoFirewallEnabled || ! isWafEnabled ) ) || ! wafSupported
 				? {
@@ -254,19 +254,19 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 											onClick: trackFirewallSettingsLinkClick,
 										} ),
 									}
-							  )
+								)
 							: __(
 									'Auto-Firewall is disabled as your hosting provider already includes a built-in firewall with similar rules for your site.',
 									'jetpack-my-jetpack'
-							  ),
-				  }
+								),
+					}
 				: {
 						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
 						text: __(
 							'Upgrade required for activation. Manual rules available.',
 							'jetpack-my-jetpack'
 						),
-				  },
+					},
 		blockedLoginsTooltip: blockedLoginsTooltip,
 	};
 };

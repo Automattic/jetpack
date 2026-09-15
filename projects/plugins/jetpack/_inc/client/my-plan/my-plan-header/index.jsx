@@ -146,7 +146,7 @@ class MyPlanHeader extends Component {
 								'Spam filtering and priority support.',
 								'jetpack',
 								/* dummy arg to avoid bad minification */ 0
-						  ),
+							),
 					title: __( 'Jetpack Personal', 'jetpack' ),
 				};
 

@@ -204,11 +204,11 @@ const UploadDropzone = ( {
 							? __(
 									'Add one or several. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
 									'jetpack-videopress-pkg'
-							  )
+								)
 							: __(
 									'Add one video. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.',
 									'jetpack-videopress-pkg'
-							  ) ) }
+								) ) }
 				</Text>
 				{ /*
 				 * `aria-disabled`, not `disabled`. The two halves of this one

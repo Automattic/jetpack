@@ -76,7 +76,7 @@ export default function NoResultsEdit( { clientId } ) {
 							: __(
 									'Edit any of the messages below, or leave them for the default copy. Each one takes any blocks — links, images, buttons.',
 									'jetpack-search-pkg'
-							  ) }
+								) }
 					</p>
 					{ missing.map( condition => (
 						<Button

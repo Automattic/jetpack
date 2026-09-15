@@ -50,13 +50,13 @@ export function OrdersFulfillmentWidget() {
 						total: 0,
 						comparisonTotal: 0,
 						legendData: [],
-				  }
+					}
 				: buildOrdersFulfillmentData(
 						fulfilled.primary.data,
 						unfulfilled.primary.data,
 						fulfilled.comparison.data,
 						unfulfilled.comparison.data
-				  ),
+					),
 		[
 			isLoading,
 			fulfilled.primary.data,

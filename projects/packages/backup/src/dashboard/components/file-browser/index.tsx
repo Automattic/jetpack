@@ -761,7 +761,7 @@ function NodeRow( {
 					>
 						{ ! isLoading && ! error && ( children ?? [] ).length === 0
 							? /* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
-							  __( 'Empty', 'jetpack-backup-pkg' )
+								__( 'Empty', 'jetpack-backup-pkg' )
 							: '' }
 					</div>
 					{ ! isLoading &&

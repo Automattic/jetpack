@@ -504,7 +504,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 													filled
 														? ( {
 																'--a8c-charts-heatmap-cell-intensity': normalized,
-														  } as CSSProperties )
+															} as CSSProperties )
 														: undefined
 												}
 												onMouseMove={ handleCellMouseMove }

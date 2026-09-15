@@ -31,7 +31,7 @@ export default function InstagramGalleryInspectorControls( {
 						'jetpack'
 					),
 					accountImageTotal
-			  )
+				)
 			: __( 'There are currently no posts in your Instagram account.', 'jetpack' );
 		return (
 			<div className="wp-block-jetpack-instagram-gallery__count-notice">

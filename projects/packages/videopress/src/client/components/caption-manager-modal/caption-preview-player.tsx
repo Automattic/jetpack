@@ -356,7 +356,7 @@ function CaptionPreviewPlayer(
 					guid,
 					isPrivate,
 					isPrivate ? playbackToken || undefined : undefined
-			  );
+				);
 	let previewElement: ReactElement;
 
 	if ( nativePreviewSrc ) {

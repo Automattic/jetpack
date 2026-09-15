@@ -41,7 +41,7 @@ export function getPriceFormatError( value, currencyCode = 'USD' ) {
 					/* translators: %s: currency code, e.g. JPY */
 					__( 'Prices in %s are whole numbers (e.g., "1500").', 'jetpack-paypal-payments' ),
 					currencyCode
-			  );
+				);
 	}
 
 	return /^\d+(\.\d{1,2})?$/.test( trimmed )

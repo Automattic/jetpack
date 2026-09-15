@@ -194,7 +194,7 @@ export function NewsletterCategoriesSection( {
 		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/#subscribe-to-specific-categories'
 		: `https://jetpack.com/redirect/?source=jetpack-support-subscribe-block&anchor=subscribe-to-specific-categories&site=${
 				getSiteData()?.wpcom?.blog_id || ''
-		  }`;
+			}`;
 
 	const SubscribeBlockLink = isWpcom ? (
 		<WpcomSupportLink supportLink={ subscribeBlockUrl } supportPostId={ 170164 } />

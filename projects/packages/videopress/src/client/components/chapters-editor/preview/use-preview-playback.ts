@@ -317,7 +317,7 @@ export function usePreviewPlayback( options: UsePreviewPlaybackOptions = {} ): P
 								'Playback could not be started.',
 								'chapters preview player error',
 								'jetpack-videopress-pkg'
-						  )
+							)
 				);
 			} );
 	}, [ readDuration, startLoop ] );

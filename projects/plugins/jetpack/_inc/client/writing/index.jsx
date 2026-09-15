@@ -129,7 +129,7 @@ export class Writing extends Component {
 						: __(
 								'Compose content the way you want to and streamline your publishing experience.',
 								'jetpack'
-						  ) }
+							) }
 				</h2>
 				{ this.props.isModuleFound( 'carousel' ) && <WritingMedia { ...commonProps } /> }
 				{ showComposing && (

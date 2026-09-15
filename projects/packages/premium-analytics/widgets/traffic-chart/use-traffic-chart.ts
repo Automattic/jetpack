@@ -116,7 +116,7 @@ export default function useTrafficChart(
 									"Hourly data isn't available for this metric.",
 									'jetpack-premium-analytics-pkg'
 								),
-						  } ),
+							} ),
 				};
 			} ),
 		[

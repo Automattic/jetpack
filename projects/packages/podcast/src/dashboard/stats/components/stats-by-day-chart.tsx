@@ -121,7 +121,7 @@ const StatsByDayChart = ( {
 						'jetpack-podcast'
 					),
 					rangeDays
-			  )
+				)
 			: undefined;
 
 	const chartAriaLabel = sprintf(

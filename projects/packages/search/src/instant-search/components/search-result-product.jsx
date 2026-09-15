@@ -134,7 +134,7 @@ class SearchResultProduct extends Component {
 											'Matches content',
 											'jetpack-search-pkg',
 											/* dummy arg to avoid bad minification */ 0
-									  ) }
+										) }
 							</span>
 						</mark>
 					</div>

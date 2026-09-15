@@ -413,7 +413,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								top: tooltipTop,
 								left: tooltipLeft,
 								className: styles[ 'tooltip-wrapper' ],
-						  } )
+							} )
 						: renderDefaultTooltip( tooltipData as FunnelStep );
 
 					// Don't render tooltip if renderTooltip returns falsy

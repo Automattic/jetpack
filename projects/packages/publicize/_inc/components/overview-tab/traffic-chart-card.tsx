@@ -110,7 +110,7 @@ export default function TrafficChartCard(): JSX.Element {
 					'jetpack-publicize-pkg'
 				),
 				planName
-		  )
+			)
 		: genericUpgradeText;
 
 	const onIntervalChange = useCallback(

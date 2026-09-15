@@ -142,7 +142,7 @@ export class FormButton extends Component {
 					'Button caption',
 					'jetpack',
 					/* dummy arg to avoid bad minification */ 0
-			  );
+				);
 	};
 
 	render() {

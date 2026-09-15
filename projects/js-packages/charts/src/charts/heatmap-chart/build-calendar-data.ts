@@ -90,7 +90,7 @@ export const buildCalendarHeatmapData = (
 				offending
 					? `${ JSON.stringify(
 							offending
-					  ) } is not a day this can read, so its point is left out of the calendar. A \`dateString\` must start \`yyyy-MM-dd\`.`
+						) } is not a day this can read, so its point is left out of the calendar. A \`dateString\` must start \`yyyy-MM-dd\`.`
 					: 'A point carries neither `date` nor `dateString`, so it is left out of the calendar.'
 			);
 			continue;

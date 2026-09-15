@@ -243,7 +243,7 @@ export const SSO = withModuleSettingsFormHelpers(
 														),
 														code: <code />,
 													}
-											  )
+												)
 											: null
 									}
 								/>

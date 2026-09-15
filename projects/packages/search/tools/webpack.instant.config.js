@@ -84,7 +84,7 @@ module.exports = {
 						/^debug$/,
 						path.resolve( __dirname, '../src/instant-search/lib/dummy-debug' )
 					),
-			  ] ),
+				] ),
 		definePaletteColorsAsStaticVariables(),
 	],
 	module: {

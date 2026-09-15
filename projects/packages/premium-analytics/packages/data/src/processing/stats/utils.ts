@@ -376,7 +376,7 @@ export function normalizeStatsReportSummary(
 					excludedKeys
 				),
 				...getStatsSummaryIntervalFields( query, response ),
-		  }
+			}
 		: {};
 }
 
@@ -439,7 +439,7 @@ export function createStatsListDataPoint< TItem extends StatsNormalizedItem >(
 					time_interval: '',
 					date_start: '',
 					date_end: '',
-			  } ),
+				} ),
 		...getStatsSummaryIntervalFields( query, response ),
 		items,
 	};

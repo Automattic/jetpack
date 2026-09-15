@@ -206,7 +206,7 @@ export default function McpHub( {
 	const siteAccountAbilities = siteContextToolIds.size
 		? Object.fromEntries(
 				Object.entries( accountAbilities ).filter( ( [ id ] ) => siteContextToolIds.has( id ) )
-		  )
+			)
 		: accountAbilities;
 	const isMcpEnabled = getSiteLevelEnabled( mcpAbilities ?? {}, blogId );
 	const merged = mergeSiteMcpAbilities( siteAccountAbilities, siteAbilities, isMcpEnabled );

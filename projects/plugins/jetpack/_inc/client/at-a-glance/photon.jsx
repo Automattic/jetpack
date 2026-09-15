@@ -59,7 +59,7 @@ class DashPhoton extends Component {
 								{
 									Button: <Button className="jp-link-button" onClick={ this.activatePhoton } />,
 								}
-						  ) }
+							) }
 				</p>
 			</DashItem>
 		);

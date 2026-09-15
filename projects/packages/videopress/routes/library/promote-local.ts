@@ -75,7 +75,7 @@ export function createPromoteLocal( deps: PromoteLocalDeps ): ( id: string ) => 
 								/* translators: %s: reason returned by the upload endpoint, e.g. "403: Invalid Mime". */
 								__( 'Failed to upload video to VideoPress: %s', 'jetpack-videopress-pkg' ),
 								reason
-						  )
+							)
 						: __( 'Failed to upload video to VideoPress.', 'jetpack-videopress-pkg' )
 				);
 			} )

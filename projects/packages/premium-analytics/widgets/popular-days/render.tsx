@@ -55,7 +55,7 @@ function PopularDaysReport() {
 									'jetpack-premium-analytics-pkg'
 								),
 								onRetry: refetch,
-						  } )
+							} )
 						: null
 				}
 				empty={ {

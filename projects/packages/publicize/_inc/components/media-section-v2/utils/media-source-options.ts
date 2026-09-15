@@ -61,7 +61,7 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 						'Shares your AI-generated image as an attachment for higher engagement.',
 						'jetpack-publicize-pkg'
 					),
-			  }
+				}
 			: null,
 		{
 			id: 'media-library',

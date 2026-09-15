@@ -260,7 +260,7 @@ const FeaturePrompt = connect(
 			? {
 					stepProgressValue: getOnboardingStepProgressValueIfEligible( state ),
 					summaryViewed: false,
-			  }
+				}
 			: {} ),
 	} ),
 	( dispatch, ownProps ) => ( {

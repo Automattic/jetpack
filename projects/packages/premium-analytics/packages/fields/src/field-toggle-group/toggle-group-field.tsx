@@ -103,7 +103,7 @@ export default function ToggleGroupField< Item >( {
 							label={ element.label }
 							disabled={ disabled }
 						/>
-				  ) )
+					) )
 				: elements.map( element => (
 						<ToggleGroupControlOption
 							key={ String( element.value ) }
@@ -111,7 +111,7 @@ export default function ToggleGroupField< Item >( {
 							label={ element.label }
 							disabled={ disabled }
 						/>
-				  ) ) }
+					) ) }
 		</ToggleGroupControl>
 	);
 }

@@ -31,7 +31,7 @@ jest.mock( '@automattic/jetpack-components', () => {
 				? props => {
 						mockScoreBarRenders.push( { isLoading: props.isLoading, score: props.score } );
 						return null;
-				  }
+					}
 				: target[ prop ],
 	} );
 } );

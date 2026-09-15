@@ -100,7 +100,7 @@ function mockEndpoints( { failPostStats = false }: { failPostStats?: boolean } =
 						error: 'unauthorized',
 						message: 'User cannot access this private blog.',
 						status: 403,
-				  } )
+					} )
 				: Promise.resolve( postStatsResponse );
 		}
 

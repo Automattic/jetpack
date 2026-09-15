@@ -95,12 +95,12 @@ const ResponseActions = ( {
 	const sharedProps = isTextVariant
 		? {
 				size: 'compact' as const,
-		  }
+			}
 		: {
 				iconSize: 24,
 				showTooltip: true,
 				size: 'compact' as const,
-		  };
+			};
 
 	const readUnreadButtons = (
 		<>
@@ -135,7 +135,7 @@ const ResponseActions = ( {
 				gap: '4px',
 				alignItems: 'center',
 				marginLeft: '-12px', // Compensate for button internal padding
-		  }
+			}
 		: {};
 
 	switch ( response.status ) {

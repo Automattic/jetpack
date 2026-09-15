@@ -66,11 +66,11 @@ class DashMonitor extends Component {
 					{
 						Button: <Button className="jp-link-button" onClick={ this.activateAndTrack } />,
 					}
-			  )
+				)
 			: __(
 					'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.',
 					'jetpack'
-			  );
+				);
 
 		return (
 			<DashItem

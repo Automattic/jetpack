@@ -139,7 +139,7 @@ test.each( [
 		source === 'fallback'
 			? jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
 					throw error;
-			  } )
+				} )
 			: undefined;
 	const consoleError =
 		source === 'fallback'

@@ -147,7 +147,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 						: __(
 								'Open an email report to see its timeline here.',
 								'jetpack-premium-analytics-pkg'
-						  ),
+							),
 				} }
 				// The chart is the whole content here, so its block replaces the
 				// generic stacked lines.

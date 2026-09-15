@@ -18,7 +18,7 @@ const withRules = ( action, count ) =>
 							value: 'x',
 						} ) ),
 					},
-			  ]
+				]
 			: [],
 	} );
 

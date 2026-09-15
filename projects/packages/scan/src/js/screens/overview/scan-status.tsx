@@ -37,11 +37,11 @@ const ScanStatus: FC< ScanStatusProps > = ( { state, progress } ) => {
 			? __(
 					'Your scan will start shortly. You can leave this page open or come back later.',
 					'jetpack-scan-page'
-			  )
+				)
 			: __(
 					'Jetpack is reviewing your site for vulnerabilities and suspicious files. This usually takes a few minutes.',
 					'jetpack-scan-page'
-			  );
+				);
 
 	const showProgress = state === 'running' && typeof progress === 'number';
 

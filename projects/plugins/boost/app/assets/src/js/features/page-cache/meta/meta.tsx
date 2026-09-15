@@ -60,7 +60,7 @@ const Meta = () => {
 						/* translators: %d is the number of cache bypass patterns. */
 						_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
 						totalBypassPatterns
-				  )
+					)
 				: __( 'No exceptions.', 'jetpack-boost' ) ) +
 			' ' +
 			loggingMessage

@@ -137,7 +137,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 								url: featuredImageDetails.mediaData.sourceUrl,
 								type: featuredImageDetails.metaData.mime ?? 'image/jpeg',
 							},
-					  ]
+						]
 					: [];
 			case 'sig':
 				return sig.url ? [ { url: sig.url, type: 'image/png' } ] : [];

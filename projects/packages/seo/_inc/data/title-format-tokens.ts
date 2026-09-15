@@ -291,7 +291,7 @@ export const buildDefaultPreviewParts = (
 			: [
 					{ kind: 'literal' as const, text: ` ${ separator } ` },
 					{ kind: 'value' as const, text },
-			  ]
+				]
 	);
 };
 

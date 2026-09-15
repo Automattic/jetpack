@@ -1061,7 +1061,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						? Promise.reject( new Error( 'Could not create a PayPal onboarding link.' ) )
 						: Promise.resolve( {
 								action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
-						  } );
+							} );
 				}
 				return Promise.resolve( {} );
 			} );
@@ -1819,7 +1819,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				path === listPath
 					? new Promise( resolve => {
 							resolveList = resolve;
-					  } )
+						} )
 					: Promise.resolve( { connected: true, environment: 'sandbox' } )
 			);
 

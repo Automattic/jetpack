@@ -228,7 +228,7 @@ export function ConfirmationForm( {
 								'No more accounts/pages found.',
 								'Message shown when there are no connections found to connect',
 								'jetpack-publicize-pkg'
-						  )
+							)
 						: getNoAccountsFoundMessage( keyringResult.additional_external_users_empty_reason ) }
 				</p>
 			) : (
@@ -274,7 +274,7 @@ export function ConfirmationForm( {
 								// otherwise, preselect the first account
 								const defaultChecked = reconnectingAccount
 									? reconnectingAccount.service_name === service?.id &&
-									  reconnectingAccount.external_id === option.value
+										reconnectingAccount.external_id === option.value
 									: index === 0;
 
 								return (

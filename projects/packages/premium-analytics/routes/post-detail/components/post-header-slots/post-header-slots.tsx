@@ -67,13 +67,13 @@ export function postHeaderSlots( {
 						/* translators: %s: the date the newsletter was sent, e.g. "Aug 19, 2025". */
 						__( 'Email sent on %s.', 'jetpack-premium-analytics-pkg' ),
 						formattedDate
-				  )
+					)
 				: sprintf(
 						/* translators: %1$s: "Post" or "Page". %2$s: the publish date, e.g. "Aug 19, 2025". */
 						__( '%1$s published on %2$s.', 'jetpack-premium-analytics-pkg' ),
 						getTypeLabel( type ),
 						formattedDate
-				  );
+					);
 	}
 
 	const subtitle = [ publishedSentence, performanceSentence( performanceRange ) ]

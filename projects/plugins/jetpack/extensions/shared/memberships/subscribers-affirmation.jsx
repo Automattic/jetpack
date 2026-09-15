@@ -217,12 +217,12 @@ export function getSentCopyLine( {
 					/* translators: %s: formatted date */
 					__( 'This post was emailed on %s. View <link>delivery details</link>.', 'jetpack' ),
 					dateStr
-			  )
+				)
 			: sprintf(
 					/* translators: %s: formatted date */
 					__( 'This post was emailed on %s.', 'jetpack' ),
 					dateStr
-			  );
+				);
 	}
 	if ( categoryNames ) {
 		if ( isPast ) {
@@ -237,14 +237,14 @@ export function getSentCopyLine( {
 							accessLabel,
 							categoryNames,
 							dateStr
-					  )
+						)
 					: sprintf(
 							/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
 							__( 'This post was emailed to %1$s of %2$s on %3$s.', 'jetpack' ),
 							accessLabel,
 							categoryNames,
 							dateStr
-					  );
+						);
 			}
 			return hasStatsLink
 				? sprintf(
@@ -255,13 +255,13 @@ export function getSentCopyLine( {
 						),
 						accessLabel,
 						categoryNames
-				  )
+					)
 				: sprintf(
 						/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list */
 						__( 'This post was emailed to %1$s of %2$s.', 'jetpack' ),
 						accessLabel,
 						categoryNames
-				  );
+					);
 		}
 		if ( isFuture ) {
 			return sprintf(
@@ -280,13 +280,13 @@ export function getSentCopyLine( {
 					),
 					accessLabel,
 					categoryNames
-			  )
+				)
 			: sprintf(
 					/* translators: %1$s: access, %2$s: category list */
 					__( 'This post is being emailed to %1$s of %2$s.', 'jetpack' ),
 					accessLabel,
 					categoryNames
-			  );
+				);
 	}
 	if ( isPast ) {
 		if ( dateStr ) {
@@ -299,25 +299,25 @@ export function getSentCopyLine( {
 						),
 						accessLabel,
 						dateStr
-				  )
+					)
 				: sprintf(
 						/* translators: %1$s: access, %2$s: date */
 						__( 'This post was emailed to %1$s on %2$s.', 'jetpack' ),
 						accessLabel,
 						dateStr
-				  );
+					);
 		}
 		return hasStatsLink
 			? sprintf(
 					/* translators: %s: access */
 					__( 'This post was emailed to %s. View <link>delivery details</link>.', 'jetpack' ),
 					accessLabel
-			  )
+				)
 			: sprintf(
 					/* translators: %s: access */
 					__( 'This post was emailed to %s.', 'jetpack' ),
 					accessLabel
-			  );
+				);
 	}
 	if ( isFuture ) {
 		return sprintf(
@@ -334,12 +334,12 @@ export function getSentCopyLine( {
 					'jetpack'
 				),
 				accessLabel
-		  )
+			)
 		: sprintf(
 				/* translators: %s: access level */
 				__( 'This post is being emailed to %s.', 'jetpack' ),
 				accessLabel
-		  );
+			);
 }
 
 /*
@@ -470,7 +470,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				statsOnSend.access_level,
 				statsOnSend.paid_tier ?? null,
 				statsOnSend.has_paywall_block === true
-		  )
+			)
 		: '';
 	const sentCategoryNames = statsOnSend
 		? getFormattedCategories( statsOnSend.post_categories, newsletterCategories, false )

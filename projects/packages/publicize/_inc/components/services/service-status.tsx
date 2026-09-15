@@ -41,13 +41,13 @@ export function ServiceStatus( {
 				? __(
 						'Please fix the broken connections or disconnect them to create more connections.',
 						'jetpack-publicize-pkg'
-				  )
+					)
 				: _n(
 						'Broken connection',
 						'Broken connections',
 						brokenConnections.length,
 						'jetpack-publicize-pkg'
-				  );
+					);
 		} else {
 			message = canFix
 				? __( 'Reconnect to continue sharing.', 'jetpack-publicize-pkg' )
@@ -56,7 +56,7 @@ export function ServiceStatus( {
 						'Expiring connections',
 						reauthConnections.length,
 						'jetpack-publicize-pkg'
-				  );
+					);
 		}
 		return (
 			<Notice
@@ -76,7 +76,7 @@ export function ServiceStatus( {
 						// translators: %d: Number of connections
 						__( '%d connections', 'jetpack-publicize-pkg' ),
 						serviceConnections.length
-				  )
+					)
 				: __( 'Connected', 'jetpack-publicize-pkg' ) }
 		</span>
 	);

@@ -35,12 +35,12 @@ export function PreviewPostsTrigger() {
 				'Preview and share',
 				'Verb: The button label for the preview modal button',
 				'jetpack-publicize-pkg'
-		  )
+			)
 		: _x(
 				'Preview and customize',
 				'Verb: The button label for the preview modal trigger',
 				'jetpack-publicize-pkg'
-		  );
+			);
 	const perNetworkMode = usePerNetworkCustomization();
 
 	if (

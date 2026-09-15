@@ -195,7 +195,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 			: {
 					'--jetpack--contact-form--button-outline--background-color':
 						buttonOutlineSafeBackgroundColor,
-			  } ),
+				} ),
 		'--jetpack--contact-form--button-outline--background-color-fallback':
 			buttonOutlineBackgroundColorFallback,
 		'--jetpack--contact-form--button-outline--border-size': buttonOutlineBorderSize,

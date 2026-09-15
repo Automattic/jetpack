@@ -5,7 +5,7 @@ export const googlePoint2Mapbox = google_point =>
 				// Legacy point, supported here to avoid block deprecation.
 				lat: google_point.latitude || 0,
 				lng: google_point.longitude || 0,
-		  };
+			};
 
 export function getMapBounds( mapboxgl, points ) {
 	const bounds = new mapboxgl.LngLatBounds();

@@ -181,7 +181,7 @@ function Earn( props ) {
 							'Explore tools to earn money with your site.',
 							'jetpack',
 							/* dummy arg to avoid bad minification */ 0
-					  ) }
+						) }
 			</h2>
 			{ foundAds && (
 				<Ads

@@ -160,7 +160,7 @@ export default function useConnectionErrorNotice( {
 						isRestoringConnection,
 						reconnectTrackingEvent,
 						navigate,
-				  } )
+					} )
 				: [],
 		[
 			actionError,

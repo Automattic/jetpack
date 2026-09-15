@@ -78,7 +78,7 @@ function mockEndpoints( {
 						current: { orderedItems: activity },
 						totalItems: activity.length,
 						totalPages: 1,
-				  } );
+					} );
 		}
 		if ( path.includes( '/site/backup/size' ) ) {
 			return Promise.resolve( { ok: true, backups_stopped: false } );

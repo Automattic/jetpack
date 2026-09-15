@@ -1,8 +1,8 @@
 export type CamelCase< S extends string > = S extends `${ infer P1 }-${ infer P2 }${ infer P3 }`
 	? `${ P1 }${ Uppercase< P2 > }${ CamelCase< P3 > }`
 	: S extends `${ infer P1 }_${ infer P2 }${ infer P3 }`
-	? `${ P1 }${ Uppercase< P2 > }${ CamelCase< P3 > }`
-	: S;
+		? `${ P1 }${ Uppercase< P2 > }${ CamelCase< P3 > }`
+		: S;
 
 export type ToCamelCase< T > = T extends Array< infer U >
 	? Array< ToCamelCase< U > >

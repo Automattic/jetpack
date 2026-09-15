@@ -90,7 +90,7 @@ export function videoHeaderSlots( {
 				/* translators: %s: the video upload date, e.g. "Aug 19, 2025". */
 				__( 'Video uploaded on %s.', 'jetpack-premium-analytics-pkg' ),
 				formattedDate
-		  )
+			)
 		: undefined;
 
 	const subtitle = [ publishedSentence, performanceSentence( performanceRange ) ]

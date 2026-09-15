@@ -131,22 +131,22 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 		? __(
 				'Host your podcast at WordPress.com and get all the advanced features.',
 				'jetpack-podcast'
-		  )
+			)
 		: __(
 				'Unlock podcast stats, the episode dashboard, and the episode block.',
 				'jetpack-podcast'
-		  );
+			);
 	// Shown when the site already owns the paid surfaces, so the plan comparison
 	// is replaced by confirmation copy instead of a checkout CTA.
 	const includedDescription = isWpcom
 		? __(
 				'Audio hosting, stats, the episode dashboard, and the episode block are all unlocked.',
 				'jetpack-podcast'
-		  )
+			)
 		: __(
 				'Podcast stats, the episode dashboard, and the episode block are all unlocked.',
 				'jetpack-podcast'
-		  );
+			);
 
 	// Fire-and-forget Tracks; the anchor handles navigation so middle/cmd-click
 	// still opens checkout in a new tab and "copy link address" shows the URL.

@@ -127,7 +127,7 @@ function normalizeClickDrilldownGroups(
 							...group,
 							views: item.views,
 							children: [ item ],
-					  }
+						}
 					: item;
 			} ),
 		} ) ),

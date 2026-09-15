@@ -140,7 +140,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 									link={ postRow.href }
 								/>
 							),
-					  }
+						}
 					: buildLeaderboardRow( {
 							label: item.label,
 							media: { kind: 'none' },
@@ -155,7 +155,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 									),
 								},
 							} ),
-					  } ) ),
+						} ) ),
 				currentValue: item.value,
 				currentShare: sharePercentage( item.value, maxValue ),
 				previousValue,

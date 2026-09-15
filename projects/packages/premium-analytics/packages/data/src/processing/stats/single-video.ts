@@ -95,7 +95,7 @@ export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSing
 						value: safeParseFloat( row[ column + 1 ] ),
 					} ) ),
 				] )
-		  )
+			)
 		: null;
 
 	// A non-numeric cell is unknown, not a measured zero — drop it (same guard as
@@ -105,7 +105,7 @@ export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSing
 				Object.entries( payload.total )
 					.filter( ( [ , value ] ) => isStatsNumericSummaryValue( value ) )
 					.map( ( [ metric, value ] ) => [ metric, safeParseFloat( value ) ] )
-		  )
+			)
 		: null;
 
 	const pages = coerceStatsArray< unknown >( payload.pages )

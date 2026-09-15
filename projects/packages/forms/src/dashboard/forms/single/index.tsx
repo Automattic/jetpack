@@ -86,7 +86,7 @@ export default function SingleFormResponses(): JSX.Element | null {
 				/* translators: %s: form name */
 				__( 'Viewing responses for %s.', 'jetpack-forms' ),
 				formTitle
-		  )
+			)
 		: __( 'View responses for this form.', 'jetpack-forms' );
 
 	if ( parentId === null ) {

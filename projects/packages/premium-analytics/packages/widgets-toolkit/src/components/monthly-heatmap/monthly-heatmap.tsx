@@ -160,7 +160,7 @@ export function MonthlyHeatmap( {
 								_x( '%1$s %2$s', 'month and year', 'jetpack-premium-analytics-pkg' ),
 								columnLabel ?? '',
 								rowLabel ?? ''
-						  ).trim()
+							).trim()
 				}
 				emptyLabel={ emptyLabel }
 				formatValue={ formatValue }

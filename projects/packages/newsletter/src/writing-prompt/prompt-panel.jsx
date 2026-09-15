@@ -74,7 +74,7 @@ const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onRead
 				// Separates prompt answers from the rest of the dashboard in
 				// the Write funnel; without it they report as `dashboard`.
 				source: 'writing_prompt',
-		  } )
+			} )
 		: addQueryArgs( 'post-new.php', { answer_prompt: prompt.id } );
 
 	return (

@@ -202,7 +202,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 								{
 									em: <em className={ styles[ 'query-no-results' ] } />,
 								}
-						  )
+							)
 						: __( 'No videos match your filtering criteria.', 'jetpack-videopress-pkg' ) }
 				</Text>
 			) }

@@ -402,7 +402,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 							render: () => null,
 							getValue: () => null,
 						},
-				  ]
+					]
 				: [] ),
 			...( ! isSingleFormView
 				? [
@@ -447,7 +447,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 							filterBy: { operators: [ 'is' ] },
 							enableSorting: false,
 						},
-				  ]
+					]
 				: [] ),
 			{
 				id: 'from',

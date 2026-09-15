@@ -73,7 +73,7 @@ class DashStatsBottom extends Component {
 										/* Translators: %s: the number of views. */
 										_n( '%s View', '%s Views', s.bestDay.count, 'jetpack' ),
 										formatNumber( s.bestDay.count )
-								  ) }
+									) }
 						</h3>
 						{ s.bestDay.day && (
 							<p className="jp-at-a-glance__stat-details">

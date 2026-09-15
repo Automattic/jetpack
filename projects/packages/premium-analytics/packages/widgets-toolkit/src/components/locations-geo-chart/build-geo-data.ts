@@ -180,7 +180,7 @@ export function buildLocationsGeoChart( {
 			? [
 					...header,
 					{ type: 'string', role: GoogleDataTableColumnRoleType.tooltip, p: { html: true } },
-			  ]
+				]
 			: header;
 
 		return {

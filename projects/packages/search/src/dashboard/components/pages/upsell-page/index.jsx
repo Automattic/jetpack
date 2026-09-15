@@ -220,7 +220,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		: new Intl.NumberFormat( localeSlug, {
 				notation: 'compact',
 				compactDisplay: 'short',
-		  } ).format( paidRequestsLimitRaw );
+			} ).format( paidRequestsLimitRaw );
 
 	const unitPrice = useSelect( select => select( STORE_ID ).getAdditionalUnitPrice(), [] );
 	const unitQuantityRaw = useSelect( select => select( STORE_ID ).getAdditionalUnitQuantity(), [] );

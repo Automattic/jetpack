@@ -116,12 +116,12 @@ export function Retry( { shareItem }: RetryProps ) {
 											'This connection has been removed.',
 											'Social media connection',
 											'jetpack-publicize-pkg'
-									  )
+										)
 									: _x(
 											'This connection has been reconnected or removed.',
 											'Social media connection',
 											'jetpack-publicize-pkg'
-									  );
+										);
 							} )() }
 						</IconTooltip>
 					</>

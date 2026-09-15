@@ -288,7 +288,7 @@ const RuleRow = ( {
 					/* translators: %d: step number in a multi-step form */
 					__( 'Step %d', 'jetpack-forms' ),
 					field.step
-			  )
+				)
 			: __( 'Fields', 'jetpack-forms' );
 		groups[ key ] = groups[ key ] || [];
 		groups[ key ].push( field );

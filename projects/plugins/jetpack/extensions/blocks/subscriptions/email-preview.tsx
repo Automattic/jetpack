@@ -178,7 +178,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 						: __(
 								'Something went wrong sending the test email. Please try again in a little while.',
 								'jetpack'
-						  ),
+							),
 				} );
 			} );
 	};
@@ -219,13 +219,13 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 								? __(
 										'Send a test email to see exactly what your subscribers receive in their inboxes. It defaults to your address, but you can send it to any address you could add as a subscriber.',
 										'jetpack'
-								  )
+									)
 								: __(
 										'Send a test email to your address so you can see exactly what your subscribers receive in their inboxes.',
 										'jetpack',
 										// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
 										0
-								  ) }
+									) }
 						</p>
 						<form
 							// noValidate keeps our own isValidEmail check the single,
@@ -511,7 +511,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 				? __unstableSaveForPreview().catch( () => {
 						// Best-effort: still show a preview even if the save failed (e.g.
 						// post lock) — that's at worst the pre-fix behavior, not a new failure.
-				  } )
+					} )
 				: Promise.resolve();
 		}
 

@@ -189,7 +189,7 @@ export const SEO = withModuleSettingsFormHelpers(
 						'Button caption',
 						'jetpack',
 						/* dummy arg to avoid bad minification */ 0
-				  );
+					);
 
 			return (
 				<SimpleNotice
@@ -238,7 +238,7 @@ export const SEO = withModuleSettingsFormHelpers(
 								'Button caption',
 								'jetpack',
 								/* dummy arg to avoid bad minification */ 0
-						  ) }
+							) }
 				</Button>
 			);
 		};
@@ -367,11 +367,11 @@ export const SEO = withModuleSettingsFormHelpers(
 												? __(
 														'AI SEO is turned off for this site, so nothing is generated. Your choice is saved and applies again when AI SEO is turned back on.',
 														'jetpack'
-												  )
+													)
 												: __(
 														'Jetpack AI is turned off for this site, so nothing is generated. Your choice is saved and applies again when Jetpack AI is turned back on.',
 														'jetpack'
-												  ) }
+													) }
 										</span>
 									) }
 								</FormFieldset>

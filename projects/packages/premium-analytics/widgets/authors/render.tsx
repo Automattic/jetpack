@@ -113,7 +113,7 @@ export function AuthorsLeaderboard( {
 									__( 'View posts by %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
-						  }
+							}
 						: { kind: 'static' },
 			} ),
 			currentValue: row.currentValue,
@@ -154,7 +154,7 @@ export function AuthorsLeaderboard( {
 						? __(
 								'This author has no posts with views for the selected period.',
 								'jetpack-premium-analytics-pkg'
-						  )
+							)
 						: __( 'No author views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }

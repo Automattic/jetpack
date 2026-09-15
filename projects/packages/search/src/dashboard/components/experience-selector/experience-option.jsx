@@ -27,7 +27,7 @@ const buildSearchTemplateUrl = stylesheet =>
 	stylesheet
 		? `site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
 				stylesheet
-		  ) }%2F%2Fjetpack-search&canvas=edit`
+			) }%2F%2Fjetpack-search&canvas=edit`
 		: 'site-editor.php?p=%2Ftemplate';
 const PATTERNS_URL = 'site-editor.php?p=%2Fpattern&search=jetpack-search';
 

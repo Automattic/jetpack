@@ -294,19 +294,19 @@ function UsageCard( { upgradeUrl, planName } ) {
 											'Upgrade Jetpack AI Assistant',
 											'jetpack',
 											/* dummy arg to avoid bad minification */ 0
-									  ) }
+										) }
 							</Text>
 							<Text render={ <p /> } variant="body-md" className="jetpack-ai-overview__muted">
 								{ isDepleted
 									? __(
 											'Upgrade to keep drafting, rewriting, and illustrating without leaving the editor.',
 											'jetpack'
-									  )
+										)
 									: __(
 											'Draft, rewrite, and illustrate posts without leaving the editor. Upgrade before you run out.',
 											'jetpack',
 											/* dummy arg to avoid bad minification */ 0
-									  ) }
+										) }
 							</Text>
 						</div>
 						{ /* The usage-cell primitive: eyebrow pinned top, readout

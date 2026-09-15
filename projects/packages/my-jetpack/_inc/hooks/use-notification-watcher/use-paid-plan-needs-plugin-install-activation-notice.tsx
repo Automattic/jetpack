@@ -278,12 +278,12 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 									/* translators: %s is the singular or plural "plugin" or "plugins". */
 									__( 'Activating %s…', 'jetpack-my-jetpack' ),
 									_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
-							  )
+								)
 							: sprintf(
 									/* translators: %s is the singular or plural "plugin" or "plugins". */
 									__( 'Installing and activating %s…', 'jetpack-my-jetpack' ),
 									_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
-							  ),
+								),
 					noDefaultClasses: true,
 				},
 			],

@@ -127,7 +127,7 @@ const SiteVisibility = ( {
 							? __(
 									'Your site is visible to everyone, but search engines are discouraged from indexing staging sites.',
 									'jetpack-mu-wpcom'
-							  )
+								)
 							: __( 'Your site is visible to everyone.', 'jetpack-mu-wpcom', 0 ) }
 					</p>
 					{ isPublicChecked && ! isWpcomStagingSite && (

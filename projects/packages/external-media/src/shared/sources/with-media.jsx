@@ -395,7 +395,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 								/* translators: %s is the name of the external media */
 								__( 'Select media from %s', 'jetpack-external-media' ),
 								externalSource.label
-						  )
+							)
 						: '';
 				return {
 					title: isCopying ? __( 'Inserting media', 'jetpack-external-media' ) : defaultTitle,
@@ -403,12 +403,12 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 						? __(
 								'When the media is finished copying and inserting, you will be returned to the editor.',
 								'jetpack-external-media'
-						  )
+							)
 						: __(
 								'Select the media you would like to insert into the editor.',
 								'jetpack-external-media',
 								/* dummy arg to avoid bad minification */ 0
-						  ),
+							),
 				};
 			};
 

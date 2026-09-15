@@ -141,12 +141,12 @@ const ProductDetailTableColumn = ( {
 				// translators: %s is the monthly price for a product
 				__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-my-jetpack' ),
 				price
-		  )
+			)
 		: __(
 				'/month, paid yearly',
 				'jetpack-my-jetpack',
 				/* dummy arg to avoid bad minification */ 0
-		  );
+			);
 
 	const productMoniker = name && preferProductName ? name : title;
 	const defaultCtaLabel =
@@ -155,12 +155,12 @@ const ProductDetailTableColumn = ( {
 					/* translators: %s: the product name. */
 					__( 'Install %s', 'jetpack-my-jetpack' ),
 					productMoniker
-			  )
+				)
 			: sprintf(
 					/* translators: %s: the product name. */
 					__( 'Get %s', 'jetpack-my-jetpack' ),
 					productMoniker
-			  );
+				);
 	const callToAction =
 		customCallToAction ||
 		( isFree ? __( 'Start for Free', 'jetpack-my-jetpack' ) : defaultCtaLabel );

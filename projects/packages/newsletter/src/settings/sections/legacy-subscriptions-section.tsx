@@ -81,7 +81,7 @@ export function LegacySubscriptionsSection( {
 							templateId="single"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -99,7 +99,7 @@ export function LegacySubscriptionsSection( {
 							templateId="jetpack-subscribe-modal"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -117,7 +117,7 @@ export function LegacySubscriptionsSection( {
 							templateId="jetpack-subscribe-overlay"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -135,7 +135,7 @@ export function LegacySubscriptionsSection( {
 							templateId="jetpack-subscribe-floating-button"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -153,7 +153,7 @@ export function LegacySubscriptionsSection( {
 							templateId="index"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -171,7 +171,7 @@ export function LegacySubscriptionsSection( {
 							templateId="index"
 							siteType={ siteType }
 						/>
-				  )
+					)
 				: Toggle,
 		},
 		{
@@ -265,7 +265,7 @@ export function LegacySubscriptionsSection( {
 												label: __( 'Action Bar', 'jetpack-newsletter' ),
 												children: [ 'wpcom_hide_action_bar' ],
 											},
-									  ]
+										]
 									: [] ),
 							],
 						} }

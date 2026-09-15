@@ -24,7 +24,7 @@ function getMcpIndicator( actor?: ActivityActorDetails ): string | null {
 				/* translators: %s: MCP client name and version */
 				__( 'via %s (MCP)', 'jetpack-activity-log' ),
 				actor.mcpClient
-		  )
+			)
 		: __( 'via MCP', 'jetpack-activity-log' );
 }
 

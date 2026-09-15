@@ -127,7 +127,7 @@ const StageInner = () => {
 						: {
 								...next,
 								fields: next.type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
-						  };
+							};
 				persistView( resolved );
 				return resolved;
 			} );

@@ -394,7 +394,7 @@ export const TextOverflow: Story = {
 		const titleText = maxWidth
 			? `Legend with ${
 					textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
-			  } (maxWidth: ${ maxWidth })`
+				} (maxWidth: ${ maxWidth })`
 			: 'Legend without maxWidth constraint';
 
 		return (

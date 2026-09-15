@@ -113,11 +113,11 @@ class SupportCard extends Component {
 										/* translators: %s: either Jetpack or WordPress.com */
 										__( 'Your paid plan gives you access to prioritized %s support.', 'jetpack' ),
 										isWoASite() ? 'WordPress.com' : 'Jetpack'
-								  )
+									)
 								: __(
 										'Jetpack offers support via community forums for any site without a paid product.',
 										'jetpack'
-								  ) }
+									) }
 						</p>
 						<p className="jp-support-card__description">
 							{ isWoASite() || (

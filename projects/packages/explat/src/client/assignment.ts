@@ -20,7 +20,7 @@ const fetchExperimentAssignment =
 						anon_id: anonId ?? undefined,
 					} ),
 					apiNamespace: 'wpcom/v2',
-			  } )
+				} )
 			: apiFetch( {
 					path: addQueryArgs( 'jetpack/v4/explat/assignments', {
 						experiment_name: experimentName,
@@ -28,7 +28,7 @@ const fetchExperimentAssignment =
 						as_connected_user: asConnectedUser,
 						platform,
 					} ),
-			  } );
+				} );
 	};
 
 export const fetchExperimentAssignmentAnonymously = fetchExperimentAssignment( false );

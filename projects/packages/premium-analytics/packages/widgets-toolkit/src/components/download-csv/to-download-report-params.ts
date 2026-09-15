@@ -28,7 +28,7 @@ export function toDownloadReportParams(
 			? {
 					compareFrom: reportParams.compare_from,
 					compareTo: reportParams.compare_to,
-			  }
+				}
 			: {} ),
 	};
 }

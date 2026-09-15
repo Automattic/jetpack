@@ -262,10 +262,10 @@ class DashBackups extends Component {
 							isWoASite()
 								? getRedirectUrl( 'calypso-backups', {
 										site: siteRawUrl,
-								  } )
+									} )
 								: getRedirectUrl( 'my-jetpack-manage-backup', {
 										site: siteRawUrl,
-								  } )
+									} )
 						}
 						target="_blank"
 						rel="noopener noreferrer"
@@ -447,11 +447,11 @@ class DashBackups extends Component {
 							{ actorName }
 							{ isMcpAgent
 								? ' - ' +
-								  sprintf(
+									sprintf(
 										/* translators: %s: The name of the MCP client application. */
 										__( 'via %s (MCP)', 'jetpack' ),
 										mcpClient || __( 'MCP client', 'jetpack' )
-								  )
+									)
 								: actorRole && ' - ' + actorRole }
 						</div>
 					</div>

@@ -107,7 +107,7 @@ export function TopPerformingProductLeaderboardWidget( {
 			hasComparison
 				? primaryItems.map(
 						product => comparisonMap.get( product.product_id )?.product_net_revenue
-				  )
+					)
 				: []
 		);
 

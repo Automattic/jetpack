@@ -371,7 +371,7 @@ function SubmitButton( { count, isPending, disabled, onClick }: SubmitButtonProp
 					// translators: %d: number of subscribers to add.
 					_n( 'Add %d subscriber', 'Add %d subscribers', count, 'jetpack-newsletter' ),
 					count
-			  )
+				)
 			: __( 'Add subscribers', 'jetpack-newsletter' );
 	return (
 		<Button

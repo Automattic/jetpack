@@ -393,7 +393,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 			const author = authorId
 				? (
 						select( coreStore ) as { getUser: ( id: number ) => { name?: string } | null }
-				   ).getUser( authorId )
+					 ).getUser( authorId )
 				: null;
 			return author?.name || '';
 		},

@@ -409,7 +409,7 @@ export default function ManualEditor( {
 											'Replace',
 											'button: replace the existing subtitle cues with the pasted text',
 											'jetpack-videopress-pkg'
-									  )
+										)
 									: __( 'Create cues', 'jetpack-videopress-pkg' ) }
 							</Button>
 						</div>

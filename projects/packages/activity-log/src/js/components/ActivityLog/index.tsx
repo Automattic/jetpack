@@ -147,7 +147,7 @@ const buildErrorNotice = (
 						/* translators: %s is the underlying error message returned by the server. */
 						__( 'Couldn’t load the activity log: %s', 'jetpack-activity-log' ),
 						rawMessage
-				  )
+					)
 				: __( 'Couldn’t load the activity log. Try refreshing the page.', 'jetpack-activity-log' ),
 		};
 	}

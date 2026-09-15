@@ -106,7 +106,7 @@ export default function PricingInterstitial( { slug } ) {
 					// Calculate monthly prices from annual if needed
 					fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
 					discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
-			  }
+				}
 			: detail?.pricingForUi;
 	}, [ detail?.pricingForUi ] );
 

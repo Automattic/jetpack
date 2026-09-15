@@ -80,7 +80,7 @@ export const VideoCard = ( {
 				/* translators: %s: the number of plays */
 				__( '%s plays', 'jetpack-videopress-pkg' ),
 				formatNumber( plays )
-		  )
+			)
 		: '';
 	const [ anchor, setAnchor ] = useState( null );
 	const isSm = useViewportMatch( 'small', '<' );

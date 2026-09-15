@@ -46,7 +46,7 @@ export const Likes = withModuleSettingsFormHelpers(
 				siteAdminUrl && this.props.themeStylesheet
 					? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
 							this.props.themeStylesheet
-					  ) }%2F%2Fsingle&canvas=edit`
+						) }%2F%2Fsingle&canvas=edit`
 					: '';
 			const shouldUseLikeBlockAction = shouldShowLikeBlock && likeTemplateUrl;
 			const isForcedActive = isActive && this.props.getModule?.( 'likes' )?.override === 'active';
@@ -61,7 +61,7 @@ export const Likes = withModuleSettingsFormHelpers(
 							'Add the Like block to your theme’s template.',
 							'Like block migration instruction',
 							'jetpack'
-					  );
+						);
 			}
 
 			/**

@@ -80,7 +80,7 @@ const IDCScreenVisual = props => {
 						? createInterpolateElement( customContent.headerText, {
 								em: <em />,
 								strong: <strong />,
-						  } )
+							} )
 						: __( 'Safe Mode', 'jetpack-idc' ) }
 				</div>
 			</div>

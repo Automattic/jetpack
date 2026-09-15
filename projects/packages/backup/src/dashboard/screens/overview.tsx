@@ -457,16 +457,16 @@ function RightPane( {
 					<Text>
 						{ isRestoreRowId( selectedId )
 							? // The collection is the last ten restores and has no pages,
-							  // so there is nowhere else to send the reader.
-							  __(
+								// so there is nowhere else to send the reader.
+								__(
 									"That restore isn't among this site's most recent ones any more.",
 									'jetpack-backup-pkg'
-							  )
+								)
 							: // Only loaded pages were searched, so "gone" is not ours to claim.
-							  __(
+								__(
 									"That item isn't on this page of the activity log. It may be on another page, or no longer available.",
 									'jetpack-backup-pkg'
-							  ) }
+								) }
 					</Text>
 					<Button variant="outline" onClick={ onClearSelected }>
 						{ __( 'Clear selection', 'jetpack-backup-pkg' ) }

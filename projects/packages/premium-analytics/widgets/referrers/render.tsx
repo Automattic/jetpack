@@ -123,7 +123,7 @@ function buildLeaderboardData(
 									__( 'View referrers for %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
-						  }
+							}
 						: undefined,
 				} ),
 			} ),
@@ -261,7 +261,7 @@ function ReferrersInner() {
 				/* translators: %s is the parent referrer group or source label. */
 				__( 'Back to %s', 'jetpack-premium-analytics-pkg' ),
 				parentLabel
-		  )
+			)
 		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
 
 	return (

@@ -113,7 +113,7 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 						/* translators: %s: the reason WordPress.com gave for the failure. */
 						__( 'Download failed: %s', 'jetpack-backup-pkg' ),
 						statusQuery.data.error
-				  )
+					)
 				: __( 'Download failed.', 'jetpack-backup-pkg' ),
 		};
 	} else if ( downloadId !== null && statusQuery.error ) {

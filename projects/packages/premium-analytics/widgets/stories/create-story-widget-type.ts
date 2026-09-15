@@ -68,7 +68,7 @@ export function createStoryWidgetType(
 		...( manifest.presentation
 			? {
 					presentation: manifest.presentation as WidgetType[ 'presentation' ],
-			  }
+				}
 			: {} ),
 	};
 }

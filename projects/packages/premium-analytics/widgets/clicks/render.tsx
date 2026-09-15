@@ -163,7 +163,7 @@ function buildLeaderboardData(
 									__( 'View clicked links for %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
-						  }
+							}
 						: undefined,
 				} ),
 			} ),

@@ -1217,7 +1217,7 @@ const { state, actions, callbacks } = store( NAMESPACE, {
 						if ( ref.isConnected && focusIsIdle ) {
 							ref.focus( { focusVisible: true } );
 						}
-				  }, PREVIEW_FOCUS_DELAY_MS )
+					}, PREVIEW_FOCUS_DELAY_MS )
 				: null;
 
 			return () => {

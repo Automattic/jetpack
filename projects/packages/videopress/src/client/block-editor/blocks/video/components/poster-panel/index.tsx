@@ -185,11 +185,11 @@ export function PosterDropdown( {
 														/* translators: %s: an image URL. */
 														__( 'The current poster image url is %s', 'jetpack-videopress-pkg' ),
 														poster
-												  )
+													)
 												: __(
 														'There is no poster image currently selected',
 														'jetpack-videopress-pkg'
-												  ) }
+													) }
 										</p>
 									</MenuItem>
 								) }

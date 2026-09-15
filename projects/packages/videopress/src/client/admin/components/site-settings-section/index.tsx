@@ -36,7 +36,7 @@ const SiteSettingsSection: FC< SiteSettingsSectionProps > = ( {
 		? __(
 				'You cannot change this setting because your site is private. You can only choose the video privacy default on public sites.',
 				'jetpack-videopress-pkg'
-		  )
+			)
 		: null;
 
 	return (

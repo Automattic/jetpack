@@ -178,7 +178,7 @@ const IntegrationCardComponent = ( {
 										'jetpack-forms'
 									),
 									{ a: <Link openInNewTab href={ settingsUrl } /> }
-							  )
+								)
 							: __( 'Setup is required to complete the integration.', 'jetpack-forms' ) }
 					</p>
 					<HStack spacing="3" justify="start">

@@ -57,7 +57,7 @@ export function linkPrice( resource ) {
 				/* translators: %s: the lowest option price of a payment link */
 				__( 'From %s', 'jetpack-paypal-payments' ),
 				price
-		  );
+			);
 }
 
 /**

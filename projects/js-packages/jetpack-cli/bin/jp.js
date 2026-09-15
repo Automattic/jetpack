@@ -722,7 +722,7 @@ const main = async () => {
 								resolve( monorepoRoot, 'tools/docker/compose-mappings.built.yml' ),
 								'-f',
 								resolve( monorepoRoot, 'tools/docker/compose-extras.built.yml' ),
-						  ];
+							];
 
 				// Add dev profile for monorepo service
 				const composeArgs = [ 'compose', '--profile', 'dev', ...composeFiles, ...args.slice( 1 ) ];

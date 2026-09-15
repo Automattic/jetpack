@@ -61,7 +61,7 @@ function makeAuthor( {
 					page: null,
 					actions: [],
 					children: null,
-			  } ) )
+				} ) )
 			: null,
 	};
 }

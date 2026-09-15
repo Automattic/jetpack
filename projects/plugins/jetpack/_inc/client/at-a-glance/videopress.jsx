@@ -70,12 +70,12 @@ class DashVideoPress extends Component {
 				? __(
 						'1 free video available. Upgrade now to unlock more videos and 1TB of storage.',
 						'jetpack'
-				  )
+					)
 				: __(
 						'You have used your free video. Upgrade now to unlock more videos and 1TB of storage.',
 						'jetpack',
 						/* dummy arg to avoid bad minification */ 0
-				  );
+					);
 
 		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner && ! isOffline ) {
 			return (
@@ -167,7 +167,7 @@ class DashVideoPress extends Component {
 								{
 									Button: <Button className="jp-link-button" onClick={ this.activateVideoPress } />,
 								}
-						  ) }
+							) }
 				</p>
 			</DashItem>
 		);

@@ -87,7 +87,7 @@ function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
 						link: getTagLink( tag ),
 						children: null,
 					} ) ),
-			  }
+				}
 			: {} ),
 	};
 }

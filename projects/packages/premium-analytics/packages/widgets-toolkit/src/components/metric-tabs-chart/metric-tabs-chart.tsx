@@ -162,7 +162,7 @@ function buildSeries(
 								fromOpacity: 0,
 								toOpacity: 0,
 							},
-					  },
+						},
 		} );
 	}
 
@@ -287,7 +287,7 @@ function MetricChart( {
 				onPointerDown: handlePointerDown,
 				onPointerUp: handlePointerUp,
 				onDatumActivate: handleActivate,
-		  }
+			}
 		: {};
 
 	// Resolved from the chart theme so the lines and the tooltip glyphs match. Bars

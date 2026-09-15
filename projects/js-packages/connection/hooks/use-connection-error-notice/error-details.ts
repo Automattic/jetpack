@@ -123,7 +123,7 @@ export function getConnectionErrorScope(
 					/* translators: %s is the display name of the Jetpack connection owner. */
 					__( "Connection owner's account (%s)", 'jetpack-connection-js' ),
 					ownerName
-			  )
+				)
 			: __( "Connection owner's account", 'jetpack-connection-js' );
 	}
 

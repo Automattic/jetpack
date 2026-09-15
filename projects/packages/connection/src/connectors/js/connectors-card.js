@@ -71,7 +71,7 @@ const subjectNoun = hasWooPlugin
 			'store',
 			'The thing connected to WordPress.com, in a WooCommerce context.',
 			'jetpack-connection'
-	  )
+		)
 	: _x( 'site', 'The thing connected to WordPress.com.', 'jetpack-connection' );
 
 /**
@@ -377,7 +377,7 @@ function UserSection( { title, user, subtitle = null, actionSlot = null } ) {
 							width: 36,
 							height: 36,
 							className: 'jetpack-connector__owner-avatar',
-					  } )
+						} )
 					: null,
 				createElement(
 					VStack,
@@ -390,7 +390,7 @@ function UserSection( { title, user, subtitle = null, actionSlot = null } ) {
 									className: 'jetpack-connector__user-link',
 								},
 								createElement( Text, { weight: 600, size: 13 }, user.displayName )
-						  )
+							)
 						: createElement( Text, { weight: 600, size: 13 }, user.displayName ),
 					showSubtitle
 						? createElement( Text, { variant: 'muted', size: 12 }, subtitle || defaultSubtitle )
@@ -437,11 +437,11 @@ function ConnectedPluginsSection() {
 								src: plugin.logoUrl,
 								alt: '',
 								className: 'jetpack-connector__plugin-icon',
-						  } )
+							} )
 						: createElement( 'span', {
 								className:
 									'dashicons dashicons-admin-plugins jetpack-connector__plugin-icon jetpack-connector__plugin-icon--fallback',
-						  } ),
+							} ),
 					createElement( Text, { size: 13 }, plugin.name )
 				)
 			)
@@ -466,11 +466,11 @@ function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
 		? __(
 				'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
 				'jetpack-connection'
-		  )
+			)
 		: __(
 				'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
 				'jetpack-connection'
-		  );
+			);
 
 	return createElement(
 		HStack,
@@ -588,7 +588,7 @@ function SiteDetailsModal( { onClose } ) {
 						ssoStatus
 							? __( 'Enabled', 'jetpack-connection' )
 							: __( 'Not enabled', 'jetpack-connection' )
-				  )
+					)
 				: [] )
 		)
 	);
@@ -806,15 +806,15 @@ function IDCPanel() {
 
 	const introText = hasJetpackPlugin
 		? // translators: %s: "site" or "store".
-		  __(
+			__(
 				'This %s is registered with WordPress.com at <wpcom />, but now loads at <current />. Features that sync with WordPress.com — like Stats and Backups — are paused in Safe Mode until you resolve this.',
 				'jetpack-connection'
-		  )
+			)
 		: // translators: %s: "site" or "store".
-		  __(
+			__(
 				'This %s is registered with WordPress.com at <wpcom />, but now loads at <current />. Features that sync with WordPress.com are paused in Safe Mode until you resolve this.',
 				'jetpack-connection'
-		  );
+			);
 
 	const intro = createInterpolateElement( sprintf( introText, subjectNoun ), {
 		wpcom: urlEl( wpcomUrl, __( 'its original address', 'jetpack-connection' ) ),
@@ -963,7 +963,7 @@ function IDCPanel() {
 							} ),
 						}
 					)
-			  )
+				)
 			: null,
 		error
 			? createElement( ErrorNotice, { message: error, onDismiss: () => setError( null ) } )
@@ -990,7 +990,7 @@ function IDCPanel() {
 							'In Safe Mode. Features stay paused until you choose an option above.',
 							'jetpack-connection'
 						)
-				  )
+					)
 				: createElement(
 						'span',
 						{ className: 'jetpack-connector__idc-safe-mode-group' },
@@ -1020,7 +1020,7 @@ function IDCPanel() {
 								} ),
 							} )
 						)
-				  ),
+					),
 			isManagedPlatformSite
 				? null
 				: createElement(
@@ -1035,7 +1035,7 @@ function IDCPanel() {
 							className: 'jetpack-connector__disconnect-site',
 						},
 						__( 'Disconnect site', 'jetpack-connection' )
-				  )
+					)
 		),
 		pendingConfirm
 			? createElement( ConfirmationModal, {
@@ -1043,7 +1043,7 @@ function IDCPanel() {
 					message: pendingConfirm.message,
 					onConfirm: pendingConfirm.onConfirm,
 					onCancel: () => setPendingConfirm( null ),
-			  } )
+				} )
 			: null
 	);
 }
@@ -1138,11 +1138,11 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				? __(
 						'Your site will remain connected for essential services like likes and stats, but all user accounts will be disconnected.',
 						'jetpack-connection'
-				  )
+					)
 				: __(
 						'Are you sure you want to disconnect your WordPress.com account?',
 						'jetpack-connection'
-				  );
+					);
 
 		setPendingConfirm( {
 			title: __( 'Disconnect user account', 'jetpack-connection' ),
@@ -1181,8 +1181,8 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 									isUnlinking
 										? __( 'Disconnecting…', 'jetpack-connection' )
 										: __( 'Disconnect account', 'jetpack-connection' )
-							  ),
-			  } )
+								),
+				} )
 			: null,
 
 		// Connect prompt (only when the viewing admin is NOT linked).
@@ -1191,7 +1191,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					onConnect,
 					isConnecting,
 					isDisconnecting,
-			  } )
+				} )
 			: null,
 
 		// Connection owner (shown to non-owners and unlinked admins).
@@ -1200,7 +1200,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: connectionOwner,
 					subtitle: false,
-			  } )
+				} )
 			: null,
 
 		createElement( ConnectedPluginsSection ),
@@ -1209,7 +1209,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 			? createElement( ErrorNotice, {
 					message: actionError,
 					onDismiss: () => setActionError( null ),
-			  } )
+				} )
 			: null,
 
 		// Footer: connection details link + disconnect site button.
@@ -1230,7 +1230,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 							className: 'jetpack-connector__details-link',
 						},
 						__( 'Connection details', 'jetpack-connection' )
-				  )
+					)
 				: null,
 			isManagedPlatformSite
 				? null
@@ -1247,7 +1247,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 							className: 'jetpack-connector__disconnect-site',
 						},
 						__( 'Disconnect site', 'jetpack-connection' )
-				  )
+					)
 		),
 
 		// Modals (rendered but visually hidden until triggered).
@@ -1257,7 +1257,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						setShowDetailsModal( false );
 						focusWhenReady( detailsLinkRef.current );
 					},
-			  } )
+				} )
 			: null,
 		pendingConfirm
 			? createElement( ConfirmationModal, {
@@ -1268,7 +1268,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						setPendingConfirm( null );
 						focusWhenReady( confirmTriggerRef.current );
 					},
-			  } )
+				} )
 			: null
 	);
 }
@@ -1384,7 +1384,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 					: createElement( ExpandedDetails, {
 							isConnecting: needsUserConnection ? isConnecting : false,
 							onConnect: needsUserConnection ? handleConnect : null,
-					  } )
+						} )
 			);
 		}
 	} else {
@@ -1425,7 +1425,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			? createElement( ErrorNotice, {
 					message: connectError,
 					onDismiss: () => setConnectError( null ),
-			  } )
+				} )
 			: null,
 		isOfflineMode && ! isConnected && ! isSiteRegistered ? createElement( OfflineNotice ) : null,
 		isFirstConnection && ! isOfflineMode && ! isConnected && ! isSiteRegistered

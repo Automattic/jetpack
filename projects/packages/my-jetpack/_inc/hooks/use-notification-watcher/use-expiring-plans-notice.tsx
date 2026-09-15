@@ -17,7 +17,7 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 		? []
 		: ( Object.keys( redBubbleAlerts ).filter(
 				key => key.endsWith( '--plan_expiring_soon' ) || key.endsWith( '--plan_expired' )
-		  ) as Array< `${ string }--plan_expiring_soon` | `${ string }--plan_expired` > );
+			) as Array< `${ string }--plan_expiring_soon` | `${ string }--plan_expired` > );
 
 	const expiredAlerts =
 		planExpiredAlerts.length &&

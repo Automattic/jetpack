@@ -495,7 +495,7 @@ async function postToCodeVitals( resultsPath, config ) {
 				measurement
 					? `Warning: ${ scenario.name } measurement failed (${
 							measurement.error ? `error: ${ measurement.error }` : 'no summary'
-					  }; optional scenario — its keys skip this build)`
+						}; optional scenario — its keys skip this build)`
 					: `Warning: ${ scenario.name } not in this results file (not part of the run set; its keys skip this build)`
 			);
 			continue;
