@@ -432,6 +432,47 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Core only constrains images inside #section-screenshots, so that is where they
+	 * have to go if they are to survive at a sane width.
+	 */
+	public function test_screenshots_are_lifted_out_of_the_description() {
+		$vendor = '<figure class="graphic"><img src="https://example.com/one.png" alt="" width="494" height="300" /></figure>'
+			. '<figure class="graphic"><div class="image__background" style="background: #0075b3;"></div>'
+			. '<img src="https://example.com/two.png" alt="" width="494" height="300" /></figure>';
+
+		$html = Marketplace_Catalog::to_screenshots_html( $vendor );
+
+		$this->assertStringStartsWith( '<ol>', $html );
+		$this->assertSame( 2, substr_count( $html, '<li>' ) );
+		$this->assertStringContainsString( 'https://example.com/one.png', $html );
+		$this->assertStringContainsString( 'https://example.com/two.png', $html );
+
+		// Rebuilt from the URLs, so none of the vendor's markup rides along.
+		$this->assertStringNotContainsString( 'figure', $html );
+		$this->assertStringNotContainsString( 'class=', $html );
+		$this->assertStringNotContainsString( 'style=', $html );
+	}
+
+	/**
+	 * The same image used twice is one screenshot.
+	 */
+	public function test_screenshots_are_deduplicated() {
+		$html = Marketplace_Catalog::to_screenshots_html(
+			'<img src="https://example.com/a.png" /><img src="https://example.com/a.png" />'
+		);
+
+		$this->assertSame( 1, substr_count( $html, '<li>' ) );
+	}
+
+	/**
+	 * A description with no images gets no section rather than an empty list.
+	 */
+	public function test_screenshots_absent_when_there_are_no_images() {
+		$this->assertSame( '', Marketplace_Catalog::to_screenshots_html( '<div>Just words.</div>' ) );
+		$this->assertSame( '', Marketplace_Catalog::to_screenshots_html( '' ) );
+	}
+
+	/**
 	 * The source has no paragraph tags at all, so without re-paragraphing the text
 	 * arrives as one run once the layout divs are gone.
 	 */

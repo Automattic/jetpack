@@ -152,9 +152,16 @@ class Marketplace_Catalog {
 
 		$details = self::to_details( self::to_card( $product ) );
 
-		$description = self::to_modal_html( is_string( $product['description'] ?? null ) ? $product['description'] : '' );
+		$raw = is_string( $product['description'] ?? null ) ? $product['description'] : '';
+
+		$description = self::to_modal_html( $raw );
 		if ( '' !== $description ) {
 			$details['sections']['description'] = $description;
+		}
+
+		$screenshots = self::to_screenshots_html( $raw );
+		if ( '' !== $screenshots ) {
+			$details['sections']['screenshots'] = $screenshots;
 		}
 
 		set_transient( $cache_key, $details, self::CACHE_TTL );
@@ -176,6 +183,32 @@ class Marketplace_Catalog {
 		unset( $card['active_installs'], $card['downloaded'] );
 
 		return $card;
+	}
+
+	/**
+	 * Moves the vendor's images into a screenshots section.
+	 *
+	 * Core constrains images in `#section-screenshots` and nowhere else, which is why
+	 * WordPress.org plugins put them there rather than in the description. Rebuilt
+	 * from the source URLs alone so none of the vendor's own markup comes with them.
+	 *
+	 * @param string $html Description as the marketplace endpoint returns it.
+	 * @return string Section markup, or an empty string when there are no images.
+	 */
+	public static function to_screenshots_html( $html ) {
+		if ( '' === $html || ! preg_match_all( '#<img[^>]+src=[\'"]([^\'"]+)[\'"]#i', $html, $matches ) ) {
+			return '';
+		}
+
+		$items = '';
+		foreach ( array_unique( $matches[1] ) as $src ) {
+			$url = esc_url( $src );
+			if ( '' !== $url ) {
+				$items .= sprintf( '<li><img src="%s" alt="" /></li>', $url );
+			}
+		}
+
+		return '' === $items ? '' : '<ol>' . $items . '</ol>';
 	}
 
 	/**
