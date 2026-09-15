@@ -58,7 +58,10 @@ test.each( [ 'success', 'failure' ] )(
 		expect( recordAjaxEvent ).toHaveBeenCalledWith(
 			'boost_performance_history_upgrade_cta_click',
 			'click',
-			expect.any( Object )
+			expect.objectContaining( {
+				identifier: 'historical-performance',
+				destination: 'interstitial',
+			} )
 		);
 		await act( async () => completeTracking() );
 		expect( window.location.hash ).toBe( '#/add-boost' );
@@ -95,7 +98,10 @@ test.each( [ 'metaKey', 'ctrlKey', 'shiftKey', 'altKey' ] )(
 		expect( recordAjaxEvent ).toHaveBeenCalledWith(
 			'boost_performance_history_upgrade_cta_click',
 			'click',
-			expect.any( Object )
+			expect.objectContaining( {
+				identifier: 'historical-performance',
+				destination: 'interstitial',
+			} )
 		);
 		await act( async () => request.unmount?.() );
 		expect( window.location.hash ).toBe( '' );

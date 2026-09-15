@@ -11,14 +11,16 @@ import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-b
 observeLegacyModulesState( queryClient );
 
 async function handleUpgrade( event: MouseEvent< HTMLAnchorElement > ) {
+	const eventProperties = { identifier: 'historical-performance', destination: 'interstitial' };
 	if ( event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
-		recordBoostEvent( 'performance_history_upgrade_cta_click', {} );
+		recordBoostEvent( 'performance_history_upgrade_cta_click', eventProperties );
 		return;
 	}
 	event.preventDefault();
 	await recordBoostEventAndRedirect(
 		'admin.php?page=my-jetpack#/add-boost',
-		'performance_history_upgrade_cta_click'
+		'performance_history_upgrade_cta_click',
+		eventProperties
 	);
 }
 
