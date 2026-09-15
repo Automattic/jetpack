@@ -81,7 +81,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	// both: the ref feeds the year surface's measurement, and the notice's
 	// place in the slot is asserted below.
 	SectionHeader: jest
-		.requireActual< typeof import('react') >( 'react' )
+		.requireActual< typeof import( 'react' ) >( 'react' )
 		.forwardRef(
 			(
 				{ children, notice }: { children: ReactNode; notice?: ReactNode },
