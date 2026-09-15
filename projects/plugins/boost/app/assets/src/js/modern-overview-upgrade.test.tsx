@@ -5,18 +5,29 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRoot } from '@wordpress/element';
 import { OVERVIEW_MODULES_CHANGE_EVENT } from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
-import { recordBoostEvent } from './lib/utils/analytics';
 import './modern-overview-upgrade';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
 
-jest.mock( './lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
+jest.mock( '@automattic/jetpack-analytics', () => ( {} ) );
 jest.mock( '@wordpress/element', () => ( {
 	...jest.requireActual( '@wordpress/element' ),
 	createRoot: jest.fn( jest.requireActual( '@wordpress/element' ).createRoot ),
 } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
-test( 'links to the Boost interstitial, records the click, and cleans up its root', async () => {
+test( 'waits for tracking before navigating to the interstitial and cleans up its root', async () => {
+	window.history.replaceState( {}, '', '/admin.php?page=my-jetpack' );
+	let completeTracking: () => void;
+	const recordAjaxEvent = jest.fn().mockReturnValue( {
+		done: jest.fn( callback => {
+			completeTracking = callback;
+			return { fail: jest.fn() };
+		} ),
+	} );
+	Object.defineProperty( window, 'jpTracksAJAX', {
+		configurable: true,
+		value: { record_ajax_event: recordAjaxEvent },
+	} );
 	render( <div data-testid="upgrade-slot" /> );
 	const request: UpgradeSlotRequest = { container: screen.getByTestId( 'upgrade-slot' ) };
 	expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).toBeNull();
@@ -26,11 +37,23 @@ test( 'links to the Boost interstitial, records the click, and cleans up its roo
 	const upgradeLink = screen.getByRole( 'link', { name: 'Upgrade now' } );
 	// eslint-disable-next-line jest-dom/prefer-to-have-attribute -- This Jest project does not load jest-dom.
 	expect( upgradeLink.getAttribute( 'href' ) ).toBe( 'admin.php?page=my-jetpack#/add-boost' );
-	fireEvent.click( upgradeLink );
+	expect( fireEvent.click( upgradeLink ) ).toBe( false );
+	expect( window.location.hash ).toBe( '' );
 	expect( screen.queryByRole( 'dialog' ) ).toBeNull();
-	expect( recordBoostEvent ).toHaveBeenCalledWith( 'performance_history_upgrade_cta_click', {} );
+	expect( recordAjaxEvent ).toHaveBeenCalledWith(
+		'boost_performance_history_upgrade_cta_click',
+		'click',
+		expect.any( Object )
+	);
+	await act( async () => completeTracking() );
+	expect( window.location.hash ).toBe( '#/add-boost' );
 	await act( async () => request.unmount?.() );
 	expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).toBeNull();
+} );
+
+afterEach( () => {
+	Reflect.deleteProperty( window, 'jpTracksAJAX' );
+	window.history.replaceState( {}, '', '/' );
 } );
 
 test( 'cancels a pending root before a strict-mode remount', async () => {

@@ -4,13 +4,22 @@ import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { observeLegacyModulesState } from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
-import { recordBoostEvent } from './lib/utils/analytics';
+import { recordBoostEvent, recordBoostEventAndRedirect } from './lib/utils/analytics';
+import type { MouseEvent } from 'react';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
 
 observeLegacyModulesState( queryClient );
 
-function handleUpgrade() {
-	recordBoostEvent( 'performance_history_upgrade_cta_click', {} );
+async function handleUpgrade( event: MouseEvent< HTMLAnchorElement > ) {
+	if ( event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
+		recordBoostEvent( 'performance_history_upgrade_cta_click', {} );
+		return;
+	}
+	event.preventDefault();
+	await recordBoostEventAndRedirect(
+		'admin.php?page=my-jetpack#/add-boost',
+		'performance_history_upgrade_cta_click'
+	);
 }
 
 window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
