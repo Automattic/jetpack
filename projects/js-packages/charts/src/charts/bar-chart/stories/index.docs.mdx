@@ -364,13 +364,40 @@ Enable rich interactive tooltips that display detailed information on hover:
 	/>` }
 />
 
+### Band Highlight
+
+Set `withBandHighlight` alongside `withTooltips` to shade the active band across the plot. Hover a bar or use arrow keys after focusing the chart; Escape dismisses the highlight with the tooltip.
+
+<Canvas of={ BarChartStories.BandHighlight } />
+
+For an overlay outside the chart, `onBandHighlightChange` reports the active datum and the band rectangle in SVG coordinates, or `null` on dismissal. The callback also works without rendering the built-in highlight.
+
+### Beside Tooltips
+
+Use `tooltipPlacement="beside"` to keep the tooltip beside the active bar instead of flipping vertically. It flips horizontally near an edge and stays within the viewport or clipping ancestor. `tooltipAnchorTop` sets its top anchor in SVG coordinates; negative values place the anchor above the plot.
+
+<Canvas of={ BarChartStories.BesideTooltip } />
+
+<Source
+	language="tsx"
+	code={ `import { BarChart } from '@automattic/charts';
+
+	<BarChart
+		data={ data }
+		withTooltips={ true }
+		withBandHighlight={ true }
+		tooltipPlacement="beside"
+		tooltipAnchorTop={ 40 }
+	/>` }
+/>
+
 ### Keyboard Navigation
 
 Charts are fully keyboard accessible:
 - **Tab**: Focus the chart
 - **Arrow Keys**: Navigate between bars
 - **Enter/Space**: Activate tooltips
-- **Escape**: Close active tooltips
+- **Escape**: Close active tooltips and return focus to the chart
 
 ## Legends
 
@@ -406,7 +433,11 @@ Bar Charts integrate seamlessly with the chart theming system. The default theme
 	}` }
 />
 
-Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
+Set a data point's optional `color` to override the series color for that bar. Points without a color retain the series color. When `withPatterns` is enabled, pattern fills take precedence over point colors. The shared point types expose this field, but only BarChart uses it.
+
+<Canvas of={ BarChartStories.PerPointColors } />
+
+For other catalog colors, declare the corresponding role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
 <Source
 	language="css"
@@ -537,12 +568,7 @@ Advanced configuration for scales and axes:
 
 ## Accessibility
 
-### Keyboard Navigation
-
-- **Tab**: Focus the chart container
-- **Arrow Keys**: Navigate between individual bars
-- **Enter/Space**: Activate tooltips or interactive elements
-- **Escape**: Close active tooltips
+See [Keyboard Navigation](#keyboard-navigation) for supported keys and focus behavior.
 
 ### Screen Reader Support
 

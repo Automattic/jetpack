@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Charts: Return focus to bar charts after pressing Escape, and keep hovered tooltips aligned with their bars.
