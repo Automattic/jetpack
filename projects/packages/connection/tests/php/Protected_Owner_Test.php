@@ -387,7 +387,7 @@ class Protected_Owner_Test extends TestCase {
 		$result  = $manager->update_connection_owner( $this->candidate() );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
-		$this->assertSame( 'ownership_not_transferable', $result->get_error_code() );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
 		$this->assertFalse( Jetpack_Options::get_option( 'master_user' ) );
 	}
 
@@ -409,7 +409,7 @@ class Protected_Owner_Test extends TestCase {
 		$result = $manager->update_connection_owner( $this->candidate() );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
-		$this->assertSame( 'ownership_not_transferable', $result->get_error_code() );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
 	}
 
 	/**
@@ -423,7 +423,7 @@ class Protected_Owner_Test extends TestCase {
 		$result  = $manager->update_connection_owner( $this->candidate() );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
-		$this->assertSame( 'ownership_not_transferable', $result->get_error_code() );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
 	}
 
 	/**
@@ -446,7 +446,7 @@ class Protected_Owner_Test extends TestCase {
 		$result  = $manager->update_connection_owner( $editor );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
-		$this->assertSame( 'ownership_not_transferable', $result->get_error_code() );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
 	}
 
 	// ── requires_protected_owner ─────────────────────────────────────────

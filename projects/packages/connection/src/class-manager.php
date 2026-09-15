@@ -1677,8 +1677,8 @@ class Manager {
 		// locked, and an argument error would suggest a retry that cannot work.
 		if ( ! $this->is_ownership_transferable() ) {
 			return new WP_Error(
-				'ownership_not_transferable',
-				__( 'The connection owner cannot be changed on this site.', 'jetpack-connection' ),
+				'ownership_locked',
+				__( 'The connection owner is locked on this site.', 'jetpack-connection' ),
 				array( 'status' => 403 )
 			);
 		}
