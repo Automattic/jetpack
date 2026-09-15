@@ -881,13 +881,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
 			const sidebar = within( await screen.findByTestId( 'inspector-controls' ) );
+			// The button says "Connecting…" while the referral link is pre-fetched.
+			await expect(
+				sidebar.findByRole( 'button', { name: 'Connect PayPal' } )
+			).resolves.toBeInTheDocument();
 			expect(
 				sidebar.getByRole( 'heading', { name: 'Connect your PayPal account' } )
 			).toBeInTheDocument();
 			expect(
 				sidebar.getByText( 'Create a link or button directly in the editor - no code required' )
 			).toBeInTheDocument();
-			expect( sidebar.getByRole( 'button', { name: 'Connect PayPal' } ) ).toBeInTheDocument();
 			expect( sidebar.getByLabelText( 'Use sandbox (testing)' ) ).toBeInTheDocument();
 		} );
 
