@@ -97,4 +97,22 @@ describe( 'Module', () => {
 		expect( screen.getAllByText( /not publicly available/ ).length ).toBeGreaterThan( 0 );
 		expect( screen.queryByText( 'child' ) ).toBeNull();
 	} );
+
+	it( 'falls back to an error notice in a row when the module throws', () => {
+		const Boom = () => {
+			throw new Error( 'kaboom' );
+		};
+		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+
+		renderModule(
+			<Module slug="minify_js" title="Concatenate JS" description="Desc">
+				<Boom />
+			</Module>,
+			true
+		);
+
+		expect( screen.getByText( 'Failed to load module' ) ).toBeTruthy();
+		expect( screen.getByRole( 'heading', { level: 3 } ).textContent ).toBe( 'Concatenate JS' );
+		expect( screen.getByText( 'Error: kaboom' ) ).toBeTruthy();
+	} );
 } );
