@@ -9,6 +9,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
+	describeError,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
@@ -44,7 +45,7 @@ function AuthorViewsInner( { chartType }: AuthorViewsInnerProps ) {
 	const authorId = toAuthorId( reportParams.author_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, hasData, refetch } = useAuthorViews(
+	const { current, isLoading, isFetching, isError, error, hasData, refetch } = useAuthorViews(
 		authorId,
 		reportParams,
 		period
@@ -72,13 +73,13 @@ function AuthorViewsInner( { chartType }: AuthorViewsInnerProps ) {
 				// Stale buckets stay on screen through a failed background refetch.
 				isError={ ! hasData && isError }
 				isEmpty={ authorId <= 0 }
-				error={ {
-					description: __(
+				error={ describeError( error, {
+					retryDescription: __(
 						"We couldn't load this author's views. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
+					onRetry: refetch,
+				} ) }
 				empty={ {
 					icon: reports,
 					description: __(

@@ -12,6 +12,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	describeError,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -41,7 +42,7 @@ function AuthorTopPostsInner() {
 	const { reportParams } = useWidgetRootContext();
 	const authorId = toAuthorId( reportParams.author_id );
 
-	const { rows, isLoading, isFetching, isError, hasData, refetch } = useAuthorTopPosts(
+	const { rows, isLoading, isFetching, isError, error, hasData, refetch } = useAuthorTopPosts(
 		authorId,
 		reportParams,
 		WIDGET_ROW_LIMIT
@@ -67,15 +68,13 @@ function AuthorTopPostsInner() {
 					// Stale rows stay on screen through a failed background refetch.
 					isError={ ! hasData && isError }
 					isEmpty={ authorId <= 0 || rows.length === 0 }
-					error={ {
-						description: __(
+					error={ describeError( error, {
+						retryDescription: __(
 							"We couldn't load this author's posts. Please try again in a moment.",
 							'jetpack-premium-analytics-pkg'
 						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
+						onRetry: refetch,
+					} ) }
 					empty={
 						authorId <= 0
 							? {

@@ -111,18 +111,19 @@ describe( 'AuthorViewsWidget', () => {
 		expect( requestedPath ).toContain( 'period=day' );
 	} );
 
-	it( 'sums daily buckets into the page’s weekly buckets, keeping a partial first week', async () => {
+	it( 'asks the endpoint for the page’s chart bucket and keeps a partial first week', async () => {
+		// Week buckets are keyed at the calendar Monday, so the first one starts
+		// before a window that opens on a Thursday.
 		mockApiFetch.mockResolvedValue( {
 			...TOP_AUTHORS_DAYS,
+			period: 'week',
 			days: {
 				'2026-06-22': { authors: [ { name: 'Priya', author_id: 7, views: 3, posts: [] } ] },
-				'2026-06-19': { authors: [ { name: 'Priya', author_id: 7, views: 4, posts: [] } ] },
-				'2026-06-18': { authors: [ { name: 'Priya', author_id: 7, views: 2, posts: [] } ] },
+				'2026-06-15': { authors: [ { name: 'Priya', author_id: 7, views: 6, posts: [] } ] },
 			},
 		} );
 
-		// 28 days from a Thursday: the shortest window that keeps a weekly interval,
-		// starting mid-week so the first bucket is partial.
+		// 28 days from a Thursday: the shortest window that keeps a weekly interval.
 		render(
 			<AuthorViewsWidget
 				attributes={ {
@@ -141,9 +142,8 @@ describe( 'AuthorViewsWidget', () => {
 		expect( metric.dates ).toEqual( [ '2026-06-15', '2026-06-22' ] );
 		expect( metric.values ).toEqual( [ 6, 3 ] );
 		expect( metric.value ).toBe( 9 );
-		// The endpoint is always asked for days; the weeks are summed here.
 		expect( decodeURIComponent( mockApiFetch.mock.calls[ 0 ][ 0 ].path as string ) ).toContain(
-			'period=day'
+			'period=week'
 		);
 	} );
 
@@ -169,8 +169,20 @@ describe( 'AuthorViewsWidget', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'surfaces a retryable error when the request fails', async () => {
+	it( 'routes a permission-gated 403 through describeError: neutral copy, no retry', async () => {
 		mockApiFetch.mockRejectedValue( { error: 'unauthorized', status: 403 } );
+
+		render( <AuthorViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		await expect(
+			screen.findByText( "You don't have access to this data." )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers a retry for a failure that can heal', async () => {
+		// The proxy's `no_connection` 403 heals on reconnect and skips React Query's retry backoff.
+		mockApiFetch.mockRejectedValue( { status: 403, code: 'no_connection' } );
 
 		render( <AuthorViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 

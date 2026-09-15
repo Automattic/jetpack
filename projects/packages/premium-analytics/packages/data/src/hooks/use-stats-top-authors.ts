@@ -17,10 +17,10 @@ type StatsTopAuthorsOptions = UseStatsOptions & {
 };
 
 /**
- * The `stats/top-authors` report. The endpoint has no author filter and ranks at
- * most 20 authors per day whatever `max` says, so a caller scoped to one author
- * asks for the whole report and picks its row; an author absent from a day may
- * simply have ranked outside that day's 20.
+ * The `stats/top-authors` report. The endpoint has no author filter and caps
+ * `max` at 20 authors per period (`TOP_AUTHORS_PER_DAY_LIMIT` on the wpcom
+ * endpoint), so a caller scoped to one author asks for the whole report and
+ * picks its row; an author absent from a bucket may simply have ranked below it.
  */
 export const useStatsTopAuthors = createStatsListReportHook<
 	StatsReportParams,

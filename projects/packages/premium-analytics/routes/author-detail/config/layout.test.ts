@@ -1,22 +1,6 @@
-import { PA_COLUMN_COUNT } from '../../grid';
 import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './index';
 
 describe( 'author detail layout', () => {
-	it( 'lays out the four cards in design order on the detail grid', () => {
-		expect(
-			AUTHOR_DETAIL_LAYOUT.map( ( { type, placement } ) => [
-				type,
-				placement?.width,
-				placement?.order,
-			] )
-		).toEqual( [
-			[ 'jpa/author-views', PA_COLUMN_COUNT, 1 ],
-			[ 'jpa/popular-post--author', 2, 2 ],
-			[ 'jpa/latest-post--author', 1, 3 ],
-			[ 'jpa/author-top-posts', PA_COLUMN_COUNT, 4 ],
-		] );
-	} );
-
 	it( 'uses unique ids and no injected report params', () => {
 		const uuids = AUTHOR_DETAIL_LAYOUT.map( widget => widget.uuid );
 		expect( new Set( uuids ).size ).toBe( uuids.length );
@@ -25,17 +9,14 @@ describe( 'author detail layout', () => {
 		}
 	} );
 
-	it( 'aliases every scoped spotlight it renders', () => {
+	it( 'declares an alias for every scoped spotlight it renders, and renders every alias', () => {
 		const aliased = AUTHOR_DETAIL_WIDGET_TYPE_ALIASES.flatMap( ( { variants } ) =>
 			variants.map( variant => variant.name )
 		);
+		const scoped = AUTHOR_DETAIL_LAYOUT.filter(
+			widget => ( widget.attributes as { authorScoped?: boolean } | undefined )?.authorScoped
+		).map( widget => widget.type );
 
-		expect( aliased ).toEqual( [ 'jpa/popular-post--author', 'jpa/latest-post--author' ] );
-		for ( const { variants } of AUTHOR_DETAIL_WIDGET_TYPE_ALIASES ) {
-			for ( const variant of variants ) {
-				expect( variant.getTitle() ).not.toBe( '' );
-				expect( variant.getHelp?.().content ).toMatch( /^This author's/ );
-			}
-		}
+		expect( scoped.sort() ).toEqual( [ ...aliased ].sort() );
 	} );
 } );

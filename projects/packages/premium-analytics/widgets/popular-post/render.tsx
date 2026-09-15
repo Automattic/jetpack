@@ -28,8 +28,9 @@ type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParams
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
- * The last 12 months pick which post is shown; all three tiles are all-time
- * totals from the Stats post endpoint, so they share one window.
+ * The last 12 months pick which post is shown, or the page's range when
+ * author-scoped; all three tiles are all-time totals from the Stats post
+ * endpoint, so they share one window.
  *
  * The tiles carry no caveat saying so, which is deliberate: the old Stats card
  * this replaces put the same lifetime totals under the same period-naming
@@ -41,6 +42,33 @@ function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 	// Gated on the instance attribute, not the URL alone, so a stray `author_id`
 	// on the dashboard cannot narrow the site-wide card.
 	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : 0;
+
+	// An author-scoped instance rendered off its page must not fall back to the
+	// site-wide pick under the author-scoped title.
+	if ( authorScoped && ! authorId ) {
+		return (
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ {
+					icon: trendingUp,
+					description: __(
+						'Open an author to see their most viewed post here.',
+						'jetpack-premium-analytics-pkg'
+					),
+				} }
+			>
+				{ null }
+			</WidgetState>
+		);
+	}
+
+	return <PopularPostCard authorId={ authorId } />;
+}
+
+function PopularPostCard( { authorId }: { authorId: number } ) {
+	const { reportParams } = useWidgetRootContext();
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
 		authorId ? { authorId, reportParams } : undefined
 	);

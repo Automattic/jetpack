@@ -35,7 +35,7 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { DETAIL_GRID } from '../grid';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { withWidgetTypeAliases } from '../widget-type-aliases';
+import { toWidgetTypeBaseNames, withWidgetTypeAliases } from '../widget-type-aliases';
 import { authorHeaderSlots } from './components';
 import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useAuthorSummary } from './hooks';
@@ -80,7 +80,20 @@ function AuthorDetail(): JSX.Element {
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
+	// The stored arrangement, layered over the fixed composition.
+	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
+		PREFERENCES_SCOPE,
+		LAYOUT_ID,
+		AUTHOR_DETAIL_LAYOUT
+	);
+
+	// A fixed composition with no picker only ever needs its own four types resolved.
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
+		visibleNames: toWidgetTypeBaseNames(
+			layout.map( widget => widget.type ),
+			AUTHOR_DETAIL_WIDGET_TYPE_ALIASES
+		),
+	} );
 	const pageWidgetTypes = useMemo(
 		() => withWidgetTypeAliases( widgetTypes, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES ),
 		[ widgetTypes ]
@@ -93,13 +106,6 @@ function AuthorDetail(): JSX.Element {
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
-
-	// The stored arrangement, layered over the fixed composition.
-	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
-		PREFERENCES_SCOPE,
-		LAYOUT_ID,
-		AUTHOR_DETAIL_LAYOUT
-	);
 
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 

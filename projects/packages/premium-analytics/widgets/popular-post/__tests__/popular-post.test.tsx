@@ -174,6 +174,19 @@ describe( 'PopularPostWidget', () => {
 		).toBe( true );
 	} );
 
+	it( 'shows the scopeless empty state, and makes no request, when author-scoped without an author', async () => {
+		render(
+			<PopularPostWidget
+				attributes={ { reportParams: yearReportParams( 2022 ), authorScoped: true } }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'Open an author to see their most viewed post here.' )
+		).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
 	it( 'links the post to its detail page on the window it ranked over', async () => {
 		render( <PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } /> );
 

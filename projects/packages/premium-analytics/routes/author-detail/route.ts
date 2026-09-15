@@ -6,7 +6,6 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import { pickReportOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -59,45 +58,23 @@ export const route = {
 		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsAuthorSeed = currentSearch.author_id !== authorId;
 
+		// The seed mirrors post-detail/route.ts, which explains each step; this
+		// page carries no report origin, since its breadcrumb is fixed.
 		if ( needsDateSeed || needsAuthorSeed ) {
-			/*
-			 * Warm the core `site` record for `useSiteHomeUrl()`. A rejection
-			 * shouldn't error the whole page, and the seed's own dates don't
-			 * depend on it, so fall through.
-			 */
 			try {
 				await ensureCoreSettingsReady();
 			} catch {
 				// Proceed with the default seed below.
 			}
 
-			// Allowlist this page's own params instead of spreading `currentSearch`
-			// wholesale; the report origin stays so the dashboard link survives.
 			const reportParams = normalizeReportParams(
 				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 			);
-			// A detail page seeds only its own scope; the post and video routes drop
-			// `author_id` the same way.
 			delete reportParams.post_id;
-			const seeded: Record< string, unknown > = {
-				...reportParams,
-				...pickReportOriginParams( currentSearch ),
-				author_id: authorId,
-			};
-
-			/*
-			 * Comparison params ride along untouched: this page renders no
-			 * comparison, but the breadcrumb links carry the URL state back out,
-			 * so stripping them would lose the setting on a round trip.
-			 */
+			const seeded: Record< string, unknown > = { ...reportParams, author_id: authorId };
 
 			throw redirect( {
 				to: '/author/$authorId',
-				/*
-				 * The router is built dynamically, so `/author/$authorId` has no
-				 * statically-typed params/search schema (tanstack widens them to
-				 * `never`); cast as the routing package does when it writes the URL.
-				 */
 				params: { authorId } as unknown as never,
 				replace: true,
 				search: seeded as unknown as never,

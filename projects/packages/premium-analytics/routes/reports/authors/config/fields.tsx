@@ -95,11 +95,7 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 						/>
 						{ /* Untracked authors carry no user id, so their row stays plain text. */ }
 						{ item.authorId ? (
-							<AuthorDetailLink
-								authorId={ item.authorId }
-								report="authors"
-								className={ styles.name }
-							>
+							<AuthorDetailLink authorId={ item.authorId } className={ styles.name }>
 								{ name }
 							</AuthorDetailLink>
 						) : (

@@ -1173,14 +1173,17 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 				? mockSearchTermsComparisonData
 				: mockSearchTermsData;
 		case '/top-authors': {
-			// The author detail chart asks for day buckets; everything else summarizes.
-			if ( getQueryParam( requestPath, 'summarize' ) === '0' ) {
-				const endDate = getQueryParam( requestPath, 'date' )?.slice( 0, 10 );
-				const startDate = getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 );
+			// The author detail chart asks for period buckets; everything else summarizes.
+			const endDate = getQueryParam( requestPath, 'date' )?.slice( 0, 10 );
+			const startDate = getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 );
+			if ( getQueryParam( requestPath, 'summarize' ) === '0' && startDate && endDate ) {
+				const period = getQueryParam( requestPath, 'period' );
 
-				if ( startDate && endDate ) {
-					return buildTopAuthorsDaysData( startDate, endDate );
-				}
+				return buildTopAuthorsDaysData(
+					startDate,
+					endDate,
+					period === 'week' || period === 'month' ? period : 'day'
+				);
 			}
 
 			return nextIsComparison( 'stats/top-authors' )

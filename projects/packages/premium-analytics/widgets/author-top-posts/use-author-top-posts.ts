@@ -19,6 +19,7 @@ export interface AuthorTopPostsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	error: unknown;
 	hasData: boolean;
 	refetch: () => void;
 }
@@ -39,10 +40,8 @@ export default function useAuthorTopPosts(
 ): AuthorTopPostsState {
 	const statsParams = useMemo( () => ( { ...reportParams, max: 0 } ), [ reportParams ] );
 
-	const { primary, comparisonRows, isLoading, isFetching, isError, refetch } = useStatsTopAuthors(
-		statsParams,
-		{ enabled: authorId > 0 }
-	);
+	const { primary, comparisonRows, isLoading, isFetching, isError, error, refetch } =
+		useStatsTopAuthors( statsParams, { enabled: authorId > 0 } );
 
 	const rows = useMemo( () => {
 		const author = comparisonRows?.rows.find( row => String( row.id ) === String( authorId ) );
@@ -64,6 +63,7 @@ export default function useAuthorTopPosts(
 		isLoading,
 		isFetching,
 		isError,
+		error,
 		hasData: !! primary.data,
 		refetch,
 	};

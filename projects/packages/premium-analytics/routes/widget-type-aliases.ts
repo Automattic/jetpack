@@ -52,3 +52,24 @@ export function withWidgetTypeAliases(
 
 	return resolved.length ? [ ...widgetTypes, ...resolved ] : widgetTypes;
 }
+
+/**
+ * The registry names a layout needs resolved: each alias mapped back to the
+ * base type it renders with, deduplicated.
+ *
+ * @param typeNames - The widget type names a layout renders.
+ * @param aliases   - The page's aliases.
+ * @return The base type names.
+ */
+export function toWidgetTypeBaseNames(
+	typeNames: readonly string[],
+	aliases: ReadonlyArray< WidgetTypeAlias >
+): string[] {
+	const baseByAlias = new Map< string, string >(
+		aliases.flatMap( ( { baseType, variants } ) =>
+			variants.map( variant => [ variant.name, baseType ] as const )
+		)
+	);
+
+	return [ ...new Set( typeNames.map( name => baseByAlias.get( name ) ?? name ) ) ];
+}

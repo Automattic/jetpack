@@ -151,37 +151,55 @@ export const mockTopAuthorsComparisonData = {
 };
 
 /**
- * The `summarize=0` shape of the report: one bucket per day of the window, each
- * holding the same authors with their views spread over the days on a gentle
- * weekly cycle, so a scoped chart has a series to draw.
+ * The `summarize=0` shape of the report: one bucket per period of the window,
+ * keyed at its calendar start as the endpoint does, each holding the same
+ * authors with their views spread over the buckets, so a scoped chart has a
+ * series to draw.
  *
  * @param startDate - The window start (`YYYY-MM-DD`).
  * @param endDate   - The window end (`YYYY-MM-DD`).
+ * @param period    - The bucket period.
  * @return A raw top-authors response with `days`.
  */
-export function buildTopAuthorsDaysData( startDate: string, endDate: string ) {
+export function buildTopAuthorsDaysData(
+	startDate: string,
+	endDate: string,
+	period: 'day' | 'week' | 'month' = 'day'
+) {
 	const days: Record< string, { authors: unknown[] } > = {};
 	const authors = mockTopAuthorsData.summary.authors;
 	const cursor = new Date( `${ startDate }T00:00:00Z` );
 	const end = new Date( `${ endDate }T00:00:00Z` );
 	const dayCount = Math.max( 1, Math.round( ( end.getTime() - cursor.getTime() ) / 86400000 ) + 1 );
 
+	if ( period === 'week' ) {
+		cursor.setUTCDate( cursor.getUTCDate() - ( ( cursor.getUTCDay() + 6 ) % 7 ) );
+	} else if ( period === 'month' ) {
+		cursor.setUTCDate( 1 );
+	}
+	const bucketDays = { day: 1, week: 7, month: 30 }[ period ];
+
 	while ( cursor <= end ) {
 		const key = cursor.toISOString().slice( 0, 10 );
 		const weekly = 0.7 + 0.3 * Math.sin( ( cursor.getUTCDay() / 7 ) * Math.PI * 2 );
+		const share = Math.min( 1, bucketDays / dayCount ) * weekly;
 
 		days[ key ] = {
 			authors: authors.map( author => ( {
 				...author,
-				views: Math.round( ( author.views / dayCount ) * weekly ),
+				views: Math.round( author.views * share ),
 				posts: author.posts.map( authorPost => ( {
 					...authorPost,
-					views: Math.round( ( authorPost.views / dayCount ) * weekly ),
+					views: Math.round( authorPost.views * share ),
 				} ) ),
 			} ) ),
 		};
-		cursor.setUTCDate( cursor.getUTCDate() + 1 );
+		if ( period === 'month' ) {
+			cursor.setUTCMonth( cursor.getUTCMonth() + 1 );
+		} else {
+			cursor.setUTCDate( cursor.getUTCDate() + bucketDays );
+		}
 	}
 
-	return { date: endDate, period: 'day', days };
+	return { date: endDate, period, days };
 }

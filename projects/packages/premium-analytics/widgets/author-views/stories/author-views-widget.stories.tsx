@@ -1,5 +1,5 @@
 /**
- * Served by the shared report mocks' day-bucketed `stats/top-authors` fixture;
+ * Served by the shared report mocks' period-bucketed `stats/top-authors` fixture;
  * the story scopes the widget to one of its authors the way the author detail
  * page seeds `author_id` from its URL.
  */
@@ -68,7 +68,7 @@ const meta = {
 			control: 'radio',
 			options: [ 'day', 'week', 'month' ],
 			description:
-				'The page chart interval the widget sums the daily buckets into. Monthly moves the story range to 90 days, the shortest preset that allows it.',
+				'The page chart interval the endpoint buckets by. Monthly moves the story range to 90 days, the shortest preset that allows it.',
 		},
 		chartType: {
 			control: 'radio',
@@ -80,7 +80,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Author views" widget of the author detail page: the scoped author\'s daily views from `stats/top-authors`, summed into the page\'s chart interval client-side, as a line chart by default. Without an author scope the widget renders a scopeless empty state.',
+					'The "Author views" widget of the author detail page: the scoped author\'s views per chart interval from `stats/top-authors`, as a bar chart by default. Without an author scope the widget renders a scopeless empty state.',
 			},
 		},
 	},

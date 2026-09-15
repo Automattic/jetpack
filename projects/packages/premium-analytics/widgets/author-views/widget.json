@@ -3,7 +3,7 @@
 	"title": "Author views",
 	"description": "The view trend of the author being viewed over the selected period.",
 	"help": {
-		"content": "Views of this author's posts over the selected period, read from the site's daily top-authors ranking. A day where the author ranked outside the top 20 counts as no views."
+		"content": "Views of this author's posts over the selected period, read from the site's top-authors ranking per chart interval. An interval where the author ranked outside its top authors counts as no views."
 	},
 	"category": "stats",
 	"presentation": "framed"

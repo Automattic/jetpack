@@ -100,8 +100,20 @@ describe( 'AuthorTopPostsWidget', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'surfaces a retryable error when the request fails', async () => {
+	it( 'routes a permission-gated 403 through describeError: neutral copy, no retry', async () => {
 		mockApiFetch.mockRejectedValue( { error: 'unauthorized', status: 403 } );
+
+		render( <AuthorTopPostsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		await expect(
+			screen.findByText( "You don't have access to this data." )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers a retry for a failure that can heal', async () => {
+		// The proxy's `no_connection` 403 heals on reconnect and skips React Query's retry backoff.
+		mockApiFetch.mockRejectedValue( { status: 403, code: 'no_connection' } );
 
 		render( <AuthorTopPostsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 

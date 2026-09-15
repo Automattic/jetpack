@@ -23,8 +23,8 @@ export type AuthorViewsAttributes = {
 };
 
 /**
- * The series is this author's row read out of every daily `stats/top-authors`
- * bucket, summed into the page's chart interval client-side.
+ * The series is this author's row read out of every `stats/top-authors` bucket
+ * over the page's chart interval.
  */
 export default {
 	icon: seen,

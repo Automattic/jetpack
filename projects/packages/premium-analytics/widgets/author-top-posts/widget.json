@@ -3,7 +3,7 @@
 	"title": "Top viewed posts",
 	"description": "The most viewed posts of the author being viewed over the selected period.",
 	"help": {
-		"content": "This author's posts ranked by views in the selected period, read from the site's daily top-authors ranking. A day where the author ranked outside the top 20 counts as no views."
+		"content": "This author's posts ranked by views in the selected period, read from the site's top-authors ranking. An author outside the period's top authors shows no posts here."
 	},
 	"category": "stats",
 	"presentation": "framed"

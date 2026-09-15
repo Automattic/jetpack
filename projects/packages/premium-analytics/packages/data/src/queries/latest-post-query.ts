@@ -10,6 +10,7 @@ import {
 	sanitizeLatestPostResponse,
 	sanitizePostsContentResponse,
 } from '../processing/latest-post';
+import { toAuthorId, toPostId } from '../utils/to-post-id';
 import type { LatestPost, LatestPostResponse } from '../processing/latest-post';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
@@ -49,7 +50,7 @@ export type LatestPostQueryOptions = {
 export function latestPostQuery( {
 	authorId = 0,
 }: LatestPostQueryOptions = {} ): UseQueryOptions< LatestPostResponse > {
-	const author = Number.isInteger( authorId ) && authorId > 0 ? authorId : 0;
+	const author = toAuthorId( authorId );
 
 	return {
 		queryKey: author ? [ 'latest-post', author ] : [ 'latest-post' ],
@@ -102,8 +103,8 @@ export function postContentQuery( postId: number ): UseQueryOptions< LatestPostR
 	};
 }
 
-// Enough for a ranked shortlist; the core endpoint caps a page at 100.
-const POSTS_CONTENT_MAX = 20;
+// The core endpoint's page cap; a ranked shortlist is never longer.
+const POSTS_CONTENT_MAX = 100;
 
 /**
  * React Query options for the headline content of several posts at once, read
@@ -111,15 +112,13 @@ const POSTS_CONTENT_MAX = 20;
  * consumer that must pick a *post* out of a ranked list of ids asks core for the
  * ones that are published posts and takes the first that comes back.
  *
- * Disabled for an empty list. Ids beyond the first 20 are ignored.
+ * Disabled for an empty list. Ids beyond the first 100 are ignored.
  *
  * @param postIds - Candidate post IDs.
  * @return The query options; `data` holds only the ids that are published posts.
  */
 export function postsContentQuery( postIds: number[] ): UseQueryOptions< LatestPost[] > {
-	const ids = postIds
-		.filter( postId => Number.isInteger( postId ) && postId > 0 )
-		.slice( 0, POSTS_CONTENT_MAX );
+	const ids = postIds.filter( postId => toPostId( postId ) > 0 ).slice( 0, POSTS_CONTENT_MAX );
 
 	return {
 		queryKey: [ 'posts-content', ids ],

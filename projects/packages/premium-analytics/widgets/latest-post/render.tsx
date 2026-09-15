@@ -36,6 +36,33 @@ function LatestPostReport( { authorScoped }: { authorScoped: boolean } ) {
 	// Gated on the instance attribute, not the URL alone, so a stray `author_id`
 	// on the dashboard cannot narrow the site-wide card.
 	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : 0;
+
+	// An author-scoped instance rendered off its page must not fall back to the
+	// site-wide pick under the author-scoped title.
+	if ( authorScoped && ! authorId ) {
+		return (
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ {
+					icon: postList,
+					description: __(
+						'Open an author to see their latest post here.',
+						'jetpack-premium-analytics-pkg'
+					),
+				} }
+			>
+				{ null }
+			</WidgetState>
+		);
+	}
+
+	return <LatestPostCard authorId={ authorId } />;
+}
+
+function LatestPostCard( { authorId }: { authorId: number } ) {
+	const { reportParams } = useWidgetRootContext();
 	const { post, isLoading, isFetching, isError, refetch } = useLatestPost( authorId );
 	// The detail page opens on the dashboard's current window.
 	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );

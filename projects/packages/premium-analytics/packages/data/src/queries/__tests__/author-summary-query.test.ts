@@ -85,8 +85,12 @@ describe( 'authorSummaryQuery', () => {
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'rethrows any other users failure', async () => {
-		const error = { code: 'internal_server_error', data: { status: 500 } };
+	it.each( [
+		[ 'internal_server_error', 500 ],
+		[ 'rest_forbidden', 403 ],
+		[ 'rest_no_route', 404 ],
+	] )( 'rethrows a %s failure whatever its status', async ( code, status ) => {
+		const error = { code, data: { status } };
 		mockApiFetch.mockRejectedValueOnce( error );
 
 		await expect( run( 7 ) ).rejects.toBe( error );

@@ -8,15 +8,16 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { isResponse } from '../api/is-response';
 import { sanitizeAuthorSummaryResponse } from '../processing/author';
-import { getApiErrorStatus } from '../utils/api-error';
+import { getApiErrorCode } from '../utils/api-error';
+import { toAuthorId } from '../utils/to-post-id';
 import type { AuthorSummaryRecord, AuthorSummaryResponse } from '../processing/author';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
 export type { AuthorSummaryRecord, AuthorSummaryResponse };
 
-// Not found and cannot view both mean the id names nobody the reader can see
-// as an author; every other failure is a real error.
-const MISSING_AUTHOR_STATUSES = [ 403, 404 ];
+// Core's own "no such user" and "cannot view" answers; matched by code, not
+// status, so a plugin blocking `wp/v2/users` or an expired nonce stays an error.
+const MISSING_AUTHOR_CODES = [ 'rest_user_invalid_id', 'rest_user_cannot_view' ];
 
 /**
  * Read the author's oldest published post plus the total from the response
@@ -71,8 +72,8 @@ export function authorSummaryQuery( authorId: number ): UseQueryOptions< AuthorS
 					} ),
 				} );
 			} catch ( error ) {
-				const status = getApiErrorStatus( error );
-				if ( status !== null && MISSING_AUTHOR_STATUSES.includes( status ) ) {
+				const code = getApiErrorCode( error );
+				if ( code !== null && MISSING_AUTHOR_CODES.includes( code ) ) {
 					return null;
 				}
 				throw error;
@@ -82,6 +83,6 @@ export function authorSummaryQuery( authorId: number ): UseQueryOptions< AuthorS
 
 			return sanitizeAuthorSummaryResponse( user, posts, total );
 		},
-		enabled: Number.isInteger( authorId ) && authorId > 0,
+		enabled: toAuthorId( authorId ) > 0,
 	};
 }

@@ -5,7 +5,7 @@ import { seen } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { withWidgetTypeAliases } from './widget-type-aliases';
+import { toWidgetTypeBaseNames, withWidgetTypeAliases } from './widget-type-aliases';
 import type { WidgetType } from '@wordpress/widget-primitives';
 
 const base = {
@@ -56,5 +56,19 @@ describe( 'withWidgetTypeAliases', () => {
 				{ baseType: 'jpa/missing', variants: [ { name: 'jpa/missing--x', getTitle: () => 'X' } ] },
 			] )
 		).toBe( widgetTypes );
+	} );
+
+	it( 'maps a layout’s alias names back to their base types, once each', () => {
+		expect(
+			toWidgetTypeBaseNames(
+				[ 'jpa/author-views', 'jpa/popular-post--author', 'jpa/popular-post' ],
+				[
+					{
+						baseType: 'jpa/popular-post',
+						variants: [ { name: 'jpa/popular-post--author', getTitle: () => '' } ],
+					},
+				]
+			)
+		).toEqual( [ 'jpa/author-views', 'jpa/popular-post' ] );
 	} );
 } );
