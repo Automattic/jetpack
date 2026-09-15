@@ -40,7 +40,41 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		'version'           => '3.1.1',
 		'last_updated'      => '2026-09-03',
 		'banners'           => null,
+		'variations'        => array(
+			'monthly' => array( 'product_id' => 2510 ),
+			'yearly'  => array( 'product_id' => 2509 ),
+		),
 	);
+
+	/**
+	 * The store catalog, as /rest/v1.1/products shapes it.
+	 *
+	 * @var array
+	 */
+	private const STORE = array(
+		2509 => array(
+			'slug'  => 'gravityforms_yearly',
+			'price' => '$132.00',
+		),
+		2510 => array(
+			'slug'  => 'gravityforms_monthly',
+			'price' => '$12.00',
+		),
+	);
+
+	/**
+	 * A priced card, as the tab renders it.
+	 *
+	 * @return array
+	 */
+	private function priced_card() {
+		$catalog = Marketplace_Catalog::attach_pricing(
+			array( 'gravityforms' => Marketplace_Catalog::to_card( self::PRODUCT ) ),
+			self::STORE
+		);
+
+		return $catalog['gravityforms'];
+	}
 
 	/**
 	 * Turn the tab on for the duration of a test.
@@ -536,6 +570,114 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_modal_html_leaves_an_empty_description_alone() {
 		$this->assertSame( '', Marketplace_Catalog::to_modal_html( '' ) );
+	}
+
+	/**
+	 * Checkout is addressed by store slug, which the marketplace payload does not
+	 * carry: it gives a numeric id that has to be resolved against the store catalog.
+	 */
+	public function test_pricing_is_resolved_from_the_store_catalog() {
+		$card = $this->priced_card();
+
+		$this->assertSame( 'gravityforms_yearly', $card['wpcom_pricing']['yearly']['slug'] );
+		$this->assertSame( '$132.00', $card['wpcom_pricing']['yearly']['price'] );
+		$this->assertSame( 'gravityforms_monthly', $card['wpcom_pricing']['monthly']['slug'] );
+	}
+
+	/**
+	 * A variation the store does not know is left out rather than half-populated.
+	 */
+	public function test_pricing_skips_unknown_variations() {
+		$catalog = Marketplace_Catalog::attach_pricing(
+			array( 'gravityforms' => Marketplace_Catalog::to_card( self::PRODUCT ) ),
+			array( 2509 => self::STORE[2509] )
+		);
+
+		$this->assertArrayHasKey( 'yearly', $catalog['gravityforms']['wpcom_pricing'] );
+		$this->assertArrayNotHasKey( 'monthly', $catalog['gravityforms']['wpcom_pricing'] );
+	}
+
+	/**
+	 * The button goes straight to checkout, which is what the Calypso product page's
+	 * own button does. Landing there is the whole point of skipping that page.
+	 */
+	public function test_checkout_url_targets_the_store_product() {
+		$url = Marketplace_Catalog::checkout_url( $this->priced_card(), 'yearly' );
+
+		$this->assertStringContainsString( '/checkout/', $url );
+		$this->assertStringContainsString( 'gravityforms_yearly', $url );
+		$this->assertStringEndsWith( '#step2', $url );
+	}
+
+	/**
+	 * No store product means nothing to buy.
+	 */
+	public function test_checkout_url_is_empty_without_a_variation() {
+		$this->assertSame( '', Marketplace_Catalog::checkout_url( $this->priced_card(), 'weekly' ) );
+		$this->assertSame( '', Marketplace_Catalog::checkout_url( Marketplace_Catalog::to_card( self::PRODUCT ), 'yearly' ) );
+	}
+
+	/**
+	 * Yearly unless the reader asks for monthly.
+	 */
+	public function test_billing_term_defaults_to_yearly() {
+		$this->assertSame( 'yearly', wpcom_marketplace_billing_term() );
+
+		$_GET['billing'] = 'monthly';
+		$this->assertSame( 'monthly', wpcom_marketplace_billing_term() );
+
+		$_GET['billing'] = 'nonsense';
+		$this->assertSame( 'yearly', wpcom_marketplace_billing_term() );
+
+		unset( $_GET['billing'] );
+	}
+
+	/**
+	 * The price belongs on the button: it is the only thing on the card that says
+	 * what the click costs, and the click goes straight to a payment page.
+	 */
+	public function test_button_carries_the_price_and_checkout_url() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$links = wpcom_marketplace_action_links( array( '<a class="install-now">Install Now</a>' ), $this->priced_card() );
+
+		$this->assertStringContainsString( '$132.00', $links[0] );
+		$this->assertStringContainsString( 'year', $links[0] );
+		$this->assertStringContainsString( 'gravityforms_yearly', $links[0] );
+		$this->assertStringNotContainsString( 'install-now', $links[0] );
+	}
+
+	/**
+	 * Switching to monthly reprices every button on the tab.
+	 */
+	public function test_button_follows_the_selected_term() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$_GET['billing'] = 'monthly';
+		$links           = wpcom_marketplace_action_links( array( '<a class="install-now">Install Now</a>' ), $this->priced_card() );
+		unset( $_GET['billing'] );
+
+		$this->assertStringContainsString( '$12.00', $links[0] );
+		$this->assertStringContainsString( 'month', $links[0] );
+		$this->assertStringContainsString( 'gravityforms_monthly', $links[0] );
+	}
+
+	/**
+	 * A product with no store variation still gets somewhere useful.
+	 */
+	public function test_button_falls_back_to_the_product_page() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$links = wpcom_marketplace_action_links(
+			array( '<a class="install-now">Install Now</a>' ),
+			Marketplace_Catalog::to_card( self::PRODUCT )
+		);
+
+		$this->assertStringContainsString( 'Get started', $links[0] );
+		$this->assertStringContainsString( 'wordpress.com/plugins/gravityforms/', $links[0] );
 	}
 
 	/**

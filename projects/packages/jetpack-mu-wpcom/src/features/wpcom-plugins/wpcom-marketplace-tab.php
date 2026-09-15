@@ -159,6 +159,57 @@ function wpcom_marketplace_on_plugin_install_screen() {
 }
 
 /**
+ * The billing term the screen is showing, yearly unless asked otherwise.
+ *
+ * @return string 'yearly' or 'monthly'.
+ */
+function wpcom_marketplace_billing_term() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$term = isset( $_GET['billing'] ) ? sanitize_key( wp_unslash( $_GET['billing'] ) ) : '';
+
+	return 'monthly' === $term ? 'monthly' : 'yearly';
+}
+
+/**
+ * The noun a price is read with, as in "$10.00/month".
+ *
+ * @param string $term 'yearly' or 'monthly'.
+ * @return string
+ */
+function wpcom_marketplace_term_noun( $term ) {
+	return 'monthly' === $term
+		? __( 'month', 'jetpack-mu-wpcom' )
+		: __( 'year', 'jetpack-mu-wpcom' );
+}
+
+/**
+ * Lets the reader price the whole tab monthly or yearly.
+ *
+ * A form rather than links because core already puts one on this screen for
+ * Favorites, so the markup and styling are established.
+ *
+ * @return void
+ */
+function wpcom_marketplace_billing_switcher() {
+	$term = wpcom_marketplace_billing_term();
+	?>
+	<form method="get" class="wpcom-marketplace-billing">
+		<input type="hidden" name="tab" value="<?php echo esc_attr( WPCOM_MARKETPLACE_TAB ); ?>" />
+		<span class="wpcom-marketplace-billing__label"><?php esc_html_e( 'Billing', 'jetpack-mu-wpcom' ); ?></span>
+		<label>
+			<input type="radio" name="billing" value="yearly" <?php checked( 'yearly', $term ); ?> />
+			<?php esc_html_e( 'Yearly', 'jetpack-mu-wpcom' ); ?>
+		</label>
+		<label>
+			<input type="radio" name="billing" value="monthly" <?php checked( 'monthly', $term ); ?> />
+			<?php esc_html_e( 'Monthly', 'jetpack-mu-wpcom' ); ?>
+		</label>
+		<input type="submit" class="button" value="<?php esc_attr_e( 'Apply', 'jetpack-mu-wpcom' ); ?>" />
+	</form>
+	<?php
+}
+
+/**
  * Replaces "Install Now" with a link to the product's page on WordPress.com.
  *
  * Installed products keep core's button: Marketplace_Products_Updater already gives
@@ -178,14 +229,38 @@ function wpcom_marketplace_action_links( $action_links, $plugin ) {
 		return $action_links;
 	}
 
-	// Same tab, like every other button on this screen.
-	$button = sprintf(
-		'<a class="button" href="%s" aria-label="%s">%s</a>',
-		esc_url( Marketplace_Catalog::product_url( $plugin['wpcom_product_slug'] ?? $plugin['slug'] ) ),
-		/* translators: %s: Plugin name. */
-		esc_attr( sprintf( __( 'Get started with %s', 'jetpack-mu-wpcom' ), $plugin['name'] ?? $plugin['slug'] ) ),
-		esc_html__( 'Get started', 'jetpack-mu-wpcom' )
-	);
+	$term         = wpcom_marketplace_billing_term();
+	$checkout_url = Marketplace_Catalog::checkout_url( $plugin, $term );
+	$price        = $plugin['wpcom_pricing'][ $term ]['price'] ?? '';
+	$name         = $plugin['name'] ?? $plugin['slug'];
+
+	// Without a store product there is nothing to buy, so fall back to the product page.
+	if ( '' === $checkout_url ) {
+		$button = sprintf(
+			'<a class="button" href="%s" aria-label="%s">%s</a>',
+			esc_url( Marketplace_Catalog::product_url( $plugin['wpcom_product_slug'] ?? $plugin['slug'] ) ),
+			/* translators: %s: Plugin name. */
+			esc_attr( sprintf( __( 'Get started with %s', 'jetpack-mu-wpcom' ), $name ) ),
+			esc_html__( 'Get started', 'jetpack-mu-wpcom' )
+		);
+	} else {
+		$label = '' === $price
+			? __( 'Purchase', 'jetpack-mu-wpcom' )
+			: sprintf(
+				/* translators: %1$s: Price, for example $10.00. %2$s: Billing period, already translated. */
+				__( 'Purchase %1$s/%2$s', 'jetpack-mu-wpcom' ),
+				$price,
+				wpcom_marketplace_term_noun( $term )
+			);
+
+		$button = sprintf(
+			'<a class="button button-primary" href="%s" aria-label="%s">%s</a>',
+			esc_url( $checkout_url ),
+			/* translators: %s: Plugin name. */
+			esc_attr( sprintf( __( 'Purchase and activate %s', 'jetpack-mu-wpcom' ), $name ) ),
+			esc_html( $label )
+		);
+	}
 
 	// Replace core's install button wherever it ended up, rather than assuming index 0.
 	foreach ( $action_links as $index => $link ) {
@@ -246,4 +321,5 @@ function wpcom_marketplace_intro() {
 }
 
 add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_intro', 9 );
+add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_billing_switcher', 9 );
 add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'display_plugins_table' );
