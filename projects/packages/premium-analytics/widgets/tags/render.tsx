@@ -22,7 +22,7 @@ import {
 import { tag as tagIllustration } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { category, tag as tagGlyph } from '@wordpress/icons';
+import { file as categoryGlyph, tag as tagGlyph } from '@wordpress/icons';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -37,7 +37,7 @@ type TagsWidgetProps = WidgetRenderProps< TagsRenderAttributes >;
 
 // The Stats sanitizer marks a category with the `folder` glyph key; every other
 // row is a tag.
-const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? category : tagGlyph );
+const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? categoryGlyph : tagGlyph );
 
 interface TagGroupMembersProps {
 	/**
