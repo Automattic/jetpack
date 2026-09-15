@@ -725,7 +725,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					title={ __( 'Product Options', 'jetpack-paypal-payments' ) }
 					initialOpen={ ! hasButton || variantErrors.length > 0 }
 				>
-					{ /* PayPal rejects a 51st character, so the field stops rather than errors. */ }
+					{ /* PayPal caps a product id at 50 characters, so the input stops there. */ }
 					<TextControl
 						label={ __( 'Product ID (optional)', 'jetpack-paypal-payments' ) }
 						value={ productId || '' }

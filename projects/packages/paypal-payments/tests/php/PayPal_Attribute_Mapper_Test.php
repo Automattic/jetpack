@@ -596,7 +596,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * A product id of "0" is a product id. empty() would drop it.
+	 * A product id of "0" is valid - empty() would drop it.
 	 */
 	public function test_api_response_to_attributes_reads_a_product_id_of_zero() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -615,8 +615,8 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * A payment with no product id leaves the attribute unset, so the reconcile
-	 * falls back to the block default rather than writing an empty string.
+	 * A payment with no product id leaves the attribute unset, so the block keeps
+	 * its default instead of an empty string.
 	 */
 	public function test_api_response_to_attributes_omits_a_missing_product_id() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(

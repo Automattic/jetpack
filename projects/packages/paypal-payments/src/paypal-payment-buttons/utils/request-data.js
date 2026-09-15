@@ -91,9 +91,8 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 							},
 					  } ),
 				...( productDescription ? { description: productDescription } : {} ),
-				// Omitted rather than '' so a cleared field does not read as a change on
-				// every save. '0' is a product id, so the test is on the string.
-				...( '' !== ( productId ?? '' ) ? { product_id: productId } : {} ),
+				// '0' is a valid product id, so blank is a trim check, not truthiness.
+				...( `${ productId ?? '' }`.trim() !== '' ? { product_id: productId } : {} ),
 				// The block owns the image: leaving it out here removes it at PayPal.
 				...( imageUrl ? { image_url: imageUrl } : {} ),
 				...( variantsEnabled && variants

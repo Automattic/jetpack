@@ -100,7 +100,14 @@ describe( 'buildRequestData', () => {
 		).not.toHaveProperty( 'product_id' );
 	} );
 
-	// '0' is a product id PayPal stores, so the builder tests the string, not truthiness.
+	// A typed space would reach PayPal as '', which it rejects.
+	it( 'omits product_id when the field is only whitespace', () => {
+		expect(
+			buildRequestData( { ...attributes, productId: '   ' }, true ).line_items[ 0 ]
+		).not.toHaveProperty( 'product_id' );
+	} );
+
+	// '0' is a real product id, so it must not be dropped as falsy.
 	it( 'sends a product id of "0"', () => {
 		expect(
 			buildRequestData( { ...attributes, productId: '0' }, true ).line_items[ 0 ].product_id
@@ -147,7 +154,6 @@ describe( 'buildRequestData', () => {
 
 describe( 'keepPayPalOnlyFields', () => {
 	const stored = {
-		product_id: 'SKU-1',
 		shipping: [ { type: 'FLAT', value: '5.00', additional_unit_value: '2.00' } ],
 		handling: [ { type: 'FLAT', value: '4.00' } ],
 		discounts: [ { type: 'FLAT', value: '2.00' } ],
