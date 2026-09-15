@@ -19,14 +19,20 @@ use Automattic\Jetpack\Connection\Client;
 class Marketplace_Catalog {
 
 	/**
+	 * Bumped whenever the shape of a cached card or description changes, so sites
+	 * do not keep serving data built by the previous version until it expires.
+	 */
+	const CACHE_VERSION = 2;
+
+	/**
 	 * Transient holding the normalized product list.
 	 */
-	const LIST_CACHE_KEY = 'wpcom_marketplace_catalog';
+	const LIST_CACHE_KEY = 'wpcom_marketplace_catalog_v' . self::CACHE_VERSION;
 
 	/**
 	 * Transient prefix for a single product's full details.
 	 */
-	const PRODUCT_CACHE_PREFIX = 'wpcom_marketplace_product_';
+	const PRODUCT_CACHE_PREFIX = 'wpcom_marketplace_product_v' . self::CACHE_VERSION . '_';
 
 	/**
 	 * How long a successful read is cached for.

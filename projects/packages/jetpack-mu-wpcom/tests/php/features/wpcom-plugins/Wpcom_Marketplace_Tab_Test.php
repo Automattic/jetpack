@@ -397,6 +397,15 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The cached shape changes with the code that builds it, so the key has to move
+	 * too or sites keep serving whatever the previous version wrote.
+	 */
+	public function test_cache_keys_carry_the_version() {
+		$this->assertStringContainsString( (string) Marketplace_Catalog::CACHE_VERSION, Marketplace_Catalog::LIST_CACHE_KEY );
+		$this->assertStringContainsString( (string) Marketplace_Catalog::CACHE_VERSION, Marketplace_Catalog::PRODUCT_CACHE_PREFIX );
+	}
+
+	/**
 	 * Vendor descriptions are WooCommerce.com product pages. Core's modal loads none
 	 * of that CSS, so the layout markup has to go before it gets there.
 	 */
