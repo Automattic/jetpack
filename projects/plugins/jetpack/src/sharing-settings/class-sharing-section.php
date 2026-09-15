@@ -71,6 +71,7 @@ final class Sharing_Section {
 			)
 		);
 		self::render_site_editor_link();
+		self::render_activate_form( false );
 	}
 
 	/**
@@ -85,6 +86,19 @@ final class Sharing_Section {
 			esc_html__( 'Sharing buttons are turned off for this site.', 'jetpack' )
 		);
 
+		self::render_activate_form();
+	}
+
+	/**
+	 * The way back from either off variant.
+	 *
+	 * Recommending the block does not remove the need for this: the switch is a
+	 * single unconfirmed click, and without a way back this screen would be a
+	 * one-way door.
+	 *
+	 * @param bool $primary Whether this is the only action offered.
+	 */
+	private static function render_activate_form( bool $primary = true ): void {
 		if ( ! Environment::can_activate_modules() ) {
 			printf(
 				'<p>%s</p>',
@@ -96,7 +110,8 @@ final class Sharing_Section {
 		Post_Handler::render_action_form(
 			'activate-sharing',
 			self::NONCE_ACTION,
-			__( 'Turn on sharing buttons', 'jetpack' )
+			__( 'Turn on sharing buttons', 'jetpack' ),
+			$primary
 		);
 	}
 
@@ -140,7 +155,7 @@ final class Sharing_Section {
 	 * The services list and its settings.
 	 */
 	private static function render_services_config(): void {
-		Placement_Section::render_summary( __( 'Sharing buttons', 'jetpack' ) );
+		Placement_Section::render_summary( Placement_Section::FEATURE_SHARING );
 
 		( new Services_Config() )->render();
 	}

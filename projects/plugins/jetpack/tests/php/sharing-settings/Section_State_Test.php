@@ -47,14 +47,14 @@ class Section_State_Test extends TestCase {
 	}
 
 	/**
-	 * @param bool   $is_block_theme  Whether the active theme is a block theme.
+	 * @param bool   $can_offer_block Whether the block is a route this site can be sent down.
 	 * @param bool   $feature_enabled Whether the feature can still produce output.
 	 * @param string $expected        Expected variant.
 	 * @dataProvider provide_sections
 	 */
 	#[DataProvider( 'provide_sections' )]
-	public function test_section_variant( bool $is_block_theme, bool $feature_enabled, string $expected ): void {
-		$this->assertSame( $expected, Section_State::for_section( $is_block_theme, $feature_enabled ) );
+	public function test_section_variant( bool $can_offer_block, bool $feature_enabled, string $expected ): void {
+		$this->assertSame( $expected, Section_State::for_section( $can_offer_block, $feature_enabled ) );
 	}
 
 	/**
@@ -83,7 +83,7 @@ class Section_State_Test extends TestCase {
 
 	/**
 	 * @param bool $sharing_enabled Whether sharing buttons can produce output.
-	 * @param bool $likes_enabled   Whether Like buttons can produce output.
+	 * @param bool $likes_enabled   Whether anything still reads the Likes settings.
 	 * @param bool $expected        Whether the placement section renders.
 	 * @dataProvider provide_placement
 	 */

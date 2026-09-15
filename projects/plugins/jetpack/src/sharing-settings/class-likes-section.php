@@ -27,13 +27,24 @@ final class Likes_Section {
 	public const NONCE_ACTION = 'jetpack-likes-options';
 
 	/**
+	 * Anchor `jetpack_likes_configuration_url()` points the module list at.
+	 */
+	public const ANCHOR = 'likes';
+
+	/**
 	 * Render the section.
 	 */
 	public static function render(): void {
-		$state = Section_State::for_section( self::can_offer_block(), Environment::likes_enabled() );
-
-		echo '<div class="jetpack-sharing-settings__section">';
+		printf( '<div class="jetpack-sharing-settings__section" id="%s">', esc_attr( self::ANCHOR ) );
 		printf( '<h2>%s</h2>', esc_html_x( 'Like buttons', 'Settings header', 'jetpack' ) );
+
+		if ( ! Environment::likes_supported() ) {
+			self::render_unsupported();
+			echo '</div>';
+			return;
+		}
+
+		$state = Section_State::for_section( self::can_offer_block(), Environment::likes_settings_in_use() );
 
 		switch ( $state ) {
 			case Section_State::BLOCK_CALL_TO_ACTION:
@@ -54,15 +65,31 @@ final class Likes_Section {
 	}
 
 	/**
+	 * Like buttons cannot render on this site at all.
+	 *
+	 * Stated rather than omitted: the per-post Likes metabox stays visible on a
+	 * disconnected site, so silently dropping the section here would leave the
+	 * setting it reads with nowhere to live.
+	 */
+	private static function render_unsupported(): void {
+		printf(
+			'<p>%s</p>',
+			esc_html__( 'Like buttons need a connection to WordPress.com. Connect your site to turn them on and choose where they appear.', 'jetpack' )
+		);
+	}
+
+	/**
 	 * Whether the Like block is a route we can send this site down.
 	 *
 	 * A block theme alone is not enough: without the block or a resolvable
 	 * template there is nowhere to send anyone, so those sites keep the
-	 * classic behaviour.
+	 * classic behaviour. Comment Likes has no block equivalent, so a site
+	 * running it is never sent down this route either.
 	 */
 	private static function can_offer_block(): bool {
 		return Environment::is_block_theme()
 			&& Environment::has_like_block()
+			&& ! Environment::comment_likes_enabled()
 			&& '' !== Environment::post_template_url();
 	}
 
@@ -79,23 +106,35 @@ final class Likes_Section {
 			)
 		);
 		self::render_site_editor_link();
+		self::render_activate_form( false );
 	}
 
 	/**
 	 * The module is off on a theme with no block route.
-	 *
-	 * The Like block is not an option here, so this is the one place the
-	 * feature can be switched back on.
 	 */
 	private static function render_off(): void {
 		printf(
 			'<p>%s</p>',
 			esc_html__( 'Like buttons are turned off for this site.', 'jetpack' )
 		);
+		self::render_activate_form();
+	}
+
+	/**
+	 * The way back from either off variant.
+	 *
+	 * Recommending the block does not remove the need for this: the switch is a
+	 * single unconfirmed click, and without a way back this screen would be a
+	 * one-way door.
+	 *
+	 * @param bool $primary Whether this is the only action offered.
+	 */
+	private static function render_activate_form( bool $primary = true ): void {
 		Post_Handler::render_action_form(
 			'activate-likes',
 			self::NONCE_ACTION,
-			__( 'Turn on Like buttons', 'jetpack' )
+			__( 'Turn on Like buttons', 'jetpack' ),
+			$primary
 		);
 	}
 
@@ -139,7 +178,7 @@ final class Likes_Section {
 	 * The section's own settings.
 	 */
 	private static function render_options(): void {
-		Placement_Section::render_summary( __( 'Like buttons', 'jetpack' ) );
+		Placement_Section::render_summary( Placement_Section::FEATURE_LIKES );
 
 		$enabled_sitewide = Likes_Options::enabled_sitewide();
 		?>
