@@ -1,5 +1,5 @@
 import { sanitizeStatsTimeSeriesResponse } from './time-series';
-import { coerceStatsRecord } from './utils';
+import { coerceStatsArray, coerceStatsRecord } from './utils';
 import type { StatsNormalizedDataPoint, StatsNormalizedReport } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
@@ -37,6 +37,16 @@ const countFields = [
 	'paid_subscribers',
 	'social_followers',
 ] as const satisfies ReadonlyArray< keyof StatsSubscribersCounts >;
+
+export type StatsMembershipProducts = {
+	productCount: number;
+};
+
+export function sanitizeStatsMembershipProductsResponse(
+	response: unknown
+): StatsMembershipProducts {
+	return { productCount: coerceStatsArray( coerceStatsRecord( response ).products ).length };
+}
 
 function normalizeCountValue( value: unknown ) {
 	return typeof value === 'number' ? value : undefined;

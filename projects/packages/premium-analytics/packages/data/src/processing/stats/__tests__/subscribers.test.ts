@@ -1,4 +1,8 @@
-import { sanitizeStatsSubscribersCountsResponse, sanitizeStatsSubscribersResponse } from '..';
+import {
+	sanitizeStatsMembershipProductsResponse,
+	sanitizeStatsSubscribersCountsResponse,
+	sanitizeStatsSubscribersResponse,
+} from '..';
 import {
 	emptySubscribersCountsFixture,
 	subscribersCountsFixture,
@@ -51,5 +55,19 @@ describe( 'Stats subscribers normalizers', () => {
 			paid_subscribers: undefined,
 			social_followers: undefined,
 		} );
+	} );
+
+	it( 'counts the membership products', () => {
+		expect(
+			sanitizeStatsMembershipProductsResponse( { products: [ { id: 1 }, { id: 2 } ] } )
+		).toEqual( { productCount: 2 } );
+	} );
+
+	it.each( [
+		[ 'an empty product list', { products: [] } ],
+		[ 'an error payload', { error: 'no_products' } ],
+		[ 'a non-object payload', null ],
+	] )( 'reads %s as no membership products', ( _name, response ) => {
+		expect( sanitizeStatsMembershipProductsResponse( response ) ).toEqual( { productCount: 0 } );
 	} );
 } );
