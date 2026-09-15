@@ -1,4 +1,5 @@
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	AlignmentControl,
@@ -478,6 +479,11 @@ const Controls = props => {
 					<p style={ { marginTop: 24 } }>
 						<ExternalLink href={ `https://wordpress.com/earn/${ getSiteFragment() }` }>
 							{ __( 'View donation earnings', 'jetpack' ) }
+						</ExternalLink>
+					</p>
+					<p>
+						<ExternalLink href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }>
+							{ __( "Review Stripe's requirements for accepting donations", 'jetpack' ) }
 						</ExternalLink>
 					</p>
 				</PanelBody>
