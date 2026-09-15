@@ -21,6 +21,12 @@ $item = $context['item'];
 $display_exif     = 1 === (int) Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', 1 );
 $fuzzy_image_meta = '';
 
+/*
+Lets the Carousel show its "has comments" badge without fetching the comments
+themselves. Omitted when there are none. Mirrors Jetpack_Carousel::add_data_to_images().
+*/
+$comments_count = (int) $item->image->comment_count;
+
 if ( $display_exif ) {
 	$image_meta = $item->fuzzy_image_meta(); // See https://github.com/Automattic/jetpack/issues/2765 .
 	if ( isset( $image_meta['keywords'] ) ) {
@@ -36,6 +42,9 @@ data-attachment-id="<?php echo esc_attr( $item->image->ID ); ?>"
 data-orig-file="<?php echo esc_url( wp_get_attachment_url( $item->image->ID ) ); ?>"
 data-orig-size="<?php echo esc_attr( $item->meta_width() ); ?>,<?php echo esc_attr( $item->meta_height() ); ?>"
 data-comments-opened="<?php echo esc_attr( comments_open( $item->image->ID ) ); ?>"
+<?php if ( $comments_count > 0 ) : ?>
+data-comments-count="<?php echo esc_attr( $comments_count ); ?>"
+<?php endif; ?>
 <?php if ( $display_exif ) : ?>
 data-image-meta="<?php echo esc_attr( $fuzzy_image_meta ); ?>"
 <?php endif; ?>

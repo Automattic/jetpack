@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Carousel: Stop fetching comments on every slide change; fetch them when the comments panel is opened.
