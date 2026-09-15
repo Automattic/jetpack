@@ -25,7 +25,7 @@ export const MAX_PRODUCT_ID_LENGTH = 50;
 export const MAX_CUSTOMER_NOTES = 2;
 
 // Shown under a field a merchant turned on and then left empty.
-// TODO: reuse this string for shipping and discounts when they land.
+// TODO: reuse this string for shipping when it lands.
 const REQUIRED_FIELD_ERROR = __(
 	'To continue, add the requested info or turn off this feature.',
 	'jetpack-paypal-payments'
@@ -139,6 +139,79 @@ export function validateRequiredAmount( value ) {
 }
 
 /**
+ * Validate a percentage discount.
+ *
+ * Whole numbers 1 to 99, measured. Tests the string, not the parsed number -
+ * PayPal rejects "1.0", which parseFloat would read as a valid 1.
+ *
+ * @param {string} value - The percentage off.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validateDiscountPercentage( value ) {
+	const num = parseFloat( value );
+
+	if ( isNaN( num ) || num <= 0 ) {
+		return REQUIRED_FIELD_ERROR;
+	}
+
+	if ( ! /^\d+$/.test( `${ value ?? '' }`.trim() ) ) {
+		return __( 'Discount percentage must be a whole number.', 'jetpack-paypal-payments' );
+	}
+
+	if ( num > 99 ) {
+		return __( 'Discount must be between 1% and 99%.', 'jetpack-paypal-payments' );
+	}
+
+	return null;
+}
+
+/**
+ * Validate a flat discount against the price it comes off.
+ *
+ * PayPal returns 422 at or above the price, so this is strictly less than.
+ * No price to compare against means format only.
+ *
+ * @param {string} value           - The amount off.
+ * @param {string} comparisonPrice - The price it comes off, or '' when there is none.
+ * @param {string} currencyCode    - The ISO currency code the amount is in.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validateDiscountAmount( value, comparisonPrice, currencyCode = 'USD' ) {
+	const num = parseFloat( value );
+
+	// Measured: PayPal rejects `discount.value is set to zero`, for "0" and "0.00"
+	// alike. Zero reads as "no discount", so it points at the toggle.
+	if ( isNaN( num ) || num <= 0 ) {
+		return REQUIRED_FIELD_ERROR;
+	}
+
+	const against = parseFloat( comparisonPrice );
+	if ( ! isNaN( against ) && num >= against ) {
+		return __( 'Discount must be less than the product price.', 'jetpack-paypal-payments' );
+	}
+
+	return getPriceFormatError( value, currencyCode );
+}
+
+/**
+ * Validate a discount against the rule its own type carries.
+ *
+ * The two rules have nothing in common - one is a range, the other a comparison -
+ * so the type picks between them here rather than inside either.
+ *
+ * @param {string} type            - Discount type: FLAT or PERCENTAGE.
+ * @param {string} value           - The amount or percentage off.
+ * @param {string} comparisonPrice - The price a flat discount comes off.
+ * @param {string} currencyCode    - The ISO currency code the amount is in.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validateDiscount( type, value, comparisonPrice, currencyCode ) {
+	return 'PERCENTAGE' === type
+		? validateDiscountPercentage( value )
+		: validateDiscountAmount( value, comparisonPrice, currencyCode );
+}
+
+/**
  * Validate a return URL (optional field).
  *
  * HTTPS only - a rule this block has always enforced on its own. Empty means the
@@ -208,6 +281,11 @@ export const ADVISORY_ERROR_KEYS = [ 'returnUrl' ];
  * @param {string}  fields.taxValue           - Tax rate or flat amount.
  * @param {boolean} fields.handlingEnabled    - Whether a handling fee is on.
  * @param {string}  fields.handlingValue      - Handling fee amount.
+ * @param {boolean} fields.discountEnabled    - Whether a discount is on.
+ * @param {string}  fields.discountType       - Discount type: FLAT or PERCENTAGE.
+ * @param {string}  fields.discountValue      - Discount amount or percentage.
+ * @param {string}  fields.comparisonPrice    - The price a flat discount comes off,
+ *                                            from getComparisonPrice().
  * @return {object} An error message or null, keyed by field.
  */
 export function getValidationErrors( {
@@ -222,6 +300,10 @@ export function getValidationErrors( {
 	taxValue,
 	handlingEnabled,
 	handlingValue,
+	discountEnabled,
+	discountType,
+	discountValue,
+	comparisonPrice,
 } ) {
 	return {
 		productName: validateProductName( productName ),
@@ -234,6 +316,11 @@ export function getValidationErrors( {
 		// nothing local to fill in.
 		taxValue: taxEnabled && 'PREFERENCE' !== taxType ? validateRequiredAmount( taxValue ) : null,
 		handlingValue: handlingEnabled ? validateRequiredAmount( handlingValue ) : null,
+		// A percentage is not money, so only the flat branch takes a price to
+		// compare against and a currency to check the decimals for.
+		discountValue: discountEnabled
+			? validateDiscount( discountType, discountValue, comparisonPrice, currencyCode || 'USD' )
+			: null,
 		currencyCode: validateCurrency( currencyCode ),
 	};
 }

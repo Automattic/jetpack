@@ -31,6 +31,9 @@ const blockAttributes = {
 	taxValue: '',
 	handlingEnabled: false,
 	handlingValue: '',
+	discountEnabled: false,
+	discountType: 'FLAT',
+	discountValue: '',
 	returnUrl: '',
 	collectShippingAddress: true,
 	imageUrl: 'https://example.com/widget.jpg',
@@ -123,6 +126,33 @@ describe( 'getResourceAttributeUpdates', () => {
 				resourceAttributes
 			)
 		).toEqual( { handlingEnabled: false, handlingValue: '' } );
+	} );
+
+	it( 'reads the discount back from the payment', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, {
+				...resourceAttributes,
+				discountEnabled: true,
+				discountType: 'PERCENTAGE',
+				discountValue: '15',
+			} )
+		).toEqual( { discountEnabled: true, discountType: 'PERCENTAGE', discountValue: '15' } );
+	} );
+
+	// A discount removed at PayPal has to turn the toggle back off here, or the form
+	// shows one the payment no longer gives.
+	it( 'clears a discount the payment no longer carries', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{
+					...blockAttributes,
+					discountEnabled: true,
+					discountType: 'PERCENTAGE',
+					discountValue: '15',
+				},
+				resourceAttributes
+			)
+		).toEqual( { discountEnabled: false, discountType: 'FLAT', discountValue: '' } );
 	} );
 
 	it( 'reads address collection back from the payment', () => {
@@ -243,6 +273,11 @@ describe( 'a block built from a fully populated payment', () => {
 		taxType: 'PERCENTAGE',
 		taxName: 'VAT',
 		taxValue: '7.5',
+		handlingEnabled: true,
+		handlingValue: '4.00',
+		discountEnabled: true,
+		discountType: 'FLAT',
+		discountValue: '2.00',
 		returnUrl: 'https://example.com/thanks',
 		collectShippingAddress: false,
 	};

@@ -21,6 +21,8 @@ import {
 	validateProductName,
 	validateDescription,
 	validateRequiredAmount,
+	validateDiscountPercentage,
+	validateDiscountAmount,
 	validateReturnUrl,
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
@@ -168,6 +170,82 @@ describe( 'validateRequiredAmount', () => {
 	// The control's max attribute is the only upper bound; PayPal's own is unmeasured.
 	it( 'accepts a rate above the control’s maximum', () => {
 		expect( validateRequiredAmount( '150' ) ).toBeNull();
+	} );
+} );
+
+describe( 'validateDiscountPercentage', () => {
+	const required = 'To continue, add the requested info or turn off this feature.';
+	const whole = 'Discount percentage must be a whole number.';
+	const range = 'Discount must be between 1% and 99%.';
+
+	// Measured: "you cannot discount by 0%". Zero points back at the toggle.
+	it.each( [ null, undefined, '', '   ', 'abc', '-5', '0' ] )( 'asks for a value for %p', value => {
+		expect( validateDiscountPercentage( value ) ).toBe( required );
+	} );
+
+	// Measured. "1.0" is rejected too, so the check reads the string not the float.
+	// ' 15.5 ' is here for the trim: padding must not smuggle a decimal past it.
+	it.each( [ '0.5', '1.0', '15.5', '99.99', ' 15.5 ' ] )( 'rejects %p for its decimals', value => {
+		expect( validateDiscountPercentage( value ) ).toBe( whole );
+	} );
+
+	// Measured: 99 takes, 100 and 101 do not.
+	it.each( [ '100', '101', '150' ] )( 'rejects %p as over the ceiling', value => {
+		expect( validateDiscountPercentage( value ) ).toBe( range );
+	} );
+
+	it.each( [ '1', '15', '99', ' 15 ' ] )( 'accepts %p', value => {
+		expect( validateDiscountPercentage( value ) ).toBeNull();
+	} );
+} );
+
+describe( 'validateDiscountAmount', () => {
+	const required = 'To continue, add the requested info or turn off this feature.';
+	const tooBig = 'Discount must be less than the product price.';
+
+	// Measured: `discount.value is set to zero`. Unlike a tax rate.
+	it.each( [ null, undefined, '', '   ', 'abc', '-1', '0', '0.00' ] )(
+		'asks for a value for %p',
+		value => {
+			expect( validateDiscountAmount( value, '10.00' ) ).toBe( required );
+		}
+	);
+
+	// PayPal returns 422 DISCOUNT_EXCEEDS_ITEM_PRICE at equal, so this is strictly less.
+	it( 'rejects a discount that equals the price', () => {
+		expect( validateDiscountAmount( '10.00', '10.00' ) ).toBe( tooBig );
+	} );
+
+	it( 'rejects a discount above the price', () => {
+		expect( validateDiscountAmount( '15.00', '10.00' ) ).toBe( tooBig );
+	} );
+
+	it( 'accepts a discount under the price', () => {
+		expect( validateDiscountAmount( '2.00', '10.00' ) ).toBeNull();
+	} );
+
+	// The smallest discount PayPal takes, measured.
+	it( 'accepts one cent', () => {
+		expect( validateDiscountAmount( '0.01', '10.00' ) ).toBeNull();
+	} );
+
+	// No product price and no priced option: nothing to compare against, so the
+	// format is all that is left and PayPal's 422 is the backstop.
+	it.each( [ '', null, undefined ] )( 'skips the comparison when the price is %p', price => {
+		expect( validateDiscountAmount( '999.00', price ) ).toBeNull();
+	} );
+
+	it( 'rejects a decimal in a zero-decimal currency', () => {
+		expect( validateDiscountAmount( '1.50', '1000', 'JPY' ) ).toBe(
+			'Prices in JPY are whole numbers (e.g., "1500").'
+		);
+	} );
+
+	// The common path: two decimals everywhere else.
+	it( 'rejects a third decimal place', () => {
+		expect( validateDiscountAmount( '2.001', '10.00', 'USD' ) ).toBe(
+			'Price can have at most 2 decimal places (e.g., "29.99").'
+		);
 	} );
 } );
 

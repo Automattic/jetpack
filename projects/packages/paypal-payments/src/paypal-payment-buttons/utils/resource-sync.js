@@ -34,6 +34,9 @@ export const RESOURCE_ATTRIBUTES = [
 	'taxValue',
 	'handlingEnabled',
 	'handlingValue',
+	'discountEnabled',
+	'discountType',
+	'discountValue',
 	'returnUrl',
 	'collectShippingAddress',
 ];

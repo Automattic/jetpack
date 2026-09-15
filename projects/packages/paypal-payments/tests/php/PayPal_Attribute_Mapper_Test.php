@@ -680,6 +680,198 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
+	 * The discount comes back from the payment, so an edit does not wipe it.
+	 *
+	 * @param string $type  The discount type PayPal stored.
+	 * @param string $value The discount value PayPal stored.
+	 * @dataProvider discount_type_provider
+	 */
+	#[DataProvider( 'discount_type_provider' )]
+	public function test_api_response_to_attributes_reads_the_discount( $type, $value ) {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'      => 'Widget',
+						'discounts' => array(
+							array(
+								'type'  => $type,
+								'value' => $value,
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertTrue( $attributes['discountEnabled'] );
+		$this->assertSame( $type, $attributes['discountType'] );
+		$this->assertSame( $value, $attributes['discountValue'] );
+	}
+
+	/**
+	 * Both discount types PayPal takes, plus a zero value, which has to survive as '0'.
+	 *
+	 * @return array[]
+	 */
+	public static function discount_type_provider(): array {
+		return array(
+			'amount off' => array( 'FLAT', '2.00' ),
+			'percentage' => array( 'PERCENTAGE', '15' ),
+			'zero'       => array( 'FLAT', '0' ),
+		);
+	}
+
+	/**
+	 * A discount with an amount but no type reads back as an amount off.
+	 *
+	 * PayPal defaults an omitted type to FLAT, so the block has to agree - reading
+	 * it as a percentage would turn $2.00 off into 2% off on the next save.
+	 */
+	public function test_api_response_to_attributes_reads_a_typeless_discount_as_flat() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'      => 'Widget',
+						'discounts' => array( array( 'value' => '2.00' ) ),
+					),
+				),
+			)
+		);
+
+		$this->assertTrue( $attributes['discountEnabled'] );
+		$this->assertSame( 'FLAT', $attributes['discountType'] );
+		$this->assertSame( '2.00', $attributes['discountValue'] );
+	}
+
+	/**
+	 * A type the block cannot model is stored as it came.
+	 *
+	 * Rewriting it to FLAT would keep the value and ship 2.00 as an amount off on
+	 * the next update, which is the coercion the REST layer deliberately avoids.
+	 * The select falls back to its first option for display.
+	 */
+	public function test_api_response_to_attributes_keeps_an_unknown_discount_type() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'      => 'Widget',
+						'discounts' => array(
+							array(
+								'type'  => 'TIERED',
+								'value' => '2.00',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertTrue( $attributes['discountEnabled'] );
+		$this->assertSame( 'TIERED', $attributes['discountType'] );
+		$this->assertSame( '2.00', $attributes['discountValue'] );
+	}
+
+	/**
+	 * PayPal takes one discount per item, so a second one is not the block's to show.
+	 */
+	public function test_api_response_to_attributes_reads_only_the_first_discount() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'      => 'Widget',
+						'discounts' => array(
+							array(
+								'type'  => 'FLAT',
+								'value' => '2.00',
+							),
+							array(
+								'type'  => 'PERCENTAGE',
+								'value' => '15',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 'FLAT', $attributes['discountType'] );
+		$this->assertSame( '2.00', $attributes['discountValue'] );
+	}
+
+	/**
+	 * A discounts key that carries nothing usable reads as no discount.
+	 *
+	 * @param mixed $discounts The discounts value PayPal sent.
+	 * @dataProvider empty_discount_provider
+	 */
+	#[DataProvider( 'empty_discount_provider' )]
+	public function test_api_response_to_attributes_ignores_an_unusable_discount( $discounts ) {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'      => 'Widget',
+						'discounts' => $discounts,
+					),
+				),
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'discountEnabled', $attributes );
+		$this->assertArrayNotHasKey( 'discountType', $attributes );
+		$this->assertArrayNotHasKey( 'discountValue', $attributes );
+	}
+
+	/**
+	 * Discount values that carry nothing the block can read.
+	 *
+	 * @return array[]
+	 */
+	public static function empty_discount_provider(): array {
+		return array(
+			'empty array'        => array( array() ),
+			'a string'           => array( 'FLAT' ),
+			'null'               => array( null ),
+			// The inner is_array() backstops every row; the two below are the ones
+			// that get past the outer guard at all.
+			'a list of strings'  => array( array( 'FLAT' ) ),
+			'an unwrapped array' => array(
+				array(
+					'type'  => 'FLAT',
+					'value' => '2.00',
+				),
+			),
+		);
+	}
+
+	/**
+	 * A payment with no discount leaves the block's own default alone.
+	 */
+	public function test_api_response_to_attributes_reads_no_discount_when_there_is_none() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array( 'name' => 'Widget' ),
+				),
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'discountEnabled', $attributes );
+		$this->assertArrayNotHasKey( 'discountType', $attributes );
+		$this->assertArrayNotHasKey( 'discountValue', $attributes );
+	}
+
+	/**
 	 * A payment with no handling fee leaves both attributes unset, so the block
 	 * keeps its defaults and the toggle stays off.
 	 */

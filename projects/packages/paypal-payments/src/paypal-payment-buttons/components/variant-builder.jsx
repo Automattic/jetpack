@@ -140,6 +140,46 @@ export function isVariantPricingOn( enabled, variants ) {
 }
 
 /**
+ * Find the cheapest per-option price in the primary option group.
+ *
+ * PayPal only prices the primary group, so an amount on another group is not a
+ * price a buyer can pay. Drawn as the "From" price.
+ *
+ * @param {object} variants - Variants data with dimensions.
+ * @return {string|null} The lowest option price, or null when none are priced.
+ */
+export function getLowestVariantPrice( variants ) {
+	let lowest = null;
+
+	( getPrimaryDimension( variants )?.options || [] ).forEach( opt => {
+		const value = `${ opt.unit_amount?.value ?? '' }`.trim();
+		if ( value === '' || isNaN( parseFloat( value ) ) ) {
+			return;
+		}
+		if ( lowest === null || parseFloat( value ) < parseFloat( lowest ) ) {
+			lowest = value;
+		}
+	} );
+
+	return lowest;
+}
+
+/**
+ * The price a flat discount has to come in under.
+ *
+ * With per-option pricing there is no product price, so it is the cheapest option.
+ *
+ * @param {boolean} variantPricingOn - Whether a priced option group is in play, from
+ *                                   isVariantPricingOn(). Not hasVariantPricing().
+ * @param {object}  variants         - Variants data with dimensions.
+ * @param {string}  price            - The product-level price.
+ * @return {string|null} The price to compare against.
+ */
+export function getComparisonPrice( variantPricingOn, variants, price ) {
+	return variantPricingOn ? getLowestVariantPrice( variants ) : price;
+}
+
+/**
  * The kinds of error validateVariants() reports.
  *
  * Every one has to reach the merchant through a control in GroupEditor. A kind that

@@ -153,6 +153,71 @@ describe( 'isReadyForPayPal', () => {
 			true
 		);
 	} );
+
+	it( 'holds back a discount with no value', () => {
+		expect( isReadyForPayPal( { ...product, discountEnabled: true, discountType: 'FLAT' } ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'holds back a flat discount that reaches the product price', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				discountEnabled: true,
+				discountType: 'FLAT',
+				discountValue: '29.99',
+			} )
+		).toBe( false );
+	} );
+
+	it( 'lets a flat discount under the product price through', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				discountEnabled: true,
+				discountType: 'FLAT',
+				discountValue: '5.00',
+			} )
+		).toBe( true );
+	} );
+
+	// With per-option pricing there is no product price, so the cheapest option is
+	// what PayPal measures against - and it is not the 29.99 sitting in `price`.
+	it( 'measures a flat discount against the cheapest option price', () => {
+		const withOptions = {
+			...product,
+			variantsEnabled: true,
+			variants: variantsWithPrices( priced ),
+			discountEnabled: true,
+			discountType: 'FLAT',
+		};
+
+		expect( isReadyForPayPal( { ...withOptions, discountValue: '15.00' } ) ).toBe( false );
+		expect( isReadyForPayPal( { ...withOptions, discountValue: '5.00' } ) ).toBe( true );
+	} );
+
+	it( 'holds back a percentage discount with decimals', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				discountEnabled: true,
+				discountType: 'PERCENTAGE',
+				discountValue: '15.5',
+			} )
+		).toBe( false );
+	} );
+
+	it( 'holds back a percentage discount of 100', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				discountEnabled: true,
+				discountType: 'PERCENTAGE',
+				discountValue: '100',
+			} )
+		).toBe( false );
+	} );
 } );
 
 describe( 'syncBlocksBeforeSave', () => {
@@ -283,13 +348,14 @@ describe( 'syncBlocksBeforeSave', () => {
 			expect( item ).toMatchObject( {
 				name: 'Test Widget',
 				shipping: storedLineItem.shipping,
-				discounts: storedLineItem.discounts,
 				collect_shipping_address: true,
 			} );
-			// The form owns product_id and the handling fee now. This block sets neither,
-			// so the update clears both at PayPal - that is the merchant's edit.
+			// The form owns product_id, the handling fee and the discount now. This
+			// block sets none of them, so the update clears all three at PayPal -
+			// that is the merchant's edit.
 			expect( item ).not.toHaveProperty( 'product_id' );
 			expect( item ).not.toHaveProperty( 'handling' );
+			expect( item ).not.toHaveProperty( 'discounts' );
 			expect( deps.updateBlockAttributes ).not.toHaveBeenCalled();
 		} );
 

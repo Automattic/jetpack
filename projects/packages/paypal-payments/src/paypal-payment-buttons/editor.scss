@@ -303,37 +303,102 @@
 // Error state for form fields. The form renders into the inspector sidebar,
 // outside the block, so there is no block ancestor to scope this under - the
 // class carries the namespace instead. editor.css loads on every editor screen.
-// The field border does not change - an error is the message row only.
-.jetpack-paypal-payment-buttons__has-error {
+// The field border does not change - an error is the message row and
+// nothing else.
+%field-error-row {
+	align-items: center;
+	color: #cc1818;
+	display: flex;
+	font-size: 12px;
+	gap: 4px;
+	line-height: 16px;
 
-	// Every validated control here puts its error in the help slot, so one rule
-	// covers all of them. Figma node 6:13412.
-	.components-base-control__help {
-		align-items: center;
-		color: #cc1818;
-		display: flex;
+	&::before {
+		background-color: currentColor;
+		content: "";
+		flex: 0 0 auto;
+		height: 16px;
+		// The `error` glyph from @wordpress/icons, inlined so one rule covers every
+		// field. -webkit- duplicated for Safari < 15.4, as the search block does it.
+		mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>");
+		mask-repeat: no-repeat;
+		mask-position: center;
+		mask-size: 16px 16px;
+		-webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>");
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		-webkit-mask-size: 16px 16px;
+		width: 16px;
+	}
+}
+
+// Most controls put the error straight in the help slot.
+.jetpack-paypal-payment-buttons__has-error .components-base-control__help {
+
+	@extend %field-error-row;
+}
+
+// An amount field can carry a hint as well, so there the error nests in a span
+// of its own and sits below the hint.
+.jetpack-paypal-payment-buttons__has-error .jetpack-paypal-payment-buttons__field-error {
+
+	@extend %field-error-row;
+
+	// Only when a hint sits above it. Tax and handling have none.
+	&:not(:first-child) {
+		margin-top: 8px;
+	}
+}
+
+// Separate rule so a browser without `:has()` drops only this one and the
+// errors above still style.
+.jetpack-paypal-payment-buttons__has-error .components-base-control__help:has(.jetpack-paypal-payment-buttons__field-error) {
+	color: #757575;
+	display: block;
+
+	&::before {
+		content: none;
+	}
+}
+
+// Check first, hint on its own line; core does neither.
+// TODO: Ariakit is dropping role=listbox - recheck on a components bump.
+.jetpack-paypal-payment-buttons__select-menu {
+
+	[role="listbox"] {
+		border-color: #ddd;
+		border-radius: 4px;
+		padding: 4px;
+	}
+
+	.components-custom-select-control__item {
+		border-radius: 2px;
+		gap: 8px;
+		justify-content: flex-start;
+		line-height: 20px;
+		// Core's own inline padding carries a correction for the check being on
+		// the right, which it no longer is.
+		padding-block: 8px;
+		padding-inline: 12px;
+	}
+
+	// The check is an unclassed aria-hidden span core appends after the label.
+	// Its margins assume it sits last, on core's line height.
+	.components-custom-select-control__item > [aria-hidden="true"]:last-child {
+		align-self: center;
+		color: #757575;
+		margin-block-start: 0;
+		margin-inline-start: 0;
+		order: -1;
+	}
+
+	.components-custom-select-control__item-hint {
+		color: #757575;
+		flex-basis: 100%;
 		font-size: 12px;
-		gap: 4px;
 		line-height: 16px;
-
-		&::before {
-			background-color: currentColor;
-			content: "";
-			flex: 0 0 auto;
-			height: 16px;
-			// The `error` glyph from @wordpress/icons, inlined so one rule covers
-			// every field here. -webkit- duplicated for Safari < 15.4, which
-			// autoprefixer does not add - same as the search block does it.
-			mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>");
-			mask-repeat: no-repeat;
-			mask-position: center;
-			mask-size: 16px 16px;
-			-webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>");
-			-webkit-mask-repeat: no-repeat;
-			-webkit-mask-position: center;
-			-webkit-mask-size: 16px 16px;
-			width: 16px;
-		}
+		margin-block: 4px 0;
+		padding-inline-end: 0;
 	}
 }
 

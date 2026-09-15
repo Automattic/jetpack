@@ -21,6 +21,7 @@ import {
 import {
 	BaseControl,
 	Button,
+	CustomSelectControl,
 	Notice,
 	PanelBody,
 	SelectControl,
@@ -41,7 +42,11 @@ import ExistingLinksStep from './components/existing-links-step';
 import PayPalFormatControls from './components/format-controls';
 import LegacyBlock from './components/legacy-block';
 import PayPalButtonPreview from './components/paypal-button-preview';
-import VariantBuilder, { isVariantPricingOn, validateVariants } from './components/variant-builder';
+import VariantBuilder, {
+	getComparisonPrice,
+	isVariantPricingOn,
+	validateVariants,
+} from './components/variant-builder';
 import PayPalInspectorControls from './controls';
 import { useExistingLinks } from './hooks/use-existing-links';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
@@ -69,6 +74,21 @@ const helpQtyOff = __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments
 // msgid and i18n-check-webpack-plugin rejects the build, so both sides are consts.
 const placeholderTaxRate = __( 'Enter tax rate', 'jetpack-paypal-payments' );
 const placeholderTaxValue = __( 'Enter tax value', 'jetpack-paypal-payments' );
+
+// FLAT and PERCENTAGE are PayPal's own values, so the select writes them straight
+// to the attribute. The hints are the design's second line on each option.
+const DISCOUNT_TYPES = [
+	{
+		key: 'FLAT',
+		name: __( 'Amount off', 'jetpack-paypal-payments' ),
+		hint: __( 'Fixed amount off the price', 'jetpack-paypal-payments' ),
+	},
+	{
+		key: 'PERCENTAGE',
+		name: __( 'Percentage', 'jetpack-paypal-payments' ),
+		hint: __( 'Percentage based on price', 'jetpack-paypal-payments' ),
+	},
+];
 
 // PayPal's tax settings page, per environment.
 const TAX_PROFILE_URL = {
@@ -111,6 +131,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		taxValue,
 		handlingEnabled,
 		handlingValue,
+		discountEnabled,
+		discountType,
+		discountValue,
 		format,
 		qrShowCaption,
 		qrCaption,
@@ -209,6 +232,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const taxHasValue = ( taxType || 'PERCENTAGE' ) !== 'PREFERENCE';
 	const taxIsPercentage = ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE';
 
+	const discountIsPercentage = ( discountType || 'FLAT' ) === 'PERCENTAGE';
+
+	const comparisonPrice = getComparisonPrice( variantPricingOn, variants, price );
+
 	/**
 	 * Compute validation errors for all form fields.
 	 * Memoized to avoid re-computing on every render.
@@ -227,6 +254,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				taxValue,
 				handlingEnabled,
 				handlingValue,
+				discountEnabled,
+				discountType,
+				discountValue,
+				comparisonPrice,
 			} ),
 		[
 			productName,
@@ -240,6 +271,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			taxValue,
 			handlingEnabled,
 			handlingValue,
+			discountEnabled,
+			discountType,
+			discountValue,
+			comparisonPrice,
 		]
 	);
 
@@ -780,7 +815,13 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				     still close it. */ }
 				<PanelBody
 					title={ __( 'Checkout Options', 'jetpack-paypal-payments' ) }
-					initialOpen={ !! ( validationErrors.taxValue || validationErrors.handlingValue ) }
+					initialOpen={
+						!! (
+							validationErrors.taxValue ||
+							validationErrors.handlingValue ||
+							validationErrors.discountValue
+						)
+					}
 				>
 					{ /* WOOPTP-171: Customer Notes */ }
 					<ToggleControl
@@ -1004,6 +1045,59 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 							error={ validationErrors.handlingValue }
 							disabled={ isBusy }
 						/>
+					) }
+
+					{ /* WOOPTP-493: Discount */ }
+					<ToggleControl
+						label={ __( 'Add discount', 'jetpack-paypal-payments' ) }
+						help={ __( 'Applies to each item, no matter quantity', 'jetpack-paypal-payments' ) }
+						checked={ discountEnabled }
+						// Clear the value on the way off. Left behind, the next mount's
+						// reconcile reads it as PayPal having changed the button.
+						onChange={ value =>
+							setAttributes(
+								value
+									? { discountEnabled: true }
+									: { discountEnabled: false, discountType: 'FLAT', discountValue: '' }
+							)
+						}
+						disabled={ isBusy }
+					/>
+					{ discountEnabled && (
+						<>
+							{ /* Not SelectControl: an <option> holds text only, so the design's
+							     second line per option needs this control. */ }
+							<CustomSelectControl
+								className="jetpack-paypal-payment-buttons__select-menu"
+								label={ __( 'Discount type', 'jetpack-paypal-payments' ) }
+								// Without a match this goes uncontrolled, so a type the block has no
+								// option for falls back to the first.
+								value={
+									DISCOUNT_TYPES.find( option => option.key === discountType ) ??
+									DISCOUNT_TYPES[ 0 ]
+								}
+								options={ DISCOUNT_TYPES }
+								// Clear the value with the type: 2 kept across a switch turns $2 off
+								// into 2% off, and both are legal.
+								onChange={ ( { selectedItem } ) =>
+									setAttributes( { discountType: selectedItem.key, discountValue: '' } )
+								}
+								disabled={ isBusy }
+							/>
+							<AmountField
+								label={ __( 'Discount value', 'jetpack-paypal-payments' ) }
+								value={ discountValue }
+								onChange={ value => setAttributes( { discountValue: value } ) }
+								suffix={ discountIsPercentage ? '%' : currencySymbol }
+								// PayPal takes a whole-number percentage only, 1 to 99.
+								step={ discountIsPercentage ? '1' : priceStep }
+								min={ discountIsPercentage ? '1' : priceStep }
+								max={ discountIsPercentage ? '99' : undefined }
+								help={ __( 'Reduced from the product price', 'jetpack-paypal-payments' ) }
+								error={ validationErrors.discountValue }
+								disabled={ isBusy }
+							/>
+						</>
 					) }
 				</PanelBody>
 				<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>

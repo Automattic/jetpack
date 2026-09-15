@@ -320,6 +320,17 @@ class PayPal_Attribute_Mapper {
 				$attributes['handlingValue']   = sanitize_text_field( $handling['value'] ?? '' );
 			}
 
+			// Discount (WOOPTP-493). The type is PayPal's own, so store it as it came
+			// even when the block has no option for it, the way taxes and shipping do.
+			if ( ! empty( $line_item['discounts'] ) && is_array( $line_item['discounts'] ) ) {
+				$discount = $line_item['discounts'][0] ?? null;
+				if ( is_array( $discount ) ) {
+					$attributes['discountEnabled'] = true;
+					$attributes['discountType']    = sanitize_text_field( $discount['type'] ?? 'FLAT' );
+					$attributes['discountValue']   = sanitize_text_field( $discount['value'] ?? '' );
+				}
+			}
+
 			// Map it even when the key is absent: the block attribute defaults to
 			// on, so a missing key has to read as off.
 			$attributes['collectShippingAddress'] = ! empty( $line_item['collect_shipping_address'] );

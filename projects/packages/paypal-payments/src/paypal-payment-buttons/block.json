@@ -118,6 +118,18 @@
 			"type": "string",
 			"default": ""
 		},
+		"discountEnabled": {
+			"type": "boolean",
+			"default": false
+		},
+		"discountType": {
+			"type": "string",
+			"default": "FLAT"
+		},
+		"discountValue": {
+			"type": "string",
+			"default": ""
+		},
 		"collectShippingAddress": {
 			"type": "boolean",
 			"default": true

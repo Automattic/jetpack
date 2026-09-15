@@ -342,6 +342,34 @@ jest.mock( '@wordpress/components', () => ( {
 			{ help && <span className="components-base-control__help">{ help }</span> }
 		</div>
 	),
+	// Takes and returns the whole option, and falls back to the first when the value
+	// matches none, both like the real one. The hint rides on `data-hint` because an
+	// <option> cannot hold the span core draws it in.
+	CustomSelectControl: ( { label, value, options, onChange, disabled, className } ) => (
+		<div
+			data-testid={ `control-${ label }` }
+			className={ className }
+			// The value as the caller passed it, before the fallback below, so a test
+			// can tell the block's own fallback from this mock's.
+			data-value={ value?.key ?? '' }
+		>
+			<select
+				aria-label={ label }
+				value={ ( options?.find( o => o.key === value?.key ) ?? options?.[ 0 ] )?.key ?? '' }
+				disabled={ disabled }
+				onChange={ e =>
+					onChange( { selectedItem: options.find( o => o.key === e.target.value ) } )
+				}
+			>
+				{ options &&
+					options.map( opt => (
+						<option key={ opt.key } value={ opt.key } data-hint={ opt.hint }>
+							{ opt.name }
+						</option>
+					) ) }
+			</select>
+		</div>
+	),
 	Spinner: () => <div data-testid="spinner">Loading...</div>,
 	SearchControl: ( { label, value, onChange, placeholder } ) => (
 		<input
@@ -3216,6 +3244,326 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
+	describe( 'Discount', () => {
+		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-DISC1';
+		const attributes = {
+			isApiManaged: true,
+			resourceId: 'PLB-DISC1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-DISC1',
+			productName: 'Test Widget',
+			price: '29.99',
+			currencyCode: 'USD',
+			discountEnabled: true,
+			discountType: 'FLAT',
+			discountValue: '2.00',
+		};
+
+		/**
+		 * Render the editor with the discount fixture, plus any overrides.
+		 *
+		 * @param {object} overrides - Attributes to merge over the fixture.
+		 */
+		async function renderDiscount( overrides = {} ) {
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath && method === undefined ) {
+					return Promise.resolve( { id: 'PLB-DISC1', line_items: [ {} ] } );
+				}
+				return Promise.resolve( {} );
+			} );
+
+			render(
+				<Edit
+					attributes={ { ...attributes, ...overrides } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+		}
+
+		const missingValue = 'To continue, add the requested info or turn off this feature.';
+		const standingHint = 'Reduced from the product price';
+
+		it( 'asks for nothing while the discount is off', async () => {
+			await renderDiscount( { discountEnabled: false, discountValue: '' } );
+
+			expect( screen.queryByLabelText( 'Discount type' ) ).not.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Discount value' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( missingValue ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		it( 'turns the discount on', async () => {
+			const user = userEvent.setup();
+			await renderDiscount( { discountEnabled: false, discountValue: '' } );
+			await user.click( screen.getByLabelText( 'Add discount' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { discountEnabled: true } );
+		} );
+
+		// A value left behind reads as a difference against the payment on the next
+		// mount, and the reconcile reports PayPal as having changed the button.
+		it( 'clears the type and the value when the discount goes off', async () => {
+			const user = userEvent.setup();
+			await renderDiscount( { discountType: 'PERCENTAGE', discountValue: '15' } );
+			await user.click( screen.getByLabelText( 'Add discount' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				discountEnabled: false,
+				discountType: 'FLAT',
+				discountValue: '',
+			} );
+		} );
+
+		// It hands back the whole option, so the handler reads .key off it. The value
+		// goes too: 2 kept across a switch turns $2 off into 2% off, and both are legal.
+		it( 'writes the type as PayPal’s own value and clears the amount', async () => {
+			const user = userEvent.setup();
+			await renderDiscount();
+			await user.selectOptions( screen.getByLabelText( 'Discount type' ), 'PERCENTAGE' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				discountType: 'PERCENTAGE',
+				discountValue: '',
+			} );
+		} );
+
+		it( 'writes the value', async () => {
+			const user = userEvent.setup();
+			await renderDiscount( { discountValue: '' } );
+			await user.type( screen.getByLabelText( 'Discount value' ), '2' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { discountValue: '2' } );
+		} );
+
+		// Clearing writes '' rather than dropping the attribute, which would read
+		// back as the block.json default on the next mount.
+		it( 'writes an empty string when the field is cleared', async () => {
+			const user = userEvent.setup();
+			await renderDiscount();
+			await user.clear( screen.getByLabelText( 'Discount value' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { discountValue: '' } );
+		} );
+
+		// editor.scss hangs the menu styling off this class. jsdom cannot check more.
+		it( 'puts the menu class on the type picker', async () => {
+			await renderDiscount();
+
+			expect( screen.getByTestId( 'control-Discount type' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__select-menu'
+			);
+		} );
+
+		// It takes the whole option as its value, not the key.
+		it( 'shows the type the block is set to', async () => {
+			await renderDiscount( { discountType: 'PERCENTAGE' } );
+
+			expect( screen.getByLabelText( 'Discount type' ) ).toHaveValue( 'PERCENTAGE' );
+		} );
+
+		// The second line is why this is not a plain SelectControl.
+		it( 'describes each type under its name', async () => {
+			await renderDiscount();
+			const options = within( screen.getByTestId( 'control-Discount type' ) ).getAllByRole(
+				'option'
+			);
+
+			expect( options.map( o => o.textContent ) ).toEqual( [ 'Amount off', 'Percentage' ] );
+			// The second line core draws from the hint. The mock carries it on an
+			// attribute because an <option> cannot hold the span the real one uses.
+			expect( options.map( o => o.dataset.hint ) ).toEqual( [
+				'Fixed amount off the price',
+				'Percentage based on price',
+			] );
+		} );
+
+		// The mapper stores a type PayPal sent even when the block has no option for
+		// it, so the block falls back to the first option rather than the control.
+		it( 'shows the first type for one the block does not model', async () => {
+			await renderDiscount( { discountType: 'TIERED', discountValue: '5' } );
+
+			// data-value is what the block passed, so this fails if its fallback goes.
+			expect( screen.getByTestId( 'control-Discount type' ) ).toHaveAttribute(
+				'data-value',
+				'FLAT'
+			);
+			expect( screen.getByLabelText( 'Discount type' ) ).toHaveValue( 'FLAT' );
+		} );
+
+		// The inspector and the post-save gate each compute the price a flat discount
+		// is measured against. With per-option pricing there is no product price, so
+		// it is the cheapest option - not the 29.99 still sitting in `price`.
+		it( 'measures a flat discount against the cheapest option price', async () => {
+			const variants = {
+				dimensions: [
+					{
+						name: 'Size',
+						primary: true,
+						options: [
+							{ label: 'S', unit_amount: { currency_code: 'USD', value: '10.00' } },
+							{ label: 'L', unit_amount: { currency_code: 'USD', value: '20.00' } },
+						],
+					},
+				],
+			};
+
+			await renderDiscount( { variantsEnabled: true, variants, discountValue: '15.00' } );
+
+			expect(
+				screen.getByText( 'Discount must be less than the product price.' )
+			).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		it( 'refuses to save a discount with no value', async () => {
+			await renderDiscount( { discountValue: '' } );
+
+			expect( screen.getByText( missingValue ) ).toBeInTheDocument();
+			// editor.scss reddens the error row through this class, so without it the
+			// message renders grey and the assertion above still passes.
+			expect( screen.getByTestId( 'control-Discount value' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
+		} );
+
+		// The design draws both rows at once - the hint stays grey above the error
+		// rather than being replaced by it, which is what every other field here does.
+		it( 'keeps the standing hint while the error is up', async () => {
+			await renderDiscount( { discountValue: '' } );
+			const field = screen.getByTestId( 'control-Discount value' );
+
+			expect( within( field ).getByText( standingHint ) ).toBeInTheDocument();
+			expect( within( field ).getByText( missingValue ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__field-error'
+			);
+		} );
+
+		it( 'shows the hint on its own when the value is good', async () => {
+			await renderDiscount();
+			const field = screen.getByTestId( 'control-Discount value' );
+
+			expect( within( field ).getByText( standingHint ) ).toBeInTheDocument();
+			expect( within( field ).queryByText( missingValue ) ).not.toBeInTheDocument();
+			expect( field ).not.toHaveClass( 'jetpack-paypal-payment-buttons__has-error' );
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		// Measured: 422 DISCOUNT_EXCEEDS_ITEM_PRICE at equal, so this is strictly less.
+		it( 'refuses a flat discount that reaches the price', async () => {
+			await renderDiscount( { discountValue: '29.99' } );
+
+			expect(
+				screen.getByText( 'Discount must be less than the product price.' )
+			).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// A percentage is not money, so the price comparison must not apply to it -
+		// 50 is fine against a 29.99 product.
+		it( 'takes a percentage above the product price', async () => {
+			await renderDiscount( { discountType: 'PERCENTAGE', discountValue: '50' } );
+
+			expect(
+				screen.queryByText( 'Discount must be less than the product price.' )
+			).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		it( 'refuses a percentage of 100', async () => {
+			await renderDiscount( { discountType: 'PERCENTAGE', discountValue: '100' } );
+
+			expect( screen.getByText( 'Discount must be between 1% and 99%.' ) ).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// PayPal takes a whole-number percentage only, so the form says so rather than
+		// letting the save fail against the API.
+		it( 'refuses a percentage with decimals', async () => {
+			await renderDiscount( { discountType: 'PERCENTAGE', discountValue: '15.5' } );
+
+			expect(
+				screen.getByText( 'Discount percentage must be a whole number.' )
+			).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// Zero is not a discount - PayPal rejects it for both types - so the merchant
+		// is pointed back at the toggle, which is what the shared string says.
+		it.each( [
+			[ 'a percentage', 'PERCENTAGE' ],
+			[ 'an amount', 'FLAT' ],
+		] )( 'refuses %s of zero', async ( _label, discountType ) => {
+			await renderDiscount( { discountType, discountValue: '0' } );
+
+			expect( screen.getByText( missingValue ) ).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// The unit follows the type; a flat step and floor still follow the currency,
+		// a percentage is 1 either way because it is not money.
+		it.each( [
+			[ 'a flat amount', { currencyCode: 'EUR', discountValue: '2.00' }, '€', '0.01', '0.01' ],
+			[
+				'a flat amount in JPY',
+				{ currencyCode: 'JPY', price: '2000', discountValue: '200' },
+				'¥',
+				'1',
+				'1',
+			],
+			[
+				'a percentage in JPY',
+				{ discountType: 'PERCENTAGE', currencyCode: 'JPY', discountValue: '15' },
+				'%',
+				'1',
+				'1',
+			],
+		] )(
+			'shows the right unit, step and floor for %s',
+			async ( _label, overrides, unit, step, min ) => {
+				await renderDiscount( overrides );
+				const field = screen.getByLabelText( 'Discount value' );
+
+				expect(
+					within( screen.getByTestId( 'control-Discount value' ) ).getByText( unit )
+				).toBeInTheDocument();
+				expect( field ).toHaveAttribute( 'step', step );
+				expect( field ).toHaveAttribute( 'min', min );
+			}
+		);
+
+		// The currency rule has to reach the merchant, not just the validator.
+		it( 'refuses a decimal amount in a currency that has none', async () => {
+			await renderDiscount( { currencyCode: 'JPY', price: '2000', discountValue: '1.50' } );
+
+			expect(
+				screen.getByText( 'Prices in JPY are whole numbers (e.g., "1500").' )
+			).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// A percentage has a ceiling the control can offer - measured, 99 takes and
+		// 100 does not.
+		it( 'caps a percentage at 99', async () => {
+			await renderDiscount( { discountType: 'PERCENTAGE', discountValue: '15' } );
+
+			expect( screen.getByLabelText( 'Discount value' ) ).toHaveAttribute( 'max', '99' );
+		} );
+
+		// An amount does not - a $150 discount off a $200 product is legal, so the
+		// field must not inherit the percentage ceiling.
+		it( 'puts no ceiling on an amount', async () => {
+			await renderDiscount();
+
+			expect( screen.getByLabelText( 'Discount value' ) ).not.toHaveAttribute( 'max' );
+		} );
+	} );
+
 	describe( 'Add customer note', () => {
 		beforeEach( () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
@@ -3612,45 +3960,60 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		const blockingKeys = errorKeys.filter( key => ! ADVISORY_ERROR_KEYS.includes( key ) );
 
 		// Per key: the block state that triggers it, the control its message has to be
-		// inside, and the field to leave first where the form waits for a visit.
+		// inside, the field to leave first where the form waits for a visit, and which
+		// class editor.scss reddens it through - an amount field nests the error in a
+		// span of its own so a hint can sit above it, everything else uses the help slot.
 		const cases = {
 			productName: {
 				attributes: { productName: '' },
 				testId: 'control-Product Name',
 				message: 'Product name is required.',
+				carrier: 'components-base-control__help',
 				visit: 'Product Name',
 			},
 			price: {
 				attributes: { price: '' },
 				testId: 'control-Price',
 				message: 'Price is required.',
+				carrier: 'components-base-control__help',
 				visit: 'Price',
 			},
 			productDescription: {
 				attributes: { productDescription: 'x'.repeat( 2049 ) },
 				testId: 'control-Description (optional)',
 				message: 'Description must be 2048 characters or fewer.',
+				carrier: 'components-base-control__help',
 				visit: 'Description (optional)',
 			},
 			currencyCode: {
 				attributes: { currencyCode: 'XYZ' },
 				testId: 'control-Currency',
 				message: 'Unsupported currency.',
+				carrier: 'components-base-control__help',
 			},
 			taxValue: {
 				attributes: { taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '' },
 				testId: 'control-Tax rate',
 				message: 'To continue, add the requested info or turn off this feature.',
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
 			handlingValue: {
 				attributes: { handlingEnabled: true, handlingValue: '' },
 				testId: 'control-Handling fee',
 				message: 'To continue, add the requested info or turn off this feature.',
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+			},
+			discountValue: {
+				attributes: { discountEnabled: true, discountType: 'FLAT', discountValue: '' },
+				testId: 'control-Discount value',
+				message: 'To continue, add the requested info or turn off this feature.',
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
 			returnUrl: {
 				attributes: { returnUrl: 'http://example.com/thanks' },
 				testId: 'url-input-Return URL (optional)',
 				message: 'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
+				carrier: 'components-base-control__help',
 				visit: 'Return URL (optional)',
 			},
 		};
@@ -3681,13 +4044,25 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( errorKeys.slice().sort() ).toEqual( Object.keys( cases ).sort() );
 		} );
 
+		/**
+		 * Assert the error is on screen wearing the class editor.scss reddens.
+		 *
+		 * One class per shape of field, so the case says which - a message in the
+		 * other one renders grey, which is the bug this pins.
+		 *
+		 * @param {Element} field - The control the message has to be inside.
+		 * @param {string}  key   - The validationErrors key under test.
+		 */
+		const expectStyledError = ( field, key ) => {
+			expect( within( field ).getByText( cases[ key ].message ) ).toHaveClass(
+				cases[ key ].carrier
+			);
+		};
+
 		it.each( blockingKeys )( 'says what is wrong when %s blocks the save', async key => {
 			const field = await showError( key );
 
-			// editor.scss keys on this class and nothing else, so pin it here.
-			expect( within( field ).getByText( cases[ key ].message ) ).toHaveClass(
-				'components-base-control__help'
-			);
+			expectStyledError( field, key );
 			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
 		} );
 
@@ -3695,10 +4070,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it.each( ADVISORY_ERROR_KEYS )( 'warns about %s and still saves', async key => {
 			const field = await showError( key );
 
-			// editor.scss keys on this class and nothing else, so pin it here.
-			expect( within( field ).getByText( cases[ key ].message ) ).toHaveClass(
-				'components-base-control__help'
-			);
+			expectStyledError( field, key );
 			expect( screen.getByText( createdOnSave ) ).toBeInTheDocument();
 		} );
 	} );
