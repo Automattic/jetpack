@@ -143,6 +143,18 @@ class Settings {
 
 		$host = new Host();
 
+		// Admin-ajax rather than `/wp/v2/users/me`: WordPress.com's public API drops user meta it hasn't allowlisted.
+		if ( $host->is_wpcom_platform() ) {
+			add_action(
+				'wp_ajax_jetpack_newsletter_dismiss_subscriber_count_notice',
+				static function () {
+					check_ajax_referer( 'jetpack_newsletter_dismiss_subscriber_count_notice' );
+					update_user_meta( get_current_user_id(), 'jetpack_newsletter_subscriber_count_notice_dismissed', 1 );
+					wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );
+				}
+			);
+		}
+
 		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php,
 		// which will call add_wp_admin_submenu() directly. Skip adding the menu here to avoid
 		// trying to add a submenu before the parent menu exists.
@@ -244,7 +256,12 @@ class Settings {
 				'Newsletter',
 				'manage_options',
 				'jetpack-newsletter',
-				$callback
+				$callback,
+				null,
+				array(
+					'product' => 'newsletter',
+					'key'     => 'jetpack-newsletter',
+				)
 			);
 		} else {
 			$page_suffix = add_submenu_page(
@@ -343,6 +360,8 @@ class Settings {
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),
 			'tracksUserData'                  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+			'showSubscriberCountNotice'       => $is_wpcom && ! get_user_meta( $current_user->ID, 'jetpack_newsletter_subscriber_count_notice_dismissed', true ),
+			'subscriberCountNoticeNonce'      => $is_wpcom ? wp_create_nonce( 'jetpack_newsletter_dismiss_subscriber_count_notice' ) : '',
 		);
 
 		return $data;

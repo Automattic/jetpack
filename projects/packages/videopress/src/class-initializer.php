@@ -217,6 +217,11 @@ class Initializer {
 		}
 		self::register_oembed_providers();
 
+		// In inline mode a VideoPress URL never needs the oEmbed round trip: skip
+		// the fetch, and swap iframes already cached in post meta for a placeholder.
+		add_filter( 'pre_oembed_result', array( __CLASS__, 'maybe_pre_oembed_inline_player' ), 10, 2 );
+		add_filter( 'embed_oembed_html', array( __CLASS__, 'maybe_render_oembed_inline_player' ), 5, 4 );
+
 		// Enqueuethe VideoPress Iframe API script in the front-end.
 		add_filter( 'embed_oembed_html', array( __CLASS__, 'enqueue_videopress_iframe_api_script' ), 10, 4 );
 
@@ -416,7 +421,18 @@ class Initializer {
 		$video_wrapper         = '';
 		$video_wrapper_classes = 'jetpack-videopress-player__wrapper';
 
-		if ( $videopress_url ) {
+		// Preview on hover drives the player through the iframe API, so it keeps the iframe.
+		if ( $guid && ! $is_poh_enabled && Inline_Player::is_enabled() ) {
+			$video_wrapper = sprintf(
+				'<div class="%s">%s</div>',
+				$video_wrapper_classes,
+				Inline_Player::render(
+					$guid,
+					Inline_Player::get_player_options( $block_attributes ),
+					$block_attributes['videoRatio'] ?? null
+				)
+			);
+		} elseif ( $videopress_url ) {
 			$videopress_url = wp_kses_post( $videopress_url );
 
 			/*
@@ -996,7 +1012,7 @@ class Initializer {
 	 * @return string|false
 	 */
 	public static function enqueue_videopress_iframe_api_script( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( Utils::is_videopress_url( $url ) ) {
+		if ( Utils::is_videopress_url( $url ) && ! Inline_Player::is_enabled() ) {
 			// Enqueue the VideoPress IFrame API in the front-end.
 			wp_enqueue_script(
 				self::JETPACK_VIDEOPRESS_IFRAME_API_HANDLER,
@@ -1008,5 +1024,59 @@ class Initializer {
 		}
 
 		return $cache;
+	}
+
+	/**
+	 * Short-circuit the oEmbed request for VideoPress URLs when the inline player is on.
+	 *
+	 * @param null|string $result The oEmbed result, null to let WordPress fetch it.
+	 * @param string      $url    The URL being embedded.
+	 * @return null|string Inline player markup, or the untouched result.
+	 */
+	public static function maybe_pre_oembed_inline_player( $result, $url ) {
+		$inline = self::render_inline_player_for_url( $url );
+
+		return null === $inline ? $result : $inline;
+	}
+
+	/**
+	 * Replace a VideoPress oEmbed iframe (fresh or cached) with an inline player when the inline player is on.
+	 *
+	 * @param string|false $cache   The oEmbed HTML.
+	 * @param string       $url     The URL being embedded.
+	 * @param array        $attr    Shortcode attributes.
+	 * @param int          $post_ID Post ID.
+	 * @return string|false Inline player markup, or the untouched HTML.
+	 */
+	public static function maybe_render_oembed_inline_player( $cache, $url, $attr, $post_ID = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! is_string( $cache ) || false === strpos( $cache, '<iframe' ) ) {
+			return $cache;
+		}
+
+		$inline = self::render_inline_player_for_url( $url );
+
+		return null === $inline ? $cache : $inline;
+	}
+
+	/**
+	 * Build inline player markup for a videopress.com URL, honoring the player parameters in its query string.
+	 *
+	 * @param string $url The URL being embedded.
+	 * @return string|null Markup, or null when the URL is not a VideoPress video or the inline player is off.
+	 */
+	private static function render_inline_player_for_url( $url ) {
+		if ( ! Inline_Player::is_enabled() ) {
+			return null;
+		}
+
+		$guid = Utils::extract_videopress_guid_from_url( $url );
+		if ( null === $guid ) {
+			return null;
+		}
+
+		return Inline_Player::render(
+			$guid,
+			Inline_Player::get_player_options( Inline_Player::get_attributes_from_embed_url( $url ) )
+		);
 	}
 }

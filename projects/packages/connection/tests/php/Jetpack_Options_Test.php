@@ -50,7 +50,6 @@ class Jetpack_Options_Test extends TestCase {
 	private static function anchor() {
 		return array(
 			'wpcom_user_id' => 12345,
-			'email'         => 'owner@example.com',
 			'local_user_id' => 7,
 			'locked'        => true,
 			'confirmed_at'  => '2026-08-13T12:00:00Z',
