@@ -63,7 +63,7 @@ class Marketplace_Catalog {
 			return array();
 		}
 
-		$products = self::to_catalog( $response['results'] );
+		$products = self::attach_pricing( self::to_catalog( $response['results'] ), self::fetch_store_products() );
 
 		set_transient( self::LIST_CACHE_KEY, $products, self::CACHE_TTL );
 
@@ -258,15 +258,17 @@ class Marketplace_Catalog {
 	/**
 	 * Reads a wpcom marketplace endpoint.
 	 *
-	 * @param string $path Path below `wpcom/v2`, query string included.
+	 * @param string $path    Path below the namespace, query string included.
+	 * @param string $version API version.
+	 * @param string $base    API base, `wpcom` or `rest`.
 	 * @return array|null Decoded response body, or null on any failure.
 	 */
-	private static function request( $path ) {
+	private static function request( $path, $version = '2', $base = 'wpcom' ) {
 		if ( ! method_exists( Client::class, 'wpcom_json_api_request_as_blog' ) ) {
 			return null;
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog( $path, '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( $path, $version, array(), null, $base );
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return null;
@@ -336,6 +338,102 @@ class Marketplace_Catalog {
 			'external'           => true,
 			'wpcom_marketplace'  => true,
 			'wpcom_product_slug' => $product_slug,
+			'wpcom_variations'   => self::to_variation_ids( $product['variations'] ?? null ),
+			'wpcom_pricing'      => array(),
+		);
+	}
+
+	/**
+	 * Reads the store catalog, which is where a variation's slug and price live.
+	 *
+	 * The marketplace endpoint gives only a numeric product id, and checkout is
+	 * addressed by slug, so this is needed for the button as much as for the price.
+	 *
+	 * @return array<int, array> Keyed by product id.
+	 */
+	private static function fetch_store_products() {
+		$response = self::request( '/products', '1.1', 'rest' );
+
+		if ( ! is_array( $response ) ) {
+			return array();
+		}
+
+		$store = array();
+		foreach ( $response as $slug => $product ) {
+			if ( ! is_array( $product ) || empty( $product['product_id'] ) ) {
+				continue;
+			}
+
+			$store[ (int) $product['product_id'] ] = array(
+				'slug'  => (string) $slug,
+				'price' => (string) ( $product['cost_display'] ?? '' ),
+			);
+		}
+
+		return $store;
+	}
+
+	/**
+	 * Resolves each product's variations against the store catalog.
+	 *
+	 * @param array<string, array> $products Normalized products, keyed by slug.
+	 * @param array<int, array>    $store    Store products, keyed by product id.
+	 * @return array<string, array>
+	 */
+	public static function attach_pricing( array $products, array $store ) {
+		foreach ( $products as $slug => $product ) {
+			$pricing = array();
+
+			foreach ( $product['wpcom_variations'] ?? array() as $term => $product_id ) {
+				if ( isset( $store[ $product_id ] ) ) {
+					$pricing[ $term ] = $store[ $product_id ];
+				}
+			}
+
+			$products[ $slug ]['wpcom_pricing'] = $pricing;
+		}
+
+		return $products;
+	}
+
+	/**
+	 * Flattens the endpoint's variations into term => product id.
+	 *
+	 * @param mixed $variations Variations as the marketplace endpoint returns them.
+	 * @return array<string, int>
+	 */
+	private static function to_variation_ids( $variations ) {
+		$ids = array();
+
+		foreach ( is_array( $variations ) ? $variations : array() as $term => $variation ) {
+			$product_id = is_array( $variation ) ? (int) ( $variation['product_id'] ?? 0 ) : 0;
+			if ( $product_id > 0 ) {
+				$ids[ (string) $term ] = $product_id;
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * The checkout URL for one variation, which both buys and activates the plugin.
+	 *
+	 * @param array  $card Normalized product data.
+	 * @param string $term 'yearly' or 'monthly'.
+	 * @return string Checkout URL, or an empty string when there is no such variation.
+	 */
+	public static function checkout_url( array $card, $term ) {
+		$store_slug = $card['wpcom_pricing'][ $term ]['slug'] ?? '';
+		if ( '' === $store_slug ) {
+			return '';
+		}
+
+		$site_slug = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		return sprintf(
+			'https://wordpress.com/checkout/%s/%s#step2',
+			rawurlencode( (string) $site_slug ),
+			rawurlencode( $store_slug )
 		);
 	}
 
