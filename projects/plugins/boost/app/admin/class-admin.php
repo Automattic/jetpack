@@ -89,7 +89,7 @@ class Admin {
 	 *
 	 * @return bool Whether modernization is enabled for this admin request.
 	 */
-	public static function is_modern_dashboard() {
+	private static function is_modern_dashboard() {
 		/**
 		 * Enable the modern Boost dashboard.
 		 *
