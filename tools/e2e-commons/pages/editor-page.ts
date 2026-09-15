@@ -41,7 +41,7 @@ export default class EditorPage extends Editor {
 	 * @return {Promise<Page>} The preview page.
 	 */
 	openPreviewPage = async (): Promise< Page > => {
-		await this.getEditorTopBar().getByRole( 'button', { name: 'View' } ).click();
+		await this.getEditorTopBar().getByRole( 'button', { name: 'View', exact: true } ).click();
 
 		const [ previewPage ] = await Promise.all( [
 			this.context.waitForEvent( 'page' ),
