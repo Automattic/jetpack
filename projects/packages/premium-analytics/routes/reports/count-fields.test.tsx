@@ -80,6 +80,7 @@ describe( 'report table count fields', () => {
 			opens_rate: 66.666,
 			opens: 100,
 			unique_opens: 66,
+			total_sends: 99,
 		} as never );
 
 		// Rounded to two decimals, unsigned — not `+66.67%`.
@@ -91,6 +92,18 @@ describe( 'report table count fields', () => {
 			opens_rate: 0,
 			opens: 5,
 			unique_opens: 0,
+			total_sends: 100,
+		} as never );
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders an em dash for a rate on an email with no recorded sends', () => {
+		renderCountField( getEmailsFields(), 'opens_rate', {
+			opens_rate: 0,
+			opens: 0,
+			unique_opens: 0,
+			total_sends: 0,
 		} as never );
 
 		expect( screen.getByText( '—' ) ).toBeInTheDocument();
