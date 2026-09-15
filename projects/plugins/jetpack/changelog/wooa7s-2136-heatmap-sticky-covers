@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Keep the year column and month labels of a post's All-time traffic heatmap fully opaque while the grid scrolls, so scrolled-under cells no longer show through around them.
