@@ -16,7 +16,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { envelope, payment, people, scheduled } from '@wordpress/icons';
+import { envelope, payment, people, scheduled, share } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -79,6 +79,12 @@ function SubscriberHighlightsReport() {
 				'Email subscribers and free WordPress.com subscribers',
 				'jetpack-premium-analytics-pkg'
 			),
+		},
+		{
+			key: 'social',
+			label: __( 'Social followers', 'jetpack-premium-analytics-pkg' ),
+			icon: share,
+			value: counts.data?.social_followers ?? null,
 		},
 	];
 

@@ -50,7 +50,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Subscriber highlights" widget, ported from the Jetpack Stats Subscribers "All-time stats" card. Shows total subscribers from `useStatsSubscribersCounts`. A site with paid subscription products (`useStatsMembershipProducts`) also sees paid and free subscribers; any other site sees the subscriber count 30, 60, and 90 days ago from `useStatsSubscribersDaysAgo`. The counts do not follow the dashboard date range. In Storybook, `registerReportMocks()` serves every endpoint, with no products by default.',
+					'The "Subscriber highlights" widget, ported from the Jetpack Stats Subscribers "All-time stats" card. Shows total subscribers from `useStatsSubscribersCounts`. A site with paid subscription products (`useStatsMembershipProducts`) also sees paid subscribers, free subscribers, and social followers; any other site sees the subscriber count 30, 60, and 90 days ago from `useStatsSubscribersDaysAgo`. The counts do not follow the dashboard date range. In Storybook, `registerReportMocks()` serves every endpoint, with no products by default.',
 			},
 		},
 	},
@@ -69,7 +69,7 @@ export const Default: Story = {
 };
 
 /**
- * A site with paid subscription products: the widget shows paid and free subscribers in place of the history.
+ * A site with paid subscription products: the widget shows paid subscribers, free subscribers, and social followers in place of the history.
  */
 export const WithPaidProducts: Story = {
 	render: renderSubscriberHighlights,
