@@ -42,14 +42,14 @@ class Utils {
 
 		$process = new Process( $command, $options['cwd'], $options['env'], $options['input'], $options['timeout'] );
 		$output->writeln(
-			$formatter->start( spl_object_id( $process ), $process->getCommandLine() ),
+			$formatter->start( (string) spl_object_id( $process ), $process->getCommandLine() ),
 			OutputInterface::VERBOSITY_DEBUG
 		);
 		$func = $options['mustRun'] ? 'mustRun' : 'run';
 		$process->$func(
 			function ( $type, $buffer ) use ( $output, $formatter, $process ) {
 				$output->writeln(
-					$formatter->progress( spl_object_id( $process ), $buffer, Process::ERR === $type ),
+					$formatter->progress( (string) spl_object_id( $process ), $buffer, Process::ERR === $type ),
 					OutputInterface::VERBOSITY_DEBUG
 				);
 			}
