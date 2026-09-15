@@ -2847,10 +2847,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// Tax type shows a mode; taxType holds the wire value. Flipping back to a specific
 		// rate picks PERCENTAGE rather than the merchant's last specific type, which would
 		// need a second attribute to remember.
+		// Switching to profile also drops the rate: PayPal reads a profile tax back with
+		// no value, so a leftover one makes the block disagree with the payment and the
+		// next mount reports it as a change made at PayPal.
 		it.each( [
-			[ 'profile', 'PERCENTAGE', 'PREFERENCE' ],
-			[ 'specific', 'PREFERENCE', 'PERCENTAGE' ],
-		] )( 'maps the %s tax type back to the wire value', async ( mode, from, wire ) => {
+			[ 'profile', 'PERCENTAGE', { taxType: 'PREFERENCE', taxValue: '' } ],
+			[ 'specific', 'PREFERENCE', { taxType: 'PERCENTAGE' } ],
+		] )( 'maps the %s tax type back to the wire value', async ( mode, from, written ) => {
 			const user = userEvent.setup();
 			mockConnected();
 
@@ -2864,7 +2867,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitForForm();
 			await user.selectOptions( screen.getByLabelText( 'Tax type' ), mode );
 
-			expect( setAttributes ).toHaveBeenCalledWith( { taxType: wire } );
+			expect( setAttributes ).toHaveBeenCalledWith( written );
 		} );
 
 		// InputControl reports an emptied field as undefined, not ''. Writing undefined

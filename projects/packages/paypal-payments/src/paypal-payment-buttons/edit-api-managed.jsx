@@ -937,8 +937,15 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 										value: 'specific',
 									},
 								] }
+								// Clear the rate on the way to PREFERENCE. PayPal reads a profile tax
+								// back with no value, so leaving one behind makes the block disagree
+								// with the payment and the mount reconcile blames PayPal for it.
 								onChange={ value =>
-									setAttributes( { taxType: 'profile' === value ? 'PREFERENCE' : 'PERCENTAGE' } )
+									setAttributes(
+										'profile' === value
+											? { taxType: 'PREFERENCE', taxValue: '' }
+											: { taxType: 'PERCENTAGE' }
+									)
 								}
 								help={ taxHasValue ? undefined : taxProfileHint }
 								disabled={ isBusy }
