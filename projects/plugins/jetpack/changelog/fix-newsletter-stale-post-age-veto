@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: Stop emailing subscribers when an old post is republished or a trashed post is restored.
