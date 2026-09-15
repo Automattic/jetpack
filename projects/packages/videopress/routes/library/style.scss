@@ -222,6 +222,19 @@
 		color: #fff;
 		padding-inline: 8px;
 		text-align: center;
+
+		&-cause {
+
+			// Keep Retry visible; screen readers still get the cause.
+			@container (max-width: 160px) {
+				position: absolute;
+				inline-size: 1px;
+				block-size: 1px;
+				overflow: hidden;
+				clip-path: inset(50%);
+				white-space: nowrap;
+			}
+		}
 	}
 
 	&__filename {
