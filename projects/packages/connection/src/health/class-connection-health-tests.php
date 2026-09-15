@@ -568,7 +568,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * where a stale Error_Handler predating the factory and the constant can
 	 * already be loaded: reporting is best-effort and must never fatal.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param string $error_code    The error code, one of Error_Handler::$known_errors.
 	 * @param string $error_message The stored error message (display copy is resolved by the Error_Handler).
@@ -622,7 +622,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * As with clear_blocked_request_error(), state sync is best-effort and skipped when a
 	 * stale Error_Handler predating the method is loaded mid-plugin-update.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 */
 	private function clear_ssl_verification_error() {
 		if ( method_exists( Error_Handler::class, 'delete_error_by_code' ) ) {
@@ -663,7 +663,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * No reconnect action is offered because a reconnect would fail certificate
 	 * verification the same way.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param string $name The test name.
 	 *
@@ -682,7 +682,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 *
 	 * No reconnect action is offered; contacting support is the only CTA.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param string $name             The test name.
 	 * @param string $connection_error The connection-specific error copy.

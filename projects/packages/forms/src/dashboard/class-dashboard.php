@@ -155,7 +155,7 @@ class Dashboard {
 	 * it runs late enough that has_filter() sees callbacks registered on `init`, not just
 	 * those added at file scope.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.1.0
 	 */
 	public static function announce_retired_filter() {
 		if ( ! has_filter( 'jetpack_forms_alpha' ) ) {
@@ -164,7 +164,7 @@ class Dashboard {
 
 		// Kept on one line: replace-next-version-tag.sh only recognizes the token in a
 		// single-line deprecation call, and errors the build out otherwise.
-		_deprecated_hook( 'jetpack_forms_alpha', 'jetpack-forms-$$next-version$$', '', 'The legacy Forms dashboard has been removed, so this filter no longer selects anything.' );
+		_deprecated_hook( 'jetpack_forms_alpha', 'jetpack-forms-8.1.0', '', 'The legacy Forms dashboard has been removed, so this filter no longer selects anything.' );
 	}
 
 	/**
@@ -376,10 +376,10 @@ class Dashboard {
 	 * is no longer enqueued, so the container it prints stays empty. Kept, and left
 	 * printing the same markup, so any caller outside this package behaves as before.
 	 *
-	 * @deprecated $$next-version$$ The legacy dashboard was retired.
+	 * @deprecated 8.1.0 The legacy dashboard was retired.
 	 */
 	public function render_dashboard() {
-		_deprecated_function( __METHOD__, 'jetpack-forms-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-forms-8.1.0' );
 		?>
 		<div id="jp-forms-dashboard"></div>
 		<?php

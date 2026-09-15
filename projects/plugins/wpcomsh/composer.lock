@@ -176,7 +176,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "90d15a9f439112c170b983f1506862ac7956b8f7"
+                "reference": "272d76628bcc2ac72e749a49acfce662cbb3d61e"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -202,7 +202,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -891,7 +891,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "e4db513a37153bd0b72e183083de7f94d89819bc"
+                "reference": "5c3b4016172d4db093143009422b934d467684bd"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -928,7 +928,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.2.x-dev"
+                    "dev-trunk": "9.3.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2098,7 +2098,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "db9e1e326079ce7b0d1c71af2defd236a7a458ff"
+                "reference": "a172da6506ba015fb682f3fe244031b0dc0a0cc7"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2129,7 +2129,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 }
             },
             "autoload": {
@@ -2421,7 +2421,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "073fed26e8ffe994c55d59a68ea3784386dfa085"
+                "reference": "eb1da353c86bfb1b52cc2af1e26878e14b15ddb2"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2446,7 +2446,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.35.x-dev"
+                    "dev-trunk": "0.36.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {

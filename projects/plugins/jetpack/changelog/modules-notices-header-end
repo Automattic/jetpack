@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Modules: Keep other plugins' admin notices out of the module list.

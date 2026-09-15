@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-09-15
+### Added
+- Accept only whole-number prices in currencies that require them, and remove the unsupported Indian rupee. [#51656]
+- Add a "Manage PayPal Payment Links" link to the block, opening the new admin page. [#52270] [#52273] [#52279]
+- Add a feature flag for the API-managed payment buttons; the block keeps the paste-code editor while it is off. [#51982]
+- Add a live editor preview and a "Styles" tab for each button format. [#52210]
+- Add API-managed payment buttons behind a feature flag that is not yet enabled. [#52210] [#52170] [#52172]
+- Complete PayPal onboarding with PayPal's SDK, discarding connections that fail its final checks. [#51656]
+- Connect a PayPal account from the block settings sidebar without reloading the editor. [#51656] [#52334]
+- Create the onboarding referral through WordPress.com so PayPal platform credentials never reach the site. [#51656]
+- Log a notice when stored PayPal credentials cannot be decrypted and are removed, instead of removing them silently. [#51656]
+- Offer "Connect with PayPal" on WordPress.com and Jetpack-connected sites, with an API credentials step elsewhere. [#51656]
+- Offer the account's existing payment links when a new block is added, so a block can reuse one instead of creating another. [#52329]
+- Report PayPal connection errors with PayPal's own details, and stop retrying onboarding after an error. [#51656]
+- Require confirmation before deleting a payment link, and stop showing buttons for deleted links. [#51656] [#52270] [#52280]
+- Share payment links by link or QR code, with PayPal's partner attribution code. [#51656]
+- Show the payment a duplicated block points at, so two blocks sharing one PayPal payment always show the same product and price. [#51656]
+- Show when PayPal is disconnected, with a "Reconnect" button, and explain in a short summary that disconnecting applies to the whole site. [#51656]
+- Support per-option product prices. [#51656]
+
+### Changed
+- Call option groups variants, with one checkbox to turn on per-variant pricing. [#52022]
+- Create and update the PayPal payment when the post is saved instead of from a "Create New" button, and delete it when the post is saved without its block and no other published post uses it. [#52224]
+- Move the product form fields into the block inspector and fit them to the sidebar column. [#52022]
+- Pick a page for the return URL, or paste one, instead of typing the address by hand. [#52022]
+- Update package dependencies. [#52297]
+- Warn on every payment button that changes apply to every button sharing the same payment link, wherever it is used. [#52022]
+
+### Removed
+- Remove the "Tax name" field. [#52022]
+
 ## [0.8.2] - 2026-09-09
 ### Changed
 - Internal updates.
@@ -307,6 +338,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.9.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.7.12...v0.8.0

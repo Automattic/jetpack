@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Stop rendering a button for a payment link deleted through this site, warn in the editor that the link is gone before a save recreates it, and list the posts still embedding it after a delete from the admin page.

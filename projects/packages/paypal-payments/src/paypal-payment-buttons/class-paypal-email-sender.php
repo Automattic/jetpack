@@ -44,7 +44,7 @@ class PayPal_Email_Sender {
 	/**
 	 * Initialize AJAX hooks when the API-managed buttons are enabled.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @return void
 	 */
 	public static function maybe_init() {

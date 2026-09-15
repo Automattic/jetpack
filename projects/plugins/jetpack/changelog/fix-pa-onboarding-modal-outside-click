@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: keep the onboarding welcome modal open on a click outside it, so the tour can still be started.

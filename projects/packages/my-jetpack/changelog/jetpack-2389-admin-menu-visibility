@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a plan-free is_activated() check to the product classes and resolve Jetpack sidebar menu visibility from it, so a menu item follows whether the product is switched on without a request to WordPress.com.

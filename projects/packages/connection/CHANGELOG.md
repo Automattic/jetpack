@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.3.0] - 2026-09-15
+### Added
+- Add protected owner predicates and setters to the connection `Manager`. [#52071]
+- Show an admin notice when WordPress.com reports that it cannot verify the site's SSL certificate. [#52035]
+- Serve the disconnect dialog illustrations from the package and add their base URL to the admin script data. [#52204]
+
+### Changed
+- Refuse to change the connection owner while ownership is locked. [#52221]
+
+### Fixed
+- Error Handler: Stop reporting token errors on unregistered sites and purge object caches when deleting stored errors, so stale connection error notices cannot persist on healthy sites. [#52264]
+
 ## [9.2.0] - 2026-09-14
 ### Added
 - Add a Manager method to resolve a connected user's WordPress.com user ID. [#52042]
@@ -2064,6 +2076,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[9.3.0]: https://github.com/Automattic/jetpack-connection/compare/v9.2.0...v9.3.0
 [9.2.0]: https://github.com/Automattic/jetpack-connection/compare/v9.1.2...v9.2.0
 [9.1.2]: https://github.com/Automattic/jetpack-connection/compare/v9.1.1...v9.1.2
 [9.1.1]: https://github.com/Automattic/jetpack-connection/compare/v9.1.0...v9.1.1
