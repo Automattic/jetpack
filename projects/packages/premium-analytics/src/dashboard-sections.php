@@ -301,7 +301,7 @@ function register_default_dashboard_sections() {
 		),
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
-			'title'               => __( 'Activity insights', 'jetpack-premium-analytics-pkg' ),
+			'title'               => __( 'Site insights', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 20,
 			// Insights reads whole history: all time and single years, with nothing
 			// to compare them against. Most widgets have fixed periods of their own,

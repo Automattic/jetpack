@@ -295,7 +295,7 @@ function mockSection( overrides: Record< string, unknown > = {} ) {
 			{
 				slug: 'insights',
 				label: 'Insights',
-				title: 'Activity insights',
+				title: 'Site insights',
 				date_filter: DATE_FILTER_YEAR,
 				...overrides,
 			},
@@ -355,7 +355,7 @@ describe( 'Dashboard report scope', () => {
 				{
 					slug: 'insights',
 					label: 'Insights',
-					title: 'Activity insights',
+					title: 'Site insights',
 					date_filter: DATE_FILTER_YEAR,
 				},
 			],
@@ -638,7 +638,7 @@ describe( 'Dashboard header date control', () => {
 				{
 					slug: 'insights',
 					label: 'Insights',
-					title: 'Activity insights',
+					title: 'Site insights',
 					date_filter: DATE_FILTER_YEAR,
 				},
 			],
