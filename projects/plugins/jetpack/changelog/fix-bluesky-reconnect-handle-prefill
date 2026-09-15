@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Social: Pre-fill the Bluesky handle field when reconnecting an account.
