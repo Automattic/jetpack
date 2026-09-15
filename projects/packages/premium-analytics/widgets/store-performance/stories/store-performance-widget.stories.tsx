@@ -47,8 +47,7 @@ interface StorePerformanceStoryControls extends SiteTimeZoneControls {
 type StorePerformanceStoryProps = StorePerformanceRenderProps & StorePerformanceStoryControls;
 
 interface StorePerformanceDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		StorePerformanceStoryControls {}
+	extends WidgetDashboardWithWidgetControls, StorePerformanceStoryControls {}
 
 function getStorePerformanceAttributes( {
 	withComparison = false,

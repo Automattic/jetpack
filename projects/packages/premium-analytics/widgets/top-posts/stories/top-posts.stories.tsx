@@ -39,8 +39,7 @@ interface TopPostsStoryControls {
 }
 
 interface TopPostsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TopPostsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TopPostsStoryControls {}
 
 const withTopPostsCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '340px' } }>

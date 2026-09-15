@@ -35,8 +35,7 @@ interface AverageOrderValueStoryControls {
 type AverageOrderValueStoryProps = AverageOrderValueRenderProps & AverageOrderValueStoryControls;
 
 interface AverageOrderValueDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		AverageOrderValueStoryControls {}
+	extends WidgetDashboardWithWidgetControls, AverageOrderValueStoryControls {}
 
 function getAverageOrderValueAttributes(
 	withComparison = false,

@@ -163,8 +163,7 @@ export const Empty: Story = {
 };
 
 interface SubscriberHighlightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SubscriberHighlightsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SubscriberHighlightsStoryControls {}
 
 function SubscriberHighlightsDashboardStory( {
 	metrics,

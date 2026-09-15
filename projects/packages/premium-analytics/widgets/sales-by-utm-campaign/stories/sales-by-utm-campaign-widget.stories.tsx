@@ -41,8 +41,7 @@ interface SalesByUtmCampaignStoryControls {
 type SalesByUtmCampaignStoryProps = SalesByUtmCampaignWidgetProps & SalesByUtmCampaignStoryControls;
 
 interface SalesByUtmCampaignDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SalesByUtmCampaignStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SalesByUtmCampaignStoryControls {}
 
 function getSalesByUtmCampaignAttributes(
 	withComparison = false,

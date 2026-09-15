@@ -35,8 +35,7 @@ interface BookingsByDeviceStoryControls {
 type BookingsByDeviceStoryProps = BookingsByDeviceRenderProps & BookingsByDeviceStoryControls;
 
 interface BookingsByDeviceDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		BookingsByDeviceStoryControls {}
+	extends WidgetDashboardWithWidgetControls, BookingsByDeviceStoryControls {}
 
 function getBookingsByDeviceAttributes(
 	withComparison = false,

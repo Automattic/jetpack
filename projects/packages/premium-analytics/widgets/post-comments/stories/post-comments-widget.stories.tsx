@@ -136,8 +136,7 @@ export const Empty: Story = {
 };
 
 interface PostCommentsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PostCommentsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, PostCommentsStoryControls {}
 
 function PostCommentsDashboardStory( {
 	hasPostScope,

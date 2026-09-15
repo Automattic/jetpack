@@ -56,8 +56,10 @@ export interface TooltipRenderProps {
 /**
  * Props for the ConversionFunnelChart component
  */
-export interface ConversionFunnelChartProps
-	extends Pick< BaseChartProps, 'className' | 'chartId' | 'animation' > {
+export interface ConversionFunnelChartProps extends Pick<
+	BaseChartProps,
+	'className' | 'chartId' | 'animation'
+> {
 	/** Main conversion rate to highlight */
 	mainRate: number;
 	/** Change indicator (e.g., +2%, -1.5%) */

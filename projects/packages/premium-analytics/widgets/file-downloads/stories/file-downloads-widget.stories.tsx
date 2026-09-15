@@ -36,8 +36,7 @@ interface FileDownloadsStoryControls {
 }
 
 interface FileDownloadsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		FileDownloadsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, FileDownloadsStoryControls {}
 
 function renderFileDownloadsWidget( { withComparison }: FileDownloadsStoryControls ) {
 	return (

@@ -39,8 +39,7 @@ interface VisitorsOverTimeStoryControls {
 type VisitorsOverTimeStoryProps = VisitorsOverTimeWidgetProps & VisitorsOverTimeStoryControls;
 
 interface VisitorsOverTimeDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		VisitorsOverTimeStoryControls {}
+	extends WidgetDashboardWithWidgetControls, VisitorsOverTimeStoryControls {}
 
 function getVisitorsOverTimeAttributes(
 	withComparison = false,

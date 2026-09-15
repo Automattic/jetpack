@@ -31,8 +31,7 @@ interface DevicesStoryControls {
 }
 
 interface DevicesDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		DevicesStoryControls {}
+	extends WidgetDashboardWithWidgetControls, DevicesStoryControls {}
 
 function renderDevicesWidget( { withComparison }: DevicesStoryControls ) {
 	return <DevicesRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;

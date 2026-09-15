@@ -36,8 +36,7 @@ type AverageItemsPerOrderStoryProps = AverageItemsPerOrderRenderProps &
 	AverageItemsPerOrderStoryControls;
 
 interface AverageItemsPerOrderDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		AverageItemsPerOrderStoryControls {}
+	extends WidgetDashboardWithWidgetControls, AverageItemsPerOrderStoryControls {}
 
 function getAverageItemsPerOrderAttributes(
 	withComparison = false,

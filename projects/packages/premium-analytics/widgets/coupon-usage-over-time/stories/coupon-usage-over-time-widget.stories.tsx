@@ -36,8 +36,7 @@ type CouponUsageOverTimeStoryProps = CouponUsageOverTimeWidgetProps &
 	CouponUsageOverTimeStoryControls;
 
 interface CouponUsageOverTimeDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		CouponUsageOverTimeStoryControls {}
+	extends WidgetDashboardWithWidgetControls, CouponUsageOverTimeStoryControls {}
 
 function getCouponUsageOverTimeAttributes(
 	withComparison = false,

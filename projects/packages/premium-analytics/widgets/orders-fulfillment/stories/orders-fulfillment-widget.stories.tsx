@@ -35,8 +35,7 @@ interface OrdersFulfillmentStoryControls {
 type OrdersFulfillmentStoryProps = OrdersFulfillmentWidgetProps & OrdersFulfillmentStoryControls;
 
 interface OrdersFulfillmentDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		OrdersFulfillmentStoryControls {}
+	extends WidgetDashboardWithWidgetControls, OrdersFulfillmentStoryControls {}
 
 function getOrdersFulfillmentAttributes(
 	withComparison = false,

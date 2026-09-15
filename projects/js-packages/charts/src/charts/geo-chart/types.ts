@@ -22,8 +22,10 @@ export interface GeoChartError {
 	options?: Record< string, unknown >;
 }
 
-export interface GeoChartProps
-	extends Pick< BaseChartProps, 'className' | 'chartId' | 'width' | 'height' > {
+export interface GeoChartProps extends Pick<
+	BaseChartProps,
+	'className' | 'chartId' | 'width' | 'height'
+> {
 	/**
 	 * Data in Google Charts native format for maximum flexibility.
 	 * First row contains column headers, subsequent rows contain data.

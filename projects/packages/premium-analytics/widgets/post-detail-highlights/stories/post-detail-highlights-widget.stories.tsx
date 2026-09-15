@@ -184,8 +184,7 @@ export const Empty: Story = {
 };
 
 interface PostDetailHighlightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PostDetailHighlightsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, PostDetailHighlightsStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
