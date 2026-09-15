@@ -140,9 +140,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( surface ).toHaveCSS( 'padding', '17px' );
 		const popupBox = ( await surface.boundingBox() )!;
 		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
-		const cardBox = ( await page
-			.getByText( 'Last 30 days scores', { exact: true } )
-			.boundingBox() )!;
+		const cardBox = ( await page.getByText( 'Score history', { exact: true } ).boundingBox() )!;
 		expect(
 			popupBox.x >= Math.floor( hoveredBar.x + hoveredBar.width ) ||
 				popupBox.x + popupBox.width <= Math.ceil( hoveredBar.x )
