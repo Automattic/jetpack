@@ -110,8 +110,8 @@ class Jetpack_Test extends WP_UnitTestCase {
 	 * Make sure that MockJetpack creates separate instances of `Jetpack` and `Automattic\Jetpack\Connection\Manager`.
 	 */
 	public function test_static_binding() {
-		$this->assertNotEquals( spl_object_hash( MockJetpack::init() ), spl_object_hash( Jetpack::init() ) );
-		$this->assertNotEquals( spl_object_hash( MockJetpack::connection() ), spl_object_hash( Jetpack::connection() ) );
+		$this->assertNotEquals( spl_object_id( MockJetpack::init() ), spl_object_id( Jetpack::init() ) );
+		$this->assertNotEquals( spl_object_id( MockJetpack::connection() ), spl_object_id( Jetpack::connection() ) );
 	}
 
 	/**
