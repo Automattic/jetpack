@@ -103,9 +103,8 @@ final class Likes_Section {
 	 * The buttons are live, but the site would be better served by the block.
 	 */
 	private static function render_block_nudge(): void {
-		echo '<div class="notice notice-info inline"><p>';
-		echo esc_html__( 'Legacy Like buttons cannot be customized on block themes. Use the Like block in your theme’s template instead.', 'jetpack' );
-		echo '</p></div>';
+		echo '<div class="notice notice-info inline">';
+		printf( '<p>%s</p>', esc_html__( 'Legacy Like buttons cannot be customized on block themes. Use the Like block in your theme’s template instead.', 'jetpack' ) );
 
 		/*
 		 * Switching means turning the module off, which WordPress.com Simple has
@@ -113,14 +112,16 @@ final class Likes_Section {
 		 */
 		if ( Environment::is_simple_site() ) {
 			self::render_site_editor_link();
-			return;
+		} else {
+			Post_Handler::render_action_form(
+				'switch-to-block-likes',
+				self::NONCE_ACTION,
+				__( 'Switch to the Like block', 'jetpack' ),
+				false
+			);
 		}
 
-		Post_Handler::render_action_form(
-			'switch-to-block-likes',
-			self::NONCE_ACTION,
-			__( 'Switch to the Like block', 'jetpack' )
-		);
+		echo '</div>';
 	}
 
 	/**

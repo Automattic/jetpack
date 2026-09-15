@@ -205,13 +205,14 @@ final class Post_Handler {
 	 * @param string $action       Action name, matching a case above.
 	 * @param string $nonce_action Nonce action for the submitting section.
 	 * @param string $label        Button label.
+	 * @param bool   $primary      Whether this is the only action in its state.
 	 */
-	public static function render_action_form( string $action, string $nonce_action, string $label ): void {
+	public static function render_action_form( string $action, string $nonce_action, string $label, bool $primary = true ): void {
 		?>
 		<form method="post" action="">
 			<input type="hidden" name="<?php echo esc_attr( self::ACTION_FIELD ); ?>" value="<?php echo esc_attr( $action ); ?>" />
 			<?php wp_nonce_field( $nonce_action ); ?>
-			<p><button type="submit" class="button button-primary"><?php echo esc_html( $label ); ?></button></p>
+			<p><button type="submit" class="<?php echo esc_attr( $primary ? 'button button-primary' : 'button' ); ?>"><?php echo esc_html( $label ); ?></button></p>
 		</form>
 		<?php
 	}
