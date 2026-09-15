@@ -55,3 +55,18 @@
 	align-items: center;
 	gap: 4px;
 }
+
+/*
+ * Core reserves a fixed 120px column for the action links, sized for the word
+ * "Install Now". A price label is longer, and an unwrapped button spills over
+ * the plugin title next to it. Widening the column squeezes the description to
+ * a few words per line, so let the button wrap inside the width core already
+ * reserved instead.
+ */
+.wpcom-marketplace-tab .plugin-card .plugin-action-buttons .button {
+	display: block;
+	box-sizing: border-box;
+	inline-size: 100%;
+	text-align: center;
+	white-space: normal;
+}
