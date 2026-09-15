@@ -32,6 +32,7 @@ import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
@@ -119,25 +120,10 @@ function PostDetail(): JSX.Element {
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	// The host titles a card by its widget *type*; fixed compositions reuse
-	// registered types under page-local aliases to carry the design title.
-	const pageWidgetTypes = useMemo( () => {
-		const aliases = POST_DETAIL_WIDGET_TYPE_ALIASES.flatMap( ( { baseType, variants } ) => {
-			const base = widgetTypes.find( widgetType => widgetType.name === baseType );
-
-			return base
-				? variants.map( variant => ( {
-						...base,
-						name: variant.name,
-						title: variant.getTitle(),
-						...( variant.getHelp ? { help: variant.getHelp() } : {} ),
-						...( variant.icon ? { icon: variant.icon } : {} ),
-				  } ) )
-				: [];
-		} );
-
-		return aliases.length ? [ ...widgetTypes, ...aliases ] : widgetTypes;
-	}, [ widgetTypes ] );
+	const pageWidgetTypes = useMemo(
+		() => withWidgetTypeAliases( widgetTypes, POST_DETAIL_WIDGET_TYPE_ALIASES ),
+		[ widgetTypes ]
+	);
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
