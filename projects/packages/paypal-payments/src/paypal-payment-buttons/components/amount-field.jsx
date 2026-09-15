@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-bind */
 /**
  * A money or percentage field with the unit inside it.
  *
@@ -47,8 +46,7 @@ export default function AmountField( {
 		<InputControl
 			label={ label }
 			value={ value || '' }
-			// The type allows undefined; @wordpress/components always passes a string.
-			onChange={ next => onChange( next ?? '' ) }
+			onChange={ onChange }
 			type="number"
 			step={ step }
 			min={ min }

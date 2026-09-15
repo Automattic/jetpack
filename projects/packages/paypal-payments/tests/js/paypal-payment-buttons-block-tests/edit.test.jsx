@@ -55,7 +55,8 @@ jest.mock( '@wordpress/element', () => {
 	};
 } );
 
-// The tax hint interpolates a Link into its sentence.
+// The tax hint interpolates a Link into its sentence. The real Link sets no `rel`
+// - eslint adds it here - so do not read this mock as proof of one.
 jest.mock( '@wordpress/ui', () => ( {
 	Link: ( { href, children, openInNewTab } ) => (
 		<a
@@ -234,7 +235,7 @@ jest.mock( '@wordpress/components', () => ( {
 				<input
 					id={ id }
 					value={ value ?? '' }
-					onChange={ e => onChange( e.target.value ) }
+					onChange={ e => e.target.value !== value && onChange( e.target.value ) }
 					{ ...rest }
 				/>
 				{ suffix }
@@ -2917,6 +2918,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// so it follows the currency - JPY takes no decimals at all.
 		it.each( [
 			[ 'a percentage', { taxType: 'PERCENTAGE' }, '0.01' ],
+			[ 'a flat amount', { taxType: 'FLAT' }, '0.01' ],
 			[ 'a flat amount in JPY', { taxType: 'FLAT', currencyCode: 'JPY', price: '2000' }, '1' ],
 		] )( 'steps the field for %s', async ( _label, overrides, step ) => {
 			const field = await taxField( overrides );
@@ -3538,7 +3540,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it.each( blockingKeys )( 'says what is wrong when %s blocks the save', async key => {
 			const field = await showError( key );
 
-			expect( within( field ).getByText( cases[ key ].message ) ).toBeInTheDocument();
+			// editor.scss keys on this class and nothing else, so pin it here.
+			expect( within( field ).getByText( cases[ key ].message ) ).toHaveClass(
+				'components-base-control__help'
+			);
 			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
 		} );
 
@@ -3546,7 +3551,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it.each( ADVISORY_ERROR_KEYS )( 'warns about %s and still saves', async key => {
 			const field = await showError( key );
 
-			expect( within( field ).getByText( cases[ key ].message ) ).toBeInTheDocument();
+			// editor.scss keys on this class and nothing else, so pin it here.
+			expect( within( field ).getByText( cases[ key ].message ) ).toHaveClass(
+				'components-base-control__help'
+			);
 			expect( screen.getByText( createdOnSave ) ).toBeInTheDocument();
 		} );
 	} );

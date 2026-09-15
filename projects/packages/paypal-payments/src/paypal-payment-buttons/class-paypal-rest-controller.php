@@ -812,6 +812,10 @@ class PayPal_REST_Controller {
 			}
 		}
 
+		if ( ! empty( $first_item['product_id'] ) ) {
+			$attributes['productId'] = $first_item['product_id'];
+		}
+
 		if ( ! empty( $first_item['description'] ) ) {
 			$attributes['productDescription'] = $first_item['description'];
 		}

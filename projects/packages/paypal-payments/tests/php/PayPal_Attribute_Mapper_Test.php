@@ -389,7 +389,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Test that button text exceeding 50 characters is rejected.
+	 * Test that a product id exceeding 50 characters is rejected.
 	 */
 	public function test_validate_rejects_product_id_too_long() {
 		$result = PayPal_Attribute_Mapper::validate_attributes(
@@ -422,7 +422,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Test that validate_attributes rejects a button text over the limit.
+	 * Test that button text exceeding 50 characters is rejected.
 	 */
 	public function test_validate_rejects_button_text_too_long() {
 		$result = PayPal_Attribute_Mapper::validate_attributes(
