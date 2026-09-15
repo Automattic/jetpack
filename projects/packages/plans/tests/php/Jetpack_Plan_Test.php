@@ -124,6 +124,35 @@ class Jetpack_Plan_Test extends TestCase {
 		$this->assertNull( Jetpack_Plan::get_wpcom_site_specific_features() );
 	}
 
+	/**
+	 * The Jetpack plugin hooks this straight onto `jetpack_heartbeat`, and WordPress hands an
+	 * action callback an empty string when the hook fires with no arguments. Taking that as the
+	 * request arguments fatals the daily refresh on every site.
+	 */
+	public function test_a_refresh_survives_being_fired_as_an_action() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', self::TEST_BLOG_ID );
+		( new Manager() )->reset_connection_status();
+
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+
+		$serve_personal_plan = function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'plan' => self::get_personal_plan() ), JSON_UNESCAPED_SLASHES ),
+			);
+		};
+
+		add_filter( 'pre_http_request', $serve_personal_plan );
+		add_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
+		do_action( 'jetpack_heartbeat' );
+		remove_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
+		remove_filter( 'pre_http_request', $serve_personal_plan );
+
+		$this->assertSame( 'jetpack_personal', Jetpack_Plan::get()['product_slug'] );
+	}
+
 	public function test_update_from_sites_response_failure_to_update() {
 		update_option( 'jetpack_active_plan', $this->get_free_plan(), true );
 

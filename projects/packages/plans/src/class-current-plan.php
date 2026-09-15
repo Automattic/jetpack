@@ -270,6 +270,11 @@ class Current_Plan {
 	 * @return bool True if plan is updated, false if no update
 	 */
 	public static function refresh_from_wpcom( $args = array() ) {
+		// Also registered as an action callback, and `do_action()` hands those an empty string.
+		if ( ! is_array( $args ) ) {
+			$args = array();
+		}
+
 		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;
