@@ -110,12 +110,11 @@ export function useRaisePeriodChange() {
 }
 
 /**
- * Settle the pending signal against what this surface shows, and own the
- * attention it fires. The signal fires once the surface, a visible control and
- * the applied range all match, waits while a navigation is still landing, and
- * is dropped as soon as the surface moves anywhere else. The fired id is held
- * for `PERIOD_CHANGE_ATTENTION_MS`, or until the control leaves the screen, so
- * a control that comes back does not replay it.
+ * Settle the pending signal against this surface and own the attention it fires.
+ *
+ * Fires once surface, visible control and applied range all match; dropped once the
+ * surface lands anywhere else. The id is let go after `PERIOD_CHANGE_ATTENTION_MS` or
+ * when the control hides, so it never replays.
  *
  * @param surface      - The surface's key, as passed to raise.
  * @param appliedRange - The range its date control shows.

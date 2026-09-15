@@ -10,10 +10,10 @@ import {
 import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import { useCallback as useHandler } from 'react';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
@@ -180,7 +180,7 @@ function MockHeaderScopeProbe() {
 function MockScopeProbe() {
 	const { offersComparison } = useReportScope();
 	const raisePeriodChange = useRaisePeriodChange();
-	const openJuly = useHandler(
+	const openJuly = useCallback(
 		() => raisePeriodChange( 'traffic', JULY_2026 ),
 		[ raisePeriodChange ]
 	);
@@ -195,21 +195,15 @@ function MockScopeProbe() {
 	);
 }
 
-/**
- * Stands in for the period trigger: shows the id it was handed.
- *
- * @param props             - The attention props the stage hands the panel.
- * @param props.attentionId - The id to show.
- * @return The probe.
- */
-function MockAttentionProbe( { attentionId }: { attentionId?: number } ) {
-	return <span data-testid="attention">{ attentionId ?? 'no attention' }</span>;
-}
+// Stands in for the period trigger: shows the id it was handed.
+const MockAttentionProbe = ( { attentionId }: { attentionId?: number } ) => (
+	<span data-testid="attention">{ attentionId ?? 'no attention' }</span>
+);
 
 jest.mock( '@wordpress/widget-dashboard', () => {
-	const { createContext, useCallback, useContext, useMemo } = jest.requireActual( 'react' );
+	const React = jest.requireActual( 'react' );
 
-	const EditModeContext = createContext( { editMode: false, onEditChange: () => {} } );
+	const EditModeContext = React.createContext( { editMode: false, onEditChange: () => {} } );
 
 	const WidgetDashboard = ( {
 		editMode = false,
@@ -220,7 +214,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		onEditChange?: ( next: boolean ) => void;
 		children: ReactNode;
 	} ) => {
-		const value = useMemo( () => ( { editMode, onEditChange } ), [ editMode, onEditChange ] );
+		const value = React.useMemo( () => ( { editMode, onEditChange } ), [ editMode, onEditChange ] );
 
 		return (
 			<EditModeContext.Provider value={ value }>
@@ -237,8 +231,8 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	 * @return The stand-in edit toolbar.
 	 */
 	function Actions() {
-		const { editMode, onEditChange } = useContext( EditModeContext );
-		const leave = useCallback( () => onEditChange( false ), [ onEditChange ] );
+		const { editMode, onEditChange } = React.useContext( EditModeContext );
+		const leave = React.useCallback( () => onEditChange( false ), [ onEditChange ] );
 
 		return (
 			<div data-testid="widget-dashboard-actions">

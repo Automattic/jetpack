@@ -16,24 +16,7 @@ const JULY_2026 = {
 	to: new TZDate( 2026, 6, 31, 23, 59, 59, 999, 'UTC' ),
 };
 
-function renderDropdown( overrides: Partial< Parameters< typeof DatePeriodDropdown >[ 0 ] > = {} ) {
-	const props = {
-		appliedPresetId: 'last-30-days' as const,
-		appliedRange: JULY_2026,
-		range: JULY_2026,
-		timeZone: 'UTC',
-		onSelect: jest.fn(),
-		onChange: jest.fn(),
-		onApply: jest.fn(),
-		onCancel: jest.fn(),
-		canApply: false,
-		...overrides,
-	};
-
-	render( <DatePeriodDropdown { ...props } /> );
-
-	return props;
-}
+type DropdownProps = Parameters< typeof DatePeriodDropdown >[ 0 ];
 
 function baseProps() {
 	return {
@@ -49,23 +32,16 @@ function baseProps() {
 	};
 }
 
-function renderDropdownView(
-	overrides: Partial< Parameters< typeof DatePeriodDropdown >[ 0 ] > = {}
-) {
-	return render(
-		<DatePeriodDropdown
-			appliedPresetId="last-30-days"
-			appliedRange={ JULY_2026 }
-			range={ JULY_2026 }
-			timeZone="UTC"
-			onSelect={ jest.fn() }
-			onChange={ jest.fn() }
-			onApply={ jest.fn() }
-			onCancel={ jest.fn() }
-			canApply={ false }
-			{ ...overrides }
-		/>
-	);
+function renderDropdown( overrides: Partial< DropdownProps > = {} ) {
+	const props = { ...baseProps(), ...overrides };
+
+	render( <DatePeriodDropdown { ...props } /> );
+
+	return props;
+}
+
+function renderDropdownView( overrides: Partial< DropdownProps > = {} ) {
+	return render( <DatePeriodDropdown { ...baseProps() } { ...overrides } /> );
 }
 
 const openMenu = async ( user: ReturnType< typeof userEvent.setup >, name: string ) =>
@@ -357,17 +333,7 @@ describe( 'DatePeriodDropdown attention', () => {
 
 	it( 'keeps an open menu open when the attention changes', async () => {
 		const user = userEvent.setup();
-		const props = {
-			appliedPresetId: 'last-30-days' as const,
-			appliedRange: JULY_2026,
-			range: JULY_2026,
-			timeZone: 'UTC',
-			onSelect: jest.fn(),
-			onChange: jest.fn(),
-			onApply: jest.fn(),
-			onCancel: jest.fn(),
-			canApply: false,
-		};
+		const props = baseProps();
 		const view = render( <DatePeriodDropdown { ...props } /> );
 		await openMenu( user, 'Last 30 days' );
 
