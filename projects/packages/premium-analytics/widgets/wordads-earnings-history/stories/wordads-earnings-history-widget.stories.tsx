@@ -26,6 +26,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import WordAdsEarningsHistoryRender from '../render';
 import widgetDefinition from '../widget';
@@ -61,27 +62,27 @@ type Story = StoryObj< typeof meta >;
 
 /** Default state — the earnings history table. */
 export const Default: Story = {
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /** First load — the request is in flight. */
 export const Loading: Story = {
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: forceWordAdsEarningsState( 'loading' ),
 };
 
 /** The fetch failed — the error state with a Retry action. */
 export const Error: Story = {
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: forceWordAdsEarningsState( 'error' ),
 };
 
 /** Resolved but empty — no earnings history for this breakdown. */
 export const Empty: Story = {
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: forceWordAdsEarningsState( 'empty' ),
 };
 

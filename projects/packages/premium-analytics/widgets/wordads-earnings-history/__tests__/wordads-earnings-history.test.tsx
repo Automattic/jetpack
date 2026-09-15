@@ -91,8 +91,6 @@ describe( 'WordAdsEarningsHistory', () => {
 		render( <WordAdsEarningsHistory attributes={ {} } /> );
 		await expect( screen.findByText( '07-2026' ) ).resolves.toBeInTheDocument();
 
-		// Three history widgets sit side by side on the Ads tab, so the link is
-		// found by its disambiguating accessible name, not the visible "View all".
 		expect( screen.getByRole( 'link', { name: 'View all earnings history' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( '/reports/earnings' )

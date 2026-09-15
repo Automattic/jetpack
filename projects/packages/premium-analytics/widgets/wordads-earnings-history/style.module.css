@@ -11,10 +11,13 @@
 	flex-direction: column;
 	flex: 1 1 0;
 	min-height: 0;
+
+	/* Own the scroll: `.root` clips, so without this the table's last rows and
+	 * its pagination fall outside the widget instead of scrolling. */
+	overflow-y: auto;
 }
 
-/* The table is `content-bleed`, so the host adds no body padding; match the
- * inline inset DataViews gives its own rows and footer. */
+/* Align the report link with the DataViews footer. */
 .footer {
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
