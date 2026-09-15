@@ -226,17 +226,13 @@ class Reprint_Exporter {
 	/**
 	 * Computes the HMAC binding a stored credential to the site's auth salt.
 	 *
-	 * Keyed with wp_salt() rather than AUTH_SALT itself, on purpose: many sites
-	 * still carry the wp-config-sample.php placeholder in every salt constant,
-	 * and refusing those would leave their operators no export and no easy fix.
+	 * Deliberately keyed with wp_salt() rather than AUTH_SALT, so sites still
+	 * carrying the sample placeholder salts can export at all. Accepted cost:
+	 * wp_salt() then stores its own salt in wp_options, where whoever can write
+	 * the credential can read it, so the hashes add no protection there.
 	 *
-	 * The drawback is known and accepted. wp_salt() falls back to a salt kept in
-	 * wp_options, so on a placeholder site the key sits in the same table as the
-	 * credential and a database write alone still arms the exporter, as it did
-	 * before these hashes existed. Real salts are what earn the protection.
-	 *
-	 * The hash option's name goes into the message so the two hashes cannot
-	 * stand in for each other: a copied window pair must not pass as a secret.
+	 * The option name prefixes the message, so copying the window timestamp and
+	 * its hash into the secret options does not make a secret that verifies.
 	 *
 	 * @param string     $hash_option The option the hash is stored in.
 	 * @param string|int $value       The stored value.

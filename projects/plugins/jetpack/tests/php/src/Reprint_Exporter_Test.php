@@ -1273,12 +1273,13 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A window pair copied into the secret options is not a hashed secret.
+	 * Copying the window timestamp and its hash into the secret options does
+	 * not make a secret that verifies.
 	 *
-	 * Both hashes are HMACs under the same salt, so without a purpose prefix a
-	 * stored timestamp and its hash would pass as a secret the attacker knows.
+	 * Both hashes use the same salt, so without the option-name prefix this
+	 * would leave the attacker holding a secret they know.
 	 */
-	public function test_window_pair_replayed_as_a_secret_is_refused() {
+	public function test_window_values_copied_into_the_secret_options_are_refused() {
 		$stub = $this->make_ready_stub();
 		$this->plant_option( Reprint_Exporter::SECRET_OPTION, (string) get_option( Reprint_Exporter::ENABLED_OPTION ) );
 		$this->plant_option( Reprint_Exporter::SECRET_HASH_OPTION, get_option( Reprint_Exporter::ENABLED_HASH_OPTION ) );
