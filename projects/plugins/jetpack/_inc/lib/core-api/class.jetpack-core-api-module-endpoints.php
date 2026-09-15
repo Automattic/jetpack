@@ -83,6 +83,10 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 			);
 		}
 
+		if ( 'search' === $module_slug ) {
+			( new Automattic\Jetpack\Search\Module_Control() )->refresh_plan_info_before_activation( $module_slug );
+		}
+
 		if ( ! Jetpack_Plan::supports( $module_slug ) ) {
 			return new WP_Error(
 				'not_supported',

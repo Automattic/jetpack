@@ -36,8 +36,9 @@ class Dashboard_Test extends Search_TestCase {
 			$module_control->expects( $this->never() )->method( 'deactivate' );
 		}
 
-		$dashboard = new Dashboard( $plan, $this->createStub( Connection_Manager::class ), $module_control );
-		$screen    = (object) array( 'base' => $screen_base );
+		$dashboard    = new Dashboard( $plan, $this->createStub( Connection_Manager::class ), $module_control );
+		$screen       = \WP_Screen::get( 'jetpack_page_search' );
+		$screen->base = $screen_base;
 
 		return array( $dashboard, $screen );
 	}

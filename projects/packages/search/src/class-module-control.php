@@ -145,11 +145,10 @@ class Module_Control {
 	 * Activiate Search module
 	 */
 	public function activate() {
-		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		if ( ( new Status() )->is_offline_mode() ) {
 			return new WP_Error( 'site_offline', __( 'Jetpack Search cannot be used in offline mode.', 'jetpack-search-pkg' ) );
 		}
-		if ( ! $is_wpcom && ! $this->connection_manager->is_connected() ) {
+		if ( ! Helper::is_wpcom() && ! $this->connection_manager->is_connected() ) {
 			return new WP_Error( 'connection_required', __( 'Connect your site to use Jetpack Search.', 'jetpack-search-pkg' ) );
 		}
 		$this->plan->ensure_plan_info_populated();
@@ -165,16 +164,18 @@ class Module_Control {
 	}
 
 	/**
-	 * Covers the generic Jetpack module-activation path (`wp jetpack module
-	 * activate search`, the wp-admin module toggle), which reads plan support
-	 * directly and doesn't go through activate() above.
+	 * Populate missing plan data before generic Search module activation.
 	 *
 	 * @param string $module Module slug being activated.
 	 */
 	public function refresh_plan_info_before_activation( $module ) {
-		if ( self::JETPACK_SEARCH_MODULE_SLUG === $module && ! $this->is_active() ) {
-			$this->plan->ensure_plan_info_populated();
+		if ( self::JETPACK_SEARCH_MODULE_SLUG !== $module || $this->is_active() || ( new Status() )->is_offline_mode() ) {
+			return;
 		}
+		if ( ! Helper::is_wpcom() && ! $this->connection_manager->is_connected() ) {
+			return;
+		}
+		$this->plan->ensure_plan_info_populated();
 	}
 
 	/**

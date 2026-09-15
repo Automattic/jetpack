@@ -506,22 +506,70 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 	}
 
 	/**
-	 * The search_auto_config setting forces a plan check (Automattic\Jetpack\Search\Plan::ensure_plan_info_populated())
-	 * before deciding whether Instant Search is supported, rather than trusting
-	 * a possibly-empty cache outright. With an empty cache and no answer
-	 * already attempted this request, that must make exactly one live request.
+	 * Cold activation populates Search eligibility before checking the plan.
 	 *
-	 * The per-request guard in ensure_plan_info_populated() is reset here via
-	 * Reflection because Initializer::init() (Config::ensure('search'), which
-	 * runs on every real plugins_loaded) already makes its own ambient attempt
-	 * before this endpoint ever runs -- that's the correct, intended behavior
-	 * in production (don't retry a request that already failed this request),
-	 * but it means this test has to simulate "first attempt this request"
-	 * explicitly to isolate what search_auto_config itself does.
+	 * @dataProvider search_activation_paths
+	 * @param bool $via_rest Whether to activate through the REST endpoint.
+	 */
+	#[DataProvider( 'search_activation_paths' )]
+	public function test_search_activation_fetches_missing_plan( $via_rest ) {
+		delete_option( \Automattic\Jetpack\Search\Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		delete_option( 'has_jetpack_search_product' );
+		$this->assertFalse( \Automattic\Jetpack\Current_Plan::supports( 'search' ) );
+		Jetpack_Options::update_option( 'active_modules', array() );
+		Jetpack_Options::update_option( 'id', '999' );
+		Jetpack_Options::update_option( 'blog_token', 'new.blogtoken' );
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+		$property = new ReflectionProperty( \Automattic\Jetpack\Search\Plan::class, 'fetch_attempted_this_request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, array() );
+		$request_count = 0;
+		$counter       = static function ( $response, $args, $url ) use ( &$request_count ) {
+			if ( strpos( $url, '/jetpack-search/plan' ) !== false ) {
+				++$request_count;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'supports_search'         => true,
+							'supports_instant_search' => true,
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				);
+			}
+			return $response;
+		};
+		add_filter( 'pre_http_request', $counter, 20, 3 );
+		try {
+			if ( $via_rest ) {
+				$response = ( new Jetpack_Core_API_Module_Toggle_Endpoint() )->activate_module( 'search' );
+				$this->assertInstanceOf( WP_REST_Response::class, $response );
+			} else {
+				$this->assertTrue( Jetpack::activate_module( 'search', false, false ) );
+			}
+			$this->assertTrue( Jetpack::is_module_active( 'search' ) );
+			$this->assertSame( 1, $request_count );
+		} finally {
+			remove_filter( 'pre_http_request', $counter, 20 );
+			Jetpack::deactivate_module( 'search' );
+		}
+	}
+
+	public static function search_activation_paths() {
+		return array(
+			'rest'    => array( true ),
+			'generic' => array( false ),
+		);
+	}
+
+	/**
+	 * Auto-configuration fetches missing plan information only once.
 	 */
 	public function test_search_auto_config_makes_only_one_plan_request_on_empty_cache() {
 		delete_option( \Automattic\Jetpack\Search\Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
-		delete_transient( \Automattic\Jetpack\Search\Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
 
 		$prop = ( new \ReflectionClass( \Automattic\Jetpack\Search\Plan::class ) )->getProperty( 'fetch_attempted_this_request' );
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -548,7 +596,6 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		( new Jetpack_Core_API_Data() )->update_data( $request );
 
 		remove_filter( 'pre_http_request', $counter, 20 );
-		delete_transient( \Automattic\Jetpack\Search\Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
 
 		$this->assertSame( 1, $request_count );
 	}

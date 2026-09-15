@@ -19,12 +19,42 @@ class Plan_Test extends Search_TestCase {
 	protected static $plan;
 
 	/**
-	 * Initialize static member `$plan`
+	 * Number of intercepted plan requests in this test.
+	 *
+	 * @var int
 	 */
-	public static function setUpBeforeClass(): void {
-		parent::setUpBeforeClass();
-		static::$plan = new Plan();
-		static::$plan->init_hooks();
+	private $plan_request_count = 0;
+
+	/**
+	 * Count and fail plan requests without duplicating HTTP filters in each test.
+	 */
+	private function mock_failed_plan_requests() {
+		add_filter( 'pre_http_request', array( $this, 'fail_plan_request' ), 20, 3 );
+	}
+
+	/**
+	 * Intercept only the plan endpoint.
+	 *
+	 * @param mixed  $response HTTP response override.
+	 * @param array  $args Request arguments.
+	 * @param string $url Request URL.
+	 * @return mixed
+	 */
+	public function fail_plan_request( $response, $args, $url ) {
+		if ( strpos( $url, '/jetpack-search/plan' ) !== false ) {
+			++$this->plan_request_count;
+			return new WP_Error( 'request_failed' );
+		}
+		return $response;
+	}
+
+	/**
+	 * Remove the HTTP override even when an assertion fails.
+	 */
+	public function tearDown(): void {
+		remove_filter( 'pre_http_request', array( $this, 'fail_plan_request' ), 20 );
+		$this->restore_plan_hooks();
+		parent::tearDown();
 	}
 
 	/**
@@ -33,11 +63,34 @@ class Plan_Test extends Search_TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+		$this->isolate_plan_hooks();
+		static::$plan = new Plan();
+		static::$plan->init_hooks();
 		$prop = ( new \ReflectionClass( Plan::class ) )->getProperty( 'fetch_attempted_this_request' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$prop->setAccessible( true );
 		}
 		$prop->setValue( null, array() );
+		static::$plan->set_plan_options( json_decode( $this->plan_http_response_fixture( null, null, '/jetpack-search/plan' )['body'], true ) );
+	}
+
+	/**
+	 * Missing blog IDs must not generate HTTP requests.
+	 */
+	public function test_missing_blog_id_does_not_fetch() {
+		$this->mock_failed_plan_requests();
+		$missing_id = function ( $value, $name ) {
+			return 'id' === $name ? false : $value;
+		};
+		add_filter( 'jetpack_options', $missing_id, 20, 2 );
+		try {
+			$response = static::$plan->get_plan_info_from_wpcom();
+			$this->assertInstanceOf( WP_Error::class, $response );
+			$this->assertSame( 'jetpack_search_missing_blog_id', $response->get_error_code() );
+			$this->assertSame( 0, $this->plan_request_count );
+		} finally {
+			remove_filter( 'jetpack_options', $missing_id, 20 );
+		}
 	}
 
 	/**
@@ -59,110 +112,43 @@ class Plan_Test extends Search_TestCase {
 	}
 
 	/**
-	 * A failed ambient (non-forced) plan lookup sets the cross-request backoff,
-	 * and while it's active subsequent ambient lookups don't issue further
-	 * HTTP requests.
+	 * Missing cached data must never cause a synchronous HTTP request.
 	 */
-	public function test_get_plan_info_ambient_backoff_suppresses_further_requests() {
+	public function test_get_plan_info_with_empty_cache_never_fetches() {
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
-		delete_transient( Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
 
-		$request_count = 0;
-		$counter       = function ( $response, $parsed_args, $url ) use ( &$request_count ) {
-			if ( strpos( $url, '/jetpack-search/plan' ) !== false ) {
-				++$request_count;
-				return new WP_Error( 'request_failed' );
-			}
-			return $response;
-		};
-		add_filter( 'pre_http_request', $counter, 20, 3 );
+		$this->mock_failed_plan_requests();
 
 		for ( $i = 0; $i < 3; $i++ ) {
 			$this->assertFalse( static::$plan->get_plan_info() );
 		}
 
-		remove_filter( 'pre_http_request', $counter, 20 );
-		$this->assertSame( 1, $request_count );
+		$this->assertSame( 0, $this->plan_request_count );
 	}
 
 	/**
-	 * `update_search_plan_info()` sets the backoff on failure and clears it
-	 * again once a fetch succeeds.
-	 */
-	public function test_update_search_plan_info_backoff_lifecycle() {
-		delete_transient( Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
-
-		static::$plan->update_search_plan_info( new WP_Error() );
-		$this->assertNotFalse( get_transient( Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY ) );
-
-		$response = $this->plan_http_response_fixture( null, null, '/jetpack-search/plan' );
-		static::$plan->update_search_plan_info( $response );
-		$this->assertFalse( get_transient( Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY ) );
-	}
-
-	/**
-	 * `ensure_plan_info_populated()` forces a live fetch, bypassing an active
-	 * backoff, when there's no cached plan answer yet.
+	 * Explicit activation fetches missing plan information.
 	 */
 	public function test_ensure_plan_info_populated_forces_fetch_when_cache_empty() {
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
-		set_transient( Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY, true, Plan::PLAN_FETCH_BACKOFF_SECONDS );
 
 		static::$plan->ensure_plan_info_populated();
 
 		$this->assertNotEmpty( get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
-		delete_transient( Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
 	}
 
 	/**
-	 * A failed fetch must not stack a second live request on top of
-	 * get_plan_info()'s own implicit-retry fallback.
-	 */
-	public function test_ensure_plan_info_populated_makes_only_one_request_on_failure() {
-		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
-
-		$request_count = 0;
-		$counter       = function ( $response, $parsed_args, $url ) use ( &$request_count ) {
-			if ( strpos( $url, '/jetpack-search/plan' ) !== false ) {
-				++$request_count;
-				return new WP_Error( 'request_failed' );
-			}
-			return $response;
-		};
-		add_filter( 'pre_http_request', $counter, 20, 3 );
-
-		static::$plan->ensure_plan_info_populated();
-
-		remove_filter( 'pre_http_request', $counter, 20 );
-		$this->assertSame( 1, $request_count );
-		delete_transient( Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
-	}
-
-	/**
-	 * Mirrors activate_plan()'s own fallback fetch immediately followed by
-	 * Module_Control::activate()'s ensure_plan_info_populated() call in the
-	 * same request: once the first attempt has run (and failed), a second
-	 * call must not make another live request.
+	 * Activation must not repeat a failed plan fetch from the same request.
 	 */
 	public function test_ensure_plan_info_populated_skips_after_an_earlier_failed_attempt_this_request() {
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 
-		$request_count = 0;
-		$counter       = function ( $response, $parsed_args, $url ) use ( &$request_count ) {
-			if ( strpos( $url, '/jetpack-search/plan' ) !== false ) {
-				++$request_count;
-				return new WP_Error( 'request_failed' );
-			}
-			return $response;
-		};
-		add_filter( 'pre_http_request', $counter, 20, 3 );
+		$this->mock_failed_plan_requests();
 
 		static::$plan->get_plan_info_from_wpcom();
 		static::$plan->ensure_plan_info_populated();
 
-		remove_filter( 'pre_http_request', $counter, 20 );
-		$this->assertSame( 1, $request_count );
-		delete_transient( Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
+		$this->assertSame( 1, $this->plan_request_count );
 	}
 
 	/**
@@ -172,15 +158,7 @@ class Plan_Test extends Search_TestCase {
 	public function test_ensure_plan_info_populated_is_scoped_per_blog() {
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 
-		$request_count = 0;
-		$counter       = function ( $response, $parsed_args, $url ) use ( &$request_count ) {
-			if ( strpos( $url, '/jetpack-search/plan' ) !== false ) {
-				++$request_count;
-				return new WP_Error( 'request_failed' );
-			}
-			return $response;
-		};
-		add_filter( 'pre_http_request', $counter, 20, 3 );
+		$this->mock_failed_plan_requests();
 
 		static::$plan->get_plan_info_from_wpcom();
 
@@ -191,9 +169,7 @@ class Plan_Test extends Search_TestCase {
 		static::$plan->ensure_plan_info_populated();
 		remove_filter( 'jetpack_options', $other_blog_id, 20 );
 
-		remove_filter( 'pre_http_request', $counter, 20 );
-		$this->assertSame( 2, $request_count );
-		delete_transient( Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
+		$this->assertSame( 2, $this->plan_request_count );
 	}
 
 	/**
@@ -203,19 +179,11 @@ class Plan_Test extends Search_TestCase {
 	public function test_ensure_plan_info_populated_skips_fetch_when_cache_populated() {
 		update_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, array( 'supports_search' => true ) );
 
-		$request_count = 0;
-		$counter       = function ( $response, $parsed_args, $url ) use ( &$request_count ) {
-			if ( strpos( $url, '/jetpack-search/plan' ) !== false ) {
-				++$request_count;
-			}
-			return $response;
-		};
-		add_filter( 'pre_http_request', $counter, 20, 3 );
+		$this->mock_failed_plan_requests();
 
 		static::$plan->ensure_plan_info_populated();
 
-		remove_filter( 'pre_http_request', $counter, 20 );
-		$this->assertSame( 0, $request_count );
+		$this->assertSame( 0, $this->plan_request_count );
 	}
 
 	/**

@@ -23,9 +23,6 @@ class Plan {
 	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY  = 'jetpack_search_plan_info';
 	const JETPACK_SEARCH_EVER_SUPPORTED_SEARCH = 'jetpack_search_ever_supported_search';
 
-	const PLAN_FETCH_BACKOFF_TRANSIENT_KEY = 'jetpack_search_plan_fetch_backoff';
-	const PLAN_FETCH_BACKOFF_SECONDS       = 5 * MINUTE_IN_SECONDS;
-
 	// The pricing update starting from August 2022.
 	const JETPACK_SEARCH_NEW_PRICING_VERSION = '202208';
 	const JETPACK_SEARCH_FREE_PRODUCT_SLUG   = 'jetpack_search_free';
@@ -38,13 +35,7 @@ class Plan {
 	protected static $update_plan_hook_initialized = false;
 
 	/**
-	 * WPCOM blog IDs for which a live plan check has already been attempted
-	 * this request. Lets ensure_plan_info_populated() avoid stacking a second
-	 * attempt behind one that just ran moments earlier in the same request
-	 * (e.g. activate_plan()'s own fallback fetch, immediately followed by
-	 * Module_Control::activate()). Keyed by blog ID rather than a bare flag
-	 * so a fetch for one site doesn't suppress one for another in the same
-	 * process (e.g. switch_to_blog() loops).
+	 * Sites already refreshed in this request, to avoid duplicate activation lookups.
 	 *
 	 * @var array<int|string, true>
 	 */
@@ -55,7 +46,6 @@ class Plan {
 	 */
 	public function init_hooks() {
 		// Update plan info from WPCOM on Jetpack heartbeat.
-		// TODO: implement heartbeart for search.
 		if ( ! static::$update_plan_hook_initialized ) {
 			add_action( 'jetpack_heartbeat', array( $this, 'get_plan_info_from_wpcom' ) );
 			static::$update_plan_hook_initialized = true;
@@ -67,6 +57,9 @@ class Plan {
 	 */
 	public function get_plan_info_from_wpcom() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'jetpack_search_missing_blog_id', __( 'Connect your site to refresh Search plan information.', 'jetpack-search-pkg' ) );
+		}
 		self::$fetch_attempted_this_request[ (string) $blog_id ] = true;
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
@@ -83,19 +76,16 @@ class Plan {
 	}
 
 	/**
-	 * Get plan info.
+	 * Get cached plan info.
+	 * Only an explicit refresh makes a synchronous remote request.
 	 *
-	 * @param bool $force_refresh - Default to false. Set true to load from WPCOM.
+	 * @param bool $force_refresh Whether to refresh synchronously instead of using cached data.
 	 */
 	public function get_plan_info( $force_refresh = false ) {
 		if ( $force_refresh ) {
 			$this->get_plan_info_from_wpcom();
 		}
-		$plan_info = get_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
-		if ( false === $plan_info && ! $force_refresh && false === get_transient( self::PLAN_FETCH_BACKOFF_TRANSIENT_KEY ) ) {
-			$plan_info = $this->get_plan_info( true );
-		}
-		return $plan_info;
+		return get_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 	}
 
 	/**
@@ -108,7 +98,8 @@ class Plan {
 	}
 
 	/**
-	 * Force a single live WPCOM check, bypassing the backoff, if the plan info cache is empty.
+	 * Populate missing plan data synchronously for explicit activation actions.
+	 * Only attempts one fetch per site in a request.
 	 */
 	public function ensure_plan_info_populated() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -116,7 +107,7 @@ class Plan {
 			return;
 		}
 		if ( false === get_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) ) {
-			$this->get_plan_info( true );
+			$this->get_plan_info_from_wpcom();
 		}
 	}
 
@@ -170,29 +161,21 @@ class Plan {
 	/**
 	 * Update `has_jetpack_search_product` regarding the plan information
 	 *
-	 * @param array|WP_Error $response - Resopnse from WPCOM.
+	 * @param array|WP_Error $response - Response from WPCOM.
 	 * @return bool - true on success, false on failure.
 	 */
 	public function update_search_plan_info( $response ) {
 		if ( is_wp_error( $response ) ) {
-			set_transient( self::PLAN_FETCH_BACKOFF_TRANSIENT_KEY, true, self::PLAN_FETCH_BACKOFF_SECONDS );
 			return false;
 		}
 		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
 		$status_code = wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $status_code ) {
-			set_transient( self::PLAN_FETCH_BACKOFF_TRANSIENT_KEY, true, self::PLAN_FETCH_BACKOFF_SECONDS );
 			return false;
 		}
 
-		$updated = $this->set_plan_options( $body );
-		if ( $updated ) {
-			delete_transient( self::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
-		} else {
-			set_transient( self::PLAN_FETCH_BACKOFF_TRANSIENT_KEY, true, self::PLAN_FETCH_BACKOFF_SECONDS );
-		}
-		return $updated;
+		return $this->set_plan_options( $body );
 	}
 
 	/**

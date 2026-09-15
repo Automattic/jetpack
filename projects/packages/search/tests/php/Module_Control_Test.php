@@ -62,21 +62,6 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * `Modules::activate()` (the generic path `wp jetpack module activate search`
-	 * uses, bypassing Module_Control::activate()) fires `jetpack_pre_activate_module`
-	 * as its very first statement, then later checks plan support by reading a
-	 * cached option directly. This must force a fresh plan check for the search
-	 * module so that later check isn't gated on a stale/empty cache.
-	 */
-	public function test_refresh_plan_info_before_activation_refreshes_for_search_module() {
-		$plan = $this->createMock( Plan::class );
-		$plan->expects( $this->once() )->method( 'ensure_plan_info_populated' );
-
-		$module = new Module_Control( $plan );
-		$module->refresh_plan_info_before_activation( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
-	}
-
-	/**
 	 * Other modules activating must not trigger a Search plan check.
 	 */
 	public function test_refresh_plan_info_before_activation_ignores_other_modules() {
@@ -85,6 +70,31 @@ class Module_Control_Test extends Search_TestCase {
 
 		$module = new Module_Control( $plan );
 		$module->refresh_plan_info_before_activation( 'stats' );
+	}
+
+	/**
+	 * Generic activation must not fetch a plan for a disconnected site.
+	 */
+	public function test_pre_activation_skips_disconnected_site() {
+		$plan = $this->createMock( Plan::class );
+		$plan->expects( $this->never() )->method( 'ensure_plan_info_populated' );
+		$connection = $this->createStub( Connection_Manager::class );
+		$connection->method( 'is_connected' )->willReturn( false );
+		( new Module_Control( $plan, $connection ) )->refresh_plan_info_before_activation( 'search' );
+	}
+
+	/**
+	 * Generic activation must not fetch a plan in offline mode.
+	 */
+	public function test_pre_activation_skips_offline_site() {
+		$plan = $this->createMock( Plan::class );
+		$plan->expects( $this->never() )->method( 'ensure_plan_info_populated' );
+		Cache::set( 'is_offline_mode', true );
+		try {
+			( new Module_Control( $plan ) )->refresh_plan_info_before_activation( 'search' );
+		} finally {
+			Cache::set( 'is_offline_mode', null );
+		}
 	}
 
 	/**
