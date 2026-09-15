@@ -1,37 +1,25 @@
-import { sanitizeFormatting } from '../../../utils/date-formatting';
-import { warnOnce } from '../../../utils/warn-once';
+import { sanitizeFormatting } from '../../utils/date-formatting';
+import { warnOnce } from '../../utils/warn-once';
 import {
 	addCivilDays,
 	civilDate,
 	civilKey,
 	civilLabelFormatters,
 	startOfCivilWeek,
-} from './civil-day';
-import { isPresent } from './use-heatmap-colors';
-import type { HeatmapCell, HeatmapColumn, HeatmapColumnGroup } from '../types';
-import type { CivilDate, DayKey } from './civil-day';
-
-export type MonthCalendarHeatmapRange = {
-	/** First measured day, `yyyy-MM-dd`. */
-	start: string;
-	/** Last measured day, `yyyy-MM-dd`, inclusive. */
-	end: string;
-};
-
-export type MonthCalendarHeatmapOptions = {
-	/** 0 = Sunday, 1 = Monday. Default 1. */
-	weekStartsOn?: 0 | 1;
-	/** BCP-47 tag the month and day labels are written in. Defaults to the runtime's locale. */
-	locale?: string;
-};
-
-export type MonthCalendarHeatmapResult = {
-	data: HeatmapColumn[];
-	columnGroups: HeatmapColumnGroup[];
-};
+} from './private/civil-day';
+import { isPresent } from './private/use-heatmap-colors';
+import type { CivilDate, DayKey } from './private/civil-day';
+import type {
+	HeatmapCell,
+	HeatmapColumn,
+	HeatmapColumnGroup,
+	MonthCalendarHeatmapOptions,
+	MonthCalendarHeatmapRange,
+	MonthCalendarHeatmapResult,
+} from './types';
 
 /** Week rows per month, fixed so every month block is the same height. */
-export const MONTH_ROWS = 6;
+const MONTH_ROWS = 6;
 
 const DAYS_PER_WEEK = 7;
 

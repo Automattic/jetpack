@@ -127,3 +127,22 @@ export type CalendarHeatmapOptions = {
 	 */
 	timeZone?: string;
 };
+
+export type MonthCalendarHeatmapRange = {
+	/** First measured day, `yyyy-MM-dd`. */
+	start: string;
+	/** Last measured day, `yyyy-MM-dd`, inclusive. */
+	end: string;
+};
+
+export type MonthCalendarHeatmapOptions = {
+	/** 0 = Sunday, 1 = Monday. Default 1. */
+	weekStartsOn?: 0 | 1;
+	/** BCP-47 tag the month and day labels are written in. Defaults to the runtime's locale. */
+	locale?: string;
+};
+
+export type MonthCalendarHeatmapResult = {
+	data: HeatmapColumn[];
+	columnGroups: HeatmapColumnGroup[];
+};
