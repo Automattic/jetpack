@@ -38,11 +38,6 @@ export const CommentingAs = () => {
 		return null;
 	}
 
-	const toggle = () => {
-		document.querySelector< HTMLTextAreaElement >( '.jetpack-comments__textarea' )?.focus();
-		isTrayOpen.value = ! isTrayOpen.value;
-	};
-
 	return (
 		<div className="jetpack-comments__user-settings">
 			<span className="jetpack-comments__profile">
@@ -54,7 +49,7 @@ export const CommentingAs = () => {
 				aria-expanded={ isTrayOpen.value }
 				aria-controls={ `jetpack-comments-tray-${ formSettings.postId }` }
 				className={ clsx( 'jetpack-comments__tray-toggle', { 'is-open': isTrayOpen.value } ) }
-				onClick={ toggle }
+				onClick={ () => ( isTrayOpen.value = ! isTrayOpen.value ) }
 			>
 				<GearIcon expanded={ isTrayOpen.value } />
 			</button>
