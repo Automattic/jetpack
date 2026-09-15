@@ -7,20 +7,23 @@ type MonthlyRows = readonly { year: number; months: readonly unknown[] }[];
 
 /**
  * Where a monthly heatmap's subject starts, for `PeriodBounds.lifeStartsAt`:
- * the anchor when it falls in the oldest row's first month, else that month's
+ * the anchor when it falls in the oldest covered month, else that month's
  * first day, so a month the endpoint reports outside the anchor opens whole.
  *
- * @param rows     - The heatmap rows, newest first; a numeric month is a covered one.
+ * @param rows     - The heatmap rows, in any order; a numeric month is a covered one.
  * @param anchor   - The instant the subject started, a publish or registration day.
  * @param timeZone - The site timezone the months are read in.
- * @return The life's start, or `undefined` without rows or an anchor.
+ * @return The life's start; the anchor as given, or `undefined`, when no row covers a month.
  */
 export function monthlyHeatmapLifeStart(
 	rows: MonthlyRows,
 	anchor: Date | undefined,
 	timeZone: string
 ): Date | undefined {
-	const oldest = rows[ rows.length - 1 ];
+	const oldest = rows.reduce< MonthlyRows[ number ] | undefined >(
+		( earliest, row ) => ( earliest && earliest.year <= row.year ? earliest : row ),
+		undefined
+	);
 	const month = oldest?.months.findIndex( value => typeof value === 'number' ) ?? -1;
 
 	if ( ! oldest || month < 0 ) {

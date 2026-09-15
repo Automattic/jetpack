@@ -4,6 +4,7 @@
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -96,6 +97,31 @@ describe( 'useViewsOverYears', () => {
 		// Nov 24 through Nov 30: 300 / 7.
 		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
 		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-24T09:30:00.000Z' );
+	} );
+
+	it( 'reads the registration day on the site calendar, not the browser one', async () => {
+		const settings = getSettings();
+		// 16:00 UTC on Nov 23 is already Nov 24 in Tokyo: 300 / 7, not 300 / 8.
+		setSettings( {
+			...settings,
+			timezone: { string: 'Asia/Tokyo', offset: 9, offsetFormatted: '9', abbr: 'JST' },
+		} );
+		mockApiFetch.mockImplementation( async options =>
+			isSiteRequest( options )
+				? { options: { created_at: '2025-11-23T16:00:00+00:00' } }
+				: VISITS_RESPONSE
+		);
+
+		try {
+			const { result } = renderHook( () => useViewsOverYears( 'average' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
+			expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-23T16:00:00.000Z' );
+		} finally {
+			setSettings( settings );
+		}
 	} );
 
 	it( 'divides the first month whole and starts the life on its first day without a registration date', async () => {
