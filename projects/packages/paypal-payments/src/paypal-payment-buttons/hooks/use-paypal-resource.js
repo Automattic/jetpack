@@ -48,13 +48,16 @@ export function usePayPalResource( {
 	latestAttributes.current = attributes;
 
 	useEffect( () => {
+		// Above the guard: deleting the button re-runs this with no resourceId, and a
+		// warning about a payment that is gone has to clear too.
+		setLinkDeleted( false );
+		setPaymentChanged( false );
+
 		if ( ! isConnected || ! isApiManaged || ! resourceId ) {
 			return;
 		}
 
 		let cancelled = false;
-		setLinkDeleted( false );
-		setPaymentChanged( false );
 
 		apiFetch( { path: `${ API_BASE }/buttons/${ resourceId }` } )
 			.then( response => {
@@ -65,15 +68,10 @@ export function usePayPalResource( {
 					latestAttributes.current,
 					response.attributes
 				);
-				// Taking PayPal's version is the reconcile working, so the block does not
-				// keep its own - it says so instead. Set before the early return: that is
-				// the path where the block already agrees, and a warning from a previous
-				// read has to go.
-				const hasUpdates = Object.keys( updates ).length > 0;
-				setPaymentChanged( hasUpdates );
-				if ( ! hasUpdates ) {
+				if ( ! Object.keys( updates ).length ) {
 					return;
 				}
+				setPaymentChanged( true );
 				// Opening a post must not mark it dirty.
 				__unstableMarkNextChangeAsNotPersistent?.();
 				setAttributes( updates );

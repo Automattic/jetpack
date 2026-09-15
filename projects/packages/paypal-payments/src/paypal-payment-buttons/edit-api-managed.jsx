@@ -570,7 +570,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					{ paymentChanged && (
 						<Notice status="warning" isDismissible={ false }>
 							{ __(
-								'Some details were changed on this payment at PayPal and have been updated here.',
+								'This payment link was updated elsewhere and this block has been updated to match.',
 								'jetpack-paypal-payments'
 							) }
 						</Notice>
