@@ -56,6 +56,24 @@ abstract class Jetpack_Admin_Page {
 	public function additional_styles() {}
 
 	/**
+	 * Get the slug and label of My Jetpack's products tab, for footer links to it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{slug: string, label: string}
+	 */
+	public static function get_my_jetpack_products_section() {
+		$products_section = method_exists( My_Jetpack_Initializer::class, 'get_products_section' )
+			? My_Jetpack_Initializer::get_products_section()
+			: null;
+
+		return $products_section ?? array(
+			'slug'  => 'products',
+			'label' => _x( 'Products', 'Navigation item', 'jetpack' ),
+		);
+	}
+
+	/**
 	 * Add common page actions and attach page-specific actions.
 	 */
 	public function add_actions() {
@@ -260,13 +278,7 @@ abstract class Jetpack_Admin_Page {
 		$jetpack_about_url = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
-		$products_section  = array(
-			'slug'  => 'products',
-			'label' => _x( 'Products', 'Navigation item', 'jetpack' ),
-		);
-		if ( method_exists( My_Jetpack_Initializer::class, 'get_products_section' ) ) {
-			$products_section = My_Jetpack_Initializer::get_products_section() ?? $products_section;
-		}
+		$products_section  = self::get_my_jetpack_products_section();
 
 		?>
 		<div id="jp-plugin-container" class="

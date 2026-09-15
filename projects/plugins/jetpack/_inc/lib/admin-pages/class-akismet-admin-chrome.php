@@ -26,7 +26,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -34,6 +33,8 @@ use Automattic\Jetpack\Status\Host;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
+
+require_once __DIR__ . '/class.jetpack-admin-page.php';
 
 /**
  * Wires the unified Jetpack header, footer and contained layout onto Akismet's admin pages.
@@ -341,13 +342,7 @@ class Akismet_Admin_Chrome {
 		$a8c_url          = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
-		$products_section = array(
-			'slug'  => 'products',
-			'label' => _x( 'Products', 'Navigation item', 'jetpack' ),
-		);
-		if ( method_exists( My_Jetpack_Initializer::class, 'get_products_section' ) ) {
-			$products_section = My_Jetpack_Initializer::get_products_section() ?? $products_section;
-		}
+		$products_section = Jetpack_Admin_Page::get_my_jetpack_products_section();
 		?>
 		<footer class="jp-akismet-footer jetpack-footer" aria-label="<?php esc_attr_e( 'Jetpack', 'jetpack' ); ?>" role="contentinfo">
 			<div class="jp-akismet-footer__logo">

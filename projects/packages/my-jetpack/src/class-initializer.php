@@ -396,7 +396,7 @@ class Initializer {
 
 		return array(
 			'slug'  => 'features',
-			'label' => __( 'Features', 'jetpack-my-jetpack' ),
+			'label' => _x( 'Features', 'Navigation item', 'jetpack-my-jetpack' ),
 		);
 	}
 

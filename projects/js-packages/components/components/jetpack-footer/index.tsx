@@ -31,7 +31,7 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 		// Published by My Jetpack, whose products tab can be renamed Features.
 		const productsSection = (
 			getScriptData() as {
-				myJetpack?: { productsSection?: { slug: string; label: string } | null };
+				myJetpack?: { productsSection?: { slug: 'features'; label: string } | null };
 			}
 		 )?.myJetpack?.productsSection;
 
