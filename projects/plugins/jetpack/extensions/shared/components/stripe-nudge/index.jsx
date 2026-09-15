@@ -41,7 +41,7 @@ export const StripeNudge = ( { blockName } ) => {
 				: getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' );
 			requirementsLink = (
 				<Link openInNewTab href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }>
-					{ __( 'Review Stripe’s requirements for accepting donations', 'jetpack' ) }
+					{ __( 'View Stripe requirements', 'jetpack' ) }
 				</Link>
 			);
 			break;
