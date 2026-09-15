@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Post detail: Keep the year column and month labels of the All-time traffic heatmap fully opaque while the grid scrolls, so scrolled-under cells no longer show through around them.
