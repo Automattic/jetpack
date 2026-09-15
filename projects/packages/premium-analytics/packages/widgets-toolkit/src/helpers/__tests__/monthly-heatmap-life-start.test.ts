@@ -43,6 +43,13 @@ describe( 'monthlyHeatmapLifeStart', () => {
 		);
 	} );
 
+	it( 'reads the oldest row wherever it sits', () => {
+		const later = { year: 2027, months: [ 12, 0, null ], total: 12 };
+
+		expect( monthlyHeatmapLifeStart( [ ...rows, later ], anchor, 'UTC' ) ).toBe( anchor );
+		expect( monthlyHeatmapLifeStart( [ later, ...rows ], anchor, 'UTC' ) ).toBe( anchor );
+	} );
+
 	it( 'opens the oldest month whole without an anchor', () => {
 		expect( monthlyHeatmapLifeStart( rows, undefined, 'UTC' ) ).toEqual(
 			new Date( '2026-04-01T00:00:00.000Z' )

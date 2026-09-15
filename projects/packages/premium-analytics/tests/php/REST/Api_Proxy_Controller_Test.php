@@ -560,8 +560,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	public function test_forwarded_params_cannot_override_a_pinned_path_query() {
-		// WPCOM reads the last copy of a repeated param, so a forwarded `fields=` would widen
-		// the `site` group from `created_at` to the whole site record.
+		// A caller-supplied `fields` / `options` must not widen the pinned site record.
 		$request  = $this->build_data_request(
 			'GET',
 			'site',
