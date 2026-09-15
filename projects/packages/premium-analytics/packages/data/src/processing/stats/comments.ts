@@ -85,11 +85,8 @@ const USER_ID_FRAGMENT = /^\?user_id=([1-9]\d*)$/;
 const EMAIL_FRAGMENT = /^\?s=(.+)$/;
 
 /**
- * Build the author row's link from the raw payload's `link`, which is not a URL
- * but a query fragment: `?user_id=<id>` for a WordPress.com user (only on Simple,
- * where it is the site's own user id), `?s=<email>` for a guest. The dashboard
- * runs inside wp-admin, so a relative `edit-comments.php` href resolves to the
- * comment screen, and the comments list table filters on both parameters.
+ * Build the author row's comments-admin link from the raw payload's `link` fragment.
+ * A `?user_id=` fragment comes only from Simple, where it is the site's own user id.
  *
  * @param link - The raw author `link` fragment.
  * @return The comments-admin URL, or null when the fragment is neither shape.
@@ -171,7 +168,7 @@ export type StatsCommentsGroup = 'authors' | 'posts';
 /**
  * A flat Comments report row, shared by every consumer of the report.
  *
- * `link` is the value the report carries: a locally built, root-relative
+ * `link` is the value the report carries: a locally built, document-relative
  * `edit-comments.php` filter for authors, and a remote permalink for posts.
  * Consumers that render the post link must pass it through `safeHttpUrl`
  * first — the guard cannot live here, because the row id falls back to the raw
