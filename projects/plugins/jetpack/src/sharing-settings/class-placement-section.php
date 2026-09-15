@@ -21,6 +21,48 @@ final class Placement_Section {
 	public const NONCE_ACTION = 'jetpack-sharing-placement';
 
 	/**
+	 * Anchor the feature sections link to.
+	 */
+	public const ANCHOR = 'jetpack-sharing-placement';
+
+	/**
+	 * Where a feature's buttons currently appear, stated inside that feature's
+	 * own section.
+	 *
+	 * This setting governs both features but lives in neither, so each section
+	 * says what it means for that feature and links here to change it. It also
+	 * surfaces a placement that hides the buttons entirely, which is otherwise
+	 * only visible on this section further down the page.
+	 *
+	 * @param string $feature Plural feature name, already translated.
+	 */
+	public static function render_summary( string $feature ): void {
+		$labels = array_map( array( __CLASS__, 'label_for' ), self::selected_post_types() );
+
+		if ( $labels === array() ) {
+			$summary = sprintf(
+				/* translators: %s: a feature name, for example "Like buttons". */
+				__( '%s are currently not shown anywhere.', 'jetpack' ),
+				$feature
+			);
+		} else {
+			$summary = sprintf(
+				/* translators: 1: a feature name, for example "Like buttons". 2: comma-separated list of places, for example "Posts, Pages". */
+				__( '%1$s currently appear on: %2$s.', 'jetpack' ),
+				$feature,
+				implode( ', ', $labels )
+			);
+		}
+
+		printf(
+			'<p class="description">%1$s <a href="#%2$s">%3$s</a></p>',
+			esc_html( $summary ),
+			esc_attr( self::ANCHOR ),
+			esc_html__( 'Change where they appear', 'jetpack' )
+		);
+	}
+
+	/**
 	 * Render the section.
 	 */
 	public static function render(): void {
@@ -29,7 +71,7 @@ final class Placement_Section {
 		$choices = array_values( get_post_types( array( 'public' => true ) ) );
 		array_unshift( $choices, 'index' );
 		?>
-		<div class="jetpack-sharing-settings__section">
+		<div class="jetpack-sharing-settings__section" id="<?php echo esc_attr( self::ANCHOR ); ?>">
 			<h2><?php echo esc_html( self::heading() ); ?></h2>
 			<form method="post" action="">
 				<table class="form-table">

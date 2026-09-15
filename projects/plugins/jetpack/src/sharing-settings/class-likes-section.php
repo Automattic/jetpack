@@ -139,6 +139,8 @@ final class Likes_Section {
 	 * The section's own settings.
 	 */
 	private static function render_options(): void {
+		Placement_Section::render_summary( __( 'Like buttons', 'jetpack' ) );
+
 		$enabled_sitewide = Likes_Options::enabled_sitewide();
 		?>
 		<form method="post" action="">

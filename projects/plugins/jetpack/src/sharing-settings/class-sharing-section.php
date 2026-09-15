@@ -140,6 +140,8 @@ final class Sharing_Section {
 	 * The services list and its settings.
 	 */
 	private static function render_services_config(): void {
+		Placement_Section::render_summary( __( 'Sharing buttons', 'jetpack' ) );
+
 		( new Services_Config() )->render();
 	}
 }
