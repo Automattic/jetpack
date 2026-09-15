@@ -120,6 +120,8 @@ export {
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
+	FeedbackModal,
+	type FeedbackSource,
 	PageOptionsMenu,
 	type PageOptionsMenuProps,
 	ResetLayoutAction,
