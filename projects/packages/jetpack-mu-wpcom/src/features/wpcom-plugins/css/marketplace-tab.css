@@ -26,9 +26,14 @@
 	text-align: start;
 }
 
+/*
+ * Core renders the other tabs' descriptions as unclassed <p>s, so they keep
+ * the admin's 1em block margins. Match those rather than zeroing the top,
+ * which left this tab's text riding up against the filter bar.
+ */
 .wpcom-marketplace-tab .wpcom-marketplace-intro {
 	max-inline-size: 60em;
-	margin-block: 0 1em;
+	margin-block: 1em;
 	margin-inline: 0;
 	color: #50575e;
 }
