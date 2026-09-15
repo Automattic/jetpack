@@ -30,5 +30,5 @@
 .rate {
 	min-inline-size: 6ch;
 	text-align: end;
-	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
