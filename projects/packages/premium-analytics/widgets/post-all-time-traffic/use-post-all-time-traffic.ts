@@ -71,7 +71,8 @@ export default function usePostAllTimeTraffic(
 			publishedMonth
 		);
 
-		// A rescheduled post keeps the views from before its new date, and those months open whole.
+		// A rescheduled post keeps the views from before its new date; `monthlyHeatmapLifeStart`
+		// opens that oldest month whole.
 		return {
 			rows: built,
 			lifeStartsAt: monthlyHeatmapLifeStart( built, publishedAt, reportingTimeZone() ),
