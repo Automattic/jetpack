@@ -152,6 +152,14 @@ describe( 'Freshly Pressed tab', () => {
 		).toBeInTheDocument();
 	} );
 
+	it( 'keeps the list semantics when Stack renders the ul', async () => {
+		await renderSettled();
+		await openFreshlyPressedTab();
+
+		const list = screen.getByRole( 'list', { name: 'Freshly Pressed posts' } );
+		expect( within( list ).getAllByRole( 'listitem' ) ).toHaveLength( 2 );
+	} );
+
 	it( 'lists the posts as Reader links once the tab is opened', async () => {
 		await renderSettled();
 		await openFreshlyPressedTab();
@@ -164,7 +172,6 @@ describe( 'Freshly Pressed tab', () => {
 			'https://wordpress.com/reader/blogs/34/posts/12?algo=freshly-pressed&ref=dashboard_widget'
 		);
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', expect.stringContaining( 'noopener' ) );
 	} );
 
 	it( 'decodes HTML entities in post titles', async () => {

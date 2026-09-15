@@ -98,36 +98,44 @@ class VideoPress_Player_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * With the iframe embed disabled, the VideoJS player script should be
-	 * enqueued only once while each video still attaches its own inline
-	 * initialization. See #35926.
+	 * With the iframe embed disabled, the player script should be enqueued
+	 * only once while each video gets its own placeholder for the boot
+	 * script to mount. See #35926.
 	 */
-	public function test_non_iframe_path_enqueues_videojs_once_with_per_video_init() {
+	public function test_non_iframe_path_enqueues_player_once_with_a_placeholder_per_video() {
 		$use_iframe = '__return_false';
 		add_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
 
-		( new VideoPress_Player( 'testguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
-		( new VideoPress_Player( 'otherguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
+		$first  = ( new VideoPress_Player( 'testguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
+		$second = ( new VideoPress_Player( 'otherguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
 
 		remove_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
 
 		$enqueued = array_keys( wp_scripts()->queue, 'videopress-videojs', true );
 		$this->assertCount( 1, $enqueued, 'videopress-videojs should be enqueued exactly once.' );
 
+		$boot = array_keys( wp_scripts()->queue, 'videopress-inline-player', true );
+		$this->assertCount( 1, $boot, 'The inline player boot script should be enqueued exactly once.' );
+
 		$styles = array_keys( wp_styles()->queue, 'videopress-videojs', true );
 		$this->assertCount( 1, $styles, 'The videopress-videojs stylesheet should be enqueued exactly once.' );
 
-		$inline = wp_scripts()->get_data( 'videopress-videojs', 'after' );
-		$inline = is_array( $inline ) ? implode( "\n", $inline ) : (string) $inline;
-		$this->assertStringContainsString(
-			'videopress("testguid", document.querySelector("#v-testguid")',
-			$inline,
-			'The first video should get its own inline initialization.'
-		);
-		$this->assertStringContainsString(
-			'videopress("otherguid", document.querySelector("#v-otherguid")',
-			$inline,
-			'The second video should get its own inline initialization.'
-		);
+		$this->assertStringContainsString( 'data-videopress-guid="testguid"', $first );
+		$this->assertStringContainsString( 'data-videopress-guid="otherguid"', $second );
+		$this->assertStringNotContainsString( '<iframe', $first . $second );
+	}
+
+	/**
+	 * The site setting alone switches the shortcode to the inline player.
+	 */
+	public function test_inline_player_setting_disables_the_iframe() {
+		update_option( 'videopress_inline_player_enabled', true );
+
+		$html = ( new VideoPress_Player( 'testguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
+
+		delete_option( 'videopress_inline_player_enabled' );
+
+		$this->assertStringNotContainsString( '<iframe', $html );
+		$this->assertStringContainsString( 'data-videopress-guid="testguid"', $html );
 	}
 }

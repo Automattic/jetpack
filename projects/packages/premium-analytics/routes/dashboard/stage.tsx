@@ -16,6 +16,7 @@ import {
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
+import { PageOptionsMenu, ResetLayoutAction } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -26,8 +27,8 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
-	DashboardOptionsMenu,
 	DashboardSections,
+	FeedbackBanner,
 	OnboardingTour,
 	onboardingTourSteps,
 	RefreshFailureNotice,
@@ -115,9 +116,13 @@ function Dashboard(): JSX.Element {
 	);
 
 	const [ editMode, setEditMode ] = useState( false );
+	const startCustomizing = useCallback( () => setEditMode( true ), [] );
+	const resetToDefault = useCallback( () => {
+		resetLayout();
+		setEditMode( false );
+	}, [ resetLayout ] );
 
 	// The tour's anchors, handed in by the elements below once they mount.
-	const [ actionsFrame, setActionsFrame ] = useState< HTMLDivElement | null >( null );
 	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
 	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
@@ -126,19 +131,15 @@ function Dashboard(): JSX.Element {
 		// Every tile is a section; the grid draws them in layout order.
 		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
 		dateControls: controlsAnchor,
-		// At rest the dashboard's first button is Customize; its own menu, when the
-		// policy allows one, comes after it.
-		customize: actionsFrame?.querySelector( 'button' ) ?? null,
 		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
 	} ).filter( step => step.anchor );
+
+	const defaultSection = resolveSectionId( undefined, sections );
 
 	// The journey introduces the default section at rest: not another tab, and
 	// not while the reader is already customizing.
 	const onboarding = useOnboarding( {
-		enabled:
-			hasResolvedSections &&
-			! editMode &&
-			activeSection === resolveSectionId( undefined, sections ),
+		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
 		stepCount: tourSteps.length,
 	} );
 
@@ -210,12 +211,12 @@ function Dashboard(): JSX.Element {
 	/*
 	 * Tab panels unmount when unfocused, so only the active section's header renders
 	 * and one set of controls suffices; an opted-out section renders none at all.
-	 * Greyed out while customizing: the layout has to be saved or dropped before the
-	 * page is used again, and the range stays readable meanwhile.
+	 * Gone while customizing: reading controls take no part in arranging a layout,
+	 * and Done or Cancel bring them back over the applied range.
 	 */
 	let dateControls: JSX.Element | null = null;
 
-	if ( showHeaderDateControl ) {
+	if ( showHeaderDateControl && ! editMode ) {
 		dateControls =
 			dateFilterSurface === DATE_FILTER_YEAR ? (
 				/*
@@ -232,13 +233,11 @@ function Dashboard(): JSX.Element {
 						onSelect={ selectYear }
 						timeZone={ dateFilters.timeZone }
 						containerElement={ headerElement }
-						disabled={ editMode }
 					/>
 
 					<DateIntervalDropdown
 						options={ dateFilters.intervalOptions }
 						value={ dateFilters.interval }
-						disabled={ editMode }
 						onChange={ dateFilters.onIntervalChange }
 					/>
 				</Stack>
@@ -247,7 +246,7 @@ function Dashboard(): JSX.Element {
 				 * Report pages mount this same panel over records tables, which have no
 				 * interval, so the control is asked for rather than implied.
 				 */
-				<DateFiltersPanel { ...dateFilters } withIntervalControl disabled={ editMode } />
+				<DateFiltersPanel { ...dateFilters } withIntervalControl />
 			);
 	}
 
@@ -276,11 +275,15 @@ function Dashboard(): JSX.Element {
 							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 							actions={
 								<Stack direction="row" gap="sm">
-									<Stack ref={ setActionsFrame } direction="row">
-										<WidgetDashboard.Actions />
-									</Stack>
+									{ /* At rest these would add a second Customize beside the menu's. */ }
+									{ editMode && (
+										<>
+											<WidgetDashboard.Actions />
+											<ResetLayoutAction onReset={ resetToDefault } />
+										</>
+									) }
 									<Stack ref={ setOptionsMenuFrame } direction="row">
-										<DashboardOptionsMenu />
+										<PageOptionsMenu onCustomize={ editMode ? undefined : startCustomizing } />
 									</Stack>
 								</Stack>
 							}
@@ -297,25 +300,28 @@ function Dashboard(): JSX.Element {
 										value={ section.slug }
 										className={ styles.content }
 									>
-										{ /* Marks where the header below comes to rest, so it starts
-								     condensing there. Measured, never seen. */ }
-										<div className={ styles.pinMarker } aria-hidden="true" />
-
-										<div ref={ setHeaderRef } className={ styles.sectionHeader }>
-											<SectionHeader
-												title={ resolveSectionHeading( section ) }
-												condenseOnScroll
-												controlsRef={ setControlsAnchor }
-											>
-												{ dateControls }
-											</SectionHeader>
-											{ /* Inside the pinned band, so its Retry stays reachable however
-										     far the reader has scrolled. */ }
-											<RefreshFailureNotice className={ styles.refreshFailure } />
-										</div>
+										<SectionHeader
+											ref={ setHeaderRef }
+											title={ resolveSectionHeading( section ) }
+											pinned
+											notice={ <RefreshFailureNotice /> }
+											controlsRef={ setControlsAnchor }
+										>
+											{ dateControls }
+										</SectionHeader>
 
 										{ activeSection === section.slug ? (
-											<>
+											<div className={ styles.body }>
+												{ /* Behind the onboarding journey: it introduces the tab
+												     the banner asks about. */ }
+												<FeedbackBanner
+													enabled={
+														! editMode &&
+														section.slug === defaultSection &&
+														onboarding.phase === 'closed'
+													}
+												/>
+
 												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
 													<SectionSyncNotice
 														percentage={ syncStatus?.percentage ?? 0 }
@@ -329,7 +335,7 @@ function Dashboard(): JSX.Element {
 												<div ref={ setWidgetsFrame }>
 													<WidgetDashboard.Widgets className={ styles.widgets } />
 												</div>
-											</>
+											</div>
 										) : null }
 									</SectionTabPanel>
 								) ) }

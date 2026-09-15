@@ -208,7 +208,11 @@ describe( 'video detail stage', () => {
 	beforeAll( () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
 			configurable: true,
-			value: { premium_analytics: { has_videopress: true } },
+			// The page options menu reads the reader's capabilities off it too.
+			value: {
+				premium_analytics: { has_videopress: true },
+				user: { current_user: { capabilities: {} } },
+			},
 		} );
 	} );
 
@@ -268,22 +272,14 @@ describe( 'video detail stage', () => {
 	);
 
 	/**
-	 * Find the page heading while skipping the breadcrumb title crumb — admin-ui
-	 * renders the current crumb as an `h1` too, so an unscoped heading query
-	 * matches both.
+	 * Find the summary heading. The breadcrumb's trailing crumb is the page's
+	 * `h1`; the header titles the section under it.
 	 *
 	 * @param name - The accessible heading name.
-	 * @return The page heading.
+	 * @return The summary heading.
 	 */
 	function getSummaryHeading( name: string ): HTMLElement {
-		const nav = screen.getByRole( 'navigation', { name: 'Breadcrumbs' } );
-		const heading = screen
-			.getAllByRole( 'heading', { level: 1, name } )
-			.find( node => ! nav.contains( node ) );
-		if ( ! heading ) {
-			throw new Error( `No page heading named "${ name }" outside the breadcrumbs.` );
-		}
-		return heading;
+		return screen.getByRole( 'heading', { level: 2, name } );
 	}
 
 	it( 'renders the poster thumbnail and swaps in the placeholder glyph when it fails', () => {
@@ -446,13 +442,22 @@ describe( 'video detail stage', () => {
 		{ summary: { isLoading: true }, state: 'loading' },
 		{ summary: { isError: true }, state: 'errored' },
 		{ summary: { isNotFound: true }, state: 'not found' },
-	] )( 'keeps the page options menu back while the video is $state', ( { summary } ) => {
-		mockSummary( summary );
+	] )(
+		'offers the page options menu without Customize while the video is $state',
+		async ( { summary } ) => {
+			const user = userEvent.setup();
+			mockSummary( summary );
 
-		render( stage() );
+			render( stage() );
 
-		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
-	} );
+			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+			await expect(
+				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it( 'leaves customize mode when the video stops rendering', async () => {
 		const user = userEvent.setup();
@@ -471,6 +476,31 @@ describe( 'video detail stage', () => {
 
 		expect( mockDashboardProps.editMode ).toBe( false );
 		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'resets the layout from the page options menu and leaves customize mode', async () => {
+		const user = userEvent.setup();
+		const resetLayout = jest.fn();
+		mockUseStoredLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout: () => {},
+			resetLayout,
+			hasCustomLayout: false,
+		} );
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+		const dialog = await screen.findByRole( 'alertdialog' );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Reset' } ) );
+
+		expect( resetLayout ).toHaveBeenCalledTimes( 1 );
+		expect( mockDashboardProps.editMode ).toBe( false );
 	} );
 
 	it( 'stores what the dashboard commits, and forgets it on reset', () => {

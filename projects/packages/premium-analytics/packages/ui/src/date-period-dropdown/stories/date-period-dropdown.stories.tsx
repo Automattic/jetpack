@@ -1,8 +1,11 @@
 import { DETAIL_SURFACE_PRESETS, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
 import { useState } from 'react';
 import { DatePeriodDropdown } from '../date-period-dropdown';
-import type { DateRange } from '../../date-range-popover';
-import type { PrimaryPresetId, QuickSurfacePresetId } from '@jetpack-premium-analytics/datetime';
+import type {
+	DateRange,
+	PrimaryPresetId,
+	QuickSurfacePresetId,
+} from '@jetpack-premium-analytics/datetime';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof DatePeriodDropdown > = {

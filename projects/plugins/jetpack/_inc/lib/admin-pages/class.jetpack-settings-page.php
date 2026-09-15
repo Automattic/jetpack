@@ -51,7 +51,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 				'jetpack_manage_modules',
 				'jetpack_modules',
 				array( $this, 'render' ),
-				-5
+				Admin_Menu::POSITION_FIRST_FALLBACK
 			);
 		}
 
@@ -113,6 +113,8 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		echo $noscript_notice; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 
+		<!-- Core relocates other plugins' notices to just after this marker. -->
+		<div class="wrap"><div class="wp-header-end"></div></div>
 		<div class="jetpack-module-list">
 			<?php if ( $is_offline_mode ) : ?>
 				<div class="wrap">

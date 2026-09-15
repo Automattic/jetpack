@@ -12,9 +12,14 @@
  */
 import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
-import { Notice } from '@wordpress/components';
-import { createRoot, StrictMode } from '@wordpress/element';
+import { useBlockProps } from '@wordpress/block-editor';
+import { getBlockType, registerBlockType } from '@wordpress/blocks';
+import { Disabled, Notice } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { dispatch, select } from '@wordpress/data';
+import { createRoot, RawHTML, StrictMode } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
@@ -28,6 +33,13 @@ const TEMPLATE_POST_TYPE = 'wp_template';
 // The editor assigns these straight to `window.location.href`, so `javascript:`
 // and `data:` would execute rather than navigate.
 const NAVIGABLE_PROTOCOLS = [ 'http:', 'https:' ];
+
+// Addressed by name rather than by importing the store descriptor: importing it pulls
+// `@wordpress/block-editor`'s own store module, which resolves core's private APIs at load time.
+const BLOCK_EDITOR_STORE = 'core/block-editor';
+
+// A save arrives as any of these, depending on whether core-data creates or updates.
+const WRITE_METHODS = [ 'POST', 'PUT', 'PATCH' ];
 
 /**
  * Check that a URL the editor will navigate to is one the browser can navigate to.
@@ -98,7 +110,18 @@ export function buildEditorConfig( bundle, data ) {
 	Object.entries( urls ).forEach( ( [ key, value ] ) => assertNavigableUrl( value, key ) );
 
 	return {
-		editorSettings: { ...bundle.editor_settings, ...editorSettings },
+		// Forced last so neither half can turn it off. The package renders core's `FullscreenMode`
+		// on this, which hides the admin menu — without it a full-viewport editor sits beside a menu
+		// whose flyouts open over the canvas, and no z-index satisfies both. Forced rather than the
+		// `fullscreenMode` preference so it is not a per-user toggle; it also brings the back button.
+		editorSettings: withCanvasStyles(
+			{
+				...bundle.editor_settings,
+				...editorSettings,
+				isFullScreenForced: true,
+			},
+			bundle
+		),
 		theme: bundle.editor_theme,
 		urls,
 		userEmail,
@@ -109,6 +132,37 @@ export function buildEditorConfig( bundle, data ) {
 		// canvas while editing. Bundle first because it is a WordPress.com post id; the page stays
 		// a fallback. See NL-871.
 		globalStylesPostId: getGlobalStylesPostId( bundle ) ?? globalStylesPostId ?? null,
+	};
+}
+
+/**
+ * Add the canvas rules that depend on what the bundle reported, keeping the ones it sent.
+ *
+ * Appended to `styles` rather than replacing it: WordPress.com ships the email's own stylesheet
+ * through that same array, and the package reads the whole of it.
+ *
+ * The one rule so far hides the featured image. `core/post-featured-image` is a core block, so
+ * WordPress.com deliberately leaves it out of `blocks` — sending core definitions would replace
+ * this site's working implementations with placeholders — and no `preview_html` can reach it.
+ * Only WordPress.com knows whether a send carries the image, so the bundle reports that instead.
+ *
+ * @param {object} settings - The editor settings assembled so far.
+ * @param {object} bundle   - The response from the bootstrap route.
+ * @return {object} The settings, with any extra canvas rules appended.
+ */
+function withCanvasStyles( settings, bundle ) {
+	// Strictly false. A bundle from before WordPress.com reported this omits the key, and hiding
+	// the image on that reading would be a regression on every blog that does send one.
+	if ( false !== bundle?.shows_featured_image ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		styles: [
+			...( Array.isArray( settings.styles ) ? settings.styles : [] ),
+			{ css: '.wp-block-post-featured-image { display: none; }' },
+		],
 	};
 }
 
@@ -176,6 +230,20 @@ function getGlobalStylesPostId( bundle ) {
  * @param {object} bundle - The response from the bootstrap route.
  * @return {object} Preload entries, empty when the bundle carries no global styles.
  */
+/**
+ * A theme.json half as an object, whatever shape it arrived in.
+ *
+ * Off Simple the bootstrap is proxied through `json_decode( …, true )`, so an empty `{}` comes
+ * back as `[]`. The editor writes edits onto whatever it finds, and a property set on an array is
+ * dropped by `JSON.stringify` — the swatch flashes and nothing persists. See NL-871.
+ *
+ * @param {*} value - `styles` or `settings` as it arrived.
+ * @return {object} The value when it is a usable object, an empty object otherwise.
+ */
+function objectOrEmpty( value ) {
+	return value && 'object' === typeof value && ! Array.isArray( value ) ? value : {};
+}
+
 function globalStylesPreloads( bundle ) {
 	const globalStyles = bundle?.global_styles;
 	const id = getGlobalStylesPostId( bundle );
@@ -189,7 +257,14 @@ function globalStylesPreloads( bundle ) {
 	// The GETs resolve after the OPTIONS, so omitting it here overwrites the OPTIONS answer with a
 	// flat no and the Styles panel never renders.
 	const allow = globalStyles.can_edit ? 'GET, POST, PUT' : 'GET';
-	const record = { body: globalStyles.record, headers: { Allow: allow } };
+	const record = {
+		body: {
+			...globalStyles.record,
+			styles: objectOrEmpty( globalStyles.record.styles ),
+			settings: objectOrEmpty( globalStyles.record.settings ),
+		},
+		headers: { Allow: allow },
+	};
 
 	return {
 		[ `/wp/v2/global-styles/${ id }` ]: record,
@@ -273,6 +348,202 @@ export function getTemplateId( bundle ) {
 }
 
 /**
+ * Register the email blocks the bootstrap describes and no client defines.
+ *
+ * They are registered in PHP only, on every host including Simple, so without this the editor
+ * reports each one as an unsupported block. WordPress.com allowlists the namespaces it owns, but
+ * a site is still free to have registered one itself, so anything already registered is left
+ * alone rather than replaced by a placeholder.
+ *
+ * Dynamic blocks with no client-side edit. Where WordPress.com sent the block's rendered structure
+ * the canvas shows that; otherwise it falls back to a labelled placeholder. What the subscriber
+ * receives is rendered server-side and is unaffected either way.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {void}
+ */
+export function registerEmailBlocks( bundle ) {
+	const blocks = Array.isArray( bundle?.blocks ) ? bundle.blocks : [];
+
+	blocks.forEach( block => {
+		if ( ! block?.name || getBlockType( block.name ) ) {
+			return;
+		}
+
+		// Falls back to the slug on anything that is not a usable string. A non-string title is
+		// not just unlabelled: it reaches the placeholder as a React child, and an object there
+		// throws rather than rendering.
+		const title = typeof block.title === 'string' && block.title ? block.title : block.name;
+
+		// Server-rendered markup, trusted on the same footing as the rest of the bundle: it reaches
+		// us from WordPress.com over the route that already supplies `editor_settings`.
+		const preview =
+			typeof block.preview_html === 'string' && block.preview_html ? block.preview_html : '';
+
+		// Named and capitalised so it reads as a component: `useBlockProps` is a hook, and an
+		// anonymous arrow here trips rules-of-hooks.
+		const EmailBlockEdit = () => (
+			<div { ...useBlockProps() }>
+				{ preview ? (
+					// `inert`, so clicking the email's own links selects the block rather than
+					// navigating, and tabbing skips them. The outline stays on the wrapper above.
+					<Disabled>
+						<RawHTML>{ preview }</RawHTML>
+					</Disabled>
+				) : (
+					title
+				) }
+			</div>
+		);
+
+		registerBlockType( block.name, {
+			apiVersion: 3,
+			title,
+			description: block.description || '',
+			category: block.category || 'design',
+			attributes: block.attributes || {},
+
+			// Template furniture rather than blocks a creator adds by hand.
+			supports: { ...( block.supports || {} ), html: false, inserter: false },
+
+			edit: EmailBlockEdit,
+			save: () => null,
+		} );
+	} );
+}
+
+/**
+ * Take block editing away from the canvas, leaving the Styles panel as the only control.
+ *
+ * The template's core blocks arrive with their own inspector controls — a background on the
+ * "Email Content" group, say — and nothing on this screen saves template edits, so every one of
+ * them is offered and then silently does nothing. `templateLock` does not help: it stops blocks
+ * being moved or removed and leaves the settings panel exactly where it was.
+ *
+ * Set on the root, which the store's derived modes propagate down to every descendant, so this
+ * covers blocks the bundle never describes. Marked not-persistent because a mode is a view
+ * setting: without it the editor opens holding an undo step and believing it has changes to save.
+ *
+ * @return {void}
+ */
+export function lockCanvasEditing() {
+	// `dispatch()` answers null for a store the registry does not hold. Controls that do nothing are
+	// a worse screen; no screen at all is worse still, so this declines rather than throwing into
+	// the mount's catch.
+	const blockEditor = dispatch( BLOCK_EDITOR_STORE );
+
+	if ( ! blockEditor ) {
+		return;
+	}
+
+	blockEditor.__unstableMarkNextChangeAsNotPersistent();
+	blockEditor.setBlockEditingMode( '', 'disabled' );
+}
+
+/**
+ * Catch the Styles panel's save and send it to WordPress.com instead.
+ *
+ * The editor writes a core-data `globalStyles` entity, but the design is stored in a WordPress.com
+ * blog option rather than a post, so the write has to be re-addressed to the bootstrap route.
+ *
+ * Matched on this one record's exact path and nothing else. The editor also holds the *site's* own
+ * global-styles record, at edit context, so anything broader would push the site's design through
+ * the email endpoint — and would look correct while doing it on Simple, where the site and the
+ * shadow blog are the same database.
+ *
+ * @param {number} id - The global-styles id the bundle named.
+ * @return {Function} An `apiFetch` middleware.
+ */
+export function createDesignSaveMiddleware( id ) {
+	const target = `/wp/v2/global-styles/${ id }`;
+
+	return async ( options, next ) => {
+		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const method = ( options.method || 'GET' ).toUpperCase();
+
+		if ( target !== path || ! WRITE_METHODS.includes( method ) ) {
+			return next( options );
+		}
+
+		// Only the theme.json halves: core-data hands over its whole record, and its `id` is the
+		// sentinel that stands in for a post that does not exist. Sanitizing drops it either way,
+		// but sending it makes every save look like it lost a property to anything comparing what
+		// was sent against what was stored. `version` and `isGlobalStylesUserThemeJSON` are the
+		// store's to set, so they are not ours to send.
+		// core-data drops unchanged keys from its edits, so `options.data` routinely carries one half
+		// — a styles-only save is the ordinary case here, not an anomaly. The store replaces the
+		// whole document rather than merging, so sending that half alone would destroy the other.
+		// The editor's own view — persisted record plus pending edits — is what the creator means.
+		const edited = select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', id );
+
+		if ( ! edited ) {
+			throw new Error( 'Email design save found no global styles record to read.' );
+		}
+
+		const submitted = { styles: edited.styles ?? {}, settings: edited.settings ?? {} };
+
+		const saved = await apiFetch( {
+			path: BOOTSTRAP_PATH,
+			method: 'POST',
+			data: { design: submitted },
+		} );
+
+		// The route answers with an envelope — `{ blog_id, design, discarded }` — around a read-back
+		// of what was stored, since sanitizing drops anything outside the theme.json schema. Unwrap
+		// it: core-data takes what comes back as the record itself, and the canvas is drawn by
+		// merging that record's `styles` and `settings` over the theme, so handing back the envelope
+		// leaves both undefined and the canvas snaps to its pre-edit design.
+		const design = saved?.design ?? {};
+
+		// `discarded` means the save succeeded and kept none of it: sanitizing drops whatever falls
+		// outside the theme.json schema. Without saying so, the panel goes clean and the creator is
+		// told their edit was saved when the stored design no longer contains it.
+		if ( saved?.discarded ) {
+			dispatch( noticesStore ).createNotice(
+				'error',
+				__( 'Those changes could not be saved to your email design.', 'jetpack' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+		}
+
+		return {
+			id,
+			settings: objectOrEmpty( design.settings ),
+			styles: objectOrEmpty( design.styles ),
+		};
+	};
+}
+
+/**
+ * Tell the creator when a design saved here would never reach anyone.
+ *
+ * `renders_through_email_editor` is the blog's state, not the reader's — independent of
+ * `can_edit`, which asks whether *this person* may edit. Only `false` warns: `null` means
+ * WordPress.com could not determine it during a deploy window, and warning a creator whose blog is
+ * fine is a false alarm they cannot act on. Pinned, not a snackbar — it is a standing condition.
+ * See NL-864.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {void}
+ */
+export function reportInactiveEmailDesign( bundle ) {
+	if ( false !== bundle?.renders_through_email_editor ) {
+		return;
+	}
+
+	dispatch( noticesStore ).createNotice(
+		'warning',
+		__(
+			'Email design is not active on this site, so changes saved here will not affect the emails your subscribers receive.',
+			'jetpack'
+		),
+		// The editor's pinned notice list reads this context and this type; the default context
+		// only reaches its snackbars.
+		{ context: 'email-editor', type: 'default', isDismissible: false }
+	);
+}
+
+/**
  * What the screen shows when it could not load.
  *
  * The design lives on another site, so without this "nothing appeared" and "your
@@ -320,8 +591,20 @@ export async function mountEmailDesignEditor() {
 		} );
 
 		const config = buildEditorConfig( bundle, data );
+
+		// Before the render, not after: the template is parsed on first render and its blocks are
+		// resolved against the registry at that moment. Registering later leaves the same
+		// unsupported-block errors, which looks identical to this never running.
+		registerEmailBlocks( bundle );
+		lockCanvasEditing();
+		reportInactiveEmailDesign( bundle );
+
 		const postId = getTemplateId( bundle );
 		const preload = buildPreloadMap( bundle, postId );
+
+		if ( config.globalStylesPostId ) {
+			apiFetch.use( createDesignSaveMiddleware( config.globalStylesPostId ) );
+		}
 
 		if ( preload ) {
 			// Registered last so it runs first: api-fetch applies middlewares right to

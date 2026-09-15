@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Forms: Add a Done button to the conditional logic rules dialog, and open the Conditional logic panel by default on a field that has conditions.

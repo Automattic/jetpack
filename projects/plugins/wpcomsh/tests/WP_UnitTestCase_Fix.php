@@ -115,6 +115,17 @@ if ( explode( '.', \PHPUnit\Runner\Version::id() )[0] >= 10 ) {
 		}
 
 		/**
+		 * For `WP_UnitTestCase_Base::set_up()` to call.
+		 *
+		 * Only needed for wpcomsh which sets `WP_RUN_CORE_TESTS` as the only way to bypass a cache.
+		 *
+		 * @return string[]
+		 */
+		public function getGroups() {
+			return $this->groups();
+		}
+
+		/**
 		 * Obsolete method where PHPUnit is mis-processing the doc comment to see a `@group` that doesn't exist.
 		 * This redefinition hides the "bad" doc comment from PHPUnit.
 		 */

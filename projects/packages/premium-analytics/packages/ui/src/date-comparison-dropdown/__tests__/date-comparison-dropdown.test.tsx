@@ -1,3 +1,4 @@
+import { TZDate } from '@date-fns/tz';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
@@ -8,13 +9,13 @@ const presets: ComparisonDateRangePreset[] = [
 		id: 'previous-period',
 		label: 'Previous period',
 		shortLabel: 'Prev. period',
-		range: { from: new Date( '2026-06-01' ), to: new Date( '2026-06-30' ) },
+		range: { from: new TZDate( '2026-06-01', 'UTC' ), to: new TZDate( '2026-06-30', 'UTC' ) },
 	},
 	{
 		id: 'previous-month',
 		label: 'Previous month',
 		shortLabel: 'Prev. month',
-		range: { from: new Date( '2026-05-01' ), to: new Date( '2026-05-31' ) },
+		range: { from: new TZDate( '2026-05-01', 'UTC' ), to: new TZDate( '2026-05-31', 'UTC' ) },
 	},
 ];
 

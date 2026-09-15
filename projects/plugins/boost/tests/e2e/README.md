@@ -12,7 +12,7 @@ Automated end-to-end acceptance tests for the Jetpack Boost plugin.
 ## Pre-requisites
 
 - This readme assumes that `node`, `pnpm` and `docker` are already installed on your machine.
-- Make sure you built Jetpack Boost first. `pnpm install && pnpm jetpack build plugins/boost` in the monorepo root directory should walk you through it. You can also refer to the Jetpack Boost [documentation](../../docs/DEVELOPMENT_GUIDE.md) in how to build Jetpack Boost.
+- Build Jetpack Boost and its dependencies using the [development guide](../../docs/DEVELOPEMENT_GUIDE.md#build-the-project).
 - Run `pnpm install` from the Jetpack Boost E2E tests directory. This command install all the required dependencies
 
 Jetpack Boost E2E tests also rely on an encrypted configuration file, which is included in the [e2e commons package](../../../../../tools/e2e-commons) config folder as [`encrypted.enc`](../../../../../tools/e2e-commons/config/encrypted.enc). To be able to run tests - that file should be decrypted first.
@@ -32,7 +32,7 @@ From the root of the repo (this has to be done only once or when pulling new cha
 
 1. run `pnpm install` - This command will install the monorepo NPM dependencies.
 2. run `jetpack build plugins/jetpack` - This command will install Jetpack NPM and Composer dependencies as well as building the asset files.
-3. run `jetpack build plugins/boost` - This command will install Jetpack Boost NPM and Composer dependencies as well as building the asset files.
+3. Build Boost using the [development guide](../../docs/DEVELOPEMENT_GUIDE.md#build-the-project).
 
 From the `projects/plugins/boost/tests/e2e` folder:
 
@@ -47,6 +47,17 @@ However, Boost has some shortcuts to get the environment started and run all the
 - `pnpm test-e2e:start` - This command will start the e2e testing environment and the tunnel.
 - `pnpm test-e2e:run` - This command will run the e2e tests.
 - `pnpm test-e2e:stop` - This command will stop the e2e testing environment.
+
+## History tooltip rendering regression
+
+`specs/base/history-tooltip-overlap.test.ts` bundles the production history card, Charts, and dashboard styles with deterministic data. It uses the runner's Chromium and includes My Jetpack's global tooltip styles to check the tooltip surface and annotation stacking.
+
+After installing the monorepo dependencies, run it without WordPress or authentication setup from this directory:
+
+```bash
+TEST_SITE=fixture NODE_CONFIG='{"testSites":{"fixture":{"url":"http://boost.test","username":"unused","password":"unused"}}}' \
+  pnpm run test:run specs/base/history-tooltip-overlap.test.ts --project='jetpack boost e2e' --no-deps
+```
 
 ## Fixtures and Utilities
 
@@ -116,3 +127,29 @@ test.afterAll(async ({ boostUtils }) => {
   await boostUtils.unMockPremiumFeatures();
 });
 ```
+
+### Dashboard modernization
+
+The `e2e-dashboard-modernization` plugin is mounted in the Docker E2E environment.
+Use `boostUtils.setDashboardModernization( true )` to opt in, or pass `false` to
+force the legacy dashboard. Call `boostUtils.resetDashboardModernization()` in
+teardown to deactivate the fixture and remove its option. Calling
+`resetEnvironment()` during suite setup also resets the filter.
+
+For a local demo, run these commands from the monorepo root after starting your
+E2E environment:
+
+```sh
+pnpm jetpack docker --type e2e --name t1 wp -- plugin activate e2e-dashboard-modernization
+pnpm jetpack docker --type e2e --name t1 wp -- option update e2e_boost_dashboard_modernization true --format=json
+```
+
+Open `/wp-admin/admin.php?page=jetpack-boost`. Restore the default dashboard with:
+
+```sh
+pnpm jetpack docker --type e2e --name t1 wp -- plugin deactivate e2e-dashboard-modernization
+```
+
+Run the foundation smoke tests from this directory with
+`pnpm test:run specs/modernization`. CI discovers this directory through
+`.github/files/e2e-tests/e2e-matrix.js`.

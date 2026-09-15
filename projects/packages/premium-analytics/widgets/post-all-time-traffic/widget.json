@@ -1,0 +1,10 @@
+{
+	"name": "jpa/post-all-time-traffic",
+	"title": "All-time traffic",
+	"description": "Every month of views for the post or page being viewed, across its whole life.",
+	"help": {
+		"content": "Every month of views for the post or page being viewed, shaded by how it compares to the rest. Always the full history: the period above doesn't narrow it. Pick a month to read the rest of the page over it. Daily average leaves the current day out, as the classic Stats table does."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

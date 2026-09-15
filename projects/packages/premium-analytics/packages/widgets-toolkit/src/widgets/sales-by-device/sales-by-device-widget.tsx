@@ -87,7 +87,7 @@ export function SalesByDeviceWidget( {
 				styles={ barStyles }
 				dataFormat={ {
 					type: 'currency',
-					options: { useMultipliers: true, decimals: 0 },
+					options: { useMultipliers: true },
 				} }
 			/>
 		</WidgetState>
