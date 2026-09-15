@@ -176,25 +176,21 @@ function wpcom_actionbar_footer() {
 	$version    = is_array( $asset_file ) && ! empty( $asset_file['version'] ) ? $asset_file['version'] : Settings::PACKAGE_VERSION;
 
 	$css_file = $is_rtl ? '../../build/action-bar.rtl.css' : '../../build/action-bar.css';
-	$css_url  = add_query_arg( 'ver', $version, plugins_url( $css_file, __FILE__ ) );
-	$js_url   = add_query_arg( 'ver', $version, plugins_url( '../../build/action-bar.js', __FILE__ ) );
-	?>
+	$css_url  = wp_json_encode( add_query_arg( 'ver', $version, plugins_url( $css_file, __FILE__ ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+	$js_url   = wp_json_encode( add_query_arg( 'ver', $version, plugins_url( '../../build/action-bar.js', __FILE__ ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 
-<script>
-window.addEventListener( "DOMContentLoaded", function() {
-	var link = document.createElement( "link" );
-	link.href = <?php echo wp_json_encode( $css_url, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>;
-	link.type = "text/css";
-	link.rel = "stylesheet";
-	document.head.appendChild( link );
+	wp_print_inline_script_tag(
+		'window.addEventListener( "DOMContentLoaded", function () {
+			var link = document.createElement( "link" );
+			link.href = ' . $css_url . ';
+			link.rel = "stylesheet";
+			document.head.appendChild( link );
 
-	var script = document.createElement( "script" );
-	script.src = <?php echo wp_json_encode( $js_url, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?>;
-	document.body.appendChild( script );
-} );
-</script>
-
-	<?php
+			var script = document.createElement( "script" );
+			script.src = ' . $js_url . ';
+			document.body.appendChild( script );
+		} );'
+	);
 }
 
 /**
