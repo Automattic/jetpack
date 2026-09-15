@@ -13,6 +13,7 @@ const author: AuthorRow = {
 	id: 'id:42',
 	label: 'Ada Lovelace',
 	avatarUrl: 'https://example.com/ada.png',
+	authorId: '42',
 	isGroup: true,
 	views: 1234,
 };
@@ -72,6 +73,27 @@ describe( 'authors fields', () => {
 			'https://example.com/ada.png'
 		);
 		expect( getAuthorsFields().map( field => field.id ) ).toEqual( [ 'author', 'views' ] );
+	} );
+
+	it( 'links the author name to the author detail page on the report window', () => {
+		renderField( 'author', author );
+
+		const link = screen.getByRole( 'link', { name: 'Ada Lovelace' } );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/author/42' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'authors',
+		} );
+	} );
+
+	it( 'leaves an author without a user id as plain text', () => {
+		renderField( 'author', { ...author, authorId: undefined } );
+
+		expect( screen.getByText( 'Ada Lovelace' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'localizes the untracked-author sentinel for display and search', () => {

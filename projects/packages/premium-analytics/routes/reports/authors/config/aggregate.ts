@@ -22,6 +22,8 @@ type AuthorDrilldownItem =
 type AuthorDrilldownMetadata = {
 	parentName?: string;
 	avatarUrl: string | null;
+	/** The author's user ID, when the endpoint names one; author rows only. */
+	authorId?: string;
 	postId?: string;
 	previousViews?: number;
 };
@@ -102,8 +104,11 @@ function getAuthorDrilldownMetadata(
 			: {};
 
 	if ( context.depth === 0 ) {
+		const author = item as StatsTopAuthorsItem;
+
 		return {
-			avatarUrl: ( item as StatsTopAuthorsItem ).icon,
+			avatarUrl: author.icon,
+			...( author.id != null ? { authorId: String( author.id ) } : {} ),
 			...previousViews,
 		};
 	}

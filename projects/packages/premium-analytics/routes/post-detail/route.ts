@@ -80,10 +80,13 @@ export const route = {
 
 			// Allowlist this page's own params instead of spreading `currentSearch`
 			// wholesale; the report origin stays so the breadcrumb survives.
+			const reportParams = normalizeReportParams(
+				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
+			);
+			// The other detail scope must not ride along into this page's URL.
+			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
-				...normalizeReportParams(
-					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
-				),
+				...reportParams,
 				...pickReportOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 				post_id: postId,

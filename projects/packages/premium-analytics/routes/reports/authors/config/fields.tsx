@@ -3,7 +3,11 @@
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	AuthorDetailLink,
+	MetricWithComparison,
+	PostDetailLink,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -89,7 +93,18 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 							) }
 							className={ styles.avatar }
 						/>
-						<span className={ styles.name }>{ name }</span>
+						{ /* Untracked authors carry no user id, so their row stays plain text. */ }
+						{ item.authorId ? (
+							<AuthorDetailLink
+								authorId={ item.authorId }
+								report="authors"
+								className={ styles.name }
+							>
+								{ name }
+							</AuthorDetailLink>
+						) : (
+							<span className={ styles.name }>{ name }</span>
+						) }
 					</Stack>
 				);
 			},

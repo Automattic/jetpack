@@ -278,6 +278,107 @@ describe( 'usePopularPost', () => {
 		expect( result.current.post?.commentCount ).toBe( 5 );
 	} );
 
+	describe( 'scoped to an author', () => {
+		const authorReportParams = {
+			from: '2026-01-01T00:00:00',
+			to: '2026-06-30T23:59:59',
+			interval: 'month',
+			preset: 'year-2026',
+		} as Parameters< typeof usePopularPost >[ 0 ][ 'reportParams' ];
+
+		const topAuthorsResponse = {
+			date: '2026-06-30',
+			period: 'day',
+			summary: {
+				authors: [
+					{
+						name: 'Other',
+						author_id: 3,
+						views: 900,
+						posts: [
+							{ id: 9, title: 'Other post', url: 'https://example.com/other/', views: 900 },
+						],
+					},
+					{
+						name: 'Priya',
+						author_id: 7,
+						views: 500,
+						posts: [
+							{
+								id: 7,
+								title: 'Winning post',
+								url: 'https://example.com/winning-post/',
+								views: 420,
+							},
+							{ id: 8, title: 'Runner up', url: 'https://example.com/runner-up/', views: 80 },
+						],
+					},
+				],
+			},
+		};
+
+		function requestPaths( fragment: string ): string[] {
+			return mockApiFetch.mock.calls
+				.map( ( [ options ] ) => {
+					const { path, url } = options as MockedFetchArgs;
+					return path || url || '';
+				} )
+				.filter( target => target.includes( fragment ) );
+		}
+
+		beforeEach( () => {
+			mockApiFetch.mockImplementation( ( { path = '', url = '' }: MockedFetchArgs ) => {
+				const target = path || url;
+
+				if ( target.includes( 'stats/top-authors' ) ) {
+					return Promise.resolve( topAuthorsResponse );
+				}
+				if ( target.includes( 'stats/post/' ) ) {
+					return Promise.resolve( postStatsResponse );
+				}
+				if ( target.startsWith( '/wp/v2/posts' ) ) {
+					return Promise.resolve( postContentResponse );
+				}
+
+				return Promise.resolve( {} );
+			} );
+		} );
+
+		it( 'picks that author’s top post over the page range, not the site’s', async () => {
+			const { result } = renderHook(
+				() => usePopularPost( { authorId: 7, reportParams: authorReportParams } ),
+				{ wrapper }
+			);
+
+			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
+
+			expect( result.current.post?.title ).toBe( 'Winning & popular post' );
+			expect( result.current.range ).toEqual( {
+				from: '2026-01-01T00:00:00',
+				to: '2026-06-30T23:59:59',
+				interval: 'month',
+				preset: 'year-2026',
+			} );
+			expect( requestPaths( 'stats/top-posts' ) ).toEqual( [] );
+
+			const ranking = decodeURIComponent( requestPaths( 'stats/top-authors' )[ 0 ] );
+			expect( ranking ).toContain( 'start_date=2026-01-01T00:00:00' );
+			expect( ranking ).toContain( 'date=2026-06-30T23:59:59' );
+			expect( ranking ).toContain( 'max=0' );
+		} );
+
+		it( 'returns a null post for an author with no views in the range', async () => {
+			const { result } = renderHook(
+				() => usePopularPost( { authorId: 42, reportParams: authorReportParams } ),
+				{ wrapper }
+			);
+
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+			expect( result.current.post ).toBeNull();
+			expect( result.current.isError ).toBe( false );
+		} );
+	} );
+
 	describe( 'the ranking window', () => {
 		// The window is resolved from "now" in the *site* timezone, so pin both
 		// rather than letting the machine's clock and zone decide what the request

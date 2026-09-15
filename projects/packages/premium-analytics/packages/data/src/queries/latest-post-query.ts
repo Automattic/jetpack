@@ -17,26 +17,53 @@ export type { LatestPostResponse };
 const POST_CONTENT_FIELDS =
 	'id,title,link,date,featured_media,_links.wp:featuredmedia,_embedded.wp:featuredmedia';
 
-const LATEST_POST_PATH = addQueryArgs( '/wp/v2/posts', {
+const LATEST_POST_QUERY = {
 	per_page: 1,
 	status: 'publish',
 	orderby: 'date',
 	order: 'desc',
 	_embed: 'wp:featuredmedia',
 	_fields: POST_CONTENT_FIELDS,
-} );
+};
+
+export type LatestPostQueryOptions = {
+	/** Narrow the pick to one author's posts (the author detail page). */
+	authorId?: number;
+};
 
 /**
- * React Query options for the site's latest published post, read locally from
+ * React Query options for the most recent published post, read locally from
  * the core WordPress posts endpoint. Content is fetched on-site (not from WPCOM),
  * so it resolves even on private/unlaunched sites; the post's views, likes, and
  * comments are layered on from the Stats post endpoint by the widget's `useLatestPost`.
+ *
+ * With `authorId`, the pick is that author's latest post instead of the site's.
+ *
+ * @param options          - Optional author scope.
+ * @param options.authorId - The author's user ID; `0` or absent picks across the site.
+ * @return The query options.
  */
-export function latestPostQuery(): UseQueryOptions< LatestPostResponse > {
+export function latestPostQuery( {
+	authorId = 0,
+}: LatestPostQueryOptions = {} ): UseQueryOptions< LatestPostResponse > {
+	const author = Number.isInteger( authorId ) && authorId > 0 ? authorId : 0;
+
 	return {
-		queryKey: [ 'latest-post' ],
-		queryFn: async () => sanitizeLatestPostResponse( await apiFetch( { path: LATEST_POST_PATH } ) ),
-		placeholderData: previousData => previousData,
+		queryKey: author ? [ 'latest-post', author ] : [ 'latest-post' ],
+		// The path is built inside the fetcher so `author` stays its only input,
+		// which is already part of the query key above.
+		queryFn: async () =>
+			sanitizeLatestPostResponse(
+				await apiFetch( {
+					path: addQueryArgs( '/wp/v2/posts', {
+						...( author ? { author } : {} ),
+						...LATEST_POST_QUERY,
+					} ),
+				} )
+			),
+		// Only the site-wide pick keeps stale data through a refetch: keyed by
+		// author, a carried-over post would briefly show under the wrong author.
+		...( author ? {} : { placeholderData: previousData => previousData } ),
 	};
 }
 

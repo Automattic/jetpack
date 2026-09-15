@@ -99,6 +99,18 @@ describe( 'video detail route.beforeLoad', () => {
 		} );
 	} );
 
+	it( 'drops an author scope while seeding the video scope', async () => {
+		let thrown: { search?: Record< string, unknown > } | undefined;
+		try {
+			await beforeLoad( { videoId: '42' }, { ...settledSearch, post_id: '7', author_id: '3' } );
+		} catch ( error ) {
+			thrown = error as { search?: Record< string, unknown > };
+		}
+
+		expect( thrown?.search ).toMatchObject( { post_id: '42' } );
+		expect( thrown?.search ).not.toHaveProperty( 'author_id' );
+	} );
+
 	it( 'seeds when the date params are missing', async () => {
 		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
 

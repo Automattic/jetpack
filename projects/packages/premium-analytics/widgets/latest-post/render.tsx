@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toAuthorId } from '@jetpack-premium-analytics/data';
 import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
@@ -27,11 +28,13 @@ type LatestPostRenderAttributes = LatestPostAttributes & Partial< ReportParamsFi
 type LatestPostWidgetProps = WidgetRenderProps< LatestPostRenderAttributes >;
 
 /**
- * Every tile is a lifetime total, so no tile carries an aggregation note.
+ * Every tile is a lifetime total, so no tile carries an aggregation note. On an
+ * author detail page the URL's `author_id` narrows the pick to that author.
  */
 function LatestPostReport() {
-	const { post, isLoading, isFetching, isError, refetch } = useLatestPost();
 	const { reportParams } = useWidgetRootContext();
+	const authorId = toAuthorId( reportParams.author_id );
+	const { post, isLoading, isFetching, isError, refetch } = useLatestPost( authorId );
 	// The detail page opens on the dashboard's current window.
 	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
 
@@ -66,7 +69,9 @@ function LatestPostReport() {
 			} }
 			empty={ {
 				icon: postList,
-				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
+				description: authorId
+					? __( 'This author has not published a post yet.', 'jetpack-premium-analytics-pkg' )
+					: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>

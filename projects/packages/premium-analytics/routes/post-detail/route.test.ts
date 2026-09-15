@@ -64,6 +64,23 @@ describe( 'post detail route report origin', () => {
 		expect( mockRedirect ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	// Uses the real normalizer, which keeps a valid `author_id`: the seed has to
+	// drop it, or an author page link would scope this page's URL to an author.
+	it( 'drops an author scope while seeding the post scope', async () => {
+		let thrown: { search?: Record< string, unknown > } | undefined;
+		try {
+			await route.beforeLoad( {
+				params: { postId: '42' },
+				search: { ...seededSearch, post_id: '7', author_id: '3' },
+			} );
+		} catch ( error ) {
+			thrown = error as { search?: Record< string, unknown > };
+		}
+
+		expect( thrown?.search ).toMatchObject( { post_id: '42' } );
+		expect( thrown?.search ).not.toHaveProperty( 'author_id' );
+	} );
+
 	it( 'does not redirect when a seeded search already carries the origin', async () => {
 		await expect(
 			route.beforeLoad( {

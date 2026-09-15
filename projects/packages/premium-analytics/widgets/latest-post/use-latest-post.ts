@@ -25,17 +25,20 @@ export type UseLatestPostResult = {
 };
 
 /**
- * The site's most recent published post with its all-time views, likes, and
- * comments. This composition is specific to the Latest post widget: content is
- * read locally from core (so it resolves on private sites), and its metrics come
- * from the Stats post endpoint in a second, dependent request keyed by the
- * resolved post ID.
+ * The most recent published post with its all-time views, likes, and comments:
+ * the site's, or one author's when the page is scoped to an author. This
+ * composition is specific to the Latest post widget: content is read locally
+ * from core (so it resolves on private sites), and its metrics come from the
+ * Stats post endpoint in a second, dependent request keyed by the resolved post ID.
  *
  * Only a content failure surfaces as an error. When the Stats request fails (a
  * private site 403s it), the post still renders with its metrics unknown.
+ *
+ * @param authorId - The author scope; `0` picks across the whole site.
+ * @return The post and request state.
  */
-export function useLatestPost(): UseLatestPostResult {
-	const latestPostResult = useStatsQuery< LatestPostResponse >( latestPostQuery() );
+export function useLatestPost( authorId = 0 ): UseLatestPostResult {
+	const latestPostResult = useStatsQuery< LatestPostResponse >( latestPostQuery( { authorId } ) );
 	const latestPost = latestPostResult.data ?? null;
 	const postId = latestPost?.id ?? 0;
 

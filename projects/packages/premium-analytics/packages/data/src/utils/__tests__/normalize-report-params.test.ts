@@ -399,4 +399,27 @@ describe( 'normalizeReportParams', () => {
 
 		expect( result.post_id ).toBeUndefined();
 	} );
+
+	it( 'carries a valid author_id through as a number', () => {
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			author_id: '7',
+		} );
+
+		expect( result.author_id ).toBe( 7 );
+	} );
+
+	it.each( [ undefined, 'foo', '0', '-5', '12.5' ] )(
+		'omits an absent or invalid author_id (%s)',
+		invalid => {
+			const result = normalizeReportParams( {
+				from: FRESH_FROM,
+				to: FRESH_TO,
+				author_id: invalid,
+			} );
+
+			expect( result.author_id ).toBeUndefined();
+		}
+	);
 } );

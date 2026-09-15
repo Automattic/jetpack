@@ -66,6 +66,25 @@ describe( 'useLatestPost', () => {
 		expect( result.current.isError ).toBe( false );
 	} );
 
+	it( 'scopes the content request to the author when one is given', async () => {
+		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
+			if ( path.startsWith( '/wp/v2/posts' ) ) {
+				return Promise.resolve( [
+					{ id: 780, title: { rendered: 'By Priya' }, link: 'https://example.com/p/', date: '' },
+				] );
+			}
+
+			return Promise.resolve( {} );
+		} );
+
+		const { result } = renderHook( () => useLatestPost( 7 ), { wrapper } );
+
+		await waitFor( () => expect( result.current.post?.id ).toBe( 780 ) );
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringMatching( /^\/wp\/v2\/posts\?author=7&/ ) } )
+		);
+	} );
+
 	it( 'returns a null post when the site has no published post', async () => {
 		mockApiFetch.mockImplementation(
 			( { path = '', url = '' }: { path?: string; url?: string } ) => {

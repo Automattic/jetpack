@@ -1,0 +1,10 @@
+{
+	"name": "jpa/author-top-posts",
+	"title": "Top viewed posts",
+	"description": "The most viewed posts of the author being viewed over the selected period.",
+	"help": {
+		"content": "This author's posts, ranked by views in the selected period."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

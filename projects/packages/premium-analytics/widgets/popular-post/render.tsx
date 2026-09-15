@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toAuthorId } from '@jetpack-premium-analytics/data';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -9,6 +10,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
@@ -19,9 +21,9 @@ import { usePopularPost } from './use-popular-post';
 import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// The card reports on its own pinned window and reads nothing from the host's
-// `reportParams`, but the host still injects them and `WidgetRoot` still takes
-// them, so the render type keeps composing the field.
+// On the dashboard the card reports on its own pinned window; the host's
+// `reportParams` only matter on an author detail page, whose `author_id` scopes
+// the pick to that author over the page's range.
 type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParamsFieldAttributes >;
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
@@ -35,7 +37,12 @@ type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
  * spells the aggregation out. Adding one is a design decision, not a defect fix.
  */
 function PopularPostReport() {
-	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost();
+	const { reportParams } = useWidgetRootContext();
+	const authorId = toAuthorId( reportParams.author_id );
+	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost( {
+		authorId,
+		reportParams,
+	} );
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -72,7 +79,9 @@ function PopularPostReport() {
 			} ) }
 			empty={ {
 				icon: trendingUp,
-				description: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
+				description: authorId
+					? __( 'No views of this author’s posts in this period.', 'jetpack-premium-analytics-pkg' )
+					: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
