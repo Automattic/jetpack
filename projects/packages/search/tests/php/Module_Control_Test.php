@@ -84,23 +84,6 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
-	 * `Modules::activate()` no-ops when the module is already active, but only
-	 * after firing the hook — skip the forced check in that case since no
-	 * activation decision is actually being made.
-	 */
-	public function test_refresh_plan_info_before_activation_skips_when_already_active() {
-		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
-
-		$plan = $this->createMock( Plan::class );
-		$plan->expects( $this->never() )->method( 'ensure_plan_info_populated' );
-
-		$module = new Module_Control( $plan );
-		$module->refresh_plan_info_before_activation( Module_Control::JETPACK_SEARCH_MODULE_SLUG );
-
-		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
-	}
-
-	/**
 	 * Test static::$search_module->activate()
 	 */
 	public function test_activate_module_success() {

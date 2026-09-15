@@ -169,7 +169,7 @@ class Module_Control {
 	 * @param string $module Module slug being activated.
 	 */
 	public function refresh_plan_info_before_activation( $module ) {
-		if ( self::JETPACK_SEARCH_MODULE_SLUG !== $module || $this->is_active() ) {
+		if ( self::JETPACK_SEARCH_MODULE_SLUG !== $module ) {
 			return;
 		}
 		if ( ! Helper::is_wpcom() && ! $this->connection_manager->is_connected() ) {
