@@ -23,10 +23,9 @@ export const LoggedIn = () => {
 	}
 
 	const leave = async () => {
-		// A passport lives in an httponly cookie, so the site has to take it back.
-		if ( current.code === null ) {
-			await logOut();
-		}
+		// Always, even on a fresh code with no passport yet: the site takes back
+		// any httponly cookie, and the next popup is told to ask the provider again.
+		await logOut();
 
 		signedIn.value = null;
 		activeService.value = '';
