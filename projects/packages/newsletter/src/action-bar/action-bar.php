@@ -32,7 +32,7 @@ function wpcom_actionbar_enqueue_scripts() {
 	/**
 	 * Filters whether the Action Bar loads on this request.
 	 *
-	 * WordPress.com hooks this to keep the bar off its own internal and special-purpose sites.
+	 * WordPress.com hooks this to keep the bar off its internal sites and off sites marked deleted, spam, archived, or parked.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -43,12 +43,6 @@ function wpcom_actionbar_enqueue_scripts() {
 	}
 
 	$site_id = get_current_blog_id();
-
-	global $current_blog;
-	// Don't show on marked sites.
-	if ( (int) get_blog_status( $site_id, 'deleted' ) || (int) get_blog_status( $site_id, 'spam' ) || (int) get_blog_status( $site_id, 'archived' ) || ! empty( $current_blog->is_parked ) ) {
-		return;
-	}
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only checks on preview query args.
 	// Don't show on theme previews and block patterns source sites.
