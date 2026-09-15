@@ -291,8 +291,9 @@ export default function useVideoMetrics(
 			// one bucket. The server total is canonical when present.
 			const windowBucket = primaryWindow ? { date: primaryWindow.from, ...primaryWindow } : null;
 			const windowRate = windowBucket
-				? playWeightedRetention( rates, playsSeries, [ windowBucket ] ).get( windowBucket.date ) ??
-				  0
+				? ( playWeightedRetention( rates, playsSeries, [ windowBucket ] ).get(
+						windowBucket.date
+					) ?? 0 )
 				: 0;
 			tabs.push( {
 				key: 'retention-rate',

@@ -67,7 +67,9 @@ export default function MediaSectionV2( {
 	);
 	const imageGeneratorSettings = useMemo(
 		() =>
-			isControlled ? imageGeneratorSettingsProp ?? { enabled: false } : storeImageGeneratorSettings,
+			isControlled
+				? ( imageGeneratorSettingsProp ?? { enabled: false } )
+				: storeImageGeneratorSettings,
 		[ isControlled, imageGeneratorSettingsProp, storeImageGeneratorSettings ]
 	);
 	// In controlled mode, use the prop value directly (even if undefined)

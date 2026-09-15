@@ -79,8 +79,8 @@ beforeEach( () => {
 		JSON: url?.includes( 'modules-state' )
 			? window.jetpack_boost_ds!.modules_state!.value
 			: url?.includes( 'dismissed-alerts' )
-			? data?.JSON ?? window.jetpack_boost_ds!.dismissed_alerts!.value
-			: null,
+				? ( data?.JSON ?? window.jetpack_boost_ds!.dismissed_alerts!.value )
+				: null,
 	} ) );
 } );
 

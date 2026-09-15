@@ -193,7 +193,9 @@ export function useRenderMessageInputs(): {
 			 * `_wpas_mess`) when the connection has no per-post override and
 			 * no connection-template default.
 			 */
-			const raw = ctx.isPerNetworkMode ? connection.message ?? siteMessageTemplate : globalMessage;
+			const raw = ctx.isPerNetworkMode
+				? ( connection.message ?? siteMessageTemplate )
+				: globalMessage;
 			return {
 				connection_id: connection.connection_id,
 				message: raw.trim(),

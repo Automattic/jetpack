@@ -33,7 +33,8 @@ const CLICKS_RATE_RESPONSE = {
 };
 
 function routeRateResponse( options: unknown ) {
-	const path = typeof options === 'string' ? options : ( options as { path?: string } )?.path ?? '';
+	const path =
+		typeof options === 'string' ? options : ( ( options as { path?: string } )?.path ?? '' );
 
 	if ( path.includes( '/clicks/emails/' ) ) {
 		return Promise.resolve( CLICKS_RATE_RESPONSE );

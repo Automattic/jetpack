@@ -496,9 +496,8 @@ export default function PlaylistEdit( {
 	// same way the PHP render exposes them on the front end.
 	const fontVariables: Record< string, string > = {};
 	if ( entryTitleFontFamily ) {
-		fontVariables[
-			'--vpp-entry-title-font'
-		] = `var(--wp--preset--font-family--${ entryTitleFontFamily })`;
+		fontVariables[ '--vpp-entry-title-font' ] =
+			`var(--wp--preset--font-family--${ entryTitleFontFamily })`;
 	}
 
 	const blockProps = useBlockProps( {

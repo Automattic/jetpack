@@ -171,7 +171,9 @@ const XyChartTooltipContent = < Datum extends object >( {
 		const size = Number( glyphStyle?.radius ?? DEFAULT_GLYPH_RADIUS );
 		const labelColor = theme?.htmlLabel?.color ?? FALLBACK_COLOR;
 		// visx colours a lone nearest-datum glyph like the gridlines and series glyphs like labels.
-		const fallbackColor = showSeriesGlyphs ? labelColor : theme?.gridStyles?.stroke ?? labelColor;
+		const fallbackColor = showSeriesGlyphs
+			? labelColor
+			: ( theme?.gridStyles?.stroke ?? labelColor );
 		let entries: Array< { key: string; datum: Datum; index: number } > = [];
 		if ( showSeriesGlyphs ) {
 			entries = Object.values( tooltipContext.tooltipData?.datumByKey ?? {} );

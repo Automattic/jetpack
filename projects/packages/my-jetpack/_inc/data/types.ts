@@ -4,11 +4,12 @@ export type CamelCase< S extends string > = S extends `${ infer P1 }-${ infer P2
 		? `${ P1 }${ Uppercase< P2 > }${ CamelCase< P3 > }`
 		: S;
 
-export type ToCamelCase< T > = T extends Array< infer U >
-	? Array< ToCamelCase< U > >
-	: T extends object
-	? { [ K in keyof T as CamelCase< string & K > ]: ToCamelCase< T[ K ] > }
-	: T;
+export type ToCamelCase< T > =
+	T extends Array< infer U >
+		? Array< ToCamelCase< U > >
+		: T extends object
+			? { [ K in keyof T as CamelCase< string & K > ]: ToCamelCase< T[ K ] > }
+			: T;
 
 export type BackupCountStats = {
 	total_post_count: number;

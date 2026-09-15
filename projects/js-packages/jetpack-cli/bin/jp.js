@@ -683,14 +683,12 @@ const main = async () => {
 				}
 
 				// Load versions from .github/versions.sh if not already set
-				if (
-					! (
-						envVars.PHP_VERSION &&
-						envVars.COMPOSER_VERSION &&
-						envVars.NODE_VERSION &&
-						envVars.PNPM_VERSION
-					)
-				) {
+				if ( ! (
+					envVars.PHP_VERSION &&
+					envVars.COMPOSER_VERSION &&
+					envVars.NODE_VERSION &&
+					envVars.PNPM_VERSION
+				) ) {
 					const versionsPath = resolve( monorepoRoot, '.github/versions.sh' );
 					const versions = fs.readFileSync( versionsPath, 'utf8' );
 					const versionVars = {};
