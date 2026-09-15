@@ -50,8 +50,10 @@
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-stats-plugin",
 		"release-branch-prefix": "stats",
-		"beta-plugin-slug": "jetpack-stats",
+		"wp-plugin-slug": "jetpack-stats",
+		"wp-svn-autopublish": true,
 		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-stats-plugin/compare/${old}...${new}",
 			"versioning": "semver"
 		},
 		"version-constants": {
