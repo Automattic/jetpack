@@ -59,6 +59,12 @@ function wrapper( { children }: PropsWithChildren ) {
 	return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
 }
 
+function getBars( chart: HTMLElement ) {
+	// SVG bars do not expose an accessible role.
+
+	return chart.querySelectorAll( '.visx-bar' );
+}
+
 beforeAll( () => {
 	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockReturnValue( {
 		x: 0,
@@ -117,9 +123,7 @@ test( 'renders thirty daily bars for each device using score band colours and em
 				const chart = within(
 					screen.getByRole( 'region', { name: `${ device } score history` } )
 				).getByTestId( 'bar-chart' );
-				// SVG bars do not expose an accessible role.
-				// eslint-disable-next-line testing-library/no-node-access
-				const renderedBars = chart.querySelectorAll( '.visx-bar' );
+				const renderedBars = getBars( chart );
 				expect( renderedBars ).toHaveLength( 30 );
 				return renderedBars;
 			},
@@ -150,9 +154,7 @@ test( 'retains a recorded zero and its poor-score colour rather than treating it
 	);
 	const chart = within( screen.getByRole( 'region', { name: 'Desktop score history' } ) );
 	await waitFor( () => {
-		// SVG bars do not expose an accessible role.
-		// eslint-disable-next-line testing-library/no-node-access
-		const bar = chart.getByTestId( 'bar-chart' ).querySelector( '.visx-bar' );
+		const bar = getBars( chart.getByTestId( 'bar-chart' ) )[ 0 ];
 		expect( bar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 	} );
 	fireEvent.keyDown( chart.getByRole( 'grid' ), { key: 'ArrowRight' } );
