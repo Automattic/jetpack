@@ -170,6 +170,8 @@ export {
 	WidgetDataTable,
 	type WidgetDataTableProps,
 	EARNINGS_HISTORY_VIEW,
+	EarningsHistoryList,
+	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
 	getEarningsStatus,
 	getWordAdsHistoryFields,
