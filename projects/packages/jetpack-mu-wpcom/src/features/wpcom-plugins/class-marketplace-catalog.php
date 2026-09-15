@@ -22,7 +22,7 @@ class Marketplace_Catalog {
 	 * Bumped whenever the shape of a cached card or description changes, so sites
 	 * do not keep serving data built by the previous version until it expires.
 	 */
-	const CACHE_VERSION = 3;
+	const CACHE_VERSION = 4;
 
 	/**
 	 * Transient holding the normalized product list.
@@ -331,6 +331,7 @@ class Marketplace_Catalog {
 			'wpcom_product_slug' => $product_slug,
 			'wpcom_variations'   => self::to_variation_ids( $product['variations'] ?? null ),
 			'wpcom_pricing'      => array(),
+			'wpcom_saving'       => 0,
 		);
 	}
 
@@ -363,8 +364,12 @@ class Marketplace_Catalog {
 			}
 
 			$store[ (int) $product['product_id'] ] = array(
-				'slug'  => (string) $slug,
-				'price' => (string) ( $product['cost_display'] ?? '' ),
+				'slug'          => (string) $slug,
+				'price'         => (string) ( $product['cost_display'] ?? '' ),
+				// Already formatted for the site's currency, so a yearly price can be read
+				// per month without us dividing and formatting money ourselves.
+				'price_monthly' => (string) ( $product['cost_per_month_display'] ?? '' ),
+				'cost'          => isset( $product['cost'] ) ? (float) $product['cost'] : 0.0,
 			);
 		}
 
@@ -389,9 +394,32 @@ class Marketplace_Catalog {
 			}
 
 			$products[ $slug ]['wpcom_pricing'] = $pricing;
+			$products[ $slug ]['wpcom_saving']  = self::yearly_saving( $pricing );
 		}
 
 		return $products;
+	}
+
+	/**
+	 * How much cheaper a year is than twelve months, as a whole percentage.
+	 *
+	 * Worth showing because it is not a flat discount: across the catalog it runs from
+	 * nothing at all to a third off, so the number is the only honest way to say it.
+	 *
+	 * @param array $pricing Resolved pricing, keyed by term.
+	 * @return int Percentage saved, or 0 when there is nothing to compare or nothing saved.
+	 */
+	public static function yearly_saving( array $pricing ) {
+		$yearly  = (float) ( $pricing['yearly']['cost'] ?? 0 );
+		$monthly = (float) ( $pricing['monthly']['cost'] ?? 0 );
+
+		if ( $yearly <= 0 || $monthly <= 0 ) {
+			return 0;
+		}
+
+		$saving = (int) round( ( 1 - $yearly / ( $monthly * 12 ) ) * 100 );
+
+		return max( 0, $saving );
 	}
 
 	/**
