@@ -66,7 +66,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Maximum number of option groups (variant dimensions) per product.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @var int
 	 */
@@ -75,7 +75,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Maximum number of options per option group.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @var int
 	 */
@@ -499,7 +499,7 @@ class PayPal_Attribute_Mapper {
 	 * PayPal rejects a decimal amount in these currencies outright rather than
 	 * rounding it. The legacy currency table already records which they are.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $currency ISO currency code.
 	 * @return bool True for JPY, HUF and TWD.
@@ -515,7 +515,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * The message for a price PayPal would not accept in the given currency.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $currency ISO currency code.
 	 * @return string Translated message.
@@ -564,7 +564,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Find the currency the per-option prices are in.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array|null $variants Variants structure (block or API shape).
 	 * @return string|null The first priced option's currency code, or null when none is priced.
@@ -589,7 +589,7 @@ class PayPal_Attribute_Mapper {
 	 * Once any option in the primary dimension has its own amount, the
 	 * product-level amount must be omitted.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array|null $variants Variants structure (block or API shape).
 	 * @return bool True when at least one option carries its own amount.
@@ -620,7 +620,7 @@ class PayPal_Attribute_Mapper {
 	 * Mirrors what sanitize_variants() discards, so a save cannot pass
 	 * validation on options that are then dropped before reaching PayPal.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array $variants Variants structure (block or API shape).
 	 * @return true|WP_Error True when valid, WP_Error otherwise.
@@ -677,7 +677,7 @@ class PayPal_Attribute_Mapper {
 	 * all-or-nothing: every option in the primary dimension must carry a
 	 * valid amount once any of them does.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array|null $variants Variants structure (block or API shape).
 	 * @param string     $currency ISO currency code the option prices are in.

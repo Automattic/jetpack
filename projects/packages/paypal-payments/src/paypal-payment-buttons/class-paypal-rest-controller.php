@@ -842,7 +842,7 @@ class PayPal_REST_Controller {
 	 * Used when a line item has no product-level `unit_amount` because its
 	 * options carry their own prices.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array $variants Variants structure from the request.
 	 * @return string The currency code, defaulting to USD.

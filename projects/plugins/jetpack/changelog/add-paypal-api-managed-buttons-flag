@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Add a feature flag for the API-managed PayPal payment buttons, off by default.
-
-

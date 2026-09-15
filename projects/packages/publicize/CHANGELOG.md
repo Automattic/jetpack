@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.86.3] - 2026-09-14
+### Changed
+- Hide the Social sidebar item when Social is not active. [#52156]
+- Update package dependencies. [#52200] [#52297]
+
+### Fixed
+- Link preview: Remove Nextdoor and keep the remaining service icons on one row. [#52082]
+
 ## [0.86.2] - 2026-09-09
 ### Changed
 - Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
@@ -1638,6 +1646,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.86.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.86.2...v0.86.3
 [0.86.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.86.1...v0.86.2
 [0.86.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.86.0...v0.86.1
 [0.86.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.85.1...v0.86.0

@@ -66,7 +66,7 @@ class PayPal_Payment_Buttons {
 	 * Feature flag gating the API-managed buttons: the connection wizard, the
 	 * wpcom/v2/paypal REST routes, and the Payment Links admin page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @var string
 	 */
 	public const API_MANAGED_BUTTONS_FLAG = 'paypal-payments-api-managed-buttons';
@@ -74,7 +74,7 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Front-end style handle, registered by `register_block_style()`.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @var string
 	 */
 	public const STYLE_HANDLE = 'jetpack-block-paypal-payment-buttons';
@@ -85,7 +85,7 @@ class PayPal_Payment_Buttons {
 	 * Call it from every bootstrap before `init`, so the flag exists on every
 	 * request type that reads it (REST, admin, WP-CLI).
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @return void
 	 */
 	public static function register_feature_flags() {
@@ -105,7 +105,7 @@ class PayPal_Payment_Buttons {
 	 * Rendering is deliberately not gated on this: a button created while the
 	 * flag was on must keep rendering after it is turned off.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @return bool
 	 */
 	public static function is_api_managed_enabled() {
@@ -118,7 +118,7 @@ class PayPal_Payment_Buttons {
 	 * Jetpack hooks this on `jetpack_block_editor_feature_flags`; the standalone
 	 * plugin calls it while building its own editor state.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array $flags Feature flags keyed by name.
 	 * @return array
@@ -653,7 +653,7 @@ class PayPal_Payment_Buttons {
 	 * attributed to us. `add_query_arg()` replaces an existing `at_code`, so
 	 * this is safe to apply to a URL that already has one.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $url A PayPal payment URL.
 	 * @return string The URL with the attribution code, or the original URL if it isn't a PayPal URL.
@@ -675,7 +675,7 @@ class PayPal_Payment_Buttons {
 	 * second time, so the block takes this handle as its `style` arg. Both bootstraps
 	 * call it.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @return void
 	 */
 	public static function register_block_style() {
@@ -1076,7 +1076,7 @@ class PayPal_Payment_Buttons {
 	 * PayPal only prices the primary dimension, so an amount left on any other
 	 * dimension is not a price a buyer can pay and must not become the headline.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array|null $variants Variants structure from the block attributes.
 	 * @return string|null The lowest option price, or null when none are priced.
@@ -1315,7 +1315,7 @@ class PayPal_Payment_Buttons {
 	 * Register just the PayPal REST routes -- the subset the Jetpack loader uses,
 	 * without init_api()'s sharing and email-sender hookups.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @return void
 	 */
 	public static function init_rest_api() {
@@ -1328,7 +1328,7 @@ class PayPal_Payment_Buttons {
 	 * The flag is read here rather than in init_rest_api() so a filter added
 	 * after the bootstrap ran still decides.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @return void
 	 */
 	public static function register_rest_routes() {
@@ -1347,7 +1347,7 @@ class PayPal_Payment_Buttons {
 	 * Sharedaddy module is not active.
 	 *
 	 * @since 0.9.0
-	 * @since $$next-version$$ Public, runs on `init`, and no-ops unless the API-managed buttons are enabled.
+	 * @since 0.9.0 Public, runs on `init`, and no-ops unless the API-managed buttons are enabled.
 	 * @return void
 	 */
 	public static function init_jetpack_sharing() {
@@ -1398,7 +1398,7 @@ class PayPal_Payment_Buttons {
 	 * all merchant payment links from wp-admin.
 	 *
 	 * @since 0.9.0
-	 * @since $$next-version$$ Defers to `init` and no-ops unless the API-managed buttons are enabled.
+	 * @since 0.9.0 Defers to `init` and no-ops unless the API-managed buttons are enabled.
 	 */
 	public static function init_admin() {
 		add_action(

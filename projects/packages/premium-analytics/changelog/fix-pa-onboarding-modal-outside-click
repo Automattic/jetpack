@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Onboarding: keep the welcome modal open on a click outside it, so the tour can still be started.

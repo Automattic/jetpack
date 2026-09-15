@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.3.0] - 2026-09-14
+### Added
+- Add a plan-free `is_activated()` check to the product classes and resolve Jetpack sidebar menu visibility from it, so a menu item follows whether the product is switched on without a request to WordPress.com. [#52102]
+
+### Changed
+- Name the Jetpack Manage sidebar item so hosts can address it in the menu visibility filter. [#52156]
+- Update package dependencies. [#52297]
+
 ## [6.2.2] - 2026-09-14
 ### Changed
 - Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com. [#51504]
@@ -2907,6 +2915,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.2...6.3.0
 [6.2.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.1...6.2.2
 [6.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.0...6.2.1
 [6.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.1.0...6.2.0

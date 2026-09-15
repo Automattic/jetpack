@@ -1619,7 +1619,7 @@ class Error_Handler {
 	 * reads the raw autoloaded set, so it is unaffected by option_* filters and adds
 	 * no query.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param string $option  The error option name.
 	 * @param bool   $deleted Whether delete_option() found and removed a DB row.

@@ -2,6 +2,61 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.3-a.1 - 2026-09-14
+### Enhancements
+- Admin Menu: Hide a Jetpack sidebar item when its feature is turned off. [#52156]
+- AI: Load the "Scheduled tasks" tab only when it is opened, cutting the AI page script by two thirds. [#51969]
+- Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com. [#51504]
+- Likes: Guide block-theme users from legacy Like buttons to the Like block in Jetpack Settings and My Jetpack. [#52198] [#52205]
+- Newsletter: Add a "Freshly Pressed" tab to the Daily Writing Prompt dashboard widget, listing the posts WordPress.com is currently featuring. [#52077]
+- Newsletter: Add an Overview dashboard for getting started and finding guides. [#52119]
+- Notices: Render Jetpack admin notices with the WordPress design system Notice component. [#52015]
+- VideoPress: Add a "Learn more" support link to the admin page. [#52111]
+- VideoPress: Use the shared in-page player for the `[videopress]` shortcode, video blocks and embeds on sites that return `false` from the `jetpack_videopress_player_use_iframe` filter, instead of one inline script per video. [#52242]
+
+### Bug fixes
+- Admin: Match the Jetpack menu logo's first paint to the active admin color scheme. [#52086]
+- Charts: Stop the first and last dates on a chart's horizontal axis from being cut off. [#52112]
+- Connection: Fix a stale connection error notice that could persist on healthy sites. [#52264]
+- Connection: Hide connection error notices from users who cannot fix the connection. [#52049]
+- Editor: Stop offering to activate the legacy Likes and Sharing buttons modules on block themes, where the corresponding blocks should be added to a template instead. [#52182]
+- Forms: Prevent extra forms from being created when the block placeholder is clicked more than once. [#52099]
+- Goodreads: Fix the block rendering empty on the front end of WordPress.com Simple sites. [#52228]
+- Likes: Hide the "Loading…" placeholder from the widget itself, so it disappears even when the Likes stylesheet fails to load. [#52154]
+- Likes: Load like buttons that a late page reflow brings into view, instead of waiting for the reader to scroll. [#52144]
+- My Jetpack: Offer to activate Search, rather than to buy a plan, when the site already owns it and the module is switched off. [#52008]
+- Reader: Show the body of a reposted comment instead of an empty quote. [#51903]
+- Search: Fix a leaked scroll handler in Instant Search that could trigger stray page loads after several searches. [#51913]
+- Sharing: Open the post template instead of the template list when linking to the Site Editor. [#52203]
+- Sharing Buttons block: Use an unpredictable name for share popups, matching the classic sharing buttons. [#52292]
+- VideoPress: Fix selecting thumbnail frames from private videos and prefer browser-compatible video renditions. [#52158]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Forms: Deprecate the `jetpack_forms_alpha` filter, which no longer selects anything. [#51395]
+- Map block: Ensure the WordPress.com Mapbox key load tracking event is recorded on Simple sites. [#52122]
+- Newsletter: Add the email design screen behind a feature flag, which saves the design to WordPress.com and runs in fullscreen. [#52055] [#52147] [#52164]
+- PayPal Payment Buttons: Add API-managed payment buttons behind a feature flag that is not yet enabled. [#52210]
+- PayPal Payment Buttons: Choose a "Button", "Link", or "QR" format, see it in the editor canvas as it will look when published, and style each format in a new "Styles" tab - colors, "Fill" or "Outline", text size, width and border. [#52210] [#51656]
+- PayPal Payment Buttons: Connect a PayPal account from WordPress in PayPal's onboarding window, with "Connect with PayPal" on WordPress.com and Jetpack-connected sites and the API credentials step on sites with no WordPress.com connection. Show that PayPal is disconnected with a "Reconnect" button, and say that disconnecting applies to the whole site. [#51656]
+- PayPal Payment Buttons: Create and manage payment links without leaving the editor, creating and updating the payment when the post is saved and removing it when the post is saved without the block. [#52224] [#51656]
+- PayPal Payment Buttons: Fix "Connect with PayPal" always failing with "Request is not well-formed, syntactically incorrect, or violates schema." [#51656]
+- PayPal Payment Buttons: Fix "Connect with PayPal" failing with a 404, and create the onboarding referral through WordPress.com so PayPal platform credentials never reach the site. [#51656]
+- PayPal Payment Buttons: Give product options their own prices, shown on the published page, and accept only whole-number prices in Japanese yen, Hungarian forint and New Taiwan dollar. [#51656]
+- PayPal Payment Buttons: Log a notice when stored PayPal credentials cannot be decrypted and are removed, instead of removing them silently. [#51656]
+- Premium Analytics: Add a map of views by location to the Locations report, with an option to hide it. [#51808]
+- Premium Analytics: Ask whether the new "Traffic" tab is ready to replace the old one, in the feedback modal and when switching it off, and point to the "Modules Visibility" setting to switch it back on. Show the "Skip tour" button on every step of the onboarding tour, and tell readers where their feedback went. [#52186] [#52109] [#52140] [#52107]
+- Premium Analytics: Fit highlight tiles to their widget's width, with "Most popular time" and "Most popular day" side by side where they fit, and show the exact number on hover behind abbreviated figures. Retitle the Popular post card to "Most popular in the last year" and note in the Traffic summary help that the "Visitors" total is a per-period sum. [#52258] [#52085] [#52254] [#52219] [#52177]
+- Premium Analytics: Keep the dialog focus ring from being clipped by the dialog footer. [#52110]
+- Premium Analytics: Keep the onboarding welcome modal open on a click outside it, so the tour can still be started. [#52095]
+- Premium Analytics: Keep the same calendar dates when comparing a range starting on the 1st with the previous year, so "Year to date" in a leap year starts on 1 January rather than 31 December. [#52215]
+- Premium Analytics: Move the dashboard's "Customize" button into the page options menu, with "Reset to default" beside "Cancel" and "Done", and hide the date controls while customizing. [#52176] [#52192]
+- Premium Analytics: Offer common date periods, adding "Month to date" and "Year to date", and build the custom range calendar on the WordPress design system with "Cancel" and "Apply" at the bottom. Remove "Last 90 days", "Last 365 days", "Last year" and the arrows that stepped the date range. [#52088] [#52090] [#52116] [#52124] [#52108]
+- Premium Analytics: On the post, page and video detail pages, offer every period the dashboard's date picker does, plus a custom range. [#52087]
+- Premium Analytics: Rearrange the default Ads and Subscribers widgets for the three-column grid, with "Subscriber highlights" shown by default. Remove "Total views", "Total visitors", "Popular days" and "Popular hours" from the default Insights layout and widget picker for now, and the year filter and interval dropdown from the Insights header. [#52232] [#52216] [#52175] [#52231]
+- Premium Analytics: Replace the post detail heatmap with an "All-time traffic" card of monthly views, with a "Totals" column and a "Total views" / "Daily average" switch. Draw the post and video detail charts as bars by default, and offer feedback, the preview opt-out and "Reset to default" there too. [#52127] [#52137] [#52174] [#52190] [#52118]
+- SEO: Return saved site verification codes from the site settings API. [#52089]
+- Update package dependencies. [#52297]
+
 ## 16.2 - 2026-09-10
 ### Enhancements
 - AI: Add an AI SEO control to the AI settings page. The AI sidebar's SEO suggestions follow it, separately from the automatic-generation setting. [#51380]

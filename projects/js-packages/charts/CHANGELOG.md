@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.1] - 2026-09-14
+### Changed
+- Update package dependencies. [#52297]
+
 ## [4.1.0] - 2026-09-14
 ### Added
 - Heatmap: add `locale` and `timeZone` options and a `useCalendarHeatmapData` hook, so a host can bucket and label the calendar in its own zone and language instead of the viewer's. Labels with no `locale` now follow the runtime locale rather than always rendering in English, and a calendar `dateString` must start `yyyy-MM-dd`. [#52114]
@@ -1063,6 +1067,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.1.1]: https://github.com/Automattic/charts/compare/v4.1.0...v4.1.1
 [4.1.0]: https://github.com/Automattic/charts/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Automattic/charts/compare/v3.2.0...v4.0.0
 [3.2.0]: https://github.com/Automattic/charts/compare/v3.1.1...v3.2.0

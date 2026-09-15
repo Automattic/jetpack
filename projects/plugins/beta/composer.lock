@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "837c6b31572fd86b6efdc9c90a34abedb97c113a"
+                "reference": "23eaa0573e92a9aacd3f3d3666fd3d161562b1cc"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -38,7 +38,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Show the exact number on hover behind abbreviated figures, and abbreviate with one decimal where it fits (1.2K, 54.3K, 234K).
