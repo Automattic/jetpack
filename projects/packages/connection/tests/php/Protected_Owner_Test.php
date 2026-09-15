@@ -1037,4 +1037,158 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertSame( $before['confirmed_at'], $after['confirmed_at'] );
 		$this->assertSame( $before['confirmed_by'], $after['confirmed_by'] );
 	}
+	// ── verify_protected_owner ───────────────────────────────────────────
+
+	/**
+	 * Build a Manager whose WordPress.com lookup is stubbed.
+	 *
+	 * @param mixed $response What `verify_protected_owner()` should see back, or null for an error.
+	 * @return \PHPUnit\Framework\MockObject\MockObject|Manager
+	 */
+	private function verifying_manager( $response ) {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'query_protected_owner_record' ) )
+			->getMock();
+		$manager->method( 'query_protected_owner_record' )->willReturn( $response );
+
+		return $manager;
+	}
+
+	/**
+	 * A record agreeing with the anchor confirms the lock.
+	 */
+	public function test_verification_locks_an_anchor_wpcom_agrees_with() {
+		$this->anchor();
+		$manager = $this->verifying_manager(
+			array(
+				'has_owner'     => true,
+				'matches'       => true,
+				'is_caller'     => true,
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		);
+
+		$this->assertTrue( $manager->verify_protected_owner() );
+		$this->assertTrue( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * An unreachable WordPress.com unlocks rather than trusting what is stored. A site that cannot
+	 * confirm who owns it must not be running anything that pays out.
+	 */
+	public function test_an_unreachable_wpcom_unlocks_the_anchor() {
+		$this->anchor();
+		$manager = $this->verifying_manager( null );
+
+		$this->assertFalse( $manager->verify_protected_owner() );
+		$this->assertFalse( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * Failing closed does not forget: the identity and provenance survive, so restoring the lock
+	 * later costs nothing and the owner is not asked to confirm again.
+	 */
+	public function test_failing_closed_keeps_the_record_intact() {
+		$this->anchor();
+		$before = Protected_Owner::get();
+
+		$this->verifying_manager( null )->verify_protected_owner();
+		$after = Protected_Owner::get();
+
+		$this->assertIsArray( $before );
+		$this->assertIsArray( $after );
+		$this->assertSame( $before['wpcom_user_id'], $after['wpcom_user_id'] );
+		$this->assertSame( $before['confirmed_at'], $after['confirmed_at'] );
+		$this->assertSame( $before['confirmed_by'], $after['confirmed_by'] );
+	}
+
+	/**
+	 * A suspended anchor locks again once WordPress.com can confirm it.
+	 */
+	public function test_a_suspended_anchor_locks_again_when_wpcom_confirms() {
+		$this->anchor();
+		$this->verifying_manager( null )->verify_protected_owner();
+
+		$manager = $this->verifying_manager(
+			array(
+				'has_owner'     => true,
+				'matches'       => true,
+				'is_caller'     => true,
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		);
+
+		$this->assertTrue( $manager->verify_protected_owner() );
+		$this->assertTrue( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * WordPress.com having no record clears the anchor outright. Support clearing it at that end is
+	 * how a wrongly anchored site recovers, so the site must not keep gating on its own copy.
+	 */
+	public function test_no_record_at_wpcom_clears_the_anchor() {
+		$this->anchor();
+		$manager = $this->verifying_manager(
+			array(
+				'has_owner'     => false,
+				'matches'       => false,
+				'is_caller'     => false,
+				'wpcom_user_id' => 0,
+			)
+		);
+
+		$this->assertFalse( $manager->verify_protected_owner() );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * A record naming somebody else outranks the local anchor.
+	 */
+	public function test_a_record_naming_another_account_unlocks_the_anchor() {
+		$this->anchor();
+		$manager = $this->verifying_manager(
+			array(
+				'has_owner'     => true,
+				'matches'       => false,
+				'is_caller'     => false,
+				'wpcom_user_id' => 0,
+			)
+		);
+
+		$manager->verify_protected_owner();
+
+		$this->assertFalse( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * A secondary user connecting verifies the anchor just as the owner would. WordPress.com
+	 * confirms the anchored identity rather than naming its owner, so the answer does not depend on
+	 * who is asking — otherwise a contributor linking their account would unlock the site.
+	 */
+	public function test_a_secondary_user_connecting_does_not_unlock_the_anchor() {
+		$this->anchor();
+		$manager = $this->verifying_manager(
+			array(
+				'has_owner'     => true,
+				'matches'       => true,
+				'is_caller'     => false,
+				'wpcom_user_id' => 0,
+			)
+		);
+
+		$this->assertTrue( $manager->verify_protected_owner() );
+		$this->assertTrue( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * A site with no anchor has nothing to reconcile and asks nothing.
+	 */
+	public function test_verification_does_nothing_without_an_anchor() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'query_protected_owner_record' ) )
+			->getMock();
+		$manager->expects( $this->never() )->method( 'query_protected_owner_record' );
+
+		$this->assertFalse( $manager->verify_protected_owner() );
+	}
 }

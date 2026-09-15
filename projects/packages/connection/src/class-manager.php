@@ -189,6 +189,7 @@ class Manager {
 
 		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' ), 10, 2 );
 		add_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
+		add_action( 'jetpack_user_authorized', array( $manager, 'verify_protected_owner' ), 11 );
 
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
@@ -1455,6 +1456,83 @@ class Manager {
 			'status'                 => $status,
 			'is_current_user_the_po' => $is_current_user_the_po,
 		);
+	}
+
+	/**
+	 * Reconcile the local anchor against WordPress.com, which is the owner of record.
+	 *
+	 * The gate is a pure local read, so nothing else keeps the anchor honest: it is written once
+	 * when the owner confirms and never looked at again. This runs at connect, when the site has a
+	 * fresh user token and an answer is cheap, and makes WordPress.com's record win.
+	 *
+	 * Fails closed, without forgetting. An unreachable WordPress.com, a non-200, or a method this
+	 * end does not implement all unlock the anchor rather than trusting it — a site that cannot
+	 * confirm who owns it must not be running anything that pays out. The anchor keeps the identity
+	 * and provenance, so a later verification restores the lock without the owner confirming again.
+	 *
+	 * @internal Hooked on `jetpack_user_authorized`, after promote-on-connect.
+	 * @since $$next-version$$
+	 *
+	 * @return bool Whether the anchor is verified and locked.
+	 */
+	public function verify_protected_owner() {
+		$anchor = Protected_Owner::get();
+
+		if ( ! $anchor ) {
+			return false;
+		}
+
+		$record = $this->query_protected_owner_record( (int) $anchor['wpcom_user_id'] );
+
+		// Unreachable, refused, or answered by a WordPress.com that does not implement the method:
+		// all three are "cannot confirm", and none of them is a reason to keep trusting the anchor.
+		if ( ! is_array( $record ) || ! isset( $record['has_owner'] ) ) {
+			Protected_Owner::set_locked( false );
+			return false;
+		}
+
+		// WordPress.com no longer has an owner of record, so neither does this site. Support
+		// clearing it at that end is exactly how a wrongly anchored site is meant to recover.
+		if ( ! $record['has_owner'] ) {
+			Protected_Owner::clear();
+			return false;
+		}
+
+		// WordPress.com confirms the anchored identity rather than naming the owner, so the answer
+		// is the same whoever is connecting. Anything else outranks what is stored here.
+		if ( empty( $record['matches'] ) ) {
+			Protected_Owner::set_locked( false );
+			return false;
+		}
+
+		Protected_Owner::set_locked( true );
+
+		return true;
+	}
+
+	/**
+	 * Ask WordPress.com who owns this site.
+	 *
+	 * Split from `verify_protected_owner()` so the decision it drives can be exercised without a
+	 * network, which is the half worth testing: every branch of it changes whether a site gates a
+	 * live feature.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $anchored_wpcom_user_id The identity this site has anchored, for confirmation.
+	 * @return array|null The record, or null when WordPress.com could not answer.
+	 */
+	protected function query_protected_owner_record( $anchored_wpcom_user_id ) {
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$xml->query( 'jetpack.getProtectedOwner', array( 'anchored_wpcom_user_id' => $anchored_wpcom_user_id ) );
+
+		if ( $xml->isError() ) {
+			return null;
+		}
+
+		$response = $xml->getResponse();
+
+		return is_array( $response ) ? $response : null;
 	}
 
 	/**
