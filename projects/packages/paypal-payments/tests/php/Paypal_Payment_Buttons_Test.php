@@ -522,6 +522,30 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * A link deleted through this site would only send buyers to PayPal's "not found" page.
+	 */
+	public function test_render_block_renders_nothing_for_a_deleted_link() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-GONE1',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-GONE1',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+		);
+		$this->set_up_block_render_context( $attributes );
+		PayPal_API_Client::remember_deleted_resource( 'PLB-GONE1' );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button', $result );
+		$this->assertStringNotContainsString( 'PLB-GONE1', $result );
+		$this->assertStringContainsString( '<!-- PayPal payment link deleted -->', $result );
+
+		delete_option( PayPal_API_Client::DELETED_RESOURCES_OPTION );
+	}
+
+	/**
 	 * Test that render_block omits product image when imageUrl is not set.
 	 */
 	public function test_render_block_omits_product_image_when_not_set() {

@@ -242,6 +242,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		setError,
 		successMessage,
 		setSuccessMessage,
+		linkDeleted,
 		handleDeleteButton,
 		executeDeleteButton,
 	} = usePayPalResource( {
@@ -895,6 +896,15 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				</div>
 
 				{ disconnectedNotice }
+
+				{ linkDeleted && (
+					<Notice status="warning" isDismissible={ false }>
+						{ __(
+							'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
+							'jetpack-paypal-payments'
+						) }
+					</Notice>
+				) }
 
 				{ error && (
 					<Notice status="error" isDismissible onDismiss={ () => setError( null ) }>
