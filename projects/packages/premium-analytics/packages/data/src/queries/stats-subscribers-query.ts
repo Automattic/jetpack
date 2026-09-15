@@ -88,6 +88,15 @@ export const statsSubscribersDaysAgoQuery = (
 		date: format( subDays( localTZDate(), daysAgo ), 'yyyy-MM-dd' ),
 	} );
 
+export const statsMembershipProductsQuery = (): StatsReportQueryOptions< 'membershipProducts' > =>
+	statsProxyQuery( {
+		name: 'membership-products',
+		version: '2',
+		endpoint: 'memberships/products',
+		params: { type: 'all', is_editable: 'true' },
+		sanitizer: 'membershipProducts',
+	} );
+
 export const statsSubscribersCountsQuery = (
 	params: StatsSubscribersCountsParams = {}
 ): StatsReportQueryOptions< 'subscribersCounts' > =>

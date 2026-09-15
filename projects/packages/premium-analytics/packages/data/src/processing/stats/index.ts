@@ -60,6 +60,7 @@ export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
 export { sanitizeStatsFollowersResponse } from './followers';
 export { sanitizeStatsCommentsResponse, selectStatsCommentsRows } from './comments';
 export {
+	sanitizeStatsMembershipProductsResponse,
 	sanitizeStatsSubscribersResponse,
 	sanitizeStatsSubscribersCountsResponse,
 } from './subscribers';
@@ -149,6 +150,7 @@ export type {
 	StatsCommentsRow,
 } from './comments';
 export type {
+	StatsMembershipProducts,
 	StatsSubscribersCounts,
 	StatsSubscribersCountsRawResponse,
 	StatsSubscribersDataPoint,
