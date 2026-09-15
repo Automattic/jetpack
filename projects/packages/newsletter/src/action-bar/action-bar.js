@@ -4,8 +4,12 @@
  * Reads its config from `window.actionbardata`, localized by action-bar.php.
  */
 ( function () {
-	const wpcom = window.wpcom || {};
-	wpcom.actionbar = {};
+	// A second run would double-bind every listener, and reads the same config and DOM.
+	if ( window.wpcom && window.wpcom.actionbar && window.wpcom.actionbar.initialized ) {
+		return;
+	}
+	const wpcom = ( window.wpcom = window.wpcom || {} );
+	wpcom.actionbar = { initialized: true };
 	wpcom.actionbar.data = window.actionbardata;
 
 	const fbd = wpcom.actionbar.data;
@@ -735,6 +739,22 @@
 
 		openFollowBubble();
 	}
+
+	/**
+	 * Show Subscribe or Subscribed from `fbd.isFollowing`, when it is set.
+	 *
+	 * wpcom patches it into the data after a batcached, logged-out page loads for a logged-in
+	 * visitor, before or after this script runs, and then dispatches `actionbardata-updated`.
+	 */
+	function syncFollowState() {
+		if ( ! Object.prototype.hasOwnProperty.call( fbd, 'isFollowing' ) || ! follow || ! unfollow ) {
+			return;
+		}
+		follow.classList.toggle( 'no-display', !! fbd.isFollowing );
+		unfollow.classList.toggle( 'no-display', ! fbd.isFollowing );
+	}
+	syncFollowState();
+	window.addEventListener( 'actionbardata-updated', syncFollowState );
 
 	// Message from the subscribe.wordpress.com redirect, once every handler above exists.
 	if ( fbd.statusMessage ) {
