@@ -83,6 +83,74 @@ class Protected_Owner {
 	}
 
 	/**
+	 * Point the anchor's cached local user ID at a different local user.
+	 *
+	 * The match key is `wpcom_user_id`; `local_user_id` is a cache of where that identity lives on
+	 * this site, and it legitimately moves when the owner reconnects under another local account.
+	 * Deliberately narrow: `confirmed_at` and `confirmed_by` record how the owner was originally
+	 * confirmed, and re-pointing a cache is not a new confirmation.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $local_user_id The local user the anchored identity now holds.
+	 * @return bool Whether the anchor now names that local user.
+	 */
+	public static function repoint( $local_user_id ) {
+		$local_user_id = absint( $local_user_id );
+		$anchor        = self::get();
+
+		if ( ! $anchor || ! $local_user_id ) {
+			return false;
+		}
+
+		if ( (int) $anchor['local_user_id'] === $local_user_id ) {
+			return true;
+		}
+
+		$anchor['local_user_id'] = $local_user_id;
+
+		if ( Jetpack_Options::update_option( self::OPTION, $anchor ) ) {
+			return true;
+		}
+
+		return Jetpack_Options::get_option( self::OPTION ) === $anchor;
+	}
+
+	/**
+	 * Lock or unlock the anchor without disturbing what it records.
+	 *
+	 * Unlocking is how a site fails closed without forgetting: the anchor keeps the identity and
+	 * the provenance of the original claim, and only stops counting as protection. A later
+	 * verification can restore the lock without asking the owner to confirm all over again.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $locked Whether the anchor should protect its owner.
+	 * @return bool Whether the anchor is now in that state.
+	 */
+	public static function set_locked( $locked ) {
+		$anchor = self::get();
+
+		if ( ! $anchor ) {
+			return false;
+		}
+
+		$locked = (bool) $locked;
+
+		if ( ! empty( $anchor['locked'] ) === $locked ) {
+			return true;
+		}
+
+		$anchor['locked'] = $locked;
+
+		if ( Jetpack_Options::update_option( self::OPTION, $anchor ) ) {
+			return true;
+		}
+
+		return Jetpack_Options::get_option( self::OPTION ) === $anchor;
+	}
+
+	/**
 	 * Drop the anchor, unlocking ownership.
 	 *
 	 * Leaves `master_user` alone: clearing the lock does not change who the owner is.

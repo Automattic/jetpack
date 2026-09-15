@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a protected owner state resolver explaining why the gate is closed.

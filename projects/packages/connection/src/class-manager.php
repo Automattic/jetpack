@@ -40,6 +40,21 @@ class Manager {
 	const SITE_DATA_TRANSIENT_PREFIX = 'jetpack_site_data_';
 
 	/**
+	 * Why `has_protected_owner()` answered false, and what would change it.
+	 *
+	 * `RE_EVALUATE` is the race: the gate said false, and by the time the state was classified the
+	 * owner matched after all. It is not a problem to report, it is an instruction to ask again.
+	 *
+	 * @since $$next-version$$
+	 */
+	const PO_STATE_NOT_ELIGIBLE               = 'NOT_ELIGIBLE';
+	const PO_STATE_NEEDS_CONNECT_TO_ESTABLISH = 'NEEDS_CONNECT_TO_ESTABLISH';
+	const PO_STATE_CAN_ESTABLISH              = 'CAN_ESTABLISH';
+	const PO_STATE_NEEDS_OWNER_RECONNECT      = 'NEEDS_OWNER_RECONNECT';
+	const PO_STATE_NEEDS_DIFFERENT_OWNER      = 'NEEDS_DIFFERENT_OWNER';
+	const PO_STATE_RE_EVALUATE                = 'RE_EVALUATE';
+
+	/**
 	 * A copy of the raw POST data for signature verification purposes.
 	 *
 	 * @var string
@@ -173,6 +188,8 @@ class Manager {
 		Webhooks::init( $manager );
 
 		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' ), 10, 2 );
+		add_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
+		add_action( 'jetpack_user_authorized', array( $manager, 'verify_protected_owner' ), 11 );
 
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
@@ -1385,6 +1402,205 @@ class Manager {
 	}
 
 	/**
+	 * Classify why `has_protected_owner()` answered false, and what would change it.
+	 *
+	 * Deliberately inspects only what the gate inspects — the anchor and the current connection
+	 * owner — so the two can never disagree about the same site. Anything needing a user search or
+	 * a reachability probe is a different question and is not answered here.
+	 *
+	 * `is_current_user_the_po` reads the current user's own stored binding, never a search for
+	 * whoever holds the anchored ID, so it cannot be confused by a second user carrying the same
+	 * meta, and never costs a network call. It is a hint for copy, not a gate.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{status: string, is_current_user_the_po: bool}
+	 */
+	public function resolve_protected_owner_state() {
+		$anchor     = Protected_Owner::get_locked();
+		$current_id = get_current_user_id();
+
+		// Only meaningful against an anchor: with none, there is nothing for the user to be.
+		// Reads the stored binding rather than resolving it, so classifying a state never costs a
+		// WordPress.com round trip. An unbound user reads as false and gets the generic copy.
+		$is_current_user_the_po = $anchor
+			&& Utils::get_wpcom_user_id( $current_id ) === (int) $anchor['wpcom_user_id'];
+
+		if ( ! $anchor ) {
+			$roles = new Roles();
+
+			if ( ! current_user_can( 'jetpack_connect' ) || ! current_user_can( $roles->translate_role_to_cap( 'administrator' ) ) ) {
+				// Eligibility is being an admin, not holding the master slot.
+				$status = self::PO_STATE_NOT_ELIGIBLE;
+			} elseif ( ! $this->is_user_connected( $current_id ) ) {
+				// A WordPress.com identity has to exist before it can be confirmed and locked.
+				$status = self::PO_STATE_NEEDS_CONNECT_TO_ESTABLISH;
+			} else {
+				$status = self::PO_STATE_CAN_ESTABLISH;
+			}
+		} else {
+			$owner_id = $this->get_connection_owner_id();
+
+			if ( ! $owner_id ) {
+				$status = self::PO_STATE_NEEDS_OWNER_RECONNECT;
+			} elseif ( $this->resolve_wpcom_user_id( $owner_id ) !== (int) $anchor['wpcom_user_id'] ) {
+				// Legitimate, not broken: the first admin to connect takes a vacant master slot,
+				// so an agency can hold it while the protected owner is away.
+				$status = self::PO_STATE_NEEDS_DIFFERENT_OWNER;
+			} else {
+				$status = self::PO_STATE_RE_EVALUATE;
+			}
+		}
+
+		return array(
+			'status'                 => $status,
+			'is_current_user_the_po' => $is_current_user_the_po,
+		);
+	}
+
+	/**
+	 * Reconcile the local anchor against WordPress.com, which is the owner of record.
+	 *
+	 * The gate is a pure local read, so nothing else keeps the anchor honest: it is written once
+	 * when the owner confirms and never looked at again. This runs at connect, when the site has a
+	 * fresh user token and an answer is cheap, and makes WordPress.com's record win.
+	 *
+	 * Fails closed, without forgetting. An unreachable WordPress.com, a non-200, or a method this
+	 * end does not implement all unlock the anchor rather than trusting it — a site that cannot
+	 * confirm who owns it must not be running anything that pays out. The anchor keeps the identity
+	 * and provenance, so a later verification restores the lock without the owner confirming again.
+	 *
+	 * @internal Hooked on `jetpack_user_authorized`, after promote-on-connect.
+	 * @since $$next-version$$
+	 *
+	 * @return bool Whether the anchor is verified and locked.
+	 */
+	public function verify_protected_owner() {
+		$anchor = Protected_Owner::get();
+
+		if ( ! $anchor ) {
+			return false;
+		}
+
+		$record = $this->query_protected_owner_record( (int) $anchor['wpcom_user_id'] );
+
+		// Unreachable, refused, or answered by a WordPress.com that does not implement the method:
+		// all three are "cannot confirm", and none of them is a reason to keep trusting the anchor.
+		if ( ! is_array( $record ) || ! isset( $record['has_owner'] ) ) {
+			Protected_Owner::set_locked( false );
+			return false;
+		}
+
+		// WordPress.com no longer has an owner of record, so neither does this site. Support
+		// clearing it at that end is exactly how a wrongly anchored site is meant to recover.
+		if ( ! $record['has_owner'] ) {
+			Protected_Owner::clear();
+			return false;
+		}
+
+		// WordPress.com confirms the anchored identity rather than naming the owner, so the answer
+		// is the same whoever is connecting. Anything else outranks what is stored here.
+		if ( empty( $record['matches'] ) ) {
+			Protected_Owner::set_locked( false );
+			return false;
+		}
+
+		Protected_Owner::set_locked( true );
+
+		return true;
+	}
+
+	/**
+	 * Claim this site's protected ownership for the current user with WordPress.com.
+	 *
+	 * Split from `set_protected_owner()` so the decision it drives can be exercised without a
+	 * network. The identity travels in the signature rather than the payload, so this sends only
+	 * how the confirmation was obtained.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $confirmed_by How the confirmation was obtained.
+	 * @return array|null The record, or null when WordPress.com could not answer.
+	 */
+	protected function assert_protected_owner_record( $confirmed_by ) {
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$xml->query( 'jetpack.assertProtectedOwner', array( 'confirmed_by' => $confirmed_by ) );
+
+		if ( $xml->isError() ) {
+			return null;
+		}
+
+		$response = $xml->getResponse();
+
+		return is_array( $response ) ? $response : null;
+	}
+
+	/**
+	 * Ask WordPress.com who owns this site.
+	 *
+	 * Split from `verify_protected_owner()` so the decision it drives can be exercised without a
+	 * network, which is the half worth testing: every branch of it changes whether a site gates a
+	 * live feature.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $anchored_wpcom_user_id The identity this site has anchored, for confirmation.
+	 * @return array|null The record, or null when WordPress.com could not answer.
+	 */
+	protected function query_protected_owner_record( $anchored_wpcom_user_id ) {
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$xml->query( 'jetpack.getProtectedOwner', array( 'anchored_wpcom_user_id' => $anchored_wpcom_user_id ) );
+
+		if ( $xml->isError() ) {
+			return null;
+		}
+
+		$response = $xml->getResponse();
+
+		return is_array( $response ) ? $response : null;
+	}
+
+	/**
+	 * Re-point the connection owner at the protected owner when they connect.
+	 *
+	 * Local only. The anchor names a WordPress.com identity that WordPress.com already holds as the
+	 * owner of record, so this corrects this site's pointer at that identity and asks WordPress.com
+	 * for nothing. It only ever promotes an owner already confirmed: with no anchor it does nothing
+	 * at all, so a first connection still lets whoever connects take a vacant master slot.
+	 *
+	 * The binding is resolved rather than read, because the token written moments earlier has just
+	 * invalidated any stored one. That single lookup is the re-heal, and it is the only network
+	 * call in the path.
+	 *
+	 * @internal Hooked on `jetpack_user_authorized`.
+	 * @since $$next-version$$
+	 */
+	public function promote_protected_owner_on_connect() {
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return;
+		}
+
+		if ( $this->resolve_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
+			return;
+		}
+
+		// The cached local ID moves with the owner even when the master slot already agrees.
+		Protected_Owner::repoint( $user_id );
+
+		if ( (int) \Jetpack_Options::get_option( 'master_user' ) !== $user_id ) {
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
+	}
+
+	/**
 	 * Record a user as the protected owner and promote them to connection owner.
 	 *
 	 * Gated on `jetpack_connect` rather than on a role: a host can narrow that capability and
@@ -1427,11 +1643,41 @@ class Manager {
 			);
 		}
 
-		// Fail closed: this is false for a user with no token and for one WordPress.com cannot
-		// confirm, and an unverified identity must never be written down and locked.
-		$owner_data = $this->get_connected_user_data( $user_id );
+		// The claim is signed as the current user, so it can only ever anchor the current user.
+		// Anchoring somebody else would be an owner assignment they never agreed to.
+		if ( $user_id !== get_current_user_id() ) {
+			return new WP_Error(
+				'protected_owner_not_self',
+				__( 'A protected owner can only be recorded by the user confirming it.', 'jetpack-connection' ),
+				array( 'status' => 400 )
+			);
+		}
 
-		if ( empty( $owner_data['ID'] ) ) {
+		// WordPress.com is asked before anything is written here. It owns the record, so a claim it
+		// has not accepted must not leave a locked anchor behind on this site.
+		$record = $this->assert_protected_owner_record( $confirmed_by );
+
+		// Fail closed: unreachable, refused, or a WordPress.com that does not implement the call.
+		// A site that cannot get an answer must not end up protecting anybody on its own say-so.
+		if ( ! is_array( $record ) || empty( $record['status'] ) ) {
+			return new WP_Error(
+				'protected_owner_unconfirmed',
+				__( 'Could not reach WordPress.com to confirm the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 503 )
+			);
+		}
+
+		// Somebody else already holds this site. Beyond support there is no way past this, which is
+		// the point: an owner that could be overwritten by the next claimant protects nobody.
+		if ( 'locked_to_other' === $record['status'] ) {
+			return new WP_Error(
+				'protected_owner_claimed_by_other',
+				__( 'This site is already protected by a different WordPress.com account. Contact support.', 'jetpack-connection' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( empty( $record['wpcom_user_id'] ) ) {
 			return new WP_Error(
 				'protected_owner_not_verified',
 				__( 'Could not confirm the protected owner with WordPress.com.', 'jetpack-connection' ),
@@ -1441,9 +1687,9 @@ class Manager {
 
 		// Store the binding the anchor will be compared against, so the gate reads local state from
 		// here on. Routed through the deduping writer, which clears the ID off any previous holder.
-		Utils::set_wpcom_user_id( $user_id, (int) $owner_data['ID'] );
+		Utils::set_wpcom_user_id( $user_id, (int) $record['wpcom_user_id'] );
 
-		if ( ! Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by ) ) {
+		if ( ! Protected_Owner::set( (int) $record['wpcom_user_id'], $user_id, $confirmed_by ) ) {
 			return new WP_Error(
 				'protected_owner_not_stored',
 				__( 'Could not store the protected owner.', 'jetpack-connection' ),

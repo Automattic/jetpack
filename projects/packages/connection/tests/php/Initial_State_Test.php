@@ -100,6 +100,7 @@ class Initial_State_Test extends TestCase {
 			'calypsoEnv'              => 'wpcalypso',
 			'isOwnershipTransferable' => ( new Manager() )->is_ownership_transferable(),
 			'connectionOwner'         => null,
+			'protectedOwner'          => null,
 		);
 		$expected_value = 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = ' . wp_json_encode( $expected_state, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');'
 			. sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;', absint( \Jetpack_Options::get_option( 'id', 0 ) ) );
@@ -192,5 +193,53 @@ class Initial_State_Test extends TestCase {
 		$data = self::get_data();
 
 		$this->assertNull( $data['connectionOwner'] );
+	}
+	/**
+	 * The protected owner state follows `connectionOwner` in staying behind `jetpack_connect`:
+	 * this payload is printed for any logged-in user who loads connection scripts.
+	 */
+	public function test_protected_owner_state_is_withheld_from_users_who_cannot_manage_the_connection() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'po_initial_state_contributor',
+				'user_pass'  => 'password',
+				'role'       => 'contributor',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$data = self::get_data();
+
+		$this->assertNull( $data['protectedOwner'] );
+	}
+
+	/**
+	 * With nothing asking for an owner the payload says so and stops there, so an ordinary site
+	 * costs exactly what it cost before.
+	 */
+	public function test_protected_owner_state_is_only_the_requirement_when_no_consumer_asks() {
+		self::act_as_connection_manager( 'po_initial_state_idle' );
+
+		$data = self::get_data();
+
+		$this->assertSame( array( 'required' => false ), $data['protectedOwner'] );
+	}
+
+	/**
+	 * A consumer asking for an owner gets the classified state alongside the requirement.
+	 */
+	public function test_protected_owner_state_is_classified_when_a_consumer_asks() {
+		self::act_as_connection_manager( 'po_initial_state_active' );
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+
+		$data = self::get_data();
+
+		remove_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+
+		$this->assertTrue( $data['protectedOwner']['required'] );
+		$this->assertFalse( $data['protectedOwner']['protected'] );
+		$this->assertFalse( $data['protectedOwner']['locked'] );
+		$this->assertArrayHasKey( 'status', $data['protectedOwner'] );
+		$this->assertArrayHasKey( 'isCurrentUserTheOwner', $data['protectedOwner'] );
 	}
 }

@@ -236,6 +236,36 @@ class REST_Connector {
 			);
 		}
 
+		// Why the protected owner gate is closed, and what would open it.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/protected-owner',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_protected_owner_status',
+				'permission_callback' => __CLASS__ . '::protected_owner_permission_check',
+			)
+		);
+
+		// Establish the current user as the protected owner, on demand from a consumer.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/protected-owner',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::establish_protected_owner',
+				'permission_callback' => __CLASS__ . '::protected_owner_permission_check',
+				'args'                => array(
+					'confirmed_by' => array(
+						'description'       => 'How the confirmation was obtained, e.g. popup or recovery.',
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
+			)
+		);
+
 		// Get list of plugins that use the Jetpack connection.
 		register_rest_route(
 			'jetpack/v4',
@@ -1055,6 +1085,83 @@ class REST_Connector {
 			array(
 				'code' => 'success',
 			)
+		);
+	}
+
+	/**
+	 * Report the protected owner state, and what a consumer should do about it.
+	 *
+	 * Returns the gate, the requirement and the classified reason together: a caller deciding what
+	 * to render needs all three, and fetching them separately invites a mismatched pair.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_protected_owner_status() {
+		$manager = new Manager();
+		$state   = $manager->resolve_protected_owner_state();
+
+		return rest_ensure_response(
+			array(
+				'required'              => $manager->requires_protected_owner(),
+				'protected'             => $manager->has_protected_owner(),
+				'locked'                => Protected_Owner::is_locked(),
+				'status'                => $state['status'],
+				'isCurrentUserTheOwner' => $state['is_current_user_the_po'],
+			)
+		);
+	}
+
+	/**
+	 * Record the current user as the protected owner.
+	 *
+	 * Anchors whoever is asking, and takes no target parameter: the concept requires the owner to
+	 * confirm for themselves, so there is deliberately no way for one administrator to anchor
+	 * another without that person having answered.
+	 *
+	 * Authorization beyond being an administrator is left to `set_protected_owner()`, which refuses
+	 * an unverifiable identity with a reason worth showing. Duplicating those checks here would give
+	 * two places to keep in step and a vaguer error.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function establish_protected_owner( $request ) {
+		$established = ( new Manager() )->set_protected_owner( get_current_user_id(), $request['confirmed_by'] );
+
+		if ( is_wp_error( $established ) ) {
+			return $established;
+		}
+
+		return self::get_protected_owner_status();
+	}
+
+	/**
+	 * Check that the user may read the protected owner state.
+	 *
+	 * Gated on being an administrator who could manage the connection, per the concept's rule that
+	 * eligibility is being an admin rather than holding the master slot. Deliberately does not
+	 * require a connected user: `NEEDS_CONNECT_TO_ESTABLISH` is one of the states this reports, and
+	 * a check stricter than the states it guards would make that one unreachable.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function protected_owner_permission_check() {
+		// This is a mapped capability.
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown
+		if ( current_user_can( 'jetpack_connect' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_jetpack_connect',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
 		);
 	}
 

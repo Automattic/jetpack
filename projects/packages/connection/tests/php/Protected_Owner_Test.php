@@ -138,6 +138,24 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * Build a Manager whose WordPress.com claim is stubbed.
+	 *
+	 * @param mixed $record What the assert should answer, or null for an unreachable WordPress.com.
+	 * @return \PHPUnit\Framework\MockObject\MockObject|Manager
+	 */
+	private function asserting_manager( $record ) {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'get_connection_owner_id', 'get_tokens', 'assert_protected_owner_record' ) )
+			->getMock();
+
+		$manager->method( 'get_connection_owner_id' )->willReturn( $this->owner_id );
+		$manager->method( 'get_tokens' )->willReturn( $this->connected_tokens( $this->owner_id ) );
+		$manager->method( 'assert_protected_owner_record' )->willReturn( $record );
+
+		return $manager;
+	}
+
+	/**
 	 * Act as the connection owner, an administrator, who holds the capability the setters need.
 	 */
 	private function act_as_administrator() {
@@ -490,7 +508,12 @@ class Protected_Owner_Test extends TestCase {
 	public function test_set_protected_owner_writes_the_anchor_and_promotes_the_owner() {
 		$this->act_as_administrator();
 
-		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
+		$manager = $this->asserting_manager(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		);
 
 		$this->assertTrue( $manager->set_protected_owner( $this->owner_id, 'recovery' ) );
 
@@ -539,7 +562,12 @@ class Protected_Owner_Test extends TestCase {
 	public function test_set_protected_owner_rejects_an_unconfirmed_identity() {
 		$this->act_as_administrator();
 
-		$manager = $this->manager( $this->owner_id, false );
+		$manager = $this->asserting_manager(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => 0,
+			)
+		);
 		$result  = $manager->set_protected_owner( $this->owner_id, 'popup' );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
@@ -618,7 +646,12 @@ class Protected_Owner_Test extends TestCase {
 		};
 		add_filter( 'pre_update_option_jetpack_options', $block, 10, 2 );
 
-		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
+		$manager = $this->asserting_manager(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		);
 		$result  = $manager->set_protected_owner( $this->owner_id, 'popup' );
 
 		remove_filter( 'pre_update_option_jetpack_options', $block, 10 );
@@ -785,5 +818,480 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertNotNull( Protected_Owner::get() );
 		$this->assertFalse( Protected_Owner::is_locked() );
 		$this->assertTrue( ( new Manager() )->is_ownership_transferable() );
+	}
+	// ── resolve_protected_owner_state ────────────────────────────────────
+
+	/**
+	 * Eligibility is being an administrator, so a lesser role is told it is not.
+	 */
+	public function test_state_is_not_eligible_for_a_non_administrator() {
+		wp_set_current_user( $this->actor( 'editor' ) );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NOT_ELIGIBLE, $state['status'] );
+	}
+
+	/**
+	 * An administrator with no token has no WordPress.com identity to confirm yet.
+	 */
+	public function test_state_needs_a_connection_before_an_admin_can_establish() {
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never(), false );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_CONNECT_TO_ESTABLISH, $state['status'] );
+	}
+
+	/**
+	 * A connected administrator is the one case that can go on to establish.
+	 */
+	public function test_state_can_establish_for_a_connected_administrator() {
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => 77 ) );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_CAN_ESTABLISH, $state['status'] );
+	}
+
+	/**
+	 * An anchored site with nobody holding the master slot needs the owner back.
+	 */
+	public function test_state_needs_an_owner_reconnect_when_the_master_slot_is_vacant() {
+		$this->anchor();
+		$this->act_as_administrator();
+
+		$manager = $this->manager( false, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $state['status'] );
+	}
+
+	/**
+	 * An agency holding master while the protected owner is away is a gated state, not a broken
+	 * one, so it is reported as needing a different owner rather than a reconnect.
+	 */
+	public function test_state_needs_a_different_owner_when_another_account_holds_master() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, 9999 );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_DIFFERENT_OWNER, $state['status'] );
+	}
+
+	/**
+	 * A matching owner means the gate would have answered true, so the caller is told to ask again
+	 * rather than handed a reason that no longer applies.
+	 */
+	public function test_state_asks_for_a_re_evaluation_when_the_owner_matches_after_all() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_RE_EVALUATE, $state['status'] );
+		$this->assertTrue( $manager->has_protected_owner(), 'RE_EVALUATE must only be reachable when the gate agrees.' );
+	}
+
+	/**
+	 * The flag reads the current user's own binding, so the anchored user is recognised.
+	 */
+	public function test_the_state_flags_the_current_user_as_the_protected_owner() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( false, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $state['status'] );
+		$this->assertTrue( $state['is_current_user_the_po'] );
+	}
+
+	/**
+	 * Another connected administrator is not mistaken for the anchored identity.
+	 */
+	public function test_the_state_does_not_flag_a_bystander_as_the_protected_owner() {
+		$this->anchor();
+		$bystander = $this->candidate( 'bystander' );
+		Utils::set_wpcom_user_id( $bystander, 9999 );
+		wp_set_current_user( $bystander );
+
+		$manager = $this->manager( $bystander, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertFalse( $state['is_current_user_the_po'] );
+	}
+
+	/**
+	 * Without an anchor the flag has nothing to compare against and stays false.
+	 */
+	public function test_the_state_flag_is_false_when_there_is_no_anchor() {
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => 77 ) );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_CAN_ESTABLISH, $state['status'] );
+		$this->assertFalse( $state['is_current_user_the_po'] );
+	}
+	// ── promote_protected_owner_on_connect ───────────────────────────────
+
+	/**
+	 * The anchored identity reconnecting takes the master slot back from whoever holds it.
+	 */
+	public function test_the_protected_owner_reconnecting_takes_back_the_master_slot() {
+		$agency = $this->candidate( 'agency' );
+		$this->anchor();
+		Jetpack_Options::update_option( 'master_user', $agency );
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $agency, false, $this->never() );
+		$manager->promote_protected_owner_on_connect();
+
+		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * Somebody else connecting leaves the master slot exactly where it was.
+	 */
+	public function test_a_different_account_connecting_does_not_take_the_master_slot() {
+		$agency = $this->candidate( 'agency' );
+		$this->anchor();
+
+		// The slot must start with somebody else, or a wrongly promoting implementation would
+		// write the value already there and the assertion could not tell the difference.
+		Jetpack_Options::update_option( 'master_user', $this->owner_id );
+		Utils::set_wpcom_user_id( $agency, 9999 );
+		wp_set_current_user( $agency );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$manager->promote_protected_owner_on_connect();
+
+		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * With no anchor the hook does nothing, so a first connection still works as it always did.
+	 */
+	public function test_connecting_without_an_anchor_changes_no_ownership() {
+		$agency = $this->candidate( 'agency' );
+		Jetpack_Options::update_option( 'master_user', $agency );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$manager->promote_protected_owner_on_connect();
+
+		$this->assertSame( $agency, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * An unlocked anchor protects nobody, so it promotes nobody either.
+	 */
+	public function test_an_unlocked_anchor_does_not_promote_on_connect() {
+		$agency = $this->candidate( 'agency' );
+		Jetpack_Options::update_option(
+			Protected_Owner::OPTION,
+			array(
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+				'local_user_id' => $this->owner_id,
+				'locked'        => false,
+				'confirmed_at'  => '2026-01-01T00:00:00Z',
+				'confirmed_by'  => 'popup',
+			)
+		);
+		Jetpack_Options::update_option( 'master_user', $agency );
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $agency, false, $this->never() );
+		$manager->promote_protected_owner_on_connect();
+
+		$this->assertSame( $agency, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * Connecting re-heals a binding the new token invalidated, with a single lookup.
+	 */
+	public function test_connecting_reheals_the_binding_from_wpcom_once() {
+		$this->anchor();
+		Jetpack_Options::update_option( 'master_user', 0 );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->once() );
+		$manager->promote_protected_owner_on_connect();
+
+		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+		$this->assertSame( self::ANCHORED_WPCOM_ID, Utils::get_wpcom_user_id( $this->owner_id ) );
+	}
+
+	/**
+	 * The anchor's cached local ID follows the owner to whichever account they reconnect under.
+	 */
+	public function test_connecting_repoints_the_anchor_at_the_local_account_in_use() {
+		$second = $this->candidate( 'owner_second_account' );
+		$this->anchor();
+		Utils::set_wpcom_user_id( $second, self::ANCHORED_WPCOM_ID );
+		wp_set_current_user( $second );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$manager->promote_protected_owner_on_connect();
+
+		$anchor = Protected_Owner::get();
+
+		$this->assertIsArray( $anchor );
+		$this->assertSame( $second, (int) $anchor['local_user_id'] );
+		$this->assertSame( self::ANCHORED_WPCOM_ID, (int) $anchor['wpcom_user_id'], 'The match key must not move.' );
+	}
+
+	/**
+	 * Re-pointing is not a re-confirmation, so the provenance of the original claim survives.
+	 */
+	public function test_repointing_the_anchor_preserves_how_it_was_confirmed() {
+		$this->anchor();
+		$before = Protected_Owner::get();
+		$second = $this->candidate( 'owner_second_account' );
+
+		Protected_Owner::repoint( $second );
+		$after = Protected_Owner::get();
+
+		$this->assertIsArray( $before );
+		$this->assertIsArray( $after );
+		$this->assertSame( $second, (int) $after['local_user_id'] );
+		$this->assertSame( $before['confirmed_at'], $after['confirmed_at'] );
+		$this->assertSame( $before['confirmed_by'], $after['confirmed_by'] );
+	}
+	// ── verify_protected_owner ───────────────────────────────────────────
+
+	/**
+	 * Build a Manager whose WordPress.com lookup is stubbed.
+	 *
+	 * @param mixed $response What `verify_protected_owner()` should see back, or null for an error.
+	 * @return \PHPUnit\Framework\MockObject\MockObject|Manager
+	 */
+	private function verifying_manager( $response ) {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'query_protected_owner_record' ) )
+			->getMock();
+		$manager->method( 'query_protected_owner_record' )->willReturn( $response );
+
+		return $manager;
+	}
+
+	/**
+	 * A record agreeing with the anchor confirms the lock.
+	 */
+	public function test_verification_locks_an_anchor_wpcom_agrees_with() {
+		$this->anchor();
+		$manager = $this->verifying_manager(
+			array(
+				'has_owner'     => true,
+				'matches'       => true,
+				'is_caller'     => true,
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		);
+
+		$this->assertTrue( $manager->verify_protected_owner() );
+		$this->assertTrue( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * An unreachable WordPress.com unlocks rather than trusting what is stored. A site that cannot
+	 * confirm who owns it must not be running anything that pays out.
+	 */
+	public function test_an_unreachable_wpcom_unlocks_the_anchor() {
+		$this->anchor();
+		$manager = $this->verifying_manager( null );
+
+		$this->assertFalse( $manager->verify_protected_owner() );
+		$this->assertFalse( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * Failing closed does not forget: the identity and provenance survive, so restoring the lock
+	 * later costs nothing and the owner is not asked to confirm again.
+	 */
+	public function test_failing_closed_keeps_the_record_intact() {
+		$this->anchor();
+		$before = Protected_Owner::get();
+
+		$this->verifying_manager( null )->verify_protected_owner();
+		$after = Protected_Owner::get();
+
+		$this->assertIsArray( $before );
+		$this->assertIsArray( $after );
+		$this->assertSame( $before['wpcom_user_id'], $after['wpcom_user_id'] );
+		$this->assertSame( $before['confirmed_at'], $after['confirmed_at'] );
+		$this->assertSame( $before['confirmed_by'], $after['confirmed_by'] );
+	}
+
+	/**
+	 * A suspended anchor locks again once WordPress.com can confirm it.
+	 */
+	public function test_a_suspended_anchor_locks_again_when_wpcom_confirms() {
+		$this->anchor();
+		$this->verifying_manager( null )->verify_protected_owner();
+
+		$manager = $this->verifying_manager(
+			array(
+				'has_owner'     => true,
+				'matches'       => true,
+				'is_caller'     => true,
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		);
+
+		$this->assertTrue( $manager->verify_protected_owner() );
+		$this->assertTrue( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * WordPress.com having no record clears the anchor outright. Support clearing it at that end is
+	 * how a wrongly anchored site recovers, so the site must not keep gating on its own copy.
+	 */
+	public function test_no_record_at_wpcom_clears_the_anchor() {
+		$this->anchor();
+		$manager = $this->verifying_manager(
+			array(
+				'has_owner'     => false,
+				'matches'       => false,
+				'is_caller'     => false,
+				'wpcom_user_id' => 0,
+			)
+		);
+
+		$this->assertFalse( $manager->verify_protected_owner() );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * A record naming somebody else outranks the local anchor.
+	 */
+	public function test_a_record_naming_another_account_unlocks_the_anchor() {
+		$this->anchor();
+		$manager = $this->verifying_manager(
+			array(
+				'has_owner'     => true,
+				'matches'       => false,
+				'is_caller'     => false,
+				'wpcom_user_id' => 0,
+			)
+		);
+
+		$manager->verify_protected_owner();
+
+		$this->assertFalse( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * A secondary user connecting verifies the anchor just as the owner would. WordPress.com
+	 * confirms the anchored identity rather than naming its owner, so the answer does not depend on
+	 * who is asking — otherwise a contributor linking their account would unlock the site.
+	 */
+	public function test_a_secondary_user_connecting_does_not_unlock_the_anchor() {
+		$this->anchor();
+		$manager = $this->verifying_manager(
+			array(
+				'has_owner'     => true,
+				'matches'       => true,
+				'is_caller'     => false,
+				'wpcom_user_id' => 0,
+			)
+		);
+
+		$this->assertTrue( $manager->verify_protected_owner() );
+		$this->assertTrue( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * A site with no anchor has nothing to reconcile and asks nothing.
+	 */
+	public function test_verification_does_nothing_without_an_anchor() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'query_protected_owner_record' ) )
+			->getMock();
+		$manager->expects( $this->never() )->method( 'query_protected_owner_record' );
+
+		$this->assertFalse( $manager->verify_protected_owner() );
+	}
+	/**
+	 * An unreachable WordPress.com leaves nothing behind. The site cannot confirm who owns it, so
+	 * it must not end up protecting anybody on its own say-so.
+	 */
+	public function test_establishing_fails_closed_when_wpcom_cannot_be_reached() {
+		$this->act_as_administrator();
+
+		$result = $this->asserting_manager( null )->set_protected_owner( $this->owner_id, 'popup' );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_unconfirmed', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertFalse( Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * A site already held by another account is refused and told to contact support. Nothing is
+	 * written locally: an owner the next claimant could overwrite protects nobody.
+	 */
+	public function test_a_site_held_by_another_account_is_sent_to_support() {
+		$this->act_as_administrator();
+
+		$result = $this->asserting_manager(
+			array(
+				'status'        => 'locked_to_other',
+				'wpcom_user_id' => 0,
+			)
+		)
+			->set_protected_owner( $this->owner_id, 'popup' );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_claimed_by_other', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * The owner re-confirming an existing claim is accepted rather than refused.
+	 */
+	public function test_the_owner_reconfirming_its_own_claim_succeeds() {
+		$this->act_as_administrator();
+
+		$manager = $this->asserting_manager(
+			array(
+				'status'        => 'already_yours',
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		);
+
+		$this->assertTrue( $manager->set_protected_owner( $this->owner_id, 'popup' ) );
+		$this->assertTrue( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * A claim can only anchor the user making it, because it is signed as them.
+	 */
+	public function test_an_admin_cannot_anchor_somebody_else() {
+		$this->act_as_administrator();
+		$other = $this->candidate( 'other_admin' );
+
+		$result = $this->asserting_manager(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
+		)->set_protected_owner( $other, 'popup' );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_not_self', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
 	}
 }
