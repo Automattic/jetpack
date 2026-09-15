@@ -17,7 +17,7 @@ jest.mock( './subpage-frame', () => ( {
 		</div>
 	),
 } ) );
-jest.mock( '../../pages/critical-css-advanced/critical-css-advanced', () => ( {
+jest.mock( '../../pages/critical-css-advanced/critical-css-advanced-cards', () => ( {
 	__esModule: true,
 	default: () => <div>critical css advanced</div>,
 } ) );

@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Render the Critical CSS recommendations as cards when the modernization filter is on. No change with the filter off.
+
+
