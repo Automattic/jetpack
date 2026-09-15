@@ -5,6 +5,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Modules;
@@ -144,6 +145,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 			'jetpack_connection_active_plugins' => Functions::get_jetpack_connection_active_plugins(),
 			'jetpack_sync_active_modules'       => Functions::get_jetpack_sync_active_modules(),
 			'jetpack_package_versions'          => Functions::get_jetpack_package_versions(),
+			'effective_blog_public'             => Functions::get_effective_blog_public(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -287,6 +289,26 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 
 		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
 		$this->assertEquals( array( 'json-api' ), $synced_value );
+	}
+
+	public function test_effective_blog_public_resyncs_when_private_site_filter_changes() {
+		update_option( 'blog_public', '1' );
+		Status_Cache::clear();
+		$this->sender->do_sync();
+		$this->assertSame( 1, $this->server_replica_storage->get_callable( 'effective_blog_public' ) );
+
+		add_filter( 'jetpack_is_private_site', '__return_true' );
+		Status_Cache::clear();
+		$this->resetCallableAndConstantTimeouts();
+		$this->sender->do_sync();
+		$this->assertSame( -1, $this->server_replica_storage->get_callable( 'effective_blog_public' ) );
+		$this->assertSame( 1, (int) get_option( 'blog_public' ) );
+
+		remove_filter( 'jetpack_is_private_site', '__return_true' );
+		Status_Cache::clear();
+		$this->resetCallableAndConstantTimeouts();
+		$this->sender->do_sync();
+		$this->assertSame( 1, $this->server_replica_storage->get_callable( 'effective_blog_public' ) );
 	}
 
 	public function test_sync_always_sync_changes_to_home_siteurl_right_away() {

@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules as Jetpack_Modules;
+use Automattic\Jetpack\Status;
 
 /**
  * Utility functions to generate data synced to wpcom
@@ -590,6 +591,24 @@ class Functions {
 	 */
 	public static function get_is_fse_theme() {
 		return wp_is_block_theme();
+	}
+
+	/**
+	 * Returns the site's `blog_public` value, or -1 when Jetpack considers the site private.
+	 *
+	 * Lets `jetpack_is_private_site` report the site as private to WordPress.com without changing
+	 * the `blog_public` option itself, since core and other plugins do not expect a -1 there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int -1 when private, otherwise the stored `blog_public` value.
+	 */
+	public static function get_effective_blog_public() {
+		if ( ( new Status() )->is_private_site() ) {
+			return -1;
+		}
+
+		return (int) get_option( 'blog_public', 1 );
 	}
 
 	/**
