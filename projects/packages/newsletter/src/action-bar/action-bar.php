@@ -121,7 +121,7 @@ function wpcom_actionbar_enqueue_scripts() {
 					sprintf(
 						/* translators: %s is the URL of the support contact page. */
 						__( 'You’ll get an email with a link to confirm your subscription. If it doesn’t arrive, please <a href="%s">contact us</a>.', 'jetpack-newsletter' ),
-						esc_url( localized_wpcom_url( 'https://wordpress.com/support/contact/' ) )
+						esc_url( wpcom_actionbar_localized_url( 'https://wordpress.com/support/contact/' ) )
 					),
 					array(
 						'a' => array(
@@ -234,13 +234,68 @@ window.addEventListener( "DOMContentLoaded", function() {
 }
 
 /**
+ * Whether this is a WordPress.com VIP site. False anywhere the wpcom helper is missing.
+ *
+ * @return bool
+ */
+function wpcom_actionbar_is_vip() {
+	return function_exists( 'wpcom_is_vip' ) && wpcom_is_vip();
+}
+
+/**
+ * Localize a WordPress.com URL for the current user where wpcom can; otherwise return it as is.
+ *
+ * @param string $url A wordpress.com URL.
+ * @return string
+ */
+function wpcom_actionbar_localized_url( $url ) {
+	return function_exists( 'localized_wpcom_url' ) ? localized_wpcom_url( $url ) : $url;
+}
+
+/**
+ * Whether the user collapsed the bar. A wpcom user attribute on Simple, user meta elsewhere.
+ *
+ * @param int $user_id User ID.
+ * @return bool
+ */
+function wpcom_actionbar_is_folded( $user_id ) {
+	if ( function_exists( 'get_user_attribute' ) ) {
+		return (bool) get_user_attribute( $user_id, 'is_actionbar_folded' );
+	}
+	return (bool) get_user_meta( $user_id, 'is_actionbar_folded', true );
+}
+
+/**
+ * Remember or forget that the user collapsed the bar.
+ *
+ * @param int  $user_id User ID.
+ * @param bool $folded  Whether the bar is collapsed.
+ */
+function wpcom_actionbar_set_folded( $user_id, $folded ) {
+	if ( function_exists( 'update_user_attribute' ) && function_exists( 'delete_user_attribute' ) ) {
+		if ( $folded ) {
+			update_user_attribute( $user_id, 'is_actionbar_folded', 1 );
+		} else {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
+			delete_user_attribute( $user_id, 'is_actionbar_folded' );
+		}
+		return;
+	}
+	if ( $folded ) {
+		update_user_meta( $user_id, 'is_actionbar_folded', 1 );
+	} else {
+		delete_user_meta( $user_id, 'is_actionbar_folded' );
+	}
+}
+
+/**
  * Whether logged-out visitors should get no bar and no follow actions.
  *
  * @return bool
  */
 function wpcom_actionbar_logged_out_follow_disabled() {
 	$settings = get_option( 'subscription_options' );
-	$disabled = wpcom_is_vip() && ( ! isset( $settings['loggedoutfollow'] ) || 'off' === $settings['loggedoutfollow'] );
+	$disabled = wpcom_actionbar_is_vip() && ( ! isset( $settings['loggedoutfollow'] ) || 'off' === $settings['loggedoutfollow'] );
 
 	/**
 	 * Filters whether logged-out visitors get the bar and its follow actions.
@@ -474,7 +529,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 		! in_array( $site_id, (array) apply_filters( 'loggedout_follow_disabled_blog_id', array( 1 ) ), true ) &&
 		! apply_filters( 'loggedout_follow_disabled', false ) &&
 		! wpcom_actionbar_logged_out_follow_disabled() &&
-		( ! $is_member || is_automattician( $current_user->ID ) ) &&
+		( ! $is_member || function_exists( 'is_automattician' ) && is_automattician( $current_user->ID ) ) &&
 		( 'page' === get_option( 'show_on_front' ) && get_option( 'post_count' ) < 2 )
 	) {
 		$can_follow = false;
@@ -496,19 +551,19 @@ function wpcom_actionbar_html( $is_rtl ) {
 	$site_host          = wp_parse_url( $site_url, PHP_URL_HOST );
 	$site_slug          = ( new Status() )->get_site_suffix();
 	$can_customize_site = $is_member && current_user_can( 'edit_theme_options' );
-	$subscription_id    = wpcom_subs_is_subscribed(
+	$subscription_id    = function_exists( 'wpcom_subs_is_subscribed' ) ? wpcom_subs_is_subscribed(
 		array(
 			'user_id' => get_current_user_id(),
 			'blog_id' => $site_id,
 		)
-	);
+	) : false;
 	$is_following       = $subscription_id ? true : false;
 	$signup_url         = 'https://wordpress.com/start/';
 	$theme_slug         = get_stylesheet();
 	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 	$theme_url   = function_exists( 'wpcom_get_theme_showcase_url' ) ? wpcom_get_theme_showcase_url( $theme_slug ) : 'https://wordpress.com/theme/' . $theme_slug;
 	$is_singular = false;
-	$is_folded   = $is_logged_in && (bool) get_user_attribute( $current_user->ID, 'is_actionbar_folded' );
+	$is_folded   = $is_logged_in && wpcom_actionbar_is_folded( $current_user->ID );
 	$feed_id     = false;
 	if ( class_exists( 'FeedBag' ) ) {
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded by class_exists above.
@@ -516,9 +571,9 @@ function wpcom_actionbar_html( $is_rtl ) {
 	}
 	$gdpr_applies = wpcom_actionbar_gdpr_applies();
 
-	// Fall back to site URL if site title is empty.
+	// Fall back to the site's domain if the title is empty.
 	if ( empty( $site_name ) ) {
-		$site_name = get_primary_redirect();
+		$site_name = function_exists( 'get_primary_redirect' ) ? get_primary_redirect() : $site_host;
 	}
 
 	$post_id       = 0;
@@ -550,7 +605,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by jetpack-mu-wpcom, which is not a dependency; guarded by function_exists().
 		$should_use_calypso_links = empty( $post_type ) || function_exists( 'wpcom_should_disable_calypso_links' ) && ! wpcom_should_disable_calypso_links( 'edit.php?post_type=' . $post_type );
 
-		if ( $should_use_calypso_links && ! wpcom_is_vip() && ( ! is_super_admin() || $is_member ) ) {
+		if ( $should_use_calypso_links && ! wpcom_actionbar_is_vip() && ( ! is_super_admin() || $is_member ) ) {
 			$path_prefix = null;
 			if ( in_array( $post_type, array( 'post', 'page' ), true ) ) {
 				$path_prefix = $post_type;
@@ -582,7 +637,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 
 	$followers = '';
 	if ( $show_follow && ! $is_logged_in ) {
-		$subscribers_total = wpcom_subs_total_for_blog();
+		$subscribers_total = function_exists( 'wpcom_subs_total_for_blog' ) ? wpcom_subs_total_for_blog() : 0;
 		if ( ! empty( $subscribers_total ) && $subscribers_total > 24 ) {
 			/* translators: %s: number of subscribers */
 			$followers = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack-newsletter' ), number_format_i18n( $subscribers_total ) );
@@ -1012,7 +1067,7 @@ function wpcom_actionbar_fold() {
 	wpcom_actionbar_bump_stat( 'folded' );
 
 	if ( is_user_logged_in() ) {
-		update_user_attribute( get_current_user_id(), 'is_actionbar_folded', 1 );
+		wpcom_actionbar_set_folded( get_current_user_id(), true );
 	}
 
 	die;
@@ -1029,9 +1084,8 @@ add_action( 'wp_ajax_nopriv_fold_actionbar', 'wpcom_actionbar_fold' );
 function wpcom_actionbar_unfold() {
 	wpcom_actionbar_bump_stat( 'expanded' );
 
-	if ( is_user_logged_in() && function_exists( 'delete_user_attribute' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
-		delete_user_attribute( get_current_user_id(), 'is_actionbar_folded' );
+	if ( is_user_logged_in() ) {
+		wpcom_actionbar_set_folded( get_current_user_id(), false );
 	}
 
 	die;
@@ -1077,7 +1131,7 @@ function wpcom_hide_action_bar_display() {
 
 	<?php esc_html_e( 'Hide the Action Bar on the front end of the site.', 'jetpack-newsletter' ); ?>
 
-	<p class="description"><a href="<?php echo esc_url( localized_wpcom_url( 'https://wordpress.com/support/action-bar/' ) ); ?>" data-target="wpcom-help-center"><?php esc_html_e( 'Learn more about the Action Bar', 'jetpack-newsletter' ); ?></a>.</p>
+	<p class="description"><a href="<?php echo esc_url( wpcom_actionbar_localized_url( 'https://wordpress.com/support/action-bar/' ) ); ?>" data-target="wpcom-help-center"><?php esc_html_e( 'Learn more about the Action Bar', 'jetpack-newsletter' ); ?></a>.</p>
 	<?php
 }
 add_action( 'admin_init', 'wpcom_hide_action_bar_settings_field' );
