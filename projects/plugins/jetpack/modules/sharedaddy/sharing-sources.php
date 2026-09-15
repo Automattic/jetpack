@@ -55,8 +55,8 @@ abstract class Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		$this->id = $id;
@@ -103,7 +103,7 @@ abstract class Sharing_Source {
 	/**
 	 * Get unique sharing ID.
 	 *
-	 * @return int
+	 * @return string
 	 */
 	public function get_id() {
 		return $this->id;
@@ -112,7 +112,7 @@ abstract class Sharing_Source {
 	/**
 	 * Get unique sharing ID. Similar to get_id().
 	 *
-	 * @return int
+	 * @return string
 	 */
 	public function get_class() {
 		return $this->id;
@@ -769,8 +769,8 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	final public function __construct( $id, array $settings ) {
 		$this->id = $id;
@@ -944,8 +944,8 @@ class Share_Email extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1114,8 +1114,8 @@ class Share_Twitter extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1385,8 +1385,8 @@ class Share_X extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1690,8 +1690,8 @@ class Share_LinkedIn extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1853,8 +1853,8 @@ class Share_Facebook extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2053,8 +2053,8 @@ class Share_Print extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2121,8 +2121,8 @@ class Share_PressThis extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2267,8 +2267,8 @@ class Share_Custom extends Sharing_Advanced_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2540,8 +2540,8 @@ class Share_Tumblr extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2664,8 +2664,8 @@ class Share_Pinterest extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2906,8 +2906,8 @@ class Share_Telegram extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
 		parent::__construct( $id, $settings );
@@ -2991,8 +2991,8 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
 		parent::__construct( $id, $settings );

@@ -2,12 +2,12 @@
 /**
  * Handles form submissions from Settings > Sharing.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Modules;
 
@@ -36,7 +36,7 @@ final class Post_Handler {
 	 */
 	public static function maybe_handle(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- identifying the screen; the nonce is verified below.
-		if ( ! isset( $_GET['page'] ) || Sharing_Settings_Page::SLUG !== $_GET['page'] ) {
+		if ( ! isset( $_GET['page'] ) || Settings_Page::SLUG !== $_GET['page'] ) {
 			return;
 		}
 
@@ -52,29 +52,38 @@ final class Post_Handler {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified per action below.
 		$action = sanitize_key( wp_unslash( $_POST[ self::ACTION_FIELD ] ) );
 
+		$redirect = null;
+
 		switch ( $action ) {
 			case 'activate-likes':
-				self::activate_module( 'likes', Likes_Section::NONCE_ACTION );
+				$redirect = self::activate_module( 'likes', Likes_Section::NONCE_ACTION );
 				break;
 			case 'activate-sharing':
-				self::activate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
+				$redirect = self::activate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
 				break;
 			case 'switch-to-block-likes':
-				self::deactivate_module( 'likes', Likes_Section::NONCE_ACTION );
+				$redirect = self::deactivate_module( 'likes', Likes_Section::NONCE_ACTION );
 				break;
 			case 'switch-to-block-sharing':
-				self::deactivate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
+				$redirect = self::deactivate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
 				break;
 			case 'save-likes':
-				self::save_likes();
+				$redirect = self::save_likes();
 				break;
 			case 'save-placement':
-				self::save_placement();
+				$redirect = self::save_placement();
 				break;
 			case 'save-extras':
-				self::save_extras();
+				$redirect = self::save_extras();
 				break;
 		}
+
+		if ( null === $redirect ) {
+			return;
+		}
+
+		wp_safe_redirect( $redirect );
+		exit;
 	}
 
 	/**
@@ -86,19 +95,22 @@ final class Post_Handler {
 	 *
 	 * @param string $module       Module slug.
 	 * @param string $nonce_action Nonce action the submitting section uses.
+	 * @return string URL to send the browser back to.
 	 */
-	private static function deactivate_module( string $module, string $nonce_action ): void {
+	private static function deactivate_module( string $module, string $nonce_action ): string {
 		check_admin_referer( $nonce_action );
 
 		( new Modules() )->deactivate( $module );
 
-		self::redirect_saved();
+		return self::screen_url( true );
 	}
 
 	/**
 	 * Save the Like buttons section.
+	 *
+	 * @return string URL to send the browser back to.
 	 */
-	private static function save_likes(): void {
+	private static function save_likes(): string {
 		check_admin_referer( Likes_Section::NONCE_ACTION );
 
 		if ( 'off' === self::posted_choice( 'wpl_default' ) ) {
@@ -118,7 +130,7 @@ final class Post_Handler {
 			update_option( 'jetpack_comment_likes_enabled', empty( $_POST['jetpack_comment_likes_enabled'] ) ? 0 : 1 );
 		}
 
-		self::redirect_saved();
+		return self::screen_url( true );
 	}
 
 	/**
@@ -126,20 +138,24 @@ final class Post_Handler {
 	 *
 	 * Each of them verifies its own nonce inside `sharing_admin_update`, so this
 	 * only has to establish that the request came from this screen.
+	 *
+	 * @return string URL to send the browser back to.
 	 */
-	private static function save_extras(): void {
+	private static function save_extras(): string {
 		check_admin_referer( Extras_Section::NONCE_ACTION );
 
-		/** This action is documented in src/sharing-settings/class-services-config.php */
+		/** This action is documented in projects/packages/sharing-likes/src/settings/class-services-config.php */
 		do_action( 'sharing_admin_update' );
 
-		self::redirect_saved();
+		return self::screen_url( true );
 	}
 
 	/**
 	 * Save the shared placement section.
+	 *
+	 * @return string URL to send the browser back to.
 	 */
-	private static function save_placement(): void {
+	private static function save_placement(): string {
 		check_admin_referer( Placement_Section::NONCE_ACTION );
 
 		$options = get_option( 'sharing-options' );
@@ -158,7 +174,7 @@ final class Post_Handler {
 
 		update_option( 'sharing-options', $options );
 
-		self::redirect_saved();
+		return self::screen_url( true );
 	}
 
 	/**
@@ -177,13 +193,14 @@ final class Post_Handler {
 	}
 
 	/**
-	 * Back to the screen, with the saved notice.
+	 * The screen this handler posts back to.
+	 *
+	 * @param bool $saved Whether to ask the screen to confirm a save.
 	 */
-	private static function redirect_saved(): void {
-		wp_safe_redirect(
-			admin_url( 'options-general.php?page=' . Sharing_Settings_Page::SLUG . '&update=saved' )
-		);
-		exit;
+	private static function screen_url( bool $saved ): string {
+		$url = admin_url( 'options-general.php?page=' . Settings_Page::SLUG );
+
+		return $saved ? $url . '&update=saved' : $url;
 	}
 
 	/**
@@ -194,14 +211,14 @@ final class Post_Handler {
 	 *
 	 * @param string $module       Module slug.
 	 * @param string $nonce_action Nonce action the submitting section uses.
+	 * @return string URL to send the browser back to.
 	 */
-	private static function activate_module( string $module, string $nonce_action ): void {
+	private static function activate_module( string $module, string $nonce_action ): string {
 		check_admin_referer( $nonce_action );
 
 		( new Modules() )->activate( $module, false, false );
 
-		wp_safe_redirect( admin_url( 'options-general.php?page=' . Sharing_Settings_Page::SLUG ) );
-		exit;
+		return self::screen_url( false );
 	}
 
 	/**

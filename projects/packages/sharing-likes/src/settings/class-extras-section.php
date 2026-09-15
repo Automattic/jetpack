@@ -2,12 +2,12 @@
 /**
  * Settings other features add to Settings > Sharing.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
  * Hosts whatever third parties hang off `sharing_global_options`.
@@ -34,7 +34,7 @@ final class Extras_Section {
 
 		?>
 		<div class="jetpack-sharing-settings__section">
-			<h2><?php esc_html_e( 'Other sharing settings', 'jetpack' ); ?></h2>
+			<h2><?php esc_html_e( 'Other sharing settings', 'jetpack-sharing-likes' ); ?></h2>
 			<form method="post" action="">
 				<table class="form-table">
 					<tbody>
@@ -42,7 +42,7 @@ final class Extras_Section {
 					</tbody>
 				</table>
 				<p class="submit">
-					<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
+					<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack-sharing-likes' ); ?>" />
 					<?php
 					Post_Handler::render_action_field( 'save-extras' );
 					wp_nonce_field( self::NONCE_ACTION );
@@ -63,7 +63,7 @@ final class Extras_Section {
 	private static function collect_fields(): string {
 		ob_start();
 
-		/** This action is documented in src/sharing-settings/class-services-config.php */
+		/** This action is documented in projects/packages/sharing-likes/src/settings/class-services-config.php */
 		do_action( 'sharing_global_options' );
 
 		return trim( (string) ob_get_clean() );

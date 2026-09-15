@@ -2,27 +2,27 @@
 /**
  * Tests for the Settings > Sharing screen registration.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use WP_UnitTestCase;
+use WorDBless\BaseTestCase;
 
 /**
  * The screen exists whichever modules are active. That is the guarantee this
  * class was written for, and the one the old per-module registration could not
  * make: with sharedaddy, likes and comment-likes all off, there was no screen.
  *
- * @covers \Automattic\Jetpack\Plugin\Sharing_Settings\Sharing_Settings_Page
+ * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page
  */
-#[CoversClass( Sharing_Settings_Page::class )]
-class Sharing_Settings_Page_Test extends WP_UnitTestCase {
+#[CoversClass( Settings_Page::class )]
+class Settings_Page_Test extends BaseTestCase {
 
 	/**
 	 * Reset the module list and the menu globals between cases.
@@ -37,6 +37,24 @@ class Sharing_Settings_Page_Test extends WP_UnitTestCase {
 		$_registered_pages = array();
 
 		parent::tear_down();
+	}
+
+	/**
+	 * A user with the capability the screen registers against.
+	 */
+	private function create_user( string $role ): int {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'sharing_settings_' . $role,
+				'user_pass'  => 'password',
+				'user_email' => $role . '@example.com',
+				'role'       => $role,
+			)
+		);
+
+		$this->assertIsInt( $user_id );
+
+		return $user_id;
 	}
 
 	/**
@@ -65,13 +83,13 @@ class Sharing_Settings_Page_Test extends WP_UnitTestCase {
 		global $submenu;
 
 		Jetpack_Options::update_option( 'active_modules', $modules );
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( $this->create_user( 'administrator' ) );
 
-		Sharing_Settings_Page::register_menu();
+		Settings_Page::register_menu();
 
 		$slugs = wp_list_pluck( $submenu['options-general.php'] ?? array(), 2 );
 
-		$this->assertContains( Sharing_Settings_Page::SLUG, $slugs );
+		$this->assertContains( Settings_Page::SLUG, $slugs );
 	}
 
 	/**
@@ -80,12 +98,12 @@ class Sharing_Settings_Page_Test extends WP_UnitTestCase {
 	public function test_does_not_register_for_users_without_the_capability(): void {
 		global $submenu;
 
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		wp_set_current_user( $this->create_user( 'subscriber' ) );
 
-		Sharing_Settings_Page::register_menu();
+		Settings_Page::register_menu();
 
 		$slugs = wp_list_pluck( $submenu['options-general.php'] ?? array(), 2 );
 
-		$this->assertNotContains( Sharing_Settings_Page::SLUG, $slugs );
+		$this->assertNotContains( Settings_Page::SLUG, $slugs );
 	}
 }

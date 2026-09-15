@@ -2,14 +2,12 @@
 /**
  * The Settings > Sharing screen.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
-
-use Jetpack_Admin_Page;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
  * Registers Settings > Sharing and renders its sections.
@@ -17,7 +15,7 @@ use Jetpack_Admin_Page;
  * Registration does not depend on any module being active, so the screen and
  * every section on it exist whatever the site is running.
  */
-final class Sharing_Settings_Page {
+final class Settings_Page {
 
 	/**
 	 * Submenu slug. Unchanged from when sharedaddy registered this screen, so
@@ -36,41 +34,14 @@ final class Sharing_Settings_Page {
 	 * Add the submenu entry under Settings.
 	 */
 	public static function register_menu(): void {
-		$hook = add_submenu_page(
+		add_submenu_page(
 			'options-general.php',
-			__( 'Sharing Settings', 'jetpack' ),
-			__( 'Sharing', 'jetpack' ),
+			__( 'Sharing Settings', 'jetpack-sharing-likes' ),
+			__( 'Sharing', 'jetpack-sharing-likes' ),
 			'manage_options',
 			self::SLUG,
-			array( __CLASS__, 'render_in_wrapper' )
+			array( __CLASS__, 'render' )
 		);
-
-		if ( $hook ) {
-			add_action( 'admin_print_styles-' . $hook, array( __CLASS__, 'enqueue_styles' ) );
-		}
-	}
-
-	/**
-	 * Styles for the Jetpack chrome this screen renders inside.
-	 *
-	 * Jetpack_Admin_Page::wrap_ui() emits the masthead and footer markup but does
-	 * not style them, and this screen exists whether or not a module is loaded
-	 * to do it for us. WordPress.com Simple styles that chrome itself, and these
-	 * sheets are served from a plugin URL it does not have.
-	 */
-	public static function enqueue_styles(): void {
-		if ( Environment::is_simple_site() ) {
-			return;
-		}
-
-		Jetpack_Admin_Page::load_wrapper_styles();
-	}
-
-	/**
-	 * Render the screen inside Jetpack's admin chrome.
-	 */
-	public static function render_in_wrapper(): void {
-		Jetpack_Admin_Page::wrap_ui( array( __CLASS__, 'render' ), array( 'is-wide' => true ) );
 	}
 
 	/**
@@ -125,7 +96,7 @@ final class Sharing_Settings_Page {
 
 		printf(
 			'<div class="updated"><p>%s</p></div>',
-			esc_html__( 'Settings have been saved', 'jetpack' )
+			esc_html__( 'Settings have been saved', 'jetpack-sharing-likes' )
 		);
 	}
 
@@ -135,11 +106,17 @@ final class Sharing_Settings_Page {
 	public static function render(): void {
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h1>
+			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack-sharing-likes' ); ?></h1>
 			<?php
 			self::render_saved_notice();
 
-			/** This action is documented in modules/sharedaddy/sharing.php */
+			/**
+			 * Fires at the top of the admin sharing settings screen.
+			 *
+			 * @module sharedaddy
+			 *
+			 * @since 1.6.0
+			 */
 			do_action( 'pre_admin_screen_sharing' );
 
 			self::render_sections();

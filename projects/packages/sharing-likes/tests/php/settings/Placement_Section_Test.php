@@ -2,22 +2,22 @@
 /**
  * Tests for the shared placement section of Settings > Sharing.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use WP_UnitTestCase;
+use WorDBless\BaseTestCase;
 
 /**
- * @covers \Automattic\Jetpack\Plugin\Sharing_Settings\Placement_Section
+ * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section
  */
 #[CoversClass( Placement_Section::class )]
-class Placement_Section_Test extends WP_UnitTestCase {
+class Placement_Section_Test extends BaseTestCase {
 
 	/**
 	 * Clear the option between cases; an unset option is the interesting state.

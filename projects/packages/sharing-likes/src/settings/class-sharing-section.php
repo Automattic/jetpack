@@ -2,12 +2,12 @@
 /**
  * The Sharing buttons section of Settings > Sharing.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
  * Renders the Sharing buttons section.
@@ -29,7 +29,7 @@ final class Sharing_Section {
 		$state = Section_State::for_section( self::can_offer_block(), Environment::sharing_enabled() );
 
 		echo '<div class="jetpack-sharing-settings__section">';
-		printf( '<h2>%s</h2>', esc_html_x( 'Sharing buttons', 'Settings header', 'jetpack' ) );
+		printf( '<h2>%s</h2>', esc_html_x( 'Sharing buttons', 'Settings header', 'jetpack-sharing-likes' ) );
 
 		switch ( $state ) {
 			case Section_State::BLOCK_CALL_TO_ACTION:
@@ -67,7 +67,7 @@ final class Sharing_Section {
 			esc_html_x(
 				'Add the Sharing Buttons block to your theme’s template.',
 				'Sharing Buttons block migration instruction',
-				'jetpack'
+				'jetpack-sharing-likes'
 			)
 		);
 		self::render_site_editor_link();
@@ -83,7 +83,7 @@ final class Sharing_Section {
 	private static function render_off(): void {
 		printf(
 			'<p>%s</p>',
-			esc_html__( 'Sharing buttons are turned off for this site.', 'jetpack' )
+			esc_html__( 'Sharing buttons are turned off for this site.', 'jetpack-sharing-likes' )
 		);
 
 		self::render_activate_form();
@@ -102,7 +102,7 @@ final class Sharing_Section {
 		if ( ! Environment::can_activate_modules() ) {
 			printf(
 				'<p>%s</p>',
-				esc_html__( 'Connect your site to WordPress.com, or enable offline mode, to turn them back on.', 'jetpack' )
+				esc_html__( 'Connect your site to WordPress.com, or enable offline mode, to turn them back on.', 'jetpack-sharing-likes' )
 			);
 			return;
 		}
@@ -110,7 +110,7 @@ final class Sharing_Section {
 		Post_Handler::render_action_form(
 			'activate-sharing',
 			self::NONCE_ACTION,
-			__( 'Turn on sharing buttons', 'jetpack' ),
+			__( 'Turn on sharing buttons', 'jetpack-sharing-likes' ),
 			$primary
 		);
 	}
@@ -120,7 +120,7 @@ final class Sharing_Section {
 	 */
 	private static function render_block_nudge(): void {
 		echo '<div class="notice notice-info inline">';
-		printf( '<p>%s</p>', esc_html__( 'Legacy sharing buttons cannot be customized on block themes. Use the Sharing Buttons block in your theme’s template instead.', 'jetpack' ) );
+		printf( '<p>%s</p>', esc_html__( 'Legacy sharing buttons cannot be customized on block themes. Use the Sharing Buttons block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
 
 		/*
 		 * Switching means turning the module off, which WordPress.com Simple has
@@ -132,7 +132,7 @@ final class Sharing_Section {
 			Post_Handler::render_action_form(
 				'switch-to-block-sharing',
 				self::NONCE_ACTION,
-				__( 'Switch to the Sharing Buttons block', 'jetpack' ),
+				__( 'Switch to the Sharing Buttons block', 'jetpack-sharing-likes' ),
 				false
 			);
 		}
@@ -147,7 +147,7 @@ final class Sharing_Section {
 		printf(
 			'<p><a class="button" href="%1$s">%2$s</a></p>',
 			esc_url( Environment::post_template_url() ),
-			esc_html__( 'Open Site Editor', 'jetpack' )
+			esc_html__( 'Open Site Editor', 'jetpack-sharing-likes' )
 		);
 	}
 

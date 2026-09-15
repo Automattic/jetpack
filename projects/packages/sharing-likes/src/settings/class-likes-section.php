@@ -2,12 +2,12 @@
 /**
  * The Like buttons section of Settings > Sharing.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
  * Renders the Like buttons section.
@@ -36,7 +36,7 @@ final class Likes_Section {
 	 */
 	public static function render(): void {
 		printf( '<div class="jetpack-sharing-settings__section" id="%s">', esc_attr( self::ANCHOR ) );
-		printf( '<h2>%s</h2>', esc_html_x( 'Like buttons', 'Settings header', 'jetpack' ) );
+		printf( '<h2>%s</h2>', esc_html_x( 'Like buttons', 'Settings header', 'jetpack-sharing-likes' ) );
 
 		if ( ! Environment::likes_supported() ) {
 			self::render_unsupported();
@@ -74,7 +74,7 @@ final class Likes_Section {
 	private static function render_unsupported(): void {
 		printf(
 			'<p>%s</p>',
-			esc_html__( 'Like buttons need a connection to WordPress.com. Connect your site to turn them on and choose where they appear.', 'jetpack' )
+			esc_html__( 'Like buttons need a connection to WordPress.com. Connect your site to turn them on and choose where they appear.', 'jetpack-sharing-likes' )
 		);
 	}
 
@@ -102,7 +102,7 @@ final class Likes_Section {
 			esc_html_x(
 				'Add the Like block to your theme’s template.',
 				'Like block migration instruction',
-				'jetpack'
+				'jetpack-sharing-likes'
 			)
 		);
 		self::render_site_editor_link();
@@ -115,7 +115,7 @@ final class Likes_Section {
 	private static function render_off(): void {
 		printf(
 			'<p>%s</p>',
-			esc_html__( 'Like buttons are turned off for this site.', 'jetpack' )
+			esc_html__( 'Like buttons are turned off for this site.', 'jetpack-sharing-likes' )
 		);
 		self::render_activate_form();
 	}
@@ -133,7 +133,7 @@ final class Likes_Section {
 		Post_Handler::render_action_form(
 			'activate-likes',
 			self::NONCE_ACTION,
-			__( 'Turn on Like buttons', 'jetpack' ),
+			__( 'Turn on Like buttons', 'jetpack-sharing-likes' ),
 			$primary
 		);
 	}
@@ -143,7 +143,7 @@ final class Likes_Section {
 	 */
 	private static function render_block_nudge(): void {
 		echo '<div class="notice notice-info inline">';
-		printf( '<p>%s</p>', esc_html__( 'Legacy Like buttons cannot be customized on block themes. Use the Like block in your theme’s template instead.', 'jetpack' ) );
+		printf( '<p>%s</p>', esc_html__( 'Legacy Like buttons cannot be customized on block themes. Use the Like block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
 
 		/*
 		 * Switching means turning the module off, which WordPress.com Simple has
@@ -155,7 +155,7 @@ final class Likes_Section {
 			Post_Handler::render_action_form(
 				'switch-to-block-likes',
 				self::NONCE_ACTION,
-				__( 'Switch to the Like block', 'jetpack' ),
+				__( 'Switch to the Like block', 'jetpack-sharing-likes' ),
 				false
 			);
 		}
@@ -170,7 +170,7 @@ final class Likes_Section {
 		printf(
 			'<p><a class="button" href="%1$s">%2$s</a></p>',
 			esc_url( Environment::post_template_url() ),
-			esc_html__( 'Open Site Editor', 'jetpack' )
+			esc_html__( 'Open Site Editor', 'jetpack-sharing-likes' )
 		);
 	}
 
@@ -186,18 +186,18 @@ final class Likes_Section {
 			<table class="form-table">
 				<tbody>
 					<tr>
-						<th scope="row"><label><?php esc_html_e( 'WordPress.com Likes are', 'jetpack' ); ?></label></th>
+						<th scope="row"><label><?php esc_html_e( 'WordPress.com Likes are', 'jetpack-sharing-likes' ); ?></label></th>
 						<td>
 							<div>
 								<label>
 									<input type="radio" name="wpl_default" value="on" <?php checked( $enabled_sitewide ); ?> />
-									<?php esc_html_e( 'On for all posts', 'jetpack' ); ?>
+									<?php esc_html_e( 'On for all posts', 'jetpack-sharing-likes' ); ?>
 								</label>
 							</div>
 							<div>
 								<label>
 									<input type="radio" name="wpl_default" value="off" <?php checked( ! $enabled_sitewide ); ?> />
-									<?php esc_html_e( 'Turned on per post', 'jetpack' ); ?>
+									<?php esc_html_e( 'Turned on per post', 'jetpack-sharing-likes' ); ?>
 								</label>
 							</div>
 						</td>
@@ -215,7 +215,7 @@ final class Likes_Section {
 			}
 			?>
 			<p class="submit">
-				<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
+				<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack-sharing-likes' ); ?>" />
 				<?php
 				Post_Handler::render_action_field( 'save-likes' );
 				wp_nonce_field( self::NONCE_ACTION );
@@ -235,18 +235,18 @@ final class Likes_Section {
 		$enabled = Likes_Options::reblogs_enabled_sitewide();
 		?>
 		<tr>
-			<th scope="row"><label><?php esc_html_e( 'WordPress.com Reblog Button', 'jetpack' ); ?></label></th>
+			<th scope="row"><label><?php esc_html_e( 'WordPress.com Reblog Button', 'jetpack-sharing-likes' ); ?></label></th>
 			<td>
 				<div>
 					<label>
 						<input type="radio" name="jetpack_reblogs_enabled" value="on" <?php checked( $enabled ); ?> />
-						<?php esc_html_e( 'Show the Reblog button on posts', 'jetpack' ); ?>
+						<?php esc_html_e( 'Show the Reblog button on posts', 'jetpack-sharing-likes' ); ?>
 					</label>
 				</div>
 				<div>
 					<label>
 						<input type="radio" name="jetpack_reblogs_enabled" value="off" <?php checked( ! $enabled ); ?> />
-						<?php esc_html_e( 'Don\'t show the Reblog button on posts', 'jetpack' ); ?>
+						<?php esc_html_e( 'Don\'t show the Reblog button on posts', 'jetpack-sharing-likes' ); ?>
 					</label>
 				</div>
 			</td>
@@ -265,11 +265,11 @@ final class Likes_Section {
 		<table class="form-table">
 			<tbody>
 				<tr>
-					<th scope="row"><label><?php esc_html_e( 'Comment Likes are', 'jetpack' ); ?></label></th>
+					<th scope="row"><label><?php esc_html_e( 'Comment Likes are', 'jetpack-sharing-likes' ); ?></label></th>
 					<td>
 						<label>
 							<input type="checkbox" name="jetpack_comment_likes_enabled" value="1" <?php checked( Likes_Options::comment_likes_enabled() ); ?> />
-							<?php esc_html_e( 'On for all comments', 'jetpack' ); ?>
+							<?php esc_html_e( 'On for all comments', 'jetpack-sharing-likes' ); ?>
 						</label>
 					</td>
 				</tr>

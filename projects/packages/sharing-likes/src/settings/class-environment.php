@@ -2,17 +2,17 @@
 /**
  * Reads the site state that Settings > Sharing branches on.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Jetpack_Gutenberg;
 
 /**
  * The facts Settings > Sharing branches on, read in one place so the sections
@@ -62,11 +62,7 @@ final class Environment {
 			return true;
 		}
 
-		if ( ! class_exists( 'Jetpack' ) ) {
-			return false;
-		}
-
-		return \Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode();
+		return self::connection_ready() || ( new Status() )->is_offline_mode();
 	}
 
 	/**
@@ -77,11 +73,20 @@ final class Environment {
 	 * render: the widget is keyed on the blog ID a connection provides.
 	 */
 	public static function likes_supported(): bool {
-		if ( self::is_simple_site() ) {
-			return true;
-		}
+		return self::is_simple_site() || self::connection_ready();
+	}
 
-		return class_exists( 'Jetpack' ) && \Jetpack::is_connection_ready();
+	/**
+	 * Whether the WordPress.com connection is usable.
+	 *
+	 * Resolved the same way `Jetpack::is_connection_ready()` resolves it, filter
+	 * included, so a site that overrides one overrides both.
+	 */
+	private static function connection_ready(): bool {
+		$connection = new Connection_Manager( 'jetpack' );
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		return (bool) apply_filters( 'jetpack_is_connection_ready', $connection->is_connected(), $connection );
 	}
 
 	/**
@@ -128,14 +133,14 @@ final class Environment {
 	 * Whether the Sharing Buttons block is available to offer as an alternative.
 	 */
 	public static function has_sharing_block(): bool {
-		return self::block_is_available( 'sharing-buttons' );
+		return self::block_is_registered( 'jetpack/sharing-buttons' );
 	}
 
 	/**
 	 * Whether the Like block is available to offer as an alternative.
 	 */
 	public static function has_like_block(): bool {
-		return self::block_is_available( 'like' );
+		return self::block_is_registered( 'jetpack/like' );
 	}
 
 	/**
@@ -171,13 +176,13 @@ final class Environment {
 	}
 
 	/**
-	 * Whether a block extension is registered and available.
+	 * Whether a block is registered, and so available to add to a template.
 	 *
-	 * @param string $slug Block slug as it appears in the extension availability list.
+	 * Registration happens on `init`, well before this screen renders.
+	 *
+	 * @param string $name Fully qualified block name.
 	 */
-	private static function block_is_available( string $slug ): bool {
-		$availability = Jetpack_Gutenberg::get_cached_availability();
-
-		return isset( $availability[ $slug ] ) && ! empty( $availability[ $slug ]['available'] );
+	private static function block_is_registered( string $name ): bool {
+		return \WP_Block_Type_Registry::get_instance()->is_registered( $name );
 	}
 }

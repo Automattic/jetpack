@@ -193,7 +193,7 @@ class Jetpack_Likes {
 	}
 
 	/**
-	 * Options to be added to the discussion page. The Sharing settings live in Sharing_Settings\Likes_Section.
+	 * Options to be added to the discussion page. The Sharing settings live in Sharing_Likes\Settings\Likes_Section.
 	 */
 	public function admin_discussion_likes_settings_init() {
 		// Add a temporary section, until we can move the setting out of there and with the rest of the email notification settings.

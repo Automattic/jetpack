@@ -2,12 +2,12 @@
 /**
  * Tests for the Settings > Sharing section state resolver.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * The resolver makes no WordPress calls, so these need no bootstrapped site.
  *
- * @covers \Automattic\Jetpack\Plugin\Sharing_Settings\Section_State
+ * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Section_State
  */
 #[CoversClass( Section_State::class )]
 class Section_State_Test extends TestCase {

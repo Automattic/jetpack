@@ -8,7 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Plugin\Sharing_Settings\Services_Config;
+use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -98,11 +98,6 @@ class Sharing_Admin {
 		wp_enqueue_style( 'social-logos' );
 		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array(), 4, false );
 		add_thickbox();
-
-		// On Jetpack sites, make sure we include CSS to style the admin page.
-		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			Jetpack_Admin_Page::load_wrapper_styles();
-		}
 	}
 
 	/**

@@ -2,12 +2,12 @@
 /**
  * The shared placement section of Settings > Sharing.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
  * Renders "Show buttons on", which governs where both sharing buttons and Like
@@ -55,21 +55,21 @@ final class Placement_Section {
 
 		if ( $labels === array() ) {
 			$summary = self::FEATURE_LIKES === $feature
-				? __( 'Like buttons are currently not shown anywhere.', 'jetpack' )
-				: __( 'Sharing buttons are currently not shown anywhere.', 'jetpack' );
+				? __( 'Like buttons are currently not shown anywhere.', 'jetpack-sharing-likes' )
+				: __( 'Sharing buttons are currently not shown anywhere.', 'jetpack-sharing-likes' );
 		} elseif ( self::FEATURE_LIKES === $feature ) {
 			/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
-			$summary = sprintf( __( 'Like buttons currently appear on: %s.', 'jetpack' ), implode( ', ', $labels ) );
+			$summary = sprintf( __( 'Like buttons currently appear on: %s.', 'jetpack-sharing-likes' ), implode( ', ', $labels ) );
 		} else {
 			/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
-			$summary = sprintf( __( 'Sharing buttons currently appear on: %s.', 'jetpack' ), implode( ', ', $labels ) );
+			$summary = sprintf( __( 'Sharing buttons currently appear on: %s.', 'jetpack-sharing-likes' ), implode( ', ', $labels ) );
 		}
 
 		printf(
 			'<p class="description">%1$s <a href="#%2$s">%3$s</a></p>',
 			esc_html( $summary ),
 			esc_attr( self::ANCHOR ),
-			esc_html__( 'Change where they appear', 'jetpack' )
+			esc_html__( 'Change where they appear', 'jetpack-sharing-likes' )
 		);
 	}
 
@@ -88,7 +88,15 @@ final class Placement_Section {
 				<table class="form-table">
 					<tbody>
 					<?php
-					/** This filter is documented in modules/sharedaddy/sharing.php */
+					/**
+					 * Filters the HTML at the beginning of the "Show button on" row.
+					 *
+					 * @module sharedaddy
+					 *
+					 * @since 2.1.0
+					 *
+					 * @param string $var Opening HTML tag at the beginning of the "Show button on" row.
+					 */
 					echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					?>
 						<th scope="row"></th>
@@ -104,13 +112,21 @@ final class Placement_Section {
 							</fieldset>
 						</td>
 					<?php
-					/** This filter is documented in modules/sharedaddy/sharing.php */
+					/**
+					 * Filters the HTML at the end of the "Show button on" row.
+					 *
+					 * @module sharedaddy
+					 *
+					 * @since 2.1.0
+					 *
+					 * @param string $var Closing HTML tag at the end of the "Show button on" row.
+					 */
 					echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					?>
 					</tbody>
 				</table>
 				<p class="submit">
-					<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
+					<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack-sharing-likes' ); ?>" />
 					<?php
 					Post_Handler::render_action_field( 'save-placement' );
 					wp_nonce_field( self::NONCE_ACTION );
@@ -133,12 +149,12 @@ final class Placement_Section {
 		$likes   = Environment::likes_settings_in_use();
 
 		if ( $sharing && $likes ) {
-			return __( 'Where sharing and Like buttons appear', 'jetpack' );
+			return __( 'Where sharing and Like buttons appear', 'jetpack-sharing-likes' );
 		}
 
 		return $sharing
-			? __( 'Where sharing buttons appear', 'jetpack' )
-			: __( 'Where Like buttons appear', 'jetpack' );
+			? __( 'Where sharing buttons appear', 'jetpack-sharing-likes' )
+			: __( 'Where Like buttons appear', 'jetpack-sharing-likes' );
 	}
 
 	/**
@@ -217,7 +233,7 @@ final class Placement_Section {
 	 */
 	private static function label_for( string $choice ): string {
 		if ( 'index' === $choice ) {
-			return __( 'Front Page, Archive Pages, and Search Results', 'jetpack' );
+			return __( 'Front Page, Archive Pages, and Search Results', 'jetpack-sharing-likes' );
 		}
 
 		$post_type = get_post_type_object( $choice );

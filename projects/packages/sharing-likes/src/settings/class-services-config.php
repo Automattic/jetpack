@@ -2,12 +2,12 @@
 /**
  * The sharing services configuration UI.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Status;
 
@@ -25,7 +25,8 @@ final class Services_Config {
 	 * @return void
 	 */
 	public function render() {
-		if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
+		// Only ever rendered with sharing buttons live, which is what loads Sharing_Service.
+		if ( ! class_exists( 'Sharing_Service' ) ) {
 			return;
 		}
 
@@ -34,20 +35,20 @@ final class Services_Config {
 		$global  = $sharer->get_global_options();
 
 		if ( ! isset( $global['sharing_label'] ) ) {
-			$global['sharing_label'] = __( 'Share this:', 'jetpack' );
+			$global['sharing_label'] = __( 'Share this:', 'jetpack-sharing-likes' );
 		}
 		?>
 		<div class="share_manage_options">
-		<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ); ?></p>
+		<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack-sharing-likes' ); ?></p>
 
 
 		<div id="services-config">
 			<table id="available-services">
 					<tr>
 					<td class="description">
-						<h3><?php esc_html_e( 'Available Services', 'jetpack' ); ?></h3>
-						<p><?php esc_html_e( "Drag and drop the services you'd like to enable into the box below.", 'jetpack' ); ?></p>
-						<p><a href="#TB_inline?height=395&amp;width=600&amp;inlineId=new-service" class="thickbox" id="add-a-new-service"><?php esc_html_e( 'Add a new service', 'jetpack' ); ?></a></p>
+						<h3><?php esc_html_e( 'Available Services', 'jetpack-sharing-likes' ); ?></h3>
+						<p><?php esc_html_e( "Drag and drop the services you'd like to enable into the box below.", 'jetpack-sharing-likes' ); ?></p>
+						<p><a href="#TB_inline?height=395&amp;width=600&amp;inlineId=new-service" class="thickbox" id="add-a-new-service"><?php esc_html_e( 'Add a new service', 'jetpack-sharing-likes' ); ?></a></p>
 					</td>
 					<td class="services">
 						<ul class="services-available" style="height: 100px;">
@@ -61,7 +62,7 @@ final class Services_Config {
 						</ul>
 						<?php
 						if ( ( new Status() )->is_private_site() ) {
-							echo '<p><strong>' . esc_html__( 'Please note that your services have been restricted because your site is private.', 'jetpack' ) . '</strong></p>';
+							echo '<p><strong>' . esc_html__( 'Please note that your services have been restricted because your site is private.', 'jetpack-sharing-likes' ) . '</strong></p>';
 						}
 						?>
 						<br class="clearing" />
@@ -73,10 +74,10 @@ final class Services_Config {
 				<tr>
 					<td class="description">
 						<h3>
-							<?php esc_html_e( 'Enabled Services', 'jetpack' ); ?>
+							<?php esc_html_e( 'Enabled Services', 'jetpack-sharing-likes' ); ?>
 							<span class="spinner" style="vertical-align: middle"></span>
 						</h3>
-						<p><?php esc_html_e( 'Services dragged here will appear individually.', 'jetpack' ); ?></p>
+						<p><?php esc_html_e( 'Services dragged here will appear individually.', 'jetpack-sharing-likes' ); ?></p>
 					</td>
 					<td class="services" id="share-drop-target">
 							<h2 id="drag-instructions"
@@ -84,7 +85,7 @@ final class Services_Config {
 							if ( is_countable( $enabled['visible'] ) && count( $enabled['visible'] ) > 0 ) {
 								echo ' style="display: none"';}
 							?>
-							><?php esc_html_e( 'Drag and drop available services here.', 'jetpack' ); ?></h2>
+							><?php esc_html_e( 'Drag and drop available services here.', 'jetpack-sharing-likes' ); ?></h2>
 
 								<ul class="services-enabled">
 									<?php foreach ( $enabled['visible'] as $id => $service ) : ?>
@@ -95,7 +96,7 @@ final class Services_Config {
 								</ul>
 					</td>
 					<td id="hidden-drop-target" class="services">
-							<p><?php esc_html_e( 'Services dragged here will be hidden behind a share button.', 'jetpack' ); ?></p>
+							<p><?php esc_html_e( 'Services dragged here will be hidden behind a share button.', 'jetpack-sharing-likes' ); ?></p>
 
 							<ul class="services-hidden">
 									<?php foreach ( $enabled['hidden'] as $id => $service ) : ?>
@@ -110,10 +111,10 @@ final class Services_Config {
 			<table id="live-preview">
 				<tr>
 					<td class="description">
-						<h3><?php esc_html_e( 'Live Preview', 'jetpack' ); ?></h3>
+						<h3><?php esc_html_e( 'Live Preview', 'jetpack-sharing-likes' ); ?></h3>
 					</td>
 					<td class="services">
-						<h2 <?php echo ( is_countable( $enabled['all'] ) && count( $enabled['all'] ) > 0 ) ? ' style="display: none"' : ''; ?>><?php esc_html_e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
+						<h2 <?php echo ( is_countable( $enabled['all'] ) && count( $enabled['all'] ) > 0 ) ? ' style="display: none"' : ''; ?>><?php esc_html_e( 'Sharing is off. Add services above to enable.', 'jetpack-sharing-likes' ); ?></h2>
 						<div class="sharedaddy sd-sharing-enabled">
 							<?php if ( is_countable( $enabled['all'] ) && count( $enabled['all'] ) > 0 ) : ?>
 							<h3 class="sd-title"><?php echo esc_html( $global['sharing_label'] ); ?></h3>
@@ -125,7 +126,7 @@ final class Services_Config {
 									<?php endforeach; ?>
 
 									<?php if ( is_countable( $enabled['hidden'] ) && count( $enabled['hidden'] ) > 0 ) : ?>
-									<li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php esc_html_e( 'More', 'jetpack' ); ?></span></a></li>
+									<li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php esc_html_e( 'More', 'jetpack-sharing-likes' ); ?></span></a></li>
 									<?php endif; ?>
 								</ul>
 
@@ -162,7 +163,7 @@ final class Services_Config {
 									$this->output_preview( $service );
 									endforeach;
 								?>
-									<li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php esc_html_e( 'More', 'jetpack' ); ?></span></a></li>
+									<li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php esc_html_e( 'More', 'jetpack-sharing-likes' ); ?></span></a></li>
 								</ul>
 							</div>
 						</div>
@@ -183,18 +184,18 @@ final class Services_Config {
 			<table class="form-table">
 				<tbody>
 					<tr valign="top">
-						<th scope="row"><label><?php esc_html_e( 'Button style', 'jetpack' ); ?></label></th>
+						<th scope="row"><label><?php esc_html_e( 'Button style', 'jetpack-sharing-likes' ); ?></label></th>
 						<td>
 							<select name="button_style" id="button_style">
-								<option<?php echo ( $global['button_style'] === 'icon-text' ) ? ' selected="selected"' : ''; ?> value="icon-text"><?php esc_html_e( 'Icon + text', 'jetpack' ); ?></option>
-								<option<?php echo ( $global['button_style'] === 'icon' ) ? ' selected="selected"' : ''; ?> value="icon"><?php esc_html_e( 'Icon only', 'jetpack' ); ?></option>
-								<option<?php echo ( $global['button_style'] === 'text' ) ? ' selected="selected"' : ''; ?> value="text"><?php esc_html_e( 'Text only', 'jetpack' ); ?></option>
-								<option<?php echo ( $global['button_style'] === 'official' ) ? ' selected="selected"' : ''; ?> value="official"><?php esc_html_e( 'Official buttons', 'jetpack' ); ?></option>
+								<option<?php echo ( $global['button_style'] === 'icon-text' ) ? ' selected="selected"' : ''; ?> value="icon-text"><?php esc_html_e( 'Icon + text', 'jetpack-sharing-likes' ); ?></option>
+								<option<?php echo ( $global['button_style'] === 'icon' ) ? ' selected="selected"' : ''; ?> value="icon"><?php esc_html_e( 'Icon only', 'jetpack-sharing-likes' ); ?></option>
+								<option<?php echo ( $global['button_style'] === 'text' ) ? ' selected="selected"' : ''; ?> value="text"><?php esc_html_e( 'Text only', 'jetpack-sharing-likes' ); ?></option>
+								<option<?php echo ( $global['button_style'] === 'official' ) ? ' selected="selected"' : ''; ?> value="official"><?php esc_html_e( 'Official buttons', 'jetpack-sharing-likes' ); ?></option>
 							</select>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><label><?php esc_html_e( 'Sharing label', 'jetpack' ); ?></label></th>
+						<th scope="row"><label><?php esc_html_e( 'Sharing label', 'jetpack-sharing-likes' ); ?></label></th>
 						<td>
 							<input type="text" name="sharing_label" value="<?php echo esc_attr( $global['sharing_label'] ); ?>" />
 						</td>
@@ -213,7 +214,7 @@ final class Services_Config {
 			</table>
 
 			<p class="submit">
-					<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
+					<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack-sharing-likes' ); ?>" />
 			</p>
 
 				<input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( 'sharing-options' ) ); ?>" />
@@ -224,31 +225,31 @@ final class Services_Config {
 			<table class="form-table">
 				<tbody>
 					<tr valign="top">
-						<th scope="row" width="100"><label><?php esc_html_e( 'Service name', 'jetpack' ); ?></label></th>
+						<th scope="row" width="100"><label><?php esc_html_e( 'Service name', 'jetpack-sharing-likes' ); ?></label></th>
 						<td>
 							<input type="text" name="sharing_name" id="new_sharing_name" size="40" />
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row" width="100"><label><?php esc_html_e( 'Sharing URL', 'jetpack' ); ?></label></th>
+						<th scope="row" width="100"><label><?php esc_html_e( 'Sharing URL', 'jetpack-sharing-likes' ); ?></label></th>
 						<td>
 							<input type="text" name="sharing_url" id="new_sharing_url" size="40" />
 
-							<p><?php esc_html_e( 'You can add the following variables to your service sharing URL:', 'jetpack' ); ?><br/>
+							<p><?php esc_html_e( 'You can add the following variables to your service sharing URL:', 'jetpack-sharing-likes' ); ?><br/>
 							<code>%post_id%</code>, <code>%post_title%</code>, <code>%post_slug%</code>, <code>%post_url%</code>, <code>%post_full_url%</code>, <code>%post_excerpt%</code>, <code>%post_tags%</code>, <code>%home_url%</code></p>
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row" width="100"><label><?php esc_html_e( 'Icon URL', 'jetpack' ); ?></label></th>
+						<th scope="row" width="100"><label><?php esc_html_e( 'Icon URL', 'jetpack-sharing-likes' ); ?></label></th>
 						<td>
 							<input type="text" name="sharing_icon" id="new_sharing_icon" size="40" />
-							<p><?php esc_html_e( 'Enter the URL of a 16x16px icon you want to use for this service.', 'jetpack' ); ?></p>
+							<p><?php esc_html_e( 'Enter the URL of a 16x16px icon you want to use for this service.', 'jetpack-sharing-likes' ); ?></p>
 						</td>
 					</tr>
 					<tr valign="top" width="100">
 						<th scope="row"></th>
 						<td>
-							<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Create Share Button', 'jetpack' ); ?>" />
+							<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Create Share Button', 'jetpack-sharing-likes' ); ?>" />
 							<span class="spinner" style="vertical-align: middle"></span>
 						</td>
 					</tr>
@@ -278,7 +279,7 @@ final class Services_Config {
 			?>
 
 				<div class="inerror" style="display: none; margin-top: 15px">
-					<p><?php esc_html_e( 'An error occurred creating your new sharing service - please check you gave valid details.', 'jetpack' ); ?></p>
+					<p><?php esc_html_e( 'An error occurred creating your new sharing service - please check you gave valid details.', 'jetpack-sharing-likes' ); ?></p>
 				</div>
 
 			<input type="hidden" name="action" value="sharing_new_service" />
@@ -291,7 +292,7 @@ final class Services_Config {
 	/**
 	 * Display a specific sharing service.
 	 *
-	 * @param int    $id            Service unique ID.
+	 * @param string $id            Service unique ID.
 	 * @param object $service       Sharing service.
 	 * @param bool   $show_dropdown Display a dropdown. Not in use at the moment.
 	 *
@@ -304,7 +305,7 @@ final class Services_Config {
 
 		if ( $service->is_deprecated() ) {
 			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-			$title     = sprintf( __( 'The %1$s sharing service has shut down or discontinued support for sharing buttons. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $service->get_name() );
+			$title     = sprintf( __( 'The %1$s sharing service has shut down or discontinued support for sharing buttons. This sharing button is not displayed to your visitors and should be removed.', 'jetpack-sharing-likes' ), $service->get_name() );
 			$klasses[] = 'share-deprecated';
 		}
 

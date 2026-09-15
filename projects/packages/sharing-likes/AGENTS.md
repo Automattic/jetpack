@@ -1,20 +1,39 @@
 # AGENTS.md
 
-Guidance for AI coding agents working on the Settings > Sharing screen.
+Guidance for AI coding agents working on the Sharing & Likes package.
 
-## What this directory is
+## What this package is
 
-It owns the wp-admin Settings > Sharing screen: menu registration, the two
-feature sections (Sharing buttons, Like buttons), the shared placement section,
-the extras section, and the form handling for all of them. Registration happens
-unconditionally from the `is_admin()` block in `load-jetpack.php`, so the screen
-and every section on it exist whichever modules are active.
+Today it owns the wp-admin Settings > Sharing screen, under `src/settings/`: menu
+registration, the two feature sections (Sharing buttons, Like buttons), the
+shared placement section, the extras section, and the form handling for all of
+them. The Jetpack plugin registers it unconditionally from the `is_admin()`
+block in `load-jetpack.php`, so the screen and every section on it exist
+whichever modules are active.
 
 `Section_State` decides which of four variants a section renders. `Environment`
 reads the site facts it needs. Everything else renders.
 
 `load-jetpack.php` does not run on WordPress.com Simple, so the registration
 above does not happen there. Simple's own registration is a wpcom-side change.
+
+The screen is plain wp-admin chrome. It deliberately does not render inside
+`Jetpack_Admin_Page::wrap_ui()`, which is what keeps this package free of the
+plugin.
+
+## What the package may depend on
+
+Composer dependencies only: `jetpack-connection` (which also supplies
+`Jetpack_Options`) and `jetpack-status` (which also supplies `Modules`). Never
+`require` a plugin file or call a plugin function unguarded.
+
+Two plugin classes are still used opportunistically, each behind `class_exists()`
+with a working fallback, because the code that defines them has not moved here
+yet: `Sharing_Service` (sharedaddy's services, `Services_Config`) and
+`Jetpack_Likes_Settings` (the Likes placement default, `Placement_Section`). Both
+are declared to Phan through `parse_file_list` in `.phan/config.php`; that entry
+is for static analysis only and creates no runtime dependency. Move those classes
+here and both the guard and the Phan entry go away.
 
 ## Environment differences
 
@@ -60,7 +79,9 @@ Third parties extend this screen through these, so they fire from the new page
 even though nothing here uses them to assemble it: `pre_admin_screen_sharing` at
 the top of the page, `sharing_global_options` at the end of the services table,
 `sharing_admin_update` on a services save, and
-`sharing_show_buttons_on_row_start` / `_end` around the placement row.
+`sharing_show_buttons_on_row_start` / `_end` around the placement row. All four
+are now documented here rather than in `modules/sharedaddy/sharing.php`, which no
+longer fires any of them.
 
 `sharing_global_options` is the one with a gap to watch. It normally fires from
 `Services_Config`, which only renders when the Sharing module is on, but its
@@ -84,10 +105,14 @@ data rather than history.
 
 ## Testing
 
+`composer phpunit` from the package directory. The suite runs on WorDBless, so
+test classes extend `WorDBless\BaseTestCase`; create users with `wp_insert_user()`
+rather than a factory.
+
 **`is_admin()` is false under WP-CLI**, so the init in `load-jetpack.php` never
 runs there and `wp eval` will report the menu as absent whatever the code does.
-Call `Sharing_Settings_Page::init()` by hand to test the class; proving the
-wiring needs a real authenticated admin request.
+Call `Settings_Page::init()` by hand to test the class; proving the wiring needs a
+real authenticated admin request.
 
 **wp-admin over SSL needs two cookies**, `SECURE_AUTH_COOKIE` and
 `LOGGED_IN_COOKIE`, generated from the same session token. The logged-in cookie
@@ -111,3 +136,5 @@ PHPCS will catch it — it fatals at runtime on whichever path happens to hit it
 
 Grep the moved file directly rather than stripping comments and strings first.
 A scrubbing pass can silently swallow the match and report the file clean.
+
+Translate strings against the `jetpack-sharing-likes` text domain, not `jetpack`.

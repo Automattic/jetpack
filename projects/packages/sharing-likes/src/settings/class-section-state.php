@@ -2,12 +2,12 @@
 /**
  * Resolves which variant a Settings > Sharing section should render.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
-namespace Automattic\Jetpack\Plugin\Sharing_Settings;
+namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
  * Which variant a Settings > Sharing section renders, and whether the shared

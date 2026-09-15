@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Sharing settings: render Settings > Sharing as a standard WordPress settings screen, without the Jetpack masthead and footer.
