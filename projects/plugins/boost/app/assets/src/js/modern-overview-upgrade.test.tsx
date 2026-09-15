@@ -8,12 +8,7 @@ import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-br
 import { recordBoostEvent } from './lib/utils/analytics';
 import './modern-overview-upgrade';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
-import type { ReactNode } from 'react';
 
-jest.mock( './features/upgrade-cta/interstitial-modal-cta', () => ( {
-	__esModule: true,
-	default: ( { customModalTrigger }: { customModalTrigger: ReactNode } ) => customModalTrigger,
-} ) );
 jest.mock( './lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 jest.mock( '@wordpress/element', () => ( {
 	...jest.requireActual( '@wordpress/element' ),
@@ -21,17 +16,21 @@ jest.mock( '@wordpress/element', () => ( {
 } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
-test( 'mounts the upgrade action on request and cleans up its root', async () => {
+test( 'links to the Boost interstitial, records the click, and cleans up its root', async () => {
 	render( <div data-testid="upgrade-slot" /> );
 	const request: UpgradeSlotRequest = { container: screen.getByTestId( 'upgrade-slot' ) };
-	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).toBeNull();
+	expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).toBeNull();
 	await act( async () => {
 		window.dispatchEvent( new CustomEvent( OVERVIEW_UPGRADE_EVENT, { detail: request } ) );
 	} );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Upgrade now' } ) );
+	const upgradeLink = screen.getByRole( 'link', { name: 'Upgrade now' } );
+	// eslint-disable-next-line jest-dom/prefer-to-have-attribute -- This Jest project does not load jest-dom.
+	expect( upgradeLink.getAttribute( 'href' ) ).toBe( 'admin.php?page=my-jetpack#/add-boost' );
+	fireEvent.click( upgradeLink );
+	expect( screen.queryByRole( 'dialog' ) ).toBeNull();
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'performance_history_upgrade_cta_click', {} );
 	await act( async () => request.unmount?.() );
-	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).toBeNull();
+	expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).toBeNull();
 } );
 
 test( 'cancels a pending root before a strict-mode remount', async () => {
@@ -47,9 +46,9 @@ test( 'cancels a pending root before a strict-mode remount', async () => {
 	} );
 	expect( createRoot ).toHaveBeenCalledTimes( 1 );
 	expect( createRoot ).toHaveBeenCalledWith( container );
-	expect( screen.getAllByRole( 'button', { name: 'Upgrade now' } ) ).toHaveLength( 1 );
+	expect( screen.getAllByRole( 'link', { name: 'Upgrade now' } ) ).toHaveLength( 1 );
 	await act( async () => second.unmount?.() );
-	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).toBeNull();
+	expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).toBeNull();
 } );
 
 test( 'relays module updates from the Data Sync client', () => {

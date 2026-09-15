@@ -4,7 +4,6 @@ import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { observeLegacyModulesState } from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
-import InterstitialModalCTA from './features/upgrade-cta/interstitial-modal-cta';
 import { recordBoostEvent } from './lib/utils/analytics';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
 
@@ -30,12 +29,9 @@ window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 		}
 		root = createRoot( request.container );
 		root.render(
-			<InterstitialModalCTA
-				identifier="historical-performance"
-				customModalTrigger={
-					<Button onClick={ handleUpgrade }>{ __( 'Upgrade now', 'jetpack-boost' ) }</Button>
-				}
-			/>
+			<Button href="admin.php?page=my-jetpack#/add-boost" onClick={ handleUpgrade }>
+				{ __( 'Upgrade now', 'jetpack-boost' ) }
+			</Button>
 		);
 	} );
 } );
