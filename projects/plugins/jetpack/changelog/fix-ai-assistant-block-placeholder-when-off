@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant and AI Chat blocks: explain in the editor that Jetpack AI, or the Writing Assistant, is turned off, instead of showing the "unsupported block" warning on posts that already contain them.
