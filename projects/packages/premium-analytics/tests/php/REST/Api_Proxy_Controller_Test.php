@@ -440,7 +440,6 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'utm commas'      => array( 'stats/utm/utm_campaign,utm_source', '/sites/%d/stats/utm/utm_campaign,utm_source' ),
 			'purchases'       => array( 'upgrades', '/upgrades?site=%d' ),
 			'purchases slash' => array( 'upgrades/', '/upgrades?site=%d' ),
-			'site record'     => array( 'site', '/sites/%d?fields=options&options=created_at' ),
 		);
 	}
 
@@ -551,31 +550,6 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		// `upgrades` is site-less and takes no sub-path; build_data_path only handles the exact form.
 		$this->assertTrue( $this->controller->validate_data_endpoint( 'upgrades' ) );
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'upgrades/foo' ) );
-	}
-
-	public function test_validate_data_endpoint_rejects_site_subpaths() {
-		$this->assertTrue( $this->controller->validate_data_endpoint( 'site' ) );
-		$this->assertFalse( $this->controller->validate_data_endpoint( 'site/users' ) );
-		$this->assertFalse( $this->controller->validate_data_endpoint( 'sites' ) );
-	}
-
-	public function test_forwarded_params_cannot_override_a_pinned_path_query() {
-		// A caller-supplied `fields` / `options` must not widen the pinned site record.
-		$request  = $this->build_data_request(
-			'GET',
-			'site',
-			array(
-				'fields'  => '',
-				'options' => 'admin_url,login_url',
-				'locale'  => 'fr',
-			)
-		);
-		$accessor = function ( WP_REST_Request $req ) {
-			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
-			return $this->get_forwarded_params( $req );
-		};
-
-		$this->assertSame( array( 'locale' => 'fr' ), $accessor->call( $this->controller, $request ) );
 	}
 
 	public function test_post_likes_forwards_unsigned() {
@@ -907,9 +881,6 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 			// Purchases — site-less path (view_stats).
 			'purchases'            => array( 'upgrades', $stats, false, '/upgrades?site=%d' ),
-
-			// Site registration date — the only site-record field exposed (view_stats).
-			'site record'          => array( 'site', $stats, false, '/sites/%d?fields=options&options=created_at' ),
 
 			// Public post interactions — the only `posts` sub-paths the pattern exposes (view_stats).
 			'post likes'           => array( 'posts/123/likes', $stats, false, '/sites/%d/posts/123/likes' ),

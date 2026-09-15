@@ -94,9 +94,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  Only meaningful alongside `writes`.
 	 *  - `path`       (string, optional) printf template (`%d` = blog id) for groups NOT under
 	 *                  `/sites/<id>/` (e.g. `upgrades` → `/upgrades?site=%d`). A group with a
-	 *                  fixed `path` takes no sub-path, and a query param the template pins is
-	 *                  never overridden by a caller's copy (see `get_forwarded_params()`).
-	 *                  Omit for the normal `/sites/<id>/<key>/…`.
+	 *                  fixed `path` takes no sub-path. Omit for the normal `/sites/<id>/<key>/…`.
 	 *  - `pattern`    (string, optional) Regex the sub-path (after `<key>/`) must fully match,
 	 *                  for groups where only specific endpoints are safe to expose (e.g. `posts`
 	 *                  → only `<id>/likes` and `<id>/replies`, never post content). Anchored on both ends and
@@ -154,12 +152,6 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		'upgrades'                      => array(
 			'capability' => 'view_stats',
 			'path'       => '/upgrades?site=%d',
-		),
-		// Only the registration date: the whole site record would hand every
-		// view_stats user the options the blog token can read.
-		'site'                          => array(
-			'capability' => 'view_stats',
-			'path'       => '/sites/%d?fields=options&options=created_at',
 		),
 		'posts'                         => array(
 			'capability'      => 'view_stats',
@@ -761,10 +753,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	/**
 	 * Query params to forward to WPCOM, minus the WordPress routing params, the proxy's own
 	 * control params (`endpoint`, `version`, `force_refresh` — which a caller could also pass as
-	 * query params since `get_param()` prefers GET), `site` (the proxy pins the site itself,
-	 * so a caller-supplied `site` must not reach the `upgrades` query string), and any param a
-	 * fixed `path` already carries (WPCOM reads the last copy, so a repeat would override the
-	 * pinned value). Dropping the control params also keeps them out of the cache key.
+	 * query params since `get_param()` prefers GET), and `site` (the proxy pins the site itself,
+	 * so a caller-supplied `site` must not reach the `upgrades` query string). Dropping the
+	 * control params also keeps them out of the cache key.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
@@ -774,18 +765,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		$params = $request->get_query_params();
 		unset( $params['rest_route'], $params['_locale'], $params['site'], $params['endpoint'], $params['version'], $params['force_refresh'] );
 
-		if ( ! is_array( $params ) ) {
-			return array();
-		}
-
-		$config = $this->config_for( (string) $request->get_param( 'endpoint' ) );
-		$query  = isset( $config['path'] ) ? (string) wp_parse_url( $config['path'], PHP_URL_QUERY ) : '';
-		if ( '' !== $query ) {
-			parse_str( $query, $pinned );
-			$params = array_diff_key( $params, $pinned );
-		}
-
-		return $params;
+		return is_array( $params ) ? $params : array();
 	}
 
 	/**

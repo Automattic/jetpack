@@ -78,8 +78,8 @@ describe( 'buildViewsOverYearsRows', () => {
 		expect( rows.map( row => row.total ) ).toEqual( [ 8, 15 ] );
 	} );
 
-	it( 'opens the registration month on the registration day under the average metric', () => {
-		// Registered Nov 24: November covers 7 days, so 300 / 7 rather than 300 / 30.
+	it( 'opens the first month on its first day under the average metric', () => {
+		// First views on Nov 24: November covers 7 days, so 300 / 7 rather than 300 / 30.
 		const rows = buildViewsOverYearsRows( BUCKETS, 'average', TODAY, new Date( 2025, 10, 24 ) );
 
 		expect( rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
@@ -87,16 +87,14 @@ describe( 'buildViewsOverYearsRows', () => {
 		expect( rows.map( row => row.total ) ).toEqual( [ 8, 24 ] );
 	} );
 
-	it( 'leaves the totals alone whatever the registration day', () => {
+	it( 'leaves the totals alone whatever the first day', () => {
 		const rows = buildViewsOverYearsRows( BUCKETS, 'total', TODAY, new Date( 2025, 10, 24 ) );
 
 		expect( rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300, 620 ] );
 		expect( rows.map( row => row.total ) ).toEqual( [ 605, 920 ] );
 	} );
 
-	it( 'divides a month whole when the registration day falls outside it', () => {
-		// Views the endpoint reports before the registration month, and a registration
-		// in the month before the first views, both leave November at 30 days.
+	it( 'divides the first month whole when the first day falls outside it', () => {
 		const later = buildViewsOverYearsRows( BUCKETS, 'average', TODAY, new Date( 2025, 11, 5 ) );
 		const earlier = buildViewsOverYearsRows( BUCKETS, 'average', TODAY, new Date( 2025, 9, 5 ) );
 
@@ -104,7 +102,7 @@ describe( 'buildViewsOverYearsRows', () => {
 		expect( earlier[ 1 ].months.slice( 10 ) ).toEqual( [ 10, 20 ] );
 	} );
 
-	it( 'counts a registration day in the current month up to today', () => {
+	it( 'counts a first day in the current month up to today', () => {
 		const rows = buildViewsOverYearsRows(
 			[ bucket( 2026, 2, 42 ) ],
 			'average',

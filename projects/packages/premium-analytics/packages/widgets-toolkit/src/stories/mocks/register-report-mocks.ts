@@ -84,8 +84,6 @@ const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/v
 // Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
 // own path branch rather than a `routeStatsReport()` case.
 const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
-// The trailing `?` keeps the startsWith match off any future `site-…` group.
-const STATS_SITE_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/site?';
 const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
 const STATS_WORDADS_EARNINGS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/earnings';
 // Post likes is a `posts/{id}/likes` proxy path (not under /stats), so it is
@@ -1014,24 +1012,6 @@ function buildVisitsResponse( query: URLSearchParams ) {
 }
 
 /**
- * The site record with a registration day inside the first month the visits
- * series reports views for, so a monthly average table opens on it.
- *
- * @return Raw `sites/:id?fields=options&options=created_at` response.
- */
-function buildSiteResponse() {
-	const today = new Date().toISOString().slice( 0, 10 );
-	const { data } = buildVisitsResponse(
-		new URLSearchParams( { unit: 'month', date: today, start_date: '2005-01-01' } )
-	);
-	const firstWithViews = data.find( ( [ , views ] ) => Number( views ) > 0 );
-	const month =
-		typeof firstWithViews?.[ 0 ] === 'string' ? firstWithViews[ 0 ] : today.slice( 0, 7 );
-
-	return { options: { created_at: `${ month }-20T09:30:00+00:00` } };
-}
-
-/**
  * Builds a mock Stats "email summary" response matching what
  * `sanitizeStatsEmailSummaryResponse` expects (`{ posts: [...] }`); rates are
  * 0–100 percentages, rows are newest-first, and one subject carries HTML entities to mirror the live endpoint's encoding.
@@ -1571,10 +1551,6 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_PLAN_USAGE_PATH ) ) {
 		return mockPlanUsageData;
-	}
-
-	if ( requestPath.startsWith( STATS_SITE_PATH ) ) {
-		return buildSiteResponse();
 	}
 
 	if ( POST_LIKES_PATH_PATTERN.test( requestPath ) ) {

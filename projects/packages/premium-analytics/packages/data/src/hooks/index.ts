@@ -131,7 +131,6 @@ export { useStatsHighlights } from './use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
 export { useStatsDevices } from './use-stats-devices';
-export { useStatsAppSite, type StatsAppSiteResponse } from './use-stats-app-site';
 export {
 	useStatsAppSiteHasNeverPublishedPost,
 	type StatsAppSiteHasNeverPublishedPostParams,

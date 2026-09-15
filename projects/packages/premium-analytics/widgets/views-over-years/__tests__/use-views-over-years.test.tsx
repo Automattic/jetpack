@@ -30,19 +30,28 @@ const VISITS_RESPONSE = {
 	],
 };
 
-const SITE_RESPONSE = { options: { created_at: '2025-11-24T09:30:00+00:00' } };
+// The first month with views at `unit=day`: quiet until Nov 24.
+const FIRST_MONTH_RESPONSE = {
+	date: '2025-11-30',
+	unit: 'day',
+	fields: [ 'period', 'views' ],
+	data: Array.from( { length: 30 }, ( _, index ) => [
+		`2025-11-${ String( index + 1 ).padStart( 2, '0' ) }`,
+		index + 1 >= 24 ? 42 : 0,
+	] ),
+};
 
 // The current month closes the table, so the clock is pinned to the fixture's.
 const NOW = new Date( '2026-03-15T12:00:00.000Z' );
 
-const isSiteRequest = ( options: { path?: string } ) => /\/site\?/.test( String( options.path ) );
+const isDayRequest = ( options: { path?: string } ) => /unit=day/.test( String( options.path ) );
 
 describe( 'useViewsOverYears', () => {
 	beforeEach( () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockImplementation( async options =>
-			isSiteRequest( options ) ? SITE_RESPONSE : VISITS_RESPONSE
+			isDayRequest( options ) ? FIRST_MONTH_RESPONSE : VISITS_RESPONSE
 		);
 		jest.useFakeTimers();
 		jest.setSystemTime( NOW );
@@ -57,10 +66,7 @@ describe( 'useViewsOverYears', () => {
 
 		await waitFor( () => expect( result.current.rows ).toHaveLength( 2 ) );
 
-		expect( mockApiFetch ).toHaveBeenCalledTimes( 2 );
-		const path = String(
-			mockApiFetch.mock.calls.find( call => ! isSiteRequest( call[ 0 ] ) )?.[ 0 ].path
-		);
+		const path = String( mockApiFetch.mock.calls[ 0 ][ 0 ].path );
 		expect( path ).toMatch( /stats\/visits/ );
 		expect( path ).toMatch( /unit=month/ );
 		expect( path ).toMatch( /start_date=2005-01-01/ );
@@ -72,45 +78,28 @@ describe( 'useViewsOverYears', () => {
 		expect( result.current.rows[ 1 ].months.slice( 9 ) ).toEqual( [ null, 300, 620 ] );
 	} );
 
-	it( 'switches to the per-day averages without refetching', async () => {
-		const { result, rerender } = renderHook(
-			( { metric }: { metric: 'total' | 'average' } ) => useViewsOverYears( metric ),
-			{ wrapper, initialProps: { metric: 'total' } }
-		);
-
-		await waitFor( () => expect( result.current.rows ).toHaveLength( 2 ) );
-
-		rerender( { metric: 'average' } );
-
-		expect( result.current.rows[ 0 ].months.slice( 0, 3 ) ).toEqual( [ 5, 0, 30 ] );
-		expect( mockApiFetch ).toHaveBeenCalledTimes( 2 );
-	} );
-
-	it( 'opens the first month on the registration day and starts the life there', async () => {
+	it( 'then requests the days of the first month with views, and opens it on the first', async () => {
 		const { result } = renderHook( () => useViewsOverYears( 'average' ), { wrapper } );
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
-		expect(
-			String( mockApiFetch.mock.calls.find( call => isSiteRequest( call[ 0 ] ) )?.[ 0 ].path )
-		).toBe( '/jetpack-premium-analytics/v1/proxy/v1.1/site?fields=options&options=created_at' );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 2 );
+		const path = String( mockApiFetch.mock.calls[ 1 ][ 0 ].path );
+		expect( path ).toMatch( /unit=day/ );
+		expect( path ).toMatch( /start_date=2025-11-01/ );
+		expect( path ).toMatch( /date=2025-11-30/ );
+
 		// Nov 24 through Nov 30: 300 / 7.
 		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
-		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-24T09:30:00.000Z' );
+		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-24T00:00:00.000Z' );
 	} );
 
-	it( 'reads the registration day on the site calendar, not the browser one', async () => {
+	it( 'reads the first day on the site calendar', async () => {
 		const settings = getSettings();
-		// 16:00 UTC on Nov 23 is already Nov 24 in Tokyo: 300 / 7, not 300 / 8.
 		setSettings( {
 			...settings,
 			timezone: { string: 'Asia/Tokyo', offset: 9, offsetFormatted: '9', abbr: 'JST' },
 		} );
-		mockApiFetch.mockImplementation( async options =>
-			isSiteRequest( options )
-				? { options: { created_at: '2025-11-23T16:00:00+00:00' } }
-				: VISITS_RESPONSE
-		);
 
 		try {
 			const { result } = renderHook( () => useViewsOverYears( 'average' ), { wrapper } );
@@ -118,16 +107,46 @@ describe( 'useViewsOverYears', () => {
 			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
 			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
-			expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-23T16:00:00.000Z' );
+			expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-23T15:00:00.000Z' );
 		} finally {
 			setSettings( settings );
 		}
 	} );
 
-	it( 'divides the first month whole and starts the life on its first day without a registration date', async () => {
-		// A 403 is what a user who cannot read site options gets; it is not retried.
+	it( 'cuts the day request at today when the first month is the current one', async () => {
+		mockApiFetch.mockImplementation( async options =>
+			isDayRequest( options )
+				? { date: '2026-03-15', unit: 'day', fields: [ 'period', 'views' ], data: [] }
+				: { ...VISITS_RESPONSE, data: [ [ '2026-03', 450 ] ] }
+		);
+		const { result } = renderHook( () => useViewsOverYears( 'average' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+		const path = String( mockApiFetch.mock.calls[ 1 ][ 0 ].path );
+		expect( path ).toMatch( /start_date=2026-03-01/ );
+		expect( path ).toMatch( /date=2026-03-15/ );
+		expect( result.current.rows[ 0 ].months[ 2 ] ).toBe( 30 );
+	} );
+
+	it( 'switches to the per-day averages without refetching', async () => {
+		const { result, rerender } = renderHook(
+			( { metric }: { metric: 'total' | 'average' } ) => useViewsOverYears( metric ),
+			{ wrapper, initialProps: { metric: 'total' } }
+		);
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+		rerender( { metric: 'average' } );
+
+		expect( result.current.rows[ 0 ].months.slice( 0, 3 ) ).toEqual( [ 5, 0, 30 ] );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'divides the first month whole and starts the life on its first day when the day request fails', async () => {
+		// A 403 is not retried, so the fallback is reached at once.
 		mockApiFetch.mockImplementation( async options => {
-			if ( isSiteRequest( options ) ) {
+			if ( isDayRequest( options ) ) {
 				throw { code: 'unauthorized', message: 'Nope.', status: 403 };
 			}
 
@@ -142,12 +161,12 @@ describe( 'useViewsOverYears', () => {
 		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-01T00:00:00.000Z' );
 	} );
 
-	it( 'keeps loading until the registration date arrives', async () => {
-		let resolveSite: ( value: unknown ) => void = () => {};
+	it( 'keeps loading until the first day is known', async () => {
+		let resolveDays: ( value: unknown ) => void = () => {};
 		mockApiFetch.mockImplementation( options =>
-			isSiteRequest( options )
+			isDayRequest( options )
 				? new Promise( resolve => {
-						resolveSite = resolve;
+						resolveDays = resolve;
 				  } )
 				: Promise.resolve( VISITS_RESPONSE )
 		);
@@ -156,7 +175,7 @@ describe( 'useViewsOverYears', () => {
 		await waitFor( () => expect( result.current.rows ).toHaveLength( 2 ) );
 		expect( result.current.isLoading ).toBe( true );
 
-		resolveSite( SITE_RESPONSE );
+		resolveDays( FIRST_MONTH_RESPONSE );
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
@@ -172,5 +191,6 @@ describe( 'useViewsOverYears', () => {
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
 		expect( result.current.rows ).toEqual( [] );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

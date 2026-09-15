@@ -15,9 +15,9 @@ export type MonthBucket = { month: MonthKey; views: number };
 const isSameMonth = ( key: MonthKey, date: Date ) =>
 	key.year === date.getFullYear() && key.month === date.getMonth();
 
-/** Days in the month, from the opening day and up to today when either falls inside. */
-function daysCovered( key: MonthKey, today: Date, opensAt?: Date ): number {
-	const first = opensAt && isSameMonth( key, opensAt ) ? opensAt.getDate() : 1;
+/** Days in the month, from the first day and up to today when either falls inside. */
+function daysCovered( key: MonthKey, today: Date, firstDay?: Date ): number {
+	const first = firstDay && isSameMonth( key, firstDay ) ? firstDay.getDate() : 1;
 	const last = isSameMonth( key, today )
 		? today.getDate()
 		: new Date( key.year, key.month + 1, 0 ).getDate();
@@ -30,17 +30,17 @@ function daysCovered( key: MonthKey, today: Date, opensAt?: Date ): number {
  * first month with views through the current one; the year's roll-up divides
  * the year's views by the days it covers, not the mean of its months.
  *
- * @param buckets      - The `stats/visits` month buckets, in any order.
- * @param metric       - Which number each cell reports.
- * @param today        - The site's current day, which closes the last row.
- * @param registeredAt - The site's registration day, which opens the first month when it falls inside it.
+ * @param buckets - The `stats/visits` month buckets, in any order.
+ * @param metric  - Which number each cell reports.
+ * @param today   - The site's current day, which closes the last row.
+ * @param opensAt - The site's first day, which opens the first month when it falls inside it.
  * @return One row per year with views, newest first. Empty without any views.
  */
 export function buildViewsOverYearsRows(
 	buckets: MonthBucket[],
 	metric: MonthlyHeatmapMetric,
 	today: Date,
-	registeredAt?: Date
+	opensAt?: Date
 ): MonthlyHeatmapRow[] {
 	const viewsByOrder = new Map< number, number >();
 
@@ -63,13 +63,12 @@ export function buildViewsOverYearsRows(
 	const lastOrder = Math.max( monthOrder( todayKey ), ...withViews.map( ( [ order ] ) => order ) );
 	const firstYear = Math.floor( firstOrder / MONTHS_IN_YEAR );
 	const lastYear = Math.floor( lastOrder / MONTHS_IN_YEAR );
-	// Views the endpoint reports before the registration month leave it whole, as
+	// A first day outside the first month with views leaves that month whole, as
 	// `monthlyHeatmapLifeStart` does for the Traffic range.
-	const opensAt =
-		registeredAt &&
-		monthOrder( { year: registeredAt.getFullYear(), month: registeredAt.getMonth() } ) ===
-			firstOrder
-			? registeredAt
+	const firstDay =
+		opensAt &&
+		monthOrder( { year: opensAt.getFullYear(), month: opensAt.getMonth() } ) === firstOrder
+			? opensAt
 			: undefined;
 	const rows: MonthlyHeatmapRow[] = [];
 
@@ -86,7 +85,7 @@ export function buildViewsOverYearsRows(
 			}
 
 			const views = viewsByOrder.get( order ) ?? 0;
-			const days = daysCovered( key, today, opensAt );
+			const days = daysCovered( key, today, firstDay );
 
 			yearViews += views;
 			yearDays += days;
