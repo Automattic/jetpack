@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Read the current plugin's manifests before cached ones so a plugin directory retired by a host deploy cannot win a version tie.
