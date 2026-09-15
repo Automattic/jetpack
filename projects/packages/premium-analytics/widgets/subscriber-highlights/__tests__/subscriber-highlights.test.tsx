@@ -3,6 +3,7 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -180,6 +181,23 @@ describe( 'SubscriberHighlightsWidget', () => {
 		await expect( screen.findByText( ERROR_TEXT ) ).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'All-time subscribers' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'requests every endpoint again when Retry is pressed', async () => {
+		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		const retry = await screen.findByRole( 'button', { name: 'Retry' } );
+		mockApiFetch.mockClear();
+		mockApiFetch.mockImplementation( respondWith( { total: 428, byDate: { '2026-08-16': 317 } } ) );
+		await userEvent.setup( { advanceTimers: jest.advanceTimersByTime } ).click( retry );
+
+		await expect( screen.findByText( '317' ) ).resolves.toBeInTheDocument();
+		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
+		expect( requestedPaths.some( path => path.includes( 'memberships/products' ) ) ).toBe( true );
+		expect( requestedPaths.some( path => path.includes( 'subscribers/counts' ) ) ).toBe( true );
+		expect( requestedPaths.some( path => path.includes( 'stats/subscribers' ) ) ).toBe( true );
 	} );
 
 	it( 'shows the WidgetState loading skeleton while the requests are pending', () => {
