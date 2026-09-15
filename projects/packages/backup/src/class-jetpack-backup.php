@@ -23,6 +23,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -129,6 +130,11 @@ class Jetpack_Backup {
 	 * wp-build dashboard instead of the legacy React app.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
+
+	/**
+	 * Blog sticker that takes a site out of the Automattician preview.
+	 */
+	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
 
 	/**
 	 * Rewind state read from WordPress.com, memoized for the request.
@@ -1205,14 +1211,40 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns true when the wp-build modernization filter is enabled.
+	 * Returns true when the Automattician preview or the modernization filter is enabled.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
+		if ( self::is_automattician_preview() ) {
+			return true;
+		}
+
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Whether an Automattician on the A8C proxy previews the dashboard. Not an authorization check.
+	 *
+	 * The proxy is checked first, so other requests never make the connected-user lookup.
+	 *
+	 * @return bool
+	 */
+	private static function is_automattician_preview() {
+		if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) ) {
+			return false;
+		}
+
+		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER ) ) {
+			return false;
+		}
+
+		$user_data = ( new Connection_Manager() )->get_connected_user_data();
+		$email     = is_array( $user_data ) && ! empty( $user_data['email'] ) ? strtolower( (string) $user_data['email'] ) : '';
+
+		return '@automattic.com' === substr( $email, -15 );
 	}
 
 	/**

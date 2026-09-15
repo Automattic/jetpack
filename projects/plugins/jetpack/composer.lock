@@ -565,7 +565,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "54ab39c8d144efd2bb8691f38cc54f644d0b41e6"
+                "reference": "72d8a235906ad12b0e5ef4bde2d2bc6fd25dbda1"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -575,6 +575,7 @@
                 "automattic/jetpack-composer-plugin": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
