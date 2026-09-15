@@ -26,6 +26,8 @@ export const LoggedOut = () => {
 		useContext( CommentSignals );
 	const { requireNameEmail, mustLogIn, strings, identity } = JetpackComments;
 	const popup = useRef< Window | null >( null );
+	// Bumped per sign-in, so a popup closed to open another cannot answer for it.
+	const attempt = useRef( 0 );
 
 	// Where a cancelled sign-in lands: back on the guest fields when the site needs them.
 	const restingService = requireNameEmail && ! mustLogIn ? 'mail' : '';
@@ -58,9 +60,15 @@ export const LoggedOut = () => {
 		signInError.value = '';
 		activeService.value = provider;
 
+		const current = ++attempt.current;
+
 		const result = await signIn( provider, opened => {
 			popup.current = opened;
 		} );
+
+		if ( current !== attempt.current ) {
+			return;
+		}
 
 		popup.current = null;
 

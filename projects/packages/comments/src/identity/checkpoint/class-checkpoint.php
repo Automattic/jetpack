@@ -134,15 +134,6 @@ class Checkpoint {
 	}
 
 	/**
-	 * A fresh challenge: 32 random bytes, base64url.
-	 *
-	 * @return string
-	 */
-	public static function challenge() {
-		return rtrim( strtr( base64_encode( random_bytes( 32 ) ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- base64url is the wire format.
-	}
-
-	/**
 	 * Whether a challenge has the shape the popup echoes back.
 	 *
 	 * @param mixed $challenge The value to check.
@@ -153,27 +144,11 @@ class Checkpoint {
 	}
 
 	/**
-	 * A signed popup URL for every provider, sharing one challenge.
-	 *
-	 * @param string $challenge The challenge to sign.
-	 * @return array Keyed by provider: url, expires, challenge.
-	 */
-	public static function connect_urls( $challenge ) {
-		$urls = array();
-
-		foreach ( self::PROVIDERS as $provider ) {
-			$connect = self::connect_url( $provider, $challenge );
-
-			if ( ! is_wp_error( $connect ) ) {
-				$urls[ $provider ] = $connect;
-			}
-		}
-
-		return $urls;
-	}
-
-	/**
 	 * A signed popup URL for one provider.
+	 *
+	 * A Jetpack or Atomic site proves itself with its blog token. On Simple the
+	 * code is already running inside WordPress.com, so the Consulate signs with
+	 * the key it will verify against.
 	 *
 	 * @param string $provider  One of PROVIDERS.
 	 * @param string $challenge The challenge to sign.
@@ -184,18 +159,29 @@ class Checkpoint {
 			return new WP_Error( 'invalid_request', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
 
+		if ( ! self::is_available() ) {
+			return new WP_Error( 'unavailable', __( 'Sign-in is not available on this site.', 'jetpack-comments' ), array( 'status' => 503 ) );
+		}
+
+		// Scheme, host and port of the page the popup posts back to.
+		$home   = wp_parse_url( home_url() );
+		$origin = ( $home['scheme'] ?? 'https' ) . '://' . ( $home['host'] ?? '' ) . ( empty( $home['port'] ) ? '' : ':' . $home['port'] );
+
 		$params = array(
 			'blog_id'   => self::blog_id(),
 			'provider'  => $provider,
 			'challenge' => $challenge,
-			'origin'    => self::origin(),
+			'origin'    => $origin,
 			'expires'   => time() + self::SIGNATURE_TTL,
 		);
 
-		$signature = self::sign( $params );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once WP_CONTENT_DIR . '/lib/comment-identity/class-consulate.php';
 
-		if ( is_wp_error( $signature ) ) {
-			return $signature;
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only; add to stub-defs.php when the wpcom half lands.
+			$signature = \Automattic\Comment_Identity\Consulate::sign( $params );
+		} else {
+			$signature = hash_hmac( 'sha256', self::signing_payload( $params ), ( new Tokens() )->get_access_token()->secret );
 		}
 
 		$query = array_merge( array( 'comment_identity' => 1 ), $params, array( 'signature' => $signature ) );
@@ -235,54 +221,12 @@ class Checkpoint {
 	}
 
 	/**
-	 * Sign the popup parameters.
-	 *
-	 * A Jetpack or Atomic site proves itself with its blog token. On Simple the
-	 * code is already running inside WordPress.com, so the Consulate signs with
-	 * the key it will verify against.
-	 *
-	 * @param array $params blog_id, challenge, expires, origin, provider.
-	 * @return string|WP_Error HMAC-SHA256 hex.
-	 */
-	private static function sign( array $params ) {
-		if ( ! self::is_available() ) {
-			return new WP_Error( 'unavailable', __( 'Sign-in is not available on this site.', 'jetpack-comments' ), array( 'status' => 503 ) );
-		}
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_once WP_CONTENT_DIR . '/lib/comment-identity/class-consulate.php';
-
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only; add to stub-defs.php when the wpcom half lands.
-			return \Automattic\Comment_Identity\Consulate::sign( $params );
-		}
-
-		return hash_hmac( 'sha256', self::signing_payload( $params ), ( new Tokens() )->get_access_token()->secret );
-	}
-
-	/**
 	 * The site's id on WordPress.com.
 	 *
 	 * @return int
 	 */
 	public static function blog_id() {
 		return (int) Manager::get_site_id( true );
-	}
-
-	/**
-	 * Scheme, host and port of the page the popup posts back to.
-	 *
-	 * @return string
-	 */
-	public static function origin() {
-		$parts = wp_parse_url( home_url() );
-
-		$origin = ( $parts['scheme'] ?? 'https' ) . '://' . ( $parts['host'] ?? '' );
-
-		if ( ! empty( $parts['port'] ) ) {
-			$origin .= ':' . $parts['port'];
-		}
-
-		return $origin;
 	}
 
 	/**
@@ -466,15 +410,5 @@ class Checkpoint {
 		if ( '' !== $this->identity['avatar'] ) {
 			add_comment_meta( $comment_id, self::META_AVATAR, $this->identity['avatar'], true );
 		}
-	}
-
-	/**
-	 * Forget the admitted identity, for tests.
-	 *
-	 * @return void
-	 */
-	public function reset() {
-		$this->identity  = null;
-		self::$available = null;
 	}
 }

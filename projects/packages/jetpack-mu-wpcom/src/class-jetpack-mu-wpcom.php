@@ -91,6 +91,9 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
+		// At mu-plugin scope, because Comments::is_enabled() is resolved at plugins_loaded on both hosts.
+		add_filter( 'jetpack_comments_new_hotness', array( __CLASS__, 'enable_jetpack_comments_for_sticker' ) );
+
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
@@ -833,6 +836,25 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
 			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
 		}
+	}
+
+	/**
+	 * Turn on the rebuilt Jetpack Comments form for a Simple or Atomic site
+	 * carrying the rollout sticker.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether it is already on.
+	 * @return bool
+	 */
+	public static function enable_jetpack_comments_for_sticker( $enabled ) {
+		if ( $enabled ) {
+			return true;
+		}
+
+		$blog_id = (int) get_wpcom_blog_id();
+
+		return $blog_id > 0 && wpcom_has_blog_sticker( 'comment-new-hotness', $blog_id );
 	}
 
 	/**

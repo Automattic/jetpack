@@ -24,6 +24,7 @@ export type Passport = {
 };
 
 export type IdentitySettings = {
+	blogId: number;
 	providers: Provider[];
 	connect: Partial< Record< Provider, ConnectUrl > >;
 	origin: string;
@@ -76,7 +77,7 @@ export type Strings = {
 	logInOptional: string;
 	logInOptionalReply: string;
 	logInToReply: string;
-	loggedInVia: string;
+	signedInAs: string;
 	cancel: string;
 	settings: string;
 	close: string;

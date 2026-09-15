@@ -14,7 +14,7 @@ const PROVIDERS: Provider[] = [ 'wordpress', 'google', 'facebook' ];
  * @return The passport, or null.
  */
 export const readPassport = (): Passport | null => {
-	const name = JetpackComments.identity?.displayCookie;
+	const { displayCookie: name, blogId } = JetpackComments.identity;
 
 	if ( ! name ) {
 		return null;
@@ -32,8 +32,10 @@ export const readPassport = (): Passport | null => {
 	try {
 		const data = JSON.parse( decodeURIComponent( raw ) ) as Record< string, unknown >;
 
+		// A network shares one cookie domain, so another site's sign-in can land here.
 		if (
 			! data ||
+			data.blog_id !== blogId ||
 			typeof data.name !== 'string' ||
 			typeof data.provider !== 'string' ||
 			! PROVIDERS.includes( data.provider as Provider )

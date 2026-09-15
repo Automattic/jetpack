@@ -23,21 +23,6 @@ const EXPIRY_MARGIN_S = 30;
 const CLOSED_POLL_MS = 250;
 
 /**
- * A fresh challenge: 32 random bytes, base64url.
- *
- * @return The challenge.
- */
-const randomChallenge = (): string => {
-	const bytes = new Uint8Array( 32 );
-	crypto.getRandomValues( bytes );
-
-	return btoa( String.fromCharCode( ...bytes ) )
-		.replace( /\+/g, '-' )
-		.replace( /\//g, '_' )
-		.replace( /=+$/, '' );
-};
-
-/**
  * The signed URL for a provider, re-signed by the site when the rendered one
  * has expired or was never there. A cached page hands out stale ones.
  *
@@ -52,9 +37,17 @@ const connectUrl = async ( provider: Provider ): Promise< ConnectUrl > => {
 		return current;
 	}
 
+	// A fresh challenge: 32 random bytes, base64url.
+	const bytes = new Uint8Array( 32 );
+	crypto.getRandomValues( bytes );
+	const challenge = btoa( String.fromCharCode( ...bytes ) )
+		.replace( /\+/g, '-' )
+		.replace( /\//g, '_' )
+		.replace( /=+$/, '' );
+
 	const url = new URL( refreshUrl );
 	url.searchParams.set( 'provider', provider );
-	url.searchParams.set( 'challenge', randomChallenge() );
+	url.searchParams.set( 'challenge', challenge );
 
 	const response = await fetch( url.toString(), { credentials: 'omit' } );
 
@@ -66,20 +59,6 @@ const connectUrl = async ( provider: Provider ): Promise< ConnectUrl > => {
 	connect[ provider ] = fresh;
 
 	return fresh;
-};
-
-/**
- * Popup placement, centred on the window that opens it.
- *
- * @return The features string for window.open().
- */
-const popupFeatures = (): string => {
-	const left = Math.max( 0, window.screenX + ( window.outerWidth - POPUP_WIDTH ) / 2 );
-	const top = Math.max( 0, window.screenY + ( window.outerHeight - POPUP_HEIGHT ) / 2 );
-
-	return `width=${ POPUP_WIDTH },height=${ POPUP_HEIGHT },left=${ Math.round(
-		left
-	) },top=${ Math.round( top ) },status=0,toolbar=0,location=1,menubar=0,resizable=1,scrollbars=1`;
 };
 
 /**
@@ -96,7 +75,18 @@ export const signIn = async (
 	provider: Provider,
 	onOpen: ( popup: Window | null ) => void
 ): Promise< CheckpointResult > => {
-	const popup = window.open( '', POPUP_NAME, popupFeatures() );
+	// Centred on the window that opens it.
+	const left = Math.round(
+		Math.max( 0, window.screenX + ( window.outerWidth - POPUP_WIDTH ) / 2 )
+	);
+	const top = Math.round(
+		Math.max( 0, window.screenY + ( window.outerHeight - POPUP_HEIGHT ) / 2 )
+	);
+	const popup = window.open(
+		'',
+		POPUP_NAME,
+		`width=${ POPUP_WIDTH },height=${ POPUP_HEIGHT },left=${ left },top=${ top },status=0,toolbar=0,location=1,menubar=0,resizable=1,scrollbars=1`
+	);
 	onOpen( popup );
 
 	if ( ! popup ) {

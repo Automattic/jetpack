@@ -20,6 +20,8 @@ class Identity {
 	public static function settings() {
 		$commenter = wp_get_current_commenter();
 
+		// Nothing under `identity` is about the visitor. This HTML is page-cached
+		// and served to everyone, so who holds a passport comes from a cookie.
 		$settings = array(
 			'isLoggedIn' => is_user_logged_in(),
 			'commenter'  => array(
@@ -28,7 +30,20 @@ class Identity {
 				'url'    => $commenter['comment_author_url'],
 			),
 			'user'       => null,
-			'identity'   => self::checkpoint_settings(),
+			'identity'   => array(
+				'blogId'        => Checkpoint::blog_id(),
+				'providers'     => array(),
+				'connect'       => array(),
+				'origin'        => Checkpoint::MESSAGE_ORIGIN,
+				'codeField'     => Checkpoint::CODE_FIELD,
+				'passportField' => Checkpoint::PASSPORT_FIELD,
+				'displayCookie' => Passport::DISPLAY_COOKIE,
+				'cookiePath'    => COOKIEPATH,
+				'cookieDomain'  => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
+				'refreshUrl'    => Checkpoint_Endpoint::connect_url(),
+				'logoutUrl'     => admin_url( 'admin-ajax.php' ),
+				'logoutAction'  => Checkpoint_Endpoint::LOGOUT_ACTION,
+			),
 		);
 
 		if ( is_user_logged_in() ) {
@@ -41,43 +56,28 @@ class Identity {
 					$user->display_name
 				),
 			);
-		}
 
-		return $settings;
-	}
-
-	/**
-	 * What the form needs to open the popup.
-	 *
-	 * Nothing here is about the visitor. This HTML is page-cached and served to
-	 * everyone, so who holds a passport comes from a cookie the script reads.
-	 *
-	 * @return array
-	 */
-	private static function checkpoint_settings() {
-		$settings = array(
-			'providers'     => array(),
-			'connect'       => array(),
-			'origin'        => Checkpoint::MESSAGE_ORIGIN,
-			'codeField'     => Checkpoint::CODE_FIELD,
-			'passportField' => Checkpoint::PASSPORT_FIELD,
-			'displayCookie' => Passport::DISPLAY_COOKIE,
-			'cookiePath'    => COOKIEPATH,
-			'cookieDomain'  => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
-			'refreshUrl'    => Checkpoint_Endpoint::connect_url(),
-			'logoutUrl'     => admin_url( 'admin-ajax.php' ),
-			'logoutAction'  => Checkpoint_Endpoint::LOGOUT_ACTION,
-		);
-
-		if ( is_user_logged_in() || ! Checkpoint::is_available() ) {
 			return $settings;
 		}
 
-		// These URLs get cached too, so visitors share a challenge until it
+		if ( ! Checkpoint::is_available() ) {
+			return $settings;
+		}
+
+		// The signed URLs get cached too, so visitors share a challenge until it
 		// expires. That is fine: the challenge only filters messages to the
 		// window that opened the popup, and the refresh route issues a fresh one.
-		$settings['providers'] = Checkpoint::PROVIDERS;
-		$settings['connect']   = Checkpoint::connect_urls( Checkpoint::challenge() );
+		$challenge = rtrim( strtr( base64_encode( random_bytes( 32 ) ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- base64url is the wire format.
+
+		$settings['identity']['providers'] = Checkpoint::PROVIDERS;
+
+		foreach ( Checkpoint::PROVIDERS as $provider ) {
+			$connect = Checkpoint::connect_url( $provider, $challenge );
+
+			if ( ! is_wp_error( $connect ) ) {
+				$settings['identity']['connect'][ $provider ] = $connect;
+			}
+		}
 
 		return $settings;
 	}

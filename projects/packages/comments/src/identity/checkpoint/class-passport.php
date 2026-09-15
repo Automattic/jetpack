@@ -27,7 +27,9 @@ class Passport {
 	const DISPLAY_COOKIE = 'jetpack_comment_identity_display';
 
 	/**
-	 * The fields the display cookie carries.
+	 * The fields the display cookie carries. The blog id goes in too, because on
+	 * a network the cookie domain is shared and the script must not show another
+	 * site's sign-in.
 	 */
 	const DISPLAY_FIELDS = array( 'provider', 'name', 'avatar' );
 
@@ -70,7 +72,17 @@ class Passport {
 		}
 
 		self::set_cookie( self::COOKIE, self::encode( $identity ), $expires, true );
-		self::set_cookie( self::DISPLAY_COOKIE, self::display( $identity ), $expires, false );
+
+		// The display cookie is URL-encoded JSON the page's script decodes.
+		$shown = array();
+
+		foreach ( self::DISPLAY_FIELDS as $field ) {
+			$shown[ $field ] = (string) ( $identity[ $field ] ?? '' );
+		}
+
+		$shown['blog_id'] = Checkpoint::blog_id();
+
+		self::set_cookie( self::DISPLAY_COOKIE, rawurlencode( (string) wp_json_encode( $shown, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ), $expires, false );
 	}
 
 	/**
@@ -82,22 +94,6 @@ class Passport {
 		unset( $_COOKIE[ self::COOKIE ], $_COOKIE[ self::DISPLAY_COOKIE ] );
 		self::set_cookie( self::COOKIE, '', time() - YEAR_IN_SECONDS, true );
 		self::set_cookie( self::DISPLAY_COOKIE, '', time() - YEAR_IN_SECONDS, false );
-	}
-
-	/**
-	 * The display cookie's value: URL-encoded JSON the page's script decodes.
-	 *
-	 * @param array $identity Keyed by FIELDS.
-	 * @return string
-	 */
-	public static function display( array $identity ) {
-		$shown = array();
-
-		foreach ( self::DISPLAY_FIELDS as $field ) {
-			$shown[ $field ] = (string) ( $identity[ $field ] ?? '' );
-		}
-
-		return rawurlencode( (string) wp_json_encode( $shown, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 	}
 
 	/**
