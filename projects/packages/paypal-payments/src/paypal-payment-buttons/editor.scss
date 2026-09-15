@@ -304,24 +304,27 @@
 .jetpack-paypal-payment-buttons__has-error {
 
 	// Every validated control here puts its error in the help slot, so one rule
-	// covers all of them.
+	// covers all of them. Values from the Figma tax frame, node 6:13412.
 	.components-base-control__help {
-		align-items: flex-start;
+		align-items: center;
 		color: #cc1818;
 		display: flex;
+		font-size: 12px;
 		gap: 4px;
-		line-height: 1.4;
+		line-height: 16px;
 
 		&::before {
 			background-color: currentColor;
 			content: "";
 			flex: 0 0 auto;
-			height: 1.4em;
-			mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3.2 1.5 21h21L12 3.2zm0 3.9 7 11.9H5l7-11.9zM11 11v4h2v-4h-2zm0 5v2h2v-2h-2z'/%3E%3C/svg%3E");
+			height: 16px;
+			// The `error` glyph from @wordpress/icons, exported from the Figma frame.
+			// Inlined rather than imported so one rule covers every field here.
+			mask-image: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>");
 			mask-repeat: no-repeat;
 			mask-position: center;
-			mask-size: 14px 14px;
-			width: 14px;
+			mask-size: 16px 16px;
+			width: 16px;
 		}
 	}
 
