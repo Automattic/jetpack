@@ -128,16 +128,39 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( requestedPaths.some( path => path.includes( 'stats/subscribers' ) ) ).toBe( false );
 	} );
 
-	it( 'falls back to the history when the counts request fails', async () => {
+	it( 'shows the error instead of guessing the tiles when the counts request fails', async () => {
 		mockApiFetch.mockImplementation(
 			respondWith( { failCounts: true, byDate: { '2026-08-16': 317 } } )
 		);
 
 		render( <SubscriberHighlightsWidget attributes={ {} } /> );
 
+		await expect( screen.findByText( ERROR_TEXT ) ).resolves.toBeInTheDocument();
+		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
+		expect( requestedPaths.some( path => path.includes( 'stats/subscribers' ) ) ).toBe( false );
+	} );
+
+	it( 'retries the history when every day failed', async () => {
+		const failDates = [ '2026-08-16', '2026-07-17', '2026-06-17' ];
+		mockApiFetch.mockImplementation( respondWith( { failDates } ) );
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		const retry = await screen.findByRole( 'button', { name: 'Retry' } );
+		mockApiFetch.mockClear();
+		mockApiFetch.mockImplementation( respondWith( { byDate: { '2026-08-16': 317 } } ) );
+		await userEvent.setup( { advanceTimers: jest.advanceTimersByTime } ).click( retry );
+
 		await expect( screen.findByText( '317' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( '30 days ago' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Paid subscribers' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'never shows fewer than zero free subscribers', async () => {
+		mockApiFetch.mockImplementation( respondWith( { total: 100, paid: 120, social: 5 } ) );
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '120' ) ).resolves.toBeInTheDocument();
+		expect( tileValues() ).toContainEqual( expect.stringMatching( /^Free subscribers.*0$/ ) );
 	} );
 
 	it( 'shows a placeholder for a day with no count, and a real zero as zero', async () => {

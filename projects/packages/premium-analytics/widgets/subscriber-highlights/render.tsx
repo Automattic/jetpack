@@ -55,9 +55,10 @@ function SubscriberHighlightsReport() {
 	const total = counts.data?.total_subscribers;
 	const paid = counts.data?.paid_subscribers;
 
-	// A failed counts request falls back to the history tiles rather than blocking the widget.
+	// Without counts the card can't tell which tiles a site should see, so it shows the error rather than guessing.
+	const countsFailed = counts.isError && total === undefined;
 	const hasPaidSubscribers = ( paid ?? 0 ) > 0;
-	const showsHistory = ! counts.isLoading && ! hasPaidSubscribers;
+	const showsHistory = ! counts.isLoading && ! countsFailed && ! hasPaidSubscribers;
 	const past = useStatsSubscribersDaysAgo( DAYS_AGO, { enabled: showsHistory } );
 
 	const breakdownTiles: Tile[] = [
@@ -72,7 +73,7 @@ function SubscriberHighlightsReport() {
 			key: 'free',
 			label: __( 'Free subscribers', 'jetpack-premium-analytics-pkg' ),
 			icon: envelope,
-			value: total !== undefined && paid !== undefined ? total - paid : null,
+			value: total !== undefined && paid !== undefined ? Math.max( 0, total - paid ) : null,
 			note: __(
 				'Email subscribers and free WordPress.com subscribers',
 				'jetpack-premium-analytics-pkg'
@@ -109,7 +110,6 @@ function SubscriberHighlightsReport() {
 
 	const hasCounts = tiles.some( tile => tile.value !== null );
 	const isLoading = counts.isLoading || ( showsHistory && past.isLoading );
-	const isError = counts.isError || ( showsHistory && past.isError );
 
 	return (
 		<div className={ styles.root }>
@@ -117,7 +117,7 @@ function SubscriberHighlightsReport() {
 				isLoading={ isLoading }
 				isFetching={ counts.isFetching || past.isFetching }
 				// `placeholderData` keeps the last counts on screen, so a transient refetch failure should not replace them with an error.
-				isError={ isError && ! hasCounts }
+				isError={ countsFailed || ( showsHistory && past.isError && ! hasCounts ) }
 				isEmpty={ ! hasCounts }
 				error={ {
 					description: __(
