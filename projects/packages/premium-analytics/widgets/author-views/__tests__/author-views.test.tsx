@@ -147,6 +147,27 @@ describe( 'AuthorViewsWidget', () => {
 		);
 	} );
 
+	it( 'drops a bucket keyed by an impossible calendar day', async () => {
+		// Shaped like a date, so it survives the window filter; not one, so it cannot chart.
+		mockApiFetch.mockResolvedValue( {
+			...TOP_AUTHORS_DAYS,
+			days: {
+				...TOP_AUTHORS_DAYS.days,
+				'2026-06-31': { authors: [ { name: 'Priya', author_id: 7, views: 99, posts: [] } ] },
+			},
+		} );
+
+		render(
+			<AuthorViewsWidget
+				attributes={ { reportParams: { ...WINDOW_PARAMS, from: '2026-06-01T00:00:00.000+00:00' } } }
+			/>
+		);
+
+		const [ metric ] = chartedMetrics( await screen.findByTestId( 'metric-tabs-chart' ) );
+		expect( metric.dates ).toEqual( [ '2026-07-01', '2026-07-02', '2026-07-03' ] );
+		expect( metric.value ).toBe( 7 );
+	} );
+
 	it( 'draws a line when the chartType attribute says so', async () => {
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
 

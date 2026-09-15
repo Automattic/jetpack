@@ -1,4 +1,5 @@
 import { needsReportDateParamsSeed } from '@jetpack-premium-analytics/data';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -30,6 +31,27 @@ const beforeLoad = ( params?: object, search?: object ) =>
 describe( 'report route.beforeLoad', () => {
 	afterEach( () => {
 		jest.clearAllMocks();
+	} );
+
+	it( 'redirects to /connect when the site is not connected', async () => {
+		( isPremiumAnalyticsSiteConnected as jest.Mock ).mockReturnValueOnce( false );
+
+		await expect( beforeLoad( { report: 'authors' } ) ).rejects.toMatchObject( {
+			to: '/connect',
+		} );
+	} );
+
+	it.each( [ undefined, 'unknown' ] )(
+		'redirects home for an unknown report (%p)',
+		async report => {
+			await expect( beforeLoad( { report } ) ).rejects.toMatchObject( { to: '/' } );
+		}
+	);
+
+	it( 'passes through a settled URL without redirecting', async () => {
+		await expect(
+			beforeLoad( { report: 'authors' }, { from: '2026-06-01', to: '2026-06-16' } )
+		).resolves.toBeUndefined();
 	} );
 
 	it( 'drops the detail-page scopes that arrived on the URL while seeding', async () => {

@@ -159,6 +159,34 @@ describe( 'report authors aggregate', () => {
 		] );
 	} );
 
+	it( 'keys a post without an id by its link, then by its title', () => {
+		const rows = aggregateAuthorRows( {
+			data: [
+				{
+					items: [
+						{
+							id: 42,
+							label: 'Ada Lovelace',
+							views: 5,
+							icon: null,
+							children: [
+								{ label: 'Linked only', views: 3, link: 'https://example.com/linked/' },
+								{ label: 'Title only', views: 2, link: null },
+							],
+						},
+					],
+				},
+			],
+		} );
+
+		expect( rows.map( row => row.id ) ).toEqual( [
+			'id:42',
+			'id:42|post:link:https://example.com/linked/',
+			'id:42|post:title:Title only',
+		] );
+		expect( rows.slice( 1 ).map( row => row.postId ) ).toEqual( [ undefined, undefined ] );
+	} );
+
 	it( 'returns no rows before the report loads', () => {
 		expect( aggregateAuthorRows( undefined ) ).toEqual( [] );
 	} );

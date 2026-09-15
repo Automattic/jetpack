@@ -1,6 +1,9 @@
 import { ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
-import { isDashboardSectionInPreviewScope } from '../site-readiness';
+import {
+	isDashboardSectionInPreviewScope,
+	isPremiumAnalyticsSiteConnected,
+} from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -12,7 +15,7 @@ jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( options => options ),
 } ) );
 jest.mock( '../site-readiness', () => ( {
-	isPremiumAnalyticsSiteConnected: () => true,
+	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isDashboardSectionInPreviewScope: jest.fn( () => true ),
 } ) );
 jest.mock( './config', () => ( {
@@ -91,6 +94,23 @@ describe( 'post detail route report origin', () => {
 
 		expect( mockRedirect ).not.toHaveBeenCalled();
 	} );
+
+	it( 'redirects to /connect when the site is not connected', async () => {
+		( isPremiumAnalyticsSiteConnected as jest.Mock ).mockReturnValueOnce( false );
+
+		await expect(
+			route.beforeLoad( { params: { postId: '42' }, search: seededSearch } )
+		).rejects.toMatchObject( { to: '/connect' } );
+	} );
+
+	it.each( [ undefined, '', 'abc', '-3', '0', '1.5' ] )(
+		'redirects home for an invalid postId (%p)',
+		async postId => {
+			await expect(
+				route.beforeLoad( { params: { postId }, search: seededSearch } )
+			).rejects.toMatchObject( { to: '/' } );
+		}
+	);
 
 	it( 'redirects home when the All pages report is behind a hidden tab', async () => {
 		( isDashboardSectionInPreviewScope as jest.Mock ).mockReturnValueOnce( false );

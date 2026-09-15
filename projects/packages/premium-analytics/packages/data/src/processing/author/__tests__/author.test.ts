@@ -38,6 +38,15 @@ describe( 'sanitizeAuthorSummaryResponse', () => {
 		} );
 	} );
 
+	it.each( [ undefined, {}, { '96': '' }, { '200': 'https://g/200' } ] )(
+		'leaves the avatar empty when no preferred size is offered (%j)',
+		avatarUrls => {
+			expect(
+				sanitizeAuthorSummaryResponse( { ...user, avatar_urls: avatarUrls }, [], 0 )?.avatarUrl
+			).toBe( '' );
+		}
+	);
+
 	it.each( [ null, { id: 0 }, { id: '1.5' } ] )(
 		'returns null for a non-user record (%j)',
 		record => {

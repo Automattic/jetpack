@@ -45,6 +45,9 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	StatsPageIcon: () => null,
 } ) );
 
+// The core-data selector the stage's `useSelect` callback reaches.
+const mockGetEntityRecords = jest.fn( () => [] );
+
 jest.mock( '@wordpress/core-data', () => ( {
 	store: {},
 } ) );
@@ -56,7 +59,10 @@ jest.mock(
 	'@wordpress/data',
 	() =>
 		new Proxy(
-			{ useSelect: () => [] },
+			{
+				useSelect: ( selector: ( select: unknown ) => unknown ) =>
+					selector( () => ( { getEntityRecords: mockGetEntityRecords } ) ),
+			},
 			{
 				get: ( overrides, prop ) =>
 					prop in overrides
@@ -255,6 +261,16 @@ describe( 'author detail stage', () => {
 			'/reports/authors?from=2026-06-01&to=2026-06-16'
 		);
 		expect( breadcrumbs.getByRole( 'heading', { level: 1, name: 'Author' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'asks core-data for every widget module, not its default first page', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( mockGetEntityRecords ).toHaveBeenCalledWith( 'root', 'widgetModule', {
+			per_page: -1,
+		} );
 	} );
 
 	it( 'shows the author identity in the header and renders the widgets', () => {
