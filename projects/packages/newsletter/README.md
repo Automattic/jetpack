@@ -61,6 +61,8 @@ On WordPress.com-platform sites the answer link opens the Write editor; everywhe
 
 Write itself can send someone back the other way, from its first-visit note or its Tips panel. When it does it sets `wpcom-write-block-editor-preferred` in localStorage, and this widget stops offering Write from then on. The key is shared by name only — Write ships from `jetpack-mu-wpcom`, which this package does not depend on — so changing it means changing both sides.
 
+Once someone has opted out, where the link goes depends on whether `post-new.php` can seed the prompt there. The block carrying it is inserted by the Jetpack plugin's editor script, so Atomic and self-hosted go straight to `post-new.php`. Simple does not run that plugin and would land on the prompt's tags with an empty editor, so it goes to `https://wordpress.com/post/<blog_id>` instead — the same destination Calypso's own blogging-prompt card uses.
+
 ### Freshly Pressed
 
 When WordPress.com is featuring posts, the widget grows a second tab listing ten of them, each linking to the post in the WordPress.com Reader.

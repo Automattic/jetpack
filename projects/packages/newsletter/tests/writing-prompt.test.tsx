@@ -22,6 +22,7 @@ const mockGetSiteData = jest.fn();
 const mockGetSiteType = jest.fn();
 const mockGetScriptData = jest.fn();
 const mockIsWpcomPlatformSite = jest.fn();
+const mockIsSimpleSite = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	__esModule: true,
@@ -29,6 +30,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteType: ( ...args: unknown[] ) => mockGetSiteType( ...args ),
 	getScriptData: ( ...args: unknown[] ) => mockGetScriptData( ...args ),
 	isWpcomPlatformSite: ( ...args: unknown[] ) => mockIsWpcomPlatformSite( ...args ),
+	isSimpleSite: ( ...args: unknown[] ) => mockIsSimpleSite( ...args ),
 } ) );
 
 const mockInitialize = jest.fn();
@@ -488,6 +490,7 @@ describe( 'WritingPrompt widget editor preference', () => {
 		mockGetSiteType.mockReset();
 		mockGetScriptData.mockReset();
 		mockIsWpcomPlatformSite.mockReset();
+		mockIsSimpleSite.mockReset();
 		mockRecordEvent.mockReset();
 
 		mockApiFetch.mockResolvedValue( [ PROMPT ] );
@@ -495,6 +498,7 @@ describe( 'WritingPrompt widget editor preference', () => {
 		mockGetSiteType.mockReturnValue( 'jetpack' );
 		mockGetScriptData.mockReturnValue( {} );
 		mockIsWpcomPlatformSite.mockReturnValue( true );
+		mockIsSimpleSite.mockReturnValue( false );
 
 		window.localStorage.clear();
 	} );
@@ -525,6 +529,33 @@ describe( 'WritingPrompt widget editor preference', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_newsletter_writing_prompt_post_answer_click',
 			{ site_type: 'jetpack', prompt_id: 1, editor: 'block' }
+		);
+	} );
+
+	it( 'sends an opted-out Simple site to the Calypso editor, which seeds the prompt there', async () => {
+		// post-new.php only seeds the prompt block via the Jetpack plugin's editor
+		// script, which Simple does not run: the tags land but the editor is empty.
+		mockIsSimpleSite.mockReturnValue( true );
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'https://wordpress.com/post/12345?answer_prompt=1'
+		);
+	} );
+
+	it( 'keeps a Simple site on Write until it has been opted out of', async () => {
+		mockIsSimpleSite.mockReturnValue( true );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
 		);
 	} );
 
