@@ -1,9 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 import { createRegistry } from '@wordpress/data';
 
-const { store, PANEL_STATE_STORE, actions, selectors, reducer, DEFAULT_STATE } = await import(
-	'../../../src/form-editor/store/panel-state'
-);
+const { store, PANEL_STATE_STORE, actions, selectors, reducer, DEFAULT_STATE } =
+	await import( '../../../src/form-editor/store/panel-state' );
 
 const createRegistryWithStores = () => {
 	const registry = createRegistry();

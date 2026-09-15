@@ -80,9 +80,8 @@ await jest.unstable_mockModule( '@wordpress/components', () => ( {
 /**
  * Internal dependencies
  */
-const { FormWelcomeGuide, PREFERENCE_NAME, PREFERENCE_SCOPE } = await import(
-	'../../../../src/form-editor/welcome-guide/index'
-);
+const { FormWelcomeGuide, PREFERENCE_NAME, PREFERENCE_SCOPE } =
+	await import( '../../../../src/form-editor/welcome-guide/index' );
 const { GUIDE_VERSION } = await import( '../../../../src/form-editor/welcome-guide/pages' );
 
 const CORE_SCOPE = 'core/edit-post';

@@ -146,14 +146,12 @@ afterAll( () => {
 /* eslint-enable no-console */
 
 // Dynamically import the component after mocks are set up
-const EmptySpamButtonModule = await import(
-	'../../../../../src/dashboard/components/empty-spam-button'
-);
+const EmptySpamButtonModule =
+	await import( '../../../../../src/dashboard/components/empty-spam-button' );
 const EmptySpamButton = EmptySpamButtonModule.default;
 
-const DashboardSearchParamsModule = await import(
-	'../../../../../src/dashboard/router/dashboard-search-params-context'
-);
+const DashboardSearchParamsModule =
+	await import( '../../../../../src/dashboard/router/dashboard-search-params-context' );
 const { DashboardSearchParamsProvider } = DashboardSearchParamsModule;
 
 describe( 'EmptySpamButton', () => {

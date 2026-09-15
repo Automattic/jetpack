@@ -50,9 +50,8 @@ await jest.unstable_mockModule(
 	} )
 );
 
-const { getFormTitleFromBlockType } = await import(
-	'../../../../../src/blocks/shared/hooks/use-form-wrapper.js'
-);
+const { getFormTitleFromBlockType } =
+	await import( '../../../../../src/blocks/shared/hooks/use-form-wrapper.js' );
 
 describe( 'getFormTitleFromBlockType', () => {
 	beforeEach( () => {

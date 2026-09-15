@@ -62,9 +62,8 @@ await jest.unstable_mockModule(
 	} )
 );
 
-const { default: IntegrationControls } = await import(
-	'../../../../src/blocks/contact-form/components/jetpack-integration-controls.jsx'
-);
+const { default: IntegrationControls } =
+	await import( '../../../../src/blocks/contact-form/components/jetpack-integration-controls.jsx' );
 
 // Hoisted: an inline arrow in JSX props trips react/jsx-no-bind.
 const noop = () => {};

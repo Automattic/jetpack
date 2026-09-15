@@ -18,9 +18,8 @@ await jest.unstable_mockModule( '@wordpress/blocks', () => ( {
 	serialize: mockSerialize,
 } ) );
 
-const { captureBaseline, stageFormEdits, useSyncedFormAutoSave } = await import(
-	'../../../src/blocks/contact-form/hooks/use-synced-form-auto-save.ts'
-);
+const { captureBaseline, stageFormEdits, useSyncedFormAutoSave } =
+	await import( '../../../src/blocks/contact-form/hooks/use-synced-form-auto-save.ts' );
 
 describe( 'captureBaseline', () => {
 	beforeEach( () => {

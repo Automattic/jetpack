@@ -111,9 +111,8 @@ await jest.unstable_mockModule( '../../../src/blocks/contact-form/variations.jsx
 	],
 } ) );
 
-const { useCreateSyncedFormOnInsertion } = await import(
-	'../../../src/blocks/contact-form/hooks/use-create-synced-form-on-insertion.ts'
-);
+const { useCreateSyncedFormOnInsertion } =
+	await import( '../../../src/blocks/contact-form/hooks/use-create-synced-form-on-insertion.ts' );
 
 describe( 'useCreateSyncedFormOnInsertion', () => {
 	const defaultProps = {

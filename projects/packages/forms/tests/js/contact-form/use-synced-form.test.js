@@ -26,9 +26,8 @@ await jest.unstable_mockModule( '@wordpress/element', () => ( {
 	useMemo: fn => fn(),
 } ) );
 
-const { useSyncedForm } = await import(
-	'../../../src/blocks/contact-form/hooks/use-synced-form.ts'
-);
+const { useSyncedForm } =
+	await import( '../../../src/blocks/contact-form/hooks/use-synced-form.ts' );
 
 describe( 'useSyncedForm', () => {
 	/**

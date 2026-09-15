@@ -125,9 +125,8 @@ await jest.unstable_mockModule(
 	} )
 );
 
-const { default: ConditionalLogicPanel } = await import(
-	'../../../../../src/blocks/shared/conditional-logic/components/panel.jsx'
-);
+const { default: ConditionalLogicPanel } =
+	await import( '../../../../../src/blocks/shared/conditional-logic/components/panel.jsx' );
 
 const DEFAULT_ATTRIBUTE = {
 	enabled: false,
