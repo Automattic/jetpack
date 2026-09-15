@@ -11,6 +11,10 @@ export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
 		newsletter: path.join( __dirname, 'src/settings/index.tsx' ),
+		'action-bar': [
+			path.join( __dirname, 'src/action-bar/action-bar.js' ),
+			path.join( __dirname, 'src/action-bar/action-bar.css' ),
+		],
 		'reader-link': path.join( __dirname, 'src/reader-link/style.scss' ),
 		'writing-prompt': path.join( __dirname, 'src/writing-prompt/index.jsx' ),
 	},

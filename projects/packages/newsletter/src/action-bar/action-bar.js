@@ -1,7 +1,7 @@
 /**
  * WordPress.com Action Bar front-end behavior.
  *
- * Reads its config from `window.actionbardata`, localized by wpcom-actionbar.php.
+ * Reads its config from `window.actionbardata`, localized by action-bar.php.
  */
 ( function () {
 	const wpcom = window.wpcom || {};

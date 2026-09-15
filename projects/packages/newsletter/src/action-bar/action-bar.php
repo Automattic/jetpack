@@ -5,15 +5,15 @@
  * The floating bar in the bottom corner of a site's front end. Visitors can subscribe, comment,
  * reblog and report from it; site members get Edit and Stats shortcuts.
  *
- * Ported from wpcom `wp-content/mu-plugins/actionbar.php`. Loads on WordPress.com Simple only.
+ * Ported from wpcom `wp-content/mu-plugins/actionbar.php`. Loaded by Action_Bar::init() on
+ * WordPress.com Simple only.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack-newsletter
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-
-require_once __DIR__ . '/../../utils.php';
+use Automattic\Jetpack\Newsletter\Settings;
+use Automattic\Jetpack\Status;
 
 /**
  * Decide whether the bar renders on this request and, if so, queue its data and footer output.
@@ -115,12 +115,12 @@ function wpcom_actionbar_enqueue_scripts() {
 	$blogsub = isset( $_GET['blogsub'] ) ? sanitize_key( wp_unslash( $_GET['blogsub'] ) ) : '';
 	switch ( $blogsub ) {
 		case 'confirming':
-			$status_message  = '<h3>' . __( 'Thanks', 'jetpack-mu-wpcom' ) . '</h3>';
+			$status_message  = '<h3>' . __( 'Thanks', 'jetpack-newsletter' ) . '</h3>';
 			$status_message .= '<div>' .
 				wp_kses(
 					sprintf(
 						/* translators: %s is the URL of the support contact page. */
-						__( 'You’ll get an email with a link to confirm your subscription. If it doesn’t arrive, please <a href="%s">contact us</a>.', 'jetpack-mu-wpcom' ),
+						__( 'You’ll get an email with a link to confirm your subscription. If it doesn’t arrive, please <a href="%s">contact us</a>.', 'jetpack-newsletter' ),
 						esc_url( localized_wpcom_url( 'https://wordpress.com/support/contact/' ) )
 					),
 					array(
@@ -132,23 +132,23 @@ function wpcom_actionbar_enqueue_scripts() {
 				'</div>';
 			break;
 		case 'subscribed':
-			$status_message = '<div>' . __( 'You’re already subscribed to this site!', 'jetpack-mu-wpcom' ) . '</div>';
+			$status_message = '<div>' . __( 'You’re already subscribed to this site!', 'jetpack-newsletter' ) . '</div>';
 			break;
 		case 'flooded':
 			$status_message =
 				'<div>' .
 				sprintf(
 					/* translators: %s is a link with its text (Subscription Manager) translated separately */
-					__( 'You already have several pending email subscriptions. Approve or delete a few through your %s before attempting to subscribe to more blogs.', 'jetpack-mu-wpcom' ),
-					'<a href="https://subscribe.wordpress.com/">' . __( 'Subscription Manager', 'jetpack-mu-wpcom' ) . '</a>'
+					__( 'You already have several pending email subscriptions. Approve or delete a few through your %s before attempting to subscribe to more blogs.', 'jetpack-newsletter' ),
+					'<a href="https://subscribe.wordpress.com/">' . __( 'Subscription Manager', 'jetpack-newsletter' ) . '</a>'
 				) .
 				'</div>';
 			break;
 		case 'pending':
-			$status_message = '<div>' . __( 'You already have a pending subscription, we just sent you another email, click the link or <a href="https://en.support.wordpress.com/contact/">contact us</a> if you don’t get it', 'jetpack-mu-wpcom' ) . '</div>';
+			$status_message = '<div>' . __( 'You already have a pending subscription, we just sent you another email, click the link or <a href="https://en.support.wordpress.com/contact/">contact us</a> if you don’t get it', 'jetpack-newsletter' ) . '</div>';
 			break;
 		case 'confirmed':
-			$status_message = '<div>' . __( 'Congrats, you’re subscribed! You’ll get an email with the details of your subscription and an unsubscribe link', 'jetpack-mu-wpcom' ) . '</div>';
+			$status_message = '<div>' . __( 'Congrats, you’re subscribed! You’ll get an email with the details of your subscription and an unsubscribe link', 'jetpack-newsletter' ) . '</div>';
 			break;
 	}
 
@@ -178,10 +178,10 @@ function wpcom_actionbar_enqueue_scripts() {
 	}
 
 	$actionbar_info['i18n'] = array(
-		'followedText'    => __( 'New posts from this site will now appear in your <a href="https://wordpress.com/reader">Reader</a>', 'jetpack-mu-wpcom' ),
-		'foldBar'         => __( 'Collapse this bar', 'jetpack-mu-wpcom' ),
-		'unfoldBar'       => __( 'Expand this bar', 'jetpack-mu-wpcom' ),
-		'shortLinkCopied' => __( 'Copied to clipboard.', 'jetpack-mu-wpcom' ),
+		'followedText'    => __( 'New posts from this site will now appear in your <a href="https://wordpress.com/reader">Reader</a>', 'jetpack-newsletter' ),
+		'foldBar'         => __( 'Collapse this bar', 'jetpack-newsletter' ),
+		'unfoldBar'       => __( 'Expand this bar', 'jetpack-newsletter' ),
+		'shortLinkCopied' => __( 'Copied to clipboard.', 'jetpack-newsletter' ),
 	);
 
 	// Switch back to site language.
@@ -207,13 +207,13 @@ function wpcom_actionbar_footer() {
 	$is_rtl = function_exists( 'wpcom_is_locale_rtl' ) ? wpcom_is_locale_rtl( get_user_locale() ) : is_rtl();
 	wpcom_actionbar_html( $is_rtl );
 
-	$asset_path = Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-actionbar/wpcom-actionbar.asset.php';
+	$asset_path = dirname( __DIR__, 2 ) . '/build/action-bar.asset.php';
 	$asset_file = file_exists( $asset_path ) ? include $asset_path : array();
-	$version    = is_array( $asset_file ) && ! empty( $asset_file['version'] ) ? $asset_file['version'] : Jetpack_Mu_Wpcom::PACKAGE_VERSION;
+	$version    = is_array( $asset_file ) && ! empty( $asset_file['version'] ) ? $asset_file['version'] : Settings::PACKAGE_VERSION;
 
-	$css_file = $is_rtl ? 'build/wpcom-actionbar/wpcom-actionbar.rtl.css' : 'build/wpcom-actionbar/wpcom-actionbar.css';
-	$css_url  = add_query_arg( 'ver', $version, plugins_url( $css_file, Jetpack_Mu_Wpcom::BASE_FILE ) );
-	$js_url   = add_query_arg( 'ver', $version, plugins_url( 'build/wpcom-actionbar/wpcom-actionbar.js', Jetpack_Mu_Wpcom::BASE_FILE ) );
+	$css_file = $is_rtl ? '../../build/action-bar.rtl.css' : '../../build/action-bar.css';
+	$css_url  = add_query_arg( 'ver', $version, plugins_url( $css_file, __FILE__ ) );
+	$js_url   = add_query_arg( 'ver', $version, plugins_url( '../../build/action-bar.js', __FILE__ ) );
 	?>
 
 <script>
@@ -435,11 +435,11 @@ function wpcom_actionbar_follow_links( $is_following ) {
 	?>
 		<a class="actnbr-action actnbr-actn-follow <?php echo $is_following ? ' no-display' : ''; ?>" href="" role="button" aria-haspopup="dialog" aria-expanded="false">
 			<?php wpcom_actionbar_icon( 'bell', 20 ); ?>
-			<span><?php esc_html_e( 'Subscribe', 'jetpack-mu-wpcom' ); ?></span>
+			<span><?php esc_html_e( 'Subscribe', 'jetpack-newsletter' ); ?></span>
 		</a>
 		<a class="actnbr-action actnbr-actn-following <?php echo $is_following ? '' : ' no-display'; ?>" href="" role="button">
 			<?php wpcom_actionbar_icon( 'check', 20 ); ?>
-			<span><?php esc_html_e( 'Subscribed', 'jetpack-mu-wpcom' ); ?></span>
+			<span><?php esc_html_e( 'Subscribed', 'jetpack-newsletter' ); ?></span>
 		</a>
 	<?php
 }
@@ -494,7 +494,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 	$site_name          = get_option( 'blogname' );
 	$site_url           = get_option( 'home' );
 	$site_host          = wp_parse_url( $site_url, PHP_URL_HOST );
-	$site_slug          = wpcom_get_site_slug();
+	$site_slug          = ( new Status() )->get_site_suffix();
 	$can_customize_site = $is_member && current_user_can( 'edit_theme_options' );
 	$subscription_id    = wpcom_subs_is_subscribed(
 		array(
@@ -547,6 +547,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 
 		$post_type = get_post_type();
 
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by jetpack-mu-wpcom, which is not a dependency; guarded by function_exists().
 		$should_use_calypso_links = empty( $post_type ) || function_exists( 'wpcom_should_disable_calypso_links' ) && ! wpcom_should_disable_calypso_links( 'edit.php?post_type=' . $post_type );
 
 		if ( $should_use_calypso_links && ! wpcom_is_vip() && ( ! is_super_admin() || $is_member ) ) {
@@ -565,7 +566,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 		if ( $should_use_calypso_links ) {
 			$stats_link = sprintf( 'https://wordpress.com/stats/post/%d/%s', $post_id, $site_slug );
 		} else {
-			$stats_link = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, (int) get_wpcom_blog_id() ) );
+			$stats_link = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, $site_id ) );
 		}
 	}
 
@@ -584,7 +585,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 		$subscribers_total = wpcom_subs_total_for_blog();
 		if ( ! empty( $subscribers_total ) && $subscribers_total > 24 ) {
 			/* translators: %s: number of subscribers */
-			$followers = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack-mu-wpcom' ), number_format_i18n( $subscribers_total ) );
+			$followers = sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack-newsletter' ), number_format_i18n( $subscribers_total ) );
 		}
 	}
 
@@ -599,7 +600,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 
 	?>
 		<div id="actionbar" dir="<?php echo esc_attr( $dir ); ?>" style="display: none;"
-			class="<?php echo esc_attr( $classes ); ?>" role="region" aria-label="<?php esc_attr_e( 'Site actions', 'jetpack-mu-wpcom' ); ?>">
+			class="<?php echo esc_attr( $classes ); ?>" role="region" aria-label="<?php esc_attr_e( 'Site actions', 'jetpack-newsletter' ); ?>">
 		<span class="actnbr-live" aria-live="polite"></span>
 		<ul>
 			<?php
@@ -608,13 +609,13 @@ function wpcom_actionbar_html( $is_rtl ) {
 					<li class="actnbr-btn actnbr-edit">
 						<a href="<?php echo esc_url( $edit_link ); ?>">
 							<?php wpcom_actionbar_icon( 'pencil', 20 ); ?>
-							<span><?php esc_html_e( 'Edit', 'jetpack-mu-wpcom' ); ?></span>
+							<span><?php esc_html_e( 'Edit', 'jetpack-newsletter' ); ?></span>
 						</a>
 					</li>
 					<li class="actnbr-btn actnbr-stats">
 						<a href="<?php echo esc_url( $stats_link ); ?>">
 							<?php wpcom_actionbar_icon( 'chart-bar', 20 ); ?>
-							<span><?php esc_html_e( 'Stats', 'jetpack-mu-wpcom' ); ?></span>
+							<span><?php esc_html_e( 'Stats', 'jetpack-newsletter' ); ?></span>
 						</a>
 					</li>
 				<?php
@@ -625,7 +626,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 					<li class="actnbr-btn">
 						<a class="actnbr-action actnbr-actn-comment" href="<?php echo esc_url( get_comments_link( $post_id ) ); ?>">
 							<?php wpcom_actionbar_icon( 'comment', 20 ); ?>
-							<span><?php esc_html_e( 'Comment', 'jetpack-mu-wpcom' ); ?>
+							<span><?php esc_html_e( 'Comment', 'jetpack-newsletter' ); ?>
 						</span>
 						</a>
 					</li>
@@ -636,7 +637,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 				?>
 					<li class="actnbr-btn">
 						<a class="actnbr-action actnbr-actn-reblog" href="" role="button">
-							<?php wpcom_actionbar_icon( 'reusable-block', 20 ); ?><span><?php esc_html_e( 'Reblog', 'jetpack-mu-wpcom' ); ?></span>
+							<?php wpcom_actionbar_icon( 'reusable-block', 20 ); ?><span><?php esc_html_e( 'Reblog', 'jetpack-newsletter' ); ?></span>
 						</a>
 					</li>
 				<?php
@@ -646,7 +647,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 				?>
 					<li class="actnbr-btn actnbr-hidden">
 						<?php wpcom_actionbar_follow_links( $is_following ); ?>
-						<div class="actnbr-popover actnbr-panel actnbr-notice" id="follow-bubble" role="dialog" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: site name */ __( 'Subscribe to %s', 'jetpack-mu-wpcom' ), $site_name ) ); ?>">
+						<div class="actnbr-popover actnbr-panel actnbr-notice" id="follow-bubble" role="dialog" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: site name */ __( 'Subscribe to %s', 'jetpack-newsletter' ), $site_name ) ); ?>">
 							<div class="actnbr-follow-bubble">
 							<?php wpcom_actionbar_site_title( $site_url, $site_name, $blavatar ); ?>
 							<?php
@@ -661,11 +662,11 @@ function wpcom_actionbar_html( $is_rtl ) {
 											<span class="actnbr-site-settings__toggle__thumb"></span>
 										</span>
 										<label for="toggle-input-notify-posts" class="components-toggle-control__label">
-											<?php esc_html_e( 'Notify me of new posts', 'jetpack-mu-wpcom' ); ?>
+											<?php esc_html_e( 'Notify me of new posts', 'jetpack-newsletter' ); ?>
 										</label>
 									</div>
 									<p class="actnbr-site-settings__details">
-										<?php esc_html_e( 'Receive web and mobile notifications for new posts from this site.', 'jetpack-mu-wpcom' ); ?>
+										<?php esc_html_e( 'Receive web and mobile notifications for new posts from this site.', 'jetpack-newsletter' ); ?>
 									</p>
 									<div class="actnbr-site-settings__setting">
 										<span class="actnbr-site-settings__toggle">
@@ -674,19 +675,19 @@ function wpcom_actionbar_html( $is_rtl ) {
 											<span class="actnbr-site-settings__toggle__thumb"></span>
 										</span>
 										<label for="toggle-input-email-posts" class="components-toggle-control__label">
-											<?php esc_html_e( 'Email me new posts', 'jetpack-mu-wpcom' ); ?>
+											<?php esc_html_e( 'Email me new posts', 'jetpack-newsletter' ); ?>
 										</label>
 									</div>
 									<div class="actnbr-site-settings__details" id="email-new-posts-details">
-										<ul class="segmented-control" role="radiogroup" aria-label="<?php esc_attr_e( 'Email frequency', 'jetpack-mu-wpcom' ); ?>">
+										<ul class="segmented-control" role="radiogroup" aria-label="<?php esc_attr_e( 'Email frequency', 'jetpack-newsletter' ); ?>">
 											<li class="segmented-control__item">
-												<a class="segmented-control__link frequency-instantly" data-frequency="instantly" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Instantly', 'jetpack-mu-wpcom' ); ?></a>
+												<a class="segmented-control__link frequency-instantly" data-frequency="instantly" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Instantly', 'jetpack-newsletter' ); ?></a>
 											</li>
 											<li class="segmented-control__item">
-												<a class="segmented-control__link frequency-daily" data-frequency="daily" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Daily', 'jetpack-mu-wpcom' ); ?></a>
+												<a class="segmented-control__link frequency-daily" data-frequency="daily" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Daily', 'jetpack-newsletter' ); ?></a>
 											</li>
 											<li class="segmented-control__item">
-												<a class="segmented-control__link frequency-weekly" data-frequency="weekly" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Weekly', 'jetpack-mu-wpcom' ); ?></a>
+												<a class="segmented-control__link frequency-weekly" data-frequency="weekly" role="radio" aria-checked="false" tabindex="0"><?php esc_html_e( 'Weekly', 'jetpack-newsletter' ); ?></a>
 											</li>
 										</ul>
 									</div>
@@ -697,7 +698,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 											<span class="actnbr-site-settings__toggle__thumb"></span>
 										</span>
 										<label for="toggle-input-email-comments" class="components-toggle-control__label">
-											<?php esc_html_e( 'Email me new comments', 'jetpack-mu-wpcom' ); ?>
+											<?php esc_html_e( 'Email me new comments', 'jetpack-newsletter' ); ?>
 										</label>
 									</div>
 								</div>
@@ -714,19 +715,19 @@ function wpcom_actionbar_html( $is_rtl ) {
 											<?php
 										}
 										?>
-										<input type="email" name="email" placeholder="<?php esc_attr_e( 'Want updates? Enter your email', 'jetpack-mu-wpcom' ); ?>" class="actnbr-email-field" aria-label="<?php esc_attr_e( 'Email address', 'jetpack-mu-wpcom' ); ?>" />
+										<input type="email" name="email" placeholder="<?php esc_attr_e( 'Want updates? Enter your email', 'jetpack-newsletter' ); ?>" class="actnbr-email-field" aria-label="<?php esc_attr_e( 'Email address', 'jetpack-newsletter' ); ?>" />
 										<input type="hidden" name="action" value="subscribe" />
 										<input type="hidden" name="blog_id" value="<?php echo esc_attr( (string) $site_id ); ?>" />
 										<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>" />
 										<input type="hidden" name="sub-type" value="actionbar-follow" />
 										<?php wp_nonce_field( 'blogsub_subscribe_' . $site_id, '_wpnonce', false, true ); ?>
-										<button type="submit" class="actnbr-button"><?php esc_html_e( 'Sign me up', 'jetpack-mu-wpcom' ); ?></button>
+										<button type="submit" class="actnbr-button"><?php esc_html_e( 'Sign me up', 'jetpack-newsletter' ); ?></button>
 									</form>
 									<p class="actnbr-login-nudge">
 										<?php
 										echo wp_kses(
 											/* translators: %s is a URL */
-											sprintf( __( 'Already have a WordPress.com account? <a href="%s">Log in now.</a>', 'jetpack-mu-wpcom' ), esc_url( $login_url ) ),
+											sprintf( __( 'Already have a WordPress.com account? <a href="%s">Log in now.</a>', 'jetpack-newsletter' ), esc_url( $login_url ) ),
 											array(
 												'a' => array(
 													'href' => array(),
@@ -754,7 +755,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 					<li class="actnbr-btn no-display" onclick="javascript:__tcfapi( 'showUi' );">
 						<a class="actnbr-action actnbr-actn-privacy" href="#" role="button">
 							<?php wpcom_actionbar_icon( 'shield', 20 ); ?>
-							<span><?php esc_html_e( 'Privacy', 'jetpack-mu-wpcom' ); ?>
+							<span><?php esc_html_e( 'Privacy', 'jetpack-newsletter' ); ?>
 						</span>
 						</a>
 					</li>
@@ -762,10 +763,10 @@ function wpcom_actionbar_html( $is_rtl ) {
 			}
 			?>
 			<li class="actnbr-ellipsis actnbr-hidden">
-				<button type="button" class="actnbr-more-toggle" aria-haspopup="true" aria-expanded="false" aria-label="<?php esc_attr_e( 'More options', 'jetpack-mu-wpcom' ); ?>">
+				<button type="button" class="actnbr-more-toggle" aria-haspopup="true" aria-expanded="false" aria-label="<?php esc_attr_e( 'More options', 'jetpack-newsletter' ); ?>">
 					<?php wpcom_actionbar_icon( 'more-horizontal', 24 ); ?>
 				</button>
-				<div class="actnbr-popover actnbr-menu" role="menu" aria-label="<?php esc_attr_e( 'Site options', 'jetpack-mu-wpcom' ); ?>">
+				<div class="actnbr-popover actnbr-menu" role="menu" aria-label="<?php esc_attr_e( 'Site options', 'jetpack-newsletter' ); ?>">
 					<?php
 					// Site.
 					ob_start();
@@ -784,7 +785,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 					if ( $is_singular ) {
 						?>
 						<a role="menuitem" class="actnbr-menu__item actnbr-shortlink" href="<?php echo esc_url( $shortlink ); ?>">
-							<span class="actnbr-menu__label actnbr-shortlink__text"><?php esc_html_e( 'Copy shortlink', 'jetpack-mu-wpcom' ); ?></span>
+							<span class="actnbr-menu__label actnbr-shortlink__text"><?php esc_html_e( 'Copy shortlink', 'jetpack-newsletter' ); ?></span>
 							<span class="actnbr-menu__icon actnbr-shortlink__icon"><?php wpcom_actionbar_icon( 'copy', 18 ); ?></span>
 							<span class="actnbr-menu__icon actnbr-shortlink__icon-copied"><?php wpcom_actionbar_icon( 'check', 18 ); ?></span>
 						</a>
@@ -794,7 +795,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 						wpcom_actionbar_menu_item(
 							array(
 								'href'  => 'https://wordpress.com/reader/blogs/' . (int) $site_id . '/posts/' . (int) $post_id,
-								'label' => __( 'View post in Reader', 'jetpack-mu-wpcom' ),
+								'label' => __( 'View post in Reader', 'jetpack-newsletter' ),
 								'class' => 'actnbr-reader',
 							)
 						);
@@ -803,7 +804,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 						wpcom_actionbar_menu_item(
 							array(
 								'href'  => 'https://wordpress.com/reader/' . ( $feed_id ? 'feeds/' . (int) $feed_id : 'blogs/' . (int) $site_id ),
-								'label' => __( 'View site in Reader', 'jetpack-mu-wpcom' ),
+								'label' => __( 'View site in Reader', 'jetpack-newsletter' ),
 								'class' => 'actnbr-reader',
 							)
 						);
@@ -812,7 +813,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 						wpcom_actionbar_menu_item(
 							array(
 								'href'  => $theme_url,
-								'label' => __( 'Get theme', 'jetpack-mu-wpcom' ) . ': ' . wp_get_theme()->get( 'Name' ),
+								'label' => __( 'Get theme', 'jetpack-newsletter' ) . ': ' . wp_get_theme()->get( 'Name' ),
 								'class' => 'actnbr-theme',
 							)
 						);
@@ -825,7 +826,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 						wpcom_actionbar_menu_item(
 							array(
 								'href'  => 'https://wordpress.com/read/subscriptions/' . (int) $subscription_id,
-								'label' => __( 'Manage subscription', 'jetpack-mu-wpcom' ),
+								'label' => __( 'Manage subscription', 'jetpack-newsletter' ),
 								'class' => 'actnbr-follows',
 							)
 						);
@@ -834,7 +835,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 						wpcom_actionbar_menu_item(
 							array(
 								'href'  => 'https://wordpress.com/read/subscriptions?s=' . rawurlencode( (string) $site_host ),
-								'label' => __( 'Manage subscriptions', 'jetpack-mu-wpcom' ),
+								'label' => __( 'Manage subscriptions', 'jetpack-newsletter' ),
 								'class' => 'actnbr-follows',
 							)
 						);
@@ -843,21 +844,21 @@ function wpcom_actionbar_html( $is_rtl ) {
 						wpcom_actionbar_menu_item(
 							array(
 								'href'  => 'https://subscribe.wordpress.com/',
-								'label' => __( 'Manage subscriptions', 'jetpack-mu-wpcom' ),
+								'label' => __( 'Manage subscriptions', 'jetpack-newsletter' ),
 								'class' => 'actnbr-subs',
 							)
 						);
 						wpcom_actionbar_menu_item(
 							array(
 								'href'  => $signup_url,
-								'label' => __( 'Sign up', 'jetpack-mu-wpcom' ),
+								'label' => __( 'Sign up', 'jetpack-newsletter' ),
 								'class' => 'actnbr-signup',
 							)
 						);
 						wpcom_actionbar_menu_item(
 							array(
 								'href'  => $login_url,
-								'label' => __( 'Log in', 'jetpack-mu-wpcom' ),
+								'label' => __( 'Log in', 'jetpack-newsletter' ),
 								'class' => 'actnbr-login',
 							)
 						);
@@ -876,7 +877,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 						wpcom_actionbar_menu_item(
 							array(
 								'href'  => $report_url,
-								'label' => __( 'Report this content', 'jetpack-mu-wpcom' ),
+								'label' => __( 'Report this content', 'jetpack-newsletter' ),
 								'class' => 'flb-report',
 								'icon'  => 'external',
 								'blank' => true,
@@ -891,7 +892,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 						wpcom_actionbar_menu_item(
 							array(
 								'href'  => '',
-								'label' => $is_folded ? __( 'Expand this bar', 'jetpack-mu-wpcom' ) : __( 'Collapse this bar', 'jetpack-mu-wpcom' ),
+								'label' => $is_folded ? __( 'Expand this bar', 'jetpack-newsletter' ) : __( 'Collapse this bar', 'jetpack-newsletter' ),
 								'class' => 'actnbr-fold',
 							)
 						);
@@ -1062,7 +1063,7 @@ add_action( 'wp_ajax_nopriv_actionbar_stats', 'wpcom_actionbar_ajax_stats' );
  * Stored in the `wpcom_hide_action_bar` option.
  */
 function wpcom_hide_action_bar_settings_field() {
-	add_settings_field( 'wpcom_hide_action_bar', __( 'Action Bar visibility', 'jetpack-mu-wpcom' ), 'wpcom_hide_action_bar_display', 'general', 'default', array( 'label_for' => 'wpcom_hide_action_bar' ) );
+	add_settings_field( 'wpcom_hide_action_bar', __( 'Action Bar visibility', 'jetpack-newsletter' ), 'wpcom_hide_action_bar_display', 'general', 'default', array( 'label_for' => 'wpcom_hide_action_bar' ) );
 
 	register_setting( 'general', 'wpcom_hide_action_bar' );
 }
@@ -1074,9 +1075,9 @@ function wpcom_hide_action_bar_display() {
 	?>
 	<input type="checkbox" id="wpcom_hide_action_bar" name="wpcom_hide_action_bar" value="1" <?php checked( 1, get_option( 'wpcom_hide_action_bar' ) ); ?> />
 
-	<?php esc_html_e( 'Hide the Action Bar on the front end of the site.', 'jetpack-mu-wpcom' ); ?>
+	<?php esc_html_e( 'Hide the Action Bar on the front end of the site.', 'jetpack-newsletter' ); ?>
 
-	<p class="description"><a href="<?php echo esc_url( localized_wpcom_url( 'https://wordpress.com/support/action-bar/' ) ); ?>" data-target="wpcom-help-center"><?php esc_html_e( 'Learn more about the Action Bar', 'jetpack-mu-wpcom' ); ?></a>.</p>
+	<p class="description"><a href="<?php echo esc_url( localized_wpcom_url( 'https://wordpress.com/support/action-bar/' ) ); ?>" data-target="wpcom-help-center"><?php esc_html_e( 'Learn more about the Action Bar', 'jetpack-newsletter' ); ?></a>.</p>
 	<?php
 }
 add_action( 'admin_init', 'wpcom_hide_action_bar_settings_field' );

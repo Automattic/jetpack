@@ -15,5 +15,6 @@ src/**/*.tsx      production-exclude
 src/**/*.ts       production-exclude
 src/**/*.jsx      production-exclude
 src/**/*.js       production-exclude
+src/**/*.css      production-exclude
 packages/**       production-exclude
 routes/**         production-exclude
