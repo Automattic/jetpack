@@ -3,7 +3,7 @@
  */
 import {
 	useStatsSubscribersCounts,
-	type StatsSubscribersCounts,
+	useStatsSubscribersDaysAgo,
 } from '@jetpack-premium-analytics/data';
 import { customer } from '@jetpack-premium-analytics/icons';
 import {
@@ -15,22 +15,15 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { envelope, payment, people, share } from '@wordpress/icons';
-import { Text } from '@jetpack-premium-analytics/externals';
+import { calendar, people } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import {
-	DEFAULT_SUBSCRIBER_METRICS,
-	SUBSCRIBER_METRICS,
-	type SubscriberHighlightsAttributes,
-	type SubscriberMetricId,
-} from './widget';
+import type { SubscriberHighlightsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// The subscribers/counts endpoint is not period-scoped, so the widget ignores
-// the dashboard date range; report params still flow to WidgetRoot for the host contract.
+// Report params arrive from the host but change nothing here: the counts are all-time or fixed days back.
 type SubscriberHighlightsRenderAttributes = SubscriberHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type SubscriberHighlightsWidgetProps = WidgetRenderProps< SubscriberHighlightsRenderAttributes >;
@@ -40,62 +33,57 @@ const COUNT_FORMAT: DataFormat = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-/**
- * Render-only config per metric: the tile icon and the counts-payload field the
- * tile displays. Ids and labels are shared with the settings checkboxes via
- * `SUBSCRIBER_METRICS` in `widget.ts`.
- */
-const TILE_CONFIG: Record<
-	SubscriberMetricId,
-	{ icon: typeof people; count: ( data?: StatsSubscribersCounts ) => number }
-> = {
-	total: { icon: people, count: data => data?.total_subscribers ?? 0 },
-	paid: { icon: payment, count: data => data?.paid_subscribers ?? 0 },
-	free: { icon: envelope, count: data => data?.email_subscribers ?? 0 },
-	social: { icon: share, count: data => data?.social_followers ?? 0 },
+const DAYS_AGO = [ 30, 60, 90 ] as const;
+
+const DAYS_AGO_LABELS: Record< ( typeof DAYS_AGO )[ number ], string > = {
+	30: __( '30 days ago', 'jetpack-premium-analytics-pkg' ),
+	60: __( '60 days ago', 'jetpack-premium-analytics-pkg' ),
+	90: __( '90 days ago', 'jetpack-premium-analytics-pkg' ),
 };
 
-/**
- * Renders subscriber counts as tiles via `<WidgetState>`. The counts module has
- * no comparison period, so each tile shows a bare count; `metrics` controls which
- * tiles appear.
- */
-function SubscriberHighlightsReport( {
-	metrics = DEFAULT_SUBSCRIBER_METRICS,
-}: {
-	metrics?: SubscriberMetricId[];
-} ) {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSubscribersCounts();
-	const enabledMetrics = new Set( metrics );
+function SubscriberHighlightsReport() {
+	const total = useStatsSubscribersCounts();
+	const past = useStatsSubscribersDaysAgo( DAYS_AGO );
 
-	// Every counts field is optional in the sanitized payload; a response
-	// carrying none of them has nothing meaningful to show.
-	const hasCounts = !! data && Object.values( data ).some( value => value !== undefined );
+	const tiles = [
+		{
+			key: 'total',
+			label: __( 'Total subscribers', 'jetpack-premium-analytics-pkg' ),
+			icon: people,
+			value: total.data?.total_subscribers ?? null,
+		},
+		...DAYS_AGO.map( ( days, index ) => ( {
+			key: `${ days }-days-ago`,
+			label: DAYS_AGO_LABELS[ days ],
+			icon: calendar,
+			value: past.counts[ index ] ?? null,
+		} ) ),
+	];
 
-	const tiles = SUBSCRIBER_METRICS.filter( ( { id } ) => enabledMetrics.has( id ) ).map(
-		( { id, label } ) => ( {
-			key: id,
-			label,
-			icon: TILE_CONFIG[ id ].icon,
-			value: TILE_CONFIG[ id ].count( data ),
-		} )
-	);
+	const hasCounts = tiles.some( tile => tile.value !== null );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// `placeholderData` keeps the prior tiles on screen, so a transient
-				// refetch failure should not replace them with an error.
-				isError={ isError && ! hasCounts }
+				isLoading={ total.isLoading || past.isLoading }
+				isFetching={ total.isFetching || past.isFetching }
+				// `placeholderData` keeps the last counts on screen, so a transient refetch failure should not replace them with an error.
+				isError={ ( total.isError || past.isError ) && ! hasCounts }
 				isEmpty={ ! hasCounts }
 				error={ {
 					description: __(
 						"We couldn't load subscriber highlights. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+					actions: [
+						{
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
+							onClick: () => {
+								total.refetch();
+								past.refetch();
+							},
+						},
+					],
 				} }
 				empty={ {
 					icon: customer,
@@ -103,28 +91,18 @@ function SubscriberHighlightsReport( {
 				} }
 				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
-				{ tiles.length === 0 ? (
-					<Text className={ styles.placeholder }>
-						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' ) }
-					</Text>
-				) : (
-					<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
-				) }
+				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>
 		</div>
 	);
 }
 
-/**
- * Host attributes are forwarded even though the counts endpoint is not
- * period-scoped, so injected report params survive the WidgetRoot boundary.
- */
 export default function SubscriberHighlights( {
 	attributes = {},
 }: SubscriberHighlightsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SubscriberHighlightsReport metrics={ attributes.metrics } />
+			<SubscriberHighlightsReport />
 		</WidgetRoot>
 	);
 }
