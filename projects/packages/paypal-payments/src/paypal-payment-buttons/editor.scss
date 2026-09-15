@@ -85,14 +85,28 @@
 }
 
 // ---------------------------------------------------------------
-// Connection Form
+// Not connected: the canvas placeholder, and the wizard in the sidebar
 // ---------------------------------------------------------------
 
-.jetpack-paypal-payment-buttons__connect {
+.jetpack-paypal-payment-buttons__placeholder {
 	padding: 24px;
 	border: 1px dashed #c3c4c7;
 	border-radius: 4px;
 	background: #f9f9f9;
+	text-align: center;
+
+	h3 {
+		margin: 0 0 8px;
+	}
+
+	p {
+		margin: 0;
+		color: #757575;
+	}
+}
+
+.jetpack-paypal-payment-buttons__connect {
+	padding: 16px;
 
 	h3 {
 		margin-top: 0;
@@ -148,9 +162,9 @@
 
 .jetpack-paypal-wizard__logo {
 	display: block;
-	width: 160px;
+	width: 140px;
 	height: auto;
-	margin: 0 auto 16px;
+	margin: 12px 0 16px;
 }
 
 .jetpack-paypal-wizard__welcome,
