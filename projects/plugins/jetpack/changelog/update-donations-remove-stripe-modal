@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Donations Form: Remove the "Accept Donations with Stripe" modal shown on insert, and note Stripe's donation requirements in the block's connect notice instead.

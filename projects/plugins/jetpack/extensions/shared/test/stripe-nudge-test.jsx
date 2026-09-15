@@ -45,5 +45,17 @@ describe( 'Stripe nudge component', () => {
 				expect( screen.queryByText( NUDGE_RENDERED_TEXT ) ).not.toBeInTheDocument()
 			);
 		} );
+
+		test( 'The donations nudge links to the Stripe requirements for accepting donations', async () => {
+			selectSpy.mockImplementation( () => ( {
+				getConnectUrl: () => ANY_VALID_CONNECT_URL,
+			} ) );
+
+			render( <StripeNudge blockName="donations" /> );
+
+			await expect(
+				screen.findByRole( 'link', { name: /additional requirements for accepting donations/ } )
+			).resolves.toBeInTheDocument();
+		} );
 	} );
 } );

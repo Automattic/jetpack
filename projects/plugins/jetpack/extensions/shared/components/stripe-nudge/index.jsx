@@ -2,7 +2,9 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { select } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import GridiconStar from 'gridicons/dist/star';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 import BlockNudge from '../block-nudge';
@@ -24,6 +26,7 @@ export const StripeNudge = ( { blockName } ) => {
 	}
 
 	let readMoreUrl;
+	let requirementsNotice;
 
 	const isWpcom = isWpcomPlatformSite();
 
@@ -37,6 +40,17 @@ export const StripeNudge = ( { blockName } ) => {
 			readMoreUrl = isWpcom
 				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-donations-block' )
 				: getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' );
+			requirementsNotice = createInterpolateElement(
+				__( 'Stripe has <link>additional requirements for accepting donations</link>.', 'jetpack' ),
+				{
+					link: (
+						<Link
+							openInNewTab
+							href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }
+						/>
+					),
+				}
+			);
 			break;
 		case 'premium-content':
 			readMoreUrl = isWpcom
@@ -49,6 +63,11 @@ export const StripeNudge = ( { blockName } ) => {
 				: getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' );
 			break;
 	}
+
+	const subtitle = __(
+		'This block will be hidden from your visitors until you connect to Stripe.',
+		'jetpack'
+	);
 
 	return (
 		<BlockNudge
@@ -67,10 +86,15 @@ export const StripeNudge = ( { blockName } ) => {
 			readMoreUrl={ readMoreUrl }
 			onClick={ recordTracksEvent }
 			title={ __( 'Connect to Stripe to use this block on your site', 'jetpack' ) }
-			subtitle={ __(
-				'This block will be hidden from your visitors until you connect to Stripe.',
-				'jetpack'
-			) }
+			subtitle={
+				requirementsNotice ? (
+					<>
+						{ subtitle } { requirementsNotice }
+					</>
+				) : (
+					subtitle
+				)
+			}
 		/>
 	);
 };
