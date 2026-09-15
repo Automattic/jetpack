@@ -393,8 +393,17 @@ class Jetpack_AI_Page {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
+		// Unconditional, as on the other Jetpack admin pages: the connection store
+		// reads it, and only Scheduled tasks used to need it here.
+		Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+
 		if ( $show_scheduled_tasks_view ) {
-			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+			// Webpack reads this to load the lazy Scheduled tasks chunk; see _inc/client/ai/public-path.js.
+			wp_add_inline_script(
+				'jetpack-ai-admin',
+				'window.Jetpack_AI_Admin_Assets_Base_Url = ' . wp_json_encode( plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'before'
+			);
 		}
 
 		$host           = new Host();
