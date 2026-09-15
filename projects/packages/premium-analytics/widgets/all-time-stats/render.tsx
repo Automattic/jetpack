@@ -37,7 +37,7 @@ type StatsSummary = Record< string, unknown >;
 
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
-	options: { decimals: 0 },
+	options: { useMultipliers: true, decimals: 0 },
 };
 
 /**
