@@ -18,6 +18,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		{
 			uuid: 'post-views',
 			type: 'jpa/post-views',
+			attributes: { chartType: 'bar' },
 			placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{

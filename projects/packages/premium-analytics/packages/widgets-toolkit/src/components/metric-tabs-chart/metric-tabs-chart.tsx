@@ -23,7 +23,10 @@ import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tabs-chart.module.scss';
 import type { DataFormat } from '../../types';
-import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
+import type {
+	ComparativeLineChartSeries,
+	TooltipExtraSeries,
+} from '../chart-comparative-line/types';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
 /**
@@ -118,6 +121,12 @@ export interface MetricTabsChartProps {
 	 * date of that bucket. Omit to leave the chart non-interactive.
 	 */
 	onDatumClick?: ( date: Date ) => void;
+	/**
+	 * Which metrics the tooltip reads out at the hovered date: the drawn one
+	 * (`active`, the default), or every metric in the list (`all`), the way the
+	 * classic WordAds chart lists ads served, CPM and revenue whichever tab is up.
+	 */
+	tooltipMetrics?: 'active' | 'all';
 }
 
 /**
@@ -170,6 +179,8 @@ function buildSeries(
 function MetricChart( {
 	metric,
 	counterpart,
+	metrics,
+	tooltipMetrics,
 	dataFormat,
 	chartType,
 	chartId,
@@ -178,12 +189,32 @@ function MetricChart( {
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
+	metrics: MetricTab[];
+	tooltipMetrics: 'active' | 'all';
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
 	chartId: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
 } ) {
+	// Every other metric's current period, each in its own format. A counterpart
+	// is included too: the chart lists a drawn series once, so revealing it from
+	// the legend does not duplicate its row, and hiding it again lists it as a
+	// supplementary row instead. Memoised so the chart's tooltip memos hold.
+	const tooltipExtras = useMemo( (): TooltipExtraSeries[] | undefined => {
+		if ( tooltipMetrics !== 'all' ) {
+			return undefined;
+		}
+
+		return metrics
+			.filter( candidate => candidate.key !== metric.key && ! candidate.unavailable )
+			.map( candidate => ( {
+				label: candidate.label,
+				data: candidate.current,
+				dataFormat: candidate.dataFormat ?? dataFormat,
+			} ) );
+	}, [ metrics, metric.key, tooltipMetrics, dataFormat ] );
+
 	const { series, defaultHiddenSeries } = useMemo( () => {
 		const active = buildSeries( metric, chartType );
 
@@ -281,6 +312,7 @@ function MetricChart( {
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
+			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
@@ -294,6 +326,7 @@ function MetricChart( {
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
+			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
@@ -374,6 +407,7 @@ export function MetricTabsChart( {
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 	tickResolution,
 	onDatumClick,
+	tooltipMetrics = 'active',
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
@@ -462,6 +496,8 @@ export function MetricTabsChart( {
 					<MetricChart
 						metric={ activeMetric }
 						counterpart={ counterpartFor( activeMetric ) }
+						metrics={ metrics }
+						tooltipMetrics={ tooltipMetrics }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
@@ -531,6 +567,8 @@ export function MetricTabsChart( {
 						<MetricChart
 							metric={ activeMetric }
 							counterpart={ counterpartFor( activeMetric ) }
+							metrics={ metrics }
+							tooltipMetrics={ tooltipMetrics }
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
@@ -576,6 +614,8 @@ export function MetricTabsChart( {
 					<MetricChart
 						metric={ metric }
 						counterpart={ counterpartFor( metric ) }
+						metrics={ metrics }
+						tooltipMetrics={ tooltipMetrics }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }

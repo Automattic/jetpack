@@ -185,8 +185,5 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 	 */
 	private function flush_expiry_notice_memos(): void {
 		wpcom_expiry_notices_eligible_state( true );
-		if ( function_exists( 'wpcom_expiry_notices_frontend_banner_data' ) ) {
-			wpcom_expiry_notices_frontend_banner_data( true );
-		}
 	}
 }

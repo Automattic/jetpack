@@ -145,6 +145,7 @@ type RecordedLineProps = {
 	margin?: Record< string, number >;
 	options?: { yScale?: { domain?: [ number, number ] }; axis: { y: { display?: boolean } } };
 	renderTooltip: ( params: unknown ) => { props: { getLabel: GetTooltipLabel } };
+	withTooltips: boolean;
 };
 
 /**
@@ -359,5 +360,166 @@ describe( 'ComparativeLineChart', () => {
 		// Reading `datum.date` here would repeat the current period's date on both
 		// rows; the point of `realDate` is that the previous period keeps its own.
 		expect( tooltipLabelFor( COMPARISON_POINT, 1 ) ).toBe( 'June 1, 2026 9:00 am' );
+	} );
+} );
+
+describe( 'ComparativeLineChart tooltip extras', () => {
+	const CURRENCY = { type: 'currency' as const, options: { decimals: 2 } };
+	const CPM_EXTRA = {
+		label: 'Average CPM',
+		data: [ { date: JULY_1, value: 0.15 } ],
+		dataFormat: CURRENCY,
+	};
+
+	type TooltipNode = {
+		props: {
+			tooltipData: { datumByKey: Record< string, { datum: unknown; index: number; key: string } > };
+			supplementaryRows?: Record< string, unknown >;
+			getLabel: GetTooltipLabel;
+		};
+	};
+
+	/** Run the chart's `renderTooltip` for a hovered primary point. */
+	function tooltipFor( hoveredDate: Date ): TooltipNode {
+		const hovered = { date: hoveredDate, value: 100 };
+
+		const tooltipNode = (
+			recordedProps().renderTooltip as unknown as ( params: unknown ) => TooltipNode
+		 )( {
+			tooltipData: {
+				nearestDatum: { datum: hovered, key: 'July' },
+				datumByKey: { July: { datum: hovered, index: 0, key: 'July' } },
+			},
+		} );
+
+		return tooltipNode;
+	}
+
+	beforeEach( () => {
+		mockLineSpy.mockClear();
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+	} );
+
+	it( "lists each extra's point for the hovered date as a supplementary row", () => {
+		render(
+			<ComparativeLineChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+
+		const { tooltipData, supplementaryRows } = tooltipFor( JULY_1 ).props;
+
+		expect( tooltipData.datumByKey[ 'Average CPM' ] ).toEqual( {
+			datum: { date: JULY_1, value: 0.15 },
+			index: 0,
+			key: 'Average CPM',
+		} );
+		expect( supplementaryRows ).toEqual( { 'Average CPM': CURRENCY } );
+	} );
+
+	it( 'names every row once extras are listed, the drawn one included', () => {
+		render(
+			<ComparativeLineChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+
+		const { getLabel } = tooltipFor( JULY_1 ).props;
+
+		// A date alone would label the drawn row and the extras identically.
+		expect( getLabel( { date: JULY_1 }, 0, 'July' ) ).toBe( 'July · July 1, 2026' );
+		expect( getLabel( { date: JULY_1 }, 1, 'Average CPM' ) ).toBe( 'Average CPM · July 1, 2026' );
+	} );
+
+	it( 'skips an extra with no point for the hovered date', () => {
+		render(
+			<ComparativeLineChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+
+		expect( Object.keys( tooltipFor( JULY_2 ).props.tooltipData.datumByKey ) ).toEqual( [
+			'July',
+		] );
+	} );
+
+	it( 'keeps the swatch of a drawn series that is also listed as an extra', () => {
+		// A counterpart in `MetricTabsChart` is drawn (hidden until revealed) and
+		// listed; once the chart reports it, it must not turn into a spacer row.
+		const twoMetrics: ComparativeLineChartSeries[] = [
+			{ label: 'July', group: 'views', data: [ { date: JULY_1, value: 100 } ] },
+			{ label: 'Visitors', group: 'visitors', data: [ { date: JULY_1, value: 40 } ] },
+		];
+		render(
+			<ComparativeLineChart
+				series={ twoMetrics }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ { label: 'Visitors', data: twoMetrics[ 1 ].data }, CPM_EXTRA ] }
+			/>
+		);
+
+		const hovered = { date: JULY_1, value: 100 };
+
+		const tooltipNode = (
+			recordedProps().renderTooltip as unknown as ( params: unknown ) => TooltipNode
+		 )( {
+			tooltipData: {
+				nearestDatum: { datum: hovered, key: 'July' },
+				datumByKey: {
+					July: { datum: hovered, index: 0, key: 'July' },
+					Visitors: { datum: { date: JULY_1, value: 40 }, index: 1, key: 'Visitors' },
+				},
+			},
+		} );
+
+		expect( Object.keys( tooltipNode.props.tooltipData.datumByKey ) ).toEqual( [
+			'July',
+			'Visitors',
+			'Average CPM',
+		] );
+		expect( tooltipNode.props.supplementaryRows ).toEqual( { 'Average CPM': CURRENCY } );
+	} );
+
+	it( 'leaves the tooltip alone without extras', () => {
+		render( <ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		const { tooltipData, supplementaryRows, getLabel } = tooltipFor( JULY_1 ).props;
+
+		expect( Object.keys( tooltipData.datumByKey ) ).toEqual( [ 'July' ] );
+		expect( supplementaryRows ).toBeUndefined();
+		expect( getLabel( { date: JULY_1 }, 0, 'July' ) ).toBe( 'July 1, 2026' );
+	} );
+
+	it( 'keeps the tooltip on for an all-zero drawn series once an extra has data', () => {
+		const zeroSeries: ComparativeLineChartSeries[] = [
+			{ label: 'Revenue', group: 'revenue', data: [ { date: JULY_1, value: 0 } ] },
+		];
+
+		render( <ComparativeLineChart series={ zeroSeries } dataFormat={ DATA_FORMAT } /> );
+		expect( recordedProps().withTooltips ).toBe( false );
+
+		render(
+			<ComparativeLineChart
+				series={ zeroSeries }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ { ...CPM_EXTRA, data: [ { date: JULY_1, value: 0 } ] } ] }
+			/>
+		);
+		expect( recordedProps().withTooltips ).toBe( false );
+
+		render(
+			<ComparativeLineChart
+				series={ zeroSeries }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ CPM_EXTRA ] }
+			/>
+		);
+		expect( recordedProps().withTooltips ).toBe( true );
 	} );
 } );

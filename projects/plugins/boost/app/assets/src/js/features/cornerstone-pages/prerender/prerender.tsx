@@ -8,11 +8,14 @@ import { Link } from '@wordpress/ui';
 
 import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
 import { useSingleModuleState } from '$features/module/lib/stores';
+import ModuleRow from '$features/module/module-row';
+import { useModuleSurface } from '$features/module/surface';
 import { useNotices } from '$features/notice/context';
 const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
 import type { ReactNode } from 'react';
 
 const Prerender = () => {
+	const surface = useModuleSurface();
 	const { setNotice } = useNotices();
 	const [ moduleState, setModuleState ] = useSingleModuleState( 'speculation_rules', active => {
 		const activatedMessage = __( 'Prerender enabled', 'jetpack-boost' );
@@ -32,10 +35,32 @@ const Prerender = () => {
 		recordBoostEvent( 'cornerstone_pages_prerender_toggle', { enabled: Number( value ) } );
 	};
 
+	const title = __( 'Prerender Cornerstone Pages', 'jetpack-boost' );
+	const description = createInterpolateElement(
+		__(
+			'Prerender these pages to improve their loading performance, but <help>be mindful</help> of potential drawbacks.',
+			'jetpack-boost'
+		),
+		{
+			help: <PrerenderWarningMessage />,
+		}
+	);
+
+	if ( surface === 'row' ) {
+		return (
+			<ModuleRow
+				testId="prerender-cornerstone-pages-title"
+				label={ title }
+				description={ description }
+				toggle={ { checked: speculationRulesEnabled, onChange: handleToggle } }
+			/>
+		);
+	}
+
 	return (
 		<div className={ styles.wrapper }>
 			<div className={ styles.title } data-testid="prerender-cornerstone-pages-title">
-				<h4>{ __( 'Prerender Cornerstone Pages', 'jetpack-boost' ) }</h4>
+				<h4>{ title }</h4>
 				<ToggleControl
 					className={ styles[ 'toggle-control' ] }
 					checked={ speculationRulesEnabled }
@@ -43,17 +68,7 @@ const Prerender = () => {
 					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
-			<div className={ styles.description }>
-				{ createInterpolateElement(
-					__(
-						'Prerender these pages to improve their loading performance, but <help>be mindful</help> of potential drawbacks.',
-						'jetpack-boost'
-					),
-					{
-						help: <PrerenderWarningMessage />,
-					}
-				) }
-			</div>
+			<div className={ styles.description }>{ description }</div>
 		</div>
 	);
 };

@@ -52,7 +52,6 @@ const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onRead
 								tone="neutral"
 								href={ readerUrl }
 								openInNewTab={ openReaderInNewTab }
-								rel={ openReaderInNewTab ? 'noreferrer noopener' : undefined }
 								onClick={ onReaderClick }
 							/>
 						),
@@ -69,7 +68,13 @@ const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onRead
 	// classic new-post screen, where the jetpack/blogging-prompt block editor
 	// script seeds the same prompt.
 	const postAnswerHref = isWpcomPlatformSite()
-		? addQueryArgs( 'admin.php', { page: 'write', answer_prompt: prompt.id } )
+		? addQueryArgs( 'admin.php', {
+				page: 'write',
+				answer_prompt: prompt.id,
+				// Separates prompt answers from the rest of the dashboard in
+				// the Write funnel; without it they report as `dashboard`.
+				source: 'writing_prompt',
+		  } )
 		: addQueryArgs( 'post-new.php', { answer_prompt: prompt.id } );
 
 	return (
@@ -153,7 +158,6 @@ const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onRead
 							<Link
 								href={ new URL( prompt.answered_link ).toString() }
 								openInNewTab
-								rel="noreferrer noopener"
 								onClick={ recordViewResponsesClick }
 							>
 								{ __( 'View responses', 'jetpack-newsletter' ) }

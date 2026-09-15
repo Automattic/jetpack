@@ -1,8 +1,8 @@
 /**
  * The All-time traffic widget is the post detail Traffic view's history card:
- * every month of the scoped post's views, one row per year, as total views or
- * views per day (the `metric` attribute, which the framed host offers in the
- * header). It reads the post's whole life regardless of the page period, and
+ * every month of the scoped post's views, one row per year closed by the year's
+ * roll-up, as total views or views per day (the `metric` attribute, which the
+ * framed host offers in the header). It reads the post's whole life regardless of the page period, and
  * picking a month applies that month to the page. The post scope arrives through
  * `reportParams.post_id` (seeded from the detail page URL in product); the
  * `hasPostScope` control toggles it to exercise the scopeless empty state.
@@ -96,7 +96,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"The \"All-time traffic\" widget: every month of the scoped post's views, one row per year, as total views or views per day. The `metric` attribute has `relevance: 'high'`, so the framed host renders its select in the header; the close-up stories set it as an arg. It always covers the post's whole life, whatever period the page shows, and picking a month applies that month to the page. Without a post scope the widget renders a scopeless empty state.",
+					"The \"All-time traffic\" widget: every month of the scoped post's views, one row per year closed by a Totals column outside the colour scale, as total views or views per day. The `metric` attribute has `relevance: 'high'`, so the framed host renders its select in the header; the close-up stories set it as an arg. It always covers the post's whole life, whatever period the page shows, and picking a month applies that month to the page. Without a post scope the widget renders a scopeless empty state.",
 			},
 		},
 	},

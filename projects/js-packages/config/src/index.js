@@ -5,10 +5,15 @@ try {
 	// Using require allows us to catch the error and provide guidance to developers, as well as test the package.
 	jetpackConfig = require( 'jetpackConfig' );
 } catch {
-	console.error(
-		'jetpackConfig is missing in your webpack config file. See @automattic/jetpack-config'
-	);
-	jetpackConfig = { missingConfig: true };
+	if ( globalThis.jetpackConfig ) {
+		// Bundlers without webpack externals, such as `@wordpress/build`, provide it as a global.
+		jetpackConfig = globalThis.jetpackConfig;
+	} else {
+		console.error(
+			'jetpackConfig is missing in your webpack config file. See @automattic/jetpack-config'
+		);
+		jetpackConfig = { missingConfig: true };
+	}
 }
 
 const jetpackConfigHas = key => {

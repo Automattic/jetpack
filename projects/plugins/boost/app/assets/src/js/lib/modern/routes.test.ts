@@ -4,23 +4,30 @@ import { navigateTo, resolveRoute, settingsUrl, subpageHref, subpageUrl } from '
 const url = ( suffix: string ) =>
 	`http://localhost/wp-admin/admin.php?page=jetpack-boost${ suffix }`;
 
+/** The route arg as the chassis writes it: the whole route, percent-encoded. */
+const SETTINGS_ARG = '&p=%2F%3Ftab%3Dsettings';
+
 describe( 'resolveRoute', () => {
 	it.each( [ '', '#', '#/' ] )( 'treats %p as the Overview root', suffix => {
 		expect( resolveRoute( url( suffix ) ).route ).toEqual( { subpage: null, tab: 'overview' } );
 	} );
 
-	it( 'reads the tab from the outer query', () => {
-		expect( resolveRoute( url( '&tab=settings' ) ).route ).toEqual( {
+	it( 'reads the tab out of the chassis route arg', () => {
+		expect( resolveRoute( url( SETTINGS_ARG ) ).route ).toEqual( {
 			subpage: null,
 			tab: 'settings',
 		} );
 	} );
 
-	it( 'promotes a tab carried in the hash to the outer query', () => {
+	it( 'ignores a tab written beside the route arg rather than inside it', () => {
+		expect( resolveRoute( url( '&tab=settings' ) ).route.tab ).toBe( 'overview' );
+	} );
+
+	it( 'promotes a tab carried in the hash into the route arg', () => {
 		const { route, normalizedUrl } = resolveRoute( url( '#/?tab=settings' ) );
 
 		expect( route ).toEqual( { subpage: null, tab: 'settings' } );
-		expect( normalizedUrl ).toBe( url( '&tab=settings' ) );
+		expect( normalizedUrl ).toBe( url( SETTINGS_ARG ) );
 	} );
 
 	it( 'parses the hash query before matching a sub-page', () => {
@@ -30,7 +37,7 @@ describe( 'resolveRoute', () => {
 	} );
 
 	it( 'lets a recognised hash win over the tab', () => {
-		expect( resolveRoute( url( '&tab=settings#/critical-css-advanced' ) ).route.subpage ).toBe(
+		expect( resolveRoute( url( `${ SETTINGS_ARG }#/critical-css-advanced` ) ).route.subpage ).toBe(
 			'critical-css-advanced'
 		);
 	} );
@@ -40,24 +47,28 @@ describe( 'resolveRoute', () => {
 	} );
 
 	it( 'normalizes nothing for a plain URL', () => {
-		expect( resolveRoute( url( '&tab=settings' ) ).normalizedUrl ).toBeNull();
+		expect( resolveRoute( url( SETTINGS_ARG ) ).normalizedUrl ).toBeNull();
 	} );
 } );
 
 describe( 'settingsUrl', () => {
-	it( 'clears the hash and sets the tab', () => {
-		expect( settingsUrl( url( '#/cache-debug-log' ) ) ).toBe( url( '&tab=settings' ) );
+	it( 'clears the hash and writes the tab into the route arg', () => {
+		expect( settingsUrl( url( '#/cache-debug-log' ) ) ).toBe( url( SETTINGS_ARG ) );
 	} );
 
-	it( 'leaves an existing settings tab alone', () => {
-		expect( settingsUrl( url( '&tab=settings' ) ) ).toBe( url( '&tab=settings' ) );
+	it( 'is idempotent', () => {
+		expect( settingsUrl( url( SETTINGS_ARG ) ) ).toBe( url( SETTINGS_ARG ) );
+	} );
+
+	it( 'replaces a sub-page route arg rather than appending to it', () => {
+		expect( settingsUrl( url( '&p=%2F%3Ftab%3Doverview' ) ) ).toBe( url( SETTINGS_ARG ) );
 	} );
 } );
 
 describe( 'subpageUrl', () => {
 	it( 'keeps the outer query', () => {
-		expect( subpageUrl( 'getting-started', url( '&tab=settings' ) ) ).toBe(
-			url( '&tab=settings#/getting-started' )
+		expect( subpageUrl( 'getting-started', url( SETTINGS_ARG ) ) ).toBe(
+			url( `${ SETTINGS_ARG }#/getting-started` )
 		);
 	} );
 

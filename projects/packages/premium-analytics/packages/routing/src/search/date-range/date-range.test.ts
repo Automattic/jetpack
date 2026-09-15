@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { TZDate } from '@date-fns/tz';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -96,8 +97,8 @@ describe( 'encodeRangeToSearchParams', () => {
 	} );
 
 	// Midnight in the site zone, the shape the calendar inputs stage.
-	const from = new Date( '2026-06-29T04:00:00.000Z' );
-	const to = new Date( '2026-07-09T04:00:00.000Z' );
+	const from = new TZDate( '2026-06-29T04:00:00.000Z', 'America/New_York' );
+	const to = new TZDate( '2026-07-09T04:00:00.000Z', 'America/New_York' );
 
 	it( 'extends a calendar edit to the end of the site day', () => {
 		expect( encodeRangeToSearchParams( { from, to } ) ).toEqual( {

@@ -2,26 +2,12 @@
  * External dependencies
  */
 import type { StatsPostResponse, StatsPostYear } from '@jetpack-premium-analytics/data';
-
-export const MONTHS_IN_YEAR = 12;
-
-/** Which number each cell reports: the month's views, or its views per day. */
-export type AllTimeTrafficMetric = 'total' | 'average';
-
-export const DEFAULT_METRIC: AllTimeTrafficMetric = 'total';
-
-/**
- * The metric a stored instance names; anything that is not one reads as the default.
- *
- * @param value - The raw `metric` attribute.
- * @return The metric to draw.
- */
-export function resolveMetric( value: unknown ): AllTimeTrafficMetric {
-	return value === 'average' ? 'average' : DEFAULT_METRIC;
-}
-
-/** A calendar month; `month` is zero-based, as `Date` counts it. */
-export type MonthKey = { year: number; month: number };
+import {
+	MONTHS_IN_YEAR,
+	monthOrder,
+	type MonthKey,
+	type MonthlyHeatmapMetric,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * A month's figure, or why there is none: `before` predates the post, `after`
@@ -33,9 +19,9 @@ export type AllTimeTrafficRow = {
 	year: number;
 	/** One entry per calendar month, January first. */
 	months: AllTimeTrafficMonth[];
+	/** The year's own figure under the same metric; `null` when the endpoint has none. */
+	total: number | null;
 };
-
-const monthOrder = ( { year, month }: MonthKey ) => year * MONTHS_IN_YEAR + month;
 
 /** Every month the endpoint reports, as orders. The API keys months `1`-`12`. */
 function reportedMonths( years: Record< string, StatsPostYear > ): number[] {
@@ -49,8 +35,9 @@ function reportedMonths( years: Record< string, StatsPostYear > ): number[] {
 /**
  * Turns the endpoint's per-year tables into one row per year, newest first.
  *
- * `years` carries each month's views and `averages` its views per day; the
- * months reported come from `years` under both metrics. A month the endpoint
+ * `years` carries each month's views and the year's total, `averages` its views
+ * per day with the year under `overall`; the months reported come from `years`
+ * under both metrics. A month the endpoint
  * leaves out inside the post's life is a zero, so the grid stays complete, the
  * way the daily heatmap draws every day of its range.
  *
@@ -63,7 +50,7 @@ function reportedMonths( years: Record< string, StatsPostYear > ): number[] {
  */
 export function buildAllTimeTrafficRows(
 	response: StatsPostResponse | undefined,
-	metric: AllTimeTrafficMetric,
+	metric: MonthlyHeatmapMetric,
 	today: MonthKey,
 	published?: MonthKey
 ): AllTimeTrafficRow[] {
@@ -104,7 +91,9 @@ export function buildAllTimeTrafficRows(
 			}
 		);
 
-		rows.push( { year, months } );
+		const total = ( metric === 'average' ? stats?.overall : stats?.total ) ?? null;
+
+		rows.push( { year, months, total } );
 	}
 
 	return rows;

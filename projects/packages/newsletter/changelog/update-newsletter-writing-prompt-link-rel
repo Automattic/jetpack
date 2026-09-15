@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Drop redundant rel attributes from the writing prompt links, and let Stack lay out the Freshly Pressed list. No user-facing change.
+
+

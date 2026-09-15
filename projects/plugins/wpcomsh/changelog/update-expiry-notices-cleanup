@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Expiry notices: show the plan expiry notice on agency-managed sites, telling client admins whose plan it is.

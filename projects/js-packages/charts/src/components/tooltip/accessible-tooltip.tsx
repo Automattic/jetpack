@@ -200,6 +200,7 @@ interface UseKeyboardNavigationProps {
 	 * keyboard selection the way it treats a click.
 	 */
 	onActivate?: ( index: number ) => void;
+	preventTooltipScroll?: boolean;
 }
 
 export const useKeyboardNavigation = ( {
@@ -210,23 +211,34 @@ export const useKeyboardNavigation = ( {
 	chartRef,
 	totalPoints,
 	onActivate,
+	preventTooltipScroll = false,
 }: UseKeyboardNavigationProps ) => {
 	// Focus the tooltip as soon as it is rendered
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
 			if ( element && selectedIndex !== undefined ) {
-				element.focus();
+				if ( preventTooltipScroll ) {
+					element.focus( { preventScroll: true } );
+				} else {
+					element.focus();
+				}
 			}
 		},
-		[ selectedIndex ]
+		[ preventTooltipScroll, selectedIndex ]
 	);
 
-	// On each focus of chart, reset the selectedIndex to 0, if keyboard navigation is not already active
-	const onChartFocus = useCallback( () => {
-		if ( ! isNavigating && selectedIndex !== undefined ) {
-			setSelectedIndex( 0 );
-		}
-	}, [ isNavigating, selectedIndex, setSelectedIndex ] );
+	// Returning focus from the tooltip must not restore the selection Escape just cleared.
+	const onChartFocus = useCallback(
+		( event: React.FocusEvent< HTMLDivElement > ) => {
+			if ( event.currentTarget.contains( event.relatedTarget ) ) {
+				return;
+			}
+			if ( ! isNavigating && selectedIndex !== undefined ) {
+				setSelectedIndex( 0 );
+			}
+		},
+		[ isNavigating, selectedIndex, setSelectedIndex ]
+	);
 
 	// On each blur of chart, keyboard navigation should restart from first tooltip
 	const onChartBlur = useCallback( () => {
@@ -237,9 +249,17 @@ export const useKeyboardNavigation = ( {
 		( event: React.KeyboardEvent< HTMLDivElement > ) => {
 			if ( totalPoints === 0 ) return;
 
+			const focusChart = () => {
+				if ( preventTooltipScroll ) {
+					chartRef.current?.focus( { preventScroll: true } );
+				} else {
+					chartRef.current?.focus();
+				}
+			};
+
 			// Keep focus on the chart if tab is pressed
 			if ( event.key === 'Tab' ) {
-				chartRef.current?.focus();
+				focusChart();
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
@@ -248,7 +268,7 @@ export const useKeyboardNavigation = ( {
 			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
 
 			if ( currentSelectedIndex + 1 >= totalPoints && [ 'ArrowRight' ].includes( event.key ) ) {
-				chartRef.current?.focus();
+				focusChart();
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
@@ -265,12 +285,20 @@ export const useKeyboardNavigation = ( {
 			} else if ( event.key === 'Escape' ) {
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
-				chartRef.current?.focus();
+				focusChart();
 			} else if ( ( event.key === 'Enter' || event.key === ' ' ) && selectedIndex !== undefined ) {
 				onActivate?.( selectedIndex );
 			}
 		},
-		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef, onActivate ]
+		[
+			totalPoints,
+			selectedIndex,
+			setSelectedIndex,
+			setIsNavigating,
+			chartRef,
+			onActivate,
+			preventTooltipScroll,
+		]
 	);
 
 	return {

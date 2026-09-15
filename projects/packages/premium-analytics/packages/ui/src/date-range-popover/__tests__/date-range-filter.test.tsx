@@ -1,11 +1,13 @@
+import { TZDate } from '@date-fns/tz';
+import { type DateRange } from '@jetpack-premium-analytics/datetime';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
-import { DateRangePopoverContent, type DateRange } from '../date-range-filter';
+import { DateRangePopoverContent } from '../date-range-filter';
 
 const JULY_2026: DateRange = {
-	from: new Date( 2026, 6, 1, 0, 0, 0, 0 ),
-	to: new Date( 2026, 6, 31, 23, 59, 59, 999 ),
+	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),
+	to: new TZDate( 2026, 6, 31, 23, 59, 59, 999, 'UTC' ),
 };
 
 type Props = Parameters< typeof DateRangePopoverContent >[ 0 ];

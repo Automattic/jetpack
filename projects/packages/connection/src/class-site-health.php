@@ -52,10 +52,11 @@ class Site_Health {
 	 *
 	 * The test result itself is discarded: the point is the test's side effects,
 	 * which keep the Error_Handler state for failures that WP.com cannot report
-	 * through a request of its own (e.g. the site blocking WP.com requests) fresh —
-	 * reported while the condition persists, cleared once it resolves. Without this,
-	 * the error would only update on Site Health page visits and Core's weekly
-	 * Site Health cron, and would expire (ERROR_LIFE_TIME) while still unresolved.
+	 * through a request of its own (the site blocking WP.com requests; the site's
+	 * SSL certificate failing verification) fresh — reported while the condition
+	 * persists, cleared once it resolves. Without this, the errors would only
+	 * update on Site Health page visits and Core's weekly Site Health cron, and
+	 * would expire (ERROR_LIFE_TIME) while still unresolved.
 	 *
 	 * @since 8.10.0
 	 */

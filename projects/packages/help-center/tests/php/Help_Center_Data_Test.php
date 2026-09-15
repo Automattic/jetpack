@@ -25,6 +25,13 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	 */
 	private $help_center;
 
+	/**
+	 * Filters added by a single test, removed in tear_down.
+	 *
+	 * @var array<array{0: string, 1: callable}>
+	 */
+	private $temporary_filters = array();
+
 	public function set_up() {
 		parent::set_up();
 
@@ -43,6 +50,13 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function tear_down() {
+		foreach ( $this->temporary_filters as list( $hook, $callback ) ) {
+			remove_filter( $hook, $callback );
+		}
+		$this->temporary_filters = array();
+
+		delete_transient( $this->get_help_label_cache_key() );
+
 		// The Help_Center constructor registers hooks against $this. Without this,
 		// each test would leak duplicate callbacks into later tests in the session.
 		self::remove_help_center_hooks( $this->help_center );
@@ -63,6 +77,27 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		parent::tear_down();
 	}
 
+	/**
+	 * @param string   $hook     Filter name.
+	 * @param callable $callback Filter callback.
+	 */
+	private function add_temporary_filter( string $hook, $callback ): void {
+		add_filter( $hook, $callback );
+		$this->temporary_filters[] = array( $hook, $callback );
+	}
+
+	/**
+	 * @param string $variation Variation the experiment should report.
+	 */
+	private function force_label_variation( string $variation ): void {
+		$this->add_temporary_filter(
+			'wpcom_help_center_get_help_label_variation',
+			static function () use ( $variation ) {
+				return $variation;
+			}
+		);
+	}
+
 	private static function remove_help_center_hooks( Help_Center $instance ): void {
 		remove_action( 'rest_api_init', array( $instance, 'register_rest_api' ) );
 		remove_filter( 'calypso_preferences_update', array( $instance, 'calypso_preferences_update' ) );
@@ -70,6 +105,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 		remove_action( 'wp_enqueue_scripts', array( $instance, 'enqueue_wp_admin_scripts' ), 100 );
 		remove_action( 'next_admin_init', array( $instance, 'enqueue_wp_admin_scripts' ), 1000 );
 		remove_filter( 'in_admin_header', array( $instance, 'jetpack_remove_core_help_tab' ) );
+		remove_action( 'admin_bar_menu', array( $instance, 'add_admin_bar_node' ), 12 );
 	}
 
 	public function test_payload_has_stable_top_level_keys() {
@@ -164,6 +200,185 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'new-interactions-bot', $data['newInteractionsBotSlug'] );
 		$this->assertArrayNotHasKey( 'newLoggedOutInteractionsBotSlug', $data );
+	}
+
+	public function test_admin_bar_help_node_is_a_link_so_the_keyboard_can_reach_it() {
+		$node = $this->render_help_center_admin_bar_node();
+
+		// Without an href WordPress renders an `ab-empty-item` div, which is not focusable.
+		$this->assertNotEmpty( $node->href );
+	}
+
+	public function test_admin_bar_help_node_is_registered_without_a_script_enqueue() {
+		$node = $this->render_help_center_admin_bar_node();
+
+		$this->assertNotNull( $node );
+		$this->assertFalse( wp_script_is( 'help-center', 'enqueued' ) );
+		// The client contract Calypso renders the entry point from.
+		$this->assertArrayHasKey( 'menu_title', $node->meta );
+		$this->assertSame( 'help', $node->meta['icon'] );
+	}
+
+	public function test_admin_bar_help_node_stays_icon_only_for_the_unified_experience() {
+		$this->force_label_variation( 'treatment' );
+		$this->add_temporary_filter( 'agents_manager_use_unified_experience', '__return_true' );
+
+		$node = $this->render_help_center_admin_bar_node();
+
+		$this->assertSame( '', $node->meta['menu_title'] );
+		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
+	}
+
+	public function test_help_center_data_carries_the_entry_label_for_the_treatment() {
+		$this->force_label_variation( 'treatment' );
+
+		$data = $this->help_center->get_help_center_data( 'gutenberg' );
+
+		$this->assertSame( 'Get Help', $data['entryLabel'] );
+		$this->assertSame(
+			array( Help_Center::GET_HELP_EXPERIMENT => Help_Center::GET_HELP_VARIATION ),
+			$data['experimentVariations']
+		);
+	}
+
+	public function test_an_unresolved_assignment_is_not_cached_as_the_control() {
+		$help_center = $this->help_center_with_assignment_response( new \WP_Error( 'http_request_failed', 'timeout' ) );
+
+		$data = $help_center->get_help_center_data( 'gutenberg' );
+
+		$this->assertArrayNotHasKey( 'entryLabel', $data );
+		// Caching the failure would keep the user out of the experiment for an hour.
+		$this->assertFalse( get_transient( $this->get_help_label_cache_key() ) );
+
+		self::remove_help_center_hooks( $help_center );
+	}
+
+	public function test_a_resolved_assignment_is_cached() {
+		$help_center = $this->help_center_with_assignment_response(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					array( 'variations' => array( Help_Center::GET_HELP_EXPERIMENT => Help_Center::GET_HELP_VARIATION ) ),
+					JSON_UNESCAPED_SLASHES
+				),
+			)
+		);
+
+		$data = $help_center->get_help_center_data( 'gutenberg' );
+
+		$this->assertSame( 'Get Help', $data['entryLabel'] );
+		$this->assertSame( '1', (string) get_transient( $this->get_help_label_cache_key() ) );
+
+		self::remove_help_center_hooks( $help_center );
+	}
+
+	/**
+	 * @return string
+	 */
+	private function get_help_label_cache_key(): string {
+		return 'help-center-get-help-label-' . $this->user_id . '-' . Help_Center::GET_HELP_EXPERIMENT;
+	}
+
+	/**
+	 * A Help Center whose ExPlat assignment request returns the given response.
+	 *
+	 * @param mixed $response What the request client returns.
+	 * @return Help_Center
+	 */
+	private function help_center_with_assignment_response( $response ): Help_Center {
+		$client = new class( $response ) implements Wpcom_Request_Client {
+			/**
+			 * @var mixed
+			 */
+			private $response;
+
+			/**
+			 * @param mixed $response What request() returns.
+			 */
+			public function __construct( $response ) {
+				$this->response = $response;
+			}
+
+			public function is_user_connected() {
+				return true;
+			}
+
+			// phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- The stub answers every request the same way.
+			public function request(
+				$path,
+				$version = '2',
+				$args = array(),
+				$body = null,
+				$base_api_path = 'wpcom'
+			) {
+				return $this->response;
+			}
+			// phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		};
+
+		return new Help_Center( $client );
+	}
+
+	public function test_help_center_data_omits_the_experiment_variation_for_the_control() {
+		$this->force_label_variation( 'control' );
+
+		$data = $this->help_center->get_help_center_data( 'gutenberg' );
+
+		$this->assertArrayNotHasKey( 'entryLabel', $data );
+		$this->assertArrayNotHasKey( 'experimentVariations', $data );
+	}
+
+	public function test_admin_bar_help_node_is_absent_for_logged_out_users() {
+		wp_set_current_user( 0 );
+
+		$this->assertNull( $this->render_help_center_admin_bar_node() );
+	}
+
+	public function test_admin_bar_help_node_is_icon_only_by_default() {
+		$node = $this->render_help_center_admin_bar_node();
+
+		$this->assertNotNull( $node );
+		$this->assertStringNotContainsString( 'help-center-entry-label', $node->title );
+		$this->assertSame( '', $node->meta['menu_title'] );
+		$this->assertStringContainsString( 'title="Help Center"', $node->title );
+		$this->assertStringNotContainsString( 'has-help-entry-label', $node->meta['class'] );
+	}
+
+	public function test_admin_bar_help_node_shows_the_label_for_the_treatment() {
+		$this->force_label_variation( 'treatment' );
+
+		$node = $this->render_help_center_admin_bar_node();
+
+		$this->assertStringContainsString(
+			'<span class="help-center-entry-label" aria-hidden="true"><span>Get Help</span></span>',
+			$node->title
+		);
+		$this->assertSame( 'Get Help', $node->meta['menu_title'] );
+		$this->assertStringContainsString( 'has-help-entry-label', $node->meta['class'] );
+		$this->assertStringContainsString( 'title="Get Help"', $node->title );
+	}
+
+	/**
+	 * Runs the admin bar as a wp-admin request — no script enqueue — and returns the Help Center node.
+	 *
+	 * @return object|null
+	 */
+	private function render_help_center_admin_bar_node() {
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		try {
+			set_current_screen( 'dashboard' );
+
+			// Not initialize()d: that looks up the user's blogs, which the node does not need.
+			$wp_admin_bar = new \WP_Admin_Bar();
+			do_action_ref_array( 'admin_bar_menu', array( &$wp_admin_bar ) );
+
+			return $wp_admin_bar->get_node( 'help-center' );
+		} finally {
+			$GLOBALS['current_screen'] = null;
+		}
 	}
 
 	public function test_consumer_can_load_logged_out_bundle_on_frontend() {

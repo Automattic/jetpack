@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor: read the round-trip-validated date labels and day bounds through one shared helper.

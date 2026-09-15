@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix unreadable axis labels in forced-colors mode.

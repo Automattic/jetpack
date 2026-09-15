@@ -7,7 +7,7 @@ import PurchaseSuccess from './pages/purchase-success/purchase-success';
 import SettingsPage from '$layout/settings-page/settings-page';
 import { useEffect, StrictMode } from 'react';
 import type { JSX } from 'react';
-import { recordBoostEvent } from '$lib/utils/analytics';
+import { getPageViewEventName, recordBoostEvent } from '$lib/utils/analytics';
 import { LegacyNavigationProvider } from '$lib/navigation/navigation-context';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
@@ -90,12 +90,7 @@ const LegacyRouteFrame = ( { children }: { children: JSX.Element } ) => {
 	const location = useLocation();
 
 	useEffect( () => {
-		let path = location.pathname.replace( /[-/]/g, '_' );
-		if ( path === '_' ) {
-			path = '_settings';
-		}
-
-		recordBoostEvent( `page_view${ path }`, {
+		recordBoostEvent( getPageViewEventName( location.pathname ), {
 			path: location.pathname,
 		} );
 	}, [ location ] );

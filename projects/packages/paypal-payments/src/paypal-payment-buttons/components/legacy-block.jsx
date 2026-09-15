@@ -14,14 +14,13 @@ import { __ } from '@wordpress/i18n';
  *
  * @param {object}   props               - Component props.
  * @param {Function} props.setAttributes - Function to update block attributes.
- * @param {string}   props.colorScheme   - The color scheme attribute.
  * @param {string}   props.buttonText    - The button text attribute.
  * @param {object}   props.blockProps    - The block wrapper props.
  * @return {Element} The legacy block UI.
  */
-export default function LegacyBlock( { setAttributes, colorScheme, buttonText, blockProps } ) {
+export default function LegacyBlock( { setAttributes, buttonText, blockProps } ) {
 	return (
-		<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
+		<div { ...blockProps }>
 			<div className="jetpack-paypal-payment-buttons__legacy">
 				<p>
 					{ __(
