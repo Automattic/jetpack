@@ -217,6 +217,7 @@ class Error_Handler {
 		// Connection state problems (Manager::get_connection_owner, Connection_Health_Tests).
 		'invalid_connection_owner',  // The connection owner cannot be resolved: token missing or WP user deleted.
 		'xmlrpc_request_blocked',    // WP.com reached the site but the request was rejected (firewall, WAF, or server rule).
+		'wpcom_ssl_verification_failed',   // WP.com could not verify the site's SSL certificate when connecting to it (expired, self-signed, or incomplete chain).
 	);
 
 	/**
@@ -267,6 +268,11 @@ class Error_Handler {
 	 * predefined error messages and actions, with optional filtering for specific sites.
 	 * Only processes a limited set of error codes that are meant to be displayed to users.
 	 *
+	 * The result is specific to the current viewer: an error is omitted entirely when
+	 * they lack the capability to resolve it, so viewer-facing surfaces need not gate
+	 * it again. Two exceptions: a context with no current user gets the unfiltered set,
+	 * and consumer-injected errors are appended after the gate. See docs/error-handling.md.
+	 *
 	 * error_data.action is only set when it deviates from the default behavior
 	 * (e.g. 'none' to suppress the reconnect CTA); when absent, readers fall back
 	 * to offering the reconnect CTA.
@@ -315,6 +321,10 @@ class Error_Handler {
 			$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
 			$is_transferable = ( new Manager() )->is_ownership_transferable();
 
+			// Viewer-wide, so resolved once rather than per error.
+			$viewer_can_connect      = current_user_can( 'jetpack_connect' );
+			$viewer_can_connect_user = current_user_can( 'jetpack_connect_user' );
+
 			foreach ( $verified_errors as $error_code => $users ) {
 				// Only process error codes that are meant to be displayed to users.
 				// A raw verified error whose code is marked non-displayable in
@@ -353,6 +363,17 @@ class Error_Handler {
 						continue;
 					}
 
+					// An error a viewer cannot act on is withheld entirely.
+					$viewer_owns_error = 'user' === $audience && ! $this->is_owner_scoped_error( $error_code, $audience );
+
+					if ( $viewer_id > 0 ) {
+						$can_view_error = $viewer_owns_error ? $viewer_can_connect_user : $viewer_can_connect;
+
+						if ( ! $can_view_error ) {
+							continue;
+						}
+					}
+
 					$message = $generic_message;
 					$action  = null;
 
@@ -375,8 +396,7 @@ class Error_Handler {
 						// they can usefully be told depends on whether ownership is transferable.
 						// Only name the owner, or describe what reconnecting would do, for
 						// viewers who can act on connection issues.
-						$viewer_can_connect = current_user_can( 'jetpack_connect' );
-						$owner_name         = '';
+						$owner_name = '';
 						if ( $viewer_can_connect ) {
 							$owner      = get_userdata( $owner_id );
 							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
@@ -409,6 +429,13 @@ class Error_Handler {
 						}
 					}
 
+					// Relinking your own account and restoring the site are different actions
+					// with different capabilities, and this notice only offers the second one.
+					// A reporter-declared action is something else, so it is left alone.
+					if ( $viewer_owns_error && ! $viewer_can_connect && empty( $error['error_data']['action'] ) ) {
+						$action = 'none';
+					}
+
 					$error['audience']      = $audience;
 					$error['error_message'] = $message;
 
@@ -416,7 +443,10 @@ class Error_Handler {
 					// already fall back to the reconnect CTA when no action is set, and
 					// injecting an explicit 'reconnect' could trip consumer code paths
 					// reserved for custom actions.
-					if ( null !== $action || ! empty( $display_config['support_link'] ) ) {
+					$notice_link = $display_config['notice_link'] ?? null;
+					$has_link    = ! empty( $notice_link['url'] ) && ! empty( $notice_link['label'] );
+
+					if ( null !== $action || ! empty( $display_config['support_link'] ) || $has_link ) {
 						$error_data = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
 
 						if ( null !== $action ) {
@@ -428,6 +458,19 @@ class Error_Handler {
 						// get_error_display_configs().
 						if ( ! empty( $display_config['support_link'] ) ) {
 							$error_data['support_link'] = true;
+						}
+
+						// Where the resolution lives somewhere else (Site Health for a
+						// blocked request), carry the link on the error so every notice can
+						// offer it — not just the wp-admin one. Errors like this suppress
+						// the reconnect CTA, so without it the notice names a problem and
+						// offers nothing to do about it. See `notice_link` in
+						// get_error_display_configs().
+						if ( $has_link ) {
+							$error_data['notice_link'] = array(
+								'label' => $notice_link['label'],
+								'url'   => $notice_link['url'],
+							);
 						}
 
 						$error['error_data'] = $error_data;
@@ -508,9 +551,20 @@ class Error_Handler {
 	 *   This is the only key that reaches beyond My Jetpack's own display: it opts
 	 *   the code into a site-wide wp-admin notice. Leave it unset unless the error
 	 *   genuinely needs that broader reach (see `xmlrpc_request_blocked` below for why).
-	 * - `notice_link` (array): presentational `label` and `url` for a link appended to
-	 *   the default admin notice only. Only used when the notice shows this error's
-	 *   default message (a filtered message keeps full control of the copy).
+	 * - `notice_link` (array): presentational `label` and `url` for a link the notice
+	 *   offers alongside (or instead of) the CTA. It reaches two surfaces, gated
+	 *   differently on purpose:
+	 *   - The default wp-admin notice appends it only when showing this error's own
+	 *     default message. There, `jetpack_connection_error_notice_message` hands the
+	 *     consumer a bare string with no way to drop the link, so a filtered message
+	 *     that kept it could end up pointing somewhere its copy never mentions.
+	 *   - The displayable error carries it as `error_data['notice_link']`
+	 *     unconditionally, for the connection JS package to render in its own notices.
+	 *     No equivalent gate is possible or needed: `error_message` on this path is
+	 *     not filtered through anything, and the one filter that can rewrite it —
+	 *     `jetpack_connection_displayable_errors` below — receives the whole error
+	 *     array, link included, so a consumer changing the copy can unset the link in
+	 *     the same pass.
 	 * - `survives_owner_promotion` (bool): when true, this code is not dropped by
 	 *   promote_owner_errors() while the connection owner's own connection is broken.
 	 *   Set it only for a code that is not a token problem, and so is not waiting on
@@ -563,59 +617,59 @@ class Error_Handler {
 		$configs = array(
 			// Attacker-controllable garbage in an incoming request. Nothing about this
 			// site's own connection is wrong.
-			'malformed_user_id'        => false,
+			'malformed_user_id'             => false,
 			// Expected after a user is deleted, and the owner flavor is covered by
 			// invalid_connection_owner. Incoming reports also drive WP.com-side
 			// self-healing, so a notice would surface a problem already resolving itself.
-			'unknown_user'             => false,
-			'malformed_token'          => array(),
+			'unknown_user'                  => false,
+			'malformed_token'               => array(),
 			// Never connecting a WordPress.com account is expected, not broken. The owner
 			// flavor is covered by invalid_connection_owner.
-			'no_user_tokens'           => false,
+			'no_user_tokens'                => false,
 			// Same, for a site that has never had an owner. invalid_connection_owner
 			// covers the case where there was one and it broke.
-			'empty_master_user_option' => false,
+			'empty_master_user_option'      => false,
 			// As no_user_tokens, for a single requested user.
-			'no_token_for_user'        => false,
-			'token_malformed'          => array(),
+			'no_token_for_user'             => false,
+			'token_malformed'               => array(),
 			// Corrupt local token data, but for one user only, and the
 			// no_valid_user_token/token_malformed pair surfaces it when it actually
 			// blocks a request.
-			'user_id_mismatch'         => false,
-			'no_possible_tokens'       => array(),
-			'no_valid_user_token'      => array(),
-			'no_valid_blog_token'      => array(),
-			'unknown_token'            => array(),
-			'could_not_sign'           => array(),
+			'user_id_mismatch'              => false,
+			'no_possible_tokens'            => array(),
+			'no_valid_user_token'           => array(),
+			'no_valid_blog_token'           => array(),
+			'unknown_token'                 => array(),
+			'could_not_sign'                => array(),
 			// Both are about the URL being signed, not the connection: a code bug or an
 			// exotic site URL, which reconnecting does not change.
-			'invalid_scheme'           => false,
-			'unknown_scheme_port'      => false,
+			'invalid_scheme'                => false,
+			'unknown_scheme_port'           => false,
 			// Corrupt local token data like token_malformed above, caught at signing time
 			// rather than lookup time. Reconnect fixes it the same way.
-			'invalid_secret'           => array(),
-			'invalid_token'            => array(),
-			'token_mismatch'           => array(),
+			'invalid_secret'                => array(),
+			'invalid_token'                 => array(),
+			'token_mismatch'                => array(),
 			// Per-request and transport-level, so unaffected by the state of the connection.
-			'invalid_body'             => false,
+			'invalid_body'                  => false,
 			// Environmental in both directions — a malformed parameter or clock skew,
 			// neither of which a reconnect fixes.
-			'invalid_signature'        => false,
+			'invalid_signature'             => false,
 			// Something altered the request in transit. Not a token problem, and
 			// signature_mismatch carries the same diagnosis with usable copy.
-			'invalid_body_hash'        => false,
+			'invalid_body_hash'             => false,
 			// A replay, or object-cache trouble. Self-resolving per request.
-			'invalid_nonce'            => false,
+			'invalid_nonce'                 => false,
 			// Ambiguous cause: could be a genuine secret desync (reconnect fixes it) or a
 			// proxy/CDN/WAF/security plugin altering the request in transit (reconnect
 			// doesn't help). Uses the generic message — support_link offers an
 			// alternative either way.
-			'signature_mismatch'       => array(
+			'signature_mismatch'            => array(
 				'support_link' => true,
 			),
 			// Two flavors with different remedies — see
 			// get_invalid_connection_owner_message().
-			'invalid_connection_owner' => array(
+			'invalid_connection_owner'      => array(
 				'message_callback' => array( $this, 'get_invalid_connection_owner_message' ),
 			),
 			// The token can be perfectly valid here: the site is rejecting WordPress.com's
@@ -624,8 +678,22 @@ class Error_Handler {
 			// Site Health holds the full diagnosis. Ships a default admin notice because
 			// no other detection path can see this — WP.com's requests never arrive. And
 			// it outlives a broken owner, whose reconnect the same rule would block.
-			'xmlrpc_request_blocked'   => array(
+			'xmlrpc_request_blocked'        => array(
 				'message_callback'         => array( $this, 'get_blocked_request_message' ),
+				'default_admin_notice'     => true,
+				'survives_owner_promotion' => true,
+				'notice_link'              => array(
+					'label' => __( 'Visit Site Health', 'jetpack-connection' ),
+					'url'   => admin_url( 'site-health.php' ),
+				),
+			),
+			// The tokens can be perfectly valid: WP.com cannot verify the site's SSL
+			// certificate, and a reconnect would be rejected the same way — so no
+			// reconnect CTA, and it outlives a broken owner. Ships a default admin notice
+			// for the same reason as the blocked error above: WP.com's requests never
+			// arrive, so no other detection path can see this.
+			'wpcom_ssl_verification_failed' => array(
+				'message_callback'         => array( $this, 'get_wpcom_ssl_verification_failed_message' ),
 				'default_admin_notice'     => true,
 				'survives_owner_promotion' => true,
 				'notice_link'              => array(
@@ -680,6 +748,21 @@ class Error_Handler {
 	}
 
 	/**
+	 * Builds the displayable message for the SSL-verification-failed error.
+	 *
+	 * Deliberately brief: Site Health holds the transport detail and the resolution
+	 * steps, so the message only names the condition and points there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $error The stored error array (unused; part of the message_callback contract).
+	 * @return string The message.
+	 */
+	private function get_wpcom_ssl_verification_failed_message( $error ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return __( 'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. See Site Health for details and next steps.', 'jetpack-connection' );
+	}
+
+	/**
 	 * Classifies the audience of a stored connection error based on its user ID.
 	 *
 	 * The audience determines who a connection error is relevant to and, in turn,
@@ -712,6 +795,19 @@ class Error_Handler {
 	}
 
 	/**
+	 * Whether an error describes the connection owner's own connection.
+	 *
+	 * @since 9.2.0
+	 *
+	 * @param string $error_code The error code.
+	 * @param string $audience   The classified audience.
+	 * @return bool
+	 */
+	private function is_owner_scoped_error( $error_code, $audience ) {
+		return 'owner' === $audience || 'invalid_connection_owner' === $error_code;
+	}
+
+	/**
 	 * Reduces a set of displayable errors to the connection-owner ones when the
 	 * owner's own connection is broken.
 	 *
@@ -719,12 +815,7 @@ class Error_Handler {
 	 * off. While it is broken, no other error in the set is independently
 	 * actionable.
 	 *
-	 * Two shapes count as a broken owner:
-	 * - any error classified with the `owner` audience, i.e. attributed to the
-	 *   current owner's user ID; and
-	 * - `invalid_connection_owner` at any audience — when there is no current owner
-	 *   to compare a user ID against, classify_error_audience() falls back to
-	 *   `user`, but the code itself already says the owner cannot be resolved.
+	 * See is_owner_scoped_error() for which errors count as a broken owner.
 	 *
 	 * A code whose display config sets `survives_owner_promotion` is kept regardless.
 	 * The premise above holds for token errors, whose one remedy is a reconnect the
@@ -748,8 +839,7 @@ class Error_Handler {
 			$survives       = null !== $display_config && ! empty( $display_config['survives_owner_promotion'] );
 
 			foreach ( $users as $user_id => $error ) {
-				$is_owner_error = 'owner' === ( $error['audience'] ?? '' )
-					|| 'invalid_connection_owner' === $error_code;
+				$is_owner_error = $this->is_owner_scoped_error( $error_code, $error['audience'] ?? '' );
 
 				if ( ! $is_owner_error && ! $survives ) {
 					continue;
@@ -964,7 +1054,7 @@ class Error_Handler {
 			return true;
 		}
 
-		$transient = self::ERROR_REPORTING_GATE . $error->get_error_code();
+		$transient = self::error_reporting_gate_transient( $error );
 
 		if ( get_transient( $transient ) ) {
 			return false;
@@ -972,6 +1062,24 @@ class Error_Handler {
 
 		set_transient( $transient, true, HOUR_IN_SECONDS );
 		return true;
+	}
+
+	/**
+	 * Builds the reporting-gate transient name for an error.
+	 *
+	 * Keyed by code and direction, not code alone: an outgoing error is reported
+	 * immediately and verified locally (no WP.com round trip), while an incoming error of the
+	 * same code still needs to clear the gate to reach the `verify_xml_rpc_error` round trip
+	 * that triggers WP.com-side self-healing (flow 1 in the class docblock).
+	 *
+	 * @param \WP_Error $error the error object.
+	 * @return string
+	 */
+	private static function error_reporting_gate_transient( \WP_Error $error ) {
+		$error_data      = $error->get_error_data();
+		$error_direction = is_array( $error_data ) && ! empty( $error_data['error_direction'] ) ? $error_data['error_direction'] : '';
+
+		return self::ERROR_REPORTING_GATE . $error->get_error_code() . '_' . $error_direction;
 	}
 
 	/**
@@ -1008,7 +1116,9 @@ class Error_Handler {
 			unset( $stored_errors[ $error_code ][ $keys[0] ] );
 		}
 
-		if ( update_option( self::STORED_ERRORS_OPTION, $stored_errors ) ) {
+		// Deliberately not autoloaded: keeps these ephemeral options out of the shared
+		// alloptions cache blob, whose write races can resurrect deleted values (CONNECT-457).
+		if ( update_option( self::STORED_ERRORS_OPTION, $stored_errors, false ) ) {
 			return $error_array;
 		}
 
@@ -1461,7 +1571,7 @@ class Error_Handler {
 		if ( is_array( $stored_errors ) && count( $stored_errors ) ) {
 			$stored_errors = array_filter( array_map( $type_filter, $stored_errors ) );
 			if ( count( $stored_errors ) ) {
-				update_option( static::STORED_ERRORS_OPTION, $stored_errors );
+				update_option( static::STORED_ERRORS_OPTION, $stored_errors, false );
 			} else {
 				delete_option( static::STORED_ERRORS_OPTION );
 			}
@@ -1471,11 +1581,16 @@ class Error_Handler {
 		if ( is_array( $verified_errors ) && count( $verified_errors ) ) {
 			$verified_errors = array_filter( array_map( $type_filter, $verified_errors ) );
 			if ( count( $verified_errors ) ) {
-				update_option( static::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+				update_option( static::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 			} else {
 				delete_option( static::STORED_VERIFIED_ERRORS_OPTION );
 			}
 		}
+
+		// Per-key purge only (this warm path — a successful site-data fetch — must not
+		// drop the alloptions blob); a legacy blob orphan clears on the next reconnect.
+		wp_cache_delete( self::STORED_ERRORS_OPTION, 'options' );
+		wp_cache_delete( self::STORED_VERIFIED_ERRORS_OPTION, 'options' );
 
 		// Invalidate cache since we may have deleted verified errors
 		$this->invalidate_displayable_errors_cache();
@@ -1504,7 +1619,9 @@ class Error_Handler {
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
 	public function delete_stored_errors() {
-		return delete_option( self::STORED_ERRORS_OPTION );
+		$deleted = delete_option( self::STORED_ERRORS_OPTION );
+		$this->purge_error_option_cache( self::STORED_ERRORS_OPTION, $deleted );
+		return $deleted;
 	}
 
 	/**
@@ -1515,7 +1632,33 @@ class Error_Handler {
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
 	public function delete_verified_errors() {
-		return delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
+		$deleted = delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
+		$this->purge_error_option_cache( self::STORED_VERIFIED_ERRORS_OPTION, $deleted );
+		return $deleted;
+	}
+
+	/**
+	 * Purges an error option's object caches after a delete.
+	 *
+	 * Core's delete_option()/update_option() return before touching caches when the
+	 * DB row is missing, so a value resurrected in cache by an alloptions write race
+	 * would otherwise outlive the delete — including a reconnect (CONNECT-457). The
+	 * per-key delete covers a post-migration (non-autoloaded) orphan; when the delete
+	 * found no row yet the value is still in the autoloaded blob (a legacy row written
+	 * before these options stopped autoloading), drop that blob too. The blob check
+	 * reads the raw autoloaded set, so it is unaffected by option_* filters and adds
+	 * no query.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $option  The error option name.
+	 * @param bool   $deleted Whether delete_option() found and removed a DB row.
+	 */
+	private function purge_error_option_cache( $option, $deleted ) {
+		wp_cache_delete( $option, 'options' );
+		if ( ! $deleted && isset( wp_load_alloptions()[ $option ] ) ) {
+			wp_cache_delete( 'alloptions', 'options' );
+		}
 	}
 
 	/**
@@ -1535,15 +1678,18 @@ class Error_Handler {
 
 		// Reopen the reporting gate for this code: deletion means the condition was
 		// positively confirmed cleared, so a recurrence must be reportable immediately
-		// rather than suppressed for up to an hour.
-		delete_transient( self::ERROR_REPORTING_GATE . $error_code );
+		// rather than suppressed for up to an hour. The gate is keyed by code + direction
+		// (see error_reporting_gate_transient()), so every direction variant is cleared.
+		delete_transient( self::ERROR_REPORTING_GATE . $error_code . '_' . self::DIRECTION_INCOMING );
+		delete_transient( self::ERROR_REPORTING_GATE . $error_code . '_' . self::DIRECTION_OUTGOING );
+		delete_transient( self::ERROR_REPORTING_GATE . $error_code . '_' );
 
 		$stored_errors = $this->get_stored_errors();
 		if ( isset( $stored_errors[ $error_code ] ) ) {
 			unset( $stored_errors[ $error_code ] );
 			$deleted = true;
 			if ( count( $stored_errors ) ) {
-				update_option( self::STORED_ERRORS_OPTION, $stored_errors );
+				update_option( self::STORED_ERRORS_OPTION, $stored_errors, false );
 			} else {
 				delete_option( self::STORED_ERRORS_OPTION );
 			}
@@ -1554,13 +1700,17 @@ class Error_Handler {
 			unset( $verified_errors[ $error_code ] );
 			$deleted = true;
 			if ( count( $verified_errors ) ) {
-				update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+				update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 			} else {
 				delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
 			}
 		}
 
 		if ( $deleted ) {
+			// Per-key purge only: a legacy blob orphan for these codes is cleared on the
+			// next reconnect via delete_all_errors(), and GC bounds its display meanwhile.
+			wp_cache_delete( self::STORED_ERRORS_OPTION, 'options' );
+			wp_cache_delete( self::STORED_VERIFIED_ERRORS_OPTION, 'options' );
 			$this->invalidate_displayable_errors_cache();
 		}
 
@@ -1609,7 +1759,7 @@ class Error_Handler {
 
 		$verified_errors[ $error_code ][ $user_id ] = $error;
 
-		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 
 		// Invalidate cache since we added a new verified error
 		$this->invalidate_displayable_errors_cache();
@@ -1855,6 +2005,13 @@ class Error_Handler {
 	 */
 	public function check_signed_request_for_errors( $signing_result, $url, $method, $error_type ) {
 		if ( ! is_wp_error( $signing_result ) ) {
+			return;
+		}
+
+		// A site with no registration has no tokens to sign with: failed token lookups
+		// are expected state there, not connection errors — and a stale cache view that
+		// hides a connected site's options must not plant a "verified" error either (CONNECT-457).
+		if ( ! \Jetpack_Options::get_option( 'id' ) ) {
 			return;
 		}
 

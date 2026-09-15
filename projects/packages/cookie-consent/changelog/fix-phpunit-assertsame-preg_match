@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Tests: Use `assertMatchesRegularExpression` and `assertDoesNotMatchRegularExpression` where applicable, versus things like `assertSame( 1, preg_match( ... ) )`.
+
+

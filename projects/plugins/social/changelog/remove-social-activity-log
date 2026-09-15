@@ -1,0 +1,3 @@
+Significance: patch
+Type: removed
+Comment: Revert the unreleased addition of the Activity Log page (#51223); it never shipped in a release.

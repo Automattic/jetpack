@@ -2,9 +2,8 @@
  * External dependencies
  */
 import {
-	GeoChart,
-	GoogleDataTableColumnRoleType,
 	LeaderboardChart,
+	LocationsGeoChart,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
@@ -18,23 +17,19 @@ import {
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
-	type GeoChartError,
-	type GeoData,
-	type GoogleDataTableColumn,
-	type GoogleDataTableRow,
 	type LeaderboardChartData,
+	type LocationsGeoRow,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { location as locationIcon } from '@jetpack-premium-analytics/icons';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { useEffect, useMemo } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useLocationViews, { type GeoMode, type LocationView } from './use-location-views';
+import useLocationViews, { type GeoMode } from './use-location-views';
 import { type LocationsAttributes } from './widget';
 /**
  * Types
@@ -44,28 +39,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type LocationsRenderAttributes = LocationsAttributes & Partial< ReportParamsFieldAttributes >;
 type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
 type DrillDownCountry = { code: string; name: string };
-type CountrySummary = {
-	countryFull: string;
-	value: number;
-	locations: LocationView[];
-};
-type GoogleChartsWindow = Window & {
-	google?: {
-		visualization?: {
-			errors?: {
-				removeError?: ( errorId: string ) => void;
-			};
-		};
-	};
-};
-
-const MISSING_MAP_ERROR_MESSAGE = 'Requested map does not exist';
-// Google GeoChart has no `provinces` map file for some countries (e.g. TW, SG).
-// There is no upstream list of them; each is learned at runtime when its
-// provinces draw fails, via the GeoChart `onError` callback. This module-level
-// cache carries what was learned across widget remounts, so within one page
-// load each country pays the failed draw (a brief error flash) at most once.
-const runtimeUnsupportedProvinceMapCountries = new Set< string >();
 
 type GeoGranularity = NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 // Tab ids owned by the Locations report; `ReportLink` takes a bare string, so
@@ -79,43 +52,6 @@ const REPORT_SECTIONS: Record< GeoGranularity, LocationsReportSection > = {
 };
 const DEFAULT_GEO_GRANULARITY: GeoGranularity = 'country';
 
-function getGeoChartCountryId( countryCode: string ): string {
-	if ( countryCode.toUpperCase() === 'TW' ) {
-		return 'Taiwan';
-	}
-
-	return countryCode.toUpperCase();
-}
-
-// A GeoChart tooltip is a single cell, so the summed locations share one HTML
-// string. The list is capped to keep a tooltip from overflowing the map.
-const MAX_TOOLTIP_LOCATIONS = 10;
-
-function buildCountryTooltip( country: CountrySummary ): string {
-	const listed = country.locations.slice( 0, MAX_TOOLTIP_LOCATIONS );
-	const lines = listed.map(
-		location => `${ location.label }: ${ formatMetricValue( location.value ) }`
-	);
-	const remaining = country.locations.length - listed.length;
-
-	if ( remaining > 0 ) {
-		lines.push(
-			sprintf(
-				/* translators: %d is the number of locations left out of the tooltip list. */
-				_n(
-					'…and %d more location',
-					'…and %d more locations',
-					remaining,
-					'jetpack-premium-analytics-pkg'
-				),
-				remaining
-			)
-		);
-	}
-
-	return lines.join( '<br />' );
-}
-
 type LocationsInnerProps = {
 	geoGranularity: NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 };
@@ -127,9 +63,6 @@ type LocationsInnerProps = {
  */
 function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
-		Set< string >
-	>( () => new Set( runtimeUnsupportedProvinceMapCountries ) );
 
 	const {
 		drillDownItem: selectedCountry,
@@ -137,9 +70,8 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		resetDrillDown: clearSelectedCountry,
 	} = useWidgetDrillDown< DrillDownCountry >();
 
-	// The "View by" control lives in the widget host header (the
-	// `relevance: 'high'` attribute). Only Countries mode drills down, so leaving
-	// the other modes would strand a selected country the user can't clear.
+	// Only Countries mode drills down, so leaving it would strand a selected
+	// country the user can no longer clear.
 	useEffect( () => {
 		if ( geoGranularity !== 'country' ) {
 			clearSelectedCountry();
@@ -157,147 +89,16 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		countryFilter: activeSelectedCountry?.code,
 	} );
 
-	const selectedCountryCode = activeSelectedCountry?.code.toUpperCase();
-	const useProvinceMap =
-		geoMode === 'region' &&
-		!! selectedCountryCode &&
-		! unsupportedProvinceMapCountries.has( selectedCountryCode );
-	const useCountryFallbackMap =
-		geoMode === 'region' && !! activeSelectedCountry && ! useProvinceMap;
-	const fallbackCountry = useCountryFallbackMap ? activeSelectedCountry : undefined;
-	// Cities, and Regions outside a country drill-down, span the whole world.
-	// Google GeoChart can't place either row type on the world map, so both are
-	// summed back up to their country.
-	const useCountrySummaryMap =
-		geoMode === 'city' || ( geoMode === 'region' && ! activeSelectedCountry );
-	const countrySummaryRows = useMemo( () => {
-		const countryRows = new Map< string, CountrySummary >();
-
-		if ( ! useCountrySummaryMap ) {
-			return [];
-		}
-
-		data.forEach( location => {
-			const countryCode = location.countryCode.toUpperCase();
-			const current = countryRows.get( countryCode );
-			countryRows.set( countryCode, {
+	const geoRows = useMemo(
+		(): LocationsGeoRow[] =>
+			data.map( location => ( {
+				label: location.label,
+				value: location.value,
+				countryCode: location.countryCode,
 				countryFull: location.countryFull,
-				value: ( current?.value ?? 0 ) + location.value,
-				locations: [ ...( current?.locations ?? [] ), location ],
-			} );
-		} );
-
-		return Array.from( countryRows.entries() );
-	}, [ data, useCountrySummaryMap ] );
-	const handleGeoChartError = useCallback(
-		( error: GeoChartError ) => {
-			const message = `${ error.message ?? '' } ${ error.detailedMessage ?? '' }`;
-			// Any error during a provinces draw means this country's map is unusable —
-			// fall back regardless of the message text, which Google may localize.
-			// Stragglers from that failed draw keep arriving after the widget already
-			// switched to the fallback map (resize and drill-down layout shifts each
-			// redraw), so a selected country already learned as unsupported also
-			// qualifies without depending on the message. The English message match
-			// stays only as a last resort for errors arriving outside those states.
-			const isProvinceDrawError = !! selectedCountryCode && useProvinceMap;
-			const isKnownUnsupportedProvinceDraw =
-				!! selectedCountryCode && runtimeUnsupportedProvinceMapCountries.has( selectedCountryCode );
-
-			if (
-				! isProvinceDrawError &&
-				! isKnownUnsupportedProvinceDraw &&
-				! message.includes( MISSING_MAP_ERROR_MESSAGE )
-			) {
-				return;
-			}
-
-			// Clear the error element Google injected into the chart container; the
-			// fallback redraw replaces the failed map, but the error element would
-			// otherwise linger above it.
-			if ( error.id && typeof window !== 'undefined' ) {
-				( window as GoogleChartsWindow ).google?.visualization?.errors?.removeError?.( error.id );
-			}
-
-			if ( ! isProvinceDrawError ) {
-				return;
-			}
-
-			runtimeUnsupportedProvinceMapCountries.add( selectedCountryCode );
-			setUnsupportedProvinceMapCountries( previous => {
-				if ( previous.has( selectedCountryCode ) ) {
-					return previous;
-				}
-
-				const next = new Set( previous );
-				next.add( selectedCountryCode );
-				return next;
-			} );
-		},
-		[ selectedCountryCode, useProvinceMap ]
+			} ) ),
+		[ data ]
 	);
-
-	const geoData = useMemo( (): GeoData => {
-		// Only the provinces map plots sub-country rows; every other map is
-		// country-scoped, whatever the leaderboard beside it lists.
-		const header: GoogleDataTableColumn[] = [
-			useProvinceMap
-				? __( 'Location', 'jetpack-premium-analytics-pkg' )
-				: __( 'Country', 'jetpack-premium-analytics-pkg' ),
-			__( 'Views', 'jetpack-premium-analytics-pkg' ),
-		];
-
-		if ( fallbackCountry ) {
-			const countryCode = fallbackCountry.code.toUpperCase();
-			const value = data
-				.filter( location => location.countryCode.toUpperCase() === countryCode )
-				.reduce( ( total, location ) => total + location.value, 0 );
-
-			return [
-				header,
-				[
-					{
-						v: getGeoChartCountryId( countryCode ),
-						f: fallbackCountry.name,
-					},
-					value,
-				],
-			];
-		}
-
-		if ( useCountrySummaryMap ) {
-			// A summed country no longer names the regions behind its value, so it
-			// carries them in a tooltip. Cities keep GeoChart's default tooltip.
-			const withTooltips = geoMode === 'region';
-			const summaryHeader: GoogleDataTableColumn[] = withTooltips
-				? [
-						...header,
-						{
-							type: 'string',
-							role: GoogleDataTableColumnRoleType.tooltip,
-							p: { html: true },
-						},
-				  ]
-				: header;
-
-			return [
-				summaryHeader,
-				...countrySummaryRows.map( ( [ countryCode, country ] ): GoogleDataTableRow => {
-					const row: GoogleDataTableRow = [
-						{
-							v: getGeoChartCountryId( countryCode ),
-							f: country.countryFull,
-						},
-						country.value,
-					];
-
-					return withTooltips ? [ ...row, buildCountryTooltip( country ) ] : row;
-				} ),
-			];
-		}
-
-		const rows: GoogleDataTableRow[] = data.map( location => [ location.label, location.value ] );
-		return [ header, ...rows ];
-	}, [ countrySummaryRows, data, fallbackCountry, geoMode, useCountrySummaryMap, useProvinceMap ] );
 
 	const leaderboardData = useMemo( () => {
 		const maxValue = getCombinedPeriodMax(
@@ -406,12 +207,11 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 							/>
 						</div>
 						<div className={ styles.geoChart }>
-							<GeoChart
-								data={ geoData }
+							<LocationsGeoChart
+								rows={ geoRows }
+								mode={ geoMode }
+								focusCountry={ activeSelectedCountry }
 								resizeDebounceTime={ 100 }
-								region={ useProvinceMap ? activeSelectedCountry?.code ?? 'world' : 'world' }
-								resolution={ useProvinceMap ? 'provinces' : 'countries' }
-								onError={ handleGeoChartError }
 							/>
 						</div>
 					</div>
@@ -427,9 +227,8 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
  * Jetpack Stats Locations module.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
-	// Attributes are persisted, so a stale layout can carry a granularity this
-	// widget no longer knows. Normalize once, before it becomes both the endpoint
-	// path segment and the report tab.
+	// A persisted layout can carry a granularity this widget no longer knows, and
+	// it becomes both an endpoint path segment and a report tab.
 	const storedGranularity = attributes?.geoGranularity ?? DEFAULT_GEO_GRANULARITY;
 	// `in` would also accept inherited keys such as `toString`, which would then
 	// reach the endpoint as a path segment.

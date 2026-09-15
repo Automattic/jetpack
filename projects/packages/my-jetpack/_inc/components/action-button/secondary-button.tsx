@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Button, Link } from '@wordpress/ui';
+import { Button, Link, LinkButton } from '@wordpress/ui';
 import type { FC, MouseEvent } from 'react';
 
 export type SecondaryButtonProps = {
@@ -22,12 +22,15 @@ const variantMap = {
 	primary: 'solid',
 	secondary: 'outline',
 	tertiary: 'minimal',
+	link: 'unstyled',
 } as const;
 
 const sizeMap = {
 	normal: 'default',
 	compact: 'compact',
 } as const;
+
+type UiButtonVariant = ( typeof variantMap )[ keyof typeof variantMap ];
 
 const SecondaryButton: FC< SecondaryButtonProps > = props => {
 	const {
@@ -50,11 +53,11 @@ const SecondaryButton: FC< SecondaryButtonProps > = props => {
 		return null;
 	}
 
-	if ( variant === 'link' ) {
+	if ( variant === 'link' && href ) {
 		return (
 			<Link
 				id={ id }
-				href={ href ?? '#' }
+				href={ href }
 				openInNewTab={ isExternalLink }
 				onClick={ onClick }
 				className={ className }
@@ -65,43 +68,37 @@ const SecondaryButton: FC< SecondaryButtonProps > = props => {
 		);
 	}
 
+	const mappedVariant: UiButtonVariant = variantMap[ variant ];
+
 	const sharedProps = {
-		variant: variantMap[ variant ],
+		variant: mappedVariant,
 		size: sizeMap[ size ],
-		disabled,
-		loading: isLoading,
-		loadingAnnouncement,
 		onClick,
 		className,
 		id,
 		'aria-labelledby': ariaLabelledBy,
 	};
 
-	// @wordpress/ui's Button can't natively render as an anchor, so when we need
-	// a link we keep the Button chrome and swap the element via render={<a/>}.
-	// Revisit this once a first-class LinkButton exists upstream:
-	// https://github.com/WordPress/gutenberg/issues/77098
-	if ( href ) {
+	// A loading or disabled control isn't navigable, so keep a real Button for
+	// the spinner / disabled chrome. Otherwise LinkButton owns href natively.
+	if ( href && ! isLoading && ! disabled ) {
 		return (
-			<Button
-				{ ...sharedProps }
-				nativeButton={ false }
-				render={
-					<a
-						href={ href }
-						{ ...( isExternalLink && {
-							target: '_blank',
-							rel: 'noopener noreferrer',
-						} ) }
-					/>
-				}
-			>
+			<LinkButton { ...sharedProps } href={ href } openInNewTab={ isExternalLink }>
 				{ label }
-			</Button>
+			</LinkButton>
 		);
 	}
 
-	return <Button { ...sharedProps }>{ label }</Button>;
+	return (
+		<Button
+			{ ...sharedProps }
+			disabled={ disabled }
+			loading={ isLoading }
+			loadingAnnouncement={ loadingAnnouncement }
+		>
+			{ label }
+		</Button>
+	);
 };
 
 export default SecondaryButton;

@@ -33,3 +33,11 @@ index 96c4627..48fcf28 100644
 @@ -182 +201 @@
 -		JS;
 +JS;
+@@ -331 +350,6 @@
+-	<div id="{{PAGE_SLUG}}-wp-admin-app"></div>
++	<?php
++	// Core's pre-CSS Modules Boot layout uses this class for viewport sizing.
++	// Remove it when the minimum supported WordPress version includes the Boot
++	// changes from Gutenberg #81756.
++	?>
++	<div id="{{PAGE_SLUG}}-wp-admin-app" class="boot-layout-container"></div>

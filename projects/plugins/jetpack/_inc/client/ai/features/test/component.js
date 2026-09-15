@@ -33,6 +33,15 @@ describe( 'useFeatureSettings', () => {
 		expect( result.current.error ).toBeNull();
 	} );
 
+	test( 'does not load settings when the gated views are hidden', async () => {
+		const { result } = renderHook( () => useFeatureSettings( false ) );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( apiFetch ).not.toHaveBeenCalled();
+		expect( result.current.settings ).toBeNull();
+		expect( result.current.error ).toBeNull();
+	} );
+
 	test( 'surfaces a load failure as an error message', async () => {
 		apiFetch.mockRejectedValueOnce( new Error( 'no route' ) );
 

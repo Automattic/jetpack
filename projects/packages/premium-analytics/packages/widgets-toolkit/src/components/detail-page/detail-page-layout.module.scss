@@ -1,0 +1,45 @@
+// The scroll container below the page header, so the tabs scroll away with
+// the content while the resource header pins at its top. The scope is what
+// lets the header's pin marker reach the header beside it.
+.root {
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+	timeline-scope: --section-header-pin;
+}
+
+.section {
+	// Caps every layer the widget grid raises (chart controls, the edit
+	// overlay, resizing tiles) under the pinned header, which then only has to
+	// outrank this box rather than z-index values it does not own.
+	isolation: isolate;
+
+	// Reserve paint space for the widget host's outer focus outline.
+	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
+	padding-block-end: var(--wpds-dimension-padding-2xl);
+	// Match the header's horizontal padding (and the tab bar's, on a tabbed
+	// page) so the widget grid lines up instead of sitting flush to the edge.
+	padding-inline: var(--wpds-dimension-padding-2xl);
+
+	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
+	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
+	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+
+	// Match the dashboard's tightened widget Card padding (#51101): the detail
+	// routes render the same widget Cards, and the roomier default otherwise
+	// clips content-sized widgets like the traffic activity heatmap
+	// (WOOA7S-1905). TODO with #51101: consider fixing upstream in Card.
+	section:first-of-type {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
+
+	// Overlay WidgetHeader re-declares padding to 2xl; match the Card tweak.
+	[class*="__widget-header"][class*="__overlay"] {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
+}

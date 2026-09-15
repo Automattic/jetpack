@@ -3,7 +3,13 @@
 	"title": "Most popular day",
 	"description": "The day your site received the most views.",
 	"help": {
-		"content": "The day your site received the most views."
+		"content": "The single day your site drew the most views since you started tracking, and how much of your all-time views it accounts for.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://wordpress.com/support/stats/learn-insights-about-your-website/"
+			}
+		]
 	},
 	"category": "stats",
 	"presentation": "framed"

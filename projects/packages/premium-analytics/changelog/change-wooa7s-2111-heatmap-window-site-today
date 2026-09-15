@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Anchor the activity heatmaps' window fallback on the site's today instead of the viewer's.

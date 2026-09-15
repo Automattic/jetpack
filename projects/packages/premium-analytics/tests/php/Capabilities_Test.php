@@ -109,11 +109,9 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Pins the helper to the capability the proxy enforces for the `analytics`
-	 * prefix, so the two can't drift apart and leave widgets that answer 403.
-	 * Asserted through check_data_permission() rather than by reading
-	 * PREFIX_CONFIG, so what's compared is the decision each side actually
-	 * reaches for the same user.
+	 * Pins the helper to the capability the proxy enforces for `analytics`, so the two can't
+	 * drift apart and leave widgets that answer 403. Asserted through check_data_permission()
+	 * rather than PREFIX_CONFIG, so what's compared is the decision each side actually reaches.
 	 */
 	public function test_store_report_helper_matches_the_proxy_capability() {
 		$controller = new Api_Proxy_Controller();
@@ -137,9 +135,8 @@ class Capabilities_Test extends BaseTestCase {
 			'An administrator must be admitted by both.'
 		);
 
-		// WooCommerce's own capability, held by shop managers, who have no
-		// manage_options. WorDBless has no shop_manager role, so grant the
-		// capability the role would carry.
+		// WooCommerce's own capability, held by shop managers (no manage_options). WorDBless
+		// has no shop_manager role, so grant the capability the role would carry.
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
 

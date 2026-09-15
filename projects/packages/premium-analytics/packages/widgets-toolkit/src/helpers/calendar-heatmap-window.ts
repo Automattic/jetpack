@@ -19,12 +19,9 @@ export type CalendarHeatmapWindowBounds = {
 };
 
 /**
- * Caps a report range at an inclusive maximum day count.
- *
- * A floor is deliberately not offered: it would reach back past the selection,
- * and the card would attribute years the user did not choose to the year in its
- * heading (WOOA7S-1963). A range too short to fill the tile is filled with
- * filler weeks instead — see `resolveCalendarHeatmapGridStart`.
+ * Caps a report range at an inclusive maximum day count. No floor is offered:
+ * it would reach past the selection and misattribute years to the card's
+ * heading (WOOA7S-1963); a short range gets filler weeks instead.
  */
 export function resolveCalendarHeatmapWindow(
 	params: { from?: string; to?: string },
@@ -50,16 +47,9 @@ export function resolveCalendarHeatmapWindow(
 }
 
 /**
- * The date a heatmap grid has to open on to draw `columns` week columns ending
- * with `endDate`.
- *
- * A period shorter than the tile leaves the grid part-filled, so the grid is
- * opened back far enough to fill it. Those earlier weeks are drawn, not
- * requested: the chart paints them as filler that reports nothing, and the
- * fetch window stays inside the period the user selected (WOOA7S-1963).
- *
- * Opening backwards rather than running on past `endDate` also keeps trimming
- * honest — the grid drops its oldest columns first, which are the filler.
+ * Date a heatmap grid opens on to draw `columns` columns ending `endDate`. A
+ * short period is padded backwards with unrequested filler (WOOA7S-1963), so
+ * trimming later drops the oldest — filler — columns first.
  *
  * @param endDate - Last day the grid covers, `yyyy-MM-dd`.
  * @param columns - Week columns the tile can draw.
@@ -122,14 +112,9 @@ const WINDOW_YEAR_DAYS = 366;
 const MAX_WINDOW_YEARS = 6;
 
 /**
- * How many days of history a calendar heatmap is worth requesting at a given
- * viewport width.
- *
- * The grid only draws the week columns that fit, so history beyond what the widest
- * possible tile could show would be fetched and thrown away. Compact-cell capacity
- * is a stable proxy for that ceiling; adaptive cells can shrink further in unusually
- * short tiles. The result is quantized to whole years so resizing the window cannot
- * fire a fresh request per column gained.
+ * Days of history worth requesting for a calendar heatmap at a given viewport
+ * width. Compact-cell capacity stands in for the widest tile's column ceiling,
+ * quantized to whole years so resizing can't fire a request per column gained.
  *
  * @param viewportWidth - Viewport width in px.
  * @return Days of history to request.

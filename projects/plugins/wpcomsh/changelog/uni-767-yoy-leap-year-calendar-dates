@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: keep the same calendar dates when comparing a range starting on the 1st with the previous year, so Year to date in a leap year starts on 1 January rather than 31 December.

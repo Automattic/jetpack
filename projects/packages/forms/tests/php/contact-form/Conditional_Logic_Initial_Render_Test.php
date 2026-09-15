@@ -27,7 +27,8 @@ class Conditional_Logic_Initial_Render_Test extends BaseTestCase {
 
 	protected function tear_down() {
 		remove_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
-		unset( $_GET, $_POST );
+		$_GET  = array();
+		$_POST = array();
 		parent::tear_down();
 	}
 

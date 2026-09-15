@@ -27,6 +27,23 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+
+		/*
+		 * These tests render forms as a visitor would see them. The suite defines
+		 * DOING_AJAX so that a successful submission can't exit the PHPUnit process
+		 * (see tests/php/bootstrap.php), but that also makes Request::is_frontend()
+		 * false, which renders the block's "Submit a form." fallback instead of the
+		 * form. Declare a frontend request for the duration of each test.
+		 */
+		add_filter( 'wp_doing_ajax', '__return_false' );
+
+		/*
+		 * A visitor, not an editor: whether a draft synced form renders at all
+		 * turns on current_user_can( 'edit_post' ), and an earlier test class
+		 * leaving an administrator logged in would render it.
+		 */
+		wp_set_current_user( 0 );
+
 		Contact_Form_Block::register_block();
 		Contact_Form_Block::register_child_blocks();
 	}

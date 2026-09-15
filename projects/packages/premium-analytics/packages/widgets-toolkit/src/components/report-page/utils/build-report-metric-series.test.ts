@@ -44,21 +44,24 @@ const COMPARISON = report(
 	'05'
 );
 
+const ZONE = 'Asia/Tokyo';
+
 const VIEWS = { key: 'views', label: 'Views' };
 const VISITORS = { key: 'visitors', label: 'Visitors' };
 
 describe( 'buildReportMetricSeries', () => {
 	it( 'returns no series without primary data', () => {
-		expect( buildReportMetricSeries( { metrics: [ VIEWS ] } ) ).toEqual( [] );
-		expect( buildReportMetricSeries( { primary: report( [] ), metrics: [ VIEWS ] } ) ).toEqual(
-			[]
-		);
+		expect( buildReportMetricSeries( { metrics: [ VIEWS ], zone: ZONE } ) ).toEqual( [] );
+		expect(
+			buildReportMetricSeries( { primary: report( [] ), metrics: [ VIEWS ], zone: ZONE } )
+		).toEqual( [] );
 	} );
 
 	it( 'builds one metric-labelled series per visible metric', () => {
 		const series = buildReportMetricSeries( {
 			primary: PRIMARY,
 			metrics: [ VIEWS, VISITORS ],
+			zone: ZONE,
 		} );
 
 		expect( series ).toHaveLength( 2 );
@@ -73,6 +76,7 @@ describe( 'buildReportMetricSeries', () => {
 			primary: PRIMARY,
 			comparison: COMPARISON,
 			metrics: [ VIEWS, VISITORS ],
+			zone: ZONE,
 		} );
 
 		expect( series ).toHaveLength( 2 );
@@ -84,6 +88,7 @@ describe( 'buildReportMetricSeries', () => {
 			primary: PRIMARY,
 			comparison: COMPARISON,
 			metrics: [ VIEWS ],
+			zone: ZONE,
 		} );
 
 		expect( series ).toHaveLength( 2 );
@@ -91,9 +96,8 @@ describe( 'buildReportMetricSeries', () => {
 		expect( series[ 1 ].group ).toBe( 'views' );
 		expect( series[ 1 ].options?.type ).toBe( 'comparison' );
 		expect( series[ 1 ].data.map( point => point.value ) ).toEqual( [ 80, 90 ] );
-		// The current period keeps the bare metric name, which is what the
-		// collapsed legend item shows; the labels still differ so the charts
-		// provider can track their visibility apart.
+		// The current period keeps the bare metric name (what the collapsed legend
+		// shows); the labels still differ so the charts provider tracks visibility.
 		expect( series[ 0 ].label ).toBe( 'Views' );
 		expect( series[ 0 ].label ).not.toBe( series[ 1 ].label );
 	} );
@@ -103,6 +107,7 @@ describe( 'buildReportMetricSeries', () => {
 			primary: PRIMARY,
 			comparison: COMPARISON,
 			metrics: [ VIEWS ],
+			zone: ZONE,
 		} );
 
 		// Sharing a group and leading with the metric is what collapses the two
@@ -115,6 +120,7 @@ describe( 'buildReportMetricSeries', () => {
 		const series = buildReportMetricSeries( {
 			primary: report( [ { views: 10 } ] ),
 			metrics: [ VISITORS ],
+			zone: ZONE,
 		} );
 
 		expect( series[ 0 ].data.map( point => point.value ) ).toEqual( [ 0 ] );

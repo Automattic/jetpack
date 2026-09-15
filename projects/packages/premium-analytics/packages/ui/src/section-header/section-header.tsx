@@ -1,79 +1,128 @@
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
-import { ReactNode } from 'react';
+import { forwardRef, ForwardedRef, ReactNode, Ref } from 'react';
 import styles from './section-header.module.scss';
 
-type SectionHeaderProps = {
-	title: string;
+export type SectionHeaderProps = {
+	/** Required: a surface that cannot name itself has no heading for the page. */
+	title: ReactNode;
 
 	/**
-	 * Subtitle describing the active date configuration. Omit it while the
-	 * consumer has nothing to describe.
+	 * Decorative mark before the title: a thumbnail, a poster, a type icon. The
+	 * slot owns the box and hides it from the accessibility tree, so pass an
+	 * `<img>` with `alt=""` or a bare icon, never interactive content or text
+	 * the title does not already carry.
 	 */
-	subtitle?: string;
+	visual?: ReactNode;
+
+	/** A line under the title: what the resource is, what window it reports over. */
+	subTitle?: ReactNode;
+
+	/** Marks the text cell as updating while the surface resolves its title. */
+	busy?: boolean;
 
 	/**
-	 * Condenses the header into a compact bar once it pins: the subtitle fades
-	 * out and gives its row back, and the title drops a step on the type
-	 * scale. Only for surfaces that pin this header, and the surface must also
-	 * publish a `--section-header-pin` view timeline marking where it pins
-	 * (see the dashboard's pin marker in `routes/dashboard/stage.module.scss`).
-	 * Without that timeline, or without browser support for it, the header
-	 * keeps its resting layout.
+	 * Pins the header at the top of the surface's scroll container and
+	 * condenses it once pinned: a sticky band in the page header's fill,
+	 * spanning the page gutter on its own. The surface declares
+	 * `timeline-scope: --section-header-pin` on the header's parent, which
+	 * must span the content that scrolls under the band.
 	 */
-	condenseOnScroll?: boolean;
+	pinned?: boolean;
+
+	/**
+	 * Rendered under the header row. Pinned, it stays inside the band, so its
+	 * actions remain reachable however far the reader has scrolled. May
+	 * render nothing.
+	 */
+	notice?: ReactNode;
 
 	/**
 	 * Date controls anchored to the end of the header row. Left out, the cell is
 	 * not rendered: an empty one costs a band of space in the stacked layout.
 	 */
 	children?: ReactNode;
+
+	/** Reaches the controls cell, for a spotlight to anchor on. */
+	controlsRef?: Ref< HTMLDivElement >;
 };
 
 /**
- * Section header for an analytics surface. The title and a slot for the date
- * controls share the first row, anchored to opposite edges: the controls keep
- * their natural width and a long title truncates with an ellipsis. The
- * subtitle takes a row of its own below them, so its length never costs the
- * controls width either.
+ * Header for an analytics surface: an optional visual, the title and its
+ * subtitle, and the date controls share one row. Below a container-query width
+ * the controls take their own row and the title wraps.
  *
- * Once the header is too narrow to hold those two side by side everything
- * stacks, the subtitle returns to its place directly under the title, and the
- * title wraps rather than truncating. Measured by a container query rather
- * than against the viewport.
+ * The ref reaches the header's root: the row a date control measures the room
+ * it has against.
  *
- * @param {SectionHeaderProps} props - The props for the SectionHeader component.
+ * @param {SectionHeaderProps}  props - The props for the SectionHeader component.
+ * @param {Ref<HTMLDivElement>} ref   - Forwarded to the header's root element.
  * @return The section header element.
  */
-export function SectionHeader( {
-	title,
-	subtitle,
-	condenseOnScroll = false,
-	children,
-}: SectionHeaderProps ) {
-	return (
-		<div className={ clsx( styles.container, condenseOnScroll && styles.condensing ) }>
-			<div className={ styles.layout }>
-				{ /* The `title` attribute is the only way back to a name the
-				     ellipsis cut off. */ }
-				<Text className={ styles.title } variant="heading-2xl" render={ <h2 title={ title } /> }>
-					{ title }
-				</Text>
+function UnforwardedSectionHeader(
+	{
+		title,
+		visual,
+		subTitle,
+		busy = false,
+		pinned = false,
+		notice,
+		children,
+		controlsRef,
+	}: SectionHeaderProps,
+	ref: ForwardedRef< HTMLDivElement >
+) {
+	const header = (
+		<div ref={ ref } className={ clsx( styles.container, pinned && styles.pinned ) }>
+			<div className={ clsx( styles.layout, visual && styles.withVisual ) }>
+				{ visual ? (
+					<div className={ styles.visual } aria-hidden="true">
+						{ visual }
+					</div>
+				) : null }
+
+				<div className={ styles.text } aria-busy={ busy || undefined }>
+					{ /* An h2 under the breadcrumb's h1. The `title` attribute is the only
+					     way back to a name the ellipsis cut off, and only a string can
+					     supply one. */ }
+					<Text
+						className={ styles.title }
+						variant="heading-2xl"
+						render={ <h2 title={ typeof title === 'string' ? title : undefined } /> }
+					>
+						{ title }
+					</Text>
+
+					{ subTitle ? (
+						<Text className={ styles.subTitle } variant="body-sm" render={ <div /> }>
+							{ subTitle }
+						</Text>
+					) : null }
+				</div>
 
 				{ children ? (
-					<Stack direction="row" align="center" className={ styles.controls }>
+					<Stack ref={ controlsRef } direction="row" align="center" className={ styles.controls }>
 						{ children }
 					</Stack>
 				) : null }
-
-				{ subtitle ? (
-					<div className={ styles.subtitleRow }>
-						<Text className={ styles.subtitle } variant="body-md">
-							{ subtitle }
-						</Text>
-					</div>
-				) : null }
 			</div>
+
+			{ notice ? <div className={ styles.notice }>{ notice }</div> : null }
 		</div>
 	);
+
+	if ( ! pinned ) {
+		return header;
+	}
+
+	return (
+		<>
+			{ /* Marks where the header comes to rest, so the condense starts
+			     there. Measured, never seen. */ }
+			<div className={ styles.pinMarker } aria-hidden="true" />
+			{ header }
+		</>
+	);
 }
+
+export const SectionHeader = forwardRef( UnforwardedSectionHeader );

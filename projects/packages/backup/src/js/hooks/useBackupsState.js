@@ -22,6 +22,7 @@ const useBackupsState = ( shouldPoll = false ) => {
 	const backups = useSelect( select => select( STORE_ID ).getBackups() );
 	const isFetching = useSelect( select => select( STORE_ID ).isFetchingBackups() );
 	const hasLoaded = useSelect( select => select( STORE_ID ).hasLoadedBackups() );
+	const fetchFailed = useSelect( select => select( STORE_ID ).hasBackupsFetchFailed() );
 	const fetchBackupsState = useCallback( () => {
 		if ( ! isFetching ) {
 			dispatch.getBackups();
@@ -46,9 +47,18 @@ const useBackupsState = ( shouldPoll = false ) => {
 
 		let latestBackup = null;
 
+		// Nothing loaded and the last read failed. Worth its own state: an
+		// empty list means "this site has no backups yet", and a failed read
+		// means we do not know — but both arrive here as an empty `backups`,
+		// which is why a WordPress.com blip used to show a paying customer
+		// the first-run screen.
+		const readFailed = hasLoaded && fetchFailed && backups.length === 0;
+
 		// If we have no backups don't load up stats.
 		if ( hasLoaded ) {
-			if ( backups.length === 0 ) {
+			if ( readFailed ) {
+				setBackupState( BACKUP_STATE.FETCH_FAILED );
+			} else if ( backups.length === 0 ) {
 				setBackupState( BACKUP_STATE.NO_BACKUPS );
 			} else if ( backups.length === 1 && 'error-will-retry' === backups[ 0 ].status ) {
 				setBackupState( BACKUP_STATE.NO_BACKUPS_RETRY );
@@ -97,11 +107,24 @@ const useBackupsState = ( shouldPoll = false ) => {
 			}
 		}
 
-		// Repeat query for NO_BACKUPS (before first) and IN_PROGRESS
+		// Repeat query for NO_BACKUPS (before first) and IN_PROGRESS.
+		//
+		// A failed read is deliberately excluded. This fires once a second,
+		// and an empty list is one of its trigger conditions, so retrying
+		// through an outage would put a signed WordPress.com request on the
+		// wire every second for as long as the tab stays open — filling the
+		// site's own error log on the way. The modernized dashboard already
+		// settled this the same way (`pollInterval()` in
+		// `dashboard/hooks/use-backups.ts` returns false and "waits to be
+		// asked"), which is what the error state's Try again button is for.
+		// Note this only stops the poll when nothing is loaded: a tick that
+		// fails against an in-progress backup still has a list on screen to
+		// keep refreshing.
 		if (
-			shouldPoll ||
-			backups.length === 0 ||
-			( latestBackup && 'started' === latestBackup.status )
+			! readFailed &&
+			( shouldPoll ||
+				backups.length === 0 ||
+				( latestBackup && 'started' === latestBackup.status ) )
 		) {
 			fetchIntervalRef.current = setInterval( fetchBackupsState, progressInterval );
 		} else {
@@ -114,6 +137,7 @@ const useBackupsState = ( shouldPoll = false ) => {
 		backups,
 		clearFetchInterval,
 		fetchBackupsState,
+		fetchFailed,
 		hasLoaded,
 		isFetching,
 		progressInterval,

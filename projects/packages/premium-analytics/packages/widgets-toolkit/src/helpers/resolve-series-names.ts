@@ -40,16 +40,10 @@ export function resolvePrimarySeriesByGroup(
 }
 
 /**
- * Resolve the metric name each series' tooltip row should lead with.
- *
- * A metric's previous period is folded into its legend item, so a comparison
- * row is named after its group's current period rather than by its own internal
- * label ('Visitors', not 'Visitors · previous period').
- *
- * `isPaired` asks whether the chart was handed more than one metric, not
- * whether both are currently visible: a counterpart seeded hidden can be
- * revealed at any time, and a row label that changed shape as the reader
- * toggled it would be worse than one that always leads with its metric.
+ * Resolve the metric name each series' tooltip row should lead with. A
+ * comparison row is named after its group's current period, not its own label
+ * ('Visitors', not 'Visitors · previous period'). `isPaired` counts metrics
+ * handed to the chart, not those currently visible, so a row's label doesn't reshape as a hidden counterpart is revealed.
  *
  * @param series - The series the chart was handed.
  * @return The group's primary labels, the per-label metric names, and whether more than one metric is present.

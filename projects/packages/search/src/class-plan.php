@@ -58,7 +58,7 @@ class Plan {
 	public function get_plan_info_from_wpcom() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
-			return new WP_Error( 'jetpack_search_missing_blog_id', __( 'Connect your site to refresh Search plan information.', 'jetpack-search-pkg' ) );
+			return new WP_Error( 'site_not_registered', 'Site not registered.' );
 		}
 		self::$fetch_attempted_this_request[ (string) $blog_id ] = true;
 		$response = Client::wpcom_json_api_request_as_blog(

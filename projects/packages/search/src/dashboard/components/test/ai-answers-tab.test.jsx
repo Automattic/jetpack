@@ -81,12 +81,16 @@ const mockUpdateJetpackSettings = jest.fn();
  * @param {boolean} root0.isInstantSearchEnabled - Whether instant search is enabled.
  * @param {boolean} root0.isFreePlan             - Whether the site is on a free plan.
  * @param {boolean} root0.isAiAnswersEnabled     - Whether AI Answers is enabled.
+ * @param {boolean} root0.isAiMasterEnabled      - Whether the site-wide Jetpack AI switch is on.
+ * @param {boolean} root0.isAiAnswersSaved       - The saved AI Answers choice, ignoring gates.
  */
 function setupStore( {
 	supportsInstantSearch = true,
 	isInstantSearchEnabled = true,
 	isFreePlan = false,
 	isAiAnswersEnabled = false,
+	isAiMasterEnabled = true,
+	isAiAnswersSaved = false,
 } = {} ) {
 	useDispatch.mockReturnValue( {
 		updateJetpackSettings: mockUpdateJetpackSettings,
@@ -97,6 +101,8 @@ function setupStore( {
 			isInstantSearchEnabled: () => isInstantSearchEnabled,
 			isFreePlan: () => isFreePlan,
 			isAiAnswersEnabled: () => isAiAnswersEnabled,
+			isAiMasterEnabled: () => isAiMasterEnabled,
+			isAiAnswersSaved: () => isAiAnswersSaved,
 			getBlogId: () => 1,
 			getSiteAdminUrl: () => 'http://example.com/wp-admin/',
 		} ) )
@@ -171,5 +177,40 @@ describe( 'AiAnswersTab', () => {
 		render( <AiAnswersTab /> );
 		const toggle = await screen.findByRole( 'checkbox' );
 		expect( toggle ).toBeDisabled();
+	} );
+
+	it( 'toggle is disabled when the site-wide AI switch is off', async () => {
+		// The back end reports ai_answers_enabled as the gated value, so it is
+		// false whenever the master is off — the saved choice comes separately.
+		setupStore( { isAiMasterEnabled: false, isAiAnswersEnabled: false, isAiAnswersSaved: true } );
+		render( <AiAnswersTab /> );
+		const toggle = await screen.findByRole( 'checkbox' );
+		expect( toggle ).toBeDisabled();
+	} );
+
+	it( 'toggle keeps showing a saved choice while the site-wide AI switch is off', async () => {
+		setupStore( { isAiMasterEnabled: false, isAiAnswersEnabled: false, isAiAnswersSaved: true } );
+		render( <AiAnswersTab /> );
+		const toggle = await screen.findByRole( 'checkbox' );
+		expect( toggle ).toBeChecked();
+	} );
+
+	it( 'explains why the toggle is unavailable when the site-wide AI switch is off', async () => {
+		setupStore( { isAiMasterEnabled: false } );
+		render( <AiAnswersTab /> );
+		await expect(
+			screen.findByText( 'Jetpack AI is turned off for this site.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( /will apply again when AI is turned back on/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'does not explain the site-wide AI switch when it is on', async () => {
+		setupStore( { isAiMasterEnabled: true } );
+		render( <AiAnswersTab /> );
+		await waitFor( () => {
+			expect(
+				screen.queryByText( 'Jetpack AI is turned off for this site.' )
+			).not.toBeInTheDocument();
+		} );
 	} );
 } );

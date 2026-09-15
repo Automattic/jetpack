@@ -33,7 +33,7 @@ export default function NotConnectedScreen() {
 	return (
 		<Card className="jpb-gates__card">
 			<Stack direction="column" gap="md" align="center">
-				<Text variant="heading-md" render={ <h3 /> }>
+				<Text variant="heading-md" render={ <h2 /> }>
 					{ __( 'Connect Jetpack to get started', 'jetpack-backup-pkg' ) }
 				</Text>
 				<Text>

@@ -37,26 +37,15 @@ import { useState } from '@wordpress/element';
 import ActivityList from '../src/dashboard/components/activity-list';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
 import { queryClient } from '../src/dashboard/data/query-client';
-import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
 import { useBackups } from '../src/dashboard/hooks/use-backups';
 import { useStickyError } from '../src/dashboard/hooks/use-sticky-error';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
+import { INITIAL_VIEW } from '../src/dashboard/screens/overview';
 import type { View } from '@wordpress/dataviews';
 
 const noop = () => {};
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
-
-const INITIAL_VIEW: View = {
-	type: 'list',
-	page: 1,
-	perPage: ACTIVITY_LOG_DEFAULT_PER_PAGE,
-	filters: [],
-	titleField: 'title',
-	mediaField: 'icon',
-	descriptionField: 'description',
-	fields: [],
-};
 
 /**
  * One raw rewindable-activity row, so a successful retry has something
@@ -104,13 +93,6 @@ function Harness() {
 		</QueryClientProvider>
 	);
 }
-
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 beforeEach( () => {
 	queryClient.clear();

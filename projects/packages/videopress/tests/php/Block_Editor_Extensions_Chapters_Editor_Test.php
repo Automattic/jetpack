@@ -77,24 +77,25 @@ class Block_Editor_Extensions_Chapters_Editor_Test extends BaseTestCase {
 		return json_decode( $matches[1], true );
 	}
 
-	/** Tests that the gate is mirrored at the exact key the client reads, empty-string-false by default. */
-	public function test_chapters_editor_enabled_is_empty_string_by_default() {
+	/** Tests that the gate is mirrored at the exact key the client reads, as the '1' it matches on by default. */
+	public function test_chapters_editor_enabled_is_one_by_default() {
 		$state = $this->get_localized_state();
 
 		$this->assertIsArray( $state, 'videoPressEditorState was not localized as decodable JSON.' );
 		$this->assertArrayHasKey( 'chaptersEditorEnabled', $state );
 
-		// Not `false`: wp_localize_script() casts scalars to strings. The client
-		// matches `'1'` exactly, so anything falsy-but-not-'1' reads as disabled.
-		$this->assertSame( '', $state['chaptersEditorEnabled'] );
+		// Not `true`: wp_localize_script() casts scalars to strings, and the
+		// client matches `'1'` exactly.
+		$this->assertSame( '1', $state['chaptersEditorEnabled'] );
 	}
 
-	/** Tests that the filter flips the mirrored value to the '1' the client matches on. */
-	public function test_chapters_editor_enabled_is_one_when_filter_enabled() {
-		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_true' );
+	/** Tests that the kill switch flips the mirrored value to the empty string the client reads as disabled. */
+	public function test_chapters_editor_enabled_is_empty_string_when_filter_disabled() {
+		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_false' );
 
 		$state = $this->get_localized_state();
 
-		$this->assertSame( '1', $state['chaptersEditorEnabled'] );
+		// Not `false`: same string cast. Anything falsy-but-not-'1' reads as disabled.
+		$this->assertSame( '', $state['chaptersEditorEnabled'] );
 	}
 }

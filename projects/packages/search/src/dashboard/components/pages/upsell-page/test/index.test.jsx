@@ -139,12 +139,12 @@ describe( 'UpsellPage pricing grid — AI Answers (paid-only)', () => {
 	test( 'always shows the AI Answers row regardless of the Search blocks gate', () => {
 		mockSelectMethods = createSelectMethods( { isSearchBlocksEnabled: false } );
 		const { unmount } = render( <UpsellPage /> );
-		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'AI Answers' ) ).toBeInTheDocument();
 		unmount();
 
 		mockSelectMethods = createSelectMethods( { isSearchBlocksEnabled: true } );
 		render( <UpsellPage /> );
-		expect( screen.getByText( 'AI Answers (Preview)' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'AI Answers' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Jetpack Search blocks' ) ).toBeInTheDocument();
 	} );
 } );

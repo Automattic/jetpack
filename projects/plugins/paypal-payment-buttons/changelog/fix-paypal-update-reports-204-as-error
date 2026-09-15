@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix editing a payment button reporting an error after the edit saved. PayPal answers a successful update with 204 No Content and the API client expected 200.

@@ -24,30 +24,41 @@ import {
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
+	useChartFormatting,
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
-	useGlobalChartsTheme,
 } from '../../providers';
 import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
+import { getBucketInfo } from '../../utils/bucket-info';
+import { createDateFormatter } from '../../utils/date-formatting';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
-import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
+import { getCurveType } from '../private/time-axis';
+import { buildTimeAxisOptions } from '../private/time-axis-options';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
+import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
 import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
-import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
+import type {
+	BucketInfo,
+	DataPoint,
+	DataPointDate,
+	SeriesData,
+	Optional,
+	TickResolution,
+} from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
-import type { FC, Ref } from 'react';
+import type { CSSProperties, FC, Ref } from 'react';
 
 const defaultRenderGlyph = < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => {
 	return <DefaultGlyph { ...props } key={ props.key } />;
@@ -58,16 +69,54 @@ const toNumber = ( val?: number | string | null ): number | undefined => {
 	return isNaN( num ) ? undefined : num;
 };
 
+// No date-part options, which is what `Intl` defaults to a numeric date for —
+// the heading the tooltip printed with `toLocaleDateString()` before it could
+// be told a locale and a zone.
+const TOOLTIP_DATE: Intl.DateTimeFormatOptions = {};
+
+// Only the hour case adds to the plain date heading. A coarser bucket keeps the
+// day: 'month' covers any spacing from 28 days up, so dropping it would give two
+// distinct points one heading.
+const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
+	Exclude< TickResolution, 'week' >,
+	Intl.DateTimeFormatOptions
+> = {
+	hour: { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric' },
+	day: TOOLTIP_DATE,
+	month: TOOLTIP_DATE,
+	year: TOOLTIP_DATE,
+};
+
+// A component rather than a call, because `renderDefaultTooltip` is a plain
+// function a consumer may pass around: the context has to be read where the
+// heading renders, not where the tooltip is built.
+const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution, 'week' > } > = ( {
+	date,
+	displayResolution,
+} ) => {
+	const formatting = useChartFormatting();
+	const format = useMemo(
+		() => createDateFormatter( TOOLTIP_FORMAT_BY_RESOLUTION[ displayResolution ], formatting ),
+		[ displayResolution, formatting ]
+	);
+
+	return <>{ date ? format( date ) : null }</>;
+};
+
 /**
  * Default visx-tooltip render that prints the hovered date as a heading and
  * one row per visible series (label + formatted value), sorted descending by
  * value. Reused by AreaChart, which has the same multi-series shape.
  *
- * @param params - visx `RenderTooltipParams< DataPointDate >`.
+ * @param params       - visx tooltip data and the chart's optional `bucketInfo`.
+ * @param contentStyle - Explicit tooltip content color overrides.
  * @return Tooltip JSX, or `null` when no datum is hovered.
  */
-export const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
-	const { tooltipData } = params;
+export const renderDefaultTooltip = (
+	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo },
+	contentStyle?: Pick< CSSProperties, 'color' | 'background' | 'backgroundColor' >
+) => {
+	const { tooltipData, bucketInfo } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum ) return null;
 
@@ -79,9 +128,16 @@ export const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate
 		.sort( ( a, b ) => b.value - a.value );
 
 	return (
-		<div className={ styles[ 'line-chart__tooltip' ] }>
+		<div
+			className={ styles[ 'line-chart__tooltip' ] }
+			data-testid="line-chart-tooltip-content"
+			style={ contentStyle }
+		>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
-				{ nearestDatum.date?.toLocaleDateString() }
+				<TooltipDate
+					date={ nearestDatum.date }
+					displayResolution={ bucketInfo?.displayResolution ?? 'day' }
+				/>
 			</div>
 			{ tooltipPoints.map( point => (
 				<Stack
@@ -171,6 +227,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			smoothing = true,
 			curveType,
 			renderTooltip = renderDefaultTooltip,
+			tooltipPlacement,
+			tooltipStyle,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
 			animation,
@@ -179,6 +237,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			onPointerUp = undefined,
 			onPointerMove = undefined,
 			onPointerOut = undefined,
+			onDatumActivate = undefined,
 			zoomable = false,
 			rescaleYOnVisibilityChange = true,
 			defaultHiddenSeries,
@@ -193,10 +252,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
-		const providerTheme = useGlobalChartsTheme();
+		const formatting = useChartFormatting();
 		const theme = useXYChartTheme( data );
-		// Gradient stops apply this as an SVG attribute, where CSS var() cannot resolve. useXYChartTheme has already resolved the same role inside its memo, against the chart's scope element, so read it back rather than paying another getComputedStyle on every render.
-		const resolvedBackgroundColor = theme.backgroundColor ?? providerTheme.backgroundColor;
+		// A gradient stop reads its color as a string, so it has to be resolved. Read back what
+		// `useXYChartTheme` already resolved rather than paying another getComputedStyle per render.
+		const resolvedBackgroundColor = theme.backgroundColor;
 		const chartId = useChartId( providedChartId );
 		const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
 		const isSeriesVisible = useCallback(
@@ -280,7 +340,20 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return min < max ? [ min, max ] : undefined;
 		}, [ rescaleYOnVisibilityChange, dataSorted ] );
 
-		// Use the keyboard navigation hook
+		// Keyboard navigation steps through x positions, and the grouped tooltip
+		// reads every series at that position; the first series names the point.
+		const activateSelectedPoint = useCallback(
+			( index: number ) => {
+				const series = dataSorted[ 0 ];
+				const datum = series?.data[ index ];
+
+				if ( series && datum ) {
+					onDatumActivate?.( { datum, index, key: series.label } );
+				}
+			},
+			[ dataSorted, onDatumActivate ]
+		);
+
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
 			setSelectedIndex,
@@ -288,21 +361,23 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			setIsNavigating,
 			chartRef,
 			totalPoints: dataSorted[ 0 ]?.data.length || 0,
+			onActivate: activateSelectedPoint,
+			preventTooltipScroll: tooltipPlacement === 'below-axis',
 		} );
 
 		const chartOptions = useMemo( () => {
-			const { tickResolution, tickFormat, ...xAxisOptions } = options?.axis?.x ?? {};
-			const formatter = tickFormat || getFormatter( dataSorted, tickResolution );
-
 			return {
 				axis: {
-					x: {
-						orientation: 'bottom' as const,
-						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
-						tickFormat: formatter,
-						display: true,
-						...xAxisOptions,
-					},
+					x: buildTimeAxisOptions( {
+						dataSorted,
+						width,
+						axisOptions: options?.axis?.x,
+						scaleDomain: options?.xScale?.domain,
+						zoomDomain: zoom.domain,
+						formatting,
+						// A hidden line is unmounted, so visx scales to the rest.
+						isSeriesRendered: series => isSeriesVisible( series.label ),
+					} ),
 					y: {
 						orientation: 'left' as const,
 						numTicks: 4,
@@ -324,7 +399,18 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain, stableYDomain ] );
+		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting, isSeriesVisible ] );
+
+		// Classified from the rendered series, like the axis above: a hidden
+		// hourly line must not leave the tooltip naming an hour the axis dropped.
+		const bucketInfo = useMemo(
+			() =>
+				getBucketInfo(
+					dataSorted.filter( series => isSeriesVisible( series.label ) ),
+					options?.axis?.x?.tickResolution
+				),
+			[ dataSorted, isSeriesVisible, options?.axis?.x?.tickResolution ]
+		);
 
 		const tooltipRenderGlyph = useMemo( () => {
 			return ( props: GlyphProps< DataPointDate > ) => {
@@ -396,7 +482,34 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			yAccessor: ( d: DataPointDate ) => d?.value,
 		};
 
-		// Create a custom renderTooltip that includes focus capability
+		const resolvedTooltipStyle = useMemo( () => {
+			if ( renderTooltip !== renderDefaultTooltip || ! tooltipStyle ) return tooltipStyle;
+			if ( ! tooltipStyle.color || tooltipStyle.background || tooltipStyle.backgroundColor ) {
+				return tooltipStyle;
+			}
+			return {
+				backgroundColor: 'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))',
+				...tooltipStyle,
+			};
+		}, [ renderTooltip, tooltipStyle ] );
+
+		// Augments every renderTooltip call with the chart's bucket classification,
+		// default or custom, so a heading keyed on it can't disagree with the axis.
+		const tooltipRenderer = useMemo(
+			() => ( params: RenderTooltipParams< DataPointDate > ) =>
+				renderTooltip === renderDefaultTooltip
+					? renderDefaultTooltip(
+							{ ...params, bucketInfo },
+							{
+								color: tooltipStyle?.color,
+								background: tooltipStyle?.background,
+								backgroundColor: tooltipStyle?.backgroundColor,
+							}
+					  )
+					: renderTooltip( { ...params, bucketInfo } ),
+			[ renderTooltip, bucketInfo, tooltipStyle ]
+		);
+
 		if ( error ) {
 			return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 		}
@@ -457,7 +570,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 								onBlur={ onChartBlur }
 							>
 								{ chartHeight > 0 && (
-									<div ref={ chartRef } style={ { position: 'relative' } }>
+									<div ref={ chartRef } className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
 											theme={ theme }
@@ -592,13 +705,17 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 												<AccessibleTooltip
 													detectBounds
 													snapTooltipToDatumX
+													tooltipPlacement={ tooltipPlacement }
+													style={ resolvedTooltipStyle }
 													snapTooltipToDatumY
 													showSeriesGlyphs
-													renderTooltip={ renderTooltip }
+													renderTooltip={ tooltipRenderer }
 													renderGlyph={ tooltipRenderGlyph }
 													glyphStyle={ glyphStyle }
 													showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
 													showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
+													verticalCrosshairStyle={ withTooltipCrosshairs?.verticalStyle }
+													horizontalCrosshairStyle={ withTooltipCrosshairs?.horizontalStyle }
 													selectedIndex={ selectedIndex }
 													tooltipRef={ tooltipRef }
 													keyboardFocusedClassName={

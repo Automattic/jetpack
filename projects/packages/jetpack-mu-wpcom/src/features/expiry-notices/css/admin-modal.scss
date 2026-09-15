@@ -1,0 +1,76 @@
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
+
+.wpcom-expiry-modal.components-modal__frame {
+
+	// Keep the centred card on phones, where the components Modal becomes a
+	// sheet pinned to the bottom of the overlay.
+	@media (max-width: 599px) {
+		margin: auto;
+	}
+
+	// The illustration is flush to the frame on three sides, so the padding
+	// that would inset it moves onto the body below.
+	.components-modal__content {
+		padding: 0;
+		margin-block-start: 0;
+		overflow-x: hidden;
+	}
+
+	// Left holding only the close button, which belongs over the illustration.
+	.components-modal__header {
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-end: 0;
+		background: none;
+		border-block-end: none;
+		padding: 0;
+		height: auto;
+		z-index: 1;
+	}
+}
+
+.wpcom-expiry-modal__image {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.wpcom-expiry-modal__body {
+	padding: variables.$grid-unit-30;
+}
+
+.wpcom-expiry-modal__title {
+	margin-block: 0 variables.$grid-unit-15;
+	font-size: 20px;
+	line-height: 1.3;
+}
+
+.wpcom-expiry-modal__list {
+	margin-block: variables.$grid-unit-20;
+	list-style: none;
+	padding-inline-start: 0;
+
+	li {
+		display: flex;
+		gap: variables.$grid-unit-15;
+		align-items: flex-start;
+		margin-block-end: variables.$grid-unit-10;
+	}
+
+	svg {
+		flex-shrink: 0;
+		fill: colors.$alert-red;
+	}
+}
+
+.wpcom-expiry-modal__actions {
+	display: flex;
+	gap: variables.$grid-unit-10;
+	margin-block-start: variables.$grid-unit-30;
+
+	.components-button {
+		flex: 1;
+		justify-content: center;
+	}
+}

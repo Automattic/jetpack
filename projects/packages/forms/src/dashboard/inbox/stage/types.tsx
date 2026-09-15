@@ -16,6 +16,9 @@ export type QueryParams = {
 	per_page?: number;
 	page?: number;
 	status?: string;
+	orderby?: string;
+	order?: string;
+	fields_format?: string;
 };
 
 /**
@@ -141,7 +144,7 @@ export type ActionResult = {
 export type ActionCallback< Result extends ActionResult | void = ActionResult | void > = (
 	items: FormResponse[],
 	{ registry }: { registry: Registry },
-	options?: { isUndo?: boolean; targetStatus?: 'publish' | 'spam' | 'trash' }
+	options?: { isUndo?: boolean; targetStatus?: FormResponse[ 'status' ] }
 ) => Promise< Result >;
 
 export type Action = {

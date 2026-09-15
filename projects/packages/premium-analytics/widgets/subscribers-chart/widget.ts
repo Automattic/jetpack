@@ -35,11 +35,6 @@ export const SUBSCRIBERS_CHART_METRICS = [
 export type SubscribersChartMetricId = ( typeof SUBSCRIBERS_CHART_METRICS )[ number ][ 'id' ];
 
 /**
- * Configurable attributes for the Subscribers chart widget. Report params
- * still reach it through WidgetRoot: the dashboard date range, or
- * `attributes.reportParams` when a host injects them (e.g. Storybook and
- * dashboard previews).
- *
  * @property chartType - How to draw the selected metric. Defaults to `line`.
  */
 export type SubscribersChartAttributes = {
@@ -47,14 +42,9 @@ export type SubscribersChartAttributes = {
 };
 
 /**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats `stats-subscribers-chart-section` card in
- * wp-calypso. The date range, previous-period comparison, and bucket size all
- * follow the dashboard controls — the legacy interval segmented control is the
- * dashboard's chart interval control now. Which metric is plotted is the
- * chart's own tab selection, not an attribute; `example.attributes` doubles as
- * the defaults applied to new instances.
+ * Ported from the Jetpack Stats `stats-subscribers-chart-section` card; the
+ * legacy interval control is now the dashboard's chart interval control.
+ * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
 	icon: people,

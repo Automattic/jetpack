@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -28,7 +28,7 @@ const TEXT_ELEMENTS: Option[] = [
 	{ value: 'bar', label: 'Bar chart' },
 ];
 
-function renderField( {
+async function renderField( {
 	elements,
 	data = { chartType: 'line' },
 	hideLabelFromVision = true,
@@ -56,6 +56,10 @@ function renderField( {
 			hideLabelFromVision={ hideLabelFromVision }
 		/>
 	);
+
+	// Drain ariakit's post-mount microtasks. See also https://github.com/testing-library/react-testing-library/pull/1214
+	// eslint-disable-next-line testing-library/no-unnecessary-act -- No user action to wrap; this settles internal ariakit state
+	await act( async () => {} );
 }
 
 describe( 'hasIconOptions', () => {
@@ -73,15 +77,15 @@ describe( 'hasIconOptions', () => {
 } );
 
 describe( 'ToggleGroupField', () => {
-	it( 'names every icon segment by its option label', () => {
-		renderField( { elements: ICON_ELEMENTS } );
+	it( 'names every icon segment by its option label', async () => {
+		await renderField( { elements: ICON_ELEMENTS } );
 
 		expect( screen.getByRole( 'radio', { name: 'Line chart' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'radio', { name: 'Bar chart' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'marks the segment matching the current value as selected', () => {
-		renderField( { elements: ICON_ELEMENTS, data: { chartType: 'bar' } } );
+	it( 'marks the segment matching the current value as selected', async () => {
+		await renderField( { elements: ICON_ELEMENTS, data: { chartType: 'bar' } } );
 
 		expect( screen.getByRole( 'radio', { name: 'Bar chart' } ) ).toBeChecked();
 		expect( screen.getByRole( 'radio', { name: 'Line chart' } ) ).not.toBeChecked();
@@ -91,27 +95,27 @@ describe( 'ToggleGroupField', () => {
 		const onChange = jest.fn();
 		const user = userEvent.setup();
 
-		renderField( { elements: ICON_ELEMENTS, onChange } );
+		await renderField( { elements: ICON_ELEMENTS, onChange } );
 
 		await user.click( screen.getByRole( 'radio', { name: 'Bar chart' } ) );
 
 		expect( onChange ).toHaveBeenCalledWith( { chartType: 'bar' } );
 	} );
 
-	it( 'selects the first option when the value is absent', () => {
-		renderField( { elements: ICON_ELEMENTS, data: {} } );
+	it( 'selects the first option when the value is absent', async () => {
+		await renderField( { elements: ICON_ELEMENTS, data: {} } );
 
 		expect( screen.getByRole( 'radio', { name: 'Line chart' } ) ).toBeChecked();
 	} );
 
-	it( 'selects the first option when the value matches none', () => {
-		renderField( { elements: ICON_ELEMENTS, data: { chartType: 'area' } } );
+	it( 'selects the first option when the value matches none', async () => {
+		await renderField( { elements: ICON_ELEMENTS, data: { chartType: 'area' } } );
 
 		expect( screen.getByRole( 'radio', { name: 'Line chart' } ) ).toBeChecked();
 	} );
 
-	it( 'labels the control where the label is visible', () => {
-		renderField( { elements: TEXT_ELEMENTS, hideLabelFromVision: false } );
+	it( 'labels the control where the label is visible', async () => {
+		await renderField( { elements: TEXT_ELEMENTS, hideLabelFromVision: false } );
 
 		expect( screen.getByText( 'Chart type' ) ).toBeInTheDocument();
 	} );

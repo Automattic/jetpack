@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: open PayPal's onboarding window when you click Connect with PayPal, instead of covering the editor with a blank overlay.

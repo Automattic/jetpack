@@ -34,6 +34,27 @@ class Jwt_Token_Bridge {
 
 		// Expose the VideoPress token to the WPAdmin context.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_token_bridge' ), 1 );
+
+		// Expose the VideoPress token to the block editor canvas. In iframed editors the
+		// canvas is a separate document that only receives assets enqueued during
+		// enqueue_block_assets, and an embedded player posts its token request to its
+		// direct parent — the canvas — so the bridge must be listening there for private
+		// videos to preview (e.g. the Video Playlist block's editor preview).
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_jwt_token_bridge_for_editor_canvas' ), 1 );
+	}
+
+	/**
+	 * Enqueues the jwt bridge script for the block editor canvas.
+	 *
+	 * Front-end loads are excluded: there the bridge is enqueued per-render only when a
+	 * VideoPress block is actually on the page.
+	 */
+	public static function enqueue_jwt_token_bridge_for_editor_canvas() {
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		self::enqueue_jwt_token_bridge();
 	}
 
 	/**

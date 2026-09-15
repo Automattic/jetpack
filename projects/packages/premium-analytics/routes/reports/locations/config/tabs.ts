@@ -6,6 +6,13 @@ import { __ } from '@wordpress/i18n';
 
 export type ReportLocationsTabId = 'countries' | 'regions' | 'cities';
 
+/** The geo mode each tab reports on, as the API and the map both name it. */
+export const GEO_MODES = {
+	countries: 'country',
+	regions: 'region',
+	cities: 'city',
+} as const;
+
 const DEFAULT_TAB_ID: ReportLocationsTabId = 'countries';
 
 const reportLocationsTabs = defineReportTabs< ReportLocationsTabId >(

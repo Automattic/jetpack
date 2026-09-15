@@ -45,6 +45,30 @@ export function pickReportDateParams(
 }
 
 /**
+ * The params a date picker edits, as opposed to the ones its neighbours own.
+ */
+type PrimaryDateParams = { from?: string; to?: string; preset?: string };
+
+/**
+ * Whether the primary date picker holds an edit the store has not taken yet.
+ *
+ * The comparison and interval controls commit on their own, so both ask this
+ * first rather than committing a range draft along with their own change.
+ *
+ * @param applied - The window the widgets are querying with.
+ * @param draft   - The window the picker is holding.
+ * @return Whether the two describe a different window.
+ */
+export function hasPrimaryDateDraft(
+	applied: PrimaryDateParams | undefined,
+	draft: PrimaryDateParams | undefined
+): boolean {
+	return (
+		applied?.from !== draft?.from || applied?.to !== draft?.to || applied?.preset !== draft?.preset
+	);
+}
+
+/**
  * The subset of `REPORT_DATE_PARAM_KEYS` that carries the period-over-period
  * comparison.
  */

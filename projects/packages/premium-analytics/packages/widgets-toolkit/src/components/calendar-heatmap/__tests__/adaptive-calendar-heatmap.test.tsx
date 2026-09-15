@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
@@ -14,13 +15,12 @@ import type { CalendarHeatmapPager } from '../calendar-heatmap-pager-overlay';
 const PERIOD = { startDate: '2025-01-01', endDate: '2025-12-31' };
 const ONE_MONTH = { startDate: '2025-06-01', endDate: '2025-06-30' };
 
-// The body height of a one-row dashboard tile, measured in the widget dashboard:
-// a 200px grid row less the widget's own chrome. The shipped size for both
-// calendar heatmaps, and the tightest one they have to fit.
+// A 200px dashboard grid row less the widget's own chrome — the shipped size for
+// both calendar heatmaps, and the tightest one they have to fit.
 const ONE_ROW_TILE_HEIGHT = 86;
 
-// A single populated day is enough: these tests are about geometry, and it also
-// shows whether the day survived the window the tile settled on.
+// One populated day is enough: these tests are about geometry, and it also shows
+// whether the day survived the window the tile settled on.
 const VALUE_BY_DAY = { '2025-06-02': 120 };
 
 // jsdom reports every element as 0x0, so the tile has to be faked. Returns a
@@ -35,58 +35,61 @@ function stubTileSize( width: number, height: number ) {
 	};
 }
 
-// Renders into a tile of the given size and returns the resolved chart props as
-// plain values. Snapshotting them here (rather than handing back a DOM node)
-// keeps each call independent, so a test can measure two tile sizes in a row.
+// Returns the resolved chart props as plain values rather than a DOM node, so a
+// test can measure two tile sizes in a row.
 function chartFor( {
 	width,
 	height,
 	period = PERIOD,
 	valueByDay = VALUE_BY_DAY,
+	locale,
 }: {
 	width: number;
 	height: number;
 	period?: { startDate: string; endDate: string };
 	valueByDay?: Record< string, number | null >;
+	locale?: string;
 } ) {
 	const restoreTileSize = stubTileSize( width, height );
 	let view;
 
 	try {
 		view = render(
-			<AdaptiveCalendarHeatmap valueByDay={ valueByDay } period={ period }>
-				{ ( chartProps: AdaptiveCalendarHeatmapChartProps ) => (
-					<div
-						data-testid="chart"
-						data-columns={ chartProps.data.length }
-						data-show-values={ String( Boolean( chartProps.showValues ) ) }
-						data-width={ String( chartProps.width ) }
-						data-height={ String( chartProps.height ) }
-						data-last-visible-label={
-							chartProps.data
+			<GlobalChartsProvider locale={ locale }>
+				<AdaptiveCalendarHeatmap valueByDay={ valueByDay } period={ period }>
+					{ ( chartProps: AdaptiveCalendarHeatmapChartProps ) => (
+						<div
+							data-testid="chart"
+							data-columns={ chartProps.data.length }
+							data-show-values={ String( Boolean( chartProps.showValues ) ) }
+							data-width={ String( chartProps.width ) }
+							data-height={ String( chartProps.height ) }
+							data-last-visible-label={
+								chartProps.data
+									.flatMap( column => column.data )
+									.filter( cell => ! cell.hidden && ! cell.placeholder )
+									.map( cell => cell.label )
+									.slice( -1 )[ 0 ]
+							}
+							data-values={ chartProps.data
 								.flatMap( column => column.data )
-								.filter( cell => ! cell.hidden && ! cell.placeholder )
-								.map( cell => cell.label )
-								.slice( -1 )[ 0 ]
-						}
-						data-values={ chartProps.data
-							.flatMap( column => column.data )
-							.filter( cell => cell.value !== null )
-							.map( cell => `${ cell.label }:${ cell.value }` )
-							.join( '|' ) }
-						data-placeholders={ String(
-							chartProps.data.flatMap( column => column.data ).filter( cell => cell.placeholder )
-								.length
-						) }
-						data-first-real-label={
-							chartProps.data
-								.flatMap( column => column.data )
-								.filter( cell => ! cell.hidden && ! cell.placeholder )
-								.map( cell => cell.label )[ 0 ]
-						}
-					/>
-				) }
-			</AdaptiveCalendarHeatmap>
+								.filter( cell => cell.value !== null )
+								.map( cell => `${ cell.label }:${ cell.value }` )
+								.join( '|' ) }
+							data-placeholders={ String(
+								chartProps.data.flatMap( column => column.data ).filter( cell => cell.placeholder )
+									.length
+							) }
+							data-first-real-label={
+								chartProps.data
+									.flatMap( column => column.data )
+									.filter( cell => ! cell.hidden && ! cell.placeholder )
+									.map( cell => cell.label )[ 0 ]
+							}
+						/>
+					) }
+				</AdaptiveCalendarHeatmap>
+			</GlobalChartsProvider>
 		);
 	} finally {
 		restoreTileSize();
@@ -117,10 +120,8 @@ describe( 'AdaptiveCalendarHeatmap', () => {
 	it( 'fits the grid inside a one-row tile rather than overflowing it', () => {
 		const chart = chartFor( { width: 1000, height: ONE_ROW_TILE_HEIGHT } );
 
-		// The regression this guards: the chart's own compact mode has a fixed 11px
-		// cell needing ~104px of body height, so at the shipped one-row size the grid
-		// overflowed and `overflow: hidden` sliced the month labels off the top and
-		// the last weekday row off the bottom.
+		// Guards the compact-mode regression: a fixed 11px cell needs ~104px of body
+		// height, so at the shipped one-row size the grid overflowed and was clipped.
 		expect( chart.height ).toBeGreaterThan( 0 );
 		expect( chart.height ).toBeLessThanOrEqual( ONE_ROW_TILE_HEIGHT );
 		expect( chart.columns ).toBeGreaterThan( 0 );
@@ -168,6 +169,18 @@ describe( 'AdaptiveCalendarHeatmap', () => {
 		expect( chart.lastVisibleLabel ).toBe( 'Mon, Jun 30, 2025' );
 	} );
 
+	it( "writes the labels in the provider's locale", () => {
+		const chart = chartFor( {
+			width: 1000,
+			height: ONE_ROW_TILE_HEIGHT,
+			period: ONE_MONTH,
+			locale: 'de-DE',
+		} );
+
+		expect( chart.values ).toBe( 'Mo., 2. Juni 2025:120' );
+		expect( chart.lastVisibleLabel ).toBe( 'Mo., 30. Juni 2025' );
+	} );
+
 	it( 'makes the unfetched weeks filler, not no-data cells', () => {
 		const chart = chartFor( {
 			width: 1000,
@@ -175,9 +188,8 @@ describe( 'AdaptiveCalendarHeatmap', () => {
 			period: ONE_MONTH,
 		} );
 
-		// The regression this guards (WOOA7S-1963): dates drawn only to fill the
-		// tile were interactive no-data cells, so the heatmap told a reader there
-		// was no traffic on days it had never asked about.
+		// Guards WOOA7S-1963: dates drawn only to fill the tile were interactive
+		// no-data cells, claiming no traffic on days never asked about.
 		expect( chart.placeholders ).toBeGreaterThan( 0 );
 		expect( chart.firstRealLabel ).toBe( 'Sun, Jun 1, 2025' );
 	} );
@@ -203,9 +215,8 @@ describe( 'AdaptiveCalendarHeatmap', () => {
 
 		expect( chart.columns ).toBeLessThan( 53 );
 
-		// The trim spends its columns on the end of the period, so December
-		// survives and January is what falls off. The regression this guards ran
-		// the grid on past the data instead, leaving the surviving columns empty.
+		// The trim spends its columns on the end of the period; the regression it
+		// guards ran the grid past the data, leaving the surviving columns empty.
 		expect( chart.values ).toBe( 'Mon, Dec 29, 2025:120' );
 		expect( chart.lastVisibleLabel ).toBe( 'Wed, Dec 31, 2025' );
 
@@ -331,9 +342,8 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 		const { read, restore } = renderPaged( { width: 240, height: ONE_ROW_TILE_HEIGHT } );
 
 		try {
-			// The newest page shows first: nothing newer to step to, plenty older.
-			// The boundaries are pinned (not merely "changed"): this width draws 15
-			// week columns, so the newest page spans exactly these dates.
+			// The boundaries are pinned rather than merely "changed": this width draws
+			// 15 week columns, so the newest page spans exactly these dates.
 			expect( read() ).toMatchObject( {
 				firstVisibleLabel: 'Mon, Sep 22, 2025',
 				lastVisibleLabel: 'Wed, Dec 31, 2025',
@@ -378,9 +388,8 @@ describe( 'AdaptiveCalendarHeatmap paging', () => {
 			expect( oldest.columns ).toBe( newestColumns );
 			expect( isUnavailable( newer() ) ).toBe( false );
 
-			// The last click removed the arrow that held keyboard focus; the
-			// overlay hands focus to the surviving arrow so `:focus-within` (and
-			// paging back) survives.
+			// The last click removed the arrow holding focus; the overlay hands it to
+			// the survivor so `:focus-within` (and paging back) survives.
 			expect( newer() ).toHaveFocus();
 		} finally {
 			restore();

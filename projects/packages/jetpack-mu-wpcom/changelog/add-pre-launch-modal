@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Launch: Show a pre-launch confirmation modal when launching a site that has a paid plan and a custom domain.

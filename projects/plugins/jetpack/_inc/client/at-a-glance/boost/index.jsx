@@ -10,7 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import InfoPopover from 'components/info-popover';
 import PluginInstallSection from 'components/plugin-install-section';
@@ -27,6 +27,7 @@ import {
 import { hasActiveBoostPurchase as getActiveBoostPurchase } from 'state/site';
 import {
 	isFetchingPluginsData,
+	hasFetchedPluginsData as getHasFetchedPluginsData,
 	isPluginInstalled,
 	isPluginActive,
 	fetchPluginsData as dispatchFetchPluginsData,
@@ -48,6 +49,7 @@ const DashBoost = ( {
 	apiNonce,
 	fetchPluginsData,
 	fetchingPluginsData,
+	hasFetchedPluginsData,
 	isBoostInstalled,
 	isBoostActive,
 	hasActiveBoostPurchase,
@@ -55,7 +57,7 @@ const DashBoost = ( {
 } ) => {
 	const isSiteOffline = siteConnectionStatus === 'offline';
 
-	const [ isLoading, setIsLoading ] = useState( false );
+	const [ isLoading, setIsLoading ] = useState( true );
 	const [ isInstalling, setIsInstalling ] = useState( false );
 	const [ isActivating, setIsActivating ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( 'C' );
@@ -79,11 +81,13 @@ const DashBoost = ( {
 			getScoreLetter( latestSpeedScores.scores.mobile, latestSpeedScores.scores.desktop )
 		);
 		setDaysSinceTested( calculateDaysSince( latestSpeedScores.timestamp * 1000 ) );
+		setIsLoading( false );
 	};
 
 	const getSpeedScores = async () => {
 		// Don't get speed scores if site is offline or the user already has boost
 		if ( isSiteOffline || hasBoost ) {
+			setIsLoading( false );
 			return;
 		}
 
@@ -116,7 +120,14 @@ const DashBoost = ( {
 		}
 	};
 
+	const hasChosenScoreSource = useRef( false );
+
 	useEffect( () => {
+		if ( hasChosenScoreSource.current || ! hasFetchedPluginsData || fetchingPluginsData ) {
+			return;
+		}
+		hasChosenScoreSource.current = true;
+
 		// Use cache scores if they are less than 21 days old.
 		if ( latestSpeedScores && calculateDaysSince( latestSpeedScores.timestamp * 1000 ) < 21 ) {
 			setScoresFromCache();
@@ -125,7 +136,7 @@ const DashBoost = ( {
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [ hasFetchedPluginsData, fetchingPluginsData ] );
 
 	const getSpeedScoreText = () => {
 		switch ( speedLetterGrade ) {
@@ -366,6 +377,7 @@ DashBoost.propTypes = {
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 	fetchingPluginsData: PropTypes.bool.isRequired,
+	hasFetchedPluginsData: PropTypes.bool.isRequired,
 	isBoostInstalled: PropTypes.bool.isRequired,
 	isBoostActive: PropTypes.bool.isRequired,
 	hasActiveBoostPurchase: PropTypes.bool.isRequired,
@@ -386,6 +398,7 @@ export default connect(
 		apiRoot: getApiRootUrl( state ),
 		apiNonce: getApiNonce( state ),
 		fetchingPluginsData: isFetchingPluginsData( state ),
+		hasFetchedPluginsData: getHasFetchedPluginsData( state ),
 		isBoostInstalled: BOOST_PLUGIN_FILES.some( pluginFile =>
 			isPluginInstalled( state, pluginFile )
 		),

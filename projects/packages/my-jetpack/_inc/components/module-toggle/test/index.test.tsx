@@ -27,9 +27,24 @@ jest.mock( '@wordpress/components', () => {
 
 jest.mock( '@wordpress/ui', () => {
 	const react = jest.requireActual( 'react' );
+	const Anchor = ( { children, ...props } ) => {
+		// Anchor-only props that shouldn't land on the DOM node.
+		delete props.variant;
+		delete props.tone;
+		delete props.size;
+		delete props.openInNewTab;
+		delete props.nativeButton;
+		delete props.loading;
+		delete props.loadingAnnouncement;
+		return react.createElement( 'a', props, children );
+	};
 	return {
 		Button: ( { children, render: renderProp, ...props } ) => {
 			// Button-only props that shouldn't land on the DOM node.
+			delete props.variant;
+			delete props.tone;
+			delete props.size;
+			delete props.openInNewTab;
 			delete props.nativeButton;
 			delete props.loading;
 			delete props.loadingAnnouncement;
@@ -37,7 +52,8 @@ jest.mock( '@wordpress/ui', () => {
 				? react.cloneElement( renderProp, props, children )
 				: react.createElement( 'button', props, children );
 		},
-		Link: ( { children, ...props } ) => react.createElement( 'a', props, children ),
+		Link: Anchor,
+		LinkButton: Anchor,
 	};
 } );
 
@@ -60,7 +76,7 @@ jest.mock( '../../../utils/module-benefit-messages', () => ( {
 jest.mock( '../../my-jetpack-tab-panel/products/reload-page' );
 jest.mock( '../../my-jetpack-tab-panel/products/pending-notice' );
 
-const sharedaddyModule = {
+const legacyModule = ( overrides = {} ) => ( {
 	module: 'sharedaddy',
 	name: 'Sharing',
 	activated: false,
@@ -68,7 +84,14 @@ const sharedaddyModule = {
 	description: 'Sharing buttons',
 	long_description: '',
 	search_terms: '',
-};
+	...overrides,
+} );
+
+// Legacy modules a block theme can't customize, with the label of the block that replaces them.
+const blockThemeModules = [
+	[ 'sharedaddy', 'Switch to Sharing Buttons block' ],
+	[ 'likes', 'Switch to the Like block' ],
+];
 
 const buildModule = ( overrides = {} ) =>
 	( {
@@ -87,57 +110,63 @@ describe( 'ModuleToggle', () => {
 				siteEditor: {
 					isBlockTheme: true,
 					isSharingBlockAvailable: true,
+					isLikeBlockAvailable: true,
 					activeThemeStylesheet: 'twentytwentyfour',
 				},
 			},
 		} as Window[ 'JetpackScriptData' ];
 	} );
 
-	it( 'links inactive sharedaddy to the Single template on block themes', () => {
-		render( <ModuleToggle module={ sharedaddyModule } /> );
+	it.each( blockThemeModules )(
+		'links inactive %s to the Single template on block themes',
+		module => {
+			render( <ModuleToggle module={ legacyModule( { module } ) } /> );
 
-		expect( screen.getByRole( 'link', { name: 'Open Site Editor' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit'
-		);
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-	} );
+			expect( screen.getByRole( 'link', { name: 'Open Site Editor' } ) ).toHaveAttribute(
+				'href',
+				'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit'
+			);
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		}
+	);
 
-	it( 'deactivates legacy sharing when switching to the block', async () => {
-		mockToggleModule.mockResolvedValue( true );
-		render( <ModuleToggle module={ { ...sharedaddyModule, activated: true } } /> );
+	it.each( blockThemeModules )(
+		'deactivates legacy %s when switching to the block',
+		async ( module, switchLabel ) => {
+			mockToggleModule.mockResolvedValue( true );
+			render( <ModuleToggle module={ legacyModule( { module, activated: true } ) } /> );
 
-		// The legacy toggle is replaced by the switch action.
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			// The legacy toggle is replaced by the switch action.
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 
-		await userEvent.click(
-			screen.getByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
-		);
+			await userEvent.click( screen.getByRole( 'button', { name: switchLabel } ) );
 
-		// Deactivating legacy sharing reveals the Site Editor link ( two-step, no redirect ).
-		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'sharedaddy', active: false } );
+			// Deactivating the legacy module reveals the Site Editor link ( two-step, no redirect ).
+			expect( mockToggleModule ).toHaveBeenCalledWith( { name: module, active: false } );
 
-		// The switch path tracks the deactivation, like the toggle path.
-		expect( mockTrackProductAction ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				action: 'deactivate',
-				productSlug: 'sharedaddy',
-				productType: 'module',
-			} )
-		);
-	} );
+			// The switch path tracks the deactivation, like the toggle path.
+			expect( mockTrackProductAction ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					action: 'deactivate',
+					productSlug: module,
+					productType: 'module',
+				} )
+			);
+		}
+	);
 
-	it( 'keeps forced-active legacy sharing non-actionable', () => {
-		render(
-			<ModuleToggle module={ { ...sharedaddyModule, activated: true, override: 'active' } } />
-		);
+	it.each( blockThemeModules )(
+		'keeps forced-active legacy %s non-actionable',
+		( module, switchLabel ) => {
+			render(
+				<ModuleToggle module={ legacyModule( { module, activated: true, override: 'active' } ) } />
+			);
 
-		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
-		expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
-		expect(
-			screen.queryByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
-		).not.toBeInTheDocument();
-	} );
+			expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+			expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
+			expect( screen.queryByRole( 'button', { name: switchLabel } ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it.each( [
 		[ 'podcast', 'Podcast' ],

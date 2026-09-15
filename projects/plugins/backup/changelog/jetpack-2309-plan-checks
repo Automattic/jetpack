@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop a slow or failing WordPress.com from reading as a missing Backup plan.

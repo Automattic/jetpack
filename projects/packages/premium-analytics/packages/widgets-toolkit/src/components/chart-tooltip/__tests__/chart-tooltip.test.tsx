@@ -7,9 +7,8 @@ import { render, screen } from '@testing-library/react';
  */
 import { ChartTooltip } from '../chart-tooltip';
 
-// The swatches come from the charts library's own shape components, which need
-// a provider jsdom cannot lay out. Stand them in for elements that expose the
-// style they were handed.
+// The library's shape components need a provider jsdom cannot lay out, so stand
+// them in for elements that expose the style they were handed.
 jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 	LineShape: ( { fill }: { fill: string } ) => <span data-testid="swatch" data-fill={ fill } />,
 	RectShape: ( { fill }: { fill: string } ) => <span data-testid="swatch" data-fill={ fill } />,
@@ -40,6 +39,23 @@ const swatchFills = () =>
 	screen.getAllByTestId( 'swatch' ).map( node => node.getAttribute( 'data-fill' ) );
 
 describe( 'ChartTooltip', () => {
+	it( 'spells a compact chart value out in full', () => {
+		render(
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: { Views: { datum: { value: 18432 }, index: 0, key: 'Views' } },
+				} }
+				dataFormat={ { type: 'number', options: { useMultipliers: true } } }
+				seriesStyles={ STYLES }
+				indicatorType="rect"
+				getLabel={ () => 'Views' }
+			/>
+		);
+
+		expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'pairs each row with its own series style when given series keys', () => {
 		render(
 			<ChartTooltip

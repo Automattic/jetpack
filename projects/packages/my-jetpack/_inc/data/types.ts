@@ -19,6 +19,15 @@ export type BackupCountStats = {
 	total_audio_count: number;
 };
 
+/**
+ * Payload of the `my-jetpack/v1/jetpack-manage/data` endpoint.
+ */
+export type JetpackManageData = {
+	isEnabled: boolean;
+	isAgencyAccount: boolean;
+	isDismissed: boolean;
+};
+
 export type MyJetpackInitialState = Window[ 'myJetpackInitialState' ];
 export type StateProducts = Window[ 'myJetpackInitialState' ][ 'products' ][ 'items' ];
 export type ProductSnakeCase = StateProducts[ string ];

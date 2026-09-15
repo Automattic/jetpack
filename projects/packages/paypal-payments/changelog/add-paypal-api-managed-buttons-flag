@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a feature flag for the API-managed payment buttons; the block keeps the paste-code editor while it is off.

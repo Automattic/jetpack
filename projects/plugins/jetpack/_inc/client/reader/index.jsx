@@ -155,7 +155,7 @@ function Reader( props ) {
 				hideButton
 				module={ moduleName }
 			>
-				{ woaNotice }
+				{ woaNotice && <div className="jp-settings-card__notice">{ woaNotice }</div> }
 				{ readerToggle }
 				{ visitReaderLink }
 			</SettingsCard>

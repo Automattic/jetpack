@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-09-14
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
 ## [0.6.9] - 2026-06-08
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
@@ -139,6 +143,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Jetpack Boost: Fix assoc_array schema validation. [#29611]
 
+[0.7.0]: https://github.com/Automattic/jetpack-wp-js-data-sync/compare/v0.6.9...v0.7.0
 [0.6.9]: https://github.com/Automattic/jetpack-wp-js-data-sync/compare/v0.6.8...v0.6.9
 [0.6.8]: https://github.com/Automattic/jetpack-wp-js-data-sync/compare/v0.6.7...v0.6.8
 [0.6.7]: https://github.com/Automattic/jetpack-wp-js-data-sync/compare/v0.6.6...v0.6.7

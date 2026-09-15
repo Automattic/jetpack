@@ -19,22 +19,20 @@ class Block_Editor_Content {
 	 * This method should be called only once by the Initializer class. Do not call this method again.
 	 */
 	public static function init() {
-		if ( ! Status::is_standalone_plugin_active() ) {
-			return;
-		}
+		if ( Status::is_standalone_plugin_active() ) {
+			// Remove the videopress shortcodes added by the Jetpack plugin.
+			if ( shortcode_exists( 'videopress' ) ) {
+				remove_shortcode( 'videopress' );
+			}
+			if ( shortcode_exists( 'wpvideo' ) ) {
+				remove_shortcode( 'wpvideo' );
+			}
 
-		// Remove the videopress shortcodes added by the Jetpack plugin.
-		if ( shortcode_exists( 'videopress' ) ) {
-			remove_shortcode( 'videopress' );
-		}
-		if ( shortcode_exists( 'wpvideo' ) ) {
-			remove_shortcode( 'wpvideo' );
-		}
+			add_shortcode( 'videopress', array( static::class, 'videopress_embed_shortcode' ) );
+			add_shortcode( 'wpvideo', array( static::class, 'videopress_embed_shortcode' ) );
 
-		add_shortcode( 'videopress', array( static::class, 'videopress_embed_shortcode' ) );
-		add_shortcode( 'wpvideo', array( static::class, 'videopress_embed_shortcode' ) );
-
-		add_filter( 'wp_video_shortcode_override', array( static::class, 'video_shortcode_override' ), 10, 4 );
+			add_filter( 'wp_video_shortcode_override', array( static::class, 'video_shortcode_override' ), 10, 4 );
+		}
 
 		add_filter( 'default_content', array( static::class, 'videopress_video_block_by_guid' ), 10, 2 );
 	}
@@ -94,6 +92,11 @@ class Block_Editor_Content {
 			unset( $atts['preloadcontent'] );
 		}
 
+		// The site-wide opt-out wins over the shortcode's own preload attribute.
+		if ( Data::get_videopress_player_preload_disabled() ) {
+			$atts['preloadcontent'] = 'none';
+		}
+
 		$atts = shortcode_atts( $defaults, $atts, 'videopress' );
 
 		$base_url     = 'https://videopress.com/embed/' . $guid;
@@ -115,6 +118,30 @@ class Block_Editor_Content {
 			$height       = $width / $aspect_ratio;
 		} else {
 			$height = absint( $atts['h'] );
+		}
+
+		if ( Inline_Player::is_enabled() ) {
+			$player = Inline_Player::render(
+				$guid,
+				Inline_Player::get_player_options(
+					array(
+						'autoplay'        => $atts['autoplay'],
+						'loop'            => $atts['loop'],
+						'muted'           => $atts['muted'],
+						'controls'        => $atts['controls'],
+						'playsinline'     => $atts['playsinline'],
+						'useAverageColor' => $atts['useaveragecolor'],
+						'preload'         => $atts['preloadcontent'],
+						'cover'           => $atts['cover'],
+						'at'              => $atts['at'],
+					)
+				),
+				$width > 0 ? ( $height / $width ) * 100 : null
+			);
+
+			return '<figure class="wp-block-videopress-video wp-block-jetpack-videopress jetpack-videopress-player">' .
+				'<div class="jetpack-videopress-player__wrapper">' . $player . '</div>' .
+			'</figure>';
 		}
 
 		$cover = $atts['cover'] ? ' data-resize-to-parent="true"' : '';

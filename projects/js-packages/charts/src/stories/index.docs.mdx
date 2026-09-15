@@ -118,7 +118,9 @@ Charts expect data in a standardized format with `date` (for time-series) or cat
 
 ### Theme System
 
-Use the `GlobalChartsProvider` component to apply consistent styling across all charts. Create custom themes by defining the properties you want to override, such as colors, grid styling, and typography.
+Use the `GlobalChartsProvider` component to apply consistent styling across all charts. Create custom themes by defining the properties you want to override, such as grid styling, typography and spacing.
+
+Colors are not among them. Every chart color is a `--a8c-charts-color-*` custom property, set in CSS anywhere inside the provider tree — see [the token catalog](?path=/docs/js-packages-charts-library-providers-globalchartsprovider--docs).
 
 ### Responsive Design
 

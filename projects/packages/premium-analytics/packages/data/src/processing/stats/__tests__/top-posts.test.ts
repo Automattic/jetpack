@@ -213,9 +213,8 @@ describe( 'Stats top posts normalizer', () => {
 		} );
 	} );
 	it( 'keeps URL-less rows and matches them by label', () => {
-		// With skip_archives=1 the API returns the homepage-as-latest-posts
-		// entry without a link; it must survive the merge and match across
-		// periods by its label.
+		// With skip_archives=1 the homepage-as-latest-posts entry comes back with
+		// no link, so it can only match across periods by its label.
 		const homepage: StatsTopPostsItem = {
 			id: 0,
 			label: 'Homepage (Latest posts)',

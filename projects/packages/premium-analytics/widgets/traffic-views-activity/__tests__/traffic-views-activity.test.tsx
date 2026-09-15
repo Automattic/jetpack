@@ -2,13 +2,17 @@
  * External dependencies
  */
 import { useStatsVisits } from '@jetpack-premium-analytics/data';
+import {
+	resolveCalendarHeatmapWindow,
+	type HeatmapTooltipData,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import TrafficViewsActivityRender from '../render';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { HeatmapTooltipData } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
@@ -80,6 +84,17 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useStatsVisits: jest.fn(),
 } ) );
 
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
+	const actual = jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' );
+
+	return {
+		...actual,
+		resolveCalendarHeatmapWindow: jest.fn( actual.resolveCalendarHeatmapWindow ),
+	};
+} );
+
+const mockResolveCalendarHeatmapWindow = jest.mocked( resolveCalendarHeatmapWindow );
+
 const mockUseStatsVisits = jest.mocked( useStatsVisits );
 
 const REPORT_PARAMS = {
@@ -147,6 +162,30 @@ describe( 'TrafficViewsActivityWidget', () => {
 
 	afterEach( () => {
 		setViewportWidth( originalInnerWidth );
+	} );
+
+	// 10:00 UTC on the 9th is already the 10th at UTC+14 and still the 9th in every
+	// other zone, so the guard holds whatever the process zone is.
+	it( "anchors the window fallback on the site's today, not the viewer's", () => {
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { string: 'Pacific/Kiritimati', offset: 14, offsetFormatted: '14', abbr: 'LINT' },
+		} );
+		jest.useFakeTimers().setSystemTime( new Date( '2026-09-09T10:00:00Z' ) );
+		mockResolveCalendarHeatmapWindow.mockClear();
+
+		try {
+			renderWidget();
+
+			expect( mockResolveCalendarHeatmapWindow ).toHaveBeenCalled();
+			for ( const call of mockResolveCalendarHeatmapWindow.mock.calls ) {
+				expect( call[ 2 ] ).toBe( '2026-09-10' );
+			}
+		} finally {
+			jest.useRealTimers();
+			setSettings( settings );
+		}
 	} );
 
 	describe( 'request parameters', () => {
@@ -323,9 +362,8 @@ describe( 'TrafficViewsActivityWidget', () => {
 			expect( screen.getByTestId( 'heatmap' ) ).toHaveAttribute( 'data-columns', '53' );
 		} );
 
-		// jsdom measures every element as 0x0, which resolves to zero columns and
-		// hands the chart the whole series — so a `data-columns` assertion alone
-		// never exercises trimming. These stub a real tile so it does.
+		// jsdom measures every element as 0x0, which hands the chart the whole series
+		// — a `data-columns` assertion alone never exercises trimming. These stub a real tile.
 		describe( 'in a measured tile', () => {
 			const currentYear = {
 				...REPORT_PARAMS,
@@ -357,10 +395,8 @@ describe( 'TrafficViewsActivityWidget', () => {
 					restoreTileSize();
 				}
 
-				// The regression this guards (WOOA7S-1963): the grid ran on to a
-				// December that had not happened, so the columns a smaller tile kept
-				// were the empty future weeks and the year's own traffic was trimmed
-				// away — at 1000x300 the heatmap came out entirely blank.
+				// Regression guard (WOOA7S-1963): a smaller tile kept empty future-week
+				// columns and trimmed the year's own traffic away — 1000x300 came out blank.
 				expect( chartDayValues() ).toContain( 'Mon, Aug 10, 2026:44' );
 			} );
 
@@ -468,9 +504,8 @@ describe( 'TrafficViewsActivityWidget', () => {
 
 	describe( 'cell presentation', () => {
 		it( 'fits the grid inside the shipped one-row tile', () => {
-			// A 200px grid row less the widget's own chrome — the size this widget
-			// ships at, and the tightest it has to fit. The grid is sized to the tile
-			// so it cannot overflow and have its month labels clipped away.
+			// The widget's shipped tile size, and the tightest it has to fit; sized so
+			// the grid cannot overflow and clip its month labels.
 			const restoreTileSize = stubTileSize( 1000, 86 );
 
 			try {

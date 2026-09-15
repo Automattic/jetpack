@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { getDatePart } from '@jetpack-premium-analytics/datetime';
-import { formatWeekday } from '@jetpack-premium-analytics/formatters';
-import { format, getDay, isValid, parse } from 'date-fns';
+import { getDatePart, parseExactLabel } from '@jetpack-premium-analytics/datetime';
+import { formatMondayFirstWeekday } from '@jetpack-premium-analytics/formatters';
+import { getDay } from 'date-fns';
 
 export type PopularDayBucket = {
 	/** 0 = Monday … 6 = Sunday, matching the package's `weekStartsOn: 1` convention. */
@@ -17,12 +17,8 @@ export type PopularDayBucket = {
 
 const DATE_PART_FORMAT = 'yyyy-MM-dd';
 
-// Only consulted for fields the parsed string omits, and ours omits none.
-const referenceDate = new Date( 2001, 0, 1 );
-
 function weekdayLabel( weekday: number ) {
-	// WordPress's locale table is Sunday-first; the widget's buckets are Monday-first.
-	return formatWeekday( ( weekday + 1 ) % 7 );
+	return formatMondayFirstWeekday( weekday );
 }
 
 // `date_start` labels a calendar bucket rather than marking a real instant, so
@@ -31,13 +27,7 @@ function weekdayLabel( weekday: number ) {
 function readRowDate( row: Record< string, unknown > ) {
 	const datePart = getDatePart( row.date_start ?? row.time_interval ?? row.period );
 
-	if ( ! datePart ) {
-		return undefined;
-	}
-
-	const parsed = parse( datePart, DATE_PART_FORMAT, referenceDate );
-
-	return isValid( parsed ) && format( parsed, DATE_PART_FORMAT ) === datePart ? parsed : undefined;
+	return datePart ? parseExactLabel( datePart, DATE_PART_FORMAT ) : null;
 }
 
 function readRowViews( row: Record< string, unknown > ) {
@@ -47,8 +37,6 @@ function readRowViews( row: Record< string, unknown > ) {
 }
 
 /**
- * Fold a daily `stats/visits` series into one bucket per day of the week.
- *
  * Always seven buckets, so the chart keeps a stable shape; weekdays the range
  * never covered carry `occurrences: 0`.
  */
@@ -81,12 +69,8 @@ export function bucketViewsByWeekday( rows: Record< string, unknown >[] ): Popul
 }
 
 /**
- * The busiest weekday by mean views per occurrence.
- *
- * Mean, not total: a selected range rarely spans a whole number of weeks — over
- * 30 days two weekdays occur five times and five occur four — so a total would
- * let that extra occurrence alone decide the winner.
- * Returns no peak when the entire range received no views.
+ * Mean, not total: a selected range rarely spans a whole number of weeks, so a
+ * total would let one extra occurrence of a weekday decide the winner.
  */
 export function pickPeakWeekday( buckets: PopularDayBucket[] ): PopularDayBucket | undefined {
 	return buckets

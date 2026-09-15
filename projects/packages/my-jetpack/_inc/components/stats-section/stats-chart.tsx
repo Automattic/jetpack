@@ -1,4 +1,5 @@
 import { BarChart, DataPointDate } from '@automattic/charts';
+import '@automattic/charts/style.css';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import { Suspense, useCallback, useMemo } from 'react';

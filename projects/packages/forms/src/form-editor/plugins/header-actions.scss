@@ -1,0 +1,16 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+/*
+ * `@wordpress/interface` hides pinned items on narrow viewports so the list
+ * doesn't wreak havoc on the header layout, but it does so with a
+ * `.interface-pinned-items .components-button` rule. `LinkButton` renders an
+ * anchor carrying only `@wordpress/ui` classes, so it slips past that rule —
+ * reapply the same breakpoint here.
+ */
+.jetpack-form-header-actions__view-responses {
+	display: none;
+
+	@include gb.break-small() {
+		display: inline-flex;
+	}
+}

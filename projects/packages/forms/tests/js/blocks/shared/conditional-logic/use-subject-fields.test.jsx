@@ -17,15 +17,18 @@ const mockUpdateBlockAttributes = jest.fn();
 let blocks = {};
 let rootOf = {};
 
+const fakeSelect = () => ( {
+	getBlock: clientId => blocks[ clientId ],
+	getBlockParentsByBlockName: ( clientId, name ) =>
+		'jetpack/contact-form' === name && rootOf[ clientId ] ? [ rootOf[ clientId ] ] : [],
+	getBlockRootClientId: clientId => rootOf[ clientId ] || '',
+} );
+
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useDispatch: () => ( { updateBlockAttributes: mockUpdateBlockAttributes } ),
-	useSelect: selector =>
-		selector( () => ( {
-			getBlock: clientId => blocks[ clientId ],
-			getBlockParentsByBlockName: ( clientId, name ) =>
-				'jetpack/contact-form' === name && rootOf[ clientId ] ? [ rootOf[ clientId ] ] : [],
-			getBlockRootClientId: clientId => rootOf[ clientId ] || '',
-		} ) ),
+	useSelect: selector => selector( fakeSelect ),
+	// useEnsureFieldId reads the whole form on demand rather than subscribing to it.
+	useRegistry: () => ( { select: fakeSelect } ),
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
@@ -114,11 +117,28 @@ describe( 'useEnsureFieldId', () => {
 		expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
 	} );
 
-	it( 'de-duplicates against ids already in the form', () => {
-		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: 'Email' }, [ 'email' ] );
+	// The used ids come from the form itself, not from a list the caller assembles -- so a
+	// field the subject dropdown never offers still blocks its id.
+	it( 'de-duplicates against every field in the form', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				innerBlocks: [
+					field( 'c-taken', { id: 'email' } ),
+					// Not offered as a subject -- it declares no conditional logic -- but the
+					// renderer still gives it an id, so minting on top of it would collide.
+					field( 'c-image', { id: 'email-2', name: 'jetpack/field-image-select' } ),
+					field( 'c-1' ),
+				],
+			},
+		};
+		rootOf = { 'c-1': 'form' };
 
-		expect( assigned ).toBe( 'email-2' );
-		expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-1', { id: 'email-2' } );
+		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: 'Email' } );
+
+		expect( assigned ).toBe( 'email-3' );
+		expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-1', { id: 'email-3' } );
 	} );
 
 	/**
@@ -131,15 +151,6 @@ describe( 'useEnsureFieldId', () => {
 	 * evaluating a different field, or the owner's response key changes underneath a form
 	 * that may already have responses stored against it.
 	 */
-	it( "does not reuse the panel's own field id", () => {
-		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: 'Email' }, [
-			'email',
-			'email-2',
-		] );
-
-		expect( assigned ).toBe( 'email-3' );
-		expect( assigned ).not.toBe( 'email' );
-	} );
 
 	it( 'falls back to a generic base when the label slugifies to nothing', () => {
 		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: '!!!' }, [] );

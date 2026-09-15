@@ -15,7 +15,7 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -389,15 +389,14 @@ export default function PricingInterstitial( { slug } ) {
 				/>
 			}
 			actions={
-				<Button
+				<LinkButton
 					size="compact"
 					variant="outline"
-					nativeButton={ false }
-					render={ <a href={ getMyJetpackUrl( '#/add-license' ) } /> }
+					href={ getMyJetpackUrl( '#/add-license' ) }
 					onClick={ handleLicenseActivationClick }
 				>
 					{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-				</Button>
+				</LinkButton>
 			}
 		>
 			<Container

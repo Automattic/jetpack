@@ -36,6 +36,11 @@ type Result = {
  * we surface it as `lastModified` so the FileInfoCard can render the
  * date without a separate path-info call.
  *
+ * `id` is copied through untouched. It is the only value a granular
+ * download can name an entry by, so dropping it here — which is what
+ * this transform used to do — makes the file selection unsendable
+ * however carefully the tree tracks it.
+ *
  * Exported for tests: it's a pure transform of one untrusted WPCOM entry,
  * and the timestamp guard below is worth asserting directly.
  *
@@ -53,6 +58,7 @@ export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string
 			type: 'folder',
 			name,
 			path: fullPath,
+			id: raw.id,
 		};
 	}
 
@@ -81,6 +87,7 @@ export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string
 		type: 'file',
 		name,
 		path: fullPath,
+		id: raw.id,
 		lastModified,
 		period: raw.period,
 		manifestPath: raw.manifest_path,
@@ -128,14 +135,19 @@ export function useFileTree( rewindId: string, folderPath: string | null ): Resu
 		refetch();
 	}, [ refetch ] );
 
-	// Held across the retry: React Query rewinds this query to `pending`
-	// when it refetches after a failure, so without this the reason
-	// disappears the moment the reader clicks the retry button.
-	const error = useStickyError( query.error, query.isFetching );
+	// `networkMode: 'online'` parks an offline request rather than failing it, so
+	// the first read is neither loading nor errored and holds no children — which
+	// the tree read as an answered "empty". `isPending` spares a parked refetch,
+	// which still has its children.
+	const isParkedOffline = query.isPending && query.isPaused;
+	// Held across the retry: React Query rewinds this query to `pending` when it
+	// refetches after a failure, so without this the reason disappears the moment
+	// the reader clicks retry — and an offline retry parks rather than fetching.
+	const error = useStickyError( query.error, query.isFetching || isParkedOffline );
 
 	return {
 		children,
-		isLoading: query.isLoading,
+		isLoading: query.isLoading || isParkedOffline,
 		isFetching: query.isFetching,
 		error,
 		refetch: retry,

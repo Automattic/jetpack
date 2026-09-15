@@ -1456,9 +1456,7 @@ class Search_Blocks_Test extends TestCase {
 	private function registered_script_modules(): array {
 		$modules  = wp_script_modules();
 		$property = new \ReflectionProperty( $modules, 'registered' );
-		// PHP 7.2–8.0 require setAccessible(true) to read a private prop via
-		// Reflection; 8.1 made it a no-op and 8.5 deprecates the call. Gate
-		// on the version so the package's PHP 7.2–8.5 matrix stays green.
+		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
@@ -3444,9 +3442,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	private function invoke_protected( string $method, ...$args ) {
 		$ref = new \ReflectionMethod( Search_Blocks::class, $method );
-		// setAccessible() became a no-op in 8.1 and was deprecated in 8.5,
-		// but the package supports PHP 7.2+ where the call is still required
-		// for ReflectionMethod::invoke() to reach a protected method.
+		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$ref->setAccessible( true );
 		}

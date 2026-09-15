@@ -288,7 +288,9 @@ class REST_Controller {
 			? sanitize_text_field( $request_body['experience'] )
 			: null;
 		$reader_chat                   = array_key_exists( 'reader_chat', $request_body ) ? (bool) $request_body['reader_chat'] : null;
-		$ai_answers_enabled            = isset( $request_body['ai_answers_enabled'] ) ? (bool) $request_body['ai_answers_enabled'] : null;
+		// rest_sanitize_boolean(), not (bool): this value now drives the paid-plan
+		// gate below, and a plain (bool) cast reads a JSON `"false"` string as true.
+		$ai_answers_enabled = isset( $request_body['ai_answers_enabled'] ) ? rest_sanitize_boolean( $request_body['ai_answers_enabled'] ) : null;
 
 		$search_suggestions_enabled = isset( $request_body['search_suggestions_enabled'] ) ? (bool) $request_body['search_suggestions_enabled'] : null;
 
@@ -388,6 +390,26 @@ class REST_Controller {
 			);
 		}
 
+		// AI Answers cannot be turned on while the site-wide Jetpack AI switch is
+		// off. Turning it off stays allowed, so a saved choice can still be cleared.
+		if ( true === $ai_answers_enabled && ! AI_Answers::is_master_enabled() ) {
+			return new WP_Error(
+				'rest_invalid_arguments',
+				esc_html__( 'AI Answers cannot be enabled while Jetpack AI is turned off for this site.', 'jetpack-search-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// AI Answers runs inside Instant Search, so enabling it requires Instant
+		// Search on — either already, or turned on by this same request.
+		if ( true === $ai_answers_enabled && true !== $instant_search_enabled && ! $this->search_module->is_instant_search_enabled() ) {
+			return new WP_Error(
+				'rest_invalid_arguments',
+				esc_html__( 'AI Answers cannot be enabled while Instant Search is off.', 'jetpack-search-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		// `experience` is the canonical source of truth and writes the legacy booleans in lockstep.
 		// Reject requests that mix it with any other settings field so callers don't silently
 		// lose those fields — the `experience` branch in update_settings() early-returns and
@@ -402,6 +424,16 @@ class REST_Controller {
 			}
 			return true;
 		}
+
+		// AI Answers requires a paid Search plan; reject the write outright.
+		if ( true === $ai_answers_enabled && ! Search_Blocks::supports_paid_search() ) {
+			return new WP_Error(
+				'rest_forbidden',
+				esc_html__( 'AI Answers requires a paid Jetpack Search plan.', 'jetpack-search-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		if (
 			$module_active === null &&
 			$instant_search_enabled === null &&
@@ -442,6 +474,8 @@ class REST_Controller {
 			'swap_classic_to_inline_search'        => $this->search_module->is_swap_classic_to_inline_search(),
 			'experience'                           => $this->search_module->get_experience(),
 			'ai_answers_enabled'                   => AI_Answers::is_enabled(),
+			'ai_answers_saved'                     => AI_Answers::is_saved_on(),
+			'ai_master_enabled'                    => AI_Answers::is_master_enabled(),
 			'search_suggestions_enabled'           => (bool) get_option( 'jetpack_search_suggestions_enabled', false ),
 			'override_woocommerce_search_template' => Search_Blocks::woocommerce_search_template_override_enabled(),
 		);

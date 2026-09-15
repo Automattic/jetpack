@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	createStatsDataPoint,
@@ -29,7 +30,7 @@ function getSearchTermKey( item: StatsSearchTermsItem ): string {
 
 function normalizeStatsSearchTerm( item: StatsRecord ): StatsSearchTermsItem {
 	return {
-		label: item.term,
+		label: decodeHtmlText( item.term ),
 		views: safeParseFloat( item.views ),
 		className: 'user-selectable',
 		children: null,

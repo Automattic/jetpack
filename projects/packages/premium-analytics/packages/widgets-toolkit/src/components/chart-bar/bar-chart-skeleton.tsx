@@ -9,10 +9,8 @@ import { SkeletonRoot } from '../widget-skeleton';
 import styles from './bar-chart-skeleton.module.scss';
 
 /**
- * Columns for a widget that cannot know its own bar count. These charts are
- * categorical rather than time series, so a handful of bars is the shape to
- * expect — the prototype's denser twelve stands in for a chart this package
- * has no consumer for.
+ * Columns for a widget that cannot know its own bar count: these charts are
+ * categorical rather than time series, so a handful of bars is the shape to expect.
  */
 const DEFAULT_COLUMN_COUNT = 4;
 
@@ -23,10 +21,6 @@ export interface BarChartSkeletonProps {
 
 /**
  * Loading shape for `BarChart`: bottom-aligned columns of stepping heights.
- *
- * @param props         - Component props.
- * @param props.columns - Columns to draw.
- * @return The rendered skeleton.
  */
 export function BarChartSkeleton( { columns = DEFAULT_COLUMN_COUNT }: BarChartSkeletonProps ) {
 	const columnCount = columns > 0 ? columns : DEFAULT_COLUMN_COUNT;

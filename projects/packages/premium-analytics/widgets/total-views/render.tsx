@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useStatsVisits, withoutComparison } from '@jetpack-premium-analytics/data';
-import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { Text } from '@jetpack-premium-analytics/externals';
 import {
+	AbbreviatedValue,
 	describeError,
 	MetricSparklineSkeleton,
 	Sparkline,
@@ -33,18 +33,13 @@ type TotalViewsWidgetProps = WidgetRenderProps< TotalViewsRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-// Fixed, never derived from the dashboard interval. `stats/visits` reports
-// visitors as unique-within-bucket and the headline is the sum of the buckets,
-// so a coarser bucket silently changes what the number means: a daily visitor
-// counts 30 times across 30 daily buckets but 13 across 13 weekly ones, which
-// lets a longer range report a smaller total. Views are additive and unaffected,
-// but both cards use the same unit so they stay comparable and share a request.
+// Fixed, never derived from the dashboard interval: `stats/visits` counts a
+// visitor once per bucket, so a coarser bucket undercounts a repeat visitor and a
+// longer range could report a smaller total. Views are additive and unaffected,
+// but both cards share one unit and one request.
 const PERIOD = 'day';
 
-// `decimals: 0` would round 291,900 to "292K"; the prototype's headline keeps
-// the digit ("291.9k" / "1.2M").
-const ABBREVIATED_HEADLINE_OPTIONS = { useMultipliers: true, decimals: 1 };
-const PLAIN_HEADLINE_OPTIONS = { decimals: 0 };
+const HEADLINE_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
 
 /**
  * The period's view total over an area sparkline of the trend.
@@ -65,12 +60,6 @@ function TotalViewsMetric() {
 
 	// The sanitizer builds the report summary by summing the returned buckets.
 	const total = Number( report?.summary?.views ?? 0 );
-	const fullTotal = formatMetricValue( total, 'number', PLAIN_HEADLINE_OPTIONS );
-	const headline = formatMetricValue(
-		total,
-		'number',
-		total >= 1000 ? ABBREVIATED_HEADLINE_OPTIONS : PLAIN_HEADLINE_OPTIONS
-	);
 	const points = useMemo(
 		() =>
 			( report?.data ?? [] ).map( row =>
@@ -104,15 +93,8 @@ function TotalViewsMetric() {
 				<div className={ styles.body }>
 					{ /* Not `MetricValue`: it pins a 20px line-height at any font size, which
 					    clips 32px glyphs. `heading-2xl` pairs 32px with 40px. */ }
-					<Text variant="heading-2xl" title={ fullTotal }>
-						{ headline === fullTotal ? (
-							headline
-						) : (
-							<>
-								<span aria-hidden="true">{ headline }</span>
-								<VisuallyHidden>{ fullTotal }</VisuallyHidden>
-							</>
-						) }
+					<Text variant="heading-2xl">
+						<AbbreviatedValue value={ total } dataFormat={ HEADLINE_FORMAT } />
 					</Text>
 					<div className={ styles.chart }>
 						{ /* `withResponsive` caps width at 1200px by default, stranding space on a

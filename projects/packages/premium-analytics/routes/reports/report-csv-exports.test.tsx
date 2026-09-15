@@ -81,6 +81,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 		ReportCsvAction: jest.fn( () => null ),
 		ReportDrilldownTable: () => null,
 		ReportErrorState: () => null,
+		ReportLocationsMap: () => null,
 		ReportPageLayout: Container,
 		ReportPageSection: Container,
 		ReportPageShell: Container,
@@ -113,9 +114,8 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 } ) );
 
-// The page imports `EmptyState`/`Text` from the externals passthrough, so the
-// stubs have to replace them there; the Proxy leaves the rest of the barrel
-// intact for any other consumer in the graph.
+// Pages import `EmptyState`/`Text` from the externals passthrough, so the stubs replace them
+// there; the Proxy leaves the rest of the barrel intact for other consumers.
 jest.mock(
 	'@jetpack-premium-analytics/externals',
 	() =>
@@ -171,6 +171,7 @@ jest.mock( './emails/config', () => ( {
 } ) );
 
 jest.mock( './locations/config', () => ( {
+	GEO_MODES: jest.requireActual( './locations/config' ).GEO_MODES,
 	getLocationFields: () => [],
 	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
 	getTabTitle: ( id: string ) => ( id === 'countries' ? 'Countries' : id ),
@@ -289,6 +290,9 @@ describe( 'report CSV exports', () => {
 		} );
 	} );
 
+	// `avg_words` is fractional on purpose: the table renders it whole while the
+	// export stays raw, as every other average column does. A whole fixture
+	// would pass either way.
 	it( 'configures the Annual insights export', () => {
 		const rows = [
 			{
@@ -299,7 +303,7 @@ describe( 'report CSV exports', () => {
 				total_likes: 30,
 				avg_likes: 3,
 				total_words: 1000,
-				avg_words: 100,
+				avg_words: 100.4,
 				total_images: 4,
 				avg_images: 1,
 			},
@@ -311,7 +315,7 @@ describe( 'report CSV exports', () => {
 				total_likes: 36,
 				avg_likes: 3,
 				total_words: 1200,
-				avg_words: 100,
+				avg_words: 120.6,
 				total_images: 5,
 				avg_images: 1,
 			},
@@ -325,7 +329,7 @@ describe( 'report CSV exports', () => {
 			AnnualInsightsReportPage,
 			'annual-insights',
 			[ rows[ 1 ], rows[ 0 ] ],
-			[ '2026', 12, 24, 2, 36, 3, 1200, 100 ]
+			[ '2026', 12, 24, 2, 36, 3, 1200, 120.6, 5, 1 ]
 		);
 	} );
 

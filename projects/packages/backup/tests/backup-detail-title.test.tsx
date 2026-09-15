@@ -35,7 +35,6 @@ function backupItem( title: string ): BackupActivityItem {
 		actor: { type: 'Application', name: 'Jetpack' },
 		rewindId: '1786644531.123',
 		stats: '46 plugins, 23 themes',
-		isComplete: true,
 	};
 }
 

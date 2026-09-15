@@ -79,9 +79,8 @@ class Videopress_Availability_Test extends BaseTestCase {
 	/**
 	 * The WPCOM platform reads the plan feature, never the module list.
 	 *
-	 * The module stays active throughout, so every assertion here also proves the
-	 * platform branch was the one taken: the self-hosted branch would answer true
-	 * in all three cases.
+	 * The module stays active throughout, so every assertion here also proves the platform branch
+	 * was taken — the self-hosted branch would answer true in all three cases otherwise.
 	 *
 	 * @dataProvider provide_wpcom_platform_sites
 	 *

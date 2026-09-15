@@ -13,12 +13,9 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 import type { ReactElement } from 'react';
 
 /**
- * The chart types the display control offers, in segment order. One list keeps
- * every chart widget's control identical, and `satisfies` ties it to the
- * toolkit's own union so a value `MetricTabsChart` cannot draw fails to
- * compile here rather than shipping as a broken option. The label names the
- * type for assistive technology and for the segment's tooltip; the icon is
- * what the control shows.
+ * The chart types the display control offers, in segment order — one list keeps
+ * every widget's control identical. `satisfies` ties it to the toolkit's union
+ * so an unsupported type fails to compile here instead of shipping broken.
  */
 export const CHART_DISPLAY_CHART_TYPES = [
 	{ id: 'line', label: __( 'Line chart', 'jetpack-premium-analytics-pkg' ), icon: chartLine },

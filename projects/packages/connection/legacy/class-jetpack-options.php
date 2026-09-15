@@ -92,7 +92,7 @@ class Jetpack_Options {
 			'id',                                  // (int)    The Client ID/WP.com Blog ID of this site.
 			'publicize_connections',               // (array)  An array of Publicize connections from WordPress.com.
 			'master_user',                         // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
-			'protected_owner',                     // (array)  Anchor identifying the locked connection owner. WordPress.com is authoritative; this is a local cache. Keys: wpcom_user_id, email, local_user_id, locked, confirmed_at, confirmed_by.
+			'protected_owner',                     // (array)  Anchor identifying the locked connection owner. WordPress.com is authoritative; this is a local cache. Keys: wpcom_user_id, local_user_id, locked, confirmed_at, confirmed_by.
 			'version',                             // (string) Used during upgrade procedure to auto-activate new modules. version:time.
 			'old_version',                         // (string) Used to determine which modules are the most recently added. previous_version:time.
 			'fallback_no_verify_ssl_certs',        // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
@@ -126,6 +126,7 @@ class Jetpack_Options {
 			'identity_crisis_url_secret',          // (array) The IDC URL secret and its expiration date.
 			'identity_crisis_ip_requester',        // (array) The IDC IP address and its expiration date.
 			'dismissed_welcome_banner',            // (bool) Determines if the welcome banner has been dismissed or not.
+			'dismissed_a4a_banner',                // (bool) Determines if the Automattic for Agencies banner has been dismissed or not.
 			'recommendations_evaluation',          // (object) Catalog of recommended modules with corresponding score following successful site evaluation in Welcome Banner.
 			'dismissed_recommendations',           // (bool) Determines if the recommendations have been dismissed or not.
 			'recommendations_first_run',           // (bool) Determines if the current recommendations are the initial default auto-loaded ones (without user input).

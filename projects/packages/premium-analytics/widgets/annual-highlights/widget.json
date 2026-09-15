@@ -1,9 +1,9 @@
 {
 	"name": "jpa/annual-highlights",
-	"title": "Highlights",
+	"title": "Year in review",
 	"description": "Your totals for the year at a glance — posts, words, likes, and comments.",
 	"help": {
-		"content": "Your totals for the year at a glance — posts, words, likes, and comments."
+		"content": "Your totals for the selected year — posts, words, likes, and comments."
 	},
 	"category": "stats",
 	"presentation": "framed"

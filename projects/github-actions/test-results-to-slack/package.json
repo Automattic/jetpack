@@ -26,9 +26,9 @@
 		"minimatch": "10.2.6"
 	},
 	"devDependencies": {
-		"jest": "30.4.2",
+		"jest": "30.5.1",
 		"rollup-plugin-license": "3.7.1",
-		"tsdown": "0.22.2",
+		"tsdown": "0.22.14",
 		"undici": "7.29.0"
 	}
 }

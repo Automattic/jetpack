@@ -113,14 +113,8 @@ describe( 'useLeaderboardLegendItems', () => {
 	} );
 
 	describe( 'Color handling', () => {
-		it( 'should use default theme colors', () => {
-			const customTheme = {
-				leaderboardChart: {
-					primaryColor: '#FF0000',
-					secondaryColor: '#00FF00',
-				},
-			};
-			const wrapper = createWrapper( customTheme );
+		it( 'gives both legend items a color from the palette', () => {
+			const wrapper = createWrapper();
 			const { result } = renderHook(
 				() =>
 					useLeaderboardLegendItems( {
@@ -131,7 +125,6 @@ describe( 'useLeaderboardLegendItems', () => {
 				{ wrapper }
 			);
 
-			// Note: The actual color will be resolved by the context, but we can check structure
 			expect( result.current[ 0 ].color ).toBeTruthy();
 			expect( result.current[ 1 ].color ).toBeTruthy();
 		} );

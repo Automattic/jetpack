@@ -9,18 +9,20 @@ import {
 	H3,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { LinkButton } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { Link } from 'react-router';
 /**
  * Internal dependencies
  */
+import { assetUrl } from '../../../assets/url';
 import useAnalytics from '../../../hooks/use-analytics';
 import GoBackLink from '../../go-back-link';
-import jetpackAiImage from '../assets/jetpack-ai.webp';
 import styles from './style.module.scss';
+
+const jetpackAiImage = assetUrl( 'components/product-interstitial/assets/jetpack-ai.webp' );
 
 /**
  * JetpackAIInterstitialMoreRequests component
@@ -66,20 +68,16 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 									<H3>{ title }</H3>
 									<Text mb={ 3 }>{ longDescription }</Text>
 									<div className={ styles[ 'buttons-row' ] }>
-										<Button
-											nativeButton={ false }
-											render={ <a href={ contactHref } /> }
-											onClick={ trackClickHandler }
-										>
+										<LinkButton href={ contactHref } onClick={ trackClickHandler }>
 											{ __( 'Contact Us', 'jetpack-my-jetpack' ) }
-										</Button>
-										<Button
+										</LinkButton>
+										<LinkButton
 											variant="outline"
-											nativeButton={ false }
-											render={ <Link to="/products" onClick={ onClickGoBack } /> }
+											href={ getMyJetpackUrl( '#/products' ) }
+											onClick={ onClickGoBack }
 										>
 											{ __( 'Back', 'jetpack-my-jetpack' ) }
-										</Button>
+										</LinkButton>
 									</div>
 								</div>
 							</div>

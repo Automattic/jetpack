@@ -94,10 +94,8 @@ describe( 'SearchTermsReportPage', () => {
 	} );
 
 	it( 'keeps the rows on screen while a background refetch is in flight', () => {
-		// The queries carry `placeholderData`, so a refetch triggered by a date or
-		// comparison change still has the previous rows. Handing the table an empty
-		// set would drop the user's search, sorting, and page position mid-refetch,
-		// so the rows stay mounted and only the loading state reflects the refetch.
+		// `placeholderData` keeps rows mounted through a date/comparison refetch — clearing them
+		// would drop the user's search, sort, and page position mid-refetch.
 		mockRecords( { isFetching: true } );
 
 		render( <SearchTermsReportPage /> );

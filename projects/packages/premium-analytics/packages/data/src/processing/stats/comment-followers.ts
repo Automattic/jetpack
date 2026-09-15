@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -42,7 +43,7 @@ export function sanitizeStatsCommentFollowersResponse(
 
 			return {
 				id: typeof item.id === 'number' ? item.id : undefined,
-				label: item.id === 0 ? 'All Posts' : String( item.title ?? '' ),
+				label: item.id === 0 ? 'All Posts' : decodeHtmlText( String( item.title ?? '' ) ),
 				followers,
 				value: followers,
 				link: item.id === 0 || typeof item.url !== 'string' ? null : item.url,

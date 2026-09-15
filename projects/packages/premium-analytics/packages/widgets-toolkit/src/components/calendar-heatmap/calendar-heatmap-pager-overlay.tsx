@@ -17,33 +17,23 @@ import type { ReactNode } from 'react';
  * its tile can draw. The newest page shows first; "older" steps back in time.
  */
 export type CalendarHeatmapPager = {
-	/** Whether an older page exists inside the range. */
 	canShowOlder: boolean;
-	/** Whether a newer page exists (the newest page shows first). */
 	canShowNewer: boolean;
 	showOlder: () => void;
 	showNewer: () => void;
 };
 
 export type CalendarHeatmapPagerOverlayProps = {
-	/** The paging state; omit it to render the children with no arrows. */
+	/** Omit to render the children with no arrows. */
 	pager?: CalendarHeatmapPager;
-	/** Optional class for widget-specific layout on the host element. */
 	className?: string;
 	children: ReactNode;
 };
 
 /**
- * Floats the calendar-heatmap pager arrows over the chart's inline edges.
- *
- * Per the design, the arrows appear on hover (or keyboard focus) instead of
- * taking a header row the widget chrome has no room for; viewports without
- * hover keep them visible. An arrow with nowhere to go is not rendered at all
- * rather than shown disabled, also per the design. The host wraps the chart so
- * the arrows center on it vertically, and it always renders — pager or not —
- * so paging in and out of a range never changes the chart's layout.
- *
- * @return The chart wrapped in the pager host.
+ * Floats the pager arrows over the chart's inline edges. Per design, they show
+ * only on hover/keyboard focus, and an arrow with nowhere to go is omitted
+ * (not disabled) so the chart layout never shifts.
  */
 export function CalendarHeatmapPagerOverlay( {
 	pager,
@@ -60,12 +50,8 @@ export function CalendarHeatmapPagerOverlay( {
 	const canShowOlder = pager?.canShowOlder ?? false;
 	const canShowNewer = pager?.canShowNewer ?? false;
 
-	// Reaching an end unmounts the arrow being pressed, and focus falls
-	// wherever the browser or the removed button drops it, collapsing
-	// `:focus-within` mid-interaction — so hand focus to the surviving arrow.
-	// An intentional move away instead fires the blur that clears
-	// `arrowHadFocus` first, and the animation-frame re-check covers fallback
-	// restores that land after this commit.
+	// Unmounting the pressed arrow fires no blur, so focus must be handed off manually;
+	// the rAF recheck catches a focus restore that lands after this commit.
 	useLayoutEffect( () => {
 		const doc = hostRef.current?.ownerDocument;
 		if ( ! doc ) {

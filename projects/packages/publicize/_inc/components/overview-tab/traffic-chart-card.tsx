@@ -7,10 +7,15 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
-import { Button, Card, EmptyState, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
+import { Card, EmptyState, LinkButton, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
-import { hasSocialPaidFeatures } from '../../utils';
-import { getRefreshPlanQuery } from '../../utils/script-data';
+import { features, hasSocialPaidFeatures } from '../../utils';
+import {
+	getRefreshPlanQuery,
+	getSimpleSiteUpgradeUrl,
+	getSocialAdminPageUrl,
+	getUpgradePlanName,
+} from '../../utils/script-data';
 import { buildSeries } from '../../utils/traffic-series';
 import './traffic-chart-card.scss';
 import { buildMockReferrers } from './traffic-mock';
@@ -79,15 +84,34 @@ export default function TrafficChartCard(): JSX.Element {
 		interval
 	);
 
-	const onUpgrade = useCallback( () => {
+	let upgradeUrl: string | undefined;
+	if ( needsUpgrade ) {
 		const data = getScriptData();
 		const blogID = data?.site?.wpcom?.blog_id;
 		const siteSuffix = data?.site?.suffix;
-		window.location.href = getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
-			site: blogID ? String( blogID ) : siteSuffix,
-			query: getRefreshPlanQuery(),
-		} );
-	}, [] );
+		upgradeUrl =
+			getSimpleSiteUpgradeUrl( features.ENHANCED_PUBLISHING, getSocialAdminPageUrl() ) ??
+			getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
+				site: blogID ? String( blogID ) : siteSuffix,
+				query: getRefreshPlanQuery(),
+			} );
+	}
+
+	const planName = getUpgradePlanName();
+	const genericUpgradeText = __(
+		'Upgrade to see which social networks are driving visits to your site, day by day.',
+		'jetpack-publicize-pkg'
+	);
+	const upgradeText = planName
+		? sprintf(
+				/* translators: %s: name of the plan that unlocks the feature, e.g. "Business". */
+				__(
+					'Upgrade to the %s plan to see which social networks are driving visits to your site, day by day.',
+					'jetpack-publicize-pkg'
+				),
+				planName
+		  )
+		: genericUpgradeText;
 
 	const onIntervalChange = useCallback(
 		( next: string ) => setTrafficInterval( Number( next ) as TrafficInterval ),
@@ -201,22 +225,17 @@ export default function TrafficChartCard(): JSX.Element {
 								withGradientFill={ false }
 							/>
 						</div>
-						{ needsUpgrade && (
+						{ needsUpgrade && upgradeUrl && (
 							<div className="jetpack-social-overview__chart-overlay">
 								<Notice.Root intent="info" className="jetpack-social-overview__upgrade-notice">
 									<Notice.Title>
 										{ __( 'Unlock traffic insights', 'jetpack-publicize-pkg' ) }
 									</Notice.Title>
-									<Notice.Description>
-										{ __(
-											'Upgrade to see which social networks are driving visits to your site, day by day.',
-											'jetpack-publicize-pkg'
-										) }
-									</Notice.Description>
+									<Notice.Description>{ upgradeText }</Notice.Description>
 									<Notice.Actions>
-										<Button variant="solid" size="compact" onClick={ onUpgrade }>
+										<LinkButton variant="solid" size="compact" href={ upgradeUrl }>
 											{ __( 'Upgrade now', 'jetpack-publicize-pkg' ) }
-										</Button>
+										</LinkButton>
 									</Notice.Actions>
 								</Notice.Root>
 							</div>

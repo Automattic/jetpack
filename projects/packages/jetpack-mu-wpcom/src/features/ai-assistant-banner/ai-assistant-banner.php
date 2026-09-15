@@ -8,6 +8,13 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
+use Automattic\Jetpack\Status\Host;
+
+// The audience helpers live in the AI Launchpad feature, loaded by a different
+// loader method; require them directly so the props can never silently degrade.
+require_once __DIR__ . '/../ai-launchpad/helpers.php';
+
 /**
  * Determines whether the AI assistant banner should be shown to the current user.
  *
@@ -52,6 +59,37 @@ function wpcom_should_show_ai_assistant_banner() {
 	}
 
 	return true;
+}
+
+/**
+ * Tracks props shared by the banner's three events, per the AI events standard.
+ *
+ * @param string $screen_id The current admin screen id.
+ * @return array<string,string>
+ */
+function wpcom_ai_assistant_banner_tracks_props( $screen_id ) {
+	$purchases = function_exists( 'wpcom_expiry_get_purchases' ) ? wpcom_expiry_get_purchases() : array();
+	// Real plan bundles only: the expiry picker's slug fallback would also match
+	// add-ons such as Professional Email Premium ("premium" substring).
+	$bundles  = wp_list_filter( (array) $purchases, array( 'product_type' => 'bundle' ) );
+	$plan     = class_exists( Expiry_Data::class ) ? Expiry_Data::pick_primary_plan_purchase( $bundles ) : null;
+	$has_slug = $plan && isset( $plan->product_slug ) && is_string( $plan->product_slug ) && '' !== $plan->product_slug;
+
+	return array(
+		'channel'      => 'web',
+		'surface'      => 'dashboard',
+		// Deliberately the WP screen id, not $pagenow — AI Launchpad's hardcoded
+		// 'admin.php' uses the other vocabulary for the same standard prop.
+		'screen'       => (string) $screen_id,
+		// Two buckets, mirroring AI Launchpad: this package ships only on Simple and
+		// Atomic (wpcomsh, mu-wpcom-plugin). Add a self-hosted branch if the banner
+		// ever moves into the Jetpack plugin.
+		'site_type'    => ( new Host() )->is_wpcom_simple() ? 'simple' : 'atomic',
+		// The AI events standard wants the string "none" over an empty value.
+		'product_slug' => $has_slug ? $plan->product_slug : 'none',
+		'is_test'      => function_exists( 'wpcom_ai_launchpad_is_test' ) && wpcom_ai_launchpad_is_test() ? 'true' : 'false',
+		'is_a11n'      => function_exists( 'wpcom_ai_launchpad_is_a11n' ) && wpcom_ai_launchpad_is_a11n() ? 'true' : 'false',
+	);
 }
 
 /**
@@ -158,7 +196,12 @@ function wpcom_maybe_add_ai_assistant_banner() {
 
 	add_action( 'admin_notices', 'wpcom_render_ai_assistant_banner', 1 );
 
-	jetpack_mu_wpcom_enqueue_assets( 'ai-assistant-banner', array( 'js' ) );
+	$asset_handle = jetpack_mu_wpcom_enqueue_assets( 'ai-assistant-banner', array( 'js' ) );
+	wp_localize_script(
+		$asset_handle,
+		'wpcomAiAssistantBanner',
+		array( 'trackProps' => wpcom_ai_assistant_banner_tracks_props( $screen->id ) )
+	);
 }
 add_action( 'current_screen', 'wpcom_maybe_add_ai_assistant_banner' );
 

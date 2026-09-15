@@ -104,10 +104,9 @@ describe( 'toSyncStatus', () => {
 	} );
 
 	it( 'is not started or stalled after the connection-time initial_sync (no analytics bucket)', () => {
-		// Jetpack runs a lightweight initial_sync on connection (options/functions/
-		// users only) that sets started/finished but never includes the analytics
-		// module. Treat this as "not started yet" so the analytics sync auto-starts,
-		// rather than classifying the finished initial_sync as a stalled analytics sync.
+		// Jetpack's lightweight connection-time initial_sync sets started/finished
+		// but never touches the analytics bucket — treat it as "not started yet"
+		// so the analytics sync still auto-starts, instead of reading it as stalled.
 		const status = toSyncStatus(
 			{
 				started: true,

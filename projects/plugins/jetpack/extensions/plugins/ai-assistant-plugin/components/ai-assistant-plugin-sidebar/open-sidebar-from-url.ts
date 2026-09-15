@@ -5,10 +5,10 @@ import { dispatch } from '@wordpress/data';
 import { getQueryArg } from '@wordpress/url';
 import { useEffect, useMemo } from 'react';
 
-// The AI settings "Try it out" link lands on post-new.php with this arg so the
-// editor greets the user with the AI panel already open. The arg name follows
-// the existing openSidebar=global-styles convention; the value names us as the
-// target, since other features share the arg.
+// post-new.php with this arg opens the editor with the AI panel already open.
+// The arg name follows the openSidebar=global-styles convention; the value names
+// us as the target. The AI settings page does not link here for now (its
+// Writing Assistant row points at the docs), but the handler stays for when it does.
 const OPEN_SIDEBAR_QUERY_VALUE = 'jetpack-ai-assistant';
 
 // The AI panel lives in the shared Jetpack sidebar (a JetpackPluginSidebar
@@ -43,11 +43,13 @@ export function openJetpackSidebar(): void {
  * from the sidebar plugin's own mount means the editor is necessarily up and
  * the plugin registered — with no request, or outside the editor, nothing happens.
  *
+ * @param {boolean} enabled - Whether the caller still has an AI panel to show.
+ *                          Pass false to leave the sidebar alone, rather than open an empty one.
  * @return {boolean} Whether the pre-open was requested, so the caller can
  * start its AI panel expanded.
  */
-export function useSidebarOpenFromUrl(): boolean {
-	const requested = useMemo( isSidebarOpenRequested, [] );
+export function useSidebarOpenFromUrl( enabled: boolean = true ): boolean {
+	const requested = useMemo( isSidebarOpenRequested, [] ) && enabled;
 
 	useEffect( () => {
 		if ( ! requested ) {

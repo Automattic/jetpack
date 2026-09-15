@@ -98,6 +98,8 @@ class Admin_Menu_Test extends TestCase {
 		$connection->method( 'is_connected' )->willReturn( true );
 		$connection->method( 'is_user_connected' )->willReturn( true );
 		Admin_Menu::set_connection_manager( $connection );
+		Admin_Menu::set_visibility_resolver( null );
+		remove_all_filters( 'jetpack_admin_menu_visibility' );
 		remove_all_filters( 'jetpack_offline_mode' );
 		if ( class_exists( '\Automattic\Jetpack\Status\Cache' ) ) {
 			\Automattic\Jetpack\Status\Cache::clear();
@@ -335,6 +337,64 @@ class Admin_Menu_Test extends TestCase {
 		$first = Admin_Menu::get_top_level_menu_item_slug();
 
 		$this->assertSame( 'menu_2', $first );
+	}
+
+	/**
+	 * A hidden item does not become the destination of the top level Jetpack link.
+	 *
+	 * Deliberately stops at admin_menu: My Jetpack asks on admin_enqueue_scripts and the
+	 * connection package asks outside wp-admin, both before admin_head prunes $submenu.
+	 *
+	 * @return void
+	 */
+	public function test_first_menu_skips_a_hidden_item() {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['first-hidden'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+
+		Admin_Menu::init();
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'first-hidden', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'second-shown', '__return_null', 2 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertSame( 'second-shown', Admin_Menu::get_top_level_menu_item_slug() );
+	}
+
+	/**
+	 * Hiding every declared item still never yields a hidden one.
+	 *
+	 * The Upgrade entry this package adds itself declares no gate, so something is left to
+	 * return here; what matters is that it is not one of the items the host hid.
+	 *
+	 * @return void
+	 */
+	public function test_first_menu_never_returns_a_hidden_item() {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				return array_fill_keys( array_keys( $states ), Admin_Menu::VISIBILITY_HIDDEN );
+			}
+		);
+
+		Admin_Menu::init();
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-a', '__return_null', 1 );
+		Admin_Menu::add_menu( 'Test', 'Test', 'manage_options', 'all-hidden-b', '__return_null', 2 );
+
+		do_action( 'admin_menu' );
+
+		$this->assertNotContains(
+			Admin_Menu::get_top_level_menu_item_slug(),
+			array( 'all-hidden-a', 'all-hidden-b' )
+		);
 	}
 
 	/**
@@ -700,5 +760,496 @@ class Admin_Menu_Test extends TestCase {
 			}
 		);
 		$this->assertEmpty( $found, 'Expected the upgrade menu item to be absent.' );
+	}
+
+	/**
+	 * Items sharing a position fall through to a case-insensitive, number-aware title sort.
+	 *
+	 * Menu titles mix translated strings with untranslated product names, so a plain strcmp()
+	 * would put every lowercase-leading label after the capitalised ones.
+	 */
+	public function test_equal_positions_sort_by_title_case_insensitively() {
+		global $submenu;
+
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_menu( 'Zebra', 'Zebra', 'manage_options', 'tiebreak-zebra', '__return_null' );
+		Admin_Menu::add_menu( 'eCommerce', 'eCommerce', 'manage_options', 'tiebreak-ecommerce', '__return_null' );
+		Admin_Menu::add_menu( 'Alpha 10', 'Alpha 10', 'manage_options', 'tiebreak-alpha-10', '__return_null' );
+		Admin_Menu::add_menu( 'Alpha 2', 'Alpha 2', 'manage_options', 'tiebreak-alpha-2', '__return_null' );
+
+		do_action( 'admin_menu' );
+
+		$slugs = array_column( $submenu['jetpack'], 2 );
+		$order = array_values(
+			array_filter(
+				$slugs,
+				function ( $slug ) {
+					return str_starts_with( $slug, 'tiebreak-' );
+				}
+			)
+		);
+
+		$this->assertSame(
+			array( 'tiebreak-alpha-2', 'tiebreak-alpha-10', 'tiebreak-ecommerce', 'tiebreak-zebra' ),
+			$order,
+			'Equal-position items should sort case-insensitively, with numbers in natural order.'
+		);
+	}
+
+	/**
+	 * An item that declares no gate is registered, whatever a resolver would say.
+	 */
+	public function test_item_without_a_gate_is_always_registered() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+
+		Admin_Menu::add_menu( 'Ungated', 'Ungated', 'manage_options', 'gate-none', '__return_null' );
+
+		$this->render_menu();
+
+		$this->assertContains( 'gate-none', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * A declared gate the resolver reports as satisfied keeps the item.
+	 */
+	public function test_satisfied_gate_registers_the_item() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_true' );
+
+		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'gate-on', '__return_null', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertContains( 'gate-on', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * A declared gate the resolver reports as unsatisfied removes the item.
+	 */
+	public function test_unsatisfied_gate_removes_the_item() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+
+		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'gate-off', '__return_null', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertNotContains( 'gate-off', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * The resolver sees the declaration it was given.
+	 */
+	public function test_resolver_receives_the_declared_args() {
+		wp_set_current_user( self::$admin_user_id );
+		$seen = array();
+		Admin_Menu::set_visibility_resolver(
+			function ( $args ) use ( &$seen ) {
+				$seen[] = $args;
+				return true;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'gate-args', '__return_null', null, array( 'module' => 'seo-tools' ) );
+
+		$this->render_menu();
+
+		$this->assertSame( array( array( 'module' => 'seo-tools' ) ), $seen );
+	}
+
+	/**
+	 * With no resolver registered, a gated item still appears.
+	 *
+	 * My Jetpack registers the resolver and does not initialize in offline mode, so this is
+	 * the live path on any site where it bows out — it must not strip the sidebar.
+	 */
+	public function test_gate_without_a_resolver_fails_open() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'gate-no-resolver', '__return_null', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertContains( 'gate-no-resolver', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * A resolver that cannot answer leaves the item alone.
+	 */
+	public function test_unresolvable_gate_fails_open() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_null' );
+
+		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'gate-unknown', '__return_null', null, array( 'product' => 'not-a-product' ) );
+
+		$this->render_menu();
+
+		$this->assertContains( 'gate-unknown', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * A host can hide an item that nothing else would have removed.
+	 */
+	public function test_host_can_hide_an_ungated_item() {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['host-hidden'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Hidden', 'Hidden', 'manage_options', 'host-hidden', '__return_null' );
+		Admin_Menu::add_menu( 'Kept', 'Kept', 'manage_options', 'host-kept', '__return_null' );
+
+		$this->render_menu();
+
+		$slugs = $this->get_submenu_slugs();
+		$this->assertNotContains( 'host-hidden', $slugs );
+		$this->assertContains( 'host-kept', $slugs );
+	}
+
+	/**
+	 * A host can force in an item whose gate is unsatisfied.
+	 */
+	public function test_host_can_force_an_inactive_item_visible() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['host-forced'] = Admin_Menu::VISIBILITY_VISIBLE;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Forced', 'Forced', 'manage_options', 'host-forced', '__return_null', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertContains( 'host-forced', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * Hiding every item takes the empty Jetpack top level menu with it.
+	 *
+	 * Only reachable when the Jetpack plugin is absent; with it present the top level menu is
+	 * its own and stays regardless.
+	 */
+	public function test_hiding_every_item_removes_the_top_level_menu() {
+		global $menu;
+
+		if ( class_exists( 'Jetpack_React_Page' ) ) {
+			$this->markTestSkipped( 'Top level menu belongs to the Jetpack plugin when it is present.' );
+		}
+
+		wp_set_current_user( self::$admin_user_id );
+		$menu = array();
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				return array_fill_keys( array_keys( $states ), Admin_Menu::VISIBILITY_HIDDEN );
+			}
+		);
+
+		Admin_Menu::add_menu( 'A', 'A', 'manage_options', 'lonely-a', '__return_null' );
+
+		$this->render_menu();
+
+		$this->assertNotContains( 'jetpack', array_column( $menu, 2 ) );
+	}
+
+	/**
+	 * Forcing an item visible does not hand it to a user who lacks the capability.
+	 */
+	public function test_forced_visible_still_respects_capability() {
+		global $submenu;
+
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['host-forced-caps'] = Admin_Menu::VISIBILITY_VISIBLE;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Forced', 'Forced', 'manage_options', 'host-forced-caps', '__return_null', null, array( 'product' => 'stats' ) );
+
+		wp_set_current_user( self::$admin_user_id );
+		$this->render_menu();
+		$this->assertContains( 'host-forced-caps', $this->get_submenu_slugs(), 'An admin should see the forced item, or the editor case below proves nothing.' );
+
+		$submenu = array();
+		wp_set_current_user( self::$editor_user_id );
+		$this->render_menu();
+		$this->assertNotContains( 'host-forced-caps', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * The filter passes the whole map, so two hosts setting different keys both take effect.
+	 */
+	public function test_two_filters_merge_rather_than_clobber() {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['merge-a'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['merge-b'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_menu( 'A', 'A', 'manage_options', 'merge-a', '__return_null' );
+		Admin_Menu::add_menu( 'B', 'B', 'manage_options', 'merge-b', '__return_null' );
+		Admin_Menu::add_menu( 'C', 'C', 'manage_options', 'merge-c', '__return_null' );
+
+		$this->render_menu();
+
+		$slugs = $this->get_submenu_slugs();
+		$this->assertNotContains( 'merge-a', $slugs );
+		$this->assertNotContains( 'merge-b', $slugs );
+		$this->assertContains( 'merge-c', $slugs );
+	}
+
+	/**
+	 * Every registered item is offered to the filter, defaulted to 'default'.
+	 */
+	public function test_filter_receives_every_item_defaulted() {
+		wp_set_current_user( self::$admin_user_id );
+		$states = null;
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $passed ) use ( &$states ) {
+				$states = $passed;
+				return $passed;
+			}
+		);
+
+		Admin_Menu::add_menu( 'A', 'A', 'manage_options', 'offered-a', '__return_null' );
+		Admin_Menu::add_menu( 'B', 'B', 'manage_options', 'offered-b', '__return_null' );
+
+		$this->render_menu();
+
+		$this->assertSame(
+			array(
+				'offered-a' => Admin_Menu::VISIBILITY_DEFAULT,
+				'offered-b' => Admin_Menu::VISIBILITY_DEFAULT,
+			),
+			$states
+		);
+	}
+
+	/**
+	 * A filter that returns something other than a map leaves every item alone.
+	 *
+	 * The is_array() guard is what keeps one host's broken filter from emptying the sidebar,
+	 * so it is worth pinning against a refactor that drops it.
+	 *
+	 * @param mixed $returned What the misbehaving filter hands back.
+	 *
+	 * @dataProvider non_array_filter_returns
+	 */
+	#[DataProvider( 'non_array_filter_returns' )]
+	public function test_non_array_filter_return_leaves_items_alone( $returned ) {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function () use ( $returned ) {
+				return $returned;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Ungated', 'Ungated', 'manage_options', 'broken-filter-ungated', '__return_null' );
+		Admin_Menu::add_menu( 'Gated', 'Gated', 'manage_options', 'broken-filter-gated', '__return_null', null, array( 'product' => 'stats' ) );
+		Admin_Menu::set_visibility_resolver( '__return_true' );
+
+		$this->render_menu();
+
+		$slugs = $this->get_submenu_slugs();
+		$this->assertContains( 'broken-filter-ungated', $slugs );
+		$this->assertContains( 'broken-filter-gated', $slugs );
+	}
+
+	/**
+	 * Return values a host filter might hand back instead of the state map.
+	 *
+	 * @return array
+	 */
+	public static function non_array_filter_returns() {
+		return array(
+			'null'   => array( null ),
+			'false'  => array( false ),
+			'string' => array( 'hidden' ),
+		);
+	}
+
+	/**
+	 * An item that declares a key is named by that key, not by its menu slug.
+	 *
+	 * Items registered with a URL as their slug need this; a host should not have to paste a
+	 * redirect URL into a filter to hide one.
+	 */
+	public function test_declared_key_identifies_the_item() {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['jetpack-manage'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Manage', 'Manage', 'manage_options', 'https://example.org/manage', '__return_null', null, array( 'key' => 'jetpack-manage' ) );
+
+		$this->render_menu();
+
+		$this->assertNotContains( 'https://example.org/manage', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * One key covers an item that registers under a different slug depending on state.
+	 *
+	 * VideoPress is the live case: the dashboard slug when the module is active, a My Jetpack
+	 * URL when it isn't. A host hiding VideoPress should not have to name both, or know which
+	 * one the site is currently on.
+	 *
+	 * @param string $slug The slug this registration happens to use.
+	 *
+	 * @dataProvider one_key_two_slugs_data
+	 */
+	#[DataProvider( 'one_key_two_slugs_data' )]
+	public function test_one_key_covers_either_registration( $slug ) {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['jetpack-videopress'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_menu( 'VideoPress', 'VideoPress', 'manage_options', $slug, '__return_null', null, array( 'key' => 'jetpack-videopress' ) );
+
+		$this->render_menu();
+
+		$this->assertNotContains( $slug, $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * The two slugs one VideoPress item registers under.
+	 *
+	 * @return array
+	 */
+	public static function one_key_two_slugs_data() {
+		return array(
+			'module active'   => array( 'jetpack-videopress' ),
+			'module inactive' => array( 'admin.php?page=my-jetpack#/add-videopress' ),
+		);
+	}
+
+	/**
+	 * Hiding an item removes its sidebar entry but leaves its page reachable.
+	 *
+	 * Core's access check runs between admin_menu and admin_head and reads $submenu, so the
+	 * entry has to survive until admin_head for a link into the page to load.
+	 *
+	 * @param string $how Whether a host hid the item or its gate is unsatisfied.
+	 *
+	 * @dataProvider hidden_item_data
+	 */
+	#[DataProvider( 'hidden_item_data' )]
+	public function test_hidden_item_keeps_its_page_reachable( $how ) {
+		global $_registered_pages, $pagenow, $plugin_page;
+
+		wp_set_current_user( self::$admin_user_id );
+		$_registered_pages = array();
+
+		if ( 'host' === $how ) {
+			add_filter(
+				'jetpack_admin_menu_visibility',
+				function ( $states ) {
+					$states['page-hidden'] = Admin_Menu::VISIBILITY_HIDDEN;
+					return $states;
+				}
+			);
+			$args = array();
+		} else {
+			Admin_Menu::set_visibility_resolver( '__return_false' );
+			$args = array( 'product' => 'stats' );
+		}
+
+		Admin_Menu::add_menu( 'Hidden', 'Hidden', 'manage_options', 'page-hidden', '__return_null', null, $args );
+		Admin_Menu::add_menu( 'Shown', 'Shown', 'manage_options', 'page-shown', '__return_null' );
+
+		do_action( 'admin_menu' );
+
+		$pagenow     = 'admin.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$plugin_page = 'page-hidden'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->assertArrayHasKey( 'jetpack_page_page-hidden', $_registered_pages );
+		$this->assertTrue( user_can_access_admin_page() );
+
+		ob_start();
+		do_action( 'admin_head' );
+		ob_end_clean();
+
+		$slugs = $this->get_submenu_slugs();
+		$this->assertNotContains( 'page-hidden', $slugs );
+		$this->assertContains( 'page-shown', $slugs );
+
+		$pagenow     = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$plugin_page = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
+
+	/**
+	 * The two ways an item ends up hidden.
+	 *
+	 * @return array
+	 */
+	public static function hidden_item_data() {
+		return array(
+			'hidden by a host' => array( 'host' ),
+			'gate unsatisfied' => array( 'gate' ),
+		);
+	}
+
+	/**
+	 * Fires the two hooks between which the sidebar is built and then trimmed for rendering.
+	 *
+	 * @return void
+	 */
+	private function render_menu() {
+		do_action( 'admin_menu' );
+		ob_start(); // Core prints head markup on admin_head.
+		do_action( 'admin_head' );
+		ob_end_clean();
+	}
+
+	/**
+	 * Returns the slugs currently registered under the Jetpack top-level menu.
+	 *
+	 * @return array
+	 */
+	private function get_submenu_slugs() {
+		global $submenu;
+
+		return array_column( $submenu['jetpack'] ?? array(), 2 );
 	}
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Welcome modal: load the artwork behind the intro film instead of falling back to a flat colour.

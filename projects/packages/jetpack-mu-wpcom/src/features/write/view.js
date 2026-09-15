@@ -53,6 +53,9 @@ const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
 const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
 
+// Marks the one-off "you're using Write" note as already shown in this browser.
+const EDITOR_NOTE_STORAGE_KEY = 'wpcom-write-editor-note-seen';
+
 /**
  * Whether the editor is running on a logged-out page that opts into the
  * anonymous flow by setting `window.wpcomWriteIsAnon = true` before the module
@@ -242,6 +245,50 @@ function clearAnonDraft() {
 		window.localStorage.removeItem( ANON_DRAFT_STORAGE_KEY );
 	} catch {
 		// No-op: if we can't clear it, the worst case is a stale recovery banner next visit.
+	}
+}
+
+/**
+ * Whether this browser has already been shown the one-off editor note.
+ *
+ * Reports "seen" when storage is unreadable: a visitor whose dismissal can
+ * never be recorded is better off never being shown the note.
+ *
+ * @return {boolean} True if the note has been shown, or cannot be tracked.
+ */
+function hasSeenEditorNote() {
+	try {
+		return window.localStorage.getItem( EDITOR_NOTE_STORAGE_KEY ) !== null;
+	} catch {
+		return true;
+	}
+}
+
+/**
+ * Record that this browser has been shown the editor note.
+ */
+function markEditorNoteSeen() {
+	try {
+		window.localStorage.setItem( EDITOR_NOTE_STORAGE_KEY, '1' );
+	} catch {
+		// No-op: worst case the note shows again on the next visit.
+	}
+}
+
+// Click-away listener for the first-visit note, mirroring the topbar popovers.
+let editorNoteCloseHandler = null;
+
+/**
+ * Hide the first-visit note and detach its click-away listener.
+ *
+ * Callers record their own Tracks reason, so the funnel can tell "Got it" from
+ * the block-editor switch from a click elsewhere.
+ */
+function hideEditorNote() {
+	state.showEditorNote = false;
+	if ( editorNoteCloseHandler ) {
+		document.removeEventListener( 'click', editorNoteCloseHandler );
+		editorNoteCloseHandler = null;
 	}
 }
 
@@ -6028,6 +6075,80 @@ const { state } = store( 'wpcom-write', {
 			state.showRecoveryBanner = false;
 		},
 
+		// --- First-visit editor note ---
+
+		/**
+		 * Dismiss the first-visit note and hand focus to the writing area.
+		 */
+		dismissEditorNote() {
+			hideEditorNote();
+			recordTracksEvent( 'wpcom_write_editor_note_dismissed', {
+				action: 'got_it',
+				source: state.source || '',
+			} );
+			const content = getContent();
+			if ( content ) {
+				content.focus();
+				// Park the caret after anything the server seeded — a bare focus()
+				// collapses to the start, i.e. inside a blogging prompt's quote.
+				placeCursorAtEnd( content );
+			}
+		},
+
+		/**
+		 * Leave for the block editor from the note or the Tips panel.
+		 *
+		 * Both offer the switch before anyone has typed, where openInBlockEditor()
+		 * would answer "Please write something" instead. A new post with nothing
+		 * in it has nothing worth saving, so hand it straight to a blank
+		 * post-new.php, forwarding the prompt so the block editor seeds it as it
+		 * always has. Anything already on screen — including a seeded prompt the
+		 * visitor has not touched — goes through the save, so the block editor
+		 * opens on the same words rather than on a fresh post.
+		 */
+		switchToBlockEditor() {
+			if ( isAnon() ) {
+				return;
+			}
+			state.showHelp = false;
+			if ( ! state.editPostId && ! hasWritableContent() ) {
+				allowLeave = true;
+				window.location.href =
+					state.adminUrl +
+					'post-new.php' +
+					( state.answerPromptId
+						? '?answer_prompt=' + encodeURIComponent( state.answerPromptId )
+						: '' );
+				return;
+			}
+			const { actions: a } = store( 'wpcom-write' );
+			a.openInBlockEditor();
+		},
+
+		/**
+		 * Dismiss the note by leaving for the block editor.
+		 *
+		 * Lets the pixel dispatch first: switchToBlockEditor() navigates
+		 * synchronously on an untouched new post, which is the common case here.
+		 */
+		async openInBlockEditorFromNote() {
+			hideEditorNote();
+			await recordTracksEventBeforeUnload( 'wpcom_write_editor_note_dismissed', {
+				action: 'block_editor',
+				source: state.source || '',
+			} );
+			const { actions: a } = store( 'wpcom-write' );
+			a.switchToBlockEditor();
+		},
+
+		handleEditorNoteKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.dismissEditorNote();
+			}
+		},
+
 		// --- Unsupported content warning ---
 		goBack() {
 			const sameOrigin =
@@ -6411,8 +6532,14 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 		tagData.tags = [ ...new Set( [ ...( state.existingTagIds || [] ), ...newTagIds ] ) ];
 	}
 
-	// If editing, PUT to the existing post. If new, POST to create.
-	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
+	// If editing, PUT to the existing post. If new, POST to create. On a new
+	// prompt answer, forward answer_prompt so the server-side
+	// jetpack_setup_blogging_prompt_response hook (rest_after_insert_post) tags
+	// the post as a prompt answer and stamps the roundup meta.
+	let path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
+	if ( ! isEditing && state.answerPromptId ) {
+		path += '?answer_prompt=' + encodeURIComponent( state.answerPromptId );
+	}
 
 	// Prep is done; a stall from here on is the main save request itself.
 	stallPhase = 'save_request';
@@ -6441,8 +6568,14 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 			state.editPostId = post.id;
 		}
 
-		// Keep existingTagIds in sync so the next save in this session merges correctly.
-		if ( tagData.tags ) {
+		// Keep existingTagIds in sync so the next save in this session merges
+		// correctly. Prefer the response's list over what we sent: the server can
+		// attach terms of its own after the insert — the dailyprompt tags stamped
+		// on a prompt answer by rest_after_insert_post — and the next save would
+		// drop them if we only tracked the client's view.
+		if ( Array.isArray( post.tags ) ) {
+			state.existingTagIds = post.tags;
+		} else if ( tagData.tags ) {
 			state.existingTagIds = tagData.tags;
 		}
 
@@ -6478,19 +6611,22 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 				// the user later presses Back.
 				document.documentElement.style.visibility = 'hidden';
 
-				// On a Coming Soon site the published post is still private. Tag
-				// the redirect so the post-publish next-steps checklist (launch +
-				// share) surfaces on the post the author lands on. Public sites
-				// redirect to the bare permalink, unchanged.
+				// Tag the redirect so the post-publish surfaces know the author has
+				// just published from Write: the next-steps checklist (launch +
+				// share) on a Coming Soon site, and the one-question survey on any
+				// site. Both gate themselves server-side on top of this marker.
+				// `source` rides along so survey responses can be segmented by the
+				// same entry point the funnel records at editor open.
 				let destination = post.link;
-				if ( state.isComingSoon ) {
-					try {
-						const url = new URL( post.link );
-						url.searchParams.set( state.publishedMarker || 'wpcom_write_published', '1' );
-						destination = url.href;
-					} catch {
-						// Fall back to the bare permalink if it can't be parsed.
+				try {
+					const url = new URL( post.link );
+					url.searchParams.set( state.publishedMarker || 'wpcom_write_published', '1' );
+					if ( state.source ) {
+						url.searchParams.set( 'source', state.source );
 					}
+					destination = url.href;
+				} catch {
+					// Fall back to the bare permalink if it can't be parsed.
 				}
 				window.location.href = destination;
 			}, 800 );
@@ -6591,6 +6727,48 @@ const autosaveReady = setInterval( () => {
 		if ( savedDraftId && String( state.editPostId ) === savedDraftId ) {
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 		}
+	}
+
+	// Introduce the editor once per browser, unless a modal already owns the
+	// screen (the unsupported-content warning, or a post picker opened by a
+	// server-side error) — those are blocking and would fight for focus.
+	if (
+		! isAnon() &&
+		! state.unsupportedWarning &&
+		! state.openPostError &&
+		! hasSeenEditorNote()
+	) {
+		markEditorNoteSeen();
+		state.showEditorNote = true;
+		recordTracksEvent( 'wpcom_write_editor_note_shown', { source: state.source || '' } );
+		// Focus the dialog itself, not a control inside it: screen readers then
+		// read the label and the message, and Tab still reaches every action.
+		// The note arrives a beat after the page does, so leave the caret where it
+		// is if the visitor has already started typing.
+		requestAnimationFrame( () => {
+			const note = document.querySelector( '.bw-editor-note' );
+			if ( ! note || note.ownerDocument.activeElement?.closest( '.bw-title, .bw-content' ) ) {
+				return;
+			}
+			note.focus();
+		} );
+
+		// The note overlaps the topbar menus it points at, so a click anywhere
+		// else has to clear it the way the other popovers do.
+		editorNoteCloseHandler = e => {
+			if ( e.target.closest( '.bw-editor-note' ) ) return;
+			hideEditorNote();
+			recordTracksEvent( 'wpcom_write_editor_note_dismissed', {
+				action: 'clicked_away',
+				source: state.source || '',
+			} );
+		};
+		setTimeout( () => {
+			// Escape could already have closed the note in the meantime.
+			if ( editorNoteCloseHandler ) {
+				document.addEventListener( 'click', editorNoteCloseHandler );
+			}
+		}, 0 );
 	}
 
 	// Populate relative dates in the post picker draft list.

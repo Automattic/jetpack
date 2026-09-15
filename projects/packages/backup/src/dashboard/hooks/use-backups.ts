@@ -165,10 +165,10 @@ type Args = {
 type Result = BackupsSummary & {
 	backups: Backup[];
 	/**
-	 * The query's own failure. Note that the most common failure mode of
-	 * this route does *not* populate it: a non-200 from WPCOM is served
-	 * as HTTP 200 with a `null` body, which resolves. Branch on
-	 * `state === 'error'`, which covers both.
+	 * The query's own failure. Note that not every failure of this route
+	 * populates it: a 200 from WPCOM whose body will not decode reaches
+	 * the client as HTTP 200 with a `null` body, which resolves. Branch
+	 * on `state === 'error'`, which covers both.
 	 */
 	error: Error | null;
 	/**
@@ -189,13 +189,8 @@ type Result = BackupsSummary & {
  * and signed with the blog token, so unlike the modernized bridges it
  * needs no new PHP.
  *
- * That route would in fact answer without a user-level WPCOM connection
- * — its permission callback is a bare `manage_options` check. The query
- * is gated on one anyway, because every screen that reads this hook sits
- * behind `<Gates>`, which blocks the page for those users regardless:
- * issuing the request would only spend a round trip on a page nobody is
- * going to see. The looser route is a property worth knowing about if a
- * future caller does need to read backups outside the gate.
+ * Every consumer mounts only behind a `ready` gate verdict, so this never fetches — or
+ * polls — for a site that cannot use the answer; `useCanQueryWpcom` is the backstop.
  *
  * @param args           - Hook args.
  * @param args.forcePoll - Poll regardless of derived state.
@@ -215,8 +210,8 @@ export function useBackups( { forcePoll = false }: Args = {} ): Result {
 	// when it refetches after a *rejection*, so without this both `error`
 	// and the derived `'error'` state evaporate the moment the reader
 	// clicks the retry button — taking the only control that can ask
-	// again with them. The route's other failure mode, a `null` body
-	// served as HTTP 200, resolves and so is unaffected.
+	// again with them. The route's other failure mode, an undecodable
+	// body served as HTTP 200 with `null`, resolves and so is unaffected.
 	const error = useStickyError( query.error, query.isFetching );
 
 	const backups = useMemo(

@@ -1,6 +1,7 @@
 <?php
 namespace Automattic\Jetpack\WP_Build_Polyfills\Tests;
 
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Admin_Frame;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
@@ -103,6 +104,9 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 			$threshold->setAccessible( true );
 		}
 		$threshold->setValue( null, '7.0' );
+
+		remove_action( 'admin_head', array( WP_Build_Admin_Frame::class, 'print_styles' ) );
+		remove_action( 'in_admin_header', array( WP_Build_Admin_Frame::class, 'print_script' ) );
 
 		$this->recursive_rmdir( $this->build_dir );
 
@@ -780,6 +784,58 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_modules_force_replaces_widget_primitives_with_old_gutenberg() {
+		define( 'GUTENBERG_VERSION', '23.8.0' );
+
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/old-gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
+
+		$this->create_asset_file(
+			'modules/widget-primitives/index.asset.php',
+			array(),
+			'9.9.9',
+			array( 'module_dependencies' => array() )
+		);
+
+		$this->invoke_register_modules();
+
+		$module = $this->get_module_data( '@wordpress/widget-primitives' );
+		$this->assertNotNull( $module );
+		$this->assertSame( '9.9.9', $module['version'] );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_modules_does_not_replace_widget_primitives_with_supported_gutenberg() {
+		define( 'GUTENBERG_VERSION', '23.9.0' );
+
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
+
+		$this->create_asset_file(
+			'modules/widget-primitives/index.asset.php',
+			array(),
+			'9.9.9',
+			array( 'module_dependencies' => array() )
+		);
+
+		$this->invoke_register_modules();
+
+		$module = $this->get_module_data( '@wordpress/widget-primitives' );
+		$this->assertNotNull( $module );
+		$this->assertSame( '1.0.0-gutenberg', $module['version'] );
+	}
+
+	/**
 	 * Test that register() hooks into wp_default_scripts at priority 20.
 	 */
 	public function test_register_hooks_into_wp_default_scripts() {
@@ -791,6 +847,16 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		global $wp_filter;
 		$this->assertArrayHasKey( 'wp_default_scripts', $wp_filter );
 		$this->assertArrayHasKey( 20, $wp_filter['wp_default_scripts']->callbacks );
+	}
+
+	/**
+	 * Test that register arms the admin frame backdrop for the request.
+	 */
+	public function test_register_arms_the_admin_frame() {
+		WP_Build_Polyfills::register( 'test-plugin', array( 'wp-notices' ) );
+
+		$this->assertSame( 10, has_action( 'admin_head', array( WP_Build_Admin_Frame::class, 'print_styles' ) ) );
+		$this->assertSame( 10, has_action( 'in_admin_header', array( WP_Build_Admin_Frame::class, 'print_script' ) ) );
 	}
 
 	/**

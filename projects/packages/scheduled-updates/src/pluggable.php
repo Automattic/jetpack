@@ -53,6 +53,7 @@ if ( ! function_exists( 'wp_get_scheduled_events' ) ) {
 			if ( isset( $cron[ $hook ] ) ) {
 				$key             = key( $cron[ $hook ] );
 				$scheduled_event = array_pop( $cron[ $hook ] );
+				'@phan-var mixed $scheduled_event'; // @todo Remove once WordPress 7.1 is the minimum version.
 
 				$event = (object) array(
 					'hook'      => $hook,
