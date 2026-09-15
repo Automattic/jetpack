@@ -72,6 +72,13 @@ class Sharing_Admin {
 			false
 		);
 
+		// admin-sharing.js reads this before it submits, so leaving it undefined breaks service removal.
+		wp_add_inline_script(
+			'sharing-js',
+			'var sharing_loading_icon = ' . wp_json_encode( admin_url( '/images/loading.gif' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'before'
+		);
+
 		/**
 		 * Filters the switch that if set to true allows Jetpack to use minified assets. Defaults to true
 		 * if the SCRIPT_DEBUG constant is not set or set to false. The filter overrides it.
