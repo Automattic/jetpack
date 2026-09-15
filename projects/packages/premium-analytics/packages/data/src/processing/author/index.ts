@@ -6,7 +6,7 @@ import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from '../stats/utils';
 
 /** A site author, as the author detail page header needs it. */
-export type AuthorSummary = {
+export type AuthorSummaryRecord = {
 	id: number;
 	name: string;
 	/** The largest avatar the users endpoint offers, or '' when it offers none. */
@@ -18,7 +18,7 @@ export type AuthorSummary = {
 };
 
 /** `null` when the users endpoint knows no such author. */
-export type AuthorSummaryResponse = AuthorSummary | null;
+export type AuthorSummaryResponse = AuthorSummaryRecord | null;
 
 // Largest first: the header renders the avatar at display size.
 const PREFERRED_AVATAR_SIZES = [ '96', '48', '24' ];

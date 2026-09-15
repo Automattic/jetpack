@@ -13,7 +13,7 @@ const author: AuthorRow = {
 	id: 'id:42',
 	label: 'Ada Lovelace',
 	avatarUrl: 'https://example.com/ada.png',
-	authorId: '42',
+	authorId: 42,
 	isGroup: true,
 	views: 1234,
 };

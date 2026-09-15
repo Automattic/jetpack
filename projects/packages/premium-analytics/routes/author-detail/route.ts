@@ -76,7 +76,8 @@ export const route = {
 			const reportParams = normalizeReportParams(
 				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 			);
-			// The other detail scope must not ride along into this page's URL.
+			// A detail page seeds only its own scope; the post and video routes drop
+			// `author_id` the same way.
 			delete reportParams.post_id;
 			const seeded: Record< string, unknown > = {
 				...reportParams,

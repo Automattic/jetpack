@@ -88,7 +88,7 @@ function AuthorTopPostsInner() {
 							: {
 									icon: postList,
 									description: __(
-										'This author has no posts with views for the selected period.',
+										'No views recorded for this author’s posts in this period.',
 										'jetpack-premium-analytics-pkg'
 									),
 							  }

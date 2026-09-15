@@ -114,8 +114,8 @@ function AuthorDetail(): JSX.Element {
 		onEditChange,
 	} = useDetailPageCustomize( layout, { enabled: canRenderWidgets, onLayoutReset: resetLayout } );
 
-	// The trail is fixed to Stats / All authors / Author (the design's), whatever
-	// report the reader arrived from: the author list is this page's only parent.
+	// The trail is fixed to Stats / All authors / Author regardless of which report
+	// the reader arrived from: the author list is this page's only parent.
 	const breadcrumbs = useMemo(
 		() => [
 			{

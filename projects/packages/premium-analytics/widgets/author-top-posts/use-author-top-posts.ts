@@ -24,9 +24,8 @@ export interface AuthorTopPostsState {
 }
 
 /**
- * The author's posts ranked by views over the report window. `stats/top-authors`
- * has no author filter, so the summarized report is requested whole and this
- * author's nested posts are read out of it; the endpoint already orders them.
+ * The author's posts ranked by views over the report window, read out of the
+ * summarized top-authors report; the endpoint already orders them.
  *
  * @param authorId     - The author's user ID; `0` disables the request.
  * @param reportParams - The page's report params.

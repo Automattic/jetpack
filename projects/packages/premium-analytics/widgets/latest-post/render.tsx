@@ -28,12 +28,14 @@ type LatestPostRenderAttributes = LatestPostAttributes & Partial< ReportParamsFi
 type LatestPostWidgetProps = WidgetRenderProps< LatestPostRenderAttributes >;
 
 /**
- * Every tile is a lifetime total, so no tile carries an aggregation note. On an
- * author detail page the URL's `author_id` narrows the pick to that author.
+ * Every tile is a lifetime total, so no tile carries an aggregation note. An
+ * author-scoped instance narrows the pick to the URL's author.
  */
-function LatestPostReport() {
+function LatestPostReport( { authorScoped }: { authorScoped: boolean } ) {
 	const { reportParams } = useWidgetRootContext();
-	const authorId = toAuthorId( reportParams.author_id );
+	// Gated on the instance attribute, not the URL alone, so a stray `author_id`
+	// on the dashboard cannot narrow the site-wide card.
+	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : 0;
 	const { post, isLoading, isFetching, isError, refetch } = useLatestPost( authorId );
 	// The detail page opens on the dashboard's current window.
 	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
@@ -93,13 +95,13 @@ function LatestPostReport() {
 
 /**
  * WidgetRoot provides the analytics query client and chart theme the inner card
- * relies on. This widget has no own attributes and ignores the dashboard date
- * range, but host attributes are still passed through for the widget contract.
+ * relies on. The widget ignores the dashboard date range; host attributes still
+ * pass through for the widget contract.
  */
 export default function LatestPost( { attributes = {} }: LatestPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<LatestPostReport />
+			<LatestPostReport authorScoped={ attributes.authorScoped === true } />
 		</WidgetRoot>
 	);
 }

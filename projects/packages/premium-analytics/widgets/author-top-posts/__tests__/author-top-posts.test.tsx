@@ -87,7 +87,7 @@ describe( 'AuthorTopPostsWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'This author has no posts with views for the selected period.' )
+			screen.findByText( 'No views recorded for this author’s posts in this period.' )
 		).resolves.toBeInTheDocument();
 	} );
 

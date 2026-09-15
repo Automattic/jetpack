@@ -304,6 +304,7 @@ describe( 'usePopularPost', () => {
 						author_id: 7,
 						views: 500,
 						posts: [
+							{ id: 9, title: 'About page', url: 'https://example.com/about/', views: 450 },
 							{
 								id: 7,
 								title: 'Winning post',
@@ -337,14 +338,30 @@ describe( 'usePopularPost', () => {
 					return Promise.resolve( postStatsResponse );
 				}
 				if ( target.startsWith( '/wp/v2/posts' ) ) {
-					return Promise.resolve( postContentResponse );
+					// Core knows 7 and 8 as posts; the page ranked above them is absent.
+					const include = decodeURIComponent( target ).match( /include=([^&]+)/ )?.[ 1 ] ?? '';
+					return Promise.resolve(
+						include
+							.split( ',' )
+							.filter( id => id === '7' || id === '8' )
+							.map( id =>
+								id === '7'
+									? postContentResponse[ 0 ]
+									: {
+											id: 8,
+											title: { rendered: 'Runner up' },
+											link: 'https://example.com/runner-up/',
+											date: '',
+									  }
+							)
+					);
 				}
 
 				return Promise.resolve( {} );
 			} );
 		} );
 
-		it( 'picks that author’s top post over the page range, not the site’s', async () => {
+		it( 'picks that author’s top post over the page range, skipping ranked pages', async () => {
 			const { result } = renderHook(
 				() => usePopularPost( { authorId: 7, reportParams: authorReportParams } ),
 				{ wrapper }
@@ -365,6 +382,17 @@ describe( 'usePopularPost', () => {
 			expect( ranking ).toContain( 'start_date=2026-01-01T00:00:00' );
 			expect( ranking ).toContain( 'date=2026-06-30T23:59:59' );
 			expect( ranking ).toContain( 'max=0' );
+		} );
+
+		it( 'skips a page that outranks the author’s posts', async () => {
+			const { result } = renderHook(
+				() => usePopularPost( { authorId: 3, reportParams: authorReportParams } ),
+				{ wrapper }
+			);
+
+			// Author 3's only ranked item (id 9) is not a post, so nothing wins.
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+			expect( result.current.post ).toBeNull();
 		} );
 
 		it( 'returns a null post for an author with no views in the range', async () => {

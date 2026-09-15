@@ -22,8 +22,8 @@ import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 // On the dashboard the card reports on its own pinned window; the host's
-// `reportParams` only matter on an author detail page, whose `author_id` scopes
-// the pick to that author over the page's range.
+// `reportParams` only matter to an author-scoped instance, which ranks the URL's
+// author over the page's range.
 type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParamsFieldAttributes >;
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
@@ -36,13 +36,14 @@ type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
  * heading with nothing on the tiles either, and the widget header's help note
  * spells the aggregation out. Adding one is a design decision, not a defect fix.
  */
-function PopularPostReport() {
+function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 	const { reportParams } = useWidgetRootContext();
-	const authorId = toAuthorId( reportParams.author_id );
-	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost( {
-		authorId,
-		reportParams,
-	} );
+	// Gated on the instance attribute, not the URL alone, so a stray `author_id`
+	// on the dashboard cannot narrow the site-wide card.
+	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : 0;
+	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
+		authorId ? { authorId, reportParams } : undefined
+	);
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -80,7 +81,10 @@ function PopularPostReport() {
 			empty={ {
 				icon: trendingUp,
 				description: authorId
-					? __( 'No views of this author’s posts in this period.', 'jetpack-premium-analytics-pkg' )
+					? __(
+							'No views recorded for this author’s posts in this period.',
+							'jetpack-premium-analytics-pkg'
+					  )
 					: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
@@ -113,7 +117,7 @@ function PopularPostReport() {
 export default function PopularPost( { attributes = {} }: PopularPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<PopularPostReport />
+			<PopularPostReport authorScoped={ attributes.authorScoped === true } />
 		</WidgetRoot>
 	);
 }

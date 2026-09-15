@@ -9,7 +9,7 @@ export type AuthorDetailLinkProps = {
 	/**
 	 * User ID of the author the row belongs to.
 	 */
-	authorId: number | string;
+	authorId: number;
 
 	/**
 	 * The report the link is rendered from. It names the origin the detail

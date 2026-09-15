@@ -4,10 +4,12 @@
 import {
 	getDefaultQueryParams,
 	postContentQuery,
+	postsContentQuery,
 	useStatsPost,
 	useStatsQuery,
 	useStatsTopAuthors,
 	useStatsTopPosts,
+	type LatestPost,
 	type LatestPostResponse,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
@@ -52,13 +54,13 @@ export type PopularPostRange = Pick< ReportParams, 'from' | 'to' | 'preset' | 'i
 // moment the section filter moved.
 const POPULAR_POST_PRESET = PRESET_LAST_12_MONTHS;
 
+/**
+ * Rank one author's posts instead of the site's. The window is then the page's
+ * `reportParams` rather than the pinned 12 months.
+ */
 export type UsePopularPostScope = {
-	/**
-	 * Rank one author's posts instead of the site's. The window is then the
-	 * page's `reportParams` rather than the pinned 12 months.
-	 */
-	authorId?: number;
-	reportParams?: ReportParams;
+	authorId: number;
+	reportParams: ReportParams;
 };
 
 export type UsePopularPostResult = {
@@ -84,23 +86,18 @@ export type UsePopularPostResult = {
  * Only a ranking failure surfaces as an error; a failing content or metrics
  * request degrades to no image and unknown counts.
  *
- * @param scope              - The author scope, when the page has one.
- * @param scope.authorId     - The author's user ID; `0` or absent ranks the whole site.
- * @param scope.reportParams - The page's report params, the window an author is ranked over.
+ * @param scope - The author scope, when the page has one; omit to rank the whole site.
  * @return The winning post and request state.
  */
-export function usePopularPost( {
-	authorId = 0,
-	reportParams,
-}: UsePopularPostScope = {} ): UsePopularPostResult {
-	const isAuthorScoped = authorId > 0 && !! reportParams;
+export function usePopularPost( scope?: UsePopularPostScope ): UsePopularPostResult {
+	const isAuthorScoped = !! scope && scope.authorId > 0;
+	const authorId = scope?.authorId ?? 0;
 
 	// Resolved per render rather than once at module load, so the window is never
 	// older than the render that reads it.
-	const siteWindow = getDefaultQueryParams( false, POPULAR_POST_PRESET );
 	const { preset, from, to, interval } = isAuthorScoped
-		? ( reportParams as ReportParams )
-		: siteWindow;
+		? scope.reportParams
+		: getDefaultQueryParams( false, POPULAR_POST_PRESET );
 
 	const range = useMemo( () => ( { preset, from, to, interval } ), [ preset, from, to, interval ] );
 
@@ -122,29 +119,46 @@ export function usePopularPost( {
 		enabled: ! isAuthorScoped,
 	} );
 
-	// The authors report has no author filter, so ask for every author and pick
-	// this one; its nested posts already come ranked by views.
 	const authorStatsParams = useMemo(
 		() => ( { from, to, interval, max: 0 } ),
 		[ from, to, interval ]
 	);
 	const topAuthorsResult = useStatsTopAuthors( authorStatsParams, { enabled: isAuthorScoped } );
-	const authorTopRow = useMemo( () => {
+	// The author's ranked posts. The rows carry no post type, so the pick waits
+	// for core to say which of them are posts (pages rank here too).
+	const authorRows = useMemo( () => {
 		if ( ! isAuthorScoped ) {
-			return undefined;
+			return [];
 		}
 		const author = topAuthorsResult.comparisonRows?.rows.find(
 			row => String( row.id ) === String( authorId )
 		);
 
-		return author?.children?.[ 0 ];
+		return author?.children ?? [];
 	}, [ isAuthorScoped, topAuthorsResult.comparisonRows, authorId ] );
+	const authorCandidateIds = useMemo(
+		() => authorRows.map( row => Number( row.id ) || 0 ).filter( Boolean ),
+		[ authorRows ]
+	);
+	const authorContentResult = useStatsQuery< LatestPost[] >(
+		postsContentQuery( authorCandidateIds )
+	);
+	const authorTopRow = useMemo( () => {
+		const posts = new Set( ( authorContentResult.data ?? [] ).map( item => item.id ) );
+
+		return authorRows.find( row => posts.has( Number( row.id ) ) );
+	}, [ authorRows, authorContentResult.data ] );
 
 	const rankingResult = isAuthorScoped ? topAuthorsResult : topPostsResult;
 	const topRow = isAuthorScoped ? authorTopRow : topPostsResult.comparisonRows?.rows[ 0 ];
 	const postId = Number( topRow?.id ?? 0 ) || 0;
 
-	const contentResult = useStatsQuery< LatestPostResponse >( postContentQuery( postId ) );
+	// Site-wide, the winner's content is a dependent request; author-scoped, it
+	// already arrived with the shortlist.
+	const siteContentResult = useStatsQuery< LatestPostResponse >(
+		postContentQuery( isAuthorScoped ? 0 : postId )
+	);
+	const contentResult = isAuthorScoped ? authorContentResult : siteContentResult;
 	const postStatsResult = useStatsPost( { postId, fields: [ 'views', 'like_count', 'post' ] } );
 
 	/*
@@ -168,6 +182,7 @@ export function usePopularPost( {
 	// count towards the widget's loading state once there is a post to load.
 	const isLoading =
 		rankingResult.isLoading ||
+		( isAuthorScoped && authorCandidateIds.length > 0 && authorContentResult.isLoading ) ||
 		( postId > 0 && ( contentResult.isLoading || postStatsResult.isLoading || isMetricsPending ) );
 	const isFetching =
 		rankingResult.isFetching || contentResult.isFetching || postStatsResult.isFetching;
@@ -185,7 +200,9 @@ export function usePopularPost( {
 		}
 	};
 
-	const content = contentResult.data ?? null;
+	const content = isAuthorScoped
+		? authorContentResult.data?.find( item => item.id === postId ) ?? null
+		: siteContentResult.data ?? null;
 	const post = topRow
 		? {
 				id: postId,

@@ -149,3 +149,39 @@ export const mockTopAuthorsComparisonData = {
 		],
 	},
 };
+
+/**
+ * The `summarize=0` shape of the report: one bucket per day of the window, each
+ * holding the same authors with their views spread over the days on a gentle
+ * weekly cycle, so a scoped chart has a series to draw.
+ *
+ * @param startDate - The window start (`YYYY-MM-DD`).
+ * @param endDate   - The window end (`YYYY-MM-DD`).
+ * @return A raw top-authors response with `days`.
+ */
+export function buildTopAuthorsDaysData( startDate: string, endDate: string ) {
+	const days: Record< string, { authors: unknown[] } > = {};
+	const authors = mockTopAuthorsData.summary.authors;
+	const cursor = new Date( `${ startDate }T00:00:00Z` );
+	const end = new Date( `${ endDate }T00:00:00Z` );
+	const dayCount = Math.max( 1, Math.round( ( end.getTime() - cursor.getTime() ) / 86400000 ) + 1 );
+
+	while ( cursor <= end ) {
+		const key = cursor.toISOString().slice( 0, 10 );
+		const weekly = 0.7 + 0.3 * Math.sin( ( cursor.getUTCDay() / 7 ) * Math.PI * 2 );
+
+		days[ key ] = {
+			authors: authors.map( author => ( {
+				...author,
+				views: Math.round( ( author.views / dayCount ) * weekly ),
+				posts: author.posts.map( authorPost => ( {
+					...authorPost,
+					views: Math.round( ( authorPost.views / dayCount ) * weekly ),
+				} ) ),
+			} ) ),
+		};
+		cursor.setUTCDate( cursor.getUTCDate() + 1 );
+	}
+
+	return { date: endDate, period: 'day', days };
+}

@@ -16,6 +16,12 @@ type StatsTopAuthorsOptions = UseStatsOptions & {
 	maxRows?: number;
 };
 
+/**
+ * The `stats/top-authors` report. The endpoint has no author filter and ranks at
+ * most 20 authors per day whatever `max` says, so a caller scoped to one author
+ * asks for the whole report and picks its row; an author absent from a day may
+ * simply have ranked outside that day's 20.
+ */
 export const useStatsTopAuthors = createStatsListReportHook<
 	StatsReportParams,
 	StatsNormalizedReport< StatsTopAuthorsItem >,

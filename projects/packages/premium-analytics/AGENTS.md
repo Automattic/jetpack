@@ -146,8 +146,8 @@ overrides that per section — `__return_true` gives a development or test site 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a
 scoped preview: each report declares the tab it belongs to, and `getReportDefinition()` treats one
-behind a hidden tab as unknown. The two detail routes follow their own report (`posts`, `videos`)
-rather than declaring a tab.
+behind a hidden tab as unknown. The detail routes follow their own report (`posts`, `videos`,
+`authors`) rather than declaring a tab.
 
 ### Route guards must use the shared site-readiness helpers
 

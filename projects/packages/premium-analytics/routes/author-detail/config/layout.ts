@@ -16,11 +16,13 @@ export const AUTHOR_DETAIL_LAYOUT: DashboardWidget[] = [
 	{
 		uuid: 'author-popular-post',
 		type: 'jpa/popular-post--author',
+		attributes: { authorScoped: true },
 		placement: { width: 2, height: 2, order: 2 },
 	},
 	{
 		uuid: 'author-latest-post',
 		type: 'jpa/latest-post--author',
+		attributes: { authorScoped: true },
 		placement: { width: 1, height: 2, order: 3 },
 	},
 	{

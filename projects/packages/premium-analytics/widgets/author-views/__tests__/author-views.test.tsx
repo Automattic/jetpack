@@ -111,26 +111,39 @@ describe( 'AuthorViewsWidget', () => {
 		expect( requestedPath ).toContain( 'period=day' );
 	} );
 
-	it( 'asks the endpoint for the page’s chart bucket', async () => {
-		mockApiFetch.mockResolvedValue( { ...TOP_AUTHORS_DAYS, days: {} } );
+	it( 'sums daily buckets into the page’s weekly buckets, keeping a partial first week', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...TOP_AUTHORS_DAYS,
+			days: {
+				'2026-06-22': { authors: [ { name: 'Priya', author_id: 7, views: 3, posts: [] } ] },
+				'2026-06-19': { authors: [ { name: 'Priya', author_id: 7, views: 4, posts: [] } ] },
+				'2026-06-18': { authors: [ { name: 'Priya', author_id: 7, views: 2, posts: [] } ] },
+			},
+		} );
 
-		// A full year: the shortest window on which `WidgetRoot` keeps a monthly interval.
+		// 28 days from a Thursday: the shortest window that keeps a weekly interval,
+		// starting mid-week so the first bucket is partial.
 		render(
 			<AuthorViewsWidget
 				attributes={ {
 					reportParams: {
 						...WINDOW_PARAMS,
-						from: '2025-08-01T00:00:00.000+00:00',
-						to: '2026-07-31T23:59:59.999+00:00',
-						interval: 'month',
+						from: '2026-06-18T00:00:00.000+00:00',
+						to: '2026-07-15T23:59:59.999+00:00',
+						interval: 'week',
 					},
 				} }
 			/>
 		);
 
-		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		const [ metric ] = chartedMetrics( chart );
+		expect( metric.dates ).toEqual( [ '2026-06-15', '2026-06-22' ] );
+		expect( metric.values ).toEqual( [ 6, 3 ] );
+		expect( metric.value ).toBe( 9 );
+		// The endpoint is always asked for days; the weeks are summed here.
 		expect( decodeURIComponent( mockApiFetch.mock.calls[ 0 ][ 0 ].path as string ) ).toContain(
-			'period=month'
+			'period=day'
 		);
 	} );
 

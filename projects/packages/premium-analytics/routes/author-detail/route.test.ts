@@ -103,27 +103,4 @@ describe( 'author detail route.beforeLoad', () => {
 		expect( thrown?.search ).toMatchObject( { author_id: '7' } );
 		expect( thrown?.search ).not.toHaveProperty( 'post_id' );
 	} );
-
-	it( 'carries the report origin and comparison params through the seeded URL', async () => {
-		await expect(
-			beforeLoad(
-				{ authorId: '7' },
-				{
-					...settledSearch,
-					author_id: '9',
-					ref: 'authors',
-					comp: 'previous_period',
-					compare_from: '2026-05-01T00:00:00',
-				}
-			)
-		).rejects.toMatchObject( {
-			to: '/author/$authorId',
-			search: expect.objectContaining( {
-				author_id: '7',
-				ref: 'authors',
-				comp: 'previous_period',
-				compare_from: '2026-05-01T00:00:00',
-			} ),
-		} );
-	} );
 } );

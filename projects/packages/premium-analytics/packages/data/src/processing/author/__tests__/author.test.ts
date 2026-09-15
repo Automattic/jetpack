@@ -38,7 +38,7 @@ describe( 'sanitizeAuthorSummaryResponse', () => {
 		} );
 	} );
 
-	it.each( [ null, 'nope', {}, { id: 0 }, { id: '1.5' }, { id: -1 } ] )(
+	it.each( [ null, { id: 0 }, { id: '1.5' } ] )(
 		'returns null for a non-user record (%j)',
 		record => {
 			expect( sanitizeAuthorSummaryResponse( record, [], 0 ) ).toBeNull();

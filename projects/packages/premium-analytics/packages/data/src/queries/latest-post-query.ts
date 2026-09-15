@@ -6,8 +6,11 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { sanitizeLatestPostResponse } from '../processing/latest-post';
-import type { LatestPostResponse } from '../processing/latest-post';
+import {
+	sanitizeLatestPostResponse,
+	sanitizePostsContentResponse,
+} from '../processing/latest-post';
+import type { LatestPost, LatestPostResponse } from '../processing/latest-post';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
 export type { LatestPostResponse };
@@ -96,5 +99,42 @@ export function postContentQuery( postId: number ): UseQueryOptions< LatestPostR
 				} )
 			),
 		enabled: Number.isInteger( postId ) && postId > 0,
+	};
+}
+
+// Enough for a ranked shortlist; the core endpoint caps a page at 100.
+const POSTS_CONTENT_MAX = 20;
+
+/**
+ * React Query options for the headline content of several posts at once, read
+ * locally from the core posts endpoint. Report rows carry no post type, so a
+ * consumer that must pick a *post* out of a ranked list of ids asks core for the
+ * ones that are published posts and takes the first that comes back.
+ *
+ * Disabled for an empty list. Ids beyond the first 20 are ignored.
+ *
+ * @param postIds - Candidate post IDs.
+ * @return The query options; `data` holds only the ids that are published posts.
+ */
+export function postsContentQuery( postIds: number[] ): UseQueryOptions< LatestPost[] > {
+	const ids = postIds
+		.filter( postId => Number.isInteger( postId ) && postId > 0 )
+		.slice( 0, POSTS_CONTENT_MAX );
+
+	return {
+		queryKey: [ 'posts-content', ids ],
+		queryFn: async () =>
+			sanitizePostsContentResponse(
+				await apiFetch( {
+					path: addQueryArgs( '/wp/v2/posts', {
+						include: ids.join( ',' ),
+						per_page: ids.length,
+						status: 'publish',
+						_embed: 'wp:featuredmedia',
+						_fields: POST_CONTENT_FIELDS,
+					} ),
+				} )
+			),
+		enabled: ids.length > 0,
 	};
 }

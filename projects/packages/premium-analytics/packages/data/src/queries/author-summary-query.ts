@@ -9,10 +9,10 @@ import { addQueryArgs } from '@wordpress/url';
 import { isResponse } from '../api/is-response';
 import { sanitizeAuthorSummaryResponse } from '../processing/author';
 import { getApiErrorStatus } from '../utils/api-error';
-import type { AuthorSummary, AuthorSummaryResponse } from '../processing/author';
+import type { AuthorSummaryRecord, AuthorSummaryResponse } from '../processing/author';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
-export type { AuthorSummary, AuthorSummaryResponse };
+export type { AuthorSummaryRecord, AuthorSummaryResponse };
 
 // Not found and cannot view both mean the id names nobody the reader can see
 // as an author; every other failure is a real error.

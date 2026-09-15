@@ -43,6 +43,7 @@ import {
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
 	mockTagsData,
+	buildTopAuthorsDaysData,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
@@ -1171,10 +1172,21 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
 				: mockSearchTermsData;
-		case '/top-authors':
+		case '/top-authors': {
+			// The author detail chart asks for day buckets; everything else summarizes.
+			if ( getQueryParam( requestPath, 'summarize' ) === '0' ) {
+				const endDate = getQueryParam( requestPath, 'date' )?.slice( 0, 10 );
+				const startDate = getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 );
+
+				if ( startDate && endDate ) {
+					return buildTopAuthorsDaysData( startDate, endDate );
+				}
+			}
+
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;
+		}
 		case '/tags':
 			// The Stats `tags` endpoint has no comparison period, so the same
 			// primary fixture is returned for every request.
