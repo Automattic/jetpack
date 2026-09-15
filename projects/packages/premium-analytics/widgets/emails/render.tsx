@@ -2,8 +2,12 @@
  * External dependencies
  */
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
+import { Stack, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
+	AbbreviatedValue,
+	formatEmailRate,
+	isEmailRateKnown,
 	LeaderboardSkeleton,
 	MetricList,
 	PostTitleLink,
@@ -13,11 +17,12 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetNavigationSearch,
+	type DataFormat,
 	type MetricListItem,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -39,10 +44,15 @@ export type EmailRow = {
 	link?: string | null;
 	/** Email subject. */
 	label: string;
+	opens: number;
+	uniqueOpens: number;
 	/** Open rate from 0 to 100. */
 	opensRate: number;
+	clicks: number;
+	uniqueClicks: number;
 	/** Click rate from 0 to 100. */
 	clicksRate: number;
+	totalSends: number;
 };
 
 const METRIC_SECTION: Record< EmailMetric, string > = {
@@ -50,19 +60,106 @@ const METRIC_SECTION: Record< EmailMetric, string > = {
 	clicks: 'email-clicks',
 };
 
+const COUNT_FORMAT: DataFormat = { type: 'number', options: { decimals: 0, useMultipliers: true } };
+
+function formatExactCount( count: number ): string {
+	return formatMetricValue( count, COUNT_FORMAT.type, {
+		...COUNT_FORMAT.options,
+		useMultipliers: false,
+	} );
+}
+
 type EmailsListProps = {
 	/** Email rows to render. */
 	rows?: EmailRow[];
-	/** Rate to display. */
+	/** Count and rate to display. */
 	metric?: EmailMetric;
 };
 
-/** Render the latest emails with their open or click rate. */
+function describeOpens( opens: number, rate: string, isRateKnown: boolean ): string {
+	const exactOpens = formatExactCount( opens );
+
+	if ( ! isRateKnown ) {
+		return sprintf(
+			/* translators: %s: number of email opens, e.g. "1,287". */
+			_n(
+				'%s open, open rate unknown',
+				'%s opens, open rate unknown',
+				opens,
+				'jetpack-premium-analytics-pkg'
+			),
+			exactOpens
+		);
+	}
+
+	return sprintf(
+		/* translators: 1: number of email opens, e.g. "1,287". 2: open rate, e.g. "41.2%". */
+		_n(
+			'%1$s open, %2$s open rate',
+			'%1$s opens, %2$s open rate',
+			opens,
+			'jetpack-premium-analytics-pkg'
+		),
+		exactOpens,
+		rate
+	);
+}
+
+function describeClicks( clicks: number, rate: string, isRateKnown: boolean ): string {
+	const exactClicks = formatExactCount( clicks );
+
+	if ( ! isRateKnown ) {
+		return sprintf(
+			/* translators: %s: number of email link clicks, e.g. "190". */
+			_n(
+				'%s click, click rate unknown',
+				'%s clicks, click rate unknown',
+				clicks,
+				'jetpack-premium-analytics-pkg'
+			),
+			exactClicks
+		);
+	}
+
+	return sprintf(
+		/* translators: 1: number of email link clicks, e.g. "190". 2: click rate, e.g. "5.98%". */
+		_n(
+			'%1$s click, %2$s click rate',
+			'%1$s clicks, %2$s click rate',
+			clicks,
+			'jetpack-premium-analytics-pkg'
+		),
+		exactClicks,
+		rate
+	);
+}
+
+function metricValues( row: EmailRow, metric: EmailMetric ) {
+	if ( metric === 'clicks' ) {
+		const signals = { total: row.clicks, unique: row.uniqueClicks, sends: row.totalSends };
+		const rate = formatEmailRate( row.clicksRate, signals );
+		return {
+			count: row.clicks,
+			rate,
+			description: describeClicks( row.clicks, rate, isEmailRateKnown( signals ) ),
+		};
+	}
+
+	const signals = { total: row.opens, unique: row.uniqueOpens, sends: row.totalSends };
+	const rate = formatEmailRate( row.opensRate, signals );
+	return {
+		count: row.opens,
+		rate,
+		description: describeOpens( row.opens, rate, isEmailRateKnown( signals ) ),
+	};
+}
+
+/** Render the latest emails with their open or click count and rate. */
 export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) => {
 	const search = useWidgetNavigationSearch( METRIC_SECTION[ metric ] );
 
 	const items: MetricListItem[] = rows.map( row => {
-		const rate = metric === 'clicks' ? row.clicksRate : row.opensRate;
+		const { count, rate, description } = metricValues( row, metric );
 
 		return {
 			id: row.id,
@@ -75,10 +172,15 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 					title={ row.label }
 				/>
 			),
-			value: formatMetricValue( rate / 100, 'percentage', {
-				decimals: 2,
-				signDisplay: 'never',
-			} ),
+			value: (
+				<>
+					<Stack render={ <span /> } gap="md" aria-hidden="true">
+						<AbbreviatedValue value={ count } dataFormat={ COUNT_FORMAT } />
+						<span className={ styles.rate }>{ rate }</span>
+					</Stack>
+					<VisuallyHidden render={ <span /> }>{ description }</VisuallyHidden>
+				</>
+			),
 		};
 	} );
 
@@ -96,8 +198,13 @@ function toEmailRows( report: StatsEmailSummary | undefined, max: number ): Emai
 		postId: item.id,
 		link: typeof item.link === 'string' ? item.link : null,
 		label: String( item.label ?? '' ),
+		opens: item.opens,
+		uniqueOpens: item.unique_opens,
 		opensRate: item.opens_rate,
+		clicks: item.clicks,
+		uniqueClicks: item.unique_clicks,
 		clicksRate: item.clicks_rate,
+		totalSends: item.total_sends,
 	} ) );
 }
 
