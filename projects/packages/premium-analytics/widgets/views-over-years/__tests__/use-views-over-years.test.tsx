@@ -143,25 +143,7 @@ describe( 'useViewsOverYears', () => {
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 2 );
 	} );
 
-	it( 'divides the first month whole and starts the life on its first day when the day request fails', async () => {
-		// A 403 is not retried, so the fallback is reached at once.
-		mockApiFetch.mockImplementation( async options => {
-			if ( isDayRequest( options ) ) {
-				throw { code: 'unauthorized', message: 'Nope.', status: 403 };
-			}
-
-			return VISITS_RESPONSE;
-		} );
-		const { result } = renderHook( () => useViewsOverYears( 'average' ), { wrapper } );
-
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
-
-		expect( result.current.isError ).toBe( false );
-		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 10, 20 ] );
-		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-01T00:00:00.000Z' );
-	} );
-
-	it( 'keeps the rows on screen while a failed day request is retried on focus', async () => {
+	it( 'falls back to the whole first month when the day request fails, and keeps the rows while it is retried on focus', async () => {
 		let dayRequests = 0;
 		let resolveRetry: ( value: unknown ) => void = () => {};
 		mockApiFetch.mockImplementation( options => {
@@ -169,7 +151,7 @@ describe( 'useViewsOverYears', () => {
 				return Promise.resolve( VISITS_RESPONSE );
 			}
 
-			// The first attempt fails for good; the focus retry stays in flight.
+			// A 403 is not retried, so the fallback is reached at once; the focus retry stays in flight.
 			return ++dayRequests === 1
 				? Promise.reject( { code: 'unauthorized', message: 'Nope.', status: 403 } )
 				: new Promise( resolve => {
@@ -180,6 +162,9 @@ describe( 'useViewsOverYears', () => {
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 		expect( dayRequests ).toBe( 1 );
+		expect( result.current.isError ).toBe( false );
+		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 10, 20 ] );
+		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-01T00:00:00.000Z' );
 
 		act( () => {
 			window.dispatchEvent( new Event( 'visibilitychange' ) );

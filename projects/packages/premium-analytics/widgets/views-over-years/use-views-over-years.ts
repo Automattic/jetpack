@@ -18,12 +18,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	buildViewsOverYearsRows,
-	firstMonthWithViews,
-	type DayKey,
-	type MonthBucket,
-} from './build-views-over-years';
+import { buildViewsOverYearsRows, type DayKey, type MonthBucket } from './build-views-over-years';
 
 // Before any WordPress.com site existed; the endpoint's DB walk stops at the site's registration.
 const EARLIEST_STATS_DATE = '2005-01-01';
@@ -84,7 +79,11 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		[ primary.data ]
 	);
 
-	const firstMonth = useMemo( () => firstMonthWithViews( buckets ), [ buckets ] );
+	// The sanitizer sorts buckets oldest first.
+	const firstMonth = useMemo(
+		() => buckets.find( ( { views } ) => views > 0 )?.month,
+		[ buckets ]
+	);
 
 	// The window is only read once a first month exists; until then the request is off.
 	const firstMonthParams = useMemo< StatsVisitsParams >( () => {
@@ -132,7 +131,7 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		metric === 'average' &&
 		!! firstMonth &&
 		firstMonthDays.isLoading &&
-		firstMonthDays.primary.errorUpdateCount === 0;
+		! firstMonthDays.primary.isFetched;
 
 	return {
 		rows,

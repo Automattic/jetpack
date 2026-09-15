@@ -52,7 +52,6 @@ function visitsResult(
 					value: views,
 				} ) ),
 			},
-			errorUpdateCount: 0,
 		},
 		isLoading: false,
 		isFetching: false,
@@ -124,15 +123,7 @@ describe( 'ViewsOverYears widget', () => {
 		expect( screen.getByText( 'Fewer views' ) ).toBeInTheDocument();
 	} );
 
-	it( 'draws views per day under the average metric', () => {
-		renderWidget( { metric: 'average' } );
-
-		// March is 15 days in: 450 / 15.
-		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 30' } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
-	} );
-
-	it( 'divides the first month from its first day with views under the average metric', () => {
+	it( 'draws views per day under the average metric, from the first day with views', () => {
 		mockVisits(
 			visitsResult( ROWS ),
 			visitsResult( [
@@ -142,10 +133,11 @@ describe( 'ViewsOverYears widget', () => {
 		);
 		renderWidget( { metric: 'average' } );
 
-		// Nov 24 through Nov 30: 300 / 7, and the year over 7 + 31 days.
+		// Nov 24 through Nov 30: 300 / 7, the year over 7 + 31 days, and March 15 days in: 450 / 15.
 		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 24' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 30' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
 	} );
 
 	it( 'opens the Traffic tab over the first month from its first day with views', async () => {
