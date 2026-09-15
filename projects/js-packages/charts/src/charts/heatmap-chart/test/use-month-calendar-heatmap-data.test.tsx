@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import { GlobalChartsProvider } from '../../../providers';
 import { useMonthCalendarHeatmapData } from '../use-month-calendar-heatmap-data';
-import type { MonthCalendarHeatmapOptions, MonthCalendarHeatmapResult } from '../private';
+import type { MonthCalendarHeatmapOptions, MonthCalendarHeatmapResult } from '../types';
 
 const range = { start: '2026-08-01', end: '2026-09-14' };
 const valueByDay = { '2026-08-03': 4 };

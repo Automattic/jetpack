@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { useChartFormatting } from '../../providers';
-import { buildMonthCalendarHeatmapData } from './private';
+import { buildMonthCalendarHeatmapData } from './build-month-calendar-data';
 import type {
 	MonthCalendarHeatmapOptions,
 	MonthCalendarHeatmapRange,
 	MonthCalendarHeatmapResult,
-} from './private';
+} from './types';
 
 /**
  * `buildMonthCalendarHeatmapData` with the locale taken from `GlobalChartsProvider`

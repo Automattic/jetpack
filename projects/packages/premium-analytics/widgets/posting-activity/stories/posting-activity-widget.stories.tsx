@@ -16,11 +16,13 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { siteLocaleArgTypes, withSiteLocale } from '../../stories/with-site-locale';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostingActivityRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
+import type { SiteLocaleControls } from '../../stories/with-site-locale';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -115,6 +117,8 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostingActivity',
 	component: PostingActivityRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteLocale ],
+	argTypes: { ...siteLocaleArgTypes },
 	parameters: {
 		docs: {
 			description: {
@@ -123,11 +127,13 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof PostingActivityRender >;
+} satisfies Meta< ComponentProps< typeof PostingActivityRender > & SiteLocaleControls >;
 
 export default meta;
 
-type Story = StoryObj< Partial< ComponentProps< typeof PostingActivityRender > > >;
+type Story = StoryObj<
+	Partial< ComponentProps< typeof PostingActivityRender > > & SiteLocaleControls
+>;
 
 /**
  * Default populated state — the last 12 months of posting activity.

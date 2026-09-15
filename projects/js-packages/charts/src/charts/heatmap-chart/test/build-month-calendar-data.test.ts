@@ -1,4 +1,4 @@
-import { buildMonthCalendarHeatmapData } from '../private/build-month-calendar-data';
+import { buildMonthCalendarHeatmapData } from '../build-month-calendar-data';
 
 const range = { start: '2026-08-01', end: '2026-09-14' };
 const cellAt = (

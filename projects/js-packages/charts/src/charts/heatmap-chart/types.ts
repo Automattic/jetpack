@@ -98,3 +98,51 @@ export interface HeatmapChartProps
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
 	children?: ReactNode;
 }
+
+export type CalendarHeatmapResult = {
+	data: HeatmapColumn[];
+	rowLabels: string[];
+};
+
+export type CalendarHeatmapOptions = {
+	weekStartsOn?: 0 | 1;
+	/**
+	 * Mark the days completing the first and last week outside the series' span as
+	 * hidden cells rather than blank ones, giving the calendar ragged edges. Days
+	 * inside the span stay blank even where the series has no entry.
+	 */
+	hideOutOfRangeDays?: boolean;
+	/**
+	 * Draw the grid over this span (`yyyy-MM-dd` bounds) instead of the series' own.
+	 * Days inside the grid but outside the series become placeholder cells: painted,
+	 * but reporting nothing, since they were never measured. A start bound opens from
+	 * the beginning of its week, and bounds narrower than the series are ignored.
+	 */
+	gridSpan?: { start?: string; end?: string };
+	/** BCP-47 tag the labels are written in. Defaults to the runtime's locale. */
+	locale?: string;
+	/**
+	 * IANA zone the series' instants are bucketed into days in. Defaults to the
+	 * runtime's zone. A `dateString` carrying no offset is taken as written.
+	 */
+	timeZone?: string;
+};
+
+export type MonthCalendarHeatmapRange = {
+	/** First measured day, `yyyy-MM-dd`. */
+	start: string;
+	/** Last measured day, `yyyy-MM-dd`, inclusive. */
+	end: string;
+};
+
+export type MonthCalendarHeatmapOptions = {
+	/** 0 = Sunday, 1 = Monday. Default 1. */
+	weekStartsOn?: 0 | 1;
+	/** BCP-47 tag the month and day labels are written in. Defaults to the runtime's locale. */
+	locale?: string;
+};
+
+export type MonthCalendarHeatmapResult = {
+	data: HeatmapColumn[];
+	columnGroups: HeatmapColumnGroup[];
+};

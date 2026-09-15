@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Carry an error's Site Health link on the displayable error, so notices other than the wp-admin one can offer it.

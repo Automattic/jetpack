@@ -166,6 +166,8 @@ export {
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
 } from './detail-page';
+export { PageOptionsMenu, type PageOptionsMenuProps } from './page-options-menu';
+export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,

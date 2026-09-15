@@ -1,4 +1,4 @@
-import { buildCalendarHeatmapData } from '../private/build-calendar-data';
+import { buildCalendarHeatmapData } from '../build-calendar-data';
 import type { DataPointDate } from '../../../types';
 
 const series: DataPointDate[] = [

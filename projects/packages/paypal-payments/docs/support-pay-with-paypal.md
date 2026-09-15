@@ -78,7 +78,7 @@ A live preview appears showing exactly how your button will look on the publishe
 
 ### Editing and Deleting Buttons
 
-- **Edit:** Click "Edit" in the block toolbar to update product details, then "Save"
+- **Edit:** Update the product details in the block settings sidebar, then click "Save"
 - **Delete:** Click "Delete Button" to remove the PayPal resource and start over
 
 ### Legacy Buttons
