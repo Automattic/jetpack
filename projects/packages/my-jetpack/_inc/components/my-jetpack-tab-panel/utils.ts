@@ -1,6 +1,5 @@
-import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
+import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import {
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
@@ -13,21 +12,23 @@ import type { ComponentProps } from 'react';
 type TabPanelProps = ComponentProps< typeof TabPanel >;
 
 /**
- * Whether the `my-jetpack-features-tab` flag swaps the Products tab for a Features tab.
- *
- * @return True when the Features tab replaces the Products tab.
- */
-export function isFeaturesTabEnabled(): boolean {
-	return !! getMyJetpackWindowInitialState( 'myJetpackFlags' )?.featuresTab;
-}
-
-/**
- * Get the name of the section that lists products: `features` or `products`.
+ * Get the name of the section that lists products: `features` when the flag swaps it in.
  *
  * @return The section name.
  */
 export function getProductsSection() {
-	return isFeaturesTabEnabled() ? MY_JETPACK_SECTION_FEATURES : MY_JETPACK_SECTION_PRODUCTS;
+	return getScriptData()?.myJetpack?.productsSection?.slug ?? MY_JETPACK_SECTION_PRODUCTS;
+}
+
+/**
+ * Get the title of the section that lists products.
+ *
+ * @return The section title.
+ */
+export function getProductsSectionTitle() {
+	return (
+		getScriptData()?.myJetpack?.productsSection?.label ?? __( 'Products', 'jetpack-my-jetpack' )
+	);
 }
 
 /**
@@ -54,9 +55,7 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 		},
 		{
 			name: productsSection,
-			title: isFeaturesTabEnabled()
-				? __( 'Features', 'jetpack-my-jetpack' )
-				: __( 'Products', 'jetpack-my-jetpack' ),
+			title: getProductsSectionTitle(),
 		},
 		{
 			name: MY_JETPACK_SECTION_HELP,
@@ -109,6 +108,7 @@ export function resolveMyJetpackSection( section?: string ) {
 		section === MY_JETPACK_SECTION_PRODUCTS || section === MY_JETPACK_SECTION_FEATURES
 			? getProductsSection()
 			: section;
+	const sections = getMyJetpackSections();
 
-	return isValidMyJetpackSection( aliased ) ? aliased : getDefaultMyJetpackSection();
+	return sections.some( item => item.name === aliased ) ? aliased : sections[ 0 ].name;
 }

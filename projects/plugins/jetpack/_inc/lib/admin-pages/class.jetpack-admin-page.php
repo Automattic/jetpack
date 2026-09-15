@@ -260,8 +260,12 @@ abstract class Jetpack_Admin_Page {
 		$jetpack_about_url = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
-		$features_tab      = method_exists( My_Jetpack_Initializer::class, 'is_features_tab_enabled' )
-			&& My_Jetpack_Initializer::is_features_tab_enabled();
+		$products_section  = method_exists( My_Jetpack_Initializer::class, 'get_products_section' )
+			? My_Jetpack_Initializer::get_products_section()
+			: array(
+				'slug'  => 'products',
+				'label' => _x( 'Products', 'Navigation item', 'jetpack' ),
+			);
 
 		?>
 		<div id="jp-plugin-container" class="
@@ -384,11 +388,7 @@ abstract class Jetpack_Admin_Page {
 					</div>
 					<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
 					<div class="jp-footer__menu">
-						<?php if ( $features_tab ) : ?>
-						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/features' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Features', 'Navigation item', 'jetpack' ); ?></a>
-						<?php else : ?>
-						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/products' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Products', 'Navigation item', 'jetpack' ); ?></a>
-						<?php endif; ?>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/' . $products_section['slug'] ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html( $products_section['label'] ); ?></a>
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>
 					</div>
 					<?php endif; ?>

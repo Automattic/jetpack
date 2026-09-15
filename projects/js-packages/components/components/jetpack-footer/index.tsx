@@ -28,20 +28,16 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 	let items: JetpackFooterMenuItem[] = [];
 
 	if ( ! isWpcomPlatformSite() && ! window?.JetpackNetworkAdminData ) {
-		// Set by My Jetpack's `my-jetpack-features-tab` flag.
-		const { featuresTab } =
-			( getScriptData() as { myJetpack?: { featuresTab?: boolean } } )?.myJetpack ?? {};
+		// Published by My Jetpack, whose products tab can be renamed Features.
+		const productsSection = (
+			getScriptData() as { myJetpack?: { productsSection?: { slug: string; label: string } } }
+		 )?.myJetpack?.productsSection;
 
 		items = [
-			featuresTab
-				? {
-						label: __( 'Features', 'jetpack-components' ),
-						href: getAdminUrl( 'admin.php?page=my-jetpack#/features' ),
-				  }
-				: {
-						label: __( 'Products', 'jetpack-components' ),
-						href: getAdminUrl( 'admin.php?page=my-jetpack#/products' ),
-				  },
+			{
+				label: productsSection?.label ?? __( 'Products', 'jetpack-components' ),
+				href: getAdminUrl( `admin.php?page=my-jetpack#/${ productsSection?.slug ?? 'products' }` ),
+			},
 			{
 				label: __( 'Help', 'jetpack-components' ),
 				href: getAdminUrl( 'admin.php?page=my-jetpack#/help' ),

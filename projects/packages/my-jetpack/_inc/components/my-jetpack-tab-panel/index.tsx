@@ -97,8 +97,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	// the page settling on a concrete URL; without this the address bar keeps
 	// `#/:section` (previously masked by the mount-time navigation this component no
 	// longer fires). Rewrite with `replace` so it emits no `tab_click` and adds no
-	// history entry. The query is kept so `#/products?filter=included` lands on
-	// `#/features?filter=included` when the Features tab replaces Products.
+	// history entry. Keep the query so filters survive the products/features alias.
 	useEffect( () => {
 		if ( params.section !== currentTab ) {
 			navigate( `/${ currentTab }${ search }`, { replace: true } );

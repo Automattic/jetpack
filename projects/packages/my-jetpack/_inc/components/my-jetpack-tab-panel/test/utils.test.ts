@@ -1,4 +1,4 @@
-import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
+import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
@@ -15,6 +15,7 @@ import {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	currentUserCan: jest.fn(),
+	getScriptData: jest.fn(),
 	isSimpleSite: jest.fn(),
 } ) );
 
@@ -22,9 +23,9 @@ const mockCurrentUserCan = currentUserCan as jest.Mock;
 const mockIsSimpleSite = isSimpleSite as jest.Mock;
 
 const setFeaturesTab = ( featuresTab: boolean ) => {
-	( window as { myJetpackInitialState?: unknown } ).myJetpackInitialState = {
-		myJetpackFlags: { featuresTab },
-	};
+	( getScriptData as jest.Mock ).mockReturnValue(
+		featuresTab ? { myJetpack: { productsSection: { slug: 'features', label: 'Features' } } } : {}
+	);
 };
 
 beforeEach( () => {

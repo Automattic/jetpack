@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
+import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
@@ -14,6 +14,7 @@ import { MyJetpackTabPanel } from '../index';
 // them exercises the real section/validation/default logic rather than a stub.
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	currentUserCan: jest.fn(),
+	getScriptData: jest.fn(),
 	isSimpleSite: jest.fn(),
 } ) );
 
@@ -60,7 +61,7 @@ beforeEach( () => {
 	mockIsSimpleSite.mockReturnValue( false );
 	mockSection = undefined;
 	mockSearch = '';
-	delete ( window as { myJetpackInitialState?: unknown } ).myJetpackInitialState;
+	( getScriptData as jest.Mock ).mockReturnValue( undefined );
 } );
 
 describe( 'MyJetpackTabPanel', () => {
@@ -134,9 +135,9 @@ describe( 'MyJetpackTabPanel', () => {
 	} );
 
 	it( 'redirects the legacy Products hash to Features, keeping its query', async () => {
-		( window as { myJetpackInitialState?: unknown } ).myJetpackInitialState = {
-			myJetpackFlags: { featuresTab: true },
-		};
+		( getScriptData as jest.Mock ).mockReturnValue( {
+			myJetpack: { productsSection: { slug: MY_JETPACK_SECTION_FEATURES, label: 'Features' } },
+		} );
 		mockSection = MY_JETPACK_SECTION_PRODUCTS;
 		mockSearch = '?filter=included';
 

@@ -89,10 +89,10 @@ describe( 'JetpackFooter', () => {
 			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'should link to Features instead of Products when My Jetpack has the Features tab', () => {
+		it( 'should link to the products tab My Jetpack publishes', () => {
 			window.JetpackScriptData = {
 				site: { admin_url: '/wp-admin/' },
-				myJetpack: { featuresTab: true },
+				myJetpack: { productsSection: { slug: 'features', label: 'Features' } },
 			} as unknown as typeof window.JetpackScriptData;
 
 			render( <JetpackFooter /> );

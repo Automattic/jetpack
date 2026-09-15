@@ -32,7 +32,7 @@ class Script_Data_Test extends BaseTestCase {
 	 * My Jetpack page localizes, so `assetUrl()` resolves the same URL either way.
 	 */
 	public function test_adds_the_image_base_url() {
-		$data = Initializer::add_assets_script_data( array( 'existing' => 'value' ) );
+		$data = Initializer::add_admin_script_data( array( 'existing' => 'value' ) );
 
 		$this->assertSame( 'value', $data['existing'] );
 		$this->assertStringEndsWith( '/my-jetpack/build/images/', $data['myJetpack']['assetsUrl'] );
@@ -40,25 +40,12 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The footer on every Jetpack admin page reads the Features tab flag from script data.
+	 * Footers on every Jetpack admin page link to the products tab from script data.
 	 */
-	public function test_adds_the_features_tab_flag() {
-		$data = Initializer::add_features_tab_script_data( array( 'existing' => 'value' ) );
+	public function test_adds_the_products_section() {
+		$data = Initializer::add_admin_script_data( array() );
 
-		$this->assertSame( 'value', $data['existing'] );
-		$this->assertFalse( $data['myJetpack']['featuresTab'] );
-
-		Initializer::register_feature_flags();
-		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::WP_BUILD_FEATURE_FLAG, '__return_true' );
-		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG, '__return_true' );
-
-		$data = Initializer::add_features_tab_script_data( array() );
-
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::WP_BUILD_FEATURE_FLAG );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG );
-		\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
-
-		$this->assertTrue( $data['myJetpack']['featuresTab'] );
+		$this->assertSame( Initializer::get_products_section(), $data['myJetpack']['productsSection'] );
 	}
 
 	/**
@@ -71,7 +58,7 @@ class Script_Data_Test extends BaseTestCase {
 
 		$this->assertSame( 0, did_action( 'admin_enqueue_scripts' ) );
 		$this->assertNotFalse(
-			has_filter( 'jetpack_admin_js_script_data', array( Initializer::class, 'add_assets_script_data' ) )
+			has_filter( 'jetpack_admin_js_script_data', array( Initializer::class, 'add_admin_script_data' ) )
 		);
 	}
 
@@ -86,7 +73,7 @@ class Script_Data_Test extends BaseTestCase {
 
 		$this->assertFalse( Initializer::should_initialize() );
 		$this->assertNotFalse(
-			has_filter( 'jetpack_admin_js_script_data', array( Initializer::class, 'add_assets_script_data' ) )
+			has_filter( 'jetpack_admin_js_script_data', array( Initializer::class, 'add_admin_script_data' ) )
 		);
 
 		remove_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
