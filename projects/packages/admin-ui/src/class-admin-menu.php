@@ -38,7 +38,8 @@ class Admin_Menu {
 	/*
 	 * The sidebar's position tiers. Items sharing a tier sort alphabetically by menu title, so a
 	 * product should pass no position and land in POSITION_DEFAULT. Reach for another tier only
-	 * for one of the roles below; an int of your own silently opts the item out of that order.
+	 * for one of the roles below; an int of your own silently opts the item out of that order,
+	 * which tools/check-admin-menu-positions.php fails CI on.
 	 */
 
 	/**
