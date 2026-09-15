@@ -451,6 +451,14 @@ describe( 'Dashboard feedback banner', () => {
 		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'waits for the onboarding journey that introduces the tab', () => {
+		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'modal' } );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'stands aside while the reader arranges the layout', async () => {
 		render( <Dashboard /> );
 		expect( screen.getByTestId( 'feedback-banner' ) ).toBeInTheDocument();
