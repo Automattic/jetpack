@@ -394,7 +394,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		return (
 			<div { ...blockProps }>
 				<div className="jetpack-paypal-payment-buttons__placeholder">
-					<h3>{ __( 'PayPal Payment Button', 'jetpack-paypal-payments' ) }</h3>
+					<h4>{ __( 'PayPal Payment Button', 'jetpack-paypal-payments' ) }</h4>
 					<p>
 						{ __(
 							'Log in to or create a PayPal business account to use payment buttons',

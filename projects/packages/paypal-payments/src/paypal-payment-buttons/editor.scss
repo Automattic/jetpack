@@ -95,7 +95,7 @@
 	background: #f9f9f9;
 	text-align: center;
 
-	h3 {
+	h4 {
 		margin: 0 0 8px;
 	}
 
@@ -107,6 +107,8 @@
 
 .jetpack-paypal-payment-buttons__connect {
 	padding: 16px;
+	// Design: about 30% down the side panel, at most 300px from the top.
+	margin-block-start: min(30vh, 300px);
 
 	h3 {
 		margin-top: 0;
@@ -120,6 +122,16 @@
 
 	.components-base-control {
 		margin-bottom: 12px;
+	}
+}
+
+// While the wizard is up, the sidebar shows nothing but it: not the block card
+// with the block's name and description, and not the Advanced panel.
+.block-editor-block-inspector:has(.jetpack-paypal-payment-buttons__connect) {
+
+	.block-editor-block-card,
+	.block-editor-block-inspector__advanced {
+		display: none;
 	}
 }
 

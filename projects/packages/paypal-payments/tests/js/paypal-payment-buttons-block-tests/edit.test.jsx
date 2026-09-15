@@ -576,7 +576,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
 			await expect(
-				screen.findByRole( 'heading', { name: 'PayPal Payment Button' } )
+				screen.findByRole( 'heading', { name: 'PayPal Payment Button', level: 4 } )
 			).resolves.toBeInTheDocument();
 			expect(
 				screen.getByText( 'Log in to or create a PayPal business account to use payment buttons' )
