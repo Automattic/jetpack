@@ -13,7 +13,6 @@ import {
 	isLastDayOfMonth,
 	isSameDay,
 	startOfDay,
-	startOfMonth,
 	subDays,
 	subMilliseconds,
 	subMonths,
@@ -121,6 +120,9 @@ export type ComparisonRangeOptions = {
  *
  * - Day boundaries are resolved in the frame of the incoming dates; pass TZDate
  *   instances for site-local math.
+ * - A range starting on the 1st compares with the same calendar dates a month
+ *   or a year earlier (a whole month with the whole month before it); any
+ *   other partial-month range keeps its day count.
  * - Whole months are detected from the range shape alone, so a rolling window
  *   that happens to land on one also compares calendar-to-calendar.
  * - `previous-period` ends the day before the reference starts; a reference
@@ -222,11 +224,13 @@ export function getComparisonRangeFromPreset(
 	if ( presetId === COMPARISON_PREVIOUS_MONTH || presetId === COMPARISON_PREVIOUS_YEAR ) {
 		const shiftBack = presetId === COMPARISON_PREVIOUS_MONTH ? subMonths : subYears;
 
-		// Keep whole-month comparisons aligned to calendar boundaries.
-		if ( isFirstDayOfMonth( refFrom ) && isLastDayOfMonth( refTo ) ) {
+		// A 1st-of-month start keeps its calendar dates (whole months on month bounds):
+		// a day-count rebuild across a leap February starts Year to date on 31 December.
+		if ( isFirstDayOfMonth( refFrom ) ) {
+			const shiftedTo = shiftBack( refTo, 1 );
 			return {
-				from: clampDayBound( startOfMonth( shiftBack( refFrom, 1 ) ), 0 ),
-				to: clampDayBound( endOfMonth( shiftBack( refTo, 1 ) ), 1 ),
+				from: clampDayBound( shiftBack( refFrom, 1 ), 0 ),
+				to: clampDayBound( isLastDayOfMonth( refTo ) ? endOfMonth( shiftedTo ) : shiftedTo, 1 ),
 			};
 		}
 

@@ -94,6 +94,18 @@ export const Default: Story = {
 	},
 };
 
+export const ForcedColors: Story = {
+	...Default,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'In Chrome DevTools, open Rendering and set "Emulate CSS media feature forced-colors" to "active". Set prefers-color-scheme to dark, then light: both axes should follow the system text color. This uses the same axis catalog roles as Line Chart, Area Chart, and Bar List Chart.',
+			},
+		},
+	},
+};
+
 export const FixedDimensions: Story = {
 	args: {
 		...Default.args,

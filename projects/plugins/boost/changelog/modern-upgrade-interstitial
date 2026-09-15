@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Modern dashboard: Send the upgrade CTA to the Boost interstitial page instead of opening the modal.

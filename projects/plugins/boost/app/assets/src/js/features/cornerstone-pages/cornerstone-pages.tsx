@@ -10,6 +10,7 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 const CornerstonePages = () => {
 	const [ moduleState ] = useSingleModuleState( 'speculation_rules' );
 	const isSpeculationRulesAvailable = moduleState?.available ?? false;
+	const summary = useCornerstoneSummary();
 
 	return (
 		<div className={ styles.wrapper }>
@@ -18,7 +19,7 @@ const CornerstonePages = () => {
 					title={
 						<div>
 							<h3>{ __( 'Cornerstone Pages', 'jetpack-boost' ) }</h3>
-							<CornerstoneTitleSummary />
+							{ summary }
 						</div>
 					}
 					initialOpen={ false }
@@ -44,7 +45,7 @@ const CornerstonePages = () => {
 	);
 };
 
-const CornerstoneTitleSummary = () => {
+export const useCornerstoneSummary = () => {
 	const [ cornerstonePages ] = useCustomCornerstonePages();
 	if ( ! Array.isArray( cornerstonePages ) ) {
 		return null;

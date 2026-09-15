@@ -1,4 +1,4 @@
-import { Modal, Notice, SelectControl } from '@wordpress/components';
+import { Button, Modal, Notice, SelectControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import FieldValueControl from '../controls/field-value/edit.jsx';
@@ -24,8 +24,8 @@ const MATCH_OPTIONS = [
  * viewport. Here the three controls sit on one row, so a long list reads as aligned columns.
  *
  * Edits commit straight to the block attribute, like every other control in the inspector --
- * there is no draft state and no Save button. Undo is the editor's own. That matches the
- * integrations modal in this package and keeps one source of truth for the rules.
+ * there is no draft state, and Done only closes the dialog. Undo is the editor's own. That
+ * matches the integrations modal in this package and keeps one source of truth for the rules.
  *
  * @param {object}   props                   - Component props.
  * @param {boolean}  props.isOpen            - Whether the dialog is open.
@@ -151,6 +151,12 @@ const ConditionalLogicModal = ( {
 					onFixDuplicateIds={ onFixDuplicateIds }
 					onChange={ onRulesChange }
 				/>
+
+				<Stack direction="row" justify="flex-end">
+					<Button variant="primary" onClick={ onClose } __next40pxDefaultSize={ true }>
+						{ __( 'Done', 'jetpack-forms' ) }
+					</Button>
+				</Stack>
 			</Stack>
 		</Modal>
 	);

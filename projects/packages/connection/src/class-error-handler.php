@@ -217,6 +217,7 @@ class Error_Handler {
 		// Connection state problems (Manager::get_connection_owner, Connection_Health_Tests).
 		'invalid_connection_owner',  // The connection owner cannot be resolved: token missing or WP user deleted.
 		'xmlrpc_request_blocked',    // WP.com reached the site but the request was rejected (firewall, WAF, or server rule).
+		'wpcom_ssl_verification_failed',   // WP.com could not verify the site's SSL certificate when connecting to it (expired, self-signed, or incomplete chain).
 	);
 
 	/**
@@ -616,59 +617,59 @@ class Error_Handler {
 		$configs = array(
 			// Attacker-controllable garbage in an incoming request. Nothing about this
 			// site's own connection is wrong.
-			'malformed_user_id'        => false,
+			'malformed_user_id'             => false,
 			// Expected after a user is deleted, and the owner flavor is covered by
 			// invalid_connection_owner. Incoming reports also drive WP.com-side
 			// self-healing, so a notice would surface a problem already resolving itself.
-			'unknown_user'             => false,
-			'malformed_token'          => array(),
+			'unknown_user'                  => false,
+			'malformed_token'               => array(),
 			// Never connecting a WordPress.com account is expected, not broken. The owner
 			// flavor is covered by invalid_connection_owner.
-			'no_user_tokens'           => false,
+			'no_user_tokens'                => false,
 			// Same, for a site that has never had an owner. invalid_connection_owner
 			// covers the case where there was one and it broke.
-			'empty_master_user_option' => false,
+			'empty_master_user_option'      => false,
 			// As no_user_tokens, for a single requested user.
-			'no_token_for_user'        => false,
-			'token_malformed'          => array(),
+			'no_token_for_user'             => false,
+			'token_malformed'               => array(),
 			// Corrupt local token data, but for one user only, and the
 			// no_valid_user_token/token_malformed pair surfaces it when it actually
 			// blocks a request.
-			'user_id_mismatch'         => false,
-			'no_possible_tokens'       => array(),
-			'no_valid_user_token'      => array(),
-			'no_valid_blog_token'      => array(),
-			'unknown_token'            => array(),
-			'could_not_sign'           => array(),
+			'user_id_mismatch'              => false,
+			'no_possible_tokens'            => array(),
+			'no_valid_user_token'           => array(),
+			'no_valid_blog_token'           => array(),
+			'unknown_token'                 => array(),
+			'could_not_sign'                => array(),
 			// Both are about the URL being signed, not the connection: a code bug or an
 			// exotic site URL, which reconnecting does not change.
-			'invalid_scheme'           => false,
-			'unknown_scheme_port'      => false,
+			'invalid_scheme'                => false,
+			'unknown_scheme_port'           => false,
 			// Corrupt local token data like token_malformed above, caught at signing time
 			// rather than lookup time. Reconnect fixes it the same way.
-			'invalid_secret'           => array(),
-			'invalid_token'            => array(),
-			'token_mismatch'           => array(),
+			'invalid_secret'                => array(),
+			'invalid_token'                 => array(),
+			'token_mismatch'                => array(),
 			// Per-request and transport-level, so unaffected by the state of the connection.
-			'invalid_body'             => false,
+			'invalid_body'                  => false,
 			// Environmental in both directions — a malformed parameter or clock skew,
 			// neither of which a reconnect fixes.
-			'invalid_signature'        => false,
+			'invalid_signature'             => false,
 			// Something altered the request in transit. Not a token problem, and
 			// signature_mismatch carries the same diagnosis with usable copy.
-			'invalid_body_hash'        => false,
+			'invalid_body_hash'             => false,
 			// A replay, or object-cache trouble. Self-resolving per request.
-			'invalid_nonce'            => false,
+			'invalid_nonce'                 => false,
 			// Ambiguous cause: could be a genuine secret desync (reconnect fixes it) or a
 			// proxy/CDN/WAF/security plugin altering the request in transit (reconnect
 			// doesn't help). Uses the generic message — support_link offers an
 			// alternative either way.
-			'signature_mismatch'       => array(
+			'signature_mismatch'            => array(
 				'support_link' => true,
 			),
 			// Two flavors with different remedies — see
 			// get_invalid_connection_owner_message().
-			'invalid_connection_owner' => array(
+			'invalid_connection_owner'      => array(
 				'message_callback' => array( $this, 'get_invalid_connection_owner_message' ),
 			),
 			// The token can be perfectly valid here: the site is rejecting WordPress.com's
@@ -677,8 +678,22 @@ class Error_Handler {
 			// Site Health holds the full diagnosis. Ships a default admin notice because
 			// no other detection path can see this — WP.com's requests never arrive. And
 			// it outlives a broken owner, whose reconnect the same rule would block.
-			'xmlrpc_request_blocked'   => array(
+			'xmlrpc_request_blocked'        => array(
 				'message_callback'         => array( $this, 'get_blocked_request_message' ),
+				'default_admin_notice'     => true,
+				'survives_owner_promotion' => true,
+				'notice_link'              => array(
+					'label' => __( 'Visit Site Health', 'jetpack-connection' ),
+					'url'   => admin_url( 'site-health.php' ),
+				),
+			),
+			// The tokens can be perfectly valid: WP.com cannot verify the site's SSL
+			// certificate, and a reconnect would be rejected the same way — so no
+			// reconnect CTA, and it outlives a broken owner. Ships a default admin notice
+			// for the same reason as the blocked error above: WP.com's requests never
+			// arrive, so no other detection path can see this.
+			'wpcom_ssl_verification_failed' => array(
+				'message_callback'         => array( $this, 'get_wpcom_ssl_verification_failed_message' ),
 				'default_admin_notice'     => true,
 				'survives_owner_promotion' => true,
 				'notice_link'              => array(
@@ -733,6 +748,21 @@ class Error_Handler {
 	}
 
 	/**
+	 * Builds the displayable message for the SSL-verification-failed error.
+	 *
+	 * Deliberately brief: Site Health holds the transport detail and the resolution
+	 * steps, so the message only names the condition and points there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $error The stored error array (unused; part of the message_callback contract).
+	 * @return string The message.
+	 */
+	private function get_wpcom_ssl_verification_failed_message( $error ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return __( 'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. See Site Health for details and next steps.', 'jetpack-connection' );
+	}
+
+	/**
 	 * Classifies the audience of a stored connection error based on its user ID.
 	 *
 	 * The audience determines who a connection error is relevant to and, in turn,
@@ -767,7 +797,7 @@ class Error_Handler {
 	/**
 	 * Whether an error describes the connection owner's own connection.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.2.0
 	 *
 	 * @param string $error_code The error code.
 	 * @param string $audience   The classified audience.
@@ -1086,7 +1116,9 @@ class Error_Handler {
 			unset( $stored_errors[ $error_code ][ $keys[0] ] );
 		}
 
-		if ( update_option( self::STORED_ERRORS_OPTION, $stored_errors ) ) {
+		// Deliberately not autoloaded: keeps these ephemeral options out of the shared
+		// alloptions cache blob, whose write races can resurrect deleted values (CONNECT-457).
+		if ( update_option( self::STORED_ERRORS_OPTION, $stored_errors, false ) ) {
 			return $error_array;
 		}
 
@@ -1539,7 +1571,7 @@ class Error_Handler {
 		if ( is_array( $stored_errors ) && count( $stored_errors ) ) {
 			$stored_errors = array_filter( array_map( $type_filter, $stored_errors ) );
 			if ( count( $stored_errors ) ) {
-				update_option( static::STORED_ERRORS_OPTION, $stored_errors );
+				update_option( static::STORED_ERRORS_OPTION, $stored_errors, false );
 			} else {
 				delete_option( static::STORED_ERRORS_OPTION );
 			}
@@ -1549,11 +1581,16 @@ class Error_Handler {
 		if ( is_array( $verified_errors ) && count( $verified_errors ) ) {
 			$verified_errors = array_filter( array_map( $type_filter, $verified_errors ) );
 			if ( count( $verified_errors ) ) {
-				update_option( static::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+				update_option( static::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 			} else {
 				delete_option( static::STORED_VERIFIED_ERRORS_OPTION );
 			}
 		}
+
+		// Per-key purge only (this warm path — a successful site-data fetch — must not
+		// drop the alloptions blob); a legacy blob orphan clears on the next reconnect.
+		wp_cache_delete( self::STORED_ERRORS_OPTION, 'options' );
+		wp_cache_delete( self::STORED_VERIFIED_ERRORS_OPTION, 'options' );
 
 		// Invalidate cache since we may have deleted verified errors
 		$this->invalidate_displayable_errors_cache();
@@ -1582,7 +1619,9 @@ class Error_Handler {
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
 	public function delete_stored_errors() {
-		return delete_option( self::STORED_ERRORS_OPTION );
+		$deleted = delete_option( self::STORED_ERRORS_OPTION );
+		$this->purge_error_option_cache( self::STORED_ERRORS_OPTION, $deleted );
+		return $deleted;
 	}
 
 	/**
@@ -1593,7 +1632,33 @@ class Error_Handler {
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
 	public function delete_verified_errors() {
-		return delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
+		$deleted = delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
+		$this->purge_error_option_cache( self::STORED_VERIFIED_ERRORS_OPTION, $deleted );
+		return $deleted;
+	}
+
+	/**
+	 * Purges an error option's object caches after a delete.
+	 *
+	 * Core's delete_option()/update_option() return before touching caches when the
+	 * DB row is missing, so a value resurrected in cache by an alloptions write race
+	 * would otherwise outlive the delete — including a reconnect (CONNECT-457). The
+	 * per-key delete covers a post-migration (non-autoloaded) orphan; when the delete
+	 * found no row yet the value is still in the autoloaded blob (a legacy row written
+	 * before these options stopped autoloading), drop that blob too. The blob check
+	 * reads the raw autoloaded set, so it is unaffected by option_* filters and adds
+	 * no query.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $option  The error option name.
+	 * @param bool   $deleted Whether delete_option() found and removed a DB row.
+	 */
+	private function purge_error_option_cache( $option, $deleted ) {
+		wp_cache_delete( $option, 'options' );
+		if ( ! $deleted && isset( wp_load_alloptions()[ $option ] ) ) {
+			wp_cache_delete( 'alloptions', 'options' );
+		}
 	}
 
 	/**
@@ -1624,7 +1689,7 @@ class Error_Handler {
 			unset( $stored_errors[ $error_code ] );
 			$deleted = true;
 			if ( count( $stored_errors ) ) {
-				update_option( self::STORED_ERRORS_OPTION, $stored_errors );
+				update_option( self::STORED_ERRORS_OPTION, $stored_errors, false );
 			} else {
 				delete_option( self::STORED_ERRORS_OPTION );
 			}
@@ -1635,13 +1700,17 @@ class Error_Handler {
 			unset( $verified_errors[ $error_code ] );
 			$deleted = true;
 			if ( count( $verified_errors ) ) {
-				update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+				update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 			} else {
 				delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
 			}
 		}
 
 		if ( $deleted ) {
+			// Per-key purge only: a legacy blob orphan for these codes is cleared on the
+			// next reconnect via delete_all_errors(), and GC bounds its display meanwhile.
+			wp_cache_delete( self::STORED_ERRORS_OPTION, 'options' );
+			wp_cache_delete( self::STORED_VERIFIED_ERRORS_OPTION, 'options' );
 			$this->invalidate_displayable_errors_cache();
 		}
 
@@ -1690,7 +1759,7 @@ class Error_Handler {
 
 		$verified_errors[ $error_code ][ $user_id ] = $error;
 
-		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors, false );
 
 		// Invalidate cache since we added a new verified error
 		$this->invalidate_displayable_errors_cache();
@@ -1936,6 +2005,13 @@ class Error_Handler {
 	 */
 	public function check_signed_request_for_errors( $signing_result, $url, $method, $error_type ) {
 		if ( ! is_wp_error( $signing_result ) ) {
+			return;
+		}
+
+		// A site with no registration has no tokens to sign with: failed token lookups
+		// are expected state there, not connection errors — and a stale cache view that
+		// hides a connected site's options must not plant a "verified" error either (CONNECT-457).
+		if ( ! \Jetpack_Options::get_option( 'id' ) ) {
 			return;
 		}
 

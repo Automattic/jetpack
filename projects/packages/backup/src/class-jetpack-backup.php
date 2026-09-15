@@ -215,7 +215,12 @@ class Jetpack_Backup {
 			$menu_title,
 			'manage_options',
 			self::JETPACK_BACKUP_SLUG,
-			$callback
+			$callback,
+			null,
+			array(
+				'product' => 'backup',
+				'key'     => 'jetpack-backup',
+			)
 		);
 
 		if ( $page_suffix ) {

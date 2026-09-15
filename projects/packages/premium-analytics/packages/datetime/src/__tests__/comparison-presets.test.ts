@@ -208,6 +208,25 @@ describe( 'comparison options', () => {
 		expect( labels( pastRange ) ).toEqual( [ 'Previous 57 days', 'Same period in 2024' ] );
 	} );
 
+	it( 'names the year Year to date compares with in a leap year', () => {
+		const yearToDate2028 = daysRange( [ 2028, 0, 1 ], [ 2028, 2, 1 ] );
+		const options = getComparisonOptions( yearToDate2028, { primaryPresetId: 'year-to-date' } );
+
+		expect( options.map( option => option.label ) ).toEqual( [
+			'Previous 61 days',
+			'Same period in 2027',
+		] );
+		expect( options[ 1 ].range ).toEqual( daysRange( [ 2027, 0, 1 ], [ 2027, 2, 1 ] ) );
+	} );
+
+	it( 'folds the year option into the previous period for Last 12 months in a leap year', () => {
+		const last12Months2028 = daysRange( [ 2027, 9, 1 ], [ 2028, 8, 11 ] );
+		const options = getComparisonOptions( last12Months2028, { primaryPresetId: 'last-12-months' } );
+
+		expect( options.map( option => option.label ) ).toEqual( [ 'Previous 347 days' ] );
+		expect( options[ 0 ].range ).toEqual( daysRange( [ 2026, 9, 1 ], [ 2027, 8, 11 ] ) );
+	} );
+
 	it( 'names the month the comparison starts in across a year boundary', () => {
 		const january5 = daysRange( [ 2027, 0, 5 ], [ 2027, 0, 5 ] );
 

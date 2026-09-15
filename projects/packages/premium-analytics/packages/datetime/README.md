@@ -165,12 +165,15 @@ if inputs are invalid
 - `previous-month` - Same duration, anchored one month before the reference end
 - `previous-year` - Same duration, anchored one year before the reference end
 
+A reference starting on the 1st of a month instead keeps its calendar dates for
+`previous-month` / `previous-year`, so its duration can differ: Year to date on
+1 March 2028 (61 days) compares against 1 January to 1 March 2027 (60 days).
 For whole-month references, `previous-period` steps back by the month count
 (July against June, a calendar year against the previous calendar year), and
-`previous-month` / `previous-year` stay aligned to calendar month boundaries,
-so their duration can differ. Whole months are read from the range itself, so a
-rolling window that happens to land on one (April 1-30 from "Last 30 days")
-compares against all 31 days of March.
+`previous-month` / `previous-year` stay aligned to calendar month boundaries.
+Whole months are read from the range itself, so a rolling window that happens
+to land on one (April 1-30 from "Last 30 days") compares against all 31 days of
+March.
 
 A to-date preset (`last-12-months` runs to the end of today) is measured on
 the window it covers once its running month closes, so `previous-period` steps

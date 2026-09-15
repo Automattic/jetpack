@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { store as preferencesStore } from '@wordpress/preferences';
@@ -8,7 +9,6 @@ import { store as preferencesStore } from '@wordpress/preferences';
  * Internal dependencies
  */
 import { DASHBOARD_ONBOARDING_KEY, DASHBOARD_PREFERENCES_SCOPE } from './constants';
-import { useTrackEvent } from './use-track-event';
 import type { OnboardingDismissReason } from '@jetpack-premium-analytics/ui';
 
 export type OnboardingPhase = 'closed' | 'modal' | 'tour';
@@ -137,5 +137,12 @@ export function useOnboarding( { enabled, stepCount = 0 }: OnboardingOptions ): 
 		[ complete, phase, step, trackEvent ]
 	);
 
-	return { phase, step, start, next, dismiss };
+	/*
+	 * The effect above opens the modal a commit after the surface is ready, and
+	 * anything that hides behind the journey has to know it is coming rather
+	 * than find out afterwards — a commit is long enough to paint and to count.
+	 */
+	const isOpening = enabled && ! hasOpenedThisLoad && ! completedAt;
+
+	return { phase: isOpening ? 'modal' : phase, step, start, next, dismiss };
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-LineChart, AreaChart, BarChart: Date a naive dateString point in the provider's time zone, so every viewer reads the same day.

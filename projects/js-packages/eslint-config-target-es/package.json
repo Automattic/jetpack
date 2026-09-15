@@ -47,7 +47,7 @@
 		"eslint": "10.10.0",
 		"eslint-plugin-es-x": "9.7.0",
 		"globals": "16.5.0",
-		"jest": "30.4.2"
+		"jest": "30.5.1"
 	},
 	"peerDependencies": {
 		"eslint": ">=4.19.1",

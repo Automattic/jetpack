@@ -62,6 +62,27 @@ class Options_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The protected owner anchor rides the `jetpack_options` row, so a change to it must survive
+	 * the gate that rejects updates touching only excluded keys.
+	 */
+	public function test_a_protected_owner_change_passes_the_option_sync_gate() {
+		$this->options_module->update_options_whitelist();
+
+		$before = array( 'id' => 1 );
+		$after  = array(
+			'id'              => 1,
+			'protected_owner' => array(
+				'wpcom_user_id' => 4242,
+				'locked'        => true,
+			),
+		);
+
+		$args = array( 'jetpack_options', $before, $after );
+
+		$this->assertSame( $args, $this->options_module->whitelist_options( $args ) );
+	}
+
+	/**
 	 * Adds an option through the sync-specific option whitelist filter.
 	 *
 	 * @param array $options Option names.

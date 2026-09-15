@@ -61,6 +61,8 @@ function WordAdsChartTabsInner() {
 					metrics={ metrics }
 					dataFormat={ DATA_FORMAT }
 					groupLabel={ __( 'WordAds metric', 'jetpack-premium-analytics-pkg' ) }
+					// As the classic chart: one hover reads out all three, whichever tab is up.
+					tooltipMetrics="all"
 				/>
 			</WidgetState>
 		</div>

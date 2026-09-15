@@ -3,7 +3,7 @@
 	"title": "All-time stats",
 	"description": "Lifetime totals for your site — views, visitors, posts, and comments.",
 	"help": {
-		"content": "Lifetime totals for your site — views, visitors, posts, and comments."
+		"content": "Your totals since you started tracking — views, visitors, posts, and comments."
 	},
 	"category": "stats",
 	"presentation": "framed"

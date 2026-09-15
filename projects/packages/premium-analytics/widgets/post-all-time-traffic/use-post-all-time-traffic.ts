@@ -8,16 +8,12 @@ import {
 	parseSiteDateTime,
 	reportingTimeZone,
 } from '@jetpack-premium-analytics/datetime';
+import type { MonthKey, MonthlyHeatmapMetric } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	buildAllTimeTrafficRows,
-	type AllTimeTrafficMetric,
-	type AllTimeTrafficRow,
-	type MonthKey,
-} from './build-all-time-traffic-rows';
+import { buildAllTimeTrafficRows, type AllTimeTrafficRow } from './build-all-time-traffic-rows';
 
 export interface PostAllTimeTrafficState {
 	rows: AllTimeTrafficRow[];
@@ -66,7 +62,7 @@ function lifeStart(
  */
 export default function usePostAllTimeTraffic(
 	postId: number,
-	metric: AllTimeTrafficMetric
+	metric: MonthlyHeatmapMetric
 ): PostAllTimeTrafficState {
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsPost( {
 		postId,

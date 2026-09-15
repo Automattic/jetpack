@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Line and area charts: Restore keyboard focus after dismissing tooltips.
