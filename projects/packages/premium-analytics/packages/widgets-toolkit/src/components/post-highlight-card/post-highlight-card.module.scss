@@ -16,6 +16,7 @@
  *                   block axis; 20/24 title and metric values.
  *   narrow (either) no featured image — it would eat most of a small
  *                   cell; type follows the tall/short rule above.
+ *   tall (either)   the text column also gets 8px of padding.
  *
  * Rules are written short-first, so the compact treatment is the base and
  * the roomier one is additive: a cell too small for any query to match
@@ -138,7 +139,7 @@
 }
 
 /* Featured image. Hidden by default: only the wide modes below show it.
- * The grey ground keeps the card's shape while the image loads. */
+ * The grey ground shows behind a still-loading or a broken image. */
 .media {
 	display: none;
 	flex-shrink: 0;
