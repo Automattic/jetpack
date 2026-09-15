@@ -33,6 +33,30 @@ p {
 		color: var(--wp-admin-theme-link-color);
 	}
 
+	// Override WP styles for panel header.
+	.components-panel__body-title .components-button:hover:not(:disabled,[aria-disabled="true"]),
+	.components-panel__body-title .components-button[aria-expanded="true"] {
+		color: inherit;
+	}
+
+	.components-panel__body-toggle.components-button:focus {
+		border-radius: inherit;
+		box-shadow: none;
+	}
+}
+
+// Override WordPress component styles
+.jb-dashboard {
+	min-height: calc(100vh - 60px);
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	background-color: #f9f9f6;
+	clear: both;
+
+	@include settings-content;
+
+	// TODO(BOOST-702): remove with the legacy dashboard.
 	h1,
 	h2,
 	h3,
@@ -61,29 +85,6 @@ p {
 	h3 {
 		font-size: 24px;
 	}
-
-	// Override WP styles for panel header.
-	.components-panel__body-title .components-button:hover:not(:disabled,[aria-disabled="true"]),
-	.components-panel__body-title .components-button[aria-expanded="true"] {
-		color: inherit;
-	}
-
-	.components-panel__body-toggle.components-button:focus {
-		border-radius: inherit;
-		box-shadow: none;
-	}
-}
-
-// Override WordPress component styles
-.jb-dashboard {
-	min-height: calc(100vh - 60px);
-	display: flex;
-	flex-direction: column;
-	position: relative;
-	background-color: #f9f9f6;
-	clear: both;
-
-	@include settings-content;
 
 	&--main {
 		background-color: variables.$primary-white;
