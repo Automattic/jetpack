@@ -14,11 +14,68 @@ use ReflectionMethod;
  * Unit tests for the Initializer class.
  */
 class Initializer_Test extends Search_TestCase {
+	/**
+	 * REST registration hooks present before this test.
+	 *
+	 * @var \WP_Hook|null
+	 */
+	private $rest_api_init_hook;
+
+	/**
+	 * Preserve registration hooks so real initializer calls cannot leak controllers.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		$this->isolate_plan_hooks();
+		$this->rest_api_init_hook = isset( $GLOBALS['wp_filter']['rest_api_init'] ) ? clone $GLOBALS['wp_filter']['rest_api_init'] : null;
+	}
+
+	/**
+	 * Ordinary and search pages use cached plan data without a remote lookup.
+	 */
+	public function test_missing_plan_does_not_fetch_during_frontend_initialization() {
+		update_option( 'jetpack_active_modules', array( 'search' ) );
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		$requests = 0;
+		$counter  = function ( $response, $args, $url ) use ( &$requests ) {
+			if ( strpos( $url, '/jetpack-search/plan' ) !== false ) {
+				++$requests;
+			}
+			return $response;
+		};
+		add_filter( 'pre_http_request', $counter, 20, 3 );
+		$was_search = $GLOBALS['wp_query']->is_search;
+		try {
+			foreach ( array( false, true ) as $is_search ) {
+				$GLOBALS['wp_query']->is_search = $is_search;
+				Initializer::init();
+				$this->assertSame( 0, $requests );
+				$this->assertFalse( get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
+				$plan_callbacks = array_filter(
+					$GLOBALS['wp_filter']['jetpack_heartbeat']->callbacks[10],
+					static function ( $callback ) {
+						return is_array( $callback['function'] )
+							&& $callback['function'][0] instanceof Plan
+							&& 'get_plan_info_from_wpcom' === $callback['function'][1];
+					}
+				);
+				$this->assertCount( 1, $plan_callbacks );
+			}
+		} finally {
+			$GLOBALS['wp_query']->is_search = $was_search;
+			remove_filter( 'pre_http_request', $counter, 20 );
+		}
+	}
 
 	/**
 	 * Returning the environment into its initial state.
 	 */
 	public function tearDown(): void {
+		if ( $this->rest_api_init_hook === null ) {
+			unset( $GLOBALS['wp_filter']['rest_api_init'] );
+		} else {
+			$GLOBALS['wp_filter']['rest_api_init'] = $this->rest_api_init_hook;
+		}
 		remove_all_filters( 'jetpack_search_blocks_enabled' );
 		remove_all_filters( 'jetpack_search_woocommerce_blocks_enabled' );
 		remove_all_filters( 'jetpack_search_overlay_block_template_enabled' );
@@ -27,6 +84,7 @@ class Initializer_Test extends Search_TestCase {
 		delete_option( Module_Control::SEARCH_MODULE_EXPERIENCE_OPTION_KEY );
 		$this->reset_block_search_active();
 		$this->remove_search_blocks_hooks();
+		$this->restore_plan_hooks();
 		parent::tearDown();
 	}
 

@@ -75,9 +75,7 @@ class Search_Blocks {
 	private static $overlay_template_content_cache = array();
 
 	/**
-	 * Per-request memo for `is_free_plan()`. Avoids the cold-cache hazard where
-	 * `Plan::get_plan_info()` falls back to a synchronous WPCOM HTTP call —
-	 * render callbacks hit the plan gate on every inner render.
+	 * Per-request memo for `is_free_plan()` across nested block renders.
 	 *
 	 * @var bool|null
 	 */

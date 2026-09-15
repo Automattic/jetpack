@@ -210,16 +210,14 @@ class Dashboard {
 	/**
 	 * Deactivate search module if plan doesn't support search.
 	 *
-	 * @param \WP_Screen $current_screen Creent screen object.
+	 * @param \WP_Screen $current_screen Current screen object.
 	 */
 	public function check_plan_deactivate_search_module( $current_screen ) {
-		// Only run on Jetpack admin pages.
-		// The first two checks for current screen are cheap to run on every page.
-		if (
-			property_exists( $current_screen, 'base' ) &&
-			strpos( $current_screen->base, 'jetpack_page_' ) !== false &&
-			( ! $this->plan->supports_search() || $this->plan->must_upgrade() )
-		) {
+		if ( ! property_exists( $current_screen, 'base' ) || strpos( $current_screen->base, 'jetpack_page_' ) === false ) {
+			return;
+		}
+		// Missing plan data must not be treated as a confirmed unsupported plan.
+		if ( $this->plan->get_plan_info() && ( ! $this->plan->supports_search() || $this->plan->must_upgrade() ) ) {
 			$this->module_control->deactivate();
 		}
 	}

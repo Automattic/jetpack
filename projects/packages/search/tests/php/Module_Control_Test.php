@@ -62,6 +62,28 @@ class Module_Control_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Other modules activating must not trigger a Search plan check.
+	 */
+	public function test_refresh_plan_info_before_activation_ignores_other_modules() {
+		$plan = $this->createMock( Plan::class );
+		$plan->expects( $this->never() )->method( 'ensure_plan_info_populated' );
+
+		$module = new Module_Control( $plan );
+		$module->refresh_plan_info_before_activation( 'stats' );
+	}
+
+	/**
+	 * Generic activation must not fetch a plan for a disconnected site.
+	 */
+	public function test_pre_activation_skips_disconnected_site() {
+		$plan = $this->createMock( Plan::class );
+		$plan->expects( $this->never() )->method( 'ensure_plan_info_populated' );
+		$connection = $this->createStub( Connection_Manager::class );
+		$connection->method( 'is_connected' )->willReturn( false );
+		( new Module_Control( $plan, $connection ) )->refresh_plan_info_before_activation( 'search' );
+	}
+
+	/**
 	 * Test static::$search_module->activate()
 	 */
 	public function test_activate_module_success() {

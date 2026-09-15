@@ -70,6 +70,7 @@ class Module_Control {
 		$this->connection_manager = $connection_manager === null ? new Connection_Manager( Package::SLUG ) : $connection_manager;
 		if ( ! did_action( 'jetpack_search_module_control_initialized' ) ) {
 			add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'search_filter_available_modules' ), 10, 1 );
+			add_action( 'jetpack_pre_activate_module', array( $this, 'refresh_plan_info_before_activation' ) );
 			if ( Helper::is_wpcom() ) {
 				add_filter( 'jetpack_active_modules', array( $this, 'search_filter_available_modules' ), 10, 2 );
 			}
@@ -111,7 +112,7 @@ class Module_Control {
 	 * @return bool
 	 */
 	public function is_instant_search_enabled() {
-		if ( ! $this->plan->supports_instant_search() || ! $this->is_active() ) {
+		if ( ! $this->is_active() || ! $this->plan->supports_instant_search() ) {
 			return false;
 		}
 
@@ -144,13 +145,13 @@ class Module_Control {
 	 * Activiate Search module
 	 */
 	public function activate() {
-		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		if ( ( new Status() )->is_offline_mode() ) {
 			return new WP_Error( 'site_offline', __( 'Jetpack Search cannot be used in offline mode.', 'jetpack-search-pkg' ) );
 		}
-		if ( ! $is_wpcom && ! $this->connection_manager->is_connected() ) {
+		if ( ! Helper::is_wpcom() && ! $this->connection_manager->is_connected() ) {
 			return new WP_Error( 'connection_required', __( 'Connect your site to use Jetpack Search.', 'jetpack-search-pkg' ) );
 		}
+		$this->plan->ensure_plan_info_populated();
 		if ( ! $this->plan->supports_search() ) {
 			return new WP_Error( 'not_supported', __( 'Your plan does not support Jetpack Search.', 'jetpack-search-pkg' ) );
 		}
@@ -160,6 +161,21 @@ class Module_Control {
 			return new WP_Error( 'not_updated', __( 'Setting not updated.', 'jetpack-search-pkg' ) );
 		}
 		return $success;
+	}
+
+	/**
+	 * Populate missing plan data before generic Search module activation.
+	 *
+	 * @param string $module Module slug being activated.
+	 */
+	public function refresh_plan_info_before_activation( $module ) {
+		if ( self::JETPACK_SEARCH_MODULE_SLUG !== $module ) {
+			return;
+		}
+		if ( ! Helper::is_wpcom() && ! $this->connection_manager->is_connected() ) {
+			return;
+		}
+		$this->plan->ensure_plan_info_populated();
 	}
 
 	/**
