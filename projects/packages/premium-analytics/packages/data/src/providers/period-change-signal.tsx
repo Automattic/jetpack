@@ -33,6 +33,12 @@ type PeriodChangeSignal = {
 	raisedAt: number;
 };
 
+type Attention = {
+	id: number;
+	/** The surface and range the id fired on; it is let go once either moves. */
+	observation: string;
+};
+
 type PeriodChangeSignalContextValue = {
 	signal: PeriodChangeSignal | null;
 	raise: ( surface: string, range: Required< DateRange > ) => void;
@@ -113,8 +119,8 @@ export function useRaisePeriodChange() {
  * Settle the pending signal against this surface and own the attention it fires.
  *
  * Fires once surface, visible control and applied range all match; dropped once the
- * surface lands anywhere else. The id is let go after `PERIOD_CHANGE_ATTENTION_MS` or
- * when the control hides, so it never replays.
+ * surface lands anywhere else. The id is let go after `PERIOD_CHANGE_ATTENTION_MS`, when
+ * the control hides, or when the surface or range moves on, so it never replays.
  *
  * @param surface      - The surface's key, as passed to raise.
  * @param appliedRange - The range its date control shows.
@@ -127,7 +133,7 @@ export function useSettlePeriodChange(
 	isShown: boolean
 ): number | undefined {
 	const { signal, settle } = useContext( PeriodChangeSignalContext );
-	const [ attentionId, setAttentionId ] = useState< number >();
+	const [ attention, setAttention ] = useState< Attention >();
 	const observed = useRef< string >();
 	const appliedKey = rangeKey( appliedRange );
 	const observation = `${ surface }|${ appliedKey ?? '' }`;
@@ -147,7 +153,10 @@ export function useSettlePeriodChange(
 
 		if ( signal.surface === surface && signal.rangeKey === appliedKey ) {
 			if ( isShown ) {
-				setAttentionId( signal.id );
+				// Keep the object when the effect re-runs, so the timer below does not restart.
+				setAttention( current =>
+					current?.id === signal.id ? current : { id: signal.id, observation }
+				);
 				settle( signal.id );
 			}
 			return;
@@ -161,19 +170,19 @@ export function useSettlePeriodChange(
 	}, [ signal, observation, surface, appliedKey, isShown, settle ] );
 
 	useEffect( () => {
-		if ( attentionId === undefined ) {
+		if ( ! attention ) {
 			return;
 		}
-		if ( ! isShown ) {
-			setAttentionId( undefined );
+		if ( ! isShown || attention.observation !== observation ) {
+			setAttention( undefined );
 			return;
 		}
 		const timer = setTimeout( () => {
-			setAttentionId( current => ( current === attentionId ? undefined : current ) );
+			setAttention( current => ( current?.id === attention.id ? undefined : current ) );
 		}, PERIOD_CHANGE_ATTENTION_MS );
 
 		return () => clearTimeout( timer );
-	}, [ attentionId, isShown ] );
+	}, [ attention, isShown, observation ] );
 
-	return attentionId;
+	return attention?.id;
 }
