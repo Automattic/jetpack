@@ -22,8 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Each bridge class declares its routes via `register_routes()` and uses
  * the shared `permission_check()` helper for the `manage_options` gate.
- * Routes only register when the modernization filter is on, so the
- * legacy plugin is byte-identical when the flag is off.
+ * Routes only register when `is_modernized()` is true, so the
+ * legacy plugin is byte-identical when it is false.
  */
 class Rest_Controller {
 
@@ -64,8 +64,7 @@ class Rest_Controller {
 	);
 
 	/**
-	 * Hook entry point. Registers all bridge routes if the modernization
-	 * filter is enabled.
+	 * Hook entry point. Registers all bridge routes if `is_modernized()` is true.
 	 *
 	 * @return void
 	 */

@@ -133,6 +133,8 @@ class Jetpack_Backup {
 
 	/**
 	 * Blog sticker that takes a site out of the internal preview.
+	 *
+	 * Atomic sees it only if it is on WordPress.com's `atomic_site_stickers()` allowlist.
 	 */
 	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
 
@@ -1165,8 +1167,8 @@ class Jetpack_Backup {
 	/**
 	 * Load the wp-build entry file and register its polyfills.
 	 *
-	 * Only called on `?page=jetpack-backup` admin requests when the
-	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 * Only called on `?page=jetpack-backup` admin requests when `is_modernized()`
+	 * is true. Keeps wp-build off every other request.
 	 *
 	 * @return void
 	 */
@@ -1211,18 +1213,14 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns true when the internal preview or the modernization filter is enabled.
+	 * Returns the modernization filter's value, which defaults to the internal preview.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		if ( self::is_internal_preview() ) {
-			return true;
-		}
-
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, self::is_internal_preview() );
 	}
 
 	/**
@@ -1244,11 +1242,11 @@ class Jetpack_Backup {
 		$user_data = ( new Connection_Manager() )->get_connected_user_data();
 		$email     = is_array( $user_data ) && ! empty( $user_data['email'] ) ? strtolower( (string) $user_data['email'] ) : '';
 
-		return '@automattic.com' === substr( $email, -15 );
+		return str_ends_with( $email, '@automattic.com' ) || str_ends_with( $email, '@a8c.com' );
 	}
 
 	/**
-	 * Returns true when the modernization filter is on AND the wp-build dashboard loaded.
+	 * Returns true when `is_modernized()` is true AND the wp-build dashboard loaded.
 	 *
 	 * `build/` is gitignored, so the render function is absent in any unbuilt checkout
 	 * and in any release whose wp-build step failed. Every consumer of the modernized
