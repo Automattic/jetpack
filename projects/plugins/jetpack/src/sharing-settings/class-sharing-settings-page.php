@@ -36,7 +36,7 @@ final class Sharing_Settings_Page {
 	 * Add the submenu entry under Settings.
 	 */
 	public static function register_menu(): void {
-		add_submenu_page(
+		$hook = add_submenu_page(
 			'options-general.php',
 			__( 'Sharing Settings', 'jetpack' ),
 			__( 'Sharing', 'jetpack' ),
@@ -44,6 +44,21 @@ final class Sharing_Settings_Page {
 			self::SLUG,
 			array( __CLASS__, 'render_in_wrapper' )
 		);
+
+		if ( $hook ) {
+			add_action( 'admin_print_styles-' . $hook, array( __CLASS__, 'enqueue_styles' ) );
+		}
+	}
+
+	/**
+	 * Styles for the Jetpack chrome this screen renders inside.
+	 *
+	 * Jetpack_Admin_Page::wrap_ui() emits the masthead and footer markup but does
+	 * not style them, and this screen exists whether or not a module is loaded
+	 * to do it for us.
+	 */
+	public static function enqueue_styles(): void {
+		Jetpack_Admin_Page::load_wrapper_styles();
 	}
 
 	/**
