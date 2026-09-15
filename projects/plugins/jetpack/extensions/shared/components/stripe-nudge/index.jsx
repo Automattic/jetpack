@@ -24,12 +24,8 @@ export const StripeNudge = ( { blockName } ) => {
 		return null;
 	}
 
-	const hiddenMessage = __(
-		'This block will be hidden from your visitors until you connect to Stripe.',
-		'jetpack'
-	);
-	let subtitle = hiddenMessage;
 	let readMoreUrl;
+	let requirementsLink;
 
 	const isWpcom = isWpcomPlatformSite();
 
@@ -43,17 +39,10 @@ export const StripeNudge = ( { blockName } ) => {
 			readMoreUrl = isWpcom
 				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-donations-block' )
 				: getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' );
-			subtitle = (
-				<>
-					{ hiddenMessage }
-					<br />
-					<Link
-						openInNewTab
-						href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }
-					>
-						{ __( "Review Stripe's requirements for accepting donations", 'jetpack' ) }
-					</Link>
-				</>
+			requirementsLink = (
+				<Link openInNewTab href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }>
+					{ __( "Review Stripe's requirements for accepting donations", 'jetpack' ) }
+				</Link>
 			);
 			break;
 		case 'premium-content':
@@ -82,10 +71,20 @@ export const StripeNudge = ( { blockName } ) => {
 				/>
 			}
 			href={ stripeConnectUrl }
-			readMoreUrl={ readMoreUrl }
+			links={
+				<>
+					{ requirementsLink }
+					<Link openInNewTab href={ readMoreUrl }>
+						{ __( 'Learn more about the block and fees', 'jetpack' ) }
+					</Link>
+				</>
+			}
 			onClick={ recordTracksEvent }
 			title={ __( 'Connect to Stripe to use this block on your site', 'jetpack' ) }
-			subtitle={ subtitle }
+			subtitle={ __(
+				'This block will be hidden from your visitors until you connect to Stripe.',
+				'jetpack'
+			) }
 		/>
 	);
 };
