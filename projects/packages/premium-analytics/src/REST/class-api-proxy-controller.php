@@ -134,11 +134,6 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		),
 		'wordads'                       => array( 'capability' => 'activate_wordads' ),
 		'subscribers'                   => array( 'capability' => 'view_stats' ),
-		'memberships'                   => array(
-			'capability' => 'view_stats',
-			// Only the product list, never memberships subscribers or earnings.
-			'pattern'    => 'products',
-		),
 		'site-has-never-published-post' => array( 'capability' => 'view_stats' ),
 		'jetpack-stats'                 => array(
 			'capability'        => 'view_stats',
