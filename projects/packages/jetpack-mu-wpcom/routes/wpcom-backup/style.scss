@@ -1,0 +1,10 @@
+// Route-level styles for the Simple-site Backup page. The layout mixin is
+// included per route because each wp-build route bundles its own CSS.
+
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Scoped to the body class so the layout cannot leak onto other Jetpack pages.
+body.jetpack_page_jetpack-backup {
+
+	@include jetpack-admin-page-layout-wp-build;
+}

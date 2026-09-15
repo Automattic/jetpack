@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Backup page for Simple sites rendering the upgrade or activate prompt in wp-admin via wp-build. Registered but not linked from the menu.
