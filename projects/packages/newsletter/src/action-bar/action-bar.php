@@ -175,9 +175,9 @@ function wpcom_actionbar_footer() {
 	$asset_file = file_exists( $asset_path ) ? include $asset_path : array();
 	$version    = is_array( $asset_file ) && ! empty( $asset_file['version'] ) ? $asset_file['version'] : Settings::PACKAGE_VERSION;
 
-	$css_file = $is_rtl ? '../../build/action-bar.rtl.css' : '../../build/action-bar.css';
-	$css_url  = wp_json_encode( add_query_arg( 'ver', $version, plugins_url( $css_file, __FILE__ ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
-	$js_url   = wp_json_encode( add_query_arg( 'ver', $version, plugins_url( '../../build/action-bar.js', __FILE__ ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+	// One stylesheet for both directions: it uses logical properties and the bar carries its own dir attribute.
+	$css_url = wp_json_encode( add_query_arg( 'ver', $version, plugins_url( '../../build/action-bar.css', __FILE__ ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+	$js_url  = wp_json_encode( add_query_arg( 'ver', $version, plugins_url( '../../build/action-bar.js', __FILE__ ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 
 	wp_print_inline_script_tag(
 		'window.addEventListener( "DOMContentLoaded", function () {

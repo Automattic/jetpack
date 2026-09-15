@@ -24,8 +24,8 @@ div#actionbar * {
 div#actionbar {
 	background: $white;
 	position: fixed;
-	bottom: 10px;
-	right: 10px;
+	inset-block-end: 10px;
+	inset-inline-end: 10px;
 	border: 0;
 	border-radius: $radius-medium;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
@@ -66,7 +66,7 @@ div#actionbar ul {
 	margin: 0;
 	padding: 0;
 	line-height: 1;
-	text-align: left;
+	text-align: start;
 	font-size: 1rem;
 }
 
@@ -191,6 +191,10 @@ div#actionbar .actnbr-ellipsis:not(.actnbr-hidden) .actnbr-more-toggle .actnbr-i
 	transform: rotate(90deg);
 }
 
+div#actionbar[dir="rtl"] .actnbr-ellipsis:not(.actnbr-hidden) .actnbr-more-toggle .actnbr-icon {
+	transform: rotate(-90deg);
+}
+
 /* Focus rings only for keyboard focus. */
 div#actionbar :focus:not(:focus-visible) {
 	outline: none;
@@ -224,7 +228,7 @@ div#actionbar .actnbr-menu__item {
 	font-size: $font-size-medium;
 	font-weight: 400;
 	line-height: $default-line-height;
-	text-align: left;
+	text-align: start;
 	text-decoration: none;
 	white-space: nowrap;
 	cursor: pointer;
@@ -244,7 +248,7 @@ div#actionbar .actnbr-menu__item:focus-visible {
 div#actionbar .actnbr-menu__label {
 	display: inline-flex;
 	align-items: center;
-	margin-right: auto;
+	margin-inline-end: auto;
 	min-width: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -253,14 +257,15 @@ div#actionbar .actnbr-menu__label {
 div#actionbar .actnbr-menu__icon {
 	display: inline-flex;
 	flex: 0 0 auto;
-	margin-left: $grid-unit-30;
+	margin-inline-start: $grid-unit-30;
 	color: currentColor;
 }
 
 div#actionbar .actnbr-menu__item img {
 	width: 24px;
 	height: 24px;
-	margin: -2px $grid-unit-10 -2px 0;
+	margin-block: -2px;
+	margin-inline: 0 $grid-unit-10;
 	padding: 0;
 	border-radius: $radius-small;
 	display: inline;
@@ -289,14 +294,14 @@ div#actionbar .actnbr-shortlink textarea {
 	position: fixed;
 	opacity: 0;
 	z-index: -1;
-	left: -9999px;
+	inset-inline-start: -9999px;
 }
 
 /* Both popovers share the editor's popover surface. */
 div#actionbar .actnbr-popover {
 	position: absolute;
-	right: 0;
-	bottom: 40px;
+	inset-inline-end: 0;
+	inset-block-end: 40px;
 	z-index: 1000;
 	width: 280px;
 	margin: 0;
@@ -308,7 +313,7 @@ div#actionbar .actnbr-popover {
 	font-family: $default-font;
 	font-size: $font-size-medium;
 	line-height: $default-line-height;
-	text-align: left;
+	text-align: start;
 }
 
 div#actionbar .actnbr-notice form {
@@ -452,13 +457,12 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings p.actnbr-site-settings
 div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle {
 	position: relative;
 	display: inline-block;
-	margin-right: $grid-unit-15;
+	margin-inline-end: $grid-unit-15;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input[type="checkbox"] {
 	position: absolute;
-	top: 0;
-	left: 0;
+	inset: 0;
 	width: 100%;
 	height: 100%;
 	opacity: 0;
@@ -488,12 +492,12 @@ div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__thumb {
 	display: block;
 	position: absolute;
 	box-sizing: border-box;
-	top: 3px;
-	left: 3px;
+	inset-block-start: 3px;
+	inset-inline-start: 3px;
 	width: 12px;
 	height: 12px;
 	border-radius: $radius-round;
-	transition: 0.1s transform ease;
+	transition: 0.1s inset-inline-start ease;
 	background-color: $gray-900;
 	border: 5px solid $gray-900;
 }
@@ -501,7 +505,7 @@ div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__thumb {
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input:checked ~ span.actnbr-site-settings__toggle__thumb {
 	background-color: $white;
 	border-width: 0;
-	transform: translateX(18px);
+	inset-inline-start: 21px;
 }
 
 div#actionbar .actnbr-site-settings__details {
@@ -532,25 +536,25 @@ div#actionbar .segmented-control__item {
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__item:first-of-type a.segmented-control__link {
-	border-top-left-radius: $radius-small;
-	border-bottom-left-radius: $radius-small;
+	border-start-start-radius: $radius-small;
+	border-end-start-radius: $radius-small;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__item:last-of-type a.segmented-control__link {
-	border-right: solid $border-width $admin-gray-10;
-	border-top-right-radius: $radius-small;
-	border-bottom-right-radius: $radius-small;
+	border-inline-end: solid $border-width $admin-gray-10;
+	border-start-end-radius: $radius-small;
+	border-end-end-radius: $radius-small;
 }
 
 div#actionbar .segmented-control__item:has(> [aria-checked="true"]) + .segmented-control__item .segmented-control__link {
-	border-left: none;
+	border-inline-start: none;
 }
 
 div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__link {
 	display: block;
 	padding: $grid-unit-05 $grid-unit-10;
 	border: solid $border-width $admin-gray-10;
-	border-right: none;
+	border-inline-end: none;
 	font-size: $font-size-small;
 	line-height: 16px;
 	color: $admin-gray-50;
@@ -568,8 +572,8 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__l
 @media ( max-width: 660px ) {
 
 	div#actionbar {
-		bottom: 0;
-		right: 0;
+		inset-block-end: 0;
+		inset-inline-end: 0;
 		padding: 0 $grid-unit-10;
 		border-radius: 0;
 		width: 100%;
@@ -591,27 +595,27 @@ div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__l
 /***** Position adjustments for specific themes that conflict with action bar */
 
 div#actionbar.actnbr-premium-espresso { /* Espresso */
-	right: 70px;
+	inset-inline-end: 70px;
 }
 
 div#actionbar.actnbr-premium-shelf { /* Shelf */
-	left: 10px;
-	right: auto;
+	inset-inline-start: 10px;
+	inset-inline-end: auto;
 }
 
 div#actionbar.actnbr-premium-shelf .actnbr-popover {
-	right: auto;
-	left: -35px;
+	inset-inline-end: auto;
+	inset-inline-start: -35px;
 }
 
 div#actionbar.actnbr-premium-shelf li.actnbr-btn .actnbr-popover,
 div#actionbar.actnbr-premium-shelf.actnbr-folded li.actnbr-btn .actnbr-popover {
-	right: 102px;
-	left: -26px;
+	inset-inline-end: 102px;
+	inset-inline-start: -26px;
 }
 
 body.has-playbar div#actionbar.actnbr-premium-obsidian { /* Obsidian */
-	bottom: 50px;
+	inset-block-end: 50px;
 }
 
 div#actionbar.actnbr-pub-boardwalk { /* Nowhere to go in boardwalk */
@@ -619,18 +623,18 @@ div#actionbar.actnbr-pub-boardwalk { /* Nowhere to go in boardwalk */
 }
 
 body #habla_window_div.habla_window_div_base { /* Move the live chat box when needed */
-	margin-right: 160px !important;
+	margin-inline-end: 160px !important;
 }
 
 div#translator-launcher { /* Move community translator tool when needed */
-	bottom: 67px;
-	right: 10px;
-	left: auto;
+	inset-block-end: 67px;
+	inset-inline-end: 10px;
+	inset-inline-start: auto;
 }
 
 @media ( min-width: 876px ) { /* Move o2 dock count on desktop. */
 	div#o2-dock {
-		right: 230px;
+		inset-inline-end: 230px;
 	}
 }
 
@@ -643,17 +647,17 @@ div#translator-launcher { /* Move community translator tool when needed */
 #scrollUp,
 .to-top,
 #back-to-top { /* Up arrow on some themes */
-	bottom: 55px;
-	right: 18px;
+	inset-block-end: 55px;
+	inset-inline-end: 18px;
 }
 
 #colophon #searchform input.search-field { /* Onigiri search box */
-	bottom: 65px;
+	inset-block-end: 65px;
 }
 
 #container #masthead #site-branding { /* Suidobashi site title */
 	z-index: 49999;
-	bottom: 65px;
+	inset-block-end: 65px;
 }
 
 /***** End theme adjustments */
