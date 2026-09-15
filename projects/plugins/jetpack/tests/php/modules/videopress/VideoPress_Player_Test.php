@@ -98,11 +98,11 @@ class VideoPress_Player_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * With the iframe embed disabled, the player script should be enqueued
-	 * only once while each video gets its own placeholder for the boot
-	 * script to mount. See #35926.
+	 * With the iframe embed disabled, each video gets a poster facade and the
+	 * boot script is enqueued once; the player bundle itself waits for the
+	 * first click. See #35926.
 	 */
-	public function test_non_iframe_path_enqueues_player_once_with_a_placeholder_per_video() {
+	public function test_non_iframe_path_enqueues_boot_script_once_with_a_facade_per_video() {
 		$use_iframe = '__return_false';
 		add_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
 
@@ -111,18 +111,42 @@ class VideoPress_Player_Test extends WP_UnitTestCase {
 
 		remove_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
 
-		$enqueued = array_keys( wp_scripts()->queue, 'videopress-videojs', true );
-		$this->assertCount( 1, $enqueued, 'videopress-videojs should be enqueued exactly once.' );
-
 		$boot = array_keys( wp_scripts()->queue, 'videopress-inline-player', true );
 		$this->assertCount( 1, $boot, 'The inline player boot script should be enqueued exactly once.' );
 
-		$styles = array_keys( wp_styles()->queue, 'videopress-videojs', true );
-		$this->assertCount( 1, $styles, 'The videopress-videojs stylesheet should be enqueued exactly once.' );
+		$enqueued = array_keys( wp_scripts()->queue, 'videopress-videojs', true );
+		$this->assertCount( 0, $enqueued, 'Behind the facade the player bundle is fetched on click, not enqueued.' );
+
+		$styles = array_keys( wp_styles()->queue, 'videopress-inline-player', true );
+		$this->assertCount( 1, $styles, 'The facade stylesheet handle should be enqueued exactly once.' );
 
 		$this->assertStringContainsString( 'data-videopress-guid="testguid"', $first );
+		$this->assertStringContainsString( 'data-videopress-facade="1"', $first );
 		$this->assertStringContainsString( 'data-videopress-guid="otherguid"', $second );
 		$this->assertStringNotContainsString( '<iframe', $first . $second );
+	}
+
+	/**
+	 * An autoplaying video needs the player at once, so it skips the facade and enqueues the bundle.
+	 */
+	public function test_non_iframe_autoplay_enqueues_the_player_bundle() {
+		$use_iframe = '__return_false';
+		add_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
+
+		$html = ( new VideoPress_Player(
+			'testguid',
+			0,
+			array(
+				'cover'    => true,
+				'autoplay' => true,
+			)
+		) )->html5_dynamic_next();
+
+		remove_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
+
+		$this->assertStringNotContainsString( 'data-videopress-facade', $html );
+		$this->assertCount( 1, array_keys( wp_scripts()->queue, 'videopress-videojs', true ) );
+		$this->assertCount( 1, array_keys( wp_styles()->queue, 'videopress-videojs', true ) );
 	}
 
 	/**
