@@ -11,7 +11,7 @@ type MonthlyRows = readonly { year: number; months: readonly unknown[] }[];
  * first day, so a month the endpoint reports outside the anchor opens whole.
  *
  * @param rows     - The heatmap rows, in any order; a numeric month is a covered one.
- * @param anchor   - The instant the subject started, a publish or registration day.
+ * @param anchor   - The instant the subject started: a post's publish day, a site's first day with views.
  * @param timeZone - The site timezone the months are read in.
  * @return The life's start; the anchor as given, or `undefined`, when no row covers a month.
  */
