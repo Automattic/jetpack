@@ -87,6 +87,21 @@ class Stats_Product_Test extends TestCase {
 		\Jetpack::$mock_premium_analytics_enabled = $enabled;
 	}
 
+	/**
+	 * The activation gate a sidebar item would declare needs the Jetpack plugin.
+	 *
+	 * Stats is a Module_Product, so is_activated() is the Jetpack plugin AND the module. The
+	 * standalone Jetpack Stats plugin runs without the Jetpack plugin, so a `product` gate
+	 * would resolve false there and take the menu with it.
+	 *
+	 * @see \Automattic\Jetpack\My_Jetpack\Menu_Visibility::resolve()
+	 */
+	public function test_is_activated_is_false_without_the_jetpack_plugin() {
+		deactivate_plugins( 'jetpack/jetpack.php' );
+
+		$this->assertFalse( Stats::is_activated() );
+	}
+
 	public function test_manage_url_points_at_the_stats_page_by_default() {
 		$this->set_premium_analytics_enabled( false );
 

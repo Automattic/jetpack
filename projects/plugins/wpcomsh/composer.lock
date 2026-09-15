@@ -2421,9 +2421,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "073fed26e8ffe994c55d59a68ea3784386dfa085"
+                "reference": "0183a440b98b60029af9da0bef298a29313af356"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",
