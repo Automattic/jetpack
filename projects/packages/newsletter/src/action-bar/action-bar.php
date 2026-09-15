@@ -48,7 +48,9 @@ function wpcom_actionbar_enqueue_scripts() {
 	// Don't show on theme previews and block patterns source sites.
 	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 	$is_theme_demo = function_exists( 'wpcom_is_theme_demo_site' ) && wpcom_is_theme_demo_site();
-	if ( isset( $_GET['theme'] ) || $is_theme_demo || has_blog_sticker( 'block-patterns-source-site', $site_id ) ) {
+	// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by jetpack-mu-wpcom, which is not a dependency; guarded by function_exists().
+	$is_pattern_source = function_exists( 'wpcom_has_blog_sticker' ) && wpcom_has_blog_sticker( 'block-patterns-source-site', $site_id );
+	if ( isset( $_GET['theme'] ) || $is_theme_demo || $is_pattern_source ) {
 		return;
 	}
 
