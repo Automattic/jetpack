@@ -1,15 +1,17 @@
 /* global document, window */
 import '@wordpress/theme/design-tokens.css';
 import '@automattic/jetpack-base-styles/root-variables';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import HistoryChartCard from '../../../../_inc/overview/history-chart-card';
+import { useHistoryRange } from '../../../../_inc/overview/lib/use-history-range';
 import ScoreCards from '../../../../_inc/overview/score-cards';
 import '../../../../_inc/overview/overview.scss';
 // Boost also loads My Jetpack styles, so verify the tooltip with that stylesheet present.
 import '../../../../../../packages/my-jetpack/_inc/components/stats-section/stats-chart-tooltip.module.scss';
 
-const startDate = Date.UTC( 2026, 8, 1 );
+const startDate = Date.UTC( 2026, 8, 1, 12 );
 const day = 24 * 60 * 60 * 1000;
 const data = {
 	startDate,
@@ -17,8 +19,8 @@ const data = {
 	periods: Array.from( { length: 7 }, ( _, index ) => ( {
 		timestamp: startDate + index * day,
 		dimensions: {
-			desktop_overall_score: 80 + index,
-			mobile_overall_score: 65 + index,
+			desktop_overall_score: index === 6 ? 0 : 80 + index,
+			mobile_overall_score: index === 6 ? 0 : 65 + index,
 			desktop_lcp: 1.2,
 			mobile_lcp: 2.1,
 			desktop_tbt: 0.1,
@@ -27,27 +29,34 @@ const data = {
 			mobile_cls: 0.04,
 		},
 	} ) ),
-	annotations: [
-		{ timestamp: startDate + 3 * day, text: 'Optimization enabled' },
-		{ timestamp: startDate + 4 * day, text: 'Configuration updated' },
-	],
+	annotations: [],
 };
 
+if ( new URLSearchParams( window.location.search ).has( 'zeros' ) ) {
+	data.periods = data.periods.map( period => ( {
+		...period,
+		dimensions: { ...period.dimensions, desktop_overall_score: 0, mobile_overall_score: 0 },
+	} ) );
+}
+
 const noop = () => {};
+const queryClient = new QueryClient();
 
 const HistoryFixture = () => {
+	const paging = useHistoryRange();
 	const [ isVisible, setVisible ] = useState( true );
 	const toggleVisibility = useCallback( () => setVisible( visible => ! visible ), [] );
 	return (
-		<>
+		<div>
 			<button onClick={ toggleVisibility }>Toggle history</button>
 			<HistoryChartCard
+				{ ...paging }
 				data={ data }
 				isVisible={ isVisible }
 				onRetry={ noop }
 				onDismissFreshStart={ noop }
 			/>
-		</>
+		</div>
 	);
 };
 
@@ -70,7 +79,9 @@ createRoot( document.getElementById( 'root' ) ).render(
 				/>
 			</>
 		) : (
-			<HistoryFixture />
+			<QueryClientProvider client={ queryClient }>
+				<HistoryFixture />
+			</QueryClientProvider>
 		) }
 	</div>
 );

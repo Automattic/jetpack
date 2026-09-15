@@ -37,3 +37,12 @@ export function formatScoreDelta( delta: number ): string | null {
 		`+${ delta }`
 	);
 }
+
+export function getScoreTierColor( tier: ScoreTier ): string {
+	const colors = {
+		good: 'var(--jetpack-boost-score-good)',
+		medium: 'var(--jetpack-boost-score-medium)',
+		poor: 'var(--jetpack-boost-score-poor)',
+	};
+	return colors[ tier ];
+}
