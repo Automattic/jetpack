@@ -83,6 +83,7 @@ const createMockData = ( options: {
 					? createMockReportData( metricKey, comparisonValue, COMPARISON_DATE_RANGE )
 					: undefined,
 		},
+		timezone: 'UTC',
 		isLoading,
 		isFetching,
 		hasData,

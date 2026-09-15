@@ -150,4 +150,40 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 		$gifting_banner = new Gifting_Banner();
 		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
+
+	/**
+	 * The expiry banner from jetpack-mu-wpcom is due for an admin of a site
+	 * whose plan has lapsed; a visitor never gets it, so the gifting banner
+	 * stays theirs.
+	 */
+	public function test_gifting_banner_stands_down_for_the_expiry_banner() {
+		$business_plan_purchase = array(
+			'product_slug' => 'business-bundle',
+			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
+			'auto_renew'   => false,
+		);
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
+
+		wp_set_current_user( 0 );
+		$this->flush_expiry_notice_memos();
+		$gifting_banner = new Gifting_Banner();
+		$gifting_banner->init();
+		$this->assertNotFalse( has_action( 'wp_head', array( $gifting_banner, 'inject_gifting_banner_wpcomsh' ) ) );
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$this->flush_expiry_notice_memos();
+		$gifting_banner = new Gifting_Banner();
+		$gifting_banner->init();
+		$this->assertFalse( has_action( 'wp_head', array( $gifting_banner, 'inject_gifting_banner_wpcomsh' ) ) );
+
+		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
+	}
+
+	/**
+	 * The expiry notices answer once per request; the test changes the user
+	 * between two answers.
+	 */
+	private function flush_expiry_notice_memos(): void {
+		wpcom_expiry_notices_eligible_state( true );
+	}
 }

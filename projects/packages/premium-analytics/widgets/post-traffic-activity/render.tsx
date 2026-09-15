@@ -12,17 +12,17 @@ import {
 	HeatmapSkeleton,
 	WidgetRoot,
 	WidgetState,
-	buildCalendarHeatmapData,
 	fitWeekColumns,
 	formatViewCount,
 	toDay,
+	useCalendarHeatmapData,
 	useElementSize,
 	useWidgetRootContext,
 	type HeatmapTooltipData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useResizeObserver } from '@wordpress/compose';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -120,10 +120,7 @@ function PostTrafficActivityInner() {
 	const [ chartAreaRef, chartAreaSize ] = useElementSize< HTMLDivElement >();
 	const maxCellHeight = cellHeightForArea( chartAreaSize.height );
 
-	const { data: heatmapData, rowLabels } = useMemo(
-		() => buildCalendarHeatmapData( days ),
-		[ days ]
-	);
+	const { data: heatmapData, rowLabels } = useCalendarHeatmapData( days );
 
 	const from = toDay( reportParams.from );
 	const to = toDay( reportParams.to );

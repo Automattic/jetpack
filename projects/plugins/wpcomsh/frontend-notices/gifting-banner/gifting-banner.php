@@ -28,6 +28,10 @@ class Gifting_Banner {
 	public function init() {
 		// Inject the gifting banner after the launch banner.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			// The expiry banner takes the same spot for admins; one bar at a time.
+			if ( function_exists( 'wpcom_expiry_notices_frontend_banner_is_due' ) && wpcom_expiry_notices_frontend_banner_is_due() ) {
+				return;
+			}
 			if ( ! $this->should_display_expiring_plan_notice() ) {
 				return;
 			}

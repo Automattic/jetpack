@@ -6,7 +6,7 @@ import {
 	useStatsVisits,
 	withoutComparison,
 } from '@jetpack-premium-analytics/data';
-import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { localTZDate, parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
 import {
 	AdaptiveCalendarHeatmap,
@@ -58,7 +58,7 @@ function TrafficViewsActivityInner() {
 
 	// One reading for both windows below, so a render across midnight cannot resolve
 	// them against different days.
-	const today = format( new Date(), 'yyyy-MM-dd' );
+	const today = format( localTZDate(), 'yyyy-MM-dd' );
 
 	// A ceiling only — a floor would leak years outside the selection into the
 	// card's heading (WOOA7S-1963); it also bounds paging, so paging can't escape the selection.

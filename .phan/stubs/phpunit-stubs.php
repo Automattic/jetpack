@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.34
+ * Stubs automatically generated from PHPUnit 12.5.35
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -15007,6 +15007,16 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\TestDox\Subs
  * @no-named-arguments
  * @internal
  */
+final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
+{
+    public function notify(\PHPUnit\Event\TestSuite\Skipped $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments
+ * @internal
+ */
 final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\DeprecationTriggeredSubscriber
 {
     public function notify(\PHPUnit\Event\Test\DeprecationTriggered $event): void
@@ -15239,6 +15249,9 @@ final class TestResultCollector
      * @throws \PHPUnit\Event\InvalidArgumentException
      */
     public function testFinished(\PHPUnit\Event\Test\Finished $event): void
+    {
+    }
+    public function testSuiteSkipped(\PHPUnit\Event\TestSuite\Skipped $event): void
     {
     }
 }

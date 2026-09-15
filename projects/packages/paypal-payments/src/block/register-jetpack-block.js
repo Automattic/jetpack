@@ -90,7 +90,7 @@ export default function registerJetpackBlock(
 export function registerJetpackBlockFromMetadata( metadata, settings, childBlocks, prefix ) {
 	const mergedSettings = {
 		...settings,
-		icon: getBlockIconProp( metadata ),
+		icon: settings.icon || getBlockIconProp( metadata ),
 		attributes: metadata.attributes || {},
 	};
 

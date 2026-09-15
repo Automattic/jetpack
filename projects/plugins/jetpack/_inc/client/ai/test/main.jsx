@@ -5,11 +5,17 @@ import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import analytics from 'lib/analytics';
 import App from '../main';
+// Compiles the lazy tab module before the tests run, so the flag test's 1s wait
+// covers the render and not Jest's cold transform of DataViews on CI.
+import '../scheduled-tasks/index';
 
 // main.jsx imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
-jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) );
+jest.mock( '@automattic/jetpack-ai-client/jwt', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
 
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the GET/POST responses.
@@ -471,6 +477,26 @@ describe( 'AI admin page (main.jsx)', () => {
 			// The settings fetch is skipped: without a user token it can only fail.
 			expect( apiFetch ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { path: expect.stringContaining( 'mcp-settings' ) } )
+			);
+		} );
+
+		test( 'the connect card uses the supplied connection screen', async () => {
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				isUserConnected: false,
+				userConnectionUrl: 'admin.php?page=jetpack#/connect-user',
+			};
+			mockApiFetch( { mcpGet: { has_mcp_access: false, mcp_abilities: {} } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( CONNECT_CARD_TEXT, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Connect your user account' } ) ).toHaveAttribute(
+				'href',
+				'admin.php?page=jetpack#/connect-user'
 			);
 		} );
 

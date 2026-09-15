@@ -55,6 +55,7 @@ class Enablement_Setting_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_premium_analytics_enabled' );
 		remove_action( 'rest_api_init', array( Enablement_Setting::class, 'register' ) );
 		remove_action( 'rest_api_init', array( $this, 'register_core_settings_route' ), 99 );
+		remove_action( 'update_option_' . Enablement_Setting::ENABLED_OPTION, array( Enablement_Setting::class, 'reset_onboarding_on_reactivation' ) );
 		wp_set_current_user( 0 );
 
 		parent::tear_down();
@@ -208,6 +209,94 @@ class Enablement_Setting_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Store a reader's persisted preferences the way core's client layer writes them.
+	 *
+	 * @param int   $user_id     User to write for.
+	 * @param array $preferences Preferences, scope-keyed.
+	 * @return string The meta key written.
+	 */
+	private function seed_preferences( int $user_id, array $preferences ): string {
+		global $wpdb;
+		$meta_key = $wpdb->get_blog_prefix() . 'persisted_preferences';
+		update_user_meta( $user_id, $meta_key, $preferences );
+
+		return $meta_key;
+	}
+
+	/**
+	 * A reader's preferences as seeded for these tests: onboarding done, one unrelated key.
+	 *
+	 * @return array
+	 */
+	private function seen_onboarding_preferences(): array {
+		return array(
+			Enablement_Setting::PREFERENCES_SCOPE => array(
+				Enablement_Setting::ONBOARDING_KEY => '2026-09-01T10:00:00.000Z',
+				'dashboardGridSettings'            => array( 'columnCount' => 4 ),
+			),
+			'core/edit-post'                      => array( 'welcomeGuide' => false ),
+			'_modified'                           => '2026-09-01T10:00:00.000Z',
+		);
+	}
+
+	public function test_switching_on_again_forgets_the_onboarding_for_the_reader_who_did_it() {
+		$user_id  = $this->log_in_as_admin();
+		$meta_key = $this->seed_preferences( $user_id, $this->seen_onboarding_preferences() );
+		update_option( Enablement_Setting::ENABLED_OPTION, 0 );
+
+		$this->assertSame( 200, $this->post_enabled( true )->get_status() );
+
+		$preferences = get_user_meta( $user_id, $meta_key, true );
+		$this->assertArrayNotHasKey( Enablement_Setting::ONBOARDING_KEY, $preferences[ Enablement_Setting::PREFERENCES_SCOPE ] );
+		$this->assertSame( array( 'columnCount' => 4 ), $preferences[ Enablement_Setting::PREFERENCES_SCOPE ]['dashboardGridSettings'] );
+		$this->assertSame( array( 'welcomeGuide' => false ), $preferences['core/edit-post'] );
+		// The client layer takes whichever copy is newer, so the server's has to be.
+		$this->assertGreaterThan( strtotime( '2026-09-01T10:00:00.000Z' ), strtotime( $preferences['_modified'] ) );
+	}
+
+	public function test_switching_off_leaves_the_onboarding_alone() {
+		$user_id  = $this->log_in_as_admin();
+		$meta_key = $this->seed_preferences( $user_id, $this->seen_onboarding_preferences() );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		$this->assertSame( 200, $this->post_enabled( false )->get_status() );
+
+		$this->assertSame( $this->seen_onboarding_preferences(), get_user_meta( $user_id, $meta_key, true ) );
+	}
+
+	public function test_a_first_activation_leaves_preferences_without_the_key_alone() {
+		$user_id     = $this->log_in_as_admin();
+		$preferences = array(
+			'core/edit-post' => array( 'welcomeGuide' => false ),
+			'_modified'      => '2026-09-01T10:00:00.000Z',
+		);
+		$meta_key    = $this->seed_preferences( $user_id, $preferences );
+
+		$this->assertSame( 200, $this->post_enabled( true )->get_status() );
+
+		$this->assertSame( $preferences, get_user_meta( $user_id, $meta_key, true ) );
+	}
+
+	public function test_switching_on_again_touches_no_other_reader() {
+		global $wpdb;
+		$other_id = wp_insert_user(
+			array(
+				'user_login' => 'pa-other-admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		$meta_key = $this->seed_preferences( $other_id, $this->seen_onboarding_preferences() );
+		$this->log_in_as_admin();
+		update_option( Enablement_Setting::ENABLED_OPTION, 0 );
+
+		$this->assertSame( 200, $this->post_enabled( true )->get_status() );
+
+		$this->assertSame( $this->seen_onboarding_preferences(), get_user_meta( $other_id, $wpdb->get_blog_prefix() . 'persisted_preferences', true ) );
+		$this->assertSame( $meta_key, $wpdb->get_blog_prefix() . 'persisted_preferences' );
+	}
+
+	/**
 	 * Both hosts may register, so a second call has to leave a single, unchanged declaration.
 	 */
 	public function test_register_is_idempotent() {
@@ -220,5 +309,6 @@ class Enablement_Setting_Test extends BaseTestCase {
 		$this->assertArrayHasKey( Enablement_Setting::ENABLED_OPTION, $registered );
 		$this->assertSame( 'boolean', $registered[ Enablement_Setting::ENABLED_OPTION ]['type'] );
 		$this->assertTrue( $registered[ Enablement_Setting::ENABLED_OPTION ]['show_in_rest'] );
+		$this->assertSame( 10, has_action( 'update_option_' . Enablement_Setting::ENABLED_OPTION, array( Enablement_Setting::class, 'reset_onboarding_on_reactivation' ) ) );
 	}
 }

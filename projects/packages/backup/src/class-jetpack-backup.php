@@ -216,7 +216,11 @@ class Jetpack_Backup {
 			'manage_options',
 			self::JETPACK_BACKUP_SLUG,
 			$callback,
-			7
+			null,
+			array(
+				'product' => 'backup',
+				'key'     => 'jetpack-backup',
+			)
 		);
 
 		if ( $page_suffix ) {
@@ -610,7 +614,7 @@ class Jetpack_Backup {
 	/**
 	 * Checks whether the site supports the product, reporting an unreadable answer as an error.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.0.1
 	 *
 	 * @return bool|WP_Error True when the site has Backup, or a WP_Error if WordPress.com could not be read.
 	 */

@@ -49,6 +49,7 @@ class Playlist_Block_Test extends BaseTestCase {
 	 */
 	protected function tear_down() {
 		\WP_Block_Supports::$block_to_render = null;
+		delete_option( 'videopress_player_preload_disabled' );
 
 		$registry = \WP_Block_Type_Registry::get_instance();
 		if ( $registry->is_registered( 'videopress/playlist' ) ) {
@@ -313,6 +314,21 @@ class Playlist_Block_Test extends BaseTestCase {
 		);
 		$this->assertStringContainsString( 'data-autoplay-next="1"', $loop_only );
 		$this->assertStringContainsString( 'data-loop="1"', $loop_only );
+	}
+
+	/**
+	 * The site-wide preload opt-out rides on every embed URL: the player and the entries.
+	 */
+	public function test_render_honors_site_preload_opt_out() {
+		$markup = VideoPress_Initializer::render_videopress_playlist_block( $this->attributes() );
+		$this->assertSame( 3, substr_count( $markup, 'preloadContent=metadata' ) );
+		$this->assertStringNotContainsString( 'preloadContent=none', $markup );
+
+		update_option( 'videopress_player_preload_disabled', true );
+
+		$markup = VideoPress_Initializer::render_videopress_playlist_block( $this->attributes() );
+		$this->assertSame( 3, substr_count( $markup, 'preloadContent=none' ) );
+		$this->assertStringNotContainsString( 'preloadContent=metadata', $markup );
 	}
 
 	/**

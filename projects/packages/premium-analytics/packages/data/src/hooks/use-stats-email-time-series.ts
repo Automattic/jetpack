@@ -10,6 +10,7 @@ import {
 	type StatsEmailTimeSeriesDataPoint,
 	type StatsEmailTimeSeriesSummary,
 } from '../queries/stats-email-time-series-query';
+import { resolveReportTimeZone } from '../utils/report-timezone';
 import { useStatsQuery } from './use-stats-query';
 import type { UseStatsOptions } from './use-stats-report';
 
@@ -18,7 +19,10 @@ export function useStatsEmailOpensTimeSeries(
 	params: StatsEmailTimeSeriesParams,
 	options?: UseStatsOptions
 ) {
-	return useStatsQuery( statsEmailOpensTimeSeriesQuery( postId, params ), options );
+	return {
+		...useStatsQuery( statsEmailOpensTimeSeriesQuery( postId, params ), options ),
+		timezone: resolveReportTimeZone( params.timezone ),
+	};
 }
 
 export function useStatsEmailClicksTimeSeries(
@@ -26,7 +30,10 @@ export function useStatsEmailClicksTimeSeries(
 	params: StatsEmailTimeSeriesParams,
 	options?: UseStatsOptions
 ) {
-	return useStatsQuery( statsEmailClicksTimeSeriesQuery( postId, params ), options );
+	return {
+		...useStatsQuery( statsEmailClicksTimeSeriesQuery( postId, params ), options ),
+		timezone: resolveReportTimeZone( params.timezone ),
+	};
 }
 
 export type {

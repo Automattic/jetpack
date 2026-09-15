@@ -42,7 +42,7 @@ class Ai_Seo {
 	 * nothing is never offered. The sidebar's suggestions need a host that loads
 	 * the sidebar; the editor's generation needs `ai-seo-enhancer`.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.1
 	 *
 	 * @return bool
 	 */

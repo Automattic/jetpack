@@ -18,6 +18,12 @@ import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 // because only one of these renders per page.
 const SELECTION_HINT_ID = 'jpb-restore__selection-hint';
 
+// `adopted` is latched for the life of the screen, so the "already
+// running" notice needs its own end. An allowlist rather than excluding
+// the terminal phases: a phase added later should not silently start
+// announcing a finished restore as still running.
+const STILL_RUNNING_PHASES = new Set( [ 'checking', 'queued', 'progress' ] );
+
 /**
  * Restore screen — narrow centered layout with the warning notice, the
  * shared item checklist, and a Confirm button. Submit drives a real
@@ -114,11 +120,11 @@ export default function RestoreScreen() {
 					 * running and we can no longer see it — promising an end state
 					 * the notice beneath has just disowned.
 					 *
-					 * "from here" because the constraint is this screen's, not the
-					 * product's: nothing upstream refuses a second restore, and the
+					 * "from here" because the constraint is this screen's: upstream
+					 * refuses a concurrent restore only as a bare failure, and the
 					 * reader can still start one from WordPress.com.
 					 */ }
-					{ adopted && state.phase !== 'lost-track' && (
+					{ adopted && STILL_RUNNING_PHASES.has( state.phase ) && (
 						<Notice status="info" isDismissible={ false }>
 							{ restorePoint
 								? sprintf(
@@ -198,7 +204,10 @@ export default function RestoreScreen() {
 					{ state.phase === 'queued' && (
 						<Stack direction="column" gap="sm">
 							<Text>
-								{ __( 'Your restore is queued and will begin shortly…', 'jetpack-backup-pkg' ) }
+								{ __(
+									'Your restore is queued and will begin automatically.',
+									'jetpack-backup-pkg'
+								) }
 							</Text>
 							<ProgressBar
 								aria-label={ __( 'Waiting for your restore to begin', 'jetpack-backup-pkg' ) }
@@ -296,10 +305,9 @@ export default function RestoreScreen() {
 					 * Accepted, and then out of sight — the silence deadline passed, or
 					 * the status poll stopped answering. Deliberately not the error
 					 * branch below, which offers "Try again": that resets to an armed
-					 * Confirm button, so the only control on screen would start a second
-					 * concurrent restore of the same site directly beneath a notice
-					 * saying the first may still be running. Nothing upstream is known
-					 * to refuse that.
+					 * Confirm button directly beneath a notice saying the first restore
+					 * may still be running. Upstream refuses the second one as a bare
+					 * failure — a worse answer than not offering the button.
 					 *
 					 * Warning rather than error for the same reason the copy says "may":
 					 * we have no evidence the restore failed, only that we cannot see

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Require a tax rate when tax collection is on, instead of saving an empty rate as 0%.

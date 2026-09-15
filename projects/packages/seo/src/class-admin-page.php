@@ -62,7 +62,12 @@ class Admin_Page {
 			'manage_options',
 			self::MENU_SLUG,
 			$callback,
-			2
+			null,
+			// SEO has no My Jetpack product class, so the module is the only gate available.
+			array(
+				'module' => 'seo-tools',
+				'key'    => 'jetpack-seo',
+			)
 		);
 	}
 

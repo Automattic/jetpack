@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Return saved site verification codes from the site settings API.

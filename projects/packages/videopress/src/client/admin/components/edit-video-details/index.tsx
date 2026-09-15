@@ -36,6 +36,7 @@ import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
+import PageSubTitle from '../page-subtitle';
 import VideoDetails from '../video-details';
 import VideoDetailsActions from '../video-details-actions';
 import VideoThumbnail from '../video-thumbnail';
@@ -261,7 +262,7 @@ const EditVideoDetails = () => {
 
 			<AdminPage
 				breadcrumbs={ breadcrumbs }
-				subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+				subTitle={ <PageSubTitle /> }
 				actions={ headerActions }
 			>
 				<Container horizontalSpacing={ 0 }>

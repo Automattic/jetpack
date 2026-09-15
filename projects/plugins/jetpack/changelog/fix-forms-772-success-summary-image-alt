@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: add an empty alt attribute to the image option thumbnails in the form success summary.

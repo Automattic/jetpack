@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component, Fragment } from 'react';
 import SimpleNotice from 'components/notice';
@@ -33,7 +34,6 @@ export default class JetpackConnectionErrors extends Component {
 					<SimpleNotice
 						text={ message }
 						status={ 'is-error' }
-						icon={ 'link-break' }
 						showDismiss={ false }
 						display={ this.props.display }
 					>
@@ -49,7 +49,6 @@ export default class JetpackConnectionErrors extends Component {
 					<SimpleNotice
 						text={ message }
 						status={ 'is-error' }
-						icon={ 'link-break' }
 						showDismiss={ false }
 						display={ this.props.display }
 					/>
@@ -66,11 +65,7 @@ export default class JetpackConnectionErrors extends Component {
 					// Add secondary action if available
 					if ( errorData.secondary_action_url && errorData.secondary_action_label ) {
 						actions.push(
-							<NoticeAction
-								key="secondary"
-								href={ errorData.secondary_action_url }
-								variant="secondary"
-							>
+							<NoticeAction key="secondary" href={ errorData.secondary_action_url }>
 								{ errorData.secondary_action_label }
 							</NoticeAction>
 						);
@@ -80,7 +75,6 @@ export default class JetpackConnectionErrors extends Component {
 						<SimpleNotice
 							text={ message }
 							status={ 'is-error' }
-							icon={ 'link-break' }
 							showDismiss={ false }
 							display={ this.props.display }
 						>
@@ -128,6 +122,10 @@ export default class JetpackConnectionErrors extends Component {
 			}
 		}
 
-		return Object.values( errorsToDisplay ).map( error => this.renderOne( error ) );
+		return (
+			<Stack direction="column" gap="xl">
+				{ Object.values( errorsToDisplay ).map( error => this.renderOne( error ) ) }
+			</Stack>
+		);
 	}
 }

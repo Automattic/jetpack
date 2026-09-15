@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Post_Media\Images;
+use Automattic\Jetpack\SEO\Content_Gate;
 use Automattic\Jetpack\Status\Request;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -1304,7 +1305,7 @@ EOT;
 				$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
 				$related_posts[ $index ]['title']   = $this->to_utf8( $this->get_title( $real_post->post_title, $real_post->post_content, $real_post->ID ) );
 				$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
-				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->to_utf8( $this->get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
+				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->to_utf8( $this->get_excerpt( $real_post->post_excerpt, $real_post->post_content, $real_post->ID ) ), ENT_QUOTES, 'UTF-8' );
 				$related_posts[ $index ]['img']     = $this->generate_related_post_image_params( $real_post->ID );
 				$related_posts[ $index ]['context'] = $this->generate_related_post_context( $real_post->ID );
 			}
@@ -1357,7 +1358,7 @@ EOT;
 			'author'        => $this->generate_related_post_display_author( $post->ID ),
 			'date'          => get_the_date( '', $post->ID ),
 			'format'        => get_post_format( $post->ID ),
-			'excerpt'       => html_entity_decode( $this->to_utf8( $this->get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
+			'excerpt'       => html_entity_decode( $this->to_utf8( $this->get_excerpt( $post->post_excerpt, $post->post_content, $post->ID ) ), ENT_QUOTES, 'UTF-8' ),
 			/**
 			 * Filters the rel attribute for the Related Posts' links.
 			 *
@@ -1428,9 +1429,12 @@ EOT;
 			);
 		}
 
-		$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5, '…' );
-		if ( ! empty( $post_title ) ) {
-			return $post_title;
+		// Same gate as get_excerpt(): this fallback is five words of the raw body.
+		if ( ! Content_Gate::is_gated( $post_id ) ) {
+			$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5, '…' );
+			if ( ! empty( $post_title ) ) {
+				return $post_title;
+			}
 		}
 
 		return __( 'Untitled Post', 'jetpack' );
@@ -1441,14 +1445,18 @@ EOT;
 	 *
 	 * @param string $post_excerpt - the post excerpt.
 	 * @param string $post_content - the post content.
+	 * @param int    $post_id - the post ID.
 	 * @uses strip_shortcodes, wp_strip_all_tags, wp_trim_words
 	 * @return string
 	 */
-	protected function get_excerpt( $post_excerpt, $post_content ) {
-		if ( empty( $post_excerpt ) ) {
-			$excerpt = $post_content;
-		} else {
+	protected function get_excerpt( $post_excerpt, $post_content, $post_id ) {
+		if ( ! empty( $post_excerpt ) ) {
 			$excerpt = $post_excerpt;
+		} elseif ( Content_Gate::is_gated( $post_id ) ) {
+			// The body fall-through never passes through the `the_content` paywall, so ask the gate directly.
+			return '';
+		} else {
+			$excerpt = $post_content;
 		}
 
 		return wp_trim_words( wp_strip_all_tags( strip_shortcodes( $excerpt ) ), 50, '…' );
@@ -1495,14 +1503,26 @@ EOT;
 
 		// Try to get post image.
 		$img_url    = '';
-		$post_image = Images::get_image(
-			$post_id,
-			$thumbnail_size
-		);
+		$is_gated   = Content_Gate::is_gated( $post_id );
+		$image_args = $thumbnail_size;
+		if ( $is_gated ) {
+			// Restrict to the featured image; every other source parses the body.
+			$image_args = array_merge(
+				$image_args,
+				array(
+					'from_slideshow'  => false,
+					'from_gallery'    => false,
+					'from_attachment' => false,
+					'from_blocks'     => false,
+					'from_html'       => false,
+				)
+			);
+		}
+		$post_image = Images::get_image( $post_id, $image_args );
 
 		if ( is_array( $post_image ) ) {
 			$img_url = $post_image['src'];
-		} elseif ( class_exists( 'Jetpack_Media_Summary' ) ) {
+		} elseif ( ! $is_gated && class_exists( 'Jetpack_Media_Summary' ) ) {
 			$media = Jetpack_Media_Summary::get( $post_id );
 
 			if ( is_array( $media ) && ! empty( $media['image'] ) ) {

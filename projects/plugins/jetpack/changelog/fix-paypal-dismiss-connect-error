@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: Keep the PayPal connection error dismissed, instead of showing it again and asking PayPal for another onboarding link.

@@ -27,6 +27,11 @@
 	> :focus-within {
 		z-index: 1;
 	}
+
+	// The frame greys with the pills it holds, as the input layout's stroke does.
+	&.is-disabled {
+		border-color: var(--wpds-color-stroke-interactive-neutral-disabled);
+	}
 }
 
 @mixin pill {

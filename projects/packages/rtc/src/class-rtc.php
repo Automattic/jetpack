@@ -118,7 +118,7 @@ class RTC {
 	 * @return bool
 	 */
 	public static function is_turned_on() {
-		return self::is_allowed() && (bool) get_option( self::OPTION_NEW );
+		return (bool) get_option( self::OPTION_NEW ) && self::is_allowed();
 	}
 
 	/**
@@ -293,6 +293,11 @@ class RTC {
 	 * @return mixed
 	 */
 	public static function filter_rtc_option( $value ) {
+		// An explicitly disabled setting needs no eligibility check.
+		if ( '0' === $value ) {
+			return $value;
+		}
+
 		// RTC not allowed: force the option off, regardless of what's in the DB.
 		if ( ! self::is_allowed() ) {
 			return '0';

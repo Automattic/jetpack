@@ -11,7 +11,6 @@ import { DetailPageLayout, DetailPageSection } from '../detail-page-layout';
 // these classes; the shared style stub would leave every one of them undefined.
 jest.mock( '../detail-page-layout.module.scss', () => ( {
 	root: 'root',
-	header: 'header',
 	section: 'section',
 } ) );
 
@@ -23,7 +22,7 @@ describe( 'DetailPageLayout', () => {
 			</DetailPageLayout>
 		);
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Launch recap' );
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Launch recap' );
 		expect( screen.getByText( 'Video published today.' ) ).toBeInTheDocument();
 	} );
 
@@ -38,6 +37,21 @@ describe( 'DetailPageLayout', () => {
 		);
 
 		expect( screen.getByTestId( 'date-filters-panel' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the tabs above the header, inside the scroll area', () => {
+		render(
+			<DetailPageLayout header={ { title: 'Launch recap' } } tabs={ <div role="tablist" /> }>
+				widgets
+			</DetailPageLayout>
+		);
+
+		const heading = screen.getByRole( 'heading', { level: 2 } );
+
+		// Order in the scroll area is what this test is for.
+		expect( screen.getByRole( 'tablist' ).compareDocumentPosition( heading ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
 	} );
 
 	it( 'renders no controls when given none', () => {

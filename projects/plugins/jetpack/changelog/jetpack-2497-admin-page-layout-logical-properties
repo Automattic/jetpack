@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Admin pages: Fix Jetpack dashboards overlapping the admin menu in right-to-left languages.

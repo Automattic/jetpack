@@ -1,11 +1,6 @@
 /**
- * External dependencies
- */
-import { getSettings, setSettings } from '@wordpress/date';
-/**
  * Internal dependencies
  */
-import { siteSettingsIn } from '../../__fixtures__/wp-date-settings';
 import { buildMetricTab } from '../build-metric-tab';
 
 describe( 'buildMetricTab', () => {
@@ -18,6 +13,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.value ).toBe( 999 );
@@ -32,6 +28,7 @@ describe( 'buildMetricTab', () => {
 			field: 'cpm',
 			label: 'CPM',
 			dataFormat,
+			zone: 'UTC',
 		} );
 
 		expect( tab.dataFormat ).toBe( dataFormat );
@@ -50,6 +47,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.current ).toHaveLength( 2 );
@@ -66,6 +64,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: true,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBe( 12 );
@@ -80,6 +79,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBeUndefined();
@@ -95,6 +95,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: true,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBeUndefined();
@@ -107,13 +108,10 @@ describe( 'buildMetricTab', () => {
 		// coincide and this would pass either way. `TZ` isn't on the typed env shape, hence the cast.
 		const env = process.env as Record< string, string | undefined >;
 		const runnerTimeZone = env.TZ;
-		const settings = getSettings();
 		beforeAll( () => {
 			env.TZ = 'America/Los_Angeles';
-			setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		} );
 		afterAll( () => {
-			setSettings( settings );
 			// Assigning `undefined` to an env var sets the literal string "undefined";
 			// an unset variable has to be deleted back off.
 			if ( runnerTimeZone === undefined ) {
@@ -130,6 +128,7 @@ describe( 'buildMetricTab', () => {
 				hasComparison: false,
 				field: 'views',
 				label: 'Views',
+				zone: 'Asia/Tokyo',
 			} ).current[ 0 ].date;
 
 		it.each( [
