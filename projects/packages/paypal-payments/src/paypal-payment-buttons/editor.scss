@@ -301,6 +301,9 @@
 // Error state for form fields. The form renders into the inspector sidebar,
 // outside the block, so there is no block ancestor to scope this under - the
 // class carries the namespace instead. editor.css loads on every editor screen.
+// The field border does not change. Measured across the whole Figma file: 4,554
+// stroked nodes, no red stroke anywhere, and #cc1818 only ever a fill. An error
+// is the message row and nothing else.
 .jetpack-paypal-payment-buttons__has-error {
 
 	// Every validated control here puts its error in the help slot, so one rule
@@ -325,28 +328,6 @@
 			mask-position: center;
 			mask-size: 16px 16px;
 			width: 16px;
-		}
-	}
-
-	.components-text-control__input,
-	.components-textarea-control__input {
-		border-color: #cc1818;
-
-		&:focus {
-			border-color: #cc1818;
-			box-shadow: 0 0 0 1px #cc1818;
-		}
-	}
-
-	// AmountField is deliberately absent - the design keeps an amount
-	// field's border grey and says it with the message alone. The class
-	// lands on SelectControl's own root, so that one is compound, while
-	// URLInput sits in a wrapper we add, so it is a descendant.
-	&.components-select-control,
-	.components-input-control {
-
-		.components-input-control__container .components-input-control__backdrop {
-			border-color: #cc1818;
 		}
 	}
 }
