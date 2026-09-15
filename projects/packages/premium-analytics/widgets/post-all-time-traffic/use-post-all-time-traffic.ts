@@ -3,12 +3,14 @@
  */
 import { useStatsPost } from '@jetpack-premium-analytics/data';
 import {
-	createTZDateFromParts,
 	localTZDate,
 	parseSiteDateTime,
 	reportingTimeZone,
 } from '@jetpack-premium-analytics/datetime';
-import type { MonthKey, MonthlyHeatmapMetric } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	monthlyHeatmapLifeStart,
+	type MonthlyHeatmapMetric,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -24,31 +26,6 @@ export interface PostAllTimeTrafficState {
 	isError: boolean;
 	error: unknown;
 	refetch: () => void;
-}
-
-/**
- * The publish day, unless the endpoint reports an earlier month: a rescheduled
- * post keeps the views from before its new date, and those months open whole.
- */
-function lifeStart(
-	rows: AllTimeTrafficRow[],
-	publishedAt: Date | undefined,
-	publishedMonth: MonthKey | undefined
-): Date | undefined {
-	const oldest = rows[ rows.length - 1 ];
-	const month = oldest?.months.findIndex( value => typeof value === 'number' ) ?? -1;
-
-	if ( ! oldest || month < 0 ) {
-		return publishedAt;
-	}
-
-	if ( publishedMonth && oldest.year === publishedMonth.year && month === publishedMonth.month ) {
-		return publishedAt;
-	}
-
-	return new Date(
-		createTZDateFromParts( [ oldest.year, month, 1 ], reportingTimeZone() ).getTime()
-	);
 }
 
 /**
@@ -94,7 +71,12 @@ export default function usePostAllTimeTraffic(
 			publishedMonth
 		);
 
-		return { rows: built, lifeStartsAt: lifeStart( built, publishedAt, publishedMonth ) };
+		// A rescheduled post keeps the views from before its new date; `monthlyHeatmapLifeStart`
+		// opens that oldest month whole.
+		return {
+			rows: built,
+			lifeStartsAt: monthlyHeatmapLifeStart( built, publishedAt, reportingTimeZone() ),
+		};
 	}, [ data, metric, publishedAt ] );
 
 	return {

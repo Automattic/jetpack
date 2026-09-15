@@ -242,6 +242,7 @@ export {
 	monthlyHeatmapMetricAttributeField,
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
+	monthlyHeatmapLifeStart,
 	monthRange,
 	yearRange,
 	type PeriodBounds,
