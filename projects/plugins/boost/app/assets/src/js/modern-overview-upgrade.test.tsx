@@ -15,6 +15,11 @@ jest.mock( '@wordpress/element', () => ( {
 } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
+afterEach( () => {
+	Reflect.deleteProperty( window, 'jpTracksAJAX' );
+	window.history.replaceState( {}, '', '/' );
+} );
+
 test( 'waits for tracking before navigating to the interstitial and cleans up its root', async () => {
 	window.history.replaceState( {}, '', '/admin.php?page=my-jetpack' );
 	let completeTracking: () => void;
@@ -49,11 +54,6 @@ test( 'waits for tracking before navigating to the interstitial and cleans up it
 	expect( window.location.hash ).toBe( '#/add-boost' );
 	await act( async () => request.unmount?.() );
 	expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).toBeNull();
-} );
-
-afterEach( () => {
-	Reflect.deleteProperty( window, 'jpTracksAJAX' );
-	window.history.replaceState( {}, '', '/' );
 } );
 
 test( 'cancels a pending root before a strict-mode remount', async () => {
