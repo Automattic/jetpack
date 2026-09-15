@@ -82,6 +82,7 @@ class Plan_Matrix_Test extends TestCase {
 		'jetpack-protect'    => 'protect-mock-plugin.txt',
 		'jetpack-search'     => 'search-mock-plugin.txt',
 		'jetpack-social'     => 'social-mock-plugin.txt',
+		'jetpack-stats'      => 'stats-mock-plugin.txt',
 		'jetpack-videopress' => 'videopress-mock-plugin.txt',
 	);
 
@@ -206,8 +207,8 @@ class Plan_Matrix_Test extends TestCase {
 			'direct/on'            => Products::STATUS_ACTIVE,
 		),
 		'stats'         => array(
-			'none/plugin_absent'   => Products::STATUS_MODULE_DISABLED,
-			'none/off'             => Products::STATUS_MODULE_DISABLED,
+			'none/plugin_absent'   => Products::STATUS_NEEDS_ACTIVATION,
+			'none/off'             => Products::STATUS_NEEDS_ACTIVATION,
 			'none/on'              => Products::STATUS_CAN_UPGRADE,
 			'bundle/plugin_absent' => Products::STATUS_MODULE_DISABLED,
 			'bundle/off'           => Products::STATUS_MODULE_DISABLED,
