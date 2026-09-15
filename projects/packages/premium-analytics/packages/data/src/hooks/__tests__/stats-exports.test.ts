@@ -37,7 +37,6 @@ const statsHookNames = [
 	'useStatsHighlights',
 	'useStatsTags',
 	'useStatsDevices',
-	'useStatsAppSite',
 	'useStatsAppSiteHasNeverPublishedPost',
 	'useStatsWordAdsStats',
 	'useStatsWordAdsEarnings',

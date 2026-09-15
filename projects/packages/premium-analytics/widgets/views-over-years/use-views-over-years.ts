@@ -1,17 +1,14 @@
 /**
  * External dependencies
  */
-import {
-	useStatsAppSite,
-	useStatsVisits,
-	type StatsVisitsParams,
-} from '@jetpack-premium-analytics/data';
+import { useStatsVisits, type StatsVisitsParams } from '@jetpack-premium-analytics/data';
 import {
 	localTZDate,
 	parseSiteDateTime,
 	reportingTimeZone,
 } from '@jetpack-premium-analytics/datetime';
 import {
+	monthOrder,
 	monthlyHeatmapLifeStart,
 	type MonthKey,
 	type MonthlyHeatmapMetric,
@@ -26,6 +23,8 @@ import { buildViewsOverYearsRows, type MonthBucket } from './build-views-over-ye
 
 // Before any WordPress.com site existed; the endpoint's DB walk stops at the site's registration.
 const EARLIEST_STATS_DATE = '2005-01-01';
+
+const DATE_FORMAT = 'yyyy-MM-dd';
 
 export interface ViewsOverYearsState {
 	rows: MonthlyHeatmapRow[];
@@ -45,19 +44,32 @@ function readMonthKey( label: string ): MonthKey | null {
 	return isValid( date ) ? { year: date.getFullYear(), month: date.getMonth() } : null;
 }
 
+/** The earliest month with views, which opens the table. */
+function firstMonthWithViews( buckets: MonthBucket[] ): MonthKey | undefined {
+	return buckets
+		.filter( ( { views } ) => views > 0 )
+		.reduce< MonthKey | undefined >(
+			( first, { month } ) =>
+				first && monthOrder( first ) <= monthOrder( month ) ? first : month,
+			undefined
+		);
+}
+
 /**
  * Every month of the site's views, one row per year. All-time regardless of
  * the section's year filter: one `stats/visits` request at `unit=month` over
- * the site's whole history, plus the site's registration date, which opens
- * the first month. Without it the first month divides by its full length.
+ * the site's whole history, then one at `unit=day` over the first month with
+ * views, whose first day with views opens that month. The site's registration
+ * date would be the exact anchor, but `sites/:id` never returns it to a blog
+ * token, so the first view stands in; without it the month divides whole.
  *
  * @param metric - Which number each cell reports.
- * @return The rows and the request's state.
+ * @return The rows and the requests' state.
  */
 export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): ViewsOverYearsState {
 	// Read in the site timezone so the months fall on the site's own calendar;
 	// one reading, so a render across midnight cannot split the window and the rows.
-	const today = format( localTZDate(), 'yyyy-MM-dd' );
+	const today = format( localTZDate(), DATE_FORMAT );
 
 	const params = useMemo< StatsVisitsParams >(
 		() => ( {
@@ -71,33 +83,59 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 	);
 
 	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsVisits( params );
-	const site = useStatsAppSite();
 
-	const registeredAt = useMemo(
-		() => parseSiteDateTime( site.data?.options?.created_at ),
-		[ site.data ]
+	const buckets = useMemo(
+		() =>
+			( primary.data?.data ?? [] ).flatMap( ( row ): MonthBucket[] => {
+				const month = readMonthKey( row.time_interval );
+
+				return month ? [ { month, views: Number( row.views ?? 0 ) } ] : [];
+			} ),
+		[ primary.data ]
 	);
 
-	const { rows, lifeStartsAt } = useMemo( () => {
-		const buckets = ( primary.data?.data ?? [] ).flatMap( ( row ): MonthBucket[] => {
-			const month = readMonthKey( row.time_interval );
+	const firstMonth = useMemo( () => firstMonthWithViews( buckets ), [ buckets ] );
 
-			return month ? [ { month, views: Number( row.views ?? 0 ) } ] : [];
-		} );
-		const built = buildViewsOverYearsRows( buckets, metric, parseISO( today ), registeredAt );
+	// The window is only read once a first month exists; until then the request is off.
+	const firstMonthParams = useMemo< StatsVisitsParams >( () => {
+		const start = firstMonth ? new Date( firstMonth.year, firstMonth.month, 1 ) : undefined;
+		const end = firstMonth ? new Date( firstMonth.year, firstMonth.month + 1, 0 ) : undefined;
+		const to = end ? format( end, DATE_FORMAT ) : today;
+
+		return {
+			from: start ? format( start, DATE_FORMAT ) : today,
+			to: to < today ? to : today,
+			interval: 'day',
+			period: 'day',
+			stat_fields: 'views',
+		};
+	}, [ firstMonth, today ] );
+
+	const firstMonthDays = useStatsVisits( firstMonthParams, { enabled: !! firstMonth } );
+
+	const opensAt = useMemo( () => {
+		const firstDay = ( firstMonthDays.primary.data?.data ?? [] ).find(
+			row => Number( row.views ?? 0 ) > 0
+		);
+
+		return parseSiteDateTime( firstDay?.time_interval );
+	}, [ firstMonthDays.primary.data ] );
+
+	const { rows, lifeStartsAt } = useMemo( () => {
+		const built = buildViewsOverYearsRows( buckets, metric, parseISO( today ), opensAt );
 
 		return {
 			rows: built,
-			lifeStartsAt: monthlyHeatmapLifeStart( built, registeredAt, reportingTimeZone() ),
+			lifeStartsAt: monthlyHeatmapLifeStart( built, opensAt, reportingTimeZone() ),
 		};
-	}, [ primary.data, metric, today, registeredAt ] );
+	}, [ buckets, metric, today, opensAt ] );
 
 	return {
 		rows,
 		lifeStartsAt,
-		// The rows wait for the registration date so the first month does not
-		// re-divide in front of the reader; a failed site request is not an error here.
-		isLoading: isLoading || site.isLoading,
+		// The rows wait for the first day with views so the first month does not
+		// re-divide in front of the reader; that request failing is not an error here.
+		isLoading: isLoading || ( !! firstMonth && firstMonthDays.isLoading ),
 		isFetching,
 		isError,
 		error,
