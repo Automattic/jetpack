@@ -184,4 +184,75 @@ class REST_Connector_Test extends TestCase {
 	public function test_connection_status_method_exists() {
 		$this->assertTrue( method_exists( REST_Connector::class, 'connection_status' ) );
 	}
+	/**
+	 * The protected owner state is readable by an administrator who can manage the connection.
+	 */
+	public function test_protected_owner_permission_check_allows_a_connection_administrator() {
+		wp_set_current_user( self::$admin_user_id );
+		$caps = new Manager();
+		add_filter( 'map_meta_cap', array( $caps, 'jetpack_connection_custom_caps' ), 1, 4 );
+
+		$result = REST_Connector::protected_owner_permission_check();
+
+		remove_filter( 'map_meta_cap', array( $caps, 'jetpack_connection_custom_caps' ), 1 );
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * A lesser role is refused, since eligibility is being an administrator.
+	 */
+	public function test_protected_owner_permission_check_refuses_a_subscriber() {
+		wp_set_current_user( self::$user_id );
+
+		$result = REST_Connector::protected_owner_permission_check();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertEquals( 'invalid_user_permission_jetpack_connect', array_keys( $result->errors )[0] );
+	}
+
+	/**
+	 * Logged out is refused too.
+	 */
+	public function test_protected_owner_permission_check_refuses_a_logged_out_visitor() {
+		wp_set_current_user( 0 );
+
+		$this->assertInstanceOf( 'WP_Error', REST_Connector::protected_owner_permission_check() );
+	}
+
+	/**
+	 * The check is deliberately looser than the states it guards: an administrator who has not
+	 * connected must still be able to read `NEEDS_CONNECT_TO_ESTABLISH`, which is the state telling
+	 * them to connect. A stricter check would make that state unreachable.
+	 */
+	public function test_an_unconnected_administrator_can_still_read_the_state() {
+		wp_set_current_user( self::$admin_user_id );
+		$caps = new Manager();
+		add_filter( 'map_meta_cap', array( $caps, 'jetpack_connection_custom_caps' ), 1, 4 );
+
+		$allowed  = REST_Connector::protected_owner_permission_check();
+		$response = REST_Connector::get_protected_owner_status();
+		$data     = $response->get_data();
+
+		remove_filter( 'map_meta_cap', array( $caps, 'jetpack_connection_custom_caps' ), 1 );
+
+		$this->assertTrue( $allowed );
+		$this->assertSame( Manager::PO_STATE_NEEDS_CONNECT_TO_ESTABLISH, $data['status'] );
+	}
+
+	/**
+	 * The payload carries the gate, the requirement and the reason together, so a caller cannot
+	 * render a decision from a mismatched pair.
+	 */
+	public function test_the_protected_owner_payload_carries_the_whole_decision() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$data = REST_Connector::get_protected_owner_status()->get_data();
+
+		foreach ( array( 'required', 'protected', 'locked', 'status', 'isCurrentUserTheOwner' ) as $key ) {
+			$this->assertArrayHasKey( $key, $data );
+		}
+		$this->assertFalse( $data['required'] );
+		$this->assertFalse( $data['protected'] );
+		$this->assertFalse( $data['locked'] );
+	}
 }
