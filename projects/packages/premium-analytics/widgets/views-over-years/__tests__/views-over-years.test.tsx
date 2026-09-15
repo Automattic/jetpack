@@ -179,6 +179,13 @@ describe( 'ViewsOverYears widget', () => {
 		expect( screen.queryByRole( 'gridcell', { name: /Nov 2025/ } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'draws the totals without waiting for the first day with views', () => {
+		mockVisits( visitsResult( ROWS ), visitsResult( undefined, { isLoading: true } ) );
+		renderWidget( { metric: 'total' } );
+
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'opens the Traffic tab over a clicked month', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
