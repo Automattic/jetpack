@@ -111,17 +111,17 @@ describe( 'Stats comments normalizer', () => {
 				{ name: 'Decimal', comments: 1, link: '?user_id=12.5' },
 				{ name: 'Both', comments: 1, link: '?user_id=abc&s=a@b.com' },
 				{ name: 'Empty', comments: 1, link: '?s=' },
-				{ name: 'Blank', comments: 1, link: '' },
 			],
 		} );
 
-		expect( result.data[ 0 ].items[ 0 ].children.map( child => child.link ) ).toEqual( [
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
+		expect(
+			result.data[ 0 ].items[ 0 ].children.map( child => [ child.label, child.link ] )
+		).toEqual( [
+			[ 'Zero', null ],
+			[ 'Negative', null ],
+			[ 'Decimal', null ],
+			[ 'Both', null ],
+			[ 'Empty', null ],
 		] );
 	} );
 

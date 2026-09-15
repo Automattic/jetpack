@@ -86,10 +86,10 @@ const EMAIL_FRAGMENT = /^\?s=(.+)$/;
 
 /**
  * Build the author row's link from the raw payload's `link`, which is not a URL
- * but a query fragment: `?user_id=<id>` for a WordPress.com user, `?s=<email>`
- * for a guest. The dashboard runs inside wp-admin, so a relative
- * `edit-comments.php` href resolves to the comment screen, and the comments
- * list table filters on both parameters.
+ * but a query fragment: `?user_id=<id>` for a WordPress.com user (only on Simple,
+ * where it is the site's own user id), `?s=<email>` for a guest. The dashboard
+ * runs inside wp-admin, so a relative `edit-comments.php` href resolves to the
+ * comment screen, and the comments list table filters on both parameters.
  *
  * @param link - The raw author `link` fragment.
  * @return The comments-admin URL, or null when the fragment is neither shape.
