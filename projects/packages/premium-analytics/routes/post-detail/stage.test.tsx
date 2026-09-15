@@ -113,16 +113,10 @@ function MockScopeProbe() {
 	);
 }
 
-/**
- * Stands in for the period trigger: shows the id it was handed.
- *
- * @param props             - The attention props the stage hands the panel.
- * @param props.attentionId - The id to show.
- * @return The probe.
- */
-function MockAttentionProbe( { attentionId }: { attentionId?: number } ) {
-	return <span data-testid="attention">{ attentionId ?? 'no attention' }</span>;
-}
+// Stands in for the period trigger: shows the id it was handed.
+const MockAttentionProbe = ( { attentionId }: { attentionId?: number } ) => (
+	<span data-testid="attention">{ attentionId ?? 'no attention' }</span>
+);
 
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( {
