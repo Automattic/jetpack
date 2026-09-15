@@ -104,7 +104,7 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 
 	/**
 	 * The module name is a cross-repo contract (WPCOM dispatcher, Premium Analytics
-	 * tracker and JS, Woo AI). It must never change.
+	 * tracker and JS, the standalone WooCommerce Analytics plugin). It must never change.
 	 */
 	public function test_name_is_the_public_contract() {
 		$this->assertSame( 'woocommerce_analytics', $this->module->name() );
