@@ -23,9 +23,8 @@ const MATCH_OPTIONS = [
  * that column each condition became a card tall enough that three or four of them outgrew the
  * viewport. Here the three controls sit on one row, so a long list reads as aligned columns.
  *
- * Edits commit straight to the block attribute, like every other control in the inspector --
- * there is no draft state, and Done only closes the dialog. Undo is the editor's own. That
- * matches the integrations modal in this package and keeps one source of truth for the rules.
+ * Edits commit straight to the block attribute, as in the integrations modal: there is no draft
+ * state, Done only closes the dialog, and undo is the editor's own.
  *
  * @param {object}   props                   - Component props.
  * @param {boolean}  props.isOpen            - Whether the dialog is open.

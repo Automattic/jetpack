@@ -149,10 +149,20 @@ const getPanelToggle = () => screen.getByRole( 'button', { name: 'Conditional lo
 // The panel starts collapsed on a field without conditions, and nothing inside it is rendered
 // until the title is activated.
 const expandPanel = async () => {
-	if ( getPanelToggle().getAttribute( 'aria-expanded' ) === 'false' ) {
-		await userEvent.click( getPanelToggle() );
+	const toggle = getPanelToggle();
+	if ( toggle.getAttribute( 'aria-expanded' ) === 'false' ) {
+		await userEvent.click( toggle );
 	}
 };
+
+const renderPanel = ( conditionalLogic, setAttributes = jest.fn() ) =>
+	render(
+		<ConditionalLogicPanel
+			clientId="abc"
+			attributes={ { conditionalLogic } }
+			setAttributes={ setAttributes }
+		/>
+	);
 
 const setup = async (
 	conditionalLogic = DEFAULT_ATTRIBUTE,
@@ -161,13 +171,7 @@ const setup = async (
 	isSidebarOpen = sidebarOpen;
 
 	const setAttributes = jest.fn();
-	const { container } = render(
-		<ConditionalLogicPanel
-			clientId="abc"
-			attributes={ { conditionalLogic } }
-			setAttributes={ setAttributes }
-		/>
-	);
+	const { container } = renderPanel( conditionalLogic, setAttributes );
 
 	// With the sidebar closed the inspector fill renders nothing, so there is no panel to
 	// expand and no button to reach the dialog with -- the toolbar is all a test has.
@@ -339,26 +343,12 @@ describe( 'ConditionalLogicPanel', () => {
 	} );
 
 	it( 'starts the panel collapsed on a field without conditions', () => {
-		render(
-			<ConditionalLogicPanel
-				clientId="abc"
-				attributes={ { conditionalLogic: DEFAULT_ATTRIBUTE } }
-				setAttributes={ jest.fn() }
-			/>
-		);
+		renderPanel( DEFAULT_ATTRIBUTE );
 		expect( getPanelToggle() ).toHaveAttribute( 'aria-expanded', 'false' );
 	} );
 
 	it( 'starts the panel open on a field with conditions', () => {
-		render(
-			<ConditionalLogicPanel
-				clientId="abc"
-				attributes={ {
-					conditionalLogic: withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ),
-				} }
-				setAttributes={ jest.fn() }
-			/>
-		);
+		renderPanel( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
 		expect( getPanelToggle() ).toHaveAttribute( 'aria-expanded', 'true' );
 		expect( screen.getByRole( 'button', { name: 'Edit conditions' } ) ).toBeInTheDocument();
 	} );
