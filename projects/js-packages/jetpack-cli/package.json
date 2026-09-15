@@ -20,7 +20,8 @@
 		"./package.json": "./package.json"
 	},
 	"files": [
-		"bin"
+		"bin",
+		"src"
 	],
 	"dependencies": {
 		"chalk": "^5.4.1",

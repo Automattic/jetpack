@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Docker: `clean` now lists the instance and the paths it will destroy and asks for confirmation. Pass `--yes` to skip the prompt; without a terminal to confirm at, it refuses instead of prompting.
