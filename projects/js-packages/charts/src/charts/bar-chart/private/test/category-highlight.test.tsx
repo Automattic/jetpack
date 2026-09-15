@@ -7,7 +7,7 @@ import { GlobalChartsProvider } from '../../../../providers';
 import { CATALOG_POINTERS } from '../../../../providers/chart-context/private/catalog-pointers';
 import { BarChartUnresponsive } from '../../bar-chart';
 import { CategoryHighlight } from '../category-highlight';
-import type { CategoryHighlightSelection } from '../category-highlight';
+import type { BandHighlightSelection } from '../../bar-chart';
 
 const xScale = scaleBand( { domain: [ 'Jan', 'Feb' ], range: [ 10, 210 ] } );
 const dataContext = {
@@ -56,7 +56,7 @@ describe( 'CategoryHighlight', () => {
 					<Fixture
 						label={ label }
 						// eslint-disable-next-line react/jsx-no-bind -- An inline callback reproduces parent state updates changing its identity.
-						onChange={ ( selection: CategoryHighlightSelection | null ) => {
+						onChange={ ( selection: BandHighlightSelection | null ) => {
 							notify( label );
 							if ( notify.mock.calls.length > 4 ) {
 								throw new Error( 'Highlight notifications did not settle' );
@@ -85,7 +85,7 @@ describe( 'CategoryHighlight', () => {
 				width: 500,
 				height: 300,
 				withTooltips: true,
-				onCategoryHighlightChange: onChange,
+				onBandHighlightChange: onChange,
 				data: [ { label: 'Scores', data: [ { label: 'Jan', value: 50 } ] } ],
 			};
 			const { rerender } = render(

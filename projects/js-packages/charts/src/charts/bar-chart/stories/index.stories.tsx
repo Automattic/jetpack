@@ -162,16 +162,16 @@ export const PerPointColors: Story = {
 	},
 };
 
-export const CategoryHighlight: Story = {
+export const BandHighlight: Story = {
 	args: {
 		...SingleSeries.args,
-		withCategoryHighlight: true,
+		withBandHighlight: true,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Hover a bar or focus the chart and use arrow keys to highlight its category across the plot. Escape dismisses the tooltip and highlight.',
+					'Hover a bar or focus the chart and use arrow keys to highlight its band across the plot. Escape dismisses the tooltip and highlight.',
 			},
 		},
 	},
@@ -179,7 +179,7 @@ export const CategoryHighlight: Story = {
 
 export const BesideTooltip: Story = {
 	args: {
-		...CategoryHighlight.args,
+		...BandHighlight.args,
 		tooltipPlacement: 'beside',
 		tooltipAnchorTop: 40,
 	},

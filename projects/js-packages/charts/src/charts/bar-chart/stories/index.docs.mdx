@@ -364,13 +364,13 @@ Enable rich interactive tooltips that display detailed information on hover:
 	/>` }
 />
 
-### Category Highlight
+### Band Highlight
 
-Set `withCategoryHighlight` alongside `withTooltips` to shade the active category across the plot. Hover a bar or use arrow keys after focusing the chart; Escape dismisses the highlight with the tooltip.
+Set `withBandHighlight` alongside `withTooltips` to shade the active band across the plot. Hover a bar or use arrow keys after focusing the chart; Escape dismisses the highlight with the tooltip.
 
-<Canvas of={ BarChartStories.CategoryHighlight } />
+<Canvas of={ BarChartStories.BandHighlight } />
 
-For an overlay outside the chart, `onCategoryHighlightChange` reports the active datum and the category rectangle in SVG coordinates, or `null` on dismissal. The callback also works without rendering the built-in highlight.
+For an overlay outside the chart, `onBandHighlightChange` reports the active datum and the band rectangle in SVG coordinates, or `null` on dismissal. The callback also works without rendering the built-in highlight.
 
 ### Beside Tooltips
 
@@ -385,7 +385,7 @@ Use `tooltipPlacement="beside"` to keep the tooltip beside the active bar instea
 	<BarChart
 		data={ data }
 		withTooltips={ true }
-		withCategoryHighlight={ true }
+		withBandHighlight={ true }
 		tooltipPlacement="beside"
 		tooltipAnchorTop={ 40 }
 	/>` }

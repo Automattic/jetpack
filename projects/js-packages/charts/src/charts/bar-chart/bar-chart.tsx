@@ -41,7 +41,6 @@ import {
 import { BandTooltip } from './private/band-tooltip';
 import { CategoryHighlight } from './private/category-highlight';
 import type { ComparisonSeriesEntry } from './private';
-import type { CategoryHighlightSelection } from './private/category-highlight';
 import type {
 	BaseChartProps,
 	DataPointDate,
@@ -53,6 +52,14 @@ import type {
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { FC, ReactNode, ComponentType } from 'react';
+
+export type BandHighlightSelection = {
+	datum: DataPointDate;
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+};
 
 export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
 	/**
@@ -67,10 +74,10 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVis
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
-	/** Highlight the active category across the plot when tooltips are enabled. */
-	withCategoryHighlight?: boolean;
-	/** Receive active category bounds in SVG coordinates, or null when dismissed. */
-	onCategoryHighlightChange?: ( selection: CategoryHighlightSelection | null ) => void;
+	/** Highlight the active band across the plot when tooltips are enabled. */
+	withBandHighlight?: boolean;
+	/** Receive active band bounds in SVG coordinates, or null when dismissed. */
+	onBandHighlightChange?: ( selection: BandHighlightSelection | null ) => void;
 	children?: ReactNode;
 }
 
@@ -138,8 +145,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
-	withCategoryHighlight = false,
-	onCategoryHighlightChange,
+	withBandHighlight = false,
+	onBandHighlightChange,
 	defaultHiddenSeries,
 	animation,
 	children,
@@ -638,11 +645,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</>
 										) }
 
-										{ withTooltips && ( withCategoryHighlight || onCategoryHighlightChange ) && (
+										{ withTooltips && ( withBandHighlight || onBandHighlightChange ) && (
 											<CategoryHighlight
-												visible={ withCategoryHighlight }
+												visible={ withBandHighlight }
 												horizontal={ horizontal }
-												onChange={ onCategoryHighlightChange }
+												onChange={ onBandHighlightChange }
 											/>
 										) }
 										{ withPatterns && (
