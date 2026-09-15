@@ -1,9 +1,9 @@
 {
 	"name": "jpa/subscriber-highlights",
 	"title": "Subscriber highlights",
-	"description": "Your total subscribers, and how many you had 30, 60, and 90 days ago.",
+	"description": "Your total subscribers, with paid and free subscribers or how many you had 30, 60, and 90 days ago.",
 	"help": {
-		"content": "Your total subscribers today, next to your subscriber count 30, 60, and 90 days ago."
+		"content": "Your total subscribers today. Sites with paid subscriptions also see paid and free subscribers; other sites see their subscriber count 30, 60, and 90 days ago."
 	},
 	"category": "subscribers",
 	"presentation": "framed"

@@ -15,6 +15,7 @@ import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
+	setReportMockResponse,
 	setReportMockState,
 	type ReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
@@ -49,7 +50,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Subscriber highlights" widget, ported from the Jetpack Stats Subscribers "All-time stats" card. Shows total subscribers from `useStatsSubscribersCounts`, next to the subscriber count 30, 60, and 90 days ago from `useStatsSubscribersDaysAgo`. The counts do not follow the dashboard date range. In Storybook, `registerReportMocks()` serves both endpoints.',
+					'The "Subscriber highlights" widget, ported from the Jetpack Stats Subscribers "All-time stats" card. Shows total subscribers from `useStatsSubscribersCounts`. A site with paid subscription products (`useStatsMembershipProducts`) also sees paid and free subscribers; any other site sees the subscriber count 30, 60, and 90 days ago from `useStatsSubscribersDaysAgo`. The counts do not follow the dashboard date range. In Storybook, `registerReportMocks()` serves every endpoint, with no products by default.',
 			},
 		},
 	},
@@ -65,6 +66,20 @@ type Story = StoryObj< ComponentProps< typeof SubscriberHighlightsRender > >;
 export const Default: Story = {
 	render: renderSubscriberHighlights,
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * A site with paid subscription products: the widget shows paid and free subscribers in place of the history.
+ */
+export const WithPaidProducts: Story = {
+	render: renderSubscriberHighlights,
+	// Off the shared autodocs page: the override is keyed by path.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockResponse( 'memberships/products', { products: [ { id: 1 } ] } );
+		return () => setReportMockResponse( 'memberships/products', null );
+	},
 };
 
 /**

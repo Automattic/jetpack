@@ -21,14 +21,34 @@ const ERROR_TEXT = "We couldn't load subscriber highlights. Please try again in 
 
 type Responses = {
 	total?: number;
+	paid?: number;
+	productCount?: number;
+	failProducts?: boolean;
 	byDate?: Record< string, number >;
 	failDates?: string[];
 };
 
-function respondWith( { total, byDate = {}, failDates = [] }: Responses ) {
+function respondWith( {
+	total,
+	paid,
+	productCount = 0,
+	failProducts = false,
+	byDate = {},
+	failDates = [],
+}: Responses ) {
 	return ( { path }: { path: string } ) => {
+		if ( path.includes( 'memberships/products' ) ) {
+			return failProducts
+				? Promise.reject( { status: 403, message: 'Forbidden' } )
+				: Promise.resolve( {
+						products: Array.from( { length: productCount }, ( _, id ) => ( { id } ) ),
+				  } );
+		}
+
 		if ( path.includes( 'subscribers/counts' ) ) {
-			return Promise.resolve( total === undefined ? {} : { counts: { total_subscribers: total } } );
+			return Promise.resolve(
+				total === undefined ? {} : { counts: { total_subscribers: total, paid_subscribers: paid } }
+			);
 		}
 
 		const date = new URL( path, 'https://example.test' ).searchParams.get( 'date' ) ?? '';
@@ -72,11 +92,45 @@ describe( 'SubscriberHighlightsWidget', () => {
 
 		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
 		expect( tileValues() ).toEqual( [
-			'Total subscribers428',
+			expect.stringMatching( /^Total subscribers.*428$/ ),
 			'30 days ago317',
 			'60 days ago186',
 			'90 days ago95',
 		] );
+	} );
+
+	it( 'shows paid and free subscribers instead of the history when the site has paid products', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( {
+				total: 428,
+				paid: 117,
+				productCount: 2,
+				byDate: { '2026-08-16': 317 },
+			} )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
+		expect( tileValues() ).toEqual( [
+			expect.stringMatching( /^Total subscribers.*428$/ ),
+			expect.stringMatching( /^Paid subscribers.*117$/ ),
+			expect.stringMatching( /^Free subscribers.*311$/ ),
+		] );
+		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
+		expect( requestedPaths.some( path => path.includes( 'stats/subscribers' ) ) ).toBe( false );
+	} );
+
+	it( 'falls back to the history when the products request fails', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( { total: 428, failProducts: true, byDate: { '2026-08-16': 317 } } )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '317' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( '30 days ago' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Paid subscribers' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows a placeholder for a day with no count, and a real zero as zero', async () => {
@@ -88,7 +142,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 
 		await expect( screen.findByText( '317' ) ).resolves.toBeInTheDocument();
 		expect( tileValues() ).toEqual( [
-			'Total subscribers428',
+			expect.stringMatching( /^Total subscribers.*428$/ ),
 			'30 days ago317',
 			'60 days ago—',
 			'90 days ago0',

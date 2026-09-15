@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	useStatsMembershipProducts,
 	useStatsSubscribersCounts,
 	useStatsSubscribersDaysAgo,
 } from '@jetpack-premium-analytics/data';
@@ -15,7 +16,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { calendar, people } from '@wordpress/icons';
+import { calendar, envelope, payment, people } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -41,34 +42,78 @@ const DAYS_AGO_LABELS: Record< ( typeof DAYS_AGO )[ number ], string > = {
 	90: __( '90 days ago', 'jetpack-premium-analytics-pkg' ),
 };
 
-function SubscriberHighlightsReport() {
-	const total = useStatsSubscribersCounts();
-	const past = useStatsSubscribersDaysAgo( DAYS_AGO );
+type Tile = {
+	key: string;
+	label: string;
+	icon: typeof people;
+	value: number | null;
+	note?: string;
+};
 
-	const tiles = [
+function SubscriberHighlightsReport() {
+	const products = useStatsMembershipProducts();
+	const counts = useStatsSubscribersCounts();
+
+	// A failed products request falls back to the history tiles rather than blocking the widget.
+	const hasPaidProducts = ( products.data?.productCount ?? 0 ) > 0;
+	const showsHistory = ! products.isLoading && ! hasPaidProducts;
+	const past = useStatsSubscribersDaysAgo( DAYS_AGO, { enabled: showsHistory } );
+
+	const total = counts.data?.total_subscribers;
+	const paid = counts.data?.paid_subscribers;
+
+	const breakdownTiles: Tile[] = [
+		{
+			key: 'paid',
+			label: __( 'Paid subscribers', 'jetpack-premium-analytics-pkg' ),
+			icon: payment,
+			value: paid ?? null,
+			note: __( 'Paid WordPress.com subscribers', 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			key: 'free',
+			label: __( 'Free subscribers', 'jetpack-premium-analytics-pkg' ),
+			icon: envelope,
+			value: total !== undefined && paid !== undefined ? total - paid : null,
+			note: __(
+				'Email subscribers and free WordPress.com subscribers',
+				'jetpack-premium-analytics-pkg'
+			),
+		},
+	];
+
+	const historyTiles: Tile[] = DAYS_AGO.map( ( days, index ) => ( {
+		key: `${ days }-days-ago`,
+		label: DAYS_AGO_LABELS[ days ],
+		icon: calendar,
+		value: past.counts[ index ] ?? null,
+	} ) );
+
+	const tiles: Tile[] = [
 		{
 			key: 'total',
 			label: __( 'Total subscribers', 'jetpack-premium-analytics-pkg' ),
 			icon: people,
-			value: total.data?.total_subscribers ?? null,
+			value: total ?? null,
+			note: __(
+				'Total subscribers excluding social media subscribers',
+				'jetpack-premium-analytics-pkg'
+			),
 		},
-		...DAYS_AGO.map( ( days, index ) => ( {
-			key: `${ days }-days-ago`,
-			label: DAYS_AGO_LABELS[ days ],
-			icon: calendar,
-			value: past.counts[ index ] ?? null,
-		} ) ),
+		...( hasPaidProducts ? breakdownTiles : historyTiles ),
 	];
 
 	const hasCounts = tiles.some( tile => tile.value !== null );
+	const isLoading = products.isLoading || counts.isLoading || ( showsHistory && past.isLoading );
+	const isError = counts.isError || ( showsHistory && past.isError );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ total.isLoading || past.isLoading }
-				isFetching={ total.isFetching || past.isFetching }
+				isLoading={ isLoading }
+				isFetching={ products.isFetching || counts.isFetching || past.isFetching }
 				// `placeholderData` keeps the last counts on screen, so a transient refetch failure should not replace them with an error.
-				isError={ ( total.isError || past.isError ) && ! hasCounts }
+				isError={ isError && ! hasCounts }
 				isEmpty={ ! hasCounts }
 				error={ {
 					description: __(
@@ -79,8 +124,11 @@ function SubscriberHighlightsReport() {
 						{
 							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
 							onClick: () => {
-								total.refetch();
-								past.refetch();
+								products.refetch();
+								counts.refetch();
+								if ( showsHistory ) {
+									past.refetch();
+								}
 							},
 						},
 					],
