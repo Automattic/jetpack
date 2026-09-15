@@ -45,7 +45,9 @@ test( 'keeps the entering chart highlighted when the other chart clears its sele
 	fireEvent.click( screen.getByRole( 'button', { name: 'Highlight Desktop' } ) );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Highlight Mobile' } ) );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Leave Desktop' } ) );
-	expect( screen.getByTestId( 'history-highlight' ) ).toBeInTheDocument();
+	expect( screen.getByTestId( 'history-highlight' ) ).toHaveStyle( {
+		left: 'calc(var(--wpds-dimension-padding-lg) + 20px)',
+	} );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Leave Mobile' } ) );
 	expect( screen.queryByTestId( 'history-highlight' ) ).not.toBeInTheDocument();
 } );

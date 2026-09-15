@@ -242,7 +242,8 @@ export default function HistoryChartCard( {
 							className="boost-daily-history__highlight"
 							data-testid="history-highlight"
 							style={ {
-								insetInlineStart: `calc(var(--wpds-dimension-padding-lg) + ${ highlight.x }px)`,
+								// The highlight uses an SVG x coordinate measured from the physical left.
+								left: `calc(var(--wpds-dimension-padding-lg) + ${ highlight.x }px)`,
 								width: highlight.width,
 							} }
 						/>
