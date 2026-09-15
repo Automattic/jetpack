@@ -256,10 +256,11 @@ class REST_Connector_Test extends TestCase {
 		$this->assertFalse( $data['locked'] );
 	}
 	/**
-	 * An identity WordPress.com cannot confirm is refused, with the reason the caller can act on.
+	 * An unreachable WordPress.com is refused, with the reason the caller can act on.
 	 *
-	 * The success path needs a connected user and so cannot run here; it is exercised on a live
-	 * site through the establish flow rather than pretended at in this environment.
+	 * Establishing now asks WordPress.com before writing anything, and nothing answers in this
+	 * environment, so this is the fail-closed branch. The success path needs a live connection and
+	 * is exercised on a real site rather than pretended at here.
 	 */
 	public function test_establishing_without_a_confirmable_identity_fails_closed() {
 		wp_set_current_user( self::$admin_user_id );
@@ -274,7 +275,7 @@ class REST_Connector_Test extends TestCase {
 
 		// Unconnected here, so WordPress.com cannot confirm the identity and it must fail closed.
 		$this->assertInstanceOf( 'WP_Error', $result );
-		$this->assertEquals( 'protected_owner_not_verified', array_keys( $result->errors )[0] );
+		$this->assertEquals( 'protected_owner_unconfirmed', array_keys( $result->errors )[0] );
 	}
 
 	/**

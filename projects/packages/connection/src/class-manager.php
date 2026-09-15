@@ -1511,6 +1511,31 @@ class Manager {
 	}
 
 	/**
+	 * Claim this site's protected ownership for the current user with WordPress.com.
+	 *
+	 * Split from `set_protected_owner()` so the decision it drives can be exercised without a
+	 * network. The identity travels in the signature rather than the payload, so this sends only
+	 * how the confirmation was obtained.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $confirmed_by How the confirmation was obtained.
+	 * @return array|null The record, or null when WordPress.com could not answer.
+	 */
+	protected function assert_protected_owner_record( $confirmed_by ) {
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$xml->query( 'jetpack.assertProtectedOwner', array( 'confirmed_by' => $confirmed_by ) );
+
+		if ( $xml->isError() ) {
+			return null;
+		}
+
+		$response = $xml->getResponse();
+
+		return is_array( $response ) ? $response : null;
+	}
+
+	/**
 	 * Ask WordPress.com who owns this site.
 	 *
 	 * Split from `verify_protected_owner()` so the decision it drives can be exercised without a
@@ -1618,11 +1643,41 @@ class Manager {
 			);
 		}
 
-		// Fail closed: this is false for a user with no token and for one WordPress.com cannot
-		// confirm, and an unverified identity must never be written down and locked.
-		$owner_data = $this->get_connected_user_data( $user_id );
+		// The claim is signed as the current user, so it can only ever anchor the current user.
+		// Anchoring somebody else would be an owner assignment they never agreed to.
+		if ( $user_id !== get_current_user_id() ) {
+			return new WP_Error(
+				'protected_owner_not_self',
+				__( 'A protected owner can only be recorded by the user confirming it.', 'jetpack-connection' ),
+				array( 'status' => 400 )
+			);
+		}
 
-		if ( empty( $owner_data['ID'] ) ) {
+		// WordPress.com is asked before anything is written here. It owns the record, so a claim it
+		// has not accepted must not leave a locked anchor behind on this site.
+		$record = $this->assert_protected_owner_record( $confirmed_by );
+
+		// Fail closed: unreachable, refused, or a WordPress.com that does not implement the call.
+		// A site that cannot get an answer must not end up protecting anybody on its own say-so.
+		if ( ! is_array( $record ) || empty( $record['status'] ) ) {
+			return new WP_Error(
+				'protected_owner_unconfirmed',
+				__( 'Could not reach WordPress.com to confirm the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 503 )
+			);
+		}
+
+		// Somebody else already holds this site. Beyond support there is no way past this, which is
+		// the point: an owner that could be overwritten by the next claimant protects nobody.
+		if ( 'locked_to_other' === $record['status'] ) {
+			return new WP_Error(
+				'protected_owner_claimed_by_other',
+				__( 'This site is already protected by a different WordPress.com account. Contact support.', 'jetpack-connection' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( empty( $record['wpcom_user_id'] ) ) {
 			return new WP_Error(
 				'protected_owner_not_verified',
 				__( 'Could not confirm the protected owner with WordPress.com.', 'jetpack-connection' ),
@@ -1632,9 +1687,9 @@ class Manager {
 
 		// Store the binding the anchor will be compared against, so the gate reads local state from
 		// here on. Routed through the deduping writer, which clears the ID off any previous holder.
-		Utils::set_wpcom_user_id( $user_id, (int) $owner_data['ID'] );
+		Utils::set_wpcom_user_id( $user_id, (int) $record['wpcom_user_id'] );
 
-		if ( ! Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by ) ) {
+		if ( ! Protected_Owner::set( (int) $record['wpcom_user_id'], $user_id, $confirmed_by ) ) {
 			return new WP_Error(
 				'protected_owner_not_stored',
 				__( 'Could not store the protected owner.', 'jetpack-connection' ),
