@@ -622,11 +622,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 
 					// We set default to the inverse of auto-renew.
-					if ( isset( $purchase->auto_renew ) ) {
-						return ! $purchase->auto_renew;
-					} elseif ( isset( $purchase->user_allows_auto_renew ) ) {
-						return ! $purchase->user_allows_auto_renew;
-					}
+					return ! $purchase->auto_renew;
 				}
 			}
 		}

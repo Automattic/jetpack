@@ -157,7 +157,7 @@ function wpcom_site_can_upload_videos( $blog_id = 0 ) {
  *
  * @param int $blog_id Optional. Blog ID. Defaults to current blog.
  *
- * @return array An array of WPCOM_Site_Purchase objects.
+ * @return WPCOM_Site_Purchase[]
  */
 function wpcom_get_site_purchases( $blog_id = 0 ) {
 	if ( ! $blog_id ) {

@@ -80,11 +80,6 @@ class Gifting_Banner {
 			return (bool) get_option( 'wpcom_gifting_subscription' );
 		}
 
-		// Create parity between WPCOM and WPCOMSH for auto_renew.
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-			$this->current_plan->user_allows_auto_renew = $this->current_plan->auto_renew;
-		}
-
 		// Test if gifting is enabled - We default to the inverse of auto-renew but configured options take precedence.
 		if ( ! get_option( 'wpcom_gifting_subscription', ! $this->current_plan->user_allows_auto_renew ) ) {
 			return false;
