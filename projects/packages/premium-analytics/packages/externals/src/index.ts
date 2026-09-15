@@ -47,6 +47,7 @@ export {
 	type HeatmapColumnGroup,
 	type HeatmapTooltipData,
 	type LineStyles,
+	type MonthCalendarHeatmapRange,
 	type SeriesData,
 	type TickResolution,
 } from '@automattic/charts';
