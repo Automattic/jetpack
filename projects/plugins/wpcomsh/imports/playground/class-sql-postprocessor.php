@@ -208,6 +208,10 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 			'jetpack_private_options',
 			'permalink_structure',
 			'db_version',
+			// Keep the destination site's WooCommerce.com connection. The imported
+			// store's helper token is bound to the old (Playground) site URL, so
+			// taking it from the backup would drop the connection provisioning set up.
+			'woocommerce_helper_data',
 		);
 
 		// Substitute the options.
