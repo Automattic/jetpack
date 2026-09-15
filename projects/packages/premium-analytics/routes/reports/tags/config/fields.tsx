@@ -5,7 +5,7 @@ import { Icon, Link } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
-import { category, tag as tagGlyph } from '@wordpress/icons';
+import { file as categoryGlyph, tag as tagGlyph } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -13,7 +13,7 @@ import styles from './fields.module.css';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
-const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? category : tagGlyph );
+const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? categoryGlyph : tagGlyph );
 
 /**
  * Render the label cell for a Tags report row.
