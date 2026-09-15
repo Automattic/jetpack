@@ -87,7 +87,8 @@ class Admin_Menu_Test extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		global $submenu;
+		global $menu, $submenu;
+		$menu    = array();
 		$submenu = array();
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
@@ -110,6 +111,8 @@ class Admin_Menu_Test extends TestCase {
 		wp_deregister_script( 'jetpack-admin-ui-upgrade-menu' );
 		wp_dequeue_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
+		wp_dequeue_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
+		wp_deregister_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
 
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
@@ -120,6 +123,15 @@ class Admin_Menu_Test extends TestCase {
 				$menu_items->setAccessible( true );
 			}
 			$menu_items->setValue( null, array() );
+		}
+
+		if ( $reflection->hasProperty( 'top_level_items' ) ) {
+			$top_level_items = $reflection->getProperty( 'top_level_items' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$top_level_items->setAccessible( true );
+			}
+			$top_level_items->setValue( null, array() );
 		}
 
 		if ( $reflection->hasProperty( 'initialized' ) ) {
@@ -1231,6 +1243,209 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * A top-level item registers at the sidebar's top level, not under Jetpack.
+	 */
+	public function test_add_top_level_menu_registers_a_top_level_page() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_top_level_menu( 'Top', 'Top', 'manage_options', 'top-plain', '__return_null', 'dashicons-chart-bar', 2 );
+
+		$this->render_menu();
+
+		$this->assertContains( 'top-plain', $this->get_top_level_slugs() );
+		$this->assertNotContains( 'top-plain', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * The returned hook suffix matches the one core derives for a top-level page.
+	 */
+	public function test_add_top_level_menu_returns_the_core_hook_suffix() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$our_suffix = Admin_Menu::add_top_level_menu( 'Top', 'Top', 'manage_options', 'top-hook', '__return_null' );
+		$wp_suffix  = add_menu_page( 'Top', 'Top', 'manage_options', 'top-hook', '__return_null' );
+
+		$this->assertSame( $wp_suffix, $our_suffix );
+	}
+
+	/**
+	 * A declared gate the resolver reports as satisfied keeps the top-level item.
+	 */
+	public function test_satisfied_gate_keeps_the_top_level_item() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_true' );
+
+		Admin_Menu::add_top_level_menu( 'Gated', 'Gated', 'manage_options', 'top-gate-on', '__return_null', '', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertContains( 'top-gate-on', $this->get_top_level_slugs() );
+	}
+
+	/**
+	 * A declared gate the resolver reports as unsatisfied removes the top-level item.
+	 */
+	public function test_unsatisfied_gate_removes_the_top_level_item() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+
+		Admin_Menu::add_top_level_menu( 'Gated', 'Gated', 'manage_options', 'top-gate-off', '__return_null', '', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertNotContains( 'top-gate-off', $this->get_top_level_slugs() );
+	}
+
+	/**
+	 * A hidden top-level item leaves the sidebar but keeps its page loadable.
+	 */
+	public function test_hidden_top_level_item_keeps_its_page_reachable() {
+		global $_registered_pages, $pagenow, $plugin_page;
+
+		wp_set_current_user( self::$admin_user_id );
+		$_registered_pages = array();
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+
+		Admin_Menu::add_top_level_menu( 'Hidden', 'Hidden', 'manage_options', 'top-reachable', '__return_null', '', null, array( 'product' => 'stats' ) );
+
+		do_action( 'admin_menu' );
+
+		$pagenow     = 'admin.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$plugin_page = 'top-reachable'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->assertArrayHasKey( 'toplevel_page_top-reachable', $_registered_pages );
+		$this->assertTrue( user_can_access_admin_page() );
+
+		ob_start();
+		do_action( 'admin_head' );
+		ob_end_clean();
+
+		$this->assertNotContains( 'top-reachable', $this->get_top_level_slugs() );
+
+		$pagenow     = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$plugin_page = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
+
+	/**
+	 * A host can hide a top-level item that declares no gate.
+	 */
+	public function test_host_can_hide_a_top_level_item() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['top-host-hidden'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_top_level_menu( 'Host', 'Host', 'manage_options', 'top-host-hidden', '__return_null' );
+
+		$this->render_menu();
+
+		$this->assertNotContains( 'top-host-hidden', $this->get_top_level_slugs() );
+	}
+
+	/**
+	 * A host can force a top-level item in despite an unsatisfied gate.
+	 */
+	public function test_host_can_force_an_inactive_top_level_item_visible() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['top-host-forced'] = Admin_Menu::VISIBILITY_VISIBLE;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_top_level_menu( 'Forced', 'Forced', 'manage_options', 'top-host-forced', '__return_null', '', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertContains( 'top-host-forced', $this->get_top_level_slugs() );
+	}
+
+	/**
+	 * Top-level items reach the filter alongside the submenu ones.
+	 */
+	public function test_filter_receives_top_level_items() {
+		wp_set_current_user( self::$admin_user_id );
+		$seen = array();
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) use ( &$seen ) {
+				$seen = $states;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_top_level_menu( 'Top', 'Top', 'manage_options', 'top-in-filter', '__return_null', '', null, array( 'key' => 'top-key' ) );
+		Admin_Menu::add_menu( 'Sub', 'Sub', 'manage_options', 'sub-in-filter', '__return_null' );
+
+		$this->render_menu();
+
+		$this->assertArrayHasKey( 'top-key', $seen );
+		$this->assertArrayHasKey( 'sub-in-filter', $seen );
+	}
+
+	/**
+	 * A top-level item is not under Jetpack, so it cannot keep an otherwise empty Jetpack menu alive.
+	 */
+	public function test_a_top_level_item_does_not_keep_the_jetpack_menu_alive() {
+		if ( class_exists( 'Jetpack_React_Page' ) ) {
+			$this->markTestSkipped( 'Top level menu belongs to the Jetpack plugin when it is present.' );
+		}
+
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_top_level_menu( 'Alone', 'Alone', 'manage_options', 'top-alone', '__return_null' );
+
+		$this->render_menu();
+
+		$slugs = $this->get_top_level_slugs();
+		$this->assertContains( 'top-alone', $slugs, 'The top-level item itself should still register.' );
+		$this->assertNotContains( 'jetpack', $slugs );
+	}
+
+	/**
+	 * A top-level item is not offered to a user without the capability.
+	 */
+	public function test_top_level_item_respects_capability() {
+		Admin_Menu::add_top_level_menu( 'Caps', 'Caps', 'manage_options', 'top-caps', '__return_null' );
+
+		wp_set_current_user( self::$editor_user_id );
+		$this->render_menu();
+
+		$this->assertNotContains( 'top-caps', $this->get_top_level_slugs() );
+	}
+
+	/**
+	 * Registering a top-level item does not opt its page into the core-notice CSS.
+	 *
+	 * The page owner decides that, via the public hide_core_admin_notices() API.
+	 */
+	public function test_add_top_level_menu_does_not_hide_core_admin_notices() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_top_level_menu( 'Quiet', 'Quiet', 'manage_options', 'top-notices', '__return_null' );
+
+		$this->assertFalse( has_action( 'load-toplevel_page_top-notices', array( Admin_Menu::class, 'hide_core_admin_notices' ) ) );
+	}
+
+	/**
+	 * Registering a top-level item does not opt its page into the design tokens.
+	 */
+	public function test_add_top_level_menu_does_not_enqueue_design_tokens() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_top_level_menu( 'Tokens', 'Tokens', 'manage_options', 'top-tokens', '__return_null' );
+		Admin_Menu::maybe_enqueue_design_tokens( 'toplevel_page_top-tokens' );
+
+		$this->assertFalse( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+	}
+
+	/**
 	 * Fires the two hooks between which the sidebar is built and then trimmed for rendering.
 	 *
 	 * @return void
@@ -1251,5 +1466,16 @@ class Admin_Menu_Test extends TestCase {
 		global $submenu;
 
 		return array_column( $submenu['jetpack'] ?? array(), 2 );
+	}
+
+	/**
+	 * Returns the slugs currently registered at the sidebar's top level.
+	 *
+	 * @return array
+	 */
+	private function get_top_level_slugs() {
+		global $menu;
+
+		return array_column( $menu ?? array(), 2 );
 	}
 }

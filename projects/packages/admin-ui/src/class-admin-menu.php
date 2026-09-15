@@ -137,6 +137,13 @@ class Admin_Menu {
 	private static $menu_items = array();
 
 	/**
+	 * List of top level menu items enqueued to be added
+	 *
+	 * @var array
+	 */
+	private static $top_level_items = array();
+
+	/**
 	 * Hook suffixes of the pages registered through this class.
 	 *
 	 * Used to scope the design-tokens stylesheet to Jetpack admin pages.
@@ -168,6 +175,13 @@ class Admin_Menu {
 	 * @var string[]
 	 */
 	private static $hidden_menu_slugs = array();
+
+	/**
+	 * Top level menu slugs registered this request but kept out of the rendered sidebar.
+	 *
+	 * @var string[]
+	 */
+	private static $hidden_top_level_slugs = array();
 
 	/**
 	 * Initialize the class and set up the main hook
@@ -301,7 +315,85 @@ class Admin_Menu {
 			remove_menu_page( 'jetpack' );
 		}
 
+		self::register_top_level_items( $visibility );
+
 		self::maybe_add_upgrade_menu_item();
+	}
+
+	/**
+	 * Registers the queued top level items, skipping the ones that should not be seen.
+	 *
+	 * Deliberately does not feed $can_see_toplevel_menu: these items sit beside the Jetpack
+	 * menu rather than inside it, so one of them cannot justify keeping an empty Jetpack menu.
+	 *
+	 * @param array $visibility The resolved state map from get_visibility_states().
+	 * @return void
+	 */
+	private static function register_top_level_items( array $visibility ) {
+		self::$hidden_top_level_slugs = array();
+
+		foreach ( self::$top_level_items as $menu_item ) {
+			if ( ! current_user_can( $menu_item['capability'] ) ) {
+				continue;
+			}
+
+			/*
+			 * A hidden item is still registered, so its page keeps resolving for links into it.
+			 * It leaves $menu on admin_head instead: core's access check runs before that.
+			 */
+			if ( ! self::is_menu_item_visible( $menu_item, $visibility ) ) {
+				self::$hidden_top_level_slugs[] = $menu_item['menu_slug'];
+			}
+
+			add_menu_page(
+				$menu_item['page_title'],
+				$menu_item['menu_title'],
+				$menu_item['capability'],
+				$menu_item['menu_slug'],
+				$menu_item['function'],
+				$menu_item['icon_url'],
+				$menu_item['position']
+			);
+		}
+	}
+
+	/**
+	 * Adds a top level menu item, gated by the same visibility mechanism as the Jetpack submenus.
+	 *
+	 * For the pages Jetpack deliberately keeps outside the Jetpack menu. Placement is the only
+	 * difference from @see add_menu: the gate, the `jetpack_admin_menu_visibility` filter and the
+	 * hidden-but-reachable behavior are identical.
+	 *
+	 * Unlike add_menu(), this does not opt the page into the core-notice CSS or the design
+	 * tokens. Those are conveniences for the dashboards registered under the Jetpack menu; a
+	 * top level page that wants either calls hide_core_admin_notices() or enqueue_design_tokens()
+	 * on its own `load-` hook.
+	 *
+	 * The parameters mirror @see add_menu_page, with $args appended.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string        $page_title  The text to be displayed in the title tags of the page when the menu
+	 *                                   is selected.
+	 * @param string        $menu_title  The text to be used for the menu.
+	 * @param string        $capability  The capability required for this menu to be displayed to the user.
+	 * @param string        $menu_slug   The slug name to refer to this menu by. Should be unique for this menu.
+	 * @param callable|null $function    The function to be called to output the content for this page.
+	 * @param string        $icon_url    The URL to the icon to be used for this menu, or a dashicons class.
+	 * @param int|null      $position    The position in the menu order this item should appear.
+	 * @param array         $args        Optional. Visibility declaration for this item; see @see add_menu.
+	 *
+	 * @return string The resulting page's hook_suffix
+	 */
+	public static function add_top_level_menu( $page_title, $menu_title, $capability, $menu_slug, $function, $icon_url = '', $position = null, $args = array() ) {
+		self::init();
+		self::$top_level_items[] = compact( 'page_title', 'menu_title', 'capability', 'menu_slug', 'function', 'icon_url', 'position', 'args' );
+
+		/*
+		 * Matches what add_menu_page() will return: it records $admin_page_hooks[ $menu_slug ]
+		 * before deriving the hook, which is what makes get_plugin_page_hookname() say toplevel.
+		 */
+		return 'toplevel_page_' . plugin_basename( $menu_slug );
 	}
 
 	/**
@@ -439,6 +531,10 @@ class Admin_Menu {
 		foreach ( self::$hidden_menu_slugs as $menu_slug ) {
 			remove_submenu_page( 'jetpack', plugin_basename( $menu_slug ) );
 		}
+
+		foreach ( self::$hidden_top_level_slugs as $menu_slug ) {
+			remove_menu_page( plugin_basename( $menu_slug ) );
+		}
 	}
 
 	/**
@@ -467,8 +563,9 @@ class Admin_Menu {
 	 */
 	private static function get_visibility_states() {
 		$states = array();
+		$items  = array_merge( self::$menu_items, self::$top_level_items );
 
-		foreach ( self::$menu_items as $menu_item ) {
+		foreach ( $items as $menu_item ) {
 			$states[ self::get_item_key( $menu_item ) ] = self::VISIBILITY_DEFAULT;
 		}
 
@@ -483,7 +580,7 @@ class Admin_Menu {
 		 * @param array $states     Map of item key (menu slug unless the item declared one) to state.
 		 * @param array $menu_items The registered menu items, for context.
 		 */
-		$states = apply_filters( 'jetpack_admin_menu_visibility', $states, self::$menu_items );
+		$states = apply_filters( 'jetpack_admin_menu_visibility', $states, $items );
 
 		return is_array( $states ) ? $states : array();
 	}
