@@ -7085,8 +7085,8 @@ importers:
         specifier: npm:wp-prettier@3.0.3
         version: wp-prettier@3.0.3
       prettier-plugin-svelte:
-        specifier: 3.3.2
-        version: 3.3.2(svelte@5.55.7)(wp-prettier@3.0.3)
+        specifier: 4.1.1
+        version: 4.1.1(svelte@5.55.7)(wp-prettier@3.0.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -16777,11 +16777,12 @@ packages:
     resolution: {integrity: sha512-SxToR7P8Y2lWmv/kTzVLC1t/GDI2WGjMwNhLLE9qtH8Q13C+aEmuRlzDst4Up4s0Wc8sF2M+J57iB3cMLqftfg==}
     engines: {node: '>=6.0.0'}
 
-  prettier-plugin-svelte@3.3.2:
-    resolution: {integrity: sha512-kRPjH8wSj2iu+dO+XaUv4vD8qr5mdDmlak3IT/7AOgGIMRG86z/EHOLauFcClKEnOUf4A4nOA7sre5KrJD4Raw==}
+  prettier-plugin-svelte@4.1.1:
+    resolution: {integrity: sha512-wXvbXMjSvb4C9ENWTHXyd+ihakKCsJ6rJhLP6/8HFNj4GkZr48jqL9PoKsl2sk7SyCZRTnJ7O2TTowUpOxP/KA==}
+    engines: {node: '>=20'}
     peerDependencies:
       prettier: ^3.0.0
-      svelte: ^3.2.0 || ^4.0.0-next.0 || ^5.0.0-next.0
+      svelte: ^5.0.0
 
   prettier@3.9.6:
     resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
@@ -37714,7 +37715,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-svelte@3.3.2(svelte@5.55.7)(wp-prettier@3.0.3):
+  prettier-plugin-svelte@4.1.1(svelte@5.55.7)(wp-prettier@3.0.3):
     dependencies:
       prettier: wp-prettier@3.0.3
       svelte: 5.55.7
