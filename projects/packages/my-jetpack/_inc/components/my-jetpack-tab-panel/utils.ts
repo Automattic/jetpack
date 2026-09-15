@@ -77,31 +77,12 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 }
 
 /**
- * Get the default My Jetpack section.
- *
- * @return The name of the first available section.
- */
-export function getDefaultMyJetpackSection() {
-	return getMyJetpackSections()[ 0 ].name;
-}
-
-/**
- * Check if the given section is a valid My Jetpack section.
- *
- * @param section - The section to check.
- * @return True if the section is valid, false otherwise.
- */
-export function isValidMyJetpackSection( section?: string ) {
-	return getMyJetpackSections().some( item => item.name === section );
-}
-
-/**
  * Resolve a URL section to the section to render.
  *
  * `products` and `features` alias each other, so links saved under either flag state keep working.
  *
  * @param section - The section from the URL.
- * @return The resolved section, or the default section when it is not valid.
+ * @return The resolved section, or the first available section when it is not valid.
  */
 export function resolveMyJetpackSection( section?: string ) {
 	const aliased =

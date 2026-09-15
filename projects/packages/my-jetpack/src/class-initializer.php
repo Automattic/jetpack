@@ -52,7 +52,7 @@ class Initializer {
 	const WP_BUILD_FEATURE_FLAG = 'my-jetpack-wp-build';
 
 	/**
-	 * Feature flag that swaps the wp-build dashboard's Products tab for a Features tab.
+	 * Feature flag that swaps the My Jetpack Products tab for a Features tab.
 	 */
 	const FEATURES_TAB_FEATURE_FLAG = 'my-jetpack-features-tab';
 
@@ -346,7 +346,7 @@ class Initializer {
 			self::FEATURES_TAB_FEATURE_FLAG,
 			array(
 				'default'     => false,
-				'description' => 'Replace the Products tab with a Features tab in the wp-build My Jetpack dashboard.',
+				'description' => 'Replace the My Jetpack Products tab with a Features tab. Requires my-jetpack-wp-build.',
 				'owner'       => 'my-jetpack',
 			)
 		);
@@ -369,7 +369,8 @@ class Initializer {
 	/**
 	 * Whether the dashboard shows a Features tab in place of the Products tab.
 	 *
-	 * Only applies to the wp-build dashboard, so it also needs `my-jetpack-wp-build` enabled.
+	 * Also requires `my-jetpack-wp-build`, but is site-wide: a request that falls back to the
+	 * legacy bundle, such as the onboarding takeover, shows the Features tab too.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -380,22 +381,23 @@ class Initializer {
 	}
 
 	/**
-	 * Get the slug and label of the tab that lists products, for links to it.
+	 * Get the slug and label that replace the Products tab, for links to it.
+	 *
+	 * Null while the tab is unchanged, so links keep their own translated "Products" label.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array{slug: string, label: string}
+	 * @return array{slug: string, label: string}|null
 	 */
 	public static function get_products_section() {
-		return self::is_features_tab_enabled()
-			? array(
-				'slug'  => 'features',
-				'label' => __( 'Features', 'jetpack-my-jetpack' ),
-			)
-			: array(
-				'slug'  => 'products',
-				'label' => __( 'Products', 'jetpack-my-jetpack' ),
-			);
+		if ( ! self::is_features_tab_enabled() ) {
+			return null;
+		}
+
+		return array(
+			'slug'  => 'features',
+			'label' => __( 'Features', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**

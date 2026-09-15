@@ -37,8 +37,8 @@ declare module '@automattic/jetpack-script-data' {
 			siteEditor?: SiteEditorData;
 			/** Absolute URL of the package's built images directory, with a trailing slash. */
 			assetsUrl?: string;
-			/** The tab that lists products: Features when it replaces Products. */
-			productsSection?: { slug: 'products' | 'features'; label: string };
+			/** The tab that replaces Products, or null while it is unchanged. */
+			productsSection?: { slug: 'features'; label: string } | null;
 		};
 	}
 }

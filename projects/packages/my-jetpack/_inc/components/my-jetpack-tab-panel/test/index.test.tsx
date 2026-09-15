@@ -152,4 +152,19 @@ describe( 'MyJetpackTabPanel', () => {
 		);
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 	} );
+
+	it( 'redirects a Features hash back to Products while the flag is off, keeping its query', async () => {
+		mockSection = MY_JETPACK_SECTION_FEATURES;
+		mockSearch = '?filter=included';
+
+		render( <MyJetpackTabPanel /> );
+		await expect( screen.findByRole( 'tab', { selected: true } ) ).resolves.toHaveTextContent(
+			'Products'
+		);
+
+		expect( mockNavigate ).toHaveBeenCalledWith(
+			`/${ MY_JETPACK_SECTION_PRODUCTS }?filter=included`,
+			{ replace: true }
+		);
+	} );
 } );

@@ -30,7 +30,9 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 	if ( ! isWpcomPlatformSite() && ! window?.JetpackNetworkAdminData ) {
 		// Published by My Jetpack, whose products tab can be renamed Features.
 		const productsSection = (
-			getScriptData() as { myJetpack?: { productsSection?: { slug: string; label: string } } }
+			getScriptData() as {
+				myJetpack?: { productsSection?: { slug: string; label: string } | null };
+			}
 		 )?.myJetpack?.productsSection;
 
 		items = [

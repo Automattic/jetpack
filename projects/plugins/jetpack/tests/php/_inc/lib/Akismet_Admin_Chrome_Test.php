@@ -35,6 +35,8 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	 * Undo the constant and cached status the individual tests set.
 	 */
 	public function tear_down() {
+		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-wp-build' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-features-tab' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Status_Cache::clear();
 		parent::tear_down();
@@ -146,5 +148,19 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'page=my-jetpack', $wpcom );
 		// The byline itself still renders on WordPress.com.
 		$this->assertStringContainsString( 'class="jp-akismet-footer__a8c"', $wpcom );
+	}
+
+	/**
+	 * With My Jetpack's Features tab on, the footer links to it under its new name.
+	 */
+	public function test_render_footer_links_to_the_features_tab_when_it_replaces_products() {
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-wp-build', '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-features-tab', '__return_true' );
+
+		$footer = $this->render( array( new Akismet_Admin_Chrome(), 'render_footer' ) );
+
+		$this->assertStringContainsString( 'page=my-jetpack#/features', $footer );
+		$this->assertStringContainsString( '>Features</a>', $footer );
+		$this->assertStringNotContainsString( 'page=my-jetpack#/products', $footer );
 	}
 }

@@ -23,6 +23,11 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Initializer::WP_BUILD_FEATURE_FLAG;
 
 	/**
+	 * Per-flag filter that forces the Features tab flag.
+	 */
+	const FEATURES_TAB_FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
+
+	/**
 	 * Reset the request between tests.
 	 *
 	 * @return void
@@ -30,6 +35,7 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	public function tear_down() {
 		unset( $_GET['page'], $_GET['step'], $GLOBALS['current_screen'] );
 		remove_all_filters( self::FLAG_FILTER );
+		remove_all_filters( self::FEATURES_TAB_FLAG_FILTER );
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
 		Feature_Flags::reset();
 	}
@@ -65,13 +71,12 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	 */
 	public function test_features_tab_requires_both_flags() {
 		Initializer::register_feature_flags();
-		$features_filter = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
 
 		$this->assertFalse( Initializer::is_features_tab_enabled(), 'Both flags off.' );
-		$this->assertSame( 'products', Initializer::get_products_section()['slug'] );
+		$this->assertNull( Initializer::get_products_section() );
 
-		add_filter( $features_filter, '__return_true' );
-		$this->assertFalse( Initializer::is_features_tab_enabled(), 'Legacy dashboard.' );
+		add_filter( self::FEATURES_TAB_FLAG_FILTER, '__return_true' );
+		$this->assertFalse( Initializer::is_features_tab_enabled(), 'Features tab flag only.' );
 
 		add_filter( self::FLAG_FILTER, '__return_true' );
 		$this->assertTrue( Initializer::is_features_tab_enabled(), 'Both flags on.' );
@@ -83,7 +88,7 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 			Initializer::get_products_section()
 		);
 
-		remove_all_filters( $features_filter );
+		remove_all_filters( self::FEATURES_TAB_FLAG_FILTER );
 		$this->assertFalse( Initializer::is_features_tab_enabled(), 'wp-build flag only.' );
 	}
 

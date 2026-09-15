@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	MY_JETPACK_SECTION_FEATURES,
@@ -5,13 +8,7 @@ import {
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
 } from '../constants';
-import {
-	getDefaultMyJetpackSection,
-	getMyJetpackSections,
-	getProductsSectionPath,
-	isValidMyJetpackSection,
-	resolveMyJetpackSection,
-} from '../utils';
+import { getMyJetpackSections, getProductsSectionPath, resolveMyJetpackSection } from '../utils';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	currentUserCan: jest.fn(),
@@ -71,29 +68,22 @@ describe( 'getMyJetpackSections', () => {
 	} );
 } );
 
-describe( 'isValidMyJetpackSection', () => {
-	it( 'accepts the Overview section on regular sites', () => {
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_OVERVIEW ) ).toBe( true );
+describe( 'resolveMyJetpackSection on regular and Simple sites', () => {
+	it( 'keeps a valid section and defaults to Overview on regular sites', () => {
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_HELP ) ).toBe( MY_JETPACK_SECTION_HELP );
+		expect( resolveMyJetpackSection( undefined ) ).toBe( MY_JETPACK_SECTION_OVERVIEW );
 	} );
 
-	it( 'rejects the Overview and Help sections on Simple sites', () => {
+	it( 'resolves the Overview and Help sections to Products on Simple sites', () => {
 		mockIsSimpleSite.mockReturnValue( true );
 
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_OVERVIEW ) ).toBe( false );
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_HELP ) ).toBe( false );
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_PRODUCTS ) ).toBe( true );
-	} );
-} );
-
-describe( 'getDefaultMyJetpackSection', () => {
-	it( 'defaults to the Overview section on regular sites', () => {
-		expect( getDefaultMyJetpackSection() ).toBe( MY_JETPACK_SECTION_OVERVIEW );
-	} );
-
-	it( 'defaults to the Products section on Simple sites', () => {
-		mockIsSimpleSite.mockReturnValue( true );
-
-		expect( getDefaultMyJetpackSection() ).toBe( MY_JETPACK_SECTION_PRODUCTS );
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_OVERVIEW ) ).toBe(
+			MY_JETPACK_SECTION_PRODUCTS
+		);
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_HELP ) ).toBe(
+			MY_JETPACK_SECTION_PRODUCTS
+		);
+		expect( resolveMyJetpackSection( undefined ) ).toBe( MY_JETPACK_SECTION_PRODUCTS );
 	} );
 } );
 
@@ -117,7 +107,7 @@ describe( 'with the Features tab flag', () => {
 		] );
 
 		mockIsSimpleSite.mockReturnValue( true );
-		expect( getDefaultMyJetpackSection() ).toBe( MY_JETPACK_SECTION_FEATURES );
+		expect( resolveMyJetpackSection( undefined ) ).toBe( MY_JETPACK_SECTION_FEATURES );
 	} );
 
 	it( 'resolves the legacy Products section to Features', () => {

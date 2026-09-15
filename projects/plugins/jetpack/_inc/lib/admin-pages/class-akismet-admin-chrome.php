@@ -341,12 +341,13 @@ class Akismet_Admin_Chrome {
 		$a8c_url          = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
-		$products_section = method_exists( My_Jetpack_Initializer::class, 'get_products_section' )
-			? My_Jetpack_Initializer::get_products_section()
-			: array(
-				'slug'  => 'products',
-				'label' => _x( 'Products', 'Navigation item', 'jetpack' ),
-			);
+		$products_section = array(
+			'slug'  => 'products',
+			'label' => _x( 'Products', 'Navigation item', 'jetpack' ),
+		);
+		if ( method_exists( My_Jetpack_Initializer::class, 'get_products_section' ) ) {
+			$products_section = My_Jetpack_Initializer::get_products_section() ?? $products_section;
+		}
 		?>
 		<footer class="jp-akismet-footer jetpack-footer" aria-label="<?php esc_attr_e( 'Jetpack', 'jetpack' ); ?>" role="contentinfo">
 			<div class="jp-akismet-footer__logo">
