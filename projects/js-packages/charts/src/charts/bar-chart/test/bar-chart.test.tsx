@@ -156,11 +156,11 @@ describe( 'BarChart', () => {
 
 	test( 'reports category bounds without drawing an overlay and clears them on Escape', async () => {
 		const user = userEvent.setup();
-		const onCategoryHighlightChange = jest.fn();
-		renderWithTheme( { withTooltips: true, onCategoryHighlightChange } );
+		const onBandHighlightChange = jest.fn();
+		renderWithTheme( { withTooltips: true, onBandHighlightChange } );
 		await user.tab();
 		await user.keyboard( '{ArrowRight}' );
-		expect( onCategoryHighlightChange ).toHaveBeenLastCalledWith(
+		expect( onBandHighlightChange ).toHaveBeenLastCalledWith(
 			expect.objectContaining( {
 				datum: expect.objectContaining( { value: 10 } ),
 				x: expect.any( Number ),
@@ -171,24 +171,24 @@ describe( 'BarChart', () => {
 		);
 		expect( screen.queryByTestId( 'bar-chart-category-highlight' ) ).not.toBeInTheDocument();
 		await user.keyboard( '{Escape}' );
-		await waitFor( () => expect( onCategoryHighlightChange ).toHaveBeenLastCalledWith( null ) );
+		await waitFor( () => expect( onBandHighlightChange ).toHaveBeenLastCalledWith( null ) );
 	} );
 
 	test.each( [ 'vertical', 'horizontal' ] )(
 		'draws the active category across a %s plot',
 		async orientation => {
 			const user = userEvent.setup();
-			const onCategoryHighlightChange = jest.fn();
+			const onBandHighlightChange = jest.fn();
 			renderWithTheme( {
 				withTooltips: true,
-				withCategoryHighlight: true,
+				withBandHighlight: true,
 				orientation,
-				onCategoryHighlightChange,
+				onBandHighlightChange,
 			} );
 			await user.tab();
 			await user.keyboard( '{ArrowRight}' );
 			const highlight = screen.getByTestId( 'bar-chart-category-highlight' );
-			const bounds = onCategoryHighlightChange.mock.calls.at( -1 )[ 0 ];
+			const bounds = onBandHighlightChange.mock.calls.at( -1 )[ 0 ];
 			expect( Number( highlight.getAttribute( 'width' ) ) ).toBe( bounds.width );
 			expect( Number( highlight.getAttribute( 'height' ) ) ).toBe( bounds.height );
 			expect( bounds.width ).toBeGreaterThan( 0 );

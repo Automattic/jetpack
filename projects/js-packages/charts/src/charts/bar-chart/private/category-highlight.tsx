@@ -3,19 +3,12 @@ import { useContext, useEffect, useMemo, useRef } from 'react';
 import { useDeepMemo } from '../../../hooks';
 import { CATALOG_POINTERS } from '../../../providers/chart-context/private/catalog-pointers';
 import type { DataPointDate } from '../../../types';
-
-export type CategoryHighlightSelection = {
-	datum: DataPointDate;
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-};
+import type { BandHighlightSelection } from '../bar-chart';
 
 type Props = {
 	visible: boolean;
 	horizontal: boolean;
-	onChange?: ( selection: CategoryHighlightSelection | null ) => void;
+	onChange?: ( selection: BandHighlightSelection | null ) => void;
 };
 
 type BandScale = ( ( value: unknown ) => number | undefined ) & { bandwidth?: () => number };
