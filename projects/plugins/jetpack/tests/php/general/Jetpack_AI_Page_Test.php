@@ -575,19 +575,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The Agents Manager JWT client receives the connection state it needs.
-	 */
-	public function test_connection_initial_state_is_injected() {
-		unset( $GLOBALS['wp_scripts'] );
-		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
-
-		( new Jetpack_AI_Page() )->page_admin_scripts();
-
-		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
-		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
-	}
-
-	/**
 	 * Webpack loads the Scheduled tasks chunk from this base URL.
 	 */
 	public function test_chunk_base_url_is_injected_with_scheduled_tasks() {
@@ -616,15 +603,16 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The Agents Manager connection state stays dormant with Scheduled tasks.
+	 * The connection store and the Agents Manager JWT client both read this
+	 * state, so it goes out whether or not Scheduled tasks is on.
 	 */
-	public function test_connection_initial_state_is_not_injected_by_default() {
+	public function test_connection_initial_state_is_injected_without_scheduled_tasks() {
 		unset( $GLOBALS['wp_scripts'] );
 
 		( new Jetpack_AI_Page() )->page_admin_scripts();
 
 		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
-		$this->assertStringNotContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
 	}
 
 	/**
