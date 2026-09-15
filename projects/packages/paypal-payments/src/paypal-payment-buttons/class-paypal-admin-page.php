@@ -574,17 +574,7 @@ class PayPal_Admin_Page {
 	 * @param string $resource_id The PayPal resource ID (PLB-...).
 	 */
 	private static function render_detail_view( $resource_id ) {
-		// Cache detail API responses for 300 seconds to reduce redundant API calls.
-		$cache_key = 'paypal_resource_' . sanitize_key( $resource_id );
-		$resource  = get_transient( $cache_key );
-
-		if ( false === $resource ) {
-			$resource = PayPal_API_Client::get_resource( $resource_id );
-
-			if ( ! is_wp_error( $resource ) ) {
-				set_transient( $cache_key, $resource, 300 );
-			}
-		}
+		$resource = PayPal_API_Client::get_resource_cached( $resource_id );
 
 		// Breadcrumb.
 		printf(

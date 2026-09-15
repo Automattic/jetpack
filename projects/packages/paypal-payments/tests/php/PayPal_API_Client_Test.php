@@ -32,6 +32,8 @@ class PayPal_API_Client_Test extends TestCase {
 
 		// Remove any HTTP request filters.
 		remove_all_filters( 'pre_http_request' );
+
+		PayPal_API_Client::forget_cached_resources( 'PLB-CACHED1' );
 	}
 
 	// --- Constants ---
@@ -357,6 +359,166 @@ class PayPal_API_Client_Test extends TestCase {
 		$result = PayPal_API_Client::delete_resource( 'PLB-DELETE123' );
 
 		$this->assertTrue( $result );
+	}
+
+	// --- Caching ---
+
+	/**
+	 * Answer every request from PayPal with one body and count the requests.
+	 *
+	 * @param int          $status_code HTTP status code.
+	 * @param array|string $body        Response body.
+	 * @return \stdClass Counter with a `requests` property.
+	 */
+	private function mock_counted_response( $status_code, $body ) {
+		$counter           = new \stdClass();
+		$counter->requests = 0;
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $status_code, $body, $counter ) {
+				if ( strpos( $url, '/v1/oauth2/token' ) !== false ) {
+					return $preempt;
+				}
+				++$counter->requests;
+				return array(
+					'response' => array(
+						'code'    => $status_code,
+						'message' => '',
+					),
+					'body'     => is_array( $body ) ? wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) : $body,
+				);
+			},
+			10,
+			3
+		);
+		return $counter;
+	}
+
+	public function test_list_resources_cached_serves_the_second_read_from_cache() {
+		$this->set_up_connected_state();
+		$counter = $this->mock_counted_response( 200, array( 'resources' => array( array( 'id' => 'PLB-CACHED1' ) ) ) );
+
+		$first  = PayPal_API_Client::list_resources_cached( 20 );
+		$second = PayPal_API_Client::list_resources_cached( 20 );
+
+		$this->assertSame( 1, $counter->requests );
+		$this->assertSame( $first, $second );
+	}
+
+	public function test_list_resources_cached_does_not_cache_an_error() {
+		$this->set_up_connected_state();
+		$counter = $this->mock_counted_response( 500, array( 'message' => 'down' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, PayPal_API_Client::list_resources_cached( 20 ) );
+		$requests_after_first = $counter->requests;
+		PayPal_API_Client::list_resources_cached( 20 );
+
+		$this->assertGreaterThan( $requests_after_first, $counter->requests );
+	}
+
+	public function test_get_resource_cached_serves_the_second_read_from_cache() {
+		$this->set_up_connected_state();
+		$counter = $this->mock_counted_response(
+			200,
+			array(
+				'id'     => 'PLB-CACHED1',
+				'status' => 'ACTIVE',
+			)
+		);
+
+		PayPal_API_Client::get_resource_cached( 'PLB-CACHED1' );
+		$second = PayPal_API_Client::get_resource_cached( 'PLB-CACHED1' );
+
+		$this->assertSame( 1, $counter->requests );
+		$this->assertSame( 'ACTIVE', $second['status'] );
+	}
+
+	public function test_forget_cached_resources_makes_the_next_list_read_go_to_paypal() {
+		$this->set_up_connected_state();
+		$counter = $this->mock_counted_response( 200, array( 'resources' => array() ) );
+
+		PayPal_API_Client::list_resources_cached( 20 );
+		PayPal_API_Client::forget_cached_resources();
+		PayPal_API_Client::list_resources_cached( 20 );
+
+		$this->assertSame( 2, $counter->requests );
+	}
+
+	public function test_create_resource_forgets_cached_lists() {
+		$this->set_up_connected_state();
+		$before = (int) get_option( PayPal_API_Client::LIST_CACHE_VERSION_OPTION, 0 );
+		$this->mock_http_response(
+			201,
+			array(
+				'id'           => 'PLB-NEW1',
+				'payment_link' => 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+			)
+		);
+
+		PayPal_API_Client::create_resource( array( 'type' => 'BUY_NOW' ) );
+
+		$this->assertSame( $before + 1, (int) get_option( PayPal_API_Client::LIST_CACHE_VERSION_OPTION ) );
+	}
+
+	public function test_update_resource_forgets_the_resource_and_the_lists() {
+		$this->set_up_connected_state();
+		set_transient( 'paypal_resource_plb-cached1', array( 'id' => 'PLB-CACHED1' ), 300 );
+		$before = (int) get_option( PayPal_API_Client::LIST_CACHE_VERSION_OPTION, 0 );
+		$this->mock_http_response( 204, '' );
+
+		PayPal_API_Client::update_resource( 'PLB-CACHED1', array( 'type' => 'BUY_NOW' ) );
+
+		$this->assertFalse( get_transient( 'paypal_resource_plb-cached1' ) );
+		$this->assertSame( $before + 1, (int) get_option( PayPal_API_Client::LIST_CACHE_VERSION_OPTION ) );
+	}
+
+	public function test_delete_resource_forgets_the_resource_and_the_lists() {
+		$this->set_up_connected_state();
+		set_transient( 'paypal_resource_plb-cached1', array( 'id' => 'PLB-CACHED1' ), 300 );
+		$before = (int) get_option( PayPal_API_Client::LIST_CACHE_VERSION_OPTION, 0 );
+		$this->mock_http_response( 204, '' );
+
+		$this->assertTrue( PayPal_API_Client::delete_resource( 'PLB-CACHED1' ) );
+
+		$this->assertFalse( get_transient( 'paypal_resource_plb-cached1' ) );
+		$this->assertSame( $before + 1, (int) get_option( PayPal_API_Client::LIST_CACHE_VERSION_OPTION ) );
+	}
+
+	/**
+	 * PayPal has already dropped it, so the cached copy is stale in the same way.
+	 */
+	public function test_delete_resource_forgets_the_resource_paypal_no_longer_has() {
+		$this->set_up_connected_state();
+		set_transient( 'paypal_resource_plb-cached1', array( 'id' => 'PLB-CACHED1' ), 300 );
+		$this->mock_http_response(
+			404,
+			array(
+				'name'    => 'RESOURCE_NOT_FOUND',
+				'message' => 'Not found.',
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, PayPal_API_Client::delete_resource( 'PLB-CACHED1' ) );
+
+		$this->assertFalse( get_transient( 'paypal_resource_plb-cached1' ) );
+	}
+
+	public function test_a_failed_update_keeps_the_caches() {
+		$this->set_up_connected_state();
+		set_transient( 'paypal_resource_plb-cached1', array( 'id' => 'PLB-CACHED1' ), 300 );
+		$before = (int) get_option( PayPal_API_Client::LIST_CACHE_VERSION_OPTION, 0 );
+		$this->mock_http_response(
+			400,
+			array(
+				'name'    => 'INVALID_REQUEST',
+				'message' => 'Bad.',
+			)
+		);
+
+		PayPal_API_Client::update_resource( 'PLB-CACHED1', array( 'type' => 'BUY_NOW' ) );
+
+		$this->assertNotFalse( get_transient( 'paypal_resource_plb-cached1' ) );
+		$this->assertSame( $before, (int) get_option( PayPal_API_Client::LIST_CACHE_VERSION_OPTION, 0 ) );
 	}
 
 	// --- Error handling ---
