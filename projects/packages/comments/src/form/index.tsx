@@ -116,7 +116,10 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 		<>
 			<CommentField />
 			{ ! JetpackComments.isLoggedIn && (
-				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }>
+				<div
+					id={ `jetpack-comments-tray-${ formSettings.postId }` }
+					className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }
+				>
 					<div>
 						<Identity />
 					</div>

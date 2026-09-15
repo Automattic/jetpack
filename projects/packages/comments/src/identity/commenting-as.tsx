@@ -54,6 +54,7 @@ export const CommentingAs = () => {
 				type="button"
 				aria-label={ strings.settings }
 				aria-expanded={ isTrayOpen.value }
+				aria-controls={ `jetpack-comments-tray-${ formSettings.postId }` }
 				className={ clsx( 'jetpack-comments__tray-toggle', { 'is-open': isTrayOpen.value } ) }
 				onClick={ toggle }
 			>

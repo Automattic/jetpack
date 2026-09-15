@@ -8,8 +8,8 @@
 	margin-block: 0 16px;
 	padding: 8px 12px;
 	border-inline-start: 4px solid #f0b849;
-	background-color: #fef8ee;
-	color: #3c434a;
+	background-color: var(--jetpack-comments-content-background-color);
+	color: var(--jetpack-comments-font-color);
 	font-size: 14px;
 }
 
