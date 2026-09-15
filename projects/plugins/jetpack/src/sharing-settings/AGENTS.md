@@ -6,12 +6,15 @@ Guidance for AI coding agents working on the Settings > Sharing screen.
 
 It owns the wp-admin Settings > Sharing screen: menu registration, the two
 feature sections (Sharing buttons, Like buttons), the shared placement section,
-and the form handling for all of them. Registration happens unconditionally from
-the `is_admin()` block in `load-jetpack.php`, so the screen and every section on
-it exist whichever modules are active.
+the extras section, and the form handling for all of them. Registration happens
+unconditionally from the `is_admin()` block in `load-jetpack.php`, so the screen
+and every section on it exist whichever modules are active.
 
 `Section_State` decides which of four variants a section renders. `Environment`
 reads the site facts it needs. Everything else renders.
+
+`load-jetpack.php` does not run on WordPress.com Simple, so the registration
+above does not happen there. Simple's own registration is a wpcom-side change.
 
 ## Environment differences
 
@@ -58,6 +61,26 @@ even though nothing here uses them to assemble it: `pre_admin_screen_sharing` at
 the top of the page, `sharing_global_options` at the end of the services table,
 `sharing_admin_update` on a services save, and
 `sharing_show_buttons_on_row_start` / `_end` around the placement row.
+
+`sharing_global_options` is the one with a gap to watch. It normally fires from
+`Services_Config`, which only renders when the Sharing module is on, but its
+consumers are not all gated on that module — `Twitter_Cards` hangs the Twitter
+Site Tag there and is gated only on `jetpack_disable_twitter_cards`. That is what
+`Extras_Section` is for: with Sharing off it renders the same action in its own
+form and fires `sharing_admin_update` on save. Consumers verify their own nonces,
+so firing it from a form they did not render into is safe.
+
+## Placement defaults
+
+`sharing-options['global']['show']` is frequently absent, and every renderer
+applies its own default when it is: `Sharing_Service::get_global_options()` uses
+posts and pages, `Jetpack_Likes_Settings::get_options()` adds public commentable
+CPTs behind `jetpack_likes_default_post_types`. Read it raw and the checkboxes
+render unchecked on a site where the buttons are live — and since the next save
+posts those checkboxes back, a save the owner thinks is a no-op turns the feature
+off. `Placement_Section::selected_post_types()` is the one way in; it also maps
+the pre-2.x scalar form (`posts`, `index`, `posts-index`), which is still live
+data rather than history.
 
 ## Testing
 

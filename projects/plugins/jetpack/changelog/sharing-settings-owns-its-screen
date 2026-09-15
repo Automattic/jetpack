@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Sharing settings: always show both the Sharing and Like buttons sections, whichever features are active.
+Sharing settings: show the Sharing and Like buttons sections whichever features are active, each with its own save button, and give "Show buttons on" a section of its own.

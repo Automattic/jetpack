@@ -150,7 +150,7 @@ class Jetpack_Likes {
 	}
 
 	/**
-	 * Loads Jetpack's CSS on the sharing page so we can use .jetpack-targetable
+	 * Loads Jetpack's CSS on the sharing page.
 	 */
 	public function load_jp_css() {
 		/**
