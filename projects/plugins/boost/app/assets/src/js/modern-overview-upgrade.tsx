@@ -11,7 +11,7 @@ import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-b
 observeLegacyModulesState( queryClient );
 
 async function handleUpgrade( event: MouseEvent< HTMLAnchorElement > ) {
-	if ( event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
+	if ( event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
 		recordBoostEvent( 'performance_history_upgrade_cta_click', {} );
 		return;
 	}
