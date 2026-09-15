@@ -59,7 +59,89 @@ final class Post_Handler {
 			case 'activate-sharing':
 				self::activate_module( 'sharedaddy', Sharing_Section::NONCE_ACTION );
 				break;
+			case 'save-likes':
+				self::save_likes();
+				break;
+			case 'save-placement':
+				self::save_placement();
+				break;
 		}
+	}
+
+	/**
+	 * Save the Like buttons section.
+	 */
+	private static function save_likes(): void {
+		check_admin_referer( Likes_Section::NONCE_ACTION );
+
+		if ( 'off' === self::posted_choice( 'wpl_default' ) ) {
+			update_option( 'disabled_likes', 1 );
+		} else {
+			delete_option( 'disabled_likes' );
+		}
+
+		if ( Environment::is_simple_site() ) {
+			if ( 'off' === self::posted_choice( 'jetpack_reblogs_enabled' ) ) {
+				update_option( 'disabled_reblogs', 1 );
+			} else {
+				delete_option( 'disabled_reblogs' );
+			}
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
+			update_option( 'jetpack_comment_likes_enabled', empty( $_POST['jetpack_comment_likes_enabled'] ) ? 0 : 1 );
+		}
+
+		self::redirect_saved();
+	}
+
+	/**
+	 * Save the shared placement section.
+	 */
+	private static function save_placement(): void {
+		check_admin_referer( Placement_Section::NONCE_ACTION );
+
+		$options = get_option( 'sharing-options' );
+		if ( ! is_array( $options ) ) {
+			$options = array();
+		}
+
+		$allowed   = array_values( get_post_types( array( 'public' => true ) ) );
+		$allowed[] = 'index';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput -- nonce verified above; the values are checked against an allowlist below.
+		$posted = isset( $_POST['show'] ) && is_array( $_POST['show'] ) ? wp_unslash( $_POST['show'] ) : array();
+		$posted = array_filter( $posted, 'is_scalar' );
+
+		$options['global']['show'] = array_values( array_intersect( $posted, $allowed ) );
+
+		update_option( 'sharing-options', $options );
+
+		self::redirect_saved();
+	}
+
+	/**
+	 * One of a radio group's values, defaulting to "on" when nothing was posted.
+	 *
+	 * @param string $field Field name.
+	 */
+	private static function posted_choice( string $field ): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- callers verify before reading.
+		if ( empty( $_POST[ $field ] ) ) {
+			return 'on';
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- callers verify before reading.
+		return sanitize_text_field( wp_unslash( $_POST[ $field ] ) );
+	}
+
+	/**
+	 * Back to the screen, with the saved notice.
+	 */
+	private static function redirect_saved(): void {
+		wp_safe_redirect(
+			admin_url( 'options-general.php?page=' . Sharing_Settings_Page::SLUG . '&update=saved' )
+		);
+		exit;
 	}
 
 	/**
@@ -78,6 +160,19 @@ final class Post_Handler {
 
 		wp_safe_redirect( admin_url( 'options-general.php?page=' . Sharing_Settings_Page::SLUG ) );
 		exit;
+	}
+
+	/**
+	 * Hidden field naming the action a form is submitting.
+	 *
+	 * @param string $action Action name, matching a case above.
+	 */
+	public static function render_action_field( string $action ): void {
+		printf(
+			'<input type="hidden" name="%1$s" value="%2$s" />',
+			esc_attr( self::ACTION_FIELD ),
+			esc_attr( $action )
+		);
 	}
 
 	/**

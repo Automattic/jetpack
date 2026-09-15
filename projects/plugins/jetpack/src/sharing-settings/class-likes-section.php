@@ -162,7 +162,10 @@ final class Likes_Section {
 			?>
 			<p class="submit">
 				<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
-				<?php wp_nonce_field( self::NONCE_ACTION ); ?>
+				<?php
+				Post_Handler::render_action_field( 'save-likes' );
+				wp_nonce_field( self::NONCE_ACTION );
+				?>
 			</p>
 		</form>
 		<?php

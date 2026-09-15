@@ -32,17 +32,33 @@ final class Placement_Section {
 		<div class="jetpack-sharing-settings__section">
 			<h2><?php esc_html_e( 'Show buttons on', 'jetpack' ); ?></h2>
 			<form method="post" action="">
-				<fieldset>
-					<?php foreach ( $choices as $choice ) : ?>
-						<label>
-							<input type="checkbox" name="show[]" value="<?php echo esc_attr( $choice ); ?>" <?php checked( in_array( $choice, $shown, true ) ); ?> />
-							<?php echo esc_html( self::label_for( $choice ) ); ?>
-						</label><br />
-					<?php endforeach; ?>
-				</fieldset>
+				<table class="form-table">
+					<tbody>
+					<?php
+					/** This filter is documented in modules/sharedaddy/sharing.php */
+					echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					?>
+						<th scope="row"><label><?php esc_html_e( 'Show buttons on', 'jetpack' ); ?></label></th>
+						<td>
+							<?php foreach ( $choices as $choice ) : ?>
+								<label>
+									<input type="checkbox" name="show[]" value="<?php echo esc_attr( $choice ); ?>" <?php checked( in_array( $choice, $shown, true ) ); ?> />
+									<?php echo esc_html( self::label_for( $choice ) ); ?>
+								</label><br />
+							<?php endforeach; ?>
+						</td>
+					<?php
+					/** This filter is documented in modules/sharedaddy/sharing.php */
+					echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					?>
+					</tbody>
+				</table>
 				<p class="submit">
 					<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
-					<?php wp_nonce_field( self::NONCE_ACTION ); ?>
+					<?php
+					Post_Handler::render_action_field( 'save-placement' );
+					wp_nonce_field( self::NONCE_ACTION );
+					?>
 				</p>
 			</form>
 		</div>

@@ -204,54 +204,6 @@ final class Services_Config {
 					</tr>
 					<?php
 					/**
-					 * Filters the HTML at the beginning of the "Show button on" row.
-					 *
-					 * @module sharedaddy
-					 *
-					 * @since 2.1.0
-					 *
-					 * @param string $var Opening HTML tag at the beginning of the "Show button on" row.
-					 */
-					echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					?>
-						<th scope="row"><label><?php esc_html_e( 'Show buttons on', 'jetpack' ); ?></label></th>
-							<td>
-								<?php
-								$br = false;
-								foreach ( $shows as $show ) :
-									if ( 'index' === $show ) {
-										$label = __( 'Front Page, Archive Pages, and Search Results', 'jetpack' );
-									} else {
-										$post_type_object = get_post_type_object( $show );
-										$label            = $post_type_object->labels->name;
-									}
-									?>
-									<?php
-									if ( $br ) {
-										echo '<br />';
-									}
-									?>
-								<label><input type="checkbox"<?php checked( in_array( $show, $global['show'], true ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
-									<?php
-									$br = true;
-								endforeach;
-								?>
-							</td>
-					<?php
-					/**
-					 * Filters the HTML at the end of the "Show button on" row.
-					 *
-					 * @module sharedaddy
-					 *
-					 * @since 2.1.0
-					 *
-					 * @param string $var Closing HTML tag at the end of the "Show button on" row.
-					 */
-					echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					?>
-
-					<?php
-					/**
 					 * Fires at the end of the sharing global options settings table.
 					 *
 					 * @module sharedaddy
@@ -412,7 +364,21 @@ final class Services_Config {
 			&& wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), 'sharing-options' )
 		) {
 			$sharer = new \Sharing_Service();
-			$sharer->set_global_options( $_POST );
+
+			/*
+			 * set_global_options() rebuilds the whole global array from defaults, so a
+			 * payload with no `show` clears it. Placement is edited in its own section,
+			 * so carry the stored value through rather than losing it on every save.
+			 */
+			$data = $_POST; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- set_global_options() validates each field.
+			if ( ! isset( $data['show'] ) ) {
+				$stored = get_option( 'sharing-options' );
+				if ( isset( $stored['global']['show'] ) && is_array( $stored['global']['show'] ) ) {
+					$data['show'] = $stored['global']['show'];
+				}
+			}
+
+			$sharer->set_global_options( $data );
 			/**
 			 * Fires when updating sharing settings.
 			 *
@@ -519,7 +485,7 @@ final class Services_Config {
 			$sharer  = new \Sharing_Service();
 			$service = $sharer->get_service( sanitize_text_field( wp_unslash( $_POST['service'] ) ) );
 
-			if ( $service && $service instanceof Sharing_Advanced_Source ) {
+			if ( $service && $service instanceof \Sharing_Advanced_Source ) {
 				$service->update_options( $_POST );
 
 				$sharer->set_service( sanitize_text_field( wp_unslash( $_POST['service'] ) ), $service );

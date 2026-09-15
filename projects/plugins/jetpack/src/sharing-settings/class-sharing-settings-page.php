@@ -54,6 +54,21 @@ final class Sharing_Settings_Page {
 	}
 
 	/**
+	 * Confirm a save, when one just happened.
+	 */
+	private static function render_saved_notice(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only decides whether to print a confirmation.
+		if ( ! isset( $_GET['update'] ) || 'saved' !== $_GET['update'] ) {
+			return;
+		}
+
+		printf(
+			'<div class="updated"><p>%s</p></div>',
+			esc_html__( 'Settings have been saved', 'jetpack' )
+		);
+	}
+
+	/**
 	 * Render the screen.
 	 */
 	public static function render(): void {
@@ -61,6 +76,8 @@ final class Sharing_Settings_Page {
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h1>
 			<?php
+			self::render_saved_notice();
+
 			/** This action is documented in modules/sharedaddy/sharing.php */
 			do_action( 'pre_admin_screen_sharing' );
 
