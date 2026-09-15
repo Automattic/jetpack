@@ -20,7 +20,7 @@ import {
 	startsHidden,
 	withPrimaryGroupRules,
 } from '../constants.js';
-import useSubjectFields from '../hooks/use-subject-fields.js';
+import useSubjectFields, { useEnclosedFields } from '../hooks/use-subject-fields.js';
 import {
 	describeRule,
 	getActiveConditions,
@@ -69,19 +69,21 @@ const ConditionSummaryLine = ( { rule, subject } ) => {
 };
 
 /**
- * The "Conditional logic" inspector panel, injected into every field block.
+ * The "Conditional logic" inspector panel, injected into every field block and into
+ * container blocks that sit inside a form.
  *
  * Holds a summary and a button; the rules themselves are edited in a dialog, because three
  * controls per condition do not fit the inspector's width without stacking into a card per
  * condition, and a handful of those outgrows the viewport.
  *
  * @param {object}   props               - Component props.
- * @param {string}   props.clientId      - The field block's client id.
- * @param {object}   props.attributes    - The field block's attributes.
- * @param {Function} props.setAttributes - The field block's attribute setter.
+ * @param {string}   props.clientId      - The block's client id.
+ * @param {object}   props.attributes    - The block's attributes.
+ * @param {Function} props.setAttributes - The block's attribute setter.
+ * @param {boolean}  props.isContainer   - Whether the block is a container rather than a field.
  * @return {object} The rendered panel.
  */
-const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
+const ConditionalLogicPanel = ( { clientId, attributes, setAttributes, isContainer = false } ) => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	const logic = useMemo(
@@ -90,6 +92,8 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 	);
 
 	const fields = useSubjectFields( clientId );
+	// Only a container has fields inside it; for a field block this is always empty.
+	const enclosedFields = useEnclosedFields( isContainer ? clientId : null );
 	const group = getPrimaryGroup( logic );
 
 	const hasConditions = countRules( logic ) > 0;
@@ -128,9 +132,19 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 	const openModal = useCallback( () => setIsModalOpen( true ), [] );
 	const closeModal = useCallback( () => setIsModalOpen( false ), [] );
 
+	// Resolved against the fields inside this block as well as the ones outside it. The
+	// dropdown offers only the outside ones, because a group conditioned on a field it holds
+	// is circular -- but a rule can come to name one anyway, by the author dragging its
+	// subject into the group after writing it. The evaluators keep enforcing such a rule, so
+	// leaving it out here would report no conditions on a group that is hidden for good.
+	const summaryFields = useMemo(
+		() => [ ...fields, ...enclosedFields ],
+		[ fields, enclosedFields ]
+	);
+
 	// The conditions the field will actually be governed by. Incomplete ones are skipped by
 	// both evaluators, so listing them here would describe behaviour the field does not have.
-	const activeConditions = getActiveConditions( group, fields, duplicateFieldIds );
+	const activeConditions = getActiveConditions( group, summaryFields, duplicateFieldIds );
 
 	return (
 		<>
@@ -146,7 +160,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 						icon={ startsHidden( logic ) ? unseen : seen }
 						title={
 							activeConditions.length
-								? getSummaryText( logic, group, fields, duplicateFieldIds )
+								? getSummaryText( logic, group, summaryFields, duplicateFieldIds, isContainer )
 								: __( 'Add conditional logic', 'jetpack-forms' )
 						}
 						onClick={ openModal }
@@ -172,7 +186,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 									variant="body-sm"
 									className="jetpack-contact-form__conditional-logic-summary-text"
 								>
-									{ getSummaryHeading( logic, group ) }
+									{ getSummaryHeading( logic, group, isContainer ) }
 								</Text>
 								{ /* A list rather than stacked paragraphs, so a screen reader
 								     announces how many conditions there are before reading them. */ }
@@ -187,10 +201,16 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 								variant="body-sm"
 								className="jetpack-contact-form__conditional-logic-summary-text"
 							>
-								{ __(
-									'Show or hide this field based on the answer to another field.',
-									'jetpack-forms'
-								) }
+								{ isContainer
+									? __(
+											'Show or hide this group, and everything in it, based on the answer to a field.',
+											'jetpack-forms'
+									  )
+									: __(
+											'Show or hide this field based on the answer to another field.',
+											'jetpack-forms',
+											0
+									  ) }
 							</Text>
 						) }
 
@@ -227,6 +247,7 @@ const ConditionalLogicPanel = ( { clientId, attributes, setAttributes } ) => {
 				fields={ fields }
 				duplicateFieldIds={ duplicateFieldIds }
 				onFixDuplicateIds={ fixDuplicateFieldIds }
+				isContainer={ isContainer }
 				onActionChange={ handleActionChange }
 				onMatchChange={ handleMatchChange }
 				onRulesChange={ handleRulesChange }
