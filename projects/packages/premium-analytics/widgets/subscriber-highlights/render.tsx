@@ -16,7 +16,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { calendar, envelope, payment, people } from '@wordpress/icons';
+import { envelope, payment, people, scheduled } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -85,14 +85,14 @@ function SubscriberHighlightsReport() {
 	const historyTiles: Tile[] = DAYS_AGO.map( ( days, index ) => ( {
 		key: `${ days }-days-ago`,
 		label: DAYS_AGO_LABELS[ days ],
-		icon: calendar,
+		icon: scheduled,
 		value: past.counts[ index ] ?? null,
 	} ) );
 
 	const tiles: Tile[] = [
 		{
 			key: 'total',
-			label: __( 'Total subscribers', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'All-time subscribers', 'jetpack-premium-analytics-pkg' ),
 			icon: people,
 			value: total ?? null,
 			note: __(

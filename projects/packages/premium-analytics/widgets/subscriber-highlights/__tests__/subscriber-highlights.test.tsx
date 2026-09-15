@@ -92,7 +92,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 
 		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
 		expect( tileValues() ).toEqual( [
-			expect.stringMatching( /^Total subscribers.*428$/ ),
+			expect.stringMatching( /^All-time subscribers.*428$/ ),
 			'30 days ago317',
 			'60 days ago186',
 			'90 days ago95',
@@ -113,7 +113,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 
 		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
 		expect( tileValues() ).toEqual( [
-			expect.stringMatching( /^Total subscribers.*428$/ ),
+			expect.stringMatching( /^All-time subscribers.*428$/ ),
 			expect.stringMatching( /^Paid subscribers.*117$/ ),
 			expect.stringMatching( /^Free subscribers.*311$/ ),
 		] );
@@ -142,7 +142,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 
 		await expect( screen.findByText( '317' ) ).resolves.toBeInTheDocument();
 		expect( tileValues() ).toEqual( [
-			expect.stringMatching( /^Total subscribers.*428$/ ),
+			expect.stringMatching( /^All-time subscribers.*428$/ ),
 			'30 days ago317',
 			'60 days ago—',
 			'90 days ago0',
@@ -167,7 +167,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 
 		await expect( screen.findByText( ERROR_TEXT ) ).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Total subscribers' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'All-time subscribers' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the WidgetState loading skeleton while the requests are pending', () => {
@@ -176,7 +176,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 		render( <SubscriberHighlightsWidget attributes={ {} } /> );
 
 		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Total subscribers' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'All-time subscribers' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( ERROR_TEXT ) ).not.toBeInTheDocument();
 	} );
 
@@ -188,6 +188,6 @@ describe( 'SubscriberHighlightsWidget', () => {
 		await expect(
 			screen.findByText( 'No subscriber counts available yet.' )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Total subscribers' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'All-time subscribers' ) ).not.toBeInTheDocument();
 	} );
 } );
