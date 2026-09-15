@@ -29,52 +29,20 @@ function wpcom_actionbar_enqueue_scripts() {
 
 	$current_user = wp_get_current_user();
 
-	// Block this on some URLs.
-	$blocked_sites = array(
-		1,         // wordpress.com
-		5595,      // search.wordpress.com
-		16390,     // learn.wordpress.com
-		22994,     // theme.wordpress.com
-		101407,    // translate.wordpress.com AKA TRANSLATE_BLOG_ID
-		120742,    // dashboard.wordpress.com
-		522232,    // jetpack.wordpress.com (comment forms)
-		1099920,   // subscribe.wordpress.com
-		5680694,   // support.wordpress.com
-		5836086,   // public-api.wordpress.com
-		6397066,   // forums.wordpress.com
-		9619154,   // en.support.wordpress.com
-		37680917,  // store.wordpress.com
-		38809381,  // manualpayments.wordpress.com
-		40179807,  // supportpresssite.wordpress.com
-		49596611,  // help.vaultpress.com
-		70162127,  // getselfies.com
-		11429489,  // videopress2.wordpress.com
-		16913049,  // support.polldaddy.com
-		110643074, // es.support.wordpress.com
-		159755152, // happy.tools
-		108068616, // apps.wordpress.com
-		199936585, // pay.woo.com
-		203335235, // woopay-test.blog
-		220968827, // woopaysandbox.wordpress.com
-		33534099,  // developer.wordpress.com
-		28690414,  // anonymattic.club
-		// VIP
-		66829272,  // ottawacitizen.com
-		76569863,  // shopcatalog.com
-	);
-
-	// Block on non-posts for jetpack.com (20115252 legacy, JETPACK_COM_2026_BLOG_IDS since the 2026 move).
-	if ( ! is_single() ) {
-		$blocked_sites[] = 20115252;
-		if ( defined( 'JETPACK_COM_2026_BLOG_IDS' ) && is_array( JETPACK_COM_2026_BLOG_IDS ) ) {
-			array_push( $blocked_sites, ...JETPACK_COM_2026_BLOG_IDS );
-		}
+	/**
+	 * Filters whether the Action Bar loads on this request.
+	 *
+	 * WordPress.com hooks this to keep the bar off its own internal and special-purpose sites.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether to load the bar. Default true.
+	 */
+	if ( ! apply_filters( 'jetpack_action_bar_enabled', true ) ) {
+		return;
 	}
 
 	$site_id = get_current_blog_id();
-	if ( in_array( $site_id, $blocked_sites, true ) ) {
-		return;
-	}
 
 	global $current_blog;
 	// Don't show on marked sites.
