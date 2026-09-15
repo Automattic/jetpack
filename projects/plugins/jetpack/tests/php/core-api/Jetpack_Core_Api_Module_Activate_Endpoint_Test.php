@@ -546,9 +546,24 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		try {
 			if ( $via_rest ) {
 				$response = ( new Jetpack_Core_API_Module_Toggle_Endpoint() )->activate_module( 'search' );
-				$this->assertInstanceOf( WP_REST_Response::class, $response );
+				$this->assertInstanceOf(
+					WP_REST_Response::class,
+					$response,
+					is_wp_error( $response ) ? $response->get_error_code() . ': ' . $response->get_error_message() : ''
+				);
 			} else {
-				$this->assertTrue( Jetpack::activate_module( 'search', false, false ) );
+				$activated = Jetpack::activate_module( 'search', false, false );
+				$this->assertTrue(
+					$activated,
+					sprintf(
+						'Plan requests: %d; connected: %d; connection ready: %d; module available: %d; plan supports Search: %d',
+						$request_count,
+						( new \Automattic\Jetpack\Connection\Manager() )->is_connected(),
+						Jetpack::is_connection_ready(),
+						Jetpack::is_module( 'search' ),
+						\Automattic\Jetpack\Current_Plan::supports( 'search' )
+					)
+				);
 			}
 			$this->assertTrue( Jetpack::is_module_active( 'search' ) );
 			$this->assertSame( 1, $request_count );
