@@ -21,6 +21,13 @@ use Jetpack_Gutenberg;
 final class Environment {
 
 	/**
+	 * Memoised Site Editor URL, since resolving the template hits the theme's files.
+	 *
+	 * @var string|null
+	 */
+	private static $post_template_url = null;
+
+	/**
 	 * Whether the active theme is a block theme.
 	 */
 	public static function is_block_theme(): bool {
@@ -93,6 +100,31 @@ final class Environment {
 	}
 
 	/**
+	 * Whether comments can still be liked.
+	 *
+	 * Comment Likes is its own module, but it reads the Likes settings: both
+	 * `disabled_likes` and the shared placement gate `is_likes_visible()`. So a
+	 * site running it without the Likes module still needs those controls.
+	 */
+	public static function comment_likes_enabled(): bool {
+		if ( ! self::likes_supported() ) {
+			return false;
+		}
+
+		return self::is_simple_site() || ( new Modules() )->is_active( 'comment-likes' );
+	}
+
+	/**
+	 * Whether anything on this site still reads the Likes settings.
+	 *
+	 * Both features are gated on `disabled_likes` and the shared placement, so
+	 * either one keeps those controls worth showing.
+	 */
+	public static function likes_settings_in_use(): bool {
+		return self::likes_enabled() || self::comment_likes_enabled();
+	}
+
+	/**
 	 * Whether the Sharing Buttons block is available to offer as an alternative.
 	 */
 	public static function has_sharing_block(): bool {
@@ -109,22 +141,33 @@ final class Environment {
 	/**
 	 * Site Editor URL for the active theme's single post template.
 	 *
-	 * Empty when the stylesheet cannot be resolved, which callers treat as
-	 * "offer no Site Editor link" rather than linking nowhere.
+	 * Empty when the theme has no `single` template, which callers treat as
+	 * "offer no Site Editor link" rather than linking somewhere that 404s: a
+	 * block theme shipping only `index.html` is the case that hits this.
 	 */
 	public static function post_template_url(): string {
-		$stylesheet = get_stylesheet();
-		if ( ! $stylesheet ) {
-			return '';
+		if ( null !== self::$post_template_url ) {
+			return self::$post_template_url;
 		}
 
-		return add_query_arg(
+		$stylesheet = get_stylesheet();
+		$template   = $stylesheet ? $stylesheet . '//single' : '';
+
+		if ( ! $template || ! get_block_template( $template ) ) {
+			self::$post_template_url = '';
+
+			return self::$post_template_url;
+		}
+
+		self::$post_template_url = add_query_arg(
 			array(
-				'p'      => '/wp_template/' . $stylesheet . '//single',
+				'p'      => '/wp_template/' . $template,
 				'canvas' => 'edit',
 			),
 			admin_url( 'site-editor.php' )
 		);
+
+		return self::$post_template_url;
 	}
 
 	/**
