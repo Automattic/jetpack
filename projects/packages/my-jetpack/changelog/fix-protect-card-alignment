@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect: Fix alignment of the last scan text in the Protect card by removing incorrect absolute positioning.
