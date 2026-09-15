@@ -573,8 +573,11 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A wpcom outage empties the tab rather than breaking the screen, and is cached
-	 * briefly so the next page load does not repeat the request.
+	 * An unreachable wpcom empties the tab rather than breaking the screen, and is
+	 * cached briefly so the next page load does not repeat the attempt.
+	 *
+	 * The connection fails before the HTTP layer here, so this covers the degradation
+	 * path but not the request itself.
 	 */
 	public function test_catalog_degrades_when_wpcom_cannot_be_reached() {
 		$fail = static function () {
@@ -705,6 +708,67 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'Get started', $links[0] );
 		$this->assertStringContainsString( 'wordpress.com/plugins/gravityforms/', $links[0] );
+	}
+
+	/**
+	 * The switcher has to report the term back, or a reader cannot see which prices
+	 * they are looking at.
+	 */
+	public function test_billing_switcher_marks_the_active_term() {
+		ob_start();
+		wpcom_marketplace_billing_switcher();
+		$yearly = self::squash( ob_get_clean() );
+
+		$this->assertStringContainsString( 'value="yearly" checked', $yearly );
+		$this->assertStringNotContainsString( 'value="monthly" checked', $yearly );
+		$this->assertStringContainsString( 'name="tab" value="' . WPCOM_MARKETPLACE_TAB . '"', $yearly );
+
+		$_GET['billing'] = 'monthly';
+		ob_start();
+		wpcom_marketplace_billing_switcher();
+		$monthly = self::squash( ob_get_clean() );
+		unset( $_GET['billing'] );
+
+		$this->assertStringContainsString( 'value="monthly" checked', $monthly );
+		$this->assertStringNotContainsString( 'value="yearly" checked', $monthly );
+	}
+
+	/**
+	 * Collapses runs of whitespace, since checked() adds a leading space of its own.
+	 *
+	 * @param string $html Rendered markup.
+	 * @return string
+	 */
+	private static function squash( $html ) {
+		return (string) preg_replace( '/\s+/', ' ', $html );
+	}
+
+	/**
+	 * Prices read as "$10.00/month", so the noun has to follow the term.
+	 */
+	public function test_term_noun_follows_the_term() {
+		$this->assertSame( 'month', wpcom_marketplace_term_noun( 'monthly' ) );
+		$this->assertSame( 'year', wpcom_marketplace_term_noun( 'yearly' ) );
+	}
+
+	/**
+	 * The stylesheet scopes itself to this class, so losing it unstyles the tab.
+	 */
+	public function test_body_class_marks_the_tab() {
+		$this->assertStringContainsString( 'wpcom-marketplace-tab', wpcom_marketplace_body_class( 'wp-admin' ) );
+		$this->assertStringContainsString( 'wp-admin', wpcom_marketplace_body_class( 'wp-admin' ) );
+	}
+
+	/**
+	 * The intro is the only thing on the screen explaining why these buttons cost money.
+	 */
+	public function test_intro_renders() {
+		ob_start();
+		wpcom_marketplace_intro();
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'wpcom-marketplace-intro', $html );
+		$this->assertStringContainsString( 'subscription', $html );
 	}
 
 	/**
