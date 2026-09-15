@@ -1,0 +1,26 @@
+// Component styles for the Simple-site Backup page; the page-level layout lives
+// in routes/wpcom-backup/style.scss.
+
+.wpcom-simple-backup {
+
+	&__body {
+		// Grows to fill the space between the fixed header and the pinned footer.
+		display: flex;
+		flex: 1;
+		align-items: center;
+		justify-content: center;
+		padding: 24px;
+	}
+
+	&__card {
+		max-width: 560px;
+		margin-inline: auto;
+		padding: 32px;
+	}
+
+	&__blockers {
+		margin: 0;
+		list-style: disc;
+		padding-inline-start: 20px;
+	}
+}

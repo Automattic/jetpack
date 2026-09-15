@@ -1,0 +1,15 @@
+{
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
+		"@types/react": "^18.3.28",
+		"@wordpress/admin-ui": "2.9.0",
+		"@wordpress/i18n": "6.27.0",
+		"@wordpress/ui": "0.21.0"
+	},
+	"route": {
+		"path": "/",
+		"page": "wpcom-backup"
+	}
+}
