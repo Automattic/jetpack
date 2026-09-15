@@ -53,8 +53,7 @@ class Performance_History_Entry_Test extends TestCase {
 		return $error;
 	}
 
-	public function test_filter_off_preserves_empty_error_fallback_with_opt_in() {
-		Functions\when( 'is_admin' )->justReturn( true );
+	public function test_filter_off_preserves_empty_error_fallback_with_surface_errors() {
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( false );
 		$this->assertSame(
 			array(
@@ -67,9 +66,7 @@ class Performance_History_Entry_Test extends TestCase {
 		);
 	}
 
-	public function test_modern_rest_history_surfaces_upstream_error_with_opt_in() {
-		define( 'REST_REQUEST', true );
-		Functions\when( 'is_admin' )->justReturn( false );
+	public function test_filter_on_surfaces_upstream_error_with_surface_errors() {
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
 		$entry = $this->history_entry( $this->upstream_error(), true, true );
 		$this->expectException( \RuntimeException::class );
@@ -77,10 +74,8 @@ class Performance_History_Entry_Test extends TestCase {
 		$entry->get();
 	}
 
-	public function test_cli_history_preserves_empty_error_fallback_without_opt_in() {
-		define( 'WP_CLI', true );
+	public function test_filter_on_preserves_empty_error_fallback_without_surface_errors() {
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
-		Functions\when( 'is_admin' )->justReturn( false );
 		$this->assertSame(
 			array(
 				'startDate'   => 1000,
@@ -92,10 +87,8 @@ class Performance_History_Entry_Test extends TestCase {
 		);
 	}
 
-	public function test_legacy_rest_history_preserves_empty_error_fallback_without_opt_in() {
-		define( 'REST_REQUEST', true );
+	public function test_filter_on_preserves_empty_error_fallback_after_surface_errors_reset() {
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->with( false )->andReturn( true );
-		Functions\when( 'is_admin' )->justReturn( false );
 		$entry = $this->history_entry( $this->upstream_error(), true, true );
 		$entry->set(
 			array(
@@ -114,8 +107,7 @@ class Performance_History_Entry_Test extends TestCase {
 		);
 	}
 
-	public function test_modern_empty_history_remains_successful() {
-		Functions\when( 'is_admin' )->justReturn( true );
+	public function test_empty_history_remains_successful_with_surface_errors() {
 		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( true );
 		$this->assertSame(
 			array(
