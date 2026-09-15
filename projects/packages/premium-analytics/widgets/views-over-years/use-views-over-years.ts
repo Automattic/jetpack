@@ -51,6 +51,7 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		() => ( {
 			from: EARLIEST_STATS_DATE,
 			to: today,
+			interval: 'month',
 			period: 'month',
 			stat_fields: 'views',
 		} ),
