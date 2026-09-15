@@ -59,9 +59,7 @@ function firstMonthWithViews( buckets: MonthBucket[] ): MonthKey | undefined {
  * Every month of the site's views, one row per year. All-time regardless of
  * the section's year filter: one `stats/visits` request at `unit=month` over
  * the site's whole history, then one at `unit=day` over the first month with
- * views, whose first day with views opens that month. The site's registration
- * date would be the exact anchor, but `sites/:id` never returns it to a blog
- * token, so the first view stands in; without it the month divides whole.
+ * views, whose first day with views opens that month.
  *
  * @param metric - Which number each cell reports.
  * @return The rows and the requests' state.
@@ -130,12 +128,16 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		};
 	}, [ buckets, metric, today, opensAt ] );
 
+	// The rows wait for the first day with views only until that request first
+	// settles: a failed one is refetched on focus with no data, which would
+	// otherwise pull the drawn rows back into the skeleton. Its failure is not an error here.
+	const awaitingFirstDay =
+		!! firstMonth && firstMonthDays.isLoading && firstMonthDays.primary.errorUpdateCount === 0;
+
 	return {
 		rows,
 		lifeStartsAt,
-		// The rows wait for the first day with views so the first month does not
-		// re-divide in front of the reader; that request failing is not an error here.
-		isLoading: isLoading || ( !! firstMonth && firstMonthDays.isLoading ),
+		isLoading: isLoading || awaitingFirstDay,
 		isFetching,
 		isError,
 		error,

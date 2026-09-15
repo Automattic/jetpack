@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -159,6 +159,42 @@ describe( 'useViewsOverYears', () => {
 		expect( result.current.isError ).toBe( false );
 		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 10, 20 ] );
 		expect( result.current.lifeStartsAt?.toISOString() ).toBe( '2025-11-01T00:00:00.000Z' );
+	} );
+
+	it( 'keeps the rows on screen while a failed day request is retried on focus', async () => {
+		let dayRequests = 0;
+		let resolveRetry: ( value: unknown ) => void = () => {};
+		mockApiFetch.mockImplementation( options => {
+			if ( ! isDayRequest( options ) ) {
+				return Promise.resolve( VISITS_RESPONSE );
+			}
+
+			// The first attempt fails for good; the focus retry stays in flight.
+			return ++dayRequests === 1
+				? Promise.reject( { code: 'unauthorized', message: 'Nope.', status: 403 } )
+				: new Promise( resolve => {
+						resolveRetry = resolve;
+				  } );
+		} );
+		const { result } = renderHook( () => useViewsOverYears( 'average' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( dayRequests ).toBe( 1 );
+
+		act( () => {
+			window.dispatchEvent( new Event( 'visibilitychange' ) );
+			window.dispatchEvent( new Event( 'focus' ) );
+		} );
+
+		await waitFor( () => expect( dayRequests ).toBe( 2 ) );
+		expect( result.current.isLoading ).toBe( false );
+		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 10, 20 ] );
+
+		resolveRetry( FIRST_MONTH_RESPONSE );
+
+		await waitFor( () =>
+			expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] )
+		);
 	} );
 
 	it( 'keeps loading until the first day is known', async () => {

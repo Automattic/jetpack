@@ -52,6 +52,7 @@ function visitsResult(
 					value: views,
 				} ) ),
 			},
+			errorUpdateCount: 0,
 		},
 		isLoading: false,
 		isFetching: false,
