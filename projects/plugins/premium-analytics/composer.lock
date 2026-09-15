@@ -902,9 +902,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "b0f1c9486ddb4f37df0f934849599db215408fdc"
+                "reference": "838e42a9f1b6eb9d23d00cdae68851edd4fa66cc"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",

@@ -27,7 +27,6 @@ class Dashboard {
 	/**
 	 * Priority for the dashboard menu
 	 * For Jetpack sites: Jetpack uses 998 and 'Admin_Menu' uses 1000, so we need to use 999.
-	 * For simple site: the value is overriden in a child class with value 100000 to wait for all menus to be registered.
 	 *
 	 * Admin_Menu registers what it has queued at priority 1000, so this has to stay below it.
 	 *
