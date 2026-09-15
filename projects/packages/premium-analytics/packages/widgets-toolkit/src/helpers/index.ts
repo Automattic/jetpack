@@ -88,6 +88,7 @@ export {
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
 } from './monthly-heatmap-metric';
+export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
 export { monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
