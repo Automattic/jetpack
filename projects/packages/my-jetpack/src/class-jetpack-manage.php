@@ -2,7 +2,7 @@
 /**
  * Tools to manage things related to "Jetpack Manage"
  * - Add Jetpack Manage menu item.
- * - Check if user is an agency (used by the Jetpack Manage banner)
+ * - Keep track of whether a user is an agency (used by the menu item and the banner)
  *
  * @package automattic/my-jetpack
  */
@@ -21,27 +21,65 @@ use WP_Rest_Response;
  */
 class Jetpack_Manage {
 	/**
-	 * Transient holding the partner type this site's owner has, as answered by WordPress.com.
+	 * User meta holding the partner type WordPress.com last reported for that user.
+	 *
+	 * Keyed per user because the lookup is signed as one, and stored rather than cached because
+	 * the sidebar needs an answer on every admin page load without waiting for a request.
 	 *
 	 * @var string
 	 */
-	const PARTNER_TYPE_TRANSIENT_KEY = 'jetpack_partner_type';
+	const PARTNER_TYPE_USER_META_KEY = 'jetpack_partner_type';
 
 	/**
-	 * Cached partner type when the lookup found that this site's owner has no partner account.
+	 * Cron hook that looks a user's partner type up and stores it.
 	 *
-	 * `get_transient()` returns `false` for a miss, so "no partner" needs a value of its own to be
-	 * distinguishable from "not looked up yet".
+	 * @var string
+	 */
+	const PARTNER_TYPE_REFRESH_HOOK = 'jetpack_manage_refresh_partner_type';
+
+	/**
+	 * Stored partner type when the lookup found that this user has no partner account.
+	 *
+	 * "No partner" is a real answer and needs a value of its own to be distinguishable from
+	 * "never looked up", which is what an absent meta value means.
 	 *
 	 * @var string
 	 */
 	private const NO_PARTNER = 'none';
 
 	/**
+	 * How long a stored partner type is trusted before a refresh is scheduled.
+	 *
+	 * @var int
+	 */
+	private const PARTNER_TYPE_MAX_AGE = DAY_IN_SECONDS;
+
+	/**
+	 * How long after a session starts the refresh runs.
+	 *
+	 * Far enough out to stay clear of the login and the first page loads after it; the stored
+	 * answer is what the sidebar reads in the meantime.
+	 *
+	 * @var int
+	 */
+	private const PARTNER_TYPE_REFRESH_DELAY = 5 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Initialize the class and hooks needed.
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( self::class, 'add_submenu_jetpack' ) );
+
+		/*
+		 * Logging in starts a session worth a fresh answer. `admin_init` is the catch-up for
+		 * sessions that started before this shipped and for SSO, which signs a user in over a
+		 * GET that never loads this package. Both only schedule; the request itself runs in cron.
+		 */
+		add_action( 'wp_login', array( self::class, 'schedule_partner_type_refresh_on_login' ), 10, 2 );
+		add_action( 'admin_init', array( self::class, 'maybe_schedule_partner_type_refresh' ) );
+		add_action( self::PARTNER_TYPE_REFRESH_HOOK, array( self::class, 'refresh_partner_type' ) );
+
+		add_action( 'jetpack_unlinked_user', array( self::class, 'forget_partner_type' ) );
 	}
 
 	/**
@@ -89,6 +127,15 @@ class Jetpack_Manage {
 	 * @return void|null|string The resulting page's hook_suffix
 	 */
 	public static function add_submenu_jetpack() {
+		/*
+		 * Jetpack Manage is an agency product, and anyone else following this link lands on its
+		 * signup page. This runs first because it reads stored user meta, while the check below
+		 * can call WordPress.com — so the sites that fail it, which is most of them, pay nothing.
+		 */
+		if ( ! self::is_agency_account() ) {
+			return;
+		}
+
 		// Do not display the menu if the user has < 2 sites.
 		if ( ! self::could_use_jp_manage( 2 ) ) {
 			return;
@@ -147,6 +194,9 @@ class Jetpack_Manage {
 	/**
 	 * Check if the user is a partner/agency.
 	 *
+	 * Answers from what the last lookup stored and never makes a request, because the sidebar
+	 * asks on every admin page load. A user nobody has looked up yet reads as not an agency.
+	 *
 	 * @return bool Return true if the user is a partner/agency, otherwise false.
 	 */
 	public static function is_agency_account() {
@@ -155,36 +205,121 @@ class Jetpack_Manage {
 			return false;
 		}
 
-		// Get the cached partner type.
-		$partner_type = get_transient( self::PARTNER_TYPE_TRANSIENT_KEY );
+		$stored = self::get_stored_partner_type( get_current_user_id() );
 
-		if ( false === $partner_type ) {
-			$wpcom_response = Client::wpcom_json_api_request_as_user( '/jetpack-partners' );
-			$response_code  = (int) wp_remote_retrieve_response_code( $wpcom_response );
+		return null !== $stored && 'agency' === $stored['type'];
+	}
 
-			// A network failure or a server-side error is not an answer about this site, so leave
-			// the cache empty and ask again next time.
-			if ( is_wp_error( $wpcom_response ) || 0 === $response_code || $response_code >= 500 ) {
-				return false;
-			}
+	/**
+	 * Schedule a partner type refresh for the user who just logged in.
+	 *
+	 * @param string        $user_login Username, unused.
+	 * @param \WP_User|null $user       The user who logged in.
+	 * @return void
+	 */
+	public static function schedule_partner_type_refresh_on_login( $user_login, $user = null ) {
+		if ( $user instanceof \WP_User ) {
+			self::maybe_schedule_partner_type_refresh( $user->ID );
+		}
+	}
 
-			$partner_data = 200 === $response_code
-				? json_decode( wp_remote_retrieve_body( $wpcom_response ) )
-				: null;
+	/**
+	 * Queue a partner type lookup, unless a fresh answer or a pending job makes it pointless.
+	 *
+	 * Every check here reads options or user meta, so this stays free to call on `admin_init`.
+	 *
+	 * @param int|null $user_id User to look up, or null for the current user.
+	 * @return void
+	 */
+	public static function maybe_schedule_partner_type_refresh( $user_id = null ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
 
-			// The endpoint returns a single-element array (it uses Jetpack_Partner::find_by_owner),
-			// and answers 403 for a user with no partner account — which is most of them. "No
-			// partner" is a real answer and gets cached like any other; without that, those sites
-			// repeat this request on every page load that asks.
-			$partner_type = is_array( $partner_data ) && count( $partner_data ) === 1 && isset( $partner_data[0]->partner_type )
-				? $partner_data[0]->partner_type
-				: self::NO_PARTNER;
-
-			// Cache the partner type for 1 hour.
-			set_transient( self::PARTNER_TYPE_TRANSIENT_KEY, $partner_type, HOUR_IN_SECONDS );
+		// Nothing to ask WordPress.com about a user it does not know.
+		if ( ! $user_id || ! ( new Connection_Manager() )->is_user_connected( $user_id ) ) {
+			return;
 		}
 
-		return 'agency' === $partner_type;
+		$stored = self::get_stored_partner_type( $user_id );
+		if ( null !== $stored && $stored['time'] > time() - self::PARTNER_TYPE_MAX_AGE ) {
+			return;
+		}
+
+		$args = array( $user_id );
+		if ( wp_next_scheduled( self::PARTNER_TYPE_REFRESH_HOOK, $args ) ) {
+			return;
+		}
+
+		wp_schedule_single_event( time() + self::PARTNER_TYPE_REFRESH_DELAY, self::PARTNER_TYPE_REFRESH_HOOK, $args );
+	}
+
+	/**
+	 * Look a user's partner type up at WordPress.com and store it.
+	 *
+	 * Signs as `$user_id` explicitly rather than through `wpcom_json_api_request_as_user()`,
+	 * which signs as the current user — and a cron request has none.
+	 *
+	 * @param int $user_id User to look up.
+	 * @return void
+	 */
+	public static function refresh_partner_type( $user_id ) {
+		$user_id = (int) $user_id;
+
+		if ( ! $user_id || ! ( new Connection_Manager() )->is_user_connected( $user_id ) ) {
+			return;
+		}
+
+		$request_args            = Client::validate_args_for_wpcom_json_api_request( '/jetpack-partners', '2', array( 'method' => 'GET' ) );
+		$request_args['user_id'] = $user_id;
+
+		$wpcom_response = Client::remote_request( $request_args );
+		$response_code  = (int) wp_remote_retrieve_response_code( $wpcom_response );
+
+		// A network failure or a server-side error is not an answer about this user, so leave
+		// whatever is stored in place and let the next session ask again.
+		if ( is_wp_error( $wpcom_response ) || 0 === $response_code || $response_code >= 500 ) {
+			return;
+		}
+
+		$partner_data = 200 === $response_code
+			? json_decode( wp_remote_retrieve_body( $wpcom_response ) )
+			: null;
+
+		// The endpoint returns a single-element array (it uses Jetpack_Partner::find_by_owner),
+		// and answers 403 for a user with no partner account — which is most of them.
+		$partner_type = is_array( $partner_data ) && count( $partner_data ) === 1 && isset( $partner_data[0]->partner_type )
+			? $partner_data[0]->partner_type
+			: self::NO_PARTNER;
+
+		update_user_meta(
+			$user_id,
+			self::PARTNER_TYPE_USER_META_KEY,
+			array(
+				'type' => $partner_type,
+				'time' => time(),
+			)
+		);
+	}
+
+	/**
+	 * Drop a user's stored partner type when they disconnect from WordPress.com.
+	 *
+	 * @param int $user_id Disconnected user.
+	 * @return void
+	 */
+	public static function forget_partner_type( $user_id ) {
+		delete_user_meta( (int) $user_id, self::PARTNER_TYPE_USER_META_KEY );
+	}
+
+	/**
+	 * The partner type stored for a user, if a lookup has ever completed for them.
+	 *
+	 * @param int $user_id User to read.
+	 * @return array{type: string, time: int}|null Null when nothing usable is stored.
+	 */
+	private static function get_stored_partner_type( $user_id ) {
+		$stored = $user_id ? get_user_meta( (int) $user_id, self::PARTNER_TYPE_USER_META_KEY, true ) : '';
+
+		return is_array( $stored ) && isset( $stored['type'] ) && isset( $stored['time'] ) ? $stored : null;
 	}
 
 	/**
@@ -222,6 +357,16 @@ class Jetpack_Manage {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public static function get_jetpack_manage_data() {
+		/*
+		 * The scheduled refresh is the normal way this gets populated. This covers the site whose
+		 * cron never runs, where nothing else ever would: it is the one caller that can afford to
+		 * wait, being the XHR that made this request before, and it only waits when it must.
+		 */
+		$user_id = get_current_user_id();
+		if ( null === self::get_stored_partner_type( $user_id ) ) {
+			self::refresh_partner_type( $user_id );
+		}
+
 		$is_enabled        = self::could_use_jp_manage();
 		$is_agency_account = self::is_agency_account();
 
