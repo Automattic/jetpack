@@ -13,9 +13,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -87,6 +85,18 @@ describe( 'WordAdsEarningsHistory', () => {
 
 		await expect( screen.findByText( ERROR_DESCRIPTION ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( '07-2026' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'links to the Earnings History report', async () => {
+		render( <WordAdsEarningsHistory attributes={ {} } /> );
+		await expect( screen.findByText( '07-2026' ) ).resolves.toBeInTheDocument();
+
+		// Three history widgets sit side by side on the Ads tab, so the link is
+		// found by its disambiguating accessible name, not the visible "View all".
+		expect( screen.getByRole( 'link', { name: 'View all earnings history' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '/reports/earnings' )
+		);
 	} );
 
 	it( 'recovers via Retry after a failed earnings request', async () => {

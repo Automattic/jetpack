@@ -1,0 +1,20 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+/* The table is `content-bleed`, so the host adds no body padding; match the
+ * inline inset DataViews gives its own rows and footer. */
+.footer {
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}

@@ -2,9 +2,12 @@
  * External dependencies
  */
 import { useStatsWordAdsEarnings } from '@jetpack-premium-analytics/data';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import {
 	EARNINGS_HISTORY_VIEW,
+	ReportLink,
 	WidgetDataTable,
+	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	flattenEarningsBreakdown,
@@ -17,6 +20,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import styles from './style.module.css';
 import type { WordAdsEarningsHistoryAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -40,29 +44,41 @@ function WordAdsEarningsHistoryReport() {
 	const fields = useMemo( () => getWordAdsHistoryFields(), [] );
 
 	return (
-		<WidgetState
-			isLoading={ isLoading }
-			isFetching={ isFetching }
-			isError={ isError }
-			isEmpty={ rows.length === 0 }
-			error={ {
-				description: __(
-					"We couldn't load WordAds earnings. Please try again in a moment.",
-					'jetpack-premium-analytics-pkg'
-				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-			} }
-			empty={ {
-				description: __( 'No earnings history to show yet.', 'jetpack-premium-analytics-pkg' ),
-			} }
-		>
-			<WidgetDataTable< EarningsHistoryRow >
-				data={ rows }
-				fields={ fields }
-				getItemId={ getRowId }
-				initialView={ EARNINGS_HISTORY_VIEW }
-			/>
-		</WidgetState>
+		<Stack className={ styles.root }>
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load WordAds earnings. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					empty={ {
+						description: __( 'No earnings history to show yet.', 'jetpack-premium-analytics-pkg' ),
+					} }
+				>
+					<WidgetDataTable< EarningsHistoryRow >
+						data={ rows }
+						fields={ fields }
+						getItemId={ getRowId }
+						initialView={ EARNINGS_HISTORY_VIEW }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter className={ styles.footer }>
+				<ReportLink
+					report="earnings"
+					ariaLabel={ __( 'View all earnings history', 'jetpack-premium-analytics-pkg' ) }
+				/>
+			</WidgetFooter>
+		</Stack>
 	);
 }
 
