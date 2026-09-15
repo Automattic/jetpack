@@ -2,7 +2,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { select } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import GridiconStar from 'gridicons/dist/star';
@@ -25,8 +24,12 @@ export const StripeNudge = ( { blockName } ) => {
 		return null;
 	}
 
+	const hiddenMessage = __(
+		'This block will be hidden from your visitors until you connect to Stripe.',
+		'jetpack'
+	);
+	let subtitle = hiddenMessage;
 	let readMoreUrl;
-	let requirementsNotice;
 
 	const isWpcom = isWpcomPlatformSite();
 
@@ -40,16 +43,17 @@ export const StripeNudge = ( { blockName } ) => {
 			readMoreUrl = isWpcom
 				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-donations-block' )
 				: getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' );
-			requirementsNotice = createInterpolateElement(
-				__( 'Stripe has <link>additional requirements for accepting donations</link>.', 'jetpack' ),
-				{
-					link: (
-						<Link
-							openInNewTab
-							href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }
-						/>
-					),
-				}
+			subtitle = (
+				<>
+					{ hiddenMessage }
+					<br />
+					<Link
+						openInNewTab
+						href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }
+					>
+						{ __( "Review Stripe's requirements for accepting donations", 'jetpack' ) }
+					</Link>
+				</>
 			);
 			break;
 		case 'premium-content':
@@ -63,11 +67,6 @@ export const StripeNudge = ( { blockName } ) => {
 				: getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' );
 			break;
 	}
-
-	const subtitle = __(
-		'This block will be hidden from your visitors until you connect to Stripe.',
-		'jetpack'
-	);
 
 	return (
 		<BlockNudge
@@ -86,15 +85,7 @@ export const StripeNudge = ( { blockName } ) => {
 			readMoreUrl={ readMoreUrl }
 			onClick={ recordTracksEvent }
 			title={ __( 'Connect to Stripe to use this block on your site', 'jetpack' ) }
-			subtitle={
-				requirementsNotice ? (
-					<>
-						{ subtitle } { requirementsNotice }
-					</>
-				) : (
-					subtitle
-				)
-			}
+			subtitle={ subtitle }
 		/>
 	);
 };
