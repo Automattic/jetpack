@@ -806,3 +806,49 @@
 	font-size: 12px;
 	line-height: 1.4;
 }
+
+// The first step of a new block: the account's existing links under Create new.
+.jetpack-paypal-payment-buttons__links-intro {
+	margin-block: 0 12px;
+}
+
+.jetpack-paypal-payment-buttons__links-create {
+	margin-block-end: 12px;
+}
+
+.jetpack-paypal-payment-buttons__links {
+	list-style: none;
+	margin: 8px 0 0;
+	padding: 0;
+	max-block-size: 320px;
+	overflow-y: auto;
+
+	li {
+		margin: 0;
+	}
+
+	.jetpack-paypal-payment-buttons__link {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		inline-size: 100%;
+		block-size: auto;
+		padding-block: 6px;
+		text-align: start;
+	}
+}
+
+.jetpack-paypal-payment-buttons__link-name {
+	font-weight: 500;
+}
+
+.jetpack-paypal-payment-buttons__link-meta,
+.jetpack-paypal-payment-buttons__links-empty {
+	color: #757575;
+	font-size: 12px;
+}
+
+.jetpack-paypal-payment-buttons__links-hint {
+	margin: 0;
+	color: #757575;
+}
