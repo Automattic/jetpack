@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useRef, useState } from 'react';
 import { LineChartUnresponsive } from '../../../charts/line-chart/line-chart';
 import { GlobalChartsProvider } from '../../../providers';
 import { ChartScopeContext } from '../../../providers/chart-scope';
+import { useKeyboardNavigation } from '../accessible-tooltip';
 import type { ReactNode } from 'react';
 
 // A real chart is the harness rather than the subject: the crosshairs render only once visx has a data context and an open tooltip. The unresponsive export is what lets the test own the scope element — `withResponsive` otherwise provides its own wrapper as the scope.
@@ -86,9 +88,131 @@ describe( 'AccessibleTooltip', () => {
 		}
 	} );
 
+	it( 'returns focus to the grid without scrolling when Escape dismisses a below-axis tooltip', async () => {
+		const focus = jest.spyOn( HTMLElement.prototype, 'focus' );
+		try {
+			renderChart( undefined, 'below-axis' );
+			await openTooltip();
+			focus.mockClear();
+
+			await userEvent.setup().keyboard( '{Escape}' );
+
+			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toHaveFocus();
+			expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
+			expect( focus ).not.toHaveBeenCalledWith();
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
+	it( 'returns focus to the grid with the default scrolling when Escape dismisses an automatic tooltip', async () => {
+		const focus = jest.spyOn( HTMLElement.prototype, 'focus' );
+		try {
+			renderChart();
+			await openTooltip();
+			focus.mockClear();
+
+			await userEvent.setup().keyboard( '{Escape}' );
+
+			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toHaveFocus();
+			expect( focus ).toHaveBeenLastCalledWith();
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
 	it( 'falls back to the catalog default when the role is unset', async () => {
 		renderChart();
 
 		await expect( openTooltip() ).resolves.toHaveAttribute( 'stroke', '#dbdbdb' );
+	} );
+} );
+
+// Mirrors the charts' markup: the focusable grid wraps the element `chartRef` points at.
+const NavigationHarness = ( { totalPoints }: { totalPoints: number } ) => {
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
+	const [ isNavigating, setIsNavigating ] = useState( false );
+	const chartRef = useRef< HTMLDivElement >( null );
+	const { onChartKeyDown } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints,
+	} );
+
+	return (
+		<>
+			<div role="grid" aria-label="Harness" tabIndex={ 0 } onKeyDown={ onChartKeyDown }>
+				<div ref={ chartRef } data-testid="selected-index">
+					{ selectedIndex ?? 'none' }
+					<button type="button">Inside</button>
+				</div>
+			</div>
+			<button type="button">Outside</button>
+		</>
+	);
+};
+
+describe( 'useKeyboardNavigation', () => {
+	const navigate = async ( presses: number ) => {
+		const user = userEvent.setup();
+		const view = render( <NavigationHarness totalPoints={ 6 } /> );
+
+		screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+		for ( let i = 0; i < presses; i++ ) {
+			await user.keyboard( '{ArrowRight}' );
+		}
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( String( presses - 1 ) );
+
+		return { user, view };
+	};
+
+	it( 'moves the selection to the last point when the count shrinks while the grid has focus', async () => {
+		const { view } = await navigate( 6 );
+
+		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '2' );
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+	} );
+
+	it( 'clears the selection when the count shrinks after focus has left the chart', async () => {
+		const { view } = await navigate( 6 );
+
+		screen.getByRole( 'button', { name: 'Outside' } ).focus();
+		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+	} );
+
+	it( 'clears an in-range selection when the count changes after focus has left the chart', async () => {
+		const { view } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Outside' } ).focus();
+		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+	} );
+
+	it( 'returns focus to the grid on Escape', async () => {
+		const { user } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		await user.keyboard( '{Escape}' );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+	} );
+
+	it( 'returns focus to the grid on Escape when there are no points', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 0 } /> );
+
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		await user.keyboard( '{Escape}' );
+
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 } );
