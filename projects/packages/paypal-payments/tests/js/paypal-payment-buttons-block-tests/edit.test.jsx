@@ -25,6 +25,10 @@ const apiFetch = require( '@wordpress/api-fetch' );
 const mockReact = require( 'react' );
 
 // The API-managed editor only renders while the feature flag is on.
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getAdminUrl: path => `https://example.test/wp-admin/${ path }`,
+} ) );
+
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	hasFeatureFlag: () => true,
 } ) );
@@ -232,6 +236,11 @@ jest.mock( '@wordpress/components', () => ( {
 		)
 	),
 	ButtonGroup: ( { children } ) => <div data-testid="button-group">{ children }</div>,
+	ExternalLink: ( { children, href } ) => (
+		<a href={ href } target="_blank" rel="external noreferrer noopener">
+			{ children }
+		</a>
+	),
 	Modal: ( { children, title, onRequestClose } ) => (
 		<div data-testid="modal" role="dialog" aria-label={ title }>
 			{ children }
@@ -3073,6 +3082,43 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.clear( await screen.findByLabelText( 'Maximum quantity' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { maxQuantity: 10 } );
+		} );
+	} );
+
+	describe( 'Manage PayPal Payment Links', () => {
+		const saved = {
+			isApiManaged: true,
+			resourceId: 'PLB-MANAGE1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-MANAGE1',
+		};
+
+		it( 'links to the admin page from the connection panel once the block has a saved link', async () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+			renderForm( saved );
+
+			const connectionPanel = ( await screen.findAllByTestId( 'panel-body' ) ).find(
+				body => body.dataset.title === 'PayPal Connection'
+			);
+			const link = within( connectionPanel ).getByRole( 'link', {
+				name: 'Manage PayPal Payment Links',
+			} );
+
+			expect( link ).toHaveAttribute(
+				'href',
+				'https://example.test/wp-admin/admin.php?page=paypal-payment-links'
+			);
+			// A new tab, so the post being edited is not left behind.
+			expect( link ).toHaveAttribute( 'target', '_blank' );
+		} );
+
+		it( 'has nothing to manage before the link exists', async () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+			renderForm();
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'link', { name: 'Manage PayPal Payment Links' } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 
