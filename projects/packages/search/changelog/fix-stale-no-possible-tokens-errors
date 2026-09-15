@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent a malformed WordPress.com request on unregistered sites that could record a spurious connection error.

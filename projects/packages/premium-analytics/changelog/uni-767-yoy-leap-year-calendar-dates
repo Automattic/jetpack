@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Date comparison: keep the same calendar dates for a range starting on the 1st, so Year to date in a leap year compares against 1 January of the previous year rather than 31 December.

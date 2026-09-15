@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Admin bar endpoint: allow the Help Center node so the dashboard can render the entry point from the payload.

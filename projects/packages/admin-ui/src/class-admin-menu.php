@@ -17,7 +17,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.11.4';
+	const PACKAGE_VERSION = '0.12.0';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -478,7 +478,7 @@ class Admin_Menu {
 		 * Governs the sidebar entry only — a hidden item's page stays reachable by URL, so this
 		 * is not an access control. States: 'default' follows the item's feature, 'visible' shows it, 'hidden' removes it.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.12.0
 		 *
 		 * @param array $states     Map of item key (menu slug unless the item declared one) to state.
 		 * @param array $menu_items The registered menu items, for context.

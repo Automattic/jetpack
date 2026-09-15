@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Connection: Surface SSL certificate verification failures reported by WordPress.com as a connection error with an admin notice and a clearer Site Health diagnosis.

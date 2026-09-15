@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Editor: Stop offering to activate the legacy Likes and Sharing buttons modules on block themes, where the corresponding blocks should be added to a template instead.
