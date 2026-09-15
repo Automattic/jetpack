@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
-import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Stack, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	AbbreviatedValue,
@@ -174,10 +174,10 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 			),
 			value: (
 				<>
-					<span className={ styles.values } aria-hidden="true">
+					<Stack render={ <span /> } gap="md" aria-hidden="true">
 						<AbbreviatedValue value={ count } dataFormat={ COUNT_FORMAT } />
 						<span className={ styles.rate }>{ rate }</span>
-					</span>
+					</Stack>
 					<VisuallyHidden render={ <span /> }>{ description }</VisuallyHidden>
 				</>
 			),

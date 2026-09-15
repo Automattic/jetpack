@@ -21,11 +21,6 @@
 	min-block-size: 0;
 }
 
-.values {
-	display: inline-flex;
-	gap: var(--wpds-dimension-gap-md);
-}
-
 /* A minimum width keeps the counts aligned in a column across rows. */
 .rate {
 	min-inline-size: 7ch;
