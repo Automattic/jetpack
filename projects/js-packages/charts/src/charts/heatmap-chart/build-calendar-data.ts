@@ -1,5 +1,5 @@
-import { createDateFormatter, sanitizeFormatting } from '../../../utils/date-formatting';
-import { warnOnce } from '../../../utils/warn-once';
+import { createDateFormatter, sanitizeFormatting } from '../../utils/date-formatting';
+import { warnOnce } from '../../utils/warn-once';
 import {
 	addCivilDays,
 	civilDate,
@@ -9,15 +9,15 @@ import {
 	pointDayKey,
 	startOfCivilWeek,
 	writtenDayKey,
-} from './civil-day';
-import type { DataPointDate } from '../../../types';
+} from './private/civil-day';
+import type { CivilDate, DayKey } from './private/civil-day';
 import type {
 	CalendarHeatmapOptions,
 	CalendarHeatmapResult,
 	HeatmapCell,
 	HeatmapColumn,
-} from '../types';
-import type { CivilDate, DayKey } from './civil-day';
+} from './types';
+import type { DataPointDate } from '../../types';
 
 /** Rows that get a weekday label (Mon, Wed, Fri with a Monday week start). */
 const LABELLED_ROWS = [ 0, 2, 4 ];
