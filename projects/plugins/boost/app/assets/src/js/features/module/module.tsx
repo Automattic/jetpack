@@ -6,7 +6,7 @@ import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { __ } from '@wordpress/i18n';
-import { isWoaHosting } from '$lib/utils/hosting';
+import { isWoaHosting, isWpCloudClient } from '$lib/utils/hosting';
 import { useNotices } from '$features/notice/context';
 import { createInterpolateElement } from '@wordpress/element';
 import { Notice, Link } from '@wordpress/ui';
@@ -60,9 +60,10 @@ const Module = ( {
 	} );
 	const isModuleActive = status?.active ?? false;
 	const isModuleAvailable = status?.available ?? false;
-	// Page Cache is not available for WoA sites, but since WoA sites
-	// have their own caching, we want to show that Page Cache is active.
-	const isFakeActive = ! isModuleAvailable && isWoaHosting() && slug === 'page_cache';
+	// Page Cache is unavailable on WoA and WP Cloud client sites because the platform
+	// already caches pages, so show the module as active.
+	const isFakeActive =
+		! isModuleAvailable && ( isWoaHosting() || isWpCloudClient() ) && slug === 'page_cache';
 
 	const showOfflineMessage = ! site.online && ! worksOffline;
 	const offlineMessage = (
