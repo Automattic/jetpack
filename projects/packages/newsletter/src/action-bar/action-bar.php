@@ -414,7 +414,7 @@ function wpcom_actionbar_blavatar() {
 	}
 	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 	$blavatar_img = get_blavatar( get_option( 'siteurl' ), 50, Assets::staticize_subdomain( 'https://en.wordpress.com/i/logo/wpcom-gray-white.png' ) ); // phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
-	if ( 0 === strpos( $blavatar_img, '<img alt' ) ) {
+	if ( str_starts_with( $blavatar_img, '<img alt' ) ) {
 		$blavatar_img = "<img loading='lazy' alt" . substr( $blavatar_img, 8 );
 	}
 	return $blavatar_img;
@@ -499,7 +499,7 @@ function wpcom_actionbar_html( $is_rtl ) {
 	$login_url = add_query_arg( 'signup_flow', 'account', $login_url );
 	if (
 		! empty( $current_blog->primary_redirect )
-		&& strpos( $current_blog->primary_redirect, '.wordpress.com' ) === false
+		&& ! str_contains( $current_blog->primary_redirect, '.wordpress.com' )
 	) {
 		// phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
 		$redirect_to = add_query_arg( 'back', rawurlencode( get_permalink() ? get_permalink() : home_url() ), 'https://r-login.wordpress.com/remote-login.php?action=link' );
