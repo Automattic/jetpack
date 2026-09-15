@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Carousel: Stop serialising empty EXIF values into every gallery image.
