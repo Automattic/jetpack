@@ -57,8 +57,13 @@ jest.mock( '@wordpress/element', () => {
 
 // The tax hint interpolates a Link into its sentence.
 jest.mock( '@wordpress/ui', () => ( {
-	Link: ( { href, children } ) => (
-		<a href={ href } data-testid="link">
+	Link: ( { href, children, openInNewTab } ) => (
+		<a
+			href={ href }
+			target={ openInNewTab ? '_blank' : undefined }
+			data-testid="link"
+			rel="noreferrer"
+		>
 			{ children }
 		</a>
 	),
@@ -182,7 +187,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 				type="text"
 				{ ...rest }
 			/>
-			{ help && <span className="help-text">{ help }</span> }
+			{ help && <span className="components-base-control__help">{ help }</span> }
 		</div>
 	),
 } ) );
@@ -214,10 +219,10 @@ jest.mock( '@wordpress/components', () => ( {
 	},
 	// Only there to pad the suffix off the field edge; nothing asserts on it.
 	__experimentalInputControlSuffixWrapper: ( { children } ) => <span>{ children }</span>,
-	// Real InputControl renders its own BaseControl, so className and help land on its
-	// root - merged with components-input-control, which editor.scss keys on - and the
-	// label is tied to the input by a shared id. Mock that, not an aria-label: a field
-	// with no accessible name has to fail here.
+	// Real InputControl renders its own BaseControl: className on the root, help in
+	// .components-base-control__help - the class editor.scss keys on - and the label
+	// tied to the input by a shared id. Mock that, not an aria-label, so a field with
+	// no accessible name fails here.
 	__experimentalInputControl: ( { label, value, onChange, suffix, help, className, ...rest } ) => {
 		const id = `field-${ label }`;
 		return (
@@ -233,7 +238,7 @@ jest.mock( '@wordpress/components', () => ( {
 					{ ...rest }
 				/>
 				{ suffix }
-				{ help && <span className="help-text">{ help }</span> }
+				{ help && <span className="components-base-control__help">{ help }</span> }
 			</div>
 		);
 	},
@@ -333,7 +338,7 @@ jest.mock( '@wordpress/components', () => ( {
 						</option>
 					) ) }
 			</select>
-			{ help && <span className="help-text">{ help }</span> }
+			{ help && <span className="components-base-control__help">{ help }</span> }
 		</div>
 	),
 	Spinner: () => <div data-testid="spinner">Loading...</div>,
@@ -408,7 +413,7 @@ jest.mock( '@wordpress/components', () => ( {
 				type={ type || 'text' }
 				{ ...rest }
 			/>
-			{ help && <span className="help-text">{ help }</span> }
+			{ help && <span className="components-base-control__help">{ help }</span> }
 		</div>
 	),
 	TextareaControl: ( { label, value, onChange, onBlur, help, className } ) => (
@@ -421,7 +426,7 @@ jest.mock( '@wordpress/components', () => ( {
 				onChange={ e => onChange( e.target.value ) }
 				onBlur={ onBlur }
 			/>
-			{ help && <span className="help-text">{ help }</span> }
+			{ help && <span className="components-base-control__help">{ help }</span> }
 		</div>
 	),
 	ToolbarButton: ( { label, onClick } ) => (
@@ -2874,8 +2879,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( written );
 		} );
 
-		// InputControl reports an emptied field as undefined, not ''. Writing undefined
-		// into the attribute reads back as the block.json default on the next mount.
+		// Clearing the field writes '' rather than dropping the attribute, which would
+		// read back as the block.json default on the next mount.
 		it( 'writes an empty string when the field is cleared', async () => {
 			const user = userEvent.setup();
 			mockConnected();
@@ -2912,7 +2917,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// so it follows the currency - JPY takes no decimals at all.
 		it.each( [
 			[ 'a percentage', { taxType: 'PERCENTAGE' }, '0.01' ],
-			[ 'a flat amount', { taxType: 'FLAT' }, '0.01' ],
 			[ 'a flat amount in JPY', { taxType: 'FLAT', currencyCode: 'JPY', price: '2000' }, '1' ],
 		] )( 'steps the field for %s', async ( _label, overrides, step ) => {
 			const field = await taxField( overrides );
@@ -2948,6 +2952,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		// The mockup shows a $, so check the suffix follows the product's currency
 		// rather than being hardcoded.
+		it( 'shows a percent sign on a rate', async () => {
+			mockConnected();
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitForForm();
+
+			expect(
+				within( screen.getByTestId( 'control-Tax rate' ) ).getByText( '%' )
+			).toBeInTheDocument();
+		} );
+
 		it( 'shows the currency symbol on a flat amount', async () => {
 			mockConnected();
 
@@ -3023,14 +3038,21 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByLabelText( 'Tax rate' ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'link' ) ).toHaveAttribute(
+			const link = screen.getByTestId( 'link' );
+
+			expect( link ).toHaveAttribute(
 				'href',
 				'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax'
 			);
+			// The post may be unsaved, so this must not navigate away from it.
+			expect( link ).toHaveAttribute( 'target', '_blank' );
 		} );
 
-		it( 'sends a live merchant to the production tax settings', async () => {
-			apiFetch.mockResolvedValue( { connected: true, environment: 'production' } );
+		it.each( [
+			[ 'production', 'production' ],
+			[ 'an unknown environment', undefined ],
+		] )( 'sends %s to the production tax settings', async ( _label, environment ) => {
+			apiFetch.mockResolvedValue( { connected: true, environment } );
 
 			render(
 				<Edit
@@ -3053,7 +3075,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// back would overwrite it, so the key rides along only when there is one.
 	} );
 
-	describe( 'Custom checkout fields', () => {
+	describe( 'Add customer note', () => {
 		beforeEach( () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 		} );

@@ -47,7 +47,7 @@ export default function AmountField( {
 		<InputControl
 			label={ label }
 			value={ value || '' }
-			// onChange is typed string | undefined; 40.0.0 coerces to '' before calling.
+			// The type allows undefined; @wordpress/components always passes a string.
 			onChange={ next => onChange( next ?? '' ) }
 			type="number"
 			step={ step }
