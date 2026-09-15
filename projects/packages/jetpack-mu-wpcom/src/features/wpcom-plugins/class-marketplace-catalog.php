@@ -146,7 +146,7 @@ class Marketplace_Catalog {
 
 		$details = self::to_details( self::to_card( $product ) );
 
-		$description = is_string( $product['description'] ?? null ) ? $product['description'] : '';
+		$description = self::to_modal_html( is_string( $product['description'] ?? null ) ? $product['description'] : '' );
 		if ( '' !== $description ) {
 			$details['sections']['description'] = $description;
 		}
@@ -170,6 +170,50 @@ class Marketplace_Catalog {
 		unset( $card['active_installs'], $card['downloaded'] );
 
 		return $card;
+	}
+
+	/**
+	 * Reduces a vendor description to markup core's details modal can render.
+	 *
+	 * These are WooCommerce.com product pages: layout divs, full-width figures and
+	 * inline styles, with the spacing living in a stylesheet the modal does not load.
+	 * Left alone they overflow its ~600px column and the text runs together.
+	 *
+	 * @param string $html Description as the marketplace endpoint returns it.
+	 * @return string
+	 */
+	public static function to_modal_html( $html ) {
+		if ( '' === $html ) {
+			return '';
+		}
+
+		// Block wrappers are about to be stripped, so keep the break they implied.
+		$html = preg_replace( '#</(?:div|figure|section|article|table|tr)>#i', "\n\n", $html );
+
+		$html = wp_kses(
+			$html,
+			array(
+				'a'          => array(
+					'href'  => array(),
+					'title' => array(),
+				),
+				'b'          => array(),
+				'blockquote' => array(),
+				'br'         => array(),
+				'code'       => array(),
+				'em'         => array(),
+				'h3'         => array(),
+				'h4'         => array(),
+				'i'          => array(),
+				'li'         => array(),
+				'ol'         => array(),
+				'p'          => array(),
+				'strong'     => array(),
+				'ul'         => array(),
+			)
+		);
+
+		return trim( wpautop( trim( $html ) ) );
 	}
 
 	/**

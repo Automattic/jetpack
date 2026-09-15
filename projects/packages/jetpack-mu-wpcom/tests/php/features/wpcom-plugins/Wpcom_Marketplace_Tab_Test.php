@@ -397,6 +397,66 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Vendor descriptions are WooCommerce.com product pages. Core's modal loads none
+	 * of that CSS, so the layout markup has to go before it gets there.
+	 */
+	public function test_modal_html_drops_vendor_layout_markup() {
+		$vendor = '<div class="features"><div class="feature feature__right">'
+			. '<h3><span style="font-weight: 400;">Yoast SEO Premium</span></h3>'
+			. '<span style="font-weight: 300;"><strong>Real-time SEO guidance</strong> and AI tools.</span>'
+			. '<figure><img src="https://example.com/banner.png" alt="" /></figure>'
+			. '</div></div>';
+
+		$html = Marketplace_Catalog::to_modal_html( $vendor );
+
+		$this->assertStringNotContainsString( '<div', $html );
+		$this->assertStringNotContainsString( '<figure', $html );
+		$this->assertStringNotContainsString( '<img', $html );
+		$this->assertStringNotContainsString( '<span', $html );
+		$this->assertStringNotContainsString( 'style=', $html );
+		$this->assertStringNotContainsString( 'class=', $html );
+
+		// The words survive, and so does the markup the modal can style.
+		$this->assertStringContainsString( 'Real-time SEO guidance', $html );
+		$this->assertStringContainsString( '<strong>', $html );
+		$this->assertStringContainsString( '<h3>', $html );
+	}
+
+	/**
+	 * The source has no paragraph tags at all, so without re-paragraphing the text
+	 * arrives as one run once the layout divs are gone.
+	 */
+	public function test_modal_html_paragraphs_text_that_had_none() {
+		$vendor = '<div>First block of copy.</div><div>Second block of copy.</div>';
+
+		$html = Marketplace_Catalog::to_modal_html( $vendor );
+
+		$this->assertSame( 2, substr_count( $html, '<p>' ) );
+		$this->assertStringContainsString( 'First block of copy.', $html );
+		$this->assertStringContainsString( 'Second block of copy.', $html );
+	}
+
+	/**
+	 * Links are the one attribute-bearing tag worth keeping.
+	 */
+	public function test_modal_html_keeps_links_and_lists() {
+		$html = Marketplace_Catalog::to_modal_html(
+			'<ul><li>One</li><li><a href="https://example.com" title="t">Two</a></li></ul>'
+		);
+
+		$this->assertStringContainsString( '<ul>', $html );
+		$this->assertStringContainsString( '<li>One</li>', $html );
+		$this->assertStringContainsString( 'href="https://example.com"', $html );
+	}
+
+	/**
+	 * An empty description stays empty rather than becoming an empty paragraph.
+	 */
+	public function test_modal_html_leaves_an_empty_description_alone() {
+		$this->assertSame( '', Marketplace_Catalog::to_modal_html( '' ) );
+	}
+
+	/**
 	 * A product that is not installed is bought, not downloaded.
 	 */
 	public function test_install_button_is_replaced_for_our_products() {
