@@ -40,6 +40,28 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The footer on every Jetpack admin page reads the Features tab flag from script data.
+	 */
+	public function test_adds_the_features_tab_flag() {
+		$data = Initializer::add_features_tab_script_data( array( 'existing' => 'value' ) );
+
+		$this->assertSame( 'value', $data['existing'] );
+		$this->assertFalse( $data['myJetpack']['featuresTab'] );
+
+		Initializer::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::WP_BUILD_FEATURE_FLAG, '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG, '__return_true' );
+
+		$data = Initializer::add_features_tab_script_data( array() );
+
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::WP_BUILD_FEATURE_FLAG );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG );
+		\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
+
+		$this->assertTrue( $data['myJetpack']['featuresTab'] );
+	}
+
+	/**
 	 * Covers requests other than the My Jetpack page's own.
 	 */
 	public function test_the_image_base_url_is_registered_off_the_my_jetpack_page() {

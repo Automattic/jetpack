@@ -1,4 +1,4 @@
-import { isWpcomPlatformSite, getAdminUrl } from '@automattic/jetpack-script-data';
+import { isWpcomPlatformSite, getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text, Link } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -28,11 +28,20 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 	let items: JetpackFooterMenuItem[] = [];
 
 	if ( ! isWpcomPlatformSite() && ! window?.JetpackNetworkAdminData ) {
+		// Set by My Jetpack's `my-jetpack-features-tab` flag.
+		const { featuresTab } =
+			( getScriptData() as { myJetpack?: { featuresTab?: boolean } } )?.myJetpack ?? {};
+
 		items = [
-			{
-				label: __( 'Products', 'jetpack-components' ),
-				href: getAdminUrl( 'admin.php?page=my-jetpack#/products' ),
-			},
+			featuresTab
+				? {
+						label: __( 'Features', 'jetpack-components' ),
+						href: getAdminUrl( 'admin.php?page=my-jetpack#/features' ),
+				  }
+				: {
+						label: __( 'Products', 'jetpack-components' ),
+						href: getAdminUrl( 'admin.php?page=my-jetpack#/products' ),
+				  },
 			{
 				label: __( 'Help', 'jetpack-components' ),
 				href: getAdminUrl( 'admin.php?page=my-jetpack#/help' ),

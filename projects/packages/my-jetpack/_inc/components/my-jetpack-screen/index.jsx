@@ -32,7 +32,7 @@ import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { getDefaultMyJetpackSection, isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
@@ -125,9 +125,7 @@ export default function MyJetpackScreen() {
 	// useLayoutEffect gets called before useEffect.
 	// We are using it here to ensure the `page_view` event gets triggered first.
 	// Determine current tab
-	const currentTab = isValidMyJetpackSection( params.section )
-		? params.section
-		: getDefaultMyJetpackSection();
+	const currentTab = resolveMyJetpackSection( params.section );
 
 	useLayoutEffect( () => {
 		let customTracksData = {};

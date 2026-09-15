@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -259,6 +260,8 @@ abstract class Jetpack_Admin_Page {
 		$jetpack_about_url = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
+		$features_tab      = method_exists( My_Jetpack_Initializer::class, 'is_features_tab_enabled' )
+			&& My_Jetpack_Initializer::is_features_tab_enabled();
 
 		?>
 		<div id="jp-plugin-container" class="
@@ -381,7 +384,11 @@ abstract class Jetpack_Admin_Page {
 					</div>
 					<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
 					<div class="jp-footer__menu">
+						<?php if ( $features_tab ) : ?>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/features' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Features', 'Navigation item', 'jetpack' ); ?></a>
+						<?php else : ?>
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/products' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Products', 'Navigation item', 'jetpack' ); ?></a>
+						<?php endif; ?>
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>
 					</div>
 					<?php endif; ?>

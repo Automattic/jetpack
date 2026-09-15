@@ -18,6 +18,7 @@ import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
+import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
 import ProductDetailTable from '../product-detail-table';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -74,7 +75,7 @@ export default function ProductInterstitial( {
 
 	const { isUpgradableByBundle, pricingForUi, isTieredPricing } = detail;
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: '/products' } );
+	const { onClickGoBack } = useGoBack( { slug, fallback: getProductsSectionPath() } );
 	const myJetpackCheckoutUri = getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
@@ -204,7 +205,7 @@ export default function ProductInterstitial( {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to="/products"
+					to={ getProductsSectionPath() }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}

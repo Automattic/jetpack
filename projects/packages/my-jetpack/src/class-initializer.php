@@ -52,6 +52,11 @@ class Initializer {
 	const WP_BUILD_FEATURE_FLAG = 'my-jetpack-wp-build';
 
 	/**
+	 * Feature flag that swaps the wp-build dashboard's Products tab for a Features tab.
+	 */
+	const FEATURES_TAB_FEATURE_FLAG = 'my-jetpack-features-tab';
+
+	/**
 	 * Handle for the classic script that carries the React initial state on the
 	 * wp-build path. The dashboard is a script module there, so there is no
 	 * classic bundle handle to attach inline data to.
@@ -107,6 +112,8 @@ class Initializer {
 		// Before the gate: the Jetpack plugin renders this package's connection screen even
 		// where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_assets_script_data' ) );
+		// Every Jetpack admin page's footer links to this tab, not only My Jetpack's.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_features_tab_script_data' ) );
 
 		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
@@ -336,6 +343,15 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+
+		Feature_Flags::register(
+			self::FEATURES_TAB_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Replace the Products tab with a Features tab in the wp-build My Jetpack dashboard.',
+				'owner'       => 'my-jetpack',
+			)
+		);
 	}
 
 	/**
@@ -350,6 +366,19 @@ class Initializer {
 	 */
 	public static function is_modernized() {
 		return Feature_Flags::is_enabled( self::WP_BUILD_FEATURE_FLAG );
+	}
+
+	/**
+	 * Whether the dashboard shows a Features tab in place of the Products tab.
+	 *
+	 * Only applies to the wp-build dashboard, so it also needs `my-jetpack-wp-build` enabled.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_features_tab_enabled() {
+		return self::is_modernized() && Feature_Flags::is_enabled( self::FEATURES_TAB_FEATURE_FLAG );
 	}
 
 	/**
@@ -704,6 +733,20 @@ class Initializer {
 	}
 
 	/**
+	 * Add the Features tab flag to the admin script data.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $data Script data.
+	 * @return array
+	 */
+	public static function add_features_tab_script_data( $data ) {
+		$data['myJetpack']['featuresTab'] = self::is_features_tab_enabled();
+
+		return $data;
+	}
+
+	/**
 	 * Get the base URL of the package's built images, with a trailing slash.
 	 *
 	 * @since $$next-version$$
@@ -810,6 +853,7 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
+			'featuresTab'              => self::is_features_tab_enabled(),
 		);
 
 		return $flags;

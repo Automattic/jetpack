@@ -3,6 +3,7 @@ import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
+	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
@@ -20,7 +21,9 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 // `onTabSelect` gate and the keyed-remount effect run for real against it.
 const mockNavigate = jest.fn();
 let mockSection: string | undefined;
+let mockSearch = '';
 jest.mock( 'react-router', () => ( {
+	useLocation: () => ( { search: mockSearch } ),
 	useNavigate: () => mockNavigate,
 	useParams: () => ( { section: mockSection } ),
 } ) );
@@ -56,6 +59,8 @@ beforeEach( () => {
 	mockCurrentUserCan.mockReturnValue( true );
 	mockIsSimpleSite.mockReturnValue( false );
 	mockSection = undefined;
+	mockSearch = '';
+	delete ( window as { myJetpackInitialState?: unknown } ).myJetpackInitialState;
 } );
 
 describe( 'MyJetpackTabPanel', () => {
@@ -126,5 +131,24 @@ describe( 'MyJetpackTabPanel', () => {
 			} )
 		);
 		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_HELP }` );
+	} );
+
+	it( 'redirects the legacy Products hash to Features, keeping its query', async () => {
+		( window as { myJetpackInitialState?: unknown } ).myJetpackInitialState = {
+			myJetpackFlags: { featuresTab: true },
+		};
+		mockSection = MY_JETPACK_SECTION_PRODUCTS;
+		mockSearch = '?filter=included';
+
+		render( <MyJetpackTabPanel /> );
+		await expect( screen.findByRole( 'tab', { selected: true } ) ).resolves.toHaveTextContent(
+			'Features'
+		);
+
+		expect( mockNavigate ).toHaveBeenCalledWith(
+			`/${ MY_JETPACK_SECTION_FEATURES }?filter=included`,
+			{ replace: true }
+		);
+		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 	} );
 } );

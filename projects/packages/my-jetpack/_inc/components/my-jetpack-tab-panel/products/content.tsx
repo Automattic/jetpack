@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { isFeaturesTabEnabled } from '../utils';
 import { Products } from './products';
 import styles from './styles.module.scss';
 
@@ -11,7 +12,11 @@ import styles from './styles.module.scss';
 const ProductsContent = () => {
 	return (
 		<section className={ clsx( styles.content, styles[ 'my-jetpack-products-tab__content' ] ) }>
-			<h2>{ __( 'Products', 'jetpack-my-jetpack' ) }</h2>
+			<h2>
+				{ isFeaturesTabEnabled()
+					? __( 'Features', 'jetpack-my-jetpack' )
+					: __( 'Products', 'jetpack-my-jetpack' ) }
+			</h2>
 			<p className={ styles.description }>
 				{ __(
 					'Manage and explore Jetpack products that boost growth, performance, and security.',

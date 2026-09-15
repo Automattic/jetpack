@@ -16,6 +16,7 @@ export type TabContentProps = {
 const componentMap: Record< MyJetpackSection, ComponentType > = {
 	overview: OverviewContent,
 	products: ProductsContent,
+	features: ProductsContent,
 	help: HelpContent,
 };
 

@@ -1,14 +1,14 @@
 import { TabPanel } from '@wordpress/components';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import useAnalytics from '../../hooks/use-analytics';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import { FullWidthSeparator } from './full-width-separator';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
 import { MyJetpackSection } from './types';
-import { getDefaultMyJetpackSection, getMyJetpackSections, isValidMyJetpackSection } from './utils';
+import { getMyJetpackSections, resolveMyJetpackSection } from './utils';
 import type { ReactNode } from 'react';
 
 /**
@@ -21,6 +21,7 @@ import type { ReactNode } from 'react';
 export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNode } ) {
 	const params = useParams();
 	const navigate = useNavigate();
+	const { search } = useLocation();
 	const { recordEvent } = useAnalytics();
 	const isNewUser = useIsJetpackUserNew();
 	const tabStartTimeRef = useRef< number >( Date.now() );
@@ -28,10 +29,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	const lastNavigationSourceRef = useRef< 'internal' | 'external' >( 'external' );
 
 	// If the tab is not valid, use the default one.
-	const currentTab = useMemo( () => {
-		const validTab = isValidMyJetpackSection( params.section );
-		return validTab ? params.section : getDefaultMyJetpackSection();
-	}, [ params.section ] );
+	const currentTab = useMemo( () => resolveMyJetpackSection( params.section ), [ params.section ] );
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
 			// Compare against the resolved `currentTab`, not the raw URL param. On mount
@@ -99,12 +97,13 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	// the page settling on a concrete URL; without this the address bar keeps
 	// `#/:section` (previously masked by the mount-time navigation this component no
 	// longer fires). Rewrite with `replace` so it emits no `tab_click` and adds no
-	// history entry.
+	// history entry. The query is kept so `#/products?filter=included` lands on
+	// `#/features?filter=included` when the Features tab replaces Products.
 	useEffect( () => {
 		if ( params.section !== currentTab ) {
-			navigate( `/${ currentTab }`, { replace: true } );
+			navigate( `/${ currentTab }${ search }`, { replace: true } );
 		}
-	}, [ params.section, currentTab, navigate ] );
+	}, [ params.section, currentTab, search, navigate ] );
 
 	useEffect( () => {
 		// Track tab view event

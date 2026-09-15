@@ -59,6 +59,29 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The Features tab needs its own flag and the wp-build flag.
+	 *
+	 * @return void
+	 */
+	public function test_features_tab_requires_both_flags() {
+		Initializer::register_feature_flags();
+		$features_filter = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
+
+		$this->assertFalse( Initializer::is_features_tab_enabled(), 'Both flags off.' );
+		$this->assertFalse( Initializer::get_my_jetpack_flags()['featuresTab'] );
+
+		add_filter( $features_filter, '__return_true' );
+		$this->assertFalse( Initializer::is_features_tab_enabled(), 'Legacy dashboard.' );
+
+		add_filter( self::FLAG_FILTER, '__return_true' );
+		$this->assertTrue( Initializer::is_features_tab_enabled(), 'Both flags on.' );
+		$this->assertTrue( Initializer::get_my_jetpack_flags()['featuresTab'] );
+
+		remove_all_filters( $features_filter );
+		$this->assertFalse( Initializer::is_features_tab_enabled(), 'wp-build flag only.' );
+	}
+
+	/**
 	 * The flag is registered even where My Jetpack itself is off, so it stays listed.
 	 *
 	 * @return void

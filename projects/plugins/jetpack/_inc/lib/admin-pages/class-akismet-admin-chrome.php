@@ -26,6 +26,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -336,10 +337,12 @@ class Akismet_Admin_Chrome {
 	public function render_footer() {
 		// Match wrap_ui(): link the byline to the local About page when Jetpack isn't connectable,
 		// otherwise to the external jetpack.com redirect.
-		$connectable = ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode();
-		$a8c_url     = ! $connectable
+		$connectable  = ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode();
+		$a8c_url      = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
+		$features_tab = method_exists( My_Jetpack_Initializer::class, 'is_features_tab_enabled' )
+			&& My_Jetpack_Initializer::is_features_tab_enabled();
 		?>
 		<footer class="jp-akismet-footer jetpack-footer" aria-label="<?php esc_attr_e( 'Jetpack', 'jetpack' ); ?>" role="contentinfo">
 			<div class="jp-akismet-footer__logo">
@@ -348,7 +351,11 @@ class Akismet_Admin_Chrome {
 			</div>
 			<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
 			<nav class="jp-akismet-footer__menu">
+				<?php if ( $features_tab ) : ?>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/features' ) ); ?>"><?php echo esc_html_x( 'Features', 'Navigation item', 'jetpack' ); ?></a>
+				<?php else : ?>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/products' ) ); ?>"><?php echo esc_html_x( 'Products', 'Navigation item', 'jetpack' ); ?></a>
+				<?php endif; ?>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>
 			</nav>
 			<?php endif; ?>

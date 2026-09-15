@@ -1,8 +1,6 @@
-/**
- * @jest-environment node
- */
 import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
+	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
@@ -10,7 +8,9 @@ import {
 import {
 	getDefaultMyJetpackSection,
 	getMyJetpackSections,
+	getProductsSectionPath,
 	isValidMyJetpackSection,
+	resolveMyJetpackSection,
 } from '../utils';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -21,10 +21,17 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 const mockCurrentUserCan = currentUserCan as jest.Mock;
 const mockIsSimpleSite = isSimpleSite as jest.Mock;
 
+const setFeaturesTab = ( featuresTab: boolean ) => {
+	( window as { myJetpackInitialState?: unknown } ).myJetpackInitialState = {
+		myJetpackFlags: { featuresTab },
+	};
+};
+
 beforeEach( () => {
 	jest.clearAllMocks();
 	mockCurrentUserCan.mockReturnValue( true );
 	mockIsSimpleSite.mockReturnValue( false );
+	setFeaturesTab( false );
 } );
 
 describe( 'getMyJetpackSections', () => {
@@ -86,5 +93,53 @@ describe( 'getDefaultMyJetpackSection', () => {
 		mockIsSimpleSite.mockReturnValue( true );
 
 		expect( getDefaultMyJetpackSection() ).toBe( MY_JETPACK_SECTION_PRODUCTS );
+	} );
+} );
+
+describe( 'with the Features tab flag', () => {
+	beforeEach( () => setFeaturesTab( true ) );
+
+	it( 'replaces the Products section with a Features section', () => {
+		expect( getMyJetpackSections() ).toEqual( [
+			expect.objectContaining( { name: MY_JETPACK_SECTION_OVERVIEW } ),
+			{ name: MY_JETPACK_SECTION_FEATURES, title: 'Features' },
+			expect.objectContaining( { name: MY_JETPACK_SECTION_HELP } ),
+		] );
+		expect( getProductsSectionPath( '?filter=included' ) ).toBe( '/features?filter=included' );
+	} );
+
+	it( 'applies the Simple and non-admin rules to the Features section', () => {
+		mockCurrentUserCan.mockReturnValue( false );
+		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( [
+			MY_JETPACK_SECTION_OVERVIEW,
+			MY_JETPACK_SECTION_HELP,
+		] );
+
+		mockIsSimpleSite.mockReturnValue( true );
+		expect( getDefaultMyJetpackSection() ).toBe( MY_JETPACK_SECTION_FEATURES );
+	} );
+
+	it( 'resolves the legacy Products section to Features', () => {
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_PRODUCTS ) ).toBe(
+			MY_JETPACK_SECTION_FEATURES
+		);
+	} );
+} );
+
+describe( 'resolveMyJetpackSection', () => {
+	it( 'resolves a Features link to Products while the flag is off', () => {
+		expect( getProductsSectionPath() ).toBe( '/products' );
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_FEATURES ) ).toBe(
+			MY_JETPACK_SECTION_PRODUCTS
+		);
+	} );
+
+	it( 'falls back to the default section for non-admins and unknown sections', () => {
+		expect( resolveMyJetpackSection( 'does-not-exist' ) ).toBe( MY_JETPACK_SECTION_OVERVIEW );
+
+		mockCurrentUserCan.mockReturnValue( false );
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_PRODUCTS ) ).toBe(
+			MY_JETPACK_SECTION_OVERVIEW
+		);
 	} );
 } );
