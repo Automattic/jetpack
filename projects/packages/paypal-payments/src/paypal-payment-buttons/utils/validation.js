@@ -25,7 +25,7 @@ export const MAX_PRODUCT_ID_LENGTH = 50;
 export const MAX_CUSTOMER_NOTES = 2;
 
 // Shown under a field a merchant turned on and then left empty.
-// TODO: reuse this string for shipping, handling and discounts when they land.
+// TODO: reuse this string for shipping and discounts when they land.
 const REQUIRED_FIELD_ERROR = __(
 	'To continue, add the requested info or turn off this feature.',
 	'jetpack-paypal-payments'
@@ -119,16 +119,16 @@ export function validateDescription( value ) {
 }
 
 /**
- * Validate a tax rate or a flat tax amount.
+ * Validate a value a toggle asked the merchant for.
  *
- * Required and not negative. Zero is a rate PayPal itself stores, so a merchant who
- * wants no tax turns the toggle off instead. The upper bound is the control's max
+ * Required and not negative. Zero is a value PayPal itself stores, so a merchant who
+ * wants none turns the toggle off instead. The upper bound is the control's max
  * attribute, not a measured PayPal limit.
  *
- * @param {string} value - The tax rate or amount.
+ * @param {string} value - The rate, amount or fee.
  * @return {string|null} Error message or null if valid.
  */
-export function validateTaxRate( value ) {
+export function validateRequiredAmount( value ) {
 	const num = parseFloat( value );
 
 	if ( isNaN( num ) || num < 0 ) {
@@ -206,6 +206,8 @@ export const ADVISORY_ERROR_KEYS = [ 'returnUrl' ];
  * @param {boolean} fields.taxEnabled         - Whether tax collection is on.
  * @param {string}  fields.taxType            - Tax type: PERCENTAGE, FLAT or PREFERENCE.
  * @param {string}  fields.taxValue           - Tax rate or flat amount.
+ * @param {boolean} fields.handlingEnabled    - Whether a handling fee is on.
+ * @param {string}  fields.handlingValue      - Handling fee amount.
  * @return {object} An error message or null, keyed by field.
  */
 export function getValidationErrors( {
@@ -218,6 +220,8 @@ export function getValidationErrors( {
 	taxEnabled,
 	taxType,
 	taxValue,
+	handlingEnabled,
+	handlingValue,
 } ) {
 	return {
 		productName: validateProductName( productName ),
@@ -228,7 +232,8 @@ export function getValidationErrors( {
 		returnUrl: validateReturnUrl( returnUrl ),
 		// PREFERENCE takes its rate from the merchant's PayPal profile, so there is
 		// nothing local to fill in.
-		taxValue: taxEnabled && 'PREFERENCE' !== taxType ? validateTaxRate( taxValue ) : null,
+		taxValue: taxEnabled && 'PREFERENCE' !== taxType ? validateRequiredAmount( taxValue ) : null,
+		handlingValue: handlingEnabled ? validateRequiredAmount( handlingValue ) : null,
 		currencyCode: validateCurrency( currencyCode ),
 	};
 }

@@ -109,6 +109,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		taxEnabled,
 		taxType,
 		taxValue,
+		handlingEnabled,
+		handlingValue,
 		format,
 		qrShowCaption,
 		qrCaption,
@@ -223,6 +225,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				taxEnabled,
 				taxType,
 				taxValue,
+				handlingEnabled,
+				handlingValue,
 			} ),
 		[
 			productName,
@@ -234,6 +238,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			taxEnabled,
 			taxType,
 			taxValue,
+			handlingEnabled,
+			handlingValue,
 		]
 	);
 
@@ -769,11 +775,12 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						onTouch={ markTouched }
 					/>
 				</PanelBody>
-				{ /* Same again for the tax rate. initialOpen, not a controlled `opened`: the
-				     panel opens when there is an error, and the merchant can still close it. */ }
+				{ /* Same again for the tax rate and handling fee. initialOpen, not a controlled
+				     `opened`: the panel opens when there is an error, and the merchant can
+				     still close it. */ }
 				<PanelBody
 					title={ __( 'Checkout Options', 'jetpack-paypal-payments' ) }
-					initialOpen={ !! validationErrors.taxValue }
+					initialOpen={ !! ( validationErrors.taxValue || validationErrors.handlingValue ) }
 				>
 					{ /* WOOPTP-171: Customer Notes */ }
 					<ToggleControl
@@ -975,6 +982,28 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 								</>
 							) }
 						</>
+					) }
+
+					{ /* WOOPTP-493: Handling fee */ }
+					<ToggleControl
+						label={ __( 'Add handling fee', 'jetpack-paypal-payments' ) }
+						help={ __( 'One fee per purchase', 'jetpack-paypal-payments' ) }
+						checked={ handlingEnabled }
+						onChange={ value => setAttributes( { handlingEnabled: value } ) }
+						disabled={ isBusy }
+					/>
+					{ handlingEnabled && (
+						<AmountField
+							label={ __( 'Handling fee', 'jetpack-paypal-payments' ) }
+							value={ handlingValue }
+							onChange={ value => setAttributes( { handlingValue: value } ) }
+							suffix={ currencySymbol }
+							step={ priceStep }
+							min="0"
+							placeholder={ __( 'Amount', 'jetpack-paypal-payments' ) }
+							error={ validationErrors.handlingValue }
+							disabled={ isBusy }
+						/>
 					) }
 				</PanelBody>
 				<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>

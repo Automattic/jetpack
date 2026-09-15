@@ -139,6 +139,20 @@ describe( 'isReadyForPayPal', () => {
 			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '0' } )
 		).toBe( true );
 	} );
+
+	// Same second copy, same trap: a fee with no amount has to hold the payment back
+	// here as well as in the inspector.
+	it( 'holds back a fee with no amount', () => {
+		expect( isReadyForPayPal( { ...product, handlingEnabled: true, handlingValue: '' } ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'lets a zero handling fee through', () => {
+		expect( isReadyForPayPal( { ...product, handlingEnabled: true, handlingValue: '0' } ) ).toBe(
+			true
+		);
+	} );
 } );
 
 describe( 'syncBlocksBeforeSave', () => {
@@ -269,13 +283,13 @@ describe( 'syncBlocksBeforeSave', () => {
 			expect( item ).toMatchObject( {
 				name: 'Test Widget',
 				shipping: storedLineItem.shipping,
-				handling: storedLineItem.handling,
 				discounts: storedLineItem.discounts,
 				collect_shipping_address: true,
 			} );
-			// The form owns product_id now, so it is no longer copied off the payment -
-			// this block has none, so the update clears it, which is the merchant's edit.
+			// The form owns product_id and the handling fee now. This block sets neither,
+			// so the update clears both at PayPal - that is the merchant's edit.
 			expect( item ).not.toHaveProperty( 'product_id' );
+			expect( item ).not.toHaveProperty( 'handling' );
 			expect( deps.updateBlockAttributes ).not.toHaveBeenCalled();
 		} );
 

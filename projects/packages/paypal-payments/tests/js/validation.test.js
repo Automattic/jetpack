@@ -3,7 +3,7 @@
  *
  * Covers client-side validation functions extracted from edit.js:
  * validatePrice, validateProductName, validateDescription,
- * validateTaxRate, validateReturnUrl, getUserFriendlyError.
+ * validateRequiredAmount, validateReturnUrl, getUserFriendlyError.
  *
  * @package
  */
@@ -20,7 +20,7 @@ import {
 	validatePrice,
 	validateProductName,
 	validateDescription,
-	validateTaxRate,
+	validateRequiredAmount,
 	validateReturnUrl,
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
@@ -136,38 +136,38 @@ describe( 'validateDescription', () => {
 	} );
 } );
 
-describe( 'validateTaxRate', () => {
+describe( 'validateRequiredAmount', () => {
 	const required = 'To continue, add the requested info or turn off this feature.';
 
 	it.each( [ null, undefined, '', '   ' ] )( 'returns an error for %p', value => {
-		expect( validateTaxRate( value ) ).toBe( required );
+		expect( validateRequiredAmount( value ) ).toBe( required );
 	} );
 
 	// PayPal's own form takes a 0 rate, saves it and reads it back, so this one does
 	// too. A merchant who wants no tax turns the toggle off.
 	it( 'returns null for a zero rate', () => {
-		expect( validateTaxRate( '0' ) ).toBeNull();
+		expect( validateRequiredAmount( '0' ) ).toBeNull();
 	} );
 
 	it( 'returns an error when the rate is negative', () => {
-		expect( validateTaxRate( '-5' ) ).toBe( required );
+		expect( validateRequiredAmount( '-5' ) ).toBe( required );
 	} );
 
 	it( 'returns an error when the rate is not a number', () => {
-		expect( validateTaxRate( 'abc' ) ).toBe( required );
+		expect( validateRequiredAmount( 'abc' ) ).toBe( required );
 	} );
 
 	it( 'returns null for a rate above zero', () => {
-		expect( validateTaxRate( '8.25' ) ).toBeNull();
+		expect( validateRequiredAmount( '8.25' ) ).toBeNull();
 	} );
 
 	it( 'returns null for the smallest rate above zero', () => {
-		expect( validateTaxRate( '0.01' ) ).toBeNull();
+		expect( validateRequiredAmount( '0.01' ) ).toBeNull();
 	} );
 
 	// The control's max attribute is the only upper bound; PayPal's own is unmeasured.
 	it( 'accepts a rate above the control’s maximum', () => {
-		expect( validateTaxRate( '150' ) ).toBeNull();
+		expect( validateRequiredAmount( '150' ) ).toBeNull();
 	} );
 } );
 

@@ -49,6 +49,8 @@ export function heldBackReason( attributes ) {
 		taxEnabled,
 		taxType,
 		taxValue,
+		handlingEnabled,
+		handlingValue,
 	} = attributes;
 
 	const errors = getValidationErrors( {
@@ -61,6 +63,8 @@ export function heldBackReason( attributes ) {
 		taxEnabled,
 		taxType,
 		taxValue,
+		handlingEnabled,
+		handlingValue,
 	} );
 
 	const blocking = Object.entries( errors ).find(
