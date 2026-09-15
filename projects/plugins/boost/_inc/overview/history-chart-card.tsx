@@ -56,7 +56,7 @@ export function EmptyDayTooltip( { date }: { date: string } ) {
 				{ dateI18n( 'F j, Y', getDate( `${ date }T12:00:00` ), false ) }
 			</div>
 			<div className="boost-daily-history__empty-copy">
-				{ __( 'No scores recorded before feature was unlocked', 'jetpack-boost' ) }
+				{ __( 'No scores recorded for this day', 'jetpack-boost' ) }
 			</div>
 		</div>
 	);

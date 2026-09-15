@@ -191,10 +191,10 @@ test( 'shows empty days after loading and explains them on keyboard focus', asyn
 	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
 	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 	expect( tooltip ).toHaveTextContent( dateI18n( 'F j, Y', timestamp, false ) );
-	expect( tooltip ).toHaveTextContent( 'No scores recorded before feature was unlocked' );
+	expect( tooltip ).toHaveTextContent( 'No scores recorded for this day' );
 } );
 
-test( 'explains every empty day as preceding feature access', async () => {
+test( 'shows the same missing-score message for every empty day', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	const chart = screen.getAllByRole( 'grid' )[ 0 ];
 	for ( const advance of [ 4, 26 ] ) {
@@ -202,7 +202,7 @@ test( 'explains every empty day as preceding feature access', async () => {
 			fireEvent.keyDown( chart, { key: 'ArrowRight' } );
 		}
 		const tooltip = await screen.findByRole( 'tooltip' );
-		expect( tooltip ).toHaveTextContent( 'No scores recorded before feature was unlocked' );
+		expect( tooltip ).toHaveTextContent( 'No scores recorded for this day' );
 	}
 } );
 
@@ -311,7 +311,7 @@ test( 'keeps the header, axis, and empty tooltip on the same day in a UTC+14 sit
 		fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
 		const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 		expect( tooltip ).toHaveTextContent( dateI18n( 'F j, Y', visibleWindow.startDate, false ) );
-		expect( tooltip ).toHaveTextContent( 'No scores recorded before feature was unlocked' );
+		expect( tooltip ).toHaveTextContent( 'No scores recorded for this day' );
 	} finally {
 		setSettings( settings );
 	}
