@@ -23,17 +23,6 @@ const toMonthKey = ( date: Date ): MonthKey => ( {
 	month: date.getMonth(),
 } );
 
-/** The earliest month with views, which opens the table. */
-export function firstMonthWithViews( buckets: MonthBucket[] ): MonthKey | undefined {
-	return buckets
-		.filter( ( { views } ) => views > 0 )
-		.reduce< MonthKey | undefined >(
-			( first, { month } ) =>
-				first && monthOrder( first ) <= monthOrder( month ) ? first : month,
-			undefined
-		);
-}
-
 /** Days in the month, from the first day and up to today when either falls inside. */
 function daysCovered( key: MonthKey, today: Date, firstDay?: DayKey ): number {
 	const first = firstDay && isSameMonth( key, firstDay ) ? firstDay.day : 1;
@@ -62,14 +51,6 @@ export function buildViewsOverYearsRows(
 	today: Date,
 	opensAt?: DayKey
 ): MonthlyHeatmapRow[] {
-	// The endpoint pads zero months back to the requested start, which says
-	// nothing about the site, so the table opens on the first month with views.
-	const firstMonth = firstMonthWithViews( buckets );
-
-	if ( ! firstMonth ) {
-		return [];
-	}
-
 	const viewsByOrder = new Map< number, number >();
 
 	for ( const { month, views } of buckets ) {
@@ -78,14 +59,24 @@ export function buildViewsOverYearsRows(
 		viewsByOrder.set( order, ( viewsByOrder.get( order ) ?? 0 ) + views );
 	}
 
-	const withViews = buckets.filter( ( { views } ) => views > 0 ).map( b => monthOrder( b.month ) );
-	const firstOrder = monthOrder( firstMonth );
-	const lastOrder = Math.max( monthOrder( toMonthKey( today ) ), ...withViews );
+	// The endpoint pads zero months back to the requested start, which says
+	// nothing about the site, so the table opens on the first month with views.
+	const withViews = [ ...viewsByOrder.entries() ].filter( ( [ , views ] ) => views > 0 );
+
+	if ( withViews.length === 0 ) {
+		return [];
+	}
+
+	const firstOrder = Math.min( ...withViews.map( ( [ order ] ) => order ) );
+	const lastOrder = Math.max(
+		monthOrder( toMonthKey( today ) ),
+		...withViews.map( ( [ order ] ) => order )
+	);
 	const firstYear = Math.floor( firstOrder / MONTHS_IN_YEAR );
 	const lastYear = Math.floor( lastOrder / MONTHS_IN_YEAR );
 	// A first day outside the first month with views leaves that month whole, as
 	// `monthlyHeatmapLifeStart` does for the Traffic range.
-	const firstDay = opensAt && isSameMonth( firstMonth, opensAt ) ? opensAt : undefined;
+	const firstDay = opensAt && monthOrder( opensAt ) === firstOrder ? opensAt : undefined;
 	const rows: MonthlyHeatmapRow[] = [];
 
 	for ( let year = lastYear; year >= firstYear; year-- ) {
