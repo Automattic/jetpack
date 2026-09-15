@@ -172,6 +172,24 @@ class Marketplace_Catalog_Network_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A product's details, failing the test rather than returning null.
+	 *
+	 * Details are nullable because the slug might not be ours. Narrowing that here
+	 * keeps the assertions readable, and keeps static analysis happy without a
+	 * suppression: it does not read PHPUnit assertions.
+	 *
+	 * @param string $slug Plugin slug.
+	 * @return array
+	 */
+	private function details_for( $slug ) {
+		$details = Marketplace_Catalog::get_product_details( $slug );
+
+		$this->assertIsArray( $details, "No details came back for '$slug'." );
+
+		return is_array( $details ) ? $details : array();
+	}
+
+	/**
 	 * The list the tab renders comes from two endpoints: the marketplace says what
 	 * is sold, the store says what each variation costs and what slug checkout wants.
 	 */
@@ -266,11 +284,12 @@ class Marketplace_Catalog_Network_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$details = Marketplace_Catalog::get_product_details( 'gravityforms' );
+		$details  = $this->details_for( 'gravityforms' );
+		$sections = $details['sections'];
 
-		$this->assertStringContainsString( 'Drag and drop.', $details['sections']['description'] );
-		$this->assertStringNotContainsString( '<div', $details['sections']['description'] );
-		$this->assertStringContainsString( 'https://example.com/one.png', $details['sections']['screenshots'] );
+		$this->assertStringContainsString( 'Drag and drop.', $sections['description'] );
+		$this->assertStringNotContainsString( '<div', $sections['description'] );
+		$this->assertStringContainsString( 'https://example.com/one.png', $sections['screenshots'] );
 
 		$this->assertSame( $details, get_transient( Marketplace_Catalog::PRODUCT_CACHE_PREFIX . 'gravityforms' ) );
 	}
