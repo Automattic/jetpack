@@ -13,7 +13,7 @@ import { getScoreTier, getScoreTierColor } from './lib/score-utils';
 import UpgradeCTA from './upgrade-cta';
 import './history-chart-card.scss';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
-import type { CategoryHighlightSelection, SeriesData } from '@automattic/charts';
+import type { BandHighlightSelection, SeriesData } from '@automattic/charts';
 
 type Props = {
 	range: HistoryWindow;
@@ -168,10 +168,10 @@ export default function HistoryChartCard( {
 	);
 	const [ activeHighlight, setActiveHighlight ] = useState< {
 		index: number;
-		selection: CategoryHighlightSelection;
+		selection: BandHighlightSelection;
 	} | null >( null );
 	const updateHighlight = useCallback(
-		( index: number, selection: CategoryHighlightSelection | null ) => {
+		( index: number, selection: BandHighlightSelection | null ) => {
 			setActiveHighlight( previous =>
 				selection ? { index, selection } : previous?.index === index ? null : previous
 			);
@@ -271,7 +271,7 @@ export default function HistoryChartCard( {
 											data={ [ deviceSeries ] }
 											withTooltips
 											gridVisibility="x"
-											onCategoryHighlightChange={ selection => updateHighlight( index, selection ) }
+											onBandHighlightChange={ selection => updateHighlight( index, selection ) }
 											tooltipPlacement={ isRecordedHighlight ? 'beside' : 'auto' }
 											tooltipAnchorTop={ isRecordedHighlight ? -96 - index * 149 : undefined }
 											margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
