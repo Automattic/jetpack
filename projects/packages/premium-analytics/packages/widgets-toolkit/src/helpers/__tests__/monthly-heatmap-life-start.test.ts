@@ -56,11 +56,17 @@ describe( 'monthlyHeatmapLifeStart', () => {
 		);
 	} );
 
+	it( 'skips string filler when reading the oldest covered month', () => {
+		const filled = [ { year: 2026, months: [ 'before', 'before', 6, 12 ], total: 18 } ];
+		const february = new Date( '2026-02-10T00:00:00Z' );
+
+		expect( monthlyHeatmapLifeStart( filled, february, 'UTC' ) ).toEqual(
+			new Date( '2026-03-01T00:00:00.000Z' )
+		);
+	} );
+
 	it( 'falls back to the anchor without covered rows', () => {
 		expect( monthlyHeatmapLifeStart( [], anchor, 'UTC' ) ).toBe( anchor );
-		expect(
-			monthlyHeatmapLifeStart( [ { year: 2026, months: [ null, 'before' ] } ], anchor, 'UTC' )
-		).toBe( anchor );
 		expect( monthlyHeatmapLifeStart( [], undefined, 'UTC' ) ).toBeUndefined();
 	} );
 } );

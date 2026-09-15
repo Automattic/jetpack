@@ -197,6 +197,18 @@ describe( 'useViewsOverYears', () => {
 		);
 	} );
 
+	it( 'draws the totals before the first day is known, and marks them busy', async () => {
+		mockApiFetch.mockImplementation( options =>
+			isDayRequest( options ) ? new Promise( () => {} ) : Promise.resolve( VISITS_RESPONSE )
+		);
+		const { result } = renderHook( () => useViewsOverYears( 'total' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300, 620 ] );
+		expect( result.current.isFetching ).toBe( true );
+	} );
+
 	it( 'keeps loading until the first day is known', async () => {
 		let resolveDays: ( value: unknown ) => void = () => {};
 		mockApiFetch.mockImplementation( options =>

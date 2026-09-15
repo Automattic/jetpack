@@ -8,7 +8,6 @@ import {
 	reportingTimeZone,
 } from '@jetpack-premium-analytics/datetime';
 import {
-	monthOrder,
 	monthlyHeatmapLifeStart,
 	type MonthKey,
 	type MonthlyHeatmapMetric,
@@ -19,7 +18,12 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { buildViewsOverYearsRows, type MonthBucket } from './build-views-over-years';
+import {
+	buildViewsOverYearsRows,
+	firstMonthWithViews,
+	type DayKey,
+	type MonthBucket,
+} from './build-views-over-years';
 
 // Before any WordPress.com site existed; the endpoint's DB walk stops at the site's registration.
 const EARLIEST_STATS_DATE = '2005-01-01';
@@ -44,22 +48,10 @@ function readMonthKey( label: string ): MonthKey | null {
 	return isValid( date ) ? { year: date.getFullYear(), month: date.getMonth() } : null;
 }
 
-/** The earliest month with views, which opens the table. */
-function firstMonthWithViews( buckets: MonthBucket[] ): MonthKey | undefined {
-	return buckets
-		.filter( ( { views } ) => views > 0 )
-		.reduce< MonthKey | undefined >(
-			( first, { month } ) =>
-				first && monthOrder( first ) <= monthOrder( month ) ? first : month,
-			undefined
-		);
-}
-
 /**
  * Every month of the site's views, one row per year. All-time regardless of
  * the section's year filter: one `stats/visits` request at `unit=month` over
- * the site's whole history, then one at `unit=day` over the first month with
- * views, whose first day with views opens that month.
+ * the site's whole history, then one at `unit=day` over the first month with views.
  *
  * @param metric - Which number each cell reports.
  * @return The rows and the requests' state.
@@ -120,7 +112,13 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 	}, [ firstMonthDays.primary.data ] );
 
 	const { rows, lifeStartsAt } = useMemo( () => {
-		const built = buildViewsOverYearsRows( buckets, metric, parseISO( today ), opensAt );
+		// A site-zone instant, so its getters read the site's calendar, as `today` does.
+		const opensOn: DayKey | undefined = opensAt && {
+			year: opensAt.getFullYear(),
+			month: opensAt.getMonth(),
+			day: opensAt.getDate(),
+		};
+		const built = buildViewsOverYearsRows( buckets, metric, parseISO( today ), opensOn );
 
 		return {
 			rows: built,
@@ -128,17 +126,19 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		};
 	}, [ buckets, metric, today, opensAt ] );
 
-	// The rows wait for the first day with views only until that request first
-	// settles: a failed one is refetched on focus with no data, which would
-	// otherwise pull the drawn rows back into the skeleton. Its failure is not an error here.
+	// Only the averages wait for the first day, and only until that request first settles:
+	// a failed one refetches on focus with no data, which would pull the rows back into the skeleton.
 	const awaitingFirstDay =
-		!! firstMonth && firstMonthDays.isLoading && firstMonthDays.primary.errorUpdateCount === 0;
+		metric === 'average' &&
+		!! firstMonth &&
+		firstMonthDays.isLoading &&
+		firstMonthDays.primary.errorUpdateCount === 0;
 
 	return {
 		rows,
 		lifeStartsAt,
 		isLoading: isLoading || awaitingFirstDay,
-		isFetching,
+		isFetching: isFetching || firstMonthDays.isFetching,
 		isError,
 		error,
 		refetch,
