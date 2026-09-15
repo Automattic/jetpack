@@ -26,6 +26,16 @@ final class Placement_Section {
 	public const ANCHOR = 'jetpack-sharing-placement';
 
 	/**
+	 * Identifies the Sharing buttons section to `render_summary()`.
+	 */
+	public const FEATURE_SHARING = 'sharing';
+
+	/**
+	 * Identifies the Like buttons section to `render_summary()`.
+	 */
+	public const FEATURE_LIKES = 'likes';
+
+	/**
 	 * Where a feature's buttons currently appear, stated inside that feature's
 	 * own section.
 	 *
@@ -34,24 +44,25 @@ final class Placement_Section {
 	 * surfaces a placement that hides the buttons entirely, which is otherwise
 	 * only visible on this section further down the page.
 	 *
-	 * @param string $feature Plural feature name, already translated.
+	 * Each feature gets its own complete sentence rather than a feature name
+	 * interpolated into a shared one, which would fix the verb agreement in
+	 * English and leave every other language unable to express it.
+	 *
+	 * @param string $feature One of the FEATURE_* constants.
 	 */
 	public static function render_summary( string $feature ): void {
 		$labels = array_map( array( __CLASS__, 'label_for' ), self::selected_post_types() );
 
 		if ( $labels === array() ) {
-			$summary = sprintf(
-				/* translators: %s: a feature name, for example "Like buttons". */
-				__( '%s are currently not shown anywhere.', 'jetpack' ),
-				$feature
-			);
+			$summary = self::FEATURE_LIKES === $feature
+				? __( 'Like buttons are currently not shown anywhere.', 'jetpack' )
+				: __( 'Sharing buttons are currently not shown anywhere.', 'jetpack' );
+		} elseif ( self::FEATURE_LIKES === $feature ) {
+			/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
+			$summary = sprintf( __( 'Like buttons currently appear on: %s.', 'jetpack' ), implode( ', ', $labels ) );
 		} else {
-			$summary = sprintf(
-				/* translators: 1: a feature name, for example "Like buttons". 2: comma-separated list of places, for example "Posts, Pages". */
-				__( '%1$s currently appear on: %2$s.', 'jetpack' ),
-				$feature,
-				implode( ', ', $labels )
-			);
+			/* translators: %s: comma-separated list of places, for example "Posts, Pages". */
+			$summary = sprintf( __( 'Sharing buttons currently appear on: %s.', 'jetpack' ), implode( ', ', $labels ) );
 		}
 
 		printf(
@@ -82,12 +93,15 @@ final class Placement_Section {
 					?>
 						<th scope="row"></th>
 						<td>
-							<?php foreach ( $choices as $choice ) : ?>
-								<label>
-									<input type="checkbox" name="show[]" value="<?php echo esc_attr( $choice ); ?>" <?php checked( in_array( $choice, $shown, true ) ); ?> />
-									<?php echo esc_html( self::label_for( $choice ) ); ?>
-								</label><br />
-							<?php endforeach; ?>
+							<fieldset>
+								<legend class="screen-reader-text"><span><?php echo esc_html( self::heading() ); ?></span></legend>
+								<?php foreach ( $choices as $choice ) : ?>
+									<label>
+										<input type="checkbox" name="show[]" value="<?php echo esc_attr( $choice ); ?>" <?php checked( in_array( $choice, $shown, true ) ); ?> />
+										<?php echo esc_html( self::label_for( $choice ) ); ?>
+									</label><br />
+								<?php endforeach; ?>
+							</fieldset>
 						</td>
 					<?php
 					/** This filter is documented in modules/sharedaddy/sharing.php */
@@ -116,7 +130,7 @@ final class Placement_Section {
 	 */
 	private static function heading(): string {
 		$sharing = Environment::sharing_enabled();
-		$likes   = Environment::likes_enabled();
+		$likes   = Environment::likes_settings_in_use();
 
 		if ( $sharing && $likes ) {
 			return __( 'Where sharing and Like buttons appear', 'jetpack' );
@@ -130,13 +144,34 @@ final class Placement_Section {
 	/**
 	 * Post types currently set to show buttons.
 	 *
+	 * Falls back to the same defaults the features themselves apply when the
+	 * option has never been saved. Reading it raw would render every checkbox
+	 * unchecked on a site where the buttons are in fact live, and the next save
+	 * would then write that back and turn them off.
+	 *
 	 * @return string[]
 	 */
-	private static function selected_post_types(): array {
+	public static function selected_post_types(): array {
 		$sharing = get_option( 'sharing-options', array() );
-		$shown   = is_array( $sharing ) && isset( $sharing['global']['show'] ) ? $sharing['global']['show'] : array();
 
-		// Pre-2.x sites stored a single keyword rather than a list.
+		if ( ! is_array( $sharing ) || ! isset( $sharing['global']['show'] ) ) {
+			return self::default_post_types();
+		}
+
+		return self::normalize_show( $sharing['global']['show'] );
+	}
+
+	/**
+	 * A stored `show` value as a list of post types.
+	 *
+	 * Pre-2.x sites stored a single keyword rather than a list, and both
+	 * `Sharing_Service::get_global_options()` and `Jetpack_Likes_Settings::get_options()`
+	 * still map it, so it is live data rather than a historical curiosity.
+	 *
+	 * @param mixed $shown Stored `sharing-options['global']['show']` value.
+	 * @return string[]
+	 */
+	public static function normalize_show( $shown ): array {
 		if ( is_scalar( $shown ) ) {
 			$legacy = array(
 				'posts'       => array( 'post', 'page' ),
@@ -146,7 +181,33 @@ final class Placement_Section {
 			$shown  = $legacy[ $shown ] ?? array();
 		}
 
-		return (array) $shown;
+		return array_values( array_filter( (array) $shown, 'is_string' ) );
+	}
+
+	/**
+	 * Where buttons appear on a site that has never saved this section.
+	 *
+	 * The two features disagree: sharing defaults to posts and pages, Likes adds
+	 * public commentable custom post types. Reporting the narrower set would
+	 * understate where Like buttons are, so defer to Likes whenever it is the
+	 * feature running.
+	 *
+	 * @return string[]
+	 */
+	private static function default_post_types(): array {
+		$defaults = array( 'post', 'page' );
+
+		if ( ! Environment::likes_settings_in_use() ) {
+			return $defaults;
+		}
+
+		if ( ! class_exists( 'Jetpack_Likes_Settings' ) ) {
+			return $defaults;
+		}
+
+		$options = ( new \Jetpack_Likes_Settings() )->get_options();
+
+		return isset( $options['show'] ) ? self::normalize_show( $options['show'] ) : $defaults;
 	}
 
 	/**

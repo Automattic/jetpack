@@ -33,8 +33,6 @@ final class Services_Config {
 		$enabled = $sharer->get_blog_services();
 		$global  = $sharer->get_global_options();
 
-		$shows = array_values( get_post_types( array( 'public' => true ) ) );
-		array_unshift( $shows, 'index' );
 		if ( ! isset( $global['sharing_label'] ) ) {
 			$global['sharing_label'] = __( 'Share this:', 'jetpack' );
 		}
@@ -367,14 +365,11 @@ final class Services_Config {
 			/*
 			 * set_global_options() rebuilds the whole global array from defaults, so a
 			 * payload with no `show` clears it. Placement is edited in its own section,
-			 * so carry the stored value through rather than losing it on every save.
+			 * so carry the current placement through rather than losing it on every save.
 			 */
 			$data = $_POST; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- set_global_options() validates each field.
 			if ( ! isset( $data['show'] ) ) {
-				$stored = get_option( 'sharing-options' );
-				if ( isset( $stored['global']['show'] ) && is_array( $stored['global']['show'] ) ) {
-					$data['show'] = $stored['global']['show'];
-				}
+				$data['show'] = Placement_Section::selected_post_types();
 			}
 
 			$sharer->set_global_options( $data );
