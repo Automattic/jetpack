@@ -16,6 +16,7 @@ export {
 	type OnboardingWelcomeModalProps,
 } from './onboarding-welcome-modal';
 export { safeHttpUrl } from './utils/safe-http-url';
+export { tagRowGlyph } from './utils/tag-row-glyph';
 export {
 	SectionTabPanel,
 	SectionTabs,
