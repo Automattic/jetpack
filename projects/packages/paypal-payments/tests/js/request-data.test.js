@@ -150,6 +150,20 @@ describe( 'buildRequestData', () => {
 
 		expect( tax ).toEqual( { type: 'PREFERENCE', value: 'PROFILE' } );
 	} );
+
+	// A flat tax is an amount, not a rate. The value stays a string all the way to
+	// PayPal so '1.50' does not arrive as 1.5, and zero is a value PayPal stores.
+	it.each( [
+		[ '1.50', '1.50' ],
+		[ '0', '0' ],
+	] )( 'sends a flat tax of %s verbatim', ( taxValue, expected ) => {
+		const [ tax ] = buildRequestData(
+			{ ...attributes, taxType: 'FLAT', taxValue, taxName: '' },
+			true
+		).line_items[ 0 ].taxes;
+
+		expect( tax ).toEqual( { type: 'FLAT', value: expected } );
+	} );
 } );
 
 describe( 'keepPayPalOnlyFields', () => {

@@ -31,8 +31,10 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
-import { useState, useCallback, useMemo } from '@wordpress/element';
+import { createInterpolateElement, useState, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
+import AmountField from './components/amount-field';
 import ConfirmDialogs from './components/confirm-dialogs';
 import ConnectionWizard, { OnboardingFrame } from './components/connection-wizard';
 import ExistingLinksStep from './components/existing-links-step';
@@ -46,7 +48,7 @@ import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-payp
 import { usePayPalResource } from './hooks/use-paypal-resource';
 import { API_BASE } from './utils/api-base';
 import { SUPPORTED_CURRENCIES } from './utils/currencies';
-import { getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
+import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import { withPartnerAttribution } from './utils/partner-attribution';
 import {
 	getUserFriendlyError,
@@ -63,8 +65,16 @@ import {
 
 const helpQtyOn = __( 'Customers can buy multiple units at checkout.', 'jetpack-paypal-payments' );
 const helpQtyOff = __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments' );
-const helpTaxOn = __( 'Tax will be added at PayPal checkout.', 'jetpack-paypal-payments' );
-const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
+// The minifier collapses a ternary between two __() calls into one non-literal
+// msgid and i18n-check-webpack-plugin rejects the build, so both sides are consts.
+const placeholderTaxRate = __( 'Enter tax rate', 'jetpack-paypal-payments' );
+const placeholderTaxValue = __( 'Enter tax value', 'jetpack-paypal-payments' );
+
+// Same script either side, different host - matches PARTNER_JS_URLS in utils/.
+const TAX_PROFILE_URL = {
+	sandbox: 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax',
+	production: 'https://www.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax',
+};
 
 /**
  * API-managed PayPal Payment Buttons edit component.
@@ -110,6 +120,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	// PayPal rejects any decimal in JPY, HUF and TWD, so the input must not offer one.
 	const priceStep = getPriceStep( currencyCode || 'USD' );
 	const pricePlaceholder = getPricePlaceholder( currencyCode || 'USD' );
+	const currencySymbol = CURRENCY_SYMBOLS[ currencyCode || 'USD' ] || currencyCode || 'USD';
 
 	const blockProps = useBlockProps();
 
@@ -153,6 +164,19 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		cancelOnboarding,
 	} = usePayPalConnection();
 
+	// One string with the link inside it so translators keep the sentence order.
+	const taxProfileHint = createInterpolateElement(
+		__(
+			'This will be applied when the customer enters their address. <TaxSettingsLink>Set up or manage tax settings</TaxSettingsLink>',
+			'jetpack-paypal-payments'
+		),
+		{
+			TaxSettingsLink: (
+				<Link openInNewTab href={ TAX_PROFILE_URL[ environment ] ?? TAX_PROFILE_URL.production } />
+			),
+		}
+	);
+
 	// Confirmation dialog state for destructive actions.
 	const [ showDeleteConfirm, setShowDeleteConfirm ] = useState( false );
 	const [ showDisconnectConfirm, setShowDisconnectConfirm ] = useState( false );
@@ -180,9 +204,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		[ variantsEnabled, variants ]
 	);
 
-	// PERCENTAGE is the only type that carries a rate, and a missing type counts as one -
-	// the request builder sends PERCENTAGE for it. PayPal also accepts FLAT, which this
-	// form cannot produce but can be handed by a link created elsewhere.
+	// PREFERENCE takes its rate from the merchant's PayPal profile; PERCENTAGE and FLAT
+	// carry their own, and a missing type is sent as PERCENTAGE.
+	const taxHasValue = 'PREFERENCE' !== taxType;
 	const taxIsPercentage = ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE';
 
 	/**
@@ -199,7 +223,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				currencyCode,
 				variantPricingOn,
 				taxEnabled,
-				taxIsPercentage,
+				taxType,
 				taxValue,
 			} ),
 		[
@@ -210,7 +234,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			currencyCode,
 			variantPricingOn,
 			taxEnabled,
-			taxIsPercentage,
+			taxType,
 			taxValue,
 		]
 	);
@@ -754,84 +778,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					title={ __( 'Checkout Options', 'jetpack-paypal-payments' ) }
 					initialOpen={ !! validationErrors.taxValue }
 				>
-					{ /* WOOPTP-170: Adjustable Quantity */ }
-					<ToggleControl
-						label={ __( 'Allow customers to adjust quantity', 'jetpack-paypal-payments' ) }
-						help={ adjustableQuantity ? helpQtyOn : helpQtyOff }
-						checked={ adjustableQuantity }
-						onChange={ value => setAttributes( { adjustableQuantity: value } ) }
-						disabled={ isBusy }
-					/>
-					{ adjustableQuantity && (
-						<TextControl
-							label={ __( 'Maximum quantity', 'jetpack-paypal-payments' ) }
-							value={ maxQuantity || '' }
-							onChange={ value => setAttributes( { maxQuantity: parseInt( value, 10 ) || 10 } ) }
-							type="number"
-							min={ 2 }
-							max={ 999 }
-							disabled={ isBusy }
-							help={ __(
-								'Customers can select from 1 to this number.',
-								'jetpack-paypal-payments'
-							) }
-						/>
-					) }
-
-					{ /* WOOPTP-172: Tax Configuration */ }
-					<ToggleControl
-						label={ __( 'Collect tax', 'jetpack-paypal-payments' ) }
-						help={ taxEnabled ? helpTaxOn : helpTaxOff }
-						checked={ taxEnabled }
-						onChange={ value => setAttributes( { taxEnabled: value } ) }
-						disabled={ isBusy }
-					/>
-					{ taxEnabled && (
-						<>
-							<SelectControl
-								label={ __( 'Tax type', 'jetpack-paypal-payments' ) }
-								value={ taxType || 'PERCENTAGE' }
-								options={ [
-									{
-										label: __( 'Fixed percentage', 'jetpack-paypal-payments' ),
-										value: 'PERCENTAGE',
-									},
-									{
-										label: __( 'Use PayPal profile settings', 'jetpack-paypal-payments' ),
-										value: 'PREFERENCE',
-									},
-								] }
-								onChange={ value => setAttributes( { taxType: value } ) }
-								disabled={ isBusy }
-							/>
-							{ taxIsPercentage && (
-								<TextControl
-									label={ __( 'Tax rate (%)', 'jetpack-paypal-payments' ) }
-									value={ taxValue || '' }
-									onChange={ value => setAttributes( { taxValue: value } ) }
-									type="number"
-									min="0.01"
-									max="99.99"
-									step="0.01"
-									placeholder="8.25"
-									disabled={ isBusy }
-									help={
-										validationErrors.taxValue ||
-										__( 'Percentage added to the product price.', 'jetpack-paypal-payments' )
-									}
-									className={
-										validationErrors.taxValue
-											? 'jetpack-paypal-payment-buttons__has-error'
-											: undefined
-									}
-								/>
-							) }
-						</>
-					) }
-
 					{ /* WOOPTP-171: Customer Notes */ }
 					<ToggleControl
-						label={ __( 'Custom checkout fields', 'jetpack-paypal-payments' ) }
+						label={ __( 'Add customer note', 'jetpack-paypal-payments' ) }
 						help={
 							customerNotes?.length > 0
 								? sprintf(
@@ -938,6 +887,94 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 								</Button>
 							) }
 						</div>
+					) }
+					{ /* WOOPTP-170: Adjustable Quantity */ }
+					<ToggleControl
+						label={ __( 'Let customers set quantity', 'jetpack-paypal-payments' ) }
+						help={ adjustableQuantity ? helpQtyOn : helpQtyOff }
+						checked={ adjustableQuantity }
+						onChange={ value => setAttributes( { adjustableQuantity: value } ) }
+						disabled={ isBusy }
+					/>
+					{ adjustableQuantity && (
+						<TextControl
+							label={ __( 'Maximum quantity', 'jetpack-paypal-payments' ) }
+							value={ maxQuantity || '' }
+							onChange={ value => setAttributes( { maxQuantity: parseInt( value, 10 ) || 10 } ) }
+							type="number"
+							min={ 2 }
+							max={ 999 }
+							disabled={ isBusy }
+							help={ __(
+								'Customers can select from 1 to this number.',
+								'jetpack-paypal-payments'
+							) }
+						/>
+					) }
+
+					{ /* WOOPTP-172 / WOOPTP-493: Tax Configuration */ }
+					<ToggleControl
+						label={ __( 'Add tax', 'jetpack-paypal-payments' ) }
+						help={ __( 'Set the tax rate for this item', 'jetpack-paypal-payments' ) }
+						checked={ taxEnabled }
+						onChange={ value => setAttributes( { taxEnabled: value } ) }
+						disabled={ isBusy }
+					/>
+					{ taxEnabled && (
+						<>
+							{ /* Both selects write taxType. Switching back to a specific rate resets to
+							     PERCENTAGE - remembering the last choice would need a second attribute. */ }
+							<SelectControl
+								label={ __( 'Tax type', 'jetpack-paypal-payments' ) }
+								value={ taxHasValue ? 'specific' : 'profile' }
+								options={ [
+									{
+										label: __( 'Use tax from my PayPal settings', 'jetpack-paypal-payments' ),
+										value: 'profile',
+									},
+									{
+										label: __( 'Use a specific tax rate', 'jetpack-paypal-payments' ),
+										value: 'specific',
+									},
+								] }
+								onChange={ value =>
+									setAttributes( { taxType: 'profile' === value ? 'PREFERENCE' : 'PERCENTAGE' } )
+								}
+								help={ taxHasValue ? undefined : taxProfileHint }
+								disabled={ isBusy }
+							/>
+							{ taxHasValue && (
+								<>
+									<SelectControl
+										label={ __( 'Rate type', 'jetpack-paypal-payments' ) }
+										value={ taxType || 'PERCENTAGE' }
+										options={ [
+											{
+												label: __( 'Percentage', 'jetpack-paypal-payments' ),
+												value: 'PERCENTAGE',
+											},
+											{ label: __( 'Amount', 'jetpack-paypal-payments' ), value: 'FLAT' },
+										] }
+										onChange={ value => setAttributes( { taxType: value } ) }
+										disabled={ isBusy }
+									/>
+									{ /* One label for both types - the % or currency symbol sits in the
+									     suffix. A flat amount has no ceiling, so max is percentage-only. */ }
+									<AmountField
+										label={ __( 'Tax rate', 'jetpack-paypal-payments' ) }
+										value={ taxValue }
+										onChange={ value => setAttributes( { taxValue: value } ) }
+										suffix={ taxIsPercentage ? '%' : currencySymbol }
+										step={ taxIsPercentage ? '0.01' : priceStep }
+										min="0"
+										max={ taxIsPercentage ? '99.99' : undefined }
+										placeholder={ taxIsPercentage ? placeholderTaxRate : placeholderTaxValue }
+										error={ validationErrors.taxValue }
+										disabled={ isBusy }
+									/>
+								</>
+							) }
+						</>
 					) }
 				</PanelBody>
 				<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>

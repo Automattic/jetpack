@@ -106,6 +106,39 @@ describe( 'isReadyForPayPal', () => {
 			} )
 		).toBe( false );
 	} );
+
+	// This file carries its own copy of the tax derivation, independent of the form's.
+	// Miss it and a tax with no value blocks the inspector and still ships on post save.
+	it.each( [
+		[ 'a flat amount with no value', 'FLAT' ],
+		[ 'a rate with no value', 'PERCENTAGE' ],
+		[ 'no type and no value', '' ],
+	] )( 'holds back %s', ( _label, taxType ) => {
+		expect( isReadyForPayPal( { ...product, taxEnabled: true, taxType, taxValue: '' } ) ).toBe(
+			false
+		);
+	} );
+
+	// PREFERENCE takes its rate from the merchant's PayPal profile, so there is
+	// nothing local to fill in.
+	it( 'lets a profile tax through with no value', () => {
+		expect(
+			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } )
+		).toBe( true );
+	} );
+
+	it( 'lets a flat tax with an amount through', () => {
+		expect(
+			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'FLAT', taxValue: '1.50' } )
+		).toBe( true );
+	} );
+
+	// Zero is a rate PayPal stores, so it must not read as "nothing filled in".
+	it( 'lets a zero tax rate through', () => {
+		expect(
+			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '0' } )
+		).toBe( true );
+	} );
 } );
 
 describe( 'syncBlocksBeforeSave', () => {

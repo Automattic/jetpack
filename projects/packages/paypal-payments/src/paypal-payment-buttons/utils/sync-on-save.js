@@ -59,7 +59,7 @@ export function heldBackReason( attributes ) {
 		currencyCode,
 		variantPricingOn: isVariantPricingOn( variantsEnabled, variants ),
 		taxEnabled,
-		taxIsPercentage: ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE',
+		taxType,
 		taxValue,
 	} );
 

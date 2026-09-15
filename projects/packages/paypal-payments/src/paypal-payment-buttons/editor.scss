@@ -324,6 +324,15 @@
 		}
 	}
 
+	// AmountField hands className to InputControl, which puts it on its
+	// own root - so compound, like the select above, not a descendant.
+	&.components-input-control .components-input-control__container {
+
+		.components-input-control__backdrop {
+			border-color: #cc1818;
+		}
+	}
+
 	// URLInput builds on InputControl, which draws its border on a backdrop
 	// behind the input. Core's emotion class repeats itself three times, so
 	// naming the backdrop alone loses - walk its structure to out-specify it.

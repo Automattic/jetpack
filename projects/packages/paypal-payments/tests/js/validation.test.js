@@ -25,6 +25,7 @@ import {
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
+	REQUIRED_FIELD_ERROR,
 } from '../../src/paypal-payment-buttons/utils/validation';
 
 describe( 'validatePrice', () => {
@@ -139,12 +140,18 @@ describe( 'validateDescription', () => {
 describe( 'validateTaxRate', () => {
 	const required = 'To continue, add the requested info or turn off this feature.';
 
+	it( 'is the message the shared constant carries', () => {
+		expect( REQUIRED_FIELD_ERROR ).toBe( required );
+	} );
+
 	it.each( [ null, undefined, '', '   ' ] )( 'returns an error for %p', value => {
 		expect( validateTaxRate( value ) ).toBe( required );
 	} );
 
-	it( 'returns an error when the rate is zero', () => {
-		expect( validateTaxRate( '0' ) ).toBe( required );
+	// PayPal's own form takes a 0 rate, saves it and reads it back, so this one does
+	// too. A merchant who wants no tax turns the toggle off.
+	it( 'returns null for a zero rate', () => {
+		expect( validateTaxRate( '0' ) ).toBeNull();
 	} );
 
 	it( 'returns an error when the rate is negative', () => {
@@ -159,7 +166,7 @@ describe( 'validateTaxRate', () => {
 		expect( validateTaxRate( '8.25' ) ).toBeNull();
 	} );
 
-	it( 'returns null for the smallest rate the control allows', () => {
+	it( 'returns null for the smallest rate above zero', () => {
 		expect( validateTaxRate( '0.01' ) ).toBeNull();
 	} );
 
