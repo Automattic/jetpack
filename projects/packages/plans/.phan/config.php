@@ -10,4 +10,15 @@
 // Require base config.
 require __DIR__ . '/../../../../.phan/config.base.php';
 
-return make_phan_config( dirname( __DIR__ ), array( '+stubs' => array( 'wpcom' ) ) );
+return make_phan_config(
+	dirname( __DIR__ ),
+	array(
+		'+stubs'            => array( 'wpcom' ),
+		// Those same stubs declare the registry these files stand in for at runtime, which Phan
+		// reports as a redefinition.
+		'exclude_file_list' => array(
+			'tests/php/stubs/class-wpcom-features.php',
+			'tests/php/stubs/functions-wpcom-features.php',
+		),
+	)
+);

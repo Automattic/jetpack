@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
 use ReflectionProperty;
@@ -75,6 +77,31 @@ abstract class TestCase extends PHPUnit_TestCase {
 		// outlive the mocked options and the cleared database.
 		( new Connection_Manager() )->reset_connection_status();
 		$this->reset_stats_options();
+		$this->reset_plan_caches();
+	}
+
+	/**
+	 * Present the site as Atomic, where wpcomsh answers feature checks from the site's purchases.
+	 */
+	protected function make_site_atomic() {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->reset_plan_caches();
+	}
+
+	/**
+	 * Drop the plan and feature lists `Current_Plan` memoizes for the request.
+	 */
+	protected function reset_plan_caches() {
+		foreach ( array( 'active_plan_cache', 'atomic_site_specific_features' ) as $name ) {
+			$property = new ReflectionProperty( Current_Plan::class, $name );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, null );
+		}
+
+		$GLOBALS['wpcom_test_site_purchases'] = array( (object) array( 'product_slug' => 'personal-bundle' ) );
 	}
 
 	/**
@@ -95,6 +122,8 @@ abstract class TestCase extends PHPUnit_TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 		wp_set_current_user( 0 );
+		Constants::clear_single_constant( 'IS_ATOMIC' );
+		$this->reset_plan_caches();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Posts::init()->clear_all_posts();
