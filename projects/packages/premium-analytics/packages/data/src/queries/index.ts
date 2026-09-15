@@ -56,7 +56,6 @@ export { statsFollowersQuery } from './stats-followers-query';
 export type { StatsFollowersParams, StatsFollowersResponse } from './stats-followers-query';
 export { statsCommentsQuery, type StatsCommentsParams } from './stats-comments-query';
 export {
-	statsMembershipProductsQuery,
 	statsSubscribersCountsQuery,
 	statsSubscribersDaysAgoQuery,
 	statsSubscribersQuery,

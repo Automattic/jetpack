@@ -6,7 +6,6 @@ import { useQueries } from '@tanstack/react-query';
  * Internal dependencies
  */
 import {
-	statsMembershipProductsQuery,
 	statsSubscribersCountsQuery,
 	statsSubscribersDaysAgoQuery,
 	statsSubscribersReportQuery,
@@ -20,11 +19,7 @@ import type { StatsSubscribersCounts, StatsSubscribersResponse } from '../proces
 import type { StatsReportParams } from '../queries/stats-query';
 import type { StatsSubscribersCountsParams } from '../queries/stats-subscribers-query';
 
-export type {
-	StatsMembershipProducts,
-	StatsSubscribersCounts,
-	StatsSubscribersResponse,
-} from '../processing/stats';
+export type { StatsSubscribersCounts, StatsSubscribersResponse } from '../processing/stats';
 export type {
 	StatsSubscribersCountsParams,
 	StatsSubscribersParams,
@@ -77,10 +72,6 @@ export function useStatsSubscribersDaysAgo(
 			refetch: () => results.forEach( result => result.refetch() ),
 		} ),
 	} );
-}
-
-export function useStatsMembershipProducts( options?: UseStatsOptions ) {
-	return useStatsQuery( statsMembershipProductsQuery(), options );
 }
 
 export function useStatsSubscribersCounts(

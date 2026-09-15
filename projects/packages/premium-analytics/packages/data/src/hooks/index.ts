@@ -88,11 +88,9 @@ export {
 	type UseStatsCommentsRowsResult,
 } from './use-stats-comments';
 export {
-	useStatsMembershipProducts,
 	useStatsSubscribersCounts,
 	useStatsSubscribersDaysAgo,
 	useStatsSubscribersReport,
-	type StatsMembershipProducts,
 	type StatsSubscribersCounts,
 	type StatsSubscribersCountsParams,
 	type StatsSubscribersCountsResponse,
