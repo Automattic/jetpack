@@ -4,15 +4,12 @@
 import { useStatsWordAdsEarnings } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import {
-	EARNINGS_HISTORY_VIEW,
+	EarningsHistoryList,
 	ReportLink,
-	WidgetDataTable,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	flattenEarningsBreakdown,
-	getWordAdsHistoryFields,
-	type EarningsHistoryRow,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -29,11 +26,9 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type RenderAttributes = WordAdsEarningsHistoryAttributes & Partial< ReportParamsFieldAttributes >;
 type WordAdsEarningsHistoryProps = WidgetRenderProps< RenderAttributes >;
 
-const getRowId = ( item: EarningsHistoryRow ) => item.id;
-
 /**
  * Fetches WordAds earnings and renders the `wordads` breakdown as a history
- * table. The earnings module is not period-scoped, so nothing is read from
+ * list. The earnings module is not period-scoped, so nothing is read from
  * report params. Ported from the `earningsTable()` helper on the Jetpack Stats
  * WordAds page (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
  */
@@ -41,7 +36,6 @@ function WordAdsEarningsHistoryReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsWordAdsEarnings();
 
 	const rows = useMemo( () => flattenEarningsBreakdown( data?.wordads ), [ data ] );
-	const fields = useMemo( () => getWordAdsHistoryFields(), [] );
 
 	return (
 		<Stack className={ styles.root }>
@@ -64,15 +58,10 @@ function WordAdsEarningsHistoryReport() {
 						description: __( 'No earnings history to show yet.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
-					<WidgetDataTable< EarningsHistoryRow >
-						data={ rows }
-						fields={ fields }
-						getItemId={ getRowId }
-						initialView={ EARNINGS_HISTORY_VIEW }
-					/>
+					<EarningsHistoryList rows={ rows } />
 				</WidgetState>
 			</div>
-			<WidgetFooter className={ styles.footer }>
+			<WidgetFooter>
 				<ReportLink
 					report="earnings"
 					ariaLabel={ __( 'View all earnings history', 'jetpack-premium-analytics-pkg' ) }

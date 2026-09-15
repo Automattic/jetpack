@@ -36,7 +36,7 @@ describe( 'WordAdsAdjustmentsHistory', () => {
 
 	it( 'renders the adjustment breakdown rather than another breakdown', async () => {
 		render( <WordAdsAdjustmentsHistory attributes={ {} } /> );
-		await expect( screen.findByText( '04-2026' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'April 2026' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'shows a breakdown-specific empty state when there are no adjustments', async () => {
