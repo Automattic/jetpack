@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add useConnectionStatusSummary, reporting whether the connection is broken and which half, for status surfaces.

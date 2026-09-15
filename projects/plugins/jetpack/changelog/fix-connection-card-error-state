@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: Report a broken connection on the connection card instead of claiming everything looks good.

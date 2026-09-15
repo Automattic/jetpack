@@ -100,7 +100,7 @@ export function groupConnectionErrorsByMessage(
  * @param {ConnectionErrorViewer} viewer - Who is looking at the notice.
  * @return {string} A human-readable scope label.
  */
-export function getConnectionErrorScope(
+export function getConnectionErrorScopeLabel(
 	error: ConnectionErrorObject,
 	viewer: ConnectionErrorViewer = {}
 ): string {
@@ -170,7 +170,7 @@ export function getConnectionErrorDetailLines(
 	const lines = new Set< string >();
 
 	for ( const error of errors ) {
-		lines.add( getConnectionErrorScope( error, viewer ) );
+		lines.add( getConnectionErrorScopeLabel( error, viewer ) );
 	}
 
 	return [ ...lines ].map( detail => ( { key: detail, text: detail } ) );
@@ -219,7 +219,7 @@ export function getConnectionErrorTitle(
 		return sprintf(
 			/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
 			__( 'Jetpack Connection error: %s', 'jetpack-connection-js' ),
-			getConnectionErrorScope( errors[ 0 ], viewer )
+			getConnectionErrorScopeLabel( errors[ 0 ], viewer )
 		);
 	}
 
