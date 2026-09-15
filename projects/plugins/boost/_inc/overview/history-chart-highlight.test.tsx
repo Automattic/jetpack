@@ -8,11 +8,11 @@ import type { BarChart } from '@automattic/charts';
 jest.mock( '@automattic/charts', () => ( {
 	GlobalChartsProvider: ( { children }: PropsWithChildren ) => children,
 	// No unmount notification: these tests isolate the card's own highlight lifecycle.
-	BarChart: ( { data, onCategoryHighlightChange }: ComponentProps< typeof BarChart > ) => (
+	BarChart: ( { data, onBandHighlightChange }: ComponentProps< typeof BarChart > ) => (
 		<div>
 			<button
 				onClick={ () =>
-					onCategoryHighlightChange?.( {
+					onBandHighlightChange?.( {
 						datum: data[ 0 ].data[ 0 ],
 						x: 20,
 						y: 0,
@@ -23,7 +23,7 @@ jest.mock( '@automattic/charts', () => ( {
 			>
 				{ `Highlight ${ data[ 0 ].label }` }
 			</button>
-			<button onClick={ () => onCategoryHighlightChange?.( null ) }>
+			<button onClick={ () => onBandHighlightChange?.( null ) }>
 				{ `Leave ${ data[ 0 ].label }` }
 			</button>
 		</div>
