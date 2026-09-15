@@ -40,7 +40,6 @@ final class Services_Config {
 		}
 		?>
 		<div class="share_manage_options">
-		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
 		<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ); ?></p>
 
 

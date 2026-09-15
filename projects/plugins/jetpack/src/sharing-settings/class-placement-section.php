@@ -38,7 +38,7 @@ final class Placement_Section {
 					/** This filter is documented in modules/sharedaddy/sharing.php */
 					echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					?>
-						<th scope="row"><label><?php esc_html_e( 'Show buttons on', 'jetpack' ); ?></label></th>
+						<th scope="row"></th>
 						<td>
 							<?php foreach ( $choices as $choice ) : ?>
 								<label>
