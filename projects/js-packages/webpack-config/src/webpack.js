@@ -146,8 +146,30 @@ const defaultRequestMap = {
 	},
 };
 
-const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
-	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
+// A bundled @wordpress/private-apis unlocks only what its own bundle locked. So never bundle it
+// without @wordpress/theme, or in an entry that unlocks private APIs of an external wp-* script.
+const wpUiRequestMap = {
+	'@wordpress/theme': { external: false },
+	'@wordpress/private-apis': { external: false },
+};
+
+/**
+ * Build the DependencyExtractionWebpackPlugin.
+ *
+ * @param {object}  options                - Plugin options, passed through except for the two below.
+ * @param {object}  options.requestMap     - Per-request `{ external, handle }` overrides. Wins over every default.
+ * @param {boolean} options.bundleWpUiDeps - Bundle `@wordpress/theme` and `@wordpress/private-apis` instead of
+ *                                         externalizing them. Off by default. For an entry that bundles
+ *                                         `@wordpress/ui`, which is built against a newer `@wordpress/theme`
+ *                                         than core's `wp-theme`.
+ * @return {object[]} The plugin.
+ */
+const DependencyExtractionPlugin = ( { requestMap, bundleWpUiDeps = false, ...options } = {} ) => {
+	const finalRequestMap = {
+		...defaultRequestMap,
+		...( bundleWpUiDeps ? wpUiRequestMap : {} ),
+		...requestMap,
+	};
 
 	const requestToExternal = request => {
 		return finalRequestMap[ request ]?.external;
