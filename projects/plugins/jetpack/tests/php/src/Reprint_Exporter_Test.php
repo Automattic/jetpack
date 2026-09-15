@@ -43,16 +43,6 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	private $recorded_events = array();
 
 	/**
-	 * Test set up.
-	 */
-	public function set_up() {
-		parent::set_up();
-		// The WordPress test config fills every salt with the placeholder, which
-		// the exporter refuses, so give the tests a salt it will accept.
-		$this->use_usable_salt();
-	}
-
-	/**
 	 * Test tear down.
 	 */
 	public function tear_down() {
@@ -63,6 +53,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		Rest_Authentication::init()->reset_saved_auth_state();
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_reprint_export_available' );
+		remove_all_filters( 'salt' );
 		delete_option( Reprint_Exporter::SECRET_OPTION );
 		delete_option( Reprint_Exporter::ENABLED_OPTION );
 		delete_option( Reprint_Exporter::SECRET_HASH_OPTION );
@@ -72,14 +63,23 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Sets AUTH_SALT to a value the exporter accepts.
+	 * Replaces the salt the exporter keys its hashes with, as a rotated
+	 * wp-config.php would.
 	 *
-	 * @param string $salt The salt; defaults to one long enough to pass.
-	 * @return string The salt in force.
+	 * Through WordPress's own `salt` filter, so it takes effect wherever
+	 * wp_salt() is read.
+	 *
+	 * @param string $salt The salt to use for the auth scheme.
 	 */
-	private function use_usable_salt( $salt = 'first-usable-salt-value-first-usable-salt-value-first-usable-salt' ) {
-		Constants::set_constant( 'AUTH_SALT', $salt );
-		return $salt;
+	private function change_salt( $salt ) {
+		add_filter(
+			'salt',
+			static function ( $current, $scheme ) use ( $salt ) {
+				return 'auth' === $scheme ? $salt : $current;
+			},
+			10,
+			2
+		);
 	}
 
 	/**
@@ -103,7 +103,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Plants a window timestamp with the hash the current AUTH_SALT gives it.
+	 * Plants a window timestamp with the hash the current salt gives it.
 	 *
 	 * Stands in for a stamp the exporter itself made at some other time, which
 	 * open_export_window() cannot produce because it always stamps now.
@@ -114,7 +114,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		$this->plant_option( Reprint_Exporter::ENABLED_OPTION, $enabled_at );
 		$this->plant_option(
 			Reprint_Exporter::ENABLED_HASH_OPTION,
-			hash_hmac( 'sha256', Reprint_Exporter::ENABLED_HASH_OPTION . "\0" . $enabled_at, Constants::get_constant( 'AUTH_SALT' ) )
+			hash_hmac( 'sha256', Reprint_Exporter::ENABLED_HASH_OPTION . "\0" . $enabled_at, wp_salt( 'auth' ) )
 		);
 	}
 
@@ -743,7 +743,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		$this->run_handler( $stub, $this->make_wp( '' ) );
 		$this->assertTrue( $stub->served, 'Fixture must serve before the salt changes.' );
 
-		$this->use_usable_salt( 'second-usable-salt-value-second-usable-salt-value-second-salt' );
+		$this->change_salt( 'a-salt-from-a-rewritten-wp-config' );
 		( new REST_Controller() )->enable_export();
 		$this->run_handler( new Reprint_Exporter_Test_Stub(), $this->make_wp( '' ) );
 
@@ -953,104 +953,34 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Rotating stores a hash binding the secret to AUTH_SALT.
+	 * Rotating stores a hash binding the secret to the site's auth salt.
+	 *
+	 * Keyed with wp_salt() rather than AUTH_SALT on purpose; see
+	 * compute_credential_hash().
 	 */
 	public function test_rotate_secret_stores_a_salt_hash() {
-		$salt     = $this->use_usable_salt();
 		$response = ( new REST_Controller() )->rotate_secret();
 		$secret   = $response->get_data()['secret'];
 
 		$this->assertSame(
-			hash_hmac( 'sha256', Reprint_Exporter::SECRET_HASH_OPTION . "\0" . $secret, $salt ),
+			hash_hmac( 'sha256', Reprint_Exporter::SECRET_HASH_OPTION . "\0" . $secret, wp_salt( 'auth' ) ),
 			get_option( Reprint_Exporter::SECRET_HASH_OPTION )
 		);
 	}
 
 	/**
-	 * Rotation refuses, storing nothing, when AUTH_SALT is not defined.
+	 * Rotation works on a site whose wp-config.php still has the placeholder
+	 * salts.
 	 *
-	 * The test config defines AUTH_SALT, so a null through the constants
-	 * manager stands in for an undefined one.
+	 * The test config is such a site, so this pins that wp_salt()'s fallback
+	 * is accepted rather than refused: many real sites are in this state and
+	 * their operators cannot easily fix it.
 	 */
-	public function test_rotate_secret_refuses_without_auth_salt() {
-		Constants::set_constant( 'AUTH_SALT', null );
-
-		$this->assert_rotation_refused();
-	}
-
-	/**
-	 * Rotation refuses a short AUTH_SALT.
-	 */
-	public function test_rotate_secret_refuses_a_short_auth_salt() {
-		$this->use_usable_salt( str_repeat( 's', 31 ) );
-
-		$this->assert_rotation_refused();
-	}
-
-	/**
-	 * Exactly 32 bytes is enough.
-	 */
-	public function test_rotate_secret_accepts_a_32_byte_auth_salt() {
-		$this->use_usable_salt( str_repeat( 's', 32 ) );
+	public function test_rotate_secret_works_with_placeholder_salts() {
+		$this->assertSame( 'put your unique phrase here', Constants::get_constant( 'AUTH_SALT' ), 'Fixture must be a placeholder-salt site.' );
 
 		$this->assertSame( 200, ( new REST_Controller() )->rotate_secret()->get_status() );
-	}
-
-	/**
-	 * Rotation refuses the wp-config placeholder.
-	 *
-	 * The length check already rejects the English placeholder; this pins the
-	 * literal comparison so a shorter placeholder cannot slip through.
-	 */
-	public function test_rotate_secret_refuses_the_placeholder_auth_salt() {
-		$this->use_usable_salt( 'put your unique phrase here' );
-
-		$this->assert_rotation_refused();
-	}
-
-	/**
-	 * Asserts that rotation answers 500 and leaves no credential behind.
-	 */
-	private function assert_rotation_refused() {
-		$response = ( new REST_Controller() )->rotate_secret();
-
-		$this->assertSame( 500, $response->get_status() );
-		$this->assertArrayHasKey( 'error', $response->get_data() );
-		$this->assertStringContainsString( 'AUTH_SALT', $response->get_data()['error'] );
-		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
-		$this->assertFalse( get_option( Reprint_Exporter::SECRET_HASH_OPTION ) );
-	}
-
-	/**
-	 * Enabling refuses without a usable salt rather than stamping a window
-	 * that can never read as open.
-	 *
-	 * A 200 here would send the client off to an export endpoint that answers
-	 * nothing, with no clue why.
-	 */
-	public function test_enable_export_refuses_without_a_usable_salt() {
-		$this->capture_events();
-		$this->use_usable_salt( 'put your unique phrase here' );
-
-		$response = ( new REST_Controller() )->enable_export();
-
-		$this->assertSame( 500, $response->get_status() );
-		$this->assertStringContainsString( 'AUTH_SALT', $response->get_data()['error'] );
-		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_OPTION ) );
-		$this->assertFalse( get_option( Reprint_Exporter::ENABLED_HASH_OPTION ) );
-		$this->assertNotContains( 'window_opened', array_column( $this->recorded_events, 0 ) );
-	}
-
-	/**
-	 * Storing a secret refuses without a usable salt rather than keeping a
-	 * secret it could not hash.
-	 */
-	public function test_store_secret_refuses_without_a_usable_salt() {
-		$this->use_usable_salt( 'put your unique phrase here' );
-
-		$this->assertFalse( Reprint_Exporter::store_secret( 'a-secret' ) );
-		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
-		$this->assertFalse( get_option( Reprint_Exporter::SECRET_HASH_OPTION ) );
+		$this->assertNotFalse( get_option( Reprint_Exporter::SECRET_HASH_OPTION ) );
 	}
 
 	/**
@@ -1136,13 +1066,13 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A window opened under one AUTH_SALT reads as closed under another.
+	 * A window opened under one salt reads as closed under another.
 	 */
 	public function test_export_window_closed_after_auth_salt_changes() {
 		Reprint_Exporter::open_export_window();
 		$this->assertTrue( Reprint_Exporter::is_export_window_open(), 'Fixture must be open before the salt changes.' );
 
-		$this->use_usable_salt( 'second-usable-salt-value-second-usable-salt-value-second-salt' );
+		$this->change_salt( 'a-salt-from-a-rewritten-wp-config' );
 
 		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
 	}
@@ -1361,7 +1291,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A new AUTH_SALT invalidates the credential with a message that says so.
+	 * A new salt invalidates the credential with a message that says so.
 	 *
 	 * The window has to be re-opened first, since the old window hash no longer
 	 * matches either and a closed window stays silent. Once it is, the client
@@ -1373,7 +1303,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		$_GET['reprint-api-jetpack'] = '1';
 		$_SERVER['REQUEST_METHOD']   = 'GET';
 
-		$this->use_usable_salt( 'second-usable-salt-value-second-usable-salt-value-second-salt' );
+		$this->change_salt( 'a-salt-from-a-rewritten-wp-config' );
 		( new REST_Controller() )->enable_export();
 
 		$stub = new Reprint_Exporter_Test_Stub();

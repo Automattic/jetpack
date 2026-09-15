@@ -32,14 +32,14 @@ class Reprint_Exporter {
 	const ENABLED_OPTION = 'jetpack_reprint_exporter_enabled';
 
 	/**
-	 * Option holding the HMAC of the secret under AUTH_SALT.
+	 * Option holding the HMAC of the secret under the site's auth salt.
 	 *
 	 * @var string
 	 */
 	const SECRET_HASH_OPTION = 'jetpack_reprint_exporter_secret_hash';
 
 	/**
-	 * Option holding the HMAC of the window timestamp under AUTH_SALT.
+	 * Option holding the HMAC of the window timestamp under the site's auth salt.
 	 *
 	 * @var string
 	 */
@@ -63,23 +63,6 @@ class Reprint_Exporter {
 	 * @var int
 	 */
 	const HMAC_CLOCK_SKEW = 300;
-
-	/**
-	 * Shortest AUTH_SALT the credential hashes will be keyed with, in bytes.
-	 *
-	 * @var int
-	 */
-	const MIN_SALT_LENGTH = 32;
-
-	/**
-	 * The value wp-config-sample.php ships in every salt constant.
-	 *
-	 * Shorter than MIN_SALT_LENGTH, so the length check already rejects it;
-	 * kept for a localised template whose placeholder is not.
-	 *
-	 * @var string
-	 */
-	const SALT_PLACEHOLDER = 'put your unique phrase here';
 
 	/**
 	 * Whether the exporter is in the middle of one of its own option writes.
@@ -230,75 +213,54 @@ class Reprint_Exporter {
 	/**
 	 * Stores a newly created shared secret together with its salt-keyed hash.
 	 *
-	 * Writes nothing without a usable AUTH_SALT: a secret without a hash would
-	 * be refused at request time, and failing here is where provisioning can see it.
-	 *
 	 * @param string $secret The new secret.
 	 * @return bool Whether the secret and its hash were written.
 	 */
 	public static function store_secret( $secret ) {
-		$salt = self::get_usable_salt();
-		if ( null === $salt ) {
-			return false;
-		}
-
 		$secret_stored = self::write_option( self::SECRET_OPTION, $secret );
-		$hash_stored   = self::write_option( self::SECRET_HASH_OPTION, self::compute_credential_hash( self::SECRET_HASH_OPTION, $secret, $salt ) );
+		$hash_stored   = self::write_option( self::SECRET_HASH_OPTION, self::compute_credential_hash( self::SECRET_HASH_OPTION, $secret ) );
 
 		return $secret_stored && $hash_stored;
 	}
 
 	/**
-	 * AUTH_SALT, when it is fit to key the credential hashes with, or null.
+	 * Computes the HMAC binding a stored credential to the site's auth salt.
 	 *
-	 * The constant rather than wp_salt(): without one, that helper falls back
-	 * to a salt kept in wp_options, the very table the hashes exist to distrust.
+	 * Keyed with wp_salt() rather than AUTH_SALT itself, on purpose: many sites
+	 * still carry the wp-config-sample.php placeholder in every salt constant,
+	 * and refusing those would leave their operators no export and no easy fix.
 	 *
-	 * @return string|null
-	 */
-	public static function get_usable_salt() {
-		if ( ! Constants::is_defined( 'AUTH_SALT' ) ) {
-			return null;
-		}
-
-		$salt = Constants::get_constant( 'AUTH_SALT' );
-		if ( ! is_string( $salt ) || strlen( $salt ) < self::MIN_SALT_LENGTH || self::SALT_PLACEHOLDER === $salt ) {
-			return null;
-		}
-
-		return $salt;
-	}
-
-	/**
-	 * Computes the HMAC binding a stored credential to AUTH_SALT.
+	 * The drawback is known and accepted. wp_salt() falls back to a salt kept in
+	 * wp_options, so on a placeholder site the key sits in the same table as the
+	 * credential and a database write alone still arms the exporter, as it did
+	 * before these hashes existed. Real salts are what earn the protection.
 	 *
 	 * The hash option's name goes into the message so the two hashes cannot
 	 * stand in for each other: a copied window pair must not pass as a secret.
 	 *
 	 * @param string     $hash_option The option the hash is stored in.
-	 * @param string|int $value      The stored value.
-	 * @param string     $salt       AUTH_SALT, as returned by get_usable_salt().
+	 * @param string|int $value       The stored value.
 	 * @return string
 	 */
-	private static function compute_credential_hash( $hash_option, $value, $salt ) {
-		return hash_hmac( 'sha256', $hash_option . "\0" . (string) $value, $salt );
+	private static function compute_credential_hash( $hash_option, $value ) {
+		return hash_hmac( 'sha256', $hash_option . "\0" . (string) $value, wp_salt( 'auth' ) );
 	}
 
 	/**
-	 * Whether the stored hash is the one AUTH_SALT gives for a stored credential.
+	 * Whether the stored hash is the one the site's auth salt gives for a
+	 * stored credential.
 	 *
 	 * @param string     $hash_option The option the hash is stored in.
-	 * @param string|int $value      The stored value.
+	 * @param string|int $value       The stored value.
 	 * @return bool
 	 */
 	private static function credential_hash_matches( $hash_option, $value ) {
-		$salt        = self::get_usable_salt();
 		$stored_hash = get_option( $hash_option );
-		if ( null === $salt || ! is_string( $stored_hash ) ) {
+		if ( ! is_string( $stored_hash ) ) {
 			return false;
 		}
 
-		return hash_equals( self::compute_credential_hash( $hash_option, $value, $salt ), $stored_hash );
+		return hash_equals( self::compute_credential_hash( $hash_option, $value ), $stored_hash );
 	}
 
 	/**
@@ -395,14 +357,14 @@ class Reprint_Exporter {
 			return;
 		}
 
-		// A secret this class did not hash under the current AUTH_SALT is no
+		// A secret this class did not hash under the current salt is no
 		// credential at all, so it never reaches signature verification.
 		if ( ! self::credential_hash_matches( self::SECRET_HASH_OPTION, $secret ) ) {
 			if ( ! $window_open ) {
 				return;
 			}
 			self::record_event( 'credential_hash_mismatch' );
-			$this->error( 503, 'Export credential invalidated: the stored secret does not match this site\'s AUTH_SALT. Please rotate the shared secret via POST /jetpack/v4/reprint/rotate-export-secret.' );
+			$this->error( 503, 'Export credential invalidated: the stored secret does not match this site\'s salts. Please rotate the shared secret via POST /jetpack/v4/reprint/rotate-export-secret.' );
 			return;
 		}
 
@@ -474,23 +436,16 @@ class Reprint_Exporter {
 	 * Opens the export window by stamping the enabled option with the current
 	 * time and hashing the stamp.
 	 *
-	 * Writes nothing without a usable AUTH_SALT, like store_secret(): a stamp
-	 * without a hash never reads as open, so both callers check first.
-	 *
 	 * @return int The unix timestamp the window was opened at.
 	 */
 	public static function open_export_window() {
-		$now  = time();
-		$salt = self::get_usable_salt();
-		if ( null === $salt ) {
-			return $now;
-		}
+		$now = time();
 
 		// Value then hash: a crash between them leaves a mismatch, which reads
 		// as closed. Each skips an unchanged value, so a busy client costs at
 		// most two writes per elapsed second.
 		self::write_option( self::ENABLED_OPTION, $now );
-		self::write_option( self::ENABLED_HASH_OPTION, self::compute_credential_hash( self::ENABLED_HASH_OPTION, $now, $salt ) );
+		self::write_option( self::ENABLED_HASH_OPTION, self::compute_credential_hash( self::ENABLED_HASH_OPTION, $now ) );
 
 		return $now;
 	}
