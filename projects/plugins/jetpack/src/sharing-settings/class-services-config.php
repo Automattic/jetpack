@@ -400,4 +400,136 @@ final class Services_Config {
 		$service->display_preview();
 		echo '</li>';
 	}
+
+	/**
+	 * Save changes to sharing settings.
+	 *
+	 * @return void
+	 */
+	public function process_requests() {
+		if (
+			isset( $_POST['_wpnonce'] )
+			&& wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), 'sharing-options' )
+		) {
+			$sharer = new \Sharing_Service();
+			$sharer->set_global_options( $_POST );
+			/**
+			 * Fires when updating sharing settings.
+			 *
+			 * @module sharedaddy
+			 *
+			 * @since 1.1.0
+			 */
+			do_action( 'sharing_admin_update' );
+
+			wp_safe_redirect( admin_url( 'options-general.php?page=sharing&update=saved' ) );
+			die( 0 );
+		}
+	}
+
+	/**
+	 * Save changes to sharing services via AJAX.
+	 *
+	 * @return void
+	 */
+	public function ajax_save_services() {
+		if (
+			isset( $_POST['_wpnonce'] )
+			&& wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), 'sharing-options' )
+			&& isset( $_POST['hidden'] )
+			&& isset( $_POST['visible'] )
+		) {
+			$sharer = new \Sharing_Service();
+
+			$sharer->set_blog_services(
+				explode( ',', sanitize_text_field( wp_unslash( $_POST['visible'] ) ) ),
+				explode( ',', sanitize_text_field( wp_unslash( $_POST['hidden'] ) ) )
+			);
+			die( 0 );
+		}
+	}
+
+	/**
+	 * Create a new custom sharing service via AJAX.
+	 *
+	 * @return never
+	 */
+	public function ajax_new_service() {
+		if (
+			isset( $_POST['_wpnonce'] )
+			&& isset( $_POST['sharing_name'] )
+			&& isset( $_POST['sharing_url'] )
+			&& isset( $_POST['sharing_icon'] )
+			&& wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), 'sharing-new_service' )
+		) {
+			$sharer  = new \Sharing_Service();
+			$service = $sharer->new_service(
+				sanitize_text_field( wp_unslash( $_POST['sharing_name'] ) ),
+				esc_url_raw( wp_unslash( $_POST['sharing_url'] ) ),
+				esc_url_raw( wp_unslash( $_POST['sharing_icon'] ) )
+			);
+
+			if ( $service ) {
+				$this->output_service( $service->get_id(), $service );
+				echo '<!--->';
+				$service->button_style = 'icon-text';
+				$this->output_preview( $service );
+
+				die( 0 );
+			}
+		}
+
+		// Fail
+		die( '1' );
+	}
+
+	/**
+	 * Delete a sharing service via AJAX.
+	 *
+	 * @return void
+	 */
+	public function ajax_delete_service() {
+		if (
+			isset( $_POST['_wpnonce'] )
+			&& isset( $_POST['service'] )
+			&& wp_verify_nonce(
+				sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ),
+				'sharing-options_' . sanitize_text_field( wp_unslash( $_POST['service'] ) )
+			)
+		) {
+			$sharer = new \Sharing_Service();
+			$sharer->delete_service( sanitize_text_field( wp_unslash( $_POST['service'] ) ) );
+		}
+	}
+
+	/**
+	 * Save changes to sharing settings via AJAX.
+	 *
+	 * @return void
+	 */
+	public function ajax_save_options() {
+		if (
+			isset( $_POST['_wpnonce'] )
+			&& isset( $_POST['service'] )
+			&& wp_verify_nonce(
+				sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ),
+				'sharing-options_' . sanitize_text_field( wp_unslash( $_POST['service'] ) )
+			)
+		) {
+			$sharer  = new \Sharing_Service();
+			$service = $sharer->get_service( sanitize_text_field( wp_unslash( $_POST['service'] ) ) );
+
+			if ( $service && $service instanceof Sharing_Advanced_Source ) {
+				$service->update_options( $_POST );
+
+				$sharer->set_service( sanitize_text_field( wp_unslash( $_POST['service'] ) ), $service );
+			}
+
+			$this->output_service( $service->get_id(), $service, true );
+			echo '<!--->';
+			$service->button_style = 'icon-text';
+			$this->output_preview( $service );
+			die( 0 );
+		}
+	}
 }
