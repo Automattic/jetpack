@@ -1,0 +1,34 @@
+.frame {
+	display: flex;
+	flex-direction: column;
+	min-block-size: 100%;
+}
+
+// Sits where the chassis header would be, so it matches admin-ui's page header.
+.header {
+	position: sticky;
+	inset-block-start: 0;
+	z-index: 1;
+	min-block-size: var(--wpds-dimension-size-md);
+	padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
+	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	background: var(--wpds-color-background-surface-neutral-strong);
+}
+
+.visual {
+	display: grid;
+	place-items: center;
+	flex-shrink: 0;
+	inline-size: var(--wpds-dimension-size-sm);
+	block-size: var(--wpds-dimension-size-sm);
+}
+
+.content {
+	padding: var(--wpds-dimension-padding-2xl);
+}
+
+// Same column as the Settings tab.
+.column {
+	max-inline-size: var(--wpds-dimension-surface-width-xl);
+	margin-inline: auto;
+}
