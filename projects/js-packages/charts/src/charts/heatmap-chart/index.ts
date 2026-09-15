@@ -1,13 +1,8 @@
 export { default as HeatmapChart, HeatmapChartUnresponsive } from './heatmap-chart';
 export { buildCalendarHeatmapData } from './build-calendar-data';
-export { buildMonthCalendarHeatmapData } from './private';
+export { buildMonthCalendarHeatmapData } from './build-month-calendar-data';
 export { useCalendarHeatmapData } from './use-calendar-heatmap-data';
 export { useMonthCalendarHeatmapData } from './use-month-calendar-heatmap-data';
-export type {
-	MonthCalendarHeatmapOptions,
-	MonthCalendarHeatmapRange,
-	MonthCalendarHeatmapResult,
-} from './private';
 export type {
 	CalendarHeatmapOptions,
 	CalendarHeatmapResult,
@@ -16,4 +11,7 @@ export type {
 	HeatmapColumnGroup,
 	HeatmapCell,
 	HeatmapTooltipData,
+	MonthCalendarHeatmapOptions,
+	MonthCalendarHeatmapRange,
+	MonthCalendarHeatmapResult,
 } from './types';
