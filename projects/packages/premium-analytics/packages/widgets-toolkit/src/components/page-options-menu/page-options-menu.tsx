@@ -39,7 +39,7 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 	const canSwitchOff = currentUserCan( 'manage_options' );
 
 	const openFeedback = useCallback( () => {
-		trackEvent( 'jetpack_premium_analytics_feedback_open' );
+		trackEvent( 'jetpack_premium_analytics_feedback_open', { source: 'menu' } );
 		setIsFeedbackOpen( true );
 	}, [ trackEvent ] );
 
@@ -86,7 +86,7 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 					) }
 				</Menu.Popup>
 			</Menu.Root>
-			{ isFeedbackOpen && <FeedbackModal onClose={ closeFeedback } /> }
+			{ isFeedbackOpen && <FeedbackModal source="menu" onClose={ closeFeedback } /> }
 			{ isSwitchOffOpen && <SwitchOffDialog onClose={ closeSwitchOff } /> }
 		</>
 	);

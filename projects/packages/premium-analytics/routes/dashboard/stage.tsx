@@ -28,6 +28,7 @@ import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
 	DashboardSections,
+	FeedbackBanner,
 	OnboardingTour,
 	onboardingTourSteps,
 	RefreshFailureNotice,
@@ -133,13 +134,12 @@ function Dashboard(): JSX.Element {
 		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
 	} ).filter( step => step.anchor );
 
+	const defaultSection = resolveSectionId( undefined, sections );
+
 	// The journey introduces the default section at rest: not another tab, and
 	// not while the reader is already customizing.
 	const onboarding = useOnboarding( {
-		enabled:
-			hasResolvedSections &&
-			! editMode &&
-			activeSection === resolveSectionId( undefined, sections ),
+		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
 		stepCount: tourSteps.length,
 	} );
 
@@ -312,6 +312,16 @@ function Dashboard(): JSX.Element {
 
 										{ activeSection === section.slug ? (
 											<div className={ styles.body }>
+												{ /* Behind the onboarding journey: it introduces the tab
+												     the banner asks about. */ }
+												<FeedbackBanner
+													enabled={
+														! editMode &&
+														section.slug === defaultSection &&
+														onboarding.phase === 'closed'
+													}
+												/>
+
 												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
 													<SectionSyncNotice
 														percentage={ syncStatus?.percentage ?? 0 }
