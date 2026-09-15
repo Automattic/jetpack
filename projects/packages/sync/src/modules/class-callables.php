@@ -58,6 +58,7 @@ class Callables extends Module {
 		'jetpack_sync_error_idc',
 		'paused_plugins',
 		'paused_themes',
+		'blog_public', // Privacy changes need to reach WordPress.com as fast as the option does.
 
 	);
 

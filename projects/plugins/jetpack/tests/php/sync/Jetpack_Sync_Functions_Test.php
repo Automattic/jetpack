@@ -291,6 +291,19 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( array( 'json-api' ), $synced_value );
 	}
 
+	public function test_sync_always_sync_changes_to_blog_public_right_away() {
+		update_option( 'blog_public', '1' );
+		$this->sender->do_sync();
+		$this->assertSame( 1, $this->server_replica_storage->get_callable( 'blog_public' ) );
+
+		$this->server_replica_storage->reset();
+
+		// No timeout reset here: the option change alone has to unlock the callable.
+		update_option( 'blog_public', '0' );
+		$this->sender->do_sync();
+		$this->assertSame( 0, $this->server_replica_storage->get_callable( 'blog_public' ) );
+	}
+
 	public function test_blog_public_resyncs_when_private_site_filter_changes() {
 		update_option( 'blog_public', '1' );
 		Status_Cache::clear();
