@@ -397,7 +397,8 @@ class Jetpack_AI_Page {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 		}
 
-		$host = new Host();
+		$host           = new Host();
+		$has_my_jetpack = self::has_my_jetpack();
 
 		/**
 		 * Filters the host-specific AI Hub configuration.
@@ -415,10 +416,16 @@ class Jetpack_AI_Page {
 					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
 				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
-				// My Jetpack is removed on VIP, so that route dead-ends there.
-				'userConnectionUrl' => $host->is_vip_site()
-					? 'admin.php?page=jetpack#/connect-user'
-					: 'admin.php?page=my-jetpack#/connection',
+				'isOfflineMode'     => ( new Status() )->is_offline_mode(),
+				// These three answer one question; a filter changing one alone leaves
+				// a label pointing at a page that is not there.
+				'hasMyJetpack'      => $has_my_jetpack,
+				'userConnectionUrl' => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/connection'
+					: 'admin.php?page=jetpack#/connect-user',
+				'manageUrl'         => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/products'
+					: 'admin.php?page=jetpack_modules',
 				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
@@ -436,6 +443,9 @@ class Jetpack_AI_Page {
 			'seoSettingsUrl'    => $seo_settings_url,
 			'siteAdminUrl'      => admin_url(),
 			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ),
+			'manageUrl'         => esc_url_raw( $config['manageUrl'] ),
+			'hasMyJetpack'      => ! empty( $config['hasMyJetpack'] ),
+			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
@@ -538,6 +548,24 @@ class Jetpack_AI_Page {
 			: '';
 
 		return '' !== $email && '@automattic.com' === substr( $email, -15 );
+	}
+
+	/**
+	 * Whether My Jetpack is loaded on this host.
+	 *
+	 * Hosts drop it with the `jetpack_my_jetpack_should_initialize` filter, and
+	 * VIP removes it from outside this codebase, where that filter cannot answer.
+	 *
+	 * @return bool
+	 */
+	private static function has_my_jetpack() {
+		if ( ( new Host() )->is_vip_site() ) {
+			return false;
+		}
+
+		return class_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer' )
+			&& method_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer', 'should_initialize' )
+			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();
 	}
 
 	/**
