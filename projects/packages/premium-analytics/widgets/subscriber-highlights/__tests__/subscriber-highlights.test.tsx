@@ -22,6 +22,7 @@ const ERROR_TEXT = "We couldn't load subscriber highlights. Please try again in 
 type Responses = {
 	total?: number;
 	paid?: number;
+	social?: number;
 	productCount?: number;
 	failProducts?: boolean;
 	byDate?: Record< string, number >;
@@ -31,6 +32,7 @@ type Responses = {
 function respondWith( {
 	total,
 	paid,
+	social,
 	productCount = 0,
 	failProducts = false,
 	byDate = {},
@@ -47,7 +49,15 @@ function respondWith( {
 
 		if ( path.includes( 'subscribers/counts' ) ) {
 			return Promise.resolve(
-				total === undefined ? {} : { counts: { total_subscribers: total, paid_subscribers: paid } }
+				total === undefined
+					? {}
+					: {
+							counts: {
+								total_subscribers: total,
+								paid_subscribers: paid,
+								social_followers: social,
+							},
+					  }
 			);
 		}
 
@@ -99,11 +109,12 @@ describe( 'SubscriberHighlightsWidget', () => {
 		] );
 	} );
 
-	it( 'shows paid and free subscribers instead of the history when the site has paid products', async () => {
+	it( 'shows paid, free and social instead of the history when the site has paid products', async () => {
 		mockApiFetch.mockImplementation(
 			respondWith( {
 				total: 428,
 				paid: 117,
+				social: 64,
 				productCount: 2,
 				byDate: { '2026-08-16': 317 },
 			} )
@@ -116,6 +127,7 @@ describe( 'SubscriberHighlightsWidget', () => {
 			expect.stringMatching( /^All-time subscribers.*428$/ ),
 			expect.stringMatching( /^Paid subscribers.*117$/ ),
 			expect.stringMatching( /^Free subscribers.*311$/ ),
+			'Social followers64',
 		] );
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
 		expect( requestedPaths.some( path => path.includes( 'stats/subscribers' ) ) ).toBe( false );

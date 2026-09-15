@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Premium Analytics: Match classic Stats' All-time stats on the Subscriber highlights card: total subscribers, with paid and free subscribers on sites that sell subscriptions, or the count 30, 60, and 90 days ago on other sites.
+Premium Analytics: Show the subscriber count 30, 60, and 90 days ago on the Subscriber highlights card for sites without paid subscriptions, as classic Stats' All-time stats does.
