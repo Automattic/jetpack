@@ -8,8 +8,6 @@ const bucket = ( year: number, month: number, views: number ): MonthBucket => ( 
 	views,
 } );
 
-// Month buckets the way the sanitizer labels them, including the zero months
-// the endpoint pads back to the requested start.
 const BUCKETS = [
 	bucket( 2024, 11, 0 ),
 	bucket( 2025, 10, 300 ),

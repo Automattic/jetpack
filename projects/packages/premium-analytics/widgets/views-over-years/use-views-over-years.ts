@@ -15,8 +15,7 @@ import { useMemo } from 'react';
  */
 import { buildViewsOverYearsRows, type MonthBucket } from './build-views-over-years';
 
-// Before any WordPress.com site existed. The endpoint's DB walk stops at the
-// site's registration; the response still pads zero months back to this date.
+// Before any WordPress.com site existed; the endpoint's DB walk stops at the site's registration.
 const EARLIEST_STATS_DATE = '2005-01-01';
 
 export interface ViewsOverYearsState {
@@ -52,7 +51,6 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 		() => ( {
 			from: EARLIEST_STATS_DATE,
 			to: today,
-			interval: 'month',
 			period: 'month',
 			stat_fields: 'views',
 		} ),

@@ -1,12 +1,7 @@
 /**
  * Internal dependencies
  */
-import {
-	MONTHLY_HEATMAP_METRICS,
-	monthlyHeatmapLabels,
-	monthlyHeatmapMetricAttributeField,
-	resolveMonthlyHeatmapMetric,
-} from '../monthly-heatmap-metric';
+import { monthlyHeatmapLabels, resolveMonthlyHeatmapMetric } from '../monthly-heatmap-metric';
 
 describe( 'resolveMonthlyHeatmapMetric', () => {
 	it( 'reads anything but average as the total', () => {
@@ -29,16 +24,5 @@ describe( 'monthlyHeatmapLabels', () => {
 		expect( average.lessLabel ).toBe( 'Fewer views per day' );
 		expect( average.moreLabel ).toBe( 'More views per day' );
 		expect( average.emptyLabel ).toBe( total.emptyLabel );
-	} );
-} );
-
-describe( 'monthlyHeatmapMetricAttributeField', () => {
-	it( 'offers every metric the shared list names, as a high-relevance `metric` field', () => {
-		expect( monthlyHeatmapMetricAttributeField() ).toMatchObject( {
-			id: 'metric',
-			label: 'Metric',
-			relevance: 'high',
-			elements: MONTHLY_HEATMAP_METRICS.map( ( { id, label } ) => ( { value: id, label } ) ),
-		} );
 	} );
 } );

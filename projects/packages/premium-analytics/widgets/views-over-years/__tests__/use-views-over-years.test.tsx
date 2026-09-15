@@ -14,8 +14,7 @@ jest.mock( '@wordpress/api-fetch' );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
-// The WPCOM matrix shape at `unit=month`, with the zero months the endpoint
-// pads back to the requested start.
+// The WPCOM matrix shape at `unit=month`.
 const VISITS_RESPONSE = {
 	date: '2026-03-15',
 	unit: 'month',
