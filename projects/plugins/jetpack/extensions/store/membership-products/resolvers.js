@@ -19,7 +19,7 @@ import {
 	setPostEmailSentState,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
-import { onError } from './utils';
+import { handleResolverError } from './utils';
 
 const EXECUTION_KEY = 'membership-products-resolver-getProducts';
 const SUBSCRIBER_COUNT_EXECUTION_KEY = 'membership-products-resolver-getSubscriberCounts';
@@ -254,7 +254,7 @@ export const getProducts =
 		} catch ( error ) {
 			dispatch( setConnectUrl( null ) );
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			onError( error.message, registry );
+			handleResolverError( error, registry );
 		} finally {
 			executionLock.release( lock );
 		}
@@ -278,7 +278,7 @@ export const getSubscriberCounts =
 			);
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			onError( error.message, registry );
+			handleResolverError( error, registry );
 		} finally {
 			executionLock.release( lock );
 		}
@@ -321,7 +321,7 @@ export const getNewsletterCategories =
 			);
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			onError( error.message, registry );
+			handleResolverError( error, registry );
 		} finally {
 			executionLock.release( lock );
 		}
@@ -346,7 +346,7 @@ export const getPostEmailSentState =
 				} )
 			);
 		} catch ( error ) {
-			onError( error.message, registry );
+			handleResolverError( error, registry );
 		} finally {
 			executionLock.release( lock );
 		}
