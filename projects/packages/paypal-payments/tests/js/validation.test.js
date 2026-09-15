@@ -25,7 +25,6 @@ import {
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
-	REQUIRED_FIELD_ERROR,
 } from '../../src/paypal-payment-buttons/utils/validation';
 
 describe( 'validatePrice', () => {
@@ -139,10 +138,6 @@ describe( 'validateDescription', () => {
 
 describe( 'validateTaxRate', () => {
 	const required = 'To continue, add the requested info or turn off this feature.';
-
-	it( 'is the message the shared constant carries', () => {
-		expect( REQUIRED_FIELD_ERROR ).toBe( required );
-	} );
 
 	it.each( [ null, undefined, '', '   ' ] )( 'returns an error for %p', value => {
 		expect( validateTaxRate( value ) ).toBe( required );

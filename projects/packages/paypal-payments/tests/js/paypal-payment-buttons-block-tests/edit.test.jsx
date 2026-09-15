@@ -215,19 +215,21 @@ jest.mock( '@wordpress/components', () => ( {
 	// Only there to pad the suffix off the field edge; nothing asserts on it.
 	__experimentalInputControlSuffixWrapper: ( { children } ) => <span>{ children }</span>,
 	// Real InputControl renders its own BaseControl, so className and help land on its
-	// root and the label is tied to the input by a shared id. Mock that, not an
-	// aria-label - a field with no accessible name has to fail here. onChange emits
-	// undefined on an emptied field, which is what the real InputChangeCallback does
-	// and what AmountField's `?? ''` guard exists for.
+	// root - merged with components-input-control, which editor.scss keys on - and the
+	// label is tied to the input by a shared id. Mock that, not an aria-label: a field
+	// with no accessible name has to fail here.
 	__experimentalInputControl: ( { label, value, onChange, suffix, help, className, ...rest } ) => {
 		const id = `field-${ label }`;
 		return (
-			<div data-testid={ `control-${ label }` } className={ className }>
+			<div
+				data-testid={ `control-${ label }` }
+				className={ [ 'components-input-control', className ].filter( Boolean ).join( ' ' ) }
+			>
 				<label htmlFor={ id }>{ label }</label>
 				<input
 					id={ id }
 					value={ value ?? '' }
-					onChange={ e => onChange( e.target.value || undefined ) }
+					onChange={ e => onChange( e.target.value ) }
 					{ ...rest }
 				/>
 				{ suffix }

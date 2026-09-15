@@ -72,8 +72,8 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 		collectShippingAddress,
 	} = attributes;
 
-	// PREFERENCE takes its rate from the merchant's PayPal profile; the other types
-	// carry their own. Either way: no value, no tax - and '0' is a value.
+	// The form blocks a blank rate before it reaches here, so this is a backstop:
+	// no value, no tax. Test the string, because '0' is a value PayPal stores.
 	const taxAmount = 'PREFERENCE' === taxType ? 'PROFILE' : taxValue;
 
 	return {
@@ -108,8 +108,6 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 				...( customerNotes?.length > 0
 					? { customer_notes: customerNotes.filter( n => n.label?.trim() ) }
 					: {} ),
-				// Test the string: truthiness would drop a legitimate 0, which PayPal
-				// stores and reads back like any other rate.
 				...( taxEnabled && '' !== ( taxAmount ?? '' )
 					? {
 							taxes: [

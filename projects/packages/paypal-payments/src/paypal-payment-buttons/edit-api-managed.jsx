@@ -70,7 +70,7 @@ const helpQtyOff = __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments
 const placeholderTaxRate = __( 'Enter tax rate', 'jetpack-paypal-payments' );
 const placeholderTaxValue = __( 'Enter tax value', 'jetpack-paypal-payments' );
 
-// Same script either side, different host - matches PARTNER_JS_URLS in utils/.
+// Keyed by environment, same shape as PARTNER_JS_URLS in utils/.
 const TAX_PROFILE_URL = {
 	sandbox: 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax',
 	production: 'https://www.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax',
@@ -204,9 +204,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		[ variantsEnabled, variants ]
 	);
 
-	// PREFERENCE takes its rate from the merchant's PayPal profile; PERCENTAGE and FLAT
-	// carry their own, and a missing type is sent as PERCENTAGE.
-	const taxHasValue = 'PREFERENCE' !== taxType;
+	const taxHasValue = ( taxType || 'PERCENTAGE' ) !== 'PREFERENCE';
 	const taxIsPercentage = ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE';
 
 	/**
@@ -912,7 +910,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						/>
 					) }
 
-					{ /* WOOPTP-172 / WOOPTP-493: Tax Configuration */ }
+					{ /* WOOPTP-172: Tax Configuration */ }
 					<ToggleControl
 						label={ __( 'Add tax', 'jetpack-paypal-payments' ) }
 						help={ __( 'Set the tax rate for this item', 'jetpack-paypal-payments' ) }
@@ -922,8 +920,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					/>
 					{ taxEnabled && (
 						<>
-							{ /* Both selects write taxType. Switching back to a specific rate resets to
-							     PERCENTAGE - remembering the last choice would need a second attribute. */ }
+							{ /* Both selects write taxType. */ }
 							<SelectControl
 								label={ __( 'Tax type', 'jetpack-paypal-payments' ) }
 								value={ taxHasValue ? 'specific' : 'profile' }
@@ -937,9 +934,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 										value: 'specific',
 									},
 								] }
-								// Clear the rate on the way to PREFERENCE. PayPal reads a profile tax
-								// back with no value, so leaving one behind makes the block disagree
-								// with the payment and the mount reconcile blames PayPal for it.
+								// PayPal reads a profile tax back with no value, so a leftover rate
+								// makes the next mount report a change that never happened.
 								onChange={ value =>
 									setAttributes(
 										'profile' === value
@@ -965,8 +961,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 										onChange={ value => setAttributes( { taxType: value } ) }
 										disabled={ isBusy }
 									/>
-									{ /* One label for both types - the % or currency symbol sits in the
-									     suffix. A flat amount has no ceiling, so max is percentage-only. */ }
 									<AmountField
 										label={ __( 'Tax rate', 'jetpack-paypal-payments' ) }
 										value={ taxValue }

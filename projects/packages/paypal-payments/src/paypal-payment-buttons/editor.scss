@@ -303,23 +303,25 @@
 // class carries the namespace instead. editor.css loads on every editor screen.
 .jetpack-paypal-payment-buttons__has-error {
 
-	// The help slot carries the error message while the class is on, so colour it
-	// here rather than per field - every validated control in this form uses both.
+	// Every validated control here puts its error in the help slot, so one rule
+	// covers all of them.
 	.components-base-control__help {
 		align-items: flex-start;
 		color: #cc1818;
 		display: flex;
 		gap: 4px;
+		line-height: 1.4;
 
 		&::before {
 			background-color: currentColor;
 			content: "";
 			flex: 0 0 auto;
-			height: 16px;
+			height: 1.4em;
 			mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3.2 1.5 21h21L12 3.2zm0 3.9 7 11.9H5l7-11.9zM11 11v4h2v-4h-2zm0 5v2h2v-2h-2z'/%3E%3C/svg%3E");
 			mask-repeat: no-repeat;
-			mask-size: 16px 16px;
-			width: 16px;
+			mask-position: center;
+			mask-size: 14px 14px;
+			width: 14px;
 		}
 	}
 
@@ -333,32 +335,14 @@
 		}
 	}
 
-	// SelectControl's own <select> is `border: none`, so coloring it paints
-	// nothing - the border you see is the backdrop, same as URLInput below.
-	// Compound, not descendant: the error class lands on the same element as
-	// components-select-control, so a space between them matches nothing.
-	&.components-select-control .components-input-control__container {
+	// AmountField is deliberately absent - the design keeps an amount
+	// field's border grey and says it with the message alone. The class
+	// lands on SelectControl's own root, so that one is compound, while
+	// URLInput sits in a wrapper we add, so it is a descendant.
+	&.components-select-control,
+	.components-input-control {
 
-		.components-input-control__backdrop {
-			border-color: #cc1818;
-		}
-	}
-
-	// AmountField hands className to InputControl, which puts it on its
-	// own root - so compound, like the select above, not a descendant.
-	&.components-input-control .components-input-control__container {
-
-		.components-input-control__backdrop {
-			border-color: #cc1818;
-		}
-	}
-
-	// URLInput builds on InputControl, which draws its border on a backdrop
-	// behind the input. Core's emotion class repeats itself three times, so
-	// naming the backdrop alone loses - walk its structure to out-specify it.
-	.components-input-control .components-input-control__container {
-
-		.components-input-control__backdrop {
+		.components-input-control__container .components-input-control__backdrop {
 			border-color: #cc1818;
 		}
 	}

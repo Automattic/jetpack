@@ -47,7 +47,7 @@ export default function AmountField( {
 		<InputControl
 			label={ label }
 			value={ value || '' }
-			// InputControl hands back undefined on an emptied field where TextControl gives ''.
+			// onChange is typed string | undefined; 40.0.0 coerces to '' before calling.
 			onChange={ next => onChange( next ?? '' ) }
 			type="number"
 			step={ step }
