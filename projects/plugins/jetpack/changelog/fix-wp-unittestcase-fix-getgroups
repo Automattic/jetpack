@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Tests only: Sync WP_UnitTestCase_Fix with wpcomsh. Fix isn't needed here, but keeping the copies in sync is good.
+

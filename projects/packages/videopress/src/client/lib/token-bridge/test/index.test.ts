@@ -98,6 +98,25 @@ describe( 'tokenBridgeHandler', () => {
 		expect( mockGetMediaToken ).not.toHaveBeenCalled();
 	} );
 
+	it( 'accepts a same-window request from an inline player on the page origin', async () => {
+		mockGetMediaToken.mockResolvedValue( { token: 'jwt-inline' } );
+		const postMessage = jest.spyOn( window, 'postMessage' ).mockImplementation( () => {} );
+		const event = createMessageEvent( {
+			data: validData,
+			origin: window.location.origin,
+			source: window as unknown as { postMessage: jest.Mock },
+		} );
+
+		await tokenBridgeHandler( event );
+
+		expect( mockGetMediaToken ).toHaveBeenCalled();
+		expect( postMessage ).toHaveBeenCalledWith(
+			expect.objectContaining( { event: 'videopress_token_received', jwt: 'jwt-inline' } ),
+			{ targetOrigin: window.location.origin }
+		);
+		postMessage.mockRestore();
+	} );
+
 	it( 'rejects messages missing guid', async () => {
 		const source = { postMessage: jest.fn() };
 		const event = createMessageEvent( {

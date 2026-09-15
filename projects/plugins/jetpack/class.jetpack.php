@@ -912,7 +912,7 @@ class Jetpack {
 	 * Deliberately not behind is_premium_analytics_enabled(): this is the setting that flips that
 	 * check, so it has to answer while the dashboard is still off.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @return void
 	 */
@@ -4258,7 +4258,7 @@ p {
 	/**
 	 * Build the user-facing description stored alongside a registration error code.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @param string $error_code The WP_Error code.
 	 * @param string $message    The WP_Error message.

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Connection\Protected_Owner;
 use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Constants;
@@ -617,6 +619,42 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		// don't demote user if the user one the only admin that is connected.
 		Users::maybe_demote_master_user( $new_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote user if the user is the only connected user.' );
+	}
+
+	/**
+	 * A locked protected owner anchor does not stop a demoted owner being replaced.
+	 *
+	 * The anchor names a WordPress.com identity and `master_user` is a local pointer at it, so
+	 * the two are allowed to diverge: the predicates consumers gate on report the mismatch, and
+	 * the promote-on-connect hook realigns them.
+	 */
+	public function test_a_locked_anchor_does_not_stop_a_demoted_owner_being_replaced() {
+		$demoted_id     = self::factory()->user->create( array( 'user_login' => 'anchored_master' ) );
+		$replacement_id = self::factory()->user->create( array( 'user_login' => 'anchored_replacement' ) );
+
+		get_user_by( 'id', $demoted_id )->set_role( 'administrator' );
+		get_user_by( 'id', $replacement_id )->set_role( 'administrator' );
+
+		Jetpack_Options::update_option( 'master_user', $demoted_id );
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$demoted_id     => 'apple.a.' . $demoted_id,
+				$replacement_id => 'kiwi.a.' . $replacement_id,
+			)
+		);
+		Protected_Owner::set( 4242, $demoted_id, 'popup' );
+		Utils::set_wpcom_user_id( $demoted_id, 4242 );
+
+		// Without the binding the gate falls back to a WordPress.com lookup and answers false,
+		// which would let a guard keyed on it pass this test without ever firing.
+		$this->assertTrue( ( new Jetpack_Connection() )->has_protected_owner(), 'Test setup: the owner should be protected.' );
+
+		get_user_by( 'id', $demoted_id )->set_role( 'author' );
+		Users::maybe_demote_master_user( $demoted_id );
+
+		$this->assertEquals( $replacement_id, Jetpack_Options::get_option( 'master_user' ) );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor outlives the pointer moving.' );
 	}
 
 	public function test_returns_user_object_by_id() {

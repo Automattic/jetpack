@@ -110,12 +110,28 @@ describe( 'computeDateRangeFromPreset', () => {
 		expect( range!.to ).toBe( toSiteISO( TODAY_END ) );
 	} );
 
+	it( 'returns the running calendar month through the end of today for "month-to-date"', () => {
+		const range = computeDateRangeFromPreset( 'month-to-date' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toSiteISO( startOfMonth( TODAY_START, { in: UTC } ) ) );
+		expect( range!.to ).toBe( toSiteISO( TODAY_END ) );
+	} );
+
 	it( 'returns last calendar month for "last-month"', () => {
 		const range = computeDateRangeFromPreset( 'last-month' );
 
 		expect( range ).toBeDefined();
 		expect( range!.from ).toBe( toSiteISO( startOfMonth( LAST_MONTH, { in: UTC } ) ) );
 		expect( range!.to ).toBe( toSiteISO( endOfMonth( LAST_MONTH, { in: UTC } ) ) );
+	} );
+
+	it( 'returns the running calendar year through the end of today for "year-to-date"', () => {
+		const range = computeDateRangeFromPreset( 'year-to-date' );
+
+		expect( range ).toBeDefined();
+		expect( range!.from ).toBe( toSiteISO( startOfYear( TODAY_START, { in: UTC } ) ) );
+		expect( range!.to ).toBe( toSiteISO( TODAY_END ) );
 	} );
 
 	it( 'returns twelve whole calendar months ending today for "last-12-months"', () => {

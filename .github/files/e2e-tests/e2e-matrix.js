@@ -45,6 +45,13 @@ const projects = [
 		buildGroup: 'jetpack-boost',
 	},
 	{
+		project: 'Jetpack Boost - Dashboard Modernization',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/modernization' ],
+		targets: [ 'plugins/boost' ],
+		buildGroup: 'jetpack-boost',
+	},
+	{
 		project: 'Jetpack Boost - Modules',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/modules' ],

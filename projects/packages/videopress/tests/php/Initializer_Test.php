@@ -37,6 +37,7 @@ class Initializer_Test extends BaseTestCase {
 		parent::tear_down();
 		unset( $GLOBALS['post'] );
 		delete_option( 'videopress_player_preload_disabled' );
+		delete_option( 'videopress_inline_player_enabled' );
 	}
 
 	/**
@@ -124,6 +125,84 @@ class Initializer_Test extends BaseTestCase {
 		$html = $this->render( array( 'preload' => 'metadata' ) );
 		$this->assertStringContainsString( 'preloadContent=none', $html );
 		$this->assertStringNotContainsString( 'preloadContent=metadata', $html );
+	}
+
+	/**
+	 * Tests that the inline player replaces the iframe when the site turns it on.
+	 *
+	 * Runs in a separate process: rendering the inline player loads Jwt_Token_Bridge,
+	 * which Uploader_Test replaces with an alias mock that needs the class unloaded.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_block_renders_inline_player_when_enabled() {
+		update_option( 'videopress_inline_player_enabled', true );
+
+		$html = $this->render(
+			array(
+				'muted'      => true,
+				'videoRatio' => 75,
+			)
+		);
+
+		$this->assertStringNotContainsString( '<iframe', $html );
+		$this->assertStringContainsString( 'jetpack-videopress-player__wrapper', $html );
+		$this->assertStringContainsString( 'data-videopress-guid="testGUID1"', $html );
+		$this->assertStringContainsString( '&quot;muted&quot;:true', $html );
+		$this->assertStringContainsString( 'aspect-ratio:100 / 75', $html );
+		$this->assertTrue( wp_script_is( 'videopress-inline-player', 'enqueued' ) );
+	}
+
+	/** Tests that preview on hover keeps the iframe, since it drives the player through the iframe API. */
+	public function test_block_keeps_iframe_for_preview_on_hover() {
+		update_option( 'videopress_inline_player_enabled', true );
+
+		$html = $this->render(
+			array(
+				'posterData' => array(
+					'previewOnHover'      => true,
+					'previewAtTime'       => 0,
+					'previewLoopDuration' => 3,
+				),
+			)
+		);
+
+		$this->assertStringContainsString( '<iframe', $html );
+		$this->assertStringNotContainsString( 'data-videopress-guid', $html );
+	}
+
+	/**
+	 * Tests that VideoPress oEmbeds become inline players and skip the remote fetch when enabled.
+	 *
+	 * Runs in a separate process for the same Jwt_Token_Bridge reason as the block test above.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_oembed_filters_render_inline_player_when_enabled() {
+		$url    = 'https://videopress.com/v/abcDEF12?preloadContent=none&amp;muted=1';
+		$iframe = '<iframe src="https://videopress.com/embed/abcDEF12"></iframe>';
+
+		$this->assertNull( VideoPress_Initializer::maybe_pre_oembed_inline_player( null, $url ) );
+		$this->assertSame( $iframe, VideoPress_Initializer::maybe_render_oembed_inline_player( $iframe, $url, array(), 0 ) );
+
+		update_option( 'videopress_inline_player_enabled', true );
+
+		$pre = VideoPress_Initializer::maybe_pre_oembed_inline_player( null, $url );
+		$this->assertStringContainsString( 'data-videopress-guid="abcDEF12"', $pre );
+		$this->assertStringContainsString( '&quot;preloadContent&quot;:&quot;none&quot;', $pre );
+		$this->assertStringContainsString( '&quot;muted&quot;:true', $pre );
+
+		$this->assertStringContainsString( 'data-videopress-guid="abcDEF12"', VideoPress_Initializer::maybe_render_oembed_inline_player( $iframe, $url, array(), 0 ) );
+
+		// Anything that is not a VideoPress video, or not an iframe, is left alone.
+		$this->assertNull( VideoPress_Initializer::maybe_pre_oembed_inline_player( null, 'https://www.youtube.com/watch?v=abc' ) );
+		$this->assertFalse( VideoPress_Initializer::maybe_render_oembed_inline_player( false, $url, array(), 0 ) );
 	}
 
 	/** Tests that the fallback filter is cleaned up after rendering. */

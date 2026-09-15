@@ -80,7 +80,11 @@ class Admin {
 			'manage_options',
 			JETPACK_BOOST_SLUG,
 			$this->modern_dashboard_loaded ? 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' : array( $this, 'render_settings' ),
-			2
+			null,
+			array(
+				'product' => 'boost',
+				'key'     => 'jetpack-boost',
+			)
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 	}
@@ -92,7 +96,7 @@ class Admin {
 		/**
 		 * Enable the modern Boost dashboard.
 		 *
-		 * @since $$next-version$$
+		 * @since 4.7.1
 		 * @param bool $enabled Whether to enable the modern dashboard. Default false.
 		 */
 		if ( ! apply_filters( self::MODERNIZATION_FILTER, false ) || ! is_admin() ) {

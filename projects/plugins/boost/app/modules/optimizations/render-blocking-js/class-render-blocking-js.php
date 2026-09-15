@@ -215,6 +215,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 
 		// Handle exclusions.
 		add_filter( 'script_loader_tag', array( $this, 'handle_exclusions' ), 10, 2 );
+		add_filter( 'js_do_concat', array( $this, 'should_concatenate' ), 10, 2 );
 
 		$this->output_filter->add_callback( array( $this, 'handle_output_stream' ) );
 	}
@@ -462,6 +463,23 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	}
 
 	/**
+	 * Handles that must keep their place in the document, as provided by
+	 * `jetpack_boost_render_blocking_js_exclude_handles`.
+	 *
+	 * @return array
+	 */
+	private function get_exclude_handles() {
+		/**
+		 * Filter to provide an array of registered script handles that should not be moved to the end of the document.
+		 *
+		 * @param array $script_handles array of script handles. Remove any scripts that should not be moved to the end of the documents.
+		 *
+		 * @since   1.0.0
+		 */
+		return (array) apply_filters( 'jetpack_boost_render_blocking_js_exclude_handles', array() );
+	}
+
+	/**
 	 * Exclude certain scripts from being processed by this class.
 	 *
 	 * @param string $tag    <script> opening tag.
@@ -470,20 +488,31 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 * @return string
 	 */
 	public function handle_exclusions( $tag, $handle ) {
-		/**
-		 * Filter to provide an array of registered script handles that should not be moved to the end of the document.
-		 *
-		 * @param array $script_handles array of script handles. Remove any scripts that should not be moved to the end of the documents.
-		 *
-		 * @since   1.0.0
-		 */
-		$exclude_handles = apply_filters( 'jetpack_boost_render_blocking_js_exclude_handles', array() );
-
-		if ( ! in_array( $handle, $exclude_handles, true ) ) {
+		if ( ! in_array( $handle, $this->get_exclude_handles(), true ) ) {
 			return $tag;
 		}
 
 		return $this->add_ignore_attribute( $tag );
+	}
+
+	/**
+	 * Whether Minify JS may concatenate a script, given the handles excluded from deferral.
+	 *
+	 * Concatenated scripts share one <script> tag, but handle_exclusions() marks a script's own
+	 * tag - a concatenated script has none to mark, so this module would move it.
+	 *
+	 * @param mixed  $do_concat Whether the script may be concatenated, as left by earlier filters.
+	 * @param string $handle    Script handle from register_ or enqueue_ methods.
+	 *
+	 * @return mixed False when this module vetoes, otherwise $do_concat unchanged.
+	 */
+	public function should_concatenate( $do_concat, $handle ) {
+		if ( $do_concat && in_array( $handle, $this->get_exclude_handles(), true ) ) {
+			return false;
+		}
+
+		// Not a fresh boolean: Concatenate_JS concatenates only on `true === $do_concat`.
+		return $do_concat;
 	}
 
 	/**

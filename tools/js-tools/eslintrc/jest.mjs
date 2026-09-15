@@ -1,14 +1,8 @@
-import { fixupPluginRules } from '@eslint/compat';
 import eslintPluginJest from 'eslint-plugin-jest';
 import eslintPluginJestDom from 'eslint-plugin-jest-dom';
 import eslintPluginTestingLibrary from 'eslint-plugin-testing-library';
 import globals from 'globals';
 import { defineConfig, javascriptFiles } from './base.mjs';
-
-// https://github.com/testing-library/eslint-plugin-jest-dom/issues/418
-eslintPluginJestDom.configs[ 'flat/recommended' ].plugins[ 'jest-dom' ] = fixupPluginRules(
-	eslintPluginJestDom.configs[ 'flat/recommended' ].plugins[ 'jest-dom' ]
-);
 
 export default defineConfig(
 	{

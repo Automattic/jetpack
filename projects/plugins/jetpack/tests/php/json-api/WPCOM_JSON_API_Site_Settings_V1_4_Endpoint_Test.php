@@ -604,6 +604,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_default_country'      => array( 'woocommerce_default_country', '' ),
 			'woocommerce_store_postcode'       => array( 'woocommerce_store_postcode', '' ),
 			'woocommerce_onboarding_profile'   => array( 'woocommerce_onboarding_profile', array() ),
+			'verification_services_codes'      => array( 'verification_services_codes', null ),
 			'supports_free_tier_customization' => array( 'supports_free_tier_customization', true ),
 			// With no free tier description set, the rendered value is an empty string.
 			'free_tier_description_rendered'   => array( 'free_tier_description_rendered', '' ),
@@ -645,6 +646,16 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', 'woocommerce_default_country', 'US:NY' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', 'woocommerce_store_postcode', '98738' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
+			'verification_services_codes'    => array(
+				'verification_services_codes',
+				'verification_services_codes',
+				array(
+					'google'    => 'google-test-code',
+					'bing'      => 'bing-test-code',
+					'pinterest' => 'pinterest-test-code',
+					'yandex'    => 'yandex-test-code',
+				),
+			),
 			// Add MCP settings GET test
 			'mcp_abilities'                  => array(
 				'mcp_abilities',        // option name

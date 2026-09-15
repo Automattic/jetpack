@@ -1,3 +1,4 @@
+import { TZDate } from '@date-fns/tz';
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
 import { render, screen, within } from '@testing-library/react';
@@ -6,8 +7,8 @@ import { DateFiltersPanel } from '../date-filters-panel';
 import type { ComponentProps } from 'react';
 
 const PRESET_RANGE = {
-	from: new Date( '2026-07-01T00:00:00.000Z' ),
-	to: new Date( '2026-07-30T23:59:59.999Z' ),
+	from: new TZDate( '2026-07-01T00:00:00.000Z', 'UTC' ),
+	to: new TZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 };
 
 function panel( props: Partial< ComponentProps< typeof DateFiltersPanel > > = {} ) {
@@ -43,32 +44,6 @@ describe( 'DateFiltersPanel', () => {
 		expect( screen.queryByRole( 'button', { name: 'Compare' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'steps the applied window from the navigation arrows', async () => {
-		const onStep = jest.fn();
-		const user = userEvent.setup();
-
-		// A window whose next one has fully happened, so both arrows render.
-		renderPanel( {
-			onStep,
-			appliedRange: {
-				from: new Date( '2020-07-01T00:00:00.000Z' ),
-				to: new Date( '2020-07-30T23:59:59.999Z' ),
-			},
-		} );
-
-		await user.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
-		expect( onStep ).toHaveBeenCalledWith( 'previous' );
-
-		await user.click( screen.getByRole( 'button', { name: 'Next period' } ) );
-		expect( onStep ).toHaveBeenCalledWith( 'next' );
-	} );
-
-	it( 'renders no period navigation without onStep', () => {
-		renderPanel();
-
-		expect( screen.queryByRole( 'button', { name: 'Previous period' } ) ).not.toBeInTheDocument();
-	} );
-
 	// The comparison qualifies the range the presets just set; the interval only
 	// buckets the charts. Reading order follows that, so it is worth pinning.
 	it( 'places the comparison before the chart interval', () => {
@@ -91,8 +66,8 @@ describe( 'DateFiltersPanel', () => {
 	// different ranges on screen at once (WOOA7S-1936).
 	it( 'names the applied preset on the trigger once one takes over', () => {
 		const customRange = {
-			from: new Date( '2026-01-30T00:00:00.000Z' ),
-			to: new Date( '2026-08-05T23:59:59.999Z' ),
+			from: new TZDate( '2026-01-30T00:00:00.000Z', 'UTC' ),
+			to: new TZDate( '2026-08-05T23:59:59.999Z', 'UTC' ),
 		};
 
 		const { rerender } = renderPanel( {
@@ -116,11 +91,10 @@ describe( 'DateFiltersPanel', () => {
 		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the detail surface: all time offered, no custom range', async () => {
+	it( 'renders the detail surface: every period, plus all time and a custom range', async () => {
 		const user = userEvent.setup();
 		renderPanel( {
 			presetIds: DETAIL_SURFACE_PRESETS,
-			withCustomRange: false,
 			appliedPresetId: 'all-time',
 		} );
 
@@ -131,7 +105,19 @@ describe( 'DateFiltersPanel', () => {
 			within( menu )
 				.getAllByRole( 'menuitemradio' )
 				.map( item => item.textContent )
-		).toEqual( [ 'Last 24 hours', 'Last 7 days', 'Last 30 days', 'Last 12 months', 'All time' ] );
+		).toEqual( [
+			'Today',
+			'Yesterday',
+			'Last 24 hours',
+			'Last 7 days',
+			'Last 30 days',
+			'Month to date',
+			'Last month',
+			'Year to date',
+			'Last 12 months',
+			'All time',
+			'Custom range',
+		] );
 		expect( screen.getByRole( 'menuitemradio', { name: 'All time' } ) ).toBeChecked();
 	} );
 
@@ -142,8 +128,8 @@ describe( 'DateFiltersPanel', () => {
 		// `last-12-months` as read on 20 August 2026. Measured by the day, the
 		// previous period would start on 12 September 2024.
 		const toDateRange = {
-			from: new Date( '2025-09-01T00:00:00.000Z' ),
-			to: new Date( '2026-08-20T23:59:59.999Z' ),
+			from: new TZDate( '2025-09-01T00:00:00.000Z', 'UTC' ),
+			to: new TZDate( '2026-08-20T23:59:59.999Z', 'UTC' ),
 		};
 		renderPanel( {
 			appliedPresetId: 'last-12-months',
@@ -157,8 +143,8 @@ describe( 'DateFiltersPanel', () => {
 
 		expect( onComparisonChange ).toHaveBeenCalledWith(
 			{
-				from: new Date( '2024-09-01T00:00:00.000Z' ),
-				to: new Date( '2025-08-20T23:59:59.999Z' ),
+				from: new TZDate( '2024-09-01T00:00:00.000Z', 'UTC' ),
+				to: new TZDate( '2025-08-20T23:59:59.999Z', 'UTC' ),
 			},
 			'previous-period'
 		);
@@ -167,20 +153,15 @@ describe( 'DateFiltersPanel', () => {
 	it( 'greys every control out while disabled', () => {
 		renderPanel( {
 			disabled: true,
-			onStep: jest.fn(),
-			appliedRange: {
-				from: new Date( '2020-07-01T00:00:00.000Z' ),
-				to: new Date( '2020-07-30T23:59:59.999Z' ),
-			},
 			withIntervalControl: true,
 			intervalOptions: [ 'day', 'week' ],
 			interval: 'day',
 			onIntervalChange: jest.fn(),
 		} );
 
-		// Both arrows, the period, the comparison and the interval.
+		// The period, the comparison and the interval.
 		const buttons = screen.getAllByRole( 'button' );
-		expect( buttons ).toHaveLength( 5 );
+		expect( buttons ).toHaveLength( 3 );
 		buttons.forEach( button => {
 			expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 		} );

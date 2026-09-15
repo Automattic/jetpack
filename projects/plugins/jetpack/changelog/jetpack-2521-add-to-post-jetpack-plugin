@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Fix "Add to a post or page" opening an empty editor instead of inserting the selected video block.

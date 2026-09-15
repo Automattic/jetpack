@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Map block: Ensure the WordPress.com Mapbox key load tracking event is recorded on Simple sites.

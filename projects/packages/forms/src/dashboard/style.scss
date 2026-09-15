@@ -1,10 +1,12 @@
 @use "@automattic/jetpack-base-styles/root-variables";
+@use "./forms-vars";
 
+// Legacy-only. wp-build reads just three of these, and defining them would
+// change what renders: white-off and darker-20 would shadow WPDS fallbacks,
+// and the backdrop would sink the file-preview overlay under the admin bar.
 :root {
 	// Forms-specific variables
 	--jp-forms-font-size-regular: 14px;
-	--jp-forms-border-color: #dcdcde;
-	--jp-forms-border-radius: var(--jp-border-radius, 4px);
 	--jp-forms-white: var(--jp-white, #fff);
 	--jp-forms-white-off: var(--jp-white-off, #f9f9f6);
 	--jp-forms-input-wrapper-height: var(--jp-input-wrapper-height, 40px);

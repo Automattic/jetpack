@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { computePrimaryRange, getQuickSurfacePresets } from '../presets';
-import { DETAIL_SURFACE_PRESETS, PRESET_ALL_TIME, QUICK_SURFACE_PRESETS } from '../presets/types';
+import { PRESET_ALL_TIME, QUICK_SURFACE_PRESETS } from '../presets/types';
 import { dateToISOStringWithTZ } from '../tz';
 
 // A zone ahead of UTC, so a naive (UTC) day boundary would land on the wrong
@@ -36,19 +36,9 @@ describe( 'quick surface presets', () => {
 		] );
 	} );
 
-	it( 'leads the detail surface with all time, in the designed order', () => {
-		expect( DETAIL_SURFACE_PRESETS ).toEqual( [ PRESET_ALL_TIME, ...QUICK_SURFACE_PRESETS ] );
-
-		expect(
-			getQuickSurfacePresets( TIME_ZONE, { presetIds: DETAIL_SURFACE_PRESETS } ).map(
-				preset => preset.label
-			)
-		).toEqual( [ 'All time', 'Last 24 hours', 'Last 7 days', 'Last 30 days', 'Last 12 months' ] );
-	} );
-
 	it( 'anchors all time on the site-local start of the given day, through the end of today', () => {
 		const [ allTime ] = getQuickSurfacePresets( TIME_ZONE, {
-			presetIds: DETAIL_SURFACE_PRESETS,
+			presetIds: [ PRESET_ALL_TIME ],
 			startDate: PUBLISHED,
 		} );
 
@@ -69,7 +59,7 @@ describe( 'quick surface presets', () => {
 	} );
 
 	it( 'falls back to the year surface span without an anchor', () => {
-		const [ allTime ] = getQuickSurfacePresets( TIME_ZONE, { presetIds: DETAIL_SURFACE_PRESETS } );
+		const [ allTime ] = getQuickSurfacePresets( TIME_ZONE, { presetIds: [ PRESET_ALL_TIME ] } );
 
 		expect( allTime.range ).toEqual( computePrimaryRange( PRESET_ALL_TIME, TIME_ZONE ) );
 		// Years back, not the day the test pinned.

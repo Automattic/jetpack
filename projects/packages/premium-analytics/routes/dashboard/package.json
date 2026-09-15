@@ -6,7 +6,6 @@
 		"page": "jetpack-premium-analytics"
 	},
 	"dependencies": {
-		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-premium-analytics/data": "workspace:*",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
@@ -14,6 +13,7 @@
 		"@jetpack-premium-analytics/routing": "workspace:*",
 		"@jetpack-premium-analytics/site-sync": "workspace:*",
 		"@jetpack-premium-analytics/ui": "workspace:*",
+		"@jetpack-premium-analytics/widgets-toolkit": "workspace:*",
 		"@wordpress/admin-ui": "2.9.0",
 		"@wordpress/api-fetch": "7.54.0",
 		"@wordpress/components": "40.0.0",
@@ -31,8 +31,8 @@
 		"react": "18.3.1"
 	},
 	"devDependencies": {
-		"@tanstack/react-query": "5.101.2",
-		"@testing-library/react": "16.3.2",
-		"@testing-library/user-event": "14.6.1"
+		"@tanstack/react-query": "5.102.8",
+		"@testing-library/react": "16.3.3",
+		"@testing-library/user-event": "14.6.7"
 	}
 }
