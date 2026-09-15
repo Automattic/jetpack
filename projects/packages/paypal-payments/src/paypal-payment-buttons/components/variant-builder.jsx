@@ -526,7 +526,7 @@ export default function VariantBuilder( {
 					? {
 							...opt,
 							unit_amount: opt.unit_amount || { currency_code: currencyCode, value: '' },
-					  }
+						}
 					: withoutAmount( opt )
 			),
 		} ) );
@@ -542,7 +542,7 @@ export default function VariantBuilder( {
 					/* translators: %d: variant number */
 					__( 'Prices are set on variant %d.', 'jetpack-paypal-payments' ),
 					primaryIndex + 1
-			  )
+				)
 			: helpPricingFirstGroup;
 
 	const addGroup = () => {

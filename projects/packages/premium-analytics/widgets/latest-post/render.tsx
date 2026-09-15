@@ -48,7 +48,7 @@ function LatestPostReport() {
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
 				},
-		  ]
+			]
 		: [];
 
 	return (

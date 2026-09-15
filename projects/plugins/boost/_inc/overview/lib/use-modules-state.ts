@@ -156,8 +156,8 @@ export function useScoreRefreshState( modules?: ModulesState ): ScoreRefreshStat
 	return {
 		config: JSON.stringify( [
 			moduleStates,
-			cssEnabled ? css.data?.updated ?? 0 : 0,
-			lcpEnabled ? lcp.data?.updated ?? 0 : 0,
+			cssEnabled ? ( css.data?.updated ?? 0 ) : 0,
+			lcpEnabled ? ( lcp.data?.updated ?? 0 ) : 0,
 		] ),
 		isPending,
 	};

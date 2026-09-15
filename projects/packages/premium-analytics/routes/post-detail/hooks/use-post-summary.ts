@@ -89,15 +89,13 @@ export function usePostSummary( postId: number ): PostSummary {
 			};
 
 			const entity = core.getEntityRecord( 'postType', type, postId ) as
-				| { featured_media?: number }
-				| undefined;
+				{ featured_media?: number } | undefined;
 			if ( ! entity?.featured_media ) {
 				return undefined;
 			}
 
 			const media = core.getEntityRecord( 'postType', 'attachment', entity.featured_media ) as
-				| MediaEntity
-				| undefined;
+				MediaEntity | undefined;
 
 			return media?.media_details?.sizes?.thumbnail?.source_url ?? media?.source_url ?? undefined;
 		},
@@ -117,8 +115,7 @@ export function usePostSummary( postId: number ): PostSummary {
 			};
 
 			const entity = core.getEntityRecord( 'postType', type, postId ) as
-				| { link?: string }
-				| undefined;
+				{ link?: string } | undefined;
 
 			return entity?.link;
 		},

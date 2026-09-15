@@ -31,7 +31,7 @@ const StylePreview = ( { attributes, styleOption, viewportWidth, blockName } ) =
 					? getBlockFromExample( blockName, {
 							attributes: { ...type.example.attributes, style: styleOption.value },
 							innerBlocks: type.example.innerBlocks,
-					  } )
+						} )
 					: createBlock( blockName, attributes )
 			) }
 		/>
@@ -109,7 +109,7 @@ export default function BlockStylesSelector( {
 														attributes={ optionAttributes }
 														viewportWidth={ viewportWidth }
 													/>
-											  ) }
+												) }
 									</div>
 									<div className="block-editor-block-styles__item-label">{ styleOption.label }</div>
 								</div>

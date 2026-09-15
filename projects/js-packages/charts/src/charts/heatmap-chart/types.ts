@@ -45,8 +45,10 @@ export type HeatmapTooltipData = {
 	column: number;
 };
 
-export interface HeatmapChartProps
-	extends Omit< BaseChartProps< HeatmapColumn[] >, 'showLegend' | 'legend' | 'gridVisibility' > {
+export interface HeatmapChartProps extends Omit<
+	BaseChartProps< HeatmapColumn[] >,
+	'showLegend' | 'legend' | 'gridVisibility'
+> {
 	/** y-axis labels by row index. Empty entries render blank. */
 	rowLabels?: string[];
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */

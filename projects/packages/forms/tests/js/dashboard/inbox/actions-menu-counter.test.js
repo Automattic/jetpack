@@ -6,9 +6,8 @@ import { describe, expect, it, jest, beforeEach, afterEach } from '@jest/globals
 /**
  * Internal dependencies
  */
-const { processStatusChange } = await import(
-	'../../../../src/dashboard/inbox/stage/process-status-change.ts'
-);
+const { processStatusChange } =
+	await import( '../../../../src/dashboard/inbox/stage/process-status-change.ts' );
 
 const FORMS_MENU_BADGE_SLUG = 'jetpack-forms-responses-wp-admin';
 

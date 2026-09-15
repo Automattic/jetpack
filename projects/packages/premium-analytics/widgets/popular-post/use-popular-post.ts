@@ -155,7 +155,7 @@ export function usePopularPost(): UsePopularPostResult {
 				views: metrics?.views,
 				likeCount: metrics?.like_count,
 				commentCount: metrics?.post?.comment_count,
-		  }
+			}
 		: null;
 
 	return {

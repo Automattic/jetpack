@@ -161,7 +161,7 @@ export default function HistoryChartCard( {
 			: Math.min(
 					firstTimestamp - ( data?.periods.length === 1 ? 12 * 60 * 60 * 1000 : 0 ),
 					dayBeforeEndDate
-			  );
+				);
 	const renderTooltip = useCallback<
 		NonNullable< ComponentProps< typeof LineChart >[ 'renderTooltip' ] >
 	>(

@@ -542,8 +542,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 		it( 'should call editPost with featured_media when onImageSelect is called', () => {
 			let capturedOnImageSelect:
-				| ( ( image: { id: number; url: string; mime?: string } ) => void )
-				| null = null;
+				( ( image: { id: number; url: string; mime?: string } ) => void ) | null = null;
 
 			( applyFilters as jest.Mock ).mockImplementation(
 				(

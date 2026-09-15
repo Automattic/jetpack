@@ -229,8 +229,7 @@ export const NoEmailSelected: Story = {
 };
 
 interface EmailTimeSeriesDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		EmailTimeSeriesStoryControls {}
+	extends WidgetDashboardWithWidgetControls, EmailTimeSeriesStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard`. It passes comparison params

@@ -88,7 +88,7 @@ setCategories(
 					...category,
 					title: __( 'Search', 'jetpack-search-pkg' ),
 					icon: <JetpackLogo showText={ false } height={ 24 } width={ 24 } />,
-			  }
+				}
 			: category
 	)
 );

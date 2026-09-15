@@ -139,7 +139,7 @@ const getGenericErrorMessage = ( numberOfErrors: number ): string => {
 					'jetpack-forms'
 				),
 				numberOfErrors
-		  );
+			);
 };
 
 /*
@@ -236,7 +236,7 @@ export const markAsSpamAction: Action = {
 						'jetpack-forms'
 					),
 					items.length
-			  );
+				);
 
 		createInfoNotice( busyMessage, {
 			type: 'snackbar',
@@ -284,7 +284,7 @@ export const markAsSpamAction: Action = {
 									'jetpack-forms'
 								),
 								items.length
-						  );
+							);
 
 				if ( ! isUndo ) {
 					createSuccessNotice( successMessage, {
@@ -377,7 +377,7 @@ export const markAsNotSpamAction: Action = {
 						'jetpack-forms'
 					),
 					items.length
-			  );
+				);
 
 		createInfoNotice( busyMessage, {
 			type: 'snackbar',
@@ -421,7 +421,7 @@ export const markAsNotSpamAction: Action = {
 									'jetpack-forms'
 								),
 								items.length
-						  );
+							);
 
 				if ( ! isUndo ) {
 					createSuccessNotice( successMessage, {
@@ -507,7 +507,7 @@ export const restoreAction: Action = {
 					/* translators: %d: the number of responses. */
 					_n( 'Restoring %d response…', 'Restoring %d responses…', items.length, 'jetpack-forms' ),
 					items.length
-			  );
+				);
 
 		createInfoNotice( busyMessage, {
 			type: 'snackbar',
@@ -550,7 +550,7 @@ export const restoreAction: Action = {
 									'jetpack-forms'
 								),
 								items.length
-						  );
+							);
 
 				if ( ! isUndo ) {
 					createSuccessNotice( successMessage, {
@@ -638,7 +638,7 @@ export const moveToTrashAction: Action = {
 						'jetpack-forms'
 					),
 					items.length
-			  );
+				);
 
 		createInfoNotice( busyMessage, {
 			type: 'snackbar',
@@ -686,7 +686,7 @@ export const moveToTrashAction: Action = {
 									'jetpack-forms'
 								),
 								items.length
-						  );
+							);
 
 				if ( ! isUndo ) {
 					// Reload the items to the store, as they were removed from the store when moved to trash
@@ -799,7 +799,7 @@ export const deleteAction: Action = {
 								'jetpack-forms'
 							),
 							items.length
-					  );
+						);
 
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
 
@@ -926,7 +926,7 @@ export const markAsReadAction: Action = {
 								'jetpack-forms'
 							),
 							items.length
-					  );
+						);
 
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
@@ -1037,7 +1037,7 @@ export const markAsUnreadAction: Action = {
 								'jetpack-forms'
 							),
 							items.length
-					  );
+						);
 
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',

@@ -585,7 +585,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 										__( '%1$d / %2$d characters', 'jetpack-paypal-payments' ),
 										( productName || '' ).length,
 										MAX_NAME_LENGTH
-								  )
+									)
 						}
 						className={
 							touchedFields.productName && validationErrors.productName
@@ -827,11 +827,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 										/* translators: %d: number of custom fields */
 										__( '%d custom field(s) configured.', 'jetpack-paypal-payments' ),
 										customerNotes.length
-								  )
+									)
 								: __(
 										'Add fields for gift messages, personalization, etc.',
 										'jetpack-paypal-payments'
-								  )
+									)
 						}
 						checked={ customerNotes?.length > 0 }
 						onChange={ value => {

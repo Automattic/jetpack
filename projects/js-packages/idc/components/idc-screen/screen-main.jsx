@@ -63,7 +63,7 @@ const ScreenMain = props => {
 								em: <em />,
 								strong: <strong />,
 							}
-					  )
+						)
 					: createInterpolateElement(
 							customContent.mainBodyTextDev ||
 								sprintf(
@@ -91,7 +91,7 @@ const ScreenMain = props => {
 									/>
 								),
 							}
-					  ) }
+						) }
 			</p>
 
 			{ possibleDynamicSiteUrlDetected && (

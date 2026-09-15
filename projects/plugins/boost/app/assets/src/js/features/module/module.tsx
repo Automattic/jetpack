@@ -130,7 +130,7 @@ const Module = ( {
 								checked: isModuleActive || isFakeActive,
 								disabled: ! isModuleAvailable,
 								onChange: handleToggle,
-						  }
+							}
 						: undefined
 				}
 			>

@@ -63,7 +63,7 @@ export default function AdvancedCriticalCss() {
 			: __(
 					'While Jetpack Boost has been able to automatically generate optimized CSS for most of your important files & sections, we have identified a few more that require your attention.',
 					'jetpack-boost'
-			  );
+				);
 
 	const showDismissedIssues = () => {
 		setDismissed(
@@ -199,7 +199,7 @@ const SingleRecommendation = ( {
 							dismissed: true,
 						},
 					] );
-			  }
+				}
 			: undefined,
 	} );
 

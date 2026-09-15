@@ -45,7 +45,7 @@ const ResponseViewBody = ( {
 	response,
 	isLoading,
 	onModalStateChange,
-}: ResponseViewBodyProps ): import('react').JSX.Element => {
+}: ResponseViewBodyProps ): import( 'react' ).JSX.Element => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState< { url: string; name: string } | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );

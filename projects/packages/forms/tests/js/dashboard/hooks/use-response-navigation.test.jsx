@@ -17,9 +17,8 @@ await jest.unstable_mockModule( '../../../../src/dashboard/inbox/utils', () => (
 } ) );
 
 // Dynamically import all dependencies after mocks are set up
-const useResponseNavigationModule = await import(
-	'../../../../src/dashboard/hooks/use-response-navigation'
-);
+const useResponseNavigationModule =
+	await import( '../../../../src/dashboard/hooks/use-response-navigation' );
 const useResponseNavigation = useResponseNavigationModule.default;
 
 // Use the mock functions directly

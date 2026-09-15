@@ -15,12 +15,7 @@ export interface RenderTooltipGlyphProps< Datum extends object > extends GlyphPr
 export type TooltipPlacement = 'auto' | 'below-axis';
 
 type CrosshairPaintProperty =
-	| 'stroke'
-	| 'strokeWidth'
-	| 'strokeOpacity'
-	| 'strokeDasharray'
-	| 'strokeLinecap'
-	| 'opacity';
+	'stroke' | 'strokeWidth' | 'strokeOpacity' | 'strokeDasharray' | 'strokeLinecap' | 'opacity';
 
 export type CrosshairStyle = Pick< SVGProps< SVGLineElement >, CrosshairPaintProperty > & {
 	className?: string;

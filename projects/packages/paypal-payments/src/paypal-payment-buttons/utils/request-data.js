@@ -89,7 +89,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 								currency_code: currencyCode || 'USD',
 								value: price,
 							},
-					  } ),
+						} ),
 				...( productDescription ? { description: productDescription } : {} ),
 				// The block owns the image: leaving it out here removes it at PayPal.
 				...( imageUrl ? { image_url: imageUrl } : {} ),
@@ -114,7 +114,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 									value: taxType === 'PREFERENCE' ? 'PROFILE' : taxValue || '0',
 								},
 							],
-					  }
+						}
 					: {} ),
 				// Omitting this makes PayPal collect an address whatever the
 				// payment said before, so it goes out on every request. On an
