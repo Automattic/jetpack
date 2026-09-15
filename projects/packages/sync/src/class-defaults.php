@@ -366,7 +366,8 @@ class Defaults {
 		'jetpack_connection_active_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_connection_active_plugins' ),
 		'jetpack_package_versions'          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_package_versions' ),
 		'jetpack_sync_active_modules'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_jetpack_sync_active_modules' ),
-		'effective_blog_public'             => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_effective_blog_public' ),
+		// Same name as the synced option, but reports -1 when the site is private.
+		'blog_public'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_blog_public' ),
 	);
 
 	/**

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add an `effective_blog_public` callable that reports -1 when the `jetpack_is_private_site` filter marks the site private, without changing the `blog_public` option.

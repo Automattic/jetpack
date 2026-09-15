@@ -603,7 +603,7 @@ class Functions {
 	 *
 	 * @return int -1 when private, otherwise the stored `blog_public` value.
 	 */
-	public static function get_effective_blog_public() {
+	public static function get_blog_public() {
 		if ( ( new Status() )->is_private_site() ) {
 			return -1;
 		}
