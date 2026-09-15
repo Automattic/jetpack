@@ -19,14 +19,20 @@ use Automattic\Jetpack\Connection\Client;
 class Marketplace_Catalog {
 
 	/**
+	 * Bumped whenever the shape of a cached card or description changes, so sites
+	 * do not keep serving data built by the previous version until it expires.
+	 */
+	const CACHE_VERSION = 4;
+
+	/**
 	 * Transient holding the normalized product list.
 	 */
-	const LIST_CACHE_KEY = 'wpcom_marketplace_catalog';
+	const LIST_CACHE_KEY = 'wpcom_marketplace_catalog_v' . self::CACHE_VERSION;
 
 	/**
 	 * Transient prefix for a single product's full details.
 	 */
-	const PRODUCT_CACHE_PREFIX = 'wpcom_marketplace_product_';
+	const PRODUCT_CACHE_PREFIX = 'wpcom_marketplace_product_v' . self::CACHE_VERSION . '_';
 
 	/**
 	 * How long a successful read is cached for.
@@ -57,7 +63,7 @@ class Marketplace_Catalog {
 			return array();
 		}
 
-		$products = self::to_catalog( $response['results'] );
+		$products = self::attach_pricing( self::to_catalog( $response['results'] ), self::fetch_store_products() );
 
 		set_transient( self::LIST_CACHE_KEY, $products, self::CACHE_TTL );
 
@@ -66,6 +72,9 @@ class Marketplace_Catalog {
 
 	/**
 	 * Turns an endpoint response into the catalog we list.
+	 *
+	 * Order is load-bearing: wpcom ranks the response by active subscriptions, so
+	 * the best sellers arrive first. Do not sort or re-key what comes back.
 	 *
 	 * @param array $results Products as the marketplace endpoint returns them.
 	 * @return array<string, array> Normalized products, keyed by slug.
@@ -89,18 +98,6 @@ class Marketplace_Catalog {
 		}
 
 		return $products;
-	}
-
-	/**
-	 * Whether a slug belongs to the marketplace catalog.
-	 *
-	 * @param string $slug Plugin slug.
-	 * @return bool
-	 */
-	public static function has_product( $slug ) {
-		$products = self::get_products();
-
-		return isset( $products[ $slug ] );
 	}
 
 	/**
@@ -146,9 +143,16 @@ class Marketplace_Catalog {
 
 		$details = self::to_details( self::to_card( $product ) );
 
-		$description = is_string( $product['description'] ?? null ) ? $product['description'] : '';
+		$raw = is_string( $product['description'] ?? null ) ? $product['description'] : '';
+
+		$description = self::to_modal_html( $raw );
 		if ( '' !== $description ) {
 			$details['sections']['description'] = $description;
+		}
+
+		$screenshots = self::to_screenshots_html( $raw );
+		if ( '' !== $screenshots ) {
+			$details['sections']['screenshots'] = $screenshots;
 		}
 
 		set_transient( $cache_key, $details, self::CACHE_TTL );
@@ -173,17 +177,89 @@ class Marketplace_Catalog {
 	}
 
 	/**
+	 * Moves the vendor's images into a screenshots section.
+	 *
+	 * Core constrains images in `#section-screenshots` and nowhere else, which is why
+	 * WordPress.org plugins put them there rather than in the description. Rebuilt
+	 * from the source URLs alone so none of the vendor's own markup comes with them.
+	 *
+	 * @param string $html Description as the marketplace endpoint returns it.
+	 * @return string Section markup, or an empty string when there are no images.
+	 */
+	public static function to_screenshots_html( $html ) {
+		if ( '' === $html || ! preg_match_all( '#<img[^>]+src=[\'"]([^\'"]+)[\'"]#i', $html, $matches ) ) {
+			return '';
+		}
+
+		$items = '';
+		foreach ( array_unique( $matches[1] ) as $src ) {
+			$url = esc_url( $src );
+			if ( '' !== $url ) {
+				$items .= sprintf( '<li><img src="%s" alt="" /></li>', $url );
+			}
+		}
+
+		return '' === $items ? '' : '<ol>' . $items . '</ol>';
+	}
+
+	/**
+	 * Reduces a vendor description to markup core's details modal can render.
+	 *
+	 * These are WooCommerce.com product pages: layout divs, full-width figures and
+	 * inline styles, with the spacing living in a stylesheet the modal does not load.
+	 * Left alone they overflow its ~600px column and the text runs together.
+	 *
+	 * @param string $html Description as the marketplace endpoint returns it.
+	 * @return string
+	 */
+	public static function to_modal_html( $html ) {
+		if ( '' === $html ) {
+			return '';
+		}
+
+		// Block wrappers are about to be stripped, so keep the break they implied.
+		$html = preg_replace( '#</(?:div|figure|section|article|table|tr)>#i', "\n\n", $html );
+
+		$html = wp_kses(
+			$html,
+			array(
+				'a'          => array(
+					'href'  => array(),
+					'title' => array(),
+				),
+				'b'          => array(),
+				'blockquote' => array(),
+				'br'         => array(),
+				'code'       => array(),
+				'em'         => array(),
+				'h3'         => array(),
+				'h4'         => array(),
+				'i'          => array(),
+				'li'         => array(),
+				'ol'         => array(),
+				'p'          => array(),
+				'strong'     => array(),
+				'ul'         => array(),
+			)
+		);
+
+		return trim( wpautop( trim( $html ) ) );
+	}
+
+	/**
 	 * Reads a wpcom marketplace endpoint.
 	 *
-	 * @param string $path Path below `wpcom/v2`, query string included.
+	 * @param string $path    Path below the namespace, query string included.
+	 * @param string $version API version.
+	 * @param string $base    API base, `wpcom` or `rest`.
 	 * @return array|null Decoded response body, or null on any failure.
 	 */
-	private static function request( $path ) {
+	private static function request( $path, $version = '2', $base = 'wpcom' ) {
 		if ( ! method_exists( Client::class, 'wpcom_json_api_request_as_blog' ) ) {
 			return null;
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog( $path, '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( $path, $version, array(), null, $base );
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return null;
@@ -253,6 +329,137 @@ class Marketplace_Catalog {
 			'external'           => true,
 			'wpcom_marketplace'  => true,
 			'wpcom_product_slug' => $product_slug,
+			'wpcom_variations'   => self::to_variation_ids( $product['variations'] ?? null ),
+			'wpcom_pricing'      => array(),
+			'wpcom_saving'       => 0,
+		);
+	}
+
+	/**
+	 * Reads the store catalog, which is where a variation's slug and price live.
+	 *
+	 * The marketplace endpoint gives only a numeric product id, and checkout is
+	 * addressed by slug, so this is needed for the button as much as for the price.
+	 *
+	 * @return array<int, array> Keyed by product id.
+	 */
+	private static function fetch_store_products() {
+		// Site-scoped first, so prices come back in the site's own currency. Calypso
+		// reads the same two paths in the same order, for the same reason.
+		$blog_id  = function_exists( 'get_wpcom_blog_id' ) ? (int) get_wpcom_blog_id() : 0;
+		$response = $blog_id > 0 ? self::request( '/sites/' . $blog_id . '/products', '1.1', 'rest' ) : null;
+
+		if ( ! is_array( $response ) ) {
+			$response = self::request( '/products', '1.1', 'rest' );
+		}
+
+		if ( ! is_array( $response ) ) {
+			return array();
+		}
+
+		$store = array();
+		foreach ( $response as $slug => $product ) {
+			if ( ! is_array( $product ) || empty( $product['product_id'] ) ) {
+				continue;
+			}
+
+			$store[ (int) $product['product_id'] ] = array(
+				'slug'          => (string) $slug,
+				'price'         => (string) ( $product['cost_display'] ?? '' ),
+				// Already formatted for the site's currency, so a yearly price can be read
+				// per month without us dividing and formatting money ourselves.
+				'price_monthly' => (string) ( $product['cost_per_month_display'] ?? '' ),
+				'cost'          => isset( $product['cost'] ) ? (float) $product['cost'] : 0.0,
+			);
+		}
+
+		return $store;
+	}
+
+	/**
+	 * Resolves each product's variations against the store catalog.
+	 *
+	 * @param array<string, array> $products Normalized products, keyed by slug.
+	 * @param array<int, array>    $store    Store products, keyed by product id.
+	 * @return array<string, array>
+	 */
+	public static function attach_pricing( array $products, array $store ) {
+		foreach ( $products as $slug => $product ) {
+			$pricing = array();
+
+			foreach ( $product['wpcom_variations'] ?? array() as $term => $product_id ) {
+				if ( isset( $store[ $product_id ] ) ) {
+					$pricing[ $term ] = $store[ $product_id ];
+				}
+			}
+
+			$products[ $slug ]['wpcom_pricing'] = $pricing;
+			$products[ $slug ]['wpcom_saving']  = self::yearly_saving( $pricing );
+		}
+
+		return $products;
+	}
+
+	/**
+	 * How much cheaper a year is than twelve months, as a whole percentage.
+	 *
+	 * Worth showing because it is not a flat discount: across the catalog it runs from
+	 * nothing at all to a third off, so the number is the only honest way to say it.
+	 *
+	 * @param array $pricing Resolved pricing, keyed by term.
+	 * @return int Percentage saved, or 0 when there is nothing to compare or nothing saved.
+	 */
+	public static function yearly_saving( array $pricing ) {
+		$yearly  = (float) ( $pricing['yearly']['cost'] ?? 0 );
+		$monthly = (float) ( $pricing['monthly']['cost'] ?? 0 );
+
+		if ( $yearly <= 0 || $monthly <= 0 ) {
+			return 0;
+		}
+
+		$saving = (int) round( ( 1 - $yearly / ( $monthly * 12 ) ) * 100 );
+
+		return max( 0, $saving );
+	}
+
+	/**
+	 * Flattens the endpoint's variations into term => product id.
+	 *
+	 * @param mixed $variations Variations as the marketplace endpoint returns them.
+	 * @return array<string, int>
+	 */
+	private static function to_variation_ids( $variations ) {
+		$ids = array();
+
+		foreach ( is_array( $variations ) ? $variations : array() as $term => $variation ) {
+			$product_id = is_array( $variation ) ? (int) ( $variation['product_id'] ?? 0 ) : 0;
+			if ( $product_id > 0 ) {
+				$ids[ (string) $term ] = $product_id;
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * The checkout URL for one variation, which both buys and activates the plugin.
+	 *
+	 * @param array  $card Normalized product data.
+	 * @param string $term 'yearly' or 'monthly'.
+	 * @return string Checkout URL, or an empty string when there is no such variation.
+	 */
+	public static function checkout_url( array $card, $term ) {
+		$store_slug = $card['wpcom_pricing'][ $term ]['slug'] ?? '';
+		if ( '' === $store_slug ) {
+			return '';
+		}
+
+		$site_slug = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		return sprintf(
+			'https://wordpress.com/checkout/%s/%s#step2',
+			rawurlencode( (string) $site_slug ),
+			rawurlencode( $store_slug )
 		);
 	}
 

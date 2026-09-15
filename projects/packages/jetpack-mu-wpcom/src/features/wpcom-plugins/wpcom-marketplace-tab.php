@@ -78,39 +78,10 @@ function wpcom_marketplace_add_tab( $tabs ) {
 add_filter( 'install_plugins_tabs', 'wpcom_marketplace_add_tab' );
 
 /**
- * Restores and tags the list table's API request.
+ * Answers the plugin API with a marketplace product.
  *
- * Core sets `$args` to false for a tab it does not know, which both skips the query
- * and discards the page, per_page and locale it had already put there. It reads
- * per_page back unguarded after the query, so they have to be restored here.
- *
- * @param array|false $args Plugin install API arguments.
- * @return array|false
- */
-function wpcom_marketplace_tab_api_args( $args ) {
-	if ( ! wpcom_marketplace_tab_enabled() ) {
-		return $args;
-	}
-
-	$args = is_array( $args ) ? $args : array();
-
-	// The catalog comes back whole, so per_page only exists to keep core's pagination happy.
-	return array_merge(
-		array(
-			'page'     => 1,
-			'per_page' => 100,
-			'locale'   => get_user_locale(),
-		),
-		$args,
-		array( 'wpcom_marketplace' => true )
-	);
-}
-add_filter( 'install_plugins_table_api_args_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_tab_api_args' );
-
-/**
- * Answers the plugin API with marketplace products.
- *
- * Handles the tab's listing and a details lookup for any slug in the catalog.
+ * Only the details modal comes through here. The tab draws its own grid straight
+ * from the catalog, so it has no query to serve.
  *
  * @param false|object|WP_Error $result The result object or array. Default false.
  * @param string                $action The type of information being requested.
@@ -122,22 +93,9 @@ function wpcom_marketplace_serve_plugins_api( $result, $action, $args ) {
 		return $result;
 	}
 
-	if ( 'query_plugins' === $action && ! empty( $args->wpcom_marketplace ) ) {
-		$products = array_values( Marketplace_Catalog::get_products() );
-
-		return (object) array(
-			'info'    => array(
-				'page'    => 1,
-				'pages'   => 1,
-				'results' => count( $products ),
-			),
-			'plugins' => $products,
-		);
-	}
-
-	// Only answered from a warm cache: plugins_api( 'plugin_information' ) is called
-	// from unrelated screens, and none of them should pay for a catalog fetch.
-	if ( 'plugin_information' === $action && ! empty( $args->slug ) && false !== get_transient( Marketplace_Catalog::LIST_CACHE_KEY ) ) {
+	// Scoped to the plugin screens: plugins_api( 'plugin_information' ) is called from
+	// unrelated admin pages too, and none of those should pay for a catalog fetch.
+	if ( 'plugin_information' === $action && ! empty( $args->slug ) && wpcom_marketplace_on_plugin_install_screen() ) {
 		$product = Marketplace_Catalog::get_product_details( (string) $args->slug );
 
 		if ( null !== $product ) {
@@ -150,47 +108,311 @@ function wpcom_marketplace_serve_plugins_api( $result, $action, $args ) {
 add_filter( 'plugins_api', 'wpcom_marketplace_serve_plugins_api', 10, 3 );
 
 /**
- * Replaces "Install Now" with a link to the product's page on WordPress.com.
+ * Whether this request is the Add Plugins screen, the details modal included.
+ *
+ * @return bool
+ */
+function wpcom_marketplace_on_plugin_install_screen() {
+	return isset( $GLOBALS['pagenow'] ) && 'plugin-install.php' === $GLOBALS['pagenow'];
+}
+
+/**
+ * The billing term the screen is showing, yearly unless asked otherwise.
+ *
+ * @return string 'yearly' or 'monthly'.
+ */
+function wpcom_marketplace_billing_term() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$term = isset( $_GET['billing'] ) ? sanitize_key( wp_unslash( $_GET['billing'] ) ) : '';
+
+	return 'monthly' === $term ? 'monthly' : 'yearly';
+}
+
+/**
+ * The noun a price is read with, as in "$10.00/month".
+ *
+ * @param string $term 'yearly' or 'monthly'.
+ * @return string
+ */
+function wpcom_marketplace_term_noun( $term ) {
+	return 'monthly' === $term
+		? __( 'month', 'jetpack-mu-wpcom' )
+		: __( 'year', 'jetpack-mu-wpcom' );
+}
+
+/**
+ * Lets the reader price the whole tab monthly or yearly.
+ *
+ * Links rather than a form: a radio plus an Apply button made choosing a term two
+ * actions, and the term is just a view of the same list.
+ *
+ * @return void
+ */
+function wpcom_marketplace_billing_switcher() {
+	$current = wpcom_marketplace_billing_term();
+	$terms   = array(
+		'yearly'  => __( 'Yearly', 'jetpack-mu-wpcom' ),
+		'monthly' => __( 'Monthly', 'jetpack-mu-wpcom' ),
+	);
+	?>
+	<div class="wpcom-marketplace-billing">
+		<span class="wpcom-marketplace-billing__label"><?php esc_html_e( 'Billing', 'jetpack-mu-wpcom' ); ?></span>
+		<div class="wpcom-marketplace-billing__switch">
+			<?php foreach ( $terms as $slug => $label ) : ?>
+				<a
+					class="wpcom-marketplace-billing__option<?php echo $slug === $current ? ' is-selected' : ''; ?>"
+					href="<?php echo esc_url( wpcom_marketplace_tab_url( $slug ) ); ?>"
+					<?php echo $slug === $current ? 'aria-current="true"' : ''; ?>
+				><?php echo esc_html( $label ); ?></a>
+			<?php endforeach; ?>
+		</div>
+	</div>
+	<?php
+}
+
+/**
+ * The tab's own URL, at a given billing term.
+ *
+ * @param string $term 'yearly' or 'monthly'.
+ * @return string
+ */
+function wpcom_marketplace_tab_url( $term ) {
+	return add_query_arg(
+		array(
+			'tab'     => WPCOM_MARKETPLACE_TAB,
+			'billing' => $term,
+		),
+		self_admin_url( 'plugin-install.php' )
+	);
+}
+
+/**
+ * Draws the marketplace as its own grid of cards.
+ *
+ * Core's list table is not used here. It fixes the action column at 120px and lets
+ * every card's height follow its description, which left the tab ragged and gave the
+ * price nowhere to live but inside the button. Everything else core offers is kept:
+ * the details modal, install status, and its buttons for products already installed.
+ *
+ * @return void
+ */
+function wpcom_marketplace_render_grid() {
+	$products = Marketplace_Catalog::get_products();
+
+	if ( empty( $products ) ) {
+		printf(
+			'<div class="notice notice-warning inline"><p>%s</p></div>',
+			esc_html__( 'These plugins could not be loaded right now. Please try again in a few minutes.', 'jetpack-mu-wpcom' )
+		);
+		return;
+	}
+
+	// Core's own count markup, so it matches every other tab.
+	printf(
+		'<div class="tablenav top"><div class="tablenav-pages one-page"><span class="displaying-num">%s</span></div></div>',
+		esc_html(
+			sprintf(
+				/* translators: %s: Number of plugins. */
+				_n( '%s item', '%s items', count( $products ), 'jetpack-mu-wpcom' ),
+				number_format_i18n( count( $products ) )
+			)
+		)
+	);
+
+	$term = wpcom_marketplace_billing_term();
+
+	echo '<div class="wpcom-marketplace-grid">';
+	foreach ( $products as $card ) {
+		wpcom_marketplace_render_card( $card, $term );
+	}
+	echo '</div>';
+}
+
+/**
+ * One plugin card.
+ *
+ * @param array  $card Normalized product data.
+ * @param string $term 'yearly' or 'monthly'.
+ * @return void
+ */
+function wpcom_marketplace_render_card( array $card, $term ) {
+	$slug = (string) ( $card['slug'] ?? '' );
+	if ( '' === $slug ) {
+		return;
+	}
+
+	$name    = (string) ( $card['name'] ?? $slug );
+	$icon    = (string) ( $card['icons']['1x'] ?? '' );
+	$details = wpcom_marketplace_details_url( $slug );
+	?>
+	<div class="wpcom-marketplace-card plugin-card-<?php echo esc_attr( sanitize_html_class( $slug ) ); ?>">
+		<div class="wpcom-marketplace-card__head">
+			<?php if ( '' !== $icon ) : ?>
+				<img class="wpcom-marketplace-card__icon" src="<?php echo esc_url( $icon ); ?>" alt="" />
+			<?php endif; ?>
+			<div>
+				<h3 class="wpcom-marketplace-card__name">
+					<a
+						href="<?php echo esc_url( $details ); ?>"
+						class="thickbox open-plugin-details-modal"
+						aria-label="
+						<?php
+							/* translators: %s: Plugin name. */
+							echo esc_attr( sprintf( __( 'More information about %s', 'jetpack-mu-wpcom' ), $name ) );
+						?>
+						"
+					><?php echo esc_html( $name ); ?></a>
+				</h3>
+				<?php if ( ! empty( $card['author'] ) ) : ?>
+					<p class="wpcom-marketplace-card__author">
+						<?php
+						/* translators: %s: Plugin author name. */
+						echo esc_html( sprintf( __( 'By %s', 'jetpack-mu-wpcom' ), $card['author'] ) );
+						?>
+					</p>
+				<?php endif; ?>
+			</div>
+		</div>
+
+		<p class="wpcom-marketplace-card__desc">
+			<?php echo esc_html( wp_strip_all_tags( (string) ( $card['short_description'] ?? '' ) ) ); ?>
+		</p>
+
+		<?php wpcom_marketplace_render_price( $card, $term ); ?>
+
+		<div class="wpcom-marketplace-card__actions">
+			<?php
+			// Buttons are built from escaped parts, and core's own button carries data attributes.
+			echo wpcom_marketplace_card_button( $card, $term ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			?>
+			<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal">
+				<?php esc_html_e( 'Details', 'jetpack-mu-wpcom' ); ?>
+			</a>
+		</div>
+	</div>
+	<?php
+}
+
+/**
+ * The price block.
+ *
+ * A year is read as its monthly equivalent, because that is the only way the saving
+ * is visible next to the monthly price. The saving is stated as a percentage since
+ * it is not a flat discount: across the catalog it runs from nothing to a third off.
+ *
+ * @param array  $card Normalized product data.
+ * @param string $term 'yearly' or 'monthly'.
+ * @return void
+ */
+function wpcom_marketplace_render_price( array $card, $term ) {
+	$pricing = $card['wpcom_pricing'][ $term ] ?? array();
+	$price   = (string) ( $pricing['price'] ?? '' );
+
+	if ( '' === $price ) {
+		return;
+	}
+
+	$per_month = (string) ( $pricing['price_monthly'] ?? '' );
+	$saving    = (int) ( $card['wpcom_saving'] ?? 0 );
+
+	if ( 'yearly' === $term && '' !== $per_month ) {
+		$amount = $per_month;
+		$per    = wpcom_marketplace_term_noun( 'monthly' );
+		/* translators: %s: Price, for example $82.00. */
+		$note = sprintf( __( '%s billed yearly', 'jetpack-mu-wpcom' ), $price );
+	} elseif ( 'yearly' === $term ) {
+		$amount = $price;
+		$per    = wpcom_marketplace_term_noun( 'yearly' );
+		$note   = '';
+	} else {
+		$amount = $price;
+		$per    = wpcom_marketplace_term_noun( 'monthly' );
+		$note   = __( 'billed monthly', 'jetpack-mu-wpcom' );
+
+		if ( $saving >= 5 ) {
+			/* translators: %d: Percentage saved, for example 31. */
+			$note = sprintf( __( 'billed monthly, or save %d%% yearly', 'jetpack-mu-wpcom' ), $saving );
+		}
+	}
+	?>
+	<div class="wpcom-marketplace-card__price">
+		<span class="wpcom-marketplace-card__amount"><?php echo esc_html( $amount ); ?></span>
+		<span class="wpcom-marketplace-card__per">/<?php echo esc_html( $per ); ?></span>
+		<?php if ( 'yearly' === $term && $saving >= 5 ) : ?>
+			<span class="wpcom-marketplace-card__saving">
+				<?php
+				/* translators: %d: Percentage saved, for example 31. */
+				echo esc_html( sprintf( __( 'Save %d%%', 'jetpack-mu-wpcom' ), $saving ) );
+				?>
+			</span>
+		<?php endif; ?>
+		<?php if ( '' !== $note ) : ?>
+			<span class="wpcom-marketplace-card__note"><?php echo esc_html( $note ); ?></span>
+		<?php endif; ?>
+	</div>
+	<?php
+}
+
+/**
+ * The card's action, which is a purchase unless the plugin is already here.
  *
  * Installed products keep core's button: Marketplace_Products_Updater already gives
  * core the right package URL, so Activate, Update and Active all behave.
  *
- * @param string[] $action_links Plugin action links. Install and Details by default.
- * @param array    $plugin       Plugin data as returned by plugins_api().
- * @return string[]
+ * @param array  $card Normalized product data.
+ * @param string $term 'yearly' or 'monthly'.
+ * @return string Button markup.
  */
-function wpcom_marketplace_action_links( $action_links, $plugin ) {
-	if ( empty( $plugin['wpcom_marketplace'] ) || empty( $plugin['slug'] ) ) {
-		return $action_links;
-	}
+function wpcom_marketplace_card_button( array $card, $term ) {
+	$name   = (string) ( $card['name'] ?? $card['slug'] ?? '' );
+	$status = install_plugin_install_status( $card );
 
-	$status = install_plugin_install_status( $plugin );
 	if ( 'install' !== $status['status'] ) {
-		return $action_links;
+		return function_exists( 'wp_get_plugin_action_button' )
+			? wp_get_plugin_action_button( $name, $card, true, true )
+			: '';
 	}
 
-	// Same tab, like every other button on this screen.
-	$button = sprintf(
-		'<a class="button" href="%s" aria-label="%s">%s</a>',
-		esc_url( Marketplace_Catalog::product_url( $plugin['wpcom_product_slug'] ?? $plugin['slug'] ) ),
+	$checkout = Marketplace_Catalog::checkout_url( $card, $term );
+
+	// Without a store product there is nothing to buy, so fall back to the product page.
+	if ( '' === $checkout ) {
+		return sprintf(
+			'<a class="button" href="%s" aria-label="%s">%s</a>',
+			esc_url( Marketplace_Catalog::product_url( $card['wpcom_product_slug'] ?? $card['slug'] ) ),
+			/* translators: %s: Plugin name. */
+			esc_attr( sprintf( __( 'Get started with %s', 'jetpack-mu-wpcom' ), $name ) ),
+			esc_html__( 'Get started', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	return sprintf(
+		'<a class="button button-primary" href="%s" aria-label="%s">%s</a>',
+		esc_url( $checkout ),
 		/* translators: %s: Plugin name. */
-		esc_attr( sprintf( __( 'Get started with %s', 'jetpack-mu-wpcom' ), $plugin['name'] ?? $plugin['slug'] ) ),
-		esc_html__( 'Get started', 'jetpack-mu-wpcom' )
+		esc_attr( sprintf( __( 'Purchase and activate %s', 'jetpack-mu-wpcom' ), $name ) ),
+		esc_html__( 'Purchase', 'jetpack-mu-wpcom' )
 	);
-
-	// Replace core's install button wherever it ended up, rather than assuming index 0.
-	foreach ( $action_links as $index => $link ) {
-		if ( str_contains( $link, 'install-now' ) ) {
-			$action_links[ $index ] = $button;
-			return $action_links;
-		}
-	}
-
-	array_unshift( $action_links, $button );
-
-	return $action_links;
 }
-add_filter( 'plugin_install_action_links', 'wpcom_marketplace_action_links', 10, 2 );
+
+/**
+ * The thickbox URL for a product's details modal.
+ *
+ * @param string $slug Plugin slug.
+ * @return string
+ */
+function wpcom_marketplace_details_url( $slug ) {
+	return add_query_arg(
+		array(
+			'tab'       => 'plugin-information',
+			'plugin'    => $slug,
+			'TB_iframe' => 'true',
+			'width'     => 600,
+			'height'    => 550,
+		),
+		self_admin_url( 'plugin-install.php' )
+	);
+}
 
 /**
  * Loads the tab's styles.
@@ -237,4 +459,5 @@ function wpcom_marketplace_intro() {
 }
 
 add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_intro', 9 );
-add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'display_plugins_table' );
+add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_billing_switcher', 9 );
+add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_render_grid' );
