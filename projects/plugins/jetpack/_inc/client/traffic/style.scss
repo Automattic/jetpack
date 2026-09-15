@@ -256,44 +256,6 @@ $twitter-pofile-image-padding: 17px;
 	top: 1em;
 }
 
-.jp-stats-odyssey-disabled-notice {
-
-	@include breakpoints.breakpoint("<480px") {
-
-		a.dops-notice__action {
-			white-space: initial;
-		}
-
-		a.dops-notice__action .gridicon {
-			display: none;
-		}
-	}
-
-	@include breakpoints.breakpoint(">480px") {
-		width: calc(100% - 26px);
-	}
-}
-
-.jp-stats-odyssey-toggle {
-	margin-bottom: 20px;
-}
-
-.jp-stats-odyssey-toggle > .components-base-control {
-	margin-bottom: 0;
-}
-
 .jp-stats-form-fieldset {
 	margin-bottom: 20px;
-}
-
-.jp-stats-odyssey-badge {
-	color: #008710;
-	background-color: #d0e6b8;
-	border-radius: 3px;
-	font-size: 10px;
-	line-height: 18px;
-	margin-left: 8px;
-	padding: 0 6px;
-	text-transform: uppercase;
-	display: inline-block;
 }

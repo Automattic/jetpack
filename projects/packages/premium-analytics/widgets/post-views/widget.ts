@@ -36,7 +36,7 @@ export default {
 	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< PostViewsAttributes >[],
 	example: {
 		attributes: {
-			chartType: 'line',
+			chartType: 'bar',
 		},
 	},
 };

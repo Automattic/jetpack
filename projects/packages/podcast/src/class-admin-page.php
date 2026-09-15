@@ -24,7 +24,7 @@ class Admin_Page {
 	 *
 	 * Unread since Podcast registers without a position; kept so consumers do not fatal.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 2.1.1
 	 */
 	const MENU_POSITION = 11;
 
@@ -88,7 +88,13 @@ class Admin_Page {
 				'Podcast',
 				'manage_options',
 				self::ADMIN_PAGE_SLUG,
-				$callback
+				$callback,
+				null,
+				// Podcast has no My Jetpack product class, so the module is the only gate available.
+				array(
+					'module' => 'podcast',
+					'key'    => 'jetpack-podcast',
+				)
 			);
 		}
 

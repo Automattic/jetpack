@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-My Jetpack: Show the right product status as soon as fresher plan data is available, instead of reusing an earlier lookup.

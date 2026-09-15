@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-forms",
-	"version": "8.0.1",
+	"version": "8.0.3",
 	"private": true,
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
@@ -103,7 +103,7 @@
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
 		"@tanstack/react-router": "^1.139.12",
-		"@testing-library/dom": "10.4.1",
+		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "^16.3.0",
 		"@testing-library/user-event": "^14.6.1",
 		"@types/lodash": "4.17.25",
@@ -118,14 +118,14 @@
 		"browserslist": "^4.24.0",
 		"concurrently": "10.0.5",
 		"glob": "13.0.6",
-		"jest": "30.4.2",
+		"jest": "30.5.1",
 		"jquery": "3.7.1",
 		"postcss": "8.5.23",
 		"postcss-loader": "8.2.0",
 		"postcss-modules": "^6.0.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"sharp": "0.35.0"
+		"sharp": "0.35.4"
 	},
 	"optionalDependencies": {
 		"react": "18.3.1",

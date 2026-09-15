@@ -10,6 +10,7 @@
 		"automattic/jetpack-boost-speed-score": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-explat": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-menu-badges": "@dev",
@@ -55,7 +56,7 @@
 			"pnpm run build"
 		],
 		"build-production": [
-			"NODE_ENV=production pnpm run build"
+			"pnpm run build-production"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",

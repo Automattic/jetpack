@@ -8,8 +8,6 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import PostAllTimeTrafficRender from '../render';
-import type { HeatmapColumn } from '@jetpack-premium-analytics/widgets-toolkit';
-import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
@@ -24,75 +22,12 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	} ),
 } ) );
 
-// Keep visx out of jsdom while keeping the cell markup the widget reads: a grid
-// naming its selected cell, and one `gridcell` per month carrying its indexes.
-jest.mock( '@jetpack-premium-analytics/externals', () => {
-	const actual = jest.requireActual( '@jetpack-premium-analytics/externals' );
-
-	const HeatmapChart = ( {
-		data,
-		rowLabels = [],
-		children,
-	}: {
-		data: HeatmapColumn[];
-		rowLabels?: string[];
-		children?: ReactNode;
-	} ) => (
-		<div
-			role="grid"
-			tabIndex={ 0 }
-			aria-label="heatmap"
-			aria-activedescendant="cell-10-1"
-			data-testid="heatmap"
-			data-column-labels={ data.map( column => column.label ).join( '|' ) }
-			data-row-labels={ rowLabels.join( '|' ) }
-			// One entry per row: its twelve months, `.` for filler, `x` for no views, `-` for a blank one.
-			data-rows={ rowLabels
-				.map( ( _label, row ) =>
-					data
-						.map( column => {
-							const cell = column.data[ row ];
-
-							if ( cell?.placeholder ) {
-								return '.';
-							}
-
-							if ( cell?.hidden ) {
-								return '-';
-							}
-
-							return cell?.value === null ? 'x' : cell?.value;
-						} )
-						.join( ',' )
-				)
-				.join( '|' ) }
-		>
-			{ rowLabels.map( ( rowLabel, row ) =>
-				data.map( ( column, columnIndex ) =>
-					column.data[ row ]?.hidden || column.data[ row ]?.placeholder ? null : (
-						<div
-							key={ `${ columnIndex }-${ row }` }
-							id={ `cell-${ columnIndex }-${ row }` }
-							role="gridcell"
-							tabIndex={ -1 }
-							aria-label={ `${ column.label } ${ rowLabel }` }
-							data-column={ columnIndex }
-							data-row={ row }
-						>
-							{ column.data[ row ]?.value }
-						</div>
-					)
-				)
-			) }
-			{ children }
-		</div>
-	);
-	HeatmapChart.Legend = ( { lessLabel, moreLabel }: { lessLabel: string; moreLabel: string } ) => (
-		<div data-testid="legend">{ `${ lessLabel }/${ moreLabel }` }</div>
-	);
-
-	return { ...actual, HeatmapChart };
-} );
+// The chart's responsive wrapper asks for a ResizeObserver jsdom does not have.
+class ResizeObserverStub {
+	observe() {}
+	unobserve() {}
+	disconnect() {}
+}
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -118,6 +53,10 @@ const RESPONSE = {
 		'2025': { total: 30, months: { '11': 10, '12': 20 } },
 		'2026': { total: 45, months: { '1': 5, '3': 40 } },
 	},
+	averages: {
+		'2025': { overall: 1, months: { '11': 1, '12': 2 } },
+		'2026': { overall: 3, months: { '1': 1, '3': 8 } },
+	},
 	post: { ID: 779, post_date: '2025-11-10 16:27:32' },
 };
 
@@ -130,10 +69,11 @@ const NOVEMBER_2025 = {
 const NOW = new Date( '2026-03-15T12:00:00.000Z' );
 
 // `null` renders the widget without a post scope.
-function renderWidget( postId: number | null = 779 ) {
+function renderWidget( postId: number | null = 779, attributes: Record< string, unknown > = {} ) {
 	return render(
 		<PostAllTimeTrafficRender
 			attributes={ {
+				...attributes,
 				reportParams: {
 					from: '2026-01-01T00:00:00.000+00:00',
 					to: '2026-01-31T23:59:59.999+00:00',
@@ -145,6 +85,10 @@ function renderWidget( postId: number | null = 779 ) {
 }
 
 describe( 'PostAllTimeTraffic widget', () => {
+	beforeAll( () => {
+		( globalThis as { ResizeObserver?: unknown } ).ResizeObserver = ResizeObserverStub;
+	} );
+
 	beforeEach( () => {
 		mockOnChange.mockReset();
 		mockOnApply.mockReset();
@@ -161,26 +105,57 @@ describe( 'PostAllTimeTraffic widget', () => {
 	it( 'lays the years out newest first over the site month names', () => {
 		renderWidget();
 
-		const heatmap = screen.getByTestId( 'heatmap' );
-		expect( heatmap ).toHaveAttribute( 'data-row-labels', '2026|2025' );
-		expect( heatmap.dataset.columnLabels?.split( '|' ) ).toHaveLength( 12 );
-		// The current year runs on to the clock's month, so only its opening is pinned.
-		const rows = heatmap.dataset.rows?.split( '|' ) ?? [];
+		const grid = screen.getByRole( 'grid' );
+		expect( grid ).toHaveAttribute( 'aria-rowcount', '2' );
+		// Twelve months and the Totals roll-up.
+		expect( grid ).toHaveAttribute( 'aria-colcount', '13' );
+		expect( screen.getByRole( 'gridcell', { name: 'Jan 2026: 5' } ) ).toHaveAttribute(
+			'data-row',
+			'0'
+		);
 		// February had no views: a zero, as the endpoint reports it.
-		expect( rows[ 0 ]?.startsWith( '5,0,40' ) ).toBe( true );
-		// The months still to come are filler too, so the row stays a whole year.
-		expect( rows[ 0 ]?.split( ',' ) ).toHaveLength( 12 );
-		expect( rows[ 0 ] ).not.toContain( '-' );
-		// Published in November: the months before it are filler.
-		expect( rows[ 1 ] ).toBe( '.,.,.,.,.,.,.,.,.,.,10,20' );
-		expect( screen.getByTestId( 'legend' ) ).toHaveTextContent( 'Fewer views/More views' );
+		expect( screen.getByRole( 'gridcell', { name: 'Feb 2026: 0' } ) ).toBeInTheDocument();
+		// The months still to come, and the months before the post was published, are filler.
+		expect( screen.queryByRole( 'gridcell', { name: /Apr 2026/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'gridcell', { name: /Oct 2025/ } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) ).toHaveAttribute(
+			'data-row',
+			'1'
+		);
+		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 30' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Fewer views' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'More views' ) ).toBeInTheDocument();
+	} );
+
+	it( 'draws views per day under the average metric', () => {
+		renderWidget( 779, { metric: 'average' } );
+
+		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 8' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'More views per day' ) ).toBeInTheDocument();
+	} );
+
+	it( 'applies a clicked year total to the page as the year cut to the post life', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 30' } ) );
+
+		expect( mockOnChange ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2025-11-10T00:00:00.000Z' ),
+				to: new Date( '2025-12-31T23:59:59.999Z' ),
+			},
+			'custom'
+		);
+		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'applies a clicked month to the page as a custom range cut to the post life', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025' } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
 
 		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom' );
 		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
@@ -193,7 +168,7 @@ describe( 'PostAllTimeTraffic widget', () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		renderWidget();
 
-		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025' } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 10' } ) );
 
 		expect( mockOnChange ).toHaveBeenCalledWith(
 			{
@@ -202,37 +177,6 @@ describe( 'PostAllTimeTraffic widget', () => {
 			},
 			'custom'
 		);
-	} );
-
-	it( 'opens the keyboard-selected month on Enter', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-
-		screen.getByRole( 'grid', { name: 'heatmap' } ).focus();
-		await user.keyboard( '{Enter}' );
-
-		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom' );
-		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'opens the keyboard-selected month on Enter after a click left the focus on a cell', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-
-		screen.getByRole( 'gridcell', { name: 'Nov 2025' } ).focus();
-		await user.keyboard( '{Enter}' );
-
-		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom' );
-	} );
-
-	it( 'leaves the page alone for keys that do not activate', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-
-		screen.getByRole( 'grid', { name: 'heatmap' } ).focus();
-		await user.keyboard( '{ArrowRight}' );
-
-		expect( mockOnChange ).not.toHaveBeenCalled();
 	} );
 
 	it( 'shows the scopeless empty state without a post', () => {

@@ -48,13 +48,13 @@ const MOCK_RESPONSES = {
 			},
 		],
 	},
+	// A successful update is an empty 204, so the route echoes the request back with
+	// the id alone. See PayPal_API_Client.
 	updateButton: {
 		id: 'PLB-TESTMOCK001',
 		type: 'BUY_NOW',
 		integration_mode: 'LINK',
 		reusable: 'MULTIPLE',
-		status: 'ACTIVE',
-		payment_link: 'https://www.sandbox.paypal.com/ncp/payment/TESTMOCK001',
 		line_items: [
 			{
 				name: 'Updated Product',

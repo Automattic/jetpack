@@ -187,26 +187,25 @@ function YearDateControls( { containerElement }: { containerElement: HTMLElement
 
 type SectionHeaderStoryProps = {
 	title: ReactNode;
-	condenseOnScroll?: boolean;
+	pinned?: boolean;
 };
 
-function RollingSectionHeaderStory( { title, condenseOnScroll }: SectionHeaderStoryProps ) {
+function RollingSectionHeaderStory( { title, pinned }: SectionHeaderStoryProps ) {
 	return (
-		<SectionHeader title={ title } condenseOnScroll={ condenseOnScroll }>
+		<SectionHeader title={ title } pinned={ pinned }>
 			<RollingDateControls />
 		</SectionHeader>
 	);
 }
 
+// The year surface measures the header row it sits in, which the ref hands it.
 function YearSectionHeaderStory( { title }: SectionHeaderStoryProps ) {
-	const [ container, setContainer ] = useState< HTMLDivElement | null >( null );
+	const [ header, setHeader ] = useState< HTMLDivElement | null >( null );
 
 	return (
-		<div ref={ setContainer }>
-			<SectionHeader title={ title }>
-				<YearDateControls containerElement={ container } />
-			</SectionHeader>
-		</div>
+		<SectionHeader ref={ setHeader } title={ title }>
+			<YearDateControls containerElement={ header } />
+		</SectionHeader>
 	);
 }
 
@@ -270,51 +269,55 @@ export const Stacked: Story = {
 	),
 };
 
-/*
- * Story-only stand-in for what a surface provides around a pinned header: a
- * strip to scroll past and the pin marker publishing the view timeline. The
- * dashboard does this in `routes/dashboard/stage.module.scss`.
- */
-const PIN_TIMELINE = '--section-header-pin';
-const PIN_MARKER_STYLE = {
-	position: 'absolute',
-	insetBlockStart: 0,
-	inlineSize: 1,
-	blockSize: 40,
-	visibility: 'hidden',
-	pointerEvents: 'none',
-	viewTimelineName: PIN_TIMELINE,
-	viewTimelineAxis: 'block',
-} as const;
-
 /**
- * `condenseOnScroll` on a pinned header: scroll the box below, and once the
- * header clears the strip above it and pins, the title drops a type-scale step
- * over the next 40px. Nothing condenses while the header is still on its way
- * up, and the effect reverses as you scroll back up. Browsers without
- * scroll-driven animations, surfaces that publish no pin marker, and readers
- * who asked for reduced motion all keep the resting title.
+ * `pinned`: scroll the box below. The header clears the strip above it, pins at
+ * the top, and condenses over the next 40px: the band's padding tightens and
+ * the title drops a type-scale step. The effect follows the scroll in both
+ * directions. Browsers without scroll-driven animations and readers who asked
+ * for reduced motion keep the resting band; the pin itself needs neither.
+ *
+ * The scroll box stands in for the surface: it declares the timeline scope the
+ * band condenses on, and pads the content rather than itself, since the band
+ * spans the page gutter on its own.
  */
-export const CondensingOnScroll: Story = {
+export const Pinned: Story = {
 	args: {
 		title: 'Site traffic',
 	},
 	render: ( { title } ) => (
-		<div style={ { blockSize: 320, overflowY: 'auto' } }>
-			<div style={ { blockSize: 48 } }>Something to scroll past, as the section tabs are.</div>
-			<div style={ { position: 'relative', timelineScope: PIN_TIMELINE } }>
-				<div style={ PIN_MARKER_STYLE } aria-hidden="true" />
-				<div
-					style={ {
-						position: 'sticky',
-						insetBlockStart: 0,
-						background: 'var(--wpds-color-background-surface-neutral-strong)',
-					} }
-				>
-					<RollingSectionHeaderStory title={ title } condenseOnScroll />
-				</div>
-				<div style={ { blockSize: 900 } } />
+		<div style={ { blockSize: 320, overflowY: 'auto', timelineScope: '--section-header-pin' } }>
+			<div style={ { blockSize: 48, paddingInline: 24 } }>
+				Something to scroll past, as the section tabs are.
 			</div>
+			<RollingSectionHeaderStory title={ title } pinned />
+			<div style={ { blockSize: 900, paddingInline: 24 } }>Content scrolling under the band.</div>
+		</div>
+	),
+};
+
+/**
+ * The detail-page instance pinned: as the box scrolls, the subtitle folds away
+ * and the visual shrinks to the title's row, so the band condenses to the same
+ * height as a header without a visual.
+ */
+export const PinnedWithVisual: Story = {
+	args: {
+		title: 'Ten things I learned building a headless storefront',
+	},
+	render: ( { title } ) => (
+		<div style={ { blockSize: 320, overflowY: 'auto', timelineScope: '--section-header-pin' } }>
+			<div style={ { blockSize: 48, paddingInline: 24 } }>
+				Something to scroll past, as the section tabs are.
+			</div>
+			<SectionHeader
+				pinned
+				title={ title }
+				visual={ <Icon icon={ post } size={ 28 } /> }
+				subTitle="Post published on Feb 3, 2025. Performance from Feb 3, 2025 to Sep 2, 2026"
+			>
+				<RollingDateControls />
+			</SectionHeader>
+			<div style={ { blockSize: 900, paddingInline: 24 } }>Content scrolling under the band.</div>
 		</div>
 	),
 };
@@ -330,9 +333,10 @@ export const WithoutControls: Story = {
 };
 
 /**
- * The **detail-page** instance: a resource names the page, so the title is its
- * `h1`, its mark (here the type icon, a thumbnail when the post has one) sits
- * before it, and a subtitle states what the widgets below report on.
+ * The **detail-page** instance: a resource's mark (here the type icon, a
+ * thumbnail when the post has one) sits before the title, and a subtitle
+ * states what the widgets below report on. The date controls sit on the
+ * title's row.
  *
  * The visual slot owns its box, so a consumer passes only the image or the
  * glyph. It is decorative by contract — the title already names the resource.
@@ -343,7 +347,6 @@ export const WithVisualAndSubtitle: Story = {
 	},
 	render: ( { title } ) => (
 		<SectionHeader
-			headingLevel={ 1 }
 			title={ title }
 			visual={ <Icon icon={ post } size={ 28 } /> }
 			subTitle="Post published on Feb 3, 2025. Performance from Feb 3, 2025 to Sep 2, 2026"
@@ -360,7 +363,6 @@ export const WithVisualAndSubtitle: Story = {
 export const LoadingResource: Story = {
 	render: () => (
 		<SectionHeader
-			headingLevel={ 1 }
 			busy
 			title={ <Skeleton style={ { display: 'block', blockSize: 38, inlineSize: 320 } } /> }
 			visual={ <Icon icon={ post } size={ 28 } /> }

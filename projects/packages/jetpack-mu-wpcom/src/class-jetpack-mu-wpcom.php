@@ -430,13 +430,10 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ), 10, 0 );
 		}
 
-		// Every admin, not only WordPress.com users: one who cannot renew is told
-		// whose plan it is, and the legacy notice the feature replaces stands
-		// down only once this has loaded. Agency-managed sites keep their plans
-		// out of the customer's hands, so they stay excluded.
-		if ( ! is_fully_managed_agency_site() ) {
-			require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
-		}
+		// Every admin, not only WordPress.com users: one who cannot renew, such as
+		// the client of an agency-managed site, is told whose plan it is, and the
+		// legacy notice the feature replaces stands down only once this has loaded.
+		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
 
 		if ( ! is_wpcom_user() ) {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
@@ -447,7 +444,6 @@ class Jetpack_Mu_Wpcom {
 		}
 		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
-		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
 		require_once __DIR__ . '/features/stats/stats.php';
@@ -462,10 +458,10 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-media/wpcom-export-media-files.php';
 		require_once __DIR__ . '/features/wpcom-options-general/options-general.php';
 		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
+		require_once __DIR__ . '/features/wpcom-plugins/wpcom-marketplace-tab.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
-		require_once __DIR__ . '/features/wpcom-content-research/class-wpcom-content-research.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';

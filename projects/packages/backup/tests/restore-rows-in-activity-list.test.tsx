@@ -24,10 +24,6 @@ import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-// Testing Library's default `findBy` window is one second, which these stages
-// have exceeded on a loaded runner under coverage.
-const SETTLE = { timeout: 10000 };
-
 const BACKUP_REWIND_ID = '1786644531.100';
 const RESTORE_ROW_ID = 'restore-912682';
 // 14:11 UTC; read as local time on the GMT-3 runner it would render three hours late.
@@ -139,10 +135,14 @@ function requestedPaths( fragment: string ): string[] {
 /**
  * The list's rows, in the order they are rendered.
  *
+ * Awaited: the text callers wait on can render outside the list — the detail
+ * pane's heading, say — before the list has mounted any rows.
+ *
  * @return Each row's text.
  */
-function renderedRows(): string[] {
-	return screen.getAllByRole( 'row' ).map( row => row.textContent ?? '' );
+async function rowTexts(): Promise< string[] > {
+	const rows = await screen.findAllByRole( 'row' );
+	return rows.map( row => row.textContent ?? '' );
 }
 
 beforeEach( () => {
@@ -168,20 +168,17 @@ describe( 'a restore that has already ended', () => {
 
 	it( 'is reported in the list, in its place among the activity', async () => {
 		render( <OverviewStage /> );
-		await expect(
-			screen.findByText( "Restore didn't finish", undefined, SETTLE )
-		).resolves.toBeVisible();
+		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
 
-		expect( renderedRows()[ 0 ] ).toContain( "Restore didn't finish" );
-		expect( renderedRows()[ 1 ] ).toContain( 'Backup complete' );
-		expect( renderedRows()[ 2 ] ).toContain( 'Plugin activated' );
+		const rows = await rowTexts();
+		expect( rows[ 0 ] ).toContain( "Restore didn't finish" );
+		expect( rows[ 1 ] ).toContain( 'Backup complete' );
+		expect( rows[ 2 ] ).toContain( 'Plugin activated' );
 	} );
 
 	it( "is stamped from WordPress.com's clock, not the browser's", async () => {
 		render( <OverviewStage /> );
-		await expect(
-			screen.findByText( "Restore didn't finish", undefined, SETTLE )
-		).resolves.toBeVisible();
+		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
 
 		expect(
 			screen.getByText( RESTORE_RENDERED_AT, { selector: '.jpb-activity-list__date' } )
@@ -191,9 +188,7 @@ describe( 'a restore that has already ended', () => {
 
 	it( 'names the backup it was aiming at', async () => {
 		render( <OverviewStage /> );
-		await expect(
-			screen.findByText( "Restore didn't finish", undefined, SETTLE )
-		).resolves.toBeVisible();
+		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
 
 		expect( screen.getByText( 'Restore to Aug 13, 2026, 6:08 PM' ) ).toBeVisible();
 	} );
@@ -202,9 +197,7 @@ describe( 'a restore that has already ended', () => {
 		render( <OverviewStage /> );
 		// Witness: the row is on screen, so the single request below is one
 		// that answered rather than one nobody made.
-		await expect(
-			screen.findByText( "Restore didn't finish", undefined, SETTLE )
-		).resolves.toBeVisible();
+		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
 
 		expect( requestedPaths( '/jetpack/v4/restores' ) ).toHaveLength( 1 );
 	} );
@@ -212,9 +205,7 @@ describe( 'a restore that has already ended', () => {
 	it( 'still reads it once when the review prompt reads it too', async () => {
 		mockEndpoints( { restores: [ failedRestore() ], standalone: true } );
 		render( <OverviewStage /> );
-		await expect(
-			screen.findByText( "Restore didn't finish", undefined, SETTLE )
-		).resolves.toBeVisible();
+		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
 
 		expect( requestedPaths( '/jetpack/v4/restores' ) ).toHaveLength( 1 );
 	} );
@@ -224,7 +215,7 @@ describe( 'a restore that has already ended', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'heading', { name: "Restore didn't finish" }, SETTLE )
+			screen.findByRole( 'heading', { name: "Restore didn't finish" } )
 		).resolves.toBeVisible();
 		expect( screen.queryByText( NOT_ON_THIS_PAGE ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( NOT_AMONG_RECENT ) ).not.toBeInTheDocument();
@@ -241,9 +232,7 @@ describe( 'a restore still under way', () => {
 		mockEndpoints( { restores: [ failedRestore( { status: 'running' } ) ] } );
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( 'Restore in progress', undefined, SETTLE )
-		).resolves.toBeVisible();
+		await expect( screen.findByText( 'Restore in progress' ) ).resolves.toBeVisible();
 		expect( screen.queryByText( "Restore didn't finish" ) ).not.toBeInTheDocument();
 	} );
 } );
@@ -253,9 +242,7 @@ describe( 'a restore dismissed upstream', () => {
 		mockEndpoints( { restores: [ failedRestore( { dismissed: true } ) ] } );
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( "Restore didn't finish", undefined, SETTLE )
-		).resolves.toBeVisible();
+		await expect( screen.findByText( "Restore didn't finish" ) ).resolves.toBeVisible();
 	} );
 } );
 
@@ -266,10 +253,8 @@ describe( 'a collection the route could not read', () => {
 		mockEndpoints( { restores: null as unknown as unknown[] } );
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( 'Backup complete', undefined, SETTLE )
-		).resolves.toBeVisible();
-		expect( renderedRows() ).toHaveLength( 2 );
+		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeVisible();
+		await expect( rowTexts() ).resolves.toHaveLength( 2 );
 	} );
 } );
 
@@ -281,14 +266,14 @@ describe( 'an activity feed that failed', () => {
 	it( 'still reports the failure, with restores available to fill the list', async () => {
 		render( <OverviewStage /> );
 
-		await expect( screen.findByText( ACTIVITY_FAILED, undefined, SETTLE ) ).resolves.toBeVisible();
+		await expect( screen.findByText( ACTIVITY_FAILED ) ).resolves.toBeVisible();
 		expect( screen.getByText( FAILURE_REASON ) ).toBeVisible();
 		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeVisible();
 	} );
 
 	it( "does not pass the restores off as the site's activity", async () => {
 		render( <OverviewStage /> );
-		await expect( screen.findByText( ACTIVITY_FAILED, undefined, SETTLE ) ).resolves.toBeVisible();
+		await expect( screen.findByText( ACTIVITY_FAILED ) ).resolves.toBeVisible();
 
 		expect( screen.queryByText( "Restore didn't finish" ) ).not.toBeInTheDocument();
 	} );
@@ -300,7 +285,7 @@ describe( 'a selected restore the collection no longer holds', () => {
 		mockEndpoints( { restores: [ failedRestore() ] } );
 		render( <OverviewStage /> );
 
-		await expect( screen.findByText( NOT_AMONG_RECENT, undefined, SETTLE ) ).resolves.toBeVisible();
+		await expect( screen.findByText( NOT_AMONG_RECENT ) ).resolves.toBeVisible();
 		expect( screen.queryByText( NOT_ON_THIS_PAGE ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Clear selection' } ) ).toBeVisible();
 	} );
@@ -319,8 +304,8 @@ describe( 'a refetch that failed with rows still on screen', () => {
 		mockEndpoints( { restores: [ failedRestore() ], activity: 'error' } );
 		render( <OverviewStage /> );
 
-		await expect( screen.findByText( ACTIVITY_FAILED, undefined, SETTLE ) ).resolves.toBeVisible();
+		await expect( screen.findByText( ACTIVITY_FAILED ) ).resolves.toBeVisible();
 		// Witness: the stale rows are on screen, so the `empty` slot never rendered.
-		expect( renderedRows()[ 0 ] ).toContain( 'Backup complete' );
+		expect( ( await rowTexts() )[ 0 ] ).toContain( 'Backup complete' );
 	} );
 } );

@@ -19,7 +19,7 @@ The Pay with PayPal block lets you accept payments directly on your WordPress si
 1. Connect your PayPal account using API credentials
 2. Add the Pay with PayPal block to any post or page
 3. Enter product details (name, price, currency)
-4. Click "Create Button" — the plugin creates a payment link via PayPal's API
+4. Click "Create New" — the plugin creates a payment link via PayPal's API
 5. Publish — visitors see a styled PayPal button that links to checkout
 
 Each button also generates a shareable payment link URL you can use in emails, social media, or text links.
@@ -36,9 +36,8 @@ Each button also generates a shareable payment link URL you can use in emails, s
 
 #### Step 2: Connect in the Block Editor
 
-1. Add a **Pay with PayPal** block to any post or page
-2. The setup wizard appears automatically:
-   - **Welcome** — Click "Get Started"
+1. Add a **Pay with PayPal** block to any post or page. The block itself only says it needs a PayPal business account; the connection happens in the block settings sidebar
+2. The sidebar shows **Connect your PayPal account**, with a sandbox toggle and a **Connect PayPal** button that opens PayPal's own sign-up or log-in. Sites that cannot use it get the credentials wizard instead:
    - **Dashboard** — Follow the link to the PayPal Developer Dashboard to get your credentials
    - **Credentials** — Paste your Client ID and Client Secret
 3. The plugin validates your credentials with PayPal
@@ -59,13 +58,15 @@ When you're ready for real payments, disconnect and reconnect with your Live (Pr
 
 ### Creating a Button
 
-Once connected:
+Once connected, a new block first asks whether to reuse a payment link you already have. The block settings sidebar shows a **Create new** button with your existing links listed under it, each with its name, price, and creation date; with more than ten links, a search box filters them by name, description, or price. Choosing a link fills the block with that link's details, and any change you then make applies everywhere the link is used. This step is skipped when the account has no links yet.
+
+To create a new link:
 
 1. Enter a **Product Name** (max 127 characters)
 2. Enter a **Price** (positive number, up to 2 decimal places)
 3. Select a **Currency** from the dropdown (26 supported)
-4. Optionally add a **Description** (max 256 characters)
-5. Click **Create Button**
+4. Optionally add a **Description** (max 2048 characters)
+5. Click **Create New**
 
 A live preview appears showing exactly how your button will look on the published page.
 
@@ -76,10 +77,29 @@ A live preview appears showing exactly how your button will look on the publishe
 | Stacked | PayPal button + "Debit or Credit Card" secondary button |
 | Single | PayPal button only |
 
-### Editing and Deleting Buttons
+### Editing and Deleting Payment Links
 
-- **Edit:** Click "Edit Button" in the block sidebar to update product details, then "Update Button" to save
-- **Delete:** Click "Delete Button" to remove the PayPal resource and start over
+- **Edit:** Update the product details in the block settings sidebar, then update or publish the post
+- **Manage all links:** Once a block has a saved link, the PayPal Connection panel in the block settings sidebar has a "Manage PayPal Payment Links" link. It opens the PayPal Payment Links admin page in a new tab, so the post you are editing stays where it is
+- **Delete:** Click "Delete payment link" in the block toolbar or the PayPal Connection panel, or use the Delete action on the PayPal Payment Links admin page
+
+#### Deleting is permanent
+
+PayPal offers no way to pause, deactivate, or restore a payment link. Delete is the only removal action, and it takes effect immediately:
+
+- The link stops working everywhere it was shared: this block, other posts, emails, and printed QR codes.
+- A buyer who opens the deleted link lands on a PayPal "not found" page instead of a checkout.
+- The link cannot be brought back. Creating a new one gives it a new URL and QR code.
+
+Because of this, every Delete action opens a confirmation that requires ticking "I understand this cannot be undone." before the Delete button becomes active. The admin page confirmation also says how many published posts still embed the link.
+
+Deleting from the admin page does not edit your posts. Instead:
+
+- Published blocks that still point at the deleted link render nothing, so visitors never see a button that leads to PayPal's "not found" page.
+- The admin page lists those posts after the delete, with edit links.
+- Opening one of those posts in the editor shows a warning on the block. Updating the post creates a new link with a new URL and QR code; remove the block instead if you no longer sell that product.
+
+Removing the last block that uses a link and updating the post also deletes the link on PayPal. If another published post still embeds it, the link is kept.
 
 ### Legacy Buttons
 

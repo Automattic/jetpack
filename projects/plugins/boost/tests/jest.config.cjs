@@ -6,5 +6,11 @@ module.exports = {
 	...coverageConfig,
 	rootDir: config.rootDir,
 	collectCoverageFrom: config.collectCoverageFrom,
-	projects: [ config, path.join( __dirname, '../_inc/overview/jest.config.cjs' ) ],
+	projects: [
+		{
+			...config,
+			testPathIgnorePatterns: [ ...config.testPathIgnorePatterns, '<rootDir>/_inc/overview/' ],
+		},
+		path.join( __dirname, '../_inc/overview/jest.config.cjs' ),
+	],
 };

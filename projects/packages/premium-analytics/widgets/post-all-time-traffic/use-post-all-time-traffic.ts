@@ -8,15 +8,12 @@ import {
 	parseSiteDateTime,
 	reportingTimeZone,
 } from '@jetpack-premium-analytics/datetime';
+import type { MonthKey, MonthlyHeatmapMetric } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	buildAllTimeTrafficRows,
-	type AllTimeTrafficRow,
-	type MonthKey,
-} from './build-all-time-traffic-rows';
+import { buildAllTimeTrafficRows, type AllTimeTrafficRow } from './build-all-time-traffic-rows';
 
 export interface PostAllTimeTrafficState {
 	rows: AllTimeTrafficRow[];
@@ -60,12 +57,16 @@ function lifeStart(
  * A `postId` of 0 disables the request.
  *
  * @param postId - The post the page is scoped to.
+ * @param metric - Which number each cell reports.
  * @return The rows and the request's state.
  */
-export default function usePostAllTimeTraffic( postId: number ): PostAllTimeTrafficState {
+export default function usePostAllTimeTraffic(
+	postId: number,
+	metric: MonthlyHeatmapMetric
+): PostAllTimeTrafficState {
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsPost( {
 		postId,
-		fields: [ 'years', 'post' ],
+		fields: [ 'years', 'averages', 'post' ],
 	} );
 
 	// Same reading as the page header: a site-local wall time, or the GMT stamp
@@ -88,12 +89,13 @@ export default function usePostAllTimeTraffic( postId: number ): PostAllTimeTraf
 		};
 		const built = buildAllTimeTrafficRows(
 			data,
+			metric,
 			{ year: today.getFullYear(), month: today.getMonth() },
 			publishedMonth
 		);
 
 		return { rows: built, lifeStartsAt: lifeStart( built, publishedAt, publishedMonth ) };
-	}, [ data, publishedAt ] );
+	}, [ data, metric, publishedAt ] );
 
 	return {
 		rows,

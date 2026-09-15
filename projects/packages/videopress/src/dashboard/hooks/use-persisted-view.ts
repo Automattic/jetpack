@@ -3,7 +3,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { libraryFields } from '../components/library/fields';
-import type { View } from '@wordpress/dataviews';
+import type { SupportedLayouts, View } from '@wordpress/dataviews';
 
 /**
  * Persists the Library DataViews `view` per-user, the way Core's media
@@ -195,11 +195,14 @@ function toPersistedView( view: View ): PersistedView {
  * Hook that hydrates the initial Library view from per-user preferences and
  * returns a writer to persist subsequent changes.
  *
- * @param defaultView - The fallback view used when nothing is persisted or
- *                    the persisted value is stale/invalid.
+ * @param defaultView    - The fallback view when persisted values are missing or invalid.
+ * @param defaultLayouts - The defaults for each supported layout.
  * @return A tuple of `[ initialView, persistView ]`.
  */
-export function usePersistedView( defaultView: View ): [ View, ( view: View ) => void ] {
+export function usePersistedView(
+	defaultView: View,
+	defaultLayouts: SupportedLayouts = {}
+): [ View, ( view: View ) => void ] {
 	const { setPersistenceLayer, set } = useDispatch( preferencesStore );
 
 	// Register the persistence layer before reading anything from the store.
@@ -217,9 +220,16 @@ export function usePersistedView( defaultView: View ): [ View, ( view: View ) =>
 	if ( initialView.current === null ) {
 		const scoped = readStoredData()[ PREFERENCES_SCOPE ] as Record< string, unknown > | undefined;
 		const sanitized = sanitizePersistedView( scoped?.[ PREFERENCES_NAME ] );
+		const type = sanitized.type ?? defaultView.type;
+		const layoutDefaults = defaultLayouts[ type ];
+		let fallbackLayout = type === defaultView.type ? defaultView.layout : undefined;
+		if ( typeof layoutDefaults === 'object' ) {
+			fallbackLayout = layoutDefaults.layout;
+		}
 		initialView.current = {
 			...defaultView,
 			...sanitized,
+			layout: { ...fallbackLayout, ...sanitized.layout },
 			// Always start on the first page; never restore a stale search.
 			page: 1,
 			search: '',
