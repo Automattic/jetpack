@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Expose the protected owner state and selectors from the connection store.

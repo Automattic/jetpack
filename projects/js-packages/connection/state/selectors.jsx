@@ -26,6 +26,19 @@ const connectionSelectors = {
 	getConnectionHealthErrors: state => state.connectionHealthErrors || {},
 	getIsOfflineMode: state => state.isOfflineMode || false,
 
+	/*
+	 * Protected owner. `getProtectedOwner` is null when the server withheld the state because the
+	 * viewer cannot manage the connection — which is not the same as there being no owner. The
+	 * booleans below all read false in that case, so a caller that must tell "no" from "cannot
+	 * say" checks `getProtectedOwner` for null first rather than trusting them.
+	 */
+	getProtectedOwner: state => state.protectedOwner || null,
+	isProtectedOwnerRequired: state => state.protectedOwner?.required === true,
+	hasProtectedOwner: state => state.protectedOwner?.protected === true,
+	isOwnershipLocked: state => state.protectedOwner?.locked === true,
+	getProtectedOwnerStatus: state => state.protectedOwner?.status || null,
+	isCurrentUserTheProtectedOwner: state => state.protectedOwner?.isCurrentUserTheOwner === true,
+
 	getWpcomUser,
 	getBlogId,
 };
