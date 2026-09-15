@@ -255,4 +255,51 @@ class REST_Connector_Test extends TestCase {
 		$this->assertFalse( $data['protected'] );
 		$this->assertFalse( $data['locked'] );
 	}
+	/**
+	 * An identity WordPress.com cannot confirm is refused, with the reason the caller can act on.
+	 *
+	 * The success path needs a connected user and so cannot run here; it is exercised on a live
+	 * site through the establish flow rather than pretended at in this environment.
+	 */
+	public function test_establishing_without_a_confirmable_identity_fails_closed() {
+		wp_set_current_user( self::$admin_user_id );
+		$caps = new Manager();
+		add_filter( 'map_meta_cap', array( $caps, 'jetpack_connection_custom_caps' ), 1, 4 );
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/connection/protected-owner' );
+		$request->set_param( 'confirmed_by', 'popup' );
+		$result = REST_Connector::establish_protected_owner( $request );
+
+		remove_filter( 'map_meta_cap', array( $caps, 'jetpack_connection_custom_caps' ), 1 );
+
+		// Unconnected here, so WordPress.com cannot confirm the identity and it must fail closed.
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertEquals( 'protected_owner_not_verified', array_keys( $result->errors )[0] );
+	}
+
+	/**
+	 * An identity WordPress.com cannot confirm is never written down, so nothing is locked.
+	 */
+	public function test_a_failed_establish_leaves_the_site_unlocked() {
+		wp_set_current_user( self::$admin_user_id );
+		$caps = new Manager();
+		add_filter( 'map_meta_cap', array( $caps, 'jetpack_connection_custom_caps' ), 1, 4 );
+
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/connection/protected-owner' );
+		$request->set_param( 'confirmed_by', 'popup' );
+		REST_Connector::establish_protected_owner( $request );
+
+		remove_filter( 'map_meta_cap', array( $caps, 'jetpack_connection_custom_caps' ), 1 );
+
+		$this->assertFalse( Protected_Owner::is_locked() );
+	}
+
+	/**
+	 * A subscriber cannot establish, and is refused before any argument is looked at.
+	 */
+	public function test_a_subscriber_cannot_establish_a_protected_owner() {
+		wp_set_current_user( self::$user_id );
+
+		$this->assertInstanceOf( 'WP_Error', REST_Connector::protected_owner_permission_check() );
+	}
 }

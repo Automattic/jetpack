@@ -247,6 +247,25 @@ class REST_Connector {
 			)
 		);
 
+		// Establish the current user as the protected owner, on demand from a consumer.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/protected-owner',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::establish_protected_owner',
+				'permission_callback' => __CLASS__ . '::protected_owner_permission_check',
+				'args'                => array(
+					'confirmed_by' => array(
+						'description'       => 'How the confirmation was obtained, e.g. popup or recovery.',
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
+			)
+		);
+
 		// Get list of plugins that use the Jetpack connection.
 		register_rest_route(
 			'jetpack/v4',
@@ -1092,6 +1111,32 @@ class REST_Connector {
 				'isCurrentUserTheOwner' => $state['is_current_user_the_po'],
 			)
 		);
+	}
+
+	/**
+	 * Record the current user as the protected owner.
+	 *
+	 * Anchors whoever is asking, and takes no target parameter: the concept requires the owner to
+	 * confirm for themselves, so there is deliberately no way for one administrator to anchor
+	 * another without that person having answered.
+	 *
+	 * Authorization beyond being an administrator is left to `set_protected_owner()`, which refuses
+	 * an unverifiable identity with a reason worth showing. Duplicating those checks here would give
+	 * two places to keep in step and a vaguer error.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function establish_protected_owner( $request ) {
+		$established = ( new Manager() )->set_protected_owner( get_current_user_id(), $request['confirmed_by'] );
+
+		if ( is_wp_error( $established ) ) {
+			return $established;
+		}
+
+		return self::get_protected_owner_status();
 	}
 
 	/**
