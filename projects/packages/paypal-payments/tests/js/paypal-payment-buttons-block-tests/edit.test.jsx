@@ -212,6 +212,8 @@ jest.mock( '@wordpress/components', () => ( {
 			<span className="components-base-control__label">{ children }</span>
 		),
 	},
+	// Only there to pad the suffix off the field edge; nothing asserts on it.
+	__experimentalInputControlSuffixWrapper: ( { children } ) => <span>{ children }</span>,
 	// Real InputControl renders its own BaseControl, so className and help land on its
 	// root and the label is tied to the input by a shared id. Mock that, not an
 	// aria-label - a field with no accessible name has to fail here. onChange emits

@@ -9,7 +9,10 @@
  * @since 0.9.0
  */
 
-import { __experimentalInputControl as InputControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import {
+	__experimentalInputControl as InputControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalInputControlSuffixWrapper as InputControlSuffixWrapper, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 
 /**
  * Amount or percentage input with the unit inside the field.
@@ -51,7 +54,8 @@ export default function AmountField( {
 			min={ min }
 			max={ max }
 			placeholder={ placeholder }
-			suffix={ suffix }
+			// The wrapper is what pads the suffix off the field's edge.
+			suffix={ <InputControlSuffixWrapper>{ suffix }</InputControlSuffixWrapper> }
 			help={ error }
 			className={ error ? 'jetpack-paypal-payment-buttons__has-error' : undefined }
 			disabled={ disabled }
