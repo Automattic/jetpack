@@ -46,6 +46,27 @@ class Initial_State {
 			}
 		}
 
+		// Printed for every logged-in user who loads connection scripts, so this follows
+		// `connectionOwner` in staying behind `jetpack_connect`. Resolved only while something is
+		// actually asking for an owner: classifying the state can cost a WordPress.com lookup, and
+		// a site with no such consumer must pay exactly what it paid before.
+		$protected_owner = null;
+		if ( current_user_can( 'jetpack_connect' ) ) {
+			$manager  = new Manager();
+			$required = $manager->requires_protected_owner();
+
+			$protected_owner = array( 'required' => $required );
+
+			if ( $required ) {
+				$state = $manager->resolve_protected_owner_state();
+
+				$protected_owner['protected']             = $manager->has_protected_owner();
+				$protected_owner['locked']                = Protected_Owner::is_locked();
+				$protected_owner['status']                = $state['status'];
+				$protected_owner['isCurrentUserTheOwner'] = $state['is_current_user_the_po'];
+			}
+		}
+
 		return array(
 			'apiRoot'                 => esc_url_raw( rest_url() ),
 			'apiNonce'                => wp_create_nonce( 'wp_rest' ),
@@ -60,6 +81,7 @@ class Initial_State {
 			'calypsoEnv'              => ( new Status\Host() )->get_calypso_env(),
 			'isOwnershipTransferable' => ( new Manager() )->is_ownership_transferable(),
 			'connectionOwner'         => $connection_owner,
+			'protectedOwner'          => $protected_owner,
 		);
 	}
 
