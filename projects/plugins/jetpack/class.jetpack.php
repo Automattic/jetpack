@@ -7,7 +7,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log as Activity_Log_Init;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
@@ -1144,7 +1143,6 @@ class Jetpack {
 			add_action( 'rest_api_init', array( My_Jetpack_Initializer::class, 'init' ), 0 );
 		}
 
-		Activity_Log_Init::initialize();
 		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
 
