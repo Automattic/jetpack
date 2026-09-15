@@ -1752,9 +1752,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "a1afd216e9149b18df88829ddaa9ba60c1606b17"
+                "reference": "c6cf6e947fbacfe302132eb67110302759f63c6c"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",

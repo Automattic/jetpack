@@ -102,9 +102,33 @@ add_filter(
 );
 ```
 
-The whole map is passed at once so two mu-plugins setting different keys merge rather than clobber each other. `visible` cannot expose a page to someone who lacks the capability for it — `add_submenu_page()` refuses those regardless.
+The whole map is passed at once so two mu-plugins setting different keys merge rather than clobber each other. `visible` cannot expose a page to someone who lacks the capability for it — core refuses those regardless.
 
-Only items registered through `Admin_Menu::add_menu()` are in the map. Anything added with a bare `add_submenu_page()` is out of this filter's reach.
+Only items registered through `Admin_Menu::add_menu()` or `Admin_Menu::add_top_level_menu()` are in the map. Anything added with a bare `add_submenu_page()` or `add_menu_page()` is out of this filter's reach.
+
+### Top level pages
+
+A few Jetpack pages deliberately sit outside the Jetpack menu. `add_top_level_menu()` registers those, with the same gate, the same filter and the same hidden-but-reachable behavior — placement is the only difference. The parameters mirror `add_menu_page`, with the visibility declaration appended:
+
+```PHP
+$page_suffix = Admin_Menu::add_top_level_menu(
+	__( 'Stats', 'jetpack-stats-admin' ),
+	__( 'Stats', 'jetpack-stats-admin' ),
+	'view_stats',
+	'stats',
+	array( $this, 'render' ),
+	'dashicons-chart-bar',
+	2,
+	array(
+		'product' => 'stats',
+		'key'     => 'jetpack-stats',
+	)
+);
+```
+
+Two conveniences `add_menu()` applies do not carry over: the page does not get the core-notice CSS or the WPDS design tokens. Those belong to the dashboards under the Jetpack menu, so a top level page that wants either calls `Admin_Menu::hide_core_admin_notices()` or `Admin_Menu::enqueue_design_tokens()` on its own `load-` hook.
+
+A visible top level item never keeps an otherwise empty Jetpack menu alive — it sits beside that menu, not in it.
 
 ## Security
 

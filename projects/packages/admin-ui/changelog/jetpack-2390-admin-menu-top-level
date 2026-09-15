@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sidebar: add Admin_Menu::add_top_level_menu(), so a Jetpack page that sits outside the Jetpack menu can declare a visibility gate and be reached by the jetpack_admin_menu_visibility filter.

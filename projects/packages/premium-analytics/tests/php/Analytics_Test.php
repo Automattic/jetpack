@@ -60,6 +60,41 @@ class Analytics_Test extends TestCase {
 		);
 
 		unset( $GLOBALS['jpa_test_build_loaded'], $GLOBALS['jpa_test_interceptor_priority'] );
+
+		$this->reset_admin_menu_state();
+		remove_all_filters( 'jetpack_admin_menu_visibility' );
+	}
+
+	/**
+	 * Clears Admin_Menu's statics between tests.
+	 *
+	 * Every admin_menu action is dropped in tearDown(), but $initialized is out of its reach,
+	 * so without this the class believes it is already hooked and never registers what later
+	 * tests queue.
+	 *
+	 * @return void
+	 */
+	private function reset_admin_menu_state() {
+		$reflection = new \ReflectionClass( \Automattic\Jetpack\Admin_UI\Admin_Menu::class );
+
+		foreach ( array( 'menu_items', 'top_level_items', 'hidden_menu_slugs', 'hidden_top_level_slugs' ) as $name ) {
+			if ( ! $reflection->hasProperty( $name ) ) {
+				continue;
+			}
+			$property = $reflection->getProperty( $name );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, array() );
+		}
+
+		$initialized = $reflection->getProperty( 'initialized' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
 	}
 
 	/**
@@ -822,7 +857,9 @@ class Analytics_Test extends TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
-		Analytics::register_admin_menu();
+		// init() hooked register_admin_menu; dispatching reaches it and then Admin_Menu's
+		// registration pass at priority 1000, which is what puts the page in the menu.
+		do_action( 'admin_menu' );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
@@ -851,7 +888,9 @@ class Analytics_Test extends TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
-		Analytics::register_admin_menu();
+		// init() hooked register_admin_menu; dispatching reaches it and then Admin_Menu's
+		// registration pass at priority 1000, which is what puts the page in the menu.
+		do_action( 'admin_menu' );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
@@ -905,6 +944,47 @@ class Analytics_Test extends TestCase {
 	 * @param string $manifest_filter Method on this class supplying the manifest path.
 	 * @return array|null The registered menu entry.
 	 */
+	/**
+	 * A host can take the dashboard out of the sidebar through the shared Jetpack filter.
+	 */
+	public function test_a_host_can_hide_the_dashboard_menu() {
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $items ) {
+				$items['jetpack-premium-analytics'] = 'hidden';
+				return $items;
+			}
+		);
+
+		$this->register_admin_menu_without_build();
+
+		ob_start(); // Core prints head markup on admin_head.
+		do_action( 'admin_head' );
+		ob_end_clean();
+
+		$this->assertNotContains( self::MENU_SLUG, array_column( $GLOBALS['menu'], 2 ) );
+	}
+
+	/**
+	 * Hiding the entry leaves the page registered, so links into the dashboard keep working.
+	 */
+	public function test_a_hidden_dashboard_keeps_its_page_registered() {
+		global $_registered_pages;
+		$_registered_pages = array();
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $items ) {
+				$items['jetpack-premium-analytics'] = 'hidden';
+				return $items;
+			}
+		);
+
+		$this->register_admin_menu_without_build();
+
+		$this->assertArrayHasKey( self::MENU_HOOKNAME, $_registered_pages );
+	}
+
 	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest' ) {
 		$GLOBALS['menu'] = array();
 
@@ -918,6 +998,8 @@ class Analytics_Test extends TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		$this->capture_doing_it_wrong();
 		Analytics::register_admin_menu();
+		// Admin_Menu queues the item and registers what it has at admin_menu priority 1000.
+		do_action( 'admin_menu' );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, $manifest_filter ) );
 
