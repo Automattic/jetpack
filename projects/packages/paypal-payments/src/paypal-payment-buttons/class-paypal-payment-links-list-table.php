@@ -225,7 +225,27 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 			);
 		}
 
-		return sprintf( '<strong>%s</strong>%s', $name, $this->row_actions( $actions ) );
+		return sprintf(
+			'<div class="paypal-product">%s<div><strong>%s</strong>%s</div></div>',
+			$this->product_thumbnail( $item ),
+			$name,
+			$this->row_actions( $actions )
+		);
+	}
+
+	/**
+	 * Render the product thumbnail, or a placeholder box so names line up across rows.
+	 *
+	 * @param array $item The payment link data.
+	 * @return string Thumbnail HTML.
+	 */
+	private function product_thumbnail( $item ) {
+		$image_url = PayPal_Admin_Page::product_image_url( $item );
+		if ( '' !== $image_url ) {
+			return sprintf( '<img class="paypal-product-thumb" src="%s" alt="" loading="lazy" />', esc_url( $image_url ) );
+		}
+
+		return '<span class="paypal-product-thumb paypal-product-thumb--placeholder" aria-hidden="true"><span class="dashicons dashicons-format-image"></span></span>';
 	}
 
 	/**

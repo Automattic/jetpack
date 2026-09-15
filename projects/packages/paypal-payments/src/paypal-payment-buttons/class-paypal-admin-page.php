@@ -196,6 +196,25 @@ class PayPal_Admin_Page {
 	}
 
 	/**
+	 * HTTPS URL of the product image on a payment link resource, or '' when there is none.
+	 *
+	 * PayPal only shows HTTPS images at checkout, and a plain-HTTP one would be
+	 * mixed content on the admin page, so anything else is dropped.
+	 *
+	 * @param array $resource The payment link resource, or a list table row.
+	 * @return string The image URL, or ''.
+	 */
+	public static function product_image_url( $resource ) {
+		$url = $resource['line_items'][0]['image_url'] ?? '';
+		if ( ! is_string( $url ) || '' === $url ) {
+			return '';
+		}
+		$url = esc_url( $url, array( 'https' ) );
+
+		return 0 === strpos( $url, 'https://' ) ? $url : '';
+	}
+
+	/**
 	 * Initialize admin hooks when the API-managed buttons are enabled.
 	 *
 	 * @since $$next-version$$
@@ -343,6 +362,31 @@ class PayPal_Admin_Page {
 			.paypal-copy-link {
 				vertical-align: middle;
 				margin-left: 4px !important;
+			}
+			.paypal-product {
+				display: flex;
+				align-items: flex-start;
+				gap: 10px;
+			}
+			.paypal-product-thumb {
+				flex: none;
+				width: 40px;
+				height: 40px;
+				border-radius: 3px;
+				object-fit: cover;
+				background: #f0f0f1;
+			}
+			.paypal-product-thumb--placeholder {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #a7aaad;
+			}
+			.paypal-detail-product-image {
+				display: block;
+				max-width: 160px;
+				max-height: 160px;
+				border-radius: 3px;
 			}
 			.paypal-admin-header {
 				display: flex;
@@ -744,6 +788,14 @@ class PayPal_Admin_Page {
 		echo '<div class="card paypal-detail-card">';
 		printf( '<h3>%s</h3>', esc_html__( 'Payment Details', 'jetpack-paypal-payments' ) );
 		echo '<table class="form-table">';
+
+		$image_url = self::product_image_url( $resource );
+		if ( '' !== $image_url ) {
+			self::render_detail_row_html(
+				__( 'Product Image', 'jetpack-paypal-payments' ),
+				sprintf( '<img class="paypal-detail-product-image" src="%s" alt="" />', esc_url( $image_url ) )
+			);
+		}
 
 		self::render_detail_row( __( 'Product Name', 'jetpack-paypal-payments' ), $line_item['name'] ?? '' );
 

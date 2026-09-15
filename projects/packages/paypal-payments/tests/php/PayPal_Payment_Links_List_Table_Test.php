@@ -260,6 +260,34 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		$this->assertStringContainsString( '—', $output );
 	}
 
+	public function test_column_name_renders_the_product_thumbnail() {
+		$table                              = new PayPal_Payment_Links_List_Table();
+		$item                               = $this->get_sample_items()[0];
+		$item['line_items'][0]['image_url'] = 'https://example.com/widget.png';
+		$output                             = $table->column_name( $item );
+
+		$this->assertStringContainsString( '<img class="paypal-product-thumb" src="https://example.com/widget.png"', $output );
+		$this->assertStringNotContainsString( 'paypal-product-thumb--placeholder', $output );
+	}
+
+	public function test_column_name_renders_a_placeholder_without_an_image() {
+		$table  = new PayPal_Payment_Links_List_Table();
+		$output = $table->column_name( $this->get_sample_items()[0] );
+
+		$this->assertStringContainsString( 'paypal-product-thumb--placeholder', $output );
+		$this->assertStringNotContainsString( '<img', $output );
+	}
+
+	public function test_column_name_drops_an_image_that_is_not_https() {
+		$table                              = new PayPal_Payment_Links_List_Table();
+		$item                               = $this->get_sample_items()[0];
+		$item['line_items'][0]['image_url'] = 'http://example.com/widget.png';
+		$output                             = $table->column_name( $item );
+
+		$this->assertStringContainsString( 'paypal-product-thumb--placeholder', $output );
+		$this->assertStringNotContainsString( '<img', $output );
+	}
+
 	/**
 	 * Test column_name includes delete action with nonce URL.
 	 */

@@ -711,6 +711,52 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'A premium widget with features.', $output );
 	}
 
+	public function test_detail_view_shows_the_product_image() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$resource                               = $this->get_sample_resource();
+		$resource['line_items'][0]['image_url'] = 'https://example.com/widget.png';
+		$this->mock_get_resource_response( $resource );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Product Image', $output );
+		$this->assertStringContainsString( '<img class="paypal-detail-product-image" src="https://example.com/widget.png"', $output );
+	}
+
+	public function test_detail_view_has_no_image_row_without_an_image() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'Product Image', $output );
+		$this->assertStringNotContainsString( 'paypal-detail-product-image', $output );
+	}
+
+	public function test_product_image_url_keeps_only_https() {
+		$this->assertSame( 'https://example.com/a.png', PayPal_Admin_Page::product_image_url( array( 'line_items' => array( array( 'image_url' => 'https://example.com/a.png' ) ) ) ) );
+		$this->assertSame( '', PayPal_Admin_Page::product_image_url( array( 'line_items' => array( array( 'image_url' => 'http://example.com/a.png' ) ) ) ) );
+		$this->assertSame( '', PayPal_Admin_Page::product_image_url( array( 'line_items' => array( array( 'image_url' => 'javascript:alert(1)' ) ) ) ) );
+		$this->assertSame( '', PayPal_Admin_Page::product_image_url( array( 'line_items' => array( array( 'name' => 'No image' ) ) ) ) );
+		$this->assertSame( '', PayPal_Admin_Page::product_image_url( array() ) );
+	}
+
 	/**
 	 * Test detail view shows payment link card with copy button.
 	 */
