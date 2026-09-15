@@ -4,7 +4,7 @@ import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { formatNumber } from '@automattic/number-formatters';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, desktop, mobile, Icon } from '@wordpress/icons';
 import { Button, Card, Notice } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -331,7 +331,7 @@ export default function HistoryChartCard( {
 								) }
 								onClick={ onPrevious }
 							>
-								<Icon icon={ chevronLeft } />
+								<Icon icon={ isRTL() ? chevronRight : chevronLeft } />
 							</Button>
 							<span aria-live="polite">
 								{ sprintf(
@@ -352,7 +352,7 @@ export default function HistoryChartCard( {
 								disabled={ ! canGoNext }
 								onClick={ onNext }
 							>
-								<Icon icon={ chevronRight } />
+								<Icon icon={ isRTL() ? chevronLeft : chevronRight } />
 							</Button>
 						</div>
 					) }
