@@ -303,6 +303,19 @@ class Help_Center {
 			true
 		);
 
+		// The node carries an href so the keyboard can reach it, but where the panel opens
+		// in place the click must not navigate. Registered here so a Jetpack-only deploy
+		// behaves, rather than relying on the bundle to cancel it.
+		if ( $this->opens_help_center_in_place() ) {
+			wp_add_inline_script(
+				'help-center',
+				"document.addEventListener( 'click', function ( event ) {"
+				. "if ( event.target.closest( '#wp-admin-bar-help-center > .ab-item' ) ) { event.preventDefault(); }"
+				. '} );',
+				'before'
+			);
+		}
+
 		wp_enqueue_style(
 			'help-center-' . $variant . '-style',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
@@ -725,6 +738,16 @@ class Help_Center {
 	 */
 	public function get_help_center_url() {
 		return 'https://wordpress.com/help?help-center=home';
+	}
+
+	/**
+	 * Whether the Help Center panel opens in place instead of following the node's href.
+	 *
+	 * @return bool
+	 */
+	public function opens_help_center_in_place() {
+		return ! $this->is_jetpack_disconnected()
+			&& ! ( $this->is_loading_on_frontend() && ! $this->is_support_site );
 	}
 
 	/**
