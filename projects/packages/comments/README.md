@@ -8,7 +8,7 @@ Nothing loads unless the filter says so:
 add_filter( 'jetpack_comments_new_hotness', '__return_true' );
 ```
 
-While it returns false the site's existing comment experience is untouched.
+While it returns false the site's existing comment experience is untouched. On WordPress.com the `comment-new-hotness` blog sticker answers it; see "Where it loads from".
 
 Register it early. The two loaders below read it at different points, so the
 deadline is the earlier of the two: `plugins_loaded` on Simple, `after_setup_theme`
@@ -17,7 +17,7 @@ only makes the second, so on Simple the filter would be read before it was added
 
 ## What it does
 
-The form renders on the site the comment is posted to, and posts to that site's own `wp-comments-post.php`. No iframe, and no call to WordPress.com, so it behaves the same on Simple, Atomic and self-hosted.
+The form renders on the site the comment is posted to, and posts to that site's own `wp-comments-post.php`. No iframe, and the only call to WordPress.com is the exchange behind a popup sign-in, so it behaves the same on Simple, Atomic and self-hosted.
 
 - A textarea that grows as you type.
 - Sign in with WordPress.com, Google or Facebook, through a popup rather than an iframe. See "The checkpoint" below.
@@ -35,7 +35,7 @@ The popup posts back `{ type: 'jetpack-comment-identity', code, name, avatar, ch
 
 A successful exchange also sets two first-party cookies with the same expiry. `jetpack_comment_identity` is the passport: httponly, signed with the site's auth salt over the blog id too, so it is refused on any other site of a network, carrying the id, provider, name, email and avatar, and read only by the server when a comment posts. `jetpack_comment_identity_display` carries provider, name, avatar and the blog id for the page's script to draw the signed-in row from, and the script ignores it on any other blog, because on a network the cookie domain is shared. It has to be a cookie: the HTML is page-cached and served to everyone, so nothing about the visitor can be rendered into it, which is also why the signed popup URLs in the page are shared until they expire.
 
-A returning commenter is admitted on the passport alone for as long as it lasts, up to 30 days, without going back to WordPress.com. The form says so with a hidden `jetpack_comment_identity_passport` field, and the server reads the passport only when that field is posted, so a log-out that never reached the server still leaves the reader posting as the guest the form showed them as. That is deliberate: consent for this site was given on the connect page, and the exchange already returned everything the comment needs. "Log out" posts the `jetpack_comments_identity_logout` admin-ajax action, which takes both cookies back. That is admin-ajax rather than REST because only the site's own host can clear its first-party cookie, and on Simple that host serves no REST API. A spent or expired code clears them and asks the reader to sign in again.
+A returning commenter is admitted on the passport alone for as long as it lasts, up to 30 days, without going back to WordPress.com. The form says so with a hidden `jetpack_comment_identity_passport` field, and the server reads the passport only when that field is posted, so a log-out that never reached the server still leaves the reader posting as the guest the form showed them as. That is deliberate: consent for this site was given on the connect page, and the exchange already returned everything the comment needs. "Log out" posts the `jetpack_comments_identity_logout` admin-ajax action, which takes both cookies back, and marks the browser so the next popup carries `reauth=1`: WordPress.com keeps its own 30-day cookie for the person, and without that flag it would sign the same person straight back in on a shared machine. That is admin-ajax rather than REST because only the site's own host can clear its first-party cookie, and on Simple that host serves no REST API. A spent or expired code clears them and asks the reader to sign in again.
 
 ## Not here yet
 
@@ -83,7 +83,7 @@ reaches WordPress.com from Jetpack and Atomic sites the way `hc_avatar` does.
 
 ## Where it loads from
 
-Two places check the filter, so one switch covers every environment:
+Two places check the filter, so one switch covers every environment. On Simple and Atomic, `packages/jetpack-mu-wpcom` answers it from the `comment-new-hotness` blog sticker, and the popup sign-in on WordPress.com requires the same sticker on every host, self-hosted included. A tester who only sets the filter gets the form, and "Not found." in the popup.
 
 | Environment | Loader | What stands down |
 | --- | --- | --- |

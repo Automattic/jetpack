@@ -22,6 +22,10 @@ const EXPIRY_MARGIN_S = 30;
 
 const CLOSED_POLL_MS = 250;
 
+// Set by a log-out, so the next popup goes back through the provider rather
+// than WordPress.com's own cookie signing the previous person straight in.
+const REAUTH_KEY = 'jetpack-comments-reauth';
+
 /**
  * The signed URL for a provider, re-signed by the site when the rendered one
  * has expired or was never there. A cached page hands out stale ones.
@@ -102,7 +106,16 @@ export const signIn = async (
 		return { error: error instanceof Error ? error.message : 'server_error' };
 	}
 
-	popup.location.href = connect.url;
+	let reauth = false;
+
+	try {
+		reauth = localStorage.getItem( REAUTH_KEY ) === '1';
+	} catch {
+		// Then the cookie on WordPress.com decides, as it does for a first visit.
+	}
+
+	// Outside the signature, so it can be added here.
+	popup.location.href = reauth ? `${ connect.url }&reauth=1` : connect.url;
 
 	return new Promise< CheckpointResult >( resolve => {
 		const { origin } = JetpackComments.identity;
@@ -133,6 +146,12 @@ export const signIn = async (
 			if ( typeof data.error === 'string' ) {
 				finish( data.error === 'access_denied' ? { cancelled: true } : { error: data.error } );
 			} else if ( typeof data.code === 'string' && data.code !== '' ) {
+				try {
+					localStorage.removeItem( REAUTH_KEY );
+				} catch {
+					// Then the next sign-in goes through the provider again, which is harmless.
+				}
+
 				finish( {
 					code: data.code,
 					name: typeof data.name === 'string' ? data.name : '',
@@ -164,6 +183,12 @@ export const signIn = async (
  */
 export const logOut = async (): Promise< boolean > => {
 	clearPassport();
+
+	try {
+		localStorage.setItem( REAUTH_KEY, '1' );
+	} catch {
+		// Then the next sign-in may come back as the same person without asking.
+	}
 
 	const { logoutUrl, logoutAction } = JetpackComments.identity;
 
