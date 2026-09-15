@@ -786,4 +786,128 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertFalse( Protected_Owner::is_locked() );
 		$this->assertTrue( ( new Manager() )->is_ownership_transferable() );
 	}
+	// ── resolve_protected_owner_state ────────────────────────────────────
+
+	/**
+	 * Eligibility is being an administrator, so a lesser role is told it is not.
+	 */
+	public function test_state_is_not_eligible_for_a_non_administrator() {
+		wp_set_current_user( $this->actor( 'editor' ) );
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NOT_ELIGIBLE, $state['status'] );
+	}
+
+	/**
+	 * An administrator with no token has no WordPress.com identity to confirm yet.
+	 */
+	public function test_state_needs_a_connection_before_an_admin_can_establish() {
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never(), false );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_CONNECT_TO_ESTABLISH, $state['status'] );
+	}
+
+	/**
+	 * A connected administrator is the one case that can go on to establish.
+	 */
+	public function test_state_can_establish_for_a_connected_administrator() {
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => 77 ) );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_CAN_ESTABLISH, $state['status'] );
+	}
+
+	/**
+	 * An anchored site with nobody holding the master slot needs the owner back.
+	 */
+	public function test_state_needs_an_owner_reconnect_when_the_master_slot_is_vacant() {
+		$this->anchor();
+		$this->act_as_administrator();
+
+		$manager = $this->manager( false, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $state['status'] );
+	}
+
+	/**
+	 * An agency holding master while the protected owner is away is a gated state, not a broken
+	 * one, so it is reported as needing a different owner rather than a reconnect.
+	 */
+	public function test_state_needs_a_different_owner_when_another_account_holds_master() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, 9999 );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_DIFFERENT_OWNER, $state['status'] );
+	}
+
+	/**
+	 * A matching owner means the gate would have answered true, so the caller is told to ask again
+	 * rather than handed a reason that no longer applies.
+	 */
+	public function test_state_asks_for_a_re_evaluation_when_the_owner_matches_after_all() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_RE_EVALUATE, $state['status'] );
+		$this->assertTrue( $manager->has_protected_owner(), 'RE_EVALUATE must only be reachable when the gate agrees.' );
+	}
+
+	/**
+	 * The flag reads the current user's own binding, so the anchored user is recognised.
+	 */
+	public function test_the_state_flags_the_current_user_as_the_protected_owner() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->manager( false, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $state['status'] );
+		$this->assertTrue( $state['is_current_user_the_po'] );
+	}
+
+	/**
+	 * Another connected administrator is not mistaken for the anchored identity.
+	 */
+	public function test_the_state_does_not_flag_a_bystander_as_the_protected_owner() {
+		$this->anchor();
+		$bystander = $this->candidate( 'bystander' );
+		Utils::set_wpcom_user_id( $bystander, 9999 );
+		wp_set_current_user( $bystander );
+
+		$manager = $this->manager( $bystander, false, $this->never() );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertFalse( $state['is_current_user_the_po'] );
+	}
+
+	/**
+	 * Without an anchor the flag has nothing to compare against and stays false.
+	 */
+	public function test_the_state_flag_is_false_when_there_is_no_anchor() {
+		$this->act_as_administrator();
+
+		$manager = $this->manager( $this->owner_id, array( 'ID' => 77 ) );
+		$state   = $manager->resolve_protected_owner_state();
+
+		$this->assertSame( Manager::PO_STATE_CAN_ESTABLISH, $state['status'] );
+		$this->assertFalse( $state['is_current_user_the_po'] );
+	}
 }
