@@ -837,14 +837,19 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await connectionPanel.waitFor( { state: 'visible', timeout: 5000 } );
 			await connectionPanel.click( { force: true } );
 
-			const deleteBtn = page.locator( 'button:has-text("Delete Button")' );
+			const deleteBtn = page.locator( 'button:has-text("Delete payment link")' );
 			await expect( deleteBtn ).toBeVisible( { timeout: 3000 } );
 			await deleteBtn.click();
 
-			// ConfirmDialog replaces window.confirm — confirm the destructive action.
+			// The delete button stays disabled until the merchant acknowledges the warning.
 			const deleteConfirmDialog = page.locator( '[role="dialog"]' );
 			await expect( deleteConfirmDialog ).toBeVisible( { timeout: 3000 } );
-			await deleteConfirmDialog.locator( 'button:has-text("Delete Permanently")' ).click();
+			const deletePermanently = deleteConfirmDialog.locator(
+				'button:has-text("Delete permanently")'
+			);
+			await expect( deletePermanently ).toBeDisabled();
+			await deleteConfirmDialog.getByLabel( 'I understand this cannot be undone.' ).check();
+			await deletePermanently.click();
 
 			// Block content returns to create form inside the iframe.
 			await expect( block.locator( 'h3:has-text("Create PayPal Payment Button")' ) ).toBeVisible( {
@@ -870,14 +875,15 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			// Use the toolbar trash button (WOOPTP-391: delete accessible from block toolbar).
 			await block.click();
 			const toolbar = page.locator( '.block-editor-block-toolbar' );
-			const toolbarDeleteBtn = toolbar.locator( 'button[aria-label="Delete Payment Button"]' );
+			const toolbarDeleteBtn = toolbar.locator( 'button[aria-label="Delete payment link"]' );
 			await expect( toolbarDeleteBtn ).toBeVisible( { timeout: 3000 } );
 			await toolbarDeleteBtn.click();
 
-			// ConfirmDialog — confirm the destructive action.
+			// Acknowledge the warning, then confirm the destructive action.
 			const confirmDialog = page.locator( '[role="dialog"]' );
 			await expect( confirmDialog ).toBeVisible( { timeout: 3000 } );
-			await confirmDialog.locator( 'button:has-text("Delete Permanently")' ).click();
+			await confirmDialog.getByLabel( 'I understand this cannot be undone.' ).check();
+			await confirmDialog.locator( 'button:has-text("Delete permanently")' ).click();
 
 			// Should return to create form.
 			await expect( block.locator( 'h3:has-text("Create PayPal Payment Button")' ) ).toBeVisible( {

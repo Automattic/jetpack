@@ -110,7 +110,7 @@ export function usePayPalResource( {
 					resourceId: undefined,
 					paymentLink: undefined,
 				} );
-				setSuccessMessage( __( 'PayPal button deleted.', 'jetpack-paypal-payments' ) );
+				setSuccessMessage( __( 'Payment link deleted.', 'jetpack-paypal-payments' ) );
 			} )
 			.catch( err => {
 				// If already deleted (404), clear state anyway.
@@ -121,7 +121,7 @@ export function usePayPalResource( {
 						paymentLink: undefined,
 					} );
 					setSuccessMessage(
-						__( 'Button was already removed from PayPal.', 'jetpack-paypal-payments' )
+						__( 'The payment link was already removed from PayPal.', 'jetpack-paypal-payments' )
 					);
 				} else {
 					setError( getUserFriendlyError( err ) );

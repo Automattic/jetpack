@@ -76,10 +76,22 @@ A live preview appears showing exactly how your button will look on the publishe
 | Stacked | PayPal button + "Debit or Credit Card" secondary button |
 | Single | PayPal button only |
 
-### Editing and Deleting Buttons
+### Editing and Deleting Payment Links
 
-- **Edit:** Update the product details in the block settings sidebar, then click "Save"
-- **Delete:** Click "Delete Button" to remove the PayPal resource and start over
+- **Edit:** Update the product details in the block settings sidebar, then update or publish the post
+- **Delete:** Click "Delete payment link" in the block toolbar or the PayPal Connection panel, or use the Delete action on the PayPal Payment Links admin page
+
+#### Deleting is permanent
+
+PayPal offers no way to pause, deactivate, or restore a payment link. Delete is the only removal action, and it takes effect immediately:
+
+- The link stops working everywhere it was shared: this block, other posts, emails, and printed QR codes.
+- A buyer who opens the deleted link lands on a PayPal "not found" page instead of a checkout.
+- The link cannot be brought back. Creating a new one gives it a new URL and QR code.
+
+Because of this, every Delete action opens a confirmation that requires ticking "I understand this cannot be undone." before the Delete button becomes active. The admin page confirmation also says how many published posts still embed the link.
+
+Removing the last block that uses a link and updating the post also deletes the link on PayPal. If another published post still embeds it, the link is kept.
 
 ### Legacy Buttons
 

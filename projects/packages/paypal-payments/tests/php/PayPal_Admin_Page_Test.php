@@ -416,6 +416,86 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'notice-error', $output );
 	}
 
+	// --- render_page: delete confirmation ---
+
+	/**
+	 * Test the list view carries the delete dialog with its acknowledgement and a disabled confirm.
+	 */
+	public function test_render_page_list_includes_the_delete_dialog() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response(
+			array(
+				'items'       => array(),
+				'total_items' => 0,
+				'links'       => array(),
+			)
+		);
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<dialog id="paypal-delete-dialog"', $output );
+		$this->assertStringContainsString( 'cannot pause, deactivate, or restore a payment link', $output );
+		$this->assertStringContainsString( 'id="paypal-delete-acknowledge"', $output );
+		$this->assertStringContainsString( 'I understand this cannot be undone.', $output );
+		$this->assertStringContainsString( 'id="paypal-delete-confirm" disabled', $output );
+	}
+
+	/**
+	 * Test the detail view carries the delete dialog too, since it has its own Delete button.
+	 */
+	public function test_render_page_detail_view_includes_the_delete_dialog() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<dialog id="paypal-delete-dialog"', $output );
+		$this->assertStringContainsString( 'class="button paypal-delete-link" data-confirm="', $output );
+	}
+
+	/**
+	 * Test the disconnected state, which has nothing to delete, does not render the dialog.
+	 */
+	public function test_render_page_disconnected_state_has_no_delete_dialog() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+		// Clears the in-memory credentials cache as well as the option.
+		PayPal_OAuth::delete_credentials();
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'paypal-delete-dialog', $output );
+	}
+
+	/**
+	 * Test the inline script opens the dialog and only falls back to window.confirm without <dialog> support.
+	 */
+	public function test_enqueue_assets_opens_the_delete_dialog_instead_of_confirm() {
+		PayPal_Admin_Page::enqueue_assets( 'toplevel_page_' . PayPal_Admin_Page::PAGE_SLUG );
+
+		$script = implode( "\n", (array) wp_scripts()->get_data( 'jetpack-paypal-admin', 'after' ) );
+
+		$this->assertStringContainsString( 'deleteDialog.showModal()', $script );
+		$this->assertStringContainsString( 'deleteConfirm.disabled = !deleteAcknowledge.checked', $script );
+		$this->assertStringContainsString( 'typeof deleteDialog.showModal !== "function"', $script );
+		$this->assertStringContainsString( 'window.confirm(link.getAttribute("data-confirm"))', $script );
+	}
+
 	// --- render_page: detail view (WOOPTP-167) ---
 
 	/**

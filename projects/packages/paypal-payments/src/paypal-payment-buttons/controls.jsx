@@ -56,7 +56,7 @@ export default function PayPalInspectorControls( {
 							onClick={ handleDeleteButton }
 							disabled={ isBusy || ! isConnected }
 						>
-							{ __( 'Delete Button', 'jetpack-paypal-payments' ) }
+							{ __( 'Delete payment link', 'jetpack-paypal-payments' ) }
 						</Button>
 						{ isConnected ? (
 							<Button variant="secondary" isDestructive onClick={ handleDisconnect }>

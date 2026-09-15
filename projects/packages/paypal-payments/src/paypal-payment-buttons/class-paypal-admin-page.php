@@ -154,7 +154,7 @@ class PayPal_Admin_Page {
 		add_submenu_page(
 			$parent_slug,
 			__( 'PayPal Payment Links', 'jetpack-paypal-payments' ),
-			__( 'Payment Links', 'jetpack-paypal-payments' ),
+			__( 'PayPal Payment Links', 'jetpack-paypal-payments' ),
 			self::CAPABILITY,
 			self::PAGE_SLUG,
 			array( __CLASS__, 'render_page' )
@@ -325,6 +325,28 @@ class PayPal_Admin_Page {
 				background: #f0f0f1;
 				word-break: break-all;
 			}
+			.paypal-delete-dialog {
+				max-width: 480px;
+				border: 0;
+				border-radius: 4px;
+				padding: 24px;
+				box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+			}
+			.paypal-delete-dialog::backdrop {
+				background: rgba(0, 0, 0, 0.5);
+			}
+			.paypal-delete-dialog h2 {
+				margin-block-start: 0;
+			}
+			.paypal-delete-dialog__acknowledge {
+				display: block;
+				margin-block: 16px;
+			}
+			.paypal-delete-dialog__actions {
+				display: flex;
+				justify-content: flex-end;
+				gap: 8px;
+			}
 			'
 		);
 
@@ -336,14 +358,47 @@ class PayPal_Admin_Page {
 		wp_add_inline_script(
 			$handle,
 			'
+			var deleteDialog = document.getElementById("paypal-delete-dialog");
+			var deleteAcknowledge = document.getElementById("paypal-delete-acknowledge");
+			var deleteConfirm = document.getElementById("paypal-delete-confirm");
+			var deleteHref = "";
+
 			function confirmDelete(e) {
 				var link = e.target.closest(".paypal-delete-link");
-				if (link && !window.confirm(link.getAttribute("data-confirm"))) {
-					e.preventDefault();
+				if (!link) {
+					return;
 				}
+				// Browsers without <dialog> get the plain confirm.
+				if (!deleteDialog || typeof deleteDialog.showModal !== "function") {
+					if (!window.confirm(link.getAttribute("data-confirm"))) {
+						e.preventDefault();
+					}
+					return;
+				}
+				e.preventDefault();
+				deleteHref = link.href;
+				deleteDialog.querySelector(".paypal-delete-dialog__text").textContent = link.getAttribute("data-confirm");
+				deleteAcknowledge.checked = false;
+				deleteConfirm.disabled = true;
+				deleteDialog.showModal();
 			}
 			document.addEventListener("click", confirmDelete);
 			document.addEventListener("auxclick", confirmDelete);
+
+			if (deleteDialog) {
+				deleteAcknowledge.addEventListener("change", function() {
+					deleteConfirm.disabled = !deleteAcknowledge.checked;
+				});
+				deleteConfirm.addEventListener("click", function() {
+					if (deleteAcknowledge.checked && deleteHref) {
+						deleteDialog.close();
+						window.location.assign(deleteHref);
+					}
+				});
+				deleteDialog.querySelector(".paypal-delete-dialog__cancel").addEventListener("click", function() {
+					deleteDialog.close();
+				});
+			}
 
 			document.addEventListener("click", function(e) {
 				if (e.target.classList.contains("paypal-copy-link")) {
@@ -449,6 +504,7 @@ class PayPal_Admin_Page {
 		if ( isset( $_GET['action'] ) && 'view' === sanitize_text_field( wp_unslash( $_GET['action'] ) ) && ! empty( $_GET['resource_id'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			self::render_detail_view( sanitize_text_field( wp_unslash( $_GET['resource_id'] ) ) );
+			self::render_delete_dialog();
 			echo '</div>';
 			return;
 		}
@@ -486,7 +542,30 @@ class PayPal_Admin_Page {
 			);
 		}
 
+		self::render_delete_dialog();
 		echo '</div>';
+	}
+
+	/**
+	 * The delete confirmation, opened by the inline script when a Delete link is clicked.
+	 *
+	 * PayPal cannot pause or restore a payment link, so the confirm button stays
+	 * disabled until the acknowledgement box is ticked. The warning paragraph is
+	 * filled from the clicked link's data-confirm attribute.
+	 *
+	 * @since $$next-version$$
+	 */
+	private static function render_delete_dialog() {
+		echo '<dialog id="paypal-delete-dialog" class="paypal-delete-dialog" aria-labelledby="paypal-delete-dialog-title">';
+		echo '<h2 id="paypal-delete-dialog-title">' . esc_html__( 'Delete payment link', 'jetpack-paypal-payments' ) . '</h2>';
+		echo '<p class="paypal-delete-dialog__text"></p>';
+		echo '<p>' . esc_html__( 'PayPal cannot pause, deactivate, or restore a payment link. Anyone who opens it afterwards lands on a PayPal "not found" page instead of a checkout.', 'jetpack-paypal-payments' ) . '</p>';
+		echo '<label class="paypal-delete-dialog__acknowledge"><input type="checkbox" id="paypal-delete-acknowledge"> ' . esc_html__( 'I understand this cannot be undone.', 'jetpack-paypal-payments' ) . '</label>';
+		echo '<div class="paypal-delete-dialog__actions">';
+		echo '<button type="button" class="button paypal-delete-dialog__cancel">' . esc_html__( 'Cancel', 'jetpack-paypal-payments' ) . '</button>';
+		echo '<button type="button" class="button button-primary" id="paypal-delete-confirm" disabled>' . esc_html__( 'Delete permanently', 'jetpack-paypal-payments' ) . '</button>';
+		echo '</div>';
+		echo '</dialog>';
 	}
 
 	/**
