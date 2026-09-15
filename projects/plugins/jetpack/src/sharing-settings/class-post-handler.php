@@ -71,6 +71,9 @@ final class Post_Handler {
 			case 'save-placement':
 				self::save_placement();
 				break;
+			case 'save-extras':
+				self::save_extras();
+				break;
 		}
 	}
 
@@ -114,6 +117,21 @@ final class Post_Handler {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
 			update_option( 'jetpack_comment_likes_enabled', empty( $_POST['jetpack_comment_likes_enabled'] ) ? 0 : 1 );
 		}
+
+		self::redirect_saved();
+	}
+
+	/**
+	 * Save whatever third parties rendered into the extras section.
+	 *
+	 * Each of them verifies its own nonce inside `sharing_admin_update`, so this
+	 * only has to establish that the request came from this screen.
+	 */
+	private static function save_extras(): void {
+		check_admin_referer( Extras_Section::NONCE_ACTION );
+
+		/** This action is documented in src/sharing-settings/class-services-config.php */
+		do_action( 'sharing_admin_update' );
 
 		self::redirect_saved();
 	}

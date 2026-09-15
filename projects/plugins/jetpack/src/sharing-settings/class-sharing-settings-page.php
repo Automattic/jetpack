@@ -55,9 +55,14 @@ final class Sharing_Settings_Page {
 	 *
 	 * Jetpack_Admin_Page::wrap_ui() emits the masthead and footer markup but does
 	 * not style them, and this screen exists whether or not a module is loaded
-	 * to do it for us.
+	 * to do it for us. WordPress.com Simple styles that chrome itself, and these
+	 * sheets are served from a plugin URL it does not have.
 	 */
 	public static function enqueue_styles(): void {
+		if ( Environment::is_simple_site() ) {
+			return;
+		}
+
 		Jetpack_Admin_Page::load_wrapper_styles();
 	}
 
@@ -75,22 +80,37 @@ final class Sharing_Settings_Page {
 	 * says which settings a given save covers.
 	 */
 	private static function render_sections(): void {
-		$sections = array( array( Sharing_Section::class, 'render' ) );
+		$sections = array(
+			array( Sharing_Section::class, 'render' ),
+			array( Likes_Section::class, 'render' ),
+		);
 
-		if ( Environment::likes_supported() ) {
-			$sections[] = array( Likes_Section::class, 'render' );
-		}
-
-		if ( Section_State::shows_placement( Environment::sharing_enabled(), Environment::likes_enabled() ) ) {
+		if ( Section_State::shows_placement( Environment::sharing_enabled(), Environment::likes_settings_in_use() ) ) {
 			$sections[] = array( Placement_Section::class, 'render' );
 		}
 
-		foreach ( $sections as $index => $section ) {
-			if ( $index > 0 ) {
+		if ( ! Environment::sharing_enabled() ) {
+			$sections[] = array( Extras_Section::class, 'render' );
+		}
+
+		$rendered = 0;
+
+		foreach ( $sections as $section ) {
+			ob_start();
+			call_user_func( $section );
+			$markup = trim( (string) ob_get_clean() );
+
+			// A section can decline to render, and a rule with nothing after it is worse than no rule.
+			if ( '' === $markup ) {
+				continue;
+			}
+
+			if ( $rendered > 0 ) {
 				echo '<hr />';
 			}
 
-			call_user_func( $section );
+			echo $markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each section escapes its own output.
+			++$rendered;
 		}
 	}
 
