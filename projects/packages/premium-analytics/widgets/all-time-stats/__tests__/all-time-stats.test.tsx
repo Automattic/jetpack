@@ -51,8 +51,19 @@ describe( 'AllTimeStatsWidget', () => {
 
 		await expect( screen.findByText( 'Views' ) ).resolves.toBeInTheDocument();
 		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 4 );
-		expect( container ).toHaveTextContent( 'Views2,068' );
+		// The compact figure is hidden from assistive tech; the exact one beside it
+		// is hidden visually.
+		expect( container ).toHaveTextContent( 'Views2.1K2,068' );
+		expect( screen.getByText( '2.1K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 		expect( container ).toHaveTextContent( 'Comments1' );
+	} );
+
+	it( 'leaves a total under a thousand uncompacted', async () => {
+		renderWidget();
+
+		const value = await screen.findByText( '47' );
+		expect( value ).not.toHaveAttribute( 'aria-hidden' );
+		expect( screen.queryByText( '47', { selector: '[aria-hidden]' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'ignores a metrics subset persisted by an earlier version', async () => {
