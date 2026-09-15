@@ -53,12 +53,16 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 */
 	private const STORE = array(
 		2509 => array(
-			'slug'  => 'gravityforms_yearly',
-			'price' => '$132.00',
+			'slug'          => 'gravityforms_yearly',
+			'price'         => '$132.00',
+			'price_monthly' => '$11.00',
+			'cost'          => 132.0,
 		),
 		2510 => array(
-			'slug'  => 'gravityforms_monthly',
-			'price' => '$12.00',
+			'slug'          => 'gravityforms_monthly',
+			'price'         => '$13.00',
+			'price_monthly' => '',
+			'cost'          => 13.0,
 		),
 	);
 
@@ -285,33 +289,16 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Core skips the query for a tab it does not recognise unless the args say otherwise.
+	 * The tab renders its own grid, so it has no listing to serve through the plugin
+	 * API. Anything still asking for one is a .org query and not ours to answer.
 	 */
-	public function test_api_args_restore_and_tag_the_query() {
-		$this->enable_tab();
-
-		$args = wpcom_marketplace_tab_api_args( false );
-
-		$this->assertIsArray( $args );
-		$this->assertTrue( $args['wpcom_marketplace'] );
-
-		// prepare_items() reads these back after the query without guarding them.
-		$this->assertArrayHasKey( 'per_page', $args );
-		$this->assertArrayHasKey( 'page', $args );
-	}
-
-	/**
-	 * The tab's listing comes back in the envelope the list table reads.
-	 */
-	public function test_plugins_api_returns_the_catalog_for_our_tab() {
+	public function test_plugins_api_does_not_answer_listings() {
 		$this->enable_tab();
 		$this->seed_catalog( array( 'gravityforms' => Marketplace_Catalog::to_card( self::PRODUCT ) ) );
 
-		$response = wpcom_marketplace_serve_plugins_api( false, 'query_plugins', (object) array( 'wpcom_marketplace' => true ) );
-
-		$this->assertIsObject( $response );
-		$this->assertSame( 1, $response->info['results'] );
-		$this->assertSame( 'gravityforms', $response->plugins[0]['slug'] );
+		$this->assertFalse(
+			wpcom_marketplace_serve_plugins_api( false, 'query_plugins', (object) array( 'wpcom_marketplace' => true ) )
+		);
 	}
 
 	/**
@@ -663,35 +650,35 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The price belongs on the button: it is the only thing on the card that says
-	 * what the click costs, and the click goes straight to a payment page.
+	 * The card's action buys the plugin, and does it at the term being shown.
 	 */
-	public function test_button_carries_the_price_and_checkout_url() {
+	public function test_button_targets_checkout_for_the_selected_term() {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
-		$links = wpcom_marketplace_action_links( array( '<a class="install-now">Install Now</a>' ), $this->priced_card() );
+		$yearly = wpcom_marketplace_card_button( $this->priced_card(), 'yearly' );
 
-		$this->assertStringContainsString( '$132.00', $links[0] );
-		$this->assertStringContainsString( 'year', $links[0] );
-		$this->assertStringContainsString( 'gravityforms_yearly', $links[0] );
-		$this->assertStringNotContainsString( 'install-now', $links[0] );
+		$this->assertStringContainsString( 'gravityforms_yearly', $yearly );
+		$this->assertStringContainsString( 'button-primary', $yearly );
+		$this->assertStringContainsString( 'Purchase', $yearly );
+		$this->assertStringNotContainsString( 'install-now', $yearly );
+
+		$monthly = wpcom_marketplace_card_button( $this->priced_card(), 'monthly' );
+
+		$this->assertStringContainsString( 'gravityforms_monthly', $monthly );
 	}
 
 	/**
-	 * Switching to monthly reprices every button on the tab.
+	 * The price moved out of the button and into its own block, so the button says
+	 * what it does rather than what it costs.
 	 */
-	public function test_button_follows_the_selected_term() {
+	public function test_button_does_not_carry_the_price() {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
-		$_GET['billing'] = 'monthly';
-		$links           = wpcom_marketplace_action_links( array( '<a class="install-now">Install Now</a>' ), $this->priced_card() );
-		unset( $_GET['billing'] );
+		$button = wpcom_marketplace_card_button( $this->priced_card(), 'yearly' );
 
-		$this->assertStringContainsString( '$12.00', $links[0] );
-		$this->assertStringContainsString( 'month', $links[0] );
-		$this->assertStringContainsString( 'gravityforms_monthly', $links[0] );
+		$this->assertStringNotContainsString( '$132.00', $button );
 	}
 
 	/**
@@ -701,13 +688,12 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
-		$links = wpcom_marketplace_action_links(
-			array( '<a class="install-now">Install Now</a>' ),
-			Marketplace_Catalog::to_card( self::PRODUCT )
-		);
+		$button = wpcom_marketplace_card_button( Marketplace_Catalog::to_card( self::PRODUCT ), 'yearly' );
 
-		$this->assertStringContainsString( 'Get started', $links[0] );
-		$this->assertStringContainsString( 'wordpress.com/plugins/gravityforms/', $links[0] );
+		$this->assertStringContainsString( 'Get started', $button );
+		$this->assertStringContainsString( 'wordpress.com/plugins/gravityforms/', $button );
+		// Same tab: this is still the purchase path, not a detour.
+		$this->assertStringNotContainsString( 'target=', $button );
 	}
 
 	/**
@@ -719,9 +705,9 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		wpcom_marketplace_billing_switcher();
 		$yearly = self::squash( ob_get_clean() );
 
-		$this->assertStringContainsString( 'value="yearly" checked', $yearly );
-		$this->assertStringNotContainsString( 'value="monthly" checked', $yearly );
-		$this->assertStringContainsString( 'name="tab" value="' . WPCOM_MARKETPLACE_TAB . '"', $yearly );
+		$this->assertStringContainsString( 'billing=yearly', $yearly );
+		$this->assertStringContainsString( 'billing=monthly', $yearly );
+		$this->assertMatchesRegularExpression( '/is-selected[^>]*billing=yearly/', $yearly );
 
 		$_GET['billing'] = 'monthly';
 		ob_start();
@@ -729,8 +715,21 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		$monthly = self::squash( ob_get_clean() );
 		unset( $_GET['billing'] );
 
-		$this->assertStringContainsString( 'value="monthly" checked', $monthly );
-		$this->assertStringNotContainsString( 'value="yearly" checked', $monthly );
+		$this->assertMatchesRegularExpression( '/is-selected[^>]*billing=monthly/', $monthly );
+	}
+
+	/**
+	 * Choosing a term is one click. The radios needed a second one on Apply, which
+	 * is a lot of ceremony for switching between two views of the same list.
+	 */
+	public function test_billing_switcher_is_links_not_a_form() {
+		ob_start();
+		wpcom_marketplace_billing_switcher();
+		$html = ob_get_clean();
+
+		$this->assertStringNotContainsString( '<form', $html );
+		$this->assertStringNotContainsString( 'type="submit"', $html );
+		$this->assertStringNotContainsString( 'type="radio"', $html );
 	}
 
 	/**
@@ -772,41 +771,168 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A product that is not installed is bought, not downloaded.
+	 * A year is priced per month, because that is the only way its saving can be
+	 * read against the monthly price.
 	 */
-	public function test_install_button_is_replaced_for_our_products() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+	public function test_yearly_price_reads_per_month_and_states_the_saving() {
+		ob_start();
+		wpcom_marketplace_render_price( $this->priced_card(), 'yearly' );
+		$html = self::squash( ob_get_clean() );
 
-		$links = wpcom_marketplace_action_links(
-			array( '<a class="install-now">Install Now</a>', '<a>More Details</a>' ),
-			Marketplace_Catalog::to_card( self::PRODUCT )
-		);
-
-		$this->assertStringContainsString( 'Get started', $links[0] );
-		$this->assertStringNotContainsString( 'target=', $links[0] );
-		$this->assertStringContainsString( 'wordpress.com/plugins/gravityforms/', $links[0] );
-		$this->assertStringNotContainsString( 'install-now', $links[0] );
-
-		// The Details link is left alone.
-		$this->assertStringContainsString( 'More Details', $links[1] );
+		$this->assertStringContainsString( '$11.00', $html );
+		$this->assertStringContainsString( '$132.00 billed yearly', $html );
+		$this->assertStringContainsString( 'Save 15%', $html );
 	}
 
 	/**
-	 * WordPress.org plugins keep core's button.
+	 * The monthly view states the price it is charging, and points at the saving
+	 * rather than claiming it.
 	 */
-	public function test_install_button_is_untouched_for_org_plugins() {
-		$original = array( '<a class="install-now">Install Now</a>' );
+	public function test_monthly_price_points_at_the_yearly_saving() {
+		ob_start();
+		wpcom_marketplace_render_price( $this->priced_card(), 'monthly' );
+		$html = self::squash( ob_get_clean() );
 
+		$this->assertStringContainsString( '$13.00', $html );
+		$this->assertStringContainsString( 'save 15% yearly', $html );
+		$this->assertStringNotContainsString( 'Save 15%', $html );
+	}
+
+	/**
+	 * A saving too small to act on is noise, so it is not shown at all.
+	 */
+	public function test_a_negligible_saving_is_not_advertised() {
+		$card = $this->priced_card();
+
+		// A year that costs twelve months: nothing saved.
+		$card['wpcom_saving'] = 0;
+
+		ob_start();
+		wpcom_marketplace_render_price( $card, 'yearly' );
+		$html = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'wpcom-marketplace-card__saving', $html );
+	}
+
+	/**
+	 * A product we cannot price still renders, minus the price block.
+	 */
+	public function test_an_unpriced_product_renders_no_price_block() {
+		ob_start();
+		wpcom_marketplace_render_price( Marketplace_Catalog::to_card( self::PRODUCT ), 'yearly' );
+
+		$this->assertSame( '', ob_get_clean() );
+	}
+
+	/**
+	 * The saving is a percentage because it is not a flat discount: across the
+	 * catalog it runs from nothing at all to a third off.
+	 */
+	public function test_yearly_saving_is_the_gap_against_twelve_months() {
 		$this->assertSame(
-			$original,
-			wpcom_marketplace_action_links(
-				$original,
+			15,
+			Marketplace_Catalog::yearly_saving(
 				array(
-					'slug' => 'akismet',
-					'name' => 'Akismet',
+					'yearly'  => array( 'cost' => 132.0 ),
+					'monthly' => array( 'cost' => 13.0 ),
 				)
 			)
 		);
+
+		// Nothing to compare against.
+		$this->assertSame( 0, Marketplace_Catalog::yearly_saving( array( 'yearly' => array( 'cost' => 132.0 ) ) ) );
+
+		// A year that costs more than twelve months is not a saving.
+		$this->assertSame(
+			0,
+			Marketplace_Catalog::yearly_saving(
+				array(
+					'yearly'  => array( 'cost' => 200.0 ),
+					'monthly' => array( 'cost' => 10.0 ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * The card carries what a reader needs to choose: who made it, what it does,
+	 * what it costs, and a way to see more.
+	 */
+	public function test_card_renders_its_parts() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		ob_start();
+		wpcom_marketplace_render_card( $this->priced_card(), 'yearly' );
+		$html = self::squash( ob_get_clean() );
+
+		$this->assertStringContainsString( 'Gravity Forms', $html );
+		$this->assertStringContainsString( 'By Gravity Forms', $html );
+		$this->assertStringContainsString( 'Build custom forms', $html );
+		$this->assertStringContainsString( '$11.00', $html );
+		$this->assertStringContainsString( 'gravityforms_yearly', $html );
+
+		// The modal is core's, and it is reached the way core reaches it.
+		$this->assertStringContainsString( 'thickbox open-plugin-details-modal', $html );
+		$this->assertStringContainsString( 'tab=plugin-information', $html );
+	}
+
+	/**
+	 * A malformed product is skipped rather than rendered as an empty card.
+	 */
+	public function test_card_without_a_slug_is_skipped() {
+		ob_start();
+		wpcom_marketplace_render_card( array( 'name' => 'Nameless' ), 'yearly' );
+
+		$this->assertSame( '', ob_get_clean() );
+	}
+
+	/**
+	 * The grid draws every product, in the order the catalog supplied them.
+	 */
+	public function test_grid_renders_a_card_per_product() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$this->enable_tab();
+		$this->seed_catalog(
+			array(
+				'gravityforms' => $this->priced_card(),
+				'second'       => array_merge(
+					$this->priced_card(),
+					array(
+						'slug' => 'second',
+						'name' => 'Second Plugin',
+					)
+				),
+			)
+		);
+
+		ob_start();
+		wpcom_marketplace_render_grid();
+		$html = ob_get_clean();
+
+		$this->assertSame( 2, substr_count( $html, 'wpcom-marketplace-card ' ) );
+		$this->assertStringContainsString( '2 items', $html );
+		$this->assertLessThan(
+			strpos( $html, 'Second Plugin' ),
+			strpos( $html, 'Gravity Forms' ),
+			'The catalog arrives ranked by sales, so the grid must not reorder it.'
+		);
+	}
+
+	/**
+	 * An unreadable catalog says so rather than rendering an empty screen.
+	 */
+	public function test_grid_reports_an_empty_catalog() {
+		$this->enable_tab();
+		$this->seed_catalog( array() );
+
+		ob_start();
+		wpcom_marketplace_render_grid();
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'notice', $html );
+		$this->assertStringNotContainsString( 'wpcom-marketplace-grid', $html );
 	}
 }

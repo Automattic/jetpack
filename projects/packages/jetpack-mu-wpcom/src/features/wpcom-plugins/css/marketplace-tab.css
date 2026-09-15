@@ -1,29 +1,120 @@
 /**
  * Marketplace tab on the Add Plugins screen.
  *
- * The catalog carries no install count, rating count or tested-up-to
- * version, and core states each as fact when it has nothing, so those
- * cells are dropped.
+ * The tab draws its own grid rather than core's plugin list table, so none
+ * of core's `.plugin-card` rules apply here. Card height comes from the grid
+ * row rather than from how much the vendor wrote.
  */
 
-.wpcom-marketplace-tab .plugin-card .column-rating,
-.wpcom-marketplace-tab .plugin-card .column-downloaded,
-.wpcom-marketplace-tab .plugin-card .column-compatibility {
-	display: none;
+.wpcom-marketplace-tab .wpcom-marketplace-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+	gap: 16px;
+	margin-block: 8px 24px;
 }
 
-.wpcom-marketplace-tab .plugin-card-bottom {
+.wpcom-marketplace-tab .wpcom-marketplace-card {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 18px;
+	background: #fff;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__head {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__icon {
+	flex: none;
+	inline-size: 44px;
+	block-size: 44px;
+	object-fit: contain;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__name {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.3;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__author {
+	margin: 2px 0 0;
+	color: #646970;
+	font-size: 12px;
+}
+
+/*
+ * Three lines for everyone. Vendor descriptions run from one line to a full
+ * paragraph, and letting them size the card is what made the grid ragged.
+ * Reserving the height keeps prices on a shared baseline across a row.
+ */
+.wpcom-marketplace-tab .wpcom-marketplace-card__desc {
+	display: -webkit-box;
+	overflow: hidden;
+	min-block-size: 3.9em;
+	margin-block: 12px 0;
+	color: #50575e;
+	font-size: 13px;
+	line-height: 1.5;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	-webkit-box-orient: vertical;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__price {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 4px 20px;
+	align-items: baseline;
+	gap: 2px 8px;
+	margin-block-start: auto;
+	padding-block-start: 14px;
 }
 
-.wpcom-marketplace-tab .plugin-card .column-updated {
-	float: none;
-	clear: none;
-	width: auto;
-	margin-block-end: 0;
-	text-align: start;
+.wpcom-marketplace-tab .wpcom-marketplace-card__amount {
+	font-size: 22px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.01em;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__per {
+	margin-inline-start: -6px;
+	color: #646970;
+	font-size: 13px;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__saving {
+	border-radius: 3px;
+	padding: 2px 6px;
+	background: #d5eddb;
+	color: #00450c;
+	font-size: 11px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__note {
+	inline-size: 100%;
+	color: #646970;
+	font-size: 12px;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__actions {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-block-start: 14px;
+	text-align: center;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__actions .button {
+	box-sizing: border-box;
+	inline-size: 100%;
+	text-align: center;
 }
 
 /*
@@ -42,35 +133,43 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 4px 12px;
-	margin-block: 0 1em;
+	gap: 8px 12px;
+	margin-block: 0 4px;
 }
 
 .wpcom-marketplace-tab .wpcom-marketplace-billing__label {
 	font-weight: 600;
 }
 
-.wpcom-marketplace-tab .wpcom-marketplace-billing label {
-	display: flex;
-	align-items: center;
-	gap: 4px;
+.wpcom-marketplace-tab .wpcom-marketplace-billing__switch {
+	display: inline-flex;
+	gap: 2px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 2px;
+	background: #f6f7f7;
 }
 
-/*
- * Core reserves a fixed 120px column for the action links, sized for the word
- * "Install Now". A price label is longer, and an unwrapped button spills over
- * the plugin title next to it. Widening the column squeezes the description to
- * a few words per line, so let the button wrap inside the width core already
- * reserved instead.
- *
- * A price is one unbreakable word, so it has to fit on a line of its own: the
- * narrower padding is what buys the room for the longest one we sell.
- */
-.wpcom-marketplace-tab .plugin-card .plugin-action-buttons .button {
-	display: block;
-	box-sizing: border-box;
-	inline-size: 100%;
-	padding-inline: 8px;
-	text-align: center;
-	white-space: normal;
+.wpcom-marketplace-tab .wpcom-marketplace-billing__option {
+	border-radius: 3px;
+	padding: 4px 14px;
+	color: #2c3338;
+	font-size: 13px;
+	line-height: 1.6;
+	text-decoration: none;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-billing__option:hover {
+	background: #fff;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-billing__option.is-selected {
+	background: #2271b1;
+	color: #fff;
+	font-weight: 600;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-billing__option:focus {
+	outline: 2px solid transparent;
+	box-shadow: 0 0 0 2px #2271b1;
 }
