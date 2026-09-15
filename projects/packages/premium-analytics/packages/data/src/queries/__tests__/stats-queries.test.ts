@@ -15,6 +15,7 @@ import {
 	statsAppReferrersUnmarkSpamMutation,
 } from '../stats-app-referrers-spam-query';
 import { statsAppSiteHasNeverPublishedPostQuery } from '../stats-app-site-has-never-published-post-query';
+import { statsAppSiteQuery } from '../stats-app-site-query';
 import { statsArchivesQuery } from '../stats-archives-query';
 import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCommentFollowersQuery } from '../stats-comment-followers-query';
@@ -1722,6 +1723,53 @@ describe( 'Stats query factories', () => {
 				false,
 			]
 		);
+	} );
+
+	it( 'asks the proxy site group for the registration date only', async () => {
+		const query = statsAppSiteQuery();
+
+		expect( query.queryKey ).toEqual( [
+			'stats-app',
+			'site',
+			'1.1',
+			'site',
+			'GET',
+			{ fields: 'options', options: 'created_at' },
+			{},
+			false,
+		] );
+		expect( query.enabled ).toBe( true );
+		expect( query.staleTime ).toBe( Infinity );
+
+		mockApiFetch.mockResolvedValue( { options: { created_at: '2026-04-10T16:27:32+00:00' } } );
+		await ( query.queryFn as () => Promise< unknown > )();
+
+		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toBe(
+			'/jetpack-premium-analytics/v1/proxy/v1.1/site?fields=options&options=created_at'
+		);
+	} );
+
+	it( 'reads the site record by id on Simple, where the bridge has no proxy group', async () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: { site: { host: 'wpcom', wpcom: { blog_id: 191664832 } } },
+		} );
+		const query = statsAppSiteQuery();
+
+		expect( query.enabled ).toBe( true );
+
+		mockApiFetch.mockResolvedValue( { options: { created_at: '2026-04-10T16:27:32+00:00' } } );
+		await ( query.queryFn as () => Promise< unknown > )();
+
+		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toBe(
+			'/rest/v1.1/sites/191664832?fields=options&options=created_at'
+		);
+	} );
+
+	it( 'does not request the site record on Simple without a blog id to address', () => {
+		setSimpleScriptData();
+
+		expect( statsAppSiteQuery().enabled ).toBe( false );
 	} );
 
 	it( 'builds the referrers spam app query key', () => {

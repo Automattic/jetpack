@@ -70,6 +70,7 @@ export { statsUtmQuery } from './stats-utm-query';
 export { statsHighlightsQuery } from './stats-highlights-query';
 export { statsTagsQuery } from './stats-tags-query';
 export { statsDevicesQuery } from './stats-devices-query';
+export { statsAppSiteQuery, type StatsAppSiteResponse } from './stats-app-site-query';
 export {
 	statsAppSiteHasNeverPublishedPostQuery,
 	type StatsAppSiteHasNeverPublishedPostParams,

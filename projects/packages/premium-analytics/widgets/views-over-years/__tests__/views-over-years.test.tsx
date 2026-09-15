@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsVisits } from '@jetpack-premium-analytics/data';
+import { useStatsAppSite, useStatsVisits } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getSettings, setSettings } from '@wordpress/date';
@@ -20,6 +20,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsAppSite: jest.fn(),
 	useStatsVisits: jest.fn(),
 } ) );
 
@@ -37,6 +38,14 @@ class ResizeObserverStub {
 }
 
 const mockUseStatsVisits = jest.mocked( useStatsVisits );
+const mockUseStatsAppSite = jest.mocked( useStatsAppSite );
+
+function siteResult( createdAt?: string ) {
+	return {
+		data: createdAt ? { options: { created_at: createdAt } } : undefined,
+		isLoading: false,
+	} as unknown as ReturnType< typeof useStatsAppSite >;
+}
 
 function visitsResult(
 	rows: [ string, number ][] | undefined,
@@ -96,6 +105,8 @@ describe( 'ViewsOverYears widget', () => {
 		mockOpenSectionRange.mockReset();
 		mockUseStatsVisits.mockReset();
 		mockUseStatsVisits.mockReturnValue( visitsResult( ROWS ) );
+		mockUseStatsAppSite.mockReset();
+		mockUseStatsAppSite.mockReturnValue( siteResult() );
 		jest.useFakeTimers();
 		jest.setSystemTime( NOW );
 	} );
@@ -121,6 +132,44 @@ describe( 'ViewsOverYears widget', () => {
 		// March is 15 days in: 450 / 15.
 		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 30' } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Fewer views per day' ) ).toBeInTheDocument();
+	} );
+
+	it( 'divides the first month from the registration day under the average metric', () => {
+		mockUseStatsAppSite.mockReturnValue( siteResult( '2025-11-24T09:30:00+00:00' ) );
+		renderWidget( { metric: 'average' } );
+
+		// Nov 24 through Nov 30: 300 / 7, and the year over 7 + 31 days.
+		expect( screen.getByRole( 'gridcell', { name: 'Nov 2025: 43' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Totals 2025: 24' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 30' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'opens the Traffic tab over the first month from the registration day', async () => {
+		mockUseStatsAppSite.mockReturnValue( siteResult( '2025-11-24T09:30:00+00:00' ) );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		await user.click( screen.getByRole( 'gridcell', { name: 'Nov 2025: 300' } ) );
+		await user.click( screen.getByRole( 'gridcell', { name: 'Totals 2025: 920' } ) );
+
+		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith( 1, 'traffic', {
+			from: new Date( '2025-11-24T00:00:00.000Z' ),
+			to: new Date( '2025-11-30T23:59:59.999Z' ),
+		} );
+		expect( mockOpenSectionRange ).toHaveBeenNthCalledWith( 2, 'traffic', {
+			from: new Date( '2025-11-24T00:00:00.000Z' ),
+			to: new Date( '2025-12-31T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'shows the skeleton until the registration date is known', () => {
+		mockUseStatsAppSite.mockReturnValue( {
+			...siteResult(),
+			isLoading: true,
+		} as unknown as ReturnType< typeof useStatsAppSite > );
+		renderWidget( { metric: 'average' } );
+
+		expect( screen.queryByRole( 'gridcell', { name: /Nov 2025/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'opens the Traffic tab over a clicked month', async () => {
