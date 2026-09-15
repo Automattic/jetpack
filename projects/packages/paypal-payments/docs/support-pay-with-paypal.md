@@ -59,7 +59,9 @@ When you're ready for real payments, disconnect and reconnect with your Live (Pr
 
 ### Creating a Button
 
-Once connected:
+Once connected, a new block first asks whether to reuse a payment link you already have. The block settings sidebar shows a **Create new** button with your existing links listed under it, each with its name, price, and creation date; with more than ten links, a search box filters them by name, description, or price. Choosing a link fills the block with that link's details, and any change you then make applies everywhere the link is used. This step is skipped when the account has no links yet.
+
+To create a new link:
 
 1. Enter a **Product Name** (max 127 characters)
 2. Enter a **Price** (positive number, up to 2 decimal places)
