@@ -34,9 +34,13 @@ const setState = ( status: string | null, isOwner = false, known = true ) => {
 	mockState.protectedOwner = known ? { required: true } : null;
 };
 
-describe( 'ProtectedOwnerDialog', () => {
-	const onClose = () => {};
+/**
+ * Stable close handler. Declared rather than assigned as an arrow to a const, because
+ * `react/jsx-no-bind` traces the latter through the variable and flags it at every use site.
+ */
+function onClose() {}
 
+describe( 'ProtectedOwnerDialog', () => {
 	it( 'offers the claim only when the user can actually make it', () => {
 		setState( 'CAN_ESTABLISH' );
 		render( <ProtectedOwnerDialog isOpen onClose={ onClose } /> );

@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, Modal } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
+import { Button, Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
@@ -157,8 +157,7 @@ const ProtectedOwnerDialog = ( {
 				// Surfaced rather than swallowed: every refusal here is one the user can act on,
 				// and failing closed silently looks identical to the feature being broken.
 				setError(
-					e?.message ||
-						__( 'Could not confirm the site owner.', 'jetpack-connection-js' )
+					e?.message || __( 'Could not confirm the site owner.', 'jetpack-connection-js' )
 				);
 			} );
 	}, [ confirmedBy, onClose, onEstablished ] );
