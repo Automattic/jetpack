@@ -1,13 +1,20 @@
+import { globalNoticesStore } from '@automattic/jetpack-components';
+import { dispatch as coreDispatch, ThunkArgs } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { ConnectionFlowOrigin } from '../types';
 import { setKeyringResult, setReconnectingAccount } from './connection-data';
 import {
 	CANCEL_CONNECTION_FLOW,
+	FAIL_CONNECTION_FLOW_AUTHORIZATION,
 	GO_TO_NEXT_CONNECTION_FLOW_STEP,
 	GO_TO_PREVIOUS_CONNECTION_FLOW_STEP,
 	SELECT_CONNECTION_FLOW_PLATFORM,
+	SET_CONNECTION_FLOW_ERROR,
 	SET_CONNECTION_FLOW_INPUT,
+	SET_CONNECTION_FLOW_REQUEST_ID,
 	START_CONNECTION_FLOW,
 } from './constants';
+import type { store } from '../index';
 
 /**
  * Starts the connection flow at the platform picker.
@@ -15,12 +22,18 @@ import {
  * @param options        - Options.
  * @param options.origin - Where the flow was started from.
  *
- * @return An action object.
+ * @return A thunk.
  */
 export function startConnectionFlow( { origin }: { origin: ConnectionFlowOrigin } ) {
-	return {
-		type: START_CONNECTION_FLOW,
-		origin,
+	return async function ( { dispatch, select }: ThunkArgs< typeof store > ) {
+		dispatch( { type: START_CONNECTION_FLOW, origin } );
+
+		// Pre-fetch the services list to avoid an imminent API call on connect.
+		const services = select.getServicesList();
+
+		if ( ! services.length || services.some( service => ! service.url ) ) {
+			await dispatch.refreshServicesList();
+		}
 	};
 }
 
@@ -63,6 +76,72 @@ export function goToNextStep() {
 }
 
 /**
+ * Records the connect request the flow is now waiting on, so callbacks from an
+ * abandoned popup can be told apart from the current attempt's.
+ *
+ * @param requestId - The connect request ID, or nothing to stop accepting any.
+ *
+ * @return An action object.
+ */
+export function setConnectionFlowRequestId( requestId?: string ) {
+	return {
+		type: SET_CONNECTION_FLOW_REQUEST_ID,
+		requestId,
+	};
+}
+
+/**
+ * Records why a connect attempt failed, without moving the flow. A popup that
+ * never opened leaves the user on the step that asked for it.
+ *
+ * @param message - Why the attempt failed.
+ *
+ * @return An action object.
+ */
+export function setConnectionFlowError( message?: string ) {
+	return {
+		type: SET_CONNECTION_FLOW_ERROR,
+		message,
+	};
+}
+
+/**
+ * Drops out of `authorizing` when an attempt already under way cannot finish,
+ * landing on the step the user can retry from.
+ *
+ * A reconnect enters the flow at `authorizing` and has no earlier step of its
+ * own, so it closes the flow and reports outside it instead.
+ *
+ * @param message - Why the attempt did not complete.
+ *
+ * @return A thunk.
+ */
+export function failAuthorization( message?: string ) {
+	return function ( { dispatch, select } ) {
+		if ( select.getConnectionFlowStep() !== 'authorizing' ) {
+			return;
+		}
+
+		if ( ! select.getConnectionFlowPreviousStep() ) {
+			if ( message ) {
+				coreDispatch( globalNoticesStore ).createErrorNotice( message, {
+					type: 'snackbar',
+					isDismissible: true,
+				} );
+			}
+
+			/* Leave the reconnect itself alone: its popup can still complete the
+			   account in place after the flow has closed. */
+			dispatch( closeConnectionFlow() );
+
+			return;
+		}
+
+		dispatch( { type: FAIL_CONNECTION_FLOW_AUTHORIZATION, message } );
+	};
+}
+
+/**
  * Steps back out of `authorizing` when a connect attempt looks abandoned.
  *
  * The abandonment signal is a window refocus, which also fires for an unrelated
@@ -72,11 +151,9 @@ export function goToNextStep() {
  * @return A thunk.
  */
 export function abandonAuthorization() {
-	return function ( { dispatch, select } ) {
-		if ( select.getConnectionFlowStep() === 'authorizing' ) {
-			dispatch( goToPreviousStep() );
-		}
-	};
+	return failAuthorization(
+		__( 'Authorization was cancelled. Please try again.', 'jetpack-publicize-pkg' )
+	);
 }
 
 /**
@@ -96,6 +173,18 @@ export function setConnectionFlowInput( field: string, value: string ) {
 }
 
 /**
+ * Closes the flow, leaving the keyring and reconnect state it derives from
+ * intact.
+ *
+ * @return An action object.
+ */
+export function closeConnectionFlow() {
+	return {
+		type: CANCEL_CONNECTION_FLOW,
+	};
+}
+
+/**
  * Cancels the connection flow, resetting the step and selection along with the
  * keyring/reconnect state that feeds the flow's derived steps.
  *
@@ -105,6 +194,6 @@ export function cancelConnectionFlow() {
 	return function ( { dispatch } ) {
 		dispatch( setKeyringResult( undefined ) );
 		dispatch( setReconnectingAccount( undefined ) );
-		dispatch( { type: CANCEL_CONNECTION_FLOW } );
+		dispatch( closeConnectionFlow() );
 	};
 }

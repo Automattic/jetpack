@@ -133,6 +133,23 @@ export type ConnectionFlowState = {
 	 * so they survive stepping back; cleared when the flow starts or is cancelled.
 	 */
 	inputs?: Record< string, string >;
+	/**
+	 * Why the last authorization attempt did not complete (cancelled, blocked
+	 * popup). Shown inline on the step the flow fell back to, and cleared as soon
+	 * as the user acts again.
+	 */
+	error?: string;
+	/**
+	 * Whether the flow was entered by reconnecting an existing account, which
+	 * skips the picker. Such a flow has no earlier step of its own to fall back to.
+	 */
+	isReconnect?: boolean;
+	/**
+	 * The connect request the flow is waiting on. A popup outlives the attempt
+	 * that opened it, so its callbacks are matched against this before they are
+	 * allowed to move the flow.
+	 */
+	requestId?: string;
 };
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
