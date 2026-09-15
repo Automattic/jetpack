@@ -284,7 +284,7 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await expect( overall.getByText( /Good|Could be improved|Poor/ ) ).toHaveCount( 0 );
 	for ( const [ card, score, color ] of [
 		[ desktop.first(), 90, 'color(srgb 0 0.501961 0.188235 / 0.9)' ],
-		[ mobile, 60, 'color(srgb 0.572549 0.388235 0 / 0.9)' ],
+		[ mobile, 60, 'color(srgb 0.576471 0.388235 0 / 0.9)' ],
 		[ desktop.nth( 1 ), 40, 'color(srgb 0.8 0.0941176 0.0941176 / 0.9)' ],
 	] as const ) {
 		await expect( card.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', score );

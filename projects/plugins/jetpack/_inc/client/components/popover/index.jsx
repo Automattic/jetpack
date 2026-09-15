@@ -28,7 +28,7 @@ class Popover extends Component {
 		className: PropTypes.string,
 		closeOnEsc: PropTypes.bool,
 		id: PropTypes.string,
-		ignoreContext: PropTypes.shape( { getDOMNode: PropTypes.function } ),
+		ignoreContext: PropTypes.shape( { getDOMNode: PropTypes.func } ),
 		position: PropTypes.string,
 		rootClassName: PropTypes.string,
 		showDelay: PropTypes.number,

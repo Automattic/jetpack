@@ -755,7 +755,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 			const frame = blockFrameNavigation( await screen.findByTitle( 'PayPal onboarding' ) );
 			await settlePartnerScript( frame );
-			const click = track( jest.spyOn( await findConnectLink( frame ), 'click' ) );
+			const click = jest.spyOn( await findConnectLink( frame ), 'click' );
 
 			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
 			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
@@ -788,15 +788,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'contentWindow'
 			).get;
 
-			track(
-				jest.spyOn( window.HTMLIFrameElement.prototype, 'contentWindow', 'get' )
-			).mockImplementation( function () {
-				const frameWindow = realGetter.call( this );
-				if ( frameWindow ) {
-					frameWindow.HTMLAnchorElement.prototype.click = click;
-				}
-				return frameWindow;
-			} );
+			jest
+				.spyOn( window.HTMLIFrameElement.prototype, 'contentWindow', 'get' )
+				.mockImplementation( function () {
+					const frameWindow = realGetter.call( this );
+					if ( frameWindow ) {
+						frameWindow.HTMLAnchorElement.prototype.click = click;
+					}
+					return frameWindow;
+				} );
 
 			return click;
 		}
@@ -813,18 +813,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		}
 
 		const keyListeners = [];
-		const spies = [];
-
-		/**
-		 * Restore this spy in afterEach.
-		 *
-		 * @param {object} spy - The spy to restore.
-		 * @return {object} The same spy.
-		 */
-		function track( spy ) {
-			spies.push( spy );
-			return spy;
-		}
 
 		/**
 		 * Watch keydown for the length of one test.
@@ -844,10 +832,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		afterEach( () => {
 			// clearAllMocks does not undo a spy, so one failure before a manual
 			// restore would leave window.open stubbed, or the contentWindow getter
-			// patched, for every later test. Restore only what this suite spied on:
-			// restoreAllMocks would also undo the shared console guard, which is
-			// installed once at module load and never re-installed.
-			spies.splice( 0 ).forEach( spy => spy.mockRestore() );
+			// patched, for every later test.
+			jest.restoreAllMocks();
 			delete window.PAYPAL;
 			delete window.jetpackPayPalOnboardComplete;
 			keyListeners
@@ -970,7 +956,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		it( 'never sends the merchant to a browser window of their own', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
-			const open = track( jest.spyOn( window, 'open' ).mockReturnValue( null ) );
+			const open = jest.spyOn( window, 'open' ).mockReturnValue( null );
 
 			// Open the overlay: the click that opens PayPal is where a popup
 			// would come from.
