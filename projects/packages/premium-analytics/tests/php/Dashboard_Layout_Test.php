@@ -473,7 +473,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			$layout_by_uuid['default-annual-highlights-widget-instance']
 		);
 
-		// All-time stats keeps the widget's own default metric list, Comments included.
+		// All-time stats has no attributes: it always shows every total.
 		$this->assertArrayNotHasKey(
 			'attributes',
 			$layout_by_uuid['default-all-time-stats-widget-instance']

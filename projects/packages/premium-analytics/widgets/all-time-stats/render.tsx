@@ -20,7 +20,6 @@ import { useMemo } from 'react';
 import styles from './style.module.css';
 import {
 	ALL_TIME_STATS_METRICS,
-	DEFAULT_ALL_TIME_STATS_METRICS,
 	type AllTimeStatsAttributes,
 	type AllTimeStatsMetricId,
 } from './widget';
@@ -58,31 +57,20 @@ type AllTimeStatsTile = {
 	value: number;
 };
 
-function AllTimeStatsReport( {
-	metrics = DEFAULT_ALL_TIME_STATS_METRICS,
-}: {
-	metrics?: AllTimeStatsMetricId[];
-} ) {
+function AllTimeStatsReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
 
 	const summary = ( data as { stats?: StatsSummary } | undefined )?.stats;
 
-	// Resolve selected ids against the canonical definitions so the tile order
-	// stays stable regardless of the order the ids were toggled in.
-	const enabledMetrics = useMemo( () => {
-		const selected = new Set( metrics );
-		return ALL_TIME_STATS_METRICS.filter( metric => selected.has( metric.id ) );
-	}, [ metrics ] );
-
 	const tiles = useMemo(
 		() =>
-			enabledMetrics.flatMap( ( { id, label } ): AllTimeStatsTile[] => {
+			ALL_TIME_STATS_METRICS.flatMap( ( { id, label } ): AllTimeStatsTile[] => {
 				const value = summaryCount( summary, id );
 				return value === undefined
 					? []
 					: [ { key: id, label, icon: TILE_CONFIG[ id ].icon, value } ];
 			} ),
-		[ enabledMetrics, summary ]
+		[ summary ]
 	);
 
 	// The states share the `.root` body wrapper so sizing (and the widget-picker
@@ -105,16 +93,11 @@ function AllTimeStatsReport( {
 				} }
 				empty={ {
 					icon: trendingUp,
-					// No metrics selected is a configuration state, not an absence of
-					// data — prompt to pick one rather than implying there are no stats.
-					description:
-						enabledMetrics.length === 0
-							? __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' )
-							: __( 'No stats recorded yet.', 'jetpack-premium-analytics-pkg' ),
+					description: __( 'No stats recorded yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				// `tiles` is empty until the response lands, so the skeleton counts
-				// the enabled metrics instead.
-				renderLoading={ <MetricTileGridSkeleton tiles={ enabledMetrics.length } /> }
+				// the metrics instead.
+				renderLoading={ <MetricTileGridSkeleton tiles={ ALL_TIME_STATS_METRICS.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>
@@ -125,7 +108,7 @@ function AllTimeStatsReport( {
 export default function AllTimeStats( { attributes = {} }: AllTimeStatsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AllTimeStatsReport metrics={ attributes.metrics } />
+			<AllTimeStatsReport />
 		</WidgetRoot>
 	);
 }

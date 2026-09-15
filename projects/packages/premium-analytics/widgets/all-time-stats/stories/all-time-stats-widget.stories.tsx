@@ -27,10 +27,7 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import AllTimeStatsRender from '../render';
-import widgetDefinition, {
-	DEFAULT_ALL_TIME_STATS_METRICS,
-	type AllTimeStatsMetricId,
-} from '../widget';
+import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -40,32 +37,12 @@ registerReportMocks();
 
 const ALL_TIME_STATS_RENDER_MODULE = 'storybook/all-time-stats';
 
-// Carry the widget's metadata, including the metric-visibility attribute schema
-// so the dashboard story's settings drawer renders the real checkboxes.
 // `presentation` comes from widget.json ( 'framed' ), so the host frames the
 // widget and renders its identity (title + icon).
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
-interface AllTimeStatsStoryControls {
-	/**
-	 * Lifetime totals to show in the widget body.
-	 */
-	metrics: AllTimeStatsMetricId[];
-}
-
-const METRIC_ARG_TYPES = {
-	metrics: {
-		control: 'check',
-		options: DEFAULT_ALL_TIME_STATS_METRICS,
-	},
-} as const;
-
-const ALL_METRICS_ARGS = {
-	metrics: DEFAULT_ALL_TIME_STATS_METRICS,
-} as const;
-
-function renderAllTimeStats( { metrics }: AllTimeStatsStoryControls ) {
-	return <AllTimeStatsRender attributes={ { reportParams: getDefaultQueryParams(), metrics } } />;
+function renderAllTimeStats() {
+	return <AllTimeStatsRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
@@ -99,29 +76,25 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/AllTimeStats',
 	component: AllTimeStatsRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		...METRIC_ARG_TYPES,
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "All-time stats" widget. Shows lifetime totals for the site — views, visitors, posts, and comments — as a responsive grid of metric tiles, sourced from the Jetpack Stats site-summary endpoint. Which tiles appear is controlled by the `metrics` attribute (`relevance: \'high\'`), exposed inline in the widget header and in the settings drawer. This module has no comparison period, so the values render as bare numbers.',
+					'The "All-time stats" widget. Shows lifetime totals for the site — views, visitors, posts, and comments — as a responsive grid of metric tiles, sourced from the Jetpack Stats site-summary endpoint. It has no configurable attributes and no comparison period, so the values render as bare numbers.',
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof AllTimeStatsRender > & AllTimeStatsStoryControls >;
+} satisfies Meta< ComponentProps< typeof AllTimeStatsRender > >;
 
 export default meta;
 
-type Story = StoryObj< AllTimeStatsStoryControls >;
+type Story = StoryObj< ComponentProps< typeof AllTimeStatsRender > >;
 
 /**
  * Default state — lifetime totals for the current preset.
  */
 export const Default: Story = {
 	render: renderAllTimeStats,
-	args: { ...ALL_METRICS_ARGS },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -159,33 +132,24 @@ export const Empty: Story = {
 	beforeEach: () => forceSiteSummaryState( 'empty' ),
 };
 
-interface AllTimeStatsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		AllTimeStatsStoryControls {}
-
-function AllTimeStatsDashboardStory( {
-	metrics,
-	...dashboardArgs
-}: AllTimeStatsDashboardStoryProps ) {
+function AllTimeStatsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ storyWidgetType }
 			renderModule={ ALL_TIME_STATS_RENDER_MODULE }
 			renderComponent={ AllTimeStatsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( true ), metrics } }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< AllTimeStatsDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <AllTimeStatsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		...METRIC_ARG_TYPES,
 	},
 };
