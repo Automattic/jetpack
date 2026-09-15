@@ -312,13 +312,7 @@ export default function HistoryChartCard( {
 		<Card.Root className="jetpack-boost-overview__history-card">
 			<Card.Header className="boost-daily-history__card-header">
 				<div className="boost-daily-history__header">
-					<Card.Title render={ <h2 /> }>
-						{ sprintf(
-							/* translators: %d is the number of days in the visible history window. */
-							__( 'Last %d days scores', 'jetpack-boost' ),
-							dayCount
-						) }
-					</Card.Title>
+					<Card.Title render={ <h2 /> }>{ __( 'Score history', 'jetpack-boost' ) }</Card.Title>
 					{ ! needsUpgrade && ! isFreshStart && (
 						<div className="boost-daily-history__paging">
 							<Button
