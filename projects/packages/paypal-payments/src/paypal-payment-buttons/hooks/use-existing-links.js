@@ -20,15 +20,16 @@ import { API_BASE } from '../utils/api-base';
  */
 export function useExistingLinks( { enabled } ) {
 	const [ links, setLinks ] = useState( [] );
-	const [ isLoading, setIsLoading ] = useState( enabled );
+	const [ loaded, setLoaded ] = useState( false );
 
+	// Loading is derived, not set in the effect: with a state flag the render
+	// between enabling and the effect would show the form for one frame.
 	useEffect( () => {
-		if ( ! enabled ) {
+		if ( ! enabled || loaded ) {
 			return;
 		}
 
 		let cancelled = false;
-		setIsLoading( true );
 
 		apiFetch( { path: `${ API_BASE }/buttons?page_size=100` } )
 			.then( response => {
@@ -44,14 +45,14 @@ export function useExistingLinks( { enabled } ) {
 			} )
 			.finally( () => {
 				if ( ! cancelled ) {
-					setIsLoading( false );
+					setLoaded( true );
 				}
 			} );
 
 		return () => {
 			cancelled = true;
 		};
-	}, [ enabled ] );
+	}, [ enabled, loaded ] );
 
-	return { links: enabled ? links : [], isLoading: enabled && isLoading };
+	return { links: enabled ? links : [], isLoading: enabled && ! loaded };
 }

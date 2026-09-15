@@ -1766,6 +1766,28 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByRole( 'button', { name: 'Create new' } ) ).not.toBeInTheDocument();
 		} );
 
+		it( 'holds the form back until the listing is in', async () => {
+			let resolveList;
+			apiFetch.mockImplementation( ( { path } ) =>
+				path === listPath
+					? new Promise( resolve => {
+							resolveList = resolve;
+					  } )
+					: Promise.resolve( { connected: true, environment: 'sandbox' } )
+			);
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			// The connection check has a spinner of its own, so wait for the step's panel.
+			await waitFor( () => expect( panel( 'Payment link' ) ).toBeDefined() );
+			expect( within( panel( 'Payment link' ) ).getByTestId( 'spinner' ) ).toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
+
+			await act( async () => resolveList( { resources: [] } ) );
+
+			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+		} );
+
 		it( 'is skipped when the listing fails', async () => {
 			apiFetch.mockImplementation( ( { path } ) =>
 				path === listPath
