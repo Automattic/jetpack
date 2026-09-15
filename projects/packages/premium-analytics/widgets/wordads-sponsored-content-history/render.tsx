@@ -3,10 +3,13 @@
  */
 import { useStatsWordAdsEarnings } from '@jetpack-premium-analytics/data';
 import {
-	EarningsHistoryList,
+	EARNINGS_HISTORY_VIEW,
+	WidgetDataTable,
 	WidgetRoot,
 	WidgetState,
 	flattenEarningsBreakdown,
+	getWordAdsHistoryFields,
+	type EarningsHistoryRow,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -23,9 +26,11 @@ type RenderAttributes = WordAdsSponsoredContentHistoryAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type WordAdsSponsoredContentHistoryProps = WidgetRenderProps< RenderAttributes >;
 
+const getRowId = ( item: EarningsHistoryRow ) => item.id;
+
 /**
  * Fetches WordAds earnings and renders the `sponsored` breakdown as a history
- * list. The earnings module is not period-scoped, so nothing is read from
+ * table. The earnings module is not period-scoped, so nothing is read from
  * report params. Ported from the `earningsTable()` helper on the Jetpack Stats
  * WordAds page (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
  */
@@ -33,6 +38,7 @@ function WordAdsSponsoredContentHistoryReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsWordAdsEarnings();
 
 	const rows = useMemo( () => flattenEarningsBreakdown( data?.sponsored ), [ data ] );
+	const fields = useMemo( () => getWordAdsHistoryFields(), [] );
 
 	return (
 		<WidgetState
@@ -54,7 +60,12 @@ function WordAdsSponsoredContentHistoryReport() {
 				),
 			} }
 		>
-			<EarningsHistoryList rows={ rows } />
+			<WidgetDataTable< EarningsHistoryRow >
+				data={ rows }
+				fields={ fields }
+				getItemId={ getRowId }
+				initialView={ EARNINGS_HISTORY_VIEW }
+			/>
 		</WidgetState>
 	);
 }

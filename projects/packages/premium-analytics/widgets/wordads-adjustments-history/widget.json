@@ -6,5 +6,5 @@
 		"content": "Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression."
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "content-bleed"
 }
