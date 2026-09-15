@@ -39,7 +39,7 @@ const meta: Meta< typeof EmailsList > = {
 		docs: {
 			description: {
 				component:
-					'Lists the latest emails with their open or click count and rate. A rate with no attributable recipient shows an em dash. Close-up stories use fixtures; the dashboard story uses a mocked report.',
+					'Lists the latest emails with their open or click count and rate. A rate shows an em dash when it has no attributable recipient or the email has no recorded sends. Close-up stories use fixtures; the dashboard story uses a mocked report.',
 			},
 		},
 	},
@@ -61,6 +61,7 @@ const mockRows: EmailRow[] = [
 		clicks: 41,
 		uniqueClicks: 38,
 		clicksRate: 3.81,
+		totalSends: 1000,
 	},
 	{
 		id: 2,
@@ -73,6 +74,7 @@ const mockRows: EmailRow[] = [
 		clicks: 190,
 		uniqueClicks: 179,
 		clicksRate: 5.98,
+		totalSends: 3000,
 	},
 	{
 		id: 3,
@@ -85,6 +87,7 @@ const mockRows: EmailRow[] = [
 		clicks: 3702,
 		uniqueClicks: 3560,
 		clicksRate: 7.12,
+		totalSends: 50000,
 	},
 	{
 		id: 4,
@@ -97,6 +100,7 @@ const mockRows: EmailRow[] = [
 		clicks: 12,
 		uniqueClicks: 0,
 		clicksRate: 0,
+		totalSends: 1000,
 	},
 	{
 		id: 5,
@@ -109,6 +113,7 @@ const mockRows: EmailRow[] = [
 		clicks: 108,
 		uniqueClicks: 103,
 		clicksRate: 10.25,
+		totalSends: 1000,
 	},
 	{
 		id: 6,
@@ -121,6 +126,20 @@ const mockRows: EmailRow[] = [
 		clicks: 0,
 		uniqueClicks: 0,
 		clicksRate: 0,
+		totalSends: 1000,
+	},
+	{
+		id: 7,
+		postId: 7,
+		link: 'https://example.com/archive/',
+		label: 'From the Archive: A Send With No Delivery Data',
+		opens: 0,
+		uniqueOpens: 0,
+		opensRate: 0,
+		clicks: 0,
+		uniqueClicks: 0,
+		clicksRate: 0,
+		totalSends: 0,
 	},
 ];
 
@@ -137,6 +156,7 @@ const mockLongLabelRows: EmailRow[] = [
 		clicks: 410,
 		uniqueClicks: 395,
 		clicksRate: 4.1,
+		totalSends: 10000,
 	},
 	{
 		id: 2,
@@ -149,6 +169,7 @@ const mockLongLabelRows: EmailRow[] = [
 		clicks: 67,
 		uniqueClicks: 60,
 		clicksRate: 6.7,
+		totalSends: 1000,
 	},
 ];
 

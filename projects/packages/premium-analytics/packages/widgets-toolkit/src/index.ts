@@ -242,6 +242,7 @@ export {
 	formatEmailRate,
 	formatViewCount,
 	isEmailRateKnown,
+	type EmailRateSignals,
 	MONTHS_IN_YEAR,
 	monthOrder,
 	type MonthKey,

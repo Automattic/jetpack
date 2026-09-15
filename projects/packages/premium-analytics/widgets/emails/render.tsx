@@ -52,6 +52,7 @@ export type EmailRow = {
 	uniqueClicks: number;
 	/** Click rate from 0 to 100. */
 	clicksRate: number;
+	totalSends: number;
 };
 
 const METRIC_SECTION: Record< EmailMetric, string > = {
@@ -135,18 +136,22 @@ function describeClicks( clicks: number, rate: string, isRateKnown: boolean ): s
 
 function metricValues( row: EmailRow, metric: EmailMetric ) {
 	if ( metric === 'clicks' ) {
-		const rate = formatEmailRate( row.clicksRate, row.clicks, row.uniqueClicks );
-		const isRateKnown = isEmailRateKnown( row.clicks, row.uniqueClicks );
+		const signals = { total: row.clicks, unique: row.uniqueClicks, sends: row.totalSends };
+		const rate = formatEmailRate( row.clicksRate, signals );
 		return {
 			count: row.clicks,
 			rate,
-			description: describeClicks( row.clicks, rate, isRateKnown ),
+			description: describeClicks( row.clicks, rate, isEmailRateKnown( signals ) ),
 		};
 	}
 
-	const rate = formatEmailRate( row.opensRate, row.opens, row.uniqueOpens );
-	const isRateKnown = isEmailRateKnown( row.opens, row.uniqueOpens );
-	return { count: row.opens, rate, description: describeOpens( row.opens, rate, isRateKnown ) };
+	const signals = { total: row.opens, unique: row.uniqueOpens, sends: row.totalSends };
+	const rate = formatEmailRate( row.opensRate, signals );
+	return {
+		count: row.opens,
+		rate,
+		description: describeOpens( row.opens, rate, isEmailRateKnown( signals ) ),
+	};
 }
 
 /** Render the latest emails with their open or click count and rate. */
@@ -199,6 +204,7 @@ function toEmailRows( report: StatsEmailSummary | undefined, max: number ): Emai
 		clicks: item.clicks,
 		uniqueClicks: item.unique_clicks,
 		clicksRate: item.clicks_rate,
+		totalSends: item.total_sends,
 	} ) );
 }
 

@@ -4,24 +4,33 @@
 import { formatEmailRate, isEmailRateKnown } from '../format-email-rate';
 
 describe( 'isEmailRateKnown', () => {
-	it( 'is unknown only when events exist without an attributed recipient', () => {
-		expect( isEmailRateKnown( 0, 0 ) ).toBe( true );
-		expect( isEmailRateKnown( 12, 10 ) ).toBe( true );
-		expect( isEmailRateKnown( 12, 0 ) ).toBe( false );
+	it( 'is known when recipients engaged, or when nobody engaged', () => {
+		expect( isEmailRateKnown( { total: 12, unique: 10, sends: 100 } ) ).toBe( true );
+		expect( isEmailRateKnown( { total: 0, unique: 0, sends: 100 } ) ).toBe( true );
+	} );
+
+	it( 'is unknown when events exist without an attributed recipient', () => {
+		expect( isEmailRateKnown( { total: 12, unique: 0, sends: 100 } ) ).toBe( false );
+	} );
+
+	it( 'is unknown when nothing was sent', () => {
+		expect( isEmailRateKnown( { total: 0, unique: 0, sends: 0 } ) ).toBe( false );
+		expect( isEmailRateKnown( { total: 12, unique: 10, sends: 0 } ) ).toBe( false );
 	} );
 } );
 
 describe( 'formatEmailRate', () => {
 	it( 'formats a 0–100 rate at up to two decimals', () => {
-		expect( formatEmailRate( 38.1, 400, 380 ) ).toBe( '38.1%' );
-		expect( formatEmailRate( 3.814, 40, 38 ) ).toBe( '3.81%' );
+		expect( formatEmailRate( 38.1, { total: 400, unique: 380, sends: 1000 } ) ).toBe( '38.1%' );
+		expect( formatEmailRate( 3.814, { total: 40, unique: 38, sends: 1000 } ) ).toBe( '3.81%' );
 	} );
 
-	it( 'shows a genuine zero when there were no events', () => {
-		expect( formatEmailRate( 0, 0, 0 ) ).toBe( '0%' );
+	it( 'shows a genuine zero when nobody engaged', () => {
+		expect( formatEmailRate( 0, { total: 0, unique: 0, sends: 1000 } ) ).toBe( '0%' );
 	} );
 
-	it( 'shows an em dash when no event could be attributed to a recipient', () => {
-		expect( formatEmailRate( 0, 12, 0 ) ).toBe( '—' );
+	it( 'shows an em dash when the rate is unknown', () => {
+		expect( formatEmailRate( 0, { total: 12, unique: 0, sends: 1000 } ) ).toBe( '—' );
+		expect( formatEmailRate( 0, { total: 0, unique: 0, sends: 0 } ) ).toBe( '—' );
 	} );
 } );
