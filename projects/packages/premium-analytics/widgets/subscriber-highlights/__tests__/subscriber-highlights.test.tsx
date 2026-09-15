@@ -24,8 +24,7 @@ type Responses = {
 	total?: number;
 	paid?: number;
 	social?: number;
-	productCount?: number;
-	failProducts?: boolean;
+	failCounts?: boolean;
 	byDate?: Record< string, number >;
 	failDates?: string[];
 };
@@ -34,18 +33,13 @@ function respondWith( {
 	total,
 	paid,
 	social,
-	productCount = 0,
-	failProducts = false,
+	failCounts = false,
 	byDate = {},
 	failDates = [],
 }: Responses ) {
 	return ( { path }: { path: string } ) => {
-		if ( path.includes( 'memberships/products' ) ) {
-			return failProducts
-				? Promise.reject( { status: 403, message: 'Forbidden' } )
-				: Promise.resolve( {
-						products: Array.from( { length: productCount }, ( _, id ) => ( { id } ) ),
-				  } );
+		if ( failCounts && path.includes( 'subscribers/counts' ) ) {
+			return Promise.reject( { status: 403, message: 'Forbidden' } );
 		}
 
 		if ( path.includes( 'subscribers/counts' ) ) {
@@ -91,10 +85,11 @@ describe( 'SubscriberHighlightsWidget', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'shows the total next to the counts 30, 60 and 90 days ago', async () => {
+	it( 'shows the total next to the counts 30, 60 and 90 days ago when nobody pays', async () => {
 		mockApiFetch.mockImplementation(
 			respondWith( {
 				total: 428,
+				paid: 0,
 				byDate: { '2026-08-16': 317, '2026-07-17': 186, '2026-06-17': 95 },
 			} )
 		);
@@ -110,13 +105,12 @@ describe( 'SubscriberHighlightsWidget', () => {
 		] );
 	} );
 
-	it( 'shows paid, free and social instead of the history when the site has paid products', async () => {
+	it( 'shows paid, free and social instead of the history when the site has paid subscribers', async () => {
 		mockApiFetch.mockImplementation(
 			respondWith( {
 				total: 428,
 				paid: 117,
 				social: 64,
-				productCount: 2,
 				byDate: { '2026-08-16': 317 },
 			} )
 		);
@@ -134,9 +128,9 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( requestedPaths.some( path => path.includes( 'stats/subscribers' ) ) ).toBe( false );
 	} );
 
-	it( 'falls back to the history when the products request fails', async () => {
+	it( 'falls back to the history when the counts request fails', async () => {
 		mockApiFetch.mockImplementation(
-			respondWith( { total: 428, failProducts: true, byDate: { '2026-08-16': 317 } } )
+			respondWith( { failCounts: true, byDate: { '2026-08-16': 317 } } )
 		);
 
 		render( <SubscriberHighlightsWidget attributes={ {} } /> );
@@ -195,7 +189,6 @@ describe( 'SubscriberHighlightsWidget', () => {
 
 		await expect( screen.findByText( '317' ) ).resolves.toBeInTheDocument();
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
-		expect( requestedPaths.some( path => path.includes( 'memberships/products' ) ) ).toBe( true );
 		expect( requestedPaths.some( path => path.includes( 'subscribers/counts' ) ) ).toBe( true );
 		expect( requestedPaths.some( path => path.includes( 'stats/subscribers' ) ) ).toBe( true );
 	} );

@@ -76,7 +76,6 @@ const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/s
 // The subscribers/counts endpoint is a v2 proxy path (not under /stats), so it
 // is matched on its own rather than through routeStatsReport().
 const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/subscribers/counts';
-const MEMBERSHIP_PRODUCTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/memberships/products';
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
 const STATS_VIEWS_BY_HOUR_PATH =
 	'/jetpack-premium-analytics/v1/proxy/v1.1/stats/views-by/hour-of-day';
@@ -1525,10 +1524,6 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
 		return mockStatsSubscribersCountsData;
-	}
-
-	if ( requestPath.startsWith( MEMBERSHIP_PRODUCTS_PATH ) ) {
-		return { products: [] };
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {
