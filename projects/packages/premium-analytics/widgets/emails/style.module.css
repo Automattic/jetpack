@@ -28,7 +28,7 @@
 
 /* A minimum width keeps the counts aligned in a column across rows. */
 .rate {
-	min-inline-size: 6ch;
+	min-inline-size: 7ch;
 	text-align: end;
 	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
