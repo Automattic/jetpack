@@ -707,7 +707,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				// not even hold, so the "(flag from a re-run)" marker attributes its numbers
 				// instead. The gate itself never sees this value; its medians and anchors judge
 				// the kept series only.
-				to: self ? flagV ?? v : sib.v,
+				to: self ? ( flagV ?? v ) : sib.v,
 				reRun: self ? fIdxs !== undefined : true, // marks a flag whose event folded in a re-post/re-run row: its numbers or comparison base MAY come from that row (a same-time fold or an off-time merge), so the reader is not shown an attribution the kept data need not support
 			};
 			if ( win.verdict === 'pending' ) {

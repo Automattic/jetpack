@@ -29,7 +29,7 @@ const getName = ( item: SearchResultItem ) =>
 const getDescription = ( item: SearchResultItem ) =>
 	item.kind === 'card'
 		? item.card.product.description
-		: getBlockThemeMigration( item.module )?.notice ?? item.module.description;
+		: ( getBlockThemeMigration( item.module )?.notice ?? item.module.description );
 
 /**
  * Renders relevance-ranked search results as a single uniform list of compact rows, mixing

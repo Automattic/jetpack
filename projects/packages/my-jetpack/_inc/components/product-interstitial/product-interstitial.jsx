@@ -113,7 +113,7 @@ export default function ProductInterstitial( {
 	const trackProductOrBundleClick = useCallback(
 		options => {
 			const { customSlug = null, isFreePlan = false, ctaText = null } = options || {};
-			const productSlug = customSlug ? customSlug : bundle ?? slug;
+			const productSlug = customSlug ? customSlug : ( bundle ?? slug );
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),

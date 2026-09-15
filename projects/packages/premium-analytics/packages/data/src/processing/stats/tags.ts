@@ -76,7 +76,7 @@ function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
 	return {
 		label: labels,
 		labelText: labels.map( label => label.label ).join( ', ' ),
-		link: hasChildren ? null : labels[ 0 ]?.link ?? null,
+		link: hasChildren ? null : ( labels[ 0 ]?.link ?? null ),
 		value: safeParseFloat( item.views ),
 		...( hasChildren
 			? {

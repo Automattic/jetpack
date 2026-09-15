@@ -100,7 +100,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 	);
 	const isDrillDown = !! selectedUtm?.children?.length;
 	const activeData = useMemo(
-		() => ( isDrillDown ? selectedUtm?.children ?? [] : data ),
+		() => ( isDrillDown ? ( selectedUtm?.children ?? [] ) : data ),
 		[ data, isDrillDown, selectedUtm ]
 	);
 	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;

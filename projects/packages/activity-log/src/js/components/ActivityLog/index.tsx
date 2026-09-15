@@ -407,7 +407,7 @@ export default function ActivityLog() {
 		// controls. The server-side clamp in REST_Controller already caps
 		// the returned set at FREE_TIER_ITEM_CAP; this just keeps the UI
 		// honest.
-		totalPages: hasActivityLogsAccess ? activityLogData?.totalPages ?? 0 : 0,
+		totalPages: hasActivityLogsAccess ? ( activityLogData?.totalPages ?? 0 ) : 0,
 	};
 
 	const fields = useActivityFields( {

@@ -53,7 +53,7 @@ function getStorageKey(): string {
 	// site in the same browser onto one shared key. Only trust a positive id;
 	// otherwise fall back to the host so different sites stay separate.
 	const blogId = data?.site?.wpcom?.blog_id;
-	const scope = typeof blogId === 'number' && blogId > 0 ? blogId : data?.site?.host ?? 'site';
+	const scope = typeof blogId === 'number' && blogId > 0 ? blogId : ( data?.site?.host ?? 'site' );
 	const userId = data?.user?.current_user?.id ?? 'user';
 	return `jetpack-videopress-preferences-${ scope }-${ userId }`;
 }

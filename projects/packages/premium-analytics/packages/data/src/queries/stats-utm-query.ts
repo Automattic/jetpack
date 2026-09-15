@@ -25,7 +25,7 @@ export const statsUtmQuery = ( params: StatsUtmParams ): StatsReportQueryOptions
 	const apiParams = statsQueryParamsToApiParams( statsParams );
 	const utmParam = params.utmParam ?? DEFAULT_UTM_PARAM;
 	const postId = params.post_id || '';
-	const queryTopPosts = postId ? false : params.query_top_posts ?? true;
+	const queryTopPosts = postId ? false : ( params.query_top_posts ?? true );
 	const utmParams: StatsProxyParams = {
 		max: apiParams.max ?? 10,
 		date: apiParams.date,

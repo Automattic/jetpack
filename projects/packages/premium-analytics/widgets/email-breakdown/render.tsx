@@ -75,7 +75,7 @@ function buildLeaderboardData(
 			view === 'countries'
 				? {
 						kind: 'flag',
-						url: row.countryCode ? flagUrl( row.countryCode ) ?? undefined : undefined,
+						url: row.countryCode ? ( flagUrl( row.countryCode ) ?? undefined ) : undefined,
 						country: row.countryFull ?? row.label,
 					}
 				: { kind: 'none' };

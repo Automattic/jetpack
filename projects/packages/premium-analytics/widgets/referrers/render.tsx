@@ -228,7 +228,7 @@ function ReferrersInner() {
 	}, [ drillPath, trail, isLoading, isFetching, isError, setDrillPath, resetDrillDown ] );
 
 	const currentRow = trail.length ? trail[ trail.length - 1 ] : null;
-	const activeRows = currentRow ? currentRow.children ?? [] : rows;
+	const activeRows = currentRow ? ( currentRow.children ?? [] ) : rows;
 	// Drilled levels gate the comparison UI on their own rows' overlap, so a
 	// subtree without comparison matches doesn't render placeholder deltas.
 	const withComparison = currentRow ? !! currentRow.childrenHaveComparison : hasComparison;

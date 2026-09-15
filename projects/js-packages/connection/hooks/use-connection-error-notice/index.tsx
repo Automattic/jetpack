@@ -72,7 +72,7 @@ export default function useConnectionErrorNotice( {
 		// Only consumers that opted in (i.e. actually ran the probe) inherit it; for
 		// everyone else the shared health slot is invisible.
 		const healthErrorMap: ConnectionErrorMap = includeHealthErrors
-			? connectionHealthErrors ?? {}
+			? ( connectionHealthErrors ?? {} )
 			: {};
 
 		// Precedence: real WPCOM-reported store errors win; health-check failures are

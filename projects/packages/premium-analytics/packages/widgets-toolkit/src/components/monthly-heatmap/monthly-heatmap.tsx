@@ -154,7 +154,7 @@ export function MonthlyHeatmap( {
 				// or the year alone for its roll-up.
 				cellLabel={
 					columns[ column ]?.summary
-						? rowLabel ?? ''
+						? ( rowLabel ?? '' )
 						: sprintf(
 								/* translators: 1: abbreviated month name, e.g. "Aug"; 2: year, e.g. "2026". */
 								_x( '%1$s %2$s', 'month and year', 'jetpack-premium-analytics-pkg' ),

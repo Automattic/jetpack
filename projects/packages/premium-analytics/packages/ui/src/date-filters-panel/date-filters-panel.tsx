@@ -181,7 +181,7 @@ export function DateFiltersPanel( {
 	 * (like the picker's own trigger) — otherwise it'd show a stale draft.
 	 */
 	const [ isPrimaryPickerOpen, setIsPrimaryPickerOpen ] = useState( false );
-	const comparisonSourceRange = isPrimaryPickerOpen ? range : appliedRange ?? range;
+	const comparisonSourceRange = isPrimaryPickerOpen ? range : ( appliedRange ?? range );
 	// The draft's preset never reaches the panel, so an open draft is measured
 	// as read; the applied preset decides how a to-date window is measured.
 	const comparisonSourcePresetId = isPrimaryPickerOpen ? undefined : validatedAppliedPresetId;

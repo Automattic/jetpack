@@ -37,7 +37,7 @@ function MockRouteLink( { to, params, search, children, ...props }: MockRouteLin
 		( currentPath, [ key, value ] ) => currentPath.replace( `$${ key }`, String( value ) ),
 		to
 	);
-	const resolvedSearch = typeof search === 'function' ? search( currentSearch ) : search ?? {};
+	const resolvedSearch = typeof search === 'function' ? search( currentSearch ) : ( search ?? {} );
 	const query = new URLSearchParams();
 
 	Object.entries( resolvedSearch ).forEach( ( [ key, value ] ) => {

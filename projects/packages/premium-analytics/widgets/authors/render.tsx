@@ -70,7 +70,7 @@ export function AuthorsLeaderboard( {
 	} = useWidgetDrillDown< string >();
 
 	const selectedAuthor = useMemo(
-		() => ( selectedAuthorId ? rows.find( row => row.id === selectedAuthorId ) ?? null : null ),
+		() => ( selectedAuthorId ? ( rows.find( row => row.id === selectedAuthorId ) ?? null ) : null ),
 		[ rows, selectedAuthorId ]
 	);
 

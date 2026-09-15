@@ -150,7 +150,7 @@ export default function PricingInterstitial( { slug } ) {
 				tier = null,
 				hasDiscount = false,
 			} = options || {};
-			const productSlug = customSlug ? customSlug : config?.bundle ?? slug;
+			const productSlug = customSlug ? customSlug : ( config?.bundle ?? slug );
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),

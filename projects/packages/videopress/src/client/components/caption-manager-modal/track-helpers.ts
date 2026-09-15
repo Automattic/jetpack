@@ -549,7 +549,7 @@ export const buildUploadTrackPayload = ( {
 	const canonicalSrcLang = canonicalizeLanguageTag( form.srcLang );
 	const srcLang =
 		mode === 'replace' && replacingTrack
-			? canonicalSrcLang ?? replacingTrack.srcLang
+			? ( canonicalSrcLang ?? replacingTrack.srcLang )
 			: canonicalSrcLang;
 
 	if ( ! srcLang ) {

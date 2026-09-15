@@ -248,7 +248,7 @@ export function mergeStatsTreeComparisonRows<
 				const childContext = getChildContext?.( mappedRow, levelParentContext );
 				const children = mergeLevel(
 					getPrimaryChildren( row ) ?? [],
-					context.comparisonItem ? getComparisonChildren( context.comparisonItem ) ?? [] : [],
+					context.comparisonItem ? ( getComparisonChildren( context.comparisonItem ) ?? [] ) : [],
 					childContext
 				);
 

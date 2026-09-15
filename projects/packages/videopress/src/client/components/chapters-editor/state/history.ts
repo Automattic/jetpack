@@ -211,7 +211,7 @@ export function withHistory< S, A extends { type: string } >(
 				// A from-base transient replays against the gesture's snapshot
 				// (falling back to the present when no gesture is in flight yet),
 				// so destructive intermediate previews never compound.
-				const base = fromBase ? state.transientBase ?? state.present : state.present;
+				const base = fromBase ? ( state.transientBase ?? state.present ) : state.present;
 				const present = reducer( base, inner );
 				if ( present === state.present ) {
 					return state;

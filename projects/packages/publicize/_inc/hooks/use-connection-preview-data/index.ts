@@ -160,7 +160,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	const { items, postIntent } = useRenderMessageInputs();
 	const siteMessageTemplate = useSelect(
 		select =>
-			templatesEnabled ? select( socialStore ).getSocialSettings().messageTemplate ?? '' : '',
+			templatesEnabled ? ( select( socialStore ).getSocialSettings().messageTemplate ?? '' ) : '',
 		[ templatesEnabled ]
 	);
 	/*
@@ -172,7 +172,7 @@ export function useConnectionPreviewData( connection: Connection ): ConnectionPr
 	 * stuck true.
 	 */
 	const baseMessage = (
-		isPerNetworkMode ? connection.message ?? siteMessageTemplate : globalMessage
+		isPerNetworkMode ? ( connection.message ?? siteMessageTemplate ) : globalMessage
 	).trim();
 	const legacyHyperlinkSource = useSelect(
 		select => {

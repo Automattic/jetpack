@@ -245,7 +245,7 @@ function ClicksInner() {
 		[ rows, selectedClickLabel ]
 	);
 	const isDrillDown = !! selectedClick?.children?.length;
-	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
+	const activeRows = isDrillDown ? ( selectedClick.children ?? [] ) : rows;
 	const withComparison = isDrillDown ? !! selectedClick?.childrenHaveComparison : hasComparison;
 
 	// Clear the stored selection only once data has settled without a drillable

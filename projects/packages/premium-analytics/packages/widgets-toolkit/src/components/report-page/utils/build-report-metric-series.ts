@@ -54,11 +54,11 @@ function toTimeSeriesResponse(
 			date_start:
 				typeof report.summary.date_start === 'string'
 					? report.summary.date_start
-					: first?.date_start ?? '',
+					: ( first?.date_start ?? '' ),
 			date_end:
 				typeof report.summary.date_end === 'string'
 					? report.summary.date_end
-					: last?.date_end ?? last?.date_start ?? '',
+					: ( last?.date_end ?? last?.date_start ?? '' ),
 		},
 		data: ( report.data ?? [] ).map( point => ( {
 			date_start: point.date_start,

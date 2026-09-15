@@ -41,7 +41,7 @@ export function useManualShareMessage(): ManualShareMessage {
 	const { siteMessageTemplate, postId } = useSelect(
 		select => ( {
 			siteMessageTemplate: templatesEnabled
-				? select( socialStore ).getSocialSettings().messageTemplate ?? ''
+				? ( select( socialStore ).getSocialSettings().messageTemplate ?? '' )
 				: '',
 			postId: select( editorStore ).getCurrentPostId() as number | undefined,
 		} ),

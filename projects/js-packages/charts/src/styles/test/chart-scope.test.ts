@@ -101,7 +101,7 @@ function parseTokensDoc(): Map< string, Entry > {
 		const token = /(--wp[\w-]+)/.exec( mapping );
 
 		entries.set( role, {
-			reads: unmapped ? null : derives?.[ 1 ] ?? token?.[ 1 ] ?? null,
+			reads: unmapped ? null : ( derives?.[ 1 ] ?? token?.[ 1 ] ?? null ),
 			fallback: fallback === '—' ? null : normalize( fallback ),
 		} );
 	}

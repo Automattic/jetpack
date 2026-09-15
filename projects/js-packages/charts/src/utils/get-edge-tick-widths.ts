@@ -24,7 +24,7 @@ export const getEdgeTickWidths = < T extends AnyD3Scale >(
 
 	const lastIndex = ticks.length - 1;
 	const label = ( tick: ScaleInput< T >, index: number ) =>
-		String( formatTick ? formatTick( tick, index, [] ) ?? '' : tick );
+		String( formatTick ? ( formatTick( tick, index, [] ) ?? '' ) : tick );
 
 	return {
 		first: getStringWidth( label( ticks[ 0 ], 0 ), labelStyle ) ?? 0,

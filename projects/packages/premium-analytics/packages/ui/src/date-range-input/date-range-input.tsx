@@ -30,7 +30,7 @@ type DateInputProps = Pick< DateRangeInputProps, 'timeZone' > & {
 };
 
 const formatToString = ( date: Date | undefined, timeZone: string ) =>
-	date ? getDatePart( formatToTimezoneNaiveString( date, timeZone ) ) ?? '' : '';
+	date ? ( getDatePart( formatToTimezoneNaiveString( date, timeZone ) ) ?? '' ) : '';
 
 function parseFromString( dateString: string, timeZone: string ) {
 	const [ year, month, day ] = dateString.split( '-' ).map( x => Number( x ) );

@@ -137,7 +137,7 @@ export function getAccessLabelForCopy( accessLevel, tierName = null, postHasPayw
 export function getCurrentTierName( accessLevel, postMeta, tierProducts ) {
 	const tierId = postMeta?.[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
 	return accessLevel === accessOptions.paid_subscribers.key && tierId
-		? tierProducts?.find( p => String( p.id ) === String( tierId ) )?.title ?? null
+		? ( tierProducts?.find( p => String( p.id ) === String( tierId ) )?.title ?? null )
 		: null;
 }
 
