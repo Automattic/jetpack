@@ -1,6 +1,6 @@
 {
 	"name": "jpa/most-commented-authors",
-	"title": "Top commented authors",
+	"title": "All-time most commented authors",
 	"description": "The people who comment the most on your site.",
 	"help": {
 		"content": "The people who left the most comments on your site.",
