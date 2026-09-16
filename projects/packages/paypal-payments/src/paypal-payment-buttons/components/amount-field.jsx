@@ -26,7 +26,8 @@ import {
  * @param {string}   [props.max]         - Largest value the spinner offers.
  * @param {string}   [props.placeholder]
  *                                       - Placeholder text.
- * @param {string}   [props.error]       - Error message, shown under the field.
+ * @param {string}   [props.help]        - Hint shown under the field, error or not.
+ * @param {string}   [props.error]       - Error message, shown below the hint.
  * @param {boolean}  [props.disabled]    - Whether the field is disabled.
  * @return {Element} The field.
  */
@@ -39,6 +40,7 @@ export default function AmountField( {
 	min,
 	max,
 	placeholder,
+	help,
 	error,
 	disabled,
 } ) {
@@ -54,7 +56,18 @@ export default function AmountField( {
 			placeholder={ placeholder }
 			// The wrapper is what pads the suffix off the field's edge.
 			suffix={ <InputControlSuffixWrapper>{ suffix }</InputControlSuffixWrapper> }
-			help={ error }
+			// The design stacks these rather than swapping. Each gets its own span
+			// so editor.scss can redden the error alone.
+			help={
+				( help || error ) && (
+					<>
+						{ help && <span>{ help }</span> }
+						{ error && (
+							<span className="jetpack-paypal-payment-buttons__field-error">{ error }</span>
+						) }
+					</>
+				)
+			}
 			className={ error ? 'jetpack-paypal-payment-buttons__has-error' : undefined }
 			disabled={ disabled }
 		/>

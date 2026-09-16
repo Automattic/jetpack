@@ -12,7 +12,7 @@ import { withCurrency } from './resource-sync';
  * A PUT is a full replacement, so a field the request leaves out is one the
  * merchant deletes by pressing Update. These ride back out from the payment itself.
  */
-export const PAYPAL_ONLY_LINE_ITEM_FIELDS = [ 'shipping', 'discounts', 'collect_shipping_address' ];
+export const PAYPAL_ONLY_LINE_ITEM_FIELDS = [ 'shipping', 'collect_shipping_address' ];
 
 /**
  * Put the fields set outside the form back into an update request.
@@ -66,6 +66,9 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 		taxValue,
 		handlingEnabled,
 		handlingValue,
+		discountEnabled,
+		discountType,
+		discountValue,
 		collectShippingAddress,
 	} = attributes;
 
@@ -123,6 +126,11 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 				// tax above: '0' is a fee PayPal stores and reads back.
 				...( handlingEnabled && '' !== ( handlingValue ?? '' )
 					? { handling: [ { type: 'FLAT', value: handlingValue } ] }
+					: {} ),
+				// The attribute holds PayPal's own type, so it goes out as it stands.
+				// Blank check as above; a zero never gets here, the validator blocks it.
+				...( discountEnabled && '' !== ( discountValue ?? '' )
+					? { discounts: [ { type: discountType || 'FLAT', value: discountValue } ] }
 					: {} ),
 				// Omitting this makes PayPal collect an address whatever the
 				// payment said before, so it goes out on every request. On an

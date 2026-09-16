@@ -1035,9 +1035,9 @@ class PayPal_REST_Controller {
 							'type'     => 'string',
 							'required' => false,
 						),
-						// The form owns handling; shipping and discounts are still set
+						// The form owns handling and discounts; shipping is still set
 						// outside it, and a PUT replaces the whole resource, so the
-						// editor sends those back.
+						// editor sends that back.
 						'shipping'                 => $amount_list,
 						'handling'                 => $amount_list,
 						'discounts'                => $amount_list,

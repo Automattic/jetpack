@@ -43,6 +43,9 @@ const attributes = {
 	taxValue: '7.5',
 	handlingEnabled: true,
 	handlingValue: '4.00',
+	discountEnabled: true,
+	discountType: 'FLAT',
+	discountValue: '2.00',
 	collectShippingAddress: false,
 	productId: 'SKU-1',
 };
@@ -91,6 +94,7 @@ describe( 'buildRequestData', () => {
 					customer_notes: [ { label: 'Engraving', required: true } ],
 					taxes: [ { name: 'VAT', type: 'PERCENTAGE', value: '7.5' } ],
 					handling: [ { type: 'FLAT', value: '4.00' } ],
+					discounts: [ { type: 'FLAT', value: '2.00' } ],
 					collect_shipping_address: false,
 				},
 			],
@@ -191,6 +195,54 @@ describe( 'buildRequestData', () => {
 		expect( handling ).toEqual( { type: 'FLAT', value: '0' } );
 	} );
 
+	it( 'leaves the discount out when the toggle is off', () => {
+		expect(
+			buildRequestData( { ...attributes, discountEnabled: false }, true ).line_items[ 0 ]
+		).not.toHaveProperty( 'discounts' );
+	} );
+
+	// undefined too: a block saved before the attribute existed carries no value.
+	it.each( [ '', undefined ] )( 'leaves the discount out when the value is %p', value => {
+		expect(
+			buildRequestData( { ...attributes, discountValue: value }, true ).line_items[ 0 ]
+		).not.toHaveProperty( 'discounts' );
+	} );
+
+	// The gate is blank-vs-not, not a value check. The validator blocks a zero.
+	it( 'treats a zero discount as filled in rather than blank', () => {
+		const [ discount ] = buildRequestData( { ...attributes, discountValue: '0' }, true )
+			.line_items[ 0 ].discounts;
+
+		expect( discount ).toEqual( { type: 'FLAT', value: '0' } );
+	} );
+
+	// The attribute is PayPal's own wire value, so a percentage needs no mapping.
+	it( 'sends a percentage discount as PERCENTAGE', () => {
+		const [ discount ] = buildRequestData(
+			{ ...attributes, discountType: 'PERCENTAGE', discountValue: '15' },
+			true
+		).line_items[ 0 ].discounts;
+
+		expect( discount ).toEqual( { type: 'PERCENTAGE', value: '15' } );
+	} );
+
+	// The read-back stores a type the block has no option for rather than clamping
+	// it, so the write half has to send it back untouched or the money changes.
+	it( 'sends a type the block does not model as it stands', () => {
+		const [ discount ] = buildRequestData( { ...attributes, discountType: 'TIERED' }, true )
+			.line_items[ 0 ].discounts;
+
+		expect( discount ).toEqual( { type: 'TIERED', value: '2.00' } );
+	} );
+
+	// An older block saved before the attribute existed has no type at all.
+	it( 'falls back to a flat discount when the type is missing', () => {
+		const [ discount ] = buildRequestData( { ...attributes, discountType: undefined }, true )
+			.line_items[ 0 ].discounts;
+
+		expect( discount ).toEqual( { type: 'FLAT', value: '2.00' } );
+	} );
+
 	it( 'sends PayPal’s own profile rate as PROFILE', () => {
 		const [ tax ] = buildRequestData( { ...attributes, taxType: 'PREFERENCE', taxName: '' }, true )
 			.line_items[ 0 ].taxes;
@@ -216,7 +268,6 @@ describe( 'buildRequestData', () => {
 describe( 'keepPayPalOnlyFields', () => {
 	const stored = {
 		shipping: [ { type: 'FLAT', value: '5.00', additional_unit_value: '2.00' } ],
-		discounts: [ { type: 'FLAT', value: '2.00' } ],
 		collect_shipping_address: true,
 	};
 
@@ -237,6 +288,15 @@ describe( 'keepPayPalOnlyFields', () => {
 		} );
 
 		expect( data.line_items[ 0 ].handling ).toEqual( [ { type: 'FLAT', value: '4.00' } ] );
+	} );
+
+	// Same again for the discount: the form owns it, so it overwrites what PayPal holds.
+	it( 'lets the form overwrite a discount set at PayPal', () => {
+		const data = keepPayPalOnlyFields( buildRequestData( attributes, true ), {
+			line_items: [ { ...stored, discounts: [ { type: 'PERCENTAGE', value: '50' } ] } ],
+		} );
+
+		expect( data.line_items[ 0 ].discounts ).toEqual( [ { type: 'FLAT', value: '2.00' } ] );
 	} );
 
 	it( 'leaves the image as the block sent it, so removing it there removes it at PayPal', () => {

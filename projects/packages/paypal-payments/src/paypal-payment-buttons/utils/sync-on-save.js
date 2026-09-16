@@ -10,6 +10,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
 import {
+	getComparisonPrice,
 	hasVariantPricing,
 	isVariantPricingOn,
 	validateVariants,
@@ -51,7 +52,12 @@ export function heldBackReason( attributes ) {
 		taxValue,
 		handlingEnabled,
 		handlingValue,
+		discountEnabled,
+		discountType,
+		discountValue,
 	} = attributes;
+
+	const variantPricingOn = isVariantPricingOn( variantsEnabled, variants );
 
 	const errors = getValidationErrors( {
 		productName,
@@ -59,12 +65,16 @@ export function heldBackReason( attributes ) {
 		productDescription,
 		returnUrl,
 		currencyCode,
-		variantPricingOn: isVariantPricingOn( variantsEnabled, variants ),
+		variantPricingOn,
 		taxEnabled,
 		taxType,
 		taxValue,
 		handlingEnabled,
 		handlingValue,
+		discountEnabled,
+		discountType,
+		discountValue,
+		comparisonPrice: getComparisonPrice( variantPricingOn, variants, price ),
 	} );
 
 	const blocking = Object.entries( errors ).find(
