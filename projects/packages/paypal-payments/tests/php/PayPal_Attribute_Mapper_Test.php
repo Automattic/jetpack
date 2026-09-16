@@ -936,6 +936,139 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
+	 * Test that api_response_to_attributes tells the four shipping modes apart.
+	 *
+	 * PayPal stores no mode. Four of them ride two types: PROFILE and FREE_SHIPPING
+	 * share PREFERENCE and differ only in `value`, and the two FLAT modes differ only
+	 * by `additional_unit_value`. Collapsing either pair silently rewrites the
+	 * merchant's choice on the next save - WOOPTP-493 B16 and B17.
+	 *
+	 * @dataProvider shipping_mode_provider
+	 *
+	 * @param array  $shipping The stored shipping entry.
+	 * @param string $mode     The mode it has to read back as.
+	 * @param string $value    The fee it has to read back as, '' for none.
+	 * @param string $extra    The per-extra-item fee, '' for none.
+	 */
+	#[DataProvider( 'shipping_mode_provider' )]
+	public function test_api_response_to_attributes_tells_shipping_modes_apart( $shipping, $mode, $value, $extra ) {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-SHIP',
+				'line_items' => array(
+					array(
+						'name'     => 'Widget',
+						'shipping' => array( $shipping ),
+					),
+				),
+			)
+		);
+
+		$this->assertTrue( $attributes['shippingEnabled'] );
+		$this->assertSame( $mode, $attributes['shippingMode'] );
+		// The key is always written, so an absent one is a real difference here.
+		$this->assertSame( $value, $attributes['shippingValue'] );
+		$this->assertSame( $extra, $attributes['shippingAdditionalValue'] ?? '' );
+	}
+
+	/**
+	 * Every shipping shape PayPal hands back, and what it means.
+	 *
+	 * @return array
+	 */
+	public static function shipping_mode_provider(): array {
+		return array(
+			'profile settings'    => array(
+				array(
+					'type'  => 'PREFERENCE',
+					'value' => 'PROFILE',
+				),
+				'PROFILE',
+				'',
+				'',
+			),
+			'free shipping'       => array(
+				array(
+					'type'  => 'PREFERENCE',
+					'value' => 'FREE_SHIPPING',
+				),
+				'FREE',
+				'',
+				'',
+			),
+			'a preference we do not model reads as profile' => array(
+				array(
+					'type'  => 'PREFERENCE',
+					'value' => 'SOMETHING_NEW',
+				),
+				'PROFILE',
+				'',
+				'',
+			),
+			'specific fee'        => array(
+				array(
+					'type'  => 'FLAT',
+					'value' => '5.00',
+				),
+				'FLAT',
+				'5.00',
+				'',
+			),
+			'quantity-based fee'  => array(
+				array(
+					'type'                  => 'FLAT',
+					'value'                 => '5.00',
+					'additional_unit_value' => '2.00',
+				),
+				'QUANTITY',
+				'5.00',
+				'2.00',
+			),
+			// Byte-identical to a specific fee on the wire, so it reads back as one.
+			// The payment is the same either way.
+			'quantity-based with no extra reads as specific' => array(
+				array(
+					'type'                  => 'FLAT',
+					'value'                 => '5.00',
+					'additional_unit_value' => '',
+				),
+				'FLAT',
+				'5.00',
+				'',
+			),
+			// '0' is free shipping PayPal stores, and empty() would throw it away.
+			'a zero fee survives' => array(
+				array(
+					'type'                  => 'FLAT',
+					'value'                 => '0',
+					'additional_unit_value' => '0',
+				),
+				'QUANTITY',
+				'0',
+				'0',
+			),
+		);
+	}
+
+	/**
+	 * Test that api_response_to_attributes leaves shipping alone when there is none.
+	 *
+	 * The block attribute defaults to off, so an absent key has to stay absent rather
+	 * than turning the control on with an empty fee.
+	 */
+	public function test_api_response_to_attributes_omits_missing_shipping() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-NOSHIP',
+				'line_items' => array( array( 'name' => 'Widget' ) ),
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'shippingEnabled', $attributes );
+		$this->assertArrayNotHasKey( 'shippingMode', $attributes );
+	}
+
+	/**
 	 * Test that api_response_to_attributes reports address collection both ways.
 	 *
 	 * The block attribute defaults to on, so an absent key has to come back as off.

@@ -4,10 +4,14 @@
  * @package
  */
 
+import metadata from '../../src/paypal-payment-buttons/block.json';
 import {
+	GATED_ATTRIBUTES,
 	getResourceAttributeUpdates,
 	normalizeResourceVariants,
 	RESOURCE_ATTRIBUTES,
+	resetToDefaults,
+	turnGateOff,
 	withCurrency,
 } from '../../src/paypal-payment-buttons/utils/resource-sync';
 
@@ -35,7 +39,7 @@ const blockAttributes = {
 	discountType: 'FLAT',
 	discountValue: '',
 	returnUrl: '',
-	collectShippingAddress: true,
+	collectShippingAddress: false,
 	imageUrl: 'https://example.com/widget.jpg',
 	format: 'QR',
 };
@@ -128,6 +132,56 @@ describe( 'getResourceAttributeUpdates', () => {
 		).toEqual( { handlingEnabled: false, handlingValue: '' } );
 	} );
 
+	it( 'reads quantity-based shipping back from the payment', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, {
+				...resourceAttributes,
+				shippingEnabled: true,
+				shippingMode: 'QUANTITY',
+				shippingValue: '5.00',
+				shippingAdditionalValue: '2.00',
+			} )
+		).toEqual( {
+			shippingEnabled: true,
+			shippingMode: 'QUANTITY',
+			shippingValue: '5.00',
+			shippingAdditionalValue: '2.00',
+		} );
+	} );
+
+	// The two preference modes carry no fee, so the mapper blanks it. Reading one
+	// back over a fee mode has to clear the amounts as well as move the mode.
+	it( 'clears the fees when the payment switches to free shipping', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{
+					...blockAttributes,
+					shippingEnabled: true,
+					shippingMode: 'QUANTITY',
+					shippingValue: '5.00',
+					shippingAdditionalValue: '2.00',
+				},
+				{ ...resourceAttributes, shippingEnabled: true, shippingMode: 'FREE', shippingValue: '' }
+			)
+		).toEqual( { shippingMode: 'FREE', shippingValue: '', shippingAdditionalValue: '' } );
+	} );
+
+	// Shipping removed at PayPal has to turn the toggle back off here, or the form
+	// shows a fee the payment no longer charges.
+	it( 'clears shipping the payment no longer carries', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{
+					...blockAttributes,
+					shippingEnabled: true,
+					shippingMode: 'FLAT',
+					shippingValue: '5.00',
+				},
+				resourceAttributes
+			)
+		).toEqual( { shippingEnabled: false, shippingValue: '' } );
+	} );
+
 	it( 'reads the discount back from the payment', () => {
 		expect(
 			getResourceAttributeUpdates( blockAttributes, {
@@ -159,9 +213,9 @@ describe( 'getResourceAttributeUpdates', () => {
 		expect(
 			getResourceAttributeUpdates( blockAttributes, {
 				...resourceAttributes,
-				collectShippingAddress: false,
+				collectShippingAddress: true,
 			} )
-		).toEqual( { collectShippingAddress: false } );
+		).toEqual( { collectShippingAddress: true } );
 	} );
 
 	it( 'clears a leftover product price when the payment prices per option', () => {
@@ -278,6 +332,10 @@ describe( 'a block built from a fully populated payment', () => {
 		discountEnabled: true,
 		discountType: 'FLAT',
 		discountValue: '2.00',
+		shippingEnabled: true,
+		shippingMode: 'QUANTITY',
+		shippingValue: '5.00',
+		shippingAdditionalValue: '2.00',
 		returnUrl: 'https://example.com/thanks',
 		collectShippingAddress: false,
 	};
@@ -397,4 +455,83 @@ describe( 'withCurrency', () => {
 		expect( withCurrency( null, 'EUR' ) ).toBeNull();
 		expect( withCurrency( { dimensions: [] }, 'EUR' ) ).toEqual( { dimensions: [] } );
 	} );
+} );
+
+describe( 'the gated-attribute table', () => {
+	// Every resource attribute is either owned by a gate or on screen whenever the
+	// form is. A new one has to be classed as one or the other, and this fence is
+	// what makes that a decision rather than an omission. Seven instances of the
+	// same bug shipped before the table existed; this is what stops the eighth.
+	const ALWAYS_VISIBLE = [
+		'paymentLink',
+		'productName',
+		'price',
+		'currencyCode',
+		'productDescription',
+		'productId',
+		'customerNotes',
+		'returnUrl',
+	];
+
+	it( 'accounts for every resource attribute exactly once', () => {
+		const gates = Object.keys( GATED_ATTRIBUTES );
+		const owned = Object.values( GATED_ATTRIBUTES ).flat();
+		const classified = [ ...gates, ...owned, ...ALWAYS_VISIBLE ];
+
+		expect( classified.slice().sort() ).toEqual( RESOURCE_ATTRIBUTES.slice().sort() );
+	} );
+
+	it( 'names attributes block.json declares', () => {
+		const named = [
+			...Object.keys( GATED_ATTRIBUTES ),
+			...Object.values( GATED_ATTRIBUTES ).flat(),
+		];
+
+		named.forEach( key => expect( metadata.attributes ).toHaveProperty( key ) );
+	} );
+
+	it( 'reads each default from block.json', () => {
+		expect( resetToDefaults( 'taxName', 'maxQuantity' ) ).toEqual( {
+			taxName: metadata.attributes.taxName.default,
+			maxQuantity: metadata.attributes.maxQuantity.default,
+		} );
+	} );
+
+	// The invariant itself: a block whose gate is off has to agree with a payment
+	// that carries none of that feature. Any attribute left behind shows up here as
+	// an update, and names itself.
+	it.each( Object.keys( GATED_ATTRIBUTES ) )(
+		'leaves %s agreeing with a payment that carries none of it',
+		gate => {
+			const populated = {
+				...blockAttributes,
+				[ gate ]: true,
+				taxName: 'VAT',
+				taxType: 'FLAT',
+				taxValue: '1.50',
+				handlingValue: '4.00',
+				discountType: 'PERCENTAGE',
+				discountValue: '15',
+				shippingMode: 'QUANTITY',
+				shippingValue: '5.00',
+				shippingAdditionalValue: '2.00',
+				collectShippingAddress: true,
+				maxQuantity: 25,
+				variants: { dimensions: [ { name: 'Size', options: [] } ] },
+			};
+
+			const afterTurningOff = { ...populated, ...turnGateOff( gate ) };
+			const updates = getResourceAttributeUpdates( afterTurningOff, {} );
+
+			// The other gates are still on in the fixture, so scope this to the one
+			// under test: none of its own attributes may still need updating.
+			expect(
+				Object.fromEntries(
+					Object.entries( updates ).filter( ( [ key ] ) =>
+						[ gate, ...GATED_ATTRIBUTES[ gate ] ].includes( key )
+					)
+				)
+			).toEqual( {} );
+		}
+	);
 } );

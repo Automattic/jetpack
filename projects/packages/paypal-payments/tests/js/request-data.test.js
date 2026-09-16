@@ -4,10 +4,7 @@
  * @package
  */
 
-import {
-	buildRequestData,
-	keepPayPalOnlyFields,
-} from '../../src/paypal-payment-buttons/utils/request-data';
+import { buildRequestData } from '../../src/paypal-payment-buttons/utils/request-data';
 
 const attributes = {
 	productName: 'Widget',
@@ -46,6 +43,10 @@ const attributes = {
 	discountEnabled: true,
 	discountType: 'FLAT',
 	discountValue: '2.00',
+	shippingEnabled: false,
+	shippingMode: 'FLAT',
+	shippingValue: '',
+	shippingAdditionalValue: '',
 	collectShippingAddress: false,
 	productId: 'SKU-1',
 };
@@ -265,51 +266,80 @@ describe( 'buildRequestData', () => {
 	} );
 } );
 
-describe( 'keepPayPalOnlyFields', () => {
-	const stored = {
-		shipping: [ { type: 'FLAT', value: '5.00', additional_unit_value: '2.00' } ],
-		collect_shipping_address: true,
-	};
+describe( 'shipping', () => {
+	const ship = overrides =>
+		buildRequestData( { ...attributes, shippingEnabled: true, ...overrides }, true )
+			.line_items[ 0 ];
 
-	it( 'copies the fields the form cannot edit from the stored payment', () => {
-		const data = keepPayPalOnlyFields( buildRequestData( attributes, true ), {
-			line_items: [ { name: 'Old name', ...stored } ],
-		} );
+	// Both values are set, so only the toggle can keep them off the wire.
+	it( 'keeps a fee and an address preference off the wire while the toggle is off', () => {
+		const item = buildRequestData(
+			{ ...attributes, shippingValue: '5.00', collectShippingAddress: true },
+			true
+		).line_items[ 0 ];
 
-		expect( data.line_items[ 0 ] ).toMatchObject( stored );
-		expect( data.line_items[ 0 ].name ).toBe( 'Widget' );
+		expect( item ).not.toHaveProperty( 'shipping' );
+		expect( item.collect_shipping_address ).toBe( false );
 	} );
 
-	// The form owns the handling fee now, so the payment's own value no longer
-	// rides back out over the top of it.
-	it( 'lets the form overwrite a handling fee set at PayPal', () => {
-		const data = keepPayPalOnlyFields( buildRequestData( attributes, true ), {
-			line_items: [ { ...stored, handling: [ { type: 'FLAT', value: '99.00' } ] } ],
-		} );
-
-		expect( data.line_items[ 0 ].handling ).toEqual( [ { type: 'FLAT', value: '4.00' } ] );
+	// A fee mode with no amount is held back, the same way a blank handling fee is.
+	it.each( [ '', undefined ] )( 'leaves shipping out when the fee is %p', shippingValue => {
+		expect( ship( { shippingMode: 'FLAT', shippingValue } ) ).not.toHaveProperty( 'shipping' );
 	} );
 
-	// Same again for the discount: the form owns it, so it overwrites what PayPal holds.
-	it( 'lets the form overwrite a discount set at PayPal', () => {
-		const data = keepPayPalOnlyFields( buildRequestData( attributes, true ), {
-			line_items: [ { ...stored, discounts: [ { type: 'PERCENTAGE', value: '50' } ] } ],
-		} );
-
-		expect( data.line_items[ 0 ].discounts ).toEqual( [ { type: 'FLAT', value: '2.00' } ] );
+	// A block saved before the attribute existed has no mode at all.
+	it( 'treats a missing mode as a specific fee', () => {
+		expect( ship( { shippingMode: undefined, shippingValue: '5.00' } ).shipping ).toEqual( [
+			{ type: 'FLAT', value: '5.00' },
+		] );
 	} );
 
-	it( 'leaves the image as the block sent it, so removing it there removes it at PayPal', () => {
-		const data = keepPayPalOnlyFields( buildRequestData( { ...attributes, imageUrl: '' }, true ), {
-			line_items: [ { image_url: 'https://example.com/old.png', ...stored } ],
-		} );
-
-		expect( data.line_items[ 0 ] ).not.toHaveProperty( 'image_url' );
+	it.each( [
+		[ 'PROFILE', { type: 'PREFERENCE', value: 'PROFILE' } ],
+		[ 'FREE', { type: 'PREFERENCE', value: 'FREE_SHIPPING' } ],
+	] )( 'sends %s as a preference, ignoring any leftover fee', ( shippingMode, expected ) => {
+		expect( ship( { shippingMode, shippingValue: '5.00' } ).shipping ).toEqual( [ expected ] );
 	} );
 
-	it( 'passes the request through when nothing is stored', () => {
-		const data = buildRequestData( attributes, true );
+	it( 'sends a specific fee as a flat amount', () => {
+		expect( ship( { shippingMode: 'FLAT', shippingValue: '5.00' } ).shipping ).toEqual( [
+			{ type: 'FLAT', value: '5.00' },
+		] );
+	} );
 
-		expect( keepPayPalOnlyFields( data, {} ) ).toBe( data );
+	it( 'carries the per-extra-item fee under quantity-based shipping', () => {
+		expect(
+			ship( {
+				shippingMode: 'QUANTITY',
+				shippingValue: '5.00',
+				shippingAdditionalValue: '2.00',
+			} ).shipping
+		).toEqual( [ { type: 'FLAT', value: '5.00', additional_unit_value: '2.00' } ] );
+	} );
+
+	// PayPal stores no mode, so this is byte-identical to a specific fee and reads
+	// back as one. The payment is the same either way.
+	it( 'omits a blank per-extra-item fee', () => {
+		expect(
+			ship( { shippingMode: 'QUANTITY', shippingValue: '5.00', shippingAdditionalValue: '' } )
+				.shipping
+		).toEqual( [ { type: 'FLAT', value: '5.00' } ] );
+	} );
+
+	// '0' is free shipping PayPal stores, and truthiness would throw it away.
+	it( 'keeps a zero fee', () => {
+		expect(
+			ship( { shippingMode: 'QUANTITY', shippingValue: '0', shippingAdditionalValue: '0' } )
+				.shipping
+		).toEqual( [ { type: 'FLAT', value: '0', additional_unit_value: '0' } ] );
+	} );
+
+	// The design nests the checkbox under the toggle, so the two move together.
+	it( 'sends the address preference only while shipping is on', () => {
+		expect( ship( { collectShippingAddress: true } ).collect_shipping_address ).toBe( true );
+		expect(
+			buildRequestData( { ...attributes, collectShippingAddress: true }, true ).line_items[ 0 ]
+				.collect_shipping_address
+		).toBe( false );
 	} );
 } );

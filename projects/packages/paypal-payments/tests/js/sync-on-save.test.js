@@ -107,6 +107,48 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( false );
 	} );
 
+	// The second copy of the gate. The inspector has its own; this one decides
+	// whether the payment goes out when the post is saved.
+	it.each( [ 'FLAT', 'QUANTITY' ] )( 'holds back %s shipping with no fee', shippingMode => {
+		expect(
+			isReadyForPayPal( { ...product, shippingEnabled: true, shippingMode, shippingValue: '' } )
+		).toBe( false );
+	} );
+
+	// The pair to the case above: the same blank fee is fine in a mode that never
+	// asks for one, so the rule has to key on the mode and not just the value.
+	it.each( [ 'PROFILE', 'FREE' ] )( 'sends %s shipping with no fee', shippingMode => {
+		expect(
+			isReadyForPayPal( { ...product, shippingEnabled: true, shippingMode, shippingValue: '' } )
+		).toBe( true );
+	} );
+
+	// '0' is free shipping PayPal stores. Truthiness would read it as blank and
+	// hold the payment back forever.
+	it( 'sends a shipping fee of zero', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				shippingEnabled: true,
+				shippingMode: 'FLAT',
+				shippingValue: '0',
+			} )
+		).toBe( true );
+	} );
+
+	// Optional, so blank is fine - but a filled one still has to be an amount.
+	it( 'holds back a negative per-extra-item fee', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				shippingEnabled: true,
+				shippingMode: 'QUANTITY',
+				shippingValue: '5.00',
+				shippingAdditionalValue: '-2',
+			} )
+		).toBe( false );
+	} );
+
 	// This file carries its own copy of the tax derivation, independent of the form's.
 	// Miss it and a tax with no value blocks the inspector and still ships on post save.
 	it.each( [
@@ -316,44 +358,31 @@ describe( 'syncBlocksBeforeSave', () => {
 
 	describe( 'a block that already has a payment', () => {
 		const saved = { ...product, isApiManaged: true, resourceId: 'PLB-KEEP1' };
-		const storedLineItem = {
-			name: 'Stale name',
-			product_id: 'SKU-12345',
-			shipping: [ { type: 'FLAT', value: '5.00' } ],
-			handling: [ { type: 'FLAT', value: '4.00' } ],
-			discounts: [ { type: 'FLAT', value: '2.00' } ],
-			// The block sends false, so a true in the PUT can only have come from the payment.
-			collect_shipping_address: true,
-		};
-
 		/**
-		 * Answer the read with the stored payment and every write with nothing.
+		 * Answer every request with nothing.
 		 *
-		 * @param {object} options - The request.
 		 * @return {Promise<object>} The response.
 		 */
-		const stored = options =>
-			options.method === undefined
-				? Promise.resolve( { id: 'PLB-KEEP1', line_items: [ storedLineItem ] } )
-				: Promise.resolve( {} );
+		const stored = () => Promise.resolve( {} );
 
-		it( 'reads the payment and updates it, keeping the fields set outside the form', async () => {
+		// The form models every line-item field PayPal stores, so the update no
+		// longer reads the payment first and nothing rides back out of it.
+		it( 'updates the payment outright, clearing what the form does not set', async () => {
 			const deps = fakeDeps( stored );
 
 			const changed = await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
 
 			expect( changed ).toBe( false );
-			expect( deps.requests.map( r => r.method ) ).toEqual( [ undefined, 'PUT' ] );
-			const [ item ] = deps.requests[ 1 ].data.line_items;
+			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'PUT' ] );
+			const [ item ] = deps.requests[ 0 ].data.line_items;
 			expect( item ).toMatchObject( {
 				name: 'Test Widget',
-				shipping: storedLineItem.shipping,
-				collect_shipping_address: true,
+				collect_shipping_address: false,
 			} );
-			// The form owns product_id, the handling fee and the discount now. This
-			// block sets none of them, so the update clears all three at PayPal -
-			// that is the merchant's edit.
+			// This block turns all four off, so whatever the payment holds for them
+			// is cleared at PayPal - that is the merchant's edit.
 			expect( item ).not.toHaveProperty( 'product_id' );
+			expect( item ).not.toHaveProperty( 'shipping' );
 			expect( item ).not.toHaveProperty( 'handling' );
 			expect( item ).not.toHaveProperty( 'discounts' );
 			expect( deps.updateBlockAttributes ).not.toHaveBeenCalled();
@@ -364,13 +393,13 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
 			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
-			expect( deps.requests ).toHaveLength( 2 );
+			expect( deps.requests ).toHaveLength( 1 );
 
 			await syncBlocksBeforeSave(
 				[ { clientId: 'a', attributes: { ...saved, price: '31.00' } } ],
 				deps
 			);
-			expect( deps.requests ).toHaveLength( 4 );
+			expect( deps.requests ).toHaveLength( 2 );
 		} );
 
 		it( 're-creates a payment that has been deleted from PayPal', async () => {
@@ -394,7 +423,7 @@ describe( 'syncBlocksBeforeSave', () => {
 
 		it( 'reports a refusal and keeps going', async () => {
 			const deps = fakeDeps( options =>
-				options.method === undefined
+				options.method === 'PUT'
 					? Promise.reject( { message: 'PayPal turned the payment down.' } )
 					: Promise.resolve( {} )
 			);

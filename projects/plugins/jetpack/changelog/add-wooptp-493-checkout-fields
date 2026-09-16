@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-PayPal Payment Buttons: add a Product ID field, a handling fee and a discount, and let tax be a flat amount as well as a percentage. Part of the API-managed payment buttons, behind a feature flag that is not yet enabled.
+PayPal Payment Buttons: add a Product ID field, shipping fees, a handling fee and a discount, and let tax be a flat amount as well as a percentage. Part of the API-managed payment buttons, behind a feature flag that is not yet enabled.

@@ -14,6 +14,7 @@ import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import GridiconTrash from 'gridicons/dist/trash';
 import { getPriceStep } from '../utils/currency-symbols';
+import { turnGateOff } from '../utils/resource-sync';
 import { validatePrice } from '../utils/validation';
 
 // Pre-extract translated strings used in ternaries to avoid i18n build errors.
@@ -526,14 +527,18 @@ export default function VariantBuilder( {
 	}, [ focusNewGroup ] );
 
 	const setEnabled = newEnabled => {
-		if ( newEnabled && dimensions.length === 0 ) {
-			onChange( {
-				variantsEnabled: true,
-				variants: { dimensions: [ createGroup() ] },
-			} );
-		} else {
-			onChange( { variantsEnabled: newEnabled } );
+		if ( ! newEnabled ) {
+			// The groups go with the toggle. Left behind, the request drops them and
+			// the next mount's read-back nulls them - the merchant's options, gone.
+			onChange( turnGateOff( 'variantsEnabled' ) );
+			return;
 		}
+
+		// Switching on with groups already there keeps them; a first run gets one.
+		onChange( {
+			variantsEnabled: true,
+			...( dimensions.length === 0 ? { variants: { dimensions: [ createGroup() ] } } : {} ),
+		} );
 	};
 
 	const updateDimension = ( dimIndex, newDimension ) => {
@@ -548,7 +553,7 @@ export default function VariantBuilder( {
 		const newDimensions = dimensions.filter( ( _, i ) => i !== dimIndex );
 		onChange( {
 			variants: { dimensions: newDimensions },
-			...( newDimensions.length === 0 ? { variantsEnabled: false } : {} ),
+			...( newDimensions.length === 0 ? turnGateOff( 'variantsEnabled' ) : {} ),
 		} );
 	};
 

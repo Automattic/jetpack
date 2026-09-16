@@ -24,8 +24,11 @@ export const MAX_PRODUCT_ID_LENGTH = 50;
 // PayPal rejects a third custom checkout field with a 400.
 export const MAX_CUSTOMER_NOTES = 2;
 
+// Shipping modes that ask the merchant for an amount. The form and the validator
+// both read this, so no mode errors on a field it never shows.
+export const SHIPPING_MODES_WITH_FEE = [ 'FLAT', 'QUANTITY' ];
+
 // Shown under a field a merchant turned on and then left empty.
-// TODO: reuse this string for shipping when it lands.
 const REQUIRED_FIELD_ERROR = __(
 	'To continue, add the requested info or turn off this feature.',
 	'jetpack-paypal-payments'
@@ -205,7 +208,7 @@ export function validateDiscountAmount( value, comparisonPrice, currencyCode = '
  * @param {string} currencyCode    - The ISO currency code the amount is in.
  * @return {string|null} Error message or null if valid.
  */
-export function validateDiscount( type, value, comparisonPrice, currencyCode ) {
+function validateDiscount( type, value, comparisonPrice, currencyCode ) {
 	return 'PERCENTAGE' === type
 		? validateDiscountPercentage( value )
 		: validateDiscountAmount( value, comparisonPrice, currencyCode );
@@ -258,6 +261,34 @@ export function validateCurrency( value ) {
 export const ADVISORY_ERROR_KEYS = [ 'returnUrl' ];
 
 /**
+ * Error keys whose control sits outside the Checkout Options panel.
+ *
+ * The panel opens itself on an error one of its own fields reports. Listing the
+ * outsiders rather than the insiders is what makes that safe: a new checkout
+ * field is covered the moment its key exists, where a list of insiders would
+ * have to be remembered - and was not, twice.
+ */
+export const NON_CHECKOUT_ERROR_KEYS = [
+	'productName',
+	'price',
+	'productDescription',
+	'currencyCode',
+	'returnUrl',
+];
+
+/**
+ * Whether an error belongs to a field inside the Checkout Options panel.
+ *
+ * @param {object} errors - Errors from getValidationErrors().
+ * @return {boolean} True when the panel should open itself.
+ */
+export function hasCheckoutOptionError( errors ) {
+	return Object.entries( errors ).some(
+		( [ field, message ] ) => message && ! NON_CHECKOUT_ERROR_KEYS.includes( field )
+	);
+}
+
+/**
  * Validate every form field at once.
  *
  * Two things consume each key: hasBlockingError() below, which disables the save
@@ -269,23 +300,28 @@ export const ADVISORY_ERROR_KEYS = [ 'returnUrl' ];
  * object conditionally would shrink the key set the tests enumerate, and the
  * fence would go quiet with nothing failing.
  *
- * @param {object}  fields                    - The form's current values.
- * @param {string}  fields.productName        - Product name.
- * @param {string}  fields.price              - Product price.
- * @param {string}  fields.productDescription - Product description.
- * @param {string}  fields.returnUrl          - Post-payment redirect.
- * @param {string}  fields.currencyCode       - ISO currency code.
- * @param {boolean} fields.variantPricingOn   - Whether options carry their own prices.
- * @param {boolean} fields.taxEnabled         - Whether tax collection is on.
- * @param {string}  fields.taxType            - Tax type: PERCENTAGE, FLAT or PREFERENCE.
- * @param {string}  fields.taxValue           - Tax rate or flat amount.
- * @param {boolean} fields.handlingEnabled    - Whether a handling fee is on.
- * @param {string}  fields.handlingValue      - Handling fee amount.
- * @param {boolean} fields.discountEnabled    - Whether a discount is on.
- * @param {string}  fields.discountType       - Discount type: FLAT or PERCENTAGE.
- * @param {string}  fields.discountValue      - Discount amount or percentage.
- * @param {string}  fields.comparisonPrice    - The price a flat discount comes off,
- *                                            from getComparisonPrice().
+ * @param {object}  fields                         - The form's current values.
+ * @param {string}  fields.productName             - Product name.
+ * @param {string}  fields.price                   - Product price.
+ * @param {string}  fields.productDescription      - Product description.
+ * @param {string}  fields.returnUrl               - Post-payment redirect.
+ * @param {string}  fields.currencyCode            - ISO currency code.
+ * @param {boolean} fields.variantPricingOn        - Whether options carry their own prices.
+ * @param {boolean} fields.taxEnabled              - Whether tax collection is on.
+ * @param {string}  fields.taxType                 - Tax type: PERCENTAGE, FLAT or PREFERENCE.
+ * @param {string}  fields.taxValue                - Tax rate or flat amount.
+ * @param {boolean} fields.handlingEnabled         - Whether a handling fee is on.
+ * @param {string}  fields.handlingValue           - Handling fee amount.
+ * @param {boolean} fields.discountEnabled         - Whether a discount is on.
+ * @param {string}  fields.discountType            - Discount type: FLAT or PERCENTAGE.
+ * @param {string}  fields.discountValue           - Discount amount or percentage.
+ * @param {string}  fields.comparisonPrice         - The price a flat discount comes off,
+ *                                                 from getComparisonPrice().
+ * @param {boolean} fields.shippingEnabled         - Whether shipping is on.
+ * @param {string}  fields.shippingMode            - PROFILE, QUANTITY, FLAT or FREE.
+ * @param {string}  fields.shippingValue           - Shipping fee, or the first-item fee.
+ * @param {string}  fields.shippingAdditionalValue
+ *                                                 - The per-extra-item fee. Optional.
  * @return {object} An error message or null, keyed by field.
  */
 export function getValidationErrors( {
@@ -304,6 +340,10 @@ export function getValidationErrors( {
 	discountType,
 	discountValue,
 	comparisonPrice,
+	shippingEnabled,
+	shippingMode,
+	shippingValue,
+	shippingAdditionalValue,
 } ) {
 	return {
 		productName: validateProductName( productName ),
@@ -321,6 +361,19 @@ export function getValidationErrors( {
 		discountValue: discountEnabled
 			? validateDiscount( discountType, discountValue, comparisonPrice, currencyCode || 'USD' )
 			: null,
+		// The two PREFERENCE modes put PROFILE or FREE_SHIPPING in the value field
+		// themselves, so there is nothing for the merchant to fill in. The second
+		// amount stays optional even in QUANTITY - PayPal only requires the first.
+		shippingValue:
+			shippingEnabled && SHIPPING_MODES_WITH_FEE.includes( shippingMode || 'FLAT' )
+				? validateRequiredAmount( shippingValue )
+				: null,
+		// Optional, so a blank one is fine - but a filled one still has to be an
+		// amount PayPal will take.
+		shippingAdditionalValue:
+			shippingEnabled && 'QUANTITY' === shippingMode && '' !== ( shippingAdditionalValue ?? '' )
+				? validateRequiredAmount( shippingAdditionalValue )
+				: null,
 		currencyCode: validateCurrency( currencyCode ),
 	};
 }
