@@ -72,14 +72,14 @@
 }
 
 /*
- * Four lines for everyone. Vendor descriptions run from one line to a full
- * paragraph, and letting them size the card is what made the grid ragged.
- * Reserving the height keeps prices on a shared baseline across a row.
+ * Clamped at four lines. Vendor descriptions run from one line to a full
+ * paragraph, and letting them size the card is what made the grid ragged. No
+ * reserved height: the footer is bottom-aligned, so the description can end
+ * where its text ends and Details can sit right under it.
  */
 .wpcom-marketplace-tab .wpcom-marketplace-card__desc {
 	display: -webkit-box;
 	overflow: hidden;
-	min-block-size: 5.2em;
 	margin-block: 8px 0;
 	color: #50575e;
 	font-size: 13px;
@@ -89,12 +89,13 @@
 	-webkit-box-orient: vertical;
 }
 
+/*
+ * Sits with the description it belongs to, rather than drifting to the bottom
+ * of the card.
+ */
 .wpcom-marketplace-tab .wpcom-marketplace-card__details {
 	margin: 0;
-	padding-block-start: 10px;
-
-	/* Everything from here down sits against the bottom of the card. */
-	margin-block-start: auto;
+	padding-block-start: 8px;
 	font-size: 13px;
 }
 
@@ -108,7 +109,10 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px 12px;
-	margin-block-start: 8px;
+
+	/* Takes up the slack, so the price sits against the bottom of every card. */
+	margin-block-start: auto;
+	padding-block-start: 16px;
 }
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__price {
