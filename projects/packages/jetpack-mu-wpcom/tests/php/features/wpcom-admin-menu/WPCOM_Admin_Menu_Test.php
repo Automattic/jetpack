@@ -223,16 +223,16 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * When the native Activity Log page is not registered (for example, the user is not
-	 * connected), the Calypso link is still added so the menu keeps an Activity Log entry.
+	 * connected), an Atomic site behaves like a self-hosted site: no Calypso link is added.
 	 */
-	public function test_jetpack_submenu_falls_back_to_calypso_activity_log_when_native_page_is_missing() {
+	public function test_jetpack_submenu_does_not_link_to_calypso_activity_log_when_native_page_is_missing() {
 		\Jetpack_Options::update_option( 'id', 200 );
 
 		wpcom_add_jetpack_submenu();
 
-		$this->assertNotNull(
+		$this->assertNull(
 			$this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . self::$domain ),
-			'The Calypso Activity Log link must be added when the native page is missing.'
+			'The Calypso Activity Log link must not be added on Atomic sites.'
 		);
 	}
 

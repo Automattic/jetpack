@@ -498,13 +498,10 @@ function wpcom_add_jetpack_submenu() {
 	// Jetpack > Activity Log.
 	// Atomic sites use the native Activity Log page that the `jetpack-activity-log`
 	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
-	// interface the site uses: the Calypso Activity Log screen is being retired.
-	// Simple sites still hide that page and link to wordpress.com/activity-log. If the
-	// native page is missing on an Atomic site (for example, the user is not connected),
-	// fall back to the Calypso link so the menu never loses its Activity Log entry.
-	$uses_native_activity_log = ! $is_simple_site && wpcom_has_submenu_page( 'jetpack', 'jetpack-activity-log' );
-
-	if ( ! $uses_native_activity_log ) {
+	// interface the site uses, and behave like a self-hosted site when that page is
+	// not available: the Calypso Activity Log screen is being retired. Simple sites
+	// still hide the native page and link to wordpress.com/activity-log.
+	if ( $is_simple_site ) {
 		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
 		add_submenu_page(
 			'jetpack',
@@ -639,25 +636,6 @@ function wpcom_hide_submenu_page( string $menu_slug, string $submenu_slug ) {
 		$submenu[ $menu_slug ][ $i ][4] = $css_classes;
 		return;
 	}
-}
-
-/**
- * Whether a submenu item with the given slug is registered under a menu.
- *
- * @param string $menu_slug    Parent menu slug.
- * @param string $submenu_slug Submenu slug to look for.
- * @return bool
- */
-function wpcom_has_submenu_page( string $menu_slug, string $submenu_slug ) {
-	global $submenu;
-
-	foreach ( $submenu[ $menu_slug ] ?? array() as $item ) {
-		if ( isset( $item[2] ) && $submenu_slug === $item[2] ) {
-			return true;
-		}
-	}
-
-	return false;
 }
 
 /**
