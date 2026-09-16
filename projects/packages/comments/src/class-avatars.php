@@ -97,7 +97,7 @@ class Avatars {
 		// WordPress.com asks twice per comment, through get_avatar_data() and again through wpcom_get_avatar_url.
 		static $resolved = array();
 
-		$key = "$comment_id:$size";
+		$key = get_current_blog_id() . ":$comment_id:$size";
 
 		if ( array_key_exists( $key, $resolved ) ) {
 			return $resolved[ $key ];
