@@ -471,17 +471,10 @@ class Assets {
 	}
 
 	/**
-	 * Re-hook the bootstraps an older copy's `actions.php` did not know about.
+	 * Re-hook the bootstraps an older copy's `actions.php` did not know about. See JETPACK-2649.
 	 *
-	 * Composer keys a `files` entry by package and path, so whichever copy's `vendor/autoload.php`
-	 * runs first is the only `actions.php` that ever runs — while classes still resolve to the
-	 * newest copy. See JETPACK-2649.
-	 *
-	 * Only re-hook static callables: `add_action()` dedupes those by `Class::method`, but closures
-	 * and `array( $object, 'method' )` key off `spl_object_id` and would register twice.
-	 *
-	 * Callers must run before `wp_loaded`, and recovery only reaches copies from assets 2.3.0
-	 * (#38430), when `Script_Data::configure` joined `actions.php`.
+	 * Static callables only: `add_action()` dedupes those, but closures and object callables would
+	 * register twice. Callers must run before `wp_loaded`.
 	 *
 	 * @access private
 	 * @since $$next-version$$

@@ -30,7 +30,10 @@ class Script_Data {
 	 */
 	public static function configure() {
 		// Hooked by actions.php since 2.3.0, so this is the package's recovery point.
-		Assets::ensure_package_bootstrap();
+		// Assets can still resolve to an older copy than this class, hence the guard.
+		if ( method_exists( Assets::class, 'ensure_package_bootstrap' ) ) {
+			Assets::ensure_package_bootstrap();
+		}
 
 		/**
 		 * Ensure that assets are registered on wp_loaded,

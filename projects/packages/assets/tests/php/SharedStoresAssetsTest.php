@@ -129,15 +129,15 @@ class SharedStoresAssetsTest extends TestCase {
 	}
 
 	/**
-	 * The healthy case re-hooks a callback actions.php already added, so it must dedupe.
+	 * The healthy case re-hooks a callback actions.php already added, so WordPress must see the same
+	 * static callable each time to dedupe it.
 	 */
 	public function test_bootstrap_is_idempotent() {
 		$actions = array();
 
 		Functions\when( 'add_action' )->alias(
-			function ( $hook, $callback ) use ( &$actions ) {
-				// Mirror _wp_filter_build_unique_id() for static string callables.
-				$actions[ $hook . '|' . implode( '::', (array) $callback ) ] = true;
+			function ( ...$args ) use ( &$actions ) {
+				$actions[] = $args;
 			}
 		);
 
@@ -145,10 +145,8 @@ class SharedStoresAssetsTest extends TestCase {
 		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Calling twice is the assertion.
 		Assets::ensure_package_bootstrap();
 
-		$this->assertSame(
-			array( 'wp_loaded|' . Shared_Stores_Assets::class . '::register_assets' => true ),
-			$actions
-		);
+		$expected = array( 'wp_loaded', array( Shared_Stores_Assets::class, 'register_assets' ) );
+		$this->assertSame( array( $expected, $expected ), $actions );
 	}
 
 	/**
@@ -160,10 +158,12 @@ class SharedStoresAssetsTest extends TestCase {
 	 */
 	public function test_every_plugins_loaded_entry_is_recovered() {
 		$declared = array();
-		foreach ( $GLOBALS['wp_filter']['plugins_loaded'][1] ?? array() as $entry ) {
-			$callback = $entry['function'];
-			if ( is_array( $callback ) && Script_Data::class !== $callback[0] ) {
-				$declared[] = implode( '::', $callback );
+		foreach ( $GLOBALS['wp_filter']['plugins_loaded'] ?? array() as $entries ) {
+			foreach ( $entries as $entry ) {
+				$callback = $entry['function'];
+				if ( is_array( $callback ) && Script_Data::class !== $callback[0] ) {
+					$declared[] = implode( '::', $callback );
+				}
 			}
 		}
 
