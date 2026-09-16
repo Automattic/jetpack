@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import BoostPage from '../../_inc/components/boost-page';
+import Overview from '../../_inc/overview/overview';
 import {
 	getSubpage,
 	LOCATION_CHANGE_EVENT,
@@ -12,6 +13,7 @@ import {
 } from '../../_inc/runtime-contract';
 import type { Tab } from '../../_inc/runtime-contract';
 import './route.scss';
+import type { ReactNode } from 'react';
 
 const HISTORY_WRAPPED_KEY = '__jetpackBoostLocationChangeWrapped';
 
@@ -47,6 +49,7 @@ function Stage() {
 	const [ queryClient ] = useState( () => new QueryClient() );
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const lastSubpage = useRef( subpage );
+	const [ headerAction, setHeaderAction ] = useState< ReactNode >( null );
 	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
 		( next: Tab, replace = false ) => {
@@ -86,10 +89,16 @@ function Stage() {
 			activeTab={ activeTab }
 			isSubpage={ subpage !== null }
 			onTabChange={ onTabChange }
+			actions={ headerAction }
 			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
-			<Tabs.Panel value="overview">
-				<QueryClientProvider client={ queryClient }>{ null }</QueryClientProvider>
+			<Tabs.Panel value="overview" keepMounted>
+				<QueryClientProvider client={ queryClient }>
+					<Overview
+						isVisible={ activeTab === 'overview' && subpage === null }
+						onHeaderActionChange={ setHeaderAction }
+					/>
+				</QueryClientProvider>
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>
 				<div id={ SETTINGS_SLOT_ID } />

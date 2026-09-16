@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Plugins: fix the Marketplace tab's plugin details modal rendering vendor layout markup, which overflowed the modal and ran the text together. Product images now appear under Screenshots, as they do for WordPress.org plugins.

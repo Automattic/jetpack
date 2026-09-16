@@ -1,7 +1,13 @@
-import { useReportScope } from '@jetpack-premium-analytics/data';
+import {
+	PERIOD_CHANGE_ATTENTION_MS,
+	useRaisePeriodChange,
+	useReportScope,
+} from '@jetpack-premium-analytics/data';
+import { createTZDateFromParts } from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useCallback } from 'react';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
@@ -41,7 +47,14 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <div>Date filters</div>,
+	DateFiltersPanel: ( props: { attentionId?: number } ) => (
+		<div>
+			Date filters
+			<MockAttentionProbe { ...props } />
+		</div>
+	),
+	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
+		.PeriodChangeStatus,
 	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
 	SectionTabs: () => <div role="tablist" />,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
@@ -71,6 +84,12 @@ jest.mock(
 		)
 );
 
+// The range the routing mock above applies, as the card would raise it.
+const JUNE_2026 = {
+	from: createTZDateFromParts( [ 2026, 5, 1 ], 'UTC' ),
+	to: createTZDateFromParts( [ 2026, 5, 16 ], 'UTC' ),
+};
+
 /**
  * Reads the scope from where the page's widgets render.
  *
@@ -78,9 +97,26 @@ jest.mock(
  */
 function MockScopeProbe() {
 	const { offersComparison } = useReportScope();
+	const raisePeriodChange = useRaisePeriodChange();
+	const openJune = useCallback(
+		() => raisePeriodChange( 'post:41', JUNE_2026 ),
+		[ raisePeriodChange ]
+	);
 
-	return <div>{ offersComparison ? 'Post widgets' : 'Post widgets without comparison' }</div>;
+	return (
+		<div>
+			{ offersComparison ? 'Post widgets' : 'Post widgets without comparison' }
+			<button type="button" onClick={ openJune }>
+				Open June from a card
+			</button>
+		</div>
+	);
 }
+
+// Stands in for the period trigger: shows the id it was handed.
+const MockAttentionProbe = ( { attentionId }: { attentionId?: number } ) => (
+	<span data-testid="attention">{ attentionId ?? 'no attention' }</span>
+);
 
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( {
@@ -291,6 +327,47 @@ describe( 'post detail stage', () => {
 		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith( 41, mockEmailScope.reportParams, false );
 	} );
 
+	it( 'draws attention to a period a card set, and lets it go once shown', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		mockSummary();
+
+		render( stage() );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+
+		await user.click( screen.getByRole( 'button', { name: 'Open June from a card' } ) );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
+			/Date range updated to/
+		);
+
+		act( () => {
+			jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS );
+		} );
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+		jest.useRealTimers();
+	} );
+
+	it( 'returns to the top and parks focus on the heading when a card sets the period', async () => {
+		// jsdom has no Element.scrollTo; the layout's scroll area is what must move.
+		const scrollTo = jest.fn();
+		HTMLElement.prototype.scrollTo = scrollTo;
+		const user = userEvent.setup();
+		mockSummary();
+
+		render( stage() );
+		expect( scrollTo ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Open June from a card' } ) );
+
+		expect( scrollTo ).toHaveBeenCalledTimes( 1 );
+		expect( scrollTo ).toHaveBeenCalledWith( expect.objectContaining( { top: 0 } ) );
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveFocus();
+		Reflect.deleteProperty( HTMLElement.prototype, 'scrollTo' );
+	} );
+
 	it( 'reports the traffic tab over the applied URL range', () => {
 		mockSummary();
 
@@ -317,7 +394,8 @@ describe( 'post detail stage', () => {
 		expect( mockDashboardProps.editMode ).toBe( true );
 		expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
+		// The menu stays, so feedback and the opt-out remain a click away.
+		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^View post/ } ) ).not.toBeInTheDocument();
 
 		// Cancel or Done report back through onEditChange.
@@ -363,13 +441,39 @@ describe( 'post detail stage', () => {
 		expect( mockCanPerform?.( { operation: 'remove' } ) ).toBe( false );
 		// The page options menu is the way in, not the dashboard's own button.
 		expect( mockCanPerform?.( { operation: 'customize' } ) ).toBe( false );
-		// Reset joins Cancel and Done while customizing, and is absent otherwise.
+		// Reset to default is ours too, so the dashboard never gets its own.
 		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( false );
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 
-		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( true );
+		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( false );
+	} );
+
+	it( 'resets the layout from the page options menu and leaves customize mode', async () => {
+		const user = userEvent.setup();
+		const resetLayout = jest.fn();
+		mockUseTabLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout: () => {},
+			resetLayout,
+			hasCustomLayout: false,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+		const dialog = await screen.findByRole( 'alertdialog' );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Reset' } ) );
+
+		expect( resetLayout ).toHaveBeenCalledTimes( 1 );
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.getByRole( 'link', { name: /^View post/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'ignores the dashboard\u2019s empty-layout edit request while a tab has no layout', () => {

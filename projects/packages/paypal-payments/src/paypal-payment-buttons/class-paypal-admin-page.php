@@ -87,10 +87,59 @@ class PayPal_Admin_Page {
 	 *
 	 * @since $$next-version$$
 	 *
+	 * @param int $exclude_post_id A post to leave out, such as the one being saved.
 	 * @return array<string,int> Post counts keyed by resource id.
 	 */
-	public static function count_published_embeds() {
-		$posts = get_posts(
+	public static function count_published_embeds( $exclude_post_id = 0 ) {
+		$posts = self::published_block_posts();
+
+		$counts = array();
+		foreach ( $posts as $post ) {
+			if ( $exclude_post_id && (int) $post->ID === (int) $exclude_post_id ) {
+				continue;
+			}
+			if ( ! preg_match_all( '/"resourceId":"(PLB-[A-Za-z0-9]+)"/', $post->post_content, $matches ) ) {
+				continue;
+			}
+			foreach ( array_unique( $matches[1] ) as $resource_id ) {
+				$counts[ $resource_id ] = ( $counts[ $resource_id ] ?? 0 ) + 1;
+			}
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * The published posts that embed one payment link.
+	 *
+	 * Capped the same way as count_published_embeds(), so on a site with more
+	 * block posts than the cap this is a subset.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id PayPal resource ID.
+	 * @return \WP_Post[]
+	 */
+	public static function find_published_embeds( $resource_id ) {
+		$needle = '"resourceId":"' . $resource_id . '"';
+
+		return array_values(
+			array_filter(
+				self::published_block_posts(),
+				function ( $post ) use ( $needle ) {
+					return false !== strpos( $post->post_content, $needle );
+				}
+			)
+		);
+	}
+
+	/**
+	 * The published posts carrying a PayPal Payment Buttons block, capped.
+	 *
+	 * @return \WP_Post[]
+	 */
+	private static function published_block_posts() {
+		return get_posts(
 			array(
 				'post_type'              => 'any',
 				'post_status'            => 'publish',
@@ -102,18 +151,48 @@ class PayPal_Admin_Page {
 				'update_post_term_cache' => false,
 			)
 		);
+	}
 
-		$counts = array();
-		foreach ( $posts as $post ) {
-			if ( ! preg_match_all( '/"resourceId":"(PLB-[A-Za-z0-9]+)"/', $post->post_content, $matches ) ) {
-				continue;
-			}
-			foreach ( array_unique( $matches[1] ) as $resource_id ) {
-				$counts[ $resource_id ] = ( $counts[ $resource_id ] ?? 0 ) + 1;
+	/**
+	 * The notice shown after a link is deleted, naming the posts that still embed it.
+	 *
+	 * Those blocks render nothing until the post is updated, which creates a new
+	 * link, or the block is removed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id The deleted PayPal resource ID.
+	 * @return array{type: string, message: string, links: array<int, array{url: string, label: string}>}
+	 */
+	public static function deleted_link_notice( $resource_id ) {
+		$posts   = self::find_published_embeds( $resource_id );
+		$message = __( 'Payment link deleted successfully.', 'jetpack-paypal-payments' );
+		$links   = array();
+
+		if ( $posts ) {
+			$message .= ' ' . sprintf(
+				/* translators: %d: number of published posts */
+				_n(
+					'%d published post still embeds it and now shows nothing where the button was. Edit it to remove the block, or update it to create a new link:',
+					'%d published posts still embed it and now show nothing where the button was. Edit them to remove the block, or update them to create a new link:',
+					count( $posts ),
+					'jetpack-paypal-payments'
+				),
+				count( $posts )
+			);
+			foreach ( $posts as $post ) {
+				$links[] = array(
+					'url'   => admin_url( 'post.php?post=' . (int) $post->ID . '&action=edit' ),
+					'label' => get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' ),
+				);
 			}
 		}
 
-		return $counts;
+		return array(
+			'type'    => 'success',
+			'message' => $message,
+			'links'   => $links,
+		);
 	}
 
 	/**
@@ -150,7 +229,7 @@ class PayPal_Admin_Page {
 		add_submenu_page(
 			$parent_slug,
 			__( 'PayPal Payment Links', 'jetpack-paypal-payments' ),
-			__( 'Payment Links', 'jetpack-paypal-payments' ),
+			__( 'PayPal Payment Links', 'jetpack-paypal-payments' ),
 			self::CAPABILITY,
 			self::PAGE_SLUG,
 			array( __CLASS__, 'render_page' )
@@ -219,14 +298,7 @@ class PayPal_Admin_Page {
 				30
 			);
 		} else {
-			set_transient(
-				'paypal_admin_notice_' . get_current_user_id(),
-				array(
-					'type'    => 'success',
-					'message' => __( 'Payment link deleted successfully.', 'jetpack-paypal-payments' ),
-				),
-				30
-			);
+			set_transient( 'paypal_admin_notice_' . get_current_user_id(), self::deleted_link_notice( $resource_id ), 30 );
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) );
@@ -321,6 +393,28 @@ class PayPal_Admin_Page {
 				background: #f0f0f1;
 				word-break: break-all;
 			}
+			.paypal-delete-dialog {
+				max-width: 480px;
+				border: 0;
+				border-radius: 4px;
+				padding: 24px;
+				box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+			}
+			.paypal-delete-dialog::backdrop {
+				background: rgba(0, 0, 0, 0.5);
+			}
+			.paypal-delete-dialog h2 {
+				margin-block-start: 0;
+			}
+			.paypal-delete-dialog__acknowledge {
+				display: block;
+				margin-block: 16px;
+			}
+			.paypal-delete-dialog__actions {
+				display: flex;
+				justify-content: flex-end;
+				gap: 8px;
+			}
 			'
 		);
 
@@ -332,14 +426,47 @@ class PayPal_Admin_Page {
 		wp_add_inline_script(
 			$handle,
 			'
+			var deleteDialog = document.getElementById("paypal-delete-dialog");
+			var deleteAcknowledge = document.getElementById("paypal-delete-acknowledge");
+			var deleteConfirm = document.getElementById("paypal-delete-confirm");
+			var deleteHref = "";
+
 			function confirmDelete(e) {
 				var link = e.target.closest(".paypal-delete-link");
-				if (link && !window.confirm(link.getAttribute("data-confirm"))) {
-					e.preventDefault();
+				if (!link) {
+					return;
 				}
+				// Browsers without <dialog> get the plain confirm.
+				if (!deleteDialog || typeof deleteDialog.showModal !== "function") {
+					if (!window.confirm(link.getAttribute("data-confirm"))) {
+						e.preventDefault();
+					}
+					return;
+				}
+				e.preventDefault();
+				deleteHref = link.href;
+				deleteDialog.querySelector(".paypal-delete-dialog__text").textContent = link.getAttribute("data-confirm");
+				deleteAcknowledge.checked = false;
+				deleteConfirm.disabled = true;
+				deleteDialog.showModal();
 			}
 			document.addEventListener("click", confirmDelete);
 			document.addEventListener("auxclick", confirmDelete);
+
+			if (deleteDialog) {
+				deleteAcknowledge.addEventListener("change", function() {
+					deleteConfirm.disabled = !deleteAcknowledge.checked;
+				});
+				deleteConfirm.addEventListener("click", function() {
+					if (deleteAcknowledge.checked && deleteHref) {
+						deleteDialog.close();
+						window.location.assign(deleteHref);
+					}
+				});
+				deleteDialog.querySelector(".paypal-delete-dialog__cancel").addEventListener("click", function() {
+					deleteDialog.close();
+				});
+			}
 
 			document.addEventListener("click", function(e) {
 				if (e.target.classList.contains("paypal-copy-link")) {
@@ -409,10 +536,15 @@ class PayPal_Admin_Page {
 		$notice = get_transient( 'paypal_admin_notice_' . get_current_user_id() );
 		if ( $notice ) {
 			delete_transient( 'paypal_admin_notice_' . get_current_user_id() );
+			$links = '';
+			foreach ( $notice['links'] ?? array() as $link ) {
+				$links .= sprintf( '<li><a href="%s">%s</a></li>', esc_url( $link['url'] ), esc_html( $link['label'] ) );
+			}
 			printf(
-				'<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
+				'<div class="notice notice-%s is-dismissible"><p>%s</p>%s</div>',
 				esc_attr( $notice['type'] ),
-				esc_html( $notice['message'] )
+				esc_html( $notice['message'] ),
+				$links ? '<ul class="paypal-admin-notice__posts">' . $links . '</ul>' : '' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped while built above.
 			);
 		}
 
@@ -445,6 +577,7 @@ class PayPal_Admin_Page {
 		if ( isset( $_GET['action'] ) && 'view' === sanitize_text_field( wp_unslash( $_GET['action'] ) ) && ! empty( $_GET['resource_id'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			self::render_detail_view( sanitize_text_field( wp_unslash( $_GET['resource_id'] ) ) );
+			self::render_delete_dialog();
 			echo '</div>';
 			return;
 		}
@@ -482,7 +615,30 @@ class PayPal_Admin_Page {
 			);
 		}
 
+		self::render_delete_dialog();
 		echo '</div>';
+	}
+
+	/**
+	 * The delete confirmation, opened by the inline script when a Delete link is clicked.
+	 *
+	 * PayPal cannot pause or restore a payment link, so the confirm button stays
+	 * disabled until the acknowledgement box is ticked. The warning paragraph is
+	 * filled from the clicked link's data-confirm attribute.
+	 *
+	 * @since $$next-version$$
+	 */
+	private static function render_delete_dialog() {
+		echo '<dialog id="paypal-delete-dialog" class="paypal-delete-dialog" aria-labelledby="paypal-delete-dialog-title">';
+		echo '<h2 id="paypal-delete-dialog-title">' . esc_html__( 'Delete payment link', 'jetpack-paypal-payments' ) . '</h2>';
+		echo '<p class="paypal-delete-dialog__text"></p>';
+		echo '<p>' . esc_html__( 'PayPal cannot pause, deactivate, or restore a payment link. Anyone who opens it afterwards lands on a PayPal "not found" page instead of a checkout.', 'jetpack-paypal-payments' ) . '</p>';
+		echo '<label class="paypal-delete-dialog__acknowledge"><input type="checkbox" id="paypal-delete-acknowledge"> ' . esc_html__( 'I understand this cannot be undone.', 'jetpack-paypal-payments' ) . '</label>';
+		echo '<div class="paypal-delete-dialog__actions">';
+		echo '<button type="button" class="button paypal-delete-dialog__cancel">' . esc_html__( 'Cancel', 'jetpack-paypal-payments' ) . '</button>';
+		echo '<button type="button" class="button button-primary" id="paypal-delete-confirm" disabled>' . esc_html__( 'Delete permanently', 'jetpack-paypal-payments' ) . '</button>';
+		echo '</div>';
+		echo '</dialog>';
 	}
 
 	/**
@@ -491,17 +647,7 @@ class PayPal_Admin_Page {
 	 * @param string $resource_id The PayPal resource ID (PLB-...).
 	 */
 	private static function render_detail_view( $resource_id ) {
-		// Cache detail API responses for 300 seconds to reduce redundant API calls.
-		$cache_key = 'paypal_resource_' . sanitize_key( $resource_id );
-		$resource  = get_transient( $cache_key );
-
-		if ( false === $resource ) {
-			$resource = PayPal_API_Client::get_resource( $resource_id );
-
-			if ( ! is_wp_error( $resource ) ) {
-				set_transient( $cache_key, $resource, 300 );
-			}
-		}
+		$resource = PayPal_API_Client::get_resource_cached( $resource_id );
 
 		// Breadcrumb.
 		printf(

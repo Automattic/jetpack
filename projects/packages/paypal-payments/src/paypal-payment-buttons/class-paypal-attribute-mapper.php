@@ -248,6 +248,10 @@ class PayPal_Attribute_Mapper {
 				$attributes['productDescription'] = sanitize_text_field( $line_item['description'] );
 			}
 
+			if ( ! empty( $line_item['image_url'] ) ) {
+				$attributes['imageUrl'] = esc_url_raw( $line_item['image_url'] );
+			}
+
 			if ( ! empty( $line_item['variants']['dimensions'] ) ) {
 				$attributes['variantsEnabled'] = true;
 				$attributes['variants']        = $line_item['variants'];

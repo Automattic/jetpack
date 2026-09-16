@@ -284,6 +284,18 @@ class PayPal_REST_Controller {
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( __CLASS__, 'handle_delete_button' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
+					'args'                => array(
+						'unused_only' => array(
+							'type'        => 'boolean',
+							'default'     => false,
+							'description' => __( 'Keep the payment link when another published post still embeds it.', 'jetpack-paypal-payments' ),
+						),
+						'post_id'     => array(
+							'type'        => 'integer',
+							'default'     => 0,
+							'description' => __( 'The post being saved, which does not count as still embedding the link.', 'jetpack-paypal-payments' ),
+						),
+					),
 				),
 			)
 		);
@@ -700,6 +712,32 @@ class PayPal_REST_Controller {
 	public static function handle_delete_button( WP_REST_Request $request ) {
 		$resource_id = $request->get_param( 'resource_id' );
 
+		// The editor deletes a link when a post is saved without its block, but a
+		// link is shared by every block that points at it, on any post.
+		if ( $request->get_param( 'unused_only' ) ) {
+			$embeds = PayPal_Admin_Page::count_published_embeds( absint( $request->get_param( 'post_id' ) ) );
+			$others = $embeds[ $resource_id ] ?? 0;
+			if ( $others > 0 ) {
+				return new WP_REST_Response(
+					array(
+						'deleted'     => false,
+						'resource_id' => $resource_id,
+						'message'     => sprintf(
+							/* translators: %d: number of published posts */
+							_n(
+								'Kept the payment link: %d other published post still uses it.',
+								'Kept the payment link: %d other published posts still use it.',
+								$others,
+								'jetpack-paypal-payments'
+							),
+							$others
+						),
+					),
+					200
+				);
+			}
+		}
+
 		$result = PayPal_API_Client::delete_resource( $resource_id );
 
 		if ( is_wp_error( $result ) ) {
@@ -898,6 +936,11 @@ class PayPal_REST_Controller {
 							'type'     => 'string',
 							'required' => false,
 						),
+						// Shown on the PayPal checkout. The sanitizer keeps it only when HTTPS.
+						'image_url'                => array(
+							'type'     => 'string',
+							'required' => false,
+						),
 						// Not required: omitted when the product options carry
 						// their own per-option prices.
 						'unit_amount'              => array(
@@ -1042,7 +1085,8 @@ class PayPal_REST_Controller {
 	/**
 	 * Sanitize line items array for PayPal API submission.
 	 *
-	 * Applies sanitize_text_field to string values and esc_url_raw to image URLs.
+	 * Applies sanitize_text_field to string values and keeps an image URL only when
+	 * it is HTTPS.
 	 *
 	 * @param array $line_items Raw line items from the REST request.
 	 * @return array Sanitized line items.
@@ -1077,6 +1121,15 @@ class PayPal_REST_Controller {
 			// Optional fields.
 			if ( ! empty( $item['description'] ) ) {
 				$clean_item['description'] = sanitize_text_field( $item['description'] );
+			}
+
+			// PayPal fetches the image itself, so anything but a public HTTPS URL is
+			// dropped rather than rejected: an http:// site can still save its button.
+			if ( ! empty( $item['image_url'] ) ) {
+				$image_url = esc_url_raw( (string) $item['image_url'], array( 'https' ) );
+				if ( 0 === strpos( $image_url, 'https://' ) ) {
+					$clean_item['image_url'] = $image_url;
+				}
 			}
 			if ( ! empty( $item['quantity'] ) ) {
 				$clean_item['quantity'] = (string) max( 1, absint( $item['quantity'] ) );

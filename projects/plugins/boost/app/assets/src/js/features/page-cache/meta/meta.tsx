@@ -10,7 +10,6 @@ import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
-import ErrorNotice from '$features/error-notice/error-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
 import type { ChangeEvent, ReactNode } from 'react';
@@ -306,10 +305,12 @@ export default () => {
 	return (
 		<ErrorBoundary
 			fallback={ _error => (
-				<ErrorNotice
-					title={ __( 'Error', 'jetpack-boost' ) }
-					error={ new Error( __( 'Unable to load Cache settings.', 'jetpack-boost' ) ) }
-				/>
+				<Notice.Root intent="error">
+					<Notice.Title>{ __( 'Error', 'jetpack-boost' ) }</Notice.Title>
+					<Notice.Description>
+						{ __( 'Unable to load Cache settings.', 'jetpack-boost' ) }
+					</Notice.Description>
+				</Notice.Root>
 			) }
 		>
 			<Meta />

@@ -2042,7 +2042,11 @@ class Jetpack {
 	 * @todo Store the result in core's object cache maybe?
 	 */
 	public static function get_active_plugins() {
-		// Delegates to the canonical implementation in the Connection package.
+		// Older Connection copies can load first and lack this method.
+		if ( ! method_exists( Heartbeat::class, 'get_active_plugins' ) ) {
+			return array();
+		}
+
 		return Heartbeat::get_active_plugins();
 	}
 
@@ -3664,8 +3668,10 @@ p {
 	public static function get_stat_data( $encode = true, $extended = true ) {
 		_deprecated_function( __METHOD__, 'jetpack-16.2', 'Automattic\\Jetpack\\Heartbeat::generate_stats_array' );
 
-		// Site environment stats now live in the Connection package; merge them with the Jetpack-specific stats.
-		$data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
+		$env_stats = method_exists( Heartbeat::class, 'get_environment_stats' )
+			? Heartbeat::get_environment_stats()
+			: array();
+		$data      = array_merge( Jetpack_Heartbeat::generate_stats_array(), $env_stats );
 
 		if ( $extended ) {
 			$additional_data = self::get_additional_stat_data();
@@ -5210,7 +5216,11 @@ endif;
 	 * @since 2.3.3
 	 */
 	public static function permit_ssl( $force_recheck = false ) {
-		// Delegates to the canonical SSL check in the Connection package.
+		if ( ! method_exists( Heartbeat::class, 'permit_ssl' ) ) {
+			// Skip the SSL-fail notice when the check cannot run.
+			return true;
+		}
+
 		return Heartbeat::permit_ssl( $force_recheck );
 	}
 
@@ -5225,6 +5235,10 @@ endif;
 	 * @return string The localized message, or an empty string when there is no failure.
 	 */
 	public static function get_ssl_test_message() {
+		if ( ! method_exists( Heartbeat::class, 'get_ssl_test_error' ) ) {
+			return '';
+		}
+
 		$error = Heartbeat::get_ssl_test_error();
 
 		switch ( $error['code'] ) {
@@ -6195,9 +6209,12 @@ endif;
 		 * effects (Connection\Manager::add_stats_to_heartbeat() consumes and deletes the `xmlrpc_errors` option)
 		 * and return non-scalar values, neither of which is appropriate for this read-only diagnostic.
 		 */
-		$raw_data = array_merge(
+		$env_stats = method_exists( Heartbeat::class, 'get_environment_stats' )
+			? Heartbeat::get_environment_stats()
+			: array();
+		$raw_data  = array_merge(
 			Jetpack_Heartbeat::generate_stats_array(),
-			Heartbeat::get_environment_stats(),
+			$env_stats,
 			array( 'identitycrisis' => Identity_Crisis::check_identity_crisis() ? 'yes' : 'no' )
 		);
 

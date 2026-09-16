@@ -1,0 +1,4 @@
+// @wordpress/ui design tokens (--wpds-*), or its var() lookups resolve empty.
+// Legacy entry only: dependency extraction misreads a JS import as a script
+// handle, and wp-build leaves a bare `@import` to 404 against /wp-admin/.
+@import "@wordpress/theme/design-tokens.css";

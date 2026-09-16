@@ -10,6 +10,7 @@ export {
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	buildCalendarHeatmapData,
+	useCalendarHeatmapData,
 } from './charts/heatmap-chart';
 export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
 export { LineChart, LineChartUnresponsive } from './charts/line-chart';
@@ -94,7 +95,7 @@ export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './compone
 
 // Previously available via '@automattic/charts/bar-chart', '@automattic/charts/line-chart', etc.
 export type { AreaChartProps } from './charts/area-chart';
-export type { BarChartProps } from './charts/bar-chart';
+export type { BarChartProps, BandHighlightSelection } from './charts/bar-chart';
 export type {
 	BarListChartProps,
 	RenderLabelProps,
@@ -113,6 +114,7 @@ export type {
 	HeatmapColumn,
 	HeatmapCell,
 	HeatmapTooltipData,
+	CalendarHeatmapOptions,
 	CalendarHeatmapResult,
 } from './charts/heatmap-chart';
 export type { LeaderboardChartProps } from './charts/leaderboard-chart';

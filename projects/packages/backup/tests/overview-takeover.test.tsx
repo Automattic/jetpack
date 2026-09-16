@@ -31,11 +31,6 @@ import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activi
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-// Testing Library's default `findBy` window is one second. These stages
-// render behind several sequential requests, and a loaded CI runner under
-// coverage has taken well over that for the same work locally-green here.
-const SETTLE = { timeout: 10000 };
-
 /**
  * One rewindable-activity entry, in WPCOM's shape.
  *
@@ -204,8 +199,8 @@ describe( 'Overview takeover', () => {
 			await queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } );
 		} );
 		// The parked state reaches the observer after the invalidation settles, so
-		// asserting straight away passes without looking. Wait on the state itself,
-		// not a delay: this file's SETTLE exists because CI blows past fixed windows.
+		// asserting straight away passes without looking. Wait on the state itself
+		// rather than a fixed delay, which CI blows past.
 		await waitFor( () =>
 			expect(
 				queryClient.getQueryState(
@@ -242,7 +237,7 @@ describe( 'Overview takeover', () => {
 
 		// The activity log says what went wrong...
 		await expect(
-			screen.findByText( "We couldn't load your site's activity.", undefined, SETTLE )
+			screen.findByText( "We couldn't load your site's activity." )
 		).resolves.toBeInTheDocument();
 		// ...instead of the panel claiming a first backup is coming.
 		expect(
@@ -262,9 +257,7 @@ describe( 'Failing backups with the takeover suppressed', () => {
 		render( <OverviewStage /> );
 
 		// The list is kept...
-		await expect(
-			screen.findByText( 'Backup complete', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		// ...and the reader is told anyway, with a way to get help.
 		expect( screen.getByText( "We're having trouble backing up your site." ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toBeInTheDocument();
@@ -276,7 +269,7 @@ describe( 'Failing backups with the takeover suppressed', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( "We're having trouble backing up your site.", undefined, SETTLE )
+			screen.findByText( "We're having trouble backing up your site." )
 		).resolves.toBeInTheDocument();
 	} );
 } );
@@ -294,7 +287,7 @@ describe( 'Backup-state read failure', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( "We couldn't check your site's backup status.", undefined, SETTLE )
+			screen.findByText( "We couldn't check your site's backup status." )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -307,9 +300,7 @@ describe( 'Backup-state read failure', () => {
 		// reader came for are still listed beside it. Both halves are
 		// asserted — the row alone renders on trunk too, so without the
 		// notice assertion this test would pass with the fix reverted.
-		await expect(
-			screen.findByText( 'Backup complete', undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		expect(
 			screen.getByText( "We couldn't check your site's backup status." )
 		).toBeInTheDocument();

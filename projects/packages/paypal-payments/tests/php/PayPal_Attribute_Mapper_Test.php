@@ -558,6 +558,25 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
+	 * The product image comes back from the payment, so the GET route can show it.
+	 */
+	public function test_api_response_to_attributes_reads_the_image_url() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'      => 'Widget',
+						'image_url' => 'https://example.com/widget.png',
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 'https://example.com/widget.png', $attributes['imageUrl'] );
+	}
+
+	/**
 	 * Test that api_response_to_attributes reports address collection both ways.
 	 *
 	 * The block attribute defaults to on, so an absent key has to come back as off.

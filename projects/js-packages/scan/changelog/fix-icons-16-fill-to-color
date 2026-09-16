@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Threat list: Keep the threat type icons colored now that @wordpress/icons 16 draws them as strokes.
