@@ -32,7 +32,7 @@ export function AbbreviatedText( { display, exact, className }: AbbreviatedTextP
 	// Out of the tab order: assistive tech reads the exact figure below, and a
 	// focusable span would nest inside leaderboard row buttons and metric tabs.
 	return (
-		<Tooltip text={ exact }>
+		<Tooltip text={ exact } placement="bottom">
 			<span className={ clsx( styles.anchor, className ) } tabIndex={ -1 }>
 				<span aria-hidden="true">{ display }</span>
 				<VisuallyHidden render={ <span /> }>{ exact }</VisuallyHidden>

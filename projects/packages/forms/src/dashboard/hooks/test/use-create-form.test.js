@@ -150,6 +150,7 @@ describe( 'useCreateForm', () => {
 
 			expect( settlement ).toBe( 'rejected' );
 			expect( clickSpy ).not.toHaveBeenCalled();
+			expect( console ).toHaveErrored();
 		} );
 
 		it( 'rejects rather than hanging when no editor URL comes back', async () => {
@@ -164,6 +165,7 @@ describe( 'useCreateForm', () => {
 
 			expect( settlement ).toBe( 'rejected' );
 			expect( clickSpy ).not.toHaveBeenCalled();
+			expect( console ).toHaveErrored();
 		} );
 	} );
 } );

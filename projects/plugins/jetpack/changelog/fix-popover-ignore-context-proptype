@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Declare the Popover ignoreContext.getDOMNode prop type with PropTypes.func; PropTypes.function does not exist, so the check only logged a warning.

@@ -51,8 +51,6 @@ export const mockCommentsData = {
 		{
 			name: 'Leah Kim',
 			comments: 22,
-			// WordPress.com-user rows use `?user_id=` and intentionally remain
-			// unlinked because wp-admin has no equivalent author search URL.
 			link: '?user_id=1662656',
 			gravatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000a07?s=96',
 		},
