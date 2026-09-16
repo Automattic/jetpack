@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
 
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -18,13 +19,14 @@ use Automattic\Jetpack\Status\Host;
  */
 class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Controller {
 	/**
-	 * User meta key holding the writer's decision.
+	 * User meta key holding the writer's decision. The wpcom Reader endpoints
+	 * add `followed_blog_ids` and move the status to `completed` under the
+	 * same key, so writes here merge rather than replace.
 	 */
 	const USER_META_KEY = 'wpcom_four_for_four';
 
 	/**
-	 * Statuses the editor prompt may write. `completed` is written elsewhere
-	 * once the writer has subscribed to four sites.
+	 * Statuses the editor prompt may write.
 	 *
 	 * @var string[]
 	 */
@@ -57,9 +59,10 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 					'permission_callback' => array( $this, 'permission_callback' ),
 					'args'                => array(
 						'status' => array(
-							'required' => true,
-							'type'     => 'string',
-							'enum'     => self::EDITOR_STATUSES,
+							'required'          => true,
+							'type'              => 'string',
+							'enum'              => self::EDITOR_STATUSES,
+							'validate_callback' => 'rest_validate_request_arg',
 						),
 					),
 				),
@@ -77,21 +80,14 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 	}
 
 	/**
-	 * Whether the current user should be offered the program on this site, and
-	 * their current status if they have already decided.
+	 * Whether the current user should be offered the program on this site.
 	 *
 	 * @return \WP_REST_Response
 	 */
 	public function get_four_for_four() {
-		$meta   = $this->get_user_status_meta();
-		$status = isset( $meta['status'] ) ? (string) $meta['status'] : null;
+		$eligible = $this->is_site_eligible() && ! isset( $this->get_user_status_meta()['status'] );
 
-		return rest_ensure_response(
-			array(
-				'eligible' => null === $status && $this->is_site_eligible(),
-				'status'   => $status,
-			)
-		);
+		return rest_ensure_response( array( 'eligible' => $eligible ) );
 	}
 
 	/**
@@ -102,11 +98,8 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 	 */
 	public function set_four_for_four_status( $request ) {
 		$status = $request->get_param( 'status' );
-		if ( ! in_array( $status, self::EDITOR_STATUSES, true ) ) {
-			return new \WP_Error( 'invalid_status', 'Invalid status.', array( 'status' => 400 ) );
-		}
+		$meta   = $this->get_user_status_meta();
 
-		$meta = $this->get_user_status_meta();
 		if ( isset( $meta['status'] ) && 'completed' === $meta['status'] ) {
 			return new \WP_Error( 'already_completed', 'The program has already been completed.', array( 'status' => 409 ) );
 		}
@@ -114,10 +107,13 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 		update_user_meta(
 			get_current_user_id(),
 			self::USER_META_KEY,
-			array(
-				'status'  => $status,
-				'blog_id' => (int) get_current_blog_id(),
-				'updated' => time(),
+			array_merge(
+				$meta,
+				array(
+					'status'  => $status,
+					'blog_id' => (int) get_current_blog_id(),
+					'updated' => time(),
+				)
 			)
 		);
 
@@ -135,9 +131,9 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 	}
 
 	/**
-	 * Whether this site qualifies for the prompt. Evaluated when the editor
-	 * loads, so `has_never_published_post` is still true for the post being
-	 * written.
+	 * Whether this site qualifies for the prompt. Like the sibling first-post
+	 * controller, this is read when the editor loads, while
+	 * `has_never_published_post` is still set for the post being written.
 	 *
 	 * @return boolean
 	 */
@@ -153,7 +149,8 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 			return false;
 		}
 
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
+		$host = new Host();
+		if ( ! $host->is_wpcom_simple() ) {
 			return false;
 		}
 
@@ -165,7 +162,8 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 			return false;
 		}
 
-		if ( (int) get_option( 'wpcom_public_coming_soon' ) === 1 || (int) get_option( 'blog_public' ) < 0 ) {
+		$status = new Status();
+		if ( $status->is_coming_soon() || $status->is_private_site() ) {
 			return false;
 		}
 
@@ -173,30 +171,24 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 			return false;
 		}
 
-		$blog_id = get_current_blog_id();
-		$is_p2   = str_contains( get_stylesheet(), 'pub/p2' )
-			|| ( function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( $blog_id ) );
-		if ( $is_p2 ) {
+		if ( $host->is_p2_site() ) {
 			return false;
 		}
 
-		if ( function_exists( 'has_blog_sticker' ) ) {
-			/**
-			 * Blog stickers that exclude a site from the 4 for 4 prompt.
-			 *
-			 * @param string[] $stickers Sticker names.
-			 */
-			$blocked_stickers = apply_filters(
-				'wpcom_four_for_four_blocked_stickers',
-				// These names still need verifying against wpcom's sticker registry.
-				array( 'spam', 'suspended', 'hide', 'warning' )
-			);
-			foreach ( $blocked_stickers as $sticker ) {
-				// The sticker helpers live in wpcom, outside this monorepo, so Phan can't see them.
-				// @phan-suppress-next-line PhanUndeclaredFunction
-				if ( has_blog_sticker( $sticker, $blog_id ) ) {
-					return false;
-				}
+		/**
+		 * Blog stickers that exclude a site from the 4 for 4 prompt.
+		 *
+		 * @param string[] $stickers Sticker names.
+		 */
+		$blocked_stickers = apply_filters(
+			'wpcom_four_for_four_blocked_stickers',
+			// These names still need verifying against wpcom's sticker registry.
+			array( 'spam', 'suspended', 'hide', 'warning' )
+		);
+		$blog_id = get_current_blog_id();
+		foreach ( $blocked_stickers as $sticker ) {
+			if ( wpcom_has_blog_sticker( $sticker, $blog_id ) ) {
+				return false;
 			}
 		}
 
