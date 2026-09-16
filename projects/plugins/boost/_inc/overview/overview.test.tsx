@@ -758,7 +758,7 @@ test.each( [
 	}
 );
 
-test( 'keeps the older-history walk cached when Refresh reloads scores', async () => {
+test( 'keeps the older-history walk cached when a speed test reloads scores', async () => {
 	const requests = ( offset: number ) =>
 		jest
 			.mocked( apiFetch )
@@ -769,7 +769,7 @@ test( 'keeps the older-history walk cached when Refresh reloads scores', async (
 	await waitFor( () => expect( requests( 6 ) ).toBe( 1 ) );
 	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
 	const currentRequests = requests( 0 );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Refresh' } ) );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	await waitFor( () => expect( requests( 0 ) ).toBeGreaterThan( currentRequests ) );
 	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
 	expect( [ 1, 2, 3, 4, 5, 6 ].map( requests ) ).toEqual( [ 1, 1, 1, 1, 1, 1 ] );
@@ -1017,7 +1017,7 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 		jest.mocked( useViewportMatch ).mockReturnValue( isNarrow );
 		rerender(
 			<QueryClientProvider client={ client }>
-				<Overview />
+				<OverviewWithHeader />
 			</QueryClientProvider>
 		);
 	};
