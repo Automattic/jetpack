@@ -19,11 +19,13 @@ use Automattic\Jetpack\Status\Host;
  */
 class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Controller {
 	/**
-	 * User meta key holding the writer's decision. The wpcom Reader endpoints
-	 * add `followed_blog_ids` and move the status to `completed` under the
-	 * same key, so writes here merge rather than replace.
+	 * User attribute holding the writer's decision. User attributes are the
+	 * global per-user store on wpcom (user meta is per blog), and the wpcom
+	 * Reader endpoints read this same attribute, adding `followed_blog_ids`
+	 * and moving the status to `completed`, so writes here merge rather than
+	 * replace.
 	 */
-	const USER_META_KEY = 'wpcom_four_for_four';
+	const USER_ATTRIBUTE = 'wpcom_four_for_four';
 
 	/**
 	 * Statuses the editor prompt may write.
@@ -85,7 +87,7 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 	 * @return \WP_REST_Response
 	 */
 	public function get_four_for_four() {
-		$eligible = $this->is_site_eligible() && ! isset( $this->get_user_status_meta()['status'] );
+		$eligible = $this->is_site_eligible() && ! isset( $this->get_user_status()['status'] );
 
 		return rest_ensure_response( array( 'eligible' => $eligible ) );
 	}
@@ -97,18 +99,24 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function set_four_for_four_status( $request ) {
-		$status = $request->get_param( 'status' );
-		$meta   = $this->get_user_status_meta();
+		if ( ! function_exists( 'update_user_attribute' ) ) {
+			return new \WP_Error( 'four_for_four_unavailable', 'The program is not available on this site.', array( 'status' => 501 ) );
+		}
 
-		if ( isset( $meta['status'] ) && 'completed' === $meta['status'] ) {
+		$status  = $request->get_param( 'status' );
+		$current = $this->get_user_status();
+
+		if ( isset( $current['status'] ) && 'completed' === $current['status'] ) {
 			return new \WP_Error( 'already_completed', 'The program has already been completed.', array( 'status' => 409 ) );
 		}
 
-		update_user_meta(
+		// The attribute helpers live in wpcom, outside this monorepo, so Phan can't see them.
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		update_user_attribute(
 			get_current_user_id(),
-			self::USER_META_KEY,
+			self::USER_ATTRIBUTE,
 			array_merge(
-				$meta,
+				$current,
 				array(
 					'status'  => $status,
 					'blog_id' => (int) get_current_blog_id(),
@@ -125,9 +133,13 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 	 *
 	 * @return array
 	 */
-	private function get_user_status_meta() {
-		$meta = get_user_meta( get_current_user_id(), self::USER_META_KEY, true );
-		return is_array( $meta ) ? $meta : array();
+	private function get_user_status() {
+		if ( ! function_exists( 'get_user_attribute' ) ) {
+			return array();
+		}
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		$state = get_user_attribute( get_current_user_id(), self::USER_ATTRIBUTE );
+		return is_array( $state ) ? $state : array();
 	}
 
 	/**
@@ -158,12 +170,24 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 			return false;
 		}
 
-		if ( 'launched' !== get_option( 'launch-status' ) ) {
+		// Sites created before the launch flow have no launch status and count as launched.
+		$launch_status = get_option( 'launch-status' );
+		if ( $launch_status && 'launched' !== $launch_status ) {
 			return false;
 		}
 
-		$status = new Status();
-		if ( $status->is_coming_soon() || $status->is_private_site() ) {
+		// Both Coming Soon generations: the v1 option paired with a private blog, and the public v2 flag.
+		// These helpers live in wpcom, outside this monorepo, so Phan can't see them.
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		if ( function_exists( 'wpcom_is_coming_soon' ) && wpcom_is_coming_soon() ) {
+			return false;
+		}
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		if ( function_exists( 'is_wpcom_public_coming_soon_enabled' ) && is_wpcom_public_coming_soon_enabled() ) {
+			return false;
+		}
+
+		if ( ( new Status() )->is_private_site() ) {
 			return false;
 		}
 
@@ -175,6 +199,14 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 			return false;
 		}
 
+		$blog_id = get_current_blog_id();
+
+		// Spam, deleted, archived, mature, suspended and hidden sites are all excluded here.
+		// @phan-suppress-next-line PhanUndeclaredFunction
+		if ( function_exists( 'is_public_to_people' ) && ! is_public_to_people( $blog_id ) ) {
+			return false;
+		}
+
 		/**
 		 * Blog stickers that exclude a site from the 4 for 4 prompt.
 		 *
@@ -182,10 +214,8 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 		 */
 		$blocked_stickers = apply_filters(
 			'wpcom_four_for_four_blocked_stickers',
-			// These names still need verifying against wpcom's sticker registry.
-			array( 'spam', 'suspended', 'hide', 'warning' )
+			array( 'broken-in-reader', 'is_disconnected', 'dont-recommend', 'a8c-test-blog', 'a8c-e2e-test-blog' )
 		);
-		$blog_id = get_current_blog_id();
 		foreach ( $blocked_stickers as $sticker ) {
 			if ( wpcom_has_blog_sticker( $sticker, $blog_id ) ) {
 				return false;
