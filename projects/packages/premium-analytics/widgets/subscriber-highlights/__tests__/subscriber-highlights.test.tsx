@@ -190,6 +190,18 @@ describe( 'SubscriberHighlightsWidget', () => {
 		expect( screen.queryByText( ERROR_TEXT ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'shows the error rather than dashes when the counts load and every day fails', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( { total: 428, failDates: [ '2026-08-16', '2026-07-17', '2026-06-17' ] } )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( ERROR_TEXT ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
+		expect( screen.queryByText( '428' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows the WidgetState error with a Retry action when every request fails', async () => {
 		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
 

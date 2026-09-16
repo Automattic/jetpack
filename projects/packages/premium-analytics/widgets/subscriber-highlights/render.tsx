@@ -109,6 +109,8 @@ function SubscriberHighlightsReport() {
 	];
 
 	const hasCounts = tiles.some( tile => tile.value !== null );
+	// Scoped to the history: the All-time tile is in `tiles` whenever counts load, so `hasCounts` can never report the history as missing.
+	const hasHistory = past.counts.some( count => count !== undefined );
 	const isLoading = counts.isLoading || ( showsHistory && past.isLoading );
 
 	return (
@@ -117,7 +119,7 @@ function SubscriberHighlightsReport() {
 				isLoading={ isLoading }
 				isFetching={ counts.isFetching || past.isFetching }
 				// `placeholderData` keeps the last counts on screen, so a transient refetch failure should not replace them with an error.
-				isError={ countsFailed || ( showsHistory && past.isError && ! hasCounts ) }
+				isError={ countsFailed || ( showsHistory && past.isError && ! hasHistory ) }
 				isEmpty={ ! hasCounts }
 				error={ {
 					description: __(
