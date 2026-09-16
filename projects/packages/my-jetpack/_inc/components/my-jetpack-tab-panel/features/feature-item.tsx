@@ -4,6 +4,7 @@ import { Badge, Icon, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
 import { FeatureIcon } from './feature-icon';
+import { featureStatusLabel } from './feature-status-label';
 import { FeatureToggle } from './feature-toggle';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
@@ -69,11 +70,7 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 						{ feature.name }
 					</Text>
 
-					<Badge intent={ isActive ? 'stable' : 'none' }>
-						{ isActive
-							? __( 'Active', 'jetpack-my-jetpack' )
-							: __( 'Inactive', 'jetpack-my-jetpack' ) }
-					</Badge>
+					<Badge intent={ isActive ? 'stable' : 'none' }>{ featureStatusLabel( isActive ) }</Badge>
 
 					{ feature.essential ? (
 						<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>

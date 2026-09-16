@@ -7,6 +7,7 @@ import { FeatureDelivery } from './feature-delivery';
 import { FeatureIcon } from './feature-icon';
 import { FeatureLinks } from './feature-links';
 import { FeaturePaid } from './feature-paid';
+import { featureStatusLabel } from './feature-status-label';
 import { FeatureSwitch } from './feature-switch';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
@@ -109,9 +110,7 @@ export function FeatureModal( { state, onClose, onFilterByPlan }: FeatureModalPr
 								<Dialog.Title>{ feature.name }</Dialog.Title>
 								<Stack direction="row" align="center" gap="sm" wrap="wrap">
 									<Badge intent={ isActive ? 'stable' : 'none' }>
-										{ isActive
-											? __( 'Active', 'jetpack-my-jetpack' )
-											: __( 'Inactive', 'jetpack-my-jetpack' ) }
+										{ featureStatusLabel( isActive ) }
 									</Badge>
 									{ feature.essential ? (
 										<Badge intent="informational">

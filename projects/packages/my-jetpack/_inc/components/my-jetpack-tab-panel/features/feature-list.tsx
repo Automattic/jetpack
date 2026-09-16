@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Badge, Stack, Text } from '@wordpress/ui';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { FeatureIcon } from './feature-icon';
+import { featureStatusLabel } from './feature-status-label';
 import { FeatureToggle } from './feature-toggle';
 import styles from './styles.module.scss';
 import { useBulkSwitch } from './use-bulk-switch';
@@ -107,17 +108,13 @@ export function FeatureList( { states, onOpen }: FeatureListProps ) {
 				label: __( 'Status', 'jetpack-my-jetpack' ),
 				enableSorting: false,
 				getValue: ( { item }: { item: FeatureState } ) =>
-					item.status === 'active'
-						? __( 'Active', 'jetpack-my-jetpack' )
-						: __( 'Inactive', 'jetpack-my-jetpack' ),
+					featureStatusLabel( item.status === 'active' ),
 				render: ( { item }: { item: FeatureState } ) => {
 					const isActive = item.status === 'active';
 
 					return (
 						<Badge intent={ isActive ? 'stable' : 'none' }>
-							{ isActive
-								? __( 'Active', 'jetpack-my-jetpack' )
-								: __( 'Inactive', 'jetpack-my-jetpack' ) }
+							{ featureStatusLabel( isActive ) }
 						</Badge>
 					);
 				},
