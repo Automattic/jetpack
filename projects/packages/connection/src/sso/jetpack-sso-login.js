@@ -16,6 +16,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	loginForm.appendChild( ssoWrap );
 	body.classList.add( 'jetpack-sso-repositioned' );
 
+	// The toggle is not rendered when the login form is hidden or two-step setup is required.
+	if ( ! toggleSSO ) {
+		return;
+	}
+
 	toggleSSO.addEventListener( 'click', e => {
 		e.preventDefault();
 		body.classList.toggle( 'jetpack-sso-form-display' );
