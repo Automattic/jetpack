@@ -513,6 +513,10 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 	 */
 	#[DataProvider( 'search_activation_paths' )]
 	public function test_search_activation_fetches_missing_plan( $via_rest ) {
+		if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+			$this->markTestSkipped( 'Search entitlement uses unavailable WordPress.com purchase data when wpcomsh is active.' );
+		}
+
 		delete_option( \Automattic\Jetpack\Search\Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 		delete_option( 'has_jetpack_search_product' );
 		$this->assertFalse( \Automattic\Jetpack\Current_Plan::supports( 'search' ) );
