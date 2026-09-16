@@ -1,11 +1,32 @@
 import analytics from '@automattic/jetpack-analytics';
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
+import { getSiteData, isSimpleSite, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight } from '@wordpress/icons';
 import { IconButton, Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
+
+// Set by the Write editor when someone leaves it for the Block editor. The two
+// packages ship independently, so this key is shared by name only.
+// See projects/packages/jetpack-mu-wpcom/src/features/write/view.js.
+const BLOCK_EDITOR_PREFERRED_STORAGE_KEY = 'wpcom-write-block-editor-preferred';
+
+/**
+ * Whether this browser has opted out of the Write editor.
+ *
+ * Unreadable storage counts as no opt-out, so a visitor we cannot read a
+ * preference for still gets the editor the site would otherwise offer.
+ *
+ * @return {boolean} True if Write should no longer be offered here.
+ */
+const prefersBlockEditor = () => {
+	try {
+		return window.localStorage.getItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY ) !== null;
+	} catch {
+		return false;
+	}
+};
 
 /**
  * The writing prompt view: one prompt at a time, with controls to browse the
@@ -22,14 +43,18 @@ import { addQueryArgs } from '@wordpress/url';
 const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onReaderClick } ) => {
 	const [ index, setIndex ] = useState( 0 );
 
+	// Read once on mount: changing either half means navigating away from here.
+	const usesWriteEditor = useMemo( () => isWpcomPlatformSite() && ! prefersBlockEditor(), [] );
+
 	const goToPrevious = useCallback( () => setIndex( current => current - 1 ), [] );
 	const goToNext = useCallback( () => setIndex( current => current + 1 ), [] );
 	const recordPostAnswerClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_writing_prompt_post_answer_click', {
 			site_type: siteType,
 			prompt_id: prompts[ index ].id,
+			editor: usesWriteEditor ? 'write' : 'block',
 		} );
-	}, [ prompts, index, siteType ] );
+	}, [ prompts, index, siteType, usesWriteEditor ] );
 	const recordViewResponsesClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_newsletter_writing_prompt_view_responses_click', {
 			site_type: siteType,
@@ -62,20 +87,32 @@ const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onRead
 	}
 
 	const prompt = prompts[ index ];
+	const blogId = getSiteData()?.wpcom?.blog_id;
 
 	// "Post your answer" opens the Write editor on WordPress.com-platform sites
-	// (Simple/Atomic, where Write exists); on self-hosted it falls back to the
-	// classic new-post screen, where the jetpack/blogging-prompt block editor
-	// script seeds the same prompt.
-	const postAnswerHref = isWpcomPlatformSite()
-		? addQueryArgs( 'admin.php', {
-				page: 'write',
-				answer_prompt: prompt.id,
-				// Separates prompt answers from the rest of the dashboard in
-				// the Write funnel; without it they report as `dashboard`.
-				source: 'writing_prompt',
-		  } )
-		: addQueryArgs( 'post-new.php', { answer_prompt: prompt.id } );
+	// (Simple/Atomic, where Write exists) unless this browser has already left
+	// Write for the Block editor.
+	//
+	// Opted out, the destination depends on where post-new.php can seed the
+	// prompt. The block that carries it is inserted by the Jetpack plugin's
+	// editor script, so Atomic and self-hosted land there directly, while
+	// Simple — which does not run that plugin — would get the prompt's tags and
+	// an empty editor. Send Simple to Calypso instead, the same place its own
+	// blogging-prompt card points at.
+	let postAnswerHref = addQueryArgs( 'post-new.php', { answer_prompt: prompt.id } );
+	if ( usesWriteEditor ) {
+		postAnswerHref = addQueryArgs( 'admin.php', {
+			page: 'write',
+			answer_prompt: prompt.id,
+			// Separates prompt answers from the rest of the dashboard in
+			// the Write funnel; without it they report as `dashboard`.
+			source: 'writing_prompt',
+		} );
+	} else if ( isSimpleSite() && blogId ) {
+		postAnswerHref = addQueryArgs( `https://wordpress.com/post/${ blogId }`, {
+			answer_prompt: prompt.id,
+		} );
+	}
 
 	return (
 		<Stack direction="column" gap="md">
