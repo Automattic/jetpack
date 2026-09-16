@@ -75,6 +75,19 @@ describe( 'useOnboarding', () => {
 		expect( eventNames() ).toEqual( [ 'jetpack_premium_analytics_onboarding_view' ] );
 	} );
 
+	it( 'reads as open on the render the surface is ready, not a commit later', () => {
+		const phases: string[] = [];
+
+		renderHook( () => {
+			const onboarding = useOnboarding( { enabled: true } );
+			phases.push( onboarding.phase );
+			return onboarding;
+		} );
+
+		// Whatever hides behind the journey would otherwise paint, and count, first.
+		expect( phases[ 0 ] ).toBe( 'modal' );
+	} );
+
 	it( 'stays closed for a reader who already completed it', () => {
 		setStoredCompletion( '2026-09-01T10:00:00.000Z' );
 

@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import { resetTracksIdentityForTesting } from '../../../hooks/use-track-event';
+import { FeedbackModal } from '../feedback-modal';
 import { PageOptionsMenu } from '../page-options-menu';
 
 const mockSetUser = jest.fn();
@@ -105,10 +106,9 @@ describe( 'PageOptionsMenu', () => {
 	it( 'reports the opening as its own event', async () => {
 		await openModal();
 
-		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_premium_analytics_feedback_open',
-			undefined
-		);
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_feedback_open', {
+			source: 'menu',
+		} );
 	} );
 
 	it( 'reports the readiness answer and comment as one event', async () => {
@@ -120,7 +120,7 @@ describe( 'PageOptionsMenu', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'almost', comment: 'Needs a date picker' }
+			{ readiness: 'almost', comment: 'Needs a date picker', source: 'menu' }
 		);
 	} );
 
@@ -142,7 +142,7 @@ describe( 'PageOptionsMenu', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'not_yet', comment: '' }
+			{ readiness: 'not_yet', comment: '', source: 'menu' }
 		);
 	} );
 
@@ -158,7 +158,7 @@ describe( 'PageOptionsMenu', () => {
 		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
 			dialog.getByText(
-				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu."
+				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the page options menu."
 			)
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'radiogroup' ) ).not.toBeInTheDocument();
@@ -185,6 +185,21 @@ describe( 'PageOptionsMenu', () => {
 		await openModal();
 
 		expect( screen.getByRole( 'textbox' ) ).toHaveAttribute( 'maxlength', '1000' );
+	} );
+} );
+
+describe( 'the answer-on-its-way callback', () => {
+	it( 'fires once the answer is sent, not when the reader backs out', async () => {
+		const onSubmit = jest.fn();
+		const user = userEvent.setup();
+		render( <FeedbackModal source="banner" onSubmit={ onSubmit } onClose={ () => {} } /> );
+
+		await user.click( screen.getByRole( 'radio', { name: READY } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		expect( onSubmit ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
+		expect( onSubmit ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
 
@@ -258,10 +273,9 @@ describe( 'the Tracks identity', () => {
 		expect( mockSetUser ).not.toHaveBeenCalled();
 		expect( mockIdentifyUser ).not.toHaveBeenCalled();
 		expect( mockAssignSuperProps ).not.toHaveBeenCalled();
-		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_premium_analytics_feedback_open',
-			undefined
-		);
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_feedback_open', {
+			source: 'menu',
+		} );
 	} );
 
 	it( 'skips the blog_id super prop when the site is not connected', async () => {
@@ -310,7 +324,7 @@ describe( 'the Happiness copy of the feedback', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'ready', comment: '' }
+			{ readiness: 'ready', comment: '', source: 'menu' }
 		);
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
@@ -327,7 +341,7 @@ describe( 'the Happiness copy of the feedback', () => {
 		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
 			dialog.getByText(
-				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu."
+				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the page options menu."
 			)
 		).toBeInTheDocument();
 	} );

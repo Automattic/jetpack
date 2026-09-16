@@ -1,0 +1,39 @@
+/**
+ * Marketplace tab on the Add Plugins screen.
+ *
+ * The catalog carries no install count, rating count or tested-up-to
+ * version, and core states each as fact when it has nothing, so those
+ * cells are dropped.
+ */
+
+.wpcom-marketplace-tab .plugin-card .column-rating,
+.wpcom-marketplace-tab .plugin-card .column-downloaded,
+.wpcom-marketplace-tab .plugin-card .column-compatibility {
+	display: none;
+}
+
+.wpcom-marketplace-tab .plugin-card-bottom {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 20px;
+}
+
+.wpcom-marketplace-tab .plugin-card .column-updated {
+	float: none;
+	clear: none;
+	width: auto;
+	margin-block-end: 0;
+	text-align: start;
+}
+
+/*
+ * Core renders the other tabs' descriptions as unclassed <p>s, so they keep
+ * the admin's 1em block margins. Match those rather than zeroing the top,
+ * which left this tab's text riding up against the filter bar.
+ */
+.wpcom-marketplace-tab .wpcom-marketplace-intro {
+	max-inline-size: 60em;
+	margin-block: 1em;
+	margin-inline: 0;
+	color: #50575e;
+}

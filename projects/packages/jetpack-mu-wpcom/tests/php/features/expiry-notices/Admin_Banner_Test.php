@@ -53,7 +53,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 			5   => array( 'notice-error', $renew, false, false ),
 			0   => array( 'notice-error', $renew, false, false ),
 			-5  => array( 'notice-error', $renew, true, false ),
-			-45 => array( 'notice-error', $renew, false, true ),
+			-45 => array( 'notice-error', $renew, true, false ),
 		);
 		foreach ( $cases as $days => list( $class, $primary, $has_plans, $has_dismiss ) ) {
 			$this->set_purchase( $days );
@@ -64,10 +64,8 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 			$this->assertSame( $has_dismiss, str_contains( $out, 'wpcom-expiry-banner__dismiss' ), "wrong dismiss button at {$days} days" );
 		}
 
-		foreach ( array( 200, -60 ) as $days ) {
-			$this->set_purchase( $days );
-			$this->assertSame( '', $this->render(), "expected no notice at {$days} days" );
-		}
+		$this->set_purchase( 200 );
+		$this->assertSame( '', $this->render(), 'expected no notice for an active plan' );
 	}
 
 	/**
@@ -111,7 +109,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_post_grace_dismiss_hides_the_banner(): void {
-		$this->set_purchase( -45 );
+		$this->set_reverted( 15 );
 		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::banner_meta_key(), time() - DAY_IN_SECONDS );
 		$this->assertSame( '', $this->render() );
 	}
@@ -124,10 +122,11 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_after_the_revert_the_cta_points_at_support(): void {
-		$this->pretend_reverted();
-		$this->set_purchase( -45 );
+		$this->set_reverted( 15 );
 		$out = $this->render();
 
+		$this->assertStringContainsString( '<strong>Your plan has expired</strong>', $out );
+		$this->assertStringContainsString( 'additional storage', $out );
 		$this->assertStringContainsString( 'Contact support', $out );
 		$this->assertStringContainsString( 'data-support-message="My plan expired', $out );
 		$this->assertStringContainsString( 'wordpress.com/help', $out );
@@ -135,29 +134,31 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( '/checkout/', $out );
 	}
 
-	public function test_a_site_that_was_never_atomic_is_not_sent_to_support(): void {
-		Constants::set_constant( 'IS_ATOMIC', false );
-		$this->set_purchase( -45 );
-		$out = $this->render();
-
-		$this->assertStringNotContainsString( 'Contact support', $out );
-		$this->assertStringNotContainsString( 'data-support-message', $out );
-		$this->assertStringContainsString( 'Restore site', $out );
-		$this->assertStringContainsString( '/checkout/', $out );
-		$this->assertStringContainsString( 'Upgrade your plan to restore your site.', $out );
+	public function test_a_revert_for_another_reason_shows_nothing(): void {
+		$this->set_reverted( 15, false );
+		$this->assertSame( '', $this->render() );
 	}
 
-	public function test_before_the_revert_runs_the_cta_still_offers_checkout(): void {
-		// Post-grace by date but not yet reverted: renewing still works, so the
-		// copy must not claim the changes have already happened.
-		Constants::set_constant( 'IS_ATOMIC', true );
-		$this->set_purchase( -45 );
-		$out = $this->render();
+	public function test_the_post_grace_banner_runs_out_thirty_days_after_the_revert(): void {
+		$this->set_reverted( 29 );
+		$this->assertStringContainsString( 'Contact support', $this->render() );
 
-		$this->assertStringNotContainsString( 'Contact support', $out );
-		$this->assertStringContainsString( '/checkout/', $out );
-		$this->assertStringNotContainsString( 'has been moved to the Free plan', $out );
-		$this->assertStringContainsString( 'will move to the Free plan', $out );
+		$this->set_reverted( 30 );
+		$this->assertSame( '', $this->render() );
+	}
+
+	public function test_a_present_purchase_past_its_date_is_grace_on_every_platform(): void {
+		foreach ( array( true, false ) as $is_atomic ) {
+			Constants::set_constant( 'IS_ATOMIC', $is_atomic );
+			$this->set_purchase( -45 );
+			$out = $this->render();
+
+			$this->assertStringContainsString( 'Renew now', $out, 'atomic=' . var_export( $is_atomic, true ) );
+			$this->assertStringContainsString( '/checkout/', $out );
+			$this->assertStringContainsString( 'will move to the Free plan', $out );
+			$this->assertStringNotContainsString( 'has been moved to the Free plan', $out );
+			$this->assertStringNotContainsString( 'Restore site', $out );
+		}
 	}
 
 	public function test_a_non_owner_admin_is_told_why_there_is_nothing_to_click(): void {
@@ -172,7 +173,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$out = $this->render();
 		$this->assertStringContainsString( '<strong>Your plan has expired</strong>', $out );
 		$this->assertStringNotContainsString( 'Restore site', $out );
-		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $out );
+		$this->assertStringNotContainsString( 'wpcom-expiry-banner__dismiss', $out );
 	}
 
 	public function test_the_script_carries_the_track_props(): void {

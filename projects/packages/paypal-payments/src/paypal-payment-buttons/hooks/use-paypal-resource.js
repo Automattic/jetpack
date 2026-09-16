@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
 import { getResourceAttributeUpdates } from '../utils/resource-sync';
+import { isNotFound } from '../utils/sync-on-save';
 import { getUserFriendlyError } from '../utils/validation';
 
 /**
@@ -36,6 +37,7 @@ export function usePayPalResource( {
 	const [ isBusy, setIsBusy ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const [ successMessage, setSuccessMessage ] = useState( null );
+	const [ linkDeleted, setLinkDeleted ] = useState( false );
 
 	// Two blocks can share one PayPal payment — a duplicate, or one product
 	// shown as a button, a link and a QR code — and only the block that saved
@@ -50,6 +52,7 @@ export function usePayPalResource( {
 		}
 
 		let cancelled = false;
+		setLinkDeleted( false );
 
 		apiFetch( { path: `${ API_BASE }/buttons/${ resourceId }` } )
 			.then( response => {
@@ -67,8 +70,13 @@ export function usePayPalResource( {
 				__unstableMarkNextChangeAsNotPersistent?.();
 				setAttributes( updates );
 			} )
-			// A payment deleted on PayPal is re-created when the post is next saved.
-			.catch( () => {} );
+			// A payment deleted on PayPal is re-created when the post is next saved,
+			// so the merchant is told before that happens.
+			.catch( err => {
+				if ( ! cancelled && isNotFound( err ) ) {
+					setLinkDeleted( true );
+				}
+			} );
 
 		return () => {
 			cancelled = true;
@@ -110,7 +118,7 @@ export function usePayPalResource( {
 					resourceId: undefined,
 					paymentLink: undefined,
 				} );
-				setSuccessMessage( __( 'PayPal button deleted.', 'jetpack-paypal-payments' ) );
+				setSuccessMessage( __( 'Payment link deleted.', 'jetpack-paypal-payments' ) );
 			} )
 			.catch( err => {
 				// If already deleted (404), clear state anyway.
@@ -121,7 +129,7 @@ export function usePayPalResource( {
 						paymentLink: undefined,
 					} );
 					setSuccessMessage(
-						__( 'Button was already removed from PayPal.', 'jetpack-paypal-payments' )
+						__( 'The payment link was already removed from PayPal.', 'jetpack-paypal-payments' )
 					);
 				} else {
 					setError( getUserFriendlyError( err ) );
@@ -138,6 +146,7 @@ export function usePayPalResource( {
 		setError,
 		successMessage,
 		setSuccessMessage,
+		linkDeleted,
 		handleDeleteButton,
 		executeDeleteButton,
 	};

@@ -221,6 +221,10 @@ PayPal's actual state.
 
 Delete a payment resource. Returns success even if already deleted on PayPal (404 treated as success).
 
+Deletion is permanent: PayPal has no pause, deactivate, or restore operation, and a buyer who opens the deleted link is sent to `https://www.paypal.com/ncp/notfound`. Callers must confirm with the merchant before sending this request.
+
+**Query parameters:** `unused_only` (boolean) keeps the link when another published post still embeds it; `post_id` names the post being saved, which does not count.
+
 **Response (200):**
 
 ```json
