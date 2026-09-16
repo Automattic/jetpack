@@ -79,8 +79,19 @@ function wpcom_write_url() {
  * @return string The destination URL for the back/close button.
  */
 function wpcom_write_resolve_back_url( $source ) {
+	// The prompt cards send a per-surface token rather than a bare
+	// `writing_prompt`: that one comes from the wp-admin Daily Writing Prompt
+	// widget, which belongs back on the dashboard the default below already gives.
+	if ( 'writing_prompt_home' === $source ) {
+		// A bare /home resolves to whichever landing page the account prefers,
+		// which need not be this site, so the id has to be in the URL.
+		$site_id = ( new \Automattic\Jetpack\Status\Host() )->get_wpcom_site_id();
+		return $site_id ? 'https://wordpress.com/home/' . $site_id : admin_url();
+	}
+
 	$destinations = array(
-		'reader' => 'https://wordpress.com/reader',
+		'reader'                => 'https://wordpress.com/reader',
+		'writing_prompt_reader' => 'https://wordpress.com/reader',
 	);
 
 	return $destinations[ $source ] ?? admin_url();

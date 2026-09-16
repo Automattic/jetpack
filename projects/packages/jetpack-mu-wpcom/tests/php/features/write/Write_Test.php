@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-block-editor/functions.editor-type.php';
@@ -60,6 +61,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		wp_set_current_user( 0 );
 		delete_option( 'wpcom_write_rewrite_version' );
+		Constants::clear_constants();
 		parent::tear_down();
 	}
 
@@ -89,6 +91,42 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			'https://wordpress.com/reader',
 			wpcom_write_resolve_back_url( 'reader' )
 		);
+	}
+
+	/**
+	 * Test that the prompt cards' per-surface tokens return the user to the
+	 * Calypso surface they came from rather than to wp-admin.
+	 */
+	public function test_resolve_back_url_maps_writing_prompt_surfaces() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertSame(
+			'https://wordpress.com/home/' . get_current_blog_id(),
+			wpcom_write_resolve_back_url( 'writing_prompt_home' )
+		);
+		$this->assertSame(
+			'https://wordpress.com/reader',
+			wpcom_write_resolve_back_url( 'writing_prompt_reader' )
+		);
+	}
+
+	/**
+	 * Test that My Home falls back to the dashboard when the wpcom site id is
+	 * unknown, since a bare /home would land on the account's preferred landing
+	 * page rather than on this site.
+	 */
+	public function test_resolve_back_url_falls_back_when_site_id_unknown() {
+		Constants::set_constant( 'IS_WPCOM', false );
+
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'writing_prompt_home' ) );
+	}
+
+	/**
+	 * Test that the bare token, which the wp-admin Daily Writing Prompt widget
+	 * sends from the dashboard, still resolves to the dashboard.
+	 */
+	public function test_resolve_back_url_keeps_dashboard_for_wp_admin_prompt_widget() {
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'writing_prompt' ) );
 	}
 
 	/**
