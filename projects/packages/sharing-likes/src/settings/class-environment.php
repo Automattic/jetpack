@@ -164,12 +164,9 @@ final class Environment {
 			return self::$post_template_url;
 		}
 
-		self::$post_template_url = add_query_arg(
-			array(
-				'p'      => '/wp_template/' . $template,
-				'canvas' => 'edit',
-			),
-			admin_url( 'site-editor.php' )
+		// `add_query_arg()` does not encode, and the Site Editor router wants `p` percent-encoded.
+		self::$post_template_url = admin_url(
+			'site-editor.php?p=' . rawurlencode( '/wp_template/' . $template ) . '&canvas=edit'
 		);
 
 		return self::$post_template_url;
