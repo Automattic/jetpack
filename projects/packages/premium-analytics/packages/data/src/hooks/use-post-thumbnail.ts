@@ -72,7 +72,7 @@ export function usePostThumbnail(
  * @return Thumbnail URLs keyed by post ID.
  */
 export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailUrls {
-	const idsByType = useMemo( () => {
+	const postQueries = useMemo( () => {
 		const grouped = new Map< string, Set< number > >();
 
 		for ( const row of rows ) {
@@ -93,46 +93,54 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 
 		return Array.from( grouped, ( [ type, ids ] ) => ( {
 			type,
-			ids: Array.from( ids ).sort( ( a, b ) => a - b ),
+			query: {
+				include: Array.from( ids ).sort( ( a, b ) => a - b ),
+				per_page: ids.size,
+				status: 'any',
+				_fields: 'id,featured_media',
+			},
 		} ) );
 	}, [ rows ] );
 
-	const postRecords = useSelect(
+	const postRecordGroups = useSelect(
 		select => {
 			const core = select( coreStore ) as unknown as EntityRecordsSelector;
-			let hasResolved = true;
 
-			const records = idsByType.flatMap( ( { type, ids } ) => {
-				const query = {
-					include: ids,
-					per_page: ids.length,
-					_fields: 'id,featured_media',
-				};
-				const items = core.getEntityRecords( 'postType', type, query );
-				hasResolved =
-					core.hasFinishedResolution( 'getEntityRecords', [ 'postType', type, query ] ) &&
-					hasResolved;
-
-				return ( items ?? [] ) as PostEntity[];
-			} );
-
-			return { records, hasResolved };
+			return postQueries.map(
+				( { type, query } ) =>
+					core.getEntityRecords( 'postType', type, query ) as PostEntity[] | null
+			);
 		},
-		[ idsByType ]
+		[ postQueries ]
+	);
+
+	const havePostQueriesResolved = useSelect(
+		select => {
+			const core = select( coreStore ) as unknown as EntityRecordsSelector;
+			return postQueries.every( ( { type, query } ) =>
+				core.hasFinishedResolution( 'getEntityRecords', [ 'postType', type, query ] )
+			);
+		},
+		[ postQueries ]
+	);
+
+	const postRecords = useMemo(
+		() => postRecordGroups.flatMap( records => records ?? [] ),
+		[ postRecordGroups ]
 	);
 
 	const mediaIds = useMemo(
 		() =>
-			postRecords.hasResolved
+			havePostQueriesResolved
 				? Array.from(
 						new Set(
-							postRecords.records
+							postRecords
 								.map( post => post.featured_media )
 								.filter( ( id ): id is number => typeof id === 'number' && id > 0 )
 						)
 				  ).sort( ( a, b ) => a - b )
 				: [],
-		[ postRecords ]
+		[ havePostQueriesResolved, postRecords ]
 	);
 
 	const media = useSelect(
@@ -154,12 +162,12 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 	return useMemo( () => {
 		const mediaById = new Map( media.map( item => [ item.id, item ] ) );
 
-		return postRecords.records.reduce< PostThumbnailUrls >( ( urls, post ) => {
+		return postRecords.reduce< PostThumbnailUrls >( ( urls, post ) => {
 			const url = getThumbnailUrl( mediaById.get( post.featured_media ) );
 			if ( post.id && url ) {
 				urls[ post.id ] = url;
 			}
 			return urls;
 		}, {} );
-	}, [ postRecords.records, media ] );
+	}, [ postRecords, media ] );
 }
