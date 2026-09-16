@@ -8,21 +8,18 @@
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
 use Automattic\Jetpack\Config;
-use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Data_Settings;
-use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Meta as Meta_Module;
 use Automattic\Jetpack\Sync\Modules\Posts as Posts_Module;
 use Automattic\Jetpack\Sync\Modules\Term_Relationships as Term_Relationships_Module;
 use Automattic\Jetpack\Sync\Modules\Terms as Terms_Module;
 use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics as WooCommerce_Analytics_Module;
-use Automattic\WooCommerce\Utilities\FeaturesUtil;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Opts in to the shared WooCommerce Analytics sync module while the site can sync
- * orders, and registers the Premium Analytics-specific sync configuration.
+ * Opts in to the shared WooCommerce Analytics sync module and registers the
+ * Premium Analytics-specific sync configuration.
  */
 class Configuration {
 
@@ -36,21 +33,6 @@ class Configuration {
 	 * @var string
 	 */
 	const ANALYTICS_PLUGIN_MODULE_FQCN = 'Automattic\\WooCommerce\\Analytics\\Internal\\Jetpack\\Sync\\Modules\\Analytics';
-
-	/**
-	 * Cron hook that backfills Analytics data after order attribution is turned on.
-	 *
-	 * @since $$next-version$$
-	 * @var string
-	 */
-	const BACKFILL_ACTION = 'jetpack_premium_analytics_backfill_analytics';
-
-	/**
-	 * Per-request memo of can_site_sync_orders().
-	 *
-	 * @var bool|null
-	 */
-	private $can_sync_orders;
 
 	/**
 	 * Bookings post meta to add to Sync's post meta whitelist. Bookings are synced
@@ -124,8 +106,6 @@ class Configuration {
 		add_filter( 'jetpack_sync_modules', array( $this, 'add_woocommerce_analytics_module' ), PHP_INT_MAX );
 		add_filter( 'jetpack_full_sync_config', array( $this, 'expand_full_sync_config' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
-		add_action( 'update_option_woocommerce_feature_order_attribution_enabled', array( $this, 'schedule_backfill_on_attribution_enabled' ), 10, 2 );
-		add_action( self::BACKFILL_ACTION, array( $this, 'backfill_analytics' ) );
 
 		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
 	}
@@ -165,10 +145,10 @@ class Configuration {
 	}
 
 	/**
-	 * Add the shared module while the site can sync orders and no other plugin provides one.
+	 * Add the shared module unless the standalone plugin's module is present.
 	 *
-	 * Registration is the single gate: full sync and checksums follow module presence
-	 * inside the sync package, so all three switch together.
+	 * Registration is the only switch: full sync and checksums follow module presence
+	 * inside the sync package.
 	 *
 	 * @param array|mixed $modules Current Sync module class names.
 	 * @return array|mixed Updated Sync module class names.
@@ -179,7 +159,7 @@ class Configuration {
 			return $modules;
 		}
 
-		if ( in_array( self::ANALYTICS_PLUGIN_MODULE_FQCN, $modules, true ) || ! $this->can_site_sync_orders() ) {
+		if ( in_array( self::ANALYTICS_PLUGIN_MODULE_FQCN, $modules, true ) ) {
 			return array_values( array_diff( $modules, array( WooCommerce_Analytics_Module::class ) ) );
 		}
 
@@ -191,16 +171,12 @@ class Configuration {
 	}
 
 	/**
-	 * Add the Analytics module to full sync when the site can sync orders.
+	 * Add the Analytics module to full sync, first in line.
 	 *
 	 * @param array $config Current full-sync configuration.
 	 * @return array Updated full-sync configuration.
 	 */
 	public function expand_full_sync_config( array $config ): array {
-		if ( ! $this->can_site_sync_orders() ) {
-			return $config;
-		}
-
 		// Terms and term relationships must be synced before posts.
 		if ( isset( $config['posts'] ) ) {
 			unset( $config['posts'] );
@@ -212,87 +188,6 @@ class Configuration {
 		}
 
 		return $config;
-	}
-
-	/**
-	 * Schedule an Analytics full sync once order attribution turns on, to backfill the rows
-	 * skipped while the module was unregistered.
-	 *
-	 * Deferred to a later request: the module list is memoized per request, and outside
-	 * the settings form this request resolved it before the option changed.
-	 *
-	 * @param mixed $old_value Previous option value.
-	 * @param mixed $new_value New option value.
-	 * @return void
-	 */
-	public function schedule_backfill_on_attribution_enabled( $old_value, $new_value ): void {
-		if ( 'yes' !== $new_value || 'yes' === $old_value || wp_next_scheduled( self::BACKFILL_ACTION ) ) {
-			return;
-		}
-
-		wp_schedule_single_event( time(), self::BACKFILL_ACTION );
-	}
-
-	/**
-	 * Run the full sync scheduled by {@see schedule_backfill_on_attribution_enabled()}.
-	 *
-	 * @return bool Whether a full sync started.
-	 */
-	public function backfill_analytics(): bool {
-		if ( false === Modules::get_module( 'woocommerce_analytics' ) ) {
-			return false;
-		}
-
-		return (bool) Actions::do_full_sync( array( 'woocommerce_analytics' => 1 ) );
-	}
-
-	/**
-	 * Whether the site may sync WooCommerce order data.
-	 *
-	 * @return bool
-	 */
-	protected function can_site_sync_orders(): bool {
-		if ( null === $this->can_sync_orders ) {
-			$this->can_sync_orders = $this->is_order_attribution_enabled();
-		}
-
-		return $this->can_sync_orders;
-	}
-
-	/**
-	 * Whether WooCommerce order attribution is enabled.
-	 *
-	 * @return bool
-	 */
-	private function is_order_attribution_enabled(): bool {
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- Missing from older WooCommerce stubs.
-		if ( ! class_exists( FeaturesUtil::class ) ) {
-			return false;
-		}
-
-		try {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Missing from older WooCommerce stubs.
-			$is_enabled = FeaturesUtil::feature_is_enabled( 'order_attribution' );
-
-			// A feature-settings submission is read from the form, since the module list is
-			// resolved and synced on this request before WooCommerce persists the option.
-			// phpcs:disable WordPress.Security.NonceVerification.Recommended
-			if ( isset( $_GET['section'] ) && 'features' === $_GET['section'] ) {
-				// phpcs:disable WordPress.Security.NonceVerification.Missing
-				if ( isset( $_POST['woocommerce_feature_order_attribution_enabled'] ) ) {
-					$posted_order_attribution = strtolower( sanitize_text_field( wp_unslash( $_POST['woocommerce_feature_order_attribution_enabled'] ) ) );
-					$is_enabled               = in_array( $posted_order_attribution, array( 'yes', 'true', '1' ), true );
-				} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
-					$is_enabled = false;
-				}
-				// phpcs:enable WordPress.Security.NonceVerification.Missing
-			}
-			// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-			return $is_enabled;
-		} catch ( \Throwable $e ) {
-			return false;
-		}
 	}
 
 	/**
