@@ -11,14 +11,11 @@ import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import assetUrl from '../asset-url';
 import NavRow from '../components/nav-row';
 import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
 import AssistantBanner from './assistant-banner';
 import { chatGptIcon, claudeIcon } from './connector-icons';
-import buildPageThumb from './images/build-page.webp';
-import connectClaudeThumb from './images/connect-claude.webp';
-import mediaLibraryThumb from './images/media-library.webp';
-import optimizeSiteThumb from './images/optimize-site.webp';
 import { normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
@@ -42,31 +39,31 @@ const QUICK_START = [
 
 // Lessons from the "Use AI agents with WordPress.com" course; each card links
 // to its lesson page (no inline player). Durations are the live lesson
-// lengths — re-check them if the videos change. Thumbnails are bundled.
+// lengths — re-check them if the videos change.
 const WALKTHROUGH_VIDEOS = [
 	{
 		slug: 'jetpack-ai-hub-overview-video-connect-claude',
 		title: __( 'Connect your site to Claude', 'jetpack' ),
 		duration: '3:18',
-		thumbnail: connectClaudeThumb,
+		thumbnail: 'connect-claude.webp',
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-video-build-page',
 		title: __( 'Build a page from a single prompt', 'jetpack' ),
 		duration: '3:09',
-		thumbnail: buildPageThumb,
+		thumbnail: 'build-page.webp',
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-video-media-library',
 		title: __( 'Manage your Media Library with AI', 'jetpack' ),
 		duration: '3:14',
-		thumbnail: mediaLibraryThumb,
+		thumbnail: 'media-library.webp',
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-video-optimize-site',
 		title: __( 'Optimize your site with AI', 'jetpack' ),
 		duration: '3:15',
-		thumbnail: optimizeSiteThumb,
+		thumbnail: 'optimize-site.webp',
 	},
 ];
 
@@ -442,37 +439,47 @@ export default function AiOverview( {
 					{ __( 'Walkthrough videos', 'jetpack' ) }
 				</Text>
 				<div className="jetpack-ai-overview__video-grid">
-					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => (
-						<a
-							className="jetpack-ai-overview__video"
-							href={ getRedirectUrl( slug ) }
-							key={ slug }
-							target="_blank"
-							rel="noopener noreferrer"
-							onClick={ recordLinkClick( 'video', slug ) }
-						>
-							{ /* Decorative: the card's title carries the meaning. */ }
-							<img
-								className="jetpack-ai-overview__video-thumb"
-								src={ thumbnail }
-								alt=""
-								width="644"
-								height="348"
-								loading="lazy"
-							/>
-							<span className="jetpack-ai-overview__video-meta">
-								<Text render={ <span /> } variant="heading-md">
-									{ title }
-								</Text>
-								<Text render={ <span /> } variant="body-md" className="jetpack-ai-overview__muted">
-									{ duration }
-								</Text>
-							</span>
-							{ /* The design leaves the cards unmarked, so announce the
-							     new tab the way ExternalLink does, minus its arrow. */ }
-							<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
-						</a>
-					) ) }
+					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => {
+						const thumbnailUrl = assetUrl( thumbnail );
+
+						return (
+							<a
+								className="jetpack-ai-overview__video"
+								href={ getRedirectUrl( slug ) }
+								key={ slug }
+								target="_blank"
+								rel="noopener noreferrer"
+								onClick={ recordLinkClick( 'video', slug ) }
+							>
+								{ /* Decorative: the card's title carries the meaning. */ }
+								{ thumbnailUrl && (
+									<img
+										className="jetpack-ai-overview__video-thumb"
+										src={ thumbnailUrl }
+										alt=""
+										width="644"
+										height="348"
+										loading="lazy"
+									/>
+								) }
+								<span className="jetpack-ai-overview__video-meta">
+									<Text render={ <span /> } variant="heading-md">
+										{ title }
+									</Text>
+									<Text
+										render={ <span /> }
+										variant="body-md"
+										className="jetpack-ai-overview__muted"
+									>
+										{ duration }
+									</Text>
+								</span>
+								{ /* The design leaves the cards unmarked, so announce the
+								     new tab the way ExternalLink does, minus its arrow. */ }
+								<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
+							</a>
+						);
+					} ) }
 				</div>
 			</Stack>
 
