@@ -1505,12 +1505,14 @@ describe( 'BarChart', () => {
 		} );
 
 		describe( 'ARIA grid boundaries', () => {
-			const twoPointData = [
+			// Three points, so a clamp at a boundary lands on a different index than a wrap would.
+			const threePointData = [
 				{
 					label: 'Series A',
 					data: [
 						{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
 						{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						{ date: new Date( '2024-01-03' ), value: 30, label: 'Jan 3' },
 					],
 					options: {},
 				},
@@ -1518,22 +1520,22 @@ describe( 'BarChart', () => {
 
 			test( 'right arrow at the last point stays put and keeps the highlight (no escape, no wrap)', async () => {
 				const user = userEvent.setup();
-				renderWithTheme( { withTooltips: true, data: twoPointData } );
+				renderWithTheme( { withTooltips: true, data: threePointData } );
 
 				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
 				chart.focus();
 
-				// Move to the first, then the last (second) point.
+				// Move to the first, then on to the last (third) point.
 				await user.keyboard( '{ArrowRight}' );
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}' );
+				expect( screen.getByTestId( 'chart-tooltip-2' ) ).toHaveFocus();
 
 				// Right arrow at the last point must not move focus: the highlighted
 				// bar/tooltip stays visible and focused (ARIA grid: focus does not move).
 				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toBeInTheDocument();
-				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+				expect( screen.getByTestId( 'chart-tooltip-2' ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'chart-tooltip-2' ) ).toHaveFocus();
 				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
 				// Focus did not escape back to the chart container.
 				expect( chart ).not.toHaveFocus();
@@ -1541,7 +1543,7 @@ describe( 'BarChart', () => {
 
 			test( 'left arrow at the first point stays put (no wrap to last)', async () => {
 				const user = userEvent.setup();
-				renderWithTheme( { withTooltips: true, data: twoPointData } );
+				renderWithTheme( { withTooltips: true, data: threePointData } );
 
 				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
 				chart.focus();
@@ -1554,23 +1556,23 @@ describe( 'BarChart', () => {
 				await user.keyboard( '{ArrowLeft}' );
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toBeInTheDocument();
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'chart-tooltip-2' ) ).not.toBeInTheDocument();
 			} );
 
 			test( 'left arrow as the first key selects the first point', async () => {
 				const user = userEvent.setup();
-				renderWithTheme( { withTooltips: true, data: twoPointData } );
+				renderWithTheme( { withTooltips: true, data: threePointData } );
 
 				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowLeft}' );
 
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'chart-tooltip-2' ) ).not.toBeInTheDocument();
 			} );
 
 			test( 'escape closes the tooltip and returns focus to the chart', async () => {
 				const user = userEvent.setup();
-				renderWithTheme( { withTooltips: true, data: twoPointData } );
+				renderWithTheme( { withTooltips: true, data: threePointData } );
 
 				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
 				chart.focus();

@@ -214,4 +214,70 @@ describe( 'useKeyboardNavigation', () => {
 
 		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
 	} );
+
+	it( 'returns focus to the grid when the count drops to zero while focus is in the chart', async () => {
+		const { view } = await navigate( 2 );
+
+		screen.getByRole( 'button', { name: 'Inside' } ).focus();
+		view.rerender( <NavigationHarness totalPoints={ 0 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+	} );
+
+	it( 'leaves focus alone when the count drops to zero after focus has left the chart', async () => {
+		const { view } = await navigate( 2 );
+
+		const outside = screen.getByRole( 'button', { name: 'Outside' } );
+		outside.focus();
+		view.rerender( <NavigationHarness totalPoints={ 0 } /> );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
+		expect( outside ).toHaveFocus();
+	} );
+
+	// The page sees the event after the handler, so this is what a surrounding scroll or Modal gets.
+	const recordPageKeyDown = () => {
+		const onKeyDown = jest.fn< void, [ KeyboardEvent ] >();
+		document.addEventListener( 'keydown', onKeyDown );
+		return { onKeyDown, stop: () => document.removeEventListener( 'keydown', onKeyDown ) };
+	};
+
+	it( 'leaves keys it does not handle available to the page', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 6 } /> );
+		const { onKeyDown, stop } = recordPageKeyDown();
+
+		try {
+			screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+			await user.keyboard( '{ArrowDown}{PageDown}[Space]' );
+
+			expect( onKeyDown ).toHaveBeenCalledTimes( 3 );
+			for ( const [ event ] of onKeyDown.mock.calls ) {
+				expect( event.defaultPrevented ).toBe( false );
+			}
+		} finally {
+			stop();
+		}
+	} );
+
+	// `@wordpress/components` Modal skips its own close-on-Escape once the event is defaultPrevented.
+	it( 'leaves Escape to the page when there is no selection to dismiss', async () => {
+		const user = userEvent.setup();
+		render( <NavigationHarness totalPoints={ 6 } /> );
+		const { onKeyDown, stop } = recordPageKeyDown();
+
+		try {
+			screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+			await user.keyboard( '{Escape}' );
+
+			expect( onKeyDown.mock.calls[ 0 ][ 0 ].defaultPrevented ).toBe( false );
+
+			await user.keyboard( '{ArrowRight}{Escape}' );
+
+			expect( onKeyDown.mock.calls.at( -1 )?.[ 0 ].defaultPrevented ).toBe( true );
+		} finally {
+			stop();
+		}
+	} );
 } );

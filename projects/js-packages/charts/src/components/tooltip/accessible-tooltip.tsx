@@ -261,11 +261,22 @@ export const useKeyboardNavigation = ( {
 		if ( totalPoints === 0 || ! focusIsInChart ) {
 			setSelectedIndex( undefined );
 			setIsNavigating( false );
+			// Clearing unmounts the focused tooltip, which would drop focus to the body.
+			if ( focusIsInChart ) {
+				focusWithoutScrollIfNeeded( getChartRoot() );
+			}
 			return;
 		}
 
 		setSelectedIndex( Math.min( selectedIndex, totalPoints - 1 ) );
-	}, [ selectedIndex, totalPoints, setSelectedIndex, setIsNavigating, getChartRoot ] );
+	}, [
+		selectedIndex,
+		totalPoints,
+		setSelectedIndex,
+		setIsNavigating,
+		getChartRoot,
+		focusWithoutScrollIfNeeded,
+	] );
 
 	// Returning focus from the tooltip must not restore the selection Escape just cleared.
 	const onChartFocus = useCallback(
@@ -288,7 +299,8 @@ export const useKeyboardNavigation = ( {
 	const onChartKeyDown = useCallback(
 		( event: React.KeyboardEvent< HTMLDivElement > ) => {
 			if ( event.key === 'Tab' || event.key === 'Escape' ) {
-				if ( event.key === 'Escape' ) {
+				// Consuming Escape with nothing open would swallow the first Escape of a surrounding Modal.
+				if ( event.key === 'Escape' && selectedIndex !== undefined ) {
 					event.preventDefault();
 				}
 				focusWithoutScrollIfNeeded( getChartRoot() );
@@ -301,16 +313,17 @@ export const useKeyboardNavigation = ( {
 
 			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
 
-			event.preventDefault();
-
 			// WAI-ARIA grid: arrows stop at the first and last cell.
 			if ( event.key === 'ArrowRight' ) {
+				event.preventDefault();
 				setIsNavigating( true );
 				setSelectedIndex( Math.min( currentSelectedIndex + 1, totalPoints - 1 ) );
 			} else if ( event.key === 'ArrowLeft' ) {
+				event.preventDefault();
 				setIsNavigating( true );
 				setSelectedIndex( Math.max( currentSelectedIndex - 1, 0 ) );
 			} else if ( ( event.key === 'Enter' || event.key === ' ' ) && selectedIndex !== undefined ) {
+				event.preventDefault();
 				onActivate?.( selectedIndex );
 			}
 		},
