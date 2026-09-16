@@ -662,9 +662,17 @@ $feature-icon-foreground: #0ced57;
 
 // The switch column, which that leaves last on screen. Counted from the end
 // because the hidden menu column is still the final child.
-.feature-list :global(.dataviews-view-table th:nth-last-child(2)),
-.feature-list :global(.dataviews-view-table td:nth-last-child(2)) {
+.feature-list :global(.dataviews-view-table th:nth-last-child(2)) {
 	text-align: end;
+}
+
+// DataViews lays each cell out as a flex row, so the column's edge is reached
+// by the justification rather than by text-align.
+.feature-list :global(.dataviews-view-table td:nth-last-child(2)) {
+
+	:global(.dataviews-view-table__cell-content-wrapper) {
+		justify-content: flex-end;
+	}
 }
 
 
