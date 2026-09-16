@@ -22,6 +22,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { postContent } from '@wordpress/icons';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
 /**
@@ -54,6 +55,7 @@ function renderCellTooltip( { value, cellLabel }: HeatmapTooltipData ) {
 			cellLabel={ cellLabel }
 			emptyLabel={ __( 'No posts', 'jetpack-premium-analytics-pkg' ) }
 			formatValue={ formatPostCount }
+			icon={ postContent }
 		/>
 	);
 }
@@ -152,6 +154,7 @@ function PostingActivityInner() {
 							{ ...chartProps }
 							primaryColor="var(--wp-admin-theme-color, #3858e9)"
 							withTooltips
+							tooltipVariant="dark"
 							renderTooltip={ renderCellTooltip }
 						/>
 					</CalendarHeatmapPagerOverlay>
