@@ -51,9 +51,27 @@ export interface UserData {
 	current_user: CurrentUserData;
 }
 
+/**
+ * Data My Jetpack prints on every Jetpack admin page, so other packages can link into it.
+ */
+export interface MyJetpackScriptData {
+	/** Site editor state. Only on the My Jetpack page. */
+	siteEditor?: {
+		isBlockTheme: boolean;
+		isSharingBlockAvailable: boolean;
+		isLikeBlockAvailable: boolean;
+		activeThemeStylesheet: string;
+	};
+	/** Absolute URL of My Jetpack's built images directory, with a trailing slash. */
+	assetsUrl?: string;
+	/** The tab that replaces Products, or null while it is unchanged. */
+	productsSection?: { slug: 'features'; label: string } | null;
+}
+
 export interface JetpackScriptData {
 	site: SiteData;
 	user: UserData;
+	myJetpack?: MyJetpackScriptData;
 }
 
 declare global {
