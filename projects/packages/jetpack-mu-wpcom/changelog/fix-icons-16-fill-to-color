@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Expiry notices: Keep the info icon colored now that @wordpress/icons 16 draws it as strokes.

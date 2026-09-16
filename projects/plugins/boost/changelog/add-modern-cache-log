@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Render the Cache Log as a card when the modernization filter is on. No change with the filter off.
+
+

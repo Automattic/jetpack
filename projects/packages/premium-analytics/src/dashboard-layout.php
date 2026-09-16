@@ -338,10 +338,11 @@ function get_dashboard_default_section_layouts() {
 				3,
 				1
 			),
-			// Row 5: daily views heatmap. Two rows tall so the cells fit each day's count.
+			// Row 5: the all-time views table, one row per year. Two rows tall so a
+			// few years fit before the grid scrolls.
 			get_dashboard_default_widget_instance(
-				'default-traffic-views-activity-widget-instance',
-				'jpa/traffic-views-activity',
+				'default-views-over-years-widget-instance',
+				'jpa/views-over-years',
 				7,
 				3,
 				2

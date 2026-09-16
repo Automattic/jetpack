@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Turn on the rebuilt Jetpack Comments form for sites carrying the rollout sticker, and register its sign-in routes ahead of the comment experience gates.

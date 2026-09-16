@@ -12,7 +12,7 @@ export interface RenderTooltipGlyphProps< Datum extends object > extends GlyphPr
 	isNearestDatum: boolean;
 }
 
-export type TooltipPlacement = 'auto' | 'below-axis';
+export type TooltipPlacement = 'auto' | 'below-axis' | 'beside';
 
 type CrosshairPaintProperty =
 	| 'stroke'
@@ -31,11 +31,13 @@ export type XyChartTooltipProps< Datum extends object > = {
 	renderTooltip: ( params: RenderTooltipParams< Datum > ) => ReactNode;
 	renderGlyph?: ( params: RenderTooltipGlyphProps< Datum > ) => ReactNode;
 	/**
-	 * Keep the panel below the x-axis label band, centered at the datum x and horizontally clamped.
-	 * Vertical bounds do not move this placement; clipping ancestors can still cut it off.
+	 * Use below-axis placement for centered axis anchoring, or beside placement to avoid vertical flipping.
+	 * Below-axis ignores vertical bounds; beside placement clamps to them.
 	 * @default 'auto'
 	 */
 	tooltipPlacement?: TooltipPlacement;
+	/** Override the tooltip top anchor in SVG coordinates, including negative offsets. */
+	tooltipAnchorTop?: number;
 	/** Merge overrides with the default box styles; use `unstyled` to strip the box styling. */
 	style?: VisxTooltipProps[ 'style' ];
 	snapTooltipToDatumX?: boolean;
@@ -52,7 +54,7 @@ export type XyChartTooltipProps< Datum extends object > = {
 	 * that clips its overflow, or the viewport when there is none. The box may
 	 * leave the chart wrapper. (It used to keep a body-level portal inside the
 	 * viewport.)
-	 * Ignored by `below-axis`.
+	 * Non-auto placements always apply their own bounds handling.
 	 * @default true
 	 */
 	detectBounds?: boolean;

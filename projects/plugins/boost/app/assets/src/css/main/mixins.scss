@@ -36,3 +36,9 @@
 @mixin box-shadow() {
 	box-shadow: 0 0 20px 0 rgb(170 170 170 / 28%);
 }
+
+@mixin content-column() {
+	inline-size: 100%;
+	max-inline-size: var(--wpds-dimension-surface-width-xl);
+	margin-inline: auto;
+}

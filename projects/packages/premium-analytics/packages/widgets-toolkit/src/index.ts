@@ -170,6 +170,8 @@ export {
 	WidgetDataTable,
 	type WidgetDataTableProps,
 	EARNINGS_HISTORY_VIEW,
+	EarningsHistoryList,
+	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
 	getEarningsStatus,
 	getWordAdsHistoryFields,
@@ -241,7 +243,9 @@ export {
 	MONTHS_IN_YEAR,
 	monthOrder,
 	type MonthKey,
+	MONTHLY_HEATMAP_METRICS,
 	monthlyHeatmapLabels,
+	monthlyHeatmapMetricAttributeField,
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
 	monthRange,
@@ -337,4 +341,4 @@ export {
  * `@jetpack-premium-analytics/ui` directly: the toolkit bundles the ui package
  * once instead of once per widget.
  */
-export { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';

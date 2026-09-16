@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Keep admin icons colored after the @wordpress/icons 16 update, which draws them as strokes.

@@ -13,9 +13,7 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 // WidgetRoot reads URL search params as a fallback for report params; outside
 // a matched route the real hook warns and throws.
-jest.mock( '@wordpress/route', () => ( {
-	useSearch: () => ( {} ),
-} ) );
+jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -45,24 +43,36 @@ describe( 'WordAdsEarningsHistory', () => {
 
 	it( 'renders earnings rows newest-first with formatted currency and status', async () => {
 		render( <WordAdsEarningsHistory attributes={ {} } /> );
-		await expect( screen.findByText( '07-2026' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
 
-		// Read the cells in document order: ordering is produced by the view's sort
-		// over the raw period key, and only reading it back pins that composition.
-		expect( screen.getAllByText( /^\d{2}-\d{4}$/ ).map( el => el.textContent ) ).toEqual( [
-			'07-2026',
-			'06-2026',
+		// Read the cells in document order: the list sorts on the raw period key,
+		// and only reading it back pins that ordering.
+		expect( screen.getAllByText( /^\w+ \d{4}$/ ).map( el => el.textContent ) ).toEqual( [
+			'July 2026',
+			'June 2026',
 		] );
 		expect( screen.getAllByText( /^\$[\d,]+\.\d{2}$/ ).map( el => el.textContent ) ).toEqual( [
 			'$30.00',
 			'$90.00',
 		] );
-		expect( screen.getAllByText( /^[\d,]+$/ ).map( el => el.textContent ) ).toEqual( [
-			'20,000',
-			'60,000',
-		] );
 		expect( screen.getByText( 'Unpaid' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Paid' ) ).toBeInTheDocument();
+	} );
+
+	it( 'omits the ads-served column the full report keeps', async () => {
+		render( <WordAdsEarningsHistory attributes={ {} } /> );
+		await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
+
+		expect( screen.queryByText( '20,000' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Ads Served' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'paginates in the report rather than in the widget', async () => {
+		render( <WordAdsEarningsHistory attributes={ {} } /> );
+		await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
+
+		expect( screen.queryByRole( 'button', { name: 'Next page' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'combobox', { name: 'Current page' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'falls back to "?" rather than "Unpaid" when a period omits its status', async () => {
@@ -86,7 +96,17 @@ describe( 'WordAdsEarningsHistory', () => {
 		render( <WordAdsEarningsHistory attributes={ {} } /> );
 
 		await expect( screen.findByText( ERROR_DESCRIPTION ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( '07-2026' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'July 2026' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'links to the Earnings History report', async () => {
+		render( <WordAdsEarningsHistory attributes={ {} } /> );
+		await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
+
+		expect( screen.getByRole( 'link', { name: 'View all earnings history' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '/reports/earnings' )
+		);
 	} );
 
 	it( 'recovers via Retry after a failed earnings request', async () => {
@@ -99,6 +119,6 @@ describe( 'WordAdsEarningsHistory', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 
-		await expect( screen.findByText( '07-2026' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
 	} );
 } );
