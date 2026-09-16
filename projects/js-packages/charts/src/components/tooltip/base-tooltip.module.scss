@@ -1,6 +1,6 @@
 // The box's look alone, for a chart that positions the box itself.
 %surface {
-	padding: var(--wpds-dimension-padding-sm);
+	padding: var(--a8c-charts-dimension-tooltip-padding, var(--wpds-dimension-padding-sm));
 	// No WPDS token fits a translucent dark tooltip surface:
 	// bg-interactive-neutral-strong is opaque, and there is no
 	// white-on-dark content foreground token. The role carries the
