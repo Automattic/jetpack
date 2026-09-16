@@ -286,6 +286,7 @@ final class Services_Config {
 			<input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce( 'sharing-new_service' ) ); ?>" />
 		</form>
 	</div>
+	</div>
 		<?php
 	}
 
