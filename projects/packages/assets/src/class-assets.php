@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Assets\Semver;
+use Automattic\Jetpack\Assets\Shared_Stores_Assets;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use InvalidArgumentException;
 
@@ -467,6 +468,26 @@ class Assets {
 		if ( wp_scripts()->get_data( $handle, 'Jetpack::Assets::hascss' ) ) {
 			wp_enqueue_style( $handle );
 		}
+	}
+
+	/**
+	 * Re-hook the bootstraps an older copy's `actions.php` did not know about.
+	 *
+	 * Composer keys a `files` entry by package and path, so whichever copy's `vendor/autoload.php`
+	 * runs first is the only `actions.php` that ever runs — while classes still resolve to the
+	 * newest copy. See JETPACK-2649.
+	 *
+	 * Only re-hook static callables: `add_action()` dedupes those by `Class::method`, but closures
+	 * and `array( $object, 'method' )` key off `spl_object_id` and would register twice.
+	 *
+	 * Callers must run before `wp_loaded`, and recovery only reaches copies from assets 2.3.0
+	 * (#38430), when `Script_Data::configure` joined `actions.php`.
+	 *
+	 * @access private
+	 * @since $$next-version$$
+	 */
+	public static function ensure_package_bootstrap() {
+		Shared_Stores_Assets::configure();
 	}
 
 	/**
