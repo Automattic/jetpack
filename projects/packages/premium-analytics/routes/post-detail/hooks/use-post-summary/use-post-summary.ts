@@ -1,18 +1,13 @@
 /**
  * External dependencies
  */
-import { useStatsPost, useSiteHomeUrl } from '@jetpack-premium-analytics/data';
+import { usePostThumbnail, useStatsPost, useSiteHomeUrl } from '@jetpack-premium-analytics/data';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { POST_URL_SEARCH_PARAM } from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
-
-type MediaEntity = {
-	source_url?: string;
-	media_details?: { sizes?: { thumbnail?: { source_url?: string } } };
-};
 
 export type PostSummary = {
 	/** Post title for display. */
@@ -77,32 +72,7 @@ export function usePostSummary( postId: number ): PostSummary {
 	const { data, isLoading, isError } = useStatsPost( { postId, fields: [ 'post' ] } );
 	const post = data?.post;
 	const type = post?.post_type;
-
-	const imageUrl = useSelect(
-		select => {
-			if ( ! type || ! Number.isInteger( postId ) || postId <= 0 ) {
-				return undefined;
-			}
-
-			const core = select( coreStore ) as unknown as {
-				getEntityRecord: ( kind: string, name: string, key: number ) => unknown;
-			};
-
-			const entity = core.getEntityRecord( 'postType', type, postId ) as
-				| { featured_media?: number }
-				| undefined;
-			if ( ! entity?.featured_media ) {
-				return undefined;
-			}
-
-			const media = core.getEntityRecord( 'postType', 'attachment', entity.featured_media ) as
-				| MediaEntity
-				| undefined;
-
-			return media?.media_details?.sizes?.thumbnail?.source_url ?? media?.source_url ?? undefined;
-		},
-		[ postId, type ]
-	);
+	const imageUrl = usePostThumbnail( postId, type );
 
 	// Reads the same already-resolved post entity as the image (no extra
 	// request); its own selector avoids re-rendering on every store change.
