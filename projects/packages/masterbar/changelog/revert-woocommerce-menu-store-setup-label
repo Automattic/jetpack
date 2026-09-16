@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin menu: restore the default "WooCommerce" label for the WooCommerce menu item on Commerce and Commerce-trial sites, reverting the "Store setup" relabel.
