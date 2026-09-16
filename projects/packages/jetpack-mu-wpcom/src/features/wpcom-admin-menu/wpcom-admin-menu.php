@@ -496,15 +496,13 @@ function wpcom_add_jetpack_submenu() {
 	}
 
 	// Jetpack > Activity Log.
-	// Atomic sites on the wp-admin interface keep the native Activity Log page that the
-	// `jetpack-activity-log` package registers at `admin.php?page=jetpack-activity-log`.
-	// Everywhere else (Simple sites, and Atomic sites on the Calypso interface) that page
-	// is hidden and the menu links to wordpress.com/activity-log instead. If the native
-	// page is missing (for example, the user is not connected), fall back to the Calypso
-	// link so the menu never loses its Activity Log entry.
-	$uses_native_activity_log = ! $is_simple_site
-		&& get_option( 'wpcom_admin_interface' ) === 'wp-admin'
-		&& wpcom_has_submenu_page( 'jetpack', 'jetpack-activity-log' );
+	// Atomic sites use the native Activity Log page that the `jetpack-activity-log`
+	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
+	// interface the site uses: the Calypso Activity Log screen is being retired.
+	// Simple sites still hide that page and link to wordpress.com/activity-log. If the
+	// native page is missing on an Atomic site (for example, the user is not connected),
+	// fall back to the Calypso link so the menu never loses its Activity Log entry.
+	$uses_native_activity_log = ! $is_simple_site && wpcom_has_submenu_page( 'jetpack', 'jetpack-activity-log' );
 
 	if ( ! $uses_native_activity_log ) {
 		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
