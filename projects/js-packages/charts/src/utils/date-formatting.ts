@@ -1,10 +1,5 @@
+import { warnOnce } from './warn-once';
 import type { ChartFormatting } from '../types';
-
-/**
- * `process.env.NODE_ENV` is replaced by the bundler at build time. Declare a
- * minimal `process` locally so this file type-checks as source under `jetpack:src`.
- */
-declare const process: { env: Record< string, string | undefined > };
 
 // One `Intl.DateTimeFormat` per locale, zone and options triple. The axis formats
 // every bucket in the domain, and rebuilding the formatter is what costs; the tick
@@ -25,18 +20,6 @@ const getFormatter = (
 	}
 
 	return formatter;
-};
-
-const warned = new Set< string >();
-
-const warnOnce = ( key: string, message: string ): void => {
-	if ( warned.has( key ) || process.env.NODE_ENV === 'production' ) {
-		return;
-	}
-
-	warned.add( key );
-	// eslint-disable-next-line no-console
-	console.warn( `[Charts] ${ message }` );
 };
 
 const isUsable = ( formatting: ChartFormatting ): boolean => {

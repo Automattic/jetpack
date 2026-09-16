@@ -98,36 +98,68 @@ class VideoPress_Player_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * With the iframe embed disabled, the VideoJS player script should be
-	 * enqueued only once while each video still attaches its own inline
-	 * initialization. See #35926.
+	 * With the iframe embed disabled, each video gets a poster facade and the
+	 * boot script is enqueued once; the player bundle itself waits for the
+	 * first click. See #35926.
 	 */
-	public function test_non_iframe_path_enqueues_videojs_once_with_per_video_init() {
+	public function test_non_iframe_path_enqueues_boot_script_once_with_a_facade_per_video() {
 		$use_iframe = '__return_false';
 		add_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
 
-		( new VideoPress_Player( 'testguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
-		( new VideoPress_Player( 'otherguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
+		$first  = ( new VideoPress_Player( 'testguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
+		$second = ( new VideoPress_Player( 'otherguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
 
 		remove_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
 
+		$boot = array_keys( wp_scripts()->queue, 'videopress-inline-player', true );
+		$this->assertCount( 1, $boot, 'The inline player boot script should be enqueued exactly once.' );
+
 		$enqueued = array_keys( wp_scripts()->queue, 'videopress-videojs', true );
-		$this->assertCount( 1, $enqueued, 'videopress-videojs should be enqueued exactly once.' );
+		$this->assertCount( 0, $enqueued, 'Behind the facade the player bundle is fetched on click, not enqueued.' );
 
-		$styles = array_keys( wp_styles()->queue, 'videopress-videojs', true );
-		$this->assertCount( 1, $styles, 'The videopress-videojs stylesheet should be enqueued exactly once.' );
+		$styles = array_keys( wp_styles()->queue, 'videopress-inline-player', true );
+		$this->assertCount( 1, $styles, 'The facade stylesheet handle should be enqueued exactly once.' );
 
-		$inline = wp_scripts()->get_data( 'videopress-videojs', 'after' );
-		$inline = is_array( $inline ) ? implode( "\n", $inline ) : (string) $inline;
-		$this->assertStringContainsString(
-			'videopress("testguid", document.querySelector("#v-testguid")',
-			$inline,
-			'The first video should get its own inline initialization.'
-		);
-		$this->assertStringContainsString(
-			'videopress("otherguid", document.querySelector("#v-otherguid")',
-			$inline,
-			'The second video should get its own inline initialization.'
-		);
+		$this->assertStringContainsString( 'data-videopress-guid="testguid"', $first );
+		$this->assertStringContainsString( 'data-videopress-facade="1"', $first );
+		$this->assertStringContainsString( 'data-videopress-guid="otherguid"', $second );
+		$this->assertStringNotContainsString( '<iframe', $first . $second );
+	}
+
+	/**
+	 * An autoplaying video needs the player at once, so it skips the facade and enqueues the bundle.
+	 */
+	public function test_non_iframe_autoplay_enqueues_the_player_bundle() {
+		$use_iframe = '__return_false';
+		add_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
+
+		$html = ( new VideoPress_Player(
+			'testguid',
+			0,
+			array(
+				'cover'    => true,
+				'autoplay' => true,
+			)
+		) )->html5_dynamic_next();
+
+		remove_filter( 'jetpack_videopress_player_use_iframe', $use_iframe );
+
+		$this->assertStringNotContainsString( 'data-videopress-facade', $html );
+		$this->assertCount( 1, array_keys( wp_scripts()->queue, 'videopress-videojs', true ) );
+		$this->assertCount( 1, array_keys( wp_styles()->queue, 'videopress-videojs', true ) );
+	}
+
+	/**
+	 * The site setting alone switches the shortcode to the inline player.
+	 */
+	public function test_inline_player_setting_disables_the_iframe() {
+		update_option( 'videopress_inline_player_enabled', true );
+
+		$html = ( new VideoPress_Player( 'testguid', 0, array( 'cover' => true ) ) )->html5_dynamic_next();
+
+		delete_option( 'videopress_inline_player_enabled' );
+
+		$this->assertStringNotContainsString( '<iframe', $html );
+		$this->assertStringContainsString( 'data-videopress-guid="testguid"', $html );
 	}
 }

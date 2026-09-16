@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the SEO sidebar item when the SEO Tools module is not active.

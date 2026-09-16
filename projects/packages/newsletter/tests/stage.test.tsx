@@ -15,6 +15,7 @@ const mockInitialize = jest.fn();
 const mockSearch = jest.fn< { tab?: string }, [] >();
 const mockIsSimpleSite = jest.fn< boolean, [] >();
 const mockConnection = jest.fn< Record< string, unknown >, [] >();
+const mockGetNewsletterScriptData = jest.fn();
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -84,11 +85,13 @@ jest.mock( '../src/settings/newsletter-settings', () => ( {
 	NewsletterSettingsBody: () => null,
 } ) );
 
+jest.mock( '../routes/dashboard/components/overview-body', () => ( {
+	__esModule: true,
+	default: () => null,
+} ) );
+
 jest.mock( '../src/settings/script-data', () => ( {
-	getNewsletterScriptData: () => ( {
-		subscriberManagementEnabled: true,
-		tracksUserData: { userid: 1, username: 'tester' },
-	} ),
+	getNewsletterScriptData: () => mockGetNewsletterScriptData(),
 } ) );
 
 // NewsletterPage's render output is irrelevant for the analytics contract;
@@ -116,6 +119,12 @@ beforeEach( () => {
 	mockIsSimpleSite.mockReset();
 	mockIsSimpleSite.mockReturnValue( false );
 	mockConnection.mockReset();
+	mockGetNewsletterScriptData.mockReset();
+	mockGetNewsletterScriptData.mockReturnValue( {
+		subscriberManagementEnabled: true,
+		overviewEnabled: true,
+		tracksUserData: { userid: 1, username: 'tester' },
+	} );
 	mockConnection.mockReturnValue( {
 		isRegistered: false,
 		hasConnectedOwner: false,
@@ -141,6 +150,21 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 		render( <Stage /> );
 
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_tab_view', {
+			site_type: 'jetpack',
+			tab: 'overview',
+		} );
+	} );
+
+	it( 'records Subscribers as the landing tab when Overview is disabled', () => {
+		mockGetNewsletterScriptData.mockReturnValue( {
+			subscriberManagementEnabled: true,
+			overviewEnabled: false,
+			tracksUserData: { userid: 1, username: 'tester' },
+		} );
+
+		render( <Stage /> );
+
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_tab_view', {
 			site_type: 'jetpack',
 			tab: 'subscribers',
@@ -179,7 +203,7 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 		const { rerender } = render( <Stage /> );
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 
-		// Re-render without touching mockSearch — activeTab stays 'subscribers'.
+		// Re-render without touching mockSearch — activeTab stays 'overview'.
 		rerender( <Stage /> );
 
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
@@ -207,6 +231,8 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 
 describe( 'Newsletter dashboard Stage connection gate', () => {
 	it( 'shows the connection gate on a disconnected non-Simple site', () => {
+		mockSearch.mockReturnValue( { tab: 'subscribers' } );
+
 		render( <Stage /> );
 
 		expect( screen.getByTestId( 'connection-gate' ) ).toBeInTheDocument();
@@ -217,6 +243,7 @@ describe( 'Newsletter dashboard Stage connection gate', () => {
 		// Simple sites are hosted on WP.com and never carry a Jetpack
 		// connection; the subscriber endpoints resolve directly to WP.com.
 		mockIsSimpleSite.mockReturnValue( true );
+		mockSearch.mockReturnValue( { tab: 'subscribers' } );
 
 		render( <Stage /> );
 
@@ -226,6 +253,7 @@ describe( 'Newsletter dashboard Stage connection gate', () => {
 
 	it( 'shows the subscribers body on a fully connected non-Simple site', () => {
 		mockConnection.mockReturnValue( connected );
+		mockSearch.mockReturnValue( { tab: 'subscribers' } );
 
 		render( <Stage /> );
 
@@ -240,6 +268,7 @@ describe( 'Newsletter dashboard Stage import-poll gating', () => {
 	// import endpoint on the Settings tab, for connection-gated users, or on Settings-only sites.
 	it( 'enables the poll for a connected visitor on the Subscribers tab', () => {
 		mockConnection.mockReturnValue( connected );
+		mockSearch.mockReturnValue( { tab: 'subscribers' } );
 
 		render( <Stage /> );
 

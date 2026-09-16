@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Accept the configuration as a `jetpackConfig` global when webpack externals are unavailable.

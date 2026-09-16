@@ -3,18 +3,23 @@ jest.mock( '@wordpress/compose', () => ( {
 	useMediaQuery: jest.fn( () => false ),
 } ) );
 
-import { render, screen, within } from '@testing-library/react';
+import { TZDate } from '@date-fns/tz';
+import { configure, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useMediaQuery } from '@wordpress/compose';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 
+configure( { reactStrictMode: true } );
+
 const JULY_2026 = {
-	from: new Date( 2026, 6, 1, 0, 0, 0, 0 ),
-	to: new Date( 2026, 6, 31, 23, 59, 59, 999 ),
+	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),
+	to: new TZDate( 2026, 6, 31, 23, 59, 59, 999, 'UTC' ),
 };
 
-function renderDropdown( overrides: Partial< Parameters< typeof DatePeriodDropdown >[ 0 ] > = {} ) {
-	const props = {
+type DropdownProps = Parameters< typeof DatePeriodDropdown >[ 0 ];
+
+function baseProps() {
+	return {
 		appliedPresetId: 'last-30-days' as const,
 		appliedRange: JULY_2026,
 		range: JULY_2026,
@@ -24,12 +29,19 @@ function renderDropdown( overrides: Partial< Parameters< typeof DatePeriodDropdo
 		onApply: jest.fn(),
 		onCancel: jest.fn(),
 		canApply: false,
-		...overrides,
 	};
+}
+
+function renderDropdown( overrides: Partial< DropdownProps > = {} ) {
+	const props = { ...baseProps(), ...overrides };
 
 	render( <DatePeriodDropdown { ...props } /> );
 
 	return props;
+}
+
+function renderDropdownView( overrides: Partial< DropdownProps > = {} ) {
+	return render( <DatePeriodDropdown { ...baseProps() } { ...overrides } /> );
 }
 
 const openMenu = async ( user: ReturnType< typeof userEvent.setup >, name: string ) =>
@@ -63,13 +75,27 @@ describe( 'DatePeriodDropdown', () => {
 			'Last 24 hours',
 			'Last 7 days',
 			'Last 30 days',
-			'Last 90 days',
-			'Last 365 days',
+			'Month to date',
 			'Last month',
+			'Year to date',
 			'Last 12 months',
-			'Last year',
 			'Custom range',
 		] );
+	} );
+
+	// A saved layout or a bookmark can still carry a period the design has since
+	// dropped from the menu; the trigger names it rather than falling back to
+	// bare dates.
+	it( 'names an applied period the menu no longer offers', async () => {
+		const user = userEvent.setup();
+		renderDropdown( { appliedPresetId: 'last-90-days' } );
+
+		expect( screen.getByRole( 'button', { name: /Last 90 days/ } ) ).toBeInTheDocument();
+
+		await openMenu( user, 'Last 90 days' );
+		expect(
+			screen.queryByRole( 'menuitemradio', { name: 'Last 90 days' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'checks the applied period', async () => {
@@ -271,5 +297,48 @@ describe( 'DatePeriodDropdown surface options', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
 		expect( onOpenChange ).toHaveBeenLastCalledWith( false );
+	} );
+} );
+
+describe( 'DatePeriodDropdown attention', () => {
+	// eslint-disable-next-line testing-library/no-node-access -- the fill is aria-hidden by design, so the DOM is the only place to reach it.
+	const overlay = () => document.querySelector( '.date-period-dropdown__attention' );
+
+	it( 'draws nothing without an attention id', () => {
+		renderDropdown();
+
+		expect( overlay() ).toBeNull();
+	} );
+
+	it( 'draws the attention over the trigger while the id is set', () => {
+		const view = renderDropdownView( { attentionId: 1 } );
+
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toContainElement(
+			overlay() as HTMLElement
+		);
+
+		view.rerender( <DatePeriodDropdown { ...baseProps() } /> );
+		expect( overlay() ).toBeNull();
+	} );
+
+	it( 'restarts for a new id by drawing a fresh fill', () => {
+		const view = renderDropdownView( { attentionId: 1 } );
+		const first = overlay();
+
+		view.rerender( <DatePeriodDropdown { ...baseProps() } attentionId={ 2 } /> );
+
+		expect( overlay() ).not.toBeNull();
+		expect( overlay() ).not.toBe( first );
+	} );
+
+	it( 'keeps an open menu open when the attention changes', async () => {
+		const user = userEvent.setup();
+		const props = baseProps();
+		const view = render( <DatePeriodDropdown { ...props } /> );
+		await openMenu( user, 'Last 30 days' );
+
+		view.rerender( <DatePeriodDropdown { ...props } attentionId={ 1 } /> );
+
+		expect( screen.getByRole( 'menu', { name: 'Period' } ) ).toBeInTheDocument();
 	} );
 } );

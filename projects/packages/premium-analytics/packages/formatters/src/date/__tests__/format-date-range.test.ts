@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { TZDate } from '@date-fns/tz';
 import { setSettings } from '@wordpress/date';
 import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 /**
@@ -89,7 +90,7 @@ describe( 'formatDateRange', () => {
 
 		it( 'falls back instead of throwing when one date is invalid', () => {
 			expect(
-				formatDateRange( { from: new Date( Number.NaN ), to: utcDate( 2025, 6, 21 ) } )
+				formatDateRange( { from: new TZDate( Number.NaN, 'UTC' ), to: utcDate( 2025, 6, 21 ) } )
 			).toBe( `Invalid date${ FALLBACK_SEP }June 21, 2025` );
 		} );
 	} );

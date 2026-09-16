@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Assets\Semver;
+use Automattic\Jetpack\Assets\Shared_Stores_Assets;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use InvalidArgumentException;
 
@@ -467,6 +468,19 @@ class Assets {
 		if ( wp_scripts()->get_data( $handle, 'Jetpack::Assets::hascss' ) ) {
 			wp_enqueue_style( $handle );
 		}
+	}
+
+	/**
+	 * Re-hook the bootstraps an older copy's `actions.php` did not know about. See JETPACK-2649.
+	 *
+	 * Static callables only: `add_action()` dedupes those, but closures and object callables would
+	 * register twice. Callers must run before `wp_loaded`.
+	 *
+	 * @access private
+	 * @since $$next-version$$
+	 */
+	public static function ensure_package_bootstrap() {
+		Shared_Stores_Assets::configure();
 	}
 
 	/**

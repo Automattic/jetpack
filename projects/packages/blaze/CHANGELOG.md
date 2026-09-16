@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.2] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
 ## [0.29.1] - 2026-09-08
 ### Changed
 - Update package dependencies. [#51701]
@@ -913,6 +917,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.29.2]: https://github.com/automattic/jetpack-blaze/compare/v0.29.1...v0.29.2
 [0.29.1]: https://github.com/automattic/jetpack-blaze/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/automattic/jetpack-blaze/compare/v0.28.5...v0.29.0
 [0.28.5]: https://github.com/automattic/jetpack-blaze/compare/v0.28.4...v0.28.5

@@ -123,18 +123,9 @@ describe( 'PieChart', () => {
 		test( 'hides labels when showLabels is false', () => {
 			renderWithTheme( { showLabels: false } );
 
-			// When showLabels is false, the chart should not display the data labels
-			// We filter out measurement elements by checking that text is not inside measurement element
-			const labelElements = screen.queryAllByText( ( content, element ) => {
-				// Check if this text element is not the measurement element
-				return (
-					( content === 'A' || content === 'B' ) &&
-					element?.id !== '__react_svg_text_measurement_id'
-				);
-			} );
-
-			// Labels should not be present in the rendered output (excluding measurement text)
-			expect( labelElements ).toHaveLength( 0 );
+			// A plain query, so this also fails if the measurement node stops being
+			// ignored — see tests/setup-text-measurement.js.
+			expect( screen.queryAllByText( /^[AB]$/ ) ).toHaveLength( 0 );
 		} );
 
 		test( 'shows labels when showLabels is explicitly true', () => {

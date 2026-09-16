@@ -148,6 +148,7 @@ describe( 'DevVersionNotice', () => {
 		expect(
 			screen.getByText( 'You are currently running a development version of Jetpack.' )
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Submit Beta feedback' } ) ).toBeInTheDocument();
+		// The accessible name carries the design system's "(opens in a new tab)" suffix.
+		expect( screen.getByRole( 'link', { name: /Submit Beta feedback/ } ) ).toBeInTheDocument();
 	} );
 } );

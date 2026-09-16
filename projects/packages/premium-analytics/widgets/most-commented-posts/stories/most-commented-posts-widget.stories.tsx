@@ -35,7 +35,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Top commented posts" widget. Ranks the posts and pages that receive the most comments, linking each row to the published post. One half of the Jetpack Stats Comments module; "Top commented authors" covers the other.',
+					'The "All-time most commented posts" widget. Ranks the posts and pages that receive the most comments, linking each row to the published post. One half of the Jetpack Stats Comments module; "All-time most commented authors" covers the other.',
 			},
 		},
 	},

@@ -171,8 +171,7 @@ export default defineConfig(
 							// stylesheet side-effect imports: those are plain
 							// CSS, not the library, so they carry none of the
 							// bundling cost.
-							regex:
-								'^(@automattic/charts|@automattic/ui|@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
+							regex: '^(@automattic/charts|@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
 							message:
 								'Import these from @jetpack-premium-analytics/externals instead: it compiles them once into a shared script module rather than into every module that imports them. Missing an export? Add it to packages/externals/src/index.ts.',
 						},
@@ -212,7 +211,7 @@ export default defineConfig(
 								'Import chart components from @jetpack-premium-analytics/widgets-toolkit instead: it is a shared script module, so charts is bundled once for the whole dashboard. Missing a component? Re-export it from the toolkit "Charts passthrough" section.',
 						},
 						{
-							regex: '^(@automattic/ui|@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
+							regex: '^(@wordpress/ui|@wordpress/dataviews)(/(?!.*\\.css$).*)?$',
 							message:
 								'Import these from @jetpack-premium-analytics/externals instead: it compiles them once into a shared script module rather than into every bundle that imports them. Missing an export? Add it to packages/externals/src/index.ts.',
 						},

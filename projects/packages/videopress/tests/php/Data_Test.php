@@ -578,4 +578,19 @@ class Data_Test extends BaseTestCase {
 
 		delete_option( 'videopress_player_preload_disabled' );
 	}
+
+	/**
+	 * Test that the inline player is off by default, honors the stored option, and is exposed in the settings.
+	 */
+	public function test_inline_player_enabled_option() {
+		delete_option( 'videopress_inline_player_enabled' );
+		$this->assertFalse( Data::get_videopress_inline_player_enabled() );
+		$this->assertFalse( Data::get_videopress_settings()['videopress_inline_player_enabled'] );
+
+		update_option( 'videopress_inline_player_enabled', true );
+		$this->assertTrue( Data::get_videopress_inline_player_enabled() );
+		$this->assertTrue( Data::get_videopress_settings()['videopress_inline_player_enabled'] );
+
+		delete_option( 'videopress_inline_player_enabled' );
+	}
 }

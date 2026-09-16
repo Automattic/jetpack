@@ -12,31 +12,22 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 
-require_once __DIR__ . '/class-expiry-wpcom-request.php';
+require_once __DIR__ . '/class-expiry-wpcom.php';
 
 /**
  * Only the WordPress.com account that bought a subscription can renew it; the
- * store refuses anyone else at checkout. Every admin sees the notices, so each
- * surface asks this before offering a renewal.
+ * store refuses anyone else at checkout, so each surface asks this before
+ * offering a renewal.
  */
 class Expiry_Owner {
 
 	const CACHE_KEY_PREFIX = 'wpcom_expiry_notices_owner_';
-	const CACHE_TTL        = 12 * HOUR_IN_SECONDS;
-
-	// A lookup that never got an answer is not an answer. Cached only long
-	// enough to stop an outage being re-tried on every pageview.
-	const FAILURE_TTL = 5 * MINUTE_IN_SECONDS;
-
-	// Stored in place of an owner so a failed lookup is cached too.
-	const UNKNOWN = 'unknown';
 
 	/**
-	 * Whether the current user can renew the plan the state describes. Ask it
-	 * last: the first answer per cache period is a store read or a request.
+	 * Whether the current user can renew the plan the state describes.
 	 *
-	 * A viewer with no WordPress.com identity is never the owner. A failed lookup
-	 * reads as owner: a stale "Renew now" costs one refused checkout, hiding it costs the site.
+	 * A viewer with no WordPress.com identity never is. A failed lookup reads
+	 * as owner: a stale "Renew now" costs one refused checkout, hiding it costs the site.
 	 *
 	 * @param array<string,mixed> $state State from Expiry_Data::get_expiry_state().
 	 */
@@ -53,10 +44,8 @@ class Expiry_Owner {
 	/**
 	 * The current user's WordPress.com user ID, or null when they have none.
 	 *
-	 * On Atomic, signing in through WordPress.com leaves the ID on the local
-	 * user, and a connection token can name anyone else. Null is an admin
-	 * created on the site itself, with no WordPress.com account to have bought
-	 * the plan with.
+	 * On Atomic the ID comes from the SSO user meta or the connection token;
+	 * null is an admin created on the site itself.
 	 */
 	public static function current_user_wpcom_id(): ?int {
 		$user_id = get_current_user_id();
@@ -73,9 +62,6 @@ class Expiry_Owner {
 			return (int) $wpcom_user_id;
 		}
 
-		if ( ! class_exists( Connection_Manager::class ) ) {
-			return null;
-		}
 		$user_data = ( new Connection_Manager() )->get_connected_user_data( $user_id );
 		if ( ! is_array( $user_data ) || empty( $user_data['ID'] ) || ! is_numeric( $user_data['ID'] ) ) {
 			return null;
@@ -87,40 +73,31 @@ class Expiry_Owner {
 	 * The WordPress.com user ID of the account that bought the plan, or null
 	 * when it cannot be established.
 	 *
-	 * Cached on both platforms: the Simple read pulls in the whole billing
-	 * stack, and the Atomic one is a request.
-	 *
 	 * @param array<string,mixed> $state State from Expiry_Data::get_expiry_state().
 	 */
 	public static function owner_id( array $state ): ?int {
-		$subscription_id = isset( $state['subscription_id'] ) ? (string) $state['subscription_id'] : '';
-		$product_slug    = isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '';
+		$subscription_id = (string) ( $state['subscription_id'] ?? '' );
+		$product_slug    = (string) ( $state['product_slug'] ?? '' );
 		if ( '' === $subscription_id && '' === $product_slug ) {
 			return null;
 		}
 
-		$cache_key = self::cache_key( $state );
-		$cached    = get_transient( $cache_key );
-		if ( self::UNKNOWN === $cached ) {
-			return null;
-		}
-		if ( is_numeric( $cached ) && (int) $cached > 0 ) {
-			return (int) $cached;
-		}
+		$owner_id = Expiry_Wpcom::remember(
+			self::cache_key( $state ),
+			static function () use ( $subscription_id, $product_slug ): ?string {
+				$upgrades = Constants::is_true( 'IS_WPCOM' )
+					? self::simple_site_upgrades()
+					: Expiry_Wpcom::get_as_blog( '/upgrades?site=%d' );
+				$owner_id = is_array( $upgrades ) ? self::pick_owner_id( $upgrades, $subscription_id, $product_slug ) : null;
+				return null === $owner_id ? null : (string) $owner_id;
+			}
+		);
 
-		$upgrades = Constants::is_true( 'IS_WPCOM' ) ? self::simple_site_upgrades() : self::atomic_site_upgrades();
-		$owner_id = null === $upgrades ? null : self::pick_owner_id( $upgrades, $subscription_id, $product_slug );
-		if ( null === $owner_id ) {
-			set_transient( $cache_key, self::UNKNOWN, self::FAILURE_TTL );
-			return null;
-		}
-
-		set_transient( $cache_key, $owner_id, self::CACHE_TTL );
-		return $owner_id;
+		return null === $owner_id ? null : (int) $owner_id;
 	}
 
 	/**
-	 * Where the owner of the plan a state describes is cached.
+	 * Where the owner of the plan a state describes is remembered.
 	 *
 	 * Keyed by subscription so a renewal that issues a new one, possibly to a
 	 * different account, starts from a clean answer.
@@ -128,35 +105,26 @@ class Expiry_Owner {
 	 * @param array<string,mixed> $state State from Expiry_Data::get_expiry_state().
 	 */
 	public static function cache_key( array $state ): string {
-		$subscription_id = isset( $state['subscription_id'] ) ? (string) $state['subscription_id'] : '';
-		$product_slug    = isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '';
-		return self::CACHE_KEY_PREFIX . ( '' !== $subscription_id ? $subscription_id : $product_slug );
+		$subscription_id = (string) ( $state['subscription_id'] ?? '' );
+		return self::CACHE_KEY_PREFIX . ( '' !== $subscription_id ? $subscription_id : (string) ( $state['product_slug'] ?? '' ) );
 	}
 
 	/**
-	 * Pure: the owner of one subscription out of a site's upgrade list, matched
-	 * on the subscription ID, which is what the store refuses renewals against.
-	 * A purchase synced before the site knew its ID falls back to the product
-	 * slug, which on a one-plan site names the same subscription.
+	 * The owner of one subscription out of a site's upgrade list.
 	 *
-	 * @param array<int,mixed> $upgrades        Billing upgrade objects, as `/upgrades?site=` returns them.
-	 *                                          Anything that is not an object is skipped.
+	 * Matched on the subscription ID, which is what the store refuses renewals
+	 * against; a purchase synced before the site knew its ID falls back to the
+	 * product slug, which on a one-plan site names the same subscription.
+	 *
+	 * @param array<int,mixed> $upgrades        Upgrade objects as `/upgrades?site=` returns them.
 	 * @param string           $subscription_id The subscription to find, or '' when unknown.
 	 * @param string           $product_slug    Fallback match when the ID is unknown.
 	 */
 	public static function pick_owner_id( array $upgrades, string $subscription_id, string $product_slug ): ?int {
 		foreach ( $upgrades as $upgrade ) {
-			if ( ! is_object( $upgrade ) ) {
+			if ( ! is_object( $upgrade ) || ! self::upgrade_matches( $upgrade, $subscription_id, $product_slug ) ) {
 				continue;
 			}
-
-			$matches = '' !== $subscription_id
-				? ( isset( $upgrade->ID ) && (string) $upgrade->ID === $subscription_id )
-				: ( '' !== $product_slug && isset( $upgrade->product_slug ) && $upgrade->product_slug === $product_slug );
-			if ( ! $matches ) {
-				continue;
-			}
-
 			if ( ! isset( $upgrade->user_id ) || ! is_numeric( $upgrade->user_id ) || (int) $upgrade->user_id <= 0 ) {
 				return null;
 			}
@@ -167,11 +135,24 @@ class Expiry_Owner {
 	}
 
 	/**
+	 * Whether an upgrade entry is the subscription being looked for.
+	 *
+	 * @param object $upgrade         Upgrade object.
+	 * @param string $subscription_id The subscription to find, or '' when unknown.
+	 * @param string $product_slug    Fallback match when the ID is unknown.
+	 */
+	private static function upgrade_matches( object $upgrade, string $subscription_id, string $product_slug ): bool {
+		if ( '' !== $subscription_id ) {
+			return isset( $upgrade->ID ) && (string) $upgrade->ID === $subscription_id;
+		}
+		return '' !== $product_slug && isset( $upgrade->product_slug ) && $upgrade->product_slug === $product_slug;
+	}
+
+	/**
 	 * The site's subscriptions, read straight from the store on Simple.
 	 *
-	 * The same objects the endpoint serialises for Atomic, so both platforms
-	 * pick the owner the same way. The store class is not loaded on its own:
-	 * its loader is required first, and reached only where it ships.
+	 * The same objects the endpoint serialises for Atomic. The store class
+	 * ships only on WordPress.com and is not loaded on its own.
 	 *
 	 * @return array<int,object>|null Null where the store cannot be read.
 	 */
@@ -197,24 +178,5 @@ class Expiry_Owner {
 		}
 
 		return is_array( $upgrades ) ? $upgrades : null;
-	}
-
-	/**
-	 * The site's subscriptions, fetched from WordPress.com on Atomic.
-	 *
-	 * The synced purchases on an Atomic site do not carry their owner, and are
-	 * only sent again on the next subscription event, so this asks instead.
-	 * Version 1.2 of `/upgrades` accepts the blog token when a site is named.
-	 *
-	 * @return array<int,object>|null Null on any failure.
-	 */
-	private static function atomic_site_upgrades(): ?array {
-		$site_id = class_exists( '\Jetpack_Options' ) ? \Jetpack_Options::get_option( 'id' ) : 0;
-		if ( ! $site_id ) {
-			return null;
-		}
-
-		$body = Expiry_Wpcom_Request::get_as_blog( sprintf( '/upgrades?site=%d', (int) $site_id ) );
-		return is_array( $body ) ? $body : null;
 	}
 }

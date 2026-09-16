@@ -1,13 +1,25 @@
+// The scroll container below the page header, so the tabs scroll away with
+// the content while the section header pins at its top. The scope is what
+// lets the header's pin marker reach the header beside it.
 .root {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-lg);
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+	timeline-scope: --section-header-pin;
 }
 
 .sections {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
+	// The page gutter the tab bar and the pinned header carry themselves.
+	padding-inline: var(--wpds-dimension-padding-2xl);
+	padding-block-end: var(--wpds-dimension-padding-2xl);
+
+	// Caps every layer the tables raise (sticky columns, toolbars) under the
+	// pinned header, which then only has to outrank this box rather than
+	// z-index values it does not own.
+	isolation: isolate;
 }
 
 .section {

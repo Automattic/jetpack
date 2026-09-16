@@ -73,6 +73,17 @@ class Data {
 	}
 
 	/**
+	 * Gets whether embeds render an inline player instead of one iframe per video.
+	 *
+	 * Iframes are the default, so this opt-in option defaults to false.
+	 *
+	 * @return boolean If embeds should mount players in the page from one shared player script.
+	 */
+	public static function get_videopress_inline_player_enabled() {
+		return boolval( get_option( 'videopress_inline_player_enabled', false ) );
+	}
+
+	/**
 	 * Gets the VideoPress Settings.
 	 *
 	 * @return array The settings as an associative array.
@@ -93,6 +104,7 @@ class Data {
 			'videopress_videos_private_for_site' => self::get_videopress_videos_private_for_site(),
 			'videopress_auto_subtitles_disabled' => self::get_videopress_auto_subtitles_disabled(),
 			'videopress_player_preload_disabled' => self::get_videopress_player_preload_disabled(),
+			'videopress_inline_player_enabled'   => self::get_videopress_inline_player_enabled(),
 			'site_is_private'                    => $site_is_private,
 			'site_type'                          => $site_type,
 		);

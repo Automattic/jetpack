@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "322ae0393abf28902a8b7658c32ea20b",
+    "content-hash": "8fdd29caa0b70a6ffa13f148b3b55010",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -667,10 +667,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "fcb96cfb4a922c4aa12d8830738c3843f61b62dd"
+                "reference": "9cec01e1810b43fd6b6a6f34cfd246aa5d1a67ad"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "php": ">=7.4"
             },
@@ -704,12 +705,12 @@
                 "build-production": [
                     "pnpm run build-production"
                 ],
+                "typecheck": [
+                    "pnpm run typecheck"
+                ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
-                ],
-                "typecheck": [
-                    "pnpm run typecheck"
                 ]
             },
             "license": [
@@ -891,7 +892,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "66d6a82122b9d11d64cb9de0541c52cf865ea739"
+                "reference": "e4db513a37153bd0b72e183083de7f94d89819bc"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -928,7 +929,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.1.x-dev"
+                    "dev-trunk": "9.2.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2828,16 +2829,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.8",
+            "version": "v2.11.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "0c058d67c384d15752691402dd8031824387b6da"
+                "reference": "01dacf401792f455da725fa07657f2a031d06628"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/0c058d67c384d15752691402dd8031824387b6da",
-                "reference": "0c058d67c384d15752691402dd8031824387b6da",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/01dacf401792f455da725fa07657f2a031d06628",
+                "reference": "01dacf401792f455da725fa07657f2a031d06628",
                 "shasum": ""
             },
             "require-dev": {
@@ -2879,7 +2880,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-09-03T14:06:44+00:00"
+            "time": "2026-09-16T13:59:30+00:00"
         },
         {
             "name": "automattic/woocommerce-analytics",

@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
-import Gridicon from 'gridicons';
+import gridiconsModule from 'gridicons';
 import PropTypes from 'prop-types';
 import { PRODUCT_STATUSES } from '../../../constants';
 import {
@@ -19,6 +19,10 @@ import ProductCard from '../../connected-product-card';
 import { InfoTooltip } from '../../info-tooltip';
 import LoadingBlock from '../../loading-block';
 import styles from './style.module.scss';
+
+// gridicons is CJS-only: esbuild applies Node's ESM interop and hands over the whole
+// module.exports, while webpack unwraps the Babel `__esModule` default for us.
+const Gridicon = gridiconsModule.default ?? gridiconsModule;
 
 const productSlug = PRODUCT_SLUGS.BACKUP;
 

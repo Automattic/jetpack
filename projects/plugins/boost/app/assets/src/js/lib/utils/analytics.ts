@@ -3,6 +3,20 @@ import analytics from '@automattic/jetpack-analytics';
 export type TracksEventProperties = { [ key: string ]: string | number };
 
 /**
+ * Derive a page-view event name from a route pathname.
+ *
+ * A bare `/` becomes `settings`, since that route has no path of its own.
+ *
+ * @param {string} pathname - Route pathname, e.g. `/cache-debug-log`.
+ * @return {string} Event name, minus the `boost_` prefix.
+ */
+export function getPageViewEventName( pathname: string ): string {
+	const path = pathname.replace( /[-/]/g, '_' );
+
+	return `page_view${ path === '_' ? '_settings' : path }`;
+}
+
+/**
  * Send an event to Tracks.
  *
  * @param {string}                eventName Event name, minus the jetpack_boost_ prefix.
@@ -22,7 +36,7 @@ export async function recordBoostEvent(
 			jpTracksAJAX
 				.record_ajax_event( `boost_${ eventName }`, 'click', eventProp )
 				.done( resolve )
-				.fail( xhr => {
+				.fail( ( xhr: { responseText: string } ) => {
 					// eslint-disable-next-line no-console
 					console.log(
 						`Recording event 'boost_${ eventName }' failed with error: ${ xhr.responseText }`

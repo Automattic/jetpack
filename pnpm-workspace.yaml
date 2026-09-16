@@ -37,8 +37,7 @@ minimumReleaseAgeExclude:
   - '@wordpress/*'
   - 'gridicons'
   - 'i18n-calypso'
-  # Security update: fast-uri@3.1.7
-  - fast-uri@3.1.7
+
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
@@ -54,11 +53,10 @@ strictDepBuilds: true
 verifyDepsBeforeRun: install
 allowBuilds:
   # Tries to download/install stuff if optional deps weren't installed.
-  '@swc/core': false
   esbuild: false
   unrs-resolver: false
-  # Tries to rebuild its bundled libs if a newer version of libvips-dev is installed, which probably isn't.
-  sharp: false
+  # Tries to rebuild itself if an environment variable is set.
+  '@parcel/watcher': false
   # Attempt to show "remember to install other stuff" spam.
   svelte-preprocess: false
   # Attempt to show "support me" spam.
@@ -71,8 +69,6 @@ blockExoticSubdeps: true
 
 # Some optional dependencies we don't actually need.
 ignoredOptionalDependencies:
-  - '@oxc-parser/binding-wasm32-wasi' # https://github.com/oxc-project/oxc/issues/21038
-  - '@rolldown/binding-wasm32-wasi' # https://github.com/rolldown/rolldown/issues/8974
   - sass-embedded-all-unknown # Brings in `sass`; platforms we support should have a binary package instead of this.
   - sass-embedded-unknown-all # Brings in `sass`; platforms we support should have a binary package instead of this.
 
