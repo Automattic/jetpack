@@ -1,10 +1,11 @@
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import BoostPage from '../../_inc/components/boost-page';
+import { OVERVIEW_MODULES_CHANGE_EVENT } from '../../_inc/overview/lib/modules-state-bridge';
 import { requestDataSync } from '../../_inc/overview/lib/use-modules-state';
 import Overview from '../../_inc/overview/overview';
 import {
@@ -61,15 +62,12 @@ function DashboardStage() {
 	const navigate = useNavigate();
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const lastSubpage = useRef( subpage );
-	const onboardingPollDeadline = useRef( 0 );
+	const queryClient = useQueryClient();
 	const { data: onboarding, refetch } = useQuery( {
 		queryKey: [ 'getting_started' ],
 		queryFn: async () => ( await requestDataSync( 'getting_started' ) ) === true,
 		initialData: window.jetpack_boost_ds?.getting_started?.value === true,
 		staleTime: Infinity,
-		// Getting Started navigates before its save lands, so keep reading until it reports false.
-		refetchInterval: query =>
-			query.state.data === true && Date.now() < onboardingPollDeadline.current ? 1000 : false,
 	} );
 	const [ headerAction, setHeaderAction ] = useState< ReactNode >( null );
 	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
@@ -101,7 +99,6 @@ function DashboardStage() {
 			lastSubpage.current = next;
 			setSubpage( next );
 			if ( previous === 'getting-started' ) {
-				onboardingPollDeadline.current = Date.now() + 15000;
 				void refetch();
 			}
 			if ( ! next && ( previous === 'cache-debug-log' || previous === 'critical-css-advanced' ) ) {
@@ -109,6 +106,17 @@ function DashboardStage() {
 			}
 		} );
 	}, [ goToTab, refetch ] );
+
+	// Getting Started navigates before its save lands; the webpack app relays the save once it does.
+	useEffect( () => {
+		const onRelayedChange = ( event: Event ) => {
+			if ( ( event as CustomEvent< string > ).detail === 'getting_started' ) {
+				queryClient.invalidateQueries( { queryKey: [ 'getting_started' ] } );
+			}
+		};
+		window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onRelayedChange );
+		return () => window.removeEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onRelayedChange );
+	}, [ queryClient ] );
 
 	return (
 		<BoostPage

@@ -6,7 +6,6 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
-		"@automattic/jetpack-react-data-sync-client": "workspace:*",
 		"@tanstack/react-query": "5.102.8",
 		"@types/react": "18.3.31",
 		"@wordpress/admin-ui": "2.10.0",

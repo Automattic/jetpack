@@ -3,6 +3,7 @@ import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { OVERVIEW_MODULES_CHANGE_EVENT } from '../../_inc/overview/lib/modules-state-bridge';
 import { requestDataSync } from '../../_inc/overview/lib/use-modules-state';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
@@ -10,6 +11,7 @@ import type { ReactNode } from 'react';
 const mockNavigate = jest.fn();
 
 jest.mock( '../../_inc/overview/lib/use-modules-state', () => ( {
+	...jest.requireActual( '../../_inc/overview/lib/use-modules-state' ),
 	requestDataSync: jest.fn(),
 } ) );
 
@@ -86,6 +88,9 @@ beforeEach( () => {
 afterEach( () => {
 	jest.useRealTimers();
 } );
+
+const relayChange = ( key: string ) =>
+	window.dispatchEvent( new CustomEvent( OVERVIEW_MODULES_CHANGE_EVENT, { detail: key } ) );
 
 const setGettingStarted = ( value: boolean ) => {
 	window.jetpack_boost_ds = {
@@ -241,10 +246,14 @@ describe( 'Boost dashboard stage', () => {
 		window.removeEventListener( 'jetpack-boost:route-ready', routeReady );
 	} );
 
-	it( 'keeps the loader until a read after leaving Getting Started reports false', async () => {
+	it( 'keeps the loader through a pending save until the relayed read reports false', async () => {
 		jest.useFakeTimers();
 		setGettingStarted( true );
-		jest.mocked( requestDataSync ).mockResolvedValueOnce( true ).mockResolvedValue( false );
+		jest
+			.mocked( requestDataSync )
+			.mockResolvedValueOnce( true )
+			.mockResolvedValueOnce( true )
+			.mockResolvedValue( false );
 		window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
 		render( <Stage /> );
 
@@ -255,13 +264,20 @@ describe( 'Boost dashboard stage', () => {
 		expect( requestDataSync ).toHaveBeenCalledTimes( 1 );
 		expect( requestDataSync ).toHaveBeenCalledWith( 'getting_started' );
 		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
 
 		await act( async () => {
-			await jest.advanceTimersByTimeAsync( 1000 );
+			relayChange( 'getting_started' );
 		} );
 
 		expect( requestDataSync ).toHaveBeenCalledTimes( 2 );
+		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+
+		await act( async () => {
+			relayChange( 'getting_started' );
+		} );
+
+		expect( requestDataSync ).toHaveBeenCalledTimes( 3 );
 		await expect( screen.findByText( 'Performance Overview' ) ).resolves.toHaveAttribute(
 			'data-visible',
 			'true'
@@ -269,37 +285,33 @@ describe( 'Boost dashboard stage', () => {
 		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
 
 		await act( async () => {
-			await jest.advanceTimersByTimeAsync( 5000 );
+			await jest.advanceTimersByTimeAsync( 30000 );
 		} );
-		expect( requestDataSync ).toHaveBeenCalledTimes( 2 );
+		expect( requestDataSync ).toHaveBeenCalledTimes( 3 );
 	} );
 
-	it( 'stops polling after fifteen seconds and keeps the loader', async () => {
-		jest.useFakeTimers();
+	it( 'clears the loader when a relayed getting_started change reads false', async () => {
 		setGettingStarted( true );
-		jest.mocked( requestDataSync ).mockResolvedValue( true );
-		window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
+		jest.mocked( requestDataSync ).mockResolvedValue( false );
 		render( <Stage /> );
 
 		await act( async () => {
-			await jest.advanceTimersByTimeAsync( 2000 );
+			relayChange( 'modules_state' );
 		} );
+
 		expect( requestDataSync ).not.toHaveBeenCalled();
-
-		await act( async () => {
-			window.history.replaceState( null, '', '/?page=jetpack-boost' );
-			await jest.advanceTimersByTimeAsync( 16000 );
-		} );
-		const requestCount = jest.mocked( requestDataSync ).mock.calls.length;
-		expect( requestCount ).toBeGreaterThanOrEqual( 14 );
-		expect( requestCount ).toBeLessThanOrEqual( 17 );
-
-		await act( async () => {
-			await jest.advanceTimersByTimeAsync( 5000 );
-		} );
-		expect( requestDataSync ).toHaveBeenCalledTimes( requestCount );
 		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+
+		await act( async () => {
+			relayChange( 'getting_started' );
+		} );
+
+		expect( requestDataSync ).toHaveBeenCalledWith( 'getting_started' );
+		await expect( screen.findByText( 'Performance Overview' ) ).resolves.toHaveAttribute(
+			'data-visible',
+			'true'
+		);
+		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows Overview without a loader once onboarding is done', () => {
