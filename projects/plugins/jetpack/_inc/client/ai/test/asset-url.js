@@ -14,7 +14,10 @@ describe( 'assetUrl', () => {
 	} );
 
 	test( 'does not double the separator when pluginUrl has a trailing slash', () => {
-		window.jetpackAiSettings = { pluginUrl: 'https://example.com/jetpack/', assetsVersion: '1.2.3' };
+		window.jetpackAiSettings = {
+			pluginUrl: 'https://example.com/jetpack/',
+			assetsVersion: '1.2.3',
+		};
 
 		expect( assetUrl( 'build-page.webp' ) ).toBe(
 			'https://example.com/jetpack/images/ai-hub/build-page.webp?ver=1.2.3'
