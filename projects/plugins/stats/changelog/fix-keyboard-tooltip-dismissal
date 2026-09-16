@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Return focus to bar charts after pressing Escape, and show the tooltip for the bar under the pointer.
+Return focus to bar charts after pressing Escape, and select the bar under the pointer for tooltips and pointer callbacks.

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Bar chart: Show the tooltip for the bar under the pointer.
+Bar chart: Select the bar under the pointer for tooltips and pointer callbacks.
