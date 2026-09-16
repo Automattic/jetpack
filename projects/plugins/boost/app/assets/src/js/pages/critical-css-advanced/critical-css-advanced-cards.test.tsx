@@ -90,6 +90,24 @@ describe( 'CriticalCssAdvancedCards', () => {
 		expect( screen.queryByRole( 'heading', { level: 2 } ) ).toBeNull();
 	} );
 
+	it( 'keeps a provider’s other error group when one is dismissed', () => {
+		const notFound = { ...posts, errorType: 'HttpError-404', errors: [ { type: 'HttpError' } ] };
+		const serverError = { ...posts, errorType: 'HttpError-500', errors: [ { type: 'HttpError' } ] };
+		mockRecommendations.activeRecommendations = [ notFound, serverError ];
+		const { rerender } = render( <CriticalCssAdvancedCards /> );
+
+		expect( screen.getAllByRole( 'heading', { level: 2 } ) ).toHaveLength( 2 );
+
+		fireEvent.click( screen.getAllByRole( 'button', { name: 'Dismiss' } )[ 0 ] );
+		expect( mockRecommendations.dismiss ).toHaveBeenCalledWith( notFound );
+
+		// The store drops the dismissed group; the remaining card must not inherit the collapsed state.
+		mockRecommendations.activeRecommendations = [ serverError ];
+		rerender( <CriticalCssAdvancedCards /> );
+
+		expect( screen.getAllByRole( 'heading', { level: 2 } ) ).toHaveLength( 1 );
+	} );
+
 	it( 'reveals the dismissed recommendations after the link collapses', () => {
 		render( <CriticalCssAdvancedCards /> );
 

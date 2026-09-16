@@ -13,7 +13,7 @@ import type { ErrorSet } from '$features/critical-css/lib/critical-css-errors';
 import type { ProviderRecommendation } from '$features/critical-css/lib/stores/recommendation-types';
 
 /**
- * An intro card, then one card per failed provider.
+ * An intro card, then one card per group of errors on a failed provider.
  */
 const CriticalCssAdvancedCards = () => {
 	const { activeRecommendations, dismissedRecommendations, dismiss, showDismissed } =
@@ -45,7 +45,7 @@ const CriticalCssAdvancedCards = () => {
 			{ activeRecommendations.flatMap( recommendation =>
 				getErrorSets( recommendation ).map( errorSet => (
 					<RecommendationCard
-						key={ `${ recommendation.key }-${ errorSet.type }` }
+						key={ `${ recommendation.key }-${ recommendation.errorType }-${ errorSet.type }` }
 						recommendation={ recommendation }
 						errorSet={ errorSet }
 						onDismiss={ () => dismiss( recommendation ) }

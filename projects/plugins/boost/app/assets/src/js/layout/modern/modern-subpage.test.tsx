@@ -42,10 +42,13 @@ describe( 'ModernSubpage', () => {
 		expect( screen.getByText( expected ) ).toBeTruthy();
 	} );
 
-	it( 'frames the cache log with its title', () => {
-		render( <ModernSubpage subpage="cache-debug-log" /> );
+	it.each( [
+		[ 'cache-debug-log', 'Cache debug log' ],
+		[ 'critical-css-advanced', 'Critical CSS recommendations' ],
+	] )( 'frames %s with its title', ( subpage, title ) => {
+		render( <ModernSubpage subpage={ subpage as Subpage } /> );
 
-		expect( screen.getByRole( 'heading', { level: 1 } ).textContent ).toBe( 'Cache debug log' );
+		expect( screen.getByRole( 'heading', { level: 1 } ).textContent ).toBe( title );
 	} );
 
 	it( 'renders only the requested sub-page', () => {
