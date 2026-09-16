@@ -1693,6 +1693,19 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( { productName: 'T' } );
 		} );
 
+		it( 'calls setAttributes when the product id changes', async () => {
+			const user = userEvent.setup();
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			const idInput = await screen.findByLabelText( 'Product ID (optional)' );
+			await user.type( idInput, 'S' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { productId: 'S' } );
+			// PayPal rejects a 51st character and there is no error state, so the input caps.
+			expect( idInput ).toHaveAttribute( 'maxlength', '50' );
+		} );
+
 		it( 'holds the payment back while the form is invalid', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 

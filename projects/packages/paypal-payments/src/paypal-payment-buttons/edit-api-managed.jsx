@@ -55,6 +55,7 @@ import {
 	MAX_CUSTOMER_NOTES,
 	MAX_DESCRIPTION_LENGTH,
 	MAX_NAME_LENGTH,
+	MAX_PRODUCT_ID_LENGTH,
 } from './utils/validation';
 
 // Button type is always 'single' — the hosted payment page handles
@@ -86,6 +87,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		price,
 		currencyCode,
 		productDescription,
+		productId,
 		imageUrl,
 		imageId,
 		returnUrl,
@@ -732,6 +734,15 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					title={ __( 'Product Options', 'jetpack-paypal-payments' ) }
 					initialOpen={ ! hasButton || variantErrors.length > 0 }
 				>
+					{ /* PayPal caps a product id at 50 characters, so the input stops there. */ }
+					<TextControl
+						label={ __( 'Product ID (optional)', 'jetpack-paypal-payments' ) }
+						value={ productId || '' }
+						onChange={ value => setAttributes( { productId: value } ) }
+						disabled={ isBusy }
+						maxLength={ MAX_PRODUCT_ID_LENGTH }
+						placeholder={ __( 'SKU number or other identifiers', 'jetpack-paypal-payments' ) }
+					/>
 					<VariantBuilder
 						enabled={ variantsEnabled }
 						variants={ variants }

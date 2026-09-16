@@ -19,6 +19,7 @@ const blockAttributes = {
 	price: '9.99',
 	currencyCode: 'USD',
 	productDescription: '',
+	productId: '',
 	variantsEnabled: false,
 	variants: null,
 	adjustableQuantity: false,
@@ -73,11 +74,21 @@ describe( 'getResourceAttributeUpdates', () => {
 				{
 					...blockAttributes,
 					productDescription: 'Old copy',
+					productId: 'SKU-1',
 					returnUrl: 'https://example.com/thanks',
 				},
 				resourceAttributes
 			)
-		).toEqual( { productDescription: '', returnUrl: '' } );
+		).toEqual( { productDescription: '', productId: '', returnUrl: '' } );
+	} );
+
+	it( 'reads the product id back from the payment', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, {
+				...resourceAttributes,
+				productId: 'SKU-1',
+			} )
+		).toEqual( { productId: 'SKU-1' } );
 	} );
 
 	it( 'reads address collection back from the payment', () => {

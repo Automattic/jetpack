@@ -1027,12 +1027,12 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						// Set outside the form, but a PUT replaces the whole resource,
-						// so the editor sends them back.
 						'product_id'               => array(
 							'type'     => 'string',
 							'required' => false,
 						),
+						// Set outside the form, but a PUT replaces the whole resource,
+						// so the editor sends them back.
 						'shipping'                 => $amount_list,
 						'handling'                 => $amount_list,
 						'discounts'                => $amount_list,
@@ -1206,9 +1206,9 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// Copied back from the payment by the editor. Drop one here and Update
-			// deletes it at PayPal.
-			if ( isset( $item['product_id'] ) && '' !== $item['product_id'] ) {
+			// Trim first: sanitize_text_field() turns a whitespace-only id into '',
+			// which PayPal rejects.
+			if ( isset( $item['product_id'] ) && '' !== trim( $item['product_id'] ) ) {
 				$clean_item['product_id'] = sanitize_text_field( $item['product_id'] );
 			}
 			foreach ( array( 'shipping', 'handling', 'discounts' ) as $field ) {
