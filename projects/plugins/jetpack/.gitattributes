@@ -2,6 +2,7 @@
 # Remember to end all directories with `/**` to properly tag every file.
 /_inc/blocks/**                                          production-include
 /_inc/build/**                                           production-include
+/build/**                                                production-include
 /css/**                                                  production-include
 /jetpack_vendor/**                                       production-include
 /modules/**/*-rtl.css                                    production-include
@@ -31,6 +32,9 @@
 /_inc/build/*.js.map                                     production-exclude
 /_inc/build/maps/**                                      production-exclude
 /_inc/client/**                                          production-exclude
+/build/**/*.map                                          production-exclude
+/routes/**                                               production-exclude
+/packages/**                                             production-exclude
 /_inc/content-guidelines-ai/**                           production-exclude
 /css/*.css.map                                           production-exclude
 /css/*.css.min.map                                       production-exclude

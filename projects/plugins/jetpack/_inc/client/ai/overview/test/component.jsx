@@ -1,4 +1,4 @@
-import { render, screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
@@ -28,6 +28,11 @@ const callsFor = eventName =>
 const cancelNavigation = event => event.preventDefault();
 beforeEach( () => {
 	document.addEventListener( 'click', cancelNavigation );
+	// assetUrl() builds the thumbnail URLs from these; without them it returns ''.
+	window.jetpackAiSettings = {
+		pluginUrl: 'https://example.com/wp-content/plugins/jetpack',
+		assetsVersion: '1.2.3',
+	};
 	// The assistant banner has its own suite; dismissing it here keeps its
 	// links from colliding with the quick-start card queries.
 	dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', true );
@@ -38,6 +43,7 @@ beforeEach( () => {
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 
 afterEach( () => {
+	delete window.jetpackAiSettings;
 	jest.resetAllMocks();
 	document.removeEventListener( 'click', cancelNavigation );
 	// The preferences store lives on the shared default registry, so state
@@ -384,7 +390,14 @@ describe( 'AiOverview', () => {
 		// so the images are alt-empty and queried by role="presentation".
 		const thumbs = screen.getAllByRole( 'presentation' );
 		expect( thumbs ).toHaveLength( 4 );
-		thumbs.forEach( img => expect( img ).toHaveAttribute( 'src' ) );
+		// toHaveAttribute( 'src' ) alone passes on src="", which is what a missing
+		// pluginUrl produces — assert the resolved path instead.
+		expect( thumbs.map( img => img.getAttribute( 'src' ) ) ).toEqual( [
+			'https://example.com/wp-content/plugins/jetpack/images/ai-hub/connect-claude.webp?ver=1.2.3',
+			'https://example.com/wp-content/plugins/jetpack/images/ai-hub/build-page.webp?ver=1.2.3',
+			'https://example.com/wp-content/plugins/jetpack/images/ai-hub/media-library.webp?ver=1.2.3',
+			'https://example.com/wp-content/plugins/jetpack/images/ai-hub/optimize-site.webp?ver=1.2.3',
+		] );
 	} );
 
 	test( 'walkthrough videos: each card opens in a new tab and says so', async () => {
@@ -548,8 +561,11 @@ describe( 'AiOverview', () => {
 		render( <AiOverview { ...PROPS } /> );
 
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
-		// Removing a live region announces nothing, so completion has to be spoken.
-		expect( speak ).toHaveBeenCalledWith( '8 of 20 requests available', 'polite' );
+		// Removing a live region announces nothing, so completion has to be spoken. The
+		// announcement trails the render it reports, so wait for it rather than assume it.
+		await waitFor( () =>
+			expect( speak ).toHaveBeenCalledWith( '8 of 20 requests available', 'polite' )
+		);
 	} );
 
 	test( 'loading: a site that already names a plan gets no placeholder', () => {
