@@ -2477,6 +2477,12 @@ importers:
       '@automattic/explat-client-react-helpers':
         specifier: 0.1.2
         version: 0.1.2(react@18.3.1)
+      '@wordpress/api-fetch':
+        specifier: 7.55.0
+        version: 7.55.0
+      '@wordpress/url':
+        specifier: 4.55.0
+        version: 4.55.0
       cookie:
         specifier: 1.0.2
         version: 1.0.2
