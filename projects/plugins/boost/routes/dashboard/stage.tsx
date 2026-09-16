@@ -16,6 +16,7 @@ import {
 } from '../../_inc/runtime-contract';
 import type { Tab } from '../../_inc/runtime-contract';
 import './route.scss';
+import type { ReactNode } from 'react';
 
 const HISTORY_WRAPPED_KEY = '__jetpackBoostLocationChangeWrapped';
 
@@ -70,6 +71,7 @@ function DashboardStage() {
 		refetchInterval: query =>
 			query.state.data === true && Date.now() < onboardingPollDeadline.current ? 1000 : false,
 	} );
+	const [ headerAction, setHeaderAction ] = useState< ReactNode >( null );
 	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
 		( next: Tab, replace = false ) => {
@@ -113,6 +115,7 @@ function DashboardStage() {
 			activeTab={ activeTab }
 			isSubpage={ subpage !== null }
 			onTabChange={ onTabChange }
+			actions={ headerAction }
 			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
 			<Tabs.Panel value="overview" keepMounted>
@@ -125,7 +128,10 @@ function DashboardStage() {
 						<Spinner />
 					</div>
 				) : (
-					<Overview isVisible={ activeTab === 'overview' && subpage === null } />
+					<Overview
+						isVisible={ activeTab === 'overview' && subpage === null }
+						onHeaderActionChange={ setHeaderAction }
+					/>
 				) }
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>
