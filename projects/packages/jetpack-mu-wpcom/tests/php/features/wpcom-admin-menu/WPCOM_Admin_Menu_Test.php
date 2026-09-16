@@ -237,6 +237,53 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Simple sites keep the Calypso Activity Log link and hide the native page.
+	 *
+	 * Runs in a separate process because `wpcom_add_jetpack_submenu()` detects Simple
+	 * sites through the real `IS_WPCOM` constant.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jetpack_submenu_links_activity_log_to_calypso_on_simple_sites() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		// The class fixtures may not exist in the isolated process, so set up an admin
+		// here: `add_submenu_page()` drops items the current user cannot access.
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'simple_admin_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'simple_admin@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
+		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		$this->register_native_activity_log_page();
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNotNull(
+			$this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . $domain ),
+			'Simple sites must keep the Calypso Activity Log link.'
+		);
+
+		$native_item = $this->get_jetpack_submenu_item( 'jetpack-activity-log' );
+		$this->assertNotNull( $native_item );
+		$this->assertStringContainsString(
+			'hide-if-js',
+			$native_item[4] ?? '',
+			'Simple sites must hide the native Activity Log page.'
+		);
+	}
+
+	/**
 	 * Tests wpcom_add_hosting_menu
 	 */
 	public function test_add_hosting_menu() {
