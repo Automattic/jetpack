@@ -23,6 +23,7 @@ export function useHistoryRange() {
 
 	return {
 		range: getHistoryWindow( paging.offset, new Date(), paging.dayCount ),
+		olderRange: getHistoryWindow( paging.offset + 1, new Date(), paging.dayCount ),
 		dayCount: paging.dayCount,
 		canGoNext: paging.offset > 0,
 		onPrevious,

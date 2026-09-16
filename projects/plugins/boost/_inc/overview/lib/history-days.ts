@@ -19,12 +19,6 @@ export function getHistoryWindow( offset: number, now = new Date(), dayCount = 3
 	};
 }
 
-function dimensionKey( period: PerformanceHistoryPeriod ): string {
-	return JSON.stringify(
-		Object.entries( period.dimensions ).sort( ( [ a ], [ b ] ) => ( a < b ? -1 : a > b ? 1 : 0 ) )
-	);
-}
-
 export function bucketHistoryDays(
 	periods: PerformanceHistoryPeriod[],
 	window: HistoryWindow
@@ -36,13 +30,8 @@ export function bucketHistoryDays(
 		}
 		const day = dateI18n( 'Y-m-d', period.timestamp, false );
 		const previous = byDay.get( day );
-		// History has no collection source, so equal timestamps use canonical content order.
-		if (
-			! previous ||
-			previous.timestamp < period.timestamp ||
-			( previous.timestamp === period.timestamp &&
-				dimensionKey( previous ) < dimensionKey( period ) )
-		) {
+		// On equal timestamps the entry later in the response wins.
+		if ( ! previous || previous.timestamp <= period.timestamp ) {
 			byDay.set( day, period );
 		}
 	}

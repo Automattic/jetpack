@@ -59,28 +59,16 @@ test( 'buckets in the site timezone, keeps the latest duplicate, and preserves g
 	expect( days.filter( day => day.period ) ).toHaveLength( 2 );
 } );
 
-test( 'resolves timestamp ties independently of input and dimension key order', () => {
+test( 'keeps the later response entry when timestamps tie', () => {
 	const window = getHistoryWindow( 0, new Date( '2026-03-20T02:00:00Z' ) );
 	const first = period( '2026-03-09T12:00:00Z' );
-	const second = {
-		...first,
-		dimensions: { ...first.dimensions, mobile_tbt: 300 },
-	};
-	const reordered = {
-		...second,
-		dimensions: Object.fromEntries(
-			Object.entries( second.dimensions ).reverse()
-		) as typeof second.dimensions,
-	};
+	const second = { ...first, dimensions: { ...first.dimensions, mobile_tbt: 300 } };
 	const selected = ( periods: PerformanceHistoryPeriod[] ) =>
 		bucketHistoryDays( periods, window ).find( day => day.period )?.period;
-	expect( selected( [ first, second ] ) ).toEqual( second );
-	expect( selected( [ second, first ] ) ).toEqual( second );
-	expect( selected( [ first, reordered ] ) ).toEqual( second );
-	expect( selected( [ reordered, first ] ) ).toEqual( second );
+	expect( selected( [ first, second ] ) ).toBe( second );
+	expect( selected( [ second, first ] ) ).toBe( first );
 	const newer = { ...first, timestamp: first.timestamp + 1 };
-	expect( selected( [ newer, second ] ) ).toEqual( newer );
-	expect( selected( [ second, newer ] ) ).toEqual( newer );
+	expect( selected( [ newer, second ] ) ).toBe( newer );
 } );
 
 test( 'keeps all 30 slots empty when history has not started', () => {

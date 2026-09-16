@@ -46,12 +46,18 @@
 	&__header {
 		justify-content: space-between;
 		flex-wrap: wrap;
-		gap: var(--wpds-dimension-gap-md);
 	}
 
 	&__paging {
 		font-size: var(--wpds-typography-font-size-md);
 		color: var(--jetpack-boost-history-axis);
+		gap: var(--wpds-dimension-gap-xs);
+
+		// Icon-only chevrons keep the title and range on one row at narrow widths.
+		> button {
+			padding-inline: 0;
+			min-inline-size: 0;
+		}
 	}
 
 	&__device {

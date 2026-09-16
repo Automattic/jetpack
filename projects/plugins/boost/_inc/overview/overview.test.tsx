@@ -692,8 +692,17 @@ test( 'selects the paid empty history state using module availability', async ()
 		const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
 		fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
 		await expect(
-			screen.findByText( 'No scores recorded for this day' )
+			screen.findByText( 'No scores recorded before the feature was unlocked.' )
 		).resolves.toBeInTheDocument();
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				data: { JSON: expect.objectContaining( getHistoryWindow( 1 ) ) },
+			} )
+		);
+		expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 		expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
 	} finally {
 		geometry.mockRestore();
@@ -919,7 +928,23 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 				failPrevious = false;
 				return Promise.reject( new Error( 'Previous window unavailable' ) );
 			}
-			return Promise.resolve( { status: 'success', JSON: options.data.JSON } );
+			const { startDate } = options.data.JSON;
+			const periods = [
+				{
+					timestamp: startDate + 12 * 3600000,
+					dimensions: {
+						desktop_overall_score: 90,
+						mobile_overall_score: 80,
+						desktop_cls: 0.01,
+						desktop_lcp: 1.2,
+						desktop_tbt: 0.2,
+						mobile_cls: 0.03,
+						mobile_lcp: 2.4,
+						mobile_tbt: 0.4,
+					},
+				},
+			];
+			return Promise.resolve( { status: 'success', JSON: { ...options.data.JSON, periods } } );
 		}
 		return fetch( options );
 	} );

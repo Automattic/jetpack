@@ -140,7 +140,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( surface ).toHaveCSS( 'padding', '17px' );
 		const popupBox = ( await surface.boundingBox() )!;
 		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
-		const cardBox = ( await page.getByText( 'Score history', { exact: true } ).boundingBox() )!;
+		const cardBox = ( await page.getByText( 'Last 30 days', { exact: true } ).boundingBox() )!;
 		expect(
 			popupBox.x >= Math.floor( hoveredBar.x + hoveredBar.width ) ||
 				popupBox.x + popupBox.width <= Math.ceil( hoveredBar.x )
@@ -272,7 +272,7 @@ test( 'uses compact plots with three horizontal gridlines and no band legend', a
 	const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
 	await expect( tooltip ).toContainText( 'No scores recorded for this day' );
 	await expect( tooltip ).toHaveCSS( 'width', '265px' );
-	await expect( tooltip ).toHaveCSS( 'height', '106px' );
+	await expect( tooltip ).toHaveCSS( 'height', '86px' );
 	const emptyPopup = ( await tooltip.boundingBox() )!;
 	expect( emptyPopup.y ).toBeGreaterThanOrEqual( firstPanel.y );
 	expect( emptyPopup.y + emptyPopup.height ).toBeLessThanOrEqual( secondSvg.y + secondSvg.height );

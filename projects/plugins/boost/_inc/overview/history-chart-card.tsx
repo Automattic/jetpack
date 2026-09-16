@@ -6,7 +6,7 @@ import { Spinner } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, desktop, mobile, Icon } from '@wordpress/icons';
-import { Button, Card, Notice } from '@wordpress/ui';
+import { Button, Card, Notice, Tooltip } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { bucketHistoryDays, type HistoryDay, type HistoryWindow } from './lib/history-days';
 import { getScoreTier, getScoreTierColor } from './lib/score-utils';
@@ -21,6 +21,7 @@ type Props = {
 	onPrevious: () => void;
 	onNext: () => void;
 	canGoNext: boolean;
+	hasOlderHistory?: boolean;
 	data?: PerformanceHistoryData | null;
 	isLoading?: boolean;
 	isVisible?: boolean;
@@ -49,14 +50,22 @@ export function buildHistorySeries( days: HistoryDay[] ): SeriesData[] {
 	} ) );
 }
 
-export function EmptyDayTooltip( { date }: { date: string } ) {
+export function EmptyDayTooltip( {
+	date,
+	isBeforeHistory,
+}: {
+	date: string;
+	isBeforeHistory?: boolean;
+} ) {
 	return (
 		<div className="jetpack-boost-overview__history-tooltip boost-daily-history__empty-tooltip">
 			<div className="jetpack-boost-overview__tooltip-date">
 				{ dateI18n( 'F j, Y', getDate( `${ date }T12:00:00` ), false ) }
 			</div>
 			<div className="boost-daily-history__empty-copy">
-				{ __( 'No scores recorded for this day', 'jetpack-boost' ) }
+				{ isBeforeHistory
+					? __( 'No scores recorded before the feature was unlocked.', 'jetpack-boost' )
+					: __( 'No scores recorded for this day', 'jetpack-boost' ) }
 			</div>
 		</div>
 	);
@@ -133,12 +142,44 @@ export function HistoryTooltip( {
 	);
 }
 
+function PagingButton( {
+	label,
+	icon,
+	disabled,
+	onClick,
+}: {
+	label: string;
+	icon: JSX.Element;
+	disabled: boolean;
+	onClick: () => void;
+} ) {
+	return (
+		<Tooltip.Root>
+			<Tooltip.Trigger
+				render={
+					<Button
+						variant="minimal"
+						size="compact"
+						aria-label={ label }
+						disabled={ disabled }
+						onClick={ onClick }
+					/>
+				}
+			>
+				<Icon icon={ icon } />
+			</Tooltip.Trigger>
+			<Tooltip.Popup>{ label }</Tooltip.Popup>
+		</Tooltip.Root>
+	);
+}
+
 export default function HistoryChartCard( {
 	range,
 	dayCount,
 	onPrevious,
 	onNext,
 	canGoNext,
+	hasOlderHistory,
 	data,
 	isLoading,
 	isVisible = true,
@@ -295,7 +336,13 @@ export default function HistoryChartCard( {
 												return day?.period ? (
 													<HistoryTooltip period={ day.period } />
 												) : day ? (
-													<EmptyDayTooltip date={ day.date } />
+													<EmptyDayTooltip
+														date={ day.date }
+														isBeforeHistory={
+															hasOlderHistory === false &&
+															! days.some( slot => slot.period && slot.date < day.date )
+														}
+													/>
 												) : null;
 											} }
 										/>
@@ -312,43 +359,48 @@ export default function HistoryChartCard( {
 		<Card.Root className="jetpack-boost-overview__history-card">
 			<Card.Header className="boost-daily-history__card-header">
 				<div className="boost-daily-history__header">
-					<Card.Title render={ <h2 /> }>{ __( 'Score history', 'jetpack-boost' ) }</Card.Title>
+					<Card.Title render={ <h2 /> }>
+						{ canGoNext
+							? __( 'Score history', 'jetpack-boost' )
+							: sprintf(
+									/* translators: %d is the number of days in the visible history window. */
+									__( 'Last %d days', 'jetpack-boost' ),
+									dayCount
+							  ) }
+					</Card.Title>
 					{ ! needsUpgrade && ! isFreshStart && (
-						<div className="boost-daily-history__paging">
-							<Button
-								variant="minimal"
-								size="compact"
-								aria-label={ sprintf(
-									/* translators: %d is the number of days to page backward. */
-									__( 'Previous %d days', 'jetpack-boost' ),
-									dayCount
-								) }
-								onClick={ onPrevious }
-							>
-								<Icon icon={ isRTL() ? chevronRight : chevronLeft } />
-							</Button>
-							<span aria-live="polite">
-								{ sprintf(
-									/* translators: 1: first date, 2: last date of the visible history window. */
-									__( '%1$s – %2$s', 'jetpack-boost' ),
-									dateI18n( 'M j', range.startDate, false ),
-									dateI18n( 'M j, Y', range.endDate, false )
-								) }
-							</span>
-							<Button
-								variant="minimal"
-								size="compact"
-								aria-label={ sprintf(
-									/* translators: %d is the number of days to page forward. */
-									__( 'Next %d days', 'jetpack-boost' ),
-									dayCount
-								) }
-								disabled={ ! canGoNext }
-								onClick={ onNext }
-							>
-								<Icon icon={ isRTL() ? chevronLeft : chevronRight } />
-							</Button>
-						</div>
+						<Tooltip.Provider>
+							<div className="boost-daily-history__paging">
+								<PagingButton
+									label={ sprintf(
+										/* translators: %d is the number of days to page backward. */
+										__( 'Previous %d days', 'jetpack-boost' ),
+										dayCount
+									) }
+									icon={ isRTL() ? chevronRight : chevronLeft }
+									disabled={ hasOlderHistory === false }
+									onClick={ onPrevious }
+								/>
+								<span aria-live="polite">
+									{ sprintf(
+										/* translators: 1: first date, 2: last date of the visible history window. */
+										__( '%1$s – %2$s', 'jetpack-boost' ),
+										dateI18n( 'M j', range.startDate, false ),
+										dateI18n( 'M j, Y', range.endDate, false )
+									) }
+								</span>
+								<PagingButton
+									label={ sprintf(
+										/* translators: %d is the number of days to page forward. */
+										__( 'Next %d days', 'jetpack-boost' ),
+										dayCount
+									) }
+									icon={ isRTL() ? chevronLeft : chevronRight }
+									disabled={ ! canGoNext }
+									onClick={ onNext }
+								/>
+							</div>
+						</Tooltip.Provider>
 					) }
 				</div>
 			</Card.Header>

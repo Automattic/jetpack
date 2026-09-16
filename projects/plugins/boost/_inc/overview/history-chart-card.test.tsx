@@ -1,6 +1,6 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { dateI18n, getSettings, setSettings } from '@wordpress/date';
 import { type PropsWithChildren } from 'react';
@@ -110,7 +110,7 @@ afterAll( () => jest.restoreAllMocks() );
 
 test( 'renders thirty daily bars for each device using score band colours and empty slots', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
-	expect( screen.getByRole( 'heading', { name: 'Score history', level: 2 } ) ).toBeInTheDocument();
+	expect( screen.getByRole( 'heading', { name: 'Last 30 days', level: 2 } ) ).toBeInTheDocument();
 	expect( screen.getByRole( 'heading', { name: 'Desktop', level: 3 } ) ).toBeInTheDocument();
 	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
 	expect( screen.queryByText( 'Could be improved' ) ).not.toBeInTheDocument();
@@ -194,15 +194,48 @@ test( 'shows empty days after loading and explains them on keyboard focus', asyn
 	expect( tooltip ).toHaveTextContent( 'No scores recorded for this day' );
 } );
 
-test( 'shows the same missing-score message for every empty day', async () => {
-	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+test( 'explains empty days before the first recorded score only without older history', async () => {
+	const later = {
+		...history,
+		periods: history.periods.map( entry => ( {
+			...entry,
+			timestamp: entry.timestamp + 10 * 86400000,
+		} ) ),
+	};
+	const { rerender } = render(
+		<HistoryChartCard data={ later } { ...callbacks } hasOlderHistory={ false } />,
+		{ wrapper }
+	);
 	const chart = screen.getAllByRole( 'grid' )[ 0 ];
-	for ( const advance of [ 4, 26 ] ) {
-		for ( let step = 0; step < advance; step++ ) {
-			fireEvent.keyDown( chart, { key: 'ArrowRight' } );
+	const move = ( key: string, steps: number ) => {
+		for ( let step = 0; step < steps; step++ ) {
+			fireEvent.keyDown( chart, { key } );
 		}
-		const tooltip = await screen.findByRole( 'tooltip' );
-		expect( tooltip ).toHaveTextContent( 'No scores recorded for this day' );
+	};
+	move( 'ArrowRight', 1 );
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+		'No scores recorded before the feature was unlocked.'
+	);
+	move( 'ArrowRight', 13 );
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+		'No scores recorded for this day'
+	);
+	rerender( <HistoryChartCard data={ later } { ...callbacks } /> );
+	move( 'ArrowLeft', 13 );
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+		'No scores recorded for this day'
+	);
+} );
+
+test( 'shows the paging labels as tooltips on the chevrons', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } hasOlderHistory={ false } />, {
+		wrapper,
+	} );
+	for ( const name of [ 'Previous 30 days', 'Next 30 days' ] ) {
+		const button = screen.getByRole( 'button', { name } );
+		fireEvent.keyDown( document.body, { key: 'Tab' } );
+		act( () => button.focus() );
+		await expect( screen.findByText( name, {}, { timeout: 3000 } ) ).resolves.toBeVisible();
 	}
 } );
 
@@ -213,6 +246,9 @@ test.each( [ 15, 30 ] as const )(
 			<HistoryChartCard data={ history } { ...callbacks } dayCount={ dayCount } />,
 			{ wrapper }
 		);
+		expect(
+			screen.getByRole( 'heading', { name: `Last ${ dayCount } days`, level: 2 } )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: `Next ${ dayCount } days` } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
@@ -226,6 +262,24 @@ test.each( [ 15, 30 ] as const )(
 		);
 		fireEvent.click( screen.getByRole( 'button', { name: `Next ${ dayCount } days` } ) );
 		expect( callbacks.onNext ).toHaveBeenCalledTimes( 1 );
+		expect(
+			screen.getByRole( 'heading', { name: 'Score history', level: 2 } )
+		).toBeInTheDocument();
+		rerender(
+			<HistoryChartCard
+				data={ history }
+				{ ...callbacks }
+				dayCount={ dayCount }
+				canGoNext
+				hasOlderHistory={ false }
+			/>
+		);
+		expect( screen.getByRole( 'button', { name: `Previous ${ dayCount } days` } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		fireEvent.click( screen.getByRole( 'button', { name: `Previous ${ dayCount } days` } ) );
+		expect( callbacks.onPrevious ).toHaveBeenCalledTimes( 1 );
 		expect( fetchMock ).not.toHaveBeenCalled();
 	}
 );
