@@ -25,17 +25,16 @@ import {
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
+import { useWidgetModules } from '../use-widget-modules';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
@@ -104,44 +103,14 @@ function PostDetail(): JSX.Element {
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
-	const widgetModules = useSelect(
-		select =>
-			(
-				select( coreStore ) as unknown as {
-					getEntityRecords: (
-						kind: string,
-						name: string,
-						query?: Record< string, unknown >
-					) => WidgetModuleRecord[] | null;
-				}
-			 )
-				// `per_page: -1` returns every widget type; core-data's default query
-				// (`per_page: 10`) could silently drop ones this fixed layout requires.
-				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
-		[]
-	);
+	const widgetModules = useWidgetModules();
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	// The host titles a card by its widget *type*; fixed compositions reuse
-	// registered types under page-local aliases to carry the design title.
-	const pageWidgetTypes = useMemo( () => {
-		const aliases = POST_DETAIL_WIDGET_TYPE_ALIASES.flatMap( ( { baseType, variants } ) => {
-			const base = widgetTypes.find( widgetType => widgetType.name === baseType );
-
-			return base
-				? variants.map( variant => ( {
-						...base,
-						name: variant.name,
-						title: variant.getTitle(),
-						...( variant.getHelp ? { help: variant.getHelp() } : {} ),
-						...( variant.icon ? { icon: variant.icon } : {} ),
-				  } ) )
-				: [];
-		} );
-
-		return aliases.length ? [ ...widgetTypes, ...aliases ] : widgetTypes;
-	}, [ widgetTypes ] );
+	const pageWidgetTypes = useMemo(
+		() => withWidgetTypeAliases( widgetTypes, POST_DETAIL_WIDGET_TYPE_ALIASES ),
+		[ widgetTypes ]
+	);
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 

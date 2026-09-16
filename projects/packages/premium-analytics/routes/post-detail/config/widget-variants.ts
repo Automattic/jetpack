@@ -6,32 +6,14 @@ import { link, mapMarker, megaphone, desktop, seen } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import type { WidgetIcon, WidgetType } from '@wordpress/widget-primitives';
+import type { WidgetTypeAlias } from '../../widget-type-aliases';
 
 /**
- * Page-local aliases of registered widget types for the fixed post-detail
- * compositions. The widget host titles a card by its widget *type*, so one
- * type rendered several times would repeat one generic title; each alias
- * reuses the resolved base type's render module under a design title (and,
- * where the mocks call for one, its own icon) instead. The aliases exist only
- * in this page's `widgetTypes` — the post detail page is a fixed composition
- * with no widget gallery, so they can never be picked elsewhere.
- *
- * Labels are lazy getters so translations resolve after the i18n locale data
- * has loaded, mirroring the tab definitions. Icons are static module refs;
- * variants without one inherit the base type's icon. A variant may also
- * replace the base type's help note when the page pins it to a window the
- * base note doesn't describe.
+ * Page-local aliases for the fixed post-detail compositions; see `WidgetTypeAlias`.
+ * A variant may replace the base type's help note when the page pins it to a
+ * window the base note doesn't describe.
  */
-export const POST_DETAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< {
-	baseType: `jpa/${ string }`;
-	variants: ReadonlyArray< {
-		name: `jpa/${ string }`;
-		getTitle: () => string;
-		getHelp?: () => NonNullable< WidgetType[ 'help' ] >;
-		icon?: WidgetIcon;
-	} >;
-} > = [
+export const POST_DETAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< WidgetTypeAlias > = [
 	{
 		baseType: 'jpa/email-time-series',
 		variants: [

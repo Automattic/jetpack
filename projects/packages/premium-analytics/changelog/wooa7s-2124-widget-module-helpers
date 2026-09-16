@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Share the widget module lookup and widget type alias helpers across the detail routes; no user-facing change.
+
+

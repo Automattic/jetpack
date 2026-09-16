@@ -18,18 +18,16 @@ import {
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
 import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
+import { useWidgetModules } from '../use-widget-modules';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
@@ -58,22 +56,7 @@ function VideoDetail(): JSX.Element {
 	const { videoId: videoIdParam } = useParams( { from: ROUTE_FROM } ) as { videoId?: string };
 	const summary = useVideoSummary( Number( videoIdParam ) );
 
-	const widgetModules = useSelect(
-		select =>
-			(
-				select( coreStore ) as unknown as {
-					getEntityRecords: (
-						kind: string,
-						name: string,
-						query?: Record< string, unknown >
-					) => WidgetModuleRecord[] | null;
-				}
-			 )
-				// `per_page: -1` returns every widget type; core-data's default query
-				// (`per_page: 10`) could silently drop ones this fixed layout requires.
-				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
-		[]
-	);
+	const widgetModules = useWidgetModules();
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
