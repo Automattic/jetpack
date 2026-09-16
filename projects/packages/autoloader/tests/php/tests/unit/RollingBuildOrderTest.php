@@ -98,6 +98,10 @@ class RollingBuildOrderTest extends TestCase {
 
 		Autoloader::init( $test_container );
 
+		if ( ! is_array( $activated ) ) {
+			$this->fail( 'The autoloader never called activate_autoloader().' );
+		}
+
 		return $activated;
 	}
 }
