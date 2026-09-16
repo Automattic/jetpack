@@ -25,6 +25,10 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 
+	const [ bskyHandle, setBskyHandle ] = useState(
+		reconnectingAccount?.service_name === 'bluesky' ? reconnectingAccount.external_handle ?? '' : ''
+	);
+
 	const validateBskyHandle = useCallback( ( value: string ) => {
 		if ( value.endsWith( '.bsky.social' ) ) {
 			const username = value.replace( '.bsky.social', '' );
@@ -47,7 +51,10 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 	}, [] );
 
 	const onBskyHandleChange = useCallback(
-		( value?: string ) => validateBskyHandle( value ?? '' ),
+		( value?: string ) => {
+			setBskyHandle( value ?? '' );
+			validateBskyHandle( value ?? '' );
+		},
 		[ validateBskyHandle ]
 	);
 
@@ -110,11 +117,7 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						required
 						type="text"
 						name="handle"
-						defaultValue={
-							reconnectingAccount?.service_name === 'bluesky'
-								? reconnectingAccount?.external_handle
-								: undefined
-						}
+						value={ bskyHandle }
 						autoComplete="off"
 						autoCapitalize="off"
 						autoCorrect="off"

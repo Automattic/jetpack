@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the AI image carousel arrows, the logo generator icons and the message icons colored now that @wordpress/icons 16 draws them as strokes.
