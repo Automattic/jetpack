@@ -1,4 +1,5 @@
 import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
+import boostPackage from '../../../package.json';
 import { init } from './index';
 
 type WithJetpackConfig = typeof globalThis & { jetpackConfig?: object };
@@ -26,4 +27,10 @@ it( 'supplies the Boost consumer slug after init', async () => {
 	expect( ( globalThis as WithJetpackConfig ).jetpackConfig ).toEqual( {
 		consumer_slug: 'jetpack-boost',
 	} );
+} );
+
+it( 'is wired as an init module of the modern dashboard page', () => {
+	const page = boostPackage.wpPlugin.pages.find( ( { id } ) => id === 'jetpack-boost-dashboard' );
+
+	expect( page?.init ).toContain( '@jetpack-boost/init' );
 } );

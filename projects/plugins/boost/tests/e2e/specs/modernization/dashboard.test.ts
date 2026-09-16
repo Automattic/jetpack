@@ -44,6 +44,13 @@ test.describe( 'Dashboard modernization', () => {
 		jetpackBoostPage,
 		page,
 	} ) => {
+		const missingConfigErrors: string[] = [];
+		page.on( 'console', message => {
+			if ( message.text().includes( 'jetpackConfig is missing' ) ) {
+				missingConfigErrors.push( message.text() );
+			}
+		} );
+
 		await boostUtils.setDashboardModernization( true );
 		await jetpackBoostPage.visit();
 		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 1 );
@@ -58,6 +65,7 @@ test.describe( 'Dashboard modernization', () => {
 		// The mount is only useful once the webpack app has rendered Settings into it.
 		await expect( page.locator( '#jb-settings-tab-mount .jb-modern-settings' ) ).toHaveCount( 1 );
 		await expect( page.locator( '#jb-admin-settings' ) ).toHaveCount( 0 );
+		expect( missingConfigErrors ).toEqual( [] );
 	} );
 
 	test( 'Keep modern assets off other admin pages', async ( { boostUtils, admin, page } ) => {
