@@ -146,7 +146,8 @@ function PostDetail(): JSX.Element {
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
 	// A card on this page can set the period (the All-time traffic card opens a
-	// month); the control then draws attention to it and the change is read out.
+	// month); the control then draws attention to it, the change is read out, and
+	// the page returns to the top, where the re-scoped cards are.
 	const attentionId = useSettlePeriodChange(
 		postSurface( postId ),
 		dateFilters.appliedRange,
@@ -223,6 +224,7 @@ function PostDetail(): JSX.Element {
 								performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
 							} ) }
 							controls={ dateFiltersPanel }
+							returnToTopKey={ attentionId }
 						>
 							{ /* Keyed by tab: each tab is its own layout, so the grid mounts
 							     fresh rather than reflowing one arrangement into the next. */ }
