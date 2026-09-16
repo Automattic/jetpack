@@ -16,6 +16,7 @@ module.exports = {
 		'<rootDir>/_inc/client/ai/scheduled-tasks/test/use-scheduled-tasks.js',
 		'<rootDir>/_inc/client/ai/test/lazy-scheduled-tasks.jsx',
 		'<rootDir>/_inc/client/ai/test/main.jsx',
+		'<rootDir>/_inc/client/ai/test/asset-url.js',
 		'<rootDir>/_inc/client/ai/test/tracks.js',
 		'<rootDir>/_inc/client/at-a-glance/stats/test/chart-bar-range.js',
 	],

@@ -9,12 +9,14 @@
  * @return {string} Absolute URL, or an empty string when no plugin URL is available.
  */
 export default function assetUrl( filename ) {
-	const base = window?.jetpackAiSettings?.pluginUrl;
+	const { pluginUrl, assetsVersion } = window?.jetpackAiSettings ?? {};
 
 	// Rendering nothing beats a guaranteed 404 against the wrong origin.
-	if ( ! base ) {
+	if ( ! pluginUrl ) {
 		return '';
 	}
 
-	return `${ base.replace( /\/$/, '' ) }/images/ai-hub/${ filename }`;
+	const url = `${ pluginUrl.replace( /\/$/, '' ) }/images/ai-hub/${ filename }`;
+
+	return assetsVersion ? `${ url }?ver=${ encodeURIComponent( assetsVersion ) }` : url;
 }

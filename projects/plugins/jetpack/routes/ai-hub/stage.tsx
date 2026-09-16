@@ -1,7 +1,8 @@
 import apiFetch from '@wordpress/api-fetch';
-import App from '../../_inc/client/ai/main';
+import AiHubApp from '../../_inc/client/ai/main';
 import analytics from '../../_inc/client/lib/analytics';
 import './route.scss';
+import type { ComponentType } from 'react';
 
 const { apiRoot, apiNonce, tracksUserData } = window?.jetpackAiSettings ?? {};
 
@@ -25,6 +26,9 @@ if ( apiNonce ) {
  *
  * @return The AI Hub app.
  */
+// main.jsx is untyped, so TS infers its return as `object` rather than a React element.
+const App = AiHubApp as ComponentType;
+
 const Stage = () => <App />;
 
 export { Stage as stage };

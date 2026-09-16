@@ -39,31 +39,31 @@ const QUICK_START = [
 
 // Lessons from the "Use AI agents with WordPress.com" course; each card links
 // to its lesson page (no inline player). Durations are the live lesson
-// lengths — re-check them if the videos change. Thumbnails are bundled.
+// lengths — re-check them if the videos change.
 const WALKTHROUGH_VIDEOS = [
 	{
 		slug: 'jetpack-ai-hub-overview-video-connect-claude',
 		title: __( 'Connect your site to Claude', 'jetpack' ),
 		duration: '3:18',
-		thumbnail: assetUrl( 'connect-claude.webp' ),
+		thumbnail: 'connect-claude.webp',
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-video-build-page',
 		title: __( 'Build a page from a single prompt', 'jetpack' ),
 		duration: '3:09',
-		thumbnail: assetUrl( 'build-page.webp' ),
+		thumbnail: 'build-page.webp',
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-video-media-library',
 		title: __( 'Manage your Media Library with AI', 'jetpack' ),
 		duration: '3:14',
-		thumbnail: assetUrl( 'media-library.webp' ),
+		thumbnail: 'media-library.webp',
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-video-optimize-site',
 		title: __( 'Optimize your site with AI', 'jetpack' ),
 		duration: '3:15',
-		thumbnail: assetUrl( 'optimize-site.webp' ),
+		thumbnail: 'optimize-site.webp',
 	},
 ];
 
@@ -451,7 +451,7 @@ export default function AiOverview( {
 							{ /* Decorative: the card's title carries the meaning. */ }
 							<img
 								className="jetpack-ai-overview__video-thumb"
-								src={ thumbnail }
+								src={ assetUrl( thumbnail ) }
 								alt=""
 								width="644"
 								height="348"

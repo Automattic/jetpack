@@ -786,4 +786,88 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$this->assertSame( '', $settings['planName'] );
 	}
+
+	/**
+	 * The loader is scoped to this page so WP_Build_Polyfills does not replace core
+	 * scripts on every other admin screen.
+	 */
+	public function test_wp_build_loads_only_on_the_ai_page() {
+		$method = new ReflectionMethod( Jetpack_AI_Page::class, 'is_ai_admin_request' );
+		$method->setAccessible( true );
+
+		// The check is admin-gated, and is_admin() is false by default under PHPUnit.
+		set_current_screen( 'dashboard' );
+
+		$_GET['page'] = 'jetpack-ai';
+		$this->assertTrue( $method->invoke( null ), 'Should load on the AI Hub page.' );
+
+		$_GET['page'] = 'jetpack';
+		$this->assertFalse( $method->invoke( null ), 'Should not load on another Jetpack page.' );
+
+		unset( $_GET['page'] );
+		$this->assertFalse( $method->invoke( null ), 'Should not load without a page parameter.' );
+
+		set_current_screen( 'front' );
+		$_GET['page'] = 'jetpack-ai';
+		$this->assertFalse( $method->invoke( null ), 'Should not load outside wp-admin.' );
+		unset( $_GET['page'] );
+	}
+
+	/**
+	 * JITM builds its message path from the screen ID, so the alias must be handed back.
+	 */
+	public function test_screen_id_alias_round_trip() {
+		set_current_screen( 'dashboard' );
+		$screen   = get_current_screen();
+		$original = $screen->id;
+
+		Jetpack_AI_Page::alias_screen_id_for_wp_build();
+		$this->assertSame(
+			Jetpack_AI_Page::WP_BUILD_PAGE_ID,
+			get_current_screen()->id,
+			'The generated enqueue check matches the screen ID against the route page id.'
+		);
+
+		Jetpack_AI_Page::restore_screen_id_after_wp_build();
+		$this->assertSame( $original, get_current_screen()->id );
+	}
+
+	/**
+	 * Restoring twice must not clobber a screen ID nobody aliased.
+	 */
+	public function test_screen_id_restore_is_idempotent() {
+		set_current_screen( 'dashboard' );
+		$original = get_current_screen()->id;
+
+		Jetpack_AI_Page::alias_screen_id_for_wp_build();
+		Jetpack_AI_Page::restore_screen_id_after_wp_build();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Restoring twice is the assertion.
+		Jetpack_AI_Page::restore_screen_id_after_wp_build();
+
+		$this->assertSame( $original, get_current_screen()->id );
+	}
+
+	/**
+	 * The route page id must differ from the menu slug, or the generated standalone page
+	 * intercepts admin_init for that slug and exits, bypassing wp-admin entirely.
+	 */
+	public function test_wp_build_page_id_is_not_the_menu_slug() {
+		$this->assertNotSame( 'jetpack-ai', Jetpack_AI_Page::WP_BUILD_PAGE_ID );
+	}
+
+	/**
+	 * With the legacy bundle gone, a missing build has to say so rather than render blank.
+	 */
+	public function test_render_explains_a_missing_build() {
+		if ( Jetpack_AI_Page::should_render_wp_build() ) {
+			$this->markTestSkipped( 'The generated render function is present in this checkout.' );
+		}
+
+		ob_start();
+		( new Jetpack_AI_Page() )->page_render();
+		$output = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error', $output );
+		$this->assertStringNotContainsString( 'jetpack-ai-root', $output, 'The legacy mount point is gone.' );
+	}
 }

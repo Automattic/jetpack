@@ -82,9 +82,6 @@ class Jetpack_AI_Page {
 	/**
 	 * Load wp-build for the AI Hub page.
 	 *
-	 * Runs on `admin_menu` priority 1 because wp-build has to register before the menu is
-	 * built, while every host reaches add_actions() at priority 998 — self-hosted and Atomic
-	 * through `jetpack_admin_menu`, WordPress.com Simple through mu-wpcom's own registration.
 	 * Scoped to this page so WP_Build_Polyfills does not replace core scripts everywhere else.
 	 *
 	 * @since $$next-version$$
@@ -373,6 +370,12 @@ class Jetpack_AI_Page {
 		wp_register_script( 'jetpack-ai-admin', false, array(), $script_version, true );
 		wp_enqueue_script( 'jetpack-ai-admin' );
 
+		// Registered on every admin page but only enqueued when depended on, and the esbuild
+		// bundles don't pull it in — without it every string renders untranslated.
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
+
 		// The Tracks sender (w.js); without it, queued events never leave the
 		// browser. Consent-gated like the other surfaces that load it.
 		$can_send_tracks = ( new Tracking( 'jetpack', new Connection_Manager() ) )->should_enable_tracking( new Terms_Of_Service(), $status );
@@ -426,6 +429,9 @@ class Jetpack_AI_Page {
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			// Images are served from the plugin directory, so they need the plugin version
+			// to bust caches across updates — webpack used to content-hash their filenames.
+			'assetsVersion'     => JETPACK__VERSION,
 			// The redirect entry bakes in the jetpack_ai_yearly product and
 			// a post-checkout return to this page, so both can be
 			// retargeted without shipping a code change.
@@ -477,13 +483,6 @@ class Jetpack_AI_Page {
 				absint( $blog_id )
 			),
 			'before'
-		);
-
-		wp_enqueue_style(
-			'jetpack-ai-admin',
-			plugins_url( '_inc/build/jetpack-ai-admin.css', JETPACK__PLUGIN_FILE ),
-			array( 'wp-components' ),
-			$script_version
 		);
 	}
 
@@ -624,9 +623,9 @@ class Jetpack_AI_Page {
 	}
 
 	/**
-	 * Render the page container. The React app mounts into this div.
+	 * Render the page, or say why it could not be rendered.
 	 *
-	 * AdminPage from @automattic/jetpack-components handles the full-page layout.
+	 * The generated wp-build page owns the markup the app mounts into.
 	 */
 	public function page_render() {
 		if ( self::should_render_wp_build() ) {
@@ -636,8 +635,9 @@ class Jetpack_AI_Page {
 
 		// The build output is missing; say so rather than leaving a silent blank page.
 		printf(
-			'<div class="notice notice-error"><p>%s</p></div>',
-			esc_html__( 'Jetpack AI could not load because the plugin assets are missing. Please reinstall Jetpack.', 'jetpack' )
+			'<div class="wrap"><h1>%s</h1><div class="notice notice-error"><p>%s</p></div></div>',
+			esc_html__( 'Jetpack AI', 'jetpack' ),
+			esc_html__( 'Jetpack AI could not be loaded because its assets are missing. Reinstalling or updating the plugin usually fixes this. If it keeps happening, contact your site administrator or host.', 'jetpack' )
 		);
 	}
 }

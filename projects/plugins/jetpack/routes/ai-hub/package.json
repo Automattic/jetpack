@@ -2,6 +2,7 @@
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
+		"@automattic/jetpack-ai-client": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
