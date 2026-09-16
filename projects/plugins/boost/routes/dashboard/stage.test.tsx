@@ -20,8 +20,12 @@ jest.mock( '../../_inc/overview/overview', () => {
 			onHeaderActionChange: ( action: ReactNode ) => void;
 		} ) {
 			useEffect( () => {
+				if ( ! isVisible ) {
+					return undefined;
+				}
 				onHeaderActionChange( <button>Run speed test</button> );
-			}, [ onHeaderActionChange ] );
+				return () => onHeaderActionChange( null );
+			}, [ isVisible, onHeaderActionChange ] );
 			return <div data-visible={ isVisible }>Performance Overview</div>;
 		},
 	};
@@ -95,7 +99,9 @@ describe( 'Boost dashboard stage', () => {
 		);
 		const header = within( screen.getByRole( 'banner' ) );
 		expect( header.getByText( 'Improve your site speed and performance.' ) ).toBeInTheDocument();
-		expect( header.getByRole( 'button', { name: 'Run speed test' } ) ).toBeInTheDocument();
+		expect( header.queryAllByRole( 'button', { name: 'Run speed test' } ) ).toHaveLength(
+			tab === 'Overview' ? 1 : 0
+		);
 	} );
 
 	it.each(
@@ -175,6 +181,9 @@ describe( 'Boost dashboard stage', () => {
 			rerender( <Stage /> );
 
 			expect( screen.getByText( 'Performance Overview' ) ).toBe( overview );
+			expect( screen.queryAllByRole( 'button', { name: 'Run speed test' } ) ).toHaveLength(
+				url === '/?page=jetpack-boost' ? 1 : 0
+			);
 			expect( getSettingsMount() ).toBe( settingsMount );
 			expect( getSubpageMount() ).toBe( subpageMount );
 		}
