@@ -36,6 +36,11 @@ const TIERS = array(
 );
 
 /**
+ * Zero-based index of $position in Admin_Menu::add_menu()'s signature.
+ */
+const POSITION_ARG_INDEX = 5;
+
+/**
  * Path fragments to skip. Tests pass off-tier positions deliberately, to assert what happens.
  */
 const SKIP = array( '/vendor/', '/jetpack_vendor/', '/node_modules/', '/tests/', '/build/', '/dist/' );
@@ -155,7 +160,7 @@ function find_calls( $file ) {
 
 		$calls[] = array(
 			'line'     => $tokens[ $i ][2],
-			'position' => $args[5] ?? '',
+			'position' => $args[ POSITION_ARG_INDEX ] ?? '',
 		);
 	}
 
@@ -232,7 +237,7 @@ function tier_for( $position ) {
 		return 'omitted';
 	}
 
-	if ( preg_match( '/^(?:Admin_Menu|self|static)::(POSITION_\w+)$/', $position, $m ) ) {
+	if ( preg_match( '/(?:^|\\\\)(?:Admin_Menu|self|static)::(POSITION_\w+)$/', $position, $m ) ) {
 		return isset( TIERS[ $m[1] ] ) ? $m[1] : null;
 	}
 
@@ -268,6 +273,12 @@ if ( $list ) {
 		printf( "%-78s %-28s %s\n", $entry['where'], $entry['position'], $entry['tier'] ?? 'OFF-TIER' );
 	}
 	echo "\n";
+}
+
+// A guard that finds nothing has to fail loudly; passing would hide its own breakage.
+if ( array() === $all ) {
+	fprintf( STDERR, "Found no Admin_Menu::add_menu() call sites at all. The scan is broken.\n" );
+	exit( 1 );
 }
 
 if ( array() === $violations ) {
