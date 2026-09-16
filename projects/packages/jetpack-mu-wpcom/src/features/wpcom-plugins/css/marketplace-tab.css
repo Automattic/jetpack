@@ -121,10 +121,11 @@
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__actions {
 	display: flex;
-	flex-direction: column;
-	gap: 8px;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px 12px;
 	margin-block-start: 14px;
-	text-align: center;
 }
 
 /*
@@ -137,7 +138,6 @@
 	box-sizing: border-box;
 	align-items: center;
 	justify-content: center;
-	inline-size: 100%;
 	min-block-size: 40px;
 	block-size: auto;
 	text-align: center;

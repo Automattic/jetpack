@@ -229,13 +229,14 @@ function wpcom_marketplace_render_card( array $card ) {
 		<?php wpcom_marketplace_render_price( $card ); ?>
 
 		<div class="wpcom-marketplace-card__actions">
-			<?php
-			// Buttons are built from escaped parts, and core's own button carries data attributes.
-			echo wpcom_marketplace_card_button( $card ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			?>
 			<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal">
 				<?php esc_html_e( 'Details', 'jetpack-mu-wpcom' ); ?>
 			</a>
+			<?php
+			// Details comes first so reading order and tab order match what is on screen.
+			// Buttons are built from escaped parts, and core's own button carries data attributes.
+			echo wpcom_marketplace_card_button( $card ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			?>
 		</div>
 	</div>
 	<?php
