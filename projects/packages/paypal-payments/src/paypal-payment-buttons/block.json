@@ -132,17 +132,21 @@
 		},
 		"collectShippingAddress": {
 			"type": "boolean",
-			"default": true
+			"default": false
 		},
 		"shippingEnabled": {
 			"type": "boolean",
 			"default": false
 		},
-		"shippingType": {
+		"shippingMode": {
 			"type": "string",
 			"default": "FLAT"
 		},
 		"shippingValue": {
+			"type": "string",
+			"default": ""
+		},
+		"shippingAdditionalValue": {
 			"type": "string",
 			"default": ""
 		},

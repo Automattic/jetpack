@@ -21,6 +21,7 @@ import {
 import {
 	BaseControl,
 	Button,
+	CheckboxControl,
 	CustomSelectControl,
 	Notice,
 	PanelBody,
@@ -55,14 +56,17 @@ import { API_BASE } from './utils/api-base';
 import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import { withPartnerAttribution } from './utils/partner-attribution';
+import { RESOURCE_ATTRIBUTES, resetToDefaults, turnGateOff } from './utils/resource-sync';
 import {
 	getUserFriendlyError,
 	getValidationErrors,
 	hasBlockingError,
+	hasCheckoutOptionError,
 	MAX_CUSTOMER_NOTES,
 	MAX_DESCRIPTION_LENGTH,
 	MAX_NAME_LENGTH,
 	MAX_PRODUCT_ID_LENGTH,
+	SHIPPING_MODES_WITH_FEE,
 } from './utils/validation';
 
 // Button type is always 'single' — the hosted payment page handles
@@ -95,6 +99,30 @@ const TAX_PROFILE_URL = {
 	sandbox: 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax',
 	production: 'https://www.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax',
 };
+
+// PayPal's shipping settings page. A different cgi-bin script from the tax one,
+// not the same template with a swapped argument - do not fold them together.
+const SHIPPING_PROFILE_URL = {
+	sandbox: 'https://www.sandbox.paypal.com/cgi-bin/customerprofileweb?cmd=_profile-shipping',
+	production: 'https://www.paypal.com/cgi-bin/customerprofileweb?cmd=_profile-shipping',
+};
+
+// The select writes the mode, not PayPal's wire type: PROFILE and FREE both send
+// PREFERENCE, FLAT and QUANTITY both send FLAT. In the order the design lists them.
+const SHIPPING_MODES = [
+	{
+		label: __( 'Use shipping from my PayPal settings', 'jetpack-paypal-payments' ),
+		value: 'PROFILE',
+	},
+	{ label: __( 'Use quantity-based shipping fee', 'jetpack-paypal-payments' ), value: 'QUANTITY' },
+	{ label: __( 'Use specific shipping fee', 'jetpack-paypal-payments' ), value: 'FLAT' },
+	{ label: __( 'Free shipping', 'jetpack-paypal-payments' ), value: 'FREE' },
+];
+
+// Pre-extracted for the same i18n reason as the tax placeholders above: the first
+// amount field's label changes with the mode.
+const labelShippingFirstItem = __( 'Shipping fee for first item', 'jetpack-paypal-payments' );
+const labelShippingFee = __( 'Enter shipping fee', 'jetpack-paypal-payments' );
 
 /**
  * API-managed PayPal Payment Buttons edit component.
@@ -134,6 +162,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		discountEnabled,
 		discountType,
 		discountValue,
+		shippingEnabled,
+		shippingMode,
+		shippingValue,
+		shippingAdditionalValue,
+		collectShippingAddress,
 		format,
 		qrShowCaption,
 		qrCaption,
@@ -202,6 +235,22 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		}
 	);
 
+	// Same sentence as the tax hint, different link and destination.
+	const shippingProfileHint = createInterpolateElement(
+		__(
+			'This will be applied when the customer enters their address. <ShippingSettingsLink>Set up or manage shipping settings</ShippingSettingsLink>',
+			'jetpack-paypal-payments'
+		),
+		{
+			ShippingSettingsLink: (
+				<Link
+					openInNewTab
+					href={ SHIPPING_PROFILE_URL[ environment ] || SHIPPING_PROFILE_URL.production }
+				/>
+			),
+		}
+	);
+
 	// Confirmation dialog state for destructive actions.
 	const [ showDeleteConfirm, setShowDeleteConfirm ] = useState( false );
 	const [ showDisconnectConfirm, setShowDisconnectConfirm ] = useState( false );
@@ -234,6 +283,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 
 	const discountIsPercentage = ( discountType || 'FLAT' ) === 'PERCENTAGE';
 
+	const activeShippingMode = shippingMode || 'FLAT';
+	const shippingHasFee = SHIPPING_MODES_WITH_FEE.includes( activeShippingMode );
+
 	const comparisonPrice = getComparisonPrice( variantPricingOn, variants, price );
 
 	/**
@@ -258,6 +310,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				discountType,
 				discountValue,
 				comparisonPrice,
+				shippingEnabled,
+				shippingMode,
+				shippingValue,
+				shippingAdditionalValue,
 			} ),
 		[
 			productName,
@@ -275,6 +331,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			discountType,
 			discountValue,
 			comparisonPrice,
+			shippingEnabled,
+			shippingMode,
+			shippingValue,
+			shippingAdditionalValue,
 		]
 	);
 
@@ -341,18 +401,13 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			broadcastConnectionChange( false );
 			// Clear block attributes so the block shows the connect wizard.
 			setAttributes( {
-				isApiManaged: false,
-				resourceId: '',
-				paymentLink: '',
-				productName: '',
-				price: '',
-				productDescription: '',
+				// Everything the payment was the source of truth for, back to its
+				// block.json default - so reconnecting starts clean rather than
+				// seeding the next payment with the last one's tax and shipping.
+				...resetToDefaults( 'isApiManaged', 'resourceId', ...RESOURCE_ATTRIBUTES ),
+				// The image is block-owned and has no default to read.
 				imageUrl: undefined,
 				imageId: undefined,
-				returnUrl: '',
-				variantsEnabled: false,
-				variants: null,
-				currencyCode: 'USD',
 			} );
 			setSuccessMessage( __( 'PayPal account disconnected.', 'jetpack-paypal-payments' ) );
 		};
@@ -815,13 +870,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				     still close it. */ }
 				<PanelBody
 					title={ __( 'Checkout Options', 'jetpack-paypal-payments' ) }
-					initialOpen={
-						!! (
-							validationErrors.taxValue ||
-							validationErrors.handlingValue ||
-							validationErrors.discountValue
-						)
-					}
+					initialOpen={ hasCheckoutOptionError( validationErrors ) }
 				>
 					{ /* WOOPTP-171: Customer Notes */ }
 					<ToggleControl
@@ -845,7 +894,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									customerNotes: [ { label: '', required: false } ],
 								} );
 							} else {
-								setAttributes( { customerNotes: [] } );
+								setAttributes( resetToDefaults( 'customerNotes' ) );
 							}
 						} }
 						disabled={ isBusy }
@@ -938,14 +987,23 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						label={ __( 'Let customers set quantity', 'jetpack-paypal-payments' ) }
 						help={ adjustableQuantity ? helpQtyOn : helpQtyOff }
 						checked={ adjustableQuantity }
-						onChange={ value => setAttributes( { adjustableQuantity: value } ) }
+						onChange={ value =>
+							setAttributes(
+								value ? { adjustableQuantity: true } : turnGateOff( 'adjustableQuantity' )
+							)
+						}
 						disabled={ isBusy }
 					/>
 					{ adjustableQuantity && (
 						<TextControl
 							label={ __( 'Maximum quantity', 'jetpack-paypal-payments' ) }
 							value={ maxQuantity || '' }
-							onChange={ value => setAttributes( { maxQuantity: parseInt( value, 10 ) || 10 } ) }
+							onChange={ value =>
+								setAttributes( {
+									maxQuantity:
+										parseInt( value, 10 ) || resetToDefaults( 'maxQuantity' ).maxQuantity,
+								} )
+							}
 							type="number"
 							min={ 2 }
 							max={ 999 }
@@ -962,7 +1020,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						label={ __( 'Add tax', 'jetpack-paypal-payments' ) }
 						help={ __( 'Set the tax rate for this item', 'jetpack-paypal-payments' ) }
 						checked={ taxEnabled }
-						onChange={ value => setAttributes( { taxEnabled: value } ) }
+						onChange={ value =>
+							setAttributes( value ? { taxEnabled: true } : turnGateOff( 'taxEnabled' ) )
+						}
 						disabled={ isBusy }
 					/>
 					{ taxEnabled && (
@@ -986,7 +1046,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 								onChange={ value =>
 									setAttributes(
 										'profile' === value
-											? { taxType: 'PREFERENCE', taxValue: '' }
+											? { taxType: 'PREFERENCE', ...resetToDefaults( 'taxValue' ) }
 											: { taxType: 'PERCENTAGE' }
 									)
 								}
@@ -1025,12 +1085,91 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						</>
 					) }
 
+					{ /* WOOPTP-493: Shipping */ }
+					<ToggleControl
+						label={ __( 'Add shipping', 'jetpack-paypal-payments' ) }
+						help={ __( 'Set shipping fees and get address', 'jetpack-paypal-payments' ) }
+						checked={ shippingEnabled }
+						// Clear the mode and both fees on the way off. Left behind, the
+						// next mount's read-back reads them as PayPal having changed
+						// the button.
+						onChange={ value =>
+							setAttributes( value ? { shippingEnabled: true } : turnGateOff( 'shippingEnabled' ) )
+						}
+						disabled={ isBusy }
+					/>
+					{ shippingEnabled && (
+						<>
+							<SelectControl
+								label={ __( 'Shipping fee', 'jetpack-paypal-payments' ) }
+								value={ activeShippingMode }
+								options={ SHIPPING_MODES }
+								// Clear whatever the new mode does not show. A fee left behind
+								// its own field is one the read-back forces blank on the next
+								// mount, so it reports PayPal as having changed the button.
+								onChange={ value =>
+									setAttributes( {
+										shippingMode: value,
+										...( SHIPPING_MODES_WITH_FEE.includes( value )
+											? {}
+											: resetToDefaults( 'shippingValue' ) ),
+										...( 'QUANTITY' === value ? {} : resetToDefaults( 'shippingAdditionalValue' ) ),
+									} )
+								}
+								help={ 'PROFILE' === activeShippingMode ? shippingProfileHint : undefined }
+								disabled={ isBusy }
+							/>
+							{ shippingHasFee && (
+								<AmountField
+									label={
+										'QUANTITY' === activeShippingMode ? labelShippingFirstItem : labelShippingFee
+									}
+									value={ shippingValue }
+									onChange={ value => setAttributes( { shippingValue: value } ) }
+									suffix={ currencySymbol }
+									step={ priceStep }
+									min="0"
+									placeholder={ __( 'Amount', 'jetpack-paypal-payments' ) }
+									error={ validationErrors.shippingValue }
+									disabled={ isBusy }
+								/>
+							) }
+							{ 'QUANTITY' === activeShippingMode && (
+								<AmountField
+									label={ __( 'Additional items (optional)', 'jetpack-paypal-payments' ) }
+									value={ shippingAdditionalValue }
+									onChange={ value => setAttributes( { shippingAdditionalValue: value } ) }
+									suffix={ currencySymbol }
+									step={ priceStep }
+									min="0"
+									placeholder={ __( 'Amount', 'jetpack-paypal-payments' ) }
+									error={ validationErrors.shippingAdditionalValue }
+									disabled={ isBusy }
+								/>
+							) }
+							{ /* The design nests this under the toggle, so turning shipping
+							     off sends collect_shipping_address: false with it. */ }
+							<CheckboxControl
+								label={ __( 'Collect shipping address', 'jetpack-paypal-payments' ) }
+								help={ __(
+									'Requires customer to add shipping address during checkout',
+									'jetpack-paypal-payments'
+								) }
+								checked={ !! collectShippingAddress }
+								onChange={ value => setAttributes( { collectShippingAddress: value } ) }
+								disabled={ isBusy }
+							/>
+						</>
+					) }
+
 					{ /* WOOPTP-493: Handling fee */ }
 					<ToggleControl
 						label={ __( 'Add handling fee', 'jetpack-paypal-payments' ) }
 						help={ __( 'One fee per purchase', 'jetpack-paypal-payments' ) }
 						checked={ handlingEnabled }
-						onChange={ value => setAttributes( { handlingEnabled: value } ) }
+						onChange={ value =>
+							setAttributes( value ? { handlingEnabled: true } : turnGateOff( 'handlingEnabled' ) )
+						}
 						disabled={ isBusy }
 					/>
 					{ handlingEnabled && (
@@ -1053,13 +1192,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						help={ __( 'Applies to each item, no matter quantity', 'jetpack-paypal-payments' ) }
 						checked={ discountEnabled }
 						// Clear the value on the way off. Left behind, the next mount's
-						// reconcile reads it as PayPal having changed the button.
+						// read-back reads it as PayPal having changed the button.
 						onChange={ value =>
-							setAttributes(
-								value
-									? { discountEnabled: true }
-									: { discountEnabled: false, discountType: 'FLAT', discountValue: '' }
-							)
+							setAttributes( value ? { discountEnabled: true } : turnGateOff( 'discountEnabled' ) )
 						}
 						disabled={ isBusy }
 					/>
@@ -1080,7 +1215,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 								// Clear the value with the type: 2 kept across a switch turns $2 off
 								// into 2% off, and both are legal.
 								onChange={ ( { selectedItem } ) =>
-									setAttributes( { discountType: selectedItem.key, discountValue: '' } )
+									setAttributes( {
+										discountType: selectedItem.key,
+										...resetToDefaults( 'discountValue' ),
+									} )
 								}
 								disabled={ isBusy }
 							/>

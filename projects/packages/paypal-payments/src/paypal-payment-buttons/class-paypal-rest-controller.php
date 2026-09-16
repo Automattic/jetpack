@@ -1035,9 +1035,6 @@ class PayPal_REST_Controller {
 							'type'     => 'string',
 							'required' => false,
 						),
-						// The form owns handling and discounts; shipping is still set
-						// outside it, and a PUT replaces the whole resource, so the
-						// editor sends that back.
 						'shipping'                 => $amount_list,
 						'handling'                 => $amount_list,
 						'discounts'                => $amount_list,
@@ -1165,7 +1162,10 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// Tax configuration.
+			// Tax configuration. Unlike the three amount lists above, the type is
+			// whitelisted here because the value is derived from it - a rate, an
+			// amount, or PROFILE. Falling back rewrites an unmodelled type into a
+			// rate and keeps the number, so a flat 5.00 becomes 5%. See TODO_LIST B9.
 			if ( ! empty( $item['taxes'] ) && is_array( $item['taxes'] ) ) {
 				$clean_taxes = array();
 				$valid_types = array( 'PERCENTAGE', 'PREFERENCE', 'FLAT' );

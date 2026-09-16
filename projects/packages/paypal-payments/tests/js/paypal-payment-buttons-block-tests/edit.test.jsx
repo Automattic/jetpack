@@ -3244,6 +3244,335 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
+	describe( 'Shipping', () => {
+		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-SHIP1';
+		const attributes = {
+			isApiManaged: true,
+			resourceId: 'PLB-SHIP1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-SHIP1',
+			productName: 'Test Widget',
+			price: '29.99',
+			currencyCode: 'USD',
+			shippingEnabled: true,
+			shippingMode: 'FLAT',
+			shippingValue: '5.00',
+		};
+
+		/**
+		 * Mock the connection check and the block's mount read.
+		 *
+		 * @param {string} environment - The environment the connection reports.
+		 */
+		function mockConnected( environment = 'sandbox' ) {
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment } );
+				}
+				if ( path === resourcePath && method === undefined ) {
+					return Promise.resolve( { id: 'PLB-SHIP1', line_items: [ {} ] } );
+				}
+				return Promise.resolve( {} );
+			} );
+		}
+
+		/**
+		 * Render the editor with the shipping fixture, plus any overrides.
+		 *
+		 * @param {object} overrides   - Attributes to merge over the fixture.
+		 * @param {string} environment - The environment the connection reports.
+		 */
+		async function renderShipping( overrides = {}, environment = 'sandbox' ) {
+			mockConnected( environment );
+
+			render(
+				<Edit
+					attributes={ { ...attributes, ...overrides } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+		}
+
+		const missingFee = 'To continue, add the requested info or turn off this feature.';
+
+		it( 'shows the toggle alone while shipping is off', async () => {
+			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
+
+			expect( screen.queryByLabelText( 'Shipping fee' ) ).not.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Collect shipping address' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		// The design nests the checkbox under the toggle, so it rides every mode.
+		it.each( [ 'PROFILE', 'QUANTITY', 'FLAT', 'FREE' ] )(
+			'offers the address checkbox in %s mode',
+			async shippingMode => {
+				await renderShipping( { shippingMode } );
+
+				expect( screen.getByLabelText( 'Collect shipping address' ) ).toBeInTheDocument();
+			}
+		);
+
+		it.each( [
+			[ 'PROFILE', 'Use shipping from my PayPal settings' ],
+			[ 'FREE', 'Free shipping' ],
+		] )( 'asks for no amount in %s mode', async ( shippingMode, label ) => {
+			await renderShipping( { shippingMode, shippingValue: '' } );
+
+			expect( screen.getByLabelText( 'Shipping fee' ) ).toHaveValue( shippingMode );
+			expect( screen.getByRole( 'option', { name: label } ) ).toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Enter shipping fee' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		it( 'links to PayPal in profile mode', async () => {
+			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' } );
+
+			expect(
+				screen.getByRole( 'link', { name: 'Set up or manage shipping settings' } )
+			).toHaveAttribute(
+				'href',
+				'https://www.sandbox.paypal.com/cgi-bin/customerprofileweb?cmd=_profile-shipping'
+			);
+		} );
+
+		it.each( [ 'QUANTITY', 'FLAT', 'FREE' ] )(
+			'keeps the link to profile mode, not %s',
+			async shippingMode => {
+				await renderShipping( { shippingMode } );
+
+				expect(
+					screen.queryByRole( 'link', { name: 'Set up or manage shipping settings' } )
+				).not.toBeInTheDocument();
+			}
+		);
+
+		// An environment the connection has not reported yet points at production, so
+		// the link never sends a live merchant to the sandbox.
+		it( 'falls back to the production settings page', async () => {
+			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' }, null );
+
+			expect(
+				screen.getByRole( 'link', { name: 'Set up or manage shipping settings' } )
+			).toHaveAttribute(
+				'href',
+				'https://www.paypal.com/cgi-bin/customerprofileweb?cmd=_profile-shipping'
+			);
+		} );
+
+		it( 'offers the four modes in the order the design lists them', async () => {
+			await renderShipping();
+
+			expect(
+				[ ...screen.getByLabelText( 'Shipping fee' ).options ].map( o => o.textContent )
+			).toEqual( [
+				'Use shipping from my PayPal settings',
+				'Use quantity-based shipping fee',
+				'Use specific shipping fee',
+				'Free shipping',
+			] );
+		} );
+
+		// Every attribute a toggle hides goes back to its block.json default, so the
+		// next mount's read-back agrees with a payment that carries none of it.
+		it( 'resets the tax fields to their defaults when tax goes off', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ {
+						...attributes,
+						taxEnabled: true,
+						taxType: 'FLAT',
+						taxName: 'VAT',
+						taxValue: '1.50',
+					} }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			await user.click( screen.getByLabelText( 'Add tax' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				taxEnabled: false,
+				taxType: 'PERCENTAGE',
+				taxName: 'Sales Tax',
+				taxValue: '',
+			} );
+		} );
+
+		it( 'resets the handling fee to its default when the fee goes off', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, handlingEnabled: true, handlingValue: '4.00' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			await user.click( screen.getByLabelText( 'Add handling fee' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				handlingEnabled: false,
+				handlingValue: '',
+			} );
+		} );
+
+		it( 'turns shipping on without touching anything else', async () => {
+			const user = userEvent.setup();
+			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
+
+			await user.click( screen.getByLabelText( 'Add shipping' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { shippingEnabled: true } );
+		} );
+
+		it( 'asks for one amount in specific-fee mode', async () => {
+			await renderShipping();
+
+			expect( screen.getByLabelText( 'Enter shipping fee' ) ).toHaveValue( 5 );
+			expect( screen.queryByLabelText( 'Additional items (optional)' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'asks for two amounts in quantity-based mode', async () => {
+			await renderShipping( { shippingMode: 'QUANTITY', shippingAdditionalValue: '2.00' } );
+
+			expect( screen.getByLabelText( 'Shipping fee for first item' ) ).toHaveValue( 5 );
+			expect( screen.getByLabelText( 'Additional items (optional)' ) ).toHaveValue( 2 );
+		} );
+
+		it( 'refuses to save a fee mode with no amount', async () => {
+			await renderShipping( { shippingValue: '' } );
+
+			expect( screen.getByText( missingFee ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Enter shipping fee' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
+		} );
+
+		// The second amount is optional even here - PayPal only requires the first.
+		it( 'saves quantity-based shipping with no per-extra-item fee', async () => {
+			await renderShipping( { shippingMode: 'QUANTITY', shippingAdditionalValue: '' } );
+
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		it( 'saves a fee of zero', async () => {
+			await renderShipping( { shippingValue: '0' } );
+
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		// The fee fields are gone in the two preference modes, so a leftover amount
+		// would never be seen again while the read-back forces it blank.
+		it.each( [ 'PROFILE', 'FREE' ] )(
+			'clears both amounts on the way to %s',
+			async shippingMode => {
+				const user = userEvent.setup();
+				await renderShipping( { shippingMode: 'QUANTITY', shippingAdditionalValue: '2.00' } );
+
+				await user.selectOptions( screen.getByLabelText( 'Shipping fee' ), shippingMode );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					shippingMode,
+					shippingValue: '',
+					shippingAdditionalValue: '',
+				} );
+			}
+		);
+
+		// Every mode clears exactly the fields it does not show. A fee left behind
+		// its own field is a permanent diff against the read-back.
+		it.each( [
+			[ 'QUANTITY', { shippingMode: 'QUANTITY' } ],
+			[ 'FLAT', { shippingMode: 'FLAT', shippingAdditionalValue: '' } ],
+		] )( 'switching to %s keeps the fee it still shows', async ( shippingMode, expected ) => {
+			const user = userEvent.setup();
+			await renderShipping( { shippingMode: 'QUANTITY', shippingAdditionalValue: '2.00' } );
+
+			await user.selectOptions( screen.getByLabelText( 'Shipping fee' ), shippingMode );
+
+			expect( setAttributes ).toHaveBeenCalledWith( expected );
+		} );
+
+		// The three attributes have to go with the toggle. Left behind, the next
+		// mount's read-back reports PayPal as having changed the button.
+		// The toggle hides the address checkbox too, so it resets with the rest.
+		it( 'resets every shipping field to its default when shipping goes off', async () => {
+			const user = userEvent.setup();
+			await renderShipping( {
+				shippingMode: 'QUANTITY',
+				shippingAdditionalValue: '2.00',
+				collectShippingAddress: true,
+			} );
+
+			await user.click( screen.getByLabelText( 'Add shipping' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				shippingEnabled: false,
+				shippingMode: 'FLAT',
+				shippingValue: '',
+				shippingAdditionalValue: '',
+				collectShippingAddress: false,
+			} );
+		} );
+
+		it( 'writes the address preference when the box is ticked', async () => {
+			const user = userEvent.setup();
+			await renderShipping();
+
+			await user.click( screen.getByLabelText( 'Collect shipping address' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: true } );
+		} );
+
+		it.each( [
+			[ 'Enter shipping fee', 'FLAT', 'shippingValue' ],
+			[ 'Additional items (optional)', 'QUANTITY', 'shippingAdditionalValue' ],
+		] )( 'writes %s', async ( label, shippingMode, attribute ) => {
+			const user = userEvent.setup();
+			await renderShipping( { shippingMode, shippingValue: '', shippingAdditionalValue: '' } );
+
+			await user.type( screen.getByLabelText( label ), '7' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { [ attribute ]: '7' } );
+		} );
+
+		// JPY takes no decimals, so the spinner must not offer one.
+		it( 'steps both fees by the currency', async () => {
+			await renderShipping( { shippingMode: 'QUANTITY', currencyCode: 'JPY' } );
+
+			expect( screen.getByLabelText( 'Shipping fee for first item' ) ).toHaveAttribute(
+				'step',
+				'1'
+			);
+			expect( screen.getByLabelText( 'Additional items (optional)' ) ).toHaveAttribute(
+				'step',
+				'1'
+			);
+		} );
+
+		it( 'shows the currency symbol on the fee', async () => {
+			await renderShipping( { currencyCode: 'EUR' } );
+
+			expect( control( 'Enter shipping fee' ).getByText( '\u20AC' ) ).toBeInTheDocument();
+		} );
+	} );
+
 	describe( 'Discount', () => {
 		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-DISC1';
 		const attributes = {
@@ -4009,6 +4338,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				message: 'To continue, add the requested info or turn off this feature.',
 				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
+			shippingValue: {
+				attributes: { shippingEnabled: true, shippingMode: 'FLAT', shippingValue: '' },
+				testId: 'control-Enter shipping fee',
+				message: 'To continue, add the requested info or turn off this feature.',
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+			},
+			shippingAdditionalValue: {
+				attributes: {
+					shippingEnabled: true,
+					shippingMode: 'QUANTITY',
+					shippingValue: '5.00',
+					shippingAdditionalValue: '-2',
+				},
+				testId: 'control-Additional items (optional)',
+				message: 'To continue, add the requested info or turn off this feature.',
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+			},
 			returnUrl: {
 				attributes: { returnUrl: 'http://example.com/thanks' },
 				testId: 'url-input-Return URL (optional)',
@@ -4064,6 +4410,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expectStyledError( field, key );
 			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+
+			// A message inside a collapsed panel is a message nobody reads, so the
+			// panel opens itself for its own fields. Whether the field is one of its
+			// own comes from where the control actually sits, not from the same list
+			// the source reads - that would make this assertion agree with any
+			// classification, right or wrong.
+			const checkoutOptions = panel( 'Checkout Options' );
+			expect( checkoutOptions ).toHaveAttribute(
+				'data-initial-open',
+				String( checkoutOptions.contains( field ) )
+			);
 		} );
 
 		// The other half of the split: these warn and the merchant can still save.
