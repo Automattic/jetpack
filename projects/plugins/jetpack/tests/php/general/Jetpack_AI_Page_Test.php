@@ -793,7 +793,11 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 */
 	public function test_wp_build_loads_only_on_the_ai_page() {
 		$method = new ReflectionMethod( Jetpack_AI_Page::class, 'is_ai_admin_request' );
-		$method->setAccessible( true );
+		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
+		// deprecated in 8.5 (a no-op since 8.1), so only call it where it's needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		// The check is admin-gated, and is_admin() is false by default under PHPUnit.
 		set_current_screen( 'dashboard' );

@@ -1,4 +1,4 @@
-import { render, screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
@@ -561,8 +561,11 @@ describe( 'AiOverview', () => {
 		render( <AiOverview { ...PROPS } /> );
 
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
-		// Removing a live region announces nothing, so completion has to be spoken.
-		expect( speak ).toHaveBeenCalledWith( '8 of 20 requests available', 'polite' );
+		// Removing a live region announces nothing, so completion has to be spoken. The
+		// announcement trails the render it reports, so wait for it rather than assume it.
+		await waitFor( () =>
+			expect( speak ).toHaveBeenCalledWith( '8 of 20 requests available', 'polite' )
+		);
 	} );
 
 	test( 'loading: a site that already names a plan gets no placeholder', () => {
