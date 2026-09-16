@@ -8,7 +8,9 @@
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
 use Automattic\Jetpack\Config;
+use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Data_Settings;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Meta as Meta_Module;
 use Automattic\Jetpack\Sync\Modules\Posts as Posts_Module;
 use Automattic\Jetpack\Sync\Modules\Term_Relationships as Term_Relationships_Module;
@@ -19,13 +21,16 @@ use Automattic\WooCommerce\Utilities\FeaturesUtil;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Opts in to the shared WooCommerce Analytics sync module and registers the
- * Premium Analytics-specific sync configuration.
+ * Opts in to the shared WooCommerce Analytics sync module while the site can sync
+ * orders, and registers the Premium Analytics-specific sync configuration.
  */
 class Configuration {
 
 	/**
 	 * FQCN of the Analytics module shipped by the standalone WooCommerce Analytics plugin.
+	 *
+	 * Must track that plugin's class: if it drifts, both modules load under the same
+	 * name and every analytics event syncs twice.
 	 *
 	 * @since $$next-version$$
 	 * @var string
@@ -33,16 +38,19 @@ class Configuration {
 	const ANALYTICS_PLUGIN_MODULE_FQCN = 'Automattic\\WooCommerce\\Analytics\\Internal\\Jetpack\\Sync\\Modules\\Analytics';
 
 	/**
-	 * Checksum tables the shared module registers; audited only once the site can sync orders.
+	 * Cron hook that backfills Analytics data after order attribution is turned on.
 	 *
-	 * @var string[]
+	 * @since $$next-version$$
+	 * @var string
 	 */
-	private const ANALYTICS_CHECKSUM_TABLES = array(
-		'wc_order_stats',
-		'wc_order_product_lookup',
-		'wc_order_coupon_lookup',
-		'wc_order_tax_lookup',
-	);
+	const BACKFILL_ACTION = 'jetpack_premium_analytics_backfill_analytics';
+
+	/**
+	 * Per-request memo of can_site_sync_orders().
+	 *
+	 * @var bool|null
+	 */
+	private $can_sync_orders;
 
 	/**
 	 * Bookings post meta to add to Sync's post meta whitelist. Bookings are synced
@@ -74,6 +82,9 @@ class Configuration {
 	 * Entry point called from Analytics::init(). Schedules the Sync hookups on
 	 * plugins_loaded; the actual registration is a no-op unless WooCommerce is active
 	 * (see {@see configure_sync()}).
+	 *
+	 * Call it before plugins_loaded completes: the Config built in configure_sync() wires
+	 * Sync\Main::configure() from a plugins_loaded priority 2 handler that never fires later.
 	 *
 	 * @return void
 	 */
@@ -112,8 +123,9 @@ class Configuration {
 		// Runs last so another plugin's Analytics module, when present, is already in the list.
 		add_filter( 'jetpack_sync_modules', array( $this, 'add_woocommerce_analytics_module' ), PHP_INT_MAX );
 		add_filter( 'jetpack_full_sync_config', array( $this, 'expand_full_sync_config' ) );
-		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'gate_analytics_checksum_tables' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
+		add_action( 'update_option_woocommerce_feature_order_attribution_enabled', array( $this, 'schedule_backfill_on_attribution_enabled' ), 10, 2 );
+		add_action( self::BACKFILL_ACTION, array( $this, 'backfill_analytics' ) );
 
 		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
 	}
@@ -153,7 +165,10 @@ class Configuration {
 	}
 
 	/**
-	 * Add the shared module unless the standalone plugin's module is present.
+	 * Add the shared module while the site can sync orders and no other plugin provides one.
+	 *
+	 * Registration is the single gate: full sync and checksums follow module presence
+	 * inside the sync package, so all three switch together.
 	 *
 	 * @param array|mixed $modules Current Sync module class names.
 	 * @return array|mixed Updated Sync module class names.
@@ -164,7 +179,7 @@ class Configuration {
 			return $modules;
 		}
 
-		if ( in_array( self::ANALYTICS_PLUGIN_MODULE_FQCN, $modules, true ) ) {
+		if ( in_array( self::ANALYTICS_PLUGIN_MODULE_FQCN, $modules, true ) || ! $this->can_site_sync_orders() ) {
 			return array_values( array_diff( $modules, array( WooCommerce_Analytics_Module::class ) ) );
 		}
 
@@ -200,17 +215,35 @@ class Configuration {
 	}
 
 	/**
-	 * Keep the Analytics checksum tables out of audits until the site can sync orders.
+	 * Schedule an Analytics full sync once order attribution turns on, to backfill the rows
+	 * skipped while the module was unregistered.
 	 *
-	 * @param array $tables Current checksum table configuration.
-	 * @return array Updated checksum table configuration.
+	 * Deferred to a later request: the module list is memoized per request, and outside
+	 * the settings form this request resolved it before the option changed.
+	 *
+	 * @param mixed $old_value Previous option value.
+	 * @param mixed $new_value New option value.
+	 * @return void
 	 */
-	public function gate_analytics_checksum_tables( array $tables ): array {
-		if ( $this->can_site_sync_orders() ) {
-			return $tables;
+	public function schedule_backfill_on_attribution_enabled( $old_value, $new_value ): void {
+		if ( 'yes' !== $new_value || 'yes' === $old_value || wp_next_scheduled( self::BACKFILL_ACTION ) ) {
+			return;
 		}
 
-		return array_diff_key( $tables, array_flip( self::ANALYTICS_CHECKSUM_TABLES ) );
+		wp_schedule_single_event( time(), self::BACKFILL_ACTION );
+	}
+
+	/**
+	 * Run the full sync scheduled by {@see schedule_backfill_on_attribution_enabled()}.
+	 *
+	 * @return bool Whether a full sync started.
+	 */
+	public function backfill_analytics(): bool {
+		if ( false === Modules::get_module( 'woocommerce_analytics' ) ) {
+			return false;
+		}
+
+		return (bool) Actions::do_full_sync( array( 'woocommerce_analytics' => 1 ) );
 	}
 
 	/**
@@ -219,7 +252,11 @@ class Configuration {
 	 * @return bool
 	 */
 	protected function can_site_sync_orders(): bool {
-		return $this->is_order_attribution_enabled();
+		if ( null === $this->can_sync_orders ) {
+			$this->can_sync_orders = $this->is_order_attribution_enabled();
+		}
+
+		return $this->can_sync_orders;
 	}
 
 	/**
@@ -237,8 +274,8 @@ class Configuration {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Missing from older WooCommerce stubs.
 			$is_enabled = FeaturesUtil::feature_is_enabled( 'order_attribution' );
 
-			// Account for a feature-settings form submission before WooCommerce updates
-			// the value returned by feature_is_enabled().
+			// A feature-settings submission is read from the form, since the module list is
+			// resolved and synced on this request before WooCommerce persists the option.
 			// phpcs:disable WordPress.Security.NonceVerification.Recommended
 			if ( isset( $_GET['section'] ) && 'features' === $_GET['section'] ) {
 				// phpcs:disable WordPress.Security.NonceVerification.Missing
