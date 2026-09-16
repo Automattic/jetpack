@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
+import { buildMonthCalendarHeatmapData } from '../build-month-calendar-data';
 import HeatmapChart, { HeatmapChartUnresponsive } from '../heatmap-chart';
 import type { HeatmapColumn } from '../types';
 
@@ -644,6 +645,163 @@ describe( 'HeatmapChart column groups', () => {
 			'aria-activedescendant',
 			expect.stringMatching( /-cell-2-0$/ )
 		);
+	} );
+
+	test( 'names a cell by its group, column and row when it has no label of its own', () => {
+		renderChart( {
+			data: grouped.map( ( column, index ) => ( { ...column, label: `W${ index + 1 }` } ) ),
+			columnGroups,
+			rowLabels: [ 'Mon', 'Tue' ],
+		} );
+		expect( screen.getByRole( 'gridcell', { name: 'Jan W1 Mon: 1' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Feb W3 Tue: 6' } ) ).toBeInTheDocument();
+	} );
+
+	test( 'leaves an ungrouped tail and a labelled cell out of the group name', () => {
+		renderChart( {
+			data: [ ...grouped, { data: [ { value: 9, label: 'Total Mon' }, { value: 10 } ] } ],
+			columnGroups,
+			rowLabels: [ 'Mon', 'Tue' ],
+		} );
+		expect( screen.getByRole( 'gridcell', { name: 'Total Mon: 9' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Tue: 10' } ) ).toBeInTheDocument();
+	} );
+
+	test( 'keeps column labels on the first row and group labels on the last with both set', () => {
+		renderChart( {
+			data: grouped.map( ( column, index ) => ( { ...column, label: `W${ index + 1 }` } ) ),
+			columnGroups,
+		} );
+		expect( screen.getByText( 'W3' ) ).toHaveStyle( { gridColumn: '5', gridRow: '1' } );
+		expect( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] ).toHaveStyle( { gridRow: '2' } );
+		const [ jan ] = screen.getAllByTestId( 'heatmap-group-label' );
+		expect( jan ).toHaveStyle( { gridRow: '4' } );
+	} );
+} );
+
+describe( 'HeatmapChart calendar navigation', () => {
+	const calendar = ( range: { start: string; end: string }, days: string[] ) =>
+		buildMonthCalendarHeatmapData(
+			Object.fromEntries( days.map( ( day, index ) => [ day, index + 1 ] ) ),
+			range,
+			{ locale: 'en-US' }
+		);
+
+	const mountCalendar = ( result: ReturnType< typeof calendar > ) => {
+		renderChart( { ...result, keyboardNavigation: 'calendar' } );
+		return screen.getByRole( 'grid', { name: /heatmap/i } );
+	};
+
+	const selectedName = ( grid: HTMLElement ) =>
+		within( grid )
+			.getAllByRole( 'gridcell' )
+			.find( cell => cell.id === grid.getAttribute( 'aria-activedescendant' ) )
+			?.getAttribute( 'aria-label' );
+
+	// Mon Jan 29 to Fri Feb 2 2024: the range crosses from row 4 of January into row 0 of February.
+	const boundary = calendar( { start: '2024-01-29', end: '2024-02-02' }, [
+		'2024-01-29',
+		'2024-01-30',
+		'2024-01-31',
+		'2024-02-01',
+		'2024-02-02',
+	] );
+
+	test( 'places hidden and placeholder slots on the grid like measured cells', () => {
+		mountCalendar( boundary );
+		// Column 1 is the row-label track; February starts one gap track after January's 7 columns.
+		expect( screen.getByRole( 'gridcell', { name: /Jan 29/ } ) ).toHaveStyle( {
+			gridColumn: '2',
+			gridRow: '5',
+		} );
+		expect( screen.getByRole( 'gridcell', { name: /Feb 1/ } ) ).toHaveStyle( {
+			gridColumn: '13',
+			gridRow: '1',
+		} );
+		const hidden = screen.getAllByTestId( 'heatmap-cell-hidden' );
+		const placeholders = screen.getAllByTestId( 'heatmap-cell-placeholder' );
+		// January: Jan 1 is a Monday, so its 31 days fill 5 rows; 11 slots are hidden.
+		expect( hidden ).toHaveLength( 11 + 42 - 29 );
+		expect( placeholders ).toHaveLength( 31 - 3 + 29 - 2 );
+		// Rows render in order, so the first hidden slot is February's Mon Jan 29.
+		expect( hidden[ 0 ] ).toHaveStyle( { gridColumn: '10', gridRow: '1' } );
+		expect( placeholders[ 0 ] ).toHaveStyle( { gridColumn: '2', gridRow: '1' } ); // Mon Jan 1
+	} );
+
+	test( 'reaches every measured day across a month boundary with Right and Left', async () => {
+		const grid = mountCalendar( boundary );
+		const user = userEvent.setup();
+		grid.focus();
+		const visited: ( string | null | undefined )[] = [];
+		for ( let press = 0; press < 5; press++ ) {
+			await user.keyboard( '{ArrowRight}' );
+			visited.push( selectedName( grid ) );
+		}
+		expect( visited ).toEqual( [
+			'Mon, Jan 29, 2024: 1',
+			'Tue, Jan 30, 2024: 2',
+			'Wed, Jan 31, 2024: 3',
+			'Thu, Feb 1, 2024: 4',
+			'Fri, Feb 2, 2024: 5',
+		] );
+		// The end of the range holds the selection.
+		await user.keyboard( '{ArrowRight}' );
+		expect( selectedName( grid ) ).toBe( 'Fri, Feb 2, 2024: 5' );
+		await user.keyboard( '{ArrowLeft}{ArrowLeft}' );
+		expect( selectedName( grid ) ).toBe( 'Wed, Jan 31, 2024: 3' );
+	} );
+
+	test( 'steps a week with Down and Up, into the neighbouring month past its edge', async () => {
+		const grid = mountCalendar(
+			calendar( { start: '2024-01-22', end: '2024-02-12' }, [ '2024-01-29', '2024-02-05' ] )
+		);
+		const user = userEvent.setup();
+		grid.focus();
+		await user.keyboard( '{ArrowRight}' ); // Mon Jan 22
+		await user.keyboard( '{ArrowDown}' );
+		expect( selectedName( grid ) ).toBe( 'Mon, Jan 29, 2024: 1' );
+		await user.keyboard( '{ArrowDown}' );
+		expect( selectedName( grid ) ).toBe( 'Mon, Feb 5, 2024: 2' );
+		await user.keyboard( '{ArrowDown}' );
+		expect( selectedName( grid ) ).toBe( 'Mon, Feb 12, 2024: No data' );
+		await user.keyboard( '{ArrowUp}{ArrowUp}' );
+		expect( selectedName( grid ) ).toBe( 'Mon, Jan 29, 2024: 1' );
+	} );
+
+	test( 'jumps a month with Page Down and Page Up, keeping the slot or taking the nearest day', async () => {
+		const grid = mountCalendar( calendar( { start: '2024-01-01', end: '2024-03-31' }, [] ) );
+		const user = userEvent.setup();
+		grid.focus();
+		await user.keyboard( '{ArrowRight}' ); // Mon Jan 1
+		await user.keyboard( '{PageDown}' );
+		// February's first-week Monday slot is Jan 29, hidden there, so the nearest day after it.
+		expect( selectedName( grid ) ).toBe( 'Thu, Feb 1, 2024: No data' );
+		await user.keyboard( '{PageDown}' );
+		expect( selectedName( grid ) ).toBe( 'Fri, Mar 1, 2024: No data' );
+		// Back up, the same first-week Friday slot holds a day in both months.
+		await user.keyboard( '{PageUp}' );
+		expect( selectedName( grid ) ).toBe( 'Fri, Feb 2, 2024: No data' );
+		await user.keyboard( '{PageUp}' );
+		expect( selectedName( grid ) ).toBe( 'Fri, Jan 5, 2024: No data' );
+		await user.keyboard( '{PageUp}' );
+		expect( selectedName( grid ) ).toBe( 'Fri, Jan 5, 2024: No data' );
+	} );
+
+	test( 'starts on the first measured day rather than the first Monday', async () => {
+		const grid = mountCalendar( calendar( { start: '2024-02-01', end: '2024-02-29' }, [] ) );
+		const user = userEvent.setup();
+		grid.focus();
+		await user.keyboard( '{ArrowRight}' );
+		expect( selectedName( grid ) ).toBe( 'Thu, Feb 1, 2024: No data' );
+	} );
+
+	test( 'ignores Page keys in grid navigation', async () => {
+		renderChart( { data } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+		grid.focus();
+		await user.keyboard( '{PageDown}' );
+		expect( grid ).not.toHaveAttribute( 'aria-activedescendant' );
 	} );
 } );
 

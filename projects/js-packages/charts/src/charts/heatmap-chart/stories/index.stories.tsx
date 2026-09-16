@@ -204,13 +204,19 @@ export const ErrorStates: Story = {
 	},
 };
 
-/** Column groups: a gap and a label under each quarter; the Total column stays outside them. */
+/**
+ * Column groups: a gap and a label under each quarter; the Total column stays outside them.
+ * Cells carry no label of their own, so each is named by its group and row ("Q1 Mon").
+ */
 export const WithColumnGroups: Story = {
 	args: {
 		...Default.args,
 		data: heatmapActivityMatrixWithTotals.map( column => ( {
 			...column,
 			label: column.summary ? column.label : '',
+			data: column.data.map( ( { label, ...cell } ) =>
+				column.summary ? { label, ...cell } : cell
+			),
 		} ) ),
 		columnGroups: [
 			{ label: 'Q1', span: 3 },
@@ -251,7 +257,12 @@ const MonthCalendarGrid = ( {
 		{ weekStartsOn, locale: locale || undefined }
 	);
 	return (
-		<HeatmapChart { ...args } data={ data } columnGroups={ columnGroups }>
+		<HeatmapChart
+			{ ...args }
+			data={ data }
+			columnGroups={ columnGroups }
+			keyboardNavigation="calendar"
+		>
 			<HeatmapChart.Legend lessLabel="Fewer posts" moreLabel="More posts" />
 		</HeatmapChart>
 	);
@@ -261,6 +272,7 @@ const MonthCalendarGrid = ( {
  * Months as one grid sharing one scale: the "Monthly posting activity" layout.
  * Drag the container's corner: the month gaps share the width, shrink to the theme's
  * `groupGap`, and past that the container scrolls with the keyboard selection in view.
+ * Arrow keys step by day and week, Page Up/Down by month.
  */
 export const MonthCalendar: StoryObj< MonthCalendarStoryArgs > = {
 	render: args => <MonthCalendarGrid { ...args } />,
@@ -279,7 +291,7 @@ export const MonthCalendar: StoryObj< MonthCalendarStoryArgs > = {
 		months: {
 			control: { type: 'range', min: 1, max: 12 },
 			description:
-				'Months drawn, ending at the sample range end. Twelve need about 1400px before the gaps grow.',
+				'Months drawn, ending at the sample range end. Narrow the container until the gaps stop growing.',
 			table: { category: 'Calendar' },
 		},
 		weekStartsOn: calendarArgTypes.weekStartsOn,

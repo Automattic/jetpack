@@ -34,12 +34,19 @@ describe( 'resolveColumnGroups', () => {
 			{ label: 'B', span: 1, line: 5 },
 			{ label: 'C', span: 2, line: 7 },
 		] );
+		expect( layout.columns.map( column => column.group ) ).toEqual( [ 0, 0, 1, 2, 2 ] );
 	} );
 
 	test( 'leaves columns past the last group ungrouped and ungapped', () => {
 		const layout = resolveColumnGroups( [ { label: 'A', span: 2 } ], 4, 2 );
 		expect( lines( layout.columns ) ).toEqual( [ 2, 3, 4, 5 ] );
 		expect( gaps( layout.columns ) ).toEqual( [ false, false, false, false ] );
+		expect( layout.columns.map( column => column.group ) ).toEqual( [
+			0,
+			0,
+			undefined,
+			undefined,
+		] );
 	} );
 
 	test.each( [

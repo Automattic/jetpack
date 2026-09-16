@@ -2,8 +2,8 @@ import { warnOnce } from '../../../utils/warn-once';
 import type { HeatmapColumnGroup } from '../types';
 
 export type ColumnGroupLayout = {
-	/** One per data column: its grid column line, and whether a gap track precedes it. */
-	columns: { line: number; gapBefore: boolean }[];
+	/** One per data column: its grid column line, whether a gap track precedes it, and its group's index. */
+	columns: { line: number; gapBefore: boolean; group?: number }[];
 	/** The groups as given, each with the grid column line its label starts on; none when any was unusable. */
 	groups: ( HeatmapColumnGroup & { line: number } )[];
 };
@@ -57,7 +57,7 @@ export const resolveColumnGroups = (
 		}
 		laidOut.push( { ...group, line } );
 		for ( let offset = 0; offset < group.span; offset++ ) {
-			columns.push( { line, gapBefore: groupIndex > 0 && offset === 0 } );
+			columns.push( { line, gapBefore: groupIndex > 0 && offset === 0, group: groupIndex } );
 			line += 1;
 		}
 	} );

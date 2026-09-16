@@ -47,6 +47,8 @@ export type HeatmapTooltipData = {
 	value: number | null;
 	rowLabel?: string;
 	columnLabel?: string;
+	/** Label of the column group the cell falls in, if any. */
+	groupLabel?: string;
 	cellLabel?: string;
 	row: number;
 	column: number;
@@ -63,6 +65,13 @@ export interface HeatmapChartProps
 	 * integer or the spans reach past the last column.
 	 */
 	columnGroups?: HeatmapColumnGroup[];
+	/**
+	 * How the arrow keys move the selection. `grid` steps across the whole grid.
+	 * `calendar` reads each column group as a page: Left/Right by one cell (wrapping
+	 * to the next row, then the next group), Up/Down by one row into the neighbouring
+	 * group past the edge, Page Up/Down by one group. Default `grid`.
+	 */
+	keyboardNavigation?: 'grid' | 'calendar';
 	/** Accessible name of the grid. Defaults to a localized "Heatmap chart". */
 	ariaLabel?: string;
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
@@ -143,6 +152,8 @@ export type MonthCalendarHeatmapOptions = {
 };
 
 export type MonthCalendarHeatmapResult = {
+	/** For `HeatmapChart`'s `data`: 7 columns per month, 6 cells each. */
 	data: HeatmapColumn[];
+	/** For `HeatmapChart`'s `columnGroups`: one per month, in order. */
 	columnGroups: HeatmapColumnGroup[];
 };
