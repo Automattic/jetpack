@@ -189,6 +189,10 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			title="Jetpack"
+			subTitle={ __(
+				'Set up, switch on, and manage your Jetpack products.',
+				'jetpack-my-jetpack'
+			) }
 			optionalMenuItems={ optionalMenuItems }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }

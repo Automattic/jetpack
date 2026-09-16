@@ -8,21 +8,93 @@ $feature-icon-foreground: #0ced57;
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-sm);
+	// The page footer sits straight under the grid, so the last row needs room.
+	padding-block-end: var(--wpds-dimension-padding-3xl);
 }
 
-// Pinned to three rather than auto-filled, so the row length stays the same
-// on a wide screen instead of growing to four cramped columns.
+// The dark-green banner the AI Hub uses, rebuilt here: My Jetpack is a package
+// and cannot import the Jetpack plugin's own shell. Colours are literal there
+// too, because neither page is wrapped in Jetpack's ThemeProvider.
+.banner {
+	align-items: flex-start;
+	background: $feature-icon-background;
+	border-radius: var(--wpds-border-radius-lg);
+	box-sizing: border-box;
+	display: flex;
+	// Keeps the orbs' stacking inside the banner, away from the sticky toolbar.
+	isolation: isolate;
+	margin-block-end: var(--wpds-dimension-gap-sm);
+	overflow: hidden;
+	padding: var(--wpds-dimension-padding-3xl);
+	position: relative;
+}
+
+.banner__content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	max-inline-size: 32.5rem;
+	position: relative;
+	z-index: 1;
+}
+
+.banner__title {
+	color: #daffdc;
+	font-size: 24px;
+	font-weight: 500;
+	line-height: 40px;
+	margin: 0;
+}
+
+.banner__description {
+	color: #daffdc;
+	font-size: 13px;
+	line-height: 20px;
+	margin: 0;
+}
+
+.banner__close {
+	color: #fff !important;
+	inset-block-start: var(--wpds-dimension-padding-sm);
+	inset-inline-end: var(--wpds-dimension-padding-sm);
+	position: absolute;
+	z-index: 1;
+
+	&:hover {
+		color: #daffdc !important;
+	}
+}
+
+.banner__orb {
+	background: linear-gradient(to right, #04c, #48ff50);
+	block-size: 180px;
+	border-radius: 50%;
+	inline-size: 180px;
+	// Shared by both orbs, so the glow and the sphere share a vertical axis.
+	inset-inline-end: 56px;
+	pointer-events: none;
+	position: absolute;
+}
+
+.banner__orb--top {
+	filter: blur(25px);
+	inset-block-start: -96px;
+}
+
+// Deeper than the AI Hub's -96px: this banner is half the height, so the same
+// offset left most of the sphere showing as a hard edge rather than a glow.
+.banner__orb--bottom {
+	inset-block-end: -140px;
+}
+
+// Two columns, not three: My Jetpack caps its content at ~944px, so a third
+// column leaves each row about 250px wide — the title and its badges wrap onto
+// separate lines and the description runs to four. At two the row reads in one
+// pass, the way the AI Hub's rows do.
 .feature-grid {
 	display: grid;
 	gap: var(--wpds-dimension-gap-lg);
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-@media (max-width: 1280px) {
-
-	.feature-grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 // 782px is where wp-admin itself collapses the sidebar.
@@ -33,15 +105,30 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
+// The navigation row the AI Hub uses, as a card: leading glyph, title and
+// description, trailing chevron, the whole row one target.
 .feature-item {
+	align-items: flex-start;
 	background: var(--wpds-color-background-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: var(--wpds-border-radius-lg);
+	display: flex;
+	gap: var(--wpds-dimension-gap-md);
 	padding: var(--wpds-dimension-padding-xl);
-	transition: border-color 120ms ease-out;
+	position: relative;
+	transition: background-color 120ms ease-out, border-color 120ms ease-out;
 
 	&:hover {
+		background: var(--wpds-color-background-surface-neutral-weak);
 		border-color: var(--wpds-color-stroke-surface-neutral);
+	}
+
+	// wp-admin draws focus as a box-shadow outside the element, which this card's
+	// radius clips. Draw it on the card instead, from whichever control inside has
+	// focus, so a keyboard user can see where they are.
+	&:focus-within {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: calc(var(--wpds-border-width-focus) * -1);
 	}
 }
 
@@ -52,38 +139,86 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
-.feature-item__details {
+.feature-item__icon {
+	display: flex;
+	flex-shrink: 0;
+	// Optical alignment with the cap height of the title next to it.
+	margin-block-start: 2px;
+}
+
+.feature-item__text {
+	display: flex;
 	flex: 1;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
 	min-inline-size: 0;
 }
 
-// Clamped so a long description cannot make one card taller than the rest of
-// its row; the modal carries the full text.
-.feature-item__description {
-	-webkit-box-orient: vertical;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	line-clamp: 2;
-	overflow: hidden;
+.feature-item__heading {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm);
 }
 
-// Pinned to the bottom of the card so Learn more lines up across a row of
-// cards with descriptions of different lengths.
-.feature-item__footer {
-	margin-block-start: auto;
-	margin-inline-start: calc(var(--wpds-dimension-gap-sm) * -1);
+.feature-item__title {
+	color: var(--wpds-color-foreground-content-neutral);
+	margin: 0;
+}
+
+// The title is the row's control, so it takes a button's behaviour and none of
+// its chrome. The card draws its focus ring, which is not clipped.
+.feature-item__open {
+	background: none;
+	border: 0;
+	color: inherit;
+	cursor: pointer;
+	font: inherit;
+	padding: 0;
+	text-align: start;
+
+	// Stretched over the card, so anywhere in the row opens the feature.
+	&::after {
+		content: "";
+		inset: 0;
+		position: absolute;
+	}
+
+	&:focus-visible {
+		box-shadow: none;
+		outline: none;
+	}
+}
+
+.feature-item__description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	margin: 0;
+}
+
+.feature-item__chevron {
+	align-self: center;
+	color: var(--wpds-color-foreground-content-neutral);
+	display: flex;
+	flex-shrink: 0;
 }
 
 .feature-icon {
-	block-size: 4rem;
-	border-radius: var(--wpds-border-radius-lg);
-	flex-shrink: 0;
-	inline-size: 4rem;
+	align-items: center;
+	block-size: 2.25rem;
+	border-radius: var(--wpds-border-radius-md);
+	// A flex box, not an inline span: width on an inline element is ignored, so
+	// the tile only held its size where its parent happened to lay it out.
+	display: flex;
+	flex: none;
+	inline-size: 2.25rem;
+	justify-content: center;
 	overflow: hidden;
 
+	// The product marks ship at 64px, carried in the SVG's own attributes.
+	> *,
 	svg {
 		block-size: 100%;
+		display: block;
 		inline-size: 100%;
 	}
 }
@@ -101,33 +236,53 @@ $feature-icon-foreground: #0ced57;
 	justify-content: center;
 
 	svg {
-		block-size: 36px;
+		block-size: 20px;
 		fill: currentColor;
-		inline-size: 36px;
+		inline-size: 20px;
 	}
 }
 
-
-.feature-chevron {
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	flex-shrink: 0;
-}
 
 .detail-links {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 
-// A portrait dialog, pinned: letting the height follow the content resized the
-// dialog under the cursor on every step between features.
-// The popup centres itself with `top: 50%` and a -50% translate, so the height
-// must leave room on both sides: at 52rem the top edge landed off-screen and
-// the dialog read as stuck to the top. No `inset-block-start` lift either —
-// that only works for a dialog far shorter than the viewport.
+// Sized to its content between a floor and the viewport, not pinned: at a fixed
+// 50rem most features left a third of the dialog empty. The floor keeps the
+// common ones the same height, so stepping does not resize under the cursor.
 .modal-popup {
-	block-size: min(50rem, calc(100dvh - 5rem));
+	block-size: auto;
 	inline-size: min(42.5rem, calc(100vw - 3rem));
+	max-block-size: calc(100dvh - 5rem);
 	max-inline-size: min(42.5rem, calc(100vw - 3rem));
+	min-block-size: min(34rem, calc(100dvh - 5rem));
+}
+
+// One feature replacing another: a fade, with nothing moving, so the dialog
+// does not appear to slide while its own size settles.
+.modal-step {
+	animation:
+		jetpack-feature-step var(--wpds-motion-duration-lg)
+		var(--wpds-motion-easing-subtle);
+}
+
+@keyframes jetpack-feature-step {
+
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.modal-step {
+		animation: none;
+	}
 }
 
 // Fixed height, not an aspect ratio: the artwork is third-party marketing
@@ -136,14 +291,26 @@ $feature-icon-foreground: #0ced57;
 .modal-band {
 	align-items: center;
 	background: $feature-icon-background;
-	block-size: 13rem;
+	block-size: 14rem;
+	box-sizing: border-box;
 	color: $feature-icon-foreground;
 	display: flex;
 	flex: 0 0 auto;
 	justify-content: center;
 	min-block-size: 0;
 	overflow: hidden;
+	// Inset every image the same: some assets carry their own margin and some
+	// bleed to the edge, so without it the artwork sits inconsistently.
+	padding-block: var(--wpds-dimension-padding-md);
 	position: relative;
+}
+
+.modal-band .modal-step {
+	align-items: center;
+	block-size: 100%;
+	display: flex;
+	inline-size: 100%;
+	justify-content: center;
 }
 
 // `contain`, not `cover`: every one of these assets is square or portrait, so
@@ -211,15 +378,17 @@ $feature-icon-foreground: #0ced57;
 
 .modal-body {
 	container-type: inline-size;
+}
+
+.modal-body .modal-step {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
 }
 
-// The card's 4rem tile is too tall for a row that also carries the title.
-.modal-identity .feature-icon {
-	block-size: 2.5rem;
-	inline-size: 2.5rem;
+// The switch and the way in, pushed to the end of the row the name starts.
+.modal-actions {
+	margin-inline-start: auto;
 }
 
 // auto-fit rather than three fixed tracks: Activity Log, Blaze, Newsletter and
@@ -267,18 +436,18 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
-.modal-steps {
-	margin-inline-end: auto;
-}
-
 
 // Matches the rendered width of a FormToggle, so cards without
-// one keep the same heading width.
+// one keep the same heading width. Raised over the stretched title, or the row
+// would swallow the switch's own clicks.
 .feature-toggle-slot {
+	align-self: center;
 	display: flex;
 	flex-shrink: 0;
-	inline-size: 2rem;
+	inline-size: 2.25rem;
 	justify-content: center;
+	position: relative;
+	z-index: 1;
 }
 
 // Applied to a wp-admin menu item, which lives outside this
@@ -392,6 +561,14 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
+// The pill's own colour at less weight, so it reads as a count rather than a
+// second label in either state.
+.pill__count {
+	font-variant-numeric: tabular-nums;
+	margin-inline-start: var(--wpds-dimension-gap-xs);
+	opacity: 0.6;
+}
+
 .pill--selected {
 	background: var(--wpds-color-background-interactive-neutral-strong);
 	border-color: var(--wpds-color-background-interactive-neutral-strong);
@@ -407,6 +584,79 @@ $feature-icon-foreground: #0ced57;
 .search {
 	margin-inline-start: auto;
 	min-inline-size: 16rem;
+}
+
+// The same capsule as the filter pills, so the switch reads as part of the same
+// toolbar rather than a control borrowed from somewhere else.
+.view-button {
+	align-items: center;
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+	border-radius: 999px;
+	color: var(--wpds-color-foreground-interactive-neutral);
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	// Sized like the control beside it, and past the 24px a pointer target owes.
+	min-block-size: var(--wpds-dimension-size-md);
+	min-inline-size: var(--wpds-dimension-size-md);
+	padding: var(--wpds-dimension-padding-xs);
+
+	&:hover {
+		background: var(--wpds-color-background-interactive-neutral-weak-active);
+		color: var(--wpds-color-foreground-interactive-neutral-active);
+	}
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-interactive-neutral-strong);
+		outline-offset: 2px;
+	}
+}
+
+.view-button--selected {
+	background: var(--wpds-color-background-interactive-neutral-strong);
+	border-color: var(--wpds-color-background-interactive-neutral-strong);
+	color: var(--wpds-color-foreground-interactive-neutral-strong);
+
+	&:hover {
+		background: var(--wpds-color-background-interactive-neutral-strong-active);
+		border-color: var(--wpds-color-background-interactive-neutral-strong-active);
+		color: var(--wpds-color-foreground-interactive-neutral-strong-active);
+	}
+}
+
+.feature-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+// Only on screen with a selection in hand, so it can take the room it needs.
+.bulk-bar {
+	background: var(--wpds-color-background-surface-neutral-weak);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	padding-block: var(--wpds-dimension-padding-sm);
+	padding-inline: var(--wpds-dimension-padding-md);
+}
+
+.bulk-bar__actions {
+	margin-inline-start: auto;
+}
+
+.list-icon {
+	align-items: center;
+	display: flex;
+}
+
+.list-switch {
+	white-space: nowrap;
+}
+
+// The switch column to its left is labelled Actions for both, so this heading
+// would be the same word twice over one group of controls.
+.feature-list :global(.dataviews-view-table thead .dataviews-view-table__actions-column) {
+	visibility: hidden;
 }
 
 
