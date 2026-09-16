@@ -1,0 +1,10 @@
+{
+	"name": "jpa/author-views",
+	"title": "Author views",
+	"description": "The view trend of the author being viewed over the selected period.",
+	"help": {
+		"content": "Views of this author's posts over the selected period, read from the site's top-authors ranking per chart interval. An interval where the author ranked outside its top authors counts as no views."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

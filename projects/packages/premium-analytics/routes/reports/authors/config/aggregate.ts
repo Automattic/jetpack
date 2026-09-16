@@ -3,6 +3,7 @@
  */
 import {
 	aggregateStatsDrilldownRows,
+	toAuthorId,
 	type StatsDrilldownItemContext,
 	type StatsDrilldownRow,
 	type StatsDrilldownRowContext,
@@ -22,6 +23,8 @@ type AuthorDrilldownItem =
 type AuthorDrilldownMetadata = {
 	parentName?: string;
 	avatarUrl: string | null;
+	/** The author's user ID, when the endpoint names a valid one; author rows only. */
+	authorId?: number;
 	postId?: string;
 	previousViews?: number;
 };
@@ -102,8 +105,13 @@ function getAuthorDrilldownMetadata(
 			: {};
 
 	if ( context.depth === 0 ) {
+		const author = item as StatsTopAuthorsItem;
+		// The same rule the detail route applies, so a row never links where the route redirects.
+		const authorId = toAuthorId( author.id );
+
 		return {
-			avatarUrl: ( item as StatsTopAuthorsItem ).icon,
+			avatarUrl: author.icon,
+			...( authorId ? { authorId } : {} ),
 			...previousViews,
 		};
 	}
