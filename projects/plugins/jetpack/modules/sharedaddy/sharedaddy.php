@@ -151,36 +151,6 @@ function sharing_meta_box_protected( $protected, $meta_key ) {
 add_filter( 'is_protected_meta', 'sharing_meta_box_protected', 10, 2 );
 
 /**
- * Add link to sharing settings in the Plugins screen.
- *
- * @param array $links An array of plugin action links.
- *
- * @return array
- */
-function sharing_plugin_settings( $links ) {
-	$settings_link = '<a href="options-general.php?page=sharing">' . __( 'Settings', 'jetpack' ) . '</a>';
-	array_unshift( $links, $settings_link );
-	return $links;
-}
-
-/**
- * Add links to settings and support in the plugin row.
- *
- * @param array  $links An array of the plugin's metadata, including the version, author, author URI, and plugin URI.
- * @param string $file  Path to the plugin file relative to the plugins directory.
- *
- * @return array
- */
-function sharing_add_plugin_settings( $links, $file ) {
-	if ( $file === basename( __DIR__ ) . '/' . basename( __FILE__ ) ) {
-		$links[] = '<a href="options-general.php?page=sharing">' . __( 'Settings', 'jetpack' ) . '</a>';
-		$links[] = '<a href="https://support.wordpress.com/sharing/" rel="noopener noreferrer" target="_blank">' . __( 'Support', 'jetpack' ) . '</a>';
-	}
-
-	return $links;
-}
-
-/**
  * Disable sharing on the frontend if disabled in the admin.
  *
  * @return void
@@ -230,5 +200,3 @@ add_action( 'save_post', 'sharing_meta_box_save' );
 add_action( 'edit_attachment', 'sharing_meta_box_save' );
 add_action( 'sharing_global_options', 'sharing_global_resources', 30 );
 add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
-add_action( 'plugin_action_links_' . basename( __DIR__ ) . '/' . basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
-add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
