@@ -38,11 +38,8 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 	/**
 	 * Public entry URL the resolver starts from.
 	 *
-	 * Uses an RFC 5737 documentation IP literal: the address is non-routable and
-	 * HTTP is mocked, so nothing is ever requested over the network. Core's
-	 * wp_http_validate_url() lists TEST-NET-1/2/3 among the special-purpose
-	 * ranges it rejects, so set_up() allows this one host via
-	 * `http_request_host_is_external` -- see allow_fixture_hosts().
+	 * An RFC 5737 documentation literal, which core rejects, so set_up() waves this
+	 * host through -- see allow_fixture_hosts().
 	 *
 	 * @var string
 	 */
@@ -441,8 +438,8 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 	/**
 	 * A non-http(s) scheme is rejected at the param layer.
 	 *
-	 * Three independent layers reject it -- core's scheme check, the empty-host guard,
-	 * and the empty-IPs fail-closed branch -- so it stays red if any one of them goes.
+	 * Three layers reject it independently -- core's scheme check, the empty-host guard,
+	 * and the empty-IPs branch -- so this pins the property, not any one of them.
 	 */
 	public function test_non_http_scheme_is_rejected() {
 		$response = $this->resolve( 'file:///etc/passwd' );
@@ -484,6 +481,16 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 	}
 
 	/**
+	 * A resolvable host name comes back as its addresses.
+	 *
+	 * Pins the gethostbynamel() step: every other fixture here is an IP literal, which
+	 * returns before any lookup runs.
+	 */
+	public function test_resolve_host_ips_resolves_host_name() {
+		$this->assertContains( '127.0.0.1', $this->invoke_resolve_host_ips( 'localhost' ) );
+	}
+
+	/**
 	 * An unresolvable host yields no IPs, so resolve_host_ips() callers fail closed.
 	 */
 	public function test_resolve_host_ips_returns_empty_for_unresolvable_host() {
@@ -501,10 +508,9 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 		$response = $this->resolve_with_mock( 'mock_redirect_to_metadata', self::PUBLIC_START_URL );
 		$data     = $response->get_data();
 
-		// The metadata host must be rejected by validate_url() before the HTTP
-		// layer is ever asked to fetch it; if it shows up here, per-hop
-		// validation is not doing its job.
-		$this->assertNotContains( self::METADATA_URL, $this->requested_urls );
+		// Per-hop validation must reject the metadata host before the HTTP layer is
+		// asked for it, so the entry URL is the only thing ever fetched.
+		$this->assertSame( array( self::PUBLIC_START_URL ), $this->requested_urls );
 		// A blocked hop is reported as a generic WP_Error, and the internal target
 		// must never leak into the error payload.
 		$this->assertSame( 400, $response->get_status() );
@@ -524,7 +530,7 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 		$response = $this->resolve_with_mock( 'mock_scheme_relative_redirect_to_metadata', self::PUBLIC_START_URL );
 		$data     = $response->get_data();
 
-		$this->assertNotContains( self::METADATA_URL, $this->requested_urls );
+		$this->assertSame( array( self::PUBLIC_START_URL ), $this->requested_urls );
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertSame( 'http_request_failed', $data['code'] );
 	}
@@ -800,7 +806,7 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect_Test extends Jetpack_REST_Test
 	 */
 	public function mock_scheme_relative_redirect_to_metadata( $preempt, $args, $url ) {
 		if ( self::PUBLIC_START_URL === $url ) {
-			return $this->redirect_response( substr( self::METADATA_URL, strlen( 'http:' ) ) );
+			return $this->redirect_response( strstr( self::METADATA_URL, '//' ) );
 		}
 		return $this->unexpected_request( $url );
 	}
