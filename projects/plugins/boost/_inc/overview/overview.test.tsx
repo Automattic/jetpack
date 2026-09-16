@@ -297,6 +297,12 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 		wpApiSettings.nonce
 	);
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		)
+	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	await waitFor( () =>
 		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
@@ -545,6 +551,12 @@ test( 'retains loaded scores and Run speed test alongside a subsequent score err
 			rejectRefresh = reject;
 		} )
 	);
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		)
+	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	await waitFor( () =>
 		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
@@ -769,6 +781,12 @@ test( 'keeps the older-history walk cached when a speed test reloads scores', as
 	await waitFor( () => expect( requests( 6 ) ).toBe( 1 ) );
 	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
 	const currentRequests = requests( 0 );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		)
+	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	await waitFor( () => expect( requests( 0 ) ).toBeGreaterThan( currentRequests ) );
 	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
