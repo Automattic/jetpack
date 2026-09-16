@@ -350,7 +350,10 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 		.locator( '.jetpack-boost-overview__scores-card' )
 		.all();
 	await expect( calculating.getByRole( 'heading', { name: 'Your site speed' } ) ).toBeVisible();
-	await expect( calculating.getByText( 'Calculating…' ) ).toBeVisible();
+	await expect( calculating.getByText( 'Calculating…' ) ).toHaveCSS(
+		'color',
+		'rgb(112, 112, 112)'
+	);
 	await expect( calculating.locator( '.components-spinner' ) ).toHaveCount( 1 );
 	await expect( calculating.getByRole( 'region' ) ).toHaveCount( 0 );
 	await expect( failed.getByText( 'Failed to load speed scores' ) ).toBeVisible();
