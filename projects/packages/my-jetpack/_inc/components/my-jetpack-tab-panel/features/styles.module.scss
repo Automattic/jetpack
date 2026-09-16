@@ -38,7 +38,9 @@ $feature-icon-foreground: #0ced57;
 	z-index: 1;
 }
 
-.banner__title {
+// Two classes, for the weight: My Jetpack styles every h2 inside the tab
+// wrapper, which a single class of ours loses to.
+.banner .banner__title {
 	color: #daffdc;
 	font-size: 24px;
 	font-weight: 500;
@@ -46,7 +48,7 @@ $feature-icon-foreground: #0ced57;
 	margin: 0;
 }
 
-.banner__description {
+.banner .banner__description {
 	color: #daffdc;
 	font-size: 13px;
 	line-height: 20px;
