@@ -96,7 +96,12 @@ function OverviewContent( {
 
 	useEffect( () => {
 		if ( online && scoreState.status === 'loaded' ) {
-			queryClient.invalidateQueries( { queryKey: performanceHistoryQueryKey } );
+			// New scores only land in windows that end today, so older windows and the walk stay cached.
+			queryClient.invalidateQueries( {
+				queryKey: performanceHistoryQueryKey,
+				predicate: ( { queryKey } ) =>
+					typeof queryKey[ 2 ] === 'number' && queryKey[ 2 ] >= Date.now(),
+			} );
 		}
 	}, [ online, scoreState.status, queryClient ] );
 

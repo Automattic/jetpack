@@ -60,6 +60,22 @@ jest.mock( './upgrade-cta', () => ( {
 	default: () => <button>Upgrade now</button>,
 } ) );
 
+function recordedPeriod( startDate: number ) {
+	return {
+		timestamp: startDate + 12 * 3600000,
+		dimensions: {
+			desktop_overall_score: 90,
+			mobile_overall_score: 80,
+			desktop_cls: 0.01,
+			desktop_lcp: 1.2,
+			desktop_tbt: 0.2,
+			mobile_cls: 0.03,
+			mobile_lcp: 2.4,
+			mobile_tbt: 0.4,
+		},
+	};
+}
+
 const scores = {
 	current: { desktop: 91, mobile: 81 },
 	noBoost: { desktop: 81, mobile: 80 },
@@ -297,7 +313,9 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 	).toEqual( [ [ 'speed_score_refresh_clicked', {} ] ] );
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
 	await waitFor( () =>
-		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'performance_history' ] } )
+		expect( invalidate ).toHaveBeenCalledWith(
+			expect.objectContaining( { queryKey: [ 'performance_history' ] } )
+		)
 	);
 } );
 
@@ -682,20 +700,10 @@ test.each( [
 				scoresAt !== undefined &&
 				window.startDate === getHistoryWindow( scoresAt ).startDate
 			) {
-				const period = {
-					timestamp: window.startDate + 12 * 3600000,
-					dimensions: {
-						desktop_overall_score: 90,
-						mobile_overall_score: 80,
-						desktop_cls: 0.01,
-						desktop_lcp: 1.2,
-						desktop_tbt: 0.2,
-						mobile_cls: 0.03,
-						mobile_lcp: 2.4,
-						mobile_tbt: 0.4,
-					},
-				};
-				return Promise.resolve( { status: 'success', JSON: { ...window, periods: [ period ] } } );
+				return Promise.resolve( {
+					status: 'success',
+					JSON: { ...window, periods: [ recordedPeriod( window.startDate ) ] },
+				} );
 			}
 			return fetch( options );
 		} );
@@ -749,6 +757,23 @@ test.each( [
 		}
 	}
 );
+
+test( 'keeps the older-history walk cached when Refresh reloads scores', async () => {
+	const requests = ( offset: number ) =>
+		jest
+			.mocked( apiFetch )
+			.mock.calls.filter(
+				( [ options ] ) => options.data?.JSON?.startDate === getHistoryWindow( offset ).startDate
+			).length;
+	const { client } = renderOverview();
+	await waitFor( () => expect( requests( 6 ) ).toBe( 1 ) );
+	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+	const currentRequests = requests( 0 );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Refresh' } ) );
+	await waitFor( () => expect( requests( 0 ) ).toBeGreaterThan( currentRequests ) );
+	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+	expect( [ 1, 2, 3, 4, 5, 6 ].map( requests ) ).toEqual( [ 1, 1, 1, 1, 1, 1 ] );
+} );
 
 test( 'does not request older history while the fresh-start notice hides the chart', async () => {
 	window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
@@ -982,22 +1007,7 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 				failPrevious = false;
 				return Promise.reject( new Error( 'Previous window unavailable' ) );
 			}
-			const { startDate } = options.data.JSON;
-			const periods = [
-				{
-					timestamp: startDate + 12 * 3600000,
-					dimensions: {
-						desktop_overall_score: 90,
-						mobile_overall_score: 80,
-						desktop_cls: 0.01,
-						desktop_lcp: 1.2,
-						desktop_tbt: 0.2,
-						mobile_cls: 0.03,
-						mobile_lcp: 2.4,
-						mobile_tbt: 0.4,
-					},
-				},
-			];
+			const periods = [ recordedPeriod( options.data.JSON.startDate ) ];
 			return Promise.resolve( { status: 'success', JSON: { ...options.data.JSON, periods } } );
 		}
 		return fetch( options );
