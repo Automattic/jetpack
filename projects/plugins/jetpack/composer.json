@@ -8,6 +8,9 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
+		"ext-fileinfo": "*",
+		"ext-json": "*",
+		"ext-openssl": "*",
 		"automattic/block-delimiter": "@dev",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-account-protection": "@dev",
@@ -64,9 +67,6 @@
 		"automattic/jetpack-wp-abilities": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev",
 		"automattic/woocommerce-analytics": "^0.17",
-		"ext-fileinfo": "*",
-		"ext-json": "*",
-		"ext-openssl": "*",
 		"wp-php-toolkit/reprint-server": "0.10.6"
 	},
 	"require-dev": {
