@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1eec4f9f5ecedb065e2a31b8d9e2b5ab",
+    "content-hash": "4f287c3548f67e51ddb1adab42dd0ec0",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -6406,6 +6406,7 @@
         "automattic/jetpack-videopress": 20,
         "automattic/jetpack-waf": 20,
         "automattic/jetpack-wp-abilities": 20,
+        "automattic/jetpack-wp-build-polyfills": 20,
         "automattic/patchwork-redefine-exit": 20,
         "automattic/phpunit-select-config": 20
     },
