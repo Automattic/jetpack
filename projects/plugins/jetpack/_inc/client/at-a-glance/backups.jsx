@@ -29,7 +29,6 @@ import {
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getPartnerCoupon, showBackups } from 'state/initial-state';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
-import { isPluginInstalled } from 'state/site/plugins';
 import BackupGettingStarted from './backup-getting-started';
 import BackupUpgrade from './backup-upgrade';
 
@@ -53,7 +52,6 @@ const renderCard = props => (
 			link: getRedirectUrl( 'jetpack-support-backup' ),
 		} }
 		className={ props.className + ' dash-backups' }
-		status={ props.status }
 		pro={ true }
 		overrideContent={ props.overrideContent }
 	>
@@ -74,7 +72,6 @@ class DashBackups extends Component {
 		hasBackups: PropTypes.bool.isRequired,
 		hasRealTimeBackups: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
-		isVaultPressInstalled: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 		backupUndoEvent: PropTypes.any.isRequired,
@@ -85,7 +82,6 @@ class DashBackups extends Component {
 		getOptionValue: noop,
 		vaultPressData: '',
 		isOfflineMode: false,
-		isVaultPressInstalled: false,
 		rewindStatus: '',
 		trackUpgradeButtonView: noop,
 		backupUndoEvent: {},
@@ -183,19 +179,11 @@ class DashBackups extends Component {
 	}
 
 	getVPContent() {
-		const {
-			hasBackups,
-			isFetchingSite,
-			isVaultPressInstalled,
-			getOptionValue,
-			siteRawUrl,
-			vaultPressData,
-		} = this.props;
+		const { hasBackups, isFetchingSite, getOptionValue, siteRawUrl, vaultPressData } = this.props;
 
 		if ( getOptionValue( 'vaultpress' ) && 'success' === ( vaultPressData?.code ?? '' ) ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-active',
-				status: 'is-working',
 				content: (
 					<span>
 						{ vaultPressData?.message ?? '' }
@@ -219,7 +207,6 @@ class DashBackups extends Component {
 			if ( hasBackups ) {
 				return renderCard( {
 					className: 'jp-dash-item__is-inactive',
-					status: isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled',
 					content: createInterpolateElement(
 						__(
 							'To automatically back up your entire site, please <a>install and activate</a> VaultPress.',
@@ -243,7 +230,6 @@ class DashBackups extends Component {
 
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
-				status: 'no-pro-uninstalled-or-inactive',
 				overrideContent: this.getJetpackBackupBanner(),
 			} );
 		}
@@ -308,7 +294,6 @@ class DashBackups extends Component {
 		const buildCard = message =>
 			renderCard( {
 				className: 'jp-dash-item__is-active',
-				status: 'is-working',
 				feature: 'rewind',
 				content: message,
 			} );
@@ -378,7 +363,6 @@ class DashBackups extends Component {
 	renderLoading() {
 		return renderCard( {
 			className: '',
-			status: '',
 			content: __( 'Loading…', 'jetpack' ),
 		} );
 	}
@@ -391,7 +375,6 @@ class DashBackups extends Component {
 		) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
-				status: 'pro-inactive',
 				content: __(
 					'Your site is new and may still be preparing backup configuration.',
 					'jetpack'
@@ -478,7 +461,6 @@ class DashBackups extends Component {
 			<>
 				{ renderCard( {
 					className: 'jp-dash-item__is-active',
-					status: 'is-working',
 					feature: 'rewind',
 					overrideContent: message,
 				} ) }
@@ -505,7 +487,6 @@ class DashBackups extends Component {
 				<div className="jp-dash-item__interior">
 					{ renderCard( {
 						className: 'jp-dash-item__is-inactive',
-						status: 'no-pro-uninstalled-or-inactive',
 						content: __( 'Unavailable in Offline Mode.', 'jetpack' ),
 					} ) }
 				</div>
@@ -532,7 +513,6 @@ export default connect(
 		return {
 			vaultPressData: getVaultPressData( state ),
 			isOfflineMode: isOfflineMode( state ),
-			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 			showBackups: showBackups( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),

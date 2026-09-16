@@ -46,7 +46,7 @@ class DashMonitor extends Component {
 			this.props.hasConnectedOwner
 		) {
 			return (
-				<DashItem label={ labelName } module="monitor" support={ support } status="is-working">
+				<DashItem label={ labelName } module="monitor" support={ support }>
 					<p className="jp-dash-item__description">
 						{ __(
 							'Jetpack is monitoring your site. If we think your site is down, you will receive an email.',

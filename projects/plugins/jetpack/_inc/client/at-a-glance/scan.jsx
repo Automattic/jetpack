@@ -54,7 +54,6 @@ const renderCard = props => (
 			link: getRedirectUrl( 'jetpack-support-security' ),
 		} }
 		className={ props.className || '' }
-		status={ props.status || '' }
 		pro={ true }
 		overrideContent={ props.overrideContent }
 	>
@@ -69,7 +68,6 @@ const renderCard = props => (
 const renderActiveCard = message => {
 	return renderCard( {
 		className: 'jp-dash-item__is-active',
-		status: 'is-working',
 		content: message,
 	} );
 };
@@ -145,7 +143,6 @@ class DashScan extends Component {
 		if ( vaultPressData?.code === 'not_registered' ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
-				status: 'not-registered',
 				content: createInterpolateElement(
 					__(
 						'VaultPress is having difficulties scanning. Please make sure your <keyLink>registration key is entered</keyLink>. If you require further assistance please <supportLink>contact support</supportLink>.',
@@ -172,7 +169,6 @@ class DashScan extends Component {
 			// No threats; all good
 			if ( vaultPressData.code === 'success' ) {
 				return renderCard( {
-					status: 'is-working',
 					content: __( "No threats found, you're good to go!", 'jetpack' ),
 				} );
 			}
@@ -196,7 +192,6 @@ class DashScan extends Component {
 		if ( ! hasSitePlan || ! scanningIncludedInPlan ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
-				status: 'no-pro-uninstalled-or-inactive',
 				overrideContent: hasConnectedOwner ? this.getUpgradeBanner() : this.getConnectBanner(),
 			} );
 		}
@@ -205,7 +200,6 @@ class DashScan extends Component {
 		if ( this.props.isVaultPressInstalled ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
-				status: 'pro-inactive',
 				content: [
 					<p className="jp-dash-item__description" key="inactive-scanning">
 						{ createInterpolateElement(
@@ -228,7 +222,6 @@ class DashScan extends Component {
 		// that VaultPress isn't installed at all
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
-			status: 'pro-uninstalled',
 			content: [
 				<p className="jp-dash-item__description" key="inactive-scanning">
 					{ createInterpolateElement(

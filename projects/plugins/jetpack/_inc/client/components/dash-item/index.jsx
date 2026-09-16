@@ -18,7 +18,6 @@ import { getModule as _getModule } from 'state/modules';
 export class DashItem extends Component {
 	static propTypes = {
 		label: PropTypes.string,
-		status: PropTypes.string,
 		statusText: PropTypes.string,
 		disabled: PropTypes.bool,
 		module: PropTypes.string,

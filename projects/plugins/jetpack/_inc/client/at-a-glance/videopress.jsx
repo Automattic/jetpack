@@ -84,7 +84,6 @@ class DashVideoPress extends Component {
 					label={ labelName }
 					module="videopress"
 					support={ support }
-					status="is-working"
 					overrideContent={
 						<>
 							<div className="dops-card jp-dash-item__card">
