@@ -22,7 +22,7 @@ class Marketplace_Catalog {
 	 * Bumped whenever the shape of a cached card or description changes, so sites
 	 * do not keep serving data built by the previous version until it expires.
 	 */
-	const CACHE_VERSION = 5;
+	const CACHE_VERSION = 6;
 
 	/**
 	 * Transient holding the normalized product list.
@@ -329,6 +329,7 @@ class Marketplace_Catalog {
 			'external'           => true,
 			'wpcom_marketplace'  => true,
 			'wpcom_product_slug' => $product_slug,
+			'wpcom_category'     => self::to_category( $product['tags'] ?? null ),
 			'wpcom_variations'   => self::to_variation_ids( $product['variations'] ?? null ),
 			'wpcom_pricing'      => array(),
 			'wpcom_saving'       => 0,
@@ -417,6 +418,26 @@ class Marketplace_Catalog {
 		$saving = (int) round( ( 1 - $yearly / ( $monthly * 12 ) ) * 100 );
 
 		return max( 0, $saving );
+	}
+
+	/**
+	 * The product's category, as something short enough to sit on a card.
+	 *
+	 * Tags arrive as slug => label. Nearly every product carries "Plugins", which
+	 * says nothing on a screen that only lists plugins, so the first tag after that
+	 * is the one worth showing.
+	 *
+	 * @param mixed $tags Tags as the marketplace endpoint returns them.
+	 * @return string Category label, or an empty string when there is nothing useful.
+	 */
+	private static function to_category( $tags ) {
+		foreach ( is_array( $tags ) ? $tags : array() as $slug => $label ) {
+			if ( 'plugins' !== $slug && is_string( $label ) && '' !== trim( $label ) ) {
+				return trim( $label );
+			}
+		}
+
+		return '';
 	}
 
 	/**

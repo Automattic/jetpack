@@ -222,6 +222,10 @@ function wpcom_marketplace_render_card( array $card ) {
 			</div>
 		</div>
 
+		<?php if ( ! empty( $card['wpcom_category'] ) ) : ?>
+			<p class="wpcom-marketplace-card__category"><?php echo esc_html( $card['wpcom_category'] ); ?></p>
+		<?php endif; ?>
+
 		<p class="wpcom-marketplace-card__desc">
 			<?php echo esc_html( wp_strip_all_tags( (string) ( $card['short_description'] ?? '' ) ) ); ?>
 		</p>
@@ -285,8 +289,13 @@ function wpcom_marketplace_render_price( array $card ) {
 			<p class="wpcom-marketplace-card__alternative">
 				<span class="wpcom-marketplace-card__note">
 					<?php
-					/* translators: %s: Price, for example $9.90. */
-					echo esc_html( sprintf( __( 'or %s billed monthly', 'jetpack-mu-wpcom' ), $monthly ) );
+					/*
+					 * "or" read as a second option the reader could pick here, which they
+					 * cannot: the button buys the year. Stated as a condition instead, so
+					 * it is plainly the price this one is being measured against.
+					 */
+					/* translators: %s: Price per month, for example $9.90. */
+					echo esc_html( sprintf( __( '%s/month if billed monthly', 'jetpack-mu-wpcom' ), $monthly ) );
 					?>
 				</span>
 			</p>

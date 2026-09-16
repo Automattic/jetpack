@@ -810,7 +810,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		// The saving belongs to the headline, ahead of the monthly alternative.
 		$this->assertLessThan(
-			strpos( $html, 'billed monthly' ),
+			strpos( $html, 'if billed monthly' ),
 			strpos( $html, 'Save 15%' ),
 			'The saving should sit with the price it applies to.'
 		);
@@ -818,15 +818,17 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * The monthly price follows in small type, so the saving can be checked rather
-	 * than taken on trust.
+	 * than taken on trust. Phrased as a condition, not an offer: "or" read as a
+	 * second option the reader could pick here, and the button only buys the year.
 	 */
-	public function test_the_monthly_price_is_shown_as_the_alternative() {
+	public function test_the_monthly_price_is_shown_as_a_comparison() {
 		ob_start();
 		wpcom_marketplace_render_price( $this->priced_card() );
 		$html = self::squash( ob_get_clean() );
 
-		$this->assertStringContainsString( 'or $13.00 billed monthly', $html );
+		$this->assertStringContainsString( '$13.00/month if billed monthly', $html );
 		$this->assertStringContainsString( 'wpcom-marketplace-card__alternative', $html );
+		$this->assertStringNotContainsString( 'or $13.00', $html );
 	}
 
 	/**
@@ -843,7 +845,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '$132.00', $html );
 		$this->assertStringContainsString( '/year', $html );
-		$this->assertStringNotContainsString( 'billed monthly', $html );
+		$this->assertStringNotContainsString( 'if billed monthly', $html );
 	}
 
 	/**
@@ -939,6 +941,66 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		// The modal is core's, and it is reached the way core reaches it.
 		$this->assertStringContainsString( 'thickbox open-plugin-details-modal', $html );
 		$this->assertStringContainsString( 'tab=plugin-information', $html );
+	}
+
+	/**
+	 * The category gives a reader something to orient by between the author and the
+	 * description. 54 of the 56 live products carry one.
+	 */
+	public function test_card_shows_the_category() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$card                   = $this->priced_card();
+		$card['wpcom_category'] = 'SEO';
+
+		ob_start();
+		wpcom_marketplace_render_card( $card );
+		$html = self::squash( ob_get_clean() );
+
+		$this->assertStringContainsString( 'wpcom-marketplace-card__category', $html );
+		$this->assertStringContainsString( 'SEO', $html );
+	}
+
+	/**
+	 * Nothing is rendered for a product with no category worth showing, rather than
+	 * an empty line that would push its card out of step with the row.
+	 */
+	public function test_card_omits_an_absent_category() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		ob_start();
+		wpcom_marketplace_render_card( $this->priced_card() );
+		$html = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'wpcom-marketplace-card__category', $html );
+	}
+
+	/**
+	 * "Plugins" is on nearly every product and says nothing on a screen that only
+	 * lists plugins, so the category is the first tag after it.
+	 */
+	public function test_the_category_skips_the_plugins_tag() {
+		$card = Marketplace_Catalog::to_card(
+			array_merge(
+				self::PRODUCT,
+				array(
+					'tags' => array(
+						'plugins' => 'Plugins',
+						'seo'     => 'SEO',
+					),
+				)
+			)
+		);
+
+		$this->assertSame( 'SEO', $card['wpcom_category'] );
+
+		$only_plugins = Marketplace_Catalog::to_card(
+			array_merge( self::PRODUCT, array( 'tags' => array( 'plugins' => 'Plugins' ) ) )
+		);
+
+		$this->assertSame( '', $only_plugins['wpcom_category'] );
 	}
 
 	/**

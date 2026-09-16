@@ -18,7 +18,7 @@
 	flex-direction: column;
 	border: 1px solid #dcdcde;
 	border-radius: 4px;
-	padding: 18px;
+	padding: 16px;
 	background: #fff;
 }
 
@@ -47,21 +47,30 @@
 	font-size: 12px;
 }
 
+.wpcom-marketplace-tab .wpcom-marketplace-card__category {
+	margin: 10px 0 0;
+	color: #50575e;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
 /*
- * Three lines for everyone. Vendor descriptions run from one line to a full
+ * Four lines for everyone. Vendor descriptions run from one line to a full
  * paragraph, and letting them size the card is what made the grid ragged.
  * Reserving the height keeps prices on a shared baseline across a row.
  */
 .wpcom-marketplace-tab .wpcom-marketplace-card__desc {
 	display: -webkit-box;
 	overflow: hidden;
-	min-block-size: 3.9em;
-	margin-block: 12px 0;
+	min-block-size: 5.2em;
+	margin-block: 8px 0;
 	color: #50575e;
 	font-size: 13px;
 	line-height: 1.5;
-	-webkit-line-clamp: 3;
-	line-clamp: 3;
+	-webkit-line-clamp: 4;
+	line-clamp: 4;
 	-webkit-box-orient: vertical;
 }
 
@@ -71,9 +80,9 @@
 	gap: 2px;
 
 	/* Reserved so a card with no monthly line keeps the same price height. */
-	min-block-size: 55px;
+	min-block-size: 48px;
 	margin-block-start: auto;
-	padding-block-start: 14px;
+	padding-block-start: 10px;
 }
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__headline,
@@ -86,7 +95,7 @@
 }
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__amount {
-	font-size: 22px;
+	font-size: 20px;
 	font-weight: 600;
 	font-variant-numeric: tabular-nums;
 	letter-spacing: -0.01em;
@@ -125,7 +134,7 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px 12px;
-	margin-block-start: 14px;
+	margin-block-start: 10px;
 }
 
 /*
