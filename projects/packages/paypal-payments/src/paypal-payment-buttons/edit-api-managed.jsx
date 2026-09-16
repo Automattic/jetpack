@@ -70,7 +70,7 @@ const helpQtyOff = __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments
 const placeholderTaxRate = __( 'Enter tax rate', 'jetpack-paypal-payments' );
 const placeholderTaxValue = __( 'Enter tax value', 'jetpack-paypal-payments' );
 
-// Keyed by environment, same shape as PARTNER_JS_URLS in utils/.
+// PayPal's tax settings page, per environment.
 const TAX_PROFILE_URL = {
 	sandbox: 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax',
 	production: 'https://www.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax',
@@ -172,7 +172,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		),
 		{
 			TaxSettingsLink: (
-				<Link openInNewTab href={ TAX_PROFILE_URL[ environment ] ?? TAX_PROFILE_URL.production } />
+				<Link openInNewTab href={ TAX_PROFILE_URL[ environment ] || TAX_PROFILE_URL.production } />
 			),
 		}
 	);
@@ -756,7 +756,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					title={ __( 'Product Options', 'jetpack-paypal-payments' ) }
 					initialOpen={ ! hasButton || variantErrors.length > 0 }
 				>
-					{ /* PayPal caps a product id at 50 characters, so the input stops there. */ }
 					<TextControl
 						label={ __( 'Product ID (optional)', 'jetpack-paypal-payments' ) }
 						value={ productId || '' }

@@ -812,6 +812,10 @@ class PayPal_REST_Controller {
 			}
 		}
 
+		if ( ! empty( $first_item['product_id'] ) ) {
+			$attributes['productId'] = $first_item['product_id'];
+		}
+
 		if ( ! empty( $first_item['description'] ) ) {
 			$attributes['productDescription'] = $first_item['description'];
 		}
@@ -1206,10 +1210,11 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// Trim first: sanitize_text_field() turns a whitespace-only id into '',
-			// which PayPal rejects.
-			if ( isset( $item['product_id'] ) && '' !== trim( $item['product_id'] ) ) {
-				$clean_item['product_id'] = sanitize_text_field( $item['product_id'] );
+			// sanitize_text_field() trims, so an id that was only whitespace or only
+			// tags comes back '' - and PayPal rejects an empty one.
+			$product_id = sanitize_text_field( (string) ( $item['product_id'] ?? '' ) );
+			if ( '' !== $product_id ) {
+				$clean_item['product_id'] = $product_id;
 			}
 			foreach ( array( 'shipping', 'handling', 'discounts' ) as $field ) {
 				if ( ! empty( $item[ $field ] ) && is_array( $item[ $field ] ) ) {

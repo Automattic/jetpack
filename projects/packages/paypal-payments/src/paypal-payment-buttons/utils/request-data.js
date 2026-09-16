@@ -96,7 +96,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 					  } ),
 				...( productDescription ? { description: productDescription } : {} ),
 				// '0' is a valid product id, so blank is a trim check, not truthiness.
-				...( `${ productId ?? '' }`.trim() !== '' ? { product_id: productId } : {} ),
+				...( productId?.trim() ? { product_id: productId.trim() } : {} ),
 				// The block owns the image: leaving it out here removes it at PayPal.
 				...( imageUrl ? { image_url: imageUrl } : {} ),
 				...( variantsEnabled && variants

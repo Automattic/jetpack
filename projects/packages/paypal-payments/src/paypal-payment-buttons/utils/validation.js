@@ -19,15 +19,14 @@ import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
  */
 export const MAX_NAME_LENGTH = 127;
 export const MAX_DESCRIPTION_LENGTH = 2048;
-// Caps the input instead. PayPal is the backstop, so there is no error state to render.
+// Not validated - the input caps at this length and PayPal is the backstop.
 export const MAX_PRODUCT_ID_LENGTH = 50;
 // PayPal rejects a third custom checkout field with a 400.
 export const MAX_CUSTOMER_NOTES = 2;
 
 // Shown under a field a merchant turned on and then left empty.
-// TODO: reuse for shipping, handling and discount when those land, rather than
-// adding a new string per field - the design uses this sentence for all of them.
-export const REQUIRED_FIELD_ERROR = __(
+// TODO: reuse this string for shipping, handling and discounts when they land.
+const REQUIRED_FIELD_ERROR = __(
 	'To continue, add the requested info or turn off this feature.',
 	'jetpack-paypal-payments'
 );
@@ -228,7 +227,7 @@ export function getValidationErrors( {
 		productDescription: validateDescription( productDescription ),
 		returnUrl: validateReturnUrl( returnUrl ),
 		// PREFERENCE takes its rate from the merchant's PayPal profile, so there is
-		// nothing local to fill in. The other two carry a value of their own.
+		// nothing local to fill in.
 		taxValue: taxEnabled && 'PREFERENCE' !== taxType ? validateTaxRate( taxValue ) : null,
 		currencyCode: validateCurrency( currencyCode ),
 	};

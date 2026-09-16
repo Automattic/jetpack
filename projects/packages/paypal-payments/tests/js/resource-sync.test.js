@@ -91,6 +91,17 @@ describe( 'getResourceAttributeUpdates', () => {
 		).toEqual( { productId: 'SKU-1' } );
 	} );
 
+	// The case every pre-existing button hits on first mount: if an agreeing id
+	// still reported an update, the block would warn that PayPal changed it.
+	it( 'reports no update when the product id already agrees', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{ ...blockAttributes, productId: 'SKU-1' },
+				{ ...resourceAttributes, productId: 'SKU-1' }
+			)
+		).toEqual( {} );
+	} );
+
 	it( 'reads address collection back from the payment', () => {
 		expect(
 			getResourceAttributeUpdates( blockAttributes, {

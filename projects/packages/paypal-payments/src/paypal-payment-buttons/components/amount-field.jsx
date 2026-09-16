@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-bind */
 /**
  * A money or percentage field with the unit inside it.
  *
@@ -47,8 +46,7 @@ export default function AmountField( {
 		<InputControl
 			label={ label }
 			value={ value || '' }
-			// onChange is typed string | undefined; 40.0.0 coerces to '' before calling.
-			onChange={ next => onChange( next ?? '' ) }
+			onChange={ onChange }
 			type="number"
 			step={ step }
 			min={ min }

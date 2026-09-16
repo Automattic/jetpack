@@ -106,6 +106,13 @@ class PayPal_Attribute_Mapper {
 	const MAX_BUTTON_TEXT_LENGTH = 50;
 
 	/**
+	 * Maximum product id (SKU) length.
+	 *
+	 * @var int
+	 */
+	const MAX_PRODUCT_ID_LENGTH = 50;
+
+	/**
 	 * Convert block attributes to a PayPal API request body.
 	 *
 	 * Takes the flat block attributes from the editor and transforms them
@@ -417,6 +424,19 @@ class PayPal_Attribute_Mapper {
 					'description_too_long',
 					/* translators: %d: maximum allowed characters */
 					sprintf( __( 'Description must be %d characters or fewer.', 'jetpack-paypal-payments' ), self::MAX_DESCRIPTION_LENGTH ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		// Optional: product id length.
+		if ( ! empty( $attributes['productId'] ) ) {
+			$product_id = sanitize_text_field( $attributes['productId'] );
+			if ( mb_strlen( $product_id ) > self::MAX_PRODUCT_ID_LENGTH ) {
+				return new WP_Error(
+					'product_id_too_long',
+					/* translators: %d: maximum allowed characters */
+					sprintf( __( 'Product ID must be %d characters or fewer.', 'jetpack-paypal-payments' ), self::MAX_PRODUCT_ID_LENGTH ),
 					array( 'status' => 400 )
 				);
 			}

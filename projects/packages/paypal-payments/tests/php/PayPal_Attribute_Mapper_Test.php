@@ -389,6 +389,39 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
+	 * Test that a product id exceeding 50 characters is rejected.
+	 */
+	public function test_validate_rejects_product_id_too_long() {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'  => 'Widget',
+				'price'        => '10.00',
+				'currencyCode' => 'USD',
+				'productId'    => str_repeat( 'S', 51 ),
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'product_id_too_long', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that validate_attributes accepts a product id at the limit.
+	 */
+	public function test_validate_accepts_product_id_at_the_limit() {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'  => 'Widget',
+				'price'        => '10.00',
+				'currencyCode' => 'USD',
+				'productId'    => str_repeat( 'S', 50 ),
+			)
+		);
+
+		$this->assertTrue( $result );
+	}
+
+	/**
 	 * Test that button text exceeding 50 characters is rejected.
 	 */
 	public function test_validate_rejects_button_text_too_long() {
@@ -617,6 +650,20 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	/**
 	 * A payment with no product id leaves the attribute unset, so the block keeps
 	 * its default instead of an empty string.
+	 */
+	public function test_api_response_to_attributes_omits_an_empty_product_id() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array( array( 'product_id' => '' ) ),
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'productId', $attributes );
+	}
+
+	/**
+	 * Test that api_response_to_attributes omits a product id the payment does not carry.
 	 */
 	public function test_api_response_to_attributes_omits_a_missing_product_id() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
