@@ -21,7 +21,7 @@ import type { ReactNode } from 'react';
 
 type Props = {
 	isVisible?: boolean;
-	onHeaderActionChange?: ( action: ReactNode ) => void;
+	onHeaderActionChange: ( action: ReactNode ) => void;
 };
 
 export default function Overview( props: Props ) {
@@ -84,7 +84,7 @@ function OverviewContent( { isVisible = true, onHeaderActionChange }: Props ) {
 	}, [ refreshScores ] );
 
 	useEffect( () => {
-		if ( ! isVisible || ! online || ! onHeaderActionChange ) {
+		if ( ! isVisible || ! online ) {
 			return;
 		}
 		onHeaderActionChange(

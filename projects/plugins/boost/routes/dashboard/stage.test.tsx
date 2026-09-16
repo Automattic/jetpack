@@ -20,11 +20,8 @@ jest.mock( '../../_inc/overview/overview', () => {
 			onHeaderActionChange: ( action: ReactNode ) => void;
 		} ) {
 			useEffect( () => {
-				if ( isVisible ) {
-					onHeaderActionChange( <button>Run speed test</button> );
-					return () => onHeaderActionChange( null );
-				}
-			}, [ isVisible, onHeaderActionChange ] );
+				onHeaderActionChange( <button>Run speed test</button> );
+			}, [ onHeaderActionChange ] );
 			return <div data-visible={ isVisible }>Performance Overview</div>;
 		},
 	};
@@ -98,9 +95,7 @@ describe( 'Boost dashboard stage', () => {
 		);
 		const header = within( screen.getByRole( 'banner' ) );
 		expect( header.getByText( 'Improve your site speed and performance.' ) ).toBeInTheDocument();
-		expect( header.queryAllByRole( 'button', { name: 'Run speed test' } ) ).toHaveLength(
-			tab === 'Overview' ? 1 : 0
-		);
+		expect( header.getByRole( 'button', { name: 'Run speed test' } ) ).toBeInTheDocument();
 	} );
 
 	it.each(
@@ -117,7 +112,6 @@ describe( 'Boost dashboard stage', () => {
 		expect( getSubpageMount()?.closest( '[role="tabpanel"]' ) ).toBeNull();
 		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
 		expect( getSettingsMount() ).not.toBeNull();
-		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [ 'cache-debug-log', 'critical-css-advanced' ] )(

@@ -2,7 +2,7 @@ import { didScoresChange, getScoreLetter } from '@automattic/jetpack-boost-score
 import { CardDivider } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
-import { Card, Stack, Popover } from '@wordpress/ui';
+import { Card, Popover } from '@wordpress/ui';
 import GradeExplanation from './grade-explanation';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';
@@ -20,9 +20,7 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder }: Prop
 	return (
 		<Card.Root className="jetpack-boost-overview__scores-card">
 			<Card.Header className="jetpack-boost-overview__scores-header">
-				<Stack direction="row" justify="space-between" align="center" gap="md">
-					<Card.Title render={ <h2 /> }>{ __( 'Performance scores', 'jetpack-boost' ) }</Card.Title>
-				</Stack>
+				<Card.Title render={ <h2 /> }>{ __( 'Performance scores', 'jetpack-boost' ) }</Card.Title>
 			</Card.Header>
 			<CardDivider className="jetpack-boost-overview__scores-divider" />
 			<div className="jetpack-boost-overview__score-row">

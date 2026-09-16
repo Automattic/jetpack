@@ -176,7 +176,7 @@ test.each( [
 	try {
 		const { rerender } = render(
 			<div hidden>
-				<Overview isVisible={ false } />
+				<Overview isVisible={ false } onHeaderActionChange={ () => {} } />
 			</div>,
 			{ wrapper }
 		);
@@ -190,7 +190,7 @@ test.each( [
 		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
 		rerender(
 			<div>
-				<Overview isVisible />
+				<Overview isVisible onHeaderActionChange={ () => {} } />
 			</div>
 		);
 		await waitFor( () => expect( region ).toHaveTextContent( message ) );
@@ -359,7 +359,7 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 		<>
 			<div hidden={ ! isOverview }>
 				<QueryClientProvider client={ client }>
-					<Overview isVisible={ isOverview } />
+					<Overview isVisible={ isOverview } onHeaderActionChange={ () => {} } />
 				</QueryClientProvider>
 			</div>
 			<div hidden={ isOverview }>
