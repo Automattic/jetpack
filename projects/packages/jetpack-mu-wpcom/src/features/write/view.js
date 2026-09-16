@@ -288,7 +288,8 @@ function markEditorNoteSeen() {
 /**
  * Record that this browser chose the Block editor over Write.
  *
- * No `Secure` flag: it would drop the cookie on an http:// sandbox.
+ * `Secure` is conditional, the JS counterpart of the `is_ssl()` our setcookie()
+ * calls pass: unconditional, it would drop the cookie on an http:// sandbox.
  */
 function markBlockEditorPreferred() {
 	try {
@@ -301,7 +302,8 @@ function markBlockEditorPreferred() {
 			BLOCK_EDITOR_PREFERRED_KEY +
 			'=1; path=/; max-age=' +
 			BLOCK_EDITOR_PREFERRED_MAX_AGE +
-			'; SameSite=Lax';
+			'; SameSite=Lax' +
+			( window.location.protocol === 'https:' ? '; Secure' : '' );
 	} catch {
 		// No-op: worst case the prompt widget keeps offering Write.
 	}

@@ -54,7 +54,9 @@ const hasOptOutStorage = () => {
  */
 const rearmOptOutCookie = () => {
 	try {
-		document.cookie = `${ BLOCK_EDITOR_PREFERRED_COOKIE }; path=/; max-age=${ BLOCK_EDITOR_PREFERRED_MAX_AGE }; SameSite=Lax`;
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_COOKIE }; path=/; max-age=${ BLOCK_EDITOR_PREFERRED_MAX_AGE }; SameSite=Lax${
+			window.location.protocol === 'https:' ? '; Secure' : ''
+		}`;
 	} catch {
 		// No-op: this widget still hides Write, from localStorage.
 	}
