@@ -70,14 +70,14 @@
 	flex-direction: column;
 	gap: 2px;
 
-	/* Reserved so a card with no yearly line keeps the same price height. */
+	/* Reserved so a card with no monthly line keeps the same price height. */
 	min-block-size: 55px;
 	margin-block-start: auto;
 	padding-block-start: 14px;
 }
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__headline,
-.wpcom-marketplace-tab .wpcom-marketplace-card__yearly {
+.wpcom-marketplace-tab .wpcom-marketplace-card__alternative {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: baseline;

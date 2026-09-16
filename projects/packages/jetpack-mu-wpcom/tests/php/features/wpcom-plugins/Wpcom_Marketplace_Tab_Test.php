@@ -792,43 +792,48 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The headline is the real monthly price. Dividing the year by twelve produced a
-	 * bigger, bolder number than anything else on the card, for an amount nobody is
-	 * ever charged.
+	 * The headline is the year, which is what the button charges, and the saving sits
+	 * with it. Neither figure is the year divided by twelve, which is an amount nobody
+	 * is ever charged.
 	 */
-	public function test_the_headline_price_is_one_a_buyer_can_be_charged() {
+	public function test_the_headline_is_the_yearly_price_with_the_saving() {
 		ob_start();
 		wpcom_marketplace_render_price( $this->priced_card() );
 		$html = self::squash( ob_get_clean() );
 
-		// $13.00 is the monthly product; $11.00 would be the year divided by twelve.
-		$this->assertStringContainsString( '$13.00', $html );
-		$this->assertStringNotContainsString( '$11.00', $html );
-	}
-
-	/**
-	 * The saving belongs to the yearly line, since that is the price it applies to.
-	 */
-	public function test_the_saving_sits_with_the_yearly_price() {
-		ob_start();
-		wpcom_marketplace_render_price( $this->priced_card() );
-		$html = self::squash( ob_get_clean() );
-
-		$this->assertStringContainsString( 'or $132.00 billed yearly', $html );
+		$this->assertStringContainsString( '$132.00', $html );
+		$this->assertStringContainsString( '/year', $html );
 		$this->assertStringContainsString( 'Save 15%', $html );
 
-		// The badge is on the yearly row, not beside the monthly headline.
+		// $11.00 would be the year divided by twelve.
+		$this->assertStringNotContainsString( '$11.00', $html );
+
+		// The saving belongs to the headline, ahead of the monthly alternative.
 		$this->assertLessThan(
+			strpos( $html, 'billed monthly' ),
 			strpos( $html, 'Save 15%' ),
-			strpos( $html, 'billed yearly' ),
-			'The saving should follow the yearly price it applies to.'
+			'The saving should sit with the price it applies to.'
 		);
 	}
 
 	/**
-	 * A product sold only by the year still prices, at the year.
+	 * The monthly price follows in small type, so the saving can be checked rather
+	 * than taken on trust.
 	 */
-	public function test_a_yearly_only_product_prices_at_the_year() {
+	public function test_the_monthly_price_is_shown_as_the_alternative() {
+		ob_start();
+		wpcom_marketplace_render_price( $this->priced_card() );
+		$html = self::squash( ob_get_clean() );
+
+		$this->assertStringContainsString( 'or $13.00 billed monthly', $html );
+		$this->assertStringContainsString( 'wpcom-marketplace-card__alternative', $html );
+	}
+
+	/**
+	 * A product with no monthly variation has nothing to compare against, so it
+	 * shows the year alone.
+	 */
+	public function test_a_yearly_only_product_shows_no_alternative() {
 		$card = $this->priced_card();
 		unset( $card['wpcom_pricing']['monthly'] );
 
@@ -838,7 +843,23 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '$132.00', $html );
 		$this->assertStringContainsString( '/year', $html );
-		$this->assertStringNotContainsString( 'billed yearly', $html );
+		$this->assertStringNotContainsString( 'billed monthly', $html );
+	}
+
+	/**
+	 * A product we cannot sell by the year is priced by the month instead of vanishing.
+	 */
+	public function test_a_monthly_only_product_prices_at_the_month() {
+		$card = $this->priced_card();
+		unset( $card['wpcom_pricing']['yearly'] );
+
+		ob_start();
+		wpcom_marketplace_render_price( $card );
+		$html = self::squash( ob_get_clean() );
+
+		$this->assertStringContainsString( '$13.00', $html );
+		$this->assertStringContainsString( '/month', $html );
+		$this->assertStringNotContainsString( 'Save', $html );
 	}
 
 	/**
@@ -912,7 +933,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'Gravity Forms', $html );
 		$this->assertStringContainsString( 'By Gravity Forms', $html );
 		$this->assertStringContainsString( 'Build custom forms', $html );
-		$this->assertStringContainsString( '$13.00', $html );
+		$this->assertStringContainsString( '$132.00', $html );
 		$this->assertStringContainsString( 'gravityforms_yearly', $html );
 
 		// The modal is core's, and it is reached the way core reaches it.
