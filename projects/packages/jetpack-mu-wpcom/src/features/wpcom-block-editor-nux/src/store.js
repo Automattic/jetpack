@@ -70,12 +70,12 @@ const shouldShowFirstPostPublishedModalReducer = ( state = false, action ) => {
 	}
 };
 
-const fourForFourReducer = ( state = { eligible: false, status: null }, action ) => {
+const fourForFourEligibleReducer = ( state = false, action ) => {
 	switch ( action.type ) {
-		case 'WPCOM_SET_FOUR_FOR_FOUR':
-			return { eligible: !! action.eligible, status: action.status ?? null };
+		case 'WPCOM_SET_FOUR_FOR_FOUR_ELIGIBLE':
+			return action.value;
 		case 'WPCOM_WELCOME_GUIDE_RESET_STORE':
-			return { eligible: false, status: null };
+			return false;
 		default:
 			return state;
 	}
@@ -87,7 +87,7 @@ const reducer = combineReducers( {
 	tourRating: tourRatingReducer,
 	welcomeGuideVariant: welcomeGuideVariantReducer,
 	shouldShowFirstPostPublishedModal: shouldShowFirstPostPublishedModalReducer,
-	fourForFour: fourForFourReducer,
+	fourForFourEligible: fourForFourEligibleReducer,
 } );
 
 export const actions = {
@@ -109,31 +109,21 @@ export const actions = {
 			value: response.should_show_first_post_published_modal,
 		};
 	},
-	*fetchFourForFour() {
-		const response = yield apiFetchControls( {
-			path: '/wpcom/v2/block-editor/four-for-four',
-		} );
-
-		return {
-			type: 'WPCOM_SET_FOUR_FOR_FOUR',
-			eligible: response.eligible,
-			status: response.status,
-		};
-	},
-	setFourForFourStatus: ( status, { onSettled } = {} ) => {
-		apiFetch( {
-			path: '/wpcom/v2/block-editor/four-for-four',
-			method: 'POST',
-			data: { status },
-		} )
-			.catch( () => {} )
-			.finally( () => onSettled?.() );
-
-		return {
-			type: 'WPCOM_SET_FOUR_FOR_FOUR',
-			eligible: false,
-			status,
-		};
+	setFourForFourEligible: value => ( {
+		type: 'WPCOM_SET_FOUR_FOR_FOUR_ELIGIBLE',
+		value,
+	} ),
+	*setFourForFourStatus( status ) {
+		yield { type: 'WPCOM_SET_FOUR_FOR_FOUR_ELIGIBLE', value: false };
+		try {
+			yield apiFetchControls( {
+				path: '/wpcom/v2/block-editor/four-for-four',
+				method: 'POST',
+				data: { status },
+			} );
+		} catch {
+			// The prompt is not re-offered either way; a lost write only loses analytics fidelity.
+		}
 	},
 	setShowWelcomeGuide: ( show, { openedManually, onlyLocal } = {} ) => {
 		if ( ! onlyLocal ) {
@@ -163,6 +153,13 @@ export const actions = {
 	} ),
 };
 
+export const resolvers = {
+	*isFourForFourEligible() {
+		const response = yield apiFetchControls( { path: '/wpcom/v2/block-editor/four-for-four' } );
+		return actions.setFourForFourEligible( !! response.eligible );
+	},
+};
+
 export const selectors = {
 	isWelcomeGuideManuallyOpened: state => state.welcomeGuideManuallyOpened,
 	isWelcomeGuideShown: state => !! state.showWelcomeGuide,
@@ -172,8 +169,7 @@ export const selectors = {
 	getWelcomeGuideVariant: state =>
 		state.welcomeGuideVariant === 'modal' ? DEFAULT_VARIANT : state.welcomeGuideVariant,
 	getShouldShowFirstPostPublishedModal: state => state.shouldShowFirstPostPublishedModal,
-	isFourForFourEligible: state => state.fourForFour.eligible,
-	getFourForFourStatus: state => state.fourForFour.status,
+	isFourForFourEligible: state => state.fourForFourEligible,
 };
 
 /**
@@ -186,6 +182,7 @@ export function register() {
 		reducer,
 		actions,
 		selectors,
+		resolvers,
 		controls,
 		persist: true,
 	} );

@@ -4,11 +4,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isURL } from '@wordpress/url';
 import postPublishedImage from '../../../../assets/images/post-published.svg';
-import {
-	useFourForFour,
-	useSiteIntent,
-	useShouldShowFirstPostPublishedModal,
-} from '../../../../common/tour-kit';
+import { useSiteIntent, useShouldShowFirstPostPublishedModal } from '../../../../common/tour-kit';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import NuxModal from '../nux-modal';
 import type { FC, MouseEvent } from 'react';
@@ -42,11 +38,9 @@ const FirstPostPublishedModalInner: FC = () => {
 
 	const initialHash = useRef( window.location.hash );
 	const isLaunchpadHomeTask = initialHash.current === '#publish-first-post';
-	// The 4 for 4 prompt takes over this publish when the site qualifies for it.
-	const { eligible: isFourForFourEligible } = useFourForFour();
 
 	const shouldShowFirstPostPublishedModal =
-		useShouldShowFirstPostPublishedModal() && ! isLaunchpadHomeTask && ! isFourForFourEligible;
+		useShouldShowFirstPostPublishedModal() && ! isLaunchpadHomeTask;
 
 	const [ isOpen, setIsOpen ] = useState( false );
 	const closeModal = () => setIsOpen( false );
