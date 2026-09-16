@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-No Results block: Show every message WYSIWYG in the editor and name variants by condition in List view.
+No Results block: Show each empty-state message as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure.

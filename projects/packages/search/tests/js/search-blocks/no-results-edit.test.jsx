@@ -61,10 +61,7 @@ describe( 'NoResultsEdit', () => {
 		mockSlots = [];
 	} );
 
-	// Every condition is created up front so an author sees all three empty
-	// states without adding anything.
-	// Selecting by store object rather than the 'core/block-editor' string
-	// keeps the dependency explicit and survives a store rename.
+	// Selecting by store object rather than the 'core/block-editor' string survives a store rename.
 	it( 'selects state through the block-editor store object', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 
@@ -139,8 +136,6 @@ describe( 'NoResultsEdit', () => {
 		expect( screen.queryByRole( 'button', { name: 'Any empty search' } ) ).not.toBeInTheDocument();
 	} );
 
-	// The container paints no name of its own — standard block conventions
-	// leave identification to Gutenberg's native UI (SEARCH-341).
 	it( 'paints no label on the canvas', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 
