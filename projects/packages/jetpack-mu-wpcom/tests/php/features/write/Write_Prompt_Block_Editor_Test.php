@@ -228,6 +228,15 @@ class Write_Prompt_Block_Editor_Test extends \WorDBless\BaseTestCase {
 	 * @return string Redirect target, or '' when the divert declined to run.
 	 */
 	private function capture_redirect() {
+		/**
+		 * Carries the redirect target out of wp_redirect() as an exception.
+		 *
+		 * Declared in phpdoc rather than as a native `never` return type, which
+		 * would break PHP < 8.1.
+		 *
+		 * @param string $location Redirect target.
+		 * @return never
+		 */
 		$capture = function ( $location ) {
 			throw new \RuntimeException( (string) $location );
 		};
