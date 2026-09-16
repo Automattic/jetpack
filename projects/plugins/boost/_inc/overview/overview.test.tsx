@@ -663,51 +663,105 @@ test( 'retains the free history state when a modules refetch fails with a fresh-
 	).not.toBeInTheDocument();
 } );
 
-test( 'selects the paid empty history state using module availability', async () => {
-	const geometry = jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockReturnValue( {
-		x: 0,
-		y: 0,
-		top: 0,
-		left: 0,
-		right: 800,
-		bottom: 300,
-		width: 800,
-		height: 300,
-		toJSON: () => ( {} ),
-	} );
-	const resizeObserver = globalThis.ResizeObserver;
-	globalThis.ResizeObserver = class {
-		constructor( private callback: ResizeObserverCallback ) {}
-		observe( target: Element ) {
-			this.callback(
-				[ { target, contentRect: target.getBoundingClientRect() } as ResizeObserverEntry ],
-				this
-			);
+test.each( [
+	{
+		scoresAt: undefined,
+		lastWindow: 6,
+		copy: 'No scores recorded before the feature was unlocked.',
+	},
+	{ scoresAt: 1, lastWindow: 1, copy: 'No scores recorded for this day.' },
+	{ scoresAt: 3, lastWindow: 3, copy: 'No scores recorded for this day.' },
+] )(
+	'walks at most six older windows when history opens empty (scores in window $scoresAt)',
+	async ( { scoresAt, lastWindow, copy } ) => {
+		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+		jest.mocked( apiFetch ).mockImplementation( options => {
+			const window = options.data?.JSON;
+			if (
+				options.url?.endsWith( '/performance-history/set' ) &&
+				scoresAt !== undefined &&
+				window.startDate === getHistoryWindow( scoresAt ).startDate
+			) {
+				const period = {
+					timestamp: window.startDate + 12 * 3600000,
+					dimensions: {
+						desktop_overall_score: 90,
+						mobile_overall_score: 80,
+						desktop_cls: 0.01,
+						desktop_lcp: 1.2,
+						desktop_tbt: 0.2,
+						mobile_cls: 0.03,
+						mobile_lcp: 2.4,
+						mobile_tbt: 0.4,
+					},
+				};
+				return Promise.resolve( { status: 'success', JSON: { ...window, periods: [ period ] } } );
+			}
+			return fetch( options );
+		} );
+
+		const geometry = jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockReturnValue( {
+			x: 0,
+			y: 0,
+			top: 0,
+			left: 0,
+			right: 800,
+			bottom: 300,
+			width: 800,
+			height: 300,
+			toJSON: () => ( {} ),
+		} );
+		const resizeObserver = globalThis.ResizeObserver;
+		globalThis.ResizeObserver = class {
+			constructor( private callback: ResizeObserverCallback ) {}
+			observe( target: Element ) {
+				this.callback(
+					[ { target, contentRect: target.getBoundingClientRect() } as ResizeObserverEntry ],
+					this
+				);
+			}
+			unobserve() {}
+			disconnect() {}
+		};
+		const requested = ( offset: number ) =>
+			jest
+				.mocked( apiFetch )
+				.mock.calls.some(
+					( [ options ] ) => options.data?.JSON?.startDate === getHistoryWindow( offset ).startDate
+				);
+		try {
+			const { client } = renderOverview();
+			await waitFor( () => expect( requested( lastWindow ) ).toBe( true ) );
+			await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+			expect( requested( lastWindow + 1 ) ).toBe( false );
+			const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
+			fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
+			await expect( screen.findByText( copy ) ).resolves.toBeInTheDocument();
+			expect(
+				screen
+					.getByRole( 'button', { name: 'Previous 30 days' } )
+					.getAttribute( 'aria-disabled' ) === 'true'
+			).toBe( scoresAt === undefined );
+			expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+		} finally {
+			geometry.mockRestore();
+			globalThis.ResizeObserver = resizeObserver;
 		}
-		unobserve() {}
-		disconnect() {}
-	};
-	try {
-		renderOverview();
-		const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
-		fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
-		await expect(
-			screen.findByText( 'No scores recorded before the feature was unlocked.' )
-		).resolves.toBeInTheDocument();
-		expect( apiFetch ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				data: { JSON: expect.objectContaining( getHistoryWindow( 1 ) ) },
-			} )
-		);
-		expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
-	} finally {
-		geometry.mockRestore();
-		globalThis.ResizeObserver = resizeObserver;
 	}
+);
+
+test( 'does not request older history while the fresh-start notice hides the chart', async () => {
+	window.jetpack_boost_ds!.dismissed_alerts!.value = { performance_history_fresh_start: false };
+	const { client } = renderOverview();
+	await expect(
+		screen.findByText( /Jetpack Boost premium has been activated/ )
+	).resolves.toBeInTheDocument();
+	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+	expect( apiFetch ).not.toHaveBeenCalledWith(
+		expect.objectContaining( {
+			data: { JSON: expect.objectContaining( getHistoryWindow( 1 ) ) },
+		} )
+	);
 } );
 
 test( 'debounces optimization changes and waits for generation to finish', async () => {

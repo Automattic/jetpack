@@ -65,7 +65,7 @@ export function EmptyDayTooltip( {
 			<div className="boost-daily-history__empty-copy">
 				{ isBeforeHistory
 					? __( 'No scores recorded before the feature was unlocked.', 'jetpack-boost' )
-					: __( 'No scores recorded for this day', 'jetpack-boost' ) }
+					: __( 'No scores recorded for this day.', 'jetpack-boost' ) }
 			</div>
 		</div>
 	);

@@ -14,6 +14,7 @@ import { isSiteOnline, useModulesState, useScoreRefreshState } from './lib/use-m
 import {
 	performanceHistoryQueryKey,
 	useDismissibleAlertState,
+	useHasOlderHistory,
 	usePerformanceHistory,
 } from './lib/use-performance-history';
 import { useSpeedScores } from './lib/use-speed-scores';
@@ -64,22 +65,19 @@ function OverviewContent( {
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
 	const historyAvailable = modules.data?.performance_history?.available === true;
-	const { range, olderRange, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
+	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
 	const history = usePerformanceHistory( historyAvailable && isVisible, range );
-	// Only a window that opens on an empty day can hold the first recorded score.
-	const opensEmpty =
-		history.isSuccess && ! bucketHistoryDays( history.data?.periods ?? [], range )[ 0 ]?.period;
-	const olderHistory = usePerformanceHistory(
-		historyAvailable && isVisible && opensEmpty,
-		olderRange
-	);
-	const hasOlderHistory =
-		opensEmpty && olderHistory.isSuccess
-			? bucketHistoryDays( olderHistory.data?.periods ?? [], olderRange ).some( day => day.period )
-			: undefined;
 	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
 		'performance_history_fresh_start'
 	);
+	// A window that starts on a recorded day keeps Previous enabled without older requests.
+	const opensEmpty =
+		history.isSuccess && ! bucketHistoryDays( history.data?.periods ?? [], range )[ 0 ]?.period;
+	const olderHistory = useHasOlderHistory(
+		historyAvailable && isVisible && freshStartCompleted && opensEmpty,
+		olderRanges
+	);
+	const hasOlderHistory = opensEmpty ? olderHistory.data : undefined;
 	const queryClient = useQueryClient();
 	const online = isSiteOnline();
 	const isLoading = scoreState.status === 'loading';

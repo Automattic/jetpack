@@ -2,6 +2,9 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useCallback, useEffect, useState } from 'react';
 import { getHistoryWindow } from './history-days';
 
+// Six consecutive empty older windows count as no older history.
+const olderWindowLimit = 6;
+
 export function useHistoryRange() {
 	const isNarrow = useViewportMatch( 'small', '<' );
 	const [ paging, setPaging ] = useState< { dayCount: 15 | 30; offset: number } >( {
@@ -23,7 +26,9 @@ export function useHistoryRange() {
 
 	return {
 		range: getHistoryWindow( paging.offset, new Date(), paging.dayCount ),
-		olderRange: getHistoryWindow( paging.offset + 1, new Date(), paging.dayCount ),
+		olderRanges: Array.from( { length: olderWindowLimit }, ( _, index ) =>
+			getHistoryWindow( paging.offset + index + 1, new Date(), paging.dayCount )
+		),
 		dayCount: paging.dayCount,
 		canGoNext: paging.offset > 0,
 		onPrevious,

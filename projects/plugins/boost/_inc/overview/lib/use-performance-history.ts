@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { performanceHistoryDataSchema } from '../../../app/assets/src/js/features/performance-history/lib/hooks';
-import { getHistoryWindow } from './history-days';
+import { bucketHistoryDays, getHistoryWindow, type HistoryWindow } from './history-days';
 import { isSiteOnline, requestDataSync } from './use-modules-state';
 
 export type PerformanceHistory = z.infer< typeof performanceHistoryDataSchema >;
@@ -14,9 +14,10 @@ export function parsePerformanceHistory( value: unknown ): PerformanceHistory {
 
 export const performanceHistoryQueryKey = [ 'performance_history' ] as const;
 
-export function usePerformanceHistory( enabled = true, window = getHistoryWindow( 0 ) ) {
-	const { startDate, endDate } = window;
-	return useQuery( {
+const historyStaleTime = 12 * 60 * 60 * 1000;
+
+function historyQuery( { startDate, endDate }: HistoryWindow ) {
+	return {
 		queryKey: [ ...performanceHistoryQueryKey, startDate, endDate ],
 		queryFn: async () =>
 			parsePerformanceHistory(
@@ -28,8 +29,36 @@ export function usePerformanceHistory( enabled = true, window = getHistoryWindow
 					surfaceErrors: true,
 				} )
 			),
+		staleTime: historyStaleTime,
+	};
+}
+
+export function usePerformanceHistory( enabled = true, window = getHistoryWindow( 0 ) ) {
+	return useQuery( { ...historyQuery( window ), enabled: enabled && isSiteOnline() } );
+}
+
+/**
+ * Walk the given older windows nearest first, stopping at the first with a score.
+ *
+ * @param enabled - Whether to request history.
+ * @param windows - Older windows, nearest first.
+ * @return Query whose data is false only when every window is empty.
+ */
+export function useHasOlderHistory( enabled: boolean, windows: HistoryWindow[] ) {
+	const queryClient = useQueryClient();
+	return useQuery( {
+		queryKey: [ ...performanceHistoryQueryKey, 'older', windows ],
+		queryFn: async () => {
+			for ( const window of windows ) {
+				const data = await queryClient.fetchQuery( historyQuery( window ) );
+				if ( bucketHistoryDays( data?.periods ?? [], window ).some( day => day.period ) ) {
+					return true;
+				}
+			}
+			return false;
+		},
 		enabled: enabled && isSiteOnline(),
-		staleTime: 12 * 60 * 60 * 1000,
+		staleTime: historyStaleTime,
 	} );
 }
 

@@ -219,7 +219,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( surface ).toContainText( 'August 26, 2026' );
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
-		await expect( surface ).toContainText( 'No scores recorded for this day' );
+		await expect( surface ).toContainText( 'No scores recorded for this day.' );
 		await page.keyboard.press( 'ArrowRight' );
 		await expect( surface ).toContainText( 'August 27, 2026' );
 		await page.keyboard.press( 'Escape' );
@@ -246,41 +246,49 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 	} );
 }
 
-test( 'uses compact plots with three horizontal gridlines and no band legend', async ( {
-	page,
-} ) => {
-	await expect( page.getByText( 'Could be improved', { exact: true } ) ).toHaveCount( 0 );
-	for ( const device of [ 'Desktop', 'Mobile' ] ) {
-		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
-		await expect( chart.locator( '.visx-rows line' ) ).toHaveCount( 3 );
-		await expect( chart.getByLabel( 'XYChart' ) ).toHaveCSS( 'height', '96px' );
-	}
+for ( const [ query, copy, height ] of [
+	[ '', 'No scores recorded for this day.', '86px' ],
+	[ '?noOlderHistory', 'No scores recorded before the feature was unlocked.', '106px' ],
+] as const ) {
+	test( `uses compact plots with three horizontal gridlines and no band legend${ query }`, async ( {
+		page,
+	} ) => {
+		await page.goto( `http://boost-history.test/${ query }` );
+		await expect( page.getByText( 'Could be improved', { exact: true } ) ).toHaveCount( 0 );
+		for ( const device of [ 'Desktop', 'Mobile' ] ) {
+			const chart = page.getByRole( 'region', { name: `${ device } score history` } );
+			await expect( chart.locator( '.visx-rows line' ) ).toHaveCount( 3 );
+			await expect( chart.getByLabel( 'XYChart' ) ).toHaveCSS( 'height', '96px' );
+		}
 
-	const desktop = page.getByRole( 'region', { name: 'Desktop score history' } );
-	const mobile = page.getByRole( 'region', { name: 'Mobile score history' } );
-	await hoverDay( desktop, 0 );
-	const highlight = page.locator( '.boost-daily-history__highlight' );
-	await expect( highlight ).toHaveCount( 1 );
-	await expect( highlight ).toBeVisible();
-	const band = ( await highlight.boundingBox() )!;
-	const firstPanel = ( await desktop.boundingBox() )!;
-	const secondSvg = ( await mobile.getByLabel( 'XYChart' ).boundingBox() )!;
-	const bar = ( await desktop.locator( '.visx-bar' ).first().boundingBox() )!;
-	expect( band.y ).toBeCloseTo( firstPanel.y, 0 );
-	expect( band.y + band.height ).toBeCloseTo( secondSvg.y + secondSvg.height - 24, 0 );
-	expect( band.width ).toBeCloseTo( bar.width + 1, 0 );
-	const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
-	await expect( tooltip ).toContainText( 'No scores recorded for this day' );
-	await expect( tooltip ).toHaveCSS( 'width', '265px' );
-	await expect( tooltip ).toHaveCSS( 'height', '86px' );
-	const emptyPopup = ( await tooltip.boundingBox() )!;
-	expect( emptyPopup.y ).toBeGreaterThanOrEqual( firstPanel.y );
-	expect( emptyPopup.y + emptyPopup.height ).toBeLessThanOrEqual( secondSvg.y + secondSvg.height );
-	await expect( tooltip.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
-		'font-weight',
-		'600'
-	);
-} );
+		const desktop = page.getByRole( 'region', { name: 'Desktop score history' } );
+		const mobile = page.getByRole( 'region', { name: 'Mobile score history' } );
+		await hoverDay( desktop, 0 );
+		const highlight = page.locator( '.boost-daily-history__highlight' );
+		await expect( highlight ).toHaveCount( 1 );
+		await expect( highlight ).toBeVisible();
+		const band = ( await highlight.boundingBox() )!;
+		const firstPanel = ( await desktop.boundingBox() )!;
+		const secondSvg = ( await mobile.getByLabel( 'XYChart' ).boundingBox() )!;
+		const bar = ( await desktop.locator( '.visx-bar' ).first().boundingBox() )!;
+		expect( band.y ).toBeCloseTo( firstPanel.y, 0 );
+		expect( band.y + band.height ).toBeCloseTo( secondSvg.y + secondSvg.height - 24, 0 );
+		expect( band.width ).toBeCloseTo( bar.width + 1, 0 );
+		const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		await expect( tooltip ).toContainText( copy );
+		await expect( tooltip ).toHaveCSS( 'width', '265px' );
+		await expect( tooltip ).toHaveCSS( 'height', height );
+		const emptyPopup = ( await tooltip.boundingBox() )!;
+		expect( emptyPopup.y ).toBeGreaterThanOrEqual( firstPanel.y );
+		expect( emptyPopup.y + emptyPopup.height ).toBeLessThanOrEqual(
+			secondSvg.y + secondSvg.height
+		);
+		await expect( tooltip.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
+			'font-weight',
+			'600'
+		);
+	} );
+}
 
 test( 'an all-zero window paints recorded scores separately from empty slots', async ( {
 	page,

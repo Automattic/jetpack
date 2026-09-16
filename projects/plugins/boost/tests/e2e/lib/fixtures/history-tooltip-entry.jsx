@@ -58,6 +58,9 @@ const HistoryFixture = () => {
 				{ ...paging }
 				data={ data }
 				isVisible={ isVisible }
+				hasOlderHistory={
+					new URLSearchParams( window.location.search ).has( 'noOlderHistory' ) ? false : undefined
+				}
 				onRetry={ noop }
 				onDismissFreshStart={ noop }
 			/>
