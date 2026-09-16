@@ -397,7 +397,9 @@ export default function DashboardPage( { isLoading = false } ) {
 															<ReaderChatControl
 																isAvailable={ isReaderChatControlAvailable }
 																isEnabled={ isReaderChatEnabled }
-																isSaving={ isSavingEitherOption || isOverLimit }
+																isSaving={
+																	isSavingEitherOption || ( isOverLimit && ! isReaderChatEnabled )
+																}
 																guidelinesUrl={ readerChatGuidelinesUrl }
 																updateOptions={ updateOptions }
 															/>

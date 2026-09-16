@@ -1,7 +1,9 @@
 import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Badge } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { STORE_ID } from 'store';
 
 const READER_CHAT_DESCRIPTION = __(
 	'Let visitors ask your site questions and get answers from your content.',
@@ -27,6 +29,10 @@ export default function ReaderChatControl( {
 	guidelinesUrl,
 	updateOptions,
 } ) {
+	const supportsPaidSearch = useSelect( select => {
+		const store = select( STORE_ID );
+		return store.supportsInstantSearch() && ! store.isFreePlan();
+	}, [] );
 	const toggle = useCallback(
 		next => {
 			updateOptions( { reader_chat: next } );
@@ -44,7 +50,7 @@ export default function ReaderChatControl( {
 			<div className="jp-search-dashboard-row">
 				<ToggleControl
 					checked={ Boolean( isEnabled ) }
-					disabled={ isSaving }
+					disabled={ isSaving || ( ! supportsPaidSearch && ! isEnabled ) }
 					onChange={ toggle }
 					className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
 					label={
@@ -63,6 +69,14 @@ export default function ReaderChatControl( {
 					<p className="jp-form-search-settings-group__toggle-explanation">
 						{ READER_CHAT_DESCRIPTION }
 					</p>
+					{ ! supportsPaidSearch && (
+						<p>
+							{ __( 'Site Chat requires a paid Jetpack Search plan.', 'jetpack-search-pkg' ) }{ ' ' }
+							<ExternalLink href="https://jetpack.com/upgrade/search/?utm_source=site-chat">
+								{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
+							</ExternalLink>
+						</p>
+					) }
 					{ isEnabled && guidelinesUrl && (
 						<p className="jp-form-search-settings-group__toggle-explanation">
 							<ExternalLink href={ guidelinesUrl }>

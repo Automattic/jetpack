@@ -72,6 +72,36 @@ class REST_Controller_Test extends Search_TestCase {
 		parent::tearDown();
 	}
 
+	public function test_reader_chat_activation_requires_paid_search() {
+		wp_set_current_user( $this->admin_id );
+		$this->register_reader_chat_setting();
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'reader_chat' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'rest_forbidden', $response->get_data()['code'] );
+		$this->assertFalse( (bool) get_option( 'reader_chat' ) );
+	}
+
+	public function test_reader_chat_can_be_disabled_without_paid_search() {
+		wp_set_current_user( $this->admin_id );
+		$this->register_reader_chat_setting();
+		update_option( 'reader_chat', true );
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'reader_chat' => false ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'reader_chat' ) );
+	}
+
 	/**
 	 * Register the Reader Chat setting for rollout-enabled test cases.
 	 */
