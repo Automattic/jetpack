@@ -69,9 +69,7 @@ function DashboardStage() {
 		{
 			query: {
 				refetchInterval: query =>
-					query.state.data === true && Date.now() < onboardingPollDeadline.current
-						? 1000
-						: false,
+					query.state.data === true && Date.now() < onboardingPollDeadline.current ? 1000 : false,
 			},
 		}
 	);
