@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Premium Analytics: Sync store analytics only while WooCommerce order attribution is enabled, and backfill them when it is turned on.

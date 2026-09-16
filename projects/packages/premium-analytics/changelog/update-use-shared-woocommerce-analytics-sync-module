@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Sync: Use the shared WooCommerce Analytics module from the jetpack-sync package and defer to the WooCommerce Analytics plugin's own module when it is active.
+Sync: Use the shared WooCommerce Analytics module from the jetpack-sync package, register it only while WooCommerce order attribution is enabled, and defer to the WooCommerce Analytics plugin's own module when it is active.

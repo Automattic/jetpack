@@ -42,6 +42,34 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
+	 * A Configuration whose order-sync gate is forced open or closed.
+	 *
+	 * @param bool $can_sync Gate value.
+	 * @return Configuration
+	 */
+	private static function with_order_sync( bool $can_sync ): Configuration {
+		return new class( $can_sync ) extends Configuration {
+			/**
+			 * Forced gate value.
+			 *
+			 * @var bool
+			 */
+			private $can_sync;
+
+			/**
+			 * @param bool $can_sync Gate value.
+			 */
+			public function __construct( bool $can_sync ) {
+				$this->can_sync = $can_sync;
+			}
+
+			protected function can_site_sync_orders(): bool {
+				return $this->can_sync;
+			}
+		};
+	}
+
+	/**
 	 * WooCommerce-specific Sync hooks remain disabled without WooCommerce.
 	 */
 	public function test_configure_sync_without_woocommerce_is_a_no_op() {
@@ -57,8 +85,8 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * With WooCommerce active, the Sync hooks and data settings register, and the module
-	 * filter runs last so another plugin's Analytics module is already in the list.
+	 * With WooCommerce active and order attribution on, the Sync hooks and data settings
+	 * register, and the module filter runs last so another plugin's module is already listed.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -67,6 +95,8 @@ class Configuration_Test extends TestCase {
 	#[PreserveGlobalState( false )]
 	public function test_configure_sync_with_woocommerce_registers_sync_hooks() {
 		require_once __DIR__ . '/../mocks/woocommerce-active-mock.php';
+		require_once __DIR__ . '/../mocks/woocommerce-features-mock.php';
+		$GLOBALS['jpa_test_wc_features'] = array( 'order_attribution' => true );
 		$this->assertTrue( class_exists( 'WooCommerce' ) );
 
 		$configuration = new Configuration();
@@ -74,8 +104,9 @@ class Configuration_Test extends TestCase {
 
 		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
-		$this->assertSame( 10, has_filter( 'jetpack_sync_checksum_allowed_tables', array( $configuration, 'gate_analytics_checksum_tables' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
+		$this->assertSame( 10, has_action( 'update_option_woocommerce_feature_order_attribution_enabled', array( $configuration, 'schedule_backfill_on_attribution_enabled' ) ) );
+		$this->assertSame( 10, has_action( Configuration::BACKFILL_ACTION, array( $configuration, 'backfill_analytics' ) ) );
 
 		$data_settings = ( new Data_Settings() )->get_data_settings();
 		$this->assertContains( WooCommerce_Analytics::class, $data_settings['jetpack_sync_modules'] );
@@ -92,6 +123,26 @@ class Configuration_Test extends TestCase {
 
 		$modules = apply_filters( 'jetpack_sync_modules', array( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ) );
 		$this->assertContains( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN, $modules );
+		$this->assertNotContains( WooCommerce_Analytics::class, $modules );
+	}
+
+	/**
+	 * With WooCommerce active but order attribution off, the module is stripped from the
+	 * list Data_Settings builds, so nothing analytics-related syncs.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_sync_without_order_sync_drops_the_module() {
+		require_once __DIR__ . '/../mocks/woocommerce-active-mock.php';
+		$this->assertFalse( class_exists( 'Automattic\\WooCommerce\\Utilities\\FeaturesUtil' ) );
+
+		( new Configuration() )->configure_sync();
+
+		$modules = apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES );
+		$this->assertContains( Options::class, $modules );
 		$this->assertNotContains( WooCommerce_Analytics::class, $modules );
 	}
 
@@ -143,14 +194,32 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * The shared module is added exactly once when the standalone plugin's module is absent.
+	 * The shared module is added exactly once when the site can sync orders and no other plugin provides one.
 	 */
 	public function test_add_woocommerce_analytics_module_adds_shared_module_once() {
-		$configuration = new Configuration();
+		$configuration = self::with_order_sync( true );
 		$modules       = $configuration->add_woocommerce_analytics_module( array( Posts::class ) );
 
 		$this->assertSame( array( Posts::class, WooCommerce_Analytics::class ), $modules );
 		$this->assertSame( $modules, $configuration->add_woocommerce_analytics_module( $modules ) );
+	}
+
+	/**
+	 * The shared module is removed, even when Data_Settings listed it, while the site cannot sync orders.
+	 */
+	public function test_add_woocommerce_analytics_module_drops_shared_module_when_order_sync_is_not_allowed() {
+		$this->assertSame(
+			array( Posts::class ),
+			self::with_order_sync( false )->add_woocommerce_analytics_module( array( Posts::class, WooCommerce_Analytics::class ) )
+		);
+	}
+
+	/**
+	 * The real gate stays closed when WooCommerce's feature utilities are unavailable.
+	 */
+	public function test_add_woocommerce_analytics_module_is_gated_without_woocommerce_features() {
+		$this->assertFalse( class_exists( 'Automattic\\WooCommerce\\Utilities\\FeaturesUtil' ) );
+		$this->assertSame( array( Posts::class ), ( new Configuration() )->add_woocommerce_analytics_module( array( Posts::class ) ) );
 	}
 
 	/**
@@ -164,7 +233,7 @@ class Configuration_Test extends TestCase {
 	 * The standalone Analytics plugin remains authoritative during migration.
 	 */
 	public function test_add_woocommerce_analytics_module_defers_to_standalone_plugin() {
-		$configuration = new Configuration();
+		$configuration = self::with_order_sync( true );
 		$modules       = array(
 			Configuration::ANALYTICS_PLUGIN_MODULE_FQCN,
 			WooCommerce_Analytics::class,
@@ -245,43 +314,50 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * Analytics checksum tables are audited once the site can sync orders.
+	 * Turning order attribution on schedules one backfill run.
 	 */
-	public function test_gate_analytics_checksum_tables_keeps_tables_when_order_sync_is_allowed() {
-		$configuration = new class() extends Configuration {
-			protected function can_site_sync_orders(): bool {
-				return true;
-			}
-		};
-		$tables        = array(
-			'posts'          => array( 'table' => 'wp_posts' ),
-			'wc_order_stats' => array( 'table' => 'wp_wc_order_stats' ),
+	public function test_backfill_is_scheduled_when_order_attribution_turns_on() {
+		$configuration = new Configuration();
+		wp_clear_scheduled_hook( Configuration::BACKFILL_ACTION );
+
+		$configuration->schedule_backfill_on_attribution_enabled( 'no', 'yes' );
+		$this->assertNotFalse( wp_next_scheduled( Configuration::BACKFILL_ACTION ) );
+
+		// A second flip while one is pending does not queue another run.
+		$configuration->schedule_backfill_on_attribution_enabled( 'no', 'yes' );
+		$this->assertCount(
+			1,
+			array_filter(
+				_get_cron_array(),
+				static function ( $hooks ) {
+					return isset( $hooks[ Configuration::BACKFILL_ACTION ] );
+				}
+			)
 		);
 
-		$this->assertSame( $tables, $configuration->gate_analytics_checksum_tables( $tables ) );
+		wp_clear_scheduled_hook( Configuration::BACKFILL_ACTION );
 	}
 
 	/**
-	 * Analytics checksum tables stay out of audits while the site cannot sync orders.
+	 * Other option transitions schedule nothing.
 	 */
-	public function test_gate_analytics_checksum_tables_drops_tables_when_order_sync_is_not_allowed() {
-		$configuration = new class() extends Configuration {
-			protected function can_site_sync_orders(): bool {
-				return false;
-			}
-		};
-		$tables        = array(
-			'posts'                   => array( 'table' => 'wp_posts' ),
-			'wc_order_stats'          => array( 'table' => 'wp_wc_order_stats' ),
-			'wc_order_product_lookup' => array( 'table' => 'wp_wc_order_product_lookup' ),
-			'wc_order_coupon_lookup'  => array( 'table' => 'wp_wc_order_coupon_lookup' ),
-			'wc_order_tax_lookup'     => array( 'table' => 'wp_wc_order_tax_lookup' ),
-		);
+	public function test_backfill_is_not_scheduled_unless_attribution_turns_on() {
+		$configuration = new Configuration();
+		wp_clear_scheduled_hook( Configuration::BACKFILL_ACTION );
 
-		$this->assertSame(
-			array( 'posts' => array( 'table' => 'wp_posts' ) ),
-			$configuration->gate_analytics_checksum_tables( $tables )
-		);
+		$configuration->schedule_backfill_on_attribution_enabled( 'yes', 'yes' );
+		$configuration->schedule_backfill_on_attribution_enabled( 'yes', 'no' );
+		$configuration->schedule_backfill_on_attribution_enabled( 'no', 'no' );
+
+		$this->assertFalse( wp_next_scheduled( Configuration::BACKFILL_ACTION ) );
+	}
+
+	/**
+	 * The backfill does nothing while the module is not registered.
+	 */
+	public function test_backfill_is_a_no_op_without_the_module() {
+		$this->assertFalse( Modules::get_module( 'woocommerce_analytics' ) );
+		$this->assertFalse( ( new Configuration() )->backfill_analytics() );
 	}
 
 	/**
