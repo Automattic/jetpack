@@ -13,6 +13,7 @@ import {
 } from '../../_inc/runtime-contract';
 import type { Tab } from '../../_inc/runtime-contract';
 import './route.scss';
+import type { ReactNode } from 'react';
 
 const HISTORY_WRAPPED_KEY = '__jetpackBoostLocationChangeWrapped';
 
@@ -48,6 +49,7 @@ function Stage() {
 	const [ queryClient ] = useState( () => new QueryClient() );
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const lastSubpage = useRef( subpage );
+	const [ headerAction, setHeaderAction ] = useState< ReactNode >( null );
 	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
 		( next: Tab, replace = false ) => {
@@ -87,11 +89,15 @@ function Stage() {
 			activeTab={ activeTab }
 			isSubpage={ subpage !== null }
 			onTabChange={ onTabChange }
+			actions={ headerAction }
 			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
 			<Tabs.Panel value="overview" keepMounted>
 				<QueryClientProvider client={ queryClient }>
-					<Overview isVisible={ activeTab === 'overview' && subpage === null } />
+					<Overview
+						isVisible={ activeTab === 'overview' && subpage === null }
+						onHeaderActionChange={ setHeaderAction }
+					/>
 				</QueryClientProvider>
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>

@@ -6,16 +6,14 @@ import { Card, Stack, Popover } from '@wordpress/ui';
 import GradeExplanation from './grade-explanation';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';
-import type { ReactNode } from 'react';
 
 type Props = {
 	scores: SpeedScoresSet;
 	isLoading?: boolean;
 	showPlaceholder?: boolean;
-	headerAction?: ReactNode;
 };
 
-export default function ScoreCards( { scores, isLoading, showPlaceholder, headerAction }: Props ) {
+export default function ScoreCards( { scores, isLoading, showPlaceholder }: Props ) {
 	const { current } = scores;
 	const grade = getScoreLetter( current.mobile, current.desktop );
 	const noBoost = ! scores.isStale && didScoresChange( scores ) ? scores.noBoost : null;
@@ -24,7 +22,6 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 			<Card.Header className="jetpack-boost-overview__scores-header">
 				<Stack direction="row" justify="space-between" align="center" gap="md">
 					<Card.Title render={ <h2 /> }>{ __( 'Performance scores', 'jetpack-boost' ) }</Card.Title>
-					{ headerAction }
 				</Stack>
 			</Card.Header>
 			<CardDivider className="jetpack-boost-overview__scores-divider" />

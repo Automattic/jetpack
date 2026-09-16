@@ -2,18 +2,33 @@
 import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
 const mockNavigate = jest.fn();
 
-jest.mock( '../../_inc/overview/overview', () => ( {
-	__esModule: true,
-	default: ( { isVisible }: { isVisible: boolean } ) => (
-		<div data-visible={ isVisible }>Performance Overview</div>
-	),
-} ) );
+jest.mock( '../../_inc/overview/overview', () => {
+	const { useEffect } = jest.requireActual< typeof import('react') >( 'react' );
+	return {
+		__esModule: true,
+		default: function MockOverview( {
+			isVisible,
+			onHeaderActionChange,
+		}: {
+			isVisible: boolean;
+			onHeaderActionChange: ( action: ReactNode ) => void;
+		} ) {
+			useEffect( () => {
+				if ( isVisible ) {
+					onHeaderActionChange( <button>Run speed test</button> );
+					return () => onHeaderActionChange( null );
+				}
+			}, [ isVisible, onHeaderActionChange ] );
+			return <div data-visible={ isVisible }>Performance Overview</div>;
+		},
+	};
+} );
 
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( { tab: new URLSearchParams( globalThis.location.search ).get( 'tab' ) } ),
@@ -22,7 +37,26 @@ jest.mock( '@wordpress/route', () => ( {
 
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
-	default: ( { children }: { children: ReactNode } ) => <main>{ children }</main>,
+	default: ( {
+		title,
+		subTitle,
+		actions,
+		children,
+	}: {
+		title: string;
+		subTitle: string;
+		actions: ReactNode;
+		children: ReactNode;
+	} ) => (
+		<main>
+			<header>
+				<h1>{ title }</h1>
+				<p>{ subTitle }</p>
+				{ actions }
+			</header>
+			{ children }
+		</main>
+	),
 } ) );
 
 const subpages = [
@@ -62,6 +96,11 @@ describe( 'Boost dashboard stage', () => {
 		expect( screen.getByRole( 'tabpanel' ).contains( getSettingsMount() ) ).toBe(
 			tab === 'Settings'
 		);
+		const header = within( screen.getByRole( 'banner' ) );
+		expect( header.getByText( 'Improve your site speed and performance.' ) ).toBeInTheDocument();
+		expect( header.queryAllByRole( 'button', { name: 'Run speed test' } ) ).toHaveLength(
+			tab === 'Overview' ? 1 : 0
+		);
 	} );
 
 	it.each(
@@ -78,6 +117,7 @@ describe( 'Boost dashboard stage', () => {
 		expect( getSubpageMount()?.closest( '[role="tabpanel"]' ) ).toBeNull();
 		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
 		expect( getSettingsMount() ).not.toBeNull();
+		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [ 'cache-debug-log', 'critical-css-advanced' ] )(
