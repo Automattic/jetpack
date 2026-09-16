@@ -12,6 +12,12 @@
  * @package automattic/jetpack
  */
 
+/*
+ * Namespaced because Phan analyzes every script in tools/ as one unit, where a bare `usage()`
+ * collides with the identical helper in check-changelogger-use.php.
+ */
+namespace Automattic\Jetpack\Tools\AdminMenuPositions;
+
 chdir( __DIR__ . '/../' );
 
 /**

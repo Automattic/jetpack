@@ -1304,7 +1304,7 @@ class Admin_Menu_Test extends TestCase {
 
 		$register = static function () use ( $items ) {
 			foreach ( $items as $item ) {
-				Admin_Menu::add_menu( $item[0], $item[0], 'manage_options', $item[1], '__return_null', isset( $item[2] ) ? $item[2] : null );
+				Admin_Menu::add_menu( $item[0], $item[0], 'manage_options', $item[1], '__return_null', $item[2] ?? null );
 			}
 		};
 
@@ -1543,7 +1543,7 @@ class Admin_Menu_Test extends TestCase {
 		);
 
 		$filter = static function ( $translated, $text ) use ( $translations ) {
-			return isset( $translations[ $text ] ) ? $translations[ $text ] : $translated;
+			return $translations[ $text ] ?? $translated;
 		};
 
 		add_filter( 'gettext', $filter, 10, 2 );
