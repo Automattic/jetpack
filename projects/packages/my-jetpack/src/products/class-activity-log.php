@@ -178,6 +178,15 @@ class Activity_Log extends Module_Product {
 	}
 
 	/**
+	 * Checks whether the site has switched the product on.
+	 *
+	 * @return boolean
+	 */
+	public static function is_activated() {
+		return static::is_module_active();
+	}
+
+	/**
 	 * Activates the module.
 	 *
 	 * @param bool|WP_Error $plugin_activation Result of the top level activation actions.

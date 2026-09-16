@@ -151,6 +151,18 @@ class Activity_Log_Product_Test extends TestCase {
 	}
 
 	/**
+	 * The sidebar visibility resolver reads is_activated(), so it has to follow
+	 * the module too rather than the presence of the Jetpack plugin.
+	 */
+	public function test_is_activated_follows_module_state() {
+		$this->set_active_modules( array() );
+		$this->assertFalse( Activity_Log::is_activated() );
+
+		$this->set_active_modules( array( 'activity-log' ) );
+		$this->assertTrue( Activity_Log::is_activated() );
+	}
+
+	/**
 	 * Without a connected owner the user-connection requirement wins, so the
 	 * module state is only reachable once one exists.
 	 */
