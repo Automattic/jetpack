@@ -4,8 +4,12 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Products\Activity_Log;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -13,9 +17,17 @@ use WorDBless\Users as WorDBless_Users;
 /**
  * Unit tests for the Activity Log product.
  *
+ * Isolated because these read the module state through `Modules`, whose
+ * available-module list is a function static: the first test in the process to
+ * ask fixes it for every test after, and this class sorts first in the suite.
+ *
  * @package automattic/my-jetpack
  * @see \Automattic\Jetpack\My_Jetpack\Products\Activity_Log
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class Activity_Log_Product_Test extends TestCase {
 
 	/**
@@ -50,6 +62,36 @@ class Activity_Log_Product_Test extends TestCase {
 			)
 		);
 		wp_set_current_user( self::$user_id );
+
+		// Modules::get_active() intersects against the available modules, which
+		// come from a different filter depending on whether the Jetpack plugin is
+		// present. Register both so the tests read the module state either way.
+		add_filter( 'jetpack_get_available_modules', array( $this, 'add_activity_log_module' ) );
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_standalone_activity_log_module' ) );
+	}
+
+	/**
+	 * Available modules as the Jetpack plugin reports them: slug => version.
+	 *
+	 * @param array $modules Available modules.
+	 * @return array
+	 */
+	public function add_activity_log_module( $modules ) {
+		$modules['activity-log'] = '0.0.0';
+
+		return $modules;
+	}
+
+	/**
+	 * Available modules as a standalone plugin reports them: a list of slugs.
+	 *
+	 * @param array $modules Available module slugs.
+	 * @return array
+	 */
+	public function add_standalone_activity_log_module( $modules ) {
+		$modules[] = 'activity-log';
+
+		return array_values( array_unique( $modules ) );
 	}
 
 	/**
@@ -69,7 +111,9 @@ class Activity_Log_Product_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
-		$this->set_active_modules( array() );
+		$this->set_plan_cache( null );
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_activity_log_module' ) );
+		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_standalone_activity_log_module' ) );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
@@ -129,14 +173,69 @@ class Activity_Log_Product_Test extends TestCase {
 	}
 
 	/**
-	 * Sets which modules the mock Jetpack plugin reports as active.
+	 * Activation has to write the shared module option rather than route through
+	 * the Jetpack plugin, which a standalone install does not have.
+	 */
+	public function test_activation_switches_the_module_on() {
+		$this->set_active_modules( array() );
+		$this->support_activity_log_on_the_current_plan();
+
+		$this->assertTrue( Activity_Log::do_product_specific_activation( true ) );
+		$this->assertContains( 'activity-log', ( new Modules() )->get_active() );
+		$this->assertTrue( Activity_Log::is_active() );
+	}
+
+	/**
+	 * And deactivation likewise, so the toggle does not report a success it did
+	 * not achieve.
+	 */
+	public function test_deactivation_switches_the_module_off() {
+		$this->set_active_modules( array( 'activity-log' ) );
+
+		$this->assertTrue( Activity_Log::deactivate() );
+		$this->assertNotContains( 'activity-log', ( new Modules() )->get_active() );
+		$this->assertFalse( Activity_Log::is_active() );
+	}
+
+	/**
+	 * Modules::activate() asks Current_Plan whether the plan covers the module.
+	 * On a real site the answer is yes, because the module header carries no
+	 * `Plan Classes` and so defaults to free -- but that is read through the
+	 * Jetpack plugin's generated module registry, which the mock has not got.
+	 * Prime the plan cache instead of teaching the mock to fake that registry.
+	 *
+	 * @return void
+	 */
+	private function support_activity_log_on_the_current_plan() {
+		$plan             = Current_Plan::get();
+		$plan['supports'] = array_merge( $plan['supports'], array( 'activity-log' ) );
+		$this->set_plan_cache( $plan );
+	}
+
+	/**
+	 * Writes Current_Plan's request-scoped cache, which has no setter.
+	 *
+	 * @param array|null $plan Plan details, or null to clear.
+	 * @return void
+	 */
+	private function set_plan_cache( $plan ) {
+		$cache = new \ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
+		$cache->setValue( null, $plan );
+	}
+
+	/**
+	 * Sets the module state where every plugin reads it, rather than on the mock
+	 * Jetpack plugin: a standalone install has no Jetpack plugin to ask.
 	 *
 	 * @param array $modules Module slugs.
 	 * @return void
 	 */
 	private function set_active_modules( array $modules ) {
-		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- It's declared on the mock from ./assets/jetpack-mock-plugin.txt
-		\Jetpack::$active_modules = $modules;
+		Jetpack_Options::update_option( 'active_modules', $modules );
 	}
 
 	/**

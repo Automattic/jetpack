@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use WP_Error;
 
@@ -147,6 +148,60 @@ class Activity_Log extends Module_Product {
 			'available' => true,
 			'is_free'   => true,
 		);
+	}
+
+	/**
+	 * Checks whether the Activity Log module is switched on.
+	 *
+	 * Overrides the parent, which reads the module state through the Jetpack
+	 * plugin and so reports every standalone install inactive. `Modules` reads
+	 * the same `jetpack_active_modules` option with or without that plugin, and
+	 * is the check `Jetpack_Activity_Log::initialize()` gates on.
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		return ( new Modules() )->is_active( static::$module_name );
+	}
+
+	/**
+	 * Checks whether the Product is active.
+	 *
+	 * The module state is the whole answer here: a site that serves the
+	 * Activity Log page from a standalone plugin has no Jetpack plugin for the
+	 * parent's `is_jetpack_plugin_active()` to find.
+	 *
+	 * @return boolean
+	 */
+	public static function is_active() {
+		return static::is_module_active();
+	}
+
+	/**
+	 * Activates the module.
+	 *
+	 * @param bool|WP_Error $plugin_activation Result of the top level activation actions.
+	 * @return boolean|WP_Error
+	 */
+	public static function do_product_specific_activation( $plugin_activation ) {
+		if ( is_wp_error( $plugin_activation ) ) {
+			return $plugin_activation;
+		}
+
+		if ( ! ( new Modules() )->activate( static::$module_name, false, false ) ) {
+			return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack module', 'jetpack-my-jetpack' ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Deactivates the module.
+	 *
+	 * @return boolean
+	 */
+	public static function deactivate() {
+		return ( new Modules() )->deactivate( static::$module_name );
 	}
 
 	/**
