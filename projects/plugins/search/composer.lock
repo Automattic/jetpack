@@ -1760,7 +1760,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "99cb7a2f6b4d3ef3ee101add846e9b8ab9b2c724"
+                "reference": "0a7b32fa2a35644edfa2b8ca4554e646d67ffd50"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1770,6 +1770,7 @@
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {

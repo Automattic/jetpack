@@ -9,6 +9,9 @@
 /jest.url-tests.config.js                                production-exclude
 /docs/**                                                 production-exclude
 /tools/**                                                production-exclude
+/routes/**                                               production-exclude
+/packages/**                                             production-exclude
+/tsconfig.json                                           production-exclude
 /src/**/test/**                                          production-exclude
 /src/**/*.ts                                             production-exclude
 /src/**/*.tsx                                            production-exclude

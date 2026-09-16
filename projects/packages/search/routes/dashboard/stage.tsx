@@ -1,0 +1,13 @@
+import { createReduxStore, register } from '@wordpress/data';
+// @ts-expect-error -- JS component tree, no type declarations.
+import SearchDashboard from '../../src/dashboard/components/dashboard/wrapped-dashboard';
+// @ts-expect-error -- JS store config, no type declarations.
+import { STORE_ID, storeConfig } from '../../src/dashboard/store';
+import '../../src/dashboard/scss/admin-layout.scss';
+
+// Mirrors the module-scope registration in `src/dashboard/index.jsx`: `<SearchDashboard>`
+// reads this store via `useSelect()`, so it must exist before boot mounts `stage`.
+const store = createReduxStore( STORE_ID, storeConfig );
+register( store );
+
+export { SearchDashboard as stage };

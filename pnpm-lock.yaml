@@ -4687,6 +4687,9 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
+      '@jetpack-search/init':
+        specifier: link:packages/init
+        version: link:packages/init
       '@microsoft/fetch-event-source':
         specifier: 2.0.1
         version: 2.0.1
@@ -4790,6 +4793,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
@@ -4817,6 +4823,9 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.55.0
         version: 6.55.0
+      '@wordpress/build':
+        specifier: 0.23.0
+        version: 0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)(@wordpress/theme@2.1.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 6.55.0
         version: 6.55.0(webpack@5.107.2)
@@ -4829,6 +4838,9 @@ importers:
       babel-plugin-polyfill-corejs3:
         specifier: 0.14.0
         version: 0.14.0(@babel/core@7.29.7)
+      browserslist:
+        specifier: ^4.24.0
+        version: 4.28.9
       concurrently:
         specifier: 10.0.5
         version: 10.0.5

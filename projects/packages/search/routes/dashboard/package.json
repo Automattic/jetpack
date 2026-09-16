@@ -1,0 +1,29 @@
+{
+	"version": "1.0.0",
+	"private": true,
+	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
+		"@types/react": "18.3.31",
+		"@wordpress/api-fetch": "7.55.0",
+		"@wordpress/components": "40.1.0",
+		"@wordpress/data": "10.55.0",
+		"@wordpress/element": "8.7.0",
+		"@wordpress/i18n": "6.28.0",
+		"@wordpress/icons": "16.0.0",
+		"@wordpress/route": "0.21.0",
+		"@wordpress/ui": "0.22.0",
+		"clsx": "2.1.1",
+		"prop-types": "15.8.1",
+		"react": "18.3.1"
+	},
+	"route": {
+		"path": "/",
+		"page": "jetpack-search-dashboard"
+	}
+}
