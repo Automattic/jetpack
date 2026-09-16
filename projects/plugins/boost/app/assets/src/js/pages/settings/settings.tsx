@@ -5,6 +5,7 @@ import CloudCssModule from '$features/critical-css/cloud-css-module/cloud-css-mo
 import CriticalCssModule from '$features/critical-css/critical-css-module/critical-css-module';
 import ImageCdn from '$features/image-cdn/image-cdn';
 import ImageGuide from '$features/image-guide/image-guide';
+import LcpModule from '$features/lcp/lcp';
 import MinifyCss from '$features/minify-css/minify-css';
 import MinifyJs from '$features/minify-js/minify-js';
 import { ModuleSurfaceProvider } from '$features/module/surface';
@@ -29,7 +30,6 @@ const Group = ( { title, children }: { title: string; children: ReactNode } ) =>
 const Settings = () => (
 	<ModuleSurfaceProvider value="row">
 		<Stack direction="column" gap="xl" className={ styles.settings }>
-			<CornerstonePagesCard />
 			<Group title={ __( 'Code loading optimization', 'jetpack-boost' ) }>
 				<CriticalCssModule />
 				<CloudCssModule />
@@ -38,12 +38,16 @@ const Settings = () => (
 				<MinifyJs />
 				<MinifyCss />
 			</Group>
+			<Group title={ __( 'Image loading optimization', 'jetpack-boost' ) }>
+				<LcpModule />
+			</Group>
 			<Group title={ __( 'Image CDN configuration', 'jetpack-boost' ) }>
 				<ImageCdn />
 			</Group>
 			<Group title={ __( 'Image guide', 'jetpack-boost' ) }>
 				<ImageGuide />
 			</Group>
+			<CornerstonePagesCard />
 		</Stack>
 	</ModuleSurfaceProvider>
 );

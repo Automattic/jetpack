@@ -1,5 +1,5 @@
 /* No jest-dom in this project. */
-/* eslint-disable jest-dom/prefer-to-have-text-content, testing-library/no-node-access */
+/* eslint-disable testing-library/no-node-access */
 import { render, screen, within } from '@testing-library/react';
 import Settings from './settings';
 
@@ -24,6 +24,7 @@ jest.mock( '$features/minify-css/minify-css', () => () => (
 	<div data-testid="stub">minify_css</div>
 ) );
 jest.mock( '$features/image-cdn/image-cdn', () => () => <div data-testid="stub">image_cdn</div> );
+jest.mock( '$features/lcp/lcp', () => () => <div data-testid="stub">lcp</div> );
 jest.mock( '$features/image-guide/image-guide', () => {
 	const { useModuleSurface } = jest.requireActual( '$features/module/surface' );
 	return () => <div data-testid="stub">image_guide:{ useModuleSurface() }</div>;
@@ -44,10 +45,16 @@ const modulesIn = ( heading: string ) => {
 };
 
 describe( 'Settings', () => {
-	it( 'groups the modules into four cards, each in the legacy order', () => {
+	it( 'groups the modules into the designed cards, Cornerstone pages last', () => {
 		render( <Settings /> );
 
-		expect( screen.getAllByTestId( 'stub' )[ 0 ].textContent ).toBe( 'cornerstone' );
+		expect( screen.getAllByRole( 'heading', { level: 2 } ).map( h => h.textContent ) ).toEqual( [
+			'Code loading optimization',
+			'Image loading optimization',
+			'Image CDN configuration',
+			'Image guide',
+		] );
+		expect( screen.getAllByTestId( 'stub' ).at( -1 )?.textContent ).toBe( 'cornerstone' );
 		expect( modulesIn( 'Code loading optimization' ) ).toEqual( [
 			'critical_css',
 			'cloud_css',
@@ -56,6 +63,7 @@ describe( 'Settings', () => {
 			'minify_js',
 			'minify_css',
 		] );
+		expect( modulesIn( 'Image loading optimization' ) ).toEqual( [ 'lcp' ] );
 		expect( modulesIn( 'Image CDN configuration' ) ).toEqual( [ 'image_cdn' ] );
 		expect( modulesIn( 'Image guide' ) ).toEqual( [ 'image_guide:row' ] );
 	} );

@@ -1,16 +1,15 @@
 /* No jest-dom or user-event in this project; a click is all the header needs. */
-/* eslint-disable jest-dom/prefer-in-document, testing-library/prefer-user-event */
+/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-text-content, testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
 import CornerstonePagesCard from './cornerstone-pages-card';
 
 jest.mock( './cornerstone-pages', () => ( { useCornerstoneSummary: () => mockSummary } ) );
 jest.mock( './meta/meta', () => ( {
-	__esModule: true,
-	default: () => <div>editor</div>,
+	CornerstonePagesDescription: () => <p>description</p>,
+	CornerstonePagesEditor: () => <div>editor</div>,
 	CornerstonePagesUpgradeCTA: () => <div>upgrade</div>,
 } ) );
 jest.mock( './prerender/prerender', () => () => <div>prerender</div> );
-jest.mock( '$features/lcp/lcp', () => () => <div>lcp</div> );
 jest.mock( '$features/module/lib/stores', () => ( {
 	useSingleModuleState: () => [ mockSpeculationRules ],
 } ) );
@@ -25,12 +24,14 @@ describe( 'CornerstonePagesCard', () => {
 		mockSpeculationRules = { active: false, available: true };
 	} );
 
-	it( 'shows the summary on the editor header and the LCP row below it', () => {
+	it( 'describes the feature under the title, then summarises the list on the editor header', () => {
 		render( <CornerstonePagesCard /> );
 
+		expect( screen.getByRole( 'heading', { level: 2 } ).textContent ).toBe( 'Cornerstone pages' );
+		expect( screen.getByText( 'description' ) ).toBeTruthy();
 		expect( screen.getByText( 'Added: Homepage + 2 pages' ) ).toBeTruthy();
+		expect( screen.getByRole( 'button', { name: /Edit pages/ } ) ).toBeTruthy();
 		expect( screen.getByText( 'prerender' ) ).toBeTruthy();
-		expect( screen.getByText( 'lcp' ) ).toBeTruthy();
 	} );
 
 	it( 'drops the pre-render row when speculation rules are unavailable', () => {
@@ -44,7 +45,7 @@ describe( 'CornerstonePagesCard', () => {
 		const { recordBoostEvent } = jest.requireMock( '$lib/utils/analytics' );
 		render( <CornerstonePagesCard /> );
 
-		fireEvent.click( screen.getByRole( 'button', { name: /Edit cornerstone pages/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: /Edit pages/ } ) );
 
 		expect( recordBoostEvent ).toHaveBeenCalledWith( 'cornerstone_pages_panel_toggle', {
 			status: 'open',
