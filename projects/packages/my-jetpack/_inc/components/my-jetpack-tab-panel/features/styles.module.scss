@@ -650,13 +650,21 @@ $feature-icon-foreground: #0ced57;
 }
 
 .list-switch {
+	justify-content: flex-end;
 	white-space: nowrap;
 }
 
-// The switch column to its left is labelled Actions for both, so this heading
-// would be the same word twice over one group of controls.
-.feature-list :global(.dataviews-view-table thead .dataviews-view-table__actions-column) {
-	visibility: hidden;
+// The row menu only repeats the switch beside it, so it is hidden rather than
+// dropped: DataViews renders the checkboxes only while a bulk action exists.
+.feature-list :global(.dataviews-view-table .dataviews-view-table__actions-column) {
+	display: none;
+}
+
+// The switch column, which that leaves last on screen. Counted from the end
+// because the hidden menu column is still the final child.
+.feature-list :global(.dataviews-view-table th:nth-last-child(2)),
+.feature-list :global(.dataviews-view-table td:nth-last-child(2)) {
+	text-align: end;
 }
 
 
