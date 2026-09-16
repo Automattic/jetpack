@@ -44,9 +44,8 @@ final class Placement_Section {
 	 * surfaces a placement that hides the buttons entirely, which is otherwise
 	 * only visible on this section further down the page.
 	 *
-	 * Each feature gets its own complete sentence rather than a feature name
-	 * interpolated into a shared one, which would fix the verb agreement in
-	 * English and leave every other language unable to express it.
+	 * Each feature gets a complete sentence: interpolating the feature name into
+	 * a shared one does not translate.
 	 *
 	 * @param string $feature One of the FEATURE_* constants.
 	 */

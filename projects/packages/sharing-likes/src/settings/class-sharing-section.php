@@ -90,11 +90,7 @@ final class Sharing_Section {
 	}
 
 	/**
-	 * The way back from either off variant.
-	 *
-	 * Recommending the block does not remove the need for this: the switch is a
-	 * single unconfirmed click, and without a way back this screen would be a
-	 * one-way door.
+	 * The way back from either off variant. See `Post_Handler::activate_module()`.
 	 *
 	 * @param bool $primary Whether this is the only action offered.
 	 */
@@ -122,10 +118,7 @@ final class Sharing_Section {
 		echo '<div class="notice notice-info inline">';
 		printf( '<p>%s</p>', esc_html__( 'Legacy sharing buttons cannot be customized on block themes. Use the Sharing Buttons block in your theme’s template instead.', 'jetpack-sharing-likes' ) );
 
-		/*
-		 * Switching means turning the module off, which WordPress.com Simple has
-		 * no equivalent for: there the site editor link is the only useful step.
-		 */
+		// Simple has no module to switch off, so the site editor link is the only useful step there.
 		if ( Environment::is_simple_site() ) {
 			self::render_site_editor_link();
 		} else {

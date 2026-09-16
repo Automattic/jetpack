@@ -213,7 +213,8 @@ final class Post_Handler {
 	 * Turn a module back on, then reload the screen.
 	 *
 	 * Reached only from the off variants, where nothing else on the site will
-	 * bring the feature back.
+	 * bring the feature back. Offered even when the block is recommended: the
+	 * switch to it is a single unconfirmed click, and this is the way back.
 	 *
 	 * @param string $module       Module slug.
 	 * @param string $nonce_action Nonce action the submitting section uses.
