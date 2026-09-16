@@ -57,9 +57,6 @@ const BLOCKS = [
 	[ 'jetpack-search/search-input', SearchInputEdit ],
 	[ 'jetpack-search/results-list', ResultsListEdit ],
 	[ 'jetpack-search/no-results', NoResultsEdit, noResultsSave ],
-	// The label names each variant by its condition in List view, breadcrumb,
-	// and a11y announcements — on the canvas the variants carry no chrome of
-	// their own.
 	[
 		'jetpack-search/no-results-slot',
 		NoResultsSlotEdit,
@@ -172,10 +169,11 @@ BLOCKS.forEach( ( [ name, edit, blockSave, extraSettings ] ) => {
 	// `icon` here overrides whatever server-side metadata block.json carries
 	// — the centralized per-block glyph (`BLOCK_ICONS[ name ]`) renders in
 	// the inserter, breadcrumb, and toolbar instead of the dashicon fallback.
+	// Spread first so a per-block entry can never clobber `edit`, `save`, or `icon`.
 	registerBlockType( name, {
+		...extraSettings,
 		edit,
 		save: blockSave ?? save,
 		icon: BLOCK_ICONS[ name ],
-		...extraSettings,
 	} );
 } );
