@@ -2,6 +2,7 @@ import { DataContext, TooltipContext } from '@visx/xychart';
 import { useContext, useEffect, useMemo, useRef } from 'react';
 import { useDeepMemo } from '../../../hooks';
 import { CATALOG_POINTERS } from '../../../providers/chart-context/private/catalog-pointers';
+import type { BandScale } from './band-scale';
 import type { DataPointDate } from '../../../types';
 import type { BandHighlightSelection } from '../bar-chart';
 
@@ -10,8 +11,6 @@ type Props = {
 	horizontal: boolean;
 	onChange?: ( selection: BandHighlightSelection | null ) => void;
 };
-
-type BandScale = ( ( value: unknown ) => number | undefined ) & { bandwidth?: () => number };
 
 /**
  * Render and report the active band using the chart’s registered scales.

@@ -1,6 +1,11 @@
-import { scaleBand } from '@visx/scale';
 import { DataContext, TooltipContext, useEventEmitter } from '@visx/xychart';
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
+import { createGroupScale } from './band-scale';
+import type { BandScale } from './band-scale';
+import type { BarChartProps } from '../bar-chart';
+
+type PointerHandler = NonNullable< Parameters< typeof useEventEmitter >[ 1 ] >;
+type PointerSelection = Parameters< NonNullable< BarChartProps[ 'onPointerUp' ] > >[ 0 ];
 
 /**
  * Find a category by its painted center, including outer padding and reversed ranges.
@@ -13,7 +18,7 @@ import { useCallback, useContext } from 'react';
 export function nearestBandIndex< Datum >(
 	data: Datum[],
 	accessor: ( datum: Datum ) => unknown,
-	scale: ( ( value: unknown ) => number | undefined ) & { bandwidth: () => number },
+	scale: BandScale,
 	position: number
 ): number {
 	let nearest = -1;
@@ -34,26 +39,39 @@ export function nearestBandIndex< Datum >(
 
 /**
  * Correct visx's range-based band inversion, which omits outer padding.
- * @param root0              - Registered series selection.
- * @param root0.keys         - Visible series keys.
- * @param root0.groupPadding - Padding between grouped bars.
+ * @param root0               - Registered series selection.
+ * @param root0.keys          - Visible series keys.
+ * @param root0.groupPadding  - Padding between grouped bars.
+ * @param root0.withTooltips  - Whether pointer events update the tooltip.
+ * @param root0.onPointerDown - Receives the corrected pointer-down datum.
+ * @param root0.onPointerUp   - Receives the corrected pointer-up datum.
  * @return No visual content.
  */
-export function BandTooltip( { keys, groupPadding }: { keys: string[]; groupPadding: number } ) {
+export function BandTooltip( {
+	keys,
+	groupPadding,
+	withTooltips,
+	onPointerDown,
+	onPointerUp,
+}: { keys: string[]; groupPadding: number } & Pick<
+	BarChartProps,
+	'withTooltips' | 'onPointerDown' | 'onPointerUp'
+> ) {
 	const { xScale, yScale, dataRegistry, horizontal } = useContext( DataContext );
 	const { showTooltip } = useContext( TooltipContext );
-	const handlePointer = useCallback< NonNullable< Parameters< typeof useEventEmitter >[ 1 ] > >(
-		params => {
+	const scale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
+	const bandwidth = scale?.bandwidth?.() ?? 0;
+	const groupScale = useMemo(
+		() => createGroupScale( keys, bandwidth, groupPadding ),
+		[ keys, bandwidth, groupPadding ]
+	);
+	const getSelections = useCallback(
+		( params: Parameters< PointerHandler >[ 0 ] ) => {
 			const point = params?.svgPoint;
-			const scale = ( horizontal ? yScale : xScale ) as Parameters< typeof nearestBandIndex >[ 2 ];
 			if ( ! point || ! scale?.bandwidth ) {
-				return;
+				return [];
 			}
-			const groupScale = scaleBand( {
-				domain: keys,
-				range: [ 0, scale.bandwidth() ],
-				padding: groupPadding,
-			} );
+			const selections: PointerSelection[] = [];
 			for ( const key of keys ) {
 				const entry = dataRegistry?.get( key );
 				if ( ! entry ) {
@@ -75,7 +93,8 @@ export function BandTooltip( { keys, groupPadding }: { keys: string[]; groupPadd
 				const position = horizontal ? point.y : point.x;
 				const distance =
 					position >= start && position <= end ? 0 : Math.abs( position - ( start + end ) / 2 );
-				showTooltip( {
+				selections.push( {
+					event: params.event,
 					key,
 					datum,
 					index,
@@ -84,10 +103,36 @@ export function BandTooltip( { keys, groupPadding }: { keys: string[]; groupPadd
 					distanceY: horizontal ? distance : 0,
 				} );
 			}
+			return selections;
 		},
-		[ xScale, yScale, dataRegistry, horizontal, keys, groupPadding, showTooltip ]
+		[ scale, dataRegistry, horizontal, keys, groupScale ]
 	);
-	useEventEmitter( 'pointermove', handlePointer );
+	const handlePointer = useCallback< PointerHandler >(
+		params => {
+			const selections = getSelections( params );
+			if ( withTooltips && params?.event.type !== 'pointerup' ) {
+				selections.forEach( showTooltip );
+			}
+			const callback = params?.event.type === 'pointerdown' ? onPointerDown : onPointerUp;
+			if ( params?.event.type === 'pointermove' || ! callback ) {
+				return;
+			}
+			const nearest = selections.reduce(
+				( best, selection ) => {
+					const distance = ( value: typeof selection ) =>
+						Math.hypot( value.distanceX, value.distanceY );
+					return ! best || distance( selection ) <= distance( best ) ? selection : best;
+				},
+				undefined as ( typeof selections )[ number ] | undefined
+			);
+			if ( nearest ) {
+				callback( nearest );
+			}
+		},
+		[ getSelections, withTooltips, showTooltip, onPointerDown, onPointerUp ]
+	);
+	useEventEmitter( 'pointermove', withTooltips ? handlePointer : undefined );
 	useEventEmitter( 'pointerdown', handlePointer );
+	useEventEmitter( 'pointerup', onPointerUp ? handlePointer : undefined );
 	return null;
 }

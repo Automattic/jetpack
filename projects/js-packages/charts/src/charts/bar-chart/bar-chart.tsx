@@ -31,6 +31,8 @@ import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
 import {
 	useBarChartOptions,
+	BandHighlight,
+	BandTooltip,
 	ComparisonBars,
 	DEFAULT_COMPARISON_WIDTH_FACTOR,
 	COMPARISON_INNER_GAP,
@@ -38,8 +40,6 @@ import {
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
 } from './private';
-import { BandHighlight } from './private/band-highlight';
-import { BandTooltip } from './private/band-tooltip';
 import type { ComparisonSeriesEntry } from './private';
 import type {
 	BaseChartProps,
@@ -623,8 +623,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										xScale={ xScale }
 										yScale={ yScale }
 										horizontal={ horizontal }
-										onPointerDown={ onPointerDown }
-										onPointerUp={ onPointerUp }
 										pointerEventsDataKey="nearest"
 									>
 										{ withTooltips && ( withBandHighlight || onBandHighlightChange ) && (
@@ -715,8 +713,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											) ) }
 										</BarGroup>
 										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after BarGroup. */ }
-										{ withTooltips && (
-											<BandTooltip keys={ primaryKeys } groupPadding={ groupPadding } />
+										{ ( withTooltips || onPointerDown || onPointerUp ) && (
+											<BandTooltip
+												keys={ primaryKeys }
+												groupPadding={ groupPadding }
+												withTooltips={ withTooltips }
+												onPointerDown={ onPointerDown }
+												onPointerUp={ onPointerUp }
+											/>
 										) }
 
 										{ /* With every series hidden there is no data to build the value scale from, so

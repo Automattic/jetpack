@@ -38,6 +38,12 @@ describe( 'BarChart', () => {
 		],
 	};
 
+	// visx renders bars and grid lines without accessible roles or configurable test IDs.
+	const getBarRects = () => {
+		// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
+		return screen.getByRole( 'grid' ).querySelectorAll( '.visx-bar-group rect' );
+	};
+
 	const renderWithTheme = ( props = {}, children = undefined ) => {
 		return render(
 			<GlobalChartsProvider>
@@ -67,20 +73,21 @@ describe( 'BarChart', () => {
 		} );
 
 		const barGeometry = () => {
-			// visx renders these bars without accessible roles or configurable test IDs.
-			// eslint-disable-next-line testing-library/no-node-access
-			const bars = screen.getByRole( 'grid' ).querySelectorAll( '.visx-bar-group rect' );
+			const bars = getBarRects();
 			return Array.from( bars, bar =>
 				[ 'x', 'y', 'width', 'height' ].map( name => Number( bar.getAttribute( name ) ) )
 			);
 		};
 
-		const hover = ( clientX: number, clientY: number ) => {
+		const pointer = ( type: string, clientX: number, clientY: number ) => {
 			// visx owns the pointer capture rect and does not expose an attribute prop for it.
 			// eslint-disable-next-line testing-library/no-node-access
 			const target = screen.getByRole( 'grid' ).querySelector( 'svg > rect[fill="transparent"]' );
-			fireEvent( target, new MouseEvent( 'pointermove', { bubbles: true, clientX, clientY } ) );
+			fireEvent( target, new MouseEvent( type, { bubbles: true, clientX, clientY } ) );
 		};
+
+		const hover = ( clientX: number, clientY: number ) =>
+			pointer( 'pointermove', clientX, clientY );
 
 		test( 'Escape returns focus to the grid without reopening either tooltip', async () => {
 			jest.useFakeTimers();
@@ -121,6 +128,45 @@ describe( 'BarChart', () => {
 			await waitFor( () => expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Jan 1' ) );
 		} );
 
+		test( 'reports the tooltip datum when pressing and releasing in a padded gap', async () => {
+			const onPointerDown = jest.fn();
+			const onPointerUp = jest.fn();
+			renderWithTheme( { withTooltips: true, onPointerDown, onPointerUp } );
+			const [ [ x0, , width ], [ x1 ] ] = barGeometry();
+			const clientX = ( x0 + width / 2 + x1 + width / 2 ) / 2 - 2;
+			hover( clientX, 150 );
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( 'Jan 1' );
+			pointer( 'pointerdown', clientX, 150 );
+			pointer( 'pointerup', clientX, 150 );
+			for ( const callback of [ onPointerDown, onPointerUp ] ) {
+				expect( callback ).toHaveBeenCalledTimes( 1 );
+				expect( callback ).toHaveBeenLastCalledWith(
+					expect.objectContaining( {
+						key: 'Series A',
+						index: 0,
+						datum: defaultProps.data[ 0 ].data[ 0 ],
+					} )
+				);
+			}
+		} );
+
+		test( 'selects the painted grouped bar at the outer edge of a padded band', async () => {
+			renderWithTheme( {
+				withTooltips: true,
+				data: [ 'A', 'B', 'C' ].map( label => ( {
+					label,
+					data: [
+						{ label: 'Jan 1', value: 50 },
+						{ label: 'Jan 2', value: 50 },
+						{ label: 'Jan 3', value: 50 },
+					],
+				} ) ),
+			} );
+			const [ x, y, width, height ] = barGeometry()[ 6 ];
+			hover( x + width - 1, y + height / 2 );
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( 'Jan 1' );
+		} );
+
 		test.each( [ 'vertical', 'horizontal' ] )(
 			'selects the long grouped bar near its base in a %s chart',
 			async orientation => {
@@ -154,7 +200,7 @@ describe( 'BarChart', () => {
 		);
 	} );
 
-	test( 'reports category bounds without drawing an overlay and clears them on Escape', async () => {
+	test( 'reports band bounds without drawing an overlay and clears them on Escape', async () => {
 		const user = userEvent.setup();
 		const onBandHighlightChange = jest.fn();
 		renderWithTheme( { withTooltips: true, onBandHighlightChange } );
@@ -175,7 +221,7 @@ describe( 'BarChart', () => {
 	} );
 
 	test.each( [ 'vertical', 'horizontal' ] )(
-		'draws the active category across a %s plot',
+		'draws the active band across a %s plot',
 		async orientation => {
 			const user = userEvent.setup();
 			const onBandHighlightChange = jest.fn();
@@ -194,6 +240,20 @@ describe( 'BarChart', () => {
 			expect( Number( highlight.getAttribute( 'height' ) ) ).toBe( bounds.height );
 			expect( bounds.width ).toBeGreaterThan( 0 );
 			expect( bounds.height ).toBeGreaterThan( 0 );
+			const bar = getBarRects()[ 0 ];
+			const bandAxis = orientation === 'vertical' ? 'x' : 'y';
+			const bandSize = orientation === 'vertical' ? 'width' : 'height';
+			const plotSize = orientation === 'vertical' ? 'height' : 'width';
+			const barStart = Number( bar.getAttribute( bandAxis ) );
+			const barSize = Number( bar.getAttribute( bandSize ) );
+			expect( Number( highlight.getAttribute( bandAxis ) ) ).toBeLessThanOrEqual( barStart );
+			expect(
+				Number( highlight.getAttribute( bandAxis ) ) + Number( highlight.getAttribute( bandSize ) )
+			).toBeGreaterThanOrEqual( barStart + barSize );
+			expect( Number( highlight.getAttribute( bandSize ) ) ).toBeLessThan( barSize * 2 );
+			expect( Number( highlight.getAttribute( plotSize ) ) ).toBeGreaterThan(
+				Number( bar.getAttribute( plotSize ) )
+			);
 		}
 	);
 
@@ -205,7 +265,7 @@ describe( 'BarChart', () => {
 				scale: { y: { domain: [ 0, 100 ] } },
 			},
 		} );
-		// visx renders grid lines without accessible roles or configurable test IDs.
+		// See the visx node constraint at getBarRects.
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		const lines = container.querySelectorAll( '.visx-rows line' );
 		expect( lines ).toHaveLength( 3 );
@@ -1118,8 +1178,7 @@ describe( 'BarChart', () => {
 				},
 			];
 			const { rerender } = render( <BarChart { ...defaultProps } data={ data } /> );
-			// eslint-disable-next-line testing-library/no-node-access -- visx renders these bars without accessible roles or configurable test IDs.
-			const getBars = () => screen.getByRole( 'grid' ).querySelectorAll( '.visx-bar-group rect' );
+			const getBars = getBarRects;
 			const bars = getBars();
 			expect( bars ).toHaveLength( 3 );
 			expect( bars[ 0 ] ).toHaveAttribute( 'fill', data[ 0 ].data[ 0 ].color );

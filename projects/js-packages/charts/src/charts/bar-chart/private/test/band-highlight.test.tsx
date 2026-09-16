@@ -77,7 +77,7 @@ describe( 'BandHighlight', () => {
 	} );
 
 	test.each( [ { withTooltips: false }, { data: [] } ] )(
-		'clears the selected category when the highlight unmounts with %j',
+		'clears the selected band when the highlight unmounts with %j',
 		async props => {
 			const user = userEvent.setup();
 			const onChange = jest.fn();
