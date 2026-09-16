@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Bar chart: Add tooltips with horizontal placement and no vertical flipping.
+Bar chart: Add a beside tooltip placement that flips only horizontally.

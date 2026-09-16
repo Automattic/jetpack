@@ -8,7 +8,7 @@ import type {
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
-import type { CrosshairStyle, RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
+import type { CrosshairStyle, RenderTooltipParams } from '../../visx/types';
 import type { GlyphProps } from '@visx/xychart';
 import type { ReactNode, SVGProps, FC, CSSProperties } from 'react';
 
@@ -42,10 +42,10 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 		params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
 	) => ReactNode;
 	/**
-	 * Position near the datum, below the x-axis labels, or beside the datum without vertical flipping.
+	 * Place the panel below the x-axis tick labels with a pointer at the datum x; horizontal bounds still apply.
 	 * @default 'auto'
 	 */
-	tooltipPlacement?: XyChartTooltipProps< DataPointDate >[ 'tooltipPlacement' ];
+	tooltipPlacement?: 'auto' | 'below-axis';
 	/**
 	 * Inline container styles; see Below-Axis Tooltips in stories/index.docs.mdx for content color overrides.
 	 */

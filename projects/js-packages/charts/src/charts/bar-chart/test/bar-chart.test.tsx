@@ -188,6 +188,7 @@ describe( 'BarChart', () => {
 			await user.tab();
 			await user.keyboard( '{ArrowRight}' );
 			const highlight = screen.getByTestId( 'bar-chart-band-highlight' );
+			expect( highlight.matches( 'svg > :first-child' ) ).toBe( true );
 			const bounds = onBandHighlightChange.mock.calls.at( -1 )[ 0 ];
 			expect( Number( highlight.getAttribute( 'width' ) ) ).toBe( bounds.width );
 			expect( Number( highlight.getAttribute( 'height' ) ) ).toBe( bounds.height );

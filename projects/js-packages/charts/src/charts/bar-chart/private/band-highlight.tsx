@@ -14,12 +14,12 @@ type Props = {
 type BandScale = ( ( value: unknown ) => number | undefined ) & { bandwidth?: () => number };
 
 /**
- * Render and report the active category using the chart’s registered scales.
+ * Render and report the active band using the chart’s registered scales.
  * @param root0            - Highlight options.
- * @param root0.visible    - Whether to paint the category band.
+ * @param root0.visible    - Whether to paint the band.
  * @param root0.horizontal - Whether categories run vertically.
- * @param root0.onChange   - Receives selected category geometry.
- * @return The optional category highlight.
+ * @param root0.onChange   - Receives selected band geometry.
+ * @return The optional band highlight.
  */
 export function BandHighlight( { visible, horizontal, onChange }: Props ) {
 	const { xScale, yScale, dataRegistry, margin, innerWidth, innerHeight } =
