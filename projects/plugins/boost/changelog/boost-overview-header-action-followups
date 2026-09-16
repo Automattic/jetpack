@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Track "Try again" on the Overview score error as a speed test refresh, and keep keyboard focus on the page when the Overview fails to render.
