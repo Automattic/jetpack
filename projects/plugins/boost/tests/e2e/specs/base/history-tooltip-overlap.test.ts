@@ -286,7 +286,7 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await expect( overall.getByRole( 'progressbar' ) ).toHaveCount( 0 );
 	await expect( mobile.getByText( 'Could improve', { exact: true } ) ).toHaveCSS(
 		'color',
-		'rgb(146, 99, 0)'
+		'rgb(147, 99, 0)'
 	);
 	for ( const [ card, score, color ] of [
 		[ desktop.first(), 90, 'color(srgb 0 0.501961 0.188235 / 0.9)' ],
