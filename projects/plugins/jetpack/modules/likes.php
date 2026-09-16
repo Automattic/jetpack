@@ -149,6 +149,30 @@ class Jetpack_Likes {
 	}
 
 	/**
+	 * Loads Jetpack's CSS on the sharing page so we can use .jetpack-targetable
+	 *
+	 * @deprecated $$next-version$$ Settings > Sharing is a plain WordPress settings screen now.
+	 *
+	 * @return void
+	 */
+	public function load_jp_css() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	}
+
+	/**
+	 * Adds in the jetpack-targetable class so when we visit sharing#likes our like settings get highlighted by a yellow box
+	 *
+	 * @deprecated $$next-version$$ The Likes settings have a section of their own on Settings > Sharing.
+	 *
+	 * @param string $html row heading for the sharedaddy "which page" setting.
+	 * @return string The unchanged $html.
+	 */
+	public function configuration_target_area( $html = '' ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		return $html;
+	}
+
+	/**
 	 * Load scripts and styles for front end.
 	 */
 	public function load_styles_register_scripts() {

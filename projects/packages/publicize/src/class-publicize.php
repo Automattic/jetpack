@@ -59,6 +59,28 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
+	 * Force user connection before showing the Publicize UI.
+	 *
+	 * @deprecated $$next-version$$ Settings > Sharing no longer hosts the Publicize UI.
+	 *
+	 * @return void
+	 */
+	public function force_user_connection() {
+		_deprecated_function( __METHOD__, 'jetpack-publicize-$$next-version$$' );
+	}
+
+	/**
+	 * Show a warning when Publicize does not have a connection.
+	 *
+	 * @deprecated $$next-version$$ Settings > Sharing no longer hosts the Publicize UI.
+	 *
+	 * @return void
+	 */
+	public function admin_page_warning() {
+		_deprecated_function( __METHOD__, 'jetpack-publicize-$$next-version$$' );
+	}
+
+	/**
 	 * Remove a Publicize Connection.
 	 *
 	 * @param string    $service_name 'facebook', 'twitter', etc.
