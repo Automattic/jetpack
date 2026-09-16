@@ -1,6 +1,8 @@
 import { Button, Card, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import { useState } from 'react';
+import { TransferWarningsModal } from './transfer-warnings-modal.tsx';
 import type { InitialState } from './types.ts';
 
 /**
@@ -57,13 +59,17 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
  * Shown when the site has a backup-capable plan and can be transferred.
  *
  * The button leaves wp-admin: activation opens a transfer flow only Calypso can
- * host, so this is a hand-off rather than a replacement.
+ * host, so this is a hand-off rather than a replacement. Warnings get a
+ * confirmation step first, since one of them is that the address changes.
  *
  * @param props       - Component props.
  * @param props.state - Resolved initial state.
  * @return The rendered prompt.
  */
 export function ActivateScreen( { state }: { state: InitialState } ) {
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const hasWarnings = state.warnings.length > 0;
+
 	return (
 		<PromptCard title={ __( 'Activate backups for this site', 'jetpack-mu-wpcom' ) }>
 			<Text>
@@ -72,15 +78,23 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 					'jetpack-mu-wpcom'
 				) }
 			</Text>
-			<Text>
-				{ __(
-					'Your site stays online during the move, and its address does not change.',
-					'jetpack-mu-wpcom'
-				) }
-			</Text>
-			<Button variant="primary" href={ state.activateUrl }>
-				{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
-			</Button>
+			<Text>{ __( 'Your site stays online during the move.', 'jetpack-mu-wpcom' ) }</Text>
+			{ hasWarnings ? (
+				<Button variant="primary" onClick={ () => setIsModalOpen( true ) }>
+					{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
+				</Button>
+			) : (
+				<Button variant="primary" href={ state.activateUrl }>
+					{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
+				</Button>
+			) }
+			{ isModalOpen && (
+				<TransferWarningsModal
+					warnings={ state.warnings }
+					activateUrl={ state.activateUrl }
+					onClose={ () => setIsModalOpen( false ) }
+				/>
+			) }
 		</PromptCard>
 	);
 }

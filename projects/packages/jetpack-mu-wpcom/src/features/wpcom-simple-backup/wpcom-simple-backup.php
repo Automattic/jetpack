@@ -31,6 +31,25 @@ const WPCOM_SIMPLE_BACKUP_WP_BUILD_PAGE = 'wpcom-backup';
 const WPCOM_SIMPLE_BACKUP_RENDER_CALLBACK = 'jetpack_mu_wpcom_wpcom_backup_wp_admin_render_page';
 
 /**
+ * Calypso flow that initiates the transfer, reports progress and returns here.
+ */
+const WPCOM_SIMPLE_BACKUP_TRANSFER_FLOW_URL = 'https://wordpress.com/setup/transferring-hosted-site';
+
+/**
+ * Site feature the transfer flow waits for before handing the reader back.
+ *
+ * The JS counterpart of \WPCOM_Features::BACKUPS; without it the flow can
+ * return before backups are actually live.
+ */
+const WPCOM_SIMPLE_BACKUP_TRANSFER_FEATURE = 'backups-self-serve';
+
+/**
+ * Tracks context recorded against the transfer, matching the Calypso page this
+ * replaces so the funnel stays continuous.
+ */
+const WPCOM_SIMPLE_BACKUP_TRANSFER_CONTEXT = 'jetpack_product_activation';
+
+/**
  * Site has no backup-capable plan. Offer an upgrade.
  */
 const WPCOM_SIMPLE_BACKUP_STATE_UPGRADE = 'upgrade';
@@ -150,7 +169,7 @@ function wpcom_simple_backup_load_wp_build() {
  * slug does not produce. The body class is untouched and still reads
  * `jetpack_page_jetpack-backup`, which the route stylesheet scopes to.
  *
- * @param \WP_Screen|null $screen The current screen object, passed by WP.
+ * @param object|null $screen The current screen, passed by WP as a \WP_Screen.
  * @return void
  */
 function wpcom_simple_backup_alias_screen_id( $screen ) {
@@ -178,18 +197,29 @@ function wpcom_simple_backup_enqueue_initial_state() {
 	$domain  = wp_parse_url( home_url(), PHP_URL_HOST );
 	$state   = wpcom_simple_backup_get_state( $blog_id, $user_id );
 
+	// Both lists come from the same eligibility result, and only one of them is
+	// ever rendered, so resolve it once and only when a state needs it.
+	$needs_eligibility = in_array(
+		$state,
+		array( WPCOM_SIMPLE_BACKUP_STATE_INELIGIBLE, WPCOM_SIMPLE_BACKUP_STATE_ACTIVATE ),
+		true
+	);
+	$eligibility       = $needs_eligibility ? wpcom_simple_backup_get_eligibility( $blog_id, $user_id ) : null;
+
 	wp_localize_script(
 		$handle,
 		'wpcomSimpleBackupInitialState',
 		array(
 			'state'       => $state,
 			'domain'      => $domain,
-			// Only meaningful in the ineligible state; empty everywhere else.
 			'blockers'    => WPCOM_SIMPLE_BACKUP_STATE_INELIGIBLE === $state
-				? wpcom_simple_backup_get_blocker_messages( wpcom_simple_backup_get_eligibility( $blog_id, $user_id ) )
+				? wpcom_simple_backup_get_blocker_messages( $eligibility )
+				: array(),
+			'warnings'    => WPCOM_SIMPLE_BACKUP_STATE_ACTIVATE === $state
+				? wpcom_simple_backup_get_transfer_warnings( $eligibility )
 				: array(),
 			'upgradeUrl'  => 'https://wordpress.com/plans/' . $domain,
-			'activateUrl' => 'https://wordpress.com/backup/' . $domain,
+			'activateUrl' => wpcom_simple_backup_get_activate_url(),
 			'supportUrl'  => 'https://wordpress.com/support/backups/',
 		)
 	);
@@ -202,7 +232,9 @@ function wpcom_simple_backup_enqueue_initial_state() {
  * @return bool
  */
 function wpcom_simple_backup_has_backup_feature( $blog_id ) {
-	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! class_exists( '\WPCOM_Features' ) ) {
+	// The constant, not just the class: test doubles for \WPCOM_Features define
+	// only the features their own suite needs.
+	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! defined( '\WPCOM_Features::BACKUPS' ) ) {
 		return false;
 	}
 
@@ -226,13 +258,16 @@ function wpcom_simple_backup_is_transfer_in_progress( $blog_id ) {
 
 	require_lib( 'atomic' );
 
-	if ( function_exists( '\A8C\Atomic\has_site_pending_automated_transfer' )
-		&& \A8C\Atomic\has_site_pending_automated_transfer( $blog_id ) ) {
-		return true;
+	if ( function_exists( '\A8C\Atomic\has_site_pending_automated_transfer' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
+		if ( \A8C\Atomic\has_site_pending_automated_transfer( $blog_id ) ) {
+			return true;
+		}
 	}
 
 	if ( function_exists( '\A8C\Atomic\is_wpcom_atomic' ) ) {
 		// Second argument includes pending/active/provisioned transfers.
+		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 		return (bool) \A8C\Atomic\is_wpcom_atomic( $blog_id, true );
 	}
 
@@ -260,6 +295,7 @@ function wpcom_simple_backup_get_eligibility( $blog_id, $user_id ) {
 		return null;
 	}
 
+	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 	return \A8C\Atomic\get_status_for_site( $blog_id, $user_id );
 }
 
@@ -316,4 +352,68 @@ function wpcom_simple_backup_get_blocker_messages( $eligibility ) {
 	}
 
 	return $messages;
+}
+
+/**
+ * Non-blocking warnings to confirm before a transfer starts.
+ *
+ * The API groups warnings by type; they are flattened here because the page
+ * renders one list and a PHP map would localize as a JSON array once empty.
+ *
+ * @param array|null $eligibility Result of wpcom_simple_backup_get_eligibility().
+ * @return array[] Warnings in the API's own shape, minus the grouping.
+ */
+function wpcom_simple_backup_get_transfer_warnings( $eligibility ) {
+	if ( empty( $eligibility['warnings'] ) || ! is_array( $eligibility['warnings'] ) ) {
+		return array();
+	}
+
+	$warnings = array();
+	foreach ( $eligibility['warnings'] as $group ) {
+		if ( ! is_array( $group ) ) {
+			continue;
+		}
+
+		foreach ( $group as $warning ) {
+			if ( empty( $warning['id'] ) ) {
+				continue;
+			}
+
+			$warnings[] = array(
+				'id'           => (string) $warning['id'],
+				'description'  => isset( $warning['description'] ) ? (string) $warning['description'] : '',
+				'domain_names' => ( ! empty( $warning['domain_names']['current'] ) && ! empty( $warning['domain_names']['new'] ) )
+					? array(
+						'current' => (string) $warning['domain_names']['current'],
+						'new'     => (string) $warning['domain_names']['new'],
+					)
+					: null,
+				'support_url'  => isset( $warning['support_url'] ) ? (string) $warning['support_url'] : '',
+			);
+		}
+	}
+
+	return $warnings;
+}
+
+/**
+ * URL of the Calypso flow that transfers the site and switches backups on.
+ *
+ * `redirect_to` brings the reader back here afterwards. It is resolved fresh by
+ * the flow, so it carries the new address when the transfer changes one.
+ *
+ * @return string
+ */
+function wpcom_simple_backup_get_activate_url() {
+	return add_query_arg(
+		array(
+			'siteId'                    => get_current_blog_id(),
+			'feature'                   => WPCOM_SIMPLE_BACKUP_TRANSFER_FEATURE,
+			'initiate_transfer_context' => WPCOM_SIMPLE_BACKUP_TRANSFER_CONTEXT,
+			'redirect_to'               => rawurlencode(
+				admin_url( 'admin.php?page=' . WPCOM_SIMPLE_BACKUP_MENU_SLUG )
+			),
+		),
+		WPCOM_SIMPLE_BACKUP_TRANSFER_FLOW_URL
+	);
 }

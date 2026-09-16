@@ -10,6 +10,7 @@ const FALLBACK: InitialState = {
 	state: 'upgrade',
 	domain: '',
 	blockers: [],
+	warnings: [],
 	upgradeUrl: 'https://wordpress.com/plans/',
 	activateUrl: 'https://wordpress.com/backup/',
 	supportUrl: 'https://wordpress.com/support/backups/',

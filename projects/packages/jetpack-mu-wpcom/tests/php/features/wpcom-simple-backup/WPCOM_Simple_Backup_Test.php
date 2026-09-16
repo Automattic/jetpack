@@ -75,13 +75,11 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	 * make it visible.
 	 */
 	public function test_page_is_registered_but_not_in_the_menu() {
-		global $menu, $submenu, $admin_page_hooks, $_registered_pages, $_parent_pages;
-
-		$menu              = array();
-		$submenu           = array();
-		$admin_page_hooks  = array();
-		$_registered_pages = array();
-		$_parent_pages     = array();
+		$GLOBALS['menu']              = array();
+		$GLOBALS['submenu']           = array();
+		$GLOBALS['admin_page_hooks']  = array();
+		$GLOBALS['_registered_pages'] = array();
+		$GLOBALS['_parent_pages']     = array();
 
 		wp_set_current_user(
 			wp_insert_user(
@@ -99,9 +97,9 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 
 		wpcom_simple_backup_register_page();
 
-		$this->assertArrayHasKey( 'jetpack_page_jetpack-backup', $_registered_pages );
+		$this->assertArrayHasKey( 'jetpack_page_jetpack-backup', $GLOBALS['_registered_pages'] );
 
-		$slugs = array_column( $submenu['jetpack'] ?? array(), 2 );
+		$slugs = array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 );
 		$this->assertNotContains( 'jetpack-backup', $slugs );
 	}
 
@@ -118,17 +116,95 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	 * mismatch degrades silently to a blank page.
 	 */
 	public function test_render_callback_matches_the_wp_build_page_name() {
-		$route = json_decode(
+		$route = (array) json_decode(
 			(string) file_get_contents(
 				\Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'routes/wpcom-backup/package.json'
 			),
 			true
 		);
+		$page  = isset( $route['route']['page'] ) ? (string) $route['route']['page'] : '';
 
-		$this->assertSame( WPCOM_SIMPLE_BACKUP_WP_BUILD_PAGE, $route['route']['page'] );
+		$this->assertSame( WPCOM_SIMPLE_BACKUP_WP_BUILD_PAGE, $page );
 		$this->assertSame(
 			WPCOM_SIMPLE_BACKUP_RENDER_CALLBACK,
-			'jetpack_mu_wpcom_' . str_replace( '-', '_', $route['route']['page'] ) . '_wp_admin_render_page'
+			'jetpack_mu_wpcom_' . str_replace( '-', '_', $page ) . '_wp_admin_render_page'
+		);
+	}
+
+	/**
+	 * The API groups warnings by type; the page renders one flat list.
+	 */
+	public function test_transfer_warnings_are_flattened_across_groups() {
+		$eligibility = array(
+			'warnings' => array(
+				'subdomains' => array(
+					array(
+						'id'           => 'wordpress_subdomain',
+						'description'  => 'Your site address will change.',
+						'domain_names' => array(
+							'current' => 'example.wordpress.com',
+							'new'     => 'example.wpcomstaging.com',
+						),
+						'support_url'  => 'https://wordpress.com/support/changing-site-address/',
+					),
+				),
+				'plugins'    => array(
+					array(
+						'id'          => 'some_plugin',
+						'description' => 'A plugin will be deactivated.',
+					),
+				),
+			),
+		);
+
+		$warnings = wpcom_simple_backup_get_transfer_warnings( $eligibility );
+
+		$this->assertCount( 2, $warnings );
+		$this->assertSame( 'wordpress_subdomain', $warnings[0]['id'] );
+		$this->assertSame( 'example.wpcomstaging.com', $warnings[0]['domain_names']['new'] );
+		$this->assertSame( 'some_plugin', $warnings[1]['id'] );
+		$this->assertNull( $warnings[1]['domain_names'] );
+	}
+
+	/**
+	 * A warning without an id cannot be keyed in the rendered list.
+	 */
+	public function test_transfer_warnings_skips_entries_without_an_id() {
+		$eligibility = array(
+			'warnings' => array(
+				'subdomains' => array(
+					array( 'description' => 'No id, so not renderable.' ),
+				),
+			),
+		);
+
+		$this->assertSame( array(), wpcom_simple_backup_get_transfer_warnings( $eligibility ) );
+	}
+
+	/**
+	 * A null result means the library was unavailable, not that there are warnings.
+	 */
+	public function test_transfer_warnings_handles_null_eligibility() {
+		$this->assertSame( array(), wpcom_simple_backup_get_transfer_warnings( null ) );
+	}
+
+	/**
+	 * The flow needs every argument to initiate, wait for the feature, and come
+	 * back; a missing one degrades silently to a half-finished activation.
+	 */
+	public function test_activate_url_carries_the_transfer_flow_arguments() {
+		$url = wpcom_simple_backup_get_activate_url();
+
+		$this->assertStringStartsWith( WPCOM_SIMPLE_BACKUP_TRANSFER_FLOW_URL, $url );
+
+		parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
+
+		$this->assertSame( (string) get_current_blog_id(), $args['siteId'] );
+		$this->assertSame( WPCOM_SIMPLE_BACKUP_TRANSFER_FEATURE, $args['feature'] );
+		$this->assertSame( WPCOM_SIMPLE_BACKUP_TRANSFER_CONTEXT, $args['initiate_transfer_context'] );
+		$this->assertStringContainsString(
+			'page=' . WPCOM_SIMPLE_BACKUP_MENU_SLUG,
+			rawurldecode( $args['redirect_to'] )
 		);
 	}
 

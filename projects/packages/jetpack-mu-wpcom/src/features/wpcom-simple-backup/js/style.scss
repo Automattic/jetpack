@@ -23,4 +23,24 @@
 		list-style: disc;
 		padding-inline-start: 20px;
 	}
+
+	// Mirrors the Calypso dashboard's activation modal, but keyed to
+	// --wp-components-* so both themes track the same design system.
+	&__domain {
+		padding-block: 12px;
+		padding-inline: 16px;
+		background-color: var(--wp-components-color-gray-100, #f0f0f0);
+	}
+
+	&__address {
+		min-width: 0;
+	}
+
+	// The subdomain truncates so a long address cannot widen the modal; the
+	// rest of the domain stays whole.
+	&__domain-name {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 }

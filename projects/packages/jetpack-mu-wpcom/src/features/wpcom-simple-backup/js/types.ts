@@ -4,6 +4,25 @@
  */
 export type BackupState = 'upgrade' | 'in_progress' | 'activate' | 'ineligible';
 
+/** The site's address before and after a transfer. */
+export type DomainNames = {
+	current: string;
+	new: string;
+};
+
+/**
+ * One transfer warning, in the shape the wpcom eligibility API returns it.
+ *
+ * Snake_case because PHP passes the API's own response through untouched; the
+ * Calypso dashboard reads the same fields.
+ */
+export type TransferWarning = {
+	id: string;
+	description: string;
+	domain_names?: DomainNames;
+	support_url?: string;
+};
+
 /**
  * State resolved in PHP and localized onto the page's prerequisites script.
  *
@@ -15,6 +34,8 @@ export type InitialState = {
 	domain: string;
 	/** Human-readable transfer blockers. Only populated in the `ineligible` state. */
 	blockers: string[];
+	/** Non-blocking transfer warnings. Only populated in the `activate` state. */
+	warnings: TransferWarning[];
 	upgradeUrl: string;
 	activateUrl: string;
 	supportUrl: string;
