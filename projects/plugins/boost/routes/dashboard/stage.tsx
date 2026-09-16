@@ -1,9 +1,11 @@
+import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import { z } from 'zod';
 import BoostPage from '../../_inc/components/boost-page';
 import Overview from '../../_inc/overview/overview';
 import {
@@ -45,14 +47,24 @@ function subscribeToLocationChange( listener: () => void ) {
 }
 
 function Stage() {
+	const [ queryClient ] = useState( () => new QueryClient() );
+
+	return (
+		<QueryClientProvider client={ queryClient }>
+			<DashboardStage />
+		</QueryClientProvider>
+	);
+}
+
+function DashboardStage() {
 	const search = useSearch( { from: '/' as never, strict: false } ) as { tab?: string };
 	const navigate = useNavigate();
-	const [ queryClient ] = useState( () => new QueryClient() );
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const lastSubpage = useRef( subpage );
-	// The bootstrap value never updates, so leaving Getting Started is what ends onboarding here.
-	const [ onboarding, setOnboarding ] = useState(
-		() => window.jetpack_boost_ds?.getting_started?.value === true
+	const [ { data: onboarding, refetch } ] = useDataSync(
+		'jetpack_boost_ds',
+		'getting_started',
+		z.boolean()
 	);
 	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
@@ -82,14 +94,14 @@ function Stage() {
 			}
 			lastSubpage.current = next;
 			setSubpage( next );
-			if ( ! next && previous === 'getting-started' ) {
-				setOnboarding( false );
+			if ( previous === 'getting-started' ) {
+				void refetch();
 			}
 			if ( ! next && ( previous === 'cache-debug-log' || previous === 'critical-css-advanced' ) ) {
 				goToTab( 'settings', true );
 			}
 		} );
-	}, [ goToTab ] );
+	}, [ goToTab, refetch ] );
 
 	return (
 		<BoostPage
@@ -99,7 +111,7 @@ function Stage() {
 			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
 			<Tabs.Panel value="overview" keepMounted>
-				{ onboarding ? (
+				{ onboarding !== false ? (
 					<div
 						className="jetpack-boost-dashboard__loading"
 						role="status"
@@ -108,9 +120,7 @@ function Stage() {
 						<Spinner />
 					</div>
 				) : (
-					<QueryClientProvider client={ queryClient }>
-						<Overview isVisible={ activeTab === 'overview' && subpage === null } />
-					</QueryClientProvider>
+					<Overview isVisible={ activeTab === 'overview' && subpage === null } />
 				) }
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>

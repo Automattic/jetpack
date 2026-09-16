@@ -2,11 +2,12 @@
 import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
 const mockNavigate = jest.fn();
+const originalFetch = globalThis.fetch;
 
 jest.mock( '../../_inc/overview/overview', () => ( {
 	__esModule: true,
@@ -39,12 +40,17 @@ beforeEach( () => {
 	window.history.replaceState( null, '', '/?page=jetpack-boost' );
 	Object.assign( window, { wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' } } );
 	mockNavigate.mockReset();
-	delete window.jetpack_boost_ds;
+	setGettingStarted( false );
+	globalThis.fetch = jest.fn();
+} );
+
+afterEach( () => {
+	globalThis.fetch = originalFetch;
 } );
 
 const setGettingStarted = ( value: boolean ) => {
 	window.jetpack_boost_ds = {
-		rest_api: { nonce: 'test-nonce', value: '/wp-json/jetpack-boost-ds' },
+		rest_api: { nonce: 'test-nonce', value: 'https://example.org/wp-json/jetpack-boost-ds' },
 		getting_started: { nonce: 'test-nonce', value },
 	};
 };
@@ -164,30 +170,70 @@ describe( 'Boost dashboard stage', () => {
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
 	} );
 
-	it( 'shows a loader instead of Overview until onboarding leaves Getting Started', () => {
-		setGettingStarted( true );
-		render( <Stage /> );
+	it.each( [ true, false ] )(
+		'uses live onboarding value %s after leaving Getting Started',
+		async value => {
+			setGettingStarted( true );
+			let resolveRequest!: ( response: Response ) => void;
+			const request = new Promise< Response >( resolve => {
+				resolveRequest = resolve;
+			} );
+			jest.mocked( globalThis.fetch ).mockReturnValueOnce( request );
+			const routeReady = jest.fn();
+			window.addEventListener( 'jetpack-boost:route-ready', routeReady );
+			render( <Stage /> );
 
-		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
-		expect( getSubpageMount()?.hidden ).toBe( true );
-		expect( getSubpageMount() ).toBeEmptyDOMElement();
-		expect( getSettingsMount() ).not.toBeNull();
+			expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+			expect( getSubpageMount()?.hidden ).toBe( true );
+			expect( getSubpageMount() ).toBeEmptyDOMElement();
+			expect( getSettingsMount() ).not.toBeNull();
 
-		act( () => {
-			window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
-		} );
+			act( () => {
+				window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
+			} );
 
-		expect( getSubpageMount()?.hidden ).toBe( false );
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+			expect( getSubpageMount()?.hidden ).toBe( false );
+			expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
 
-		act( () => {
-			window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings' );
-		} );
+			act( () => {
+				window.history.replaceState( null, '', '/?page=jetpack-boost' );
+			} );
 
-		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Performance Overview' ) ).toBeInTheDocument();
-	} );
+			expect( globalThis.fetch ).toHaveBeenCalledTimes( 1 );
+			expect( globalThis.fetch ).toHaveBeenCalledWith(
+				'https://example.org/wp-json/jetpack-boost-ds/getting-started',
+				expect.objectContaining( { method: 'GET' } )
+			);
+			expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+
+			const text = jest.fn().mockResolvedValue( JSON.stringify( { status: 'success', JSON: value } ) );
+			await act( async () => {
+				resolveRequest( { ok: true, text } as unknown as Response );
+			} );
+			await waitFor( () => expect( text ).toHaveBeenCalled() );
+
+			if ( value ) {
+				expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
+				expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+				act( () => {
+					window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
+				} );
+				expect( getSubpageMount()?.hidden ).toBe( false );
+				expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+			} else {
+				expect( await screen.findByText( 'Performance Overview' ) ).toHaveAttribute(
+					'data-visible',
+					'true'
+				);
+				expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
+			}
+			expect( getSubpageMount() ).toBeEmptyDOMElement();
+			expect( routeReady ).not.toHaveBeenCalled();
+			window.removeEventListener( 'jetpack-boost:route-ready', routeReady );
+		}
+	);
 
 	it( 'shows Overview without a loader once onboarding is done', () => {
 		setGettingStarted( false );
