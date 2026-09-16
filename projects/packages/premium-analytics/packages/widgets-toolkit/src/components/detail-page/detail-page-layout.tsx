@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { SectionHeader } from '@jetpack-premium-analytics/ui';
+import { useReducedMotion } from '@wordpress/compose';
 import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
 /**
@@ -50,15 +51,17 @@ export function DetailPageLayout( {
 }: DetailPageLayoutProps ) {
 	const scrollArea = useRef< HTMLDivElement >( null );
 	const title = useRef< HTMLHeadingElement >( null );
+	const reducedMotion = useReducedMotion();
 
 	useEffect( () => {
 		if ( returnToTopKey === undefined ) {
 			return;
 		}
-		const reduceMotion = window.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches;
 		// Focus first, without scrolling: the focus jump would cut the smooth scroll short.
 		title.current?.focus( { preventScroll: true } );
-		scrollArea.current?.scrollTo?.( { top: 0, behavior: reduceMotion ? 'auto' : 'smooth' } );
+		scrollArea.current?.scrollTo?.( { top: 0, behavior: reducedMotion ? 'auto' : 'smooth' } );
+		// Only a new key returns the reader to the top; a motion preference flip alone must not.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ returnToTopKey ] );
 
 	return (

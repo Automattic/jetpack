@@ -2,10 +2,16 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { useReducedMotion } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
 import { DetailPageLayout, DetailPageSection } from '../detail-page-layout';
+
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useReducedMotion: jest.fn( () => false ),
+} ) );
 
 // The gutter, the widget grid's gap and the Card padding overrides all hang off
 // these classes; the shared style stub would leave every one of them undefined.
@@ -116,8 +122,7 @@ describe( 'DetailPageLayout', () => {
 		} );
 
 		it( 'jumps instead of gliding when the reader asked for less motion', () => {
-			const matchMedia = window.matchMedia;
-			window.matchMedia = jest.fn( () => ( { matches: true } ) ) as unknown as typeof matchMedia;
+			jest.mocked( useReducedMotion ).mockReturnValueOnce( true );
 
 			render(
 				<DetailPageLayout header={ { title: 'Launch recap' } } returnToTopKey={ 1 }>
@@ -126,7 +131,6 @@ describe( 'DetailPageLayout', () => {
 			);
 
 			expect( scrollTo ).toHaveBeenCalledWith( { top: 0, behavior: 'auto' } );
-			window.matchMedia = matchMedia;
 		} );
 	} );
 
