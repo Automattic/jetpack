@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePostThumbnails } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ReportDrilldownTable,
@@ -9,7 +10,7 @@ import {
 	ReportCsvAction,
 	useReportCsvExport,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -21,6 +22,11 @@ import type { ReactNode } from 'react';
 jest.mock( './config', () => ( {
 	...jest.requireActual( './config' ),
 	usePostsReportRecords: jest.fn(),
+} ) );
+
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	usePostThumbnails: jest.fn(),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -76,6 +82,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const useRecordsMock = jest.mocked( usePostsReportRecords );
+const usePostThumbnailsMock = jest.mocked( usePostThumbnails );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
@@ -111,6 +118,7 @@ function buildRecords( {
 					label: 'Hello world',
 					views: 12,
 					link: 'https://example.com/hello-world',
+					type: 'post',
 				},
 			],
 			hasComparison: false,
@@ -131,6 +139,7 @@ function buildRecords( {
 describe( 'PostsReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		usePostThumbnailsMock.mockReturnValue( {} );
 		useSectionTabMock.mockReturnValue( [ 'posts-pages', jest.fn() ] );
 		useReportCsvExportMock.mockImplementation( options => ( {
 			canExport: true,
@@ -177,6 +186,21 @@ describe( 'PostsReportPage', () => {
 		render( <PostsReportPage /> );
 
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isLoading ).toBe( true );
+	} );
+
+	it( 'resolves thumbnails for the visible posts page', () => {
+		const records = buildRecords();
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		expect( usePostThumbnailsMock ).toHaveBeenCalledWith( [] );
+
+		act( () => {
+			reportRecordsTableMock.mock.calls[ 0 ][ 0 ].onChangePageItems?.( records.posts.rows );
+		} );
+
+		expect( usePostThumbnailsMock ).toHaveBeenLastCalledWith( records.posts.rows );
 	} );
 
 	it( 'does not render a page action when the hook disables export', () => {

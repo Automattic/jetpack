@@ -2,10 +2,10 @@
  * External dependencies
  */
 import {
-	usePostThumbnail,
 	useSiteHomeUrl,
 	type StatsArchivesComparisonItem,
 	type StatsArchivesItem,
+	type PostThumbnailUrls,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { Icon, Link as UiLink, Stack } from '@jetpack-premium-analytics/externals';
@@ -31,6 +31,7 @@ const VIEWS_DATA_FORMAT = {
 type PostTitleProps = {
 	item: StatsTopPostsComparisonItem;
 	originSection: ReportPostsTabId;
+	thumbnailUrl?: string;
 };
 
 /**
@@ -79,7 +80,7 @@ function PostThumbnail( { url, postType }: { url?: string; postType?: string } )
  * @param {PostTitleProps} props - Component props.
  * @return The linked or plain post title.
  */
-function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
+function PostTitle( { item, originSection, thumbnailUrl }: PostTitleProps ): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const detailSearch = useMemo(
 		() => ( {
@@ -92,15 +93,11 @@ function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 
 	const isHomepage = item.type === 'homepage';
 	const title = String( item.label ?? '' );
-	const imageUrl = usePostThumbnail(
-		isHomepage ? undefined : item.id,
-		typeof item.type === 'string' ? item.type : undefined
-	);
 
 	return (
 		<Stack render={ <span /> } direction="row" gap="sm" align="center" className={ styles.title }>
 			<PostThumbnail
-				url={ imageUrl }
+				url={ thumbnailUrl }
 				postType={ typeof item.type === 'string' ? item.type : undefined }
 			/>
 			<PostTitleLink
@@ -129,11 +126,13 @@ function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
  *
  * @param withComparison - Whether to render available period-over-period deltas.
  * @param originSection  - The active Posts & Pages report tab.
+ * @param thumbnailUrls  - Thumbnail URLs keyed by post ID.
  * @return The field config.
  */
 export function getPostsFields(
 	withComparison: boolean,
-	originSection: ReportPostsTabId
+	originSection: ReportPostsTabId,
+	thumbnailUrls: PostThumbnailUrls = {}
 ): Field< StatsTopPostsComparisonItem >[] {
 	return [
 		{
@@ -142,7 +141,13 @@ export function getPostsFields(
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
-			render: ( { item } ) => <PostTitle item={ item } originSection={ originSection } />,
+			render: ( { item } ) => (
+				<PostTitle
+					item={ item }
+					originSection={ originSection }
+					thumbnailUrl={ thumbnailUrls[ Number( item.id ) ] }
+				/>
+			),
 		},
 		{
 			id: 'views',

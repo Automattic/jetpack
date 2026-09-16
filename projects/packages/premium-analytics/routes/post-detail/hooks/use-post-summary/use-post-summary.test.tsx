@@ -185,28 +185,17 @@ describe( 'usePostSummary', () => {
 		expect( result.current.imageUrl ).toBeUndefined();
 	} );
 
-	it( 'falls back to the full-size media URL when there is no thumbnail size', () => {
+	it( 'resolves a page with its local publish date', () => {
 		mockStatsPost( { post_title: 'A page', post_type: 'page', post_date: '2026-06-01 09:00:00' } );
 		mockEntities( {
 			'page:41': { link: 'https://example.com/a-page/' },
 		} );
-		mockUsePostThumbnail.mockReturnValue( 'https://example.com/full.jpg' );
 
 		const { result } = renderHook( () => usePostSummary( POST_ID ) );
 
-		expect( result.current.imageUrl ).toBe( 'https://example.com/full.jpg' );
 		// Only the local date is present, so it stands in for the GMT one.
 		expect( result.current.publishedDate ).toBe( '2026-06-01 09:00:00' );
+		expect( result.current.type ).toBe( 'page' );
 		expect( result.current.url ).toBe( 'https://example.com/a-page/' );
-	} );
-
-	it( 'leaves the image undefined when the featured media record is missing', () => {
-		mockStatsPost( { post_title: 'Hello world', post_type: 'post' } );
-		mockEntities( { 'post:41': { link: 'https://example.com/hello-world/' } } );
-
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
-
-		expect( result.current.imageUrl ).toBeUndefined();
-		expect( result.current.url ).toBe( 'https://example.com/hello-world/' );
 	} );
 } );

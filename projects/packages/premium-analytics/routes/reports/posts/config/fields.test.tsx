@@ -2,8 +2,8 @@
  * External dependencies
  */
 import {
-	usePostThumbnail,
 	useSiteHomeUrl,
+	type PostThumbnailUrls,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -20,7 +20,6 @@ import {
 } from './fields';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
-	usePostThumbnail: jest.fn(),
 	useSiteHomeUrl: jest.fn(),
 } ) );
 
@@ -37,7 +36,6 @@ jest.mock( '@wordpress/route', () => {
 setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
-const mockUsePostThumbnail = usePostThumbnail as jest.MockedFunction< typeof usePostThumbnail >;
 
 const homepage: StatsTopPostsComparisonItem = {
 	id: 0,
@@ -50,11 +48,15 @@ const homepage: StatsTopPostsComparisonItem = {
 /**
  * Mount the posts title field's render component for a table row.
  *
- * @param item - The top-posts row to render the title cell for.
+ * @param item          - The top-posts row to render the title cell for.
+ * @param thumbnailUrls - Thumbnail URLs keyed by post ID.
  * @return The Testing Library render result.
  */
-function renderTitleField( item: StatsTopPostsComparisonItem ) {
-	const field = getPostsFields( false, 'posts-pages' ).find(
+function renderTitleField(
+	item: StatsTopPostsComparisonItem,
+	thumbnailUrls: PostThumbnailUrls = {}
+) {
+	const field = getPostsFields( false, 'posts-pages', thumbnailUrls ).find(
 		candidate => candidate.id === 'title'
 	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
@@ -128,23 +130,22 @@ function renderArchiveViewsField( item: ArchiveRow, withComparison = false ) {
 describe( 'posts title field', () => {
 	beforeEach( () => {
 		mockUseSiteHomeUrl.mockReset();
-		mockUsePostThumbnail.mockReset();
 	} );
 
 	it( 'renders the post thumbnail beside its title', () => {
-		mockUsePostThumbnail.mockReturnValue( 'https://example.com/thumb.jpg' );
-
-		renderTitleField( {
-			id: 42,
-			label: 'Hello world',
-			views: 12,
-			link: 'https://example.com/hello-world/',
-			type: 'post',
-		} );
+		renderTitleField(
+			{
+				id: 42,
+				label: 'Hello world',
+				views: 12,
+				link: 'https://example.com/hello-world/',
+				type: 'post',
+			},
+			{ 42: 'https://example.com/thumb.jpg' }
+		);
 
 		const thumbnail = screen.getByRole( 'presentation' );
 		expect( thumbnail ).toHaveAttribute( 'src', 'https://example.com/thumb.jpg' );
-		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( 42, 'post' );
 
 		fireEvent.error( thumbnail );
 		expect( screen.getByTestId( 'post-thumbnail-placeholder' ) ).toBeInTheDocument();
