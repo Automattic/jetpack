@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Assets;
 
+use Automattic\Jetpack\Assets;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -14,8 +15,10 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Automattic\Jetpack\Assets\Shared_Stores_Assets
+ * @covers \Automattic\Jetpack\Assets
  */
 #[CoversClass( Shared_Stores_Assets::class )]
+#[CoversClass( Assets::class )]
 class SharedStoresAssetsTest extends TestCase {
 
 	/**
@@ -99,10 +102,8 @@ class SharedStoresAssetsTest extends TestCase {
 	}
 
 	/**
-	 * An older sibling copy of this package can win the files-autoload race and run an
-	 * actions.php that predates Shared_Stores_Assets, leaving the handle unregistered while
-	 * classes still resolve here. Script_Data::configure() is hooked by every actions.php
-	 * version, so it has to carry the bootstrap too. See JETPACK-2649.
+	 * An older sibling copy's actions.php leaves the handle unregistered while classes still
+	 * resolve here, so Script_Data::configure() has to carry the bootstrap. See JETPACK-2649.
 	 */
 	public function test_script_data_configure_bootstraps_shared_stores() {
 		$actions = array();
@@ -125,5 +126,52 @@ class SharedStoresAssetsTest extends TestCase {
 
 		$this->assertCount( 1, $hooked, 'Script_Data::configure() must bootstrap the shared stores registration.' );
 		$this->assertSame( 'wp_loaded', reset( $hooked )[0] );
+	}
+
+	/**
+	 * The healthy case re-hooks a callback actions.php already added, so it must dedupe.
+	 */
+	public function test_bootstrap_is_idempotent() {
+		$actions = array();
+
+		Functions\when( 'add_action' )->alias(
+			function ( $hook, $callback ) use ( &$actions ) {
+				// Mirror _wp_filter_build_unique_id() for static string callables.
+				$actions[ $hook . '|' . implode( '::', (array) $callback ) ] = true;
+			}
+		);
+
+		Assets::ensure_package_bootstrap();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Calling twice is the assertion.
+		Assets::ensure_package_bootstrap();
+
+		$this->assertSame(
+			array( 'wp_loaded|' . Shared_Stores_Assets::class . '::register_assets' => true ),
+			$actions
+		);
+	}
+
+	/**
+	 * Guards the trap the design depends on: a plugins_loaded entry added to actions.php but
+	 * not to ensure_package_bootstrap() would silently not run under an older sibling copy.
+	 *
+	 * The bootstrap loads actions.php before Brain Monkey defines add_action, so the file takes
+	 * its $wp_filter branch and the entries are readable here.
+	 */
+	public function test_every_plugins_loaded_entry_is_recovered() {
+		$declared = array();
+		foreach ( $GLOBALS['wp_filter']['plugins_loaded'][1] ?? array() as $entry ) {
+			$callback = $entry['function'];
+			if ( is_array( $callback ) && Script_Data::class !== $callback[0] ) {
+				$declared[] = implode( '::', $callback );
+			}
+		}
+
+		$this->assertNotEmpty( $declared, 'actions.php should declare at least one non-Script_Data plugins_loaded entry.' );
+		$this->assertSame(
+			array( Shared_Stores_Assets::class . '::configure' ),
+			$declared,
+			'A new plugins_loaded entry in actions.php must also be re-run from Assets::ensure_package_bootstrap().'
+		);
 	}
 }

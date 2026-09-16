@@ -471,17 +471,19 @@ class Assets {
 	}
 
 	/**
-	 * Hook the package bootstraps that an older copy's `actions.php` does not know about.
+	 * Re-hook the bootstraps an older copy's `actions.php` did not know about.
 	 *
-	 * A sibling plugin bundling this package under a plain `vendor/` — wpcomsh is an mu-plugin,
-	 * so it loads first — runs its own `actions.php` and wins the files-autoload race, while
-	 * classes still resolve to the newest copy. Anything added to `actions.php` after that copy
-	 * shipped then never bootstraps, and every script depending on it is silently dropped.
-	 * Re-hooking is safe: `add_action()` dedupes an identical callback at the same priority.
+	 * Composer keys a `files` entry by package and path, so whichever copy's `vendor/autoload.php`
+	 * runs first is the only `actions.php` that ever runs — while classes still resolve to the
+	 * newest copy. See JETPACK-2649.
 	 *
-	 * Callers must be reachable from an `actions.php` old enough to be in the wild, and must run
-	 * before `wp_loaded`. See JETPACK-2649.
+	 * Only re-hook static callables: `add_action()` dedupes those by `Class::method`, but closures
+	 * and `array( $object, 'method' )` key off `spl_object_id` and would register twice.
 	 *
+	 * Callers must run before `wp_loaded`, and recovery only reaches copies from assets 2.3.0
+	 * (#38430), when `Script_Data::configure` joined `actions.php`.
+	 *
+	 * @access private
 	 * @since $$next-version$$
 	 */
 	public static function ensure_package_bootstrap() {

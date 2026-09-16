@@ -29,8 +29,7 @@ class Script_Data {
 	 * Configure.
 	 */
 	public static function configure() {
-		// This runs on plugins_loaded from every actions.php version in the wild, so it is
-		// where the package recovers bootstraps an older sibling copy skipped. JETPACK-2649.
+		// Hooked by actions.php since 2.3.0, so this is the package's recovery point.
 		Assets::ensure_package_bootstrap();
 
 		/**
