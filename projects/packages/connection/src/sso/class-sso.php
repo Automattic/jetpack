@@ -687,11 +687,10 @@ CSS;
 
 			<div id="jetpack-sso-wrap__action">
 				<?php if ( $this->two_step_required ) : ?>
-					<?php // Opens in a new tab so this tab keeps the button to log in again after setup. ?>
+					<?php // No "Log in with WordPress.com" here: the user is already logged in, so retrying fails the same way until two-step is set up. ?>
 					<a rel="noopener noreferrer" target="_blank" class="button button-primary" href="<?php echo esc_url( Redirect::get_url( 'calypso-me-security-two-step' ) ); ?>">
 						<?php esc_html_e( 'Set up two-step authentication', 'jetpack-connection' ); ?>
 					</a>
-					<?php echo $this->build_sso_button(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
 					<a rel="nofollow" class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'force_reauth' => '1' ) ) ); ?>">
 						<?php esc_html_e( 'Log in with another WordPress.com account', 'jetpack-connection' ); ?>
 					</a>
@@ -739,7 +738,7 @@ CSS;
 					 */
 					do_action( 'jetpack_sso_login_form_below_wpcom' );
 
-					if ( ! Helpers::should_hide_login_form() ) :
+					if ( ! $this->two_step_required && ! Helpers::should_hide_login_form() ) :
 						?>
 					<div class="jetpack-sso-or">
 						<span><?php esc_html_e( 'Or', 'jetpack-connection' ); ?></span>
