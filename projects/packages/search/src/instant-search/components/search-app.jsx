@@ -109,6 +109,9 @@ class SearchApp extends Component {
 			// componentDidUpdate with no prop change to react to. Kick off the first
 			// request here instead of relying on that.
 			this.onChangeQueryString( this.props.isHistoryNavigation );
+		}
+
+		if ( this.props.hasActiveQuery ) {
 			this.getAiAnswer();
 		}
 
