@@ -163,6 +163,12 @@ final class Post_Handler {
 			$options = array();
 		}
 
+		// Sites carry a malformed `global` (see #6121), and writing into it in place
+		// would fatal where the services save, which rebuilds it wholesale, does not.
+		if ( ! isset( $options['global'] ) || ! is_array( $options['global'] ) ) {
+			$options['global'] = array();
+		}
+
 		$allowed   = array_values( get_post_types( array( 'public' => true ) ) );
 		$allowed[] = 'index';
 
