@@ -299,6 +299,23 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Pages are declared, not discovered: wp-build only emits a page's PHP when
+	 * it is listed in wpPlugin.pages, and an undeclared page renders blank.
+	 */
+	public function test_wp_build_page_is_declared_in_the_package_manifest() {
+		$manifest = (array) json_decode(
+			(string) file_get_contents(
+				\Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'package.json'
+			),
+			true
+		);
+
+		$pages = $manifest['wpPlugin']['pages'] ?? array();
+
+		$this->assertContains( WPCOM_SIMPLE_BACKUP_WP_BUILD_PAGE, $pages );
+	}
+
+	/**
 	 * The alias is what makes wp-build's enqueue callback fire on a slug it does
 	 * not recognise.
 	 */
