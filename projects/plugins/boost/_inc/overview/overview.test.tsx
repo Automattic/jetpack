@@ -448,7 +448,13 @@ test( 'retains loaded scores and Run speed test alongside a subsequent score err
 		'aria-busy',
 		'false'
 	);
-	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toBeEnabled();
+	// The header re-enables in a later render than the notice, and a click on it while aria-disabled is ignored.
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		)
+	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	await waitFor( () => expect( screen.queryByText( 'Refresh failed' ) ).not.toBeInTheDocument() );
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
