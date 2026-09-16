@@ -60,7 +60,7 @@ export default meta;
 
 type Story = StoryObj< typeof meta >;
 
-/** Default state — the earnings history table. */
+/** Default state — the earnings history list. */
 export const Default: Story = {
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 };

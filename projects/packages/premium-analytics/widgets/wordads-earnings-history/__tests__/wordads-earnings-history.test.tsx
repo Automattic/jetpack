@@ -59,8 +59,9 @@ describe( 'WordAdsEarningsHistory', () => {
 		expect( screen.getByText( 'Paid' ) ).toBeInTheDocument();
 	} );
 
-	it( 'omits the ads-served column the full report keeps', () => {
+	it( 'omits the ads-served column the full report keeps', async () => {
 		render( <WordAdsEarningsHistory attributes={ {} } /> );
+		await expect( screen.findByText( 'July 2026' ) ).resolves.toBeInTheDocument();
 
 		expect( screen.queryByText( '20,000' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Ads Served' ) ).not.toBeInTheDocument();
