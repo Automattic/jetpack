@@ -1,11 +1,14 @@
 /* No jest-dom in this project. */
-/* eslint-disable jest-dom/prefer-to-have-text-content, testing-library/no-node-access */
+/* eslint-disable testing-library/no-node-access */
 import { render, screen, within } from '@testing-library/react';
 import Settings from './settings';
 
 /* Each module stub prints its name so the test can assert the order. */
 jest.mock( '$features/cornerstone-pages/cornerstone-pages-card', () => () => (
-	<div data-testid="stub">cornerstone</div>
+	<div>
+		<h2>Cornerstone pages</h2>
+		<div data-testid="stub">cornerstone</div>
+	</div>
 ) );
 jest.mock( '$features/critical-css/critical-css-module/critical-css-module', () => () => (
 	<div data-testid="stub">critical_css</div>
@@ -24,6 +27,7 @@ jest.mock( '$features/minify-css/minify-css', () => () => (
 	<div data-testid="stub">minify_css</div>
 ) );
 jest.mock( '$features/image-cdn/image-cdn', () => () => <div data-testid="stub">image_cdn</div> );
+jest.mock( '$features/lcp/lcp', () => () => <div data-testid="stub">lcp</div> );
 jest.mock( '$features/image-guide/image-guide', () => {
 	const { useModuleSurface } = jest.requireActual( '$features/module/surface' );
 	return () => <div data-testid="stub">image_guide:{ useModuleSurface() }</div>;
@@ -44,10 +48,16 @@ const modulesIn = ( heading: string ) => {
 };
 
 describe( 'Settings', () => {
-	it( 'groups the modules into four cards, each in the legacy order', () => {
+	it( 'renders the designed cards in order, each holding its modules', () => {
 		render( <Settings /> );
 
-		expect( screen.getAllByTestId( 'stub' )[ 0 ].textContent ).toBe( 'cornerstone' );
+		expect( screen.getAllByRole( 'heading', { level: 2 } ).map( h => h.textContent ) ).toEqual( [
+			'Code loading optimization',
+			'Image loading optimization',
+			'Image CDN configuration',
+			'Image guide',
+			'Cornerstone pages',
+		] );
 		expect( modulesIn( 'Code loading optimization' ) ).toEqual( [
 			'critical_css',
 			'cloud_css',
@@ -56,6 +66,7 @@ describe( 'Settings', () => {
 			'minify_js',
 			'minify_css',
 		] );
+		expect( modulesIn( 'Image loading optimization' ) ).toEqual( [ 'lcp' ] );
 		expect( modulesIn( 'Image CDN configuration' ) ).toEqual( [ 'image_cdn' ] );
 		expect( modulesIn( 'Image guide' ) ).toEqual( [ 'image_guide:row' ] );
 	} );
