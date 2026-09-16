@@ -84,6 +84,6 @@ patchedDependencies:
   # the option, so init modules never run there. The patch runs them in the
   # inline bootstrap instead. Remove once the template runs init modules itself
   # upstream (or Jetpack's WP floor ships a boot with initModules support).
-  # It also makes the generated PHP pass the WPCS sniffs that the WordPress.com
-  # deploy lint enforces on plugins/jetpack's build/ directory.
+  # It also fixes the WPCS violations that WordPress.com's deploy lint reported
+  # in the generated PHP under plugins/jetpack's build/ directory.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
