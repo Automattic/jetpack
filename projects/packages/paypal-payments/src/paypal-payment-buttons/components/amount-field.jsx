@@ -1,8 +1,8 @@
 /**
- * A money or percentage field with the unit inside it.
+ * PayPal Payment Buttons - Amount field.
  *
- * InputControl draws its own label and help and owns the suffix slot, so this only
- * adds the error handling the other fields in this block already use.
+ * InputControl draws the label, the help and the suffix, so this adds the error
+ * handling the rest of the block's fields already use.
  *
  * @package
  * @since 0.9.0
@@ -57,8 +57,8 @@ export default function AmountField( {
 			placeholder={ placeholder }
 			// The wrapper is what pads the suffix off the field's edge.
 			suffix={ <InputControlSuffixWrapper>{ suffix }</InputControlSuffixWrapper> }
-			// The design stacks these rather than swapping. Each gets its own span
-			// so editor.scss can redden the error alone.
+			// Hint and error stack, each in its own span so editor.scss can redden the error
+			// alone.
 			help={
 				( help || error ) && (
 					<>

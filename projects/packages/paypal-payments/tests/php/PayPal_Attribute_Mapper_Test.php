@@ -73,12 +73,12 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Test that a non-string productName is rejected.
+	 * Test that an array productName is rejected.
 	 *
-	 * The method is public, so it coerces a non-string name to an empty string before
-	 * trim() sees it.
+	 * The method is public, so anything can come in. A non-string name becomes an empty
+	 * string before trim() sees it.
 	 */
-	public function test_validate_rejects_non_string_product_name() {
+	public function test_validate_rejects_array_product_name() {
 		$result = PayPal_Attribute_Mapper::validate_attributes(
 			array(
 				'productName'  => array( 'Widget' ),
@@ -392,19 +392,18 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Test that a multi-line description over the limit is rejected.
+	 * Test that a multi-line description exceeding 2048 characters is rejected.
 	 *
-	 * Collapsing the line breaks lets a description over the limit measure under it, so
-	 * sanitize_text_field() would let one through.
+	 * The count keeps the line breaks, since collapsing them makes a long description measure short.
 	 */
-	public function test_validate_rejects_a_multiline_description_over_the_limit() {
+	public function test_validate_rejects_multiline_description_too_long() {
 		$result = PayPal_Attribute_Mapper::validate_attributes(
 			array(
 				'productName'        => 'Widget',
 				'price'              => '10.00',
 				'currencyCode'       => 'USD',
-				// 2049 as the merchant wrote it. sanitize_text_field() collapses the two
-				// newlines to one space and measures 2048, which is what let it through.
+				// 2049 characters as written. sanitize_text_field() would collapse the two
+				// newlines into one space and measure 2048.
 				'productDescription' => str_repeat( 'D', 2046 ) . "\n\nD",
 			)
 		);
@@ -447,9 +446,9 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Test that validate_attributes accepts a product id at the limit.
+	 * Test that a product id at the 50-character limit is accepted.
 	 */
-	public function test_validate_accepts_product_id_at_the_limit() {
+	public function test_validate_accepts_product_id_at_max_length() {
 		$result = PayPal_Attribute_Mapper::validate_attributes(
 			array(
 				'productName'  => 'Widget',
@@ -633,9 +632,6 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 
 	/**
 	 * Test that a multi-line description keeps its line breaks on the way back.
-	 *
-	 * PayPal returns the description exactly as sent, so a flattened one is our own
-	 * sanitizer's doing.
 	 */
 	public function test_api_response_to_attributes_keeps_description_newlines() {
 		$description = "Line one\n\nLine two\r\nLine three";
@@ -656,10 +652,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Test that a description keeps its internal breaks but loses the outer ones.
-	 *
-	 * The textarea sanitizer keeps the inner line breaks but still trims, so the outer
-	 * blank lines go.
+	 * Test that a description keeps its inner line breaks and loses the outer blank lines.
 	 */
 	public function test_api_response_to_attributes_trims_the_outer_newlines() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -697,7 +690,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * The product id comes back from the payment, so an edit does not wipe a SKU.
+	 * The product id comes back from the payment, so an edit keeps the SKU.
 	 */
 	public function test_api_response_to_attributes_reads_the_product_id() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -716,8 +709,8 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * The handling fee comes back from the payment, so an edit does not wipe one
-	 * set in PayPal's own dashboard.
+	 * The handling fee comes back from the payment, so an edit keeps one set in
+	 * PayPal's own dashboard.
 	 */
 	public function test_api_response_to_attributes_reads_the_handling_fee() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -742,7 +735,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * A handling fee of "0" is one PayPal stores - empty() would drop it.
+	 * A handling fee of "0" is a real fee, and empty() would drop it.
 	 */
 	public function test_api_response_to_attributes_reads_a_handling_fee_of_zero() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -767,11 +760,12 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * The discount comes back from the payment, so an edit does not wipe it.
+	 * The discount comes back from the payment, so an edit keeps it.
+	 *
+	 * @dataProvider discount_type_provider
 	 *
 	 * @param string $type  The discount type PayPal stored.
 	 * @param string $value The discount value PayPal stored.
-	 * @dataProvider discount_type_provider
 	 */
 	#[DataProvider( 'discount_type_provider' )]
 	public function test_api_response_to_attributes_reads_the_discount( $type, $value ) {
@@ -798,9 +792,9 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Both discount types PayPal takes, plus a zero value, which has to survive as '0'.
+	 * Data provider for the discount types PayPal takes, including a zero value.
 	 *
-	 * @return array[]
+	 * @return array[] Test cases.
 	 */
 	public static function discount_type_provider(): array {
 		return array(
@@ -811,12 +805,12 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * A discount with an amount but no type reads back as an amount off.
+	 * A discount with an amount and no type reads back as an amount off.
 	 *
-	 * PayPal defaults an omitted type to FLAT, so the block has to agree - reading
-	 * it as a percentage would turn $2.00 off into 2% off on the next save.
+	 * PayPal treats a missing type as FLAT, so reading it as a percentage would turn
+	 * $2.00 off into 2% off on the next save.
 	 */
-	public function test_api_response_to_attributes_reads_a_typeless_discount_as_flat() {
+	public function test_api_response_to_attributes_defaults_a_missing_discount_type_to_flat() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
 			array(
 				'id'         => 'PLB-TEST123',
@@ -835,11 +829,9 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * A type the block cannot model is stored as it came.
+	 * A discount type the block has no option for is kept as it came.
 	 *
-	 * Rewriting it to FLAT would keep the value and ship 2.00 as an amount off on
-	 * the next update, which is the coercion the REST layer deliberately avoids.
-	 * The select falls back to its first option for display.
+	 * Rewriting it to FLAT would ship 2.00 as an amount off on the next update.
 	 */
 	public function test_api_response_to_attributes_keeps_an_unknown_discount_type() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -865,7 +857,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * PayPal takes one discount per item, so a second one is not the block's to show.
+	 * PayPal takes one discount per item, so the block reads the first and leaves the rest.
 	 */
 	public function test_api_response_to_attributes_reads_only_the_first_discount() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -894,10 +886,11 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * A discounts key that carries nothing usable reads as no discount.
+	 * A discount the block cannot read leaves the discount attributes unset.
+	 *
+	 * @dataProvider empty_discount_provider
 	 *
 	 * @param mixed $discounts The discounts value PayPal sent.
-	 * @dataProvider empty_discount_provider
 	 */
 	#[DataProvider( 'empty_discount_provider' )]
 	public function test_api_response_to_attributes_ignores_an_unusable_discount( $discounts ) {
@@ -919,19 +912,19 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Discount values that carry nothing the block can read.
+	 * Data provider for discount values the block skips.
 	 *
-	 * @return array[]
+	 * @return array[] Test cases.
 	 */
 	public static function empty_discount_provider(): array {
 		return array(
-			'empty array'        => array( array() ),
-			'a string'           => array( 'FLAT' ),
-			'null'               => array( null ),
-			// The inner is_array() backstops every row; the two below are the ones
-			// that get past the outer guard at all.
-			'a list of strings'  => array( array( 'FLAT' ) ),
-			'an unwrapped array' => array(
+			'empty array'               => array( array() ),
+			'a string'                  => array( 'FLAT' ),
+			'null'                      => array( null ),
+			// Only these last two clear the outer is_array() check, and the inner one
+			// catches them.
+			'a list of strings'         => array( array( 'FLAT' ) ),
+			'a discount outside a list' => array(
 				array(
 					'type'  => 'FLAT',
 					'value' => '2.00',
@@ -941,9 +934,9 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * A payment with no discount leaves the block's own default alone.
+	 * The block keeps its own discount default when the payment has none.
 	 */
-	public function test_api_response_to_attributes_reads_no_discount_when_there_is_none() {
+	public function test_api_response_to_attributes_omits_a_missing_discount() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
 			array(
 				'id'         => 'PLB-TEST123',
@@ -959,8 +952,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * A payment with no handling fee leaves both attributes unset, so the block
-	 * keeps its defaults and the toggle stays off.
+	 * The block keeps its handling defaults when the payment has none.
 	 */
 	public function test_api_response_to_attributes_omits_a_missing_handling_fee() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -975,7 +967,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * A product id of "0" is valid - empty() would drop it.
+	 * A product id of "0" is a real one, and empty() would drop it.
 	 */
 	public function test_api_response_to_attributes_reads_a_product_id_of_zero() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -994,8 +986,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * A payment with no product id leaves the attribute unset, so the block keeps
-	 * its default instead of an empty string.
+	 * An empty product id leaves the attribute unset, so the block keeps its default.
 	 */
 	public function test_api_response_to_attributes_omits_an_empty_product_id() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -1009,7 +1000,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Test that api_response_to_attributes omits a product id the payment does not carry.
+	 * A payment that omits the product id leaves the attribute unset.
 	 */
 	public function test_api_response_to_attributes_omits_a_missing_product_id() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
@@ -1023,12 +1014,10 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Test that api_response_to_attributes tells the four shipping modes apart.
+	 * Test that api_response_to_attributes reads the shipping mode back.
 	 *
-	 * PayPal stores no mode. Four of them ride two types: PROFILE and FREE_SHIPPING
-	 * share PREFERENCE and differ only in `value`, and the two FLAT modes differ only
-	 * by `additional_unit_value`. Collapsing either pair silently rewrites the
-	 * merchant's choice on the next save - WOOPTP-493 B16 and B17.
+	 * PayPal stores a type and a value, not a mode, and each pair of modes differs by
+	 * one field, so collapsing a pair rewrites the merchant's choice on the next save.
 	 *
 	 * @dataProvider shipping_mode_provider
 	 *
@@ -1038,7 +1027,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	 * @param string $extra    The per-extra-item fee, '' for none.
 	 */
 	#[DataProvider( 'shipping_mode_provider' )]
-	public function test_api_response_to_attributes_tells_shipping_modes_apart( $shipping, $mode, $value, $extra ) {
+	public function test_api_response_to_attributes_reads_the_shipping_mode( $shipping, $mode, $value, $extra ) {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
 			array(
 				'id'         => 'PLB-SHIP',
@@ -1053,19 +1042,19 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 
 		$this->assertTrue( $attributes['shippingEnabled'] );
 		$this->assertSame( $mode, $attributes['shippingMode'] );
-		// The key is always written, so an absent one is a real difference here.
+		// shippingValue is always set, and the per-unit fee only comes back for a quantity fee.
 		$this->assertSame( $value, $attributes['shippingValue'] );
 		$this->assertSame( $extra, $attributes['shippingAdditionalValue'] ?? '' );
 	}
 
 	/**
-	 * Every shipping shape PayPal hands back, and what it means.
+	 * Data provider for the shipping entries PayPal stores, and the mode each one means.
 	 *
-	 * @return array
+	 * @return array[] Test cases.
 	 */
 	public static function shipping_mode_provider(): array {
 		return array(
-			'profile settings'    => array(
+			'profile settings'                       => array(
 				array(
 					'type'  => 'PREFERENCE',
 					'value' => 'PROFILE',
@@ -1074,7 +1063,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 				'',
 				'',
 			),
-			'free shipping'       => array(
+			'free shipping'                          => array(
 				array(
 					'type'  => 'PREFERENCE',
 					'value' => 'FREE_SHIPPING',
@@ -1083,7 +1072,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 				'',
 				'',
 			),
-			'a preference we do not model reads as profile' => array(
+			'an unknown preference reads as profile' => array(
 				array(
 					'type'  => 'PREFERENCE',
 					'value' => 'SOMETHING_NEW',
@@ -1092,7 +1081,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 				'',
 				'',
 			),
-			'specific fee'        => array(
+			'specific fee'                           => array(
 				array(
 					'type'  => 'FLAT',
 					'value' => '5.00',
@@ -1101,7 +1090,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 				'5.00',
 				'',
 			),
-			'quantity-based fee'  => array(
+			'quantity-based fee'                     => array(
 				array(
 					'type'                  => 'FLAT',
 					'value'                 => '5.00',
@@ -1111,9 +1100,8 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 				'5.00',
 				'2.00',
 			),
-			// Byte-identical to a specific fee on the wire, so it reads back as one.
-			// The payment is the same either way.
-			'quantity-based with no extra reads as specific' => array(
+			// Identical to a specific fee on the wire, so it reads back as one.
+			'quantity fee with an empty extra reads as specific' => array(
 				array(
 					'type'                  => 'FLAT',
 					'value'                 => '5.00',
@@ -1123,8 +1111,8 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 				'5.00',
 				'',
 			),
-			// '0' is free shipping PayPal stores, and empty() would throw it away.
-			'a zero fee survives' => array(
+			// A zero fee is one PayPal stores, and empty() would throw it away.
+			'a zero fee survives'                    => array(
 				array(
 					'type'                  => 'FLAT',
 					'value'                 => '0',
@@ -1138,10 +1126,9 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Test that api_response_to_attributes leaves shipping alone when there is none.
+	 * Test that a payment without shipping leaves the shipping attributes unset.
 	 *
-	 * The block attribute defaults to off, so an absent key has to stay absent rather
-	 * than turning the control on with an empty fee.
+	 * The block attribute defaults to off, so an absent key keeps the control off.
 	 */
 	public function test_api_response_to_attributes_omits_missing_shipping() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(

@@ -100,9 +100,7 @@ describe( 'getResourceAttributeUpdates', () => {
 		).toEqual( { productId: 'SKU-1' } );
 	} );
 
-	// The case every pre-existing button hits on first mount: if an agreeing id
-	// still reported an update, the block would warn that PayPal changed it.
-	it( 'reports no update when the product id already agrees', () => {
+	it( 'leaves the product id alone when it already matches', () => {
 		expect(
 			getResourceAttributeUpdates(
 				{ ...blockAttributes, productId: 'SKU-1' },
@@ -121,9 +119,7 @@ describe( 'getResourceAttributeUpdates', () => {
 		).toEqual( { handlingEnabled: true, handlingValue: '4.00' } );
 	} );
 
-	// A fee removed at PayPal has to turn the toggle back off here, or the form
-	// shows a fee the payment no longer charges.
-	it( 'clears a handling fee the payment no longer carries', () => {
+	it( 'clears a handling fee the payment no longer has', () => {
 		expect(
 			getResourceAttributeUpdates(
 				{ ...blockAttributes, handlingEnabled: true, handlingValue: '4.00' },
@@ -149,8 +145,7 @@ describe( 'getResourceAttributeUpdates', () => {
 		} );
 	} );
 
-	// The two preference modes carry no fee, so the mapper blanks it. Reading one
-	// back over a fee mode has to clear the amounts as well as move the mode.
+	// Free shipping has no fee, so the amounts clear along with the mode.
 	it( 'clears the fees when the payment switches to free shipping', () => {
 		expect(
 			getResourceAttributeUpdates(
@@ -166,9 +161,7 @@ describe( 'getResourceAttributeUpdates', () => {
 		).toEqual( { shippingMode: 'FREE', shippingValue: '', shippingAdditionalValue: '' } );
 	} );
 
-	// Shipping removed at PayPal has to turn the toggle back off here, or the form
-	// shows a fee the payment no longer charges.
-	it( 'clears shipping the payment no longer carries', () => {
+	it( 'clears shipping the payment no longer has', () => {
 		expect(
 			getResourceAttributeUpdates(
 				{
@@ -193,9 +186,7 @@ describe( 'getResourceAttributeUpdates', () => {
 		).toEqual( { discountEnabled: true, discountType: 'PERCENTAGE', discountValue: '15' } );
 	} );
 
-	// A discount removed at PayPal has to turn the toggle back off here, or the form
-	// shows one the payment no longer gives.
-	it( 'clears a discount the payment no longer carries', () => {
+	it( 'clears a discount the payment no longer has', () => {
 		expect(
 			getResourceAttributeUpdates(
 				{
@@ -457,12 +448,10 @@ describe( 'withCurrency', () => {
 	} );
 } );
 
-describe( 'the gated-attribute table', () => {
-	// Every resource attribute is either owned by a gate or on screen whenever the
-	// form is. A new one has to be classed as one or the other, and this fence is
-	// what makes that a decision rather than an omission. Seven instances of the
-	// same bug shipped before the table existed; this is what stops the eighth.
-	const ALWAYS_VISIBLE = [
+describe( 'GATED_ATTRIBUTES', () => {
+	// Every resource attribute is either owned by a gate or owned by none, so a new
+	// one goes in GATED_ATTRIBUTES or in this list.
+	const UNGATED = [
 		'paymentLink',
 		'productName',
 		'price',
@@ -471,17 +460,20 @@ describe( 'the gated-attribute table', () => {
 		'productId',
 		'customerNotes',
 		'returnUrl',
+		// Shown under the shipping toggle, but PayPal stores it on every payment, so the
+		// toggle leaves it alone.
+		'collectShippingAddress',
 	];
 
 	it( 'accounts for every resource attribute exactly once', () => {
 		const gates = Object.keys( GATED_ATTRIBUTES );
 		const owned = Object.values( GATED_ATTRIBUTES ).flat();
-		const classified = [ ...gates, ...owned, ...ALWAYS_VISIBLE ];
+		const classified = [ ...gates, ...owned, ...UNGATED ];
 
 		expect( classified.slice().sort() ).toEqual( RESOURCE_ATTRIBUTES.slice().sort() );
 	} );
 
-	it( 'names attributes block.json declares', () => {
+	it( 'lists only attributes block.json declares', () => {
 		const named = [
 			...Object.keys( GATED_ATTRIBUTES ),
 			...Object.values( GATED_ATTRIBUTES ).flat(),
@@ -490,18 +482,17 @@ describe( 'the gated-attribute table', () => {
 		named.forEach( key => expect( metadata.attributes ).toHaveProperty( key ) );
 	} );
 
-	it( 'reads each default from block.json', () => {
+	it( 'resets an attribute to its block.json default', () => {
 		expect( resetToDefaults( 'taxName', 'maxQuantity' ) ).toEqual( {
 			taxName: metadata.attributes.taxName.default,
 			maxQuantity: metadata.attributes.maxQuantity.default,
 		} );
 	} );
 
-	// The invariant itself: a block whose gate is off has to agree with a payment
-	// that carries none of that feature. Any attribute left behind shows up here as
-	// an update, and names itself.
+	// Turning a gate off has to reset everything it owns. Leftovers show up here
+	// as updates.
 	it.each( Object.keys( GATED_ATTRIBUTES ) )(
-		'leaves %s agreeing with a payment that carries none of it',
+		'agrees with the payment once %s is turned off',
 		gate => {
 			const populated = {
 				...blockAttributes,
@@ -523,8 +514,7 @@ describe( 'the gated-attribute table', () => {
 			const afterTurningOff = { ...populated, ...turnGateOff( gate ) };
 			const updates = getResourceAttributeUpdates( afterTurningOff, {} );
 
-			// The other gates are still on in the fixture, so scope this to the one
-			// under test: none of its own attributes may still need updating.
+			// The other gates are still on, so check only the one under test.
 			expect(
 				Object.fromEntries(
 					Object.entries( updates ).filter( ( [ key ] ) =>

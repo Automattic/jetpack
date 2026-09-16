@@ -33,8 +33,8 @@ export function forgetSyncedRequests() {
 /**
  * Why a block's form cannot be sent to PayPal yet, if it cannot.
  *
- * The same check the editor shows the merchant: a blocking field error, an option
- * group error, or a customer note error stops the payment being sent.
+ * The same check the editor shows the merchant - a blocking field error, an option
+ * group error or a customer note error.
  *
  * @param {object} attributes - Block attributes.
  * @return {string|null} The first thing to fix, or null when the payment can go.
@@ -44,8 +44,8 @@ export function heldBackReason( attributes ) {
 
 	const variantPricingOn = isVariantPricingOn( variantsEnabled, variants );
 
-	// The whole attribute set goes to the validator, so a new field is covered here and
-	// in the editor at once.
+	// The whole attribute set goes in, so a new field is covered here and in the editor
+	// at once.
 	const errors = getValidationErrors( {
 		...attributes,
 		variantPricingOn,
@@ -138,8 +138,8 @@ async function syncBlock(
 	try {
 		if ( resourceId ) {
 			try {
-				// The form now models every line-item field PayPal stores, so the
-				// request stands alone - a PUT replaces the payment outright.
+				// A PUT replaces the payment outright, and the form models every line item field
+				// PayPal stores, so the body goes out as built.
 				await request( {
 					path: `${ API_BASE }/buttons/${ resourceId }`,
 					method: 'PUT',

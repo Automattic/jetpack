@@ -143,11 +143,10 @@ export function isVariantPricingOn( enabled, variants ) {
 /**
  * Find the cheapest per-option price in the primary option group.
  *
- * PayPal only prices the primary group, so an amount on another group is not a
- * price a buyer can pay. Drawn as the "From" price.
+ * PayPal prices the primary group alone, so that is where the "From" price comes from.
  *
- * @param {object} variants - Variants data with dimensions.
- * @return {string|null} The lowest option price, or null when none are priced.
+ * @param {object} variants - The variants attribute.
+ * @return {string|null} The lowest option price, or null when none is priced.
  */
 export function getLowestVariantPrice( variants ) {
 	let lowest = null;
@@ -168,10 +167,10 @@ export function getLowestVariantPrice( variants ) {
 /**
  * The price a flat discount has to come in under.
  *
- * With per-option pricing there is no product price, so it is the cheapest option.
+ * Per-option pricing moves the price onto the options, so it is the cheapest of those.
  *
  * @param {boolean} variantPricingOn - Whether a priced option group is in play, from
- *                                   isVariantPricingOn(). Not hasVariantPricing().
+ *                                   isVariantPricingOn(), not hasVariantPricing().
  * @param {object}  variants         - Variants data with dimensions.
  * @param {string}  price            - The product-level price.
  * @return {string|null} The price to compare against.
@@ -262,9 +261,8 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 /**
  * Validate the customer note rows a merchant has added.
  *
- * buildRequestData() silently drops a note with a blank label, so catch it here.
- * Each error includes its row index, which getValidationErrors()'s one-message-per-field
- * map has nowhere to put.
+ * buildRequestData() drops a note with a blank label, so catch it here. Each error
+ * comes back with its row index, so the editor can place the message on the right row.
  *
  * @param {Array} customerNotes - The customerNotes attribute.
  * @return {Array} Errors as { index, message }. Empty when every label is filled.
@@ -548,13 +546,12 @@ export default function VariantBuilder( {
 
 	const setEnabled = newEnabled => {
 		if ( ! newEnabled ) {
-			// The groups go with the toggle. Left behind, the request drops them and
-			// the next mount's read-back nulls them - the merchant's options, gone.
+			// The groups go off with the toggle, so the next mount's read-back agrees with PayPal.
 			onChange( turnGateOff( 'variantsEnabled' ) );
 			return;
 		}
 
-		// Switching on with groups already there keeps them; a first run gets one.
+		// Switching on keeps the groups that are already there, and a first run gets one.
 		onChange( {
 			variantsEnabled: true,
 			...( dimensions.length === 0 ? { variants: { dimensions: [ createGroup() ] } } : {} ),

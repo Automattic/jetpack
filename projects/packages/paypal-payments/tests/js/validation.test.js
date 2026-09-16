@@ -1,9 +1,7 @@
 /**
  * Tests for PayPal Payment Buttons validation utilities.
  *
- * Covers client-side validation functions extracted from edit.js:
- * validatePrice, validateProductName, validateDescription,
- * validateMoney, validatePercentage, validateReturnUrl, getUserFriendlyError.
+ * Tests for the client-side form validators.
  *
  * @package
  */
@@ -31,8 +29,7 @@ import {
 	REQUIRED_FIELD_ERROR,
 } from '../../src/paypal-payment-buttons/utils/validation';
 
-// The one place the string itself is written out. Every other assertion reads
-// the const, so this is the line that moves when the wording changes.
+// The only test that spells out the wording. The rest read the const.
 describe( 'REQUIRED_FIELD_ERROR', () => {
 	it( 'is the message shown under an empty required field', () => {
 		expect( REQUIRED_FIELD_ERROR ).toBe(
@@ -148,8 +145,6 @@ describe( 'validateDescription', () => {
 		const maxDesc = 'a'.repeat( 2048 );
 		expect( validateDescription( maxDesc ) ).toBeNull();
 	} );
-	// The server trims before it measures, so the editor has to as well - otherwise a
-	// description padded with blank lines fails on save after passing here.
 	it( 'accepts a description padded with blank lines', () => {
 		expect( validateDescription( `\n\n${ 'D'.repeat( MAX_DESCRIPTION_LENGTH ) }\n\n` ) ).toBeNull();
 	} );
@@ -162,8 +157,7 @@ describe( 'validateMoney', () => {
 		expect( validateMoney( value ) ).toBe( REQUIRED_FIELD_ERROR );
 	} );
 
-	// PayPal's own form takes a 0 fee and reads it back. The toggle is how a merchant
-	// skips the fee.
+	// PayPal stores a 0 fee. The toggle is how a merchant skips one.
 	it( 'takes a zero amount', () => {
 		expect( validateMoney( '0' ) ).toBeNull();
 	} );
@@ -176,7 +170,6 @@ describe( 'validateMoney', () => {
 		expect( validateMoney( '0.01' ) ).toBeNull();
 	} );
 
-	// Only a percentage is capped.
 	it( 'takes an amount above the percentage ceiling', () => {
 		expect( validateMoney( '150' ) ).toBeNull();
 	} );
@@ -204,7 +197,7 @@ describe( 'validateMoney', () => {
 		expect( validateMoney( ' 1500 ', 'JPY' ) ).toBeNull();
 	} );
 
-	// The missing check runs first, so all of these report as missing.
+	// The missing-value check runs first, so a negative reports as missing.
 	it.each( [ '-5', 'abc', '-0', '-0.00' ] )( 'asks for the value when given %p', value => {
 		expect( validateMoney( value, 'JPY' ) ).toBe( REQUIRED_FIELD_ERROR );
 	} );
@@ -236,7 +229,7 @@ describe( 'validatePercentage', () => {
 		expect( validatePercentage( '99.99' ) ).toBeNull();
 	} );
 
-	it.each( [ '100', '150' ] )( 'refuses %p for reaching the ceiling', value => {
+	it.each( [ '100', '150' ] )( 'refuses %p for reaching 100%', value => {
 		expect( validatePercentage( value ) ).toBe( ceiling );
 	} );
 } );
@@ -250,13 +243,12 @@ describe( 'validateDiscountPercentage', () => {
 		expect( validateDiscountPercentage( value ) ).toBe( REQUIRED_FIELD_ERROR );
 	} );
 
-	// Measured. "1.0" is rejected too, so the check reads the string not the float.
-	// ' 15.5 ' is here for the trim: padding must not smuggle a decimal past it.
+	// PayPal rejects "1.0" too, so the check reads the string. The padded value
+	// covers the trim.
 	it.each( [ '0.5', '1.0', '15.5', '99.99', ' 15.5 ' ] )( 'rejects %p for its decimals', value => {
 		expect( validateDiscountPercentage( value ) ).toBe( whole );
 	} );
 
-	// Measured: 99 takes, 100 and 101 do not.
 	it.each( [ '100', '101', '150' ] )( 'rejects %p as over the ceiling', value => {
 		expect( validateDiscountPercentage( value ) ).toBe( range );
 	} );
@@ -269,7 +261,7 @@ describe( 'validateDiscountPercentage', () => {
 describe( 'validateDiscountAmount', () => {
 	const tooBig = 'Discount must be less than the product price.';
 
-	// Measured: `discount.value is set to zero`. Unlike a tax rate.
+	// Measured: PayPal rejects a zero discount, where a zero tax rate stores.
 	it.each( [ null, undefined, '', '   ', 'abc', '-1', '0', '0.00' ] )(
 		'asks for a value for %p',
 		value => {
@@ -277,7 +269,7 @@ describe( 'validateDiscountAmount', () => {
 		}
 	);
 
-	// PayPal returns 422 DISCOUNT_EXCEEDS_ITEM_PRICE at equal, so this is strictly less.
+	// PayPal returns 422 DISCOUNT_EXCEEDS_ITEM_PRICE when the two are equal.
 	it( 'rejects a discount that equals the price', () => {
 		expect( validateDiscountAmount( '10.00', '10.00' ) ).toBe( tooBig );
 	} );
@@ -295,8 +287,7 @@ describe( 'validateDiscountAmount', () => {
 		expect( validateDiscountAmount( '0.01', '10.00' ) ).toBeNull();
 	} );
 
-	// No product price and no priced option: nothing to compare against, so the
-	// format is all that is left and PayPal's 422 is the backstop.
+	// With no price to compare against, only the format is checked.
 	it.each( [ '', null, undefined ] )( 'skips the comparison when the price is %p', price => {
 		expect( validateDiscountAmount( '999.00', price ) ).toBeNull();
 	} );
@@ -307,7 +298,6 @@ describe( 'validateDiscountAmount', () => {
 		);
 	} );
 
-	// The common path: two decimals everywhere else.
 	it( 'rejects a third decimal place', () => {
 		expect( validateDiscountAmount( '2.001', '10.00', 'USD' ) ).toBe(
 			'Price can have at most 2 decimal places (e.g., "29.99").'

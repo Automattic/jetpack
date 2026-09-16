@@ -851,13 +851,12 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the route does not rewrite a type it does not recognize.
+	 * Test that an update keeps an amount type the block has no option for.
 	 *
-	 * It used to clamp these to a whitelist, which silently rewrote a type a merchant
-	 * set in PayPal's own dashboard. PayPal rejects what it does not accept, so it is
-	 * the backstop rather than a list here that has to be kept in step.
+	 * PayPal rejects an unsupported type itself, so the API is the only list to keep
+	 * in step.
 	 */
-	public function test_update_does_not_rewrite_an_unrecognized_amount_type() {
+	public function test_update_keeps_an_unknown_amount_type() {
 		$this->set_up_connected_admin_state();
 		$this->mock_http_response( 204, '' );
 
@@ -1073,8 +1072,6 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 	/**
 	 * Test that a whitespace-only product id is dropped on an update.
-	 *
-	 * Without the trim, sanitize_text_field() turns it into "", which PayPal rejects.
 	 */
 	public function test_update_drops_a_whitespace_only_product_id() {
 		$this->set_up_connected_admin_state();

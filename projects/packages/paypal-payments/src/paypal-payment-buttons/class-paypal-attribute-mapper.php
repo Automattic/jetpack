@@ -114,7 +114,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Convert block attributes to a PayPal API request body.
 	 *
-	 * Only the tests call this. The live request body comes from utils/request-data.js.
+	 * Only the tests call this.
 	 *
 	 * @param array $attributes Block attributes from the editor.
 	 * @return array PayPal API request body.
@@ -144,7 +144,7 @@ class PayPal_Attribute_Mapper {
 			$line_item['description'] = sanitize_text_field( $attributes['productDescription'] );
 		}
 
-		// Adjustable quantity (WOOPTP-170).
+		// Adjustable quantity.
 		if ( ! empty( $attributes['adjustableQuantity'] ) && ! empty( $attributes['maxQuantity'] ) ) {
 			$max = absint( $attributes['maxQuantity'] );
 			if ( $max >= 2 ) {
@@ -152,7 +152,7 @@ class PayPal_Attribute_Mapper {
 			}
 		}
 
-		// Customer notes / custom fields (WOOPTP-171).
+		// Customer notes / custom fields.
 		if ( ! empty( $attributes['customerNotes'] ) && is_array( $attributes['customerNotes'] ) ) {
 			$notes = array();
 			foreach ( $attributes['customerNotes'] as $note ) {
@@ -169,7 +169,7 @@ class PayPal_Attribute_Mapper {
 			}
 		}
 
-		// Tax configuration (WOOPTP-172).
+		// Tax configuration.
 		if ( ! empty( $attributes['taxEnabled'] ) && ! empty( $attributes['taxName'] ) ) {
 			$tax_type = sanitize_text_field( $attributes['taxType'] ?? 'PERCENTAGE' );
 			$tax      = array(
@@ -186,7 +186,7 @@ class PayPal_Attribute_Mapper {
 			$line_item['taxes'] = array( $tax );
 		}
 
-		// Shipping configuration (WOOPTP-173).
+		// Shipping configuration.
 		if ( ! empty( $attributes['shippingEnabled'] ) ) {
 			$shipping_type = sanitize_text_field( $attributes['shippingType'] ?? 'FLAT' );
 
@@ -250,8 +250,7 @@ class PayPal_Attribute_Mapper {
 			}
 
 			if ( ! empty( $line_item['description'] ) ) {
-				// PayPal returns the description exactly as sent, so use the textarea
-				// sanitizer - sanitize_text_field() flattens the line breaks.
+				// Keep the line breaks PayPal sent back - sanitize_text_field() flattens them.
 				$attributes['productDescription'] = sanitize_textarea_field( $line_item['description'] );
 			}
 
@@ -276,13 +275,13 @@ class PayPal_Attribute_Mapper {
 				}
 			}
 
-			// Adjustable quantity (WOOPTP-170).
+			// Adjustable quantity.
 			if ( ! empty( $line_item['adjustable_quantity']['maximum'] ) ) {
 				$attributes['adjustableQuantity'] = true;
 				$attributes['maxQuantity']        = absint( $line_item['adjustable_quantity']['maximum'] );
 			}
 
-			// Customer notes (WOOPTP-171).
+			// Customer notes.
 			if ( ! empty( $line_item['customer_notes'] ) && is_array( $line_item['customer_notes'] ) ) {
 				$attributes['customerNotes'] = array_map(
 					function ( $note ) {
@@ -295,7 +294,7 @@ class PayPal_Attribute_Mapper {
 				);
 			}
 
-			// Tax configuration (WOOPTP-172).
+			// Tax configuration.
 			if ( ! empty( $line_item['taxes'] ) && is_array( $line_item['taxes'] ) ) {
 				$tax                      = $line_item['taxes'][0];
 				$attributes['taxEnabled'] = true;
@@ -304,8 +303,8 @@ class PayPal_Attribute_Mapper {
 				$attributes['taxValue']   = 'PREFERENCE' === $attributes['taxType'] ? '' : sanitize_text_field( $tax['value'] ?? '' );
 			}
 
-			// Shipping configuration (WOOPTP-173, WOOPTP-493). PayPal stores no mode,
-			// so it is read back from the type and the value together.
+			// Shipping configuration. PayPal stores a type and a value, so the
+			// block's mode comes from both.
 			if ( ! empty( $line_item['shipping'] ) && is_array( $line_item['shipping'] ) ) {
 				$shipping = $line_item['shipping'][0];
 				$type     = sanitize_text_field( $shipping['type'] ?? 'FLAT' );
@@ -315,14 +314,13 @@ class PayPal_Attribute_Mapper {
 				$attributes['shippingEnabled'] = true;
 
 				if ( 'PREFERENCE' === $type ) {
-					// PROFILE and FREE_SHIPPING differ only in `value`, and neither shows
-					// a fee field, so the fee is blanked rather than left to the read-back.
+					// `value` tells PROFILE from FREE_SHIPPING. Both modes hide the fee
+					// field, so clear it.
 					$attributes['shippingMode']  = 'FREE_SHIPPING' === $value ? 'FREE' : 'PROFILE';
 					$attributes['shippingValue'] = '';
 				} else {
-					// `additional_unit_value` is the only thing separating the two FLAT
-					// modes. A quantity fee with no extra looks exactly like a specific
-					// fee, so it reads back as one - the same payment either way.
+					// `additional_unit_value` tells QUANTITY from FLAT, so a quantity fee
+					// that left it blank reads back as FLAT. Same charge either way.
 					$attributes['shippingMode']  = '' !== $extra ? 'QUANTITY' : 'FLAT';
 					$attributes['shippingValue'] = $value;
 					if ( '' !== $extra ) {
@@ -331,16 +329,15 @@ class PayPal_Attribute_Mapper {
 				}
 			}
 
-			// Handling fee (WOOPTP-493). FLAT is the only type PayPal takes here,
-			// so there is nothing to read back but the amount.
+			// Handling fee. The type is always FLAT, so the amount is all that comes back.
 			if ( ! empty( $line_item['handling'] ) && is_array( $line_item['handling'] ) ) {
 				$handling                      = $line_item['handling'][0];
 				$attributes['handlingEnabled'] = true;
 				$attributes['handlingValue']   = sanitize_text_field( $handling['value'] ?? '' );
 			}
 
-			// Discount (WOOPTP-493). The type is PayPal's own, so store it as it came
-			// even when the block has no option for it, the way taxes and shipping do.
+			// Discount. Store the type as PayPal sent it so a type set in PayPal's
+			// dashboard survives a save from the block.
 			if ( ! empty( $line_item['discounts'] ) && is_array( $line_item['discounts'] ) ) {
 				$discount = $line_item['discounts'][0] ?? null;
 				if ( is_array( $discount ) ) {
@@ -350,8 +347,7 @@ class PayPal_Attribute_Mapper {
 				}
 			}
 
-			// Map it even when the key is absent: the payment is the source of truth
-			// either way, so a missing key reads as off.
+			// The payment is the source of truth, so an absent key reads as off.
 			$attributes['collectShippingAddress'] = ! empty( $line_item['collect_shipping_address'] );
 		}
 
@@ -383,7 +379,7 @@ class PayPal_Attribute_Mapper {
 	 * @return true|WP_Error True if valid, WP_Error with details on failure.
 	 */
 	public static function validate_attributes( array $attributes ) {
-		// trim() throws on an array, so anything other than a string counts as missing.
+		// trim() throws on an array, so only a string counts as a name.
 		$product_name = is_string( $attributes['productName'] ?? null ) ? $attributes['productName'] : '';
 
 		// Required: product name (reject empty and whitespace-only).
@@ -458,8 +454,8 @@ class PayPal_Attribute_Mapper {
 
 		// Optional: description length.
 		if ( ! empty( $attributes['productDescription'] ) ) {
-			// Count the description as the merchant wrote it - sanitize_text_field()
-			// collapses newlines, so a too-long description measures short and gets through.
+			// Count it as the merchant wrote it - sanitize_text_field() collapses
+			// newlines, so a long description measures short.
 			$description = sanitize_textarea_field( $attributes['productDescription'] );
 			if ( mb_strlen( $description ) > self::MAX_DESCRIPTION_LENGTH ) {
 				return new WP_Error(
@@ -683,7 +679,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Validate the shape of a variants structure.
 	 *
-	 * Checks group and option names and counts. Amounts are validate_variant_pricing()'s.
+	 * Checks group and option names and counts. validate_variant_pricing() covers the amounts.
 	 *
 	 * @since $$next-version$$
 	 *

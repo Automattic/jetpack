@@ -75,9 +75,8 @@ import {
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
 
-// Note rows have no id, so a touched mark uses the row index and removeNote() and
-// the toggle move them to match. A stable `_key` like variant-builder.jsx's would make
-// every mount report a change: resource-sync.js strips `_key` for variants alone.
+// Touched marks key on the row index. A stable `_key` would make every mount report a
+// change, since resource-sync.js strips `_key` from variants only.
 const NOTE_KEY_PREFIX = 'customerNote:';
 const noteFieldKey = noteIndex => `${ NOTE_KEY_PREFIX }${ noteIndex }`;
 
@@ -87,8 +86,8 @@ const helpQuantity = __( 'Fixed at 1 unit per purchase', 'jetpack-paypal-payment
 const placeholderTaxRate = __( 'Enter tax rate', 'jetpack-paypal-payments' );
 const placeholderTaxValue = __( 'Enter tax value', 'jetpack-paypal-payments' );
 
-// FLAT and PERCENTAGE are PayPal's own values, so the select writes them straight
-// to the attribute. The hints are the design's second line on each option.
+// FLAT and PERCENTAGE are PayPal's own values, so the select writes them straight to
+// the attribute. CustomSelectControl renders each option's hint as a second line.
 const DISCOUNT_TYPES = [
 	{
 		key: 'FLAT',
@@ -124,15 +123,15 @@ const TAX_PROFILE_URL = {
 	production: 'https://www.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax',
 };
 
-// PayPal's shipping settings page. A different cgi-bin script from the tax one,
-// not the same template with a swapped argument - do not fold them together.
+// PayPal's shipping settings page, per environment. Its own cgi-bin script,
+// separate from the tax one.
 const SHIPPING_PROFILE_URL = {
 	sandbox: 'https://www.sandbox.paypal.com/cgi-bin/customerprofileweb?cmd=_profile-shipping',
 	production: 'https://www.paypal.com/cgi-bin/customerprofileweb?cmd=_profile-shipping',
 };
 
-// The select writes the mode, not PayPal's wire type: PROFILE and FREE both send
-// PREFERENCE, FLAT and QUANTITY both send FLAT. In the order the design lists them.
+// Editor modes. buildShipping() maps them onto PayPal's two types: PROFILE and FREE
+// send PREFERENCE, FLAT and QUANTITY send FLAT.
 const SHIPPING_MODES = [
 	{
 		key: 'PROFILE',
@@ -143,7 +142,17 @@ const SHIPPING_MODES = [
 	{ key: 'FREE', name: __( 'Free shipping', 'jetpack-paypal-payments' ) },
 ];
 
-// Pre-extracted for the same i18n reason as the tax placeholders above: the first
+// The address checkbox swaps its help when a profile tax makes it mandatory.
+const helpAddress = __(
+	'Requires customer to add shipping address during checkout',
+	'jetpack-paypal-payments'
+);
+const helpAddressWithProfileTax = __(
+	'Required while the tax comes from your PayPal settings.',
+	'jetpack-paypal-payments'
+);
+
+// Own const per branch, same i18n reason as the tax placeholders above: the first
 // amount field's label changes with the mode.
 const labelShippingFirstItem = __( 'Shipping fee for first item', 'jetpack-paypal-payments' );
 const labelShippingFee = __( 'Enter shipping fee', 'jetpack-paypal-payments' );
@@ -258,7 +267,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		}
 	);
 
-	// Same sentence as the tax hint, different link and destination.
 	const shippingProfileHint = createInterpolateElement(
 		__(
 			'This will be applied when the customer enters their address. <ShippingSettingsLink>Set up or manage shipping settings</ShippingSettingsLink>',
@@ -280,10 +288,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 
 	// Inline validation state — track which fields have been touched.
 	//
-	// A note row already blank when the editor opened is one the merchant will never
-	// blur, so mark it touched up front and show its error. hasButton is not enough:
-	// a block saved with a blank label never gets a payment, so it reopens with no
-	// resourceId and would report itself incomplete while showing nothing.
+	// A note row that opens blank gets marked touched up front, so its error shows
+	// without a blur. A block saved that way has no resourceId, so hasButton misses it.
 	const [ touchedFields, setTouchedFields ] = useState( () =>
 		Object.fromEntries(
 			( attributes.customerNotes || [] )
@@ -314,6 +320,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 
 	const taxHasValue = ( taxType || 'PERCENTAGE' ) !== 'PREFERENCE';
 	const taxIsPercentage = ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE';
+
+	// PayPal rejects a payment that takes its tax from the profile and collects no
+	// address, so the checkbox is locked on for as long as that tax type is picked.
+	const addressIsRequired = !! taxEnabled && ! taxHasValue;
 
 	const discountIsPercentage = ( discountType || 'FLAT' ) === 'PERCENTAGE';
 
@@ -368,8 +378,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		variantErrors.length === 0 &&
 		customerNoteErrors.length === 0;
 
-	// The submit button that set `isBusy` is gone. Before wiring it up again,
-	// give the text fields a disabled treatment - core dims only the selects.
 	const {
 		isBusy,
 		error,
@@ -408,9 +416,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			broadcastConnectionChange( false );
 			// Clear block attributes so the block shows the connect wizard.
 			setAttributes( {
-				// Everything the payment was the source of truth for, back to its
-				// block.json default - so reconnecting starts clean rather than
-				// seeding the next payment with the last one's tax and shipping.
+				// Back to block.json defaults, so reconnecting starts the next payment clean.
 				...resetToDefaults( 'isApiManaged', 'resourceId', ...RESOURCE_ATTRIBUTES ),
 				// The image is block-owned and has no default to read.
 				imageUrl: undefined,
@@ -433,8 +439,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const hasButton = !! ( isApiManaged && resourceId && paymentLink );
 
 	/**
-	 * Show a row's error once the merchant leaves the field, or straight away on a
-	 * saved button, which the merchant may never touch - VariantBuilder's showAll rule.
+	 * Show a row's error once the merchant leaves the field, or right away on a saved
+	 * button - the same rule as VariantBuilder's showAll.
 	 *
 	 * @param {number} noteIndex - Which row.
 	 * @return {string|undefined} The message, or undefined while it is still hidden.
@@ -470,9 +476,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		);
 
 	/**
-	 * Drop a note row and move the touched marks down with it. Without the shift the
-	 * next row inherits the removed row's mark and shows an error the merchant never
-	 * triggered.
+	 * Drop a note row and shift the touched marks down with it, so the next row keeps
+	 * its own mark.
 	 *
 	 * @param {number} noteIndex - Which row.
 	 */
@@ -846,8 +851,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									{ sprintf(
 										/* translators: 1: current character count, 2: maximum allowed */
 										__( '%1$d / %2$d characters', 'jetpack-paypal-payments' ),
-										// Trimmed, because that is what validateDescription() and the
-										// server both count - otherwise this reads 2050 / 2048 with no error.
+										// Trim first: validateDescription() and the server both measure the trimmed length.
 										( productDescription || '' ).trim().length,
 										MAX_DESCRIPTION_LENGTH
 									) }
@@ -949,9 +953,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						onTouch={ markTouched }
 					/>
 				</PanelBody>
-				{ /* Same again for the tax rate and handling fee. initialOpen, not a controlled
-				     `opened`: the panel opens when there is an error, and the merchant can
-				     still close it. */ }
+				{ /* `initialOpen`, so the panel opens itself on a checkout-field error and the
+				     merchant can still close it. */ }
 				<PanelBody
 					title={ __( 'Checkout Options', 'jetpack-paypal-payments' ) }
 					initialOpen={
@@ -974,8 +977,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 							} else {
 								setAttributes( resetToDefaults( 'customerNotes' ) );
 							}
-							// Off and on again makes a fresh blank row, which the old marks
-							// would flag before the merchant has been near it.
+							// A fresh row starts untouched, so the old marks go with the old rows.
 							setTouchedFields( withoutNoteMarks );
 						} }
 						disabled={ isBusy }
@@ -996,8 +998,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 											noteIndex + 1
 										) }
 									>
-										{ /* Rows share one label, so the group's aria-label above is what
-									     tells them apart for a screen reader. */ }
+										{ /* Rows share one label; the group's aria-label above tells them apart. */ }
 										<TextControl
 											__nextHasNoMarginBottom
 											label={ __( 'Customer note label', 'jetpack-paypal-payments' ) }
@@ -1018,8 +1019,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 											onChange={ value => updateNote( noteIndex, { required: value } ) }
 											disabled={ isBusy }
 										/>
-										{ /* TODO: the design shows no way back from two notes to one - confirm
-									     this Remove button with the designer. */ }
 										{ customerNotes.length > 1 && (
 											<Button
 												size="small"
@@ -1052,7 +1051,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 							) }
 						</div>
 					) }
-					{ /* WOOPTP-170: Adjustable Quantity */ }
+					{ /* Adjustable quantity */ }
 					<ToggleControl
 						label={ __( 'Let customers set quantity', 'jetpack-paypal-payments' ) }
 						help={ helpQuantity }
@@ -1083,7 +1082,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						/>
 					) }
 
-					{ /* WOOPTP-172: Tax Configuration */ }
+					{ /* Tax */ }
 					<ToggleControl
 						label={ __( 'Add tax', 'jetpack-paypal-payments' ) }
 						help={ __( 'Set the tax rate for this item', 'jetpack-paypal-payments' ) }
@@ -1104,19 +1103,23 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 								label={ __( 'Tax type', 'jetpack-paypal-payments' ) }
 								value={ taxHasValue ? TAX_TYPE_SPECIFIC : TAX_TYPE_PROFILE }
 								options={ TAX_TYPES }
-								// PayPal reads a profile tax back with no value, so a leftover rate
-								// makes the next mount report a change that never happened.
+								// PayPal reads a profile tax back with an empty value, so a leftover rate
+								// would show up as a change on the next mount.
 								onChange={ ( { selectedItem } ) =>
 									setAttributes(
 										'profile' === selectedItem.key
-											? { taxType: 'PREFERENCE', ...resetToDefaults( 'taxValue' ) }
+											? {
+													taxType: 'PREFERENCE',
+													...resetToDefaults( 'taxValue' ),
+													collectShippingAddress: true,
+											  }
 											: { taxType: 'PERCENTAGE' }
 									)
 								}
 								disabled={ isBusy }
 							/>
-							{ /* `help` on a CustomSelectControl reaches the trigger as a plain
-							     attribute, so the hint renders beside the control. */ }
+							{ /* CustomSelectControl passes `help` to the trigger as a DOM attribute, so
+							     the hint gets its own paragraph. */ }
 							{ ! taxHasValue && (
 								<p className="jetpack-paypal-payment-buttons__field-hint">{ taxProfileHint }</p>
 							) }
@@ -1129,8 +1132,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 											TAX_RATE_TYPES.find( option => option.key === taxType ) ?? TAX_RATE_TYPES[ 0 ]
 										}
 										options={ TAX_RATE_TYPES }
-										// 7.5% and $7.50 are different numbers, so clear the value when the
-										// type changes rather than keep it.
+										// 7.5% and $7.50 are different numbers, so the value clears with the type.
 										onChange={ ( { selectedItem } ) =>
 											setAttributes( {
 												taxType: selectedItem.key,
@@ -1156,14 +1158,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						</>
 					) }
 
-					{ /* WOOPTP-493: Shipping */ }
+					{ /* Shipping */ }
 					<ToggleControl
 						label={ __( 'Add shipping', 'jetpack-paypal-payments' ) }
 						help={ __( 'Set shipping fees and get address', 'jetpack-paypal-payments' ) }
 						checked={ shippingEnabled }
-						// Clear the mode and both fees on the way off. Left behind, the
-						// next mount's read-back reads them as PayPal having changed
-						// the button.
 						onChange={ value =>
 							setAttributes( value ? { shippingEnabled: true } : turnGateOff( 'shippingEnabled' ) )
 						}
@@ -1185,9 +1184,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									SHIPPING_MODES[ 0 ]
 								}
 								options={ SHIPPING_MODES }
-								// Clear whatever the new mode does not show. A fee left behind
-								// its own field is one the read-back forces blank on the next
-								// mount, so it reports PayPal as having changed the button.
+								// Clear the fees the new mode hides. A leftover fee comes back blank from the
+								// next read-back, which shows up as PayPal changing the button.
 								onChange={ ( { selectedItem } ) =>
 									setAttributes( {
 										shippingMode: selectedItem.key,
@@ -1201,8 +1199,6 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 								}
 								disabled={ isBusy }
 							/>
-							{ /* PROFILE is the mode that sends the merchant to PayPal's own
-							     shipping settings, so it is the mode that gets the link. */ }
 							{ 'PROFILE' === activeShippingMode && (
 								<p className="jetpack-paypal-payment-buttons__field-hint">
 									{ shippingProfileHint }
@@ -1236,22 +1232,17 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									disabled={ isBusy }
 								/>
 							) }
-							{ /* The design nests this under the toggle, so turning shipping
-							     off sends collect_shipping_address: false with it. */ }
 							<CheckboxControl
 								label={ __( 'Collect shipping address', 'jetpack-paypal-payments' ) }
-								help={ __(
-									'Requires customer to add shipping address during checkout',
-									'jetpack-paypal-payments'
-								) }
-								checked={ !! collectShippingAddress }
+								help={ addressIsRequired ? helpAddressWithProfileTax : helpAddress }
+								checked={ addressIsRequired || !! collectShippingAddress }
 								onChange={ value => setAttributes( { collectShippingAddress: value } ) }
-								disabled={ isBusy }
+								disabled={ isBusy || addressIsRequired }
 							/>
 						</>
 					) }
 
-					{ /* WOOPTP-493: Handling fee */ }
+					{ /* Handling fee */ }
 					<ToggleControl
 						label={ __( 'Add handling fee', 'jetpack-paypal-payments' ) }
 						help={ __( 'One fee per purchase', 'jetpack-paypal-payments' ) }
@@ -1275,13 +1266,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						/>
 					) }
 
-					{ /* WOOPTP-493: Discount */ }
+					{ /* Discount */ }
 					<ToggleControl
 						label={ __( 'Add discount', 'jetpack-paypal-payments' ) }
 						help={ __( 'Applies to each item, no matter quantity', 'jetpack-paypal-payments' ) }
 						checked={ discountEnabled }
-						// Clear the value on the way off. Left behind, the next mount's
-						// read-back reads it as PayPal having changed the button.
 						onChange={ value =>
 							setAttributes( value ? { discountEnabled: true } : turnGateOff( 'discountEnabled' ) )
 						}
@@ -1289,13 +1278,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					/>
 					{ discountEnabled && (
 						<>
-							{ /* Not SelectControl: an <option> holds text only, so the design's
-							     second line per option needs this control. */ }
+							{ /* CustomSelectControl, for the second hint line each option carries. */ }
 							<CustomSelectControl
 								className="jetpack-paypal-payment-buttons__field jetpack-paypal-payment-buttons__select-menu"
 								label={ __( 'Discount type', 'jetpack-paypal-payments' ) }
-								// Without a match this goes uncontrolled, so a type the block has no
-								// option for falls back to the first.
+								// Keeps the control controlled when the stored type has no option here.
 								value={
 									DISCOUNT_TYPES.find( option => option.key === discountType ) ??
 									DISCOUNT_TYPES[ 0 ]

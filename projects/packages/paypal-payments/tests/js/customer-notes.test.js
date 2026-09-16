@@ -1,6 +1,5 @@
 /**
- * Tests for the customer note validator, which lives in variant-builder.jsx next to
- * validateVariants().
+ * Tests for the customer note validator, which lives in variant-builder.jsx.
  *
  * @package
  */
@@ -41,7 +40,6 @@ describe( 'validateCustomerNotes', () => {
 		] );
 	} );
 
-	// A note object with no label key at all, which the validator optional-chains for.
 	it( 'rejects a note missing its label', () => {
 		expect( validateCustomerNotes( [ { required: true } ] ) ).toEqual( [
 			{ index: 0, message: REQUIRED_FIELD_ERROR },

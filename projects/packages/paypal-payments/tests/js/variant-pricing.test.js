@@ -55,7 +55,7 @@ describe( 'getPrimaryDimension', () => {
 	} );
 } );
 
-// The canvas "From" price, and the price a flat discount is measured against.
+// The preview's "From" price, and the price a flat discount is measured against.
 describe( 'getLowestVariantPrice', () => {
 	it( 'returns the cheapest priced option', () => {
 		expect( getLowestVariantPrice( variantsWithPrices( [ '20.00', '10.00', '15.00' ] ) ) ).toBe(
@@ -63,7 +63,7 @@ describe( 'getLowestVariantPrice', () => {
 		);
 	} );
 
-	it( 'compares as numbers rather than strings', () => {
+	it( 'compares prices as numbers', () => {
 		expect( getLowestVariantPrice( variantsWithPrices( [ '9.00', '10.00' ] ) ) ).toBe( '9.00' );
 		expect( getLowestVariantPrice( variantsWithPrices( [ '100.00', '20.00' ] ) ) ).toBe( '20.00' );
 	} );
@@ -72,7 +72,7 @@ describe( 'getLowestVariantPrice', () => {
 		expect( getLowestVariantPrice( variantsWithPrices( [ '', '12.00', '   ' ] ) ) ).toBe( '12.00' );
 	} );
 
-	it( 'skips a price that is not a number', () => {
+	it( 'skips a price that is text', () => {
 		expect( getLowestVariantPrice( variantsWithPrices( [ 'abc', '12.00' ] ) ) ).toBe( '12.00' );
 	} );
 
@@ -86,7 +86,6 @@ describe( 'getLowestVariantPrice', () => {
 		expect( getLowestVariantPrice( variants ) ).toBeNull();
 	} );
 
-	// Only the primary group is priced, so an amount on another is unbuyable.
 	it( 'ignores a cheaper option outside the primary group', () => {
 		const variants = {
 			dimensions: [

@@ -55,8 +55,8 @@ $paypal-blue: #0070ba;
 	font-size: 14px;
 	color: #757575;
 	margin-top: 4px;
-	// PayPal stores the line breaks and the editor lets merchants type them, so
-	// draw them here too rather than collapsing them to spaces.
+	// The editor takes line breaks in the description and PayPal stores
+	// them, so show them here.
 	white-space: pre-line;
 }
 

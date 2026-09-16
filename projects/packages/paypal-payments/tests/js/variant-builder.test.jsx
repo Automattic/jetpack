@@ -1,9 +1,8 @@
 /**
  * Tests for the variants toggle and its option groups.
  *
- * The one gate whose controls live outside edit-api-managed.jsx, and the one where
- * getting the payload wrong deletes the merchant's option groups rather than
- * resetting a scalar. Both payloads are asserted whole.
+ * Its controls live outside edit-api-managed.jsx, and a wrong toggle payload
+ * deletes the merchant's option groups, so both payloads are asserted whole.
  *
  * @package
  */
@@ -47,7 +46,7 @@ const mountBuilder = ( props = {} ) => {
 };
 
 describe( 'VariantBuilder', () => {
-	it( 'takes the groups with it when the toggle goes off', async () => {
+	it( 'clears the option groups when the toggle goes off', async () => {
 		const user = userEvent.setup();
 		const changes = mountBuilder();
 
@@ -56,8 +55,6 @@ describe( 'VariantBuilder', () => {
 		expect( changes ).toHaveBeenCalledWith( { variantsEnabled: false, variants: null } );
 	} );
 
-	// Switching on has to keep what is already there. Folding this case into the
-	// off-branch turned the toggle into a delete button.
 	it( 'keeps the groups when the toggle goes back on', async () => {
 		const user = userEvent.setup();
 		const changes = mountBuilder( { enabled: false } );
@@ -67,7 +64,7 @@ describe( 'VariantBuilder', () => {
 		expect( changes ).toHaveBeenCalledWith( { variantsEnabled: true } );
 	} );
 
-	it( 'seeds one group when the toggle goes on with none', async () => {
+	it( 'adds the first group when the toggle goes on with none', async () => {
 		const user = userEvent.setup();
 		const changes = mountBuilder( { enabled: false, variants: null } );
 

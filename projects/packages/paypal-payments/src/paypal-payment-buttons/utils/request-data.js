@@ -10,8 +10,8 @@ import { SHIPPING_MODES_WITH_FEE } from './validation';
 /**
  * Whether a shipping mode has everything it needs to go out.
  *
- * The preference modes carry their own value. The fee modes need an amount, and '0'
- * is one PayPal stores, so this tests for a blank string.
+ * PROFILE and FREE send their own value. FLAT and QUANTITY need a fee, and '0' is a
+ * fee PayPal stores, so the test is for a blank string.
  *
  * @param {string} mode  - PROFILE, QUANTITY, FLAT or FREE.
  * @param {string} value - The fee.
@@ -24,10 +24,8 @@ function hasShippingValue( mode, value ) {
 /**
  * Build the single `shipping` entry a mode sends.
  *
- * Four modes collapse onto two PayPal types, so the wire cannot round-trip the
- * mode on its own - PROFILE and FREE share `PREFERENCE`, FLAT and QUANTITY share
- * `FLAT` and differ only by `additional_unit_value`. The mapper reads them back
- * apart the same way.
+ * Four modes map onto two PayPal types: PROFILE and FREE share `PREFERENCE`, FLAT
+ * and QUANTITY share `FLAT` plus `additional_unit_value`. The mapper reads them back.
  *
  * @param {string} mode       - PROFILE, QUANTITY, FLAT or FREE.
  * @param {string} value      - The fee, or the first-item fee under QUANTITY.
@@ -110,7 +108,6 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 							},
 					  } ),
 				...( productDescription ? { description: productDescription } : {} ),
-				// Trimmed, so a whitespace-only id counts as blank.
 				...( productId?.trim() ? { product_id: productId.trim() } : {} ),
 				// The block owns the image: leaving it out here removes it at PayPal.
 				...( imageUrl ? { image_url: imageUrl } : {} ),
@@ -137,19 +134,14 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 							],
 					  }
 					: {} ),
-				// FLAT is the only type PayPal takes here. The blank check tests the
-				// string, since '0' is a fee PayPal stores and reads back.
+				// FLAT is the only type PayPal takes here, and '0' is a fee it stores.
 				...( handlingEnabled && '' !== ( handlingValue ?? '' )
 					? { handling: [ { type: 'FLAT', value: handlingValue } ] }
 					: {} ),
-				// The attribute holds PayPal's own type, so it goes out as it stands. The
-				// validator blocks a zero before it reaches here.
+				// The attribute holds PayPal's own type, so it goes out as it stands.
 				...( discountEnabled && '' !== ( discountValue ?? '' )
 					? { discounts: [ { type: discountType || 'FLAT', value: discountValue } ] }
 					: {} ),
-				// A fee mode with no amount would send an empty value, so it is gated
-				// the same way the fees above are. The two preference modes carry their
-				// own value and need no amount at all.
 				...( shippingEnabled && hasShippingValue( activeShippingMode, shippingValue )
 					? {
 							shipping: [
@@ -157,8 +149,8 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 							],
 					  }
 					: {} ),
-				// PayPal turns address collection on for any request that omits this, so
-				// it goes out every time. The shipping toggle clears the attribute.
+				// PayPal turns address collection on for a request that omits this, so it goes out
+				// every time.
 				collect_shipping_address: !! collectShippingAddress,
 			},
 		],

@@ -1050,7 +1050,7 @@ class PayPal_REST_Controller {
 	/**
 	 * Build the resource data array from a REST request for PayPal API submission.
 	 *
-	 * Extracts and sanitizes the parameters, keeping the optional ones the request filled in.
+	 * Sanitizes the line items and adds name and return_url when the request sent them.
 	 *
 	 * @param WP_REST_Request $request The incoming REST request.
 	 * @return array The sanitized resource data ready for the PayPal API.
@@ -1117,8 +1117,7 @@ class PayPal_REST_Controller {
 
 			// Optional fields.
 			if ( ! empty( $item['description'] ) ) {
-				// The control is a textarea and PayPal keeps the line breaks, so don't
-				// flatten them here.
+				// The control is a textarea, so keep the line breaks PayPal stores.
 				$clean_item['description'] = sanitize_textarea_field( $item['description'] );
 			}
 
@@ -1159,8 +1158,8 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// The tax value is derived from the type - a rate, an amount, or PROFILE -
-			// so a type this list misses would turn a flat 5.00 into 5%.
+			// The type decides how the value reads, so a type outside this list falls
+			// back to PERCENTAGE and turns a flat 5.00 into 5%.
 			if ( ! empty( $item['taxes'] ) && is_array( $item['taxes'] ) ) {
 				$clean_taxes = array();
 				$valid_types = array( 'PERCENTAGE', 'PREFERENCE', 'FLAT' );
@@ -1206,8 +1205,8 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// sanitize_text_field() trims, so an id that was only whitespace or only
-			// tags comes back '' - and PayPal rejects an empty one.
+			// An id of only whitespace or tags sanitizes down to '', and PayPal rejects an
+			// empty one, so drop it.
 			$product_id = sanitize_text_field( (string) ( $item['product_id'] ?? '' ) );
 			if ( '' !== $product_id ) {
 				$clean_item['product_id'] = $product_id;
@@ -1235,9 +1234,8 @@ class PayPal_REST_Controller {
 	/**
 	 * Sanitize a shipping, handling or discount list for PayPal API submission.
 	 *
-	 * All three take a type, a value, and for per-unit shipping a rate for each
-	 * extra unit. The type passes straight through: a PUT replaces the line item, so
-	 * a type the merchant set in PayPal's own dashboard survives the round trip.
+	 * All three take a type, a value, and for per-unit shipping a rate per extra unit.
+	 * The type passes through as sent, so one set in PayPal's dashboard survives a PUT.
 	 *
 	 * @param array $amounts Raw entries from the REST request.
 	 * @return array Sanitized entries.

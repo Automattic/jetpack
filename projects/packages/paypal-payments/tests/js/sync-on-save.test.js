@@ -109,24 +109,18 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( false );
 	} );
 
-	// The second copy of the gate. The inspector has its own; this one decides
-	// whether the payment goes out when the post is saved.
 	it.each( [ 'FLAT', 'QUANTITY' ] )( 'holds back %s shipping with no fee', shippingMode => {
 		expect(
 			isReadyForPayPal( { ...product, shippingEnabled: true, shippingMode, shippingValue: '' } )
 		).toBe( false );
 	} );
 
-	// The pair to the case above: the same blank fee is fine in a mode that never
-	// asks for one, so the rule has to key on the mode and not just the value.
 	it.each( [ 'PROFILE', 'FREE' ] )( 'sends %s shipping with no fee', shippingMode => {
 		expect(
 			isReadyForPayPal( { ...product, shippingEnabled: true, shippingMode, shippingValue: '' } )
 		).toBe( true );
 	} );
 
-	// '0' is free shipping PayPal stores. Truthiness would read it as blank and
-	// hold the payment back forever.
 	it( 'sends a shipping fee of zero', () => {
 		expect(
 			isReadyForPayPal( {
@@ -139,7 +133,7 @@ describe( 'isReadyForPayPal', () => {
 	} );
 
 	// Optional, so blank is fine - but a filled one still has to be an amount.
-	it( 'holds back a negative per-extra-item fee', () => {
+	it( 'holds back a negative additional items fee', () => {
 		expect(
 			isReadyForPayPal( {
 				...product,
@@ -151,8 +145,6 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( false );
 	} );
 
-	// This file carries its own copy of the tax derivation, independent of the form's.
-	// Miss it and a tax with no value blocks the inspector and still ships on post save.
 	it.each( [
 		[ 'a flat amount with no value', 'FLAT' ],
 		[ 'a rate with no value', 'PERCENTAGE' ],
@@ -163,8 +155,7 @@ describe( 'isReadyForPayPal', () => {
 		);
 	} );
 
-	// PREFERENCE takes its rate from the merchant's PayPal profile, so there is
-	// nothing local to fill in.
+	// PREFERENCE takes its rate from the merchant's PayPal profile.
 	it( 'lets a profile tax through with no value', () => {
 		expect(
 			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } )
@@ -177,8 +168,7 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( true );
 	} );
 
-	// PayPal's own bounds, measured. Both are percentage rules, so they sit here
-	// rather than in the zero-decimal block below.
+	// PayPal's own bounds, measured.
 	it.each( [
 		[ 'a rate at the ceiling', '100', 'Rate must be less than 100%.' ],
 		[ 'a rate over the ceiling', '150', 'Rate must be less than 100%.' ],
@@ -189,24 +179,20 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( message );
 	} );
 
-	// The field draws a currency suffix for any type beyond PERCENTAGE, so the rule
-	// matches it.
-	it( 'validates an unmodelled tax type as money', () => {
+	// The field draws a currency suffix for any type other than PERCENTAGE.
+	it( 'validates an unknown tax type as money', () => {
 		expect(
 			heldBackReason( { ...product, taxEnabled: true, taxType: 'SOMETHING_ELSE', taxValue: '150' } )
 		).toBeNull();
 	} );
 
-	// Zero is a rate PayPal stores, so it must not read as "nothing filled in".
 	it( 'lets a zero tax rate through', () => {
 		expect(
 			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '0' } )
 		).toBe( true );
 	} );
 
-	// Same second copy, same trap: a fee with no amount has to hold the payment back
-	// here as well as in the inspector.
-	it( 'holds back a fee with no amount', () => {
+	it( 'holds back a handling fee with no amount', () => {
 		expect( isReadyForPayPal( { ...product, handlingEnabled: true, handlingValue: '' } ) ).toBe(
 			false
 		);
@@ -218,8 +204,8 @@ describe( 'isReadyForPayPal', () => {
 		);
 	} );
 
-	// PayPal 422s a decimal amount in JPY, HUF or TWD on every flat field, the price
-	// included. Measured on JPY.
+	// Measured on JPY: PayPal rejects a decimal amount in JPY, HUF and TWD on every
+	// flat field.
 	describe( 'in a zero-decimal currency', () => {
 		const yen = { ...product, currencyCode: 'JPY', price: '3000' };
 
@@ -247,8 +233,6 @@ describe( 'isReadyForPayPal', () => {
 			).toBe( false );
 		} );
 
-		// True before this unit too - validateDiscountAmount got there first. Here so
-		// every money field sits in one place.
 		it( 'holds back a flat discount with decimals', () => {
 			expect(
 				isReadyForPayPal( {
@@ -260,8 +244,7 @@ describe( 'isReadyForPayPal', () => {
 			).toBe( false );
 		} );
 
-		// Optional means it can be blank; a filled-in amount still follows the rule.
-		it( 'holds back an additional-items fee with decimals', () => {
+		it( 'holds back an additional items fee with decimals', () => {
 			expect(
 				isReadyForPayPal( {
 					...yen,
@@ -273,8 +256,7 @@ describe( 'isReadyForPayPal', () => {
 			).toBe( false );
 		} );
 
-		// heldBackReason rather than isReadyForPayPal: a failure here names the field
-		// that broke.
+		// heldBackReason says which field broke when this fails.
 		it( 'lets whole amounts through', () => {
 			expect(
 				heldBackReason( {
@@ -302,7 +284,7 @@ describe( 'isReadyForPayPal', () => {
 		);
 	} );
 
-	it( 'holds back a flat discount that reaches the product price', () => {
+	it( 'holds back a flat discount equal to the product price', () => {
 		expect(
 			isReadyForPayPal( {
 				...product,
@@ -324,7 +306,6 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( true );
 	} );
 
-	// The inspector and the post save both have to stop a blank-labelled note.
 	it( 'refuses to save a customer note with a blank label', () => {
 		const attributes = { ...product, customerNotes: [ { label: '', required: false } ] };
 
@@ -332,7 +313,6 @@ describe( 'isReadyForPayPal', () => {
 		expect( heldBackReason( attributes ) ).toBe( REQUIRED_FIELD_ERROR );
 	} );
 
-	// heldBackReason checks variants before notes, so the order matters.
 	it( 'reports the variant error ahead of a blank customer note', () => {
 		const attributes = {
 			...product,
@@ -354,8 +334,7 @@ describe( 'isReadyForPayPal', () => {
 		expect( heldBackReason( attributes ) ).toBeNull();
 	} );
 
-	// With per-option pricing there is no product price, so the cheapest option is
-	// what PayPal measures against - and it is not the 29.99 sitting in `price`.
+	// Per-option pricing replaces the product price, so the 29.99 in `price` is ignored.
 	it( 'measures a flat discount against the cheapest option price', () => {
 		const withOptions = {
 			...product,
@@ -495,9 +474,7 @@ describe( 'syncBlocksBeforeSave', () => {
 		 */
 		const stored = () => Promise.resolve( {} );
 
-		// The form models every line-item field PayPal stores, so the update no
-		// longer reads the payment first and nothing rides back out of it.
-		it( 'updates the payment outright, clearing what the form does not set', async () => {
+		it( 'replaces the payment with the form values, clearing what the form leaves unset', async () => {
 			const deps = fakeDeps( stored );
 
 			const changed = await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
@@ -509,8 +486,7 @@ describe( 'syncBlocksBeforeSave', () => {
 				name: 'Test Widget',
 				collect_shipping_address: false,
 			} );
-			// This block turns all four off, so whatever the payment holds for them
-			// is cleared at PayPal - that is the merchant's edit.
+			// All four are off in this block, so PayPal clears them.
 			expect( item ).not.toHaveProperty( 'product_id' );
 			expect( item ).not.toHaveProperty( 'shipping' );
 			expect( item ).not.toHaveProperty( 'handling' );

@@ -1,9 +1,6 @@
 /**
  * PayPal Payment Buttons — Block Editor Styles.
  *
- * Updated for WOOPTP-151: Inline validation error styles for
- * client-side form validation.
- *
  * @package automattic/jetpack-paypal-payments
  * @since 0.8.0
  */
@@ -282,8 +279,8 @@
 	line-height: 1.4;
 }
 
-// Keeps its border, unlike the error state below: this is the connection
-// wizard's manual-credentials field, which the redesign does not cover.
+// The connection wizard's Client ID field. It colors its border, where
+// the error state below is a message row.
 .jetpack-paypal-payment-buttons__has-warning {
 
 	.components-text-control__input {
@@ -303,8 +300,7 @@
 // Error state for form fields. The form renders into the inspector sidebar,
 // outside the block, so there is no block ancestor to scope this under - the
 // class carries the namespace instead. editor.css loads on every editor screen.
-// The field border does not change - an error is the message row and
-// nothing else.
+// An error is the message row alone.
 %field-error-row {
 	align-items: center;
 	color: #cc1818;
@@ -318,9 +314,9 @@
 		content: "";
 		flex: 0 0 auto;
 		height: 16px;
-		// The design's `error` glyph redrawn on a 16 grid; @wordpress/icons ships a
-		// 24-grid one. Inlined so one rule covers every field. -webkit- duplicated
-		// for Safari < 15.4, as the search block does.
+		// The error glyph on a 16 grid, where @wordpress/icons ships a 24-grid
+		// one. Inlined so one rule covers every field, -webkit- duplicated for
+		// older Safari as the search block does.
 		mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>");
 		mask-repeat: no-repeat;
 		mask-position: center;
@@ -339,20 +335,20 @@
 	@extend %field-error-row;
 }
 
-// An amount field can carry a hint as well, so there the error nests in a span
-// of its own and sits below the hint.
+// An amount field can show a hint too, so its error gets a span of its own
+// below the hint.
 .jetpack-paypal-payment-buttons__has-error .jetpack-paypal-payment-buttons__field-error {
 
 	@extend %field-error-row;
 
-	// Only when a hint sits above it. Tax and handling have none.
+	// Only when a hint sits above it.
 	&:not(:first-child) {
 		margin-top: 8px;
 	}
 }
 
-// Separate rule so a browser without `:has()` drops only this one and the
-// errors above still style.
+// Its own rule, so a browser missing `:has()` drops this one and keeps the
+// errors above.
 .jetpack-paypal-payment-buttons__has-error .components-base-control__help:has(.jetpack-paypal-payment-buttons__field-error) {
 	color: #757575;
 	display: block;
@@ -362,7 +358,7 @@
 	}
 }
 
-// The form renders into the inspector, so the class carries the scope. Tripled
+// The form renders into the inspector, so the class is the scope. Tripled
 // because Emotion injects its rules after this file.
 .jetpack-paypal-payment-buttons__field {
 
@@ -376,16 +372,16 @@
 			line-height: 16px; // core: 1.4, so 15.4px at 11px
 		}
 
-		// A select hugs a 24px chevron to core's 40px, so only the text shapes
-		// take 36.
+		// A select needs core's 40px for its 24px chevron, so 36 goes to the
+		// text inputs.
 		.components-input-control__input,
 		.components-text-control__input {
 			height: 36px;
 			min-height: 36px;
 		}
 
-		// The design ties the suffix and the placeholder to one token. Tripled
-		// because the placeholder matches core's specificity and loses the tie.
+		// Suffix and placeholder share one color. Tripled because the
+		// placeholder ties with core on specificity.
 		&.components-input-control {
 
 			.components-input-control__suffix {
@@ -411,27 +407,27 @@
 		}
 	}
 
-	// Core dims a disabled native select; the custom one stays black and reads
-	// as live while it ignores clicks.
+	// Core dims a disabled native select. The custom one needs the same, or it
+	// reads as live.
 	[role="combobox"]:disabled {
 		color: #8d8d8d;
 		cursor: default;
 	}
 
-	// The natives take this margin from the editor stylesheet.
+	// The native controls take this margin from the editor stylesheet.
 	&.components-custom-select-control {
 		margin-bottom: 16px;
 	}
 
-	// A select with a hint below it hands the gap over. The class comes from the
-	// same condition, since a sibling selector picks the wrong element.
+	// A select with a hint below it gives the gap to the hint, which sets its own.
+	// Matched by class because a sibling selector picks the wrong element.
 	&.components-custom-select-control.jetpack-paypal-payment-buttons__has-hint {
 		margin-bottom: 0;
 	}
 }
 
-// `help` on a CustomSelectControl reaches the trigger as a plain attribute, so
-// the hint renders beside the control instead.
+// `help` on a CustomSelectControl reaches the trigger as a plain attribute,
+// so the hint is its own element.
 .jetpack-paypal-payment-buttons__field-hint {
 	// Both sides tie this to the same token, so follow the variable.
 	color: var(--wp-components-color-gray-700, #707070);
@@ -443,9 +439,8 @@
 	}
 }
 
-// Check first, hint on its own line; core does neither.
-// TODO: Ariakit is dropping `role=listbox` - recheck it and the trigger's
-// `role=combobox` on a components bump.
+// The check leads and the hint takes its own line. Selected by Ariakit's
+// roles, which a components bump can change.
 .jetpack-paypal-payment-buttons__select-menu {
 
 	[role="listbox"] {
@@ -461,9 +456,8 @@
 		gap: 8px;
 		justify-content: flex-start;
 		line-height: 20px;
-		// Core's inline-end padding corrects for the check being on the right,
-		// which it no longer is. Its start padding and its 8px block padding
-		// already match.
+		// Core pads inline-end for a check on the right. The check is on the
+		// left here, and the start and block padding already match.
 		padding-inline-end: 12px;
 	}
 
@@ -874,9 +868,9 @@
 	}
 }
 
-// Checkout options (WOOPTP-170/171/172).
-// The design draws 16px between rows and 16px below the group, both set
-// here. The 16px above the group comes from the toggle's own margin.
+// Checkout options.
+// 16px between rows and 16px below the group. The gap above comes from
+// the toggle's own margin.
 .jetpack-paypal-payment-buttons__customer-notes {
 	display: flex;
 	flex-direction: column;
