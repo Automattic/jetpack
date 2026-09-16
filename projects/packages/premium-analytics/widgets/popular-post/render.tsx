@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toAuthorId } from '@jetpack-premium-analytics/data';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -9,6 +10,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
@@ -19,23 +21,56 @@ import { usePopularPost } from './use-popular-post';
 import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// The card reports on its own pinned window and reads nothing from the host's
-// `reportParams`, but the host still injects them and `WidgetRoot` still takes
-// them, so the render type keeps composing the field.
+// The host's `reportParams` only matter to an author-scoped instance; the
+// dashboard card reports on its own pinned window.
 type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParamsFieldAttributes >;
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
- * The last 12 months pick which post is shown; all three tiles are all-time
- * totals from the Stats post endpoint, so they share one window.
+ * The last 12 months pick which post is shown, or the page's range when
+ * author-scoped; all three tiles are all-time totals from the Stats post
+ * endpoint, so they share one window.
  *
  * The tiles carry no caveat saying so, which is deliberate: the old Stats card
  * this replaces put the same lifetime totals under the same period-naming
  * heading with nothing on the tiles either, and the widget header's help note
  * spells the aggregation out. Adding one is a design decision, not a defect fix.
  */
-function PopularPostReport() {
-	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost();
+function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
+	const { reportParams } = useWidgetRootContext();
+	// Gated on the instance attribute, not the URL alone, so a stray `author_id`
+	// on the dashboard cannot narrow the site-wide card.
+	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : 0;
+
+	// An author-scoped instance rendered off its page must not fall back to the
+	// site-wide pick under the author-scoped title.
+	if ( authorScoped && ! authorId ) {
+		return (
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ {
+					icon: trendingUp,
+					description: __(
+						'Open an author to see their most viewed post here.',
+						'jetpack-premium-analytics-pkg'
+					),
+				} }
+			>
+				{ null }
+			</WidgetState>
+		);
+	}
+
+	return <PopularPostCard authorId={ authorId } />;
+}
+
+function PopularPostCard( { authorId }: { authorId: number } ) {
+	const { reportParams } = useWidgetRootContext();
+	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
+		authorId ? { authorId, reportParams } : undefined
+	);
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -72,7 +107,12 @@ function PopularPostReport() {
 			} ) }
 			empty={ {
 				icon: trendingUp,
-				description: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
+				description: authorId
+					? __(
+							'No views recorded for this author’s posts in this period.',
+							'jetpack-premium-analytics-pkg'
+					  )
+					: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
@@ -104,7 +144,7 @@ function PopularPostReport() {
 export default function PopularPost( { attributes = {} }: PopularPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<PopularPostReport />
+			<PopularPostReport authorScoped={ attributes.authorScoped === true } />
 		</WidgetRoot>
 	);
 }
