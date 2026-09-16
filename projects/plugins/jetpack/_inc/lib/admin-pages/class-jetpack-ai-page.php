@@ -32,6 +32,17 @@ require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
 class Jetpack_AI_Page {
 
 	/**
+	 * The wp-build route's page id.
+	 *
+	 * Deliberately not the `jetpack-ai` menu slug: the generated standalone page.php
+	 * intercepts `admin_init` for its own id and exits, which would bypass wp-admin's
+	 * chrome entirely. The generated wp-admin enqueue matches the screen ID against this.
+	 *
+	 * @var string
+	 */
+	const WP_BUILD_PAGE_ID = 'jetpack-ai-hub';
+
+	/**
 	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
 	 *
 	 * @var string|null
@@ -49,7 +60,7 @@ class Jetpack_AI_Page {
 	 * @return bool
 	 */
 	public static function should_render_wp_build() {
-		return function_exists( 'jetpack_plugin_jetpack_ai_wp_admin_render_page' );
+		return function_exists( 'jetpack_plugin_jetpack_ai_hub_wp_admin_render_page' );
 	}
 
 	/**
@@ -127,7 +138,7 @@ class Jetpack_AI_Page {
 		}
 
 		self::$wp_build_original_screen_id = $screen->id;
-		$screen->id                        = 'jetpack-ai';
+		$screen->id                        = self::WP_BUILD_PAGE_ID;
 	}
 
 	/**
@@ -619,7 +630,7 @@ class Jetpack_AI_Page {
 	 */
 	public function page_render() {
 		if ( self::should_render_wp_build() ) {
-			jetpack_plugin_jetpack_ai_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- should_render_wp_build() checks function_exists(); defined in the generated build/pages/, which Phan excludes.
+			jetpack_plugin_jetpack_ai_hub_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- should_render_wp_build() checks function_exists(); defined in the generated build/pages/, which Phan excludes.
 			return;
 		}
 

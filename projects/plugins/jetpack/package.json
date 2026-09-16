@@ -190,7 +190,7 @@
 		"handlePrefix": "jetpack-plugin",
 		"pages": [
 			{
-				"id": "jetpack-ai",
+				"id": "jetpack-ai-hub",
 				"init": [
 					"@jetpack-plugin/init"
 				]

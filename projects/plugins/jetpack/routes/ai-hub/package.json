@@ -27,6 +27,6 @@
 	},
 	"route": {
 		"path": "/",
-		"page": "jetpack-ai"
+		"page": "jetpack-ai-hub"
 	}
 }
