@@ -2912,7 +2912,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( field ).toHaveAttribute( 'step', step );
 		} );
 
-		// validateTaxRate has no upper bound of its own, so max is the only thing
+		// validateRequiredAmount has no upper bound of its own, so max is the only thing
 		// stopping a runaway percentage.
 		it( 'caps a percentage at 99.99', async () => {
 			const field = await taxField( { taxType: 'PERCENTAGE' } );
@@ -3061,6 +3061,145 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// nowhere - and requiring one threw the whole tax away.
 		// A payment made in PayPal's dashboard can have one. Sending an empty name
 		// back would overwrite it, so the key rides along only when there is one.
+	} );
+
+	describe( 'Handling fee', () => {
+		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-FEE1';
+		const attributes = {
+			isApiManaged: true,
+			resourceId: 'PLB-FEE1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-FEE1',
+			productName: 'Test Widget',
+			price: '29.99',
+			currencyCode: 'USD',
+			handlingEnabled: true,
+			handlingValue: '4.00',
+		};
+
+		/**
+		 * Mock the connection check and the pre-update read.
+		 */
+		function mockConnected() {
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath && method === undefined ) {
+					return Promise.resolve( { id: 'PLB-FEE1', line_items: [ {} ] } );
+				}
+				return Promise.resolve( {} );
+			} );
+		}
+
+		/**
+		 * Render the editor with the handling-fee fixture, plus any overrides.
+		 *
+		 * @param {object} overrides - Attributes to merge over the fixture.
+		 */
+		async function renderFee( overrides = {} ) {
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, ...overrides } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+		}
+
+		const missingFee = 'To continue, add the requested info or turn off this feature.';
+
+		it( 'asks for no amount while the fee is off', async () => {
+			await renderFee( { handlingEnabled: false, handlingValue: '' } );
+
+			expect( screen.queryByLabelText( 'Handling fee' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		// The amount field appears as soon as the toggle is on, so the error shows
+		// straight away rather than waiting for a blur.
+		it( 'refuses to save a fee with no amount', async () => {
+			await renderFee( { handlingValue: '' } );
+
+			expect( screen.getByText( missingFee ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Handling fee' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
+		} );
+
+		// Same rule as the tax: PayPal stores a 0 and hands it back, and a merchant
+		// who wants no fee turns the toggle off instead.
+		it( 'saves a fee of zero', async () => {
+			await renderFee( { handlingValue: '0' } );
+
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Handling fee' ) ).not.toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'false' );
+		} );
+
+		it( 'turns the handling fee on', async () => {
+			const user = userEvent.setup();
+			await renderFee( { handlingEnabled: false, handlingValue: '' } );
+			await user.click( screen.getByLabelText( 'Add handling fee' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { handlingEnabled: true } );
+		} );
+
+		it( 'writes the amount', async () => {
+			const user = userEvent.setup();
+			await renderFee( { handlingValue: '' } );
+			await user.type( screen.getByLabelText( 'Handling fee' ), '4' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { handlingValue: '4' } );
+		} );
+
+		// Clearing the field writes '' rather than dropping the attribute, which would
+		// read back as the block.json default on the next mount.
+		it( 'writes an empty string when the field is cleared', async () => {
+			const user = userEvent.setup();
+			await renderFee();
+			await user.clear( screen.getByLabelText( 'Handling fee' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { handlingValue: '' } );
+		} );
+
+		// A fee is money, so it follows the currency - JPY takes no decimals at all.
+		it.each( [
+			[ 'USD', {}, '0.01' ],
+			[ 'JPY', { currencyCode: 'JPY', price: '2000' }, '1' ],
+		] )( 'steps the field for %s', async ( _label, overrides, step ) => {
+			await renderFee( overrides );
+
+			expect( screen.getByLabelText( 'Handling fee' ) ).toHaveAttribute( 'step', step );
+		} );
+
+		// A fee is money, so it must not inherit the tax field's percentage ceiling -
+		// a $150 handling fee is legal.
+		it( 'takes any fee from zero up', async () => {
+			await renderFee();
+			const field = screen.getByLabelText( 'Handling fee' );
+
+			expect( field ).toHaveAttribute( 'min', '0' );
+			expect( field ).not.toHaveAttribute( 'max' );
+		} );
+
+		// The mockup shows a $, so check the suffix follows the product's currency
+		// rather than being hardcoded.
+		it( 'shows the currency symbol', async () => {
+			await renderFee( { currencyCode: 'EUR' } );
+
+			expect(
+				within( screen.getByTestId( 'control-Handling fee' ) ).getByText( '€' )
+			).toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Add customer note', () => {
@@ -3487,6 +3626,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			taxValue: {
 				attributes: { taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '' },
 				testId: 'control-Tax rate',
+				message: 'To continue, add the requested info or turn off this feature.',
+			},
+			handlingValue: {
+				attributes: { handlingEnabled: true, handlingValue: '' },
+				testId: 'control-Handling fee',
 				message: 'To continue, add the requested info or turn off this feature.',
 			},
 			returnUrl: {

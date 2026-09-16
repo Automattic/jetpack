@@ -41,6 +41,8 @@ const attributes = {
 	taxType: 'PERCENTAGE',
 	taxName: 'VAT',
 	taxValue: '7.5',
+	handlingEnabled: true,
+	handlingValue: '4.00',
 	collectShippingAddress: false,
 	productId: 'SKU-1',
 };
@@ -88,6 +90,7 @@ describe( 'buildRequestData', () => {
 					adjustable_quantity: { maximum: 5 },
 					customer_notes: [ { label: 'Engraving', required: true } ],
 					taxes: [ { name: 'VAT', type: 'PERCENTAGE', value: '7.5' } ],
+					handling: [ { type: 'FLAT', value: '4.00' } ],
 					collect_shipping_address: false,
 				},
 			],
@@ -168,6 +171,26 @@ describe( 'buildRequestData', () => {
 		).not.toHaveProperty( 'taxes' );
 	} );
 
+	it( 'leaves handling out when the toggle is off', () => {
+		expect(
+			buildRequestData( { ...attributes, handlingEnabled: false }, true ).line_items[ 0 ]
+		).not.toHaveProperty( 'handling' );
+	} );
+
+	// Same rule as the tax above: blank means no fee, '0' is a fee PayPal stores.
+	it( 'leaves handling out when the amount is blank', () => {
+		expect(
+			buildRequestData( { ...attributes, handlingValue: '' }, true ).line_items[ 0 ]
+		).not.toHaveProperty( 'handling' );
+	} );
+
+	it( 'still sends a handling fee of zero', () => {
+		const [ handling ] = buildRequestData( { ...attributes, handlingValue: '0' }, true )
+			.line_items[ 0 ].handling;
+
+		expect( handling ).toEqual( { type: 'FLAT', value: '0' } );
+	} );
+
 	it( 'sends PayPal’s own profile rate as PROFILE', () => {
 		const [ tax ] = buildRequestData( { ...attributes, taxType: 'PREFERENCE', taxName: '' }, true )
 			.line_items[ 0 ].taxes;
@@ -193,7 +216,6 @@ describe( 'buildRequestData', () => {
 describe( 'keepPayPalOnlyFields', () => {
 	const stored = {
 		shipping: [ { type: 'FLAT', value: '5.00', additional_unit_value: '2.00' } ],
-		handling: [ { type: 'FLAT', value: '4.00' } ],
 		discounts: [ { type: 'FLAT', value: '2.00' } ],
 		collect_shipping_address: true,
 	};
@@ -205,6 +227,16 @@ describe( 'keepPayPalOnlyFields', () => {
 
 		expect( data.line_items[ 0 ] ).toMatchObject( stored );
 		expect( data.line_items[ 0 ].name ).toBe( 'Widget' );
+	} );
+
+	// The form owns the handling fee now, so the payment's own value no longer
+	// rides back out over the top of it.
+	it( 'lets the form overwrite a handling fee set at PayPal', () => {
+		const data = keepPayPalOnlyFields( buildRequestData( attributes, true ), {
+			line_items: [ { ...stored, handling: [ { type: 'FLAT', value: '99.00' } ] } ],
+		} );
+
+		expect( data.line_items[ 0 ].handling ).toEqual( [ { type: 'FLAT', value: '4.00' } ] );
 	} );
 
 	it( 'leaves the image as the block sent it, so removing it there removes it at PayPal', () => {

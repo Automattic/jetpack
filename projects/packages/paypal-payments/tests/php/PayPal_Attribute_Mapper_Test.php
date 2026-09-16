@@ -629,6 +629,73 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
+	 * The handling fee comes back from the payment, so an edit does not wipe one
+	 * set in PayPal's own dashboard.
+	 */
+	public function test_api_response_to_attributes_reads_the_handling_fee() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'     => 'Widget',
+						'handling' => array(
+							array(
+								'type'  => 'FLAT',
+								'value' => '4.00',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertTrue( $attributes['handlingEnabled'] );
+		$this->assertSame( '4.00', $attributes['handlingValue'] );
+	}
+
+	/**
+	 * A handling fee of "0" is one PayPal stores - empty() would drop it.
+	 */
+	public function test_api_response_to_attributes_reads_a_handling_fee_of_zero() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'     => 'Widget',
+						'handling' => array(
+							array(
+								'type'  => 'FLAT',
+								'value' => '0',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertTrue( $attributes['handlingEnabled'] );
+		$this->assertSame( '0', $attributes['handlingValue'] );
+	}
+
+	/**
+	 * A payment with no handling fee leaves both attributes unset, so the block
+	 * keeps its defaults and the toggle stays off.
+	 */
+	public function test_api_response_to_attributes_omits_a_missing_handling_fee() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array( array( 'name' => 'Widget' ) ),
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'handlingEnabled', $attributes );
+		$this->assertArrayNotHasKey( 'handlingValue', $attributes );
+	}
+
+	/**
 	 * A product id of "0" is valid - empty() would drop it.
 	 */
 	public function test_api_response_to_attributes_reads_a_product_id_of_zero() {

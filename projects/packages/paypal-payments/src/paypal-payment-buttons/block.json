@@ -110,6 +110,14 @@
 			"type": "string",
 			"default": ""
 		},
+		"handlingEnabled": {
+			"type": "boolean",
+			"default": false
+		},
+		"handlingValue": {
+			"type": "string",
+			"default": ""
+		},
 		"collectShippingAddress": {
 			"type": "boolean",
 			"default": true

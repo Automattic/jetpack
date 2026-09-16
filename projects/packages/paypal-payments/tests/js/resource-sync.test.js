@@ -29,6 +29,8 @@ const blockAttributes = {
 	taxType: 'PERCENTAGE',
 	taxName: 'Sales Tax',
 	taxValue: '',
+	handlingEnabled: false,
+	handlingValue: '',
 	returnUrl: '',
 	collectShippingAddress: true,
 	imageUrl: 'https://example.com/widget.jpg',
@@ -100,6 +102,27 @@ describe( 'getResourceAttributeUpdates', () => {
 				{ ...resourceAttributes, productId: 'SKU-1' }
 			)
 		).toEqual( {} );
+	} );
+
+	it( 'reads the handling fee back from the payment', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, {
+				...resourceAttributes,
+				handlingEnabled: true,
+				handlingValue: '4.00',
+			} )
+		).toEqual( { handlingEnabled: true, handlingValue: '4.00' } );
+	} );
+
+	// A fee removed at PayPal has to turn the toggle back off here, or the form
+	// shows a fee the payment no longer charges.
+	it( 'clears a handling fee the payment no longer carries', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{ ...blockAttributes, handlingEnabled: true, handlingValue: '4.00' },
+				resourceAttributes
+			)
+		).toEqual( { handlingEnabled: false, handlingValue: '' } );
 	} );
 
 	it( 'reads address collection back from the payment', () => {

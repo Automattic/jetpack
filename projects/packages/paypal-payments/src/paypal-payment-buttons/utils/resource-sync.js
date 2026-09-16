@@ -32,6 +32,8 @@ export const RESOURCE_ATTRIBUTES = [
 	'taxType',
 	'taxName',
 	'taxValue',
+	'handlingEnabled',
+	'handlingValue',
 	'returnUrl',
 	'collectShippingAddress',
 ];

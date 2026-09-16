@@ -312,6 +312,14 @@ class PayPal_Attribute_Mapper {
 				$attributes['shippingValue']   = 'PREFERENCE' === $attributes['shippingType'] ? '' : sanitize_text_field( $shipping['value'] ?? '' );
 			}
 
+			// Handling fee (WOOPTP-493). FLAT is the only type PayPal takes here,
+			// so there is nothing to read back but the amount.
+			if ( ! empty( $line_item['handling'] ) && is_array( $line_item['handling'] ) ) {
+				$handling                      = $line_item['handling'][0];
+				$attributes['handlingEnabled'] = true;
+				$attributes['handlingValue']   = sanitize_text_field( $handling['value'] ?? '' );
+			}
+
 			// Map it even when the key is absent: the block attribute defaults to
 			// on, so a missing key has to read as off.
 			$attributes['collectShippingAddress'] = ! empty( $line_item['collect_shipping_address'] );
