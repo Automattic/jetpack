@@ -222,28 +222,122 @@ function wpcom_marketplace_render_card( array $card ) {
 			</div>
 		</div>
 
-		<?php if ( ! empty( $card['wpcom_category'] ) ) : ?>
-			<p class="wpcom-marketplace-card__category"><?php echo esc_html( $card['wpcom_category'] ); ?></p>
+		<?php
+		$category = (string) ( $card['wpcom_category'] ?? '' );
+		$missing  = wpcom_marketplace_unmet_requirements( $card );
+		?>
+		<?php if ( '' !== $category || ! empty( $missing ) ) : ?>
+			<p class="wpcom-marketplace-card__meta">
+				<?php if ( '' !== $category ) : ?>
+					<span class="wpcom-marketplace-card__category"><?php echo esc_html( $category ); ?></span>
+				<?php endif; ?>
+				<?php if ( ! empty( $missing ) ) : ?>
+					<span class="wpcom-marketplace-card__requires">
+						<?php
+						/* translators: %s: Plugin name, for example WooCommerce. */
+						echo esc_html( sprintf( __( 'Needs %s', 'jetpack-mu-wpcom' ), implode( ', ', $missing ) ) );
+						?>
+					</span>
+				<?php endif; ?>
+			</p>
 		<?php endif; ?>
 
 		<p class="wpcom-marketplace-card__desc">
 			<?php echo esc_html( wp_strip_all_tags( (string) ( $card['short_description'] ?? '' ) ) ); ?>
 		</p>
 
-		<?php wpcom_marketplace_render_price( $card ); ?>
-
-		<div class="wpcom-marketplace-card__actions">
+		<p class="wpcom-marketplace-card__details">
 			<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal">
 				<?php esc_html_e( 'Details', 'jetpack-mu-wpcom' ); ?>
 			</a>
+		</p>
+
+		<?php // Price sits with the button that charges it, rather than a row away from it. ?>
+		<div class="wpcom-marketplace-card__footer">
 			<?php
-			// Details comes first so reading order and tab order match what is on screen.
+			wpcom_marketplace_render_price( $card );
 			// Buttons are built from escaped parts, and core's own button carries data attributes.
 			echo wpcom_marketplace_card_button( $card ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 		</div>
 	</div>
 	<?php
+}
+
+/**
+ * The plugins a product needs that are not active on this site.
+ *
+ * Worth saying on the card because it is a gate rather than a detail: without them
+ * the product cannot do anything, whatever it costs.
+ *
+ * @param array $card Normalized product data.
+ * @return string[] Display names, empty when every requirement is already met.
+ */
+function wpcom_marketplace_unmet_requirements( array $card ) {
+	$required = $card['wpcom_requires'] ?? array();
+
+	if ( empty( $required ) || ! is_array( $required ) ) {
+		return array();
+	}
+
+	if ( ! function_exists( 'get_plugins' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+
+	$plugins = get_plugins();
+
+	// Keyed the way the payload refers to them, by directory.
+	$by_directory = array();
+	foreach ( array_keys( $plugins ) as $file ) {
+		$by_directory[ dirname( $file ) ] = $file;
+	}
+
+	$missing = array();
+	foreach ( $required as $slug ) {
+		$slug = (string) $slug;
+		$file = $by_directory[ $slug ] ?? '';
+
+		if ( '' !== $file && is_plugin_active( $file ) ) {
+			continue;
+		}
+
+		$name = wpcom_marketplace_required_plugin_name( $slug, $plugins[ $file ] ?? array() );
+
+		if ( '' !== $name ) {
+			$missing[] = $name;
+		}
+	}
+
+	return $missing;
+}
+
+/**
+ * What to call a required plugin.
+ *
+ * An installed plugin carries its own name, whether or not it is active. One that
+ * is not installed leaves only a directory slug, which has no capitalization left
+ * in it to recover: "woocommerce" would come out as "Woocommerce". Naming the few
+ * the catalog actually requires beats printing a mangled one, and a slug we cannot
+ * name is left off the card rather than guessed at.
+ *
+ * @param string $slug   Plugin directory slug.
+ * @param array  $header Plugin header data, when the plugin is installed.
+ * @return string Display name, or an empty string when there is no safe one.
+ */
+function wpcom_marketplace_required_plugin_name( $slug, array $header ) {
+	if ( ! empty( $header['Name'] ) ) {
+		return (string) $header['Name'];
+	}
+
+	$known = array(
+		'woocommerce'          => 'WooCommerce',
+		'woocommerce-payments' => 'WooPayments',
+		'wordpress-seo'        => 'Yoast SEO',
+		'wp-job-manager'       => 'WP Job Manager',
+		'gravityforms'         => 'Gravity Forms',
+	);
+
+	return $known[ $slug ] ?? '';
 }
 
 /**

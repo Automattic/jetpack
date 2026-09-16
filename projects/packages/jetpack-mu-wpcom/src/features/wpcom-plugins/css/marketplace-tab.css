@@ -47,13 +47,28 @@
 	font-size: 12px;
 }
 
-.wpcom-marketplace-tab .wpcom-marketplace-card__category {
+.wpcom-marketplace-tab .wpcom-marketplace-card__meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 2px 10px;
 	margin: 10px 0 0;
-	color: #50575e;
 	font-size: 11px;
 	font-weight: 600;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__category {
+	color: #50575e;
+}
+
+/*
+ * A missing dependency is a gate rather than a detail, so it is coloured like a
+ * warning instead of sitting quietly next to the category.
+ */
+.wpcom-marketplace-tab .wpcom-marketplace-card__requires {
+	color: #8a5700;
 }
 
 /*
@@ -74,15 +89,36 @@
 	-webkit-box-orient: vertical;
 }
 
+.wpcom-marketplace-tab .wpcom-marketplace-card__details {
+	margin: 0;
+	padding-block-start: 10px;
+
+	/* Everything from here down sits against the bottom of the card. */
+	margin-block-start: auto;
+	font-size: 13px;
+}
+
+/*
+ * The price reads as the cost of the action beside it, rather than as a fact
+ * stated a row earlier.
+ */
+.wpcom-marketplace-tab .wpcom-marketplace-card__footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px 12px;
+	margin-block-start: 8px;
+}
+
 .wpcom-marketplace-tab .wpcom-marketplace-card__price {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 
 	/* Reserved so a card with no monthly line keeps the same price height. */
-	min-block-size: 48px;
-	margin-block-start: auto;
-	padding-block-start: 10px;
+	min-block-size: 42px;
+	justify-content: center;
 }
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__headline,
@@ -128,21 +164,12 @@
 	white-space: nowrap;
 }
 
-.wpcom-marketplace-tab .wpcom-marketplace-card__actions {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: 8px 12px;
-	margin-block-start: 10px;
-}
-
 /*
  * An installed plugin gets core's `button-compact`, which is 8px shorter than
  * the purchase button. Left alone it pulls that card's price out of line with
  * the rest of the row, so every action here is sized the same.
  */
-.wpcom-marketplace-tab .wpcom-marketplace-card__actions .button {
+.wpcom-marketplace-tab .wpcom-marketplace-card__footer .button {
 	display: flex;
 	box-sizing: border-box;
 	align-items: center;
@@ -156,7 +183,7 @@
  * Same height again, one level more specific: core's own `.wp-core-ui
  * .button.button-compact` ties with the rule above and wins on order.
  */
-.wpcom-marketplace-tab .wpcom-marketplace-card__actions .button.button-compact {
+.wpcom-marketplace-tab .wpcom-marketplace-card__footer .button.button-compact {
 	min-block-size: 40px;
 }
 
