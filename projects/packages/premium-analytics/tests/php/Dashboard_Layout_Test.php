@@ -431,7 +431,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 4 ),
 			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 1, 2, 5 ),
 			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 3, 1, 6 ),
-			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 3, 2, 7 ),
+			'default-views-over-years-widget-instance'     => array( 'jpa/views-over-years', 3, 2, 7 ),
 			'default-tags-widget-instance'                 => array( 'jpa/tags', 2, 2, 8 ),
 			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
 			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 10 ),
@@ -466,6 +466,8 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertNotContains( 'jpa/total-visitors', $layout_types );
 		$this->assertNotContains( 'jpa/popular-days', $layout_types );
 		$this->assertNotContains( 'jpa/popular-hours', $layout_types );
+		// Replaced by Views over years (WOOA7S-2015); the type stays registered for saved layouts.
+		$this->assertNotContains( 'jpa/traffic-views-activity', $layout_types );
 
 		// Highlights falls back to the widget's own default metric list.
 		$this->assertArrayNotHasKey(
