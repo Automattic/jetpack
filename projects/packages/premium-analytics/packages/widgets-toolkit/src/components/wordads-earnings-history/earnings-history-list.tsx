@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import clsx from 'clsx';
 import { useMemo } from 'react';
 /**
@@ -8,12 +9,7 @@ import { useMemo } from 'react';
  */
 import { useElementSize } from '../../hooks/use-element-size';
 import styles from './earnings-history-list.module.scss';
-import {
-	EarningsAmount,
-	EarningsStatusLabel,
-	formatEarningsPeriod,
-	type EarningsHistoryRow,
-} from './fields';
+import { EarningsStatusLabel, formatEarningsPeriod, type EarningsHistoryRow } from './fields';
 
 export type EarningsHistoryListProps = {
 	rows?: EarningsHistoryRow[];
@@ -60,10 +56,10 @@ export function EarningsHistoryList( { rows = [], className }: EarningsHistoryLi
 						hidden={ index >= visibleCount }
 					>
 						<span className={ styles.period }>{ formatEarningsPeriod( row.period ) }</span>
-						<span className={ styles.amount }>
-							<EarningsAmount amount={ row.amount } />
+						<span className={ clsx( styles.amount, row.amount < 0 && styles.attention ) }>
+							{ formatMetricValue( row.amount, 'currency' ) }
 						</span>
-						<span className={ styles.status }>
+						<span className={ clsx( styles.status, row.status === 0 && styles.attention ) }>
 							<EarningsStatusLabel status={ row.status } />
 						</span>
 					</li>
