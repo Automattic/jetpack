@@ -18,7 +18,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 // Load the URL guard directly so importing its public UI barrel does not pull
 // unrelated components into this hook-level test.
 jest.mock( '@jetpack-premium-analytics/ui', () =>
-	jest.requireActual( '../../../packages/ui/src/utils/safe-http-url' )
+	jest.requireActual( '../../../../packages/ui/src/utils/safe-http-url' )
 );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
