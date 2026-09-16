@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useContext } from 'react';
 import { useGlobalChartsTheme } from '../../../providers';
 import styles from '../heatmap-chart.module.scss';
@@ -9,11 +10,21 @@ import type { CSSProperties, FC } from 'react';
 export interface HeatmapLegendProps {
 	/** Number of swatches in the scale. Default 5. */
 	steps?: number;
+	/**
+	 * `swatches` spaces the steps out as cell-sized squares; `bar` joins them
+	 * into one continuous band with rounded ends. Default `swatches`.
+	 */
+	variant?: 'swatches' | 'bar';
 	lessLabel?: string;
 	moreLabel?: string;
 }
 
-export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel, moreLabel } ) => {
+export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
+	steps = 5,
+	variant = 'swatches',
+	lessLabel,
+	moreLabel,
+} ) => {
 	const context = useContext( HeatmapContext );
 	const { legend } = useGlobalChartsTheme();
 	if ( ! context ) {
@@ -31,13 +42,19 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 			>
 				{ lessLabel ?? __( 'Less', 'jetpack-charts' ) }
 			</Text>
-			<Stack direction="row" gap="xs">
+			<span
+				aria-hidden="true"
+				data-testid="heatmap-legend-scale"
+				className={ clsx( styles[ 'heatmap-chart__legend-scale' ], {
+					[ styles[ 'heatmap-chart__legend-scale--bar' ] ]: variant === 'bar',
+				} ) }
+			>
 				{ Array.from( { length: steps }, ( _, index ) => {
 					const intensity = steps <= 1 ? 1 : index / ( steps - 1 );
 					return (
 						<span
 							key={ index }
-							aria-hidden="true"
+							data-testid="heatmap-legend-swatch"
 							className={ styles[ 'heatmap-chart__legend-swatch' ] }
 							style={
 								{
@@ -48,7 +65,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 						/>
 					);
 				} ) }
-			</Stack>
+			</span>
 			<Text
 				variant="body-sm"
 				className={ styles[ 'heatmap-chart__legend-label' ] }

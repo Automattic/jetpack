@@ -107,6 +107,12 @@ export interface HeatmapChartProps extends Omit<
 	 */
 	primaryColor?: string;
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
+	/**
+	 * The tooltip box: `light` is the plain white box, `dark` the package's
+	 * tooltip surface, themed through `--a8c-charts-color-tooltip-surface`.
+	 * Default `light`.
+	 */
+	tooltipVariant?: 'light' | 'dark';
 	children?: ReactNode;
 }
 

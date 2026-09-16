@@ -85,6 +85,31 @@ describe( 'HeatmapChart', () => {
 		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 	} );
 
+	test( 'draws the light tooltip box by default', async () => {
+		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+		await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.not.toHaveClass( 'surface' );
+		// Above a cell a consumer raises on hover.
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { zIndex: 3 } );
+	} );
+
+	test( 'draws the dark variant on the package tooltip surface, not the visx box', async () => {
+		renderChart( {
+			withTooltips: true,
+			tooltipVariant: 'dark',
+			rowLabels: [ 'Mon', 'Tue', 'Wed' ],
+		} );
+		await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveClass( 'surface' );
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).not.toHaveStyle( {
+			backgroundColor: 'white',
+		} );
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			pointerEvents: 'none',
+			zIndex: 3,
+		} );
+	} );
+
 	test( 'shows a tooltip on keyboard navigation when withTooltips is set', async () => {
 		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
@@ -114,6 +139,35 @@ describe( 'HeatmapChart', () => {
 		);
 		expect( screen.getByText( /less/i ) ).toBeInTheDocument();
 		expect( screen.getByText( /more/i ) ).toBeInTheDocument();
+	} );
+
+	test( 'draws the legend as separate swatches by default and as one bar on request', () => {
+		const { rerender } = render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data }>
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+		const scale = screen.getByTestId( 'heatmap-legend-scale' );
+		expect( scale ).not.toHaveClass( 'heatmap-chart__legend-scale--bar' );
+		expect( within( scale ).getAllByTestId( 'heatmap-legend-swatch' ) ).toHaveLength( 5 );
+
+		rerender(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data }>
+					<HeatmapChart.Legend variant="bar" steps={ 4 } />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+		expect( screen.getByTestId( 'heatmap-legend-scale' ) ).toHaveClass(
+			'heatmap-chart__legend-scale--bar'
+		);
+		expect(
+			within( screen.getByTestId( 'heatmap-legend-scale' ) ).getAllByTestId(
+				'heatmap-legend-swatch'
+			)
+		).toHaveLength( 4 );
 	} );
 
 	test( 'ArrowDown moves focus within a column, ArrowRight moves to next column', async () => {
