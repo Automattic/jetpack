@@ -12,6 +12,7 @@ type Props = {
 	onTabChange: ( tab: string | null ) => void;
 	children: ReactNode;
 	subpage: ReactNode;
+	actions?: ReactNode;
 };
 
 export default function BoostPage( {
@@ -20,11 +21,14 @@ export default function BoostPage( {
 	onTabChange,
 	children,
 	subpage,
+	actions,
 }: Props ) {
 	return (
 		<AdminPage
 			className={ clsx( 'jetpack-boost-page', { 'jetpack-boost-page--subpage': isSubpage } ) }
 			title="Boost"
+			subTitle={ __( 'Improve your site speed and performance.', 'jetpack-boost' ) }
+			actions={ actions }
 			apiRoot={ wpApiSettings.root }
 			apiNonce={ wpApiSettings.nonce }
 			showFooter={ ! isSubpage }
