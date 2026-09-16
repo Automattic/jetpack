@@ -28,8 +28,9 @@ export const MAX_CUSTOMER_NOTES = 2;
 // both read this, so no mode errors on a field it never shows.
 export const SHIPPING_MODES_WITH_FEE = [ 'FLAT', 'QUANTITY' ];
 
-// Shown under a field a merchant turned on and then left empty.
-const REQUIRED_FIELD_ERROR = __(
+// Shown under a field a merchant turned on and then left empty. Exported for the
+// customer-note rows, which validate in variant-builder.jsx.
+export const REQUIRED_FIELD_ERROR = __(
 	'To continue, add the requested info or turn off this feature.',
 	'jetpack-paypal-payments'
 );
@@ -110,7 +111,9 @@ export function validateProductName( value ) {
  * @return {string|null} Error message or null if valid.
  */
 export function validateDescription( value ) {
-	if ( value && value.length > MAX_DESCRIPTION_LENGTH ) {
+	// The server trims before it measures, so trim here too or a description padded
+	// with blank lines passes in the editor and fails on save.
+	if ( value && value.trim().length > MAX_DESCRIPTION_LENGTH ) {
 		return sprintf(
 			/* translators: %d: maximum number of characters allowed for the description */
 			__( 'Description must be %d characters or fewer.', 'jetpack-paypal-payments' ),

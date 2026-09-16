@@ -21,7 +21,7 @@ import {
 } from '../../../src/paypal-payment-buttons/utils/validation';
 // apiFetch mock — controls what the component receives from the REST API.
 const apiFetch = require( '@wordpress/api-fetch' );
-// Used by the ToggleControl mock below to id each toggle.
+// Used by the control mocks below to id each instance.
 const mockReact = require( 'react' );
 
 // The API-managed editor only renders while the feature flag is on.
@@ -224,8 +224,13 @@ jest.mock( '@wordpress/components', () => ( {
 	// .components-base-control__help - the class editor.scss keys on - and the label
 	// tied to the input by a shared id. Mock that, not an aria-label, so a field with
 	// no accessible name fails here.
+	//
+	// One id per instance, like CheckboxControl and ToggleControl below. Any mock
+	// drawn in a repeated row needs it: this one is the variant option price, and
+	// every option labels it `Price` with no aria-label to tell the rows apart.
+	// URLInput and TextareaControl id by label; each renders once.
 	__experimentalInputControl: ( { label, value, onChange, suffix, help, className, ...rest } ) => {
-		const id = `field-${ label }`;
+		const id = `field-${ mockReact.useId() }`;
 		return (
 			<div
 				data-testid={ `control-${ label }` }
@@ -245,6 +250,8 @@ jest.mock( '@wordpress/components', () => ( {
 	},
 	// isDestructive, isSmall and the __next* opt-ins are destructured off rather
 	// than spread: the real Button consumes them, so letting them reach the DOM warns.
+	// `icon` and `label` are rendered instead: the real Button draws the icon and
+	// turns `label` into aria-label. Spreading either one puts it on the DOM node raw.
 	// forwardRef because the real one is — the Copy button hands it a ref. The
 	// require is inline because jest hoists this factory above mockReact.
 	Button: require( 'react' ).forwardRef(
@@ -257,6 +264,9 @@ jest.mock( '@wordpress/components', () => ( {
 				isBusy,
 				isDestructive,
 				isSmall,
+				size,
+				icon,
+				label,
 				__next40pxDefaultSize,
 				__nextHasNoMarginBottom,
 				...rest
@@ -269,8 +279,11 @@ jest.mock( '@wordpress/components', () => ( {
 				disabled={ disabled }
 				data-variant={ variant }
 				data-busy={ isBusy }
+				data-size={ size }
+				aria-label={ label }
 				{ ...rest }
 			>
+				{ typeof icon === 'function' ? mockReact.createElement( icon ) : icon }
 				{ children }
 			</button>
 		)
@@ -380,8 +393,10 @@ jest.mock( '@wordpress/components', () => ( {
 			onChange={ e => onChange( e.target.value ) }
 		/>
 	),
+	// One id per instance, the way the real control ids itself. Notes repeat the
+	// 'Required' label, and a label-derived id would point every one at row 1's input.
 	CheckboxControl: ( { label, checked, onChange, help, disabled } ) => {
-		const id = `checkbox-${ label }`;
+		const id = `checkbox-${ mockReact.useId() }`;
 		return (
 			<div>
 				<input
@@ -396,9 +411,8 @@ jest.mock( '@wordpress/components', () => ( {
 			</div>
 		);
 	},
-	// One id per instance, the way the real control ids itself. Custom checkout
-	// fields repeat the same 'Required' label, and a shared id would point every
-	// one of those labels at the first field's input.
+	// One id per instance, the way the real control ids itself — same reason as
+	// CheckboxControl above.
 	ToggleControl: ( { label, checked, onChange, help, disabled } ) => {
 		const id = `toggle-${ mockReact.useId() }`;
 		return (
@@ -430,21 +444,26 @@ jest.mock( '@wordpress/components', () => ( {
 		__next40pxDefaultSize,
 		__nextHasNoMarginBottom,
 		...rest
-	} ) => (
-		<div data-testid={ `control-${ label }` } className={ className }>
-			<label htmlFor={ `field-${ label }` }>{ label }</label>
-			<input
-				id={ `field-${ label }` }
-				aria-label={ label }
-				value={ value || '' }
-				onChange={ e => onChange( e.target.value ) }
-				onBlur={ onBlur }
-				type={ type || 'text' }
-				{ ...rest }
-			/>
-			{ help && <span className="components-base-control__help">{ help }</span> }
-		</div>
-	),
+	} ) => {
+		// One id per instance, same reason as CheckboxControl above - customer notes
+		// repeat the 'Customer note label' string down the list.
+		const id = `field-${ mockReact.useId() }`;
+		return (
+			<div data-testid={ `control-${ label }` } className={ className }>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					aria-label={ label }
+					value={ value || '' }
+					onChange={ e => onChange( e.target.value ) }
+					onBlur={ onBlur }
+					type={ type || 'text' }
+					{ ...rest }
+				/>
+				{ help && <span className="components-base-control__help">{ help }</span> }
+			</div>
+		);
+	},
 	TextareaControl: ( { label, value, onChange, onBlur, help, className } ) => (
 		<div data-testid={ `control-${ label }` } className={ className }>
 			<label htmlFor={ `field-${ label }` }>{ label }</label>
@@ -2955,15 +2974,24 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( field ).not.toHaveAttribute( 'max' );
 		} );
 
-		it( 'writes the rate type', async () => {
+		it.each( [
+			[ 'PERCENTAGE', 'FLAT' ],
+			[ 'FLAT', 'PERCENTAGE' ],
+		] )( 'clears the rate when the rate type goes %s -> %s', async ( from, to ) => {
 			const user = userEvent.setup();
 			mockConnected();
 
-			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType: from } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
 			await waitForForm();
-			await user.selectOptions( screen.getByLabelText( 'Rate type' ), 'FLAT' );
+			await user.selectOptions( screen.getByLabelText( 'Rate type' ), to );
 
-			expect( setAttributes ).toHaveBeenCalledWith( { taxType: 'FLAT' } );
+			expect( setAttributes ).toHaveBeenCalledWith( { taxType: to, taxValue: '' } );
 		} );
 
 		// The mockup shows a $, so check the suffix follows the product's currency
@@ -3884,10 +3912,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 		} );
 
+		const required = 'To continue, add the requested info or turn off this feature.';
+
 		/**
-		 * Build a customer notes attribute with one labelled note per field.
+		 * Build a customer notes attribute with one labelled note per row.
 		 *
-		 * @param {number} count - How many fields to configure.
+		 * @param {number} count - How many notes to configure.
 		 * @return {Array} Customer notes.
 		 */
 		const notes = count =>
@@ -3897,13 +3927,54 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} ) );
 
 		/**
-		 * Render the create form with the given fields already configured.
+		 * One note row, scoped. A message found anywhere on the page says nothing about
+		 * which row it belongs to, and rows share a label, so the index is all there is.
+		 *
+		 * @param {number} index - Which row.
+		 * @return {object} Queries scoped to that row's control.
+		 */
+		const noteControl = index =>
+			within( screen.getAllByTestId( 'control-Customer note label' )[ index ] );
+
+		/**
+		 * Render the create form with the given notes already configured.
 		 *
 		 * @param {Array} customerNotes - The customerNotes attribute.
 		 * @return {object} Testing Library render result.
 		 */
-		const renderWith = customerNotes =>
+		const renderWith = customerNotes => renderForm( { customerNotes } );
+
+		/**
+		 * Render a block that already has a payment, where errors show without a blur.
+		 *
+		 * @param {Array} customerNotes - The customerNotes attribute.
+		 * @return {object} Testing Library render result.
+		 */
+		const renderSaved = customerNotes =>
 			render(
+				<Edit
+					attributes={ {
+						isApiManaged: true,
+						resourceId: 'PLB-NOTE1',
+						paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NOTE1',
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						customerNotes,
+					} }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+
+		/**
+		 * Re-render with a different set of notes, keeping every other prop.
+		 *
+		 * @param {Function} rerender      - The render result's rerender.
+		 * @param {Array}    customerNotes - The customerNotes attribute.
+		 */
+		const rerenderWith = ( rerender, customerNotes ) => {
+			rerender(
 				<Edit
 					attributes={ {
 						productName: 'Test Widget',
@@ -3914,8 +3985,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					setAttributes={ setAttributes }
 				/>
 			);
+		};
 
-		it( 'seeds one empty field when the toggle is turned on', async () => {
+		it( 'seeds one empty note when the toggle is turned on', async () => {
 			const user = userEvent.setup();
 			renderWith( [] );
 
@@ -3926,7 +3998,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		it( 'empties the fields when the toggle is turned off', async () => {
+		it( 'empties the notes when the toggle is turned off', async () => {
 			const user = userEvent.setup();
 			renderWith( notes( 1 ) );
 
@@ -3935,11 +4007,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( { customerNotes: [] } );
 		} );
 
-		it( 'saves the label on the field it was typed in', async () => {
+		it( 'saves the label on the note it was typed in', async () => {
 			const user = userEvent.setup();
 			renderWith( notes( 2 ) );
 
-			await user.type( await screen.findByLabelText( 'Field 2 label' ), 'X' );
+			await user.type( ( await screen.findAllByLabelText( 'Customer note label' ) )[ 1 ], 'X' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
 				customerNotes: [
@@ -3949,9 +4021,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		// Every field carries the same 'Required' label, so the index is the only
-		// thing saying which one was toggled.
-		it( 'marks the right field required', async () => {
+		// Every note has the same 'Required' label, so the index is the only thing
+		// saying which one was ticked.
+		it( 'marks the right note required', async () => {
 			const user = userEvent.setup();
 			renderWith( notes( 2 ) );
 
@@ -3965,24 +4037,24 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		it( 'offers a second field while only one is configured', async () => {
+		it( 'offers a second note while only one is configured', async () => {
 			renderWith( notes( 1 ) );
 
-			await expect( screen.findByText( 'Add field' ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByText( 'Add another note' ) ).resolves.toBeInTheDocument();
 		} );
 
 		it( 'stops offering more once two are configured', async () => {
 			renderWith( notes( 2 ) );
 
-			await expect( screen.findByLabelText( 'Field 2 label' ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByText( 'Add field' ) ).not.toBeInTheDocument();
+			await expect( screen.findAllByLabelText( 'Customer note label' ) ).resolves.toHaveLength( 2 );
+			expect( screen.queryByText( 'Add another note' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'adds the second field on Add field', async () => {
+		it( 'adds a second note when asked for another', async () => {
 			const user = userEvent.setup();
 			renderWith( notes( 1 ) );
 
-			await user.click( await screen.findByText( 'Add field' ) );
+			await user.click( await screen.findByText( 'Add another note' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
 				customerNotes: [
@@ -3992,38 +4064,156 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		it( 'keeps a third field editable but offers no fourth', async () => {
+		it( 'keeps a third note from an older button editable and caps the list there', async () => {
 			renderWith( notes( 3 ) );
 
-			await expect( screen.findByLabelText( 'Field 3 label' ) ).resolves.toHaveValue( 'Note 3' );
-			expect( screen.getByLabelText( 'Remove field 3' ) ).toBeInTheDocument();
-			expect( screen.queryByText( 'Add field' ) ).not.toBeInTheDocument();
+			await expect( ( await screen.findAllByLabelText( 'Customer note label' ) )[ 2 ] ).toHaveValue(
+				'Note 3'
+			);
+			expect( screen.getByLabelText( 'Remove customer note 3' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Add another note' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'offers the field again once one is removed', async () => {
+		// buildRequestData() drops a blank-labelled note, so the merchant has to be told here.
+		it( 'flags a blank label once the merchant leaves the note', async () => {
 			const user = userEvent.setup();
-			const { rerender } = render(
-				<Edit
-					attributes={ { productName: 'Test Widget', customerNotes: notes( 2 ) } }
-					setAttributes={ setAttributes }
-				/>
-			);
+			renderWith( [ { label: '', required: false } ] );
 
-			await expect( screen.findByLabelText( 'Remove field 2' ) ).resolves.toBeInTheDocument();
-			await user.click( screen.getByLabelText( 'Remove field 2' ) );
+			await visit( user, await screen.findByLabelText( 'Customer note label' ) );
+
+			expect( noteControl( 0 ).getByText( required ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Customer note label' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		it( 'stays quiet on a note the merchant just added', async () => {
+			const user = userEvent.setup();
+			const { rerender } = renderWith( [] );
+
+			await user.click( await screen.findByLabelText( 'Add customer note' ) );
+			rerenderWith( rerender, [ { label: '', required: false } ] );
+
+			expect( screen.queryByText( required ) ).not.toBeInTheDocument();
+		} );
+
+		// The payment is never sent while the label is blank, so the reason has to be
+		// visible without the merchant clicking into the field first.
+		it( 'flags a blank label that was already in the post', async () => {
+			renderWith( [ { label: '', required: false } ] );
+
+			await expect( screen.findByLabelText( 'Customer note label' ) ).resolves.toBeInTheDocument();
+			expect( noteControl( 0 ).getByText( required ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Customer note label' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// The merchant may never touch this field, so waiting for a blur shows nothing.
+		it( 'flags a saved blank note on first render', async () => {
+			renderSaved( [ { label: '', required: false } ] );
+
+			await expect( screen.findByText( required ) ).resolves.toBeInTheDocument();
+			expect( noteControl( 0 ).getByText( required ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
+		} );
+
+		it( 'leaves the panel closed while every saved label is filled', async () => {
+			renderSaved( notes( 2 ) );
+
+			await expect( screen.findAllByLabelText( 'Customer note label' ) ).resolves.toHaveLength( 2 );
+			expect( screen.queryByText( required ) ).not.toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'false' );
+		} );
+
+		it( 'flags the blank note and leaves the filled one alone', async () => {
+			renderSaved( [
+				{ label: 'Engraving', required: false },
+				{ label: '', required: false },
+			] );
+
+			await expect( screen.findByText( required ) ).resolves.toBeInTheDocument();
+			expect( noteControl( 1 ).getByText( required ) ).toBeInTheDocument();
+			expect( noteControl( 0 ).queryByText( required ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'stays quiet after the merchant leaves a filled label', async () => {
+			const user = userEvent.setup();
+			renderWith( notes( 2 ) );
+
+			const fields = await screen.findAllByLabelText( 'Customer note label' );
+			await visit( user, fields[ 1 ] );
+
+			expect( screen.queryByText( required ) ).not.toBeInTheDocument();
+			expect( screen.getByText( createdOnSave ) ).toBeInTheDocument();
+		} );
+
+		// Marks use the row index, so removing a note has to move them. removeNote()
+		// clears every note mark before re-adding them, so the shift is what keeps the
+		// remaining row's mark.
+		it( 'keeps flagging the blank note after the one above it is removed', async () => {
+			const user = userEvent.setup();
+			const { rerender } = renderWith( [
+				{ label: 'Engraving', required: false },
+				{ label: '', required: false },
+			] );
+
+			// Blur the blank second row, then drop the first - the mark has to follow.
+			await visit( user, ( await screen.findAllByLabelText( 'Customer note label' ) )[ 1 ] );
+			await user.click( screen.getByLabelText( 'Remove customer note 1' ) );
+
+			rerenderWith( rerender, [ { label: '', required: false } ] );
+
+			expect( noteControl( 0 ).getByText( required ) ).toBeInTheDocument();
+		} );
+
+		it( 'stays quiet on the note added by turning the toggle back on', async () => {
+			const user = userEvent.setup();
+			const { rerender } = renderWith( [ { label: '', required: false } ] );
+
+			await visit( user, await screen.findByLabelText( 'Customer note label' ) );
+			expect( screen.getByText( required ) ).toBeInTheDocument();
+
+			await user.click( screen.getByLabelText( 'Add customer note' ) );
+			rerenderWith( rerender, [] );
+			await user.click( screen.getByLabelText( 'Add customer note' ) );
+			rerenderWith( rerender, [ { label: '', required: false } ] );
+
+			expect( screen.queryByText( required ) ).not.toBeInTheDocument();
+		} );
+
+		// The same sentence whether or not any notes are configured.
+		it.each( [
+			[ 'no notes', [] ],
+			[ 'two notes', notes( 2 ) ],
+		] )( 'describes what customer notes are for with %s', async ( _label, configured ) => {
+			renderWith( configured );
+
+			await expect(
+				screen.findByText(
+					'Tell customers what you need, like personalization, gift messages, etc.'
+				)
+			).resolves.toBeInTheDocument();
+		} );
+
+		it( 'offers the note again once one is removed', async () => {
+			const user = userEvent.setup();
+			const { rerender } = renderWith( notes( 2 ) );
+
+			await expect(
+				screen.findByLabelText( 'Remove customer note 2' )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByLabelText( 'Remove customer note 2' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
 				customerNotes: [ { label: 'Note 1', required: false } ],
 			} );
 
-			rerender(
-				<Edit
-					attributes={ { productName: 'Test Widget', customerNotes: notes( 1 ) } }
-					setAttributes={ setAttributes }
-				/>
-			);
+			rerenderWith( rerender, notes( 1 ) );
 
-			expect( screen.getByText( 'Add field' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Add another note' ) ).toBeInTheDocument();
 		} );
 	} );
 

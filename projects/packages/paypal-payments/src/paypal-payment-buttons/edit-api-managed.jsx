@@ -36,6 +36,7 @@ import {
 import { createInterpolateElement, useState, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
+import GridiconPlus from 'gridicons/dist/plus-small';
 import AmountField from './components/amount-field';
 import ConfirmDialogs from './components/confirm-dialogs';
 import ConnectionWizard, { OnboardingFrame } from './components/connection-wizard';
@@ -46,6 +47,7 @@ import PayPalButtonPreview from './components/paypal-button-preview';
 import VariantBuilder, {
 	getComparisonPrice,
 	isVariantPricingOn,
+	validateCustomerNotes,
 	validateVariants,
 } from './components/variant-builder';
 import PayPalInspectorControls from './controls';
@@ -71,6 +73,12 @@ import {
 
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
+
+// Note rows have no id, so a touched mark uses the row index and removeNote() and
+// the toggle move them to match. A stable `_key` like variant-builder.jsx's would make
+// every mount report a change: resource-sync.js strips `_key` for variants alone.
+const NOTE_KEY_PREFIX = 'customerNote:';
+const noteFieldKey = noteIndex => `${ NOTE_KEY_PREFIX }${ noteIndex }`;
 
 const helpQtyOn = __( 'Customers can buy multiple units at checkout.', 'jetpack-paypal-payments' );
 const helpQtyOff = __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments' );
@@ -256,7 +264,18 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const [ showDisconnectConfirm, setShowDisconnectConfirm ] = useState( false );
 
 	// Inline validation state — track which fields have been touched.
-	const [ touchedFields, setTouchedFields ] = useState( {} );
+	//
+	// A note row already blank when the editor opened is one the merchant will never
+	// blur, so mark it touched up front and show its error. hasButton is not enough:
+	// a block saved with a blank label never gets a payment, so it reopens with no
+	// resourceId and would report itself incomplete while showing nothing.
+	const [ touchedFields, setTouchedFields ] = useState( () =>
+		Object.fromEntries(
+			( attributes.customerNotes || [] )
+				.map( ( note, i ) => ( note.label?.trim() ? null : [ noteFieldKey( i ), true ] ) )
+				.filter( Boolean )
+		)
+	);
 
 	/**
 	 * Mark a field as touched (user has interacted with it).
@@ -347,6 +366,14 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	);
 
 	/**
+	 * Customer note errors, one per row with a blank label (empty array if valid).
+	 */
+	const customerNoteErrors = useMemo(
+		() => validateCustomerNotes( customerNotes ),
+		[ customerNotes ]
+	);
+
+	/**
 	 * Whether the form is valid (no validation errors on required fields or variants).
 	 */
 	// The price field only hides while per-variant pricing is on, so seeing it with product
@@ -362,7 +389,10 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	// Derived over the errors rather than listed field by field, so a new one cannot be
 	// forgotten here. returnUrl stays out of the gate - a bad one warns and still saves,
 	// as it always has - which is what ADVISORY_ERROR_KEYS carries.
-	const isFormValid = ! hasBlockingError( validationErrors ) && variantErrors.length === 0;
+	const isFormValid =
+		! hasBlockingError( validationErrors ) &&
+		variantErrors.length === 0 &&
+		customerNoteErrors.length === 0;
 
 	const {
 		isBusy,
@@ -425,6 +455,74 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	 * Whether the block has a created button to preview.
 	 */
 	const hasButton = !! ( isApiManaged && resourceId && paymentLink );
+
+	/**
+	 * Show a row's error once the merchant leaves the field, or straight away on a
+	 * saved button, which the merchant may never touch - VariantBuilder's showAll rule.
+	 *
+	 * @param {number} noteIndex - Which row.
+	 * @return {string|undefined} The message, or undefined while it is still hidden.
+	 */
+	const noteErrorFor = noteIndex =>
+		hasButton || touchedFields[ noteFieldKey( noteIndex ) ]
+			? customerNoteErrors.find( e => e.index === noteIndex )?.message
+			: undefined;
+
+	/**
+	 * Patch one note row.
+	 *
+	 * @param {number} noteIndex - Which row.
+	 * @param {object} patch     - The fields to change.
+	 */
+	const updateNote = ( noteIndex, patch ) => {
+		setAttributes( {
+			customerNotes: customerNotes.map( ( note, i ) =>
+				i === noteIndex ? { ...note, ...patch } : note
+			),
+		} );
+	};
+
+	/**
+	 * Every touched mark except the note ones.
+	 *
+	 * @param {object} marks - The current touchedFields.
+	 * @return {object} The same marks with the note rows removed.
+	 */
+	const withoutNoteMarks = marks =>
+		Object.fromEntries(
+			Object.entries( marks ).filter( ( [ key ] ) => ! key.startsWith( NOTE_KEY_PREFIX ) )
+		);
+
+	/**
+	 * Drop a note row and move the touched marks down with it. Without the shift the
+	 * next row inherits the removed row's mark and shows an error the merchant never
+	 * triggered.
+	 *
+	 * @param {number} noteIndex - Which row.
+	 */
+	const removeNote = noteIndex => {
+		const remaining = customerNotes.filter( ( _, i ) => i !== noteIndex );
+
+		setAttributes( { customerNotes: remaining } );
+		setTouchedFields( prev => {
+			const next = withoutNoteMarks( prev );
+			remaining.forEach( ( _, i ) => {
+				if ( prev[ noteFieldKey( i < noteIndex ? i : i + 1 ) ] ) {
+					next[ noteFieldKey( i ) ] = true;
+				}
+			} );
+			return next;
+		} );
+	};
+
+	/**
+	 * Add an empty note row.
+	 */
+	const addNote = () => {
+		setAttributes( {
+			customerNotes: [ ...customerNotes, { label: '', required: false } ],
+		} );
+	};
 
 	// A block with nothing in it yet first offers the links the account already
 	// has, and the step is skipped when there are none.
@@ -773,7 +871,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									{ sprintf(
 										/* translators: 1: current character count, 2: maximum allowed */
 										__( '%1$d / %2$d characters', 'jetpack-paypal-payments' ),
-										( productDescription || '' ).length,
+										// Trimmed, because that is what validateDescription() and the
+										// server both count - otherwise this reads 2050 / 2048 with no error.
+										( productDescription || '' ).trim().length,
 										MAX_DESCRIPTION_LENGTH
 									) }
 								</>
@@ -879,23 +979,17 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 				     still close it. */ }
 				<PanelBody
 					title={ __( 'Checkout Options', 'jetpack-paypal-payments' ) }
-					initialOpen={ hasCheckoutOptionError( validationErrors ) }
+					initialOpen={
+						hasCheckoutOptionError( validationErrors ) || customerNoteErrors.length > 0
+					}
 				>
 					{ /* WOOPTP-171: Customer Notes */ }
 					<ToggleControl
 						label={ __( 'Add customer note', 'jetpack-paypal-payments' ) }
-						help={
-							customerNotes?.length > 0
-								? sprintf(
-										/* translators: %d: number of custom fields */
-										__( '%d custom field(s) configured.', 'jetpack-paypal-payments' ),
-										customerNotes.length
-								  )
-								: __(
-										'Add fields for gift messages, personalization, etc.',
-										'jetpack-paypal-payments'
-								  )
-						}
+						help={ __(
+							'Tell customers what you need, like personalization, gift messages, etc.',
+							'jetpack-paypal-payments'
+						) }
 						checked={ customerNotes?.length > 0 }
 						onChange={ value => {
 							if ( value ) {
@@ -905,67 +999,62 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 							} else {
 								setAttributes( resetToDefaults( 'customerNotes' ) );
 							}
+							// Off and on again makes a fresh blank row, which the old marks
+							// would flag before the merchant has been near it.
+							setTouchedFields( withoutNoteMarks );
 						} }
 						disabled={ isBusy }
 					/>
 					{ customerNotes?.length > 0 && (
 						<div className="jetpack-paypal-payment-buttons__customer-notes">
-							{ customerNotes.map( ( note, noteIndex ) => (
-								<div
-									key={ noteIndex }
-									className="jetpack-paypal-payment-buttons__customer-note"
-									role="group"
-									aria-label={ sprintf(
-										/* translators: %d: field number */
-										__( 'Custom field %d', 'jetpack-paypal-payments' ),
-										noteIndex + 1
-									) }
-								>
-									<TextControl
-										label={ sprintf(
-											/* translators: %d: field number */
-											__( 'Field %d label', 'jetpack-paypal-payments' ),
+							{ customerNotes.map( ( note, noteIndex ) => {
+								const noteError = noteErrorFor( noteIndex );
+
+								return (
+									<div
+										key={ noteIndex }
+										className="jetpack-paypal-payment-buttons__customer-note"
+										role="group"
+										aria-label={ sprintf(
+											/* translators: %d: note number */
+											__( 'Customer note %d', 'jetpack-paypal-payments' ),
 											noteIndex + 1
 										) }
-										value={ note.label || '' }
-										onChange={ value => {
-											const updated = [ ...customerNotes ];
-											updated[ noteIndex ] = {
-												...updated[ noteIndex ],
-												label: value,
-											};
-											setAttributes( { customerNotes: updated } );
-										} }
-										placeholder={ __( 'e.g., Gift Message', 'jetpack-paypal-payments' ) }
-										disabled={ isBusy }
-									/>
-									<div className="jetpack-paypal-payment-buttons__customer-note-controls">
-										<ToggleControl
-											label={ __( 'Required', 'jetpack-paypal-payments' ) }
-											checked={ note.required }
-											onChange={ value => {
-												const updated = [ ...customerNotes ];
-												updated[ noteIndex ] = {
-													...updated[ noteIndex ],
-													required: value,
-												};
-												setAttributes( { customerNotes: updated } );
-											} }
+									>
+										{ /* Rows share one label, so the group's aria-label above is what
+									     tells them apart for a screen reader. */ }
+										<TextControl
+											__nextHasNoMarginBottom
+											label={ __( 'Customer note label', 'jetpack-paypal-payments' ) }
+											value={ note.label || '' }
+											onChange={ value => updateNote( noteIndex, { label: value } ) }
+											placeholder={ __( 'For example: Gift message', 'jetpack-paypal-payments' ) }
+											onBlur={ () => markTouched( noteFieldKey( noteIndex ) ) }
+											help={ noteError }
+											className={
+												noteError ? 'jetpack-paypal-payment-buttons__has-error' : undefined
+											}
 											disabled={ isBusy }
 										/>
+										<CheckboxControl
+											__nextHasNoMarginBottom
+											label={ __( 'Required', 'jetpack-paypal-payments' ) }
+											checked={ !! note.required }
+											onChange={ value => updateNote( noteIndex, { required: value } ) }
+											disabled={ isBusy }
+										/>
+										{ /* TODO: the design shows no way back from two notes to one - confirm
+									     this Remove button with the designer. */ }
 										{ customerNotes.length > 1 && (
 											<Button
-												isSmall
+												size="small"
 												isDestructive
 												variant="tertiary"
-												onClick={ () => {
-													const updated = customerNotes.filter( ( _, i ) => i !== noteIndex );
-													setAttributes( { customerNotes: updated } );
-												} }
+												onClick={ () => removeNote( noteIndex ) }
 												disabled={ isBusy }
-												aria-label={ sprintf(
-													/* translators: %d: field number */
-													__( 'Remove field %d', 'jetpack-paypal-payments' ),
+												label={ sprintf(
+													/* translators: %d: note number */
+													__( 'Remove customer note %d', 'jetpack-paypal-payments' ),
 													noteIndex + 1
 												) }
 											>
@@ -973,20 +1062,17 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 											</Button>
 										) }
 									</div>
-								</div>
-							) ) }
+								);
+							} ) }
 							{ customerNotes.length < MAX_CUSTOMER_NOTES && (
 								<Button
-									isSmall
-									variant="secondary"
-									onClick={ () =>
-										setAttributes( {
-											customerNotes: [ ...customerNotes, { label: '', required: false } ],
-										} )
-									}
+									__next40pxDefaultSize
+									variant="tertiary"
+									icon={ GridiconPlus }
+									onClick={ addNote }
 									disabled={ isBusy }
 								>
-									{ __( 'Add field', 'jetpack-paypal-payments' ) }
+									{ __( 'Add another note', 'jetpack-paypal-payments' ) }
 								</Button>
 							) }
 						</div>
@@ -1074,7 +1160,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 											},
 											{ label: __( 'Amount', 'jetpack-paypal-payments' ), value: 'FLAT' },
 										] }
-										onChange={ value => setAttributes( { taxType: value } ) }
+										// 7.5% and $7.50 are different numbers, so clear the value when the
+										// type changes rather than keep it.
+										onChange={ value =>
+											setAttributes( { taxType: value, ...resetToDefaults( 'taxValue' ) } )
+										}
 										disabled={ isBusy }
 									/>
 									<AmountField

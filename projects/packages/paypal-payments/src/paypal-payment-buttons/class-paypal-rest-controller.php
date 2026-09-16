@@ -1122,7 +1122,9 @@ class PayPal_REST_Controller {
 
 			// Optional fields.
 			if ( ! empty( $item['description'] ) ) {
-				$clean_item['description'] = sanitize_text_field( $item['description'] );
+				// The control is a textarea and PayPal keeps the line breaks, so don't
+				// flatten them here.
+				$clean_item['description'] = sanitize_textarea_field( $item['description'] );
 			}
 
 			// PayPal fetches the image itself, so anything but a public HTTPS URL is

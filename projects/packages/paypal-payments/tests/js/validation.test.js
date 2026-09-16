@@ -136,6 +136,11 @@ describe( 'validateDescription', () => {
 		const maxDesc = 'a'.repeat( 2048 );
 		expect( validateDescription( maxDesc ) ).toBeNull();
 	} );
+	// The server trims before it measures, so the editor has to as well - otherwise a
+	// description padded with blank lines fails on save after passing here.
+	it( 'accepts a description padded with blank lines', () => {
+		expect( validateDescription( `\n\n${ 'D'.repeat( MAX_DESCRIPTION_LENGTH ) }\n\n` ) ).toBeNull();
+	} );
 } );
 
 describe( 'validateRequiredAmount', () => {

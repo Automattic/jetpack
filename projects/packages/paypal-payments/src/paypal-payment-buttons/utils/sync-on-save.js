@@ -13,6 +13,7 @@ import {
 	getComparisonPrice,
 	hasVariantPricing,
 	isVariantPricingOn,
+	validateCustomerNotes,
 	validateVariants,
 } from '../components/variant-builder';
 import { API_BASE } from './api-base';
@@ -32,8 +33,8 @@ export function forgetSyncedRequests() {
 /**
  * Why a block's form cannot be sent to PayPal yet, if it cannot.
  *
- * The same gate the editor shows the merchant: a blocking field error, or an
- * option group error, holds the payment back.
+ * The same check the editor shows the merchant: a blocking field error, an option
+ * group error, or a customer note error stops the payment being sent.
  *
  * @param {object} attributes - Block attributes.
  * @return {string|null} The first thing to fix, or null when the payment can go.
@@ -47,6 +48,7 @@ export function heldBackReason( attributes ) {
 		currencyCode,
 		variantsEnabled,
 		variants,
+		customerNotes,
 		taxEnabled,
 		taxType,
 		taxValue,
@@ -93,8 +95,13 @@ export function heldBackReason( attributes ) {
 	}
 
 	const [ variantError ] = validateVariants( variantsEnabled, variants, currencyCode || 'USD' );
+	if ( variantError ) {
+		return variantError.message;
+	}
 
-	return variantError ? variantError.message : null;
+	const [ noteError ] = validateCustomerNotes( customerNotes );
+
+	return noteError ? noteError.message : null;
 }
 
 /**

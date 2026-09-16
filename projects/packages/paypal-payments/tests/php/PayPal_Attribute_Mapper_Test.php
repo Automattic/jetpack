@@ -373,6 +373,28 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
+	 * Test that a multi-line description over the limit is rejected.
+	 *
+	 * Collapsing the line breaks lets a description over the limit measure under it, so
+	 * sanitize_text_field() would let one through.
+	 */
+	public function test_validate_rejects_a_multiline_description_over_the_limit() {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'        => 'Widget',
+				'price'              => '10.00',
+				'currencyCode'       => 'USD',
+				// 2049 as the merchant wrote it. sanitize_text_field() collapses the two
+				// newlines to one space and measures 2048, which is what let it through.
+				'productDescription' => str_repeat( 'D', 2046 ) . "\n\nD",
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'description_too_long', $result->get_error_code() );
+	}
+
+	/**
 	 * Test that a description at PayPal's 2048 limit is accepted.
 	 */
 	public function test_validate_accepts_description_at_max_length() {
@@ -588,6 +610,52 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 		$this->assertSame( '49.99', $attributes['price'] );
 		$this->assertEquals( 'A very fancy widget.', $attributes['productDescription'] );
 		$this->assertEquals( 'https://example.com/thanks', $attributes['returnUrl'] );
+	}
+
+	/**
+	 * Test that a multi-line description keeps its line breaks on the way back.
+	 *
+	 * PayPal returns the description exactly as sent, so a flattened one is our own
+	 * sanitizer's doing.
+	 */
+	public function test_api_response_to_attributes_keeps_description_newlines() {
+		$description = "Line one\n\nLine two\r\nLine three";
+
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'        => 'Fancy Widget',
+						'description' => $description,
+					),
+				),
+			)
+		);
+
+		$this->assertSame( $description, $attributes['productDescription'] );
+	}
+
+	/**
+	 * Test that a description keeps its internal breaks but loses the outer ones.
+	 *
+	 * The textarea sanitizer keeps the inner line breaks but still trims, so the outer
+	 * blank lines go.
+	 */
+	public function test_api_response_to_attributes_trims_the_outer_newlines() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'        => 'Fancy Widget',
+						'description' => "\n\nLine one\n\nLine two\n\n",
+					),
+				),
+			)
+		);
+
+		$this->assertSame( "Line one\n\nLine two", $attributes['productDescription'] );
 	}
 
 	/**

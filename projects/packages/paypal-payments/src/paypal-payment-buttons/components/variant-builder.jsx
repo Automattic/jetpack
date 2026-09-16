@@ -15,7 +15,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import GridiconTrash from 'gridicons/dist/trash';
 import { getPriceStep } from '../utils/currency-symbols';
 import { turnGateOff } from '../utils/resource-sync';
-import { validatePrice } from '../utils/validation';
+import { REQUIRED_FIELD_ERROR, validatePrice } from '../utils/validation';
 
 // Pre-extract translated strings used in ternaries to avoid i18n build errors.
 const helpVariants = __(
@@ -257,6 +257,26 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 	} );
 
 	return errors;
+}
+
+/**
+ * Validate the customer note rows a merchant has added.
+ *
+ * buildRequestData() silently drops a note with a blank label, so catch it here.
+ * Each error includes its row index, which getValidationErrors()'s one-message-per-field
+ * map has nowhere to put.
+ *
+ * @param {Array} customerNotes - The customerNotes attribute.
+ * @return {Array} Errors as { index, message }. Empty when every label is filled.
+ */
+export function validateCustomerNotes( customerNotes ) {
+	if ( ! customerNotes?.length ) {
+		return [];
+	}
+
+	return customerNotes.flatMap( ( note, index ) =>
+		note.label?.trim() ? [] : [ { index, message: REQUIRED_FIELD_ERROR } ]
+	);
 }
 
 /**

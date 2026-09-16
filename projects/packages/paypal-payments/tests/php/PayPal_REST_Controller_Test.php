@@ -1504,7 +1504,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$sent_item = array(
 			'name'                     => 'Widget',
-			'description'              => 'A fine widget.',
+			'description'              => "A fine widget.\n\nShips in two days.",
 			'image_url'                => 'https://example.com/widget.png',
 			'variants'                 => array(
 				'dimensions' => array(
@@ -1604,7 +1604,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$attributes = $data['attributes'];
 		$this->assertSame( 'Widget', $attributes['productName'] );
-		$this->assertSame( 'A fine widget.', $attributes['productDescription'] );
+		$this->assertSame( "A fine widget.\n\nShips in two days.", $attributes['productDescription'] );
 		$this->assertSame( 'https://example.com/widget.png', $attributes['imageUrl'] );
 		$this->assertTrue( $attributes['variantsEnabled'] );
 		$this->assertEquals( $expected_item['variants'], $attributes['variants'] );

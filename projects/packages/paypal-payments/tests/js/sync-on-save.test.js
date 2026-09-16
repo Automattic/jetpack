@@ -7,6 +7,7 @@
 import {
 	deleteRemovedPayments,
 	forgetSyncedRequests,
+	heldBackReason,
 	isReadyForPayPal,
 	removedResourceIds,
 	resourceIdsIn,
@@ -222,6 +223,38 @@ describe( 'isReadyForPayPal', () => {
 				discountValue: '5.00',
 			} )
 		).toBe( true );
+	} );
+
+	// The inspector and the post save both have to stop a blank-labelled note.
+	it( 'refuses to save a customer note with a blank label', () => {
+		const attributes = { ...product, customerNotes: [ { label: '', required: false } ] };
+
+		expect( isReadyForPayPal( attributes ) ).toBe( false );
+		expect( heldBackReason( attributes ) ).toBe(
+			'To continue, add the requested info or turn off this feature.'
+		);
+	} );
+
+	// heldBackReason checks variants before notes, so the order matters.
+	it( 'reports the variant error ahead of a blank customer note', () => {
+		const attributes = {
+			...product,
+			variantsEnabled: true,
+			variants: { dimensions: [ { name: '', primary: true, options: [] } ] },
+			customerNotes: [ { label: '', required: false } ],
+		};
+
+		expect( heldBackReason( attributes ) ).toBe( 'Variant name is required.' );
+	} );
+
+	it( 'lets a labelled customer note through', () => {
+		const attributes = {
+			...product,
+			customerNotes: [ { label: 'Engraving', required: true } ],
+		};
+
+		expect( isReadyForPayPal( attributes ) ).toBe( true );
+		expect( heldBackReason( attributes ) ).toBeNull();
 	} );
 
 	// With per-option pricing there is no product price, so the cheapest option is

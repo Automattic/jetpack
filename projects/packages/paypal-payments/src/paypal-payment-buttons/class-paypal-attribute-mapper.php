@@ -252,7 +252,9 @@ class PayPal_Attribute_Mapper {
 			}
 
 			if ( ! empty( $line_item['description'] ) ) {
-				$attributes['productDescription'] = sanitize_text_field( $line_item['description'] );
+				// PayPal returns the description exactly as sent, so use the textarea
+				// sanitizer - sanitize_text_field() flattens the line breaks.
+				$attributes['productDescription'] = sanitize_textarea_field( $line_item['description'] );
 			}
 
 			if ( ! empty( $line_item['image_url'] ) ) {
@@ -456,7 +458,9 @@ class PayPal_Attribute_Mapper {
 
 		// Optional: description length.
 		if ( ! empty( $attributes['productDescription'] ) ) {
-			$description = sanitize_text_field( $attributes['productDescription'] );
+			// Count the description as the merchant wrote it - sanitize_text_field()
+			// collapses newlines, so a too-long description measures short and gets through.
+			$description = sanitize_textarea_field( $attributes['productDescription'] );
 			if ( mb_strlen( $description ) > self::MAX_DESCRIPTION_LENGTH ) {
 				return new WP_Error(
 					'description_too_long',
