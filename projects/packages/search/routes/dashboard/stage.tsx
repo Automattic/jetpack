@@ -10,4 +10,17 @@ import '../../src/dashboard/scss/admin-layout.scss';
 const store = createReduxStore( STORE_ID, storeConfig );
 register( store );
 
-export { SearchDashboard as stage };
+/**
+ * Keeps the `#jp-search-dashboard` wrapper the legacy entry mounted into. Nine rules in
+ * `dashboard-page.scss` are scoped to it, including the `font-size: 16px` every em in the
+ * dashboard resolves against — without it the tree renders against wp-admin's 13px.
+ *
+ * @return The dashboard, wrapped as the stylesheet expects.
+ */
+const Stage = () => (
+	<div id="jp-search-dashboard">
+		<SearchDashboard />
+	</div>
+);
+
+export { Stage as stage };
