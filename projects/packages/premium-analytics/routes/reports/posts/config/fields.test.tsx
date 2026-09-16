@@ -149,6 +149,15 @@ describe( 'posts title field', () => {
 		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( 42, 'post' );
 	} );
 
+	it( 'renders an empty image when a row has no thumbnail', () => {
+		renderTitleField( homepage );
+
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			expect.stringContaining( 'data:image/svg+xml' )
+		);
+	} );
+
 	it( 'links the homepage row to the site home URL', () => {
 		mockUseSiteHomeUrl.mockReturnValue( 'https://example.com/' );
 

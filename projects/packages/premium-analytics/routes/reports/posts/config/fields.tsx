@@ -26,6 +26,8 @@ const VIEWS_DATA_FORMAT = {
 	type: 'number',
 	options: { decimals: 0, useMultipliers: false },
 } as const;
+const EMPTY_IMAGE_URL =
+	'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="%23e5e7eb"/></svg>';
 
 type PostTitleProps = {
 	item: StatsTopPostsComparisonItem;
@@ -33,12 +35,12 @@ type PostTitleProps = {
 };
 
 /**
- * Hide an unavailable thumbnail while preserving its slot.
+ * Replace an unavailable thumbnail with the empty-image fallback.
  *
  * @param event - Image error event.
  */
 function handleThumbnailError( event: SyntheticEvent< HTMLImageElement > ): void {
-	event.currentTarget.hidden = true;
+	event.currentTarget.src = EMPTY_IMAGE_URL;
 }
 
 /**
@@ -51,17 +53,15 @@ function handleThumbnailError( event: SyntheticEvent< HTMLImageElement > ): void
 function PostThumbnail( { url }: { url?: string } ): JSX.Element {
 	return (
 		<span className={ styles.thumbnailSlot }>
-			{ url && (
-				<img
-					key={ url }
-					src={ url }
-					alt=""
-					width={ 48 }
-					height={ 48 }
-					className={ styles.thumbnail }
-					onError={ handleThumbnailError }
-				/>
-			) }
+			<img
+				key={ url }
+				src={ url || EMPTY_IMAGE_URL }
+				alt=""
+				width={ 32 }
+				height={ 32 }
+				className={ styles.thumbnail }
+				onError={ handleThumbnailError }
+			/>
 		</span>
 	);
 }

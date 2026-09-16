@@ -7,24 +7,28 @@
 .thumbnailSlot {
 	display: flex;
 	flex-shrink: 0;
-	inline-size: 48px;
-	block-size: 48px;
+	inline-size: 32px;
+	block-size: 32px;
 }
 
 .thumbnail {
-	inline-size: 48px;
-	block-size: 48px;
+	inline-size: 32px;
+	block-size: 32px;
 	border-radius: var(--wpds-border-radius-md);
 	object-fit: cover;
 }
 
 .titleLink {
+	display: inline-flex;
+	align-items: center;
 	min-inline-size: 0;
+	max-inline-size: 100%;
 	overflow: hidden;
+	white-space: nowrap;
 }
 
 .titleText {
-	display: block;
+	min-inline-size: 0;
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
