@@ -11,9 +11,6 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
  * Renders the Like buttons section.
- *
- * Turning the Likes module on and off belongs to the Jetpack dashboard; this
- * section only configures the buttons, and links there when they are off.
  */
 final class Likes_Section {
 
@@ -106,7 +103,6 @@ final class Likes_Section {
 			)
 		);
 		self::render_site_editor_link();
-		self::render_activate_form( false );
 	}
 
 	/**
@@ -121,16 +117,13 @@ final class Likes_Section {
 	}
 
 	/**
-	 * The way back from either off variant. See `Post_Handler::activate_module()`.
-	 *
-	 * @param bool $primary Whether this is the only action offered.
+	 * The way back. See `Post_Handler::activate_module()`.
 	 */
-	private static function render_activate_form( bool $primary = true ): void {
+	private static function render_activate_form(): void {
 		Post_Handler::render_action_form(
 			'activate-likes',
 			self::NONCE_ACTION,
-			__( 'Turn on Like buttons', 'jetpack-sharing-likes' ),
-			$primary
+			__( 'Turn on Like buttons', 'jetpack-sharing-likes' )
 		);
 	}
 

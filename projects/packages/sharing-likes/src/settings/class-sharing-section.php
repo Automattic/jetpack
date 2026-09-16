@@ -11,9 +11,6 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 /**
  * Renders the Sharing buttons section.
- *
- * Turning the Sharing module on and off belongs to the Jetpack dashboard; this
- * section only configures the buttons, and links there when they are off.
  */
 final class Sharing_Section {
 
@@ -71,7 +68,6 @@ final class Sharing_Section {
 			)
 		);
 		self::render_site_editor_link();
-		self::render_activate_form( false );
 	}
 
 	/**
@@ -90,11 +86,9 @@ final class Sharing_Section {
 	}
 
 	/**
-	 * The way back from either off variant. See `Post_Handler::activate_module()`.
-	 *
-	 * @param bool $primary Whether this is the only action offered.
+	 * The way back. See `Post_Handler::activate_module()`.
 	 */
-	private static function render_activate_form( bool $primary = true ): void {
+	private static function render_activate_form(): void {
 		if ( ! Environment::can_activate_modules() ) {
 			printf(
 				'<p>%s</p>',
@@ -106,8 +100,7 @@ final class Sharing_Section {
 		Post_Handler::render_action_form(
 			'activate-sharing',
 			self::NONCE_ACTION,
-			__( 'Turn on sharing buttons', 'jetpack-sharing-likes' ),
-			$primary
+			__( 'Turn on sharing buttons', 'jetpack-sharing-likes' )
 		);
 	}
 

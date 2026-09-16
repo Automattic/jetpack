@@ -14,6 +14,12 @@ whichever modules are active.
 `Section_State` decides which of four variants a section renders. `Environment`
 reads the site facts it needs. Everything else renders.
 
+The two off variants are not symmetrical. `OFF` offers a form that turns the
+module back on; `BLOCK_CALL_TO_ACTION` deliberately does not, because the
+Jetpack dashboard drops its own module toggle on exactly those sites — see
+`moduleAction()` in `_inc/client/sharing/share-buttons.jsx` and `likes.jsx`.
+Adding a way back there reopens a door the dashboard closed on purpose.
+
 `load-jetpack.php` does not run on WordPress.com Simple, so the registration
 above does not happen there. Simple's own registration is a wpcom-side change.
 
@@ -140,6 +146,13 @@ whose entries are `array( 'version' => …, 'path' => … )`. Composer's own
 **Keep `Section_State` free of WordPress calls.** That is what lets every state
 be asserted without a bootstrapped site. Environment lookups belong in
 `Environment`.
+
+**A block theme is available to tests.** `tests/php/fixtures/themes/block-theme`
+ships `templates/single.html`, which is what makes `wp_is_block_theme()` true and
+gives `Environment::post_template_url()` a real target. The `Section_Environment`
+trait registers the directory and pins the stylesheet to it; the suite's default
+theme is neither a block theme nor resolvable, so nothing reaches the block
+variants without that pin.
 
 ## Moving more code in here
 
