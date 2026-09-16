@@ -9,9 +9,12 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
+
+require_once __DIR__ . '/../lib/class-jetpack-likes-settings.php';
 
 /**
  * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section
@@ -25,7 +28,35 @@ class Placement_Section_Test extends BaseTestCase {
 	public function tear_down() {
 		delete_option( 'sharing-options' );
 
+		unset( $GLOBALS['sharing_likes_test_likes_show'] );
+		Jetpack_Options::delete_option( 'active_modules' );
+		remove_all_filters( 'jetpack_is_connection_ready' );
+		remove_all_filters( 'jetpack_get_available_standalone_modules' );
+
 		parent::tear_down();
+	}
+
+	/**
+	 * Report the module slugs as available, so `Modules` does not filter them
+	 * out of the active list for want of a plugin to read module headers from.
+	 *
+	 * @return string[]
+	 */
+	public function offer_modules(): array {
+		return array( 'likes' );
+	}
+
+	/**
+	 * Put the site in the state where the Likes settings are the ones in use.
+	 *
+	 * @param mixed $show What `Jetpack_Likes_Settings` reports as the placement.
+	 */
+	private function given_likes_running( $show ): void {
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_modules' ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		Jetpack_Options::update_option( 'active_modules', array( 'likes' ) );
+
+		$GLOBALS['sharing_likes_test_likes_show'] = $show;
 	}
 
 	/**
@@ -98,5 +129,44 @@ class Placement_Section_Test extends BaseTestCase {
 			array( 'post', 'page', 'index' ),
 			Placement_Section::selected_post_types()
 		);
+	}
+
+	/**
+	 * The two features disagree about the default: sharing uses posts and pages,
+	 * Likes adds public commentable custom post types. On a site running Likes
+	 * the narrower answer understates where the buttons are — and because these
+	 * checkboxes are what the next save posts back, saving the screen unchanged
+	 * would then stop Like buttons rendering on those custom post types.
+	 */
+	public function test_unsaved_option_defers_to_the_likes_defaults_when_likes_are_running(): void {
+		$this->given_likes_running( array( 'post', 'page', 'book' ) );
+
+		$this->assertSame(
+			array( 'post', 'page', 'book' ),
+			Placement_Section::selected_post_types()
+		);
+	}
+
+	/**
+	 * The deferral goes through the same normalisation as a stored value, since
+	 * `Jetpack_Likes_Settings::get_options()` maps the pre-2.x scalar too.
+	 */
+	public function test_likes_defaults_are_normalised_like_a_stored_value(): void {
+		$this->given_likes_running( 'posts-index' );
+
+		$this->assertSame(
+			array( 'post', 'page', 'index' ),
+			Placement_Section::selected_post_types()
+		);
+	}
+
+	/**
+	 * A saved value is the site owner's choice and outranks either default.
+	 */
+	public function test_a_saved_placement_outranks_the_likes_defaults(): void {
+		$this->given_likes_running( array( 'post', 'page', 'book' ) );
+		update_option( 'sharing-options', array( 'global' => array( 'show' => array( 'index' ) ) ) );
+
+		$this->assertSame( array( 'index' ), Placement_Section::selected_post_types() );
 	}
 }

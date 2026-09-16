@@ -22,27 +22,24 @@ use PHPUnit\Framework\TestCase;
 class Section_State_Test extends TestCase {
 
 	/**
-	 * Every state the Sharing and Likes sections can be in.
+	 * Every state a section can be in.
 	 *
-	 * Both sections resolve identically; only their contents differ. The cell
-	 * labels match the design matrix on CM-912.
+	 * Both sections resolve identically, and only these two booleans reach the
+	 * resolver: the platform, the theme and the module all collapse into them
+	 * before they get here, which is why the CM-912 matrix has more cells than
+	 * this has rows. Whether the right booleans arrive is `Environment_Test`
+	 * and each section's own `can_offer_block()`.
 	 *
 	 * @return array<string, array{0: bool, 1: bool, 2: string}>
 	 */
 	public static function provide_sections(): array {
 		return array(
-			'S1 Jetpack, classic theme, sharing active'   => array( false, true, Section_State::CONFIGURE ),
-			'S2 Jetpack, classic theme, sharing inactive' => array( false, false, Section_State::OFF ),
-			'S3 Jetpack, block theme, sharing active'     => array( true, true, Section_State::CONFIGURE_WITH_BLOCK_NUDGE ),
-			'S4 Jetpack, block theme, sharing inactive'   => array( true, false, Section_State::BLOCK_CALL_TO_ACTION ),
-			'S5 Simple, classic theme'                    => array( false, true, Section_State::CONFIGURE ),
-			'S6 Simple, block theme'                      => array( true, true, Section_State::CONFIGURE_WITH_BLOCK_NUDGE ),
-			'L1 Jetpack, classic theme, likes active'     => array( false, true, Section_State::CONFIGURE ),
-			'L2 Jetpack, classic theme, likes inactive'   => array( false, false, Section_State::OFF ),
-			'L3 Jetpack, block theme, likes active'       => array( true, true, Section_State::CONFIGURE_WITH_BLOCK_NUDGE ),
-			'L4 Jetpack, block theme, likes inactive'     => array( true, false, Section_State::BLOCK_CALL_TO_ACTION ),
-			'L5 Simple, classic theme'                    => array( false, true, Section_State::CONFIGURE ),
-			'L6 Simple, block theme'                      => array( true, true, Section_State::CONFIGURE_WITH_BLOCK_NUDGE ),
+			'live feature, no block route'   => array( false, true, Section_State::CONFIGURE ),
+			'off feature, no block route'    => array( false, false, Section_State::OFF ),
+			// A live feature keeps its options on a block theme: the legacy output is
+			// still on the site. The Atomic behaviour this reverses replaced them outright.
+			'live feature, block route open' => array( true, true, Section_State::CONFIGURE_WITH_BLOCK_NUDGE ),
+			'off feature, block route open'  => array( true, false, Section_State::BLOCK_CALL_TO_ACTION ),
 		);
 	}
 
@@ -55,18 +52,6 @@ class Section_State_Test extends TestCase {
 	#[DataProvider( 'provide_sections' )]
 	public function test_section_variant( bool $can_offer_block, bool $feature_enabled, string $expected ): void {
 		$this->assertSame( $expected, Section_State::for_section( $can_offer_block, $feature_enabled ) );
-	}
-
-	/**
-	 * A live feature on a block theme keeps its options, because its legacy
-	 * output is still on the site. Regression guard for the Atomic behaviour
-	 * this reverses, where the options were replaced outright.
-	 */
-	public function test_block_theme_keeps_options_while_feature_is_live(): void {
-		$this->assertSame(
-			Section_State::CONFIGURE_WITH_BLOCK_NUDGE,
-			Section_State::for_section( true, true )
-		);
 	}
 
 	/**
