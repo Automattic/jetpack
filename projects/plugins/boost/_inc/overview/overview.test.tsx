@@ -11,6 +11,7 @@ import {
 	within,
 } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { useState } from 'react';
 import { useSingleModuleState } from '../../app/assets/src/js/features/module/lib/stores';
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
@@ -20,6 +21,7 @@ import * as speedScores from './lib/use-speed-scores';
 import Overview from './overview';
 import ScoreCard from './score-card';
 import ScoreCards from './score-cards';
+import type { ReactNode } from 'react';
 
 jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
 	...jest.requireActual( '@automattic/jetpack-boost-score-api' ),
@@ -91,11 +93,21 @@ function queryWrapper() {
 	);
 }
 
+function OverviewWithHeader( { isVisible }: { isVisible?: boolean } ) {
+	const [ action, setAction ] = useState< ReactNode >( null );
+	return (
+		<>
+			<header>{ action }</header>
+			<Overview isVisible={ isVisible } onHeaderActionChange={ setAction } />
+		</>
+	);
+}
+
 function renderOverview() {
 	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
 	const view = render(
 		<QueryClientProvider client={ client }>
-			<Overview />
+			<OverviewWithHeader />
 		</QueryClientProvider>
 	);
 	return { ...view, client };
@@ -112,7 +124,7 @@ test( 'contains a render failure with the Overview error fallback', () => {
 			screen.getByText( 'Unable to display performance scores', { selector: 'span' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Score rendering failed' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Refresh' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
 	} finally {
 		scoreHook.mockRestore();
 		consoleError.mockRestore();
@@ -164,7 +176,7 @@ test.each( [
 	try {
 		const { rerender } = render(
 			<div hidden>
-				<Overview isVisible={ false } />
+				<Overview isVisible={ false } onHeaderActionChange={ () => {} } />
 			</div>,
 			{ wrapper }
 		);
@@ -178,7 +190,7 @@ test.each( [
 		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
 		rerender(
 			<div>
-				<Overview isVisible />
+				<Overview isVisible onHeaderActionChange={ () => {} } />
 			</div>
 		);
 		await waitFor( () => expect( region ).toHaveTextContent( message ) );
@@ -199,7 +211,7 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 		wpApiSettings.nonce
 	);
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Refresh' } ) );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	await waitFor( () =>
 		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
 			true,
@@ -208,10 +220,47 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 			wpApiSettings.nonce
 		)
 	);
-	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_refresh_clicked', {} );
+	expect(
+		jest
+			.mocked( recordBoostEvent )
+			.mock.calls.filter( ( [ event ] ) => event.includes( 'refresh' ) )
+	).toEqual( [ [ 'speed_score_refresh_clicked', {} ] ] );
+	expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
 	await waitFor( () =>
 		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'performance_history' ] } )
 	);
+} );
+
+test( 'offers Run speed test in the page header only while the Overview is visible', async () => {
+	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const dashboard = ( isVisible: boolean ) => (
+		<QueryClientProvider client={ client }>
+			<OverviewWithHeader isVisible={ isVisible } />
+		</QueryClientProvider>
+	);
+	const view = render( dashboard( true ) );
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	expect(
+		within( screen.getByRole( 'banner' ) ).getByRole( 'button', { name: 'Run speed test' } )
+	).toBeEnabled();
+	expect( screen.queryByRole( 'button', { name: 'Refresh' } ) ).not.toBeInTheDocument();
+	view.rerender( dashboard( false ) );
+	expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
+	view.rerender( dashboard( true ) );
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toBeEnabled();
+	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
+		throw new Error( 'Score rendering failed' );
+	} );
+	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	try {
+		view.rerender( dashboard( true ) );
+		expect( screen.getByText( 'Score rendering failed' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
+	} finally {
+		scoreHook.mockRestore();
+		consoleError.mockRestore();
+		client.clear();
+	}
 } );
 
 test( 'ignores legacy polls and refetches only the key written by the legacy cache', async () => {
@@ -310,7 +359,7 @@ test( 'regenerates scores after a Settings toggle and return to the mounted Over
 		<>
 			<div hidden={ ! isOverview }>
 				<QueryClientProvider client={ client }>
-					<Overview isVisible={ isOverview } />
+					<Overview isVisible={ isOverview } onHeaderActionChange={ () => {} } />
 				</QueryClientProvider>
 			</div>
 			<div hidden={ isOverview }>
@@ -358,7 +407,7 @@ test( 'keeps offline sites out of score and Data Sync requests', async () => {
 	expect(
 		screen.getByText( 'Website is not publicly available', { selector: 'span' } )
 	).toBeInTheDocument();
-	expect( screen.queryByRole( 'button', { name: 'Refresh' } ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
 	expect( requestSpeedScores ).not.toHaveBeenCalled();
 	expect( apiFetch ).not.toHaveBeenCalled();
 	const { result } = renderHook( () => speedScores.useSpeedScores(), { wrapper: queryWrapper() } );
@@ -378,7 +427,7 @@ test( 'tracks score errors and offers a successful retry', async () => {
 	for ( const name of [ 'Overall grade', 'Desktop', 'Mobile' ] ) {
 		expect( screen.getByRole( 'region', { name } ) ).toHaveAttribute( 'aria-busy', 'false' );
 	}
-	expect( screen.getByRole( 'button', { name: 'Refresh' } ) ).toBeEnabled();
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toBeEnabled();
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_request_error', {
 		error_message: 'Score service unavailable',
 	} );
@@ -387,11 +436,11 @@ test( 'tracks score errors and offers a successful retry', async () => {
 	expect( screen.queryByText( 'Score service unavailable' ) ).not.toBeInTheDocument();
 } );
 
-test( 'retains loaded scores and Refresh alongside a subsequent score error', async () => {
+test( 'retains loaded scores and Run speed test alongside a subsequent score error', async () => {
 	renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
 	jest.mocked( requestSpeedScores ).mockRejectedValueOnce( new Error( 'Refresh failed' ) );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Refresh' } ) );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	await expect( screen.findByText( 'Refresh failed' ) ).resolves.toBeTruthy();
 	expect( screen.getByText( '91' ) ).toBeInTheDocument();
 	expect( screen.getByText( '81' ) ).toBeInTheDocument();
@@ -399,8 +448,14 @@ test( 'retains loaded scores and Refresh alongside a subsequent score error', as
 		'aria-busy',
 		'false'
 	);
-	expect( screen.getByRole( 'button', { name: 'Refresh' } ) ).toBeEnabled();
-	fireEvent.click( screen.getByRole( 'button', { name: 'Refresh' } ) );
+	// The header re-enables in a later render than the notice, and a click on it while aria-disabled is ignored.
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		)
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	await waitFor( () => expect( screen.queryByText( 'Refresh failed' ) ).not.toBeInTheDocument() );
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
 } );
@@ -415,7 +470,7 @@ test( 'does not present initial loading scores as measured scores', () => {
 		'true'
 	);
 	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
-	fireEvent.click( screen.getByRole( 'button', { name: 'Refresh' } ) );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
 } );
 

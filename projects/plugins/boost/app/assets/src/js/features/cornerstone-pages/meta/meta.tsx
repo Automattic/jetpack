@@ -126,38 +126,47 @@ const CornerstonePagesContent = () => {
 	);
 };
 
-const Meta = () => {
+export const CornerstonePagesDescription = () => {
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
+
+	return createInterpolateElement(
+		__(
+			'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
+			'jetpack-boost'
+		),
+		{
+			link: (
+				<Link
+					openInNewTab
+					href={ cornerstonePagesSupportLink }
+					onClick={ () => {
+						recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
+					} }
+				/>
+			),
+			b: <b />,
+		}
+	);
+};
+
+export const CornerstonePagesEditor = () => {
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
 
 	return (
-		<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
-			<p>
-				{ createInterpolateElement(
-					__(
-						'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
-						'jetpack-boost'
-					),
-					{
-						link: (
-							<Link
-								openInNewTab
-								href={ cornerstonePagesSupportLink }
-								onClick={ () => {
-									recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
-								} }
-							/>
-						),
-						b: <b />,
-					}
-				) }
-			</p>
-			<div className={ styles.body }>
-				{ cornerstonePagesProperties ? <CornerstonePagesContent /> : <MetaError /> }
-			</div>
+		<div className={ styles.body }>
+			{ cornerstonePagesProperties ? <CornerstonePagesContent /> : <MetaError /> }
 		</div>
 	);
 };
+
+const Meta = () => (
+	<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
+		<p>
+			<CornerstonePagesDescription />
+		</p>
+		<CornerstonePagesEditor />
+	</div>
+);
 
 type ListProps = {
 	items: string;

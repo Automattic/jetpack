@@ -7,7 +7,7 @@ import { speak } from '@wordpress/a11y';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import illustrationUrl from './upsell-illustration.svg';
+import assetUrl from '../asset-url';
 import './style.scss';
 
 /**
@@ -22,6 +22,8 @@ export default function McpConnectCallout( { userConnectionUrl } ) {
 	useEffect( () => {
 		speak( __( 'A user connection lets agents securely act on your behalf.', 'jetpack' ) );
 	}, [] );
+
+	const illustrationUrl = assetUrl( 'upsell-illustration.svg' );
 
 	return (
 		<div className="jetpack-ai-mcp__upsell-callout">
@@ -42,12 +44,14 @@ export default function McpConnectCallout( { userConnectionUrl } ) {
 					{ __( 'Connect your user account', 'jetpack' ) }
 				</Button>
 			</div>
-			<img
-				className="jetpack-ai-mcp__upsell-callout-image"
-				src={ illustrationUrl }
-				alt=""
-				role="presentation"
-			/>
+			{ illustrationUrl && (
+				<img
+					className="jetpack-ai-mcp__upsell-callout-image"
+					src={ illustrationUrl }
+					alt=""
+					role="presentation"
+				/>
+			) }
 		</div>
 	);
 }
