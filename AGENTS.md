@@ -346,6 +346,8 @@ Before introducing new dependencies:
 - Check for reusable components, utilities, or hooks in shared packages
 - Review existing WordPress core and Jetpack APIs
 - Prioritize internal packages and APIs over external dependencies
+- When plugin PHP code calls a newly added shared-package method, guard it with `method_exists()` and preserve a backward-compatible fallback.
+- Another plugin may load an older class before all Jetpack autoloaders register, or through a different or higher-priority autoloader.
 
 ## Common Pitfalls
 

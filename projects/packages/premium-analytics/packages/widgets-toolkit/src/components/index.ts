@@ -13,6 +13,7 @@ export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
 	type SeriesStyle,
+	type TooltipExtraSeries,
 } from './chart-comparative-line';
 export {
 	ComparativeBarChart,
@@ -184,6 +185,8 @@ export {
 export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
 	EARNINGS_HISTORY_VIEW,
+	EarningsHistoryList,
+	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
 	getEarningsStatus,
 	getWordAdsHistoryFields,

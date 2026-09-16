@@ -12,7 +12,7 @@ Tooltips render inside the chart, so they carry the class only when no provider 
 
 Inside a provider a tooltip therefore inherits the provider's inline `theme` var and any consumer rule scoped to the provider wrapper, the same as the chart it belongs to.
 
-Each catalog entry maps to a WPDS token. Source writes the mapping bare; the LightningCSS plugin in `tsdown.config.ts` injects the WPDS spec value as a fallback into `dist/`:
+Catalog entries normally map to WPDS tokens. Source writes these mappings bare; the LightningCSS plugin in `tsdown.config.ts` injects the WPDS spec value as a fallback into `dist/`:
 
 ```scss
 :where(.a8c-charts-scope) {
@@ -28,7 +28,7 @@ Highest first:
 
 1. The role set on any element between the chart and the provider — the closest declaration wins. A role set on the chart's *own* element reaches only what CSS paints; see "The SVG bridge".
 2. The role set by a consumer rule targeting the provider wrapper. It beats the catalog default because `:where()` is zero-specificity.
-3. The catalog default on the provider wrapper, resolving the mapped `--wpds-*` token.
+3. The catalog default on the provider wrapper, including the [forced-colors defaults](#one-pair-of-roles-per-axis) when active.
 4. The WPDS spec-value fallback, when no `--wpds-*` token is set either (SSR, jsdom, or WPDS not loaded). This is not a rare corner: WordPress itself defines no `--wpds-*` typography tokens, so in wp-admin the fallback is what renders. It is injected at build time by `@wordpress/theme`'s LightningCSS plugin.
 
 Configure catalog colors through CSS; the `theme` prop carries no colors. For local LineChart tooltip overrides, see [Below-Axis Tooltips](./?path=/docs/js-packages-charts-library-charts-line-chart--docs#below-axis-tooltips).
@@ -44,7 +44,7 @@ Some roles are deliberately narrower than the obvious name, so that moving one t
 | `--a8c-charts-color-label-axis` | `--a8c-charts-color-label` | legend labels, `.heatmap-chart__cell-value`, funnel labels, the line-chart tooltip |
 | `--a8c-charts-color-background` | — | — |
 
-`--a8c-charts-color-label-axis` *derives* from `--a8c-charts-color-label`, so setting the broad role moves every label at once and setting the narrow one moves only the SVG axis labels.
+Outside forced-colors mode, `--a8c-charts-color-label-axis` derives from `--a8c-charts-color-label`, so setting the broad role moves every label at once and setting the narrow one moves only the SVG axis labels. See [One pair of roles per axis](#one-pair-of-roles-per-axis) for forced-colors defaults.
 
 `--a8c-charts-color-surface` — the annotation label, `.x-zoom__reset`, tooltips — is a **sibling** of `--a8c-charts-color-background`, not a child. The chart's own background and the surfaces floating over it are set apart from each other often enough that one has to be able to move without the other. The consequence: no single role repaints both.
 
@@ -64,7 +64,7 @@ Two colors are still resolved before visx sees them. `htmlLabel.color`, in `useX
 
 Being resolved in JS, both then carry the bridge's limitations rather than the CSS path's: they read at the scope element, so a role declared on the chart's own class moves the gridlines but leaves the crosshair at the catalog value, and neither repaints on a theme change until something re-renders.
 
-Where a value is *consumed* says nothing about where it is *set*. These are set the same way as every other color — `--a8c-charts-color-background`, `--a8c-charts-color-series-*` — and resolved through `getComputedStyle` against the chart's own scope element, never `document.documentElement`, so both delivery paths obey the same cascade. Each pointer carries a terminal literal (`var(--a8c-charts-color-background, #fff)`) as the last resort for SSR and jsdom, where `getComputedStyle` resolves nothing.
+Where a value is *consumed* says nothing about where it is *set*. These are set the same way as every other catalog color — `--a8c-charts-color-background`, `--a8c-charts-color-series-*` — and resolved through `getComputedStyle` against the chart's own scope element, never `document.documentElement`, so both delivery paths obey the same cascade. Each pointer carries a terminal literal (`var(--a8c-charts-color-background, #fff)`) as the last resort for SSR and jsdom, where `getComputedStyle` resolves nothing.
 
 The scope element is the wrapper a chart is rendered into, which sits **above** the element the chart's own `className` lands on, so a role declared on that inner element is invisible to the JS bridge. `.line-chart { --a8c-charts-color-background: red }` therefore does not reach the glyph strokes, while `.line-chart { --a8c-charts-color-grid: red }` does reach the gridlines — the CSS-painted roles read at the painted element, so any ancestor of it will do. Scope a rule for a JS-resolved role to a wrapper around the chart rather than to the chart itself. CHARTS-255 tracks closing the remainder.
 
@@ -72,7 +72,7 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 
 ## Tier 1 — semantic catalog (shared, themeable roles)
 
-> These tables are checked against `src/styles/chart-scope.scss` by `src/styles/test/chart-scope.test.ts`. Update the stylesheet and the table together.
+> These tables describe the base defaults outside forced-colors mode and are checked against `src/styles/chart-scope.scss` by `src/styles/test/chart-scope.test.ts`. Update the stylesheet and the table together.
 
 | Role | Maps to | Fallback |
 |---|---|---|
@@ -113,6 +113,8 @@ Each axis names itself: `--a8c-charts-color-axis-x` / `-tick-x` paint the x axis
 **There is deliberately no broad `--a8c-charts-color-axis` covering both.** It would have to mean one of two things, and neither is true: that setting it moves both axes — which cannot hold while the y side defaults to unpainted — or that it moves only x, which is a name that misleads exactly once per consumer, and silently. The tick *labels* are a different matter and do share a role (`--a8c-charts-color-label-axis`), because both axes label identically.
 
 Gridlines also stay on one role, `--a8c-charts-color-grid`: visx paints rows and columns from a single style object, so the grid is genuinely one thing rather than two.
+
+Under `forced-colors: active`, the axis label role uses `CanvasText`, and the grid, x-axis line, and x-axis tick roles use `GrayText`. The y-axis line and ticks remain hidden by default.
 
 The terminal `none` in each chain is explicit rather than load-bearing: `stroke` already starts at `none`, so an undeclared role paints nothing either way.
 

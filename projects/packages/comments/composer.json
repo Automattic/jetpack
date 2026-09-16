@@ -6,7 +6,8 @@
 	"require": {
 		"php": ">=7.4",
 		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-image-cdn": "@dev"
+		"automattic/jetpack-image-cdn": "@dev",
+		"automattic/jetpack-connection": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -28,11 +29,11 @@
 	"scripts": {
 		"build-development": "pnpm run build",
 		"build-production": "pnpm run build-production",
+		"typecheck": "pnpm run typecheck",
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
-		],
-		"typecheck": "pnpm run typecheck"
+		]
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,

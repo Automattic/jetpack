@@ -1,0 +1,6 @@
+@use "$css/main/mixins";
+
+.settings {
+
+	@include mixins.content-column;
+}

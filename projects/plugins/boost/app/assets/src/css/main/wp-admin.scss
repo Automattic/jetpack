@@ -10,10 +10,13 @@ p {
 	font-size: 16px;
 	color: variables.$gray_80;
 }
-// The type scale, tokens and component overrides the settings controls rely on.
-// Shared, because both dashboards render those same controls. The page frame
-// below is not: the modern chassis supplies its own.
-@mixin settings-content {
+// Tokens the shared Jetpack components read, declared on every root the plugin
+// mounts a dashboard under. The modern chassis root rather than its content
+// div, because sub-pages mount in a sibling slot; a component that misses the
+// tokens gets an invalid padding declaration, not merely an unstyled one.
+.jb-dashboard,
+.jb-modern-settings,
+.jetpack-boost-page {
 	--font-headline-medium: 48px;
 	--font-title-medium: 24px;
 	--font-body-small: 14px;
@@ -22,7 +25,12 @@ p {
 	--font-body-extra-small: 14px;
 
 	--spacing-base: 8px;
+}
 
+// The type scale and component overrides the settings controls rely on.
+// Shared, because both dashboards render those same controls. The page frame
+// below is not: the modern chassis supplies its own.
+@mixin settings-content {
 	font-size: 16px;
 
 	a {

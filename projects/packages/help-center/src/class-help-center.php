@@ -303,6 +303,19 @@ class Help_Center {
 			true
 		);
 
+		// The node carries an href so the keyboard can reach it, but where the panel opens
+		// in place the click must not navigate. Registered here so a Jetpack-only deploy
+		// behaves, rather than relying on the bundle to cancel it.
+		if ( $this->opens_help_center_in_place() ) {
+			wp_add_inline_script(
+				'help-center',
+				"document.addEventListener( 'click', function ( event ) {"
+				. "if ( event.target.closest( '#wp-admin-bar-help-center > .ab-item' ) ) { event.preventDefault(); }"
+				. '} );',
+				'before'
+			);
+		}
+
 		wp_enqueue_style(
 			'help-center-' . $variant . '-style',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
@@ -321,6 +334,14 @@ class Help_Center {
 			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label>.ab-item>span:first-child{display:flex;}'
 			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center.has-help-entry-label svg{position:static;float:none;margin:0;padding:4px 0;}'
 			. '}'
+		);
+
+		// Core recolours admin bar icons through `.ab-icon::before`, which only reaches the
+		// dashicon font. This icon is an SVG, so it has to follow the item's colour itself.
+		wp_add_inline_style(
+			'help-center-' . $variant . '-style',
+			'#wpadminbar #wp-toolbar #wp-admin-bar-help-center>.ab-item:hover .ab-icon,'
+			. '#wpadminbar #wp-toolbar #wp-admin-bar-help-center>.ab-item:focus .ab-icon{color:inherit;}'
 		);
 
 		// In the block editor the Help Center is already present in the editor toolbar
@@ -707,16 +728,26 @@ class Help_Center {
 
 	/**
 	 * Returns the URL for the Help Center redirect.
-	 * Used for the Help Center when disconnected.
+	 *
+	 * Always set on the admin bar node: without an href WordPress renders the item as a
+	 * div, which the keyboard cannot reach and the admin bar's hover styles skip. Where
+	 * the panel is available its bundle opens it and cancels the navigation, so this is
+	 * the fallback for disconnected sites and for a failed script load.
+	 *
+	 * @return string
 	 */
 	public function get_help_center_url() {
-		$help_url = 'https://wordpress.com/help?help-center=home';
+		return 'https://wordpress.com/help?help-center=home';
+	}
 
-		if ( $this->is_jetpack_disconnected() || ( $this->is_loading_on_frontend() && ! $this->is_support_site ) ) {
-			return $help_url;
-		}
-
-		return false;
+	/**
+	 * Whether the Help Center panel opens in place instead of following the node's href.
+	 *
+	 * @return bool
+	 */
+	public function opens_help_center_in_place() {
+		return ! $this->is_jetpack_disconnected()
+			&& ! ( $this->is_loading_on_frontend() && ! $this->is_support_site );
 	}
 
 	/**

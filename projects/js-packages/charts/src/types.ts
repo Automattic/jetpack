@@ -145,6 +145,7 @@ export type ThemeAnnotationStyles = {
 export type DataPoint = {
 	label: string;
 	value: number;
+	color?: string;
 };
 
 /**
@@ -196,6 +197,7 @@ export type DataPointDate = {
 	dateString?: string;
 	value: number | null;
 	label?: string;
+	color?: string;
 };
 
 export type LeaderboardEntry = {
