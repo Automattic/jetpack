@@ -111,7 +111,8 @@ function OverviewContent( {
 			</Button>
 		);
 		return () => {
-			// The fallback exists only after a render failure, which removes this button for good.
+			// Runs on every dependency change; focusFallback is a no-op unless the fallback is mounted,
+			// and React attaches the fallback ref before this removed subtree's passive cleanup runs.
 			if ( action && action === action.ownerDocument.activeElement ) {
 				focusFallback();
 			}

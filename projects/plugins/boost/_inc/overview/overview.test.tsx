@@ -230,6 +230,34 @@ test( 'moves focus from Run speed test to the error fallback when a render failu
 	}
 } );
 
+test( 'leaves focus alone when a render failure removes Run speed test without focus', async () => {
+	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const dashboard = () => (
+		<QueryClientProvider client={ client }>
+			<button>Overview</button>
+			<OverviewWithHeader />
+		</QueryClientProvider>
+	);
+	const view = render( dashboard() );
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	const tab = screen.getByRole( 'button', { name: 'Overview' } );
+	act( () => tab.focus() );
+	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
+		throw new Error( 'Score rendering failed' );
+	} );
+	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	try {
+		view.rerender( dashboard() );
+		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Score rendering failed' ) ).toBeInTheDocument();
+		expect( tab ).toHaveFocus();
+	} finally {
+		scoreHook.mockRestore();
+		consoleError.mockRestore();
+		client.clear();
+	}
+} );
+
 test( 'loads online scores and regenerates them with refresh tracking and history invalidation', async () => {
 	const { client } = renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
