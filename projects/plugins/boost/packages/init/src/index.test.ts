@@ -20,10 +20,18 @@ it( 'loads Boost catalogs using the module URL', async () => {
 	);
 } );
 
-it( 'exposes the Boost consumer slug as the jetpackConfig global', async () => {
+it( 'supplies the Boost consumer slug to shared config without logging an error', async () => {
 	await init();
 
-	expect( ( globalThis as WithJetpackConfig ).jetpackConfig ).toEqual( {
-		consumer_slug: 'jetpack-boost',
-	} );
+	const error = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	try {
+		jest.isolateModules( () => {
+			const { jetpackConfigGet, jetpackConfigHas } = require( '../../../../../js-packages/config/src' );
+			expect( jetpackConfigGet( 'consumer_slug' ) ).toBe( 'jetpack-boost' );
+			expect( jetpackConfigHas( 'missingConfig' ) ).toBe( false );
+		} );
+		expect( error ).not.toHaveBeenCalled();
+	} finally {
+		error.mockRestore();
+	}
 } );
