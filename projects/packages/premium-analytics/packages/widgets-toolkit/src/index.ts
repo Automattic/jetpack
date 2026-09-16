@@ -337,4 +337,4 @@ export {
  * `@jetpack-premium-analytics/ui` directly: the toolkit bundles the ui package
  * once instead of once per widget.
  */
-export { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';
