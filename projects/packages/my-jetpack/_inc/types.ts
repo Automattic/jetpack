@@ -3,6 +3,7 @@ import {
 	JETPACK_PRODUCTS_WITH_CARD,
 	JETPACK_PRODUCTS_WITHOUT_CARD,
 } from './constants';
+import type { MyJetpackScriptData } from '@automattic/jetpack-script-data';
 
 export type JetpackProductWithCard = ( typeof JETPACK_PRODUCTS_WITH_CARD )[ number ];
 
@@ -23,22 +24,6 @@ export type MyJetpackModule = {
 	search_terms: string;
 };
 
-export type SiteEditorData = {
-	isBlockTheme: boolean;
-	isSharingBlockAvailable: boolean;
-	isLikeBlockAvailable: boolean;
-	activeThemeStylesheet: string;
-};
-
-declare module '@automattic/jetpack-script-data' {
-	interface JetpackScriptData {
-		myJetpack?: {
-			// Only added on the My Jetpack page.
-			siteEditor?: SiteEditorData;
-			/** Absolute URL of the package's built images directory, with a trailing slash. */
-			assetsUrl?: string;
-			/** The tab that replaces Products, or null while it is unchanged. */
-			productsSection?: { slug: 'features'; label: string } | null;
-		};
-	}
-}
+// Declared in `@automattic/jetpack-script-data`, so the footer in `jetpack-components` reads the
+// same shape this package prints.
+export type SiteEditorData = NonNullable< MyJetpackScriptData[ 'siteEditor' ] >;

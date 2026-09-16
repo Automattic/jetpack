@@ -7,7 +7,7 @@
 
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Identity_Crisis;
-use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -54,24 +54,6 @@ abstract class Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	public function additional_styles() {}
-
-	/**
-	 * Get the slug and label of My Jetpack's products tab, for footer links to it.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return array{slug: string, label: string}
-	 */
-	public static function get_my_jetpack_products_section() {
-		$products_section = method_exists( My_Jetpack_Initializer::class, 'get_products_section' )
-			? My_Jetpack_Initializer::get_products_section()
-			: null;
-
-		return $products_section ?? array(
-			'slug'  => 'products',
-			'label' => _x( 'Products', 'Navigation item', 'jetpack' ),
-		);
-	}
 
 	/**
 	 * Add common page actions and attach page-specific actions.
@@ -278,7 +260,6 @@ abstract class Jetpack_Admin_Page {
 		$jetpack_about_url = ! $connectable
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
-		$products_section  = self::get_my_jetpack_products_section();
 
 		?>
 		<div id="jp-plugin-container" class="
@@ -400,6 +381,7 @@ abstract class Jetpack_Admin_Page {
 						<span class="jp-footer__module-name"><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 					</div>
 					<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
+						<?php $products_section = Footer_Links::get_my_jetpack_products_section(); ?>
 					<div class="jp-footer__menu">
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/' . $products_section['slug'] ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html( $products_section['label'] ); ?></a>
 						<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>

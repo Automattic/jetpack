@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -18,10 +19,10 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-akismet-admin-chr
  * Class for testing the unified Jetpack chrome rendered on Akismet's admin pages.
  *
  * @covers Akismet_Admin_Chrome
- * @covers Jetpack_Admin_Page::get_my_jetpack_products_section
+ * @covers Automattic\Jetpack\Plugin\Footer_Links::get_my_jetpack_products_section
  */
 #[CoversClass( Akismet_Admin_Chrome::class )]
-#[CoversMethod( Jetpack_Admin_Page::class, 'get_my_jetpack_products_section' )]
+#[CoversMethod( Footer_Links::class, 'get_my_jetpack_products_section' )]
 class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
