@@ -15,8 +15,8 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
+import assetUrl from '../asset-url';
 import { recordMcpTracksEvent } from './tracks';
-import illustrationUrl from './upsell-illustration.svg';
 import './style.scss';
 
 const UPSELL_REF = 'jetpack-ai-mcp-upsell';
@@ -66,7 +66,7 @@ export default function McpUpsell() {
 			</div>
 			<img
 				className="jetpack-ai-mcp__upsell-callout-image"
-				src={ illustrationUrl }
+				src={ assetUrl( 'upsell-illustration.svg' ) }
 				alt=""
 				role="presentation"
 			/>

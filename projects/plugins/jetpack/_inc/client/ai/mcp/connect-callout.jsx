@@ -7,7 +7,7 @@ import { speak } from '@wordpress/a11y';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import illustrationUrl from './upsell-illustration.svg';
+import assetUrl from '../asset-url';
 import './style.scss';
 
 /**
@@ -44,7 +44,7 @@ export default function McpConnectCallout( { userConnectionUrl } ) {
 			</div>
 			<img
 				className="jetpack-ai-mcp__upsell-callout-image"
-				src={ illustrationUrl }
+				src={ assetUrl( 'upsell-illustration.svg' ) }
 				alt=""
 				role="presentation"
 			/>
