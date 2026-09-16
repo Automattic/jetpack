@@ -94,6 +94,15 @@ class Avatars {
 	 * @return string|null Null when the comment carries no servable avatar.
 	 */
 	private static function stored_url( $comment_id, $size ) {
+		// WordPress.com asks twice per comment, through get_avatar_data() and again through wpcom_get_avatar_url.
+		static $resolved = array();
+
+		$key = "$comment_id:$size";
+
+		if ( array_key_exists( $key, $resolved ) ) {
+			return $resolved[ $key ];
+		}
+
 		// Written only from an authenticated exchange with WordPress.com, so any https URL is served.
 		$stored = get_comment_meta( $comment_id, Checkpoint::META_AVATAR, true );
 
@@ -101,11 +110,13 @@ class Avatars {
 			$stored = get_comment_meta( $comment_id, self::AVATAR_META, true );
 
 			if ( ! is_string( $stored ) || $stored === '' || ! self::is_servable_avatar( $stored ) ) {
-				return null;
+				$stored = null;
 			}
 		}
 
-		return Image_CDN_Core::cdn_url( $stored, array( 'resize' => "$size,$size" ) );
+		$resolved[ $key ] = null === $stored ? null : Image_CDN_Core::cdn_url( $stored, array( 'resize' => "$size,$size" ) );
+
+		return $resolved[ $key ];
 	}
 
 	/**
