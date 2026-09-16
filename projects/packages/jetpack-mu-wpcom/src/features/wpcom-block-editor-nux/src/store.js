@@ -70,12 +70,24 @@ const shouldShowFirstPostPublishedModalReducer = ( state = false, action ) => {
 	}
 };
 
+const fourForFourReducer = ( state = { eligible: false, status: null }, action ) => {
+	switch ( action.type ) {
+		case 'WPCOM_SET_FOUR_FOR_FOUR':
+			return { eligible: !! action.eligible, status: action.status ?? null };
+		case 'WPCOM_WELCOME_GUIDE_RESET_STORE':
+			return { eligible: false, status: null };
+		default:
+			return state;
+	}
+};
+
 const reducer = combineReducers( {
 	welcomeGuideManuallyOpened: welcomeGuideManuallyOpenedReducer,
 	showWelcomeGuide: showWelcomeGuideReducer,
 	tourRating: tourRatingReducer,
 	welcomeGuideVariant: welcomeGuideVariantReducer,
 	shouldShowFirstPostPublishedModal: shouldShowFirstPostPublishedModalReducer,
+	fourForFour: fourForFourReducer,
 } );
 
 export const actions = {
@@ -95,6 +107,32 @@ export const actions = {
 		return {
 			type: 'WPCOM_SET_SHOULD_SHOW_FIRST_POST_PUBLISHED_MODAL',
 			value: response.should_show_first_post_published_modal,
+		};
+	},
+	*fetchFourForFour() {
+		const response = yield apiFetchControls( {
+			path: '/wpcom/v2/block-editor/four-for-four',
+		} );
+
+		return {
+			type: 'WPCOM_SET_FOUR_FOR_FOUR',
+			eligible: response.eligible,
+			status: response.status,
+		};
+	},
+	setFourForFourStatus: ( status, { onSettled } = {} ) => {
+		apiFetch( {
+			path: '/wpcom/v2/block-editor/four-for-four',
+			method: 'POST',
+			data: { status },
+		} )
+			.catch( () => {} )
+			.finally( () => onSettled?.() );
+
+		return {
+			type: 'WPCOM_SET_FOUR_FOR_FOUR',
+			eligible: false,
+			status,
 		};
 	},
 	setShowWelcomeGuide: ( show, { openedManually, onlyLocal } = {} ) => {
@@ -134,6 +172,8 @@ export const selectors = {
 	getWelcomeGuideVariant: state =>
 		state.welcomeGuideVariant === 'modal' ? DEFAULT_VARIANT : state.welcomeGuideVariant,
 	getShouldShowFirstPostPublishedModal: state => state.shouldShowFirstPostPublishedModal,
+	isFourForFourEligible: state => state.fourForFour.eligible,
+	getFourForFourStatus: state => state.fourForFour.status,
 };
 
 /**
