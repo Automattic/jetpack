@@ -117,16 +117,13 @@ function wpcom_marketplace_on_plugin_install_screen() {
 }
 
 /**
- * The billing term the screen is showing, yearly unless asked otherwise.
+ * The billing term the tab sells at.
  *
- * @return string 'yearly' or 'monthly'.
+ * Yearly only. Every product has both variations, but a switcher for the whole
+ * screen was a lot of furniture for a choice that belongs to one purchase, and
+ * checkout lets people change the term there with the product in front of them.
  */
-function wpcom_marketplace_billing_term() {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$term = isset( $_GET['billing'] ) ? sanitize_key( wp_unslash( $_GET['billing'] ) ) : '';
-
-	return 'monthly' === $term ? 'monthly' : 'yearly';
-}
+const WPCOM_MARKETPLACE_TERM = 'yearly';
 
 /**
  * The noun a price is read with, as in "$10.00/month".
@@ -138,52 +135,6 @@ function wpcom_marketplace_term_noun( $term ) {
 	return 'monthly' === $term
 		? __( 'month', 'jetpack-mu-wpcom' )
 		: __( 'year', 'jetpack-mu-wpcom' );
-}
-
-/**
- * Lets the reader price the whole tab monthly or yearly.
- *
- * Links rather than a form: a radio plus an Apply button made choosing a term two
- * actions, and the term is just a view of the same list.
- *
- * @return void
- */
-function wpcom_marketplace_billing_switcher() {
-	$current = wpcom_marketplace_billing_term();
-	$terms   = array(
-		'yearly'  => __( 'Yearly', 'jetpack-mu-wpcom' ),
-		'monthly' => __( 'Monthly', 'jetpack-mu-wpcom' ),
-	);
-	?>
-	<div class="wpcom-marketplace-billing">
-		<span class="wpcom-marketplace-billing__label"><?php esc_html_e( 'Billing', 'jetpack-mu-wpcom' ); ?></span>
-		<div class="wpcom-marketplace-billing__switch">
-			<?php foreach ( $terms as $slug => $label ) : ?>
-				<a
-					class="wpcom-marketplace-billing__option<?php echo $slug === $current ? ' is-selected' : ''; ?>"
-					href="<?php echo esc_url( wpcom_marketplace_tab_url( $slug ) ); ?>"
-					<?php echo $slug === $current ? 'aria-current="true"' : ''; ?>
-				><?php echo esc_html( $label ); ?></a>
-			<?php endforeach; ?>
-		</div>
-	</div>
-	<?php
-}
-
-/**
- * The tab's own URL, at a given billing term.
- *
- * @param string $term 'yearly' or 'monthly'.
- * @return string
- */
-function wpcom_marketplace_tab_url( $term ) {
-	return add_query_arg(
-		array(
-			'tab'     => WPCOM_MARKETPLACE_TAB,
-			'billing' => $term,
-		),
-		self_admin_url( 'plugin-install.php' )
-	);
 }
 
 /**
@@ -219,11 +170,9 @@ function wpcom_marketplace_render_grid() {
 		)
 	);
 
-	$term = wpcom_marketplace_billing_term();
-
 	echo '<div class="wpcom-marketplace-grid">';
 	foreach ( $products as $card ) {
-		wpcom_marketplace_render_card( $card, $term );
+		wpcom_marketplace_render_card( $card );
 	}
 	echo '</div>';
 }
@@ -231,11 +180,10 @@ function wpcom_marketplace_render_grid() {
 /**
  * One plugin card.
  *
- * @param array  $card Normalized product data.
- * @param string $term 'yearly' or 'monthly'.
+ * @param array $card Normalized product data.
  * @return void
  */
-function wpcom_marketplace_render_card( array $card, $term ) {
+function wpcom_marketplace_render_card( array $card ) {
 	$slug = (string) ( $card['slug'] ?? '' );
 	if ( '' === $slug ) {
 		return;
@@ -278,12 +226,12 @@ function wpcom_marketplace_render_card( array $card, $term ) {
 			<?php echo esc_html( wp_strip_all_tags( (string) ( $card['short_description'] ?? '' ) ) ); ?>
 		</p>
 
-		<?php wpcom_marketplace_render_price( $card, $term ); ?>
+		<?php wpcom_marketplace_render_price( $card ); ?>
 
 		<div class="wpcom-marketplace-card__actions">
 			<?php
 			// Buttons are built from escaped parts, and core's own button carries data attributes.
-			echo wpcom_marketplace_card_button( $card, $term ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wpcom_marketplace_card_button( $card ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 			<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal">
 				<?php esc_html_e( 'Details', 'jetpack-mu-wpcom' ); ?>
@@ -297,15 +245,14 @@ function wpcom_marketplace_render_card( array $card, $term ) {
  * The price block.
  *
  * A year is read as its monthly equivalent, because that is the only way the saving
- * is visible next to the monthly price. The saving is stated as a percentage since
- * it is not a flat discount: across the catalog it runs from nothing to a third off.
+ * against paying monthly is visible. The saving is stated as a percentage since it
+ * is not a flat discount: across the catalog it runs from nothing to a third off.
  *
- * @param array  $card Normalized product data.
- * @param string $term 'yearly' or 'monthly'.
+ * @param array $card Normalized product data.
  * @return void
  */
-function wpcom_marketplace_render_price( array $card, $term ) {
-	$pricing = $card['wpcom_pricing'][ $term ] ?? array();
+function wpcom_marketplace_render_price( array $card ) {
+	$pricing = $card['wpcom_pricing'][ WPCOM_MARKETPLACE_TERM ] ?? array();
 	$price   = (string) ( $pricing['price'] ?? '' );
 
 	if ( '' === $price ) {
@@ -315,30 +262,22 @@ function wpcom_marketplace_render_price( array $card, $term ) {
 	$per_month = (string) ( $pricing['price_monthly'] ?? '' );
 	$saving    = (int) ( $card['wpcom_saving'] ?? 0 );
 
-	if ( 'yearly' === $term && '' !== $per_month ) {
+	if ( '' !== $per_month ) {
 		$amount = $per_month;
 		$per    = wpcom_marketplace_term_noun( 'monthly' );
 		/* translators: %s: Price, for example $82.00. */
 		$note = sprintf( __( '%s billed yearly', 'jetpack-mu-wpcom' ), $price );
-	} elseif ( 'yearly' === $term ) {
+	} else {
+		// No per-month figure from wpcom, so state the year and say nothing more.
 		$amount = $price;
 		$per    = wpcom_marketplace_term_noun( 'yearly' );
 		$note   = '';
-	} else {
-		$amount = $price;
-		$per    = wpcom_marketplace_term_noun( 'monthly' );
-		$note   = __( 'billed monthly', 'jetpack-mu-wpcom' );
-
-		if ( $saving >= 5 ) {
-			/* translators: %d: Percentage saved, for example 31. */
-			$note = sprintf( __( 'billed monthly, or save %d%% yearly', 'jetpack-mu-wpcom' ), $saving );
-		}
 	}
 	?>
 	<div class="wpcom-marketplace-card__price">
 		<span class="wpcom-marketplace-card__amount"><?php echo esc_html( $amount ); ?></span>
 		<span class="wpcom-marketplace-card__per">/<?php echo esc_html( $per ); ?></span>
-		<?php if ( 'yearly' === $term && $saving >= 5 ) : ?>
+		<?php if ( $saving >= 5 ) : ?>
 			<span class="wpcom-marketplace-card__saving">
 				<?php
 				/* translators: %d: Percentage saved, for example 31. */
@@ -359,11 +298,10 @@ function wpcom_marketplace_render_price( array $card, $term ) {
  * Installed products keep core's button: Marketplace_Products_Updater already gives
  * core the right package URL, so Activate, Update and Active all behave.
  *
- * @param array  $card Normalized product data.
- * @param string $term 'yearly' or 'monthly'.
+ * @param array $card Normalized product data.
  * @return string Button markup.
  */
-function wpcom_marketplace_card_button( array $card, $term ) {
+function wpcom_marketplace_card_button( array $card ) {
 	$name   = (string) ( $card['name'] ?? $card['slug'] ?? '' );
 	$status = install_plugin_install_status( $card );
 
@@ -373,7 +311,7 @@ function wpcom_marketplace_card_button( array $card, $term ) {
 			: '';
 	}
 
-	$checkout = Marketplace_Catalog::checkout_url( $card, $term );
+	$checkout = Marketplace_Catalog::checkout_url( $card, WPCOM_MARKETPLACE_TERM );
 
 	// Without a store product there is nothing to buy, so fall back to the product page.
 	if ( '' === $checkout ) {
@@ -459,5 +397,4 @@ function wpcom_marketplace_intro() {
 }
 
 add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_intro', 9 );
-add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_billing_switcher', 9 );
 add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_render_grid' );

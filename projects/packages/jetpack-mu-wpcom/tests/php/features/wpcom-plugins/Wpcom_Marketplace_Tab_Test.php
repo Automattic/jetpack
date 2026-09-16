@@ -635,37 +635,34 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Yearly unless the reader asks for monthly.
+	 * The tab sells one term, and a stray query string does not change it.
 	 */
-	public function test_billing_term_defaults_to_yearly() {
-		$this->assertSame( 'yearly', wpcom_marketplace_billing_term() );
-
-		$_GET['billing'] = 'monthly';
-		$this->assertSame( 'monthly', wpcom_marketplace_billing_term() );
-
-		$_GET['billing'] = 'nonsense';
-		$this->assertSame( 'yearly', wpcom_marketplace_billing_term() );
-
-		unset( $_GET['billing'] );
-	}
-
-	/**
-	 * The card's action buys the plugin, and does it at the term being shown.
-	 */
-	public function test_button_targets_checkout_for_the_selected_term() {
+	public function test_the_tab_sells_yearly_only() {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
-		$yearly = wpcom_marketplace_card_button( $this->priced_card(), 'yearly' );
+		$this->assertSame( 'yearly', WPCOM_MARKETPLACE_TERM );
 
-		$this->assertStringContainsString( 'gravityforms_yearly', $yearly );
-		$this->assertStringContainsString( 'button-primary', $yearly );
-		$this->assertStringContainsString( 'Purchase', $yearly );
-		$this->assertStringNotContainsString( 'install-now', $yearly );
+		$_GET['billing'] = 'monthly';
+		$button          = wpcom_marketplace_card_button( $this->priced_card() );
+		unset( $_GET['billing'] );
 
-		$monthly = wpcom_marketplace_card_button( $this->priced_card(), 'monthly' );
+		$this->assertStringContainsString( 'gravityforms_yearly', $button );
+	}
 
-		$this->assertStringContainsString( 'gravityforms_monthly', $monthly );
+	/**
+	 * The card's action buys the plugin, at the one term the tab sells.
+	 */
+	public function test_button_targets_yearly_checkout() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$button = wpcom_marketplace_card_button( $this->priced_card() );
+
+		$this->assertStringContainsString( 'gravityforms_yearly', $button );
+		$this->assertStringNotContainsString( 'gravityforms_monthly', $button );
+		$this->assertStringContainsString( 'button-primary', $button );
+		$this->assertStringContainsString( 'Purchase', $button );
 	}
 
 	/**
@@ -676,7 +673,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
-		$button = wpcom_marketplace_card_button( $this->priced_card(), 'yearly' );
+		$button = wpcom_marketplace_card_button( $this->priced_card() );
 
 		$this->assertStringNotContainsString( '$132.00', $button );
 	}
@@ -688,7 +685,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
-		$button = wpcom_marketplace_card_button( Marketplace_Catalog::to_card( self::PRODUCT ), 'yearly' );
+		$button = wpcom_marketplace_card_button( Marketplace_Catalog::to_card( self::PRODUCT ) );
 
 		$this->assertStringContainsString( 'Get started', $button );
 		$this->assertStringContainsString( 'wordpress.com/plugins/gravityforms/', $button );
@@ -697,39 +694,23 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The switcher has to report the term back, or a reader cannot see which prices
-	 * they are looking at.
+	 * The switcher is gone. A control for the whole screen was a lot of furniture
+	 * for a choice that belongs to one purchase, and checkout offers the term there.
 	 */
-	public function test_billing_switcher_marks_the_active_term() {
+	public function test_no_billing_switcher_is_rendered() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$this->enable_tab();
+		$this->seed_catalog( array( 'gravityforms' => $this->priced_card() ) );
+
 		ob_start();
-		wpcom_marketplace_billing_switcher();
-		$yearly = self::squash( ob_get_clean() );
-
-		$this->assertStringContainsString( 'billing=yearly', $yearly );
-		$this->assertStringContainsString( 'billing=monthly', $yearly );
-		$this->assertMatchesRegularExpression( '/is-selected[^>]*billing=yearly/', $yearly );
-
-		$_GET['billing'] = 'monthly';
-		ob_start();
-		wpcom_marketplace_billing_switcher();
-		$monthly = self::squash( ob_get_clean() );
-		unset( $_GET['billing'] );
-
-		$this->assertMatchesRegularExpression( '/is-selected[^>]*billing=monthly/', $monthly );
-	}
-
-	/**
-	 * Choosing a term is one click. The radios needed a second one on Apply, which
-	 * is a lot of ceremony for switching between two views of the same list.
-	 */
-	public function test_billing_switcher_is_links_not_a_form() {
-		ob_start();
-		wpcom_marketplace_billing_switcher();
+		wpcom_marketplace_render_grid();
 		$html = ob_get_clean();
 
-		$this->assertStringNotContainsString( '<form', $html );
-		$this->assertStringNotContainsString( 'type="submit"', $html );
-		$this->assertStringNotContainsString( 'type="radio"', $html );
+		$this->assertStringNotContainsString( 'wpcom-marketplace-billing', $html );
+		$this->assertStringNotContainsString( 'billing=', $html );
+		$this->assertFalse( function_exists( 'wpcom_marketplace_billing_switcher' ) );
 	}
 
 	/**
@@ -776,26 +757,12 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_yearly_price_reads_per_month_and_states_the_saving() {
 		ob_start();
-		wpcom_marketplace_render_price( $this->priced_card(), 'yearly' );
+		wpcom_marketplace_render_price( $this->priced_card() );
 		$html = self::squash( ob_get_clean() );
 
 		$this->assertStringContainsString( '$11.00', $html );
 		$this->assertStringContainsString( '$132.00 billed yearly', $html );
 		$this->assertStringContainsString( 'Save 15%', $html );
-	}
-
-	/**
-	 * The monthly view states the price it is charging, and points at the saving
-	 * rather than claiming it.
-	 */
-	public function test_monthly_price_points_at_the_yearly_saving() {
-		ob_start();
-		wpcom_marketplace_render_price( $this->priced_card(), 'monthly' );
-		$html = self::squash( ob_get_clean() );
-
-		$this->assertStringContainsString( '$13.00', $html );
-		$this->assertStringContainsString( 'save 15% yearly', $html );
-		$this->assertStringNotContainsString( 'Save 15%', $html );
 	}
 
 	/**
@@ -808,7 +775,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		$card['wpcom_saving'] = 0;
 
 		ob_start();
-		wpcom_marketplace_render_price( $card, 'yearly' );
+		wpcom_marketplace_render_price( $card );
 		$html = ob_get_clean();
 
 		$this->assertStringNotContainsString( 'wpcom-marketplace-card__saving', $html );
@@ -819,7 +786,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_an_unpriced_product_renders_no_price_block() {
 		ob_start();
-		wpcom_marketplace_render_price( Marketplace_Catalog::to_card( self::PRODUCT ), 'yearly' );
+		wpcom_marketplace_render_price( Marketplace_Catalog::to_card( self::PRODUCT ) );
 
 		$this->assertSame( '', ob_get_clean() );
 	}
@@ -863,7 +830,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
 		ob_start();
-		wpcom_marketplace_render_card( $this->priced_card(), 'yearly' );
+		wpcom_marketplace_render_card( $this->priced_card() );
 		$html = self::squash( ob_get_clean() );
 
 		$this->assertStringContainsString( 'Gravity Forms', $html );
@@ -882,7 +849,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_card_without_a_slug_is_skipped() {
 		ob_start();
-		wpcom_marketplace_render_card( array( 'name' => 'Nameless' ), 'yearly' );
+		wpcom_marketplace_render_card( array( 'name' => 'Nameless' ) );
 
 		$this->assertSame( '', ob_get_clean() );
 	}
