@@ -67,14 +67,22 @@
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__price {
 	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	gap: 2px 8px;
+	flex-direction: column;
+	gap: 2px;
 
-	/* Reserved so a card without a saving badge keeps the same price height. */
+	/* Reserved so a card with no yearly line keeps the same price height. */
 	min-block-size: 55px;
 	margin-block-start: auto;
 	padding-block-start: 14px;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__headline,
+.wpcom-marketplace-tab .wpcom-marketplace-card__yearly {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 2px 8px;
+	margin: 0;
 }
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__amount {
@@ -90,10 +98,14 @@
 	font-size: 13px;
 }
 
+.wpcom-marketplace-tab .wpcom-marketplace-card__note {
+	color: #646970;
+	font-size: 12px;
+}
+
 /*
  * Centred rather than on the baseline: the badge's bottom padding sits below
- * the amount's baseline, which grew the line and lifted the price by 3px on
- * every card that had one.
+ * the text baseline, which grows the line and shifts the row it sits on.
  */
 .wpcom-marketplace-tab .wpcom-marketplace-card__saving {
 	align-self: center;
@@ -105,12 +117,6 @@
 	font-weight: 600;
 	line-height: 1.45;
 	white-space: nowrap;
-}
-
-.wpcom-marketplace-tab .wpcom-marketplace-card__note {
-	inline-size: 100%;
-	color: #646970;
-	font-size: 12px;
 }
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__actions {

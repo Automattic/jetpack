@@ -22,7 +22,7 @@ class Marketplace_Catalog {
 	 * Bumped whenever the shape of a cached card or description changes, so sites
 	 * do not keep serving data built by the previous version until it expires.
 	 */
-	const CACHE_VERSION = 4;
+	const CACHE_VERSION = 5;
 
 	/**
 	 * Transient holding the normalized product list.
@@ -364,12 +364,9 @@ class Marketplace_Catalog {
 			}
 
 			$store[ (int) $product['product_id'] ] = array(
-				'slug'          => (string) $slug,
-				'price'         => (string) ( $product['cost_display'] ?? '' ),
-				// Already formatted for the site's currency, so a yearly price can be read
-				// per month without us dividing and formatting money ourselves.
-				'price_monthly' => (string) ( $product['cost_per_month_display'] ?? '' ),
-				'cost'          => isset( $product['cost'] ) ? (float) $product['cost'] : 0.0,
+				'slug'  => (string) $slug,
+				'price' => (string) ( $product['cost_display'] ?? '' ),
+				'cost'  => isset( $product['cost'] ) ? (float) $product['cost'] : 0.0,
 			);
 		}
 

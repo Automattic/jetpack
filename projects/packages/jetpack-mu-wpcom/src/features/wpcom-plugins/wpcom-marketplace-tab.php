@@ -244,49 +244,51 @@ function wpcom_marketplace_render_card( array $card ) {
 /**
  * The price block.
  *
- * A year is read as its monthly equivalent, because that is the only way the saving
- * against paying monthly is visible. The saving is stated as a percentage since it
- * is not a flat discount: across the catalog it runs from nothing to a third off.
+ * The headline is the real monthly price, because that is a figure someone can
+ * actually be charged. The yearly price sits under it carrying the saving, which
+ * is stated as a percentage since it is not a flat discount: across the catalog it
+ * runs from nothing to a third off.
  *
  * @param array $card Normalized product data.
  * @return void
  */
 function wpcom_marketplace_render_price( array $card ) {
-	$pricing = $card['wpcom_pricing'][ WPCOM_MARKETPLACE_TERM ] ?? array();
-	$price   = (string) ( $pricing['price'] ?? '' );
+	$pricing = $card['wpcom_pricing'] ?? array();
+	$monthly = (string) ( $pricing['monthly']['price'] ?? '' );
+	$yearly  = (string) ( $pricing[ WPCOM_MARKETPLACE_TERM ]['price'] ?? '' );
+	$saving  = (int) ( $card['wpcom_saving'] ?? 0 );
 
-	if ( '' === $price ) {
+	if ( '' === $monthly && '' === $yearly ) {
 		return;
 	}
 
-	$per_month = (string) ( $pricing['price_monthly'] ?? '' );
-	$saving    = (int) ( $card['wpcom_saving'] ?? 0 );
-
-	if ( '' !== $per_month ) {
-		$amount = $per_month;
-		$per    = wpcom_marketplace_term_noun( 'monthly' );
-		/* translators: %s: Price, for example $82.00. */
-		$note = sprintf( __( '%s billed yearly', 'jetpack-mu-wpcom' ), $price );
-	} else {
-		// No per-month figure from wpcom, so state the year and say nothing more.
-		$amount = $price;
-		$per    = wpcom_marketplace_term_noun( 'yearly' );
-		$note   = '';
-	}
+	// Falls back to the year when a product is not sold by the month.
+	$has_monthly = '' !== $monthly;
+	$amount      = $has_monthly ? $monthly : $yearly;
+	$per         = wpcom_marketplace_term_noun( $has_monthly ? 'monthly' : 'yearly' );
 	?>
 	<div class="wpcom-marketplace-card__price">
-		<span class="wpcom-marketplace-card__amount"><?php echo esc_html( $amount ); ?></span>
-		<span class="wpcom-marketplace-card__per">/<?php echo esc_html( $per ); ?></span>
-		<?php if ( $saving >= 5 ) : ?>
-			<span class="wpcom-marketplace-card__saving">
-				<?php
-				/* translators: %d: Percentage saved, for example 31. */
-				echo esc_html( sprintf( __( 'Save %d%%', 'jetpack-mu-wpcom' ), $saving ) );
-				?>
-			</span>
-		<?php endif; ?>
-		<?php if ( '' !== $note ) : ?>
-			<span class="wpcom-marketplace-card__note"><?php echo esc_html( $note ); ?></span>
+		<p class="wpcom-marketplace-card__headline">
+			<span class="wpcom-marketplace-card__amount"><?php echo esc_html( $amount ); ?></span>
+			<span class="wpcom-marketplace-card__per">/<?php echo esc_html( $per ); ?></span>
+		</p>
+		<?php if ( $has_monthly && '' !== $yearly ) : ?>
+			<p class="wpcom-marketplace-card__yearly">
+				<span class="wpcom-marketplace-card__note">
+					<?php
+					/* translators: %s: Price, for example $82.00. */
+					echo esc_html( sprintf( __( 'or %s billed yearly', 'jetpack-mu-wpcom' ), $yearly ) );
+					?>
+				</span>
+				<?php if ( $saving >= 5 ) : ?>
+					<span class="wpcom-marketplace-card__saving">
+						<?php
+						/* translators: %d: Percentage saved, for example 31. */
+						echo esc_html( sprintf( __( 'Save %d%%', 'jetpack-mu-wpcom' ), $saving ) );
+						?>
+					</span>
+				<?php endif; ?>
+			</p>
 		<?php endif; ?>
 	</div>
 	<?php
