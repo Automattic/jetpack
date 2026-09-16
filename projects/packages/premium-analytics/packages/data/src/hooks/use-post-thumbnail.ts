@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from 'react';
 
@@ -24,6 +24,12 @@ export type PostThumbnailSource = {
 export type PostThumbnailUrls = Record< number, string >;
 
 type EntityRecordsSelector = {
+	getEntityRecord: (
+		kind: string,
+		name: string,
+		key: number,
+		query: Record< string, unknown >
+	) => unknown;
 	getEntityRecords: (
 		kind: string,
 		name: string,
@@ -51,16 +57,33 @@ export function usePostThumbnail(
 	const canResolvePost = Boolean(
 		postType && Number.isInteger( numericPostId ) && numericPostId > 0
 	);
-	const { record: post } = useEntityRecord< PostEntity >(
-		'postType',
-		postType ?? '',
-		numericPostId,
-		{ enabled: canResolvePost }
+	const post = useSelect(
+		select => {
+			if ( ! canResolvePost ) {
+				return undefined;
+			}
+
+			const core = select( coreStore ) as unknown as EntityRecordsSelector;
+			return core.getEntityRecord( 'postType', postType ?? '', numericPostId, {
+				context: 'view',
+			} ) as PostEntity | undefined;
+		},
+		[ canResolvePost, numericPostId, postType ]
 	);
 	const mediaId = post?.featured_media ?? 0;
-	const { record: media } = useEntityRecord< MediaEntity >( 'postType', 'attachment', mediaId, {
-		enabled: canResolvePost && mediaId > 0,
-	} );
+	const media = useSelect(
+		select => {
+			if ( ! canResolvePost || mediaId <= 0 ) {
+				return undefined;
+			}
+
+			const core = select( coreStore ) as unknown as EntityRecordsSelector;
+			return core.getEntityRecord( 'postType', 'attachment', mediaId, {
+				context: 'view',
+			} ) as MediaEntity | undefined;
+		},
+		[ canResolvePost, mediaId ]
+	);
 
 	return getThumbnailUrl( media );
 }
@@ -96,7 +119,7 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 			query: {
 				include: Array.from( ids ).sort( ( a, b ) => a - b ),
 				per_page: ids.size,
-				status: 'any',
+				context: 'view',
 				_fields: 'id,featured_media',
 			},
 		} ) );
@@ -153,6 +176,7 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 			return ( core.getEntityRecords( 'postType', 'attachment', {
 				include: mediaIds,
 				per_page: mediaIds.length,
+				context: 'view',
 				_fields: 'id,source_url,media_details',
 			} ) ?? [] ) as MediaEntity[];
 		},

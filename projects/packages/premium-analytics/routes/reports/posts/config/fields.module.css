@@ -25,6 +25,7 @@
 	object-fit: cover;
 }
 
+/* DataViews adds these modifiers to its table from the selected density. */
 :global(.dataviews-view-table.has-compact-density) .thumbnailSlot {
 	--post-thumbnail-size: 24px;
 }

@@ -2,30 +2,40 @@
  * External dependencies
  */
 import { renderHook } from '@testing-library/react';
-import { useEntityRecord } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
 import { usePostThumbnail } from '../use-post-thumbnail';
 
 jest.mock( '@wordpress/core-data', () => ( {
-	useEntityRecord: jest.fn(),
+	store: 'core',
 } ) );
 
-const mockUseEntityRecord = useEntityRecord as jest.MockedFunction< typeof useEntityRecord >;
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: jest.fn(),
+} ) );
+
+const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+const getEntityRecord = jest.fn();
 
 function mockEntities( records: Record< string, unknown > ): void {
-	mockUseEntityRecord.mockImplementation(
-		( _kind, name, id, options ) =>
-			( {
-				record: options?.enabled ? records[ `${ name }:${ id }` ] : undefined,
-			} ) as ReturnType< typeof useEntityRecord >
+	getEntityRecord.mockImplementation(
+		( _kind: string, name: string, id: number ) => records[ `${ name }:${ id }` ]
 	);
+	mockUseSelect.mockImplementation( mapSelect => {
+		if ( typeof mapSelect !== 'function' ) {
+			throw new Error( 'Expected a useSelect mapping function' );
+		}
+
+		return mapSelect( () => ( { getEntityRecord } ) as never, undefined as never ) as never;
+	} );
 }
 
 describe( 'usePostThumbnail', () => {
 	beforeEach( () => {
-		mockUseEntityRecord.mockReset();
+		getEntityRecord.mockReset();
+		mockUseSelect.mockReset();
 	} );
 
 	it( 'resolves the post thumbnail through its featured media', () => {
@@ -40,6 +50,12 @@ describe( 'usePostThumbnail', () => {
 		const { result } = renderHook( () => usePostThumbnail( 41, 'post' ) );
 
 		expect( result.current ).toBe( 'https://example.com/thumb.jpg' );
+		expect( getEntityRecord ).toHaveBeenCalledWith( 'postType', 'post', 41, {
+			context: 'view',
+		} );
+		expect( getEntityRecord ).toHaveBeenCalledWith( 'postType', 'attachment', 7, {
+			context: 'view',
+		} );
 	} );
 
 	it( 'falls back to the full-size media source', () => {
@@ -59,9 +75,12 @@ describe( 'usePostThumbnail', () => {
 		const { result } = renderHook( () => usePostThumbnail( 41, 'post' ) );
 
 		expect( result.current ).toBeUndefined();
-		expect( mockUseEntityRecord ).toHaveBeenLastCalledWith( 'postType', 'attachment', 0, {
-			enabled: false,
-		} );
+		expect( getEntityRecord ).not.toHaveBeenCalledWith(
+			'postType',
+			'attachment',
+			expect.anything(),
+			expect.anything()
+		);
 	} );
 
 	it.each( [
@@ -74,12 +93,6 @@ describe( 'usePostThumbnail', () => {
 		const { result } = renderHook( () => usePostThumbnail( postId, postType ) );
 
 		expect( result.current ).toBeUndefined();
-		expect( mockUseEntityRecord ).toHaveBeenNthCalledWith(
-			1,
-			'postType',
-			postType ?? '',
-			Number( postId ),
-			{ enabled: false }
-		);
+		expect( getEntityRecord ).not.toHaveBeenCalled();
 	} );
 } );

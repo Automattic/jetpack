@@ -83,10 +83,15 @@ export function usePostSummary( postId: number ): PostSummary {
 			}
 
 			const core = select( coreStore ) as unknown as {
-				getEntityRecord: ( kind: string, name: string, key: number ) => unknown;
+				getEntityRecord: (
+					kind: string,
+					name: string,
+					key: number,
+					query: Record< string, unknown >
+				) => unknown;
 			};
 
-			const entity = core.getEntityRecord( 'postType', type, postId ) as
+			const entity = core.getEntityRecord( 'postType', type, postId, { context: 'view' } ) as
 				| { link?: string }
 				| undefined;
 

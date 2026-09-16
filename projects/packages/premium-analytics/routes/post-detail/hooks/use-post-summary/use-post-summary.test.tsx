@@ -47,6 +47,7 @@ const mockUseStatsPost = useStatsPost as jest.MockedFunction< typeof useStatsPos
 const mockUsePostThumbnail = usePostThumbnail as jest.MockedFunction< typeof usePostThumbnail >;
 const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
 const mockUseSearch = useSearch as jest.MockedFunction< typeof useSearch >;
+const mockGetEntityRecord = jest.fn();
 
 const POST_ID = 41;
 
@@ -58,11 +59,12 @@ type EntityKey = string;
  * @param records - Entity records keyed as `<name>:<id>`.
  */
 function mockEntities( records: Record< EntityKey, unknown > ) {
-	const getEntityRecord = ( _kind: string, name: string, key: number ) =>
-		records[ `${ name }:${ key }` ];
+	mockGetEntityRecord.mockImplementation(
+		( _kind: string, name: string, key: number ) => records[ `${ name }:${ key }` ]
+	);
 
 	mockUseSelect.mockImplementation( ( mapSelect: ( select: unknown ) => unknown ) =>
-		mapSelect( () => ( { getEntityRecord } ) )
+		mapSelect( () => ( { getEntityRecord: mockGetEntityRecord } ) )
 	);
 }
 
@@ -88,6 +90,7 @@ describe( 'usePostSummary', () => {
 		mockUsePostThumbnail.mockReset();
 		mockUseSelect.mockReset();
 		mockUseSearch.mockReset();
+		mockGetEntityRecord.mockReset();
 		mockUseSiteHomeUrl.mockReturnValue( 'https://example.com/' );
 		mockUseSearch.mockReturnValue( {} as never );
 	} );
@@ -117,6 +120,9 @@ describe( 'usePostSummary', () => {
 			isError: false,
 		} );
 		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( POST_ID, 'post' );
+		expect( mockGetEntityRecord ).toHaveBeenCalledWith( 'postType', 'post', POST_ID, {
+			context: 'view',
+		} );
 	} );
 
 	it( 'leaves the public URL undefined when the entity carries no link', () => {

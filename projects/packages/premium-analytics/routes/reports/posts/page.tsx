@@ -111,6 +111,7 @@ function PostsReport(): JSX.Element {
 	const retry = useReportRetry( records.refetch );
 	const [ visiblePostRows, setVisiblePostRows ] = useState< StatsTopPostsComparisonItem[] >( [] );
 	const handleVisiblePostRowsChange = useCallback( ( rows: StatsTopPostsComparisonItem[] ) => {
+		// Preserve the array when only thumbnail-backed fields changed, or this callback loops.
 		setVisiblePostRows( previous =>
 			previous.length === rows.length && previous.every( ( row, index ) => row === rows[ index ] )
 				? previous

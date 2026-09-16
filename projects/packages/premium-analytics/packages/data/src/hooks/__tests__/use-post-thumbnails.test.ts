@@ -80,18 +80,19 @@ describe( 'usePostThumbnails', () => {
 		expect( getEntityRecords ).toHaveBeenCalledWith( 'postType', 'post', {
 			include: [ 1 ],
 			per_page: 1,
-			status: 'any',
+			context: 'view',
 			_fields: 'id,featured_media',
 		} );
 		expect( getEntityRecords ).toHaveBeenCalledWith( 'postType', 'page', {
 			include: [ 2 ],
 			per_page: 1,
-			status: 'any',
+			context: 'view',
 			_fields: 'id,featured_media',
 		} );
 		expect( getEntityRecords ).toHaveBeenCalledWith( 'postType', 'attachment', {
 			include: [ 11, 12 ],
 			per_page: 2,
+			context: 'view',
 			_fields: 'id,source_url,media_details',
 		} );
 		expect( getEntityRecords ).not.toHaveBeenCalledWith(
