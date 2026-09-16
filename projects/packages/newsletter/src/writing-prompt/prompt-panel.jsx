@@ -7,25 +7,77 @@ import { arrowLeft, arrowRight } from '@wordpress/icons';
 import { IconButton, Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 
-// Set by the Write editor when someone leaves it for the Block editor. The two
-// packages ship independently, so this key is shared by name only.
+// Set by the Write editor when someone leaves it for the Block editor, in both
+// localStorage and a cookie of this name. The two packages ship independently,
+// so the name is all they share.
 // See projects/packages/jetpack-mu-wpcom/src/features/write/view.js.
-const BLOCK_EDITOR_PREFERRED_STORAGE_KEY = 'wpcom-write-block-editor-preferred';
+const BLOCK_EDITOR_PREFERRED_KEY = 'wpcom-write-block-editor-preferred';
+
+// The exact cookie Write writes, so a re-armed one is indistinguishable from it.
+const BLOCK_EDITOR_PREFERRED_COOKIE = `${ BLOCK_EDITOR_PREFERRED_KEY }=1`;
+const BLOCK_EDITOR_PREFERRED_MAX_AGE = 400 * 24 * 60 * 60;
+
+/**
+ * Whether the opt-out cookie holds the value Write writes.
+ *
+ * @return {boolean} True if the cookie is set to 1.
+ */
+const hasOptOutCookie = () => {
+	try {
+		return document.cookie
+			.split( ';' )
+			.some( pair => pair.trim() === BLOCK_EDITOR_PREFERRED_COOKIE );
+	} catch {
+		return false;
+	}
+};
+
+/**
+ * Whether localStorage holds the opt-out.
+ *
+ * @return {boolean} True if the key is set to 1.
+ */
+const hasOptOutStorage = () => {
+	try {
+		return window.localStorage.getItem( BLOCK_EDITOR_PREFERRED_KEY ) === '1';
+	} catch {
+		return false;
+	}
+};
+
+/**
+ * Rewrite the opt-out cookie from the localStorage copy.
+ *
+ * Safari drops a script-set cookie after seven days, and Write is its only
+ * other writer — which someone who has opted out no longer opens. Without this
+ * the server-side divert in write.php could never come back.
+ */
+const rearmOptOutCookie = () => {
+	try {
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_COOKIE }; path=/; max-age=${ BLOCK_EDITOR_PREFERRED_MAX_AGE }; SameSite=Lax`;
+	} catch {
+		// No-op: this widget still hides Write, from localStorage.
+	}
+};
 
 /**
  * Whether this browser has opted out of the Write editor.
  *
- * Unreadable storage counts as no opt-out, so a visitor we cannot read a
- * preference for still gets the editor the site would otherwise offer.
+ * Either store counts; view.js explains why Write writes two. Storage we cannot
+ * read counts as no opt-out, so a visitor still gets the editor the site would
+ * otherwise offer.
  *
  * @return {boolean} True if Write should no longer be offered here.
  */
 const prefersBlockEditor = () => {
-	try {
-		return window.localStorage.getItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY ) !== null;
-	} catch {
+	if ( hasOptOutCookie() ) {
+		return true;
+	}
+	if ( ! hasOptOutStorage() ) {
 		return false;
 	}
+	rearmOptOutCookie();
+	return true;
 };
 
 /**

@@ -56,11 +56,15 @@ const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
 // Marks the one-off "you're using Write" note as already shown in this browser.
 const EDITOR_NOTE_STORAGE_KEY = 'wpcom-write-editor-note-seen';
 
-// Marks this browser as having left Write for the Block editor. Read by the
-// Daily Writing Prompt widget, which ships from a package with no dependency
-// on this one, so the key is shared by name only.
-// See projects/packages/newsletter/src/writing-prompt/prompt-panel.jsx.
-const BLOCK_EDITOR_PREFERRED_STORAGE_KEY = 'wpcom-write-block-editor-preferred';
+// Marks this browser as having left Write for the Block editor. Written to a
+// cookie, the only store write.php can read, and to localStorage, the only one
+// that survives Safari's seven-day cap on script-set cookies (ITP 2.1).
+// Also read by projects/packages/newsletter/src/writing-prompt/prompt-panel.jsx,
+// from a package that does not depend on this one: the name is all they share.
+const BLOCK_EDITOR_PREFERRED_KEY = 'wpcom-write-block-editor-preferred';
+
+// Chromium and Firefox clamp cookie lifetime to 400 days; more is a no-op.
+const BLOCK_EDITOR_PREFERRED_MAX_AGE = 400 * 24 * 60 * 60;
 
 /**
  * Whether the editor is running on a logged-out page that opts into the
@@ -283,10 +287,21 @@ function markEditorNoteSeen() {
 
 /**
  * Record that this browser chose the Block editor over Write.
+ *
+ * No `Secure` flag: it would drop the cookie on an http:// sandbox.
  */
 function markBlockEditorPreferred() {
 	try {
-		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_KEY, '1' );
+	} catch {
+		// No-op: the cookie below is the fallback, where it is available.
+	}
+	try {
+		document.cookie =
+			BLOCK_EDITOR_PREFERRED_KEY +
+			'=1; path=/; max-age=' +
+			BLOCK_EDITOR_PREFERRED_MAX_AGE +
+			'; SameSite=Lax';
 	} catch {
 		// No-op: worst case the prompt widget keeps offering Write.
 	}
@@ -6123,9 +6138,10 @@ const { state } = store( 'wpcom-write', {
 		 * visitor has not touched — goes through the save, so the block editor
 		 * opens on the same words rather than on a fresh post.
 		 *
-		 * Taking either of those two ways out also stops the Daily Writing Prompt
-		 * widget offering Write, unlike the kebab's openInBlockEditor(), which is
-		 * a per-post escape hatch rather than a choice of editor.
+		 * Taking either of those two ways out stops prompt answers coming back
+		 * here: the widget stops offering Write, and write.php diverts a prompt
+		 * answer that arrives anyway. The kebab's openInBlockEditor() is exempt
+		 * — a per-post escape hatch, not a choice of editor.
 		 */
 		switchToBlockEditor() {
 			if ( isAnon() ) {

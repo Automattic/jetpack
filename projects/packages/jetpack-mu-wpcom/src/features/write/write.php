@@ -14,10 +14,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
 	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ), filemtime( __DIR__ . '/image-format.js' ), filemtime( __DIR__ . '/text-helpers.js' ), filemtime( __DIR__ . '/post-publish-checklist.js' ), filemtime( __DIR__ . '/post-publish-checklist.css' ), filemtime( __DIR__ . '/post-publish-survey.js' ), filemtime( __DIR__ . '/post-publish-survey.css' ) ) );
+}
+
+if ( ! defined( 'WPCOM_WRITE_BLOCK_EDITOR_PREFERRED_COOKIE' ) ) {
+	// Marks a browser as having left Write for the Block editor. See view.js's
+	// markBlockEditorPreferred() for who writes it and who else reads it.
+	define( 'WPCOM_WRITE_BLOCK_EDITOR_PREFERRED_COOKIE', 'wpcom-write-block-editor-preferred' );
 }
 
 // Inline SVG icons used by the top bar and the formatting toolbar.
@@ -215,6 +222,96 @@ add_action(
 		);
 	}
 );
+
+/**
+ * Where a daily-prompt answer should go instead of Write, if anywhere.
+ *
+ * The prompt surfaces on wordpress.com — the My Home and Reader cards, the
+ * notification and the email — cannot read the opt-out, so it is asked again on
+ * arrival. See view.js's markBlockEditorPreferred() for who writes it.
+ *
+ * @return string Block editor URL to divert to, or '' to let Write render.
+ */
+function wpcom_write_prompt_block_editor_url() {
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only GET routing, no state change.
+	if ( ! isset( $_GET['page'] ) || 'write' !== $_GET['page'] ) {
+		return '';
+	}
+
+	// Anything naming a post to open is left alone; only a blank new post is diverted.
+	if ( ! empty( $_GET['post'] ) || ! empty( $_GET['url'] ) ) {
+		return '';
+	}
+
+	// The opt-out means "I answer prompts in blocks", not "never open Write", so
+	// the Reader's Write button and the /write-editor picker are untouched.
+	$answer_prompt_id = isset( $_GET['answer_prompt'] ) && is_scalar( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : 0;
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
+	if ( ! $answer_prompt_id ) {
+		return '';
+	}
+
+	// Exactly the value view.js writes, so all three readers agree on what counts.
+	if ( ! isset( $_COOKIE[ WPCOM_WRITE_BLOCK_EDITOR_PREFERRED_COOKIE ] ) || '1' !== $_COOKIE[ WPCOM_WRITE_BLOCK_EDITOR_PREFERRED_COOKIE ] ) {
+		return '';
+	}
+
+	// Refused either way — leave the arrival on the path it was already taking.
+	if ( ! current_user_can( 'publish_posts' ) ) {
+		return '';
+	}
+
+	$host = new Host();
+	// Simple runs no editor script to insert the prompt block, so post-new.php
+	// would open empty there. Same reason the widget's link sends Simple to Calypso.
+	if ( $host->is_wpcom_simple() ) {
+		return 'https://wordpress.com/post/' . $host->get_wpcom_site_id() . '?answer_prompt=' . $answer_prompt_id;
+	}
+
+	return admin_url( 'post-new.php?answer_prompt=' . $answer_prompt_id );
+}
+
+/**
+ * Divert a prompt answer to the Block editor before Write renders.
+ *
+ * Must run before wpcom_write_render_admin_page(), which sends headers and
+ * fires `wpcom_write_editor_open`.
+ */
+function wpcom_write_divert_prompt_to_block_editor() {
+	// admin_init also fires on admin-ajax.php and admin-post.php, where this
+	// would replace a response body with a redirect.
+	if ( wp_doing_ajax() || ( isset( $GLOBALS['pagenow'] ) && 'admin.php' !== $GLOBALS['pagenow'] ) ) {
+		return;
+	}
+
+	$url = wpcom_write_prompt_block_editor_url();
+	if ( ! $url ) {
+		return;
+	}
+
+	// Simple's destination is off-host, so wp_safe_redirect() needs it allowed.
+	// A rejected host falls back to the dashboard rather than failing, which
+	// would drop the answer silently, so confirm it survives validation first.
+	add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
+	if ( $url !== wp_validate_redirect( $url, '' ) ) {
+		remove_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
+		return;
+	}
+
+	if ( function_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_record_tracks_event' ) ) {
+		// Names the surface the answer came from, once wordpress.com sends it.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter, no state change.
+		$source = isset( $_GET['source'] ) ? sanitize_key( $_GET['source'] ) : '';
+		Common\wpcom_record_tracks_event(
+			'wpcom_write_prompt_diverted_to_block_editor',
+			array( 'source' => $source )
+		);
+	}
+
+	wp_safe_redirect( $url );
+	exit; // @codeCoverageIgnore -- the tests unwind from the wp_redirect filter before this line.
+}
+add_action( 'admin_init', 'wpcom_write_divert_prompt_to_block_editor' ); // @codeCoverageIgnore
 
 /**
  * Enqueue Write assets only on the Write admin page.
