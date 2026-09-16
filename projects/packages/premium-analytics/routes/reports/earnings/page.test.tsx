@@ -62,6 +62,7 @@ describe( 'EarningsReportPage', () => {
 		expect( screen.getByText( 'September 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( '1,414,489' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Unpaid' ) ).toBeInTheDocument();
+		expect( screen.getByText( /Ads Served is the number of ads/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'surfaces the error and retry instead of stale rows', () => {

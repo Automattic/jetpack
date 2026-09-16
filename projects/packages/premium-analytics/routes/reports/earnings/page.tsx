@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Text } from '@jetpack-premium-analytics/externals';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
@@ -22,6 +23,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { REPORTS } from '../registry';
 import { useEarningsReportRecords } from './config';
+import styles from './page.module.css';
 
 const RECORDS_VIEW = {
 	sort: { field: 'period', direction: 'desc' as const },
@@ -105,14 +107,22 @@ function EarningsReport(): JSX.Element {
 						onRetry={ retry }
 					/>
 				) : (
-					<ReportRecordsTable< EarningsHistoryRow >
-						data={ records.rows }
-						fields={ fields }
-						getItemId={ getEarningsRowId }
-						isLoading={ records.isLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
-					/>
+					<>
+						<Text className={ styles.note } variant="body-md" render={ <p /> }>
+							{ __(
+								'Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression.',
+								'jetpack-premium-analytics-pkg'
+							) }
+						</Text>
+						<ReportRecordsTable< EarningsHistoryRow >
+							data={ records.rows }
+							fields={ fields }
+							getItemId={ getEarningsRowId }
+							isLoading={ records.isLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
+						/>
+					</>
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>

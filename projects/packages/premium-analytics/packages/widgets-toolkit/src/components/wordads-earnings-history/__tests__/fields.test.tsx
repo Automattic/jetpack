@@ -67,11 +67,29 @@ describe( 'getWordAdsHistoryFields', () => {
 	it.each( [
 		[ 'a year', '2026' ],
 		[ 'a raw period key', '2026-09' ],
-		[ 'a status label', 'Unpaid' ],
 	] )( 'searches %s', ( _label, search ) => {
 		const { data } = filterSortAndPaginate( rows, { ...view, search }, fields );
 
 		expect( data.map( row => row.period ) ).toEqual( [ '2026-09' ] );
+	} );
+
+	it( 'does not search status labels', () => {
+		const { data } = filterSortAndPaginate( rows, { ...view, search: 'Paid' }, fields );
+
+		expect( data ).toEqual( [] );
+	} );
+
+	it.each( [
+		[ 'Paid', '2025-12' ],
+		[ 'Unpaid', '2026-09' ],
+	] )( 'filters to exactly "%s"', ( value, period ) => {
+		const { data } = filterSortAndPaginate(
+			rows,
+			{ ...view, filters: [ { field: 'status', operator: 'is', value } ] } as View,
+			fields
+		);
+
+		expect( data.map( row => row.period ) ).toEqual( [ period ] );
 	} );
 
 	it( 'sorts periods chronologically, newest first', () => {

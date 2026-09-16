@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import styles from './fields.module.scss';
 import type { StatsWordAdsEarningsBreakdown } from '@jetpack-premium-analytics/data';
 import type { Field, View } from '@jetpack-premium-analytics/externals';
 
@@ -113,7 +114,22 @@ export function formatEarningsPeriod( period: string ): string {
 }
 
 /**
- * A payment status label, with its explanation in a tooltip when there is one.
+ * An earnings amount as currency, in red when it is negative.
+ *
+ * @param props        - The component props.
+ * @param props.amount - The amount for the period.
+ * @return The rendered amount.
+ */
+export function EarningsAmount( { amount }: { amount: number } ) {
+	return (
+		<span className={ amount < 0 ? styles.attention : undefined }>
+			{ formatMetricValue( amount, 'currency' ) }
+		</span>
+	);
+}
+
+/**
+ * A payment status label, in red when unpaid, with its explanation in a tooltip when there is one.
  *
  * @param props        - The component props.
  * @param props.status - The numeric status from the earnings payload, if any.
@@ -121,13 +137,16 @@ export function formatEarningsPeriod( period: string ): string {
  */
 export function EarningsStatusLabel( { status }: { status: number | undefined } ) {
 	const { label, tooltip } = getEarningsStatus( status );
+	const className = status === 0 ? styles.attention : undefined;
 
 	return tooltip ? (
 		<Tooltip text={ tooltip }>
-			<span tabIndex={ 0 }>{ label }</span>
+			<span className={ className } tabIndex={ 0 }>
+				{ label }
+			</span>
 		</Tooltip>
 	) : (
-		<span>{ label }</span>
+		<span className={ className }>{ label }</span>
 	);
 }
 
@@ -154,7 +173,7 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'amount',
 			label: __( 'Earnings', 'jetpack-premium-analytics-pkg' ),
-			render: ( { item } ) => <>{ formatMetricValue( item.amount, 'currency' ) }</>,
+			render: ( { item } ) => <EarningsAmount amount={ item.amount } />,
 		},
 		{
 			id: 'pageviews',
@@ -164,9 +183,14 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'status',
 			label: __( 'Status', 'jetpack-premium-analytics-pkg' ),
-			enableGlobalSearch: true,
-			// Sorts and searches by the visible label rather than the numeric code.
+			// A filter rather than search: a substring match for "Paid" also finds "Unpaid".
+			// Sorts and filters by the visible label rather than the numeric code.
 			getValue: ( { item } ) => getEarningsStatus( item.status ).label,
+			elements: [ 0, 1, 2, 3, 4 ].map( code => {
+				const { label } = getEarningsStatus( code );
+				return { value: label, label };
+			} ),
+			filterBy: { operators: [ 'is' ] },
 			render: ( { item } ) => <EarningsStatusLabel status={ item.status } />,
 		},
 	];
