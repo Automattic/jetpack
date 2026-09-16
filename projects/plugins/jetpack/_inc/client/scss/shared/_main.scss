@@ -48,8 +48,8 @@
 
 // `@wordpress/ui` sits in `@layer wp-ui`, which loses to the unlayered
 // `.jetpack-pagestyles a` above, and its `Link` relies on the UA underline.
-// WordPress/gutenberg#82620 narrows this rather than retiring it: the upstream
-// defense reaches wp-ui `Link` only, and three notices interpolate a raw `<a>`.
+// Nothing upstream will retire this: wp-ui's global-CSS defense covers
+// wp-admin's own unlayered styles, not plugin rules. WordPress/gutenberg#82620.
 .jetpack-pagestyles .jp-notice a {
 	text-decoration-line: underline;
 	text-decoration-thickness: from-font; // `text-decoration: none` above resets it.
