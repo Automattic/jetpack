@@ -14,6 +14,7 @@ use Automattic\Jetpack\Connection\SSO\Notices;
 use Automattic\Jetpack\Connection\SSO\User_Admin;
 use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -33,6 +34,13 @@ class SSO {
 	 * @var false|object
 	 */
 	private $user_data;
+
+	/**
+	 * Whether the SSO attempt failed because the site requires two-step authentication and the WordPress.com account lacks it.
+	 *
+	 * @var bool
+	 */
+	private $two_step_required = false;
 
 	/**
 	 * Automattic\Jetpack\Connection\SSO instance.
@@ -658,7 +666,7 @@ CSS;
 		 */
 		do_action( 'jetpack_sso_login_form_above_wpcom' );
 
-		if ( $display_name && $gravatar ) :
+		if ( $display_name && $gravatar && ! $this->two_step_required ) :
 			?>
 				<div id="jetpack-sso-wrap__user">
 					<img width="72" height="72" src="<?php echo esc_html( $gravatar ); ?>" />
@@ -678,6 +686,16 @@ CSS;
 
 
 			<div id="jetpack-sso-wrap__action">
+				<?php if ( $this->two_step_required ) : ?>
+					<?php // Opens in a new tab so this tab keeps the button to log in again after setup. ?>
+					<a rel="noopener noreferrer" target="_blank" class="button button-primary" href="<?php echo esc_url( Redirect::get_url( 'calypso-me-security-two-step' ) ); ?>">
+						<?php esc_html_e( 'Set up two-step authentication', 'jetpack-connection' ); ?>
+					</a>
+					<?php echo $this->build_sso_button(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
+					<a rel="nofollow" class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'force_reauth' => '1' ) ) ); ?>">
+						<?php esc_html_e( 'Log in with another WordPress.com account', 'jetpack-connection' ); ?>
+					</a>
+				<?php else : ?>
 					<?php echo $this->build_sso_button( array(), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
 
 					<?php if ( $display_name && $gravatar ) : ?>
@@ -707,6 +725,7 @@ CSS;
 							echo esc_html( $sso_explanation );
 						?>
 					</p>
+					<?php endif; ?>
 				<?php endif; ?>
 			</div>
 
@@ -1053,7 +1072,8 @@ CSS;
 		$tracking = new Tracking();
 
 		if ( Helpers::is_two_step_required() && 0 === (int) $user_data->two_step_enabled ) {
-			$this->user_data = $user_data;
+			$this->user_data         = $user_data;
+			$this->two_step_required = true;
 
 			$tracking->record_user_event(
 				'sso_login_failed',
@@ -1066,7 +1086,12 @@ CSS;
 
 			/** This filter is documented in core/src/wp-includes/pluggable.php */
 			do_action( 'wp_login_failed', $user_data->login, $error );
-			add_filter( 'login_message', array( Notices::class, 'error_msg_enable_two_step' ) );
+			add_filter(
+				'login_message',
+				function ( $message ) use ( $user_data ) {
+					return Notices::error_msg_enable_two_step( $message, $user_data );
+				}
+			);
 			return;
 		}
 

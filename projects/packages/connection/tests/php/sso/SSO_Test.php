@@ -49,7 +49,22 @@ class SSO_Test extends BaseTestCase {
 		);
 		wp_set_current_user( 0 );
 		$this->set_sso_user_for_2fa( null );
+		$this->set_two_step_required( false );
 		parent::tear_down();
+	}
+
+	/**
+	 * Set the private $two_step_required property via reflection.
+	 *
+	 * @param bool $required Whether the SSO attempt failed for lack of two-step authentication.
+	 */
+	private function set_two_step_required( $required ) {
+		$reflection = new \ReflectionClass( SSO::class );
+		$property   = $reflection->getProperty( 'two_step_required' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $this->sso, $required );
 	}
 
 	/**
@@ -289,6 +304,36 @@ class SSO_Test extends BaseTestCase {
 
 		$this->assertContains( 'jetpack-sso', $classes );
 		$this->assertNotContains( 'jetpack-sso-form-display', $classes );
+	}
+
+	// ──────────────────────────────────────────────
+	// login_form
+	// ──────────────────────────────────────────────
+
+	/**
+	 * Test that login_form makes two-step setup the primary action when the site requires it.
+	 */
+	public function test_login_form_makes_two_step_setup_primary_when_required() {
+		$this->set_two_step_required( true );
+
+		ob_start();
+		$this->sso->login_form();
+		$output = ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '/<a [^>]*button-primary[^>]*source=calypso-me-security-two-step/', $output );
+		$this->assertSame( 1, substr_count( $output, 'button-primary' ) );
+		$this->assertStringContainsString( 'action=jetpack-sso', $output );
+	}
+
+	/**
+	 * Test that login_form does not link to two-step setup on a regular login.
+	 */
+	public function test_login_form_omits_two_step_setup_by_default() {
+		ob_start();
+		$this->sso->login_form();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'calypso-me-security-two-step', $output );
 	}
 
 	// ──────────────────────────────────────────────

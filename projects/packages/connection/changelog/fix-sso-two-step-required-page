@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+SSO: When a site requires two-step authentication and the WordPress.com account doesn't have it, name the logged-in account and make setting up two-step authentication the main action on the login screen.
