@@ -70,6 +70,9 @@
 	flex-wrap: wrap;
 	align-items: baseline;
 	gap: 2px 8px;
+
+	/* Reserved so a card without a saving badge keeps the same price height. */
+	min-block-size: 55px;
 	margin-block-start: auto;
 	padding-block-start: 14px;
 }
@@ -87,13 +90,20 @@
 	font-size: 13px;
 }
 
+/*
+ * Centred rather than on the baseline: the badge's bottom padding sits below
+ * the amount's baseline, which grew the line and lifted the price by 3px on
+ * every card that had one.
+ */
 .wpcom-marketplace-tab .wpcom-marketplace-card__saving {
+	align-self: center;
 	border-radius: 3px;
 	padding: 2px 6px;
 	background: #d5eddb;
 	color: #00450c;
 	font-size: 11px;
 	font-weight: 600;
+	line-height: 1.45;
 	white-space: nowrap;
 }
 
@@ -111,10 +121,28 @@
 	text-align: center;
 }
 
+/*
+ * An installed plugin gets core's `button-compact`, which is 8px shorter than
+ * the purchase button. Left alone it pulls that card's price out of line with
+ * the rest of the row, so every action here is sized the same.
+ */
 .wpcom-marketplace-tab .wpcom-marketplace-card__actions .button {
+	display: flex;
 	box-sizing: border-box;
+	align-items: center;
+	justify-content: center;
 	inline-size: 100%;
+	min-block-size: 40px;
+	block-size: auto;
 	text-align: center;
+}
+
+/*
+ * Same height again, one level more specific: core's own `.wp-core-ui
+ * .button.button-compact` ties with the rule above and wins on order.
+ */
+.wpcom-marketplace-tab .wpcom-marketplace-card__actions .button.button-compact {
+	min-block-size: 40px;
 }
 
 /*
