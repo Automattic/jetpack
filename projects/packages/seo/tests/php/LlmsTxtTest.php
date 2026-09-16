@@ -339,6 +339,28 @@ class LlmsTxtTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function test_summary_uses_filtered_excerpt_without_manual_excerpt() {
+		$post   = $this->insert_post( array( 'post_content' => 'Withheld body text.' ) );
+		$filter = static function ( $excerpt, $excerpt_post ) use ( $post ) {
+			return $excerpt_post->ID === $post->ID ? 'Content unavailable.' : $excerpt;
+		};
+		add_filter( 'get_the_excerpt', $filter, 100, 2 );
+
+		try {
+			$output = $this->link_list( array( $post ) );
+
+			$this->assertStringContainsString( 'Content unavailable.', $output );
+			$this->assertStringNotContainsString( 'Withheld body text.', $output );
+			$this->assertStringContainsString( '[Test post](', $output );
+			$this->assertStringContainsString( get_permalink( $post ), $output );
+		} finally {
+			remove_filter( 'get_the_excerpt', $filter, 100 );
+		}
+	}
+
+	/**
 	 * A paywalled post summarizes the teaser the front end already publishes.
 	 *
 	 * @return void
