@@ -2,7 +2,7 @@ import { getScoreMovementPercentage } from '@automattic/jetpack-boost-score-api'
 import { useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
@@ -17,8 +17,14 @@ import {
 import { useSpeedScores } from './lib/use-speed-scores';
 import ScoreCards from './score-cards';
 import './overview.scss';
+import type { ReactNode } from 'react';
 
-export default function Overview( props: { isVisible?: boolean } ) {
+type Props = {
+	isVisible?: boolean;
+	onHeaderActionChange: ( action: ReactNode ) => void;
+};
+
+export default function Overview( props: Props ) {
 	return (
 		<ErrorBoundary
 			fallback={ error => (
@@ -42,7 +48,7 @@ export default function Overview( props: { isVisible?: boolean } ) {
 	);
 }
 
-function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
+function OverviewContent( { isVisible = true, onHeaderActionChange }: Props ) {
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
@@ -72,10 +78,22 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 		}
 	}, [ online, scoreState.status, queryClient ] );
 
-	const onRefresh = () => {
+	const onRefresh = useCallback( () => {
 		recordBoostEvent( 'speed_score_refresh_clicked', {} );
 		refreshScores( true );
-	};
+	}, [ refreshScores ] );
+
+	useEffect( () => {
+		if ( ! isVisible || ! online ) {
+			return;
+		}
+		onHeaderActionChange(
+			<Button variant="solid" size="compact" disabled={ isLoading } onClick={ onRefresh }>
+				{ __( 'Run speed test', 'jetpack-boost' ) }
+			</Button>
+		);
+		return () => onHeaderActionChange( null );
+	}, [ isVisible, online, isLoading, onRefresh, onHeaderActionChange ] );
 
 	if ( ! online ) {
 		return (
@@ -120,11 +138,6 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 				scores={ scoreState.scores }
 				isLoading={ isLoading }
 				showPlaceholder={ isLoading || ! scoreState.hasScores }
-				headerAction={
-					<Button variant="minimal" size="compact" disabled={ isLoading } onClick={ onRefresh }>
-						{ __( 'Refresh', 'jetpack-boost' ) }
-					</Button>
-				}
 			/>
 			<ScoreAlert
 				scoreChange={

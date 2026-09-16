@@ -56,6 +56,12 @@ const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
 // Marks the one-off "you're using Write" note as already shown in this browser.
 const EDITOR_NOTE_STORAGE_KEY = 'wpcom-write-editor-note-seen';
 
+// Marks this browser as having left Write for the Block editor. Read by the
+// Daily Writing Prompt widget, which ships from a package with no dependency
+// on this one, so the key is shared by name only.
+// See projects/packages/newsletter/src/writing-prompt/prompt-panel.jsx.
+const BLOCK_EDITOR_PREFERRED_STORAGE_KEY = 'wpcom-write-block-editor-preferred';
+
 /**
  * Whether the editor is running on a logged-out page that opts into the
  * anonymous flow by setting `window.wpcomWriteIsAnon = true` before the module
@@ -272,6 +278,17 @@ function markEditorNoteSeen() {
 		window.localStorage.setItem( EDITOR_NOTE_STORAGE_KEY, '1' );
 	} catch {
 		// No-op: worst case the note shows again on the next visit.
+	}
+}
+
+/**
+ * Record that this browser chose the Block editor over Write.
+ */
+function markBlockEditorPreferred() {
+	try {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+	} catch {
+		// No-op: worst case the prompt widget keeps offering Write.
 	}
 }
 
@@ -6105,11 +6122,16 @@ const { state } = store( 'wpcom-write', {
 		 * always has. Anything already on screen — including a seeded prompt the
 		 * visitor has not touched — goes through the save, so the block editor
 		 * opens on the same words rather than on a fresh post.
+		 *
+		 * Taking either of those two ways out also stops the Daily Writing Prompt
+		 * widget offering Write, unlike the kebab's openInBlockEditor(), which is
+		 * a per-post escape hatch rather than a choice of editor.
 		 */
 		switchToBlockEditor() {
 			if ( isAnon() ) {
 				return;
 			}
+			markBlockEditorPreferred();
 			state.showHelp = false;
 			if ( ! state.editPostId && ! hasWritableContent() ) {
 				allowLeave = true;

@@ -43,10 +43,10 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			fill: var(--jp-gray-50);
+			color: var(--jp-gray-50);
 
 			&.thumbnail-error {
-				fill: var(--jp-yellow-20);
+				color: var(--jp-yellow-20);
 			}
 		}
 	}

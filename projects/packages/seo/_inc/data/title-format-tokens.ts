@@ -324,3 +324,36 @@ export const stringToTokens = ( input: string, allowedTokenIds?: string[] ): Tit
 		.split( LABEL_PATTERN )
 		.filter( segment => segment !== '' )
 		.map( segment => fromDisplay( segment, allowedTokenIds ) );
+
+/**
+ * Whether a value is one canonical `{ type, value }` token.
+ *
+ * @param value - Anything read from the server or the store.
+ * @return True for a well-formed token.
+ */
+const isTitleFormatToken = ( value: unknown ): value is TitleFormatToken =>
+	!! value &&
+	typeof value === 'object' &&
+	( ( value as TitleFormatToken ).type === 'string' ||
+		( value as TitleFormatToken ).type === 'token' ) &&
+	typeof ( value as TitleFormatToken ).value === 'string';
+
+/**
+ * Coerce a server payload's `title_formats` into one token list per page type.
+ *
+ * The stored option holds `''` for a page type cleared from Calypso, and an older
+ * server passes that through as-is.
+ *
+ * @param formats - The raw `title_formats` value.
+ * @return One token list per page type, empty where the input was unusable.
+ */
+export const normalizeTitleFormats = ( formats: unknown ): Record< string, TitleFormatToken[] > => {
+	if ( ! formats || typeof formats !== 'object' || Array.isArray( formats ) ) {
+		return {};
+	}
+	const normalized: Record< string, TitleFormatToken[] > = {};
+	for ( const [ pageType, format ] of Object.entries( formats as Record< string, unknown > ) ) {
+		normalized[ pageType ] = Array.isArray( format ) ? format.filter( isTitleFormatToken ) : [];
+	}
+	return normalized;
+};

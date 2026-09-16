@@ -1,0 +1,10 @@
+{
+	"name": "jpa/views-over-years",
+	"title": "Views over years",
+	"description": "Every month of views across the whole site, one row per year.",
+	"help": {
+		"content": "Every month of your site's views, shaded by how it compares to the rest, with each year's total beside it. Always the full history: the year above doesn't narrow it. Pick a month to read the Traffic tab over it. Daily average divides a month's views by its days, counting the current month up to today."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

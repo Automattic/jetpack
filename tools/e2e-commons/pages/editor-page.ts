@@ -1,5 +1,5 @@
 import { Editor } from '@wordpress/e2e-test-utils-playwright';
-import type { Locator } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 export default class EditorPage extends Editor {
 	/**
@@ -31,6 +31,27 @@ export default class EditorPage extends Editor {
 			exact: true,
 		} );
 	}
+
+	/**
+	 * Opens the post preview in a new tab and returns that page.
+	 *
+	 * Core still labels the menu item "Preview in new tab" while the upstream utility
+	 * (2.0.0) only knows the renamed "Preview (opens in a new tab)", so accept both.
+	 *
+	 * @return {Promise<Page>} The preview page.
+	 */
+	openPreviewPage = async (): Promise< Page > => {
+		await this.getEditorTopBar().getByRole( 'button', { name: 'View', exact: true } ).click();
+
+		const [ previewPage ] = await Promise.all( [
+			this.context.waitForEvent( 'page' ),
+			this.page
+				.getByRole( 'menuitem', { name: /^Preview (in new tab|\(opens in a new tab\))$/i } )
+				.click(),
+		] );
+
+		return previewPage;
+	};
 
 	/**
 	 * Given a Locator, determines whether the target button/toggle is

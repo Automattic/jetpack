@@ -9,3 +9,5 @@ export {
 	COMPARISON_TICK_GAP_FACTOR,
 } from './comparison-constants';
 export { BASE_BAND_PADDING_INNER } from './use-bar-chart-options';
+export { BandHighlight } from './band-highlight';
+export { BandTooltip } from './band-tooltip';

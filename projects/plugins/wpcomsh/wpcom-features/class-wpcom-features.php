@@ -1867,14 +1867,15 @@ class WPCOM_Features {
 	 *
 	 * Use the function wpcom_site_has_feature( $feature ) to determine if a site has access to a certain feature.
 	 *
-	 * @param string $feature   A singular feature.
-	 * @param array  $purchases A collection of purchases.
-	 * @param string $site_type Site type to check. Can be 'wpcom' or 'jetpack'. Default empty string.
-	 * @param int    $blog_id   The blog ID to check. Default null.
+	 * @param string    $feature       A singular feature.
+	 * @param array     $purchases     A collection of purchases.
+	 * @param string    $site_type     Site type to check. Can be 'wpcom' or 'jetpack'. Default empty string.
+	 * @param int|null  $blog_id       The blog ID to check. Default null.
+	 * @param bool|null $assume_legacy Cohort to assume instead of the site's own; null reads it from the site.
 	 *
 	 * @return bool Is the feature included in one of the purchases.
 	 */
-	public static function has_feature( $feature, $purchases, $site_type = '', $blog_id = null ) {
+	public static function has_feature( $feature, $purchases, $site_type = '', $blog_id = null, $assume_legacy = null ) {
 		if ( ! self::feature_exists( $feature ) ) {
 			return false;
 		}
@@ -1890,7 +1891,7 @@ class WPCOM_Features {
 		}
 
 		foreach ( $purchases as $purchase ) {
-			if ( self::purchase_in_products_map( $purchase, $products_map, $blog_id ) ) {
+			if ( self::purchase_in_products_map( $purchase, $products_map, $blog_id, $assume_legacy ) ) {
 				return true;
 			}
 		}
@@ -2036,6 +2037,36 @@ class WPCOM_Features {
 	}
 
 	/**
+	 * Features whose grant depends on which side of the 2026 flip a site is on.
+	 *
+	 * These are the only features a plan change can take away from a site still on the pre-2026
+	 * gating, so a caller comparing before and after only has to evaluate these. Derived from the map
+	 * so a new `before_feature_gating_2026` branch is covered without an edit here.
+	 *
+	 * @return string[]
+	 */
+	public static function get_cohort_sensitive_features() {
+		static $features = null;
+
+		if ( null !== $features ) {
+			return $features;
+		}
+
+		$features = array();
+
+		foreach ( self::FEATURES_MAP as $feature => $products_map ) {
+			foreach ( $products_map as $branch ) {
+				if ( is_array( $branch ) && isset( $branch['before_feature_gating_2026'] ) ) {
+					$features[] = $feature;
+					continue 2;
+				}
+			}
+		}
+
+		return $features;
+	}
+
+	/**
 	 * A cache-key fragment covering every per-site input the products map consults.
 	 *
 	 * Feature resolution for a given product is not the same for every site, so anything caching it
@@ -2067,13 +2098,14 @@ class WPCOM_Features {
 	 * should be excluded from the feature. This is useful for when there are very specific exceptions that would
 	 * otherwise require a lot of configuration to be added. If a plan is excluded, no further checks will be done.
 	 *
-	 * @param object $purchase A single purchase.
-	 * @param array  $products_map A feature map definition array.
-	 * @param int    $blog_id The blog ID to check. Default null.
+	 * @param object    $purchase A single purchase.
+	 * @param array     $products_map A feature map definition array.
+	 * @param int|null  $blog_id The blog ID to check. Default null.
+	 * @param bool|null $assume_legacy Cohort to assume instead of the site's own; null reads it from the site.
 	 *
 	 * @return bool If the purchase is included in $products_map and meets any purchase date-range rules.
 	 */
-	public static function purchase_in_products_map( $purchase, $products_map, $blog_id = null ) {
+	public static function purchase_in_products_map( $purchase, $products_map, $blog_id = null, $assume_legacy = null ) {
 
 		// First check if the current purchase is excluded in the product definition.
 		if ( isset( $products_map[ self::EXCLUDE_PLANS ] ) ) {
@@ -2120,7 +2152,11 @@ class WPCOM_Features {
 			// Check if the site has legacy/current features, previously use gating-business-q1 sticker
 			if ( isset( $product_definition['before_feature_gating_2026'] ) ) {
 				$purchase_eligible_by_sticker = $purchase_eligible_by_sticker
-					&& (bool) $product_definition['before_feature_gating_2026'] === self::is_legacy_gating_site( self::resolve_blog_id( $blog_id ) );
+					&& (bool) $product_definition['before_feature_gating_2026'] === (
+						null === $assume_legacy
+							? self::is_legacy_gating_site( self::resolve_blog_id( $blog_id ) )
+							: (bool) $assume_legacy
+					);
 				// Remove the key so $product_definition is clean for in_array_recursive search.
 				unset( $product_definition['before_feature_gating_2026'] );
 			}
