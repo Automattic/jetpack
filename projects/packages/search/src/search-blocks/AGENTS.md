@@ -207,7 +207,7 @@ Mitigation, in both blocks' `edit.jsx`: `renderAppender={InnerBlocks.ButtonBlock
 
 `no-results`' variants take the `ButtonBlockAppender` without the outline + label (see *Container and variants*), so the package runs two shapes of this mitigation. Prefer the `no-results` shape for anything new: the appender alone fixes the boundary bug, while the outline + label is the non-standard canvas chrome SEARCH-341 set out to remove.
 
-Whether to gate the appender on selection is a judgement call, not a convention. `shouldRenderAppender` in `@wordpress/block-editor` is `appenderAllowed && ( hasCustomAppender || hasSelectedRoot || showRootAppender )`, so core exempts a *custom* appender from the selection gate rather than requiring it to be always-on; both shapes are supported and the block decides. `filters`/`filters-product` render theirs unconditionally because one composition holds many filters. `no-results/slot` gates on `isBlockSelected || hasSelectedInnerBlock` because all three variants ship untouched and three permanent `+` buttons down a 36rem canvas is the clutter this block just removed. Gate on both selectors, never `isBlockSelected` alone, or the appender vanishes the moment an author clicks into a block inside the variant.
+Gating that appender on selection is the block's call, not a convention either way: core's `shouldRenderAppender` exempts a custom appender from the selection gate rather than requiring always-on. `filters`/`filters-product` don't gate; `no-results/slot` does, so three untouched variants don't stack three permanent `+` buttons. If you gate, use `isBlockSelected || hasSelectedInnerBlock` — `isBlockSelected` alone makes the appender vanish when an author clicks into a block inside the variant.
 
 ## Comments
 

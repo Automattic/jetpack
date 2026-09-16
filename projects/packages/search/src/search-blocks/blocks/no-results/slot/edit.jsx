@@ -94,11 +94,9 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 		<div { ...blockProps } data-testid="no-results-variant">
 			{ ! hasInnerBlocks &&
 				defaultMessages( condition ).map( message => <p key={ message }>{ message }</p> ) }
-			{ /* `ButtonBlockAppender` bounds the insertion target: see AGENTS.md's "InnerBlocks
-			     appender boundary trap". Gated on selection to keep three stacked variants quiet;
-			     core exempts a custom appender from that gate rather than requiring it. `InnerBlocks`
-			     stays mounted either way, because the drop target comes from `useInnerBlocksProps`
-			     and the container's `allowedBlocks` rejects a direct drop. */ }
+			{ /* Never unmount `InnerBlocks`: the drop target comes from `useInnerBlocksProps`, and
+			     without it a drag onto an unselected variant resolves to the container, which rejects
+			     it. See AGENTS.md's "InnerBlocks appender boundary trap". */ }
 			<InnerBlocks renderAppender={ isActive ? InnerBlocks.ButtonBlockAppender : false } />
 		</div>
 	);

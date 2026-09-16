@@ -76,8 +76,6 @@ describe( 'NoResultsSlotEdit', () => {
 		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
 	} );
 
-	// The class is the contract with `render.php`, which puts it on the same element via
-	// `get_block_wrapper_attributes()`.
 	it( 'puts the front-end default class on the wrapper only while empty', () => {
 		const { unmount } = render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 		const wrapper = screen.getByTestId( 'no-results-variant' );
@@ -133,8 +131,7 @@ describe( 'NoResultsSlotEdit', () => {
 		);
 	} );
 
-	// Clicking into a paragraph inside the variant selects the child, not the variant. Without the
-	// `hasSelectedInnerBlock` half of the gate the appender would vanish mid-edit.
+	// Guards the `hasSelectedInnerBlock` half of the gate: without it the appender vanishes mid-edit.
 	it( 'keeps the appender while only an inner block is selected', () => {
 		mockHasSelectedInnerBlock = true;
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
@@ -144,8 +141,6 @@ describe( 'NoResultsSlotEdit', () => {
 		);
 	} );
 
-	// Unmounting it would make a drag onto an unselected variant resolve to the container, whose
-	// `allowedBlocks` rejects everything but a variant.
 	it( 'keeps the inner drop target mounted while the variant is unselected', () => {
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
