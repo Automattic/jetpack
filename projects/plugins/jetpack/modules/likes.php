@@ -102,7 +102,6 @@ class Jetpack_Likes {
 		}
 
 		add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
-		add_action( 'admin_print_scripts-settings_page_sharing', array( $this, 'load_jp_css' ) );
 
 		$sharedaddy_active = Jetpack::is_module_active( 'sharedaddy' );
 
@@ -147,16 +146,6 @@ class Jetpack_Likes {
 	 */
 	public function jetpack_likes_configuration_url() {
 		return admin_url( 'options-general.php?page=sharing#likes' );
-	}
-
-	/**
-	 * Loads Jetpack's CSS on the sharing page.
-	 */
-	public function load_jp_css() {
-		/**
-		* Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
-		* Jetpack::init()->admin_styles();
-		*/
 	}
 
 	/**
