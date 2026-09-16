@@ -1,23 +1,13 @@
 /**
  * Editor preview for jetpack-search/no-results-slot.
  *
- * One condition's content inside the No Results container, shown WYSIWYG at
- * all times. Deliberately no `InnerBlocks` template: an auto-inserted
- * placeholder paragraph serializes as an empty `<p>`, which would displace the
- * localized default copy `render.php` falls back to the moment an author so
- * much as clicks into a shipped template. The variant stays genuinely empty
- * until the author adds something, and the preview below — carrying the same
- * class the front end styles — stands in for what visitors would see
- * meanwhile.
+ * Deliberately no `InnerBlocks` template: an auto-inserted placeholder paragraph serializes as an
+ * empty `<p>`, which would displace the localized default copy `render.php` falls back to the
+ * moment an author so much as clicks into a shipped template.
  *
- * No custom canvas chrome: identification comes from Gutenberg's own
- * selection/hover outlines and the per-condition name `conditionLabel()`
- * feeds to List view, breadcrumb, and a11y via `__experimentalLabel` (wired
- * in `editor/register-blocks.jsx`).
- *
- * `condition` is set once, by whatever created the variant, and deliberately
- * has no editing control: every condition already exists in the container, so
- * repointing one could only duplicate a condition or vacate another.
+ * `condition` is set once, by whatever created the variant, and has no editing control: every
+ * condition already exists in the container, so repointing one could only duplicate a condition or
+ * vacate another.
  */
 import { InnerBlocks, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
@@ -25,12 +15,10 @@ import { __ } from '@wordpress/i18n';
 
 const CONDITIONS = [ 'any', 'filtered', 'error' ];
 
-// Mirrors `No_Results::render_default_copy()` so the canvas shows
-// what a visitor would get from an untouched variant. An unscoped variant
-// previews both lines even though a visitor only ever sees one — the author
-// should see every state the variant covers. A function, not a constant, so
-// the `__()` calls run after the editor's i18n is loaded rather than being
-// cached in the source locale at module init.
+// Mirrors `No_Results::render_default_copy()`. An unscoped variant previews both lines even though
+// a visitor only ever sees one, so the author sees every state the variant covers.
+// A function, not a constant, so the `__()` calls run after the editor's i18n is loaded rather than
+// being cached in the source locale at module init.
 const defaultMessages = condition => {
 	if ( condition === 'error' ) {
 		return [ __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' ) ];
@@ -59,9 +47,8 @@ export const conditionLabels = () => ( {
 } );
 
 /**
- * Per-condition display name for a variant, used as the block's
- * `__experimentalLabel` so List view, breadcrumb, and a11y announcements
- * name the condition instead of repeating the block title.
+ * Per-condition display name for a variant, used as the block's `__experimentalLabel` so List view,
+ * the breadcrumb, and the block toolbar name the condition instead of repeating the block title.
  *
  * @param {object} attributes - Block attributes.
  * @return {string} The condition's label.
@@ -82,19 +69,14 @@ export const conditionLabel = attributes => {
 export default function NoResultsSlotEdit( { attributes, clientId } ) {
 	const stored = attributes?.condition;
 	const condition = CONDITIONS.includes( stored ) ? stored : 'any';
-	const { hasInnerBlocks, isActive } = useSelect(
-		select => {
-			const editor = select( blockEditorStore );
-			return {
-				hasInnerBlocks: editor.getBlockCount( clientId ) > 0,
-				isActive:
-					editor.isBlockSelected( clientId ) || editor.hasSelectedInnerBlock( clientId, true ),
-			};
-		},
+	const hasInnerBlocks = useSelect(
+		select => select( blockEditorStore ).getBlockCount( clientId ) > 0,
 		[ clientId ]
 	);
-	// The `--default` modifier sits on the block wrapper itself, matching where
-	// `render.php` puts it relative to `get_block_wrapper_attributes()`.
+	// Placement matches where `render.php` puts the modifier relative to
+	// `get_block_wrapper_attributes()`; the trigger does not. The server keys it on empty rendered
+	// output, so a variant holding blocks that render to nothing styles as authored here and as
+	// default there.
 	const blockProps = useBlockProps( {
 		className: hasInnerBlocks
 			? 'jetpack-search-no-results__variant'
@@ -102,15 +84,12 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 	} );
 
 	return (
-		<div { ...blockProps }>
+		<div { ...blockProps } data-testid="no-results-variant">
 			{ ! hasInnerBlocks &&
 				defaultMessages( condition ).map( message => <p key={ message }>{ message }</p> ) }
-			{ /* Always mounted: the inner drop target comes from
-			     `useInnerBlocksProps`, so unmounting it would make a drag onto an
-			     unselected variant resolve to the container, whose `allowedBlocks`
-			     then rejects it. The appender follows the standard convention of
-			     appearing only while the block is selected. */ }
-			<InnerBlocks renderAppender={ isActive ? InnerBlocks.ButtonBlockAppender : false } />
+			{ /* `ButtonBlockAppender` bounds the insertion target: see AGENTS.md's "InnerBlocks
+			     appender boundary trap". */ }
+			<InnerBlocks renderAppender={ InnerBlocks.ButtonBlockAppender } />
 		</div>
 	);
 }
