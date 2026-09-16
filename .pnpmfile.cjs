@@ -1,54 +1,3 @@
-// Packages we need to copy versions from for `@wordpress/dataviews/wp`.
-const wpPkgs = [
-	[ '@wordpress/components', 'change-case' ],
-	[ '@wordpress/components', '@emotion/cache' ],
-	[ '@wordpress/components', '@emotion/css' ],
-	[ '@wordpress/components', '@emotion/react' ],
-	[ '@wordpress/components', '@emotion/styled' ],
-	[ '@wordpress/components', '@emotion/utils' ],
-	[ '@wordpress/components', '@floating-ui/react-dom' ],
-	[ '@wordpress/components', 'framer-motion' ],
-	[ '@wordpress/components', 'highlight-words-core' ],
-	[ '@wordpress/components', 'is-plain-object' ],
-	[ '@wordpress/components', 'memize' ],
-	[ '@wordpress/components', '@use-gesture/react' ],
-	[ '@wordpress/components', 'uuid' ],
-	[ '@wordpress/components', '@wordpress/hooks' ],
-	[ '@wordpress/components', 'react-colorful' ],
-	[ '@wordpress/data', 'use-memo-one' ],
-	[ '@wordpress/ui', '@base-ui/react' ],
-	[ '@wordpress/ui', '@daypicker/react' ],
-	[ '@wordpress/ui', '@wordpress/theme', 'colorjs.io' ],
-];
-const wpPkgFetches = {};
-const wpPkgsUsed = new Set();
-const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
-	const [ dep, ...rest ] = deplist;
-
-	if ( ! wpPkgFetches[ fromPkg ] ) {
-		wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
-			r.json()
-		);
-	}
-	const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
-
-	if ( rest.length > 0 ) {
-		if ( deps[ dep ] === undefined ) {
-			// This version of the package lacks the dep? We'll check in afterAllResolved for no version having it.
-			return;
-		}
-		const ver2 = deps[ dep ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
-		await addWpPkgDep( pkg, dep, ver2, rest );
-	} else {
-		if ( deps[ dep ] === undefined ) {
-			// Ditto.
-			return;
-		}
-		wpPkgsUsed.add( dep );
-		pkg.optionalDependencies[ dep ] = deps[ dep ];
-	}
-};
-
 /**
  * Fix package dependencies.
  *
@@ -144,21 +93,6 @@ async function fixDeps( pkg ) {
 		! pkg.peerDependencies?.react
 	) {
 		pkg.peerDependencies.react = '^18';
-	}
-
-	// We need to add the missing deps for `@wordpress/dataviews` because
-	// the build fails when using pnpm with hoisting.
-	// @see https://github.com/WordPress/gutenberg/issues/67864
-	if ( pkg.name === '@wordpress/dataviews' ) {
-		for ( const deplist of wpPkgs ) {
-			const [ fromPkg, ...rest ] = deplist;
-			if ( ! pkg.dependencies[ fromPkg ] ) {
-				// Old version of dataviews lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
-				continue;
-			}
-			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
-			await addWpPkgDep( pkg, fromPkg, ver, rest );
-		}
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
@@ -447,10 +381,9 @@ async function readPackage( pkg, context ) {
  *
  * @see https://pnpm.io/pnpmfile#hooksafterallresolvedlockfile-context-lockfile--promiselockfile
  * @param {object} lockfile - Lockfile data.
- * @param {object} context  - Pnpm object of some sort.
  * @return {object} Modified lockfile.
  */
-function afterAllResolved( lockfile, context ) {
+function afterAllResolved( lockfile ) {
 	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
 	if ( Object.keys( lockfile.importers ).length === 1 ) {
 		return lockfile;
@@ -486,17 +419,6 @@ function afterAllResolved( lockfile, context ) {
 			throw new Error(
 				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report.\n"
 			);
-		}
-	}
-
-	for ( const deplist of wpPkgs ) {
-		for ( const dep of deplist ) {
-			if ( ! wpPkgFetches[ dep ] && ! wpPkgsUsed.has( dep ) ) {
-				context.log(
-					// prettier-ignore
-					`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used. Is it obsolete?`
-				);
-			}
 		}
 	}
 

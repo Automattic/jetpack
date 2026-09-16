@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Welcome screen: Keep the plan feature check icons colored now that @wordpress/icons 16 draws them as strokes.
