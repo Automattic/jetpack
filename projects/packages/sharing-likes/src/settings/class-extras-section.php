@@ -34,7 +34,7 @@ final class Extras_Section {
 
 		?>
 		<div class="jetpack-sharing-settings__section">
-			<h2><?php esc_html_e( 'Other sharing settings', 'jetpack-sharing-likes' ); ?></h2>
+			<h2><?php esc_html_e( 'Other settings', 'jetpack-sharing-likes' ); ?></h2>
 			<form method="post" action="">
 				<table class="form-table">
 					<tbody>
