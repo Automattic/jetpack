@@ -3,8 +3,8 @@ import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Icon, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
+import { getActivationStatusLabel } from '../utils';
 import { FeatureIcon } from './feature-icon';
-import { featureStatusLabel } from './feature-status-label';
 import { FeatureToggle } from './feature-toggle';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
@@ -70,7 +70,9 @@ export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 						{ feature.name }
 					</Text>
 
-					<Badge intent={ isActive ? 'stable' : 'none' }>{ featureStatusLabel( isActive ) }</Badge>
+					<Badge intent={ isActive ? 'stable' : 'none' }>
+						{ getActivationStatusLabel( isActive ) }
+					</Badge>
 
 					{ feature.essential ? (
 						<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
