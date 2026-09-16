@@ -439,37 +439,47 @@ export default function AiOverview( {
 					{ __( 'Walkthrough videos', 'jetpack' ) }
 				</Text>
 				<div className="jetpack-ai-overview__video-grid">
-					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => (
-						<a
-							className="jetpack-ai-overview__video"
-							href={ getRedirectUrl( slug ) }
-							key={ slug }
-							target="_blank"
-							rel="noopener noreferrer"
-							onClick={ recordLinkClick( 'video', slug ) }
-						>
-							{ /* Decorative: the card's title carries the meaning. */ }
-							<img
-								className="jetpack-ai-overview__video-thumb"
-								src={ assetUrl( thumbnail ) }
-								alt=""
-								width="644"
-								height="348"
-								loading="lazy"
-							/>
-							<span className="jetpack-ai-overview__video-meta">
-								<Text render={ <span /> } variant="heading-md">
-									{ title }
-								</Text>
-								<Text render={ <span /> } variant="body-md" className="jetpack-ai-overview__muted">
-									{ duration }
-								</Text>
-							</span>
-							{ /* The design leaves the cards unmarked, so announce the
-							     new tab the way ExternalLink does, minus its arrow. */ }
-							<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
-						</a>
-					) ) }
+					{ WALKTHROUGH_VIDEOS.map( ( { slug, title, duration, thumbnail } ) => {
+						const thumbnailUrl = assetUrl( thumbnail );
+
+						return (
+							<a
+								className="jetpack-ai-overview__video"
+								href={ getRedirectUrl( slug ) }
+								key={ slug }
+								target="_blank"
+								rel="noopener noreferrer"
+								onClick={ recordLinkClick( 'video', slug ) }
+							>
+								{ /* Decorative: the card's title carries the meaning. */ }
+								{ thumbnailUrl && (
+									<img
+										className="jetpack-ai-overview__video-thumb"
+										src={ thumbnailUrl }
+										alt=""
+										width="644"
+										height="348"
+										loading="lazy"
+									/>
+								) }
+								<span className="jetpack-ai-overview__video-meta">
+									<Text render={ <span /> } variant="heading-md">
+										{ title }
+									</Text>
+									<Text
+										render={ <span /> }
+										variant="body-md"
+										className="jetpack-ai-overview__muted"
+									>
+										{ duration }
+									</Text>
+								</span>
+								{ /* The design leaves the cards unmarked, so announce the
+								     new tab the way ExternalLink does, minus its arrow. */ }
+								<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
+							</a>
+						);
+					} ) }
 				</div>
 			</Stack>
 

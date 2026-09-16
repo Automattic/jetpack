@@ -45,6 +45,8 @@ export default function McpUpsell() {
 		} );
 	}, [] );
 
+	const illustrationUrl = assetUrl( 'upsell-illustration.svg' );
+
 	return (
 		<div className="jetpack-ai-mcp__upsell-callout">
 			<div className="jetpack-ai-mcp__upsell-callout-content">
@@ -64,12 +66,14 @@ export default function McpUpsell() {
 					{ __( 'Upgrade plan', 'jetpack' ) }
 				</Button>
 			</div>
-			<img
-				className="jetpack-ai-mcp__upsell-callout-image"
-				src={ assetUrl( 'upsell-illustration.svg' ) }
-				alt=""
-				role="presentation"
-			/>
+			{ illustrationUrl && (
+				<img
+					className="jetpack-ai-mcp__upsell-callout-image"
+					src={ illustrationUrl }
+					alt=""
+					role="presentation"
+				/>
+			) }
 		</div>
 	);
 }

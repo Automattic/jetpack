@@ -23,6 +23,8 @@ export default function McpConnectCallout( { userConnectionUrl } ) {
 		speak( __( 'A user connection lets agents securely act on your behalf.', 'jetpack' ) );
 	}, [] );
 
+	const illustrationUrl = assetUrl( 'upsell-illustration.svg' );
+
 	return (
 		<div className="jetpack-ai-mcp__upsell-callout">
 			<div className="jetpack-ai-mcp__upsell-callout-content">
@@ -42,12 +44,14 @@ export default function McpConnectCallout( { userConnectionUrl } ) {
 					{ __( 'Connect your user account', 'jetpack' ) }
 				</Button>
 			</div>
-			<img
-				className="jetpack-ai-mcp__upsell-callout-image"
-				src={ assetUrl( 'upsell-illustration.svg' ) }
-				alt=""
-				role="presentation"
-			/>
+			{ illustrationUrl && (
+				<img
+					className="jetpack-ai-mcp__upsell-callout-image"
+					src={ illustrationUrl }
+					alt=""
+					role="presentation"
+				/>
+			) }
 		</div>
 	);
 }
