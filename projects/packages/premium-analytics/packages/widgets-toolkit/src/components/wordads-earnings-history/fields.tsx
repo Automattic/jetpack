@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
@@ -76,8 +77,7 @@ export function getEarningsStatus( status: number | undefined ): {
 
 /**
  * Flatten a period-keyed earnings breakdown into table rows. Row order is left
- * to the view's own sort (`EARNINGS_HISTORY_VIEW`), which the sortable column
- * headers drive.
+ * to each consumer's own view sort, which the sortable column headers drive.
  *
  * @param breakdown - The normalized breakdown map, or undefined.
  * @return The rows for the table.
@@ -99,14 +99,36 @@ export function flattenEarningsBreakdown(
 }
 
 /**
- * Display the `YYYY-MM` period key as `MM-YYYY`, matching the upstream table.
+ * Display the `YYYY-MM` period key in the site's locale, e.g. "August 2026".
+ *
+ * Anchored to the reporting zone before formatting, so the first of the month
+ * cannot roll back into the previous one.
  *
  * @param period - The period key.
  * @return The display label.
  */
-function formatPeriodLabel( period: string ): string {
-	const [ year, month ] = period.split( '-' );
-	return month && year ? `${ month }-${ year }` : period;
+export function formatEarningsPeriod( period: string ): string {
+	const parsed = parseSiteDateTime( `${ period }-01` );
+	return parsed ? formatDate( parsed, 'monthYear' ) : period;
+}
+
+/**
+ * A payment status label, with its explanation in a tooltip when there is one.
+ *
+ * @param props        - The component props.
+ * @param props.status - The numeric status from the earnings payload, if any.
+ * @return The rendered label.
+ */
+export function EarningsStatusLabel( { status }: { status: number | undefined } ) {
+	const { label, tooltip } = getEarningsStatus( status );
+
+	return tooltip ? (
+		<Tooltip text={ tooltip }>
+			<span tabIndex={ 0 }>{ label }</span>
+		</Tooltip>
+	) : (
+		<span>{ label }</span>
+	);
 }
 
 /**
@@ -121,18 +143,18 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			// `getValue` is omitted on the fields below: DataViews defaults to
 			// `item[ field.id ]`, and each id already matches its row property.
-			// Sorting Period on the raw `YYYY-MM` key keeps it chronological.
 			id: 'period',
 			label: __( 'Period', 'jetpack-premium-analytics-pkg' ),
 			enableHiding: false,
-			render: ( { item } ) => <>{ formatPeriodLabel( item.period ) }</>,
+			// Searches and sorts the raw `YYYY-MM`, which keeps the order chronological.
+			// A query therefore matches a year or `2026-09`, not the "September 2026" on screen.
+			enableGlobalSearch: true,
+			render: ( { item } ) => <>{ formatEarningsPeriod( item.period ) }</>,
 		},
 		{
 			id: 'amount',
 			label: __( 'Earnings', 'jetpack-premium-analytics-pkg' ),
-			render: ( { item } ) => (
-				<>{ formatMetricValue( item.amount, 'currency', { decimals: 2 } ) }</>
-			),
+			render: ( { item } ) => <>{ formatMetricValue( item.amount, 'currency' ) }</>,
 		},
 		{
 			id: 'pageviews',
@@ -142,19 +164,10 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'status',
 			label: __( 'Status', 'jetpack-premium-analytics-pkg' ),
-			// Sorts by the visible label rather than the numeric code.
+			enableGlobalSearch: true,
+			// Sorts and searches by the visible label rather than the numeric code.
 			getValue: ( { item } ) => getEarningsStatus( item.status ).label,
-			render: ( { item } ) => {
-				const { label, tooltip } = getEarningsStatus( item.status );
-
-				return tooltip ? (
-					<Tooltip text={ tooltip }>
-						<span tabIndex={ 0 }>{ label }</span>
-					</Tooltip>
-				) : (
-					<span>{ label }</span>
-				);
-			},
+			render: ( { item } ) => <EarningsStatusLabel status={ item.status } />,
 		},
 	];
 }

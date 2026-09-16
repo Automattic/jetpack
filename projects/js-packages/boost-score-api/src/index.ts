@@ -6,6 +6,8 @@ import { isJsonObject, JSONObject } from './utils/json-types';
 import pollPromise from './utils/poll-promise';
 import { standardizeError } from './utils/standardize-error';
 
+export { standardizeError };
+
 // Four minutes covers the large majority of successful runs, including queue
 // and poll overhead. Over the seven days to 26 August 2026, about 0.9% of
 // production runs took longer than two minutes and about 0.04% took longer

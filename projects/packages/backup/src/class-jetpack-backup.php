@@ -23,6 +23,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -131,6 +132,13 @@ class Jetpack_Backup {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
+	 * Blog sticker that takes a site out of the internal preview.
+	 *
+	 * Atomic sees it only if it is on WordPress.com's `atomic_site_stickers()` allowlist.
+	 */
+	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
+
+	/**
 	 * Rewind state read from WordPress.com, memoized for the request.
 	 *
 	 * A class property and not a function static so tests can clear it.
@@ -215,7 +223,12 @@ class Jetpack_Backup {
 			$menu_title,
 			'manage_options',
 			self::JETPACK_BACKUP_SLUG,
-			$callback
+			$callback,
+			null,
+			array(
+				'product' => 'backup',
+				'key'     => 'jetpack-backup',
+			)
 		);
 
 		if ( $page_suffix ) {
@@ -1154,8 +1167,8 @@ class Jetpack_Backup {
 	/**
 	 * Load the wp-build entry file and register its polyfills.
 	 *
-	 * Only called on `?page=jetpack-backup` admin requests when the
-	 * modernization filter is enabled. Keeps wp-build off every other request.
+	 * Only called on `?page=jetpack-backup` admin requests when `is_modernized()`
+	 * is true. Keeps wp-build off every other request.
 	 *
 	 * @return void
 	 */
@@ -1200,18 +1213,40 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns true when the wp-build modernization filter is enabled.
+	 * Returns the modernization filter's value, which defaults to the internal preview.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, self::is_internal_preview() );
 	}
 
 	/**
-	 * Returns true when the modernization filter is on AND the wp-build dashboard loaded.
+	 * Whether an internal user on the A8C proxy previews the dashboard. Not an authorization check.
+	 *
+	 * The proxy is checked first, so other requests never make the connected-user lookup.
+	 *
+	 * @return bool
+	 */
+	private static function is_internal_preview() {
+		if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) ) {
+			return false;
+		}
+
+		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER ) ) {
+			return false;
+		}
+
+		$user_data = ( new Connection_Manager() )->get_connected_user_data();
+		$email     = is_array( $user_data ) && ! empty( $user_data['email'] ) ? strtolower( (string) $user_data['email'] ) : '';
+
+		return str_ends_with( $email, '@automattic.com' ) || str_ends_with( $email, '@a8c.com' );
+	}
+
+	/**
+	 * Returns true when `is_modernized()` is true AND the wp-build dashboard loaded.
 	 *
 	 * `build/` is gitignored, so the render function is absent in any unbuilt checkout
 	 * and in any release whose wp-build step failed. Every consumer of the modernized

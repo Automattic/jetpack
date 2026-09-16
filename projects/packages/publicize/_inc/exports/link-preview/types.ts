@@ -44,7 +44,6 @@ export type LinkPreviewPlatform =
 	| 'google'
 	| 'linkedin'
 	| 'mastodon'
-	| 'nextdoor'
 	| 'threads'
 	| 'tumblr'
 	| 'x';

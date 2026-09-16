@@ -318,7 +318,7 @@ jobs:
       PLUGIN_SLUG: ${{ matrix.slug }}
     services:
       db:
-        image: mariadb:lts
+        image: ghcr.io/mariadb/mariadb:lts
         env:
           MARIADB_ROOT_PASSWORD: wordpress
         ports:

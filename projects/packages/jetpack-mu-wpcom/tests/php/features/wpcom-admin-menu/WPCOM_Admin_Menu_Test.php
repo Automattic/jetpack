@@ -318,4 +318,90 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			'WooExpress medium' => array( 'wooexpress-medium-bundle-monthly' ),
 		);
 	}
+
+	/**
+	 * Runs the retired Tools > Marketing redirect and reports where it tried to send
+	 * the request.
+	 *
+	 * The function calls `exit` once it has redirected, which would take the test
+	 * runner with it, so this throws from the `wp_redirect` filter to unwind before
+	 * that line is reached.
+	 *
+	 * @param string|null $page The `page` query arg to set, or null to omit it.
+	 * @return string|null The redirect target, or null when the request was left alone.
+	 */
+	private function capture_retired_marketing_page_redirect( $page ) {
+		unset( $_GET['page'] );
+		if ( null !== $page ) {
+			$_GET['page'] = $page;
+		}
+
+		/**
+		 * Unwinds out of `wp_safe_redirect()` carrying the target, so the `exit` that
+		 * follows it is never reached.
+		 *
+		 * @param string $location The redirect target.
+		 * @return never
+		 * @throws RuntimeException Always, carrying the redirect target.
+		 */
+		$capture = static function ( $location ) {
+			throw new RuntimeException( $location );
+		};
+		add_filter( 'wp_redirect', $capture );
+
+		try {
+			wpcom_redirect_retired_marketing_page();
+			return null;
+		} catch ( RuntimeException $e ) {
+			return $e->getMessage();
+		} finally {
+			remove_filter( 'wp_redirect', $capture );
+			unset( $_GET['page'] );
+		}
+	}
+
+	/**
+	 * The page is gone, so the URL the Calypso sidebar used to point at has to land
+	 * somewhere sensible instead of core's "Cannot load wpcom-marketing-tools." screen.
+	 */
+	public function test_retired_marketing_page_redirects_to_the_dashboard() {
+		$this->assertSame(
+			admin_url(),
+			$this->capture_retired_marketing_page_redirect( 'wpcom-marketing-tools' ),
+			'The retired Tools > Marketing URL must land on the dashboard.'
+		);
+	}
+
+	/**
+	 * The redirect keys off one slug, so every other admin page has to pass through
+	 * untouched.
+	 */
+	public function test_retired_marketing_page_redirect_leaves_other_pages_alone() {
+		$this->assertNull(
+			$this->capture_retired_marketing_page_redirect( 'activitypub' ),
+			'An unrelated page slug must not be redirected.'
+		);
+	}
+
+	/**
+	 * Most admin requests carry no `page` at all, and this runs on every one of them.
+	 */
+	public function test_retired_marketing_page_redirect_leaves_requests_without_a_page_alone() {
+		$this->assertNull(
+			$this->capture_retired_marketing_page_redirect( null ),
+			'A request with no page query arg must not be redirected.'
+		);
+	}
+
+	/**
+	 * WordPress slashes `$_GET` on the way in, so the comparison unslashes before
+	 * matching. Guards against someone dropping the `wp_unslash()` call as redundant.
+	 */
+	public function test_retired_marketing_page_redirect_unslashes_the_page_arg() {
+		$this->assertSame(
+			admin_url(),
+			$this->capture_retired_marketing_page_redirect( 'wpcom-marketing-tools\\' ),
+			'The slug must still match once the added slashes are stripped.'
+		);
+	}
 }

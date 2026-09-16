@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { getSettings, setSettings } from '@wordpress/date';
-import { useEffect } from 'react';
-import type { Decorator } from '@storybook/react';
-import type { ReactNode } from 'react';
-
-export const SITE_TIME_ZONE_DEFAULT = 'Site default';
+/**
+ * Internal dependencies
+ */
+import { createSiteSettingDecorator } from './with-site-setting';
+import type { SiteSettingControl } from './with-site-setting';
 
 // Keyed by city, not by IANA name: Storybook drops a URL arg containing a slash,
 // which would silently leave a shared story link on the default zone.
@@ -18,17 +18,8 @@ const SITE_TIME_ZONES = {
 } as const;
 
 export interface SiteTimeZoneControls {
-	siteTimeZone?: typeof SITE_TIME_ZONE_DEFAULT | keyof typeof SITE_TIME_ZONES;
+	siteTimeZone?: SiteSettingControl< keyof typeof SITE_TIME_ZONES >;
 }
-
-export const siteTimeZoneArgTypes = {
-	siteTimeZone: {
-		control: 'select',
-		options: [ SITE_TIME_ZONE_DEFAULT, ...Object.keys( SITE_TIME_ZONES ) ],
-		description:
-			"The site's WordPress timezone. Chart dates are read in it, so picking a city far from your own shows what a viewer outside the site's zone sees.",
-	},
-} as const;
 
 const defaultTimeZone = getSettings().timezone;
 
@@ -44,40 +35,22 @@ function offsetFor( timeZone: string ) {
 	return { offset, offsetFormatted: `${ sign }${ hours }:${ minutes }` };
 }
 
-function applySiteTimeZone( city: SiteTimeZoneControls[ 'siteTimeZone' ] ) {
-	const zone = city && city !== SITE_TIME_ZONE_DEFAULT ? SITE_TIME_ZONES[ city ] : undefined;
-
-	setSettings( {
-		...getSettings(),
-		timezone: zone ? { string: zone, abbr: city as string, ...offsetFor( zone ) } : defaultTimeZone,
-	} );
-}
-
-function SiteTimeZone( {
-	city,
-	children,
-}: {
-	city: SiteTimeZoneControls[ 'siteTimeZone' ];
-	children: ReactNode;
-} ) {
-	// Applied during render: the widget reads the setting while rendering below.
-	applySiteTimeZone( city );
-	useEffect( () => () => applySiteTimeZone( undefined ), [] );
-
-	return <>{ children }</>;
-}
-
 /**
  * Puts the site's timezone under a story control, so a chart can be read as a
  * viewer outside that zone sees it.
  */
-export const withSiteTimeZone: Decorator = ( Story, { args } ) => {
-	const city = ( args as SiteTimeZoneControls ).siteTimeZone;
+export const { argTypes: siteTimeZoneArgTypes, decorator: withSiteTimeZone } =
+	createSiteSettingDecorator( {
+		argName: 'siteTimeZone',
+		options: Object.keys( SITE_TIME_ZONES ) as ( keyof typeof SITE_TIME_ZONES )[],
+		description:
+			"The site's WordPress timezone. Chart dates are read in it, so picking a city far from your own shows what a viewer outside the site's zone sees.",
+		apply: city => {
+			const zone = city ? SITE_TIME_ZONES[ city ] : undefined;
 
-	return (
-		<SiteTimeZone city={ city }>
-			{ /* Charts read the zone once per mount, so a change has to remount them. */ }
-			<Story key={ city ?? SITE_TIME_ZONE_DEFAULT } />
-		</SiteTimeZone>
-	);
-};
+			setSettings( {
+				...getSettings(),
+				timezone: zone ? { string: zone, abbr: city, ...offsetFor( zone ) } : defaultTimeZone,
+			} );
+		},
+	} );

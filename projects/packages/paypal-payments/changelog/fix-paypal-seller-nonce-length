@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix "Connect with PayPal" always failing with "Request is not well-formed, syntactically incorrect, or violates schema." The seller nonce was 43 characters, one below the minimum PayPal enforces.

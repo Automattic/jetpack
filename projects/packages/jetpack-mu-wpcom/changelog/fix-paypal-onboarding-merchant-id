@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+PayPal Payment Buttons: refuse to generate an onboarding link when the platform partner merchant ID is not configured, instead of failing later with an unrelated error.

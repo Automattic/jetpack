@@ -27,25 +27,23 @@ Returns `''` for null, undefined, or NaN.
 
 ```typescript
 formatMetricValue( 9876.543 ); // '9,877'
-formatMetricValue( 1500, 'number', {
-	useMultipliers: true,
-	decimals: 1,
-} ); // '1.5K'
+formatMetricValue( 1500, 'number', { useMultipliers: true } ); // '1.5K'
+formatMetricValue( 234567, 'number', { useMultipliers: true } ); // '235K'
 formatMetricValue( 192088.05, 'currency' ); // '$192,088.05'
 formatMetricValue( 0.25, 'percentage' ); // '+25%'
 formatMetricValue( 4.75, 'average' ); // '4.75'
 formatMetricValue( 192088, 'currency', {
 	useMultipliers: true,
 	currencyCode: 'EUR',
-} ); // '192.09K€'
+} ); // '192K€'
 ```
 
 | Parameter                | Type                                                  | Default                                  | Description                                    |
 | ------------------------ | ----------------------------------------------------- | ---------------------------------------- | ---------------------------------------------- |
 | `value`                  | `string \| number \| null`                            |                                          | Value to format                                |
 | `type`                   | `'number' \| 'currency' \| 'percentage' \| 'average'` | `'number'`                               | Formatting strategy                            |
-| `options.decimals`       | `number`                                              | varies by type                           | Decimal precision (0 for number, 2 for others) |
-| `options.useMultipliers` | `boolean`                                             | `false`                                  | Compact notation (K/M suffixes)                |
+| `options.decimals`       | `number`                                              | varies by type                           | Decimal precision of the full value (0 for number, 2 for average/percentage; currency ignores it and prints its own minor units) |
+| `options.useMultipliers` | `boolean`                                             | `false`                                  | Compact notation above 999: one decimal while the mantissa has two digits (1.2K, 54.3K), none from three (234K). Locales that group by 10⁴ (ja, zh, ko) keep ICU's own units |
 | `options.signDisplay`    | `Intl` sign mode                                      | `'auto'` (`'exceptZero'` for percentage) | Sign display                                   |
 | `options.currencyCode`   | `string`                                              | `'USD'`                                  | ISO 4217 currency code                         |
 
@@ -154,10 +152,10 @@ formatDateRange( { from, to } ); // 'June 20 – 21, 2025'
 formatDateRange( { from, to }, { collapseSingleDay: true } ); // 'June 21, 2025'
 ```
 
-| Parameter                   | Type                         | Default | Description                                   |
-| --------------------------- | ---------------------------- | ------- | --------------------------------------------- |
-| `range`                     | `{ from?: Date; to?: Date }` |         | Date range object                             |
-| `options.collapseSingleDay` | `boolean`                    | `false` | Name a window of a day or less by its end day |
+| Parameter                   | Type                             | Default | Description                                   |
+| --------------------------- | -------------------------------- | ------- | --------------------------------------------- |
+| `range`                     | `{ from?: TZDate; to?: TZDate }` |         | Date range object                             |
+| `options.collapseSingleDay` | `boolean`                        | `false` | Name a window of a day or less by its end day |
 
 ## `formatDateRangeCompact( range? )` and `formatDateRangeMinimal( range? )`
 
@@ -228,11 +226,11 @@ formatDateRangeLong( { from, to }, { calendarScale: true } );
 // without the flag, the last of those reads 'Thursday, January 1 – Saturday, January 3'
 ```
 
-| Parameter               | Type                         | Default      | Description                                   |
-| ----------------------- | ---------------------------- | ------------ | --------------------------------------------- |
-| `range`                 | `{ from?: Date; to?: Date }` |              | Date range object                             |
-| `options.referenceYear` | `number`                     | current year | Year against which the year is redundant      |
-| `options.calendarScale` | `boolean`                    | `false`      | Force the calendar shape whatever it measures |
+| Parameter               | Type                             | Default      | Description                                   |
+| ----------------------- | -------------------------------- | ------------ | --------------------------------------------- |
+| `range`                 | `{ from?: TZDate; to?: TZDate }` |              | Date range object                             |
+| `options.referenceYear` | `number`                         | current year | Year against which the year is redundant      |
+| `options.calendarScale` | `boolean`                        | `false`      | Force the calendar shape whatever it measures |
 
 ## Implementation
 

@@ -175,7 +175,7 @@ fallback, and default alt-text policy:
 | `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
 
-`icon` takes a `@wordpress/icons` glyph rather than a URL: `media: { kind: 'icon', icon: category }`.
+`icon` takes a `@wordpress/icons` glyph rather than a URL and draws it in the muted neutral color: `media: { kind: 'icon', icon: category }`.
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
 It applies the shared precedence: drill-down for rows with children, external links for
@@ -196,7 +196,7 @@ inline padding.
 | `withOverlayLabel` | `boolean`              | `false`                                                                | Places labels on top of bars instead of beside them                |
 | `legendLabels`     | `LegendLabels`         | `{ primary: 'Current period', comparison: 'Previous period' }`         | Custom legend labels                                               |
 | `showLegend`       | `boolean`              | `true`                                                                 | Whether to show the legend                                         |
-| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true, decimals: 2 } }` | Value formatting configuration                                     |
+| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }` | Value formatting configuration                                     |
 | `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                     |
 | `emptyStateIcon`   | `ReactNode`            | -                                                                      | Icon to display in default empty state                             |
 | `emptyStateText`   | `string`               | `'No data available'`                                                  | Text for default empty state                                       |

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-09-09
+### Changed
+- Internal updates.
+
 ## [0.6.0] - 2026-09-08
 ### Added
 - Add an "Any feedback?" action to the dashboard header. [#51870]
@@ -280,6 +284,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.6.1]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.3.0...0.4.0

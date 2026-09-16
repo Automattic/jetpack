@@ -1,1 +1,5 @@
-export { decodeDateSearchParam, encodeDateToSearchParam } from './date-range';
+export {
+	decodeDateSearchParam,
+	encodeDateToSearchParam,
+	encodeRangeToSearchParams,
+} from './date-range';

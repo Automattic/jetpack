@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Fix AI Search errors showing a generic server error instead of the real cause.

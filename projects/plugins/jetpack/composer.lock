@@ -565,7 +565,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "54ab39c8d144efd2bb8691f38cc54f644d0b41e6"
+                "reference": "72d8a235906ad12b0e5ef4bde2d2bc6fd25dbda1"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -575,6 +575,7 @@
                 "automattic/jetpack-composer-plugin": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
@@ -1025,10 +1026,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "3fbf003a1a3e41b7a54c3cc280dd4c215cdb9df8"
+                "reference": "7f46009fb0f0efbeb4501986e8743386b7b0ee50"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "php": ">=7.4"
             },
@@ -1062,12 +1064,12 @@
                 "build-production": [
                     "pnpm run build-production"
                 ],
+                "typecheck": [
+                    "pnpm run typecheck"
+                ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
-                ],
-                "typecheck": [
-                    "pnpm run typecheck"
                 ]
             },
             "license": [
@@ -1249,7 +1251,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "7bfcb690f93d36b53a38e1e7a08c0bd92608d2b2"
+                "reference": "1bf99f790cde68da535136854406dcbe1ef2e340"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1286,7 +1288,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.1.x-dev"
+                    "dev-trunk": "9.2.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2164,7 +2166,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "1c4534bdc401206cc45ee20600003ae6a1ab6a9c"
+                "reference": "df7dd4c9923b226c4b6c259904e2d50a8cca00c5"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2191,6 +2193,9 @@
                 }
             },
             "autoload": {
+                "files": [
+                    "actions.php"
+                ],
                 "classmap": [
                     "src/"
                 ]
@@ -2413,7 +2418,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "f2bf2241ea190c16615e61959c3e08aa38dd48e2"
+                "reference": "4e860d4e82b0c0cf6636444c1d698cf925a18f55"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2422,6 +2427,7 @@
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-explat": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-licensing": "@dev",
                 "automattic/jetpack-menu-badges": "@dev",
@@ -2497,7 +2503,7 @@
                     "pnpm run build"
                 ],
                 "build-production": [
-                    "NODE_ENV=production pnpm run build"
+                    "pnpm run build-production"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
@@ -2522,12 +2528,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/newsletter",
-                "reference": "3cefdfbdcadab4ca6a1223add51af600b9788fef"
+                "reference": "9fc99e01ff8f4eaa89efed9d04602e3fb44f033a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
@@ -2662,12 +2669,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/paypal-payments",
-                "reference": "7a8b44c4c3054eb4cf2c846b5aa1b6ffcc074be0"
+                "reference": "b69608477af0d1dec58aaff82dd8d0744836b500"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"

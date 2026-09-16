@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Fix a stale connection error state that could persist on healthy sites.

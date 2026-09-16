@@ -44,11 +44,12 @@ class Feature_Gate_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_stays_out_of_agency_managed_sites(): void {
+	public function test_loads_for_agency_managed_sites(): void {
+		// The client admin cannot renew the agency's plan, and is told so.
 		update_option( 'is_fully_managed_agency_site', '1' );
 
 		Jetpack_Mu_Wpcom::load_wpcom_user_features();
 
-		$this->assertFalse( function_exists( 'wpcom_expiry_notices_is_enabled_for_site' ) );
+		$this->assertTrue( function_exists( 'wpcom_expiry_notices_is_enabled_for_site' ) );
 	}
 }

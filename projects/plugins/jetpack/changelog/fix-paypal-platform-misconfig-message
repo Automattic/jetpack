@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: Report a PayPal platform configuration problem directly instead of asking the merchant to try again, which could never help.

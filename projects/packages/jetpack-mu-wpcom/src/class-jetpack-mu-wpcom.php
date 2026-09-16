@@ -31,6 +31,8 @@ class Jetpack_Mu_Wpcom {
 		'wp-table-builder/wp-table-builder.php',
 		'ultimate-blocks/ultimate-blocks.php',
 		'beehive-analytics/beehive-analytics.php',
+		'xspeed/xspeed.php',
+		'classified-listing/classified-listing.php',
 	);
 
 	/**
@@ -89,10 +91,14 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
+		// At mu-plugin scope, because Comments::is_enabled() is resolved at plugins_loaded on both hosts.
+		add_filter( 'jetpack_comments_new_hotness', array( __CLASS__, 'enable_jetpack_comments_for_sticker' ) );
+
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_jetpack_comments_routes' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			// Registered at mu-plugin scope rather than on plugins_loaded, because
@@ -136,6 +142,10 @@ class Jetpack_Mu_Wpcom {
 		// Enable the `gutenberg-react-19` Gutenberg experiment on selected sites.
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
+
+		// Allow blog stickers to override the WooCommerce unified block editor assets option.
+		add_filter( 'option_woocommerce_feature_block_editor_unified_assets_enabled', array( __CLASS__, 'enable_woocommerce_block_editor_unified_assets' ) );
+		add_filter( 'default_option_woocommerce_feature_block_editor_unified_assets_enabled', array( __CLASS__, 'enable_woocommerce_block_editor_unified_assets' ) );
 
 		if ( wpcom_has_blog_sticker( 'gutenberg-extensible-site-editor', get_wpcom_blog_id() ) ) {
 			add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ) );
@@ -367,6 +377,7 @@ class Jetpack_Mu_Wpcom {
 		}
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
 		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
+		require_once __DIR__ . '/features/podcast-feed-credit/podcast-feed-credit.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
@@ -423,13 +434,10 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ), 10, 0 );
 		}
 
-		// Every admin, not only WordPress.com users: one who cannot renew is told
-		// whose plan it is, and the legacy notice the feature replaces stands
-		// down only once this has loaded. Agency-managed sites keep their plans
-		// out of the customer's hands, so they stay excluded.
-		if ( ! is_fully_managed_agency_site() ) {
-			require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
-		}
+		// Every admin, not only WordPress.com users: one who cannot renew, such as
+		// the client of an agency-managed site, is told whose plan it is, and the
+		// legacy notice the feature replaces stands down only once this has loaded.
+		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
 
 		if ( ! is_wpcom_user() ) {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
@@ -440,7 +448,6 @@ class Jetpack_Mu_Wpcom {
 		}
 		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
-		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
 		require_once __DIR__ . '/features/stats/stats.php';
@@ -455,10 +462,10 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-media/wpcom-export-media-files.php';
 		require_once __DIR__ . '/features/wpcom-options-general/options-general.php';
 		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
+		require_once __DIR__ . '/features/wpcom-plugins/wpcom-marketplace-tab.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
-		require_once __DIR__ . '/features/wpcom-content-research/class-wpcom-content-research.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
@@ -819,6 +826,38 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Register Jetpack Comments' browser-facing routes ahead of the comment
+	 * experience gates. admin-ajax is is_admin(), and a public-api request runs
+	 * plugins_loaded on the wrong blog, so load_verbum_comments() skips both.
+	 * Runs on every request, blog 1 and P2s included, on purpose: the routes
+	 * gate themselves on the feature filter, as Posts_To_Podcast_Endpoint does.
+	 */
+	public static function load_jetpack_comments_routes() {
+		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
+			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
+		}
+	}
+
+	/**
+	 * Turn on the rebuilt Jetpack Comments form for a Simple or Atomic site
+	 * carrying the rollout sticker.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether it is already on.
+	 * @return bool
+	 */
+	public static function enable_jetpack_comments_for_sticker( $enabled ) {
+		if ( $enabled ) {
+			return true;
+		}
+
+		$blog_id = (int) get_wpcom_blog_id();
+
+		return $blog_id > 0 && wpcom_has_blog_sticker( 'comment-new-hotness', $blog_id );
+	}
+
+	/**
 	 * Load Verbum Comments Settings.
 	 */
 	public static function load_verbum_comments_admin() {
@@ -987,7 +1026,7 @@ class Jetpack_Mu_Wpcom {
 			} elseif ( self::has_react_19_incompatible_extension() ) {
 				$is_enabled = false;
 			} else {
-				$current_segment = 10; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 20; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*
@@ -1010,6 +1049,48 @@ class Jetpack_Mu_Wpcom {
 
 		$experiments['gutenberg-react-19'] = true;
 		return $experiments;
+	}
+
+	/**
+	 * Override the WooCommerce unified block editor assets option with blog stickers.
+	 *
+	 * The `wc-disable-block-editor-unified-assets` blog sticker force-disables the feature,
+	 * while the `wc-block-editor-unified-assets` sticker opts the site in.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $enabled The current feature option value.
+	 * @return mixed Original option value, `yes` when enabled, or `no` when force-disabled.
+	 */
+	public static function enable_woocommerce_block_editor_unified_assets( $enabled ) {
+		$blog_id = get_wpcom_blog_id();
+
+		if ( wpcom_has_blog_sticker( 'wc-disable-block-editor-unified-assets', $blog_id ) ) {
+			return 'no';
+		}
+
+		if ( wpcom_has_blog_sticker( 'wc-block-editor-unified-assets', $blog_id ) ) {
+			return 'yes';
+		}
+
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found,Squiz.Commenting.BlockComment.NoCapital -- Preserve the rollout for future activation.
+
+		/*
+		if ( function_exists( 'wpcomsh_get_atomic_site_id' ) ) {
+			$site_id = wpcomsh_get_atomic_site_id();
+
+			if ( $site_id ) {
+				$current_segment = 1; // Segment of Atomic sites in the experiment, in %.
+
+				if ( $site_id % 100 < $current_segment ) {
+					return 'yes';
+				}
+			}
+		}
+		*/
+		// phpcs:enable
+
+		return $enabled;
 	}
 
 	/**

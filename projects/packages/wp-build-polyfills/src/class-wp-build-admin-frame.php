@@ -20,17 +20,21 @@ namespace Automattic\Jetpack\WP_Build_Polyfills;
  * printed on `in_admin_header` that samples the rendered menu background into
  * a custom property on the root element.
  *
- * Pages without a boot layout are unaffected: the selectors match nothing.
+ * The frame is also held steady: painted before boot mounts, and captured whole
+ * by the cross-document view transitions Core enables in wp-admin.
+ *
+ * Pages without a boot mount container are unaffected: the selectors match nothing.
  */
 class WP_Build_Admin_Frame {
 
 	/**
-	 * Hook the stylesheet and the sampling script. Safe to call repeatedly.
+	 * Hook the stylesheet, the render hold and the frame script. Safe to call repeatedly.
 	 *
 	 * @return void
 	 */
 	public static function register() {
 		add_action( 'admin_head', array( self::class, 'print_styles' ) );
+		add_action( 'admin_head', array( self::class, 'print_render_hold' ) );
 		add_action( 'in_admin_header', array( self::class, 'print_script' ) );
 	}
 
@@ -59,6 +63,11 @@ class WP_Build_Admin_Frame {
 				background: var(--wp-build-admin-menu-background, #fff);
 			}
 
+			/* Old-only boot surfaces zoom or slide over the next page, so let the root snapshot carry them. */
+			html.wp-build-admin-frame-leaving :is(.boot-layout--single-page, [class*="__layout-single-page"]) :is([class*="__stage"], [class*="__inspector"], [class*="__canvas"], .interface-interface-skeleton__header, .interface-interface-skeleton__sidebar) {
+				view-transition-name: none !important;
+			}
+
 			/*
 			 * Boot's layout is absolutely positioned against `#wpbody`, which grows
 			 * with the admin menu: a menu taller than the viewport stretches the app
@@ -70,11 +79,29 @@ class WP_Build_Admin_Frame {
 			 * (WordPress/gutenberg#82114).
 			 */
 			@media (min-width: 783px) {
+				body.js:has([id$="-wp-admin-app"]:empty) #wpbody,
 				body:has(.boot-layout--single-page) #wpbody,
 				body:has([class*="__layout-single-page"]) #wpbody {
 					position: sticky;
 					top: var(--wp-admin--admin-bar--height, 32px);
 					height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+				}
+
+				/*
+				 * Paint boot's stage on the empty app container until it mounts, where the
+				 * page template's critical CSS would otherwise leave the area white. Plain
+				 * #fff: boot's theme provider whitens the stage, unlike the root surface token.
+				 * A container that never mounts keeps the panel and passes for an empty app.
+				 */
+				body.js:has([id$="-wp-admin-app"]:empty) {
+					background: var(--wp-build-admin-menu-background, #fff);
+				}
+				body.js [id$="-wp-admin-app"]:empty {
+					position: absolute;
+					inset-block: 0 8px;
+					inset-inline: 0 8px;
+					border-radius: var(--wpds-border-radius-xl, 12px);
+					background: #fff;
 				}
 			}
 		</style>
@@ -82,7 +109,29 @@ class WP_Build_Admin_Frame {
 	}
 
 	/**
-	 * Print the script that samples the admin menu background.
+	 * Hold the first render of a wp-build page until the document has parsed, so Core's
+	 * cross-document view transitions capture it with its admin menu.
+	 *
+	 * Held on every WordPress 7.0+ wp-build page, reduced motion included: PHP cannot see the media
+	 * query Core gates the transition on. Never a module: Firefox then drops wp-admin's footer import map.
+	 *
+	 * @return void
+	 */
+	public static function print_render_hold() {
+		if (
+			! wp_style_is( 'wp-view-transitions-admin', 'enqueued' )
+			|| ! preg_grep( '/-wp-admin-prerequisites$/', wp_scripts()->queue )
+		) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Not enqueueable: the script APIs pass `src` through esc_url(), which strips data: URLs.
+		echo '<script id="wp-build-admin-frame-render-hold" src="data:text/javascript," defer blocking="render"></script>' . "\n";
+	}
+
+	/**
+	 * Print the script that samples the admin menu background and marks the root
+	 * while the page leaves for a cross-document view transition.
 	 *
 	 * Runs right after `#adminmenuback` is printed and before the layout
 	 * mounts, which is why the property goes on the root element.
@@ -92,6 +141,16 @@ class WP_Build_Admin_Frame {
 	public static function print_script() {
 		$script = <<<'JS'
 ( function () {
+	window.addEventListener( 'pageswap', function ( event ) {
+		if ( event.viewTransition ) {
+			document.documentElement.classList.add( 'wp-build-admin-frame-leaving' );
+		}
+	} );
+	// A page restored from the back/forward cache reveals again with the class still set.
+	window.addEventListener( 'pagereveal', function () {
+		document.documentElement.classList.remove( 'wp-build-admin-frame-leaving' );
+	} );
+
 	var menu = document.getElementById( 'adminmenuback' );
 	if ( ! menu ) {
 		return;

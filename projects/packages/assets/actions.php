@@ -7,6 +7,8 @@
 
 // If WordPress's plugin API is available already, use it. If not,
 // drop data into `$wp_filter` for `WP_Hook::build_preinitialized_hooks()`.
+// Anything hooked on plugins_loaded here must also be re-run from
+// Assets::ensure_package_bootstrap(), or an older sibling copy silently skips it. JETPACK-2649.
 if ( function_exists( 'add_action' ) ) {
 	add_action( 'wp_default_scripts', array( Automattic\Jetpack\Assets::class, 'wp_default_scripts_hook' ) );
 	add_action( 'plugins_loaded', array( Automattic\Jetpack\Assets\Script_Data::class, 'configure' ), 1 );

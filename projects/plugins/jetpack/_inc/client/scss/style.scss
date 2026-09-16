@@ -38,6 +38,9 @@
 @include meta.load-css( "../components/support-card/style" );
 @include meta.load-css( "../components/forms/styles" );
 @include meta.load-css( "../components/admin-notices/style" );
+// `AdminNotices` rebuilds core notices into the dops chassis with jQuery,
+// so these rules outlive `SimpleNotice`'s move to `@wordpress/ui`.
+@include meta.load-css( "../components/notice/style" );
 @include meta.load-css( "../components/module-toggle/style" );
 @include meta.load-css( "../components/navigation-settings/style" );
 @include meta.load-css( "../components/settings-nav-tabs/style" );
