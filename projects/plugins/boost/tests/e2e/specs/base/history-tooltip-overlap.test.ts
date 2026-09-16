@@ -346,15 +346,16 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 
 test( 'Score cards show calculating and failed states inside the card', async ( { page } ) => {
 	await page.goto( 'http://boost-history.test/?score-states' );
-	const [ calculating, failed ] = await page
+	const [ calculating, failed, failedRefresh ] = await page
 		.locator( '.jetpack-boost-overview__scores-card' )
 		.all();
 	await expect( calculating.getByRole( 'heading', { name: 'Your site speed' } ) ).toBeVisible();
-	await expect( calculating.getByText( 'Calculating…' ) ).toHaveCSS(
-		'color',
-		'rgb(112, 112, 112)'
-	);
-	await expect( calculating.locator( '.components-spinner' ) ).toHaveCount( 1 );
+	const status = calculating.getByRole( 'status' );
+	await expect( status.getByText( 'Calculating…' ) ).toHaveCSS( 'color', 'rgb(112, 112, 112)' );
+	await expect( status.locator( '.components-spinner' ) ).toHaveCount( 1 );
+	const spinner = ( await status.locator( '.components-spinner' ).boundingBox() )!;
+	const label = ( await status.getByText( 'Calculating…' ).boundingBox() )!;
+	expect( Math.abs( label.x - ( spinner.x + spinner.width ) ) ).toBeCloseTo( 12, 0 );
 	await expect( calculating.getByRole( 'region' ) ).toHaveCount( 0 );
 	await expect( failed.getByText( 'Failed to load speed scores' ) ).toBeVisible();
 	await expect( failed.getByText( 'Timed out while waiting for speed-score.' ) ).toBeVisible();
@@ -363,6 +364,10 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 		'rgb(56, 88, 233)'
 	);
 	await expect( failed.getByRole( 'region' ) ).toHaveCount( 0 );
+	const notice = ( await failedRefresh.getByText( 'Failed to load speed scores' ).boundingBox() )!;
+	const desktop = failedRefresh.getByRole( 'region', { name: 'Desktop', exact: true } );
+	await expect( desktop.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', 80 );
+	expect( ( await desktop.boundingBox() )!.y ).toBeGreaterThan( notice.y + notice.height );
 } );
 
 test.describe( 'Overall grade help', () => {

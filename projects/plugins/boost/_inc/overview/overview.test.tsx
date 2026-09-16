@@ -444,13 +444,37 @@ test( 'tracks score errors and offers a successful retry', async () => {
 	expect( screen.queryByText( 'Score service unavailable' ) ).not.toBeInTheDocument();
 } );
 
-test( 'shows a failed refresh inside the card and recovers with Run speed test', async () => {
-	renderOverview();
+test( 'retains loaded scores and Run speed test alongside a subsequent score error', async () => {
+	const { container } = renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
-	jest.mocked( requestSpeedScores ).mockRejectedValueOnce( new Error( 'Refresh failed' ) );
+	let rejectRefresh: ( error: Error ) => void = () => {};
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( ( _, reject ) => {
+			rejectRefresh = reject;
+		} )
+	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		)
+	);
+	expect( screen.getByText( '91' ) ).toBeVisible();
+	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	await act( async () => rejectRefresh( new Error( 'Refresh failed' ) ) );
 	await expect( screen.findByText( 'Refresh failed' ) ).resolves.toBeTruthy();
-	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
+	expect( screen.getByText( '91' ) ).toBeInTheDocument();
+	expect( screen.getByText( '81' ) ).toBeInTheDocument();
+	const card = within(
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		container.querySelector< HTMLElement >( '.jetpack-boost-overview__scores-card' )!
+	);
+	expect(
+		card
+			.getByText( 'Refresh failed' )
+			.compareDocumentPosition( card.getByRole( 'region', { name: 'Desktop' } ) )
+	).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 	// The header re-enables in a later render than the notice, and a click on it while aria-disabled is ignored.
 	await waitFor( () =>
 		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(

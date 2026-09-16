@@ -1,4 +1,3 @@
-@use "@automattic/jetpack-base-styles/root-variables";
 @use "@wordpress/base-styles/variables" as wpvariables;
 @use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
 
@@ -127,11 +126,6 @@
 			text-align: end;
 		}
 	}
-}
-
-.jetpack-boost-overview__score-placeholder {
-	inline-size: calc(2 * var(--wpds-dimension-size-lg));
-	block-size: var(--wpds-dimension-size-lg);
 }
 
 .jetpack-boost-overview .jetpack-boost-overview__progress {

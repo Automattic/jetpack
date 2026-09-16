@@ -102,7 +102,8 @@ test.each( [
 		const progress = card.getByRole( 'progressbar', { name: device } );
 		expect( progress ).toHaveValue( Number( score ) );
 		// eslint-disable-next-line testing-library/no-node-access -- ProgressBar applies color classes to its wrapper.
-		expect( progress.closest( '.jetpack-boost-overview__progress' ) ).toHaveClass(
+		expect( progress.parentElement ).toHaveClass(
+			'jetpack-boost-overview__progress',
 			`jetpack-boost-overview__progress--${ tier }`
 		);
 	}
@@ -149,28 +150,40 @@ test( 'omits an unchanged device delta while preserving the improved device delt
 	).not.toBeInTheDocument();
 } );
 
-test( 'shows one calculating status instead of the score sections while loading', () => {
+test( 'shows one calculating status instead of the score sections before scores load', () => {
+	const { container } = render(
+		<ScoreCards
+			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
+			isLoading
+			hasScores={ false }
+		/>
+	);
+	expect( screen.getByRole( 'heading', { level: 2, name: 'Your site speed' } ) ).toBeVisible();
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
+	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+	expect( container.querySelectorAll( '.components-spinner' ) ).toHaveLength( 1 );
+	expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
+} );
+
+test( 'keeps loaded scores visible while they refresh', () => {
 	render(
 		<ScoreCards
 			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
 			isLoading
-			showPlaceholder
-			error={ new Error( 'Previous failure' ) }
 		/>
 	);
-	expect( screen.getByRole( 'heading', { level: 2, name: 'Your site speed' } ) ).toBeVisible();
-	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
-	expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( 'Score unavailable' ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( 'Previous failure' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 80 );
 } );
 
-test( 'shows a score failure inside the card and retries from it', () => {
+test( 'shows a failure without scores inside the card and retries from it', () => {
 	const onRetry = jest.fn();
 	const { container } = render(
 		<ScoreCards
 			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
+			hasScores={ false }
 			error={ new Error( 'Timed out while waiting for speed-score.' ) }
 			onRetry={ onRetry }
 		/>
@@ -181,24 +194,22 @@ test( 'shows a score failure inside the card and retries from it', () => {
 	expect( card.getByText( 'Failed to load speed scores' ) ).toBeVisible();
 	expect( card.getByText( 'Timed out while waiting for speed-score.' ) ).toBeVisible();
 	expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
 	fireEvent.click( card.getByRole( 'button', { name: 'Try again' } ) );
 	expect( onRetry ).toHaveBeenCalledTimes( 1 );
 } );
 
-test( 'announces unavailable scores for idle placeholders', () => {
-	const scores = {
-		current: { desktop: 80, mobile: 60 },
-		noBoost: { desktop: 70, mobile: 70 },
-		isStale: false,
-	};
-	const { rerender } = render( <ScoreCards scores={ scores } showPlaceholder /> );
-	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
-	expect( screen.getAllByText( 'Score unavailable' ) ).toHaveLength( 3 );
-	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( /compared with Boost disabled/ ) ).not.toBeInTheDocument();
-	rerender( <ScoreCards scores={ scores } showPlaceholder={ false } /> );
-	expect( screen.queryByText( 'Score unavailable' ) ).not.toBeInTheDocument();
-	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 80 );
+test( 'shows a failed refresh inside the card above the retained scores', () => {
+	const { container } = render(
+		<ScoreCards
+			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
+			error={ new Error( 'Refresh failed' ) }
+		/>
+	);
+	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+	const card = within( container.querySelector( '.jetpack-boost-overview__scores-card' )! );
+	const notice = card.getByText( 'Failed to load speed scores' );
+	const desktop = card.getByRole( 'region', { name: 'Desktop' } );
+	expect( within( desktop ).getByRole( 'progressbar' ) ).toHaveValue( 80 );
+	expect( notice.compareDocumentPosition( desktop ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 } );

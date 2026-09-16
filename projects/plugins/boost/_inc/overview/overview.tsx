@@ -123,8 +123,8 @@ function OverviewContent( { isVisible = true, onHeaderActionChange }: Props ) {
 			<ScoreCards
 				scores={ scoreState.scores }
 				isLoading={ isLoading }
-				showPlaceholder={ ! scoreState.hasScores }
-				error={ scoreState.status === 'error' ? scoreState.error : null }
+				hasScores={ scoreState.hasScores }
+				error={ scoreState.error }
 				onRetry={ () => refreshScores( true ) }
 				isVisible={ isVisible }
 			/>

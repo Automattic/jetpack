@@ -58,13 +58,18 @@ const HistoryFixture = () => {
 
 const ScoreStatesFixture = () => (
 	<>
-		<ScoreCards scores={ loadedScores } isLoading />
+		<ScoreCards scores={ loadedScores } isLoading hasScores={ false } />
+		<ScoreCards
+			scores={ loadedScores }
+			hasScores={ false }
+			error={ new Error( 'Timed out while waiting for speed-score.' ) }
+			onRetry={ noop }
+		/>
 		<ScoreCards
 			scores={ loadedScores }
 			error={ new Error( 'Timed out while waiting for speed-score.' ) }
 			onRetry={ noop }
 		/>
-		<ScoreCards scores={ loadedScores } />
 	</>
 );
 
