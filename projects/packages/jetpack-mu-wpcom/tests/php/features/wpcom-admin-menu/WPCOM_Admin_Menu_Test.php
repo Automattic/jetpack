@@ -77,6 +77,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+		delete_option( 'wpcom_admin_interface' );
 
 		\Brain\Monkey\tearDown();
 		parent::tear_down();
@@ -149,6 +150,98 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull(
 			$this->get_legacy_subscribers_submenu_slug(),
 			'The legacy Subscribers submenu must be retired when the modernization gate is on.'
+		);
+	}
+
+	/**
+	 * The Jetpack submenu item registered under the given slug, or null when absent.
+	 *
+	 * @param string $slug Submenu slug.
+	 * @return array|null
+	 */
+	private function get_jetpack_submenu_item( string $slug ) {
+		global $submenu;
+
+		foreach ( $submenu['jetpack'] ?? array() as $item ) {
+			if ( isset( $item[2] ) && $slug === $item[2] ) {
+				return $item;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Registers a stand-in for the native Activity Log page that the
+	 * `jetpack-activity-log` package adds under Jetpack on `admin_menu`.
+	 */
+	private function register_native_activity_log_page() {
+		add_submenu_page( 'jetpack', 'Activity Log', 'Activity Log', 'manage_options', 'jetpack-activity-log', '__return_null' );
+	}
+
+	/**
+	 * Atomic sites on the Calypso interface hide the native Activity Log page and link
+	 * to the Calypso Activity Log instead.
+	 */
+	public function test_jetpack_submenu_links_activity_log_to_calypso_on_the_calypso_interface() {
+		\Jetpack_Options::update_option( 'id', 200 );
+		$this->register_native_activity_log_page();
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNotNull(
+			$this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . self::$domain ),
+			'The Calypso Activity Log link must be present on the Calypso interface.'
+		);
+
+		$native_item = $this->get_jetpack_submenu_item( 'jetpack-activity-log' );
+		$this->assertNotNull( $native_item );
+		$this->assertStringContainsString(
+			'hide-if-js',
+			$native_item[4] ?? '',
+			'The native Activity Log page must be hidden on the Calypso interface.'
+		);
+	}
+
+	/**
+	 * Atomic sites on the wp-admin interface keep the native Activity Log page and do
+	 * not get the Calypso link.
+	 */
+	public function test_jetpack_submenu_keeps_native_activity_log_on_the_wp_admin_interface() {
+		\Jetpack_Options::update_option( 'id', 200 );
+		update_option( 'wpcom_admin_interface', 'wp-admin' );
+		$this->register_native_activity_log_page();
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNull(
+			$this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . self::$domain ),
+			'The Calypso Activity Log link must not be added on the wp-admin interface.'
+		);
+
+		$native_item = $this->get_jetpack_submenu_item( 'jetpack-activity-log' );
+		$this->assertNotNull( $native_item );
+		$this->assertStringNotContainsString(
+			'hide-if-js',
+			$native_item[4] ?? '',
+			'The native Activity Log page must stay visible on the wp-admin interface.'
+		);
+	}
+
+	/**
+	 * When the native Activity Log page is not registered (for example, the user is not
+	 * connected), the wp-admin interface still gets the Calypso link so the menu keeps
+	 * an Activity Log entry.
+	 */
+	public function test_jetpack_submenu_falls_back_to_calypso_activity_log_when_native_page_is_missing() {
+		\Jetpack_Options::update_option( 'id', 200 );
+		update_option( 'wpcom_admin_interface', 'wp-admin' );
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNotNull(
+			$this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . self::$domain ),
+			'The Calypso Activity Log link must be added when the native page is missing.'
 		);
 	}
 
