@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin page layout: add a `jetpack-admin-page-scrollable-middle` mixin so consumers can style the scroll surface without copying its selectors.
