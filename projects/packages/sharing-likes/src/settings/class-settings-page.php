@@ -51,6 +51,12 @@ final class Settings_Page {
 	 * says which settings a given save covers.
 	 */
 	private static function render_sections(): void {
+		// The submenu registers against this too. Repeated here because the sections
+		// mint the nonces that authorise every save, and the screen is public API.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		$sections = array(
 			array( Sharing_Section::class, 'render' ),
 			array( Likes_Section::class, 'render' ),
