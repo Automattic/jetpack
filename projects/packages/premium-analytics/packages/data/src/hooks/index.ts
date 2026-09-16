@@ -7,6 +7,7 @@ export { useReportCustomersByDate } from './use-report-customers-by-date';
 export { useReportConversionRate } from './use-report-conversion-rate';
 export { useReportProducts } from './use-report-products';
 export { useProductImages } from './use-product-images';
+export { usePostThumbnail } from './use-post-thumbnail';
 export { useReportVisitors } from './use-report-visitors';
 export { useReportVisitorsByLocation } from './use-report-visitors-by-location';
 export { useReportBookings } from './use-report-bookings';
