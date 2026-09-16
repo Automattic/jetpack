@@ -2,15 +2,10 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import {
-	DetailPageLayout,
-	DetailPageSection,
-	useDetailPageScrollToTop,
-} from '../detail-page-layout';
+import { DetailPageLayout, DetailPageSection } from '../detail-page-layout';
 
 // The gutter, the widget grid's gap and the Card padding overrides all hang off
 // these classes; the shared style stub would leave every one of them undefined.
@@ -18,16 +13,6 @@ jest.mock( '../detail-page-layout.module.scss', () => ( {
 	root: 'root',
 	section: 'section',
 } ) );
-
-function ScrollToTopButton() {
-	const scrollToTop = useDetailPageScrollToTop();
-
-	return (
-		<button type="button" onClick={ scrollToTop }>
-			Back to top
-		</button>
-	);
-}
 
 describe( 'DetailPageLayout', () => {
 	it( 'heads the page with the resource title and subtitle', () => {
@@ -69,32 +54,80 @@ describe( 'DetailPageLayout', () => {
 		);
 	} );
 
-	it( 'brings its scroll area back to the top for a card that asks', async () => {
+	describe( 'returnToTopKey', () => {
 		// jsdom has no Element.scrollTo; the scroll area is what must move.
 		const scrollTo = jest.fn();
-		HTMLElement.prototype.scrollTo = scrollTo;
-		const user = userEvent.setup();
-		render(
-			<DetailPageLayout header={ { title: 'Launch recap' } }>
-				<ScrollToTopButton />
-			</DetailPageLayout>
-		);
 
-		await user.click( screen.getByRole( 'button', { name: 'Back to top' } ) );
+		beforeEach( () => {
+			scrollTo.mockReset();
+			HTMLElement.prototype.scrollTo = scrollTo;
+		} );
 
-		expect( scrollTo ).toHaveBeenCalledTimes( 1 );
-		expect( scrollTo ).toHaveBeenCalledWith( expect.objectContaining( { top: 0 } ) );
-		expect( scrollTo.mock.instances[ 0 ] ).toHaveClass( 'root' );
-		Reflect.deleteProperty( HTMLElement.prototype, 'scrollTo' );
-	} );
+		afterEach( () => {
+			Reflect.deleteProperty( HTMLElement.prototype, 'scrollTo' );
+		} );
 
-	it( 'hands a card outside any detail page a scroll that does nothing', async () => {
-		const user = userEvent.setup();
-		render( <ScrollToTopButton /> );
+		it( 'leaves the page alone until a key arrives', () => {
+			const { rerender } = render(
+				<DetailPageLayout header={ { title: 'Launch recap' } }>widgets</DetailPageLayout>
+			);
+			expect( scrollTo ).not.toHaveBeenCalled();
 
-		await expect(
-			user.click( screen.getByRole( 'button', { name: 'Back to top' } ) )
-		).resolves.toBeUndefined();
+			rerender(
+				<DetailPageLayout header={ { title: 'Launch recap' } } returnToTopKey={ 1 }>
+					widgets
+				</DetailPageLayout>
+			);
+
+			expect( scrollTo ).toHaveBeenCalledTimes( 1 );
+			expect( scrollTo ).toHaveBeenCalledWith( expect.objectContaining( { top: 0 } ) );
+			expect( scrollTo.mock.instances[ 0 ] ).toHaveClass( 'root' );
+		} );
+
+		it( 'parks focus on the heading, where the next Tab reaches the controls', () => {
+			render(
+				<DetailPageLayout
+					header={ { title: 'Launch recap' } }
+					controls={ <button>Period</button> }
+					returnToTopKey={ 1 }
+				>
+					<button>A card</button>
+				</DetailPageLayout>
+			);
+
+			expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveFocus();
+		} );
+
+		it( 'returns again for each new key, not for the key going away', () => {
+			const { rerender } = render(
+				<DetailPageLayout header={ { title: 'Launch recap' } } returnToTopKey={ 1 }>
+					widgets
+				</DetailPageLayout>
+			);
+			rerender( <DetailPageLayout header={ { title: 'Launch recap' } }>widgets</DetailPageLayout> );
+			expect( scrollTo ).toHaveBeenCalledTimes( 1 );
+
+			rerender(
+				<DetailPageLayout header={ { title: 'Launch recap' } } returnToTopKey={ 2 }>
+					widgets
+				</DetailPageLayout>
+			);
+			expect( scrollTo ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		it( 'jumps instead of gliding when the reader asked for less motion', () => {
+			const matchMedia = window.matchMedia;
+			window.matchMedia = jest.fn( () => ( { matches: true } ) ) as unknown as typeof matchMedia;
+
+			render(
+				<DetailPageLayout header={ { title: 'Launch recap' } } returnToTopKey={ 1 }>
+					widgets
+				</DetailPageLayout>
+			);
+
+			expect( scrollTo ).toHaveBeenCalledWith( { top: 0, behavior: 'auto' } );
+			window.matchMedia = matchMedia;
+		} );
 	} );
 
 	it( 'renders no controls when given none', () => {

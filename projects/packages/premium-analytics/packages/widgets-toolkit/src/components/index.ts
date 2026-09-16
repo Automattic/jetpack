@@ -158,7 +158,6 @@ export {
 	DetailPageSection,
 	DetailPageShell,
 	useDetailPageCustomize,
-	useDetailPageScrollToTop,
 	type DetailPageActionsProps,
 	type DetailPageBreadcrumbsProps,
 	type DetailPageCustomize,

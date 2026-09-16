@@ -3,7 +3,7 @@
  */
 import { SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
-import { createContext, useCallback, useContext, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -24,20 +24,14 @@ export interface DetailPageLayoutProps {
 	tabs?: ReactNode;
 	/** Date controls for the header row. Omit to leave the header's control cell out. */
 	controls?: ReactNode;
+	/**
+	 * Each new defined value brings the scroll area back to its top and moves
+	 * focus to the header: for a card below the fold that re-scoped the cards
+	 * above it, leaving the reader looking at nothing that changed.
+	 */
+	returnToTopKey?: number;
 	/** The stacked page sections (the widget grid, a notice, …). */
 	children: ReactNode;
-}
-
-const DetailPageScrollContext = createContext< () => void >( () => {} );
-
-/**
- * Bring the detail page's scroll area back to its top, for a card that has
- * re-scoped the cards above it. A no-op outside a detail page.
- *
- * @return The scroll function.
- */
-export function useDetailPageScrollToTop() {
-	return useContext( DetailPageScrollContext );
 }
 
 /**
@@ -47,23 +41,34 @@ export function useDetailPageScrollToTop() {
  * @param {DetailPageLayoutProps} props - The component props.
  * @return The detail page scaffold.
  */
-export function DetailPageLayout( { header, tabs, controls, children }: DetailPageLayoutProps ) {
+export function DetailPageLayout( {
+	header,
+	tabs,
+	controls,
+	returnToTopKey,
+	children,
+}: DetailPageLayoutProps ) {
 	const scrollArea = useRef< HTMLDivElement >( null );
-	const scrollToTop = useCallback( () => {
+	const title = useRef< HTMLHeadingElement >( null );
+
+	useEffect( () => {
+		if ( returnToTopKey === undefined ) {
+			return;
+		}
 		const reduceMotion = window.matchMedia?.( '(prefers-reduced-motion: reduce)' ).matches;
+		// Focus first, without scrolling: the focus jump would cut the smooth scroll short.
+		title.current?.focus( { preventScroll: true } );
 		scrollArea.current?.scrollTo?.( { top: 0, behavior: reduceMotion ? 'auto' : 'smooth' } );
-	}, [] );
+	}, [ returnToTopKey ] );
 
 	return (
-		<DetailPageScrollContext.Provider value={ scrollToTop }>
-			<div ref={ scrollArea } className={ styles.root }>
-				{ tabs }
-				<SectionHeader pinned { ...header }>
-					{ controls }
-				</SectionHeader>
-				{ children }
-			</div>
-		</DetailPageScrollContext.Provider>
+		<div ref={ scrollArea } className={ styles.root }>
+			{ tabs }
+			<SectionHeader pinned titleRef={ title } { ...header }>
+				{ controls }
+			</SectionHeader>
+			{ children }
+		</div>
 	);
 }
 

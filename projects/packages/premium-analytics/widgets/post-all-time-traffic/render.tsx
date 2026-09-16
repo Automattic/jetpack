@@ -14,7 +14,6 @@ import {
 	monthRange,
 	monthlyHeatmapLabels,
 	resolveMonthlyHeatmapMetric,
-	useDetailPageScrollToTop,
 	useWidgetRootContext,
 	yearRange,
 	type MonthlyHeatmapMetric,
@@ -46,8 +45,6 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 	// page's period, read over by the other cards while this one stays all-time.
 	const { onChange, onApply, timeZone } = useReportDateFilters();
 	const raisePeriodChange = useRaisePeriodChange();
-	// This card closes the page while the cards it re-scopes sit above it.
-	const scrollToTop = useDetailPageScrollToTop();
 
 	// The months outside the post's life ('before' / 'after') become filler.
 	const heatmapRows = useMemo< MonthlyHeatmapRow[] >(
@@ -71,10 +68,9 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 				raisePeriodChange( postSurface( postId ), range );
 				onChange( range, PRESET_CUSTOM, { exactRange: true } );
 				onApply();
-				scrollToTop();
 			}
 		},
-		[ lifeStartsAt, timeZone, onChange, onApply, postId, raisePeriodChange, scrollToTop ]
+		[ lifeStartsAt, timeZone, onChange, onApply, postId, raisePeriodChange ]
 	);
 
 	// Keep stale rows visible when a background refetch fails.
