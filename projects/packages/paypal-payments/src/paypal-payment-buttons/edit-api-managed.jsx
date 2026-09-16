@@ -246,6 +246,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		successMessage,
 		setSuccessMessage,
 		linkDeleted,
+		paymentChanged,
 		handleDeleteButton,
 		executeDeleteButton,
 	} = usePayPalResource( {
@@ -566,6 +567,14 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						{ saveStatus }
 					</Notice>
 					{ sharedResourceNotice }
+					{ paymentChanged && (
+						<Notice status="warning" isDismissible={ false }>
+							{ __(
+								'This payment link was updated elsewhere and this block has been updated to match.',
+								'jetpack-paypal-payments'
+							) }
+						</Notice>
+					) }
 				</div>
 			</InspectorControls>
 			<InspectorControls>

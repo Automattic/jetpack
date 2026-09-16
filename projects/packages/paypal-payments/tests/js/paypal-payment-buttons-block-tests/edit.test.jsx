@@ -3536,6 +3536,96 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
+	describe( 'Changed at PayPal', () => {
+		const saved = {
+			isApiManaged: true,
+			resourceId: 'PLB-CLEAR1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-CLEAR1',
+		};
+		// Matches renderForm's product exactly, so only the field a test changes or
+		// leaves out can raise the notice.
+		const carried = {
+			productName: 'Test Widget',
+			price: '29.99',
+			currencyCode: 'USD',
+			paymentLink: saved.paymentLink,
+		};
+		const notice =
+			/This payment link was updated elsewhere and this block has been updated to match\./;
+
+		/**
+		 * Answer the connection check, then hand back one payment.
+		 *
+		 * @param {object} attributes - Block-shaped attributes the payment read returns.
+		 * @return {jest.Mock} The apiFetch mock.
+		 */
+		const mockPayment = attributes =>
+			apiFetch.mockImplementation( request =>
+				request.path.endsWith( '/connection' )
+					? Promise.resolve( { connected: true, environment: 'sandbox' } )
+					: Promise.resolve( { attributes } )
+			);
+
+		it( 'says so when the payment no longer carries a field the block held', async () => {
+			mockPayment( carried );
+			renderForm( { ...saved, productDescription: 'Hand made' } );
+
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			// The notice does not stop the sync - the block still takes PayPal's blank.
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( { productDescription: '' } )
+			);
+		} );
+
+		// Price is the case that matters most - the block would otherwise take the new
+		// number with nothing shown.
+		it( 'says so when the payment carries a different value', async () => {
+			mockPayment( { ...carried, price: '200.00' } );
+			renderForm( { ...saved, price: '100.00' } );
+
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( { price: '200.00' } )
+			);
+		} );
+
+		it( 'stays quiet when the block already agrees with the payment', async () => {
+			mockPayment( carried );
+			renderForm( saved );
+
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
+		} );
+
+		// Any failure leaves the block on its own values, so there is nothing to report.
+		it( 'stays quiet when the lookup fails', async () => {
+			apiFetch.mockImplementation( request =>
+				request.path.endsWith( '/connection' )
+					? Promise.resolve( { connected: true, environment: 'sandbox' } )
+					: Promise.reject( { code: 'fetch_error', message: 'offline' } )
+			);
+			renderForm( { ...saved, price: '100.00' } );
+
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
+		} );
+
+		// The warning is about a payment. Delete it and the warning goes with it, even
+		// though the read that raised it never runs again.
+		it( 'drops the warning when the payment is deleted', async () => {
+			mockPayment( { ...carried, price: '200.00' } );
+			const attributes = { productName: 'Test Widget', price: '100.00', currencyCode: 'USD' };
+			const { rerender } = render(
+				<Edit attributes={ { ...attributes, ...saved } } setAttributes={ setAttributes } />
+			);
+			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
+
+			rerender( <Edit attributes={ attributes } setAttributes={ setAttributes } /> );
+
+			await waitFor( () => expect( screen.queryByText( notice ) ).not.toBeInTheDocument() );
+		} );
+	} );
+
 	describe( 'Notices', () => {
 		const saved = {
 			isApiManaged: true,

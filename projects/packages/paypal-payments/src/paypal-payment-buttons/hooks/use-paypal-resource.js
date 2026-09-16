@@ -38,6 +38,7 @@ export function usePayPalResource( {
 	const [ error, setError ] = useState( null );
 	const [ successMessage, setSuccessMessage ] = useState( null );
 	const [ linkDeleted, setLinkDeleted ] = useState( false );
+	const [ paymentChanged, setPaymentChanged ] = useState( false );
 
 	// Two blocks can share one PayPal payment — a duplicate, or one product
 	// shown as a button, a link and a QR code — and only the block that saved
@@ -47,12 +48,16 @@ export function usePayPalResource( {
 	latestAttributes.current = attributes;
 
 	useEffect( () => {
+		// Above the guard: deleting the button re-runs this with no resourceId, and a
+		// warning about a payment that is gone has to clear too.
+		setLinkDeleted( false );
+		setPaymentChanged( false );
+
 		if ( ! isConnected || ! isApiManaged || ! resourceId ) {
 			return;
 		}
 
 		let cancelled = false;
-		setLinkDeleted( false );
 
 		apiFetch( { path: `${ API_BASE }/buttons/${ resourceId }` } )
 			.then( response => {
@@ -66,6 +71,7 @@ export function usePayPalResource( {
 				if ( ! Object.keys( updates ).length ) {
 					return;
 				}
+				setPaymentChanged( true );
 				// Opening a post must not mark it dirty.
 				__unstableMarkNextChangeAsNotPersistent?.();
 				setAttributes( updates );
@@ -147,6 +153,7 @@ export function usePayPalResource( {
 		successMessage,
 		setSuccessMessage,
 		linkDeleted,
+		paymentChanged,
 		handleDeleteButton,
 		executeDeleteButton,
 	};
