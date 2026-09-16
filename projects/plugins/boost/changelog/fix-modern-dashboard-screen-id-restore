@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Restore the real screen ID after the modern dashboard's wp-build alias so JITM resolves the right message path.

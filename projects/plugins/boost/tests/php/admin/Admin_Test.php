@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Tests\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack_Boost\Admin\Admin;
@@ -103,7 +104,7 @@ class Admin_Test extends Base_TestCase {
 		$admin->handle_admin_menu();
 
 		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
-		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assert_screen_id_not_aliased( $admin );
 	}
 
 	public function test_modern_dashboard_can_be_filtered_off() {
@@ -119,7 +120,7 @@ class Admin_Test extends Base_TestCase {
 		$admin->handle_admin_menu();
 
 		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
-		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assert_screen_id_not_aliased( $admin );
 	}
 
 	public function test_modern_dashboard_does_not_load_off_page() {
@@ -131,7 +132,7 @@ class Admin_Test extends Base_TestCase {
 		$admin->handle_admin_menu();
 
 		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
-		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assert_screen_id_not_aliased( $admin );
 	}
 
 	public function test_missing_modern_build_logs_and_keeps_legacy_page() {
@@ -151,10 +152,10 @@ class Admin_Test extends Base_TestCase {
 
 		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
 		$this->assertSame( array( 'Modern dashboard build is missing; loading the legacy dashboard.' ), $messages );
-		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assert_screen_id_not_aliased( $admin );
 	}
 
-	public function test_modern_build_registers_polyfills_and_modules_before_aliasing_screen() {
+	public function test_modern_build_registers_polyfills_and_modules() {
 		$this->enable_modern_dashboard();
 		$events = array();
 		\Patchwork\redefine(
@@ -174,9 +175,8 @@ class Admin_Test extends Base_TestCase {
 		);
 		$admin = new Admin();
 		Functions\expect( 'jetpack_boost_register_script_modules' )->once()->andReturnUsing(
-			function () use ( &$events, $admin ) {
+			function () use ( &$events ) {
 				$events[] = 'modules';
-				$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
 			}
 		);
 
@@ -184,12 +184,67 @@ class Admin_Test extends Base_TestCase {
 
 		$this->assertSame( array( 'build', 'polyfills', 'modules' ), $events );
 		$this->assertSame( 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page', $this->last_menu_callback() );
-		$screen = \Mockery::mock( \WP_Screen::class );
-		'@phan-var \WP_Screen $screen';
-		$screen->id = 'jetpack_page_jetpack-boost';
-		$this->assertNotFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
-		$admin->alias_screen_id_for_wp_build( $screen );
-		$this->assertSame( 'jetpack-boost-dashboard', $screen->id );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_generated_enqueue_check_sees_aliased_screen_id() {
+		$this->run_modern_admin_enqueue_scripts(
+			function ( $admin, $callbacks ) {
+				$this->assertSame(
+					array(
+						array( $admin, 'alias_screen_id_for_wp_build' ),
+						'jetpack_boost_jetpack_boost_dashboard_wp_admin_enqueue_scripts',
+						array( $admin, 'restore_screen_id_after_wp_build' ),
+					),
+					$callbacks
+				);
+				$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+				$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $admin, 'restore_screen_id_after_wp_build' ) ) );
+				$this->assertSame( 'jetpack-boost-dashboard', $GLOBALS['boost_fixture_enqueue_screen_id'] );
+			}
+		);
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
+		$this->run_modern_admin_enqueue_scripts(
+			function () {
+				$this->assertSame( 'jetpack_page_jetpack-boost', get_current_screen()->id );
+			}
+		);
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jitm_message_path_uses_real_screen_id() {
+		$this->run_modern_admin_enqueue_scripts(
+			function () {
+				$path = null;
+				\Brain\Monkey\Actions\expectDone( 'admin_notices' )->once()->whenHappen(
+					function () use ( &$path ) {
+						$path = ( new JITM() )->get_message_path();
+					}
+				);
+
+				do_action( 'admin_notices' );
+
+				$this->assertSame( 'wp:jetpack_page_jetpack-boost:admin_notices', $path );
+			}
+		);
 	}
 
 	/**
@@ -213,7 +268,7 @@ class Admin_Test extends Base_TestCase {
 
 			$this->assertContains( realpath( $build_file ), get_included_files() );
 			$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
-			$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+			$this->assert_screen_id_not_aliased( $admin );
 		} finally {
 			unlink( $build_file );
 			rmdir( $fixture . '/build' );
@@ -329,7 +384,7 @@ class Admin_Test extends Base_TestCase {
 		$admin->handle_admin_menu();
 
 		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
-		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assert_screen_id_not_aliased( $admin );
 	}
 
 	public function test_modern_dashboard_does_not_load_on_front_end() {
@@ -341,7 +396,7 @@ class Admin_Test extends Base_TestCase {
 		$admin->handle_admin_menu();
 
 		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
-		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assert_screen_id_not_aliased( $admin );
 	}
 
 	public function test_legacy_enqueue_keeps_existing_assets_and_localization() {
@@ -447,6 +502,70 @@ class Admin_Test extends Base_TestCase {
 		$this->assertFalse( $data['getting_started']['value'] );
 		$this->assertFalse( $data['dismissed_alerts']['value']['score_increase'] );
 		$this->assertNotEmpty( $data['dismissed_alerts']['nonce'] );
+	}
+
+	private function assert_screen_id_not_aliased( $admin ) {
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( $admin, 'restore_screen_id_after_wp_build' ) ) );
+	}
+
+	/**
+	 * Load a stand-in generated build on the Boost page, then run the bracketed admin_enqueue_scripts callbacks in order.
+	 *
+	 * @param callable $assertions Receives the Admin instance and the bracket callbacks that ran.
+	 */
+	private function run_modern_admin_enqueue_scripts( $assertions ) {
+		$fixture = JETPACK_BOOST_DIR_PATH . '/.cache/admin-build-' . uniqid();
+		mkdir( $fixture . '/build', 0777, true );
+		$build_file = $fixture . '/build/build.php';
+		file_put_contents(
+			$build_file,
+			'<?php
+			function jetpack_boost_register_script_modules() {}
+			function jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page() {}
+			function jetpack_boost_jetpack_boost_dashboard_wp_admin_enqueue_scripts() {
+				$GLOBALS["boost_fixture_enqueue_screen_id"] = get_current_screen()->id;
+			}
+			add_action( "admin_enqueue_scripts", "jetpack_boost_jetpack_boost_dashboard_wp_admin_enqueue_scripts" );'
+		);
+		define( 'Automattic\\Jetpack_Boost\\Admin\\JETPACK_BOOST_DIR_PATH', $fixture );
+
+		try {
+			$this->enable_modern_dashboard();
+			\Patchwork\redefine( WP_Build_Polyfills::class . '::register', \Patchwork\always( null ) );
+			Functions\when( 'get_current_screen' )->justReturn( (object) array( 'id' => 'jetpack_page_jetpack-boost' ) );
+			$registered = array();
+			\Brain\Monkey\Actions\expectAdded( 'admin_enqueue_scripts' )->zeroOrMoreTimes()->whenHappen(
+				function ( $callback ) use ( &$registered ) {
+					$registered[] = $callback;
+				}
+			);
+			$admin   = new Admin();
+			$bracket = array(
+				array( $admin, 'alias_screen_id_for_wp_build' ),
+				'jetpack_boost_jetpack_boost_dashboard_wp_admin_enqueue_scripts',
+				array( $admin, 'restore_screen_id_after_wp_build' ),
+			);
+
+			$admin->handle_admin_menu();
+
+			$ran = array_values(
+				array_filter(
+					$registered,
+					function ( $callback ) use ( $bracket ) {
+						return in_array( $callback, $bracket, true );
+					}
+				)
+			);
+			foreach ( $ran as $callback ) {
+				$callback( 'jetpack_page_jetpack-boost' );
+			}
+			$assertions( $admin, $ran );
+		} finally {
+			unlink( $build_file );
+			rmdir( $fixture . '/build' );
+			rmdir( $fixture );
+		}
 	}
 
 	private function prepare_enqueue_scripts( $modern = false ) {

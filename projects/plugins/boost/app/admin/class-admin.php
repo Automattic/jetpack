@@ -37,6 +37,13 @@ class Admin {
 	 */
 	private $modern_dashboard_loaded = false;
 
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private $wp_build_original_screen_id = null;
+
 	public function init( Modules_Setup $modules ) {
 		Environment_Change_Detector::init();
 
@@ -116,7 +123,6 @@ class Admin {
 
 		// wp_default_scripts has already fired by admin_menu, so register the init module now.
 		jetpack_boost_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined by the generated build and checked in dashboard_build_is_available().
-		add_action( 'current_screen', array( $this, 'alias_screen_id_for_wp_build' ) );
 		$this->modern_dashboard_loaded = true;
 	}
 
@@ -132,21 +138,46 @@ class Admin {
 			return false;
 		}
 
+		// Hooked on either side of the require, so the alias holds only for the generated
+		// enqueue check it registers at the same priority.
+		add_action( 'admin_enqueue_scripts', array( $this, 'alias_screen_id_for_wp_build' ) );
 		require_once $build_file;
+		add_action( 'admin_enqueue_scripts', array( $this, 'restore_screen_id_after_wp_build' ) );
 
-		return function_exists( 'jetpack_boost_register_script_modules' )
-			&& function_exists( 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' );
+		if ( function_exists( 'jetpack_boost_register_script_modules' )
+			&& function_exists( 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' ) ) {
+			return true;
+		}
+
+		remove_action( 'admin_enqueue_scripts', array( $this, 'alias_screen_id_for_wp_build' ) );
+		remove_action( 'admin_enqueue_scripts', array( $this, 'restore_screen_id_after_wp_build' ) );
+		return false;
 	}
 
 	/**
 	 * Match wp-build's enqueue screen without changing the Boost menu URL.
-	 *
-	 * @param \WP_Screen|null $screen Current screen.
 	 */
-	public function alias_screen_id_for_wp_build( $screen ) {
-		if ( is_object( $screen ) ) {
-			$screen->id = 'jetpack-boost-dashboard';
+	public function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
 		}
+
+		$this->wp_build_original_screen_id = $screen->id;
+		$screen->id                        = 'jetpack-boost-dashboard';
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
+	 */
+	public function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === $this->wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = $this->wp_build_original_screen_id;
+		$this->wp_build_original_screen_id = null;
 	}
 
 	/**
