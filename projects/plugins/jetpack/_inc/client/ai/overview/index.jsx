@@ -11,14 +11,11 @@ import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import assetUrl from '../asset-url';
 import NavRow from '../components/nav-row';
 import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
 import AssistantBanner from './assistant-banner';
 import { chatGptIcon, claudeIcon } from './connector-icons';
-import buildPageThumb from './images/build-page.webp';
-import connectClaudeThumb from './images/connect-claude.webp';
-import mediaLibraryThumb from './images/media-library.webp';
-import optimizeSiteThumb from './images/optimize-site.webp';
 import { normalizeUsage, useAiUsage } from './use-ai-usage';
 
 import './style.scss';
@@ -48,25 +45,25 @@ const WALKTHROUGH_VIDEOS = [
 		slug: 'jetpack-ai-hub-overview-video-connect-claude',
 		title: __( 'Connect your site to Claude', 'jetpack' ),
 		duration: '3:18',
-		thumbnail: connectClaudeThumb,
+		thumbnail: assetUrl( 'connect-claude.webp' ),
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-video-build-page',
 		title: __( 'Build a page from a single prompt', 'jetpack' ),
 		duration: '3:09',
-		thumbnail: buildPageThumb,
+		thumbnail: assetUrl( 'build-page.webp' ),
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-video-media-library',
 		title: __( 'Manage your Media Library with AI', 'jetpack' ),
 		duration: '3:14',
-		thumbnail: mediaLibraryThumb,
+		thumbnail: assetUrl( 'media-library.webp' ),
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-video-optimize-site',
 		title: __( 'Optimize your site with AI', 'jetpack' ),
 		duration: '3:15',
-		thumbnail: optimizeSiteThumb,
+		thumbnail: assetUrl( 'optimize-site.webp' ),
 	},
 ];
 

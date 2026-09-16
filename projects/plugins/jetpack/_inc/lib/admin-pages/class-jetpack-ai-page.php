@@ -18,6 +18,7 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -29,6 +30,122 @@ require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
  * Builds the Jetpack AI admin page and its sidebar menu entry.
  */
 class Jetpack_AI_Page {
+
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
+	 * Whether this request renders through wp-build.
+	 *
+	 * Checks the render function too: if the build output is missing, the request would
+	 * otherwise get no bundle at all now that the legacy entry is gone.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function should_render_wp_build() {
+		return function_exists( 'jetpack_plugin_jetpack_ai_wp_admin_render_page' );
+	}
+
+	/**
+	 * Whether the current request targets the AI Hub admin page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_ai_admin_request() {
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
+		return isset( $_GET['page'] ) && 'jetpack-ai' === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+	}
+
+	/**
+	 * Load wp-build for the AI Hub page.
+	 *
+	 * Runs on `admin_menu` priority 1 because wp-build has to register before the menu is
+	 * built, while every host reaches add_actions() at priority 998 — self-hosted and Atomic
+	 * through `jetpack_admin_menu`, WordPress.com Simple through mu-wpcom's own registration.
+	 * Scoped to this page so WP_Build_Polyfills does not replace core scripts everywhere else.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::is_ai_admin_request() ) {
+			return;
+		}
+
+		$build_index = JETPACK__PLUGIN_DIR . 'build/build.php';
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		// Hooked on either side of the require, so the alias holds only for the generated
+		// enqueue check it registers at the same priority.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		require_once $build_index;
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+
+		// wp-build hooks module registration to wp_default_scripts, which has already fired by
+		// admin_menu — call it directly or the init module never reaches the import map.
+		if ( function_exists( 'jetpack_plugin_register_script_modules' ) ) {
+			jetpack_plugin_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
+		if ( class_exists( WP_Build_Polyfills::class ) ) {
+			// wp-rich-text is needed because the Scheduled tasks tab reaches @wordpress/dataviews
+			// via @wordpress/ui, whose dataform controls unlock rich-text's privateApis at module
+			// scope. WP 6.9 exports none, so without it the bundle throws and the page is blank.
+			WP_Build_Polyfills::register(
+				'jetpack',
+				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			);
+		}
+	}
+
+	/**
+	 * Point the screen ID at the wp-build page while its generated enqueue check runs.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
+
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = 'jetpack-ai';
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
 
 	/**
 	 * Register the page and its page-specific hooks.
@@ -201,15 +318,9 @@ class Jetpack_AI_Page {
 	 * Enqueue scripts and styles for the AI admin page.
 	 */
 	public function page_admin_scripts() {
-		$script_path    = JETPACK__PLUGIN_DIR . '_inc/build/jetpack-ai-admin.asset.php';
-		$script_deps    = array( 'wp-element', 'wp-components', 'wp-i18n', 'wp-polyfill' );
+		// wp-build owns the route bundle and its dependencies; this handle only carries the
+		// inline settings below, so the plugin version is version enough to bust its cache.
 		$script_version = JETPACK__VERSION;
-
-		if ( file_exists( $script_path ) ) {
-			$asset_manifest = include $script_path;
-			$script_deps    = $asset_manifest['dependencies'];
-			$script_version = $asset_manifest['version'];
-		}
 
 		$blog_id     = Connection_Manager::get_site_id( true );
 		$status      = new Status();
@@ -246,15 +357,10 @@ class Jetpack_AI_Page {
 			$seo_settings_url = admin_url( 'admin.php?page=jetpack-seo' );
 		}
 
-		wp_enqueue_script(
-			'jetpack-ai-admin',
-			plugins_url( '_inc/build/jetpack-ai-admin.js', JETPACK__PLUGIN_FILE ),
-			$script_deps,
-			$script_version,
-			true
-		);
-
-		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
+		// The route bundle is registered by wp-build; this handle exists only to carry the
+		// inline settings below, which the app reads from `window.jetpackAiSettings`.
+		wp_register_script( 'jetpack-ai-admin', false, array(), $script_version, true );
+		wp_enqueue_script( 'jetpack-ai-admin' );
 
 		// The Tracks sender (w.js); without it, queued events never leave the
 		// browser. Consent-gated like the other surfaces that load it.
@@ -265,12 +371,6 @@ class Jetpack_AI_Page {
 
 		if ( $show_scheduled_tasks_view ) {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
-			// Webpack reads this to load the lazy Scheduled tasks chunk; see _inc/client/ai/public-path.js.
-			wp_add_inline_script(
-				'jetpack-ai-admin',
-				'window.Jetpack_AI_Admin_Assets_Base_Url = ' . wp_json_encode( plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
-				'before'
-			);
 		}
 
 		$host = new Host();
@@ -518,8 +618,24 @@ class Jetpack_AI_Page {
 	 * AdminPage from @automattic/jetpack-components handles the full-page layout.
 	 */
 	public function page_render() {
-		?>
-		<div id="jetpack-ai-root"></div>
-		<?php
+		if ( self::should_render_wp_build() ) {
+			jetpack_plugin_jetpack_ai_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- should_render_wp_build() checks function_exists(); defined in the generated build/pages/, which Phan excludes.
+			return;
+		}
+
+		// The build output is missing; say so rather than leaving a silent blank page.
+		printf(
+			'<div class="notice notice-error"><p>%s</p></div>',
+			esc_html__( 'Jetpack AI could not load because the plugin assets are missing. Please reinstall Jetpack.', 'jetpack' )
+		);
 	}
 }
+
+/*
+ * Hooked here rather than from a caller because both registration paths load this file before
+ * `admin_menu` — the Jetpack plugin's Jetpack_Admin constructor and mu-wpcom's WordPress.com
+ * Simple integration — while wp-build has to load at priority 1, far earlier than the
+ * priority-998 `add_actions()` call site each of them uses. add_action() dedupes, so the file
+ * being required by both is harmless.
+ */
+add_action( 'admin_menu', array( 'Jetpack_AI_Page', 'maybe_load_wp_build' ), 1 );
