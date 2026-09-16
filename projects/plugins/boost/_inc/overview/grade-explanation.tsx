@@ -1,23 +1,23 @@
 import { __ } from '@wordpress/i18n';
-import type { ElementType } from 'react';
+import type { ElementType, ReactNode } from 'react';
 
 type Props = {
+	description?: ReactNode;
 	descriptionComponent?: ElementType;
 	tableClassName?: string;
 };
 
 export default function GradeExplanation( {
+	description = __(
+		"Your Overall Score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance.",
+		'jetpack-boost'
+	),
 	descriptionComponent: Description = 'p',
 	tableClassName,
 }: Props ) {
 	return (
 		<>
-			<Description>
-				{ __(
-					"Your Overall Score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance.",
-					'jetpack-boost'
-				) }
-			</Description>
+			<Description>{ description }</Description>
 			<table className={ tableClassName }>
 				<tbody>
 					<tr>

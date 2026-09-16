@@ -34,6 +34,11 @@ const data = {
 };
 
 const noop = () => {};
+const loadedScores = {
+	current: { desktop: 80, mobile: 68 },
+	noBoost: { desktop: 70, mobile: 68 },
+	isStale: false,
+};
 
 const HistoryFixture = () => {
 	const [ isVisible, setVisible ] = useState( true );
@@ -51,26 +56,46 @@ const HistoryFixture = () => {
 	);
 };
 
+const ScoreStatesFixture = () => (
+	<>
+		<ScoreCards scores={ loadedScores } isLoading />
+		<ScoreCards
+			scores={ loadedScores }
+			error={ new Error( 'Timed out while waiting for speed-score.' ) }
+			onRetry={ noop }
+		/>
+		<ScoreCards scores={ loadedScores } />
+	</>
+);
+
+const ScoresFixture = () => (
+	<>
+		<ScoreCards
+			scores={ {
+				current: { desktop: 90, mobile: 60 },
+				noBoost: { desktop: 80, mobile: 70 },
+				isStale: false,
+			} }
+		/>
+		<ScoreCards
+			scores={ { current: { desktop: 40, mobile: 40 }, noBoost: null, isStale: false } }
+		/>
+	</>
+);
+
+const params = new URLSearchParams( window.location.search );
+let Fixture = HistoryFixture;
+if ( params.has( 'score-states' ) ) {
+	Fixture = ScoreStatesFixture;
+} else if ( params.has( 'scores' ) ) {
+	Fixture = ScoresFixture;
+}
+
 createRoot( document.getElementById( 'root' ) ).render(
 	<div
 		className="jetpack-boost-overview"
 		style={ { '--wp-admin-theme-color': 'var(--wpds-color-foreground-interactive-brand)' } }
 	>
-		{ new URLSearchParams( window.location.search ).has( 'scores' ) ? (
-			<>
-				<ScoreCards
-					scores={ {
-						current: { desktop: 90, mobile: 60 },
-						noBoost: { desktop: 80, mobile: 70 },
-						isStale: false,
-					} }
-				/>
-				<ScoreCards
-					scores={ { current: { desktop: 40, mobile: 40 }, noBoost: null, isStale: false } }
-				/>
-			</>
-		) : (
-			<HistoryFixture />
-		) }
+		<Fixture />
 	</div>
 );

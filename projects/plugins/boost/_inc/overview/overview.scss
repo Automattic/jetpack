@@ -1,3 +1,4 @@
+@use "@automattic/jetpack-base-styles/root-variables";
 @use "@wordpress/base-styles/variables" as wpvariables;
 @use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
 
@@ -98,6 +99,35 @@
 	}
 }
 
+.jetpack-boost-overview__scores-status {
+	padding-block: calc(2 * var(--wpds-dimension-padding-3xl));
+
+	.components-spinner {
+		margin: 0;
+	}
+}
+
+.jetpack-boost-overview__scores-error {
+	padding: var(--wpds-dimension-padding-md);
+}
+
+.jetpack-boost-overview__score-meter {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+
+	@media ( max-width: wpbreakpoints.$break-small ) {
+		flex-direction: row;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-md);
+
+		.jetpack-boost-overview__delta {
+			margin-inline-start: auto;
+			text-align: end;
+		}
+	}
+}
+
 .jetpack-boost-overview__score-placeholder {
 	inline-size: calc(2 * var(--wpds-dimension-size-lg));
 	block-size: var(--wpds-dimension-size-lg);
@@ -107,7 +137,11 @@
 	border-radius: var(--wpds-border-radius-md);
 	block-size: var(--wpds-dimension-size-5xs);
 	inline-size: 100%;
-	background-color: var(--wpds-color-background-surface-neutral-weak);
+	background-color: transparent;
+
+	@media ( max-width: wpbreakpoints.$break-small ) {
+		flex: 0 0 50%;
+	}
 }
 
 .jetpack-boost-overview__progress--good {
@@ -123,7 +157,7 @@
 }
 
 .jetpack-boost-overview__progress--medium {
-	--wp-components-color-foreground: var(--wpds-color-foreground-content-warning-weak);
+	--wp-components-color-foreground: var(--jp-orange-20);
 }
 
 .jetpack-boost-overview__tier--medium {

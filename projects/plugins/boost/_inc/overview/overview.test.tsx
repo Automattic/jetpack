@@ -132,7 +132,7 @@ test( 'contains a render failure with the Overview error fallback', () => {
 } );
 
 test.each( [
-	[ 'score', 'Failed to load Speed Scores' ],
+	[ 'score', 'Failed to load speed scores' ],
 	[ 'performance-history', 'Failed to load performance history' ],
 	[ 'modules-state', 'Failed to load module settings' ],
 	[ 'offline', 'Website is not publicly available' ],
@@ -419,35 +419,38 @@ test( 'tracks score errors and offers a successful retry', async () => {
 	jest
 		.mocked( requestSpeedScores )
 		.mockRejectedValueOnce( new Error( 'Score service unavailable' ) );
-	renderOverview();
+	const { container } = renderOverview();
 	await expect( screen.findByText( 'Score service unavailable' ) ).resolves.toBeTruthy();
+	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+	const card = within( container.querySelector( '.jetpack-boost-overview__scores-card' )! );
+	expect( card.getByText( 'Failed to load speed scores', { selector: 'span' } ) ).toBeVisible();
+	expect( card.getByText( 'Score service unavailable' ) ).toBeVisible();
 	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( '81' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'region', { name: 'Desktop' } ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
-	for ( const name of [ 'Overall grade', 'Desktop', 'Mobile' ] ) {
-		expect( screen.getByRole( 'region', { name } ) ).toHaveAttribute( 'aria-busy', 'false' );
-	}
 	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toBeEnabled();
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_request_error', {
 		error_message: 'Score service unavailable',
 	} );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+	fireEvent.click( card.getByRole( 'button', { name: 'Try again' } ) );
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+		true,
+		wpApiSettings.root,
+		Jetpack_Boost.site.url,
+		wpApiSettings.nonce
+	);
+	expect( recordBoostEvent ).not.toHaveBeenCalledWith( 'speed_score_refresh_clicked', {} );
 	expect( screen.queryByText( 'Score service unavailable' ) ).not.toBeInTheDocument();
 } );
 
-test( 'retains loaded scores and Run speed test alongside a subsequent score error', async () => {
+test( 'shows a failed refresh inside the card and recovers with Run speed test', async () => {
 	renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
 	jest.mocked( requestSpeedScores ).mockRejectedValueOnce( new Error( 'Refresh failed' ) );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	await expect( screen.findByText( 'Refresh failed' ) ).resolves.toBeTruthy();
-	expect( screen.getByText( '91' ) ).toBeInTheDocument();
-	expect( screen.getByText( '81' ) ).toBeInTheDocument();
-	expect( screen.getByRole( 'region', { name: 'Desktop' } ) ).toHaveAttribute(
-		'aria-busy',
-		'false'
-	);
+	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
 	// The header re-enables in a later render than the notice, and a click on it while aria-disabled is ignored.
 	await waitFor( () =>
 		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
@@ -465,10 +468,8 @@ test( 'does not present initial loading scores as measured scores', () => {
 	renderOverview();
 	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
 	expect( screen.queryByText( '81' ) ).not.toBeInTheDocument();
-	expect( screen.getByRole( 'region', { name: 'Desktop' } ) ).toHaveAttribute(
-		'aria-busy',
-		'true'
-	);
+	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	expect( screen.queryByRole( 'region', { name: 'Desktop' } ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
@@ -476,7 +477,7 @@ test( 'does not present initial loading scores as measured scores', () => {
 
 test.each( [
 	[ 40, 'Poor' ],
-	[ 60, 'Could be improved' ],
+	[ 60, 'Could improve' ],
 	[ 90, 'Good' ],
 ] as const )( 'renders score %i with its tier, bar, and delta', ( score, tier ) => {
 	render(
@@ -496,20 +497,14 @@ test.each( [
 
 test( 'opens the overall grade explanation and dismisses it with Escape', async () => {
 	render( <ScoreCards scores={ scores } /> );
-	expect(
-		within( screen.getByRole( 'region', { name: 'Overall grade' } ) ).queryByText(
-			/Good|Could be improved|Poor/
-		)
-	).not.toBeInTheDocument();
-	const trigger = within( screen.getByRole( 'region', { name: 'Overall grade' } ) ).getByRole(
-		'button',
-		{ name: 'How the overall grade is calculated' }
-	);
+	const trigger = within( screen.getByRole( 'region', { name: 'Overall' } ) ).getByRole( 'button', {
+		name: 'How the overall grade is calculated',
+	} );
 	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	fireEvent.click( trigger );
 	const tooltip = await screen.findByRole( 'dialog' );
 	expect( tooltip ).toHaveTextContent(
-		"Your Overall Score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance."
+		'Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices.'
 	);
 	expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
 	fireEvent.keyDown( tooltip, { key: 'Escape' } );
@@ -674,12 +669,7 @@ test.each( [
 	};
 	jest.mocked( requestSpeedScores ).mockResolvedValue( scoreFixture );
 	renderOverview();
-	await waitFor( () =>
-		expect( screen.getByRole( 'region', { name: 'Desktop' } ) ).toHaveAttribute(
-			'aria-busy',
-			'false'
-		)
-	);
+	await expect( screen.findByRole( 'region', { name: 'Desktop' } ) ).resolves.toBeVisible();
 	expect(
 		screen.queryByRole( 'heading', { name: 'Speed score has fallen' } )
 	).not.toBeInTheDocument();
@@ -728,15 +718,16 @@ test( 'reports module request errors independently and retries only modules', as
 } );
 
 test.each( [
-	[ 100, 'A' ],
-	[ 90, 'B' ],
-	[ 76, 'B' ],
-	[ 75, 'C' ],
-	[ 71, 'C' ],
-	[ 50, 'D' ],
-	[ 30, 'E' ],
-	[ 0, 'F' ],
-] )( 'shows the Overall letter without a tier at score %s', ( score, grade ) => {
+	[ 100, 'A', 'Good' ],
+	[ 90, 'B', 'Good' ],
+	[ 76, 'B', 'Good' ],
+	[ 75, 'C', 'Good' ],
+	[ 71, 'C', 'Good' ],
+	[ 70, 'C', 'Could improve' ],
+	[ 50, 'D', 'Poor' ],
+	[ 30, 'E', 'Poor' ],
+	[ 0, 'F', 'Poor' ],
+] )( 'shows the Overall letter with its band at score %s', ( score, grade, band ) => {
 	render(
 		<ScoreCards
 			scores={ {
@@ -746,9 +737,9 @@ test.each( [
 			} }
 		/>
 	);
-	const overall = within( screen.getByRole( 'region', { name: 'Overall grade' } ) );
+	const overall = within( screen.getByRole( 'region', { name: 'Overall' } ) );
 	expect( overall.getByText( String( grade ) ) ).toBeInTheDocument();
-	expect( overall.queryByText( /Good|Could be improved|Poor/ ) ).not.toBeInTheDocument();
+	expect( overall.getByText( String( band ) ) ).toBeInTheDocument();
 } );
 
 test( 'keeps numeric device tiers when the Overall letter is C', () => {

@@ -10,7 +10,7 @@ export function getScoreTier( score: number ): ScoreTier {
 export function getScoreTierLabel( tier: ScoreTier ): string {
 	const labels = {
 		good: __( 'Good', 'jetpack-boost' ),
-		medium: __( 'Could be improved', 'jetpack-boost' ),
+		medium: __( 'Could improve', 'jetpack-boost' ),
 		poor: __( 'Poor', 'jetpack-boost' ),
 	};
 	return labels[ tier ];

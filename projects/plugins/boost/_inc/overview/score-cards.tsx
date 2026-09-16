@@ -1,32 +1,67 @@
 import { didScoresChange, getScoreLetter } from '@automattic/jetpack-boost-score-api';
-import { CardDivider } from '@wordpress/components';
+import { CardDivider, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
-import { Card, Popover } from '@wordpress/ui';
+import { Button, Card, Notice, Stack, Popover, Text, VisuallyHidden } from '@wordpress/ui';
 import GradeExplanation from './grade-explanation';
+import { getScoreTier } from './lib/score-utils';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';
+import type { ReactNode } from 'react';
 
 type Props = {
 	scores: SpeedScoresSet;
 	isLoading?: boolean;
 	showPlaceholder?: boolean;
+	error?: Error | null;
+	onRetry?: () => void;
+	isVisible?: boolean;
 };
 
-export default function ScoreCards( { scores, isLoading, showPlaceholder }: Props ) {
+export default function ScoreCards( {
+	scores,
+	isLoading,
+	showPlaceholder,
+	error,
+	onRetry,
+	isVisible = true,
+}: Props ) {
 	const { current } = scores;
 	const grade = getScoreLetter( current.mobile, current.desktop );
 	const noBoost = ! scores.isStale && didScoresChange( scores ) ? scores.noBoost : null;
-	return (
-		<Card.Root className="jetpack-boost-overview__scores-card">
-			<Card.Header className="jetpack-boost-overview__scores-header">
-				<Card.Title render={ <h2 /> }>{ __( 'Performance scores', 'jetpack-boost' ) }</Card.Title>
-			</Card.Header>
-			<CardDivider className="jetpack-boost-overview__scores-divider" />
+	let body: ReactNode;
+	if ( isLoading ) {
+		body = (
+			<Card.Content className="jetpack-boost-overview__scores-status" aria-busy>
+				<Stack direction="row" justify="center" align="center" gap="sm">
+					<Spinner />
+					<Text>{ __( 'Calculating…', 'jetpack-boost' ) }</Text>
+				</Stack>
+			</Card.Content>
+		);
+	} else if ( error ) {
+		body = (
+			<Card.Content className="jetpack-boost-overview__scores-error">
+				<Notice.Root
+					intent="error"
+					spokenMessage={ isVisible ? __( 'Failed to load speed scores', 'jetpack-boost' ) : '' }
+				>
+					<Notice.Title>{ __( 'Failed to load speed scores', 'jetpack-boost' ) }</Notice.Title>
+					<Notice.Description>{ error.message }</Notice.Description>
+					<Notice.Actions>
+						<Button variant="solid" tone="brand" size="compact" onClick={ onRetry }>
+							{ __( 'Try again', 'jetpack-boost' ) }
+						</Button>
+					</Notice.Actions>
+				</Notice.Root>
+			</Card.Content>
+		);
+	} else {
+		body = (
 			<div className="jetpack-boost-overview__score-row">
 				<ScoreCard
 					icon={ <Icon icon={ dashboard } className="jetpack-boost-overview__score-icon" /> }
-					label={ __( 'Overall grade', 'jetpack-boost' ) }
+					label={ __( 'Overall', 'jetpack-boost' ) }
 					help={
 						<Popover.Root>
 							<Popover.Trigger
@@ -38,8 +73,14 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder }: Prop
 								<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
 							</Popover.Trigger>
 							<Popover.Popup className="jetpack-boost-overview__grade-tooltip">
-								<Popover.Title>{ __( 'Overall grade', 'jetpack-boost' ) }</Popover.Title>
+								<VisuallyHidden render={ <Popover.Title /> }>
+									{ __( 'Overall grade', 'jetpack-boost' ) }
+								</VisuallyHidden>
 								<GradeExplanation
+									description={ __(
+										'Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices.',
+										'jetpack-boost'
+									) }
 									descriptionComponent={ Popover.Description }
 									tableClassName="jetpack-boost-overview__grade-ranges"
 								/>
@@ -47,7 +88,7 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder }: Prop
 						</Popover.Root>
 					}
 					value={ grade }
-					isLoading={ isLoading }
+					tier={ getScoreTier( ( current.mobile + current.desktop ) / 2 ) }
 					showPlaceholder={ showPlaceholder }
 				/>
 				<ScoreCard
@@ -56,7 +97,6 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder }: Prop
 					value={ current.desktop }
 					score={ current.desktop }
 					noBoost={ noBoost?.desktop }
-					isLoading={ isLoading }
 					showPlaceholder={ showPlaceholder }
 				/>
 				<ScoreCard
@@ -65,10 +105,18 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder }: Prop
 					value={ current.mobile }
 					score={ current.mobile }
 					noBoost={ noBoost?.mobile }
-					isLoading={ isLoading }
 					showPlaceholder={ showPlaceholder }
 				/>
 			</div>
+		);
+	}
+	return (
+		<Card.Root className="jetpack-boost-overview__scores-card">
+			<Card.Header className="jetpack-boost-overview__scores-header">
+				<Card.Title render={ <h2 /> }>{ __( 'Your site speed', 'jetpack-boost' ) }</Card.Title>
+			</Card.Header>
+			<CardDivider className="jetpack-boost-overview__scores-divider" />
+			{ body }
 		</Card.Root>
 	);
 }

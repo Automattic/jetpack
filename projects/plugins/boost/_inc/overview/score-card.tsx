@@ -19,7 +19,6 @@ type Props = {
 	score?: number;
 	tier?: ScoreTier;
 	noBoost?: number | null;
-	isLoading?: boolean;
 	showPlaceholder?: boolean;
 };
 
@@ -31,17 +30,13 @@ export default function ScoreCard( {
 	score,
 	tier = score === undefined ? undefined : getScoreTier( score ),
 	noBoost,
-	isLoading,
-	showPlaceholder = isLoading,
+	showPlaceholder,
 }: Props ) {
 	const headingId = useId();
 	const delta = score === undefined ? null : getScoreDelta( score, noBoost );
+	const showDelta = ! showPlaceholder && delta !== null && delta > 0;
 	return (
-		<section
-			className="jetpack-boost-overview__score-section"
-			aria-labelledby={ headingId }
-			aria-busy={ isLoading }
-		>
+		<section className="jetpack-boost-overview__score-section" aria-labelledby={ headingId }>
 			<Stack direction="row" align="center" gap="sm">
 				{ icon }
 				<Text render={ <h3 id={ headingId } /> } variant="heading-md">
@@ -49,10 +44,10 @@ export default function ScoreCard( {
 				</Text>
 				{ help }
 			</Stack>
-			{ showPlaceholder && ! isLoading && (
+			{ showPlaceholder && (
 				<VisuallyHidden>{ __( 'Score unavailable', 'jetpack-boost' ) }</VisuallyHidden>
 			) }
-			<Stack direction="row" align="center" gap="md">
+			<Stack direction="row" align="baseline" gap="md">
 				{ showPlaceholder ? (
 					<Skeleton className="jetpack-boost-overview__score-placeholder" />
 				) : (
@@ -69,19 +64,21 @@ export default function ScoreCard( {
 				) }
 			</Stack>
 			{ ! showPlaceholder && score !== undefined && (
-				<ProgressBar
-					className={ `jetpack-boost-overview__progress jetpack-boost-overview__progress--${ tier }` }
-					value={ score }
-					aria-label={ label }
-				/>
-			) }
-			{ ! showPlaceholder && delta !== null && delta > 0 && (
-				<Text
-					variant="body-md"
-					className="jetpack-boost-overview__delta jetpack-boost-overview__delta--up"
-				>
-					{ formatScoreDelta( delta ) }
-				</Text>
+				<div className="jetpack-boost-overview__score-meter">
+					<ProgressBar
+						className={ `jetpack-boost-overview__progress jetpack-boost-overview__progress--${ tier }` }
+						value={ score }
+						aria-label={ label }
+					/>
+					{ showDelta && (
+						<Text
+							variant="body-md"
+							className="jetpack-boost-overview__delta jetpack-boost-overview__delta--up"
+						>
+							{ formatScoreDelta( delta ) }
+						</Text>
+					) }
+				</div>
 			) }
 		</section>
 	);
