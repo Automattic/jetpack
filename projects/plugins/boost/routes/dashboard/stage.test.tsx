@@ -45,6 +45,7 @@ beforeEach( () => {
 } );
 
 afterEach( () => {
+	jest.useRealTimers();
 	globalThis.fetch = originalFetch;
 } );
 
@@ -234,6 +235,84 @@ describe( 'Boost dashboard stage', () => {
 			window.removeEventListener( 'jetpack-boost:route-ready', routeReady );
 		}
 	);
+
+	it( 'polls until the onboarding save finishes after navigation', async () => {
+		jest.useFakeTimers();
+		setGettingStarted( true );
+		let persistedGettingStarted = true;
+		jest.mocked( globalThis.fetch ).mockImplementation( async () => {
+			return {
+				ok: true,
+				text: async () => JSON.stringify( { status: 'success', JSON: persistedGettingStarted } ),
+			} as Response;
+		} );
+		window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
+		const { unmount } = render( <Stage /> );
+
+		await act( async () => {
+			window.history.replaceState( null, '', '/?page=jetpack-boost' );
+		} );
+
+		expect( globalThis.fetch ).toHaveBeenCalledTimes( 1 );
+		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+
+		persistedGettingStarted = false;
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 1000 );
+		} );
+
+		expect( globalThis.fetch ).toHaveBeenCalledTimes( 2 );
+		expect( await screen.findByText( 'Performance Overview' ) ).toHaveAttribute(
+			'data-visible',
+			'true'
+		);
+		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
+
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 5000 );
+		} );
+		expect( globalThis.fetch ).toHaveBeenCalledTimes( 2 );
+		unmount();
+	} );
+
+	it( 'stops polling after fifteen seconds and keeps the onboarding loader', async () => {
+		jest.useFakeTimers();
+		setGettingStarted( true );
+		jest.mocked( globalThis.fetch ).mockResolvedValue( {
+			ok: true,
+			text: async () => JSON.stringify( { status: 'success', JSON: true } ),
+		} as Response );
+		window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
+		const { unmount } = render( <Stage /> );
+
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 2000 );
+		} );
+		expect( globalThis.fetch ).not.toHaveBeenCalled();
+
+		await act( async () => {
+			window.history.replaceState( null, '', '/?page=jetpack-boost' );
+		} );
+		expect( globalThis.fetch ).toHaveBeenCalledTimes( 1 );
+
+		for ( let second = 0; second < 16; second++ ) {
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( 1000 );
+			} );
+		}
+		const requestCount = jest.mocked( globalThis.fetch ).mock.calls.length;
+		expect( requestCount ).toBeGreaterThanOrEqual( 14 );
+		expect( requestCount ).toBeLessThanOrEqual( 16 );
+
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 5000 );
+		} );
+		expect( globalThis.fetch ).toHaveBeenCalledTimes( requestCount );
+		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+		unmount();
+	} );
 
 	it( 'shows Overview without a loader once onboarding is done', () => {
 		setGettingStarted( false );

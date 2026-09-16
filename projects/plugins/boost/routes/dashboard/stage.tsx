@@ -61,10 +61,19 @@ function DashboardStage() {
 	const navigate = useNavigate();
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const lastSubpage = useRef( subpage );
+	const onboardingPollDeadline = useRef( 0 );
 	const [ { data: onboarding, refetch } ] = useDataSync(
 		'jetpack_boost_ds',
 		'getting_started',
-		z.boolean()
+		z.boolean(),
+		{
+			query: {
+				refetchInterval: query =>
+					query.state.data === true && Date.now() < onboardingPollDeadline.current
+						? 1000
+						: false,
+			},
+		}
 	);
 	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
@@ -95,6 +104,7 @@ function DashboardStage() {
 			lastSubpage.current = next;
 			setSubpage( next );
 			if ( previous === 'getting-started' ) {
+				onboardingPollDeadline.current = Date.now() + 15000;
 				void refetch();
 			}
 			if ( ! next && ( previous === 'cache-debug-log' || previous === 'critical-css-advanced' ) ) {
