@@ -23,7 +23,7 @@ namespace Automattic\Jetpack\WP_Build_Polyfills;
  * The frame is also held steady: painted before boot mounts, and captured whole
  * by the cross-document view transitions Core enables in wp-admin.
  *
- * Pages without a boot layout are unaffected: the selectors match nothing.
+ * Pages without a boot mount container are unaffected: the selectors match nothing.
  */
 class WP_Build_Admin_Frame {
 
@@ -91,6 +91,7 @@ class WP_Build_Admin_Frame {
 				 * Paint boot's stage on the empty app container until it mounts, where the
 				 * page template's critical CSS would otherwise leave the area white. Plain
 				 * #fff: boot's theme provider whitens the stage, unlike the root surface token.
+				 * A container that never mounts keeps the panel and passes for an empty app.
 				 */
 				body.js:has([id$="-wp-admin-app"]:empty) {
 					background: var(--wp-build-admin-menu-background, #fff);
@@ -108,10 +109,11 @@ class WP_Build_Admin_Frame {
 	}
 
 	/**
-	 * Hold the first render of a wp-build page until the document has parsed.
+	 * Hold the first render of a wp-build page until the document has parsed, so Core's
+	 * cross-document view transitions capture it with its admin menu.
 	 *
-	 * Only where Core enables cross-document view transitions, which would capture the page
-	 * before its admin menu exists. Never a module: Firefox then drops wp-admin's footer import map.
+	 * Held on every WordPress 7.0+ wp-build page, reduced motion included: PHP cannot see the media
+	 * query Core gates the transition on. Never a module: Firefox then drops wp-admin's footer import map.
 	 *
 	 * @return void
 	 */
