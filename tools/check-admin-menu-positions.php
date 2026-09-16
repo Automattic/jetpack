@@ -1,13 +1,9 @@
 #!/usr/bin/env php
 <?php
 /**
- * Tool to check that Jetpack sidebar menu items register on one of the named position tiers.
+ * Fails CI when an Admin_Menu::add_menu() call passes a position outside the named tiers.
  *
- * The Jetpack submenu sorts alphabetically by menu title, but only among items sharing a
- * position. An arbitrary int at a call site therefore opts that item out of the ordering
- * silently, which is how three separate curation efforts overwrote alphabetical order without
- * anyone noticing. No test suite catches it, because the call sites live in a dozen projects
- * and each one only tests itself.
+ * The call sites are spread across a dozen projects, so no one project's tests can see them all.
  *
  * @package automattic/jetpack
  */
@@ -21,19 +17,43 @@ namespace Automattic\Jetpack\Tools\AdminMenuPositions;
 chdir( __DIR__ . '/../' );
 
 /**
+ * File that declares the tiers, read at runtime so this tool cannot drift from it.
+ */
+const TIERS_SOURCE = 'projects/packages/admin-ui/src/class-admin-menu.php';
+
+/**
  * The sidebar's position tiers, by constant name.
  *
- * Keep in sync with the POSITION_* constants on Automattic\Jetpack\Admin_UI\Admin_Menu, except
- * POSITION_UPGRADE: the free-plan upsell is appended after the sort, through core rather than
- * through add_menu(), so nothing here should ever claim it.
+ * @return array<string,int>
  */
-const TIERS = array(
-	'POSITION_FIRST'          => -10,
-	'POSITION_FIRST_FALLBACK' => -5,
-	'POSITION_DEFAULT'        => 0,
-	'POSITION_EXTERNAL'       => 100,
-	'POSITION_LAST'           => 998,
-);
+function tiers() {
+	static $tiers = null;
+	if ( null !== $tiers ) {
+		return $tiers;
+	}
+
+	$source = is_readable( TIERS_SOURCE ) ? file_get_contents( TIERS_SOURCE ) : false;
+	if ( false === $source ) {
+		fprintf( STDERR, "Could not read %s.\n", TIERS_SOURCE );
+		exit( 1 );
+	}
+
+	$tiers = array();
+	preg_match_all( '/\bconst\s+(POSITION_\w+)\s*=\s*(-?\d+)\s*;/', $source, $matches, PREG_SET_ORDER );
+	foreach ( $matches as $match ) {
+		$tiers[ $match[1] ] = (int) $match[2];
+	}
+
+	// The upsell is spliced in by core after the sort, so no caller can claim its slot.
+	unset( $tiers['POSITION_UPGRADE'] );
+
+	if ( array() === $tiers ) {
+		fprintf( STDERR, "Found no POSITION_* constants in %s.\n", TIERS_SOURCE );
+		exit( 1 );
+	}
+
+	return $tiers;
+}
 
 /**
  * Zero-based index of $position in Admin_Menu::add_menu()'s signature.
@@ -148,6 +168,7 @@ function find_calls( $file ) {
 			continue;
 		}
 
+		// Matching is lexical, so `use Admin_Menu as Foo` is missed. Same tradeoff as FeatureFlagNameSniff.
 		$class = $tokens[ $j ][1];
 		if ( 'self' !== $class && 'static' !== $class && ! preg_match( '/(^|\\\\)Admin_Menu$/', $class ) ) {
 			continue;
@@ -160,7 +181,7 @@ function find_calls( $file ) {
 
 		$calls[] = array(
 			'line'     => $tokens[ $i ][2],
-			'position' => $args[ POSITION_ARG_INDEX ] ?? '',
+			'position' => position_of( $args ),
 		);
 	}
 
@@ -227,6 +248,25 @@ function collect_args( $tokens, $i, $count ) {
 }
 
 /**
+ * Reads the position out of a collected argument list.
+ *
+ * Spread and named arguments move it off its index, where reading that index would report an
+ * off-tier position as omitted -- a silent pass, the one direction this tool must never fail in.
+ *
+ * @param string[] $args Normalized argument sources.
+ * @return string Argument source, '' when omitted, or an unreadable marker.
+ */
+function position_of( array $args ) {
+	foreach ( $args as $arg ) {
+		if ( str_starts_with( $arg, '...' ) || preg_match( '/^\w+\s*:(?!:)/', $arg ) ) {
+			return 'unreadable argument list, at ' . $arg;
+		}
+	}
+
+	return $args[ POSITION_ARG_INDEX ] ?? '';
+}
+
+/**
  * Decides whether a position argument names a tier.
  *
  * @param string $position Normalized argument source; '' when the argument was omitted.
@@ -238,11 +278,11 @@ function tier_for( $position ) {
 	}
 
 	if ( preg_match( '/(?:^|\\\\)(?:Admin_Menu|self|static)::(POSITION_\w+)$/', $position, $m ) ) {
-		return isset( TIERS[ $m[1] ] ) ? $m[1] : null;
+		return isset( tiers()[ $m[1] ] ) ? $m[1] : null;
 	}
 
 	if ( preg_match( '/^-?\d+$/', $position ) ) {
-		$name = array_search( (int) $position, TIERS, true );
+		$name = array_search( (int) $position, tiers(), true );
 		return false === $name ? null : $name;
 	}
 
@@ -296,7 +336,7 @@ foreach ( $violations as $entry ) {
 			$path,
 			$line,
 			$entry['position'],
-			implode( ', ', array_keys( TIERS ) )
+			implode( ', ', array_keys( tiers() ) )
 		);
 	}
 }
@@ -306,7 +346,7 @@ fprintf(
 	"\nThe Jetpack submenu sorts alphabetically among items sharing a position, so any other\n" .
 	"int silently drops that item out of the ordering. Pass no position at all unless the item\n" .
 	"needs a specific tier: %s.\n",
-	implode( ', ', array_keys( TIERS ) )
+	implode( ', ', array_keys( tiers() ) )
 );
 
 exit( 2 );
