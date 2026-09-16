@@ -72,6 +72,10 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 		collectShippingAddress,
 	} = attributes;
 
+	// The form blocks a blank rate before it reaches here, so this is a backstop:
+	// no value, no tax. Test the string, because '0' is a value PayPal stores.
+	const taxAmount = 'PREFERENCE' === taxType ? 'PROFILE' : taxValue;
+
 	return {
 		type: 'BUY_NOW',
 		integration_mode: 'LINK',
@@ -104,7 +108,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 				...( customerNotes?.length > 0
 					? { customer_notes: customerNotes.filter( n => n.label?.trim() ) }
 					: {} ),
-				...( taxEnabled
+				...( taxEnabled && '' !== ( taxAmount ?? '' )
 					? {
 							taxes: [
 								{
@@ -113,7 +117,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 									// one. Sending an empty one would overwrite it.
 									...( taxName ? { name: taxName } : {} ),
 									type: taxType || 'PERCENTAGE',
-									value: taxType === 'PREFERENCE' ? 'PROFILE' : taxValue || '0',
+									value: taxAmount,
 								},
 							],
 					  }

@@ -138,6 +138,30 @@ describe( 'buildRequestData', () => {
 		expect( tax ).toEqual( { type: 'PERCENTAGE', value: '7.5' } );
 	} );
 
+	// Blank is not zero. An omitted key is how this API is told "no tax"; '0' is a rate
+	// it stores and hands back, so the two cannot collapse into one another.
+	it( 'leaves taxes out when the rate is blank', () => {
+		expect(
+			buildRequestData( { ...attributes, taxValue: '', taxName: '' }, true ).line_items[ 0 ]
+		).not.toHaveProperty( 'taxes' );
+	} );
+
+	it( 'still sends a rate of zero', () => {
+		const [ tax ] = buildRequestData( { ...attributes, taxValue: '0', taxName: '' }, true )
+			.line_items[ 0 ].taxes;
+
+		expect( tax ).toEqual( { type: 'PERCENTAGE', value: '0' } );
+	} );
+
+	it( 'sends the profile rate even with no local value', () => {
+		const [ tax ] = buildRequestData(
+			{ ...attributes, taxType: 'PREFERENCE', taxValue: '', taxName: '' },
+			true
+		).line_items[ 0 ].taxes;
+
+		expect( tax ).toEqual( { type: 'PREFERENCE', value: 'PROFILE' } );
+	} );
+
 	it( 'leaves taxes out when tax collection is off', () => {
 		expect(
 			buildRequestData( { ...attributes, taxEnabled: false }, true ).line_items[ 0 ]
@@ -149,6 +173,20 @@ describe( 'buildRequestData', () => {
 			.line_items[ 0 ].taxes;
 
 		expect( tax ).toEqual( { type: 'PREFERENCE', value: 'PROFILE' } );
+	} );
+
+	// A flat tax is an amount, not a rate. The value stays a string all the way to
+	// PayPal so '1.50' does not arrive as 1.5, and zero is a value PayPal stores.
+	it.each( [
+		[ '1.50', '1.50' ],
+		[ '0', '0' ],
+	] )( 'sends a flat tax of %s verbatim', ( taxValue, expected ) => {
+		const [ tax ] = buildRequestData(
+			{ ...attributes, taxType: 'FLAT', taxValue, taxName: '' },
+			true
+		).line_items[ 0 ].taxes;
+
+		expect( tax ).toEqual( { type: 'FLAT', value: expected } );
 	} );
 } );
 

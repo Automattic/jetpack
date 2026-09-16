@@ -24,6 +24,14 @@ export const MAX_PRODUCT_ID_LENGTH = 50;
 // PayPal rejects a third custom checkout field with a 400.
 export const MAX_CUSTOMER_NOTES = 2;
 
+// Shown under a field a merchant turned on and then left empty.
+// TODO: reuse for shipping, handling and discount when those land, rather than
+// adding a new string per field - the design uses this sentence for all of them.
+export const REQUIRED_FIELD_ERROR = __(
+	'To continue, add the requested info or turn off this feature.',
+	'jetpack-paypal-payments'
+);
+
 /**
  * Check the decimals a price carries against what PayPal accepts for the currency.
  *
@@ -112,22 +120,20 @@ export function validateDescription( value ) {
 }
 
 /**
- * Validate a percentage tax rate.
+ * Validate a tax rate or a flat tax amount.
  *
- * Required and above zero. The upper bound is the control's own max attribute -
- * PayPal's real limit has never been measured.
+ * Required and not negative. Zero is a rate PayPal itself stores, so a merchant who
+ * wants no tax turns the toggle off instead. The upper bound is the control's max
+ * attribute, not a measured PayPal limit.
  *
- * @param {string} value - The tax rate.
+ * @param {string} value - The tax rate or amount.
  * @return {string|null} Error message or null if valid.
  */
 export function validateTaxRate( value ) {
 	const num = parseFloat( value );
 
-	if ( isNaN( num ) || num <= 0 ) {
-		return __(
-			'To continue, add the requested info or turn off this feature.',
-			'jetpack-paypal-payments'
-		);
+	if ( isNaN( num ) || num < 0 ) {
+		return REQUIRED_FIELD_ERROR;
 	}
 
 	return null;
@@ -199,8 +205,8 @@ export const ADVISORY_ERROR_KEYS = [ 'returnUrl' ];
  * @param {string}  fields.currencyCode       - ISO currency code.
  * @param {boolean} fields.variantPricingOn   - Whether options carry their own prices.
  * @param {boolean} fields.taxEnabled         - Whether tax collection is on.
- * @param {boolean} fields.taxIsPercentage    - Whether the tax type carries a rate.
- * @param {string}  fields.taxValue           - Tax rate.
+ * @param {string}  fields.taxType            - Tax type: PERCENTAGE, FLAT or PREFERENCE.
+ * @param {string}  fields.taxValue           - Tax rate or flat amount.
  * @return {object} An error message or null, keyed by field.
  */
 export function getValidationErrors( {
@@ -211,7 +217,7 @@ export function getValidationErrors( {
 	currencyCode,
 	variantPricingOn,
 	taxEnabled,
-	taxIsPercentage,
+	taxType,
 	taxValue,
 } ) {
 	return {
@@ -221,7 +227,9 @@ export function getValidationErrors( {
 		price: variantPricingOn ? null : validatePrice( price, currencyCode || 'USD' ),
 		productDescription: validateDescription( productDescription ),
 		returnUrl: validateReturnUrl( returnUrl ),
-		taxValue: taxEnabled && taxIsPercentage ? validateTaxRate( taxValue ) : null,
+		// PREFERENCE takes its rate from the merchant's PayPal profile, so there is
+		// nothing local to fill in. The other two carry a value of their own.
+		taxValue: taxEnabled && 'PREFERENCE' !== taxType ? validateTaxRate( taxValue ) : null,
 		currencyCode: validateCurrency( currencyCode ),
 	};
 }
