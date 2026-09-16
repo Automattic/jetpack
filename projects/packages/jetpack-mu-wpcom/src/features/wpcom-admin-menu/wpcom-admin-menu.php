@@ -495,18 +495,29 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	// Jetpack > Activity Log. On WPCOM hosts we prefer the direct wordpress.com/activity-log link
-	// below; hide the native Jetpack Activity Log page added by the `jetpack-activity-log` package.
-	wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
-	add_submenu_page(
-		'jetpack',
-		/** "Activity Log" is a product name, do not translate. */
-		'Activity Log',
-		'Activity Log',
-		'manage_options',
-		'https://wordpress.com/activity-log/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	// Jetpack > Activity Log.
+	// Atomic sites on the wp-admin interface keep the native Activity Log page that the
+	// `jetpack-activity-log` package registers at `admin.php?page=jetpack-activity-log`.
+	// Everywhere else (Simple sites, and Atomic sites on the Calypso interface) that page
+	// is hidden and the menu links to wordpress.com/activity-log instead. If the native
+	// page is missing (for example, the user is not connected), fall back to the Calypso
+	// link so the menu never loses its Activity Log entry.
+	$uses_native_activity_log = ! $is_simple_site
+		&& get_option( 'wpcom_admin_interface' ) === 'wp-admin'
+		&& wpcom_has_submenu_page( 'jetpack', 'jetpack-activity-log' );
+
+	if ( ! $uses_native_activity_log ) {
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
+		add_submenu_page(
+			'jetpack',
+			/** "Activity Log" is a product name, do not translate. */
+			'Activity Log',
+			'Activity Log',
+			'manage_options',
+			'https://wordpress.com/activity-log/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	wpcom_reorder_submenu(
 		'jetpack',
@@ -630,6 +641,25 @@ function wpcom_hide_submenu_page( string $menu_slug, string $submenu_slug ) {
 		$submenu[ $menu_slug ][ $i ][4] = $css_classes;
 		return;
 	}
+}
+
+/**
+ * Whether a submenu item with the given slug is registered under a menu.
+ *
+ * @param string $menu_slug    Parent menu slug.
+ * @param string $submenu_slug Submenu slug to look for.
+ * @return bool
+ */
+function wpcom_has_submenu_page( string $menu_slug, string $submenu_slug ) {
+	global $submenu;
+
+	foreach ( $submenu[ $menu_slug ] ?? array() as $item ) {
+		if ( isset( $item[2] ) && $submenu_slug === $item[2] ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**
