@@ -332,41 +332,23 @@ function UsageCard( { upgradeUrl, planName } ) {
 /**
  * Overview view.
  *
- * @param {object}  props                      - Component props.
- * @param {number}  [props.blogId]             - Current site's blog ID; falsy when not connected.
- * @param {string}  [props.activityLogUrl]     - URL for the site's activity log; row hidden without it.
- * @param {string}  [props.upgradeUrl]         - Upgrade destination for the usage card.
- * @param {string}  [props.planName]           - Purchase name granting AI, from the page data.
- * @param {boolean} [props.showActivityLog]    - Whether the activity-log row applies: the row's
- *                                             copy promises AI-agent actions, which need MCP.
- * @param {boolean} [props.hostAllowsAi]       - The host's AI switch; when explicitly false, no
- *                                             usage is shown and no upgrade is ever offered.
- * @param {boolean} [props.isUserConnected]    - Whether the current user's own WordPress.com
- *                                             account is linked; the usage fetch needs it.
- * @param {boolean} [props.isConnected]        - The settings call's own connection verdict, which
- *                                             also covers offline mode and a departed owner.
- * @param {boolean} [props.hasConnectionError] - Whether the connection is broken; the usage
- *                                             fetch would only add a second error to the page.
- * @param {boolean} [props.settingsAnswered]   - Whether the settings call has returned.
+ * @param {object}  props                   - Component props.
+ * @param {string}  [props.activityLogUrl]  - URL for the site's activity log; row hidden without it.
+ * @param {string}  [props.upgradeUrl]      - Upgrade destination for the usage card.
+ * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
+ * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
+ *                                          copy promises AI-agent actions, which need MCP.
+ * @param {boolean} [props.noticeShowing]   - Whether the page notice is explaining why AI
+ *                                          is unavailable; usage is neither shown nor asked for.
  * @return {object} Component markup.
  */
 export default function AiOverview( {
-	blogId,
 	activityLogUrl,
 	upgradeUrl,
 	planName,
 	showActivityLog,
-	hostAllowsAi,
-	isUserConnected,
-	isConnected,
-	hasConnectionError,
-	settingsAnswered = true,
+	noticeShowing = false,
 } ) {
-	const hostBlocked = hostAllowsAi === false;
-	const userUnlinked = isUserConnected === false;
-	// settingsAnswered gates the card because isConnected is unknown while the
-	// settings call is in flight, and an unusable site must not request usage.
-	const siteUnusable = ! blogId || isConnected === false || hasConnectionError;
 	useRecordOnce( EVENTS.VIEWED, { tab: 'overview' } );
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
@@ -377,9 +359,9 @@ export default function AiOverview( {
 			     :empty rule drops the wrapper so the outer 3xl gap doesn't double. */ }
 			<Stack direction="column" gap="xl" className="jetpack-ai-overview__intro">
 				<AssistantBanner />
-				{ settingsAnswered && ! siteUnusable && ! hostBlocked && ! userUnlinked && (
-					<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />
-				) }
+				{ /* Nothing to say about usage while the notice is saying why AI is
+				     unavailable — and no request that could only fail. */ }
+				{ ! noticeShowing && <UsageCard upgradeUrl={ upgradeUrl } planName={ planName } /> }
 			</Stack>
 
 			<Stack direction="column" gap="lg">

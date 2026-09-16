@@ -211,13 +211,14 @@ function FeatureRow( {
 /**
  * AI Features view component.
  *
- * @param {object}   props            - Component props.
- * @param {object}   props.settings   - Full settings shape from the feature-settings endpoint.
- * @param {Set}      props.savingKeys - Keys currently being saved.
- * @param {Function} props.onUpdate   - Called with a partial settings update payload; resolves true when the save succeeded.
+ * @param {object}   props                 - Component props.
+ * @param {object}   props.settings        - Full settings shape from the feature-settings endpoint.
+ * @param {boolean}  props.isUserConnected - Whether this user's WordPress.com account is linked.
+ * @param {Set}      props.savingKeys      - Keys currently being saved.
+ * @param {Function} props.onUpdate        - Called with a partial settings update payload; resolves true when the save succeeded.
  * @return {object} Component markup.
  */
-export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
+export default function AiFeatures( { settings, isUserConnected = true, savingKeys, onUpdate } ) {
 	const features = settings?.features ?? {};
 	// Children keep their saved values while the master switch is off, rather
 	// than misreporting the user's choices as off. PageNotice explains why.
@@ -225,9 +226,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	// False covers both a site without a connected owner and one in offline
 	// mode; either way no AI feature can load, so saved values stay inert.
 	const isConnected = settings?.is_connected !== false;
-	// The user gate is separate: the site can be connected while this admin's
-	// own account is not.
-	const isUserConnected = settings?.is_user_connected !== false;
+
 	// There is no site-wide plan gate: a plan without paid Jetpack AI still has
 	// the free tier, so a connected site can always run the free-tier features.
 	// Paid-only features are gated per-feature via requires_upgrade instead.

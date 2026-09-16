@@ -7,20 +7,17 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 
 const IGNORE_A11Y = { ignore: 'script, style, .a11y-speak-region' };
 
-const connected = ( overrides = {} ) => ( {
-	host_allows_ai: true,
-	master_enabled: true,
-	is_connected: true,
-	is_user_connected: true,
-	...overrides,
-} );
-
+// Every input is page data now; the resolver never reads the settings response.
 const resolve = ( overrides = {} ) =>
 	getPageNoticeState( {
 		view: 'overview',
 		blogId: 1,
 		isUserConnected: true,
-		settings: connected(),
+		isConnected: true,
+		isOfflineMode: false,
+		hostAllowsAi: true,
+		masterEnabled: true,
+		masterForcedOff: false,
 		hasConnectionError: false,
 		...overrides,
 	} );
@@ -32,45 +29,45 @@ describe( 'getPageNoticeState', () => {
 
 	describe( 'one state at a time', () => {
 		it( 'reports the host switch', () => {
-			expect( resolve( { settings: connected( { host_allows_ai: false } ) } ) ).toBe( 'host-off' );
+			expect( resolve( { hostAllowsAi: false } ) ).toBe( 'host-off' );
 		} );
 
 		it( 'reports a module a filter holds off', () => {
-			expect( resolve( { settings: connected( { master_forced_off: true } ) } ) ).toBe(
-				'forced-off'
-			);
+			expect( resolve( { masterForcedOff: true } ) ).toBe( 'forced-off' );
 		} );
 
 		it( 'reports offline mode ahead of the connection it disables', () => {
-			expect(
-				resolve( { isOfflineMode: true, settings: connected( { is_connected: false } ) } )
-			).toBe( 'offline-mode' );
+			expect( resolve( { isOfflineMode: true, isConnected: false } ) ).toBe( 'offline-mode' );
+		} );
+
+		it( 'reports a disconnected site from page data', () => {
+			expect( resolve( { isConnected: false } ) ).toBe( 'site-disconnected' );
 		} );
 
 		it( 'reports a site with no blog ID', () => {
 			expect( resolve( { blogId: 0 } ) ).toBe( 'site-disconnected' );
 		} );
 
-		it( 'reports a site the settings call says is disconnected', () => {
-			expect( resolve( { settings: connected( { is_connected: false } ) } ) ).toBe(
-				'site-disconnected'
-			);
+		it( 'reports a site with no connected owner', () => {
+			expect( resolve( { isConnected: false } ) ).toBe( 'site-disconnected' );
 		} );
 
 		it( 'reports an unlinked account from page data', () => {
 			expect( resolve( { isUserConnected: false } ) ).toBe( 'user-unlinked' );
 		} );
 
-		it( 'reports an unlinked account from the settings call', () => {
-			expect( resolve( { settings: connected( { is_user_connected: false } ) } ) ).toBe(
-				'user-unlinked'
-			);
-		} );
-
 		it( 'reports the master switch', () => {
-			expect( resolve( { settings: connected( { master_enabled: false } ) } ) ).toBe(
-				'master-off'
-			);
+			expect( resolve( { masterEnabled: false } ) ).toBe( 'master-off' );
+		} );
+	} );
+
+	describe( 'offline mode outranks the states it explains', () => {
+		it.each( [
+			[ 'a broken connection', { hasConnectionError: true } ],
+			[ 'the host switch', { hostAllowsAi: false } ],
+			[ 'a disconnected site', { isConnected: false } ],
+		] )( 'beats %s', ( _label, overrides ) => {
+			expect( resolve( { isOfflineMode: true, ...overrides } ) ).toBe( 'offline-mode' );
 		} );
 	} );
 
@@ -80,7 +77,7 @@ describe( 'getPageNoticeState', () => {
 				resolve( {
 					hasConnectionError: true,
 					blogId: 0,
-					settings: connected( { host_allows_ai: false } ),
+					hostAllowsAi: false,
 				} )
 			).toBe( 'connection-error' );
 		} );
@@ -96,12 +93,9 @@ describe( 'getPageNoticeState', () => {
 				resolve( {
 					blogId: 0,
 					isUserConnected: false,
-					settings: connected( {
-						host_allows_ai: false,
-						is_connected: false,
-						is_user_connected: false,
-						master_enabled: false,
-					} ),
+					isConnected: false,
+					hostAllowsAi: false,
+					masterEnabled: false,
 				} )
 			).toBe( 'host-off' );
 		} );
@@ -111,15 +105,11 @@ describe( 'getPageNoticeState', () => {
 		} );
 
 		it( 'a disconnected site beats the master switch', () => {
-			expect( resolve( { blogId: 0, settings: connected( { master_enabled: false } ) } ) ).toBe(
-				'site-disconnected'
-			);
+			expect( resolve( { blogId: 0, masterEnabled: false } ) ).toBe( 'site-disconnected' );
 		} );
 
 		it( 'an unlinked account beats the master switch', () => {
-			expect(
-				resolve( { isUserConnected: false, settings: connected( { master_enabled: false } ) } )
-			).toBe( 'user-unlinked' );
+			expect( resolve( { isUserConnected: false, masterEnabled: false } ) ).toBe( 'user-unlinked' );
 		} );
 	} );
 
@@ -133,29 +123,28 @@ describe( 'getPageNoticeState', () => {
 		} );
 	} );
 
-	describe( 'while the settings call is still in flight', () => {
+	describe( 'with only the defaults page data gives it', () => {
 		it( 'uses the blog ID from page data so a disconnected site is named at once', () => {
-			expect( resolve( { blogId: 0, settings: null } ) ).toBe( 'site-disconnected' );
+			expect( resolve( { blogId: 0 } ) ).toBe( 'site-disconnected' );
 		} );
 
 		it( 'names an unlinked account from page data too', () => {
-			expect( resolve( { isUserConnected: false, settings: null } ) ).toBe( 'user-unlinked' );
+			expect( resolve( { isUserConnected: false } ) ).toBe( 'user-unlinked' );
 		} );
 
 		it( 'claims nothing it cannot yet know', () => {
-			expect( resolve( { settings: null } ) ).toBeNull();
+			expect( resolve() ).toBeNull();
 		} );
 	} );
 } );
 
 describe( 'PageNotice', () => {
-	const renderNotice = ( overrides = {} ) =>
+	// The component renders one resolved state; getPageNoticeState decides which,
+	// and is tested on its own above.
+	const renderNotice = ( { state = null, ...overrides } = {} ) =>
 		render(
 			<PageNotice
-				view="overview"
-				blogId={ 1 }
-				isUserConnected={ true }
-				settings={ connected() }
+				state={ state }
 				userConnectionUrl="admin.php?page=my-jetpack#/connection"
 				manageUrl="admin.php?page=my-jetpack#/products"
 				hasMyJetpack={ true }
@@ -169,7 +158,7 @@ describe( 'PageNotice', () => {
 	} );
 
 	it( 'hands a broken connection to the shared connection notice', () => {
-		renderNotice( { blogId: 0, hasConnectionError: true } );
+		renderNotice( { state: 'connection-error' } );
 		expect( screen.getByTestId( 'connection-error' ) ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-node-access -- the wrapper is the assertion.
 		expect( screen.getByTestId( 'connection-error' ).parentElement ).toHaveClass(
@@ -181,7 +170,7 @@ describe( 'PageNotice', () => {
 	} );
 
 	it( 'names the host switch and links to the support doc', () => {
-		renderNotice( { settings: connected( { host_allows_ai: false } ) } );
+		renderNotice( { state: 'host-off' } );
 		expect(
 			screen.getByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
 		).toBeInTheDocument();
@@ -194,7 +183,7 @@ describe( 'PageNotice', () => {
 	} );
 
 	it( 'names the filter holding the module off, and offers no switch', () => {
-		renderNotice( { settings: connected( { master_forced_off: true } ) } );
+		renderNotice( { state: 'forced-off' } );
 		expect(
 			screen.getByText( 'Jetpack AI is turned off by custom code on this site.', IGNORE_A11Y )
 		).toBeInTheDocument();
@@ -206,7 +195,7 @@ describe( 'PageNotice', () => {
 	} );
 
 	it( 'names offline mode rather than asking for a connection it forbids', () => {
-		renderNotice( { isOfflineMode: true, settings: connected( { is_connected: false } ) } );
+		renderNotice( { state: 'offline-mode' } );
 		expect(
 			screen.getByText( 'Jetpack AI is not available in offline mode.', IGNORE_A11Y )
 		).toBeInTheDocument();
@@ -218,7 +207,7 @@ describe( 'PageNotice', () => {
 	} );
 
 	it( 'sends an unregistered site to the connection screen', () => {
-		renderNotice( { blogId: 0 } );
+		renderNotice( { state: 'site-disconnected' } );
 		expect(
 			screen.getByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
 		).toBeInTheDocument();
@@ -230,17 +219,14 @@ describe( 'PageNotice', () => {
 	} );
 
 	it( 'survives swapping from one state to another while mounted', () => {
-		const { rerender } = renderNotice( { settings: connected( { host_allows_ai: false } ) } );
+		const { rerender } = renderNotice( { state: 'host-off' } );
 		expect(
 			screen.getByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
 		).toBeInTheDocument();
 
 		rerender(
 			<PageNotice
-				view="overview"
-				blogId={ 1 }
-				isUserConnected={ true }
-				settings={ connected( { master_enabled: false } ) }
+				state="master-off"
 				userConnectionUrl="admin.php?page=my-jetpack#/connection"
 				manageUrl="admin.php?page=my-jetpack#/products"
 				hasMyJetpack={ true }
@@ -261,7 +247,7 @@ describe( 'PageNotice', () => {
 	} );
 
 	it( 'offers a link, not the connect button, when the site is registered already', () => {
-		renderNotice( { settings: connected( { is_connected: false } ) } );
+		renderNotice( { state: 'site-disconnected' } );
 		expect( screen.queryByRole( 'button', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
 			'href',
@@ -271,7 +257,7 @@ describe( 'PageNotice', () => {
 
 	it( 'sends an unlinked account to the URL page data gave it', () => {
 		renderNotice( {
-			isUserConnected: false,
+			state: 'user-unlinked',
 			userConnectionUrl: 'admin.php?page=jetpack#/connect-user',
 		} );
 		expect(
@@ -284,7 +270,7 @@ describe( 'PageNotice', () => {
 	} );
 
 	describe( 'the master switch notice', () => {
-		const masterOff = { settings: connected( { master_enabled: false } ) };
+		const masterOff = { state: 'master-off' };
 
 		it( 'points at My Jetpack where My Jetpack is loaded', () => {
 			renderNotice( masterOff );

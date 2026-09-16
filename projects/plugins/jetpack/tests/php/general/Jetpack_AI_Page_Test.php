@@ -35,6 +35,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		unset( $GLOBALS['wp_scripts'] );
 		delete_transient( 'jetpack_ai_overview_plan_info' );
 		Status_Cache::clear();
+		Constants::clear_single_constant( 'IS_WPCOM' );
 		remove_all_filters( 'agents_manager_should_load' );
 		remove_all_filters( 'agents_manager_agent_id' );
 		remove_all_filters( 'agents_manager_agent_providers' );

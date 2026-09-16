@@ -276,20 +276,6 @@ describe( 'AiOverview', () => {
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 	} );
 
-	test( 'not connected: skips the fetch that could only fail', async () => {
-		// Without a connection the usage endpoint can only fail, and a red
-		// "Unable to fetch the requested data." is the wrong story to tell.
-		render( <AiOverview { ...PROPS } blogId={ 0 } /> );
-
-		expect( apiFetch ).not.toHaveBeenCalled();
-		// A bare `blogId &&` guard would print the 0 itself.
-		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
-		// The rest of the tab is still useful while disconnected.
-		expect( screen.getByRole( 'link', { name: /Activity log/ } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Walkthrough videos' ) ).toBeInTheDocument();
-	} );
-
 	test( 'activity log: absent without the MCP preconditions', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
@@ -299,33 +285,8 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'settings report no connection: no usage card, and no fetch', async () => {
-		// Offline mode and a departed connection owner keep their blog ID, so
-		// the card must follow the settings call, not the ID alone.
-		render( <AiOverview { ...PROPS } isConnected={ false } /> );
-
-		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
-		expect( apiFetch ).not.toHaveBeenCalled();
-	} );
-
-	test( 'in flight: the card waits for the settings call rather than guessing', async () => {
-		// isConnected is undefined until the call lands, so a site that turns out
-		// to be unusable must not have fired the usage request in the meantime.
-		render( <AiOverview { ...PROPS } settingsAnswered={ false } /> );
-
-		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
-		expect( apiFetch ).not.toHaveBeenCalled();
-	} );
-
-	test( 'connection error: no usage card, and no fetch that could only fail', async () => {
-		render( <AiOverview { ...PROPS } hasConnectionError={ true } /> );
-
-		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
-		expect( apiFetch ).not.toHaveBeenCalled();
-	} );
-
-	test( 'host AI off: no usage card and no upgrade is offered', async () => {
-		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );
+	test( 'a notice is speaking: no usage card, and no request that could only fail', async () => {
+		render( <AiOverview { ...PROPS } noticeShowing={ true } /> );
 
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
@@ -334,11 +295,15 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( 'Documentation' ) ).toBeInTheDocument();
 	} );
 
-	test( 'user account not linked: no usage card, and no fetch that could only fail', async () => {
-		render( <AiOverview { ...PROPS } isUserConnected={ false } /> );
+	test( 'no notice: the card is there from the first paint and asks straight away', () => {
+		// A held promise keeps the fetch in flight, so this is the first frame.
+		apiFetch.mockReturnValueOnce( new Promise( () => {} ) );
 
-		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
-		expect( apiFetch ).not.toHaveBeenCalled();
+		render( <AiOverview { ...PROPS } /> );
+
+		// The placeholder holds the card's space rather than the layout moving later.
+		expect( speak ).toHaveBeenCalledWith( 'Loading your AI usage…', 'polite' );
+		expect( apiFetch ).toHaveBeenCalled();
 	} );
 
 	test( 'activity log: absent without an activityLogUrl', async () => {

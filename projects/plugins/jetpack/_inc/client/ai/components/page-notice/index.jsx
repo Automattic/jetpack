@@ -6,10 +6,10 @@ import { GATED_VIEWS } from '../../constants';
 
 // Listed in the order getPageNoticeState resolves them.
 const PAGE_NOTICE_STATES = {
+	OFFLINE_MODE: 'offline-mode',
 	CONNECTION_ERROR: 'connection-error',
 	HOST_OFF: 'host-off',
 	FORCED_OFF: 'forced-off',
-	OFFLINE_MODE: 'offline-mode',
 	SITE_DISCONNECTED: 'site-disconnected',
 	USER_UNLINKED: 'user-unlinked',
 	MASTER_OFF: 'master-off',
@@ -17,59 +17,65 @@ const PAGE_NOTICE_STATES = {
 /**
  * Decide which site-state notice the page owes the reader, if any.
  *
- * Page data and the settings request each carry connection state, and either
- * counts, so a disconnected site is named on first paint, not after the fetch.
+ * Every input is page data, so the page names its state on first paint. The
+ * feature-settings request exists for the AI Features toggles, not for this.
  *
- * @param {object}      options                      - Options.
- * @param {string}      options.view                 - The view being rendered.
- * @param {number}      [options.blogId]             - Site's blog ID; falsy when not connected.
- * @param {boolean}     [options.isUserConnected]    - Whether this user's account is linked.
- * @param {boolean}     [options.isOfflineMode]      - Whether the site is in offline mode.
- * @param {object|null} [options.settings]           - Feature settings, null until fetched.
- * @param {boolean}     [options.hasConnectionError] - Whether the connection store reports a
- *                                                   connection the site cannot use.
+ * @param {object}  options                      - Options.
+ * @param {string}  options.view                 - The view being rendered.
+ * @param {number}  [options.blogId]             - Site's blog ID; falsy when not connected.
+ * @param {boolean} [options.isUserConnected]    - Whether this user's account is linked.
+ * @param {boolean} [options.isConnected]        - Whether the site has a connected owner.
+ * @param {boolean} [options.isOfflineMode]      - Whether the site is in offline mode.
+ * @param {boolean} [options.hostAllowsAi]       - Whether the host allows AI at all.
+ * @param {boolean} [options.masterEnabled]      - Whether the AI module is on.
+ * @param {boolean} [options.masterForcedOff]    - Whether code holds the module off.
+ * @param {boolean} [options.hasConnectionError] - Whether the connection store reports a
+ *                                               connection the site cannot use.
  * @return {string|null} The state to render, or null.
  */
 export function getPageNoticeState( {
 	view,
 	blogId,
 	isUserConnected,
+	isConnected,
 	isOfflineMode,
-	settings,
+	hostAllowsAi,
+	masterEnabled,
+	masterForcedOff,
 	hasConnectionError,
 } ) {
 	if ( ! GATED_VIEWS.includes( view ) ) {
 		return null;
 	}
 
-	if ( hasConnectionError ) {
-		return PAGE_NOTICE_STATES.CONNECTION_ERROR;
-	}
-
-	if ( settings?.host_allows_ai === false ) {
-		return PAGE_NOTICE_STATES.HOST_OFF;
-	}
-
-	// Below HOST_OFF: a host that offers no AI at all is the fuller answer.
-	if ( settings?.master_forced_off ) {
-		return PAGE_NOTICE_STATES.FORCED_OFF;
-	}
-
-	// Ahead of SITE_DISCONNECTED: offline mode is why the settings call reports
-	// no connection, and connecting is the one thing it forbids.
+	// First: offline mode is why the connection looks broken, and reconnecting is
+	// the one thing it forbids.
 	if ( isOfflineMode ) {
 		return PAGE_NOTICE_STATES.OFFLINE_MODE;
 	}
 
-	if ( ! blogId || settings?.is_connected === false ) {
+	if ( hasConnectionError ) {
+		return PAGE_NOTICE_STATES.CONNECTION_ERROR;
+	}
+
+	if ( hostAllowsAi === false ) {
+		return PAGE_NOTICE_STATES.HOST_OFF;
+	}
+
+	// Below HOST_OFF: a host that offers no AI at all is the fuller answer.
+	if ( masterForcedOff ) {
+		return PAGE_NOTICE_STATES.FORCED_OFF;
+	}
+
+	if ( ! blogId || isConnected === false ) {
 		return PAGE_NOTICE_STATES.SITE_DISCONNECTED;
 	}
 
-	if ( isUserConnected === false || settings?.is_user_connected === false ) {
+	if ( isUserConnected === false ) {
 		return PAGE_NOTICE_STATES.USER_UNLINKED;
 	}
 
-	if ( settings?.master_enabled === false ) {
+	if ( masterEnabled === false ) {
 		return PAGE_NOTICE_STATES.MASTER_OFF;
 	}
 
@@ -175,15 +181,7 @@ function getNoticeContent( state, pageData ) {
  * @return {object|null} Component markup.
  */
 export default function PageNotice( props ) {
-	const { view, blogId, isUserConnected, isOfflineMode, settings, hasConnectionError } = props;
-	const state = getPageNoticeState( {
-		view,
-		blogId,
-		isUserConnected,
-		isOfflineMode,
-		settings,
-		hasConnectionError,
-	} );
+	const { state } = props;
 
 	// The shared notice brings no page spacing of its own.
 	if ( state === PAGE_NOTICE_STATES.CONNECTION_ERROR ) {

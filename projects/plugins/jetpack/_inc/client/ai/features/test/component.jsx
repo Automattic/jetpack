@@ -9,7 +9,7 @@ import AiFeatures from '../index';
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 
 describe( 'AiFeatures rendering', () => {
-	const renderFeatures = ( overrides = {} ) =>
+	const renderFeatures = ( { isUserConnected = true, ...overrides } = {} ) =>
 		render(
 			<AiFeatures
 				settings={ {
@@ -21,6 +21,7 @@ describe( 'AiFeatures rendering', () => {
 					},
 					...overrides,
 				} }
+				isUserConnected={ isUserConnected }
 				savingKeys={ new Set() }
 				onUpdate={ jest.fn() }
 			/>
@@ -202,7 +203,7 @@ describe( 'AiFeatures rendering', () => {
 	} );
 
 	test( 'user not linked: toggles keep saved values but disable, links and badge hidden', () => {
-		renderFeatures( { is_connected: true, is_user_connected: false } );
+		renderFeatures( { isUserConnected: false } );
 
 		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
 		expect( toggle ).toBeChecked();
@@ -212,7 +213,7 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'is_user_connected absent: toggles stay usable', () => {
+	test( 'no account answer yet: toggles stay usable', () => {
 		renderFeatures( { is_connected: true } );
 
 		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeEnabled();
@@ -269,10 +270,10 @@ describe( 'AiFeatures rendering', () => {
 
 	// Gated toggles must be inert, not merely styled disabled.
 	test.each( [
-		[ 'not connected', { is_connected: false } ],
-		[ 'user not linked', { is_user_connected: false } ],
-		[ 'master off', { master_enabled: false } ],
-	] )( '%s fires no save and no Tracks event', async ( _label, overrides ) => {
+		[ 'not connected', { is_connected: false }, true ],
+		[ 'user not linked', {}, false ],
+		[ 'master off', { master_enabled: false }, true ],
+	] )( '%s fires no save and no Tracks event', async ( _label, overrides, isUserConnected ) => {
 		analytics.tracks.recordEvent.mockClear();
 		const onUpdate = jest.fn().mockResolvedValue( true );
 		render(
@@ -283,6 +284,7 @@ describe( 'AiFeatures rendering', () => {
 					features: { writing_assistant: { enabled: true } },
 					...overrides,
 				} }
+				isUserConnected={ isUserConnected }
 				savingKeys={ new Set() }
 				onUpdate={ onUpdate }
 			/>

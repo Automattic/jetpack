@@ -21,7 +21,7 @@ import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
 import ChunkErrorBoundary from './components/chunk-error-boundary/index';
 import LoadingSpinner from './components/loading-spinner/index';
-import PageNotice from './components/page-notice';
+import PageNotice, { getPageNoticeState } from './components/page-notice';
 import { GATED_VIEWS } from './constants';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
@@ -187,7 +187,11 @@ export default function App() {
 		apiNonce,
 		upgradeUrl,
 		planName,
-		isUserConnected,
+		isUserConnected: pageUserConnected,
+		isConnected = true,
+		hostAllowsAi = true,
+		masterEnabled = true,
+		masterForcedOff = false,
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
 		manageUrl = 'admin.php?page=my-jetpack#/products',
 		hasMyJetpack = true,
@@ -203,7 +207,10 @@ export default function App() {
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const mcpViewedRecorded = useRef( false );
 	// Strict false: older page data (undefined) must not read as unlinked.
-	const userUnlinked = isUserConnected === false;
+	const userUnlinked = pageUserConnected === false;
+	// The three gated surfaces share page data's answer, which is right on every
+	// host and there on first paint. MCP keeps userUnlinked, unchanged.
+	const isUserConnected = ! userUnlinked;
 	// MCP settings ride the site's and the user's own WordPress.com connections,
 	// so with either one missing the MCP body gives way to a connection notice —
 	// and the settings fetch is skipped, since it could only fail.
@@ -217,6 +224,20 @@ export default function App() {
 		error: aiSettingsError,
 		updateSettings: updateAiSettings,
 	} = useFeatureSettings( showFeaturesView );
+
+	// One answer for the page, from page data alone, so it is right on the first
+	// paint. Overview asks for usage only when there is nothing to say.
+	const noticeState = getPageNoticeState( {
+		view,
+		blogId,
+		isUserConnected,
+		isConnected,
+		isOfflineMode,
+		hostAllowsAi,
+		masterEnabled,
+		masterForcedOff,
+		hasConnectionError,
+	} );
 
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
@@ -409,11 +430,7 @@ export default function App() {
 				<GlobalNotices />
 
 				<PageNotice
-					view={ view }
-					blogId={ blogId }
-					isUserConnected={ isUserConnected }
-					isOfflineMode={ isOfflineMode }
-					hasConnectionError={ hasConnectionError }
+					state={ noticeState }
 					settings={ aiSettings }
 					userConnectionUrl={ userConnectionUrl }
 					manageUrl={ manageUrl }
@@ -483,15 +500,10 @@ export default function App() {
 
 				{ view === 'overview' && (
 					<AiOverview
-						blogId={ blogId }
 						activityLogUrl={ activityLogUrl }
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
-						isUserConnected={ isUserConnected }
-						isConnected={ aiSettings?.is_connected }
-						settingsAnswered={ ! isAiSettingsLoading }
-						hasConnectionError={ hasConnectionError }
-						hostAllowsAi={ aiSettings?.host_allows_ai }
+						noticeShowing={ noticeState !== null }
 						// Same preconditions the MCP hub applies to its copy of the
 						// row: the copy promises AI-agent actions, which need MCP.
 						showActivityLog={
@@ -513,6 +525,7 @@ export default function App() {
 							aiSettings?.host_allows_ai !== false && (
 								<AiFeatures
 									settings={ aiSettings }
+									isUserConnected={ isUserConnected }
 									savingKeys={ aiSavingKeys }
 									onUpdate={ handleAiSettingsUpdate }
 								/>

@@ -26,6 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
+require_once dirname( __DIR__ ) . '/class-jetpack-ai-settings.php';
 
 /**
  * Builds the Jetpack AI admin page and its sidebar menu entry.
@@ -425,6 +426,13 @@ class Jetpack_AI_Page {
 					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
 				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
+				// The same verdicts the feature-settings endpoint reports. That call
+				// exists for the AI Features toggles; the notice must not wait on it.
+				'isConnected'       => ( new Connection_Manager() )->has_connected_owner()
+					&& ! ( new Status() )->is_offline_mode(),
+				'hostAllowsAi'      => Jetpack_AI_Settings::host_allows_ai(),
+				'masterEnabled'     => Jetpack_AI_Settings::is_master_enabled(),
+				'masterForcedOff'   => Jetpack_AI_Settings::is_master_forced_off(),
 				'isOfflineMode'     => ( new Status() )->is_offline_mode(),
 				// These three answer one question; a filter changing one alone leaves
 				// a label pointing at a page that is not there.
@@ -454,6 +462,10 @@ class Jetpack_AI_Page {
 			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ),
 			'manageUrl'         => esc_url_raw( $config['manageUrl'] ),
 			'hasMyJetpack'      => ! empty( $config['hasMyJetpack'] ),
+			'isConnected'       => ! empty( $config['isConnected'] ),
+			'hostAllowsAi'      => ! empty( $config['hostAllowsAi'] ),
+			'masterEnabled'     => ! empty( $config['masterEnabled'] ),
+			'masterForcedOff'   => ! empty( $config['masterForcedOff'] ),
 			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),

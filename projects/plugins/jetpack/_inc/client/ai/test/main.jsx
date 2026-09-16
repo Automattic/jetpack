@@ -150,6 +150,7 @@ afterEach( () => {
 
 describe( 'AI admin page (main.jsx)', () => {
 	test( 'host-off: shows the host-off notice and does not mount AiFeatures', async () => {
+		window.jetpackAiSettings = { ...window.jetpackAiSettings, hostAllowsAi: false };
 		mockApiFetch( {
 			featureGet: {
 				host_allows_ai: false,
@@ -176,9 +177,15 @@ describe( 'AI admin page (main.jsx)', () => {
 	describe( 'master-off notice', () => {
 		const MASTER_OFF_TITLE = 'Jetpack AI is turned off for this site.';
 		const masterOffSettings = () => ( { ...enabledSettings(), master_enabled: false } );
+		// The notice reads page data; AiFeatures still reads the settings response.
+		const masterOffPage = ( extra = {} ) => ( {
+			...window.jetpackAiSettings,
+			masterEnabled: false,
+			...extra,
+		} );
 
 		test( 'features tab: notice with the My Jetpack link, rendered exactly once', async () => {
-			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+			window.jetpackAiSettings = masterOffPage( { showFeaturesView: true, blogId: 1 } );
 			mockApiFetch( { featureGet: masterOffSettings() } );
 
 			render( <App /> );
@@ -196,12 +203,12 @@ describe( 'AI admin page (main.jsx)', () => {
 		} );
 
 		test( 'a host without My Jetpack is sent to the modules page instead', async () => {
-			window.jetpackAiSettings = {
+			window.jetpackAiSettings = masterOffPage( {
 				showFeaturesView: true,
 				blogId: 1,
 				hasMyJetpack: false,
 				manageUrl: 'admin.php?page=jetpack_modules',
-			};
+			} );
 			mockApiFetch( { featureGet: masterOffSettings() } );
 
 			render( <App /> );
@@ -215,7 +222,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		} );
 
 		test( 'the notice sits above the view it applies to', async () => {
-			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+			window.jetpackAiSettings = masterOffPage( { showFeaturesView: true, blogId: 1 } );
 			mockApiFetch( { featureGet: masterOffSettings() } );
 
 			render( <App /> );
@@ -231,8 +238,28 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( first ).toHaveTextContent( MASTER_OFF_TITLE );
 		} );
 
+		test( 'code holding the module off is named from page data, on first paint', async () => {
+			window.location.hash = '#/overview';
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				isUserConnected: true,
+				masterForcedOff: true,
+			};
+			mockApiFetch();
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( 'Jetpack AI is turned off by custom code on this site.', IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( apiFetch ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringContaining( 'ai-assistant-feature' ) } )
+			);
+		} );
+
 		test( 'overview tab: the notice shows', async () => {
-			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+			window.jetpackAiSettings = masterOffPage( { showFeaturesView: true, blogId: 1 } );
 			window.location.hash = '#/overview';
 			mockApiFetch( { featureGet: masterOffSettings() } );
 
@@ -319,10 +346,16 @@ describe( 'AI admin page (main.jsx)', () => {
 			await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 		} );
 
-		test( 'the usage card asks nothing while the settings call is still in flight', async () => {
+		test( 'usage is asked for on first paint, without waiting on the settings call', async () => {
 			window.location.hash = '#/overview';
-			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: true };
-			// Never resolves: the card must not guess at a connection it cannot see yet.
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				isUserConnected: true,
+				isConnected: true,
+			};
+			// Never resolves: page data already says the site can use AI, so the
+			// usage request must not queue behind it.
 			apiFetch.mockImplementation( ( { path } = {} ) =>
 				path?.includes( 'feature-settings' ) ? new Promise( () => {} ) : Promise.resolve( {} )
 			);
@@ -330,7 +363,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect( screen.findByText( 'Quick start' ) ).resolves.toBeInTheDocument();
-			expect( apiFetch ).not.toHaveBeenCalledWith(
+			expect( apiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( { path: expect.stringContaining( 'ai-assistant-feature' ) } )
 			);
 		} );
@@ -352,10 +385,15 @@ describe( 'AI admin page (main.jsx)', () => {
 			);
 		} );
 
-		test( 'the usage card waits for the settings call, then follows what it reports', async () => {
+		test( 'a site with no connected owner: the notice shows and the card asks nothing', async () => {
 			window.location.hash = '#/overview';
-			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: true };
-			mockApiFetch( { featureGet: { ...enabledSettings(), is_connected: false } } );
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				isUserConnected: true,
+				isConnected: false,
+			};
+			mockApiFetch();
 
 			render( <App /> );
 
@@ -363,6 +401,36 @@ describe( 'AI admin page (main.jsx)', () => {
 				screen.findByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'the usage card asks nothing of an unlinked account', async () => {
+			window.location.hash = '#/overview';
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: false };
+			mockApiFetch( { featureGet: enabledSettings() } );
+
+			render( <App /> );
+			await expect(
+				screen.findByText( 'Your WordPress.com account isn\u2019t connected.', IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+
+			expect( apiFetch ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringContaining( 'ai-assistant-feature' ) } )
+			);
+		} );
+
+		test( 'page data alone decides the account, before and after the settings call', async () => {
+			window.location.hash = '#/features';
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: false };
+			// Never resolves: nothing but page data should be needed.
+			apiFetch.mockImplementation( ( { path } = {} ) =>
+				path?.includes( 'feature-settings' ) ? new Promise( () => {} ) : Promise.resolve( {} )
+			);
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( 'Your WordPress.com account isn\u2019t connected.', IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
 		} );
 
 		test( 'offline mode: page data reaches the notice and outranks the connection ask', async () => {
@@ -406,6 +474,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		} );
 
 		test( 'host off: only the host notice shows', async () => {
+			window.jetpackAiSettings = masterOffPage( { hostAllowsAi: false } );
 			mockApiFetch( { featureGet: { ...masterOffSettings(), host_allows_ai: false } } );
 
 			render( <App /> );
@@ -430,9 +499,8 @@ describe( 'AI admin page (main.jsx)', () => {
 	} );
 
 	test( 'features tab: an unlinked user gets the connect ask and locked switches', async () => {
-		// The page-level flag says linked: the tab must read the endpoint's field.
-		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: true };
-		mockApiFetch( { featureGet: { ...enabledSettings(), is_user_connected: false } } );
+		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: false };
+		mockApiFetch( { featureGet: enabledSettings() } );
 
 		render( <App /> );
 
