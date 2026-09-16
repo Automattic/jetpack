@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 4.7.0
+Stable tag: 4.7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -189,7 +189,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.7.1-beta - 2026-09-14
+### 4.7.1 - 2026-09-16
 #### Added
 - My Jetpack: Allow the Automattic for Agencies banner to be dismissed.
 
