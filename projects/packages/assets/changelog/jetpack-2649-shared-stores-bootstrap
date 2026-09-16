@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Register the shared data stores when an older copy of the package bootstraps first, so dependent admin scripts are no longer dropped.
