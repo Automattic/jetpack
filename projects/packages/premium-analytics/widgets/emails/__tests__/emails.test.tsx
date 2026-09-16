@@ -4,6 +4,7 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -154,7 +155,7 @@ describe( 'EmailsList', () => {
 		expect( screen.getByText( '0 opens, open rate unknown' ) ).toBeInTheDocument();
 	} );
 
-	it( 'restores the exact count behind an abbreviated one', () => {
+	it( 'restores the exact count and its unit behind an abbreviated one', () => {
 		render(
 			<WidgetRoot attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-30' } } }>
 				<EmailsList
@@ -165,8 +166,25 @@ describe( 'EmailsList', () => {
 		);
 
 		expect( screen.getByText( '18.4K' ) ).toBeInTheDocument();
-		expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
+		expect( screen.getByText( '18,432 opens' ) ).toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'opens', '420', '420 opens' ],
+		[ 'clicks', '75', '75 clicks' ],
+	] as const )(
+		'names the unit behind an unabbreviated %s count',
+		async ( metric, count, label ) => {
+			const user = userEvent.setup();
+			renderEmailsList( metric );
+
+			await user.hover( screen.getByText( count ) );
+
+			await expect(
+				screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
+			).resolves.toHaveTextContent( label );
+		}
+	);
 
 	it( 'carries the report post ID and URL into the rendered detail link', async () => {
 		mockApiFetch.mockResolvedValue( {

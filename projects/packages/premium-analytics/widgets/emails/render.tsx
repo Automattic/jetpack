@@ -76,9 +76,23 @@ type EmailsListProps = {
 	metric?: EmailMetric;
 };
 
-function describeOpens( opens: number, rate: string, isRateKnown: boolean ): string {
-	const exactOpens = formatExactCount( opens );
+function labelOpens( opens: number, exactOpens: string ): string {
+	return sprintf(
+		/* translators: %s: number of email opens, e.g. "1,287". */
+		_n( '%s open', '%s opens', opens, 'jetpack-premium-analytics-pkg' ),
+		exactOpens
+	);
+}
 
+function labelClicks( clicks: number, exactClicks: string ): string {
+	return sprintf(
+		/* translators: %s: number of email link clicks, e.g. "190". */
+		_n( '%s click', '%s clicks', clicks, 'jetpack-premium-analytics-pkg' ),
+		exactClicks
+	);
+}
+
+function describeOpens( opens: number, exactOpens: string, rate: string, isRateKnown: boolean ) {
 	if ( ! isRateKnown ) {
 		return sprintf(
 			/* translators: %s: number of email opens, e.g. "1,287". */
@@ -105,9 +119,7 @@ function describeOpens( opens: number, rate: string, isRateKnown: boolean ): str
 	);
 }
 
-function describeClicks( clicks: number, rate: string, isRateKnown: boolean ): string {
-	const exactClicks = formatExactCount( clicks );
-
+function describeClicks( clicks: number, exactClicks: string, rate: string, isRateKnown: boolean ) {
 	if ( ! isRateKnown ) {
 		return sprintf(
 			/* translators: %s: number of email link clicks, e.g. "190". */
@@ -138,19 +150,23 @@ function metricValues( row: EmailRow, metric: EmailMetric ) {
 	if ( metric === 'clicks' ) {
 		const signals = { total: row.clicks, unique: row.uniqueClicks, sends: row.totalSends };
 		const rate = formatEmailRate( row.clicksRate, signals );
+		const exact = formatExactCount( row.clicks );
 		return {
 			count: row.clicks,
 			rate,
-			description: describeClicks( row.clicks, rate, isEmailRateKnown( signals ) ),
+			label: labelClicks( row.clicks, exact ),
+			description: describeClicks( row.clicks, exact, rate, isEmailRateKnown( signals ) ),
 		};
 	}
 
 	const signals = { total: row.opens, unique: row.uniqueOpens, sends: row.totalSends };
 	const rate = formatEmailRate( row.opensRate, signals );
+	const exact = formatExactCount( row.opens );
 	return {
 		count: row.opens,
 		rate,
-		description: describeOpens( row.opens, rate, isEmailRateKnown( signals ) ),
+		label: labelOpens( row.opens, exact ),
+		description: describeOpens( row.opens, exact, rate, isEmailRateKnown( signals ) ),
 	};
 }
 
@@ -159,7 +175,7 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 	const search = useWidgetNavigationSearch( METRIC_SECTION[ metric ] );
 
 	const items: MetricListItem[] = rows.map( row => {
-		const { count, rate, description } = metricValues( row, metric );
+		const { count, rate, label, description } = metricValues( row, metric );
 
 		return {
 			id: row.id,
@@ -175,7 +191,7 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 			value: (
 				<>
 					<Stack render={ <span /> } gap="md" aria-hidden="true">
-						<AbbreviatedValue value={ count } dataFormat={ COUNT_FORMAT } />
+						<AbbreviatedValue value={ count } dataFormat={ COUNT_FORMAT } restored={ label } />
 						<span className={ styles.rate }>{ rate }</span>
 					</Stack>
 					<VisuallyHidden render={ <span /> }>{ description }</VisuallyHidden>
