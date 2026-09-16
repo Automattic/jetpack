@@ -67,3 +67,19 @@ export function getDefaultMyJetpackSection() {
 export function isValidMyJetpackSection( section: string ) {
 	return getAllMyJetpackSections().includes( section );
 }
+
+/**
+ * The badge label for whether something is switched on.
+ *
+ * Each string is bound before the branch: minification folds `c ? __( a ) : __( b )` into
+ * one call with a ternary msgid, which the i18n build check rejects.
+ *
+ * @param isActive - Whether the feature or module is running.
+ * @return The translated label.
+ */
+export function getActivationStatusLabel( isActive: boolean ): string {
+	const activeText = __( 'Active', 'jetpack-my-jetpack' );
+	const inactiveText = __( 'Inactive', 'jetpack-my-jetpack' );
+
+	return isActive ? activeText : inactiveText;
+}

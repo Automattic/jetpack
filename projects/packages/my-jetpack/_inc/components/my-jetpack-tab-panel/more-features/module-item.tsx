@@ -5,6 +5,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Checkbox, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { getActivationStatusLabel } from '../utils';
 import styles from './styles.module.scss';
 import type { MyJetpackModule } from '../../../types';
 
@@ -91,9 +92,7 @@ export function ModuleItem( {
 				<Stack direction="row" align="center" gap="sm" wrap="wrap">
 					<Text variant="heading-md">{ $module.name }</Text>
 					<Badge intent={ $module.activated ? 'stable' : 'none' }>
-						{ $module.activated
-							? __( 'Active', 'jetpack-my-jetpack' )
-							: __( 'Inactive', 'jetpack-my-jetpack' ) }
+						{ getActivationStatusLabel( $module.activated ) }
 					</Badge>
 				</Stack>
 				<Text variant="body-sm">{ $module.description }</Text>

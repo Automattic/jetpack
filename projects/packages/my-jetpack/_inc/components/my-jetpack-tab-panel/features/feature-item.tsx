@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Badge, Checkbox, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { getActivationStatusLabel } from '../utils';
 import { FeatureChevron } from './feature-chevron';
 import { FeatureIcon } from './feature-icon';
 import { FeatureToggle } from './feature-toggle';
@@ -64,9 +65,7 @@ export function FeatureItem( {
 				<Stack direction="row" align="center" gap="sm" wrap="wrap">
 					<Text variant="heading-md">{ feature.name }</Text>
 					<Badge intent={ isActive ? 'stable' : 'none' }>
-						{ isActive
-							? __( 'Active', 'jetpack-my-jetpack' )
-							: __( 'Inactive', 'jetpack-my-jetpack' ) }
+						{ getActivationStatusLabel( isActive ) }
 					</Badge>
 					{ feature.essential ? (
 						<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>

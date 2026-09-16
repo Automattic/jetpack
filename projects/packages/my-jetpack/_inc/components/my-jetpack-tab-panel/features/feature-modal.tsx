@@ -2,6 +2,7 @@ import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { check, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Button, Dialog, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
+import { getActivationStatusLabel } from '../utils';
 import { getArrowStep } from './arrow-navigation';
 import { FeatureDelivery } from './feature-delivery';
 import { FeatureIcon } from './feature-icon';
@@ -139,9 +140,7 @@ export function FeatureModal( {
 						<Stack direction="row" align="center" gap="sm" wrap="wrap">
 							<Dialog.Title>{ feature.name }</Dialog.Title>
 							<Badge intent={ isActive ? 'stable' : 'none' }>
-								{ isActive
-									? __( 'Active', 'jetpack-my-jetpack' )
-									: __( 'Inactive', 'jetpack-my-jetpack' ) }
+								{ getActivationStatusLabel( isActive ) }
 							</Badge>
 							{ feature.essential ? (
 								<Badge intent="informational">{ __( 'Essential', 'jetpack-my-jetpack' ) }</Badge>
