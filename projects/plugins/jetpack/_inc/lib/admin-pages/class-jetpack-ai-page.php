@@ -429,8 +429,7 @@ class Jetpack_AI_Page {
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
-			// Images are served from the plugin directory, so they need the plugin version
-			// to bust caches across updates — webpack used to content-hash their filenames.
+			// Images ship from the plugin directory, so the plugin version is what busts their cache.
 			'assetsVersion'     => JETPACK__VERSION,
 			// The redirect entry bakes in the jetpack_ai_yearly product and
 			// a post-checkout return to this page, so both can be
@@ -643,10 +642,8 @@ class Jetpack_AI_Page {
 }
 
 /*
- * Hooked here rather than from a caller because both registration paths load this file before
- * `admin_menu` — the Jetpack plugin's Jetpack_Admin constructor and mu-wpcom's WordPress.com
- * Simple integration — while wp-build has to load at priority 1, far earlier than the
- * priority-998 `add_actions()` call site each of them uses. add_action() dedupes, so the file
- * being required by both is harmless.
+ * wp-build must load before add_actions() runs on any host, so hook it here: Jetpack_Admin and
+ * mu-wpcom's WordPress.com Simple integration both require this file before `admin_menu`, and
+ * add_action() dedupes.
  */
 add_action( 'admin_menu', array( 'Jetpack_AI_Page', 'maybe_load_wp_build' ), 1 );

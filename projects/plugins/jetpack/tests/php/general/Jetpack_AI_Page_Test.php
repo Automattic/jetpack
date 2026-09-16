@@ -787,10 +787,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertSame( '', $settings['planName'] );
 	}
 
-	/**
-	 * The loader is scoped to this page so WP_Build_Polyfills does not replace core
-	 * scripts on every other admin screen.
-	 */
 	public function test_wp_build_loads_only_on_the_ai_page() {
 		$method = new ReflectionMethod( Jetpack_AI_Page::class, 'is_ai_admin_request' );
 		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
