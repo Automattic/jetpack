@@ -321,7 +321,7 @@ class SSO_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertMatchesRegularExpression( '/<a [^>]*button-primary[^>]*source=calypso-me-security-two-step/', $output );
-		$this->assertStringContainsString( 'force_reauth=1', $output );
+		$this->assertMatchesRegularExpression( '/calypso-me-security-two-step.*jetpack-sso-or.*force_reauth=1/s', $output );
 	}
 
 	/**

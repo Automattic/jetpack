@@ -691,6 +691,9 @@ CSS;
 					<a rel="noopener noreferrer" target="_blank" class="button button-primary" href="<?php echo esc_url( Redirect::get_url( 'calypso-me-security-two-step' ) ); ?>">
 						<?php esc_html_e( 'Set up two-step authentication', 'jetpack-connection' ); ?>
 					</a>
+					<div class="jetpack-sso-or">
+						<span><?php esc_html_e( 'Or', 'jetpack-connection' ); ?></span>
+					</div>
 					<a rel="nofollow" class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'force_reauth' => '1' ) ) ); ?>">
 						<?php esc_html_e( 'Log in with another WordPress.com account', 'jetpack-connection' ); ?>
 					</a>
