@@ -42,6 +42,10 @@ export const civilLabelFormatters = ( locale: string ) => {
 	return {
 		formatWeekday: createDateFormatter( { weekday: 'short', calendar: 'gregory' }, formatting ),
 		formatMonth: createDateFormatter( { month: 'short', calendar: 'gregory' }, formatting ),
+		formatMonthYear: createDateFormatter(
+			{ month: 'short', year: 'numeric', calendar: 'gregory' },
+			formatting
+		),
 		formatDay: createDateFormatter(
 			{ weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', calendar: 'gregory' },
 			formatting

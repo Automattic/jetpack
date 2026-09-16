@@ -40,9 +40,9 @@ const startOfNextCivilMonth = ( date: CivilDate ): CivilDate => {
  * weeks down, for `HeatmapChart` with `columnGroups`.
  *
  * @param valueByDay - Value per `yyyy-MM-dd`. A missing day is `null`.
- * @param range      - The measured days; every month either end falls in is drawn.
+ * @param range      - The measured days; every month from `start`'s through `end`'s is drawn.
  * @param options    - Week start and label locale.
- * @return Columns and one group per month; empty when the range names no days.
+ * @return Columns and one group per month; empty for an invalid or reversed range.
  */
 export const buildMonthCalendarHeatmapData = (
 	valueByDay: Record< string, number | null >,
@@ -80,11 +80,18 @@ export const buildMonthCalendarHeatmapData = (
 		return isPresent( value ) ? value : null;
 	};
 
-	const { formatMonth, formatDay } = civilLabelFormatters( locale );
+	const { formatMonth, formatMonthYear, formatDay } = civilLabelFormatters( locale );
 
 	const data: HeatmapColumn[] = [];
 	const columnGroups: HeatmapColumnGroup[] = [];
 	const lastMonthStart = startOfCivilMonth( end );
+	// Past twelve months a month name would repeat, so the year tells them apart.
+	const monthCount =
+		( lastMonthStart.getUTCFullYear() - start.getUTCFullYear() ) * 12 +
+		lastMonthStart.getUTCMonth() -
+		start.getUTCMonth() +
+		1;
+	const formatGroup = monthCount > 12 ? formatMonthYear : formatMonth;
 
 	for (
 		let monthStart = startOfCivilMonth( start );
@@ -110,7 +117,7 @@ export const buildMonthCalendarHeatmapData = (
 			}
 			data.push( { data: cells } );
 		}
-		columnGroups.push( { label: formatMonth( monthStart ), span: DAYS_PER_WEEK } );
+		columnGroups.push( { label: formatGroup( monthStart ), span: DAYS_PER_WEEK } );
 	}
 
 	return { data, columnGroups };

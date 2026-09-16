@@ -23,8 +23,14 @@ describe( 'useMonthCalendarHeatmapData', () => {
 	let result: MonthCalendarHeatmapResult;
 	let renders = 0;
 
-	const Calendar = ( { options }: { options?: MonthCalendarHeatmapOptions } ) => {
-		result = useMonthCalendarHeatmapData( valueByDay, range, options );
+	const Calendar = ( {
+		options,
+		end = range.end,
+	}: {
+		options?: MonthCalendarHeatmapOptions;
+		end?: string;
+	} ) => {
+		result = useMonthCalendarHeatmapData( valueByDay, { start: range.start, end }, options );
 		renders++;
 		return null;
 	};
@@ -65,5 +71,20 @@ describe( 'useMonthCalendarHeatmapData', () => {
 		);
 		expect( renders ).toBeGreaterThan( 1 );
 		expect( result ).toBe( first );
+	} );
+
+	it( 'rebuilds when the range changes', () => {
+		const { rerender } = render(
+			<GlobalChartsProvider>
+				<Calendar />
+			</GlobalChartsProvider>
+		);
+		expect( result.columnGroups ).toHaveLength( 2 );
+		rerender(
+			<GlobalChartsProvider>
+				<Calendar end="2026-10-01" />
+			</GlobalChartsProvider>
+		);
+		expect( result.columnGroups ).toHaveLength( 3 );
 	} );
 } );

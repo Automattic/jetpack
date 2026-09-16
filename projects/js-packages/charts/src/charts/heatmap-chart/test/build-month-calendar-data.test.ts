@@ -137,6 +137,42 @@ describe( 'buildMonthCalendarHeatmapData', () => {
 		] );
 	} );
 
+	test( 'adds the year to the month labels once a range passes twelve months', () => {
+		const thirteen = buildMonthCalendarHeatmapData(
+			{},
+			{ start: '2025-09-15', end: '2026-09-14' },
+			{ locale: 'en-US' }
+		);
+		const labels = thirteen.columnGroups.map( group => group.label );
+		expect( labels ).toHaveLength( 13 );
+		expect( labels[ 0 ] ).toBe( 'Sep 2025' );
+		expect( labels[ 12 ] ).toBe( 'Sep 2026' );
+
+		const twelve = buildMonthCalendarHeatmapData(
+			{},
+			{ start: '2025-10-01', end: '2026-09-14' },
+			{ locale: 'en-US' }
+		);
+		expect( twelve.columnGroups[ 0 ].label ).toBe( 'Oct' );
+	} );
+
+	test.each( [
+		[ '2026-08-29', 5, 4 ], // Sat
+		[ '2026-08-30', 6, 4 ], // Sun
+		[ '2026-08-31', 0, 5 ], // Mon
+	] )( 'measures from a start on %s and fades the month before it', ( start, weekday, week ) => {
+		const result = buildMonthCalendarHeatmapData( { [ start ]: 2 }, { start, end: '2026-09-14' } );
+		expect( cellAt( result, 0, weekday, week ) ).toMatchObject( { value: 2 } );
+		expect( cellAt( result, 0, weekday, week ).placeholder ).toBeUndefined();
+		expect( cellAt( result, 0, 0, 1 ).placeholder ).toBe( true ); // Mon Aug 3
+	} );
+
+	test( 'keeps a placeholder empty even when the map holds a value for that day', () => {
+		const result = buildMonthCalendarHeatmapData( { '2026-09-20': 7 }, range );
+		// Sun Sep 20 2026 sits past the range end in row 2.
+		expect( cellAt( result, 1, 6, 2 ) ).toMatchObject( { value: null, placeholder: true } );
+	} );
+
 	test.each( [
 		[ 'an unparseable start', { start: '2026-8-1', end: '2026-09-14' } ],
 		[ 'an unparseable end', { start: '2026-08-01', end: 'today' } ],

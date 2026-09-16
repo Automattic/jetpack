@@ -12,7 +12,7 @@ import type {
  * where the caller names none.
  *
  * @param valueByDay - Value per `yyyy-MM-dd`. Held by reference, so a caller that rebuilds it each render defeats the memo.
- * @param range      - The measured days; every month either end falls in is drawn.
+ * @param range      - As for `buildMonthCalendarHeatmapData`.
  * @param options    - As for `buildMonthCalendarHeatmapData`; `locale` wins over the provider.
  * @return Columns and groups for `HeatmapChart`.
  */
