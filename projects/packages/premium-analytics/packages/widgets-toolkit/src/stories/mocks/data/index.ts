@@ -81,10 +81,7 @@ export { mockPostCommentsData } from './post-comments';
 
 export { mockStatsSummaryData, mockStatsSummaryComparisonData } from './summary';
 
-export {
-	mockStatsSubscribersCountsData,
-	mockStatsSubscribersCountsWithPaidData,
-} from './subscriber-counts';
+export { MOCK_PAID_SUBSCRIBERS, buildStatsSubscribersCountsData } from './subscriber-counts';
 
 export { mockPlanUsageData, mockPlanUsageOverLimitData } from './plan-usage';
 

@@ -20,8 +20,10 @@ import {
 } from '../../stories/with-site-time-zone';
 import {
 	registerReportMocks,
+	setMockSitePaidSubscribers,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { MOCK_PAID_SUBSCRIBERS } from '../../../packages/widgets-toolkit/src/stories/mocks/data';
 import SubscribersChartRender from '../render';
 import widgetDefinition, { type SubscribersChartType } from '../widget';
 import widgetManifest from '../widget.json';
@@ -102,6 +104,21 @@ export const Default: Story = {
 	render: renderSubscribersChart,
 	args: { withComparison: false, ...DEFAULT_CHART_ARGS },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * A site that sells subscriptions, so the Paid subscribers metric joins the tab list.
+ */
+export const WithPaidSubscribers: Story = {
+	render: renderSubscribersChart,
+	args: { withComparison: false, ...DEFAULT_CHART_ARGS },
+	// Off the shared autodocs page: the switch is module-wide.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setMockSitePaidSubscribers( MOCK_PAID_SUBSCRIBERS );
+		return () => setMockSitePaidSubscribers( 0 );
+	},
 };
 
 /**

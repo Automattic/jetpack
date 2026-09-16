@@ -1,21 +1,21 @@
 /**
- * Raw `subscribers/counts` response (pre-sanitizer shape). No paid subscribers, so Subscriber highlights shows its 30, 60, and 90 days ago tiles by default.
+ * Paid subscribers on the mocked site when a story asks for a paid one.
  */
-export const mockStatsSubscribersCountsData = {
-	counts: {
-		total_subscribers: 12840,
-		email_subscribers: 9320,
-		paid_subscribers: 0,
-		social_followers: 2340,
-	},
-};
+export const MOCK_PAID_SUBSCRIBERS = 1180;
 
 /**
- * The same snapshot for a site with paid subscribers, where Subscriber highlights shows paid, free, and social tiles.
+ * Raw `subscribers/counts` response (pre-sanitizer shape) for a site with `paidSubscribers` of them.
+ *
+ * @param paidSubscribers - Paid subscribers the mocked site has.
+ * @return The counts response.
  */
-export const mockStatsSubscribersCountsWithPaidData = {
-	counts: {
-		...mockStatsSubscribersCountsData.counts,
-		paid_subscribers: 1180,
-	},
-};
+export function buildStatsSubscribersCountsData( paidSubscribers: number ) {
+	return {
+		counts: {
+			total_subscribers: 12840,
+			email_subscribers: 9320,
+			paid_subscribers: paidSubscribers,
+			social_followers: 2340,
+		},
+	};
+}

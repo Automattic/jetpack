@@ -15,11 +15,11 @@ import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
-	setReportMockResponse,
+	setMockSitePaidSubscribers,
 	setReportMockState,
 	type ReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
-import { mockStatsSubscribersCountsWithPaidData } from '../../../packages/widgets-toolkit/src/stories/mocks/data';
+import { MOCK_PAID_SUBSCRIBERS } from '../../../packages/widgets-toolkit/src/stories/mocks/data';
 import SubscriberHighlightsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
@@ -74,12 +74,12 @@ export const Default: Story = {
  */
 export const WithPaidSubscribers: Story = {
 	render: renderSubscriberHighlights,
-	// Off the shared autodocs page: the override is keyed by path.
+	// Off the shared autodocs page: the switch is module-wide.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
-		setReportMockResponse( 'subscribers/counts', mockStatsSubscribersCountsWithPaidData );
-		return () => setReportMockResponse( 'subscribers/counts', null );
+		setMockSitePaidSubscribers( MOCK_PAID_SUBSCRIBERS );
+		return () => setMockSitePaidSubscribers( 0 );
 	},
 };
 
