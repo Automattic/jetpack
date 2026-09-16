@@ -272,17 +272,4 @@ ol.jetpack-ai-mcp-setup__steps {
 			min-height: 140px;
 		}
 	}
-
-	&__action-button {
-		align-self: flex-start;
-
-		// When the button renders as an <a> tag, WP admin link styles can override
-		// the button's foreground color — force white text to match variant="solid".
-		&,
-		&:visited,
-		&:hover,
-		&:active {
-			color: var(--wp-ui-button-foreground-color, #fff);
-		}
-	}
 }
