@@ -52,6 +52,11 @@ class Initializer {
 	const WP_BUILD_FEATURE_FLAG = 'my-jetpack-wp-build';
 
 	/**
+	 * Feature flag that swaps the My Jetpack Products tab for a Features tab.
+	 */
+	const FEATURES_TAB_FEATURE_FLAG = 'my-jetpack-features-tab';
+
+	/**
 	 * Handle for the classic script that carries the React initial state on the
 	 * wp-build path. The dashboard is a script module there, so there is no
 	 * classic bundle handle to attach inline data to.
@@ -104,9 +109,9 @@ class Initializer {
 		// Before the gate, so the flag stays listed while diagnosing why My Jetpack is off.
 		self::register_feature_flags();
 
-		// Before the gate: the Jetpack plugin renders this package's connection screen even
-		// where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
-		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_assets_script_data' ) );
+		// Before the gate: the Jetpack plugin renders this package's connection screen and footer
+		// links even where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_admin_script_data' ) );
 
 		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
@@ -336,6 +341,15 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+
+		Feature_Flags::register(
+			self::FEATURES_TAB_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Replace the My Jetpack Products tab with a Features tab. Requires my-jetpack-wp-build.',
+				'owner'       => 'my-jetpack',
+			)
+		);
 	}
 
 	/**
@@ -350,6 +364,40 @@ class Initializer {
 	 */
 	public static function is_modernized() {
 		return Feature_Flags::is_enabled( self::WP_BUILD_FEATURE_FLAG );
+	}
+
+	/**
+	 * Whether the dashboard shows a Features tab in place of the Products tab.
+	 *
+	 * Also requires `my-jetpack-wp-build`, but is site-wide: a request that falls back to the
+	 * legacy bundle, such as the onboarding takeover, shows the Features tab too.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_features_tab_enabled() {
+		return self::is_modernized() && Feature_Flags::is_enabled( self::FEATURES_TAB_FEATURE_FLAG );
+	}
+
+	/**
+	 * Get the slug and label that replace the Products tab, for links to it.
+	 *
+	 * Null while the tab is unchanged, so links keep their own translated "Products" label.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{slug: string, label: string}|null
+	 */
+	public static function get_products_section() {
+		if ( ! self::is_features_tab_enabled() ) {
+			return null;
+		}
+
+		return array(
+			'slug'  => 'features',
+			'label' => _x( 'Features', 'Navigation item', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -687,18 +735,19 @@ class Initializer {
 	}
 
 	/**
-	 * Add the package's image base URL to the admin script data.
+	 * Add the package's image base URL and products tab to the admin script data.
 	 *
-	 * Printed on every admin page by Script_Data, so components this package exports
-	 * (the connection screen) can resolve their illustrations off the My Jetpack page.
+	 * Printed on every admin page by Script_Data, so the connection screen can resolve its
+	 * illustrations and Jetpack footers can link to the products tab off the My Jetpack page.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array $data Script data.
 	 * @return array
 	 */
-	public static function add_assets_script_data( $data ) {
-		$data['myJetpack']['assetsUrl'] = self::get_assets_url();
+	public static function add_admin_script_data( $data ) {
+		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
+		$data['myJetpack']['productsSection'] = self::get_products_section();
 
 		return $data;
 	}
