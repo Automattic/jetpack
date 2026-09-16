@@ -627,6 +627,48 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Checkout sends Back wherever it feels like otherwise, and for someone arriving
+	 * from wp-admin that is the plan picker rather than the screen they left.
+	 */
+	public function test_checkout_url_carries_a_back_url() {
+		$url = Marketplace_Catalog::checkout_url(
+			$this->priced_card(),
+			'yearly',
+			'https://example.org/wp-admin/plugin-install.php?tab=' . WPCOM_MARKETPLACE_TAB
+		);
+
+		$this->assertStringContainsString( 'checkoutBackUrl=', $url );
+		$this->assertStringContainsString( rawurlencode( 'https://example.org/wp-admin/plugin-install.php' ), $url );
+
+		// The query has to land before the fragment, or checkout never reads it.
+		$this->assertLessThan( strpos( $url, '#step2' ), strpos( $url, 'checkoutBackUrl=' ) );
+		$this->assertStringEndsWith( '#step2', $url );
+	}
+
+	/**
+	 * The parameter is omitted rather than sent empty when there is nowhere to go back to.
+	 */
+	public function test_checkout_url_omits_an_empty_back_url() {
+		$this->assertStringNotContainsString(
+			'checkoutBackUrl',
+			Marketplace_Catalog::checkout_url( $this->priced_card(), 'yearly' )
+		);
+	}
+
+	/**
+	 * The card's button sends Back to this tab.
+	 */
+	public function test_button_sends_checkout_back_to_the_tab() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$button = wpcom_marketplace_card_button( $this->priced_card() );
+
+		$this->assertStringContainsString( 'checkoutBackUrl', $button );
+		$this->assertStringContainsString( rawurlencode( 'plugin-install.php' ), $button );
+	}
+
+	/**
 	 * No store product means nothing to buy.
 	 */
 	public function test_checkout_url_is_empty_without_a_variation() {

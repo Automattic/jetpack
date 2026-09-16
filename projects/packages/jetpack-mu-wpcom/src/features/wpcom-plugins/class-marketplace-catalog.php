@@ -444,11 +444,13 @@ class Marketplace_Catalog {
 	/**
 	 * The checkout URL for one variation, which both buys and activates the plugin.
 	 *
-	 * @param array  $card Normalized product data.
-	 * @param string $term 'yearly' or 'monthly'.
+	 * @param array  $card     Normalized product data.
+	 * @param string $term     'yearly' or 'monthly'.
+	 * @param string $back_url Where checkout's Back link should return to. Must be on
+	 *                         this site's own host, or checkout ignores it.
 	 * @return string Checkout URL, or an empty string when there is no such variation.
 	 */
-	public static function checkout_url( array $card, $term ) {
+	public static function checkout_url( array $card, $term, $back_url = '' ) {
 		$store_slug = $card['wpcom_pricing'][ $term ]['slug'] ?? '';
 		if ( '' === $store_slug ) {
 			return '';
@@ -456,11 +458,24 @@ class Marketplace_Catalog {
 
 		$site_slug = wp_parse_url( home_url(), PHP_URL_HOST );
 
-		return sprintf(
-			'https://wordpress.com/checkout/%s/%s#step2',
+		$url = sprintf(
+			'https://wordpress.com/checkout/%s/%s',
 			rawurlencode( (string) $site_slug ),
 			rawurlencode( $store_slug )
 		);
+
+		/*
+		 * Without this, Back leaves for whichever Calypso page the reader came from,
+		 * and for someone arriving straight from wp-admin that is the plan picker.
+		 * Checkout allows a back URL on the site's own host, which is where we are.
+		 * `add_query_arg()` does not encode values, so the URL is encoded here.
+		 */
+		if ( '' !== $back_url ) {
+			$url = add_query_arg( 'checkoutBackUrl', rawurlencode( $back_url ), $url );
+		}
+
+		// Jumps past the plan step, which a marketplace purchase does not have.
+		return $url . '#step2';
 	}
 
 	/**

@@ -311,7 +311,7 @@ function wpcom_marketplace_card_button( array $card ) {
 			: '';
 	}
 
-	$checkout = Marketplace_Catalog::checkout_url( $card, WPCOM_MARKETPLACE_TERM );
+	$checkout = Marketplace_Catalog::checkout_url( $card, WPCOM_MARKETPLACE_TERM, wpcom_marketplace_tab_url() );
 
 	// Without a store product there is nothing to buy, so fall back to the product page.
 	if ( '' === $checkout ) {
@@ -331,6 +331,15 @@ function wpcom_marketplace_card_button( array $card ) {
 		esc_attr( sprintf( __( 'Purchase and activate %s', 'jetpack-mu-wpcom' ), $name ) ),
 		esc_html__( 'Purchase', 'jetpack-mu-wpcom' )
 	);
+}
+
+/**
+ * The tab's own URL, which is where checkout's Back link should return to.
+ *
+ * @return string
+ */
+function wpcom_marketplace_tab_url() {
+	return add_query_arg( 'tab', WPCOM_MARKETPLACE_TAB, self_admin_url( 'plugin-install.php' ) );
 }
 
 /**
