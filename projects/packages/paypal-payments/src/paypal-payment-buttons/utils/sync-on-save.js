@@ -10,12 +10,13 @@
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
 import {
+	getComparisonPrice,
 	hasVariantPricing,
 	isVariantPricingOn,
 	validateVariants,
 } from '../components/variant-builder';
 import { API_BASE } from './api-base';
-import { buildRequestData, keepPayPalOnlyFields } from './request-data';
+import { buildRequestData } from './request-data';
 import { ADVISORY_ERROR_KEYS, getUserFriendlyError, getValidationErrors } from './validation';
 
 // The last body each block sent, so an unchanged block is not re-sent on every save.
@@ -49,7 +50,18 @@ export function heldBackReason( attributes ) {
 		taxEnabled,
 		taxType,
 		taxValue,
+		handlingEnabled,
+		handlingValue,
+		discountEnabled,
+		discountType,
+		discountValue,
+		shippingEnabled,
+		shippingMode,
+		shippingValue,
+		shippingAdditionalValue,
 	} = attributes;
+
+	const variantPricingOn = isVariantPricingOn( variantsEnabled, variants );
 
 	const errors = getValidationErrors( {
 		productName,
@@ -57,10 +69,20 @@ export function heldBackReason( attributes ) {
 		productDescription,
 		returnUrl,
 		currencyCode,
-		variantPricingOn: isVariantPricingOn( variantsEnabled, variants ),
+		variantPricingOn,
 		taxEnabled,
-		taxIsPercentage: ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE',
+		taxType,
 		taxValue,
+		handlingEnabled,
+		handlingValue,
+		discountEnabled,
+		discountType,
+		discountValue,
+		shippingEnabled,
+		shippingMode,
+		shippingValue,
+		shippingAdditionalValue,
+		comparisonPrice: getComparisonPrice( variantPricingOn, variants, price ),
 	} );
 
 	const blocking = Object.entries( errors ).find(
@@ -146,13 +168,12 @@ async function syncBlock(
 	try {
 		if ( resourceId ) {
 			try {
-				// Read first: a PUT is a full replacement, and the payment carries
-				// fields the form has no control for.
-				const resource = await request( { path: `${ API_BASE }/buttons/${ resourceId }` } );
+				// The form now models every line-item field PayPal stores, so the
+				// request stands alone - a PUT replaces the payment outright.
 				await request( {
 					path: `${ API_BASE }/buttons/${ resourceId }`,
 					method: 'PUT',
-					data: keepPayPalOnlyFields( body, resource ),
+					data: body,
 				} );
 			} catch ( err ) {
 				if ( ! isNotFound( err ) ) {

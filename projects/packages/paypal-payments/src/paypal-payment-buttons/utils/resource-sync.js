@@ -22,6 +22,7 @@ export const RESOURCE_ATTRIBUTES = [
 	'price',
 	'currencyCode',
 	'productDescription',
+	'productId',
 	'variantsEnabled',
 	'variants',
 	'adjustableQuantity',
@@ -31,9 +32,69 @@ export const RESOURCE_ATTRIBUTES = [
 	'taxType',
 	'taxName',
 	'taxValue',
-	'returnUrl',
+	'handlingEnabled',
+	'handlingValue',
+	'discountEnabled',
+	'discountType',
+	'discountValue',
+	'shippingEnabled',
+	'shippingMode',
+	'shippingValue',
+	'shippingAdditionalValue',
 	'collectShippingAddress',
+	'returnUrl',
 ];
+
+/**
+ * Attributes each gating control owns, keyed by the attribute that gates them.
+ *
+ * Turning a gate off hides its fields, and `buildRequestData()` then leaves the
+ * whole feature out of the request. So every attribute listed here has to go back
+ * to its block.json default in the same `setAttributes` call - otherwise the block
+ * keeps a value the payment does not have, and the next mount's read-back rewrites
+ * it without telling anyone.
+ *
+ * Seven separate reviews found seven instances of that bug before this table
+ * existed. The test in `tests/js/resource-sync.test.js` is what stops an eighth:
+ * a new resource attribute fails the suite until it is classed here or as
+ * always-visible.
+ */
+export const GATED_ATTRIBUTES = {
+	variantsEnabled: [ 'variants' ],
+	adjustableQuantity: [ 'maxQuantity' ],
+	taxEnabled: [ 'taxType', 'taxName', 'taxValue' ],
+	handlingEnabled: [ 'handlingValue' ],
+	discountEnabled: [ 'discountType', 'discountValue' ],
+	shippingEnabled: [
+		'shippingMode',
+		'shippingValue',
+		'shippingAdditionalValue',
+		'collectShippingAddress',
+	],
+};
+
+/**
+ * Block.json's defaults for the attributes named, as a setAttributes payload.
+ *
+ * Reading them from the metadata rather than typing them keeps one copy: a
+ * default changed in block.json cannot leave a stale literal behind in a handler.
+ *
+ * @param {...string} keys - Attribute names.
+ * @return {object} Each attribute at its default.
+ */
+export function resetToDefaults( ...keys ) {
+	return Object.fromEntries( keys.map( key => [ key, metadata.attributes[ key ]?.default ] ) );
+}
+
+/**
+ * The payload a gate's control writes when it is switched off.
+ *
+ * @param {string} gate - The gating attribute, a key of GATED_ATTRIBUTES.
+ * @return {object} The gate and everything it owns, at their defaults.
+ */
+export function turnGateOff( gate ) {
+	return resetToDefaults( gate, ...GATED_ATTRIBUTES[ gate ] );
+}
 
 let nextKey = 1;
 

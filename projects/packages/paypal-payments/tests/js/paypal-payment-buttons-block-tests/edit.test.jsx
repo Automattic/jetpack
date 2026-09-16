@@ -51,9 +51,24 @@ jest.mock( '@wordpress/element', () => {
 		useCallback: React.useCallback,
 		useMemo: React.useMemo,
 		useRef: React.useRef,
-		createInterpolateElement: text => text,
+		createInterpolateElement: jest.requireActual( '@wordpress/element' ).createInterpolateElement,
 	};
 } );
+
+// The tax hint interpolates a Link into its sentence. The real Link sets no `rel`
+// - eslint adds it here - so do not read this mock as proof of one.
+jest.mock( '@wordpress/ui', () => ( {
+	Link: ( { href, children, openInNewTab } ) => (
+		<a
+			href={ href }
+			target={ openInNewTab ? '_blank' : undefined }
+			data-testid="link"
+			rel="noreferrer"
+		>
+			{ children }
+		</a>
+	),
+} ) );
 
 // Mock WordPress i18n.
 jest.mock( '@wordpress/i18n', () => ( {
@@ -173,7 +188,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 				type="text"
 				{ ...rest }
 			/>
-			{ help && <span className="help-text">{ help }</span> }
+			{ help && <span className="components-base-control__help">{ help }</span> }
 		</div>
 	),
 } ) );
@@ -202,6 +217,31 @@ jest.mock( '@wordpress/components', () => ( {
 		VisualLabel: ( { children } ) => (
 			<span className="components-base-control__label">{ children }</span>
 		),
+	},
+	// Only there to pad the suffix off the field edge; nothing asserts on it.
+	__experimentalInputControlSuffixWrapper: ( { children } ) => <span>{ children }</span>,
+	// Real InputControl renders its own BaseControl: className on the root, help in
+	// .components-base-control__help - the class editor.scss keys on - and the label
+	// tied to the input by a shared id. Mock that, not an aria-label, so a field with
+	// no accessible name fails here.
+	__experimentalInputControl: ( { label, value, onChange, suffix, help, className, ...rest } ) => {
+		const id = `field-${ label }`;
+		return (
+			<div
+				data-testid={ `control-${ label }` }
+				className={ [ 'components-input-control', className ].filter( Boolean ).join( ' ' ) }
+			>
+				<label htmlFor={ id }>{ label }</label>
+				<input
+					id={ id }
+					value={ value ?? '' }
+					onChange={ e => e.target.value !== value && onChange( e.target.value ) }
+					{ ...rest }
+				/>
+				{ suffix }
+				{ help && <span className="components-base-control__help">{ help }</span> }
+			</div>
+		);
 	},
 	// isDestructive, isSmall and the __next* opt-ins are destructured off rather
 	// than spread: the real Button consumes them, so letting them reach the DOM warns.
@@ -299,7 +339,35 @@ jest.mock( '@wordpress/components', () => ( {
 						</option>
 					) ) }
 			</select>
-			{ help && <span className="help-text">{ help }</span> }
+			{ help && <span className="components-base-control__help">{ help }</span> }
+		</div>
+	),
+	// Takes and returns the whole option, and falls back to the first when the value
+	// matches none, both like the real one. The hint rides on `data-hint` because an
+	// <option> cannot hold the span core draws it in.
+	CustomSelectControl: ( { label, value, options, onChange, disabled, className } ) => (
+		<div
+			data-testid={ `control-${ label }` }
+			className={ className }
+			// The value as the caller passed it, before the fallback below, so a test
+			// can tell the block's own fallback from this mock's.
+			data-value={ value?.key ?? '' }
+		>
+			<select
+				aria-label={ label }
+				value={ ( options?.find( o => o.key === value?.key ) ?? options?.[ 0 ] )?.key ?? '' }
+				disabled={ disabled }
+				onChange={ e =>
+					onChange( { selectedItem: options.find( o => o.key === e.target.value ) } )
+				}
+			>
+				{ options &&
+					options.map( opt => (
+						<option key={ opt.key } value={ opt.key } data-hint={ opt.hint }>
+							{ opt.name }
+						</option>
+					) ) }
+			</select>
 		</div>
 	),
 	Spinner: () => <div data-testid="spinner">Loading...</div>,
@@ -374,7 +442,7 @@ jest.mock( '@wordpress/components', () => ( {
 				type={ type || 'text' }
 				{ ...rest }
 			/>
-			{ help && <span className="help-text">{ help }</span> }
+			{ help && <span className="components-base-control__help">{ help }</span> }
 		</div>
 	),
 	TextareaControl: ( { label, value, onChange, onBlur, help, className } ) => (
@@ -387,7 +455,7 @@ jest.mock( '@wordpress/components', () => ( {
 				onChange={ e => onChange( e.target.value ) }
 				onBlur={ onBlur }
 			/>
-			{ help && <span className="help-text">{ help }</span> }
+			{ help && <span className="components-base-control__help">{ help }</span> }
 		</div>
 	),
 	ToolbarButton: ( { label, onClick } ) => (
@@ -1707,6 +1775,19 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( { productName: 'T' } );
 		} );
 
+		it( 'calls setAttributes when the product id changes', async () => {
+			const user = userEvent.setup();
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			const idInput = await screen.findByLabelText( 'Product ID (optional)' );
+			await user.type( idInput, 'S' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { productId: 'S' } );
+			// PayPal rejects a 51st character and there is no error state, so the input caps.
+			expect( idInput ).toHaveAttribute( 'maxlength', '50' );
+		} );
+
 		it( 'holds the payment back while the form is invalid', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
@@ -2731,23 +2812,24 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitForForm();
 
 			expect( screen.queryByLabelText( 'Tax name' ) ).not.toBeInTheDocument();
-			expect( screen.getByLabelText( 'Tax rate (%)' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Tax rate' ) ).toBeInTheDocument();
 		} );
 
 		const missingRate = 'To continue, add the requested info or turn off this feature.';
 
-		// An empty rate used to save as a 0% tax - the request sends `taxValue || '0'` and
-		// the server clamps it to 0. The rate field appears when Collect tax is turned on,
-		// so the error shows straight away rather than waiting for a blur.
+		// The value field appears as soon as Add tax is on, so the error shows straight
+		// away rather than waiting for a blur. A flat amount was never validated before -
+		// only PERCENTAGE was.
 		it.each( [
-			[ 'no rate at all', '' ],
-			[ 'a rate of zero', '0' ],
-		] )( 'refuses to save tax with %s', async ( _label, taxValue ) => {
+			[ 'no rate at all', { taxValue: '' } ],
+			[ 'a flat amount and no value', { taxType: 'FLAT', taxValue: '' } ],
+			[ 'no type and no value', { taxType: '', taxValue: '' } ],
+		] )( 'refuses to save tax with %s', async ( _label, overrides ) => {
 			mockConnected();
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxValue } }
+					attributes={ { ...attributes, ...overrides } }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
@@ -2755,29 +2837,32 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitForForm();
 
 			expect( screen.getByText( missingRate ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).toHaveClass(
+			expect( screen.getByTestId( 'control-Tax rate' ) ).toHaveClass(
 				'jetpack-paypal-payment-buttons__has-error'
 			);
 			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
 			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
 		} );
 
-		// A missing type saves as a percentage, so it has to ask for a rate like one -
-		// and show the field it is asking about.
-		it( 'asks for a rate when the tax type is missing', async () => {
+		// PayPal's own form takes a 0 rate, saves it and reads it back. A merchant who
+		// wants no tax turns the toggle off instead.
+		it.each( [
+			[ 'a rate of zero', { taxType: 'PERCENTAGE', taxValue: '0' } ],
+			[ 'a flat amount of zero', { taxType: 'FLAT', taxValue: '0' } ],
+		] )( 'saves tax with %s', async ( _label, overrides ) => {
 			mockConnected();
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxType: '', taxValue: '' } }
+					attributes={ { ...attributes, ...overrides } }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
 			);
 			await waitForForm();
 
-			expect( screen.getByLabelText( 'Tax rate (%)' ) ).toBeInTheDocument();
-			expect( screen.getByText( missingRate ) ).toBeInTheDocument();
+			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 		} );
 
 		it( 'turns tax collection on', async () => {
@@ -2792,20 +2877,137 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 			await waitForForm();
-			await user.click( screen.getByLabelText( 'Collect tax' ) );
+			await user.click( screen.getByLabelText( 'Add tax' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { taxEnabled: true } );
 		} );
 
-		it( 'writes the tax type', async () => {
+		// Tax type shows a mode; taxType holds the wire value. Flipping back to a specific
+		// rate picks PERCENTAGE rather than the merchant's last specific type, which would
+		// need a second attribute to remember.
+		// Switching to profile also drops the rate: PayPal reads a profile tax back with
+		// no value, so a leftover one makes the block disagree with the payment and the
+		// next mount reports it as a change made at PayPal.
+		it.each( [
+			[ 'profile', 'PERCENTAGE', { taxType: 'PREFERENCE', taxValue: '' } ],
+			[ 'specific', 'PREFERENCE', { taxType: 'PERCENTAGE' } ],
+		] )( 'maps the %s tax type back to the wire value', async ( mode, from, written ) => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType: from } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await waitForForm();
+			await user.selectOptions( screen.getByLabelText( 'Tax type' ), mode );
+
+			expect( setAttributes ).toHaveBeenCalledWith( written );
+		} );
+
+		// Clearing the field writes '' rather than dropping the attribute, which would
+		// read back as the block.json default on the next mount.
+		it( 'writes an empty string when the field is cleared', async () => {
 			const user = userEvent.setup();
 			mockConnected();
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
 			await waitForForm();
-			await user.selectOptions( screen.getByLabelText( 'Tax type' ), 'PREFERENCE' );
+			await user.clear( screen.getByLabelText( 'Tax rate' ) );
 
-			expect( setAttributes ).toHaveBeenCalledWith( { taxType: 'PREFERENCE' } );
+			expect( setAttributes ).toHaveBeenCalledWith( { taxValue: '' } );
+		} );
+
+		/**
+		 * Render the tax field in one attribute state and hand it back.
+		 *
+		 * @param {object} overrides - Attributes to merge over the tax fixture.
+		 * @return {Promise<Element>} The tax value input.
+		 */
+		async function taxField( overrides ) {
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, ...overrides } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await waitForForm();
+
+			return screen.getByLabelText( 'Tax rate' );
+		}
+
+		// A percentage steps in hundredths whatever the currency; an amount is money,
+		// so it follows the currency - JPY takes no decimals at all.
+		it.each( [
+			[ 'a percentage', { taxType: 'PERCENTAGE' }, '0.01' ],
+			[ 'a flat amount', { taxType: 'FLAT' }, '0.01' ],
+			[ 'a flat amount in JPY', { taxType: 'FLAT', currencyCode: 'JPY', price: '2000' }, '1' ],
+		] )( 'steps the field for %s', async ( _label, overrides, step ) => {
+			const field = await taxField( overrides );
+
+			expect( field ).toHaveAttribute( 'step', step );
+		} );
+
+		// validateRequiredAmount has no upper bound of its own, so max is the only thing
+		// stopping a runaway percentage.
+		it( 'caps a percentage at 99.99', async () => {
+			const field = await taxField( { taxType: 'PERCENTAGE' } );
+
+			expect( field ).toHaveAttribute( 'max', '99.99' );
+		} );
+
+		// A flat amount must not inherit the percentage ceiling - $150 of tax is legal.
+		it( 'puts no ceiling on a flat amount', async () => {
+			const field = await taxField( { taxType: 'FLAT' } );
+
+			expect( field ).not.toHaveAttribute( 'max' );
+		} );
+
+		it( 'writes the rate type', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitForForm();
+			await user.selectOptions( screen.getByLabelText( 'Rate type' ), 'FLAT' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { taxType: 'FLAT' } );
+		} );
+
+		// The mockup shows a $, so check the suffix follows the product's currency
+		// rather than being hardcoded.
+		it( 'shows a percent sign on a rate', async () => {
+			mockConnected();
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitForForm();
+
+			expect(
+				within( screen.getByTestId( 'control-Tax rate' ) ).getByText( '%' )
+			).toBeInTheDocument();
+		} );
+
+		it( 'shows the currency symbol on a flat amount', async () => {
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType: 'FLAT', currencyCode: 'EUR' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await waitForForm();
+
+			expect(
+				within( screen.getByTestId( 'control-Tax rate' ) ).getByText( '\u20AC' )
+			).toBeInTheDocument();
 		} );
 
 		it( 'writes the tax rate', async () => {
@@ -2820,36 +3022,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 			await waitForForm();
-			await user.type( screen.getByLabelText( 'Tax rate (%)' ), '8' );
+			await user.type( screen.getByLabelText( 'Tax rate' ), '8' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { taxValue: '8' } );
 		} );
 
-		it( 'saves a rate that is filled in', async () => {
-			mockConnected();
-
-			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
-			await waitForForm();
-
-			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
-			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).not.toHaveClass(
-				'jetpack-paypal-payment-buttons__has-error'
-			);
-			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
-			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'false' );
-		} );
-
-		// FLAT is not on the Tax type menu, but a link created outside the block can carry
-		// one and the read-back copies the type through as it is.
 		it.each( [
-			[ 'PayPal keeps the rate', 'PREFERENCE' ],
-			[ 'the tax is a flat amount', 'FLAT' ],
-		] )( 'asks for no rate when %s', async ( _label, taxType ) => {
+			[ 'a rate', { taxType: 'PERCENTAGE', taxValue: '8.25' } ],
+			[ 'a flat amount', { taxType: 'FLAT', taxValue: '1.50' } ],
+		] )( 'saves %s that is filled in', async ( _label, overrides ) => {
 			mockConnected();
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxType, taxValue: '' } }
+					attributes={ { ...attributes, ...overrides } }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
@@ -2857,7 +3043,60 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitForForm();
 
 			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Tax rate' ) ).not.toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'false' );
+		} );
+
+		// PREFERENCE is the one type with nothing local to fill in - the rate lives in the
+		// merchant's PayPal profile, so the form sends them there instead of asking.
+		it( 'asks for no rate when PayPal keeps the rate', async () => {
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType: 'PREFERENCE', taxValue: '' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await waitForForm();
+
+			expect( screen.queryByLabelText( 'Rate type' ) ).not.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Tax rate' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+			const link = screen.getByTestId( 'link' );
+
+			expect( link ).toHaveAttribute(
+				'href',
+				'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax'
+			);
+			// The post may be unsaved, so this must not navigate away from it.
+			expect( link ).toHaveAttribute( 'target', '_blank' );
+		} );
+
+		it.each( [
+			[ 'production', 'production' ],
+			[ 'an unknown environment', undefined ],
+		] )( 'sends %s to the production tax settings', async ( _label, environment ) => {
+			apiFetch.mockResolvedValue( { connected: true, environment } );
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType: 'PREFERENCE', taxValue: '' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await waitForForm();
+
+			expect( screen.getByTestId( 'link' ) ).toHaveAttribute(
+				'href',
+				'https://www.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax'
+			);
 		} );
 
 		// PayPal renders its own label to the buyer, so the merchant's string goes
@@ -2866,7 +3105,795 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// back would overwrite it, so the key rides along only when there is one.
 	} );
 
-	describe( 'Custom checkout fields', () => {
+	describe( 'Handling fee', () => {
+		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-FEE1';
+		const attributes = {
+			isApiManaged: true,
+			resourceId: 'PLB-FEE1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-FEE1',
+			productName: 'Test Widget',
+			price: '29.99',
+			currencyCode: 'USD',
+			handlingEnabled: true,
+			handlingValue: '4.00',
+		};
+
+		/**
+		 * Mock the connection check and the pre-update read.
+		 */
+		function mockConnected() {
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath && method === undefined ) {
+					return Promise.resolve( { id: 'PLB-FEE1', line_items: [ {} ] } );
+				}
+				return Promise.resolve( {} );
+			} );
+		}
+
+		/**
+		 * Render the editor with the handling-fee fixture, plus any overrides.
+		 *
+		 * @param {object} overrides - Attributes to merge over the fixture.
+		 */
+		async function renderFee( overrides = {} ) {
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, ...overrides } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+		}
+
+		const missingFee = 'To continue, add the requested info or turn off this feature.';
+
+		it( 'asks for no amount while the fee is off', async () => {
+			await renderFee( { handlingEnabled: false, handlingValue: '' } );
+
+			expect( screen.queryByLabelText( 'Handling fee' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		// The amount field appears as soon as the toggle is on, so the error shows
+		// straight away rather than waiting for a blur.
+		it( 'refuses to save a fee with no amount', async () => {
+			await renderFee( { handlingValue: '' } );
+
+			expect( screen.getByText( missingFee ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Handling fee' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
+		} );
+
+		// Same rule as the tax: PayPal stores a 0 and hands it back, and a merchant
+		// who wants no fee turns the toggle off instead.
+		it( 'saves a fee of zero', async () => {
+			await renderFee( { handlingValue: '0' } );
+
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Handling fee' ) ).not.toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'false' );
+		} );
+
+		it( 'turns the handling fee on', async () => {
+			const user = userEvent.setup();
+			await renderFee( { handlingEnabled: false, handlingValue: '' } );
+			await user.click( screen.getByLabelText( 'Add handling fee' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { handlingEnabled: true } );
+		} );
+
+		it( 'writes the amount', async () => {
+			const user = userEvent.setup();
+			await renderFee( { handlingValue: '' } );
+			await user.type( screen.getByLabelText( 'Handling fee' ), '4' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { handlingValue: '4' } );
+		} );
+
+		// Clearing the field writes '' rather than dropping the attribute, which would
+		// read back as the block.json default on the next mount.
+		it( 'writes an empty string when the field is cleared', async () => {
+			const user = userEvent.setup();
+			await renderFee();
+			await user.clear( screen.getByLabelText( 'Handling fee' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { handlingValue: '' } );
+		} );
+
+		// A fee is money, so it follows the currency - JPY takes no decimals at all.
+		it.each( [
+			[ 'USD', {}, '0.01' ],
+			[ 'JPY', { currencyCode: 'JPY', price: '2000' }, '1' ],
+		] )( 'steps the field for %s', async ( _label, overrides, step ) => {
+			await renderFee( overrides );
+
+			expect( screen.getByLabelText( 'Handling fee' ) ).toHaveAttribute( 'step', step );
+		} );
+
+		// A fee is money, so it must not inherit the tax field's percentage ceiling -
+		// a $150 handling fee is legal.
+		it( 'takes any fee from zero up', async () => {
+			await renderFee();
+			const field = screen.getByLabelText( 'Handling fee' );
+
+			expect( field ).toHaveAttribute( 'min', '0' );
+			expect( field ).not.toHaveAttribute( 'max' );
+		} );
+
+		// The mockup shows a $, so check the suffix follows the product's currency
+		// rather than being hardcoded.
+		it( 'shows the currency symbol', async () => {
+			await renderFee( { currencyCode: 'EUR' } );
+
+			expect(
+				within( screen.getByTestId( 'control-Handling fee' ) ).getByText( '€' )
+			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Shipping', () => {
+		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-SHIP1';
+		const attributes = {
+			isApiManaged: true,
+			resourceId: 'PLB-SHIP1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-SHIP1',
+			productName: 'Test Widget',
+			price: '29.99',
+			currencyCode: 'USD',
+			shippingEnabled: true,
+			shippingMode: 'FLAT',
+			shippingValue: '5.00',
+		};
+
+		/**
+		 * Mock the connection check and the block's mount read.
+		 *
+		 * @param {string} environment - The environment the connection reports.
+		 */
+		function mockConnected( environment = 'sandbox' ) {
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment } );
+				}
+				if ( path === resourcePath && method === undefined ) {
+					return Promise.resolve( { id: 'PLB-SHIP1', line_items: [ {} ] } );
+				}
+				return Promise.resolve( {} );
+			} );
+		}
+
+		/**
+		 * Render the editor with the shipping fixture, plus any overrides.
+		 *
+		 * @param {object} overrides   - Attributes to merge over the fixture.
+		 * @param {string} environment - The environment the connection reports.
+		 */
+		async function renderShipping( overrides = {}, environment = 'sandbox' ) {
+			mockConnected( environment );
+
+			render(
+				<Edit
+					attributes={ { ...attributes, ...overrides } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+		}
+
+		const missingFee = 'To continue, add the requested info or turn off this feature.';
+
+		it( 'shows the toggle alone while shipping is off', async () => {
+			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
+
+			expect( screen.queryByLabelText( 'Shipping fee' ) ).not.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Collect shipping address' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		// The design nests the checkbox under the toggle, so it rides every mode.
+		it.each( [ 'PROFILE', 'QUANTITY', 'FLAT', 'FREE' ] )(
+			'offers the address checkbox in %s mode',
+			async shippingMode => {
+				await renderShipping( { shippingMode } );
+
+				expect( screen.getByLabelText( 'Collect shipping address' ) ).toBeInTheDocument();
+			}
+		);
+
+		it.each( [
+			[ 'PROFILE', 'Use shipping from my PayPal settings' ],
+			[ 'FREE', 'Free shipping' ],
+		] )( 'asks for no amount in %s mode', async ( shippingMode, label ) => {
+			await renderShipping( { shippingMode, shippingValue: '' } );
+
+			expect( screen.getByLabelText( 'Shipping fee' ) ).toHaveValue( shippingMode );
+			expect( screen.getByRole( 'option', { name: label } ) ).toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Enter shipping fee' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		it( 'links to PayPal in profile mode', async () => {
+			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' } );
+
+			expect(
+				screen.getByRole( 'link', { name: 'Set up or manage shipping settings' } )
+			).toHaveAttribute(
+				'href',
+				'https://www.sandbox.paypal.com/cgi-bin/customerprofileweb?cmd=_profile-shipping'
+			);
+		} );
+
+		it.each( [ 'QUANTITY', 'FLAT', 'FREE' ] )(
+			'keeps the link to profile mode, not %s',
+			async shippingMode => {
+				await renderShipping( { shippingMode } );
+
+				expect(
+					screen.queryByRole( 'link', { name: 'Set up or manage shipping settings' } )
+				).not.toBeInTheDocument();
+			}
+		);
+
+		// An environment the connection has not reported yet points at production, so
+		// the link never sends a live merchant to the sandbox.
+		it( 'falls back to the production settings page', async () => {
+			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' }, null );
+
+			expect(
+				screen.getByRole( 'link', { name: 'Set up or manage shipping settings' } )
+			).toHaveAttribute(
+				'href',
+				'https://www.paypal.com/cgi-bin/customerprofileweb?cmd=_profile-shipping'
+			);
+		} );
+
+		it( 'offers the four modes in the order the design lists them', async () => {
+			await renderShipping();
+
+			expect(
+				[ ...screen.getByLabelText( 'Shipping fee' ).options ].map( o => o.textContent )
+			).toEqual( [
+				'Use shipping from my PayPal settings',
+				'Use quantity-based shipping fee',
+				'Use specific shipping fee',
+				'Free shipping',
+			] );
+		} );
+
+		// Every attribute a toggle hides goes back to its block.json default, so the
+		// next mount's read-back agrees with a payment that carries none of it.
+		it( 'resets the tax fields to their defaults when tax goes off', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ {
+						...attributes,
+						taxEnabled: true,
+						taxType: 'FLAT',
+						taxName: 'VAT',
+						taxValue: '1.50',
+					} }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			await user.click( screen.getByLabelText( 'Add tax' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				taxEnabled: false,
+				taxType: 'PERCENTAGE',
+				taxName: 'Sales Tax',
+				taxValue: '',
+			} );
+		} );
+
+		it( 'resets the handling fee to its default when the fee goes off', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, handlingEnabled: true, handlingValue: '4.00' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			await user.click( screen.getByLabelText( 'Add handling fee' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				handlingEnabled: false,
+				handlingValue: '',
+			} );
+		} );
+
+		it( 'turns shipping on without touching anything else', async () => {
+			const user = userEvent.setup();
+			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
+
+			await user.click( screen.getByLabelText( 'Add shipping' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { shippingEnabled: true } );
+		} );
+
+		it( 'asks for one amount in specific-fee mode', async () => {
+			await renderShipping();
+
+			expect( screen.getByLabelText( 'Enter shipping fee' ) ).toHaveValue( 5 );
+			expect( screen.queryByLabelText( 'Additional items (optional)' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'asks for two amounts in quantity-based mode', async () => {
+			await renderShipping( { shippingMode: 'QUANTITY', shippingAdditionalValue: '2.00' } );
+
+			expect( screen.getByLabelText( 'Shipping fee for first item' ) ).toHaveValue( 5 );
+			expect( screen.getByLabelText( 'Additional items (optional)' ) ).toHaveValue( 2 );
+		} );
+
+		it( 'refuses to save a fee mode with no amount', async () => {
+			await renderShipping( { shippingValue: '' } );
+
+			expect( screen.getByText( missingFee ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Enter shipping fee' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
+		} );
+
+		// The second amount is optional even here - PayPal only requires the first.
+		it( 'saves quantity-based shipping with no per-extra-item fee', async () => {
+			await renderShipping( { shippingMode: 'QUANTITY', shippingAdditionalValue: '' } );
+
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		it( 'saves a fee of zero', async () => {
+			await renderShipping( { shippingValue: '0' } );
+
+			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		// The fee fields are gone in the two preference modes, so a leftover amount
+		// would never be seen again while the read-back forces it blank.
+		it.each( [ 'PROFILE', 'FREE' ] )(
+			'clears both amounts on the way to %s',
+			async shippingMode => {
+				const user = userEvent.setup();
+				await renderShipping( { shippingMode: 'QUANTITY', shippingAdditionalValue: '2.00' } );
+
+				await user.selectOptions( screen.getByLabelText( 'Shipping fee' ), shippingMode );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					shippingMode,
+					shippingValue: '',
+					shippingAdditionalValue: '',
+				} );
+			}
+		);
+
+		// Every mode clears exactly the fields it does not show. A fee left behind
+		// its own field is a permanent diff against the read-back.
+		it.each( [
+			[ 'QUANTITY', { shippingMode: 'QUANTITY' } ],
+			[ 'FLAT', { shippingMode: 'FLAT', shippingAdditionalValue: '' } ],
+		] )( 'switching to %s keeps the fee it still shows', async ( shippingMode, expected ) => {
+			const user = userEvent.setup();
+			await renderShipping( { shippingMode: 'QUANTITY', shippingAdditionalValue: '2.00' } );
+
+			await user.selectOptions( screen.getByLabelText( 'Shipping fee' ), shippingMode );
+
+			expect( setAttributes ).toHaveBeenCalledWith( expected );
+		} );
+
+		// The three attributes have to go with the toggle. Left behind, the next
+		// mount's read-back reports PayPal as having changed the button.
+		// The toggle hides the address checkbox too, so it resets with the rest.
+		it( 'resets every shipping field to its default when shipping goes off', async () => {
+			const user = userEvent.setup();
+			await renderShipping( {
+				shippingMode: 'QUANTITY',
+				shippingAdditionalValue: '2.00',
+				collectShippingAddress: true,
+			} );
+
+			await user.click( screen.getByLabelText( 'Add shipping' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				shippingEnabled: false,
+				shippingMode: 'FLAT',
+				shippingValue: '',
+				shippingAdditionalValue: '',
+				collectShippingAddress: false,
+			} );
+		} );
+
+		it( 'writes the address preference when the box is ticked', async () => {
+			const user = userEvent.setup();
+			await renderShipping();
+
+			await user.click( screen.getByLabelText( 'Collect shipping address' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: true } );
+		} );
+
+		it.each( [
+			[ 'Enter shipping fee', 'FLAT', 'shippingValue' ],
+			[ 'Additional items (optional)', 'QUANTITY', 'shippingAdditionalValue' ],
+		] )( 'writes %s', async ( label, shippingMode, attribute ) => {
+			const user = userEvent.setup();
+			await renderShipping( { shippingMode, shippingValue: '', shippingAdditionalValue: '' } );
+
+			await user.type( screen.getByLabelText( label ), '7' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { [ attribute ]: '7' } );
+		} );
+
+		// JPY takes no decimals, so the spinner must not offer one.
+		it( 'steps both fees by the currency', async () => {
+			await renderShipping( { shippingMode: 'QUANTITY', currencyCode: 'JPY' } );
+
+			expect( screen.getByLabelText( 'Shipping fee for first item' ) ).toHaveAttribute(
+				'step',
+				'1'
+			);
+			expect( screen.getByLabelText( 'Additional items (optional)' ) ).toHaveAttribute(
+				'step',
+				'1'
+			);
+		} );
+
+		it( 'shows the currency symbol on the fee', async () => {
+			await renderShipping( { currencyCode: 'EUR' } );
+
+			expect( control( 'Enter shipping fee' ).getByText( '\u20AC' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Discount', () => {
+		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-DISC1';
+		const attributes = {
+			isApiManaged: true,
+			resourceId: 'PLB-DISC1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-DISC1',
+			productName: 'Test Widget',
+			price: '29.99',
+			currencyCode: 'USD',
+			discountEnabled: true,
+			discountType: 'FLAT',
+			discountValue: '2.00',
+		};
+
+		/**
+		 * Render the editor with the discount fixture, plus any overrides.
+		 *
+		 * @param {object} overrides - Attributes to merge over the fixture.
+		 */
+		async function renderDiscount( overrides = {} ) {
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath && method === undefined ) {
+					return Promise.resolve( { id: 'PLB-DISC1', line_items: [ {} ] } );
+				}
+				return Promise.resolve( {} );
+			} );
+
+			render(
+				<Edit
+					attributes={ { ...attributes, ...overrides } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+		}
+
+		const missingValue = 'To continue, add the requested info or turn off this feature.';
+		const standingHint = 'Reduced from the product price';
+
+		it( 'asks for nothing while the discount is off', async () => {
+			await renderDiscount( { discountEnabled: false, discountValue: '' } );
+
+			expect( screen.queryByLabelText( 'Discount type' ) ).not.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Discount value' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( missingValue ) ).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		it( 'turns the discount on', async () => {
+			const user = userEvent.setup();
+			await renderDiscount( { discountEnabled: false, discountValue: '' } );
+			await user.click( screen.getByLabelText( 'Add discount' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { discountEnabled: true } );
+		} );
+
+		// A value left behind reads as a difference against the payment on the next
+		// mount, and the reconcile reports PayPal as having changed the button.
+		it( 'clears the type and the value when the discount goes off', async () => {
+			const user = userEvent.setup();
+			await renderDiscount( { discountType: 'PERCENTAGE', discountValue: '15' } );
+			await user.click( screen.getByLabelText( 'Add discount' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				discountEnabled: false,
+				discountType: 'FLAT',
+				discountValue: '',
+			} );
+		} );
+
+		// It hands back the whole option, so the handler reads .key off it. The value
+		// goes too: 2 kept across a switch turns $2 off into 2% off, and both are legal.
+		it( 'writes the type as PayPal’s own value and clears the amount', async () => {
+			const user = userEvent.setup();
+			await renderDiscount();
+			await user.selectOptions( screen.getByLabelText( 'Discount type' ), 'PERCENTAGE' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				discountType: 'PERCENTAGE',
+				discountValue: '',
+			} );
+		} );
+
+		it( 'writes the value', async () => {
+			const user = userEvent.setup();
+			await renderDiscount( { discountValue: '' } );
+			await user.type( screen.getByLabelText( 'Discount value' ), '2' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { discountValue: '2' } );
+		} );
+
+		// Clearing writes '' rather than dropping the attribute, which would read
+		// back as the block.json default on the next mount.
+		it( 'writes an empty string when the field is cleared', async () => {
+			const user = userEvent.setup();
+			await renderDiscount();
+			await user.clear( screen.getByLabelText( 'Discount value' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { discountValue: '' } );
+		} );
+
+		// editor.scss hangs the menu styling off this class. jsdom cannot check more.
+		it( 'puts the menu class on the type picker', async () => {
+			await renderDiscount();
+
+			expect( screen.getByTestId( 'control-Discount type' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__select-menu'
+			);
+		} );
+
+		// It takes the whole option as its value, not the key.
+		it( 'shows the type the block is set to', async () => {
+			await renderDiscount( { discountType: 'PERCENTAGE' } );
+
+			expect( screen.getByLabelText( 'Discount type' ) ).toHaveValue( 'PERCENTAGE' );
+		} );
+
+		// The second line is why this is not a plain SelectControl.
+		it( 'describes each type under its name', async () => {
+			await renderDiscount();
+			const options = within( screen.getByTestId( 'control-Discount type' ) ).getAllByRole(
+				'option'
+			);
+
+			expect( options.map( o => o.textContent ) ).toEqual( [ 'Amount off', 'Percentage' ] );
+			// The second line core draws from the hint. The mock carries it on an
+			// attribute because an <option> cannot hold the span the real one uses.
+			expect( options.map( o => o.dataset.hint ) ).toEqual( [
+				'Fixed amount off the price',
+				'Percentage based on price',
+			] );
+		} );
+
+		// The mapper stores a type PayPal sent even when the block has no option for
+		// it, so the block falls back to the first option rather than the control.
+		it( 'shows the first type for one the block does not model', async () => {
+			await renderDiscount( { discountType: 'TIERED', discountValue: '5' } );
+
+			// data-value is what the block passed, so this fails if its fallback goes.
+			expect( screen.getByTestId( 'control-Discount type' ) ).toHaveAttribute(
+				'data-value',
+				'FLAT'
+			);
+			expect( screen.getByLabelText( 'Discount type' ) ).toHaveValue( 'FLAT' );
+		} );
+
+		// The inspector and the post-save gate each compute the price a flat discount
+		// is measured against. With per-option pricing there is no product price, so
+		// it is the cheapest option - not the 29.99 still sitting in `price`.
+		it( 'measures a flat discount against the cheapest option price', async () => {
+			const variants = {
+				dimensions: [
+					{
+						name: 'Size',
+						primary: true,
+						options: [
+							{ label: 'S', unit_amount: { currency_code: 'USD', value: '10.00' } },
+							{ label: 'L', unit_amount: { currency_code: 'USD', value: '20.00' } },
+						],
+					},
+				],
+			};
+
+			await renderDiscount( { variantsEnabled: true, variants, discountValue: '15.00' } );
+
+			expect(
+				screen.getByText( 'Discount must be less than the product price.' )
+			).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		it( 'refuses to save a discount with no value', async () => {
+			await renderDiscount( { discountValue: '' } );
+
+			expect( screen.getByText( missingValue ) ).toBeInTheDocument();
+			// editor.scss reddens the error row through this class, so without it the
+			// message renders grey and the assertion above still passes.
+			expect( screen.getByTestId( 'control-Discount value' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-error'
+			);
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
+		} );
+
+		// The design draws both rows at once - the hint stays grey above the error
+		// rather than being replaced by it, which is what every other field here does.
+		it( 'keeps the standing hint while the error is up', async () => {
+			await renderDiscount( { discountValue: '' } );
+			const field = screen.getByTestId( 'control-Discount value' );
+
+			expect( within( field ).getByText( standingHint ) ).toBeInTheDocument();
+			expect( within( field ).getByText( missingValue ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__field-error'
+			);
+		} );
+
+		it( 'shows the hint on its own when the value is good', async () => {
+			await renderDiscount();
+			const field = screen.getByTestId( 'control-Discount value' );
+
+			expect( within( field ).getByText( standingHint ) ).toBeInTheDocument();
+			expect( within( field ).queryByText( missingValue ) ).not.toBeInTheDocument();
+			expect( field ).not.toHaveClass( 'jetpack-paypal-payment-buttons__has-error' );
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		// Measured: 422 DISCOUNT_EXCEEDS_ITEM_PRICE at equal, so this is strictly less.
+		it( 'refuses a flat discount that reaches the price', async () => {
+			await renderDiscount( { discountValue: '29.99' } );
+
+			expect(
+				screen.getByText( 'Discount must be less than the product price.' )
+			).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// A percentage is not money, so the price comparison must not apply to it -
+		// 50 is fine against a 29.99 product.
+		it( 'takes a percentage above the product price', async () => {
+			await renderDiscount( { discountType: 'PERCENTAGE', discountValue: '50' } );
+
+			expect(
+				screen.queryByText( 'Discount must be less than the product price.' )
+			).not.toBeInTheDocument();
+			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
+		} );
+
+		it( 'refuses a percentage of 100', async () => {
+			await renderDiscount( { discountType: 'PERCENTAGE', discountValue: '100' } );
+
+			expect( screen.getByText( 'Discount must be between 1% and 99%.' ) ).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// PayPal takes a whole-number percentage only, so the form says so rather than
+		// letting the save fail against the API.
+		it( 'refuses a percentage with decimals', async () => {
+			await renderDiscount( { discountType: 'PERCENTAGE', discountValue: '15.5' } );
+
+			expect(
+				screen.getByText( 'Discount percentage must be a whole number.' )
+			).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// Zero is not a discount - PayPal rejects it for both types - so the merchant
+		// is pointed back at the toggle, which is what the shared string says.
+		it.each( [
+			[ 'a percentage', 'PERCENTAGE' ],
+			[ 'an amount', 'FLAT' ],
+		] )( 'refuses %s of zero', async ( _label, discountType ) => {
+			await renderDiscount( { discountType, discountValue: '0' } );
+
+			expect( screen.getByText( missingValue ) ).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// The unit follows the type; a flat step and floor still follow the currency,
+		// a percentage is 1 either way because it is not money.
+		it.each( [
+			[ 'a flat amount', { currencyCode: 'EUR', discountValue: '2.00' }, '€', '0.01', '0.01' ],
+			[
+				'a flat amount in JPY',
+				{ currencyCode: 'JPY', price: '2000', discountValue: '200' },
+				'¥',
+				'1',
+				'1',
+			],
+			[
+				'a percentage in JPY',
+				{ discountType: 'PERCENTAGE', currencyCode: 'JPY', discountValue: '15' },
+				'%',
+				'1',
+				'1',
+			],
+		] )(
+			'shows the right unit, step and floor for %s',
+			async ( _label, overrides, unit, step, min ) => {
+				await renderDiscount( overrides );
+				const field = screen.getByLabelText( 'Discount value' );
+
+				expect(
+					within( screen.getByTestId( 'control-Discount value' ) ).getByText( unit )
+				).toBeInTheDocument();
+				expect( field ).toHaveAttribute( 'step', step );
+				expect( field ).toHaveAttribute( 'min', min );
+			}
+		);
+
+		// The currency rule has to reach the merchant, not just the validator.
+		it( 'refuses a decimal amount in a currency that has none', async () => {
+			await renderDiscount( { currencyCode: 'JPY', price: '2000', discountValue: '1.50' } );
+
+			expect(
+				screen.getByText( 'Prices in JPY are whole numbers (e.g., "1500").' )
+			).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		// A percentage has a ceiling the control can offer - measured, 99 takes and
+		// 100 does not.
+		it( 'caps a percentage at 99', async () => {
+			await renderDiscount( { discountType: 'PERCENTAGE', discountValue: '15' } );
+
+			expect( screen.getByLabelText( 'Discount value' ) ).toHaveAttribute( 'max', '99' );
+		} );
+
+		// An amount does not - a $150 discount off a $200 product is legal, so the
+		// field must not inherit the percentage ceiling.
+		it( 'puts no ceiling on an amount', async () => {
+			await renderDiscount();
+
+			expect( screen.getByLabelText( 'Discount value' ) ).not.toHaveAttribute( 'max' );
+		} );
+	} );
+
+	describe( 'Add customer note', () => {
 		beforeEach( () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 		} );
@@ -2906,7 +3933,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const user = userEvent.setup();
 			renderWith( [] );
 
-			await user.click( await screen.findByLabelText( 'Custom checkout fields' ) );
+			await user.click( await screen.findByLabelText( 'Add customer note' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
 				customerNotes: [ { label: '', required: false } ],
@@ -2917,7 +3944,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const user = userEvent.setup();
 			renderWith( notes( 1 ) );
 
-			await user.click( await screen.findByLabelText( 'Custom checkout fields' ) );
+			await user.click( await screen.findByLabelText( 'Add customer note' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { customerNotes: [] } );
 		} );
@@ -3262,40 +4289,77 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		const blockingKeys = errorKeys.filter( key => ! ADVISORY_ERROR_KEYS.includes( key ) );
 
 		// Per key: the block state that triggers it, the control its message has to be
-		// inside, and the field to leave first where the form waits for a visit.
+		// inside, the field to leave first where the form waits for a visit, and which
+		// class editor.scss reddens it through - an amount field nests the error in a
+		// span of its own so a hint can sit above it, everything else uses the help slot.
 		const cases = {
 			productName: {
 				attributes: { productName: '' },
 				testId: 'control-Product Name',
 				message: 'Product name is required.',
+				carrier: 'components-base-control__help',
 				visit: 'Product Name',
 			},
 			price: {
 				attributes: { price: '' },
 				testId: 'control-Price',
 				message: 'Price is required.',
+				carrier: 'components-base-control__help',
 				visit: 'Price',
 			},
 			productDescription: {
 				attributes: { productDescription: 'x'.repeat( 2049 ) },
 				testId: 'control-Description (optional)',
 				message: 'Description must be 2048 characters or fewer.',
+				carrier: 'components-base-control__help',
 				visit: 'Description (optional)',
 			},
 			currencyCode: {
 				attributes: { currencyCode: 'XYZ' },
 				testId: 'control-Currency',
 				message: 'Unsupported currency.',
+				carrier: 'components-base-control__help',
 			},
 			taxValue: {
 				attributes: { taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '' },
-				testId: 'control-Tax rate (%)',
+				testId: 'control-Tax rate',
 				message: 'To continue, add the requested info or turn off this feature.',
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+			},
+			handlingValue: {
+				attributes: { handlingEnabled: true, handlingValue: '' },
+				testId: 'control-Handling fee',
+				message: 'To continue, add the requested info or turn off this feature.',
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+			},
+			discountValue: {
+				attributes: { discountEnabled: true, discountType: 'FLAT', discountValue: '' },
+				testId: 'control-Discount value',
+				message: 'To continue, add the requested info or turn off this feature.',
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+			},
+			shippingValue: {
+				attributes: { shippingEnabled: true, shippingMode: 'FLAT', shippingValue: '' },
+				testId: 'control-Enter shipping fee',
+				message: 'To continue, add the requested info or turn off this feature.',
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+			},
+			shippingAdditionalValue: {
+				attributes: {
+					shippingEnabled: true,
+					shippingMode: 'QUANTITY',
+					shippingValue: '5.00',
+					shippingAdditionalValue: '-2',
+				},
+				testId: 'control-Additional items (optional)',
+				message: 'To continue, add the requested info or turn off this feature.',
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
 			returnUrl: {
 				attributes: { returnUrl: 'http://example.com/thanks' },
 				testId: 'url-input-Return URL (optional)',
 				message: 'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
+				carrier: 'components-base-control__help',
 				visit: 'Return URL (optional)',
 			},
 		};
@@ -3326,18 +4390,44 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( errorKeys.slice().sort() ).toEqual( Object.keys( cases ).sort() );
 		} );
 
+		/**
+		 * Assert the error is on screen wearing the class editor.scss reddens.
+		 *
+		 * One class per shape of field, so the case says which - a message in the
+		 * other one renders grey, which is the bug this pins.
+		 *
+		 * @param {Element} field - The control the message has to be inside.
+		 * @param {string}  key   - The validationErrors key under test.
+		 */
+		const expectStyledError = ( field, key ) => {
+			expect( within( field ).getByText( cases[ key ].message ) ).toHaveClass(
+				cases[ key ].carrier
+			);
+		};
+
 		it.each( blockingKeys )( 'says what is wrong when %s blocks the save', async key => {
 			const field = await showError( key );
 
-			expect( within( field ).getByText( cases[ key ].message ) ).toBeInTheDocument();
+			expectStyledError( field, key );
 			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+
+			// A message inside a collapsed panel is a message nobody reads, so the
+			// panel opens itself for its own fields. Whether the field is one of its
+			// own comes from where the control actually sits, not from the same list
+			// the source reads - that would make this assertion agree with any
+			// classification, right or wrong.
+			const checkoutOptions = panel( 'Checkout Options' );
+			expect( checkoutOptions ).toHaveAttribute(
+				'data-initial-open',
+				String( checkoutOptions.contains( field ) )
+			);
 		} );
 
 		// The other half of the split: these warn and the merchant can still save.
 		it.each( ADVISORY_ERROR_KEYS )( 'warns about %s and still saves', async key => {
 			const field = await showError( key );
 
-			expect( within( field ).getByText( cases[ key ].message ) ).toBeInTheDocument();
+			expectStyledError( field, key );
 			expect( screen.getByText( createdOnSave ) ).toBeInTheDocument();
 		} );
 	} );
@@ -3351,7 +4441,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const user = userEvent.setup();
 			renderForm( { adjustableQuantity: false } );
 
-			await user.click( await screen.findByLabelText( 'Allow customers to adjust quantity' ) );
+			await user.click( await screen.findByLabelText( 'Let customers set quantity' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { adjustableQuantity: true } );
 		} );

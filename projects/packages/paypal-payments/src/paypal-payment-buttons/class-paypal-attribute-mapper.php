@@ -106,6 +106,13 @@ class PayPal_Attribute_Mapper {
 	const MAX_BUTTON_TEXT_LENGTH = 50;
 
 	/**
+	 * Maximum product id (SKU) length.
+	 *
+	 * @var int
+	 */
+	const MAX_PRODUCT_ID_LENGTH = 50;
+
+	/**
 	 * Convert block attributes to a PayPal API request body.
 	 *
 	 * Takes the flat block attributes from the editor and transforms them
@@ -252,6 +259,10 @@ class PayPal_Attribute_Mapper {
 				$attributes['imageUrl'] = esc_url_raw( $line_item['image_url'] );
 			}
 
+			if ( isset( $line_item['product_id'] ) && '' !== $line_item['product_id'] ) {
+				$attributes['productId'] = sanitize_text_field( $line_item['product_id'] );
+			}
+
 			if ( ! empty( $line_item['variants']['dimensions'] ) ) {
 				$attributes['variantsEnabled'] = true;
 				$attributes['variants']        = $line_item['variants'];
@@ -293,16 +304,54 @@ class PayPal_Attribute_Mapper {
 				$attributes['taxValue']   = 'PREFERENCE' === $attributes['taxType'] ? '' : sanitize_text_field( $tax['value'] ?? '' );
 			}
 
-			// Shipping configuration (WOOPTP-173).
+			// Shipping configuration (WOOPTP-173, WOOPTP-493). PayPal stores no mode,
+			// so it is read back from the type and the value together.
 			if ( ! empty( $line_item['shipping'] ) && is_array( $line_item['shipping'] ) ) {
-				$shipping                      = $line_item['shipping'][0];
+				$shipping = $line_item['shipping'][0];
+				$type     = sanitize_text_field( $shipping['type'] ?? 'FLAT' );
+				$value    = sanitize_text_field( $shipping['value'] ?? '' );
+				$extra    = sanitize_text_field( $shipping['additional_unit_value'] ?? '' );
+
 				$attributes['shippingEnabled'] = true;
-				$attributes['shippingType']    = sanitize_text_field( $shipping['type'] ?? 'FLAT' );
-				$attributes['shippingValue']   = 'PREFERENCE' === $attributes['shippingType'] ? '' : sanitize_text_field( $shipping['value'] ?? '' );
+
+				if ( 'PREFERENCE' === $type ) {
+					// PROFILE and FREE_SHIPPING differ only in `value`, and neither shows
+					// a fee field, so the fee is blanked rather than left to the read-back.
+					$attributes['shippingMode']  = 'FREE_SHIPPING' === $value ? 'FREE' : 'PROFILE';
+					$attributes['shippingValue'] = '';
+				} else {
+					// `additional_unit_value` is the only thing separating the two FLAT
+					// modes. A quantity fee with no extra looks exactly like a specific
+					// fee, so it reads back as one - the same payment either way.
+					$attributes['shippingMode']  = '' !== $extra ? 'QUANTITY' : 'FLAT';
+					$attributes['shippingValue'] = $value;
+					if ( '' !== $extra ) {
+						$attributes['shippingAdditionalValue'] = $extra;
+					}
+				}
 			}
 
-			// Map it even when the key is absent: the block attribute defaults to
-			// on, so a missing key has to read as off.
+			// Handling fee (WOOPTP-493). FLAT is the only type PayPal takes here,
+			// so there is nothing to read back but the amount.
+			if ( ! empty( $line_item['handling'] ) && is_array( $line_item['handling'] ) ) {
+				$handling                      = $line_item['handling'][0];
+				$attributes['handlingEnabled'] = true;
+				$attributes['handlingValue']   = sanitize_text_field( $handling['value'] ?? '' );
+			}
+
+			// Discount (WOOPTP-493). The type is PayPal's own, so store it as it came
+			// even when the block has no option for it, the way taxes and shipping do.
+			if ( ! empty( $line_item['discounts'] ) && is_array( $line_item['discounts'] ) ) {
+				$discount = $line_item['discounts'][0] ?? null;
+				if ( is_array( $discount ) ) {
+					$attributes['discountEnabled'] = true;
+					$attributes['discountType']    = sanitize_text_field( $discount['type'] ?? 'FLAT' );
+					$attributes['discountValue']   = sanitize_text_field( $discount['value'] ?? '' );
+				}
+			}
+
+			// Map it even when the key is absent: the payment is the source of truth
+			// either way, so a missing key reads as off.
 			$attributes['collectShippingAddress'] = ! empty( $line_item['collect_shipping_address'] );
 		}
 
@@ -413,6 +462,19 @@ class PayPal_Attribute_Mapper {
 					'description_too_long',
 					/* translators: %d: maximum allowed characters */
 					sprintf( __( 'Description must be %d characters or fewer.', 'jetpack-paypal-payments' ), self::MAX_DESCRIPTION_LENGTH ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		// Optional: product id length.
+		if ( ! empty( $attributes['productId'] ) ) {
+			$product_id = sanitize_text_field( $attributes['productId'] );
+			if ( mb_strlen( $product_id ) > self::MAX_PRODUCT_ID_LENGTH ) {
+				return new WP_Error(
+					'product_id_too_long',
+					/* translators: %d: maximum allowed characters */
+					sprintf( __( 'Product ID must be %d characters or fewer.', 'jetpack-paypal-payments' ), self::MAX_PRODUCT_ID_LENGTH ),
 					array( 'status' => 400 )
 				);
 			}

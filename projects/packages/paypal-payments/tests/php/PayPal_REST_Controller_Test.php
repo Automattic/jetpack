@@ -851,6 +851,54 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that the route does not rewrite a type it does not recognize.
+	 *
+	 * It used to clamp these to a whitelist, which silently rewrote a type a merchant
+	 * set in PayPal's own dashboard. PayPal rejects what it does not accept, so it is
+	 * the backstop rather than a list here that has to be kept in step.
+	 */
+	public function test_update_does_not_rewrite_an_unrecognized_amount_type() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '29.99',
+					),
+					'discounts'   => array(
+						array(
+							'type'  => 'TIERED',
+							'value' => '2.00',
+						),
+					),
+					'shipping'    => array(
+						array(
+							'type'  => 'PERCENTAGE',
+							'value' => '5.00',
+						),
+					),
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$sent = $result->get_data()['line_items'][0];
+		$this->assertSame( 'TIERED', $sent['discounts'][0]['type'] );
+		$this->assertSame( 'PERCENTAGE', $sent['shipping'][0]['type'] );
+	}
+
+	/**
 	 * Test that an update keeps the fields set outside the block form.
 	 *
 	 * A PUT replaces the whole resource at PayPal, so anything the route drops
@@ -1021,6 +1069,39 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $result );
 		$this->assertTrue( $result->get_data()['line_items'][0]['collect_shipping_address'] );
+	}
+
+	/**
+	 * Test that a whitespace-only product id is dropped on an update.
+	 *
+	 * Without the trim, sanitize_text_field() turns it into "", which PayPal rejects.
+	 */
+	public function test_update_drops_a_whitespace_only_product_id() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '10.00',
+					),
+					'product_id'  => '   ',
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertArrayNotHasKey( 'product_id', $result->get_data()['line_items'][0] );
 	}
 
 	/**

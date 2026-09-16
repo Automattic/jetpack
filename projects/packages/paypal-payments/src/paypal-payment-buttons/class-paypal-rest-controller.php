@@ -812,6 +812,10 @@ class PayPal_REST_Controller {
 			}
 		}
 
+		if ( ! empty( $first_item['product_id'] ) ) {
+			$attributes['productId'] = $first_item['product_id'];
+		}
+
 		if ( ! empty( $first_item['description'] ) ) {
 			$attributes['productDescription'] = $first_item['description'];
 		}
@@ -1027,8 +1031,6 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						// Set outside the form, but a PUT replaces the whole resource,
-						// so the editor sends them back.
 						'product_id'               => array(
 							'type'     => 'string',
 							'required' => false,
@@ -1160,7 +1162,10 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// Tax configuration.
+			// Tax configuration. Unlike the three amount lists above, the type is
+			// whitelisted here because the value is derived from it - a rate, an
+			// amount, or PROFILE. Falling back rewrites an unmodelled type into a
+			// rate and keeps the number, so a flat 5.00 becomes 5%. See TODO_LIST B9.
 			if ( ! empty( $item['taxes'] ) && is_array( $item['taxes'] ) ) {
 				$clean_taxes = array();
 				$valid_types = array( 'PERCENTAGE', 'PREFERENCE', 'FLAT' );
@@ -1206,10 +1211,11 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// Copied back from the payment by the editor. Drop one here and Update
-			// deletes it at PayPal.
-			if ( isset( $item['product_id'] ) && '' !== $item['product_id'] ) {
-				$clean_item['product_id'] = sanitize_text_field( $item['product_id'] );
+			// sanitize_text_field() trims, so an id that was only whitespace or only
+			// tags comes back '' - and PayPal rejects an empty one.
+			$product_id = sanitize_text_field( (string) ( $item['product_id'] ?? '' ) );
+			if ( '' !== $product_id ) {
+				$clean_item['product_id'] = $product_id;
 			}
 			foreach ( array( 'shipping', 'handling', 'discounts' ) as $field ) {
 				if ( ! empty( $item[ $field ] ) && is_array( $item[ $field ] ) ) {

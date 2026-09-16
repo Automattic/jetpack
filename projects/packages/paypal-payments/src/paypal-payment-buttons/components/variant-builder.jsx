@@ -14,6 +14,7 @@ import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import GridiconTrash from 'gridicons/dist/trash';
 import { getPriceStep } from '../utils/currency-symbols';
+import { turnGateOff } from '../utils/resource-sync';
 import { validatePrice } from '../utils/validation';
 
 // Pre-extract translated strings used in ternaries to avoid i18n build errors.
@@ -137,6 +138,46 @@ export function hasVariantPricing( enabled, variants ) {
  */
 export function isVariantPricingOn( enabled, variants ) {
 	return !! enabled && !! getPrimaryDimension( variants );
+}
+
+/**
+ * Find the cheapest per-option price in the primary option group.
+ *
+ * PayPal only prices the primary group, so an amount on another group is not a
+ * price a buyer can pay. Drawn as the "From" price.
+ *
+ * @param {object} variants - Variants data with dimensions.
+ * @return {string|null} The lowest option price, or null when none are priced.
+ */
+export function getLowestVariantPrice( variants ) {
+	let lowest = null;
+
+	( getPrimaryDimension( variants )?.options || [] ).forEach( opt => {
+		const value = `${ opt.unit_amount?.value ?? '' }`.trim();
+		if ( value === '' || isNaN( parseFloat( value ) ) ) {
+			return;
+		}
+		if ( lowest === null || parseFloat( value ) < parseFloat( lowest ) ) {
+			lowest = value;
+		}
+	} );
+
+	return lowest;
+}
+
+/**
+ * The price a flat discount has to come in under.
+ *
+ * With per-option pricing there is no product price, so it is the cheapest option.
+ *
+ * @param {boolean} variantPricingOn - Whether a priced option group is in play, from
+ *                                   isVariantPricingOn(). Not hasVariantPricing().
+ * @param {object}  variants         - Variants data with dimensions.
+ * @param {string}  price            - The product-level price.
+ * @return {string|null} The price to compare against.
+ */
+export function getComparisonPrice( variantPricingOn, variants, price ) {
+	return variantPricingOn ? getLowestVariantPrice( variants ) : price;
 }
 
 /**
@@ -486,14 +527,18 @@ export default function VariantBuilder( {
 	}, [ focusNewGroup ] );
 
 	const setEnabled = newEnabled => {
-		if ( newEnabled && dimensions.length === 0 ) {
-			onChange( {
-				variantsEnabled: true,
-				variants: { dimensions: [ createGroup() ] },
-			} );
-		} else {
-			onChange( { variantsEnabled: newEnabled } );
+		if ( ! newEnabled ) {
+			// The groups go with the toggle. Left behind, the request drops them and
+			// the next mount's read-back nulls them - the merchant's options, gone.
+			onChange( turnGateOff( 'variantsEnabled' ) );
+			return;
 		}
+
+		// Switching on with groups already there keeps them; a first run gets one.
+		onChange( {
+			variantsEnabled: true,
+			...( dimensions.length === 0 ? { variants: { dimensions: [ createGroup() ] } } : {} ),
+		} );
 	};
 
 	const updateDimension = ( dimIndex, newDimension ) => {
@@ -508,7 +553,7 @@ export default function VariantBuilder( {
 		const newDimensions = dimensions.filter( ( _, i ) => i !== dimIndex );
 		onChange( {
 			variants: { dimensions: newDimensions },
-			...( newDimensions.length === 0 ? { variantsEnabled: false } : {} ),
+			...( newDimensions.length === 0 ? turnGateOff( 'variantsEnabled' ) : {} ),
 		} );
 	};
 

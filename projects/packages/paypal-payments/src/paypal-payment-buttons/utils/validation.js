@@ -19,8 +19,20 @@ import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
  */
 export const MAX_NAME_LENGTH = 127;
 export const MAX_DESCRIPTION_LENGTH = 2048;
+// Not validated - the input caps at this length and PayPal is the backstop.
+export const MAX_PRODUCT_ID_LENGTH = 50;
 // PayPal rejects a third custom checkout field with a 400.
 export const MAX_CUSTOMER_NOTES = 2;
+
+// Shipping modes that ask the merchant for an amount. The form and the validator
+// both read this, so no mode errors on a field it never shows.
+export const SHIPPING_MODES_WITH_FEE = [ 'FLAT', 'QUANTITY' ];
+
+// Shown under a field a merchant turned on and then left empty.
+const REQUIRED_FIELD_ERROR = __(
+	'To continue, add the requested info or turn off this feature.',
+	'jetpack-paypal-payments'
+);
 
 /**
  * Check the decimals a price carries against what PayPal accepts for the currency.
@@ -110,25 +122,96 @@ export function validateDescription( value ) {
 }
 
 /**
- * Validate a percentage tax rate.
+ * Validate a value a toggle asked the merchant for.
  *
- * Required and above zero. The upper bound is the control's own max attribute -
- * PayPal's real limit has never been measured.
+ * Required and not negative. Zero is a value PayPal itself stores, so a merchant who
+ * wants none turns the toggle off instead. The upper bound is the control's max
+ * attribute, not a measured PayPal limit.
  *
- * @param {string} value - The tax rate.
+ * @param {string} value - The rate, amount or fee.
  * @return {string|null} Error message or null if valid.
  */
-export function validateTaxRate( value ) {
+export function validateRequiredAmount( value ) {
 	const num = parseFloat( value );
 
-	if ( isNaN( num ) || num <= 0 ) {
-		return __(
-			'To continue, add the requested info or turn off this feature.',
-			'jetpack-paypal-payments'
-		);
+	if ( isNaN( num ) || num < 0 ) {
+		return REQUIRED_FIELD_ERROR;
 	}
 
 	return null;
+}
+
+/**
+ * Validate a percentage discount.
+ *
+ * Whole numbers 1 to 99, measured. Tests the string, not the parsed number -
+ * PayPal rejects "1.0", which parseFloat would read as a valid 1.
+ *
+ * @param {string} value - The percentage off.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validateDiscountPercentage( value ) {
+	const num = parseFloat( value );
+
+	if ( isNaN( num ) || num <= 0 ) {
+		return REQUIRED_FIELD_ERROR;
+	}
+
+	if ( ! /^\d+$/.test( `${ value ?? '' }`.trim() ) ) {
+		return __( 'Discount percentage must be a whole number.', 'jetpack-paypal-payments' );
+	}
+
+	if ( num > 99 ) {
+		return __( 'Discount must be between 1% and 99%.', 'jetpack-paypal-payments' );
+	}
+
+	return null;
+}
+
+/**
+ * Validate a flat discount against the price it comes off.
+ *
+ * PayPal returns 422 at or above the price, so this is strictly less than.
+ * No price to compare against means format only.
+ *
+ * @param {string} value           - The amount off.
+ * @param {string} comparisonPrice - The price it comes off, or '' when there is none.
+ * @param {string} currencyCode    - The ISO currency code the amount is in.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validateDiscountAmount( value, comparisonPrice, currencyCode = 'USD' ) {
+	const num = parseFloat( value );
+
+	// Measured: PayPal rejects `discount.value is set to zero`, for "0" and "0.00"
+	// alike. Zero reads as "no discount", so it points at the toggle.
+	if ( isNaN( num ) || num <= 0 ) {
+		return REQUIRED_FIELD_ERROR;
+	}
+
+	const against = parseFloat( comparisonPrice );
+	if ( ! isNaN( against ) && num >= against ) {
+		return __( 'Discount must be less than the product price.', 'jetpack-paypal-payments' );
+	}
+
+	return getPriceFormatError( value, currencyCode );
+}
+
+/**
+ * Validate a discount against the rule its own type carries.
+ *
+ * The two rules have nothing in common - one is a range, the other a comparison -
+ * so the type picks between them here rather than inside either.
+ *
+ * @param {string} type            - Discount type: FLAT or PERCENTAGE.
+ * @param {string} value           - The amount or percentage off.
+ * @param {string} comparisonPrice - The price a flat discount comes off.
+ * @param {string} currencyCode    - The ISO currency code the amount is in.
+ * @return {string|null} Error message or null if valid.
+ */
+function validateDiscount( type, value, comparisonPrice, currencyCode ) {
+	return 'PERCENTAGE' === type
+		? validateDiscountPercentage( value )
+		: validateDiscountAmount( value, comparisonPrice, currencyCode );
 }
 
 /**
@@ -178,6 +261,34 @@ export function validateCurrency( value ) {
 export const ADVISORY_ERROR_KEYS = [ 'returnUrl' ];
 
 /**
+ * Error keys whose control sits outside the Checkout Options panel.
+ *
+ * The panel opens itself on an error one of its own fields reports. Listing the
+ * outsiders rather than the insiders is what makes that safe: a new checkout
+ * field is covered the moment its key exists, where a list of insiders would
+ * have to be remembered - and was not, twice.
+ */
+export const NON_CHECKOUT_ERROR_KEYS = [
+	'productName',
+	'price',
+	'productDescription',
+	'currencyCode',
+	'returnUrl',
+];
+
+/**
+ * Whether an error belongs to a field inside the Checkout Options panel.
+ *
+ * @param {object} errors - Errors from getValidationErrors().
+ * @return {boolean} True when the panel should open itself.
+ */
+export function hasCheckoutOptionError( errors ) {
+	return Object.entries( errors ).some(
+		( [ field, message ] ) => message && ! NON_CHECKOUT_ERROR_KEYS.includes( field )
+	);
+}
+
+/**
  * Validate every form field at once.
  *
  * Two things consume each key: hasBlockingError() below, which disables the save
@@ -189,16 +300,28 @@ export const ADVISORY_ERROR_KEYS = [ 'returnUrl' ];
  * object conditionally would shrink the key set the tests enumerate, and the
  * fence would go quiet with nothing failing.
  *
- * @param {object}  fields                    - The form's current values.
- * @param {string}  fields.productName        - Product name.
- * @param {string}  fields.price              - Product price.
- * @param {string}  fields.productDescription - Product description.
- * @param {string}  fields.returnUrl          - Post-payment redirect.
- * @param {string}  fields.currencyCode       - ISO currency code.
- * @param {boolean} fields.variantPricingOn   - Whether options carry their own prices.
- * @param {boolean} fields.taxEnabled         - Whether tax collection is on.
- * @param {boolean} fields.taxIsPercentage    - Whether the tax type carries a rate.
- * @param {string}  fields.taxValue           - Tax rate.
+ * @param {object}  fields                         - The form's current values.
+ * @param {string}  fields.productName             - Product name.
+ * @param {string}  fields.price                   - Product price.
+ * @param {string}  fields.productDescription      - Product description.
+ * @param {string}  fields.returnUrl               - Post-payment redirect.
+ * @param {string}  fields.currencyCode            - ISO currency code.
+ * @param {boolean} fields.variantPricingOn        - Whether options carry their own prices.
+ * @param {boolean} fields.taxEnabled              - Whether tax collection is on.
+ * @param {string}  fields.taxType                 - Tax type: PERCENTAGE, FLAT or PREFERENCE.
+ * @param {string}  fields.taxValue                - Tax rate or flat amount.
+ * @param {boolean} fields.handlingEnabled         - Whether a handling fee is on.
+ * @param {string}  fields.handlingValue           - Handling fee amount.
+ * @param {boolean} fields.discountEnabled         - Whether a discount is on.
+ * @param {string}  fields.discountType            - Discount type: FLAT or PERCENTAGE.
+ * @param {string}  fields.discountValue           - Discount amount or percentage.
+ * @param {string}  fields.comparisonPrice         - The price a flat discount comes off,
+ *                                                 from getComparisonPrice().
+ * @param {boolean} fields.shippingEnabled         - Whether shipping is on.
+ * @param {string}  fields.shippingMode            - PROFILE, QUANTITY, FLAT or FREE.
+ * @param {string}  fields.shippingValue           - Shipping fee, or the first-item fee.
+ * @param {string}  fields.shippingAdditionalValue
+ *                                                 - The per-extra-item fee. Optional.
  * @return {object} An error message or null, keyed by field.
  */
 export function getValidationErrors( {
@@ -209,8 +332,18 @@ export function getValidationErrors( {
 	currencyCode,
 	variantPricingOn,
 	taxEnabled,
-	taxIsPercentage,
+	taxType,
 	taxValue,
+	handlingEnabled,
+	handlingValue,
+	discountEnabled,
+	discountType,
+	discountValue,
+	comparisonPrice,
+	shippingEnabled,
+	shippingMode,
+	shippingValue,
+	shippingAdditionalValue,
 } ) {
 	return {
 		productName: validateProductName( productName ),
@@ -219,7 +352,28 @@ export function getValidationErrors( {
 		price: variantPricingOn ? null : validatePrice( price, currencyCode || 'USD' ),
 		productDescription: validateDescription( productDescription ),
 		returnUrl: validateReturnUrl( returnUrl ),
-		taxValue: taxEnabled && taxIsPercentage ? validateTaxRate( taxValue ) : null,
+		// PREFERENCE takes its rate from the merchant's PayPal profile, so there is
+		// nothing local to fill in.
+		taxValue: taxEnabled && 'PREFERENCE' !== taxType ? validateRequiredAmount( taxValue ) : null,
+		handlingValue: handlingEnabled ? validateRequiredAmount( handlingValue ) : null,
+		// A percentage is not money, so only the flat branch takes a price to
+		// compare against and a currency to check the decimals for.
+		discountValue: discountEnabled
+			? validateDiscount( discountType, discountValue, comparisonPrice, currencyCode || 'USD' )
+			: null,
+		// The two PREFERENCE modes put PROFILE or FREE_SHIPPING in the value field
+		// themselves, so there is nothing for the merchant to fill in. The second
+		// amount stays optional even in QUANTITY - PayPal only requires the first.
+		shippingValue:
+			shippingEnabled && SHIPPING_MODES_WITH_FEE.includes( shippingMode || 'FLAT' )
+				? validateRequiredAmount( shippingValue )
+				: null,
+		// Optional, so a blank one is fine - but a filled one still has to be an
+		// amount PayPal will take.
+		shippingAdditionalValue:
+			shippingEnabled && 'QUANTITY' === shippingMode && '' !== ( shippingAdditionalValue ?? '' )
+				? validateRequiredAmount( shippingAdditionalValue )
+				: null,
 		currencyCode: validateCurrency( currencyCode ),
 	};
 }
