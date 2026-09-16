@@ -41,7 +41,7 @@ class Sharing_Admin {
 		$this->services_config = new Services_Config();
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonces are handled in process_requests.
-		if ( isset( $_GET['page'] ) && ( $_GET['page'] === 'sharing.php' || $_GET['page'] === 'sharing' ) ) {
+		if ( isset( $_GET['page'] ) && $_GET['page'] === 'sharing' ) {
 			add_action( 'admin_init', array( $this, 'admin_init' ) );
 		}
 
