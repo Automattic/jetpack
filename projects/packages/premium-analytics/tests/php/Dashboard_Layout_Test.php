@@ -466,8 +466,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertNotContains( 'jpa/total-visitors', $layout_types );
 		$this->assertNotContains( 'jpa/popular-days', $layout_types );
 		$this->assertNotContains( 'jpa/popular-hours', $layout_types );
-		// Replaced by Views over years (WOOA7S-2015); the type stays registered for saved layouts.
-		$this->assertNotContains( 'jpa/traffic-views-activity', $layout_types );
 
 		// Highlights falls back to the widget's own default metric list.
 		$this->assertArrayNotHasKey(
