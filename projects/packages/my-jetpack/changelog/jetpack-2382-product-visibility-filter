@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a filter letting hosts control which products the My Jetpack Products page lists, and pin a product's activation so a site owner cannot turn it off.
