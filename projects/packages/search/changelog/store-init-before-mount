@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Instant Search: initialize the store before mounting instead of from component constructors.
+Comment: Internal refactor to initialize the Instant Search store before mounting.
