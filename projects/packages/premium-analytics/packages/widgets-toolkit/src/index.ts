@@ -37,6 +37,7 @@ export {
 	type WidgetRootContextValue,
 	type LegendItem,
 	type SeriesStyle,
+	type TooltipExtraSeries,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	type LeaderboardChartProps,
@@ -120,6 +121,8 @@ export {
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
+	FeedbackModal,
+	type FeedbackSource,
 	PageOptionsMenu,
 	type PageOptionsMenuProps,
 	ResetLayoutAction,
@@ -168,6 +171,7 @@ export {
 	type WidgetDataTableProps,
 	EARNINGS_HISTORY_VIEW,
 	flattenEarningsBreakdown,
+	getEarningsStatus,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 	AnnualHighlightsSkeleton,
@@ -237,7 +241,9 @@ export {
 	MONTHS_IN_YEAR,
 	monthOrder,
 	type MonthKey,
+	MONTHLY_HEATMAP_METRICS,
 	monthlyHeatmapLabels,
+	monthlyHeatmapMetricAttributeField,
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
 	monthRange,
@@ -333,4 +339,4 @@ export {
  * `@jetpack-premium-analytics/ui` directly: the toolkit bundles the ui package
  * once instead of once per widget.
  */
-export { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';

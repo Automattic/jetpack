@@ -13,6 +13,7 @@ export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
 	type SeriesStyle,
+	type TooltipExtraSeries,
 } from './chart-comparative-line';
 export {
 	ComparativeBarChart,
@@ -165,7 +166,12 @@ export {
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
 } from './detail-page';
-export { PageOptionsMenu, type PageOptionsMenuProps } from './page-options-menu';
+export {
+	FeedbackModal,
+	PageOptionsMenu,
+	type FeedbackSource,
+	type PageOptionsMenuProps,
+} from './page-options-menu';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
 	ReportCsvDownloadButton,
@@ -180,6 +186,7 @@ export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table'
 export {
 	EARNINGS_HISTORY_VIEW,
 	flattenEarningsBreakdown,
+	getEarningsStatus,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 } from './wordads-earnings-history';

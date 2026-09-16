@@ -120,7 +120,15 @@ Support documentation for common issues with the PayPal Payment Buttons plugin.
 **Steps to fix:**
 1. Create a new payment link by adding the block again and filling in the product details
 2. Share the new link or QR code: the old URL cannot be reused
-3. Update any published post that still shows the old button
+3. Update any published post that still embeds the old link. Those blocks render nothing until the post is updated, and the editor shows a warning on them
+
+### The block disappeared from a published page
+
+**Cause:** The link the block points at was deleted from the PayPal Payment Links admin page or from another post. Rather than show a button that leads to PayPal's "not found" page, the block renders nothing.
+
+**Steps to fix:**
+1. Open the post. The block shows a "deleted from PayPal" warning
+2. Update the post to create a new link, or remove the block
 
 ### Legacy paste-code button shows "legacy paste-code format"
 

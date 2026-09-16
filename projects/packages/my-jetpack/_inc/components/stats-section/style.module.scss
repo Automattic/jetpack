@@ -20,12 +20,11 @@ $min-card-width: 155px;
 	justify-content: space-between;
 	padding: $spacing-vertical $spacing-horizontal;
 	border-bottom: 1px solid var(--jp-gray-5);
-	cursor: pointer;
 	margin-bottom: $spacing-vertical;
 
-	// &:hover,
-	// &:focus {
-
+	&[href] {
+		cursor: var(--wpds-cursor-control);
+	}
 }
 
 .section-title {

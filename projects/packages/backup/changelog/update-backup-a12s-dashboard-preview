@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show the modernized dashboard to Automatticians on proxied requests, unless the site has the `use-backup-legacy-dashboard` sticker.

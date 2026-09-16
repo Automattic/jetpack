@@ -4,6 +4,11 @@ export { useDashboardPolicy } from './use-dashboard-policy';
 export { useDashboardSectionLayout } from './use-dashboard-section-layout';
 export { useDashboardSections } from './use-dashboard-sections';
 export {
+	useFeedbackBanner,
+	type FeedbackBanner,
+	type FeedbackBannerOptions,
+} from './use-feedback-banner';
+export {
 	useOnboarding,
 	type Onboarding,
 	type OnboardingDismissReason,

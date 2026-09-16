@@ -12,7 +12,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { comment, people, postContent, seen, trendingUp } from '@wordpress/icons';
+import { comment, page, people, seen, trendingUp } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -46,7 +46,7 @@ const COUNT_FORMAT: DataFormat = {
 const TILE_CONFIG: Record< AllTimeStatsMetricId, { icon: typeof seen } > = {
 	views: { icon: seen },
 	visitors: { icon: people },
-	posts: { icon: postContent },
+	posts: { icon: page },
 	comments: { icon: comment },
 };
 

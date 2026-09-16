@@ -91,18 +91,7 @@ class PayPal_Admin_Page {
 	 * @return array<string,int> Post counts keyed by resource id.
 	 */
 	public static function count_published_embeds( $exclude_post_id = 0 ) {
-		$posts = get_posts(
-			array(
-				'post_type'              => 'any',
-				'post_status'            => 'publish',
-				'posts_per_page'         => self::EMBED_SCAN_LIMIT,
-				's'                      => 'wp:jetpack/paypal-payment-buttons',
-				'sentence'               => true,
-				'no_found_rows'          => true,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-			)
-		);
+		$posts = self::published_block_posts();
 
 		$counts = array();
 		foreach ( $posts as $post ) {
@@ -118,6 +107,92 @@ class PayPal_Admin_Page {
 		}
 
 		return $counts;
+	}
+
+	/**
+	 * The published posts that embed one payment link.
+	 *
+	 * Capped the same way as count_published_embeds(), so on a site with more
+	 * block posts than the cap this is a subset.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id PayPal resource ID.
+	 * @return \WP_Post[]
+	 */
+	public static function find_published_embeds( $resource_id ) {
+		$needle = '"resourceId":"' . $resource_id . '"';
+
+		return array_values(
+			array_filter(
+				self::published_block_posts(),
+				function ( $post ) use ( $needle ) {
+					return false !== strpos( $post->post_content, $needle );
+				}
+			)
+		);
+	}
+
+	/**
+	 * The published posts carrying a PayPal Payment Buttons block, capped.
+	 *
+	 * @return \WP_Post[]
+	 */
+	private static function published_block_posts() {
+		return get_posts(
+			array(
+				'post_type'              => 'any',
+				'post_status'            => 'publish',
+				'posts_per_page'         => self::EMBED_SCAN_LIMIT,
+				's'                      => 'wp:jetpack/paypal-payment-buttons',
+				'sentence'               => true,
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+	}
+
+	/**
+	 * The notice shown after a link is deleted, naming the posts that still embed it.
+	 *
+	 * Those blocks render nothing until the post is updated, which creates a new
+	 * link, or the block is removed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id The deleted PayPal resource ID.
+	 * @return array{type: string, message: string, links: array<int, array{url: string, label: string}>}
+	 */
+	public static function deleted_link_notice( $resource_id ) {
+		$posts   = self::find_published_embeds( $resource_id );
+		$message = __( 'Payment link deleted successfully.', 'jetpack-paypal-payments' );
+		$links   = array();
+
+		if ( $posts ) {
+			$message .= ' ' . sprintf(
+				/* translators: %d: number of published posts */
+				_n(
+					'%d published post still embeds it and now shows nothing where the button was. Edit it to remove the block, or update it to create a new link:',
+					'%d published posts still embed it and now show nothing where the button was. Edit them to remove the block, or update them to create a new link:',
+					count( $posts ),
+					'jetpack-paypal-payments'
+				),
+				count( $posts )
+			);
+			foreach ( $posts as $post ) {
+				$links[] = array(
+					'url'   => admin_url( 'post.php?post=' . (int) $post->ID . '&action=edit' ),
+					'label' => get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' ),
+				);
+			}
+		}
+
+		return array(
+			'type'    => 'success',
+			'message' => $message,
+			'links'   => $links,
+		);
 	}
 
 	/**
@@ -223,14 +298,7 @@ class PayPal_Admin_Page {
 				30
 			);
 		} else {
-			set_transient(
-				'paypal_admin_notice_' . get_current_user_id(),
-				array(
-					'type'    => 'success',
-					'message' => __( 'Payment link deleted successfully.', 'jetpack-paypal-payments' ),
-				),
-				30
-			);
+			set_transient( 'paypal_admin_notice_' . get_current_user_id(), self::deleted_link_notice( $resource_id ), 30 );
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) );
@@ -468,10 +536,15 @@ class PayPal_Admin_Page {
 		$notice = get_transient( 'paypal_admin_notice_' . get_current_user_id() );
 		if ( $notice ) {
 			delete_transient( 'paypal_admin_notice_' . get_current_user_id() );
+			$links = '';
+			foreach ( $notice['links'] ?? array() as $link ) {
+				$links .= sprintf( '<li><a href="%s">%s</a></li>', esc_url( $link['url'] ), esc_html( $link['label'] ) );
+			}
 			printf(
-				'<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
+				'<div class="notice notice-%s is-dismissible"><p>%s</p>%s</div>',
 				esc_attr( $notice['type'] ),
-				esc_html( $notice['message'] )
+				esc_html( $notice['message'] ),
+				$links ? '<ul class="paypal-admin-notice__posts">' . $links . '</ul>' : '' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped while built above.
 			);
 		}
 
@@ -574,17 +647,7 @@ class PayPal_Admin_Page {
 	 * @param string $resource_id The PayPal resource ID (PLB-...).
 	 */
 	private static function render_detail_view( $resource_id ) {
-		// Cache detail API responses for 300 seconds to reduce redundant API calls.
-		$cache_key = 'paypal_resource_' . sanitize_key( $resource_id );
-		$resource  = get_transient( $cache_key );
-
-		if ( false === $resource ) {
-			$resource = PayPal_API_Client::get_resource( $resource_id );
-
-			if ( ! is_wp_error( $resource ) ) {
-				set_transient( $cache_key, $resource, 300 );
-			}
-		}
+		$resource = PayPal_API_Client::get_resource_cached( $resource_id );
 
 		// Breadcrumb.
 		printf(

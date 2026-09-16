@@ -42,10 +42,54 @@ jest.mock( '@wordpress/blocks', () => ( {
 	getBlockType: ( ...args ) => mockGetBlockType( ...args ),
 } ) );
 
+// A stand-in registered under the name the entry point dispatches to.
+//
+// Registered rather than spied on, because `dispatch()` answers null for a store the registry does
+// not hold. The real `@wordpress/block-editor` store cannot be loaded here — it resolves core's
+// private APIs at import time and throws — which is also why the entry point addresses it by name.
+//
+// Recorded outside the reducer's state so the assertions read plain values. The lockdown is
+// exercised by calling it directly, as the notice and block cases below are: `loadEntryPoint()`
+// imports the entry through `jest.isolateModules`, whose registry this store is not in.
+const mockBlockEditingModes = {};
+const mockDispatchLog = [];
+
+function mockRegisterBlockEditorStore( { createReduxStore, register } ) {
+	register(
+		createReduxStore( 'core/block-editor', {
+			reducer: ( state = null, action ) => {
+				if ( 'MARK_NOT_PERSISTENT' === action.type ) {
+					mockDispatchLog.push( action.type );
+				}
+
+				if ( 'SET_BLOCK_EDITING_MODE' === action.type ) {
+					mockDispatchLog.push( action.type );
+					mockBlockEditingModes[ action.clientId ] = action.mode;
+				}
+
+				return state;
+			},
+			actions: {
+				setBlockEditingMode: ( clientId = '', mode ) => ( {
+					type: 'SET_BLOCK_EDITING_MODE',
+					clientId,
+					mode,
+				} ),
+				__unstableMarkNextChangeAsNotPersistent: () => ( { type: 'MARK_NOT_PERSISTENT' } ),
+			},
+			selectors: { getNothing: () => null },
+		} )
+	);
+}
+
+mockRegisterBlockEditorStore( jest.requireActual( '@wordpress/data' ) );
+
 jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) );
 
 // The real stores rather than mocks. Mocking `@wordpress/data` wholesale drops `combineReducers`,
 // which `@wordpress/components` needs at import time by way of `@wordpress/rich-text`.
+const { render, screen } = require( '@testing-library/react' );
+
 const { select, dispatch } = jest.requireActual( '@wordpress/data' );
 const { store: noticesStore } = jest.requireActual( '@wordpress/notices' );
 const { store: coreStore } = jest.requireActual( '@wordpress/core-data' );
@@ -126,6 +170,9 @@ function pageData( overrides = {} ) {
  */
 async function loadEntryPoint() {
 	jest.isolateModules( () => {
+		// The isolated registry is a different one, so the stand-in store has to be registered in it
+		// too — otherwise the mount's own lockdown dispatch finds nothing and silently no-ops.
+		mockRegisterBlockEditorStore( require( '@wordpress/data' ) );
 		require( '../src/index' );
 	} );
 
@@ -174,6 +221,8 @@ describe( 'Email design editor entry point', () => {
 		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
 		dispatch( noticesStore ).removeAllNotices( 'default' );
 		dispatch( noticesStore ).removeAllNotices( 'default', 'email-editor' );
+		Object.keys( mockBlockEditingModes ).forEach( key => delete mockBlockEditingModes[ key ] );
+		mockDispatchLog.length = 0;
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
@@ -301,6 +350,43 @@ describe( 'Email design editor entry point', () => {
 			await loadEntryPoint();
 
 			expect( mountedEditorProps().config.editorSettings.isFullScreenForced ).toBe( true );
+		} );
+
+		// `core/post-featured-image` is a core block, so WordPress.com cannot describe it in `blocks`
+		// and no `preview_html` reaches it. It reports whether a send carries the image instead.
+		it( 'hides the featured image when WordPress.com says sends carry none', async () => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: false } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.editorSettings.styles ).toContainEqual( {
+				css: expect.stringContaining( '.wp-block-post-featured-image' ),
+			} );
+		} );
+
+		it( 'keeps the stylesheet WordPress.com sent rather than replacing it', async () => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: false } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// The email's own CSS travels in this array too, and the canvas paints from all of it.
+			expect( mountedEditorProps().config.editorSettings.styles ).toContainEqual( {
+				css: 'body{}',
+			} );
+		} );
+
+		it.each( [
+			[ 'says sends carry one', true ],
+			[ 'does not say either way', undefined ],
+		] )( 'leaves the featured image alone when WordPress.com %s', async ( _label, shows ) => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: shows } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.editorSettings.styles ).toEqual( [ { css: 'body{}' } ] );
 		} );
 
 		it( 'does not pass the bundle through in its own shape', async () => {
@@ -696,6 +782,21 @@ describe( 'Email design editor entry point', () => {
 
 		const payload = blocks => ( { blocks } );
 
+		const HEADER_PREVIEW =
+			'<div class="email-header"><a href="https://example.com">A blog</a></div>';
+
+		/**
+		 * Render the `edit` of the block the last call registered.
+		 *
+		 * @return {void}
+		 */
+		function renderEdit() {
+			const [ , settings ] = mockRegisterBlockType.mock.calls[ 0 ];
+			const Edit = settings.edit;
+
+			render( <Edit /> );
+		}
+
 		it( 'registers each one the site has no definition for', () => {
 			registerEmailBlocks(
 				payload( [
@@ -749,6 +850,52 @@ describe( 'Email design editor entry point', () => {
 			expect( mockRegisterBlockType ).not.toHaveBeenCalled();
 		} );
 
+		it( 'shows the structure WordPress.com rendered rather than the block name', () => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', preview_html: HEADER_PREVIEW },
+				] )
+			);
+
+			renderEdit();
+
+			expect( screen.getByText( 'A blog' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Email header' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'makes the preview inert, so a click selects the block instead of following a link', () => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', preview_html: HEADER_PREVIEW },
+				] )
+			);
+
+			renderEdit();
+
+			// No query expresses "this subtree is inert", which is the whole assertion: it is what
+			// keeps the email's own links from taking focus or navigating out of the canvas.
+			// eslint-disable-next-line testing-library/no-node-access -- see above.
+			expect( screen.getByText( 'A blog' ).closest( '[inert]' ) ).not.toBeNull();
+		} );
+
+		// A block WordPress.com could not render arrives without the key rather than with an empty
+		// one, so the label has to survive as the fallback.
+		it.each( [
+			[ 'sent no preview', undefined ],
+			[ 'sent an empty preview', '' ],
+			[ 'sent a preview that is not a string', { rendered: '<p>x</p>' } ],
+		] )( 'labels a block that %s with its title', ( _label, previewHtml ) => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', preview_html: previewHtml },
+				] )
+			);
+
+			renderEdit();
+
+			expect( screen.getByText( 'Email header' ) ).toBeInTheDocument();
+		} );
+
 		it( 'registers before the editor renders, not after', async () => {
 			const order = [];
 			mockRegisterBlockType.mockImplementation( () => order.push( 'register' ) );
@@ -763,6 +910,43 @@ describe( 'Email design editor entry point', () => {
 			// The template is parsed on first render and resolved against the registry then, so
 			// registering afterwards leaves the same unsupported-block errors.
 			expect( order ).toEqual( [ 'register', 'render' ] );
+		} );
+	} );
+
+	// The template's core blocks arrive with their own inspector controls, and nothing here saves
+	// template edits — so every one of them is offered and then silently does nothing.
+	describe( 'the block editing the canvas takes away', () => {
+		const { lockCanvasEditing } = jest.requireActual( '../src/index' );
+
+		it( 'disables editing on the root, which covers blocks the bundle never describes', () => {
+			lockCanvasEditing();
+
+			expect( mockBlockEditingModes ).toEqual( { '': 'disabled' } );
+		} );
+
+		it( 'locks the canvas as part of mounting, not only when called directly', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mockBlockEditingModes ).toEqual( { '': 'disabled' } );
+		} );
+
+		it( 'does not lock a canvas that never loaded', async () => {
+			mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mockBlockEditingModes ).toEqual( {} );
+		} );
+
+		it( 'does not leave the editor holding a change to save', () => {
+			lockCanvasEditing();
+
+			// A mode is a view setting. Unmarked, it lands as an undo step and the editor opens
+			// believing the creator has unsaved work.
+			expect( mockDispatchLog ).toEqual( [ 'MARK_NOT_PERSISTENT', 'SET_BLOCK_EDITING_MODE' ] );
 		} );
 	} );
 

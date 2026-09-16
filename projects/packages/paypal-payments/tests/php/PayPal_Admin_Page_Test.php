@@ -63,7 +63,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		delete_transient( 'paypal_resource_plb-abc123' );
 		delete_transient( 'paypal_resource_plb-notfound' );
 		delete_transient( 'paypal_resource_plb-deleted' );
-		delete_transient( 'paypal_list_cache_' . md5( '' ) );
+		PayPal_API_Client::forget_cached_resources();
 
 		// Reset $_GET superglobal.
 		$_GET = array();
@@ -173,6 +173,72 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertSame( 1, PayPal_Admin_Page::count_published_embeds( 999 )['PLB-ABC123'] );
 
 		remove_all_filters( 'posts_pre_query' );
+	}
+
+	// --- Deleted link notice ---
+
+	/**
+	 * Test the notice names the published posts that still embed the deleted link, with edit links.
+	 */
+	public function test_deleted_link_notice_lists_the_posts_still_embedding_it() {
+		$embedding = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-GONE1"} /-->' );
+		$other     = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-OTHER1"} /-->' );
+		add_filter(
+			'posts_pre_query',
+			function () use ( $embedding, $other ) {
+				return array( $embedding, $other );
+			}
+		);
+
+		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
+
+		$this->assertSame( 'success', $notice['type'] );
+		$this->assertStringContainsString( 'Payment link deleted successfully.', $notice['message'] );
+		$this->assertStringContainsString( '1 published post still embeds it and now shows nothing', $notice['message'] );
+		$this->assertCount( 1, $notice['links'] );
+		// make_post() gives the post no title.
+		$this->assertSame( '(no title)', $notice['links'][0]['label'] );
+		$this->assertStringContainsString( 'post=' . $embedding->ID, $notice['links'][0]['url'] );
+	}
+
+	/**
+	 * Test the notice stays a plain success when nothing embeds the link.
+	 */
+	public function test_deleted_link_notice_is_plain_when_nothing_embeds_it() {
+		add_filter( 'posts_pre_query', '__return_empty_array' );
+
+		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
+
+		$this->assertSame( 'Payment link deleted successfully.', $notice['message'] );
+		$this->assertSame( array(), $notice['links'] );
+	}
+
+	/**
+	 * Test render_page prints the notice's links.
+	 */
+	public function test_render_page_prints_the_notice_links() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+		set_transient(
+			'paypal_admin_notice_' . get_current_user_id(),
+			array(
+				'type'    => 'success',
+				'message' => 'Payment link deleted successfully. 1 published post still embeds it:',
+				'links'   => array(
+					array(
+						'url'   => 'http://example.org/wp-admin/post.php?post=12&action=edit',
+						'label' => 'Croissant <b>day</b>',
+					),
+				),
+			),
+			30
+		);
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<ul class="paypal-admin-notice__posts"><li><a href="http://example.org/wp-admin/post.php?post=12&#038;action=edit">Croissant &lt;b&gt;day&lt;/b&gt;</a></li></ul>', $output );
 	}
 
 	// --- Delete confirmation ---
@@ -521,6 +587,61 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'Back to Payment Links', $output );
 		// Should show resource ID.
 		$this->assertStringContainsString( 'PLB-ABC123', $output );
+	}
+
+	/**
+	 * Test the detail view is read fresh right after the link is edited.
+	 */
+	public function test_detail_view_reads_fresh_after_an_update() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+		$this->set_up_connected_state();
+
+		$resource = $this->get_sample_resource();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$resource ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				if ( 'PUT' === $args['method'] ) {
+					return array(
+						'response' => array(
+							'code'    => 204,
+							'message' => '',
+						),
+						'body'     => '',
+					);
+				}
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => '',
+					),
+					'body'     => wp_json_encode( $resource, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$this->assertStringContainsString( 'Premium Widget', ob_get_clean() );
+
+		// Renamed on PayPal, but the cache is still warm.
+		$resource['line_items'][0]['name'] = 'Renamed Widget';
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$this->assertStringContainsString( 'Premium Widget', ob_get_clean() );
+
+		PayPal_API_Client::update_resource( 'PLB-ABC123', array( 'type' => 'BUY_NOW' ) );
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$this->assertStringContainsString( 'Renamed Widget', ob_get_clean() );
 	}
 
 	/**

@@ -818,6 +818,11 @@ class PayPal_Payment_Buttons {
 			return;
 		}
 
+		// A buyer would only reach PayPal's "not found" page.
+		if ( PayPal_API_Client::is_deleted_resource( $resource_id ) ) {
+			return '<!-- PayPal payment link deleted -->';
+		}
+
 		// Validate the payment URL is from a legitimate PayPal domain.
 		$sanitized_payment_url = self::sanitize_paypal_script_url( $payment_url );
 		if ( false === $sanitized_payment_url ) {

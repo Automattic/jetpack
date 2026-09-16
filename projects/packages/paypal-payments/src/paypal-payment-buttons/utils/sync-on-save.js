@@ -91,7 +91,7 @@ export function isReadyForPayPal( attributes ) {
  * @param {object} err - The apiFetch error.
  * @return {boolean} True for a 404.
  */
-function isNotFound( err ) {
+export function isNotFound( err ) {
 	return err?.code === 'paypal_api_resource_not_found' || err?.data?.status === 404;
 }
 
