@@ -18,7 +18,7 @@ import {
 } from '../components/variant-builder';
 import { API_BASE } from './api-base';
 import { buildRequestData } from './request-data';
-import { ADVISORY_ERROR_KEYS, getUserFriendlyError, getValidationErrors } from './validation';
+import { firstBlockingError, getUserFriendlyError, getValidationErrors } from './validation';
 
 // The last body each block sent, so an unchanged block is not re-sent on every save.
 const lastSynced = new Map();
@@ -40,58 +40,21 @@ export function forgetSyncedRequests() {
  * @return {string|null} The first thing to fix, or null when the payment can go.
  */
 export function heldBackReason( attributes ) {
-	const {
-		productName,
-		price,
-		productDescription,
-		returnUrl,
-		currencyCode,
-		variantsEnabled,
-		variants,
-		customerNotes,
-		taxEnabled,
-		taxType,
-		taxValue,
-		handlingEnabled,
-		handlingValue,
-		discountEnabled,
-		discountType,
-		discountValue,
-		shippingEnabled,
-		shippingMode,
-		shippingValue,
-		shippingAdditionalValue,
-	} = attributes;
+	const { price, currencyCode, variantsEnabled, variants, customerNotes } = attributes;
 
 	const variantPricingOn = isVariantPricingOn( variantsEnabled, variants );
 
+	// The whole attribute set goes to the validator, so a new field is covered here and
+	// in the editor at once.
 	const errors = getValidationErrors( {
-		productName,
-		price,
-		productDescription,
-		returnUrl,
-		currencyCode,
+		...attributes,
 		variantPricingOn,
-		taxEnabled,
-		taxType,
-		taxValue,
-		handlingEnabled,
-		handlingValue,
-		discountEnabled,
-		discountType,
-		discountValue,
-		shippingEnabled,
-		shippingMode,
-		shippingValue,
-		shippingAdditionalValue,
 		comparisonPrice: getComparisonPrice( variantPricingOn, variants, price ),
 	} );
 
-	const blocking = Object.entries( errors ).find(
-		( [ field, message ] ) => message && ! ADVISORY_ERROR_KEYS.includes( field )
-	);
+	const blocking = firstBlockingError( errors );
 	if ( blocking ) {
-		return blocking[ 1 ];
+		return blocking;
 	}
 
 	const [ variantError ] = validateVariants( variantsEnabled, variants, currencyCode || 'USD' );

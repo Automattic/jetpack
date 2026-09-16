@@ -82,8 +82,8 @@ const NOTE_KEY_PREFIX = 'customerNote:';
 const noteFieldKey = noteIndex => `${ NOTE_KEY_PREFIX }${ noteIndex }`;
 
 const helpQuantity = __( 'Fixed at 1 unit per purchase', 'jetpack-paypal-payments' );
-// The minifier collapses a ternary between two __() calls into one non-literal
-// msgid and i18n-check-webpack-plugin rejects the build, so both sides are consts.
+// The minifier folds a ternary between two __() calls into one non-literal msgid and
+// i18n-check-webpack-plugin then rejects the build, so each branch gets its own const.
 const placeholderTaxRate = __( 'Enter tax rate', 'jetpack-paypal-payments' );
 const placeholderTaxValue = __( 'Enter tax value', 'jetpack-paypal-payments' );
 
@@ -206,8 +206,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 
 	const blockProps = useBlockProps();
 
-	// Pre-extract translated strings used in ternaries to avoid
-	// i18n-check-webpack-plugin errors when the minifier collapses branches.
+	// Separate __() calls keep each msgid literal for the minifier.
 	const labelConnected = __( 'PayPal Connected', 'jetpack-paypal-payments' );
 	const labelDisconnected = __( 'PayPal Disconnected', 'jetpack-paypal-payments' );
 
@@ -328,49 +327,8 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	 * Memoized to avoid re-computing on every render.
 	 */
 	const validationErrors = useMemo(
-		() =>
-			getValidationErrors( {
-				productName,
-				price,
-				productDescription,
-				returnUrl,
-				currencyCode,
-				variantPricingOn,
-				taxEnabled,
-				taxType,
-				taxValue,
-				handlingEnabled,
-				handlingValue,
-				discountEnabled,
-				discountType,
-				discountValue,
-				comparisonPrice,
-				shippingEnabled,
-				shippingMode,
-				shippingValue,
-				shippingAdditionalValue,
-			} ),
-		[
-			productName,
-			price,
-			productDescription,
-			returnUrl,
-			currencyCode,
-			variantPricingOn,
-			taxEnabled,
-			taxType,
-			taxValue,
-			handlingEnabled,
-			handlingValue,
-			discountEnabled,
-			discountType,
-			discountValue,
-			comparisonPrice,
-			shippingEnabled,
-			shippingMode,
-			shippingValue,
-			shippingAdditionalValue,
-		]
+		() => getValidationErrors( { ...attributes, variantPricingOn, comparisonPrice } ),
+		[ attributes, variantPricingOn, comparisonPrice ]
 	);
 
 	/**
@@ -580,8 +538,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	);
 
 	// The payment is written with the post, so the sidebar says what the save will do.
-	// Three separate calls, not one behind a ternary: the minifier would fold that
-	// into a single __() with a non-literal msgid, which the production build rejects.
+	// Separate __() calls keep each msgid literal for the minifier.
 	let saveStatus = __(
 		'Complete the highlighted fields. Until then the button is not sent to PayPal when you save.',
 		'jetpack-paypal-payments'

@@ -271,15 +271,11 @@ describe( 'shipping', () => {
 		buildRequestData( { ...attributes, shippingEnabled: true, ...overrides }, true )
 			.line_items[ 0 ];
 
-	// Both values are set, so only the toggle can keep them off the wire.
-	it( 'keeps a fee and an address preference off the wire while the toggle is off', () => {
-		const item = buildRequestData(
-			{ ...attributes, shippingValue: '5.00', collectShippingAddress: true },
-			true
-		).line_items[ 0 ];
+	// The fee is set, so only the toggle can keep it off the wire.
+	it( 'keeps a fee off the wire while the toggle is off', () => {
+		const item = buildRequestData( { ...attributes, shippingValue: '5.00' }, true ).line_items[ 0 ];
 
 		expect( item ).not.toHaveProperty( 'shipping' );
-		expect( item.collect_shipping_address ).toBe( false );
 	} );
 
 	// A fee mode with no amount is held back, the same way a blank handling fee is.
@@ -299,6 +295,14 @@ describe( 'shipping', () => {
 		[ 'FREE', { type: 'PREFERENCE', value: 'FREE_SHIPPING' } ],
 	] )( 'sends %s as a preference, ignoring any leftover fee', ( shippingMode, expected ) => {
 		expect( ship( { shippingMode, shippingValue: '5.00' } ).shipping ).toEqual( [ expected ] );
+	} );
+
+	// The select falls back to its first option, PROFILE, for the same unknown mode,
+	// so the two agree.
+	it( 'sends an unknown mode as the PROFILE preference', () => {
+		expect( ship( { shippingMode: 'PICKUP', shippingValue: '' } ).shipping ).toEqual( [
+			{ type: 'PREFERENCE', value: 'PROFILE' },
+		] );
 	} );
 
 	it( 'sends a specific fee as a flat amount', () => {
@@ -334,12 +338,13 @@ describe( 'shipping', () => {
 		).toEqual( [ { type: 'FLAT', value: '0', additional_unit_value: '0' } ] );
 	} );
 
-	// The design nests the checkbox under the toggle, so the two move together.
-	it( 'sends the address preference only while shipping is on', () => {
+	// The shipping toggle clears the attribute on its way off, so the builder reads it as
+	// it stands. A payment that collects an address and charges no shipping keeps both.
+	it( 'sends the address preference whether or not shipping is on', () => {
 		expect( ship( { collectShippingAddress: true } ).collect_shipping_address ).toBe( true );
 		expect(
 			buildRequestData( { ...attributes, collectShippingAddress: true }, true ).line_items[ 0 ]
 				.collect_shipping_address
-		).toBe( false );
+		).toBe( true );
 	} );
 } );

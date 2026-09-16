@@ -73,6 +73,25 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
+	 * Test that a non-string productName is rejected.
+	 *
+	 * The method is public, so it coerces a non-string name to an empty string before
+	 * trim() sees it.
+	 */
+	public function test_validate_rejects_non_string_product_name() {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'  => array( 'Widget' ),
+				'price'        => '10.00',
+				'currencyCode' => 'USD',
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_product_name', $result->get_error_code() );
+	}
+
+	/**
 	 * Test that productName exceeding 127 characters is rejected.
 	 */
 	public function test_validate_rejects_name_too_long() {

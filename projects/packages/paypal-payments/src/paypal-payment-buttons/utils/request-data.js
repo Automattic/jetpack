@@ -5,19 +5,20 @@
  */
 
 import { withCurrency } from './resource-sync';
+import { SHIPPING_MODES_WITH_FEE } from './validation';
 
 /**
  * Whether a shipping mode has everything it needs to go out.
  *
- * PROFILE and FREE carry their own value. The two fee modes need an amount, and
- * '0' is one PayPal stores, so this tests the string rather than truthiness.
+ * The preference modes carry their own value. The fee modes need an amount, and '0'
+ * is one PayPal stores, so this tests for a blank string.
  *
  * @param {string} mode  - PROFILE, QUANTITY, FLAT or FREE.
  * @param {string} value - The fee.
  * @return {boolean} True when the entry can be built.
  */
 function hasShippingValue( mode, value ) {
-	return 'PROFILE' === mode || 'FREE' === mode || '' !== ( value ?? '' );
+	return ! SHIPPING_MODES_WITH_FEE.includes( mode ) || '' !== ( value ?? '' );
 }
 
 /**
@@ -34,12 +35,8 @@ function hasShippingValue( mode, value ) {
  * @return {object} The entry.
  */
 function buildShipping( mode, value, additional ) {
-	if ( 'PROFILE' === mode ) {
-		return { type: 'PREFERENCE', value: 'PROFILE' };
-	}
-
-	if ( 'FREE' === mode ) {
-		return { type: 'PREFERENCE', value: 'FREE_SHIPPING' };
+	if ( ! SHIPPING_MODES_WITH_FEE.includes( mode ) ) {
+		return { type: 'PREFERENCE', value: 'FREE' === mode ? 'FREE_SHIPPING' : 'PROFILE' };
 	}
 
 	return {
@@ -88,9 +85,11 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 		collectShippingAddress,
 	} = attributes;
 
-	// The form blocks a blank rate before it reaches here, so this is a backstop:
-	// no value, no tax. Test the string, because '0' is a value PayPal stores.
+	// PREFERENCE takes its rate from the merchant's PayPal profile.
 	const taxAmount = 'PREFERENCE' === taxType ? 'PROFILE' : taxValue;
+
+	// FLAT is the default the editor and the validator both fall back to.
+	const activeShippingMode = shippingMode || 'FLAT';
 
 	return {
 		type: 'BUY_NOW',
@@ -111,7 +110,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 							},
 					  } ),
 				...( productDescription ? { description: productDescription } : {} ),
-				// '0' is a valid product id, so blank is a trim check, not truthiness.
+				// Trimmed, so a whitespace-only id counts as blank.
 				...( productId?.trim() ? { product_id: productId.trim() } : {} ),
 				// The block owns the image: leaving it out here removes it at PayPal.
 				...( imageUrl ? { image_url: imageUrl } : {} ),
@@ -138,26 +137,29 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 							],
 					  }
 					: {} ),
-				// FLAT is the only type PayPal takes here. Same blank check as the
-				// tax above: '0' is a fee PayPal stores and reads back.
+				// FLAT is the only type PayPal takes here. The blank check tests the
+				// string, since '0' is a fee PayPal stores and reads back.
 				...( handlingEnabled && '' !== ( handlingValue ?? '' )
 					? { handling: [ { type: 'FLAT', value: handlingValue } ] }
 					: {} ),
-				// The attribute holds PayPal's own type, so it goes out as it stands.
-				// Blank check as above; a zero never gets here, the validator blocks it.
+				// The attribute holds PayPal's own type, so it goes out as it stands. The
+				// validator blocks a zero before it reaches here.
 				...( discountEnabled && '' !== ( discountValue ?? '' )
 					? { discounts: [ { type: discountType || 'FLAT', value: discountValue } ] }
 					: {} ),
 				// A fee mode with no amount would send an empty value, so it is gated
 				// the same way the fees above are. The two preference modes carry their
 				// own value and need no amount at all.
-				...( shippingEnabled && hasShippingValue( shippingMode, shippingValue )
-					? { shipping: [ buildShipping( shippingMode, shippingValue, shippingAdditionalValue ) ] }
+				...( shippingEnabled && hasShippingValue( activeShippingMode, shippingValue )
+					? {
+							shipping: [
+								buildShipping( activeShippingMode, shippingValue, shippingAdditionalValue ),
+							],
+					  }
 					: {} ),
-				// Omitting this makes PayPal collect an address whatever the payment
-				// said before, so it goes out on every request. The design nests the
-				// checkbox under the toggle, so shipping off means no address either.
-				collect_shipping_address: !! ( shippingEnabled && collectShippingAddress ),
+				// PayPal turns address collection on for any request that omits this, so
+				// it goes out every time. The shipping toggle clears the attribute.
+				collect_shipping_address: !! collectShippingAddress,
 			},
 		],
 		...( returnUrl ? { return_url: returnUrl } : {} ),

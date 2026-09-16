@@ -11,6 +11,7 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
+	validateCustomerNotes,
 	validateVariants,
 	VARIANT_ERROR_FIELDS,
 } from '../../../src/paypal-payment-buttons/components/variant-builder';
@@ -177,7 +178,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	// Like TextControl, className and help sit on the BaseControl wrapper rather than
 	// the input. URLInput has no onBlur - the form catches that on a wrapper of its
 	// own. The testid deliberately differs from `control-` so a test can tell this
-	// apart from the TextControl it replaced.
+	// apart from the TextControl it replaced. Ids by label - Return URL renders once.
 	URLInput: ( { label, value, onChange, help, className, ...rest } ) => (
 		<div data-testid={ `url-input-${ label }` } className={ className }>
 			<label htmlFor={ `field-${ label }` }>{ label }</label>
@@ -213,6 +214,10 @@ jest.mock( '@wordpress/compose', () => ( {
 } ) );
 
 // Mock WordPress components with simple HTML equivalents.
+//
+// A control drawn in a repeated row ids per instance with useId(), so each row's label
+// points at its own input. Share one label-derived id and an index lookup lands on row
+// one. A control that renders once ids by label.
 jest.mock( '@wordpress/components', () => ( {
 	BaseControl: {
 		VisualLabel: ( { children } ) => (
@@ -225,11 +230,6 @@ jest.mock( '@wordpress/components', () => ( {
 	// .components-base-control__help - the class editor.scss keys on - and the label
 	// tied to the input by a shared id. Mock that, not an aria-label, so a field with
 	// no accessible name fails here.
-	//
-	// One id per instance, like CheckboxControl and ToggleControl below. Any mock
-	// drawn in a repeated row needs it: this one is the variant option price, and
-	// every option labels it `Price` with no aria-label to tell the rows apart.
-	// URLInput and TextareaControl id by label; each renders once.
 	__experimentalInputControl: ( { label, value, onChange, suffix, help, className, ...rest } ) => {
 		const id = `field-${ mockReact.useId() }`;
 		return (
@@ -394,8 +394,7 @@ jest.mock( '@wordpress/components', () => ( {
 			onChange={ e => onChange( e.target.value ) }
 		/>
 	),
-	// One id per instance, the way the real control ids itself. Notes repeat the
-	// 'Required' label, and a label-derived id would point every one at row 1's input.
+	// Ids per instance - the notes repeat the 'Required' label.
 	CheckboxControl: ( { label, checked, onChange, help, disabled } ) => {
 		const id = `checkbox-${ mockReact.useId() }`;
 		return (
@@ -412,8 +411,6 @@ jest.mock( '@wordpress/components', () => ( {
 			</div>
 		);
 	},
-	// One id per instance, the way the real control ids itself — same reason as
-	// CheckboxControl above.
 	ToggleControl: ( { label, checked, onChange, help, disabled } ) => {
 		const id = `toggle-${ mockReact.useId() }`;
 		return (
@@ -446,8 +443,8 @@ jest.mock( '@wordpress/components', () => ( {
 		__nextHasNoMarginBottom,
 		...rest
 	} ) => {
-		// One id per instance, same reason as CheckboxControl above - customer notes
-		// repeat the 'Customer note label' string down the list.
+		// Ids per instance - the notes repeat 'Customer note label', the groups repeat
+		// 'Variant name' and the options repeat 'Price'.
 		const id = `field-${ mockReact.useId() }`;
 		return (
 			<div data-testid={ `control-${ label }` } className={ className }>
@@ -465,6 +462,7 @@ jest.mock( '@wordpress/components', () => ( {
 			</div>
 		);
 	},
+	// Ids by label - Description (optional) renders once.
 	TextareaControl: ( { label, value, onChange, onBlur, help, className } ) => (
 		<div data-testid={ `control-${ label }` } className={ className }>
 			<label htmlFor={ `field-${ label }` }>{ label }</label>
@@ -508,6 +506,7 @@ jest.mock( '@wordpress/components', () => ( {
 		</div>
 	),
 	__experimentalToolsPanelItem: ( { children } ) => <>{ children }</>,
+	// Ids by label - Custom width renders once.
 	__experimentalUnitControl: ( { label, value, onChange } ) => (
 		<div data-testid={ `unit-${ label }` }>
 			<label htmlFor={ `unit-field-${ label }` }>{ label }</label>
@@ -1803,7 +1802,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.type( idInput, 'S' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { productId: 'S' } );
-			// PayPal rejects a 51st character and there is no error state, so the input caps.
+			// The field caps the id, and the server answers a longer one with
+			// product_id_too_long.
 			expect( idInput ).toHaveAttribute( 'maxlength', '50' );
 		} );
 
@@ -4422,6 +4422,51 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					'Tell customers what you need, like personalization, gift messages, etc.'
 				)
 			).resolves.toBeInTheDocument();
+		} );
+
+		// Put the notes in a state, ask validateCustomerNotes what it reports, and require
+		// all of it on screen in the row it names.
+		describe( 'Every customer note error reaches the merchant', () => {
+			// Between them these cover an empty label and a whitespace-only one, in the
+			// first row, the second, and both at once.
+			const fixtures = [
+				[ { label: '', required: false } ],
+				[
+					{ label: 'Engraving', required: false },
+					{ label: '   ', required: true },
+				],
+				[
+					{ label: '   ', required: false },
+					{ label: '', required: false },
+				],
+			];
+
+			it.each( fixtures.map( ( customerNotes, i ) => [ i, customerNotes ] ) )(
+				'shows every error the notes in state %i are carrying, and leaves the clean rows alone',
+				async ( _index, customerNotes ) => {
+					const errors = validateCustomerNotes( customerNotes );
+					expect( errors.length ).toBeGreaterThan( 0 );
+
+					// A saved button shows every error on first render.
+					renderSaved( customerNotes );
+					await expect( screen.findAllByLabelText( 'Customer note label' ) ).resolves.toHaveLength(
+						customerNotes.length
+					);
+
+					errors.forEach( ( { index, message } ) => {
+						expect( noteControl( index ).getByText( message ) ).toBeVisible();
+					} );
+
+					customerNotes.forEach( ( _note, index ) => {
+						if ( errors.some( error => error.index === index ) ) {
+							return;
+						}
+						expect(
+							noteControl( index ).queryByText( REQUIRED_FIELD_ERROR )
+						).not.toBeInTheDocument();
+					} );
+				}
+			);
 		} );
 
 		it( 'offers the note again once one is removed', async () => {

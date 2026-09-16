@@ -19,7 +19,8 @@ import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
  */
 export const MAX_NAME_LENGTH = 127;
 export const MAX_DESCRIPTION_LENGTH = 2048;
-// Not validated - the input caps at this length and PayPal is the backstop.
+// The product id input caps at this length, and the server rejects a longer one with
+// product_id_too_long.
 export const MAX_PRODUCT_ID_LENGTH = 50;
 // PayPal rejects a third custom checkout field with a 400.
 export const MAX_CUSTOMER_NOTES = 2;
@@ -342,15 +343,28 @@ export const NON_CHECKOUT_ERROR_KEYS = [
 ];
 
 /**
+ * The first error message, skipping the fields the caller excludes.
+ *
+ * @param {object}   errors  - Errors from getValidationErrors().
+ * @param {string[]} exclude - Keys to skip.
+ * @return {string|null} The message, or null when there is nothing to report.
+ */
+export function firstBlockingError( errors, exclude = ADVISORY_ERROR_KEYS ) {
+	const found = Object.entries( errors ).find(
+		( [ field, message ] ) => message && ! exclude.includes( field )
+	);
+
+	return found ? found[ 1 ] : null;
+}
+
+/**
  * Whether an error belongs to a field inside the Checkout Options panel.
  *
  * @param {object} errors - Errors from getValidationErrors().
  * @return {boolean} True when the panel should open itself.
  */
 export function hasCheckoutOptionError( errors ) {
-	return Object.entries( errors ).some(
-		( [ field, message ] ) => message && ! NON_CHECKOUT_ERROR_KEYS.includes( field )
-	);
+	return null !== firstBlockingError( errors, NON_CHECKOUT_ERROR_KEYS );
 }
 
 /**
@@ -456,9 +470,7 @@ export function getValidationErrors( {
  * @return {boolean} True when a blocking field is in error.
  */
 export function hasBlockingError( errors ) {
-	return Object.entries( errors ).some(
-		( [ field, message ] ) => message && ! ADVISORY_ERROR_KEYS.includes( field )
-	);
+	return null !== firstBlockingError( errors );
 }
 
 /**

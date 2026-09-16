@@ -2,9 +2,8 @@
 /**
  * Attribute mapper between WordPress block attributes and PayPal Pay Links & Buttons API.
  *
- * Handles bidirectional mapping:
- * - Block attributes → PayPal API request body (for create/update)
- * - PayPal API response → Block attributes (for storing after create/update/get)
+ * Maps a PayPal API response onto block attributes, and validates them before a save.
+ * The block builds its own request body in utils/request-data.js.
  *
  * @package automattic/jetpack-paypal-payments
  * @since 0.8.0
@@ -115,8 +114,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Convert block attributes to a PayPal API request body.
 	 *
-	 * Takes the flat block attributes from the editor and transforms them
-	 * into the nested structure required by the PayPal Pay Links & Buttons API.
+	 * Only the tests call this. The live request body comes from utils/request-data.js.
 	 *
 	 * @param array $attributes Block attributes from the editor.
 	 * @return array PayPal API request body.
@@ -385,8 +383,11 @@ class PayPal_Attribute_Mapper {
 	 * @return true|WP_Error True if valid, WP_Error with details on failure.
 	 */
 	public static function validate_attributes( array $attributes ) {
+		// trim() throws on an array, so anything other than a string counts as missing.
+		$product_name = is_string( $attributes['productName'] ?? null ) ? $attributes['productName'] : '';
+
 		// Required: product name (reject empty and whitespace-only).
-		if ( empty( $attributes['productName'] ) || '' === trim( $attributes['productName'] ) ) {
+		if ( empty( $product_name ) || '' === trim( $product_name ) ) {
 			return new WP_Error(
 				'missing_product_name',
 				__( 'Product name is required.', 'jetpack-paypal-payments' ),
@@ -394,8 +395,7 @@ class PayPal_Attribute_Mapper {
 			);
 		}
 
-		$product_name = sanitize_text_field( $attributes['productName'] );
-		if ( mb_strlen( $product_name ) > self::MAX_NAME_LENGTH ) {
+		if ( mb_strlen( sanitize_text_field( $product_name ) ) > self::MAX_NAME_LENGTH ) {
 			return new WP_Error(
 				'product_name_too_long',
 				/* translators: %d: maximum allowed characters */
@@ -683,8 +683,7 @@ class PayPal_Attribute_Mapper {
 	/**
 	 * Validate the shape of a variants structure.
 	 *
-	 * Mirrors what sanitize_variants() discards, so a save cannot pass
-	 * validation on options that are then dropped before reaching PayPal.
+	 * Checks group and option names and counts. Amounts are validate_variant_pricing()'s.
 	 *
 	 * @since $$next-version$$
 	 *
