@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Post detail: Keep the keyboard-selected cell of the All-time traffic heatmap in view, clear of the month and year labels, when the grid scrolls.
+Insights and Post detail: Keep the keyboard-selected cell of the Views over years and All-time traffic heatmaps in view, clear of the month and year labels, when the grid scrolls.

@@ -1,4 +1,4 @@
 Significance: patch
-Type: bugfix
+Type: fixed
 
 Premium Analytics: Keep the keyboard-selected cell of the Views over years and a post's All-time traffic heatmaps in view, clear of the month and year labels, when the grid scrolls.
