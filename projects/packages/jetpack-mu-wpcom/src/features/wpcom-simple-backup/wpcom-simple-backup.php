@@ -107,11 +107,11 @@ function wpcom_simple_backup_is_backup_admin_request() {
 }
 
 /**
- * Register the Backup page without adding it to the Jetpack menu.
+ * Register the Backup page, then take it back out of the Jetpack menu.
  *
- * `remove_submenu_page()` only unsets `$submenu`, leaving the `$_registered_pages`
- * entry that makes `?page=` route — so the page stays reachable by URL. Drop the
- * remove_* call to surface it later.
+ * Removal is deferred on this page's own request because `get_admin_page_parent()`
+ * finds the page's parent by searching `$submenu`; drop the entry before
+ * `admin.php` resolves the hookname and the page stops rendering entirely.
  *
  * @return void
  */
@@ -132,6 +132,23 @@ function wpcom_simple_backup_register_page() {
 		$callback
 	);
 
+	if ( wpcom_simple_backup_is_backup_admin_request() ) {
+		// admin_head runs after routing and before menu-header.php prints.
+		add_action( 'admin_head', 'wpcom_simple_backup_hide_menu_entry', 0 );
+		return;
+	}
+
+	wpcom_simple_backup_hide_menu_entry();
+}
+
+/**
+ * Drop the Backup entry from the Jetpack submenu, leaving it routable by URL.
+ *
+ * Deleting this call is all that is needed to surface the page in the sidebar.
+ *
+ * @return void
+ */
+function wpcom_simple_backup_hide_menu_entry() {
 	remove_submenu_page( 'jetpack', WPCOM_SIMPLE_BACKUP_MENU_SLUG );
 }
 

@@ -71,15 +71,21 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Registration makes `?page=` resolve; presence in $submenu is what would
-	 * make it visible.
+	 * Put an administrator on a clean admin menu with the Jetpack parent present.
+	 *
+	 * Without the parent, get_plugin_page_hookname() falls back to an
+	 * "admin_page_" prefix and the hookname stops matching production.
+	 *
+	 * @return void
 	 */
-	public function test_page_is_registered_but_not_in_the_menu() {
+	private function set_up_admin_menu() {
 		$GLOBALS['menu']              = array();
 		$GLOBALS['submenu']           = array();
 		$GLOBALS['admin_page_hooks']  = array();
 		$GLOBALS['_registered_pages'] = array();
 		$GLOBALS['_parent_pages']     = array();
+		$GLOBALS['parent_file']       = '';
+		unset( $_GET['page'] );
 
 		wp_set_current_user(
 			wp_insert_user(
@@ -91,16 +97,100 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		// Without the parent, get_plugin_page_hookname() falls back to an
-		// "admin_page_" prefix and the hookname stops matching production.
 		add_menu_page( 'Jetpack', 'Jetpack', 'manage_options', 'jetpack', '__return_null' );
+	}
+
+	/**
+	 * Put the request on the Backup page, the way wp-admin/admin.php would.
+	 *
+	 * Calling set_current_screen() would fire `current_screen`, running other
+	 * features' callbacks in this shared suite; is_admin() only needs in_admin().
+	 *
+	 * @return void
+	 */
+	private function set_up_backup_request() {
+		$GLOBALS['current_screen'] = new class() {
+			/**
+			 * Whether the request is in the admin.
+			 *
+			 * @return bool
+			 */
+			public function in_admin() {
+				return true;
+			}
+		};
+
+		$GLOBALS['pagenow']     = 'admin.php';
+		$GLOBALS['plugin_page'] = WPCOM_SIMPLE_BACKUP_MENU_SLUG;
+		$_GET['page']           = WPCOM_SIMPLE_BACKUP_MENU_SLUG;
+	}
+
+	/**
+	 * Leave the admin globals as they were found.
+	 *
+	 * @return void
+	 */
+	public function tear_down() {
+		unset(
+			$GLOBALS['current_screen'],
+			$GLOBALS['pagenow'],
+			$GLOBALS['plugin_page'],
+			$_GET['page']
+		);
+		remove_action( 'admin_head', 'wpcom_simple_backup_hide_menu_entry', 0 );
+
+		parent::tear_down();
+	}
+
+	/**
+	 * Routing resolves the render hook by searching $submenu for the page, so
+	 * removing the entry too early stops the page rendering at all.
+	 */
+	public function test_page_hook_still_resolves_on_the_backup_request() {
+		$this->set_up_admin_menu();
+		$this->set_up_backup_request();
 
 		wpcom_simple_backup_register_page();
 
-		$this->assertArrayHasKey( 'jetpack_page_jetpack-backup', $GLOBALS['_registered_pages'] );
+		$this->assertSame(
+			'jetpack_page_' . WPCOM_SIMPLE_BACKUP_MENU_SLUG,
+			get_plugin_page_hook( WPCOM_SIMPLE_BACKUP_MENU_SLUG, 'admin.php' )
+		);
+	}
+
+	/**
+	 * The entry has to be gone before menu-header.php prints the sidebar.
+	 */
+	public function test_menu_entry_is_hidden_by_admin_head() {
+		$this->set_up_admin_menu();
+		$this->set_up_backup_request();
+
+		wpcom_simple_backup_register_page();
+
+		$this->assertSame(
+			0,
+			has_action( 'admin_head', 'wpcom_simple_backup_hide_menu_entry' ),
+			'Hiding must be hooked before menu-header.php prints.'
+		);
+
+		wpcom_simple_backup_hide_menu_entry();
 
 		$slugs = array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 );
-		$this->assertNotContains( 'jetpack-backup', $slugs );
+		$this->assertNotContains( WPCOM_SIMPLE_BACKUP_MENU_SLUG, $slugs );
+	}
+
+	/**
+	 * Off the Backup page nothing needs the entry, so it goes immediately —
+	 * admin_head never fires on the REST requests that build the wpcom sidebar.
+	 */
+	public function test_menu_entry_is_hidden_immediately_elsewhere() {
+		$this->set_up_admin_menu();
+
+		wpcom_simple_backup_register_page();
+
+		$slugs = array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 );
+		$this->assertNotContains( WPCOM_SIMPLE_BACKUP_MENU_SLUG, $slugs );
+		$this->assertArrayHasKey( 'jetpack_page_jetpack-backup', $GLOBALS['_registered_pages'] );
 	}
 
 	/**
