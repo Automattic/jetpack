@@ -41,7 +41,6 @@ describe( 'DashItem', () => {
 	const testProps = {
 		label: 'Protect',
 		module: 'protect',
-		statusText: '',
 		disabled: true,
 		pro: true,
 		isOfflineMode: false,
