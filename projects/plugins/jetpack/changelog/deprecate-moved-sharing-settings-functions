@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Deprecate the Settings > Sharing functions that moved into the jetpack-sharing-likes package, rather than removing them outright.
