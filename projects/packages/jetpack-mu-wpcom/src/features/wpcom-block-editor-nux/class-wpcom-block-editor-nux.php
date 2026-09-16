@@ -109,6 +109,10 @@ class WPCOM_Block_Editor_NUX {
 		require_once __DIR__ . '/class-wp-rest-wpcom-block-editor-recommended-tags-modal-controller.php';
 		$recommended_tags_modal_controller = new WP_REST_WPCOM_Block_Editor_Recommended_Tags_Modal_Controller();
 		$recommended_tags_modal_controller->register_rest_route();
+
+		require_once __DIR__ . '/class-wp-rest-wpcom-block-editor-four-for-four-controller.php';
+		$four_for_four_controller = new WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller();
+		$four_for_four_controller->register_rest_route();
 	}
 }
 add_action( 'init', array( __NAMESPACE__ . '\WPCOM_Block_Editor_NUX', 'init' ) );
