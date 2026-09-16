@@ -13,6 +13,7 @@ import {
 	resourceIdsIn,
 	syncBlocksBeforeSave,
 } from '../../src/paypal-payment-buttons/utils/sync-on-save';
+import { REQUIRED_FIELD_ERROR } from '../../src/paypal-payment-buttons/utils/validation';
 
 const product = {
 	productName: 'Test Widget',
@@ -328,9 +329,7 @@ describe( 'isReadyForPayPal', () => {
 		const attributes = { ...product, customerNotes: [ { label: '', required: false } ] };
 
 		expect( isReadyForPayPal( attributes ) ).toBe( false );
-		expect( heldBackReason( attributes ) ).toBe(
-			'To continue, add the requested info or turn off this feature.'
-		);
+		expect( heldBackReason( attributes ) ).toBe( REQUIRED_FIELD_ERROR );
 	} );
 
 	// heldBackReason checks variants before notes, so the order matters.

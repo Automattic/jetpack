@@ -12,6 +12,7 @@ import {
 	__experimentalInputControl as InputControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalInputControlSuffixWrapper as InputControlSuffixWrapper, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import clsx from 'clsx';
 
 /**
  * Amount or percentage input with the unit inside the field.
@@ -68,7 +69,9 @@ export default function AmountField( {
 					</>
 				)
 			}
-			className={ error ? 'jetpack-paypal-payment-buttons__has-error' : undefined }
+			className={ clsx( 'jetpack-paypal-payment-buttons__field', {
+				'jetpack-paypal-payment-buttons__has-error': error,
+			} ) }
 			disabled={ disabled }
 		/>
 	);

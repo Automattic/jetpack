@@ -18,6 +18,7 @@ import Edit from '../../../src/paypal-payment-buttons/edit';
 import {
 	ADVISORY_ERROR_KEYS,
 	getValidationErrors,
+	REQUIRED_FIELD_ERROR,
 } from '../../../src/paypal-payment-buttons/utils/validation';
 // apiFetch mock — controls what the component receives from the REST API.
 const apiFetch = require( '@wordpress/api-fetch' );
@@ -573,6 +574,19 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		screen
 			.getAllByTestId( 'panel-body' )
 			.find( body => body.getAttribute( 'data-title' ) === title );
+
+	/**
+	 * The <p> a converted select renders its profile hint into.
+	 *
+	 * CustomSelectControl has no help slot, so the hint is a sibling rather than
+	 * something the control owns. One shows at a time.
+	 *
+	 * @return {Element} The hint element.
+	 */
+	const fieldHint = () =>
+		screen.getByText( ( _text, element ) =>
+			element?.classList?.contains( 'jetpack-paypal-payment-buttons__field-hint' )
+		);
 
 	/**
 	 * The control a message has to appear inside for the fix to mean anything.
@@ -2820,8 +2834,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByLabelText( 'Tax rate' ) ).toBeInTheDocument();
 		} );
 
-		const missingRate = 'To continue, add the requested info or turn off this feature.';
-
 		// The value field appears as soon as Add tax is on, so the error shows straight
 		// away rather than waiting for a blur. A flat amount was never validated before -
 		// only PERCENTAGE was.
@@ -2841,7 +2853,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 			await waitForForm();
 
-			expect( screen.getByText( missingRate ) ).toBeInTheDocument();
+			expect( screen.getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Tax rate' ) ).toHaveClass(
 				'jetpack-paypal-payment-buttons__has-error'
 			);
@@ -2866,7 +2878,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 			await waitForForm();
 
-			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 		} );
 
@@ -3072,7 +3084,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 			await waitForForm();
 
-			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Tax rate' ) ).not.toHaveClass(
 				'jetpack-paypal-payment-buttons__has-error'
 			);
@@ -3096,7 +3108,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( screen.queryByLabelText( 'Rate type' ) ).not.toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Tax rate' ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 			const link = screen.getByTestId( 'link' );
 
@@ -3126,6 +3138,123 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByTestId( 'link' ) ).toHaveAttribute(
 				'href',
 				'https://www.paypal.com/cgi-bin/webscr?cmd=_profile-sales-tax'
+			);
+		} );
+
+		it( 'puts the field and menu classes on both tax selects', async () => {
+			mockConnected();
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitForForm();
+
+			// The stylesheet keys the input treatment off __field and the menu off
+			// __select-menu.
+			[ 'control-Tax type', 'control-Rate type', 'control-Tax rate' ].forEach( testId =>
+				expect( screen.getByTestId( testId ) ).toHaveClass(
+					'jetpack-paypal-payment-buttons__field'
+				)
+			);
+			expect( screen.getByTestId( 'control-Tax type' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__select-menu'
+			);
+			expect( screen.getByTestId( 'control-Rate type' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__select-menu'
+			);
+		} );
+
+		// CustomSelectControl reads `name` where SelectControl read `label`, and the
+		// old shape renders every option blank.
+		it( 'shows the option labels in both tax selects', async () => {
+			mockConnected();
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitForForm();
+			const typeOptions = within( screen.getByTestId( 'control-Tax type' ) ).getAllByRole(
+				'option'
+			);
+			const rateOptions = within( screen.getByTestId( 'control-Rate type' ) ).getAllByRole(
+				'option'
+			);
+
+			expect( typeOptions.map( o => o.textContent ) ).toEqual( [
+				'Use tax from my PayPal settings',
+				'Use a specific tax rate',
+			] );
+			expect( rateOptions.map( o => o.textContent ) ).toEqual( [ 'Percentage', 'Amount' ] );
+		} );
+
+		// data-value holds what the block passed, ahead of the mock's own fallback,
+		// so a raw string shows up here as an empty attribute.
+		it( 'passes each tax select the whole option object', async () => {
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType: 'FLAT' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await waitForForm();
+
+			expect( screen.getByTestId( 'control-Tax type' ) ).toHaveAttribute(
+				'data-value',
+				'specific'
+			);
+			// FLAT is the second option, so only the real value produces it.
+			expect( screen.getByTestId( 'control-Rate type' ) ).toHaveAttribute( 'data-value', 'FLAT' );
+			expect( screen.getByLabelText( 'Rate type' ) ).toHaveValue( 'FLAT' );
+		} );
+
+		// The mapper stores whatever rate type PayPal sent, so the control falls
+		// back to the first option and stays controlled.
+		it( 'falls back to the first rate type for an unknown tax type', async () => {
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType: 'TIERED' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await waitForForm();
+
+			expect( screen.getByTestId( 'control-Rate type' ) ).toHaveAttribute(
+				'data-value',
+				'PERCENTAGE'
+			);
+		} );
+
+		it( 'renders the tax profile hint beside the select', async () => {
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType: 'PREFERENCE', taxValue: '' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await waitForForm();
+			const hint = fieldHint();
+
+			expect( hint ).toContainElement( screen.getByTestId( 'link' ) );
+			// The class is how the select hands its bottom margin to the hint.
+			expect( screen.getByTestId( 'control-Tax type' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-hint'
+			);
+		} );
+
+		it( 'hides the tax profile hint when a specific rate is set', async () => {
+			mockConnected();
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitForForm();
+
+			expect( screen.queryByTestId( 'link' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Tax type' ) ).not.toHaveClass(
+				'jetpack-paypal-payment-buttons__has-hint'
 			);
 		} );
 
@@ -3181,13 +3310,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 		}
 
-		const missingFee = 'To continue, add the requested info or turn off this feature.';
-
 		it( 'asks for no amount while the fee is off', async () => {
 			await renderFee( { handlingEnabled: false, handlingValue: '' } );
 
 			expect( screen.queryByLabelText( 'Handling fee' ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 		} );
 
@@ -3196,7 +3323,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'refuses to save a fee with no amount', async () => {
 			await renderFee( { handlingValue: '' } );
 
-			expect( screen.getByText( missingFee ) ).toBeInTheDocument();
+			expect( screen.getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Handling fee' ) ).toHaveClass(
 				'jetpack-paypal-payment-buttons__has-error'
 			);
@@ -3209,7 +3336,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'saves a fee of zero', async () => {
 			await renderFee( { handlingValue: '0' } );
 
-			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Handling fee' ) ).not.toHaveClass(
 				'jetpack-paypal-payment-buttons__has-error'
 			);
@@ -3334,14 +3461,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 		}
 
-		const missingFee = 'To continue, add the requested info or turn off this feature.';
-
 		it( 'shows the toggle alone while shipping is off', async () => {
 			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
 
 			expect( screen.queryByLabelText( 'Shipping fee' ) ).not.toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Collect shipping address' ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 		} );
 
@@ -3361,10 +3486,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		] )( 'asks for no amount in %s mode', async ( shippingMode, label ) => {
 			await renderShipping( { shippingMode, shippingValue: '' } );
 
+			// PROFILE is the first option, so the mock's fallback reaches it too -
+			// data-value is what tells a real value from that fallback.
+			expect( screen.getByTestId( 'control-Shipping fee' ) ).toHaveAttribute(
+				'data-value',
+				shippingMode
+			);
 			expect( screen.getByLabelText( 'Shipping fee' ) ).toHaveValue( shippingMode );
 			expect( screen.getByRole( 'option', { name: label } ) ).toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Enter shipping fee' ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 		} );
 
@@ -3414,6 +3545,55 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'Use specific shipping fee',
 				'Free shipping',
 			] );
+		} );
+
+		it( 'puts the field and menu classes on the shipping select', async () => {
+			await renderShipping();
+
+			expect( screen.getByTestId( 'control-Shipping fee' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__field',
+				'jetpack-paypal-payment-buttons__select-menu'
+			);
+			expect( screen.getByTestId( 'control-Enter shipping fee' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__field'
+			);
+		} );
+
+		// FLAT is the second mode, so only the real value produces it.
+		it( 'passes the shipping select the whole option object', async () => {
+			await renderShipping();
+
+			expect( screen.getByTestId( 'control-Shipping fee' ) ).toHaveAttribute(
+				'data-value',
+				'FLAT'
+			);
+		} );
+
+		it( 'keeps the shipping select margin when the hint is hidden', async () => {
+			await renderShipping();
+
+			expect( screen.getByTestId( 'control-Shipping fee' ) ).not.toHaveClass(
+				'jetpack-paypal-payment-buttons__has-hint'
+			);
+		} );
+
+		it( 'falls back to PROFILE for an unknown shipping mode', async () => {
+			await renderShipping( { shippingMode: 'PICKUP', shippingValue: '' } );
+
+			expect( screen.getByTestId( 'control-Shipping fee' ) ).toHaveAttribute(
+				'data-value',
+				'PROFILE'
+			);
+		} );
+
+		it( 'renders the shipping profile hint beside the select', async () => {
+			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' } );
+			const hint = fieldHint();
+
+			expect( hint ).toContainElement( screen.getByTestId( 'link' ) );
+			expect( screen.getByTestId( 'control-Shipping fee' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__has-hint'
+			);
 		} );
 
 		// Every attribute a toggle hides goes back to its block.json default, so the
@@ -3494,7 +3674,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'refuses to save a fee mode with no amount', async () => {
 			await renderShipping( { shippingValue: '' } );
 
-			expect( screen.getByText( missingFee ) ).toBeInTheDocument();
+			expect( screen.getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Enter shipping fee' ) ).toHaveClass(
 				'jetpack-paypal-payment-buttons__has-error'
 			);
@@ -3506,14 +3686,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'saves quantity-based shipping with no per-extra-item fee', async () => {
 			await renderShipping( { shippingMode: 'QUANTITY', shippingAdditionalValue: '' } );
 
-			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 		} );
 
 		it( 'saves a fee of zero', async () => {
 			await renderShipping( { shippingValue: '0' } );
 
-			expect( screen.queryByText( missingFee ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 		} );
 
@@ -3676,7 +3856,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 		}
 
-		const missingValue = 'To continue, add the requested info or turn off this feature.';
 		const standingHint = 'Reduced from the product price';
 
 		it( 'asks for nothing while the discount is off', async () => {
@@ -3684,7 +3863,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( screen.queryByLabelText( 'Discount type' ) ).not.toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Discount value' ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( missingValue ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 		} );
 
@@ -3814,7 +3993,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'refuses to save a discount with no value', async () => {
 			await renderDiscount( { discountValue: '' } );
 
-			expect( screen.getByText( missingValue ) ).toBeInTheDocument();
+			expect( screen.getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
 			// editor.scss reddens the error row through this class, so without it the
 			// message renders grey and the assertion above still passes.
 			expect( screen.getByTestId( 'control-Discount value' ) ).toHaveClass(
@@ -3831,7 +4010,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const field = screen.getByTestId( 'control-Discount value' );
 
 			expect( within( field ).getByText( standingHint ) ).toBeInTheDocument();
-			expect( within( field ).getByText( missingValue ) ).toHaveClass(
+			expect( within( field ).getByText( REQUIRED_FIELD_ERROR ) ).toHaveClass(
 				'jetpack-paypal-payment-buttons__field-error'
 			);
 		} );
@@ -3841,7 +4020,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const field = screen.getByTestId( 'control-Discount value' );
 
 			expect( within( field ).getByText( standingHint ) ).toBeInTheDocument();
-			expect( within( field ).queryByText( missingValue ) ).not.toBeInTheDocument();
+			expect( within( field ).queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( field ).not.toHaveClass( 'jetpack-paypal-payment-buttons__has-error' );
 			expect( screen.getByText( updatedOnSave ) ).toBeInTheDocument();
 		} );
@@ -3893,7 +4072,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		] )( 'refuses %s of zero', async ( _label, discountType ) => {
 			await renderDiscount( { discountType, discountValue: '0' } );
 
-			expect( screen.getByText( missingValue ) ).toBeInTheDocument();
+			expect( screen.getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
 			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
 		} );
 
@@ -3960,8 +4139,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		beforeEach( () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 		} );
-
-		const required = 'To continue, add the requested info or turn off this feature.';
 
 		/**
 		 * Build a customer notes attribute with one labelled note per row.
@@ -4130,7 +4307,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await visit( user, await screen.findByLabelText( 'Customer note label' ) );
 
-			expect( noteControl( 0 ).getByText( required ) ).toBeInTheDocument();
+			expect( noteControl( 0 ).getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Customer note label' ) ).toHaveClass(
 				'jetpack-paypal-payment-buttons__has-error'
 			);
@@ -4144,7 +4321,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.click( await screen.findByLabelText( 'Add customer note' ) );
 			rerenderWith( rerender, [ { label: '', required: false } ] );
 
-			expect( screen.queryByText( required ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 		} );
 
 		// The payment is never sent while the label is blank, so the reason has to be
@@ -4153,7 +4330,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			renderWith( [ { label: '', required: false } ] );
 
 			await expect( screen.findByLabelText( 'Customer note label' ) ).resolves.toBeInTheDocument();
-			expect( noteControl( 0 ).getByText( required ) ).toBeInTheDocument();
+			expect( noteControl( 0 ).getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'control-Customer note label' ) ).toHaveClass(
 				'jetpack-paypal-payment-buttons__has-error'
 			);
@@ -4164,8 +4341,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'flags a saved blank note on first render', async () => {
 			renderSaved( [ { label: '', required: false } ] );
 
-			await expect( screen.findByText( required ) ).resolves.toBeInTheDocument();
-			expect( noteControl( 0 ).getByText( required ) ).toBeInTheDocument();
+			await expect( screen.findByText( REQUIRED_FIELD_ERROR ) ).resolves.toBeInTheDocument();
+			expect( noteControl( 0 ).getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
 			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
 		} );
 
@@ -4173,7 +4350,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			renderSaved( notes( 2 ) );
 
 			await expect( screen.findAllByLabelText( 'Customer note label' ) ).resolves.toHaveLength( 2 );
-			expect( screen.queryByText( required ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'false' );
 		} );
 
@@ -4183,9 +4360,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				{ label: '', required: false },
 			] );
 
-			await expect( screen.findByText( required ) ).resolves.toBeInTheDocument();
-			expect( noteControl( 1 ).getByText( required ) ).toBeInTheDocument();
-			expect( noteControl( 0 ).queryByText( required ) ).not.toBeInTheDocument();
+			await expect( screen.findByText( REQUIRED_FIELD_ERROR ) ).resolves.toBeInTheDocument();
+			expect( noteControl( 1 ).getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
+			expect( noteControl( 0 ).queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'stays quiet after the merchant leaves a filled label', async () => {
@@ -4195,7 +4372,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const fields = await screen.findAllByLabelText( 'Customer note label' );
 			await visit( user, fields[ 1 ] );
 
-			expect( screen.queryByText( required ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 			expect( screen.getByText( createdOnSave ) ).toBeInTheDocument();
 		} );
 
@@ -4215,7 +4392,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			rerenderWith( rerender, [ { label: '', required: false } ] );
 
-			expect( noteControl( 0 ).getByText( required ) ).toBeInTheDocument();
+			expect( noteControl( 0 ).getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
 		} );
 
 		it( 'stays quiet on the note added by turning the toggle back on', async () => {
@@ -4223,14 +4400,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const { rerender } = renderWith( [ { label: '', required: false } ] );
 
 			await visit( user, await screen.findByLabelText( 'Customer note label' ) );
-			expect( screen.getByText( required ) ).toBeInTheDocument();
+			expect( screen.getByText( REQUIRED_FIELD_ERROR ) ).toBeInTheDocument();
 
 			await user.click( screen.getByLabelText( 'Add customer note' ) );
 			rerenderWith( rerender, [] );
 			await user.click( screen.getByLabelText( 'Add customer note' ) );
 			rerenderWith( rerender, [ { label: '', required: false } ] );
 
-			expect( screen.queryByText( required ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 		} );
 
 		// The same sentence whether or not any notes are configured.
@@ -4548,25 +4725,25 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			taxValue: {
 				attributes: { taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '' },
 				testId: 'control-Tax rate',
-				message: 'To continue, add the requested info or turn off this feature.',
+				message: REQUIRED_FIELD_ERROR,
 				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
 			handlingValue: {
 				attributes: { handlingEnabled: true, handlingValue: '' },
 				testId: 'control-Handling fee',
-				message: 'To continue, add the requested info or turn off this feature.',
+				message: REQUIRED_FIELD_ERROR,
 				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
 			discountValue: {
 				attributes: { discountEnabled: true, discountType: 'FLAT', discountValue: '' },
 				testId: 'control-Discount value',
-				message: 'To continue, add the requested info or turn off this feature.',
+				message: REQUIRED_FIELD_ERROR,
 				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
 			shippingValue: {
 				attributes: { shippingEnabled: true, shippingMode: 'FLAT', shippingValue: '' },
 				testId: 'control-Enter shipping fee',
-				message: 'To continue, add the requested info or turn off this feature.',
+				message: REQUIRED_FIELD_ERROR,
 				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
 			shippingAdditionalValue: {
@@ -4577,7 +4754,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					shippingAdditionalValue: '-2',
 				},
 				testId: 'control-Additional items (optional)',
-				message: 'To continue, add the requested info or turn off this feature.',
+				message: REQUIRED_FIELD_ERROR,
 				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
 			returnUrl: {
@@ -4691,6 +4868,27 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.clear( await screen.findByLabelText( 'Maximum quantity' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { maxQuantity: 10 } );
+		} );
+
+		// The design draws the same help under the toggle in every state, so the
+		// string stays put while the field below it appears.
+		it.each( [ true, false ] )(
+			'shows the same quantity help with the toggle %s',
+			async adjustableQuantity => {
+				renderForm( { adjustableQuantity } );
+
+				await expect(
+					screen.findByText( 'Fixed at 1 unit per purchase' )
+				).resolves.toBeInTheDocument();
+			}
+		);
+
+		it( 'shows the help text under the maximum quantity field', async () => {
+			renderForm( { adjustableQuantity: true } );
+
+			await expect(
+				screen.findByText( 'Customers can buy up to this number' )
+			).resolves.toBeInTheDocument();
 		} );
 	} );
 

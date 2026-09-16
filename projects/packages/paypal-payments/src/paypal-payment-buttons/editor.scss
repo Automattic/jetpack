@@ -362,12 +362,96 @@
 	}
 }
 
+// The form renders into the inspector, so the class carries the scope. Tripled
+// because Emotion injects its rules after this file.
+.jetpack-paypal-payment-buttons__field {
+
+	&#{&}#{&} {
+
+		// Two class names for one label: InputBase on the amount fields,
+		// BaseControl on the text fields and the selects.
+		.components-input-control__label,
+		.components-base-control__label {
+			font-weight: 500; // core: 600
+			line-height: 16px; // core: 1.4, so 15.4px at 11px
+		}
+
+		// A select hugs a 24px chevron to core's 40px, so only the text shapes
+		// take 36.
+		.components-input-control__input,
+		.components-text-control__input {
+			height: 36px;
+			min-height: 36px;
+		}
+
+		// The design ties the suffix and the placeholder to one token. Tripled
+		// because the placeholder matches core's specificity and loses the tie.
+		&.components-input-control {
+
+			.components-input-control__suffix {
+				color: #5d5d5d;
+			}
+
+			.components-input-control__input::placeholder {
+				color: #5d5d5d;
+			}
+		}
+	}
+
+	// `Maximum quantity` is a number field too. Core styles the spinners only
+	// mid-drag, so plain specificity wins.
+	.components-input-control__input[type="number"],
+	.components-text-control__input[type="number"] {
+		appearance: textfield;
+
+		&::-webkit-inner-spin-button,
+		&::-webkit-outer-spin-button {
+			appearance: none;
+			margin: 0;
+		}
+	}
+
+	// Core dims a disabled native select; the custom one stays black and reads
+	// as live while it ignores clicks.
+	[role="combobox"]:disabled {
+		color: #8d8d8d;
+		cursor: default;
+	}
+
+	// The natives take this margin from the editor stylesheet.
+	&.components-custom-select-control {
+		margin-bottom: 16px;
+	}
+
+	// A select with a hint below it hands the gap over. The class comes from the
+	// same condition, since a sibling selector picks the wrong element.
+	&.components-custom-select-control.jetpack-paypal-payment-buttons__has-hint {
+		margin-bottom: 0;
+	}
+}
+
+// `help` on a CustomSelectControl reaches the trigger as a plain attribute, so
+// the hint renders beside the control instead.
+.jetpack-paypal-payment-buttons__field-hint {
+	// Both sides tie this to the same token, so follow the variable.
+	color: var(--wp-components-color-gray-700, #707070);
+	font-size: 12px;
+
+	// `.components-panel__body p` zeroes both margins and outranks one class.
+	&#{&}#{&} {
+		margin: 8px 0 16px;
+	}
+}
+
 // Check first, hint on its own line; core does neither.
-// TODO: Ariakit is dropping role=listbox - recheck on a components bump.
+// TODO: Ariakit is dropping `role=listbox` - recheck it and the trigger's
+// `role=combobox` on a components bump.
 .jetpack-paypal-payment-buttons__select-menu {
 
 	[role="listbox"] {
-		border-color: #ddd;
+		// Both sides tie this to the same token, so follow the variable. The 4px
+		// radius has no custom property behind it, so it stays a literal.
+		border-color: var(--wp-components-color-gray-300, #ddd);
 		border-radius: 4px;
 		padding: 4px;
 	}
@@ -377,24 +461,25 @@
 		gap: 8px;
 		justify-content: flex-start;
 		line-height: 20px;
-		// Core's own inline padding carries a correction for the check being on
-		// the right, which it no longer is.
-		padding-block: 8px;
-		padding-inline: 12px;
+		// Core's inline-end padding corrects for the check being on the right,
+		// which it no longer is. Its start padding and its 8px block padding
+		// already match.
+		padding-inline-end: 12px;
 	}
 
 	// The check is an unclassed aria-hidden span core appends after the label.
 	// Its margins assume it sits last, on core's line height.
 	.components-custom-select-control__item > [aria-hidden="true"]:last-child {
-		align-self: center;
-		color: #757575;
+		// The design puts the check on the option's first line.
+		align-self: flex-start;
+		color: var(--wp-components-color-gray-700, #707070);
 		margin-block-start: 0;
 		margin-inline-start: 0;
 		order: -1;
 	}
 
 	.components-custom-select-control__item-hint {
-		color: #757575;
+		color: var(--wp-components-color-gray-700, #707070);
 		flex-basis: 100%;
 		font-size: 12px;
 		line-height: 16px;

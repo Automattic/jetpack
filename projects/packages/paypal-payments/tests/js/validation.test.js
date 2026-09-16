@@ -28,7 +28,18 @@ import {
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
+	REQUIRED_FIELD_ERROR,
 } from '../../src/paypal-payment-buttons/utils/validation';
+
+// The one place the string itself is written out. Every other assertion reads
+// the const, so this is the line that moves when the wording changes.
+describe( 'REQUIRED_FIELD_ERROR', () => {
+	it( 'is the message shown under an empty required field', () => {
+		expect( REQUIRED_FIELD_ERROR ).toBe(
+			'To continue, add the requested info or turn off this feature.'
+		);
+	} );
+} );
 
 describe( 'validatePrice', () => {
 	it( 'returns an error when value is null', () => {
@@ -145,11 +156,10 @@ describe( 'validateDescription', () => {
 } );
 
 describe( 'validateMoney', () => {
-	const required = 'To continue, add the requested info or turn off this feature.';
 	const twoPlaces = 'Price can have at most 2 decimal places (e.g., "29.99").';
 
 	it.each( [ null, undefined, '', '   ' ] )( 'asks for the value when given %p', value => {
-		expect( validateMoney( value ) ).toBe( required );
+		expect( validateMoney( value ) ).toBe( REQUIRED_FIELD_ERROR );
 	} );
 
 	// PayPal's own form takes a 0 fee and reads it back. The toggle is how a merchant
@@ -196,18 +206,17 @@ describe( 'validateMoney', () => {
 
 	// The missing check runs first, so all of these report as missing.
 	it.each( [ '-5', 'abc', '-0', '-0.00' ] )( 'asks for the value when given %p', value => {
-		expect( validateMoney( value, 'JPY' ) ).toBe( required );
+		expect( validateMoney( value, 'JPY' ) ).toBe( REQUIRED_FIELD_ERROR );
 	} );
 } );
 
 describe( 'validatePercentage', () => {
-	const required = 'To continue, add the requested info or turn off this feature.';
 	const ceiling = 'Rate must be less than 100%.';
 
 	it.each( [ null, undefined, '', '   ', '-5', 'abc', '-0', '-0.00' ] )(
 		'asks for the value when given %p',
 		value => {
-			expect( validatePercentage( value ) ).toBe( required );
+			expect( validatePercentage( value ) ).toBe( REQUIRED_FIELD_ERROR );
 		}
 	);
 
@@ -233,13 +242,12 @@ describe( 'validatePercentage', () => {
 } );
 
 describe( 'validateDiscountPercentage', () => {
-	const required = 'To continue, add the requested info or turn off this feature.';
 	const whole = 'Discount percentage must be a whole number.';
 	const range = 'Discount must be between 1% and 99%.';
 
 	// Measured: "you cannot discount by 0%". Zero points back at the toggle.
 	it.each( [ null, undefined, '', '   ', 'abc', '-5', '0' ] )( 'asks for a value for %p', value => {
-		expect( validateDiscountPercentage( value ) ).toBe( required );
+		expect( validateDiscountPercentage( value ) ).toBe( REQUIRED_FIELD_ERROR );
 	} );
 
 	// Measured. "1.0" is rejected too, so the check reads the string not the float.
@@ -259,14 +267,13 @@ describe( 'validateDiscountPercentage', () => {
 } );
 
 describe( 'validateDiscountAmount', () => {
-	const required = 'To continue, add the requested info or turn off this feature.';
 	const tooBig = 'Discount must be less than the product price.';
 
 	// Measured: `discount.value is set to zero`. Unlike a tax rate.
 	it.each( [ null, undefined, '', '   ', 'abc', '-1', '0', '0.00' ] )(
 		'asks for a value for %p',
 		value => {
-			expect( validateDiscountAmount( value, '10.00' ) ).toBe( required );
+			expect( validateDiscountAmount( value, '10.00' ) ).toBe( REQUIRED_FIELD_ERROR );
 		}
 	);
 
