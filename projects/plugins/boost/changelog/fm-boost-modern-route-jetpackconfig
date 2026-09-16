@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Stop the modern dashboard logging a missing Jetpack config error.
