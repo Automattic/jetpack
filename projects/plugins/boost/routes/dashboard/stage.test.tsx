@@ -39,7 +39,15 @@ beforeEach( () => {
 	window.history.replaceState( null, '', '/?page=jetpack-boost' );
 	Object.assign( window, { wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' } } );
 	mockNavigate.mockReset();
+	delete window.jetpack_boost_ds;
 } );
+
+const setGettingStarted = ( value: boolean ) => {
+	window.jetpack_boost_ds = {
+		rest_api: { nonce: 'test-nonce', value: '/wp-json/jetpack-boost-ds' },
+		getting_started: { nonce: 'test-nonce', value },
+	};
+};
 
 describe( 'Boost dashboard stage', () => {
 	it.each( [
@@ -154,6 +162,39 @@ describe( 'Boost dashboard stage', () => {
 		fireEvent.click( screen.getByRole( 'tab', { name: 'Settings' } ) );
 
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
+	} );
+
+	it( 'shows a loader instead of Overview until onboarding leaves Getting Started', () => {
+		setGettingStarted( true );
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+		expect( getSubpageMount()?.hidden ).toBe( true );
+		expect( getSubpageMount() ).toBeEmptyDOMElement();
+		expect( getSettingsMount() ).not.toBeNull();
+
+		act( () => {
+			window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
+		} );
+
+		expect( getSubpageMount()?.hidden ).toBe( false );
+		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
+
+		act( () => {
+			window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings' );
+		} );
+
+		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Performance Overview' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows Overview without a loader once onboarding is done', () => {
+		setGettingStarted( false );
+		render( <Stage /> );
+
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'true' );
+		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'does not re-navigate when the Settings redirect rewrites history', () => {

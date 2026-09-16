@@ -1,5 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import BoostPage from '../../_inc/components/boost-page';
@@ -48,6 +50,10 @@ function Stage() {
 	const [ queryClient ] = useState( () => new QueryClient() );
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const lastSubpage = useRef( subpage );
+	// The bootstrap value never updates, so leaving Getting Started is what ends onboarding here.
+	const [ onboarding, setOnboarding ] = useState(
+		() => window.jetpack_boost_ds?.getting_started?.value === true
+	);
 	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
 		( next: Tab, replace = false ) => {
@@ -76,6 +82,9 @@ function Stage() {
 			}
 			lastSubpage.current = next;
 			setSubpage( next );
+			if ( ! next && previous === 'getting-started' ) {
+				setOnboarding( false );
+			}
 			if ( ! next && ( previous === 'cache-debug-log' || previous === 'critical-css-advanced' ) ) {
 				goToTab( 'settings', true );
 			}
@@ -90,9 +99,19 @@ function Stage() {
 			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
 			<Tabs.Panel value="overview" keepMounted>
-				<QueryClientProvider client={ queryClient }>
-					<Overview isVisible={ activeTab === 'overview' && subpage === null } />
-				</QueryClientProvider>
+				{ onboarding ? (
+					<div
+						className="jetpack-boost-dashboard__loading"
+						role="status"
+						aria-label={ __( 'Loading', 'jetpack-boost' ) }
+					>
+						<Spinner />
+					</div>
+				) : (
+					<QueryClientProvider client={ queryClient }>
+						<Overview isVisible={ activeTab === 'overview' && subpage === null } />
+					</QueryClientProvider>
+				) }
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>
 				<div id={ SETTINGS_SLOT_ID } />

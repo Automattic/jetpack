@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Show a loader instead of the modern Overview while onboarding redirects to Getting Started.
