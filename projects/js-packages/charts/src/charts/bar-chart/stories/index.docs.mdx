@@ -366,7 +366,7 @@ Enable rich interactive tooltips that display detailed information on hover:
 
 ### Band Highlight
 
-Set `withBandHighlight` alongside `withTooltips` to shade the active band across the plot. Hover a bar or use arrow keys after focusing the chart; Escape dismisses the highlight with the tooltip.
+Set `withBandHighlight` alongside `withTooltips` to shade the active band across the plot. Hover a bar or use arrow keys after focusing the chart. Escape clears the keyboard selection and its tooltip; a hover highlight remains.
 
 <Canvas of={ BarChartStories.BandHighlight } />
 
@@ -374,7 +374,7 @@ For an overlay outside the chart, `onBandHighlightChange` reports the active dat
 
 ### Beside Tooltips
 
-Use `tooltipPlacement="beside"` to keep the tooltip beside the active bar instead of flipping vertically. It flips horizontally near an edge and stays within the viewport or clipping ancestor. `tooltipAnchorTop` sets its top anchor in SVG coordinates; negative values place the anchor above the plot.
+Use `tooltipPlacement="beside"` to offset the tooltip horizontally from the active band center without vertical flipping. It flips horizontally near an edge and stays within the viewport or clipping ancestor. Its top follows the selected datum unless `tooltipAnchorTop` overrides it. This override also applies to `"auto"` placement, which can still flip vertically. The anchor uses SVG coordinates: values less than `margin.top` are above the plot, and negative values are above the SVG.
 
 <Canvas of={ BarChartStories.BesideTooltip } />
 

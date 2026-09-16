@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add an option to position bar chart tooltips beside the selected column.
+Bar chart: Add tooltips with horizontal placement and no vertical flipping.

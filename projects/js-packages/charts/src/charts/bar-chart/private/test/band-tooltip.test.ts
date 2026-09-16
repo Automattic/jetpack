@@ -5,7 +5,7 @@ describe( 'nearestBandIndex', () => {
 	test.each( [
 		[ 25, 688 ],
 		[ 688, 25 ],
-	] )( 'matches every painted centre with outer padding in range %s to %s', ( start, end ) => {
+	] )( 'matches every painted center with outer padding in range %s to %s', ( start, end ) => {
 		const data = Array.from( { length: 30 }, ( _, index ) => String( index ) );
 		const scale = scaleBand( {
 			domain: data,

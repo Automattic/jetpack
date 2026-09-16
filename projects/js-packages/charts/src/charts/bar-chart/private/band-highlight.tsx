@@ -21,7 +21,7 @@ type BandScale = ( ( value: unknown ) => number | undefined ) & { bandwidth?: ()
  * @param root0.onChange   - Receives selected category geometry.
  * @return The optional category highlight.
  */
-export function CategoryHighlight( { visible, horizontal, onChange }: Props ) {
+export function BandHighlight( { visible, horizontal, onChange }: Props ) {
 	const { xScale, yScale, dataRegistry, margin, innerWidth, innerHeight } =
 		useContext( DataContext );
 	const { tooltipOpen, tooltipData } = useContext( TooltipContext );
@@ -78,7 +78,7 @@ export function CategoryHighlight( { visible, horizontal, onChange }: Props ) {
 			y={ y }
 			width={ width }
 			height={ height }
-			data-testid="bar-chart-category-highlight"
+			data-testid="bar-chart-band-highlight"
 			pointerEvents="none"
 			fill={ CATALOG_POINTERS.surfaceSecondary }
 		/>

@@ -31,7 +31,7 @@ export type XyChartTooltipProps< Datum extends object > = {
 	renderTooltip: ( params: RenderTooltipParams< Datum > ) => ReactNode;
 	renderGlyph?: ( params: RenderTooltipGlyphProps< Datum > ) => ReactNode;
 	/**
-	 * Use below-axis placement for centered axis anchoring, or beside placement for a fixed top.
+	 * Use below-axis placement for centered axis anchoring, or beside placement to avoid vertical flipping.
 	 * Below-axis ignores vertical bounds; beside placement clamps to them.
 	 * @default 'auto'
 	 */

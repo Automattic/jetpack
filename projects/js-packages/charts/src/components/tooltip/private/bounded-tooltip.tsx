@@ -56,7 +56,7 @@ const findClippingAncestor = ( wrapper: Element ): Element | null => {
  * @param params.offsetTop  - Gap between the anchor and the box, vertically.
  * @param params.box        - Rendered size of the box.
  * @param params.wrapper    - The wrapper's own edges, in wrapper coordinates.
- * @param params.placement  - Below-axis, fixed-top beside placement, or automatic flipping.
+ * @param params.placement  - Below-axis, beside without vertical flipping, or automatic flipping.
  * @param params.bounds     - Edges the box must keep inside, in wrapper coordinates.
  * @return The box's top-left corner; fixed placement preserves the axis's subpixel y.
  */
@@ -126,8 +126,7 @@ export const getBoundedPosition = ( {
  * alone would let the box spill into an `overflow: hidden` card and be cut off.
  *
  * Re-measures on every render, so a box whose content changes width between
- * two hovers is placed for its current size. See `getBoundedPosition` for the
- * below-axis exception.
+ * two hovers is placed for its current size.
  *
  * @param props            - visx `Tooltip` props.
  * @param props.left       - Anchor x, in wrapper coordinates.
@@ -137,7 +136,7 @@ export const getBoundedPosition = ( {
  * @param props.style      - Box styles; visx's defaults unless `unstyled`.
  * @param props.unstyled   - Skip `style` and leave the box bare.
  * @param props.children   - Box content.
- * @param props.placement  - Below-axis, fixed-top beside placement, or automatic flipping.
+ * @param props.placement  - Below-axis, beside without vertical flipping, or automatic flipping.
  * @return The tooltip box.
  */
 export const BoundedTooltip = ( {

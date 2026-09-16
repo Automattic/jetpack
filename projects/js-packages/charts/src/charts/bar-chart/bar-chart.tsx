@@ -38,8 +38,8 @@ import {
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
 } from './private';
+import { BandHighlight } from './private/band-highlight';
 import { BandTooltip } from './private/band-tooltip';
-import { CategoryHighlight } from './private/category-highlight';
 import type { ComparisonSeriesEntry } from './private';
 import type {
 	BaseChartProps,
@@ -627,6 +627,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										onPointerUp={ onPointerUp }
 										pointerEventsDataKey="nearest"
 									>
+										{ withTooltips && ( withBandHighlight || onBandHighlightChange ) && (
+											<BandHighlight
+												visible={ withBandHighlight }
+												horizontal={ horizontal }
+												onChange={ onBandHighlightChange }
+											/>
+										) }
+
 										{ ! allSeriesHidden && (
 											<>
 												{ /* Visx forwards tickValues to its grid primitives but omits it from GridProps. */ }
@@ -645,13 +653,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											</>
 										) }
 
-										{ withTooltips && ( withBandHighlight || onBandHighlightChange ) && (
-											<CategoryHighlight
-												visible={ withBandHighlight }
-												horizontal={ horizontal }
-												onChange={ onBandHighlightChange }
-											/>
-										) }
 										{ withPatterns && (
 											<>
 												<defs data-testid="bar-chart-patterns">

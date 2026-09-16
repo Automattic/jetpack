@@ -169,7 +169,7 @@ describe( 'BarChart', () => {
 				height: expect.any( Number ),
 			} )
 		);
-		expect( screen.queryByTestId( 'bar-chart-category-highlight' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'bar-chart-band-highlight' ) ).not.toBeInTheDocument();
 		await user.keyboard( '{Escape}' );
 		await waitFor( () => expect( onBandHighlightChange ).toHaveBeenLastCalledWith( null ) );
 	} );
@@ -187,7 +187,7 @@ describe( 'BarChart', () => {
 			} );
 			await user.tab();
 			await user.keyboard( '{ArrowRight}' );
-			const highlight = screen.getByTestId( 'bar-chart-category-highlight' );
+			const highlight = screen.getByTestId( 'bar-chart-band-highlight' );
 			const bounds = onBandHighlightChange.mock.calls.at( -1 )[ 0 ];
 			expect( Number( highlight.getAttribute( 'width' ) ) ).toBe( bounds.width );
 			expect( Number( highlight.getAttribute( 'height' ) ) ).toBe( bounds.height );

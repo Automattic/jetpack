@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Return focus to bar charts after pressing Escape.
+Bar chart: Return focus to the chart after pressing Escape.

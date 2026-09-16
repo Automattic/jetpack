@@ -171,7 +171,7 @@ export const BandHighlight: Story = {
 		docs: {
 			description: {
 				story:
-					'Hover a bar or focus the chart and use arrow keys to highlight its band across the plot. Escape dismisses the tooltip and highlight.',
+					'Hover a bar or focus the chart and use arrow keys to highlight its band across the plot. Escape clears the keyboard selection and its tooltip; a hover highlight remains.',
 			},
 		},
 	},
@@ -194,7 +194,7 @@ export const BesideTooltip: Story = {
 		docs: {
 			description: {
 				story:
-					'Hover the first and last bars to check horizontal flipping. The tooltip stays at the SVG top anchor, subject to clipping bounds. Change tooltipAnchorTop to move that anchor, including above the plot with negative values.',
+					'Hover the first and last bars to check horizontal flipping. The tooltip stays at the SVG top anchor, subject to clipping bounds. Change tooltipAnchorTop to move that anchor, including above the SVG with negative values.',
 			},
 		},
 	},

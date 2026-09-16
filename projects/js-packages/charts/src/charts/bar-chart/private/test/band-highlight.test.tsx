@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { GlobalChartsProvider } from '../../../../providers';
 import { CATALOG_POINTERS } from '../../../../providers/chart-context/private/catalog-pointers';
 import { BarChartUnresponsive } from '../../bar-chart';
-import { CategoryHighlight } from '../category-highlight';
+import { BandHighlight } from '../band-highlight';
 import type { BandHighlightSelection } from '../../bar-chart';
 
 const xScale = scaleBand( { domain: [ 'Jan', 'Feb' ], range: [ 10, 210 ] } );
@@ -30,17 +30,17 @@ const Fixture = ( { label = 'Jan', onChange } ) => {
 				}
 			>
 				<svg>
-					<CategoryHighlight visible horizontal={ false } onChange={ onChange } />
+					<BandHighlight visible horizontal={ false } onChange={ onChange } />
 				</svg>
 			</TooltipContext.Provider>
 		</DataContext.Provider>
 	);
 };
 
-describe( 'CategoryHighlight', () => {
+describe( 'BandHighlight', () => {
 	test( 'uses the catalog surface fill', () => {
 		render( <Fixture onChange={ undefined } /> );
-		expect( screen.getByTestId( 'bar-chart-category-highlight' ) ).toHaveAttribute(
+		expect( screen.getByTestId( 'bar-chart-band-highlight' ) ).toHaveAttribute(
 			'fill',
 			CATALOG_POINTERS.surfaceSecondary
 		);
