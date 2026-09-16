@@ -11,6 +11,7 @@ import SubscribersBody from '../../_inc/subscribers/components/subscribers-body'
 import { queryClient } from '../../_inc/subscribers/lib/query-client';
 import { NewsletterSettingsBody } from '../../src/settings/newsletter-settings';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
+import OverviewBody from './components/overview-body';
 import '../../src/settings/style.scss';
 import './route.scss';
 
@@ -33,17 +34,18 @@ function getRedirectUri(): string | undefined {
 /**
  * Single stage that owns the unified Newsletter page chrome — Page header,
  * tab nav, and one `Tabs.Root` that persists across tab changes so the
- * active-tab indicator slides between Subscribers and Settings instead of
- * remounting on each route hop.
+ * active-tab indicator slides between tabs instead of remounting on each
+ * route hop.
  *
- * Active tab is read from `?tab=`. Subscribers is the default; settings
- * loads on `?tab=settings`. The inactive panel stays empty so we don't pay
+ * Active tab is read from `?tab=`. Overview is the default; the other tabs
+ * load via `?tab=subscribers` and `?tab=settings`. Inactive panels stay empty so we don't pay
  * for the other view's data fetching until the user opens it.
  *
  * @return Stage content.
  */
 const Stage = () => {
 	const search = useSearch( {
+		// SAFETY: This stage owns the root route, but generated route types are unavailable here.
 		from: '/' as unknown as never,
 		strict: false,
 	} ) as StageSearch;
@@ -51,10 +53,14 @@ const Stage = () => {
 	// When `jetpack_wp_admin_subscriber_management_enabled` is filtered to
 	// false on the server, the page is Settings-only — pin `activeTab`
 	// there so we never try to render the Subscribers body.
-	const subscribersEnabled = getNewsletterScriptData()?.subscriberManagementEnabled !== false;
-	let activeTab: NewsletterTab = 'subscribers';
+	const newsletterData = getNewsletterScriptData();
+	const subscribersEnabled = newsletterData?.subscriberManagementEnabled !== false;
+	const overviewEnabled = newsletterData?.overviewEnabled === true;
+	let activeTab: NewsletterTab = overviewEnabled ? 'overview' : 'subscribers';
 	if ( ! subscribersEnabled || search.tab === 'settings' ) {
 		activeTab = 'settings';
+	} else if ( search.tab === 'subscribers' ) {
+		activeTab = 'subscribers';
 	}
 
 	const {
@@ -135,11 +141,16 @@ const Stage = () => {
 						<NewsletterPage
 							activeTab={ activeTab }
 							actions={ activeTab === 'subscribers' && canManageSubscribers ? actions : undefined }
-							contentHasPadding={ activeTab === 'settings' }
+							contentHasPadding={ activeTab !== 'subscribers' }
 							hideFooter={ activeTab === 'subscribers' }
 						>
 							{ subscribersEnabled ? (
 								<>
+									{ overviewEnabled ? (
+										<Tabs.Panel value="overview">
+											{ activeTab === 'overview' ? <OverviewBody /> : null }
+										</Tabs.Panel>
+									) : null }
 									<Tabs.Panel value="subscribers">
 										{ activeTab === 'subscribers' ? subscribersPanel : null }
 									</Tabs.Panel>

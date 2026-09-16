@@ -146,7 +146,7 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
 | `line_items[].unit_amount.currency_code` | string | Yes | — | ISO currency code |
 | `line_items[].unit_amount.value` | string | Yes | — | Price (positive, max 2 decimals) |
 | `line_items[].quantity` | string | No | `1` | Quantity |
-| `line_items[].image_url` | string | No | — | Product image URL |
+| `line_items[].image_url` | string | No | — | Product image URL. HTTPS only; PayPal ignores images outside its own type and size limits |
 | `line_items[].taxes[].type` | string | No | `PERCENTAGE` | `PERCENTAGE`, `FLAT` or `PREFERENCE` |
 | `line_items[].taxes[].value` | string | No | `0` | Rate for `PERCENTAGE`, amount for `FLAT`. `PREFERENCE` always sends `PROFILE` |
 | `line_items[].taxes[].name` | string | No | — | Tax label. Sent only when set |
@@ -220,6 +220,10 @@ PayPal's actual state.
 ### DELETE `/wpcom/v2/paypal/buttons/{resource_id}`
 
 Delete a payment resource. Returns success even if already deleted on PayPal (404 treated as success).
+
+Deletion is permanent: PayPal has no pause, deactivate, or restore operation, and a buyer who opens the deleted link is sent to `https://www.paypal.com/ncp/notfound`. Callers must confirm with the merchant before sending this request.
+
+**Query parameters:** `unused_only` (boolean) keeps the link when another published post still embeds it; `post_id` names the post being saved, which does not count.
 
 **Response (200):**
 

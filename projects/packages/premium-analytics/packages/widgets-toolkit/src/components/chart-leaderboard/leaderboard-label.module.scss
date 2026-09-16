@@ -7,7 +7,7 @@
 .label {
 	min-inline-size: 0;
 	overflow: hidden;
-	font-size: var(--wpds-typography-font-size-sm);
+	font-size: var(--wpds-typography-font-size-md);
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
@@ -96,4 +96,5 @@
 
 .icon {
 	flex: none;
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }

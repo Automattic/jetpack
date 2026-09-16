@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Serve the license activation illustrations from the package and add their base URL to the admin script data.

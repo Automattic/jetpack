@@ -9,6 +9,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Wpcom;
 
 // @codeCoverageIgnoreStart
 require_once __DIR__ . '/class-expiry-data.php';
@@ -34,6 +35,68 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
 			return wpcom_get_site_purchases();
 		}
 		return array();
+	}
+}
+
+if ( ! function_exists( 'wpcom_expiry_get_reverted_transfer' ) ) {
+	/**
+	 * The site's latest revert, when it was the automatic one that follows an
+	 * expired plan: when it happened, and whether it qualifies. Null on a site
+	 * that is Atomic, was never reverted, or where the WordPress.com helpers
+	 * are not loaded. Pre-definable by a test mu-plugin.
+	 *
+	 * @return array{reverted_at:int,for_expired_plan:bool}|null
+	 *
+	 * @phan-suppress PhanRedefineFunction -- phan sees both this and the test stub as definitions even though only one loads at runtime.
+	 */
+	function wpcom_expiry_get_reverted_transfer(): ?array {
+		if ( ! function_exists( 'get_wpcom_blog_id' ) || ! function_exists( 'woa_get_latest_transfer' ) || ! function_exists( 'woa_get_transfer_meta' ) || ! function_exists( 'woa_is_revert_for_expired_plan' ) ) {
+			return null;
+		}
+		$blog_id = get_wpcom_blog_id();
+		// A site that was never reverted must never pay for a transient, so the
+		// sticker is checked before the cache, not inside its lookup.
+		if ( ! $blog_id || ! wpcom_has_blog_sticker( 'blog-transfer-reverted', $blog_id ) ) {
+			return null;
+		}
+
+		$cached = Expiry_Wpcom::remember(
+			'wpcom_expiry_notices_reverted_transfer_' . $blog_id,
+			static function () use ( $blog_id ): ?string {
+				// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists() above.
+				$transfer = woa_get_latest_transfer( $blog_id );
+				if ( ! is_object( $transfer ) || is_wp_error( $transfer ) || 'reverted' !== (string) ( $transfer->status ?? '' ) ) {
+					return Expiry_Wpcom::NONE;
+				}
+				$transfer_id = (int) ( $transfer->atomic_transfer_id ?? 0 );
+				// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists() above.
+				$reverted_at = $transfer_id ? woa_get_transfer_meta( $transfer_id, 'reverted_at' ) : null;
+				$reverted_ts = is_string( $reverted_at ) ? strtotime( $reverted_at ) : false;
+				if ( false === $reverted_ts ) {
+					return Expiry_Wpcom::NONE;
+				}
+				return wp_json_encode(
+					array(
+						'reverted_at'      => $reverted_ts,
+						// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists() above.
+						'for_expired_plan' => (bool) woa_is_revert_for_expired_plan( $transfer_id ),
+					),
+					JSON_UNESCAPED_SLASHES
+				);
+			}
+		);
+
+		if ( null === $cached || Expiry_Wpcom::NONE === $cached ) {
+			return null;
+		}
+		$decoded = json_decode( $cached, true );
+		if ( ! is_array( $decoded ) || ! isset( $decoded['reverted_at'] ) || ! isset( $decoded['for_expired_plan'] ) ) {
+			return null;
+		}
+		return array(
+			'reverted_at'      => (int) $decoded['reverted_at'],
+			'for_expired_plan' => (bool) $decoded['for_expired_plan'],
+		);
 	}
 }
 // @codeCoverageIgnoreEnd
@@ -89,6 +152,10 @@ function wpcom_expiry_notices_eligible_state( bool $flush = false ): ?array {
 		return $memo;
 	}
 
+	if ( wpcom_expiry_notices_store_is_sandboxed() ) {
+		return $memo;
+	}
+
 	$state = Expiry_Data::get_expiry_state();
 	if ( null === $state || Expiry_Data::STATE_ACTIVE === $state['state'] ) {
 		return $memo;
@@ -96,6 +163,21 @@ function wpcom_expiry_notices_eligible_state( bool $flush = false ): ?array {
 
 	$memo = $state;
 	return $memo;
+}
+
+/**
+ * Whether this Simple request reads the Store Sandbox instead of the store.
+ *
+ * The sandbox's purchases are test rows nothing renews or expires, so what
+ * they say about expiry is noise; the notices stand down for them. Atomic reads
+ * synced purchases and never sees the sandbox, so this is false there.
+ */
+function wpcom_expiry_notices_store_is_sandboxed(): bool {
+	if ( ! Constants::is_true( 'IS_WPCOM' ) || ! class_exists( 'Store_Sandbox' ) ) {
+		return false;
+	}
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only, guarded by class_exists().
+	return (bool) \Store_Sandbox::get_instance()->is_sandboxed();
 }
 
 /**
@@ -175,16 +257,16 @@ function wpcom_expiry_notices_expired_heading( array $state ): string {
 /**
  * Whether the revert this feature describes applies to this site, now.
  *
- * Past the grace period this waits on the sticker rather than the date: the
- * revert runs off the subscription-removal record and can lag the state by days.
+ * Post-grace is the revert: the state only exists once the site has been
+ * reverted for its expired plan. Before that, only an Atomic site has a
+ * revert ahead of it.
  *
  * @param array<string,mixed> $state Expiry state.
  */
 function wpcom_expiry_notices_revert_applies_to_site( array $state ): bool {
 	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
-		return wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() );
+		return true;
 	}
-
 	return Constants::is_true( 'IS_ATOMIC' );
 }
 
@@ -204,6 +286,8 @@ function wpcom_expiry_notices_support_cta( array $state ): array {
 	return array(
 		'label'   => __( 'Contact support', 'jetpack-mu-wpcom' ),
 		'url'     => 'https://wordpress.com/help?help-center=home',
+		// STATE_EXPIRED carries no plan today, so this branch is unreachable from
+		// the revert state; kept for symmetry with the heading and body helpers.
 		'message' => '' === $plan
 			? __( 'My plan expired and I need your help getting it restored.', 'jetpack-mu-wpcom' )
 			/* translators: %s is the plan name (e.g. Business). */
@@ -250,6 +334,14 @@ function wpcom_expiry_notices_enqueue_surface( string $script, string $global, a
 	}
 	$handle = jetpack_mu_wpcom_enqueue_assets( $script, array( 'js' ) );
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $handle );
+	$dismiss = wp_json_encode(
+		array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'nonce'   => wp_create_nonce( 'wpcom_expiry_notice_dismiss' ),
+		),
+		JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS
+	);
+	wp_add_inline_script( $handle, 'window.wpcomExpiryDismiss = ' . $dismiss . ';', 'before' );
 	wp_add_inline_script( $handle, 'window.' . $global . ' = ' . $json . ';', 'before' );
 	if ( null !== $style ) {
 		jetpack_mu_wpcom_enqueue_assets( $style, array( 'css' ) );
@@ -280,8 +372,7 @@ function wpcom_expiry_notices_render_cta_link( array $cta, string $cta_id, strin
 }
 
 /**
- * CTA URLs for a banner surface: support once the site is reverted, a
- * "Restore site" checkout for one that only lost plan features.
+ * CTA URLs for a banner surface: support once the site is reverted.
  *
  * @param array<string,mixed> $state       Expiry state.
  * @param string              $redirect_to Where checkout sends the user back to.
@@ -289,14 +380,8 @@ function wpcom_expiry_notices_render_cta_link( array $cta, string $cta_id, strin
  */
 function wpcom_expiry_notices_banner_urls( array $state, string $redirect_to ): array {
 	$urls = Expiry_Data::get_cta_urls( $state, $redirect_to );
-	if ( Expiry_Data::STATE_EXPIRED !== ( $state['state'] ?? '' ) ) {
-		return $urls;
-	}
-
-	if ( wpcom_expiry_notices_revert_applies_to_site( $state ) ) {
+	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
 		$urls['primary'] = wpcom_expiry_notices_support_cta( $state );
-	} else {
-		$urls['primary']['label'] = __( 'Restore site', 'jetpack-mu-wpcom' );
 	}
 	return $urls;
 }
@@ -367,26 +452,15 @@ function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): strin
 		return __( 'This plan was purchased by a different WordPress.com account. To manage this plan, log in to that account or contact the account owner.', 'jetpack-mu-wpcom' );
 	}
 
-	$storage_gb  = Expiry_Data::get_plan_storage_gb( isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '' );
-	$days        = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
-	$auto_renew  = ! empty( $state['auto_renew'] );
-	$stage       = $state['state'] ?? '';
-	$is_reverted = Expiry_Data::STATE_EXPIRED === $stage && wpcom_expiry_notices_revert_applies_to_site( $state );
+	$storage_gb = Expiry_Data::get_plan_storage_gb( isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '' );
+	$days       = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
+	$auto_renew = ! empty( $state['auto_renew'] );
+	$stage      = $state['state'] ?? '';
 
-	// Past grace by the calendar but still Atomic and un-reverted: none of what
-	// the post-grace copy claims has happened yet, and renewing still prevents it.
-	if ( Expiry_Data::STATE_EXPIRED === $stage && ! $is_reverted && Constants::is_true( 'IS_ATOMIC' ) ) {
-		$stage = Expiry_Data::STATE_EXPIRED_GRACE;
-	}
-
-	if ( $is_reverted ) {
+	if ( Expiry_Data::STATE_EXPIRED === $stage ) {
 		/* translators: %d is a number of gigabytes of storage. */
 		$with_storage    = __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or %d GB of storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
 		$without_storage = __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
-	} elseif ( Expiry_Data::STATE_EXPIRED === $stage ) {
-		/* translators: %d is a number of gigabytes of storage. */
-		$with_storage    = __( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or %d GB of storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
-		$without_storage = __( 'Your site has been moved to the Free plan. You no longer have access to plugins, custom themes, or additional storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
 	} elseif ( Expiry_Data::STATE_EXPIRED_GRACE === $stage && $auto_renew ) {
 		/* translators: %d is a number of gigabytes of storage. */
 		$with_storage    = __( 'If renewal doesn’t go through, your site will move to the Free plan. That means losing plugins, custom themes, and %d GB of storage. But it’s not too late. Renew now to keep your site as it is.', 'jetpack-mu-wpcom' );
@@ -524,6 +598,67 @@ add_action( 'init', 'wpcom_expiry_notices_register_meta' ); // @codeCoverageIgno
 // on `parse_request`, after `init`, and a write to an unregistered key is a
 // silent 200. Every dismissal arrives over REST.
 add_action( 'rest_api_init', 'wpcom_expiry_notices_register_meta' ); // @codeCoverageIgnore
+
+/**
+ * Register the keys once more after the centralized API has switched to the
+ * site. On WordPress.com the `rest_api_init` registration runs on the API's own
+ * blog, before `rest_pre_dispatch` switches to the site a `/sites/{id}/` route
+ * is for, so its keys carry that blog's prefix and the site's own key is
+ * unregistered when the write arrives; core drops it with a 200.
+ *
+ * @param mixed $response Response to replace the request with, or null.
+ * @return mixed
+ */
+function wpcom_expiry_notices_register_meta_for_request( $response ) {
+	wpcom_expiry_notices_register_meta();
+	return $response;
+}
+add_filter( 'rest_request_before_callbacks', 'wpcom_expiry_notices_register_meta_for_request' ); // @codeCoverageIgnore
+
+/**
+ * Stamp a dismissal for a user, as the surfaces ask for it over admin-ajax.
+ *
+ * The site's own admin-ajax rather than the REST API: on WordPress.com the
+ * REST API lives on another origin, and the front end has no proxy to reach
+ * it through. The dashboard still writes the same key over REST.
+ *
+ * @param string $meta_key The key the surface was given.
+ * @param int    $user_id  The dismissing user.
+ * @return array{status:int,body:array<string,string>}
+ */
+function wpcom_expiry_notices_dismiss( string $meta_key, int $user_id ): array {
+	if ( ! wpcom_expiry_notices_is_enabled_for_site() || ! user_can( $user_id, 'manage_options' ) ) {
+		return array(
+			'status' => 403,
+			'body'   => array( 'message' => 'forbidden' ),
+		);
+	}
+	if ( ! Expiry_Notice_Dismiss::dismiss( $user_id, $meta_key ) ) {
+		return array(
+			'status' => 400,
+			'body'   => array( 'message' => 'unknown notice' ),
+		);
+	}
+	return array(
+		'status' => 200,
+		'body'   => array(),
+	);
+}
+
+/**
+ * The admin-ajax action behind wpcom_expiry_notices_dismiss().
+ */
+function wpcom_expiry_notices_ajax_dismiss(): void {
+	check_ajax_referer( 'wpcom_expiry_notice_dismiss' );
+	$meta_key = isset( $_POST['metaKey'] ) ? sanitize_text_field( wp_unslash( $_POST['metaKey'] ) ) : '';
+	$result   = wpcom_expiry_notices_dismiss( $meta_key, get_current_user_id() );
+	$flags    = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS;
+	if ( 200 !== $result['status'] ) {
+		wp_send_json_error( $result['body'], $result['status'], $flags );
+	}
+	wp_send_json_success( $result['body'], $result['status'], $flags );
+}
+add_action( 'wp_ajax_wpcom_expiry_notice_dismiss', 'wpcom_expiry_notices_ajax_dismiss' ); // @codeCoverageIgnore
 
 /**
  * The URL of the current page, for checkout to send the user back to.

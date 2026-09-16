@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing Buttons block: use an unpredictable name for share popups, matching the classic sharing buttons.

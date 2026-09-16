@@ -11,9 +11,11 @@ export function parsePerformanceHistory( value: unknown ): PerformanceHistory {
 	return performanceHistoryDataSchema.parse( value );
 }
 
+export const performanceHistoryQueryKey = [ 'performance_history' ] as const;
+
 export function usePerformanceHistory( enabled = true ) {
 	return useQuery( {
-		queryKey: [ 'performance_history' ],
+		queryKey: performanceHistoryQueryKey,
 		queryFn: async () => parsePerformanceHistory( await requestDataSync( 'performance_history' ) ),
 		enabled: enabled && isSiteOnline(),
 		staleTime: 12 * 60 * 60 * 1000,
@@ -49,12 +51,8 @@ export function useDismissibleAlertState(
 		},
 		mutationFn: async () => {
 			await queryClient.cancelQueries( { queryKey: dismissedAlertsQueryKey } );
-			const dismissed =
-				queryClient.getQueryData< z.infer< typeof dismissedAlertsSchema > >(
-					dismissedAlertsQueryKey
-				) ?? {};
 			return dismissedAlertsSchema.parse(
-				await requestDataSync( 'dismissed_alerts', { ...dismissed, [ alertId ]: true } )
+				await requestDataSync( 'dismissed_alerts', { [ alertId ]: true }, 'merge' )
 			);
 		},
 		onError: ( _error, _variables, context ) => {

@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import type { WidgetType } from '@wordpress/widget-primitives';
+import type { WidgetActionRecord, WidgetRelevance, WidgetType } from '@wordpress/widget-primitives';
 
 /**
  * Identity and declarative metadata a widget authors in `widget.json` — the
@@ -13,10 +13,19 @@ export interface StoryWidgetManifest {
 	title: string;
 	description?: string;
 	help?: WidgetType[ 'help' ];
+	actions?: StoryWidgetManifestAction[];
 	category?: string;
 	presentation?: string;
 	keywords?: string[];
 }
+
+/**
+ * An action as authored in `widget.json`: the wire shape, with `relevance`
+ * widened to `string` by the JSON import.
+ */
+type StoryWidgetManifestAction = Omit< WidgetActionRecord, 'relevance' > & {
+	relevance?: string;
+};
 
 /**
  * Runtime-only fields a widget declares in `widget.ts` (its default export):
@@ -65,6 +74,17 @@ export function createStoryWidgetType(
 		...( manifest.category ? { category: manifest.category } : {} ),
 		...( manifest.keywords ? { keywords: manifest.keywords } : {} ),
 		...( manifest.help ? { help: manifest.help } : {} ),
+		...( manifest.actions
+			? {
+					// Mirrors useWidgetTypes: an icon reference only reaches the
+					// host once resolved, and the story has no resolver.
+					actions: manifest.actions.map( action => ( {
+						...action,
+						icon: undefined,
+						relevance: action.relevance as WidgetRelevance | undefined,
+					} ) ),
+			  }
+			: {} ),
 		...( manifest.presentation
 			? {
 					presentation: manifest.presentation as WidgetType[ 'presentation' ],

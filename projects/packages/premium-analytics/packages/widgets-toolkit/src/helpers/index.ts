@@ -80,10 +80,20 @@ export {
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
 export { formatDailyViewCount, formatViewCount } from './format-view-count';
+export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
+export {
+	MONTHLY_HEATMAP_METRICS,
+	monthlyHeatmapLabels,
+	monthlyHeatmapMetricAttributeField,
+	resolveMonthlyHeatmapMetric,
+	type MonthlyHeatmapMetric,
+} from './monthly-heatmap-metric';
+export { monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatTooltipSeriesLabel } from './format-tooltip-series-label';
 export { resolveSeriesNames, type ResolvedSeriesNames } from './resolve-series-names';
+export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Test-only: raise the Testing Library async budget and await the row roles.
+
+

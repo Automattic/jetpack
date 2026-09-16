@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Admin menu: Guard Logo::get_base64_admin_menu_logo() calls with method_exists() to prevent fatals when another plugin loads an older logo package.

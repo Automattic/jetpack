@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Inline the pricing table header gradient so bundlers without an image loader render it.
+

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Error Handler: Stop reporting token errors on unregistered sites and purge object caches when deleting stored errors, so stale connection error notices cannot persist on healthy sites.

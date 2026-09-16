@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Inline player: add the Inline_Player class and its boot script; nothing renders them yet.
+
+

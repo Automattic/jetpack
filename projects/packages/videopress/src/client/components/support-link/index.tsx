@@ -15,13 +15,6 @@ type Props = {
 
 const SUPPORT_POST_ID = 4458;
 
-// Holds the WordPress.com blue on every admin color scheme; the radius rounds
-// the focus ring's outline.
-const linkStyle = {
-	color: 'var(--color-link, #3858e9)',
-	borderRadius: 'var(--wpds-border-radius-sm, 2px)',
-};
-
 /**
  * Links to the VideoPress support doc. WordPress.com sites open it in the Help
  * Center; everywhere else it opens the Jetpack doc in a new tab.
@@ -48,7 +41,6 @@ export default function SupportLink( { children }: Props ) {
 					event.preventDefault();
 					setShowSupportDoc( supportUrl, SUPPORT_POST_ID );
 				} }
-				style={ linkStyle }
 			>
 				{ children }
 			</Link>
@@ -56,7 +48,7 @@ export default function SupportLink( { children }: Props ) {
 	}
 
 	return (
-		<Link openInNewTab href={ supportUrl } style={ linkStyle }>
+		<Link openInNewTab href={ supportUrl }>
 			{ children }
 		</Link>
 	);

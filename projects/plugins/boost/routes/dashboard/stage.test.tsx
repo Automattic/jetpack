@@ -1,11 +1,35 @@
 /* eslint-disable testing-library/no-node-access */
+import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
 const mockNavigate = jest.fn();
+
+jest.mock( '../../_inc/overview/overview', () => {
+	const { useEffect } = jest.requireActual< typeof import('react') >( 'react' );
+	return {
+		__esModule: true,
+		default: function MockOverview( {
+			isVisible,
+			onHeaderActionChange,
+		}: {
+			isVisible: boolean;
+			onHeaderActionChange: ( action: ReactNode ) => void;
+		} ) {
+			useEffect( () => {
+				if ( ! isVisible ) {
+					return undefined;
+				}
+				onHeaderActionChange( <button>Run speed test</button> );
+				return () => onHeaderActionChange( null );
+			}, [ isVisible, onHeaderActionChange ] );
+			return <div data-visible={ isVisible }>Performance Overview</div>;
+		},
+	};
+} );
 
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( { tab: new URLSearchParams( globalThis.location.search ).get( 'tab' ) } ),
@@ -14,7 +38,26 @@ jest.mock( '@wordpress/route', () => ( {
 
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
-	default: ( { children }: { children: ReactNode } ) => <main>{ children }</main>,
+	default: ( {
+		title,
+		subTitle,
+		actions,
+		children,
+	}: {
+		title: string;
+		subTitle: string;
+		actions: ReactNode;
+		children: ReactNode;
+	} ) => (
+		<main>
+			<header>
+				<h1>{ title }</h1>
+				<p>{ subTitle }</p>
+				{ actions }
+			</header>
+			{ children }
+		</main>
+	),
 } ) );
 
 const subpages = [
@@ -45,10 +88,19 @@ describe( 'Boost dashboard stage', () => {
 			screen.getByRole( 'tab', { name: tab } )
 		);
 		expect( getSubpageMount()?.hidden ).toBe( true );
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
+			'data-visible',
+			String( tab === 'Overview' )
+		);
 		expect( getSettingsMount() ).not.toBeNull();
 		expect( screen.getByRole( 'tabpanel' ).tabIndex ).toBe( 0 );
 		expect( screen.getByRole( 'tabpanel' ).contains( getSettingsMount() ) ).toBe(
 			tab === 'Settings'
+		);
+		const header = within( screen.getByRole( 'banner' ) );
+		expect( header.getByText( 'Improve your site speed and performance.' ) ).toBeInTheDocument();
+		expect( header.queryAllByRole( 'button', { name: 'Run speed test' } ) ).toHaveLength(
+			tab === 'Overview' ? 1 : 0
 		);
 	} );
 
@@ -62,6 +114,7 @@ describe( 'Boost dashboard stage', () => {
 		render( <Stage /> );
 
 		expect( getSubpageMount()?.hidden ).toBe( false );
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'false' );
 		expect( getSubpageMount()?.closest( '[role="tabpanel"]' ) ).toBeNull();
 		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
 		expect( getSettingsMount() ).not.toBeNull();
@@ -109,8 +162,9 @@ describe( 'Boost dashboard stage', () => {
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
 	} );
 
-	it( 'keeps both mount nodes across tab changes and subpage visits', () => {
+	it( 'keeps Overview and both mount nodes across tab changes and subpage visits', () => {
 		const { rerender } = render( <Stage /> );
+		const overview = screen.getByText( 'Performance Overview' );
 		const settingsMount = getSettingsMount();
 		const subpageMount = getSubpageMount();
 
@@ -126,6 +180,10 @@ describe( 'Boost dashboard stage', () => {
 			} );
 			rerender( <Stage /> );
 
+			expect( screen.getByText( 'Performance Overview' ) ).toBe( overview );
+			expect( screen.queryAllByRole( 'button', { name: 'Run speed test' } ) ).toHaveLength(
+				url === '/?page=jetpack-boost' ? 1 : 0
+			);
 			expect( getSettingsMount() ).toBe( settingsMount );
 			expect( getSubpageMount() ).toBe( subpageMount );
 		}

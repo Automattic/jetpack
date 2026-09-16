@@ -1,5 +1,6 @@
+import apiFetch from '@wordpress/api-fetch';
 import { z } from 'zod';
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
+import { queryClient, useDataSync } from '@automattic/jetpack-react-data-sync-client';
 
 const periodsSchema = z.object( {
 	timestamp: z.number(),
@@ -63,6 +64,8 @@ type AlertIds =
 	| 'score_decrease'
 	| 'legacy_minify_notice';
 
+const dismissedAlertsSchema = z.record( z.string().min( 1 ), z.boolean() );
+
 /**
  * A hook that handles permanent dismissals of alerts.
  *
@@ -73,7 +76,44 @@ export const useDismissibleAlertState = ( alertId: AlertIds ) => {
 	const [ { data: dismissedAlerts }, { mutate } ] = useDataSync(
 		'jetpack_boost_ds',
 		'dismissed_alerts',
-		z.record( z.string().min( 1 ), z.boolean() )
+		dismissedAlertsSchema,
+		{
+			mutation: {
+				// Serialize dismissals so a late response cannot overwrite a newer dismissal.
+				scope: { id: 'jetpack_boost_dismissed_alerts' },
+				onError: ( _error, _variables, context ) => {
+					const previous = (
+						context as { previousValue?: z.infer< typeof dismissedAlertsSchema > }
+					 )?.previousValue?.[ alertId ];
+					queryClient.setQueryData< z.infer< typeof dismissedAlertsSchema > >(
+						[ 'dismissed_alerts' ],
+						current => {
+							const restored = { ...current };
+							if ( previous === undefined ) {
+								delete restored[ alertId ];
+							} else {
+								restored[ alertId ] = previous;
+							}
+							return restored;
+						}
+					);
+				},
+				mutationFn: async () => {
+					const { rest_api, dismissed_alerts } = window.jetpack_boost_ds;
+					const response = await apiFetch< { JSON: unknown } >( {
+						url: `${ rest_api.value.replace( /\/$/, '' ) }/dismissed-alerts/merge`,
+						method: 'POST',
+						credentials: 'same-origin',
+						headers: {
+							'X-WP-Nonce': rest_api.nonce,
+							'X-Jetpack-WP-JS-Sync-Nonce': dismissed_alerts.nonce,
+						},
+						data: { JSON: { [ alertId ]: true } },
+					} );
+					return dismissedAlertsSchema.parse( response.JSON );
+				},
+			},
+		}
 	);
 	const dismiss = () => {
 		mutate( { ...dismissedAlerts, [ alertId ]: true } );

@@ -5,8 +5,8 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { MyJetpackModule } from '../../types';
+import { getBlockThemeMigration } from '../../utils/block-theme-migration';
 import { getModuleActivationMessage } from '../../utils/module-benefit-messages';
-import { getSharingBlockEditorUrl } from '../../utils/sharing-block';
 import SecondaryButton from '../action-button/secondary-button';
 import { setPendingSuccessNotice } from '../my-jetpack-tab-panel/products/pending-notice';
 import { useProductFiltersContext } from '../my-jetpack-tab-panel/products/products-tracking-context';
@@ -34,7 +34,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
-	const sharingBlockEditorUrl = getSharingBlockEditorUrl( $module );
+	const blockThemeMigration = getBlockThemeMigration( $module );
 
 	const isUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -125,21 +125,21 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 	);
 	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
 
-	if ( sharingBlockEditorUrl ) {
+	if ( blockThemeMigration ) {
 		if ( $module.activated ) {
 			return (
 				<SecondaryButton
-					label={ __( 'Switch to Sharing Buttons block', 'jetpack-my-jetpack' ) }
+					label={ blockThemeMigration.switchLabel }
 					onClick={ deactivateModule }
 					isLoading={ isUpdating }
-					loadingAnnouncement={ __( 'Deactivating legacy sharing…', 'jetpack-my-jetpack' ) }
+					loadingAnnouncement={ blockThemeMigration.switchingAnnouncement }
 				/>
 			);
 		}
 
 		return (
 			<SecondaryButton
-				href={ sharingBlockEditorUrl }
+				href={ blockThemeMigration.editorUrl }
 				label={ __( 'Open Site Editor', 'jetpack-my-jetpack' ) }
 			/>
 		);

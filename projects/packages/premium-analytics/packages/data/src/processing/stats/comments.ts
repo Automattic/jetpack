@@ -80,20 +80,29 @@ function normalizeCommentAvatar( avatar?: string | null ) {
 	return avatar ? `${ avatar.split( '?' )[ 0 ] }?d=mm` : null;
 }
 
+// The endpoint sends exactly one of these, with the value unencoded.
+const USER_ID_FRAGMENT = /^\?user_id=([1-9]\d*)$/;
+const EMAIL_FRAGMENT = /^\?s=(.+)$/;
+
 /**
- * Build the author row's link from the raw payload's `link`, which is not a URL
- * but a `?s=<email>` search fragment. The dashboard runs inside wp-admin, so a
- * relative `edit-comments.php` href resolves to the comment management screen.
+ * Build the author row's comments-admin link from the raw payload's `link` fragment.
+ * A `?user_id=` fragment comes only from Simple, where it is the site's own user id.
  *
  * @param link - The raw author `link` fragment.
- * @return The comments-admin search URL, or null when there is no email.
+ * @return The comments-admin URL, or null when the fragment is neither shape.
  */
 function normalizeCommentAuthorLink( link: unknown ): string | null {
-	if ( typeof link !== 'string' || ! link.startsWith( '?s=' ) ) {
+	if ( typeof link !== 'string' ) {
 		return null;
 	}
 
-	const email = link.slice( '?s='.length );
+	const userId = link.match( USER_ID_FRAGMENT )?.[ 1 ];
+
+	if ( userId ) {
+		return `edit-comments.php?user_id=${ userId }`;
+	}
+
+	const email = link.match( EMAIL_FRAGMENT )?.[ 1 ];
 
 	return email ? `edit-comments.php?s=${ encodeURIComponent( email ) }` : null;
 }
@@ -159,8 +168,8 @@ export type StatsCommentsGroup = 'authors' | 'posts';
 /**
  * A flat Comments report row, shared by every consumer of the report.
  *
- * `link` is the value the report carries: a locally built, root-relative
- * `edit-comments.php` search for authors, and a remote permalink for posts.
+ * `link` is the value the report carries: a locally built, document-relative
+ * `edit-comments.php` filter for authors, and a remote permalink for posts.
  * Consumers that render the post link must pass it through `safeHttpUrl`
  * first — the guard cannot live here, because the row id falls back to the raw
  * link and must stay stable even when the URL is rejected.

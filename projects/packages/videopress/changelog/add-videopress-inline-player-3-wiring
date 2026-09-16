@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Inline player: render it for video blocks, shortcodes and embeds when the videopress_inline_player_enabled option is on; the option has no setting UI yet.
+
+

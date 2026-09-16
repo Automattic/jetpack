@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-09-14
+### Added
+- Heatmap: add `locale` and `timeZone` options and a `useCalendarHeatmapData` hook, so a host can bucket and label the calendar in its own zone and language instead of the viewer's. Labels with no `locale` now follow the runtime locale rather than always rendering in English, and a calendar `dateString` must start `yyyy-MM-dd`. [#52114]
+- HeatmapChart: Add summary columns, per-row roll-ups drawn outside the color scale. [#52135]
+- Line chart: Add options to place tooltips below the x-axis label band and customize tooltip and crosshair styles. [#52143]
+
+### Changed
+- AccessibleTooltip: Merge supplied styles with the default box styles instead of replacing them; use unstyled to remove the box styles. [#52143]
+- LeaderboardChart: Let valueFormatter return a React node, so a value can carry a tooltip. [#52177]
+- Line chart: Keep the page from scrolling when keyboard focus moves to a below-axis tooltip. [#52143]
+
+### Fixed
+- Flip the tooltip to the side of the anchor that stays inside the chart wrapper, so a box that fits in the chart no longer reaches past it into page content that paints over it. [#52123]
+- HeatmapChart: Fix an endless re-render when the keyboard tooltip opens on a chart without row labels. [#52135]
+- LineChart, AreaChart, BarChart: Date a naive dateString point in the provider's time zone, so every viewer reads the same day. [#52113]
+- Reserve room for the first and last labels on a time axis, size the y-axis gutter from a pinned domain, and reserve nothing for a hidden y axis. [#52112]
+
 ## [4.0.0] - 2026-09-04
 ### Changed
 - Inject WPDS design-token fallbacks at build time via @wordpress/theme's LightningCSS plugin. [#51722]
@@ -1046,6 +1063,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.1.0]: https://github.com/Automattic/charts/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Automattic/charts/compare/v3.2.0...v4.0.0
 [3.2.0]: https://github.com/Automattic/charts/compare/v3.1.1...v3.2.0
 [3.1.1]: https://github.com/Automattic/charts/compare/v3.1.0...v3.1.1

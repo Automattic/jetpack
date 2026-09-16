@@ -1,3 +1,4 @@
+import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { SectionHeader } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
 import { postHeaderSlots } from './post-header-slots';
@@ -16,8 +17,8 @@ const SUMMARY: PostSummary = {
 // UTC-anchored: the sentence renders in the site zone, so a browser-local
 // `Date` would name the previous day in zones west of it.
 const PERFORMANCE_RANGE = {
-	from: new Date( Date.UTC( 2026, 6, 9 ) ),
-	to: new Date( Date.UTC( 2026, 6, 15 ) ),
+	from: toLocalTZ( Date.UTC( 2026, 6, 9 ), 'UTC' ),
+	to: toLocalTZ( Date.UTC( 2026, 6, 15 ), 'UTC' ),
 };
 
 /**

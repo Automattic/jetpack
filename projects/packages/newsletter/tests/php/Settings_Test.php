@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Newsletter\Tests;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Newsletter\Settings;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -29,6 +30,7 @@ class Settings_Test extends BaseTestCase {
 
 		// Reset the in-process Host platform cache so per-test constants take effect.
 		\Automattic\Jetpack\Status\Cache::clear();
+		Feature_Flags::reset();
 
 		// Reset the static initialized flag between tests.
 		$reflection = new \ReflectionClass( Settings::class );
@@ -45,6 +47,8 @@ class Settings_Test extends BaseTestCase {
 		remove_all_actions( 'current_screen' );
 		remove_all_filters( 'jetpack_module_configuration_url_subscriptions' );
 		remove_all_filters( 'jetpack_active_modules' );
+		remove_all_filters( 'jetpack_feature_flag_enabled' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 
 		// Clear the load action registered by add_wp_admin_menu on success.
@@ -64,6 +68,9 @@ class Settings_Test extends BaseTestCase {
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 		remove_all_filters( 'site_url' );
 		remove_all_filters( 'home_url' );
+		remove_all_filters( 'jetpack_feature_flag_enabled' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG );
+		Feature_Flags::reset();
 
 		// Dequeue any scripts that may have leaked into globals during the test.
 		wp_dequeue_script( 'jp-tracks' );
@@ -226,6 +233,46 @@ class Settings_Test extends BaseTestCase {
 			self::call_private_static_is_modernized(),
 			'A consumer filter returning false must take precedence over the modernization default.'
 		);
+	}
+
+	/**
+	 * Test that the Overview feature flag is registered disabled by default.
+	 */
+	public function test_register_feature_flags_registers_overview_disabled_by_default() {
+		Settings::register_feature_flags();
+
+		$this->assertSame(
+			array(
+				'default'     => false,
+				'description' => 'Enable the Newsletter Overview tab.',
+				'owner'       => 'jetpack-newsletter',
+				'name'        => Settings::OVERVIEW_FEATURE_FLAG,
+			),
+			Feature_Flags::get( Settings::OVERVIEW_FEATURE_FLAG )
+		);
+	}
+
+	/**
+	 * Test that script data exposes the disabled Overview feature flag.
+	 */
+	public function test_add_script_data_exposes_overview_disabled_by_default() {
+		Settings::register_feature_flags();
+
+		$data = ( new Settings() )->add_script_data( array() );
+
+		$this->assertFalse( $data['newsletter']['overviewEnabled'] );
+	}
+
+	/**
+	 * Test that script data exposes an enabled Overview feature flag.
+	 */
+	public function test_add_script_data_exposes_enabled_overview() {
+		Settings::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_true' );
+
+		$data = ( new Settings() )->add_script_data( array() );
+
+		$this->assertTrue( $data['newsletter']['overviewEnabled'] );
 	}
 
 	/**

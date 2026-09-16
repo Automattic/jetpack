@@ -144,14 +144,15 @@ export default function useFixersQuery( {
 		enabled: isRegistered,
 	} );
 
-	// Handle error if present in the query result
+	// Once per error streak, not per failed poll: each failure is a new Error object, and
+	// polling one every 5s would interrupt the screen reader with the same message each time.
 	useEffect( () => {
-		if ( fixersQuery.isError && fixersQuery.error ) {
+		if ( fixersQuery.isError ) {
 			// Reset the query data to the initial state
 			queryClient.setQueryData( [ QUERY_FIXERS_KEY ], initialData );
 			showErrorNotice( __( 'An error occurred while fetching fixers status.', 'jetpack-protect' ) );
 		}
-	}, [ fixersQuery.isError, fixersQuery.error, queryClient, showErrorNotice ] );
+	}, [ fixersQuery.isError, queryClient, showErrorNotice ] );
 
 	return fixersQuery;
 }

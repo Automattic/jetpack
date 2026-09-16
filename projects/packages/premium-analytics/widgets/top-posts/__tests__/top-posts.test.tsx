@@ -5,6 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import type { ReactNode } from 'react';
 /**
@@ -99,6 +100,27 @@ describe( 'TopPostsWidget', () => {
 		).not.toBeInTheDocument();
 
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the exact count behind an abbreviated row value', async () => {
+		const user = userEvent.setup();
+		mockApiFetch.mockResolvedValue( {
+			...TOP_POSTS_RESPONSE,
+			summary: {
+				...TOP_POSTS_RESPONSE.summary,
+				postviews: [ { ...TOP_POSTS_RESPONSE.summary.postviews[ 0 ], views: 18432 } ],
+			},
+		} );
+		render( <TopPostsWidget attributes={ {} } /> );
+
+		const compact = await screen.findByText( '18.4K' );
+		expect( compact ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
+
+		await user.hover( compact );
+		await expect(
+			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
+		).resolves.toHaveTextContent( '18,432' );
 	} );
 
 	it( 'carries the dashboard date range into the post-detail link', async () => {

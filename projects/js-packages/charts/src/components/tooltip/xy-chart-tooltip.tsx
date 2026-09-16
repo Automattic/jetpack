@@ -2,6 +2,7 @@ import { Tooltip, defaultStyles } from '@visx/tooltip';
 import { DataContext, TooltipContext } from '@visx/xychart';
 import { useCallback, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { isValidHexColor } from '../../utils';
 import { BoundedTooltip } from './private/bounded-tooltip';
 import type {
 	CrosshairStyle,
@@ -109,6 +110,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 	horizontalCrosshairStyle,
 	detectBounds = true,
 	tooltipPlacement = 'auto',
+	tooltipAnchorTop,
 	zIndex = DEFAULT_TOOLTIP_Z_INDEX,
 	style,
 	...rest
@@ -213,14 +215,13 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const marginTop = margin?.top ?? 0;
 	const marginLeft = margin?.left ?? 0;
 
-	const TooltipComponent =
-		detectBounds || tooltipPlacement === 'below-axis' ? BoundedTooltip : Tooltip;
+	const TooltipComponent = detectBounds || tooltipPlacement !== 'auto' ? BoundedTooltip : Tooltip;
 	const boxStyle: CSSProperties = {
 		...defaultStyles,
 		zIndex,
 		backgroundColor: theme?.backgroundColor ?? 'white',
 		boxShadow: `0 1px 2px ${
-			theme?.htmlLabel?.color ? `${ theme.htmlLabel.color }55` : '#22222255'
+			isValidHexColor( theme?.htmlLabel?.color ) ? `${ theme.htmlLabel.color }55` : '#22222255'
 		}`,
 		...theme?.htmlLabel,
 		...style,
@@ -264,12 +265,12 @@ const XyChartTooltipContent = < Datum extends object >( {
 						top={
 							tooltipPlacement === 'below-axis'
 								? marginTop + innerHeight + ( margin?.bottom ?? 0 )
-								: tooltipTop
+								: tooltipAnchorTop ?? tooltipTop
 						}
 						style={ boxStyle }
 						applyPositionStyle
 						{ ...tooltipProps }
-						{ ...( tooltipPlacement === 'below-axis' && { placement: tooltipPlacement } ) }
+						{ ...( tooltipPlacement !== 'auto' && { placement: tooltipPlacement } ) }
 					>
 						{ tooltipContent }
 					</TooltipComponent>,

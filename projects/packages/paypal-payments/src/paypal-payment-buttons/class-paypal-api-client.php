@@ -41,6 +41,43 @@ class PayPal_API_Client {
 	const RESOURCES_ENDPOINT = '/v1/checkout/payment-resources';
 
 	/**
+	 * Counter folded into every cached list key, bumped whenever a payment link
+	 * is created, updated or deleted. Cached pages are keyed by PayPal's opaque
+	 * page token, so they cannot be enumerated and deleted one by one.
+	 *
+	 * @var string
+	 */
+	const LIST_CACHE_VERSION_OPTION = 'jetpack_paypal_payment_buttons_list_cache_version';
+
+	/**
+	 * How long a cached list page is served, in seconds.
+	 *
+	 * @var int
+	 */
+	const LIST_CACHE_TTL = 60;
+
+	/**
+	 * How long a cached single resource is served, in seconds.
+	 *
+	 * @var int
+	 */
+	const RESOURCE_CACHE_TTL = 300;
+
+	/**
+	 * Links deleted through this site, newest first, so their blocks stop rendering.
+	 *
+	 * @var string
+	 */
+	const DELETED_RESOURCES_OPTION = 'jetpack_paypal_payment_buttons_deleted_resources';
+
+	/**
+	 * How many deleted links are remembered. Older ones fall off the end.
+	 *
+	 * @var int
+	 */
+	const DELETED_RESOURCES_LIMIT = 100;
+
+	/**
 	 * Default timeout for API requests in seconds.
 	 *
 	 * @var int
@@ -99,6 +136,8 @@ class PayPal_API_Client {
 			return $result;
 		}
 
+		self::forget_cached_resources();
+
 		// Extract payment_link from HATEOAS links array to top-level field.
 		$result = self::extract_payment_link( $result );
 
@@ -137,6 +176,86 @@ class PayPal_API_Client {
 		$endpoint = add_query_arg( $query_args, self::RESOURCES_ENDPOINT );
 
 		return self::make_request_with_retry( 'GET', $endpoint, null, 200 );
+	}
+
+	/**
+	 * List payment resources, served from a short cache.
+	 *
+	 * Every write through this class invalidates the cache, so a page reads fresh
+	 * right after a create, update or delete.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int    $page_size  Number of results per page.
+	 * @param string $page_token Pagination cursor from a previous response. Default empty.
+	 * @return array|\WP_Error Same as list_resources(). Errors are not cached.
+	 */
+	public static function list_resources_cached( $page_size, $page_token = '' ) {
+		$version   = (int) get_option( self::LIST_CACHE_VERSION_OPTION, 0 );
+		$cache_key = 'paypal_list_cache_' . md5( $version . '|' . absint( $page_size ) . '|' . $page_token );
+		$result    = get_transient( $cache_key );
+
+		if ( false === $result ) {
+			$result = self::list_resources( $page_size, $page_token );
+
+			if ( ! is_wp_error( $result ) ) {
+				set_transient( $cache_key, $result, self::LIST_CACHE_TTL );
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Get a single payment resource, served from a short cache.
+	 *
+	 * Updating or deleting the resource through this class drops its entry.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id PayPal resource ID (format: PLB-XXXXXXXXXXXX).
+	 * @return array|\WP_Error Same as get_resource(). Errors are not cached.
+	 */
+	public static function get_resource_cached( $resource_id ) {
+		$cache_key = self::resource_cache_key( $resource_id );
+		$resource  = get_transient( $cache_key );
+
+		if ( false === $resource ) {
+			$resource = self::get_resource( $resource_id );
+
+			if ( ! is_wp_error( $resource ) ) {
+				set_transient( $cache_key, $resource, self::RESOURCE_CACHE_TTL );
+			}
+		}
+
+		return $resource;
+	}
+
+	/**
+	 * Drop every cached list page, and one cached resource when named.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id A resource whose cached copy is stale too. Default none.
+	 * @return void
+	 */
+	public static function forget_cached_resources( $resource_id = '' ) {
+		$version = (int) get_option( self::LIST_CACHE_VERSION_OPTION, 0 );
+		update_option( self::LIST_CACHE_VERSION_OPTION, $version + 1, false );
+
+		if ( '' !== $resource_id ) {
+			delete_transient( self::resource_cache_key( $resource_id ) );
+		}
+	}
+
+	/**
+	 * The transient that holds one cached resource.
+	 *
+	 * @param string $resource_id PayPal resource ID.
+	 * @return string
+	 */
+	private static function resource_cache_key( $resource_id ) {
+		return 'paypal_resource_' . sanitize_key( $resource_id );
 	}
 
 	/**
@@ -205,6 +324,8 @@ class PayPal_API_Client {
 			return $result;
 		}
 
+		self::forget_cached_resources( $resource_id );
+
 		return array_merge( $resource_data, array( 'id' => $resource_id ) );
 	}
 
@@ -228,10 +349,58 @@ class PayPal_API_Client {
 		);
 
 		if ( is_wp_error( $result ) ) {
+			// Gone already: the cached copy is just as stale as after a delete.
+			$error_data = $result->get_error_data();
+			if ( isset( $error_data['status'] ) && 404 === (int) $error_data['status'] ) {
+				self::forget_cached_resources( $resource_id );
+				self::remember_deleted_resource( $resource_id );
+			}
 			return $result;
 		}
 
+		self::forget_cached_resources( $resource_id );
+		self::remember_deleted_resource( $resource_id );
+
 		return true;
+	}
+
+	/**
+	 * Record a deleted link, so a published block still pointing at it renders nothing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id PayPal resource ID.
+	 * @return void
+	 */
+	public static function remember_deleted_resource( $resource_id ) {
+		$deleted = self::deleted_resources();
+		array_unshift( $deleted, $resource_id );
+		$deleted = array_slice( array_values( array_unique( $deleted ) ), 0, self::DELETED_RESOURCES_LIMIT );
+
+		update_option( self::DELETED_RESOURCES_OPTION, $deleted, false );
+	}
+
+	/**
+	 * Whether a link was deleted through this site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id PayPal resource ID.
+	 * @return bool
+	 */
+	public static function is_deleted_resource( $resource_id ) {
+		return in_array( $resource_id, self::deleted_resources(), true );
+	}
+
+	/**
+	 * The remembered deleted links, newest first.
+	 *
+	 * @return string[]
+	 */
+	private static function deleted_resources() {
+		$deleted = get_option( self::DELETED_RESOURCES_OPTION, array() );
+
+		return is_array( $deleted ) ? $deleted : array();
 	}
 
 	/**

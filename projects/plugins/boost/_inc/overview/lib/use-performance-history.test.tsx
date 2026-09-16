@@ -132,11 +132,11 @@ it( 'persists fresh-start dismissal and preserves other alert dismissals', async
 	act( () => result.current[ 1 ]() );
 	await waitFor( () => expect( result.current[ 0 ] ).toBe( true ) );
 	expect( fetchMock ).toHaveBeenLastCalledWith( {
-		url: 'https://example.org/wp-json/jetpack-boost-ds/dismissed-alerts/set',
+		url: 'https://example.org/wp-json/jetpack-boost-ds/dismissed-alerts/merge',
 		method: 'POST',
 		credentials: 'same-origin',
 		headers: { 'X-WP-Nonce': 'rest-nonce', 'X-Jetpack-WP-JS-Sync-Nonce': 'alerts-nonce' },
-		data: { JSON: { score_increase: true, performance_history_fresh_start: true } },
+		data: { JSON: { performance_history_fresh_start: true } },
 	} );
 } );
 
@@ -199,8 +199,6 @@ it.each( [ false, true ] )(
 				credentials: 'same-origin',
 				data: {
 					JSON: {
-						...initial,
-						...( fails ? {} : { performance_history_fresh_start: true } ),
 						score_decrease: true,
 					},
 				},

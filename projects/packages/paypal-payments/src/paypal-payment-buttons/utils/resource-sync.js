@@ -12,7 +12,9 @@ import metadata from '../block.json';
 
 /**
  * Attributes the PayPal payment is the source of truth for. Everything else
- * (image, format, colors, button text) belongs to the block.
+ * (image, format, colors, button text) belongs to the block. The image is sent
+ * to PayPal but never read back: its attachment id has no PayPal counterpart,
+ * and PayPal silently drops an image it cannot fetch.
  */
 export const RESOURCE_ATTRIBUTES = [
 	'paymentLink',

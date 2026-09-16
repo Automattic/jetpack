@@ -19,8 +19,12 @@ jest.mock( 'lib/analytics', () => ( {
 } ) );
 
 jest.mock( 'components/settings-card', () => ( { children } ) => <section>{ children }</section> );
-jest.mock( 'components/settings-group', () => ( { children } ) => <div>{ children }</div> );
-jest.mock( 'components/block-theme-notice', () => () => <div>Block theme notice</div> );
+jest.mock( 'components/settings-group', () => ( { children, support } ) => (
+	<div>
+		{ children }
+		<a href={ support?.link }>Learn more</a>
+	</div>
+) );
 jest.mock( 'components/module-settings/with-module-settings-form-helpers', () => ( {
 	withModuleSettingsFormHelpers: Component => Component,
 } ) );
@@ -48,15 +52,6 @@ jest.mock( 'components/button', () => ( { children, href, ...props } ) => {
 		</a>
 	) : (
 		<button { ...props }>{ children }</button>
-	);
-} );
-jest.mock( 'components/card', () => ( { children, href, ...props } ) => {
-	delete props.compact;
-
-	return (
-		<a href={ href } { ...props }>
-			{ children }
-		</a>
 	);
 } );
 
@@ -119,6 +114,10 @@ describe( 'Like buttons settings', () => {
 		expect(
 			screen.getByText( 'Add the Like block to your theme’s template.' )
 		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-support-like-block'
+		);
 		const configureLink = screen.getByRole( 'link', { name: 'Open Site Editor' } );
 		expect( configureLink ).toHaveAttribute(
 			'href',
@@ -154,10 +153,25 @@ describe( 'Like buttons settings', () => {
 		);
 
 		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
-		expect( screen.queryByText( 'Block theme notice' ) ).not.toBeInTheDocument();
 		expect(
-			screen.queryByRole( 'link', { name: 'Configure your Like buttons' } )
+			screen.queryByRole( 'button', { name: 'Switch to the Like block' } )
 		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the legacy toggle when the Like block is unavailable', () => {
+		render(
+			<Likes { ...defaultProps } getOptionValue={ getActiveOptionValue } hasLikeBlock={ false } />
+		);
+
+		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+		expect(
+			screen.queryByRole( 'button', { name: 'Switch to the Like block' } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-support-likes'
+		);
 	} );
 
 	it( 'keeps a forced-active module non-actionable', () => {
@@ -174,17 +188,6 @@ describe( 'Like buttons settings', () => {
 			screen.queryByRole( 'button', { name: 'Switch to the Like block' } )
 		).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'keeps the existing block-theme fallback when the exact template URL is unavailable', () => {
-		render( <Likes { ...defaultProps } themeStylesheet="" /> );
-
-		expect( screen.getByRole( 'checkbox' ) ).not.toBeChecked();
-		expect( screen.getByText( 'Block theme notice' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Configure your Like buttons' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/wp-admin/site-editor.php?path=%2Fwp_template'
-		);
 	} );
 
 	it( 'disables the toggle in offline mode', () => {

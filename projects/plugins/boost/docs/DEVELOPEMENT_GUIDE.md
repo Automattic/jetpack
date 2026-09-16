@@ -39,6 +39,7 @@ Add `--production` for a production build. The build produces both the legacy
 webpack assets and the modern dashboard assets. For an opt-in local demo, see
 [Dashboard modernization](../tests/e2e/README.md#dashboard-modernization).
 
+For development access to the modern dashboard, use the `rsm_jetpack_ui_modernization_boost` filter documented in [the admin loader](../app/admin/class-admin.php). Its default and asset fallback are defined there.
 
 ## PHP unit tests
 
@@ -93,8 +94,15 @@ check the full legacy application.
 
 ## Linting Jetpack Boost JavaScript code
 
-Run JavaScript linting from the monorepo root as described in the
-[development environment guide](../../../../docs/development-environment.md#linting-jetpacks-javascript).
+Run the monorepo's ESLint command from the monorepo root, scoped to Boost:
+
+```sh
+pnpm run lint-file projects/plugins/boost
+```
+
+Append `--fix` to apply automatic fixes. See the
+[development environment guide](../../../../docs/development-environment.md#linting-jetpacks-javascript)
+for configuration guidance.
 
 # Debugging Concatenate JS/CSS exclusions
 

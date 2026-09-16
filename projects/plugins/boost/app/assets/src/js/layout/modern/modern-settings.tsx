@@ -3,7 +3,7 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import NoticeManager from '$features/notice/manager';
 import Support from '$layout/settings-page/support/support';
 import Tips from '$layout/settings-page/tips/tips';
-import Index from '../../pages/index';
+import Settings from '../../pages/settings/settings';
 import styles from './modern-settings.module.scss';
 
 type ModernSettingsProps = {
@@ -21,7 +21,7 @@ const ModernSettings = ( { hidden = false }: ModernSettingsProps ) => {
 	return (
 		<div className={ clsx( 'jb-modern-settings', styles.settings ) } hidden={ hidden }>
 			<div className="jb-section jb-section--main">
-				<Index />
+				<Settings />
 			</div>
 
 			<Tips />

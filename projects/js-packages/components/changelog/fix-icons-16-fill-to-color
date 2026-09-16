@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Notice, PricingTable: Keep the icons colored now that @wordpress/icons 16 draws them as strokes.

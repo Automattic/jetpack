@@ -41,10 +41,6 @@ import { resetPageViewForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-// These stages render behind several sequential requests; Testing
-// Library's one-second default has not been enough on a loaded runner.
-const SETTLE = { timeout: 10000 };
-
 const RESTORE_QUESTION = 'Was it easy to restore your site?';
 const BACKUPS_QUESTION = 'Do you enjoy the peace of mind of having backups?';
 // Matched loosely: `Link` appends its own "opens in a new tab" text to
@@ -233,9 +229,7 @@ function mockEndpoints( {
  */
 async function renderSettledOverview() {
 	render( <OverviewStage /> );
-	await expect(
-		screen.findByText( 'Backup complete', undefined, SETTLE )
-	).resolves.toBeInTheDocument();
+	await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 }
 
 beforeEach( () => {

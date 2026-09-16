@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the Podcast sidebar item when the Podcast module is not active.

@@ -50,6 +50,11 @@ const GRID_VISIBLE_FIELDS: string[] = [ 'orientation' ];
 // visibility control.
 const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'orientation', 'uploadDate', 'privacy' ];
 
+const defaultLayouts = {
+	grid: { layout: { previewSize: 220, density: 'comfortable', aspectRatio: '16/9' } },
+	table: { layout: { density: 'balanced', aspectRatio: '16/9' } },
+} satisfies SupportedLayouts;
+
 const DEFAULT_VIEW: View = {
 	type: 'grid',
 	page: 1,
@@ -57,15 +62,10 @@ const DEFAULT_VIEW: View = {
 	titleField: 'title',
 	mediaField: 'thumbnail',
 	fields: GRID_VISIBLE_FIELDS,
-	layout: { previewSize: 220, density: 'comfortable' },
+	layout: defaultLayouts.grid.layout,
 	sort: { field: 'uploadDate', direction: 'desc' },
 	filters: [],
 	search: '',
-};
-
-const defaultLayouts: SupportedLayouts = {
-	grid: { layout: { previewSize: 220, density: 'comfortable' } },
-	table: { layout: { density: 'balanced' } },
 };
 
 // The whole library, unfiltered — `paginationInfo` on the user's own view is
@@ -83,7 +83,7 @@ const TOTAL_COUNT_VIEW: View = {
 };
 
 const StageInner = () => {
-	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
+	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW, defaultLayouts );
 	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );

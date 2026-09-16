@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Show an upgrade prompt when editing the AI Search block on sites without a paid Search plan.

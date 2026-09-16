@@ -144,6 +144,16 @@ const withRules = ( rules, extra = {} ) => ( {
 	...extra,
 } );
 
+const getPanelToggle = () => screen.getByRole( 'button', { name: 'Conditional logic' } );
+
+// The panel starts collapsed on a field without conditions, and nothing inside it is rendered
+// until the title is activated.
+const expandPanel = async () => {
+	if ( getPanelToggle().getAttribute( 'aria-expanded' ) === 'false' ) {
+		await userEvent.click( getPanelToggle() );
+	}
+};
+
 const setup = async (
 	conditionalLogic = DEFAULT_ATTRIBUTE,
 	{ openModal = true, sidebarOpen = true } = {}
@@ -165,9 +175,7 @@ const setup = async (
 		return { setAttributes, container };
 	}
 
-	// PanelBody renders collapsed (initialOpen={false}), so nothing inside it exists
-	// in the DOM until the title is activated.
-	await userEvent.click( screen.getByRole( 'button', { name: 'Conditional logic' } ) );
+	await expandPanel();
 
 	// The rules are edited in a dialog, so most of this file has to open it first. Tests
 	// about what the inspector itself shows pass openModal: false.
@@ -197,7 +205,7 @@ const setupStateful = async initial => {
 	};
 
 	render( <Harness /> );
-	await userEvent.click( screen.getByRole( 'button', { name: 'Conditional logic' } ) );
+	await expandPanel();
 	await userEvent.click( screen.getByRole( 'button', { name: /(add|edit) conditions/i } ) );
 };
 
@@ -328,6 +336,42 @@ describe( 'ConditionalLogicPanel', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Add conditional logic' } ) );
 
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+	} );
+
+	it( 'starts the panel collapsed on a field without conditions', () => {
+		render(
+			<ConditionalLogicPanel
+				clientId="abc"
+				attributes={ { conditionalLogic: DEFAULT_ATTRIBUTE } }
+				setAttributes={ jest.fn() }
+			/>
+		);
+		expect( getPanelToggle() ).toHaveAttribute( 'aria-expanded', 'false' );
+	} );
+
+	it( 'starts the panel open on a field with conditions', () => {
+		render(
+			<ConditionalLogicPanel
+				clientId="abc"
+				attributes={ {
+					conditionalLogic: withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ),
+				} }
+				setAttributes={ jest.fn() }
+			/>
+		);
+		expect( getPanelToggle() ).toHaveAttribute( 'aria-expanded', 'true' );
+		expect( screen.getByRole( 'button', { name: 'Edit conditions' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'closes the dialog with the Done button, keeping the conditions', async () => {
+		const { setAttributes } = await setup(
+			withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] )
+		);
+		await userEvent.click(
+			within( screen.getByRole( 'dialog' ) ).getByRole( 'button', { name: 'Done' } )
+		);
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		expect( setAttributes ).not.toHaveBeenCalled();
 	} );
 
 	it( 'opens the dialog from the toolbar button', async () => {

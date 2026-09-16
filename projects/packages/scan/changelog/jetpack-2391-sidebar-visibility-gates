@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the Scan sidebar item when Scan is not active.

@@ -126,7 +126,7 @@ class Logo {
 	 * This mirrors the fallback order in WordPress's wp_color_scheme_settings(), whose
 	 * JavaScript output recolors data URI SVG icons after the page loads.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.1
 	 *
 	 * @param string|null $color_scheme Admin color scheme to use. Defaults to the
 	 *                                  current user's scheme.
@@ -172,7 +172,7 @@ class Logo {
 	/**
 	 * Update the stored Jetpack admin menu item after admin color schemes are registered.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.0.1
 	 *
 	 * @return void
 	 */

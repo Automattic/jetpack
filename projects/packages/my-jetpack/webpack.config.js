@@ -1,7 +1,9 @@
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+import path from 'path';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 
-module.exports = [
+const __dirname = import.meta.dirname;
+
+export default [
 	{
 		entry: {
 			index: './_inc/admin.jsx',

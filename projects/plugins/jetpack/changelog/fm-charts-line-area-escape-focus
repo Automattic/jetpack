@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Charts: Restore keyboard focus after dismissing line chart tooltips.

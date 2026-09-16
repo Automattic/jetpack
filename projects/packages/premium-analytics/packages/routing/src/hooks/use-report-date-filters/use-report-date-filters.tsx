@@ -27,16 +27,14 @@ import type {
 	PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
-type PickerRange = { from: Date | undefined; to: Date | undefined };
-
 /**
  * The values and callbacks that drive `DateFiltersPanel`.
  */
 export type ReportDateFilters = {
 	presetId?: PrimaryPresetId;
-	range: PickerRange;
+	range: DateRange;
 	appliedPresetId?: PrimaryPresetId;
-	appliedRange: PickerRange;
+	appliedRange: DateRange;
 	comparisonPresetId?: ComparisonPresetId;
 	appliedComparisonPresetId?: ComparisonPresetId;
 
@@ -62,7 +60,16 @@ export type ReportDateFilters = {
 	 */
 	intervalOptions: IntervalType[];
 
-	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
+	/**
+	 * Stage a primary range edit. `exactRange` stores the ends as given rather
+	 * than widening `to` to the end of its day: for a range a card computed,
+	 * not one the reader picked from the calendar.
+	 */
+	onChange: (
+		range?: DateRange,
+		presetId?: PrimaryPresetId,
+		options?: { exactRange?: boolean }
+	) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
 
@@ -141,8 +148,17 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	const onChange = useCallback(
-		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
+		(
+			nextRange?: DateRange,
+			nextPresetId?: PrimaryPresetId,
+			options?: { exactRange?: boolean }
+		) => {
+			const patch = buildRangePatch( {
+				nextRange,
+				nextPresetId,
+				exactRange: options?.exactRange,
+				effective,
+			} );
 
 			if ( patch ) {
 				stage( patch );
@@ -261,7 +277,11 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 			 * on the clock of the date passed in, and a plain instant would cut it
 			 * on the browser's clock instead.
 			 */
-			const drilled = drillDateRange( toLocalTZ( date, timeZone ), bucketInterval, new Date() );
+			const drilled = drillDateRange(
+				toLocalTZ( date, timeZone ),
+				bucketInterval,
+				toLocalTZ( undefined, timeZone )
+			);
 
 			if ( ! drilled?.from || ! drilled.to ) {
 				return;

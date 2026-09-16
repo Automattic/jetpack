@@ -122,6 +122,13 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		isAvailable: isSimpleSite,
 		load: () => import( './downloads/page' ),
 	},
+	earnings: {
+		id: 'earnings',
+		dashboardSection: 'ads',
+		getLabel: () => __( 'Earnings history', 'jetpack-premium-analytics-pkg' ),
+		getTitle: () => __( 'Earnings history report', 'jetpack-premium-analytics-pkg' ),
+		load: () => import( './earnings/page' ),
+	},
 	emails: {
 		id: 'emails',
 		dashboardSection: 'subscribers',

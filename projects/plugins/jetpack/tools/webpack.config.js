@@ -250,31 +250,6 @@ module.exports = [
 			} ),
 		},
 	},
-	// Build AI admin page JS.
-	{
-		...sharedWebpackConfig,
-		entry: {
-			'jetpack-ai-admin': path.join( __dirname, '../_inc/client', 'ai-admin.jsx' ),
-		},
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				// @wordpress/ui pulls in @wordpress/theme, which is not a reliable WP script
-				// handle in all contexts, so bundle it instead of externalizing it. Keep
-				// @wordpress/private-apis external so bundled DataViews can unlock private APIs
-				// exposed by external WordPress packages such as @wordpress/components.
-				requestMap: {
-					'@wordpress/theme': { external: false },
-				},
-			} ),
-		],
-		externals: {
-			...sharedWebpackConfig.externals,
-			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack',
-			} ),
-		},
-	},
 	// Build generator.jsx (which produces pre-rendered HTML).
 	{
 		...sharedWebpackConfig,

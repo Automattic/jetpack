@@ -609,7 +609,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "7bfcb690f93d36b53a38e1e7a08c0bd92608d2b2"
+                "reference": "1bf99f790cde68da535136854406dcbe1ef2e340"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -646,7 +646,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.1.x-dev"
+                    "dev-trunk": "9.2.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -867,6 +867,64 @@
             }
         },
         {
+            "name": "automattic/jetpack-feature-flags",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/feature-flags",
+                "reference": "d5def8cd2f0e9da4f405329c2d0304d37d0ed08c"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "brain/monkey": "^2.6.2",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-feature-flags",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-feature-flags/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.2.x-dev"
+                },
+                "textdomain": "jetpack-feature-flags",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-feature-flags.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared utilities for registering and checking lightweight Jetpack feature flags.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-ip",
             "version": "dev-trunk",
             "dist": {
@@ -1005,7 +1063,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "1c4534bdc401206cc45ee20600003ae6a1ab6a9c"
+                "reference": "df7dd4c9923b226c4b6c259904e2d50a8cca00c5"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1032,6 +1090,9 @@
                 }
             },
             "autoload": {
+                "files": [
+                    "actions.php"
+                ],
                 "classmap": [
                     "src/"
                 ]
@@ -1173,7 +1234,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "f2bf2241ea190c16615e61959c3e08aa38dd48e2"
+                "reference": "4e860d4e82b0c0cf6636444c1d698cf925a18f55"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1182,6 +1243,7 @@
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-explat": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-licensing": "@dev",
                 "automattic/jetpack-menu-badges": "@dev",
@@ -1257,7 +1319,7 @@
                     "pnpm run build"
                 ],
                 "build-production": [
-                    "NODE_ENV=production pnpm run build"
+                    "pnpm run build-production"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",

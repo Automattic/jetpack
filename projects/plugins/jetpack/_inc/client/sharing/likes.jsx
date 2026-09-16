@@ -2,9 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
-import BlockThemeNotice from 'components/block-theme-notice';
 import Button from 'components/button';
-import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -65,27 +63,6 @@ export const Likes = withModuleSettingsFormHelpers(
 							'jetpack'
 					  );
 			}
-
-			/**
-			 * Like block configuration link.
-			 *
-			 * This link is shown when a block theme is active and the like block is available.
-			 * It links to the site editor where users can add the like block to their templates.
-			 *
-			 * @return {import('react').ReactNode} A card with the like block configuration link.
-			 */
-			const configCard = () => {
-				return (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						href={ `${ siteAdminUrl }site-editor.php?path=%2Fwp_template` }
-						onClick={ this.trackClickConfigure }
-					>
-						{ __( 'Configure your Like buttons', 'jetpack' ) }
-					</Card>
-				);
-			};
 
 			/**
 			 * Use the legacy toggle where needed; otherwise guide block themes through
@@ -159,17 +136,6 @@ export const Likes = withModuleSettingsFormHelpers(
 						<p>{ description }</p>
 						{ moduleAction() }
 					</SettingsGroup>
-
-					{ ! shouldUseLikeBlockAction && shouldShowLikeBlock && (
-						<div className="jp-settings-card__notice">
-							<BlockThemeNotice
-								isModuleActive={ isActive }
-								redirectSlug="jetpack-support-like-block"
-							/>
-						</div>
-					) }
-
-					{ shouldShowLikeBlock && ! shouldUseLikeBlockAction && configCard() }
 				</SettingsCard>
 			);
 		}

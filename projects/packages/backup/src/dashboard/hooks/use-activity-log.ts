@@ -23,7 +23,11 @@ type Args = {
 type Result = {
 	items: ActivityItem[];
 	totalItems: number;
-	totalPages: number;
+	/**
+	 * Null until the feed has answered: DataViews leaves the page alone while
+	 * the total is unknown, but clamps it to 1 when handed a fallback count.
+	 */
+	totalPages: number | null;
 	isLoading: boolean;
 	/**
 	 * True while a refetch is in flight. Distinct from `isLoading`, which
@@ -121,14 +125,15 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 	// The server's own count, not the merged one: restore rows land on a single
 	// page, so counting them would misreport how many pages there are.
 	const totalItems = query.data?.totalItems ?? entries.length;
-	const totalPages =
-		query.data?.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) );
+	const totalPages = query.data
+		? query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) )
+		: null;
 
 	// Only once the feed has answered: a failed page holds no rows, and merged
 	// restores would fill it, hiding the failure the list's `empty` slot reports.
 	const items = useMemo(
 		() =>
-			query.isSuccess
+			query.isSuccess && totalPages !== null
 				? mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } )
 				: entries,
 		[ query.isSuccess, entries, restores.data, page, totalPages, sortOrder ]

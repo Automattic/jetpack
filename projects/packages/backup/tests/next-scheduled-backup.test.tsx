@@ -38,10 +38,6 @@ import type { ReactNode } from 'react';
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const SITE = 'example.wordpress.com';
 
-// The route stages render behind several sequential requests and have
-// taken well over Testing Library's 1s default on a loaded runner.
-const SETTLE = { timeout: 10000 };
-
 // Everything Jest's fake timers can replace *except* `Date`. Faking the timer functions
 // too would take Testing Library's polling with it — `waitFor` switches implementation
 // the moment it sees a mocked `setTimeout` — and the suite would hang on the first
@@ -153,7 +149,7 @@ function renderStageWithProbe() {
  * @return The probe element, once it has something to show.
  */
 function scheduleIsAvailable(): Promise< HTMLElement > {
-	return screen.findByTestId( 'schedule-probe', undefined, SETTLE );
+	return screen.findByTestId( 'schedule-probe' );
 }
 
 /**
@@ -733,7 +729,7 @@ describe( 'on the Overview', () => {
 
 		render( <OverviewStage /> );
 
-		const line = await screen.findByText( /^Next full backup/, undefined, SETTLE );
+		const line = await screen.findByText( /^Next full backup/ );
 		expect( line ).toHaveTextContent( /^Next full backup: Oct 22, 10:00-10:59 AM\.$/ );
 
 		// Placement, not just presence: `.jpb-overview` is a two-column grid above
@@ -765,12 +761,12 @@ describe( 'on the Overview', () => {
 
 		// The running backup is reported…
 		await expect(
-			screen.findByText( 'Your backup will be ready soon', undefined, SETTLE )
+			screen.findByText( 'Your backup will be ready soon' )
 		).resolves.toBeInTheDocument();
 		// …and so is the next one.
-		await expect(
-			screen.findByText( /^Next full backup/, undefined, SETTLE )
-		).resolves.toHaveTextContent( /^Next full backup: Oct 22, 10:00-10:59 AM\.$/ );
+		await expect( screen.findByText( /^Next full backup/ ) ).resolves.toHaveTextContent(
+			/^Next full backup: Oct 22, 10:00-10:59 AM\.$/
+		);
 	} );
 
 	it( 'says nothing when the backup state could not be read', async () => {
@@ -786,7 +782,7 @@ describe( 'on the Overview', () => {
 		// Synchronized on the failure being reported *and* the schedule being
 		// available, neither of which the mutation under test removes.
 		await expect(
-			screen.findByText( "We couldn't check your site's backup status.", undefined, SETTLE )
+			screen.findByText( "We couldn't check your site's backup status." )
 		).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
@@ -808,11 +804,7 @@ describe( 'on the Overview', () => {
 		renderStageWithProbe();
 
 		await expect(
-			screen.findByText(
-				"Your latest backup didn't complete. We'll try again shortly.",
-				undefined,
-				SETTLE
-			)
+			screen.findByText( "Your latest backup didn't complete. We'll try again shortly." )
 		).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
@@ -828,7 +820,7 @@ describe( 'on the Overview', () => {
 		renderStageWithProbe();
 
 		await expect(
-			screen.findByText( 'Your first cloud backup will be ready soon', undefined, SETTLE )
+			screen.findByText( 'Your first cloud backup will be ready soon' )
 		).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();

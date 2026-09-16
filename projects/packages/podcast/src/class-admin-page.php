@@ -88,7 +88,13 @@ class Admin_Page {
 				'Podcast',
 				'manage_options',
 				self::ADMIN_PAGE_SLUG,
-				$callback
+				$callback,
+				null,
+				// Podcast has no My Jetpack product class, so the module is the only gate available.
+				array(
+					'module' => 'podcast',
+					'key'    => 'jetpack-podcast',
+				)
 			);
 		}
 

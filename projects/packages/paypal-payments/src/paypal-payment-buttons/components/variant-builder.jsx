@@ -349,7 +349,7 @@ function GroupEditor( {
 			<div className="jetpack-paypal-variants__options">
 				{ group.options.map( ( option, optIndex ) => (
 					<div
-						key={ option._key }
+						key={ option._key || optIndex }
 						className="jetpack-paypal-variants__option"
 						ref={ optIndex === group.options.length - 1 ? lastOptionRef : null }
 					>
