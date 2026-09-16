@@ -111,24 +111,33 @@ class Admin_Menu_Test extends TestCase {
 		wp_dequeue_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 
+		$this->reset_admin_menu_statics(
+			array(
+				'menu_items'  => array(),
+				'initialized' => false,
+			)
+		);
+	}
+
+	/**
+	 * Resets Admin_Menu's static properties, which no test framework restores.
+	 *
+	 * @param array $properties Property name to the value it should be reset to.
+	 */
+	private function reset_admin_menu_statics( array $properties ) {
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
-		if ( $reflection->hasProperty( 'menu_items' ) ) {
-			$menu_items = $reflection->getProperty( 'menu_items' );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$menu_items->setAccessible( true );
+		foreach ( $properties as $name => $value ) {
+			if ( ! $reflection->hasProperty( $name ) ) {
+				continue;
 			}
-			$menu_items->setValue( null, array() );
-		}
 
-		if ( $reflection->hasProperty( 'initialized' ) ) {
-			$initialized = $reflection->getProperty( 'initialized' );
+			$property = $reflection->getProperty( $name );
 			// @todo Remove this call once we no longer need to support PHP <8.1.
 			if ( PHP_VERSION_ID < 80100 ) {
-				$initialized->setAccessible( true );
+				$property->setAccessible( true );
 			}
-			$initialized->setValue( null, false );
+			$property->setValue( null, $value );
 		}
 	}
 
@@ -1271,24 +1280,13 @@ class Admin_Menu_Test extends TestCase {
 		$_parent_pages     = array();
 		$_registered_pages = array();
 
-		$reflection = new \ReflectionClass( Admin_Menu::class );
-
-		foreach ( array(
-			'menu_items'  => array(),
-			'page_hooks'  => array(),
-			'initialized' => false,
-		) as $name => $value ) {
-			if ( ! $reflection->hasProperty( $name ) ) {
-				continue;
-			}
-
-			$property = $reflection->getProperty( $name );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$property->setAccessible( true );
-			}
-			$property->setValue( null, $value );
-		}
+		$this->reset_admin_menu_statics(
+			array(
+				'menu_items'  => array(),
+				'page_hooks'  => array(),
+				'initialized' => false,
+			)
+		);
 	}
 
 	/**
@@ -1514,9 +1512,8 @@ class Admin_Menu_Test extends TestCase {
 	/**
 	 * An explicit position opts an item out of alphabetical order, which is how it was overwritten before.
 	 *
-	 * The result is asserted loosely on purpose: a small int is acted on twice, by our usort and
-	 * again by core's own splice inside add_submenu_page, so it lands somewhere that matches
-	 * neither the alphabet nor the position asked for. The tiers avoid this by sitting past the end.
+	 * Asserted loosely on purpose: core splices a small int a second time inside
+	 * add_submenu_page(), so where it lands matches neither the alphabet nor the number asked for.
 	 */
 	public function test_an_explicit_position_removes_an_item_from_the_alphabetical_run() {
 		$alphabetical = array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress' );

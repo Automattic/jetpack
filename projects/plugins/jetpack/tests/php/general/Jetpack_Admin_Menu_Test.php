@@ -3,9 +3,12 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
+use Automattic\Jetpack\Scan\Admin_Sidebar_Link;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
 use Automattic\Jetpack\VideoPress\Admin_UI;
 /**
@@ -113,6 +116,13 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$jetpack_backup = new Jetpack_Backup();
 		$jetpack_backup->initialize();
 
+		// Scan, VaultPress Backup, Jetpack Manage and Subscribers only register under a condition,
+		// and they are the call sites the two curation PRs before #52003 renumbered.
+		$this->satisfy_conditional_registrar_gates();
+		Admin_Sidebar_Link::instance()->maybe_add_admin_link();
+		Jetpack_Manage::add_submenu_jetpack();
+		Jetpack_Subscriptions::init()->add_subscribers_menu();
+
 		/*
 		 * Nothing in this fixture registers an external link or a bottom-tier item on its own,
 		 * so the assertions covering those tiers would pass vacuously. Register one of each,
@@ -182,6 +192,17 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		usort( $alphabetical, 'strnatcasecmp' );
 
 		$this->assertSame( $alphabetical, $internal, 'Jetpack submenu items should be ordered alphabetically by menu title.' );
+
+		/*
+		 * An off-tier position on an external link leaves it after the internal pages, so the
+		 * check above misses it. Renumbering them is what PRs #47417 and #50104 actually did.
+		 */
+		$this->assertGreaterThan( 1, count( $external ), 'Expected several external links, otherwise their ordering proves nothing.' );
+
+		$alphabetical_external = $external;
+		usort( $alphabetical_external, 'strnatcasecmp' );
+
+		$this->assertSame( $alphabetical_external, $external, 'External links should be ordered alphabetically among themselves.' );
 	}
 
 	/**
@@ -193,14 +214,48 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	 * @return array Product name to callable.
 	 */
 	private function menu_registrars() {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+		$this->satisfy_conditional_registrar_gates();
 
 		return array(
-			'my-jetpack' => array( My_Jetpack_Initializer::class, 'add_my_jetpack_menu_item' ),
-			'backup'     => array( Jetpack_Backup::class, 'add_wp_admin_submenu' ),
-			'videopress' => array( Admin_UI::class, 'enable_menu' ),
-			'settings'   => array( new Jetpack_React_Page(), 'jetpack_add_settings_sub_nav_item' ),
+			'my-jetpack'     => array( My_Jetpack_Initializer::class, 'add_my_jetpack_menu_item' ),
+			'activity-log'   => array( Jetpack_Activity_Log::class, 'add_wp_admin_submenu' ),
+			'backup'         => array( Jetpack_Backup::class, 'add_wp_admin_submenu' ),
+			'videopress'     => array( Admin_UI::class, 'enable_menu' ),
+			'scan-backup'    => array( Admin_Sidebar_Link::instance(), 'maybe_add_admin_link' ),
+			'jetpack-manage' => array( Jetpack_Manage::class, 'add_submenu_jetpack' ),
+			'subscribers'    => array( Jetpack_Subscriptions::init(), 'add_subscribers_menu' ),
+			'settings'       => array( new Jetpack_React_Page(), 'jetpack_add_settings_sub_nav_item' ),
 		);
+	}
+
+	/**
+	 * Opens the gates on the four registrars that only register under a condition.
+	 *
+	 * Scan, Backup, Jetpack Manage and Subscribers are the call sites that regressed in the two
+	 * curation PRs before #52003, so leaving them unregistered here would test past the history.
+	 */
+	private function satisfy_conditional_registrar_gates() {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
+		// Only loaded when the Scan module is active, so the autoloader does not reach it here.
+		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';
+
+		$scan          = new stdClass();
+		$scan->state   = 'idle';
+		$rewind        = new stdClass();
+		$rewind->state = 'active';
+		set_transient( 'jetpack_scan_state', $scan, WEEK_IN_SECONDS );
+		set_transient( 'jetpack_rewind_state', $rewind, WEEK_IN_SECONDS );
+
+		set_transient(
+			'jetpack_connected_user_data_' . get_current_user_id(),
+			array( 'site_count' => 2 ),
+			WEEK_IN_SECONDS
+		);
+
+		// The Subscribers link registers only where its modern wp-admin replacements are off.
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' );
+		add_filter( 'jetpack_wp_admin_subscriber_management_enabled', '__return_false' );
 	}
 
 	/**
@@ -253,8 +308,18 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$this->assertSame( 'my-jetpack', $order[0], 'My Jetpack should be pinned first.' );
 		$this->assertSame( $order, $this->render_menu( array_reverse( $registrars ) ) );
 
-		$interleaved = array( $registrars['videopress'], $registrars['settings'], $registrars['my-jetpack'], $registrars['backup'] );
-		$this->assertSame( $order, $this->render_menu( $interleaved ) );
+		// Derived rather than a named subset, which would silently go stale as registrars are added.
+		$even = array();
+		$odd  = array();
+		foreach ( array_values( $registrars ) as $index => $registrar ) {
+			if ( 0 === $index % 2 ) {
+				$even[] = $registrar;
+			} else {
+				$odd[] = $registrar;
+			}
+		}
+
+		$this->assertSame( $order, $this->render_menu( array_merge( $odd, $even ) ) );
 	}
 
 	/**
