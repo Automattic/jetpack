@@ -1,6 +1,7 @@
-// The box's look alone, for a chart that positions the box itself.
-%surface {
-	padding: var(--a8c-charts-dimension-tooltip-padding, var(--wpds-dimension-padding-sm));
+// `.surface` is the look alone, for a chart that positions the box itself.
+.surface,
+.tooltip {
+	padding: var(--wpds-dimension-padding-sm);
 	// No WPDS token fits a translucent dark tooltip surface:
 	// bg-interactive-neutral-strong is opaque, and there is no
 	// white-on-dark content foreground token. The role carries the
@@ -13,15 +14,7 @@
 	pointer-events: none;
 }
 
-.surface {
-
-	@extend %surface;
-}
-
 .tooltip {
-
-	@extend %surface;
-
 	position: absolute;
 	transform: translate(-50%, -100%);
 }

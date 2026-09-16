@@ -1,5 +1,5 @@
 import type { BaseChartProps } from '../../types';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 /** A single heatmap cell. `value: null` marks an empty cell. */
 export type HeatmapCell = {
@@ -113,6 +113,8 @@ export interface HeatmapChartProps extends Omit<
 	 * Default `light`.
 	 */
 	tooltipVariant?: 'light' | 'dark';
+	/** Inline styles merged onto the tooltip box, over the variant's own. */
+	tooltipStyle?: CSSProperties;
 	children?: ReactNode;
 }
 

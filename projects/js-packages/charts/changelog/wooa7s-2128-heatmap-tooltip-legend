@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Heatmap chart: Add `tooltipVariant="dark"`, which draws the tooltip on the package's dark tooltip surface, and a `variant="bar"` legend that joins the scale steps into one continuous band. The tooltip surface padding is now the `--a8c-charts-dimension-tooltip-padding` role.
+Heatmap chart: Add `tooltipVariant="dark"`, which draws the tooltip on the package's dark tooltip surface, `tooltipStyle` for inline box overrides, and a `variant="bar"` legend that joins the scale steps into one continuous band.

@@ -88,9 +88,10 @@ describe( 'HeatmapChart', () => {
 	test( 'draws the light tooltip box by default', async () => {
 		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
 		await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
-		await expect( screen.findByRole( 'tooltip' ) ).resolves.not.toHaveClass( 'surface' );
-		// Above a cell a consumer raises on hover.
-		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { zIndex: 3 } );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+		const box = screen.getByTestId( 'bounded-tooltip' );
+		expect( box ).not.toHaveClass( 'surface' );
+		expect( box ).toHaveStyle( { backgroundColor: 'rgb(255, 255, 255)', zIndex: 3 } );
 	} );
 
 	test( 'draws the dark variant on the package tooltip surface, not the visx box', async () => {
@@ -100,13 +101,26 @@ describe( 'HeatmapChart', () => {
 			rowLabels: [ 'Mon', 'Tue', 'Wed' ],
 		} );
 		await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
-		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveClass( 'surface' );
-		expect( screen.getByTestId( 'bounded-tooltip' ) ).not.toHaveStyle( {
-			backgroundColor: 'white',
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+		const box = screen.getByTestId( 'bounded-tooltip' );
+		expect( box ).toHaveClass( 'surface' );
+		expect( box ).not.toHaveStyle( { backgroundColor: 'rgb(255, 255, 255)' } );
+		expect( box ).toHaveStyle( { pointerEvents: 'none', zIndex: 3 } );
+	} );
+
+	test( 'merges tooltipStyle over the variant box styles', async () => {
+		renderChart( {
+			withTooltips: true,
+			tooltipVariant: 'dark',
+			tooltipStyle: { padding: '2px 4px', zIndex: 5 },
+			rowLabels: [ 'Mon', 'Tue', 'Wed' ],
 		} );
+		await userEvent.setup().hover( screen.getAllByTestId( 'heatmap-cell' )[ 0 ] );
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			padding: '2px 4px',
+			zIndex: 5,
 			pointerEvents: 'none',
-			zIndex: 3,
 		} );
 	} );
 

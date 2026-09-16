@@ -27,6 +27,7 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | `primaryColor` | `string` | palette | Color the scale interpolates toward at the highest value. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
 | `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
 | `tooltipVariant` | `'light' \| 'dark'` | `'light'` | The tooltip box: the plain white box, or the package's dark tooltip surface (themed through `--a8c-charts-color-tooltip-surface`). |
+| `tooltipStyle` | `CSSProperties` | - | Inline styles merged onto the tooltip box, over the variant's own; tighten the padding of a one-line tooltip, for example. |
 | `renderTooltip` | `(data: HeatmapTooltipData) => ReactNode` | - | Custom tooltip render function. Receives `HeatmapTooltipData`. The default tooltip formats numeric values with `@automattic/number-formatters`. |
 | `width` | `number` | - | Fixed width in pixels. When omitted, the chart fills its parent's width. |
 | `height` | `number` | - | Fixed height in pixels. When omitted, the chart fills its parent's height. |

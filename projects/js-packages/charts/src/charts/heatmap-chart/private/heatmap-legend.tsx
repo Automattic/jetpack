@@ -42,10 +42,12 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 			>
 				{ lessLabel ?? __( 'Less', 'jetpack-charts' ) }
 			</Text>
-			<span
+			<Stack
+				direction="row"
+				gap={ variant === 'bar' ? undefined : 'xs' }
 				aria-hidden="true"
 				data-testid="heatmap-legend-scale"
-				className={ clsx( styles[ 'heatmap-chart__legend-scale' ], {
+				className={ clsx( {
 					[ styles[ 'heatmap-chart__legend-scale--bar' ] ]: variant === 'bar',
 				} ) }
 			>
@@ -65,7 +67,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 						/>
 					);
 				} ) }
-			</span>
+			</Stack>
 			<Text
 				variant="body-sm"
 				className={ styles[ 'heatmap-chart__legend-label' ] }

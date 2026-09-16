@@ -57,16 +57,14 @@ const CELL_MIX_FLOOR = 0.15;
 // it, and a fresh array per render re-ran the keyboard tooltip effect endlessly.
 const NO_ROW_LABELS: string[] = [];
 
-// Above the cells, which a consumer may raise on hover (the sticky labels of a
-// scrolling grid sit at 1 and 2). The chart wrapper isolates its stacking
-// context, so this never competes with page chrome.
+// Above the cells and any sticky overlay a consumer adds inside the grid; the
+// wrapper is isolated, so this never reaches page chrome.
 const TOOLTIP_Z_INDEX = 3;
-// The dark variant paints the inner element, so the positioned wrapper drops
-// visx's white box and only has to stay out of the pointer's way.
-const TOOLTIP_BOX_STYLES = {
+// The dark variant is painted by the `.surface` class, so its style carries no box.
+const TOOLTIP_BOX_STYLES: Record< 'light' | 'dark', CSSProperties > = {
 	light: { ...visxTooltipStyles, zIndex: TOOLTIP_Z_INDEX },
 	dark: { pointerEvents: 'none', zIndex: TOOLTIP_Z_INDEX },
-} as const;
+};
 
 // The cell's own label wins; otherwise the group, column and row labels name it.
 const cellName = ( info: HeatmapTooltipData ) =>
@@ -94,9 +92,17 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	withTooltips = false,
 	renderTooltip,
 	tooltipVariant = 'light',
+	tooltipStyle,
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
+	const tooltipBoxStyle = useMemo(
+		() =>
+			tooltipStyle
+				? { ...TOOLTIP_BOX_STYLES[ tooltipVariant ], ...tooltipStyle }
+				: TOOLTIP_BOX_STYLES[ tooltipVariant ],
+		[ tooltipVariant, tooltipStyle ]
+	);
 	const { getElementStyles, theme } = useGlobalChartsContext();
 	const scopeElement = useChartScopeElement();
 	const { heatmapChart: heatmapChartSettings } = theme;
@@ -600,15 +606,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						<BoundedTooltip
 							top={ tooltipTop }
 							left={ tooltipLeft }
-							style={ TOOLTIP_BOX_STYLES[ tooltipVariant ] }
+							className={ tooltipVariant === 'dark' ? tooltipStyles.surface : undefined }
+							style={ tooltipBoxStyle }
 						>
-							<div
-								className={ clsx( standaloneScopeClass, {
-									[ tooltipStyles.surface ]: tooltipVariant === 'dark',
-								} ) }
-								role="tooltip"
-								tabIndex={ -1 }
-							>
+							<div className={ standaloneScopeClass } role="tooltip" tabIndex={ -1 }>
 								{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 							</div>
 						</BoundedTooltip>
