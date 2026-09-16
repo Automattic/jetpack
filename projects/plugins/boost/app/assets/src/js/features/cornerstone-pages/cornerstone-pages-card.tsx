@@ -29,9 +29,9 @@ const CornerstonePagesCard = () => {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Stack direction="column" gap="xs">
+				<Stack direction="column" gap="lg">
 					<Card.Title render={ <h2 /> }>{ __( 'Cornerstone pages', 'jetpack-boost' ) }</Card.Title>
-					<Text variant="body-md" render={ <p /> }>
+					<Text variant="body-md" render={ <p /> } className={ styles.description }>
 						<CornerstonePagesDescription />
 					</Text>
 				</Stack>

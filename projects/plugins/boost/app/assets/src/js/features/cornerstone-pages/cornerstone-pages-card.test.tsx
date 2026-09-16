@@ -29,9 +29,19 @@ describe( 'CornerstonePagesCard', () => {
 
 		expect( screen.getByRole( 'heading', { level: 2 } ).textContent ).toBe( 'Cornerstone pages' );
 		expect( screen.getByText( 'description' ).tagName ).toBe( 'P' );
-		expect( screen.getByText( 'Added: Homepage + 2 pages' ) ).toBeTruthy();
 		expect( screen.getByRole( 'button', { name: /Edit pages/ } ) ).toBeTruthy();
 		expect( screen.getByText( 'prerender' ) ).toBeTruthy();
+	} );
+
+	it( 'puts the summary before "Edit pages" on the trigger, with the description outside it', () => {
+		render( <CornerstonePagesCard /> );
+		const trigger = screen.getByRole( 'button', { name: /Edit pages/ } );
+
+		const description = screen.getByText( 'description' );
+
+		expect( trigger.textContent ).toBe( 'Added: Homepage + 2 pagesEdit pages' );
+		expect( trigger.contains( description ) ).toBe( false );
+		expect( description.closest( '[hidden]' ) ).toBeNull();
 	} );
 
 	it( 'keeps the editor and the upgrade CTA inside the collapsible', () => {
