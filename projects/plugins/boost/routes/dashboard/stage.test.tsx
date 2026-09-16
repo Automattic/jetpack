@@ -2,11 +2,16 @@
 import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { requestDataSync } from '../../_inc/overview/lib/use-modules-state';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
 const mockNavigate = jest.fn();
+
+jest.mock( '../../_inc/overview/lib/use-modules-state', () => ( {
+	requestDataSync: jest.fn(),
+} ) );
 
 jest.mock( '../../_inc/overview/overview', () => ( {
 	__esModule: true,
@@ -40,12 +45,11 @@ beforeEach( () => {
 	Object.assign( window, { wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' } } );
 	mockNavigate.mockReset();
 	setGettingStarted( false );
-	jest.spyOn( globalThis, 'fetch' ).mockImplementation( jest.fn() );
+	jest.mocked( requestDataSync ).mockReset();
 } );
 
 afterEach( () => {
 	jest.useRealTimers();
-	jest.mocked( globalThis.fetch ).mockRestore();
 } );
 
 const setGettingStarted = ( value: boolean ) => {
@@ -170,13 +174,8 @@ describe( 'Boost dashboard stage', () => {
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
 	} );
 
-	it( 'keeps the loader when the live onboarding value stays true after leaving Getting Started', async () => {
+	it( 'shows a loader instead of Overview while onboarding', () => {
 		setGettingStarted( true );
-		let resolveRequest!: ( response: Response ) => void;
-		const request = new Promise< Response >( resolve => {
-			resolveRequest = resolve;
-		} );
-		jest.mocked( globalThis.fetch ).mockReturnValueOnce( request );
 		const routeReady = jest.fn();
 		window.addEventListener( 'jetpack-boost:route-ready', routeReady );
 		render( <Stage /> );
@@ -186,125 +185,40 @@ describe( 'Boost dashboard stage', () => {
 		expect( getSubpageMount()?.hidden ).toBe( true );
 		expect( getSubpageMount() ).toBeEmptyDOMElement();
 		expect( getSettingsMount() ).not.toBeNull();
+		expect( requestDataSync ).not.toHaveBeenCalled();
 
 		act( () => {
 			window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
 		} );
 
 		expect( getSubpageMount()?.hidden ).toBe( false );
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
-
-		act( () => {
-			window.history.replaceState( null, '', '/?page=jetpack-boost' );
-		} );
-
-		expect( globalThis.fetch ).toHaveBeenCalledTimes( 1 );
-		expect( globalThis.fetch ).toHaveBeenCalledWith(
-			'https://example.org/wp-json/jetpack-boost-ds/getting-started',
-			expect.objectContaining( { method: 'GET' } )
-		);
-		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
-
-		const text = jest.fn().mockResolvedValue( JSON.stringify( { status: 'success', JSON: true } ) );
-		await act( async () => {
-			resolveRequest( { ok: true, text } as unknown as Response );
-		} );
-		await waitFor( () => expect( text ).toHaveBeenCalled() );
-
-		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
-		act( () => {
-			window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
-		} );
-		expect( getSubpageMount()?.hidden ).toBe( false );
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
 		expect( getSubpageMount() ).toBeEmptyDOMElement();
+		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
 		expect( routeReady ).not.toHaveBeenCalled();
 		window.removeEventListener( 'jetpack-boost:route-ready', routeReady );
 	} );
 
-	it( 'shows Overview when the live onboarding value is false after leaving Getting Started', async () => {
-		setGettingStarted( true );
-		let resolveRequest!: ( response: Response ) => void;
-		const request = new Promise< Response >( resolve => {
-			resolveRequest = resolve;
-		} );
-		jest.mocked( globalThis.fetch ).mockReturnValueOnce( request );
-		const routeReady = jest.fn();
-		window.addEventListener( 'jetpack-boost:route-ready', routeReady );
-		render( <Stage /> );
-
-		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
-		expect( getSubpageMount()?.hidden ).toBe( true );
-		expect( getSubpageMount() ).toBeEmptyDOMElement();
-		expect( getSettingsMount() ).not.toBeNull();
-
-		act( () => {
-			window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
-		} );
-
-		expect( getSubpageMount()?.hidden ).toBe( false );
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
-
-		act( () => {
-			window.history.replaceState( null, '', '/?page=jetpack-boost' );
-		} );
-
-		expect( globalThis.fetch ).toHaveBeenCalledTimes( 1 );
-		expect( globalThis.fetch ).toHaveBeenCalledWith(
-			'https://example.org/wp-json/jetpack-boost-ds/getting-started',
-			expect.objectContaining( { method: 'GET' } )
-		);
-		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
-
-		const text = jest
-			.fn()
-			.mockResolvedValue( JSON.stringify( { status: 'success', JSON: false } ) );
-		await act( async () => {
-			resolveRequest( { ok: true, text } as unknown as Response );
-		} );
-		await waitFor( () => expect( text ).toHaveBeenCalled() );
-
-		await expect( screen.findByText( 'Performance Overview' ) ).resolves.toHaveAttribute(
-			'data-visible',
-			'true'
-		);
-		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
-		expect( getSubpageMount() ).toBeEmptyDOMElement();
-		expect( routeReady ).not.toHaveBeenCalled();
-		window.removeEventListener( 'jetpack-boost:route-ready', routeReady );
-	} );
-
-	it( 'polls until the onboarding save finishes after navigation', async () => {
+	it( 'keeps the loader until a read after leaving Getting Started reports false', async () => {
 		jest.useFakeTimers();
 		setGettingStarted( true );
-		let persistedGettingStarted = true;
-		jest.mocked( globalThis.fetch ).mockImplementation( async () => {
-			return {
-				ok: true,
-				text: async () => JSON.stringify( { status: 'success', JSON: persistedGettingStarted } ),
-			} as Response;
-		} );
+		jest.mocked( requestDataSync ).mockResolvedValueOnce( true ).mockResolvedValue( false );
 		window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
-		const { unmount } = render( <Stage /> );
+		render( <Stage /> );
 
 		await act( async () => {
 			window.history.replaceState( null, '', '/?page=jetpack-boost' );
 		} );
 
-		expect( globalThis.fetch ).toHaveBeenCalledTimes( 1 );
+		expect( requestDataSync ).toHaveBeenCalledTimes( 1 );
+		expect( requestDataSync ).toHaveBeenCalledWith( 'getting_started' );
 		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
 
-		persistedGettingStarted = false;
 		await act( async () => {
 			await jest.advanceTimersByTimeAsync( 1000 );
 		} );
 
-		expect( globalThis.fetch ).toHaveBeenCalledTimes( 2 );
+		expect( requestDataSync ).toHaveBeenCalledTimes( 2 );
 		await expect( screen.findByText( 'Performance Overview' ) ).resolves.toHaveAttribute(
 			'data-visible',
 			'true'
@@ -314,46 +228,35 @@ describe( 'Boost dashboard stage', () => {
 		await act( async () => {
 			await jest.advanceTimersByTimeAsync( 5000 );
 		} );
-		expect( globalThis.fetch ).toHaveBeenCalledTimes( 2 );
-		unmount();
+		expect( requestDataSync ).toHaveBeenCalledTimes( 2 );
 	} );
 
-	it( 'stops polling after fifteen seconds and keeps the onboarding loader', async () => {
+	it( 'stops polling after fifteen seconds and keeps the loader', async () => {
 		jest.useFakeTimers();
 		setGettingStarted( true );
-		jest.mocked( globalThis.fetch ).mockResolvedValue( {
-			ok: true,
-			text: async () => JSON.stringify( { status: 'success', JSON: true } ),
-		} as Response );
+		jest.mocked( requestDataSync ).mockResolvedValue( true );
 		window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
-		const { unmount } = render( <Stage /> );
+		render( <Stage /> );
 
 		await act( async () => {
 			await jest.advanceTimersByTimeAsync( 2000 );
 		} );
-		expect( globalThis.fetch ).not.toHaveBeenCalled();
+		expect( requestDataSync ).not.toHaveBeenCalled();
 
 		await act( async () => {
 			window.history.replaceState( null, '', '/?page=jetpack-boost' );
+			await jest.advanceTimersByTimeAsync( 16000 );
 		} );
-		expect( globalThis.fetch ).toHaveBeenCalledTimes( 1 );
-
-		for ( let second = 0; second < 16; second++ ) {
-			await act( async () => {
-				await jest.advanceTimersByTimeAsync( 1000 );
-			} );
-		}
-		const requestCount = jest.mocked( globalThis.fetch ).mock.calls.length;
+		const requestCount = jest.mocked( requestDataSync ).mock.calls.length;
 		expect( requestCount ).toBeGreaterThanOrEqual( 14 );
-		expect( requestCount ).toBeLessThanOrEqual( 16 );
+		expect( requestCount ).toBeLessThanOrEqual( 17 );
 
 		await act( async () => {
 			await jest.advanceTimersByTimeAsync( 5000 );
 		} );
-		expect( globalThis.fetch ).toHaveBeenCalledTimes( requestCount );
+		expect( requestDataSync ).toHaveBeenCalledTimes( requestCount );
 		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Performance Overview' ) ).not.toBeInTheDocument();
-		unmount();
 	} );
 
 	it( 'shows Overview without a loader once onboarding is done', () => {

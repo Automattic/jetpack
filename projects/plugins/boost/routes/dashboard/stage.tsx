@@ -1,12 +1,11 @@
-import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
-import { z } from 'zod';
 import BoostPage from '../../_inc/components/boost-page';
+import { requestDataSync } from '../../_inc/overview/lib/use-modules-state';
 import Overview from '../../_inc/overview/overview';
 import {
 	getSubpage,
@@ -62,17 +61,15 @@ function DashboardStage() {
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const lastSubpage = useRef( subpage );
 	const onboardingPollDeadline = useRef( 0 );
-	const [ { data: onboarding, refetch } ] = useDataSync(
-		'jetpack_boost_ds',
-		'getting_started',
-		z.boolean(),
-		{
-			query: {
-				refetchInterval: query =>
-					query.state.data === true && Date.now() < onboardingPollDeadline.current ? 1000 : false,
-			},
-		}
-	);
+	const { data: onboarding, refetch } = useQuery( {
+		queryKey: [ 'getting_started' ],
+		queryFn: async () => ( await requestDataSync( 'getting_started' ) ) === true,
+		initialData: window.jetpack_boost_ds?.getting_started?.value === true,
+		staleTime: Infinity,
+		// Getting Started navigates before its save lands, so keep reading until it reports false.
+		refetchInterval: query =>
+			query.state.data === true && Date.now() < onboardingPollDeadline.current ? 1000 : false,
+	} );
 	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
 		( next: Tab, replace = false ) => {
@@ -119,7 +116,7 @@ function DashboardStage() {
 			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
 			<Tabs.Panel value="overview" keepMounted>
-				{ onboarding !== false ? (
+				{ onboarding ? (
 					<div
 						className="jetpack-boost-dashboard__loading"
 						role="status"
