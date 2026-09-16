@@ -11,6 +11,8 @@ use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use ReflectionMethod;
 
+require_once __DIR__ . '/fixtures/wp-build-render.php';
+
 /**
  * Both render() and load_admin_scripts() read is_wp_build_dashboard_active(), so a
  * modernization flag switched on without a wp-build build present falls back to the
@@ -49,6 +51,23 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 		}
 
 		return $method->invoke( $dashboard );
+	}
+
+	/**
+	 * A Dashboard whose render-function seam points at the fixture, so the wp-build
+	 * branch is reachable without building the package.
+	 *
+	 * @return Dashboard
+	 */
+	private function dashboard_with_build() {
+		return new class() extends Dashboard {
+			/**
+			 * @return string
+			 */
+			protected function wp_build_render_function() {
+				return 'Automattic\\Jetpack\\Search\\Fixtures\\wp_build_render_page';
+			}
+		};
 	}
 
 	public function test_predicate_is_false_when_the_filter_is_off() {
@@ -95,5 +114,55 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 
 		$this->assertTrue( wp_script_is( 'jp-search-dashboard', 'registered' ) );
 		$this->assertFalse( wp_script_is( Dashboard::DATA_SCRIPT_HANDLE, 'registered' ) );
+	}
+
+	public function test_render_calls_the_generated_function_when_the_build_is_present() {
+		add_filter( Dashboard::MODERNIZATION_FILTER, '__return_true' );
+
+		ob_start();
+		$this->dashboard_with_build()->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'id="jetpack-search-dashboard-wp-admin-app"', $output );
+		$this->assertStringNotContainsString( 'id="jp-search-dashboard"', $output );
+	}
+
+	public function test_render_stays_legacy_with_a_build_present_but_the_filter_off() {
+		ob_start();
+		$this->dashboard_with_build()->render();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'id="jp-search-dashboard"', $output );
+	}
+
+	public function test_load_admin_scripts_swaps_the_data_handle_when_the_build_is_present() {
+		add_filter( Dashboard::MODERNIZATION_FILTER, '__return_true' );
+
+		$this->dashboard_with_build()->load_admin_scripts();
+
+		$this->assertTrue( wp_script_is( Dashboard::DATA_SCRIPT_HANDLE, 'registered' ) );
+		$this->assertFalse( wp_script_is( 'jp-search-dashboard', 'registered' ) );
+	}
+
+	public function test_initial_state_rides_the_data_handle_on_the_wp_build_path() {
+		add_filter( Dashboard::MODERNIZATION_FILTER, '__return_true' );
+
+		$this->dashboard_with_build()->load_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( Dashboard::DATA_SCRIPT_HANDLE, 'before' ) ) );
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	public function test_the_constant_matches_the_generated_function_name() {
+		$generated = dirname( __DIR__, 2 ) . '/build/pages/jetpack-search-dashboard/page-wp-admin.php';
+		if ( ! file_exists( $generated ) ) {
+			$this->markTestSkipped( 'Package is not built; nothing to compare the constant against.' );
+		}
+
+		$this->assertStringContainsString(
+			'function ' . Dashboard::WP_BUILD_RENDER_FN . '(',
+			(string) file_get_contents( $generated ),
+			'A page-slug or wpPlugin.name change renamed the generated function; every site would silently get the legacy dashboard.'
+		);
 	}
 }

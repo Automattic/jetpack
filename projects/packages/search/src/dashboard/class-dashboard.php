@@ -187,7 +187,17 @@ class Dashboard {
 	 * @return bool
 	 */
 	protected function is_wp_build_dashboard_active() {
-		return $this->is_modernized() && function_exists( self::WP_BUILD_RENDER_FN );
+		return $this->is_modernized() && function_exists( $this->wp_build_render_function() );
+	}
+
+	/**
+	 * Name of the generated render function. A seam: tests override it to reach the
+	 * wp-build branch without depending on whether the package happens to be built.
+	 *
+	 * @return string
+	 */
+	protected function wp_build_render_function() {
+		return self::WP_BUILD_RENDER_FN;
 	}
 
 	/**
@@ -279,8 +289,7 @@ class Dashboard {
 	 */
 	public function render() {
 		if ( $this->is_wp_build_dashboard_active() ) {
-			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- guarded by is_wp_build_dashboard_active(); defined in the generated build/pages/, which Phan excludes.
-			call_user_func( self::WP_BUILD_RENDER_FN );
+			call_user_func( $this->wp_build_render_function() );
 			return;
 		}
 		?>
