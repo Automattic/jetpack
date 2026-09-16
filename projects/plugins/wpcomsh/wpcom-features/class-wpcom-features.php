@@ -1867,11 +1867,11 @@ class WPCOM_Features {
 	 *
 	 * Use the function wpcom_site_has_feature( $feature ) to determine if a site has access to a certain feature.
 	 *
-	 * @param string $feature       A singular feature.
-	 * @param array  $purchases     A collection of purchases.
-	 * @param string $site_type     Site type to check. Can be 'wpcom' or 'jetpack'. Default empty string.
-	 * @param int    $blog_id       The blog ID to check. Default null.
-	 * @param bool   $assume_legacy Cohort to assume instead of the site's own; null reads it from the site.
+	 * @param string    $feature       A singular feature.
+	 * @param array     $purchases     A collection of purchases.
+	 * @param string    $site_type     Site type to check. Can be 'wpcom' or 'jetpack'. Default empty string.
+	 * @param int|null  $blog_id       The blog ID to check. Default null.
+	 * @param bool|null $assume_legacy Cohort to assume instead of the site's own; null reads it from the site.
 	 *
 	 * @return bool Is the feature included in one of the purchases.
 	 */
@@ -2098,10 +2098,10 @@ class WPCOM_Features {
 	 * should be excluded from the feature. This is useful for when there are very specific exceptions that would
 	 * otherwise require a lot of configuration to be added. If a plan is excluded, no further checks will be done.
 	 *
-	 * @param object $purchase A single purchase.
-	 * @param array  $products_map A feature map definition array.
-	 * @param int    $blog_id The blog ID to check. Default null.
-	 * @param bool   $assume_legacy Cohort to assume instead of the site's own; null reads it from the site.
+	 * @param object    $purchase A single purchase.
+	 * @param array     $products_map A feature map definition array.
+	 * @param int|null  $blog_id The blog ID to check. Default null.
+	 * @param bool|null $assume_legacy Cohort to assume instead of the site's own; null reads it from the site.
 	 *
 	 * @return bool If the purchase is included in $products_map and meets any purchase date-range rules.
 	 */
