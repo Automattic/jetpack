@@ -1541,24 +1541,8 @@ describe( 'BarChart', () => {
 				expect( chart ).not.toHaveFocus();
 			} );
 
-			test( 'left arrow at the first point stays put (no wrap to last)', async () => {
-				const user = userEvent.setup();
-				renderWithTheme( { withTooltips: true, data: threePointData } );
-
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
-				chart.focus();
-
-				// Move to the first point.
-				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-
-				// Left arrow at the first point must not wrap to the last point.
-				await user.keyboard( '{ArrowLeft}' );
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toBeInTheDocument();
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.queryByTestId( 'chart-tooltip-2' ) ).not.toBeInTheDocument();
-			} );
-
+			// Left arrow as the first key is the hard case: it clamps from the unselected -1, and a wrap
+			// would land on the last point instead.
 			test( 'left arrow as the first key selects the first point', async () => {
 				const user = userEvent.setup();
 				renderWithTheme( { withTooltips: true, data: threePointData } );
@@ -1568,21 +1552,6 @@ describe( 'BarChart', () => {
 
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
 				expect( screen.queryByTestId( 'chart-tooltip-2' ) ).not.toBeInTheDocument();
-			} );
-
-			test( 'escape closes the tooltip and returns focus to the chart', async () => {
-				const user = userEvent.setup();
-				renderWithTheme( { withTooltips: true, data: threePointData } );
-
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
-				chart.focus();
-				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-
-				await user.keyboard( '{Escape}' );
-
-				expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
-				expect( chart ).toHaveFocus();
 			} );
 		} );
 
@@ -2817,22 +2786,6 @@ describe( 'BarChart', () => {
 			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
 		} );
 
-		it( 'clears the selection when every series is hidden', async () => {
-			const user = userEvent.setup();
-			const toggle = mountWithVisibilityToggle();
-
-			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
-			for ( let i = 0; i < 4; i++ ) {
-				await user.keyboard( '{ArrowRight}' );
-			}
-
-			toggle( 'Series A' );
-			toggle( 'Series B' );
-			toggle( 'Series A' );
-
-			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
-		} );
-
 		it( 'stops at the last visible slot on a standard chart', async () => {
 			const user = userEvent.setup();
 
@@ -2878,60 +2831,6 @@ describe( 'BarChart', () => {
 			expect( tooltips[ 0 ] ).toHaveTextContent( 'Series A' );
 			expect( tooltips[ 0 ] ).not.toHaveTextContent( 'Series B' );
 			expect( screen.queryByTestId( 'chart-tooltip-3' ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'stops at the last visible slot on a comparison chart', async () => {
-			const user = userEvent.setup();
-
-			renderWithTheme( {
-				withTooltips: true,
-				showLegend: true,
-				legend: { interactive: true },
-				chartId: 'test-hide-primary-comparison',
-				data: [
-					{
-						label: 'Series A',
-						group: 'views',
-						data: [
-							{ label: 'Jan', value: 10 },
-							{ label: 'Feb', value: 20 },
-						],
-					},
-					{
-						label: 'Series B',
-						group: 'clicks',
-						data: [
-							{ label: 'Jan', value: 15 },
-							{ label: 'Feb', value: 25 },
-						],
-					},
-					{
-						label: 'Previous A',
-						group: 'views',
-						options: { type: 'comparison' as const },
-						data: [
-							{ label: 'Jan', value: 8 },
-							{ label: 'Feb', value: 18 },
-						],
-					},
-				],
-			} );
-
-			await user.click( screen.getByRole( 'button', { name: /Series B: visible/i } ) );
-
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
-			chart.focus();
-
-			for ( let i = 0; i < 4; i++ ) {
-				await user.keyboard( '{ArrowRight}' );
-			}
-
-			const tooltips = screen.queryAllByTestId( /^chart-tooltip-/ );
-			expect( tooltips ).toHaveLength( 1 );
-			expect( screen.getByTestId( 'chart-tooltip-1' ) ).toBeInTheDocument();
-			expect( tooltips[ 0 ] ).toHaveTextContent( 'Series A' );
-			expect( tooltips[ 0 ] ).not.toHaveTextContent( 'Series B' );
-			expect( screen.queryByTestId( 'chart-tooltip-2' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

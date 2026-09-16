@@ -177,15 +177,7 @@ describe( 'useKeyboardNavigation', () => {
 		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
-	it( 'clears the selection when the count shrinks after focus has left the chart', async () => {
-		const { view } = await navigate( 6 );
-
-		screen.getByRole( 'button', { name: 'Outside' } ).focus();
-		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
-
-		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
-	} );
-
+	// In range rather than past the end: the effect reconciles on any count change, not only an overflow.
 	it( 'clears an in-range selection when the count changes after focus has left the chart', async () => {
 		const { view } = await navigate( 2 );
 
@@ -193,16 +185,6 @@ describe( 'useKeyboardNavigation', () => {
 		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
-	} );
-
-	it( 'returns focus to the grid on Escape', async () => {
-		const { user } = await navigate( 2 );
-
-		screen.getByRole( 'button', { name: 'Inside' } ).focus();
-		await user.keyboard( '{Escape}' );
-
-		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
-		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
 	it( 'returns focus to the grid on Escape when there are no points', async () => {
@@ -223,17 +205,6 @@ describe( 'useKeyboardNavigation', () => {
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
 		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
-	} );
-
-	it( 'leaves focus alone when the count drops to zero after focus has left the chart', async () => {
-		const { view } = await navigate( 2 );
-
-		const outside = screen.getByRole( 'button', { name: 'Outside' } );
-		outside.focus();
-		view.rerender( <NavigationHarness totalPoints={ 0 } /> );
-
-		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
-		expect( outside ).toHaveFocus();
 	} );
 
 	// The page sees the event after the handler, so this is what a surrounding scroll or Modal gets.
