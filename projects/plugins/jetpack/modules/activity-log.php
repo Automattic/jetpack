@@ -4,7 +4,7 @@
  * Module Description: A record of every event on your site, so you can see what happened and roll back when something goes wrong.
  * Sort Order: 38
  * Recommendation Order: 12
- * First Introduced: 16.3-a.1
+ * First Introduced: 16.3-a.3
  * Requires Connection: Yes
  * Requires User Connection: Yes
  * Auto Activate: Yes
