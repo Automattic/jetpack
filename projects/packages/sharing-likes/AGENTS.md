@@ -27,10 +27,14 @@ Composer dependencies only: `jetpack-connection` (which also supplies
 `Jetpack_Options`) and `jetpack-status` (which also supplies `Modules`). Never
 `require` a plugin file or call a plugin function unguarded.
 
-Two plugin classes are still used opportunistically, each behind `class_exists()`
-with a working fallback, because the code that defines them has not moved here
-yet: `Sharing_Service` (sharedaddy's services, `Services_Config`) and
-`Jetpack_Likes_Settings` (the Likes placement default, `Placement_Section`). Both
+Two plugin classes are still used opportunistically because the code that defines
+them has not moved here yet: `Sharing_Service` (sharedaddy's services,
+`Services_Config`) and `Jetpack_Likes_Settings` (the Likes placement default,
+`Placement_Section`). The render paths guard both with `class_exists()` and fall
+back; `Services_Config`'s save and AJAX handlers do not, because only
+`modules/sharedaddy/sharing.php` wires them up and it requires
+`sharing-service.php` first. Register those handlers from anywhere else and they
+fatal. Both
 are declared to Phan through `parse_file_list` in `.phan/config.php`; that entry
 is for static analysis only and creates no runtime dependency. Move those classes
 here and both the guard and the Phan entry go away.
@@ -88,8 +92,17 @@ longer fires any of them.
 consumers are not all gated on that module — `Twitter_Cards` hangs the Twitter
 Site Tag there and is gated only on `jetpack_disable_twitter_cards`. That is what
 `Extras_Section` is for: with Sharing off it renders the same action in its own
-form and fires `sharing_admin_update` on save. Consumers verify their own nonces,
-so firing it from a form they did not render into is safe.
+form and fires `sharing_admin_update` on save.
+
+Firing that action under a nonce its consumers did not mint is not free, and the
+rule is not "consumers verify their own nonces" — check before adding one.
+`Twitter_Cards` names its own field, so it saves correctly. A consumer that
+verifies `sharing-options` — `Jetpack_Likes_Settings::admin_settings_callback()`,
+hooked on Simple — fails closed and silently saves nothing. A consumer that
+verifies nothing and relies on the caller having done it — sharedaddy's
+`sharing_global_resources_save()` — writes unconditionally. Only the last is
+dangerous, and only sharedaddy is off whenever `Extras_Section` renders keeps it
+out of reach today.
 
 ## Placement defaults
 
