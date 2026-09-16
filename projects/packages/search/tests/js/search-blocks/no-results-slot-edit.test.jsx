@@ -22,11 +22,17 @@ jest.mock( '@wordpress/i18n', () => ( {
 } ) );
 
 let mockInnerBlockCount = 0;
+let mockIsSelected = false;
+let mockHasSelectedInnerBlock = false;
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback =>
 		callback( store => {
 			mockSelectedStores.push( store );
-			return { getBlockCount: () => mockInnerBlockCount };
+			return {
+				getBlockCount: () => mockInnerBlockCount,
+				isBlockSelected: () => mockIsSelected,
+				hasSelectedInnerBlock: () => mockHasSelectedInnerBlock,
+			};
 		} ),
 } ) );
 
@@ -39,6 +45,8 @@ describe( 'NoResultsSlotEdit', () => {
 	beforeEach( () => {
 		InnerBlocks.mockClear();
 		mockInnerBlockCount = 0;
+		mockIsSelected = false;
+		mockHasSelectedInnerBlock = false;
 	} );
 
 	// Selecting by store object rather than the 'core/block-editor' string survives a store rename.
@@ -112,21 +120,33 @@ describe( 'NoResultsSlotEdit', () => {
 		expect( screen.queryByText( 'Filters are active' ) ).not.toBeInTheDocument();
 	} );
 
-	// Unconditional, matching core's own handling of a custom appender and the two `filters` blocks.
-	// Gating it on selection would leave an untouched variant with no way in, and every variant ships
-	// untouched.
-	it( 'renders the bounded appender whether or not the variant is selected', () => {
+	it( 'shows the appender only while the variant is selected', () => {
+		const { unmount } = render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).toBe( false );
+		unmount();
+
+		mockIsSelected = true;
+		InnerBlocks.mockClear();
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).toBe(
+			InnerBlocks.ButtonBlockAppender
+		);
+	} );
+
+	// Clicking into a paragraph inside the variant selects the child, not the variant. Without the
+	// `hasSelectedInnerBlock` half of the gate the appender would vanish mid-edit.
+	it( 'keeps the appender while only an inner block is selected', () => {
+		mockHasSelectedInnerBlock = true;
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
 		expect( InnerBlocks.mock.calls[ 0 ][ 0 ].renderAppender ).toBe(
 			InnerBlocks.ButtonBlockAppender
 		);
-		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
 	} );
 
-	// Unmounting it would make a drag onto the variant resolve to the container, whose
+	// Unmounting it would make a drag onto an unselected variant resolve to the container, whose
 	// `allowedBlocks` rejects everything but a variant.
-	it( 'keeps the inner drop target mounted while the variant is empty', () => {
+	it( 'keeps the inner drop target mounted while the variant is unselected', () => {
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
 		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();

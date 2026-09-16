@@ -69,8 +69,15 @@ export const conditionLabel = attributes => {
 export default function NoResultsSlotEdit( { attributes, clientId } ) {
 	const stored = attributes?.condition;
 	const condition = CONDITIONS.includes( stored ) ? stored : 'any';
-	const hasInnerBlocks = useSelect(
-		select => select( blockEditorStore ).getBlockCount( clientId ) > 0,
+	const { hasInnerBlocks, isActive } = useSelect(
+		select => {
+			const editor = select( blockEditorStore );
+			return {
+				hasInnerBlocks: editor.getBlockCount( clientId ) > 0,
+				isActive:
+					editor.isBlockSelected( clientId ) || editor.hasSelectedInnerBlock( clientId, true ),
+			};
+		},
 		[ clientId ]
 	);
 	// Placement matches where `render.php` puts the modifier relative to
@@ -88,8 +95,11 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 			{ ! hasInnerBlocks &&
 				defaultMessages( condition ).map( message => <p key={ message }>{ message }</p> ) }
 			{ /* `ButtonBlockAppender` bounds the insertion target: see AGENTS.md's "InnerBlocks
-			     appender boundary trap". */ }
-			<InnerBlocks renderAppender={ InnerBlocks.ButtonBlockAppender } />
+			     appender boundary trap". Gated on selection to keep three stacked variants quiet;
+			     core exempts a custom appender from that gate rather than requiring it. `InnerBlocks`
+			     stays mounted either way, because the drop target comes from `useInnerBlocksProps`
+			     and the container's `allowedBlocks` rejects a direct drop. */ }
+			<InnerBlocks renderAppender={ isActive ? InnerBlocks.ButtonBlockAppender : false } />
 		</div>
 	);
 }
