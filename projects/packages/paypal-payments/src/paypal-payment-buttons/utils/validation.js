@@ -125,23 +125,85 @@ export function validateDescription( value ) {
 }
 
 /**
- * Validate a value a toggle asked the merchant for.
+ * Whether a value the merchant had to fill in is missing.
  *
- * Required and not negative. Zero is a value PayPal itself stores, so a merchant who
- * wants none turns the toggle off instead. The upper bound is the control's max
- * attribute, not a measured PayPal limit.
+ * The sign is read off the string too: `parseFloat( '-0' )` is `-0`, which passes a
+ * `< 0` check.
  *
  * @param {string} value - The rate, amount or fee.
- * @return {string|null} Error message or null if valid.
+ * @return {boolean} True when there is nothing usable in the field.
  */
-export function validateRequiredAmount( value ) {
+function isMissingAmount( value ) {
 	const num = parseFloat( value );
 
-	if ( isNaN( num ) || num < 0 ) {
+	return isNaN( num ) || num < 0 || `${ value ?? '' }`.trim().startsWith( '-' );
+}
+
+/**
+ * Validate an amount of money a toggle asked the merchant for.
+ *
+ * Zero or more, in the shape the currency allows. PayPal stores a zero fee, and the
+ * toggle is how a merchant skips one. Any size - a $150 handling fee is legal.
+ *
+ * @param {string} value        - The amount.
+ * @param {string} currencyCode - The ISO currency code the amount is in.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validateMoney( value, currencyCode = 'USD' ) {
+	if ( isMissingAmount( value ) ) {
 		return REQUIRED_FIELD_ERROR;
 	}
 
+	return getPriceFormatError( value, currencyCode );
+}
+
+/**
+ * Validate a percentage a toggle asked the merchant for.
+ *
+ * Both limits measured 2026-09-16. 100 or more is a 422, "Tax percentage value must
+ * be between 0 and 100"; 99.99 stores. The control's `max` is the affordance, this
+ * is the check that gates the save.
+ *
+ * Two decimal places, in every currency - 7.555 is a 422. PayPal words that one
+ * "Use up to 2 decimal places for this currency", but a JPY item stores 7.5, so the
+ * rule is the same everywhere and the signature takes only the value.
+ *
+ * @param {string} value - The rate.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validatePercentage( value ) {
+	if ( isMissingAmount( value ) ) {
+		return REQUIRED_FIELD_ERROR;
+	}
+
+	if ( parseFloat( value ) >= 100 ) {
+		return __( 'Rate must be less than 100%.', 'jetpack-paypal-payments' );
+	}
+
+	if ( ! /^\d+(\.\d{1,2})?$/.test( `${ value ?? '' }`.trim() ) ) {
+		return __( 'Rate can have at most 2 decimal places.', 'jetpack-paypal-payments' );
+	}
+
 	return null;
+}
+
+/**
+ * Validate a tax against the rule its own type carries.
+ *
+ * Match `taxIsPercentage` in edit-api-managed.jsx, which is where the field picks
+ * its unit: anything other than PERCENTAGE draws a currency suffix, so it validates
+ * as money. The mapper stores whatever PayPal sends, so those types do arrive.
+ * Dispatch on `'FLAT' ===` instead and that field shows a percentage error.
+ *
+ * @param {string} type         - Tax type: PERCENTAGE or FLAT.
+ * @param {string} value        - The rate or amount.
+ * @param {string} currencyCode - The ISO currency code a flat amount is in.
+ * @return {string|null} Error message or null if valid.
+ */
+function validateTax( type, value, currencyCode ) {
+	return 'PERCENTAGE' === ( type || 'PERCENTAGE' )
+		? validatePercentage( value )
+		: validateMoney( value, currencyCode );
 }
 
 /**
@@ -348,34 +410,37 @@ export function getValidationErrors( {
 	shippingValue,
 	shippingAdditionalValue,
 } ) {
+	const currency = currencyCode || 'USD';
+
 	return {
 		productName: validateProductName( productName ),
 		// The price field is hidden once per-variant pricing is on, so don't validate
 		// it - an error on an invisible field would disable Save with nothing to fix.
-		price: variantPricingOn ? null : validatePrice( price, currencyCode || 'USD' ),
+		price: variantPricingOn ? null : validatePrice( price, currency ),
 		productDescription: validateDescription( productDescription ),
 		returnUrl: validateReturnUrl( returnUrl ),
 		// PREFERENCE takes its rate from the merchant's PayPal profile, so there is
 		// nothing local to fill in.
-		taxValue: taxEnabled && 'PREFERENCE' !== taxType ? validateRequiredAmount( taxValue ) : null,
-		handlingValue: handlingEnabled ? validateRequiredAmount( handlingValue ) : null,
+		taxValue:
+			taxEnabled && 'PREFERENCE' !== taxType ? validateTax( taxType, taxValue, currency ) : null,
+		handlingValue: handlingEnabled ? validateMoney( handlingValue, currency ) : null,
 		// A percentage is not money, so only the flat branch takes a price to
 		// compare against and a currency to check the decimals for.
 		discountValue: discountEnabled
-			? validateDiscount( discountType, discountValue, comparisonPrice, currencyCode || 'USD' )
+			? validateDiscount( discountType, discountValue, comparisonPrice, currency )
 			: null,
 		// The two PREFERENCE modes put PROFILE or FREE_SHIPPING in the value field
 		// themselves, so there is nothing for the merchant to fill in. The second
 		// amount stays optional even in QUANTITY - PayPal only requires the first.
 		shippingValue:
 			shippingEnabled && SHIPPING_MODES_WITH_FEE.includes( shippingMode || 'FLAT' )
-				? validateRequiredAmount( shippingValue )
+				? validateMoney( shippingValue, currency )
 				: null,
 		// Optional, so a blank one is fine - but a filled one still has to be an
 		// amount PayPal will take.
 		shippingAdditionalValue:
 			shippingEnabled && 'QUANTITY' === shippingMode && '' !== ( shippingAdditionalValue ?? '' )
-				? validateRequiredAmount( shippingAdditionalValue )
+				? validateMoney( shippingAdditionalValue, currency )
 				: null,
 		currencyCode: validateCurrency( currencyCode ),
 	};

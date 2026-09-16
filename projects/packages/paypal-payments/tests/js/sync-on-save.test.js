@@ -176,6 +176,26 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( true );
 	} );
 
+	// PayPal's own bounds, measured. Both are percentage rules, so they sit here
+	// rather than in the zero-decimal block below.
+	it.each( [
+		[ 'a rate at the ceiling', '100', 'Rate must be less than 100%.' ],
+		[ 'a rate over the ceiling', '150', 'Rate must be less than 100%.' ],
+		[ 'a rate with three decimals', '7.555', 'Rate can have at most 2 decimal places.' ],
+	] )( 'holds back %s', ( _label, taxValue, message ) => {
+		expect(
+			heldBackReason( { ...product, taxEnabled: true, taxType: 'PERCENTAGE', taxValue } )
+		).toBe( message );
+	} );
+
+	// The field draws a currency suffix for any type beyond PERCENTAGE, so the rule
+	// matches it.
+	it( 'validates an unmodelled tax type as money', () => {
+		expect(
+			heldBackReason( { ...product, taxEnabled: true, taxType: 'SOMETHING_ELSE', taxValue: '150' } )
+		).toBeNull();
+	} );
+
 	// Zero is a rate PayPal stores, so it must not read as "nothing filled in".
 	it( 'lets a zero tax rate through', () => {
 		expect(
@@ -195,6 +215,84 @@ describe( 'isReadyForPayPal', () => {
 		expect( isReadyForPayPal( { ...product, handlingEnabled: true, handlingValue: '0' } ) ).toBe(
 			true
 		);
+	} );
+
+	// PayPal 422s a decimal amount in JPY, HUF or TWD on every flat field, the price
+	// included. Measured on JPY.
+	describe( 'in a zero-decimal currency', () => {
+		const yen = { ...product, currencyCode: 'JPY', price: '3000' };
+
+		it( 'holds back a flat tax with decimals', () => {
+			expect(
+				isReadyForPayPal( { ...yen, taxEnabled: true, taxType: 'FLAT', taxValue: '1.50' } )
+			).toBe( false );
+		} );
+
+		// Measured: a JPY item stores a 7.55% tax. A percentage follows its own rule.
+		it( 'lets a tax rate with decimals through', () => {
+			expect(
+				isReadyForPayPal( { ...yen, taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '7.55' } )
+			).toBe( true );
+		} );
+
+		it( 'holds back a shipping fee with decimals', () => {
+			expect(
+				isReadyForPayPal( {
+					...yen,
+					shippingEnabled: true,
+					shippingMode: 'FLAT',
+					shippingValue: '5.50',
+				} )
+			).toBe( false );
+		} );
+
+		// True before this unit too - validateDiscountAmount got there first. Here so
+		// every money field sits in one place.
+		it( 'holds back a flat discount with decimals', () => {
+			expect(
+				isReadyForPayPal( {
+					...yen,
+					discountEnabled: true,
+					discountType: 'FLAT',
+					discountValue: '1.50',
+				} )
+			).toBe( false );
+		} );
+
+		// Optional means it can be blank; a filled-in amount still follows the rule.
+		it( 'holds back an additional-items fee with decimals', () => {
+			expect(
+				isReadyForPayPal( {
+					...yen,
+					shippingEnabled: true,
+					shippingMode: 'QUANTITY',
+					shippingValue: '500',
+					shippingAdditionalValue: '2.50',
+				} )
+			).toBe( false );
+		} );
+
+		// heldBackReason rather than isReadyForPayPal: a failure here names the field
+		// that broke.
+		it( 'lets whole amounts through', () => {
+			expect(
+				heldBackReason( {
+					...yen,
+					handlingEnabled: true,
+					handlingValue: '400',
+					shippingEnabled: true,
+					shippingMode: 'QUANTITY',
+					shippingValue: '500',
+					shippingAdditionalValue: '200',
+				} )
+			).toBeNull();
+		} );
+
+		it( 'holds back a handling fee with decimals, naming the currency', () => {
+			expect( heldBackReason( { ...yen, handlingEnabled: true, handlingValue: '4.00' } ) ).toBe(
+				'Prices in JPY are whole numbers (e.g., "1500").'
+			);
+		} );
 	} );
 
 	it( 'holds back a discount with no value', () => {

@@ -3,7 +3,7 @@
  *
  * Covers client-side validation functions extracted from edit.js:
  * validatePrice, validateProductName, validateDescription,
- * validateRequiredAmount, validateReturnUrl, getUserFriendlyError.
+ * validateMoney, validatePercentage, validateReturnUrl, getUserFriendlyError.
  *
  * @package
  */
@@ -20,7 +20,8 @@ import {
 	validatePrice,
 	validateProductName,
 	validateDescription,
-	validateRequiredAmount,
+	validateMoney,
+	validatePercentage,
 	validateDiscountPercentage,
 	validateDiscountAmount,
 	validateReturnUrl,
@@ -143,38 +144,91 @@ describe( 'validateDescription', () => {
 	} );
 } );
 
-describe( 'validateRequiredAmount', () => {
+describe( 'validateMoney', () => {
 	const required = 'To continue, add the requested info or turn off this feature.';
+	const twoPlaces = 'Price can have at most 2 decimal places (e.g., "29.99").';
 
-	it.each( [ null, undefined, '', '   ' ] )( 'returns an error for %p', value => {
-		expect( validateRequiredAmount( value ) ).toBe( required );
+	it.each( [ null, undefined, '', '   ' ] )( 'asks for the value when given %p', value => {
+		expect( validateMoney( value ) ).toBe( required );
 	} );
 
-	// PayPal's own form takes a 0 rate, saves it and reads it back, so this one does
-	// too. A merchant who wants no tax turns the toggle off.
-	it( 'returns null for a zero rate', () => {
-		expect( validateRequiredAmount( '0' ) ).toBeNull();
+	// PayPal's own form takes a 0 fee and reads it back. The toggle is how a merchant
+	// skips the fee.
+	it( 'takes a zero amount', () => {
+		expect( validateMoney( '0' ) ).toBeNull();
 	} );
 
-	it( 'returns an error when the rate is negative', () => {
-		expect( validateRequiredAmount( '-5' ) ).toBe( required );
+	it( 'takes an amount above zero', () => {
+		expect( validateMoney( '8.25' ) ).toBeNull();
 	} );
 
-	it( 'returns an error when the rate is not a number', () => {
-		expect( validateRequiredAmount( 'abc' ) ).toBe( required );
+	it( 'takes the smallest amount above zero', () => {
+		expect( validateMoney( '0.01' ) ).toBeNull();
 	} );
 
-	it( 'returns null for a rate above zero', () => {
-		expect( validateRequiredAmount( '8.25' ) ).toBeNull();
+	// Only a percentage is capped.
+	it( 'takes an amount above the percentage ceiling', () => {
+		expect( validateMoney( '150' ) ).toBeNull();
 	} );
 
-	it( 'returns null for the smallest rate above zero', () => {
-		expect( validateRequiredAmount( '0.01' ) ).toBeNull();
+	it( 'refuses a third decimal place', () => {
+		expect( validateMoney( '8.255', 'USD' ) ).toBe( twoPlaces );
 	} );
 
-	// The control's max attribute is the only upper bound; PayPal's own is unmeasured.
-	it( 'accepts a rate above the control’s maximum', () => {
-		expect( validateRequiredAmount( '150' ) ).toBeNull();
+	// Measured on JPY: 422 INVALID_DECIMAL_PRECISION, on every flat field.
+	it.each( [ 'JPY', 'HUF', 'TWD' ] )( 'refuses a decimal amount in %s', code => {
+		expect( validateMoney( '1500.50', code ) ).toBe(
+			`Prices in ${ code } are whole numbers (e.g., "1500").`
+		);
+	} );
+
+	it( 'takes a whole amount in a zero-decimal currency', () => {
+		expect( validateMoney( '1500', 'JPY' ) ).toBeNull();
+	} );
+
+	it( 'takes zero in a zero-decimal currency', () => {
+		expect( validateMoney( '0', 'JPY' ) ).toBeNull();
+	} );
+
+	it( 'takes a padded amount', () => {
+		expect( validateMoney( ' 1500 ', 'JPY' ) ).toBeNull();
+	} );
+
+	// The missing check runs first, so all of these report as missing.
+	it.each( [ '-5', 'abc', '-0', '-0.00' ] )( 'asks for the value when given %p', value => {
+		expect( validateMoney( value, 'JPY' ) ).toBe( required );
+	} );
+} );
+
+describe( 'validatePercentage', () => {
+	const required = 'To continue, add the requested info or turn off this feature.';
+	const ceiling = 'Rate must be less than 100%.';
+
+	it.each( [ null, undefined, '', '   ', '-5', 'abc', '-0', '-0.00' ] )(
+		'asks for the value when given %p',
+		value => {
+			expect( validatePercentage( value ) ).toBe( required );
+		}
+	);
+
+	it( 'takes a zero rate', () => {
+		expect( validatePercentage( '0' ) ).toBeNull();
+	} );
+
+	it( 'takes two decimal places', () => {
+		expect( validatePercentage( '7.55' ) ).toBeNull();
+	} );
+
+	it( 'refuses a third decimal place', () => {
+		expect( validatePercentage( '7.555' ) ).toBe( 'Rate can have at most 2 decimal places.' );
+	} );
+
+	it( 'takes 99.99, just under the ceiling', () => {
+		expect( validatePercentage( '99.99' ) ).toBeNull();
+	} );
+
+	it.each( [ '100', '150' ] )( 'refuses %p for reaching the ceiling', value => {
+		expect( validatePercentage( value ) ).toBe( ceiling );
 	} );
 } );
 

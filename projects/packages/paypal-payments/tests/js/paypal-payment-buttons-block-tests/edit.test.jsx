@@ -2959,12 +2959,28 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( field ).toHaveAttribute( 'step', step );
 		} );
 
-		// validateRequiredAmount has no upper bound of its own, so max is the only thing
-		// stopping a runaway percentage.
+		// The affordance. validatePercentage is what gates the save.
 		it( 'caps a percentage at 99.99', async () => {
 			const field = await taxField( { taxType: 'PERCENTAGE' } );
 
 			expect( field ).toHaveAttribute( 'max', '99.99' );
+		} );
+
+		// Renders the currency error, which a validator test leaves invisible.
+		it( 'refuses a flat amount with decimals in a currency that has none', async () => {
+			await taxField( { taxType: 'FLAT', currencyCode: 'JPY', price: '2000', taxValue: '1.50' } );
+
+			expect(
+				screen.getByText( 'Prices in JPY are whole numbers (e.g., "1500").' )
+			).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
+		it( 'refuses a rate of 100% or more', async () => {
+			await taxField( { taxType: 'PERCENTAGE', taxValue: '150' } );
+
+			expect( screen.getByText( 'Rate must be less than 100%.' ) ).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
 		} );
 
 		// A flat amount must not inherit the percentage ceiling - $150 of tax is legal.
@@ -3245,6 +3261,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( field ).toHaveAttribute( 'min', '0' );
 			expect( field ).not.toHaveAttribute( 'max' );
+		} );
+
+		// Renders the currency error, which a validator test leaves invisible.
+		it( 'refuses a decimal amount in a currency that has none', async () => {
+			await renderFee( { currencyCode: 'JPY', price: '2000', handlingValue: '1.50' } );
+
+			expect(
+				screen.getByText( 'Prices in JPY are whole numbers (e.g., "1500").' )
+			).toBeInTheDocument();
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
 		} );
 
 		// The mockup shows a $, so check the suffix follows the product's currency
@@ -3580,6 +3606,29 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		} );
 
+		// Both fees are on screen, so each row names its own control and the assertion
+		// points at one of them.
+		it.each( [
+			[ 'Shipping fee for first item', { shippingValue: '5.50' } ],
+			[ 'Additional items (optional)', { shippingAdditionalValue: '2.50' } ],
+		] )( 'refuses decimals on %s in a currency that has none', async ( label, overrides ) => {
+			await renderShipping( {
+				shippingMode: 'QUANTITY',
+				currencyCode: 'JPY',
+				price: '2000',
+				shippingValue: '500',
+				...overrides,
+			} );
+
+			const field = screen.getByTestId( `control-${ label }` );
+
+			expect(
+				within( field ).getByText( 'Prices in JPY are whole numbers (e.g., "1500").' )
+			).toBeInTheDocument();
+			expect( field ).toHaveClass( 'jetpack-paypal-payment-buttons__has-error' );
+			expect( screen.getByText( heldBack ) ).toBeInTheDocument();
+		} );
+
 		it( 'shows the currency symbol on the fee', async () => {
 			await renderShipping( { currencyCode: 'EUR' } );
 
@@ -3880,7 +3929,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			}
 		);
 
-		// The currency rule has to reach the merchant, not just the validator.
+		// Renders the currency error, which a validator test leaves invisible.
 		it( 'refuses a decimal amount in a currency that has none', async () => {
 			await renderDiscount( { currencyCode: 'JPY', price: '2000', discountValue: '1.50' } );
 
