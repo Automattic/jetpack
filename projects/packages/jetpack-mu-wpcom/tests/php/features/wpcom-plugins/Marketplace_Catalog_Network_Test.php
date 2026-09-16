@@ -216,10 +216,33 @@ class Marketplace_Catalog_Network_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Both reads happen, and the store one is not skipped when the marketplace
-	 * answers: a card with no price has nothing to put on its button.
+	 * The store is read site-scoped first, because that is the path that prices in
+	 * the site's own currency. Calypso reads the same two in the same order.
 	 */
-	public function test_both_the_marketplace_and_the_store_are_read() {
+	public function test_the_store_is_read_site_scoped_first() {
+		$this->answer_wpcom(
+			array(
+				'v2/marketplace/products?' => array( 'results' => array( self::PRODUCT ) ),
+				'v1.1/sites/123/products'  => self::STORE_RESPONSE,
+			)
+		);
+
+		$products = Marketplace_Catalog::get_products();
+
+		$this->assertCount( 2, $this->requests );
+		$this->assertStringContainsString( 'wpcom/v2/marketplace/products', $this->requests[0] );
+		$this->assertStringContainsString( 'rest/v1.1/sites/123/products', $this->requests[1] );
+
+		// The global list is not asked for once the site-scoped one answers.
+		$this->assertStringNotContainsString( 'rest/v1.1/products', $this->requests[1] );
+		$this->assertSame( '$132.00', $products['gravityforms']['wpcom_pricing']['yearly']['price'] );
+	}
+
+	/**
+	 * A site-scoped read that fails falls back to the global catalog, so a price is
+	 * shown even when it is not the site's own currency.
+	 */
+	public function test_the_store_falls_back_to_the_global_catalog() {
 		$this->answer_wpcom(
 			array(
 				'v2/marketplace/products?' => array( 'results' => array( self::PRODUCT ) ),
@@ -227,11 +250,12 @@ class Marketplace_Catalog_Network_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		Marketplace_Catalog::get_products();
+		$products = Marketplace_Catalog::get_products();
 
-		$this->assertCount( 2, $this->requests );
-		$this->assertStringContainsString( 'wpcom/v2/marketplace/products', $this->requests[0] );
-		$this->assertStringContainsString( 'rest/v1.1/products', $this->requests[1] );
+		$this->assertCount( 3, $this->requests );
+		$this->assertStringContainsString( 'rest/v1.1/sites/123/products', $this->requests[1] );
+		$this->assertStringContainsString( 'rest/v1.1/products', $this->requests[2] );
+		$this->assertSame( '$132.00', $products['gravityforms']['wpcom_pricing']['yearly']['price'] );
 	}
 
 	/**

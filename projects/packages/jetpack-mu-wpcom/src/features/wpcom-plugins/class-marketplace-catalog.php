@@ -46,6 +46,75 @@ class Marketplace_Catalog {
 	const MISS_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
 
 	/**
+	 * Block-level tags, used to work out which stripped tags owe a paragraph break.
+	 */
+	private const MODAL_BLOCK_TAGS = array(
+		'address',
+		'article',
+		'aside',
+		'blockquote',
+		'dd',
+		'div',
+		'dl',
+		'dt',
+		'fieldset',
+		'figcaption',
+		'figure',
+		'footer',
+		'h1',
+		'h2',
+		'h3',
+		'h4',
+		'h5',
+		'h6',
+		'header',
+		'li',
+		'main',
+		'nav',
+		'ol',
+		'p',
+		'pre',
+		'section',
+		'table',
+		'tbody',
+		'td',
+		'tfoot',
+		'th',
+		'thead',
+		'tr',
+		'ul',
+	);
+
+	/**
+	 * The markup a vendor description keeps once it reaches the details modal.
+	 *
+	 * Headings run to h6 because core's own `$plugins_allowedtags` does, so keeping
+	 * them costs nothing downstream. Everything absent from here is stripped, and
+	 * `to_modal_html()` derives from this which block tags owe a paragraph break.
+	 */
+	private const MODAL_TAGS = array(
+		'a'          => array(
+			'href'  => array(),
+			'title' => array(),
+		),
+		'blockquote' => array(),
+		'br'         => array(),
+		'code'       => array(),
+		'em'         => array(),
+		'h1'         => array(),
+		'h2'         => array(),
+		'h3'         => array(),
+		'h4'         => array(),
+		'h5'         => array(),
+		'h6'         => array(),
+		'li'         => array(),
+		'ol'         => array(),
+		'p'          => array(),
+		'strong'     => array(),
+		'ul'         => array(),
+	);
+
+	/**
 	 * Every purchasable plugin, keyed by slug, in the order wpcom returns them.
 	 *
 	 * @return array<string, array> Normalized product data, empty when the catalog cannot be read.
@@ -187,7 +256,7 @@ class Marketplace_Catalog {
 	 * @return string Section markup, or an empty string when there are no images.
 	 */
 	public static function to_screenshots_html( $html ) {
-		if ( '' === $html || ! preg_match_all( '#<img[^>]+src=[\'"]([^\'"]+)[\'"]#i', $html, $matches ) ) {
+		if ( '' === $html || ! preg_match_all( '#<img[^>]*?\s src=[\'"]([^\'"]+)[\'"]#ix', $html, $matches ) ) {
 			return '';
 		}
 
@@ -217,31 +286,26 @@ class Marketplace_Catalog {
 			return '';
 		}
 
-		// Block wrappers are about to be stripped, so keep the break they implied.
-		$html = preg_replace( '#</(?:div|figure|section|article|table|tr)>#i', "\n\n", $html );
+		/*
+		 * Core's own modal allowlist has no b or i, so that emphasis would be dropped
+		 * one filter later. Normalized first so it survives, and so neither tag is
+		 * still around when the block tags are counted below.
+		 */
+		$html = preg_replace( '#<(/?)b\b([^>]*)>#i', '<$1strong$2>', $html );
+		$html = preg_replace( '#<(/?)i\b([^>]*)>#i', '<$1em$2>', $html );
 
-		$html = wp_kses(
-			$html,
-			array(
-				'a'          => array(
-					'href'  => array(),
-					'title' => array(),
-				),
-				'b'          => array(),
-				'blockquote' => array(),
-				'br'         => array(),
-				'code'       => array(),
-				'em'         => array(),
-				'h3'         => array(),
-				'h4'         => array(),
-				'i'          => array(),
-				'li'         => array(),
-				'ol'         => array(),
-				'p'          => array(),
-				'strong'     => array(),
-				'ul'         => array(),
-			)
-		);
+		/*
+		 * A block tag that is about to be stripped keeps the break it implied, so the
+		 * structure the vendor laid out survives. Taken as the block tags minus the
+		 * ones we keep, which is what stops the two lists from disagreeing: before
+		 * this, a `</td>` lost both its tag and its break and glued that cell onto the
+		 * next one. Inline tags are deliberately not in here. The catalog carries 77
+		 * `</span>` and breaking on those would split sentences down the middle.
+		 */
+		$break = array_diff( self::MODAL_BLOCK_TAGS, array_keys( self::MODAL_TAGS ) );
+		$html  = preg_replace( '#</(?:' . implode( '|', $break ) . ')\s*>#i', "\n\n", $html );
+
+		$html = wp_kses( $html, self::MODAL_TAGS );
 
 		return trim( wpautop( trim( $html ) ) );
 	}
@@ -347,7 +411,7 @@ class Marketplace_Catalog {
 	private static function fetch_store_products() {
 		// Site-scoped first, so prices come back in the site's own currency. Calypso
 		// reads the same two paths in the same order, for the same reason.
-		$blog_id  = function_exists( 'get_wpcom_blog_id' ) ? (int) get_wpcom_blog_id() : 0;
+		$blog_id  = self::blog_id();
 		$response = $blog_id > 0 ? self::request( '/sites/' . $blog_id . '/products', '1.1', 'rest' ) : null;
 
 		if ( ! is_array( $response ) ) {
@@ -372,6 +436,28 @@ class Marketplace_Catalog {
 		}
 
 		return $store;
+	}
+
+	/**
+	 * This site's WordPress.com blog id.
+	 *
+	 * `get_wpcom_blog_id()` only answers when IS_WPCOM or IS_ATOMIC is defined, which
+	 * a test cannot set without it leaking into every other test in the process. The
+	 * connection stores the same id, so falling back to it both covers a connected
+	 * site the helper says nothing about and leaves the site-scoped read testable.
+	 *
+	 * @return int Blog id, or 0 when this site does not have one.
+	 */
+	private static function blog_id() {
+		if ( function_exists( 'get_wpcom_blog_id' ) ) {
+			$blog_id = (int) get_wpcom_blog_id();
+
+			if ( $blog_id > 0 ) {
+				return $blog_id;
+			}
+		}
+
+		return class_exists( 'Jetpack_Options' ) ? (int) \Jetpack_Options::get_option( 'id' ) : 0;
 	}
 
 	/**

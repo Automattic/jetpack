@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Plugins: give the Marketplace tab its own card grid instead of core's plugin list table, so every card is the same height and the price gets its own block. Yearly prices now read per month and say how much a year saves.
+Plugins: give the Marketplace tab its own card grid, showing each plugin's yearly price and how much it saves against paying monthly.

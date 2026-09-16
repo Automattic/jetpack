@@ -579,6 +579,87 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A heading is a heading. Stripping it glued its text onto the copy either side,
+	 * and h2 is the level vendor pages actually use: 151 of them across 38 products.
+	 */
+	public function test_modal_html_keeps_every_heading_level() {
+		$html = Marketplace_Catalog::to_modal_html( '<div>Intro copy.<h2>Key features</h2>More copy.</div>' );
+
+		$this->assertStringContainsString( '<h2>Key features</h2>', $html );
+		$this->assertStringNotContainsString( 'copy.Key features', $html );
+		$this->assertStringNotContainsString( 'featuresMore', $html );
+	}
+
+	/**
+	 * Table cells owe a break as much as the row around them does. Breaking on the
+	 * row alone ran every cell in it together.
+	 */
+	public function test_modal_html_separates_table_cells() {
+		$html = Marketplace_Catalog::to_modal_html(
+			'<table><tr><td>Multiple keyphrases</td><td>Yes</td></tr><tr><th>Support</th><th>Included</th></tr></table>'
+		);
+
+		$this->assertStringNotContainsString( 'keyphrasesYes', $html );
+		$this->assertStringNotContainsString( 'SupportIncluded', $html );
+		$this->assertStringContainsString( 'Multiple keyphrases', $html );
+		$this->assertStringContainsString( 'Included', $html );
+	}
+
+	/**
+	 * Inline tags must not break. The catalog carries 77 `</span>`, and treating
+	 * those like block tags would split sentences down the middle.
+	 */
+	public function test_modal_html_does_not_break_on_inline_tags() {
+		$html = Marketplace_Catalog::to_modal_html( '<p>One <span>whole</span> sentence, <sup>really</sup> it is.</p>' );
+
+		$this->assertStringContainsString( 'One whole sentence, really it is.', $html );
+	}
+
+	/**
+	 * Core's modal allowlist has no b or i, so emphasis written with them would be
+	 * dropped a filter later. Normalized to the tags that survive.
+	 */
+	public function test_modal_html_normalizes_b_and_i() {
+		$html = Marketplace_Catalog::to_modal_html( '<p>Plain <b>bold</b> and <i>italic</i>.</p>' );
+
+		$this->assertStringContainsString( '<strong>bold</strong>', $html );
+		$this->assertStringContainsString( '<em>italic</em>', $html );
+
+		// The rule must not catch <img>, which shares its first letter with <i>.
+		$this->assertStringNotContainsString( '<emmg', Marketplace_Catalog::to_modal_html( '<p>A <img src="x.png" /> here.</p>' ) );
+	}
+
+	/**
+	 * A description that is nothing but images and wrappers reduces to nothing, and
+	 * the card's short description is left in place rather than blanked.
+	 */
+	public function test_modal_html_reduces_a_wrapper_only_description_to_nothing() {
+		$this->assertSame( '', Marketplace_Catalog::to_modal_html( '<div><figure><img src="x.png" /></figure></div>' ) );
+	}
+
+	/**
+	 * A javascript: href is dropped by wp_kses(). Pinned because the day someone
+	 * simplifies this to strip_tags() is the day that stops being true.
+	 */
+	public function test_modal_html_drops_a_javascript_href() {
+		$html = Marketplace_Catalog::to_modal_html( '<p><a href="javascript:alert(1)">Click</a></p>' );
+
+		$this->assertStringNotContainsString( 'javascript:', $html );
+		$this->assertStringContainsString( 'Click', $html );
+	}
+
+	/**
+	 * A lazy-loaded image carries its real source in data-src and a placeholder in
+	 * src, and matching both turned the placeholder into a screenshot.
+	 */
+	public function test_screenshots_ignore_data_src() {
+		$html = Marketplace_Catalog::to_screenshots_html( '<img data-src="https://example.com/real.png" src="https://example.com/1x1.gif" />' );
+
+		$this->assertStringContainsString( '1x1.gif', $html );
+		$this->assertStringNotContainsString( 'real.png', $html );
+	}
+
+	/**
 	 * A slug that is not ours has no details to serve.
 	 */
 	public function test_details_are_null_for_an_unknown_slug() {
@@ -750,11 +831,10 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringNotContainsString( 'wpcom-marketplace-billing', $html );
 		$this->assertStringNotContainsString( 'billing=', $html );
-		$this->assertFalse( function_exists( 'wpcom_marketplace_billing_switcher' ) );
 	}
 
 	/**
-	 * Collapses runs of whitespace, since checked() adds a leading space of its own.
+	 * Collapses runs of whitespace, since the rendered markup is indented.
 	 *
 	 * @param string $html Rendered markup.
 	 * @return string

@@ -170,11 +170,19 @@ function wpcom_marketplace_render_grid() {
 		)
 	);
 
-	echo '<div class="wpcom-marketplace-grid">';
+	/*
+	 * Wrapped in core's own id because that is the element updates.js delegates its
+	 * plugin clicks from: `$( '#plugin-filter, #plugin-information-footer' )`.
+	 * `display_plugins_table()` renders it, and dropping that call took it with it,
+	 * which left an installed plugin's Update button falling back to a full-page
+	 * update.php run. The cards already carry the `plugin-card-{slug}` class those
+	 * handlers look a card up by.
+	 */
+	echo '<form id="plugin-filter" method="post"><div class="wpcom-marketplace-grid">';
 	foreach ( $products as $card ) {
 		wpcom_marketplace_render_card( $card );
 	}
-	echo '</div>';
+	echo '</div></form>';
 }
 
 /**
@@ -192,6 +200,9 @@ function wpcom_marketplace_render_card( array $card ) {
 	$name    = (string) ( $card['name'] ?? $slug );
 	$icon    = (string) ( $card['icons']['1x'] ?? '' );
 	$details = wpcom_marketplace_details_url( $slug );
+
+	/* translators: %s: Plugin name. */
+	$more_information = sprintf( __( 'More information about %s', 'jetpack-mu-wpcom' ), $name );
 	?>
 	<div class="wpcom-marketplace-card plugin-card-<?php echo esc_attr( sanitize_html_class( $slug ) ); ?>">
 		<div class="wpcom-marketplace-card__head">
@@ -200,16 +211,7 @@ function wpcom_marketplace_render_card( array $card ) {
 			<?php endif; ?>
 			<div>
 				<h3 class="wpcom-marketplace-card__name">
-					<a
-						href="<?php echo esc_url( $details ); ?>"
-						class="thickbox open-plugin-details-modal"
-						aria-label="
-						<?php
-							/* translators: %s: Plugin name. */
-							echo esc_attr( sprintf( __( 'More information about %s', 'jetpack-mu-wpcom' ), $name ) );
-						?>
-						"
-					><?php echo esc_html( $name ); ?></a>
+					<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal" aria-label="<?php echo esc_attr( $more_information ); ?>"><?php echo esc_html( $name ); ?></a>
 				</h3>
 				<?php if ( ! empty( $card['author'] ) ) : ?>
 					<p class="wpcom-marketplace-card__author">
@@ -231,9 +233,8 @@ function wpcom_marketplace_render_card( array $card ) {
 		</p>
 
 		<p class="wpcom-marketplace-card__details">
-			<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal">
-				<?php esc_html_e( 'Details', 'jetpack-mu-wpcom' ); ?>
-			</a>
+			<?php // Named like core's own Details link, or 56 cards contribute 56 identical ones. ?>
+			<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal" aria-label="<?php echo esc_attr( $more_information ); ?>"><?php esc_html_e( 'Details', 'jetpack-mu-wpcom' ); ?></a>
 		</p>
 
 		<?php // Price sits with the button that charges it, rather than a row away from it. ?>
