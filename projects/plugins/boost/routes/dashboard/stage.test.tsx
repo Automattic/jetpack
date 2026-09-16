@@ -266,6 +266,11 @@ describe( 'Boost dashboard stage', () => {
 		expect( screen.getByRole( 'status', { name: 'Loading' } ) ).toBeInTheDocument();
 
 		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 30000 );
+		} );
+		expect( requestDataSync ).toHaveBeenCalledTimes( 1 );
+
+		await act( async () => {
 			relayChange( 'getting_started' );
 		} );
 
