@@ -100,6 +100,14 @@ Site Tag there and is gated only on `jetpack_disable_twitter_cards`. That is wha
 `Extras_Section` is for: with Sharing off it renders the same action in its own
 form and fires `sharing_admin_update` on save.
 
+The Site Tag is worth that trouble because it still drives output with both
+Sharing and Publicize off. Open Graph is not the reason — `Jetpack::check_open_graph()`
+only enables it for those two modules, so the `twitter:site` meta tag does go away.
+The Sharing Buttons block is: `Sharing_Source_Block::sharing_x_via()` reads the same
+`jetpack_twitter_cards_site_tag` filter for the X share URL's `via`, and that block is
+registered on `init` whatever the modules are doing. Which is the route this screen
+sends people down when it offers `BLOCK_CALL_TO_ACTION`.
+
 Firing that action under a nonce its consumers did not mint is not free, and the
 rule is not "consumers verify their own nonces" — check before adding one.
 `Twitter_Cards` names its own field, so it saves correctly. A consumer that
