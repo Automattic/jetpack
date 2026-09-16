@@ -249,7 +249,13 @@ Use `useMonthCalendarHeatmapData` to draw a day-keyed map as one calendar per mo
 			end: '2026-09-14',
 		} );
 		return (
-			<HeatmapChart compact data={ data } columnGroups={ columnGroups } withTooltips>
+			<HeatmapChart
+				compact
+				data={ data }
+				columnGroups={ columnGroups }
+				keyboardNavigation="calendar"
+				withTooltips
+			>
 				<HeatmapChart.Legend lessLabel="Fewer posts" moreLabel="More posts" />
 			</HeatmapChart>
 		);
@@ -257,10 +263,11 @@ Use `useMonthCalendarHeatmapData` to draw a day-keyed map as one calendar per mo
 />
 
 - **`valueByDay`**: value per `yyyy-MM-dd`. A day with no entry is an empty cell (`null`), not zero.
-- **`range`**: `{ start, end }` as `yyyy-MM-dd`, inclusive. Every month either end falls in is drawn; days in those months outside the range are `placeholder` cells, faded and silent to pointer, keyboard and screen reader. Pass the site's today as `end` to fade the rest of the current month.
-- **`weekStartsOn`** (`0 | 1`, default `1`) and **`locale`** as for the contribution layout. `buildMonthCalendarHeatmapData` is the same function without the provider.
+- **`range`**: `{ start, end }` as `yyyy-MM-dd`, inclusive. Every month from `start`'s through `end`'s is drawn; days in those months outside the range are `placeholder` cells, faded and silent to pointer, keyboard and screen reader. Pass the site's today as `end` to fade the rest of the current month.
+- **`weekStartsOn`** (`0 | 1`, default `1`) and **`locale`** as for the contribution layout. Month labels carry the year once the range passes twelve months. `buildMonthCalendarHeatmapData` is the same function without the provider.
+- **`keyboardNavigation="calendar"`** on the chart, so arrow keys follow the calendar (see Accessibility below). Without it the grid stepping can strand days on one side of a month boundary in a short range.
 
-Keys are calendar days, so there is no `timeZone` option: bucket instants into days before building the map. The grid is always Gregorian; `locale` changes the month and day text only.
+The two layouts take different inputs on purpose. The contribution layout buckets a series of instants into days, so it takes `timeZone` and an optional `gridSpan` that only widens the grid. This layout is for data that already arrives per day, such as posts per day, so it takes the day map directly and a `range` that decides what is drawn. There is no `timeZone` option: bucket instants into days before building the map. The grid is always Gregorian; `locale` changes the month and day text only.
 
 In a wide tile the months spread out evenly; as the tile narrows the gaps shrink to the theme's `groupGap`, and narrower still the grid overflows, so place it in an `overflow-x: auto` container. The keyboard selection scrolls into view.
 
@@ -379,9 +386,9 @@ The heatmap chart is designed for full keyboard and screen reader access:
 
 - The grid container is a `<div role="grid">` named by `ariaLabel`, or a localised "Heatmap chart" by default; name it after what it shows ("Monthly posting activity"), not the chart type. Each visual row is a `role="row"` and each cell a `role="gridcell"`.
 - Each cell has an `aria-label` containing the cell name and value (or "No data"). An `aria-label` is used rather than a native `title` so no duplicate browser tooltip appears. Axis labels are decorative (`aria-hidden`) because the cell label already carries that text.
-- **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring, and (when `withTooltips` is set) its tooltip. Escape clears the selection.
+- **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring, and (when `withTooltips` is set) its tooltip. Escape clears the selection. With `keyboardNavigation="calendar"` each column group is a page: Left/Right step one cell in reading order, Up/Down one row into the neighbouring group past the edge, and Page Up/Down one group, so every measured day is reachable however the range meets a month boundary.
 - The keyboard selection is scrolled into view (`block: 'nearest', inline: 'nearest'`), so a grid inside a scroll container keeps its selected cell visible. A consumer that pins labels with `position: sticky` should give the scroll container a matching `scroll-padding`, or the cell lands under them.
-- With column groups the grid stays one `role="grid"`: `aria-colcount` counts every data column (84 for twelve months), arrow keys cross group boundaries as if the gap were not there, and group labels are decorative because each cell already names its date.
+- With column groups the grid stays one `role="grid"`: `aria-colcount` counts every data column (84 for twelve months) and arrow keys cross group boundaries as if the gap were not there. Group labels are decorative (`aria-hidden`): a cell with its own `label` carries its date, and one without is named by its group, column and row labels together ("Q1 W3 Mon").
 - Color alone is never the sole indicator of value — every cell exposes its value via its accessible label, and `showValues` can render numeric labels inside cells.
 - **In-cell text contrast**: when values are shown, each cell chooses light or dark text from the luminance of its blended fill rather than the raw value, so the number stays legible across the whole scale — with any primary color and against a themed (including dark) chart background.
 - The component does not use animations by default, and no `prefers-reduced-motion` opt-out is required.

@@ -1115,6 +1115,8 @@ export const heatmapPartialMonthCalendarSeries: DataPointDate[] = Array.from(
 	} )
 );
 
+export const HEATMAP_POSTS_RANGE = { start: '2025-10-01', end: '2026-09-14' };
+
 /**
  * Posts per day over the twelve months to 2026-09-14, sparse like `stats/streak`.
  *
@@ -1122,8 +1124,6 @@ export const heatmapPartialMonthCalendarSeries: DataPointDate[] = Array.from(
  * - Data points: ~140 days with posts, 1 to 4 each
  * - Suitable for: HeatmapChart (month calendar layout)
  */
-export const HEATMAP_POSTS_RANGE = { start: '2025-10-01', end: '2026-09-14' };
-
 export const heatmapPostsByDay: Record< string, number > = Object.fromEntries(
 	Array.from( { length: 349 }, ( _, index ) => {
 		const day = new Date( Date.UTC( 2025, 9, 1 + index ) );
