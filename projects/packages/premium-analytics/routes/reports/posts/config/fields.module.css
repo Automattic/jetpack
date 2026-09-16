@@ -1,0 +1,31 @@
+.title {
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	overflow: hidden;
+}
+
+.thumbnailSlot {
+	display: flex;
+	flex-shrink: 0;
+	inline-size: 48px;
+	block-size: 48px;
+}
+
+.thumbnail {
+	inline-size: 48px;
+	block-size: 48px;
+	border-radius: var(--wpds-border-radius-md);
+	object-fit: cover;
+}
+
+.titleLink {
+	min-inline-size: 0;
+	overflow: hidden;
+}
+
+.titleText {
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}

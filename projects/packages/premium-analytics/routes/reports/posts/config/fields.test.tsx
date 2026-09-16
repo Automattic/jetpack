@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useSiteHomeUrl, type StatsTopPostsComparisonItem } from '@jetpack-premium-analytics/data';
+import {
+	usePostThumbnail,
+	useSiteHomeUrl,
+	type StatsTopPostsComparisonItem,
+} from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -16,6 +20,7 @@ import {
 } from './fields';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	usePostThumbnail: jest.fn(),
 	useSiteHomeUrl: jest.fn(),
 } ) );
 
@@ -32,6 +37,7 @@ jest.mock( '@wordpress/route', () => {
 setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
+const mockUsePostThumbnail = usePostThumbnail as jest.MockedFunction< typeof usePostThumbnail >;
 
 const homepage: StatsTopPostsComparisonItem = {
 	id: 0,
@@ -122,6 +128,25 @@ function renderArchiveViewsField( item: ArchiveRow, withComparison = false ) {
 describe( 'posts title field', () => {
 	beforeEach( () => {
 		mockUseSiteHomeUrl.mockReset();
+		mockUsePostThumbnail.mockReset();
+	} );
+
+	it( 'renders the post thumbnail beside its title', () => {
+		mockUsePostThumbnail.mockReturnValue( 'https://example.com/thumb.jpg' );
+
+		renderTitleField( {
+			id: 42,
+			label: 'Hello world',
+			views: 12,
+			link: 'https://example.com/hello-world/',
+			type: 'post',
+		} );
+
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/thumb.jpg'
+		);
+		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( 42, 'post' );
 	} );
 
 	it( 'links the homepage row to the site home URL', () => {

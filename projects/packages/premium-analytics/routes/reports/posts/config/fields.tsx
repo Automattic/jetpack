@@ -2,18 +2,23 @@
  * External dependencies
  */
 import {
+	usePostThumbnail,
 	useSiteHomeUrl,
 	type StatsArchivesComparisonItem,
 	type StatsArchivesItem,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { Link as UiLink } from '@jetpack-premium-analytics/externals';
+import { Link as UiLink, Stack } from '@jetpack-premium-analytics/externals';
 import { createReportOriginSearch, pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { MetricWithComparison, PostTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
-import { useMemo } from 'react';
+import { useMemo, type SyntheticEvent } from 'react';
+/**
+ * Internal dependencies
+ */
+import styles from './fields.module.css';
 import type { ReportPostsTabId } from './tabs';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
@@ -21,6 +26,45 @@ const VIEWS_DATA_FORMAT = {
 	type: 'number',
 	options: { decimals: 0, useMultipliers: false },
 } as const;
+
+type PostTitleProps = {
+	item: StatsTopPostsComparisonItem;
+	originSection: ReportPostsTabId;
+};
+
+/**
+ * Hide an unavailable thumbnail while preserving its slot.
+ *
+ * @param event - Image error event.
+ */
+function handleThumbnailError( event: SyntheticEvent< HTMLImageElement > ): void {
+	event.currentTarget.hidden = true;
+}
+
+/**
+ * Render a fixed-size thumbnail slot without shifting sibling titles.
+ *
+ * @param props     - Component props.
+ * @param props.url - Thumbnail URL.
+ * @return The thumbnail slot.
+ */
+function PostThumbnail( { url }: { url?: string } ): JSX.Element {
+	return (
+		<span className={ styles.thumbnailSlot }>
+			{ url && (
+				<img
+					key={ url }
+					src={ url }
+					alt=""
+					width={ 48 }
+					height={ 48 }
+					className={ styles.thumbnail }
+					onError={ handleThumbnailError }
+				/>
+			) }
+		</span>
+	);
+}
 
 /**
  * Render a post row's title. Rows with an ID drill into the internal post/page
@@ -32,18 +76,10 @@ const VIEWS_DATA_FORMAT = {
  * resolved from core settings. They never take the detail page: the homepage
  * is not a single post.
  *
- * @param props               - Component props.
- * @param props.item          - The posts report row.
- * @param props.originSection - The active Posts & Pages report tab.
+ * @param {PostTitleProps} props - Component props.
  * @return The linked or plain post title.
  */
-function PostTitle( {
-	item,
-	originSection,
-}: {
-	item: StatsTopPostsComparisonItem;
-	originSection: ReportPostsTabId;
-} ) {
+function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const detailSearch = useMemo(
 		() => ( {
@@ -56,14 +92,28 @@ function PostTitle( {
 
 	const isHomepage = item.type === 'homepage';
 	const title = String( item.label ?? '' );
+	const imageUrl = usePostThumbnail(
+		isHomepage ? undefined : item.id,
+		typeof item.type === 'string' ? item.type : undefined
+	);
 
 	return (
-		<PostTitleLink
-			id={ isHomepage ? undefined : item.id }
-			label={ title }
-			link={ isHomepage ? homeUrl : item.link }
-			search={ detailSearch }
-		/>
+		<Stack render={ <span /> } direction="row" gap="sm" align="center" className={ styles.title }>
+			<PostThumbnail url={ imageUrl } />
+			<PostTitleLink
+				id={ isHomepage ? undefined : item.id }
+				label={ title }
+				link={ isHomepage ? homeUrl : item.link }
+				search={ detailSearch }
+				classNames={ {
+					internal: styles.titleLink,
+					external: styles.titleLink,
+					plain: styles.titleLink,
+					text: styles.titleText,
+				} }
+				title={ title }
+			/>
+		</Stack>
 	);
 }
 
