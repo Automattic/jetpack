@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './page-cache.module.scss';
-import { isWpCloudClient, isWoaHosting } from '$lib/utils/hosting';
+import { isAtomicPlatform, isWoaHosting } from '$lib/utils/hosting';
 import { hasConflictingCache } from '$lib/utils/caching';
 
 const DismissableNotice = ( { title, children }: { title: string; children: ReactNode } ) => {
@@ -42,7 +42,7 @@ const PageCache = () => {
 	const showCacheEngineErrorNotice = useShowCacheEngineErrorNotice(
 		pageCacheSetup.isSuccess && !! moduleState?.active
 	);
-	const hasHostPageCache = isWoaHosting() || isWpCloudClient();
+	const hasHostPageCache = isAtomicPlatform();
 	const showCacheFromHostingNotice =
 		! moduleState?.available && ( hasHostPageCache || hasConflictingCache() );
 

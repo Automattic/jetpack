@@ -6,7 +6,7 @@ import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { __ } from '@wordpress/i18n';
-import { isWoaHosting, isWpCloudClient } from '$lib/utils/hosting';
+import { isAtomicPlatform } from '$lib/utils/hosting';
 import { useNotices } from '$features/notice/context';
 import { createInterpolateElement } from '@wordpress/element';
 import { Notice, Link } from '@wordpress/ui';
@@ -60,10 +60,9 @@ const Module = ( {
 	} );
 	const isModuleActive = status?.active ?? false;
 	const isModuleAvailable = status?.available ?? false;
-	// Page Cache is unavailable on WoA and WP Cloud client sites because the platform
-	// already caches pages, so show the module as active.
-	const isFakeActive =
-		! isModuleAvailable && ( isWoaHosting() || isWpCloudClient() ) && slug === 'page_cache';
+	// Page Cache is unavailable on the Atomic platform because it already caches pages, so
+	// show the module as active.
+	const isFakeActive = ! isModuleAvailable && isAtomicPlatform() && slug === 'page_cache';
 
 	const showOfflineMessage = ! site.online && ! worksOffline;
 	const offlineMessage = (
