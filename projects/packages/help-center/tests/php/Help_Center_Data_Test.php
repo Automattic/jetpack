@@ -54,6 +54,7 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 			remove_filter( $hook, $callback );
 		}
 		$this->temporary_filters = array();
+		delete_transient( 'jetpack-explat-wpcom-' . $this->user_id . '-' . md5( Help_Center::GET_HELP_EXPERIMENT ) );
 
 		// The Help_Center constructor registers hooks against $this. Without this,
 		// each test would leak duplicate callbacks into later tests in the session.
@@ -347,6 +348,13 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 
 	public function test_init_uses_filtered_wpcom_request_client() {
 		$wpcom_request_client = new class() implements Wpcom_Request_Client {
+			/**
+			 * Captured requests.
+			 *
+			 * @var array
+			 */
+			public $requests = array();
+
 			public function is_user_connected() {
 				return true;
 			}
@@ -358,7 +366,14 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 				$body = null,
 				$base_api_path = 'wpcom'
 			) {
-				return compact( 'path', 'version', 'args', 'body', 'base_api_path' );
+				$this->requests[] = compact( 'path', 'version', 'args', 'body', 'base_api_path' );
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array( 'variations' => array( Help_Center::GET_HELP_EXPERIMENT => Help_Center::GET_HELP_VARIATION ) )
+					),
+				);
 			}
 		};
 
@@ -380,6 +395,21 @@ class Help_Center_Data_Test extends \WorDBless\BaseTestCase {
 			$property->setAccessible( true );
 		}
 		$this->assertSame( $wpcom_request_client, $property->getValue( $help_center ) );
+
+		$this->assertSame( 'Get Help', $help_center->get_help_center_data( 'gutenberg' )['entryLabel'] );
+		$help_center->get_help_center_data( 'gutenberg' );
+		$this->assertSame(
+			array(
+				array(
+					'path'          => '/experiments/0.1.0/assignments/wpcom?experiment_names=wpcom_help_center_get_help_label',
+					'version'       => 'v2',
+					'args'          => array(),
+					'body'          => null,
+					'base_api_path' => 'wpcom',
+				),
+			),
+			$wpcom_request_client->requests
+		);
 	}
 
 	public function test_rest_controller_uses_injected_wpcom_request_client() {

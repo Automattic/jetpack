@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Added Server_Assignment, which reads an experiment's variation for the current user from PHP and caches it per user once ExPlat answers.
+Add Server_Assignment, which reads the current user's experiment variation from PHP and caches it once ExPlat answers.

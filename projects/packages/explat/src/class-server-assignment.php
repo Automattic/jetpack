@@ -35,15 +35,18 @@ class Server_Assignment {
 	 * assignment without creating one.
 	 *
 	 * @param string $experiment_name The experiment to read.
-	 * @param array  $args            'platform' ('wpcom', 'calypso' or 'jetpack'), 'assign' (bool), 'ttl' (seconds).
+	 * @param array  $args            'platform' ('wpcom', 'calypso' or 'jetpack'), 'assign' (bool), 'ttl' (seconds),
+	 *                                'is_user_connected' (callable), and 'request' (callable).
 	 * @return string|null
 	 */
 	public static function get_variation( $experiment_name, $args = array() ) {
 		$args = array_merge(
 			array(
-				'platform' => 'wpcom',
-				'assign'   => false,
-				'ttl'      => HOUR_IN_SECONDS,
+				'platform'          => 'wpcom',
+				'assign'            => false,
+				'ttl'               => HOUR_IN_SECONDS,
+				'is_user_connected' => null,
+				'request'           => null,
 			),
 			$args
 		);
@@ -84,12 +87,15 @@ class Server_Assignment {
 			return self::fetch_simple_variation( $experiment_name, (bool) $args['assign'] );
 		}
 
-		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+		$is_user_connected = $args['is_user_connected'] ?? array( new Connection_Manager(), 'is_user_connected' );
+		if ( ! call_user_func( $is_user_connected ) ) {
 			return null;
 		}
 
 		$request_path = '/experiments/' . self::API_VERSION . '/assignments/' . $args['platform'];
-		$response     = Client::wpcom_json_api_request_as_user(
+		$request      = $args['request'] ?? array( Client::class, 'wpcom_json_api_request_as_user' );
+		$response     = call_user_func(
+			$request,
 			add_query_arg( array( 'experiment_names' => $experiment_name ), $request_path ),
 			'v2'
 		);

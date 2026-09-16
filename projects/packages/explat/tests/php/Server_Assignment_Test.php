@@ -38,6 +38,7 @@ class Server_Assignment_Test extends \WorDBless\BaseTestCase {
 
 	public function tear_down() {
 		delete_transient( 'jetpack-explat-wpcom-' . $this->user_id . '-' . md5( self::EXPERIMENT ) );
+		delete_transient( 'jetpack-explat-calypso-' . $this->user_id . '-' . md5( self::EXPERIMENT ) );
 		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
@@ -67,7 +68,6 @@ class Server_Assignment_Test extends \WorDBless\BaseTestCase {
 	public function test_an_unanswered_lookup_is_not_cached() {
 		Scripted_Server_Assignment::$answers = array( null, 'treatment' );
 
-		// A failed request must not hold the user out of the experiment for the whole TTL.
 		$this->assertNull( Scripted_Server_Assignment::get_variation( self::EXPERIMENT ) );
 		$this->assertSame( 'treatment', Scripted_Server_Assignment::get_variation( self::EXPERIMENT ) );
 		$this->assertSame( 2, Scripted_Server_Assignment::$calls );
@@ -89,7 +89,5 @@ class Server_Assignment_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'treatment', $wpcom );
 		$this->assertSame( 'control', $calypso );
-
-		delete_transient( 'jetpack-explat-calypso-' . $this->user_id . '-' . md5( self::EXPERIMENT ) );
 	}
 }

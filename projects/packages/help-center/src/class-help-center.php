@@ -405,8 +405,14 @@ class Help_Center {
 			return self::GET_HELP_VARIATION === $override;
 		}
 
-		// Assigning: rendering the entry point is the exposure.
-		$variation = Server_Assignment::get_variation( self::GET_HELP_EXPERIMENT, array( 'assign' => true ) );
+		$variation = Server_Assignment::get_variation(
+			self::GET_HELP_EXPERIMENT,
+			array(
+				'assign'            => true,
+				'is_user_connected' => array( $this->wpcom_request_client, 'is_user_connected' ),
+				'request'           => array( $this->wpcom_request_client, 'request' ),
+			)
+		);
 
 		return self::GET_HELP_VARIATION === $variation;
 	}
