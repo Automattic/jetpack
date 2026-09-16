@@ -31,7 +31,7 @@ const CornerstonePagesCard = () => {
 			<Card.Header>
 				<Stack direction="column" gap="xs">
 					<Card.Title render={ <h2 /> }>{ __( 'Cornerstone pages', 'jetpack-boost' ) }</Card.Title>
-					<Text variant="body-md" className={ styles.description }>
+					<Text variant="body-md" render={ <p /> }>
 						<CornerstonePagesDescription />
 					</Text>
 				</Stack>
@@ -41,10 +41,10 @@ const CornerstonePagesCard = () => {
 					<CollapsibleCard.Root onOpenChange={ handleEditorToggle }>
 						<CollapsibleCard.Header render={ <h3 /> }>
 							<Stack direction="row" justify="space-between" align="center" gap="sm">
-								{ summary && (
-									<CollapsibleCard.HeaderDescription>{ summary }</CollapsibleCard.HeaderDescription>
-								) }
-								<Card.Title>{ __( 'Edit pages', 'jetpack-boost' ) }</Card.Title>
+								{ summary && <Text variant="body-md">{ summary }</Text> }
+								<Text variant="body-md" className={ styles.edit }>
+									{ __( 'Edit pages', 'jetpack-boost' ) }
+								</Text>
 							</Stack>
 						</CollapsibleCard.Header>
 						<CollapsibleCard.Content>

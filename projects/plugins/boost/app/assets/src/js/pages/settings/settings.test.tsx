@@ -5,7 +5,10 @@ import Settings from './settings';
 
 /* Each module stub prints its name so the test can assert the order. */
 jest.mock( '$features/cornerstone-pages/cornerstone-pages-card', () => () => (
-	<div data-testid="stub">cornerstone</div>
+	<div>
+		<h2>Cornerstone pages</h2>
+		<div data-testid="stub">cornerstone</div>
+	</div>
 ) );
 jest.mock( '$features/critical-css/critical-css-module/critical-css-module', () => () => (
 	<div data-testid="stub">critical_css</div>
@@ -45,7 +48,7 @@ const modulesIn = ( heading: string ) => {
 };
 
 describe( 'Settings', () => {
-	it( 'groups the modules into the designed cards, Cornerstone pages last', () => {
+	it( 'renders the designed cards in order, each holding its modules', () => {
 		render( <Settings /> );
 
 		expect( screen.getAllByRole( 'heading', { level: 2 } ).map( h => h.textContent ) ).toEqual( [
@@ -53,8 +56,8 @@ describe( 'Settings', () => {
 			'Image loading optimization',
 			'Image CDN configuration',
 			'Image guide',
+			'Cornerstone pages',
 		] );
-		expect( screen.getAllByTestId( 'stub' ).at( -1 )?.textContent ).toBe( 'cornerstone' );
 		expect( modulesIn( 'Code loading optimization' ) ).toEqual( [
 			'critical_css',
 			'cloud_css',

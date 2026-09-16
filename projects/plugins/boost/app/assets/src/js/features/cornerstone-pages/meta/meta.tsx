@@ -129,27 +129,23 @@ const CornerstonePagesContent = () => {
 export const CornerstonePagesDescription = () => {
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
 
-	return (
-		<p>
-			{ createInterpolateElement(
-				__(
-					'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
-					'jetpack-boost'
-				),
-				{
-					link: (
-						<Link
-							openInNewTab
-							href={ cornerstonePagesSupportLink }
-							onClick={ () => {
-								recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
-							} }
-						/>
-					),
-					b: <b />,
-				}
-			) }
-		</p>
+	return createInterpolateElement(
+		__(
+			'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
+			'jetpack-boost'
+		),
+		{
+			link: (
+				<Link
+					openInNewTab
+					href={ cornerstonePagesSupportLink }
+					onClick={ () => {
+						recordBoostEvent( 'clicked_cornerstone_pages_learn_more', {} );
+					} }
+				/>
+			),
+			b: <b />,
+		}
 	);
 };
 
@@ -165,7 +161,9 @@ export const CornerstonePagesEditor = () => {
 
 const Meta = () => (
 	<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
-		<CornerstonePagesDescription />
+		<p>
+			<CornerstonePagesDescription />
+		</p>
 		<CornerstonePagesEditor />
 	</div>
 );
