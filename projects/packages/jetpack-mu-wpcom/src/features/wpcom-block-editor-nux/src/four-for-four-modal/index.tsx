@@ -3,7 +3,7 @@ import { useDispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import postPublishedImage from '../../../../assets/images/post-published.svg';
-import { useJustPublishedPost } from '../../../../common/tour-kit';
+import { isFourForFourPreview, useJustPublishedPost } from '../../../../common/tour-kit';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import NuxModal from '../nux-modal';
 import type { FC } from 'react';
@@ -21,7 +21,9 @@ const OPT_IN_REDIRECT_DELAY_MS = 1500;
 const FourForFourModal: FC = () => {
 	const { setFourForFourStatus } = useDispatch( 'automattic/wpcom-welcome-guide' );
 	const justPublished = useJustPublishedPost();
-	const [ isOpen, setIsOpen ] = useState( false );
+	// `?four-for-four=preview` opens the modal on load so the prompt can be
+	// tested without publishing a first post.
+	const [ isOpen, setIsOpen ] = useState( isFourForFourPreview() );
 
 	useEffect( () => {
 		if ( justPublished ) {
