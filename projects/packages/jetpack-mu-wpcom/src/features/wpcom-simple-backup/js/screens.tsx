@@ -1,7 +1,11 @@
 import { Button, Card, Notice } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { backup } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import { useState } from 'react';
+import { Callout } from './callout.tsx';
+import { upsell } from './icons.tsx';
+import { backupsCalloutIllustration } from './illustration.ts';
 import { TransferWarningsModal } from './transfer-warnings-modal.tsx';
 import type { InitialState } from './types.ts';
 
@@ -38,20 +42,31 @@ function PromptCard( { title, children }: { title: string; children: React.React
  */
 export function UpgradeScreen( { state }: { state: InitialState } ) {
 	return (
-		<PromptCard title={ __( 'Back up your site automatically', 'jetpack-mu-wpcom' ) }>
+		<Callout
+			icon={ backup }
+			title={ __( 'Secure your content with Jetpack Backups', 'jetpack-mu-wpcom' ) }
+			image={ backupsCalloutIllustration }
+			actions={
+				<Button variant="primary" icon={ upsell } href={ state.upgradeUrl }>
+					{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
+				</Button>
+			}
+		>
 			<Text>
 				{ __(
-					'Save every change and restore your site to any point in the past with a single click.',
+					'Protect your site with scheduled and real-time backups—giving you the ultimate “undo” button and peace of mind that your content is always safe.',
 					'jetpack-mu-wpcom'
 				) }
 			</Text>
-			<Notice status="info" isDismissible={ false }>
-				{ __( 'Backups are not included in your current plan.', 'jetpack-mu-wpcom' ) }
-			</Notice>
-			<Button variant="primary" href={ state.upgradeUrl }>
-				{ __( 'Upgrade your plan', 'jetpack-mu-wpcom' ) }
-			</Button>
-		</PromptCard>
+			<Text>
+				{ sprintf(
+					/* translators: %1$s and %2$s are WordPress.com plan names, e.g. "Business" and "Commerce". */
+					__( 'Available on the WordPress.com %1$s and %2$s plans.', 'jetpack-mu-wpcom' ),
+					'Business',
+					'Commerce'
+				) }
+			</Text>
+		</Callout>
 	);
 }
 

@@ -381,36 +381,45 @@ function wpcom_simple_backup_get_blocker_messages( $eligibility ) {
  * @return array[] Warnings in the API's own shape, minus the grouping.
  */
 function wpcom_simple_backup_get_transfer_warnings( $eligibility ) {
-	if ( empty( $eligibility['warnings'] ) || ! is_array( $eligibility['warnings'] ) ) {
-		return array();
-	}
-
 	$warnings = array();
-	foreach ( $eligibility['warnings'] as $group ) {
-		if ( ! is_array( $group ) ) {
-			continue;
-		}
 
-		foreach ( $group as $warning ) {
-			if ( empty( $warning['id'] ) ) {
+	if ( ! empty( $eligibility['warnings'] ) && is_array( $eligibility['warnings'] ) ) {
+		foreach ( $eligibility['warnings'] as $group ) {
+			if ( ! is_array( $group ) ) {
 				continue;
 			}
 
-			$warnings[] = array(
-				'id'           => (string) $warning['id'],
-				'description'  => isset( $warning['description'] ) ? (string) $warning['description'] : '',
-				'domain_names' => ( ! empty( $warning['domain_names']['current'] ) && ! empty( $warning['domain_names']['new'] ) )
-					? array(
-						'current' => (string) $warning['domain_names']['current'],
-						'new'     => (string) $warning['domain_names']['new'],
-					)
-					: null,
-				'support_url'  => isset( $warning['support_url'] ) ? (string) $warning['support_url'] : '',
-			);
+			foreach ( $group as $warning ) {
+				if ( empty( $warning['id'] ) ) {
+					continue;
+				}
+
+				$warnings[] = array(
+					'id'           => (string) $warning['id'],
+					'description'  => isset( $warning['description'] ) ? (string) $warning['description'] : '',
+					'domain_names' => ( ! empty( $warning['domain_names']['current'] ) && ! empty( $warning['domain_names']['new'] ) )
+						? array(
+							'current' => (string) $warning['domain_names']['current'],
+							'new'     => (string) $warning['domain_names']['new'],
+						)
+						: null,
+					'support_url'  => isset( $warning['support_url'] ) ? (string) $warning['support_url'] : '',
+				);
+			}
 		}
 	}
 
-	return $warnings;
+	/**
+	 * Filter the transfer warnings shown before activation.
+	 *
+	 * Lets the confirmation be previewed on a sandbox without a site whose
+	 * address actually changes, and exposes the raw eligibility result so the
+	 * library's return shape can be inspected.
+	 *
+	 * @param array[]    $warnings    Normalized warnings.
+	 * @param array|null $eligibility Raw eligibility result.
+	 */
+	return apply_filters( 'wpcom_simple_backup_transfer_warnings', $warnings, $eligibility );
 }
 
 /**

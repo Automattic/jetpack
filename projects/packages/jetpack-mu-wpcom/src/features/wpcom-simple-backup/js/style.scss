@@ -18,6 +18,40 @@
 		padding: 32px;
 	}
 
+	// Matches the dashboard's Callout: content and illustration share the row,
+	// and the illustration drops out rather than squeezing the copy.
+	&__callout {
+		overflow: hidden;
+		max-width: 900px;
+		margin-inline: auto;
+	}
+
+	&__callout-content {
+		flex: 1 1 0;
+		min-width: 0;
+		padding: 32px;
+	}
+
+	&__callout-image {
+		flex: 1 1 0;
+		position: relative;
+		min-width: 0;
+
+		img {
+			position: absolute;
+			inline-size: 100%;
+			block-size: 100%;
+			object-fit: cover;
+		}
+	}
+
+	@media (max-width: 782px) {
+
+		&__callout-image {
+			display: none;
+		}
+	}
+
 	&__blockers {
 		margin: 0;
 		list-style: disc;

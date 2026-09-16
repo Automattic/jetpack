@@ -272,6 +272,28 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The confirmation has to be previewable without a site whose address changes.
+	 */
+	public function test_transfer_warnings_are_filterable() {
+		add_filter(
+			'wpcom_simple_backup_transfer_warnings',
+			function () {
+				return array(
+					array(
+						'id'          => 'forced',
+						'description' => 'Forced.',
+					),
+				);
+			}
+		);
+
+		$warnings = wpcom_simple_backup_get_transfer_warnings( null );
+
+		$this->assertCount( 1, $warnings );
+		$this->assertSame( 'forced', $warnings[0]['id'] );
+	}
+
+	/**
 	 * A null result means the library was unavailable, not that there are warnings.
 	 */
 	public function test_transfer_warnings_handles_null_eligibility() {
