@@ -3,9 +3,9 @@ import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
+	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
-	MY_JETPACK_SECTION_PRODUCTS,
 } from '../constants';
 import { MyJetpackTabPanel } from '../index';
 
@@ -36,8 +36,8 @@ jest.mock( '../../../hooks/use-is-jetpack-user-new', () => ( {
 	default: () => false,
 } ) );
 
-// The real `TabContent` pulls in the full products/overview/help trees; a stub
-// that echoes its section name is enough to assert which section rendered.
+// The real `TabContent` pulls in the full features/help trees; a stub that echoes
+// its section name is enough to assert which section rendered.
 jest.mock( '../tab-content', () => ( {
 	TabContent: ( { name }: { name: string } ) => {
 		const react = jest.requireActual( 'react' );
@@ -59,28 +59,26 @@ beforeEach( () => {
 } );
 
 describe( 'MyJetpackTabPanel', () => {
-	it( 'renders the single Products section directly, with no tab bar, on Simple sites', () => {
+	it( 'renders the same tabs on Simple sites', async () => {
 		mockIsSimpleSite.mockReturnValue( true );
-		mockSection = MY_JETPACK_SECTION_PRODUCTS;
+		mockSection = MY_JETPACK_SECTION_FEATURES;
 
 		render( <MyJetpackTabPanel /> );
+		await expect( screen.findByRole( 'tablist' ) ).resolves.toBeInTheDocument();
 
-		expect( screen.getByTestId( 'tab-content' ) ).toHaveTextContent( MY_JETPACK_SECTION_PRODUCTS );
-		// The direct-render path renders no TabPanel, so there is no tab bar.
-		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
-		// The canonical Products hash needs no rewrite.
+		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 3 );
+		expect( screen.getByTestId( 'tab-content' ) ).toHaveTextContent( MY_JETPACK_SECTION_FEATURES );
 		expect( mockNavigate ).not.toHaveBeenCalled();
-		// No synthetic click; the view fires exactly once, attributed to Products.
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 		expect( callsFor( 'jetpack_myjetpack_tab_view' ) ).toHaveLength( 1 );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_myjetpack_tab_view',
-			expect.objectContaining( { tab_name: MY_JETPACK_SECTION_PRODUCTS } )
+			expect.objectContaining( { tab_name: MY_JETPACK_SECTION_FEATURES } )
 		);
 	} );
 
 	it( 'does not record a tab click when the multi-section panel mounts', async () => {
-		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+		mockSection = MY_JETPACK_SECTION_FEATURES;
 
 		render( <MyJetpackTabPanel /> );
 		// Awaiting the query lets TabPanel's async post-mount selection settle in act().
@@ -112,7 +110,7 @@ describe( 'MyJetpackTabPanel', () => {
 	} );
 
 	it( 'records one tab click, with the resolved previous tab, on a genuine switch', async () => {
-		mockSection = MY_JETPACK_SECTION_OVERVIEW;
+		mockSection = MY_JETPACK_SECTION_FEATURES;
 
 		render( <MyJetpackTabPanel /> );
 		await userEvent.click( screen.getByRole( 'tab', { name: 'Help' } ) );
@@ -122,7 +120,7 @@ describe( 'MyJetpackTabPanel', () => {
 			'jetpack_myjetpack_tab_click',
 			expect.objectContaining( {
 				tab_name: MY_JETPACK_SECTION_HELP,
-				previous_tab: MY_JETPACK_SECTION_OVERVIEW,
+				previous_tab: MY_JETPACK_SECTION_FEATURES,
 			} )
 		);
 		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_HELP }` );

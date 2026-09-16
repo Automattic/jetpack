@@ -1,6 +1,6 @@
-import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import {
+	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
@@ -11,37 +11,42 @@ import type { ComponentProps } from 'react';
 type TabPanelProps = ComponentProps< typeof TabPanel >;
 
 /**
+ * Sections reachable by URL, including any hidden from the tab bar.
+ *
+ * @return Every valid section name.
+ */
+export function getAllMyJetpackSections(): string[] {
+	return [
+		MY_JETPACK_SECTION_OVERVIEW,
+		MY_JETPACK_SECTION_PRODUCTS,
+		MY_JETPACK_SECTION_FEATURES,
+		MY_JETPACK_SECTION_HELP,
+	];
+}
+
+/**
  * Get the My Jetpack sections.
+ *
+ * Products is deliberately absent: it stays reachable at `#/products` for comparison,
+ * but is no longer somewhere the tab bar will take you.
  *
  * @return The sections for the My Jetpack tab panel.
  */
 export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
-	const tabs = [
+	return [
 		{
 			name: MY_JETPACK_SECTION_OVERVIEW,
 			title: __( 'Overview', 'jetpack-my-jetpack' ),
 		},
 		{
-			name: MY_JETPACK_SECTION_PRODUCTS,
-			title: __( 'Products', 'jetpack-my-jetpack' ),
+			name: MY_JETPACK_SECTION_FEATURES,
+			title: __( 'Features', 'jetpack-my-jetpack' ),
 		},
 		{
 			name: MY_JETPACK_SECTION_HELP,
 			title: __( 'Help', 'jetpack-my-jetpack' ),
 		},
 	];
-
-	// WordPress.com Simple sites only get the Products section.
-	if ( isSimpleSite() ) {
-		return tabs.filter( tab => tab.name === MY_JETPACK_SECTION_PRODUCTS );
-	}
-
-	if ( currentUserCan( 'manage_options' ) ) {
-		return tabs;
-	}
-
-	// If the user is not an admin, remove the Products tab.
-	return tabs.filter( tab => tab.name !== MY_JETPACK_SECTION_PRODUCTS );
 }
 
 /**
@@ -60,5 +65,21 @@ export function getDefaultMyJetpackSection() {
  * @return True if the section is valid, false otherwise.
  */
 export function isValidMyJetpackSection( section: string ) {
-	return getMyJetpackSections().some( item => item.name === section );
+	return getAllMyJetpackSections().includes( section );
+}
+
+/**
+ * The badge label for whether something is switched on.
+ *
+ * Each string is bound before the branch: minification folds `c ? __( a ) : __( b )` into
+ * one call with a ternary msgid, which the i18n build check rejects.
+ *
+ * @param isActive - Whether the feature or module is running.
+ * @return The translated label.
+ */
+export function getActivationStatusLabel( isActive: boolean ): string {
+	const activeText = __( 'Active', 'jetpack-my-jetpack' );
+	const inactiveText = __( 'Inactive', 'jetpack-my-jetpack' );
+
+	return isActive ? activeText : inactiveText;
 }

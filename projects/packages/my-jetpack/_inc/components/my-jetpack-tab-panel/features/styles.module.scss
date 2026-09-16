@@ -1,0 +1,291 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+// Matches the product-card icon palette in ../products/styles.module.scss.
+$feature-icon-background: #003010;
+$feature-icon-foreground: #0ced57;
+
+.content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+.feature-list {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	overflow: hidden;
+}
+
+.feature-item {
+	padding: var(--wpds-dimension-padding-lg);
+
+	& + & {
+		border-block-start-color: var(--wpds-color-stroke-surface-neutral-weak);
+		border-block-start-style: solid;
+		border-block-start-width: var(--wpds-border-width-xs);
+	}
+}
+
+.feature-icon {
+	block-size: 3rem;
+	border-radius: var(--wpds-border-radius-md);
+	flex-shrink: 0;
+	inline-size: 3rem;
+	overflow: hidden;
+
+	svg {
+		block-size: 100%;
+		inline-size: 100%;
+	}
+}
+
+// Features with no product icon get a tile in the same palette rather than
+// borrowing another product's branding.
+.feature-icon__fallback {
+	align-items: center;
+	background: $feature-icon-background;
+	block-size: 100%;
+	border-radius: inherit;
+	color: $feature-icon-foreground;
+	display: flex;
+	inline-size: 100%;
+	justify-content: center;
+
+	svg {
+		block-size: 28px;
+		fill: currentColor;
+		inline-size: 28px;
+	}
+}
+
+
+.feature-item__details {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+
+.feature-chevron {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	flex-shrink: 0;
+}
+
+.detail-links {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.detail-highlights {
+	background: var(--wpds-color-background-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+	margin-block-start: var(--wpds-dimension-gap-2xl);
+	padding: var(--wpds-dimension-padding-xl);
+}
+
+
+// Reserves the image's space before it loads, so the remote asset
+// arriving cannot reflow the page around it.
+// Capped: left to its aspect ratio the artwork grows with the dialog and pushes
+// everything beside it out of view.
+.feature-screenshot__frame {
+	aspect-ratio: 16 / 10;
+	max-block-size: 20rem;
+	position: relative;
+	inline-size: 100%;
+}
+
+.feature-screenshot__skeleton {
+	block-size: 100%;
+	border-radius: var(--wpds-border-radius-md);
+	inset: 0;
+	position: absolute;
+	inline-size: 100%;
+}
+
+.feature-screenshot {
+	block-size: 100%;
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	inline-size: 100%;
+	object-fit: cover;
+	opacity: 0;
+	transition: opacity 200ms ease-out;
+}
+
+.feature-screenshot--loaded {
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.feature-screenshot {
+		transition: none;
+	}
+}
+
+// Features with no artwork yet keep the page's shape rather than collapsing it.
+.feature-screenshot--placeholder {
+	align-items: center;
+	block-size: 100%;
+	border-color: var(--wpds-color-stroke-surface-neutral-weak);
+	border-style: dashed;
+	border-width: var(--wpds-border-width-xs);
+	border-radius: var(--wpds-border-radius-md);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	display: flex;
+	justify-content: center;
+	padding: var(--wpds-dimension-padding-xl);
+	text-align: center;
+}
+
+.modal-steps {
+	margin-inline-end: auto;
+}
+
+
+.modal-body {
+	align-items: start;
+	display: grid;
+	gap: var(--wpds-dimension-gap-xl);
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+@media (max-width: 782px) {
+
+	.modal-body {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+// Matches the rendered width of a FormToggle, so rows without
+// one keep the column.
+.feature-toggle-slot {
+	display: flex;
+	flex-shrink: 0;
+	inline-size: 2rem;
+	justify-content: center;
+}
+
+// Fixed so the dialog does not resize as you step between features, and as
+// large as the viewport allows so its content rarely scrolls. Set here rather
+// than by the dialog's own `size`, which caps the width at 960px.
+.modal-popup {
+	block-size: min(50rem, calc(100vh - 4rem));
+	inline-size: min(72rem, calc(100vw - 4rem));
+	max-inline-size: min(72rem, calc(100vw - 4rem));
+}
+
+// Applied to a wp-admin menu item, which lives outside this
+// app's DOM, so the class name must survive CSS Modules hashing.
+:global(.jetpack-feature-sidebar-highlight) {
+	position: relative;
+}
+
+// The dot does the blinking: a pulsing ring around the whole row was too loud.
+:global(.jetpack-feature-sidebar-highlight)::after {
+	animation: jetpack-feature-dot-pulse 1.2s ease-in-out infinite;
+	background: $feature-icon-foreground;
+	block-size: 0.5rem;
+	border-radius: 50%;
+	content: "";
+	inline-size: 0.5rem;
+	inset-block-start: 50%;
+	inset-inline-end: 0.75rem;
+	margin-block-start: -0.25rem;
+	position: absolute;
+}
+
+// Drawn from the data attribute the hook sets, so the copy stays translatable.
+:global(.jetpack-feature-sidebar-highlight)::before {
+	background: $feature-icon-background;
+	border-radius: var(--wpds-border-radius-sm);
+	color: #fff;
+	content: attr(data-jetpack-highlight-label);
+	font-size: 0.75rem;
+	inset-block-start: 50%;
+	inset-inline-start: calc(100% + 0.5rem);
+	line-height: 1.4;
+	padding-block: 0.25rem;
+	padding-inline: 0.5rem;
+	pointer-events: none;
+	position: absolute;
+	transform: translateY(-50%);
+	white-space: nowrap;
+	z-index: 10000;
+}
+
+@keyframes jetpack-feature-dot-pulse {
+
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	50% {
+		opacity: 0.35;
+		transform: scale(0.7);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	:global(.jetpack-feature-sidebar-highlight)::after {
+		animation: none;
+	}
+}
+
+.description {
+
+	@include gb.body-medium;
+	color: #{gb.$gray-700};
+	margin: 0;
+}
+
+
+.search-heading {
+
+	@include gb.heading-x-large;
+	margin-block: 0;
+}
+
+// Sticky so a selection made far down a long list can still be
+// acted on. The offset clears the wp-admin bar, which is fixed.
+.toolbar {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-color: var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	border-style: solid;
+	border-width: var(--wpds-border-width-xs);
+	inset-block-start: 0;
+	margin-block: var(--wpds-dimension-gap-md);
+	padding: var(--wpds-dimension-padding-md);
+	position: sticky;
+	z-index: 10;
+}
+
+.toolbar__status {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.toolbar__end {
+	margin-inline-start: auto;
+}
+
+
+// A badge is a span, so clickable ones are wrapped rather than restyled.
+.badge-link {
+	background: none;
+	border: 0;
+	cursor: pointer;
+	display: inline-flex;
+	padding: 0;
+	text-decoration: none;
+}
+
+.paid-routes {
+	margin-block-start: var(--wpds-dimension-gap-md);
+}

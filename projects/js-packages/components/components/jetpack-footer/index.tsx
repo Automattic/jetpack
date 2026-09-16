@@ -30,8 +30,8 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 	if ( ! isWpcomPlatformSite() && ! window?.JetpackNetworkAdminData ) {
 		items = [
 			{
-				label: __( 'Products', 'jetpack-components' ),
-				href: getAdminUrl( 'admin.php?page=my-jetpack#/products' ),
+				label: __( 'Features', 'jetpack-components' ),
+				href: getAdminUrl( 'admin.php?page=my-jetpack#/features' ),
 			},
 			{
 				label: __( 'Help', 'jetpack-components' ),

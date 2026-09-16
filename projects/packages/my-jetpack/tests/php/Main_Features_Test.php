@@ -234,4 +234,89 @@ class Main_Features_Test extends TestCase {
 			}
 		}
 	}
+
+	/**
+	 * The list renders in the order it arrives, so sorting is the catalog's job.
+	 */
+	public function test_features_are_sorted_alphabetically_by_name() {
+		$names = array_column( Main_Features::get_features(), 'name' );
+
+		$sorted = $names;
+		usort( $sorted, 'strnatcasecmp' );
+
+		$this->assertSame( $sorted, $names );
+	}
+
+	/**
+	 * A feature with no interstitial must say so rather than emit a route that 404s.
+	 */
+	public function test_features_without_an_interstitial_have_an_empty_learn_more_route() {
+		$features = array_column( Main_Features::get_features(), 'learn_more_route', 'slug' );
+
+		$this->assertSame( '/add-backup', $features['backup'] );
+		$this->assertSame( '', $features['activity-log'] );
+		$this->assertSame( '', $features['podcast'] );
+	}
+
+	/**
+	 * Must be the feature's own settings screen: a section of the Jetpack settings page is
+	 * not a destination this list offers.
+	 */
+	public function test_settings_urls_never_point_at_the_jetpack_settings_screen() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			$this->assertStringNotContainsString(
+				'page=jetpack#',
+				$feature['settings_url'],
+				"Feature {$feature['slug']} links to the Jetpack settings screen"
+			);
+		}
+	}
+
+	/**
+	 * The More features tab is the modules screen minus this set, so a module leaving or
+	 * joining it silently moves between two lists. Pinned so that has to be deliberate.
+	 */
+	public function test_covered_modules_are_the_expected_set() {
+		$covered = Main_Features::get_covered_modules();
+		sort( $covered );
+
+		$this->assertSame(
+			array(
+				'ai',
+				'blaze',
+				'contact-form',
+				'podcast',
+				'protect',
+				'publicize',
+				'search',
+				'stats',
+				'subscriptions',
+				'videopress',
+			),
+			$covered
+		);
+	}
+
+	/**
+	 * A module in two groups would render twice; one in a group the features list
+	 * already covers would render above and below at once.
+	 */
+	public function test_module_groups_are_disjoint_and_uncovered() {
+		$covered = Main_Features::get_covered_modules();
+		$seen    = array();
+
+		foreach ( Main_Features::get_module_groups() as $group ) {
+			$this->assertNotEmpty( $group['label'] );
+
+			foreach ( $group['modules'] as $slug ) {
+				$this->assertNotContains( $slug, $seen, "{$slug} appears in two groups" );
+				$this->assertNotContains(
+					$slug,
+					$covered,
+					"{$slug} is grouped but already covered by a feature"
+				);
+				$seen[] = $slug;
+			}
+		}
+	}
 }
