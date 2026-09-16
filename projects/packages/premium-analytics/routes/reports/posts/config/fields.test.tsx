@@ -6,7 +6,7 @@ import {
 	useSiteHomeUrl,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -142,20 +142,18 @@ describe( 'posts title field', () => {
 			type: 'post',
 		} );
 
-		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
-			'src',
-			'https://example.com/thumb.jpg'
-		);
+		const thumbnail = screen.getByRole( 'presentation' );
+		expect( thumbnail ).toHaveAttribute( 'src', 'https://example.com/thumb.jpg' );
 		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( 42, 'post' );
+
+		fireEvent.error( thumbnail );
+		expect( screen.getByTestId( 'post-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders an empty image when a row has no thumbnail', () => {
+	it( 'renders the post-type placeholder when a row has no thumbnail', () => {
 		renderTitleField( homepage );
 
-		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
-			'src',
-			expect.stringContaining( 'data:image/svg+xml' )
-		);
+		expect( screen.getByTestId( 'post-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
 	it( 'links the homepage row to the site home URL', () => {

@@ -8,13 +8,14 @@ import {
 	type StatsArchivesItem,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { Link as UiLink, Stack } from '@jetpack-premium-analytics/externals';
+import { Icon, Link as UiLink, Stack } from '@jetpack-premium-analytics/externals';
 import { createReportOriginSearch, pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { MetricWithComparison, PostTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { useMemo, type SyntheticEvent } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -26,8 +27,6 @@ const VIEWS_DATA_FORMAT = {
 	type: 'number',
 	options: { decimals: 0, useMultipliers: false },
 } as const;
-const EMPTY_IMAGE_URL =
-	'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="%23e5e7eb"/></svg>';
 
 type PostTitleProps = {
 	item: StatsTopPostsComparisonItem;
@@ -35,33 +34,34 @@ type PostTitleProps = {
 };
 
 /**
- * Replace an unavailable thumbnail with the empty-image fallback.
+ * Render a thumbnail or the post-type icon used by the detail header.
  *
- * @param event - Image error event.
- */
-function handleThumbnailError( event: SyntheticEvent< HTMLImageElement > ): void {
-	event.currentTarget.src = EMPTY_IMAGE_URL;
-}
-
-/**
- * Render a fixed-size thumbnail slot without shifting sibling titles.
- *
- * @param props     - Component props.
- * @param props.url - Thumbnail URL.
+ * @param props          - Component props.
+ * @param props.url      - Thumbnail URL.
+ * @param props.postType - Post type slug.
  * @return The thumbnail slot.
  */
-function PostThumbnail( { url }: { url?: string } ): JSX.Element {
+function PostThumbnail( { url, postType }: { url?: string; postType?: string } ): JSX.Element {
+	const [ failedUrl, setFailedUrl ] = useState< string >();
+	const showImage = Boolean( url && failedUrl !== url );
+	const handleError = useCallback( () => setFailedUrl( url ), [ url ] );
+
 	return (
 		<span className={ styles.thumbnailSlot }>
-			<img
-				key={ url }
-				src={ url || EMPTY_IMAGE_URL }
-				alt=""
-				width={ 32 }
-				height={ 32 }
-				className={ styles.thumbnail }
-				onError={ handleThumbnailError }
-			/>
+			{ showImage ? (
+				<img
+					src={ url }
+					alt=""
+					width={ 32 }
+					height={ 32 }
+					className={ styles.thumbnail }
+					onError={ handleError }
+				/>
+			) : (
+				<span data-testid="post-thumbnail-placeholder">
+					<Icon icon={ postType === 'page' ? pageIcon : postIcon } size={ 16 } />
+				</span>
+			) }
 		</span>
 	);
 }
@@ -99,7 +99,10 @@ function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 
 	return (
 		<Stack render={ <span /> } direction="row" gap="sm" align="center" className={ styles.title }>
-			<PostThumbnail url={ imageUrl } />
+			<PostThumbnail
+				url={ imageUrl }
+				postType={ typeof item.type === 'string' ? item.type : undefined }
+			/>
 			<PostTitleLink
 				id={ isHomepage ? undefined : item.id }
 				label={ title }
