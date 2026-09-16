@@ -1,12 +1,16 @@
 import {
 	AnalyticsQueryClientProvider,
 	GlobalErrorProvider,
+	PeriodChangeSignalProvider,
+	postSurface,
 	ReportScopeProvider,
+	useSettlePeriodChange,
 } from '@jetpack-premium-analytics/data';
 import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
+	PeriodChangeStatus,
 	safeHttpUrl,
 	SectionTabs,
 	StatsBreadcrumbs,
@@ -141,16 +145,29 @@ function PostDetail(): JSX.Element {
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
+	// A card on this page can set the period (the All-time traffic card opens a
+	// month); the control then draws attention to it and the change is read out.
+	const attentionId = useSettlePeriodChange(
+		postSurface( postId ),
+		dateFilters.appliedRange,
+		! isEmailTab
+	);
+
 	// The email tabs are pinned to the send window, so the filter would only
 	// suggest a choice they do not offer; the range stays in the URL so the Post
 	// traffic tab keeps its selection. The design has no comparison on this page
 	// either — the panel reads that from the scope the stage declares.
 	const dateFiltersPanel = isEmailTab ? null : (
-		<DateFiltersPanel { ...dateFilters } { ...dateControls } />
+		<DateFiltersPanel { ...dateFilters } { ...dateControls } attentionId={ attentionId } />
 	);
 
 	return (
 		<GlobalErrorProvider>
+			<PeriodChangeStatus
+				attentionId={ attentionId }
+				appliedPresetId={ dateFilters.appliedPresetId }
+				appliedRange={ dateFilters.appliedRange }
+			/>
 			<WidgetDashboard.Policy canPerform={ canPerform }>
 				<WidgetDashboard
 					widgetTypes={ pageWidgetTypes }
@@ -235,7 +252,9 @@ export function stage(): JSX.Element {
 			 * one. The params stay on the URL for the breadcrumb to carry back out.
 			 */ }
 			<ReportScopeProvider offersComparison={ false }>
-				<PostDetail />
+				<PeriodChangeSignalProvider>
+					<PostDetail />
+				</PeriodChangeSignalProvider>
 			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);

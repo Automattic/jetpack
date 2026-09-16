@@ -3,6 +3,7 @@ import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import GridiconStar from 'gridicons/dist/star';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 import BlockNudge from '../block-nudge';
@@ -24,6 +25,7 @@ export const StripeNudge = ( { blockName } ) => {
 	}
 
 	let readMoreUrl;
+	let requirementsLink;
 
 	const isWpcom = isWpcomPlatformSite();
 
@@ -37,6 +39,11 @@ export const StripeNudge = ( { blockName } ) => {
 			readMoreUrl = isWpcom
 				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-donations-block' )
 				: getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' );
+			requirementsLink = (
+				<Link openInNewTab href={ getRedirectUrl( 'jetpack-support-donation-block-stripe-reqs' ) }>
+					{ __( 'Review Stripe’s requirements for accepting donations', 'jetpack' ) }
+				</Link>
+			);
 			break;
 		case 'premium-content':
 			readMoreUrl = isWpcom
@@ -64,7 +71,14 @@ export const StripeNudge = ( { blockName } ) => {
 				/>
 			}
 			href={ stripeConnectUrl }
-			readMoreUrl={ readMoreUrl }
+			links={
+				<>
+					{ requirementsLink }
+					<Link openInNewTab href={ readMoreUrl }>
+						{ __( 'Learn more about the block and fees', 'jetpack' ) }
+					</Link>
+				</>
+			}
 			onClick={ recordTracksEvent }
 			title={ __( 'Connect to Stripe to use this block on your site', 'jetpack' ) }
 			subtitle={ __(

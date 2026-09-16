@@ -476,7 +476,7 @@ class Admin_Menu {
 		 * Filters which Jetpack items appear in the wp-admin sidebar.
 		 *
 		 * Governs the sidebar entry only — a hidden item's page stays reachable by URL, so this
-		 * is not an access control. See the admin-ui README for the states and their semantics.
+		 * is not an access control. States: 'default' follows the item's feature, 'visible' shows it, 'hidden' removes it.
 		 *
 		 * @since $$next-version$$
 		 *

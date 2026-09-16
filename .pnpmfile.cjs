@@ -210,15 +210,6 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dependency
-	if ( pkg.name === '@wordpress/jest-console' ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( 'jest-' ) && ver.startsWith( '^29.' ) ) {
-				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
-			}
-		}
-	}
-
 	// Update localtunnel axios dep to avoid CVE
 	// https://github.com/localtunnel/localtunnel/issues/632
 	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {
@@ -236,28 +227,9 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
-	// https://github.com/jestjs/jest/issues/15236
-	if (
-		( pkg.name === 'babel-jest' || pkg.name === '@jest/transform' ) &&
-		pkg.dependencies[ 'babel-plugin-istanbul' ] === '^7.0.1'
-	) {
-		pkg.dependencies[ 'babel-plugin-istanbul' ] = '^8.0.0';
-	}
-
-	// Outdated dependency.
 	// https://github.com/egoist/rollup-plugin-postcss/issues/469
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
-	}
-
-	// Missing dep or peer dep on @babel/runtime
-	// https://github.com/zillow/react-slider/issues/296
-	if (
-		pkg.name === 'react-slider' &&
-		! pkg.dependencies?.[ '@babel/runtime' ] &&
-		! pkg.peerDependencies?.[ '@babel/runtime' ]
-	) {
-		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
 	// Apparently this package tried to switch from a dep to a peer dep, but screwed it up.

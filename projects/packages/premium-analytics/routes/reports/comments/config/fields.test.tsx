@@ -108,8 +108,8 @@ describe( 'comments fields', () => {
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
-	// This link is built locally in `use-report-records` from the author's email, so it is
-	// document-relative by construction and must not be run through `safeHttpUrl`.
+	// This link is built locally by the data layer from the author's email or user id, so
+	// it is document-relative by construction and must not be run through `safeHttpUrl`.
 	it( 'falls back to the external link for rows without a post id', () => {
 		renderLabelField( {
 			id: 'author-aggie',
