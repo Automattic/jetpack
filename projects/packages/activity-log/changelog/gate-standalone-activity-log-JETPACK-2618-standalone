@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register activity-log as a standalone module, and switch it on by default on sites with no Jetpack plugin.
