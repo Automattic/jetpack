@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useRaisePeriodChange } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM, type DateRange } from '@jetpack-premium-analytics/datetime';
 import { useCallback } from 'react';
 /**
@@ -24,6 +25,7 @@ export type OpenSectionRange = ( section: string, range: Required< DateRange > )
  */
 export function useOpenSectionRange(): OpenSectionRange {
 	const { effective, stage, commit } = useStagedSearch< SectionRangeSearch, string >( {} );
+	const raisePeriodChange = useRaisePeriodChange();
 
 	return useCallback(
 		( section, range ) => {
@@ -34,9 +36,10 @@ export function useOpenSectionRange(): OpenSectionRange {
 				effective,
 			} );
 
+			raisePeriodChange( section, range );
 			stage( { ...patch, section } );
 			commit( { replace: false } );
 		},
-		[ effective, stage, commit ]
+		[ effective, stage, commit, raisePeriodChange ]
 	);
 }
