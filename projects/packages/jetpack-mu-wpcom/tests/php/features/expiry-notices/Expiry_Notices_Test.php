@@ -111,6 +111,18 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( wpcom_expiry_notices_eligible_state(), 'only admins are told' );
 	}
 
+	public function test_the_store_sandbox_holds_the_notices_back_on_simple(): void {
+		$this->set_purchase( 5 );
+		Constants::set_constant( 'IS_WPCOM', true );
+		$GLOBALS['store_sandbox_test_value'] = true;
+		$this->flush_expiry_memos();
+		$this->assertNull( wpcom_expiry_notices_eligible_state(), 'the sandbox store has no renewal lifecycle, so its expiry data is noise' );
+
+		Constants::set_constant( 'IS_WPCOM', false );
+		$this->flush_expiry_memos();
+		$this->assertNotNull( wpcom_expiry_notices_eligible_state(), 'an Atomic site never sees the sandbox' );
+	}
+
 	public function test_registers_the_dismiss_meta_in_admin_but_not_on_the_front_end(): void {
 		set_current_screen( 'front' );
 		wpcom_expiry_notices_register_meta();
