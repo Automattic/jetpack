@@ -175,9 +175,19 @@ jobs:
         run: |
           mkdir artifacts
           [[ -n "$COVERAGE_GROUP" ]] && mkdir coverage
+
+          : > "$QUEUEFILE"
+
+          # Put some known slow things at the start of the queue.
+          echo projects/plugins/jetpack/composer.json >> "$QUEUEFILE"
+          echo projects/packages/premium-analytics/composer.json >> "$QUEUEFILE"
+
+          # Then everything else.
           for P in composer.json projects/*/*/composer.json; do
-            echo "$P"
-          done > "$QUEUEFILE"
+            if ! grep -Fx "$P" "$QUEUEFILE" &>/dev/null; then
+              echo "$P"
+            fi
+          done >> "$QUEUEFILE"
 
       - parallel:
         - &testworker
