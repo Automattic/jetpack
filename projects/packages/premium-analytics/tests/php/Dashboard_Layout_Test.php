@@ -15,6 +15,7 @@ use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
 require_once __DIR__ . '/../../src/dashboard-sections.php';
+require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
