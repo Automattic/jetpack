@@ -4,7 +4,10 @@ import 'jetpack-js-tools/jest/setup-jest-dom';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { MutationObserver, QueryClient } from '@tanstack/react-query';
-import { observeLegacyModulesState } from '../../_inc/overview/lib/modules-state-bridge';
+import {
+	observeLegacyModulesState,
+	ONBOARDING_SAVE_META,
+} from '../../_inc/overview/lib/modules-state-bridge';
 import { ONBOARDING_CHANGE_EVENT } from '../../_inc/runtime-contract';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
@@ -251,7 +254,7 @@ describe( 'Boost dashboard stage', () => {
 			[];
 		const save = () =>
 			new MutationObserver< boolean, Error, boolean >( legacy, {
-				meta: { dataSyncKey: 'getting_started' },
+				meta: ONBOARDING_SAVE_META,
 				mutationFn: () =>
 					new Promise< boolean >( ( resolve, reject ) => saves.push( { resolve, reject } ) ),
 				onMutate: () => legacy.setQueryData( [ 'getting_started' ], false ),

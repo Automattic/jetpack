@@ -3,7 +3,11 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { MutationObserver, QueryClient } from '@tanstack/react-query';
 import { useGettingStarted } from '../../../app/assets/src/js/lib/stores/getting-started';
 import { ONBOARDING_CHANGE_EVENT } from '../../runtime-contract';
-import { observeLegacyModulesState, OVERVIEW_MODULES_CHANGE_EVENT } from './modules-state-bridge';
+import {
+	observeLegacyModulesState,
+	ONBOARDING_SAVE_META,
+	OVERVIEW_MODULES_CHANGE_EVENT,
+} from './modules-state-bridge';
 
 let client: QueryClient;
 let unsubscribe: () => void;
@@ -63,7 +67,7 @@ test( 'holds getting_started while a save is pending and reports the value it se
 	let callsAfterRevert: number;
 	let failSave: ( error: Error ) => void = () => undefined;
 	const save = new MutationObserver< boolean, Error, boolean >( client, {
-		meta: { dataSyncKey: 'getting_started' },
+		meta: ONBOARDING_SAVE_META,
 		mutationFn: () => new Promise< boolean >( ( _, reject ) => ( failSave = reject ) ),
 		onMutate: () => client.setQueryData( [ 'getting_started' ], false ),
 		onError: () => {
@@ -92,7 +96,7 @@ test( 'reports a settled onboarding save while a later modules_state save remain
 	let finishOnboarding: ( value: boolean ) => void = () => undefined;
 	let finishModules: () => void = () => undefined;
 	const onboardingSave = new MutationObserver< boolean, Error, boolean >( client, {
-		meta: { dataSyncKey: 'getting_started' },
+		meta: ONBOARDING_SAVE_META,
 		mutationFn: () => new Promise< boolean >( resolve => ( finishOnboarding = resolve ) ),
 		onMutate: () => client.setQueryData( [ 'getting_started' ], false ),
 		onSuccess: value => {

@@ -5,12 +5,16 @@ export const OVERVIEW_MODULES_CHANGE_EVENT = 'jetpack-boost-overview-modules-cha
 
 export const relayedQueryKeys = [ 'modules_state', 'critical_css_state', 'lcp_state' ];
 
+/** Tag the Getting Started save with this mutation meta so the bridge holds its interim writes. */
+export const ONBOARDING_SAVE_META = { dataSyncKey: 'getting_started' };
+
 // Register in the legacy bundle, whose Data Sync cache is separate from the route bundle's cache.
 export function observeLegacyModulesState( client: QueryClient ) {
 	let onboardingHeld = false;
 	const isOnboardingSaving = () =>
 		client.isMutating( {
-			predicate: mutation => mutation.options.meta?.dataSyncKey === 'getting_started',
+			predicate: mutation =>
+				mutation.options.meta?.dataSyncKey === ONBOARDING_SAVE_META.dataSyncKey,
 		} ) > 0;
 	const emitOnboarding = () => {
 		onboardingHeld = false;
