@@ -5,9 +5,6 @@ import { useWidgetNavigationSearch } from '../../hooks/use-widget-navigation-sea
 import { LeaderboardRow } from '../chart-leaderboard/leaderboard-row';
 import type { ReportOrigin } from '@jetpack-premium-analytics/routing';
 import type { ReactElement } from 'react';
-/**
- * Internal dependencies
- */
 
 export type LeaderboardPostLabelProps = {
 	/**
