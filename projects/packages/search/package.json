@@ -37,6 +37,7 @@
 		"test-scripts": "jest --passWithNoTests",
 		"test-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-instant && NODE_ENV=production BABEL_ENV=production pnpm run build-blocks && size-limit",
 		"test-url-tests": "jest --config=jest.url-tests.config.js --passWithNoTests",
+		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "concurrently 'pnpm:build-instant --watch' 'pnpm:build-customberg --watch' 'pnpm:build-dashboard --watch' 'pnpm:watch:wp-build' 'pnpm:build-inline --watch' 'pnpm:build-blocks --watch' 'pnpm:build-blocks-editor --watch'",
 		"watch:wp-build": "wp-build --watch"
@@ -99,7 +100,9 @@
 		"@testing-library/preact": "3.2.4",
 		"@testing-library/react": "16.3.3",
 		"@testing-library/user-event": "^14.6.1",
+		"@types/jest": "30.0.0",
 		"@types/react": "18.3.31",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.55.0",
 		"@wordpress/build": "0.23.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.55.0",

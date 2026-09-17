@@ -1,16 +1,13 @@
 {
-	// esbuild (wp-build) resolves bare specifiers via this file's `paths`, the same
-	// way webpack's `resolve.modules` and jest's `moduleDirectories` do for the
-	// dashboard's existing `components/*`, `hooks/*` and `store` imports. Scoped to
-	// the wp-build route only — the package has no typecheck script, so nothing
-	// else reads this file.
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	// esbuild (wp-build) resolves the dashboard's bare `components/*`, `hooks/*` and
+	// `store` imports through these paths, as webpack's `resolve.modules` does.
 	"compilerOptions": {
-		"baseUrl": ".",
 		"paths": {
 			"components/*": [ "./src/dashboard/components/*" ],
 			"hooks/*": [ "./src/dashboard/hooks/*" ],
 			"store": [ "./src/dashboard/store" ]
 		}
 	},
-	"include": [ "./routes", "./packages", "./src/dashboard" ]
+	"include": [ "./packages/*/src", "./routes/**/*", "./src/dashboard" ]
 }
