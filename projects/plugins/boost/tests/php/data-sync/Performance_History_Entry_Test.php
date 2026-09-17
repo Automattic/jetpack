@@ -9,6 +9,7 @@ use Brain\Monkey;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use Mockery;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
@@ -121,9 +122,9 @@ class Performance_History_Entry_Test extends TestCase {
 		);
 	}
 
-	private function older_history_entry() {
+	private function older_history_entry( $window_count = 6 ) {
 		$windows = array();
-		for ( $offset = 0; $offset < 6; ++$offset ) {
+		for ( $offset = 0; $offset < $window_count; ++$offset ) {
 			$windows[] = array(
 				'startDate' => 6000 - $offset * 1000,
 				'endDate'   => 6999 - $offset * 1000,
@@ -141,84 +142,200 @@ class Performance_History_Entry_Test extends TestCase {
 		return $entry;
 	}
 
-	public function test_older_windows_preserve_independent_requests_and_cache_empty_history() {
-		$cache = false;
-		Functions\when( 'get_transient' )->alias(
-			function () use ( &$cache ) {
-				return $cache;
+	/**
+	 * Back the Boost transient helper with an in-memory option store the tests can inspect.
+	 *
+	 * @param array $options Option store, by reference.
+	 */
+	private function stub_transient_store( &$options ) {
+		Functions\when( 'get_option' )->alias(
+			function ( $name, $default_value = false ) use ( &$options ) {
+				return array_key_exists( $name, $options ) ? $options[ $name ] : $default_value;
 			}
 		);
-		Functions\expect( 'set_transient' )->once()->with( Mockery::type( 'string' ), Mockery::type( 'array' ), 43200 )->andReturnUsing(
-			function ( $key, $value ) use ( &$cache ) {
-				$cache = $value;
+		Functions\when( 'update_option' )->alias(
+			function ( $name, $value ) use ( &$options ) {
+				$options[ $name ] = $value;
 				return true;
 			}
 		);
-		Functions\when( 'is_wp_error' )->justReturn( false );
-		$ranges  = array();
-		$request = Mockery::mock( 'overload:' . Speed_Score_Graph_History_Request::class );
-		$request->shouldReceive( '__construct' )->andReturnUsing(
-			function ( $start, $end ) use ( &$ranges ) {
-				$ranges[] = array( $start, $end );
+		Functions\when( 'delete_option' )->alias(
+			function ( $name ) use ( &$options ) {
+				unset( $options[ $name ] );
+				return true;
 			}
-		);
-		$request->shouldReceive( 'execute' )->andReturn( array( 'data' => array() ) );
-		$this->assertSame( array(), $this->older_history_entry()->get()['periods'] );
-		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Repeat the lookup to verify cached history avoids upstream requests.
-		$this->assertSame( array(), $this->older_history_entry()->get()['periods'] );
-		$this->assertSame(
-			array( array( 6000, 6999 ), array( 5000, 5999 ), array( 4000, 4999 ), array( 3000, 3999 ), array( 2000, 2999 ), array( 1000, 1999 ) ),
-			$ranges
 		);
 	}
 
-	public function test_older_windows_find_oldest_score_without_a_combined_upstream_range() {
-		Functions\when( 'get_transient' )->justReturn( false );
-		Functions\expect( 'set_transient' )->once();
+	/**
+	 * Record every upstream window request and answer each with the given periods.
+	 *
+	 * @param array $periods_by_start Periods keyed by window start.
+	 * @param array $ranges           Requested ranges, by reference.
+	 */
+	private function stub_upstream_windows( $periods_by_start, &$ranges ) {
 		Functions\when( 'is_wp_error' )->justReturn( false );
 		$start   = null;
-		$period  = array(
-			'timestamp'  => 1500,
+		$request = Mockery::mock( 'overload:' . Speed_Score_Graph_History_Request::class );
+		$request->shouldReceive( '__construct' )->andReturnUsing(
+			function ( $from, $to ) use ( &$ranges, &$start ) {
+				$ranges[] = array( $from, $to );
+				$start    = $from;
+			}
+		);
+		$request->shouldReceive( 'execute' )->andReturnUsing(
+			function () use ( &$start, $periods_by_start ) {
+				return array( 'data' => array( 'periods' => $periods_by_start[ $start ] ?? array() ) );
+			}
+		);
+	}
+
+	private function scored_period( $timestamp ) {
+		return array(
+			'timestamp'  => $timestamp,
 			'dimensions' => array(
 				'mobile_overall_score'  => 80,
 				'desktop_overall_score' => 90,
 			),
 		);
+	}
+
+	public function test_older_windows_preserve_independent_requests_and_cache_each_window() {
+		$options = array();
+		$ranges  = array();
+		$this->stub_transient_store( $options );
+		$this->stub_upstream_windows( array(), $ranges );
+		$this->assertSame( array(), $this->older_history_entry()->get()['periods'] );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Repeat the lookup to verify cached windows avoid upstream requests.
+		$this->assertSame( array(), $this->older_history_entry()->get()['periods'] );
+		$this->assertSame(
+			array( array( 6000, 6999 ), array( 5000, 5999 ), array( 4000, 4999 ), array( 3000, 3999 ), array( 2000, 2999 ), array( 1000, 1999 ) ),
+			$ranges
+		);
+		$this->assertCount( 6, $options );
+	}
+
+	public function test_empty_older_windows_expire_sooner_than_scored_ones() {
+		$options = array();
+		$ranges  = array();
+		$this->stub_transient_store( $options );
+		$this->stub_upstream_windows( array( 5000 => array( $this->scored_period( 5500 ) ) ), $ranges );
+		$this->older_history_entry()->get();
+		$lifetimes = array();
+		foreach ( $options as $option ) {
+			$lifetimes[] = $option['expire'] - time();
+		}
+		sort( $lifetimes );
+		$this->assertEqualsWithDelta( 900, $lifetimes[0], 5 );
+		$this->assertEqualsWithDelta( 43200, $lifetimes[1], 5 );
+	}
+
+	public function test_older_windows_find_oldest_score_without_a_combined_upstream_range() {
+		$options = array();
+		$ranges  = array();
+		$period  = $this->scored_period( 1500 );
+		$this->stub_transient_store( $options );
+		$this->stub_upstream_windows( array( 1000 => array( $period ) ), $ranges );
+		$this->assertSame( array( $period ), $this->older_history_entry()->get()['periods'] );
+		$this->assertSame( array( 1000, 1999 ), end( $ranges ) );
+	}
+
+	public function test_older_window_walk_stops_at_the_first_scored_window() {
+		$options = array();
+		$ranges  = array();
+		$this->stub_transient_store( $options );
+		$this->stub_upstream_windows( array( 6000 => array( $this->scored_period( 6500 ) ) ), $ranges );
+		$this->assertCount( 1, $this->older_history_entry()->get()['periods'] );
+		$this->assertSame( array( array( 6000, 6999 ) ), $ranges );
+	}
+
+	public function test_scores_outside_a_window_do_not_end_the_walk() {
+		$options = array();
+		$ranges  = array();
+		$this->stub_transient_store( $options );
+		$this->stub_upstream_windows( array( 6000 => array( $this->scored_period( 500 ) ) ), $ranges );
+		$this->assertSame( array(), $this->older_history_entry()->get()['periods'] );
+		$this->assertCount( 6, $ranges );
+	}
+
+	public function test_more_windows_than_supported_are_rejected_as_a_runtime_error() {
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'At most 6 older history windows are supported.' );
+		$this->older_history_entry( 7 );
+	}
+
+	/**
+	 * @dataProvider provide_history_free_responses
+	 * @param array $response Upstream response without any history.
+	 */
+	#[DataProvider( 'provide_history_free_responses' )]
+	public function test_older_windows_without_history_data_are_empty_not_failures( $response ) {
+		$options = array();
+		$this->stub_transient_store( $options );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		$request = Mockery::mock( 'overload:' . Speed_Score_Graph_History_Request::class );
+		$request->shouldReceive( 'execute' )->andReturn( $response );
+		$this->assertSame( array(), $this->older_history_entry()->get()['periods'] );
+		$this->assertCount( 6, $options );
+	}
+
+	public static function provide_history_free_responses() {
+		return array(
+			'absent data' => array( array() ),
+			'null data'   => array( array( 'data' => null ) ),
+		);
+	}
+
+	public function test_older_window_errors_are_not_cached_and_keep_finished_windows() {
+		$options = array();
+		$ranges  = array();
+		$this->stub_transient_store( $options );
+		$error = $this->upstream_error();
+		Functions\when( 'is_wp_error' )->alias(
+			function ( $thing ) {
+				return $thing instanceof \Mockery\MockInterface;
+			}
+		);
 		$request = Mockery::mock( 'overload:' . Speed_Score_Graph_History_Request::class );
 		$request->shouldReceive( '__construct' )->andReturnUsing(
-			function ( $from, $to ) use ( &$start ) {
-				$start = 1999 === $to ? $from : null;
+			function ( $from, $to ) use ( &$ranges ) {
+				$ranges[] = array( $from, $to );
 			}
 		);
 		$request->shouldReceive( 'execute' )->andReturnUsing(
-			function () use ( &$start, $period ) {
-				return array( 'data' => array( 'periods' => 1000 === $start ? array( $period ) : array() ) );
+			function () use ( &$ranges, $error ) {
+				return 5000 === end( $ranges )[0] ? $error : array( 'data' => array( 'periods' => array() ) );
 			}
 		);
-		$this->assertSame( array( $period ), $this->older_history_entry()->get()['periods'] );
-	}
-
-	public function test_older_window_errors_are_not_cached_as_empty_history() {
-		Functions\when( 'get_transient' )->justReturn( false );
-		Functions\expect( 'set_transient' )->never();
-		$error = $this->upstream_error();
-		Functions\when( 'is_wp_error' )->justReturn( true );
-		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( true );
-		$request = Mockery::mock( 'overload:' . Speed_Score_Graph_History_Request::class );
-		$request->shouldReceive( 'execute' )->once()->andReturn( $error );
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'History service unavailable' );
-		$this->older_history_entry()->get();
+		try {
+			$this->older_history_entry()->get();
+			$this->fail( 'Expected the upstream error to surface.' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertSame( 'History service unavailable', $e->getMessage() );
+		}
+		$this->assertCount( 1, $options );
+		$ranges = array();
+		try {
+			$this->older_history_entry()->get();
+			$this->fail( 'Expected the upstream error to surface.' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertSame( 'History service unavailable', $e->getMessage() );
+		}
+		$this->assertSame( array( array( 5000, 5999 ) ), $ranges );
 	}
 
 	public function test_malformed_older_history_is_not_cached() {
-		Functions\when( 'get_transient' )->justReturn( false );
-		Functions\expect( 'set_transient' )->never();
+		$options = array();
+		$this->stub_transient_store( $options );
 		Functions\when( 'is_wp_error' )->justReturn( false );
 		$request = Mockery::mock( 'overload:' . Speed_Score_Graph_History_Request::class );
-		$request->shouldReceive( 'execute' )->once()->andReturn( array( 'unexpected' => array() ) );
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'Invalid performance history response.' );
-		$this->older_history_entry()->get();
+		$request->shouldReceive( 'execute' )->once()->andReturn( array( 'data' => 'nope' ) );
+		try {
+			$this->older_history_entry()->get();
+			$this->fail( 'Expected the malformed response to surface.' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertSame( 'Invalid performance history response.', $e->getMessage() );
+		}
+		$this->assertSame( array(), $options );
 	}
 }

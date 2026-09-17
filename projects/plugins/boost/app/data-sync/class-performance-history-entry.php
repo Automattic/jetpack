@@ -1,6 +1,7 @@
 <?php
 namespace Automattic\Jetpack_Boost\Data_Sync;
 
+use Automattic\Jetpack\Boost_Core\Lib\Transient;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Graph_History_Request;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
@@ -8,6 +9,18 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 use Automattic\Jetpack_Boost\Admin\Admin;
 
 class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_Set {
+	/**
+	 * How many older windows one request may ask about. Kept in step with
+	 * olderWindowLimit in _inc/overview/lib/use-history-range.ts.
+	 */
+	private const OLDER_WINDOW_LIMIT = 6;
+
+	/** Scores already recorded cannot disappear, so a window that had one caches for long. */
+	private const OLDER_WINDOW_TTL = 12 * 60 * 60;
+
+	/** An empty window can fill up at any time, so it is rechecked soon. */
+	private const EMPTY_OLDER_WINDOW_TTL = 15 * 60;
+
 	private $start_date;
 	private $end_date;
 	private $surface_errors = false;
@@ -59,56 +72,73 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	}
 
 	private function get_older_history() {
-		$cache_key = 'jetpack_boost_older_history_' . md5( wp_json_encode( $this->older_windows, JSON_UNESCAPED_SLASHES ) );
-		$cached    = get_transient( $cache_key );
-		if ( false !== $cached ) {
-			return $cached;
-		}
-
 		$history = array(
 			'startDate'   => $this->start_date,
 			'endDate'     => $this->end_date,
 			'periods'     => array(),
 			'annotations' => array(),
 		);
+
 		foreach ( $this->older_windows as $window ) {
-			$request = new Speed_Score_Graph_History_Request( $window['startDate'], $window['endDate'], array() );
-			$result  = $request->execute();
-			if ( is_wp_error( $result ) ) {
-				throw new \RuntimeException( $result->get_error_message() );
-			}
-			if ( ! isset( $result['data'] ) || ! is_array( $result['data'] ) || ( array() !== $result['data'] && ! isset( $result['data']['periods'] ) ) ) {
-				throw new \RuntimeException( 'Invalid performance history response.' );
-			}
-			$periods = $result['data']['periods'] ?? array();
-			if ( ! is_array( $periods ) ) {
-				throw new \RuntimeException( 'Invalid performance history periods.' );
-			}
-			foreach ( $periods as $period ) {
-				if ( ! isset( $period['timestamp'] ) || ! is_numeric( $period['timestamp'] ) ) {
-					throw new \RuntimeException( 'Invalid performance history timestamp.' );
-				}
-				if ( $period['timestamp'] >= $window['startDate'] && $period['timestamp'] <= $window['endDate'] ) {
-					$history['periods'][] = $period;
-				}
-			}
-			if ( $history['periods'] ) {
+			$periods = $this->get_older_window_periods( $window );
+			if ( $periods ) {
+				$history['periods'] = $periods;
 				break;
 			}
 		}
 
-		// Cache only this exact walk; capped responses cannot establish a global earliest score.
-		set_transient( $cache_key, $history, 12 * 60 * 60 );
 		return $history;
 	}
 
+	private function get_older_window_periods( $window ) {
+		$cache_key = 'older_history_' . md5( wp_json_encode( $window, JSON_UNESCAPED_SLASHES ) );
+		$cached    = Transient::get( $cache_key );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
+		$request = new Speed_Score_Graph_History_Request( $window['startDate'], $window['endDate'], array() );
+		$result  = $request->execute();
+		if ( is_wp_error( $result ) ) {
+			throw new \RuntimeException( $result->get_error_message() );
+		}
+
+		// A response without history reads as an empty window, matching the single-window path above.
+		$data = $result['data'] ?? array();
+		if ( null === $data ) {
+			$data = array();
+		}
+		if ( ! is_array( $data ) || ( array() !== $data && ! isset( $data['periods'] ) ) ) {
+			throw new \RuntimeException( 'Invalid performance history response.' );
+		}
+		$periods = $data['periods'] ?? array();
+		if ( ! is_array( $periods ) ) {
+			throw new \RuntimeException( 'Invalid performance history periods.' );
+		}
+
+		$found = array();
+		foreach ( $periods as $period ) {
+			if ( ! isset( $period['timestamp'] ) || ! is_numeric( $period['timestamp'] ) ) {
+				throw new \RuntimeException( 'Invalid performance history timestamp.' );
+			}
+			if ( $period['timestamp'] >= $window['startDate'] && $period['timestamp'] <= $window['endDate'] ) {
+				$found[] = $period;
+			}
+		}
+
+		Transient::set( $cache_key, $found, $found ? self::OLDER_WINDOW_TTL : self::EMPTY_OLDER_WINDOW_TTL );
+		return $found;
+	}
+
 	public function set( $value ) {
+		$older_windows = $value['olderWindows'] ?? array();
+		if ( count( $older_windows ) > self::OLDER_WINDOW_LIMIT ) {
+			throw new \RuntimeException( 'At most ' . self::OLDER_WINDOW_LIMIT . ' older history windows are supported.' );
+		}
+
 		$this->start_date     = $value['startDate'];
 		$this->end_date       = $value['endDate'];
 		$this->surface_errors = true === ( $value['surfaceErrors'] ?? false );
-		$this->older_windows  = $value['olderWindows'] ?? array();
-		if ( count( $this->older_windows ) > 6 ) {
-			throw new \InvalidArgumentException( 'At most six older history windows are supported.' );
-		}
+		$this->older_windows  = $older_windows;
 	}
 }

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Performance history: Cache older history checks on the server and reduce dashboard requests while preserving older scores.
+Performance history: Load the Overview faster on sites with little or no score history.
