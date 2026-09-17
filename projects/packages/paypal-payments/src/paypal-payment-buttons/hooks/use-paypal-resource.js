@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
 import { getResourceAttributeUpdates, isSameValue } from '../utils/resource-sync';
 import { isNotFound, recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
+import { toast } from '../utils/toast';
 import { getUserFriendlyError } from '../utils/validation';
 
 /**
@@ -25,7 +26,7 @@ import { getUserFriendlyError } from '../utils/validation';
  * @param {boolean}  props.isConnected          - Whether the site is connected to PayPal.
  * @param {string}   props.clientId             - The block's client id.
  * @param {Function} props.setShowDeleteConfirm - Setter for the delete confirmation dialog.
- * @return {object} Resource state, its setters, and the delete handlers.
+ * @return {object} Resource state and the delete handlers.
  */
 export function usePayPalResource( {
 	attributes,
@@ -37,8 +38,6 @@ export function usePayPalResource( {
 	const { isApiManaged, resourceId } = attributes;
 
 	const [ isBusy, setIsBusy ] = useState( false );
-	const [ error, setError ] = useState( null );
-	const [ successMessage, setSuccessMessage ] = useState( null );
 	const [ linkDeleted, setLinkDeleted ] = useState( false );
 	const [ paymentChanged, setPaymentChanged ] = useState( false );
 
@@ -126,34 +125,30 @@ export function usePayPalResource( {
 	 */
 	const executeDeleteButton = useCallback( () => {
 		setShowDeleteConfirm( false );
-		setError( null );
 		setIsBusy( true );
+
+		const clearPayment = message => {
+			setAttributes( {
+				isApiManaged: false,
+				resourceId: undefined,
+				paymentLink: undefined,
+			} );
+			toast( 'success', message );
+		};
 
 		apiFetch( {
 			path: `${ API_BASE }/buttons/${ resourceId }`,
 			method: 'DELETE',
 		} )
-			.then( () => {
-				setAttributes( {
-					isApiManaged: false,
-					resourceId: undefined,
-					paymentLink: undefined,
-				} );
-				setSuccessMessage( __( 'Payment link deleted.', 'jetpack-paypal-payments' ) );
-			} )
+			.then( () => clearPayment( __( 'Payment link deleted.', 'jetpack-paypal-payments' ) ) )
 			.catch( err => {
-				// If already deleted (404), clear state anyway.
+				// Already deleted on PayPal's side (404), so clear the block anyway.
 				if ( isNotFound( err ) ) {
-					setAttributes( {
-						isApiManaged: false,
-						resourceId: undefined,
-						paymentLink: undefined,
-					} );
-					setSuccessMessage(
+					clearPayment(
 						__( 'The payment link was already removed from PayPal.', 'jetpack-paypal-payments' )
 					);
 				} else {
-					setError( getUserFriendlyError( err ) );
+					toast( 'error', getUserFriendlyError( err ) );
 				}
 			} )
 			.finally( () => {
@@ -163,10 +158,6 @@ export function usePayPalResource( {
 
 	return {
 		isBusy,
-		error,
-		setError,
-		successMessage,
-		setSuccessMessage,
 		linkDeleted,
 		paymentChanged,
 		handleDeleteButton,
