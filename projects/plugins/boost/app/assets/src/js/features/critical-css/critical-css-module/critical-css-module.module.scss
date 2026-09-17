@@ -21,7 +21,7 @@
 		left: -12px;
 
 		// Only an inline popover is a descendant here, so this is the legacy width.
-		:global(.icon-tooltip-container .components-popover__content) {
+		:global(.icon-tooltip-container.components-popover .components-popover__content) {
 			width: 70vw;
 		}
 	}
