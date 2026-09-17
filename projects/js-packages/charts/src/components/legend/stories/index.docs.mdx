@@ -234,6 +234,8 @@ Series visibility can also be controlled outside the legend. This example uses `
 - **Comparison item** (`legend.comparisonItem`): Off by default. Turn it on and, when a `type: 'comparison'` series has no item of its own (typically because `collapseGroups` folded it into its primary), a static "Comparison period" item is appended, drawn with the comparison series' line or bar styling. It cannot be toggled and never dims. Pass a string to replace the label
 - **Accessibility**: Full ARIA support with `role="button"`, `aria-pressed`, and descriptive `aria-label`
 
+<Canvas of={ LegendStories.ComparisonItem } />
+
 ### Requirements
 
 Clickable legend toggle controls require:

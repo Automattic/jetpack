@@ -9,6 +9,7 @@ import {
 	useChartRegistration,
 	useGlobalChartsContext,
 } from '../../../providers';
+import { useChartLegendItems } from '../hooks/use-chart-legend-items';
 import { Legend } from '../legend';
 import { BaseLegend } from '../private/base-legend';
 import type { ChartType } from '../../../types';
@@ -47,6 +48,26 @@ describe( 'BaseLegend', () => {
 		const markers = screen.getAllByTestId( 'legend-marker' );
 		expect( markers[ 0 ] ).toHaveAttribute( 'fill', '#ff0000' );
 		expect( markers[ 1 ] ).toHaveAttribute( 'fill', '#00ff00' );
+	} );
+
+	test( 'preserves each duplicate label, color, and following item', () => {
+		render(
+			<BaseLegend
+				items={ [
+					{ label: 'Views', color: '#ff0000' },
+					{ label: 'Views', color: '#00ff00', interactive: false },
+					{ label: 'Visitors', color: '#0000ff' },
+				] }
+				shape={ TestShape }
+				labelFormat={ label => `Metric: ${ label }` }
+			/>
+		);
+		expect( screen.getAllByText( 'Metric: Views' ) ).toHaveLength( 2 );
+		expect( screen.getByText( 'Metric: Visitors' ) ).toBeInTheDocument();
+		const markers = screen.getAllByTestId( 'legend-marker' );
+		expect( markers[ 0 ] ).toHaveAttribute( 'fill', '#ff0000' );
+		expect( markers[ 1 ] ).toHaveAttribute( 'fill', '#00ff00' );
+		expect( markers[ 2 ] ).toHaveAttribute( 'fill', '#0000ff' );
 	} );
 
 	test( 'handles empty items array', () => {
@@ -779,6 +800,44 @@ describe( 'BaseLegend', () => {
 			expect( screen.getByRole( 'button' ) ).toHaveAttribute( 'aria-pressed', 'true' );
 			expect( staticItem ).not.toHaveClass( 'legend-item--inactive' );
 		} );
+
+		it.each( [ true, 'Views' ] )(
+			'keeps a comparison item distinct when its label collides (%s)',
+			async comparisonItem => {
+				const user = userEvent.setup();
+				const metricLabel =
+					typeof comparisonItem === 'string' ? comparisonItem : 'Comparison period';
+				const Example = () => {
+					const items = useChartLegendItems(
+						[
+							{ label: metricLabel, group: 'metric', data: [ { label: 'Mon', value: 10 } ] },
+							{
+								label: 'Previous metric',
+								group: 'metric',
+								options: { type: 'comparison' },
+								data: [ { label: 'Mon', value: 5 } ],
+							},
+						],
+						{ collapseGroups: true, comparisonItem },
+						'line'
+					);
+					return <BaseLegend items={ items } interactive chartId="test-chart" />;
+				};
+				render(
+					<GlobalChartsProvider>
+						<Example />
+					</GlobalChartsProvider>
+				);
+				expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+				const staticItem = screen.getAllByTestId( 'legend-item' )[ 1 ];
+				expect( staticItem ).not.toHaveAttribute( 'role' );
+				await user.click( screen.getByRole( 'button' ) );
+				expect( screen.getByRole( 'button' ) ).toHaveAttribute( 'aria-pressed', 'false' );
+				expect( staticItem ).not.toHaveClass( 'legend-item--inactive' );
+				await user.click( staticItem );
+				expect( screen.getByRole( 'button' ) ).toHaveAttribute( 'aria-pressed', 'false' );
+			}
+		);
 
 		it( 'falls back to the item label when seriesLabels is an empty array', async () => {
 			const user = userEvent.setup();
