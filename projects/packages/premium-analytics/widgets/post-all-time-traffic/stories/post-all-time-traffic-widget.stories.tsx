@@ -201,8 +201,7 @@ export const Empty: Story = {
 };
 
 interface PostAllTimeTrafficDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PostAllTimeTrafficStoryControls {}
+	extends WidgetDashboardWithWidgetControls, PostAllTimeTrafficStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders

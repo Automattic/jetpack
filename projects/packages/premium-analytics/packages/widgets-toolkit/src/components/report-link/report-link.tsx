@@ -47,7 +47,7 @@ export type ReportLinkProps = {
  * @return The rendered report link.
  */
 export function ReportLink( { report, section, label, ariaLabel, className }: ReportLinkProps ) {
-	const search = useWidgetNavigationSearch( section );
+	const search = useWidgetNavigationSearch( { section } );
 
 	return (
 		<Link

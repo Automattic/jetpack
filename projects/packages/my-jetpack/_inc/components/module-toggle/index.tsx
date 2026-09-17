@@ -57,7 +57,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 								/* translators: %s is the module name */
 								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
 								$module.name
-						  );
+							);
 				createSuccessNotice( message );
 			} else {
 				const message =
@@ -66,12 +66,12 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 								/* translators: %s is the module name */
 								__( 'Failed to activate %s.', 'jetpack-my-jetpack' ),
 								$module.name
-						  )
+							)
 						: sprintf(
 								/* translators: %s is the module name */
 								__( 'Failed to deactivate %s.', 'jetpack-my-jetpack' ),
 								$module.name
-						  );
+							);
 
 				createErrorNotice( message );
 			}
@@ -105,7 +105,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 								/* translators: %s is the module name */
 								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
 								$module.name
-						  )
+							)
 				);
 				reloadPage();
 				return;

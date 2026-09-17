@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Charts: Fix unreadable axis labels in forced-colors mode.

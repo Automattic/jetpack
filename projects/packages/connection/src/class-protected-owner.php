@@ -16,7 +16,7 @@ use Jetpack_Options;
  * expect, so ownership stops following whoever connected first. Identity is always matched on
  * `wpcom_user_id` — `local_user_id` is a re-pointable cache, never the match key.
  *
- * @since $$next-version$$
+ * @since 9.3.0
  */
 class Protected_Owner {
 
@@ -25,7 +25,7 @@ class Protected_Owner {
 	/**
 	 * Get the anchor.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return array|null The anchor, or null when none is usable.
 	 */
@@ -42,7 +42,7 @@ class Protected_Owner {
 	/**
 	 * Record a confirmed protected owner and lock the anchor.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param int    $wpcom_user_id The owner's WordPress.com user ID, as confirmed by WordPress.com.
 	 * @param int    $local_user_id The owner's local WordPress user ID. Required here, though the
@@ -88,7 +88,7 @@ class Protected_Owner {
 	 * Leaves `master_user` alone: clearing the lock does not change who the owner is.
 	 *
 	 * @internal Recovery and support flows only. Consumers must not call this.
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return bool Whether the anchor was deleted.
 	 */
@@ -102,7 +102,7 @@ class Protected_Owner {
 	 * An unlocked anchor names an owner without preventing ownership moving, so it protects
 	 * nobody and callers gating on protection must not see it.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return array|null The locked anchor, or null when there is none.
 	 */
@@ -118,7 +118,7 @@ class Protected_Owner {
 	 * Deliberately independent of whether the current owner matches it: a mismatch is when
 	 * ownership most needs to stay locked.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return bool
 	 */

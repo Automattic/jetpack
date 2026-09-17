@@ -3975,8 +3975,8 @@ class Contact_Form_Plugin {
 	 * Redirect users from the edit-feedback and edit-jetpack_form screens to the Jetpack Forms admin page.
 	 *
 	 * This method is hooked to 'current_screen' and redirects:
-	 * - edit-jetpack_form: to #/forms (legacy) or &p=/forms (wp-build)
-	 * - edit-feedback: to #/responses?status=inbox (legacy) or &p=/responses/inbox (wp-build)
+	 * - edit-jetpack_form: to &p=/forms
+	 * - edit-feedback: to &p=/responses/inbox
 	 *
 	 * @since 6.0.0
 	 */

@@ -66,11 +66,11 @@ const SettingsForm = () => {
 								? __(
 										'This follows your site’s Privacy setting. To change who can view your videos, update your site’s visibility in Settings → General.',
 										'jetpack-videopress-pkg'
-								  )
+									)
 								: __(
 										"Private videos won't play for signed-out visitors.",
 										'jetpack-videopress-pkg'
-								  )
+									)
 						}
 						checked={ privateForSite }
 						disabled={ disabled || privateForSiteServerControlled }

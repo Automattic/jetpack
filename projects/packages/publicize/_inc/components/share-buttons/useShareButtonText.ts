@@ -32,7 +32,7 @@ export function useShareButtonText() {
 	// the raw `shareMessage` template, which would leak `{title}`/`{url}`/etc.
 	// tokens into the compose window. With templates off, behaviour is unchanged.
 	const message = templatesEnabled
-		? manual.message ?? titleFallback
+		? ( manual.message ?? titleFallback )
 		: shareMessage || titleFallback;
 
 	return useCallback(

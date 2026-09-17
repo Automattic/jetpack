@@ -26,7 +26,9 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
 
 	const [ bskyHandle, setBskyHandle ] = useState(
-		reconnectingAccount?.service_name === 'bluesky' ? reconnectingAccount.external_handle ?? '' : ''
+		reconnectingAccount?.service_name === 'bluesky'
+			? ( reconnectingAccount.external_handle ?? '' )
+			: ''
 	);
 
 	const validateBskyHandle = useCallback( ( value: string ) => {
