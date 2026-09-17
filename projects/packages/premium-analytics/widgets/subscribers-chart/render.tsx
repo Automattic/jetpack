@@ -1,15 +1,14 @@
 /**
  * External dependencies
  */
+import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
 import {
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	defaultPeriodForInterval,
 	type MetricTab,
-	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { customer } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
@@ -17,6 +16,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { DEFAULT_REPORT_PARAMS } from './default-report-params';
+import { SUBSCRIBERS_GRAIN } from './grain';
 import styles from './style.module.css';
 import useSubscribersChart, {
 	type SubscribersChartPoint,
@@ -32,9 +33,7 @@ import {
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
-type SubscribersChartRenderAttributes = SubscribersChartAttributes &
-	Partial< ReportParamsFieldAttributes >;
-type SubscribersChartWidgetProps = WidgetRenderProps< SubscribersChartRenderAttributes > & {
+type SubscribersChartWidgetProps = WidgetRenderProps< SubscribersChartAttributes > & {
 	/**
 	 * Host callback to surface a widget error in the dashboard frame.
 	 */
@@ -45,14 +44,6 @@ const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
 };
-
-// Mirrors `getStatsPeriodFromInterval` + `toSubscribersUnit` in the data layer,
-// narrowed to the dropdown's options.
-const SUBSCRIBERS_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly SubscribersPeriod[];
 
 /**
  * The latest value of a metric in a window — each point is the cumulative count
@@ -109,17 +100,14 @@ type SubscribersChartInnerProps = {
 };
 
 /**
- * The bucket size follows the dashboard's chart interval control, clamped to
- * what this chart supports. The "Chart type" control is the `chartType`
- * attribute (`relevance: 'high'`), rendered by the widget host. Which metric is
- * plotted is the chart's own tab selection.
+ * The bucket size follows the window the widget's own date control saved. The
+ * "Chart type" control is the `chartType` attribute (`relevance: 'high'`),
+ * rendered by the widget host. Which metric is plotted is the chart's own tab
+ * selection.
  */
 function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const period: SubscribersPeriod = defaultPeriodForInterval(
-		reportParams.interval,
-		SUBSCRIBERS_PERIODS
-	);
+	const period: SubscribersPeriod = chartInterval( reportParams, SUBSCRIBERS_GRAIN.periods );
 
 	const state = useSubscribersChart( reportParams, period );
 	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
@@ -165,9 +153,19 @@ export default function SubscribersChart( {
 	attributes = {},
 	setError,
 }: SubscribersChartWidgetProps ) {
+	// Unsaved instances must not fall back to the section's URL date range.
+	const reportParams = attributes.reportParams ?? DEFAULT_REPORT_PARAMS;
+
 	return (
-		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<SubscribersChartInner chartType={ attributes.chartType } />
-		</WidgetRoot>
+		// Must wrap WidgetRoot: it strips comparison params against this scope.
+		<ReportScopeProvider offersComparison={ false }>
+			<WidgetRoot
+				attributes={ { ...attributes, reportParams } }
+				setError={ setError }
+				options={ { from: '/' } }
+			>
+				<SubscribersChartInner chartType={ attributes.chartType } />
+			</WidgetRoot>
+		</ReportScopeProvider>
 	);
 }
