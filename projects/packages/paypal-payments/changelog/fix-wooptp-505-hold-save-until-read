@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Stop a save wiping a payment link's settings when it goes out before the block has read the link back from PayPal.
+Stop a save overwriting payment link settings before the block has loaded them, and keep a value edited while the link is still loading.

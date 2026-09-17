@@ -10,7 +10,7 @@ import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
-import { getResourceAttributeUpdates } from '../utils/resource-sync';
+import { getResourceAttributeUpdates, isSameValue } from '../utils/resource-sync';
 import { isNotFound, recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
 import { getUserFriendlyError } from '../utils/validation';
 
@@ -63,6 +63,7 @@ export function usePayPalResource( {
 		}
 
 		let cancelled = false;
+		const atRequest = latestAttributes.current;
 
 		apiFetch( { path: `${ API_BASE }/buttons/${ resourceId }` } )
 			.then( response => {
@@ -71,9 +72,12 @@ export function usePayPalResource( {
 				}
 				// The block now has PayPal's values, so the save can write this payment.
 				recordPaymentRead( clientId, resourceId );
-				const updates = getResourceAttributeUpdates(
-					latestAttributes.current,
-					response.attributes
+				// Take PayPal's value only where the attribute still matches what the block had
+				// when the request went out; anything else is the merchant's own edit.
+				const updates = Object.fromEntries(
+					Object.entries( getResourceAttributeUpdates( atRequest, response.attributes ) ).filter(
+						( [ key ] ) => isSameValue( key, latestAttributes.current[ key ], atRequest[ key ] )
+					)
 				);
 				if ( ! Object.keys( updates ).length ) {
 					return;

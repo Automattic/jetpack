@@ -2713,6 +2713,121 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( mockMarkNotPersistent ).toHaveBeenCalledTimes( 1 );
 		} );
 
+		/**
+		 * Answer the connection check as connected and leave the payment read for the test to settle.
+		 *
+		 * @return {Function} Settles the read with the given response.
+		 */
+		function deferResource() {
+			let settle;
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath ) {
+					return new Promise( resolve => {
+						settle = resolve;
+					} );
+				}
+
+				return Promise.resolve( {} );
+			} );
+
+			return response => act( async () => settle( response ) );
+		}
+
+		it( 'keeps a price typed while the read was in flight, and still takes PayPal’s other fields', async () => {
+			const settleRead = deferResource();
+
+			const { rerender } = render(
+				<Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" />
+			);
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			rerender(
+				<Edit
+					attributes={ { ...attributes, price: '1.50' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await settleRead( {
+				id: 'PLB-SHARED1',
+				attributes: { ...attributes, price: '7.55', productName: 'duplicate' },
+			} );
+
+			// Just the name; the merchant keeps the price they typed.
+			expect( setAttributes ).toHaveBeenCalledWith( { productName: 'duplicate' } );
+		} );
+
+		// A re-render rebuilds the variants object, so the comparison has to be by value.
+		it( 'takes PayPal’s variants when a re-render rebuilt the block’s own copy unchanged', async () => {
+			const settleRead = deferResource();
+			const empty = { dimensions: [] };
+			const withEmpty = { ...attributes, variantsEnabled: true, variants: empty };
+
+			const { rerender } = render(
+				<Edit attributes={ withEmpty } setAttributes={ setAttributes } clientId="a" />
+			);
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			// Same contents, new object — what a re-render produces.
+			rerender(
+				<Edit
+					attributes={ { ...withEmpty, variants: { dimensions: [] } } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			const stored = {
+				dimensions: [
+					{
+						name: 'Size',
+						primary: true,
+						options: [ { label: 'S', unit_amount: { currency_code: 'USD', value: '9.99' } } ],
+					},
+				],
+			};
+			await settleRead( { id: 'PLB-SHARED1', attributes: { ...withEmpty, variants: stored } } );
+
+			// normalizeResourceVariants() adds a _key per row, so check fields rather than the whole object.
+			const [ [ applied ] ] = setAttributes.mock.calls;
+			expect( applied.variants.dimensions[ 0 ].name ).toBe( 'Size' );
+			expect( applied.variants.dimensions[ 0 ].options[ 0 ].unit_amount.value ).toBe( '9.99' );
+		} );
+
+		it( 'keeps customer notes edited while the read was in flight', async () => {
+			const settleRead = deferResource();
+			const withNotes = { ...attributes, customerNotes: [ { label: 'Gift', required: false } ] };
+
+			const { rerender } = render(
+				<Edit attributes={ withNotes } setAttributes={ setAttributes } clientId="a" />
+			);
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			rerender(
+				<Edit
+					attributes={ { ...withNotes, customerNotes: [ { label: 'Delivery', required: true } ] } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await settleRead( {
+				id: 'PLB-SHARED1',
+				attributes: { ...withNotes, customerNotes: [ { label: 'Stored', required: false } ] },
+			} );
+
+			expect( setAttributes ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { customerNotes: [ { label: 'Stored', required: false } ] } )
+			);
+		} );
+
 		it( 'leaves a block alone when it already matches the payment', async () => {
 			mockResource( { ...attributes } );
 
@@ -2896,7 +3011,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					? Promise.resolve( {
 							id: 'PLB-NEW1',
 							payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
-					  } )
+						} )
 					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
 			);
 

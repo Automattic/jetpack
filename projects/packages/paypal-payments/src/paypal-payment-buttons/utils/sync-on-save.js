@@ -167,7 +167,7 @@ async function syncBlock(
 				? __(
 						'Its current settings have not loaded yet. Reload the post and try again.',
 						'jetpack-paypal-payments'
-				  )
+					)
 				: __( 'Open this block in the visual editor and save again.', 'jetpack-paypal-payments' )
 		);
 		return false;
