@@ -212,7 +212,6 @@ export async function resetDashboardModernization() {
 
 /**
  * Configure the targeted dashboard message fixture.
- *
  * @param enabled - Whether to inject the message.
  */
 export async function setDashboardJitm( enabled: boolean ) {
