@@ -16,6 +16,11 @@ const InterstitialModalCTA = ( {
 	identifier,
 	customModalTrigger,
 }: InterstitialModalCTAProps ) => {
+	// My Jetpack registers no REST routes on offline sites, and the modal fetches its products on mount.
+	if ( ! Jetpack_Boost.site.online ) {
+		return null;
+	}
+
 	const learnMoreUrl = getRedirectUrl( 'jetpack-boost-interstitial-modal-learn-more' );
 
 	return (

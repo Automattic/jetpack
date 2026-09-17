@@ -1,0 +1,43 @@
+/* eslint-disable jest-dom/prefer-in-document */
+import apiFetch from '@wordpress/api-fetch';
+import { render, screen } from '@testing-library/react';
+import InterstitialModalCTA from './interstitial-modal-cta';
+
+jest.mock( '@wordpress/api-fetch', () => jest.fn( () => new Promise( () => {} ) ) );
+jest.mock(
+	'@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp',
+	() => ''
+);
+jest.mock( '$lib/stores/pricing', () => ( { usePricing: () => null } ) );
+jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
+
+const boostGlobal = { site: { online: true } };
+
+describe( 'InterstitialModalCTA', () => {
+	beforeEach( () => {
+		jest.mocked( apiFetch ).mockClear();
+		Object.assign( globalThis, {
+			Jetpack_Boost: boostGlobal,
+			myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
+			JP_CONNECTION_INITIAL_STATE: {},
+		} );
+	} );
+
+	it( 'requests My Jetpack products and shows the upgrade prompt on a public site', () => {
+		boostGlobal.site.online = true;
+		render( <InterstitialModalCTA identifier="cornerstone-10-pages" description="Upgrade" /> );
+
+		expect( screen.getByRole( 'button', { name: /Upgrade now/ } ) ).toBeTruthy();
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: 'my-jetpack/v1/site/products' } )
+		);
+	} );
+
+	it( 'makes no My Jetpack request on an offline site', () => {
+		boostGlobal.site.online = false;
+		render( <InterstitialModalCTA identifier="cornerstone-10-pages" description="Upgrade" /> );
+
+		expect( screen.queryByRole( 'button' ) ).toBeNull();
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+} );
