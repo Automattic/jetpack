@@ -1,6 +1,7 @@
 @use "@automattic/jetpack-base-styles/root-variables";
 @use "@wordpress/base-styles/variables" as wpvariables;
 @use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
+@use "@wordpress/base-styles/mixins" as wpmixins;
 
 .jetpack-boost-overview {
 	--jetpack-boost-overview-chart-desktop: var(--wpds-color-foreground-interactive-brand);
@@ -15,6 +16,11 @@
 	max-inline-size: var(--wpds-dimension-surface-width-xl);
 	margin-inline: auto;
 	min-inline-size: 0;
+}
+
+.jetpack-boost-overview__fallback:focus-visible {
+
+	@include wpmixins.outset-ring__focus();
 }
 
 .jetpack-boost-overview__scores-card {

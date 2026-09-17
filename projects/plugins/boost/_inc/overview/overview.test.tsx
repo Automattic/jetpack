@@ -201,6 +201,63 @@ test.each( [
 	}
 } );
 
+test( 'moves focus from Run speed test to the error fallback when a render failure removes it', async () => {
+	const { client, rerender } = renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	const action = screen.getByRole( 'button', { name: 'Run speed test' } );
+	act( () => action.focus() );
+	fireEvent.click( action );
+	await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 ) );
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveFocus();
+	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
+		throw new Error( 'Score rendering failed' );
+	} );
+	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	try {
+		rerender(
+			<QueryClientProvider client={ client }>
+				<OverviewWithHeader />
+			</QueryClientProvider>
+		);
+		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
+		const fallback = screen.getByText( 'Score rendering failed' );
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( fallback.closest( '[tabindex="-1"]' ) ).toHaveFocus();
+	} finally {
+		scoreHook.mockRestore();
+		consoleError.mockRestore();
+		client.clear();
+	}
+} );
+
+test( 'leaves focus alone when a render failure removes Run speed test without focus', async () => {
+	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const dashboard = () => (
+		<QueryClientProvider client={ client }>
+			<button>Overview</button>
+			<OverviewWithHeader />
+		</QueryClientProvider>
+	);
+	const view = render( dashboard() );
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	const tab = screen.getByRole( 'button', { name: 'Overview' } );
+	act( () => tab.focus() );
+	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
+		throw new Error( 'Score rendering failed' );
+	} );
+	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	try {
+		view.rerender( dashboard() );
+		expect( screen.queryByRole( 'button', { name: 'Run speed test' } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Score rendering failed' ) ).toBeInTheDocument();
+		expect( tab ).toHaveFocus();
+	} finally {
+		scoreHook.mockRestore();
+		consoleError.mockRestore();
+		client.clear();
+	}
+} );
+
 test( 'loads online scores and regenerates them with refresh tracking and history invalidation', async () => {
 	const { client } = renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
@@ -440,7 +497,11 @@ test( 'tracks score errors and offers a successful retry', async () => {
 		Jetpack_Boost.site.url,
 		wpApiSettings.nonce
 	);
-	expect( recordBoostEvent ).not.toHaveBeenCalledWith( 'speed_score_refresh_clicked', {} );
+	expect(
+		jest
+			.mocked( recordBoostEvent )
+			.mock.calls.filter( ( [ event ] ) => event.includes( 'refresh' ) )
+	).toEqual( [ [ 'speed_score_refresh_clicked', {} ] ] );
 	expect( screen.queryByText( 'Score service unavailable' ) ).not.toBeInTheDocument();
 } );
 

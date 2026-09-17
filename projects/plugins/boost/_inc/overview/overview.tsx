@@ -2,7 +2,7 @@ import { getScoreMovementPercentage } from '@automattic/jetpack-boost-score-api'
 import { useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
@@ -25,10 +25,15 @@ type Props = {
 };
 
 export default function Overview( props: Props ) {
+	const fallbackRef = useRef< HTMLDivElement >( null );
+	const focusFallback = useCallback( () => fallbackRef.current?.focus(), [] );
 	return (
 		<ErrorBoundary
 			fallback={ error => (
 				<Notice.Root
+					ref={ fallbackRef }
+					className="jetpack-boost-overview__fallback"
+					tabIndex={ -1 }
 					intent="error"
 					spokenMessage={
 						props.isVisible !== false
@@ -43,12 +48,16 @@ export default function Overview( props: Props ) {
 				</Notice.Root>
 			) }
 		>
-			<OverviewContent { ...props } />
+			<OverviewContent { ...props } focusFallback={ focusFallback } />
 		</ErrorBoundary>
 	);
 }
 
-function OverviewContent( { isVisible = true, onHeaderActionChange }: Props ) {
+function OverviewContent( {
+	isVisible = true,
+	onHeaderActionChange,
+	focusFallback,
+}: Props & { focusFallback: () => void } ) {
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
@@ -88,13 +97,29 @@ function OverviewContent( { isVisible = true, onHeaderActionChange }: Props ) {
 		if ( ! isVisible || ! online ) {
 			return;
 		}
+		let action: HTMLButtonElement | null = null;
 		onHeaderActionChange(
-			<Button variant="solid" size="compact" disabled={ isLoading } onClick={ onRefresh }>
+			<Button
+				ref={ node => {
+					action = node;
+				} }
+				variant="solid"
+				size="compact"
+				disabled={ isLoading }
+				onClick={ onRefresh }
+			>
 				{ __( 'Run speed test', 'jetpack-boost' ) }
 			</Button>
 		);
-		return () => onHeaderActionChange( null );
-	}, [ isVisible, online, isLoading, onRefresh, onHeaderActionChange ] );
+		return () => {
+			// Runs on every dependency change; focusFallback is a no-op unless the fallback is mounted,
+			// and React attaches the fallback ref before this removed subtree's passive cleanup runs.
+			if ( action && action === action.ownerDocument.activeElement ) {
+				focusFallback();
+			}
+			onHeaderActionChange( null );
+		};
+	}, [ isVisible, online, isLoading, onRefresh, onHeaderActionChange, focusFallback ] );
 
 	if ( ! online ) {
 		return (
@@ -126,7 +151,7 @@ function OverviewContent( { isVisible = true, onHeaderActionChange }: Props ) {
 				isLoading={ isLoading }
 				hasScores={ scoreState.hasScores }
 				error={ scoreState.error }
-				onRetry={ () => refreshScores( true ) }
+				onRetry={ onRefresh }
 				isVisible={ isVisible }
 			/>
 			<ScoreAlert
