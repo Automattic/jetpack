@@ -18,7 +18,7 @@ afterEach( () => {
 	client.clear();
 } );
 
-test.each( [ 'modules_state', 'critical_css_state', 'lcp_state' ] )(
+test.each( [ 'modules_state', 'critical_css_state', 'lcp_state', 'getting_started' ] )(
 	'relays successful updates to %s',
 	key => {
 		client.setQueryData( [ key ], {} );

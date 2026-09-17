@@ -13,6 +13,7 @@ type DataSyncKey =
 	| 'modules_state'
 	| 'performance_history'
 	| 'dismissed_alerts'
+	| 'getting_started'
 	| 'critical_css_state'
 	| 'lcp_state';
 

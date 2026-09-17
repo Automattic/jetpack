@@ -1,8 +1,12 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import BoostPage from '../../_inc/components/boost-page';
+import { OVERVIEW_MODULES_CHANGE_EVENT } from '../../_inc/overview/lib/modules-state-bridge';
+import { requestDataSync } from '../../_inc/overview/lib/use-modules-state';
 import Overview from '../../_inc/overview/overview';
 import {
 	getSubpage,
@@ -44,11 +48,27 @@ function subscribeToLocationChange( listener: () => void ) {
 }
 
 function Stage() {
+	const [ queryClient ] = useState( () => new QueryClient() );
+
+	return (
+		<QueryClientProvider client={ queryClient }>
+			<DashboardStage />
+		</QueryClientProvider>
+	);
+}
+
+function DashboardStage() {
 	const search = useSearch( { from: '/' as never, strict: false } ) as { tab?: string };
 	const navigate = useNavigate();
-	const [ queryClient ] = useState( () => new QueryClient() );
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const lastSubpage = useRef( subpage );
+	const queryClient = useQueryClient();
+	const { data: onboarding, refetch } = useQuery( {
+		queryKey: [ 'getting_started' ],
+		queryFn: async () => ( await requestDataSync( 'getting_started' ) ) === true,
+		initialData: window.jetpack_boost_ds?.getting_started?.value === true,
+		staleTime: Infinity,
+	} );
 	const [ headerAction, setHeaderAction ] = useState< ReactNode >( null );
 	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
@@ -78,11 +98,25 @@ function Stage() {
 			}
 			lastSubpage.current = next;
 			setSubpage( next );
+			if ( previous === 'getting-started' ) {
+				void refetch();
+			}
 			if ( ! next && ( previous === 'cache-debug-log' || previous === 'critical-css-advanced' ) ) {
 				goToTab( 'settings', true );
 			}
 		} );
-	}, [ goToTab ] );
+	}, [ goToTab, refetch ] );
+
+	// Getting Started navigates before its save lands; the webpack app relays the save once it does.
+	useEffect( () => {
+		const onRelayedChange = ( event: Event ) => {
+			if ( ( event as CustomEvent< string > ).detail === 'getting_started' ) {
+				queryClient.invalidateQueries( { queryKey: [ 'getting_started' ] } );
+			}
+		};
+		window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onRelayedChange );
+		return () => window.removeEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onRelayedChange );
+	}, [ queryClient ] );
 
 	return (
 		<BoostPage
@@ -93,12 +127,20 @@ function Stage() {
 			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
 			<Tabs.Panel value="overview" keepMounted>
-				<QueryClientProvider client={ queryClient }>
+				{ onboarding ? (
+					<div
+						className="jetpack-boost-dashboard__loading"
+						role="status"
+						aria-label={ __( 'Loading', 'jetpack-boost' ) }
+					>
+						<Spinner />
+					</div>
+				) : (
 					<Overview
 						isVisible={ activeTab === 'overview' && subpage === null }
 						onHeaderActionChange={ setHeaderAction }
 					/>
-				</QueryClientProvider>
+				) }
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>
 				<div id={ SETTINGS_SLOT_ID } />
