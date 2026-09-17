@@ -15,6 +15,8 @@ const baseConfig = {
 		'plugin-wpds/no-unknown-ds-tokens': true,
 		'plugin-wpds/no-setting-wpds-custom-properties': true,
 		'plugin-wpds/no-token-fallback-values': true,
+
+		'custom-property-pattern': '^(?!_(?:gcd|wp)-).+',
 		// In addition to what `@wordpress/stylelint-config/scss-stylistic` does by default, also ignore comments containing /stylelint-disable/.
 		'@stylistic/max-line-length': [
 			80,
