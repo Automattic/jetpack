@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { toAuthorId } from '@jetpack-premium-analytics/data';
+import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -92,6 +93,15 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 		  ]
 		: [];
 
+	// Ranked over this card's window, not the host's.
+	const detailSearch = {
+		...range,
+		...createReportOriginSearch(
+			authorId ? 'authors' : 'posts',
+			authorId ? undefined : 'posts-pages'
+		),
+	};
+
 	return (
 		<WidgetState
 			isLoading={ isLoading }
@@ -116,21 +126,12 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
-			{ /* The detail page opens on the window the card ranked over, so the post's own
-			     page measures the period the card's title names. The dashboard's range is
-			     deliberately not carried through: the Insights filter picks a calendar year,
-			     which would scope the detail page to a period this card never reported on.
-
-			     Hence not `useWidgetNavigationSearch()`, which exists to carry the host's
-			     window: a widget cannot hand it one of its own. The breadcrumb back does
-			     not restore the year the reader left, but it never did — it carries no
-			     section either, so it lands on the first one whatever window travels. */ }
 			{ post && (
 				<PostHighlightCard
 					title={ post.title }
 					url={ post.url }
 					postId={ post.id }
-					detailSearch={ range }
+					detailSearch={ detailSearch }
 					date={ post.date }
 					imageUrl={ post.imageUrl }
 					imageAlt={ post.imageAlt }

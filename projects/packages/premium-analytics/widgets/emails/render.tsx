@@ -172,7 +172,10 @@ function metricValues( row: EmailRow, metric: EmailMetric ) {
 
 /** Render the latest emails with their open or click count and rate. */
 export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) => {
-	const search = useWidgetNavigationSearch( METRIC_SECTION[ metric ] );
+	const search = useWidgetNavigationSearch( {
+		section: METRIC_SECTION[ metric ],
+		origin: { report: 'emails' },
+	} );
 
 	const items: MetricListItem[] = rows.map( row => {
 		const { count, rate, label, description } = metricValues( row, metric );

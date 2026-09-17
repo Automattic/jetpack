@@ -89,7 +89,14 @@ export function AuthorsLeaderboard( {
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => ( {
 				id: post.id,
-				label: <LeaderboardPostLabel id={ post.postId } label={ post.title } link={ post.link } />,
+				label: (
+					<LeaderboardPostLabel
+						id={ post.postId }
+						label={ post.title }
+						link={ post.link }
+						origin={ { report: 'authors' } }
+					/>
+				),
 				currentValue: post.currentValue,
 				previousValue: post.previousValue,
 				currentShare: post.currentShare,
