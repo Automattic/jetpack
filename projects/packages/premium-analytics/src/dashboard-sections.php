@@ -52,6 +52,22 @@ function get_registered_dashboard_section( $dashboard_name, $id ) {
 }
 
 /**
+ * Retrieves a registered dashboard section by its URL-facing slug.
+ *
+ * A registrant that may run beside another owner of the same tab, such as a plugin and
+ * WordPress.com both offering Ads, checks here before registering.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $dashboard_name Dashboard identifier.
+ * @param string $slug           Section slug, e.g. `ads`.
+ * @return Dashboard_Section|null The registered section, or null when no section uses the slug.
+ */
+function get_registered_dashboard_section_by_slug( $dashboard_name, $slug ) {
+	return Dashboard_Section_Registry::get_instance()->get_registered_by_slug( $dashboard_name, $slug );
+}
+
+/**
  * Retrieves available dashboard sections.
  *
  * @param string $dashboard_name Dashboard identifier.

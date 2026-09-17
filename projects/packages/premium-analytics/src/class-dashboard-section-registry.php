@@ -90,6 +90,21 @@ final class Dashboard_Section_Registry {
 
 		$section = new Dashboard_Section( $dashboard_name, $id, $args );
 
+		// The client keys tabs, URLs and stored layouts by slug, so two ids may not share one.
+		$holder = $this->find_registered_by_slug( $dashboard_name, $section->slug );
+		if ( $holder ) {
+			$message = sprintf(
+				/* translators: 1: Dashboard name. 2: Section slug. 3: ID of the section already using the slug. */
+				__( 'Dashboard section slug "%2$s" is already used on dashboard "%1$s" by "%3$s".', 'jetpack-premium-analytics-pkg' ),
+				$dashboard_name,
+				$section->slug,
+				$holder->id
+			);
+			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
+			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+			return false;
+		}
+
 		if ( ! isset( $this->registered_sections[ $dashboard_name ] ) ) {
 			$this->registered_sections[ $dashboard_name ] = array();
 		}
@@ -114,6 +129,38 @@ final class Dashboard_Section_Registry {
 		}
 
 		return $this->registered_sections[ $dashboard_name ][ $id ];
+	}
+
+	/**
+	 * Retrieves a registered section by its URL-facing slug.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $dashboard_name Dashboard identifier.
+	 * @param string $slug           Section slug, e.g. `ads`.
+	 * @return Dashboard_Section|null The registered section, or null when no section uses the slug.
+	 */
+	public function get_registered_by_slug( $dashboard_name, $slug ) {
+		$this->ensure_hydrated();
+
+		return $this->find_registered_by_slug( $dashboard_name, $slug );
+	}
+
+	/**
+	 * Finds a registered section by slug without hydrating: register() relies on it.
+	 *
+	 * @param string $dashboard_name Dashboard identifier.
+	 * @param string $slug           Section slug.
+	 * @return Dashboard_Section|null
+	 */
+	private function find_registered_by_slug( $dashboard_name, $slug ) {
+		foreach ( $this->registered_sections[ $dashboard_name ] ?? array() as $section ) {
+			if ( $section->slug === $slug ) {
+				return $section;
+			}
+		}
+
+		return null;
 	}
 
 	/**

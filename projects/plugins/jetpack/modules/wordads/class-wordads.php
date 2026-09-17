@@ -27,6 +27,7 @@ require_once WORDADS_ROOT . '/php/class-wordads-consent-management-provider.php'
 require_once WORDADS_ROOT . '/php/class-wordads-formats.php';
 require_once WORDADS_ROOT . '/php/class-wordads-smart.php';
 require_once WORDADS_ROOT . '/php/class-wordads-shortcode.php';
+require_once WORDADS_ROOT . '/php/class-wordads-premium-analytics.php';
 
 /**
  * Primary WordAds class.
@@ -1034,6 +1035,9 @@ HTML;
 add_action( 'jetpack_activate_module_wordads', array( 'WordAds', 'activate' ) );
 add_action( 'jetpack_activate_module_wordads', array( 'WordAds_Cron', 'activate' ) );
 add_action( 'jetpack_deactivate_module_wordads', array( 'WordAds_Cron', 'deactivate' ) );
+
+// The Ads tab of the Premium Analytics dashboard follows the module.
+WordAds_Premium_Analytics::init();
 
 global $wordads;
 $wordads = new WordAds();
