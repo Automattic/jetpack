@@ -5,17 +5,11 @@ import 'jetpack-js-tools/jest/setup-jest-dom';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { MutationObserver, QueryClient } from '@tanstack/react-query';
 import { observeLegacyModulesState } from '../../_inc/overview/lib/modules-state-bridge';
-import { requestDataSync } from '../../_inc/overview/lib/use-modules-state';
 import { ONBOARDING_CHANGE_EVENT } from '../../_inc/runtime-contract';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
 const mockNavigate = jest.fn();
-
-jest.mock( '../../_inc/overview/lib/use-modules-state', () => ( {
-	...jest.requireActual( '../../_inc/overview/lib/use-modules-state' ),
-	requestDataSync: jest.fn(),
-} ) );
 
 jest.mock( '../../_inc/overview/overview', () => {
 	const { useEffect } = jest.requireActual< typeof import('react') >( 'react' );
@@ -84,7 +78,6 @@ beforeEach( () => {
 	Object.assign( window, { wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' } } );
 	mockNavigate.mockReset();
 	setGettingStarted( false );
-	jest.mocked( requestDataSync ).mockReset();
 } );
 
 const changeOnboarding = ( value: boolean ) =>
@@ -237,7 +230,6 @@ describe( 'Boost dashboard stage', () => {
 		expect( getSubpageMount()?.hidden ).toBe( true );
 		expect( getSubpageMount() ).toBeEmptyDOMElement();
 		expect( getSettingsMount() ).not.toBeNull();
-		expect( requestDataSync ).not.toHaveBeenCalled();
 
 		act( () => {
 			window.history.replaceState( null, '', '/?page=jetpack-boost#/getting-started' );
@@ -286,7 +278,6 @@ describe( 'Boost dashboard stage', () => {
 		await act( async () => saves[ 1 ].resolve( false ) );
 		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'true' );
 		expect( screen.queryByRole( 'status', { name: 'Loading' } ) ).not.toBeInTheDocument();
-		expect( requestDataSync ).not.toHaveBeenCalled();
 		stopObserving();
 	} );
 
@@ -310,8 +301,6 @@ describe( 'Boost dashboard stage', () => {
 		'leaves Purchase Success for Overview %s once the webpack app reads onboarding as done',
 		async ( _, navigate ) => {
 			setGettingStarted( true );
-			// The server already reads false, so only a lost relay can keep the loader.
-			jest.mocked( requestDataSync ).mockResolvedValue( false );
 			window.history.replaceState( null, '', '/?page=jetpack-boost#/purchase-successful' );
 			const { legacy, stopObserving } = observeLegacyGettingStarted( true );
 			render( <Stage /> );
