@@ -21,7 +21,8 @@
 }
 
 .jetpack-sso-form-display #jetpack-sso-wrap__action,
-.jetpack-sso-form-display #jetpack-sso-wrap__user {
+.jetpack-sso-form-display #jetpack-sso-wrap__user,
+.jetpack-sso-two-step #jetpack-sso-wrap__action {
 	display: block;
 }
 
@@ -117,7 +118,8 @@
 
 #jetpack-sso-wrap .button {
 
-	/* Core login.css floats .button-primary right, which pulls the next block up under the button. */
+	/* Core login.css floats .button-primary right, which pulls
+	   the next block up under the button. */
 	float: none;
 	display: flex;
 	justify-content: center;
