@@ -184,7 +184,7 @@ final class Dashboard_Section {
 	}
 
 	/**
-	 * Returns the section's default widget layout.
+	 * Returns the section's default widget layout, run through the default-layout filter.
 	 *
 	 * @return array Array of widget instances.
 	 */
@@ -192,6 +192,23 @@ final class Dashboard_Section {
 		$layout = is_callable( $this->default_layout )
 			? call_user_func( $this->default_layout, $this )
 			: $this->default_layout;
+		$layout = is_array( $layout ) ? array_values( $layout ) : array();
+
+		/**
+		 * Filters a dashboard section's default widget layout.
+		 *
+		 * Each entry matches the dashboard's widget instance shape: `uuid`, `type`, optional
+		 * `attributes`, optional `placement`. Runs for every section, so a callback adding an
+		 * instance to one switches on `$section_id`.
+		 *
+		 * @since $$next-version$$ Runs from the section, with its declared layout and its
+		 *                         namespaced id; it received an empty array and any alias before.
+		 *
+		 * @param array             $layout     The section's declared default widget instances.
+		 * @param string            $section_id Namespaced section identifier, e.g. `analytics/traffic`.
+		 * @param Dashboard_Section $section    The section.
+		 */
+		$layout = apply_filters( DASHBOARD_DEFAULT_LAYOUT_FILTER, $layout, $this->id, $this );
 
 		return is_array( $layout ) ? array_values( $layout ) : array();
 	}

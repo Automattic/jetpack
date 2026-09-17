@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard sections declare their default widget layout when they register. The `jetpack_premium_analytics_dashboard_default_layout` filter now receives that layout and the section id.
