@@ -7,14 +7,14 @@ import { dateI18n, getDate } from '@wordpress/date';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, desktop, mobile, Icon } from '@wordpress/icons';
 import { Button, Card, Notice, Popover, Tooltip, VisuallyHidden } from '@wordpress/ui';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { bucketHistoryDays, type HistoryDay, type HistoryWindow } from './lib/history-days';
 import { getScoreTier, getScoreTierColor } from './lib/score-utils';
 import UpgradeCTA from './upgrade-cta';
 import './history-chart-card.scss';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 import type { BandHighlightSelection, SeriesData } from '@automattic/charts';
-import type { ComponentProps, ElementType, PointerEvent } from 'react';
+import type { ComponentProps, ElementType } from 'react';
 
 type Props = {
 	range: HistoryWindow;
@@ -74,15 +74,6 @@ export function EmptyDayTooltip( {
 
 type HistoryPeriod = PerformanceHistoryData[ 'periods' ][ number ];
 type DayDetails = { period: HistoryPeriod; selection: BandHighlightSelection };
-type Point = { x: number; y: number };
-
-function isInTriangle( point: Point, a: Point, b: Point, c: Point ) {
-	const side = ( from: Point, to: Point ) =>
-		( to.x - from.x ) * ( point.y - from.y ) - ( to.y - from.y ) * ( point.x - from.x );
-	const sides = [ side( a, b ), side( b, c ), side( c, a ) ];
-	return sides.every( value => value >= 0 ) || sides.every( value => value <= 0 );
-}
-
 export function HistoryTooltip( {
 	period,
 	dateComponent: DateElement = 'div',
@@ -237,62 +228,36 @@ export default function HistoryChartCard( {
 		},
 		[]
 	);
-	// Holds the details open while the pointer rests on the popover, which covers the chart.
-	const [ pinned, setPinned ] = useState< DayDetails | null >( null );
-	// Holds them while the pointer crosses other days on its way to the popover.
-	const [ held, setHeld ] = useState< DayDetails | null >( null );
+	// The popover's hover bridge decides when the pointer opens and closes it, which keeps it
+	// hoverable; the card decides which day it shows, and drives it directly for the keyboard.
+	const [ hoverOpen, setHoverOpen ] = useState( false );
+	const [ keyboardOpen, setKeyboardOpen ] = useState( false );
 	const [ anchor, setAnchor ] = useState< HTMLDivElement | null >( null );
-	const popupRef = useRef< HTMLDivElement >( null );
-	const pointerOrigin = useRef< Point | null >( null );
 	useEffect( () => {
 		setActiveHighlight( null );
-		setPinned( null );
-		setHeld( null );
+		setHoverOpen( false );
+		setKeyboardOpen( false );
 	}, [ range.startDate, range.endDate, isVisible ] );
 	const highlight = isVisible ? activeHighlight?.selection : null;
 	const highlightedPeriod =
 		highlight && days.find( day => day.period && day.date === highlight.datum.label )?.period;
-	const details =
-		pinned ??
-		held ??
-		( highlight && highlightedPeriod ? { period: highlightedPeriod, selection: highlight } : null );
-	const isHeadingToPopup = useCallback( ( point: Point ) => {
-		const popup = popupRef.current?.getBoundingClientRect();
-		const origin = pointerOrigin.current;
-		if ( ! popup || ! origin ) {
-			return false;
-		}
-		const edge = origin.y > popup.bottom ? popup.bottom : popup.top;
-		return isInTriangle( point, origin, { x: popup.left, y: edge }, { x: popup.right, y: edge } );
-	}, [] );
-	const trackPointer = ( event: PointerEvent< HTMLDivElement > ) => {
-		const bandBox = details && anchor?.getBoundingClientRect();
-		const point = { x: event.clientX, y: event.clientY };
-		if ( ! bandBox || ( point.x >= bandBox.left && point.x <= bandBox.right ) ) {
-			// The move that highlights a day comes before its details, so record it too.
-			pointerOrigin.current = point;
-			setHeld( null );
-		} else if ( ! held && isHeadingToPopup( point ) ) {
-			setHeld( details );
-		}
-	};
+	const recorded = useMemo< DayDetails | null >(
+		() =>
+			highlight && highlightedPeriod ? { period: highlightedPeriod, selection: highlight } : null,
+		[ highlight, highlightedPeriod ]
+	);
+	const [ lastRecorded, setLastRecorded ] = useState< DayDetails | null >( null );
 	useEffect( () => {
-		if ( ! held ) {
-			return;
+		// Any other day under the pointer owns the card; no highlight means the plot was left.
+		if ( recorded || highlight ) {
+			setLastRecorded( recorded );
 		}
-		const release = ( event: globalThis.PointerEvent ) => {
-			if ( ! isHeadingToPopup( { x: event.clientX, y: event.clientY } ) ) {
-				setHeld( null );
-			}
-		};
-		document.addEventListener( 'pointermove', release );
-		return () => document.removeEventListener( 'pointermove', release );
-	}, [ held, isHeadingToPopup ] );
+	}, [ recorded, highlight ] );
+	// The chart drops its highlight shortly after the pointer leaves the plot, so while the bridge
+	// holds the popover open, keep showing the day the pointer left from.
+	const shown = recorded ?? ( hoverOpen && ! highlight ? lastRecorded : null );
+	const details = ( hoverOpen || keyboardOpen ) && shown ? shown : null;
 	const band = details?.selection ?? highlight;
-	const [ dismissedLabel, setDismissedLabel ] = useState< string | null >( null );
-	useEffect( () => {
-		setDismissedLabel( null );
-	}, [ highlight?.datum.label ] );
 	let content;
 	let bodyClassName;
 	if ( needsUpgrade ) {
@@ -350,111 +315,124 @@ export default function HistoryChartCard( {
 		bodyClassName = 'boost-daily-history__body';
 		content = (
 			<GlobalChartsProvider>
-				<div className="boost-daily-history" onPointerMove={ trackPointer }>
-					{ band && (
-						<div
-							// A new element per day makes the popover re-anchor.
-							key={ band.datum.label }
-							ref={ setAnchor }
-							aria-hidden="true"
-							className="boost-daily-history__highlight"
-							data-testid="history-highlight"
-							style={ {
-								// The highlight uses an SVG x coordinate measured from the physical left.
-								left: `calc(var(--wpds-dimension-padding-lg) + ${ band.x }px)`,
-								width: band.width,
-							} }
-						/>
-					) }
-					<Popover.Root
-						open={
-							Boolean( details && anchor ) && details?.selection.datum.label !== dismissedLabel
+				<Popover.Root
+					open={ Boolean( details && anchor ) }
+					onOpenChange={ ( isOpen, { reason } ) => {
+						setHoverOpen( isOpen );
+						if ( ! isOpen && reason === 'escape-key' ) {
+							setKeyboardOpen( false );
 						}
-						onOpenChange={ ( open, { reason } ) => {
-							if ( ! open && reason === 'escape-key' && details ) {
-								setDismissedLabel( details.selection.datum.label ?? null );
-								setPinned( null );
-								setHeld( null );
+					} }
+				>
+					<Popover.Trigger
+						openOnHover
+						delay={ 0 }
+						nativeButton={ false }
+						// The chart keeps its own semantics and tab order; only the hover bridge is wanted.
+						role={ undefined }
+						tabIndex={ undefined }
+						aria-haspopup={ undefined }
+						aria-expanded={ undefined }
+						render={ <div className="boost-daily-history" /> }
+						data-testid="history-chart"
+						onKeyDown={ event => setKeyboardOpen( event.key.startsWith( 'Arrow' ) ) }
+						onBlur={ event => {
+							// The chart moves focus to its own tooltip, which must not count as leaving.
+							if ( ! event.currentTarget.contains( event.relatedTarget ) ) {
+								setKeyboardOpen( false );
 							}
 						} }
 					>
-						{ details && (
-							<Popover.Popup
-								ref={ popupRef }
-								variant="unstyled"
-								// Portalled outside the page, so it takes the page class for the score colour tokens.
-								className="jetpack-boost-overview boost-daily-history__popover"
-								initialFocus={ false }
-								finalFocus={ false }
-								positioner={ <Popover.Positioner anchor={ anchor } /> }
-								onPointerEnter={ () => setPinned( details ) }
-								onPointerLeave={ () => setPinned( null ) }
-							>
-								<HistoryTooltip period={ details.period } dateComponent={ PopoverDate } />
-							</Popover.Popup>
+						{ band && (
+							<div
+								// A new element per day makes the popover re-anchor.
+								key={ band.datum.label }
+								ref={ setAnchor }
+								aria-hidden="true"
+								className="boost-daily-history__highlight"
+								data-testid="history-highlight"
+								style={ {
+									// The highlight uses an SVG x coordinate measured from the physical left.
+									left: `calc(var(--wpds-dimension-padding-lg) + ${ band.x }px)`,
+									width: band.width,
+								} }
+							/>
 						) }
-					</Popover.Root>
-					{ series.map( ( deviceSeries, index ) => {
-						return (
-							<section
-								key={ deviceSeries.label }
-								aria-label={
-									index === 0
-										? __( 'Desktop score history', 'jetpack-boost' )
-										: __( 'Mobile score history', 'jetpack-boost' )
-								}
-							>
-								<h3 className="boost-daily-history__device">
-									<Icon icon={ index === 0 ? desktop : mobile } />
-									{ deviceSeries.label }
-								</h3>
-								<div className="boost-daily-history__plot">
-									{ isVisible && (
-										<BarChart
-											key={ `${ range.startDate }-${ range.endDate }` }
-											data={ [ deviceSeries ] }
-											withTooltips
-											gridVisibility="x"
-											onBandHighlightChange={ selection => updateHighlight( index, selection ) }
-											margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
-											options={ {
-												xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
-												yScale: { domain: [ 0, 100 ], nice: false, zero: true },
-												axis: {
-													y: { tickValues: [ 0, 50, 100 ] },
-													x: {
-														tickValues,
-														tickFormat: value =>
-															dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
+
+						{ series.map( ( deviceSeries, index ) => {
+							return (
+								<section
+									key={ deviceSeries.label }
+									aria-label={
+										index === 0
+											? __( 'Desktop score history', 'jetpack-boost' )
+											: __( 'Mobile score history', 'jetpack-boost' )
+									}
+								>
+									<h3 className="boost-daily-history__device">
+										<Icon icon={ index === 0 ? desktop : mobile } />
+										{ deviceSeries.label }
+									</h3>
+									<div className="boost-daily-history__plot">
+										{ isVisible && (
+											<BarChart
+												key={ `${ range.startDate }-${ range.endDate }` }
+												data={ [ deviceSeries ] }
+												withTooltips
+												gridVisibility="x"
+												onBandHighlightChange={ selection => updateHighlight( index, selection ) }
+												margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
+												options={ {
+													xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
+													yScale: { domain: [ 0, 100 ], nice: false, zero: true },
+													axis: {
+														y: { tickValues: [ 0, 50, 100 ] },
+														x: {
+															tickValues,
+															tickFormat: value =>
+																dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
+														},
 													},
-												},
-											} }
-											renderTooltip={ ( { tooltipData } ) => {
-												const day = days.find(
-													slot => slot.date === tooltipData?.nearestDatum?.datum.label
-												);
-												// Keyboard focus lands here; the popover shows the same details.
-												return day?.period ? (
-													<VisuallyHidden>
-														<HistoryTooltip period={ day.period } />
-													</VisuallyHidden>
-												) : day ? (
-													<EmptyDayTooltip
-														date={ day.date }
-														isBeforeHistory={
-															hasOlderHistory === false &&
-															! days.some( slot => slot.period && slot.date < day.date )
-														}
-													/>
-												) : null;
-											} }
-										/>
-									) }
-								</div>
-							</section>
-						);
-					} ) }
-				</div>
+												} }
+												renderTooltip={ ( { tooltipData } ) => {
+													const day = days.find(
+														slot => slot.date === tooltipData?.nearestDatum?.datum.label
+													);
+													// Keyboard focus lands here; the popover shows the same details.
+													return day?.period ? (
+														<VisuallyHidden>
+															<HistoryTooltip period={ day.period } />
+														</VisuallyHidden>
+													) : day ? (
+														<EmptyDayTooltip
+															date={ day.date }
+															isBeforeHistory={
+																hasOlderHistory === false &&
+																! days.some( slot => slot.period && slot.date < day.date )
+															}
+														/>
+													) : null;
+												} }
+											/>
+										) }
+									</div>
+								</section>
+							);
+						} ) }
+					</Popover.Trigger>
+					{ details && (
+						<Popover.Popup
+							variant="unstyled"
+							// Portalled outside the page, so it takes the page class for the score colour tokens.
+							className="jetpack-boost-overview boost-daily-history__popover"
+							initialFocus={ false }
+							finalFocus={ false }
+							positioner={ <Popover.Positioner anchor={ anchor } /> }
+						>
+							<HistoryTooltip period={ details.period } dateComponent={ PopoverDate } />
+						</Popover.Popup>
+					) }
+				</Popover.Root>
 			</GlobalChartsProvider>
 		);
 	}

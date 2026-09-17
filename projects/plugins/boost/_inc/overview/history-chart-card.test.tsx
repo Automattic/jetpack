@@ -183,20 +183,41 @@ test( 'exposes the date, grade, and both device metrics through keyboard tooltip
 	}
 } );
 
-test( 'keeps a recorded day popover open while the pointer rests on it', async () => {
+function hoverChart() {
+	const chart = screen.getByTestId( 'history-chart' );
+	fireEvent.mouseEnter( chart );
+	fireEvent.mouseMove( chart );
+	return chart;
+}
+
+test( 'keeps a recorded day popover open once the chart drops its highlight', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const chart = hoverChart();
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	const popover = await screen.findByRole( 'dialog', {
 		name: dateI18n( 'F j, Y', timestamp, false ),
 	} );
 	expect( desktop ).not.toContainElement( popover );
 	expect( popover ).toHaveTextContent( '90/100' );
-	fireEvent.pointerEnter( popover );
-	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
-	await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveTextContent( '70/100' );
+	// Leaving the plot clears the chart's own selection while the popover stays reachable.
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
+	fireEvent.blur( desktop );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument()
+	);
 	expect( screen.getByRole( 'dialog' ) ).toHaveTextContent( '90/100' );
-	fireEvent.pointerLeave( popover );
+	fireEvent.mouseLeave( chart );
+	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+} );
+
+test( 'follows arrow keys while the pointer rests on the chart', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByRole( 'dialog' ) ).resolves.toHaveTextContent( '90/100' );
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	await waitFor( () => expect( screen.getByRole( 'dialog' ) ).toHaveTextContent( '70/100' ) );
 } );
 

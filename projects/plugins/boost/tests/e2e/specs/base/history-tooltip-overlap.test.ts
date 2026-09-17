@@ -121,7 +121,8 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 			popupBox.y >= hoveredBar.y + hoveredBar.height || popupBox.y + popupBox.height <= hoveredBar.y
 		).toBe( true );
 		const barCenter = hoveredBar.x + hoveredBar.width / 2;
-		const target = { x: popupBox.x + 10, y: popupBox.y + popupBox.height / 2 };
+		// Straight at the popover: crossing other days on the way lets them take the card.
+		const target = { x: barCenter, y: popupBox.y + popupBox.height / 2 };
 		for ( let step = 1; step <= 10; step++ ) {
 			await page.mouse.move(
 				barCenter + ( ( target.x - barCenter ) * step ) / 10,
