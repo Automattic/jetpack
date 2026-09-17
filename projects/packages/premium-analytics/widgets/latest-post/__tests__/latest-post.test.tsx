@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { getMockRouteLinkUrl } from '../../../tests/js/route-test-utils';
 import LatestPostWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -46,5 +47,93 @@ describe( 'LatestPostWidget', () => {
 			screen.findByText( 'Publish a post to see its stats here.' )
 		).resolves.toBeInTheDocument();
 		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).not.toContain( 'author=' );
+	} );
+
+	it( 'links the post to its detail page with the Posts report origin', async () => {
+		mockApiFetch.mockImplementation(
+			( { path = '', url = '' }: { path?: string; url?: string } ) => {
+				const target = path || url;
+
+				if ( target.startsWith( '/wp/v2/posts' ) ) {
+					return Promise.resolve( [
+						{
+							id: 779,
+							title: { rendered: 'Hello world' },
+							link: 'https://example.com/hello-world/',
+							date: '2026-06-22T10:00:00',
+						},
+					] );
+				}
+
+				if ( target.includes( 'stats/post/' ) ) {
+					return Promise.resolve( {
+						views: 3820,
+						like_count: 24,
+						post: { comment_count: 8 },
+					} );
+				}
+
+				return Promise.resolve( {} );
+			}
+		);
+
+		render(
+			<LatestPostWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
+		);
+
+		const link = await screen.findByRole( 'link', { name: 'Hello world' } );
+		const { pathname, searchParams } = getMockRouteLinkUrl( link );
+
+		expect( pathname ).toBe( '/post/779' );
+		expect( searchParams.get( 'from' ) ).toBe( '2026-03-01' );
+		expect( searchParams.get( 'to' ) ).toBe( '2026-03-10' );
+		expect( searchParams.get( 'ref' ) ).toBe( 'posts' );
+		expect( searchParams.get( 'ref_section' ) ).toBe( 'posts-pages' );
+		expect( searchParams.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
+	} );
+
+	it( 'names the Authors report when the instance is author-scoped', async () => {
+		mockApiFetch.mockImplementation(
+			( { path = '', url = '' }: { path?: string; url?: string } ) => {
+				const target = path || url;
+
+				if ( target.startsWith( '/wp/v2/posts' ) ) {
+					return Promise.resolve( [
+						{
+							id: 780,
+							title: { rendered: 'By Priya' },
+							link: 'https://example.com/priya/',
+							date: '2026-06-22T10:00:00',
+						},
+					] );
+				}
+
+				if ( target.includes( 'stats/post/' ) ) {
+					return Promise.resolve( {
+						views: 120,
+						like_count: 3,
+						post: { comment_count: 1 },
+					} );
+				}
+
+				return Promise.resolve( {} );
+			}
+		);
+
+		render(
+			<LatestPostWidget
+				attributes={ {
+					authorScoped: true,
+					reportParams: { from: '2026-03-01', to: '2026-03-10', author_id: 7 },
+				} }
+			/>
+		);
+
+		const { searchParams } = getMockRouteLinkUrl(
+			await screen.findByRole( 'link', { name: 'By Priya' } )
+		);
+
+		expect( searchParams.get( 'ref' ) ).toBe( 'authors' );
+		expect( searchParams.get( 'ref_section' ) ).toBeNull();
 	} );
 } );

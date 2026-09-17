@@ -241,7 +241,9 @@ function TopPostsReport() {
 		useStatsTopPosts( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
-	const detailSearch = useWidgetNavigationSearch();
+	const detailSearch = useWidgetNavigationSearch( {
+		origin: { report: 'posts', section: 'posts-pages' },
+	} );
 	const withComparison = hasComparison;
 
 	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
