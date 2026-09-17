@@ -161,20 +161,30 @@ function UpgradeAction( { product }: ProductCardActionProps ) {
  *
  * @return The rendered component
  */
-export function ActivationToggle( {
+/**
+ * Switch a product on or off, however the surface chooses to present that.
+ *
+ * Shared with the Features modal, which offers buttons rather than a switch: both must
+ * run the same mutation, tracking and post-activation reload.
+ *
+ * @param {object}           props                - The hook arguments.
+ * @param {ProductCamelCase} props.product        - The product to switch.
+ * @param {boolean}          props.active         - Whether it is currently on.
+ * @param {boolean}          props.reloadOnToggle - Whether switching needs a page reload.
+ * @return The handler and whether a mutation is in flight.
+ */
+export function useProductActivation( {
 	product,
 	active = true,
-	disabled = false,
 	reloadOnToggle = false,
-	showBadge = true,
-}: ProductCardActionProps & ProductActivation & { showBadge?: boolean } ) {
+}: ProductCardActionProps & ProductActivation ) {
 	const { deactivate, isPending: isDeactivating } = useDeactivatePlugins( product.slug );
 	const { activate, isPending: isActivating } = useActivatePlugins( product.slug );
 	const { trackProductAction } = useProductFiltersContext() || {};
 
 	const { isLoading, isRefetching } = useProduct( product.slug );
 
-	const onChange = useCallback( () => {
+	const setActive = useCallback( () => {
 		const action = active ? 'deactivate' : 'activate';
 		trackProductAction?.( {
 			action,
@@ -206,15 +216,37 @@ export function ActivationToggle( {
 		active ? deactivate( undefined, mutateOptions ) : activate( undefined, mutateOptions );
 	}, [ deactivate, activate, active, product, trackProductAction, reloadOnToggle ] );
 
+	return {
+		setActive,
+		isBusy: isDeactivating || isActivating || isLoading || isRefetching,
+	};
+}
+
+/**
+ * Renders the (plugin) activation toggle for a product card
+ *
+ * @param {ProductCardActionProps} props - Component props
+ *
+ * @return The rendered component
+ */
+export function ActivationToggle( {
+	product,
+	active = true,
+	disabled = false,
+	reloadOnToggle = false,
+	showBadge = true,
+}: ProductCardActionProps & ProductActivation & { showBadge?: boolean } ) {
+	const { setActive, isBusy } = useProductActivation( { product, active, reloadOnToggle } );
+
 	return (
 		<Flex gap={ 4 }>
 			{ active && showBadge ? (
 				<Badge intent="stable">{ __( 'Active', 'jetpack-my-jetpack' ) }</Badge>
 			) : null }
 			<FormToggle
-				disabled={ disabled || isDeactivating || isActivating || isLoading || isRefetching }
+				disabled={ disabled || isBusy }
 				checked={ active }
-				onChange={ onChange }
+				onChange={ setActive }
 				aria-label={
 					active
 						? sprintf(

@@ -27,22 +27,28 @@ export function FeatureAction( { state }: FeatureActionProps ) {
 	const { data: interstitials } = useInterstitialsState();
 	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 
-	if ( state.product ) {
-		const activation = getProductActivation(
-			state.product,
-			state.module,
-			!! interstitials?.[ state.product.slug ],
-			showAiModuleToggle
-		);
+	const activation = state.product
+		? getProductActivation(
+				state.product,
+				state.module,
+				!! interstitials?.[ state.product.slug ],
+				showAiModuleToggle
+			)
+		: null;
 
-		// One compact, quiet button for every status: on a site with no plan almost every
-		// card falls here, and a grid of solid primary buttons drowns out the toggles.
-		return activation ? (
-			<ActivationToggle product={ state.product } { ...activation } showBadge={ false } />
-		) : (
-			<ActionButton slug={ state.product.slug as JetpackModule } variant="secondary" />
-		);
+	if ( state.product && activation ) {
+		return <ActivationToggle product={ state.product } { ...activation } showBadge={ false } />;
 	}
 
-	return state.module ? <ModuleToggle module={ state.module } /> : null;
+	// Every feature backed by a module gets a switch, whatever its product needs: the
+	// module is the part of it this site can turn on and off.
+	if ( state.module ) {
+		return <ModuleToggle module={ state.module } />;
+	}
+
+	// A separate plugin, so there is nothing here to switch until it is installed. One
+	// compact, quiet button: a grid of solid primary buttons drowns out the switches.
+	return state.product ? (
+		<ActionButton slug={ state.product.slug as JetpackModule } variant="secondary" />
+	) : null;
 }

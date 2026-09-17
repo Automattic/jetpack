@@ -24,17 +24,18 @@ export type ModuleToggleProps = {
 const MODULES_REQUIRING_RELOAD = [ 'activity-log', 'podcast', 'subscriptions', 'wpcom-reader' ];
 
 /**
- * Renders a toggle for a Jetpack module.
+ * Switch a Jetpack module on or off, however the surface chooses to present that.
  *
- * @param {ModuleToggleProps} props - The component props.
+ * Shared with the Features modal, which offers buttons rather than a switch: both must
+ * run the same mutation, notices and post-activation reload.
  *
- * @return The rendered component.
+ * @param $module - The module to switch.
+ * @return The handler and whether a mutation is in flight.
  */
-export function ModuleToggle( { module: $module, describedby }: ModuleToggleProps ) {
+export function useModuleActivation( $module: MyJetpackModule ) {
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
-	const blockThemeMigration = getBlockThemeMigration( $module );
 
 	const isUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -118,6 +119,20 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 		},
 		[ toggleModule, $module, showToggleNotice, trackProductAction ]
 	);
+
+	return { setModuleActive, isUpdating };
+}
+
+/**
+ * Renders a toggle for a Jetpack module.
+ *
+ * @param {ModuleToggleProps} props - The component props.
+ *
+ * @return The rendered component.
+ */
+export function ModuleToggle( { module: $module, describedby }: ModuleToggleProps ) {
+	const { setModuleActive, isUpdating } = useModuleActivation( $module );
+	const blockThemeMigration = getBlockThemeMigration( $module );
 
 	const onChange = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => setModuleActive( event.target.checked ),

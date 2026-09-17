@@ -1,13 +1,13 @@
 import { __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
-import { Badge, Dialog, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Badge, Dialog, Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
 import { getActivationStatusLabel } from '../utils';
-import { FeatureAction } from './feature-action';
 import { FeatureBand } from './feature-band';
 import { FeatureDelivery } from './feature-delivery';
 import { FeatureIcon } from './feature-icon';
 import { FeatureLinks } from './feature-links';
+import { FeatureModalActions } from './feature-modal-actions';
 import { FeaturePaid } from './feature-paid';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
@@ -128,12 +128,7 @@ export function FeatureModal( { state, onClose, onFilterByPlan }: FeatureModalPr
 								gap="sm"
 								className={ styles[ 'modal-actions' ] }
 							>
-								{ isActive && feature.manage_url ? (
-									<LinkButton href={ feature.manage_url } variant="outline" size="compact">
-										{ __( 'Open', 'jetpack-my-jetpack' ) }
-									</LinkButton>
-								) : null }
-								<FeatureAction state={ state } />
+								<FeatureModalActions state={ state } />
 							</Stack>
 						</Stack>
 

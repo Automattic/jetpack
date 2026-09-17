@@ -47,33 +47,29 @@ const stateForFeature = (
 	modules: Record< JetpackModuleSlug, MyJetpackModule >,
 	productModules: Record< string, string >
 ): FeatureState => {
-	if ( feature.product ) {
-		const product = products?.[ feature.product ];
+	const product = feature.product ? products?.[ feature.product ] : undefined;
 
-		if ( ! product ) {
-			return { feature, status: feature.status };
-		}
+	// A product's module is rarely named after it (Social runs 'publicize'), and a few
+	// features name theirs outright. Resolved the way the Products tab builds its cards,
+	// which also keeps the pre-release gate on Jetpack AI: with the flag off that map
+	// drops AI, so no module resolves and the card offers no switch.
+	const moduleSlug =
+		feature.module ||
+		( feature.product ? productModules[ feature.product ] || feature.product : '' );
+	const $module = moduleSlug ? modules?.[ moduleSlug as JetpackModuleSlug ] : undefined;
 
-		// A product's module is rarely named after it (Social runs 'publicize'), and the
-		// catalog only names a module when no product backs the feature. Resolve it the
-		// way the Products tab builds its cards, or the toggle reads as unavailable.
-		const moduleSlug = ( productModules[ feature.product ] ||
-			feature.product ) as JetpackModuleSlug;
-
+	// The module is what the card switches, so it is also what the card reports.
+	if ( $module ) {
 		return {
 			feature,
 			product,
-			module: modules?.[ moduleSlug ],
-			status: isProductRunning( product ) ? 'active' : 'inactive',
+			module: $module,
+			status: $module.activated ? 'active' : 'inactive',
 		};
 	}
 
-	if ( feature.module ) {
-		const $module = modules?.[ feature.module as JetpackModuleSlug ];
-
-		return $module
-			? { feature, module: $module, status: $module.activated ? 'active' : 'inactive' }
-			: { feature, status: feature.status };
+	if ( product ) {
+		return { feature, product, status: isProductRunning( product ) ? 'active' : 'inactive' };
 	}
 
 	// Neither a product nor a module to read, so PHP's answer is the only one there is.
