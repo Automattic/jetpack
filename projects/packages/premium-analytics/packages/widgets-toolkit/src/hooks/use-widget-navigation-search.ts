@@ -31,7 +31,7 @@ type WidgetNavigationSearchOptions = {
 export function useWidgetNavigationSearch( {
 	section,
 	origin,
-}: WidgetNavigationSearchOptions = {} ) {
+}: WidgetNavigationSearchOptions = {} ): Record< string, unknown > {
 	const { reportParams, navigationParams = reportParams } = useWidgetRootContext();
 	const originReport = origin?.report;
 	const originSection = origin?.section;

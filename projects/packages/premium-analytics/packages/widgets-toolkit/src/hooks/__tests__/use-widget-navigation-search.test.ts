@@ -7,6 +7,7 @@ import { renderHook } from '@testing-library/react';
  */
 import { useWidgetRootContext } from '../../components/widget-root';
 import { useWidgetNavigationSearch } from '../use-widget-navigation-search';
+import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '../../components/widget-root', () => ( {
 	useWidgetRootContext: jest.fn(),
@@ -26,12 +27,16 @@ const NAVIGATION_PARAMS = {
 	date_type: 'created',
 	period: 'week',
 	post_id: '12',
-};
+} as unknown as ReportParams;
 
 describe( 'useWidgetNavigationSearch', () => {
 	beforeEach( () => {
 		mockUseWidgetRootContext.mockReturnValue( {
-			reportParams: { from: '2026-03-01', to: '2026-03-10', interval: 'day' },
+			reportParams: {
+				from: '2026-03-01',
+				to: '2026-03-10',
+				interval: 'day',
+			} as unknown as ReportParams,
 			navigationParams: NAVIGATION_PARAMS,
 		} );
 	} );
