@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useSiteHomeUrl, useStatsPost } from '@jetpack-premium-analytics/data';
+import { usePostThumbnail, useSiteHomeUrl, useStatsPost } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import { useSearch } from '@wordpress/route';
@@ -11,6 +11,7 @@ import { useSearch } from '@wordpress/route';
 import { usePostSummary } from './use-post-summary';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	usePostThumbnail: jest.fn(),
 	useSiteHomeUrl: jest.fn(),
 	useStatsPost: jest.fn(),
 } ) );
@@ -18,7 +19,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 // Load the URL guard directly so importing its public UI barrel does not pull
 // unrelated components into this hook-level test.
 jest.mock( '@jetpack-premium-analytics/ui', () =>
-	jest.requireActual( '../../../packages/ui/src/utils/safe-http-url' )
+	jest.requireActual( '../../../../packages/ui/src/utils/safe-http-url' )
 );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
@@ -43,8 +44,10 @@ jest.mock( '@wordpress/route', () => ( {
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
 const mockUseStatsPost = useStatsPost as jest.MockedFunction< typeof useStatsPost >;
+const mockUsePostThumbnail = usePostThumbnail as jest.MockedFunction< typeof usePostThumbnail >;
 const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
 const mockUseSearch = useSearch as jest.MockedFunction< typeof useSearch >;
+const mockGetEntityRecord = jest.fn();
 
 const POST_ID = 41;
 
@@ -56,11 +59,12 @@ type EntityKey = string;
  * @param records - Entity records keyed as `<name>:<id>`.
  */
 function mockEntities( records: Record< EntityKey, unknown > ) {
-	const getEntityRecord = ( _kind: string, name: string, key: number ) =>
-		records[ `${ name }:${ key }` ];
+	mockGetEntityRecord.mockImplementation(
+		( _kind: string, name: string, key: number ) => records[ `${ name }:${ key }` ]
+	);
 
 	mockUseSelect.mockImplementation( ( mapSelect: ( select: unknown ) => unknown ) =>
-		mapSelect( () => ( { getEntityRecord } ) )
+		mapSelect( () => ( { getEntityRecord: mockGetEntityRecord } ) )
 	);
 }
 
@@ -83,8 +87,10 @@ describe( 'usePostSummary', () => {
 	beforeEach( () => {
 		mockUseSiteHomeUrl.mockReset();
 		mockUseStatsPost.mockReset();
+		mockUsePostThumbnail.mockReset();
 		mockUseSelect.mockReset();
 		mockUseSearch.mockReset();
+		mockGetEntityRecord.mockReset();
 		mockUseSiteHomeUrl.mockReturnValue( 'https://example.com/' );
 		mockUseSearch.mockReturnValue( {} as never );
 	} );
@@ -97,11 +103,9 @@ describe( 'usePostSummary', () => {
 			post_date_gmt: '2026-06-22 18:00:00',
 		} );
 		mockEntities( {
-			'post:41': { featured_media: 7, link: 'https://example.com/hello-world/' },
-			'attachment:7': {
-				media_details: { sizes: { thumbnail: { source_url: 'https://example.com/thumb.jpg' } } },
-			},
+			'post:41': { link: 'https://example.com/hello-world/' },
 		} );
+		mockUsePostThumbnail.mockReturnValue( 'https://example.com/thumb.jpg' );
 
 		const { result } = renderHook( () => usePostSummary( POST_ID ) );
 
@@ -115,11 +119,15 @@ describe( 'usePostSummary', () => {
 			isLoading: false,
 			isError: false,
 		} );
+		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( POST_ID, 'post' );
+		expect( mockGetEntityRecord ).toHaveBeenCalledWith( 'postType', 'post', POST_ID, {
+			context: 'view',
+		} );
 	} );
 
 	it( 'leaves the public URL undefined when the entity carries no link', () => {
 		mockStatsPost( { post_title: 'Hello world', post_type: 'post' } );
-		mockEntities( { 'post:41': { featured_media: 0 } } );
+		mockEntities( { 'post:41': {} } );
 
 		const { result } = renderHook( () => usePostSummary( POST_ID ) );
 
@@ -183,28 +191,17 @@ describe( 'usePostSummary', () => {
 		expect( result.current.imageUrl ).toBeUndefined();
 	} );
 
-	it( 'falls back to the full-size media URL when there is no thumbnail size', () => {
+	it( 'resolves a page with its local publish date', () => {
 		mockStatsPost( { post_title: 'A page', post_type: 'page', post_date: '2026-06-01 09:00:00' } );
 		mockEntities( {
-			'page:41': { featured_media: 9, link: 'https://example.com/a-page/' },
-			'attachment:9': { source_url: 'https://example.com/full.jpg' },
+			'page:41': { link: 'https://example.com/a-page/' },
 		} );
 
 		const { result } = renderHook( () => usePostSummary( POST_ID ) );
 
-		expect( result.current.imageUrl ).toBe( 'https://example.com/full.jpg' );
 		// Only the local date is present, so it stands in for the GMT one.
 		expect( result.current.publishedDate ).toBe( '2026-06-01 09:00:00' );
+		expect( result.current.type ).toBe( 'page' );
 		expect( result.current.url ).toBe( 'https://example.com/a-page/' );
-	} );
-
-	it( 'leaves the image undefined when the featured media record is missing', () => {
-		mockStatsPost( { post_title: 'Hello world', post_type: 'post' } );
-		mockEntities( { 'post:41': { featured_media: 12, link: 'https://example.com/hello-world/' } } );
-
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
-
-		expect( result.current.imageUrl ).toBeUndefined();
-		expect( result.current.url ).toBe( 'https://example.com/hello-world/' );
 	} );
 } );
