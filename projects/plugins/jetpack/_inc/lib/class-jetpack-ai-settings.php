@@ -116,6 +116,14 @@ class Jetpack_AI_Settings {
 	private static $initialized = false;
 
 	/**
+	 * Whether apply_master_gates() should step aside; see
+	 * {@see self::get_master_forced_off_route()}.
+	 *
+	 * @var bool
+	 */
+	private static $probing_third_party = false;
+
+	/**
 	 * Hook everything up. Must run on every request (front-end, editor, REST):
 	 * the filters attached here gate feature loading.
 	 *
@@ -218,6 +226,12 @@ class Jetpack_AI_Settings {
 	 * @return bool
 	 */
 	public static function apply_master_gates( $enabled ) {
+		// Stand aside while get_master_forced_off_route() asks the chain what
+		// everyone else says; our own verdict would drown theirs out.
+		if ( self::$probing_third_party ) {
+			return (bool) $enabled;
+		}
+
 		return (bool) $enabled
 			&& self::host_allows_ai()
 			&& ( ! self::should_enforce_ai_controls() || self::is_master_enabled() );
@@ -326,9 +340,16 @@ class Jetpack_AI_Settings {
 			return '';
 		}
 
-		// Our own gates run inside this chain, so only third-party code can
-		// disagree with them.
-		if ( self::apply_master_gates( true ) && ! apply_filters( 'jetpack_ai_enabled', true ) ) {
+		// Ask the chain with our own gates stood down, so a deactivated module
+		// cannot mask a filter that would keep AI off however the module is set.
+		self::$probing_third_party = true;
+		try {
+			$third_party_off = ! apply_filters( 'jetpack_ai_enabled', true );
+		} finally {
+			self::$probing_third_party = false;
+		}
+
+		if ( $third_party_off ) {
 			return self::FORCED_OFF_ROUTE_FILTER;
 		}
 

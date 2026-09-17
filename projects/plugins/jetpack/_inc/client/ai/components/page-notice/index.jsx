@@ -83,14 +83,14 @@ export function getPageNoticeState( {
 	return null;
 }
 
-const HOST_OFF_SLUG = 'jetpack-ai-hub-docs-wp-supports-ai';
+const HOST_OFF_SLUG = 'jetpack-ai-hub-notice-host-off';
 const OFFLINE_SLUG = 'jetpack-support-development-mode';
 
 // Custom code reaches the same state through two different hooks, and each has
 // its own documentation page.
 const FORCED_OFF_SLUGS = {
-	filter: 'jetpack-ai-hub-docs-ai-enabled',
-	modules: 'jetpack-ai-hub-docs-module-forced-off',
+	filter: 'jetpack-ai-hub-notice-forced-off-filter',
+	modules: 'jetpack-ai-hub-notice-forced-off-modules',
 };
 
 /**
@@ -114,10 +114,8 @@ function getNoticeContent( state, pageData ) {
 
 		case PAGE_NOTICE_STATES.FORCED_OFF:
 			return {
-				title: __(
-					'Jetpack AI is turned off by custom code running on this site, so it can’t be turned on here.',
-					'jetpack'
-				),
+				title: __( 'Jetpack AI is turned off by custom code on this site.', 'jetpack' ),
+				description: __( 'It can’t be turned on from here.', 'jetpack' ),
 				action: {
 					href: getRedirectUrl(
 						FORCED_OFF_SLUGS[ pageData.masterForcedOff ] ?? FORCED_OFF_SLUGS.modules
@@ -140,6 +138,7 @@ function getNoticeContent( state, pageData ) {
 		case PAGE_NOTICE_STATES.SITE_DISCONNECTED:
 			return {
 				title: __( 'This site is not connected to WordPress.com.', 'jetpack' ),
+				description: __( 'Your saved settings will apply once the site is connected.', 'jetpack' ),
 				action: {
 					href: pageData.userConnectionUrl,
 					label: __( 'Connect Jetpack', 'jetpack' ),
@@ -148,7 +147,7 @@ function getNoticeContent( state, pageData ) {
 
 		case PAGE_NOTICE_STATES.USER_UNLINKED:
 			return {
-				title: __( 'Your WordPress.com account isn\u2019t connected.', 'jetpack' ),
+				title: __( 'Your WordPress.com account isn’t connected.', 'jetpack' ),
 				action: {
 					href: pageData.userConnectionUrl,
 					label: __( 'Connect account', 'jetpack' ),

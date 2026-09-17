@@ -274,14 +274,70 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * VIP sites connect users through the legacy Jetpack connection screen.
+	 * VIP removes My Jetpack from outside this codebase, so every link the notice
+	 * offers has to fall back to the classic Jetpack screens.
 	 */
 	public function test_vip_site_uses_jetpack_user_connection_url() {
 		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		// Without this the offline-mode CI run would report My Jetpack absent
+		// whether or not the VIP branch works.
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
 
 		$settings = $this->get_injected_settings();
 
+		$this->assertFalse( $settings['hasMyJetpack'] );
 		$this->assertSame( 'admin.php?page=jetpack#/connect-user', $settings['userConnectionUrl'] );
+		$this->assertSame( 'admin.php?page=jetpack_modules', $settings['manageUrl'] );
+	}
+
+	/**
+	 * Every notice input reaches the page. Each one defaults permissive in the
+	 * client, so a dropped key silences the notice instead of erring.
+	 */
+	public function test_notice_inputs_are_injected() {
+		$settings = $this->get_injected_settings();
+
+		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff' ) as $key ) {
+			$this->assertArrayHasKey( $key, $settings );
+		}
+
+		$this->assertIsBool( $settings['isConnected'] );
+		$this->assertIsBool( $settings['hostAllowsAi'] );
+		$this->assertIsBool( $settings['masterEnabled'] );
+		$this->assertSame( '', $settings['masterForcedOff'] );
+	}
+
+	/**
+	 * The client picks a documentation URL off this value, so only the two known
+	 * routes may reach it.
+	 */
+	public function test_unknown_forced_off_route_is_dropped() {
+		$filter = static function ( $config ) {
+			$config['masterForcedOff'] = 'something-else';
+			return $config;
+		};
+		add_filter( 'jetpack_ai_admin_config', $filter );
+
+		$settings = $this->get_injected_settings();
+
+		remove_filter( 'jetpack_ai_admin_config', $filter );
+		$this->assertSame( '', $settings['masterForcedOff'] );
+	}
+
+	/**
+	 * A filter handing back a config without the link keys must not warn.
+	 */
+	public function test_missing_link_keys_do_not_warn() {
+		$filter = static function () {
+			return array();
+		};
+		add_filter( 'jetpack_ai_admin_config', $filter );
+
+		$settings = $this->get_injected_settings();
+
+		remove_filter( 'jetpack_ai_admin_config', $filter );
+		$this->assertSame( '', $settings['userConnectionUrl'] );
+		$this->assertSame( '', $settings['manageUrl'] );
 	}
 
 	/**

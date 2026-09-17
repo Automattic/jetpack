@@ -149,6 +149,29 @@ afterEach( () => {
 } );
 
 describe( 'AI admin page (main.jsx)', () => {
+	// Page data and the settings response answer the host gate in two different
+	// requests. Page data is the one the notice reads, so the body must follow it
+	// or the tab can end up with no card, no notice and no error.
+	test( 'host gate: page data decides the body, not the settings response', async () => {
+		window.location.hash = '#/features';
+		window.jetpackAiSettings = { ...window.jetpackAiSettings, hostAllowsAi: true };
+		mockApiFetch( {
+			featureGet: {
+				host_allows_ai: false,
+				features: { writing_assistant: { enabled: true } },
+			},
+		} );
+
+		render( <App /> );
+
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).resolves.toBeVisible();
+		expect(
+			screen.queryByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
+		).not.toBeInTheDocument();
+	} );
+
 	test( 'host-off: shows the host-off notice and does not mount AiFeatures', async () => {
 		window.jetpackAiSettings = { ...window.jetpackAiSettings, hostAllowsAi: false };
 		mockApiFetch( {
@@ -170,7 +193,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		// The only Learn more left is the notice's own, pointing at core's wp_supports_ai reference.
 		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
 			'href',
-			expect.stringContaining( 'source=jetpack-ai-hub-docs-wp-supports-ai' )
+			expect.stringContaining( 'source=jetpack-ai-hub-notice-host-off' )
 		);
 	} );
 
@@ -251,10 +274,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect(
-				screen.findByText(
-					'Jetpack AI is turned off by custom code running on this site, so it can’t be turned on here.',
-					IGNORE_A11Y
-				)
+				screen.findByText( 'Jetpack AI is turned off by custom code on this site.', IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
 			expect( apiFetch ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { path: expect.stringContaining( 'ai-assistant-feature' ) } )

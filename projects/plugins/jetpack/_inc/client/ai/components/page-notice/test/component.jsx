@@ -111,6 +111,27 @@ describe( 'getPageNoticeState', () => {
 		it( 'an unlinked account beats the master switch', () => {
 			expect( resolve( { isUserConnected: false, masterEnabled: false } ) ).toBe( 'user-unlinked' );
 		} );
+
+		describe( 'code holding AI off', () => {
+			// It outranks these three because none of their remedies would work:
+			// connecting, linking or flipping the master leaves AI off.
+			it.each( [
+				[ 'a disconnected site', { blogId: 0, isConnected: false } ],
+				[ 'an unlinked account', { isUserConnected: false } ],
+				[ 'the master switch', { masterEnabled: false } ],
+			] )( 'beats %s', ( _label, overrides ) => {
+				expect( resolve( { masterForcedOff: 'modules', ...overrides } ) ).toBe( 'forced-off' );
+			} );
+
+			// And loses to these, each of which is the fuller answer.
+			it.each( [
+				[ 'the host switch', { hostAllowsAi: false }, 'host-off' ],
+				[ 'offline mode', { isOfflineMode: true }, 'offline-mode' ],
+				[ 'a broken connection', { hasConnectionError: true }, 'connection-error' ],
+			] )( 'loses to %s', ( _label, overrides, expected ) => {
+				expect( resolve( { masterForcedOff: 'filter', ...overrides } ) ).toBe( expected );
+			} );
+		} );
 	} );
 
 	describe( 'views the notice does not belong to', () => {
@@ -177,21 +198,22 @@ describe( 'PageNotice', () => {
 		const learnMore = screen.getByRole( 'link', { name: /Learn more/ } );
 		expect( learnMore ).toHaveAttribute(
 			'href',
-			expect.stringContaining( 'source=jetpack-ai-hub-docs-wp-supports-ai' )
+			expect.stringContaining( 'source=jetpack-ai-hub-notice-host-off' )
 		);
 		expect( learnMore ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	describe( 'the custom-code notice', () => {
-		const COPY =
-			'Jetpack AI is turned off by custom code running on this site, so it can’t be turned on here.';
+		const COPY = 'Jetpack AI is turned off by custom code on this site.';
+		const DETAIL = 'It can’t be turned on from here.';
 
 		it( 'links to the AI filter when that is the route taken', () => {
 			renderNotice( { state: 'forced-off', masterForcedOff: 'filter' } );
 			expect( screen.getByText( COPY, IGNORE_A11Y ) ).toBeInTheDocument();
+			expect( screen.getByText( DETAIL, IGNORE_A11Y ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
 				'href',
-				expect.stringContaining( 'source=jetpack-ai-hub-docs-ai-enabled' )
+				expect.stringContaining( 'source=jetpack-ai-hub-notice-forced-off-filter' )
 			);
 		} );
 
@@ -200,7 +222,7 @@ describe( 'PageNotice', () => {
 			expect( screen.getByText( COPY, IGNORE_A11Y ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
 				'href',
-				expect.stringContaining( 'source=jetpack-ai-hub-docs-module-forced-off' )
+				expect.stringContaining( 'source=jetpack-ai-hub-notice-forced-off-modules' )
 			);
 		} );
 
@@ -226,6 +248,10 @@ describe( 'PageNotice', () => {
 		renderNotice( { state: 'site-disconnected' } );
 		expect(
 			screen.getByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
+		).toBeInTheDocument();
+		// The disconnected reader is the likeliest to think their toggles were wiped.
+		expect(
+			screen.getByText( 'Your saved settings will apply once the site is connected.', IGNORE_A11Y )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
@@ -255,11 +281,6 @@ describe( 'PageNotice', () => {
 		expect(
 			screen.queryByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
 		).not.toBeInTheDocument();
-	} );
-
-	it( 'keeps the connection notice off the views it does not own', () => {
-		const { container } = renderNotice( { view: 'mcp', hasConnectionError: true } );
-		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'offers a link, not the connect button, when the site is registered already', () => {

@@ -460,8 +460,8 @@ class Jetpack_AI_Page {
 			'activityLogUrl'    => $activity_log_url,
 			'seoSettingsUrl'    => $seo_settings_url,
 			'siteAdminUrl'      => admin_url(),
-			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ),
-			'manageUrl'         => esc_url_raw( $config['manageUrl'] ),
+			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ?? '' ),
+			'manageUrl'         => esc_url_raw( $config['manageUrl'] ?? '' ),
 			'hasMyJetpack'      => ! empty( $config['hasMyJetpack'] ),
 			'isConnected'       => ! empty( $config['isConnected'] ),
 			'hostAllowsAi'      => ! empty( $config['hostAllowsAi'] ),
@@ -502,7 +502,7 @@ class Jetpack_AI_Page {
 			// Identity for Tracks; the lookup can call WordPress.com on a
 			// cache miss, so it shares the sender's guard.
 			'tracksUserData'    => $can_send_tracks ? self::get_tracks_user_data() : null,
-			'mcpSettingsApi'    => $config['mcpSettingsApi'],
+			'mcpSettingsApi'    => $config['mcpSettingsApi'] ?? array(),
 		);
 
 		wp_add_inline_script(

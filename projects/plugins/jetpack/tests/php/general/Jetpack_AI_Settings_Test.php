@@ -360,6 +360,19 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * A deactivated module must not hide a filter that would keep AI off anyway:
+	 * turning the module back on would not help, so this is not a plain opt-out.
+	 */
+	public function test_master_forced_off_route_names_the_filter_with_the_module_off_too() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the module reads off.' );
+		$this->assertSame( 'filter', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
 	 * A site nothing holds off reports no route.
 	 */
 	public function test_master_forced_off_route_empty_when_not_forced_off() {

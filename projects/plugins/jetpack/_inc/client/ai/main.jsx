@@ -520,16 +520,17 @@ export default function App() {
 							<LoadErrorNotice message={ aiSettingsError } />
 						) }
 
-						{ ! isAiSettingsLoading &&
-							! aiSettingsError &&
-							aiSettings?.host_allows_ai !== false && (
-								<AiFeatures
-									settings={ aiSettings }
-									isUserConnected={ isUserConnected }
-									savingKeys={ aiSavingKeys }
-									onUpdate={ handleAiSettingsUpdate }
-								/>
-							) }
+						{ /* The host gate comes from page data, the same answer the notice uses:
+						    two sources, computed in two requests, could disagree into a tab
+						    with no card and no notice. */ }
+						{ ! isAiSettingsLoading && ! aiSettingsError && hostAllowsAi !== false && (
+							<AiFeatures
+								settings={ aiSettings }
+								isUserConnected={ isUserConnected }
+								savingKeys={ aiSavingKeys }
+								onUpdate={ handleAiSettingsUpdate }
+							/>
+						) }
 					</>
 				) }
 
