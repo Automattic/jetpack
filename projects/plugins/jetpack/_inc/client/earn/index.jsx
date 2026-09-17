@@ -32,6 +32,7 @@ function EarnFeatureButton( props ) {
 		infoLink,
 		infoDescription,
 		supportLink,
+		wpcomSupportLink,
 		title,
 	} = props;
 
@@ -55,6 +56,7 @@ function EarnFeatureButton( props ) {
 				disableInSiteConnectionMode
 				support={ {
 					link: supportLink,
+					wpcomLink: wpcomSupportLink,
 				} }
 			>
 				{ infoDescription }
@@ -130,6 +132,7 @@ function Earn( props ) {
 					featureName="payments"
 					title={ __( 'Collect payments', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' ) }
+					wpcomSupportLink="https://wordpress.com/support/wordpress-editor/blocks/payments/"
 					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
 						site: blogID ?? siteRawUrl,
 					} ) }
@@ -144,6 +147,7 @@ function Earn( props ) {
 					featureName="donations"
 					title={ __( 'Accept donations and tips', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' ) }
+					wpcomSupportLink="https://wordpress.com/support/wordpress-editor/blocks/donations/"
 					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
 						site: blogID ?? siteRawUrl,
 					} ) }
@@ -158,6 +162,7 @@ function Earn( props ) {
 					featureName="paypal"
 					title={ __( 'Collect PayPal payments', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-pay-with-paypal' ) }
+					wpcomSupportLink="https://wordpress.com/support/wordpress-editor/blocks/pay-with-paypal/"
 					infoLink={ getRedirectUrl( 'jetpack-support-pay-with-paypal' ) }
 					infoDescription={ __(
 						'Accept credit card payments via PayPal for physical products, services, donations, or support of your creative work.',

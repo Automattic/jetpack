@@ -166,6 +166,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-ads' ),
+							wpcomLink: 'https://wordpress.com/support/wordads-and-earn/',
 						} }
 					>
 						<p>

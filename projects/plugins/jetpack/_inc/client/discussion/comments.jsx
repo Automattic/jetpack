@@ -79,6 +79,7 @@ class CommentsComponent extends Component {
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-comments' ),
+							wpcomLink: 'https://wordpress.com/support/comments/',
 						} }
 					>
 						<ModuleToggle

@@ -83,6 +83,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: getRedirectUrl( 'wpcom-support-google-analytics' ),
+							wpcomLink: 'https://wordpress.com/support/google-analytics/',
 						} }
 					>
 						{ createInterpolateElement(
