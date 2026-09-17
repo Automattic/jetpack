@@ -222,9 +222,7 @@ export default function AiFeatures( { settings, isUserConnected = true, savingKe
 	const features = settings?.features ?? {};
 	// Children keep their saved values while the master switch is off, rather
 	// than misreporting the user's choices as off. PageNotice explains why.
-	// Custom code holding AI off leaves the master reading on, and is just as
-	// final, so the rows treat the two the same.
-	const masterEnabled = settings?.master_enabled !== false && settings?.master_forced_off !== true;
+	const masterEnabled = settings?.master_enabled !== false;
 	// False covers both a site without a connected owner and one in offline
 	// mode; either way no AI feature can load, so saved values stay inert.
 	const isConnected = settings?.is_connected !== false;

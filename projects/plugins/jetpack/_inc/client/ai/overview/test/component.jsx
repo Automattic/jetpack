@@ -285,8 +285,8 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'a notice is speaking: no usage card, and no request that could only fail', async () => {
-		render( <AiOverview { ...PROPS } noticeShowing={ true } /> );
+	test( 'usage cannot be loaded: no card, and no request that could only fail', async () => {
+		render( <AiOverview { ...PROPS } canLoadUsage={ false } /> );
 
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();

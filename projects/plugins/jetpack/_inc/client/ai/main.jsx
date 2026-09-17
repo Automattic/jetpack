@@ -239,6 +239,10 @@ export default function App() {
 		hasConnectionError,
 	} );
 
+	// The three things the usage endpoint needs: a registered site, a host that
+	// allows AI, and this user's own account linked. Nothing else stops it.
+	const canLoadUsage = !! blogId && hostAllowsAi !== false && isUserConnected !== false;
+
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
 	useEffect( () => {
@@ -503,7 +507,7 @@ export default function App() {
 						activityLogUrl={ activityLogUrl }
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
-						noticeShowing={ noticeState !== null }
+						canLoadUsage={ canLoadUsage }
 						// Same preconditions the MCP hub applies to its copy of the
 						// row: the copy promises AI-agent actions, which need MCP.
 						showActivityLog={

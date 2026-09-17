@@ -338,8 +338,8 @@ function UsageCard( { upgradeUrl, planName } ) {
  * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
  * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
  *                                          copy promises AI-agent actions, which need MCP.
- * @param {boolean} [props.noticeShowing]   - Whether the page notice is explaining why AI
- *                                          is unavailable; usage is neither shown nor asked for.
+ * @param {boolean} [props.canLoadUsage]    - Whether the usage endpoint can answer for this
+ *                                          site; when it cannot, usage is neither shown nor asked for.
  * @return {object} Component markup.
  */
 export default function AiOverview( {
@@ -347,7 +347,7 @@ export default function AiOverview( {
 	upgradeUrl,
 	planName,
 	showActivityLog,
-	noticeShowing = false,
+	canLoadUsage = true,
 } ) {
 	useRecordOnce( EVENTS.VIEWED, { tab: 'overview' } );
 	const recordLinkClick = ( linkType, slug ) => () =>
@@ -361,7 +361,7 @@ export default function AiOverview( {
 				<AssistantBanner />
 				{ /* Nothing to say about usage while the notice is saying why AI is
 				     unavailable — and no request that could only fail. */ }
-				{ ! noticeShowing && <UsageCard upgradeUrl={ upgradeUrl } planName={ planName } /> }
+				{ canLoadUsage && <UsageCard upgradeUrl={ upgradeUrl } planName={ planName } /> }
 			</Stack>
 
 			<Stack direction="column" gap="lg">

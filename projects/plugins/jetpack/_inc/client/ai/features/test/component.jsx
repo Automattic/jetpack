@@ -188,15 +188,16 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
-	// The master reads on while a `jetpack_ai_enabled` filter holds AI off, so
-	// the rows must follow the notice rather than the master switch.
-	test( 'held off by custom code: toggles keep saved values but disable', () => {
+	// `jetpack_ai_enabled` reaches the writing assistant and the image editor, but
+	// not AI SEO or AI Answers, which keep running and so keep their controls.
+	// The page notice carries the explanation for all of them.
+	test( 'held off by custom code: the rows stay usable', () => {
 		renderFeatures( { master_enabled: true, master_forced_off: true } );
 
 		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
 		expect( toggle ).toBeChecked();
-		expect( toggle ).toBeDisabled();
-		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
+		expect( toggle ).toBeEnabled();
+		expect( screen.getByRole( 'checkbox', { name: /AI Answers/ } ) ).toBeInTheDocument();
 	} );
 
 	test( 'not connected: toggles keep saved values but disable, links and badge hidden', () => {

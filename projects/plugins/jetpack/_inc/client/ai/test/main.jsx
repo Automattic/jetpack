@@ -276,9 +276,44 @@ describe( 'AI admin page (main.jsx)', () => {
 			await expect(
 				screen.findByText( 'Jetpack AI is turned off by custom code on this site.', IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
-			expect( apiFetch ).not.toHaveBeenCalledWith(
-				expect.objectContaining( { path: expect.stringContaining( 'ai-assistant-feature' ) } )
-			);
+		} );
+
+		// Trunk shows the card in offline mode and on a broken connection; this PR
+		// consolidates notices and must not quietly change that.
+		test.each( [
+			[ 'offline mode', { isOfflineMode: true } ],
+			[ 'a broken connection', {} ],
+		] )( 'overview tab: the usage card survives %s', async ( label, extra ) => {
+			if ( label === 'a broken connection' ) {
+				useConnectionErrorNotice.mockReturnValue( { hasConnectionError: true } );
+			}
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				isUserConnected: true,
+				...extra,
+			};
+			window.location.hash = '#/overview';
+			mockApiFetch();
+
+			render( <App /> );
+
+			await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		} );
+
+		// The usage endpoint answers for the account, not the module, so switching
+		// AI off leaves the figures true and worth showing.
+		test( 'overview tab: the usage card survives the master switch', async () => {
+			window.jetpackAiSettings = masterOffPage( { showFeaturesView: true, blogId: 1 } );
+			window.location.hash = '#/overview';
+			mockApiFetch( { featureGet: masterOffSettings() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 		} );
 
 		test( 'overview tab: the notice shows', async () => {
@@ -347,7 +382,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'broken connection: the shared notice outranks the rest and hides the usage card', async () => {
+		test( 'broken connection: the shared notice outranks the rest', async () => {
 			window.location.hash = '#/overview';
 			useConnectionErrorNotice.mockReturnValue( { hasConnectionError: true } );
 			mockApiFetch( { featureGet: masterOffSettings() } );
@@ -356,7 +391,6 @@ describe( 'AI admin page (main.jsx)', () => {
 
 			await expect( screen.findByTestId( 'connection-error' ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'the usage card renders when nothing contradicts it', async () => {
@@ -391,7 +425,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			);
 		} );
 
-		test( 'a broken connection hides the usage card and asks nothing of it', async () => {
+		test( 'a broken connection shows the notice and keeps the usage card', async () => {
 			window.location.hash = '#/overview';
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: true };
 			useConnectionErrorNotice.mockReturnValue( { hasConnectionError: true } );
@@ -400,15 +434,12 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect( screen.findByTestId( 'connection-error' ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
-			// The card asks for usage as it mounts, so a site that cannot answer
-			// must never have been asked.
-			expect( apiFetch ).not.toHaveBeenCalledWith(
-				expect.objectContaining( { path: expect.stringContaining( 'ai-assistant-feature' ) } )
-			);
+			// The card follows the site's own connection state, not the notice: a
+			// registered site with a linked account can still answer for usage.
+			await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 		} );
 
-		test( 'a site with no connected owner: the notice shows and the card asks nothing', async () => {
+		test( 'a site with no connected owner: the notice shows beside the usage card', async () => {
 			window.location.hash = '#/overview';
 			window.jetpackAiSettings = {
 				showFeaturesView: true,
@@ -423,7 +454,6 @@ describe( 'AI admin page (main.jsx)', () => {
 			await expect(
 				screen.findByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
-			expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'the usage card asks nothing of an unlinked account', async () => {
