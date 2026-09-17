@@ -36,5 +36,12 @@ module.exports = {
 		'^hooks/use-entity-record-state$': '<rootDir>/src/customberg/hooks/use-entity-record-state.js',
 	},
 	moduleDirectories: [ 'node_modules', '<rootDir>/src/dashboard' ],
+
+	// packages/init/src/index.ts reads `import.meta.url`, so Jest's CJS runtime cannot
+	// require it at all. Counting a file no test can load as uncovered is noise.
+	coveragePathIgnorePatterns: [
+		...( baseConfig.coveragePathIgnorePatterns ?? [] ),
+		'/packages/init/src/index\\.ts$',
+	],
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest-globals.gui.js' ],
 };
