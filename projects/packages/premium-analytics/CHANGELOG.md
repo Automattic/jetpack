@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-09-15
+### Added
+- Add a dismissible feedback banner above the dashboard widgets. [#52325]
+- Ads: Add an earnings history report page, showing every period with its earnings, ads served, and payment status. [#52323]
+- Date picker: Add the "Month to date" and "Year to date" periods. [#52088]
+- Locations: Add a map of views by location to the report, with an option to hide it. [#51808]
+- Post detail: Add a "Totals" column to the "All-time traffic" card, with month labels that stay in view as the history scrolls. [#52137]
+- Post detail: Add a "Total views" / "Daily average" switch to the "All-time traffic" card. [#52127]
+- Traffic: Note in the widget help that the "Visitors" total is a per-period sum. [#52085]
+
+### Changed
+- Add feedback and the preview opt-out to the page options menu on post and video detail pages, and a "Reset to default" button while customizing. [#52190]
+- Ads: Rearrange the default widgets for the three-column grid, with the chart first, then the balance, then the three history tables side by side. [#52232]
+- Ads: Show ads served, average CPM and revenue together in the chart tooltip, whichever tab is selected. [#52262]
+- Build the custom date range calendar on the WordPress design system calendar. [#52090]
+- Dashboard: Ask the same readiness question when switching the new "Traffic" tab off, and point to the "Modules Visibility" setting to switch it back on. [#52186]
+- Dashboard: Ask whether the new "Traffic" tab is ready to replace the old one, instead of how it compares with the old one. [#52109]
+- Dashboard: Hide the date controls while customizing the layout, instead of disabling them. [#52176]
+- Dashboard: Move "Customize" into the page options menu, and offer "Reset to default" beside "Cancel" and "Done" while customizing. [#52192]
+- Date picker: Offer common periods, removing "Last 90 days", "Last 365 days" and "Last year" from the menu. [#52124]
+- Date range: Measure day boundaries in the site's time zone and report no period length when a range ends before it starts. [#52065]
+- Draw the "Post views" and "Video performance" charts as bars by default on post and video detail pages. [#52174]
+- Feedback: Tell readers where their feedback went and that they can send more, instead of a one-line thank you. [#52107]
+- Highlight widgets: Arrange metric tiles as a list in a one-column widget, or as a single row or two-column grid in a wider widget. [#52258]
+- Insights: Align the widget help text and the "Year in review" and "All-time stats" header icons with the design. [#52253]
+- Insights: Always show every total on the "All-time stats" card, and remove its "Metrics" control. [#52261]
+- Insights: Label the "Tags & categories" widget with its 7-day window, and the most commented and shares widgets as all-time. [#52308]
+- Insights: Lay out the default widgets on the three-column grid in the design's order. [#52253]
+- Insights: Remove "Total views", "Total visitors", "Popular days" and "Popular hours" from the default layout, and hold the four widgets back from every widget picker for now. [#52216]
+- Insights: Remove the year filter and interval dropdown from the section header. [#52175]
+- Insights: Rename the section title to "Site insights". [#52314]
+- Insights: Show "All-time stats" totals as compact figures, with the exact total in a tooltip. [#52306]
+- Insights: Show the "Most popular time" and "Most popular day" highlights side by side, stacking them only on a narrow tile. [#52219]
+- Keep the custom range calendar's "Cancel" and "Apply" buttons at the bottom of the period menu. [#52116]
+- Onboarding: Show the "Skip tour" button on every step of the spotlight tour. [#52140]
+- Pin and condense the post and video detail headers on scroll, as on the dashboard, with the tabs scrolling away, the subtitle folding and the media shrinking to the title row. [#52149]
+- Pin the section header on the report pages, as on the dashboard. [#52142]
+- Popular post: Retitle the card to "Most popular in the last year". [#52254]
+- Post All-time traffic: Share the monthly heatmap through the widgets toolkit and let translators order the month and year in its tooltip. [#52223]
+- Post detail: Replace the daily "Traffic activity" heatmap with an "All-time traffic" table of monthly views, and picking a month applies it as the page's period. [#52118] [#52214]
+- Report date filters: Stage a date range through one shared bounds helper in both pickers. [#52064]
+- Show the exact number on hover behind abbreviated figures, and abbreviate with one decimal where it fits (1.2K, 54.3K, 234K). [#52177]
+- Subscribers: Show "Subscriber highlights" by default and rearrange the widgets for the three-column grid. [#52231]
+- Update package dependencies. [#52162] [#52200] [#52297]
+
+### Removed
+- Remove the arrows that stepped the date range back and forward a period. [#52108]
+
+### Fixed
+- Anchor the activity heatmaps' window fallback on the site's today instead of the viewer's. [#52173]
+- Calendar heatmap: Show the weekday, month and tooltip labels in the site's language. [#52115]
+- Date comparison: Keep the same calendar dates for a range starting on the 1st, so "Year to date" in a leap year compares against 1 January of the previous year rather than 31 December. [#52215]
+- Dialogs: Keep the comment field's focus ring from being clipped by the dialog footer. [#52110]
+- Most commented authors: Link WordPress.com commenters to the comment screen filtered to their comments, as guest commenters already are. [#52291]
+- Offer every period the dashboard's date picker does, plus a custom range, on post, page and video detail pages. [#52087]
+- Onboarding: Keep the welcome modal open on a click outside it, so the tour can still be started. [#52095]
+- Stop the first and last dates on a chart's horizontal axis from being cut off. [#52112]
+- Year in review: Match the metric tile icons to the design, and add space between the tiles and the footer link. [#52307]
+
 ## [0.6.1] - 2026-09-09
 ### Changed
 - Internal updates.
@@ -284,6 +343,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.7.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.6.1...0.7.0
 [0.6.1]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.4.0...0.5.0

@@ -163,8 +163,7 @@ export const Empty: Story = {
 };
 
 interface ViewsOverYearsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		ViewsOverYearsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, ViewsOverYearsStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders

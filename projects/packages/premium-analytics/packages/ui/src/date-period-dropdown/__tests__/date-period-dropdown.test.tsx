@@ -3,6 +3,13 @@ jest.mock( '@wordpress/compose', () => ( {
 	useMediaQuery: jest.fn( () => false ),
 } ) );
 
+// Loading the barrels' unused libraries (core-data, charts, dataviews) costs more than every test here.
+jest.mock( '@jetpack-premium-analytics/data', () =>
+	jest.requireActual( '../../../../data/src/providers/period-change-signal' )
+);
+jest.mock( '@automattic/charts', () => ( {} ) );
+jest.mock( '@wordpress/dataviews', () => ( {} ) );
+
 import { TZDate } from '@date-fns/tz';
 import { configure, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -10,6 +17,9 @@ import { useMediaQuery } from '@wordpress/compose';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 
 configure( { reactStrictMode: true } );
+
+// Each click re-renders the popover and calendar, which a contended coverage runner can stretch past 5s.
+jest.setTimeout( 20_000 );
 
 const JULY_2026 = {
 	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),

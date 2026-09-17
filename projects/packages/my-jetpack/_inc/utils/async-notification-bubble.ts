@@ -31,7 +31,7 @@ apiFetch< RedBubbleAlerts >( {
 		const count = alerts
 			? Object.values( alerts ).filter(
 					alert => ! ( alert as { is_silent?: boolean } | null )?.is_silent
-			  ).length
+				).length
 			: 0;
 		window.jetpackMenuBadges.setCount( 'my-jetpack', count );
 	} )

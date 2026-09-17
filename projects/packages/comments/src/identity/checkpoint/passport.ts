@@ -46,7 +46,9 @@ export const readPassport = (): Passport | null => {
 		return {
 			provider: data.provider as Provider,
 			name: data.name,
-			avatar: typeof data.avatar === 'string' ? data.avatar : '',
+			avatar:
+				( typeof data.avatar === 'string' && data.avatar ) ||
+				JetpackComments.identity.defaultAvatar,
 		};
 	} catch {
 		return null;
