@@ -242,19 +242,25 @@ function processSeriesData(
 
 /**
  * Builds the static item that names the comparison overlay, styled like its first series.
+ * Skipped when a comparison series already has an item of its own, so nothing is listed twice.
  * @param seriesData       - The series data to search for a comparison series
+ * @param items            - The legend items already built from the series
  * @param label            - The item label
  * @param getElementStyles - Function to get element styles
  * @param legendShape      - The shape type for legend items (string literal or React component)
- * @return The legend item, or null when no series is a comparison
+ * @return The legend item, or null when it would add nothing
  */
 function buildComparisonLegendItem(
 	seriesData: SeriesData[],
+	items: BaseLegendItem[],
 	label: string,
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
 	legendShape?: LegendShape< SeriesData[], number >
 ): BaseLegendItem | null {
-	const index = seriesData.findIndex( series => series.options?.type === 'comparison' );
+	const itemLabels = new Set( items.map( item => item.label ) );
+	const index = seriesData.findIndex(
+		series => series.options?.type === 'comparison' && ! itemLabels.has( series.label )
+	);
 
 	if ( index === -1 ) {
 		return null;
@@ -359,7 +365,13 @@ export function useChartLegendItems<
 				legendShape
 			);
 			const comparison = comparisonItem
-				? buildComparisonLegendItem( seriesData, comparisonLabel, getElementStyles, legendShape )
+				? buildComparisonLegendItem(
+						seriesData,
+						items,
+						comparisonLabel,
+						getElementStyles,
+						legendShape
+				  )
 				: null;
 
 			return comparison ? [ ...items, comparison ] : items;

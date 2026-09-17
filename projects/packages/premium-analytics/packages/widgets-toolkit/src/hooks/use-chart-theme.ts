@@ -33,6 +33,14 @@ export function useChartTheme(): ChartTheme {
 					rowGap: 'var( --wpds-dimension-padding-sm )',
 					columnGap: 'var( --wpds-dimension-padding-sm )',
 				},
+				shapeStyles: [
+					{
+						transform: 'translate(0, 1px)',
+					},
+					{
+						transform: 'translate(0, 1px)',
+					},
+				],
 			},
 			leaderboardChart: {
 				labelSpacing: 'xs',

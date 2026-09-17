@@ -414,7 +414,7 @@ describe( 'ComparativeBarChart', () => {
 			legend: { collapseGroups: true, interactive: true },
 		} );
 		expect( mockLegendSpy ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { interactive: true } )
+			expect.objectContaining( { interactive: true, shape: 'rect', shapeStyles: { margin: 0 } } )
 		);
 	} );
 

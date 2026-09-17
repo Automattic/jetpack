@@ -289,11 +289,44 @@ describe( 'useChartLegendItems', () => {
 
 		test( 'uses a string option as the label', () => {
 			const { result } = renderHook(
-				() => useChartLegendItems( comparisonData, { comparisonItem: 'Previous period' } ),
+				() =>
+					useChartLegendItems( comparisonData, {
+						collapseGroups: true,
+						comparisonItem: 'Previous period',
+					} ),
 				{ wrapper }
 			);
 
-			expect( result.current.at( -1 )?.label ).toBe( 'Previous period' );
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Previous period' ] );
+		} );
+
+		test( 'adds nothing when the comparison series already has its own item', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( comparisonData, { comparisonItem: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Views — previous' ] );
+		} );
+
+		test( 'styles a current-period series by its own line styles, not the theme index', () => {
+			const theme = {
+				seriesLineStyles: [ { strokeWidth: 2 } ],
+				legend: { shapeStyles: [ {}, { strokeDasharray: '2 2' } ] },
+			};
+			const themedWrapper = ( { children }: { children: ReactNode } ) => (
+				<GlobalChartsProvider theme={ theme }>{ children }</GlobalChartsProvider>
+			);
+			const pairedData: SeriesData[] = [
+				{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+				{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+			];
+
+			const { result } = renderHook( () => useChartLegendItems( pairedData, {}, 'line' ), {
+				wrapper: themedWrapper,
+			} );
+
+			expect( result.current[ 1 ].shapeStyle ).toEqual( { strokeWidth: 2 } );
 		} );
 
 		test( 'adds nothing when no series is a comparison', () => {
