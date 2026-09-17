@@ -1,9 +1,14 @@
+@use "@automattic/jetpack-base-styles/root-variables";
 @use "@wordpress/base-styles/variables" as wpvariables;
 @use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
+@use "@wordpress/base-styles/mixins" as wpmixins;
 
 .jetpack-boost-overview {
-	--jetpack-boost-overview-chart-desktop: var(--wpds-color-foreground-interactive-brand);
-	--jetpack-boost-overview-chart-mobile: var(--wpds-color-foreground-content-success-weak);
+	--jetpack-boost-score-good: var(--wpds-color-foreground-content-success-weak);
+	--jetpack-boost-score-medium: var(--wpds-color-foreground-content-warning-weak);
+	--jetpack-boost-score-poor: var(--wpds-color-foreground-content-error-weak);
+	--jetpack-boost-history-empty: var(--wpds-color-stroke-surface-neutral);
+	--jetpack-boost-history-axis: var(--wpds-color-foreground-content-neutral-weak);
 	// The surface width token intentionally sets the chart height.
 	--jetpack-boost-overview-chart-height: var(--wpds-dimension-surface-width-sm);
 
@@ -14,6 +19,11 @@
 	max-inline-size: var(--wpds-dimension-surface-width-xl);
 	margin-inline: auto;
 	min-inline-size: 0;
+}
+
+.jetpack-boost-overview__fallback:focus-visible {
+
+	@include wpmixins.outset-ring__focus();
 }
 
 .jetpack-boost-overview__scores-card {
@@ -98,16 +108,45 @@
 	}
 }
 
-.jetpack-boost-overview__score-placeholder {
-	inline-size: calc(2 * var(--wpds-dimension-size-lg));
-	block-size: var(--wpds-dimension-size-lg);
+.jetpack-boost-overview__scores-status {
+	padding-block: calc(2 * var(--wpds-dimension-padding-3xl));
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	.components-spinner {
+		margin: 0;
+	}
+}
+
+.jetpack-boost-overview__scores-error {
+	padding: var(--wpds-dimension-padding-md);
+}
+
+.jetpack-boost-overview__score-meter {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+
+	@media ( max-width: wpbreakpoints.$break-small ) {
+		flex-direction: row;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-md);
+
+		.jetpack-boost-overview__delta {
+			margin-inline-start: auto;
+			text-align: end;
+		}
+	}
 }
 
 .jetpack-boost-overview .jetpack-boost-overview__progress {
 	border-radius: var(--wpds-border-radius-md);
 	block-size: var(--wpds-dimension-size-5xs);
 	inline-size: 100%;
-	background-color: var(--wpds-color-background-surface-neutral-weak);
+	background-color: transparent;
+
+	@media ( max-width: wpbreakpoints.$break-small ) {
+		flex: 0 0 50%;
+	}
 }
 
 .jetpack-boost-overview__progress--good {
@@ -123,7 +162,7 @@
 }
 
 .jetpack-boost-overview__progress--medium {
-	--wp-components-color-foreground: var(--wpds-color-foreground-content-warning-weak);
+	--wp-components-color-foreground: var(--jp-orange-20);
 }
 
 .jetpack-boost-overview__tier--medium {
@@ -141,12 +180,6 @@
 
 .jetpack-boost-overview__history-card {
 	overflow: visible;
-}
-
-.jetpack-boost-overview__chart-canvas {
-	block-size: var(--jetpack-boost-overview-chart-height);
-	min-inline-size: 0;
-	isolation: isolate;
 }
 
 .jetpack-boost-overview__series-swatch {

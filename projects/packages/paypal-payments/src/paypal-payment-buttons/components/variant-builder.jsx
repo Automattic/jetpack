@@ -14,7 +14,8 @@ import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import GridiconTrash from 'gridicons/dist/trash';
 import { getPriceStep } from '../utils/currency-symbols';
-import { validatePrice } from '../utils/validation';
+import { turnGateOff } from '../utils/resource-sync';
+import { REQUIRED_FIELD_ERROR, validatePrice } from '../utils/validation';
 
 // Pre-extract translated strings used in ternaries to avoid i18n build errors.
 const helpVariants = __(
@@ -140,6 +141,45 @@ export function isVariantPricingOn( enabled, variants ) {
 }
 
 /**
+ * Find the cheapest per-option price in the primary option group.
+ *
+ * PayPal prices the primary group alone, so that is where the "From" price comes from.
+ *
+ * @param {object} variants - The variants attribute.
+ * @return {string|null} The lowest option price, or null when none is priced.
+ */
+export function getLowestVariantPrice( variants ) {
+	let lowest = null;
+
+	( getPrimaryDimension( variants )?.options || [] ).forEach( opt => {
+		const value = `${ opt.unit_amount?.value ?? '' }`.trim();
+		if ( value === '' || isNaN( parseFloat( value ) ) ) {
+			return;
+		}
+		if ( lowest === null || parseFloat( value ) < parseFloat( lowest ) ) {
+			lowest = value;
+		}
+	} );
+
+	return lowest;
+}
+
+/**
+ * The price a flat discount has to come in under.
+ *
+ * Per-option pricing moves the price onto the options, so it is the cheapest of those.
+ *
+ * @param {boolean} variantPricingOn - Whether a priced option group is in play, from
+ *                                   isVariantPricingOn(), not hasVariantPricing().
+ * @param {object}  variants         - Variants data with dimensions.
+ * @param {string}  price            - The product-level price.
+ * @return {string|null} The price to compare against.
+ */
+export function getComparisonPrice( variantPricingOn, variants, price ) {
+	return variantPricingOn ? getLowestVariantPrice( variants ) : price;
+}
+
+/**
  * The kinds of error validateVariants() reports.
  *
  * Every one has to reach the merchant through a control in GroupEditor. A kind that
@@ -216,6 +256,25 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 	} );
 
 	return errors;
+}
+
+/**
+ * Validate the customer note rows a merchant has added.
+ *
+ * buildRequestData() drops a note with a blank label, so catch it here. Each error
+ * comes back with its row index, so the editor can place the message on the right row.
+ *
+ * @param {Array} customerNotes - The customerNotes attribute.
+ * @return {Array} Errors as { index, message }. Empty when every label is filled.
+ */
+export function validateCustomerNotes( customerNotes ) {
+	if ( ! customerNotes?.length ) {
+		return [];
+	}
+
+	return customerNotes.flatMap( ( note, index ) =>
+		note.label?.trim() ? [] : [ { index, message: REQUIRED_FIELD_ERROR } ]
+	);
 }
 
 /**
@@ -486,14 +545,17 @@ export default function VariantBuilder( {
 	}, [ focusNewGroup ] );
 
 	const setEnabled = newEnabled => {
-		if ( newEnabled && dimensions.length === 0 ) {
-			onChange( {
-				variantsEnabled: true,
-				variants: { dimensions: [ createGroup() ] },
-			} );
-		} else {
-			onChange( { variantsEnabled: newEnabled } );
+		if ( ! newEnabled ) {
+			// The groups go off with the toggle, so the next mount's read-back agrees with PayPal.
+			onChange( turnGateOff( 'variantsEnabled' ) );
+			return;
 		}
+
+		// Switching on keeps the groups that are already there, and a first run gets one.
+		onChange( {
+			variantsEnabled: true,
+			...( dimensions.length === 0 ? { variants: { dimensions: [ createGroup() ] } } : {} ),
+		} );
 	};
 
 	const updateDimension = ( dimIndex, newDimension ) => {
@@ -508,7 +570,7 @@ export default function VariantBuilder( {
 		const newDimensions = dimensions.filter( ( _, i ) => i !== dimIndex );
 		onChange( {
 			variants: { dimensions: newDimensions },
-			...( newDimensions.length === 0 ? { variantsEnabled: false } : {} ),
+			...( newDimensions.length === 0 ? turnGateOff( 'variantsEnabled' ) : {} ),
 		} );
 	};
 

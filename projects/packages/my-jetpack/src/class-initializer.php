@@ -12,6 +12,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Error_Handler as Connection_Error_Handler;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -50,6 +51,11 @@ class Initializer {
 	 * Feature flag that opts a site into the wp-build My Jetpack dashboard.
 	 */
 	const WP_BUILD_FEATURE_FLAG = 'my-jetpack-wp-build';
+
+	/**
+	 * Feature flag that swaps the My Jetpack Products tab for a Features tab.
+	 */
+	const FEATURES_TAB_FEATURE_FLAG = 'my-jetpack-features-tab';
 
 	/**
 	 * Handle for the classic script that carries the React initial state on the
@@ -104,9 +110,9 @@ class Initializer {
 		// Before the gate, so the flag stays listed while diagnosing why My Jetpack is off.
 		self::register_feature_flags();
 
-		// Before the gate: the Jetpack plugin renders this package's connection screen even
-		// where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
-		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_assets_script_data' ) );
+		// Before the gate: the Jetpack plugin renders this package's connection screen and footer
+		// links even where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_admin_script_data' ) );
 
 		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
@@ -336,6 +342,15 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+
+		Feature_Flags::register(
+			self::FEATURES_TAB_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Replace the My Jetpack Products tab with a Features tab. Requires my-jetpack-wp-build.',
+				'owner'       => 'my-jetpack',
+			)
+		);
 	}
 
 	/**
@@ -350,6 +365,40 @@ class Initializer {
 	 */
 	public static function is_modernized() {
 		return Feature_Flags::is_enabled( self::WP_BUILD_FEATURE_FLAG );
+	}
+
+	/**
+	 * Whether the dashboard shows a Features tab in place of the Products tab.
+	 *
+	 * Also requires `my-jetpack-wp-build`, but is site-wide: a request that falls back to the
+	 * legacy bundle, such as the onboarding takeover, shows the Features tab too.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_features_tab_enabled() {
+		return self::is_modernized() && Feature_Flags::is_enabled( self::FEATURES_TAB_FEATURE_FLAG );
+	}
+
+	/**
+	 * Get the slug and label that replace the Products tab, for links to it.
+	 *
+	 * Null while the tab is unchanged, so links keep their own translated "Products" label.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{slug: string, label: string}|null
+	 */
+	public static function get_products_section() {
+		if ( ! self::is_features_tab_enabled() ) {
+			return null;
+		}
+
+		return array(
+			'slug'  => 'features',
+			'label' => _x( 'Features', 'Navigation item', 'jetpack-my-jetpack' ),
+		);
 	}
 
 	/**
@@ -687,18 +736,19 @@ class Initializer {
 	}
 
 	/**
-	 * Add the package's image base URL to the admin script data.
+	 * Add the package's image base URL and products tab to the admin script data.
 	 *
-	 * Printed on every admin page by Script_Data, so components this package exports
-	 * (the connection screen) can resolve their illustrations off the My Jetpack page.
+	 * Printed on every admin page by Script_Data, so the connection screen can resolve its
+	 * illustrations and Jetpack footers can link to the products tab off the My Jetpack page.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array $data Script data.
 	 * @return array
 	 */
-	public static function add_assets_script_data( $data ) {
-		$data['myJetpack']['assetsUrl'] = self::get_assets_url();
+	public static function add_admin_script_data( $data ) {
+		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
+		$data['myJetpack']['productsSection'] = self::get_products_section();
 
 		return $data;
 	}
@@ -1171,12 +1221,32 @@ class Initializer {
 		// Report each non-silent alert to the central menu-badges registry as an
 		// attention entry (count 1). The registry + renderer own the badge.
 		Menu_Badges::init(); // idempotent; wires the renderer.
+
+		// Connection errors are owned by the Error Handler (the single source of truth):
+		// surface any it reports for this viewer as their own attention entry. Read live
+		// rather than from the red-bubble transient, since that cache is not viewer-keyed.
+		$has_connection_error = self::has_connection_error();
+		if ( $has_connection_error ) {
+			Notification_Counts::register(
+				'my-jetpack-connection-error',
+				array(
+					'menu_slug' => 'my-jetpack',
+					'type'      => 'attention',
+				)
+			);
+		}
+
 		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
 			// Protect reports its own count directly to the registry, but only when its
 			// standalone plugin is active (see class-jetpack-protect.php::admin_page_init()).
 			// If the standalone plugin isn't active, nobody else registers this count, so we
 			// must not skip it here or the alert silently disappears from the menu total.
 			if ( 'protect_has_threats' === $slug && Products\Protect::is_standalone_plugin_active() ) {
+				continue;
+			}
+			// The missing-connection slug and a connection error describe the same broken
+			// connection; count it once (the error, above, is the more specific signal).
+			if ( $has_connection_error && 'missing-connection' === $slug ) {
 				continue;
 			}
 			Notification_Counts::register(
@@ -1187,6 +1257,24 @@ class Initializer {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Whether the Connection Error Handler reports a displayable connection error
+	 * for the current viewer.
+	 *
+	 * Read live (not via the red-bubble transient): get_displayable_errors() is a
+	 * cached option read that the Error Handler already scopes and caches per viewer.
+	 * Guarded for the mid-plugin-update window, where a stale connection package
+	 * predating the method can be loaded.
+	 *
+	 * @return bool
+	 */
+	private static function has_connection_error() {
+		if ( ! class_exists( Connection_Error_Handler::class ) || ! method_exists( Connection_Error_Handler::class, 'get_displayable_errors' ) ) {
+			return false;
+		}
+		return ! empty( Connection_Error_Handler::get_instance()->get_displayable_errors() );
 	}
 
 	/**

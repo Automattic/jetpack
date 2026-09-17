@@ -394,8 +394,17 @@ export function getStatsBuckets( response: unknown, query: StatsQueryParams = {}
 		return [ [ endDate, coerceStatsRecord( days[ endDate ] ) ] ] as const;
 	}
 
+	// A week or month bucket is keyed at its calendar start, which a window
+	// opening mid-period precedes; keep every bucket that overlaps the window.
 	return Object.entries( days )
-		.filter( ( [ key ] ) => ( ! startDate || key >= startDate ) && ( ! endDate || key <= endDate ) )
+		.filter( ( [ key ] ) => {
+			const bucket = getDateIntervalDateParts( key, query.period );
+
+			return (
+				( ! startDate || bucket.endDate >= startDate ) &&
+				( ! endDate || bucket.startDate <= endDate )
+			);
+		} )
 		.map( ( [ key, value ] ) => [ key, coerceStatsRecord( value ) ] ) as Array<
 		readonly [ string, StatsRecord ]
 	>;

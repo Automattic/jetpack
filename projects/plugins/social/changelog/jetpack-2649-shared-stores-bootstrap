@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Social admin screen and editor sidebar failing to load on WordPress.com-hosted sites.

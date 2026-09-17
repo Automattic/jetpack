@@ -134,6 +134,10 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 									id={ postRow.postId }
 									label={ postRow.label }
 									link={ postRow.href }
+									origin={ {
+										report: 'utm',
+										section: getUtmReportSection( utmDimension ),
+									} }
 								/>
 							),
 						}
@@ -165,7 +169,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						: undefined,
 			};
 		} );
-	}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );
+	}, [ activeData, isDrillDown, selectUtmLabel, utmDimension, withComparison ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink

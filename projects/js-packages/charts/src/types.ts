@@ -134,6 +134,7 @@ export type ThemeAnnotationStyles = {
 export type DataPoint = {
 	label: string;
 	value: number;
+	color?: string;
 };
 
 /**
@@ -185,6 +186,7 @@ export type DataPointDate = {
 	dateString?: string;
 	value: number | null;
 	label?: string;
+	color?: string;
 };
 
 export type LeaderboardEntry = {
@@ -413,6 +415,8 @@ export type ChartTheme = {
 		compactCellGap?: number;
 		/** Fixed square cell size in px for compact mode */
 		compactCellSize?: number;
+		/** Gap in px between adjacent column groups; in compact mode the minimum, as the gaps share leftover width */
+		groupGap?: number;
 	};
 };
 

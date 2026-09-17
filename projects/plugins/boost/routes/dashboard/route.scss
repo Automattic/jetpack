@@ -2,3 +2,9 @@
 #jb-subpage-mount {
 	min-inline-size: 0;
 }
+
+.jetpack-boost-dashboard__loading {
+	display: flex;
+	justify-content: center;
+	padding-block: var(--wpds-dimension-padding-2xl);
+}

@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import { createAboutPage } from '../lib/about-page.ts';
 import { createContactPage } from '../lib/contact-page.ts';
 import { createEventsPage } from '../lib/events-page.ts';
@@ -340,7 +341,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 			siteTitle={ siteTitle }
 			siteEditUrl={ siteEditUrl }
 		>
-			<div className="ai-launchpad-tailored-list">
+			<Stack direction="column" gap="sm" className="ai-launchpad-tailored-list">
 				{ visibleTasks.map( task => (
 					<TaskCard
 						key={ task.id }
@@ -368,7 +369,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 						onSkip={ () => handleSkip( task ) }
 					/>
 				) ) }
-			</div>
+			</Stack>
 		</Layout>
 	);
 }

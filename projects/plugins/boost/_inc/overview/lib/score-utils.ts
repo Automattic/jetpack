@@ -10,7 +10,7 @@ export function getScoreTier( score: number ): ScoreTier {
 export function getScoreTierLabel( tier: ScoreTier ): string {
 	const labels = {
 		good: __( 'Good', 'jetpack-boost' ),
-		medium: __( 'Could be improved', 'jetpack-boost' ),
+		medium: __( 'Could improve', 'jetpack-boost' ),
 		poor: __( 'Poor', 'jetpack-boost' ),
 	};
 	return labels[ tier ];
@@ -36,4 +36,13 @@ export function formatScoreDelta( delta: number ): string | null {
 		),
 		`+${ delta }`
 	);
+}
+
+export function getScoreTierColor( tier: ScoreTier ): string {
+	const colors = {
+		good: 'var(--jetpack-boost-score-good)',
+		medium: 'var(--jetpack-boost-score-medium)',
+		poor: 'var(--jetpack-boost-score-poor)',
+	};
+	return colors[ tier ];
 }

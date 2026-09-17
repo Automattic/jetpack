@@ -1,9 +1,16 @@
 /**
  * External dependencies
  */
-import { queryClient, useReportScope } from '@jetpack-premium-analytics/data';
+import {
+	PERIOD_CHANGE_ATTENTION_MS,
+	queryClient,
+	useRaisePeriodChange,
+	useReportScope,
+} from '@jetpack-premium-analytics/data';
+import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -23,6 +30,11 @@ import type { ForwardedRef, ReactNode } from 'react';
 // Base UI's `Tabs.Panel` defaults to `keepMounted={false}`, so only the active
 // section is ever in the DOM; `mockMountedSectionSlugs` keeps extras for one frame.
 let mockActiveSectionSlug = 'insights';
+const JULY_2026 = {
+	from: createTZDateFromParts( [ 2026, 6, 1 ], 'UTC' ),
+	to: endOfDayTZ( createTZDateFromParts( [ 2026, 6, 31 ], 'UTC' ), 'UTC' ),
+};
+let mockAppliedRange: Partial< typeof JULY_2026 > = { from: undefined, to: undefined };
 let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
@@ -49,14 +61,17 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		<div ref={ ref }>{ children }</div>
 	) );
 	Stack.displayName = 'Stack';
+	const VisuallyHidden = ( { children, role }: { children: ReactNode; role?: string } ) => (
+		<div role={ role }>{ children }</div>
+	);
 
-	return { Stack };
+	return { Stack, VisuallyHidden };
 } );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useReportDateFilters: () => ( {
-		appliedRange: { from: undefined, to: undefined },
+		appliedRange: mockAppliedRange,
 		range: { from: undefined, to: undefined },
 		timeZone: 'UTC',
 		intervalOptions: [],
@@ -67,7 +82,14 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <MockHeaderScopeProbe />,
+	DateFiltersPanel: ( props: { attentionId?: number } ) => (
+		<>
+			<MockHeaderScopeProbe />
+			<MockAttentionProbe { ...props } />
+		</>
+	),
+	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
+		.PeriodChangeStatus,
 	DateIntervalDropdown: () => <span>interval control</span>,
 	DateYearFilter: ( { containerElement }: { containerElement?: HTMLElement | null } ) => (
 		<>
@@ -157,14 +179,31 @@ function MockHeaderScopeProbe() {
  */
 function MockScopeProbe() {
 	const { offersComparison } = useReportScope();
+	const raisePeriodChange = useRaisePeriodChange();
+	const openJuly = useCallback(
+		() => raisePeriodChange( 'traffic', JULY_2026 ),
+		[ raisePeriodChange ]
+	);
 
-	return <span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>;
+	return (
+		<>
+			<span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>
+			<button type="button" onClick={ openJuly }>
+				Open July from a widget
+			</button>
+		</>
+	);
 }
 
-jest.mock( '@wordpress/widget-dashboard', () => {
-	const { createContext, useCallback, useContext, useMemo } = jest.requireActual( 'react' );
+// Stands in for the period trigger: shows the id it was handed.
+const MockAttentionProbe = ( { attentionId }: { attentionId?: number } ) => (
+	<span data-testid="attention">{ attentionId ?? 'no attention' }</span>
+);
 
-	const EditModeContext = createContext( { editMode: false, onEditChange: () => {} } );
+jest.mock( '@wordpress/widget-dashboard', () => {
+	const React = jest.requireActual( 'react' );
+
+	const EditModeContext = React.createContext( { editMode: false, onEditChange: () => {} } );
 
 	const WidgetDashboard = ( {
 		editMode = false,
@@ -175,7 +214,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		onEditChange?: ( next: boolean ) => void;
 		children: ReactNode;
 	} ) => {
-		const value = useMemo( () => ( { editMode, onEditChange } ), [ editMode, onEditChange ] );
+		const value = React.useMemo( () => ( { editMode, onEditChange } ), [ editMode, onEditChange ] );
 
 		return (
 			<EditModeContext.Provider value={ value }>
@@ -192,8 +231,8 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	 * @return The stand-in edit toolbar.
 	 */
 	function Actions() {
-		const { editMode, onEditChange } = useContext( EditModeContext );
-		const leave = useCallback( () => onEditChange( false ), [ onEditChange ] );
+		const { editMode, onEditChange } = React.useContext( EditModeContext );
+		const leave = React.useCallback( () => onEditChange( false ), [ onEditChange ] );
 
 		return (
 			<div data-testid="widget-dashboard-actions">
@@ -383,6 +422,77 @@ describe( 'Dashboard report scope', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard period change signal', () => {
+	const sections = [
+		{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
+		{
+			slug: 'insights',
+			label: 'Insights',
+			title: 'Activity insights',
+			date_filter: DATE_FILTER_YEAR,
+		},
+	];
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useDashboardSectionsMock.mockReturnValue( {
+			sections,
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		mockAppliedRange = { from: undefined, to: undefined };
+	} );
+
+	it( 'draws attention to a period a widget set once the section shows it', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const { rerender } = render( <Dashboard /> );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+
+		await user.click( screen.getByRole( 'button', { name: 'Open July from a widget' } ) );
+
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockAppliedRange = JULY_2026;
+		rerender( <Dashboard /> );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
+		await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
+			'Date range updated to July 2026.'
+		);
+
+		act( () => {
+			jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS );
+		} );
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+		jest.useRealTimers();
+	} );
+
+	it( 'lets a signal go when the reader lands on another section instead', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( <Dashboard /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Open July from a widget' } ) );
+
+		useActiveSectionMock.mockReturnValue( [ 'store', jest.fn() ] );
+		mockActiveSectionSlug = 'store';
+		rerender( <Dashboard /> );
+
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockAppliedRange = JULY_2026;
+		rerender( <Dashboard /> );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
+		expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 	} );
 } );
 
