@@ -12,11 +12,14 @@ use Automattic\Jetpack\Connection\Client;
 /**
  * What the form offers to subscribe to, and how the site asks WordPress.com about it.
  *
- * A guest's choices post with the comment, in the fields each host's own
- * subscription handler reads. A signed-in reader's are saved as they are made,
- * through Subscriptions_Endpoint, which carries them to WordPress.com over the
- * blog connection: a Jetpack or Atomic site over HTTP, a Simple site in
- * process. The WordPress.com half is `wpcom/v2/sites/{id}/comments/subscriptions`.
+ * It is all email. A guest's choices post with the comment, in the fields each
+ * host's own subscription handler reads. A signed-in reader's are saved as they
+ * are made, through Subscriptions_Endpoint, which carries the email to
+ * WordPress.com over the blog connection: a Jetpack or Atomic site over HTTP,
+ * a Simple site in process. The WordPress.com half is
+ * `wpcom/v2/sites/{id}/comments/subscriptions`, and its rules apply: a
+ * WordPress.com login's own address is activated at once and offered the
+ * reader options, any other address confirms by email first.
  */
 class Subscriptions {
 
@@ -72,35 +75,21 @@ class Subscriptions {
 	}
 
 	/**
-	 * Who would be subscribed: the site's own user, or the passport holder.
-	 *
-	 * The passport carries the signature WordPress.com issued over the email at
-	 * the exchange, which is what lets it act on that address without asking
-	 * the reader to confirm. A site login carries no such proof off Simple, so
-	 * WordPress.com treats its address as it would any other: confirm by email.
+	 * Whose email would be subscribed: the site's own user, or the passport holder.
 	 *
 	 * A fresh popup sign-in holds only a code until its first comment posts.
 	 * Given that code, it is redeemed here and the passport issued now, so the
 	 * comment that follows posts on the passport instead.
 	 *
 	 * @param string $code The code a fresh sign-in is holding, if any.
-	 * @return array|WP_Error|null email, provider, site_commenter_id, email_signature, expires_at, issued;
-	 *                             null when nobody is signed in; the exchange's error when the code is no good.
+	 * @return string|WP_Error|null The email; null when nobody is signed in; the exchange's error when the code is no good.
 	 */
 	public static function subscriber( $code = '' ) {
 		if ( is_user_logged_in() ) {
-			return array(
-				'email'             => (string) wp_get_current_user()->user_email,
-				'provider'          => 'site',
-				'site_commenter_id' => '',
-				'email_signature'   => '',
-				'expires_at'        => 0,
-				'issued'            => false,
-			);
+			return (string) wp_get_current_user()->user_email;
 		}
 
 		$passport = Passport::read();
-		$issued   = false;
 
 		if ( null === $passport ) {
 			if ( '' === $code ) {
@@ -114,42 +103,29 @@ class Subscriptions {
 			}
 
 			Passport::issue( $passport );
-			$issued = true;
 		}
 
-		return array(
-			'email'             => $passport['email'],
-			'provider'          => $passport['provider'],
-			'site_commenter_id' => $passport['site_commenter_id'],
-			'email_signature'   => $passport['email_signature'],
-			'expires_at'        => (int) $passport['expires_at'],
-			'issued'            => $issued,
-		);
+		return (string) $passport['email'];
 	}
 
 	/**
-	 * Ask WordPress.com what a reader is subscribed to, changing one thing first if asked.
+	 * Ask WordPress.com what an email is subscribed to here, changing one thing first if asked.
 	 *
 	 * Forwards what the form sent and hands back what WordPress.com answered,
 	 * as the podcast package's relays do. Validation lives on the far side.
 	 *
-	 * @param array  $subscriber From subscriber().
-	 * @param int    $post_id    The post the comment thread belongs to.
-	 * @param string $field      The option to change, or '' to only read.
-	 * @param string $value      What to set it to.
+	 * @param string $email   Whose subscriptions.
+	 * @param int    $post_id The post the comment thread belongs to.
+	 * @param string $field   The option to change, or '' to only read.
+	 * @param string $value   What to set it to.
 	 * @return array|\WP_Error The raw Client response.
 	 */
-	public static function request( array $subscriber, $post_id, $field = '', $value = '' ) {
+	public static function request( $email, $post_id, $field = '', $value = '' ) {
 		$body = array(
-			'email'             => $subscriber['email'],
-			'provider'          => $subscriber['provider'],
-			'site_commenter_id' => $subscriber['site_commenter_id'],
-			'email_signature'   => $subscriber['email_signature'],
-			// The signature is over the passport's expiry too, so it goes along.
-			'expires_at'        => (int) $subscriber['expires_at'],
-			'post_id'           => (int) $post_id,
-			'field'             => $field,
-			'value'             => $value,
+			'email'   => $email,
+			'post_id' => (int) $post_id,
+			'field'   => $field,
+			'value'   => $value,
 		);
 
 		return Client::wpcom_json_api_request_as_blog(
