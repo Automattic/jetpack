@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.1.0] - 2026-09-15
 ### Changed
-- Form editor: Record which version of the welcome guide each analytics event describes, and every slide a reader reaches, including after navigating back. [#52148]
+- Form editor: Add additional analytics to welcome guide. [#52148]
 - Hide the Forms sidebar item when Forms is not active. [#52156]
 - Update package dependencies. [#52105] [#52297]
 
