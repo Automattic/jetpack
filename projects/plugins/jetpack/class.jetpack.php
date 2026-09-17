@@ -681,6 +681,9 @@ class Jetpack {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		// Preserve AI provenance in locally generated image sizes.
+		\Automattic\Jetpack\Plugin\Image_Metadata\Image_Metadata::init();
+
 		// Register Jetpack-specific connection tests (sync health, etc.) with the connection
 		// package's health test suite. This runs on all requests (not just admin), because
 		// the connection/test REST endpoint can be called outside admin context.
