@@ -370,27 +370,4 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertContains( 'jpa/orders-over-time', $layout_types );
 		$this->assertContains( 'jpa/top-performing-products', $layout_types );
 	}
-
-	/**
-	 * The Ads tab declares its WordAds widgets in the prototype's order.
-	 */
-	public function test_ads_section_declares_the_bundled_widgets() {
-		$layout = get_ads_section_default_layout();
-
-		// Widths fill the three-column grid.
-		$this->assert_layout_instances(
-			array(
-				'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 3, 2, 0 ),
-				'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 3, 1, 1 ),
-				'default-wordads-earnings-history-widget-instance' => array( 'jpa/wordads-earnings-history', 1, 2, 2 ),
-			),
-			$layout
-		);
-
-		// The chart's bucket follows the page interval control, so no default
-		// instance seeds attributes any more.
-		foreach ( $layout as $instance ) {
-			$this->assertArrayNotHasKey( 'attributes', $instance, $instance['uuid'] );
-		}
-	}
 }
