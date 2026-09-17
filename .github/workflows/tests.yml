@@ -172,6 +172,7 @@ jobs:
       - name: Prepare test queue
         env:
           QUEUEFILE: ${{ runner.temp }}/testqueue
+          CPUFILE: ${{ runner.temp }}/cpus
         run: |
           mkdir artifacts
           [[ -n "$COVERAGE_GROUP" ]] && mkdir coverage
@@ -189,6 +190,12 @@ jobs:
             fi
           done >> "$QUEUEFILE"
 
+          # We want the number of workers to match the number of CPUs, but we can't do it directly.
+          # So use a file with N "tokens" and have each worker try to claim one.
+          for (( i=0; i<$( nproc ); i++)); do
+            echo "$i"
+          done > "$CPUFILE"
+
       - parallel:
         - &testworker
           name: Run project tests
@@ -196,7 +203,14 @@ jobs:
             FORCE_PACKAGE_TESTS: ${{ case( matrix.force-package-tests, 'true', 'false' ) }}
             CHANGED: ${{ steps.changed.outputs.projects }}
             QUEUEFILE: ${{ runner.temp }}/testqueue
+            CPUFILE: ${{ runner.temp }}/cpus
           run: |
+            CPUID=$( flock "$CPUFILE" sed -i -e '1{w/dev/stdout' -e 'd}' "$CPUFILE" )
+            if [[ -z "$CPUID" ]]; then
+              echo "Not enough CPUs"
+              exit 0
+            fi
+
             EXIT=0
             while true; do
               P=$( flock "$QUEUEFILE" sed -i -e '1{w/dev/stdout' -e 'd}' "$QUEUEFILE" )
@@ -272,6 +286,7 @@ jobs:
                 done 2>&1 | sed -u '/^::/!s!^!['"$SLUG"'] !'
                 echo "::endgroup::"
                 if [[ -n "$FAIL" ]]; then
+                  EXIT=1
                   echo "::error::$FAIL"
                 else
                   echo "Tests for $SLUG passed"
@@ -283,6 +298,12 @@ jobs:
               fi
             done
             exit $EXIT
+        - *testworker
+        - *testworker
+        - *testworker
+        - *testworker
+        - *testworker
+        - *testworker
         - *testworker
         - *testworker
         - *testworker
