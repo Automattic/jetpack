@@ -45,22 +45,22 @@ function AddressPair( { names }: { names: DomainNames } ) {
 			{ items.map( item => (
 				<Stack
 					key={ item.badgeLabel }
-					className="wpcom-simple-backup__domain"
+					className="wpcom-backup__domain"
 					direction="row"
 					align="center"
 					justify="space-between"
 					gap="sm"
 				>
 					<Stack
-						className="wpcom-simple-backup__address"
+						className="wpcom-backup__address"
 						direction="row"
 						align="center"
 						justify="flex-start"
 					>
-						<Text className="wpcom-simple-backup__domain-name">{ item.label.first }</Text>
-						<Text className="wpcom-simple-backup__domain-suffix">{ item.label.rest }</Text>
+						<Text className="wpcom-backup__domain-name">{ item.label.first }</Text>
+						<Text className="wpcom-backup__domain-suffix">{ item.label.rest }</Text>
 					</Stack>
-					<Badge className="wpcom-simple-backup__domain-badge" intent={ item.intent }>
+					<Badge className="wpcom-backup__domain-badge" intent={ item.intent }>
 						{ item.badgeLabel }
 					</Badge>
 				</Stack>
@@ -153,7 +153,7 @@ export function TransferActivationModal( {
 
 	return (
 		<Modal
-			className="wpcom-simple-backup__modal"
+			className="wpcom-backup__modal"
 			title={
 				errors.length > 0
 					? __( 'Backups cannot be activated', 'jetpack-mu-wpcom' )

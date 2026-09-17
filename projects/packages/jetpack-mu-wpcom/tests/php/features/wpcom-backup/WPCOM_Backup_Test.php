@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Simple-site Backup page.
+ * Tests for the Backup page.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -8,12 +8,12 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-simple-backup/wpcom-simple-backup.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
 
 /**
- * Tests for the Simple-site Backup page.
+ * Tests for the Backup page.
  */
-class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
+class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * An environment that cannot prove the site has backups must not offer to
@@ -21,8 +21,8 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_state_defaults_to_upgrade_without_wpcom_libraries() {
 		$this->assertSame(
-			WPCOM_SIMPLE_BACKUP_STATE_UPGRADE,
-			wpcom_simple_backup_get_state( 1, 1 )
+			WPCOM_BACKUP_STATE_UPGRADE,
+			wpcom_backup_get_state( 1, 1 )
 		);
 	}
 
@@ -31,7 +31,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	 * either the upgrade or the transfer that makes the plan's backups real.
 	 */
 	public function test_page_registers_on_simple() {
-		$this->assertTrue( wpcom_simple_backup_should_register() );
+		$this->assertTrue( wpcom_backup_should_register() );
 	}
 
 	/**
@@ -40,7 +40,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	public function test_page_registers_on_woa_without_the_plan() {
 		Constants::set_constant( 'IS_ATOMIC', true );
 
-		$this->assertTrue( wpcom_simple_backup_should_register() );
+		$this->assertTrue( wpcom_backup_should_register() );
 	}
 
 	/**
@@ -49,11 +49,11 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	public function test_upgrade_url_goes_straight_to_checkout() {
 		$this->assertStringContainsString(
 			'/checkout/',
-			wpcom_simple_backup_get_upgrade_url( 'example.wordpress.com' )
+			wpcom_backup_get_upgrade_url( 'example.wordpress.com' )
 		);
 		$this->assertStringEndsWith(
 			'/business',
-			wpcom_simple_backup_get_upgrade_url( 'example.wordpress.com' )
+			wpcom_backup_get_upgrade_url( 'example.wordpress.com' )
 		);
 	}
 
@@ -62,15 +62,15 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_state_is_filterable() {
 		add_filter(
-			'wpcom_simple_backup_state',
+			'wpcom_backup_state',
 			function () {
-				return WPCOM_SIMPLE_BACKUP_STATE_IN_PROGRESS;
+				return WPCOM_BACKUP_STATE_IN_PROGRESS;
 			}
 		);
 
 		$this->assertSame(
-			WPCOM_SIMPLE_BACKUP_STATE_IN_PROGRESS,
-			wpcom_simple_backup_get_state( 1, 1 )
+			WPCOM_BACKUP_STATE_IN_PROGRESS,
+			wpcom_backup_get_state( 1, 1 )
 		);
 	}
 
@@ -90,7 +90,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 			),
 		);
 
-		$errors = wpcom_simple_backup_get_transfer_errors( $eligibility );
+		$errors = wpcom_backup_get_transfer_errors( $eligibility );
 
 		$this->assertCount( 1, $errors );
 		$this->assertSame( 'no_business_plan', $errors[0]['code'] );
@@ -107,7 +107,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	public function test_transfer_errors_default_a_missing_message_to_empty() {
 		$eligibility = array( 'errors' => array( array( 'code' => 'site_graylisted' ) ) );
 
-		$errors = wpcom_simple_backup_get_transfer_errors( $eligibility );
+		$errors = wpcom_backup_get_transfer_errors( $eligibility );
 
 		$this->assertCount( 1, $errors );
 		$this->assertSame( '', $errors[0]['message'] );
@@ -117,7 +117,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	 * A null result means the library was unavailable, not that there are errors.
 	 */
 	public function test_transfer_errors_handles_null_eligibility() {
-		$this->assertSame( array(), wpcom_simple_backup_get_transfer_errors( null ) );
+		$this->assertSame( array(), wpcom_backup_get_transfer_errors( null ) );
 	}
 
 	/**
@@ -140,7 +140,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
-					'user_login' => 'wpcom_simple_backup_admin',
+					'user_login' => 'wpcom_backup_admin',
 					'user_pass'  => 'password',
 					'role'       => 'administrator',
 				)
@@ -171,8 +171,8 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 		};
 
 		$GLOBALS['pagenow']     = 'admin.php';
-		$GLOBALS['plugin_page'] = WPCOM_SIMPLE_BACKUP_MENU_SLUG;
-		$_GET['page']           = WPCOM_SIMPLE_BACKUP_MENU_SLUG;
+		$GLOBALS['plugin_page'] = WPCOM_BACKUP_MENU_SLUG;
+		$_GET['page']           = WPCOM_BACKUP_MENU_SLUG;
 	}
 
 	/**
@@ -187,7 +187,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 			$GLOBALS['plugin_page'],
 			$_GET['page']
 		);
-		remove_action( 'admin_head', 'wpcom_simple_backup_hide_menu_entry', 0 );
+		remove_action( 'admin_head', 'wpcom_backup_hide_menu_entry', 0 );
 		Constants::clear_constants();
 
 		parent::tear_down();
@@ -201,11 +201,11 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 		$this->set_up_admin_menu();
 		$this->set_up_backup_request();
 
-		wpcom_simple_backup_register_page();
+		wpcom_backup_register_page();
 
 		$this->assertSame(
-			'jetpack_page_' . WPCOM_SIMPLE_BACKUP_MENU_SLUG,
-			get_plugin_page_hook( WPCOM_SIMPLE_BACKUP_MENU_SLUG, 'admin.php' )
+			'jetpack_page_' . WPCOM_BACKUP_MENU_SLUG,
+			get_plugin_page_hook( WPCOM_BACKUP_MENU_SLUG, 'admin.php' )
 		);
 	}
 
@@ -216,18 +216,18 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 		$this->set_up_admin_menu();
 		$this->set_up_backup_request();
 
-		wpcom_simple_backup_register_page();
+		wpcom_backup_register_page();
 
 		$this->assertSame(
 			0,
-			has_action( 'admin_head', 'wpcom_simple_backup_hide_menu_entry' ),
+			has_action( 'admin_head', 'wpcom_backup_hide_menu_entry' ),
 			'Hiding must be hooked before menu-header.php prints.'
 		);
 
-		wpcom_simple_backup_hide_menu_entry();
+		wpcom_backup_hide_menu_entry();
 
 		$slugs = array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 );
-		$this->assertNotContains( WPCOM_SIMPLE_BACKUP_MENU_SLUG, $slugs );
+		$this->assertNotContains( WPCOM_BACKUP_MENU_SLUG, $slugs );
 	}
 
 	/**
@@ -237,10 +237,10 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	public function test_menu_entry_is_hidden_immediately_elsewhere() {
 		$this->set_up_admin_menu();
 
-		wpcom_simple_backup_register_page();
+		wpcom_backup_register_page();
 
 		$slugs = array_column( $GLOBALS['submenu']['jetpack'] ?? array(), 2 );
-		$this->assertNotContains( WPCOM_SIMPLE_BACKUP_MENU_SLUG, $slugs );
+		$this->assertNotContains( WPCOM_BACKUP_MENU_SLUG, $slugs );
 		$this->assertArrayHasKey( 'jetpack_page_jetpack-backup', $GLOBALS['_registered_pages'] );
 	}
 
@@ -249,7 +249,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	 * "tidy" into something else.
 	 */
 	public function test_menu_slug_matches_the_real_backup_page() {
-		$this->assertSame( 'jetpack-backup', WPCOM_SIMPLE_BACKUP_MENU_SLUG );
+		$this->assertSame( 'jetpack-backup', WPCOM_BACKUP_MENU_SLUG );
 	}
 
 	/**
@@ -265,9 +265,9 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 		);
 		$page  = isset( $route['route']['page'] ) ? (string) $route['route']['page'] : '';
 
-		$this->assertSame( WPCOM_SIMPLE_BACKUP_WP_BUILD_PAGE, $page );
+		$this->assertSame( WPCOM_BACKUP_WP_BUILD_PAGE, $page );
 		$this->assertSame(
-			WPCOM_SIMPLE_BACKUP_RENDER_CALLBACK,
+			WPCOM_BACKUP_RENDER_CALLBACK,
 			'jetpack_mu_wpcom_' . str_replace( '-', '_', $page ) . '_wp_admin_render_page'
 		);
 	}
@@ -298,7 +298,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 			),
 		);
 
-		$warnings = wpcom_simple_backup_get_transfer_warnings( $eligibility );
+		$warnings = wpcom_backup_get_transfer_warnings( $eligibility );
 
 		$this->assertCount( 2, $warnings );
 		$this->assertSame( 'wordpress_subdomain', $warnings[0]['id'] );
@@ -319,14 +319,14 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 			),
 		);
 
-		$this->assertSame( array(), wpcom_simple_backup_get_transfer_warnings( $eligibility ) );
+		$this->assertSame( array(), wpcom_backup_get_transfer_warnings( $eligibility ) );
 	}
 
 	/**
 	 * A null result means the library was unavailable, not that there are warnings.
 	 */
 	public function test_transfer_warnings_handles_null_eligibility() {
-		$this->assertSame( array(), wpcom_simple_backup_get_transfer_warnings( null ) );
+		$this->assertSame( array(), wpcom_backup_get_transfer_warnings( null ) );
 	}
 
 	/**
@@ -334,17 +334,17 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	 * back; a missing one degrades silently to a half-finished activation.
 	 */
 	public function test_activate_url_carries_the_transfer_flow_arguments() {
-		$url = wpcom_simple_backup_get_activate_url();
+		$url = wpcom_backup_get_activate_url();
 
-		$this->assertStringStartsWith( WPCOM_SIMPLE_BACKUP_TRANSFER_FLOW_URL, $url );
+		$this->assertStringStartsWith( WPCOM_BACKUP_TRANSFER_FLOW_URL, $url );
 
 		parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
 
 		$this->assertSame( (string) get_current_blog_id(), $args['siteId'] );
-		$this->assertSame( WPCOM_SIMPLE_BACKUP_TRANSFER_FEATURE, $args['feature'] );
-		$this->assertSame( WPCOM_SIMPLE_BACKUP_TRANSFER_CONTEXT, $args['initiate_transfer_context'] );
+		$this->assertSame( WPCOM_BACKUP_TRANSFER_FEATURE, $args['feature'] );
+		$this->assertSame( WPCOM_BACKUP_TRANSFER_CONTEXT, $args['initiate_transfer_context'] );
 		$this->assertStringContainsString(
-			'page=' . WPCOM_SIMPLE_BACKUP_MENU_SLUG,
+			'page=' . WPCOM_BACKUP_MENU_SLUG,
 			rawurldecode( $args['redirect_to'] )
 		);
 	}
@@ -363,7 +363,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 
 		$pages = $manifest['wpPlugin']['pages'] ?? array();
 
-		$this->assertContains( WPCOM_SIMPLE_BACKUP_WP_BUILD_PAGE, $pages );
+		$this->assertContains( WPCOM_BACKUP_WP_BUILD_PAGE, $pages );
 	}
 
 	/**
@@ -373,8 +373,8 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	public function test_screen_id_is_aliased_for_wp_build() {
 		$screen = (object) array( 'id' => 'jetpack_page_jetpack-backup' );
 
-		wpcom_simple_backup_alias_screen_id( $screen );
+		wpcom_backup_alias_screen_id( $screen );
 
-		$this->assertSame( WPCOM_SIMPLE_BACKUP_WP_BUILD_PAGE, $screen->id );
+		$this->assertSame( WPCOM_BACKUP_WP_BUILD_PAGE, $screen->id );
 	}
 }

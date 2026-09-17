@@ -846,7 +846,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load the Backup page on WordPress.com Simple and WoA sites.
 	 */
 	public static function load_wpcom_backup() {
-		require_once __DIR__ . '/features/wpcom-simple-backup/wpcom-simple-backup.php';
+		require_once __DIR__ . '/features/wpcom-backup/wpcom-backup.php';
 	}
 
 	/**

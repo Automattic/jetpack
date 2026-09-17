@@ -23,5 +23,5 @@ const FALLBACK: InitialState = {
  * @return The initial state, or a safe fallback if the global is absent.
  */
 export function getInitialState(): InitialState {
-	return window.wpcomSimpleBackupInitialState ?? FALLBACK;
+	return window.wpcomBackupInitialState ?? FALLBACK;
 }

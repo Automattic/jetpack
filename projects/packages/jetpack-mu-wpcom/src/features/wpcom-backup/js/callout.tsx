@@ -7,7 +7,7 @@ import type { ComponentProps, ReactNode } from 'react';
  *
  * Ported from the WordPress.com dashboard's `Callout`
  * (`client/dashboard/components/callout`), which is what
- * `HostingFeatureGatedWithCallout` renders for this product on a Simple site.
+ * `HostingFeatureGatedWithCallout` renders for this product when it is gated.
  * Every state of this page uses it, so they stay consistent with each other.
  *
  * @param props             - Component props.
@@ -32,33 +32,24 @@ export function Callout( {
 	actions?: ReactNode;
 } ) {
 	return (
-		<Card className="wpcom-simple-backup__callout" role="article">
-			<Stack
-				className="wpcom-simple-backup__callout-container"
-				direction="row"
-				gap="xl"
-				align="stretch"
-			>
+		<Card className="wpcom-backup__callout" role="article">
+			<Stack className="wpcom-backup__callout-container" direction="row" gap="xl" align="stretch">
 				<Stack
-					className="wpcom-simple-backup__callout-content"
+					className="wpcom-backup__callout-content"
 					direction="column"
 					gap="lg"
 					justify="flex-start"
 					align="flex-start"
 				>
 					{ icon && <Icon icon={ icon } /> }
-					<Text
-						className="wpcom-simple-backup__callout-title"
-						variant="heading-lg"
-						render={ <h2 /> }
-					>
+					<Text className="wpcom-backup__callout-title" variant="heading-lg" render={ <h2 /> }>
 						{ title }
 					</Text>
 					{ description }
 					{ actions }
 				</Stack>
 				{ image && (
-					<div className="wpcom-simple-backup__callout-image" aria-hidden="true">
+					<div className="wpcom-backup__callout-image" aria-hidden="true">
 						<img src={ image } alt="" />
 					</div>
 				) }

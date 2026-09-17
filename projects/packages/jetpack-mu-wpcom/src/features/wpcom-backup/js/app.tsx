@@ -9,10 +9,11 @@ import './style.scss';
 const PRODUCT_NAME = 'VaultPress Backup'; // Product name; do not translate.
 
 /**
- * The Backup page for WordPress.com Simple sites.
+ * The Backup page for WordPress.com Simple and WoA sites.
  *
- * Simple sites share a multisite install and cannot be backed up, so this shows
- * the same upgrade or activate prompt Calypso renders at /backup/$site.
+ * Shown while backups are out of reach: a Simple site shares a multisite install
+ * and cannot be backed up, and a WoA site may not have bought them yet. Either
+ * way this renders the prompt Calypso shows at /backup/$site.
  *
  * @return The rendered page.
  */
@@ -21,7 +22,7 @@ export function App() {
 
 	return (
 		<Page
-			className="wpcom-simple-backup jp-admin-page"
+			className="wpcom-backup jp-admin-page"
 			visual={ <JetpackLogo showText={ false } height={ 20 } /> }
 			title={ PRODUCT_NAME }
 			ariaLabel={ PRODUCT_NAME }
@@ -31,7 +32,7 @@ export function App() {
 			) }
 			hasPadding={ false }
 		>
-			<div className="wpcom-simple-backup__body">
+			<div className="wpcom-backup__body">
 				{ initialState.state === 'in_progress' && <InProgressScreen /> }
 				{ initialState.state === 'activate' && <ActivateScreen state={ initialState } /> }
 				{ initialState.state === 'upgrade' && <UpgradeScreen state={ initialState } /> }

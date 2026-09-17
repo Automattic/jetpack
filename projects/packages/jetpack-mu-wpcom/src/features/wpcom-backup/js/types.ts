@@ -1,6 +1,6 @@
 /**
  * The prompts this page can show. Kept in sync with the
- * WPCOM_SIMPLE_BACKUP_STATE_* constants in wpcom-simple-backup.php.
+ * WPCOM_BACKUP_STATE_* constants in wpcom-backup.php.
  */
 export type BackupState = 'upgrade' | 'in_progress' | 'activate';
 
@@ -36,7 +36,7 @@ export type TransferWarning = {
  * State resolved in PHP and localized onto the page's prerequisites script.
  *
  * Resolved server-side because the plan, transfer and eligibility checks read
- * wpcom-only libraries with no REST equivalent a Simple site could call.
+ * wpcom-only libraries with no REST equivalent the page could call.
  */
 export type InitialState = {
 	state: BackupState;
@@ -54,6 +54,6 @@ export type InitialState = {
 
 declare global {
 	interface Window {
-		wpcomSimpleBackupInitialState?: InitialState;
+		wpcomBackupInitialState?: InitialState;
 	}
 }
