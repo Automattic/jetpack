@@ -2,16 +2,11 @@
  * External dependencies
  */
 import Gravatar from '@automattic/jetpack-components/gravatar';
-import {
-	Tooltip,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Tooltip } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { Badge, Link } from '@wordpress/ui';
+import { Badge, Link, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -96,21 +91,18 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import( 'react' ).JSX.
 
 	return (
 		<div className="jp-forms__inbox-response-meta">
-			<HStack alignment="topLeft" spacing="3" wrap={ false }>
+			<Stack align="flex-start" direction="row" gap="md" justify="flex-start" wrap="nowrap">
 				<Gravatar
 					email={ gravatarEmail }
 					defaultImage={ defaultImage }
 					displayName={ gravatarDisplayName }
 					key={ gravatarEmail }
 				/>
-				<VStack spacing="0" className="jp-forms__inbox-response-meta-from">
-					<HStack alignment="center" justify="start" spacing="2">
-						<Text
-							className="jp-forms__inbox-response-meta-from-name"
-							lineHeight="20px"
-							size="15px"
-							weight="600"
-						>
+				{ /* `justify` centres a short name against the 48px avatar, which VStack did by
+				     default and Stack does not. No `gap`: the old spacing="0" has no token. */ }
+				<Stack className="jp-forms__inbox-response-meta-from" direction="column" justify="center">
+					<Stack align="center" direction="row" gap="sm" justify="start">
+						<Text className="jp-forms__inbox-response-meta-from-name" variant="heading-lg">
 							{ displayName }
 						</Text>
 						{ response.is_test && (
@@ -118,29 +110,24 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import( 'react' ).JSX.
 								{ __( 'Test', 'jetpack-forms' ) }
 							</Badge>
 						) }
-					</HStack>
+					</Stack>
 					{ response.author_email && displayName !== response.author_email && (
-						<HStack
-							alignment="center"
+						<Stack
+							align="center"
 							className="jp-forms__inbox-response-meta-from-email"
+							direction="row"
+							gap="sm"
 							justify="start"
 						>
-							<Text
-								as="a"
-								href={ `mailto:${ response.author_email }` }
-								lineHeight="20px"
-								size="13px"
-								variant="muted"
-								weight="400"
-							>
+							<Text render={ <a href={ `mailto:${ response.author_email }` } /> } variant="body-md">
 								{ responseAuthorEmailParts[ 0 ] }
 								<wbr />@{ responseAuthorEmailParts[ 1 ] }
 							</Text>
 							<CopyClipboardButton text={ response.author_email } />
-						</HStack>
+						</Stack>
 					) }
-				</VStack>
-			</HStack>
+				</Stack>
+			</Stack>
 			<table className="jp-forms__inbox-response-meta-table">
 				<tbody>
 					<tr>

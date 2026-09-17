@@ -21,6 +21,12 @@
 	padding: 0;
 }
 
+// The token `variant="muted"` resolved to. `@wordpress/ui` `Text` has no muted
+// variant, and an unstyled anchor would take wp-admin's link blue.
+.jp-forms__inbox-response-meta-from-email a {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
 .jp-forms__inbox-response-meta-table {
 	color: var(--jp-gray-80, #2c3338);
 	font-size: 13px;
