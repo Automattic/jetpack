@@ -102,6 +102,14 @@ body.has-wpcom-expiry-banner {
 	}
 }
 
+// Once the wrapper is narrower than its cap, balanced lines get too short.
+@media screen and (max-width: #{breakpoints.$break-xlarge}) {
+
+	.wpcom-expiry-frontend-banner__text {
+		text-wrap: pretty;
+	}
+}
+
 @media screen and (max-width: 782px) {
 
 	body.has-wpcom-expiry-banner.admin-bar {
