@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "../../app/assets/src/css/main/mixins";
 
 body:has(.jetpack-boost-page) {
 
@@ -15,8 +16,8 @@ body:has(.jetpack-boost-page) {
 	}
 
 	.jetpack-boost-page__notices {
-		max-inline-size: var(--wpds-dimension-surface-width-xl);
-		margin-inline: auto;
+
+		@include mixins.content-column;
 
 		// On the card, so a dismissed (hidden) card leaves no gap.
 		.jitm-card {
