@@ -36,14 +36,24 @@ export function FeatureAction( { state }: FeatureActionProps ) {
 			)
 		: null;
 
-	if ( state.product && activation ) {
-		return <ActivationToggle product={ state.product } { ...activation } showBadge={ false } />;
+	// Every feature backed by a module gets a switch, whatever its product needs: the
+	// module is the part of it this site can turn on and off, and what `feature-state`
+	// reports, so the switch and the badge always agree.
+	if ( state.module?.available ) {
+		return <ModuleToggle module={ state.module } />;
 	}
 
-	// Every feature backed by a module gets a switch, whatever its product needs: the
-	// module is the part of it this site can turn on and off.
-	if ( state.module ) {
-		return <ModuleToggle module={ state.module } />;
+	// Reaching here means no module can be switched, so the product is the whole feature
+	// and nothing about a missing module should hold its switch shut.
+	if ( state.product && activation ) {
+		return (
+			<ActivationToggle
+				product={ state.product }
+				{ ...activation }
+				disabled={ false }
+				showBadge={ false }
+			/>
+		);
 	}
 
 	// A separate plugin, so there is nothing here to switch until it is installed. One

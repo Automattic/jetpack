@@ -132,13 +132,17 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				</LinkButton>
 			) : null }
 
-			{ product && activation ? (
-				<ProductSwitch product={ product } activation={ activation } name={ feature.name } />
+			{ $module?.available ? <ModuleSwitch module={ $module } name={ feature.name } /> : null }
+
+			{ ! $module?.available && product && activation ? (
+				<ProductSwitch
+					product={ product }
+					activation={ { ...activation, disabled: false } }
+					name={ feature.name }
+				/>
 			) : null }
 
-			{ ! activation && $module ? <ModuleSwitch module={ $module } name={ feature.name } /> : null }
-
-			{ ! activation && ! $module && product ? (
+			{ ! $module?.available && product && ! activation ? (
 				<ActionButton slug={ product.slug as JetpackModule } variant="secondary" />
 			) : null }
 		</>

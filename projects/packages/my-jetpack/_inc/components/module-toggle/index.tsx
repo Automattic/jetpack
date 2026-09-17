@@ -21,7 +21,15 @@ export type ModuleToggleProps = {
 // Modules that register a server-rendered wp-admin sidebar item. Toggling them
 // needs a full page reload for the sidebar to reflect the change; the success
 // notice is persisted so it survives the reload.
-const MODULES_REQUIRING_RELOAD = [ 'activity-log', 'podcast', 'subscriptions', 'wpcom-reader' ];
+const MODULES_REQUIRING_RELOAD = [
+	'activity-log',
+	'ai',
+	'contact-form',
+	'podcast',
+	'subscriptions',
+	'videopress',
+	'wpcom-reader',
+];
 
 /**
  * Switch a Jetpack module on or off, however the surface chooses to present that.

@@ -58,8 +58,11 @@ const stateForFeature = (
 		( feature.product ? productModules[ feature.product ] || feature.product : '' );
 	const $module = moduleSlug ? modules?.[ moduleSlug as JetpackModuleSlug ] : undefined;
 
-	// The module is what the card switches, so it is also what the card reports.
-	if ( $module ) {
+	// The module is what the card switches, so it is also what the card reports — but
+	// only when it can be switched. Backup resolves to the legacy 'vaultpress' module,
+	// which is unavailable here, and reading a dead module would have the card contradict
+	// its own switch.
+	if ( $module?.available ) {
 		return {
 			feature,
 			product,
