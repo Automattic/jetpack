@@ -49,6 +49,9 @@
 
 		.jp-forms__image-select-preview-label {
 			flex-grow: 1;
+			// Stack sets no min-width on its children, unlike HStack. Without it the
+			// label cannot shrink below its text, so the ellipsis never appears.
+			min-width: 0;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
