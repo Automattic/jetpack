@@ -367,7 +367,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		( index: number ) => ( datum: DataPointDate ) =>
 			withPatterns
 				? `url(#${ getPatternId( chartId, index ) })`
-				: datum.color ?? getElementStyles( { data: dataSorted[ index ], index } ).color,
+				: ( datum.color ?? getElementStyles( { data: dataSorted[ index ], index } ).color ),
 		[ withPatterns, getElementStyles, dataSorted, chartId ]
 	);
 

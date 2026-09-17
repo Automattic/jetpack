@@ -49,7 +49,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 
 // Typed off the hook so the mocked state and the rows passed to
 // `mockReturnValue` are type-checked rather than cast away.
-type LocationViewsState = ReturnType< typeof import('../use-location-views').default >;
+type LocationViewsState = ReturnType< typeof import( '../use-location-views' ).default >;
 
 const LOADING_STATE: LocationViewsState = {
 	data: [],

@@ -58,7 +58,7 @@ function fakeDeps( respond ) {
 			: Promise.resolve( {
 					id: 'PLB-NEW1',
 					payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
-			  } );
+				} );
 	} );
 	return {
 		requests,
@@ -514,7 +514,7 @@ describe( 'syncBlocksBeforeSave', () => {
 					? Promise.resolve( {
 							id: 'PLB-NEW1',
 							payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
-					  } )
+						} )
 					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
 			);
 

@@ -213,7 +213,7 @@ export default function Player( {
 			? {
 					atTime: previewAtTime,
 					duration: previewLoopDuration,
-			  }
+				}
 			: undefined,
 	} );
 
@@ -235,7 +235,7 @@ export default function Player( {
 			? {
 					atTime: previewAtTime,
 					duration: previewLoopDuration,
-			  }
+				}
 			: undefined,
 	} );
 

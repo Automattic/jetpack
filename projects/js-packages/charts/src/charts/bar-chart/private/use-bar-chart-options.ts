@@ -330,7 +330,7 @@ export function useBarChartOptions(
 						timeAxis.domain,
 						timeAxis.tickFormatter,
 						dateAxisOptions.numTicks ?? DEFAULT_NUM_TICKS
-				  )
+					)
 				: null;
 		const dateAxisTickValues = bandTickValues ? { tickValues: bandTickValues } : {};
 

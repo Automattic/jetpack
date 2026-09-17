@@ -33,9 +33,8 @@ await jest.unstable_mockModule( 'libphonenumber-js/min/es6', () => ( {
 } ) );
 
 // Import component after mocks are set up
-const { default: FieldPhone } = await import(
-	'../../../../../../src/dashboard/components/inspector/response-fields/field-phone/index.tsx'
-);
+const { default: FieldPhone } =
+	await import( '../../../../../../src/dashboard/components/inspector/response-fields/field-phone/index.tsx' );
 
 describe( 'FieldPhone', () => {
 	beforeEach( () => {

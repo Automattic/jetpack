@@ -1,4 +1,4 @@
-type LoaderModule = typeof import('../loader');
+type LoaderModule = typeof import( '../loader' );
 
 let loader: LoaderModule;
 const loadLoader = () => {

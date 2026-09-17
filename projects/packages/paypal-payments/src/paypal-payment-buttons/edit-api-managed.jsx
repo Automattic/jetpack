@@ -792,7 +792,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 										__( '%1$d / %2$d characters', 'jetpack-paypal-payments' ),
 										( productName || '' ).length,
 										MAX_NAME_LENGTH
-								  )
+									)
 						}
 						className={
 							touchedFields.productName && validationErrors.productName
@@ -1112,7 +1112,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 													taxType: 'PREFERENCE',
 													...resetToDefaults( 'taxValue' ),
 													collectShippingAddress: true,
-											  }
+												}
 											: { taxType: 'PERCENTAGE' }
 									)
 								}

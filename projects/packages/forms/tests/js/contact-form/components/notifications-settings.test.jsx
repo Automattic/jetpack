@@ -196,9 +196,8 @@ await jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( {
 } ) );
 
 // Dynamically import the component after mocks are set up
-const NotificationsSettingsModule = await import(
-	'../../../../src/blocks/contact-form/components/notifications-settings'
-);
+const NotificationsSettingsModule =
+	await import( '../../../../src/blocks/contact-form/components/notifications-settings' );
 
 const NotificationsSettings = NotificationsSettingsModule.default;
 

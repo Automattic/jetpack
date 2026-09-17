@@ -161,7 +161,7 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 								.map( post => post.featured_media )
 								.filter( ( id ): id is number => typeof id === 'number' && id > 0 )
 						)
-				  ).sort( ( a, b ) => a - b )
+					).sort( ( a, b ) => a - b )
 				: [],
 		[ havePostQueriesResolved, postRecords ]
 	);

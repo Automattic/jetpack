@@ -90,7 +90,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
 				},
-		  ]
+			]
 		: [];
 
 	// Ranked over this card's window, not the host's.
@@ -121,7 +121,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 					? __(
 							'No views recorded for this author’s posts in this period.',
 							'jetpack-premium-analytics-pkg'
-					  )
+						)
 					: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
