@@ -60,6 +60,7 @@ test( 'reports getting_started after every successful write or read', async () =
 test( 'holds getting_started while a save is pending and reports the value it settles on', async () => {
 	client.setQueryData( [ 'getting_started' ], true );
 	onOnboardingChange.mockClear();
+	let callsAfterRevert: number;
 	let failSave: ( error: Error ) => void = () => undefined;
 	const save = new MutationObserver< boolean, Error, boolean >( client, {
 		meta: { dataSyncKey: 'getting_started' },
@@ -67,7 +68,7 @@ test( 'holds getting_started while a save is pending and reports the value it se
 		onMutate: () => client.setQueryData( [ 'getting_started' ], false ),
 		onError: () => {
 			client.setQueryData( [ 'getting_started' ], true );
-			expect( onOnboardingChange ).not.toHaveBeenCalled();
+			callsAfterRevert = onOnboardingChange.mock.calls.length;
 		},
 	} )
 		.mutate( false )
@@ -80,12 +81,14 @@ test( 'holds getting_started while a save is pending and reports the value it se
 	failSave( new Error( 'Save failed' ) );
 	await save;
 
+	expect( callsAfterRevert ).toBe( 0 );
 	expect( onboardingValues() ).toEqual( [ true ] );
 } );
 
 test( 'reports a settled onboarding save while a later modules_state save remains pending', async () => {
 	client.setQueryData( [ 'getting_started' ], true );
 	onOnboardingChange.mockClear();
+	let callsAfterSuccess: number;
 	let finishOnboarding: ( value: boolean ) => void = () => undefined;
 	let finishModules: () => void = () => undefined;
 	const onboardingSave = new MutationObserver< boolean, Error, boolean >( client, {
@@ -94,7 +97,7 @@ test( 'reports a settled onboarding save while a later modules_state save remain
 		onMutate: () => client.setQueryData( [ 'getting_started' ], false ),
 		onSuccess: value => {
 			client.setQueryData( [ 'getting_started' ], value );
-			expect( onOnboardingChange ).not.toHaveBeenCalled();
+			callsAfterSuccess = onOnboardingChange.mock.calls.length;
 		},
 	} ).mutate( false );
 	await Promise.resolve();
@@ -108,6 +111,7 @@ test( 'reports a settled onboarding save while a later modules_state save remain
 	finishOnboarding( false );
 	await onboardingSave;
 
+	expect( callsAfterSuccess ).toBe( 0 );
 	expect( client.isMutating() ).toBe( 1 );
 	expect( onboardingValues() ).toEqual( [ false ] );
 	finishModules();
