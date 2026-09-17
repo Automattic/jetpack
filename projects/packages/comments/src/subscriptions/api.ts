@@ -32,13 +32,37 @@ export type Answer = {
 };
 
 /**
- * One round trip. The answer is WordPress.com's own, relayed with its status.
+ * One round trip: what the reader is subscribed to, after one change if given.
+ * The answer is WordPress.com's own, relayed with its status, so a change the
+ * server declined leaves the control where it was.
  *
- * @param fields - What to post with the action.
+ * @param postId - The post the comment thread belongs to.
+ * @param code   - The code a fresh sign-in is holding, for the site to redeem first.
+ * @param change - Which option to set, and to what.
  * @return The answer.
  */
-const request = async ( fields: Record< string, string > ): Promise< Answer > => {
+export const fetchSubscriptions = async (
+	postId: number,
+	code: string | null,
+	change?: SubscriptionChange
+): Promise< Answer > => {
 	const { url, action, nonce } = JetpackComments.subscriptions;
+	const fields: Record< string, string > = { post_id: String( postId ) };
+
+	if ( action ) {
+		fields.action = action;
+	}
+
+	if ( code ) {
+		fields.code = code;
+	}
+
+	if ( change ) {
+		fields.field = change.field;
+		fields.value =
+			typeof change.value === 'boolean' ? String( Number( change.value ) ) : change.value;
+	}
+
 	const failed: Answer = { ok: false, signedOut: false };
 
 	try {
@@ -46,7 +70,7 @@ const request = async ( fields: Record< string, string > ): Promise< Answer > =>
 			method: 'POST',
 			credentials: 'same-origin',
 			headers: nonce ? { 'X-WP-Nonce': nonce } : {},
-			body: new URLSearchParams( { ...( action ? { action } : {} ), ...fields } ),
+			body: new URLSearchParams( fields ),
 		} );
 
 		const body = ( await response.json() ) as {
@@ -74,44 +98,4 @@ const request = async ( fields: Record< string, string > ): Promise< Answer > =>
 	} catch {
 		return failed;
 	}
-};
-
-/**
- * What the reader is subscribed to.
- *
- * @param postId - The post the comment thread belongs to.
- * @param code   - The code a fresh sign-in is holding, for the site to redeem first.
- * @return The answer.
- */
-export const readSubscriptions = ( postId: number, code: string | null ): Promise< Answer > =>
-	request( { post_id: String( postId ), ...( code ? { code } : {} ) } );
-
-/**
- * Flip one option. The answer is the whole state afterwards, so a change the
- * server declined leaves the control where it was.
- *
- * @param postId - The post the comment thread belongs to.
- * @param change - Which option, and what to set it to.
- * @param code   - The code a fresh sign-in is holding, for the site to redeem first.
- * @return The answer.
- */
-export const changeSubscription = (
-	postId: number,
-	change: SubscriptionChange,
-	code: string | null
-): Promise< Answer > => {
-	let value: string;
-
-	if ( typeof change.value === 'boolean' ) {
-		value = change.value ? '1' : '0';
-	} else {
-		value = change.value;
-	}
-
-	return request( {
-		post_id: String( postId ),
-		field: change.field,
-		value,
-		...( code ? { code } : {} ),
-	} );
 };
