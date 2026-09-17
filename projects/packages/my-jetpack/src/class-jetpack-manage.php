@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Redirect;
 use WP_Error;
 use WP_Rest_Response;
@@ -36,6 +37,24 @@ class Jetpack_Manage {
 	 * @var string
 	 */
 	const PARTNER_TYPE_REFRESH_HOOK = 'jetpack_manage_refresh_partner_type';
+
+	/**
+	 * Prefix of the transient that backs off after a lookup failed to produce an answer.
+	 *
+	 * The current user's ID completes the key, like the meta it guards.
+	 *
+	 * @var string
+	 */
+	const PARTNER_TYPE_RETRY_TRANSIENT_PREFIX = 'jetpack_partner_type_retry_';
+
+	/**
+	 * Key of the transient this class used before the answer moved to per-user meta.
+	 *
+	 * @deprecated $$next-version$$ Nothing reads it; the answer now lives in PARTNER_TYPE_USER_META_KEY.
+	 *
+	 * @var string
+	 */
+	const PARTNER_TYPE_TRANSIENT_KEY = 'jetpack_partner_type';
 
 	/**
 	 * Stored partner type when the lookup found that this user has no partner account.
@@ -65,16 +84,30 @@ class Jetpack_Manage {
 	private const PARTNER_TYPE_REFRESH_DELAY = 5 * MINUTE_IN_SECONDS;
 
 	/**
+	 * How much random delay is added on top, so simultaneous logins do not all fire at once.
+	 *
+	 * WP-Cron runs every due event in one pass, and each of these can wait on WordPress.com for
+	 * the Client's default timeout, so an unspread burst lands as one long serial run.
+	 *
+	 * @var int
+	 */
+	private const PARTNER_TYPE_REFRESH_JITTER = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * How long to wait before asking again after a lookup that produced no answer.
+	 *
+	 * @var int
+	 */
+	private const PARTNER_TYPE_RETRY_DELAY = 15 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Initialize the class and hooks needed.
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( self::class, 'add_submenu_jetpack' ) );
 
-		/*
-		 * Logging in starts a session worth a fresh answer. `admin_init` is the catch-up for
-		 * sessions that started before this shipped and for SSO, which signs a user in over a
-		 * GET that never loads this package. Both only schedule; the request itself runs in cron.
-		 */
+		// Both only schedule; the request itself runs in cron. `admin_init` also catches sessions
+		// that started before this shipped, and SSO, which logs in over a GET that skips wp_login.
 		add_action( 'wp_login', array( self::class, 'schedule_partner_type_refresh_on_login' ), 10, 2 );
 		add_action( 'admin_init', array( self::class, 'maybe_schedule_partner_type_refresh' ) );
 		add_action( self::PARTNER_TYPE_REFRESH_HOOK, array( self::class, 'refresh_partner_type' ) );
@@ -211,6 +244,20 @@ class Jetpack_Manage {
 	}
 
 	/**
+	 * Check if the user is a partner/agency, looking them up first if nobody has yet.
+	 *
+	 * For the surfaces that decide whether to offer an agency signup, where answering "not an
+	 * agency" for a real agency is worse than the wait. Everything else wants is_agency_account().
+	 *
+	 * @return bool Return true if the user is a partner/agency, otherwise false.
+	 */
+	public static function is_agency_account_now() {
+		self::refresh_partner_type_if_stale( get_current_user_id() );
+
+		return self::is_agency_account();
+	}
+
+	/**
 	 * Schedule a partner type refresh for the user who just logged in.
 	 *
 	 * @param string        $user_login Username, unused.
@@ -228,7 +275,8 @@ class Jetpack_Manage {
 	 *
 	 * Every check here reads options or user meta, so this stays free to call on `admin_init`.
 	 *
-	 * @param int|null $user_id User to look up, or null for the current user.
+	 * @param int|string|null $user_id User to look up. Anything falsy means the current user,
+	 *                                 which is what `admin_init` passes: `''`, not nothing.
 	 * @return void
 	 */
 	public static function maybe_schedule_partner_type_refresh( $user_id = null ) {
@@ -239,17 +287,28 @@ class Jetpack_Manage {
 			return;
 		}
 
-		$stored = self::get_stored_partner_type( $user_id );
-		if ( null !== $stored && $stored['time'] > time() - self::PARTNER_TYPE_MAX_AGE ) {
+		if ( ! self::is_partner_type_stale( $user_id ) || self::is_backing_off( $user_id ) ) {
 			return;
 		}
 
 		$args = array( $user_id );
-		if ( wp_next_scheduled( self::PARTNER_TYPE_REFRESH_HOOK, $args ) ) {
+		$next = wp_next_scheduled( self::PARTNER_TYPE_REFRESH_HOOK, $args );
+
+		if ( $next > time() ) {
 			return;
 		}
 
-		wp_schedule_single_event( time() + self::PARTNER_TYPE_REFRESH_DELAY, self::PARTNER_TYPE_REFRESH_HOOK, $args );
+		// An event still pending after its time means cron is not running it. Clearing it keeps
+		// wp_next_scheduled() from reporting it forever, which would suppress every later attempt.
+		if ( $next ) {
+			wp_unschedule_event( $next, self::PARTNER_TYPE_REFRESH_HOOK, $args );
+		}
+
+		wp_schedule_single_event(
+			time() + self::PARTNER_TYPE_REFRESH_DELAY + wp_rand( 0, self::PARTNER_TYPE_REFRESH_JITTER ),
+			self::PARTNER_TYPE_REFRESH_HOOK,
+			$args
+		);
 	}
 
 	/**
@@ -274,28 +333,41 @@ class Jetpack_Manage {
 		$wpcom_response = Client::remote_request( $request_args );
 		$response_code  = (int) wp_remote_retrieve_response_code( $wpcom_response );
 
-		// A network failure or a server-side error is not an answer about this user, so leave
-		// whatever is stored in place and let the next session ask again.
-		if ( is_wp_error( $wpcom_response ) || 0 === $response_code || $response_code >= 500 ) {
+		/*
+		 * Only these two settle the question: 200 carries the partner record, and 403 is how the
+		 * endpoint reports a user with no partner account, which is most of them. Anything else —
+		 * a transport failure, a rejected token, a rate limit, a 5xx — says nothing about this
+		 * user, and storing it would mean answering "not an agency" until the age limit runs out.
+		 */
+		if ( is_wp_error( $wpcom_response ) || ! in_array( $response_code, array( 200, 403 ), true ) ) {
+			self::back_off( $user_id );
 			return;
 		}
 
 		$partner_data = 200 === $response_code
 			? json_decode( wp_remote_retrieve_body( $wpcom_response ) )
-			: null;
+			: array();
 
-		// The endpoint returns a single-element array (it uses Jetpack_Partner::find_by_owner),
-		// and answers 403 for a user with no partner account — which is most of them.
-		$partner_type = is_array( $partner_data ) && count( $partner_data ) === 1 && isset( $partner_data[0]->partner_type )
+		// A 200 that did not parse is a truncated body or an error page, not an empty answer.
+		if ( ! is_array( $partner_data ) ) {
+			self::back_off( $user_id );
+			return;
+		}
+
+		// The endpoint returns a single-element array; it uses Jetpack_Partner::find_by_owner.
+		$partner_type = count( $partner_data ) === 1 && isset( $partner_data[0]->partner_type )
 			? $partner_data[0]->partner_type
 			: self::NO_PARTNER;
+
+		delete_transient( self::retry_transient_key( $user_id ) );
 
 		update_user_meta(
 			$user_id,
 			self::PARTNER_TYPE_USER_META_KEY,
 			array(
-				'type' => $partner_type,
-				'time' => time(),
+				'type'          => $partner_type,
+				'time'          => time(),
+				'wpcom_user_id' => Utils::get_wpcom_user_id( $user_id ),
 			)
 		);
 	}
@@ -307,19 +379,103 @@ class Jetpack_Manage {
 	 * @return void
 	 */
 	public static function forget_partner_type( $user_id ) {
-		delete_user_meta( (int) $user_id, self::PARTNER_TYPE_USER_META_KEY );
+		$user_id = (int) $user_id;
+
+		delete_user_meta( $user_id, self::PARTNER_TYPE_USER_META_KEY );
+		delete_transient( self::retry_transient_key( $user_id ) );
+
+		// A queued refresh would outlive the reason it was queued for.
+		wp_clear_scheduled_hook( self::PARTNER_TYPE_REFRESH_HOOK, array( $user_id ) );
 	}
 
 	/**
 	 * The partner type stored for a user, if a lookup has ever completed for them.
 	 *
+	 * The answer describes a WordPress.com account, so it is discarded once this local user is
+	 * bound to a different one. A site disconnect leaves the meta behind, and the binding is
+	 * cleared whenever tokens are rewritten, so without this a reconnect under another account
+	 * would be answered by the previous one.
+	 *
 	 * @param int $user_id User to read.
-	 * @return array{type: string, time: int}|null Null when nothing usable is stored.
+	 * @return array{type: string, time: int, wpcom_user_id: int}|null Null when nothing usable is stored.
 	 */
 	private static function get_stored_partner_type( $user_id ) {
-		$stored = $user_id ? get_user_meta( (int) $user_id, self::PARTNER_TYPE_USER_META_KEY, true ) : '';
+		$user_id = (int) $user_id;
+		$stored  = $user_id ? get_user_meta( $user_id, self::PARTNER_TYPE_USER_META_KEY, true ) : '';
 
-		return is_array( $stored ) && isset( $stored['type'] ) && isset( $stored['time'] ) ? $stored : null;
+		if ( ! is_array( $stored ) || ! isset( $stored['type'] ) || ! isset( $stored['time'] ) ) {
+			return null;
+		}
+
+		$bound = Utils::get_wpcom_user_id( $user_id );
+
+		// Answers written before this field existed carry 0, as does an unbound user; neither is
+		// a mismatch to act on, so only a known binding that disagrees discards the answer.
+		if ( $bound && ! empty( $stored['wpcom_user_id'] ) && (int) $stored['wpcom_user_id'] !== $bound ) {
+			return null;
+		}
+
+		return $stored;
+	}
+
+	/**
+	 * Whether a user's stored partner type is missing or old enough to ask again.
+	 *
+	 * @param int $user_id User to check.
+	 * @return bool
+	 */
+	private static function is_partner_type_stale( $user_id ) {
+		$stored = self::get_stored_partner_type( $user_id );
+
+		return null === $stored || $stored['time'] <= time() - self::PARTNER_TYPE_MAX_AGE;
+	}
+
+	/**
+	 * Look a user's partner type up now, unless a fresh answer or a recent failure says not to.
+	 *
+	 * The scheduled refresh is the normal path. This is the one for a site whose cron never runs,
+	 * so it belongs only to callers that can afford to wait for WordPress.com.
+	 *
+	 * @param int $user_id User to look up.
+	 * @return void
+	 */
+	public static function refresh_partner_type_if_stale( $user_id ) {
+		if ( self::is_partner_type_stale( $user_id ) && ! self::is_backing_off( $user_id ) ) {
+			self::refresh_partner_type( $user_id );
+		}
+	}
+
+	/**
+	 * Wait before asking about this user again.
+	 *
+	 * A lookup that produced no answer stores nothing, so without this every later caller would
+	 * repeat it — once per My Jetpack page load for as long as WordPress.com is unreachable.
+	 *
+	 * @param int $user_id User whose lookup failed.
+	 * @return void
+	 */
+	private static function back_off( $user_id ) {
+		set_transient( self::retry_transient_key( $user_id ), time(), self::PARTNER_TYPE_RETRY_DELAY );
+	}
+
+	/**
+	 * Whether a recent lookup for this user failed to produce an answer.
+	 *
+	 * @param int $user_id User to check.
+	 * @return bool
+	 */
+	private static function is_backing_off( $user_id ) {
+		return (bool) get_transient( self::retry_transient_key( $user_id ) );
+	}
+
+	/**
+	 * The transient key backing off further lookups for a user.
+	 *
+	 * @param int $user_id User to key by.
+	 * @return string
+	 */
+	private static function retry_transient_key( $user_id ) {
+		return self::PARTNER_TYPE_RETRY_TRANSIENT_PREFIX . (int) $user_id;
 	}
 
 	/**
@@ -357,18 +513,8 @@ class Jetpack_Manage {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public static function get_jetpack_manage_data() {
-		/*
-		 * The scheduled refresh is the normal way this gets populated. This covers the site whose
-		 * cron never runs, where nothing else ever would: it is the one caller that can afford to
-		 * wait, being the XHR that made this request before, and it only waits when it must.
-		 */
-		$user_id = get_current_user_id();
-		if ( null === self::get_stored_partner_type( $user_id ) ) {
-			self::refresh_partner_type( $user_id );
-		}
-
 		$is_enabled        = self::could_use_jp_manage();
-		$is_agency_account = self::is_agency_account();
+		$is_agency_account = self::is_agency_account_now();
 
 		return rest_ensure_response(
 			array(

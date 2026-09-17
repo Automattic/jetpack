@@ -230,7 +230,9 @@ class Jetpack_Redux_State_Helper {
 			),
 			'jetpackManage'                        => array(
 				'isEnabled'       => Jetpack_Manage::could_use_jp_manage(),
-				'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
+				// Without this an agency nobody has looked up yet reads as "not an agency", which
+				// is what decides whether to offer them the agency signup they already completed.
+				'isAgencyAccount' => Jetpack_Manage::is_agency_account_now(),
 			),
 			'hasSeenWCConnectionModal'             => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
 			'newRecommendations'                   => Jetpack_Recommendations::get_new_conditional_recommendations(),

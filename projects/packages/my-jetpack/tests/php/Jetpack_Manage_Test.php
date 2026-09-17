@@ -74,17 +74,19 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	/**
 	 * Store a partner type for a user, as a completed lookup would have.
 	 *
-	 * @param int    $user_id User to store against.
-	 * @param string $type    Partner type, e.g. `agency` or `none`.
-	 * @param int    $age     How many seconds ago the lookup ran.
+	 * @param int    $user_id       User to store against.
+	 * @param string $type          Partner type, e.g. `agency` or `none`.
+	 * @param int    $age           How many seconds ago the lookup ran.
+	 * @param int    $wpcom_user_id WordPress.com account the answer describes.
 	 */
-	protected function store_partner_type( $user_id, $type, $age = 0 ) {
+	protected function store_partner_type( $user_id, $type, $age = 0, $wpcom_user_id = 0 ) {
 		update_user_meta(
 			$user_id,
 			Jetpack_Manage::PARTNER_TYPE_USER_META_KEY,
 			array(
-				'type' => $type,
-				'time' => time() - $age,
+				'type'          => $type,
+				'time'          => time() - $age,
+				'wpcom_user_id' => $wpcom_user_id,
 			)
 		);
 	}
@@ -144,6 +146,10 @@ class Jetpack_Manage_Test extends BaseTestCase {
 
 	/**
 	 * Prime the cache get_connected_user_data() reads, so the site count costs no HTTP request.
+	 *
+	 * Also keeps that lookup from consuming a canned partner-type response: once another test
+	 * file has loaded the mock Jetpack plugin into this process, could_use_jp_manage() stops
+	 * short-circuiting and reaches it, which makes request counts depend on file order.
 	 *
 	 * @param int $user_id    Connected user.
 	 * @param int $site_count Sites on their WordPress.com account.
@@ -224,16 +230,17 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Registering the menu never waits on WordPress.com, whatever is or isn't stored.
+	 * A non-agency is rejected on stored meta alone, before anything can reach WordPress.com.
+	 *
+	 * Deliberately does not prime the site-count cache: that cache is what the *other* gate
+	 * would otherwise block on, so priming it here would hide whether this gate ran first.
 	 */
-	public function test_add_submenu_jetpack_makes_no_http_request() {
+	public function test_add_submenu_jetpack_rejects_a_non_agency_without_any_http_request() {
 		$this->connect_user( $this->admin_id );
-		$this->prime_site_count( $this->admin_id, 2 );
-		$this->store_partner_type( $this->admin_id, 'agency' );
+		$this->store_partner_type( $this->admin_id, 'none' );
 		$this->mock_http( array() );
 
-		Jetpack_Manage::add_submenu_jetpack();
-
+		$this->assertNull( Jetpack_Manage::add_submenu_jetpack() );
 		$this->assertSame( 0, $this->http_request_count );
 	}
 
@@ -449,6 +456,245 @@ class Jetpack_Manage_Test extends BaseTestCase {
 			'answer still fresh'  => array( true, 'agency', MINUTE_IN_SECONDS ),
 			'answer just in time' => array( true, 'none', HOUR_IN_SECONDS ),
 		);
+	}
+
+	/**
+	 * Answers that settle nothing must not be stored, or they answer for a day.
+	 *
+	 * @dataProvider provide_non_answers
+	 *
+	 * @param mixed $body Response body the /jetpack-partners endpoint returns.
+	 * @param int   $code Response status code.
+	 */
+	#[DataProvider( 'provide_non_answers' )]
+	public function test_refresh_partner_type_stores_nothing_for_a_non_answer( $body, $code ) {
+		$this->connect_user( $this->admin_id );
+		$this->mock_http( array( $this->partners_response( $body, $code ) ) );
+
+		Jetpack_Manage::refresh_partner_type( $this->admin_id );
+
+		$this->assertSame( '', get_user_meta( $this->admin_id, Jetpack_Manage::PARTNER_TYPE_USER_META_KEY, true ) );
+	}
+
+	/**
+	 * Responses that say nothing about this user's partner account.
+	 *
+	 * @return array
+	 */
+	public static function provide_non_answers() {
+		return array(
+			'rejected token'    => array( array( 'code' => 'invalid_token' ), 401 ),
+			'rate limited'      => array( array( 'code' => 'too_many_requests' ), 429 ),
+			'not found'         => array( array( 'code' => 'not_found' ), 404 ),
+			'server error'      => array( array(), 500 ),
+			'unparseable 200'   => array( null, 200 ),
+			'transport failure' => array( array(), 0 ),
+		);
+	}
+
+	/**
+	 * A failed lookup backs off, so a WordPress.com outage is not re-asked on every page load.
+	 */
+	public function test_a_failed_lookup_backs_off_before_asking_again() {
+		$this->connect_user( $this->admin_id );
+		$this->mock_http( array( $this->partners_response( array(), 500 ) ) );
+
+		Jetpack_Manage::refresh_partner_type_if_stale( $this->admin_id );
+		$this->assertSame( 1, $this->http_request_count, 'first attempt' );
+
+		Jetpack_Manage::refresh_partner_type_if_stale( $this->admin_id );
+		$this->assertSame( 1, $this->http_request_count, 'second attempt, backed off' );
+	}
+
+	/**
+	 * The backoff also keeps a failing lookup from being rescheduled every page load.
+	 */
+	public function test_a_failed_lookup_backs_off_before_rescheduling() {
+		$this->connect_user( $this->admin_id );
+		$this->mock_http( array( $this->partners_response( array(), 500 ) ) );
+
+		Jetpack_Manage::refresh_partner_type_if_stale( $this->admin_id );
+		Jetpack_Manage::maybe_schedule_partner_type_refresh( $this->admin_id );
+
+		$this->assertFalse( wp_next_scheduled( Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, array( $this->admin_id ) ) );
+	}
+
+	/**
+	 * An answer about a different WordPress.com account is not an answer about this one.
+	 *
+	 * A site-level disconnect leaves the meta behind, so a reconnect under another account would
+	 * otherwise be answered by the previous owner's agency status.
+	 */
+	public function test_an_answer_bound_to_another_wpcom_account_is_discarded() {
+		$this->connect_user( $this->admin_id );
+		$this->store_partner_type( $this->admin_id, 'agency', 0, 111 );
+		update_user_meta( $this->admin_id, 'wpcom_user_id', 222 );
+
+		$this->assertFalse( Jetpack_Manage::is_agency_account() );
+	}
+
+	/**
+	 * The same account's own answer still counts.
+	 */
+	public function test_an_answer_bound_to_the_same_wpcom_account_is_kept() {
+		$this->connect_user( $this->admin_id );
+		$this->store_partner_type( $this->admin_id, 'agency', 0, 111 );
+		update_user_meta( $this->admin_id, 'wpcom_user_id', 111 );
+
+		$this->assertTrue( Jetpack_Manage::is_agency_account() );
+	}
+
+	/**
+	 * A meta value this class did not write reads as "never looked up", not as a fatal.
+	 *
+	 * @dataProvider provide_unusable_stored_values
+	 *
+	 * @param mixed $stored Value written to the meta key.
+	 */
+	#[DataProvider( 'provide_unusable_stored_values' )]
+	public function test_an_unusable_stored_value_reads_as_not_an_agency( $stored ) {
+		$this->connect_user( $this->admin_id );
+		update_user_meta( $this->admin_id, Jetpack_Manage::PARTNER_TYPE_USER_META_KEY, $stored );
+
+		$this->assertFalse( Jetpack_Manage::is_agency_account() );
+	}
+
+	/**
+	 * Shapes that are not a stored answer.
+	 *
+	 * @return array
+	 */
+	public static function provide_unusable_stored_values() {
+		return array(
+			'legacy bare string' => array( 'agency' ),
+			'missing time'       => array( array( 'type' => 'agency' ) ),
+			'missing type'       => array( array( 'time' => 100 ) ),
+		);
+	}
+
+	/**
+	 * An overdue event means cron is not running, so it must not suppress later attempts.
+	 */
+	public function test_an_overdue_event_is_replaced_rather_than_trusted() {
+		$this->connect_user( $this->admin_id );
+		$args = array( $this->admin_id );
+		wp_schedule_single_event( time() - HOUR_IN_SECONDS, Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, $args );
+
+		Jetpack_Manage::maybe_schedule_partner_type_refresh( $this->admin_id );
+
+		$this->assertGreaterThan( time(), wp_next_scheduled( Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, $args ) );
+	}
+
+	/**
+	 * A refresh that has not come due yet is left alone.
+	 */
+	public function test_a_pending_event_is_not_rescheduled() {
+		$this->connect_user( $this->admin_id );
+		$args = array( $this->admin_id );
+		$when = time() + HOUR_IN_SECONDS;
+		wp_schedule_single_event( $when, Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, $args );
+
+		Jetpack_Manage::maybe_schedule_partner_type_refresh( $this->admin_id );
+
+		$this->assertSame( $when, wp_next_scheduled( Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, $args ) );
+	}
+
+	/**
+	 * The REST payload looks a user up when nobody has, so a cron-less site still gets an answer.
+	 */
+	public function test_get_jetpack_manage_data_looks_up_a_user_nobody_has() {
+		$this->connect_user( $this->admin_id );
+		$this->prime_site_count( $this->admin_id, 2 );
+		$this->mock_http( array( $this->partners_response( array( array( 'partner_type' => 'agency' ) ) ) ) );
+
+		$data = Jetpack_Manage::get_jetpack_manage_data()->get_data();
+
+		$this->assertTrue( $data['isAgencyAccount'] );
+		$this->assertSame( 1, $this->http_request_count );
+	}
+
+	/**
+	 * A stale stored answer is refreshed too, so "none" is not a life sentence.
+	 */
+	public function test_get_jetpack_manage_data_refreshes_a_stale_answer() {
+		$this->connect_user( $this->admin_id );
+		$this->prime_site_count( $this->admin_id, 2 );
+		$this->store_partner_type( $this->admin_id, 'none', DAY_IN_SECONDS + 1 );
+		$this->mock_http( array( $this->partners_response( array( array( 'partner_type' => 'agency' ) ) ) ) );
+
+		$this->assertTrue( Jetpack_Manage::get_jetpack_manage_data()->get_data()['isAgencyAccount'] );
+	}
+
+	/**
+	 * A fresh answer is not re-asked.
+	 */
+	public function test_get_jetpack_manage_data_leaves_a_fresh_answer_alone() {
+		$this->connect_user( $this->admin_id );
+		$this->prime_site_count( $this->admin_id, 2 );
+		$this->store_partner_type( $this->admin_id, 'none' );
+		$this->mock_http( array() );
+
+		Jetpack_Manage::get_jetpack_manage_data();
+
+		$this->assertSame( 0, $this->http_request_count );
+	}
+
+	/**
+	 * Unlinking a user through the action init() registers clears their answer.
+	 */
+	public function test_the_unlink_hook_forgets_the_partner_type() {
+		$this->connect_user( $this->admin_id );
+		$this->store_partner_type( $this->admin_id, 'agency' );
+		Jetpack_Manage::init();
+
+		do_action( 'jetpack_unlinked_user', $this->admin_id );
+
+		$this->assertFalse( Jetpack_Manage::is_agency_account() );
+	}
+
+	/**
+	 * Unlinking also drops the refresh queued for that user.
+	 */
+	public function test_forgetting_a_partner_type_clears_the_queued_refresh() {
+		$this->connect_user( $this->admin_id );
+		Jetpack_Manage::maybe_schedule_partner_type_refresh( $this->admin_id );
+
+		Jetpack_Manage::forget_partner_type( $this->admin_id );
+
+		$this->assertFalse( wp_next_scheduled( Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, array( $this->admin_id ) ) );
+	}
+
+	/**
+	 * Logging in through the action init() registers queues a refresh.
+	 */
+	public function test_the_login_hook_queues_a_refresh() {
+		$this->connect_user( $this->admin_id );
+		Jetpack_Manage::init();
+
+		do_action( 'wp_login', 'dummy_user', get_userdata( $this->admin_id ) );
+
+		$this->assertIsInt( wp_next_scheduled( Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, array( $this->admin_id ) ) );
+	}
+
+	/**
+	 * The scheduler is wired to admin_init, and survives the argument that hook passes.
+	 *
+	 * `do_action( 'admin_init' )` hands callbacks an empty string, so the refresh has to fall
+	 * back to the current user rather than schedule for user 0. Firing the hook itself would
+	 * run all of core's admin_init work, so the callback is invoked the way the hook invokes it.
+	 */
+	public function test_the_admin_init_hook_queues_a_refresh_for_the_current_user() {
+		$this->connect_user( $this->admin_id );
+		Jetpack_Manage::init();
+
+		$this->assertNotFalse(
+			has_action( 'admin_init', array( Jetpack_Manage::class, 'maybe_schedule_partner_type_refresh' ) )
+		);
+
+		Jetpack_Manage::maybe_schedule_partner_type_refresh( '' );
+
+		$this->assertIsInt( wp_next_scheduled( Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, array( $this->admin_id ) ) );
+		$this->assertFalse( wp_next_scheduled( Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, array( 0 ) ) );
 	}
 
 	/**
