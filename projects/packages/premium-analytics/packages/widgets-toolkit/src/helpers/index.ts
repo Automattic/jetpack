@@ -100,7 +100,6 @@ export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
 	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapWindow,
 	type CalendarHeatmapWindowBounds,
 } from './calendar-heatmap-window';

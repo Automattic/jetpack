@@ -261,7 +261,6 @@ export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
 	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
@@ -282,7 +281,6 @@ export {
 	useSeriesStyles,
 	useStoredDetailLayout,
 	useTrackEvent,
-	useViewportWidth,
 	useWidgetDrillDown,
 } from './hooks';
 
