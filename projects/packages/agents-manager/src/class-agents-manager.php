@@ -394,6 +394,16 @@ class Agents_Manager {
 			'useUnifiedExperience' => $context['unified'],
 			'isDevMode'            => self::is_dev_mode(),
 			'isA11n'               => self::is_tracking_automattician(),
+			/**
+			 * Filter whether the Agents Manager frontend may record Tracks events.
+			 *
+			 * WordPress.com consent cookies are never set on a self-hosted site's
+			 * domain, so a host with its own usage-tracking opt-in (WooCommerce)
+			 * can pass it here and the chat stays silent for merchants who opted out.
+			 *
+			 * @param bool $allowed Whether tracking is allowed. Default true.
+			 */
+			'isTrackingAllowed'    => (bool) apply_filters( 'agents_manager_tracking_allowed', true ),
 			'isWpcomPlatform'      => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform(),
 			'sectionName'          => apply_filters( 'agents_manager_section_name', $variant ),
 			'currentUser'          => $this->get_current_user_data(),

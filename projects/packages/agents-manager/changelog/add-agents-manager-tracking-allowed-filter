@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the `agents_manager_tracking_allowed` filter and pass it to the frontend as `isTrackingAllowed`, so a host with its own usage-tracking opt-in can keep the chat from recording Tracks events for merchants who opted out.
