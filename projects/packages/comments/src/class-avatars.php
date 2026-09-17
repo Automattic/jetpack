@@ -51,12 +51,13 @@ class Avatars {
 
 		$url = self::stored_url( (int) $id_or_email->comment_ID, isset( $args['size'] ) ? (int) $args['size'] : 96 );
 
-		if ( null === $url ) {
-			return $args;
+		if ( null !== $url ) {
+			$args['url']          = $url;
+			$args['found_avatar'] = true;
+		} elseif ( self::is_signed_in( (int) $id_or_email->comment_ID ) ) {
+			// The provider had no photo, so show the site default rather than a Gravatar the commenter never chose.
+			$args['force_default'] = true;
 		}
-
-		$args['url']          = $url;
-		$args['found_avatar'] = true;
 
 		return $args;
 	}
@@ -81,9 +82,27 @@ class Avatars {
 
 		if ( null !== $url ) {
 			$url_class[0] = $url;
+		} elseif ( self::is_signed_in( (int) $id_or_email->comment_ID ) ) {
+			$url_class[0] = get_avatar_url(
+				'',
+				array(
+					'size'          => (int) $size,
+					'force_default' => true,
+				)
+			);
 		}
 
 		return $url_class;
+	}
+
+	/**
+	 * Whether the comment was left through a popup sign-in.
+	 *
+	 * @param int $comment_id The comment ID.
+	 * @return bool
+	 */
+	private static function is_signed_in( $comment_id ) {
+		return '' !== (string) get_comment_meta( $comment_id, Checkpoint::META_PROVIDER, true );
 	}
 
 	/**

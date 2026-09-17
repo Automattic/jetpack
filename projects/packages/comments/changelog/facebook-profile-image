@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Comment form: fall back to the default avatar for sign-ins without a profile photo, and fix the WordPress logo and the tray chevron animation.
+Comment form: show the site's default avatar, in the form and on the comment, for sign-ins without a profile photo, and fix the WordPress logo and the tray chevron animation.
