@@ -45,7 +45,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.2.2';
+	const PACKAGE_VERSION = '6.3.0';
 
 	/**
 	 * Feature flag that opts a site into the wp-build My Jetpack dashboard.
@@ -329,7 +329,7 @@ class Initializer {
 	/**
 	 * Register the package's feature flags.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return void
 	 */
@@ -359,7 +359,7 @@ class Initializer {
 	 * Defaults off while the port is verified; enable it with
 	 * `wp companion feature-flag enable my-jetpack-wp-build`.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return bool
 	 */
@@ -404,7 +404,7 @@ class Initializer {
 	/**
 	 * Whether the current request targets the My Jetpack admin page.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return bool
 	 */
@@ -421,7 +421,7 @@ class Initializer {
 	 *
 	 * Onboarding hides all wp-admin chrome and never renders through wp-build.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return bool
 	 */
@@ -439,7 +439,7 @@ class Initializer {
 	 * Loading wp-build, enqueueing scripts and rendering the page must all agree,
 	 * so they share this one expression.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return bool
 	 */
@@ -450,7 +450,7 @@ class Initializer {
 	/**
 	 * Alias the screen ID to satisfy wp-build's generated enqueue check.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return void
 	 */
@@ -468,7 +468,7 @@ class Initializer {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return void
 	 */
@@ -488,7 +488,7 @@ class Initializer {
 	 *
 	 * Also what keeps WP_Build_Polyfills from replacing core scripts on every other admin page.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return bool
 	 */
@@ -502,7 +502,7 @@ class Initializer {
 	 * Checks the render function too: a flag registered after `admin_menu` priority 1 leaves
 	 * wp-build unloaded, and the request would otherwise get neither bundle.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return bool
 	 */
@@ -515,7 +515,7 @@ class Initializer {
 	/**
 	 * Load wp-build for the My Jetpack page when the site has opted in.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return void
 	 */
@@ -534,7 +534,7 @@ class Initializer {
 	/**
 	 * Require the generated wp-build index and wire it into this request.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @param string $build_index Path to the generated `build.php`.
 	 * @return void
@@ -741,7 +741,7 @@ class Initializer {
 	 * Printed on every admin page by Script_Data, so the connection screen can resolve its
 	 * illustrations and Jetpack footers can link to the products tab off the My Jetpack page.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @param array $data Script data.
 	 * @return array
@@ -756,7 +756,7 @@ class Initializer {
 	/**
 	 * Get the base URL of the package's built images, with a trailing slash.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.3.0
 	 *
 	 * @return string
 	 */
