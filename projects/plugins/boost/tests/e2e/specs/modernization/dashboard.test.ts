@@ -140,6 +140,33 @@ test.describe( 'Dashboard modernization', () => {
 			.toBe( 0 );
 	} );
 
+	test( 'Keep the tabs clickable after scrolling Settings', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.setDashboardModernization( true );
+		await jetpackBoostPage.visit();
+		const overviewTab = page.getByRole( 'tab', { name: 'Overview', exact: true } );
+		await page.getByRole( 'tab', { name: 'Settings', exact: true } ).click();
+
+		const firstGroup = page
+			.locator( '.jb-modern-settings' )
+			.getByRole( 'heading', { name: 'Code loading optimization', exact: true } );
+		await expect( firstGroup ).toBeVisible();
+		const tab = ( await overviewTab.boundingBox() )!;
+
+		await firstGroup.hover();
+		await page.mouse.wheel( 0, 400 );
+		await expect
+			.poll( async () => ( await firstGroup.boundingBox() )?.y ?? Infinity )
+			.toBeLessThan( tab.y );
+
+		// Locator clicks scroll the target back into view on retry, which would hide the overlap.
+		await page.mouse.click( tab.x + tab.width / 2, tab.y + tab.height / 2 );
+		await expect( overviewTab ).toHaveAttribute( 'aria-selected', 'true' );
+	} );
+
 	test( 'Keep modern assets off other admin pages', async ( { boostUtils, admin, page } ) => {
 		await boostUtils.setDashboardModernization( true );
 		await admin.visitAdminPage( 'index.php' );
