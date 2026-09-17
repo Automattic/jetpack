@@ -308,12 +308,12 @@ function wpcom_simple_backup_get_eligibility( $blog_id, $user_id ) {
 
 	require_lib( 'atomic' );
 
-	if ( ! function_exists( '\A8C\Atomic\get_status_for_site' ) ) {
+	if ( ! function_exists( '\A8C\Atomic\Eligibility\get_status_for_site' ) ) {
 		return null;
 	}
 
 	// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
-	return \A8C\Atomic\get_status_for_site( $blog_id, $user_id );
+	return \A8C\Atomic\Eligibility\get_status_for_site( $blog_id, $user_id );
 }
 
 /**
