@@ -35,7 +35,8 @@ type ViewsOverYearsWidgetProps = WidgetRenderProps< ViewsOverYearsRenderAttribut
 const TRAFFIC_SECTION = 'traffic';
 
 function ViewsOverYearsInner( { metric }: { metric: MonthlyHeatmapMetric } ) {
-	const { rows, isLoading, isFetching, isError, error, refetch } = useViewsOverYears( metric );
+	const { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch } =
+		useViewsOverYears( metric );
 	const openSectionRange = useOpenSectionRange();
 	const timeZone = reportingTimeZone();
 
@@ -43,7 +44,7 @@ function ViewsOverYearsInner( { metric }: { metric: MonthlyHeatmapMetric } ) {
 	// roll-up opens the whole year.
 	const openTraffic = useCallback(
 		( { year, month }: MonthlyHeatmapTarget ) => {
-			const bounds = { timeZone };
+			const bounds = { lifeStartsAt, timeZone };
 			const range =
 				month === undefined ? yearRange( year, bounds ) : monthRange( { year, month }, bounds );
 
@@ -51,7 +52,7 @@ function ViewsOverYearsInner( { metric }: { metric: MonthlyHeatmapMetric } ) {
 				openSectionRange( TRAFFIC_SECTION, { from: range.from, to: range.to } );
 			}
 		},
-		[ timeZone, openSectionRange ]
+		[ lifeStartsAt, timeZone, openSectionRange ]
 	);
 
 	// Keep stale rows visible when a background refetch fails.
