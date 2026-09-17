@@ -129,7 +129,7 @@ export function FeatureModal( { state, onClose, onFilterByPlan }: FeatureModalPr
 								className={ styles[ 'modal-actions' ] }
 							>
 								{ isActive && feature.manage_url ? (
-									<LinkButton href={ feature.manage_url } variant="solid">
+									<LinkButton href={ feature.manage_url } variant="outline" size="compact">
 										{ __( 'Open', 'jetpack-my-jetpack' ) }
 									</LinkButton>
 								) : null }

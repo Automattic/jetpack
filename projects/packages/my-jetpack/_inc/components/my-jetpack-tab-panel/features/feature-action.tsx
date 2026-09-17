@@ -35,10 +35,12 @@ export function FeatureAction( { state }: FeatureActionProps ) {
 			showAiModuleToggle
 		);
 
+		// One compact, quiet button for every status: on a site with no plan almost every
+		// card falls here, and a grid of solid primary buttons drowns out the toggles.
 		return activation ? (
 			<ActivationToggle product={ state.product } { ...activation } showBadge={ false } />
 		) : (
-			<ActionButton slug={ state.product.slug as JetpackModule } />
+			<ActionButton slug={ state.product.slug as JetpackModule } variant="secondary" />
 		);
 	}
 

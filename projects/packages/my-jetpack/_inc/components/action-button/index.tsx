@@ -28,6 +28,8 @@ type ActionButtonProps = {
 	className?: string;
 	tracksIdentifier?: `${ string }_${ string }`;
 	labelSuffixId?: string;
+	/** Forces one variant for every status, for surfaces that want a uniform button. */
+	variant?: SecondaryButtonProps[ 'variant' ];
 };
 
 const ActionButton: FC< ActionButtonProps > = ( {
@@ -39,6 +41,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	className,
 	tracksIdentifier,
 	labelSuffixId,
+	variant,
 } ) => {
 	const {
 		data: { ownedProducts },
@@ -415,6 +418,9 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		</div>
 	);
 
+	// Applied after the per-status variant, which each case spreads over the defaults.
+	const resolvedVariant = variant ?? currentAction.variant;
+
 	return (
 		<>
 			<div
@@ -423,12 +429,17 @@ const ActionButton: FC< ActionButtonProps > = ( {
 					hasAdditionalActions ? styles[ 'has-additional-actions' ] : null
 				) }
 			>
-				<SecondaryButton { ...buttonState } { ...currentAction } id={ getActionButtonId( slug ) } />
+				<SecondaryButton
+					{ ...buttonState }
+					{ ...currentAction }
+					variant={ resolvedVariant }
+					id={ getActionButtonId( slug ) }
+				/>
 				{ hasAdditionalActions && (
 					<button
 						className={ clsx(
 							styles[ 'dropdown-chevron' ],
-							currentAction.variant === 'primary' ? styles.primary : styles.secondary
+							resolvedVariant === 'primary' ? styles.primary : styles.secondary
 						) }
 						onClick={ onChevronClick }
 						ref={ chevronRef }
@@ -436,7 +447,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 						<Icon
 							icon={ chevronDown }
 							size={ 24 }
-							fill={ currentAction.variant === 'primary' ? 'white' : 'black' }
+							fill={ resolvedVariant === 'primary' ? 'white' : 'black' }
 						/>
 					</button>
 				) }
