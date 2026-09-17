@@ -12,6 +12,7 @@
 /routes/**                                               production-exclude
 /packages/**                                             production-exclude
 /tsconfig.json                                           production-exclude
+/build/**/*.map                                          production-exclude
 /src/**/test/**                                          production-exclude
 /src/**/*.ts                                             production-exclude
 /src/**/*.tsx                                            production-exclude
