@@ -1,234 +1,173 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
-import { store as modulesStore } from '@automattic/jetpack-shared-stores';
-import { SearchControl, SelectControl } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { closeSmall } from '@wordpress/icons';
-import { Button, Checkbox, Icon, Stack, Text } from '@wordpress/ui';
-import { useCallback, useMemo, useState } from 'react';
-import useActivatePlugins from '../../../data/products/use-activate-plugins';
-import { useDeactivatePlugins } from '../../../data/products/use-deactivate-plugins';
-import useInstallPlugins from '../../../data/products/use-install-plugins';
-import useAnalytics from '../../../hooks/use-analytics';
-import { partitionSelection } from './partition-selection';
+import { SearchControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { blockTable, category } from '@wordpress/icons';
+import { Icon, Stack } from '@wordpress/ui';
+import clsx from 'clsx';
+import { useCallback } from 'react';
 import styles from './styles.module.scss';
-import type { BulkTarget } from './partition-selection';
+import { getFeatureFilters } from './use-feature-filter';
 import type { FeatureFilter } from './use-feature-filter';
+import type { FeatureView } from './use-feature-view';
 
-type ToolbarProps = {
-	targets: BulkTarget[];
-	selectableSlugs: string[];
-	selected: string[];
-	onSelectedChange: ( slugs: string[] ) => void;
-	filter: FeatureFilter;
-	onFilterChange: ( filter: FeatureFilter ) => void;
-	search: string;
-	onSearchChange: ( search: string ) => void;
+type FilterPillProps = {
+	value: FeatureFilter;
+	label: string;
+	count: number;
+	isActive: boolean;
+	onSelect: ( filter: FeatureFilter ) => void;
 };
 
 /**
- * The one control bar for every feature and module on the page.
+ * One filter pill.
  *
- * Sticky, so a selection made near the bottom of a long list can still be acted on
- * without scrolling back up.
+ * @param {FilterPillProps} props          - The component props.
+ * @param {string}          props.value    - The filter this pill selects.
+ * @param {string}          props.label    - The pill's label.
+ * @param {number}          props.count    - How many features this filter shows.
+ * @param {boolean}         props.isActive - Whether this filter is the active one.
+ * @param {Function}        props.onSelect - Switches the active filter.
+ * @return The rendered component.
+ */
+function FilterPill( { value, label, count, isActive, onSelect }: FilterPillProps ) {
+	const onClick = useCallback( () => onSelect( value ), [ onSelect, value ] );
+
+	return (
+		<button
+			type="button"
+			className={ clsx( styles.pill, isActive && styles[ 'pill--selected' ] ) }
+			aria-pressed={ isActive }
+			onClick={ onClick }
+		>
+			{ label }
+			<span className={ styles.pill__count }>{ count }</span>
+		</button>
+	);
+}
+
+type ViewButtonProps = {
+	value: FeatureView;
+	label: string;
+	icon: JSX.Element;
+	isActive: boolean;
+	onSelect: ( view: FeatureView ) => void;
+};
+
+/**
+ * One half of the grid/list switch.
  *
- * @param {ToolbarProps} props - The component props.
+ * @param {ViewButtonProps} props          - The component props.
+ * @param {string}          props.value    - The view this button selects.
+ * @param {string}          props.label    - The button's accessible name.
+ * @param {object}          props.icon     - The icon to draw.
+ * @param {boolean}         props.isActive - Whether this view is the active one.
+ * @param {Function}        props.onSelect - Switches the view.
+ * @return The rendered component.
+ */
+function ViewButton( { value, label, icon, isActive, onSelect }: ViewButtonProps ) {
+	const onClick = useCallback( () => onSelect( value ), [ onSelect, value ] );
+
+	return (
+		<button
+			type="button"
+			className={ clsx( styles[ 'view-button' ], isActive && styles[ 'view-button--selected' ] ) }
+			aria-pressed={ isActive }
+			aria-label={ label }
+			onClick={ onClick }
+		>
+			<Icon icon={ icon } size={ 20 } />
+		</button>
+	);
+}
+
+type ToolbarProps = {
+	filter: FeatureFilter;
+	onFilterChange: ( filter: FeatureFilter ) => void;
+	counts: Record< FeatureFilter, number >;
+	search: string;
+	onSearchChange: ( search: string ) => void;
+	view: FeatureView;
+	onViewChange: ( view: FeatureView ) => void;
+};
+
+/**
+ * Filter pills, search, and the grid/list switch.
+ *
+ * @param {ToolbarProps} props                - The component props.
+ * @param {string}       props.filter         - The active filter.
+ * @param {Function}     props.onFilterChange - Switches the active filter.
+ * @param {object}       props.counts         - How many features each filter shows.
+ * @param {string}       props.search         - The search term.
+ * @param {Function}     props.onSearchChange - Updates the search term.
+ * @param {string}       props.view           - The active view.
+ * @param {Function}     props.onViewChange   - Switches between grid and list.
  * @return The rendered component.
  */
 export function Toolbar( {
-	targets,
-	selectableSlugs,
-	selected,
-	onSelectedChange,
 	filter,
 	onFilterChange,
+	counts,
 	search,
 	onSearchChange,
+	view,
+	onViewChange,
 }: ToolbarProps ) {
-	const { recordEvent } = useAnalytics();
-	const { updateJetpackModuleStatus } = useDispatch( modulesStore );
-	const { createErrorNotice } = useGlobalNotices();
-	const [ isRunning, setIsRunning ] = useState( false );
-
-	const { toInstall, toActivate, toDeactivate, modulesOn, modulesOff } = useMemo(
-		() => partitionSelection( targets, selected ),
-		[ targets, selected ]
-	);
-
-	const { install } = useInstallPlugins( toInstall );
-	const { activate } = useActivatePlugins( toActivate );
-	const { deactivate } = useDeactivatePlugins( toDeactivate );
-
-	const canActivate = toInstall.length + toActivate.length + modulesOn.length > 0;
-	const canDeactivate = toDeactivate.length + modulesOff.length > 0;
-	const allSelected = selectableSlugs.length > 0 && selected.length === selectableSlugs.length;
-
-	const runModules = useCallback(
-		async ( names: string[], active: boolean ) => {
-			// The modules store takes one module at a time, so these go in sequence.
-			const failed: string[] = [];
-
-			for ( const name of names ) {
-				if ( ! ( await updateJetpackModuleStatus( { name, active } ) ) ) {
-					failed.push( name );
-				}
-			}
-
-			if ( failed.length ) {
-				createErrorNotice(
-					sprintf(
-						/* translators: %s is a comma-separated list of module slugs. */
-						__( 'Could not update: %s.', 'jetpack-my-jetpack' ),
-						failed.join( ', ' )
-					)
-				);
-			}
-		},
-		[ createErrorNotice, updateJetpackModuleStatus ]
-	);
-
-	const onActivateAll = useCallback( async () => {
-		recordEvent( 'jetpack_myjetpack_features_bulk_activate', { count: selected.length } );
-		setIsRunning( true );
-
-		if ( toInstall.length ) {
-			install();
-		}
-
-		if ( toActivate.length ) {
-			activate();
-		}
-
-		await runModules( modulesOn, true );
-		setIsRunning( false );
-		onSelectedChange( [] );
-	}, [
-		activate,
-		install,
-		modulesOn,
-		onSelectedChange,
-		recordEvent,
-		runModules,
-		selected.length,
-		toActivate.length,
-		toInstall.length,
-	] );
-
-	const onDeactivateAll = useCallback( async () => {
-		recordEvent( 'jetpack_myjetpack_features_bulk_deactivate', { count: selected.length } );
-		setIsRunning( true );
-
-		if ( toDeactivate.length ) {
-			deactivate();
-		}
-
-		await runModules( modulesOff, false );
-		setIsRunning( false );
-		onSelectedChange( [] );
-	}, [
-		deactivate,
-		modulesOff,
-		onSelectedChange,
-		recordEvent,
-		runModules,
-		selected.length,
-		toDeactivate.length,
-	] );
-
-	const onToggleAll = useCallback(
-		( checked: boolean ) => onSelectedChange( checked ? selectableSlugs : [] ),
-		[ onSelectedChange, selectableSlugs ]
-	);
-
-	const onClear = useCallback( () => onSelectedChange( [] ), [ onSelectedChange ] );
-
-	const onSelectFilter = useCallback(
-		( next: string ) => onFilterChange( next as FeatureFilter ),
-		[ onFilterChange ]
-	);
-
 	return (
 		<div className={ styles.toolbar }>
 			<Stack direction="row" align="center" gap="md" wrap="wrap">
-				<Checkbox
-					checked={ allSelected }
-					indeterminate={ selected.length > 0 && ! allSelected }
-					onCheckedChange={ onToggleAll }
-					aria-label={ __( 'Select all features', 'jetpack-my-jetpack' ) }
+				<Stack
+					direction="row"
+					align="center"
+					gap="sm"
+					wrap="wrap"
+					role="group"
+					aria-label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
+					className={ styles.pills }
+				>
+					{ getFeatureFilters().map( ( { value, label } ) => (
+						<FilterPill
+							key={ value }
+							value={ value }
+							label={ label }
+							count={ counts[ value ] ?? 0 }
+							isActive={ value === filter }
+							onSelect={ onFilterChange }
+						/>
+					) ) }
+				</Stack>
+
+				<SearchControl
+					__nextHasNoMarginBottom
+					value={ search }
+					onChange={ onSearchChange }
+					aria-label={ __( 'Search features', 'jetpack-my-jetpack' ) }
+					placeholder={ __( 'Search features', 'jetpack-my-jetpack' ) }
+					className={ styles.search }
 				/>
 
-				<Text variant="body-sm" className={ styles.toolbar__status }>
-					{ selected.length === 0
-						? __( 'Select features to turn several on or off at once.', 'jetpack-my-jetpack' )
-						: sprintf(
-								/* translators: %d is the number of selected features. */
-								_n(
-									'%d feature selected',
-									'%d features selected',
-									selected.length,
-									'jetpack-my-jetpack'
-								),
-								selected.length
-						  ) }
-				</Text>
-
-				{ selected.length > 0 && (
-					<Stack direction="row" align="center" gap="sm">
-						<Button
-							variant="solid"
-							size="compact"
-							disabled={ ! canActivate || isRunning }
-							loading={ isRunning }
-							onClick={ onActivateAll }
-						>
-							{ __( 'Activate', 'jetpack-my-jetpack' ) }
-						</Button>
-						<Button
-							variant="outline"
-							tone="neutral"
-							size="compact"
-							disabled={ ! canDeactivate || isRunning }
-							onClick={ onDeactivateAll }
-						>
-							{ __( 'Deactivate', 'jetpack-my-jetpack' ) }
-						</Button>
-						<Button
-							variant="minimal"
-							tone="neutral"
-							size="compact"
-							onClick={ onClear }
-							aria-label={ __( 'Clear selection', 'jetpack-my-jetpack' ) }
-						>
-							<Icon icon={ closeSmall } size={ 20 } />
-						</Button>
-					</Stack>
-				) }
-
-				<Stack direction="row" align="center" gap="sm" className={ styles.toolbar__end }>
-					<SelectControl
-						__nextHasNoMarginBottom
-						__next40pxDefaultSize
-						value={ filter }
-						onChange={ onSelectFilter }
-						aria-label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
-						options={ [
-							{ label: __( 'All', 'jetpack-my-jetpack' ), value: 'all' },
-							{ label: __( 'Active', 'jetpack-my-jetpack' ), value: 'active' },
-							{ label: __( 'Inactive', 'jetpack-my-jetpack' ), value: 'inactive' },
-							{ label: __( 'Recommended', 'jetpack-my-jetpack' ), value: 'recommended' },
-							{ label: __( 'Essential', 'jetpack-my-jetpack' ), value: 'essential' },
-							{ label: __( 'In Jetpack Security', 'jetpack-my-jetpack' ), value: 'security' },
-							{ label: __( 'In Jetpack Complete', 'jetpack-my-jetpack' ), value: 'complete' },
-							{ label: __( 'In Jetpack Growth', 'jetpack-my-jetpack' ), value: 'growth' },
-						] }
+				{ /* Media Library's pattern, drawn with DataViews' own layout icons: two
+				     icons that swap how the same set is drawn, next to the controls that
+				     decide what is in it. */ }
+				<Stack
+					direction="row"
+					align="center"
+					gap="xs"
+					role="group"
+					aria-label={ __( 'View features as', 'jetpack-my-jetpack' ) }
+					className={ styles[ 'view-switch' ] }
+				>
+					<ViewButton
+						value="grid"
+						label={ __( 'Grid view', 'jetpack-my-jetpack' ) }
+						icon={ category }
+						isActive={ view === 'grid' }
+						onSelect={ onViewChange }
 					/>
-					<SearchControl
-						__nextHasNoMarginBottom
-						value={ search }
-						onChange={ onSearchChange }
-						aria-label={ __( 'Search features', 'jetpack-my-jetpack' ) }
-						placeholder={ __( 'Search features', 'jetpack-my-jetpack' ) }
-						className={ styles.search }
+					<ViewButton
+						value="list"
+						label={ __( 'Table view', 'jetpack-my-jetpack' ) }
+						icon={ blockTable }
+						isActive={ view === 'list' }
+						onSelect={ onViewChange }
 					/>
 				</Stack>
 			</Stack>

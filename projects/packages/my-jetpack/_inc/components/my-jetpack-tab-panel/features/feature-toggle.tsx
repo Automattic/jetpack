@@ -73,7 +73,7 @@ function ModuleToggle( { state }: FeatureToggleProps ) {
  * @return The rendered component.
  */
 export function FeatureToggle( { state }: FeatureToggleProps ) {
-	if ( ! state.selectable ) {
+	if ( ! state.switchable ) {
 		return null;
 	}
 

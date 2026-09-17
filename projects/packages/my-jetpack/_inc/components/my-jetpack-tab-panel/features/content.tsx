@@ -1,27 +1,24 @@
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
-import { MoreFeaturesContent } from '../more-features/content';
-import { useOtherModules } from '../more-features/use-other-modules';
 import { FeatureItem } from './feature-item';
+import { FeatureList } from './feature-list';
 import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
-import { isSelectable } from './partition-selection';
-import { SearchResults } from './search-results';
+import { FeaturesBanner } from './features-banner';
 import styles from './styles.module.scss';
 import { Toolbar } from './toolbar';
-import { isFeatureFilter, matchesFilter } from './use-feature-filter';
+import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
-import type { BulkTarget } from './partition-selection';
+import { isFeatureView } from './use-feature-view';
 import type { FeatureFilter } from './use-feature-filter';
+import type { FeatureView } from './use-feature-view';
 
 /**
  * The Features content component.
  *
- * Owns the selection, filter and search for the whole page: the main feature list and
- * the grouped modules below it share one toolbar, so they must share one state.
+ * Owns the filter and search for the grid, and which feature's modal is open.
  *
  * @return The rendered component.
  */
@@ -31,15 +28,15 @@ export function FeaturesContent() {
 		[]
 	) as MainFeature[];
 	const states = useFeatureStates( features );
-	const { groups, modules: otherModules } = useOtherModules();
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
-	const [ selected, setSelected ] = useState< string[] >( [] );
 
 	const search = searchParams.get( 'search' ) || '';
 	const filterParam = searchParams.get( 'filter' ) || 'all';
 	const filter: FeatureFilter = isFeatureFilter( filterParam ) ? filterParam : 'all';
 	const openSlug = searchParams.get( 'feature' );
+	const viewParam = searchParams.get( 'view' ) || 'grid';
+	const view: FeatureView = isFeatureView( viewParam ) ? viewParam : 'grid';
 
 	const updateParams = useCallback(
 		( changes: Record< string, string | null > ) => {
@@ -58,53 +55,26 @@ export function FeaturesContent() {
 		[ searchParams, setSearchParams ]
 	);
 
-	// Every feature and module on the page, in the order they are rendered.
-	const targets: BulkTarget[] = useMemo(
-		() => [
-			...states.map( state => ( {
-				kind: 'feature' as const,
-				slug: state.feature.slug,
-				state,
-			} ) ),
-			...otherModules.map( module => ( {
-				kind: 'module' as const,
-				slug: module.module,
-				module,
-			} ) ),
-		],
-		[ otherModules, states ]
+	// Searching replaces the grid outright, the way it does on the Products tab, so a
+	// term in play takes the filter's place rather than narrowing alongside it.
+	const results = useFeatureSearch( states, search );
+	const visible = useMemo(
+		() => results ?? states.filter( state => matchesFilter( state, filter ) ),
+		[ filter, results, states ]
 	);
 
-	const results = useFeatureSearch( states, otherModules, search );
-
-	// What is on screen right now, which is what select-all and the counts follow.
-	const visible = useMemo( () => {
-		if ( results !== null ) {
-			return new Set(
-				results.map( result =>
-					result.kind === 'feature' ? result.state.feature.slug : result.module.module
-				)
-			);
-		}
-
-		return new Set( targets.filter( t => matchesFilter( t, filter ) ).map( t => t.slug ) );
-	}, [ filter, results, targets ] );
-
-	const selectableSlugs = useMemo(
-		() => targets.filter( t => isSelectable( t ) && visible.has( t.slug ) ).map( t => t.slug ),
-		[ targets, visible ]
+	// Counted against every feature, not the visible ones, so a pill says how many it
+	// would show rather than how many survived the filter already in play.
+	const counts = useMemo(
+		() =>
+			Object.fromEntries(
+				getFeatureFilters().map( ( { value } ) => [
+					value,
+					states.filter( state => matchesFilter( state, value ) ).length,
+				] )
+			) as Record< FeatureFilter, number >,
+		[ states ]
 	);
-
-	const visibleStates = useMemo(
-		() => states.filter( state => visible.has( state.feature.slug ) ),
-		[ states, visible ]
-	);
-
-	const toggleFeature = useCallback( ( slug: string, checked: boolean ) => {
-		setSelected( current =>
-			checked ? [ ...current, slug ] : current.filter( item => item !== slug )
-		);
-	}, [] );
 
 	const openFeature = useCallback(
 		( slug: string ) => updateParams( { feature: slug } ),
@@ -112,29 +82,26 @@ export function FeaturesContent() {
 	);
 	const closeFeature = useCallback( () => updateParams( { feature: null } ), [ updateParams ] );
 
-	// Searching replaces the lists the selection belongs to, so it starts clean.
 	const onSearchChange = useCallback(
-		( term: string ) => {
-			setSelected( [] );
-			updateParams( { search: term || null, feature: null } );
-		},
+		( term: string ) => updateParams( { search: term || null, feature: null } ),
+		[ updateParams ]
+	);
+
+	// In the URL beside the filter and the search term, so a view survives a reload and
+	// travels in a shared link, the way Media Library's ?mode= does.
+	const onViewChange = useCallback(
+		( next: FeatureView ) => updateParams( { view: next === 'grid' ? null : next } ),
 		[ updateParams ]
 	);
 
 	const onFilterChange = useCallback(
-		( next: FeatureFilter ) => {
-			setSelected( [] );
-			updateParams( { filter: next === 'all' ? null : next } );
-		},
+		( next: FeatureFilter ) => updateParams( { filter: next === 'all' ? null : next } ),
 		[ updateParams ]
 	);
 
 	// A plan badge answers "what else is in this?", so it filters and steps out of the modal.
 	const onFilterByPlan = useCallback(
-		( plan: FeatureFilter ) => {
-			setSelected( [] );
-			updateParams( { filter: plan, feature: null, search: null } );
-		},
+		( plan: FeatureFilter ) => updateParams( { filter: plan, feature: null, search: null } ),
 		[ updateParams ]
 	);
 
@@ -142,64 +109,40 @@ export function FeaturesContent() {
 
 	return (
 		<section className={ styles.content }>
-			<h2>{ __( 'Features', 'jetpack-my-jetpack' ) }</h2>
-			<p className={ styles.description }>
-				{ __(
-					'Manage and explore Jetpack features that boost growth, performance, and security.',
-					'jetpack-my-jetpack'
-				) }
-			</p>
+			<FeaturesBanner />
 
 			<Toolbar
-				targets={ targets }
-				selectableSlugs={ selectableSlugs }
-				selected={ selected }
-				onSelectedChange={ setSelected }
 				filter={ filter }
 				onFilterChange={ onFilterChange }
+				counts={ counts }
 				search={ search }
 				onSearchChange={ onSearchChange }
+				view={ view }
+				onViewChange={ onViewChange }
 			/>
 
-			{ results !== null ? (
-				<SearchResults
-					results={ results }
-					selected={ selected }
-					onSelect={ toggleFeature }
-					onOpen={ openFeature }
-				/>
-			) : (
-				<>
-					{ visibleStates.length > 0 && (
-						<Stack direction="column" className={ styles[ 'feature-list' ] }>
-							{ visibleStates.map( state => (
-								<FeatureItem
-									key={ state.feature.slug }
-									state={ state }
-									selected={ selected.includes( state.feature.slug ) }
-									onSelect={ toggleFeature }
-									onOpen={ openFeature }
-								/>
-							) ) }
-						</Stack>
-					) }
+			{ visible.length > 0 && view === 'list' && (
+				<FeatureList states={ visible } onOpen={ openFeature } />
+			) }
 
-					<MoreFeaturesContent
-						groups={ groups }
-						visible={ visible }
-						selected={ selected }
-						onSelect={ toggleFeature }
-					/>
-				</>
+			{ visible.length > 0 && view === 'grid' && (
+				<div className={ styles[ 'feature-grid' ] }>
+					{ visible.map( state => (
+						<FeatureItem key={ state.feature.slug } state={ state } onOpen={ openFeature } />
+					) ) }
+				</div>
+			) }
+
+			{ visible.length === 0 && (
+				<h3 className={ styles[ 'empty-heading' ] } role="status">
+					{ __( 'No features found.', 'jetpack-my-jetpack' ) }
+				</h3>
 			) }
 
 			{ openIndex !== -1 && (
 				<FeatureModal
 					state={ states[ openIndex ] }
-					previous={ states[ openIndex - 1 ] }
-					next={ states[ openIndex + 1 ] }
 					onClose={ closeFeature }
-					onStep={ openFeature }
 					onFilterByPlan={ onFilterByPlan }
 				/>
 			) }

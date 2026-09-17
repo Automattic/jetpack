@@ -72,8 +72,10 @@ export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
 	}
 
 	return (
-		<div className={ styles[ 'detail-highlights' ] }>
-			<Text variant="heading-md">{ __( 'With a paid plan', 'jetpack-my-jetpack' ) }</Text>
+		<section className={ styles[ 'detail-section' ] }>
+			<Text variant="heading-sm" render={ <h3 /> }>
+				{ __( 'With a paid plan', 'jetpack-my-jetpack' ) }
+			</Text>
 
 			{ highlights.length ? (
 				<Stack direction="column" gap="sm">
@@ -97,6 +99,6 @@ export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
 					</Stack>
 				</Stack>
 			) : null }
-		</div>
+		</section>
 	);
 }

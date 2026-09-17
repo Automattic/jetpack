@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-My Jetpack: Replace the Overview and Products tabs with a single Features tab listing all Jetpack features, with bulk activation and per-feature detail pages.
+My Jetpack: Add a Features tab listing every Jetpack feature as a card or a list, with an on/off switch on every row, bulk activation in the list, and a details panel.

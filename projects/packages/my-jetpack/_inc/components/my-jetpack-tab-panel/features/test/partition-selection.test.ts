@@ -2,53 +2,35 @@
  * @jest-environment node
  */
 import { partitionSelection } from '../partition-selection';
-import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
-import type { BulkTarget } from '../partition-selection';
 
-const productTarget = ( slug: string, action: FeatureState[ 'action' ] ): BulkTarget => ( {
-	kind: 'feature',
-	slug,
-	state: {
+const productFeature = ( slug: string, action: FeatureState[ 'action' ] ): FeatureState =>
+	( {
 		feature: { slug, product: slug, module: '' } as MainFeature,
 		action,
 		status: action === 'running' ? 'active' : 'inactive',
 		product: {} as FeatureState[ 'product' ],
-		selectable: action === 'install' || action === 'activate' || action === 'running',
-	},
-} );
+		switchable: true,
+	} ) as FeatureState;
 
-const moduleFeatureTarget = (
-	slug: string,
-	moduleSlug: string,
-	activated: boolean
-): BulkTarget => ( {
-	kind: 'feature',
-	slug,
-	state: {
+const moduleFeature = ( slug: string, moduleSlug: string, activated: boolean ): FeatureState =>
+	( {
 		feature: { slug, product: '', module: moduleSlug } as MainFeature,
 		action: activated ? 'running' : 'activate',
 		status: activated ? 'active' : 'inactive',
 		module: { module: moduleSlug, activated } as FeatureState[ 'module' ],
-		selectable: true,
-	},
-} );
-
-const moduleTarget = ( slug: string, activated: boolean, selectable = true ): BulkTarget => ( {
-	kind: 'module',
-	slug,
-	module: { module: slug, activated, available: selectable, override: false } as MyJetpackModule,
-} );
+		switchable: true,
+	} ) as FeatureState;
 
 describe( 'partitionSelection', () => {
 	it( 'routes each selected product to the call that matches its state', () => {
-		const targets = [
-			productTarget( 'boost', 'install' ),
-			productTarget( 'social', 'activate' ),
-			productTarget( 'stats', 'running' ),
+		const states = [
+			productFeature( 'boost', 'install' ),
+			productFeature( 'social', 'activate' ),
+			productFeature( 'stats', 'running' ),
 		];
 
-		expect( partitionSelection( targets, [ 'boost', 'social', 'stats' ] ) ).toEqual( {
+		expect( partitionSelection( states, [ 'boost', 'social', 'stats' ] ) ).toEqual( {
 			toInstall: [ 'boost' ],
 			toActivate: [ 'social' ],
 			toDeactivate: [ 'stats' ],
@@ -57,50 +39,40 @@ describe( 'partitionSelection', () => {
 		} );
 	} );
 
-	it( 'selects features and standalone modules together', () => {
-		const targets = [
-			productTarget( 'stats', 'running' ),
-			moduleTarget( 'carousel', false ),
-			moduleTarget( 'markdown', true ),
+	it( 'sends a module-backed feature by its module slug, on the side it is not already on', () => {
+		const states = [
+			moduleFeature( 'sharing', 'sharedaddy', false ),
+			moduleFeature( 'comments', 'comments', true ),
 		];
 
-		const result = partitionSelection( targets, [ 'stats', 'carousel', 'markdown' ] );
-
-		expect( result.toDeactivate ).toEqual( [ 'stats' ] );
-		expect( result.modulesOn ).toEqual( [ 'carousel' ] );
-		expect( result.modulesOff ).toEqual( [ 'markdown' ] );
-	} );
-
-	it( 'dispatches a module-backed feature by its module slug, not its own', () => {
-		// Podcast's feature slug and module slug coincide; a feature whose do not would
-		// otherwise be dispatched under a name the modules store does not know.
-		const targets = [ moduleFeatureTarget( 'newsletter', 'subscriptions', false ) ];
-
-		expect( partitionSelection( targets, [ 'newsletter' ] ).modulesOn ).toEqual( [
-			'subscriptions',
-		] );
-	} );
-
-	it( 'ignores targets that were not selected', () => {
-		const targets = [ productTarget( 'boost', 'install' ), productTarget( 'crm', 'install' ) ];
-
-		expect( partitionSelection( targets, [ 'boost' ] ).toInstall ).toEqual( [ 'boost' ] );
-	} );
-
-	it( 'drops a selected target that has become unselectable', () => {
-		// A module pinned by a filter reports activated, so only the selectable flag keeps
-		// it out of the deactivate call.
-		const targets = [ moduleTarget( 'blaze', true, false ) ];
-
-		expect( partitionSelection( targets, [ 'blaze' ] ).modulesOff ).toEqual( [] );
-	} );
-
-	it( 'excludes a paid feature that offers only Learn more', () => {
-		const targets = [ productTarget( 'backup', 'learn_more' ) ];
-
-		expect( partitionSelection( targets, [ 'backup' ] ) ).toEqual( {
+		expect( partitionSelection( states, [ 'sharing', 'comments' ] ) ).toEqual( {
 			toInstall: [],
 			toActivate: [],
+			toDeactivate: [],
+			modulesOn: [ 'sharedaddy' ],
+			modulesOff: [ 'comments' ],
+		} );
+	} );
+
+	it( 'ignores anything selected that is not switchable', () => {
+		const paid = { ...productFeature( 'ai', 'learn_more' ), switchable: false } as FeatureState;
+		const states = [ paid, productFeature( 'social', 'activate' ) ];
+
+		expect( partitionSelection( states, [ 'ai', 'social' ] ) ).toEqual( {
+			toInstall: [],
+			toActivate: [ 'social' ],
+			toDeactivate: [],
+			modulesOn: [],
+			modulesOff: [],
+		} );
+	} );
+
+	it( 'ignores anything switchable that is not selected', () => {
+		const states = [ productFeature( 'social', 'activate' ), productFeature( 'stats', 'running' ) ];
+
+		expect( partitionSelection( states, [ 'social' ] ) ).toEqual( {
+			toInstall: [],
+			toActivate: [ 'social' ],
 			toDeactivate: [],
 			modulesOn: [],
 			modulesOff: [],
