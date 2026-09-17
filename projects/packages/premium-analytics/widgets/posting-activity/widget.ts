@@ -4,7 +4,7 @@
 import { verse } from '@wordpress/icons';
 
 /**
- * The Posting activity widget has no configurable settings: it always shows the
+ * The Monthly posting activity widget has no configurable settings: it always shows the
  * last 12 months.
  */
 export type PostingActivityAttributes = Record< never, never >;

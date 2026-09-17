@@ -123,7 +123,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Posting activity" widget: one mini calendar per month of the last 12, shaded by the posts published each day, with the month names beneath. The window is the widget\'s own; the dashboard date range does not move it. The close-up canvas is a one-column cell, so the grid scrolls sideways there; `WidgetDashboardWithWidget` below shows the full-width placement, where the months spread out.',
+					'The "Monthly posting activity" widget: one mini calendar per month of the last 12, shaded by the posts published each day, with the month names beneath. The window is the widget\'s own; the dashboard date range does not move it. The close-up canvas is a one-column cell, so the grid scrolls sideways there; `WidgetDashboardWithWidget` below shows the full-width placement, where the months spread out.',
 			},
 		},
 	},
