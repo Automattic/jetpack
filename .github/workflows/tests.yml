@@ -196,6 +196,10 @@ jobs:
             echo "$i"
           done > "$CPUFILE"
 
+          if [[ "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ]]; then
+            echo 0 > "$CPUFILE"
+          fi
+
       - parallel:
         - &testworker
           name: Run project tests
