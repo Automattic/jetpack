@@ -80,6 +80,28 @@ const stateForFeature = (
 };
 
 /**
+ * Whether a feature is running on a plan alone, with nothing installed here to switch.
+ *
+ * VaultPress Backup reports active because the plan is, while its module is unavailable
+ * and its plugin is absent: a switch would have nothing to turn off, and silently doing
+ * nothing is worse than not offering it. Such a feature gets the lifecycle button, which
+ * says what it actually needs.
+ *
+ * @param state - Live state for the feature.
+ * @return True when the feature cannot be switched from this site.
+ */
+export function hasNothingLocalToSwitch( state: FeatureState ): boolean {
+	const standalone = state.product?.standalonePluginInfo;
+
+	return (
+		state.status === 'active' &&
+		! state.module?.available &&
+		!! standalone &&
+		! standalone.isStandaloneInstalled
+	);
+}
+
+/**
  * Resolve live state for the whole feature list in one pass.
  *
  * Both stores are shared queries, so this costs no more requests than a single card

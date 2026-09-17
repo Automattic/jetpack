@@ -3,6 +3,7 @@ import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
 import ActionButton from '../../action-button';
 import { ModuleToggle } from '../../module-toggle';
 import { ActivationToggle, getProductActivation } from '../products/product-card-action';
+import { hasNothingLocalToSwitch } from './feature-state';
 import type { FeatureState } from './feature-state';
 
 type FeatureActionProps = {
@@ -45,7 +46,7 @@ export function FeatureAction( { state }: FeatureActionProps ) {
 
 	// Reaching here means no module can be switched, so the product is the whole feature
 	// and nothing about a missing module should hold its switch shut.
-	if ( state.product && activation ) {
+	if ( state.product && activation && ! hasNothingLocalToSwitch( state ) ) {
 		return (
 			<ActivationToggle
 				product={ state.product }

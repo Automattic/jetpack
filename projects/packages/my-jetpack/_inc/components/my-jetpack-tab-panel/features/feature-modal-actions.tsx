@@ -6,6 +6,7 @@ import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
 import ActionButton from '../../action-button';
 import { useModuleActivation } from '../../module-toggle';
 import { getProductActivation, useProductActivation } from '../products/product-card-action';
+import { hasNothingLocalToSwitch } from './feature-state';
 import type { FeatureState } from './feature-state';
 import type { ProductCamelCase } from '../../../data/types';
 import type { MyJetpackModule } from '../../../types';
@@ -114,6 +115,10 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { feature, product, module: $module } = state;
 	const isActive = state.status === 'active';
+	const nothingToSwitch = hasNothingLocalToSwitch( state );
+	// A feature running on its plan alone has only somewhere to go, and Open already
+	// leads there, so its lifecycle button would just say the same thing twice.
+	const opensElsewhere = nothingToSwitch && isActive && !! feature.manage_url;
 
 	const activation = product
 		? getProductActivation(
@@ -134,7 +139,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 
 			{ $module?.available ? <ModuleSwitch module={ $module } name={ feature.name } /> : null }
 
-			{ ! $module?.available && product && activation ? (
+			{ ! $module?.available && product && activation && ! nothingToSwitch ? (
 				<ProductSwitch
 					product={ product }
 					activation={ { ...activation, disabled: false } }
@@ -142,7 +147,10 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				/>
 			) : null }
 
-			{ ! $module?.available && product && ! activation ? (
+			{ ! $module?.available &&
+			product &&
+			( ! activation || nothingToSwitch ) &&
+			! opensElsewhere ? (
 				<ActionButton slug={ product.slug as JetpackModule } variant="secondary" />
 			) : null }
 		</>
