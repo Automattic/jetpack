@@ -45,33 +45,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	StatsPageIcon: () => null,
 } ) );
 
-// The core-data selector the stage's `useSelect` callback reaches.
-const mockGetEntityRecords = jest.fn( () => [] );
-
-jest.mock( '@wordpress/core-data', () => ( {
-	store: {},
-} ) );
-
-// Falls through to the real module except `useSelect`: the externals path pulls
-// in `@wordpress/rich-text`, whose store calls `combineReducers` at import time,
-// so `requireActual` must stay lazy or it re-enters the module mid-init.
-jest.mock(
-	'@wordpress/data',
-	() =>
-		new Proxy(
-			{
-				useSelect: ( selector: ( select: unknown ) => unknown ) =>
-					selector( () => ( { getEntityRecords: mockGetEntityRecords } ) ),
-			},
-			{
-				get: ( overrides, prop ) =>
-					prop in overrides
-						? overrides[ prop as keyof typeof overrides ]
-						: jest.requireActual( '@wordpress/data' )[ prop ],
-			}
-		)
-);
-
 /**
  * Reads the scope from where the page's widgets render.
  *
