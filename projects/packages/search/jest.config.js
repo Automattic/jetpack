@@ -2,7 +2,7 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
 module.exports = {
 	...baseConfig,
-	roots: [ '<rootDir>/src', '<rootDir>/tests/js' ],
+	roots: [ '<rootDir>/src', '<rootDir>/tests/js', '<rootDir>/packages', '<rootDir>/routes' ],
 
 	// Pin jsdom's window URL so tests that inspect `window.location.protocol`
 	// or `hostname` (e.g. use-photon's protocol-detection tests) see a

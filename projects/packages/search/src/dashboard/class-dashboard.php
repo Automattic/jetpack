@@ -116,8 +116,8 @@ class Dashboard {
 	public function init_hooks() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
-			// Same priority as add_wp_admin_submenu(); registration order, not priority,
-			// is what keeps this one first. Do not reorder these two add_action() calls.
+			// Any priority works: the predicate's readers, render() and load_admin_scripts(),
+			// both run after admin_menu — and the wpcom subclass overrides this to 100000.
 			add_action( 'admin_menu', array( $this, 'maybe_load_wp_build' ), $this->search_menu_priority );
 			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->search_menu_priority );
 			// Check if the site plan changed and deactivate module accordingly.
