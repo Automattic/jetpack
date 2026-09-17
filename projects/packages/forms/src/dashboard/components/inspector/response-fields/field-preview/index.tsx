@@ -2,13 +2,9 @@
  * External dependencies
  */
 import { formatNumber } from '@automattic/number-formatters';
-import {
-	Icon,
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Badge, Link } from '@wordpress/ui';
+import { Badge, Link, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -69,13 +65,13 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 
 		if ( fieldType === 'checkbox-multiple' && Array.isArray( value ) ) {
 			return (
-				<VStack spacing="2" alignment="topLeft">
+				<Stack align="flex-start" direction="column" gap="sm" justify="flex-start">
 					{ ( value as string[] ).map( ( item, index ) => (
 						<Badge intent="draft" key={ index }>
 							{ item }
 						</Badge>
 					) ) }
-				</VStack>
+				</Stack>
 			);
 		}
 
@@ -135,17 +131,20 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	};
 
 	return (
-		<HStack
-			alignment="topLeft"
-			spacing="4"
+		<Stack
+			align="flex-start"
 			className={ `jp-forms__field-preview ${ typeClassName }` }
+			direction="row"
+			gap="lg"
+			justify="flex-start"
 		>
 			<div className="jp-forms__field-preview-icon">{ icon }</div>
-			<VStack spacing="0" className="jp-forms__field-preview-content">
+			{ /* No `gap`: the old VStack used spacing="0", and the token scale has no zero. */ }
+			<Stack className="jp-forms__field-preview-content" direction="column" justify="center">
 				{ label && <div className="jp-forms__field-preview-label">{ label }</div> }
 				<div className="jp-forms__field-preview-value">{ renderFieldValue() }</div>
-			</VStack>
-		</HStack>
+			</Stack>
+		</Stack>
 	);
 };
 
