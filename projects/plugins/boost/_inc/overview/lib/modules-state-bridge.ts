@@ -26,11 +26,10 @@ export function observeLegacyModulesState( client: QueryClient ) {
 	};
 
 	const stopQueries = client.getQueryCache().subscribe( event => {
-		if (
-			event.type === 'updated' &&
-			event.action.type === 'success' &&
-			event.query.queryKey[ 0 ] === 'getting_started'
-		) {
+		if ( event.type !== 'updated' || event.action.type !== 'success' ) {
+			return;
+		}
+		if ( event.query.queryKey[ 0 ] === 'getting_started' ) {
 			// Data Sync writes its optimistic value, and any revert, before the save settles.
 			if ( isOnboardingSaving() ) {
 				onboardingHeld = true;
@@ -39,8 +38,6 @@ export function observeLegacyModulesState( client: QueryClient ) {
 			}
 		}
 		if (
-			event.type === 'updated' &&
-			event.action.type === 'success' &&
 			event.action.manual &&
 			relayedQueryKeys.some( key => event.query.queryKey[ 0 ] === key )
 		) {
