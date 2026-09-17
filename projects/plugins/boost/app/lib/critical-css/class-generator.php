@@ -12,6 +12,7 @@ class Generator {
 		$generator = new static();
 		if ( static::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $generator, 'display_generate_meta' ), 0 );
+			add_filter( 'wp_redirect', array( $generator, 'keep_login_redirect_from_clearing_auth' ), PHP_INT_MAX );
 			$generator->force_logged_out_render();
 		}
 	}
@@ -30,6 +31,42 @@ class Generator {
 			// Turn off display of admin bar.
 			add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX );
 		}
+	}
+
+	/**
+	 * Remove `reauth` from a generation request's redirect to the login page.
+	 *
+	 * The logged-out render sends login gates built on auth_redirect() to the login page with
+	 * `reauth`, and wp-login.php then clears the admin's auth cookies. The redirect itself is kept.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|false $location The path or URL to redirect to.
+	 * @return string|false
+	 */
+	public function keep_login_redirect_from_clearing_auth( $location ) {
+		if ( ! is_string( $location ) || false === stripos( $location, 'reauth' ) ) {
+			return $location;
+		}
+
+		$target = wp_parse_url( $location );
+		if ( ! is_array( $target ) || empty( $target['path'] ) ) {
+			return $location;
+		}
+
+		foreach ( array( wp_login_url(), site_url( 'wp-login.php', 'login' ) ) as $login_url ) {
+			$login = wp_parse_url( $login_url );
+			if ( ! is_array( $login ) || empty( $login['path'] ) ) {
+				continue;
+			}
+
+			$same_host = empty( $target['host'] ) || ( isset( $login['host'] ) && 0 === strcasecmp( $target['host'], $login['host'] ) );
+			if ( $same_host && untrailingslashit( $target['path'] ) === untrailingslashit( $login['path'] ) ) {
+				return remove_query_arg( 'reauth', $location );
+			}
+		}
+
+		return $location;
 	}
 
 	/**
