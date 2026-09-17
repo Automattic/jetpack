@@ -12,30 +12,35 @@
 		padding: 24px;
 	}
 
-	&__card {
-		max-width: 560px;
-		margin-inline: auto;
-		padding: 32px;
-	}
-
-	// Matches the dashboard's Callout: content and illustration share the row,
-	// and the illustration drops out rather than squeezing the copy.
+	// Ports the dashboard's `.dashboard-callout` rules. 600px is the width its
+	// full-page wrapper gives the callout.
 	&__callout {
 		overflow: hidden;
-		max-width: 900px;
+		max-width: 600px;
 		margin-inline: auto;
 	}
 
-	&__callout-content {
-		flex: 1 1 0;
-		min-width: 0;
-		padding: 32px;
+	&__callout-container {
+		padding: var(--wpds-dimension-padding-lg);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+
+		// Content and illustration share the row evenly.
+		> * {
+			flex: 1 0;
+		}
+
+		@media ( min-width: 782px ) {
+			padding: var(--wpds-dimension-padding-2xl);
+		}
+	}
+
+	&__callout-title {
+		color: var(--wpds-color-foreground-content-neutral);
+		margin: 0;
 	}
 
 	&__callout-image {
-		flex: 1 1 0;
 		position: relative;
-		min-width: 0;
 
 		img {
 			position: absolute;
@@ -45,7 +50,9 @@
 		}
 	}
 
-	@media (max-width: 782px) {
+	// Below the dashboard's mobile breakpoint the illustration drops out rather
+	// than squeezing the copy.
+	@media ( max-width: 480px ) {
 
 		&__callout-image {
 			display: none;
@@ -54,8 +61,7 @@
 
 	&__blockers {
 		margin: 0;
-		list-style: disc;
-		padding-inline-start: 20px;
+		padding-inline-start: 15px;
 	}
 
 	// Mirrors the Calypso dashboard's activation modal, but keyed to

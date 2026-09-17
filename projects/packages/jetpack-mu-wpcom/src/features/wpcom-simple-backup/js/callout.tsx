@@ -1,48 +1,60 @@
 import { Card, Icon } from '@wordpress/components';
 import { Stack, Text } from '@wordpress/ui';
-import type { JSX, ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 /**
  * Two-column feature panel: content on the left, illustration on the right.
  *
- * Mirrors the WordPress.com dashboard's `Callout`
- * (`client/dashboard/components/callout`), which is what a Simple site sees for
- * this product today.
+ * Ported from the WordPress.com dashboard's `Callout`
+ * (`client/dashboard/components/callout`), which is what
+ * `HostingFeatureGatedWithCallout` renders for this product on a Simple site.
+ * Every state of this page uses it, so they stay consistent with each other.
  *
- * @param props          - Component props.
- * @param props.icon     - Glyph above the title.
- * @param props.title    - Panel heading.
- * @param props.image    - Illustration URL, dropped on narrow viewports by CSS.
- * @param props.children - Body copy.
- * @param props.actions  - Call to action.
+ * @param props             - Component props.
+ * @param props.icon        - Glyph above the title.
+ * @param props.title       - Panel heading.
+ * @param props.description - Body copy. Elements are stacked with the title.
+ * @param props.image       - Decorative illustration URL, dropped on narrow viewports by CSS.
+ * @param props.actions     - Call to action.
  * @return The rendered panel.
  */
 export function Callout( {
 	icon,
 	title,
+	description,
 	image,
-	children,
 	actions,
 }: {
-	icon?: JSX.Element;
+	icon?: ComponentProps< typeof Icon >[ 'icon' ];
 	title: string;
+	description: ReactNode;
 	image?: string;
-	children: ReactNode;
 	actions?: ReactNode;
 } ) {
 	return (
-		<Card className="wpcom-simple-backup__callout">
-			<Stack direction="row" gap="lg" align="stretch">
+		<Card className="wpcom-simple-backup__callout" role="article">
+			<Stack
+				className="wpcom-simple-backup__callout-container"
+				direction="row"
+				gap="xl"
+				align="stretch"
+			>
 				<Stack
 					className="wpcom-simple-backup__callout-content"
 					direction="column"
-					gap="md"
+					gap="lg"
 					justify="flex-start"
 					align="flex-start"
 				>
 					{ icon && <Icon icon={ icon } /> }
-					<Text variant="heading-lg">{ title }</Text>
-					{ children }
+					<Text
+						className="wpcom-simple-backup__callout-title"
+						variant="heading-lg"
+						render={ <h2 /> }
+					>
+						{ title }
+					</Text>
+					{ description }
 					{ actions }
 				</Stack>
 				{ image && (
