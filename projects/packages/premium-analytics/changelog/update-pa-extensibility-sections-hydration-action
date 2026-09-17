@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the `jetpack_premium_analytics_register_dashboard_sections` action and the `jetpack_premium_analytics_preview_sections` filter, so a plugin can register a dashboard section and expose it in the preview.
