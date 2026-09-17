@@ -143,7 +143,9 @@ export const signIn = async (
 				finish( {
 					code: data.code,
 					name: typeof data.name === 'string' ? data.name : '',
-					avatar: typeof data.avatar === 'string' ? data.avatar : '',
+					avatar:
+						( typeof data.avatar === 'string' && data.avatar ) ||
+						JetpackComments.identity.defaultAvatar,
 				} );
 			}
 
