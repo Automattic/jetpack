@@ -1,6 +1,8 @@
 import { TooltipContext } from '@visx/xychart';
 import clsx from 'clsx';
 import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
+import { ChartInstanceContext } from '../../charts/private/chart-instance-context';
+import { useGlobalChartsContext } from '../../providers/chart-context/hooks/use-global-charts-context';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useChartScopeElement, useStandaloneScopeClass } from '../../providers/chart-scope';
 import { resolveCssVariable } from '../../utils';
@@ -100,6 +102,42 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	// Tracks whether this effect opened a tooltip, so it only closes its own.
 	const hasKeyboardSelection = useRef( false );
 
+	// visx's own `hideTooltip` is debounced by 400ms, long enough for a stale datum to be
+	// repainted against a changed series list. This is the undebounced close it wraps.
+	const closeTooltipNow = useCallback( () => {
+		tooltipContext?.updateTooltip( {
+			tooltipOpen: false,
+			tooltipLeft: undefined,
+			tooltipTop: undefined,
+			tooltipData: undefined,
+		} );
+		// Don't include tooltipContext in the dependency array to avoid loop.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	// The chart's own id, not `useChartId()` — that mints a fresh one when called without an
+	// argument, which would read an empty hidden set here and never change.
+	const chartId = useContext( ChartInstanceContext )?.chartId;
+	const { getHiddenSeries } = useGlobalChartsContext();
+	const hiddenSeriesKey = chartId
+		? JSON.stringify( [ ...getHiddenSeries( chartId ) ].sort() )
+		: undefined;
+	const lastHiddenSeriesKey = useRef( hiddenSeriesKey );
+
+	// Hiding a series re-points every tooltip index at a different series, so a tooltip opened by
+	// the pointer would keep showing a datum that is no longer on the chart. Nothing else closes
+	// it: the pointer has not moved, so visx never fires the leave that would.
+	useEffect( () => {
+		const changed = lastHiddenSeriesKey.current !== hiddenSeriesKey;
+		lastHiddenSeriesKey.current = hiddenSeriesKey;
+
+		// A keyboard selection is reconciled by `useKeyboardNavigation` instead, which either
+		// re-shows the tooltip at a valid index or clears the selection for the branch below.
+		if ( changed && selectedIndex === undefined ) {
+			closeTooltipNow();
+		}
+	}, [ hiddenSeriesKey, selectedIndex, closeTooltipNow ] );
+
 	// Handle tooltip highlighting for keyboard navigation
 	useEffect( () => {
 		if ( selectedIndex === undefined ) {
@@ -108,7 +146,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 			// mid-navigation and closes the tooltip the user is reading.
 			if ( hasKeyboardSelection.current ) {
 				hasKeyboardSelection.current = false;
-				tooltipContext?.hideTooltip();
+				closeTooltipNow();
 			}
 			return;
 		}

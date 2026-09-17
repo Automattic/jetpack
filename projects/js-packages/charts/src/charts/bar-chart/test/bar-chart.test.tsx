@@ -110,6 +110,30 @@ describe( 'BarChart', () => {
 			}
 		} );
 
+		// The pointer never moves, so visx never fires the leave that would normally close this.
+		test( 'closes a hover tooltip when the series it describes is hidden', async () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<BarChart { ...defaultProps } withTooltips chartId="test-hover-then-hide" />
+				</GlobalChartsProvider>
+			);
+
+			const [ [ x0, , width ] ] = barGeometry();
+			hover( x0 + width / 2, 150 );
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( 'Jan 1' );
+
+			act( () => context.toggleSeriesVisibility( 'test-hover-then-hide', 'Series A' ) );
+
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+		} );
+
 		test( 'selects the nearer padded band before and after an unrelated rerender', async () => {
 			const chart = ( className: string ) => (
 				<GlobalChartsProvider>
@@ -2784,6 +2808,9 @@ describe( 'BarChart', () => {
 
 			expect( seriesBToggle ).toHaveFocus();
 			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
+			// Clearing the selection drops the keyboard test id, so assert on the role too:
+			// visx's own hide is debounced, and the stale datum repaints as a different series.
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'stops at the last visible slot on a standard chart', async () => {
