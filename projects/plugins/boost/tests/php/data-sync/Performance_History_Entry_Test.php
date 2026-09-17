@@ -176,7 +176,7 @@ class Performance_History_Entry_Test extends TestCase {
 	 */
 	private function stub_upstream_windows( $periods_by_start, &$ranges ) {
 		Functions\when( 'is_wp_error' )->justReturn( false );
-		$start   = null;
+		$start   = 0;
 		$request = Mockery::mock( 'overload:' . Speed_Score_Graph_History_Request::class );
 		$request->shouldReceive( '__construct' )->andReturnUsing(
 			function ( $from, $to ) use ( &$ranges, &$start ) {
