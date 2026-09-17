@@ -150,6 +150,10 @@ jest.mock( './annual-insights/config', () => ( {
 } ) );
 
 jest.mock( './earnings/config', () => ( {
+	getEarningsReportTabs: () => [ { id: 'wordads', label: 'Earnings history' } ],
+	getTabTitle: ( id: string ) => ( id === 'wordads' ? 'Earnings history' : id ),
+	hasAdsServed: ( tab: string ) => tab === 'wordads',
+	resolveSection: ( value: string | undefined ) => value ?? 'wordads',
 	useEarningsReportRecords: jest.fn(),
 } ) );
 
@@ -355,12 +359,14 @@ describe( 'report CSV exports', () => {
 		];
 		useEarningsReportRecordsMock.mockReturnValue( {
 			...reportStatus,
+			tab: 'wordads',
+			populatedTabs: [ 'wordads' ],
 			rows,
 		} as ReturnType< typeof useEarningsReportRecords > );
 
 		expectCsvExport(
 			EarningsReportPage,
-			'earnings',
+			'earnings-wordads',
 			[ rows[ 1 ], rows[ 0 ] ],
 			[ '2026-09', 30.25, 300, 'Unpaid' ]
 		);

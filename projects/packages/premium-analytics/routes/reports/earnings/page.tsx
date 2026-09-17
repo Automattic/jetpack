@@ -2,12 +2,14 @@
  * External dependencies
  */
 import { Text } from '@jetpack-premium-analytics/externals';
+import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
+	ReportPageTabs,
 	ReportRecordsTable,
 	getEarningsStatus,
 	getWordAdsHistoryFields,
@@ -21,9 +23,18 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { route } from '../package.json';
 import { REPORTS } from '../registry';
-import { useEarningsReportRecords } from './config';
+import {
+	getEarningsReportTabs,
+	getTabTitle,
+	hasAdsServed,
+	resolveSection,
+	useEarningsReportRecords,
+} from './config';
 import styles from './page.module.css';
+
+const ROUTE_FROM = route.path;
 
 const RECORDS_VIEW = {
 	sort: { field: 'period', direction: 'desc' as const },
@@ -57,23 +68,43 @@ const sortEarningsCsvRows = ( a: EarningsHistoryRow, b: EarningsHistoryRow ) =>
  * @return The earnings report page.
  */
 function EarningsReport(): JSX.Element {
-	const records = useEarningsReportRecords();
-	const fields = useMemo( () => getWordAdsHistoryFields(), [] );
+	const [ urlTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
+	const records = useEarningsReportRecords( urlTab );
+	const { tab, populatedTabs } = records;
+	const showAdsServed = hasAdsServed( tab );
+	// WordAds is always offered; the other buckets are empty on nearly every site,
+	// so their tabs appear only when there is something to show.
+	const tabs = useMemo(
+		() =>
+			getEarningsReportTabs().filter(
+				( { id } ) => id === 'wordads' || populatedTabs.includes( id )
+			),
+		[ populatedTabs ]
+	);
+	const fields = useMemo( () => {
+		const all = getWordAdsHistoryFields();
+
+		return showAdsServed ? all : all.filter( field => field.id !== 'pageviews' );
+	}, [ showAdsServed ] );
 	const csvColumns = useMemo< CsvColumn< EarningsHistoryRow >[] >(
 		() => [
 			{ label: __( 'Period', 'jetpack-premium-analytics-pkg' ), getValue: row => row.period },
 			{ label: __( 'Earnings', 'jetpack-premium-analytics-pkg' ), getValue: row => row.amount },
-			{
-				label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.pageviews,
-			},
+			...( showAdsServed
+				? [
+						{
+							label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ),
+							getValue: ( row: EarningsHistoryRow ) => row.pageviews,
+						},
+				  ]
+				: [] ),
 			{
 				label: __( 'Status', 'jetpack-premium-analytics-pkg' ),
 				// The numeric code says nothing to a reader of the export.
 				getValue: row => getEarningsStatus( row.status ).label,
 			},
 		],
-		[]
+		[ showAdsServed ]
 	);
 	const {
 		canExport,
@@ -81,13 +112,14 @@ function EarningsReport(): JSX.Element {
 		filename: csvFilename,
 	} = useReportCsvExport( {
 		rows: records.rows,
-		filenamePrefix: 'earnings',
+		// The tabs export different lists, so each gets its own filename.
+		filenamePrefix: `earnings-${ tab }`,
 		status: records,
 		sort: sortEarningsCsvRows,
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.earnings;
+	const { getLabel } = REPORTS.earnings;
 
 	return (
 		<ReportPageShell
@@ -100,7 +132,14 @@ function EarningsReport(): JSX.Element {
 			}
 		>
 			{ /* No date filters: the `wordads/earnings` endpoint is all-time, and the Ads tab has no global date controls. */ }
-			<ReportPageLayout title={ getTitle() }>
+			<ReportPageLayout
+				title={ getTabTitle( tab ) }
+				tabs={
+					tabs.length > 1 ? (
+						<ReportPageTabs tabs={ tabs } value={ tab } onChange={ setActiveTab } />
+					) : undefined
+				}
+			>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load earnings', 'jetpack-premium-analytics-pkg' ) }
@@ -108,13 +147,16 @@ function EarningsReport(): JSX.Element {
 					/>
 				) : (
 					<>
-						<Text className={ styles.note } variant="body-md" render={ <p /> }>
-							{ __(
-								'Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression.',
-								'jetpack-premium-analytics-pkg'
-							) }
-						</Text>
+						{ showAdsServed && (
+							<Text className={ styles.note } variant="body-md" render={ <p /> }>
+								{ __(
+									'Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression.',
+									'jetpack-premium-analytics-pkg'
+								) }
+							</Text>
+						) }
 						<ReportRecordsTable< EarningsHistoryRow >
+							key={ tab }
 							data={ records.rows }
 							fields={ fields }
 							getItemId={ getEarningsRowId }
