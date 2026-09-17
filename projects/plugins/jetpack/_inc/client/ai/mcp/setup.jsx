@@ -265,10 +265,7 @@ export default function McpSetup() {
 										</li>
 										<li>
 											<Text as="p" variant="muted">
-												{ __(
-													'Sign in to Cursor, then click "Add to Cursor" and follow the prompts.',
-													'jetpack'
-												) }
+												{ __( 'Click "Add to Cursor" and follow the prompts.', 'jetpack' ) }
 											</Text>
 										</li>
 									</ol>
