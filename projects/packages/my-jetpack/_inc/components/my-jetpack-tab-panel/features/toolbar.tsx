@@ -1,6 +1,6 @@
 import { SearchControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { grid, list } from '@wordpress/icons';
+import { blockTable, category } from '@wordpress/icons';
 import { Icon, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
@@ -144,8 +144,9 @@ export function Toolbar( {
 					className={ styles.search }
 				/>
 
-				{ /* Media Library's pattern: two icons that swap how the same set is drawn,
-				     next to the controls that decide what is in it. */ }
+				{ /* Media Library's pattern, drawn with DataViews' own layout icons: two
+				     icons that swap how the same set is drawn, next to the controls that
+				     decide what is in it. */ }
 				<Stack
 					direction="row"
 					align="center"
@@ -157,14 +158,14 @@ export function Toolbar( {
 					<ViewButton
 						value="grid"
 						label={ __( 'Grid view', 'jetpack-my-jetpack' ) }
-						icon={ grid }
+						icon={ category }
 						isActive={ view === 'grid' }
 						onSelect={ onViewChange }
 					/>
 					<ViewButton
 						value="list"
-						label={ __( 'List view', 'jetpack-my-jetpack' ) }
-						icon={ list }
+						label={ __( 'Table view', 'jetpack-my-jetpack' ) }
+						icon={ blockTable }
 						isActive={ view === 'list' }
 						onSelect={ onViewChange }
 					/>

@@ -627,10 +627,21 @@ $feature-icon-foreground: #0ced57;
 	}
 }
 
+// The same surface the cards sit on, so a view switch changes the layout and
+// not the frame around it.
 .feature-list {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
 	display: flex;
 	flex-direction: column;
-	gap: var(--wpds-dimension-gap-sm);
+	overflow: hidden;
+}
+
+// The selection bar sits outside the table, so its checkbox takes the column's
+// own inset to line up with the boxes above it.
+.feature-list :global(.dataviews-bulk-actions-footer__container) {
+	padding-inline-start: var(--wpds-dimension-padding-2xl);
 }
 
 // Only on screen with a selection in hand, so it can take the room it needs.
