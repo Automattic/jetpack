@@ -50,6 +50,13 @@ class Dashboard_Section_Test extends BaseTestCase {
 	private $available_modules_filter = null;
 
 	/**
+	 * Default-layout filter callback registered by a test.
+	 *
+	 * @var callable|null
+	 */
+	private $layout_filter = null;
+
+	/**
 	 * Set up a fresh REST server for each test.
 	 */
 	public function set_up() {
@@ -89,6 +96,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 		if ( null !== $this->available_modules_filter ) {
 			remove_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
 			$this->available_modules_filter = null;
+		}
+
+		if ( null !== $this->layout_filter ) {
+			remove_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, $this->layout_filter );
+			$this->layout_filter = null;
 		}
 
 		Jetpack_Options::delete_option( 'active_modules' );
@@ -654,42 +666,81 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The built-in traffic section resolves its layout from the dashboard default.
+	 * A built-in section serves the layout it declared, minus what the site cannot show.
+	 *
+	 * @dataProvider provide_built_in_section_layouts
+	 *
+	 * @param string $id       Section identifier.
+	 * @param array  $declared The layout the section registers.
 	 */
-	public function test_traffic_section_default_layout_uses_dashboard_default() {
+	#[DataProvider( 'provide_built_in_section_layouts' )]
+	public function test_built_in_sections_serve_their_declared_layout( $id, $declared ) {
 		register_default_dashboard_sections();
 
-		$traffic = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/traffic' );
+		$section = get_registered_dashboard_section( DASHBOARD_NAME, $id );
 
-		$this->assertInstanceOf( Dashboard_Section::class, $traffic );
-		$this->assertSame(
-			get_dashboard_default_layout_for( DASHBOARD_NAME ),
-			$traffic->get_default_layout()
-		);
-		$this->assertNotEmpty( $traffic->get_default_layout() );
+		$this->assertInstanceOf( Dashboard_Section::class, $section );
+
+		$served = array_column( $section->get_default_layout(), 'type' );
+
+		$this->assertNotEmpty( $served );
+		$this->assertSame( array(), array_values( array_diff( $served, array_column( $declared, 'type' ) ) ), 'A section serves nothing it did not declare.' );
 	}
 
 	/**
-	 * The built-in insights and subscribers sections resolve their tab defaults.
+	 * Built-in sections and the layouts they declare.
+	 *
+	 * @return array[]
 	 */
-	public function test_non_traffic_section_default_layouts_use_tab_defaults() {
-		register_default_dashboard_sections();
-
-		$insights    = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/insights' );
-		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
-
-		$this->assertInstanceOf( Dashboard_Section::class, $insights );
-		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
-		$this->assertSame(
-			get_dashboard_default_layout_for( 'analytics/insights' ),
-			$insights->get_default_layout()
+	public static function provide_built_in_section_layouts() {
+		return array(
+			'traffic'     => array( 'analytics/traffic', get_traffic_section_default_layout() ),
+			'insights'    => array( 'analytics/insights', get_insights_section_default_layout() ),
+			'subscribers' => array( 'analytics/subscribers', get_subscribers_section_default_layout() ),
 		);
-		$this->assertSame(
-			get_dashboard_default_layout_for( 'analytics/subscribers' ),
-			$subscribers->get_default_layout()
+	}
+
+	/**
+	 * The default-layout filter runs from the section, with its declared layout and id.
+	 */
+	public function test_default_layout_runs_through_the_filter_with_the_section_id() {
+		$section = register_dashboard_section(
+			'layout_filter_dashboard',
+			'example/section',
+			array(
+				'default_layout' => array( get_dashboard_default_widget_instance( 'a', 'example/a', 0 ) ),
+			)
 		);
-		$this->assertNotEmpty( $insights->get_default_layout() );
-		$this->assertNotEmpty( $subscribers->get_default_layout() );
+		$seen    = array();
+
+		$this->layout_filter = static function ( $layout, $section_id, $filtered ) use ( &$seen, $section ) {
+			$seen     = array( $section_id, $filtered === $section );
+			$layout[] = get_dashboard_default_widget_instance( 'b', 'example/b', 1 );
+
+			return $layout;
+		};
+		add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, $this->layout_filter, 10, 3 );
+
+		$this->assertSame( array( 'example/a', 'example/b' ), array_column( $section->get_default_layout(), 'type' ) );
+		$this->assertSame( array( 'example/section', true ), $seen );
+	}
+
+	/**
+	 * A filter that hands back no array leaves the section with no default.
+	 */
+	public function test_default_layout_ignores_a_filter_that_returns_no_array() {
+		$section = register_dashboard_section(
+			'layout_filter_dashboard',
+			'example/section',
+			array(
+				'default_layout' => array( get_dashboard_default_widget_instance( 'a', 'example/a', 0 ) ),
+			)
+		);
+
+		$this->layout_filter = '__return_null';
+		add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, $this->layout_filter );
+
+		$this->assertSame( array(), $section->get_default_layout() );
 	}
 
 	/**
@@ -937,10 +988,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				get_available_dashboard_sections( DASHBOARD_NAME )
 			)
 		);
-		$this->assertSame(
-			get_dashboard_default_layout_for( 'woocommerce/store' ),
-			$woocommerce->get_default_layout()
-		);
+		$this->assertContains( 'jpa/store-performance', array_column( $woocommerce->get_default_layout(), 'type' ) );
 	}
 
 	/**
@@ -1082,10 +1130,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( 'Ads', $ads->label );
 		$this->assertSame( 50, $ads->order );
 		$this->assertContains( 'analytics/ads', $this->available_section_ids() );
-		$this->assertSame(
-			get_dashboard_default_layout_for( 'analytics/ads' ),
-			$ads->get_default_layout()
-		);
+		$this->assertContains( 'jpa/wordads-highlights', array_column( $ads->get_default_layout(), 'type' ) );
 	}
 
 	/**

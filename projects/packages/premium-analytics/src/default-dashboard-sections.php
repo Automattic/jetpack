@@ -1,8 +1,8 @@
 <?php
 /**
- * The package's own dashboard sections: the built-in tabs, their availability gates, and the
- * filters over those gates. They register through the section API in dashboard-sections.php,
- * the same way a plugin extending the dashboard would.
+ * The package's own dashboard sections: the built-in tabs, their availability gates and default
+ * layouts, and the filters over those gates. They register through the section API in
+ * dashboard-sections.php, the same way a plugin extending the dashboard would.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -125,12 +125,362 @@ function is_ads_dashboard_section_available_to_current_user() {
 }
 
 /**
- * Returns the default widget layout for the WooCommerce dashboard section.
+ * The Traffic tab's default widget layout.
  *
- * @return array Array of widget instances.
+ * @return array Widget instances.
  */
-function get_woocommerce_dashboard_section_default_layout() {
-	return get_dashboard_default_layout_for( 'woocommerce/store' );
+function get_traffic_section_default_layout() {
+	return array(
+		// Rows fill the three-column grid in the prototype's order. Plan usage
+		// is intentionally not a default; it stays available from the widget
+		// picker.
+		// Row 1: traffic chart.
+		get_dashboard_default_widget_instance(
+			'default-traffic-chart-widget-instance',
+			'jpa/traffic-chart',
+			0,
+			3,
+			2
+		),
+		// Row 2: most-viewed posts + referrers + devices.
+		get_dashboard_default_widget_instance(
+			'default-stats-top-posts-widget-instance',
+			'jpa/stats-top-posts',
+			1,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-referrers-widget-instance',
+			'jpa/referrers',
+			2,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-devices-widget-instance',
+			'jpa/devices',
+			3,
+			1,
+			2
+		),
+		// Row 3: locations map + top platforms.
+		get_dashboard_default_widget_instance(
+			'default-locations-widget-instance',
+			'jpa/locations',
+			4,
+			2,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-top-platforms-widget-instance',
+			'jpa/top-platforms',
+			5,
+			1,
+			2
+		),
+		// Row 4: UTM insights + clicks + VideoPress (sites running VideoPress only).
+		get_dashboard_default_widget_instance(
+			'default-utm-insights-widget-instance',
+			'jpa/utm-insights',
+			6,
+			1,
+			2,
+			array(
+				'utmDimension' => 'utm_source,utm_medium',
+			)
+		),
+		get_dashboard_default_widget_instance(
+			'default-clicks-widget-instance',
+			'jpa/clicks',
+			7,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-videopress-widget-instance',
+			'jpa/videopress',
+			8,
+			1,
+			2
+		),
+		// Row 5: authors + search terms + file downloads (Simple only).
+		get_dashboard_default_widget_instance(
+			'default-authors-widget-instance',
+			'jpa/authors',
+			9,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-search-terms-widget-instance',
+			'jpa/search-terms',
+			10,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-file-downloads-widget-instance',
+			'jpa/file-downloads',
+			11,
+			1,
+			2
+		),
+	);
+}
+
+/**
+ * The Insights tab's default widget layout.
+ *
+ * @return array Widget instances.
+ */
+function get_insights_section_default_layout() {
+	return array(
+		// Rows follow the design (WOOA7S-2009); Emails lives on the Subscribers tab.
+		// Row 1: highlights banner.
+		get_dashboard_default_widget_instance(
+			'default-annual-highlights-widget-instance',
+			'jpa/annual-highlights',
+			0,
+			3,
+			1
+		),
+		// Row 2: at-a-glance cards. Two rows tall: their display-sized figures overflow a 200px tile.
+		get_dashboard_default_widget_instance(
+			'default-all-time-stats-widget-instance',
+			'jpa/all-time-stats',
+			1,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-most-popular-time-widget-instance',
+			'jpa/most-popular-time',
+			2,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-most-popular-day-widget-instance',
+			'jpa/most-popular-day',
+			3,
+			1,
+			2
+		),
+		// Row 3: the two post spotlights.
+		get_dashboard_default_widget_instance(
+			'default-popular-post-widget-instance',
+			'jpa/popular-post',
+			4,
+			2,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-latest-post-widget-instance',
+			'jpa/latest-post',
+			5,
+			1,
+			2
+		),
+		// Row 4: posting-activity heatmap.
+		get_dashboard_default_widget_instance(
+			'default-posting-activity-widget-instance',
+			'jpa/posting-activity',
+			6,
+			3,
+			1
+		),
+		// Row 5: the all-time views table, one row per year. Two rows tall so a
+		// few years fit before the grid scrolls.
+		get_dashboard_default_widget_instance(
+			'default-views-over-years-widget-instance',
+			'jpa/views-over-years',
+			7,
+			3,
+			2
+		),
+		// Row 6: tags + most commented posts.
+		get_dashboard_default_widget_instance(
+			'default-tags-widget-instance',
+			'jpa/tags',
+			8,
+			2,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-most-commented-posts-widget-instance',
+			'jpa/most-commented-posts',
+			9,
+			1,
+			2
+		),
+		// Row 7: shares + most commented authors.
+		get_dashboard_default_widget_instance(
+			'default-shares-widget-instance',
+			'jpa/shares',
+			10,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-most-commented-authors-widget-instance',
+			'jpa/most-commented-authors',
+			11,
+			2,
+			2
+		),
+	);
+}
+
+/**
+ * The Subscribers tab's default widget layout.
+ *
+ * @return array Widget instances.
+ */
+function get_subscribers_section_default_layout() {
+	return array(
+		// Row 1: subscribers chart.
+		get_dashboard_default_widget_instance(
+			'default-subscribers-chart-widget-instance',
+			'jpa/subscribers-chart',
+			0,
+			3,
+			2
+		),
+		// Row 2: subscriber highlights.
+		get_dashboard_default_widget_instance(
+			'default-subscriber-highlights-widget-instance',
+			'jpa/subscriber-highlights',
+			1,
+			3,
+			1
+		),
+		// Row 3: latest subscribers + the wider latest emails sent table.
+		get_dashboard_default_widget_instance(
+			'default-subscribers-list-widget-instance',
+			'jpa/subscribers-list',
+			2,
+			1,
+			2
+		),
+		get_dashboard_default_widget_instance(
+			'default-subscribers-emails-widget-instance',
+			'jpa/stats-emails',
+			3,
+			2,
+			2,
+			array(
+				'metric' => 'opens',
+			)
+		),
+	);
+}
+
+/**
+ * The Store tab's default widget layout.
+ *
+ * @return array Widget instances.
+ */
+function get_store_section_default_layout() {
+	return array(
+		get_dashboard_default_widget_instance(
+			'default-store-performance-widget-instance',
+			'jpa/store-performance',
+			0,
+			2,
+			1
+		),
+		get_dashboard_default_widget_instance(
+			'default-total-sales-over-time-widget-instance',
+			'jpa/total-sales-over-time',
+			1,
+			1,
+			1
+		),
+		get_dashboard_default_widget_instance(
+			'default-conversion-rate-widget-instance',
+			'jpa/conversion-rate',
+			2,
+			1,
+			1
+		),
+		get_dashboard_default_widget_instance(
+			'default-orders-over-time-widget-instance',
+			'jpa/orders-over-time',
+			3,
+			1,
+			1
+		),
+		get_dashboard_default_widget_instance(
+			'default-average-order-value-widget-instance',
+			'jpa/average-order-value',
+			4,
+			1,
+			1
+		),
+		get_dashboard_default_widget_instance(
+			'default-top-performing-products-widget-instance',
+			'jpa/top-performing-products',
+			5,
+			1,
+			1
+		),
+		get_dashboard_default_widget_instance(
+			'default-new-vs-returning-customer-widget-instance',
+			'jpa/new-vs-returning-customer',
+			6,
+			1,
+			1
+		),
+		get_dashboard_default_widget_instance(
+			'default-payment-status-widget-instance',
+			'jpa/payment-status',
+			7,
+			1,
+			1
+		),
+		get_dashboard_default_widget_instance(
+			'default-orders-fulfillment-widget-instance',
+			'jpa/orders-fulfillment',
+			8,
+			1,
+			1
+		),
+	);
+}
+
+/**
+ * The Ads tab's default widget layout.
+ *
+ * @return array Widget instances.
+ */
+function get_ads_section_default_layout() {
+	return array(
+		// Row 1: WordAds chart.
+		get_dashboard_default_widget_instance(
+			'default-wordads-chart-tabs-widget-instance',
+			'jpa/wordads-chart-tabs',
+			0,
+			3,
+			2
+		),
+		// Row 2: all-time balance.
+		get_dashboard_default_widget_instance(
+			'default-wordads-highlights-widget-instance',
+			'jpa/wordads-highlights',
+			1,
+			3,
+			1
+		),
+		// Row 3: earnings history.
+		get_dashboard_default_widget_instance(
+			'default-wordads-earnings-history-widget-instance',
+			'jpa/wordads-earnings-history',
+			2,
+			1,
+			2
+		),
+	);
 }
 
 /**
@@ -146,9 +496,7 @@ function register_default_dashboard_sections() {
 			'label'          => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
 			'title'          => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 10,
-			'default_layout' => static function () {
-				return get_dashboard_default_layout_for( 'analytics/traffic' );
-			},
+			'default_layout' => __NAMESPACE__ . '\\get_traffic_section_default_layout',
 		),
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
@@ -162,18 +510,14 @@ function register_default_dashboard_sections() {
 				'with_date_comparison'     => false,
 				'with_header_date_control' => false,
 			),
-			'default_layout'      => static function () {
-				return get_dashboard_default_layout_for( 'analytics/insights' );
-			},
+			'default_layout'      => __NAMESPACE__ . '\\get_insights_section_default_layout',
 		),
 		'analytics/subscribers' => array(
 			'label'          => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 			'title'          => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 30,
 			'is_available'   => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
-			'default_layout' => static function () {
-				return get_dashboard_default_layout_for( 'analytics/subscribers' );
-			},
+			'default_layout' => __NAMESPACE__ . '\\get_subscribers_section_default_layout',
 		),
 		// Store registers no heading of its own, so it falls back to the label.
 		'woocommerce/store'     => array(
@@ -183,7 +527,7 @@ function register_default_dashboard_sections() {
 			// Nothing backfills historical orders to WordPress.com but the analytics
 			// full sync. The site sections above read data it already holds.
 			'requires_sync'  => true,
-			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
+			'default_layout' => __NAMESPACE__ . '\\get_store_section_default_layout',
 		),
 		'analytics/ads'         => array(
 			'label'               => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
@@ -195,9 +539,7 @@ function register_default_dashboard_sections() {
 				'with_date_comparison'     => false,
 				'with_header_date_control' => false,
 			),
-			'default_layout'      => static function () {
-				return get_dashboard_default_layout_for( 'analytics/ads' );
-			},
+			'default_layout'      => __NAMESPACE__ . '\\get_ads_section_default_layout',
 		),
 	);
 
