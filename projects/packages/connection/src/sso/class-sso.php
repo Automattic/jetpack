@@ -311,6 +311,11 @@ class SSO {
 				}
 			}
 
+			if ( $this->two_step_required ) {
+				// The stylesheet hides the SSO controls without this class, and two-step setup is the only way forward here.
+				$show_sso_form = true;
+			}
+
 			if ( $show_sso_form ) {
 				$classes[] = 'jetpack-sso-form-display';
 			}
@@ -742,6 +747,7 @@ CSS;
 					 */
 					do_action( 'jetpack_sso_login_form_below_wpcom' );
 
+					// No password toggle on the two-step screen: an invited user has no password on this site, and the account is already logged in to WordPress.com.
 					if ( ! $this->two_step_required && ! Helpers::should_hide_login_form() ) :
 						?>
 					<div class="jetpack-sso-or">
