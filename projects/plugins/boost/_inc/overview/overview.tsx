@@ -7,11 +7,14 @@ import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
+import { bucketHistoryDays } from './lib/history-days';
 import { OVERVIEW_MODULES_CHANGE_EVENT, relayedQueryKeys } from './lib/modules-state-bridge';
+import { useHistoryRange } from './lib/use-history-range';
 import { isSiteOnline, useModulesState, useScoreRefreshState } from './lib/use-modules-state';
 import {
 	performanceHistoryQueryKey,
 	useDismissibleAlertState,
+	useHasOlderHistory,
 	usePerformanceHistory,
 } from './lib/use-performance-history';
 import { useSpeedScores } from './lib/use-speed-scores';
@@ -62,10 +65,19 @@ function OverviewContent( {
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
 	const historyAvailable = modules.data?.performance_history?.available === true;
-	const history = usePerformanceHistory( historyAvailable );
+	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
+	const history = usePerformanceHistory( historyAvailable && isVisible, range );
 	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
 		'performance_history_fresh_start'
 	);
+	// A window that starts on a recorded day keeps Previous enabled without older requests.
+	const opensEmpty =
+		history.isSuccess && ! bucketHistoryDays( history.data?.periods ?? [], range )[ 0 ]?.period;
+	const olderHistory = useHasOlderHistory(
+		historyAvailable && isVisible && freshStartCompleted && opensEmpty,
+		olderRanges
+	);
+	const hasOlderHistory = opensEmpty ? olderHistory.data : undefined;
 	const queryClient = useQueryClient();
 	const online = isSiteOnline();
 	const isLoading = scoreState.status === 'loading';
@@ -83,7 +95,12 @@ function OverviewContent( {
 
 	useEffect( () => {
 		if ( online && scoreState.status === 'loaded' ) {
-			queryClient.invalidateQueries( { queryKey: performanceHistoryQueryKey } );
+			// New scores only land in windows that end today, so older windows and the walk stay cached.
+			queryClient.invalidateQueries( {
+				queryKey: performanceHistoryQueryKey,
+				predicate: ( { queryKey } ) =>
+					typeof queryKey[ 2 ] === 'number' && queryKey[ 2 ] >= Date.now(),
+			} );
 		}
 	}, [ online, scoreState.status, queryClient ] );
 
@@ -176,6 +193,12 @@ function OverviewContent( {
 				</Notice.Root>
 			) }
 			<HistoryChartCard
+				range={ range }
+				dayCount={ dayCount }
+				onPrevious={ onPrevious }
+				onNext={ onNext }
+				canGoNext={ canGoNext }
+				hasOlderHistory={ hasOlderHistory }
 				isVisible={ isVisible }
 				data={ modules.isPending ? undefined : history.data }
 				isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }
