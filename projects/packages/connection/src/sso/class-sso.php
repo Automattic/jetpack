@@ -697,9 +697,6 @@ CSS;
 						<?php esc_html_e( 'Set up two-step authentication', 'jetpack-connection' ); ?>
 					</a>
 					<?php echo $this->build_sso_button(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
-					<div class="jetpack-sso-or">
-						<span><?php esc_html_e( 'Or', 'jetpack-connection' ); ?></span>
-					</div>
 					<a rel="nofollow" class="jetpack-sso-wrap__reauth" href="<?php echo esc_url( $this->build_sso_button_url( array( 'force_reauth' => '1' ) ) ); ?>">
 						<?php esc_html_e( 'Log in with another WordPress.com account', 'jetpack-connection' ); ?>
 					</a>
@@ -747,8 +744,7 @@ CSS;
 					 */
 					do_action( 'jetpack_sso_login_form_below_wpcom' );
 
-					// No password toggle on the two-step screen: an invited user has no password on this site, and the account is already logged in to WordPress.com.
-					if ( ! $this->two_step_required && ! Helpers::should_hide_login_form() ) :
+					if ( ! Helpers::should_hide_login_form() ) :
 						?>
 					<div class="jetpack-sso-or">
 						<span><?php esc_html_e( 'Or', 'jetpack-connection' ); ?></span>
