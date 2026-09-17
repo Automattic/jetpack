@@ -8,6 +8,10 @@ import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
 export type FeatureState = {
 	feature: MainFeature;
 	status: 'active' | 'inactive';
+	// The records behind the feature, for the card's toggle. Absent until the matching
+	// store answers, or when the feature is backed by neither.
+	product?: ProductCamelCase;
+	module?: MyJetpackModule;
 };
 
 // Statuses that mean the feature is not doing its job. Everything else leaves it working
@@ -45,7 +49,7 @@ const stateForFeature = (
 		const product = products?.[ feature.product ];
 
 		return product
-			? { feature, status: isProductRunning( product ) ? 'active' : 'inactive' }
+			? { feature, product, status: isProductRunning( product ) ? 'active' : 'inactive' }
 			: { feature, status: feature.status };
 	}
 
@@ -53,7 +57,7 @@ const stateForFeature = (
 		const $module = modules?.[ feature.module as JetpackModuleSlug ];
 
 		return $module
-			? { feature, status: $module.activated ? 'active' : 'inactive' }
+			? { feature, module: $module, status: $module.activated ? 'active' : 'inactive' }
 			: { feature, status: feature.status };
 	}
 

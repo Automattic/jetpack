@@ -3,6 +3,7 @@ import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Icon, Text } from '@wordpress/ui';
 import { getActivationStatusLabel } from '../utils';
 import { FeatureIcon } from './feature-icon';
+import { FeatureToggle } from './feature-toggle';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -75,6 +76,10 @@ export function FeatureItem( { state }: FeatureItemProps ) {
 				<Text variant="body-md" className={ styles[ 'feature-item__description' ] }>
 					{ feature.description }
 				</Text>
+			</span>
+
+			<span className={ styles[ 'feature-toggle-slot' ] }>
+				<FeatureToggle state={ state } />
 			</span>
 
 			{ /* Left under the stretched title on purpose: it points at the card's own

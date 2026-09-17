@@ -124,6 +124,19 @@ $feature-icon-foreground: #0ced57;
 	flex-shrink: 0;
 }
 
+// Raised above the stretched title link, so the switch stays its own control.
+// Reserved whether or not the feature has one, to keep the text column the same
+// width across the grid.
+.feature-toggle-slot {
+	align-self: center;
+	display: flex;
+	flex-shrink: 0;
+	inline-size: 2.25rem;
+	justify-content: center;
+	position: relative;
+	z-index: 1;
+}
+
 .feature-icon {
 	align-items: center;
 	block-size: 2.25rem;
