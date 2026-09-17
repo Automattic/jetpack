@@ -21,7 +21,10 @@ export const LOCATION_CHANGE_EVENT = 'jetpack-boost:location-change';
 /** Everything that means the location changed; the chassis dispatches the custom one. */
 export const LOCATION_EVENTS = [ 'hashchange', 'popstate', LOCATION_CHANGE_EVENT ];
 
-/** The webpack app's `getting_started` value, as a boolean `detail`; the chassis mirrors it. */
+/**
+ * The webpack app's `getting_started` value, as a boolean `detail`; the chassis mirrors it.
+ * Sent after each read or write once any Getting Started save settles; no replay, so listen before the webpack app renders.
+ */
 export const ONBOARDING_CHANGE_EVENT = 'jetpack-boost:onboarding-change';
 
 export const SETTINGS_SLOT_ID = 'jb-settings-tab-mount';
