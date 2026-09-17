@@ -1,3 +1,5 @@
+# Comment to trigger tests to run
+
 name: Tests
 
 on:
