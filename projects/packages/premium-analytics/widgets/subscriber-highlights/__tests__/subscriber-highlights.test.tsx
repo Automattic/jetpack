@@ -25,7 +25,7 @@ type Responses = {
 	paid?: number;
 	social?: number;
 	failCounts?: boolean;
-	byDate?: Record< string, number >;
+	byDate?: Record< string, number | null >;
 	failDates?: string[];
 };
 
@@ -188,12 +188,32 @@ describe( 'SubscriberHighlightsWidget', () => {
 	} );
 
 	it( 'never shows fewer than zero free subscribers', async () => {
-		mockApiFetch.mockImplementation( respondWith( { total: 100, paid: 120, social: 5 } ) );
+		// 100 - 117 is -17, which no clamped value ends in, so dropping the clamp fails here.
+		mockApiFetch.mockImplementation( respondWith( { total: 100, paid: 117, social: 5 } ) );
 
 		render( <SubscriberHighlightsWidget attributes={ {} } /> );
 
-		await expect( screen.findByText( '120' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '117' ) ).resolves.toBeInTheDocument();
 		expect( tileValues() ).toContainEqual( expect.stringMatching( /^Free subscribers.*0$/ ) );
+	} );
+
+	it( 'shows a placeholder for a day before the site existed, which the endpoint reports as null', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( {
+				total: 428,
+				byDate: { '2026-08-16': 317, '2026-07-17': null, '2026-06-17': null },
+			} )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '317' ) ).resolves.toBeInTheDocument();
+		expect( tileValues() ).toEqual( [
+			expect.stringMatching( /^All-time subscribers.*428$/ ),
+			'30 days ago317',
+			'60 days ago—',
+			'90 days ago—',
+		] );
 	} );
 
 	it( 'shows a placeholder for a day with no count, and a real zero as zero', async () => {

@@ -46,7 +46,7 @@ export function useStatsSubscribersReport( params: StatsReportParams, options?: 
 
 /**
  * The subscriber count on each of the site-local days `daysAgo` names, in order.
- * A day the endpoint returns no point for reads as `undefined`.
+ * A day the endpoint has no count for reads as `undefined`.
  */
 export function useStatsSubscribersDaysAgo(
 	daysAgo: readonly number[],
@@ -62,10 +62,8 @@ export function useStatsSubscribersDaysAgo(
 			};
 		} ),
 		combine: results => ( {
-			counts: results.map( ( { data } ) => {
-				const point = data?.data?.[ 0 ];
-				return point?.subscribers ?? point?.value;
-			} ),
+			// `subscribers` is null for a day before the site existed, and the sanitizer's `value` reads that as 0, so a site younger than 90 days would report zero rather than no count.
+			counts: results.map( ( { data } ) => data?.data?.[ 0 ]?.subscribers ?? undefined ),
 			isLoading: results.some( isAwaitingData ),
 			isFetching: results.some( result => result.isFetching ),
 			isError: results.some( result => result.isError ),
