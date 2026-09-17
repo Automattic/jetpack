@@ -38,24 +38,25 @@ export function usePerformanceHistory( enabled = true, window = getHistoryWindow
 }
 
 /**
- * Walk the given older windows nearest first, stopping at the first with a score.
+ * Check the combined older range without populating individual page caches.
  *
  * @param enabled - Whether to request history.
  * @param windows - Older windows, nearest first.
  * @return Query whose data is false only when every window is empty.
  */
 export function useHasOlderHistory( enabled: boolean, windows: HistoryWindow[] ) {
-	const queryClient = useQueryClient();
 	return useQuery( {
 		queryKey: [ ...performanceHistoryQueryKey, 'older', windows ],
 		queryFn: async () => {
-			for ( const window of windows ) {
-				const data = await queryClient.fetchQuery( historyQuery( window ) );
-				if ( bucketHistoryDays( data?.periods ?? [], window ).some( day => day.period ) ) {
-					return true;
-				}
+			if ( ! windows.length ) {
+				return false;
 			}
-			return false;
+			const range = {
+				startDate: Math.min( ...windows.map( window => window.startDate ) ),
+				endDate: Math.max( ...windows.map( window => window.endDate ) ),
+			};
+			const data = await historyQuery( range ).queryFn();
+			return bucketHistoryDays( data?.periods ?? [], range ).some( day => day.period );
 		},
 		enabled: enabled && isSiteOnline(),
 		staleTime: historyStaleTime,

@@ -5,6 +5,7 @@ import { createElement, type PropsWithChildren } from 'react';
 import {
 	parsePerformanceHistory,
 	useDismissibleAlertState,
+	useHasOlderHistory,
 	usePerformanceHistory,
 } from './use-performance-history';
 
@@ -252,4 +253,56 @@ it( 'restores an absent dismissal after an optimistic save fails', async () => {
 	await act( async () => rejectSave( new Error( 'Save failed' ) ) );
 	await waitFor( () => expect( result.current[ 0 ] ).toBe( false ) );
 	expect( queryClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( { score_increase: true } );
+} );
+
+it( 'checks six empty older windows with one request', async () => {
+	const windows = Array.from( { length: 6 }, ( _, index ) => ( {
+		startDate: history.startDate - ( index + 1 ) * 30 * 86400000,
+		endDate: history.startDate - index * 30 * 86400000 - 1,
+	} ) );
+	fetchMock.mockImplementation( async options => ( {
+		status: 'success',
+		JSON: { ...options.data.JSON, periods: [] },
+	} ) );
+	const { result } = renderHook( () => useHasOlderHistory( true, windows ), { wrapper } );
+	await waitFor( () => expect( result.current.data ).toBe( false ) );
+	expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+	expect( fetchMock ).toHaveBeenLastCalledWith(
+		expect.objectContaining( {
+			data: {
+				JSON: {
+					startDate: windows[ 5 ].startDate,
+					endDate: windows[ 0 ].endDate,
+					periods: [],
+					annotations: [],
+					surfaceErrors: true,
+				},
+			},
+		} )
+	);
+} );
+
+it( 'keeps page requests independent of the older-history existence check', async () => {
+	const windows = [
+		historyWindow,
+		{ startDate: history.startDate - 30 * 86400000, endDate: history.startDate - 1 },
+	];
+	fetchMock.mockResolvedValue( { status: 'success', JSON: history } );
+	const { result, rerender } = renderHook( enabled => useHasOlderHistory( enabled, windows ), {
+		wrapper,
+		initialProps: false,
+	} );
+	expect( fetchMock ).not.toHaveBeenCalled();
+	rerender( true );
+	await waitFor( () => expect( result.current.data ).toBe( true ) );
+	const { result: page } = renderHook( () => usePerformanceHistory( true, historyWindow ), {
+		wrapper,
+	} );
+	await waitFor( () => expect( page.current.data ).toEqual( history ) );
+	expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+	expect( fetchMock ).toHaveBeenLastCalledWith(
+		expect.objectContaining( {
+			data: { JSON: { ...historyWindow, periods: [], annotations: [], surfaceErrors: true } },
+		} )
+	);
 } );

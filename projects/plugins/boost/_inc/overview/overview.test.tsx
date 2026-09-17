@@ -696,25 +696,28 @@ test( 'retains the free history state when a modules refetch fails with a fresh-
 test.each( [
 	{
 		scoresAt: undefined,
-		lastWindow: 6,
 		copy: 'No scores recorded before the feature was unlocked.',
 	},
-	{ scoresAt: 1, lastWindow: 1, copy: 'No scores recorded for this day.' },
-	{ scoresAt: 3, lastWindow: 3, copy: 'No scores recorded for this day.' },
+	{ scoresAt: 1, copy: 'No scores recorded for this day.' },
+	{ scoresAt: 3, copy: 'No scores recorded for this day.' },
 ] )(
-	'walks at most six older windows when history opens empty (scores in window $scoresAt)',
-	async ( { scoresAt, lastWindow, copy } ) => {
+	'checks six older windows in one request when history opens empty (scores in window $scoresAt)',
+	async ( { scoresAt, copy } ) => {
 		const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
 		jest.mocked( apiFetch ).mockImplementation( options => {
 			const window = options.data?.JSON;
 			if (
 				options.url?.endsWith( '/performance-history/set' ) &&
 				scoresAt !== undefined &&
-				window.startDate === getHistoryWindow( scoresAt ).startDate
+				window.startDate <= getHistoryWindow( scoresAt ).startDate &&
+				window.endDate >= getHistoryWindow( scoresAt ).endDate
 			) {
 				return Promise.resolve( {
 					status: 'success',
-					JSON: { ...window, periods: [ recordedPeriod( window.startDate ) ] },
+					JSON: {
+						...window,
+						periods: [ recordedPeriod( getHistoryWindow( scoresAt ).startDate ) ],
+					},
 				} );
 			}
 			return fetch( options );
@@ -751,9 +754,19 @@ test.each( [
 				);
 		try {
 			const { client } = renderOverview();
-			await waitFor( () => expect( requested( lastWindow ) ).toBe( true ) );
+			await waitFor( () => expect( requested( 6 ) ).toBe( true ) );
 			await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
-			expect( requested( lastWindow + 1 ) ).toBe( false );
+			expect( [ 1, 2, 3, 4, 5, 7 ].some( requested ) ).toBe( false );
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					data: {
+						JSON: expect.objectContaining( {
+							startDate: getHistoryWindow( 6 ).startDate,
+							endDate: getHistoryWindow( 1 ).endDate,
+						} ),
+					},
+				} )
+			);
 			const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
 			fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
 			await expect( screen.findByText( copy ) ).resolves.toBeInTheDocument();
@@ -770,7 +783,7 @@ test.each( [
 	}
 );
 
-test( 'keeps the older-history walk cached when a speed test reloads scores', async () => {
+test( 'keeps the older-history check cached when a speed test reloads scores', async () => {
 	const requests = ( offset: number ) =>
 		jest
 			.mocked( apiFetch )
@@ -790,7 +803,7 @@ test( 'keeps the older-history walk cached when a speed test reloads scores', as
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	await waitFor( () => expect( requests( 0 ) ).toBeGreaterThan( currentRequests ) );
 	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
-	expect( [ 1, 2, 3, 4, 5, 6 ].map( requests ) ).toEqual( [ 1, 1, 1, 1, 1, 1 ] );
+	expect( [ 1, 2, 3, 4, 5, 6 ].map( requests ) ).toEqual( [ 0, 0, 0, 0, 0, 1 ] );
 } );
 
 test( 'does not request older history while the fresh-start notice hides the chart', async () => {
@@ -802,7 +815,7 @@ test( 'does not request older history while the fresh-start notice hides the cha
 	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
-			data: { JSON: expect.objectContaining( getHistoryWindow( 1 ) ) },
+			data: { JSON: expect.objectContaining( { startDate: getHistoryWindow( 6 ).startDate } ) },
 		} )
 	);
 } );
