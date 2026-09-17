@@ -6,8 +6,8 @@ import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
 
-// Core offers no slot for this header. Check Coming Soon per call: the Jetpack script carrying
-// that flag isn't a dependency of this bundle, so it may not have loaded yet.
+// Core offers no slot for this header. Read the flag per call rather than once at import: the
+// Jetpack script defining it isn't a dependency of this bundle, so it can run after this one.
 addFilter(
 	'i18n.gettext_default',
 	'jetpack-mu-wpcom/coming-soon-post-publish-header',
