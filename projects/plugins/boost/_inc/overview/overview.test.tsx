@@ -764,7 +764,9 @@ test.each( [
 						JSON: expect.objectContaining( {
 							startDate: getHistoryWindow( 6 ).startDate,
 							endDate: getHistoryWindow( 1 ).endDate,
-							olderWindows: Array.from( { length: 6 }, ( _, index ) => getHistoryWindow( index + 1 ) ),
+							olderWindows: Array.from( { length: 6 }, ( _, index ) =>
+								getHistoryWindow( index + 1 )
+							),
 						} ),
 					},
 				} )

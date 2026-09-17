@@ -59,7 +59,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	}
 
 	private function get_older_history() {
-		$cache_key = 'jetpack_boost_older_history_' . md5( wp_json_encode( $this->older_windows ) );
+		$cache_key = 'jetpack_boost_older_history_' . md5( wp_json_encode( $this->older_windows, JSON_UNESCAPED_SLASHES ) );
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;

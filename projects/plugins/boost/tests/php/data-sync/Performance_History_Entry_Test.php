@@ -164,6 +164,7 @@ class Performance_History_Entry_Test extends TestCase {
 		);
 		$request->shouldReceive( 'execute' )->andReturn( array( 'data' => array() ) );
 		$this->assertSame( array(), $this->older_history_entry()->get()['periods'] );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Repeat the lookup to verify cached history avoids upstream requests.
 		$this->assertSame( array(), $this->older_history_entry()->get()['periods'] );
 		$this->assertSame(
 			array( array( 6000, 6999 ), array( 5000, 5999 ), array( 4000, 4999 ), array( 3000, 3999 ), array( 2000, 2999 ), array( 1000, 1999 ) ),
@@ -178,7 +179,10 @@ class Performance_History_Entry_Test extends TestCase {
 		$start   = null;
 		$period  = array(
 			'timestamp'  => 1500,
-			'dimensions' => array( 'mobile_overall_score' => 80, 'desktop_overall_score' => 90 ),
+			'dimensions' => array(
+				'mobile_overall_score'  => 80,
+				'desktop_overall_score' => 90,
+			),
 		);
 		$request = Mockery::mock( 'overload:' . Speed_Score_Graph_History_Request::class );
 		$request->shouldReceive( '__construct' )->andReturnUsing(
@@ -217,5 +221,4 @@ class Performance_History_Entry_Test extends TestCase {
 		$this->expectExceptionMessage( 'Invalid performance history response.' );
 		$this->older_history_entry()->get();
 	}
-
 }
