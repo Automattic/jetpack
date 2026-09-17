@@ -9,6 +9,7 @@ test.describe( 'Dashboard modernization', () => {
 
 	test.afterEach( async ( { boostUtils } ) => {
 		await boostUtils.resetDashboardModernization();
+		await boostUtils.resetDashboardJitm();
 	} );
 
 	test.afterAll( async ( { boostUtils } ) => {
@@ -85,6 +86,38 @@ test.describe( 'Dashboard modernization', () => {
 
 		await page.getByRole( 'tab', { name: 'Overview', exact: true } ).click();
 		await expect( runSpeedTest ).toBeVisible();
+	} );
+
+	test( 'Show a targeted JITM on the modern dashboard', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.setDashboardModernization( true );
+		await boostUtils.setDashboardJitm( true );
+		await jetpackBoostPage.visit();
+		await expect( page.locator( '.jetpack-boost-page' ) ).toBeVisible();
+		const message = page.locator( '#jp-admin-notices .jitm-card' );
+		await expect( message ).toBeVisible();
+		await expect( message ).toContainText( 'Boost dashboard test message' );
+	} );
+
+	test( 'Collapse empty notices on the modern dashboard', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.setDashboardModernization( true );
+		await boostUtils.setDashboardJitm( false );
+		await jetpackBoostPage.visit();
+		await expect( page.locator( '.jetpack-boost-page' ) ).toBeVisible();
+		const notices = page.locator( '#jp-admin-notices' );
+		await expect( notices ).toHaveCount( 1 );
+		await expect( notices ).toBeEmpty();
+		await expect( notices ).toBeHidden();
+		await expect
+			.poll( () => notices.evaluate( element => element.getBoundingClientRect().height ) )
+			.toBe( 0 );
 	} );
 
 	test( 'Keep modern assets off other admin pages', async ( { boostUtils, admin, page } ) => {

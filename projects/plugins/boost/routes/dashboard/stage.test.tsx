@@ -127,13 +127,6 @@ describe( 'Boost dashboard stage', () => {
 		);
 	} );
 
-	it.each( [ '', '&tab=settings' ] )( 'shows the JITM mount with query %s', query => {
-		window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
-		render( <Stage /> );
-
-		expect( document.getElementById( 'jp-admin-notices' ) ).toBeVisible();
-	} );
-
 	it.each(
 		subpages.flatMap( hash => [
 			[ hash, '' ],

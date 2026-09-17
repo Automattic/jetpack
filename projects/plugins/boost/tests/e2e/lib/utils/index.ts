@@ -16,6 +16,8 @@ import {
 	resetEnvironment,
 	setDashboardModernization,
 	resetDashboardModernization,
+	setDashboardJitm,
+	resetDashboardJitm,
 } from './boost-utils';
 
 class BoostUtils extends TestUtils {
@@ -34,6 +36,8 @@ class BoostUtils extends TestUtils {
 	unMockConnection: typeof unMockConnection = unMockConnection;
 	resetEnvironment: typeof resetEnvironment = resetEnvironment;
 	setDashboardModernization: typeof setDashboardModernization = setDashboardModernization;
+	setDashboardJitm: typeof setDashboardJitm = setDashboardJitm;
+	resetDashboardJitm: typeof resetDashboardJitm = resetDashboardJitm;
 	resetDashboardModernization: typeof resetDashboardModernization = resetDashboardModernization;
 }
 
