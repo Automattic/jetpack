@@ -102,9 +102,9 @@ export const SubscriptionOptions = () => {
 	const { subscriptions: settings, user, strings } = JetpackComments;
 	const reading = useRef( false );
 
-	// A fresh sign-in's code is redeemed by the first request, and the passport stands for it after.
+	// A fresh sign-in's code is redeemed by the first request that goes through, and the passport stands for it after.
 	const settle = ( answer: Answer ) => {
-		if ( answer.passport && signedIn.value ) {
+		if ( answer.ok && signedIn.value?.code ) {
 			signedIn.value = { ...signedIn.value, code: null };
 		}
 

@@ -7,34 +7,49 @@
 
 namespace Automattic\Jetpack\Comments;
 
+use WP_Error;
+use WP_REST_Controller;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
+
 /**
- * One admin-ajax action: read what a signed-in reader is subscribed to, or change one option.
+ * One route: read what a signed-in reader is subscribed to, or change one option.
  *
- * Admin-ajax rather than REST for the reason the log-out is: it has to read a
- * first-party cookie, the passport, which only the site's own host receives,
- * and on Simple that host serves no REST API.
+ * A `wpcom/v2` route on the site, served by its own REST API on self-hosted and
+ * Atomic. Simple serves REST only from public-api, which never receives the
+ * passport, a host-only cookie on a mapped domain, and cannot set one for a
+ * fresh sign-in. So there the same route is dispatched in process from an
+ * admin-ajax action, as the log-out is.
  *
- * It carries no nonce, because a page rendered for a logged-out reader is
- * cached and shared, so a nonce in it is everyone's. What stands in: the
- * browser has to say the request is same-origin, and the cookies it acts on
- * are SameSite=Lax, so a page elsewhere cannot send them.
+ * It carries no nonce for a passport holder, because a page rendered for a
+ * logged-out reader is cached and shared, so a nonce in it is everyone's.
+ * What stands in is what the log-out relies on: the browser has to say the
+ * request is same-origin, and the cookies it acts on are SameSite=Lax, so a
+ * page elsewhere cannot send them. A reader logged in to the site gets the
+ * REST nonce, which cookie authentication needs to see them at all.
  */
-class Subscriptions_Endpoint {
+class Subscriptions_Endpoint extends WP_REST_Controller {
 
 	/**
-	 * The admin-ajax action.
+	 * The route, under the `wpcom/v2` namespace.
+	 */
+	const ROUTE = 'comments/subscriptions';
+
+	/**
+	 * The admin-ajax action that dispatches the route on Simple.
 	 */
 	const ACTION = 'jetpack_comments_subscriptions';
 
 	/**
-	 * Whether the action has been hooked.
+	 * Whether the hooks are in place.
 	 *
 	 * @var bool
 	 */
 	private static $hooked = false;
 
 	/**
-	 * Register the action. Safe to call more than once.
+	 * Register the route, and on Simple the action that reaches it. Safe to call more than once.
 	 *
 	 * @return void
 	 */
@@ -45,142 +60,167 @@ class Subscriptions_Endpoint {
 
 		self::$hooked = true;
 
-		add_action( 'wp_ajax_nopriv_' . self::ACTION, array( __CLASS__, 'handle' ) );
-		add_action( 'wp_ajax_' . self::ACTION, array( __CLASS__, 'handle' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'register' ) );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_action( 'wp_ajax_nopriv_' . self::ACTION, array( __CLASS__, 'dispatch' ) );
+			add_action( 'wp_ajax_' . self::ACTION, array( __CLASS__, 'dispatch' ) );
+		}
 	}
 
 	/**
-	 * Answer the form. Does not return.
+	 * Register the route on `rest_api_init`.
 	 *
 	 * @return void
 	 */
-	public static function handle() {
-		nocache_headers();
-
-		if ( ! self::is_same_origin() ) {
-			wp_send_json_error( array( 'code' => 'cross_site' ), 403, JSON_UNESCAPED_SLASHES );
-		}
-
-		// On Simple the action is registered ahead of the loader's gates, which skip admin-ajax. Gate here.
-		if ( ! Comments::is_enabled() ) {
-			wp_send_json_error( array( 'code' => 'not_enabled' ), 404, JSON_UNESCAPED_SLASHES );
-		}
-
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- See the class doc: same-origin checked above, no nonce by design.
-		$post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
-		$field   = isset( $_POST['field'] ) ? sanitize_key( wp_unslash( $_POST['field'] ) ) : '';
-		$value   = isset( $_POST['value'] ) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
-		$code    = isset( $_POST['code'] ) ? sanitize_text_field( wp_unslash( $_POST['code'] ) ) : '';
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
-
-		if ( ! $post_id || ! get_post( $post_id ) || ! Comment_Form::enabled_for_post_type( $post_id ) ) {
-			wp_send_json_error( array( 'code' => 'invalid_post' ), 400, JSON_UNESCAPED_SLASHES );
-		}
-
-		$subscriber = Subscriptions::subscriber( $code );
-
-		if ( null === $subscriber ) {
-			wp_send_json_error( array( 'code' => 'not_signed_in' ), 401, JSON_UNESCAPED_SLASHES );
-		}
-
-		if ( is_wp_error( $subscriber ) ) {
-			$data = (array) $subscriber->get_error_data();
-			wp_send_json_error( array( 'code' => $subscriber->get_error_code() ), (int) ( $data['status'] ?? 500 ), JSON_UNESCAPED_SLASHES );
-		}
-
-		if ( '' === $subscriber['email'] ) {
-			wp_send_json_success(
-				array(
-					'available' => false,
-					'passport'  => $subscriber['issued'],
-				),
-				200,
-				JSON_UNESCAPED_SLASHES
-			);
-		}
-
-		$change = null;
-
-		if ( '' !== $field ) {
-			$change = self::change( $field, $value );
-
-			if ( null === $change ) {
-				wp_send_json_error( array( 'code' => 'invalid_change' ), 400, JSON_UNESCAPED_SLASHES );
-			}
-		}
-
-		$result = Subscriptions::request( $subscriber, $post_id, $change );
-
-		if ( is_wp_error( $result ) ) {
-			$data = (array) $result->get_error_data();
-			wp_send_json_error( array( 'code' => $result->get_error_code() ), (int) ( $data['status'] ?? 500 ), JSON_UNESCAPED_SLASHES );
-		}
-
-		// Tells the form its code is spent and the passport now stands for it.
-		$result['passport'] = $subscriber['issued'];
-
-		wp_send_json_success( $result, 200, JSON_UNESCAPED_SLASHES );
+	public static function register() {
+		( new self() )->register_routes();
 	}
 
 	/**
-	 * A change the endpoint can carry, typed.
+	 * Where the browser posts to, for this host.
 	 *
-	 * @param string $field One of Subscriptions::FIELDS.
-	 * @param string $value '1' or '0', or a frequency.
-	 * @return array|null field and value, or null when it is not one.
+	 * @return string
 	 */
-	private static function change( $field, $value ) {
-		if ( 'frequency' === $field ) {
-			if ( ! in_array( $value, Subscriptions::FREQUENCIES, true ) ) {
-				return null;
-			}
-
-			return array(
-				'field' => $field,
-				'value' => $value,
-			);
+	public static function url() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return admin_url( 'admin-ajax.php' );
 		}
 
-		if ( ! in_array( $field, Subscriptions::FIELDS, true ) || ! in_array( $value, array( '0', '1' ), true ) ) {
-			return null;
-		}
+		return rest_url( 'wpcom/v2/' . self::ROUTE );
+	}
 
-		return array(
-			'field' => $field,
-			'value' => '1' === $value,
+	/**
+	 * Register the route.
+	 *
+	 * @return void
+	 */
+	public function register_routes() {
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = self::ROUTE;
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'handle' ),
+				'permission_callback' => array( $this, 'permission_check' ),
+				'args'                => array(
+					'post_id' => array(
+						'type'     => 'integer',
+						'required' => true,
+						'minimum'  => 1,
+					),
+					'field'   => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'value'   => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'code'    => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+				),
+			)
 		);
 	}
 
 	/**
-	 * Whether the browser says the request came from this site's own pages.
+	 * Only from this site's own pages.
 	 *
-	 * Sec-Fetch-Site is what every current browser sends. Origin is checked
-	 * too when present, for the one that does not.
-	 *
-	 * @return bool
+	 * @return true|WP_Error
 	 */
-	private static function is_same_origin() {
+	public function permission_check() {
 		$site = isset( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ) : '';
 
 		if ( '' !== $site && 'same-origin' !== $site ) {
-			return false;
+			return new WP_Error( 'cross_site', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 403 ) );
 		}
 
-		$origin = isset( $_SERVER['HTTP_ORIGIN'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) : '';
-
-		if ( 'null' === $origin ) {
-			return false;
+		// On Simple the route is registered ahead of the loader's gates, which skip admin-ajax. Gate here.
+		if ( ! Comments::is_enabled() ) {
+			return new WP_Error( 'not_enabled', __( 'Subscriptions are not available on this site.', 'jetpack-comments' ), array( 'status' => 404 ) );
 		}
 
-		if ( '' !== $origin ) {
-			$home = wp_parse_url( home_url() );
-			$sent = wp_parse_url( $origin );
+		return true;
+	}
 
-			if ( ! is_array( $sent ) || strtolower( (string) ( $sent['host'] ?? '' ) ) !== strtolower( (string) ( $home['host'] ?? '' ) ) ) {
-				return false;
-			}
+	/**
+	 * Answer the form with what WordPress.com said, status and all.
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function handle( WP_REST_Request $request ) {
+		$post_id = (int) $request->get_param( 'post_id' );
+
+		if ( ! get_post( $post_id ) || ! Comment_Form::enabled_for_post_type( $post_id ) ) {
+			return new WP_Error( 'invalid_post', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
 
-		return '' !== $site || '' !== $origin;
+		$subscriber = Subscriptions::subscriber( sanitize_text_field( (string) $request->get_param( 'code' ) ) );
+
+		if ( null === $subscriber ) {
+			return new WP_Error( 'not_signed_in', __( 'Sign in to manage subscriptions.', 'jetpack-comments' ), array( 'status' => 401 ) );
+		}
+
+		if ( is_wp_error( $subscriber ) ) {
+			return $subscriber;
+		}
+
+		if ( '' === $subscriber['email'] ) {
+			return $this->respond( array( 'available' => false ), 200 );
+		}
+
+		$response = Subscriptions::request(
+			$subscriber,
+			$post_id,
+			sanitize_key( (string) $request->get_param( 'field' ) ),
+			sanitize_text_field( (string) $request->get_param( 'value' ) )
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		return $this->respond( is_array( $body ) ? $body : array( 'code' => 'server_error' ), $status >= 100 && $status < 600 ? $status : 500 );
+	}
+
+	/**
+	 * A response nothing should cache.
+	 *
+	 * @param array $body   What to send.
+	 * @param int   $status The status.
+	 * @return WP_REST_Response
+	 */
+	private function respond( array $body, $status ) {
+		$response = new WP_REST_Response( $body, $status );
+		$response->header( 'Cache-Control', 'no-store' );
+
+		return $response;
+	}
+
+	/**
+	 * Simple only: run the route from admin-ajax, the one same-origin entry the site host has. Does not return.
+	 *
+	 * @return void
+	 */
+	public static function dispatch() {
+		nocache_headers();
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/' . self::ROUTE );
+		$request->set_body_params( wp_unslash( $_POST ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- The route validates and sanitizes as it would any request.
+
+		$response = rest_do_request( $request );
+		$server   = rest_get_server();
+
+		wp_send_json( $server->response_to_data( $response, false ), $response->get_status(), JSON_UNESCAPED_SLASHES );
 	}
 }

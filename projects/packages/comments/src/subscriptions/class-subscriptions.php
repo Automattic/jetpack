@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Comments;
 
 use Automattic\Jetpack\Connection\Client;
-use WP_Error;
 
 /**
  * What the form offers to subscribe to, and how the site asks WordPress.com about it.
@@ -20,16 +19,6 @@ use WP_Error;
  * process. The WordPress.com half is `wpcom/v2/sites/{id}/comments/subscriptions`.
  */
 class Subscriptions {
-
-	/**
-	 * Delivery frequencies a new-post subscription can take.
-	 */
-	const FREQUENCIES = array( 'instantly', 'daily', 'weekly' );
-
-	/**
-	 * Options the endpoint can change.
-	 */
-	const FIELDS = array( 'email_posts', 'email_comments', 'notify_posts', 'frequency' );
 
 	/**
 	 * Whether the form offers new-post emails.
@@ -73,8 +62,11 @@ class Subscriptions {
 				'comments'      => self::comments_enabled(),
 				// Notifications reach a WordPress.com account, which a site login only is on Simple.
 				'notifications' => is_user_logged_in() && defined( 'IS_WPCOM' ) && IS_WPCOM,
-				'url'           => admin_url( 'admin-ajax.php' ),
-				'action'        => Subscriptions_Endpoint::ACTION,
+				'url'           => Subscriptions_Endpoint::url(),
+				// Simple dispatches the route from admin-ajax, which wants an action.
+				'action'        => defined( 'IS_WPCOM' ) && IS_WPCOM ? Subscriptions_Endpoint::ACTION : '',
+				// REST cookie authentication sees a site login only with this.
+				'nonce'         => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
 			),
 		);
 	}
@@ -138,12 +130,16 @@ class Subscriptions {
 	/**
 	 * Ask WordPress.com what a reader is subscribed to, changing one thing first if asked.
 	 *
-	 * @param array      $subscriber From subscriber().
-	 * @param int        $post_id    The post the comment thread belongs to.
-	 * @param array|null $change     field and value, or null to only read.
-	 * @return array|WP_Error email, notification, as the app reads them.
+	 * Forwards what the form sent and hands back what WordPress.com answered,
+	 * as the podcast package's relays do. Validation lives on the far side.
+	 *
+	 * @param array  $subscriber From subscriber().
+	 * @param int    $post_id    The post the comment thread belongs to.
+	 * @param string $field      The option to change, or '' to only read.
+	 * @param string $value      What to set it to.
+	 * @return array|\WP_Error The raw Client response.
 	 */
-	public static function request( array $subscriber, $post_id, $change = null ) {
+	public static function request( array $subscriber, $post_id, $field = '', $value = '' ) {
 		$body = array(
 			'email'             => $subscriber['email'],
 			'provider'          => $subscriber['provider'],
@@ -152,13 +148,11 @@ class Subscriptions {
 			// The signature is over the passport's expiry too, so it goes along.
 			'expires_at'        => (int) $subscriber['expires_at'],
 			'post_id'           => (int) $post_id,
+			'field'             => $field,
+			'value'             => $value,
 		);
 
-		if ( null !== $change ) {
-			$body['change'] = $change;
-		}
-
-		$response = Client::wpcom_json_api_request_as_blog(
+		return Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/comments/subscriptions', Checkpoint::blog_id() ),
 			'2',
 			array(
@@ -168,34 +162,6 @@ class Subscriptions {
 			),
 			(string) wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 			'wpcom'
-		);
-
-		if ( is_wp_error( $response ) ) {
-			$data = (array) $response->get_error_data();
-
-			return new WP_Error( 'server_error', $response->get_error_message(), array( 'status' => (int) ( $data['status'] ?? 500 ) ) );
-		}
-
-		$status = (int) wp_remote_retrieve_response_code( $response );
-		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( 200 === $status && is_array( $body ) && isset( $body['email'] ) && isset( $body['notification'] ) ) {
-			return array(
-				'email'        => array(
-					'send_posts'              => ! empty( $body['email']['send_posts'] ),
-					'send_comments'           => ! empty( $body['email']['send_comments'] ),
-					'post_delivery_frequency' => in_array( $body['email']['post_delivery_frequency'] ?? '', self::FREQUENCIES, true ) ? $body['email']['post_delivery_frequency'] : 'daily',
-				),
-				'notification' => array(
-					'send_posts' => ! empty( $body['notification']['send_posts'] ),
-				),
-			);
-		}
-
-		return new WP_Error(
-			is_array( $body ) && ! empty( $body['code'] ) ? sanitize_key( (string) $body['code'] ) : 'server_error',
-			is_array( $body ) && ! empty( $body['message'] ) ? (string) $body['message'] : '',
-			array( 'status' => $status ? $status : 500 )
 		);
 	}
 }

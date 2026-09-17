@@ -77,7 +77,10 @@ export type SubscriptionSettings = {
 	/** Whether a reader logged in to the site can take web and mobile notifications too. */
 	notifications: boolean;
 	url: string;
+	/** The admin-ajax action, on Simple; empty where the route is served as REST. */
 	action: string;
+	/** The REST nonce for a reader logged in to the site; empty otherwise. */
+	nonce: string;
 };
 
 export type FormSettings = {
