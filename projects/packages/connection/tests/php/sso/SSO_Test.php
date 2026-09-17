@@ -326,6 +326,37 @@ class SSO_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the two-step controls stay visible on a site that defaults to the password form.
+	 */
+	public function test_login_body_class_shows_sso_form_when_two_step_required() {
+		global $action;
+		$action = 'login';
+		$this->set_two_step_required( true );
+		add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+
+		$classes = $this->sso->login_body_class( array() );
+
+		remove_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+
+		$this->assertContains( 'jetpack-sso-form-display', $classes );
+	}
+
+	/**
+	 * Test that the SSO form stays optional for a regular login on the same site.
+	 */
+	public function test_login_body_class_hides_sso_form_for_regular_login() {
+		global $action;
+		$action = 'login';
+		add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+
+		$classes = $this->sso->login_body_class( array() );
+
+		remove_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
+
+		$this->assertNotContains( 'jetpack-sso-form-display', $classes );
+	}
+
+	/**
 	 * Test that login_form drops the username and password option when two-step authentication is required.
 	 */
 	public function test_login_form_omits_password_login_when_two_step_required() {
