@@ -116,6 +116,9 @@
 }
 
 #jetpack-sso-wrap .button {
+
+	/* Core login.css floats .button-primary right, which pulls the next block up under the button. */
+	float: none;
 	display: flex;
 	justify-content: center;
 	align-items: center;
