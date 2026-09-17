@@ -32,6 +32,11 @@ function enhanced_og_image( $tags ) {
 		return $tags;
 	}
 
+	// A gated body's embedded media is withheld along with the body.
+	if ( \Automattic\Jetpack\SEO\Content_Gate::is_gated( $post ) ) {
+		return $tags;
+	}
+
 	// Always favor featured images.
 	if ( enhanced_og_has_featured_image( $post->ID ) ) {
 		return $tags;
@@ -71,6 +76,11 @@ function enhanced_og_gallery( $tags ) {
 
 	// Bail if we do not have info about the post.
 	if ( ! $post instanceof WP_Post ) {
+		return $tags;
+	}
+
+	// A gated body's embedded media is withheld along with the body.
+	if ( \Automattic\Jetpack\SEO\Content_Gate::is_gated( $post ) ) {
 		return $tags;
 	}
 
@@ -125,6 +135,11 @@ function enhanced_og_video( $tags ) {
 
 	// Bail if we do not have info about the post.
 	if ( ! $post instanceof WP_Post ) {
+		return $tags;
+	}
+
+	// A gated body's embedded media is withheld along with the body.
+	if ( \Automattic\Jetpack\SEO\Content_Gate::is_gated( $post ) ) {
 		return $tags;
 	}
 

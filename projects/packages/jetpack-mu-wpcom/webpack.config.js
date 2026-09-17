@@ -19,19 +19,14 @@ module.exports = async () => {
 					'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 				'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 				'error-reporting': './src/features/error-reporting/index.js',
-				'expiry-notices-admin-banner': [
-					'./src/features/expiry-notices/js/admin-banner.ts',
-					'./src/features/expiry-notices/css/admin-banner.scss',
-				],
+				'expiry-notices-admin-banner': './src/features/expiry-notices/css/admin-banner.scss',
 				'expiry-notices-admin-modal': [
 					'./src/features/expiry-notices/js/admin-modal.tsx',
 					'./src/features/expiry-notices/css/admin-modal.scss',
 				],
-				'expiry-notices-editor-notice': [ './src/features/expiry-notices/js/editor-notice.tsx' ],
-				'expiry-notices-frontend-banner': [
-					'./src/features/expiry-notices/js/frontend-banner.ts',
-					'./src/features/expiry-notices/css/frontend-banner.scss',
-				],
+				'expiry-notices-banner': './src/features/expiry-notices/js/banner.ts',
+				'expiry-notices-editor-notice': './src/features/expiry-notices/js/editor-notice.tsx',
+				'expiry-notices-frontend-banner': './src/features/expiry-notices/css/frontend-banner.scss',
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 				'html-block-restricted-tags':
 					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',
@@ -39,10 +34,6 @@ module.exports = async () => {
 				'jetpack-global-styles-customizer-fonts':
 					'./src/features/jetpack-global-styles/customizer-fonts/index.js',
 				'mailerlite-subscriber-popup': './src/features/mailerlite/subscriber-popup.js',
-				marketing: [
-					'./src/features/marketing/marketing.js',
-					'./src/features/marketing/marketing.scss',
-				],
 				'newspack-blocks-blog-posts-editor': './src/features/newspack-blocks/blog-posts/editor.js',
 				'newspack-blocks-blog-posts-view': './src/features/newspack-blocks/blog-posts/view.js',
 				'newspack-blocks-carousel-editor': './src/features/newspack-blocks/carousel/editor.js',

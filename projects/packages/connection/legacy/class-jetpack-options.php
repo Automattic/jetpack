@@ -92,7 +92,7 @@ class Jetpack_Options {
 			'id',                                  // (int)    The Client ID/WP.com Blog ID of this site.
 			'publicize_connections',               // (array)  An array of Publicize connections from WordPress.com.
 			'master_user',                         // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
-			'protected_owner',                     // (array)  Anchor identifying the locked connection owner. WordPress.com is authoritative; this is a local cache. Keys: wpcom_user_id, email, local_user_id, locked, confirmed_at, confirmed_by.
+			'protected_owner',                     // (array)  Anchor identifying the locked connection owner. WordPress.com is authoritative; this is a local cache. Keys: wpcom_user_id, local_user_id, locked, confirmed_at, confirmed_by.
 			'version',                             // (string) Used during upgrade procedure to auto-activate new modules. version:time.
 			'old_version',                         // (string) Used to determine which modules are the most recently added. previous_version:time.
 			'fallback_no_verify_ssl_certs',        // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.

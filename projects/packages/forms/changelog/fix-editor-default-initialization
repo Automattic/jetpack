@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Keep editor-initialized defaults from marking imported forms as changed.

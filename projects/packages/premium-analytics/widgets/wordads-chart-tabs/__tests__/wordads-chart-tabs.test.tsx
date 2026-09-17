@@ -26,6 +26,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		tooltipMetrics,
 	}: {
 		metrics: {
 			key: string;
@@ -35,10 +36,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		tooltipMetrics?: string;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
+			data-tooltip-metrics={ String( tooltipMetrics ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
@@ -358,5 +361,32 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
 			'By months',
 		] );
+	} );
+} );
+
+describe( 'WordAdsChartTabsWidget tooltip', () => {
+	beforeEach( () => {
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
+	} );
+
+	afterEach( () => setMockRouteSearch( {} ) );
+
+	// Classic's WordAds chart lists ads served, CPM and revenue together on hover,
+	// whichever tab is selected.
+	it( 'reads every metric out on hover', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2026-05-01', to: '2026-06-30', interval: 'day' },
+				} }
+			/>
+		);
+
+		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
+			'data-tooltip-metrics',
+			'all'
+		);
 	} );
 } );

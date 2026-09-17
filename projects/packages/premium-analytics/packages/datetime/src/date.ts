@@ -12,6 +12,26 @@ export type DateIntervalDateParts = {
 
 const DATE_PART_FORMAT = 'yyyy-MM-dd';
 
+// date-fns needs a reference date. Every format here carries a year, which resets
+// the rest; a year-less format would silently inherit 2001.
+const REFERENCE_DATE = new Date( 2001, 0, 1 );
+
+/**
+ * Parse a label that must round-trip through its own format.
+ *
+ * `isValid` alone is not enough: date-fns reads `2025-W53` as a real date in 2026,
+ * and accepts a loosely written `2026-6-22`. Re-formatting catches both.
+ *
+ * @param label       - The label as written.
+ * @param labelFormat - The date-fns format the label must match exactly. Must carry a year.
+ * @return The parsed date, or null when the label does not name a real one.
+ */
+export function parseExactLabel( label: string, labelFormat: string ): Date | null {
+	const parsed = parse( label, labelFormat, REFERENCE_DATE );
+
+	return isValid( parsed ) && format( parsed, labelFormat ) === label ? parsed : null;
+}
+
 /**
  * Extract the calendar date part from a date-like string.
  *

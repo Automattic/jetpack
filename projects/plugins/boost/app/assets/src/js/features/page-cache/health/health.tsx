@@ -14,7 +14,7 @@ import {
 	WPContentNotWritableNotice,
 } from './error-notices';
 import SwitchToBoost from '../switch-to-boost/switch-to-boost';
-import { isWoaHosting } from '$lib/utils/hosting';
+import { isAtomicPlatform } from '$lib/utils/hosting';
 
 type HealthProps = {
 	error?: PageCacheError;
@@ -23,7 +23,7 @@ type HealthProps = {
 };
 
 const Health = ( { cacheSetup, error, setError }: HealthProps ) => {
-	const [ , setModuleState ] = useSingleModuleState( 'page_cache', cacheIsActivated => {
+	const [ moduleState, setModuleState ] = useSingleModuleState( 'page_cache', cacheIsActivated => {
 		if ( cacheIsActivated ) {
 			cacheSetup.mutate();
 		}
@@ -44,7 +44,8 @@ const Health = ( { cacheSetup, error, setError }: HealthProps ) => {
 		}
 	}, [ doingRevert, setDoingRevert, setModuleState ] );
 
-	if ( isWoaHosting() ) {
+	// The platform cache makes the module unavailable, so a stale setup error is not actionable.
+	if ( ! moduleState?.available && isAtomicPlatform() ) {
 		return null;
 	}
 

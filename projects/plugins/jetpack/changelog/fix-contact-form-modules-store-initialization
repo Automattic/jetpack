@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Editor: restore active module state for module-dependent features.

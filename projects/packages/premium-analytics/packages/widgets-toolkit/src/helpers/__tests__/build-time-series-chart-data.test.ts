@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { setSettings } from '@wordpress/date';
+import { toBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { format } from 'date-fns';
 /**
  * Internal dependencies
  */
 import { wooBucketStamp } from '../../__fixtures__/woo-bucket-stamp';
-import { FIXTURE_SITE_TIME_ZONE, siteSettingsIn } from '../../__fixtures__/wp-date-settings';
+import { FIXTURE_SITE_TIME_ZONE } from '../../__fixtures__/wp-date-settings';
 import { buildTimeSeriesChartData } from '../build-time-series-chart-data';
 
 const primary = {
@@ -32,6 +32,7 @@ describe( 'buildTimeSeriesChartData', () => {
 			primary,
 			comparison,
 			metricKey: 'views',
+			zone: 'UTC',
 			label: 'Views',
 		} );
 
@@ -46,6 +47,7 @@ describe( 'buildTimeSeriesChartData', () => {
 			primary,
 			comparison,
 			metricKey: 'views',
+			zone: 'UTC',
 			label: 'Views',
 		} );
 
@@ -53,14 +55,24 @@ describe( 'buildTimeSeriesChartData', () => {
 	} );
 
 	it( "falls back to each period's own date range without a label", () => {
-		const series = buildTimeSeriesChartData( { primary, comparison, metricKey: 'views' } );
+		const series = buildTimeSeriesChartData( {
+			primary,
+			comparison,
+			metricKey: 'views',
+			zone: 'UTC',
+		} );
 
 		expect( series[ 0 ].label ).not.toBe( series[ 1 ].label );
 		expect( series[ 0 ].label ).not.toContain( 'Views' );
 	} );
 
 	it( 'labels the lone current period when there is no comparison', () => {
-		const series = buildTimeSeriesChartData( { primary, metricKey: 'views', label: 'Views' } );
+		const series = buildTimeSeriesChartData( {
+			primary,
+			metricKey: 'views',
+			zone: 'UTC',
+			label: 'Views',
+		} );
 
 		expect( series ).toHaveLength( 1 );
 		expect( series[ 0 ].label ).toBe( 'Views' );
@@ -68,35 +80,40 @@ describe( 'buildTimeSeriesChartData', () => {
 } );
 
 describe( 'buildTimeSeriesChartData with Woo bucket stamps', () => {
-	beforeEach( () => {
-		setSettings( siteSettingsIn( FIXTURE_SITE_TIME_ZONE ) );
-	} );
+	const stamped = ( wallTime: string ) => wooBucketStamp( wallTime );
+	const naive = ( wallTime: string ) =>
+		toBucketStamp( stamped( wallTime ), FIXTURE_SITE_TIME_ZONE );
 
-	const wooPrimary = {
-		summary: {
-			date_start: wooBucketStamp( '2026-05-01' ),
-			date_end: wooBucketStamp( '2026-05-02T23:59:59' ),
-		},
-		data: [
-			{ date_start: wooBucketStamp( '2026-05-01' ), views: 10 },
-			{ date_start: wooBucketStamp( '2026-05-02' ), views: 20 },
-		],
-	};
+	const pointsFor = ( dateStart: string ) =>
+		buildTimeSeriesChartData( {
+			primary: {
+				summary: { date_start: dateStart, date_end: dateStart },
+				data: [ { date_start: dateStart, views: 10 } ],
+			},
+			metricKey: 'views',
+			zone: FIXTURE_SITE_TIME_ZONE,
+			label: 'Views',
+		} )[ 0 ].data;
 
-	it( "stamps a bucket with the site's own offset", () => {
-		expect( wooPrimary.data[ 0 ].date_start ).toBe( '2026-05-01T00:00:00+09:00' );
+	it( "stamps a bucket with the site's own offset, which the sanitizer then drops", () => {
+		expect( stamped( '2026-05-01' ) ).toBe( '2026-05-01T00:00:00+09:00' );
+		expect( naive( '2026-05-01' ) ).toBe( '2026-05-01T00:00:00' );
 	} );
 
 	it( 'reads a bucket as midnight on the site, not on the runtime', () => {
-		const [ series ] = buildTimeSeriesChartData( {
-			primary: wooPrimary,
-			metricKey: 'views',
-			label: 'Views',
-		} );
+		expect(
+			pointsFor( naive( '2026-05-01' ) ).map( point => format( point.date, 'yyyy-MM-dd HH:mm' ) )
+		).toEqual( [ '2026-05-01 00:00' ] );
+	} );
 
-		expect( series.data.map( point => format( point.date, 'yyyy-MM-dd HH:mm' ) ) ).toEqual( [
-			'2026-05-01 00:00',
-			'2026-05-02 00:00',
-		] );
+	// The wall parts round-trip through any zone, so only the instant tells the
+	// site's zone apart from the runner's — and from the stamp's own offset.
+	it( 'lands both stamp shapes on the instant the site puts that midnight at', () => {
+		expect( pointsFor( naive( '2026-05-01' ) )[ 0 ].date.toISOString() ).toBe(
+			'2026-04-30T15:00:00.000Z'
+		);
+		expect( pointsFor( stamped( '2026-05-01' ) )[ 0 ].date.toISOString() ).toBe(
+			'2026-04-30T15:00:00.000Z'
+		);
 	} );
 } );

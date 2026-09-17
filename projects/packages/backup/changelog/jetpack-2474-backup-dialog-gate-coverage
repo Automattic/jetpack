@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Test-only: cover the sensitive-file preview gate on the modernized dashboard's dialog chrome. No behavior change.
-
-

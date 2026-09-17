@@ -34,6 +34,66 @@ jest.mock( '@woocommerce/email-editor', () => ( {
 	ExperimentalEmailEditor: MockEmailEditor,
 } ) );
 
+const mockRegisterBlockType = jest.fn();
+const mockGetBlockType = jest.fn();
+
+jest.mock( '@wordpress/blocks', () => ( {
+	registerBlockType: ( ...args ) => mockRegisterBlockType( ...args ),
+	getBlockType: ( ...args ) => mockGetBlockType( ...args ),
+} ) );
+
+// A stand-in registered under the name the entry point dispatches to.
+//
+// Registered rather than spied on, because `dispatch()` answers null for a store the registry does
+// not hold. The real `@wordpress/block-editor` store cannot be loaded here — it resolves core's
+// private APIs at import time and throws — which is also why the entry point addresses it by name.
+//
+// Recorded outside the reducer's state so the assertions read plain values. The lockdown is
+// exercised by calling it directly, as the notice and block cases below are: `loadEntryPoint()`
+// imports the entry through `jest.isolateModules`, whose registry this store is not in.
+const mockBlockEditingModes = {};
+const mockDispatchLog = [];
+
+function mockRegisterBlockEditorStore( { createReduxStore, register } ) {
+	register(
+		createReduxStore( 'core/block-editor', {
+			reducer: ( state = null, action ) => {
+				if ( 'MARK_NOT_PERSISTENT' === action.type ) {
+					mockDispatchLog.push( action.type );
+				}
+
+				if ( 'SET_BLOCK_EDITING_MODE' === action.type ) {
+					mockDispatchLog.push( action.type );
+					mockBlockEditingModes[ action.clientId ] = action.mode;
+				}
+
+				return state;
+			},
+			actions: {
+				setBlockEditingMode: ( clientId = '', mode ) => ( {
+					type: 'SET_BLOCK_EDITING_MODE',
+					clientId,
+					mode,
+				} ),
+				__unstableMarkNextChangeAsNotPersistent: () => ( { type: 'MARK_NOT_PERSISTENT' } ),
+			},
+			selectors: { getNothing: () => null },
+		} )
+	);
+}
+
+mockRegisterBlockEditorStore( jest.requireActual( '@wordpress/data' ) );
+
+jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) );
+
+// The real stores rather than mocks. Mocking `@wordpress/data` wholesale drops `combineReducers`,
+// which `@wordpress/components` needs at import time by way of `@wordpress/rich-text`.
+const { render, screen } = require( '@testing-library/react' );
+
+const { select, dispatch } = jest.requireActual( '@wordpress/data' );
+const { store: noticesStore } = jest.requireActual( '@wordpress/notices' );
+const { store: coreStore } = jest.requireActual( '@wordpress/core-data' );
+
 const ELEMENT_ID = 'jetpack-email-design-editor';
 
 /**
@@ -110,6 +170,9 @@ function pageData( overrides = {} ) {
  */
 async function loadEntryPoint() {
 	jest.isolateModules( () => {
+		// The isolated registry is a different one, so the stand-in store has to be registered in it
+		// too — otherwise the mount's own lockdown dispatch finds nothing and silently no-ops.
+		mockRegisterBlockEditorStore( require( '@wordpress/data' ) );
 		require( '../src/index' );
 	} );
 
@@ -151,6 +214,15 @@ describe( 'Email design editor entry point', () => {
 		mockRender.mockClear();
 		mockUse.mockClear();
 		mockCreatePreloadingMiddleware.mockClear();
+		mockRegisterBlockType.mockClear();
+		mockGetBlockType.mockReset();
+		// By type: `removeAllNotices()` defaults to the `default` type and would leave the
+		// snackbar the save path creates, so it would leak into the next test.
+		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
+		dispatch( noticesStore ).removeAllNotices( 'default' );
+		dispatch( noticesStore ).removeAllNotices( 'default', 'email-editor' );
+		Object.keys( mockBlockEditingModes ).forEach( key => delete mockBlockEditingModes[ key ] );
+		mockDispatchLog.length = 0;
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
@@ -259,7 +331,62 @@ describe( 'Email design editor entry point', () => {
 				styles: [ { css: 'body{}' } ],
 				allowedIframeStyleHandles: [ 'wp-block-library' ],
 				__unstableResolvedAssets: { styles: '' },
+				isFullScreenForced: true,
 			} );
+		} );
+
+		// Without it the admin menu stays, and its flyouts open over a full-viewport canvas that
+		// no z-index can sit both above and below. Forced last so neither half can turn it off.
+		it.each( [
+			[ 'WordPress.com', 'bundle' ],
+			[ 'the page', 'page' ],
+		] )( 'keeps fullscreen forced even when %s asks for it off', async ( _label, half ) => {
+			const off = { isFullScreenForced: false };
+			mockApiFetch.mockResolvedValue(
+				bootstrapBundle( 'bundle' === half ? { editor_settings: off } : {} )
+			);
+			window.JetpackEmailDesignEditor = pageData( 'page' === half ? { editorSettings: off } : {} );
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.editorSettings.isFullScreenForced ).toBe( true );
+		} );
+
+		// `core/post-featured-image` is a core block, so WordPress.com cannot describe it in `blocks`
+		// and no `preview_html` reaches it. It reports whether a send carries the image instead.
+		it( 'hides the featured image when WordPress.com says sends carry none', async () => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: false } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.editorSettings.styles ).toContainEqual( {
+				css: expect.stringContaining( '.wp-block-post-featured-image' ),
+			} );
+		} );
+
+		it( 'keeps the stylesheet WordPress.com sent rather than replacing it', async () => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: false } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// The email's own CSS travels in this array too, and the canvas paints from all of it.
+			expect( mountedEditorProps().config.editorSettings.styles ).toContainEqual( {
+				css: 'body{}',
+			} );
+		} );
+
+		it.each( [
+			[ 'says sends carry one', true ],
+			[ 'does not say either way', undefined ],
+		] )( 'leaves the featured image alone when WordPress.com %s', async ( _label, shows ) => {
+			mockApiFetch.mockResolvedValue( bootstrapBundle( { shows_featured_image: shows } ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mountedEditorProps().config.editorSettings.styles ).toEqual( [ { css: 'body{}' } ] );
 		} );
 
 		it( 'does not pass the bundle through in its own shape', async () => {
@@ -562,7 +689,7 @@ describe( 'Email design editor entry point', () => {
 			expect( preloadedMap() ).not.toHaveProperty( '/wp/v2/templates' );
 		} );
 
-		it( 'installs nothing when the bundle carries neither half', async () => {
+		it( 'preloads nothing when the bundle carries neither half', async () => {
 			mockApiFetch.mockResolvedValue(
 				bootstrapBundle( { templates: undefined, global_styles: undefined } )
 			);
@@ -572,8 +699,12 @@ describe( 'Email design editor entry point', () => {
 
 			// WordPress.com does not send these yet. The editor must still mount rather than
 			// the entry throwing on a key that is not there.
-			expect( mockUse ).not.toHaveBeenCalled();
+			expect( mockCreatePreloadingMiddleware ).not.toHaveBeenCalled();
 			expect( renderedTheErrorState() ).toBe( false );
+
+			// The save middleware still installs: the page named a record even though the
+			// bundle carried none, and a write to it is still ours to catch.
+			expect( mockUse ).toHaveBeenCalledTimes( 1 );
 		} );
 
 		describe( 'the Allow header the preloaded responses carry', () => {
@@ -643,6 +774,548 @@ describe( 'Email design editor entry point', () => {
 				'/wp/v2/templates?context=edit',
 				'/wp/v2/templates?context=view',
 			] );
+		} );
+	} );
+
+	describe( 'the email blocks WordPress.com registers in PHP', () => {
+		const { registerEmailBlocks } = jest.requireActual( '../src/index' );
+
+		const payload = blocks => ( { blocks } );
+
+		const HEADER_PREVIEW =
+			'<div class="email-header"><a href="https://example.com">A blog</a></div>';
+
+		/**
+		 * Render the `edit` of the block the last call registered.
+		 *
+		 * @return {void}
+		 */
+		function renderEdit() {
+			const [ , settings ] = mockRegisterBlockType.mock.calls[ 0 ];
+			const Edit = settings.edit;
+
+			render( <Edit /> );
+		}
+
+		it( 'registers each one the site has no definition for', () => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', category: 'text' },
+					{ name: 'wpcom/email-footer', title: 'Email footer' },
+				] )
+			);
+
+			expect( mockRegisterBlockType ).toHaveBeenCalledTimes( 2 );
+			expect( mockRegisterBlockType ).toHaveBeenCalledWith(
+				'wpcom/email-header',
+				expect.objectContaining( { title: 'Email header', category: 'text' } )
+			);
+			// Defaulted rather than left undefined, which would fail block registration.
+			expect( mockRegisterBlockType ).toHaveBeenCalledWith(
+				'wpcom/email-footer',
+				expect.objectContaining( { category: 'design', attributes: {} } )
+			);
+		} );
+
+		it( 'leaves a block the site already registered alone', () => {
+			mockGetBlockType.mockReturnValue( { name: 'wpcom/email-header' } );
+
+			registerEmailBlocks( payload( [ { name: 'wpcom/email-header', title: 'Ours' } ] ) );
+
+			// Registering over a real implementation would replace it with a placeholder.
+			expect( mockRegisterBlockType ).not.toHaveBeenCalled();
+		} );
+
+		// The last case is not just an unlabelled block: a non-string title reaches the
+		// placeholder as a React child, and an object there throws instead of rendering.
+		it.each( [
+			[ 'reported no title', undefined ],
+			[ 'reported an empty title', '' ],
+			[ 'reported a title that is not a string', { rendered: 'Email header' } ],
+		] )( 'labels a block that %s with its slug', ( _label, title ) => {
+			registerEmailBlocks( payload( [ { name: 'lately/bulletin-intro', title } ] ) );
+
+			expect( mockRegisterBlockType ).toHaveBeenCalledWith(
+				'lately/bulletin-intro',
+				expect.objectContaining( { title: 'lately/bulletin-intro' } )
+			);
+		} );
+
+		it.each( [
+			[ 'no blocks key', {} ],
+			[ 'a non-array', { blocks: 'nope' } ],
+			[ 'an entry with no name', { blocks: [ { title: 'Nameless' } ] } ],
+		] )( 'registers nothing given %s', ( _label, bundle ) => {
+			expect( () => registerEmailBlocks( bundle ) ).not.toThrow();
+			expect( mockRegisterBlockType ).not.toHaveBeenCalled();
+		} );
+
+		it( 'shows the structure WordPress.com rendered rather than the block name', () => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', preview_html: HEADER_PREVIEW },
+				] )
+			);
+
+			renderEdit();
+
+			expect( screen.getByText( 'A blog' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Email header' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'makes the preview inert, so a click selects the block instead of following a link', () => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', preview_html: HEADER_PREVIEW },
+				] )
+			);
+
+			renderEdit();
+
+			// No query expresses "this subtree is inert", which is the whole assertion: it is what
+			// keeps the email's own links from taking focus or navigating out of the canvas.
+			// eslint-disable-next-line testing-library/no-node-access -- see above.
+			expect( screen.getByText( 'A blog' ).closest( '[inert]' ) ).not.toBeNull();
+		} );
+
+		// A block WordPress.com could not render arrives without the key rather than with an empty
+		// one, so the label has to survive as the fallback.
+		it.each( [
+			[ 'sent no preview', undefined ],
+			[ 'sent an empty preview', '' ],
+			[ 'sent a preview that is not a string', { rendered: '<p>x</p>' } ],
+		] )( 'labels a block that %s with its title', ( _label, previewHtml ) => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', preview_html: previewHtml },
+				] )
+			);
+
+			renderEdit();
+
+			expect( screen.getByText( 'Email header' ) ).toBeInTheDocument();
+		} );
+
+		it( 'registers before the editor renders, not after', async () => {
+			const order = [];
+			mockRegisterBlockType.mockImplementation( () => order.push( 'register' ) );
+			mockRender.mockImplementation( () => order.push( 'render' ) );
+			mockApiFetch.mockResolvedValue(
+				bootstrapBundle( { blocks: [ { name: 'wpcom/email-header', title: 'Email header' } ] } )
+			);
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// The template is parsed on first render and resolved against the registry then, so
+			// registering afterwards leaves the same unsupported-block errors.
+			expect( order ).toEqual( [ 'register', 'render' ] );
+		} );
+	} );
+
+	// The template's core blocks arrive with their own inspector controls, and nothing here saves
+	// template edits — so every one of them is offered and then silently does nothing.
+	describe( 'the block editing the canvas takes away', () => {
+		const { lockCanvasEditing } = jest.requireActual( '../src/index' );
+
+		it( 'disables editing on the root, which covers blocks the bundle never describes', () => {
+			lockCanvasEditing();
+
+			expect( mockBlockEditingModes ).toEqual( { '': 'disabled' } );
+		} );
+
+		it( 'locks the canvas as part of mounting, not only when called directly', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mockBlockEditingModes ).toEqual( { '': 'disabled' } );
+		} );
+
+		it( 'does not lock a canvas that never loaded', async () => {
+			mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mockBlockEditingModes ).toEqual( {} );
+		} );
+
+		it( 'does not leave the editor holding a change to save', () => {
+			lockCanvasEditing();
+
+			// A mode is a view setting. Unmarked, it lands as an undo step and the editor opens
+			// believing the creator has unsaved work.
+			expect( mockDispatchLog ).toEqual( [ 'MARK_NOT_PERSISTENT', 'SET_BLOCK_EDITING_MODE' ] );
+		} );
+	} );
+
+	// Off Simple the bootstrap is proxied through `json_decode( …, true )`, so `{}` arrives as `[]`.
+	// The editor writes edits onto whatever it finds, and a property set on an array is dropped by
+	// JSON.stringify — the colour flashes and never persists. NL-871.
+	describe( 'the empty halves the proxy turns into arrays', () => {
+		const { buildPreloadMap, createDesignSaveMiddleware } = jest.requireActual( '../src/index' );
+		const ourId = 999999999;
+
+		const seed = design =>
+			dispatch( coreStore ).receiveEntityRecords( 'root', 'globalStyles', [
+				{ id: ourId, ...design },
+			] );
+
+		it( 'preloads them as objects the editor can write to', () => {
+			const preload = buildPreloadMap(
+				bootstrapBundle( {
+					global_styles: {
+						post_id: ourId,
+						can_edit: true,
+						record: { id: ourId, styles: [], settings: [] },
+					},
+				} ),
+				null
+			);
+
+			const body = preload[ `/wp/v2/global-styles/${ ourId }` ].body;
+
+			expect( Array.isArray( body.styles ) ).toBe( false );
+			expect( body.styles ).toEqual( {} );
+			expect( body.settings ).toEqual( {} );
+		} );
+
+		it( 'leaves a design that arrived intact alone', () => {
+			const styles = { color: { background: '#c0ffee' } };
+			const preload = buildPreloadMap(
+				bootstrapBundle( {
+					global_styles: {
+						post_id: ourId,
+						can_edit: true,
+						record: { id: ourId, styles, settings: {} },
+					},
+				} ),
+				null
+			);
+
+			expect( preload[ `/wp/v2/global-styles/${ ourId }` ].body.styles ).toEqual( styles );
+		} );
+
+		// The save response comes back through the same proxy, so a first save would otherwise hand
+		// core-data an array again and break every edit after it.
+		it( 'hands back objects after a save, not arrays', async () => {
+			mockApiFetch.mockResolvedValueOnce( {
+				blog_id: 1,
+				design: { styles: [], settings: [] },
+				discarded: false,
+			} );
+			seed( { styles: {}, settings: {} } );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: { styles: {} } },
+				jest.fn()
+			);
+
+			expect( Array.isArray( result.styles ) ).toBe( false );
+			expect( result ).toEqual( { id: ourId, styles: {}, settings: {} } );
+		} );
+	} );
+
+	describe( 'when the blog does not render through the email editor', () => {
+		const { reportInactiveEmailDesign } = jest.requireActual( '../src/index' );
+
+		const editorNotices = () => select( noticesStore ).getNotices( 'email-editor' );
+
+		it( 'warns, pinned, when WordPress.com says it does not', () => {
+			reportInactiveEmailDesign( { renders_through_email_editor: false } );
+
+			// Pinned rather than dismissible: the editor's own list splits on that, and this is a
+			// standing condition of the blog rather than something that just happened.
+			expect( editorNotices() ).toEqual( [
+				expect.objectContaining( {
+					status: 'warning',
+					type: 'default',
+					isDismissible: false,
+					content: expect.stringContaining( 'not active on this site' ),
+				} ),
+			] );
+		} );
+
+		// `null` is WordPress.com saying it could not determine this, which happens in a deploy
+		// window. Warning then tells a creator on a healthy blog something false.
+		it.each( [
+			[ 'it renders through the editor', { renders_through_email_editor: true } ],
+			[ 'the answer is null', { renders_through_email_editor: null } ],
+			[ 'the key is absent', {} ],
+			[ 'there is no bundle', undefined ],
+		] )( 'says nothing when %s', ( _label, bundle ) => {
+			reportInactiveEmailDesign( bundle );
+
+			expect( editorNotices() ).toEqual( [] );
+		} );
+
+		it( 'does not put the warning where the snackbars are', () => {
+			reportInactiveEmailDesign( { renders_through_email_editor: false } );
+
+			expect( select( noticesStore ).getNotices() ).toEqual( [] );
+		} );
+	} );
+
+	describe( 'when the Styles panel saves', () => {
+		const { createDesignSaveMiddleware } = jest.requireActual( '../src/index' );
+		const ourId = 999999999;
+
+		/**
+		 * Put a design in core-data, which is where the middleware reads what to send.
+		 *
+		 * @param {object} design - `styles` and `settings` as the record holds them.
+		 * @return {void}
+		 */
+		const storeDesign = design =>
+			dispatch( coreStore ).receiveEntityRecords( 'root', 'globalStyles', [
+				{ id: ourId, ...design },
+			] );
+
+		beforeEach( () => {
+			storeDesign( { styles: {}, settings: {} } );
+		} );
+
+		it( 'sends the design to WordPress.com rather than to the site', async () => {
+			const next = jest.fn();
+			// The shape WordPress.com actually answers with: a read-back wrapped in an envelope.
+			mockApiFetch.mockResolvedValueOnce( {
+				blog_id: 12345,
+				design: { styles: { color: { background: '#c0ffee' } }, settings: {} },
+				discarded: false,
+			} );
+
+			storeDesign( { styles: { color: { background: '#c0ffee' } }, settings: {} } );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: { color: { background: '#c0ffee' } } },
+				},
+				next
+			);
+
+			expect( next ).not.toHaveBeenCalled();
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/email-editor-bootstrap',
+				method: 'POST',
+				data: { design: { styles: { color: { background: '#c0ffee' } }, settings: {} } },
+			} );
+
+			// core-data takes this as the record itself, and the canvas is drawn from its `styles`
+			// and `settings`. Handing back the envelope leaves both undefined and the canvas snaps
+			// to its pre-edit design.
+			expect( result ).toEqual( {
+				id: ourId,
+				settings: {},
+				styles: { color: { background: '#c0ffee' } },
+			} );
+		} );
+
+		it( 'sends only the design, not the record it came from', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: {}, discarded: false } );
+
+			// core-data holds the whole record, envelope keys and all.
+			storeDesign( {
+				title: { rendered: 'Email styles' },
+				version: 3,
+				isGlobalStylesUserThemeJSON: true,
+				styles: { color: { background: '#c0ffee' } },
+				settings: { color: { palette: { custom: [] } } },
+			} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: { styles: {} } },
+				jest.fn()
+			);
+
+			// The sentinel id is not a theme.json key, so it is dropped on the way through — and
+			// sending it makes every save look like it lost a property.
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					data: {
+						design: {
+							styles: { color: { background: '#c0ffee' } },
+							settings: { color: { palette: { custom: [] } } },
+						},
+					},
+				} )
+			);
+		} );
+
+		// The regression this replaced a refusal with. core-data strips unchanged keys from its
+		// edits, so an ordinary styles-only save arrives with no `settings` at all — and the store
+		// replaces rather than merges, so forwarding that would wipe whatever settings held.
+		it( 'sends both halves when only one of them was edited', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: {}, discarded: false } );
+			storeDesign( {
+				styles: { color: { text: '#003300' } },
+				settings: { color: { palette: { custom: [ { slug: 'brand' } ] } } },
+			} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: { styles: {} } },
+				jest.fn()
+			);
+
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					data: {
+						design: {
+							styles: { color: { text: '#003300' } },
+							settings: { color: { palette: { custom: [ { slug: 'brand' } ] } } },
+						},
+					},
+				} )
+			);
+		} );
+
+		it( 'hands back what was stored, not what was sent', async () => {
+			// Sanitizing drops anything outside the theme.json schema, so the read-back can differ
+			// from the submission. The panel has to show what survived.
+			mockApiFetch.mockResolvedValueOnce( {
+				blog_id: 12345,
+				design: { styles: { color: { background: '#ffffff' } }, settings: {} },
+				discarded: false,
+			} );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: {
+						styles: { color: { background: 'color-mix(in srgb, #fff 50%, #000)' } },
+						settings: {},
+					},
+				},
+				jest.fn()
+			);
+
+			expect( result.styles ).toEqual( { color: { background: '#ffffff' } } );
+		} );
+
+		it( 'tells the creator when the save kept nothing', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: null, discarded: true } );
+
+			await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: {}, settings: {} },
+				},
+				jest.fn()
+			);
+
+			// Without this the panel goes clean and the creator is told it saved, while the stored
+			// design no longer holds what they set.
+			expect( select( noticesStore ).getNotices() ).toEqual( [
+				expect.objectContaining( {
+					status: 'error',
+					content: expect.stringContaining( 'could not be saved' ),
+					type: 'snackbar',
+				} ),
+			] );
+		} );
+
+		it( 'stays quiet when the design was kept', async () => {
+			mockApiFetch.mockResolvedValueOnce( {
+				blog_id: 1,
+				design: { styles: { color: { background: '#c0ffee' } }, settings: {} },
+				discarded: false,
+			} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: {}, settings: {} },
+				},
+				jest.fn()
+			);
+
+			expect( select( noticesStore ).getNotices() ).toEqual( [] );
+		} );
+
+		it( 'survives an envelope carrying no design', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 12345, design: null, discarded: true } );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: {}, settings: {} },
+				},
+				jest.fn()
+			);
+
+			expect( result ).toEqual( { id: ourId, settings: {}, styles: {} } );
+		} );
+
+		it.each( [ 'POST', 'PUT', 'PATCH' ] )( 'catches a %s', async method => {
+			mockApiFetch.mockResolvedValueOnce( {} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method, data: { styles: {}, settings: {} } },
+				jest.fn()
+			);
+
+			expect( mockApiFetch ).toHaveBeenCalled();
+		} );
+
+		it( "leaves a write to the site's own record alone", async () => {
+			const next = jest.fn( () => 'went to the network' );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{ path: '/wp/v2/global-styles/59', method: 'PUT', data: { styles: {} } },
+				next
+			);
+
+			// The regression this middleware exists to avoid: the site's design must never be
+			// routed through the email endpoint, which would look correct on Simple while doing it.
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+			expect( next ).toHaveBeenCalled();
+			expect( result ).toBe( 'went to the network' );
+		} );
+
+		it( 'leaves reads of our own record alone', async () => {
+			const next = jest.fn( () => 'went to the preload' );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }?context=edit`, method: 'GET' },
+				next
+			);
+
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+			expect( result ).toBe( 'went to the preload' );
+		} );
+
+		it( 'catches the write whatever query string it carries', async () => {
+			const next = jest.fn();
+			mockApiFetch.mockResolvedValueOnce( {} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }?_locale=user`,
+					method: 'PUT',
+					data: { styles: {}, settings: {} },
+				},
+				next
+			);
+
+			expect( next ).not.toHaveBeenCalled();
+		} );
+
+		it( 'does not match an id that merely starts the same', async () => {
+			const next = jest.fn();
+
+			await createDesignSaveMiddleware( 99 )(
+				{ path: '/wp/v2/global-styles/991', method: 'PUT', data: {} },
+				next
+			);
+
+			expect( mockApiFetch ).not.toHaveBeenCalled();
+			expect( next ).toHaveBeenCalled();
 		} );
 	} );
 

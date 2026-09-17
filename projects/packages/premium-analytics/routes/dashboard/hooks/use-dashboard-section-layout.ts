@@ -1,6 +1,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { isDashboardSectionLayouts } from '../config';
 import { DASHBOARD_PREFERENCES_SCOPE } from './constants';
 import type { DashboardSection, DashboardSectionId, DashboardSectionLayouts } from '../config';
@@ -47,9 +47,15 @@ export function useDashboardSectionLayout(
 		[ sections, activeSectionId ]
 	);
 
-	const layout = Object.hasOwn( sectionLayouts, activeSectionId )
-		? sectionLayouts[ activeSectionId ] ?? sectionDefault
-		: sectionDefault;
+	// A reset has to change the layout's identity, or the dashboard keeps its staged
+	// edits: the same workaround as `useStoredDetailLayout` (WordPress/gutenberg#82850).
+	const [ resetCount, setResetCount ] = useState( 0 );
+	const layout = useMemo( () => {
+		if ( Object.hasOwn( sectionLayouts, activeSectionId ) ) {
+			return sectionLayouts[ activeSectionId ] ?? sectionDefault;
+		}
+		return resetCount ? [ ...sectionDefault ] : sectionDefault;
+	}, [ sectionLayouts, activeSectionId, sectionDefault, resetCount ] );
 
 	const setLayout = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
@@ -63,6 +69,7 @@ export function useDashboardSectionLayout(
 
 	const resetLayout = useCallback( () => {
 		if ( ! Object.hasOwn( sectionLayouts, activeSectionId ) ) {
+			setResetCount( count => count + 1 );
 			return;
 		}
 

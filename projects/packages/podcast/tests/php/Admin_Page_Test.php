@@ -86,42 +86,6 @@ class Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Podcast submenu should remain above Jetpack Settings.
-	 */
-	public function test_registers_before_settings_on_self_hosted() {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'podcast_menu_admin',
-				'user_pass'  => 'password',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		Admin_Menu::add_menu(
-			__( 'Settings', 'jetpack-podcast' ),
-			__( 'Settings', 'jetpack-podcast' ),
-			'manage_options',
-			'jetpack#/settings',
-			null,
-			13
-		);
-		Admin_Page::add_wp_admin_submenu();
-
-		Admin_Menu::admin_menu_hook_callback();
-
-		$slugs = wp_list_pluck( (array) ( $GLOBALS['submenu']['jetpack'] ?? array() ), 2 );
-
-		$this->assertContains( Admin_Page::ADMIN_PAGE_SLUG, $slugs );
-		$this->assertContains( 'jetpack#/settings', $slugs );
-		$this->assertLessThan(
-			array_search( 'jetpack#/settings', $slugs, true ),
-			array_search( Admin_Page::ADMIN_PAGE_SLUG, $slugs, true ),
-			'The Podcast submenu should appear before Jetpack Settings.'
-		);
-	}
-
-	/**
 	 * WPCOM (Simple/Atomic): registers directly under the Jetpack menu, where
 	 * wpcom-admin-menu.php has already created the parent.
 	 */

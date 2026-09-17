@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace `spl_object_hash` with `spl_object_id` in some debug logging.
+
+

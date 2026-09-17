@@ -200,6 +200,13 @@ class Admin_UI_Test extends BaseTestCase {
 		$this->assertSame( 'manage_options', $items[0]['capability'] );
 		// No render callback: WordPress renders an unregistered slug as a direct link.
 		$this->assertNull( $items[0]['function'] );
+		$this->assertSame(
+			array(
+				'product' => 'videopress',
+				'key'     => Admin_UI::VISIBILITY_KEY,
+			),
+			$items[0]['args']
+		);
 	}
 
 	/**

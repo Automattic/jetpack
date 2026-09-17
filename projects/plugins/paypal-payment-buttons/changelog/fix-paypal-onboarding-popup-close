@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Close the PayPal onboarding popup automatically when it returns, instead of leaving it open on a wp-admin screen.

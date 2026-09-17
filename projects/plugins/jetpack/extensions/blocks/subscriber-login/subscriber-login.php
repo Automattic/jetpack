@@ -113,21 +113,15 @@ function get_subscriber_login_url( $redirect ) {
 }
 
 /**
- * Determines whether the current visitor is a confirmed subscriber -- someone who
- * actually holds a premium-content session token, not merely someone with a
- * WordPress session on this site.
+ * Determines whether the visitor has a subscriber session for the login UI.
  *
- * A bare WordPress session is not proof of a subscription (see NL-787): the
- * previous is_user_logged_in() || has_token_from_cookie() check hid this block's
- * only "Log in" link -- the sole way to mint a fresh token via the
- * subscribe.wordpress.com magic-link round trip -- for anyone the site owner
- * simply added as a WP user (or anyone else with an ordinary session and no
- * token), leaving them with no way to recover.
+ * WordPress sessions count on Simple; other hosts require the subscriber cookie.
+ * Content access validates the token separately.
  *
  * @return bool
  */
 function is_subscriber_logged_in() {
-	return is_user_logged_in() && Abstract_Token_Subscription_Service::has_token_from_cookie();
+	return ( ( new Host() )->is_wpcom_simple() && is_user_logged_in() ) || Abstract_Token_Subscription_Service::has_token_from_cookie();
 }
 
 /**

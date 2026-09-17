@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Lay out the metric tiles on the highlight widgets by widget size: a list on a one-column widget, a single row or a two-column grid on a wider one.

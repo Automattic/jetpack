@@ -14,6 +14,7 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import GoBackLink from '../go-back-link';
+import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 
 /**
  * The AddLicenseScreen component of the My Jetpack app.
@@ -59,7 +60,7 @@ export default function AddLicenseScreen() {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ hasActivatedLicense ? '/products?reload=true' : '/products' }
+					to={ getProductsSectionPath( hasActivatedLicense ? '?reload=true' : '' ) }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}

@@ -22,7 +22,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * Writing cannot take effect in the request that writes it: Jetpack resolves the flag once, on
  * `plugins_loaded`. Clients are expected to reload.
  *
- * @since $$next-version$$
+ * @since 0.6.0
  */
 class Enablement_Setting {
 
@@ -34,7 +34,7 @@ class Enablement_Setting {
 	 * with the dashboard switched off. Jetpack::is_premium_analytics_enabled() spells the name a
 	 * third time, since it has to answer before this package is known to be loadable at all.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 */
 	const ENABLED_OPTION = 'jetpack_premium_analytics_enabled';
 
@@ -42,7 +42,7 @@ class Enablement_Setting {
 	 * Preferences scope the dashboard stores its per-user state under. Mirrors
 	 * `routes/dashboard/hooks/constants.ts`.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 */
 	const PREFERENCES_SCOPE = 'jetpack-premium-analytics/dashboard';
 
@@ -50,7 +50,7 @@ class Enablement_Setting {
 	 * Preferences key the dashboard sets once a reader has been through the onboarding. Mirrors
 	 * `routes/dashboard/hooks/constants.ts`.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 */
 	const ONBOARDING_KEY = 'onboardingCompletedAt';
 
@@ -61,7 +61,7 @@ class Enablement_Setting {
 	 * priority 99, so anything later would leave the option off the route's write schema. Both
 	 * hosts may call this; a repeat call re-declares the same setting and is harmless.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @return void
 	 */
@@ -88,7 +88,7 @@ class Enablement_Setting {
 	 * REST schema does not accept that as a boolean, so the next read reports `null` rather than
 	 * `false`, and a later `null` write answers 500 `rest_invalid_stored_value`.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @param mixed $value Value being written.
 	 * @return int
@@ -108,7 +108,7 @@ class Enablement_Setting {
 	 * The preference lives in core's persisted preferences user meta, whose client-side layer
 	 * keeps a localStorage copy and takes whichever is newer, so `_modified` moves with the change.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @param mixed $old_value Previous option value.
 	 * @param mixed $value     New option value.

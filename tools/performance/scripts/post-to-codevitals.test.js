@@ -551,7 +551,10 @@ test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to productio
 	// The selector is the AdminPage frame that appears only after React renders MyJetpackScreen
 	// into the (initially empty) container, so a run measures the rendered app, not the shell.
 	assert.equal( scenario.path, '/wp-admin/admin.php?page=my-jetpack' );
-	assert.equal( scenario.waitForSelector, '#my-jetpack-container .jp-admin-page' );
+	assert.equal(
+		scenario.waitForSelector,
+		'#my-jetpack-container .jp-admin-page, #my-jetpack-dashboard-wp-admin-app .jp-admin-page'
+	);
 	// A weak guard on its own: My Jetpack is a single-slug SPA, so every view keeps
 	// `page=my-jetpack` — even the not-connected redirect to `&step=onboarding`. What actually
 	// stops a wrong-view post is the `.jp-admin-page` selector above (OnboardingScreen renders

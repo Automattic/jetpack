@@ -53,12 +53,7 @@ export type LegendShape< Data, Output > =
 	| ComponentClass< LegendShapeRenderProps< Data, Output > >;
 
 export type GoogleDataTableColumnType =
-	| 'string'
-	| 'number'
-	| 'boolean'
-	| 'date'
-	| 'datetime'
-	| 'timeofday';
+	'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'timeofday';
 
 export enum GoogleDataTableColumnRoleType {
 	annotation = 'annotation',
@@ -98,13 +93,7 @@ export type GoogleDataTableCell =
 export type GoogleDataTableRow = GoogleDataTableCell[];
 
 export type ChartType =
-	| 'area'
-	| 'bar'
-	| 'conversion-funnel'
-	| 'leaderboard'
-	| 'line'
-	| 'pie'
-	| 'pie-semi-circle';
+	'area' | 'bar' | 'conversion-funnel' | 'leaderboard' | 'line' | 'pie' | 'pie-semi-circle';
 
 export type OrientationType = ValueOf< typeof Orientation >;
 
@@ -145,6 +134,7 @@ export type ThemeAnnotationStyles = {
 export type DataPoint = {
 	label: string;
 	value: number;
+	color?: string;
 };
 
 /**
@@ -196,6 +186,7 @@ export type DataPointDate = {
 	dateString?: string;
 	value: number | null;
 	label?: string;
+	color?: string;
 };
 
 export type LeaderboardEntry = {
@@ -424,6 +415,8 @@ export type ChartTheme = {
 		compactCellGap?: number;
 		/** Fixed square cell size in px for compact mode */
 		compactCellSize?: number;
+		/** Gap in px between adjacent column groups; in compact mode the minimum, as the gaps share leftover width */
+		groupGap?: number;
 	};
 };
 
@@ -478,8 +471,8 @@ export type BucketInfo = {
  * `timeZone` re-dates the instants the host supplies, so a value that is really a
  * calendar day shifts under it: `new Date( '2026-08-02' )` is UTC midnight and
  * labels as Aug 1 in `America/Los_Angeles`. Supply true instants alongside a
- * `timeZone`, or set only `locale` for day-bucketed data. `HeatmapChart`'s
- * calendar labels take neither — see `buildCalendarHeatmapData`.
+ * `timeZone`, or set only `locale` for day-bucketed data. `buildCalendarHeatmapData`
+ * is the exception: it reads a bare `yyyy-MM-dd` as the day it names.
  */
 export type ChartFormatting = {
 	/** BCP-47 language tag, e.g. `de-DE`. Defaults to the runtime's locale. */

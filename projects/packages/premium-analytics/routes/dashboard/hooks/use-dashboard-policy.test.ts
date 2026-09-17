@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useDashboardPolicy } from './use-dashboard-policy';
+import { isDashboardCompositionEnabled, useDashboardPolicy } from './use-dashboard-policy';
 import type { WidgetType } from '@wordpress/widget-primitives';
 
 const widgetType: WidgetType = {
@@ -28,7 +28,7 @@ describe( 'useDashboardPolicy', () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'lets everyone customize by moving and resizing, and keep editing attributes', () => {
+	it( 'lets everyone customize, move and resize, and keep editing attributes', () => {
 		seedScriptData( { dashboard_composition_enabled: false } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
@@ -38,13 +38,12 @@ describe( 'useDashboardPolicy', () => {
 		expect( result.current( { operation: 'edit', widget, widgetType } ) ).toBe( true );
 	} );
 
-	it( 'withholds adding, removing and resetting while the composition flag is off', () => {
+	it( 'withholds adding and removing while the composition flag is off', () => {
 		seedScriptData( { dashboard_composition_enabled: false } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
 		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( false );
-		expect( result.current( { operation: 'reset' } ) ).toBe( false );
 	} );
 
 	it( 'withholds them when the script data carries no answer', () => {
@@ -61,8 +60,17 @@ describe( 'useDashboardPolicy', () => {
 
 		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( true );
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( true );
-		expect( result.current( { operation: 'reset' } ) ).toBe( true );
 	} );
+
+	it.each( [ 'on', 'off' ] )(
+		"denies the dashboard's own Reset to default with the composition flag %s",
+		state => {
+			seedScriptData( { dashboard_composition_enabled: state === 'on' } );
+			const { result } = renderHook( () => useDashboardPolicy() );
+
+			expect( result.current( { operation: 'reset' } ) ).toBe( false );
+		}
+	);
 
 	it( 'keeps the same callback across renders', () => {
 		seedScriptData( { dashboard_composition_enabled: true } );
@@ -72,5 +80,19 @@ describe( 'useDashboardPolicy', () => {
 		rerender();
 
 		expect( result.current ).toBe( first );
+	} );
+} );
+
+describe( 'isDashboardCompositionEnabled', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it( 'answers the flag, and off without one', () => {
+		seedScriptData( { dashboard_composition_enabled: true } );
+		expect( isDashboardCompositionEnabled() ).toBe( true );
+
+		seedScriptData();
+		expect( isDashboardCompositionEnabled() ).toBe( false );
 	} );
 } );

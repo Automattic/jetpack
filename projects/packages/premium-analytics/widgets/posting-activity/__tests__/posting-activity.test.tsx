@@ -2,13 +2,17 @@
  * External dependencies
  */
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
+import {
+	resolveCalendarHeatmapWindow,
+	type HeatmapTooltipData,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import PostingActivityRender from '../render';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { HeatmapTooltipData } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
@@ -61,6 +65,17 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	useStatsStreak: jest.fn(),
 } ) );
+
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
+	const actual = jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' );
+
+	return {
+		...actual,
+		resolveCalendarHeatmapWindow: jest.fn( actual.resolveCalendarHeatmapWindow ),
+	};
+} );
+
+const mockResolveCalendarHeatmapWindow = jest.mocked( resolveCalendarHeatmapWindow );
 
 const mockUseStatsStreak = jest.mocked( useStatsStreak );
 const REPORT_PARAMS = {
@@ -177,6 +192,30 @@ describe( 'PostingActivityWidget', () => {
 			startDate: '2021-06-28',
 			endDate: '2025-06-30',
 		} );
+	} );
+
+	// 10:00 UTC on the 9th is already the 10th at UTC+14 and still the 9th in every
+	// other zone, so the guard holds whatever the process zone is.
+	it( "anchors the window fallback on the site's today, not the viewer's", () => {
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { string: 'Pacific/Kiritimati', offset: 14, offsetFormatted: '14', abbr: 'LINT' },
+		} );
+		jest.useFakeTimers().setSystemTime( new Date( '2026-09-09T10:00:00Z' ) );
+		mockResolveCalendarHeatmapWindow.mockClear();
+
+		try {
+			renderWidget();
+
+			expect( mockResolveCalendarHeatmapWindow ).toHaveBeenCalled();
+			for ( const call of mockResolveCalendarHeatmapWindow.mock.calls ) {
+				expect( call[ 2 ] ).toBe( '2026-09-10' );
+			}
+		} finally {
+			jest.useRealTimers();
+			setSettings( settings );
+		}
 	} );
 
 	describe( 'empty state', () => {
