@@ -224,6 +224,7 @@ export default function HistoryChartCard( {
 	}, [ range.startDate, range.endDate, isVisible ] );
 	const highlight = isVisible ? activeHighlight?.selection : null;
 	let content;
+	let bodyClassName;
 	if ( needsUpgrade ) {
 		content = (
 			<Notice.Root intent="info" spokenMessage={ null }>
@@ -274,6 +275,7 @@ export default function HistoryChartCard( {
 			</Notice.Root>
 		);
 	} else {
+		bodyClassName = 'boost-daily-history__body';
 		content = (
 			<GlobalChartsProvider>
 				<div className="boost-daily-history">
@@ -404,7 +406,7 @@ export default function HistoryChartCard( {
 					) }
 				</div>
 			</Card.Header>
-			<Card.Content className="boost-daily-history__body">{ content }</Card.Content>
+			<Card.Content className={ bodyClassName }>{ content }</Card.Content>
 		</Card.Root>
 	);
 }

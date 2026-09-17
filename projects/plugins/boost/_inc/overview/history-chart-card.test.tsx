@@ -347,6 +347,20 @@ test( 'shows the history error message and offers retry', () => {
 	expect( callbacks.onRetry ).toHaveBeenCalledTimes( 1 );
 } );
 
+test( 'keeps the card padding for notices and drops it only for the charts', () => {
+	/* eslint-disable testing-library/no-node-access */
+	const { rerender } = render( <HistoryChartCard needsUpgrade { ...callbacks } />, { wrapper } );
+	const zeroPaddingBody = () => document.querySelector( '.boost-daily-history__body' );
+	expect( zeroPaddingBody() ).toBeNull();
+	rerender( <HistoryChartCard isError { ...callbacks } /> );
+	expect( zeroPaddingBody() ).toBeNull();
+	rerender( <HistoryChartCard isFreshStart { ...callbacks } /> );
+	expect( zeroPaddingBody() ).toBeNull();
+	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
+	expect( zeroPaddingBody() ).toContainElement( screen.getAllByRole( 'grid' )[ 0 ] );
+	/* eslint-enable testing-library/no-node-access */
+} );
+
 test( 'keeps the header, axis, and empty tooltip on the same day in a UTC+14 site', async () => {
 	const settings = getSettings();
 	setSettings( {
