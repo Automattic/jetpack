@@ -83,8 +83,8 @@ class Avatars {
 		if ( null !== $url ) {
 			$url_class[0] = $url;
 		} elseif ( self::is_signed_in( (int) $id_or_email->comment_ID ) ) {
-			$url_class[0]  = self::default_url( (int) $size );
-			$url_class[1] .= ' avatar-default';
+			$url_class[0] = self::default_url( (int) $size );
+			$url_class[1] = ( isset( $url_class[1] ) ? $url_class[1] . ' ' : '' ) . 'avatar-default';
 		}
 
 		return $url_class;
