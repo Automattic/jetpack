@@ -233,10 +233,12 @@ export default function HistoryChartCard( {
 	const [ hoverOpen, setHoverOpen ] = useState( false );
 	const [ keyboardOpen, setKeyboardOpen ] = useState( false );
 	const [ anchor, setAnchor ] = useState< HTMLDivElement | null >( null );
+	const [ lastRecorded, setLastRecorded ] = useState< DayDetails | null >( null );
 	useEffect( () => {
 		setActiveHighlight( null );
 		setHoverOpen( false );
 		setKeyboardOpen( false );
+		setLastRecorded( null );
 	}, [ range.startDate, range.endDate, isVisible ] );
 	const highlight = isVisible ? activeHighlight?.selection : null;
 	const highlightedPeriod =
@@ -246,13 +248,15 @@ export default function HistoryChartCard( {
 			highlight && highlightedPeriod ? { period: highlightedPeriod, selection: highlight } : null,
 		[ highlight, highlightedPeriod ]
 	);
-	const [ lastRecorded, setLastRecorded ] = useState< DayDetails | null >( null );
 	useEffect( () => {
-		// Any other day under the pointer owns the card; no highlight means the plot was left.
+		// Any other day under the pointer owns the card; the hold outlives the chart's delayed
+		// hide only while the popover is still open.
 		if ( recorded || highlight ) {
 			setLastRecorded( recorded );
+		} else if ( ! hoverOpen && ! keyboardOpen ) {
+			setLastRecorded( null );
 		}
-	}, [ recorded, highlight ] );
+	}, [ recorded, highlight, hoverOpen, keyboardOpen ] );
 	// The chart drops its highlight shortly after the pointer leaves the plot, so while the bridge
 	// holds the popover open, keep showing the day the pointer left from.
 	const shown = recorded ?? ( hoverOpen && ! highlight ? lastRecorded : null );
@@ -359,72 +363,73 @@ export default function HistoryChartCard( {
 							/>
 						) }
 
-						{ series.map( ( deviceSeries, index ) => {
-							return (
-								<section
-									key={ deviceSeries.label }
-									aria-label={
-										index === 0
-											? __( 'Desktop score history', 'jetpack-boost' )
-											: __( 'Mobile score history', 'jetpack-boost' )
-									}
-								>
-									<h3 className="boost-daily-history__device">
-										<Icon icon={ index === 0 ? desktop : mobile } />
-										{ deviceSeries.label }
-									</h3>
-									<div className="boost-daily-history__plot">
-										{ isVisible && (
-											<BarChart
-												key={ `${ range.startDate }-${ range.endDate }` }
-												data={ [ deviceSeries ] }
-												withTooltips
-												gridVisibility="x"
-												onBandHighlightChange={ selection => updateHighlight( index, selection ) }
-												margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
-												options={ {
-													xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
-													yScale: { domain: [ 0, 100 ], nice: false, zero: true },
-													axis: {
-														y: { tickValues: [ 0, 50, 100 ] },
-														x: {
-															tickValues,
-															tickFormat: value =>
-																dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
-														},
+						{ series.map( ( deviceSeries, index ) => (
+							<section
+								key={ deviceSeries.label }
+								aria-label={
+									index === 0
+										? __( 'Desktop score history', 'jetpack-boost' )
+										: __( 'Mobile score history', 'jetpack-boost' )
+								}
+							>
+								<h3 className="boost-daily-history__device">
+									<Icon icon={ index === 0 ? desktop : mobile } />
+									{ deviceSeries.label }
+								</h3>
+								<div className="boost-daily-history__plot">
+									{ isVisible && (
+										<BarChart
+											key={ `${ range.startDate }-${ range.endDate }` }
+											data={ [ deviceSeries ] }
+											withTooltips
+											gridVisibility="x"
+											onBandHighlightChange={ selection => updateHighlight( index, selection ) }
+											margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
+											options={ {
+												xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
+												yScale: { domain: [ 0, 100 ], nice: false, zero: true },
+												axis: {
+													y: { tickValues: [ 0, 50, 100 ] },
+													x: {
+														tickValues,
+														tickFormat: value =>
+															dateI18n( 'M j', getDate( `${ value }T12:00:00` ), false ),
 													},
-												} }
-												renderTooltip={ ( { tooltipData } ) => {
-													const day = days.find(
-														slot => slot.date === tooltipData?.nearestDatum?.datum.label
-													);
-													// Keyboard focus lands here; the popover shows the same details.
-													return day?.period ? (
-														<VisuallyHidden>
-															<HistoryTooltip period={ day.period } />
-														</VisuallyHidden>
-													) : day ? (
-														<EmptyDayTooltip
-															date={ day.date }
-															isBeforeHistory={
-																hasOlderHistory === false &&
-																! days.some( slot => slot.period && slot.date < day.date )
-															}
-														/>
-													) : null;
-												} }
-											/>
-										) }
-									</div>
-								</section>
-							);
-						} ) }
+												},
+											} }
+											renderTooltip={ ( { tooltipData } ) => {
+												const day = days.find(
+													slot => slot.date === tooltipData?.nearestDatum?.datum.label
+												);
+												// Keyboard focus lands here; the popover shows the same details.
+												return day?.period ? (
+													<VisuallyHidden>
+														<HistoryTooltip period={ day.period } />
+													</VisuallyHidden>
+												) : day ? (
+													<EmptyDayTooltip
+														date={ day.date }
+														isBeforeHistory={
+															hasOlderHistory === false &&
+															! days.some( slot => slot.period && slot.date < day.date )
+														}
+													/>
+												) : null;
+											} }
+										/>
+									) }
+								</div>
+							</section>
+						) ) }
 					</Popover.Trigger>
 					{ details && (
 						<Popover.Popup
 							variant="unstyled"
 							// Portalled outside the page, so it takes the page class for the score colour tokens.
 							className="jetpack-boost-overview boost-daily-history__popover"
+							// Hidden from assistive technology: the chart's own tooltip carries these details.
+							aria-hidden="true"
+							data-testid="history-popover"
 							initialFocus={ false }
 							finalFocus={ false }
 							positioner={ <Popover.Positioner anchor={ anchor } /> }

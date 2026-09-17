@@ -106,9 +106,12 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 		await expect( page.getByRole( 'button', { name: 'Next 30 days' } ) ).toBeDisabled();
 		await hoverDay( chart, 21 );
-		const popover = page.getByRole( 'dialog', { name: 'September 1, 2026' } );
+		const popover = page.locator( '.boost-daily-history__popover' );
 		const surface = popover.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( surface ).toBeVisible();
+		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
+			'September 1, 2026'
+		);
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
 		await expect( surface ).toContainText( 'Overall score' );
 		await expect( surface ).toHaveCSS( 'width', '265px' );

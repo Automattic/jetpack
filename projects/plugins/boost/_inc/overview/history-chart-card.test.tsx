@@ -195,10 +195,9 @@ test( 'keeps a recorded day popover open once the chart drops its highlight', as
 	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
 	const chart = hoverChart();
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
-	const popover = await screen.findByRole( 'dialog', {
-		name: dateI18n( 'F j, Y', timestamp, false ),
-	} );
+	const popover = await screen.findByTestId( 'history-popover' );
 	expect( desktop ).not.toContainElement( popover );
+	expect( popover ).toHaveTextContent( dateI18n( 'F j, Y', timestamp, false ) );
 	expect( popover ).toHaveTextContent( '90/100' );
 	// Leaving the plot clears the chart's own selection while the popover stays reachable.
 	fireEvent.keyDown( desktop, { key: 'Tab' } );
@@ -206,9 +205,39 @@ test( 'keeps a recorded day popover open once the chart drops its highlight', as
 	await waitFor( () =>
 		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument()
 	);
-	expect( screen.getByRole( 'dialog' ) ).toHaveTextContent( '90/100' );
+	expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' );
 	fireEvent.mouseLeave( chart );
-	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'history-popover' ) ).not.toBeInTheDocument()
+	);
+} );
+
+test( 'exposes a recorded day once while the popover repeats it visually', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
+	const popover = await screen.findByTestId( 'history-popover' );
+	expect( popover ).toHaveTextContent( '90/100' );
+	const tooltip = screen.getByRole( 'tooltip' );
+	expect( screen.getAllByRole( 'definition' ) ).toEqual(
+		within( tooltip ).getAllByRole( 'definition' )
+	);
+} );
+
+test( 'does not reopen the day the pointer left once the chart has no highlight', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	const chart = hoverChart();
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toBeInTheDocument();
+	fireEvent.mouseLeave( chart );
+	fireEvent.keyDown( desktop, { key: 'Tab' } );
+	fireEvent.blur( desktop );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'history-highlight' ) ).not.toBeInTheDocument()
+	);
+	// Returning over a device heading selects no day, so nothing is left to show.
+	hoverChart();
+	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
 } );
 
 test( 'follows arrow keys while the pointer rests on the chart', async () => {
@@ -216,9 +245,11 @@ test( 'follows arrow keys while the pointer rests on the chart', async () => {
 	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
 	hoverChart();
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
-	await expect( screen.findByRole( 'dialog' ) ).resolves.toHaveTextContent( '90/100' );
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
-	await waitFor( () => expect( screen.getByRole( 'dialog' ) ).toHaveTextContent( '70/100' ) );
+	await waitFor( () =>
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '70/100' )
+	);
 } );
 
 test( 'opens a recorded day popover by keyboard and closes it with Escape', async () => {
@@ -227,9 +258,11 @@ test( 'opens a recorded day popover by keyboard and closes it with Escape', asyn
 	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
 	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 	await waitFor( () => expect( tooltip ).toHaveFocus() );
-	expect( screen.getByRole( 'dialog' ) ).toHaveTextContent( '80/100' );
+	expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '80/100' );
 	fireEvent.keyDown( tooltip, { key: 'Escape' } );
-	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+	await waitFor( () =>
+		expect( screen.queryByTestId( 'history-popover' ) ).not.toBeInTheDocument()
+	);
 	expect( desktop ).toHaveFocus();
 } );
 
