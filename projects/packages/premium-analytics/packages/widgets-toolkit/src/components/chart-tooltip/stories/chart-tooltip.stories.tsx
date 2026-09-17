@@ -63,7 +63,7 @@ const BAR_SERIES_STYLES: TooltipStyle[] = [
 type LineDatum = { date: Date; realDate?: Date; value: number };
 const getDateLabel = ( datum: LineDatum, index: number ): string => {
 	const isComparison = index > 0;
-	const displayDate = isComparison ? datum.realDate ?? datum.date : datum.date;
+	const displayDate = isComparison ? ( datum.realDate ?? datum.date ) : datum.date;
 	return formatDate( displayDate );
 };
 

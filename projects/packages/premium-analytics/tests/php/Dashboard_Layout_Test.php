@@ -431,7 +431,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 4 ),
 			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 1, 2, 5 ),
 			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 3, 1, 6 ),
-			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 3, 2, 7 ),
+			'default-views-over-years-widget-instance'     => array( 'jpa/views-over-years', 3, 2, 7 ),
 			'default-tags-widget-instance'                 => array( 'jpa/tags', 2, 2, 8 ),
 			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
 			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 10 ),
@@ -562,8 +562,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 3, 2, 0 ),
 			'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 3, 1, 1 ),
 			'default-wordads-earnings-history-widget-instance' => array( 'jpa/wordads-earnings-history', 1, 2, 2 ),
-			'default-wordads-sponsored-content-history-widget-instance' => array( 'jpa/wordads-sponsored-content-history', 1, 2, 3 ),
-			'default-wordads-adjustments-history-widget-instance' => array( 'jpa/wordads-adjustments-history', 1, 2, 4 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );

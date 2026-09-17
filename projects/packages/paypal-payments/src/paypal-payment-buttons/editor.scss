@@ -1,9 +1,6 @@
 /**
  * PayPal Payment Buttons — Block Editor Styles.
  *
- * Updated for WOOPTP-151: Inline validation error styles for
- * client-side form validation.
- *
  * @package automattic/jetpack-paypal-payments
  * @since 0.8.0
  */
@@ -85,14 +82,30 @@
 }
 
 // ---------------------------------------------------------------
-// Connection Form
+// Not connected: the canvas placeholder, and the wizard in the sidebar
 // ---------------------------------------------------------------
 
-.jetpack-paypal-payment-buttons__connect {
+.jetpack-paypal-payment-buttons__placeholder {
 	padding: 24px;
 	border: 1px dashed #c3c4c7;
 	border-radius: 4px;
 	background: #f9f9f9;
+	text-align: center;
+
+	h4 {
+		margin: 0 0 8px;
+	}
+
+	p {
+		margin: 0;
+		color: #757575;
+	}
+}
+
+.jetpack-paypal-payment-buttons__connect {
+	padding: 16px;
+	// Design: about 30% down the side panel, at most 300px from the top.
+	margin-block-start: min(30vh, 300px);
 
 	h3 {
 		margin-top: 0;
@@ -106,6 +119,16 @@
 
 	.components-base-control {
 		margin-bottom: 12px;
+	}
+}
+
+// While the wizard is up, the sidebar shows nothing but it: not the block card
+// with the block's name and description, and not the Advanced panel.
+.block-editor-block-inspector:has(.jetpack-paypal-payment-buttons__connect) {
+
+	.block-editor-block-card,
+	.block-editor-block-inspector__advanced {
+		display: none;
 	}
 }
 
@@ -148,9 +171,9 @@
 
 .jetpack-paypal-wizard__logo {
 	display: block;
-	width: 160px;
+	width: 140px;
 	height: auto;
-	margin: 0 auto 16px;
+	margin: 12px 0 16px;
 }
 
 .jetpack-paypal-wizard__welcome,
@@ -256,6 +279,8 @@
 	line-height: 1.4;
 }
 
+// The connection wizard's Client ID field. It colors its border, where
+// the error state below is a message row.
 .jetpack-paypal-payment-buttons__has-warning {
 
 	.components-text-control__input {
@@ -275,37 +300,185 @@
 // Error state for form fields. The form renders into the inspector sidebar,
 // outside the block, so there is no block ancestor to scope this under - the
 // class carries the namespace instead. editor.css loads on every editor screen.
-.jetpack-paypal-payment-buttons__has-error {
+// An error is the message row alone.
+%field-error-row {
+	align-items: center;
+	color: #cc1818;
+	display: flex;
+	font-size: 12px;
+	gap: 4px;
+	line-height: 16px;
 
-	.components-text-control__input,
-	.components-textarea-control__input {
-		border-color: #cc1818;
+	&::before {
+		background-color: currentColor;
+		content: "";
+		flex: 0 0 auto;
+		height: 16px;
+		// The error glyph on a 16 grid, where @wordpress/icons ships a 24-grid
+		// one. Inlined so one rule covers every field, -webkit- duplicated for
+		// older Safari as the search block does.
+		mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>");
+		mask-repeat: no-repeat;
+		mask-position: center;
+		mask-size: 16px 16px;
+		-webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>");
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		-webkit-mask-size: 16px 16px;
+		width: 16px;
+	}
+}
 
-		&:focus {
-			border-color: #cc1818;
-			box-shadow: 0 0 0 1px #cc1818;
+// Most controls put the error straight in the help slot.
+.jetpack-paypal-payment-buttons__has-error .components-base-control__help {
+
+	@extend %field-error-row;
+}
+
+// An amount field can show a hint too, so its error gets a span of its own
+// below the hint.
+.jetpack-paypal-payment-buttons__has-error .jetpack-paypal-payment-buttons__field-error {
+
+	@extend %field-error-row;
+
+	// Only when a hint sits above it.
+	&:not(:first-child) {
+		margin-top: 8px;
+	}
+}
+
+// Its own rule, so a browser missing `:has()` drops this one and keeps the
+// errors above.
+.jetpack-paypal-payment-buttons__has-error .components-base-control__help:has(.jetpack-paypal-payment-buttons__field-error) {
+	color: #757575;
+	display: block;
+
+	&::before {
+		content: none;
+	}
+}
+
+// The form renders into the inspector, so the class is the scope. Tripled
+// because Emotion injects its rules after this file.
+.jetpack-paypal-payment-buttons__field {
+
+	&#{&}#{&} {
+
+		// Two class names for one label: InputBase on the amount fields,
+		// BaseControl on the text fields and the selects.
+		.components-input-control__label,
+		.components-base-control__label {
+			font-weight: 500; // core: 600
+			line-height: 16px; // core: 1.4, so 15.4px at 11px
+		}
+
+		// A select needs core's 40px for its 24px chevron, so 36 goes to the
+		// text inputs.
+		.components-input-control__input,
+		.components-text-control__input {
+			height: 36px;
+			min-height: 36px;
+		}
+
+		// Suffix and placeholder share one color. Tripled because the
+		// placeholder ties with core on specificity.
+		&.components-input-control {
+
+			.components-input-control__suffix {
+				color: #5d5d5d;
+			}
+
+			.components-input-control__input::placeholder {
+				color: #5d5d5d;
+			}
 		}
 	}
 
-	// SelectControl's own <select> is `border: none`, so coloring it paints
-	// nothing - the border you see is the backdrop, same as URLInput below.
-	// Compound, not descendant: the error class lands on the same element as
-	// components-select-control, so a space between them matches nothing.
-	&.components-select-control .components-input-control__container {
+	// `Maximum quantity` is a number field too. Core styles the spinners only
+	// mid-drag, so plain specificity wins.
+	.components-input-control__input[type="number"],
+	.components-text-control__input[type="number"] {
+		appearance: textfield;
 
-		.components-input-control__backdrop {
-			border-color: #cc1818;
+		&::-webkit-inner-spin-button,
+		&::-webkit-outer-spin-button {
+			appearance: none;
+			margin: 0;
 		}
 	}
 
-	// URLInput builds on InputControl, which draws its border on a backdrop
-	// behind the input. Core's emotion class repeats itself three times, so
-	// naming the backdrop alone loses - walk its structure to out-specify it.
-	.components-input-control .components-input-control__container {
+	// Core dims a disabled native select. The custom one needs the same, or it
+	// reads as live.
+	[role="combobox"]:disabled {
+		color: #8d8d8d;
+		cursor: default;
+	}
 
-		.components-input-control__backdrop {
-			border-color: #cc1818;
-		}
+	// The native controls take this margin from the editor stylesheet.
+	&.components-custom-select-control {
+		margin-bottom: 16px;
+	}
+
+	// A select with a hint below it gives the gap to the hint, which sets its own.
+	// Matched by class because a sibling selector picks the wrong element.
+	&.components-custom-select-control.jetpack-paypal-payment-buttons__has-hint {
+		margin-bottom: 0;
+	}
+}
+
+// `help` on a CustomSelectControl reaches the trigger as a plain attribute,
+// so the hint is its own element.
+.jetpack-paypal-payment-buttons__field-hint {
+	// Both sides tie this to the same token, so follow the variable.
+	color: var(--wp-components-color-gray-700, #707070);
+	font-size: 12px;
+
+	// `.components-panel__body p` zeroes both margins and outranks one class.
+	&#{&}#{&} {
+		margin: 8px 0 16px;
+	}
+}
+
+// The check leads and the hint takes its own line. Selected by Ariakit's
+// roles, which a components bump can change.
+.jetpack-paypal-payment-buttons__select-menu {
+
+	[role="listbox"] {
+		// Both sides tie this to the same token, so follow the variable. The 4px
+		// radius has no custom property behind it, so it stays a literal.
+		border-color: var(--wp-components-color-gray-300, #ddd);
+		border-radius: 4px;
+		padding: 4px;
+	}
+
+	.components-custom-select-control__item {
+		border-radius: 2px;
+		gap: 8px;
+		justify-content: flex-start;
+		line-height: 20px;
+		// Core pads inline-end for a check on the right. The check is on the
+		// left here, and the start and block padding already match.
+		padding-inline-end: 12px;
+	}
+
+	// The check is an unclassed aria-hidden span core appends after the label.
+	// Its margins assume it sits last, on core's line height.
+	.components-custom-select-control__item > [aria-hidden="true"]:last-child {
+		// The design puts the check on the option's first line.
+		align-self: flex-start;
+		color: var(--wp-components-color-gray-700, #707070);
+		margin-block-start: 0;
+		margin-inline-start: 0;
+		order: -1;
+	}
+
+	.components-custom-select-control__item-hint {
+		color: var(--wp-components-color-gray-700, #707070);
+		flex-basis: 100%;
+		font-size: 12px;
+		line-height: 16px;
+		margin-block: 4px 0;
+		padding-inline-end: 0;
 	}
 }
 
@@ -695,23 +868,22 @@
 	}
 }
 
-// Checkout options (WOOPTP-170/171/172).
+// Checkout options.
+// 16px between rows and 16px below the group. The gap above comes from
+// the toggle's own margin.
 .jetpack-paypal-payment-buttons__customer-notes {
-	margin-top: 8px;
-}
-
-// Matches .jetpack-paypal-variants__group above: no card, no side indent, so
-// the field gets the panel's full width.
-.jetpack-paypal-payment-buttons__customer-note {
-	padding: 12px 0;
-	margin-bottom: 8px;
-}
-
-.jetpack-paypal-payment-buttons__customer-note-controls {
 	display: flex;
-	align-items: center;
-	gap: 12px;
-	margin-top: 4px;
+	flex-direction: column;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+// Stack of label, checkbox and Remove, like
+// .jetpack-paypal-variants__option above.
+.jetpack-paypal-payment-buttons__customer-note {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 // ---------------------------------------------------------------

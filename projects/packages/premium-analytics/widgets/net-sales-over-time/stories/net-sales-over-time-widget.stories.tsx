@@ -38,8 +38,7 @@ interface NetSalesOverTimeStoryControls {
 type NetSalesOverTimeStoryProps = NetSalesOverTimeWidgetProps & NetSalesOverTimeStoryControls;
 
 interface NetSalesOverTimeDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		NetSalesOverTimeStoryControls {}
+	extends WidgetDashboardWithWidgetControls, NetSalesOverTimeStoryControls {}
 
 function getNetSalesOverTimeAttributes(
 	withComparison = false,

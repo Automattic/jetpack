@@ -681,7 +681,7 @@ function StageInner() {
 							? __(
 									'This will permanently delete this form. This action cannot be undone.',
 									'jetpack-forms'
-							  )
+								)
 							: sprintf(
 									/* translators: %d: number of forms */
 									_n(
@@ -691,7 +691,7 @@ function StageInner() {
 										'jetpack-forms'
 									),
 									pendingPermanentDeleteCount
-							  ) }
+								) }
 					</p>
 				</ConfirmDialog>
 				<DataViewsHeaderRow activeTab="forms" />

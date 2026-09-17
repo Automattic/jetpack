@@ -29,7 +29,7 @@ const FirewallUpgradePrompt = () => {
 						'Upgrade to update automatic security rules',
 						'jetpack-protect',
 						/* dummy arg to avoid bad minification */ 0
-				  ) }
+					) }
 		</Button>
 	);
 };

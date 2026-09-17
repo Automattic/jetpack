@@ -45,6 +45,12 @@ export type SectionHeaderProps = {
 
 	/** Reaches the controls cell, for a spotlight to anchor on. */
 	controlsRef?: Ref< HTMLDivElement >;
+
+	/**
+	 * Reaches the heading, which then takes programmatic focus: where a
+	 * surface parks focus after moving the reader, without joining the tab order.
+	 */
+	titleRef?: Ref< HTMLHeadingElement >;
 };
 
 /**
@@ -69,6 +75,7 @@ function UnforwardedSectionHeader(
 		notice,
 		children,
 		controlsRef,
+		titleRef,
 	}: SectionHeaderProps,
 	ref: ForwardedRef< HTMLDivElement >
 ) {
@@ -88,7 +95,13 @@ function UnforwardedSectionHeader(
 					<Text
 						className={ styles.title }
 						variant="heading-2xl"
-						render={ <h2 title={ typeof title === 'string' ? title : undefined } /> }
+						render={
+							<h2
+								ref={ titleRef }
+								tabIndex={ titleRef ? -1 : undefined }
+								title={ typeof title === 'string' ? title : undefined }
+							/>
+						}
 					>
 						{ title }
 					</Text>

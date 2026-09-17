@@ -5,12 +5,14 @@ import { post } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * The Latest post widget has no configurable attributes: it always shows the
- * single most recently published post. `Record< never, never >` (not
- * `Record< string, never >`) so the render-only type can compose host fields
- * such as `reportParams` without collapsing them to `never`.
+ * Widget attributes shape.
+ *
+ * @property authorScoped - Pick one author's latest post instead of the site's.
+ *                        Set by the author detail composition; not a user-facing control.
  */
-export type LatestPostAttributes = Record< never, never >;
+export type LatestPostAttributes = {
+	authorScoped?: boolean;
+};
 
 /**
  * Widget type definition.

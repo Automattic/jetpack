@@ -36,9 +36,8 @@ Each button also generates a shareable payment link URL you can use in emails, s
 
 #### Step 2: Connect in the Block Editor
 
-1. Add a **Pay with PayPal** block to any post or page
-2. The setup wizard appears automatically:
-   - **Welcome** — Click "Get Started"
+1. Add a **Pay with PayPal** block to any post or page. The block itself only says it needs a PayPal business account; the connection happens in the block settings sidebar
+2. The sidebar shows **Connect your PayPal account**, with a sandbox toggle and a **Connect PayPal** button that opens PayPal's own sign-up or log-in. Sites that cannot use it get the credentials wizard instead:
    - **Dashboard** — Follow the link to the PayPal Developer Dashboard to get your credentials
    - **Credentials** — Paste your Client ID and Client Secret
 3. The plugin validates your credentials with PayPal

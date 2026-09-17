@@ -79,6 +79,7 @@ trait Expiry_Notices_Fixtures {
 		}
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 		unset( $GLOBALS['wpcom_is_vip_test_value'] );
+		unset( $GLOBALS['store_sandbox_test_value'] );
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		unset( $GLOBALS['wpcom_expiry_reverted_transfer_test_value'] );
 		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {

@@ -4,6 +4,7 @@
 # Files to exclude from the mirror repo, but included in the monorepo.
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
+/build/**/*.map     production-exclude
 _inc/**             production-exclude
 bin/**              production-exclude
 packages/**         production-exclude
