@@ -57,6 +57,7 @@ class Generator_Test extends BaseTestCase {
 		add_filter(
 			'wp_die_handler',
 			function () {
+				/** @return never */
 				return function ( $message, $title, $args ) {
 					throw new \RuntimeException( $message, $args['response'] );
 				};
@@ -65,6 +66,7 @@ class Generator_Test extends BaseTestCase {
 
 		foreach ( array( true, false ) as $reauth ) {
 			try {
+				// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Exercise the redirect interface used by auth_redirect().
 				wp_redirect( wp_login_url( $requested, $reauth ) );
 				$rendered = true;
 				$this->fail( 'The login redirect must terminate generation.' );
@@ -90,6 +92,7 @@ class Generator_Test extends BaseTestCase {
 		add_filter(
 			'wp_die_handler',
 			function () {
+				/** @return never */
 				return function ( $message, $title, $args ) {
 					throw new \RuntimeException( $message, $args['response'] );
 				};
@@ -110,6 +113,7 @@ class Generator_Test extends BaseTestCase {
 
 		foreach ( array( $login, $login . '&reauth=1&redirect_to=%2Fprivate-page%2F' ) as $location ) {
 			try {
+				// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Exercise the redirect interface used by auth_redirect().
 				wp_redirect( $location );
 				$this->fail( 'The custom login redirect must terminate generation.' );
 			} catch ( \RuntimeException $error ) {
@@ -130,6 +134,7 @@ class Generator_Test extends BaseTestCase {
 		add_filter(
 			'wp_die_handler',
 			function () {
+				/** @return never */
 				return function ( $message, $title, $args ) {
 					throw new \RuntimeException( $message, $args['response'] );
 				};
@@ -152,6 +157,7 @@ class Generator_Test extends BaseTestCase {
 			$this->assertSame( $other_port, apply_filters( 'wp_redirect', $other_port, 302 ) );
 
 			try {
+				// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Exercise the redirect interface used by auth_redirect().
 				wp_redirect( $location );
 				$this->fail( 'The normalized custom login redirect must terminate generation.' );
 			} catch ( \RuntimeException $error ) {

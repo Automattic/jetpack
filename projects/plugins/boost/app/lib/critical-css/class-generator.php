@@ -52,10 +52,10 @@ class Generator {
 				return false;
 			}
 
-			if ( isset( $parts['scheme'], $parts['host'] ) && in_array( strtolower( $parts['scheme'] ), array( 'http', 'https' ), true ) ) {
+			if ( isset( $parts['scheme'] ) && isset( $parts['host'] ) && in_array( strtolower( $parts['scheme'] ), array( 'http', 'https' ), true ) ) {
 				$parts['scheme'] = strtolower( $parts['scheme'] );
 				$parts['host']   = strtolower( $parts['host'] );
-				$parts['path']   = $parts['path'] ?? '/';
+				$parts['path'] ??= '/';
 				$default_port    = 'https' === $parts['scheme'] ? 443 : 80;
 				if ( isset( $parts['port'] ) && $default_port === $parts['port'] ) {
 					unset( $parts['port'] );
@@ -63,7 +63,8 @@ class Generator {
 			}
 
 			if ( ! empty( $parts['path'] ) ) {
-				$parts['path'] = untrailingslashit( $parts['path'] ) ?: '/';
+				$path          = untrailingslashit( $parts['path'] );
+				$parts['path'] = $path ? $path : '/';
 			}
 
 			return $parts;
