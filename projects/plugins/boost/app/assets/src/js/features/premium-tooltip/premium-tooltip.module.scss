@@ -4,7 +4,8 @@
 }
 
 // `wide` only reaches an inline popover, so restate its width here.
-// Do not raise this rule's specificity: critical-css-module's mobile width is padded to outrank it.
+// Do not raise this rule's specificity: critical-css-module's mobile
+// width is padded to outrank it.
 .popover:global(.components-popover.icon-tooltip-container) :global(.components-popover__content) {
 	width: 440px;
 }

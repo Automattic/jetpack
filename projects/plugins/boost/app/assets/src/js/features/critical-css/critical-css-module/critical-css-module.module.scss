@@ -21,7 +21,8 @@
 		left: -12px;
 
 		// Only an inline popover is a descendant here, so this is the legacy width.
-		// `.components-popover` pads specificity so this outranks premium-tooltip's 440px rule.
+		// `.components-popover` pads specificity so this outranks
+		// premium-tooltip's 440px rule.
 		:global(.icon-tooltip-container.components-popover .components-popover__content) {
 			width: 70vw;
 		}
