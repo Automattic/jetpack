@@ -66,6 +66,7 @@ jest.mock( '../../../src/dashboard/hooks/use-settings', () => ( {
 			videoPressVideosPrivateForSite: false,
 			videoPressAutoSubtitlesDisabled: false,
 			videoPressPlayerPreloadDisabled: false,
+			videoPressInlinePlayerEnabled: false,
 		},
 		isLoading: false,
 	} ),
@@ -136,6 +137,24 @@ describe( 'Settings stage', () => {
 
 		expect( mockMutate ).toHaveBeenCalledWith(
 			{ videoPressPlayerPreloadDisabled: true },
+			expect.objectContaining( { onError: expect.any( Function ) } )
+		);
+	} );
+
+	it( 'enables the inline player when its toggle is switched on', async () => {
+		mockedUseFreeTier.mockReturnValue( freeTierState() );
+
+		render( <Stage /> );
+
+		const toggle = screen.getByLabelText(
+			'Load the player once per page instead of once per video'
+		);
+		expect( toggle ).not.toBeChecked();
+
+		await userEvent.click( toggle );
+
+		expect( mockMutate ).toHaveBeenCalledWith(
+			{ videoPressInlinePlayerEnabled: true },
 			expect.objectContaining( { onError: expect.any( Function ) } )
 		);
 	} );

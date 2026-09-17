@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Revert the unreleased "Store setup" relabel of the WooCommerce menu item; the menu keeps its default "WooCommerce" label.
+

@@ -18,8 +18,10 @@ export type FlattenedTooltipData = {
 };
 
 // Enhanced tooltip with keyboard navigation and accessibility
-interface AccessibleTooltipProps
-	extends Omit< XyChartTooltipProps< DataPointDate >, 'renderTooltip' > {
+interface AccessibleTooltipProps extends Omit<
+	XyChartTooltipProps< DataPointDate >,
+	'renderTooltip'
+> {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	selectedIndex?: number | undefined;
 	tooltipRef?: ( element: HTMLDivElement | null ) => void;

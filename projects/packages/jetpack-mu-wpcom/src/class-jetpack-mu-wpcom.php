@@ -33,6 +33,13 @@ class Jetpack_Mu_Wpcom {
 		'beehive-analytics/beehive-analytics.php',
 		'xspeed/xspeed.php',
 		'classified-listing/classified-listing.php',
+		'advanced-coupons-for-woocommerce-free/advanced-coupons-for-woocommerce-free.php',
+		'advanced-coupons-for-woocommerce/advanced-coupons-for-woocommerce.php',
+		'sb-analytics/sb-analytics-pro.php',
+		'brave-popup-builder/index.php',
+		'bravepopup-pro/index.php',
+		'astra-sites/astra-sites.php',
+		'llms-full-txt-generator/llms-txt-generator.php',
 	);
 
 	/**
@@ -91,10 +98,14 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
+		// At mu-plugin scope, because Comments::is_enabled() is resolved at plugins_loaded on both hosts.
+		add_filter( 'jetpack_comments_new_hotness', array( __CLASS__, 'enable_jetpack_comments_for_sticker' ) );
+
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_jetpack_comments_routes' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			// Registered at mu-plugin scope rather than on plugins_loaded, because
@@ -822,6 +833,38 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Register Jetpack Comments' browser-facing routes ahead of the comment
+	 * experience gates. admin-ajax is is_admin(), and a public-api request runs
+	 * plugins_loaded on the wrong blog, so load_verbum_comments() skips both.
+	 * Runs on every request, blog 1 and P2s included, on purpose: the routes
+	 * gate themselves on the feature filter, as Posts_To_Podcast_Endpoint does.
+	 */
+	public static function load_jetpack_comments_routes() {
+		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
+			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
+		}
+	}
+
+	/**
+	 * Turn on the rebuilt Jetpack Comments form for a Simple or Atomic site
+	 * carrying the rollout sticker.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether it is already on.
+	 * @return bool
+	 */
+	public static function enable_jetpack_comments_for_sticker( $enabled ) {
+		if ( $enabled ) {
+			return true;
+		}
+
+		$blog_id = (int) get_wpcom_blog_id();
+
+		return $blog_id > 0 && wpcom_has_blog_sticker( 'comment-new-hotness', $blog_id );
+	}
+
+	/**
 	 * Load Verbum Comments Settings.
 	 */
 	public static function load_verbum_comments_admin() {
@@ -990,7 +1033,7 @@ class Jetpack_Mu_Wpcom {
 			} elseif ( self::has_react_19_incompatible_extension() ) {
 				$is_enabled = false;
 			} else {
-				$current_segment = 20; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 40; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*

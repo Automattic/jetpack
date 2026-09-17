@@ -44,11 +44,7 @@ export type ConversionMetricKey = 'conversion_rate';
 export type CustomersMetricKey = 'customers';
 
 export type MetricKey =
-	| OrderMetricKey
-	| BookingMetricKey
-	| VisitorsMetricKey
-	| ConversionMetricKey
-	| CustomersMetricKey;
+	OrderMetricKey | BookingMetricKey | VisitorsMetricKey | ConversionMetricKey | CustomersMetricKey;
 
 /*
  * Inferred types

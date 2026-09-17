@@ -173,7 +173,7 @@ function parseFieldlessEmailLinkRows( response: StatsRecord ): StatsEmailBreakdo
 						value: safeParseFloat( row[ 1 ] ),
 						children: null,
 					},
-			  ]
+				]
 			: [];
 	} );
 	const otherInternalLinks = internalLinks.reduce( ( total, row ) => {

@@ -59,9 +59,10 @@ describe( 'EarningsReportPage', () => {
 		render( <EarningsReportPage /> );
 
 		expect( screen.getByRole( 'columnheader', { name: /Ads Served/ } ) ).toBeInTheDocument();
-		expect( screen.getByText( '09-2026' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'September 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( '1,414,489' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Unpaid' ) ).toBeInTheDocument();
+		expect( screen.getByText( /Ads Served is the number of ads/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'surfaces the error and retry instead of stale rows', () => {
@@ -71,6 +72,6 @@ describe( 'EarningsReportPage', () => {
 
 		expect( screen.getByText( 'Unable to load earnings' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
-		expect( screen.queryByText( '09-2026' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'September 2026' ) ).not.toBeInTheDocument();
 	} );
 } );

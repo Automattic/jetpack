@@ -63,7 +63,7 @@ export const useCornerstoneSummary = () => {
 						'jetpack-boost'
 					),
 					cornerstonePages.length
-			  );
+				);
 
 	return sprintf(
 		/* translators: %s is the number of pages in the custom cornerstone pages list. */

@@ -15,8 +15,8 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
+import assetUrl from '../asset-url';
 import { recordMcpTracksEvent } from './tracks';
-import illustrationUrl from './upsell-illustration.svg';
 import './style.scss';
 
 const UPSELL_REF = 'jetpack-ai-mcp-upsell';
@@ -45,6 +45,8 @@ export default function McpUpsell() {
 		} );
 	}, [] );
 
+	const illustrationUrl = assetUrl( 'upsell-illustration.svg' );
+
 	return (
 		<div className="jetpack-ai-mcp__upsell-callout">
 			<div className="jetpack-ai-mcp__upsell-callout-content">
@@ -64,12 +66,14 @@ export default function McpUpsell() {
 					{ __( 'Upgrade plan', 'jetpack' ) }
 				</Button>
 			</div>
-			<img
-				className="jetpack-ai-mcp__upsell-callout-image"
-				src={ illustrationUrl }
-				alt=""
-				role="presentation"
-			/>
+			{ illustrationUrl && (
+				<img
+					className="jetpack-ai-mcp__upsell-callout-image"
+					src={ illustrationUrl }
+					alt=""
+					role="presentation"
+				/>
+			) }
 		</div>
 	);
 }

@@ -75,7 +75,7 @@ const getLegendItemAriaLabel = (
 					_x( '%1$s, %2$s', 'legend item label and value', 'jetpack-charts' ),
 					text,
 					String( value )
-			  )
+				)
 			: text;
 
 	if ( interactive ) {
