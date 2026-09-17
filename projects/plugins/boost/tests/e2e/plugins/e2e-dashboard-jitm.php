@@ -12,16 +12,14 @@ add_filter(
 			return $messages;
 		}
 
-		foreach ( array( 'jetpack_page_jetpack-boost', 'jetpack-boost-dashboard' ) as $screen ) {
-			$messages[] = array(
-				'id'             => 'e2e-boost-dashboard-' . $screen,
-				'message_path'   => '/wp:' . $screen . ':admin_notices/',
-				'message'        => 'Boost dashboard test message',
-				'description'    => 'A message for the Boost dashboard visibility test.',
-				'button_link'    => 'https://example.com/',
-				'button_caption' => 'Learn more',
-			);
-		}
+		$messages[] = array(
+			'id'             => 'e2e-boost-dashboard',
+			'message_path'   => '/wp:jetpack_page_jetpack-boost:admin_notices/',
+			'message'        => 'Boost dashboard test message',
+			'description'    => 'A message for the Boost dashboard visibility test.',
+			'button_link'    => 'https://example.com/',
+			'button_caption' => 'Learn more',
+		);
 
 		return $messages;
 	}
