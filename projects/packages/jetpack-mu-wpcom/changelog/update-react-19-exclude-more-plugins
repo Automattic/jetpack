@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Gutenberg: Skip the React 19 experiment on sites running more plugins known to be incompatible.
+Gutenberg: Enable the React 19 experiment on 40% of Atomic sites, and skip more incompatible plugins.
