@@ -95,7 +95,7 @@ export class Traffic extends Component {
 						: __(
 								'Maximize your site’s visibility in search engines and view traffic patterns in real time.',
 								'jetpack'
-						  ) }
+							) }
 				</h2>
 				{ foundRelated && <RelatedPosts { ...commonProps } /> }
 				{ ! seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (

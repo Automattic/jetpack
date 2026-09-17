@@ -41,7 +41,7 @@ class PayPal_Admin_Page {
 	/**
 	 * Most published posts scanned for embedded payment links.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @var int
 	 */
@@ -53,7 +53,7 @@ class PayPal_Admin_Page {
 	 * Deleting a link orphans every published block embedding it, so the
 	 * warning has to be at least as strong as the one the block itself shows.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param int $embed_count Published posts embedding the link, when known.
 	 * @return string Plain text; escape it for wherever it goes.
@@ -85,7 +85,7 @@ class PayPal_Admin_Page {
 	 * link. It is capped, so on a site with more block posts than the cap the
 	 * counts are a lower bound.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param int $exclude_post_id A post to leave out, such as the one being saved.
 	 * @return array<string,int> Post counts keyed by resource id.
@@ -115,7 +115,7 @@ class PayPal_Admin_Page {
 	 * Capped the same way as count_published_embeds(), so on a site with more
 	 * block posts than the cap this is a subset.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $resource_id PayPal resource ID.
 	 * @return \WP_Post[]
@@ -159,7 +159,7 @@ class PayPal_Admin_Page {
 	 * Those blocks render nothing until the post is updated, which creates a new
 	 * link, or the block is removed.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $resource_id The deleted PayPal resource ID.
 	 * @return array{type: string, message: string, links: array<int, array{url: string, label: string}>}
@@ -198,7 +198,7 @@ class PayPal_Admin_Page {
 	/**
 	 * Initialize admin hooks when the API-managed buttons are enabled.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @return void
 	 */
 	public static function maybe_init() {
@@ -626,7 +626,7 @@ class PayPal_Admin_Page {
 	 * disabled until the acknowledgement box is ticked. The warning paragraph is
 	 * filled from the clicked link's data-confirm attribute.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 */
 	private static function render_delete_dialog() {
 		echo '<dialog id="paypal-delete-dialog" class="paypal-delete-dialog" aria-labelledby="paypal-delete-dialog-title">';

@@ -240,7 +240,7 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 									// translators: %d: percentage value (without the % sign).
 									__( '%d%%', 'jetpack-newsletter' ),
 									openRate
-							  )
+								)
 					}
 				/>
 				<StatCard
@@ -252,7 +252,7 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 									// translators: %d: percentage value (without the % sign).
 									__( '%d%%', 'jetpack-newsletter' ),
 									clickRate
-							  )
+								)
 					}
 				/>
 			</Stack>

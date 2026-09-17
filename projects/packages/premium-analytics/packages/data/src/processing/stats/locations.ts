@@ -81,7 +81,7 @@ export function sanitizeStatsLocationsResponse(
 						query,
 						mapItems( summaryViews.items )
 					),
-			  ]
+				]
 			: [];
 
 	return {
@@ -94,7 +94,7 @@ export function sanitizeStatsLocationsResponse(
 						query?.period ?? getStatsResponsePeriod( response ),
 						mapItems( coerceStatsArray( bucket.views ) )
 					)
-			  ),
+				),
 	};
 }
 

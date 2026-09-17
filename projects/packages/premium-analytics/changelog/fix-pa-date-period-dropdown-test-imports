@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Speed up the date period dropdown tests and give them timeout headroom on slow CI runners.
+
+

@@ -90,7 +90,7 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 							? __(
 									'Unlock scheduling, custom images, and more with a paid plan.',
 									'jetpack-publicize-pkg'
-							  )
+								)
 							: __( 'Unlock the full power of Jetpack Social.', 'jetpack-publicize-pkg' ) }
 					</p>
 					{ monthlyPrice != null && (
@@ -108,7 +108,7 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 									? __(
 											'per month for the first year, then billed yearly',
 											'jetpack-publicize-pkg'
-									  )
+										)
 									: __( 'per month, billed yearly', 'jetpack-publicize-pkg' ) }
 							</span>
 						</div>
@@ -150,7 +150,7 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 										'Start for free',
 										'Pricing page CTA for Social admin page',
 										'jetpack-publicize-pkg'
-								  ) }
+									) }
 						</Button>
 					</Stack>
 				</Card.Content>

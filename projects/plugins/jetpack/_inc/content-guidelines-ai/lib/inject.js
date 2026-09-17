@@ -175,7 +175,7 @@ function runAll() {
 				? {
 						parent: row,
 						className: 'jetpack-content-guidelines-ai__header-container',
-				  }
+					}
 				: null;
 		},
 		SuggestAllButton
@@ -199,7 +199,7 @@ function runAll() {
 						parent: subtitle,
 						className: 'jetpack-content-guidelines-ai__read-more-container',
 						tag: 'span',
-				  }
+					}
 				: null;
 		},
 		ReadMoreLink
@@ -215,7 +215,7 @@ function runAll() {
 						parent: list.parentElement,
 						before: list,
 						className: 'jetpack-content-guidelines-ai__upgrade-notice-container',
-				  }
+					}
 				: null;
 		},
 		UpgradeNotice
@@ -231,7 +231,7 @@ function runAll() {
 						parent: list.parentElement,
 						before: list,
 						className: 'jetpack-content-guidelines-ai__banner-container',
-				  }
+					}
 				: null;
 		},
 		WelcomeBanner
@@ -282,7 +282,7 @@ function runAll() {
 							before: chevron,
 							className: 'jetpack-content-guidelines-ai__badge-container',
 							tag: 'span',
-					  }
+						}
 					: null;
 			},
 			SuggestionBadge,
@@ -299,7 +299,7 @@ function runAll() {
 							parent: vStack,
 							before: vStack.firstChild,
 							className: 'jetpack-content-guidelines-ai__actions-container',
-					  }
+						}
 					: null;
 			},
 			SuggestionActions,
@@ -317,7 +317,7 @@ function runAll() {
 					? {
 							parent: hStack,
 							className: 'jetpack-content-guidelines-ai__section-button-container',
-					  }
+						}
 					: null;
 			},
 			SectionGenerateButton,
@@ -361,7 +361,7 @@ function runAll() {
 						parent: field,
 						before: textareaInput,
 						className: 'jetpack-content-guidelines-ai__block-actions-container',
-				  }
+					}
 				: null;
 		},
 		BlockSuggestionActions,
@@ -381,7 +381,7 @@ function runAll() {
 						parent: vStack,
 						before: actionsBar,
 						className: 'jetpack-content-guidelines-ai__block-suggestion-buttons-container',
-				  }
+					}
 				: null;
 		},
 		BlockSuggestionButtons,

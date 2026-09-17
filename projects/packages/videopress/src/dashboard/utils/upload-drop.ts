@@ -55,9 +55,7 @@ export type DropPlanFreeTier = Pick<
 // (translated) notice and/or kicks off uploads; keeping i18n out of here
 // makes the branching logic unit-testable without asserting on copy.
 export type DropDecision =
-	| { kind: 'no-videos' }
-	| { kind: 'at-limit' }
-	| { kind: 'ok'; toUpload: File[]; skipped: number };
+	{ kind: 'no-videos' } | { kind: 'at-limit' } | { kind: 'ok'; toUpload: File[]; skipped: number };
 
 /**
  * Filter a dropped file set down to the video types the VideoPress backend
