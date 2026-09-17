@@ -55,20 +55,15 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
 
-		// Atomic only. Simple sites can't install plugins, and already report every module active.
+		// Atomic only — Simple sites can't install plugins. The confirmation
+		// probe wires its `pre_option_active_plugins` filter at mu-plugin
+		// time, before WP loads active plugins.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
-			/*
-			 * The confirmation probe wires its `pre_option_active_plugins` filter at
-			 * mu-plugin time, before WP loads active plugins.
-			 */
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
 
-			/*
-			 * `jetpack_active_modules` is read well before plugins_loaded, so the Activity
-			 * Log pin is wired here rather than from load_features().
-			 */
+			// Simple sites need no equivalent: `Modules::is_active()` already answers true there.
 			require_once __DIR__ . '/features/wpcom-activity-log/wpcom-activity-log.php';
-			add_filter( 'jetpack_active_modules', 'wpcom_pin_activity_log_module' );
+			wpcom_activity_log_init();
 		}
 
 		/*

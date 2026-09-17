@@ -1557,7 +1557,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "a7c1861360b1c879ad74e68e9eb4d528e9964815"
+                "reference": "f2a1a42da1034c6f4b0b80a3c2c6c0b5b440f099"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1588,6 +1588,7 @@
                 "symfony/filesystem": "^6.0.0"
             },
             "require-dev": {
+                "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",

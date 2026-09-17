@@ -6,21 +6,25 @@
  */
 
 /**
- * Keeps the Activity Log module switched on.
+ * Registers the WordPress.com view of the Activity Log product.
  *
- * WordPress.com provides the Activity Log as part of the hosting and links to it from the
- * Jetpack menu, so My Jetpack should report the feature as active however the site's own
- * `jetpack_active_modules` option reads. Simple sites need no pin, because
- * `Modules::is_active()` already answers true for them.
+ * @return void
+ */
+function wpcom_activity_log_init() {
+	add_filter( 'my_jetpack_products_classes', 'wpcom_activity_log_product_class' );
+}
+
+/**
+ * Points My Jetpack's Activity Log card at the WordPress.com product class.
  *
- * Runs last in `Modules::get_active()`, after the intersection with the available modules,
- * so the slug survives on a site with no Jetpack plugin.
+ * Named as a string rather than with `::class` so nothing loads the subclass before My
+ * Jetpack, which owns its parent, has resolved this filter.
  *
- * @param array $modules Active module slugs.
+ * @param array $classes Product classes, keyed by product slug.
  * @return array
  */
-function wpcom_pin_activity_log_module( $modules ) {
-	$modules[] = 'activity-log';
+function wpcom_activity_log_product_class( $classes ) {
+	$classes['activity-log'] = 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\Wpcom_Activity_Log';
 
-	return array_values( array_unique( $modules ) );
+	return $classes;
 }

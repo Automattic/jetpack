@@ -468,23 +468,18 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	/*
-	 * Jetpack > Activity Log. We link straight to Calypso and hide the native page the
-	 * `jetpack-activity-log` package adds, but only while the module is on, so switching it
-	 * off removes the entry here the way it does on every other host.
-	 */
-	if ( ( new Modules() )->is_active( 'activity-log' ) ) {
-		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
-		add_submenu_page(
-			'jetpack',
-			/** "Activity Log" is a product name, do not translate. */
-			'Activity Log',
-			'Activity Log',
-			'manage_options',
-			'https://wordpress.com/activity-log/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
-	}
+	// Jetpack > Activity Log. On WPCOM hosts we prefer the direct wordpress.com/activity-log link
+	// below; hide the native Jetpack Activity Log page added by the `jetpack-activity-log` package.
+	wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
+	add_submenu_page(
+		'jetpack',
+		/** "Activity Log" is a product name, do not translate. */
+		'Activity Log',
+		'Activity Log',
+		'manage_options',
+		'https://wordpress.com/activity-log/' . $domain,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
 
 	wpcom_reorder_submenu(
 		'jetpack',
