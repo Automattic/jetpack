@@ -5,7 +5,8 @@
 
 .jetpack-boost-overview {
 	--jetpack-boost-score-good: var(--wpds-color-foreground-content-success-weak);
-	--jetpack-boost-score-medium: var(--wpds-color-foreground-content-warning-weak);
+	// Marks only: under 3:1 on white, so medium tier text keeps warning-weak.
+	--jetpack-boost-score-medium: var(--jp-orange-20);
 	--jetpack-boost-score-poor: var(--wpds-color-foreground-content-error-weak);
 	--jetpack-boost-history-empty: var(--wpds-color-stroke-surface-neutral);
 	--jetpack-boost-history-axis: var(--wpds-color-foreground-content-neutral-weak);
@@ -162,7 +163,7 @@
 }
 
 .jetpack-boost-overview__progress--medium {
-	--wp-components-color-foreground: var(--jp-orange-20);
+	--wp-components-color-foreground: var(--jetpack-boost-score-medium);
 }
 
 .jetpack-boost-overview__tier--medium {
