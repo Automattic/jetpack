@@ -22,8 +22,8 @@ export const LOCATION_CHANGE_EVENT = 'jetpack-boost:location-change';
 export const LOCATION_EVENTS = [ 'hashchange', 'popstate', LOCATION_CHANGE_EVENT ];
 
 /**
- * The webpack app's `getting_started` value, as a boolean `detail`; the chassis mirrors it.
- * Sent after each read or write once any Getting Started save settles; no replay, so listen before the webpack app renders.
+ * The webpack app's settled `getting_started` value as a boolean `detail`, sent after each read or write and deferred while a tagged Getting Started save is pending.
+ * No replay, and `jetpack_boost_ds` holds only the page-load value, so a listener must subscribe at page load and seed from that value; repeats are normal.
  */
 export const ONBOARDING_CHANGE_EVENT = 'jetpack-boost:onboarding-change';
 
