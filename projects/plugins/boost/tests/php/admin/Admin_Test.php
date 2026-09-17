@@ -26,6 +26,9 @@ if ( ! defined( 'JETPACK_BOOST_SLUG' ) ) {
  * the submenu label, and that the modern dashboard loads only behind its filter.
  */
 class Admin_Test extends Base_TestCase {
+	// Differs from Boost's usual screen ID, so restoring a hard-coded ID fails the tests.
+	const SCREEN_ID = 'toplevel_page_jetpack-boost';
+
 	private $original_get;
 	private $original_menu_items;
 	private $localized      = array();
@@ -219,7 +222,7 @@ class Admin_Test extends Base_TestCase {
 	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
 		$this->run_modern_admin_enqueue_scripts(
 			function () {
-				$this->assertSame( 'jetpack_page_jetpack-boost', get_current_screen()->id );
+				$this->assertSame( self::SCREEN_ID, get_current_screen()->id );
 			}
 		);
 	}
@@ -242,7 +245,7 @@ class Admin_Test extends Base_TestCase {
 
 				do_action( 'admin_notices' );
 
-				$this->assertSame( 'wp:jetpack_page_jetpack-boost:admin_notices', $path );
+				$this->assertSame( 'wp:' . self::SCREEN_ID . ':admin_notices', $path );
 			}
 		);
 	}
@@ -533,7 +536,7 @@ class Admin_Test extends Base_TestCase {
 		try {
 			$this->enable_modern_dashboard();
 			\Patchwork\redefine( WP_Build_Polyfills::class . '::register', \Patchwork\always( null ) );
-			Functions\when( 'get_current_screen' )->justReturn( (object) array( 'id' => 'jetpack_page_jetpack-boost' ) );
+			Functions\when( 'get_current_screen' )->justReturn( (object) array( 'id' => self::SCREEN_ID ) );
 			$registered = array();
 			\Brain\Monkey\Actions\expectAdded( 'admin_enqueue_scripts' )->zeroOrMoreTimes()->whenHappen(
 				function ( $callback ) use ( &$registered ) {

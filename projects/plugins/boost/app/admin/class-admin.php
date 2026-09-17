@@ -138,8 +138,7 @@ class Admin {
 			return false;
 		}
 
-		// Hooked on either side of the require, so the alias holds only for the generated
-		// enqueue check it registers at the same priority.
+		// Hooked around the require, so only the generated enqueue callback, with its init action and REST preloading, sees the alias.
 		add_action( 'admin_enqueue_scripts', array( $this, 'alias_screen_id_for_wp_build' ) );
 		require_once $build_file;
 		add_action( 'admin_enqueue_scripts', array( $this, 'restore_screen_id_after_wp_build' ) );
@@ -156,6 +155,8 @@ class Admin {
 
 	/**
 	 * Match wp-build's enqueue screen without changing the Boost menu URL.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function alias_screen_id_for_wp_build() {
 		$screen = get_current_screen();
@@ -169,6 +170,8 @@ class Admin {
 
 	/**
 	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function restore_screen_id_after_wp_build() {
 		$screen = get_current_screen();
