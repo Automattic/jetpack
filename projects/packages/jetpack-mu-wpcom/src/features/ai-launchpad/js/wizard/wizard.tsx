@@ -1,8 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Modal, Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Button, Dialog, Stack } from '@wordpress/ui';
 import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
 import {
 	setTracksContext,
@@ -154,67 +153,59 @@ export function Wizard( {
 	};
 
 	return (
-		<Modal
-			title=""
-			onRequestClose={ () => undefined }
-			className="ai-launchpad-wizard"
-			shouldCloseOnClickOutside={ false }
-			__experimentalHideHeader
-			size="medium"
-		>
-			<div className="ai-launchpad-wizard__progress" aria-hidden="true">
-				<div
-					className="ai-launchpad-wizard__progress-bar"
-					style={ { width: `${ ( ( step + 1 ) / TOTAL_STEPS ) * 100 }%` } }
-				/>
-			</div>
+		// The wizard cannot be dismissed: Escape and backdrop clicks are ignored, and
+		// "Skip" is the only way out.
+		<Dialog.Root open onOpenChange={ () => undefined } disablePointerDismissal>
+			<Dialog.Popup size="medium" className="ai-launchpad-wizard">
+				<Dialog.Content>
+					<div className="ai-launchpad-wizard__progress" aria-hidden="true">
+						<div
+							className="ai-launchpad-wizard__progress-bar"
+							style={ { width: `${ ( ( step + 1 ) / TOTAL_STEPS ) * 100 }%` } }
+						/>
+					</div>
 
-			{ step === 0 && (
-				<GoalsStep
-					value={ goal }
-					onChange={ nextGoal => {
-						trackWizardGoalClicked( { goal_clicked: nextGoal } );
-						setGoal( nextGoal );
-					} }
-				/>
-			) }
-			{ step === 1 && (
-				<DetailsStep
-					goal={ goal }
-					siteName={ siteName }
-					intent={ intent }
-					onSiteNameChange={ setSiteName }
-					onIntentChange={ setIntent }
-				/>
-			) }
-
-			<Stack
-				render={ <footer /> }
-				align="center"
-				justify="space-between"
-				gap="md"
-				className="ai-launchpad-wizard__footer"
-			>
-				<Button variant="link" onClick={ handleSkip } disabled={ skipping }>
-					{ __( 'Skip', 'jetpack-mu-wpcom' ) }
-				</Button>
-				<Stack gap="sm">
-					{ step > 0 && (
-						<Button variant="secondary" onClick={ handleBack } disabled={ skipping }>
-							{ __( 'Back', 'jetpack-mu-wpcom' ) }
-						</Button>
+					{ step === 0 && (
+						<GoalsStep
+							value={ goal }
+							onChange={ nextGoal => {
+								trackWizardGoalClicked( { goal_clicked: nextGoal } );
+								setGoal( nextGoal );
+							} }
+						/>
 					) }
-					<Button
-						variant="primary"
-						onClick={ handleNext }
-						disabled={ skipping || ! canContinue( step, state ) }
-					>
-						{ isLastStep( step )
-							? __( 'Finish', 'jetpack-mu-wpcom' )
-							: __( 'Continue', 'jetpack-mu-wpcom' ) }
+					{ step === 1 && (
+						<DetailsStep
+							goal={ goal }
+							siteName={ siteName }
+							intent={ intent }
+							onSiteNameChange={ setSiteName }
+							onIntentChange={ setIntent }
+						/>
+					) }
+				</Dialog.Content>
+				<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
+					<Button variant="minimal" onClick={ handleSkip } disabled={ skipping }>
+						{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 					</Button>
+					<Stack gap="sm">
+						{ step > 0 && (
+							<Button variant="outline" onClick={ handleBack } disabled={ skipping }>
+								{ __( 'Back', 'jetpack-mu-wpcom' ) }
+							</Button>
+						) }
+						<Button
+							variant="solid"
+							onClick={ handleNext }
+							disabled={ skipping || ! canContinue( step, state ) }
+						>
+							{ isLastStep( step )
+								? __( 'Finish', 'jetpack-mu-wpcom' )
+								: __( 'Continue', 'jetpack-mu-wpcom' ) }
+						</Button>
+					</Stack>
 				</Stack>
-			</Stack>
-		</Modal>
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 }

@@ -1,7 +1,6 @@
-import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { pencil, tool, store, envelope, people, gallery } from '@wordpress/icons';
-import { Stack, Text } from '@wordpress/ui';
+import { Dialog, Icon, Stack, Text } from '@wordpress/ui';
 import type { GoalSlug } from '../lib/types.ts';
 
 interface GoalOption {
@@ -77,9 +76,7 @@ export default function GoalsStep( { value, onChange }: Props ) {
 	return (
 		<Stack direction="column" gap="lg">
 			<Stack direction="column" gap="xs">
-				<Text variant="heading-xl" render={ <h2 /> }>
-					{ __( "What's your main goal?", 'jetpack-mu-wpcom' ) }
-				</Text>
+				<Dialog.Title>{ __( "What's your main goal?", 'jetpack-mu-wpcom' ) }</Dialog.Title>
 				<Text render={ <p /> } className="ai-launchpad-wizard__step-subtitle">
 					{ __( "We'll tailor your next steps to help you launch.", 'jetpack-mu-wpcom' ) }
 				</Text>

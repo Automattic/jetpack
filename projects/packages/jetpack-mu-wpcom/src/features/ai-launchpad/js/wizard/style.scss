@@ -1,15 +1,6 @@
-.ai-launchpad-wizard.components-modal__frame {
-	max-width: 640px;
-	width: 100%;
-}
-
+// Wider than the Dialog's medium size so the goal cards fit two abreast.
 .ai-launchpad-wizard {
-
-	.components-modal__content {
-		padding:
-			var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-3xl)
-			var(--wpds-dimension-padding-2xl);
-	}
+	max-width: 640px;
 }
 
 .ai-launchpad-wizard__step-subtitle {
@@ -89,8 +80,4 @@
 	@media ( max-width: 600px ) {
 		text-wrap: pretty;
 	}
-}
-
-.ai-launchpad-wizard__footer {
-	margin-block-start: var(--wpds-dimension-gap-xl);
 }

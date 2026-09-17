@@ -1,7 +1,6 @@
-import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { border, drafts, lock, published } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Icon, Stack, Text } from '@wordpress/ui';
 import { ctaKind, type CtaKind, type EnrichedTask } from './model.ts';
 
 interface Props {

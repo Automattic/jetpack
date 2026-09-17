@@ -1,6 +1,5 @@
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { LinkButton, Stack, Text } from '@wordpress/ui';
+import { Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import type { ReactNode } from 'react';
 
 interface Props {
@@ -71,9 +70,9 @@ export function SitePreview( { siteUrl, siteTitle, siteEditUrl }: Props ) {
 				<Text variant="heading-lg" render={ <p /> }>
 					{ siteTitle || domain }
 				</Text>
-				<ExternalLink className="ai-launchpad-tailored-list__preview-link" href={ siteUrl }>
+				<Link className="ai-launchpad-tailored-list__preview-link" href={ siteUrl } openInNewTab>
 					{ domain }
-				</ExternalLink>
+				</Link>
 			</Stack>
 		</Stack>
 	);

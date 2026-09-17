@@ -1,7 +1,6 @@
-import { TextControl, TextareaControl } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Dialog, InputControl, Stack, TextareaControl } from '@wordpress/ui';
 import { pickPlaceholder } from './lib.ts';
 import type { GoalSlug } from '../lib/types.ts';
 
@@ -105,24 +104,19 @@ export default function DetailsStep( {
 
 	return (
 		<Stack direction="column" gap="lg">
-			<Text variant="heading-xl" render={ <h2 /> }>
-				{ __( 'Tell us about your site', 'jetpack-mu-wpcom' ) }
-			</Text>
+			<Dialog.Title>{ __( 'Tell us about your site', 'jetpack-mu-wpcom' ) }</Dialog.Title>
 
-			<TextControl
-				__nextHasNoMarginBottom
-				__next40pxDefaultSize
+			<InputControl
 				label={ __( 'Site name', 'jetpack-mu-wpcom' ) }
 				value={ siteName }
-				onChange={ onSiteNameChange }
+				onValueChange={ onSiteNameChange }
 			/>
 
 			<TextareaControl
-				__nextHasNoMarginBottom
 				label={ __( 'Brief description', 'jetpack-mu-wpcom' ) }
 				placeholder={ intentPlaceholder }
 				value={ intent }
-				onChange={ onIntentChange }
+				onValueChange={ onIntentChange }
 				rows={ 4 }
 			/>
 		</Stack>
