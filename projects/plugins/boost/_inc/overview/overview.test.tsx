@@ -700,6 +700,7 @@ test.each( [
 	},
 	{ scoresAt: 1, copy: 'No scores recorded for this day.' },
 	{ scoresAt: 3, copy: 'No scores recorded for this day.' },
+	{ scoresAt: 6, copy: 'No scores recorded for this day.' },
 ] )(
 	'checks six older windows in one request when history opens empty (scores in window $scoresAt)',
 	async ( { scoresAt, copy } ) => {
@@ -763,6 +764,7 @@ test.each( [
 						JSON: expect.objectContaining( {
 							startDate: getHistoryWindow( 6 ).startDate,
 							endDate: getHistoryWindow( 1 ).endDate,
+							olderWindows: Array.from( { length: 6 }, ( _, index ) => getHistoryWindow( index + 1 ) ),
 						} ),
 					},
 				} )
@@ -1072,6 +1074,9 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 	};
 	try {
 		await expectWindow( 0, 30 );
+		expect(
+			jest.mocked( apiFetch ).mock.calls.some( ( [ options ] ) => options.data?.JSON?.olderWindows )
+		).toBe( false );
 		expect( useViewportMatch ).toHaveBeenCalledWith( 'small', '<' );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Previous 30 days' } ) );
 		await expect( screen.findByText( 'Previous window unavailable' ) ).resolves.toBeInTheDocument();

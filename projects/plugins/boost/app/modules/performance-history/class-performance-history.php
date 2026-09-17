@@ -49,6 +49,14 @@ class Performance_History implements Feature, Is_Always_On, Has_Data_Sync {
 				'startDate'     => Schema::as_number(),
 				'endDate'       => Schema::as_number(),
 				'surfaceErrors' => Schema::as_boolean()->nullable(),
+				'olderWindows'  => Schema::as_array(
+					Schema::as_assoc_array(
+						array(
+							'startDate' => Schema::as_number(),
+							'endDate'   => Schema::as_number(),
+						)
+					)
+				)->nullable(),
 			)
 		);
 

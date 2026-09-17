@@ -11,6 +11,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	private $start_date;
 	private $end_date;
 	private $surface_errors = false;
+	private $older_windows  = array();
 
 	public function __construct() {
 		// Default to the last 30 days
@@ -19,6 +20,10 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	}
 
 	public function get( $_fallback = false ) {
+		if ( $this->older_windows ) {
+			return $this->get_older_history();
+		}
+
 		$request = new Speed_Score_Graph_History_Request( $this->start_date, $this->end_date, array() );
 		$result  = $request->execute();
 
@@ -53,9 +58,57 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		);
 	}
 
+	private function get_older_history() {
+		$cache_key = 'jetpack_boost_older_history_' . md5( wp_json_encode( $this->older_windows ) );
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$history = array(
+			'startDate'   => $this->start_date,
+			'endDate'     => $this->end_date,
+			'periods'     => array(),
+			'annotations' => array(),
+		);
+		foreach ( $this->older_windows as $window ) {
+			$request = new Speed_Score_Graph_History_Request( $window['startDate'], $window['endDate'], array() );
+			$result  = $request->execute();
+			if ( is_wp_error( $result ) ) {
+				throw new \RuntimeException( $result->get_error_message() );
+			}
+			if ( ! isset( $result['data'] ) || ! is_array( $result['data'] ) || ( array() !== $result['data'] && ! isset( $result['data']['periods'] ) ) ) {
+				throw new \RuntimeException( 'Invalid performance history response.' );
+			}
+			$periods = $result['data']['periods'] ?? array();
+			if ( ! is_array( $periods ) ) {
+				throw new \RuntimeException( 'Invalid performance history periods.' );
+			}
+			foreach ( $periods as $period ) {
+				if ( ! isset( $period['timestamp'] ) || ! is_numeric( $period['timestamp'] ) ) {
+					throw new \RuntimeException( 'Invalid performance history timestamp.' );
+				}
+				if ( $period['timestamp'] >= $window['startDate'] && $period['timestamp'] <= $window['endDate'] ) {
+					$history['periods'][] = $period;
+				}
+			}
+			if ( $history['periods'] ) {
+				break;
+			}
+		}
+
+		// Cache only this exact walk; capped responses cannot establish a global earliest score.
+		set_transient( $cache_key, $history, 12 * 60 * 60 );
+		return $history;
+	}
+
 	public function set( $value ) {
 		$this->start_date     = $value['startDate'];
 		$this->end_date       = $value['endDate'];
 		$this->surface_errors = true === ( $value['surfaceErrors'] ?? false );
+		$this->older_windows  = $value['olderWindows'] ?? array();
+		if ( count( $this->older_windows ) > 6 ) {
+			throw new \InvalidArgumentException( 'At most six older history windows are supported.' );
+		}
 	}
 }

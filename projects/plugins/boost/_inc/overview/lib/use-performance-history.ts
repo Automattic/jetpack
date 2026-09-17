@@ -38,7 +38,7 @@ export function usePerformanceHistory( enabled = true, window = getHistoryWindow
 }
 
 /**
- * Check the combined older range without populating individual page caches.
+ * Check older windows in one server request without populating page caches.
  *
  * @param enabled - Whether to request history.
  * @param windows - Older windows, nearest first.
@@ -55,8 +55,18 @@ export function useHasOlderHistory( enabled: boolean, windows: HistoryWindow[] )
 				startDate: Math.min( ...windows.map( window => window.startDate ) ),
 				endDate: Math.max( ...windows.map( window => window.endDate ) ),
 			};
-			const data = await historyQuery( range ).queryFn();
-			return bucketHistoryDays( data?.periods ?? [], range ).some( day => day.period );
+			const data = parsePerformanceHistory(
+				await requestDataSync( 'performance_history', {
+					...range,
+					periods: [],
+					annotations: [],
+					surfaceErrors: true,
+					olderWindows: windows,
+				} )
+			);
+			return windows.some( window =>
+				bucketHistoryDays( data?.periods ?? [], window ).some( day => day.period )
+			);
 		},
 		enabled: enabled && isSiteOnline(),
 		staleTime: historyStaleTime,

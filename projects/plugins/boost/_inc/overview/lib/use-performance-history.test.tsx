@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
+import type { HistoryWindow } from './history-days';
 import {
 	parsePerformanceHistory,
 	useDismissibleAlertState,
@@ -273,6 +274,7 @@ it( 'checks six empty older windows with one request', async () => {
 				JSON: {
 					startDate: windows[ 5 ].startDate,
 					endDate: windows[ 0 ].endDate,
+					olderWindows: windows,
 					periods: [],
 					annotations: [],
 					surfaceErrors: true,
@@ -280,6 +282,38 @@ it( 'checks six empty older windows with one request', async () => {
 			},
 		} )
 	);
+} );
+
+it( 'finds an oldest-window score hidden by the combined upstream record cap', async () => {
+	const windows = Array.from( { length: 6 }, ( _, index ) => ( {
+		startDate: history.startDate - ( index + 1 ) * 30 * 86400000,
+		endDate: history.startDate - index * 30 * 86400000 - 1,
+	} ) );
+	const oldest = { ...history.periods[ 0 ], timestamp: windows[ 5 ].startDate };
+	fetchMock.mockImplementation( async options => {
+		const request = options.data.JSON;
+		// Model the service's cap before invalid-score filtering for each requested window.
+		const records = [
+			...Array.from( { length: 100 }, () => ( {
+				timestamp: windows[ 0 ].startDate,
+				valid: false,
+			} ) ),
+			{ timestamp: oldest.timestamp, valid: true },
+		];
+		const periods = ( request.olderWindows ?? [ request ] ).flatMap( ( window: HistoryWindow ) =>
+			records
+				.filter(
+					record => record.timestamp >= window.startDate && record.timestamp <= window.endDate
+				)
+				.slice( 0, 100 )
+				.filter( record => record.valid )
+				.map( () => oldest )
+		);
+		return { status: 'success', JSON: { ...request, periods } };
+	} );
+	const { result } = renderHook( () => useHasOlderHistory( true, windows ), { wrapper } );
+	await waitFor( () => expect( result.current.data ).toBe( true ) );
+	expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 } );
 
 it( 'keeps page requests independent of the older-history existence check', async () => {

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Boost: Reduce requests when checking for older performance history.
+Performance history: Cache older history checks on the server and reduce dashboard requests while preserving older scores.
