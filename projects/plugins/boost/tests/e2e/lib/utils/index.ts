@@ -36,9 +36,9 @@ class BoostUtils extends TestUtils {
 	unMockConnection: typeof unMockConnection = unMockConnection;
 	resetEnvironment: typeof resetEnvironment = resetEnvironment;
 	setDashboardModernization: typeof setDashboardModernization = setDashboardModernization;
+	resetDashboardModernization: typeof resetDashboardModernization = resetDashboardModernization;
 	setDashboardJitm: typeof setDashboardJitm = setDashboardJitm;
 	resetDashboardJitm: typeof resetDashboardJitm = resetDashboardJitm;
-	resetDashboardModernization: typeof resetDashboardModernization = resetDashboardModernization;
 }
 
 export { BoostUtils };
