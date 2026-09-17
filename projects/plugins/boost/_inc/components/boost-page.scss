@@ -14,6 +14,20 @@ body:has(.jetpack-boost-page) {
 		padding: var(--wpds-dimension-padding-2xl);
 	}
 
+	.jetpack-boost-page__notices {
+		max-inline-size: var(--wpds-dimension-surface-width-xl);
+		margin-inline: auto;
+		margin-block-end: var(--wpds-dimension-gap-xl);
+
+		&:empty {
+			display: none;
+		}
+
+		.jitm-card {
+			margin: 0;
+		}
+	}
+
 	// Hide the admin-ui page header while a full-page subpage is visible.
 	.jetpack-boost-page--subpage .jp-admin-page__page > :is([class$="__header"], [class*="__header "]) {
 		display: none;
