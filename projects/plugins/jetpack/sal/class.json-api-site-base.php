@@ -1580,6 +1580,25 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether the site is still on the pre-2026 feature gating.
+	 *
+	 * @return bool
+	 */
+	public function is_legacy_gating_site() {
+		if ( ! method_exists( 'WPCOM_Features', 'is_legacy_gating_site' ) ) {
+			return false;
+		}
+
+		// The predicate compares against the WordPress.com blog ID, which on Atomic lives in
+		// jetpack_options rather than in $blog_id -- the same resolution WPCOM_Features does itself.
+		$blog_id = function_exists( '_wpcom_get_current_blog_id' )
+			? _wpcom_get_current_blog_id()
+			: get_current_blog_id();
+
+		return (bool) WPCOM_Features::is_legacy_gating_site( $blog_id );
+	}
+
+	/**
 	 * Get the option of site intent which value is coming from the Hero Flow
 	 *
 	 * @return string
