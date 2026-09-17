@@ -19,6 +19,6 @@
 		"@wordpress/html-entities": "4.55.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/url": "4.55.0",
-		"date-fns": "4.1.0"
+		"date-fns": "4.4.0"
 	}
 }

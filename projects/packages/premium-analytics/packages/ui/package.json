@@ -32,6 +32,6 @@
 		"@testing-library/react": "16.3.3",
 		"@testing-library/user-event": "14.6.7",
 		"@wordpress/date": "5.55.0",
-		"date-fns": "4.1.0"
+		"date-fns": "4.4.0"
 	}
 }
