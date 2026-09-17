@@ -562,8 +562,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 3, 2, 0 ),
 			'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 3, 1, 1 ),
 			'default-wordads-earnings-history-widget-instance' => array( 'jpa/wordads-earnings-history', 1, 2, 2 ),
-			'default-wordads-sponsored-content-history-widget-instance' => array( 'jpa/wordads-sponsored-content-history', 1, 2, 3 ),
-			'default-wordads-adjustments-history-widget-instance' => array( 'jpa/wordads-adjustments-history', 1, 2, 4 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );

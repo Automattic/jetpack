@@ -169,7 +169,6 @@ export {
 	type UseReportCsvExportResult,
 	WidgetDataTable,
 	type WidgetDataTableProps,
-	EARNINGS_HISTORY_VIEW,
 	EarningsHistoryList,
 	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
