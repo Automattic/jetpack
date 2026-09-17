@@ -61,4 +61,6 @@ export type BaseLegendItem = {
 	 * the interactive legend to toggle a whole group's visibility from one item.
 	 */
 	seriesLabels?: string[];
+	/** Set to false to keep this item static inside an interactive legend. */
+	interactive?: boolean;
 };

@@ -1,4 +1,5 @@
 import { formatNumber } from '@automattic/number-formatters';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import {
 	useGlobalChartsContext,
@@ -30,6 +31,11 @@ export interface ChartLegendOptions {
 	 * primary series. Off by default, so every series gets its own item.
 	 */
 	collapseGroups?: boolean;
+	/**
+	 * Append a static item explaining the comparison overlay whenever a series has
+	 * `options.type === 'comparison'`. Pass a string to replace the default label.
+	 */
+	comparisonItem?: boolean | string;
 }
 
 /**
@@ -235,6 +241,35 @@ function processSeriesData(
 }
 
 /**
+ * Builds the static item that names the comparison overlay, styled like its first series.
+ * @param seriesData       - The series data to search for a comparison series
+ * @param label            - The item label
+ * @param getElementStyles - Function to get element styles
+ * @param legendShape      - The shape type for legend items (string literal or React component)
+ * @return The legend item, or null when no series is a comparison
+ */
+function buildComparisonLegendItem(
+	seriesData: SeriesData[],
+	label: string,
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
+	legendShape?: LegendShape< SeriesData[], number >
+): BaseLegendItem | null {
+	const index = seriesData.findIndex( series => series.options?.type === 'comparison' );
+
+	if ( index === -1 ) {
+		return null;
+	}
+
+	const { color, shapeStyles } = getElementStyles( {
+		data: seriesData[ index ],
+		index,
+		legendShape,
+	} );
+
+	return { label, color, shapeStyle: shapeStyles, interactive: false };
+}
+
+/**
  * Processes point data into legend items
  * @param pointData          - The point data to process
  * @param getElementStyles   - Function to get element styles
@@ -296,9 +331,14 @@ export function useChartLegendItems<
 		withGlyph = false,
 		glyphSize = 8,
 		collapseGroups = false,
+		comparisonItem = false,
 		renderGlyph,
 	} = options;
 	const { getElementStyles } = useGlobalChartsContext();
+	const comparisonLabel =
+		typeof comparisonItem === 'string'
+			? comparisonItem
+			: __( 'Comparison period', 'jetpack-charts' );
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
@@ -307,8 +347,9 @@ export function useChartLegendItems<
 
 		// Handle SeriesData (multiple series with data points)
 		if ( 'data' in data[ 0 ] ) {
-			return processSeriesData(
-				data as SeriesData[],
+			const seriesData = data as SeriesData[];
+			const items = processSeriesData(
+				seriesData,
 				getElementStyles,
 				showValues,
 				withGlyph,
@@ -317,6 +358,11 @@ export function useChartLegendItems<
 				renderGlyph,
 				legendShape
 			);
+			const comparison = comparisonItem
+				? buildComparisonLegendItem( seriesData, comparisonLabel, getElementStyles, legendShape )
+				: null;
+
+			return comparison ? [ ...items, comparison ] : items;
 		}
 
 		// Handle DataPointDate or DataPointPercentageCalculated (single data points)
@@ -338,6 +384,8 @@ export function useChartLegendItems<
 		withGlyph,
 		glyphSize,
 		collapseGroups,
+		comparisonItem,
+		comparisonLabel,
 		renderGlyph,
 		legendShape,
 	] );

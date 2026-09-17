@@ -195,18 +195,18 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		// Create event handlers to avoid inline arrow functions
 		const createClickHandler = useCallback(
-			( seriesLabels: string[] ) => {
-				if ( ! interactive ) {
+			( seriesLabels: string[], itemInteractive: boolean ) => {
+				if ( ! itemInteractive ) {
 					return undefined;
 				}
 				return () => handleLegendClick( seriesLabels );
 			},
-			[ interactive, handleLegendClick ]
+			[ handleLegendClick ]
 		);
 
 		const createKeyDownHandler = useCallback(
-			( seriesLabels: string[] ) => {
-				if ( ! interactive ) {
+			( seriesLabels: string[], itemInteractive: boolean ) => {
+				if ( ! itemInteractive ) {
 					return undefined;
 				}
 				return ( event: KeyboardEvent ) => {
@@ -216,10 +216,11 @@ export const BaseLegend: ForwardRefExoticComponent<
 					}
 				};
 			},
-			[ interactive, handleLegendClick ]
+			[ handleLegendClick ]
 		);
 
 		const flexAlignment = ALIGNMENT_TO_FLEX[ alignment ] ?? 'center';
+		const staticItemRole = interactive ? undefined : 'listitem';
 
 		return render ? (
 			render( items )
@@ -249,15 +250,16 @@ export const BaseLegend: ForwardRefExoticComponent<
 								? matchedItem.seriesLabels
 								: [ label.text ];
 							const visible = isSeriesVisible( seriesLabels[ 0 ] );
-							const handleClick = createClickHandler( seriesLabels );
-							const handleKeyDown = createKeyDownHandler( seriesLabels );
+							const itemInteractive = interactive && matchedItem?.interactive !== false;
+							const handleClick = createClickHandler( seriesLabels, itemInteractive );
+							const handleKeyDown = createKeyDownHandler( seriesLabels, itemInteractive );
 
 							return (
 								<LegendItem
 									className={ clsx(
 										'visx-legend-item',
 										styles[ 'legend-item' ],
-										interactive && styles[ 'legend-item--interactive' ],
+										itemInteractive && styles[ 'legend-item--interactive' ],
 										! visible && styles[ 'legend-item--inactive' ],
 										itemClassName
 									) }
@@ -271,14 +273,15 @@ export const BaseLegend: ForwardRefExoticComponent<
 									}
 									onClick={ handleClick }
 									onKeyDown={ handleKeyDown }
-									role={ interactive ? 'button' : 'listitem' }
-									tabIndex={ interactive ? 0 : undefined }
-									aria-pressed={ interactive ? visible : undefined }
+									// A static item in an interactive legend has no list to belong to.
+									role={ itemInteractive ? 'button' : staticItemRole }
+									tabIndex={ itemInteractive ? 0 : undefined }
+									aria-pressed={ itemInteractive ? visible : undefined }
 									aria-label={ getLegendItemAriaLabel(
 										label.text,
 										matchedItem?.value,
 										visible,
-										interactive
+										itemInteractive
 									) }
 								>
 									{ items[ i ]?.renderGlyph ? (

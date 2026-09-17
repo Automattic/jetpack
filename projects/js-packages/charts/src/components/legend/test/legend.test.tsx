@@ -754,6 +754,32 @@ describe( 'BaseLegend', () => {
 			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'true' );
 		} );
 
+		it( 'keeps an item with interactive: false static inside an interactive legend', async () => {
+			const user = userEvent.setup();
+			const items = [
+				{ label: 'Views', color: '#0000ff' },
+				{ label: 'Comparison period', color: '#0000ff', interactive: false },
+			];
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ items } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
+			const staticItem = screen.getAllByTestId( 'legend-item' )[ 1 ];
+			expect( staticItem ).toHaveTextContent( 'Comparison period' );
+			expect( staticItem ).not.toHaveAttribute( 'role' );
+			expect( staticItem ).not.toHaveAttribute( 'tabindex' );
+			expect( staticItem ).not.toHaveAttribute( 'aria-pressed' );
+
+			await user.click( staticItem );
+
+			expect( screen.getByRole( 'button' ) ).toHaveAttribute( 'aria-pressed', 'true' );
+			expect( staticItem ).not.toHaveClass( 'legend-item--inactive' );
+		} );
+
 		it( 'falls back to the item label when seriesLabels is an empty array', async () => {
 			const user = userEvent.setup();
 

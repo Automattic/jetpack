@@ -141,7 +141,7 @@ type GetTooltipLabel = (
 type RecordedLineProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
-	legend: { collapseGroups: boolean; interactive: boolean };
+	legend: { collapseGroups: boolean; comparisonItem: boolean; interactive: boolean };
 	margin?: Record< string, number >;
 	options?: { yScale?: { domain?: [ number, number ] }; axis: { y: { display?: boolean } } };
 	renderTooltip: ( params: unknown ) => { props: { getLabel: GetTooltipLabel } };
@@ -241,20 +241,19 @@ describe( 'ComparativeLineChart', () => {
 		expect( recordedProps() ).toMatchObject( {
 			chartId: 'traffic',
 			defaultHiddenSeries: [ 'Visitors', 'Visitors · previous period' ],
-			legend: { collapseGroups: true, interactive: true },
+			legend: { collapseGroups: true, comparisonItem: true, interactive: true },
 		} );
 		expect( mockLegendSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { interactive: true } )
 		);
 	} );
 
-	it( 'collapses a single metric two periods into one legend item', () => {
+	it( 'collapses a metric into one legend item and asks for the comparison item', () => {
 		render( <ComparativeLineChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
 
-		// A legend item names the metric; solid vs previous-period mark is what
-		// tells the two apart, so there is nothing for a second item to say.
 		expect( recordedProps().legend ).toEqual( {
 			collapseGroups: true,
+			comparisonItem: true,
 			interactive: false,
 		} );
 	} );

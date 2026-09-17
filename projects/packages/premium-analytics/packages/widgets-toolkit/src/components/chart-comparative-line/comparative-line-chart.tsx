@@ -188,10 +188,10 @@ export function ComparativeLineChart( {
 	);
 
 	const { seriesNames, isPaired } = useMemo( () => resolveSeriesNames( series ), [ series ] );
-	// A legend item names a metric; the solid mark against its previous-period twin is
-	// what tells the periods apart, so a metric's two periods always collapse into one.
+	// A metric's two periods collapse into one item; a single static Comparison period
+	// item explains the dashed overlay instead.
 	const legendConfig = useMemo(
-		() => ( { collapseGroups: true, interactive: legendInteractive } ),
+		() => ( { collapseGroups: true, comparisonItem: true, interactive: legendInteractive } ),
 		[ legendInteractive ]
 	);
 
@@ -322,8 +322,6 @@ export function ComparativeLineChart( {
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
 			>
-				{ /* Names the metrics; the solid line against its dashed overlay is what
-				     tells the current period from the previous one. */ }
 				{ ! isCompact && (
 					<LineChart.Legend
 						interactive={ legendInteractive }

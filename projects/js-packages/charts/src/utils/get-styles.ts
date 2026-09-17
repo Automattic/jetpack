@@ -22,9 +22,16 @@ export function getSeriesLineStyles(
 	const themeSeriesLineStyle =
 		providerTheme?.seriesLineStyles?.[ index % providerTheme.seriesLineStyles.length ];
 
+	// An empty custom style is treated as unset so the theme still applies.
+	const customLineStyle = seriesData.options?.seriesLineStyle;
+	const hasCustomLineStyle = customLineStyle && Object.keys( customLineStyle ).length > 0;
+
 	// Priority order: custom series style > theme line type style > default theme series style
 	return (
-		seriesData.options?.seriesLineStyle ?? themeSemanticLineStyle ?? themeSeriesLineStyle ?? {}
+		( hasCustomLineStyle ? customLineStyle : undefined ) ??
+		themeSemanticLineStyle ??
+		themeSeriesLineStyle ??
+		{}
 	);
 }
 

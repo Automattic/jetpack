@@ -247,6 +247,65 @@ describe( 'useChartLegendItems', () => {
 		} );
 	} );
 
+	describe( 'Comparison item (SeriesData)', () => {
+		const comparisonData: SeriesData[] = [
+			{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const, seriesLineStyle: { strokeDasharray: '4 4' } },
+				data: [ { label: 'Mon', value: 90 } ],
+			},
+		];
+
+		test( 'is off by default', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( comparisonData, { collapseGroups: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views' ] );
+		} );
+
+		test( 'appends a static item styled like the comparison series', () => {
+			const { result } = renderHook(
+				() =>
+					useChartLegendItems(
+						comparisonData,
+						{ collapseGroups: true, comparisonItem: true },
+						'line'
+					),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [
+				'Views',
+				'Comparison period',
+			] );
+			expect( result.current[ 1 ].interactive ).toBe( false );
+			expect( result.current[ 1 ].shapeStyle ).toMatchObject( { strokeDasharray: '4 4' } );
+			expect( result.current[ 1 ].color ).toBe( result.current[ 0 ].color );
+		} );
+
+		test( 'uses a string option as the label', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( comparisonData, { comparisonItem: 'Previous period' } ),
+				{ wrapper }
+			);
+
+			expect( result.current.at( -1 )?.label ).toBe( 'Previous period' );
+		} );
+
+		test( 'adds nothing when no series is a comparison', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( [ comparisonData[ 0 ] ], { comparisonItem: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views' ] );
+		} );
+	} );
+
 	describe( 'Label and Color', () => {
 		test( 'preserves label and color from data', () => {
 			const data: DataPointPercentageCalculated[] = [

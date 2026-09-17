@@ -362,12 +362,11 @@ export function ComparativeBarChart( {
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
 			>
-				{ /* Circle swatches, not the bar's own shape: the legend only needs to name
-				     the metrics, since the chart itself tells the periods apart. */ }
+				{ /* Square swatches only name the metrics; the chart itself tells the periods apart. */ }
 				{ ! isCompact && (
 					<BarChart.Legend
 						interactive={ legendInteractive }
-						shape="circle"
+						shape="rect"
 						className={ styles.legend }
 						itemClassName={ styles.legendItem }
 						itemStyles={ { margin: 0 } }
@@ -377,7 +376,7 @@ export function ComparativeBarChart( {
 							textOverflow: 'ellipsis',
 							margin: 0,
 						} }
-						shapeStyles={ { width: 8, height: 8, margin: 0 } }
+						shapeStyles={ { margin: 0 } }
 					/>
 				) }
 			</BarChart>
