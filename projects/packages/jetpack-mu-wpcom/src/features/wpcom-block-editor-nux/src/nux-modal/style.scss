@@ -65,6 +65,10 @@
 		}
 	}
 
+	&.wpcom-block-editor-four-for-four-modal .wpcom-block-editor-nux-modal__description {
+		max-width: 374px;
+	}
+
 	.wpcom-block-editor-nux-modal__buttons {
 		display: flex;
 		flex-direction: column;
