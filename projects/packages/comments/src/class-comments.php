@@ -45,7 +45,7 @@ class Comments {
 	public static function init() {
 		Comment_Form::init();
 		Checkpoint::init();
-		Subscriptions_Endpoint::init();
+		Subscriptions::init();
 		Avatars::init();
 	}
 }

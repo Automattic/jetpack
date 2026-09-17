@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { Toggle } from '../ui/toggle';
-import { NO_SUBSCRIPTION, changeSubscription, readSubscriptions } from './api';
+import { NO_SUBSCRIPTION, fetchSubscriptions } from './api';
 import { FrequencyToggle } from './frequency';
 import type { Answer } from './api';
 import type { Frequency, SubscriptionChange } from '../shared/types';
@@ -123,7 +123,7 @@ export const SubscriptionOptions = () => {
 		}
 
 		reading.current = true;
-		readSubscriptions( formSettings.postId, signedIn.value?.code ?? null ).then( answer => {
+		fetchSubscriptions( formSettings.postId, signedIn.value?.code ?? null ).then( answer => {
 			settle( answer );
 			// A failure reads as no subscription, as it did in Verbum.
 			subscriptions.value = 'state' in answer ? answer.state : NO_SUBSCRIPTION;
@@ -139,7 +139,7 @@ export const SubscriptionOptions = () => {
 
 	const apply = async ( change: SubscriptionChange ) => {
 		const answer = settle(
-			await changeSubscription( formSettings.postId, change, signedIn.value?.code ?? null )
+			await fetchSubscriptions( formSettings.postId, signedIn.value?.code ?? null, change )
 		);
 
 		// A declined change still re-renders, so the control snaps back to the state.

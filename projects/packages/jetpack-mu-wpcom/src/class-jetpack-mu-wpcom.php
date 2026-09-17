@@ -864,8 +864,8 @@ class Jetpack_Mu_Wpcom {
 			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
 		}
 
-		if ( class_exists( '\Automattic\Jetpack\Comments\Subscriptions_Endpoint' ) ) {
-			\Automattic\Jetpack\Comments\Subscriptions_Endpoint::init();
+		if ( class_exists( '\Automattic\Jetpack\Comments\Subscriptions' ) ) {
+			\Automattic\Jetpack\Comments\Subscriptions::init();
 		}
 	}
 
