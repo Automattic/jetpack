@@ -47,9 +47,11 @@ describe( 'InterstitialModalCTA', () => {
 		expect( apiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( { path: 'my-jetpack/v1/site/products' } )
 		);
+		// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
 		fireEvent.click( screen.getByRole( 'button', { name: /Upgrade now/ } ) );
 		const modal = await screen.findByRole( 'dialog' );
 		await waitFor( () => {
+			// eslint-disable-next-line jest-dom/prefer-to-have-attribute -- This Jest project does not load jest-dom.
 			expect(
 				within( modal ).getByRole( 'button', { name: 'Upgrade now' } ).hasAttribute( 'disabled' )
 			).toBe( false );
