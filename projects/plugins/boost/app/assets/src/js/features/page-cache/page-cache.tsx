@@ -49,11 +49,11 @@ const PageCache = () => {
 		? __(
 				'Your website already has a page cache running on it powered by WordPress.com.',
 				'jetpack-boost'
-		  )
+			)
 		: __(
 				'Your website already has a page cache running on it powered by your hosting provider.',
 				'jetpack-boost'
-		  );
+			);
 
 	const [ removePageCacheNotice ] = useMutationNotice(
 		'page-cache-setup',

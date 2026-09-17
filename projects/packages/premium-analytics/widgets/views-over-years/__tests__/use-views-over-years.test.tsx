@@ -156,7 +156,7 @@ describe( 'useViewsOverYears', () => {
 				? Promise.reject( { code: 'unauthorized', message: 'Nope.', status: 403 } )
 				: new Promise( resolve => {
 						resolveRetry = resolve;
-				  } );
+					} );
 		} );
 		const { result } = renderHook( () => useViewsOverYears( 'average' ), { wrapper } );
 
@@ -200,7 +200,7 @@ describe( 'useViewsOverYears', () => {
 			isDayRequest( options )
 				? new Promise( resolve => {
 						resolveDays = resolve;
-				  } )
+					} )
 				: Promise.resolve( VISITS_RESPONSE )
 		);
 		const { result } = renderHook( () => useViewsOverYears( 'average' ), { wrapper } );

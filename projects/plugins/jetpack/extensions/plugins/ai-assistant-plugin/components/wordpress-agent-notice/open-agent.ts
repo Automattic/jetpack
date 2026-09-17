@@ -21,8 +21,7 @@ const AGENTS_MANAGER_STORE = 'automattic/agents-manager';
 // Injected as a bare `const`, not a window property, so read it bare behind a
 // typeof guard.
 declare const agentsManagerData:
-	| { jetpackAiSidebar?: { agentNoticeActionAvailable?: boolean } }
-	| undefined;
+	{ jetpackAiSidebar?: { agentNoticeActionAvailable?: boolean } } | undefined;
 
 /**
  * Whether the server reports a working, connected agent to open, not merely eligibility.

@@ -147,7 +147,7 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 							shipping: [
 								buildShipping( activeShippingMode, shippingValue, shippingAdditionalValue ),
 							],
-					  }
+						}
 					: {} ),
 				// PayPal turns address collection on for a request that omits this, so it goes out
 				// every time.

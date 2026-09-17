@@ -83,7 +83,7 @@ export function createStoryWidgetType(
 						icon: undefined,
 						relevance: action.relevance as WidgetRelevance | undefined,
 					} ) ),
-			  }
+				}
 			: {} ),
 		...( manifest.presentation
 			? {

@@ -267,7 +267,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 						top={
 							tooltipPlacement === 'below-axis'
 								? marginTop + innerHeight + ( margin?.bottom ?? 0 )
-								: tooltipAnchorTop ?? tooltipTop
+								: ( tooltipAnchorTop ?? tooltipTop )
 						}
 						style={ boxStyle }
 						applyPositionStyle

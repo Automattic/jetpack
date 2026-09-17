@@ -352,7 +352,7 @@ describe( 'usePopularPost', () => {
 											title: { rendered: 'Runner up' },
 											link: 'https://example.com/runner-up/',
 											date: '',
-									  }
+										}
 							)
 					);
 				}

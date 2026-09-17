@@ -121,7 +121,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 					? __(
 							'No views recorded for this author’s posts in this period.',
 							'jetpack-premium-analytics-pkg'
-					  )
+						)
 					: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }

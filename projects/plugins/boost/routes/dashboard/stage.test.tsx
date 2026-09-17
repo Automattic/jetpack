@@ -15,7 +15,7 @@ import type { ReactNode } from 'react';
 const mockNavigate = jest.fn();
 
 jest.mock( '../../_inc/overview/overview', () => {
-	const { useEffect } = jest.requireActual< typeof import('react') >( 'react' );
+	const { useEffect } = jest.requireActual< typeof import( 'react' ) >( 'react' );
 	return {
 		__esModule: true,
 		default: function MockOverview( {
