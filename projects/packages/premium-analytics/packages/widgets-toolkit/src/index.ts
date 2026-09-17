@@ -260,12 +260,10 @@ export {
 	type PeriodBounds,
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './helpers';
 
 /**

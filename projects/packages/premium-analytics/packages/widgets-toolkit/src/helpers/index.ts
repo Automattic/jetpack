@@ -99,7 +99,5 @@ export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './calendar-heatmap-window';

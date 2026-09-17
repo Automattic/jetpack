@@ -13,38 +13,6 @@ export type CalendarHeatmapWindow = {
 	endDate: string;
 };
 
-export type CalendarHeatmapWindowBounds = {
-	maxDays?: number;
-};
-
-/**
- * Caps a report range at an inclusive maximum day count. No floor is offered:
- * it would reach past the selection and misattribute years to the card's
- * heading (WOOA7S-1963); a short range gets filler weeks instead.
- */
-export function resolveCalendarHeatmapWindow(
-	params: { from?: string; to?: string },
-	bounds: CalendarHeatmapWindowBounds,
-	todayIso: string
-): CalendarHeatmapWindow {
-	const { maxDays } = bounds;
-	const endDate = getDatePart( params.to ) ?? todayIso;
-	const end = parseISO( endDate );
-
-	// ISO date-only strings sort chronologically.
-	let startDate = getDatePart( params.from ) ?? endDate;
-
-	if ( maxDays !== undefined ) {
-		// Bounds count inclusive dates, hence the subtraction of one day.
-		const cap = format( subDays( end, maxDays - 1 ), 'yyyy-MM-dd' );
-		if ( startDate < cap ) {
-			startDate = cap;
-		}
-	}
-
-	return { startDate: startDate > endDate ? endDate : startDate, endDate };
-}
-
 /**
  * Date a heatmap grid opens on to draw `columns` columns ending `endDate`. A
  * short period is padded backwards with unrequested filler (WOOA7S-1963), so
