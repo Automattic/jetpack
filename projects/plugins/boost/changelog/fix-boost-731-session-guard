@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Critical CSS: Keep administrators logged in when local generation reaches a login-protected page, and stop restarting generation after a failed run.
+Critical CSS: Stop local generation at login-protected pages to keep administrators logged in, and prevent automatic restarts after a failed run throughout the dashboard page session.

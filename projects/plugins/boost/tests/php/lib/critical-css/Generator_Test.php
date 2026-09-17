@@ -22,6 +22,8 @@ class Generator_Test extends BaseTestCase {
 	public function tear_down() {
 		unset( $_GET[ Generator::GENERATE_QUERY_ACTION ] );
 		remove_all_filters( 'wp_redirect' );
+		remove_all_filters( 'wp_redirect_status' );
+		remove_all_filters( 'wp_die_handler' );
 		remove_all_actions( 'wp_head' );
 		remove_all_filters( 'show_admin_bar' );
 		parent::tear_down();
@@ -39,18 +41,39 @@ class Generator_Test extends BaseTestCase {
 		Generator::init();
 	}
 
-	/**
-	 * A generation request still redirects to the login page, but without `reauth`.
-	 */
-	public function test_generation_request_login_redirect_drops_reauth() {
+	public function test_generation_request_login_redirect_terminates_without_rendering() {
 		$this->init_request( true );
-		$requested = home_url( '/private-page/?' . Generator::GENERATE_QUERY_ACTION . '=1700000000000' );
-		$location  = wp_login_url( $requested, true );
+		$requested      = home_url( '/private-page/?' . Generator::GENERATE_QUERY_ACTION . '=1700000000000' );
+		$redirect_count = 0;
+		$rendered       = false;
+		add_filter(
+			'wp_redirect_status',
+			function ( $status ) use ( &$redirect_count ) {
+				++$redirect_count;
+				return $status;
+			}
+		);
+		add_filter(
+			'wp_die_handler',
+			function () {
+				return function ( $message, $title, $args ) {
+					throw new \RuntimeException( $message, $args['response'] );
+				};
+			}
+		);
 
-		$redirect = apply_filters( 'wp_redirect', $location, 302 );
+		foreach ( array( true, false ) as $reauth ) {
+			try {
+				wp_redirect( wp_login_url( $requested, $reauth ) );
+				$rendered = true;
+				$this->fail( 'The login redirect must terminate generation.' );
+			} catch ( \RuntimeException $error ) {
+				$this->assertSame( 403, $error->getCode() );
+			}
+		}
 
-		$this->assertSame( wp_login_url( $requested ), $redirect );
-		$this->assertStringNotContainsString( 'reauth', $redirect );
+		$this->assertSame( 0, $redirect_count );
+		$this->assertFalse( $rendered );
 	}
 
 	/**
@@ -79,7 +102,6 @@ class Generator_Test extends BaseTestCase {
 			'same-site reauth arg'  => array( '{home}/members/?reauth=1' ),
 			'relative reauth arg'   => array( '/members/?reauth=1' ),
 			'other host login page' => array( 'https://login.example.org/wp-login.php?reauth=1' ),
-			'login page, no reauth' => array( '{home}/wp-login.php?redirect_to=%2Fsample-page%2F' ),
 		);
 	}
 

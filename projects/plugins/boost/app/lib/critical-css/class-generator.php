@@ -12,7 +12,7 @@ class Generator {
 		$generator = new static();
 		if ( static::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $generator, 'display_generate_meta' ), 0 );
-			add_filter( 'wp_redirect', array( $generator, 'keep_login_redirect_from_clearing_auth' ), PHP_INT_MAX );
+			add_filter( 'wp_redirect', array( $generator, 'prevent_login_redirect' ), PHP_INT_MAX );
 			$generator->force_logged_out_render();
 		}
 	}
@@ -34,18 +34,15 @@ class Generator {
 	}
 
 	/**
-	 * Remove `reauth` from a generation request's redirect to the login page.
-	 *
-	 * The logged-out render sends login gates built on auth_redirect() to the login page with
-	 * `reauth`, and wp-login.php then clears the admin's auth cookies. The redirect itself is kept.
+	 * Terminate generation requests that redirect to the login page.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param string|false $location The path or URL to redirect to.
 	 * @return string|false
 	 */
-	public function keep_login_redirect_from_clearing_auth( $location ) {
-		if ( ! is_string( $location ) || false === stripos( $location, 'reauth' ) ) {
+	public function prevent_login_redirect( $location ) {
+		if ( ! is_string( $location ) ) {
 			return $location;
 		}
 
@@ -62,7 +59,11 @@ class Generator {
 
 			$same_host = empty( $target['host'] ) || ( isset( $login['host'] ) && 0 === strcasecmp( $target['host'], $login['host'] ) );
 			if ( $same_host && untrailingslashit( $target['path'] ) === untrailingslashit( $login['path'] ) ) {
-				return remove_query_arg( 'reauth', $location );
+				wp_die(
+					esc_html__( 'Critical CSS cannot be generated for a page that requires login.', 'jetpack-boost' ),
+					'',
+					array( 'response' => 403 )
+				);
 			}
 		}
 
