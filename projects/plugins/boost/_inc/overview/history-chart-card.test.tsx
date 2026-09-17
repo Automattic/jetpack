@@ -356,6 +356,8 @@ test( 'keeps the card padding for notices and drops it only for the charts', () 
 	expect( zeroPaddingBody() ).toBeNull();
 	rerender( <HistoryChartCard isFreshStart { ...callbacks } /> );
 	expect( zeroPaddingBody() ).toBeNull();
+	rerender( <HistoryChartCard isLoading { ...callbacks } /> );
+	expect( zeroPaddingBody() ).not.toBeNull();
 	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
 	expect( zeroPaddingBody() ).toContainElement( screen.getAllByRole( 'grid' )[ 0 ] );
 	/* eslint-enable testing-library/no-node-access */
