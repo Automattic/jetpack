@@ -5,12 +5,15 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
  * Admin page slug. Matches Jetpack_Backup::JETPACK_BACKUP_SLUG so the URL
- * survives a transfer to WoA, where the real Backup page takes it over — which
- * is why this must never register off Simple.
+ * survives a transfer to WoA. Nothing else claims it on either platform today:
+ * the standalone Backup plugin owns it elsewhere, but wpcomsh force-deactivates
+ * that plugin on WoA. This page yields the slug once backups are actually live,
+ * so the Jetpack plugin can take it over there.
  */
 const WPCOM_SIMPLE_BACKUP_MENU_SLUG = 'jetpack-backup';
 
@@ -63,6 +66,10 @@ const WPCOM_SIMPLE_BACKUP_STATE_ACTIVATE = 'activate';
  * @return void
  */
 function wpcom_simple_backup_init() {
+	if ( ! wpcom_simple_backup_should_register() ) {
+		return;
+	}
+
 	add_action( 'admin_menu', 'wpcom_simple_backup_register_page', 1000000 );
 
 	if ( ! wpcom_simple_backup_is_backup_admin_request() ) {
@@ -75,6 +82,37 @@ function wpcom_simple_backup_init() {
 	add_action( 'admin_enqueue_scripts', 'wpcom_simple_backup_enqueue_initial_state', 20 );
 }
 add_action( 'init', 'wpcom_simple_backup_init' );
+
+/**
+ * Whether the site runs on WordPress.com's Atomic infrastructure.
+ *
+ * Read through Constants rather than `defined()` so tests can exercise both
+ * platforms in one process.
+ *
+ * @return bool
+ */
+function wpcom_simple_backup_is_atomic() {
+	return Constants::is_true( 'IS_ATOMIC' );
+}
+
+/**
+ * Whether this page should claim the Backup slug at all.
+ *
+ * The dashboard's own gate, restated: a plan that includes backups only makes
+ * them live on Atomic infrastructure, so on WoA an entitled site has working
+ * backups and this page steps aside for the one that manages them. A Simple
+ * site is never Atomic, so the page always applies there — it offers the
+ * transfer that makes the plan's backups real.
+ *
+ * @return bool
+ */
+function wpcom_simple_backup_should_register() {
+	if ( ! wpcom_simple_backup_is_atomic() ) {
+		return true;
+	}
+
+	return ! wpcom_simple_backup_has_backup_feature( get_current_blog_id() );
+}
 
 /**
  * Whether the current request targets the Backup admin page.
@@ -222,7 +260,7 @@ function wpcom_simple_backup_enqueue_initial_state() {
 			'isEligible'  => null === $eligibility || ! empty( $eligibility['is_eligible'] ),
 			'errors'      => wpcom_simple_backup_get_transfer_errors( $eligibility ),
 			'warnings'    => wpcom_simple_backup_get_transfer_warnings( $eligibility ),
-			'upgradeUrl'  => 'https://wordpress.com/plans/' . $domain,
+			'upgradeUrl'  => wpcom_simple_backup_get_upgrade_url( $domain ),
 			'activateUrl' => wpcom_simple_backup_get_activate_url(),
 			'supportUrl'  => 'https://wordpress.com/support/backups/',
 		)
@@ -305,7 +343,10 @@ function wpcom_simple_backup_get_eligibility( $blog_id, $user_id ) {
  * @return string One of the WPCOM_SIMPLE_BACKUP_STATE_* constants.
  */
 function wpcom_simple_backup_get_state( $blog_id, $user_id ) {
-	if ( ! wpcom_simple_backup_has_backup_feature( $blog_id ) ) {
+	// On WoA the plan is the only question: the site is already on the
+	// infrastructure that runs backups, so there is nothing to transfer, and
+	// should_register() has already stepped the page aside if it has the plan.
+	if ( ! wpcom_simple_backup_has_backup_feature( $blog_id ) || wpcom_simple_backup_is_atomic() ) {
 		$state = WPCOM_SIMPLE_BACKUP_STATE_UPGRADE;
 	} elseif ( wpcom_simple_backup_is_transfer_in_progress( $blog_id ) ) {
 		$state = WPCOM_SIMPLE_BACKUP_STATE_IN_PROGRESS;
@@ -394,6 +435,19 @@ function wpcom_simple_backup_get_transfer_warnings( $eligibility ) {
 	}
 
 	return $warnings;
+}
+
+/**
+ * Checkout, with the plan that includes backups already in the cart.
+ *
+ * Matches the dashboard's upsell CTA, which sells the plan rather than opening
+ * a comparison the reader has to navigate.
+ *
+ * @param string $domain Site domain.
+ * @return string
+ */
+function wpcom_simple_backup_get_upgrade_url( $domain ) {
+	return 'https://wordpress.com/checkout/' . $domain . '/business';
 }
 
 /**

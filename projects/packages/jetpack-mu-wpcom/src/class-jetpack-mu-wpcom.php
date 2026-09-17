@@ -106,7 +106,12 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_backup' ) );
+		}
+
+		// The Backup page serves both platforms: it offers the transfer on Simple
+		// and the plan upgrade on WoA, and steps aside once backups are live.
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Constants::is_true( 'IS_ATOMIC' ) ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_backup' ) );
 		}
 
 		// These features run only on atomic sites.
@@ -838,9 +843,9 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load the Backup page in Simple sites.
+	 * Load the Backup page on WordPress.com Simple and WoA sites.
 	 */
-	public static function load_wpcom_simple_backup() {
+	public static function load_wpcom_backup() {
 		require_once __DIR__ . '/features/wpcom-simple-backup/wpcom-simple-backup.php';
 	}
 

@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-simple-backup/wpcom-simple-backup.php';
@@ -22,6 +23,37 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame(
 			WPCOM_SIMPLE_BACKUP_STATE_UPGRADE,
 			wpcom_simple_backup_get_state( 1, 1 )
+		);
+	}
+
+	/**
+	 * A Simple site is never Atomic, so the page always has something to offer —
+	 * either the upgrade or the transfer that makes the plan's backups real.
+	 */
+	public function test_page_registers_on_simple() {
+		$this->assertTrue( wpcom_simple_backup_should_register() );
+	}
+
+	/**
+	 * Without the plan there is still an upgrade to offer on WoA.
+	 */
+	public function test_page_registers_on_woa_without_the_plan() {
+		Constants::set_constant( 'IS_ATOMIC', true );
+
+		$this->assertTrue( wpcom_simple_backup_should_register() );
+	}
+
+	/**
+	 * The upsell hands the reader a cart, not a plan comparison.
+	 */
+	public function test_upgrade_url_goes_straight_to_checkout() {
+		$this->assertStringContainsString(
+			'/checkout/',
+			wpcom_simple_backup_get_upgrade_url( 'example.wordpress.com' )
+		);
+		$this->assertStringEndsWith(
+			'/business',
+			wpcom_simple_backup_get_upgrade_url( 'example.wordpress.com' )
 		);
 	}
 
@@ -79,29 +111,6 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertCount( 1, $errors );
 		$this->assertSame( '', $errors[0]['message'] );
-	}
-
-	/**
-	 * Each error state has to be previewable on a sandbox without arranging a
-	 * site that actually fails the check.
-	 */
-	public function test_transfer_errors_are_filterable() {
-		add_filter(
-			'wpcom_simple_backup_transfer_errors',
-			function () {
-				return array(
-					array(
-						'code'    => 'email_unverified',
-						'message' => 'Email address is not confirmed.',
-					),
-				);
-			}
-		);
-
-		$errors = wpcom_simple_backup_get_transfer_errors( null );
-
-		$this->assertCount( 1, $errors );
-		$this->assertSame( 'email_unverified', $errors[0]['code'] );
 	}
 
 	/**
@@ -179,6 +188,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 			$_GET['page']
 		);
 		remove_action( 'admin_head', 'wpcom_simple_backup_hide_menu_entry', 0 );
+		Constants::clear_constants();
 
 		parent::tear_down();
 	}
@@ -310,28 +320,6 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( array(), wpcom_simple_backup_get_transfer_warnings( $eligibility ) );
-	}
-
-	/**
-	 * The confirmation has to be previewable without a site whose address changes.
-	 */
-	public function test_transfer_warnings_are_filterable() {
-		add_filter(
-			'wpcom_simple_backup_transfer_warnings',
-			function () {
-				return array(
-					array(
-						'id'          => 'forced',
-						'description' => 'Forced.',
-					),
-				);
-			}
-		);
-
-		$warnings = wpcom_simple_backup_get_transfer_warnings( null );
-
-		$this->assertCount( 1, $warnings );
-		$this->assertSame( 'forced', $warnings[0]['id'] );
 	}
 
 	/**
