@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
+import { GuestSubscriptionOptions, hasSubscriptionOptions } from '../subscriptions';
 import { EmailIcon, NameIcon, WebsiteIcon } from '../ui/icons';
 import { Toggle } from '../ui/toggle';
 import type { Commenter } from '../shared/types';
@@ -86,6 +87,11 @@ export const GuestFields = ( { open = true, bare = false }: GuestFieldsProps ) =
 					/>
 				</label>
 			) ) }
+			{ hasSubscriptionOptions() && (
+				<div className="jetpack-comments__options">
+					<GuestSubscriptionOptions />
+				</div>
+			) }
 			{ showCookiesConsent && (
 				<div className="jetpack-comments__options">
 					<Toggle

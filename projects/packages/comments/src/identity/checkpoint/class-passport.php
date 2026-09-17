@@ -38,7 +38,7 @@ class Passport {
 	 * so a passport issued on one site of a network, or of WordPress.com, is
 	 * refused on every other.
 	 */
-	const FIELDS = array( 'site_commenter_id', 'provider', 'name', 'email', 'avatar', 'expires_at' );
+	const FIELDS = array( 'site_commenter_id', 'provider', 'name', 'email', 'email_signature', 'avatar', 'expires_at' );
 
 	/**
 	 * Domain-separates the signature from anything else keyed with the same salt.
