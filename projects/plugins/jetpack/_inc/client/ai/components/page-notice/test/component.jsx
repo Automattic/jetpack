@@ -217,6 +217,14 @@ describe( 'PageNotice', () => {
 			);
 		} );
 
+		it( 'sends a VIP site to VIP\u2019s own page for that filter', () => {
+			renderNotice( { state: 'forced-off', masterForcedOff: 'filter-vip' } );
+			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'source=jetpack-ai-hub-notice-forced-off-filter-vip' )
+			);
+		} );
+
 		it( 'links to the module hooks when a module filter is the route taken', () => {
 			renderNotice( { state: 'forced-off', masterForcedOff: 'modules' } );
 			expect( screen.getByText( COPY, IGNORE_A11Y ) ).toBeInTheDocument();

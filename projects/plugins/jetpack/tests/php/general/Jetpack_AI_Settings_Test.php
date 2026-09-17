@@ -117,6 +117,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 		// Reset the platform: every test in this class defaults to off-Simple.
 		Constants::clear_single_constant( 'IS_WPCOM' );
+		Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 		Status_Cache::clear();
 		\Jetpack_Options::update_option( 'active_modules', array() );
 
@@ -346,6 +347,20 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
 		$this->assertSame( 'filter', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * VIP documents this filter as its own off switch, so a VIP site is sent to
+	 * VIP's page rather than the generic hook reference.
+	 */
+	public function test_master_forced_off_route_names_the_vip_filter() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_active();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertSame( 'filter-vip', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
 	/**

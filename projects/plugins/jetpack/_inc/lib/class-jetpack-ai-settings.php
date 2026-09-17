@@ -70,6 +70,14 @@ class Jetpack_AI_Settings {
 	const FORCED_OFF_ROUTE_MODULES = 'modules';
 
 	/**
+	 * The filter route on VIP, which documents this filter as its own supported
+	 * off switch and so owns the page to send the reader to.
+	 *
+	 * @var string
+	 */
+	const FORCED_OFF_ROUTE_FILTER_VIP = 'filter-vip';
+
+	/**
 	 * Feature key => option name for every toggle on the AI settings page.
 	 *
 	 * `ai_search` reuses an option owned by the Search surface; the rest are
@@ -336,7 +344,9 @@ class Jetpack_AI_Settings {
 	 *                holds AI off.
 	 */
 	public static function get_master_forced_off_route() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
+		$host = new Host();
+
+		if ( $host->is_wpcom_simple() ) {
 			return '';
 		}
 
@@ -350,7 +360,9 @@ class Jetpack_AI_Settings {
 		}
 
 		if ( $third_party_off ) {
-			return self::FORCED_OFF_ROUTE_FILTER;
+			return $host->is_vip_site()
+				? self::FORCED_OFF_ROUTE_FILTER_VIP
+				: self::FORCED_OFF_ROUTE_FILTER;
 		}
 
 		if ( self::is_master_enabled() ) {

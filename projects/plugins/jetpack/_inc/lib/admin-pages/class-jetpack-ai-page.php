@@ -468,7 +468,11 @@ class Jetpack_AI_Page {
 			'masterEnabled'     => ! empty( $config['masterEnabled'] ),
 			'masterForcedOff'   => in_array(
 				$config['masterForcedOff'] ?? '',
-				array( Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER, Jetpack_AI_Settings::FORCED_OFF_ROUTE_MODULES ),
+				array(
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER,
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER_VIP,
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_MODULES,
+				),
 				true
 			) ? $config['masterForcedOff'] : '',
 			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),

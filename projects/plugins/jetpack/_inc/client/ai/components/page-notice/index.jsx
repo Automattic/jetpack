@@ -86,10 +86,11 @@ export function getPageNoticeState( {
 const HOST_OFF_SLUG = 'jetpack-ai-hub-notice-host-off';
 const OFFLINE_SLUG = 'jetpack-support-development-mode';
 
-// Custom code reaches the same state through two different hooks, and each has
-// its own documentation page.
+// Custom code reaches the same state by more than one route, and each route has
+// its own documentation page. VIP documents the filter as its own off switch.
 const FORCED_OFF_SLUGS = {
 	filter: 'jetpack-ai-hub-notice-forced-off-filter',
+	'filter-vip': 'jetpack-ai-hub-notice-forced-off-filter-vip',
 	modules: 'jetpack-ai-hub-notice-forced-off-modules',
 };
 
