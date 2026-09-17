@@ -12,14 +12,14 @@ import {
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
-export type AuthorViewsChartType = ChartDisplayChartType;
+export type AuthorPerformanceChartType = ChartDisplayChartType;
 
 /**
  * Configurable attributes for the Author views widget. The author scope reaches
  * it through WidgetRoot: the detail page seeds `author_id` into the URL.
  */
-export type AuthorViewsAttributes = {
-	chartType?: AuthorViewsChartType;
+export type AuthorPerformanceAttributes = {
+	chartType?: AuthorPerformanceChartType;
 };
 
 /**
@@ -28,7 +28,9 @@ export type AuthorViewsAttributes = {
  */
 export default {
 	icon: seen,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< AuthorViewsAttributes >[],
+	attributes: [
+		chartTypeAttributeField(),
+	] as WidgetAttributeField< AuthorPerformanceAttributes >[],
 	example: {
 		attributes: {
 			chartType: 'bar',

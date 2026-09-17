@@ -1,5 +1,5 @@
 {
-	"name": "@automattic/jetpack-premium-analytics-widget-author-views",
+	"name": "@automattic/jetpack-premium-analytics-widget-author-performance",
 	"version": "0.1.0-alpha",
 	"private": true,
 	"type": "module",
@@ -8,9 +8,9 @@
 		"@jetpack-premium-analytics/datetime": "link:../../packages/datetime",
 		"@jetpack-premium-analytics/icons": "link:../../packages/icons",
 		"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit",
-		"@wordpress/element": "8.6.0",
+		"@wordpress/element": "8.7.0",
 		"@wordpress/i18n": "^6.9.0",
-		"@wordpress/icons": "^15.0.0",
-		"@wordpress/widget-primitives": "0.6.2-next.v.202609031004.0"
+		"@wordpress/icons": "^16.0.0",
+		"@wordpress/widget-primitives": "0.7.0"
 	}
 }

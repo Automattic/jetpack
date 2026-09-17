@@ -19,6 +19,7 @@ import {
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
+	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -111,17 +112,23 @@ function AuthorDetail(): JSX.Element {
 	let notice: JSX.Element | null = null;
 
 	if ( summary.isError ) {
+		// Same split as the widgets: access denied gets no Retry, anything else does.
+		const { description, actions = [] } = describeError( summary.error, {
+			retryDescription: __(
+				"We couldn't load this author. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
+			onRetry: summary.refetch,
+		} );
+
 		notice = (
 			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>
-					{ __(
-						"We couldn't load this author. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					) }
-				</Text>
-				<Button variant="outline" onClick={ summary.refetch }>
-					{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
-				</Button>
+				<Text>{ description }</Text>
+				{ actions.map( action => (
+					<Button key={ action.label } variant="outline" onClick={ action.onClick }>
+						{ action.label }
+					</Button>
+				) ) }
 			</Stack>
 		);
 	} else if ( summary.isNotFound ) {

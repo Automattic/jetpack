@@ -20,32 +20,33 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useAuthorViews from './use-author-views';
-import type { AuthorViewsAttributes, AuthorViewsChartType } from './widget';
+import useAuthorPerformance from './use-author-performance';
+import type { AuthorPerformanceAttributes, AuthorPerformanceChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-type AuthorViewsRenderAttributes = AuthorViewsAttributes & Partial< ReportParamsFieldAttributes >;
-type AuthorViewsWidgetProps = WidgetRenderProps< AuthorViewsRenderAttributes >;
+type AuthorPerformanceRenderAttributes = AuthorPerformanceAttributes &
+	Partial< ReportParamsFieldAttributes >;
+type AuthorPerformanceWidgetProps = WidgetRenderProps< AuthorPerformanceRenderAttributes >;
 
 const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-type AuthorViewsInnerProps = {
-	chartType?: AuthorViewsChartType;
+type AuthorPerformanceInnerProps = {
+	chartType?: AuthorPerformanceChartType;
 };
 
 /**
  * Without an author scope (the widget added outside an author detail page) the
  * query never enables and the empty state shows.
  */
-function AuthorViewsInner( { chartType }: AuthorViewsInnerProps ) {
+function AuthorPerformanceInner( { chartType }: AuthorPerformanceInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const authorId = toAuthorId( reportParams.author_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, error, hasData, refetch } = useAuthorViews(
+	const { current, isLoading, isFetching, isError, error, hasData, refetch } = useAuthorPerformance(
 		authorId,
 		reportParams,
 		period
@@ -99,13 +100,13 @@ function AuthorViewsInner( { chartType }: AuthorViewsInnerProps ) {
 	);
 }
 
-export default function AuthorViews( { attributes = {} }: AuthorViewsWidgetProps ) {
+export default function AuthorPerformance( { attributes = {} }: AuthorPerformanceWidgetProps ) {
 	// Coerce unknown persisted values to the default.
 	const chartType = attributes?.chartType === 'line' ? 'line' : 'bar';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<AuthorViewsInner chartType={ chartType } />
+			<AuthorPerformanceInner chartType={ chartType } />
 		</WidgetRoot>
 	);
 }

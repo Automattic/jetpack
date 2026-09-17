@@ -7,7 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import AuthorViewsWidget from '../render';
+import AuthorPerformanceWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -85,7 +85,7 @@ const TOP_AUTHORS_DAYS = {
 	},
 };
 
-describe( 'AuthorViewsWidget', () => {
+describe( 'AuthorPerformanceWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
@@ -94,7 +94,7 @@ describe( 'AuthorViewsWidget', () => {
 	it( 'charts the author’s views per bucket, oldest first, and totals them', async () => {
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
 
-		render( <AuthorViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		const [ metric ] = chartedMetrics( chart );
@@ -125,7 +125,7 @@ describe( 'AuthorViewsWidget', () => {
 
 		// 28 days from a Thursday: the shortest window that keeps a weekly interval.
 		render(
-			<AuthorViewsWidget
+			<AuthorPerformanceWidget
 				attributes={ {
 					reportParams: {
 						...WINDOW_PARAMS,
@@ -158,7 +158,7 @@ describe( 'AuthorViewsWidget', () => {
 		} );
 
 		render(
-			<AuthorViewsWidget
+			<AuthorPerformanceWidget
 				attributes={ { reportParams: { ...WINDOW_PARAMS, from: '2026-06-01T00:00:00.000+00:00' } } }
 			/>
 		);
@@ -172,7 +172,7 @@ describe( 'AuthorViewsWidget', () => {
 		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
 
 		render(
-			<AuthorViewsWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } } />
+			<AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } } />
 		);
 
 		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
@@ -181,8 +181,23 @@ describe( 'AuthorViewsWidget', () => {
 		);
 	} );
 
+	it( 'falls back to a bar for a persisted chartType it does not know', async () => {
+		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
+
+		render(
+			<AuthorPerformanceWidget
+				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'pie' as never } }
+			/>
+		);
+
+		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
+			'data-chart-type',
+			'bar'
+		);
+	} );
+
 	it( 'renders the scopeless empty state and makes no request without an author scope', async () => {
-		render( <AuthorViewsWidget attributes={ { reportParams: DEFAULT_PARAMS } } /> );
+		render( <AuthorPerformanceWidget attributes={ { reportParams: DEFAULT_PARAMS } } /> );
 
 		await expect(
 			screen.findByText( 'Open an author to see their views here.' )
@@ -193,7 +208,7 @@ describe( 'AuthorViewsWidget', () => {
 	it( 'routes a permission-gated 403 through describeError: neutral copy, no retry', async () => {
 		mockApiFetch.mockRejectedValue( { error: 'unauthorized', status: 403 } );
 
-		render( <AuthorViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		await expect(
 			screen.findByText( "You don't have access to this data." )
@@ -205,7 +220,7 @@ describe( 'AuthorViewsWidget', () => {
 		// The proxy's `no_connection` 403 heals on reconnect and skips React Query's retry backoff.
 		mockApiFetch.mockRejectedValue( { status: 403, code: 'no_connection' } );
 
-		render( <AuthorViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		await expect(
 			screen.findByText( "We couldn't load this author's views. Please try again in a moment." )

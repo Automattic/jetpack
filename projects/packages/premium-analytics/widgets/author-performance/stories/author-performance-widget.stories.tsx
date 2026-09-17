@@ -14,8 +14,8 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
-import AuthorViewsRender from '../render';
-import widgetDefinition, { type AuthorViewsChartType } from '../widget';
+import AuthorPerformanceRender from '../render';
+import widgetDefinition, { type AuthorPerformanceChartType } from '../widget';
 import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -27,19 +27,21 @@ registerReportMocks();
 // An author from the shared fixture; any other id charts a flat zero series.
 const MOCK_AUTHOR_ID = 101;
 
-const AUTHOR_VIEWS_RENDER_MODULE = 'storybook/author-views';
+const AUTHOR_PERFORMANCE_RENDER_MODULE = 'storybook/author-performance';
 
-interface AuthorViewsStoryControls {
+interface AuthorPerformanceStoryControls {
 	hasAuthorScope: boolean;
 	interval: StatsChartBucketPeriod;
-	chartType: AuthorViewsChartType;
+	chartType: AuthorPerformanceChartType;
 }
 
-function getAuthorViewsAttributes( {
+function getAuthorPerformanceAttributes( {
 	hasAuthorScope,
 	interval,
 	chartType,
-}: AuthorViewsStoryControls ): ComponentProps< typeof AuthorViewsRender >[ 'attributes' ] {
+}: AuthorPerformanceStoryControls ): ComponentProps<
+	typeof AuthorPerformanceRender
+>[ 'attributes' ] {
 	return {
 		chartType,
 		reportParams: {
@@ -50,13 +52,13 @@ function getAuthorViewsAttributes( {
 	};
 }
 
-function renderAuthorViews( controls: AuthorViewsStoryControls ) {
-	return <AuthorViewsRender attributes={ getAuthorViewsAttributes( controls ) } />;
+function renderAuthorPerformance( controls: AuthorPerformanceStoryControls ) {
+	return <AuthorPerformanceRender attributes={ getAuthorPerformanceAttributes( controls ) } />;
 }
 
 const meta = {
-	title: 'Packages/Premium Analytics/Widgets/AuthorViews',
-	component: AuthorViewsRender,
+	title: 'Packages/Premium Analytics/Widgets/AuthorPerformance',
+	component: AuthorPerformanceRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
 		hasAuthorScope: {
@@ -80,51 +82,53 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Author views" widget of the author detail page: the scoped author\'s views per chart interval from `stats/top-authors`, as a bar chart by default. Without an author scope the widget renders a scopeless empty state.',
+					'The "Author performance" widget of the author detail page: the scoped author\'s views per chart interval from `stats/top-authors`, as a bar chart by default. Without an author scope the widget renders a scopeless empty state.',
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof AuthorViewsRender > & AuthorViewsStoryControls >;
+} satisfies Meta<
+	ComponentProps< typeof AuthorPerformanceRender > & AuthorPerformanceStoryControls
+>;
 
 export default meta;
 
-type Story = StoryObj< AuthorViewsStoryControls >;
+type Story = StoryObj< AuthorPerformanceStoryControls >;
 
 export const Default: Story = {
-	render: renderAuthorViews,
+	render: renderAuthorPerformance,
 	args: { hasAuthorScope: true, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
 export const NoAuthorScope: Story = {
-	render: renderAuthorViews,
+	render: renderAuthorPerformance,
 	args: { hasAuthorScope: false, interval: 'day', chartType: 'bar' },
 	decorators: [ withWidgetCanvas ],
 };
 
-interface AuthorViewsDashboardStoryProps
+interface AuthorPerformanceDashboardStoryProps
 	extends WidgetDashboardWithWidgetControls,
-		AuthorViewsStoryControls {}
+		AuthorPerformanceStoryControls {}
 
-function AuthorViewsDashboardStory( {
+function AuthorPerformanceDashboardStory( {
 	hasAuthorScope,
 	interval,
 	chartType,
 	...dashboardArgs
-}: AuthorViewsDashboardStoryProps ) {
+}: AuthorPerformanceDashboardStoryProps ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
-			renderModule={ AUTHOR_VIEWS_RENDER_MODULE }
-			renderComponent={ AuthorViewsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getAuthorViewsAttributes( { hasAuthorScope, interval, chartType } ) }
+			renderModule={ AUTHOR_PERFORMANCE_RENDER_MODULE }
+			renderComponent={ AuthorPerformanceRender as ComponentType< WidgetRenderProps< unknown > > }
+			attributes={ getAuthorPerformanceAttributes( { hasAuthorScope, interval, chartType } ) }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< AuthorViewsDashboardStoryProps > = {
-	render: args => <AuthorViewsDashboardStory { ...args } />,
+export const WidgetDashboardWithWidget: StoryObj< AuthorPerformanceDashboardStoryProps > = {
+	render: args => <AuthorPerformanceDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		widgetWidth: 3,

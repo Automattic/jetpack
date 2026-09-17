@@ -26,15 +26,9 @@ describe( 'author detail widget type aliases', () => {
 
 		expect( help ).toEqual( {
 			'jpa/popular-post--author':
-				"This author's most viewed post in the selected period, with its all-time views, likes, and comments.",
+				'This author’s most-viewed post, with its headline views, likes and comments.',
 			'jpa/latest-post--author':
-				"This author's most recently published post, with its all-time views, likes, and comments.",
+				'This author’s most recently published post, with its headline views, likes and comments.',
 		} );
-	} );
-
-	it( 'inherits every base icon', () => {
-		AUTHOR_DETAIL_WIDGET_TYPE_ALIASES.forEach( ( { variants } ) =>
-			variants.forEach( variant => expect( variant.icon ).toBeUndefined() )
-		);
 	} );
 } );

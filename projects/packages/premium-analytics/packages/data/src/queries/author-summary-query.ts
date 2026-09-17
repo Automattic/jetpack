@@ -7,6 +7,7 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies
  */
 import { isResponse } from '../api/is-response';
+import { normalizeErrorResponse } from '../api/stats-proxy-fetch';
 import { sanitizeAuthorSummaryResponse } from '../processing/author';
 import { getApiErrorCode } from '../utils/api-error';
 import { toAuthorId } from '../utils/to-post-id';
@@ -15,9 +16,10 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 
 export type { AuthorSummaryRecord, AuthorSummaryResponse };
 
-// Core's own "no such user" and "cannot view" answers; matched by code, not
-// status, so a plugin blocking `wp/v2/users` or an expired nonce stays an error.
-const MISSING_AUTHOR_CODES = [ 'rest_user_invalid_id', 'rest_user_cannot_view' ];
+// Core's own "no such user" answer, matched by code, not status. Its
+// `rest_user_cannot_view` 403 stays an error: the author exists, this role
+// just may not read the users endpoint.
+const MISSING_AUTHOR_CODES = [ 'rest_user_invalid_id' ];
 
 /**
  * Read the author's oldest published post plus the total from the response
@@ -28,17 +30,23 @@ const MISSING_AUTHOR_CODES = [ 'rest_user_invalid_id', 'rest_user_cannot_view' ]
  * @return The raw posts page and its total.
  */
 async function fetchAuthorPosts( authorId: number ): Promise< { posts: unknown; total: unknown } > {
-	const result: unknown = await apiFetch( {
-		path: addQueryArgs( '/wp/v2/posts', {
-			author: authorId,
-			status: 'publish',
-			per_page: 1,
-			orderby: 'date',
-			order: 'asc',
-			_fields: 'id,date',
-		} ),
-		parse: false,
-	} );
+	let result: unknown;
+	try {
+		result = await apiFetch( {
+			path: addQueryArgs( '/wp/v2/posts', {
+				author: authorId,
+				status: 'publish',
+				per_page: 1,
+				orderby: 'date',
+				order: 'asc',
+				_fields: 'id,date',
+			} ),
+			parse: false,
+		} );
+	} catch ( thrown ) {
+		// Under `parse: false` apiFetch throws the raw `Response`; see `fetchPreservingStatus`.
+		throw isResponse( thrown ) ? await normalizeErrorResponse( thrown ) : thrown;
+	}
 
 	// Storybook's mocks resolve plain data and ignore `parse`; a page of posts
 	// with no headers counts what it holds.

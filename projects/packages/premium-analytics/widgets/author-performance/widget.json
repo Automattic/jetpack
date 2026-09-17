@@ -1,0 +1,10 @@
+{
+	"name": "jpa/author-performance",
+	"title": "Author performance",
+	"description": "How the posts of the author being viewed performed over the selected period.",
+	"help": {
+		"content": "This author’s views over the selected period."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

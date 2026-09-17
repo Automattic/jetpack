@@ -177,6 +177,7 @@ function mockSummary( overrides: Record< string, unknown > = {} ) {
 		firstPublishedDate: '2023-07-04T10:00:00',
 		isLoading: false,
 		isError: false,
+		error: null,
 		isNotFound: false,
 		refetch,
 		...overrides,
@@ -291,8 +292,23 @@ describe( 'author detail stage', () => {
 		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
 		expect( breadcrumbs.getAllByRole( 'listitem' ) ).toHaveLength( 3 );
 
+		expect( screen.queryByText( 'Author widgets' ) ).not.toBeInTheDocument();
+
 		await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'names an access-denied summary without offering Retry', () => {
+		mockSummary( {
+			isError: true,
+			error: { code: 'rest_forbidden', status: 403 },
+			name: undefined,
+		} );
+
+		render( stage() );
+
+		expect( screen.getByText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'names the page while loading', () => {
@@ -330,7 +346,7 @@ describe( 'author detail stage', () => {
 		);
 		const layout = mockDashboardLayouts.at( -1 ) as Array< { type: string } >;
 		expect( layout.map( widget => widget.type ) ).toEqual( [
-			'jpa/author-views',
+			'jpa/author-performance',
 			'jpa/popular-post--author',
 			'jpa/latest-post--author',
 			'jpa/author-top-posts',

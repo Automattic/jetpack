@@ -67,7 +67,7 @@ function AuthorTopPostsInner() {
 					isFetching={ isFetching }
 					// Stale rows stay on screen through a failed background refetch.
 					isError={ ! hasData && isError }
-					isEmpty={ authorId <= 0 || rows.length === 0 }
+					isEmpty={ rows.length === 0 }
 					error={ describeError( error, {
 						retryDescription: __(
 							"We couldn't load this author's posts. Please try again in a moment.",

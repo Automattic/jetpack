@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useStatsTopAuthors, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	findAuthorRow,
+	useStatsTopAuthors,
+	type ReportParams,
+} from '@jetpack-premium-analytics/data';
 import { sharePercentage } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 
@@ -44,7 +48,7 @@ export default function useAuthorTopPosts(
 		useStatsTopAuthors( statsParams, { enabled: authorId > 0 } );
 
 	const rows = useMemo( () => {
-		const author = comparisonRows?.rows.find( row => String( row.id ) === String( authorId ) );
+		const author = findAuthorRow( comparisonRows?.rows, authorId );
 		const posts = ( author?.children ?? [] ).slice( 0, maxRows );
 		const maxValue = Math.max( ...posts.map( post => post.views ), 0 );
 

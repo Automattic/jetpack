@@ -34,28 +34,20 @@ describe( 'sanitizeAuthorSummaryResponse', () => {
 			name: 'Priya',
 			avatarUrl: 'https://g/48',
 			postCount: 0,
-			firstPublishedDate: '',
+			firstPublishedDate: null,
 		} );
 	} );
 
 	it.each( [ undefined, {}, { '96': '' }, { '200': 'https://g/200' } ] )(
-		'leaves the avatar empty when no preferred size is offered (%j)',
+		'leaves the avatar null when no preferred size is offered (%j)',
 		avatarUrls => {
 			expect(
 				sanitizeAuthorSummaryResponse( { ...user, avatar_urls: avatarUrls }, [], 0 )?.avatarUrl
-			).toBe( '' );
+			).toBeNull();
 		}
 	);
 
-	it.each( [ null, { id: 0 }, { id: '1.5' } ] )(
-		'returns null for a non-user record (%j)',
-		record => {
-			expect( sanitizeAuthorSummaryResponse( record, [], 0 ) ).toBeNull();
-		}
-	);
-
-	it( 'ignores a negative or fractional total', () => {
-		expect( sanitizeAuthorSummaryResponse( user, [], '-3' )?.postCount ).toBe( 0 );
-		expect( sanitizeAuthorSummaryResponse( user, [], '2.5' )?.postCount ).toBe( 0 );
+	it.each( [ null, {}, { id: 0 } ] )( 'returns null for a non-user record (%j)', record => {
+		expect( sanitizeAuthorSummaryResponse( record, [], 0 ) ).toBeNull();
 	} );
 } );

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	findAuthorRow,
 	useStatsTopAuthors,
 	type ReportParams,
 	type StatsChartBucketPeriod,
@@ -12,13 +13,13 @@ import { useMemo } from '@wordpress/element';
 /**
  * One chart point: a bucket-start date and the author's views in the bucket.
  */
-export type AuthorViewsPoint = {
+export type AuthorPerformancePoint = {
 	date: Date;
 	value: number;
 };
 
-export interface AuthorViewsState {
-	current: AuthorViewsPoint[];
+export interface AuthorPerformanceState {
+	current: AuthorPerformancePoint[];
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -37,11 +38,11 @@ export interface AuthorViewsState {
  * @param period       - The chart bucket the endpoint groups by.
  * @return The view series and request state.
  */
-export default function useAuthorViews(
+export default function useAuthorPerformance(
 	authorId: number,
 	reportParams: ReportParams,
 	period: StatsChartBucketPeriod
-): AuthorViewsState {
+): AuthorPerformanceState {
 	const statsParams = useMemo(
 		() => ( { ...reportParams, period, summarize: 0, max: 0 } ),
 		[ reportParams, period ]
@@ -61,7 +62,7 @@ export default function useAuthorViews(
 				if ( ! date ) {
 					return [];
 				}
-				const author = point.items.find( item => String( item.id ) === String( authorId ) );
+				const author = findAuthorRow( point.items, authorId );
 
 				return [ { date, value: author?.views ?? 0 } ];
 			} )

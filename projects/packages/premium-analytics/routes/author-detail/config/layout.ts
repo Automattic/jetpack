@@ -8,8 +8,8 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
  */
 export const AUTHOR_DETAIL_LAYOUT: DashboardWidget[] = [
 	{
-		uuid: 'author-views',
-		type: 'jpa/author-views',
+		uuid: 'author-performance',
+		type: 'jpa/author-performance',
 		attributes: { chartType: 'bar' },
 		placement: { width: PA_COLUMN_COUNT, height: 2, order: 1 },
 	},

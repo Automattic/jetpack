@@ -3,7 +3,11 @@
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { formatDate } from '@jetpack-premium-analytics/formatters';
+import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import {
+	DETAIL_HEADER_GLYPH_SIZE,
+	type DetailPageHeaderSlots,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { postAuthor } from '@wordpress/icons';
@@ -13,7 +17,6 @@ import { postAuthor } from '@wordpress/icons';
 import placeholders from '../../../detail-header.module.scss';
 import styles from './author-header-slots.module.scss';
 import type { AuthorSummary } from '../../hooks';
-import type { DetailPageHeaderSlots } from '@jetpack-premium-analytics/widgets-toolkit';
 
 type AuthorHeaderSlotsArgs = {
 	summary: AuthorSummary;
@@ -34,7 +37,7 @@ function AuthorAvatar( { avatarUrl }: { avatarUrl?: string } ) {
 	return avatarUrl && avatarUrl !== failedAvatarUrl ? (
 		<img className={ styles.avatar } src={ avatarUrl } alt="" onError={ hideAvatar } />
 	) : (
-		<Icon icon={ postAuthor } size={ 28 } />
+		<Icon icon={ postAuthor } size={ DETAIL_HEADER_GLYPH_SIZE } />
 	);
 }
 
@@ -57,7 +60,7 @@ export function authorSubtitle(
 			sprintf(
 				/* translators: %s: number of published posts. */
 				_n( '%s post', '%s posts', postCount, 'jetpack-premium-analytics-pkg' ),
-				postCount.toLocaleString()
+				formatMetricValue( postCount, 'number', { decimals: 0 } )
 			)
 		);
 	}
@@ -85,7 +88,7 @@ export function authorSubtitle(
  * @return The `SectionHeader` slots for this author.
  */
 export function authorHeaderSlots( { summary }: AuthorHeaderSlotsArgs ): DetailPageHeaderSlots {
-	const glyph = <Icon icon={ postAuthor } size={ 28 } />;
+	const glyph = <Icon icon={ postAuthor } size={ DETAIL_HEADER_GLYPH_SIZE } />;
 
 	if ( summary.isLoading ) {
 		return {

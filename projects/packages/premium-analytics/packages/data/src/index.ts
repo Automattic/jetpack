@@ -52,6 +52,7 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	findAuthorRow,
 	isAccessDenied,
 	isUserRetryableError,
 	saveBlob,

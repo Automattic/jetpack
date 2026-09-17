@@ -21,7 +21,7 @@ export const AUTHOR_DETAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< WidgetTypeAlias >
 				getTitle: () => __( 'Popular post', 'jetpack-premium-analytics-pkg' ),
 				getHelp: () => ( {
 					content: __(
-						"This author's most viewed post in the selected period, with its all-time views, likes, and comments.",
+						'This author’s most-viewed post, with its headline views, likes and comments.',
 						'jetpack-premium-analytics-pkg'
 					),
 				} ),
@@ -36,7 +36,7 @@ export const AUTHOR_DETAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< WidgetTypeAlias >
 				getTitle: () => __( 'Latest post', 'jetpack-premium-analytics-pkg' ),
 				getHelp: () => ( {
 					content: __(
-						"This author's most recently published post, with its all-time views, likes, and comments.",
+						'This author’s most recently published post, with its headline views, likes and comments.',
 						'jetpack-premium-analytics-pkg'
 					),
 				} ),

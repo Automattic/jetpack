@@ -9,12 +9,12 @@ import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from '../stats/uti
 export type AuthorSummaryRecord = {
 	id: number;
 	name: string;
-	/** The largest avatar the users endpoint offers, or '' when it offers none. */
-	avatarUrl: string;
+	/** The largest avatar the users endpoint offers. */
+	avatarUrl: string | null;
 	/** Published posts by this author, from the posts endpoint's total header. */
 	postCount: number;
-	/** Publish date of the author's oldest published post, or '' with no posts. */
-	firstPublishedDate: string;
+	/** Publish date of the author's oldest published post. */
+	firstPublishedDate: string | null;
 };
 
 /** `null` when the users endpoint knows no such author. */
@@ -23,7 +23,7 @@ export type AuthorSummaryResponse = AuthorSummaryRecord | null;
 // Largest first: the header renders the avatar at display size.
 const PREFERRED_AVATAR_SIZES = [ '96', '48', '24' ];
 
-function pickAvatarUrl( avatarUrls: unknown ): string {
+function pickAvatarUrl( avatarUrls: unknown ): string | null {
 	const sizes = coerceStatsRecord( avatarUrls );
 
 	for ( const size of PREFERRED_AVATAR_SIZES ) {
@@ -33,7 +33,7 @@ function pickAvatarUrl( avatarUrls: unknown ): string {
 		}
 	}
 
-	return '';
+	return null;
 }
 
 /**
@@ -68,6 +68,6 @@ export function sanitizeAuthorSummaryResponse(
 		name: decodeHtmlText( user.name, '' ),
 		avatarUrl: pickAvatarUrl( user.avatar_urls ),
 		postCount: Number.isInteger( total ) && total > 0 ? total : 0,
-		firstPublishedDate: typeof oldestDate === 'string' ? oldestDate : '',
+		firstPublishedDate: typeof oldestDate === 'string' ? oldestDate : null,
 	};
 }

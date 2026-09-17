@@ -75,24 +75,33 @@ describe( 'authorSummaryQuery', () => {
 		} );
 	} );
 
-	it.each( [
-		[ 404, { code: 'rest_user_invalid_id', data: { status: 404 } } ],
-		[ 403, { code: 'rest_user_cannot_view', data: { status: 403 } } ],
-	] )( 'resolves to null when the users endpoint answers %i', async ( _status, error ) => {
-		mockApiFetch.mockRejectedValueOnce( error );
+	it( 'resolves to null when the users endpoint knows no such user', async () => {
+		mockApiFetch.mockRejectedValueOnce( { code: 'rest_user_invalid_id', data: { status: 404 } } );
 
 		await expect( run( 7 ) ).resolves.toBeNull();
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it.each( [
-		[ 'internal_server_error', 500 ],
+		[ 'rest_user_cannot_view', 403 ],
 		[ 'rest_forbidden', 403 ],
+		[ 'internal_server_error', 500 ],
 		[ 'rest_no_route', 404 ],
 	] )( 'rethrows a %s failure whatever its status', async ( code, status ) => {
 		const error = { code, data: { status } };
 		mockApiFetch.mockRejectedValueOnce( error );
 
 		await expect( run( 7 ) ).rejects.toBe( error );
+	} );
+
+	it( 'normalizes a failed posts response so the status survives', async () => {
+		mockApiFetch.mockResolvedValueOnce( user ).mockRejectedValueOnce(
+			new Response( JSON.stringify( { code: 'rest_forbidden', message: 'Sorry' } ), {
+				status: 403,
+				headers: { 'Content-Type': 'application/json' },
+			} )
+		);
+
+		await expect( run( 7 ) ).rejects.toMatchObject( { code: 'rest_forbidden', status: 403 } );
 	} );
 } );

@@ -28,6 +28,7 @@ function mockQuery( overrides: Record< string, unknown > = {} ) {
 		},
 		isLoading: false,
 		isError: false,
+		error: null,
 		isSuccess: true,
 		refetch,
 		...overrides,
@@ -69,18 +70,20 @@ describe( 'useAuthorSummary', () => {
 		mockQuery( { data: undefined, isLoading: true, isSuccess: false } );
 		expect( renderHook( () => useAuthorSummary( 7 ) ).result.current.isNotFound ).toBe( false );
 
-		mockQuery( { data: undefined, isError: true, isSuccess: false } );
+		const error = { code: 'rest_forbidden', status: 403 };
+		mockQuery( { data: undefined, isError: true, error, isSuccess: false } );
 		const { result } = renderHook( () => useAuthorSummary( 7 ) );
 		expect( result.current.isNotFound ).toBe( false );
 		expect( result.current.isError ).toBe( true );
+		expect( result.current.error ).toBe( error );
 	} );
 
 	it.each( [
 		[ 'javascript:alert(1)', undefined ],
 		[ 'http://example.com/a.png', 'http://example.com/a.png' ],
-		[ '', undefined ],
+		[ null, undefined ],
 	] )( 'passes only an http(s) avatar through (%p)', ( avatarUrl, expected ) => {
-		mockQuery( { data: { id: 7, name: 'P', avatarUrl, postCount: 0, firstPublishedDate: '' } } );
+		mockQuery( { data: { id: 7, name: 'P', avatarUrl, postCount: 0, firstPublishedDate: null } } );
 
 		const { result } = renderHook( () => useAuthorSummary( 7 ) );
 
@@ -88,11 +91,11 @@ describe( 'useAuthorSummary', () => {
 		expect( result.current.firstPublishedDate ).toBeUndefined();
 	} );
 
-	it( 'wraps refetch so it can be passed straight to a click handler', () => {
+	it( 'keeps a click event out of the underlying refetch', () => {
 		mockQuery();
 
 		const { result } = renderHook( () => useAuthorSummary( 7 ) );
-		result.current.refetch();
+		( result.current.refetch as ( event: unknown ) => void )( { type: 'click' } );
 
 		expect( refetch ).toHaveBeenCalledWith();
 	} );

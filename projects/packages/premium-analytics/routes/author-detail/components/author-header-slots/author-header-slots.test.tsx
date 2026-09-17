@@ -10,6 +10,7 @@ const resolved: AuthorSummary = {
 	firstPublishedDate: '2023-07-04T10:00:00',
 	isLoading: false,
 	isError: false,
+	error: null,
 	isNotFound: false,
 	refetch: () => {},
 };

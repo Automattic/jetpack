@@ -16,6 +16,8 @@ export type AuthorSummary = {
 	isLoading: boolean;
 	/** Whether the summary request failed; the page must not present a fallback name as real data. */
 	isError: boolean;
+	/** The failed request's error, for `describeError` to tell access denied from a retryable failure. */
+	error: unknown;
 	/** Whether the site knows no author by this id. */
 	isNotFound: boolean;
 	/** Re-runs the failed request, for the error state's Retry action. */
@@ -30,9 +32,8 @@ export type AuthorSummary = {
  * @return The resolved author summary.
  */
 export function useAuthorSummary( authorId: number ): AuthorSummary {
-	const { data, isLoading, isError, isSuccess, refetch } = useStatsQuery< AuthorSummaryResponse >(
-		authorSummaryQuery( authorId )
-	);
+	const { data, isLoading, isError, error, isSuccess, refetch } =
+		useStatsQuery< AuthorSummaryResponse >( authorSummaryQuery( authorId ) );
 
 	// The query's own refetch takes a react-query options object; expose a
 	// no-arg wrapper so callers can pass it straight to event handlers.
@@ -46,9 +47,10 @@ export function useAuthorSummary( authorId: number ): AuthorSummary {
 		// through the shared http(s) guard like every other report URL.
 		avatarUrl: safeHttpUrl( data?.avatarUrl ) ?? undefined,
 		postCount: data?.postCount,
-		firstPublishedDate: data?.firstPublishedDate || undefined,
+		firstPublishedDate: data?.firstPublishedDate ?? undefined,
 		isLoading,
 		isError,
+		error,
 		isNotFound: isSuccess && data === null,
 		refetch: retry,
 	};
