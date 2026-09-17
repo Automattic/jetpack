@@ -40,8 +40,7 @@
 // fallback wins before the override can reach it). It does NOT rule out
 // `var(--name, <fallback>)` used purely for readability and forward-
 // compatibility on size values — the compiled output is identical to
-// inlining the fallback. This mixin uses `var(--wp-admin-bar-height, …)`
-// (mirroring `projects/packages/forms/src/dashboard/inbox/style.scss`) so
+// inlining the fallback. This mixin uses `var(--wp-admin-bar-height, …)` so
 // the intent stays legible, and so packages that don't run the `preserve:
 // false` plugin can override the var at runtime. Immutable sizes (sidebar
 // widths, viewport breakpoints) use SCSS variables — they can't change at

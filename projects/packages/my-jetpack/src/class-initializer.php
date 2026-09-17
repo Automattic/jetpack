@@ -12,6 +12,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Error_Handler as Connection_Error_Handler;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -1220,12 +1221,32 @@ class Initializer {
 		// Report each non-silent alert to the central menu-badges registry as an
 		// attention entry (count 1). The registry + renderer own the badge.
 		Menu_Badges::init(); // idempotent; wires the renderer.
+
+		// Connection errors are owned by the Error Handler (the single source of truth):
+		// surface any it reports for this viewer as their own attention entry. Read live
+		// rather than from the red-bubble transient, since that cache is not viewer-keyed.
+		$has_connection_error = self::has_connection_error();
+		if ( $has_connection_error ) {
+			Notification_Counts::register(
+				'my-jetpack-connection-error',
+				array(
+					'menu_slug' => 'my-jetpack',
+					'type'      => 'attention',
+				)
+			);
+		}
+
 		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
 			// Protect reports its own count directly to the registry, but only when its
 			// standalone plugin is active (see class-jetpack-protect.php::admin_page_init()).
 			// If the standalone plugin isn't active, nobody else registers this count, so we
 			// must not skip it here or the alert silently disappears from the menu total.
 			if ( 'protect_has_threats' === $slug && Products\Protect::is_standalone_plugin_active() ) {
+				continue;
+			}
+			// The missing-connection slug and a connection error describe the same broken
+			// connection; count it once (the error, above, is the more specific signal).
+			if ( $has_connection_error && 'missing-connection' === $slug ) {
 				continue;
 			}
 			Notification_Counts::register(
@@ -1236,6 +1257,24 @@ class Initializer {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Whether the Connection Error Handler reports a displayable connection error
+	 * for the current viewer.
+	 *
+	 * Read live (not via the red-bubble transient): get_displayable_errors() is a
+	 * cached option read that the Error Handler already scopes and caches per viewer.
+	 * Guarded for the mid-plugin-update window, where a stale connection package
+	 * predating the method can be loaded.
+	 *
+	 * @return bool
+	 */
+	private static function has_connection_error() {
+		if ( ! class_exists( Connection_Error_Handler::class ) || ! method_exists( Connection_Error_Handler::class, 'get_displayable_errors' ) ) {
+			return false;
+		}
+		return ! empty( Connection_Error_Handler::get_instance()->get_displayable_errors() );
 	}
 
 	/**

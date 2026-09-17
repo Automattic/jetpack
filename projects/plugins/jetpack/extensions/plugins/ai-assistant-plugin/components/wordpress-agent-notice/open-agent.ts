@@ -18,6 +18,24 @@ export const AGENTS_MANAGER_READY_EVENT = 'agents-manager-ready';
 // The Agents Manager registers this store on the shared wp.data registry.
 const AGENTS_MANAGER_STORE = 'automattic/agents-manager';
 
+// Injected as a bare `const`, not a window property, so read it bare behind a
+// typeof guard.
+declare const agentsManagerData:
+	| { jetpackAiSidebar?: { agentNoticeActionAvailable?: boolean } }
+	| undefined;
+
+/**
+ * Whether the server reports a working, connected agent to open, not merely eligibility.
+ *
+ * @return {boolean} True once there is an agent to open.
+ */
+export function isAgentActionAvailable(): boolean {
+	return (
+		typeof agentsManagerData !== 'undefined' &&
+		!! agentsManagerData?.jetpackAiSidebar?.agentNoticeActionAvailable
+	);
+}
+
 type AgentsManagerSelect = {
 	getIsOpen?: () => boolean;
 	getIsMinimized?: () => boolean;

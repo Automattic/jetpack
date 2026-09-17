@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import CacheDebugLogCard from '../../pages/cache-debug-log/cache-debug-log-card';
-import AdvancedCriticalCss from '../../pages/critical-css-advanced/critical-css-advanced';
+import CriticalCssAdvancedCards from '../../pages/critical-css-advanced/critical-css-advanced-cards';
 import GettingStarted from '../../pages/getting-started/getting-started';
 import PurchaseSuccess from '../../pages/purchase-success/purchase-success';
 import SubpageFrame from './subpage-frame';
@@ -23,7 +23,11 @@ const ModernSubpage = ( { subpage }: ModernSubpageProps ) => {
 				</SubpageFrame>
 			);
 		case 'critical-css-advanced':
-			return <AdvancedCriticalCss />;
+			return (
+				<SubpageFrame title={ __( 'Critical CSS recommendations', 'jetpack-boost' ) }>
+					<CriticalCssAdvancedCards />
+				</SubpageFrame>
+			);
 		case 'getting-started':
 			return <GettingStarted />;
 		case 'purchase-successful':

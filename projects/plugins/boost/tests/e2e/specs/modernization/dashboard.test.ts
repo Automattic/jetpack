@@ -44,6 +44,13 @@ test.describe( 'Dashboard modernization', () => {
 		jetpackBoostPage,
 		page,
 	} ) => {
+		const missingConfigErrors: string[] = [];
+		page.on( 'console', message => {
+			if ( message.text().includes( 'jetpackConfig is missing' ) ) {
+				missingConfigErrors.push( message.text() );
+			}
+		} );
+
 		await boostUtils.setDashboardModernization( true );
 		await jetpackBoostPage.visit();
 		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 1 );
@@ -58,6 +65,26 @@ test.describe( 'Dashboard modernization', () => {
 		// The mount is only useful once the webpack app has rendered Settings into it.
 		await expect( page.locator( '#jb-settings-tab-mount .jb-modern-settings' ) ).toHaveCount( 1 );
 		await expect( page.locator( '#jb-admin-settings' ) ).toHaveCount( 0 );
+		expect( missingConfigErrors ).toEqual( [] );
+	} );
+
+	test( 'Offer Run speed test in the page header only on the Overview tab', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.setDashboardModernization( true );
+		await jetpackBoostPage.visit();
+		const runSpeedTest = page
+			.locator( '.jetpack-boost-page' )
+			.getByRole( 'button', { name: 'Run speed test', exact: true } );
+		await expect( runSpeedTest ).toBeVisible();
+
+		await page.getByRole( 'tab', { name: 'Settings', exact: true } ).click();
+		await expect( runSpeedTest ).toHaveCount( 0 );
+
+		await page.getByRole( 'tab', { name: 'Overview', exact: true } ).click();
+		await expect( runSpeedTest ).toBeVisible();
 	} );
 
 	test( 'Keep modern assets off other admin pages', async ( { boostUtils, admin, page } ) => {

@@ -30,7 +30,7 @@ class DashPhoton extends Component {
 
 		if ( this.props.getOptionValue( 'photon' ) ) {
 			return (
-				<DashItem label={ labelName } module="photon" support={ support } status="is-working">
+				<DashItem label={ labelName } module="photon" support={ support }>
 					<p className="jp-dash-item__description">
 						{ __(
 							"Jetpack is optimizing your image sizes and download speed using our fast global network of servers. This improves your site's performance on desktop and mobile devices.",
