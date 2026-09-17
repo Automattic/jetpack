@@ -20,6 +20,9 @@ export function useInterstitialsState() {
 	const { data, isLoading, error, refetch } = useSimpleQuery< InterstitialsData >( {
 		name: QUERY_PRODUCT_INTERSTITIALS_KEY,
 		query: { path: REST_API_SITE_PRODUCTS_INTERSTITIALS_ENDPOINT },
+		// See `useAllProducts`: a later reader must not refetch what is already loaded.
+		// The update below refetches explicitly once it succeeds.
+		options: { refetchOnMount: false },
 	} );
 
 	const { mutate, isPending } = useSimpleMutation< InterstitialsData >( {

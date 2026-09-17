@@ -15,6 +15,8 @@ const useFetchProductsByOwnership = () => {
 		query: {
 			path: REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT,
 		},
+		// See `useAllProducts`: a later reader must not refetch what is already loaded.
+		options: { refetchOnMount: false },
 	} );
 
 	return queryResult;

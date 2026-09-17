@@ -18,7 +18,11 @@ export const useAllProducts = () => {
 		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }`,
 		},
-		options: { enabled: true },
+		// Mounting a second reader of this query — opening a feature's modal over the
+		// grid that already loaded it — must not refetch: `isRefetching` is shared by
+		// every reader, so the whole grid would flick into its disabled state. Product
+		// state only changes through this app's own mutations, which refetch explicitly.
+		options: { enabled: true, refetchOnMount: false },
 	} );
 
 	if ( ! isLoading && ! isError ) {
