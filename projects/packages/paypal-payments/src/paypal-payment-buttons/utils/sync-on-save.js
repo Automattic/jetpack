@@ -10,13 +10,15 @@
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
 import {
+	getComparisonPrice,
 	hasVariantPricing,
 	isVariantPricingOn,
+	validateCustomerNotes,
 	validateVariants,
 } from '../components/variant-builder';
 import { API_BASE } from './api-base';
-import { buildRequestData, keepPayPalOnlyFields } from './request-data';
-import { ADVISORY_ERROR_KEYS, getUserFriendlyError, getValidationErrors } from './validation';
+import { buildRequestData } from './request-data';
+import { firstBlockingError, getUserFriendlyError, getValidationErrors } from './validation';
 
 // The last body each block sent, so an unchanged block is not re-sent on every save.
 const lastSynced = new Map();
@@ -31,48 +33,38 @@ export function forgetSyncedRequests() {
 /**
  * Why a block's form cannot be sent to PayPal yet, if it cannot.
  *
- * The same gate the editor shows the merchant: a blocking field error, or an
- * option group error, holds the payment back.
+ * The same check the editor shows the merchant - a blocking field error, an option
+ * group error or a customer note error.
  *
  * @param {object} attributes - Block attributes.
  * @return {string|null} The first thing to fix, or null when the payment can go.
  */
 export function heldBackReason( attributes ) {
-	const {
-		productName,
-		price,
-		productDescription,
-		returnUrl,
-		currencyCode,
-		variantsEnabled,
-		variants,
-		taxEnabled,
-		taxType,
-		taxValue,
-	} = attributes;
+	const { price, currencyCode, variantsEnabled, variants, customerNotes } = attributes;
 
+	const variantPricingOn = isVariantPricingOn( variantsEnabled, variants );
+
+	// The whole attribute set goes in, so a new field is covered here and in the editor
+	// at once.
 	const errors = getValidationErrors( {
-		productName,
-		price,
-		productDescription,
-		returnUrl,
-		currencyCode,
-		variantPricingOn: isVariantPricingOn( variantsEnabled, variants ),
-		taxEnabled,
-		taxIsPercentage: ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE',
-		taxValue,
+		...attributes,
+		variantPricingOn,
+		comparisonPrice: getComparisonPrice( variantPricingOn, variants, price ),
 	} );
 
-	const blocking = Object.entries( errors ).find(
-		( [ field, message ] ) => message && ! ADVISORY_ERROR_KEYS.includes( field )
-	);
+	const blocking = firstBlockingError( errors );
 	if ( blocking ) {
-		return blocking[ 1 ];
+		return blocking;
 	}
 
 	const [ variantError ] = validateVariants( variantsEnabled, variants, currencyCode || 'USD' );
+	if ( variantError ) {
+		return variantError.message;
+	}
 
-	return variantError ? variantError.message : null;
+	const [ noteError ] = validateCustomerNotes( customerNotes );
+
+	return noteError ? noteError.message : null;
 }
 
 /**
@@ -146,13 +138,12 @@ async function syncBlock(
 	try {
 		if ( resourceId ) {
 			try {
-				// Read first: a PUT is a full replacement, and the payment carries
-				// fields the form has no control for.
-				const resource = await request( { path: `${ API_BASE }/buttons/${ resourceId }` } );
+				// A PUT replaces the payment outright, and the form models every line item field
+				// PayPal stores, so the body goes out as built.
 				await request( {
 					path: `${ API_BASE }/buttons/${ resourceId }`,
 					method: 'PUT',
-					data: keepPayPalOnlyFields( body, resource ),
+					data: body,
 				} );
 			} catch ( err ) {
 				if ( ! isNotFound( err ) ) {

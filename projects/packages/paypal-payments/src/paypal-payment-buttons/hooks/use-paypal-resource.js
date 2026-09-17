@@ -128,7 +128,7 @@ export function usePayPalResource( {
 			} )
 			.catch( err => {
 				// If already deleted (404), clear state anyway.
-				if ( err.code === 'paypal_api_resource_not_found' || err.data?.status === 404 ) {
+				if ( isNotFound( err ) ) {
 					setAttributes( {
 						isApiManaged: false,
 						resourceId: undefined,

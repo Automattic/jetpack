@@ -7,11 +7,13 @@
 import {
 	deleteRemovedPayments,
 	forgetSyncedRequests,
+	heldBackReason,
 	isReadyForPayPal,
 	removedResourceIds,
 	resourceIdsIn,
 	syncBlocksBeforeSave,
 } from '../../src/paypal-payment-buttons/utils/sync-on-save';
+import { REQUIRED_FIELD_ERROR } from '../../src/paypal-payment-buttons/utils/validation';
 
 const product = {
 	productName: 'Test Widget',
@@ -103,6 +105,267 @@ describe( 'isReadyForPayPal', () => {
 				...product,
 				variantsEnabled: true,
 				variants: variantsWithPrices( [ '', '' ] ),
+			} )
+		).toBe( false );
+	} );
+
+	it.each( [ 'FLAT', 'QUANTITY' ] )( 'holds back %s shipping with no fee', shippingMode => {
+		expect(
+			isReadyForPayPal( { ...product, shippingEnabled: true, shippingMode, shippingValue: '' } )
+		).toBe( false );
+	} );
+
+	it.each( [ 'PROFILE', 'FREE' ] )( 'sends %s shipping with no fee', shippingMode => {
+		expect(
+			isReadyForPayPal( { ...product, shippingEnabled: true, shippingMode, shippingValue: '' } )
+		).toBe( true );
+	} );
+
+	it( 'sends a shipping fee of zero', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				shippingEnabled: true,
+				shippingMode: 'FLAT',
+				shippingValue: '0',
+			} )
+		).toBe( true );
+	} );
+
+	// Optional, so blank is fine - but a filled one still has to be an amount.
+	it( 'holds back a negative additional items fee', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				shippingEnabled: true,
+				shippingMode: 'QUANTITY',
+				shippingValue: '5.00',
+				shippingAdditionalValue: '-2',
+			} )
+		).toBe( false );
+	} );
+
+	it.each( [
+		[ 'a flat amount with no value', 'FLAT' ],
+		[ 'a rate with no value', 'PERCENTAGE' ],
+		[ 'no type and no value', '' ],
+	] )( 'holds back %s', ( _label, taxType ) => {
+		expect( isReadyForPayPal( { ...product, taxEnabled: true, taxType, taxValue: '' } ) ).toBe(
+			false
+		);
+	} );
+
+	// PREFERENCE takes its rate from the merchant's PayPal profile.
+	it( 'lets a profile tax through with no value', () => {
+		expect(
+			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } )
+		).toBe( true );
+	} );
+
+	it( 'lets a flat tax with an amount through', () => {
+		expect(
+			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'FLAT', taxValue: '1.50' } )
+		).toBe( true );
+	} );
+
+	// PayPal's own bounds, measured.
+	it.each( [
+		[ 'a rate at the ceiling', '100', 'Rate must be less than 100%.' ],
+		[ 'a rate over the ceiling', '150', 'Rate must be less than 100%.' ],
+		[ 'a rate with three decimals', '7.555', 'Rate can have at most 2 decimal places.' ],
+	] )( 'holds back %s', ( _label, taxValue, message ) => {
+		expect(
+			heldBackReason( { ...product, taxEnabled: true, taxType: 'PERCENTAGE', taxValue } )
+		).toBe( message );
+	} );
+
+	// The field draws a currency suffix for any type other than PERCENTAGE.
+	it( 'validates an unknown tax type as money', () => {
+		expect(
+			heldBackReason( { ...product, taxEnabled: true, taxType: 'SOMETHING_ELSE', taxValue: '150' } )
+		).toBeNull();
+	} );
+
+	it( 'lets a zero tax rate through', () => {
+		expect(
+			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '0' } )
+		).toBe( true );
+	} );
+
+	it( 'holds back a handling fee with no amount', () => {
+		expect( isReadyForPayPal( { ...product, handlingEnabled: true, handlingValue: '' } ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'lets a zero handling fee through', () => {
+		expect( isReadyForPayPal( { ...product, handlingEnabled: true, handlingValue: '0' } ) ).toBe(
+			true
+		);
+	} );
+
+	// Measured on JPY: PayPal rejects a decimal amount in JPY, HUF and TWD on every
+	// flat field.
+	describe( 'in a zero-decimal currency', () => {
+		const yen = { ...product, currencyCode: 'JPY', price: '3000' };
+
+		it( 'holds back a flat tax with decimals', () => {
+			expect(
+				isReadyForPayPal( { ...yen, taxEnabled: true, taxType: 'FLAT', taxValue: '1.50' } )
+			).toBe( false );
+		} );
+
+		// Measured: a JPY item stores a 7.55% tax. A percentage follows its own rule.
+		it( 'lets a tax rate with decimals through', () => {
+			expect(
+				isReadyForPayPal( { ...yen, taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '7.55' } )
+			).toBe( true );
+		} );
+
+		it( 'holds back a shipping fee with decimals', () => {
+			expect(
+				isReadyForPayPal( {
+					...yen,
+					shippingEnabled: true,
+					shippingMode: 'FLAT',
+					shippingValue: '5.50',
+				} )
+			).toBe( false );
+		} );
+
+		it( 'holds back a flat discount with decimals', () => {
+			expect(
+				isReadyForPayPal( {
+					...yen,
+					discountEnabled: true,
+					discountType: 'FLAT',
+					discountValue: '1.50',
+				} )
+			).toBe( false );
+		} );
+
+		it( 'holds back an additional items fee with decimals', () => {
+			expect(
+				isReadyForPayPal( {
+					...yen,
+					shippingEnabled: true,
+					shippingMode: 'QUANTITY',
+					shippingValue: '500',
+					shippingAdditionalValue: '2.50',
+				} )
+			).toBe( false );
+		} );
+
+		// heldBackReason says which field broke when this fails.
+		it( 'lets whole amounts through', () => {
+			expect(
+				heldBackReason( {
+					...yen,
+					handlingEnabled: true,
+					handlingValue: '400',
+					shippingEnabled: true,
+					shippingMode: 'QUANTITY',
+					shippingValue: '500',
+					shippingAdditionalValue: '200',
+				} )
+			).toBeNull();
+		} );
+
+		it( 'holds back a handling fee with decimals, naming the currency', () => {
+			expect( heldBackReason( { ...yen, handlingEnabled: true, handlingValue: '4.00' } ) ).toBe(
+				'Prices in JPY are whole numbers (e.g., "1500").'
+			);
+		} );
+	} );
+
+	it( 'holds back a discount with no value', () => {
+		expect( isReadyForPayPal( { ...product, discountEnabled: true, discountType: 'FLAT' } ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'holds back a flat discount equal to the product price', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				discountEnabled: true,
+				discountType: 'FLAT',
+				discountValue: '29.99',
+			} )
+		).toBe( false );
+	} );
+
+	it( 'lets a flat discount under the product price through', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				discountEnabled: true,
+				discountType: 'FLAT',
+				discountValue: '5.00',
+			} )
+		).toBe( true );
+	} );
+
+	it( 'refuses to save a customer note with a blank label', () => {
+		const attributes = { ...product, customerNotes: [ { label: '', required: false } ] };
+
+		expect( isReadyForPayPal( attributes ) ).toBe( false );
+		expect( heldBackReason( attributes ) ).toBe( REQUIRED_FIELD_ERROR );
+	} );
+
+	it( 'reports the variant error ahead of a blank customer note', () => {
+		const attributes = {
+			...product,
+			variantsEnabled: true,
+			variants: { dimensions: [ { name: '', primary: true, options: [] } ] },
+			customerNotes: [ { label: '', required: false } ],
+		};
+
+		expect( heldBackReason( attributes ) ).toBe( 'Variant name is required.' );
+	} );
+
+	it( 'lets a labelled customer note through', () => {
+		const attributes = {
+			...product,
+			customerNotes: [ { label: 'Engraving', required: true } ],
+		};
+
+		expect( isReadyForPayPal( attributes ) ).toBe( true );
+		expect( heldBackReason( attributes ) ).toBeNull();
+	} );
+
+	// Per-option pricing replaces the product price, so the 29.99 in `price` is ignored.
+	it( 'measures a flat discount against the cheapest option price', () => {
+		const withOptions = {
+			...product,
+			variantsEnabled: true,
+			variants: variantsWithPrices( priced ),
+			discountEnabled: true,
+			discountType: 'FLAT',
+		};
+
+		expect( isReadyForPayPal( { ...withOptions, discountValue: '15.00' } ) ).toBe( false );
+		expect( isReadyForPayPal( { ...withOptions, discountValue: '5.00' } ) ).toBe( true );
+	} );
+
+	it( 'holds back a percentage discount with decimals', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				discountEnabled: true,
+				discountType: 'PERCENTAGE',
+				discountValue: '15.5',
+			} )
+		).toBe( false );
+	} );
+
+	it( 'holds back a percentage discount of 100', () => {
+		expect(
+			isReadyForPayPal( {
+				...product,
+				discountEnabled: true,
+				discountType: 'PERCENTAGE',
+				discountValue: '100',
 			} )
 		).toBe( false );
 	} );
@@ -204,43 +467,30 @@ describe( 'syncBlocksBeforeSave', () => {
 
 	describe( 'a block that already has a payment', () => {
 		const saved = { ...product, isApiManaged: true, resourceId: 'PLB-KEEP1' };
-		const storedLineItem = {
-			name: 'Stale name',
-			product_id: 'SKU-12345',
-			shipping: [ { type: 'FLAT', value: '5.00' } ],
-			handling: [ { type: 'FLAT', value: '4.00' } ],
-			discounts: [ { type: 'FLAT', value: '2.00' } ],
-			// The block sends false, so a true in the PUT can only have come from the payment.
-			collect_shipping_address: true,
-		};
-
 		/**
-		 * Answer the read with the stored payment and every write with nothing.
+		 * Answer every request with nothing.
 		 *
-		 * @param {object} options - The request.
 		 * @return {Promise<object>} The response.
 		 */
-		const stored = options =>
-			options.method === undefined
-				? Promise.resolve( { id: 'PLB-KEEP1', line_items: [ storedLineItem ] } )
-				: Promise.resolve( {} );
+		const stored = () => Promise.resolve( {} );
 
-		it( 'reads the payment and updates it, keeping the fields set outside the form', async () => {
+		it( 'replaces the payment with the form values, clearing what the form leaves unset', async () => {
 			const deps = fakeDeps( stored );
 
 			const changed = await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
 
 			expect( changed ).toBe( false );
-			expect( deps.requests.map( r => r.method ) ).toEqual( [ undefined, 'PUT' ] );
-			const [ item ] = deps.requests[ 1 ].data.line_items;
+			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'PUT' ] );
+			const [ item ] = deps.requests[ 0 ].data.line_items;
 			expect( item ).toMatchObject( {
 				name: 'Test Widget',
-				product_id: 'SKU-12345',
-				shipping: storedLineItem.shipping,
-				handling: storedLineItem.handling,
-				discounts: storedLineItem.discounts,
-				collect_shipping_address: true,
+				collect_shipping_address: false,
 			} );
+			// All four are off in this block, so PayPal clears them.
+			expect( item ).not.toHaveProperty( 'product_id' );
+			expect( item ).not.toHaveProperty( 'shipping' );
+			expect( item ).not.toHaveProperty( 'handling' );
+			expect( item ).not.toHaveProperty( 'discounts' );
 			expect( deps.updateBlockAttributes ).not.toHaveBeenCalled();
 		} );
 
@@ -249,13 +499,13 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
 			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
-			expect( deps.requests ).toHaveLength( 2 );
+			expect( deps.requests ).toHaveLength( 1 );
 
 			await syncBlocksBeforeSave(
 				[ { clientId: 'a', attributes: { ...saved, price: '31.00' } } ],
 				deps
 			);
-			expect( deps.requests ).toHaveLength( 4 );
+			expect( deps.requests ).toHaveLength( 2 );
 		} );
 
 		it( 're-creates a payment that has been deleted from PayPal', async () => {
@@ -279,7 +529,7 @@ describe( 'syncBlocksBeforeSave', () => {
 
 		it( 'reports a refusal and keeps going', async () => {
 			const deps = fakeDeps( options =>
-				options.method === undefined
+				options.method === 'PUT'
 					? Promise.reject( { message: 'PayPal turned the payment down.' } )
 					: Promise.resolve( {} )
 			);
