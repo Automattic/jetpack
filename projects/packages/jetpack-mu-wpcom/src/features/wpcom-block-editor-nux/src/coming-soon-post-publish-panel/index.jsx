@@ -6,16 +6,14 @@ import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
 
-// Core offers no slot for this header, and "is now live." is false while the site is Coming Soon.
+// Core offers no slot for this header. Check Coming Soon per call: the Jetpack script carrying
+// that flag isn't a dependency of this bundle, so it may not have loaded yet.
 addFilter(
 	'i18n.gettext_default',
 	'jetpack-mu-wpcom/coming-soon-post-publish-header',
 	( translation, text ) =>
 		text === 'is now live.' && isComingSoon()
-			? __(
-					'is published, but visitors can’t see it until your site is public.',
-					'jetpack-mu-wpcom'
-			  )
+			? __( 'is published. Your site is still Coming Soon.', 'jetpack-mu-wpcom' )
 			: translation
 );
 
@@ -40,12 +38,7 @@ export default function ComingSoonPostPublishPanel() {
 			icon={ unseen }
 			initialOpen
 		>
-			<p>
-				{ __(
-					'Your site is set to Coming Soon. Make it public when you’re ready for visitors.',
-					'jetpack-mu-wpcom'
-				) }
-			</p>
+			<p>{ __( 'Make your site public when you’re ready for visitors.', 'jetpack-mu-wpcom' ) }</p>
 			<Button variant="secondary" href="./options-reading.php" target="_top">
 				{ __( 'Change site visibility', 'jetpack-mu-wpcom' ) }
 			</Button>
