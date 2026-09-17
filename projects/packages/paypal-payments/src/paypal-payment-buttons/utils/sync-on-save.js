@@ -1,14 +1,13 @@
 /**
  * Keep each PayPal block's payment in step with the post it sits in.
  *
- * The payment is created or updated when the post is saved, and deleted when
- * the post is saved without the block that held it.
+ * The payment is created or updated when the post is saved. Removing the block
+ * leaves the payment alone.
  *
  * @package
  */
 
 import { __, sprintf } from '@wordpress/i18n';
-import metadata from '../block.json';
 import {
 	getComparisonPrice,
 	hasVariantPricing,
@@ -233,59 +232,4 @@ export async function syncBlocksBeforeSave( blocks, deps ) {
 	const results = await Promise.all( blocks.map( block => syncBlock( block, deps ) ) );
 
 	return results.some( Boolean );
-}
-
-const RESOURCE_ID_PATTERN = new RegExp(
-	'wp:' + metadata.name.replace( '/', '\\/' ) + ' [^\\n]*?"resourceId":"(PLB-[A-Za-z0-9]+)"',
-	'g'
-);
-
-/**
- * The payments the PayPal blocks in some post content point at.
- *
- * @param {string} content - Serialized post content.
- * @return {Set<string>} Resource ids.
- */
-export function resourceIdsIn( content ) {
-	const ids = new Set();
-	for ( const match of String( content || '' ).matchAll( RESOURCE_ID_PATTERN ) ) {
-		ids.add( match[ 1 ] );
-	}
-
-	return ids;
-}
-
-/**
- * The payments the saved post had that the content about to be saved no longer has.
- *
- * @param {string} savedContent - Content of the post as last saved.
- * @param {string} nextContent  - Content about to be saved.
- * @return {string[]} Resource ids the merchant removed.
- */
-export function removedResourceIds( savedContent, nextContent ) {
-	const next = resourceIdsIn( nextContent );
-
-	return [ ...resourceIdsIn( savedContent ) ].filter( id => ! next.has( id ) );
-}
-
-/**
- * Delete the payments behind blocks the merchant removed, unless another
- * published post still uses them. The server does that check.
- *
- * @param {string[]} resourceIds  - Payments to delete.
- * @param {number}   postId       - The post being saved, left out of the check.
- * @param {object}   deps         - Collaborators.
- * @param {Function} deps.request - apiFetch or a stand-in.
- * @return {Promise<void>} Resolves once every delete has been attempted.
- */
-export async function deleteRemovedPayments( resourceIds, postId, { request } ) {
-	await Promise.all(
-		resourceIds.map( id =>
-			request( {
-				path: `${ API_BASE }/buttons/${ id }?unused_only=1&post_id=${ Number( postId ) || 0 }`,
-				method: 'DELETE',
-				// The admin page lists what is left, so a failed delete is not worth a notice.
-			} ).catch( () => {} )
-		)
-	);
 }
