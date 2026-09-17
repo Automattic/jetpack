@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Declare the sidebar item's visibility gate. No behavior change.
+
+

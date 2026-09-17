@@ -229,7 +229,12 @@ class Jetpack_Activity_Log {
 			'Activity Log',
 			'manage_options',
 			self::PAGE_SLUG,
-			$render_callback
+			$render_callback,
+			null,
+			array(
+				'module' => self::MODULE_SLUG,
+				'key'    => self::PAGE_SLUG,
+			)
 		);
 
 		if ( $page_suffix ) {
