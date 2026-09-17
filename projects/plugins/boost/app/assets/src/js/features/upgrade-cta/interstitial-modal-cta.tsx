@@ -2,21 +2,23 @@ import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/components/product-interstitial-modal/index';
 import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp';
 import { __ } from '@wordpress/i18n';
-import { detectMode } from '$lib/modern/mode';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
 import LicenseKeyLink from './license-key-link';
+import styles from './upgrade-cta.module.scss';
 import type { ReactNode } from 'react';
 
 type InterstitialModalCTAProps = {
 	description?: string;
 	identifier: string;
 	customModalTrigger?: ReactNode;
+	showLicenseKeyLink?: boolean;
 };
 
 const InterstitialModalCTA = ( {
 	description = '',
 	identifier,
 	customModalTrigger,
+	showLicenseKeyLink = false,
 }: InterstitialModalCTAProps ) => {
 	// Non-public sites get no upsell, and offline sites have no My Jetpack routes for the modal's on-mount products fetch.
 	if ( ! Jetpack_Boost.site.online ) {
@@ -51,7 +53,7 @@ const InterstitialModalCTA = ( {
 					__( 'Priority support', 'jetpack-boost' ),
 				] }
 			/>
-			{ detectMode() === 'modern' && <LicenseKeyLink /> }
+			{ showLicenseKeyLink && <LicenseKeyLink className={ styles[ 'license-key-link' ] } /> }
 		</>
 	);
 };

@@ -16,12 +16,13 @@ jest.mock( '$lib/stores/premium-features', () => ( {
 } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
-const boostGlobal = { site: { online: true } };
+const boostGlobal = { site: { online: true, host: 'unknown' } };
 
 describe( 'InterstitialModalCTA', () => {
 	beforeEach( () => {
 		jest.mocked( apiFetch ).mockClear();
 		jest.mocked( apiFetch ).mockImplementation( () => new Promise( () => {} ) );
+		boostGlobal.site.host = 'unknown';
 		Object.assign( globalThis, {
 			Jetpack_Boost: boostGlobal,
 			myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
@@ -74,18 +75,23 @@ describe( 'InterstitialModalCTA', () => {
 	} );
 
 	it.each( [
-		{ rootId: MODERN_ROOT_ID, features: [], visible: true },
-		{ rootId: MODERN_ROOT_ID, features: [ 'support' ], visible: false },
-		{ rootId: LEGACY_ROOT_ID, features: [], visible: false },
+		{ rootId: MODERN_ROOT_ID, features: [], host: 'unknown', visible: true },
+		{ rootId: MODERN_ROOT_ID, features: [ 'support' ], host: 'unknown', visible: false },
+		{ rootId: MODERN_ROOT_ID, features: [], host: 'woa', visible: false },
+		{ rootId: LEGACY_ROOT_ID, features: [], host: 'unknown', visible: false },
 	] )(
 		'offers license redemption beside modern free-site prompts (%o)',
-		( { rootId, features, visible } ) => {
+		( { rootId, features, host, visible } ) => {
 			boostGlobal.site.online = true;
+			boostGlobal.site.host = host;
 			jest.mocked( usePremiumFeatures ).mockReturnValue( features );
 			render( <div id={ rootId } data-testid="dashboard-root" /> );
-			render( <InterstitialModalCTA identifier="critical-css" description="Upgrade" />, {
-				container: screen.getByTestId( 'dashboard-root' ),
-			} );
+			render(
+				<InterstitialModalCTA identifier="critical-css" description="Upgrade" showLicenseKeyLink />,
+				{
+					container: screen.getByTestId( 'dashboard-root' ),
+				}
+			);
 
 			expect( screen.getByRole( 'button', { name: /Upgrade now/ } ) ).toBeTruthy();
 			const link = screen.queryByRole( 'link', { name: 'Use license key' } );

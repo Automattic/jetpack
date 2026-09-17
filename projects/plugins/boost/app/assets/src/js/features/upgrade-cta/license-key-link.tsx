@@ -4,7 +4,11 @@ import { detectMode } from '$lib/modern/mode';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { isWoaHosting } from '$lib/utils/hosting';
 
-export default function LicenseKeyLink() {
+type LicenseKeyLinkProps = {
+	className?: string;
+};
+
+export default function LicenseKeyLink( { className }: LicenseKeyLinkProps ) {
 	const premiumFeatures = usePremiumFeatures();
 	const hasPlan = premiumFeatures && premiumFeatures.length > 0;
 
@@ -12,9 +16,11 @@ export default function LicenseKeyLink() {
 		return null;
 	}
 
-	return (
+	const link = (
 		<Button variant="link" href="admin.php?page=my-jetpack#/add-license">
 			{ __( 'Use license key', 'jetpack-boost' ) }
 		</Button>
 	);
+
+	return className ? <div className={ className }>{ link }</div> : link;
 }
