@@ -51,7 +51,7 @@ class Configuration_Test extends TestCase {
 		$configuration = new Configuration();
 		$configuration->configure_sync();
 
-		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ) ) );
+		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
 		$this->assertFalse( has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
 		$this->assertFalse( has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
 	}
@@ -72,7 +72,7 @@ class Configuration_Test extends TestCase {
 		$configuration = new Configuration();
 		$configuration->configure_sync();
 
-		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ) ) );
+		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
 
@@ -142,29 +142,33 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * The shared module is added exactly once when no other plugin provides one.
+	 * A list without the standalone plugin's module is passed through untouched.
 	 */
-	public function test_add_woocommerce_analytics_module_adds_shared_module_once() {
-		$configuration = new Configuration();
-		$modules       = $configuration->add_woocommerce_analytics_module( array( Posts::class ) );
+	public function test_remove_duplicate_woocommerce_analytics_module_leaves_the_list_alone() {
+		$modules = array( Posts::class, WooCommerce_Analytics::class );
 
-		$this->assertSame( array( Posts::class, WooCommerce_Analytics::class ), $modules );
-		$this->assertSame( $modules, $configuration->add_woocommerce_analytics_module( $modules ) );
+		$this->assertSame( $modules, ( new Configuration() )->remove_duplicate_woocommerce_analytics_module( $modules ) );
+	}
+
+	/**
+	 * An emptied module list is a kill switch and stays empty.
+	 */
+	public function test_remove_duplicate_woocommerce_analytics_module_honors_an_emptied_list() {
+		$this->assertSame( array(), ( new Configuration() )->remove_duplicate_woocommerce_analytics_module( array() ) );
 	}
 
 	/**
 	 * The standalone Analytics plugin remains authoritative during migration.
 	 */
-	public function test_add_woocommerce_analytics_module_defers_to_standalone_plugin() {
-		$configuration = new Configuration();
-		$modules       = array(
+	public function test_remove_duplicate_woocommerce_analytics_module_defers_to_standalone_plugin() {
+		$modules = array(
 			Configuration::ANALYTICS_PLUGIN_MODULE_FQCN,
 			WooCommerce_Analytics::class,
 		);
 
 		$this->assertSame(
 			array( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ),
-			$configuration->add_woocommerce_analytics_module( $modules )
+			( new Configuration() )->remove_duplicate_woocommerce_analytics_module( $modules )
 		);
 	}
 

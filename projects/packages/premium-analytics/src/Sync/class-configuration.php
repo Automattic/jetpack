@@ -102,8 +102,8 @@ class Configuration {
 			return;
 		}
 
-		// Runs last so another plugin's Analytics module, when present, is already in the list.
-		add_filter( 'jetpack_sync_modules', array( $this, 'add_woocommerce_analytics_module' ), PHP_INT_MAX );
+		// The shared module is registered through the Sync config below; this only drops a duplicate.
+		add_filter( 'jetpack_sync_modules', array( $this, 'remove_duplicate_woocommerce_analytics_module' ), PHP_INT_MAX );
 		add_filter( 'jetpack_full_sync_config', array( $this, 'expand_full_sync_config' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
 
@@ -145,15 +145,15 @@ class Configuration {
 	}
 
 	/**
-	 * Add the shared module unless the standalone plugin's module is present.
+	 * Remove the shared module when the standalone plugin's Analytics module is present.
 	 *
-	 * Registration is the only switch: full sync and checksums follow module presence
-	 * inside the sync package.
+	 * Sync dedups by class name only, so both would load and sync every event twice. Runs at
+	 * PHP_INT_MAX because Data_Settings re-asserts its whole module list at priority 10.
 	 *
 	 * @param array|mixed $modules Current Sync module class names.
 	 * @return array|mixed Updated Sync module class names.
 	 */
-	public function add_woocommerce_analytics_module( $modules ) {
+	public function remove_duplicate_woocommerce_analytics_module( $modules ) {
 		// An emptied list is a kill switch (Jetpack's uninstaller uses one); leave it alone.
 		if ( ! is_array( $modules ) || empty( $modules ) ) {
 			return $modules;
@@ -161,10 +161,6 @@ class Configuration {
 
 		if ( in_array( self::ANALYTICS_PLUGIN_MODULE_FQCN, $modules, true ) ) {
 			return array_values( array_diff( $modules, array( WooCommerce_Analytics_Module::class ) ) );
-		}
-
-		if ( ! in_array( WooCommerce_Analytics_Module::class, $modules, true ) ) {
-			$modules[] = WooCommerce_Analytics_Module::class;
 		}
 
 		return $modules;
