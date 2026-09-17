@@ -46,7 +46,30 @@ class Generator {
 			return $location;
 		}
 
-		$target = wp_parse_url( $location );
+		$normalize = static function ( $url ) {
+			$parts = wp_parse_url( $url );
+			if ( ! is_array( $parts ) ) {
+				return false;
+			}
+
+			if ( isset( $parts['scheme'], $parts['host'] ) && in_array( strtolower( $parts['scheme'] ), array( 'http', 'https' ), true ) ) {
+				$parts['scheme'] = strtolower( $parts['scheme'] );
+				$parts['host']   = strtolower( $parts['host'] );
+				$parts['path']   = $parts['path'] ?? '/';
+				$default_port    = 'https' === $parts['scheme'] ? 443 : 80;
+				if ( isset( $parts['port'] ) && $default_port === $parts['port'] ) {
+					unset( $parts['port'] );
+				}
+			}
+
+			if ( ! empty( $parts['path'] ) ) {
+				$parts['path'] = untrailingslashit( $parts['path'] ) ?: '/';
+			}
+
+			return $parts;
+		};
+
+		$target = $normalize( $location );
 		if ( ! is_array( $target ) || empty( $target['path'] ) ) {
 			return $location;
 		}
@@ -54,14 +77,15 @@ class Generator {
 		wp_parse_str( $target['query'] ?? '', $target_query );
 
 		foreach ( array( wp_login_url(), site_url( 'wp-login.php', 'login' ) ) as $login_url ) {
-			$login = wp_parse_url( $login_url );
+			$login = $normalize( $login_url );
 			if ( ! is_array( $login ) || empty( $login['path'] ) ) {
 				continue;
 			}
 
 			$same_scheme = empty( $target['scheme'] ) || ( isset( $login['scheme'] ) && 0 === strcasecmp( $target['scheme'], $login['scheme'] ) );
 			$same_host   = empty( $target['host'] ) || ( isset( $login['host'] ) && 0 === strcasecmp( $target['host'], $login['host'] ) );
-			if ( ! $same_scheme || ! $same_host || untrailingslashit( $target['path'] ) !== untrailingslashit( $login['path'] ) ) {
+			$same_port   = empty( $target['host'] ) || ( $target['port'] ?? null ) === ( $login['port'] ?? null );
+			if ( ! $same_scheme || ! $same_host || ! $same_port || $target['path'] !== $login['path'] ) {
 				continue;
 			}
 

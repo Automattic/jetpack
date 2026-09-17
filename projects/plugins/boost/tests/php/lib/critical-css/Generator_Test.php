@@ -118,6 +118,48 @@ class Generator_Test extends BaseTestCase {
 		}
 	}
 
+	public function test_custom_login_redirect_normalizes_absolute_urls() {
+		$this->init_request( true );
+		$login = '';
+		add_filter(
+			'login_url',
+			function () use ( &$login ) {
+				return $login;
+			}
+		);
+		add_filter(
+			'wp_die_handler',
+			function () {
+				return function ( $message, $title, $args ) {
+					throw new \RuntimeException( $message, $args['response'] );
+				};
+			}
+		);
+
+		$cases = array(
+			array( 'https://example.org?login=1', 'https://example.org?login=1' ),
+			array( 'https://example.org?login=1', 'https://example.org/?login=1&reauth=1' ),
+			array( 'HTTPS://EXAMPLE.ORG:443?login=1', 'https://example.org/?login=1' ),
+			array( 'https://example.org/?login=1', 'HTTPS://EXAMPLE.ORG:443?login=1' ),
+			array( 'HTTP://EXAMPLE.ORG:80?login=1', 'http://example.org/?login=1' ),
+			array( 'http://example.org/?login=1', 'HTTP://EXAMPLE.ORG:80?login=1' ),
+			array( 'https://example.org/members/?login=1', 'https://example.org/members?login=1' ),
+			array( 'https://example.org/members?login=1', 'https://example.org/members/?login=1' ),
+		);
+		foreach ( $cases as list( $login, $location ) ) {
+			$this->assertSame( 'https://example.org/', apply_filters( 'wp_redirect', 'https://example.org/', 302 ) );
+			$other_port = preg_replace( '/example\.org(?::\d+)?/i', 'example.org:8443', $location );
+			$this->assertSame( $other_port, apply_filters( 'wp_redirect', $other_port, 302 ) );
+
+			try {
+				wp_redirect( $location );
+				$this->fail( 'The normalized custom login redirect must terminate generation.' );
+			} catch ( \RuntimeException $error ) {
+				$this->assertSame( 403, $error->getCode() );
+			}
+		}
+	}
+
 	/**
 	 * Redirects that do not target the login page are left untouched.
 	 *
