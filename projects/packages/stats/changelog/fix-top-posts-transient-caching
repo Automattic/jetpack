@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add WPCOM_Stats::get_cache_expiration() as a public accessor for the stats cache expiration, so other code can reuse the same jetpack_fetch_stats_cache_expiration-filtered value instead of duplicating it.

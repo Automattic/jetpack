@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Update Jetpack_Top_Posts_Helper::get_top_posts to cache the result in a transient to reduce extraneous db queries.
