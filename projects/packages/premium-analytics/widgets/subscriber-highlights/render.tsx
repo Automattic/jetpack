@@ -54,6 +54,7 @@ function SubscriberHighlightsReport() {
 
 	const total = counts.data?.total_subscribers;
 	const paid = counts.data?.paid_subscribers;
+	const social = counts.data?.social_followers;
 
 	// Without counts the card can't tell which tiles a site should see, so it shows the error rather than guessing.
 	const countsFailed = counts.isError && total === undefined;
@@ -79,13 +80,19 @@ function SubscriberHighlightsReport() {
 				'jetpack-premium-analytics-pkg'
 			),
 		},
-		{
-			key: 'social',
-			label: __( 'Social followers', 'jetpack-premium-analytics-pkg' ),
-			icon: share,
-			value: counts.data?.social_followers ?? null,
-		},
 	];
+
+	const socialTiles: Tile[] =
+		( social ?? 0 ) > 0
+			? [
+					{
+						key: 'social',
+						label: __( 'Social followers', 'jetpack-premium-analytics-pkg' ),
+						icon: share,
+						value: social ?? null,
+					},
+			  ]
+			: [];
 
 	const historyTiles: Tile[] = DAYS_AGO.map( ( days, index ) => ( {
 		key: `${ days }-days-ago`,
@@ -106,6 +113,7 @@ function SubscriberHighlightsReport() {
 			),
 		},
 		...( hasPaidSubscribers ? breakdownTiles : historyTiles ),
+		...socialTiles,
 	];
 
 	const hasCounts = tiles.some( tile => tile.value !== null );

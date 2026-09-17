@@ -105,6 +105,39 @@ describe( 'SubscriberHighlightsWidget', () => {
 		] );
 	} );
 
+	it( 'shows social followers alongside the history when nobody pays', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( {
+				total: 428,
+				paid: 0,
+				social: 64,
+				byDate: { '2026-08-16': 317, '2026-07-17': 186, '2026-06-17': 95 },
+			} )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
+		expect( tileValues() ).toEqual( [
+			expect.stringMatching( /^All-time subscribers.*428$/ ),
+			'30 days ago317',
+			'60 days ago186',
+			'90 days ago95',
+			'Social followers64',
+		] );
+	} );
+
+	it( 'hides the social tile rather than showing zero', async () => {
+		mockApiFetch.mockImplementation(
+			respondWith( { total: 428, paid: 117, social: 0, byDate: { '2026-08-16': 317 } } )
+		);
+
+		render( <SubscriberHighlightsWidget attributes={ {} } /> );
+
+		await expect( screen.findByText( '428' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Social followers' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows paid, free and social instead of the history when the site has paid subscribers', async () => {
 		mockApiFetch.mockImplementation(
 			respondWith( {
