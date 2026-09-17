@@ -14,12 +14,15 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
+	paidSubscribersArgTypes,
+	withPaidSubscribers,
+	type PaidSubscribersControls,
+} from '../../stories/with-paid-subscribers';
+import {
 	registerReportMocks,
-	setMockSitePaidSubscribers,
 	setReportMockState,
 	type ReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
-import { MOCK_PAID_SUBSCRIBERS } from '../../../packages/widgets-toolkit/src/stories/mocks/data';
 import SubscriberHighlightsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
@@ -47,6 +50,13 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/SubscriberHighlights',
 	component: SubscriberHighlightsRender,
 	tags: [ 'autodocs' ],
+	beforeEach: withPaidSubscribers,
+	argTypes: {
+		...paidSubscribersArgTypes,
+	},
+	args: {
+		hasPaidSubscribers: false,
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -55,32 +65,19 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof SubscriberHighlightsRender > >;
+} satisfies Meta< ComponentProps< typeof SubscriberHighlightsRender > & PaidSubscribersControls >;
 
 export default meta;
 
-type Story = StoryObj< ComponentProps< typeof SubscriberHighlightsRender > >;
+type Story = StoryObj< PaidSubscribersControls >;
 
 /**
- * The widget on its own, populated from the mocked subscriber endpoints.
+ * The widget on its own. Turn on "Has paid subscribers" to swap the 30, 60 and
+ * 90 days ago tiles for the paid and free breakdown.
  */
 export const Default: Story = {
 	render: renderSubscriberHighlights,
 	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * A site with paid subscribers: the widget shows paid and free subscribers in place of the history.
- */
-export const WithPaidSubscribers: Story = {
-	render: renderSubscriberHighlights,
-	// Off the shared autodocs page: the switch is module-wide.
-	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
-	beforeEach: () => {
-		setMockSitePaidSubscribers( MOCK_PAID_SUBSCRIBERS );
-		return () => setMockSitePaidSubscribers( 0 );
-	},
 };
 
 /**
@@ -114,7 +111,13 @@ export const Empty: Story = {
 	beforeEach: forceSubscribersState( 'empty' ),
 };
 
-function SubscriberHighlightsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
+interface SubscriberHighlightsDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls,
+		PaidSubscribersControls {}
+
+function SubscriberHighlightsDashboardStory(
+	dashboardArgs: SubscriberHighlightsDashboardStoryProps
+) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
@@ -128,7 +131,7 @@ function SubscriberHighlightsDashboardStory( dashboardArgs: WidgetDashboardWithW
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+export const WidgetDashboardWithWidget: StoryObj< SubscriberHighlightsDashboardStoryProps > = {
 	render: args => <SubscriberHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -137,5 +140,6 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
+		...paidSubscribersArgTypes,
 	},
 };

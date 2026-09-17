@@ -19,11 +19,14 @@ import {
 	type SiteTimeZoneControls,
 } from '../../stories/with-site-time-zone';
 import {
+	paidSubscribersArgTypes,
+	withPaidSubscribers,
+	type PaidSubscribersControls,
+} from '../../stories/with-paid-subscribers';
+import {
 	registerReportMocks,
-	setMockSitePaidSubscribers,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
-import { MOCK_PAID_SUBSCRIBERS } from '../../../packages/widgets-toolkit/src/stories/mocks/data';
 import SubscribersChartRender from '../render';
 import widgetDefinition, { type SubscribersChartType } from '../widget';
 import widgetManifest from '../widget.json';
@@ -39,7 +42,7 @@ const SUBSCRIBERS_CHART_RENDER_MODULE = 'storybook/subscribers-chart';
 // story's settings drawer renders the real controls.
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
-interface SubscribersChartStoryControls extends SiteTimeZoneControls {
+interface SubscribersChartStoryControls extends SiteTimeZoneControls, PaidSubscribersControls {
 	withComparison: boolean;
 	chartType: SubscribersChartType;
 }
@@ -78,10 +81,15 @@ const meta = {
 	component: SubscribersChartRender,
 	tags: [ 'autodocs' ],
 	decorators: [ withSiteTimeZone ],
+	beforeEach: withPaidSubscribers,
 	argTypes: {
 		...siteTimeZoneArgTypes,
+		...paidSubscribersArgTypes,
 		withComparison: { control: 'boolean' },
 		...CHART_TYPE_ARG_TYPES,
+	},
+	args: {
+		hasPaidSubscribers: false,
 	},
 	parameters: {
 		docs: {
@@ -98,27 +106,13 @@ export default meta;
 type Story = StoryObj< SubscribersChartStoryControls >;
 
 /**
- * The widget on its own, current period only.
+ * The widget on its own, current period only. Turn on "Has paid subscribers" to
+ * add the Paid subscribers metric beside Subscribers.
  */
 export const Default: Story = {
 	render: renderSubscribersChart,
 	args: { withComparison: false, ...DEFAULT_CHART_ARGS },
 	decorators: [ withWidgetCanvas ],
-};
-
-/**
- * A site that sells subscriptions, so the Paid subscribers metric joins the tab list.
- */
-export const WithPaidSubscribers: Story = {
-	render: renderSubscribersChart,
-	args: { withComparison: false, ...DEFAULT_CHART_ARGS },
-	// Off the shared autodocs page: the switch is module-wide.
-	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
-	beforeEach: () => {
-		setMockSitePaidSubscribers( MOCK_PAID_SUBSCRIBERS );
-		return () => setMockSitePaidSubscribers( 0 );
-	},
 };
 
 /**
@@ -223,6 +217,7 @@ export const WidgetDashboardWithWidget: StoryObj< SubscribersChartDashboardStory
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
+		...paidSubscribersArgTypes,
 		withComparison: { control: 'boolean' },
 		...CHART_TYPE_ARG_TYPES,
 	},
