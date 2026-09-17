@@ -4,8 +4,12 @@
 }
 
 // `wide` only reaches an inline popover.
-.popover:global(.icon-tooltip-container) :global(.components-popover__content) {
+.popover:global(.components-popover.icon-tooltip-container) :global(.components-popover__content) {
 	width: 440px;
+
+	@media (max-width: 768px) {
+		width: 70vw;
+	}
 }
 
 .popover :global(.icon-tooltip-title) {

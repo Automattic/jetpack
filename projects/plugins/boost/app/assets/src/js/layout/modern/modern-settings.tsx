@@ -31,7 +31,9 @@ const ModernSettings = ( { hidden = false }: ModernSettingsProps ) => {
 
 				<NoticeManager />
 			</div>
-			<Popover.Slot />
+			<div className="jb-modern-settings-popovers">
+				<Popover.Slot />
+			</div>
 		</SlotFillProvider>
 	);
 };

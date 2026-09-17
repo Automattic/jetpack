@@ -68,12 +68,15 @@ describe( 'ModernSettings', () => {
 	} );
 
 	it( 'opens card tooltips outside the card, which clips its overflow', () => {
-		render( <ModernSettings /> );
+		const { container } = render( <ModernSettings /> );
 		const card = screen.getByTestId( 'card' );
 
 		fireEvent.mouseDown( card.querySelector( 'button' ) as HTMLElement );
 
 		const title = screen.getByText( 'Manual Critical CSS regeneration' );
 		expect( card.contains( title ) ).toBe( false );
+		expect( container.querySelector( '.jb-modern-settings-popovers' )?.contains( title ) ).toBe(
+			true
+		);
 	} );
 } );
