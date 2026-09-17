@@ -70,9 +70,8 @@ const METRIC_ACCESSORS: Record<
 
 /**
  * Build the metric tabs from the fetched state, in canonical order, with Paid
- * subscribers only when the site has any. Each tab carries its headline total +
- * the previous-window total for the delta, and the per-period points for the
- * chart.
+ * subscribers only when the site has any. Each tab carries its headline total
+ * and the per-period points for the chart.
  */
 function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 	return SUBSCRIBERS_CHART_METRICS.filter( ( { id } ) => id !== 'paid' || state.hasPaid ).map(
@@ -82,11 +81,7 @@ function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 				key: id,
 				label,
 				value: latest( state.current, accessor ),
-				previousValue: state.previous.length ? latest( state.previous, accessor ) : undefined,
 				current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
-				previous: state.previous.length
-					? state.previous.map( point => ( { date: point.date, value: accessor( point ) } ) )
-					: undefined,
 			};
 		}
 	);
