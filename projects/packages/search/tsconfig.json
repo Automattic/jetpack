@@ -1,7 +1,6 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	// Replaces the jsconfig.json this file supersedes: one config per project, and
-	// esbuild (wp-build) plus eslint's resolver both read it. Keep the catch-all, or
+	// esbuild (wp-build) and eslint's resolver both read these paths. Keep the catch-all, or
 	// customberg's and instant-search's bare imports stop resolving.
 	"compilerOptions": {
 		"paths": {

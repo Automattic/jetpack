@@ -15,10 +15,7 @@ use ReflectionMethod;
 require_once __DIR__ . '/fixtures/wp-build-render.php';
 
 /**
- * Both render() and load_admin_scripts() read is_wp_build_dashboard_active(), so a
- * modernization flag switched on without a wp-build build present falls back to the
- * legacy dashboard coherently instead of half-way. See #51436, which broke Backup
- * this way when its equivalent call sites gated independently.
+ * Tests the switch between the wp-build and legacy dashboards.
  *
  * @covers \Automattic\Jetpack\Search\Dashboard
  */
@@ -93,8 +90,7 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 	public function test_predicate_stays_false_when_the_flag_is_on_but_the_build_is_absent() {
 		add_filter( self::FLAG_FILTER, '__return_true' );
 
-		// The wp-build render function only exists once `pnpm build` has run, which this
-		// test environment never does — so the predicate must fall back on its own.
+		// Nothing here loads build/build.php, so the generated render function is undefined.
 		$this->assertFalse( $this->is_wp_build_dashboard_active( new Dashboard() ) );
 	}
 
@@ -106,7 +102,7 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 		$this->assertStringContainsString( 'id="jp-search-dashboard"', $output );
 	}
 
-	public function test_render_falls_back_to_the_legacy_markup_when_the_build_is_absent() {
+	public function test_render_falls_back_to_the_legacy_markup_when_the_build_is_not_loaded() {
 		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		ob_start();
@@ -123,7 +119,7 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 		$this->assertFalse( wp_script_is( Dashboard::DATA_SCRIPT_HANDLE, 'registered' ) );
 	}
 
-	public function test_load_admin_scripts_registers_the_legacy_script_when_the_build_is_absent() {
+	public function test_load_admin_scripts_registers_the_legacy_script_when_the_build_is_not_loaded() {
 		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		( new Dashboard() )->load_admin_scripts();
@@ -169,16 +165,26 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
 	}
 
-	public function test_the_constant_matches_the_generated_function_name() {
+	public function test_the_constants_match_the_wp_build_page_definition() {
+		$wp_plugin = json_decode( (string) file_get_contents( dirname( __DIR__, 2 ) . '/package.json' ), true )['wpPlugin'];
+
+		$this->assertSame( Dashboard::WP_BUILD_PAGE_ID, $wp_plugin['pages'][0]['id'] );
+		$this->assertSame(
+			Dashboard::WP_BUILD_RENDER_FN,
+			$wp_plugin['name'] . '_' . str_replace( '-', '_', $wp_plugin['pages'][0]['id'] ) . '_wp_admin_render_page',
+			'A page-id or wpPlugin.name change renamed the generated function; every flag-on site would silently get the legacy dashboard.'
+		);
+	}
+
+	public function test_the_constant_matches_the_name_the_generator_emitted() {
 		$generated = dirname( __DIR__, 2 ) . '/build/pages/jetpack-search-dashboard/page-wp-admin.php';
 		if ( ! file_exists( $generated ) ) {
-			$this->markTestSkipped( 'Package is not built; nothing to compare the constant against.' );
+			$this->markTestSkipped( 'Package is not built; the generated file is only present after a build.' );
 		}
 
 		$this->assertStringContainsString(
 			'function ' . Dashboard::WP_BUILD_RENDER_FN . '(',
-			(string) file_get_contents( $generated ),
-			'A page-slug or wpPlugin.name change renamed the generated function; every site would silently get the legacy dashboard.'
+			(string) file_get_contents( $generated )
 		);
 	}
 }

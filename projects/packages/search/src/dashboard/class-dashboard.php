@@ -27,9 +27,9 @@ class Dashboard {
 	const WP_BUILD_FEATURE_FLAG = 'search-wp-build';
 
 	/**
-	 * Slug emitted by `@wordpress/build` (`wpPlugin.pages[0].id`). Distinct from the
-	 * `jetpack-search` menu slug so the alias in {@see self::alias_screen_id_for_wp_build()}
-	 * cannot collide with the un-aliased screen.
+	 * Slug emitted by `@wordpress/build` (`wpPlugin.pages[0].id`). Must differ from the
+	 * `jetpack-search` menu slug: the generated page.php takes over, and exits, any request
+	 * whose `page` matches this id.
 	 */
 	const WP_BUILD_PAGE_ID = 'jetpack-search-dashboard';
 
