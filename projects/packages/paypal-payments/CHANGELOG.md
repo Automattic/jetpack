@@ -7,11 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.0] - 2026-09-15
 ### Added
-- Accept only whole-number prices in currencies that require them, and remove the unsupported Indian rupee. [#51656]
+- Accept only whole-number prices in currencies that do not use decimals. [#51656]
 - Add a "Manage PayPal Payment Links" link to the block, opening the new admin page. [#52270] [#52273] [#52279]
 - Add a feature flag for the API-managed payment buttons; the block keeps the paste-code editor while it is off. [#51982]
 - Add a live editor preview and a "Styles" tab for each button format. [#52210]
 - Add API-managed payment buttons behind a feature flag that is not yet enabled. [#52210] [#52170] [#52172]
+- Add to every payment button a warning that changes apply to every button sharing the same payment link, wherever it is used. [#52022]
 - Complete PayPal onboarding with PayPal's SDK, discarding connections that fail its final checks. [#51656]
 - Connect a PayPal account from the block settings sidebar without reloading the editor. [#51656] [#52334]
 - Create the onboarding referral through WordPress.com so PayPal platform credentials never reach the site. [#51656]
@@ -31,9 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move the product form fields into the block inspector and fit them to the sidebar column. [#52022]
 - Pick a page for the return URL, or paste one, instead of typing the address by hand. [#52022]
 - Update package dependencies. [#52297]
-- Warn on every payment button that changes apply to every button sharing the same payment link, wherever it is used. [#52022]
 
 ### Removed
+- Remove Indian rupee (INR), which is not supported by PayPal. [#51656]
 - Remove the "Tax name" field. [#52022]
 
 ## [0.8.2] - 2026-09-09
