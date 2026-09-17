@@ -4,6 +4,7 @@ import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { unseen } from '@wordpress/icons';
 
 // Core offers no slot for this header, and "is now live." is false while the site is Coming Soon.
 addFilter(
@@ -34,7 +35,11 @@ export default function ComingSoonPostPublishPanel() {
 	}
 
 	return (
-		<PluginPostPublishPanel title={ __( 'Site visibility', 'jetpack-mu-wpcom' ) } initialOpen>
+		<PluginPostPublishPanel
+			title={ __( 'Site visibility', 'jetpack-mu-wpcom' ) }
+			icon={ unseen }
+			initialOpen
+		>
 			<p>
 				{ __(
 					'Your site is set to Coming Soon. Make it public when you’re ready for visitors.',
