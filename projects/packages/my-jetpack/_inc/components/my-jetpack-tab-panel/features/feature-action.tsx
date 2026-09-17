@@ -1,26 +1,29 @@
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
+import ActionButton from '../../action-button';
 import { ModuleToggle } from '../../module-toggle';
 import { ActivationToggle, getProductActivation } from '../products/product-card-action';
 import type { FeatureState } from './feature-state';
 
-type FeatureToggleProps = {
+type FeatureActionProps = {
 	state: FeatureState;
 };
 
 /**
- * The card's on/off switch, or nothing when the feature cannot be switched from here.
+ * The control that switches a feature on, or moves it towards being switchable.
  *
- * Both halves are the controls the rest of My Jetpack already uses — the Products tab's
- * activation toggle and the Modules screen's module toggle — so a feature switches the
- * same way here as it does there, down to which products offer a toggle at all. The
- * Active badge is suppressed because the card carries its own.
+ * Every part of this is a control the rest of My Jetpack already uses — the Products
+ * tab's activation toggle, the Modules screen's module toggle, and the action button the
+ * product cards and interstitials share — so a feature behaves the same way here as it
+ * does there, down to which products offer a toggle at all. A product that cannot simply
+ * be switched falls back to that button, which says what it needs next ("Install
+ * Plugin", "Activate", "Upgrade") rather than leaving the feature with no action.
  *
- * @param {FeatureToggleProps} props       - The component props.
+ * @param {FeatureActionProps} props       - The component props.
  * @param {FeatureState}       props.state - Live state for the feature.
- * @return The rendered component.
+ * @return The rendered component, or null when nothing here can switch the feature.
  */
-export function FeatureToggle( { state }: FeatureToggleProps ) {
+export function FeatureAction( { state }: FeatureActionProps ) {
 	const { data: interstitials } = useInterstitialsState();
 	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 
@@ -34,7 +37,9 @@ export function FeatureToggle( { state }: FeatureToggleProps ) {
 
 		return activation ? (
 			<ActivationToggle product={ state.product } { ...activation } showBadge={ false } />
-		) : null;
+		) : (
+			<ActionButton slug={ state.product.slug as JetpackModule } />
+		);
 	}
 
 	return state.module ? <ModuleToggle module={ state.module } /> : null;

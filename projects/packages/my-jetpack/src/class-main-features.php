@@ -391,6 +391,36 @@ class Main_Features {
 	}
 
 	/**
+	 * The paid bundles that include a feature, named for display.
+	 *
+	 * Membership follows what the bundle products themselves declare they support, so
+	 * this stays right when a bundle's contents change.
+	 *
+	 * @param array $definition One feature's catalog entry.
+	 * @return array List of slug/name pairs.
+	 */
+	private static function get_plan_badges( $definition ) {
+		$names = array(
+			'security' => __( 'Jetpack Security', 'jetpack-my-jetpack' ),
+			'complete' => __( 'Jetpack Complete', 'jetpack-my-jetpack' ),
+			'growth'   => __( 'Jetpack Growth', 'jetpack-my-jetpack' ),
+		);
+
+		$badges = array();
+
+		foreach ( $definition['plans'] ?? array() as $slug ) {
+			if ( isset( $names[ $slug ] ) ) {
+				$badges[] = array(
+					'slug' => $slug,
+					'name' => $names[ $slug ],
+				);
+			}
+		}
+
+		return $badges;
+	}
+
+	/**
 	 * The feature catalog merged with each feature's live state, sorted by name.
 	 *
 	 * @return array List of features, each with slug, name, description, icon, status,
@@ -404,12 +434,19 @@ class Main_Features {
 				'slug'             => $slug,
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
+				'long_description' => $definition['long_description'] ?? '',
 				'icon'             => $definition['icon'],
 				'status'           => self::get_feature_status( $definition ),
 				'manage_url'       => self::get_feature_manage_url( $definition ),
 				'learn_more_route' => $definition['interstitial'] ?? '',
 				'essential'        => ! empty( $definition['essential'] ),
-				'plans'            => $definition['plans'] ?? array(),
+				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
+				'plans'            => self::get_plan_badges( $definition ),
+				'paid_product'     => $definition['paid_product'] ?? '',
+				'delivery'         => $definition['delivery'] ?? array(),
+				'screenshot'       => $definition['image'],
+				'info_url'         => $definition['info_url'],
+				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live, post-mutation state from the product and
 				// module stores rather than from the `status` resolved above.
 				'product'          => $definition['product'] ?? '',

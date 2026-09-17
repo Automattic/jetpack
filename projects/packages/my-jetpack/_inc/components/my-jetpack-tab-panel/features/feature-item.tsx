@@ -1,50 +1,36 @@
-import { __, isRTL } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Icon, Text } from '@wordpress/ui';
+import { useCallback } from 'react';
 import { getActivationStatusLabel } from '../utils';
+import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
-import { FeatureToggle } from './feature-toggle';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
 type FeatureItemProps = {
 	state: FeatureState;
+	onOpen: ( slug: string ) => void;
 };
-
-/**
- * Where a card sends you: the feature's own page once it is running, and the offer to
- * add it before that. Under the hash router an internal route is a real href, so the
- * card stays a link either way.
- *
- * @param state - Live state for the feature.
- * @return The URL, or an empty string when the feature has nowhere to go.
- */
-function getDestination( state: FeatureState ): string {
-	const { feature } = state;
-
-	if ( state.status === 'active' && feature.manage_url ) {
-		return feature.manage_url;
-	}
-
-	return feature.learn_more_route ? `#${ feature.learn_more_route }` : feature.manage_url;
-}
 
 /**
  * A single card in the features grid.
  *
  * Built as the navigation row the AI Hub uses — leading glyph, title and description,
  * trailing chevron — so a feature reads as one place to go rather than a panel of
- * separate controls. The title carries the link and stretches over the whole card.
+ * separate controls. The title carries the click target and stretches over the whole
+ * card; the action sits above it so it stays its own control.
  *
- * @param {FeatureItemProps} props       - The component props.
- * @param {FeatureState}     props.state - Live state for the feature.
+ * @param {FeatureItemProps} props        - The component props.
+ * @param {FeatureState}     props.state  - Live state for the feature.
+ * @param {Function}         props.onOpen - Opens the feature's details.
  * @return The rendered component.
  */
-export function FeatureItem( { state }: FeatureItemProps ) {
+export function FeatureItem( { state, onOpen }: FeatureItemProps ) {
 	const { feature } = state;
 	const isActive = state.status === 'active';
 	const chevron = isRTL() ? chevronLeft : chevronRight;
-	const href = getDestination( state );
+	const onClick = useCallback( () => onOpen( feature.slug ), [ feature.slug, onOpen ] );
 
 	return (
 		<div className={ styles[ 'feature-item' ] } data-feature={ feature.slug }>
@@ -58,7 +44,18 @@ export function FeatureItem( { state }: FeatureItemProps ) {
 						variant="heading-lg"
 						className={ styles[ 'feature-item__title' ] }
 						render={
-							href ? <a href={ href } className={ styles[ 'feature-item__open' ] } /> : undefined
+							// The accessible name keeps the visible title inside it, so the
+							// stretched click target still reads as this feature's card.
+							<button
+								type="button"
+								className={ styles[ 'feature-item__open' ] }
+								onClick={ onClick }
+								aria-label={ sprintf(
+									/* translators: %s is the feature name. */
+									__( 'Learn more about %s', 'jetpack-my-jetpack' ),
+									feature.name
+								) }
+							/>
 						}
 					>
 						{ feature.name }
@@ -78,17 +75,15 @@ export function FeatureItem( { state }: FeatureItemProps ) {
 				</Text>
 			</span>
 
-			<span className={ styles[ 'feature-toggle-slot' ] }>
-				<FeatureToggle state={ state } />
+			<span className={ styles[ 'feature-action-slot' ] }>
+				<FeatureAction state={ state } />
 			</span>
 
 			{ /* Left under the stretched title on purpose: it points at the card's own
-			     destination, so a click on it should follow the link like any other. */ }
-			{ href ? (
-				<span className={ styles[ 'feature-item__chevron' ] } aria-hidden="true">
-					<Icon icon={ chevron } size={ 24 } />
-				</span>
-			) : null }
+			     action, so a click on it should open the feature like any other. */ }
+			<span className={ styles[ 'feature-item__chevron' ] } aria-hidden="true">
+				<Icon icon={ chevron } size={ 24 } />
+			</span>
 		</div>
 	);
 }

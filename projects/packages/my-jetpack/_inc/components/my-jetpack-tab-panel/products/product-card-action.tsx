@@ -31,6 +31,33 @@ export type ProductActivation = {
 };
 
 /**
+ * What the lifecycle button will do to a product that cannot simply be toggled.
+ *
+ * Mirrors the statuses `ActionButton` turns into "Install Plugin" and "Activate", so
+ * copy describing that button stays true to the button itself.
+ *
+ * @param product - Live product record from the products store.
+ * @return The action, or null when the button does something else (upgrade, connect).
+ */
+export function getProductLifecycleAction(
+	product: ProductCamelCase
+): 'install' | 'activate' | null {
+	switch ( product.status ) {
+		case PRODUCT_STATUSES.ABSENT:
+		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
+			return 'install';
+
+		case PRODUCT_STATUSES.INACTIVE:
+		case PRODUCT_STATUSES.MODULE_DISABLED:
+		case PRODUCT_STATUSES.NEEDS_ACTIVATION:
+			return 'activate';
+
+		default:
+			return null;
+	}
+}
+
+/**
  * Decide whether a product offers an activation toggle, and how it should behave.
  *
  * Shared with the Features grid so both surfaces answer this the same way; null means

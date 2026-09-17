@@ -124,15 +124,16 @@ $feature-icon-foreground: #0ced57;
 	flex-shrink: 0;
 }
 
-// Raised above the stretched title link, so the switch stays its own control.
-// Reserved whether or not the feature has one, to keep the text column the same
-// width across the grid.
-.feature-toggle-slot {
+// Raised above the stretched title, so the control stays its own. Sized for the
+// widest thing it holds, an "Install Plugin" button, to keep the text column an
+// even width across the grid.
+.feature-action-slot {
+	align-items: center;
 	align-self: center;
 	display: flex;
 	flex-shrink: 0;
-	inline-size: 2.25rem;
-	justify-content: center;
+	justify-content: flex-end;
+	min-inline-size: 2.25rem;
 	position: relative;
 	z-index: 1;
 }
@@ -252,4 +253,215 @@ $feature-icon-foreground: #0ced57;
 .search {
 	margin-inline-start: auto;
 	min-inline-size: 16rem;
+}
+
+.detail-links {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+
+// Sized to its content between a floor and the viewport, not pinned: at a fixed
+// 50rem most features left a third of the dialog empty. The floor keeps the
+// common ones the same height, so stepping does not resize under the cursor.
+.modal-popup {
+	block-size: auto;
+	inline-size: min(42.5rem, calc(100vw - 3rem));
+	max-block-size: calc(100dvh - 5rem);
+	max-inline-size: min(42.5rem, calc(100vw - 3rem));
+	min-block-size: min(34rem, calc(100dvh - 5rem));
+}
+
+// One feature replacing another: a fade, with nothing moving, so the dialog
+// does not appear to slide while its own size settles.
+.modal-step {
+	animation:
+		jetpack-feature-step var(--wpds-motion-duration-lg)
+		var(--wpds-motion-easing-subtle);
+}
+
+@keyframes jetpack-feature-step {
+
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.modal-step {
+		animation: none;
+	}
+}
+
+// Fixed height, not an aspect ratio: the artwork is third-party marketing
+// imagery at a dozen ratios, and a ratio-driven band would resize the modal
+// on every step.
+.modal-band {
+	align-items: center;
+	background: $feature-icon-background;
+	block-size: 14rem;
+	box-sizing: border-box;
+	color: $feature-icon-foreground;
+	display: flex;
+	flex: 0 0 auto;
+	justify-content: center;
+	min-block-size: 0;
+	overflow: hidden;
+	// Inset every image the same: some assets carry their own margin and some
+	// bleed to the edge, so without it the artwork sits inconsistently.
+	padding-block: var(--wpds-dimension-padding-md);
+	position: relative;
+}
+
+.modal-band .modal-step {
+	align-items: center;
+	block-size: 100%;
+	display: flex;
+	inline-size: 100%;
+	justify-content: center;
+}
+
+// `contain`, not `cover`: every one of these assets is square or portrait, so
+// cropping to the band's 4.75:1 would land on empty canvas.
+.modal-band__image {
+	block-size: 100%;
+	inline-size: 100%;
+	object-fit: contain;
+	opacity: 0;
+	transition: opacity 200ms ease-out;
+}
+
+.modal-band__image--loaded {
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.modal-band__image {
+		transition: none;
+	}
+}
+
+.modal-band__glyph {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+
+	svg {
+		fill: currentColor;
+	}
+}
+
+.modal-band__skeleton {
+	block-size: 100%;
+	inset: 0;
+	position: absolute;
+	inline-size: 100%;
+}
+
+// A lone control over artwork earns a 44px hit target; the visual stays 32px.
+// Nested so the white wins over the design system's own dark foreground, which
+// is invisible against the band.
+.modal-band .modal-band__close {
+	background: rgba(0, 0, 0, 0.35);
+	border-radius: 50%;
+	color: #fff;
+	inset-block-start: var(--wpds-dimension-padding-lg);
+	inset-inline-end: var(--wpds-dimension-padding-lg);
+	position: absolute;
+	z-index: 1;
+
+	&:hover,
+	&:focus-visible {
+		background: rgba(0, 0, 0, 0.55);
+		color: #fff;
+	}
+
+	&::after {
+		content: "";
+		inset: -6px;
+		position: absolute;
+	}
+}
+
+.modal-body {
+	container-type: inline-size;
+}
+
+.modal-body .modal-step {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+// The switch and the way in, pushed to the end of the row the name starts.
+.modal-actions {
+	margin-inline-start: auto;
+}
+
+// auto-fit rather than three fixed tracks: Activity Log, Blaze, Newsletter and
+// Podcast render no highlights, and an empty track would leave a dead column.
+.modal-panels {
+	display: grid;
+	gap: var(--wpds-dimension-gap-xl);
+	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+// Replaces the filled panel, which cost 40px of padding and 32px of margin
+// per section — 216px across three, inside a 624px budget.
+.detail-section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	position: relative;
+
+	// Centred in the column gap rather than drawn as a border, so all three
+	// columns keep an identical content width.
+	& + &::before {
+		background: var(--wpds-color-stroke-surface-neutral-weak);
+		content: "";
+		inline-size: var(--wpds-border-width-xs);
+		inset-block: 0;
+		inset-inline-start: calc(var(--wpds-dimension-gap-xl) / -2);
+		position: absolute;
+	}
+}
+
+// The grid collapses when the MODAL narrows, not the viewport: the popup
+// shrinks long before any phone breakpoint would fire.
+@container (max-width: 34rem) {
+
+	.modal-panels {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	// Stacked now, so the rule between sections turns horizontal.
+	.detail-section + .detail-section::before {
+		block-size: var(--wpds-border-width-xs);
+		inline-size: auto;
+		inset-block: calc(var(--wpds-dimension-gap-xl) / -2) auto;
+		inset-inline: 0;
+	}
+}
+
+
+// Matches the rendered width of a FormToggle, so cards without
+// one keep the same heading width. Raised over the stretched title, or the row
+// would swallow the switch's own clicks.
+
+.badge-link {
+	background: none;
+	border: 0;
+	cursor: pointer;
+	display: inline-flex;
+	padding: 0;
+	text-decoration: none;
+}
+
+.paid-routes {
+	margin-block-start: var(--wpds-dimension-gap-md);
 }

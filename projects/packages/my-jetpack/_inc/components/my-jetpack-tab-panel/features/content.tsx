@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { FeatureItem } from './feature-item';
+import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
 import styles from './styles.module.scss';
 import { Toolbar } from './toolbar';
@@ -30,6 +31,7 @@ export function FeaturesContent() {
 	const search = searchParams.get( 'search' ) || '';
 	const filterParam = searchParams.get( 'filter' ) || 'all';
 	const filter: FeatureFilter = isFeatureFilter( filterParam ) ? filterParam : 'all';
+	const openSlug = searchParams.get( 'feature' );
 
 	const updateParams = useCallback(
 		( changes: Record< string, string | null > ) => {
@@ -69,8 +71,14 @@ export function FeaturesContent() {
 		[ states ]
 	);
 
+	const openFeature = useCallback(
+		( slug: string ) => updateParams( { feature: slug } ),
+		[ updateParams ]
+	);
+	const closeFeature = useCallback( () => updateParams( { feature: null } ), [ updateParams ] );
+
 	const onSearchChange = useCallback(
-		( term: string ) => updateParams( { search: term || null } ),
+		( term: string ) => updateParams( { search: term || null, feature: null } ),
 		[ updateParams ]
 	);
 
@@ -78,6 +86,14 @@ export function FeaturesContent() {
 		( next: FeatureFilter ) => updateParams( { filter: next === 'all' ? null : next } ),
 		[ updateParams ]
 	);
+
+	// A plan badge answers "what else is in this?", so it filters and steps out of the modal.
+	const onFilterByPlan = useCallback(
+		( plan: FeatureFilter ) => updateParams( { filter: plan, feature: null, search: null } ),
+		[ updateParams ]
+	);
+
+	const open = states.find( item => item.feature.slug === openSlug );
 
 	return (
 		<section className={ styles.content }>
@@ -92,13 +108,17 @@ export function FeaturesContent() {
 			{ visible.length > 0 ? (
 				<div className={ styles[ 'feature-grid' ] }>
 					{ visible.map( state => (
-						<FeatureItem key={ state.feature.slug } state={ state } />
+						<FeatureItem key={ state.feature.slug } state={ state } onOpen={ openFeature } />
 					) ) }
 				</div>
 			) : (
 				<h3 className={ styles[ 'empty-heading' ] } role="status">
 					{ __( 'No features found.', 'jetpack-my-jetpack' ) }
 				</h3>
+			) }
+
+			{ open && (
+				<FeatureModal state={ open } onClose={ closeFeature } onFilterByPlan={ onFilterByPlan } />
 			) }
 		</section>
 	);
