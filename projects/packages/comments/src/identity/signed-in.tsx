@@ -1,0 +1,56 @@
+import clsx from 'clsx';
+import { useContext } from 'preact/hooks';
+import { CommentSignals } from '../shared/state';
+import { SubscriptionOptions, hasSubscriptionOptions } from '../subscriptions';
+import { CloseIcon } from './checkpoint/icons';
+import type { ComponentChildren } from 'preact';
+
+import './style.scss';
+
+type SignedInProps = {
+	/** Who this is, and their way out. */
+	heading: ComponentChildren;
+	/** Anything the form must post along with the comment. */
+	children?: ComponentChildren;
+};
+
+/**
+ * The tray for a reader the site can name: the heading, the subscription
+ * options under it, and a close button. Without options it collapses to the
+ * heading alone and is held open, since the way out lives in it.
+ *
+ * @param props          - Component props.
+ * @param props.heading  - Who this is, and their way out.
+ * @param props.children - Hidden fields to post with the comment.
+ * @return The tray contents.
+ */
+export const SignedIn = ( { heading, children }: SignedInProps ) => {
+	const { isTrayOpen } = useContext( CommentSignals );
+	const { strings } = JetpackComments;
+	const hasOptions = hasSubscriptionOptions();
+
+	return (
+		<div
+			className={ clsx( 'jetpack-comments__identity jetpack-comments__identity--signed-in', {
+				'is-bare': ! hasOptions,
+			} ) }
+		>
+			<div className="jetpack-comments__signed-in">
+				<div className="jetpack-comments__signed-in-heading">
+					<div>{ heading }</div>
+					<button
+						type="button"
+						className="jetpack-comments__tray-close"
+						disabled={ ! isTrayOpen.value }
+						onClick={ () => ( isTrayOpen.value = false ) }
+					>
+						<span className="jetpack-comments__visually-hidden">{ strings.close }</span>
+						<CloseIcon />
+					</button>
+				</div>
+				{ hasOptions && <SubscriptionOptions /> }
+			</div>
+			{ children }
+		</div>
+	);
+};

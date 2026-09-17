@@ -7,6 +7,7 @@ export type Commenter = {
 export type CurrentUser = {
 	avatarUrl: string;
 	commentingAs: string;
+	email: string;
 };
 
 export type Provider = 'wordpress' | 'google' | 'facebook';
@@ -47,6 +48,38 @@ export type SignedIn = Passport & {
 	code: string | null;
 };
 
+export type Frequency = 'instantly' | 'daily' | 'weekly';
+
+/**
+ * What a reader is subscribed to on this site, as WordPress.com reports it.
+ * Shaped like the Reader's subscription-details response, which Verbum read.
+ */
+export type SubscriptionState = {
+	email: {
+		send_posts: boolean;
+		send_comments: boolean;
+		post_delivery_frequency: Frequency;
+	};
+	notification: {
+		send_posts: boolean;
+	};
+};
+
+export type SubscriptionChange =
+	| { field: 'email_posts' | 'email_comments' | 'notify_posts'; value: boolean }
+	| { field: 'frequency'; value: Frequency };
+
+export type SubscriptionSettings = {
+	/** Whether the site offers new-post emails from the comment form. */
+	blog: boolean;
+	/** Whether the site offers new-comment emails from the comment form. */
+	comments: boolean;
+	/** Whether a reader logged in to the site can take web and mobile notifications too. */
+	notifications: boolean;
+	url: string;
+	action: string;
+};
+
 export type FormSettings = {
 	postId: number;
 	loginUrl: string;
@@ -85,6 +118,14 @@ export type Strings = {
 	providers: Record< Provider | 'mail', string >;
 	signInFailed: string;
 	signInRateLimited: string;
+	emailNewPosts: string;
+	emailNewComments: string;
+	notifyNewPosts: string;
+	notifyNewPostsHint: string;
+	instantly: string;
+	daily: string;
+	weekly: string;
+	editGravatar: string;
 };
 
 export type Settings = {
@@ -93,10 +134,12 @@ export type Settings = {
 	showCookiesConsent: boolean;
 	mustLogIn: boolean;
 	maxLength: number;
+	locale: string;
 	strings: Strings;
 	commenter: Commenter;
 	user: CurrentUser | null;
 	identity: IdentitySettings;
+	subscriptions: SubscriptionSettings;
 };
 
 declare global {

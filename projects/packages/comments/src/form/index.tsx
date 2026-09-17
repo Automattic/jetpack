@@ -3,6 +3,7 @@ import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 import { CommentingAs, Identity } from '../identity';
 import { CommentSignals, createSignals } from '../shared/state';
+import { hasSubscriptionOptions } from '../subscriptions';
 import { CommentField } from './comment-field';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
 import { SubmitButton } from './submit-button';
@@ -18,17 +19,60 @@ type CommentFormProps = {
 // enough that a reader who navigates away mid-sentence keeps it.
 const DRAFT_DEBOUNCE_MS = 300;
 
-const CommentForm = ( { form }: CommentFormProps ) => {
-	const { formSettings, commentParent, commentValue, isEmptyComment, isSavingComment, isTrayOpen } =
-		useContext( CommentSignals );
-	const isSubmitting = useRef( false );
+// Remembers, per site, that a signed-in reader has had the tray opened for them once.
+const traySeenKey = ( blogId: number ) => `jetpack-comments-tray-seen-${ blogId }`;
 
-	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence sticks.
+const traySeen = ( blogId: number ) => {
+	try {
+		return window.localStorage.getItem( traySeenKey( blogId ) ) !== null;
+	} catch {
+		return true;
+	}
+};
+
+const markTraySeen = ( blogId: number ) => {
+	try {
+		window.localStorage.setItem( traySeenKey( blogId ), '1' );
+	} catch {
+		// Then it opens again next time, which is no worse than Verbum did.
+	}
+};
+
+const CommentForm = ( { form }: CommentFormProps ) => {
+	const {
+		formSettings,
+		commentParent,
+		commentValue,
+		isEmptyComment,
+		isSavingComment,
+		isTrayOpen,
+		isSignedIn,
+	} = useContext( CommentSignals );
+	const isSubmitting = useRef( false );
+	const { blogId } = JetpackComments.identity;
+
+	// A signed-in reader with nothing to set gets the tray held open: the way out lives in it.
 	useEffect( () => {
-		if ( ! isEmptyComment.value ) {
+		if ( isSignedIn.value && ! hasSubscriptionOptions() ) {
 			isTrayOpen.value = true;
 		}
-	}, [ isEmptyComment.value, isTrayOpen ] );
+	}, [ isSignedIn.value, isTrayOpen ] );
+
+	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence
+	// sticks. Every time for a guest, who has to see the fields; once per site when
+	// signed in, so the options are noticed without being in the way after that.
+	useEffect( () => {
+		if ( isEmptyComment.value ) {
+			return;
+		}
+
+		if ( ! isSignedIn.value ) {
+			isTrayOpen.value = true;
+		} else if ( ! traySeen( blogId ) ) {
+			isTrayOpen.value = true;
+			markTraySeen( blogId );
+		}
+	}, [ isEmptyComment.value, isSignedIn.value, isTrayOpen, blogId ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
@@ -99,16 +143,14 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	return (
 		<>
 			<CommentField />
-			{ ! JetpackComments.isLoggedIn && (
-				<div
-					id={ `jetpack-comments-tray-${ formSettings.postId }` }
-					className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }
-				>
-					<div>
-						<Identity />
-					</div>
+			<div
+				id={ `jetpack-comments-tray-${ formSettings.postId }` }
+				className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }
+			>
+				<div>
+					<Identity />
 				</div>
-			) }
+			</div>
 			<div className="jetpack-comments__footer">
 				<CommentingAs />
 				<SubmitButton />
