@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Traffic summary: Draw the Visitors legend swatch solid to match its line, add a Comparison period legend item in line mode, and use square swatches in bar mode.

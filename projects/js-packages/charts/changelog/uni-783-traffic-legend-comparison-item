@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Legend: Add a comparisonItem option that appends a static Comparison period item, and let a legend item opt out of interactivity. An empty seriesLineStyle now falls through to the theme.
