@@ -24,6 +24,7 @@ class Generator_Test extends BaseTestCase {
 		remove_all_filters( 'wp_redirect' );
 		remove_all_filters( 'wp_redirect_status' );
 		remove_all_filters( 'wp_die_handler' );
+		remove_all_filters( 'login_url' );
 		remove_all_actions( 'wp_head' );
 		remove_all_filters( 'show_admin_bar' );
 		parent::tear_down();
@@ -74,6 +75,47 @@ class Generator_Test extends BaseTestCase {
 
 		$this->assertSame( 0, $redirect_count );
 		$this->assertFalse( $rendered );
+	}
+
+	public function test_custom_login_redirect_requires_matching_endpoint_and_query() {
+		$this->init_request( true );
+		$homepage = set_url_scheme( home_url( '/' ), 'https' );
+		$login    = $homepage . '?login=1';
+		add_filter(
+			'login_url',
+			function () use ( $login ) {
+				return $login;
+			}
+		);
+		add_filter(
+			'wp_die_handler',
+			function () {
+				return function ( $message, $title, $args ) {
+					throw new \RuntimeException( $message, $args['response'] );
+				};
+			}
+		);
+
+		foreach (
+			array(
+				$homepage,
+				$homepage . '?login=0',
+				set_url_scheme( $login, 'http' ),
+				'https://other.example.org/?login=1',
+				$homepage . 'members/?login=1',
+			) as $location
+		) {
+			$this->assertSame( $location, apply_filters( 'wp_redirect', $location, 302 ) );
+		}
+
+		foreach ( array( $login, $login . '&reauth=1&redirect_to=%2Fprivate-page%2F' ) as $location ) {
+			try {
+				wp_redirect( $location );
+				$this->fail( 'The custom login redirect must terminate generation.' );
+			} catch ( \RuntimeException $error ) {
+				$this->assertSame( 403, $error->getCode() );
+			}
+		}
 	}
 
 	/**

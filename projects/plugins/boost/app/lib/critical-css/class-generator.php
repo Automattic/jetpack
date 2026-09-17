@@ -51,20 +51,32 @@ class Generator {
 			return $location;
 		}
 
+		wp_parse_str( $target['query'] ?? '', $target_query );
+
 		foreach ( array( wp_login_url(), site_url( 'wp-login.php', 'login' ) ) as $login_url ) {
 			$login = wp_parse_url( $login_url );
 			if ( ! is_array( $login ) || empty( $login['path'] ) ) {
 				continue;
 			}
 
-			$same_host = empty( $target['host'] ) || ( isset( $login['host'] ) && 0 === strcasecmp( $target['host'], $login['host'] ) );
-			if ( $same_host && untrailingslashit( $target['path'] ) === untrailingslashit( $login['path'] ) ) {
-				wp_die(
-					esc_html__( 'Critical CSS cannot be generated for a page that requires login.', 'jetpack-boost' ),
-					'',
-					array( 'response' => 403 )
-				);
+			$same_scheme = empty( $target['scheme'] ) || ( isset( $login['scheme'] ) && 0 === strcasecmp( $target['scheme'], $login['scheme'] ) );
+			$same_host   = empty( $target['host'] ) || ( isset( $login['host'] ) && 0 === strcasecmp( $target['host'], $login['host'] ) );
+			if ( ! $same_scheme || ! $same_host || untrailingslashit( $target['path'] ) !== untrailingslashit( $login['path'] ) ) {
+				continue;
 			}
+
+			wp_parse_str( $login['query'] ?? '', $login_query );
+			foreach ( $login_query as $key => $value ) {
+				if ( ! array_key_exists( $key, $target_query ) || $target_query[ $key ] !== $value ) {
+					continue 2;
+				}
+			}
+
+			wp_die(
+				esc_html__( 'Critical CSS cannot be generated for a page that requires login.', 'jetpack-boost' ),
+				'',
+				array( 'response' => 403 )
+			);
 		}
 
 		return $location;
