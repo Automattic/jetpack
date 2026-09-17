@@ -189,8 +189,31 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		);
 		remove_action( 'admin_head', 'wpcom_backup_hide_menu_entry', 0 );
 		Constants::clear_constants();
+		wpcom_backup_owns_page( false );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * The Jetpack plugin registers this slug through Admin_Menu at `admin_menu`
+	 * priority 1000, before this page's own hook. Adding a second entry would
+	 * leave two, and hide_menu_entry() would drop theirs rather than ours —
+	 * deleting a correctly sorted entry and leaving ours in the wrong tier.
+	 */
+	public function test_page_steps_aside_when_another_plugin_owns_the_slug() {
+		global $submenu;
+
+		$this->set_up_admin_menu();
+		$submenu['jetpack'][] = array( 'VaultPress Backup', 'manage_options', WPCOM_BACKUP_MENU_SLUG, 'Jetpack VaultPress Backup' );
+
+		wpcom_backup_register_page();
+
+		$slugs = array_column( $submenu['jetpack'], 2 );
+		$this->assertSame(
+			array( WPCOM_BACKUP_MENU_SLUG ),
+			array_values( array_filter( $slugs, static fn ( $slug ) => WPCOM_BACKUP_MENU_SLUG === $slug ) ),
+			'The existing entry should be left exactly as it was found.'
+		);
 	}
 
 	/**
@@ -371,10 +394,23 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	 * not recognise.
 	 */
 	public function test_screen_id_is_aliased_for_wp_build() {
+		wpcom_backup_owns_page( true );
 		$screen = (object) array( 'id' => 'jetpack_page_jetpack-backup' );
 
 		wpcom_backup_alias_screen_id( $screen );
 
 		$this->assertSame( WPCOM_BACKUP_WP_BUILD_PAGE, $screen->id );
+	}
+
+	/**
+	 * Aliasing the screen of a page another plugin serves would break its own
+	 * asset loading, which keys off the screen ID.
+	 */
+	public function test_screen_id_is_left_alone_when_another_plugin_owns_the_page() {
+		$screen = (object) array( 'id' => 'jetpack_page_jetpack-backup' );
+
+		wpcom_backup_alias_screen_id( $screen );
+
+		$this->assertSame( 'jetpack_page_jetpack-backup', $screen->id );
 	}
 }

@@ -111,7 +111,7 @@ function wpcom_backup_should_register() {
 		return true;
 	}
 
-	return ! wpcom_backup_has_backup_feature( get_current_blog_id() );
+	return ! wpcom_backup_has_backup_feature();
 }
 
 /**
@@ -145,6 +145,14 @@ function wpcom_backup_is_backup_admin_request() {
  * @return void
  */
 function wpcom_backup_register_page() {
+	// Registering a second entry under a slug someone else owns would leave two,
+	// and hide_menu_entry() would then drop theirs rather than ours.
+	if ( wpcom_backup_slug_is_claimed() ) {
+		return;
+	}
+
+	wpcom_backup_owns_page( true );
+
 	// build/build.php defines the render callback but only loads on this page's
 	// own request, so elsewhere fall back rather than fataling.
 	$callback = function_exists( WPCOM_BACKUP_RENDER_CALLBACK )
@@ -168,6 +176,55 @@ function wpcom_backup_register_page() {
 	}
 
 	wpcom_backup_hide_menu_entry();
+}
+
+/**
+ * Whether this page registered the Backup slug on this request.
+ *
+ * `register_page()` cannot run before the hooks that depend on it are added, so
+ * they read the answer here rather than being wired conditionally.
+ *
+ * @param bool|null $owns Set the answer; omit to read it.
+ * @return bool
+ */
+function wpcom_backup_owns_page( $owns = null ) {
+	static $value = false;
+
+	if ( null !== $owns ) {
+		$value = (bool) $owns;
+	}
+
+	return $value;
+}
+
+/**
+ * Whether something has already registered the Backup page.
+ *
+ * The Jetpack plugin serves this slug through `Admin_Menu`, which registers at
+ * `admin_menu` priority 1000 — before this page's own hook — so by the time it
+ * runs the entry is there to find. Stepping aside is the same hand-off
+ * should_register() makes, for the case where the other page is on this site
+ * rather than implied by the plan.
+ *
+ * Index 2 is matched exactly as `remove_submenu_page()` matches it, because
+ * that call is what this guards: a looser test would drift from it.
+ *
+ * @return bool
+ */
+function wpcom_backup_slug_is_claimed() {
+	global $submenu;
+
+	if ( empty( $submenu['jetpack'] ) || ! is_array( $submenu['jetpack'] ) ) {
+		return false;
+	}
+
+	foreach ( $submenu['jetpack'] as $item ) {
+		if ( is_array( $item ) && isset( $item[2] ) && WPCOM_BACKUP_MENU_SLUG === $item[2] ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**
@@ -219,7 +276,7 @@ function wpcom_backup_load_wp_build() {
  * @return void
  */
 function wpcom_backup_alias_screen_id( $screen ) {
-	if ( ! is_object( $screen ) ) {
+	if ( ! is_object( $screen ) || ! wpcom_backup_owns_page() ) {
 		return;
 	}
 
@@ -234,10 +291,13 @@ function wpcom_backup_alias_screen_id( $screen ) {
 function wpcom_backup_enqueue_initial_state() {
 	$handle = WPCOM_BACKUP_WP_BUILD_PAGE . '-wp-admin-prerequisites';
 
-	if ( ! wp_script_is( $handle, 'registered' ) ) {
+	if ( ! wpcom_backup_owns_page() || ! wp_script_is( $handle, 'registered' ) ) {
 		return;
 	}
 
+	// Every consumer of this ID is reachable on Simple only, where WordPress and
+	// WordPress.com agree on it. The feature check, which does run on WoA where
+	// they disagree, takes no ID at all.
 	$blog_id = get_current_blog_id();
 	$user_id = get_current_user_id();
 	$domain  = wp_parse_url( home_url(), PHP_URL_HOST );
@@ -270,15 +330,17 @@ function wpcom_backup_enqueue_initial_state() {
 /**
  * Whether the site's plan includes self-serve backups.
  *
- * @param int $blog_id Blog ID.
  * @return bool
  */
-function wpcom_backup_has_backup_feature( $blog_id ) {
+function wpcom_backup_has_backup_feature() {
 	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! defined( '\WPCOM_Features::BACKUPS_SELF_SERVE' ) ) {
 		return false;
 	}
 
-	return (bool) wpcom_site_has_feature( \WPCOM_Features::BACKUPS_SELF_SERVE, $blog_id );
+	// No blog ID: WordPress numbers an Atomic single site 1, which is not its
+	// WordPress.com blog ID, and the lookup throws rather than correcting it.
+	// Passing none lets wpcom resolve the current site on either platform.
+	return (bool) wpcom_site_has_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
 }
 
 /**
@@ -346,7 +408,7 @@ function wpcom_backup_get_state( $blog_id, $user_id ) {
 	// On WoA the plan is the only question: the site is already on the
 	// infrastructure that runs backups, so there is nothing to transfer, and
 	// should_register() has already stepped the page aside if it has the plan.
-	if ( ! wpcom_backup_has_backup_feature( $blog_id ) || wpcom_backup_is_atomic() ) {
+	if ( ! wpcom_backup_has_backup_feature() || wpcom_backup_is_atomic() ) {
 		$state = WPCOM_BACKUP_STATE_UPGRADE;
 	} elseif ( wpcom_backup_is_transfer_in_progress( $blog_id ) ) {
 		$state = WPCOM_BACKUP_STATE_IN_PROGRESS;
