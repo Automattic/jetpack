@@ -278,13 +278,14 @@ it( 'checks six empty older windows with one request', async () => {
 					periods: [],
 					annotations: [],
 					surfaceErrors: true,
+					checkOlderWindows: true,
 				},
 			},
 		} )
 	);
 } );
 
-it( 'finds an oldest-window score hidden by the combined upstream record cap', async () => {
+it( 'attributes a score in the returned periods to its own older window', async () => {
 	const windows = Array.from( { length: 6 }, ( _, index ) => ( {
 		startDate: history.startDate - ( index + 1 ) * 30 * 86400000,
 		endDate: history.startDate - index * 30 * 86400000 - 1,

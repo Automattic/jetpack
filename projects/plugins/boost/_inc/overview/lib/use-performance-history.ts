@@ -61,6 +61,7 @@ export function useHasOlderHistory( enabled: boolean, windows: HistoryWindow[] )
 					periods: [],
 					annotations: [],
 					surfaceErrors: true,
+					checkOlderWindows: true,
 					olderWindows: windows,
 				} )
 			);

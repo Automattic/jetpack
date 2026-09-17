@@ -15,11 +15,13 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	 */
 	private const OLDER_WINDOW_LIMIT = 6;
 
-	/** Scores already recorded cannot disappear, so a window that had one caches for long. */
+	/**
+	 * Daily recording only lands scores in windows that end today, so an older window
+	 * keeps whatever it holds until a plan or connection change alters what history exists.
+	 */
 	private const OLDER_WINDOW_TTL = 12 * 60 * 60;
 
-	/** An empty window can fill up at any time, so it is rechecked soon. */
-	private const EMPTY_OLDER_WINDOW_TTL = 15 * 60;
+	private const CACHE_PREFIX = 'older_history_';
 
 	private $start_date;
 	private $end_date;
@@ -91,7 +93,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	}
 
 	private function get_older_window_periods( $window ) {
-		$cache_key = 'older_history_' . md5( wp_json_encode( $window, JSON_UNESCAPED_SLASHES ) );
+		$cache_key = self::CACHE_PREFIX . md5( wp_json_encode( $window, JSON_UNESCAPED_SLASHES ) );
 		$cached    = Transient::get( $cache_key );
 		if ( null !== $cached ) {
 			return $cached;
@@ -105,9 +107,6 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 
 		// A response without history reads as an empty window, matching the single-window path above.
 		$data = $result['data'] ?? array();
-		if ( null === $data ) {
-			$data = array();
-		}
 		if ( ! is_array( $data ) || ( array() !== $data && ! isset( $data['periods'] ) ) ) {
 			throw new \RuntimeException( 'Invalid performance history response.' );
 		}
@@ -126,12 +125,22 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 			}
 		}
 
-		Transient::set( $cache_key, $found, $found ? self::OLDER_WINDOW_TTL : self::EMPTY_OLDER_WINDOW_TTL );
+		Transient::set( $cache_key, $found, self::OLDER_WINDOW_TTL );
 		return $found;
+	}
+
+	/**
+	 * Forget every cached older window, for when a plan or connection change alters what history exists.
+	 */
+	public static function clear_cache() {
+		Transient::delete_by_prefix( self::CACHE_PREFIX );
 	}
 
 	public function set( $value ) {
 		$older_windows = $value['olderWindows'] ?? array();
+		if ( true === ( $value['checkOlderWindows'] ?? false ) && ! $older_windows ) {
+			throw new \RuntimeException( 'Older history windows are missing or malformed.' );
+		}
 		if ( count( $older_windows ) > self::OLDER_WINDOW_LIMIT ) {
 			throw new \RuntimeException( 'At most ' . self::OLDER_WINDOW_LIMIT . ' older history windows are supported.' );
 		}

@@ -133,10 +133,11 @@ class Performance_History_Entry_Test extends TestCase {
 		$entry = new Performance_History_Entry();
 		$entry->set(
 			array(
-				'startDate'     => 1000,
-				'endDate'       => 6999,
-				'olderWindows'  => $windows,
-				'surfaceErrors' => true,
+				'startDate'         => 1000,
+				'endDate'           => 6999,
+				'olderWindows'      => $windows,
+				'surfaceErrors'     => true,
+				'checkOlderWindows' => true,
 			)
 		);
 		return $entry;
@@ -215,19 +216,16 @@ class Performance_History_Entry_Test extends TestCase {
 		$this->assertCount( 6, $options );
 	}
 
-	public function test_empty_older_windows_expire_sooner_than_scored_ones() {
+	public function test_empty_and_scored_older_windows_share_one_lifetime() {
 		$options = array();
 		$ranges  = array();
 		$this->stub_transient_store( $options );
 		$this->stub_upstream_windows( array( 5000 => array( $this->scored_period( 5500 ) ) ), $ranges );
 		$this->older_history_entry()->get();
-		$lifetimes = array();
+		$this->assertCount( 2, $options );
 		foreach ( $options as $option ) {
-			$lifetimes[] = $option['expire'] - time();
+			$this->assertEqualsWithDelta( 43200, $option['expire'] - time(), 5 );
 		}
-		sort( $lifetimes );
-		$this->assertEqualsWithDelta( 900, $lifetimes[0], 5 );
-		$this->assertEqualsWithDelta( 43200, $lifetimes[1], 5 );
 	}
 
 	public function test_older_windows_find_oldest_score_without_a_combined_upstream_range() {
@@ -337,5 +335,69 @@ class Performance_History_Entry_Test extends TestCase {
 			$this->assertSame( 'Invalid performance history response.', $e->getMessage() );
 		}
 		$this->assertSame( array(), $options );
+	}
+
+	public function test_clearing_the_cache_forgets_every_older_window() {
+		$options = array();
+		$ranges  = array();
+		$this->stub_transient_store( $options );
+		$this->stub_upstream_windows( array(), $ranges );
+		$this->older_history_entry()->get();
+		$this->assertCount( 6, $options );
+
+		global $wpdb;
+		$original_wpdb = $wpdb;
+		$wpdb          = new class( $options ) {
+			public $options = 'wp_options';
+
+			private $store;
+
+			public function __construct( &$store ) {
+				$this->store = &$store;
+			}
+
+			public function esc_like( $text ) {
+				return $text;
+			}
+
+			public function prepare( $query, $pattern ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return $pattern;
+			}
+
+			public function get_col( $pattern ) {
+				$prefix = rtrim( $pattern, '%' );
+				return array_values(
+					array_filter(
+						array_keys( $this->store ),
+						function ( $name ) use ( $prefix ) {
+							return 0 === strpos( $name, $prefix );
+						}
+					)
+				);
+			}
+		};
+		try {
+			Performance_History_Entry::clear_cache();
+		} finally {
+			$wpdb = $original_wpdb;
+		}
+
+		$this->assertSame( array(), $options );
+		$ranges = array();
+		$this->older_history_entry()->get();
+		$this->assertCount( 6, $ranges );
+	}
+
+	public function test_a_dropped_older_windows_value_fails_instead_of_widening_the_request() {
+		$entry = new Performance_History_Entry();
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'Older history windows are missing or malformed.' );
+		$entry->set(
+			array(
+				'startDate'         => 1000,
+				'endDate'           => 6999,
+				'checkOlderWindows' => true,
+			)
+		);
 	}
 }
