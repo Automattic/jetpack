@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.3.0] - 2026-09-15
 ### Added
-- Add protected owner predicates and setters to the connection `Manager`. [#52071]
+- Add protected owner predicates and setters to the `Manager` class. [#52071]
 - Show an admin notice when WordPress.com reports that it cannot verify the site's SSL certificate. [#52035]
 - Serve the disconnect dialog illustrations from the package and add their base URL to the admin script data. [#52204]
 
