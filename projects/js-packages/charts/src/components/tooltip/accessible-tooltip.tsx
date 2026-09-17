@@ -115,8 +115,6 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	// The chart's own id, not `useChartId()` — that mints a fresh one when called without an
-	// argument, which would read an empty hidden set here and never change.
 	const chartId = useContext( ChartInstanceContext )?.chartId;
 	const { getHiddenSeries } = useGlobalChartsContext();
 	const hiddenSeriesKey = chartId
