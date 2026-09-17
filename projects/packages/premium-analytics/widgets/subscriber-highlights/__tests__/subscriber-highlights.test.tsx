@@ -52,7 +52,7 @@ function respondWith( {
 								paid_subscribers: paid,
 								social_followers: social,
 							},
-					  }
+						}
 			);
 		}
 

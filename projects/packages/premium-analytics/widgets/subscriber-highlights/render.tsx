@@ -91,7 +91,7 @@ function SubscriberHighlightsReport() {
 						icon: share,
 						value: social ?? null,
 					},
-			  ]
+				]
 			: [];
 
 	const historyTiles: Tile[] = DAYS_AGO.map( ( days, index ) => ( {
