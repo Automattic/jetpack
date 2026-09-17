@@ -210,6 +210,11 @@ export async function resetDashboardModernization() {
 	] );
 }
 
+/**
+ * Configure the targeted dashboard message fixture.
+ *
+ * @param enabled - Whether to inject the message.
+ */
 export async function setDashboardJitm( enabled: boolean ) {
 	await executeWpCommand( 'plugin activate e2e-dashboard-jitm' );
 	await executeWpCommand( [
@@ -221,6 +226,9 @@ export async function setDashboardJitm( enabled: boolean ) {
 	] );
 }
 
+/**
+ * Deactivate the message fixture and remove its option.
+ */
 export async function resetDashboardJitm() {
 	await executeWpCommand( [
 		'eval',
