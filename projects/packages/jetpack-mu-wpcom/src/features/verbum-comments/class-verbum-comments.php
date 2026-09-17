@@ -266,6 +266,7 @@ class Verbum_Comments {
 					'Enter your email address'           => __( 'Enter your email address', 'jetpack-mu-wpcom' ),
 					'Subscribe'                          => __( 'Subscribe', 'jetpack-mu-wpcom' ),
 					'Comment sent successfully'          => __( 'Comment sent successfully', 'jetpack-mu-wpcom' ),
+					'Your comment could not be sent. Please try again.' => __( 'Your comment could not be sent. Please try again.', 'jetpack-mu-wpcom' ),
 					'Save my name, email, and website in this browser for the next time I comment.' => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-mu-wpcom' ),
 					'hovercardi18n'                      => $hovercard_i18n,
 					'siteId'                             => $this->blog_id,
