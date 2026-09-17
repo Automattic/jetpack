@@ -166,12 +166,14 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 	}
 
 	public function test_the_constants_match_the_wp_build_page_definition() {
-		$wp_plugin = json_decode( (string) file_get_contents( dirname( __DIR__, 2 ) . '/package.json' ), true )['wpPlugin'];
+		$package_json = (array) json_decode( (string) file_get_contents( dirname( __DIR__, 2 ) . '/package.json' ), true );
+		$wp_plugin    = (array) $package_json['wpPlugin'];
+		$page         = (array) $wp_plugin['pages'][0];
 
-		$this->assertSame( Dashboard::WP_BUILD_PAGE_ID, $wp_plugin['pages'][0]['id'] );
+		$this->assertSame( Dashboard::WP_BUILD_PAGE_ID, $page['id'] );
 		$this->assertSame(
 			Dashboard::WP_BUILD_RENDER_FN,
-			$wp_plugin['name'] . '_' . str_replace( '-', '_', $wp_plugin['pages'][0]['id'] ) . '_wp_admin_render_page',
+			$wp_plugin['name'] . '_' . str_replace( '-', '_', (string) $page['id'] ) . '_wp_admin_render_page',
 			'A page-id or wpPlugin.name change renamed the generated function; every flag-on site would silently get the legacy dashboard.'
 		);
 	}
