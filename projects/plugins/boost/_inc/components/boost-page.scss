@@ -17,14 +17,10 @@ body:has(.jetpack-boost-page) {
 	.jetpack-boost-page__notices {
 		max-inline-size: var(--wpds-dimension-surface-width-xl);
 		margin-inline: auto;
-		margin-block-end: var(--wpds-dimension-gap-xl);
 
-		&:empty {
-			display: none;
-		}
-
+		// On the card, so a dismissed (hidden) card leaves no gap.
 		.jitm-card {
-			margin: 0;
+			margin: 0 0 var(--wpds-dimension-gap-xl);
 		}
 	}
 
