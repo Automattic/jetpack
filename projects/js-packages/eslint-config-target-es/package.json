@@ -17,7 +17,7 @@
 		"type": "git",
 		"url": "git+https://github.com/Automattic/eslint-config-target-es.git"
 	},
-	"license": "GPL-2.0-or-later",
+	"license": "MIT",
 	"author": "Automattic",
 	"exports": {
 		".": "./src/eslintrc/all.js",
