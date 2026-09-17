@@ -153,6 +153,7 @@ class CommentsComponent extends Component {
 									text={ __( 'Show Gravatar hovercards alongside comments.', 'jetpack' ) }
 									link={ gravatar.learn_more_button }
 									privacyLink={ gravatar.learn_more_button + '#privacy' }
+									wpcomLink="https://wordpress.com/support/gravatars/"
 								/>
 							</div>
 						) }
@@ -183,6 +184,7 @@ class CommentsComponent extends Component {
 									text={ __( 'Allow readers to use markdown in comments.', 'jetpack' ) }
 									link={ markdown.learn_more_button }
 									privacyLink={ markdown.learn_more_button + '#privacy' }
+									wpcomLink="https://wordpress.com/support/wordpress-editor/blocks/markdown-block/"
 								/>
 							</div>
 						) }
@@ -209,6 +211,7 @@ class CommentsComponent extends Component {
 									privacyLink={ getRedirectUrl( 'jetpack-support-comment-likes', {
 										anchor: 'privacy',
 									} ) }
+									wpcomLink="https://wordpress.com/support/comment-likes/"
 								/>
 							</div>
 						) }

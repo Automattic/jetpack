@@ -58,6 +58,7 @@ export const Ads = withModuleSettingsFormHelpers(
 							'jetpack'
 						),
 						link: 'https://jetpack.com/support/ads/',
+						wpcomLink: 'https://wordpress.com/support/manage-your-ads-txt-file/',
 					} }
 				>
 					<ToggleControl
@@ -383,6 +384,8 @@ export const Ads = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-ads' ),
+							wpcomLink:
+								'https://wordpress.com/support/wordads-and-earn/configure-ad-settings/#consent-management',
 						} }
 					>
 						<ToggleControl
