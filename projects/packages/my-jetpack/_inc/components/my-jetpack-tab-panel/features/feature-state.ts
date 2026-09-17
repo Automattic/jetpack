@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN, PRODUCT_STATUSES } from '../../../constants';
 import { useAllProducts } from '../../../data/products/use-all-products';
+import { getProductModules } from '../products/mappings';
 import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
@@ -43,14 +44,28 @@ const isProductRunning = ( product: ProductCamelCase ): boolean => {
 const stateForFeature = (
 	feature: MainFeature,
 	products: Record< string, ProductCamelCase >,
-	modules: Record< JetpackModuleSlug, MyJetpackModule >
+	modules: Record< JetpackModuleSlug, MyJetpackModule >,
+	productModules: Record< string, string >
 ): FeatureState => {
 	if ( feature.product ) {
 		const product = products?.[ feature.product ];
 
-		return product
-			? { feature, product, status: isProductRunning( product ) ? 'active' : 'inactive' }
-			: { feature, status: feature.status };
+		if ( ! product ) {
+			return { feature, status: feature.status };
+		}
+
+		// A product's module is rarely named after it (Social runs 'publicize'), and the
+		// catalog only names a module when no product backs the feature. Resolve it the
+		// way the Products tab builds its cards, or the toggle reads as unavailable.
+		const moduleSlug = ( productModules[ feature.product ] ||
+			feature.product ) as JetpackModuleSlug;
+
+		return {
+			feature,
+			product,
+			module: modules?.[ moduleSlug ],
+			status: isProductRunning( product ) ? 'active' : 'inactive',
+		};
 	}
 
 	if ( feature.module ) {
@@ -78,9 +93,11 @@ const stateForFeature = (
 export function useFeatureStates( features: MainFeature[] ): FeatureState[] {
 	const { data: products } = useAllProducts();
 	const { modules } = useAllJetpackModules();
+	const productModules = getProductModules();
 
 	return useMemo(
-		() => features.map( feature => stateForFeature( feature, products, modules ) ),
+		() => features.map( feature => stateForFeature( feature, products, modules, productModules ) ),
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- productModules is rebuilt each render from a constant map.
 		[ features, products, modules ]
 	);
 }
