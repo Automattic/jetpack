@@ -92,7 +92,7 @@ export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
 
 			{ routes ? (
 				<Stack direction="column" gap="sm" className={ styles[ 'paid-routes' ] }>
-					<Text variant="body-sm">{ __( 'Comes with', 'jetpack-my-jetpack' ) }</Text>
+					<Text variant="body-sm">{ __( 'Available in', 'jetpack-my-jetpack' ) }</Text>
 					<Stack direction="row" align="center" gap="sm" wrap="wrap">
 						{ plans.map( plan => (
 							<PlanBadge key={ plan.slug } plan={ plan } onSelect={ onFilterByPlan } />
