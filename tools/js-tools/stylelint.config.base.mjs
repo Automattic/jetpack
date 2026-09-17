@@ -17,6 +17,9 @@ const baseConfig = {
 		'plugin-wpds/no-token-fallback-values': true,
 
 		// `--_gcd-*` and `--_wp-*` variables are private to @wordpress/* packages and will break at any time if used.
+		// @todo: can be removed once `@wordpress/stylelint-config` is updated to include this rule.
+		// https://github.com/WordPress/gutenberg/pull/83025
+		// https://github.com/WordPress/gutenberg/pull/83075
 		'custom-property-pattern': '^(?!_(?:gcd|wp)-).+',
 
 		// In addition to what `@wordpress/stylelint-config/scss-stylistic` does by default, also ignore comments containing /stylelint-disable/.
