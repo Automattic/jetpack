@@ -147,6 +147,67 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The Jetpack submenu slug for the Calypso "Activity Log" link, or null when it isn't present.
+	 *
+	 * @return string|null
+	 */
+	private function get_activity_log_submenu_slug() {
+		global $submenu;
+
+		foreach ( $submenu['jetpack'] ?? array() as $item ) {
+			if ( isset( $item[2] ) && str_starts_with( $item[2], 'https://wordpress.com/activity-log/' ) ) {
+				return $item[2];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * WordPress.com serves the Activity Log from Calypso, so the entry points there rather
+	 * than at the native page the `jetpack-activity-log` package registers.
+	 */
+	public function test_jetpack_submenu_links_to_calypso_activity_log_while_the_module_is_active() {
+		\Jetpack_Options::update_option( 'id', 200 );
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_activity_log_module' ) );
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertSame(
+			'https://wordpress.com/activity-log/' . self::$domain,
+			$this->get_activity_log_submenu_slug(),
+			'The Calypso Activity Log submenu must be present while the module is active.'
+		);
+	}
+
+	/**
+	 * "Off" means the same thing here as on a self-hosted site.
+	 */
+	public function test_jetpack_submenu_drops_activity_log_when_the_module_is_inactive() {
+		\Jetpack_Options::update_option( 'id', 200 );
+
+		wpcom_add_jetpack_submenu();
+
+		$this->assertNull(
+			$this->get_activity_log_submenu_slug(),
+			'The Activity Log submenu must be gone once the module is deactivated.'
+		);
+	}
+
+	/**
+	 * Stands in for a site that has the Activity Log module switched on. Filtering is how the
+	 * slug survives `Modules::get_active()` here, which has no Jetpack plugin to list it as available.
+	 *
+	 * @param array $modules Active module slugs.
+	 * @return array
+	 */
+	public function activate_activity_log_module( $modules ) {
+		$modules[] = 'activity-log';
+
+		return $modules;
+	}
+
+	/**
 	 * Tests wpcom_add_hosting_menu
 	 */
 	public function test_add_hosting_menu() {
