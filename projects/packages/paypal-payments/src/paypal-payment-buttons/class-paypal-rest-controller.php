@@ -293,7 +293,7 @@ class PayPal_REST_Controller {
 						'post_id'     => array(
 							'type'        => 'integer',
 							'default'     => 0,
-							'description' => __( 'The post being saved, which does not count as still embedding the link.', 'jetpack-paypal-payments' ),
+							'description' => __( 'One post to leave out of the embed count.', 'jetpack-paypal-payments' ),
 						),
 					),
 				),
@@ -712,8 +712,7 @@ class PayPal_REST_Controller {
 	public static function handle_delete_button( WP_REST_Request $request ) {
 		$resource_id = $request->get_param( 'resource_id' );
 
-		// The editor deletes a link when a post is saved without its block, but a
-		// link is shared by every block that points at it, on any post.
+		// Spare a link another published post still embeds.
 		if ( $request->get_param( 'unused_only' ) ) {
 			$embeds = PayPal_Admin_Page::count_published_embeds( absint( $request->get_param( 'post_id' ) ) );
 			$others = $embeds[ $resource_id ] ?? 0;

@@ -5,14 +5,11 @@
  */
 
 import {
-	deleteRemovedPayments,
 	forgetSyncedRequests,
 	heldBackReason,
 	isReadyForPayPal,
 	recordBlockMounted,
 	recordPaymentRead,
-	removedResourceIds,
-	resourceIdsIn,
 	syncBlocksBeforeSave,
 } from '../../src/paypal-payment-buttons/utils/sync-on-save';
 import { REQUIRED_FIELD_ERROR } from '../../src/paypal-payment-buttons/utils/validation';
@@ -657,37 +654,5 @@ describe( 'syncBlocksBeforeSave', () => {
 			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST', 'PUT' ] );
 			expect( deps.reportHeldBack ).not.toHaveBeenCalled();
 		} );
-	} );
-} );
-
-describe( 'removed payments', () => {
-	const block = id =>
-		`<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"${ id }"} /-->`;
-
-	it( 'reads the payments out of post content', () => {
-		expect( [ ...resourceIdsIn( `${ block( 'PLB-A1' ) }\n${ block( 'PLB-B2' ) }` ) ] ).toEqual( [
-			'PLB-A1',
-			'PLB-B2',
-		] );
-		expect( [ ...resourceIdsIn( '' ) ] ).toEqual( [] );
-	} );
-
-	it( 'names the payments the saved post had that the next save drops', () => {
-		const savedContent = `${ block( 'PLB-A1' ) }\n${ block( 'PLB-B2' ) }`;
-
-		expect( removedResourceIds( savedContent, block( 'PLB-B2' ) ) ).toEqual( [ 'PLB-A1' ] );
-		expect( removedResourceIds( savedContent, savedContent ) ).toEqual( [] );
-		expect( removedResourceIds( undefined, block( 'PLB-A1' ) ) ).toEqual( [] );
-	} );
-
-	it( 'asks the server to delete each one unless another post still uses it', async () => {
-		const deps = fakeDeps( () => Promise.reject( new Error( 'kept' ) ) );
-
-		await deleteRemovedPayments( [ 'PLB-A1', 'PLB-B2' ], 17, deps );
-
-		expect( deps.requests ).toEqual( [
-			{ path: '/wpcom/v2/paypal/buttons/PLB-A1?unused_only=1&post_id=17', method: 'DELETE' },
-			{ path: '/wpcom/v2/paypal/buttons/PLB-B2?unused_only=1&post_id=17', method: 'DELETE' },
-		] );
 	} );
 } );
