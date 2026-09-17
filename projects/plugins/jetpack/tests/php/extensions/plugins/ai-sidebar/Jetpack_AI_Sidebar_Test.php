@@ -552,7 +552,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * Without the Big_Sky class the Agent is not on, so the enabled flag stays off.
 	 * Runs before any test declares the stub.
 	 */
-	public function test_agent_enabled_extension_unavailable_when_eligible_but_not_enabled() {
+	public function test_agent_support_extension_unavailable_when_eligible_but_not_enabled() {
 		if ( class_exists( 'Big_Sky' ) ) {
 			$this->markTestSkipped( 'Big_Sky was declared by an earlier test in this process and cannot be undeclared.' );
 		}
@@ -566,7 +566,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::register_agent_notice_extension();
 
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION ) );
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLED_EXTENSION ) );
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_SUPPORT_EXTENSION ) );
 	}
 
 	/**
@@ -1256,7 +1256,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
 		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_action_available() );
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLED_EXTENSION ) );
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_SUPPORT_EXTENSION ) );
 	}
 
 	/**
@@ -1276,7 +1276,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		Jetpack_AI_Sidebar::register_agent_notice_extension();
 
 		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLED_EXTENSION ) );
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_SUPPORT_EXTENSION ) );
 	}
 
 	/**

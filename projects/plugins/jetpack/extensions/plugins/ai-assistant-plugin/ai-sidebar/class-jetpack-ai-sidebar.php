@@ -33,7 +33,7 @@ const AI_SIDEBAR_PROVIDER_URL             = 'https://' . AM_ASSET_BASE_PATH . 'j
 const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
 const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
 const AI_SIDEBAR_AGENT_NOTICE_EXTENSION   = 'ai-sidebar-agent-notice';
-const AI_SIDEBAR_AGENT_ENABLED_EXTENSION  = 'ai-sidebar-agent-enabled';
+const AI_SIDEBAR_AGENT_SUPPORT_EXTENSION  = 'ai-sidebar-agent-support';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -584,13 +584,13 @@ class Jetpack_AI_Sidebar {
 
 		// Tells the notice whether to offer to enable the Agent or to open it.
 		if ( self::is_wordpress_agent_enabled() ) {
-			\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_ENABLED_EXTENSION );
+			\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_SUPPORT_EXTENSION );
 			return;
 		}
 
 		\Jetpack_Gutenberg::set_extension_unavailable(
-			AI_SIDEBAR_AGENT_ENABLED_EXTENSION,
-			'jetpack_ai_sidebar_agent_not_enabled'
+			AI_SIDEBAR_AGENT_SUPPORT_EXTENSION,
+			'jetpack_ai_sidebar_agent_disabled'
 		);
 	}
 

@@ -30,7 +30,7 @@ let mockSiteFragment: string | null = 'example.wordpress.com';
 
 jest.mock( '../../../../../blocks/ai-assistant/lib/utils/get-feature-availability', () => ( {
 	getFeatureAvailability: ( feature: string ) =>
-		feature === 'ai-sidebar-agent-enabled' ? mockIsAgentEnabled : mockIsFeatureAvailable,
+		feature === 'ai-sidebar-agent-support' ? mockIsAgentEnabled : mockIsFeatureAvailable,
 } ) );
 
 jest.mock( '../open-agent', () => ( {

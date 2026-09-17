@@ -37,7 +37,7 @@ import type {
 } from './types';
 
 export const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
-export const AGENT_ENABLED_FEATURE = 'ai-sidebar-agent-enabled';
+export const AGENT_SUPPORT_FEATURE = 'ai-sidebar-agent-support';
 export const PREFERENCE_SCOPE = 'jetpack/ai-assistant';
 export const DISMISSED_PREFERENCE = 'wordpressAgentNoticeDismissed';
 
@@ -74,7 +74,7 @@ function getEnableAgentUrl(): string {
  * @return {boolean} True once the Agent is on.
  */
 function isWordPressAgentOn(): boolean {
-	return isAgentActionAvailable() || getFeatureAvailability( AGENT_ENABLED_FEATURE );
+	return isAgentActionAvailable() || getFeatureAvailability( AGENT_SUPPORT_FEATURE );
 }
 
 function useEventProperties(
