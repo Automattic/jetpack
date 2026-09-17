@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Stop the date period dropdown tests from loading libraries they never render.
+Comment: Speed up the date period dropdown tests and give them timeout headroom on slow CI runners.
 
 

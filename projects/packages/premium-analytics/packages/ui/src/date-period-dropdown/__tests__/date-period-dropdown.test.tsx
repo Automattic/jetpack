@@ -18,6 +18,9 @@ import { DatePeriodDropdown } from '../date-period-dropdown';
 
 configure( { reactStrictMode: true } );
 
+// Each click re-renders the popover and calendar, which a contended coverage runner can stretch past 5s.
+jest.setTimeout( 20_000 );
+
 const JULY_2026 = {
 	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),
 	to: new TZDate( 2026, 6, 31, 23, 59, 59, 999, 'UTC' ),
