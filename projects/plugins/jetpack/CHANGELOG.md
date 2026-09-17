@@ -4,7 +4,7 @@
 
 ## 16.3-a.1 - 2026-09-15
 ### Enhancements
-- Admin Menu: Hide a Jetpack sidebar item when its feature is turned off. [#52156]
+- Admin Menu: Hide feature menu items from sidebar when features are turned off. [#52156]
 - AI: Add ChatGPT and Codex setup instructions to the MCP agent setup page. [#51911]
 - AI: Load the "Scheduled tasks" tab only when it is opened, cutting the AI page script by two thirds. [#51969]
 - Connection: Show an admin notice and a clearer Site Health result when WordPress.com cannot verify the site's SSL certificate. [#52035]
