@@ -60,6 +60,7 @@ import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import { withPartnerAttribution } from './utils/partner-attribution';
 import { RESOURCE_ATTRIBUTES, resetToDefaults, turnGateOff } from './utils/resource-sync';
+import { recordPaymentRead } from './utils/sync-on-save';
 import {
 	getUserFriendlyError,
 	getValidationErrors,
@@ -163,9 +164,11 @@ const labelShippingFee = __( 'Enter shipping fee', 'jetpack-paypal-payments' );
  * @param {object}   props               - Block props.
  * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to update block attributes.
+ * @param {string}   props.clientId      - The block's client id, renamed because
+ *                                       usePayPalConnection() returns PayPal's own clientId.
  * @return {Element} Block editor UI.
  */
-export default function ApiManagedEdit( { attributes, setAttributes } ) {
+export default function ApiManagedEdit( { attributes, setAttributes, clientId: blockClientId } ) {
 	const {
 		isApiManaged,
 		scriptSrc,
@@ -392,6 +395,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		attributes,
 		setAttributes,
 		isConnected,
+		clientId: blockClientId,
 		setShowDeleteConfirm,
 	} );
 
@@ -530,16 +534,21 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			setError( null );
 			apiFetch( { path: `${ API_BASE }/buttons/${ link.id }` } )
 				.then( response => {
+					if ( ! response?.attributes ) {
+						return;
+					}
+					// The block just read the payment, so the save can write it without a second fetch.
+					recordPaymentRead( blockClientId, link.id );
 					setAttributes( {
 						isApiManaged: true,
 						resourceId: link.id,
-						...( response?.attributes || {} ),
+						...response.attributes,
 					} );
 				} )
 				.catch( err => setError( getUserFriendlyError( err ) ) )
 				.finally( () => setIsPicking( false ) );
 		},
-		[ setAttributes, setError ]
+		[ blockClientId, setAttributes, setError ]
 	);
 
 	// The payment is written with the post, so the sidebar says what the save will do.

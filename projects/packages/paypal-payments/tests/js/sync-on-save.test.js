@@ -9,6 +9,8 @@ import {
 	forgetSyncedRequests,
 	heldBackReason,
 	isReadyForPayPal,
+	recordBlockMounted,
+	recordPaymentRead,
 	removedResourceIds,
 	resourceIdsIn,
 	syncBlocksBeforeSave,
@@ -474,6 +476,9 @@ describe( 'syncBlocksBeforeSave', () => {
 		 */
 		const stored = () => Promise.resolve( {} );
 
+		// These tests are about what gets sent, so mark the payment read and let the save run.
+		beforeEach( () => recordPaymentRead( 'a', 'PLB-KEEP1' ) );
+
 		it( 'replaces the payment with the form values, clearing what the form leaves unset', async () => {
 			const deps = fakeDeps( stored );
 
@@ -548,6 +553,109 @@ describe( 'syncBlocksBeforeSave', () => {
 				expect.stringContaining( 'PayPal turned the payment down.' )
 			);
 			expect( deps.updateBlockAttributes ).toHaveBeenCalledWith( 'b', expect.anything() );
+		} );
+	} );
+
+	// A PUT replaces the payment outright, so a block still holding its block.json defaults
+	// would wipe the product id and description set at PayPal.
+	describe( 'a block still waiting for its payment', () => {
+		const saved = { ...product, isApiManaged: true, resourceId: 'PLB-KEEP1' };
+		const unread = 'Its current settings have not loaded yet. Reload the post and try again.';
+
+		// A block is only held back once its editor has rendered.
+		beforeEach( () => recordBlockMounted( 'a' ) );
+
+		it( 'holds back a block that has yet to read its payment, and says why', async () => {
+			const deps = fakeDeps();
+
+			const changed = await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
+
+			expect( changed ).toBe( false );
+			expect( deps.request ).not.toHaveBeenCalled();
+			expect( deps.reportError ).not.toHaveBeenCalled();
+			expect( deps.reportHeldBack ).toHaveBeenCalledWith(
+				{ clientId: 'a', attributes: saved },
+				unread
+			);
+		} );
+
+		it( 'holds back a block pointed at a payment other than the one it read', async () => {
+			recordPaymentRead( 'a', 'PLB-OTHER1' );
+			const deps = fakeDeps();
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
+
+			expect( deps.request ).not.toHaveBeenCalled();
+			expect( deps.reportHeldBack ).toHaveBeenCalledWith( expect.anything(), unread );
+		} );
+
+		it( 'holds back one block and sends the other', async () => {
+			recordBlockMounted( 'b' );
+			recordPaymentRead( 'b', 'PLB-KEEP1' );
+			const deps = fakeDeps();
+
+			await syncBlocksBeforeSave(
+				[
+					{ clientId: 'a', attributes: saved },
+					{ clientId: 'b', attributes: saved },
+				],
+				deps
+			);
+
+			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'PUT' ] );
+			expect( deps.reportHeldBack ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'sends the block on the next save once it has read its payment', async () => {
+			const deps = fakeDeps();
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
+			recordPaymentRead( 'a', 'PLB-KEEP1' );
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
+
+			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'PUT' ] );
+		} );
+
+		// There is nothing at PayPal to overwrite yet, so the create runs.
+		it( 'creates a payment for a block that has none', async () => {
+			const deps = fakeDeps();
+
+			const changed = await syncBlocksBeforeSave(
+				[ { clientId: 'a', attributes: product } ],
+				deps
+			);
+
+			expect( changed ).toBe( true );
+			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST' ] );
+			expect( deps.reportHeldBack ).not.toHaveBeenCalled();
+		} );
+
+		// In code editor mode the save still runs over blocks that were only parsed from the
+		// post, so their attributes came from block.json defaults. Only the message differs.
+		it( 'holds back a block whose editor has yet to render, and points to the visual editor', async () => {
+			const deps = fakeDeps();
+
+			await syncBlocksBeforeSave( [ { clientId: 'z', attributes: saved } ], deps );
+
+			expect( deps.request ).not.toHaveBeenCalled();
+			expect( deps.reportHeldBack ).toHaveBeenCalledWith(
+				{ clientId: 'z', attributes: saved },
+				'Open this block in the visual editor and save again.'
+			);
+		} );
+
+		// The save created this payment, so the next save can update it straight away.
+		it( 'updates a payment the previous save created', async () => {
+			const deps = fakeDeps();
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: product } ], deps );
+			await syncBlocksBeforeSave(
+				[ { clientId: 'a', attributes: { ...product, resourceId: 'PLB-NEW1', price: '31.00' } } ],
+				deps
+			);
+
+			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST', 'PUT' ] );
+			expect( deps.reportHeldBack ).not.toHaveBeenCalled();
 		} );
 	} );
 } );
