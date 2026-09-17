@@ -462,8 +462,23 @@ type VideopressData = {
 	videoCount: number;
 };
 
+type MainFeature = {
+	slug: string;
+	name: string;
+	description: string;
+	icon: string;
+	status: 'active' | 'inactive';
+	manage_url: string;
+	learn_more_route: string;
+	essential: boolean;
+	plans: string[];
+	product: string;
+	module: string;
+};
+
 interface Window {
 	myJetpackInitialState?: {
+		mainFeatures: MainFeature[];
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {

@@ -7,10 +7,27 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
+
 /**
  * Describes the main Jetpack features: their copy, links and how a site owner gets each one.
+ *
+ * The descriptive half of an entry (name, description, icon) is expected to move to a
+ * WordPress.com public-api endpoint in a later iteration; the state half (status,
+ * manage_url) must stay local, because only the site knows what is active on it.
  */
 class Main_Features {
+
+	/**
+	 * Feature is running and has a page of its own to visit.
+	 */
+	const STATUS_ACTIVE = 'active';
+
+	/**
+	 * Feature is available but switched off, so we offer to explain it.
+	 */
+	const STATUS_INACTIVE = 'inactive';
 
 	/**
 	 * The static feature catalog.
@@ -371,5 +388,86 @@ class Main_Features {
 				'paid_product'     => __( 'Jetpack VideoPress', 'jetpack-my-jetpack' ),
 			),
 		);
+	}
+
+	/**
+	 * The feature catalog merged with each feature's live state, sorted by name.
+	 *
+	 * @return array List of features, each with slug, name, description, icon, status,
+	 *               manage_url, learn_more_route and the product/module join keys.
+	 */
+	public static function get_features() {
+		$features = array();
+
+		foreach ( self::get_feature_definitions() as $slug => $definition ) {
+			$features[] = array(
+				'slug'             => $slug,
+				'name'             => $definition['name'],
+				'description'      => $definition['description'],
+				'icon'             => $definition['icon'],
+				'status'           => self::get_feature_status( $definition ),
+				'manage_url'       => self::get_feature_manage_url( $definition ),
+				'learn_more_route' => $definition['interstitial'] ?? '',
+				'essential'        => ! empty( $definition['essential'] ),
+				'plans'            => $definition['plans'] ?? array(),
+				// Join keys: the UI reads live, post-mutation state from the product and
+				// module stores rather than from the `status` resolved above.
+				'product'          => $definition['product'] ?? '',
+				'module'           => $definition['module'] ?? '',
+			);
+		}
+
+		usort(
+			$features,
+			function ( $a, $b ) {
+				return strnatcasecmp( $a['name'], $b['name'] );
+			}
+		);
+
+		return $features;
+	}
+
+	/**
+	 * Resolve whether a feature is currently running on this site.
+	 *
+	 * @param array $definition A single entry from the feature catalog.
+	 * @return string One of the STATUS_* constants.
+	 */
+	private static function get_feature_status( array $definition ) {
+		if ( isset( $definition['product'] ) ) {
+			$product_class = Products::get_product_class( $definition['product'] );
+
+			return $product_class && $product_class::is_active() ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
+		}
+
+		if ( isset( $definition['module'] ) ) {
+			return ( new Modules() )->is_active( $definition['module'] ) ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
+		}
+
+		// Features with neither a product nor a module are hosted on WordPress.com and
+		// need the site connection to show anything at all.
+		return ( new Connection_Manager() )->is_connected() ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
+	}
+
+	/**
+	 * Where an active feature lives.
+	 *
+	 * @param array $definition A single entry from the feature catalog.
+	 * @return string Admin URL, or an empty string when the feature has nowhere to go.
+	 */
+	private static function get_feature_manage_url( array $definition ) {
+		if ( isset( $definition['admin_page'] ) ) {
+			return admin_url( 'admin.php?page=' . $definition['admin_page'] );
+		}
+
+		if ( isset( $definition['product'] ) ) {
+			$product_class = Products::get_product_class( $definition['product'] );
+
+			if ( $product_class ) {
+				return (string) $product_class::get_manage_url();
+			}
+		}
+
+		return '';
 	}
 }

@@ -234,4 +234,44 @@ class Main_Features_Test extends TestCase {
 			}
 		}
 	}
+
+	/**
+	 * The grid renders in the order it arrives, so sorting is the catalog's job.
+	 */
+	public function test_features_are_sorted_alphabetically_by_name() {
+		$names = array_column( Main_Features::get_features(), 'name' );
+
+		$sorted = $names;
+		usort( $sorted, 'strnatcasecmp' );
+
+		$this->assertSame( $sorted, $names );
+	}
+
+	/**
+	 * A feature with no interstitial must say so rather than emit a route that 404s.
+	 */
+	public function test_features_without_an_interstitial_have_an_empty_learn_more_route() {
+		$features = array_column( Main_Features::get_features(), 'learn_more_route', 'slug' );
+
+		$this->assertSame( '/add-backup', $features['backup'] );
+		$this->assertSame( '', $features['activity-log'] );
+		$this->assertSame( '', $features['podcast'] );
+	}
+
+	/**
+	 * The pills filter on plan membership, so every feature has to carry the key they read.
+	 */
+	public function test_every_feature_carries_the_keys_the_grid_reads() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			foreach ( array( 'slug', 'name', 'description', 'icon', 'status', 'essential', 'plans' ) as $key ) {
+				$this->assertArrayHasKey( $key, $feature, "Feature {$feature['slug']} is missing {$key}" );
+			}
+
+			$this->assertContains(
+				$feature['status'],
+				array( Main_Features::STATUS_ACTIVE, Main_Features::STATUS_INACTIVE )
+			);
+			$this->assertIsArray( $feature['plans'] );
+		}
+	}
 }

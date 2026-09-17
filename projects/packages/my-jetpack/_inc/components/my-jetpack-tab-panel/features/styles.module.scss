@@ -1,0 +1,242 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+// Matches the product-card icon palette in ../products/styles.module.scss.
+$feature-icon-background: #003010;
+$feature-icon-foreground: #0ced57;
+
+.content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	// The page footer sits straight under the grid, so the last row needs room.
+	padding-block-end: var(--wpds-dimension-padding-3xl);
+}
+
+.feature-grid {
+	display: grid;
+	gap: var(--wpds-dimension-gap-lg);
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+// 782px is where wp-admin itself collapses the sidebar.
+@media (max-width: 782px) {
+
+	.feature-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+// The navigation row the AI Hub uses, as a card: leading glyph, title and
+// description, trailing chevron, the whole row one target.
+.feature-item {
+	align-items: flex-start;
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
+	display: flex;
+	gap: var(--wpds-dimension-gap-md);
+	padding: var(--wpds-dimension-padding-xl);
+	position: relative;
+	transition: background-color 120ms ease-out, border-color 120ms ease-out;
+
+	&:hover {
+		background: var(--wpds-color-background-surface-neutral-weak);
+		border-color: var(--wpds-color-stroke-surface-neutral);
+	}
+
+	// wp-admin draws focus as a box-shadow outside the element, which this card's
+	// radius clips. Draw it on the card instead, from whichever control inside has
+	// focus, so a keyboard user can see where they are.
+	&:focus-within {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: calc(var(--wpds-border-width-focus) * -1);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.feature-item {
+		transition: none;
+	}
+}
+
+.feature-item__icon {
+	display: flex;
+	flex-shrink: 0;
+	// Optical alignment with the cap height of the title next to it.
+	margin-block-start: 2px;
+}
+
+.feature-item__text {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+	min-inline-size: 0;
+}
+
+.feature-item__heading {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+.feature-item__title {
+	color: var(--wpds-color-foreground-content-neutral);
+	margin: 0;
+}
+
+// The title is the row's control, so it takes a button's behaviour and none of
+// its chrome. The card draws its focus ring, which is not clipped.
+.feature-item__open {
+	background: none;
+	border: 0;
+	color: inherit;
+	cursor: pointer;
+	font: inherit;
+	padding: 0;
+	text-align: start;
+	text-decoration: none;
+
+	// Stretched over the card, so anywhere in the row opens the feature.
+	&::after {
+		content: "";
+		inset: 0;
+		position: absolute;
+	}
+
+	&:focus-visible {
+		box-shadow: none;
+		outline: none;
+	}
+}
+
+.feature-item__description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	margin: 0;
+}
+
+.feature-item__chevron {
+	align-self: center;
+	color: var(--wpds-color-foreground-content-neutral);
+	display: flex;
+	flex-shrink: 0;
+}
+
+.feature-icon {
+	align-items: center;
+	block-size: 2.25rem;
+	border-radius: var(--wpds-border-radius-md);
+	// A flex box, not an inline span: width on an inline element is ignored, so
+	// the tile only held its size where its parent happened to lay it out.
+	display: flex;
+	flex: none;
+	inline-size: 2.25rem;
+	justify-content: center;
+	overflow: hidden;
+
+	// The product marks ship at 64px, carried in the SVG's own attributes.
+	> *,
+	svg {
+		block-size: 100%;
+		display: block;
+		inline-size: 100%;
+	}
+}
+
+// Features with no product icon get a tile in the same palette rather than
+// borrowing another product's branding.
+.feature-icon__fallback {
+	align-items: center;
+	background: $feature-icon-background;
+	block-size: 100%;
+	border-radius: inherit;
+	color: $feature-icon-foreground;
+	display: flex;
+	inline-size: 100%;
+	justify-content: center;
+
+	svg {
+		block-size: 20px;
+		fill: currentColor;
+		inline-size: 20px;
+	}
+}
+
+
+.empty-heading {
+
+	@include gb.heading-x-large;
+	margin-block: 0;
+}
+
+// Sticky so the filters stay reachable while scrolling a long grid. The
+// offset clears the wp-admin bar, which is fixed.
+.toolbar {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-color: var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	border-style: solid;
+	border-width: var(--wpds-border-width-xs);
+	inset-block-start: 0;
+	margin-block: var(--wpds-dimension-gap-md);
+	padding: var(--wpds-dimension-padding-md);
+	position: sticky;
+	z-index: 10;
+}
+
+.pills {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+// A capsule, not a button: WPDS has no full-round radius token, so the radius
+// is literal and large enough that the height can change without squaring off.
+.pill {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+	border-radius: 999px;
+	color: var(--wpds-color-foreground-interactive-neutral);
+	cursor: pointer;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	padding-block: 0.375rem;
+	padding-inline: 0.875rem;
+	white-space: nowrap;
+
+	&:hover {
+		background: var(--wpds-color-background-interactive-neutral-weak-active);
+		color: var(--wpds-color-foreground-interactive-neutral-active);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--wpds-color-stroke-interactive-neutral-strong);
+		outline-offset: 2px;
+	}
+}
+
+// The pill's own colour at less weight, so it reads as a count rather than a
+// second label in either state.
+.pill__count {
+	font-variant-numeric: tabular-nums;
+	margin-inline-start: var(--wpds-dimension-gap-xs);
+	opacity: 0.6;
+}
+
+.pill--selected {
+	background: var(--wpds-color-background-interactive-neutral-strong);
+	border-color: var(--wpds-color-background-interactive-neutral-strong);
+	color: var(--wpds-color-foreground-interactive-neutral-strong);
+
+	&:hover {
+		background: var(--wpds-color-background-interactive-neutral-strong-active);
+		border-color: var(--wpds-color-background-interactive-neutral-strong-active);
+		color: var(--wpds-color-foreground-interactive-neutral-strong-active);
+	}
+}
+
+.search {
+	margin-inline-start: auto;
+	min-inline-size: 16rem;
+}
