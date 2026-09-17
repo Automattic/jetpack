@@ -73,8 +73,7 @@ function OverviewContent( {
 	useEffect( () => {
 		const onModulesChange = ( event: Event ) => {
 			const key = ( event as CustomEvent< string > ).detail;
-			// The dashboard stage owns the getting_started read; invalidating it here too would read twice.
-			if ( key !== 'getting_started' && relayedQueryKeys.includes( key ) ) {
+			if ( relayedQueryKeys.includes( key ) ) {
 				queryClient.invalidateQueries( { queryKey: [ key ] } );
 			}
 		};
