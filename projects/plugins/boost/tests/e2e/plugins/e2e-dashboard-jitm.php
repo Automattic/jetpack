@@ -40,5 +40,12 @@ register_deactivation_hook(
 	__FILE__,
 	function () {
 		delete_option( 'e2e_boost_dashboard_jitm' );
+
+		// A dismissal persists, so clear it or later runs and retries never see the message.
+		$hidden = class_exists( 'Jetpack_Options' ) ? \Jetpack_Options::get_option( 'hide_jitm' ) : null;
+		if ( is_array( $hidden ) ) {
+			unset( $hidden['pre-connection-e2e-boost-dashboard'] );
+			\Jetpack_Options::update_option( 'hide_jitm', $hidden );
+		}
 	}
 );
