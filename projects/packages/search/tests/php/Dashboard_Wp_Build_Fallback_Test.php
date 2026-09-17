@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use ReflectionMethod;
@@ -25,10 +26,25 @@ require_once __DIR__ . '/fixtures/wp-build-render.php';
 class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 
 	/**
+	 * Per-flag filter that forces the wp-build branch on.
+	 */
+	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Dashboard::WP_BUILD_FEATURE_FLAG;
+
+	/**
+	 * Register the package's flags, as Initializer::init() does on a real request.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		Dashboard::register_feature_flags();
+	}
+
+	/**
 	 * Reset what the tested methods read or write.
 	 */
 	public function tearDown(): void {
-		remove_all_filters( Dashboard::MODERNIZATION_FILTER );
+		remove_all_filters( self::FLAG_FILTER );
+		// The registry is private static, so a flag registered here would outlive the class.
+		Feature_Flags::reset();
 		wp_dequeue_script( Dashboard::DATA_SCRIPT_HANDLE );
 		wp_deregister_script( Dashboard::DATA_SCRIPT_HANDLE );
 		wp_dequeue_script( 'jp-search-dashboard' );
@@ -70,19 +86,19 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 		};
 	}
 
-	public function test_predicate_is_false_when_the_filter_is_off() {
+	public function test_predicate_is_false_when_the_flag_is_off() {
 		$this->assertFalse( $this->is_wp_build_dashboard_active( new Dashboard() ) );
 	}
 
-	public function test_predicate_stays_false_when_the_filter_is_on_but_the_build_is_absent() {
-		add_filter( Dashboard::MODERNIZATION_FILTER, '__return_true' );
+	public function test_predicate_stays_false_when_the_flag_is_on_but_the_build_is_absent() {
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		// The wp-build render function only exists once `pnpm build` has run, which this
 		// test environment never does — so the predicate must fall back on its own.
 		$this->assertFalse( $this->is_wp_build_dashboard_active( new Dashboard() ) );
 	}
 
-	public function test_render_falls_back_to_the_legacy_markup_when_the_filter_is_off() {
+	public function test_render_falls_back_to_the_legacy_markup_when_the_flag_is_off() {
 		ob_start();
 		( new Dashboard() )->render();
 		$output = ob_get_clean();
@@ -91,7 +107,7 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 	}
 
 	public function test_render_falls_back_to_the_legacy_markup_when_the_build_is_absent() {
-		add_filter( Dashboard::MODERNIZATION_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		ob_start();
 		( new Dashboard() )->render();
@@ -100,7 +116,7 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 		$this->assertStringContainsString( 'id="jp-search-dashboard"', $output );
 	}
 
-	public function test_load_admin_scripts_registers_the_legacy_script_when_the_filter_is_off() {
+	public function test_load_admin_scripts_registers_the_legacy_script_when_the_flag_is_off() {
 		( new Dashboard() )->load_admin_scripts();
 
 		$this->assertTrue( wp_script_is( 'jp-search-dashboard', 'registered' ) );
@@ -108,7 +124,7 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 	}
 
 	public function test_load_admin_scripts_registers_the_legacy_script_when_the_build_is_absent() {
-		add_filter( Dashboard::MODERNIZATION_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		( new Dashboard() )->load_admin_scripts();
 
@@ -117,7 +133,7 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 	}
 
 	public function test_render_calls_the_generated_function_when_the_build_is_present() {
-		add_filter( Dashboard::MODERNIZATION_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		ob_start();
 		$this->dashboard_with_build()->render();
@@ -127,7 +143,7 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 		$this->assertStringNotContainsString( 'id="jp-search-dashboard"', $output );
 	}
 
-	public function test_render_stays_legacy_with_a_build_present_but_the_filter_off() {
+	public function test_render_stays_legacy_with_a_build_present_but_the_flag_off() {
 		ob_start();
 		$this->dashboard_with_build()->render();
 		$output = ob_get_clean();
@@ -136,7 +152,7 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 	}
 
 	public function test_load_admin_scripts_swaps_the_data_handle_when_the_build_is_present() {
-		add_filter( Dashboard::MODERNIZATION_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		$this->dashboard_with_build()->load_admin_scripts();
 
@@ -145,7 +161,7 @@ class Dashboard_Wp_Build_Fallback_Test extends Search_TestCase {
 	}
 
 	public function test_initial_state_rides_the_data_handle_on_the_wp_build_path() {
-		add_filter( Dashboard::MODERNIZATION_FILTER, '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		$this->dashboard_with_build()->load_admin_scripts();
 

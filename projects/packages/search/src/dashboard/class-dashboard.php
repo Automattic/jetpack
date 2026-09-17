@@ -11,6 +11,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -21,9 +22,9 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Dashboard {
 	/**
-	 * Filter enabling the modernized, wp-build-served dashboard.
+	 * Feature flag enabling the modernized, wp-build-served dashboard.
 	 */
-	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_search';
+	const WP_BUILD_FEATURE_FLAG = 'search-wp-build';
 
 	/**
 	 * Slug emitted by `@wordpress/build` (`wpPlugin.pages[0].id`). Distinct from the
@@ -160,22 +161,31 @@ class Dashboard {
 	}
 
 	/**
-	 * Whether the modernization filter is on.
+	 * Register the package's feature flags.
 	 *
-	 * Resolved fresh on each call rather than cached: `apply_filters()` reads a
-	 * registration that does not change mid-request, so every call already agrees.
+	 * Called from {@see Initializer::init()} rather than this class, so the flag stays
+	 * listable by `wp companion feature-flag` on requests that never build the dashboard.
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::WP_BUILD_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Serve the Jetpack Search dashboard through the wp-build pipeline.',
+				'owner'       => 'jetpack-search',
+			)
+		);
+	}
+
+	/**
+	 * Whether the site opted into the modernized dashboard.
 	 *
 	 * @return bool
 	 */
 	protected function is_modernized() {
-		/**
-		 * Enable the modernized Search dashboard, served through wp-build.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $enabled Whether to enable the modernized dashboard. Default false.
-		 */
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+		return Feature_Flags::is_enabled( self::WP_BUILD_FEATURE_FLAG );
 	}
 
 	/**
