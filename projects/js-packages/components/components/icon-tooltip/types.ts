@@ -11,6 +11,10 @@ export type IconTooltipProps = {
 	 * The wrapper class name of this IconTooltip component.
 	 */
 	className?: string;
+	/**
+	 * The class name applied to the Popover, which is outside the wrapper when not inline.
+	 */
+	popoverClassName?: string;
 
 	/**
 	 * The class name applied to the icon.
