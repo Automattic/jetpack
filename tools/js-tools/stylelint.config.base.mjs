@@ -16,7 +16,9 @@ const baseConfig = {
 		'plugin-wpds/no-setting-wpds-custom-properties': true,
 		'plugin-wpds/no-token-fallback-values': true,
 
+		// `--_gcd-*` and `--_wp-*` variables are private to @wordpress/* packages and will break at any time if used.
 		'custom-property-pattern': '^(?!_(?:gcd|wp)-).+',
+
 		// In addition to what `@wordpress/stylelint-config/scss-stylistic` does by default, also ignore comments containing /stylelint-disable/.
 		'@stylistic/max-line-length': [
 			80,
