@@ -321,20 +321,20 @@ class SSO_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertMatchesRegularExpression( '/<a [^>]*button-primary[^>]*source=calypso-me-security-two-step/', $output );
-		$this->assertMatchesRegularExpression( '/calypso-me-security-two-step.*jetpack-sso-or.*force_reauth=1/s', $output );
+		$this->assertMatchesRegularExpression( '/calypso-me-security-two-step.*genericon-wordpress.*jetpack-sso-or.*force_reauth=1/s', $output );
+		$this->assertSame( 1, substr_count( $output, 'button-primary' ) );
 	}
 
 	/**
-	 * Test that login_form drops the login options that cannot work until two-step authentication is set up.
+	 * Test that login_form drops the username and password option when two-step authentication is required.
 	 */
-	public function test_login_form_omits_login_options_when_two_step_required() {
+	public function test_login_form_omits_password_login_when_two_step_required() {
 		$this->set_two_step_required( true );
 
 		ob_start();
 		$this->sso->login_form();
 		$output = ob_get_clean();
 
-		$this->assertStringNotContainsString( 'genericon-wordpress', $output );
 		$this->assertStringNotContainsString( 'jetpack-sso-toggle', $output );
 	}
 
