@@ -77,22 +77,21 @@ describe( 'InterstitialModalCTA', () => {
 		{ rootId: MODERN_ROOT_ID, features: [], visible: true },
 		{ rootId: MODERN_ROOT_ID, features: [ 'support' ], visible: false },
 		{ rootId: LEGACY_ROOT_ID, features: [], visible: false },
-	] )( 'offers license redemption beside modern free-site prompts (%o)', ( {
-		rootId,
-		features,
-		visible,
-	} ) => {
-		boostGlobal.site.online = true;
-		jest.mocked( usePremiumFeatures ).mockReturnValue( features );
-		render( <div id={ rootId } data-testid="dashboard-root" /> );
-		render( <InterstitialModalCTA identifier="critical-css" description="Upgrade" />, {
-			container: screen.getByTestId( 'dashboard-root' ),
-		} );
+	] )(
+		'offers license redemption beside modern free-site prompts (%o)',
+		( { rootId, features, visible } ) => {
+			boostGlobal.site.online = true;
+			jest.mocked( usePremiumFeatures ).mockReturnValue( features );
+			render( <div id={ rootId } data-testid="dashboard-root" /> );
+			render( <InterstitialModalCTA identifier="critical-css" description="Upgrade" />, {
+				container: screen.getByTestId( 'dashboard-root' ),
+			} );
 
-		expect( screen.getByRole( 'button', { name: /Upgrade now/ } ) ).toBeTruthy();
-		const link = screen.queryByRole( 'link', { name: 'Use license key' } );
-		expect( link?.getAttribute( 'href' ) ).toBe(
-			visible ? 'admin.php?page=my-jetpack#/add-license' : undefined
-		);
-	} );
+			expect( screen.getByRole( 'button', { name: /Upgrade now/ } ) ).toBeTruthy();
+			const link = screen.queryByRole( 'link', { name: 'Use license key' } );
+			expect( link?.getAttribute( 'href' ) ).toBe(
+				visible ? 'admin.php?page=my-jetpack#/add-license' : undefined
+			);
+		}
+	);
 } );
