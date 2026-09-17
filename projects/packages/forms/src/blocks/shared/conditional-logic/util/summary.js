@@ -11,17 +11,33 @@ import { isRuleComplete } from './rule-validity.js';
  * "all"/"any" do not slot into every language the same way, and a sentence built by
  * concatenation cannot be reordered by a translator.
  *
- * @param {object} logic - A normalized logic object.
- * @param {object} group - The group being described.
+ * @param {object}  logic       - A normalized logic object.
+ * @param {object}  group       - The group being described.
+ * @param {boolean} isContainer - Whether the subject is a container block rather than a field.
  * @return {string} A sentence ending in a colon.
  */
-export const getSummaryHeading = ( logic, group ) => {
+export const getSummaryHeading = ( logic, group, isContainer = false ) => {
 	const matchesAll = 'all' === group.logicalOperator;
 
 	// The trailing 0 on one branch of each pair is deliberate, and matches how this is handled
 	// elsewhere in the package: two identically shaped __() calls in a ternary get folded by
 	// the production minifier into __( cond ? 'a' : 'b', domain ), whose msgid is no longer a
 	// literal and so cannot be extracted for translation. It is ignored at runtime.
+	if ( isContainer ) {
+		// Named for the block the author selected rather than "this field": a container is
+		// shown or hidden as a unit and takes the fields inside it with it, which is a
+		// different promise from hiding one field.
+		if ( 'hide' === logic.action ) {
+			return matchesAll
+				? __( 'This group is hidden only if:', 'jetpack-forms' )
+				: __( 'This group is hidden if any of these are true:', 'jetpack-forms', 0 );
+		}
+
+		return matchesAll
+			? __( 'This group is shown only if:', 'jetpack-forms' )
+			: __( 'This group is shown if any of these are true:', 'jetpack-forms', 0 );
+	}
+
 	if ( 'hide' === logic.action ) {
 		return matchesAll
 			? __( 'This field is hidden only if:', 'jetpack-forms' )
@@ -103,13 +119,14 @@ export const getActiveConditions = ( group, fields, duplicateFieldIds ) =>
  * The toolbar button's tooltip, specifically. It says the same thing the inspector does so the
  * two cannot drift, just without the markup.
  *
- * @param {object} logic               - A normalized logic object.
- * @param {object} group               - The group being described.
- * @param {Array}  fields              - Subject field descriptors, from useSubjectFields.
- * @param {Set}    [duplicateFieldIds] - Ids claimed by more than one field in the form.
+ * @param {object}  logic               - A normalized logic object.
+ * @param {object}  group               - The group being described.
+ * @param {Array}   fields              - Subject field descriptors, from useSubjectFields.
+ * @param {Set}     [duplicateFieldIds] - Ids claimed by more than one field in the form.
+ * @param {boolean} [isContainer]       - Whether the subject is a container rather than a field.
  * @return {string} A single-line summary, or an empty string when nothing is active.
  */
-export const getSummaryText = ( logic, group, fields, duplicateFieldIds ) => {
+export const getSummaryText = ( logic, group, fields, duplicateFieldIds, isContainer = false ) => {
 	const active = getActiveConditions( group, fields, duplicateFieldIds );
 
 	if ( ! active.length ) {
@@ -119,7 +136,7 @@ export const getSummaryText = ( logic, group, fields, duplicateFieldIds ) => {
 	return sprintf(
 		/* translators: 1: heading ending in a colon, 2: the conditions, separated by semicolons */
 		__( '%1$s %2$s', 'jetpack-forms' ),
-		getSummaryHeading( logic, group ),
+		getSummaryHeading( logic, group, isContainer ),
 		active.map( ( { rule, subject } ) => describeRule( rule, subject ) ).join( '; ' )
 	);
 };

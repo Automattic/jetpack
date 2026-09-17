@@ -74,29 +74,39 @@ const getFieldLabel = block => {
  * Walk a form's block tree collecting fields that can be referenced by a condition.
  *
  * @param {Array}  blocks    - Blocks to walk.
- * @param {string} excludeId - Client id to skip (the field owning the panel).
- * @param {number} step      - Current step number, or null outside a multi-step form.
+ * @param {string} excludeId - Client id to skip, along with everything inside it.
+ * @param {object} state     - Traversal state; `step` is the current step number, or null
+ *                           outside a multi-step form. Shared across the whole walk rather
+ *                           than per-invocation: a step inside a nested subtree has to keep
+ *                           counting for the siblings that follow the subtree, and a local
+ *                           would discard it on the way back up.
  * @param {Array}  found     - Accumulator.
  */
-const walk = ( blocks, excludeId, step, found ) => {
+const walk = ( blocks, excludeId, state, found ) => {
 	if ( ! Array.isArray( blocks ) ) {
 		return;
 	}
-
-	let currentStep = step;
 
 	blocks.forEach( block => {
 		if ( ! block ) {
 			return;
 		}
 
+		// The subtree as well as the block itself. For a field that subtree is only its own
+		// label and input, so this changes nothing; for a container it is the fields the
+		// container governs, and conditioning a group on a field it contains is circular —
+		// the answer that would reveal the group can only be given once the group is visible.
+		if ( block.clientId === excludeId ) {
+			return;
+		}
+
 		if ( 'jetpack/form-step' === block.name ) {
-			currentStep = ( currentStep || 0 ) + 1;
+			state.step = ( state.step || 0 ) + 1;
 		}
 
 		const typeKey = getTypeKeyForBlockName( block.name );
 
-		if ( typeKey && block.clientId !== excludeId ) {
+		if ( typeKey ) {
 			// Fields are listed whether or not they carry an explicit `id`. Most do not: the
 			// renderer derives one from the label at output time, so requiring the attribute
 			// here would hide nearly every field and leave only the ones that ship a default
@@ -110,12 +120,12 @@ const walk = ( blocks, excludeId, step, found ) => {
 				typeLabel: getBlockType( block.name )?.title || '',
 				typeKey,
 				options: getFieldOptions( block ),
-				step: currentStep,
+				step: state.step,
 			} );
 			return; // A field's own inner blocks hold its inputs, not other fields.
 		}
 
-		walk( block.innerBlocks, excludeId, currentStep, found );
+		walk( block.innerBlocks, excludeId, state, found );
 	} );
 };
 
@@ -127,7 +137,7 @@ const walk = ( blocks, excludeId, step, found ) => {
  * them — a rule referencing a later step always compares against an empty value, and the
  * author should be able to see that rather than be silently prevented from writing it.
  *
- * @param {string} clientId - The field block owning the panel.
+ * @param {string} clientId - The field or container block owning the panel.
  * @return {Array} Subject field descriptors.
  */
 const useSubjectFields = clientId =>
@@ -141,7 +151,43 @@ const useSubjectFields = clientId =>
 
 			const form = select( 'core/block-editor' ).getBlock( formClientId );
 			const found = [];
-			walk( form?.innerBlocks || [], clientId, null, found );
+			walk( form?.innerBlocks || [], clientId, { step: null }, found );
+
+			return found;
+		},
+		[ clientId ]
+	);
+
+/**
+ * Collect the fields inside the block owning the panel.
+ *
+ * These are deliberately absent from the subject dropdown: conditioning a group on a field it
+ * contains is circular, because the answer that would reveal the group can only be given once
+ * the group is visible. Excluding them from what the author can *pick* is right; excluding them
+ * from what the author can *see* is not.
+ *
+ * A rule can end up naming one of them without ever being written that way -- pick a subject
+ * outside the group, then drag that field into it. The rule stays in the attribute and both
+ * evaluators go on enforcing it, so the group hides for good. Resolving the summary against
+ * these as well is what keeps that rule on screen, where it can be edited or removed, instead
+ * of the panel claiming there are no conditions while one is still running.
+ *
+ * @param {string} clientId - The container block owning the panel.
+ * @return {Array} Descriptors for the fields inside it.
+ */
+export const useEnclosedFields = clientId =>
+	useSelect(
+		select => {
+			const block = select( 'core/block-editor' ).getBlock( clientId );
+
+			if ( ! block?.innerBlocks?.length ) {
+				return [];
+			}
+
+			const found = [];
+			// A fresh traversal state. Not defaulted inside walk(): a default would hand every
+			// recursive call its own counter, which is the bug the shared object exists to fix.
+			walk( block.innerBlocks, null, { step: null }, found );
 
 			return found;
 		},

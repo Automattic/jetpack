@@ -71,7 +71,7 @@ export const resolveFormVisibility = context => {
 		};
 	}
 
-	const map = resolveVisibility( descriptors, values );
+	const map = resolveVisibility( descriptors, values, conditionalLogic.contains );
 	memoByForm.set( formKey, { signature, map } );
 
 	return map;

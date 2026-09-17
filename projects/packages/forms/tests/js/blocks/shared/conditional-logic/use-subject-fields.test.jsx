@@ -54,7 +54,11 @@ await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-bl
 	],
 } ) );
 
-const { default: useSubjectFields, useEnsureFieldId } = await import(
+const {
+	default: useSubjectFields,
+	useEnclosedFields,
+	useEnsureFieldId,
+} = await import(
 	'../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js'
 );
 
@@ -92,6 +96,7 @@ const field = ( clientId, { label, id, option, name = 'jetpack/field-text' } = {
 
 const ensureFieldId = () => renderHook( () => useEnsureFieldId() ).result.current;
 const subjectsFor = clientId => renderHook( () => useSubjectFields( clientId ) ).result.current;
+const enclosedFor = clientId => renderHook( () => useEnclosedFields( clientId ) ).result.current;
 
 beforeEach( () => {
 	mockUpdateBlockAttributes.mockClear();
@@ -319,5 +324,245 @@ describe( 'useSubjectFields', () => {
 
 	it( 'offers nothing when the field is not inside a form', () => {
 		expect( subjectsFor( 'c-orphan' ) ).toEqual( [] );
+	} );
+} );
+
+describe( 'useSubjectFields for a container', () => {
+	/**
+	 * A container is a target, not a subject: it is shown or hidden as a unit and takes the
+	 * fields inside it with it. Offering one of those fields as a condition would be circular
+	 * -- the answer that reveals the group can only be given once the group is visible.
+	 */
+	it( 'excludes the fields inside the container owning the panel', () => {
+		const inside = field( 'c-inside', { label: 'Secret' } );
+		const group = {
+			clientId: 'c-group',
+			name: 'core/group',
+			attributes: {},
+			innerBlocks: [ inside ],
+		};
+		const outside = field( 'c-outside', { label: 'Name' } );
+
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ outside, group ],
+			},
+		};
+		rootOf = { 'c-group': 'c-form' };
+
+		expect( subjectsFor( 'c-group' ).map( f => f.label ) ).toEqual( [ 'Name' ] );
+	} );
+
+	/**
+	 * The exclusion is the subtree, not just the block: a field nested deeper inside the
+	 * container is equally unusable as a subject.
+	 */
+	it( 'excludes fields nested deeper inside the container', () => {
+		const deep = field( 'c-deep', { label: 'Deep' } );
+		const group = {
+			clientId: 'c-group',
+			name: 'core/group',
+			attributes: {},
+			innerBlocks: [
+				{ clientId: 'c-inner', name: 'core/columns', attributes: {}, innerBlocks: [ deep ] },
+			],
+		};
+
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ field( 'c-outside', { label: 'Name' } ), group ],
+			},
+		};
+		rootOf = { 'c-group': 'c-form' };
+
+		expect( subjectsFor( 'c-group' ).map( f => f.label ) ).toEqual( [ 'Name' ] );
+	} );
+
+	/**
+	 * A field beside the container is unaffected, so hiding a group does not shrink the
+	 * choices available to the fields around it.
+	 */
+	it( 'still offers fields inside a container the panel does not own', () => {
+		const group = {
+			clientId: 'c-group',
+			name: 'core/group',
+			attributes: {},
+			innerBlocks: [ field( 'c-inside', { label: 'Secret' } ) ],
+		};
+
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ field( 'c-outside', { label: 'Name' } ), group ],
+			},
+		};
+		rootOf = { 'c-outside': 'c-form' };
+
+		expect( subjectsFor( 'c-outside' ).map( f => f.label ) ).toEqual( [ 'Secret' ] );
+	} );
+} );
+
+describe( 'useEnclosedFields', () => {
+	/**
+	 * The mirror image of the exclusion above. These fields are kept out of the subject
+	 * dropdown because a group conditioned on a field it holds is circular, but the summary
+	 * resolves against them so a rule that came to name one -- by the author dragging its
+	 * subject into the group after writing it -- stays on screen instead of vanishing while
+	 * both evaluators go on enforcing it.
+	 */
+	it( 'returns the fields inside the container', () => {
+		const group = {
+			clientId: 'e-group',
+			name: 'core/group',
+			attributes: {},
+			innerBlocks: [ field( 'e-inside', { label: 'Secret' } ) ],
+		};
+
+		blocks = {
+			'e-group': group,
+			'e-form': {
+				clientId: 'e-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ field( 'e-outside', { label: 'Name' } ), group ],
+			},
+		};
+
+		expect( enclosedFor( 'e-group' ).map( f => f.label ) ).toEqual( [ 'Secret' ] );
+	} );
+
+	/**
+	 * The whole subtree, matching what the subject list drops.
+	 */
+	it( 'reaches fields nested deeper inside the container', () => {
+		blocks = {
+			'e-group': {
+				clientId: 'e-group',
+				name: 'core/group',
+				attributes: {},
+				innerBlocks: [
+					{
+						clientId: 'e-inner',
+						name: 'core/columns',
+						attributes: {},
+						innerBlocks: [ field( 'e-deep', { label: 'Deep' } ) ],
+					},
+				],
+			},
+		};
+
+		expect( enclosedFor( 'e-group' ).map( f => f.label ) ).toEqual( [ 'Deep' ] );
+	} );
+
+	/**
+	 * A field block holds only its own label and input, so a panel on one has nothing
+	 * enclosed. The panel passes null in that case and must not pay for a walk.
+	 */
+	it( 'returns nothing for a block with no inner blocks', () => {
+		blocks = {
+			'e-field': field( 'e-field', { label: 'Name' } ),
+		};
+
+		expect( enclosedFor( 'e-field' ) ).toEqual( [] );
+	} );
+
+	/**
+	 * The panel passes null rather than a client id when the block is not a container.
+	 */
+	it( 'returns nothing when given no client id', () => {
+		blocks = {};
+
+		expect( enclosedFor( null ) ).toEqual( [] );
+	} );
+} );
+
+/**
+ * The walk's defensive guards. Both predate conditional logic on containers, but a container
+ * makes them reachable in a way a field never did: a field's subtree is always its own label
+ * and input, while a container holds whatever the author put there.
+ */
+describe( 'useSubjectFields tolerates a malformed tree', () => {
+	it( 'skips a block whose inner blocks are not an array', () => {
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [
+					{ clientId: 'c-odd', name: 'core/group', attributes: {}, innerBlocks: null },
+					field( 'c-outside', { label: 'Name' } ),
+				],
+			},
+		};
+		rootOf = { 'c-outside': 'c-form' };
+
+		expect( subjectsFor( 'c-outside' ).map( f => f.label ) ).toEqual( [] );
+	} );
+
+	it( 'skips an empty slot in a block list', () => {
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [ null, field( 'c-other', { label: 'Other' } ) ],
+			},
+		};
+		rootOf = { 'c-outside': 'c-form' };
+
+		expect( subjectsFor( 'c-outside' ).map( f => f.label ) ).toEqual( [ 'Other' ] );
+	} );
+} );
+
+describe( 'useSubjectFields step numbering', () => {
+	/**
+	 * A step inside a nested subtree has to keep counting for the siblings that follow it.
+	 *
+	 * The dropdown groups subjects by step precisely so an author can see that a rule
+	 * referencing a later step always compares against an empty value. A number that is wrong
+	 * points them at exactly the rule that will never fire. Groups inside a form are what make
+	 * this nesting reachable.
+	 */
+	it( 'keeps counting steps after a nested subtree', () => {
+		const step = ( clientId, inner ) => ( {
+			clientId,
+			name: 'jetpack/form-step',
+			attributes: {},
+			innerBlocks: inner,
+		} );
+
+		blocks = {
+			'c-form': {
+				clientId: 'c-form',
+				name: 'jetpack/contact-form',
+				attributes: {},
+				innerBlocks: [
+					step( 'c-step-1', [ field( 'c-a', { label: 'A' } ) ] ),
+					// The second step sits inside a Group, so it is counted by a nested walk.
+					{
+						clientId: 'c-group',
+						name: 'core/group',
+						attributes: {},
+						innerBlocks: [ step( 'c-step-2', [ field( 'c-b', { label: 'B' } ) ] ) ],
+					},
+					step( 'c-step-3', [ field( 'c-c', { label: 'C' } ) ] ),
+				],
+			},
+		};
+		rootOf = { 'c-outside': 'c-form' };
+
+		const byLabel = Object.fromEntries(
+			subjectsFor( 'c-outside' ).map( f => [ f.label, f.step ] )
+		);
+
+		expect( byLabel ).toEqual( { A: 1, B: 2, C: 3 } );
 	} );
 } );
