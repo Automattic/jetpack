@@ -1,0 +1,80 @@
+/* The height chain from the tile down: WidgetState's blocks are 100%, so is
+ * this, and the chart below fills it rather than hugging its rows. */
+.root {
+	block-size: 100%;
+}
+
+.selectable [role="gridcell"][data-column] {
+	cursor: pointer;
+}
+
+/* A height-capped chart sizes itself to its rows. Here it fills the tile so
+ * the grid alone scrolls and the scale stays put under it; the selectors are
+ * specific enough to beat the chart's own modifier classes. */
+.root .chart {
+	block-size: 100%;
+}
+
+/* `align-content: start`: the label row is the grid's only auto track, so
+ * stretching would hand it the leftover height. */
+.root .chart [role="grid"] {
+
+	/* The sticky labels' sizes, applied below: the chart label's line-height,
+	 * a four-digit year, and the grid gap the labels also paint over. */
+	--jpa-heatmap-label-row: var(--wpds-typography-line-height-xs);
+	--jpa-heatmap-year-column: calc(3 * var(--wpds-typography-font-size-xs) + var(--wpds-dimension-padding-xs));
+	--jpa-heatmap-cell-gap: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs));
+
+	flex: 1 1 0;
+	min-block-size: 0;
+	block-size: auto;
+	align-content: start;
+	overflow: auto;
+
+	/* Keeps a keyboard-selected cell clear of the sticky labels and their gaps. */
+	scroll-padding-block-start: calc(var(--jpa-heatmap-label-row) + var(--jpa-heatmap-cell-gap));
+	scroll-padding-inline-start: calc(var(--jpa-heatmap-year-column) + var(--jpa-heatmap-cell-gap));
+}
+
+/* The chart starts its column labels at the track's edge, which suits a
+ * calendar; here each label names its column, so it sits over the middle. */
+.root .chart [role="row"][aria-hidden="true"] > span {
+	text-align: center;
+}
+
+/* The grid is the scroll container, so the label row and the year column stay
+ * in view while a long history scrolls; the corner covers where they cross. */
+.root .chart [role="row"][aria-hidden="true"] > span,
+.root .chart [role="row"][aria-rowindex] > span:first-child {
+	position: sticky;
+	z-index: 1;
+
+	/* The chart's own background, which its cell fills mix against too. */
+	background: var(--a8c-charts-color-background);
+
+	/* The grid gap belongs to no item, so cells scrolling under a label show
+	 * through it; a spread shadow paints it without widening the track. */
+	box-shadow: 0 0 0 var(--jpa-heatmap-cell-gap) var(--a8c-charts-color-background);
+}
+
+.root .chart [role="row"][aria-hidden="true"] > span {
+	inset-block-start: 0;
+	block-size: var(--jpa-heatmap-label-row);
+}
+
+/* Fills the row's height, or cells scrolling under it show above and below
+ * the text. */
+.root .chart [role="row"][aria-rowindex] > span:first-child {
+	inset-inline-start: 0;
+	inline-size: var(--jpa-heatmap-year-column);
+	box-sizing: border-box;
+	align-self: stretch;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.root .chart [role="row"][aria-hidden="true"] > span:first-child {
+	inset-inline-start: 0;
+	z-index: 2;
+}

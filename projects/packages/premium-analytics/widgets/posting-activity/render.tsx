@@ -119,7 +119,7 @@ function PostingActivityInner() {
 					__( 'No posts published between %1$s and %2$s.', 'jetpack-premium-analytics-pkg' ),
 					formatDate( windowStart, 'compact' ),
 					formatDate( windowEnd, 'compact' )
-			  )
+				)
 			: __( 'No posts published in this period.', 'jetpack-premium-analytics-pkg' );
 
 	return (

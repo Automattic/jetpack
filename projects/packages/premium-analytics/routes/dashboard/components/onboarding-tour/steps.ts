@@ -11,16 +11,13 @@ export type OnboardingTourAnchors = {
 	/** The section header's date controls. */
 	dateControls: Element | null;
 
-	/** The Customize button among the dashboard actions. */
-	customize: Element | null;
-
-	/** The page options menu trigger beside it: feedback and the way back to classic Stats. */
+	/** The page options menu trigger: Customize, feedback and the way back to classic Stats. */
 	optionsMenu: Element | null;
 };
 
 /**
  * The four steps of the tour, in order, over the elements the dashboard
- * stage hands in. The last two sit side by side in the page header.
+ * stage hands in. The last two share the page options menu.
  *
  * @param anchors - The elements each step highlights, or null while unmounted.
  * @return The tour steps.
@@ -46,10 +43,10 @@ export function onboardingTourSteps( anchors: OnboardingTourAnchors ): Onboardin
 			side: 'bottom',
 		},
 		{
-			anchor: anchors.customize,
+			anchor: anchors.optionsMenu,
 			title: __( 'Rearrange it your way', 'jetpack-premium-analytics-pkg' ),
 			description: __(
-				'Select Customize to move and resize widgets. Your layout is saved to your profile.',
+				'Select Customize in this menu to move and resize widgets. Your layout is saved to your profile.',
 				'jetpack-premium-analytics-pkg'
 			),
 			side: 'bottom',

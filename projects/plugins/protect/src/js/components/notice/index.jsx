@@ -1,3 +1,4 @@
+import { speak } from '@wordpress/a11y';
 import { __ } from '@wordpress/i18n';
 import { Notice as WPNotice } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -17,6 +18,8 @@ const Notice = ( {
 	duration = null,
 	floating = false,
 	message,
+	noticeId = 0,
+	spokenMessage,
 	type = 'success',
 } ) => {
 	const { clearNotice } = useNotices();
@@ -24,6 +27,16 @@ const Notice = ( {
 	const onClose = useCallback( () => {
 		clearNotice();
 	}, [ clearNotice ] );
+
+	const spoken = spokenMessage ?? ( 'string' === typeof message ? message : null );
+
+	// Keyed on `noticeId`: effect deps compare by value, so an identical repeat would not re-fire.
+	useEffect( () => {
+		// Toast only: notices rendered inside a modal are not announced today.
+		if ( floating && 'string' === typeof spoken ) {
+			speak( spoken, 'error' === type ? 'assertive' : 'polite' );
+		}
+	}, [ noticeId, floating, spoken, type ] );
 
 	/**
 	 * Clears the notice automatically after {duration} milliseconds.
@@ -36,7 +49,7 @@ const Notice = ( {
 		}
 
 		return () => clearTimeout( timeout );
-	}, [ clearNotice, duration, message ] );
+	}, [ clearNotice, duration, noticeId ] );
 
 	return (
 		<WPNotice.Root
@@ -46,9 +59,9 @@ const Notice = ( {
 				styles[ `notice--${ type }` ],
 				floating && styles[ 'notice--floating' ]
 			) }
-			// `Notice.Root` serializes `spokenMessage` mid-render, so a JSX message runs its
-			// hooks inside Root and corrupts hook order. Strings only, and only for the toast.
-			spokenMessage={ floating && 'string' === typeof message ? message : null }
+			// Null, not omitted: the default is the children, which `Notice.Root` serializes
+			// mid-render, corrupting hook order. Drop with the prop (WordPress/gutenberg#82737).
+			spokenMessage={ null }
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
 			{ dismissable && (

@@ -47,13 +47,13 @@ export const formatMetricValue = (
 							maximumFractionDigits: decimals ?? 2,
 							signDisplay,
 						},
-				  } )
+					} )
 				: formatNumber( numericValue, {
 						decimals: decimals ?? 2,
 						numberFormatOptions: {
 							signDisplay,
 						},
-				  } );
+					} );
 			return `$${ formatted }`;
 		}
 
@@ -80,13 +80,13 @@ export const formatMetricValue = (
 							maximumFractionDigits: decimals ?? 0,
 							signDisplay,
 						},
-				  } )
+					} )
 				: formatNumber( numericValue, {
 						decimals: decimals ?? 0,
 						numberFormatOptions: {
 							signDisplay,
 						},
-				  } );
+					} );
 		}
 	}
 };

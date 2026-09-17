@@ -3,21 +3,19 @@
  */
 import { useStatsPost } from '@jetpack-premium-analytics/data';
 import {
-	createTZDateFromParts,
 	localTZDate,
 	parseSiteDateTime,
 	reportingTimeZone,
 } from '@jetpack-premium-analytics/datetime';
+import {
+	monthlyHeatmapLifeStart,
+	type MonthlyHeatmapMetric,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	buildAllTimeTrafficRows,
-	type AllTimeTrafficMetric,
-	type AllTimeTrafficRow,
-	type MonthKey,
-} from './build-all-time-traffic-rows';
+import { buildAllTimeTrafficRows, type AllTimeTrafficRow } from './build-all-time-traffic-rows';
 
 export interface PostAllTimeTrafficState {
 	rows: AllTimeTrafficRow[];
@@ -31,31 +29,6 @@ export interface PostAllTimeTrafficState {
 }
 
 /**
- * The publish day, unless the endpoint reports an earlier month: a rescheduled
- * post keeps the views from before its new date, and those months open whole.
- */
-function lifeStart(
-	rows: AllTimeTrafficRow[],
-	publishedAt: Date | undefined,
-	publishedMonth: MonthKey | undefined
-): Date | undefined {
-	const oldest = rows[ rows.length - 1 ];
-	const month = oldest?.months.findIndex( value => typeof value === 'number' ) ?? -1;
-
-	if ( ! oldest || month < 0 ) {
-		return publishedAt;
-	}
-
-	if ( publishedMonth && oldest.year === publishedMonth.year && month === publishedMonth.month ) {
-		return publishedAt;
-	}
-
-	return new Date(
-		createTZDateFromParts( [ oldest.year, month, 1 ], reportingTimeZone() ).getTime()
-	);
-}
-
-/**
  * Every month of the post's views, one row per year. All-time regardless of
  * the page's period: the endpoint's yearly tables cover the post's whole life.
  * A `postId` of 0 disables the request.
@@ -66,7 +39,7 @@ function lifeStart(
  */
 export default function usePostAllTimeTraffic(
 	postId: number,
-	metric: AllTimeTrafficMetric
+	metric: MonthlyHeatmapMetric
 ): PostAllTimeTrafficState {
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsPost( {
 		postId,
@@ -98,7 +71,12 @@ export default function usePostAllTimeTraffic(
 			publishedMonth
 		);
 
-		return { rows: built, lifeStartsAt: lifeStart( built, publishedAt, publishedMonth ) };
+		// A rescheduled post keeps the views from before its new date; `monthlyHeatmapLifeStart`
+		// opens that oldest month whole.
+		return {
+			rows: built,
+			lifeStartsAt: monthlyHeatmapLifeStart( built, publishedAt, reportingTimeZone() ),
+		};
 	}, [ data, metric, publishedAt ] );
 
 	return {

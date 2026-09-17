@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Scope the Stats chart tooltip reset to its own tooltip so it no longer restyles other charts.

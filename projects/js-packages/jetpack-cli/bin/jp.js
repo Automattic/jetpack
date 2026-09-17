@@ -683,14 +683,12 @@ const main = async () => {
 				}
 
 				// Load versions from .github/versions.sh if not already set
-				if (
-					! (
-						envVars.PHP_VERSION &&
-						envVars.COMPOSER_VERSION &&
-						envVars.NODE_VERSION &&
-						envVars.PNPM_VERSION
-					)
-				) {
+				if ( ! (
+					envVars.PHP_VERSION &&
+					envVars.COMPOSER_VERSION &&
+					envVars.NODE_VERSION &&
+					envVars.PNPM_VERSION
+				) ) {
 					const versionsPath = resolve( monorepoRoot, '.github/versions.sh' );
 					const versions = fs.readFileSync( versionsPath, 'utf8' );
 					const versionVars = {};
@@ -722,7 +720,7 @@ const main = async () => {
 								resolve( monorepoRoot, 'tools/docker/compose-mappings.built.yml' ),
 								'-f',
 								resolve( monorepoRoot, 'tools/docker/compose-extras.built.yml' ),
-						  ];
+							];
 
 				// Add dev profile for monorepo service
 				const composeArgs = [ 'compose', '--profile', 'dev', ...composeFiles, ...args.slice( 1 ) ];

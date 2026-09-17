@@ -14,11 +14,7 @@ export type CaptionCue = {
 };
 
 export type CaptionCueValidationErrorCode =
-	| 'missing_text'
-	| 'missing_time'
-	| 'invalid_time'
-	| 'end_before_start'
-	| 'overlap';
+	'missing_text' | 'missing_time' | 'invalid_time' | 'end_before_start' | 'overlap';
 
 export type CaptionCueValidationError =
 	| {

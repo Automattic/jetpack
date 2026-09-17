@@ -947,6 +947,18 @@ abstract class Product {
 	}
 
 	/**
+	 * Checks whether the site has switched the product on, whether or not it has a plan for it.
+	 *
+	 * Unlike is_active(), this never asks WordPress.com, so it is safe on every admin page load.
+	 * An override must keep it that way.
+	 *
+	 * @return boolean
+	 */
+	public static function is_activated() {
+		return static::is_plugin_active();
+	}
+
+	/**
 	 * Checks whether the plugin is installed
 	 *
 	 * @return boolean

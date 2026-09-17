@@ -39,7 +39,7 @@ export function getResolvedPlans( subscriber: Subscriber ): ResolvedPlan[] {
 						/* translators: %s: title of the paid plan being comped, e.g. "Comp: Gold". */
 						__( 'Comp: %s', 'jetpack-newsletter' ),
 						plan.title
-				  )
+					)
 				: __( 'Comp', 'jetpack-newsletter' );
 		} else if ( isFree ) {
 			label = __( 'Free', 'jetpack-newsletter' );

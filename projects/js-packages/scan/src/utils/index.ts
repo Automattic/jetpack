@@ -139,11 +139,11 @@ export const getFixerDescription = ( threat: Threat ) => {
 					? __(
 							'Replace the modified core WordPress file with the original clean version from the WordPress source code.',
 							'jetpack-scan'
-					  )
+						)
 					: __(
 							'Replace the infected file with a previously backed up version that is clean.',
 							'jetpack-scan'
-					  );
+						);
 			}
 
 			if ( threat.signature === 'php_hardening_WP_Config_NoSalts_001' ) {

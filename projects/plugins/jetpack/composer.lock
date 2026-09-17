@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1eec4f9f5ecedb065e2a31b8d9e2b5ab",
+    "content-hash": "971acd64230b4e26ea90488ea9e60cae",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -272,7 +272,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "837c6b31572fd86b6efdc9c90a34abedb97c113a"
+                "reference": "23eaa0573e92a9aacd3f3d3666fd3d161562b1cc"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -298,7 +298,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -565,7 +565,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "54ab39c8d144efd2bb8691f38cc54f644d0b41e6"
+                "reference": "72d8a235906ad12b0e5ef4bde2d2bc6fd25dbda1"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -575,6 +575,7 @@
                 "automattic/jetpack-composer-plugin": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
@@ -1025,10 +1026,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "3fbf003a1a3e41b7a54c3cc280dd4c215cdb9df8"
+                "reference": "7f46009fb0f0efbeb4501986e8743386b7b0ee50"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "php": ">=7.4"
             },
@@ -1062,12 +1064,12 @@
                 "build-production": [
                     "pnpm run build-production"
                 ],
+                "typecheck": [
+                    "pnpm run typecheck"
+                ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
-                ],
-                "typecheck": [
-                    "pnpm run typecheck"
                 ]
             },
             "license": [
@@ -1249,7 +1251,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "7bfcb690f93d36b53a38e1e7a08c0bd92608d2b2"
+                "reference": "4a6e96fe1054948973bd4f25d58bab8258eba075"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1286,7 +1288,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.1.x-dev"
+                    "dev-trunk": "9.3.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1758,7 +1760,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "51effd358c96202209cc27dbc827b97b7859f18d"
+                "reference": "0b295a19c4261c7c9ecbc28e3d17294949edda87"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1796,7 +1798,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.0.x-dev"
+                    "dev-trunk": "8.1.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -2164,7 +2166,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "1c4534bdc401206cc45ee20600003ae6a1ab6a9c"
+                "reference": "834bb4b3661c8f2c5f06e4bd3ad01938b03c8e28"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2187,10 +2189,13 @@
                     "link-template": "https://github.com/Automattic/jetpack-licensing/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "4.1.x-dev"
                 }
             },
             "autoload": {
+                "files": [
+                    "actions.php"
+                ],
                 "classmap": [
                     "src/"
                 ]
@@ -2413,7 +2418,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "f2bf2241ea190c16615e61959c3e08aa38dd48e2"
+                "reference": "eae997a88b0e7d42b883b6b375cd94b7c786c986"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2422,6 +2427,7 @@
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-explat": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-licensing": "@dev",
                 "automattic/jetpack-menu-badges": "@dev",
@@ -2454,7 +2460,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.2.x-dev"
+                    "dev-trunk": "6.3.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2497,7 +2503,7 @@
                     "pnpm run build"
                 ],
                 "build-production": [
-                    "NODE_ENV=production pnpm run build"
+                    "pnpm run build-production"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
@@ -2522,7 +2528,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/newsletter",
-                "reference": "9fc99e01ff8f4eaa89efed9d04602e3fb44f033a"
+                "reference": "f00315a0d7c3ab0a6cb02759ce598dd215ad97df"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2549,7 +2555,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-newsletter",
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.15.x-dev"
                 },
                 "textdomain": "jetpack-newsletter",
                 "version-constants": {
@@ -2663,7 +2669,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/paypal-payments",
-                "reference": "b69608477af0d1dec58aaff82dd8d0744836b500"
+                "reference": "c98065b12be126bb6893345bdc0258daea13af34"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2686,7 +2692,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-paypal-payments/compare/v${old}...v${new}"
@@ -3070,7 +3076,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "b0f1c9486ddb4f37df0f934849599db215408fdc"
+                "reference": "169314ed1978ea1164455a925759880ab1ea4663"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -3101,7 +3107,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 }
             },
             "autoload": {
@@ -3284,7 +3290,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "f0084343dda8e8e23d2dcbc80f81a1f08691ab2d"
+                "reference": "94bece496cee7a239b5719b0cf086098e2826e13"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3317,7 +3323,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.86.x-dev"
+                    "dev-trunk": "0.87.x-dev"
                 }
             },
             "autoload": {
@@ -3797,7 +3803,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "a1afd216e9149b18df88829ddaa9ba60c1606b17"
+                "reference": "ed0570cee3e4daffd9489909c4541e041905a281"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -3822,7 +3828,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.35.x-dev"
+                    "dev-trunk": "0.36.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -6400,6 +6406,7 @@
         "automattic/jetpack-videopress": 20,
         "automattic/jetpack-waf": 20,
         "automattic/jetpack-wp-abilities": 20,
+        "automattic/jetpack-wp-build-polyfills": 20,
         "automattic/patchwork-redefine-exit": 20,
         "automattic/phpunit-select-config": 20
     },

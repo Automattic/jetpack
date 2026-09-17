@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Keep the experience selector icons colored now that @wordpress/icons 16 draws them as strokes.

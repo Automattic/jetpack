@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Managed plugins: remove the stray separator line between a managed plugin's row and its "automatically managed" notice on the Plugins screen.

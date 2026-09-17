@@ -1197,7 +1197,7 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 function getQueryParam( requestPath: string, key: string ): string | undefined {
 	const query = requestPath.split( '?' )[ 1 ];
 
-	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+	return query ? ( new URLSearchParams( query ).get( key ) ?? undefined ) : undefined;
 }
 
 /**
