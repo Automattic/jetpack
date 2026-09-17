@@ -16,7 +16,7 @@ const InterstitialModalCTA = ( {
 	identifier,
 	customModalTrigger,
 }: InterstitialModalCTAProps ) => {
-	// My Jetpack registers no REST routes on offline sites, and the modal fetches its products on mount.
+	// Non-public sites get no upsell, and offline sites have no My Jetpack routes for the modal's on-mount products fetch.
 	if ( ! Jetpack_Boost.site.online ) {
 		return null;
 	}
