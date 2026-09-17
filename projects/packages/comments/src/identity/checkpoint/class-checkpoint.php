@@ -233,7 +233,7 @@ class Checkpoint {
 	 * Redeem a code with WordPress.com.
 	 *
 	 * @param string $code The code the popup handed back.
-	 * @return array|WP_Error site_commenter_id, provider, name, email, email_signature, avatar, expires_at.
+	 * @return array|WP_Error site_commenter_id, provider, name, email, avatar, expires_at.
 	 */
 	public static function exchange( $code ) {
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -266,8 +266,6 @@ class Checkpoint {
 				'provider'          => sanitize_key( (string) $body['provider'] ),
 				'name'              => sanitize_text_field( (string) ( $body['name'] ?? '' ) ),
 				'email'             => sanitize_email( (string) ( $body['email'] ?? '' ) ),
-				// WordPress.com's word that the email is this commenter's, shown back to it for subscriptions.
-				'email_signature'   => preg_match( '/^[0-9a-f]{64}\z/', (string) ( $body['email_signature'] ?? '' ) ) ? (string) $body['email_signature'] : '',
 				'avatar'            => esc_url_raw( (string) ( $body['avatar'] ?? '' ) ),
 				'expires_at'        => (int) ( $body['expires_at'] ?? 0 ),
 			);
