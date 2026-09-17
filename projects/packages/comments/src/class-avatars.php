@@ -68,8 +68,8 @@ class Avatars {
 	 * @param array|false $url_class     Avatar URL and CSS class, or false.
 	 * @param mixed       $id_or_email   What the avatar was requested for.
 	 * @param int|string  $size          Avatar size.
-	 * @param string      $default_value Default avatar.
-	 * @param bool        $force_display Whether to show avatars when disabled.
+	 * @param string      $default_value Default avatar. Unused.
+	 * @param bool        $force_display Whether to show avatars when disabled. Unused.
 	 * @param bool        $force_default Whether to force the default avatar.
 	 * @return array|false
 	 */
@@ -83,11 +83,34 @@ class Avatars {
 		if ( null !== $url ) {
 			$url_class[0] = $url;
 		} elseif ( self::is_signed_in( (int) $id_or_email->comment_ID ) ) {
-			// Re-enters this filter with no comment, so it returns above.
-			return wpcom_get_avatar_url( '', $size, $default_value, $force_display, true );
+			$url_class[0]  = self::default_url( (int) $size );
+			$url_class[1] .= ' avatar-default';
 		}
 
 		return $url_class;
+	}
+
+	/**
+	 * The site's default avatar, resolved the way the host resolves it.
+	 *
+	 * @param int $size Avatar size.
+	 * @return string
+	 */
+	public static function default_url( $size ) {
+		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
+			// Re-enters wpcom_avatar_url() with no comment, so it returns early there.
+			$url_class = wpcom_get_avatar_url( '', $size, '', true, true );
+
+			return is_array( $url_class ) ? (string) $url_class[0] : '';
+		}
+
+		return (string) get_avatar_url(
+			'',
+			array(
+				'size'          => $size,
+				'force_default' => true,
+			)
+		);
 	}
 
 	/**
