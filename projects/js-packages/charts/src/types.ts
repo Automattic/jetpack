@@ -652,7 +652,8 @@ export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
 	collapseGroups?: boolean;
 	/**
 	 * Append a static, non-interactive item explaining the comparison overlay whenever a series
-	 * has `options.type === 'comparison'`. Pass a string to replace the default label.
+	 * has `options.type === 'comparison'`. Skipped when that series already has its own item.
+	 * Pass a string to replace the default label.
 	 */
 	comparisonItem?: boolean | string;
 };

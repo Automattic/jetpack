@@ -1,9 +1,6 @@
 import type { BarStyles, ChartTheme, LegendShape, SeriesData } from '../types';
 import type { LineStyles } from '@visx/xychart';
 
-const hasStyleValues = ( styles: object ): boolean =>
-	Object.values( styles ).some( value => value !== undefined && value !== null && value !== '' );
-
 /**
  * Utility function to get consolidated line styles for a series
  * This consolidates the logic used by both LineChart and Legend components
@@ -25,16 +22,9 @@ export function getSeriesLineStyles(
 	const themeSeriesLineStyle =
 		providerTheme?.seriesLineStyles?.[ index % providerTheme.seriesLineStyles.length ];
 
-	// A custom style with no set value is treated as unset so the theme still applies.
-	const customLineStyle = seriesData.options?.seriesLineStyle;
-	const hasCustomLineStyle = customLineStyle && hasStyleValues( customLineStyle );
-
 	// Priority order: custom series style > theme line type style > default theme series style
 	return (
-		( hasCustomLineStyle ? customLineStyle : undefined ) ??
-		themeSemanticLineStyle ??
-		themeSeriesLineStyle ??
-		{}
+		seriesData.options?.seriesLineStyle ?? themeSemanticLineStyle ?? themeSeriesLineStyle ?? {}
 	);
 }
 
@@ -110,7 +100,9 @@ export function getItemShapeStyles(
 		...seriesShapeStyles,
 		...lineStyles,
 	};
-	const hasExplicitStyles = hasStyleValues( explicitStyles );
+	const hasExplicitStyles = Object.values( explicitStyles ).some(
+		value => value !== undefined && value !== null && value !== ''
+	);
 	const baseShapeStyles = hasExplicitStyles ? explicitStyles : ( themeShapeStyles ?? {} );
 
 	// Layer the comparison bar opacity on top so the swatch matches the translucent bar

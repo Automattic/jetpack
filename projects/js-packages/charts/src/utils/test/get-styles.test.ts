@@ -70,24 +70,6 @@ describe( 'Series styling utility functions', () => {
 			expect( result ).toEqual( customStyles );
 		} );
 
-		it( 'treats an empty seriesLineStyle as unset and falls through to the theme', () => {
-			const seriesWithEmptyStyles = {
-				...mockSeriesData,
-				options: { seriesLineStyle: {} },
-			};
-
-			expect( getSeriesLineStyles( seriesWithEmptyStyles, 1, mockTheme as ChartTheme ) ).toEqual(
-				mockTheme.seriesLineStyles?.[ 1 ]
-			);
-			expect(
-				getSeriesLineStyles(
-					{ ...seriesWithEmptyStyles, options: { seriesLineStyle: {}, type: 'comparison' } },
-					1,
-					mockTheme as ChartTheme
-				)
-			).toEqual( mockTheme.lineChart?.lineStyles?.comparison );
-		} );
-
 		it( 'returns theme comparison styles when type is comparison', () => {
 			const comparisonSeries = {
 				...mockSeriesData,

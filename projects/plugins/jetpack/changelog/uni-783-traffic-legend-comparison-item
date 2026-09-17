@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Premium Analytics: Draw the Visitors legend swatch solid in the Traffic summary chart, add a Comparison period legend item in line mode, and use square swatches in bar mode.
+Premium Analytics: Add a Comparison period legend item to line charts that show a previous period, use square swatches in bar mode, keep the selected metric's legend item locked, and draw the Visitors swatch solid in the Traffic summary.

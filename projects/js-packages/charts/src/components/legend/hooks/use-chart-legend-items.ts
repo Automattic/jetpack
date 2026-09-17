@@ -33,7 +33,8 @@ export interface ChartLegendOptions {
 	collapseGroups?: boolean;
 	/**
 	 * Append a static item explaining the comparison overlay whenever a series has
-	 * `options.type === 'comparison'`. Pass a string to replace the default label.
+	 * `options.type === 'comparison'`. Skipped when that series already has its own
+	 * item. Pass a string to replace the default label.
 	 */
 	comparisonItem?: boolean | string;
 }
@@ -341,10 +342,6 @@ export function useChartLegendItems<
 		renderGlyph,
 	} = options;
 	const { getElementStyles } = useGlobalChartsContext();
-	const comparisonLabel =
-		typeof comparisonItem === 'string'
-			? comparisonItem
-			: __( 'Comparison period', 'jetpack-charts' );
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
@@ -368,7 +365,9 @@ export function useChartLegendItems<
 				? buildComparisonLegendItem(
 						seriesData,
 						items,
-						comparisonLabel,
+						typeof comparisonItem === 'string'
+							? comparisonItem
+							: __( 'Comparison period', 'jetpack-charts' ),
 						getElementStyles,
 						legendShape
 				  )
@@ -397,7 +396,6 @@ export function useChartLegendItems<
 		glyphSize,
 		collapseGroups,
 		comparisonItem,
-		comparisonLabel,
 		renderGlyph,
 		legendShape,
 	] );

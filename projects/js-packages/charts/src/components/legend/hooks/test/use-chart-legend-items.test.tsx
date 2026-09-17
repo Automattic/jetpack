@@ -329,6 +329,38 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current[ 1 ].shapeStyle ).toEqual( { strokeWidth: 2 } );
 		} );
 
+		test( "takes the first metric's color when several metrics carry a comparison", () => {
+			const pairedData: SeriesData[] = [
+				{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+				{
+					label: 'Views — previous',
+					group: 'views',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Mon', value: 90 } ],
+				},
+				{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+				{
+					label: 'Visitors — previous',
+					group: 'visitors',
+					options: { type: 'comparison' as const },
+					data: [ { label: 'Mon', value: 40 } ],
+				},
+			];
+
+			const { result } = renderHook(
+				() => useChartLegendItems( pairedData, { collapseGroups: true, comparisonItem: true } ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.label ) ).toEqual( [
+				'Views',
+				'Visitors',
+				'Comparison period',
+			] );
+			expect( result.current[ 0 ].color ).not.toBe( result.current[ 1 ].color );
+			expect( result.current[ 2 ].color ).toBe( result.current[ 0 ].color );
+		} );
+
 		test( 'adds nothing when no series is a comparison', () => {
 			const { result } = renderHook(
 				() => useChartLegendItems( [ comparisonData[ 0 ] ], { comparisonItem: true } ),

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Traffic summary: Draw the Visitors legend swatch solid to match its line, add a Comparison period legend item in line mode, and use square swatches in bar mode.
+Charts: Add a Comparison period legend item to line charts that show a previous period, use square swatches in bar mode, keep the selected metric's legend item locked, and draw the Visitors swatch solid in the Traffic summary.

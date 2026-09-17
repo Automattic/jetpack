@@ -31,6 +31,11 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		LineChart,
 		// The real classifier: this is what the tooltip format now follows.
 		getBucketInfo: jest.requireActual( '@automattic/charts' ).getBucketInfo,
+		// One item per non-comparison series, as `collapseGroups` would produce.
+		useChartLegendItems: ( data: { label: string; options?: { type?: string } }[] ) =>
+			data
+				.filter( series => series.options?.type !== 'comparison' )
+				.map( series => ( { label: series.label, color: '#3858E9' } ) ),
 		LineShape: () => null,
 		RectShape: () => null,
 		// The wrapper measures this element, so the stand-in must take the ref.
@@ -244,7 +249,13 @@ describe( 'ComparativeLineChart', () => {
 			legend: { collapseGroups: true, comparisonItem: true, interactive: true },
 		} );
 		expect( mockLegendSpy ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { interactive: true } )
+			expect.objectContaining( {
+				interactive: true,
+				items: [
+					{ label: 'Views', color: '#3858E9', interactive: false },
+					{ label: 'Visitors', color: '#3858E9' },
+				],
+			} )
 		);
 	} );
 
