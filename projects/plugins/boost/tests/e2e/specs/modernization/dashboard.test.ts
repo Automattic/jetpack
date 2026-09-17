@@ -146,6 +146,7 @@ test.describe( 'Dashboard modernization', () => {
 		page,
 	} ) => {
 		await boostUtils.setDashboardModernization( true );
+		await page.setViewportSize( { width: 1280, height: 500 } );
 		await jetpackBoostPage.visit();
 		const overviewTab = page.getByRole( 'tab', { name: 'Overview', exact: true } );
 		await page.getByRole( 'tab', { name: 'Settings', exact: true } ).click();
@@ -154,16 +155,19 @@ test.describe( 'Dashboard modernization', () => {
 			.locator( '.jb-modern-settings' )
 			.getByRole( 'heading', { name: 'Code loading optimization', exact: true } );
 		await expect( firstGroup ).toBeVisible();
-		const tab = ( await overviewTab.boundingBox() )!;
+		const box = await overviewTab.boundingBox();
+		expect( box ).not.toBeNull();
+		const { x, y, width, height } = box as NonNullable< typeof box >;
 
+		// Scrolling to the bottom also passes Tips and the z-indexed controls under the tabs.
 		await firstGroup.hover();
-		await page.mouse.wheel( 0, 400 );
+		await page.mouse.wheel( 0, 10000 );
 		await expect
 			.poll( async () => ( await firstGroup.boundingBox() )?.y ?? Infinity )
-			.toBeLessThan( tab.y );
+			.toBeLessThan( y );
 
 		// Locator clicks scroll the target back into view on retry, which would hide the overlap.
-		await page.mouse.click( tab.x + tab.width / 2, tab.y + tab.height / 2 );
+		await page.mouse.click( x + width / 2, y + height / 2 );
 		await expect( overviewTab ).toHaveAttribute( 'aria-selected', 'true' );
 	} );
 
