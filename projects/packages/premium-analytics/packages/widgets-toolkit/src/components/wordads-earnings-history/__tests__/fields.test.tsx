@@ -92,6 +92,17 @@ describe( 'getWordAdsHistoryFields', () => {
 		expect( data.map( row => row.period ) ).toEqual( [ period ] );
 	} );
 
+	it( 'offers every status but a8c-only in the Status filter', () => {
+		const status = fields.find( field => field.id === 'status' );
+
+		expect( status?.elements?.map( element => element.value ) ).toEqual( [
+			'Unpaid',
+			'Paid',
+			'Pending (Missing Tax Info)',
+			'Pending (Invalid PayPal)',
+		] );
+	} );
+
 	it( 'sorts periods chronologically, newest first', () => {
 		const { data } = filterSortAndPaginate(
 			rows,
