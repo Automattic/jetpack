@@ -154,9 +154,9 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 			'400'
 		);
 		const sections = surface.locator( '.jetpack-boost-overview__tooltip-section' );
-		for ( const [ index, label, score, metrics ] of [
-			[ 1, 'Desktop', '80/100', [ '1.20s', '0.10s', '0.01' ] ],
-			[ 2, 'Mobile', '65/100', [ '2.10s', '0.30s', '0.04' ] ],
+		for ( const [ index, label, score, metrics, barColor ] of [
+			[ 1, 'Desktop', '80/100', [ '1.20s', '0.10s', '0.01' ], 'rgb(0, 128, 48)' ],
+			[ 2, 'Mobile', '65/100', [ '2.10s', '0.30s', '0.04' ], 'rgb(250, 167, 84)' ],
 		] as const ) {
 			const section = sections.nth( index );
 			await expect( section.locator( 'dt' ).first() ).toHaveText( label );
@@ -173,6 +173,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 				.locator( '.visx-bar' )
 				.nth( 21 );
 			const fill = await recordedBar.evaluate( element => getComputedStyle( element ).fill );
+			expect( fill ).toBe( barColor );
 			await expect( dot ).toHaveCSS( 'background-color', fill );
 			const shape = await dot.evaluate( element => {
 				const style = getComputedStyle( element );
