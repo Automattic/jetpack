@@ -183,6 +183,35 @@ test( 'exposes the date, grade, and both device metrics through keyboard tooltip
 	}
 } );
 
+test( 'keeps a recorded day popover open while the pointer rests on it', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	const popover = await screen.findByRole( 'dialog', {
+		name: dateI18n( 'F j, Y', timestamp, false ),
+	} );
+	expect( desktop ).not.toContainElement( popover );
+	expect( popover ).toHaveTextContent( '90/100' );
+	fireEvent.pointerEnter( popover );
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	await expect( screen.findByTestId( 'chart-tooltip-1' ) ).resolves.toHaveTextContent( '70/100' );
+	expect( screen.getByRole( 'dialog' ) ).toHaveTextContent( '90/100' );
+	fireEvent.pointerLeave( popover );
+	await waitFor( () => expect( screen.getByRole( 'dialog' ) ).toHaveTextContent( '70/100' ) );
+} );
+
+test( 'opens a recorded day popover by keyboard and closes it with Escape', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
+	await waitFor( () => expect( tooltip ).toHaveFocus() );
+	expect( screen.getByRole( 'dialog' ) ).toHaveTextContent( '80/100' );
+	fireEvent.keyDown( tooltip, { key: 'Escape' } );
+	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+	expect( desktop ).toHaveFocus();
+} );
+
 test( 'shows empty days after loading and explains them on keyboard focus', async () => {
 	const { rerender } = render( <HistoryChartCard isLoading { ...callbacks } />, { wrapper } );
 	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
