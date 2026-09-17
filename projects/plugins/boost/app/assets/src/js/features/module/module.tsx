@@ -60,8 +60,7 @@ const Module = ( {
 	} );
 	const isModuleActive = status?.active ?? false;
 	const isModuleAvailable = status?.available ?? false;
-	// Page Cache is unavailable on the Atomic platform because it already caches pages, so
-	// show the module as active.
+	// When the Atomic platform's own cache makes Page Cache unavailable, show the module as active.
 	const isFakeActive = ! isModuleAvailable && isAtomicPlatform() && slug === 'page_cache';
 
 	const showOfflineMessage = ! site.online && ! worksOffline;
