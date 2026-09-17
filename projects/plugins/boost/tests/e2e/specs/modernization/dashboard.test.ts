@@ -1,4 +1,8 @@
 import { test, expect } from '../../lib/fixtures/test';
+import type { Locator } from '@playwright/test';
+
+const topOf = ( locator: Locator ) =>
+	locator.evaluate( element => element.getBoundingClientRect().top );
 
 test.describe( 'Dashboard modernization', () => {
 	test.beforeAll( async ( { boostUtils } ) => {
@@ -9,6 +13,7 @@ test.describe( 'Dashboard modernization', () => {
 
 	test.afterEach( async ( { boostUtils } ) => {
 		await boostUtils.resetDashboardModernization();
+		await boostUtils.resetDashboardJitm();
 	} );
 
 	test.afterAll( async ( { boostUtils } ) => {
@@ -85,6 +90,54 @@ test.describe( 'Dashboard modernization', () => {
 
 		await page.getByRole( 'tab', { name: 'Overview', exact: true } ).click();
 		await expect( runSpeedTest ).toBeVisible();
+	} );
+
+	test( 'Show a targeted JITM on the modern dashboard', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.setDashboardModernization( true );
+		await boostUtils.setDashboardJitm( true );
+		await jetpackBoostPage.visit();
+		const notices = page.locator( '#jp-admin-notices' );
+		const message = notices.locator( '.jitm-card' );
+		const overview = page.locator( '.jetpack-boost-overview' );
+		await expect( message ).toBeVisible();
+		await expect( message ).toContainText( 'Boost dashboard test message' );
+		await expect( overview ).toBeVisible();
+
+		const messageBox = await message.boundingBox();
+		const overviewBox = await overview.boundingBox();
+		expect( messageBox?.x ).toBeCloseTo( overviewBox?.x ?? NaN, 0 );
+		expect( messageBox?.width ).toBeCloseTo( overviewBox?.width ?? NaN, 0 );
+		expect( overviewBox?.y ).toBeGreaterThan(
+			( messageBox?.y ?? 0 ) + ( messageBox?.height ?? 0 )
+		);
+
+		await message.locator( '.jitm-banner__dismiss' ).click();
+		await expect( message ).toBeHidden();
+		await expect
+			.poll( async () => ( await topOf( overview ) ) - ( await topOf( notices ) ) )
+			.toBe( 0 );
+	} );
+
+	test( 'Collapse empty notices on the modern dashboard', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.setDashboardModernization( true );
+		await boostUtils.setDashboardJitm( false );
+		await jetpackBoostPage.visit();
+		const notices = page.locator( '#jp-admin-notices' );
+		const overview = page.locator( '.jetpack-boost-overview' );
+		await expect( overview ).toBeVisible();
+		await expect( notices ).toHaveCount( 1 );
+		await expect( notices ).toBeEmpty();
+		await expect
+			.poll( async () => ( await topOf( overview ) ) - ( await topOf( notices ) ) )
+			.toBe( 0 );
 	} );
 
 	test( 'Keep modern assets off other admin pages', async ( { boostUtils, admin, page } ) => {
