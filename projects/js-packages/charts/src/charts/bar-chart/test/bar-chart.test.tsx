@@ -2813,6 +2813,60 @@ describe( 'BarChart', () => {
 			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 		} );
 
+		// The point count is unchanged by a one-for-one swap, so only the visible set reveals it.
+		it( 'clears the selection when a swap keeps the count but changes which series are visible', async () => {
+			const user = userEvent.setup();
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<BarChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withTooltips
+						chartId="test-equal-count-swap"
+						defaultHiddenSeries={ [ 'Series B' ] }
+						data={ [
+							{
+								label: 'Series A',
+								data: [
+									{ label: 'Jan', value: 10 },
+									{ label: 'Feb', value: 20 },
+									{ label: 'Mar', value: 30 },
+								],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [
+									{ label: 'Jan', value: 15 },
+									{ label: 'Feb', value: 25 },
+									{ label: 'Mar', value: 35 },
+								],
+								options: {},
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}{ArrowRight}' );
+			expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series A' );
+
+			// Move focus out of the chart, then swap which series is hidden without changing the count.
+			screen.getByRole( 'grid', { name: /bar chart/i } ).blur();
+			act( () => context.setChartHiddenSeries( 'test-equal-count-swap', [ 'Series A' ] ) );
+
+			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+		} );
+
 		it( 'stops at the last visible slot on a standard chart', async () => {
 			const user = userEvent.setup();
 

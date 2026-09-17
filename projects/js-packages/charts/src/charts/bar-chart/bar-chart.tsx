@@ -277,6 +277,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ primaryEntries, onDatumActivate ]
 	);
 
+	const visibleSeriesKey = useMemo( () => JSON.stringify( primaryKeys ), [ primaryKeys ] );
+
 	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 		selectedIndex,
 		setSelectedIndex,
@@ -285,6 +287,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		chartRef,
 		totalPoints,
 		onActivate: activateSelectedBar,
+		visibleSeriesKey,
 	} );
 
 	const comparisonEntries = useMemo( () => {

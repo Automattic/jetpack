@@ -239,6 +239,12 @@ interface UseKeyboardNavigationProps {
 	 */
 	onActivate?: ( index: number ) => void;
 	preventTooltipScroll?: boolean;
+	/**
+	 * Identity of the series the navigation indexes run over, for charts whose index space depends
+	 * on which series are visible. Swapping one hidden series for another of the same length leaves
+	 * `totalPoints` unchanged, so the count alone cannot detect it.
+	 */
+	visibleSeriesKey?: string;
 }
 
 export const useKeyboardNavigation = ( {
@@ -250,6 +256,7 @@ export const useKeyboardNavigation = ( {
 	totalPoints,
 	onActivate,
 	preventTooltipScroll = false,
+	visibleSeriesKey,
 }: UseKeyboardNavigationProps ) => {
 	// `chartRef` sits inside the focusable grid, so the grid is what focus returns to and is measured against.
 	const getChartRoot = useCallback(
@@ -280,21 +287,27 @@ export const useKeyboardNavigation = ( {
 	);
 
 	const previousTotalPoints = useRef( totalPoints );
+	const previousVisibleSeriesKey = useRef( visibleSeriesKey );
 
-	// A change in the point count (a series hidden or shown) moves every index onto a different bar.
+	// Hiding or showing a series moves every index onto a different bar. The count alone misses a
+	// swap that keeps it the same, such as hiding one series while revealing another of equal length.
 	// Clear rather than clamp once focus has left the chart: a new tooltip would pull focus back.
 	useEffect( () => {
 		const countChanged = previousTotalPoints.current !== totalPoints;
+		const seriesChanged = previousVisibleSeriesKey.current !== visibleSeriesKey;
 		previousTotalPoints.current = totalPoints;
+		previousVisibleSeriesKey.current = visibleSeriesKey;
 
-		if ( ! countChanged || selectedIndex === undefined ) {
+		if ( ( ! countChanged && ! seriesChanged ) || selectedIndex === undefined ) {
 			return;
 		}
 
 		const { activeElement } = document;
 		const focusIsInChart = activeElement !== null && !! getChartRoot()?.contains( activeElement );
 
-		if ( totalPoints === 0 || ! focusIsInChart ) {
+		// A swap that leaves the count alone gives the same index a different series, so unlike a
+		// count change there is no shorter range to clamp into.
+		if ( totalPoints === 0 || ! focusIsInChart || ! countChanged ) {
 			setSelectedIndex( undefined );
 			setIsNavigating( false );
 			// Clearing unmounts the focused tooltip, which would drop focus to the body.
@@ -308,6 +321,7 @@ export const useKeyboardNavigation = ( {
 	}, [
 		selectedIndex,
 		totalPoints,
+		visibleSeriesKey,
 		setSelectedIndex,
 		setIsNavigating,
 		getChartRoot,
