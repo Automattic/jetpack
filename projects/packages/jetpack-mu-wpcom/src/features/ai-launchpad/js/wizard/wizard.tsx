@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Modal, Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
 import {
 	setTracksContext,
@@ -187,11 +188,17 @@ export function Wizard( {
 				/>
 			) }
 
-			<footer className="ai-launchpad-wizard__footer">
+			<Stack
+				render={ <footer /> }
+				align="center"
+				justify="space-between"
+				gap="md"
+				className="ai-launchpad-wizard__footer"
+			>
 				<Button variant="link" onClick={ handleSkip } disabled={ skipping }>
 					{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 				</Button>
-				<div className="ai-launchpad-wizard__footer-right">
+				<Stack gap="sm">
 					{ step > 0 && (
 						<Button variant="secondary" onClick={ handleBack } disabled={ skipping }>
 							{ __( 'Back', 'jetpack-mu-wpcom' ) }
@@ -206,8 +213,8 @@ export function Wizard( {
 							? __( 'Finish', 'jetpack-mu-wpcom' )
 							: __( 'Continue', 'jetpack-mu-wpcom' ) }
 					</Button>
-				</div>
-			</footer>
+				</Stack>
+			</Stack>
 		</Modal>
 	);
 }

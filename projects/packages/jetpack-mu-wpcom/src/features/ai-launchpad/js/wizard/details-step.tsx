@@ -1,6 +1,7 @@
 import { TextControl, TextareaControl } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import { pickPlaceholder } from './lib.ts';
 import type { GoalSlug } from '../lib/types.ts';
 
@@ -103,10 +104,10 @@ export default function DetailsStep( {
 	const intentPlaceholder = useIntentPlaceholder( goal );
 
 	return (
-		<div className="ai-launchpad-wizard__step">
-			<h2 className="ai-launchpad-wizard__step-title">
+		<Stack direction="column" gap="lg">
+			<Text variant="heading-xl" render={ <h2 /> }>
 				{ __( 'Tell us about your site', 'jetpack-mu-wpcom' ) }
-			</h2>
+			</Text>
 
 			<TextControl
 				__nextHasNoMarginBottom
@@ -124,6 +125,6 @@ export default function DetailsStep( {
 				onChange={ onIntentChange }
 				rows={ 4 }
 			/>
-		</div>
+		</Stack>
 	);
 }

@@ -1,6 +1,7 @@
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { pencil, tool, store, envelope, people, gallery } from '@wordpress/icons';
+import { Stack, Text } from '@wordpress/ui';
 import type { GoalSlug } from '../lib/types.ts';
 
 interface GoalOption {
@@ -74,15 +75,15 @@ interface Props {
  */
 export default function GoalsStep( { value, onChange }: Props ) {
 	return (
-		<div className="ai-launchpad-wizard__step">
-			<div className="ai-launchpad-wizard__step-header">
-				<h2 className="ai-launchpad-wizard__step-title">
+		<Stack direction="column" gap="lg">
+			<Stack direction="column" gap="xs">
+				<Text variant="heading-xl" render={ <h2 /> }>
 					{ __( "What's your main goal?", 'jetpack-mu-wpcom' ) }
-				</h2>
-				<p className="ai-launchpad-wizard__step-subtitle">
+				</Text>
+				<Text render={ <p /> } className="ai-launchpad-wizard__step-subtitle">
 					{ __( "We'll tailor your next steps to help you launch.", 'jetpack-mu-wpcom' ) }
-				</p>
-			</div>
+				</Text>
+			</Stack>
 			<div className="ai-launchpad-wizard__cards" role="radiogroup">
 				{ goalOptions().map( option => {
 					const selected = value === option.key;
@@ -96,16 +97,21 @@ export default function GoalsStep( { value, onChange }: Props ) {
 							onClick={ () => onChange( option.key ) }
 						>
 							<Icon icon={ option.icon } size={ 20 } />
-							<span className="ai-launchpad-wizard__card-text">
-								<span className="ai-launchpad-wizard__card-title">{ option.title }</span>
-								<span className="ai-launchpad-wizard__card-description">
+							<Stack
+								direction="column"
+								gap="xs"
+								render={ <span /> }
+								className="ai-launchpad-wizard__card-text"
+							>
+								<Text variant="heading-md">{ option.title }</Text>
+								<Text variant="body-sm" className="ai-launchpad-wizard__card-description">
 									{ option.description }
-								</span>
-							</span>
+								</Text>
+							</Stack>
 						</button>
 					);
 				} ) }
 			</div>
-		</div>
+		</Stack>
 	);
 }
