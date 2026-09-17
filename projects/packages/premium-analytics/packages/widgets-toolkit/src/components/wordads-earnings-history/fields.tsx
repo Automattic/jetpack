@@ -20,10 +20,50 @@ export type EarningsHistoryRow = {
 	status: number | undefined;
 };
 
+type EarningsStatus = { label: string; tooltip?: string };
+
+/** Automattic-internal status: never shown to site owners, so kept out of the Status filter. */
+const A8C_ONLY_STATUS = 2;
+
 /**
- * Map a WordAds payment status code to its label and tooltip, ported verbatim
- * from the Jetpack Stats WordAds `getStatus` map
- * (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
+ * WordAds payment statuses by code, ported verbatim from the Jetpack Stats WordAds
+ * `getStatus` map (wp-calypso client/my-sites/stats/wordads/earnings.jsx).
+ *
+ * @return The label and optional tooltip for each known code.
+ */
+function getEarningsStatuses(): Record< number, EarningsStatus > {
+	return {
+		0: {
+			label: __( 'Unpaid', 'jetpack-premium-analytics-pkg' ),
+			tooltip: __(
+				'Payment is on hold until the end of the current month.',
+				'jetpack-premium-analytics-pkg'
+			),
+		},
+		1: {
+			label: __( 'Paid', 'jetpack-premium-analytics-pkg' ),
+			tooltip: __( 'Payment has been processed through PayPal.', 'jetpack-premium-analytics-pkg' ),
+		},
+		[ A8C_ONLY_STATUS ]: { label: __( 'a8c-only', 'jetpack-premium-analytics-pkg' ) },
+		3: {
+			label: __( 'Pending (Missing Tax Info)', 'jetpack-premium-analytics-pkg' ),
+			tooltip: __(
+				'Payment is pending due to missing information. You can provide tax information in the settings screen.',
+				'jetpack-premium-analytics-pkg'
+			),
+		},
+		4: {
+			label: __( 'Pending (Invalid PayPal)', 'jetpack-premium-analytics-pkg' ),
+			tooltip: __(
+				'Payment processing has failed due to invalid PayPal address. You can correct the PayPal address in the settings screen.',
+				'jetpack-premium-analytics-pkg'
+			),
+		},
+	};
+}
+
+/**
+ * Map a WordAds payment status code to its label and tooltip.
  *
  * An unknown or absent status falls through to `?` rather than a label that
  * would assert something about the payment we were never told.
@@ -31,48 +71,12 @@ export type EarningsHistoryRow = {
  * @param status - The numeric status from the earnings payload, if any.
  * @return The label and optional tooltip.
  */
-export function getEarningsStatus( status: number | undefined ): {
-	label: string;
-	tooltip?: string;
-} {
-	switch ( status ) {
-		case 0:
-			return {
-				label: __( 'Unpaid', 'jetpack-premium-analytics-pkg' ),
-				tooltip: __(
-					'Payment is on hold until the end of the current month.',
-					'jetpack-premium-analytics-pkg'
-				),
-			};
-		case 1:
-			return {
-				label: __( 'Paid', 'jetpack-premium-analytics-pkg' ),
-				tooltip: __(
-					'Payment has been processed through PayPal.',
-					'jetpack-premium-analytics-pkg'
-				),
-			};
-		case 2:
-			return { label: __( 'a8c-only', 'jetpack-premium-analytics-pkg' ) };
-		case 3:
-			return {
-				label: __( 'Pending (Missing Tax Info)', 'jetpack-premium-analytics-pkg' ),
-				tooltip: __(
-					'Payment is pending due to missing information. You can provide tax information in the settings screen.',
-					'jetpack-premium-analytics-pkg'
-				),
-			};
-		case 4:
-			return {
-				label: __( 'Pending (Invalid PayPal)', 'jetpack-premium-analytics-pkg' ),
-				tooltip: __(
-					'Payment processing has failed due to invalid PayPal address. You can correct the PayPal address in the settings screen.',
-					'jetpack-premium-analytics-pkg'
-				),
-			};
-		default:
-			return { label: '?' };
-	}
+export function getEarningsStatus( status: number | undefined ): EarningsStatus {
+	const statuses = getEarningsStatuses();
+
+	return status !== undefined && Object.hasOwn( statuses, status )
+		? statuses[ status ]
+		: { label: '?' };
 }
 
 /**
@@ -164,9 +168,13 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		{
 			id: 'status',
 			label: __( 'Status', 'jetpack-premium-analytics-pkg' ),
-			enableGlobalSearch: true,
-			// Sorts and searches by the visible label rather than the numeric code.
+			// A filter rather than search: a substring match for "Paid" also finds "Unpaid".
+			// Sorts and filters by the visible label rather than the numeric code.
 			getValue: ( { item } ) => getEarningsStatus( item.status ).label,
+			elements: Object.entries( getEarningsStatuses() )
+				.filter( ( [ code ] ) => Number( code ) !== A8C_ONLY_STATUS )
+				.map( ( [ , { label } ] ) => ( { value: label, label } ) ),
+			filterBy: { operators: [ 'is' ] },
 			render: ( { item } ) => <EarningsStatusLabel status={ item.status } />,
 		},
 	];
