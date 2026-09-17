@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
 
+use Automattic\Jetpack\Status;
+
 require_once __DIR__ . '/../../utils.php';
 
 /**
@@ -55,6 +57,7 @@ class WPCOM_Block_Editor_NUX {
 				'launchpadScreenOption' => get_option( 'launchpad_screen' ),
 				'siteUrlOption'         => get_option( 'siteurl' ),
 				'siteIntentOption'      => get_option( 'site_intent' ),
+				'isComingSoon'          => (bool) ( new Status() )->is_coming_soon(),
 			),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
