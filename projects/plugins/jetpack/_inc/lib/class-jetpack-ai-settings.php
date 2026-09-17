@@ -342,6 +342,7 @@ class Jetpack_AI_Settings {
 
 		// Ask the chain with our own gates stood down, so a deactivated module
 		// cannot mask a filter that would keep AI off however the module is set.
+		$third_party_off           = false;
 		self::$probing_third_party = true;
 		try {
 			$third_party_off = ! apply_filters( 'jetpack_ai_enabled', true );
