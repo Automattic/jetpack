@@ -638,9 +638,11 @@ $feature-icon-foreground: #0ced57;
 	overflow: hidden;
 }
 
-// The selection bar sits outside the table, so its checkbox takes the column's
-// own inset to line up with the boxes above it.
+// The selection bar sits outside the table with no padding of its own. The
+// inset lines its checkbox up with the boxes above it, and the block padding
+// keeps it off the surface's bottom edge.
 .feature-list :global(.dataviews-bulk-actions-footer__container) {
+	padding-block: var(--wpds-dimension-padding-lg);
 	padding-inline-start: var(--wpds-dimension-padding-2xl);
 }
 
