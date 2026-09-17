@@ -498,6 +498,7 @@ function register_default_dashboard_sections() {
 			'order'          => 10,
 			'default_layout' => __NAMESPACE__ . '\\get_traffic_section_default_layout',
 		),
+
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Site insights', 'jetpack-premium-analytics-pkg' ),
@@ -512,6 +513,7 @@ function register_default_dashboard_sections() {
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_insights_section_default_layout',
 		),
+
 		'analytics/subscribers' => array(
 			'label'               => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
@@ -525,6 +527,7 @@ function register_default_dashboard_sections() {
 			),
 			'default_layout'      => __NAMESPACE__ . '\\get_subscribers_section_default_layout',
 		),
+
 		// Store registers no heading of its own, so it falls back to the label.
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
@@ -535,6 +538,7 @@ function register_default_dashboard_sections() {
 			'requires_sync'  => true,
 			'default_layout' => __NAMESPACE__ . '\\get_store_section_default_layout',
 		),
+
 		'analytics/ads'         => array(
 			'label'               => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 50,
@@ -545,6 +549,7 @@ function register_default_dashboard_sections() {
 				'with_date_comparison'     => false,
 				'with_header_date_control' => false,
 			),
+
 			'default_layout'      => __NAMESPACE__ . '\\get_ads_section_default_layout',
 		),
 	);
@@ -556,17 +561,6 @@ function register_default_dashboard_sections() {
 	}
 }
 
-/**
- * Hydrates the dashboard section registry with the package's own sections.
- *
- * @return void
- */
-function bootstrap_dashboard_sections() {
-	if ( did_action( 'init' ) ) {
-		register_default_dashboard_sections();
-	} else {
-		add_action( 'init', __NAMESPACE__ . '\\register_default_dashboard_sections' );
-	}
-}
-
-bootstrap_dashboard_sections();
+// Registered when the registry hydrates, through the same action a plugin extending the
+// dashboard uses. The callback skips sections already registered, so a direct call is safe too.
+add_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );

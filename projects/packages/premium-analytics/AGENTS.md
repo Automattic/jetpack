@@ -76,6 +76,14 @@ packages.
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
 
+Add a dashboard section, from this package or from another plugin: hook
+`jetpack_premium_analytics_register_dashboard_sections` and call `register_dashboard_section()`
+there. The section registry hydrates on its first read, from wp-admin or from REST, and fires
+that action once; `src/default-dashboard-sections.php` registers the package's own tabs the same
+way. A section declares its default layout in the registration; the
+`jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
+any section by id.
+
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
 
 ### Timing-dependent JS tests use fake timers
@@ -151,8 +159,9 @@ opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
 Which one says yes also decides how many tabs the dashboard offers: the site's own opt-in is the
-customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
-override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
+customer preview and exposes only the sections in `PREVIEW_SECTIONS`, as extended by the
+`jetpack_premium_analytics_preview_sections` filter, while a sticker or filter override exposes
+every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
 overrides that per section — `__return_true` gives a development or test site the whole dashboard.
 
 The same list the tab bar gets over REST also reaches the client as

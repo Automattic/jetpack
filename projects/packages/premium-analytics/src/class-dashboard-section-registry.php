@@ -11,8 +11,20 @@ require_once __DIR__ . '/dashboard-grammar.php';
 
 /**
  * Stores Dashboard_Section instances keyed by dashboard and section ID.
+ *
+ * Hydrates on its first read: the registration action fires once, and every registrant, this
+ * package included, registers its sections from there. Reads happen after `init`, from wp-admin
+ * and from REST, so hooking the action is the one moment that covers both paths.
  */
 final class Dashboard_Section_Registry {
+
+	/**
+	 * Action through which sections are registered, fired once on the first read.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	const REGISTER_ACTION = 'jetpack_premium_analytics_register_dashboard_sections';
 
 	/**
 	 * Registered sections, as `$dashboard_name => $id => $section` pairs.
@@ -20,6 +32,13 @@ final class Dashboard_Section_Registry {
 	 * @var array<string, Dashboard_Section[]>
 	 */
 	private $registered_sections = array();
+
+	/**
+	 * Whether the registration action has fired.
+	 *
+	 * @var bool
+	 */
+	private $hydrated = false;
 
 	/**
 	 * Container for the main instance of the class.
@@ -88,6 +107,8 @@ final class Dashboard_Section_Registry {
 	 * @return Dashboard_Section|null The registered section, or null when absent.
 	 */
 	public function get_registered( $dashboard_name, $id ) {
+		$this->ensure_hydrated();
+
 		if ( ! $this->is_registered( $dashboard_name, $id ) ) {
 			return null;
 		}
@@ -102,6 +123,8 @@ final class Dashboard_Section_Registry {
 	 * @return Dashboard_Section[] Map of `$id => $section` pairs.
 	 */
 	public function get_all_registered( $dashboard_name ) {
+		$this->ensure_hydrated();
+
 		if ( ! isset( $this->registered_sections[ $dashboard_name ] ) ) {
 			// Unknown dashboards may be valid REST targets but have no sections registered.
 			return array();
@@ -139,7 +162,8 @@ final class Dashboard_Section_Registry {
 	}
 
 	/**
-	 * Checks if a section is registered.
+	 * Checks if a section is registered. Does not hydrate: register() relies on it, and a
+	 * registrant may run before the action fires.
 	 *
 	 * @param string $dashboard_name Dashboard identifier.
 	 * @param string $id             Section identifier.
@@ -147,6 +171,33 @@ final class Dashboard_Section_Registry {
 	 */
 	public function is_registered( $dashboard_name, $id ) {
 		return isset( $this->registered_sections[ $dashboard_name ][ $id ] );
+	}
+
+	/**
+	 * Fires the registration action once, on the first read.
+	 *
+	 * @return void
+	 */
+	private function ensure_hydrated() {
+		if ( $this->hydrated ) {
+			return;
+		}
+
+		// Latched before the action so a registrant that reads the registry cannot re-enter.
+		$this->hydrated = true;
+
+		/**
+		 * Fires when the dashboard section registry hydrates, on its first read after `init`.
+		 *
+		 * Register sections here rather than on `init`: the registry is read from wp-admin and
+		 * from REST, and each path loads it at a different moment. A registrant that may run
+		 * twice guards with `is_registered()`.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param Dashboard_Section_Registry $registry The registry being hydrated.
+		 */
+		do_action( self::REGISTER_ACTION, $this );
 	}
 
 	/**
