@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Stop the date period dropdown tests from loading libraries they never render.
+
+
