@@ -262,6 +262,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		}
 	}, [ withTooltips, selected, hideTooltip ] );
 
+	// A data refresh that shrinks the grid would leave the selection on a slot that
+	// no longer exists; navigating from there has nothing to step from.
+	useEffect( () => {
+		if ( selected && ( selected.column >= columns || selected.row >= rows ) ) {
+			setSelected( undefined );
+		}
+	}, [ selected, columns, rows ] );
+
 	// Focus stays on the grid (aria-activedescendant), so the browser never scrolls
 	// the selected cell into a scroll container's view on its own. Keyed on the
 	// selection alone: a data refresh must not scroll the user back to it.

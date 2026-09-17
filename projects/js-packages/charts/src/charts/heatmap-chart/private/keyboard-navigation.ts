@@ -117,6 +117,9 @@ const columnOrderFrom = (
 	direction: 1 | -1
 ): CellPosition[] => {
 	const blockIndex = blockOf( blocks, from.column );
+	if ( blockIndex < 0 ) {
+		return [];
+	}
 	const offset = from.column - blocks[ blockIndex ].start;
 	const cells: CellPosition[] = [];
 	const pushRows = ( column: number, startRow: number ) => {
@@ -151,8 +154,8 @@ export const firstCalendarCell = ( grid: NavigableGrid, blocks: CellBlock[] ) =>
 
 /**
  * Steps through the blocks as pages of a calendar: Left/Right by one slot in reading
- * order, Up/Down by one row (into the neighbouring block past the edge), Page Up/Down
- * to the same slot of the neighbouring block or its nearest selectable cell.
+ * order, Up/Down by one row (into the neighboring block past the edge), Page Up/Down
+ * to the same slot of the neighboring block or its nearest selectable cell.
  *
  * @param grid   - The grid.
  * @param blocks - The blocks, left to right.
@@ -169,6 +172,9 @@ export const stepCalendarCell = (
 	if ( key === 'ArrowRight' || key === 'ArrowLeft' ) {
 		const order = readingOrder( grid, blocks );
 		const index = order.findIndex( cell => cell.column === from.column && cell.row === from.row );
+		if ( index < 0 ) {
+			return undefined;
+		}
 		const ahead =
 			key === 'ArrowRight' ? order.slice( index + 1 ) : order.slice( 0, index ).reverse();
 		return firstSelectable( grid, ahead );
@@ -183,7 +189,7 @@ export const stepCalendarCell = (
 
 	const blockIndex = blockOf( blocks, from.column );
 	const target = blocks[ blockIndex + ( key === 'PageDown' ? 1 : -1 ) ];
-	if ( ! target ) {
+	if ( blockIndex < 0 || ! target ) {
 		return undefined;
 	}
 	const same = {
@@ -195,6 +201,6 @@ export const stepCalendarCell = (
 		cell => cell.row > same.row || ( cell.row === same.row && cell.column >= same.column )
 	);
 	const after = at === -1 ? [] : page.slice( at );
-	const before = ( at === -1 ? page : page.slice( 0, at ) ).reverse();
+	const before = page.slice( 0, at === -1 ? page.length : at ).reverse();
 	return firstSelectable( grid, after ) ?? firstSelectable( grid, before );
 };

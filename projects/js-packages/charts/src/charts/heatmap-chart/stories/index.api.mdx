@@ -16,7 +16,7 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | `data` | `HeatmapColumn[]` | - | **Required.** Array of columns; each column contains an optional label and an array of cells. |
 | `rowLabels` | `string[]` | `[]` | y-axis labels by row index. Empty entries render blank. |
 | `columnGroups` | `HeatmapColumnGroup[]` | - | Consecutive runs of columns sharing one label beneath the grid, one group gap apart (in compact mode the gaps share the leftover width, down to the theme's `groupGap`). Runs from the first column; leftover columns stay ungrouped. Ignored with a warning when a span is not a positive integer or the spans reach past the last column. |
-| `keyboardNavigation` | `'grid' \| 'calendar'` | `'grid'` | How the arrow keys move the selection. `grid` steps across the whole grid. `calendar` reads each column group as a page: Left/Right by one cell, wrapping to the next row and then the next group; Up/Down by one row, into the neighbouring group past the edge; Page Up/Down to the same slot of the neighbouring group, or its nearest cell after it. |
+| `keyboardNavigation` | `'grid' \| 'calendar'` | `'grid'` | How the arrow keys move the selection. `grid` steps across the whole grid. `calendar` reads each column group as a page: Left/Right by one cell, wrapping to the next row and then the next group; Up/Down by one row, into the neighboring group past the edge; Page Up/Down to the same slot of the neighboring group, or its nearest cell after it. |
 | `ariaLabel` | `string` | `'Heatmap chart'` | Accessible name of the grid. |
 | `compact` | `boolean` | `false` | Compact mode: tighten cell gaps, suppress in-cell values, and thin axis labels. |
 | `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell (compact notation for large numbers; the tooltip and aria-label keep full precision). |
@@ -240,9 +240,9 @@ type MonthCalendarHeatmapResult = {
 	/** For `HeatmapChart`'s `columnGroups`: one per month, in order. */
 	columnGroups: HeatmapColumnGroup[];
 };
+```
 
 Pass `keyboardNavigation="calendar"` alongside them so the arrow keys step by day rather than across the grid.
-```
 
 ## CalendarHeatmapOptions Type
 

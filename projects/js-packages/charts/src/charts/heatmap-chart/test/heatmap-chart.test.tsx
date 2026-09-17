@@ -751,7 +751,7 @@ describe( 'HeatmapChart calendar navigation', () => {
 		expect( selectedName( grid ) ).toBe( 'Wed, Jan 31, 2024: 3' );
 	} );
 
-	test( 'steps a week with Down and Up, into the neighbouring month past its edge', async () => {
+	test( 'steps a week with Down and Up, into the neighboring month past its edge', async () => {
 		const grid = mountCalendar(
 			calendar( { start: '2024-01-22', end: '2024-02-12' }, [ '2024-01-29', '2024-02-05' ] )
 		);
@@ -793,6 +793,27 @@ describe( 'HeatmapChart calendar navigation', () => {
 		grid.focus();
 		await user.keyboard( '{ArrowRight}' );
 		expect( selectedName( grid ) ).toBe( 'Thu, Feb 1, 2024: No data' );
+	} );
+
+	test( 'drops a selection the data no longer holds instead of navigating from it', async () => {
+		const two = calendar( { start: '2024-01-01', end: '2024-02-29' }, [] );
+		const one = calendar( { start: '2024-01-01', end: '2024-01-31' }, [] );
+		const chart = ( result: typeof two ) => (
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } { ...result } keyboardNavigation="calendar" />
+			</GlobalChartsProvider>
+		);
+		const { rerender } = render( chart( two ) );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+		grid.focus();
+		await user.keyboard( '{ArrowRight}{PageDown}' );
+		expect( selectedName( grid ) ).toBe( 'Thu, Feb 1, 2024: No data' );
+
+		rerender( chart( one ) );
+		expect( grid ).not.toHaveAttribute( 'aria-activedescendant' );
+		await user.keyboard( '{ArrowDown}' );
+		expect( selectedName( grid ) ).toBe( 'Mon, Jan 1, 2024: No data' );
 	} );
 
 	test( 'ignores Page keys in grid navigation', async () => {

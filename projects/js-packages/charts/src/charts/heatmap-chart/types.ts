@@ -68,7 +68,7 @@ export interface HeatmapChartProps
 	/**
 	 * How the arrow keys move the selection. `grid` steps across the whole grid.
 	 * `calendar` reads each column group as a page: Left/Right by one cell (wrapping
-	 * to the next row, then the next group), Up/Down by one row into the neighbouring
+	 * to the next row, then the next group), Up/Down by one row into the neighboring
 	 * group past the edge, Page Up/Down by one group. Default `grid`.
 	 */
 	keyboardNavigation?: 'grid' | 'calendar';

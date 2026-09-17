@@ -206,18 +206,19 @@ export const ErrorStates: Story = {
 
 /**
  * Column groups: a gap and a label under each quarter; the Total column stays outside them.
- * Cells carry no label of their own, so each is named by its group and row ("Q1 Mon").
+ * Cells carry no label of their own, so each is named by its group, column and row ("Q1 Col 3 Mon").
  */
 export const WithColumnGroups: Story = {
 	args: {
 		...Default.args,
-		data: heatmapActivityMatrixWithTotals.map( column => ( {
+		data: heatmapActivityMatrixWithTotals.map( ( column, index ) => ( {
 			...column,
-			label: column.summary ? column.label : '',
+			label: column.summary ? column.label : `Col ${ index + 1 }`,
 			data: column.data.map( ( { label, ...cell } ) =>
 				column.summary ? { label, ...cell } : cell
 			),
 		} ) ),
+		rowLabels: [ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun' ],
 		columnGroups: [
 			{ label: 'Q1', span: 3 },
 			{ label: 'Q2', span: 3 },
