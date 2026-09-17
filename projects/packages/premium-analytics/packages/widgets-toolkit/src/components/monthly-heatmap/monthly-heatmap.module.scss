@@ -16,13 +16,20 @@
 }
 
 /* `align-content: start`: the label row is the grid's only auto track, so
- * stretching would hand it the leftover height. */
+ * stretching would hand it the leftover height. The scroll padding keeps a
+ * keyboard-selected cell clear of the sticky labels, sized to match below: the
+ * row is the chart label's line-height, the column fits a four-digit year. */
 .root .chart [role="grid"] {
+	--jpa-heatmap-label-row: var(--wpds-typography-line-height-xs);
+	--jpa-heatmap-year-column: calc(3 * var(--wpds-typography-font-size-xs) + var(--wpds-dimension-padding-xs));
+
 	flex: 1 1 0;
 	min-block-size: 0;
 	block-size: auto;
 	align-content: start;
 	overflow: auto;
+	scroll-padding-block-start: var(--jpa-heatmap-label-row);
+	scroll-padding-inline-start: var(--jpa-heatmap-year-column);
 }
 
 /* The chart starts its column labels at the track's edge, which suits a
@@ -44,10 +51,13 @@
 
 .root .chart [role="row"][aria-hidden="true"] > span {
 	inset-block-start: 0;
+	block-size: var(--jpa-heatmap-label-row);
 }
 
 .root .chart [role="row"][aria-rowindex] > span:first-child {
 	inset-inline-start: 0;
+	inline-size: var(--jpa-heatmap-year-column);
+	box-sizing: border-box;
 }
 
 .root .chart [role="row"][aria-hidden="true"] > span:first-child {
