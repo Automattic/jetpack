@@ -1,6 +1,6 @@
 /* eslint-disable jest-dom/prefer-in-document */
 import apiFetch from '@wordpress/api-fetch';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import InterstitialModalCTA from './interstitial-modal-cta';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn( () => new Promise( () => {} ) ) );
@@ -23,7 +23,23 @@ describe( 'InterstitialModalCTA', () => {
 		} );
 	} );
 
-	it( 'requests My Jetpack products and shows the upgrade prompt on a public site', () => {
+	it( 'requests My Jetpack products and opens the upgrade prompt on a public site', async () => {
+		jest.mocked( apiFetch ).mockResolvedValue( {
+			boost: {
+				slug: 'boost',
+				title: 'Boost',
+				pricing_for_ui: {
+					tiers: {
+						upgraded: {
+							full_price: 120,
+							discount_price: 120,
+							currency_code: 'USD',
+							product_term: 'year',
+						},
+					},
+				},
+			},
+		} );
 		boostGlobal.site.online = true;
 		render( <InterstitialModalCTA identifier="cornerstone-10-pages" description="Upgrade" /> );
 
@@ -31,6 +47,14 @@ describe( 'InterstitialModalCTA', () => {
 		expect( apiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( { path: 'my-jetpack/v1/site/products' } )
 		);
+		fireEvent.click( screen.getByRole( 'button', { name: /Upgrade now/ } ) );
+		const modal = await screen.findByRole( 'dialog' );
+		await waitFor( () => {
+			expect(
+				within( modal ).getByRole( 'button', { name: 'Upgrade now' } ).hasAttribute( 'disabled' )
+			).toBe( false );
+		} );
+		expect( within( modal ).getByText( 'Automated critical CSS generation' ) ).toBeTruthy();
 	} );
 
 	it( 'makes no My Jetpack request on an offline site', () => {
