@@ -59,9 +59,13 @@ test( 'holds getting_started while a save is pending and reports the value it se
 	onOnboardingChange.mockClear();
 	let failSave: ( error: Error ) => void = () => undefined;
 	const save = new MutationObserver< boolean, Error, boolean >( client, {
+		meta: { dataSyncKey: 'getting_started' },
 		mutationFn: () => new Promise< boolean >( ( _, reject ) => ( failSave = reject ) ),
 		onMutate: () => client.setQueryData( [ 'getting_started' ], false ),
-		onError: () => client.setQueryData( [ 'getting_started' ], true ),
+		onError: () => {
+			client.setQueryData( [ 'getting_started' ], true );
+			expect( onOnboardingChange ).not.toHaveBeenCalled();
+		},
 	} )
 		.mutate( false )
 		.catch( () => undefined );
@@ -73,5 +77,56 @@ test( 'holds getting_started while a save is pending and reports the value it se
 	failSave( new Error( 'Save failed' ) );
 	await save;
 
+	expect( onboardingValues() ).toEqual( [ true ] );
+} );
+
+test( 'reports a settled onboarding save while a later modules_state save remains pending', async () => {
+	client.setQueryData( [ 'getting_started' ], true );
+	onOnboardingChange.mockClear();
+	let finishOnboarding: ( value: boolean ) => void = () => undefined;
+	let finishModules: () => void = () => undefined;
+	const onboardingSave = new MutationObserver< boolean, Error, boolean >( client, {
+		meta: { dataSyncKey: 'getting_started' },
+		mutationFn: () => new Promise< boolean >( resolve => ( finishOnboarding = resolve ) ),
+		onMutate: () => client.setQueryData( [ 'getting_started' ], false ),
+		onSuccess: value => {
+			client.setQueryData( [ 'getting_started' ], value );
+			expect( onOnboardingChange ).not.toHaveBeenCalled();
+		},
+	} ).mutate( false );
+	await Promise.resolve();
+	const modulesSave = new MutationObserver( client, {
+		mutationFn: () => new Promise< void >( resolve => ( finishModules = resolve ) ),
+		onMutate: () => client.setQueryData( [ 'modules_state' ], {} ),
+	} ).mutate();
+	await Promise.resolve();
+
+	expect( onOnboardingChange ).not.toHaveBeenCalled();
+	finishOnboarding( false );
+	await onboardingSave;
+
+	expect( client.isMutating() ).toBe( 1 );
+	expect( onboardingValues() ).toEqual( [ false ] );
+	finishModules();
+	await modulesSave;
+	expect( onboardingValues() ).toEqual( [ false ] );
+} );
+
+test( 'reports a non-manual read of true immediately during a modules_state save', async () => {
+	client.setQueryData( [ 'getting_started' ], false );
+	onOnboardingChange.mockClear();
+	let finishModules: () => void = () => undefined;
+	const modulesSave = new MutationObserver( client, {
+		mutationFn: () => new Promise< void >( resolve => ( finishModules = resolve ) ),
+		onMutate: () => client.setQueryData( [ 'modules_state' ], {} ),
+	} ).mutate();
+	await Promise.resolve();
+
+	await client.fetchQuery( { queryKey: [ 'getting_started' ], queryFn: async () => true } );
+
+	expect( client.isMutating() ).toBe( 1 );
+	expect( onboardingValues() ).toEqual( [ true ] );
+	finishModules();
+	await modulesSave;
 	expect( onboardingValues() ).toEqual( [ true ] );
 } );

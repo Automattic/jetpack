@@ -259,6 +259,7 @@ describe( 'Boost dashboard stage', () => {
 			[];
 		const save = () =>
 			new MutationObserver< boolean, Error, boolean >( legacy, {
+				meta: { dataSyncKey: 'getting_started' },
 				mutationFn: () =>
 					new Promise< boolean >( ( resolve, reject ) => saves.push( { resolve, reject } ) ),
 				onMutate: () => legacy.setQueryData( [ 'getting_started' ], false ),

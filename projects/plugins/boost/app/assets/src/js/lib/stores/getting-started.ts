@@ -5,7 +5,8 @@ export const useGettingStarted = () => {
 	const [ { data }, { mutateAsync } ] = useDataSync(
 		'jetpack_boost_ds',
 		'getting_started',
-		z.boolean()
+		z.boolean(),
+		{ mutation: { meta: { dataSyncKey: 'getting_started' } } }
 	);
 
 	return {

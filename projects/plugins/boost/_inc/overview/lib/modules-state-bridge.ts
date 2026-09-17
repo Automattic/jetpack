@@ -8,6 +8,10 @@ export const relayedQueryKeys = [ 'modules_state', 'critical_css_state', 'lcp_st
 // Register in the legacy bundle, whose Data Sync cache is separate from the route bundle's cache.
 export function observeLegacyModulesState( client: QueryClient ) {
 	let onboardingHeld = false;
+	const isOnboardingSaving = () =>
+		client.isMutating( {
+			predicate: mutation => mutation.options.meta?.dataSyncKey === 'getting_started',
+		} ) > 0;
 	const emitOnboarding = () => {
 		onboardingHeld = false;
 		window.dispatchEvent(
@@ -24,7 +28,7 @@ export function observeLegacyModulesState( client: QueryClient ) {
 			event.query.queryKey[ 0 ] === 'getting_started'
 		) {
 			// Data Sync writes its optimistic value, and any revert, before the save settles.
-			if ( client.isMutating() > 0 ) {
+			if ( isOnboardingSaving() ) {
 				onboardingHeld = true;
 			} else {
 				emitOnboarding();
@@ -42,7 +46,7 @@ export function observeLegacyModulesState( client: QueryClient ) {
 		}
 	} );
 	const stopMutations = client.getMutationCache().subscribe( event => {
-		if ( onboardingHeld && event.type === 'updated' && client.isMutating() === 0 ) {
+		if ( onboardingHeld && event.type === 'updated' && ! isOnboardingSaving() ) {
 			emitOnboarding();
 		}
 	} );
