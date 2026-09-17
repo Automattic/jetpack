@@ -136,8 +136,7 @@ export const Empty: Story = {
 };
 
 interface WordAdsHighlightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		WordAdsHighlightsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, WordAdsHighlightsStoryControls {}
 
 function WordAdsHighlightsDashboardStory( {
 	metrics,

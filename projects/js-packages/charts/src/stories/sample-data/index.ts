@@ -1036,6 +1036,30 @@ export const heatmapActivityMatrix: HeatmapColumn[] = Array.from(
 );
 
 /**
+ * Activity matrix with a trailing summary column (13 columns × 7 rows)
+ *
+ * The activity matrix plus a `Total` column flagged `summary`, holding each
+ * row's sum: outside the colour scale, unfilled, emphasised.
+ * - Category: matrix
+ * - Data points: 91
+ * - Suitable for: HeatmapChart (summary column)
+ */
+export const heatmapActivityMatrixWithTotals: HeatmapColumn[] = [
+	...heatmapActivityMatrix,
+	{
+		label: 'Total',
+		summary: true,
+		data: Array.from( { length: 7 }, ( _row, row ) => ( {
+			label: `Total, Row ${ row + 1 }`,
+			value: heatmapActivityMatrix.reduce(
+				( sum, column ) => sum + ( column.data[ row ].value ?? 0 ),
+				0
+			),
+		} ) ),
+	},
+];
+
+/**
  * Large-value matrix for the heatmap chart (12 columns × 7 rows)
  *
  * Same shape as the activity matrix but with values up to ~1,000,000, to exercise
@@ -1089,4 +1113,22 @@ export const heatmapPartialMonthCalendarSeries: DataPointDate[] = Array.from(
 		date: new Date( 2023, 5, 28 + index ),
 		value: Math.round( Math.abs( Math.sin( index ) ) * 4 ),
 	} )
+);
+
+export const HEATMAP_POSTS_RANGE = { start: '2025-10-01', end: '2026-09-14' };
+
+/**
+ * Posts per day over the twelve months to 2026-09-14, sparse like `stats/streak`.
+ *
+ * - Category: day-keyed map
+ * - Data points: ~140 days with posts, 1 to 4 each
+ * - Suitable for: HeatmapChart (month calendar layout)
+ */
+export const heatmapPostsByDay: Record< string, number > = Object.fromEntries(
+	Array.from( { length: 349 }, ( _, index ) => {
+		const day = new Date( Date.UTC( 2025, 9, 1 + index ) );
+		const wave = Math.abs( Math.sin( index * 1.7 ) );
+		const posts = wave > 0.8 ? Math.ceil( ( wave - 0.8 ) * 20 ) : 0;
+		return [ day.toISOString().slice( 0, 10 ), posts ];
+	} ).filter( ( [ , posts ] ) => Number( posts ) > 0 )
 );

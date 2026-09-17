@@ -13,8 +13,16 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs'          => array( 'wpcom' ),
-		'parse_file_list' => array(
+		'+stubs'             => array( 'wpcom' ),
+		// CI analyses an unbuilt checkout, so the generated wp-build PHP is absent
+		// there. Exclude it locally too, or its `function_exists()` guards read as
+		// unused suppressions on a built checkout only. The render-page stub declares
+		// one of those same symbols and would do likewise.
+		'exclude_file_regex' => array(
+			'build/',
+			'tests/php/stubs/wp-build-render-page\.php',
+		),
+		'parse_file_list'    => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
 			//

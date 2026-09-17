@@ -1,3 +1,4 @@
+import { TZDate } from '@date-fns/tz';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
@@ -8,13 +9,13 @@ const presets: ComparisonDateRangePreset[] = [
 		id: 'previous-period',
 		label: 'Previous period',
 		shortLabel: 'Prev. period',
-		range: { from: new Date( '2026-06-01' ), to: new Date( '2026-06-30' ) },
+		range: { from: new TZDate( '2026-06-01', 'UTC' ), to: new TZDate( '2026-06-30', 'UTC' ) },
 	},
 	{
 		id: 'previous-month',
 		label: 'Previous month',
 		shortLabel: 'Prev. month',
-		range: { from: new Date( '2026-05-01' ), to: new Date( '2026-05-31' ) },
+		range: { from: new TZDate( '2026-05-01', 'UTC' ), to: new TZDate( '2026-05-31', 'UTC' ) },
 	},
 ];
 
@@ -143,5 +144,27 @@ describe( 'DateComparisonDropdown', () => {
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) );
 
 		expect( onClear ).toHaveBeenCalled();
+	} );
+
+	it( 'greys the trigger out while disabled and keeps the menu shut', async () => {
+		const onPresetChange = jest.fn();
+		const user = userEvent.setup();
+
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled={ false }
+				disabled
+				onPresetChange={ onPresetChange }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		const trigger = screen.getByRole( 'button', { name: 'Compare' } );
+		expect( trigger ).toHaveAttribute( 'aria-disabled', 'true' );
+
+		await user.click( trigger );
+		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
+		expect( onPresetChange ).not.toHaveBeenCalled();
 	} );
 } );

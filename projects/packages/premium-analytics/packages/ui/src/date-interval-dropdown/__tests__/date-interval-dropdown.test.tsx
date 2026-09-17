@@ -60,4 +60,28 @@ describe( 'DateIntervalDropdown', () => {
 
 		expect( screen.getByRole( 'button', { name: 'Chart interval' } ) ).toBeVisible();
 	} );
+
+	it( 'greys the trigger out while disabled and keeps the menu shut', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<DateIntervalDropdown
+				options={ [ 'day', 'week' ] }
+				value="day"
+				disabled
+				onChange={ jest.fn() }
+			/>
+		);
+
+		const trigger = screen.getByRole( 'button', { name: 'Chart interval: By days' } );
+		expect( trigger ).toHaveAttribute( 'aria-disabled', 'true' );
+
+		await user.click( trigger );
+		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
+
+		// The Button drops clicks but not keys, so the arrow shortcut is shut apart.
+		trigger.focus();
+		await user.keyboard( '{ArrowDown}' );
+		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
+	} );
 } );

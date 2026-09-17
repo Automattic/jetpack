@@ -53,6 +53,13 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	min-height: 0;
 }
 
+// Grouped compact grids fill the container so the flexible gap tracks can share
+// the leftover width, and never shrink below the cells plus the minimum gaps.
+.heatmap-chart__grid--flex-gaps {
+	width: 100%;
+	min-width: max-content;
+}
+
 // A cell-height cap makes the row tracks content-bound, so the grid must not
 // stretch: leftover container height would otherwise be absorbed by the auto
 // label row. A width-only cap does not change vertical flex sizing.
@@ -70,6 +77,8 @@ $focus-ring-width: var(--wpds-border-width-focus);
 .heatmap-chart__row-label {
 	color: var(--a8c-charts-color-label-secondary);
 	font-size: var(--wpds-typography-font-size-xs);
+	// Pinned so the label height does not follow the host's line-height.
+	line-height: var(--wpds-typography-line-height-xs);
 	white-space: nowrap;
 	overflow: visible;
 }
@@ -77,6 +86,16 @@ $focus-ring-width: var(--wpds-border-width-focus);
 .heatmap-chart__col-label {
 	align-self: end;
 	text-align: left;
+}
+
+// Beneath its columns, set off from the last row by more than the cell gap.
+.heatmap-chart__group-label {
+	color: var(--a8c-charts-color-label-secondary);
+	font-size: var(--wpds-typography-font-size-xs);
+	line-height: var(--wpds-typography-line-height-xs);
+	white-space: nowrap;
+	text-align: center;
+	padding-block-start: var(--wpds-dimension-padding-xs);
 }
 
 .heatmap-chart__row-label {
@@ -113,10 +132,41 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	background: color-mix(in sRGB, var(--a8c-charts-color-track) 45%, transparent);
 }
 
+// A roll-up beside the grid, on another scale from it: no fill, its figure
+// always printed and emphasised.
+.heatmap-chart__cell--summary {
+	background: none;
+}
+
+.heatmap-chart__col-label--summary {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.heatmap-chart__cell--summary .heatmap-chart__cell-value {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+// Compact rows are `compactCellSize` tall, so the figure shrinks to fit them.
+.heatmap-chart__grid--compact .heatmap-chart__cell--summary .heatmap-chart__cell-value {
+	font-size: var(--wpds-typography-font-size-xs);
+	line-height: 1;
+}
+
+// Deliberately on top of the grid gap: one extra gap sets a summary column
+// apart from the data beside it, on cells and label alike, and the auto track
+// grows by the same amount.
+.heatmap-chart__gap-start {
+	margin-inline-start: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs));
+}
+
+.heatmap-chart__gap-end {
+	margin-inline-end: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs));
+}
+
 // Floor the mix at 15% so the lowest value stays visibly tinted, distinct from
 // an empty cell.
 .heatmap-chart__cell--filled {
-	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-heatmap-background, #fff));
+	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-background, #fff));
 }
 
 .heatmap-chart__cell--selected {
@@ -137,9 +187,13 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	color: var(--a8c-charts-color-label-inverse);
 }
 
+.heatmap-chart__legend-label {
+	color: var(--a8c-charts-color-label);
+}
+
 .heatmap-chart__legend-swatch {
 	width: var(--wpds-dimension-size-3xs);
 	height: var(--wpds-dimension-size-3xs);
 	border-radius: var(--a8c-charts-border-radius-cell);
-	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-heatmap-background, #fff));
+	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-background, #fff));
 }

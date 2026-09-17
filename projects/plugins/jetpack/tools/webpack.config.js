@@ -2,6 +2,7 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const { glob } = require( 'glob' );
+const webpack = require( 'webpack' );
 const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
 
 const sharedWebpackConfig = {
@@ -153,6 +154,64 @@ module.exports = [
 			...jetpackWebpackConfig.DependencyExtractionPlugin(),
 		],
 	},
+	/*
+	 * The newsletter email design editor, on its own entry: `@woocommerce/email-editor`
+	 * is large and only ever needed on the one admin screen that mounts it.
+	 */
+	{
+		...sharedWebpackConfig,
+		entry: {
+			// The package's `exports` map publishes only its main entry, so the stylesheet
+			// cannot be imported by subpath. Pairing it here keeps it in the CSS pipeline
+			// and gets an RTL build.
+			'email-design-editor': [
+				'./modules/subscriptions/email-design-editor/src/index.jsx',
+				path.join(
+					path.dirname( require.resolve( '@woocommerce/email-editor' ) ),
+					'../build-style/style.css'
+				),
+			],
+		},
+		plugins: [
+			...sharedWebpackConfig.plugins,
+
+			// Some of the package's strings ship with the textdomain left as a
+			// `__i18n_text_domain__` placeholder. Unreplaced it is a free variable, so those
+			// strings throw a ReferenceError when their component renders.
+			new webpack.DefinePlugin( {
+				__i18n_text_domain__: JSON.stringify( 'jetpack' ),
+			} ),
+			...jetpackWebpackConfig.DependencyExtractionPlugin( {
+				requestMap: {
+					// Not a WP script handle (ships no `wpScript`), so there's nothing to
+					// externalize to. Belongs in the dep-extraction plugin's
+					// `BUNDLED_PACKAGES` but isn't there as of 6.54.0, so opt it out here.
+					'@wordpress/global-styles-engine': { external: false },
+				},
+			} ),
+		],
+		module: {
+			...sharedWebpackConfig.module,
+			rules: [
+				...sharedWebpackConfig.module.rules,
+
+				// The package's strings are authored against the `woocommerce` textdomain,
+				// which no Jetpack site loads, so without this the editor renders untranslated.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@woocommerce/email-editor/' ],
+					babelOpts: {
+						configFile: false,
+						plugins: [
+							[
+								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+								{ textdomain: 'jetpack' },
+							],
+						],
+					},
+				} ),
+			],
+		},
+	},
 	// Build admin page JS.
 	{
 		...sharedWebpackConfig,
@@ -172,41 +231,7 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				// Match the AI admin build: @wordpress/ui (pulled in via the licensing
-				// activation screen) drags in @wordpress/theme and @wordpress/private-apis.
-				// They are not registered as WP script handles on the main Jetpack admin
-				// path (WP < 7.0 has no core wp-theme, and this page does not load the
-				// wp-build-polyfills shim), so bundle them instead of externalizing to
-				// avoid the whole dashboard script failing to enqueue.
-				requestMap: {
-					'@wordpress/theme': { external: false },
-					'@wordpress/private-apis': { external: false },
-				},
-			} ),
-		],
-		externals: {
-			...sharedWebpackConfig.externals,
-			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack',
-			} ),
-		},
-	},
-	// Build AI admin page JS.
-	{
-		...sharedWebpackConfig,
-		entry: {
-			'jetpack-ai-admin': path.join( __dirname, '../_inc/client', 'ai-admin.jsx' ),
-		},
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				// @wordpress/ui pulls in @wordpress/theme, which is not a reliable WP script
-				// handle in all contexts, so bundle it instead of externalizing it. Keep
-				// @wordpress/private-apis external so bundled DataViews can unlock private APIs
-				// exposed by external WordPress packages such as @wordpress/components.
-				requestMap: {
-					'@wordpress/theme': { external: false },
-				},
+				bundleWpUiDeps: true,
 			} ),
 		],
 		externals: {

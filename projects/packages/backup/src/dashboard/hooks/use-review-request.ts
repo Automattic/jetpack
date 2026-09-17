@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from '@wordpress/element';
-import { fetchRecentRestores } from '../data/api/restore';
+import { parseRestoreWhen } from '../data/api/restore';
 import {
 	dismissReviewRequest,
 	fetchReviewDismissed,
@@ -10,6 +10,7 @@ import { keys } from '../data/query-client';
 import { isUsableBackup, useBackups } from './use-backups';
 import { useCapabilities } from './use-capabilities';
 import { useCanQueryWpcom } from './use-connection';
+import { useRecentRestores } from './use-recent-restores';
 import type { RecentRestore } from '../data/api/restore';
 import type { Backup } from '../types/backup';
 
@@ -43,8 +44,8 @@ export function hasRecentSuccessfulRestore(
 		return false;
 	}
 
-	const when = Date.parse( newest.when );
-	if ( Number.isNaN( when ) ) {
+	const when = parseRestoreWhen( newest.when );
+	if ( when === null ) {
 		return false;
 	}
 
@@ -138,11 +139,7 @@ export function useReviewRequest(): Result {
 	const { data: capabilities } = useCapabilities( { enabled: canQueryWpcom } );
 	const gateOpen = capabilities?.local?.isStandalonePluginActive === true;
 
-	const restores = useQuery( {
-		queryKey: keys.recentRestores(),
-		queryFn: fetchRecentRestores,
-		enabled: gateOpen,
-	} );
+	const restores = useRecentRestores( gateOpen );
 
 	// Already on screen: the Overview screen reads the same query, so this
 	// subscribes to a resolved cache entry rather than issuing a request.

@@ -2,6 +2,7 @@ import { RangeControl, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Dialog } from '@wordpress/ui';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
+import FetchErrorNotice from '../fetch-error-notice';
 
 // Exported for unit testing.
 export const END_GUARD_SECONDS = 0.05;
@@ -124,8 +125,11 @@ function FrameScrubber( { src, onChange }: FrameScrubberProps ): ReactElement {
 }
 
 type Props = {
-	src: string;
+	src?: string;
 	isOpen: boolean;
+	isLoading: boolean;
+	hasError: boolean;
+	onRetry: () => void;
 	onClose: () => void;
 	onConfirm: ( atTimeMs: number ) => void;
 };
@@ -138,6 +142,9 @@ type Props = {
  * @param props           - Component props.
  * @param props.src       - Source URL of the video to scrub.
  * @param props.isOpen    - Whether the dialog is open.
+ * @param props.isLoading - Whether the source URL is still loading.
+ * @param props.hasError  - Whether the source URL could not be loaded.
+ * @param props.onRetry   - Called to retry loading the source URL.
  * @param props.onClose   - Called when the user dismisses the dialog without confirming.
  * @param props.onConfirm - Called with the selected timestamp in milliseconds when the user confirms.
  * @return The dialog element.
@@ -145,16 +152,19 @@ type Props = {
 export default function SelectFrameDialog( {
 	src,
 	isOpen,
+	isLoading,
+	hasError,
+	onRetry,
 	onClose,
 	onConfirm,
 }: Props ): ReactElement {
 	const [ selectedMs, setSelectedMs ] = useState< number | null >( null );
 
 	useEffect( () => {
-		if ( ! isOpen ) {
-			setSelectedMs( null );
-		}
-	}, [ isOpen ] );
+		setSelectedMs( null );
+	}, [ isOpen, src ] );
+
+	const canConfirm = Boolean( src ) && ! isLoading && ! hasError && selectedMs != null;
 
 	return (
 		<Dialog.Root
@@ -173,7 +183,16 @@ export default function SelectFrameDialog( {
 					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
 				<Dialog.Content>
-					{ isOpen && <FrameScrubber src={ src } onChange={ setSelectedMs } /> }
+					{ isOpen && isLoading && <Spinner /> }
+					{ isOpen && hasError && (
+						<FetchErrorNotice
+							message={ __( "We couldn't load this video.", 'jetpack-videopress-pkg' ) }
+							onRetry={ onRetry }
+						/>
+					) }
+					{ isOpen && ! isLoading && ! hasError && src && (
+						<FrameScrubber key={ src } src={ src } onChange={ setSelectedMs } />
+					) }
 				</Dialog.Content>
 				<Dialog.Footer>
 					<Dialog.Action render={ <Button variant="outline" /> }>
@@ -181,9 +200,9 @@ export default function SelectFrameDialog( {
 					</Dialog.Action>
 					<Button
 						variant="solid"
-						disabled={ selectedMs == null }
+						disabled={ ! canConfirm }
 						onClick={ () => {
-							if ( selectedMs != null ) {
+							if ( canConfirm && selectedMs != null ) {
 								onConfirm( selectedMs );
 							}
 						} }

@@ -51,7 +51,6 @@ class DashProtect extends Component {
 						label={ labelName }
 						module="protect"
 						support={ support }
-						status="is-working"
 						className="jp-dash-item__recently-activated"
 					>
 						<div className="jp-dash-item__recently-activated-lower">
@@ -68,7 +67,7 @@ class DashProtect extends Component {
 			}
 
 			return (
-				<DashItem label={ labelName } module="protect" support={ support } status="is-working">
+				<DashItem label={ labelName } module="protect" support={ support }>
 					<h2 className="jp-dash-item__count">{ formatNumber( protectCount ) }</h2>
 					<p className="jp-dash-item__description">
 						{ __( 'Total malicious attacks blocked on your site.', 'jetpack' ) }

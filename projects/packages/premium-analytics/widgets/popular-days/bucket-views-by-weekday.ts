@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { getDatePart } from '@jetpack-premium-analytics/datetime';
+import { getDatePart, parseExactLabel } from '@jetpack-premium-analytics/datetime';
 import { formatMondayFirstWeekday } from '@jetpack-premium-analytics/formatters';
-import { format, getDay, isValid, parse } from 'date-fns';
+import { getDay } from 'date-fns';
 
 export type PopularDayBucket = {
 	/** 0 = Monday … 6 = Sunday, matching the package's `weekStartsOn: 1` convention. */
@@ -17,9 +17,6 @@ export type PopularDayBucket = {
 
 const DATE_PART_FORMAT = 'yyyy-MM-dd';
 
-// Only consulted for fields the parsed string omits, and ours omits none.
-const referenceDate = new Date( 2001, 0, 1 );
-
 function weekdayLabel( weekday: number ) {
 	return formatMondayFirstWeekday( weekday );
 }
@@ -30,13 +27,7 @@ function weekdayLabel( weekday: number ) {
 function readRowDate( row: Record< string, unknown > ) {
 	const datePart = getDatePart( row.date_start ?? row.time_interval ?? row.period );
 
-	if ( ! datePart ) {
-		return undefined;
-	}
-
-	const parsed = parse( datePart, DATE_PART_FORMAT, referenceDate );
-
-	return isValid( parsed ) && format( parsed, DATE_PART_FORMAT ) === datePart ? parsed : undefined;
+	return datePart ? parseExactLabel( datePart, DATE_PART_FORMAT ) : null;
 }
 
 function readRowViews( row: Record< string, unknown > ) {

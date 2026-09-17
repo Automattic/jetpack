@@ -119,7 +119,10 @@ Five shapes exceed the budget however well they explain themselves:
 - **Provenance that rots** — upstream file-and-line citations, "before this PR…", benchmark
   numbers, mutation-testing counts. A stable link survives; a line number does not.
 - **The same explanation in more than one place.** Put it in the file that owns the thing,
-  nowhere else. N copies drift independently, so a reader cannot tell which is current.
+  nowhere else. N copies drift independently, so a reader cannot tell which is current. This is
+  the one rule here you cannot check from the file you are typing in: before writing a rationale,
+  grep a distinctive phrase from it. If one already exists, don't add the second — improve the
+  first where it lives.
 
 Keep every functional annotation regardless: `@param`, `@return`, `@covers`, `translators:`,
 `phpcs:ignore`, `eslint-disable`, `@ts-expect-error`. Those are required tooling or load-bearing
@@ -343,10 +346,13 @@ Before introducing new dependencies:
 - Check for reusable components, utilities, or hooks in shared packages
 - Review existing WordPress core and Jetpack APIs
 - Prioritize internal packages and APIs over external dependencies
+- When plugin PHP code calls a newly added shared-package method, guard it with `method_exists()` and preserve a backward-compatible fallback.
+- Another plugin may load an older class before all Jetpack autoloaders register, or through a different or higher-priority autoloader.
 
 ## Common Pitfalls
 
 - **Do NOT edit WordPress core files** — all changes must be in plugins/packages
+- **WordPress.com uses a partial Jetpack bootstrap** — it can load selected Jetpack files, including defusioned JSON API endpoints, without running `load-jetpack.php`. Code used by those endpoints must explicitly load non-autoloaded dependencies and tolerate host-defined global functions. Test the WordPress.com bootstrap path separately when changing those dependencies.
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 - **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
 

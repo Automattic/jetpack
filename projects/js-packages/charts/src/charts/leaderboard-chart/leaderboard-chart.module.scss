@@ -97,6 +97,18 @@
 	font-variant-numeric: tabular-nums;
 	min-width: 3ch;
 	text-align: end;
+
+	&--down {
+		color: var(--a8c-charts-color-trend-down);
+	}
+
+	&--neutral {
+		color: var(--a8c-charts-color-trend-neutral);
+	}
+
+	&--up {
+		color: var(--a8c-charts-color-trend-up);
+	}
 }
 
 .deltaPlaceholder {

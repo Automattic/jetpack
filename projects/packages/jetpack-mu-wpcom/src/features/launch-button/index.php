@@ -172,6 +172,7 @@ function wpcom_enqueue_launch_button_assets() {
 			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),
+			'isTrial'         => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'trial' ),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);

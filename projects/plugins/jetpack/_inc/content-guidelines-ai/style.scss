@@ -15,108 +15,11 @@ $cg-diff-removed: #f8d7da;
 	height: 18px;
 }
 
-// Empty state banner.
-// isolation keeps the z-indexes inside the banner from competing with the
-// route's sticky page header (also z-index: 1, earlier in the DOM) — without
-// it the banner text paints over the header when scrolled underneath.
+// Welcome banner: page-specific layout on top of the shared AiBanner
+// shell (which carries the dark background, orbs, and typography).
 .jetpack-content-guidelines-ai__banner {
-	position: relative;
-	isolation: isolate;
-	background: #003010;
-	border-radius: 8px;
-	padding: 32px;
-	overflow: hidden;
-	min-height: 220px;
-	display: flex;
-	align-items: flex-start;
-	width: min(680px, 100%);
-	box-sizing: border-box;
+	inline-size: min(680px, 100%);
 	margin: 0 auto 24px;
-}
-
-.jetpack-content-guidelines-ai__banner-content {
-	position: relative;
-	z-index: 1;
-	// Forces the text onto its own compositor layer. Without this, Chromium
-	// lets the glyphs escape the wp-admin scroll container's rounded clip and
-	// draw over the sticky header / admin bar when the banner straddles the
-	// scrollport's top edge.
-	transform: translateZ(0);
-	display: flex;
-	flex-direction: column;
-	max-width: 520px;
-
-	h2 {
-		color: #daffdc;
-		font-size: 32px;
-		line-height: 40px;
-		font-weight: 500;
-		margin: 0 0 12px;
-	}
-
-	p {
-		color: #daffdc;
-		font-size: 13px;
-		line-height: 20px;
-		margin: 0 0 64px;
-	}
-}
-
-.jetpack-content-guidelines-ai__banner-actions {
-	display: flex;
-	gap: 8px;
-}
-
-.jetpack-content-guidelines-ai__banner-cta {
-	background-color: #48ff50 !important;
-	color: #003010 !important;
-	border-color: #48ff50 !important;
-
-	&:hover {
-		background-color: #3de046 !important;
-		border-color: #3de046 !important;
-	}
-}
-
-.jetpack-content-guidelines-ai__banner-close-text {
-	color: #48ff50 !important;
-
-	&:hover {
-		color: #3de046 !important;
-	}
-}
-
-.jetpack-content-guidelines-ai__banner-close {
-	position: absolute;
-	inset-block-start: 8px;
-	inset-inline-end: 8px;
-	z-index: 1;
-	color: #fff !important;
-
-	&:hover {
-		color: #daffdc !important;
-	}
-}
-
-.jetpack-content-guidelines-ai__banner-orb {
-	position: absolute;
-	border-radius: 50%;
-	pointer-events: none;
-	width: 180px;
-	height: 180px;
-	background: linear-gradient(to right, #04c, #48ff50);
-	// Shared by both orbs so the top glow and the bottom sphere line up
-	// on the same vertical axis.
-	inset-inline-end: 56px;
-
-	&--top {
-		inset-block-start: -96px;
-		filter: blur(25px);
-	}
-
-	&--bottom {
-		inset-block-end: -96px;
-	}
 }
 
 // Badge in accordion headers.

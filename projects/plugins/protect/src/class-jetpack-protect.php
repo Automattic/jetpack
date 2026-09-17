@@ -174,7 +174,11 @@ class Jetpack_Protect {
 			'manage_options',
 			'jetpack-protect',
 			array( $this, 'plugin_settings_page' ),
-			5
+			null,
+			array(
+				'product' => 'protect',
+				'key'     => 'jetpack-protect',
+			)
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );

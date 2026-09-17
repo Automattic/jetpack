@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__ . '/../../../../modules/widgets/milestone.php';
 
@@ -184,6 +185,73 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 			}
 		}
 		$this->assertEquals( $data, $tested_data );
+	}
+
+	/**
+	 * Test verification service validation.
+	 *
+	 * @dataProvider verification_service_provider
+	 *
+	 * @param string $value    Verification value.
+	 * @param bool   $expected Expected validation result.
+	 */
+	#[DataProvider( 'verification_service_provider' )]
+	public function test_validate_verification_service( $value, $expected ) {
+		$this->load_rest_endpoints_direct();
+		$validation_actions = 0;
+		$action_callback    = static function () use ( &$validation_actions ) {
+			++$validation_actions;
+		};
+		add_action( 'jetpack_site_verification_validate', $action_callback );
+
+		$result = Jetpack_Core_Json_Api_Endpoints::validate_verification_service( $value, new WP_REST_Request(), 'google' );
+		remove_action( 'jetpack_site_verification_validate', $action_callback );
+
+		if ( $expected ) {
+			$this->assertTrue( $result );
+		} else {
+			$this->assertWPError( $result );
+		}
+		$this->assertSame( 0, $validation_actions );
+	}
+
+	/**
+	 * Provide safe and unsafe verification values.
+	 *
+	 * @return array
+	 */
+	public static function verification_service_provider() {
+		return array(
+			'printable punctuation' => array( 'verification.Code_123-+/=:@~', true ),
+			'google meta tag'       => array( '<meta name="google-site-verification" content="+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34=" />', true ),
+			'angle bracket'         => array( 'unsafe<script', false ),
+			'quote'                 => array( 'unsafe"attribute', false ),
+			'whitespace'            => array( "unsafe\nvalue", false ),
+		);
+	}
+
+	/**
+	 * Updating a verification code normalizes and stores it through the complete REST path.
+	 */
+	public function test_update_verification_service_stores_normalized_code() {
+		$this->load_rest_endpoints_direct();
+		require_once JETPACK__PLUGIN_DIR . 'modules/verification-tools/blog-verification-tools.php';
+		jetpack_verification_options_init();
+
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_configure_modules' );
+		wp_set_current_user( $user->ID );
+		Jetpack::update_active_modules( array( 'verification-tools' ) );
+
+		$response = $this->create_and_get_request(
+			'module/verification-tools',
+			array( 'google' => '+token.value/with=safe:@~characters' ),
+			'POST'
+		);
+
+		$this->assertResponseStatus( 200, $response );
+		$stored_codes = get_option( 'verification_services_codes' );
+		$this->assertSame( '+token.value/with=safe:@~characters', $stored_codes['google'] );
 	}
 
 	/**
@@ -722,6 +790,63 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 
 		$response = $this->create_and_get_request( 'settings', array(), 'POST', array( 'show' => array( 'post', 'page' ) ) );
 		$this->assertResponseStatus( 200, $response );
+	}
+
+	/**
+	 * The Stats role settings reject values that are not a list of role slugs.
+	 *
+	 * A POST to /module/all is served by the /module/(?P<slug>[a-z\-]+) handler, whose args cover
+	 * every updateable setting, so both Stats role options are validated on that request. No user
+	 * is set because argument validation does not depend on the current user.
+	 *
+	 * @dataProvider provider_invalid_stats_roles
+	 *
+	 * @param string $param Name of the Stats role parameter.
+	 * @param mixed  $value Value to submit for that parameter.
+	 */
+	#[DataProvider( 'provider_invalid_stats_roles' )]
+	public function test_stats_roles_reject_values_that_are_not_a_list_of_roles( $param, $value ) {
+		wp_set_current_user( 0 );
+
+		$response = $this->create_and_get_request( 'module/all', array( $param => $value ), 'POST' );
+		$this->assertResponseStatus( 400, $response );
+
+		// Also reachable with a POST body that is not JSON encoded.
+		$response = $this->create_and_get_request( 'module/all', array(), 'POST', array( $param => $value ) );
+		$this->assertResponseStatus( 400, $response );
+	}
+
+	/**
+	 * Values the Stats role settings must refuse.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_invalid_stats_roles() {
+		return array(
+			'string roles'            => array( 'roles', 'http://example.com/x.png' ),
+			'string count_roles'      => array( 'count_roles', 'administrator' ),
+			'integer roles'           => array( 'roles', 42 ),
+			'nested array in roles'   => array( 'roles', array( array( 'administrator' ) ) ),
+			'non-string item in list' => array( 'roles', array( 'administrator', 42 ) ),
+		);
+	}
+
+	/**
+	 * The Stats role validator still accepts what it accepted before the type guard.
+	 */
+	public function test_stats_roles_accept_a_list_of_roles() {
+		$this->load_rest_endpoints_direct();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/settings' );
+
+		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::validate_stats_roles( array( 'administrator', 'editor' ), $request, 'roles' ) );
+
+		// An empty value is allowed; sanitize_stats_allowed_roles() turns it into 'administrator'.
+		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::validate_stats_roles( array(), $request, 'roles' ) );
+		$this->assertSame( array( 'administrator' ), Jetpack_Core_Json_Api_Endpoints::sanitize_stats_allowed_roles( array() ) );
+
+		// A list holding no editable role is still rejected.
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::validate_stats_roles( array( 'not-a-role' ), $request, 'roles' ) );
 	}
 
 	/**

@@ -5,7 +5,7 @@ import { castToNumber } from '$lib/utils/cast-to-number';
 import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
-import { standardizeError } from '$lib/utils/standardize-error';
+import { standardizeError } from '@automattic/jetpack-boost-score-api';
 
 type Viewport = {
 	width: number;

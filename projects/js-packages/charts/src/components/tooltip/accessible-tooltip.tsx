@@ -1,7 +1,7 @@
 import { TooltipContext } from '@visx/xychart';
 import clsx from 'clsx';
 import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useGlobalChartsTheme } from '../../providers';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useChartScopeElement, useStandaloneScopeClass } from '../../providers/chart-scope';
 import { resolveCssVariable } from '../../utils';
 import { XyChartTooltip } from './xy-chart-tooltip';
@@ -18,8 +18,10 @@ export type FlattenedTooltipData = {
 };
 
 // Enhanced tooltip with keyboard navigation and accessibility
-interface AccessibleTooltipProps
-	extends Omit< XyChartTooltipProps< DataPointDate >, 'renderTooltip' > {
+interface AccessibleTooltipProps extends Omit<
+	XyChartTooltipProps< DataPointDate >,
+	'renderTooltip'
+> {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	selectedIndex?: number | undefined;
 	tooltipRef?: ( element: HTMLDivElement | null ) => void;
@@ -54,15 +56,14 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 } ) => {
 	const tooltipContext = useContext( TooltipContext );
 	const scopeElement = useChartScopeElement();
-	const gridStroke = useGlobalChartsTheme().gridStyles?.stroke;
 
 	// The stroke is read at the scope element, which a consumer can set outside the chart's own ancestors; see TOKENS.md#the-svg-bridge.
 	const crosshairStroke = useMemo( () => {
-		const stroke = gridStroke ? resolveCssVariable( gridStroke, scopeElement ) : null;
+		const stroke = resolveCssVariable( CATALOG_POINTERS.grid, scopeElement );
 
 		// Passing `stroke: undefined` would erase the crosshair: it overrides visx's own value, and SVG's initial `stroke` is `none`.
 		return stroke ? { stroke } : undefined;
-	}, [ gridStroke, scopeElement ] );
+	}, [ scopeElement ] );
 
 	const standaloneScopeClass = useStandaloneScopeClass();
 
@@ -201,6 +202,7 @@ interface UseKeyboardNavigationProps {
 	 * keyboard selection the way it treats a click.
 	 */
 	onActivate?: ( index: number ) => void;
+	preventTooltipScroll?: boolean;
 }
 
 export const useKeyboardNavigation = ( {
@@ -211,23 +213,34 @@ export const useKeyboardNavigation = ( {
 	chartRef,
 	totalPoints,
 	onActivate,
+	preventTooltipScroll = false,
 }: UseKeyboardNavigationProps ) => {
 	// Focus the tooltip as soon as it is rendered
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
 			if ( element && selectedIndex !== undefined ) {
-				element.focus();
+				if ( preventTooltipScroll ) {
+					element.focus( { preventScroll: true } );
+				} else {
+					element.focus();
+				}
 			}
 		},
-		[ selectedIndex ]
+		[ preventTooltipScroll, selectedIndex ]
 	);
 
-	// On each focus of chart, reset the selectedIndex to 0, if keyboard navigation is not already active
-	const onChartFocus = useCallback( () => {
-		if ( ! isNavigating && selectedIndex !== undefined ) {
-			setSelectedIndex( 0 );
-		}
-	}, [ isNavigating, selectedIndex, setSelectedIndex ] );
+	// Returning focus from the tooltip must not restore the selection Escape just cleared.
+	const onChartFocus = useCallback(
+		( event: React.FocusEvent< HTMLDivElement > ) => {
+			if ( event.currentTarget.contains( event.relatedTarget ) ) {
+				return;
+			}
+			if ( ! isNavigating && selectedIndex !== undefined ) {
+				setSelectedIndex( 0 );
+			}
+		},
+		[ isNavigating, selectedIndex, setSelectedIndex ]
+	);
 
 	// On each blur of chart, keyboard navigation should restart from first tooltip
 	const onChartBlur = useCallback( () => {
@@ -238,9 +251,17 @@ export const useKeyboardNavigation = ( {
 		( event: React.KeyboardEvent< HTMLDivElement > ) => {
 			if ( totalPoints === 0 ) return;
 
+			const focusChart = () => {
+				if ( preventTooltipScroll ) {
+					chartRef.current?.focus( { preventScroll: true } );
+				} else {
+					chartRef.current?.focus();
+				}
+			};
+
 			// Keep focus on the chart if tab is pressed
 			if ( event.key === 'Tab' ) {
-				chartRef.current?.focus();
+				focusChart();
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
@@ -249,7 +270,7 @@ export const useKeyboardNavigation = ( {
 			const currentSelectedIndex = selectedIndex === undefined ? -1 : selectedIndex;
 
 			if ( currentSelectedIndex + 1 >= totalPoints && [ 'ArrowRight' ].includes( event.key ) ) {
-				chartRef.current?.focus();
+				focusChart();
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				return;
@@ -266,12 +287,20 @@ export const useKeyboardNavigation = ( {
 			} else if ( event.key === 'Escape' ) {
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
-				chartRef.current?.focus();
+				focusChart();
 			} else if ( ( event.key === 'Enter' || event.key === ' ' ) && selectedIndex !== undefined ) {
 				onActivate?.( selectedIndex );
 			}
 		},
-		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef, onActivate ]
+		[
+			totalPoints,
+			selectedIndex,
+			setSelectedIndex,
+			setIsNavigating,
+			chartRef,
+			onActivate,
+			preventTooltipScroll,
+		]
 	);
 
 	return {

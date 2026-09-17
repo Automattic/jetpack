@@ -1,10 +1,10 @@
-// A `?selected=` pointing at a row the activity log no longer holds rendered
-// "Item not found." and nothing else. The id lives in the URL, so a reload
-// returned the reader to the same dead end — the empty state had to offer a
-// way out of it.
+// A `?selected=` the pane cannot resolve rendered "Item not found." and nothing
+// else. The id lives in the URL, so a reload returned the reader to the same
+// dead end — the empty state had to offer a way out of it.
 //
-// That message answered for two other things as well, so the way out is offered
-// only once the log has actually said the row is gone.
+// That message also answered for a log in flight and a log that failed, which get
+// their own states here. It could never answer "the row is gone": only loaded
+// pages are searched, so the way out has to stay recoverable.
 
 const mockApiFetch = jest.fn();
 const mockSearch = jest.fn< Record< string, unknown >, [] >();
@@ -43,30 +43,24 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
+import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-// Testing Library's default `findBy` window is one second, which these stages
-// have exceeded on a loaded runner under coverage.
-const SETTLE = { timeout: 10000 };
-
 const REWIND_ID = '1786644531.100';
 const STALE_ID = '1700000000.999';
+const PAGE_TWO_ID = '1786558131.200';
 
-const NOT_FOUND = 'That item is no longer in the activity log.';
+const NOT_FOUND =
+	"That item isn't on this page of the activity log. It may be on another page, or no longer available.";
+// The claim the pane must not make while pages of the log are still unread.
+const GONE_CLAIM = 'That item is no longer in the activity log.';
 const NO_SELECTION = 'Select an item from the list to see details.';
 const CLEAR = /^Clear selection$/;
 const GROUP_LABEL = 'Backup activity';
 const FAILURE_REASON = 'Service unavailable';
 const LOADING = 'Loading item details…';
 const LOAD_FAILED = "We couldn't load this item.";
-
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 /**
  * One completed backup, in WPCOM's rewindable-activity shape.
@@ -83,6 +77,20 @@ function backupEntry() {
 		actor: { type: 'Application', name: 'Jetpack' },
 		content: { text: '10 plugins, 4 themes' },
 		name: 'rewind__backup_complete_full',
+	};
+}
+
+/**
+ * A completed backup on the log's second page, which the list never requests.
+ *
+ * @return A raw activity entry.
+ */
+function pageTwoEntry() {
+	return {
+		...backupEntry(),
+		activity_id: `act-${ PAGE_TWO_ID }`,
+		rewind_id: PAGE_TWO_ID,
+		summary: 'Backup complete (page 2)',
 	};
 }
 
@@ -125,22 +133,27 @@ function finishedBackup() {
 	};
 }
 
-/** What the activity log does: answer with these rows, never answer, or fail. */
-type ActivityAnswer = ReturnType< typeof backupEntry | typeof postEntry >[] | 'pending' | 'error';
+type ActivityRows = ReturnType< typeof backupEntry | typeof postEntry >[];
+
+/** What the activity log does: answer per page, never answer, or fail. */
+type ActivityAnswer = ActivityRows | ( ( page: number ) => ActivityRows ) | 'pending' | 'error';
 
 /**
  * Point every route the Overview reads at a fixed set of answers.
  *
- * @param options          - Fixture options.
- * @param options.activity - Rows the log returns, or how it fails to return any.
- * @param options.backups  - Raw entries `/jetpack/v4/backups` returns.
+ * @param options            - Fixture options.
+ * @param options.activity   - Rows the log returns, or how it fails to return any.
+ * @param options.backups    - Raw entries `/jetpack/v4/backups` returns.
+ * @param options.totalPages - Pages the log reports holding.
  */
 function mockEndpoints( {
 	activity,
 	backups,
+	totalPages = 1,
 }: {
 	activity: ActivityAnswer;
 	backups: ReturnType< typeof finishedBackup >[];
+	totalPages?: number;
 } ) {
 	mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
 		const path = o?.path ?? '';
@@ -154,10 +167,12 @@ function mockEndpoints( {
 			if ( activity === 'error' ) {
 				return Promise.reject( { code: 'activity_log_fetch_failed', message: FAILURE_REASON } );
 			}
+			const requested = Number( /[?&]page=(\d+)/.exec( path )?.[ 1 ] ?? 1 );
+			const rows = typeof activity === 'function' ? activity( requested ) : activity;
 			return Promise.resolve( {
-				current: { orderedItems: activity },
-				totalItems: activity.length,
-				totalPages: 1,
+				current: { orderedItems: rows },
+				totalItems: rows.length * totalPages,
+				totalPages,
 			} );
 		}
 		if ( path.includes( '/site/backup/size' ) ) {
@@ -174,6 +189,9 @@ function mockEndpoints( {
 }
 
 beforeEach( () => {
+	// Module state, so one test's selection would otherwise seed the next.
+	resetListStateForTesting();
+
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 
@@ -198,30 +216,27 @@ describe( 'A selection the activity log cannot resolve', () => {
 
 		// The message is the positive: without it the button below could be
 		// missing because the pane never reached this branch — or threw.
-		await expect( screen.findByText( NOT_FOUND, undefined, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NOT_FOUND ) ).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: CLEAR } ) ).toBeInTheDocument();
 	} );
 
-	it( 'drops only `selected`, through the router, replacing the entry', async () => {
+	it( 'drops only `selected`, through the router', async () => {
 		render( <OverviewStage /> );
-		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
 
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ] as {
 			search: ( previous: Record< string, unknown > ) => Record< string, unknown >;
-			replace?: boolean;
 		};
 		// `@wordpress/boot` nests the whole router href inside wp-admin's own
 		// `?p=`, so the param can only be dropped by the router itself.
 		expect( typeof options.search ).toBe( 'function' );
 		expect( options.search( { selected: STALE_ID, page: '3' } ) ).toEqual( { page: '3' } );
-		// Otherwise Back returns to the dead end the reader just left.
-		expect( options.replace ).toBe( true );
 	} );
 
 	it( 'leaves the dead end once the router applies it', async () => {
 		const { rerender } = render( <OverviewStage /> );
-		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
 
 		// The updater's own output, not a hand-written `{}` — otherwise this asserts
 		// the fallback rather than the recovery, and passes with `selected` kept.
@@ -232,19 +247,69 @@ describe( 'A selection the activity log cannot resolve', () => {
 		rerender( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'heading', { name: 'Backup complete' }, SETTLE )
+			screen.findByRole( 'heading', { name: 'Backup complete' } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NOT_FOUND ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'hands focus to the two-pane region instead of dropping it', async () => {
+	it( 'hands focus to the two-pane region, so the next Tab is in the list', async () => {
 		render( <OverviewStage /> );
-		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR }, SETTLE ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
 
 		// The region is the positive: focus cannot be verified as "not lost"
 		// without naming where it went.
 		const region = screen.getByRole( 'group', { name: GROUP_LABEL } );
 		await waitFor( () => expect( region ).toHaveFocus() );
+
+		// The claim the comment on `.jpb-overview` makes: Tab lands on the list's own
+		// first control, which is DataViews' cog.
+		await userEvent.tab();
+		expect( screen.getByRole( 'button', { name: 'View options' } ) ).toHaveFocus();
+	} );
+} );
+
+// The list's page is React state seeded from `INITIAL_VIEW`, and only `selected`
+// is in the URL — so every reload of a selection made off page 1 lands here.
+describe( 'A selection on a page nothing has loaded', () => {
+	beforeEach( () => {
+		mockEndpoints( {
+			activity: page => ( page === 2 ? [ pageTwoEntry() ] : [ backupEntry() ] ),
+			backups: [],
+			totalPages: 2,
+		} );
+		mockSearch.mockReturnValue( { selected: PAGE_TWO_ID } );
+	} );
+
+	it( 'does not report the row as gone', async () => {
+		render( <OverviewStage /> );
+
+		// The button is the positive control: it renders in this branch either
+		// way, so a missing claim below cannot be a pane that never rendered.
+		await expect( screen.findByRole( 'button', { name: CLEAR } ) ).resolves.toBeInTheDocument();
+		// Page 1 answering says nothing about page 2, which holds this row and
+		// which nothing has fetched.
+		expect( screen.queryByText( GONE_CLAIM ) ).not.toBeInTheDocument();
+		expect( screen.getByText( NOT_FOUND ) ).toBeInTheDocument();
+	} );
+
+	// The control for the two above: without it they rest on a fixture nothing
+	// checks, and would read the same way if page 2 held no such row.
+	it( 'resolves the row once the list reaches the page holding it', async () => {
+		render( <OverviewStage /> );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Next page' } ) );
+
+		await expect(
+			screen.findByRole( 'heading', { name: 'Backup complete (page 2)' } )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'leaves the cleared selection on the back stack', async () => {
+		render( <OverviewStage /> );
+		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
+
+		// The selection may be perfectly good, so Back has to bring it back.
+		const options = mockNavigate.mock.calls[ 0 ][ 0 ] as { replace?: boolean };
+		expect( options.replace ).not.toBe( true );
 	} );
 } );
 
@@ -254,9 +319,7 @@ describe( 'Choosing a row', () => {
 		mockSearch.mockReturnValue( { page: '3' } );
 
 		render( <OverviewStage /> );
-		await userEvent.click(
-			await screen.findByRole( 'button', { name: 'Post published' }, SETTLE )
-		);
+		await userEvent.click( await screen.findByRole( 'button', { name: /^Post published / } ) );
 
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ] as {
 			search: ( previous: Record< string, unknown > ) => Record< string, unknown >;
@@ -275,17 +338,14 @@ describe( 'No selection yet', () => {
 
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( NO_SELECTION, undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NO_SELECTION ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument();
 	} );
 } );
 
 // The pane reads one nullable item, and null is also the answer while the log
-// is in flight and after it failed. Both of those name a row that is fine, so
-// offering to discard it there throws away a valid selection — and `replace`
-// means Back cannot bring it back.
+// is in flight and after it failed. Neither says anything about the row, so
+// neither is a place to offer to drop it.
 describe( 'A selection the activity log has not answered for', () => {
 	beforeEach( () => {
 		// Valid: this id is in the fixture the first suite resolves from, which is
@@ -300,7 +360,7 @@ describe( 'A selection the activity log has not answered for', () => {
 
 		// The placeholder is the positive: "no button" passes for a pane that
 		// never rendered at all.
-		await expect( screen.findByText( LOADING, undefined, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( LOADING ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NOT_FOUND ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument();
 	} );
@@ -310,9 +370,7 @@ describe( 'A selection the activity log has not answered for', () => {
 
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( LOAD_FAILED, undefined, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( LOAD_FAILED ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NOT_FOUND ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument();
 	} );

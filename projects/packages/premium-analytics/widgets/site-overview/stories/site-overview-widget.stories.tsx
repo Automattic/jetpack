@@ -168,8 +168,7 @@ export const Empty: Story = {
 };
 
 interface SiteOverviewDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SiteOverviewStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SiteOverviewStoryControls {}
 
 /**
  * Renders the data-connected widget through the shared dashboard harness, so it

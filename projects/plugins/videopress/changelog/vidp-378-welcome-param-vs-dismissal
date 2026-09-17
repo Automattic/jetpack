@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Make the welcome=1 review parameter reopen the welcome modal after it has been dismissed.

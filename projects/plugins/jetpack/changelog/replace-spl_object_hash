@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Replace `spl_object_hash` with `spl_object_id` in a test.
+
+

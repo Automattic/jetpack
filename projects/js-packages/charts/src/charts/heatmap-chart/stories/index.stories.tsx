@@ -1,17 +1,22 @@
+import { expect, within } from 'storybook/test';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
 import {
+	HEATMAP_POSTS_RANGE,
 	heatmapActivityMatrix,
+	heatmapActivityMatrixWithTotals,
 	heatmapCalendarSeries,
 	heatmapLargeValueMatrix,
 	heatmapPartialMonthCalendarSeries,
+	heatmapPostsByDay,
 } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
-import { HeatmapChart } from '../index';
-import { buildCalendarHeatmapData } from '../private';
+import { HeatmapChart, useCalendarHeatmapData, useMonthCalendarHeatmapData } from '../index';
+import type { DataPointDate } from '../../../types';
+import type { CalendarHeatmapOptions } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
@@ -19,6 +24,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof HeatmapChart > >;
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts Library/Charts/Heatmap Chart',
 	component: HeatmapChart,
+	subcomponents: { 'HeatmapChart.Legend': HeatmapChart.Legend },
 	parameters: { layout: 'centered' },
 	decorators: [ chartDecorator ],
 	argTypes: {
@@ -72,6 +78,13 @@ export const LargeValues: Story = {
 	},
 };
 
+export const WithSummaryColumn: Story = {
+	args: {
+		...Default.args,
+		data: heatmapActivityMatrixWithTotals,
+	},
+};
+
 export const MaximumCellSize: Story = {
 	args: {
 		...Default.args,
@@ -92,41 +105,64 @@ export const MinimumCellSize: Story = {
 	},
 };
 
-export const Calendar: StoryObj<
-	StoryArgs & { weekStartsOn: 0 | 1; hideOutOfRangeDays: boolean }
-> = {
-	render: ( { weekStartsOn, hideOutOfRangeDays, ...args } ) => {
-		// A mid-week span (Wed to Wed) so both calendar edges are ragged.
-		const { data, rowLabels } = buildCalendarHeatmapData( heatmapCalendarSeries.slice( 2, 115 ), {
-			weekStartsOn,
-			hideOutOfRangeDays,
-		} );
-		return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
+type CalendarStoryArgs = StoryArgs & CalendarHeatmapOptions;
+
+const CalendarGrid = ( {
+	series,
+	weekStartsOn,
+	hideOutOfRangeDays,
+	locale,
+	timeZone,
+	...args
+}: CalendarStoryArgs & { series: DataPointDate[] } ) => {
+	const { data, rowLabels } = useCalendarHeatmapData( series, {
+		weekStartsOn,
+		hideOutOfRangeDays,
+		locale: locale || undefined,
+		timeZone: timeZone || undefined,
+	} );
+	return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
+};
+
+const calendarArgTypes = {
+	weekStartsOn: {
+		control: { type: 'inline-radio' as const, labels: { 0: 'Sunday', 1: 'Monday' } },
+		options: [ 1, 0 ],
+		table: { category: 'Calendar' },
 	},
+	hideOutOfRangeDays: { control: 'boolean' as const, table: { category: 'Calendar' } },
+	locale: {
+		control: 'text' as const,
+		description: "BCP-47 tag for the labels. Empty falls back to the provider, then the runtime's.",
+		table: { category: 'Calendar' },
+	},
+	timeZone: {
+		control: 'text' as const,
+		description: 'IANA zone the series is bucketed into days in.',
+		table: { category: 'Calendar' },
+	},
+};
+
+// A mid-week span (Wed to Wed) so both calendar edges are ragged. Sliced once, not per
+// render, since `useCalendarHeatmapData` holds the series by reference.
+const raggedCalendarSeries = heatmapCalendarSeries.slice( 2, 115 );
+
+export const Calendar: StoryObj< CalendarStoryArgs > = {
+	render: args => <CalendarGrid { ...args } series={ raggedCalendarSeries } />,
 	args: {
 		...sharedThemeArgs,
 		withTooltips: true,
 		weekStartsOn: 1,
 		hideOutOfRangeDays: true,
+		locale: '',
+		timeZone: '',
 	},
-	argTypes: {
-		weekStartsOn: {
-			control: { type: 'inline-radio', labels: { 0: 'Sunday', 1: 'Monday' } },
-			options: [ 1, 0 ],
-			table: { category: 'Calendar' },
-		},
-		hideOutOfRangeDays: { control: 'boolean', table: { category: 'Calendar' } },
-	},
+	argTypes: calendarArgTypes,
 };
 
 // Regression story for a one-column first month label in compact mode.
-export const CompactCalendarPartialMonth: StoryObj< StoryArgs & { weekStartsOn: 0 | 1 } > = {
-	render: ( { weekStartsOn, ...args } ) => {
-		const { data, rowLabels } = buildCalendarHeatmapData( heatmapPartialMonthCalendarSeries, {
-			weekStartsOn,
-		} );
-		return <HeatmapChart { ...args } data={ data } rowLabels={ rowLabels } />;
-	},
+export const CompactCalendarPartialMonth: StoryObj< CalendarStoryArgs > = {
+	render: args => <CalendarGrid { ...args } series={ heatmapPartialMonthCalendarSeries } />,
 	args: { ...sharedThemeArgs, compact: true, withTooltips: true, weekStartsOn: 1 },
 	argTypes: {
 		weekStartsOn: {
@@ -165,5 +201,113 @@ export const ErrorStates: Story = {
 	args: {
 		...Default.args,
 		data: [],
+	},
+};
+
+/**
+ * Column groups: a gap and a label under each quarter; the Total column stays outside them.
+ * Cells carry no label of their own, so each is named by its group, column and row ("Q1 Col 3 Mon").
+ */
+export const WithColumnGroups: Story = {
+	args: {
+		...Default.args,
+		data: heatmapActivityMatrixWithTotals.map( ( column, index ) => ( {
+			...column,
+			label: column.summary ? column.label : `Col ${ index + 1 }`,
+			data: column.data.map( ( { label, ...cell } ) =>
+				column.summary ? { label, ...cell } : cell
+			),
+		} ) ),
+		rowLabels: [ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun' ],
+		columnGroups: [
+			{ label: 'Q1', span: 3 },
+			{ label: 'Q2', span: 3 },
+			{ label: 'Q3', span: 3 },
+			{ label: 'Q4', span: 3 },
+		],
+	},
+};
+
+type MonthCalendarStoryArgs = StoryArgs & {
+	months?: number;
+	weekStartsOn?: 0 | 1;
+	locale?: string;
+};
+
+/**
+ * The last `months` of the sample range, from the first of the earliest month.
+ *
+ * @param months - How many months to draw.
+ * @return A range ending at the sample range end.
+ */
+const lastMonthsRange = ( months: number ) => {
+	const end = new Date( `${ HEATMAP_POSTS_RANGE.end }T00:00:00Z` );
+	const start = new Date( Date.UTC( end.getUTCFullYear(), end.getUTCMonth() - ( months - 1 ), 1 ) );
+	return { start: start.toISOString().slice( 0, 10 ), end: HEATMAP_POSTS_RANGE.end };
+};
+
+const MonthCalendarGrid = ( {
+	months = 12,
+	weekStartsOn,
+	locale,
+	...args
+}: MonthCalendarStoryArgs ) => {
+	const { data, columnGroups } = useMonthCalendarHeatmapData(
+		heatmapPostsByDay,
+		lastMonthsRange( months ),
+		{ weekStartsOn, locale: locale || undefined }
+	);
+	return (
+		<HeatmapChart
+			{ ...args }
+			data={ data }
+			columnGroups={ columnGroups }
+			keyboardNavigation="calendar"
+		>
+			<HeatmapChart.Legend lessLabel="Fewer posts" moreLabel="More posts" />
+		</HeatmapChart>
+	);
+};
+
+/**
+ * Months as one grid sharing one scale: the "Monthly posting activity" layout.
+ * Drag the container's corner: the month gaps share the width, shrink to the theme's
+ * `groupGap`, and past that the container scrolls with the keyboard selection in view.
+ * Arrow keys step by day and week, Page Up/Down by month.
+ */
+export const MonthCalendar: StoryObj< MonthCalendarStoryArgs > = {
+	render: args => <MonthCalendarGrid { ...args } />,
+	args: {
+		...sharedThemeArgs,
+		compact: true,
+		withTooltips: true,
+		ariaLabel: 'Monthly posting activity',
+		containerWidth: '1200px',
+		containerHeight: '200px',
+		months: 6,
+		weekStartsOn: 1,
+		locale: '',
+	},
+	argTypes: {
+		months: {
+			control: { type: 'range', min: 1, max: 12 },
+			description:
+				'Months drawn, ending at the sample range end. Narrow the container until the gaps stop growing.',
+			table: { category: 'Calendar' },
+		},
+		weekStartsOn: calendarArgTypes.weekStartsOn,
+		locale: calendarArgTypes.locale,
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const grid = canvas.getByRole( 'grid', { name: 'Monthly posting activity' } );
+		await expect( canvas.getAllByRole( 'grid' ) ).toHaveLength( 1 );
+		await expect( grid ).toHaveAttribute( 'aria-colcount', '42' );
+		const labels = canvas.getAllByTestId( 'heatmap-group-label' );
+		await expect( labels ).toHaveLength( 6 );
+		// Six months leave width over at 1200px, so the gaps grow past groupGap.
+		const [ first, second ] = labels.map( label => label.getBoundingClientRect() );
+		await expect( second.left - first.right ).toBeGreaterThan( 24 );
+		await expect( grid.scrollWidth ).toBe( grid.clientWidth );
 	},
 };

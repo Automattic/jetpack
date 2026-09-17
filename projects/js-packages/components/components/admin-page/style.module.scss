@@ -1,8 +1,8 @@
 .admin-page {
-	margin-left: -20px; // to neutralize the padding of #wpcontent.
+	margin-inline-start: -20px; // to neutralize the padding of #wpcontent.
 
 	@media (max-width: 782px) {
-		margin-left: -10px; // to neutralize the padding of #wpcontent.
+		margin-inline-start: -10px; // to neutralize the padding of #wpcontent.
 	}
 
 	&.background {
@@ -104,7 +104,7 @@
 	// line-height: 1.6666;` — see https://github.com/WordPress/WordPress/blob/trunk/wp-content/plugins/hello.php
 	// We override only the bits that need to differ from those defaults.
 	float: none;
-	text-align: right;
+	text-align: end;
 	background: var(--wpds-color-background-surface-neutral-strong, #fff);
 	font-style: italic;
 	color: var(--wpds-color-foreground-content-neutral-weak, #87a6bc);

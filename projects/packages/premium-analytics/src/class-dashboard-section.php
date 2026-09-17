@@ -170,6 +170,13 @@ final class Dashboard_Section {
 	 * @return bool
 	 */
 	public function is_available() {
+		// The preview scope is about the rollout rather than the site, so it sits ahead of the
+		// section's own check. The default-layout route answers the same question separately,
+		// because it runs before the registry is populated.
+		if ( ! is_dashboard_section_in_preview_scope( $this->dashboard_name, $this->slug ) ) {
+			return false;
+		}
+
 		if ( is_callable( $this->is_available ) ) {
 			return (bool) call_user_func( $this->is_available, $this );
 		}

@@ -11,6 +11,7 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\AIChat;
+use Automattic\Jetpack\Search\Plan;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-chat/ai-chat.php';
 
@@ -65,6 +66,8 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		delete_option( 'jetpack_ai_enabled' );
 		$this->disconnect_owner();
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		remove_filter( 'pre_http_request', array( $this, 'fail_on_http_request' ) );
 
 		parent::tear_down();
 	}
@@ -85,6 +88,13 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	private function disconnect_owner() {
 		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens', 'id', 'blog_token' ) );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
+	 * Fail if rendering the block tries to fetch plan data.
+	 */
+	public function fail_on_http_request() {
+		$this->fail( 'Rendering AI Chat must not request plan data.' );
 	}
 
 	/**
@@ -129,5 +139,31 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		AIChat\register_block();
 
 		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
+	}
+
+	/**
+	 * Published blocks still render on free plans; the editor shows the
+	 * upgrade prompt for authors.
+	 */
+	public function test_load_assets_renders_on_free_plan() {
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG ),
+			)
+		);
+
+		$this->assertStringContainsString( 'id="jetpack-ai-chat"', AIChat\load_assets( array() ) );
+	}
+
+	/**
+	 * A missing plan option must not cause a front-end plan request.
+	 */
+	public function test_load_assets_renders_without_plan_info() {
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		add_filter( 'pre_http_request', array( $this, 'fail_on_http_request' ) );
+
+		$this->assertStringContainsString( 'id="jetpack-ai-chat"', AIChat\load_assets( array() ) );
 	}
 }

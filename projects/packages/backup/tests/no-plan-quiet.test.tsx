@@ -30,7 +30,6 @@ import { BACKUPS_POLL_INTERVAL_MS } from '../src/dashboard/hooks/use-backups';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const DISCONNECTED = { isRegistered: false, hasConnectedOwner: false, isUserConnected: false };
-const SETTLE = { timeout: 10000 };
 
 const NO_PLAN = "This site doesn't have an active Backup plan";
 const UPSELL_CTA = /^Get VaultPress Backup$/;
@@ -112,13 +111,6 @@ let hasBackupPlan = false;
 
 /** Flipped per test; whether the site has a restore for the Restore screen to adopt. */
 let restoreRunning = false;
-
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 /**
  * How many times `apiFetch` has been asked for a route, ignoring query args.
@@ -204,7 +196,7 @@ describe( 'A connected site with no Backup plan', () => {
 	it( 'asks WordPress.com only what the upsell itself can act on', async () => {
 		render( <OverviewStage /> );
 
-		await expect( screen.findByText( NO_PLAN, {}, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NO_PLAN ) ).resolves.toBeInTheDocument();
 		await pollTicks( 1 );
 
 		// The gate's own read: the positive that says this screen came from a real answer.
@@ -224,9 +216,7 @@ describe( 'A connected site with no Backup plan', () => {
 
 		// `/site/backup/size` is the header button's read alone, so the absence
 		// above is only meaningful next to the absence of the button.
-		await expect(
-			screen.findByRole( 'link', { name: UPSELL_CTA }, SETTLE )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'link', { name: UPSELL_CTA } ) ).resolves.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'button', { name: /Back up now|Backup in progress/ } )
 		).not.toBeInTheDocument();
@@ -234,7 +224,7 @@ describe( 'A connected site with no Backup plan', () => {
 
 	it( 'never starts the backup poll', async () => {
 		render( <OverviewStage /> );
-		await expect( screen.findByText( NO_PLAN, {}, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NO_PLAN ) ).resolves.toBeInTheDocument();
 
 		await pollTicks( 4 );
 
@@ -251,7 +241,7 @@ describe( 'The same site once it has a plan', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'button', { name: 'Backup in progress' }, SETTLE )
+			screen.findByRole( 'button', { name: 'Backup in progress' } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NO_PLAN ) ).not.toBeInTheDocument();
 
@@ -271,7 +261,7 @@ describe( 'The Restore screen behind the same gates', () => {
 	it( 'renders the upsell without asking what restores exist', async () => {
 		render( <RestoreStage /> );
 
-		await expect( screen.findByText( NO_PLAN, {}, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NO_PLAN ) ).resolves.toBeInTheDocument();
 		await pollTicks( 1 );
 
 		// The gate's own read: the positive that says this screen came from a real answer.
@@ -283,7 +273,7 @@ describe( 'The Restore screen behind the same gates', () => {
 		restoreRunning = true;
 
 		render( <RestoreStage /> );
-		await expect( screen.findByText( NO_PLAN, {}, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NO_PLAN ) ).resolves.toBeInTheDocument();
 
 		await pollTicks( 4 );
 
@@ -303,7 +293,7 @@ describe( 'The Restore screen behind the same gates', () => {
 
 		render( <RestoreStage /> );
 
-		await expect( screen.findByText( NOT_CONNECTED, {}, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NOT_CONNECTED ) ).resolves.toBeInTheDocument();
 		await pollTicks( 1 );
 
 		// `useCapabilities` is disabled without a user connection, so the gate itself
@@ -340,9 +330,9 @@ describe( 'The Restore screen across a gate flip', () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
 		render( <RestoreStage /> );
-		await user.click( await screen.findByRole( 'button', { name: /Confirm restore/ }, SETTLE ) );
+		await user.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
 		await expect(
-			screen.findByText( /queued and will begin shortly/, undefined, SETTLE )
+			screen.findByText( /queued and will begin automatically/ )
 		).resolves.toBeInTheDocument();
 		const posts = () => mockApiFetch.mock.calls.filter( ( [ o ] ) => o?.method === 'POST' ).length;
 		expect( posts() ).toBe( 1 );
@@ -352,14 +342,14 @@ describe( 'The Restore screen across a gate flip', () => {
 		await act( async () => {
 			await queryClient.invalidateQueries( { queryKey: keys.capabilities() } );
 		} );
-		await expect( screen.findByText( NO_PLAN, {}, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NO_PLAN ) ).resolves.toBeInTheDocument();
 
 		hasBackupPlan = true;
 		await act( async () => {
 			await queryClient.invalidateQueries( { queryKey: keys.capabilities() } );
 		} );
 		await expect(
-			screen.findByText( /queued and will begin shortly/, undefined, SETTLE )
+			screen.findByText( /queued and will begin automatically/ )
 		).resolves.toBeInTheDocument();
 
 		expect( screen.queryByRole( 'button', { name: /Confirm restore/ } ) ).not.toBeInTheDocument();
@@ -378,7 +368,7 @@ describe( 'The Restore screen once the site has a plan', () => {
 		render( <RestoreStage /> );
 
 		await expect(
-			screen.findByRole( 'progressbar', { name: RESTORING }, SETTLE )
+			screen.findByRole( 'progressbar', { name: RESTORING } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NO_PLAN ) ).not.toBeInTheDocument();
 
@@ -403,7 +393,7 @@ describe( 'The Download screen behind the same gates', () => {
 	it( 'renders the upsell without asking for the archive the link named', async () => {
 		render( <DownloadStage /> );
 
-		await expect( screen.findByText( NO_PLAN, {}, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NO_PLAN ) ).resolves.toBeInTheDocument();
 		await pollTicks( 4 );
 
 		// The gate's own read: the positive that says this screen came from a real answer.
@@ -423,7 +413,7 @@ describe( 'The Download screen behind the same gates', () => {
 
 		render( <DownloadStage /> );
 
-		await expect( screen.findByText( NOT_CONNECTED, {}, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NOT_CONNECTED ) ).resolves.toBeInTheDocument();
 		await pollTicks( 4 );
 
 		// `useCapabilities` is disabled without a user connection, so the gate itself
@@ -446,7 +436,7 @@ describe( 'The Download screen across a gate flip', () => {
 
 		render( <DownloadStage /> );
 		await expect(
-			screen.findByRole( 'progressbar', { name: PREPARING }, SETTLE )
+			screen.findByRole( 'progressbar', { name: PREPARING } )
 		).resolves.toBeInTheDocument();
 		expect( asked( DOWNLOAD_PATH ) ).toBe( 1 );
 
@@ -455,7 +445,7 @@ describe( 'The Download screen across a gate flip', () => {
 		await act( async () => {
 			await queryClient.invalidateQueries( { queryKey: keys.capabilities() } );
 		} );
-		await expect( screen.findByText( NO_PLAN, {}, SETTLE ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( NO_PLAN ) ).resolves.toBeInTheDocument();
 
 		// The archive is still being built, so only the hook's own gate can stop the
 		// poll: nothing about the download itself has changed.
@@ -468,7 +458,7 @@ describe( 'The Download screen across a gate flip', () => {
 			await queryClient.invalidateQueries( { queryKey: keys.capabilities() } );
 		} );
 		await expect(
-			screen.findByRole( 'progressbar', { name: PREPARING }, SETTLE )
+			screen.findByRole( 'progressbar', { name: PREPARING } )
 		).resolves.toBeInTheDocument();
 
 		// The bar alone only proves `downloadId` survived; the count proves the poll
@@ -491,7 +481,7 @@ describe( 'The Download screen once the site has a plan', () => {
 		render( <DownloadStage /> );
 
 		await expect(
-			screen.findByRole( 'progressbar', { name: PREPARING }, SETTLE )
+			screen.findByRole( 'progressbar', { name: PREPARING } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NO_PLAN ) ).not.toBeInTheDocument();
 

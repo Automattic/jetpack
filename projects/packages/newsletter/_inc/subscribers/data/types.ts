@@ -105,12 +105,7 @@ export type AddSubscribersResponse = {
 };
 
 export type ImportJobStatus =
-	| 'pending'
-	| 'awaiting'
-	| 'importing'
-	| 'imported'
-	| 'failed'
-	| 'cancelled';
+	'pending' | 'awaiting' | 'importing' | 'imported' | 'failed' | 'cancelled';
 
 export type ImportJob = {
 	id: number;

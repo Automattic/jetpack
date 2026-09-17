@@ -18,6 +18,7 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -29,6 +30,130 @@ require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
  * Builds the Jetpack AI admin page and its sidebar menu entry.
  */
 class Jetpack_AI_Page {
+
+	/**
+	 * The wp-build route's page id.
+	 *
+	 * Deliberately not the `jetpack-ai` menu slug: the generated standalone page.php
+	 * intercepts `admin_init` for its own id and exits, which would bypass wp-admin's
+	 * chrome entirely. The generated wp-admin enqueue matches the screen ID against this.
+	 *
+	 * @var string
+	 */
+	const WP_BUILD_PAGE_ID = 'jetpack-ai-hub';
+
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
+	 * Whether this request renders through wp-build.
+	 *
+	 * Checks the render function too: if the build output is missing, the request would
+	 * otherwise get no bundle at all now that the legacy entry is gone.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function should_render_wp_build() {
+		return function_exists( 'jetpack_plugin_jetpack_ai_hub_wp_admin_render_page' );
+	}
+
+	/**
+	 * Whether the current request targets the AI Hub admin page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private static function is_ai_admin_request() {
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
+		return isset( $_GET['page'] ) && 'jetpack-ai' === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+	}
+
+	/**
+	 * Load wp-build for the AI Hub page.
+	 *
+	 * Scoped to this page so WP_Build_Polyfills does not replace core scripts everywhere else.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( ! self::is_ai_admin_request() ) {
+			return;
+		}
+
+		$build_index = JETPACK__PLUGIN_DIR . 'build/build.php';
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		// Hooked on either side of the require, so the alias holds only for the generated
+		// enqueue check it registers at the same priority.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		require_once $build_index;
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+
+		// wp-build hooks module registration to wp_default_scripts, which has already fired by
+		// admin_menu — call it directly or the init module never reaches the import map.
+		if ( function_exists( 'jetpack_plugin_register_script_modules' ) ) {
+			jetpack_plugin_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
+		if ( class_exists( WP_Build_Polyfills::class ) ) {
+			// wp-rich-text is needed because the Scheduled tasks tab reaches @wordpress/dataviews
+			// via @wordpress/ui, whose dataform controls unlock rich-text's privateApis at module
+			// scope. WP 6.9 exports none, so without it the bundle throws and the page is blank.
+			WP_Build_Polyfills::register(
+				'jetpack',
+				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			);
+		}
+	}
+
+	/**
+	 * Point the screen ID at the wp-build page while its generated enqueue check runs.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
+
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = self::WP_BUILD_PAGE_ID;
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
 
 	/**
 	 * Register the page and its page-specific hooks.
@@ -78,7 +203,11 @@ class Jetpack_AI_Page {
 			'manage_options',
 			'jetpack-ai',
 			array( $this, 'render' ),
-			4
+			null,
+			array(
+				'product' => 'jetpack-ai',
+				'key'     => 'jetpack-ai',
+			)
 		);
 	}
 
@@ -197,15 +326,9 @@ class Jetpack_AI_Page {
 	 * Enqueue scripts and styles for the AI admin page.
 	 */
 	public function page_admin_scripts() {
-		$script_path    = JETPACK__PLUGIN_DIR . '_inc/build/jetpack-ai-admin.asset.php';
-		$script_deps    = array( 'wp-element', 'wp-components', 'wp-i18n', 'wp-polyfill' );
+		// wp-build owns the route bundle and its dependencies; this handle only carries the
+		// inline settings below, so the plugin version is version enough to bust its cache.
 		$script_version = JETPACK__VERSION;
-
-		if ( file_exists( $script_path ) ) {
-			$asset_manifest = include $script_path;
-			$script_deps    = $asset_manifest['dependencies'];
-			$script_version = $asset_manifest['version'];
-		}
 
 		$blog_id     = Connection_Manager::get_site_id( true );
 		$status      = new Status();
@@ -242,15 +365,16 @@ class Jetpack_AI_Page {
 			$seo_settings_url = admin_url( 'admin.php?page=jetpack-seo' );
 		}
 
-		wp_enqueue_script(
-			'jetpack-ai-admin',
-			plugins_url( '_inc/build/jetpack-ai-admin.js', JETPACK__PLUGIN_FILE ),
-			$script_deps,
-			$script_version,
-			true
-		);
+		// The route bundle is registered by wp-build; this handle exists only to carry the
+		// inline settings below, which the app reads from `window.jetpackAiSettings`.
+		wp_register_script( 'jetpack-ai-admin', false, array(), $script_version, true );
+		wp_enqueue_script( 'jetpack-ai-admin' );
 
-		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
+		// Registered on every admin page but only enqueued when depended on, and the esbuild
+		// bundles don't pull it in — without it every string renders untranslated.
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
 
 		// The Tracks sender (w.js); without it, queued events never leave the
 		// browser. Consent-gated like the other surfaces that load it.
@@ -263,6 +387,8 @@ class Jetpack_AI_Page {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 		}
 
+		$host = new Host();
+
 		/**
 		 * Filters the host-specific AI Hub configuration.
 		 *
@@ -273,12 +399,17 @@ class Jetpack_AI_Page {
 		$config = apply_filters(
 			'jetpack_ai_admin_config',
 			array(
-				// Pre-release gate for the Overview and Features views. When opening
-				// them to everyone, also drop the matching gate in My Jetpack's
-				// Jetpack_Ai::get_manage_url() so its links land here too.
-				'showGatedViews'  => $is_internal_test,
-				'isUserConnected' => ( new Connection_Manager() )->is_user_connected(),
-				'mcpSettingsApi'  => array(
+				// The Overview and Features views launch on non-VIP self-hosted sites first.
+				// Keep this filterable so hosts can close them independently.
+				'showGatedViews'    => ! $host->is_vip_site()
+					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
+				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
+				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
+				// My Jetpack is removed on VIP, so that route dead-ends there.
+				'userConnectionUrl' => $host->is_vip_site()
+					? 'admin.php?page=jetpack#/connect-user'
+					: 'admin.php?page=my-jetpack#/connection',
+				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
 				),
@@ -287,51 +418,45 @@ class Jetpack_AI_Page {
 
 		$show_gated_views = ! empty( $config['showGatedViews'] );
 
-		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
-			'name'       => '',
-			'renews_on'  => '',
-			'auto_renew' => true,
-		);
+		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array( 'name' => '' );
 
 		$settings = array(
-			'blogId'           => $blog_id ? (int) $blog_id : 0,
-			'activityLogUrl'   => $activity_log_url,
-			'seoSettingsUrl'   => $seo_settings_url,
-			'siteAdminUrl'     => admin_url(),
-			'apiRoot'          => esc_url_raw( rest_url() ),
-			'apiNonce'         => wp_create_nonce( 'wp_rest' ),
-			'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			'blogId'            => $blog_id ? (int) $blog_id : 0,
+			'activityLogUrl'    => $activity_log_url,
+			'seoSettingsUrl'    => $seo_settings_url,
+			'siteAdminUrl'      => admin_url(),
+			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ),
+			'apiRoot'           => esc_url_raw( rest_url() ),
+			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
+			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			// Images ship from the plugin directory, so the plugin version is what busts their cache.
+			'assetsVersion'     => JETPACK__VERSION,
 			// The redirect entry bakes in the jetpack_ai_yearly product and
 			// a post-checkout return to this page, so both can be
 			// retargeted without shipping a code change.
-			'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
-			// The purchase granting AI, for the Overview usage card — the
-			// usage endpoint cannot name it. Only looked up when a gated
-			// view can render it.
-			'planName'         => $plan_info['name'],
-			// The plan's own renewal date, matching My Jetpack — the
-			// usage-period rollover is a different, monthly date.
-			'planRenewsOn'     => $plan_info['renews_on'],
-			// The same date reads "Renews on" or "Expires on" depending on
-			// auto-renew, matching My Jetpack and the wpcom subscriptions page.
-			'planAutoRenew'    => $plan_info['auto_renew'],
-			'showFeaturesView' => $show_gated_views,
+			'upgradeUrl'        => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
+			// The purchase granting AI — the usage card only uses it to pick
+			// the right loading-skeleton shape before the usage fetch lands.
+			// Only looked up when a gated view can render the card.
+			'planName'          => $plan_info['name'],
+			'showFeaturesView'  => $show_gated_views,
+			'showA12sBadge'     => ! empty( $config['showA12sBadge'] ),
 			// The tab and its Agents Manager sidebar ship disabled by default.
-			'featureFlags'     => array(
+			'featureFlags'      => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
 			),
 			// The usage endpoint proxies as the current user, which needs
 			// their own WordPress.com account linked — not just the site.
-			'isUserConnected'  => ! empty( $config['isUserConnected'] ),
+			'isUserConnected'   => ! empty( $config['isUserConnected'] ),
 			// Tracks audience properties for the jetpack_mcp_* events, per the
 			// Tracks standards for AI product events (AIINT-586). The client
 			// sends them as the strings 'true'/'false' (AIINT-576).
-			'isA11n'           => self::is_current_user_automattician(),
-			'isTest'           => $is_internal_test,
+			'isA11n'            => self::is_current_user_automattician(),
+			'isTest'            => $is_internal_test,
 			// Identity for Tracks; the lookup can call WordPress.com on a
 			// cache miss, so it shares the sender's guard.
-			'tracksUserData'   => $can_send_tracks ? self::get_tracks_user_data() : null,
-			'mcpSettingsApi'   => $config['mcpSettingsApi'],
+			'tracksUserData'    => $can_send_tracks ? self::get_tracks_user_data() : null,
+			'mcpSettingsApi'    => $config['mcpSettingsApi'],
 		);
 
 		wp_add_inline_script(
@@ -357,13 +482,6 @@ class Jetpack_AI_Page {
 				absint( $blog_id )
 			),
 			'before'
-		);
-
-		wp_enqueue_style(
-			'jetpack-ai-admin',
-			plugins_url( '_inc/build/jetpack-ai-admin.css', JETPACK__PLUGIN_FILE ),
-			array( 'wp-components' ),
-			$script_version
 		);
 	}
 
@@ -413,22 +531,14 @@ class Jetpack_AI_Page {
 	}
 
 	/**
-	 * Name and renewal date of the purchase granting this site AI ("Jetpack
-	 * Complete"), from My Jetpack's purchase data — its Plans section's source.
+	 * Name of the purchase granting this site AI ("Jetpack Complete"), from
+	 * My Jetpack's purchase data — its Plans section's source.
 	 *
-	 * The renewal is the purchase's expiry date, matching what My Jetpack
-	 * shows — not the AI usage-period rollover, which is a different date.
-	 *
-	 * @return array{name: string, renews_on: string} Empty strings when nothing
-	 *                                                paid grants AI or the data
-	 *                                                is unavailable.
+	 * @return array{name: string} An empty string when nothing paid grants AI
+	 *                             or the data is unavailable.
 	 */
 	private static function get_ai_plan_info() {
-		$empty = array(
-			'name'       => '',
-			'renews_on'  => '',
-			'auto_renew' => true,
-		);
+		$empty = array( 'name' => '' );
 
 		if ( ! class_exists( '\Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai' ) ) {
 			return $empty;
@@ -442,7 +552,7 @@ class Jetpack_AI_Page {
 		}
 
 		// A failed lookup is not "no purchase": skip the hour-long cache so the
-		// next page load can try again instead of pinning a blank plan cell.
+		// next page load can try again instead of pinning a blank name.
 		if ( is_wp_error( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_purchases() ) ) {
 			return $empty;
 		}
@@ -458,12 +568,7 @@ class Jetpack_AI_Page {
 		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
 			// The design shows the bare plan name ("Complete", "Business"), so
 			// trim the store names' brand prefixes; they are untranslated.
-			$info['name']      = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
-			$info['renews_on'] = (string) ( $purchase->expiry_date ?? '' );
-			// Absent means unknown, not off: only a purchase that positively
-			// reports auto-renew off should relabel the date as an expiry.
-			$info['auto_renew'] = ! isset( $purchase->is_auto_renew_enabled )
-				|| (bool) $purchase->is_auto_renew_enabled;
+			$info['name'] = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
 		}
 
 		set_transient( 'jetpack_ai_overview_plan_info', $info, HOUR_IN_SECONDS );
@@ -517,13 +622,28 @@ class Jetpack_AI_Page {
 	}
 
 	/**
-	 * Render the page container. The React app mounts into this div.
+	 * Render the page, or say why it could not be rendered.
 	 *
-	 * AdminPage from @automattic/jetpack-components handles the full-page layout.
+	 * The generated wp-build page owns the markup the app mounts into.
 	 */
 	public function page_render() {
-		?>
-		<div id="jetpack-ai-root"></div>
-		<?php
+		if ( self::should_render_wp_build() ) {
+			jetpack_plugin_jetpack_ai_hub_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- should_render_wp_build() checks function_exists(); defined in the generated build/pages/, which Phan excludes.
+			return;
+		}
+
+		// The build output is missing; say so rather than leaving a silent blank page.
+		printf(
+			'<div class="wrap"><h1>%s</h1><div class="notice notice-error"><p>%s</p></div></div>',
+			esc_html__( 'Jetpack AI', 'jetpack' ),
+			esc_html__( 'Jetpack AI could not be loaded because its assets are missing. Reinstalling or updating the plugin usually fixes this. If it keeps happening, contact your site administrator or host.', 'jetpack' )
+		);
 	}
 }
+
+/*
+ * wp-build must load before add_actions() runs on any host, so hook it here: Jetpack_Admin and
+ * mu-wpcom's WordPress.com Simple integration both require this file before `admin_menu`, and
+ * add_action() dedupes.
+ */
+add_action( 'admin_menu', array( 'Jetpack_AI_Page', 'maybe_load_wp_build' ), 1 );

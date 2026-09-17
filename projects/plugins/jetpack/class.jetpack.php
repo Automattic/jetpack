@@ -858,8 +858,9 @@ class Jetpack {
 	 * flag while it rolls out (WOOA7S-1595). When enabled it adds its own admin
 	 * menu alongside the existing Stats UI; it never replaces or hides the
 	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
-	 * widget. The Stats module's tracking is unaffected either way — Stats v2
-	 * depends on it.
+	 * widget. The Stats module's tracking is unaffected either way, and Stats v2
+	 * reads what that module collects, so while the module is off the plugin
+	 * answers false here before even reading the flag.
 	 *
 	 * The package has to be loadable for this to be true, so a site with the
 	 * flag on but a missing package answers false here and never adds the
@@ -874,12 +875,18 @@ class Jetpack {
 			return self::$premium_analytics_enabled;
 		}
 
+		if ( ! self::is_module_active( 'stats' ) ) {
+			self::$premium_analytics_enabled = false;
+			return false;
+		}
+
 		/**
 		 * Filters whether the bundled Premium Analytics dashboard is enabled.
 		 *
-		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`. Register
-		 * this from a mu-plugin or a plugin's main file — a callback added on
-		 * `plugins_loaded` or later runs too late to be seen.
+		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`, and only
+		 * while the Stats module is active. Register this from a mu-plugin or a
+		 * plugin's main file — a callback added on `plugins_loaded` or later runs
+		 * too late to be seen.
 		 *
 		 * @since 16.1
 		 *
@@ -905,7 +912,7 @@ class Jetpack {
 	 * Deliberately not behind is_premium_analytics_enabled(): this is the setting that flips that
 	 * check, so it has to answer while the dashboard is still off.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @return void
 	 */
@@ -2037,7 +2044,11 @@ class Jetpack {
 	 * @todo Store the result in core's object cache maybe?
 	 */
 	public static function get_active_plugins() {
-		// Delegates to the canonical implementation in the Connection package.
+		// Older Connection copies can load first and lack this method.
+		if ( ! method_exists( Heartbeat::class, 'get_active_plugins' ) ) {
+			return array();
+		}
+
 		return Heartbeat::get_active_plugins();
 	}
 
@@ -3659,8 +3670,10 @@ p {
 	public static function get_stat_data( $encode = true, $extended = true ) {
 		_deprecated_function( __METHOD__, 'jetpack-16.2', 'Automattic\\Jetpack\\Heartbeat::generate_stats_array' );
 
-		// Site environment stats now live in the Connection package; merge them with the Jetpack-specific stats.
-		$data = array_merge( Jetpack_Heartbeat::generate_stats_array(), Heartbeat::get_environment_stats() );
+		$env_stats = method_exists( Heartbeat::class, 'get_environment_stats' )
+			? Heartbeat::get_environment_stats()
+			: array();
+		$data      = array_merge( Jetpack_Heartbeat::generate_stats_array(), $env_stats );
 
 		if ( $extended ) {
 			$additional_data = self::get_additional_stat_data();
@@ -4249,6 +4262,26 @@ p {
 	 */
 
 	/**
+	 * Build the user-facing description stored alongside a registration error code.
+	 *
+	 * @since 16.2
+	 *
+	 * @param string $error_code The WP_Error code.
+	 * @param string $message    The WP_Error message.
+	 * @return string The description, empty when the message is not user-facing copy.
+	 */
+	public static function get_registration_error_description( $error_code, $message ) {
+		// Manager::validate_remote_register_response() does not always put user-facing copy in the
+		// message slot: wpcom_5??, wpcom_408 and wpcom_bad_response store the HTTP status there,
+		// and jetpack_id stores the raw response body, which can also overflow the state cookie.
+		if ( 'jetpack_id' === $error_code || is_numeric( $message ) ) {
+			return '';
+		}
+
+		return mb_substr( (string) $message, 0, 250 );
+	}
+
+	/**
 	 * Handles the page load events for the Jetpack admin page
 	 */
 	public function admin_page_load() {
@@ -4286,7 +4319,8 @@ p {
 					if ( is_wp_error( $registered ) ) {
 						$error = $registered->get_error_code();
 						self::state( 'error', $error );
-						self::state( 'error', $registered->get_error_message() );
+
+						self::state( 'error_description', self::get_registration_error_description( $error, $registered->get_error_message() ) );
 
 						/**
 						 * Jetpack registration Error.
@@ -5184,7 +5218,11 @@ endif;
 	 * @since 2.3.3
 	 */
 	public static function permit_ssl( $force_recheck = false ) {
-		// Delegates to the canonical SSL check in the Connection package.
+		if ( ! method_exists( Heartbeat::class, 'permit_ssl' ) ) {
+			// Skip the SSL-fail notice when the check cannot run.
+			return true;
+		}
+
 		return Heartbeat::permit_ssl( $force_recheck );
 	}
 
@@ -5199,6 +5237,10 @@ endif;
 	 * @return string The localized message, or an empty string when there is no failure.
 	 */
 	public static function get_ssl_test_message() {
+		if ( ! method_exists( Heartbeat::class, 'get_ssl_test_error' ) ) {
+			return '';
+		}
+
 		$error = Heartbeat::get_ssl_test_error();
 
 		switch ( $error['code'] ) {
@@ -6169,9 +6211,12 @@ endif;
 		 * effects (Connection\Manager::add_stats_to_heartbeat() consumes and deletes the `xmlrpc_errors` option)
 		 * and return non-scalar values, neither of which is appropriate for this read-only diagnostic.
 		 */
-		$raw_data = array_merge(
+		$env_stats = method_exists( Heartbeat::class, 'get_environment_stats' )
+			? Heartbeat::get_environment_stats()
+			: array();
+		$raw_data  = array_merge(
 			Jetpack_Heartbeat::generate_stats_array(),
-			Heartbeat::get_environment_stats(),
+			$env_stats,
 			array( 'identitycrisis' => Identity_Crisis::check_identity_crisis() ? 'yes' : 'no' )
 		);
 

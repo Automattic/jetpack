@@ -21,6 +21,8 @@ import { useCommentsReportRecords } from './comments/config';
 import CommentsReportPage from './comments/page';
 import { useDownloadsReportRecords } from './downloads/config';
 import DownloadsReportPage from './downloads/page';
+import { useEarningsReportRecords } from './earnings/config';
+import EarningsReportPage from './earnings/page';
 import { useEmailsReportRecords } from './emails/config';
 import EmailsReportPage from './emails/page';
 import { useLocationsReportRecords } from './locations/config';
@@ -78,9 +80,16 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 
 	return {
 		MetricValue: () => null,
+		// The real status map, so the Earnings history case asserts the label a
+		// reader gets rather than one the mock was told to return.
+		getEarningsStatus: jest.requireActual(
+			'../../packages/widgets-toolkit/src/components/wordads-earnings-history/fields'
+		).getEarningsStatus,
+		getWordAdsHistoryFields: () => [],
 		ReportCsvAction: jest.fn( () => null ),
 		ReportDrilldownTable: () => null,
 		ReportErrorState: () => null,
+		ReportLocationsMap: () => null,
 		ReportPageLayout: Container,
 		ReportPageSection: Container,
 		ReportPageShell: Container,
@@ -140,6 +149,10 @@ jest.mock( './annual-insights/config', () => ( {
 	useAnnualInsightsReportRecords: jest.fn(),
 } ) );
 
+jest.mock( './earnings/config', () => ( {
+	useEarningsReportRecords: jest.fn(),
+} ) );
+
 jest.mock( './clicks/config', () => ( {
 	getClickCsvGroup: () => 'Social',
 	getClicksFields: () => [],
@@ -170,6 +183,7 @@ jest.mock( './emails/config', () => ( {
 } ) );
 
 jest.mock( './locations/config', () => ( {
+	GEO_MODES: jest.requireActual( './locations/config' ).GEO_MODES,
 	getLocationFields: () => [],
 	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
 	getTabTitle: ( id: string ) => ( id === 'countries' ? 'Countries' : id ),
@@ -208,6 +222,7 @@ const useClicksReportRecordsMock = jest.mocked( useClicksReportRecords );
 const useCommentFollowersReportRecordsMock = jest.mocked( useCommentFollowersReportRecords );
 const useCommentsReportRecordsMock = jest.mocked( useCommentsReportRecords );
 const useDownloadsReportRecordsMock = jest.mocked( useDownloadsReportRecords );
+const useEarningsReportRecordsMock = jest.mocked( useEarningsReportRecords );
 const useEmailsReportRecordsMock = jest.mocked( useEmailsReportRecords );
 const useLocationsReportRecordsMock = jest.mocked( useLocationsReportRecords );
 const useReferrersReportRecordsMock = jest.mocked( useReferrersReportRecords );
@@ -328,6 +343,26 @@ describe( 'report CSV exports', () => {
 			'annual-insights',
 			[ rows[ 1 ], rows[ 0 ] ],
 			[ '2026', 12, 24, 2, 36, 3, 1200, 120.6, 5, 1 ]
+		);
+	} );
+
+	// Rows arrive oldest-first, as the endpoint's period-keyed payload does, so a
+	// missing export sort would ship the table's order reversed.
+	it( 'configures the Earnings history export, newest period first', () => {
+		const rows = [
+			{ id: '2025-12', period: '2025-12', amount: 10.5, pageviews: 100, status: 1 },
+			{ id: '2026-09', period: '2026-09', amount: 30.25, pageviews: 300, status: 0 },
+		];
+		useEarningsReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			rows,
+		} as ReturnType< typeof useEarningsReportRecords > );
+
+		expectCsvExport(
+			EarningsReportPage,
+			'earnings',
+			[ rows[ 1 ], rows[ 0 ] ],
+			[ '2026-09', 30.25, 300, 'Unpaid' ]
 		);
 	} );
 
