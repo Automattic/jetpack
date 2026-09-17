@@ -321,8 +321,9 @@ class SSO_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertMatchesRegularExpression( '/<a [^>]*button-primary[^>]*source=calypso-me-security-two-step/', $output );
-		$this->assertMatchesRegularExpression( '/calypso-me-security-two-step.*genericon-wordpress.*jetpack-sso-or.*force_reauth=1/s', $output );
+		$this->assertMatchesRegularExpression( '/calypso-me-security-two-step.*genericon-wordpress.*force_reauth=1.*jetpack-sso-or.*jetpack-sso-toggle/s', $output );
 		$this->assertSame( 1, substr_count( $output, 'button-primary' ) );
+		$this->assertSame( 1, substr_count( $output, 'jetpack-sso-or' ) );
 	}
 
 	/**
@@ -376,16 +377,18 @@ class SSO_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that login_form drops the username and password option when two-step authentication is required.
+	 * Test that login_form keeps the username and password option when two-step authentication is required.
+	 *
+	 * An account with a password on this site can still use it, so the two-step screen must not be the only way in.
 	 */
-	public function test_login_form_omits_password_login_when_two_step_required() {
+	public function test_login_form_keeps_password_login_when_two_step_required() {
 		$this->set_two_step_required( true );
 
 		ob_start();
 		$this->sso->login_form();
 		$output = ob_get_clean();
 
-		$this->assertStringNotContainsString( 'jetpack-sso-toggle', $output );
+		$this->assertStringContainsString( 'jetpack-sso-toggle', $output );
 	}
 
 	/**
