@@ -1,5 +1,5 @@
 /**
- * The browser side of subscriptions: the site's admin-ajax action, which asks
+ * The browser side of subscriptions: the site's route, which relays to
  * WordPress.com on the reader's behalf. Same-origin, so it carries the site
  * login or the passport, whichever the reader holds.
  */
@@ -25,53 +25,50 @@ const SIGN_IN_LOST = [
 export type Answer = {
 	/** The state afterwards, or null when there is no email to subscribe. Absent on failure. */
 	state?: SubscriptionState | null;
-	/** Whether the site turned the sign-in's code into a passport on this request. */
-	passport: boolean;
+	/** Whether the request went through, so a code sent with it is spent. */
+	ok: boolean;
 	/** Whether the reader should be shown as signed out. */
 	signedOut: boolean;
 };
 
+/**
+ * One round trip. The answer is WordPress.com's own, relayed with its status.
+ *
+ * @param fields - What to post with the action.
+ * @return The answer.
+ */
 const request = async ( fields: Record< string, string > ): Promise< Answer > => {
-	const { url, action } = JetpackComments.subscriptions;
-	const failed: Answer = { passport: false, signedOut: false };
+	const { url, action, nonce } = JetpackComments.subscriptions;
+	const failed: Answer = { ok: false, signedOut: false };
 
 	try {
 		const response = await fetch( url, {
 			method: 'POST',
 			credentials: 'same-origin',
-			body: new URLSearchParams( { action, ...fields } ),
+			headers: nonce ? { 'X-WP-Nonce': nonce } : {},
+			body: new URLSearchParams( { ...( action ? { action } : {} ), ...fields } ),
 		} );
 
-		const json = ( await response.json() ) as {
-			success?: boolean;
-			data?: {
-				available?: boolean;
-				passport?: boolean;
-				code?: string;
-			} & Partial< SubscriptionState >;
-		};
+		const body = ( await response.json() ) as {
+			code?: string;
+			available?: boolean;
+		} & Partial< SubscriptionState >;
 
-		if ( ! json.data ) {
-			return failed;
+		if ( ! response.ok ) {
+			return { ...failed, signedOut: SIGN_IN_LOST.includes( body.code ?? '' ) };
 		}
 
-		if ( ! json.success ) {
-			return { ...failed, signedOut: SIGN_IN_LOST.includes( json.data.code ?? '' ) };
+		if ( body.available === false ) {
+			return { state: null, ok: true, signedOut: false };
 		}
 
-		const passport = json.data.passport === true;
-
-		if ( json.data.available === false ) {
-			return { state: null, passport, signedOut: false };
-		}
-
-		if ( ! json.data.email || ! json.data.notification ) {
+		if ( ! body.email || ! body.notification ) {
 			return failed;
 		}
 
 		return {
-			state: { email: json.data.email, notification: json.data.notification },
-			passport,
+			state: { email: body.email, notification: body.notification },
+			ok: true,
 			signedOut: false,
 		};
 	} catch {
