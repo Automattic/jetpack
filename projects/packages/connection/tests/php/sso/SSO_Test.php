@@ -326,9 +326,9 @@ class SSO_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the two-step controls stay visible on a site that defaults to the password form.
+	 * Test that the two-step controls show on a site that defaults to the password form, and that the password form stays visible.
 	 */
-	public function test_login_body_class_shows_sso_form_when_two_step_required() {
+	public function test_login_body_class_shows_two_step_controls_beside_password_form() {
 		global $action;
 		$action = 'login';
 		$this->set_two_step_required( true );
@@ -338,13 +338,14 @@ class SSO_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
 
-		$this->assertContains( 'jetpack-sso-form-display', $classes );
+		$this->assertContains( 'jetpack-sso-two-step', $classes );
+		$this->assertNotContains( 'jetpack-sso-form-display', $classes );
 	}
 
 	/**
-	 * Test that the SSO form stays optional for a regular login on the same site.
+	 * Test that the two-step class is not added to a regular login.
 	 */
-	public function test_login_body_class_hides_sso_form_for_regular_login() {
+	public function test_login_body_class_omits_two_step_class_for_regular_login() {
 		global $action;
 		$action = 'login';
 		add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
@@ -353,7 +354,25 @@ class SSO_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
 
+		$this->assertNotContains( 'jetpack-sso-two-step', $classes );
 		$this->assertNotContains( 'jetpack-sso-form-display', $classes );
+	}
+
+	/**
+	 * Test that the two-step screen renders its controls when the password form is hidden site-wide.
+	 */
+	public function test_login_form_keeps_two_step_controls_when_login_form_hidden() {
+		$this->set_two_step_required( true );
+		add_filter( 'jetpack_remove_login_form', '__return_true' );
+
+		ob_start();
+		$this->sso->login_form();
+		$output = ob_get_clean();
+
+		remove_filter( 'jetpack_remove_login_form', '__return_true' );
+
+		$this->assertStringContainsString( 'source=calypso-me-security-two-step', $output );
+		$this->assertStringNotContainsString( 'jetpack-sso-toggle', $output );
 	}
 
 	/**

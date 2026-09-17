@@ -311,13 +311,13 @@ class SSO {
 				}
 			}
 
-			if ( $this->two_step_required ) {
-				// The stylesheet hides the SSO controls without this class, and two-step setup is the only way forward here.
-				$show_sso_form = true;
-			}
-
 			if ( $show_sso_form ) {
 				$classes[] = 'jetpack-sso-form-display';
+			}
+
+			if ( $this->two_step_required ) {
+				// Shows the SSO controls on a site that defaults to the password form, without hiding that form.
+				$classes[] = 'jetpack-sso-two-step';
 			}
 		}
 
