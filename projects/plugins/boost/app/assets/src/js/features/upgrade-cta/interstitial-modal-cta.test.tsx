@@ -16,6 +16,7 @@ const boostGlobal = { site: { online: true } };
 describe( 'InterstitialModalCTA', () => {
 	beforeEach( () => {
 		jest.mocked( apiFetch ).mockClear();
+		jest.mocked( apiFetch ).mockImplementation( () => new Promise( () => {} ) );
 		Object.assign( globalThis, {
 			Jetpack_Boost: boostGlobal,
 			myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
