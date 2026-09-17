@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: Stop a save wiping a payment link's settings when it goes out before the block has read the link back from PayPal.

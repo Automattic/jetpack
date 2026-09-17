@@ -23,11 +23,40 @@ import { firstBlockingError, getUserFriendlyError, getValidationErrors } from '.
 // The last body each block sent, so an unchanged block is not re-sent on every save.
 const lastSynced = new Map();
 
+// The payment each block has read back, by id, since a block can later be pointed at
+// a different one.
+const paymentsRead = new Map();
+
+// Blocks whose editor rendered, keyed by clientId. Both cases hold the save back, but
+// only a block that rendered is told to reload; the rest are sent to the visual editor.
+const blocksMounted = new Set();
+
 /**
- * Forget what has been synced. Tests start clean with this.
+ * Forget what has been synced and what has been read. Tests start clean with this.
  */
 export function forgetSyncedRequests() {
 	lastSynced.clear();
+	paymentsRead.clear();
+	blocksMounted.clear();
+}
+
+/**
+ * Record that a block's editor rendered, which decides the message a held-back save shows.
+ *
+ * @param {string} clientId - The block's client id.
+ */
+export function recordBlockMounted( clientId ) {
+	blocksMounted.add( clientId );
+}
+
+/**
+ * Record that a block has read the payment it points at, so the save may write it.
+ *
+ * @param {string} clientId   - The block's client id.
+ * @param {string} resourceId - The payment the block read.
+ */
+export function recordPaymentRead( clientId, resourceId ) {
+	paymentsRead.set( clientId, resourceId );
 }
 
 /**
@@ -90,12 +119,16 @@ export function isNotFound( err ) {
 /**
  * Create a payment and return the attributes that point the block at it.
  *
- * @param {Function} request - apiFetch or a stand-in.
- * @param {object}   body    - The request body.
+ * @param {Function} request  - apiFetch or a stand-in.
+ * @param {string}   clientId - The block's client id.
+ * @param {object}   body     - The request body.
  * @return {Promise<object>} Attributes to set on the block.
  */
-async function createPayment( request, body ) {
+async function createPayment( request, clientId, body ) {
 	const response = await request( { path: `${ API_BASE }/buttons`, method: 'POST', data: body } );
+
+	// This request is what PayPal now has, so the next save can update it without a read.
+	recordPaymentRead( clientId, response.id );
 
 	return { isApiManaged: true, resourceId: response.id, paymentLink: response.payment_link };
 }
@@ -123,12 +156,28 @@ async function syncBlock(
 		return false;
 	}
 
+	const { resourceId } = attributes;
+
+	// An unread block can be holding block.json defaults, and the PUT below would write
+	// them over the payment PayPal has. A block with no payment yet has nothing to overwrite.
+	if ( resourceId && paymentsRead.get( clientId ) !== resourceId ) {
+		reportHeldBack?.(
+			{ clientId, attributes },
+			blocksMounted.has( clientId )
+				? __(
+						'Its current settings have not loaded yet. Reload the post and try again.',
+						'jetpack-paypal-payments'
+				  )
+				: __( 'Open this block in the visual editor and save again.', 'jetpack-paypal-payments' )
+		);
+		return false;
+	}
+
 	const body = buildRequestData(
 		attributes,
 		hasVariantPricing( attributes.variantsEnabled, attributes.variants )
 	);
 	const key = JSON.stringify( body );
-	const { resourceId } = attributes;
 
 	if ( resourceId && lastSynced.get( clientId ) === key ) {
 		return false;
@@ -150,11 +199,11 @@ async function syncBlock(
 					throw err;
 				}
 				// Gone from PayPal, or deleted from the admin page: give the block a new one.
-				updateBlockAttributes( clientId, await createPayment( request, body ) );
+				updateBlockAttributes( clientId, await createPayment( request, clientId, body ) );
 				changed = true;
 			}
 		} else {
-			updateBlockAttributes( clientId, await createPayment( request, body ) );
+			updateBlockAttributes( clientId, await createPayment( request, clientId, body ) );
 			changed = true;
 		}
 		lastSynced.set( clientId, key );

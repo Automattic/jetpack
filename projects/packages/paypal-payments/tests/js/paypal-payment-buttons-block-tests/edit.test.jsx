@@ -17,6 +17,10 @@ import {
 } from '../../../src/paypal-payment-buttons/components/variant-builder';
 import Edit from '../../../src/paypal-payment-buttons/edit';
 import {
+	forgetSyncedRequests,
+	syncBlocksBeforeSave,
+} from '../../../src/paypal-payment-buttons/utils/sync-on-save';
+import {
 	ADVISORY_ERROR_KEYS,
 	getValidationErrors,
 	REQUIRED_FIELD_ERROR,
@@ -2670,8 +2674,32 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		}
 
+		/**
+		 * Run one save over the rendered block.
+		 *
+		 * @param {Function} respond - Answers each request; defaults to an empty response.
+		 * @return {Promise<object>} deps plus the recorded calls.
+		 */
+		async function saveTheBlock( respond ) {
+			const requests = [];
+			const deps = {
+				requests,
+				request: jest.fn( options => {
+					requests.push( options );
+					return respond ? respond( options ) : Promise.resolve( {} );
+				} ),
+				updateBlockAttributes: jest.fn(),
+				reportError: jest.fn(),
+				reportHeldBack: jest.fn(),
+			};
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes } ], deps );
+
+			return deps;
+		}
+
 		beforeEach( () => {
 			mockMarkNotPersistent.mockClear();
+			forgetSyncedRequests();
 		} );
 
 		it( 'corrects a stale copy from the payment PayPal holds, without dirtying the post', async () => {
@@ -2761,6 +2789,123 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect(
 				screen.queryByText( 'Changes made will apply to all payment buttons with this link.' )
 			).not.toBeInTheDocument();
+		} );
+
+		// Only these tests run the real read and the real save together.
+		const unread = 'Its current settings have not loaded yet. Reload the post and try again.';
+
+		it( 'writes the payment once the block has read it', async () => {
+			mockResource( { ...attributes } );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { requests, reportHeldBack } = await saveTheBlock();
+
+			expect( requests.map( r => [ r.method, r.path ] ) ).toEqual( [ [ 'PUT', resourcePath ] ] );
+			expect( reportHeldBack ).not.toHaveBeenCalled();
+		} );
+
+		// A PUT replaces the payment outright, so a block still on its block.json defaults
+		// would wipe the product id set at PayPal.
+		it( 'holds back the save while the read is still running', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return new Promise( () => {} );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { request, reportHeldBack } = await saveTheBlock();
+
+			expect( request ).not.toHaveBeenCalled();
+			expect( reportHeldBack ).toHaveBeenCalledWith(
+				expect.objectContaining( { clientId: 'a' } ),
+				unread
+			);
+		} );
+
+		it( 'holds back the save when the read fails', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.reject( { message: 'PayPal is having a day.' } );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { request, reportHeldBack } = await saveTheBlock();
+
+			expect( request ).not.toHaveBeenCalled();
+			expect( reportHeldBack ).toHaveBeenCalledWith(
+				expect.objectContaining( { clientId: 'a' } ),
+				unread
+			);
+		} );
+
+		// A response with no attributes leaves the block on its own values, so the save waits.
+		it( 'holds back the save when the read comes back empty', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.resolve( { id: 'PLB-SHARED1' } );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { request, reportHeldBack } = await saveTheBlock();
+
+			expect( request ).not.toHaveBeenCalled();
+			expect( reportHeldBack ).toHaveBeenCalledWith(
+				expect.objectContaining( { clientId: 'a' } ),
+				unread
+			);
+		} );
+
+		// A 404 counts as a read - PayPal already dropped the payment, so the save re-creates it.
+		it( 're-creates a payment that has been deleted from PayPal', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { requests, updateBlockAttributes, reportHeldBack } = await saveTheBlock( options =>
+				options.method === 'POST'
+					? Promise.resolve( {
+							id: 'PLB-NEW1',
+							payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+					  } )
+					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
+			);
+
+			expect( requests.map( r => r.method ) ).toEqual( [ 'PUT', 'POST' ] );
+			expect( updateBlockAttributes ).toHaveBeenCalledWith(
+				'a',
+				expect.objectContaining( { resourceId: 'PLB-NEW1' } )
+			);
+			expect( reportHeldBack ).not.toHaveBeenCalled();
 		} );
 
 		it( 'stays quiet on a block with no payment link yet', async () => {

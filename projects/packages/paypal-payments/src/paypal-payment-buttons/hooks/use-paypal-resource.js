@@ -11,7 +11,7 @@ import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
 import { getResourceAttributeUpdates } from '../utils/resource-sync';
-import { isNotFound } from '../utils/sync-on-save';
+import { isNotFound, recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
 import { getUserFriendlyError } from '../utils/validation';
 
 /**
@@ -23,6 +23,7 @@ import { getUserFriendlyError } from '../utils/validation';
  * @param {object}   props.attributes           - Block attributes.
  * @param {Function} props.setAttributes        - Function to update block attributes.
  * @param {boolean}  props.isConnected          - Whether the site is connected to PayPal.
+ * @param {string}   props.clientId             - The block's client id.
  * @param {Function} props.setShowDeleteConfirm - Setter for the delete confirmation dialog.
  * @return {object} Resource state, its setters, and the delete handlers.
  */
@@ -30,6 +31,7 @@ export function usePayPalResource( {
 	attributes,
 	setAttributes,
 	isConnected,
+	clientId,
 	setShowDeleteConfirm,
 } ) {
 	const { isApiManaged, resourceId } = attributes;
@@ -53,6 +55,9 @@ export function usePayPalResource( {
 		setLinkDeleted( false );
 		setPaymentChanged( false );
 
+		// Above the early return: the block rendered even when there is no payment to fetch.
+		recordBlockMounted( clientId );
+
 		if ( ! isConnected || ! isApiManaged || ! resourceId ) {
 			return;
 		}
@@ -64,6 +69,8 @@ export function usePayPalResource( {
 				if ( cancelled || ! response?.attributes ) {
 					return;
 				}
+				// The block now has PayPal's values, so the save can write this payment.
+				recordPaymentRead( clientId, resourceId );
 				const updates = getResourceAttributeUpdates(
 					latestAttributes.current,
 					response.attributes
@@ -79,9 +86,12 @@ export function usePayPalResource( {
 			// A payment deleted on PayPal is re-created when the post is next saved,
 			// so the merchant is told before that happens.
 			.catch( err => {
-				if ( ! cancelled && isNotFound( err ) ) {
-					setLinkDeleted( true );
+				if ( cancelled || ! isNotFound( err ) ) {
+					return;
 				}
+				// A 404 counts as the read, so the save can run and re-create the payment.
+				recordPaymentRead( clientId, resourceId );
+				setLinkDeleted( true );
 			} );
 
 		return () => {
@@ -91,6 +101,7 @@ export function usePayPalResource( {
 		isConnected,
 		isApiManaged,
 		resourceId,
+		clientId,
 		setAttributes,
 		__unstableMarkNextChangeAsNotPersistent,
 	] );
