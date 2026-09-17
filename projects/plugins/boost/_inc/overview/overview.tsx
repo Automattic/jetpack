@@ -120,24 +120,13 @@ function OverviewContent( { isVisible = true, onHeaderActionChange }: Props ) {
 
 	return (
 		<div className="jetpack-boost-overview">
-			{ scoreState.status === 'error' && (
-				<Notice.Root
-					intent="error"
-					spokenMessage={ isVisible ? __( 'Failed to load Speed Scores', 'jetpack-boost' ) : '' }
-				>
-					<Notice.Title>{ __( 'Failed to load Speed Scores', 'jetpack-boost' ) }</Notice.Title>
-					<Notice.Description>{ scoreState.error?.message }</Notice.Description>
-					<Notice.Actions>
-						<Notice.ActionButton onClick={ () => refreshScores( true ) }>
-							{ __( 'Try again', 'jetpack-boost' ) }
-						</Notice.ActionButton>
-					</Notice.Actions>
-				</Notice.Root>
-			) }
 			<ScoreCards
 				scores={ scoreState.scores }
 				isLoading={ isLoading }
-				showPlaceholder={ isLoading || ! scoreState.hasScores }
+				hasScores={ scoreState.hasScores }
+				error={ scoreState.error }
+				onRetry={ () => refreshScores( true ) }
+				isVisible={ isVisible }
 			/>
 			<ScoreAlert
 				scoreChange={

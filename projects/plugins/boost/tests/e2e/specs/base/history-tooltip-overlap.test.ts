@@ -277,20 +277,27 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await page.goto( 'http://boost-history.test/?scores' );
 	const desktop = page.getByRole( 'region', { name: 'Desktop', exact: true } );
 	const mobile = page.getByRole( 'region', { name: 'Mobile', exact: true } ).first();
-	const overall = page.getByRole( 'region', { name: 'Overall grade', exact: true } );
+	const overall = page.getByRole( 'region', { name: 'Overall', exact: true } );
 	await expect( desktop.first().getByText( 'Good', { exact: true } ) ).toBeVisible();
-	await expect( mobile.getByText( 'Could be improved', { exact: true } ) ).toBeVisible();
+	await expect( mobile.getByText( 'Could improve', { exact: true } ) ).toBeVisible();
 	await expect( desktop.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
-	await expect( overall.getByText( /Good|Could be improved|Poor/ ) ).toHaveCount( 0 );
+	await expect( overall.first().getByText( 'Good', { exact: true } ) ).toBeVisible();
+	await expect( overall.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
+	await expect( overall.getByRole( 'progressbar' ) ).toHaveCount( 0 );
+	await expect( mobile.getByText( 'Could improve', { exact: true } ) ).toHaveCSS(
+		'color',
+		'rgb(147, 99, 0)'
+	);
 	for ( const [ card, score, color ] of [
 		[ desktop.first(), 90, 'color(srgb 0 0.501961 0.188235 / 0.9)' ],
-		[ mobile, 60, 'color(srgb 0.576471 0.388235 0 / 0.9)' ],
+		[ mobile, 60, 'color(srgb 0.980392 0.654902 0.329412 / 0.9)' ],
 		[ desktop.nth( 1 ), 40, 'color(srgb 0.8 0.0941176 0.0941176 / 0.9)' ],
 	] as const ) {
 		await expect( card.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', score );
 		await expect( card.getByRole( 'progressbar' ) ).toHaveAttribute( 'max', '100' );
 		const track = card.locator( '.jetpack-boost-overview__progress' );
 		await expect( track.locator( ':scope > div' ) ).toHaveCSS( 'background-color', color );
+		await expect( track ).toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
 		await expect( track ).toHaveCSS( 'height', '4px' );
 		await expect( track ).toHaveCSS( 'border-radius', '4px' );
 	}
@@ -321,6 +328,46 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await expect( desktop.first() ).toHaveCSS( 'border-top-width', '1px' );
 	await expect( desktop.first() ).toHaveCSS( 'border-top-style', 'solid' );
 	await expect( desktop.first() ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
+	const section = ( await desktop.first().boundingBox() )!;
+	const bar = ( await desktop
+		.first()
+		.locator( '.jetpack-boost-overview__progress' )
+		.boundingBox() )!;
+	const delta = ( await desktop
+		.first()
+		.getByText( '+10 points compared with Boost disabled' )
+		.boundingBox() )!;
+	expect( bar.width ).toBeGreaterThan( 0 );
+	expect( delta.x ).toBeGreaterThan( bar.x + bar.width );
+	expect( delta.x + delta.width ).toBeCloseTo( section.x + section.width - 20, 0 );
+	expect( delta.y ).toBeLessThan( bar.y + bar.height );
+	expect( delta.y + delta.height ).toBeGreaterThan( bar.y );
+} );
+
+test( 'Score cards show calculating and failed states inside the card', async ( { page } ) => {
+	await page.goto( 'http://boost-history.test/?score-states' );
+	const [ calculating, failed, failedRefresh ] = await page
+		.locator( '.jetpack-boost-overview__scores-card' )
+		.all();
+	await expect( calculating.getByRole( 'heading', { name: 'Your site speed' } ) ).toBeVisible();
+	const status = calculating.getByRole( 'status' );
+	await expect( status.getByText( 'Calculating…' ) ).toHaveCSS( 'color', 'rgb(112, 112, 112)' );
+	await expect( status.locator( '.components-spinner' ) ).toHaveCount( 1 );
+	const spinner = ( await status.locator( '.components-spinner' ).boundingBox() )!;
+	const label = ( await status.getByText( 'Calculating…' ).boundingBox() )!;
+	expect( Math.abs( label.x - ( spinner.x + spinner.width ) ) ).toBeCloseTo( 12, 0 );
+	await expect( calculating.getByRole( 'region' ) ).toHaveCount( 0 );
+	await expect( failed.getByText( 'Failed to load speed scores' ) ).toBeVisible();
+	await expect( failed.getByText( 'Timed out while waiting for speed-score.' ) ).toBeVisible();
+	await expect( failed.getByRole( 'button', { name: 'Try again' } ) ).toHaveCSS(
+		'background-color',
+		'rgb(56, 88, 233)'
+	);
+	await expect( failed.getByRole( 'region' ) ).toHaveCount( 0 );
+	const notice = ( await failedRefresh.getByText( 'Failed to load speed scores' ).boundingBox() )!;
+	const desktop = failedRefresh.getByRole( 'region', { name: 'Desktop', exact: true } );
+	await expect( desktop.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', 80 );
+	expect( ( await desktop.boundingBox() )!.y ).toBeGreaterThan( notice.y + notice.height );
 } );
 
 test.describe( 'Overall grade help', () => {
@@ -336,7 +383,11 @@ test.describe( 'Overall grade help', () => {
 		await expect( popup ).toBeVisible();
 		await expect( trigger ).toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
 		await expect( trigger ).toHaveCSS( 'background-image', 'none' );
-		await expect( popup ).toContainText( 'across both mobile and desktop devices' );
+		await expect( popup ).toContainText(
+			'Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices.'
+		);
+		await expect( popup ).not.toContainText( 'general idea' );
+		await expect( popup.getByText( 'Overall grade' ) ).not.toBeInViewport();
 		await page.mouse.move( 0, 0 );
 		await expect( popup ).toBeHidden();
 		await trigger.focus();
