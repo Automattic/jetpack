@@ -244,14 +244,17 @@ describe( 'AI admin page (main.jsx)', () => {
 				showFeaturesView: true,
 				blogId: 1,
 				isUserConnected: true,
-				masterForcedOff: true,
+				masterForcedOff: 'filter',
 			};
 			mockApiFetch();
 
 			render( <App /> );
 
 			await expect(
-				screen.findByText( 'Jetpack AI is turned off by custom code on this site.', IGNORE_A11Y )
+				screen.findByText(
+					'Jetpack AI is turned off by custom code running on this site, so it can’t be turned on here.',
+					IGNORE_A11Y
+				)
 			).resolves.toBeInTheDocument();
 			expect( apiFetch ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { path: expect.stringContaining( 'ai-assistant-feature' ) } )

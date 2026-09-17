@@ -100,6 +100,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		}
 		remove_filter( 'jetpack_ai_writing_assistant_enabled', '__return_false' );
 		remove_filter( 'wp_supports_ai', '__return_false' );
+		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		remove_filter( 'jetpack_ai_enabled', '__return_true', PHP_INT_MAX );
 		remove_filter( 'jetpack_ai_enabled', '__return_true', 11 );
 		remove_filter( 'jetpack_is_connection_ready', '__return_true' );
@@ -319,6 +320,53 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 		remove_filter( 'jetpack_get_available_modules', $remove );
 		$this->assertTrue( $forced_off );
+	}
+
+	/**
+	 * Custom code can hold AI off through `jetpack_ai_enabled` alone, leaving the
+	 * module active.
+	 */
+	public function test_master_forced_off_when_a_filter_disables_ai_with_the_module_active() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_active();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertTrue( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the module is still active.' );
+		$this->assertTrue( Jetpack_AI_Settings::is_master_forced_off() );
+	}
+
+	/**
+	 * The two routes are named apart so the notice can link to the right hook.
+	 */
+	public function test_master_forced_off_route_names_the_filter() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_active();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertSame( 'filter', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * A module allowlist reports the module route, not the filter one.
+	 */
+	public function test_master_forced_off_route_names_the_modules() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_inactive();
+
+		$this->assertSame( 'modules', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * A site nothing holds off reports no route.
+	 */
+	public function test_master_forced_off_route_empty_when_not_forced_off() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+
+		$this->assertSame( '', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
 	/**

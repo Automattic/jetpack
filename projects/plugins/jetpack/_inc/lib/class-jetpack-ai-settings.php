@@ -54,6 +54,22 @@ class Jetpack_AI_Settings {
 	const AI_MODULE = 'ai';
 
 	/**
+	 * The `jetpack_ai_enabled` route custom code can take to hold AI off, as
+	 * reported by {@see self::get_master_forced_off_route()}. Each route names a
+	 * different hook, so each needs its own documentation link.
+	 *
+	 * @var string
+	 */
+	const FORCED_OFF_ROUTE_FILTER = 'filter';
+
+	/**
+	 * The module-filter route; see {@see self::FORCED_OFF_ROUTE_FILTER}.
+	 *
+	 * @var string
+	 */
+	const FORCED_OFF_ROUTE_MODULES = 'modules';
+
+	/**
 	 * Feature key => option name for every toggle on the AI settings page.
 	 *
 	 * `ai_search` reuses an option owned by the Search surface; the rest are
@@ -288,29 +304,48 @@ class Jetpack_AI_Settings {
 	}
 
 	/**
-	 * Whether a filter, such as a module allowlist, keeps the `ai` module off,
-	 * so no switch on this site can turn it on. Always false on WordPress.com
-	 * Simple, which runs no modules.
+	 * Whether custom code keeps AI off, so no switch on this site can turn it
+	 * back on.
 	 *
 	 * @return bool
 	 */
 	public static function is_master_forced_off() {
+		return '' !== self::get_master_forced_off_route();
+	}
+
+	/**
+	 * Which hook custom code used to hold AI off, so the notice can link to the
+	 * matching documentation. Always empty on WordPress.com Simple, which runs
+	 * no modules.
+	 *
+	 * @return string One of the FORCED_OFF_ROUTE_* constants, or '' when nothing
+	 *                holds AI off.
+	 */
+	public static function get_master_forced_off_route() {
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			return false;
+			return '';
+		}
+
+		// Our own gates run inside this chain, so only third-party code can
+		// disagree with them.
+		if ( self::apply_master_gates( true ) && ! apply_filters( 'jetpack_ai_enabled', true ) ) {
+			return self::FORCED_OFF_ROUTE_FILTER;
 		}
 
 		if ( self::is_master_enabled() ) {
-			return false;
+			return '';
 		}
 
 		// Removed from the available list by `jetpack_get_available_modules`.
 		if ( ! in_array( self::AI_MODULE, ( new Modules() )->get_available(), true ) ) {
-			return true;
+			return self::FORCED_OFF_ROUTE_MODULES;
 		}
 
 		// Forced off through `option_jetpack_active_modules` or `jetpack_active_modules`.
-		return class_exists( 'Jetpack_Modules_Overrides' )
+		$overridden = class_exists( 'Jetpack_Modules_Overrides' )
 			&& 'inactive' === Jetpack_Modules_Overrides::instance()->get_module_override( self::AI_MODULE );
+
+		return $overridden ? self::FORCED_OFF_ROUTE_MODULES : '';
 	}
 
 	/**

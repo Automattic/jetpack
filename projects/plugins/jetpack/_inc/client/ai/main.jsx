@@ -191,7 +191,7 @@ export default function App() {
 		isConnected = true,
 		hostAllowsAi = true,
 		masterEnabled = true,
-		masterForcedOff = false,
+		masterForcedOff = '',
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
 		manageUrl = 'admin.php?page=my-jetpack#/products',
 		hasMyJetpack = true,
@@ -431,7 +431,7 @@ export default function App() {
 
 				<PageNotice
 					state={ noticeState }
-					settings={ aiSettings }
+					masterForcedOff={ masterForcedOff }
 					userConnectionUrl={ userConnectionUrl }
 					manageUrl={ manageUrl }
 					hasMyJetpack={ hasMyJetpack }

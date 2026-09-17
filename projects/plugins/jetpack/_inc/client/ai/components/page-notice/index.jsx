@@ -28,7 +28,8 @@ const PAGE_NOTICE_STATES = {
  * @param {boolean} [options.isOfflineMode]      - Whether the site is in offline mode.
  * @param {boolean} [options.hostAllowsAi]       - Whether the host allows AI at all.
  * @param {boolean} [options.masterEnabled]      - Whether the AI module is on.
- * @param {boolean} [options.masterForcedOff]    - Whether code holds the module off.
+ * @param {string}  [options.masterForcedOff]    - Which hook custom code used to hold AI
+ *                                               off; empty when none does.
  * @param {boolean} [options.hasConnectionError] - Whether the connection store reports a
  *                                               connection the site cannot use.
  * @return {string|null} The state to render, or null.
@@ -83,8 +84,14 @@ export function getPageNoticeState( {
 }
 
 const HOST_OFF_SLUG = 'jetpack-ai-hub-docs-wp-supports-ai';
-const FORCED_OFF_SLUG = 'jetpack-ai-hub-docs-module-forced-off';
 const OFFLINE_SLUG = 'jetpack-support-development-mode';
+
+// Custom code reaches the same state through two different hooks, and each has
+// its own documentation page.
+const FORCED_OFF_SLUGS = {
+	filter: 'jetpack-ai-hub-docs-ai-enabled',
+	modules: 'jetpack-ai-hub-docs-module-forced-off',
+};
 
 /**
  * Title, body and action for one state, as plain data.
@@ -107,9 +114,14 @@ function getNoticeContent( state, pageData ) {
 
 		case PAGE_NOTICE_STATES.FORCED_OFF:
 			return {
-				title: __( 'Jetpack AI is turned off by custom code on this site.', 'jetpack' ),
+				title: __(
+					'Jetpack AI is turned off by custom code running on this site, so it can’t be turned on here.',
+					'jetpack'
+				),
 				action: {
-					href: getRedirectUrl( FORCED_OFF_SLUG ),
+					href: getRedirectUrl(
+						FORCED_OFF_SLUGS[ pageData.masterForcedOff ] ?? FORCED_OFF_SLUGS.modules
+					),
 					label: __( 'Learn more', 'jetpack' ),
 					openInNewTab: true,
 				},
@@ -167,17 +179,12 @@ function getNoticeContent( state, pageData ) {
  * The one site-state notice the Jetpack AI Hub shows, above whichever view is
  * active. Nothing else on the page renders these states.
  *
- * @param {object}      props                      - Component props.
- * @param {string}      props.view                 - The view being rendered.
- * @param {number}      [props.blogId]             - Site's blog ID; falsy when not connected.
- * @param {boolean}     [props.isUserConnected]    - Whether this user's account is linked.
- * @param {boolean}     [props.isOfflineMode]      - Whether the site is in offline mode.
- * @param {boolean}     [props.hasConnectionError] - Whether the connection store reports a
- *                                                 connection the site cannot use.
- * @param {object|null} [props.settings]           - Feature settings, null until fetched.
- * @param {string}      [props.userConnectionUrl]  - Where this host links an account.
- * @param {string}      [props.manageUrl]          - Where this host manages the AI module.
- * @param {boolean}     [props.hasMyJetpack]       - Whether My Jetpack is loaded on this host.
+ * @param {object}      props                     - Component props.
+ * @param {string|null} props.state               - The resolved state, from getPageNoticeState.
+ * @param {string}      [props.masterForcedOff]   - Which hook custom code used to hold AI off.
+ * @param {string}      [props.userConnectionUrl] - Where this host links an account.
+ * @param {string}      [props.manageUrl]         - Where this host manages the AI module.
+ * @param {boolean}     [props.hasMyJetpack]      - Whether My Jetpack is loaded on this host.
  * @return {object|null} Component markup.
  */
 export default function PageNotice( props ) {

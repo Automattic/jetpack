@@ -17,7 +17,7 @@ const resolve = ( overrides = {} ) =>
 		isOfflineMode: false,
 		hostAllowsAi: true,
 		masterEnabled: true,
-		masterForcedOff: false,
+		masterForcedOff: '',
 		hasConnectionError: false,
 		...overrides,
 	} );
@@ -32,8 +32,8 @@ describe( 'getPageNoticeState', () => {
 			expect( resolve( { hostAllowsAi: false } ) ).toBe( 'host-off' );
 		} );
 
-		it( 'reports a module a filter holds off', () => {
-			expect( resolve( { masterForcedOff: true } ) ).toBe( 'forced-off' );
+		it.each( [ 'filter', 'modules' ] )( 'reports the %s route custom code took', route => {
+			expect( resolve( { masterForcedOff: route } ) ).toBe( 'forced-off' );
 		} );
 
 		it( 'reports offline mode ahead of the connection it disables', () => {
@@ -182,16 +182,32 @@ describe( 'PageNotice', () => {
 		expect( learnMore ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	it( 'names the filter holding the module off, and offers no switch', () => {
-		renderNotice( { state: 'forced-off' } );
-		expect(
-			screen.getByText( 'Jetpack AI is turned off by custom code on this site.', IGNORE_A11Y )
-		).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( 'source=jetpack-ai-hub-docs-module-forced-off' )
-		);
-		expect( screen.queryByRole( 'link', { name: /Manage in/ } ) ).not.toBeInTheDocument();
+	describe( 'the custom-code notice', () => {
+		const COPY =
+			'Jetpack AI is turned off by custom code running on this site, so it can’t be turned on here.';
+
+		it( 'links to the AI filter when that is the route taken', () => {
+			renderNotice( { state: 'forced-off', masterForcedOff: 'filter' } );
+			expect( screen.getByText( COPY, IGNORE_A11Y ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'source=jetpack-ai-hub-docs-ai-enabled' )
+			);
+		} );
+
+		it( 'links to the module hooks when a module filter is the route taken', () => {
+			renderNotice( { state: 'forced-off', masterForcedOff: 'modules' } );
+			expect( screen.getByText( COPY, IGNORE_A11Y ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'source=jetpack-ai-hub-docs-module-forced-off' )
+			);
+		} );
+
+		it( 'offers no switch, since none would work', () => {
+			renderNotice( { state: 'forced-off', masterForcedOff: 'modules' } );
+			expect( screen.queryByRole( 'link', { name: /Manage in/ } ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	it( 'names offline mode rather than asking for a connection it forbids', () => {

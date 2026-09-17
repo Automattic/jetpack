@@ -432,7 +432,8 @@ class Jetpack_AI_Page {
 					&& ! ( new Status() )->is_offline_mode(),
 				'hostAllowsAi'      => Jetpack_AI_Settings::host_allows_ai(),
 				'masterEnabled'     => Jetpack_AI_Settings::is_master_enabled(),
-				'masterForcedOff'   => Jetpack_AI_Settings::is_master_forced_off(),
+				// The route, not a flag: each one documents a different hook.
+				'masterForcedOff'   => Jetpack_AI_Settings::get_master_forced_off_route(),
 				'isOfflineMode'     => ( new Status() )->is_offline_mode(),
 				// These three answer one question; a filter changing one alone leaves
 				// a label pointing at a page that is not there.
@@ -465,7 +466,11 @@ class Jetpack_AI_Page {
 			'isConnected'       => ! empty( $config['isConnected'] ),
 			'hostAllowsAi'      => ! empty( $config['hostAllowsAi'] ),
 			'masterEnabled'     => ! empty( $config['masterEnabled'] ),
-			'masterForcedOff'   => ! empty( $config['masterForcedOff'] ),
+			'masterForcedOff'   => in_array(
+				$config['masterForcedOff'] ?? '',
+				array( Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER, Jetpack_AI_Settings::FORCED_OFF_ROUTE_MODULES ),
+				true
+			) ? $config['masterForcedOff'] : '',
 			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
