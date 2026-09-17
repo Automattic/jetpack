@@ -1,4 +1,7 @@
+import { DataSyncProvider, queryClient } from '@automattic/jetpack-react-data-sync-client';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { MutationObserver, QueryClient } from '@tanstack/react-query';
+import { useGettingStarted } from '../../../app/assets/src/js/lib/stores/getting-started';
 import { ONBOARDING_CHANGE_EVENT } from '../../runtime-contract';
 import { observeLegacyModulesState, OVERVIEW_MODULES_CHANGE_EVENT } from './modules-state-bridge';
 
@@ -130,3 +133,57 @@ test( 'reports a non-manual read of true immediately during a modules_state save
 	await modulesSave;
 	expect( onboardingValues() ).toEqual( [ true ] );
 } );
+
+test.each( [ true, false ] )(
+	'holds the real onboarding hook until its save settles (success: %s)',
+	async succeeds => {
+		window.jetpack_boost_ds = {
+			rest_api: { value: 'https://example.org/wp-json/jetpack-boost-ds', nonce: 'test' },
+			getting_started: { value: true, nonce: 'test' },
+		};
+		queryClient.clear();
+		const stop = observeLegacyModulesState( queryClient );
+		let resolveSave: ( value: Response ) => void;
+		let rejectSave: ( error: Error ) => void;
+		const originalFetch = globalThis.fetch;
+		const request = jest.fn< ReturnType< typeof fetch >, Parameters< typeof fetch > >(
+			() =>
+				new Promise( ( resolve, reject ) => {
+					resolveSave = resolve;
+					rejectSave = reject;
+				} )
+		);
+		globalThis.fetch = request;
+		const { result, unmount } = renderHook( useGettingStarted, { wrapper: DataSyncProvider } );
+		try {
+			let saved: Promise< unknown >;
+			act( () => {
+				saved = result.current.markGettingStartedComplete().catch( () => undefined );
+			} );
+			await waitFor( () => expect( request ).toHaveBeenCalledTimes( 1 ) );
+			expect( queryClient.getQueryData( [ 'getting_started' ] ) ).toBe( false );
+			expect( onboardingValues() ).toEqual( [] );
+			await act( async () => {
+				if ( succeeds ) {
+					resolveSave( {
+						ok: true,
+						text: async () => JSON.stringify( { status: 'success', JSON: false } ),
+					} as Response );
+				} else {
+					rejectSave( new Error( 'Save failed' ) );
+				}
+				await saved;
+			} );
+			expect( onboardingValues() ).toEqual( [ ! succeeds ] );
+		} finally {
+			unmount();
+			stop();
+			queryClient.clear();
+			if ( originalFetch ) {
+				globalThis.fetch = originalFetch;
+			} else {
+				Reflect.deleteProperty( globalThis, 'fetch' );
+			}
+		}
+	}
+);
