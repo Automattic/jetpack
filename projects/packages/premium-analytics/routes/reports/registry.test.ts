@@ -95,6 +95,9 @@ describe( 'getReportDefinition', () => {
 
 		expect( getReportDefinition( 'comments' ) ).toBeUndefined();
 		expect( getReportDefinition( 'emails' ) ).toBeUndefined();
+		// The Ads tab carries its own availability gate (WordAds active, and the
+		// user can read ad reports), which reaches this report only through the scope.
+		expect( getReportDefinition( 'earnings' ) ).toBeUndefined();
 	} );
 
 	it( 'keeps the Traffic reports while the preview is scoped', () => {
@@ -150,6 +153,7 @@ describe( 'REPORTS', () => {
 			],
 			insights: [ 'annual-insights', 'comments', 'tags' ],
 			subscribers: [ 'comment-followers', 'emails' ],
+			ads: [ 'earnings' ],
 		} );
 	} );
 

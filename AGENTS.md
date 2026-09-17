@@ -346,10 +346,13 @@ Before introducing new dependencies:
 - Check for reusable components, utilities, or hooks in shared packages
 - Review existing WordPress core and Jetpack APIs
 - Prioritize internal packages and APIs over external dependencies
+- When plugin PHP code calls a newly added shared-package method, guard it with `method_exists()` and preserve a backward-compatible fallback.
+- Another plugin may load an older class before all Jetpack autoloaders register, or through a different or higher-priority autoloader.
 
 ## Common Pitfalls
 
 - **Do NOT edit WordPress core files** — all changes must be in plugins/packages
+- **WordPress.com uses a partial Jetpack bootstrap** — it can load selected Jetpack files, including defusioned JSON API endpoints, without running `load-jetpack.php`. Code used by those endpoints must explicitly load non-autoloaded dependencies and tolerate host-defined global functions. Test the WordPress.com bootstrap path separately when changing those dependencies.
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 - **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
 

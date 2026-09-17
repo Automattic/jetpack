@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Draw attention to the date control, and read the new period out, when a card or a table cell sets the period rather than the reader.

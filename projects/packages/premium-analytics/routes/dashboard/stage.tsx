@@ -1,7 +1,9 @@
 import {
 	GlobalErrorProvider,
+	PeriodChangeSignalProvider,
 	queryClient,
 	ReportScopeProvider,
+	useSettlePeriodChange,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
@@ -11,6 +13,7 @@ import {
 	DateIntervalDropdown,
 	DateYearFilter,
 	OnboardingWelcomeModal,
+	PeriodChangeStatus,
 	SectionHeader,
 	SectionTabPanel,
 	StatsBreadcrumbs,
@@ -19,15 +22,14 @@ import {
 import { PageOptionsMenu, ResetLayoutAction } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
+import { useWidgetModules } from '../use-widget-modules';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
 	DashboardSections,
+	FeedbackBanner,
 	OnboardingTour,
 	onboardingTourSteps,
 	RefreshFailureNotice,
@@ -97,22 +99,7 @@ function Dashboard(): JSX.Element {
 		}
 	}, [ isSyncComplete ] );
 
-	const widgetModules = useSelect(
-		select =>
-			(
-				select( coreStore ) as unknown as {
-					getEntityRecords: (
-						kind: string,
-						name: string,
-						query?: Record< string, unknown >
-					) => WidgetModuleRecord[] | null;
-				}
-			 )
-				// `per_page: -1` returns every widget type; core-data's default query
-				// (`per_page: 10`) would silently hide any widget past the tenth.
-				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
-		[]
-	);
+	const widgetModules = useWidgetModules();
 
 	const [ editMode, setEditMode ] = useState( false );
 	const startCustomizing = useCallback( () => setEditMode( true ), [] );
@@ -133,13 +120,12 @@ function Dashboard(): JSX.Element {
 		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
 	} ).filter( step => step.anchor );
 
+	const defaultSection = resolveSectionId( undefined, sections );
+
 	// The journey introduces the default section at rest: not another tab, and
 	// not while the reader is already customizing.
 	const onboarding = useOnboarding( {
-		enabled:
-			hasResolvedSections &&
-			! editMode &&
-			activeSection === resolveSectionId( undefined, sections ),
+		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
 		stepCount: tourSteps.length,
 	} );
 
@@ -173,6 +159,16 @@ function Dashboard(): JSX.Element {
 	// Placement only: the date state is the same either way.
 	const showHeaderDateControl =
 		activeSectionRecord?.date_filter_options?.with_header_date_control ?? true;
+
+	// A widget can open another section over a month (WOOA7S-2036); once that
+	// section shows the period control, it draws attention to the new period.
+	const showsPeriodControl =
+		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
+	const attentionId = useSettlePeriodChange(
+		activeSection,
+		dateFilters.appliedRange,
+		showsPeriodControl
+	);
 
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
@@ -246,12 +242,17 @@ function Dashboard(): JSX.Element {
 				 * Report pages mount this same panel over records tables, which have no
 				 * interval, so the control is asked for rather than implied.
 				 */
-				<DateFiltersPanel { ...dateFilters } withIntervalControl />
+				<DateFiltersPanel { ...dateFilters } withIntervalControl attentionId={ attentionId } />
 			);
 	}
 
 	return (
 		<GlobalErrorProvider>
+			<PeriodChangeStatus
+				attentionId={ attentionId }
+				appliedPresetId={ dateFilters.appliedPresetId }
+				appliedRange={ dateFilters.appliedRange }
+			/>
 			{ /*
 			 * Declared once for widgets below: hiding the control doesn't strip the params,
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
@@ -312,6 +313,16 @@ function Dashboard(): JSX.Element {
 
 										{ activeSection === section.slug ? (
 											<div className={ styles.body }>
+												{ /* Behind the onboarding journey: it introduces the tab
+												     the banner asks about. */ }
+												<FeedbackBanner
+													enabled={
+														! editMode &&
+														section.slug === defaultSection &&
+														onboarding.phase === 'closed'
+													}
+												/>
+
 												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
 													<SectionSyncNotice
 														percentage={ syncStatus?.percentage ?? 0 }
@@ -354,4 +365,16 @@ function Dashboard(): JSX.Element {
 	);
 }
 
-export const stage = Dashboard;
+/**
+ * Route stage wrapper: the signal provider sits above the dashboard so a widget
+ * and the header, which both read it, share one.
+ *
+ * @return The dashboard page.
+ */
+export function stage(): JSX.Element {
+	return (
+		<PeriodChangeSignalProvider>
+			<Dashboard />
+		</PeriodChangeSignalProvider>
+	);
+}

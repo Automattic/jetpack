@@ -10,69 +10,90 @@
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
 import {
+	getComparisonPrice,
 	hasVariantPricing,
 	isVariantPricingOn,
+	validateCustomerNotes,
 	validateVariants,
 } from '../components/variant-builder';
 import { API_BASE } from './api-base';
-import { buildRequestData, keepPayPalOnlyFields } from './request-data';
-import { ADVISORY_ERROR_KEYS, getUserFriendlyError, getValidationErrors } from './validation';
+import { buildRequestData } from './request-data';
+import { firstBlockingError, getUserFriendlyError, getValidationErrors } from './validation';
 
 // The last body each block sent, so an unchanged block is not re-sent on every save.
 const lastSynced = new Map();
 
+// The payment each block has read back, by id, since a block can later be pointed at
+// a different one.
+const paymentsRead = new Map();
+
+// Blocks whose editor rendered, keyed by clientId. Both cases hold the save back, but
+// only a block that rendered is told to reload; the rest are sent to the visual editor.
+const blocksMounted = new Set();
+
 /**
- * Forget what has been synced. Tests start clean with this.
+ * Forget what has been synced and what has been read. Tests start clean with this.
  */
 export function forgetSyncedRequests() {
 	lastSynced.clear();
+	paymentsRead.clear();
+	blocksMounted.clear();
+}
+
+/**
+ * Record that a block's editor rendered, which decides the message a held-back save shows.
+ *
+ * @param {string} clientId - The block's client id.
+ */
+export function recordBlockMounted( clientId ) {
+	blocksMounted.add( clientId );
+}
+
+/**
+ * Record that a block has read the payment it points at, so the save may write it.
+ *
+ * @param {string} clientId   - The block's client id.
+ * @param {string} resourceId - The payment the block read.
+ */
+export function recordPaymentRead( clientId, resourceId ) {
+	paymentsRead.set( clientId, resourceId );
 }
 
 /**
  * Why a block's form cannot be sent to PayPal yet, if it cannot.
  *
- * The same gate the editor shows the merchant: a blocking field error, or an
- * option group error, holds the payment back.
+ * The same check the editor shows the merchant - a blocking field error, an option
+ * group error or a customer note error.
  *
  * @param {object} attributes - Block attributes.
  * @return {string|null} The first thing to fix, or null when the payment can go.
  */
 export function heldBackReason( attributes ) {
-	const {
-		productName,
-		price,
-		productDescription,
-		returnUrl,
-		currencyCode,
-		variantsEnabled,
-		variants,
-		taxEnabled,
-		taxType,
-		taxValue,
-	} = attributes;
+	const { price, currencyCode, variantsEnabled, variants, customerNotes } = attributes;
 
+	const variantPricingOn = isVariantPricingOn( variantsEnabled, variants );
+
+	// The whole attribute set goes in, so a new field is covered here and in the editor
+	// at once.
 	const errors = getValidationErrors( {
-		productName,
-		price,
-		productDescription,
-		returnUrl,
-		currencyCode,
-		variantPricingOn: isVariantPricingOn( variantsEnabled, variants ),
-		taxEnabled,
-		taxIsPercentage: ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE',
-		taxValue,
+		...attributes,
+		variantPricingOn,
+		comparisonPrice: getComparisonPrice( variantPricingOn, variants, price ),
 	} );
 
-	const blocking = Object.entries( errors ).find(
-		( [ field, message ] ) => message && ! ADVISORY_ERROR_KEYS.includes( field )
-	);
+	const blocking = firstBlockingError( errors );
 	if ( blocking ) {
-		return blocking[ 1 ];
+		return blocking;
 	}
 
 	const [ variantError ] = validateVariants( variantsEnabled, variants, currencyCode || 'USD' );
+	if ( variantError ) {
+		return variantError.message;
+	}
 
-	return variantError ? variantError.message : null;
+	const [ noteError ] = validateCustomerNotes( customerNotes );
+
+	return noteError ? noteError.message : null;
 }
 
 /**
@@ -91,19 +112,23 @@ export function isReadyForPayPal( attributes ) {
  * @param {object} err - The apiFetch error.
  * @return {boolean} True for a 404.
  */
-function isNotFound( err ) {
+export function isNotFound( err ) {
 	return err?.code === 'paypal_api_resource_not_found' || err?.data?.status === 404;
 }
 
 /**
  * Create a payment and return the attributes that point the block at it.
  *
- * @param {Function} request - apiFetch or a stand-in.
- * @param {object}   body    - The request body.
+ * @param {Function} request  - apiFetch or a stand-in.
+ * @param {string}   clientId - The block's client id.
+ * @param {object}   body     - The request body.
  * @return {Promise<object>} Attributes to set on the block.
  */
-async function createPayment( request, body ) {
+async function createPayment( request, clientId, body ) {
 	const response = await request( { path: `${ API_BASE }/buttons`, method: 'POST', data: body } );
+
+	// This request is what PayPal now has, so the next save can update it without a read.
+	recordPaymentRead( clientId, response.id );
 
 	return { isApiManaged: true, resourceId: response.id, paymentLink: response.payment_link };
 }
@@ -131,12 +156,28 @@ async function syncBlock(
 		return false;
 	}
 
+	const { resourceId } = attributes;
+
+	// An unread block can be holding block.json defaults, and the PUT below would write
+	// them over the payment PayPal has. A block with no payment yet has nothing to overwrite.
+	if ( resourceId && paymentsRead.get( clientId ) !== resourceId ) {
+		reportHeldBack?.(
+			{ clientId, attributes },
+			blocksMounted.has( clientId )
+				? __(
+						'Its current settings have not loaded yet. Reload the post and try again.',
+						'jetpack-paypal-payments'
+					)
+				: __( 'Open this block in the visual editor and save again.', 'jetpack-paypal-payments' )
+		);
+		return false;
+	}
+
 	const body = buildRequestData(
 		attributes,
 		hasVariantPricing( attributes.variantsEnabled, attributes.variants )
 	);
 	const key = JSON.stringify( body );
-	const { resourceId } = attributes;
 
 	if ( resourceId && lastSynced.get( clientId ) === key ) {
 		return false;
@@ -146,24 +187,23 @@ async function syncBlock(
 	try {
 		if ( resourceId ) {
 			try {
-				// Read first: a PUT is a full replacement, and the payment carries
-				// fields the form has no control for.
-				const resource = await request( { path: `${ API_BASE }/buttons/${ resourceId }` } );
+				// A PUT replaces the payment outright, and the form models every line item field
+				// PayPal stores, so the body goes out as built.
 				await request( {
 					path: `${ API_BASE }/buttons/${ resourceId }`,
 					method: 'PUT',
-					data: keepPayPalOnlyFields( body, resource ),
+					data: body,
 				} );
 			} catch ( err ) {
 				if ( ! isNotFound( err ) ) {
 					throw err;
 				}
 				// Gone from PayPal, or deleted from the admin page: give the block a new one.
-				updateBlockAttributes( clientId, await createPayment( request, body ) );
+				updateBlockAttributes( clientId, await createPayment( request, clientId, body ) );
 				changed = true;
 			}
 		} else {
-			updateBlockAttributes( clientId, await createPayment( request, body ) );
+			updateBlockAttributes( clientId, await createPayment( request, clientId, body ) );
 			changed = true;
 		}
 		lastSynced.set( clientId, key );

@@ -15,7 +15,22 @@ import { ReadinessFields, readinessSummary, type StatsFeedbackReadiness } from '
 // from …"), so it has to name the surface without any further context.
 const PRODUCT_NAME = 'Jetpack Stats v2';
 
+export type FeedbackSource = 'menu' | 'banner';
+
 type FeedbackModalProps = {
+	/**
+	 * Which entry point opened the modal; rides along on the submission event.
+	 */
+	source: FeedbackSource;
+
+	/**
+	 * The answer is on its way. Fires once, before the reader is thanked.
+	 */
+	onSubmit?: () => void;
+
+	/**
+	 * Called once the reader dismisses the modal.
+	 */
 	onClose: () => void;
 };
 
@@ -23,11 +38,10 @@ type FeedbackModalProps = {
  * Readiness answer with an optional comment. Both reach Tracks as one event; a non-empty
  * comment also goes to the Stats feedback endpoint.
  *
- * @param {FeedbackModalProps} props         - Component props.
- * @param {Function}           props.onClose - Called once the reader dismisses the modal.
+ * @param {FeedbackModalProps} props - Component props.
  * @return The modal.
  */
-export function FeedbackModal( { onClose }: FeedbackModalProps ) {
+export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps ) {
 	const trackEvent = useTrackEvent();
 	const [ readiness, setReadiness ] = useState< StatsFeedbackReadiness >();
 	const [ comment, setComment ] = useState( '' );
@@ -49,7 +63,11 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 
 		const message = comment.trim();
 
-		trackEvent( 'jetpack_premium_analytics_feedback_submit', { readiness, comment: message } );
+		trackEvent( 'jetpack_premium_analytics_feedback_submit', {
+			readiness,
+			comment: message,
+			source,
+		} );
 
 		// Second channel, deliberately not awaited: Tracks is a pixel and ad blockers drop it
 		// silently, so the message also goes to Happiness where delivery is not the reader's
@@ -66,7 +84,8 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 		}
 
 		setHasSubmitted( true );
-	}, [ comment, readiness, trackEvent ] );
+		onSubmit?.();
+	}, [ comment, onSubmit, readiness, source, trackEvent ] );
 
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
@@ -90,7 +109,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 								</Notice.Title>
 								<Notice.Description>
 									{ __(
-										"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu.",
+										"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the page options menu.",
 										'jetpack-premium-analytics-pkg'
 									) }
 								</Notice.Description>
@@ -120,6 +139,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 							<Dialog.Action variant="minimal" size="compact">
 								{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
 							</Dialog.Action>
+
 							<Button
 								variant="solid"
 								size="compact"

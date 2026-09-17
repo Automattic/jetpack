@@ -6,7 +6,7 @@ import ModernSettings from './modern-settings';
 jest.mock( '$lib/stores/premium-features', () => ( {
 	usePremiumFeatures: () => mockPremiumFeatures,
 } ) );
-jest.mock( '../../pages/index', () => ( {
+jest.mock( '../../pages/settings/settings', () => ( {
 	__esModule: true,
 	default: () => <div>settings body</div>,
 } ) );

@@ -79,7 +79,7 @@ export function useEnqueueBackup(): Result {
 
 	return {
 		state,
-		errorMessage: isError ? error?.message ?? null : null,
+		errorMessage: isError ? ( error?.message ?? null ) : null,
 		enqueue,
 		reset,
 	};

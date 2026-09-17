@@ -13,7 +13,7 @@ export { computeDateRangeFromPreset } from './preset-date-range';
 export { hasProductFilters } from './product-filters';
 export { resolveReportTimeZone, type ReportTimeZoneParams } from './report-timezone';
 export { saveBlob } from './save-blob';
-export { toPostId } from './to-post-id';
+export { toAuthorId, toPostId } from './to-post-id';
 export { withoutComparison } from './without-comparison';
 export { useSiteHomeUrl } from './use-site-home-url';
 export type { PresetType, ReportParams } from './search';

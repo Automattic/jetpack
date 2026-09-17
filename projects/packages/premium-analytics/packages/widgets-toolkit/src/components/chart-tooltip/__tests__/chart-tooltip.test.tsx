@@ -113,4 +113,51 @@ describe( 'ChartTooltip', () => {
 			'#visitors-previous',
 		] );
 	} );
+
+	it( 'reads a supplementary row out without a swatch, in its own format', () => {
+		render(
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: {
+						'Ads Served': { datum: { value: 131 }, index: 0, key: 'Ads Served' },
+						'Average CPM': { datum: { value: 0.15 }, index: 1, key: 'Average CPM' },
+					},
+				} }
+				dataFormat={ DATA_FORMAT }
+				seriesStyles={ STYLES }
+				seriesKeys={ [ 'Ads Served' ] }
+				indicatorType="line"
+				supplementaryRows={ { 'Average CPM': { type: 'currency', options: { decimals: 2 } } } }
+				getLabel={ ( _datum, _index, key ) => key }
+			/>
+		);
+
+		// One swatch for the drawn series; the count format would have rendered
+		// the CPM as a bare "0".
+		expect( swatchFills() ).toEqual( [ '#views' ] );
+		expect( screen.getByText( 'Average CPM' ) ).toBeInTheDocument();
+		expect( screen.getByText( /\$0\.15/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the chart format for a supplementary row that names none', () => {
+		render(
+			<ChartTooltip
+				tooltipData={ {
+					datumByKey: {
+						Views: { datum: { value: 100 }, index: 0, key: 'Views' },
+						Visitors: { datum: { value: 40 }, index: 1, key: 'Visitors' },
+					},
+				} }
+				dataFormat={ DATA_FORMAT }
+				seriesStyles={ STYLES }
+				seriesKeys={ [ 'Views' ] }
+				indicatorType="rect"
+				supplementaryRows={ { Visitors: undefined } }
+				getLabel={ ( _datum, _index, key ) => key }
+			/>
+		);
+
+		expect( swatchFills() ).toEqual( [ '#views' ] );
+		expect( screen.getByText( '40' ) ).toBeInTheDocument();
+	} );
 } );

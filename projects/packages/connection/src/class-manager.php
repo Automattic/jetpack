@@ -1306,7 +1306,7 @@ class Manager {
 	 * when performing an ownership change.
 	 *
 	 * @since 8.8.0
-	 * @since $$next-version$$ A locked protected owner anchor makes ownership non-transferable.
+	 * @since 9.3.0 A locked protected owner anchor makes ownership non-transferable.
 	 *
 	 * @return bool True if ownership can be transferred, false if it is locked.
 	 */
@@ -1336,7 +1336,7 @@ class Manager {
 	 * legitimately answer false while it is installed and active — running in test mode, say —
 	 * and true only at the lifecycle moment that binds something to the owner's identity.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return bool True if a protected owner is required at this moment. Default false.
 	 */
@@ -1347,7 +1347,7 @@ class Manager {
 		 * Return `true` at the point a feature is about to bind to the connection owner's
 		 * identity. Answering false at other times is expected and supported.
 		 *
-		 * @since $$next-version$$
+		 * @since 9.3.0
 		 *
 		 * @param bool $required Whether a protected owner is required. Default false.
 		 */
@@ -1364,7 +1364,7 @@ class Manager {
 	 * token on top of that is what keeps a row written by another subsystem from ever satisfying
 	 * this: both halves are load-bearing, and there are tests for each.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return bool
 	 */
@@ -1391,7 +1391,7 @@ class Manager {
 	 * multisite does. It is false while the package is unconfigured, so a caller that has not
 	 * registered the connection's capabilities is refused rather than trusted.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param int    $user_id      The local user to anchor.
 	 * @param string $confirmed_by How the confirmation was obtained, e.g. `popup` or `recovery`.
@@ -1465,7 +1465,7 @@ class Manager {
 	 * consequential half. The `@internal` tag is documentation; the capability is enforcement.
 	 *
 	 * @internal Recovery and support flows only. Consumers must not call this.
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return true|WP_Error True once no anchor is set, WP_Error otherwise.
 	 */
@@ -1666,12 +1666,23 @@ class Manager {
 	 * Update the connection owner.
 	 *
 	 * @since 1.29.0
+	 * @since 9.3.0 Refused while ownership is locked.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
 	 *
 	 * @return true|WP_Error True if owner successfully changed, WP_Error otherwise.
 	 */
 	public function update_connection_owner( $new_owner_id ) {
+		// Answered before the arguments are validated: no candidate is valid while ownership is
+		// locked, and an argument error would suggest a retry that cannot work.
+		if ( ! $this->is_ownership_transferable() ) {
+			return new WP_Error(
+				'ownership_locked',
+				__( 'The connection owner is locked on this site.', 'jetpack-connection' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		$roles = new Roles();
 		if ( ! user_can( $new_owner_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			return new WP_Error(

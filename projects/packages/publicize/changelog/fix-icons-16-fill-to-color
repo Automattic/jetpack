@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Share status: Keep the success icon colored now that @wordpress/icons 16 draws it as strokes.

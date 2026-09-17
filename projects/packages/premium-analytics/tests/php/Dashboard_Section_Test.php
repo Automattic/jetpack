@@ -527,7 +527,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'traffic'     => 'Site traffic',
-				'insights'    => 'Activity insights',
+				'insights'    => 'Site insights',
 				'subscribers' => 'Subscribers stats',
 				'store'       => null,
 				'ads'         => null,
@@ -869,7 +869,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'id'                  => 'analytics/insights',
 					'slug'                => 'insights',
 					'label'               => 'Insights',
-					'title'               => 'Activity insights',
+					'title'               => 'Site insights',
 					'order'               => 20,
 					'date_filter'         => 'year',
 					'date_filter_options' => array(

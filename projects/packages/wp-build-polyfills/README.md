@@ -69,9 +69,15 @@ The version threshold for force-replacements can be overridden with a third para
 WP_Build_Polyfills::register( 'my-plugin', array( 'wp-notices' ), '7.1' );
 ```
 
-## Admin frame backdrop
+## Admin frame
 
-`WP_Build_Admin_Frame` makes the `@wordpress/boot` single-page backdrop continue the wp-admin menu color. `@wordpress/admin-ui` only knows Core's color schemes and paints a near-black backdrop for WordPress.com and third-party ones, and on WordPress 7.0+ the boot module that runs is Core's bundled copy, so the override is applied from PHP: `WP_Build_Polyfills::register()` arms it, and it prints a stylesheet on `admin_head` plus a script on `in_admin_header` that samples the `#adminmenuback` background into `--wp-build-admin-menu-background`. It lives here because this package is the one runtime every wp-build page already loads, and it is temporary until wp-build or boot ship the same behavior.
+`WP_Build_Admin_Frame` reconciles the `@wordpress/boot` single-page layout with the wp-admin frame. On WordPress 7.0+ the boot module that runs is Core's bundled copy, so the fixes are applied from PHP around the page, and `WP_Build_Polyfills::register()` arms them:
+
+- **Backdrop color.** `@wordpress/admin-ui` only knows Core's color schemes and paints a near-black backdrop for WordPress.com and third-party ones. A script on `in_admin_header` samples the `#adminmenuback` background into `--wp-build-admin-menu-background`, which a stylesheet on `admin_head` applies.
+- **First paint.** The same stylesheet paints the backdrop and a stage-shaped panel on the empty app container, so the page does not flash white before boot mounts.
+- **Cross-document view transitions.** Where Core enables them, a render-blocking deferred script on `admin_head` holds a wp-build page's first render until its admin menu has parsed, and boot's surfaces are unnamed while the page leaves so they do not zoom or slide over the next one.
+
+It lives here because this package is the one runtime every wp-build page already loads, and it is temporary until wp-build or boot ship the same behavior.
 
 ## Boot module asset file
 
