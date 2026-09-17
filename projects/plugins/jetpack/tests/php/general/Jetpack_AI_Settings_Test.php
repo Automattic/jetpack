@@ -291,7 +291,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->force_ai_module_inactive();
 
 		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the filter reports the master off.' );
-		$this->assertTrue( Jetpack_AI_Settings::is_master_forced_off() );
+		$this->assertSame( 'modules', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
 	/**
@@ -302,7 +302,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		\Jetpack_Options::update_option( 'active_modules', array() );
 		$this->force_ai_module_inactive();
 
-		$this->assertTrue( Jetpack_AI_Settings::is_master_forced_off() );
+		$this->assertSame( 'modules', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
 	/**
@@ -317,10 +317,10 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		};
 		add_filter( 'jetpack_get_available_modules', $remove );
 
-		$forced_off = Jetpack_AI_Settings::is_master_forced_off();
+		$route = Jetpack_AI_Settings::get_master_forced_off_route();
 
 		remove_filter( 'jetpack_get_available_modules', $remove );
-		$this->assertTrue( $forced_off );
+		$this->assertSame( 'modules', $route );
 	}
 
 	/**
@@ -334,7 +334,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
 		$this->assertTrue( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the module is still active.' );
-		$this->assertTrue( Jetpack_AI_Settings::is_master_forced_off() );
+		$this->assertSame( 'filter', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
 	/**
@@ -405,7 +405,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		\Jetpack_Options::update_option( 'active_modules', array() );
 
 		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the module reads off.' );
-		$this->assertFalse( Jetpack_AI_Settings::is_master_forced_off() );
+		$this->assertSame( '', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
 	/**
@@ -416,7 +416,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
 		$this->force_ai_module_active();
 
-		$this->assertFalse( Jetpack_AI_Settings::is_master_forced_off() );
+		$this->assertSame( '', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
 	/**
@@ -427,7 +427,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
 
-		$this->assertFalse( Jetpack_AI_Settings::is_master_forced_off() );
+		$this->assertSame( '', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
 	/**

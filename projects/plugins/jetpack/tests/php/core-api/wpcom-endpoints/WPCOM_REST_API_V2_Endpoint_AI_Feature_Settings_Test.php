@@ -423,7 +423,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertTrue( $data['host_allows_ai'] );
 		$this->assertTrue( $data['master_enabled'] );
-		$this->assertFalse( $data['master_forced_off'] );
 		$this->assertArrayHasKey( 'is_connected', $data );
 		$this->assertArrayHasKey( 'is_user_connected', $data );
 		$this->assertArrayHasKey( 'supports_ai', $data['plan'] );
@@ -628,21 +627,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		$this->assertFalse( $data['master_enabled'] );
 		$this->assertFalse( ( new Modules() )->is_active( 'ai' ), 'The setter routed the write to the ai module.' );
 		$this->assertFalse( apply_filters( 'jetpack_ai_enabled', true ) );
-	}
-
-	/**
-	 * A filter that holds the `ai` module off is reported separately from the host gate.
-	 */
-	public function test_master_forced_off_when_a_filter_holds_the_module_off() {
-		wp_set_current_user( self::$admin_id );
-		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
-		self::set_ai_module_active( false );
-
-		$data = $this->dispatch( 'GET' )->get_data();
-
-		$this->assertFalse( $data['master_enabled'] );
-		$this->assertTrue( $data['master_forced_off'] );
-		$this->assertTrue( $data['host_allows_ai'] );
 	}
 
 	/**

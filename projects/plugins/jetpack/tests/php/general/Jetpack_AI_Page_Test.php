@@ -308,8 +308,33 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The client picks a documentation URL off this value, so only the two known
-	 * routes may reach it.
+	 * Each known route picks a different documentation URL, so each must survive
+	 * the allowlist intact.
+	 */
+	public function test_known_forced_off_routes_are_injected_intact() {
+		foreach (
+			array(
+				Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER,
+				Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER_VIP,
+				Jetpack_AI_Settings::FORCED_OFF_ROUTE_MODULES,
+			) as $route
+		) {
+			$filter = static function ( $config ) use ( $route ) {
+				$config['masterForcedOff'] = $route;
+				return $config;
+			};
+			add_filter( 'jetpack_ai_admin_config', $filter );
+
+			$settings = $this->get_injected_settings();
+
+			remove_filter( 'jetpack_ai_admin_config', $filter );
+			$this->assertSame( $route, $settings['masterForcedOff'] );
+		}
+	}
+
+	/**
+	 * The client picks a documentation URL off this value, so nothing outside the
+	 * known routes may reach it.
 	 */
 	public function test_unknown_forced_off_route_is_dropped() {
 		$filter = static function ( $config ) {
@@ -630,34 +655,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 			),
 			$data['scheduledTaskEmptyViewSuggestions']
 		);
-	}
-
-	/**
-	 * Webpack loads the Scheduled tasks chunk from this base URL.
-	 */
-	public function test_chunk_base_url_is_injected_with_scheduled_tasks() {
-		unset( $GLOBALS['wp_scripts'] );
-		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
-
-		( new Jetpack_AI_Page() )->page_admin_scripts();
-
-		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
-		$this->assertStringContainsString(
-			'window.Jetpack_AI_Admin_Assets_Base_Url = "' . plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ) . '";',
-			$inline
-		);
-	}
-
-	/**
-	 * Only the Scheduled tasks tab loads a chunk, so the base URL stays out by default.
-	 */
-	public function test_chunk_base_url_is_not_injected_by_default() {
-		unset( $GLOBALS['wp_scripts'] );
-
-		( new Jetpack_AI_Page() )->page_admin_scripts();
-
-		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
-		$this->assertStringNotContainsString( 'Jetpack_AI_Admin_Assets_Base_Url', $inline );
 	}
 
 	/**

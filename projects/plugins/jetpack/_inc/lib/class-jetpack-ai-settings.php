@@ -326,16 +326,6 @@ class Jetpack_AI_Settings {
 	}
 
 	/**
-	 * Whether custom code keeps AI off, so no switch on this site can turn it
-	 * back on.
-	 *
-	 * @return bool
-	 */
-	public static function is_master_forced_off() {
-		return '' !== self::get_master_forced_off_route();
-	}
-
-	/**
 	 * Which hook custom code used to hold AI off, so the notice can link to the
 	 * matching documentation. Always empty on WordPress.com Simple, which runs
 	 * no modules.

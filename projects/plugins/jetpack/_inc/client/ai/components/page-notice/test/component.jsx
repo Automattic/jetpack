@@ -32,9 +32,12 @@ describe( 'getPageNoticeState', () => {
 			expect( resolve( { hostAllowsAi: false } ) ).toBe( 'host-off' );
 		} );
 
-		it.each( [ 'filter', 'modules' ] )( 'reports the %s route custom code took', route => {
-			expect( resolve( { masterForcedOff: route } ) ).toBe( 'forced-off' );
-		} );
+		it.each( [ 'filter', 'filter-vip', 'modules' ] )(
+			'reports the %s route custom code took',
+			route => {
+				expect( resolve( { masterForcedOff: route } ) ).toBe( 'forced-off' );
+			}
+		);
 
 		it( 'reports offline mode ahead of the connection it disables', () => {
 			expect( resolve( { isOfflineMode: true, isConnected: false } ) ).toBe( 'offline-mode' );
