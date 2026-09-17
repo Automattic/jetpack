@@ -43,9 +43,10 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Malformed or empty entries must not produce blank list items.
+	 * The code is what the page maps to its own copy, so an entry without one
+	 * cannot be rendered and must be dropped.
 	 */
-	public function test_blocker_messages_extracts_only_populated_messages() {
+	public function test_transfer_errors_keep_codes_and_skip_entries_without_one() {
 		$eligibility = array(
 			'is_eligible' => false,
 			'errors'      => array(
@@ -53,21 +54,61 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 					'code'    => 'no_business_plan',
 					'message' => 'Only sites with an eligible plan can be transferred.',
 				),
-				array( 'code' => 'malformed_without_message' ),
+				array( 'message' => 'Malformed, without a code.' ),
 			),
 		);
 
+		$errors = wpcom_simple_backup_get_transfer_errors( $eligibility );
+
+		$this->assertCount( 1, $errors );
+		$this->assertSame( 'no_business_plan', $errors[0]['code'] );
 		$this->assertSame(
-			array( 'Only sites with an eligible plan can be transferred.' ),
-			wpcom_simple_backup_get_blocker_messages( $eligibility )
+			'Only sites with an eligible plan can be transferred.',
+			$errors[0]['message']
 		);
+	}
+
+	/**
+	 * A code the API sends without a message still has to reach the page, which
+	 * has its own copy for every code it recognizes.
+	 */
+	public function test_transfer_errors_default_a_missing_message_to_empty() {
+		$eligibility = array( 'errors' => array( array( 'code' => 'site_graylisted' ) ) );
+
+		$errors = wpcom_simple_backup_get_transfer_errors( $eligibility );
+
+		$this->assertCount( 1, $errors );
+		$this->assertSame( '', $errors[0]['message'] );
+	}
+
+	/**
+	 * Each error state has to be previewable on a sandbox without arranging a
+	 * site that actually fails the check.
+	 */
+	public function test_transfer_errors_are_filterable() {
+		add_filter(
+			'wpcom_simple_backup_transfer_errors',
+			function () {
+				return array(
+					array(
+						'code'    => 'email_unverified',
+						'message' => 'Email address is not confirmed.',
+					),
+				);
+			}
+		);
+
+		$errors = wpcom_simple_backup_get_transfer_errors( null );
+
+		$this->assertCount( 1, $errors );
+		$this->assertSame( 'email_unverified', $errors[0]['code'] );
 	}
 
 	/**
 	 * A null result means the library was unavailable, not that there are errors.
 	 */
-	public function test_blocker_messages_handles_null_eligibility() {
-		$this->assertSame( array(), wpcom_simple_backup_get_blocker_messages( null ) );
+	public function test_transfer_errors_handles_null_eligibility() {
+		$this->assertSame( array(), wpcom_simple_backup_get_transfer_errors( null ) );
 	}
 
 	/**
@@ -227,7 +268,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	public function test_transfer_warnings_are_flattened_across_groups() {
 		$eligibility = array(
 			'warnings' => array(
-				'subdomains' => array(
+				'subdomain' => array(
 					array(
 						'id'           => 'wordpress_subdomain',
 						'description'  => 'Your site address will change.',
@@ -238,7 +279,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 						'support_url'  => 'https://wordpress.com/support/changing-site-address/',
 					),
 				),
-				'plugins'    => array(
+				'plugins'   => array(
 					array(
 						'id'          => 'some_plugin',
 						'description' => 'A plugin will be deactivated.',
@@ -262,7 +303,7 @@ class WPCOM_Simple_Backup_Test extends \WorDBless\BaseTestCase {
 	public function test_transfer_warnings_skips_entries_without_an_id() {
 		$eligibility = array(
 			'warnings' => array(
-				'subdomains' => array(
+				'subdomain' => array(
 					array( 'description' => 'No id, so not renderable.' ),
 				),
 			),

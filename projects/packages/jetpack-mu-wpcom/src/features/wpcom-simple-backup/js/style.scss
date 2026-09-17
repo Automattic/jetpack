@@ -59,17 +59,12 @@
 		}
 	}
 
-	&__blockers {
-		margin: 0;
-		padding-inline-start: 15px;
-	}
-
-	// Mirrors the Calypso dashboard's activation modal, but keyed to
-	// --wp-components-* so both themes track the same design system.
+	// Mirrors the Calypso dashboard's activation modal, but keyed to a WPDS
+	// surface token so both themes track the same design system.
 	&__domain {
 		padding-block: 12px;
 		padding-inline: 16px;
-		background-color: var(--wp-components-color-gray-100, #f0f0f0);
+		background-color: var(--wpds-color-background-surface-neutral-weak);
 	}
 
 	&__address {
@@ -77,10 +72,15 @@
 	}
 
 	// The subdomain truncates so a long address cannot widen the modal; the
-	// rest of the domain stays whole.
+	// rest of the domain and the badge stay whole.
 	&__domain-name {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+
+	&__domain-suffix,
+	&__domain-badge {
+		flex-shrink: 0;
 	}
 }

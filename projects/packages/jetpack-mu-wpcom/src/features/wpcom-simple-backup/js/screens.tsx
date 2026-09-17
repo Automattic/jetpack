@@ -3,10 +3,10 @@ import { __, sprintf } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 import { useState } from 'react';
+import { TransferActivationModal } from './activation-modal.tsx';
 import { Callout } from './callout.tsx';
 import { upsell } from './icons.tsx';
 import { backupsCalloutIllustration } from './illustration.ts';
-import { TransferWarningsModal } from './transfer-warnings-modal.tsx';
 import type { InitialState } from './types.ts';
 
 /**
@@ -53,8 +53,9 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
  * Shown when the site has a backup-capable plan and can be transferred.
  *
  * The button leaves wp-admin: activation opens a transfer flow only Calypso can
- * host, so this is a hand-off rather than a replacement. Warnings get a
- * confirmation step first, since one of them is that the address changes.
+ * host, so this is a hand-off rather than a replacement. Anything the reader
+ * needs to see first — a failed check, or a warning such as the address
+ * changing — goes through the modal.
  *
  * @param props       - Component props.
  * @param props.state - Resolved initial state.
@@ -62,7 +63,11 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
  */
 export function ActivateScreen( { state }: { state: InitialState } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const hasWarnings = state.warnings.length > 0;
+
+	// A site with nothing to surface can start the transfer directly; the modal
+	// exists to explain errors and confirm warnings, so it would be empty.
+	const needsConfirmation =
+		! state.isEligible || state.errors.length > 0 || state.warnings.length > 0;
 
 	return (
 		<>
@@ -82,7 +87,7 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 					</>
 				}
 				actions={
-					hasWarnings ? (
+					needsConfirmation ? (
 						<Button variant="primary" size="compact" onClick={ () => setIsModalOpen( true ) }>
 							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
 						</Button>
@@ -94,9 +99,12 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 				}
 			/>
 			{ isModalOpen && (
-				<TransferWarningsModal
+				<TransferActivationModal
+					isEligible={ state.isEligible }
+					errors={ state.errors }
 					warnings={ state.warnings }
 					activateUrl={ state.activateUrl }
+					supportUrl={ state.supportUrl }
 					onClose={ () => setIsModalOpen( false ) }
 				/>
 			) }
@@ -133,56 +141,6 @@ export function InProgressScreen() {
 						) }
 					</Text>
 				</>
-			}
-		/>
-	);
-}
-
-/**
- * Shown when the plan includes backups but the site cannot be transferred yet.
- *
- * Without it the reader would get an "Activate" button opening a flow certain
- * to reject them, with no explanation.
- *
- * @param props       - Component props.
- * @param props.state - Resolved initial state.
- * @return The rendered prompt.
- */
-export function IneligibleScreen( { state }: { state: InitialState } ) {
-	return (
-		<Callout
-			icon={ backup }
-			title={ __( 'Backups are not available yet', 'jetpack-mu-wpcom' ) }
-			image={ backupsCalloutIllustration }
-			description={
-				<>
-					<Text>
-						{ __(
-							'Your plan includes backups, but this site cannot be moved to our hosting platform yet.',
-							'jetpack-mu-wpcom'
-						) }
-					</Text>
-					{ state.blockers.length > 0 && (
-						<ul className="wpcom-simple-backup__blockers">
-							{ state.blockers.map( blocker => (
-								<Text key={ blocker } render={ <li /> }>
-									{ blocker }
-								</Text>
-							) ) }
-						</ul>
-					) }
-				</>
-			}
-			actions={
-				<Button
-					variant="secondary"
-					size="compact"
-					href={ state.supportUrl }
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					{ __( 'Learn more about backups', 'jetpack-mu-wpcom' ) }
-				</Button>
 			}
 		/>
 	);

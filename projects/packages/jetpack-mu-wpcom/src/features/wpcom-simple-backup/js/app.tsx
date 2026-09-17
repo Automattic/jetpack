@@ -2,7 +2,7 @@ import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
-import { ActivateScreen, IneligibleScreen, InProgressScreen, UpgradeScreen } from './screens.tsx';
+import { ActivateScreen, InProgressScreen, UpgradeScreen } from './screens.tsx';
 import { getInitialState } from './state.ts';
 import './style.scss';
 
@@ -34,7 +34,6 @@ export function App() {
 			<div className="wpcom-simple-backup__body">
 				{ initialState.state === 'in_progress' && <InProgressScreen /> }
 				{ initialState.state === 'activate' && <ActivateScreen state={ initialState } /> }
-				{ initialState.state === 'ineligible' && <IneligibleScreen state={ initialState } /> }
 				{ initialState.state === 'upgrade' && <UpgradeScreen state={ initialState } /> }
 			</div>
 			<JetpackFooter />

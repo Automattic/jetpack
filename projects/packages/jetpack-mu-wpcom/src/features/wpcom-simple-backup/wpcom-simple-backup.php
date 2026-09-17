@@ -2,9 +2,6 @@
 /**
  * An in-wp-admin Backup page for WordPress.com Simple sites.
  *
- * Simple sites cannot be backed up, so this resolves the same upgrade or
- * activate state Calypso shows and hands it to a wp-build page.
- *
  * @package automattic/jetpack-mu-wpcom
  */
 
@@ -37,15 +34,11 @@ const WPCOM_SIMPLE_BACKUP_TRANSFER_FLOW_URL = 'https://wordpress.com/setup/trans
 
 /**
  * Site feature the transfer flow waits for before handing the reader back.
- *
- * The JS counterpart of \WPCOM_Features::BACKUPS; without it the flow can
- * return before backups are actually live.
  */
 const WPCOM_SIMPLE_BACKUP_TRANSFER_FEATURE = 'backups-self-serve';
 
 /**
- * Tracks context recorded against the transfer, matching the Calypso page this
- * replaces so the funnel stays continuous.
+ * Tracks context recorded for the WoA transfer
  */
 const WPCOM_SIMPLE_BACKUP_TRANSFER_CONTEXT = 'jetpack_product_activation';
 
@@ -63,11 +56,6 @@ const WPCOM_SIMPLE_BACKUP_STATE_IN_PROGRESS = 'in_progress';
  * Site has the plan and can transfer. Offer activation.
  */
 const WPCOM_SIMPLE_BACKUP_STATE_ACTIVATE = 'activate';
-
-/**
- * Site has the plan but cannot transfer yet. Explain why.
- */
-const WPCOM_SIMPLE_BACKUP_STATE_INELIGIBLE = 'ineligible';
 
 /**
  * Boot the feature, loading the wp-build assets only on the Backup page itself.
@@ -108,10 +96,13 @@ function wpcom_simple_backup_is_backup_admin_request() {
 
 /**
  * Register the Backup page, then take it back out of the Jetpack menu.
+ * Removed from the menu until the mirroring Calypso page is deprecated.
  *
  * Removal is deferred on this page's own request because `get_admin_page_parent()`
- * finds the page's parent by searching `$submenu`; drop the entry before
- * `admin.php` resolves the hookname and the page stops rendering entirely.
+ * finds the page's parent by searching `$submenu`
+ *
+ * If we drop the entry before `admin.php` resolves the hookname
+ * the page stops rendering entirely.
  *
  * @return void
  */
@@ -214,14 +205,11 @@ function wpcom_simple_backup_enqueue_initial_state() {
 	$domain  = wp_parse_url( home_url(), PHP_URL_HOST );
 	$state   = wpcom_simple_backup_get_state( $blog_id, $user_id );
 
-	// Both lists come from the same eligibility result, and only one of them is
-	// ever rendered, so resolve it once and only when a state needs it.
-	$needs_eligibility = in_array(
-		$state,
-		array( WPCOM_SIMPLE_BACKUP_STATE_INELIGIBLE, WPCOM_SIMPLE_BACKUP_STATE_ACTIVATE ),
-		true
-	);
-	$eligibility       = $needs_eligibility ? wpcom_simple_backup_get_eligibility( $blog_id, $user_id ) : null;
+	// Only the activation prompt reads eligibility, and both lists come from the
+	// same result, so resolve it once and only for that state.
+	$eligibility = WPCOM_SIMPLE_BACKUP_STATE_ACTIVATE === $state
+		? wpcom_simple_backup_get_eligibility( $blog_id, $user_id )
+		: null;
 
 	wp_localize_script(
 		$handle,
@@ -229,12 +217,11 @@ function wpcom_simple_backup_enqueue_initial_state() {
 		array(
 			'state'       => $state,
 			'domain'      => $domain,
-			'blockers'    => WPCOM_SIMPLE_BACKUP_STATE_INELIGIBLE === $state
-				? wpcom_simple_backup_get_blocker_messages( $eligibility )
-				: array(),
-			'warnings'    => WPCOM_SIMPLE_BACKUP_STATE_ACTIVATE === $state
-				? wpcom_simple_backup_get_transfer_warnings( $eligibility )
-				: array(),
+			// A null result means the library was unavailable, not that the site
+			// failed a check; let the transfer flow reject it instead.
+			'isEligible'  => null === $eligibility || ! empty( $eligibility['is_eligible'] ),
+			'errors'      => wpcom_simple_backup_get_transfer_errors( $eligibility ),
+			'warnings'    => wpcom_simple_backup_get_transfer_warnings( $eligibility ),
 			'upgradeUrl'  => 'https://wordpress.com/plans/' . $domain,
 			'activateUrl' => wpcom_simple_backup_get_activate_url(),
 			'supportUrl'  => 'https://wordpress.com/support/backups/',
@@ -243,27 +230,21 @@ function wpcom_simple_backup_enqueue_initial_state() {
 }
 
 /**
- * Whether the site's plan includes backups.
+ * Whether the site's plan includes self-serve backups.
  *
  * @param int $blog_id Blog ID.
  * @return bool
  */
 function wpcom_simple_backup_has_backup_feature( $blog_id ) {
-	// The constant, not just the class: test doubles for \WPCOM_Features define
-	// only the features their own suite needs.
-	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! defined( '\WPCOM_Features::BACKUPS' ) ) {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! defined( '\WPCOM_Features::BACKUPS_SELF_SERVE' ) ) {
 		return false;
 	}
 
-	return (bool) wpcom_site_has_feature( \WPCOM_Features::BACKUPS, $blog_id );
+	return (bool) wpcom_site_has_feature( \WPCOM_Features::BACKUPS_SELF_SERVE, $blog_id );
 }
 
 /**
  * Whether a transfer to WoA is already underway.
- *
- * Two signals: `is_wpcom_atomic()` needs a transfer record to exist, while
- * `has_site_pending_automated_transfer()` covers the earlier gap from checkout
- * until that record is written. Offering "activate" in it would start a second.
  *
  * @param int $blog_id Blog ID.
  * @return bool
@@ -329,13 +310,9 @@ function wpcom_simple_backup_get_state( $blog_id, $user_id ) {
 	} elseif ( wpcom_simple_backup_is_transfer_in_progress( $blog_id ) ) {
 		$state = WPCOM_SIMPLE_BACKUP_STATE_IN_PROGRESS;
 	} else {
-		$eligibility = wpcom_simple_backup_get_eligibility( $blog_id, $user_id );
-
-		// Null means the library was unavailable, not that the site failed a
-		// check; let the transfer flow reject it instead.
-		$state = ( null === $eligibility || ! empty( $eligibility['is_eligible'] ) )
-			? WPCOM_SIMPLE_BACKUP_STATE_ACTIVATE
-			: WPCOM_SIMPLE_BACKUP_STATE_INELIGIBLE;
+		// Eligibility failures are explained by the activation prompt's own
+		// confirmation step, so they do not get a state of their own.
+		$state = WPCOM_SIMPLE_BACKUP_STATE_ACTIVATE;
 	}
 
 	/**
@@ -351,24 +328,31 @@ function wpcom_simple_backup_get_state( $blog_id, $user_id ) {
 }
 
 /**
- * Human-readable reasons a site cannot be transferred.
+ * Reasons a site cannot be transferred, in the shape the API returns them.
+ *
+ * The code is kept because the page maps it to its own copy; the API's message
+ * is passed through as the fallback for codes it does not recognize.
  *
  * @param array|null $eligibility Result of wpcom_simple_backup_get_eligibility().
- * @return string[]
+ * @return array[] Errors as { code, message }.
  */
-function wpcom_simple_backup_get_blocker_messages( $eligibility ) {
-	if ( empty( $eligibility['errors'] ) || ! is_array( $eligibility['errors'] ) ) {
-		return array();
-	}
+function wpcom_simple_backup_get_transfer_errors( $eligibility ) {
+	$errors = array();
 
-	$messages = array();
-	foreach ( $eligibility['errors'] as $error ) {
-		if ( ! empty( $error['message'] ) ) {
-			$messages[] = (string) $error['message'];
+	if ( ! empty( $eligibility['errors'] ) && is_array( $eligibility['errors'] ) ) {
+		foreach ( $eligibility['errors'] as $error ) {
+			if ( empty( $error['code'] ) ) {
+				continue;
+			}
+
+			$errors[] = array(
+				'code'    => (string) $error['code'],
+				'message' => isset( $error['message'] ) ? (string) $error['message'] : '',
+			);
 		}
 	}
 
-	return $messages;
+	return $errors;
 }
 
 /**
@@ -409,17 +393,7 @@ function wpcom_simple_backup_get_transfer_warnings( $eligibility ) {
 		}
 	}
 
-	/**
-	 * Filter the transfer warnings shown before activation.
-	 *
-	 * Lets the confirmation be previewed on a sandbox without a site whose
-	 * address actually changes, and exposes the raw eligibility result so the
-	 * library's return shape can be inspected.
-	 *
-	 * @param array[]    $warnings    Normalized warnings.
-	 * @param array|null $eligibility Raw eligibility result.
-	 */
-	return apply_filters( 'wpcom_simple_backup_transfer_warnings', $warnings, $eligibility );
+	return $warnings;
 }
 
 /**

@@ -9,7 +9,8 @@ import type { InitialState } from './types.ts';
 const FALLBACK: InitialState = {
 	state: 'upgrade',
 	domain: '',
-	blockers: [],
+	isEligible: true,
+	errors: [],
 	warnings: [],
 	upgradeUrl: 'https://wordpress.com/plans/',
 	activateUrl: 'https://wordpress.com/backup/',

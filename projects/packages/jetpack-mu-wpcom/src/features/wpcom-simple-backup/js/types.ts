@@ -2,7 +2,16 @@
  * The prompts this page can show. Kept in sync with the
  * WPCOM_SIMPLE_BACKUP_STATE_* constants in wpcom-simple-backup.php.
  */
-export type BackupState = 'upgrade' | 'in_progress' | 'activate' | 'ineligible';
+export type BackupState = 'upgrade' | 'in_progress' | 'activate';
+
+/**
+ * One blocking eligibility error, in the shape the wpcom eligibility API
+ * returns it. The page maps `code` to its own copy, falling back to `message`.
+ */
+export type TransferError = {
+	code: string;
+	message: string;
+};
 
 /** The site's address before and after a transfer. */
 export type DomainNames = {
@@ -32,8 +41,10 @@ export type TransferWarning = {
 export type InitialState = {
 	state: BackupState;
 	domain: string;
-	/** Human-readable transfer blockers. Only populated in the `ineligible` state. */
-	blockers: string[];
+	/** Whether the site passed every transfer check. */
+	isEligible: boolean;
+	/** Blocking transfer errors. Only populated in the `activate` state. */
+	errors: TransferError[];
 	/** Non-blocking transfer warnings. Only populated in the `activate` state. */
 	warnings: TransferWarning[];
 	upgradeUrl: string;
