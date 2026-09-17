@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import tooltipStyles from '../../components/tooltip/base-tooltip.module.scss';
-import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
+import { BoundedTooltip, TOOLTIP_Z_INDEX } from '../../components/tooltip/private/bounded-tooltip';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -57,13 +57,10 @@ const CELL_MIX_FLOOR = 0.15;
 // it, and a fresh array per render re-ran the keyboard tooltip effect endlessly.
 const NO_ROW_LABELS: string[] = [];
 
-// Above the cells and any sticky overlay a consumer adds inside the grid; the
-// wrapper is isolated, so this never reaches page chrome.
-const TOOLTIP_Z_INDEX = 3;
 // The dark variant is painted by the `.surface` class, so its style carries no box.
 const TOOLTIP_BOX_STYLES: Record< 'light' | 'dark', CSSProperties > = {
 	light: { ...visxTooltipStyles, zIndex: TOOLTIP_Z_INDEX },
-	dark: { pointerEvents: 'none', zIndex: TOOLTIP_Z_INDEX },
+	dark: { zIndex: TOOLTIP_Z_INDEX },
 };
 
 // The cell's own label wins; otherwise the group, column and row labels name it.
@@ -96,13 +93,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	children,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const tooltipBoxStyle = useMemo(
-		() =>
-			tooltipStyle
-				? { ...TOOLTIP_BOX_STYLES[ tooltipVariant ], ...tooltipStyle }
-				: TOOLTIP_BOX_STYLES[ tooltipVariant ],
-		[ tooltipVariant, tooltipStyle ]
-	);
+	const tooltipBoxStyle = tooltipStyle
+		? { ...TOOLTIP_BOX_STYLES[ tooltipVariant ], ...tooltipStyle }
+		: TOOLTIP_BOX_STYLES[ tooltipVariant ];
 	const { getElementStyles, theme } = useGlobalChartsContext();
 	const scopeElement = useChartScopeElement();
 	const { heatmapChart: heatmapChartSettings } = theme;

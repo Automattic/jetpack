@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
-import clsx from 'clsx';
 import { useContext } from 'react';
 import { useGlobalChartsTheme } from '../../../providers';
 import styles from '../heatmap-chart.module.scss';
@@ -47,9 +46,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 				gap={ variant === 'bar' ? undefined : 'xs' }
 				aria-hidden="true"
 				data-testid="heatmap-legend-scale"
-				className={ clsx( {
-					[ styles[ 'heatmap-chart__legend-scale--bar' ] ]: variant === 'bar',
-				} ) }
+				className={ variant === 'bar' ? styles[ 'heatmap-chart__legend-scale--bar' ] : undefined }
 			>
 				{ Array.from( { length: steps }, ( _, index ) => {
 					const intensity = steps <= 1 ? 1 : index / ( steps - 1 );

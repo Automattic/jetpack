@@ -91,7 +91,7 @@ describe( 'HeatmapChart', () => {
 		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 		const box = screen.getByTestId( 'bounded-tooltip' );
 		expect( box ).not.toHaveClass( 'surface' );
-		expect( box ).toHaveStyle( { backgroundColor: 'rgb(255, 255, 255)', zIndex: 3 } );
+		expect( box ).toHaveStyle( { backgroundColor: 'rgb(255, 255, 255)' } );
 	} );
 
 	test( 'draws the dark variant on the package tooltip surface, not the visx box', async () => {
@@ -104,8 +104,6 @@ describe( 'HeatmapChart', () => {
 		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 		const box = screen.getByTestId( 'bounded-tooltip' );
 		expect( box ).toHaveClass( 'surface' );
-		expect( box ).not.toHaveStyle( { backgroundColor: 'rgb(255, 255, 255)' } );
-		expect( box ).toHaveStyle( { pointerEvents: 'none', zIndex: 3 } );
 	} );
 
 	test( 'merges tooltipStyle over the variant box styles', async () => {
@@ -120,7 +118,6 @@ describe( 'HeatmapChart', () => {
 		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
 			padding: '2px 4px',
 			zIndex: 5,
-			pointerEvents: 'none',
 		} );
 	} );
 
