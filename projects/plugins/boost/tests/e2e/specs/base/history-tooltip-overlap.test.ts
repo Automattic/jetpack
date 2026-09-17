@@ -106,49 +106,35 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 		await expect( page.getByRole( 'button', { name: 'Next 30 days' } ) ).toBeDisabled();
 		await hoverDay( chart, 21 );
-		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
+		const popover = page.getByRole( 'dialog', { name: 'September 1, 2026' } );
+		const surface = popover.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( surface ).toBeVisible();
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
-		const coveredBars = await surface.evaluate( element => {
-			// Include the non-interactive tooltip in browser paint-order hit testing.
-			const surfaceElement = element as HTMLElement;
-			surfaceElement.style.pointerEvents = 'auto';
-			const popup = element.getBoundingClientRect();
-			const overlaps = Array.from( document.querySelectorAll( '.visx-bar' ) ).flatMap( bar => {
-				const rect = bar.getBoundingClientRect();
-				const left = Math.max( popup.left, rect.left );
-				const right = Math.min( popup.right, rect.right );
-				const top = Math.max( popup.top, rect.top );
-				const bottom = Math.min( popup.bottom, rect.bottom );
-				if ( left >= right || top >= bottom ) {
-					return [];
-				}
-				const painted = document.elementFromPoint( ( left + right ) / 2, ( top + bottom ) / 2 );
-				return [ element.contains( painted ) ];
-			} );
-			surfaceElement.style.removeProperty( 'pointer-events' );
-			return overlaps;
-		} );
-		expect( coveredBars.length ).toBeGreaterThan( 0 );
-		expect( coveredBars.every( covered => covered ) ).toBe( true );
-		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
-			'September 1, 2026'
-		);
 		await expect( surface ).toContainText( 'Overall score' );
 		await expect( surface ).toHaveCSS( 'width', '265px' );
 		await expect( surface ).toHaveCSS( 'height', '382px' );
 		await expect( surface ).toHaveCSS( 'padding', '17px' );
+		await expect( surface ).toBeInViewport( { ratio: 1 } );
 		const popupBox = ( await surface.boundingBox() )!;
 		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
-		const cardBox = ( await page.getByText( 'Last 30 days', { exact: true } ).boundingBox() )!;
 		expect(
-			popupBox.x >= Math.floor( hoveredBar.x + hoveredBar.width ) ||
-				popupBox.x + popupBox.width <= Math.ceil( hoveredBar.x )
+			popupBox.y >= hoveredBar.y + hoveredBar.height || popupBox.y + popupBox.height <= hoveredBar.y
 		).toBe( true );
-		const chartBounds = ( await chart.boundingBox() )!;
-		expect( popupBox.x ).toBeGreaterThanOrEqual( chartBounds.x );
-		expect( popupBox.x + popupBox.width ).toBeLessThanOrEqual( chartBounds.x + chartBounds.width );
-		expect( popupBox.y ).toBeLessThan( cardBox.y + cardBox.height );
+		const barCenter = hoveredBar.x + hoveredBar.width / 2;
+		const target = { x: popupBox.x + 10, y: popupBox.y + popupBox.height / 2 };
+		for ( let step = 1; step <= 10; step++ ) {
+			await page.mouse.move(
+				barCenter + ( ( target.x - barCenter ) * step ) / 10,
+				hoveredBar.y + ( ( target.y - hoveredBar.y ) * step ) / 10
+			);
+		}
+		// The chart hides its own tooltip once the pointer has left the plot.
+		await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCount( 0 );
+		await expect( popover ).toBeVisible();
+		await expect( surface ).toContainText( 'September 1, 2026' );
+		await page.mouse.move( 0, 0 );
+		await expect( popover ).toBeHidden();
+		await hoverDay( chart, 21 );
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
 			'font-weight',
 			'400'
@@ -225,25 +211,26 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( surface ).toContainText( 'August 27, 2026' );
 		await page.keyboard.press( 'Escape' );
 		await expect( surface ).toBeHidden();
+		const popover = page.locator( '.boost-daily-history__popover' );
 		for ( const [ index, date ] of [
 			[ 6, 'September 1, 2026' ],
 			[ 12, 'September 7, 2026' ],
 		] as const ) {
 			await hoverDay( chart, index );
-			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
-
-			const popup = ( await surface.boundingBox() )!;
-			expect( popup.x ).toBeGreaterThanOrEqual( 0 );
-			expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
+			await expect( popover.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
+			await expect( popover ).toBeInViewport( { ratio: 1 } );
 		}
 		const zeroBar = bars.nth( 12 );
 		await expect( zeroBar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
 		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
-		await expect( surface ).toContainText( '0/100' );
-		const flippedPopup = ( await surface.boundingBox() )!;
+		await expect( popover ).toContainText( '0/100' );
+		const popupBox = ( await popover.boundingBox() )!;
 		const rightmostBar = ( await zeroBar.boundingBox() )!;
-		expect( flippedPopup.x + flippedPopup.width ).toBeLessThan( rightmostBar.x );
+		expect(
+			popupBox.y >= rightmostBar.y + rightmostBar.height ||
+				popupBox.y + popupBox.height <= rightmostBar.y
+		).toBe( true );
 	} );
 }
 
