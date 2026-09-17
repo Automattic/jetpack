@@ -3,6 +3,11 @@
 	max-width: 640px;
 }
 
+// The Dialog z-index defaults to auto, below the admin bar and menu.
+.ai-launchpad-wizard__portal {
+	--wp-ui-dialog-z-index: 100000;
+}
+
 .ai-launchpad-wizard__step-subtitle {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }

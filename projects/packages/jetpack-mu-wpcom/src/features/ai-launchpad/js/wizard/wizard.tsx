@@ -156,7 +156,11 @@ export function Wizard( {
 		// The wizard cannot be dismissed: Escape and backdrop clicks are ignored, and
 		// "Skip" is the only way out.
 		<Dialog.Root open onOpenChange={ () => undefined } disablePointerDismissal>
-			<Dialog.Popup size="medium" className="ai-launchpad-wizard">
+			<Dialog.Popup
+				size="medium"
+				className="ai-launchpad-wizard"
+				portal={ <Dialog.Portal className="ai-launchpad-wizard__portal" /> }
+			>
 				<Dialog.Content>
 					<div className="ai-launchpad-wizard__progress" aria-hidden="true">
 						<div
