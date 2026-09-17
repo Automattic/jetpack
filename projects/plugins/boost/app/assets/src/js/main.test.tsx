@@ -1,3 +1,5 @@
+/* No jest-dom in this project. */
+/* eslint-disable jest-dom/prefer-in-document, testing-library/prefer-user-event */
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useSyncExternalStore as mockUseSyncExternalStore } from 'react';
 import { Link as MockLink } from 'react-router';
@@ -126,7 +128,7 @@ it( 'keeps a rolled-back failed run stopped after leaving and returning to legac
 
 	fireEvent.click( screen.getByRole( 'link', { name: 'Cache Debug Log' } ) );
 	fireEvent.click( await screen.findByRole( 'link', { name: 'Settings' } ) );
-	await screen.findByRole( 'link', { name: 'Cache Debug Log' } );
+	await expect( screen.findByRole( 'link', { name: 'Cache Debug Log' } ) ).resolves.toBeTruthy();
 
 	expect( generator ).toHaveBeenCalledTimes( runs );
 	expect( screen.getByText( 'DS request failed: 500' ) ).toBeTruthy();
