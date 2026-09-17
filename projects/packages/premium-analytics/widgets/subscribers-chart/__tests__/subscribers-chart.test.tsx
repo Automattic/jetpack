@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { ReportScopeProvider, getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
@@ -11,7 +11,7 @@ import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import SubscribersChartWidget from '../render';
 import subscribersChartWidget, { type SubscribersChartAttributes } from '../widget';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 const mockUseStatsSubscribersReport = jest.fn();
 
@@ -173,11 +173,14 @@ describe( 'SubscribersChartWidget date control', () => {
 
 	// Only the DataForm plumbing is cast away, so `data` stays type-checked and a
 	// renamed attribute breaks the build rather than passing silently.
-	function renderDateControl( props: Pick< FieldProps, 'data' | 'onChange' > ) {
-		const [ { Edit } ] = subscribersChartWidget.attributes;
-		const Field = Edit as ComponentType< FieldProps >;
+	const [ { Edit } ] = subscribersChartWidget.attributes;
+	const DateControl = Edit as ComponentType< FieldProps >;
 
-		render( <Field { ...( props as FieldProps ) } /> );
+	function renderDateControl(
+		props: Pick< FieldProps, 'data' | 'onChange' >,
+		wrap: ( control: ReactNode ) => ReactNode = control => control
+	) {
+		render( wrap( <DateControl { ...( props as FieldProps ) } /> ) );
 	}
 
 	it( 'offers no window shorter than the report can fill', async () => {
@@ -214,6 +217,20 @@ describe( 'SubscribersChartWidget date control', () => {
 		expect( onChange ).toHaveBeenCalledWith( {
 			reportParams: expect.objectContaining( { preset: 'last-30-days' } ),
 		} );
+	} );
+
+	// The host renders this outside the widget tree, so on a comparison-enabled
+	// section it would inherit that scope and save a comparison the body drops.
+	it( 'offers no comparison even under a comparison-enabled scope', async () => {
+		renderDateControl(
+			{ data: { reportParams: { preset: 'last-30-days' } }, onChange: jest.fn() },
+			control => <ReportScopeProvider offersComparison>{ control }</ReportScopeProvider>
+		);
+
+		await expect(
+			screen.findByRole( 'button', { name: 'Last 30 days' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /^Compare/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'offers no bucket control', async () => {

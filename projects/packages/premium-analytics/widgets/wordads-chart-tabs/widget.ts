@@ -32,6 +32,7 @@ export default {
 		reportParamsAttributeField< WordAdsChartTabsAttributes >( {
 			withIntervalControl: true,
 			grain: WORDADS_GRAIN,
+			offersComparison: false,
 		} ),
 	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
 	example: {

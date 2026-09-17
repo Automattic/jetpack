@@ -62,7 +62,10 @@ export type SubscribersChartAttributes = Partial< ReportParamsFieldAttributes > 
 export default {
 	icon: people,
 	attributes: [
-		reportParamsAttributeField< SubscribersChartAttributes >( { grain: SUBSCRIBERS_GRAIN } ),
+		reportParamsAttributeField< SubscribersChartAttributes >( {
+			grain: SUBSCRIBERS_GRAIN,
+			offersComparison: false,
+		} ),
 		chartTypeAttributeField(),
 	] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {

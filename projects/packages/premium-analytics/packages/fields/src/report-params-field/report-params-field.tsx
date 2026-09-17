@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	ReportScopeProvider,
 	chartInterval,
 	drawableIntervals,
 	getAllowedIntervalsForPreset,
@@ -69,6 +70,7 @@ export type ReportGrain = {
 type ReportParamsFieldOptions = {
 	withIntervalControl?: boolean;
 	grain?: ReportGrain;
+	offersComparison?: boolean;
 };
 
 // A widget saved before the field existed carries no params; the picker falls
@@ -82,18 +84,34 @@ const NO_REPORT_PARAMS: ReportParams = {};
  * @param options                     - Field options.
  * @param options.withIntervalControl - Whether to offer the chart bucket control.
  * @param options.grain               - How fine the widget's report is.
+ * @param options.offersComparison    - Whether the widget's body draws a comparison.
  * @return A DataForm control component.
  */
-function createReportParamsField( { withIntervalControl, grain }: ReportParamsFieldOptions = {} ) {
+function createReportParamsField( {
+	withIntervalControl,
+	grain,
+	offersComparison,
+}: ReportParamsFieldOptions = {} ) {
 	return function ReportParamsFieldControl(
 		props: DataFormControlProps< Partial< ReportParamsFieldAttributes > >
 	) {
-		return (
+		const control = (
 			<ReportParamsControl
 				{ ...props }
 				withIntervalControl={ withIntervalControl }
 				grain={ grain }
 			/>
+		);
+
+		/*
+		 * The host renders this outside the widget tree, so it inherits the section's
+		 * scope: on a comparison-enabled section it would offer and save a comparison
+		 * the widget body then discards.
+		 */
+		return offersComparison === false ? (
+			<ReportScopeProvider offersComparison={ false }>{ control }</ReportScopeProvider>
+		) : (
+			control
 		);
 	};
 }
@@ -107,6 +125,7 @@ function createReportParamsField( { withIntervalControl, grain }: ReportParamsFi
  * @param options                     - Field options.
  * @param options.withIntervalControl - Whether to offer the chart bucket control.
  * @param options.grain               - How fine the widget's report is.
+ * @param options.offersComparison    - Whether the widget's body draws a comparison.
  * @return The attribute descriptor.
  */
 export function reportParamsAttributeField<
