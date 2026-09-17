@@ -134,6 +134,11 @@ $feature-icon-foreground: #0ced57;
 	flex-shrink: 0;
 	justify-content: flex-end;
 	min-inline-size: 2.25rem;
+	// The padding is the point: it raises a margin around the control above the
+	// card's stretched title, so a near-miss on the switch does nothing instead of
+	// opening the modal. Pulled back out again so the card's spacing is unchanged.
+	margin: calc(var(--wpds-dimension-padding-sm) * -1);
+	padding: var(--wpds-dimension-padding-sm);
 	position: relative;
 	z-index: 1;
 }

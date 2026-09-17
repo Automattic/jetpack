@@ -70,7 +70,7 @@ const variantFor = ( status: string, variant?: 'primary' | 'secondary' ) => {
 };
 
 describe( 'ActionButton variant override', () => {
-	it( 'keeps each status\'s own variant when none is given', () => {
+	it( "keeps each status's own variant when none is given", () => {
 		expect( variantFor( PRODUCT_STATUSES.ABSENT ) ).toBe( 'primary' );
 		expect( variantFor( PRODUCT_STATUSES.ACTIVE ) ).toBe( 'secondary' );
 	} );
