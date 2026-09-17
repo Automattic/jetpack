@@ -1,13 +1,13 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	// esbuild (wp-build) resolves the dashboard's bare `components/*`, `hooks/*` and
-	// `store` imports through these paths, as webpack's `resolve.modules` does.
+	// Replaces the jsconfig.json this file supersedes: one config per project, and
+	// esbuild (wp-build) plus eslint's resolver both read it. Keep the catch-all, or
+	// customberg's and instant-search's bare imports stop resolving.
 	"compilerOptions": {
 		"paths": {
-			"components/*": [ "./src/dashboard/components/*" ],
-			"hooks/*": [ "./src/dashboard/hooks/*" ],
-			"store": [ "./src/dashboard/store" ]
+			"instant-search/*": [ "./src/instant-search/*" ],
+			"*": [ "./src/customberg/*", "./src/dashboard/*", "./src/instant-search/*" ]
 		}
 	},
-	"include": [ "./packages/*/src", "./routes/**/*", "./src/dashboard" ]
+	"include": [ "./packages/*/src", "./routes/**/*", "./src" ]
 }
