@@ -162,22 +162,22 @@ class Subscriptions_Endpoint extends WP_REST_Controller {
 			return new WP_Error( 'invalid_post', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
 
-		$email = Subscriptions::subscriber( sanitize_text_field( (string) $request->get_param( 'code' ) ) );
+		$subscriber = Subscriptions::subscriber( sanitize_text_field( (string) $request->get_param( 'code' ) ) );
 
-		if ( null === $email ) {
+		if ( null === $subscriber ) {
 			return new WP_Error( 'not_signed_in', __( 'Sign in to manage subscriptions.', 'jetpack-comments' ), array( 'status' => 401 ) );
 		}
 
-		if ( is_wp_error( $email ) ) {
-			return $email;
+		if ( is_wp_error( $subscriber ) ) {
+			return $subscriber;
 		}
 
-		if ( '' === $email ) {
+		if ( '' === $subscriber['email'] ) {
 			return $this->respond( array( 'available' => false ), 200 );
 		}
 
 		$response = Subscriptions::request(
-			$email,
+			$subscriber,
 			$post_id,
 			sanitize_key( (string) $request->get_param( 'field' ) ),
 			sanitize_text_field( (string) $request->get_param( 'value' ) )

@@ -82,11 +82,14 @@ class Subscriptions {
 	 * comment that follows posts on the passport instead.
 	 *
 	 * @param string $code The code a fresh sign-in is holding, if any.
-	 * @return string|WP_Error|null The email; null when nobody is signed in; the exchange's error when the code is no good.
+	 * @return array|WP_Error|null email and provider; null when nobody is signed in; the exchange's error when the code is no good.
 	 */
 	public static function subscriber( $code = '' ) {
 		if ( is_user_logged_in() ) {
-			return (string) wp_get_current_user()->user_email;
+			return array(
+				'email'    => (string) wp_get_current_user()->user_email,
+				'provider' => 'site',
+			);
 		}
 
 		$passport = Passport::read();
@@ -105,7 +108,10 @@ class Subscriptions {
 			Passport::issue( $passport );
 		}
 
-		return (string) $passport['email'];
+		return array(
+			'email'    => (string) $passport['email'],
+			'provider' => (string) $passport['provider'],
+		);
 	}
 
 	/**
@@ -114,18 +120,20 @@ class Subscriptions {
 	 * Forwards what the form sent and hands back what WordPress.com answered,
 	 * as the podcast package's relays do. Validation lives on the far side.
 	 *
-	 * @param string $email   Whose subscriptions.
-	 * @param int    $post_id The post the comment thread belongs to.
-	 * @param string $field   The option to change, or '' to only read.
-	 * @param string $value   What to set it to.
+	 * @param array  $subscriber From subscriber(): email and provider.
+	 * @param int    $post_id    The post the comment thread belongs to.
+	 * @param string $field      The option to change, or '' to only read.
+	 * @param string $value      What to set it to.
 	 * @return array|\WP_Error The raw Client response.
 	 */
-	public static function request( $email, $post_id, $field = '', $value = '' ) {
+	public static function request( array $subscriber, $post_id, $field = '', $value = '' ) {
 		$body = array(
-			'email'   => $email,
-			'post_id' => (int) $post_id,
-			'field'   => $field,
-			'value'   => $value,
+			'email'    => $subscriber['email'],
+			// A WordPress.com sign-in is offered the reader options by its account, found by email.
+			'provider' => $subscriber['provider'],
+			'post_id'  => (int) $post_id,
+			'field'    => $field,
+			'value'    => $value,
 		);
 
 		return Client::wpcom_json_api_request_as_blog(
