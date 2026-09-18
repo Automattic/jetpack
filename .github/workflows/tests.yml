@@ -62,9 +62,9 @@ jobs:
 
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
-      did-coverage: ${{ case( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
-      php-coverage-status: ${{ case( matrix.coverage-group == 'php', steps.run-tests.conclusion, '' ) }}
-      js-coverage-status: ${{ case( matrix.coverage-group == 'js', steps.run-tests.conclusion, '' ) }}
+      did-coverage: ${{ case( steps.process-coverage.outputs.run-conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
+      php-coverage-status: ${{ case( matrix.coverage-group == 'php', steps.process-coverage.outputs.run-conclusion, '' ) }}
+      js-coverage-status: ${{ case( matrix.coverage-group == 'js', steps.process-coverage.outputs.run-conclusion, '' ) }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -321,8 +321,12 @@ jobs:
         id: process-coverage
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
+          STEPS: ${{ toJson( steps ) }}
         if: matrix.coverage-group != '' && always()
-        run: .github/files/coverage-munger/process-coverage.sh
+        run: |
+          CONCLUSION=$( jq 'last( .[].conclusion | select( . != null and . != "success" and . != "skipped" ) ) // last( .[].conclusion | select( . == "skipped" ) ) // last( .[].conclusion | select( . == "success" ) )' <<<"$STEPS" )
+          echo "run-conclusion=$CONCLUSION" >> "$GITHUB_OUTPUT"
+          .github/files/coverage-munger/process-coverage.sh
 
       - name: Check for artifacts
         id: check-artifacts
