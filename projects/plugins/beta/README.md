@@ -18,7 +18,8 @@ We'd love to have you! Just [download the latest version of this plugin](https:/
 
 You can also join our Jetpack Beta mailing list at [jetpack.com/beta](https://jetpack.com/beta).
 
-Some things to be aware of:
+### How things work
+
 * When installing a stable version of a plugin, the existing stable version will be replaced.
 * When installing a development version of a plugin, it will be installed in its own directory next to the stable one (e.g. `wp-content/plugins/jetpack-dev/` is installed next to `wp-content/plugins/jetpack/`)
 * Switching between stable and development versions of plugins only changes which of the two is active.
