@@ -290,7 +290,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 						'These pages are only shown to logged-in visitors, so Boost cannot read them:',
 						urlCount( set ),
 						'jetpack-boost'
-				  )
+					)
 				: sprintf(
 						/* translators: %d is the HTTP error code. */
 						_n(
@@ -300,7 +300,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 							'jetpack-boost'
 						),
 						set.firstMeta.code
-				  ),
+					),
 		suggestion: set =>
 			requiresLogin( set )
 				? loginRequiredSuggestion()
