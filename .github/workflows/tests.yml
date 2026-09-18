@@ -172,7 +172,7 @@ jobs:
       - name: Prepare test queue
         env:
           QUEUEFILE: ${{ runner.temp }}/testqueue
-          CPUFILE: ${{ runner.temp }}/cpus
+          WORKERTOKENS: ${{ runner.temp }}/workertokens
         run: |
           mkdir artifacts
           [[ -n "$COVERAGE_GROUP" ]] && mkdir coverage
@@ -181,7 +181,6 @@ jobs:
 
           # Put some known slow things at the start of the queue.
           echo projects/plugins/jetpack/composer.json >> "$QUEUEFILE"
-          echo projects/packages/premium-analytics/composer.json >> "$QUEUEFILE"
 
           # Then everything else.
           for P in composer.json projects/*/*/composer.json; do
@@ -190,14 +189,17 @@ jobs:
             fi
           done >> "$QUEUEFILE"
 
-          # We want the number of workers to match the number of CPUs, but we can't do it directly.
-          # So use a file with N "tokens" and have each worker try to claim one.
-          for (( i=0; i<$( nproc ); i++)); do
-            echo "$i"
-          done > "$CPUFILE"
-
+          # There's no way to directly control the number of workers, it has to be hard-coded in this file.
+          # So we hard-code the max number of workers GH allows, create a file with N "tokens", and any worker that doesn't get one exits without doing anything.
           if [[ "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ]]; then
-            echo 0 > "$CPUFILE"
+            # Looks like `jest` already defaults to maxing out CPUs. The projects where there aren't enough tests to do that
+            # effectively are already very fast, so it's more efficient to use only one worker.
+            echo '0' > "$WORKERTOKENS"
+          else
+            # For other tests, workers == number of CPUs.
+            for (( i=0; i<$( nproc ); i++)); do
+              echo "$i"
+            done > "$WORKERTOKENS"
           fi
 
       - parallel:
@@ -207,11 +209,11 @@ jobs:
             FORCE_PACKAGE_TESTS: ${{ case( matrix.force-package-tests, 'true', 'false' ) }}
             CHANGED: ${{ steps.changed.outputs.projects }}
             QUEUEFILE: ${{ runner.temp }}/testqueue
-            CPUFILE: ${{ runner.temp }}/cpus
+            WORKERTOKENS: ${{ runner.temp }}/workertokens
           run: |
-            CPUID=$( flock "$CPUFILE" sed -i -e '1{w/dev/stdout' -e 'd}' "$CPUFILE" )
-            if [[ -z "$CPUID" ]]; then
-              echo "Not enough CPUs"
+            WORKERID=$( flock "$WORKERTOKENS" sed -i -e '1{w/dev/stdout' -e 'd}' "$WORKERTOKENS" )
+            if [[ -z "$WORKERID" ]]; then
+              echo "Failed to get a worker token. Exiting."
               exit 0
             fi
 
