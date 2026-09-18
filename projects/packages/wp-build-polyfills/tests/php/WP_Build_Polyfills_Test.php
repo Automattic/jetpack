@@ -503,7 +503,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that wp-rich-text is force-replaced on WP 6.9 (core ships no rich-text private APIs).
+	 * Test that wp-rich-text is force-replaced on WP 6.9.
 	 */
 	public function test_register_scripts_force_replaces_wp_rich_text_on_old_wp() {
 		$GLOBALS['wp_version'] = '6.9';
