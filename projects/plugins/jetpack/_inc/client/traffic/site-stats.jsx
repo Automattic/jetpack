@@ -186,7 +186,7 @@ class SiteStatsComponent extends Component {
 												/>
 											),
 										}
-								  ) }
+									) }
 						</div>
 						{ ! this.props.isOfflineMode && (
 							<div className="jp-at-a-glance__stats-inactive-button">
@@ -227,6 +227,7 @@ class SiteStatsComponent extends Component {
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
+							wpcomLink: 'https://wordpress.com/support/stats/',
 						} }
 					>
 						<FormFieldset className="jp-stats-form-fieldset">

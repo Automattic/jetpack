@@ -180,7 +180,7 @@ export function buildLocationsGeoChart( {
 			? [
 					...header,
 					{ type: 'string', role: GoogleDataTableColumnRoleType.tooltip, p: { html: true } },
-			  ]
+				]
 			: header;
 
 		return {
@@ -207,12 +207,10 @@ export function buildLocationsGeoChart( {
 		...scope,
 		data: [
 			header,
-			...rows.map(
-				( row ): GoogleDataTableRow => [
-					useProvinceMap ? row.label : { v: getGeoChartCountryId( row.countryCode ), f: row.label },
-					row.value,
-				]
-			),
+			...rows.map( ( row ): GoogleDataTableRow => [
+				useProvinceMap ? row.label : { v: getGeoChartCountryId( row.countryCode ), f: row.label },
+				row.value,
+			] ),
 		],
 	};
 }

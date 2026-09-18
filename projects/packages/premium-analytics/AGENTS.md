@@ -37,6 +37,9 @@ filters.
 
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
+src/dashboard-sections.php              # section API: registry helpers, preview scope, REST
+src/default-dashboard-sections.php      # the package's own sections, registered through that API
+docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
 src/Sync/                               # interim woocommerce_analytics sync (WOOA7S-1550)
@@ -73,6 +76,14 @@ Add a route: create `routes/<name>/package.json` (with `route.path` + `route.pag
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
 
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
+
+### Timing-dependent JS tests use fake timers
+
+Any Jest test that waits on time — `waitFor`, React Query updates, debounces, `setTimeout` — must
+call `jest.useFakeTimers()` and restore with `jest.useRealTimers()` in `afterEach`. On real timers
+a stalled CI runner can push the update past `waitFor`'s 1s deadline and flake the test. Tests
+driving `userEvent` also need `userEvent.setup( { advanceTimers: jest.advanceTimersByTime } )`.
+See `widgets/wordads-chart-tabs/__tests__/wordads-chart-tabs.test.tsx`.
 
 ## API
 
@@ -183,7 +194,7 @@ script data.
 
 ### Why the dashboard support routes moved from `jetpack/v4` to `wpcom/v2`
 
-The dashboard support routes (widget modules, default layout, sections) used to live under
+The dashboard support routes (widget modules, sections) used to live under
 `jetpack/v4` — the self-hosted Jetpack plugin's own namespace. WPCOM's REST centralization doesn't
 recognize or expose that namespace for Simple sites, which run no Jetpack plugin at all, so those
 routes were unreachable from public-api. `wpcom/v2` is a namespace WPCOM's centralization already
@@ -203,7 +214,7 @@ notices) can stay under `jetpack-premium-analytics/v1`, since Simple never calls
 
 **WPCOM's public-api process calls `Dashboard_Support_Routes::register()` directly**
 (`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
-(widget modules, default layout, sections) standalone. The WPCOM-side caller is
+(widget modules, sections) standalone. The WPCOM-side caller is
 `wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
 repo — it `require_once`s this exact file and calls `::register()` by name.
 

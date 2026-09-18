@@ -68,6 +68,8 @@ export {
 	type CalendarHeatmapPager,
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
+	MonthCalendarHeatmap,
+	type MonthCalendarHeatmapProps,
 	MonthlyHeatmap,
 	type MonthlyHeatmapProps,
 	type MonthlyHeatmapRow,
@@ -169,7 +171,6 @@ export {
 	type UseReportCsvExportResult,
 	WidgetDataTable,
 	type WidgetDataTableProps,
-	EARNINGS_HISTORY_VIEW,
 	EarningsHistoryList,
 	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
@@ -179,6 +180,7 @@ export {
 	AnnualHighlightsSkeleton,
 	GenericSkeleton,
 	HeatmapSkeleton,
+	MonthCalendarHeatmapSkeleton,
 	MetricSparklineSkeleton,
 	type MetricSparklineSkeletonProps,
 	SkeletonRoot,
@@ -251,18 +253,16 @@ export {
 	monthlyHeatmapMetricAttributeField,
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
+	monthlyHeatmapLifeStart,
 	monthRange,
 	yearRange,
 	type PeriodBounds,
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './helpers';
 
 /**
@@ -278,7 +278,6 @@ export {
 	useSeriesStyles,
 	useStoredDetailLayout,
 	useTrackEvent,
-	useViewportWidth,
 	useWidgetDrillDown,
 } from './hooks';
 

@@ -144,7 +144,7 @@ const getGenericErrorMessage = ( numberOfErrors: number ): string => {
 					'jetpack-forms'
 				),
 				formatNumber( numberOfErrors )
-		  );
+			);
 };
 
 /**
@@ -445,7 +445,7 @@ export function getActions( {
 							'jetpack-forms'
 						),
 						formatNumber( items.length )
-				  );
+					);
 
 			createInfoNotice( busyMessage, {
 				type: 'snackbar',
@@ -494,7 +494,7 @@ export function getActions( {
 										'jetpack-forms'
 									),
 									formatNumber( items.length )
-							  );
+								);
 
 					if ( ! isUndo ) {
 						createSuccessNotice( successMessage, {
@@ -586,7 +586,7 @@ export function getActions( {
 							'jetpack-forms'
 						),
 						formatNumber( items.length )
-				  );
+					);
 
 			createInfoNotice( busyMessage, {
 				type: 'snackbar',
@@ -630,7 +630,7 @@ export function getActions( {
 										'jetpack-forms'
 									),
 									formatNumber( items.length )
-							  );
+								);
 
 					if ( ! isUndo ) {
 						createSuccessNotice( successMessage, {
@@ -720,7 +720,7 @@ export function getActions( {
 							'jetpack-forms'
 						),
 						formatNumber( items.length )
-				  );
+					);
 
 			createInfoNotice( busyMessage, {
 				type: 'snackbar',
@@ -763,7 +763,7 @@ export function getActions( {
 										'jetpack-forms'
 									),
 									formatNumber( items.length )
-							  );
+								);
 
 					if ( ! isUndo ) {
 						createSuccessNotice( successMessage, {
@@ -849,7 +849,7 @@ export function getActions( {
 							'jetpack-forms'
 						),
 						formatNumber( items.length )
-				  );
+					);
 
 			createInfoNotice( busyMessage, {
 				type: 'snackbar',
@@ -897,7 +897,7 @@ export function getActions( {
 										'jetpack-forms'
 									),
 									formatNumber( items.length )
-							  );
+								);
 
 					if ( ! isUndo ) {
 						// Reload the items to the store, as they were removed from the store when moved to trash
@@ -1011,7 +1011,7 @@ export function getActions( {
 									'jetpack-forms'
 								),
 								formatNumber( items.length )
-						  );
+							);
 
 				createSuccessNotice( successMessage, { type: 'snackbar', id: 'delete-action' } );
 
@@ -1140,7 +1140,7 @@ export function getActions( {
 									'jetpack-forms'
 								),
 								formatNumber( items.length )
-						  );
+							);
 
 				createSuccessNotice( successMessage, {
 					type: 'snackbar',
@@ -1255,7 +1255,7 @@ export function getActions( {
 									'jetpack-forms'
 								),
 								formatNumber( items.length )
-						  );
+							);
 
 				createSuccessNotice( successMessage, {
 					type: 'snackbar',

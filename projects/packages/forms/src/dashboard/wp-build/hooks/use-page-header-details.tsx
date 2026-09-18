@@ -656,7 +656,7 @@ export default function usePageHeaderDetails(
 								onClose={ closeCreateFormModal }
 								onSave={ handleCreateFormSave }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( showExportModal
 					? [
@@ -666,7 +666,7 @@ export default function usePageHeaderDetails(
 								onExport={ onExport }
 								autoConnectGdrive={ autoConnectGdrive }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( emptyTrash.isConfirmDialogOpen
 					? [
@@ -678,7 +678,7 @@ export default function usePageHeaderDetails(
 								totalItemsTrash={ emptyTrash.totalItemsTrash }
 								selectedResponsesCount={ emptyTrash.selectedResponsesCount }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( emptySpam.isConfirmDialogOpen
 					? [
@@ -690,7 +690,7 @@ export default function usePageHeaderDetails(
 								totalItemsSpam={ emptySpam.totalItemsSpam }
 								selectedResponsesCount={ emptySpam.selectedResponsesCount }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( renameFormItem
 					? [
@@ -702,7 +702,7 @@ export default function usePageHeaderDetails(
 								title={ __( 'Rename form', 'jetpack-forms' ) }
 								initialValue={ renameFormItem?.title || '' }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( isPermanentDeleteConfirmOpen
 					? [
@@ -721,7 +721,7 @@ export default function usePageHeaderDetails(
 									) }
 								</p>
 							</ConfirmDialog>,
-					  ]
+						]
 					: [] ),
 			];
 		}
@@ -745,7 +745,7 @@ export default function usePageHeaderDetails(
 								formId={ sourceIdNumber }
 								onClick={ trackEditFormClick }
 							/>,
-					  ]
+						]
 					: [] ),
 				<ExportResponsesButton
 					key="export"
@@ -764,7 +764,7 @@ export default function usePageHeaderDetails(
 								label={ __( 'More actions', 'jetpack-forms' ) }
 								toggleProps={ { size: 'compact' } }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( renameFormItem
 					? [
@@ -776,7 +776,7 @@ export default function usePageHeaderDetails(
 								title={ __( 'Rename form', 'jetpack-forms' ) }
 								initialValue={ renameFormItem?.title || '' }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( isPermanentDeleteConfirmOpen
 					? [
@@ -795,7 +795,7 @@ export default function usePageHeaderDetails(
 									) }
 								</p>
 							</ConfirmDialog>,
-					  ]
+						]
 					: [] ),
 			];
 		}
@@ -814,7 +814,7 @@ export default function usePageHeaderDetails(
 							showIcon={ false }
 							showNameModal
 						/>,
-				  ]
+					]
 				: [] ),
 			<ExportResponsesButton
 				key="export"

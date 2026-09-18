@@ -53,12 +53,7 @@ export type LegendShape< Data, Output > =
 	| ComponentClass< LegendShapeRenderProps< Data, Output > >;
 
 export type GoogleDataTableColumnType =
-	| 'string'
-	| 'number'
-	| 'boolean'
-	| 'date'
-	| 'datetime'
-	| 'timeofday';
+	'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'timeofday';
 
 export enum GoogleDataTableColumnRoleType {
 	annotation = 'annotation',
@@ -98,13 +93,7 @@ export type GoogleDataTableCell =
 export type GoogleDataTableRow = GoogleDataTableCell[];
 
 export type ChartType =
-	| 'area'
-	| 'bar'
-	| 'conversion-funnel'
-	| 'leaderboard'
-	| 'line'
-	| 'pie'
-	| 'pie-semi-circle';
+	'area' | 'bar' | 'conversion-funnel' | 'leaderboard' | 'line' | 'pie' | 'pie-semi-circle';
 
 export type OrientationType = ValueOf< typeof Orientation >;
 
@@ -426,6 +415,8 @@ export type ChartTheme = {
 		compactCellGap?: number;
 		/** Fixed square cell size in px for compact mode */
 		compactCellSize?: number;
+		/** Gap in px between adjacent column groups; in compact mode the minimum, as the gaps share leftover width */
+		groupGap?: number;
 	};
 };
 

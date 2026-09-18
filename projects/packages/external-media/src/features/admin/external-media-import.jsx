@@ -40,7 +40,7 @@ const JetpackExternalMediaImport = () => {
 					/* translators: %1$d is the number of media that were selected. */
 					__( 'Import %1$d media', 'jetpack-external-media' ),
 					selectedImages
-			  )
+				)
 			: __( 'Import media', 'jetpack-external-media' );
 	};
 

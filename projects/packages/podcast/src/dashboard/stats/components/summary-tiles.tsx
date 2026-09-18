@@ -75,7 +75,7 @@ const SummaryTiles = ( {
 							/* translators: %s is the localized download count. */
 							_n( '%s download', '%s downloads', topDay.plays, 'jetpack-podcast' ),
 							formatNumber( topDay.plays )
-					  )
+						)
 					: undefined,
 			scope: ! loadingValue ? topDayScope : undefined,
 		},

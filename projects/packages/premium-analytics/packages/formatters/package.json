@@ -11,9 +11,9 @@
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@wordpress/date": "5.55.0",
 		"@wordpress/i18n": "^6.9.0",
-		"date-fns": "4.1.0"
+		"date-fns": "4.4.0"
 	},
 	"devDependencies": {
-		"@date-fns/tz": "1.4.1"
+		"@date-fns/tz": "1.5.0"
 	}
 }

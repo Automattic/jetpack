@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Correct the Jetpack_Color::toCSS() alpha docblock type from int to float.
+

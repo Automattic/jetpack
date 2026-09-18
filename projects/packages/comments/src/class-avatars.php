@@ -51,12 +51,13 @@ class Avatars {
 
 		$url = self::stored_url( (int) $id_or_email->comment_ID, isset( $args['size'] ) ? (int) $args['size'] : 96 );
 
-		if ( null === $url ) {
-			return $args;
+		if ( null !== $url ) {
+			$args['url']          = $url;
+			$args['found_avatar'] = true;
+		} elseif ( self::is_signed_in( (int) $id_or_email->comment_ID ) ) {
+			// The provider had no photo, so show the site default rather than a Gravatar the commenter never chose.
+			$args['force_default'] = true;
 		}
-
-		$args['url']          = $url;
-		$args['found_avatar'] = true;
 
 		return $args;
 	}
@@ -81,9 +82,45 @@ class Avatars {
 
 		if ( null !== $url ) {
 			$url_class[0] = $url;
+		} elseif ( self::is_signed_in( (int) $id_or_email->comment_ID ) ) {
+			$url_class[0] = self::default_url( (int) $size );
+			$url_class[1] = ( isset( $url_class[1] ) ? $url_class[1] . ' ' : '' ) . 'avatar-default';
 		}
 
 		return $url_class;
+	}
+
+	/**
+	 * The site's default avatar, resolved the way the host resolves it.
+	 *
+	 * @param int $size Avatar size.
+	 * @return string
+	 */
+	public static function default_url( $size ) {
+		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
+			// Re-enters wpcom_avatar_url() with no comment, so it returns early there.
+			$url_class = wpcom_get_avatar_url( '', $size, '', true, true );
+
+			return is_array( $url_class ) ? (string) $url_class[0] : '';
+		}
+
+		return (string) get_avatar_url(
+			'',
+			array(
+				'size'          => $size,
+				'force_default' => true,
+			)
+		);
+	}
+
+	/**
+	 * Whether the comment was left through a popup sign-in.
+	 *
+	 * @param int $comment_id The comment ID.
+	 * @return bool
+	 */
+	private static function is_signed_in( $comment_id ) {
+		return '' !== (string) get_comment_meta( $comment_id, Checkpoint::META_PROVIDER, true );
 	}
 
 	/**

@@ -40,6 +40,21 @@ class Manager {
 	const SITE_DATA_TRANSIENT_PREFIX = 'jetpack_site_data_';
 
 	/**
+	 * Why `has_protected_owner()` answered false, and what would change it.
+	 *
+	 * `RE_EVALUATE` is the race: the gate said false, and by the time the state was classified the
+	 * owner matched after all. It is not a problem to report, it is an instruction to ask again.
+	 *
+	 * @since $$next-version$$
+	 */
+	const PO_STATE_NOT_ELIGIBLE               = 'NOT_ELIGIBLE';
+	const PO_STATE_NEEDS_CONNECT_TO_ESTABLISH = 'NEEDS_CONNECT_TO_ESTABLISH';
+	const PO_STATE_CAN_ESTABLISH              = 'CAN_ESTABLISH';
+	const PO_STATE_NEEDS_OWNER_RECONNECT      = 'NEEDS_OWNER_RECONNECT';
+	const PO_STATE_NEEDS_DIFFERENT_OWNER      = 'NEEDS_DIFFERENT_OWNER';
+	const PO_STATE_RE_EVALUATE                = 'RE_EVALUATE';
+
+	/**
 	 * A copy of the raw POST data for signature verification purposes.
 	 *
 	 * @var string
@@ -1306,7 +1321,7 @@ class Manager {
 	 * when performing an ownership change.
 	 *
 	 * @since 8.8.0
-	 * @since $$next-version$$ A locked protected owner anchor makes ownership non-transferable.
+	 * @since 9.3.0 A locked protected owner anchor makes ownership non-transferable.
 	 *
 	 * @return bool True if ownership can be transferred, false if it is locked.
 	 */
@@ -1336,7 +1351,7 @@ class Manager {
 	 * legitimately answer false while it is installed and active — running in test mode, say —
 	 * and true only at the lifecycle moment that binds something to the owner's identity.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return bool True if a protected owner is required at this moment. Default false.
 	 */
@@ -1347,7 +1362,7 @@ class Manager {
 		 * Return `true` at the point a feature is about to bind to the connection owner's
 		 * identity. Answering false at other times is expected and supported.
 		 *
-		 * @since $$next-version$$
+		 * @since 9.3.0
 		 *
 		 * @param bool $required Whether a protected owner is required. Default false.
 		 */
@@ -1364,7 +1379,7 @@ class Manager {
 	 * token on top of that is what keeps a row written by another subsystem from ever satisfying
 	 * this: both halves are load-bearing, and there are tests for each.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return bool
 	 */
@@ -1385,13 +1400,73 @@ class Manager {
 	}
 
 	/**
+	 * Classify why `has_protected_owner()` answered false, and what would change it.
+	 *
+	 * Deliberately inspects only what the gate inspects — the anchor and the current connection
+	 * owner — so the two can never disagree about the same site. Anything needing a user search or
+	 * a reachability probe is a different question and is not answered here.
+	 *
+	 * `is_current_user_the_po` reads the current user's own stored binding, never a search for
+	 * whoever holds the anchored ID, so it cannot be confused by a second user carrying the same
+	 * meta, and never costs a network call. It is a hint for copy, not a gate.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{status: string, is_current_user_the_po: bool}
+	 */
+	public function resolve_protected_owner_state() {
+		$anchor     = Protected_Owner::get_locked();
+		$current_id = get_current_user_id();
+
+		// Only meaningful against an anchor: with none, there is nothing for the user to be.
+		// Reads the stored binding rather than resolving it, so classifying a state never costs a
+		// WordPress.com round trip. An unbound user reads as false and gets the generic copy.
+		$is_current_user_the_po = $anchor
+			&& Utils::get_wpcom_user_id( $current_id ) === (int) $anchor['wpcom_user_id'];
+
+		if ( ! $anchor ) {
+			$roles = new Roles();
+
+			if ( ! current_user_can( 'jetpack_connect' ) || ! current_user_can( $roles->translate_role_to_cap( 'administrator' ) ) ) {
+				// Eligibility is being an admin, not holding the master slot.
+				$status = self::PO_STATE_NOT_ELIGIBLE;
+			} elseif ( ! $this->is_user_connected( $current_id ) ) {
+				// A WordPress.com identity has to exist before it can be confirmed and locked.
+				$status = self::PO_STATE_NEEDS_CONNECT_TO_ESTABLISH;
+			} else {
+				$status = self::PO_STATE_CAN_ESTABLISH;
+			}
+		} else {
+			$owner_id       = $this->get_connection_owner_id();
+			$owner_wpcom_id = $owner_id ? $this->resolve_wpcom_user_id( $owner_id ) : 0;
+
+			if ( ! $owner_wpcom_id ) {
+				// A zero is "could not determine", never "does not match", so an owner whose
+				// identity cannot be confirmed is reported as needing to reconnect, not replaced.
+				$status = self::PO_STATE_NEEDS_OWNER_RECONNECT;
+			} elseif ( $owner_wpcom_id !== (int) $anchor['wpcom_user_id'] ) {
+				// Legitimate, not broken: the first admin to connect takes a vacant master slot,
+				// so an agency can hold it while the protected owner is away.
+				$status = self::PO_STATE_NEEDS_DIFFERENT_OWNER;
+			} else {
+				$status = self::PO_STATE_RE_EVALUATE;
+			}
+		}
+
+		return array(
+			'status'                 => $status,
+			'is_current_user_the_po' => $is_current_user_the_po,
+		);
+	}
+
+	/**
 	 * Record a user as the protected owner and promote them to connection owner.
 	 *
 	 * Gated on `jetpack_connect` rather than on a role: a host can narrow that capability and
 	 * multisite does. It is false while the package is unconfigured, so a caller that has not
 	 * registered the connection's capabilities is refused rather than trusted.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param int    $user_id      The local user to anchor.
 	 * @param string $confirmed_by How the confirmation was obtained, e.g. `popup` or `recovery`.
@@ -1465,7 +1540,7 @@ class Manager {
 	 * consequential half. The `@internal` tag is documentation; the capability is enforcement.
 	 *
 	 * @internal Recovery and support flows only. Consumers must not call this.
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @return true|WP_Error True once no anchor is set, WP_Error otherwise.
 	 */
@@ -1666,7 +1741,7 @@ class Manager {
 	 * Update the connection owner.
 	 *
 	 * @since 1.29.0
-	 * @since $$next-version$$ Refused while ownership is locked.
+	 * @since 9.3.0 Refused while ownership is locked.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
 	 *

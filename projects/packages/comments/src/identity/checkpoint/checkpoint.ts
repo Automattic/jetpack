@@ -6,9 +6,7 @@ import { clearPassport } from './passport';
 import type { ConnectUrl, Provider } from '../../shared/types';
 
 export type CheckpointResult =
-	| { code: string; name: string; avatar: string }
-	| { error: string }
-	| { cancelled: true };
+	{ code: string; name: string; avatar: string } | { error: string } | { cancelled: true };
 
 // What the Consulate tags its postMessage with. A filter, not a boundary.
 const CHANNEL = 'jetpack-comment-identity';
@@ -143,7 +141,9 @@ export const signIn = async (
 				finish( {
 					code: data.code,
 					name: typeof data.name === 'string' ? data.name : '',
-					avatar: typeof data.avatar === 'string' ? data.avatar : '',
+					avatar:
+						( typeof data.avatar === 'string' && data.avatar ) ||
+						JetpackComments.identity.defaultAvatar,
 				} );
 			}
 

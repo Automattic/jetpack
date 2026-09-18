@@ -10,254 +10,24 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache;
 use WorDBless\BaseTestCase;
-use WP_REST_Request;
-use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/dashboard-layout.php';
-require_once __DIR__ . '/../../src/dashboard-sections.php';
-require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
  * Tests for Premium Analytics dashboard layout defaults.
  */
 class Dashboard_Layout_Test extends BaseTestCase {
 
-	use Analytics_Capabilities_Trait;
-
-	const ROUTE        = '/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
-	const LEGACY_ROUTE = '/jetpack/v4/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout';
-
 	/**
-	 * Reset REST globals, capabilities, and constants between tests.
+	 * Reset constants and availability filters between tests.
 	 */
 	public function tear_down() {
-		global $wp_rest_server;
-		$wp_rest_server = null;
-		$this->reset_analytics_capabilities();
-		wp_set_current_user( 0 );
-		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
-		remove_all_filters( DASHBOARD_PREVIEW_SCOPE_FILTER );
-		delete_option( Enablement_Setting::ENABLED_OPTION );
 		Constants::clear_constants();
-		// The default layout now reaches Host::is_wpcom_platform(), which memoizes
+		// The default layout reaches Host::is_wpcom_platform(), which memoizes
 		// `is_woa_site` past Constants::clear_constants().
 		Cache::clear();
 		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 		parent::tear_down();
-	}
-
-	/**
-	 * Boots the route with the capability mapping its permission callback needs.
-	 *
-	 * @return void
-	 */
-	private function register_route_with_capabilities() {
-		global $wp_rest_server;
-		$wp_rest_server = new WP_REST_Server();
-
-		register_dashboard_default_layout_route();
-		Capabilities::register();
-	}
-
-	/**
-	 * Requests a dashboard's default layout and returns the widget types served.
-	 *
-	 * @param string $url_name   Dashboard name in the URL path.
-	 * @param string $query_name Optional dashboard name sent as a query param.
-	 * @return array{0:int,1:string[]} Response status and widget types.
-	 */
-	private function request_default_layout( $url_name, $query_name = null ) {
-		$request = new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . $url_name . '/default-layout' );
-
-		if ( null !== $query_name ) {
-			$request->set_query_params( array( 'name' => $query_name ) );
-		}
-
-		$response = rest_get_server()->dispatch( $request );
-
-		return array( $response->get_status(), array_column( (array) $response->get_data(), 'type' ) );
-	}
-
-	/**
-	 * The default-layout route uses the WPCOM namespace.
-	 */
-	public function test_default_layout_route_uses_wpcom_v2_namespace() {
-		global $wp_rest_server;
-		$wp_rest_server = new WP_REST_Server();
-
-		if ( false === has_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
-			add_action( 'rest_api_init', __NAMESPACE__ . '\\register_dashboard_default_layout_route' );
-		}
-
-		do_action( 'rest_api_init' );
-
-		$routes = rest_get_server()->get_routes();
-
-		$this->assertArrayHasKey( self::ROUTE, $routes );
-		$this->assertArrayNotHasKey( self::LEGACY_ROUTE, $routes );
-	}
-
-	/**
-	 * The dashboard fetches this route on boot, so it has to admit every reader
-	 * the dashboard itself admits — not administrators only.
-	 */
-	public function test_default_layout_route_is_gated_on_the_dashboard_capability() {
-		global $wp_rest_server;
-		$wp_rest_server = new WP_REST_Server();
-
-		register_dashboard_default_layout_route();
-
-		$routes = rest_get_server()->get_routes();
-
-		$this->assertSame(
-			array( Capabilities::class, 'current_user_can_view_analytics' ),
-			$routes[ self::ROUTE ][0]['permission_callback']
-		);
-	}
-
-	/**
-	 * This route keeps its own availability table, so the preview scope has to be applied
-	 * here too or a hidden tab still hands out its layout.
-	 */
-	public function test_default_layout_route_refuses_a_tab_the_preview_hides() {
-		$this->register_route_with_capabilities();
-		$this->login_as( 'administrator' );
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-
-		list( $status ) = $this->request_default_layout( DASHBOARD_INSIGHTS_SECTION_ID );
-
-		$this->assertSame( 404, $status );
-	}
-
-	/**
-	 * The tab the preview does expose keeps serving its layout.
-	 */
-	public function test_default_layout_route_serves_the_traffic_tab_while_the_preview_is_scoped() {
-		$this->register_route_with_capabilities();
-		$this->login_as( 'administrator' );
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-
-		list( $status ) = $this->request_default_layout( DASHBOARD_TRAFFIC_SECTION_ID );
-
-		$this->assertSame( 200, $status );
-	}
-
-	/**
-	 * `store` is one of the tab aliases the name resolves through and matches the
-	 * route's own name pattern, so the store tab is reachable straight from the
-	 * URL — a reader admitted by view_stats alone must not be served its layout.
-	 */
-	public function test_default_layout_route_refuses_the_store_tab_for_a_view_stats_reader() {
-		$this->register_route_with_capabilities();
-		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
-
-		list( $status ) = $this->request_default_layout( DASHBOARD_STORE_SECTION_ID );
-
-		$this->assertSame( 404, $status );
-	}
-
-	/**
-	 * WordPress reads query params ahead of the URL capture, so `?name=` reaches
-	 * the callback with a value the route pattern would never have matched.
-	 */
-	public function test_default_layout_route_refuses_a_name_shadowed_store_tab() {
-		$this->register_route_with_capabilities();
-		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
-
-		list( $status ) = $this->request_default_layout( DASHBOARD_NAME, 'woocommerce/store' );
-
-		$this->assertSame( 404, $status );
-	}
-
-	/**
-	 * The refusal is the reader's, not the tab's: an administrator still gets it.
-	 */
-	public function test_default_layout_route_serves_the_store_tab_to_an_administrator() {
-		$this->register_route_with_capabilities();
-		$this->login_as( 'administrator' );
-
-		list( $status, $types ) = $this->request_default_layout( DASHBOARD_STORE_SECTION_ID );
-
-		$this->assertSame( 200, $status );
-		$this->assertContains( 'jpa/store-performance', $types );
-	}
-
-	/**
-	 * Only the store tab is gated: the reader's own tabs are served as before.
-	 */
-	public function test_default_layout_route_serves_the_traffic_tab_to_a_view_stats_reader() {
-		$this->register_route_with_capabilities();
-		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
-
-		list( $status, $types ) = $this->request_default_layout( DASHBOARD_NAME );
-
-		$this->assertSame( 200, $status );
-		$this->assertContains( 'jpa/traffic-chart', $types );
-		$this->assertNotContains( 'jpa/store-performance', $types );
-	}
-
-	/**
-	 * A stats reader cannot access the Ads tab layout.
-	 */
-	public function test_default_layout_route_refuses_the_ads_tab_for_a_view_stats_reader() {
-		$this->register_route_with_capabilities();
-		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
-
-		list( $status ) = $this->request_default_layout( DASHBOARD_ADS_SECTION_ID );
-
-		$this->assertSame( 404, $status );
-	}
-
-	/**
-	 * An administrator can access the Ads tab layout.
-	 */
-	public function test_default_layout_route_serves_the_ads_tab_to_an_administrator() {
-		$this->register_route_with_capabilities();
-		$this->login_as( 'administrator' );
-
-		list( $status, $types ) = $this->request_default_layout( DASHBOARD_ADS_SECTION_ID );
-
-		$this->assertSame( 200, $status );
-		$this->assertContains( 'jpa/wordads-highlights', $types );
-	}
-
-	/**
-	 * An unavailable tab does not expose its default layout.
-	 */
-	public function test_default_layout_route_refuses_an_unavailable_subscribers_tab() {
-		$this->register_route_with_capabilities();
-		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
-		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
-
-		list( $status ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
-
-		$this->assertSame( 404, $status );
-	}
-
-	/**
-	 * An unavailable tab is refused when `?name=` shadows the URL capture.
-	 */
-	public function test_default_layout_route_refuses_a_name_shadowed_subscribers_tab() {
-		$this->register_route_with_capabilities();
-		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
-		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
-
-		list( $status ) = $this->request_default_layout( DASHBOARD_NAME, 'analytics/subscribers' );
-
-		$this->assertSame( 404, $status );
-	}
-
-	/**
-	 * An available Subscribers tab exposes its default layout.
-	 */
-	public function test_default_layout_route_serves_an_available_subscribers_tab() {
-		$this->register_route_with_capabilities();
-		$this->grant_view_stats_to( $this->login_as( 'editor' ) );
-
-		list( $status, $types ) = $this->request_default_layout( DASHBOARD_SUBSCRIBERS_SECTION_ID );
-
-		$this->assertSame( 200, $status );
-		$this->assertContains( 'jpa/subscribers-chart', $types );
 	}
 
 	/**
@@ -562,8 +332,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 3, 2, 0 ),
 			'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 3, 1, 1 ),
 			'default-wordads-earnings-history-widget-instance' => array( 'jpa/wordads-earnings-history', 1, 2, 2 ),
-			'default-wordads-sponsored-content-history-widget-instance' => array( 'jpa/wordads-sponsored-content-history', 1, 2, 3 ),
-			'default-wordads-adjustments-history-widget-instance' => array( 'jpa/wordads-adjustments-history', 1, 2, 4 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );

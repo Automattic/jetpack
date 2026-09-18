@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.5.1] - 2026-09-15
+### Changed
+- Disconnect dialog: Load the illustrations from the Connection PHP package. [#52204]
+- Update package dependencies. [#52297]
+
 ## [2.5.0] - 2026-09-14
 ### Added
 - Connection errors: Derive the notice title, the grouped messages, their scope lines and any Site Health link in the package, so every consumer renders the same detail. [#51504]
@@ -1487,6 +1492,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.5.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.4.2...v2.5.0
 [2.4.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.4.0...v2.4.1

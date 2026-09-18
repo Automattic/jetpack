@@ -133,7 +133,7 @@ const ResourcePromptComponent = props => {
 							br: <br />,
 							strong: <strong />,
 							Link: <Link openInNewTab href={ descriptionLink } onClick={ onExternalLinkClick } />,
-					  } )
+						} )
 					: null
 			}
 			content={
@@ -215,7 +215,7 @@ const ResourcePrompt = connect(
 					stepProgressValue: getOnboardingStepProgressValueIfEligible( state ),
 					progressValue: null,
 					summaryViewed: false,
-			  }
+				}
 			: {} ),
 	} ),
 	dispatch => ( {

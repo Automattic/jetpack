@@ -698,7 +698,7 @@ export const getStepContent = ( state, stepSlug ) => {
 							/* translators: %(discount)s: is a discount percentage. e.g. 50 */
 							__( 'Get %(discount)s%% off your first year', 'jetpack' ),
 							{ discount }
-					  )
+						)
 					: __( 'Get VaultPress Backup', 'jetpack' );
 			};
 
@@ -743,7 +743,7 @@ export const getStepContent = ( state, stepSlug ) => {
 						/* translators: %s: is a formatted currency. e.g. $1 */
 						__( 'Try for %s for 30 days', 'jetpack' ),
 						price
-				  );
+					);
 
 			return {
 				progressValue: 100,

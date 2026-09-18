@@ -22,12 +22,10 @@ import {
 import { PageOptionsMenu, ResetLayoutAction } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
+import { useWidgetModules } from '../use-widget-modules';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
 	DashboardSections,
@@ -101,22 +99,7 @@ function Dashboard(): JSX.Element {
 		}
 	}, [ isSyncComplete ] );
 
-	const widgetModules = useSelect(
-		select =>
-			(
-				select( coreStore ) as unknown as {
-					getEntityRecords: (
-						kind: string,
-						name: string,
-						query?: Record< string, unknown >
-					) => WidgetModuleRecord[] | null;
-				}
-			 )
-				// `per_page: -1` returns every widget type; core-data's default query
-				// (`per_page: 10`) would silently hide any widget past the tenth.
-				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
-		[]
-	);
+	const widgetModules = useWidgetModules();
 
 	const [ editMode, setEditMode ] = useState( false );
 	const startCustomizing = useCallback( () => setEditMode( true ), [] );

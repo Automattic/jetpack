@@ -1,10 +1,5 @@
 export type PodcatcherId =
-	| 'pocketcasts'
-	| 'apple'
-	| 'spotify'
-	| 'youtube'
-	| 'amazon'
-	| 'podcastindex';
+	'pocketcasts' | 'apple' | 'spotify' | 'youtube' | 'amazon' | 'podcastindex';
 
 export type PodcastShowUrls = Record< PodcatcherId, string >;
 

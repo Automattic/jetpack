@@ -39,8 +39,7 @@ interface BookingsOverTimeStoryControls {
 type BookingsOverTimeStoryProps = BookingsOverTimeRenderProps & BookingsOverTimeStoryControls;
 
 interface BookingsOverTimeDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		BookingsOverTimeStoryControls {}
+	extends WidgetDashboardWithWidgetControls, BookingsOverTimeStoryControls {}
 
 function getBookingsOverTimeAttributes(
 	withComparison = false,

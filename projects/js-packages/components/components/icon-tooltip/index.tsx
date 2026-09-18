@@ -28,6 +28,7 @@ const placementsToPositions = ( placement: Placement ): Position => {
  */
 const IconTooltip: FC< IconTooltipProps > = ( {
 	className = '',
+	popoverClassName,
 	iconClassName = '',
 	placement = 'bottom-end',
 	animate = true,
@@ -66,7 +67,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		offset, // The distance (in px) between the anchor and the popover.
 		focusOnMount: 'firstElement',
 		onClose: hideTooltip,
-		className: 'icon-tooltip-container',
+		className: clsx( 'icon-tooltip-container', popoverClassName ),
 		inline,
 		shift,
 	} satisfies Omit< React.ComponentProps< typeof Popover >, 'children' >;

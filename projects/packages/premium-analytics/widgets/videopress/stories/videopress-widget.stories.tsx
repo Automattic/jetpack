@@ -139,8 +139,7 @@ export const Empty: Story = {
 };
 
 interface VideoPressDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		VideoPressStoryControls {}
+	extends WidgetDashboardWithWidgetControls, VideoPressStoryControls {}
 
 /**
  * Renders the real registered widget through the shared dashboard harness, so
