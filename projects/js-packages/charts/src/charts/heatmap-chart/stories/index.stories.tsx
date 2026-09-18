@@ -32,6 +32,11 @@ const meta: Meta< StoryArgs > = {
 		...themeArgTypes,
 		compact: { control: 'boolean', table: { category: 'Visual Style' } },
 		showValues: { control: 'boolean', table: { category: 'Visual Style' } },
+		tooltipVariant: {
+			control: 'radio',
+			options: [ 'light', 'dark' ],
+			table: { category: 'Visual Style' },
+		},
 		maxCellWidth: {
 			control: { type: 'number', min: 1 },
 			description: 'Maximum cell width in pixels in non-compact mode',
@@ -180,6 +185,19 @@ export const WithCompositionLegend: Story = {
 		</HeatmapChart>
 	),
 	args: { ...Default.args },
+};
+
+export const WithBarLegend: Story = {
+	render: args => (
+		<HeatmapChart { ...args } chartId="bar-legend-heatmap">
+			<HeatmapChart.Legend variant="bar" />
+		</HeatmapChart>
+	),
+	args: { ...Default.args },
+};
+
+export const DarkTooltip: Story = {
+	args: { ...Default.args, tooltipVariant: 'dark' },
 };
 
 export const FixedDimensions: Story = {
