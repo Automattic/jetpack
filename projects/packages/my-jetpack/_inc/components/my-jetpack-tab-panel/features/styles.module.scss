@@ -429,7 +429,20 @@ $feature-icon-foreground: #0ced57;
 }
 
 // The switch and the way in, pushed to the end of the row the name starts.
+// Sized to the title and badge rows beside it, so the tile is flush with both
+// rather than floating between them.
+.modal-icon .feature-icon {
+	block-size: 3.25rem;
+	inline-size: 3.25rem;
+}
+
+.modal-icon .feature-icon__fallback svg {
+	block-size: 28px;
+	inline-size: 28px;
+}
+
 .modal-actions {
+	align-self: center;
 	flex-shrink: 0;
 	margin-inline-start: auto;
 
@@ -527,5 +540,30 @@ $feature-icon-foreground: #0ced57;
 		max-inline-size: none;
 		min-block-size: 0;
 		transform: none;
+		// Core's own mobile entrance: the sheet rises from below the screen.
+		animation-duration: var(--wpds-motion-duration-md);
+		animation-fill-mode: both;
+		animation-name: feature-sheet-rise;
+		animation-timing-function: var(--wpds-motion-easing-expressive);
+	}
+}
+
+@keyframes feature-sheet-rise {
+
+	from {
+		opacity: 0;
+		transform: translateY(100%);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (max-width: 599px) and (prefers-reduced-motion: reduce) {
+
+	.modal-popup {
+		animation: none;
 	}
 }
