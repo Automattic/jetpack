@@ -41,11 +41,8 @@ export function createSignals( formSettings: FormSettings ) {
 	// The identity tray under the textarea: opened by typing, or by the gear once signed in.
 	const isTrayOpen = signal( false );
 
-	// Whether the comment will carry a name the site can vouch for: a site login or a passport.
 	const isSignedIn = computed( () => Boolean( JetpackComments.user ) || signedIn.value !== null );
 
-	// Read once the tray first opens. Null means the site has no email for this reader,
-	// so there is nothing to subscribe.
 	const subscriptions = signal< SubscriptionState | null | undefined >( undefined );
 
 	const isSubmitDisabled = computed(

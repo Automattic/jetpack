@@ -8,8 +8,7 @@ type SiteUserProps = {
 };
 
 /**
- * A reader logged in to the site itself. Their name comes from the site, and
- * so does the way out.
+ * The tray for a reader logged in to the site.
  *
  * @param props      - Component props.
  * @param props.user - The site's account.

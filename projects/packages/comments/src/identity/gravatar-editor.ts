@@ -1,10 +1,5 @@
-/**
- * The Gravatar quick editor, opened from the avatar in the footer.
- */
-
 import { GravatarQuickEditorCore } from '@gravatar-com/quick-editor';
 
-// Gravatar's own codes for the locales it spells differently from WordPress.
 const LOCALES: Record< string, string > = {
 	en: '',
 	zh_TW: 'zh-TW',
@@ -15,7 +10,7 @@ let editor: GravatarQuickEditorCore | null = null;
 let onUpdated: () => void = () => {};
 
 /**
- * Open the editor for an email. With none, Gravatar edits the account the reader logs in to.
+ * Open the Gravatar quick editor.
  *
  * @param email   - The address whose avatar to edit.
  * @param updated - Called once Gravatar reports a change.

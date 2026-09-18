@@ -9,11 +9,9 @@ import { SiteUser } from './site-user';
 export { CommentingAs } from './commenting-as';
 
 /**
- * Who is commenting: a reader logged in to the site, the checkpoint where
- * WordPress.com sign-in is available, and the plain guest fields or log-in
- * prompt where it is not.
+ * The identity block for the current reader.
  *
- * @return The identity block.
+ * @return The block.
  */
 export const Identity = () => {
 	const { signedIn } = useContext( CommentSignals );

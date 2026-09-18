@@ -6,11 +6,9 @@ import { logOut } from './checkpoint';
 import './style.scss';
 
 /**
- * Who the popup signed in, and a way out. A fresh sign-in posts its code; a
- * returning one posts a marker, so the server uses the passport only when
- * this was on screen.
+ * The tray for a popup sign-in.
  *
- * @return The signed-in identity block.
+ * @return The tray.
  */
 export const LoggedIn = () => {
 	const { signedIn, activeService, subscriptions } = useContext( CommentSignals );
@@ -29,7 +27,6 @@ export const LoggedIn = () => {
 
 		signedIn.value = null;
 		activeService.value = '';
-		// Read again for whoever signs in next.
 		subscriptions.value = undefined;
 	};
 

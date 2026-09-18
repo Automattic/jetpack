@@ -50,10 +50,6 @@ export type SignedIn = Passport & {
 
 export type Frequency = 'instantly' | 'daily' | 'weekly';
 
-/**
- * What a reader is subscribed to on this site, as WordPress.com reports it.
- * Shaped like the Reader's subscription-details response, which Verbum read.
- */
 export type SubscriptionState = {
 	email: {
 		send_posts: boolean;
@@ -70,16 +66,11 @@ export type SubscriptionChange =
 	| { field: 'frequency'; value: Frequency };
 
 export type SubscriptionSettings = {
-	/** Whether the site offers new-post emails from the comment form. */
 	blog: boolean;
-	/** Whether the site offers new-comment emails from the comment form. */
 	comments: boolean;
-	/** Whether a reader logged in to the site can take web and mobile notifications too. */
 	notifications: boolean;
 	url: string;
-	/** The admin-ajax action, on Simple; empty where the route is served as REST. */
 	action: string;
-	/** The REST nonce for a reader logged in to the site; empty otherwise. */
 	nonce: string;
 };
 

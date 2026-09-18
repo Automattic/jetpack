@@ -31,7 +31,6 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	} = useContext( CommentSignals );
 	const isSubmitting = useRef( false );
 
-	// A signed-in reader with nothing to set gets the tray held open: the way out lives in it.
 	useEffect( () => {
 		if ( isSignedIn.value && ! hasSubscriptionOptions() ) {
 			isTrayOpen.value = true;

@@ -8,16 +8,12 @@ import type { ComponentChildren } from 'preact';
 import './style.scss';
 
 type SignedInProps = {
-	/** Who this is, and their way out. */
 	heading: ComponentChildren;
-	/** Anything the form must post along with the comment. */
 	children?: ComponentChildren;
 };
 
 /**
- * The tray for a reader the site can name: the heading, the subscription
- * options under it, and a close button. Without options it collapses to the
- * heading alone and is held open, since the way out lives in it.
+ * The tray for a signed-in reader.
  *
  * @param props          - Component props.
  * @param props.heading  - Who this is, and their way out.
