@@ -1,4 +1,4 @@
 Significance: patch
 Type: security
 
-Critical CSS: Only enter generation mode while rendering a front-end page, so a link carrying the generation parameter can no longer log an administrator out.
+Critical CSS: Only enter generation mode while a front-end page renders, so a link carrying the generation parameter can no longer force an admin, REST or login-page request to render as a logged-out visitor.
