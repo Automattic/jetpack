@@ -9,12 +9,6 @@ const LOCALES: Record< string, string > = {
 let editor: GravatarQuickEditorCore | null = null;
 let onUpdated: () => void = () => {};
 
-/**
- * Open the Gravatar quick editor.
- *
- * @param email   - The address whose avatar to edit.
- * @param updated - Called once Gravatar reports a change.
- */
 export const openGravatarEditor = ( email: string, updated: () => void ) => {
 	onUpdated = updated;
 

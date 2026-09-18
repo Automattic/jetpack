@@ -20,16 +20,6 @@ type OptionsProps = {
 	disabled?: boolean;
 };
 
-/**
- * The subscription options.
- *
- * @param props               - Component props.
- * @param props.notifications - The web and mobile notifications option, when offered.
- * @param props.posts         - The new-post emails option, when offered.
- * @param props.comments      - The new-comment emails option, when offered.
- * @param props.disabled      - Whether every control is inert.
- * @return The options.
- */
 const Options = ( { notifications, posts, comments, disabled }: OptionsProps ) => {
 	const { strings } = JetpackComments;
 	const { formSettings } = useContext( CommentSignals );
@@ -81,19 +71,9 @@ const Options = ( { notifications, posts, comments, disabled }: OptionsProps ) =
 	);
 };
 
-/**
- * Whether the site offers either email option.
- *
- * @return Whether it does.
- */
 export const hasSubscriptionOptions = () =>
 	JetpackComments.subscriptions.blog || JetpackComments.subscriptions.comments;
 
-/**
- * The options for a signed-in reader, saved as they change.
- *
- * @return The options, or null when the site has no email for the reader.
- */
 export const SubscriptionOptions = () => {
 	const { formSettings, subscriptions, signedIn, signInError, activeService, isTrayOpen } =
 		useContext( CommentSignals );
@@ -179,11 +159,6 @@ export const SubscriptionOptions = () => {
 	);
 };
 
-/**
- * The options for a guest, posted with the comment.
- *
- * @return The options and their hidden fields.
- */
 export const GuestSubscriptionOptions = () => {
 	const { subscriptions: settings } = JetpackComments;
 	const [ posts, setPosts ] = useState( false );

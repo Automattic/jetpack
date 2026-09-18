@@ -9,13 +9,6 @@ import './style.scss';
 
 const AVATAR_REFRESH_MS = 2000;
 
-/**
- * The avatar URL with a cache-busting stamp.
- *
- * @param avatar - The avatar URL.
- * @param stamp  - When it was last changed, or 0 for never.
- * @return The URL to draw.
- */
 const bust = ( avatar: string, stamp: number ) => {
 	if ( ! stamp ) {
 		return avatar;
@@ -36,11 +29,6 @@ type Current = {
 	email: string;
 };
 
-/**
- * The footer group for a signed-in reader.
- *
- * @return The group, or null for a guest.
- */
 export const CommentingAs = () => {
 	const { signedIn } = useContext( CommentSignals );
 	const { user } = JetpackComments;
@@ -64,13 +52,6 @@ type UserSettingsProps = {
 	current: Current;
 };
 
-/**
- * The avatar and gear group.
- *
- * @param props         - Component props.
- * @param props.current - Whose avatar this is.
- * @return The footer group.
- */
 const UserSettings = ( { current }: UserSettingsProps ) => {
 	const { formSettings, isTrayOpen } = useContext( CommentSignals );
 	const { strings } = JetpackComments;

@@ -14,21 +14,6 @@ type ToggleProps = {
 	onChange?: ( checked: boolean ) => void;
 };
 
-/**
- * A checkbox drawn as a switch.
- *
- * @param props                - Component props.
- * @param props.id             - Element id, shared with the label.
- * @param props.label          - Text shown beside the switch.
- * @param props.description    - Smaller text under the label.
- * @param props.name           - Field name to post under.
- * @param props.value          - Value to post when checked.
- * @param props.checked        - The state, for a controlled switch.
- * @param props.defaultChecked - Whether an uncontrolled switch starts on.
- * @param props.disabled       - Whether the switch is inert.
- * @param props.onChange       - Called with the new state.
- * @return The switch and its label.
- */
 export const Toggle = ( props: ToggleProps ) => {
 	const { id, label, description, name, value, checked, defaultChecked, disabled, onChange } =
 		props;
