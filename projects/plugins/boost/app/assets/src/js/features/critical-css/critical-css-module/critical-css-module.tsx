@@ -59,6 +59,7 @@ const CriticalCssModule = () => {
 
 			<InterstitialModalCTA
 				identifier="critical-css"
+				showLicenseKeyLink
 				description={ __(
 					'Save time by upgrading to Automatic Critical CSS generation.',
 					'jetpack-boost'

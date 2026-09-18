@@ -5,7 +5,7 @@ import { useEntityRecords } from '@wordpress/core-data';
 /**
  * Internal dependencies
  */
-import type { DashboardSection } from '../config';
+import type { DashboardSection } from '../../config';
 
 /**
  * Get the ordered list of dashboard sections. Reads the `dashboardSection`

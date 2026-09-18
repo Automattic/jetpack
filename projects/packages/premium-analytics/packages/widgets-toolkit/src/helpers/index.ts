@@ -72,7 +72,6 @@ export {
 export {
 	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
 	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
-	compactCalendarHeatmapCapacity,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
 	type CalendarHeatmapLayout,
@@ -99,8 +98,5 @@ export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './calendar-heatmap-window';

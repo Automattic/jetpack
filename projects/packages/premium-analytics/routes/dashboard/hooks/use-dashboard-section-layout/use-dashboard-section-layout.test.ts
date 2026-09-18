@@ -7,9 +7,9 @@ import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_PREFERENCES_SCOPE } from './constants';
+import { DASHBOARD_PREFERENCES_SCOPE } from '../constants';
 import { useDashboardSectionLayout } from './use-dashboard-section-layout';
-import type { DashboardSection } from '../config';
+import type { DashboardSection } from '../../config';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 const PREFERENCES_KEY = 'dashboardSectionLayouts';

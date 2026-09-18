@@ -1,9 +1,9 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback, useMemo, useState } from 'react';
-import { isDashboardSectionLayouts } from '../config';
-import { DASHBOARD_PREFERENCES_SCOPE } from './constants';
-import type { DashboardSection, DashboardSectionId, DashboardSectionLayouts } from '../config';
+import { isDashboardSectionLayouts } from '../../config';
+import { DASHBOARD_PREFERENCES_SCOPE } from '../constants';
+import type { DashboardSection, DashboardSectionId, DashboardSectionLayouts } from '../../config';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 const PREFERENCES_KEY = 'dashboardSectionLayouts';

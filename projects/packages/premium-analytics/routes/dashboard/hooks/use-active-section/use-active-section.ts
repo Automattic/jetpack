@@ -6,8 +6,8 @@ import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { resolveSectionId, type DashboardSection, type DashboardSectionId } from '../config';
-import { route } from '../package.json';
+import { resolveSectionId, type DashboardSection, type DashboardSectionId } from '../../config';
+import { route } from '../../package.json';
 
 /**
  * Mirrors this route's `route.path` from package.json, so the staged-search
