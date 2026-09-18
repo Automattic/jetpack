@@ -6,25 +6,15 @@
  */
 
 /**
- * Registers the WordPress.com view of the Activity Log product.
+ * Forces the Activity Log module on, since the Jetpack menu links to it regardless of the module.
  *
- * @return void
- */
-function wpcom_activity_log_init() {
-	add_filter( 'my_jetpack_products_classes', 'wpcom_activity_log_product_class' );
-}
-
-/**
- * Points My Jetpack's Activity Log card at the WordPress.com product class.
+ * A forced module is what My Jetpack and Jetpack Settings render as locked on, rather than as a toggle.
  *
- * Named as a string rather than with `::class` so nothing loads the subclass before My
- * Jetpack, which owns its parent, has resolved this filter.
- *
- * @param array $classes Product classes, keyed by product slug.
+ * @param array $modules Active module slugs.
  * @return array
  */
-function wpcom_activity_log_product_class( $classes ) {
-	$classes['activity-log'] = 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\Wpcom_Activity_Log';
+function wpcom_force_activity_log_module( $modules ) {
+	$modules[] = 'activity-log';
 
-	return $classes;
+	return array_values( array_unique( $modules ) );
 }

@@ -35,11 +35,10 @@
 		"automattic/jetpack-explat": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-my-jetpack": "@dev",
+		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-test-environment": "@dev",
-		"automattic/phpunit-select-config": "@dev",
 		"brain/monkey": "^2.6.2",
-		"yoast/phpunit-polyfills": "^4.0.0"
+		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."

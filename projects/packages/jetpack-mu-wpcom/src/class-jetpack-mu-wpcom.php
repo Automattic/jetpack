@@ -61,9 +61,9 @@ class Jetpack_Mu_Wpcom {
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
 
-			// Simple sites need no equivalent: `Modules::is_active()` already answers true there.
+			// Hooked here, not in load_features(): the active modules are read before plugins_loaded.
 			require_once __DIR__ . '/features/wpcom-activity-log/wpcom-activity-log.php';
-			wpcom_activity_log_init();
+			add_filter( 'jetpack_active_modules', 'wpcom_force_activity_log_module' );
 		}
 
 		/*

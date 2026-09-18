@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Modules;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -17,60 +18,51 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-activity-log/wpcom-
 class WPCOM_Activity_Log_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * My Jetpack drops a replacement class that isn't a child of the one it registered, and says
-	 * nothing when it does — the card would just keep reporting the module state.
+	 * Removes the filter the tests below add.
 	 */
-	public function test_wpcom_class_is_a_my_jetpack_activity_log_product() {
-		$this->assertTrue(
-			is_subclass_of(
-				'Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Activity_Log',
-				'Automattic\Jetpack\My_Jetpack\Products\Activity_Log'
-			)
-		);
+	public function tear_down() {
+		remove_filter( 'jetpack_active_modules', 'wpcom_force_activity_log_module' );
+
+		parent::tear_down();
 	}
 
 	/**
-	 * The point of the override: the card reads Active whatever the module option says.
+	 * The module stays on after the site owner switches it off in the option.
 	 */
-	public function test_wpcom_class_reports_the_product_active() {
+	public function test_module_is_active_after_an_opt_out() {
 		\Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+		add_filter( 'jetpack_active_modules', 'wpcom_force_activity_log_module' );
 
-		$this->assertTrue( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Activity_Log::is_active() );
-		$this->assertTrue( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Activity_Log::is_activated() );
+		$this->assertTrue( ( new Modules() )->is_active( 'activity-log' ) );
 	}
 
 	/**
-	 * The class name is a string on purpose: `::class` here would load the subclass before
-	 * my-jetpack, which owns its parent, and fatal.
+	 * The filter adds the slug rather than replacing the list.
 	 */
-	public function test_filter_points_the_activity_log_card_at_the_wpcom_class() {
-		$classes = wpcom_activity_log_product_class( array( 'activity-log' => 'Products\Activity_Log' ) );
-
+	public function test_filter_keeps_the_other_active_modules() {
 		$this->assertSame(
-			'Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Activity_Log',
-			$classes['activity-log']
+			array( 'stats', 'sso', 'activity-log' ),
+			wpcom_force_activity_log_module( array( 'stats', 'sso' ) )
 		);
 	}
 
 	/**
-	 * Other products keep whatever class they were registered with.
+	 * A site that already has the slug gets one copy of it.
 	 */
-	public function test_filter_leaves_the_other_products_alone() {
-		$classes = wpcom_activity_log_product_class( array( 'stats' => 'Products\Stats' ) );
-
-		$this->assertSame( 'Products\Stats', $classes['stats'] );
+	public function test_filter_does_not_duplicate_an_active_module() {
+		$this->assertSame(
+			array( 'activity-log', 'stats' ),
+			wpcom_force_activity_log_module( array( 'activity-log', 'stats' ) )
+		);
 	}
 
 	/**
-	 * Nothing else here would fail if init() stopped wiring the filter, since the tests above
-	 * call the callback directly.
-	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_package_bootstrap_wires_the_product_class_on_atomic() {
+	public function test_package_bootstrap_forces_the_module_on_atomic() {
 		if ( ! defined( 'IS_ATOMIC' ) ) {
 			define( 'IS_ATOMIC', true );
 		}
@@ -78,28 +70,21 @@ class WPCOM_Activity_Log_Test extends \WorDBless\BaseTestCase {
 		unset( $GLOBALS['wp_actions']['jetpack_mu_wpcom_initialized'] );
 		Jetpack_Mu_Wpcom::init();
 
-		$this->assertNotFalse(
-			has_filter( 'my_jetpack_products_classes', 'wpcom_activity_log_product_class' ),
-			'Jetpack_Mu_Wpcom::init() must register the product class override on Atomic.'
-		);
+		$this->assertNotFalse( has_filter( 'jetpack_active_modules', 'wpcom_force_activity_log_module' ) );
 	}
 
 	/**
-	 * The negative case is what keeps Simple and self-hosted sites on the stock product class,
-	 * where the module state is the right answer.
+	 * Simple already reports every module active, and self-hosted sites keep the site owner's choice.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_package_bootstrap_leaves_the_product_class_alone_without_atomic() {
+	public function test_package_bootstrap_leaves_the_module_alone_without_atomic() {
 		unset( $GLOBALS['wp_actions']['jetpack_mu_wpcom_initialized'] );
 		Jetpack_Mu_Wpcom::init();
 
-		$this->assertFalse(
-			has_filter( 'my_jetpack_products_classes', 'wpcom_activity_log_product_class' ),
-			'The product class override must not be registered off Atomic.'
-		);
+		$this->assertFalse( has_filter( 'jetpack_active_modules', 'wpcom_force_activity_log_module' ) );
 	}
 }

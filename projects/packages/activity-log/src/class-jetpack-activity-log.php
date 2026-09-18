@@ -223,20 +223,13 @@ class Jetpack_Activity_Log {
 			? 'jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'render_fallback' );
 
-		// The gate below is declarative: initialize() only hooks this method while the module is
-		// on, so it names what the item depends on rather than deciding anything.
 		$page_suffix = Admin_Menu::add_menu(
 			/** "Activity Log" is a product name, do not translate. */
 			'Activity Log',
 			'Activity Log',
 			'manage_options',
 			self::PAGE_SLUG,
-			$render_callback,
-			null,
-			array(
-				'module' => self::MODULE_SLUG,
-				'key'    => self::PAGE_SLUG,
-			)
+			$render_callback
 		);
 
 		if ( $page_suffix ) {

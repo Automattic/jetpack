@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: fixed
 
-Activity Log: report the feature as active in My Jetpack on WordPress.com, where the Jetpack menu always links to it.
+Activity Log: Keep the module active on WordPress.com, where the Jetpack menu always links to it.
