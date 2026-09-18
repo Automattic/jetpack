@@ -119,7 +119,12 @@ class Admin_Test extends Base_TestCase {
 			}
 		);
 		$_GET['page'] = JETPACK_BOOST_SLUG;
-		Functions\expect( 'is_admin' )->never();
+		// set_up() stubs is_admin(), and Brain Monkey ignores expect()->never() on a stubbed function.
+		Functions\when( 'is_admin' )->alias(
+			function () {
+				$this->fail( 'is_admin() must not be evaluated when the modernization filter returns false.' );
+			}
+		);
 		$admin = new Admin();
 
 		$admin->handle_admin_menu();
@@ -642,7 +647,6 @@ class Admin_Test extends Base_TestCase {
 				return 'rsm_jetpack_ui_modernization_boost' === $hook ? true : $value;
 			}
 		);
-		Functions\when( 'is_admin' )->justReturn( true );
 		Functions\when( 'sanitize_text_field' )->returnArg();
 		$_GET['page'] = JETPACK_BOOST_SLUG;
 	}
