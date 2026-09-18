@@ -79,7 +79,7 @@ function LatestPostCard( { authorId }: { authorId: number } ) {
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
 				},
-		  ]
+			]
 		: [];
 
 	return (

@@ -142,7 +142,7 @@ export function usePopularPost( scope?: UsePopularPostScope ): UsePopularPostRes
 				views: metrics?.views,
 				likeCount: metrics?.like_count,
 				commentCount: metrics?.post?.comment_count,
-		  }
+			}
 		: null;
 
 	return {

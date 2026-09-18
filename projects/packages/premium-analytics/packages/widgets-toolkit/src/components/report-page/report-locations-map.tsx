@@ -12,8 +12,10 @@ import { ReportChartSection } from './report-chart-section';
 import styles from './report-locations-map.module.scss';
 import type { LocationsGeoChartProps } from '../locations-geo-chart';
 
-export interface ReportLocationsMapProps
-	extends Pick< LocationsGeoChartProps, 'rows' | 'mode' | 'focusCountry' > {
+export interface ReportLocationsMapProps extends Pick<
+	LocationsGeoChartProps,
+	'rows' | 'mode' | 'focusCountry'
+> {
 	/** Whether to show the loading overlay over the map. */
 	isLoading?: boolean;
 }

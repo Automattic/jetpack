@@ -267,14 +267,14 @@ const installing = ( state = {}, action ) => {
 				? {
 						...state,
 						[ action.feature ]: true,
-				  }
+					}
 				: state;
 		case JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END:
 			return Object.values( RECOMMENDATION_WIZARD_STEP ).includes( action.feature )
 				? {
 						...state,
 						[ action.feature ]: false,
-				  }
+					}
 				: state;
 		default:
 			return state;

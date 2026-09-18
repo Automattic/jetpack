@@ -203,7 +203,7 @@ export default function HistoryChartCard( {
 						days[ 0 ].date,
 						days[ Math.floor( ( days.length - 1 ) / 2 ) ].date,
 						days[ days.length - 1 ].date,
-				  ]
+					]
 				: [],
 		[ days ]
 	);
@@ -366,7 +366,7 @@ export default function HistoryChartCard( {
 									/* translators: %d is the number of days in the visible history window. */
 									__( 'Last %d days', 'jetpack-boost' ),
 									dayCount
-							  ) }
+								) }
 					</Card.Title>
 					{ ! needsUpgrade && ! isFreshStart && (
 						<Tooltip.Provider>

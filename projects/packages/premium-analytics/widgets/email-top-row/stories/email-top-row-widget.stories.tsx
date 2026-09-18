@@ -150,8 +150,7 @@ export const NoEmailSelected: Story = {
 };
 
 interface EmailTopRowDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		EmailTopRowStoryControls {}
+	extends WidgetDashboardWithWidgetControls, EmailTopRowStoryControls {}
 
 function EmailTopRowDashboardStory( { metric, ...dashboardArgs }: EmailTopRowDashboardStoryProps ) {
 	return (

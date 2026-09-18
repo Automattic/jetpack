@@ -27,12 +27,12 @@ class Performance_History implements Feature, Is_Always_On, Has_Data_Sync {
 								array(
 									'desktop_overall_score' => Schema::as_number(),
 									'mobile_overall_score' => Schema::as_number(),
-									'desktop_cls'          => Schema::as_number(),
-									'desktop_lcp'          => Schema::as_number(),
-									'desktop_tbt'          => Schema::as_number(),
-									'mobile_cls'           => Schema::as_number(),
-									'mobile_lcp'           => Schema::as_number(),
-									'mobile_tbt'           => Schema::as_number(),
+									'desktop_cls'          => Schema::as_float(),
+									'desktop_lcp'          => Schema::as_float(),
+									'desktop_tbt'          => Schema::as_float(),
+									'mobile_cls'           => Schema::as_float(),
+									'mobile_lcp'           => Schema::as_float(),
+									'mobile_tbt'           => Schema::as_float(),
 								)
 							),
 						)

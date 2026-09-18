@@ -670,13 +670,13 @@ describe( 'TopPostsWidget', () => {
 									{ value: 'post', href: 'https://example.com/type/post/', views: '9' },
 								],
 							},
-					  }
+						}
 					: {
 							date: '2026-06-10',
 							summary: {
 								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '12' } ],
 							},
-					  }
+						}
 			)
 		);
 
@@ -710,13 +710,13 @@ describe( 'TopPostsWidget', () => {
 							summary: {
 								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '6' } ],
 							},
-					  }
+						}
 					: {
 							date: '2026-06-10',
 							summary: {
 								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '12' } ],
 							},
-					  }
+						}
 			)
 		);
 

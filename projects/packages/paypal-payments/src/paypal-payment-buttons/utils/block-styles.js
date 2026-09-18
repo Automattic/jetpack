@@ -204,7 +204,7 @@ function getBorderStyle( attributes ) {
 				width: strokeWidth,
 				style: BORDER_STYLES.includes( border.style ) ? border.style : 'solid',
 				...( strokeColor ? { color: strokeColor } : {} ),
-		  }
+			}
 		: {};
 
 	return getBorderClassesAndStyles( {

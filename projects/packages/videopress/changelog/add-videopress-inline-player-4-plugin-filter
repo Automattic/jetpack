@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Inline player: let the jetpack_videopress_player_use_iframe filter switch video blocks, shortcodes and embeds to the shared in-page player.

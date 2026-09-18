@@ -253,7 +253,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 				'Requires Jetpack Search or Complete plans',
 				'jetpack',
 				/* dummy arg to avoid bad minification */ 0
-		  );
+			);
 
 	const sections = visibleSections( SECTIONS, features );
 

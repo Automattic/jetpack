@@ -51,7 +51,6 @@ export function getContributorIds(
  */
 export function getLocalUserId( awareness: Awareness ): number | undefined {
 	const localState = awareness.getStates().get( awareness.clientID ) as
-		| CollaboratorAwarenessState
-		| undefined;
+		CollaboratorAwarenessState | undefined;
 	return localState?.collaboratorInfo?.id;
 }

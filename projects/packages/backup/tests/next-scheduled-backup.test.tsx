@@ -267,7 +267,7 @@ function mockEndpoints( {
 						current: { orderedItems: activity },
 						totalItems: activity.length,
 						totalPages: 1,
-				  } );
+					} );
 		}
 		if ( path === '/jetpack/v4/backups' ) {
 			return Promise.resolve( backups );
@@ -338,8 +338,8 @@ function placementRelativeToGrid( row: HTMLElement ) {
 		isSibling: gridParent !== null && row.parentElement === gridParent,
 		comesFirst: Boolean(
 			grid &&
-				// eslint-disable-next-line no-bitwise -- compareDocumentPosition returns a bitmask.
-				row.compareDocumentPosition( grid ) & Node.DOCUMENT_POSITION_FOLLOWING
+			// eslint-disable-next-line no-bitwise -- compareDocumentPosition returns a bitmask.
+			row.compareDocumentPosition( grid ) & Node.DOCUMENT_POSITION_FOLLOWING
 		),
 	};
 	/* eslint-enable testing-library/no-node-access */
