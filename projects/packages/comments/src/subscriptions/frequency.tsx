@@ -10,12 +10,6 @@ type FrequencyToggleProps = {
 
 const FREQUENCIES: Frequency[] = [ 'instantly', 'daily', 'weekly' ];
 
-/**
- * Whether a media query matches.
- *
- * @param query - The media query.
- * @return Whether it matches now.
- */
 const useMediaQuery = ( query: string ) => {
 	const [ matches, setMatches ] = useState( () => window.matchMedia( query ).matches );
 
@@ -32,16 +26,6 @@ const useMediaQuery = ( query: string ) => {
 	return matches;
 };
 
-/**
- * The delivery frequency control.
- *
- * @param props          - Component props.
- * @param props.name     - Radio group name, unique to the form.
- * @param props.value    - The selected frequency.
- * @param props.onChange - Called with the newly selected frequency.
- * @param props.disabled - Whether the control is inert.
- * @return The control.
- */
 export const FrequencyToggle = ( { name, value, onChange, disabled }: FrequencyToggleProps ) => {
 	const { strings } = JetpackComments;
 	const isNarrow = useMediaQuery( '(max-width: 400px)' );

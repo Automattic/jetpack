@@ -7,13 +7,6 @@ type SiteUserProps = {
 	user: CurrentUser;
 };
 
-/**
- * The tray for a reader logged in to the site.
- *
- * @param props      - Component props.
- * @param props.user - The site's account.
- * @return The tray contents.
- */
 export const SiteUser = ( { user }: SiteUserProps ) => {
 	const { formSettings } = useContext( CommentSignals );
 	const { strings } = JetpackComments;

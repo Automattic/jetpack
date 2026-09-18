@@ -5,11 +5,6 @@ import { logOut } from './checkpoint';
 
 import './style.scss';
 
-/**
- * The tray for a popup sign-in.
- *
- * @return The tray.
- */
 export const LoggedIn = () => {
 	const { signedIn, activeService, subscriptions } = useContext( CommentSignals );
 	const { strings, identity } = JetpackComments;

@@ -8,11 +8,6 @@ import { SiteUser } from './site-user';
 
 export { CommentingAs } from './commenting-as';
 
-/**
- * The identity block for the current reader.
- *
- * @return The block.
- */
 export const Identity = () => {
 	const { signedIn } = useContext( CommentSignals );
 	const { user, mustLogIn, identity } = JetpackComments;

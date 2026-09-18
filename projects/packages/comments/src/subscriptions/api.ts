@@ -19,14 +19,6 @@ export type Answer = {
 	signedOut: boolean;
 };
 
-/**
- * Read the reader's subscriptions, after one change if given.
- *
- * @param postId - The post the comment thread belongs to.
- * @param code   - The code a fresh sign-in is holding, for the site to redeem first.
- * @param change - Which option to set, and to what.
- * @return The answer.
- */
 export const fetchSubscriptions = async (
 	postId: number,
 	code: string | null,

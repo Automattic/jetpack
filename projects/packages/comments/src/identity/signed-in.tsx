@@ -12,14 +12,6 @@ type SignedInProps = {
 	children?: ComponentChildren;
 };
 
-/**
- * The tray for a signed-in reader.
- *
- * @param props          - Component props.
- * @param props.heading  - Who this is, and their way out.
- * @param props.children - Hidden fields to post with the comment.
- * @return The tray contents.
- */
 export const SignedIn = ( { heading, children }: SignedInProps ) => {
 	const { isTrayOpen } = useContext( CommentSignals );
 	const { strings } = JetpackComments;
