@@ -22,22 +22,46 @@ class Notices {
 	 * the user's account on WordPress.com does not have two step enabled.
 	 *
 	 * @since jetpack-2.7
-	 * @param string $message Error message.
+	 * @since $$next-version$$ Added the `$user_data` parameter.
+	 * @param string      $message   Error message.
+	 * @param object|null $user_data WordPress.com user information returned by the SSO attempt.
 	 * @return string
 	 **/
-	public static function error_msg_enable_two_step( $message ) {
-		$error = sprintf(
-			wp_kses(
-			/* translators: URL to settings page */
-				__(
-					'Two-Step Authentication is required to access this site. Please visit your <a href="%1$s" rel="noopener noreferrer" target="_blank">Security Settings</a> to configure <a href="%2$s" rel="noopener noreferrer" target="_blank">Two-step Authentication</a> for your account.',
-					'jetpack-connection'
-				),
-				array( 'a' => array( 'href' => array() ) )
+	public static function error_msg_enable_two_step( $message, $user_data = null ) {
+		$account_name = '';
+		if ( is_object( $user_data ) ) {
+			$account_name = ! empty( $user_data->display_name ) ? $user_data->display_name : ( $user_data->login ?? '' );
+		}
+
+		$allowed_html = array(
+			'a' => array(
+				'href'   => array(),
+				'rel'    => array(),
+				'target' => array(),
 			),
-			Redirect::get_url( 'calypso-me-security-two-step' ),
-			Redirect::get_url( 'wpcom-support-security-two-step-authentication' )
 		);
+		$setup_url    = esc_url( Redirect::get_url( 'calypso-me-security-two-step' ) );
+
+		if ( $account_name ) {
+			$error = sprintf(
+				wp_kses(
+					/* translators: %1$s is a WordPress.com account name, %2$s is the URL of the two-step authentication settings. */
+					__( 'You are logged in to WordPress.com as %1$s, but this site requires two-step authentication. <a href="%2$s" rel="noopener noreferrer" target="_blank">Set it up for your account</a>, then log in again.', 'jetpack-connection' ),
+					$allowed_html
+				),
+				'<strong>' . esc_html( $account_name ) . '</strong>',
+				$setup_url
+			);
+		} else {
+			$error = sprintf(
+				wp_kses(
+					/* translators: %s is the URL of the two-step authentication settings. */
+					__( 'This site requires two-step authentication. <a href="%s" rel="noopener noreferrer" target="_blank">Set it up for your WordPress.com account</a>, then log in again.', 'jetpack-connection' ),
+					$allowed_html
+				),
+				$setup_url
+			);
+		}
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
 
