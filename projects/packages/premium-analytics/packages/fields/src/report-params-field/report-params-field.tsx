@@ -56,7 +56,9 @@ export type ReportParamsFieldAttributes = {
  * fill: a window with no data behind it, or a bucket the chart would clamp away.
  */
 export type ReportGrain = {
-	/** The quick presets to offer, in display order. Defaults to every rolling window. */
+	/**
+	 * The quick presets to offer, in display order. Defaults to every rolling window.
+	 */
 	presetIds?: readonly QuickSurfacePresetId[];
 
 	/**
@@ -67,7 +69,14 @@ export type ReportGrain = {
 };
 
 type ReportParamsFieldOptions = {
+	/**
+	 * Whether to offer the chart bucket control.
+	 */
 	withIntervalControl?: boolean;
+
+	/**
+	 * How fine the widget's report is.
+	 */
 	grain?: ReportGrain;
 };
 
@@ -79,9 +88,7 @@ const NO_REPORT_PARAMS: ReportParams = {};
  * Build a widget-owned report params field. Called once at module scope, so the
  * component identity is stable across renders.
  *
- * @param options                     - Field options.
- * @param options.withIntervalControl - Whether to offer the chart bucket control.
- * @param options.grain               - How fine the widget's report is.
+ * @param {ReportParamsFieldOptions} options - Field options.
  * @return A DataForm control component.
  */
 function createReportParamsField( { withIntervalControl, grain }: ReportParamsFieldOptions = {} ) {
@@ -104,9 +111,7 @@ function createReportParamsField( { withIntervalControl, grain }: ReportParamsFi
  * Options travel through this factory, not the descriptor: dataviews rebuilds a
  * normalized field from a fixed set of keys and drops the rest.
  *
- * @param options                     - Field options.
- * @param options.withIntervalControl - Whether to offer the chart bucket control.
- * @param options.grain               - How fine the widget's report is.
+ * @param {ReportParamsFieldOptions} options - Field options.
  * @return The attribute descriptor.
  */
 export function reportParamsAttributeField<
