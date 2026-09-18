@@ -10,6 +10,7 @@ jest.mock(
 	'@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp',
 	() => ''
 );
+jest.mock( './upgrade-cta.module.scss', () => ( { 'license-key-link': 'license-key-link' } ) );
 jest.mock( '$lib/stores/pricing', () => ( { usePricing: () => null } ) );
 jest.mock( '$lib/stores/premium-features', () => ( {
 	usePremiumFeatures: jest.fn( () => [] ),
@@ -98,6 +99,8 @@ describe( 'InterstitialModalCTA', () => {
 			expect( link?.getAttribute( 'href' ) ).toBe(
 				visible ? 'admin.php?page=my-jetpack#/add-license' : undefined
 			);
+			// The wrapper keeps the click target at the text's width.
+			expect( link?.parentElement.className ).toBe( visible ? 'license-key-link' : undefined );
 		}
 	);
 } );
