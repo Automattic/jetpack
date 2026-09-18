@@ -261,7 +261,7 @@ jobs:
 
                 # Can't just pipe, that prevents setting FAIL because the `while` is in a subprocess. Use a coprocess instead.
                 # The `>&3` and `3>&1` weirdness is because `coproc` redirects the normal stdout and we want it to pass through.
-                { coproc PREFIXER { sed -u '/^::/!s!^!['"$SLUG"'] !' >&3 }; } 3>&1
+                { coproc PREFIXER { sed -u '/^::/!s!^!['"$SLUG"'] !' >&3; } } 3>&1
 
                 echo "::group::Running tests for $SLUG"
                 FAIL=
