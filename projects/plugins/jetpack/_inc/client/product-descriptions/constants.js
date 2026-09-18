@@ -1,5 +1,3 @@
-import { imagePath } from 'constants/urls';
-
 export const PRODUCT_DESCRIPTION_PRODUCTS = {
 	JETPACK_ANTI_SPAM: 'akismet',
 	JETPACK_BACKUP: 'backup',
@@ -11,15 +9,6 @@ export const PRODUCT_DESCRIPTION_PRODUCTS = {
 	JETPACK_AI: 'jetpack-ai',
 };
 
-export const productDescriptionRoutes = [
-	`/product/${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_ANTI_SPAM }`,
-	`/product/${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_BACKUP }`,
-	`/product/${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SCAN }`,
-	`/product/${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SEARCH }`,
-	`/product/${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SECURITY }`,
-	`/product/${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_VIDEOPRESS }`,
-];
-
 export const myJetpackRoutes = [
 	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_ANTI_SPAM }`,
 	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_BACKUP }`,
@@ -30,12 +19,3 @@ export const myJetpackRoutes = [
 	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_VIDEOPRESS }`,
 	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_AI }`,
 ];
-
-export const productIllustrations = {
-	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_ANTI_SPAM ]: `${ imagePath }products/illustration-anti-spam.png`,
-	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_BACKUP ]: `${ imagePath }products/illustration-backup.png`,
-	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SCAN ]: `${ imagePath }products/illustration-scan.png`,
-	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SEARCH ]: `${ imagePath }products/illustration-search.png`,
-	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SECURITY ]: `${ imagePath }products/illustration-scan.png`,
-	[ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_VIDEOPRESS ]: `${ imagePath }products/illustration-videopress.png`,
-};
