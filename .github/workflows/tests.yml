@@ -194,10 +194,13 @@ jobs:
           if [[ "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ]]; then
             # Looks like `jest` already defaults to maxing out CPUs. The projects where there aren't enough tests to do that
             # effectively are already very fast, so it's more efficient to use only one worker.
+            echo 'Enabling one worker for JS tests'
             echo '0' > "$WORKERTOKENS"
           else
             # For other tests, workers == number of CPUs.
-            for (( i=0; i<$( nproc ); i++)); do
+            N=$( nproc )
+            echo "Enabling $N worker(s) for $N CPU(s)"
+            for (( i=0; i<N; i++)); do
               echo "$i"
             done > "$WORKERTOKENS"
           fi
