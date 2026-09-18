@@ -122,7 +122,6 @@ jobs:
     timeout-minutes: 2  # 2025-11-20: Takes a few seconds.
     outputs:
       artifact_name: ${{ steps.run.outputs.artifact_name }}
-      artifact_filename: ${{ steps.run.outputs.artifact_filename }}
       any_plugins: ${{ steps.run.outputs.any_plugins }}
     steps:
       - name: Find artifact
@@ -131,8 +130,8 @@ jobs:
           TOKEN: ${{ github.token }}
           URL: ${{ github.event.workflow_run.artifacts_url }}
         run: |
-          ARTIFACT_NAME=
-          ARTIFACT_FILENAME=
+          ARTIFACT_NAME=jetpack-build.tar.xz
+          FOUND=false
           for (( i=1; i<=5; i++ )); do
             [[ $i -gt 1 ]] && sleep 10
             echo "::group::Fetch list of artifacts (attempt $i/5)"
@@ -145,16 +144,14 @@ jobs:
 
             PLUGINS="$(jq -r '.artifacts[] | select( .name == "plugins.tsv" )' <<<"$JSON")"
 
-            if jq -e '.artifacts[] | select( .name == "jetpack-build.tar.xz" )' <<<"$JSON" &>/dev/null; then
-              ARTIFACT_NAME=jetpack-build.tar.xz
-              ARTIFACT_FILENAME=jetpack-build.tar.xz
+            if jq -e --arg name "$ARTIFACT_NAME" '.artifacts[] | select( .name == $name )' <<<"$JSON" &>/dev/null; then
+              FOUND=true
               break
             fi
           done
-          [[ -z "$ARTIFACT_NAME" ]] && { echo "::error::Failed to find artifact."; exit 1; }
+          $FOUND || { echo "::error::Failed to find artifact."; exit 1; }
           echo "Artifact name: $ARTIFACT_NAME"
           echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
-          echo "artifact_filename=${ARTIFACT_FILENAME}" >> "$GITHUB_OUTPUT"
           if [[ -z "$PLUGINS" ]]; then
             echo "Any plugins? No"
             echo "any_plugins=false" >> "$GITHUB_OUTPUT"
@@ -275,7 +272,7 @@ jobs:
 
       - name: Extract build artifact
         env:
-          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
+          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_name }}
         shell: bash
         run: tar --xz -xvvf "$ARTIFACT_FILENAME" build/plugins.tsv
 
@@ -335,7 +332,7 @@ jobs:
 
       - name: Extract build artifact
         env:
-          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
+          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_name }}
         shell: bash
         run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
 
@@ -427,7 +424,7 @@ jobs:
 
       - name: Extract build artifact
         env:
-          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
+          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_name }}
         shell: bash
         run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
 
