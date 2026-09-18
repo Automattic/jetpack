@@ -1,7 +1,7 @@
-import { Button } from '@automattic/jetpack-components';
 import { DataSyncProvider, queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { createRoot } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { observeLegacyModulesState } from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
 import LicenseKeyLink from './features/upgrade-cta/license-key-link';
@@ -43,12 +43,12 @@ window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 		root = createRoot( request.container );
 		root.render(
 			<DataSyncProvider>
-				<div className="jb-modern-upgrade-actions">
-					<Button href="admin.php?page=my-jetpack#/add-boost" onClick={ handleUpgrade }>
+				<span className="jb-modern-upgrade-actions">
+					<Link href="admin.php?page=my-jetpack#/add-boost" onClick={ handleUpgrade }>
 						{ __( 'Upgrade now', 'jetpack-boost' ) }
-					</Button>
+					</Link>
 					<LicenseKeyLink />
-				</div>
+				</span>
 			</DataSyncProvider>
 		);
 	} );

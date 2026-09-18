@@ -10,7 +10,6 @@ import { Button, Card, Notice, Popover, Tooltip, VisuallyHidden } from '@wordpre
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { bucketHistoryDays, type HistoryDay, type HistoryWindow } from './lib/history-days';
 import { getScoreTier, getScoreTierColor } from './lib/score-utils';
-import UpgradeCTA from './upgrade-cta';
 import './history-chart-card.scss';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 import type { BandHighlightSelection, SeriesData } from '@automattic/charts';
@@ -29,7 +28,6 @@ type Props = {
 	isError?: boolean;
 	error?: Error | null;
 	onRetry: () => void;
-	needsUpgrade?: boolean;
 	isFreshStart?: boolean;
 	onDismissFreshStart: () => void;
 };
@@ -195,7 +193,6 @@ export default function HistoryChartCard( {
 	isError,
 	error,
 	onRetry,
-	needsUpgrade,
 	isFreshStart,
 	onDismissFreshStart,
 }: Props ) {
@@ -270,19 +267,7 @@ export default function HistoryChartCard( {
 	}
 	let content;
 	let bodyClassName;
-	if ( needsUpgrade ) {
-		content = (
-			<Notice.Root intent="info" spokenMessage={ null }>
-				<Notice.Title>{ __( 'Unlock historical performance', 'jetpack-boost' ) }</Notice.Title>
-				<Notice.Description>
-					{ __( 'Upgrade and learn more about your site performance over time.', 'jetpack-boost' ) }
-				</Notice.Description>
-				<Notice.Actions>
-					<UpgradeCTA />
-				</Notice.Actions>
-			</Notice.Root>
-		);
-	} else if ( isLoading && ! data?.periods.length ) {
+	if ( isLoading && ! data?.periods.length ) {
 		// The spinner stands in for the chart, so it keeps the chart's edge-to-edge body.
 		bodyClassName = 'boost-daily-history__body';
 		content = (
@@ -486,7 +471,7 @@ export default function HistoryChartCard( {
 									dayCount
 								) }
 					</Card.Title>
-					{ ! needsUpgrade && ! isFreshStart && (
+					{ ! isFreshStart && (
 						<Tooltip.Provider>
 							<div className="boost-daily-history__paging">
 								<PagingButton
