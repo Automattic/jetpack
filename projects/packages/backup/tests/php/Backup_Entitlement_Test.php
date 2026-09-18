@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for Rewind_State_Cache.
+ * Unit tests for Backup_Entitlement.
  *
  * @package automattic/jetpack-backup
  */
@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\Backup\V0005\REST\Wpcom_Request_Mock;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\My_Jetpack\Product as My_Jetpack_Product;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -27,10 +28,10 @@ require_once __DIR__ . '/mock-wpcom-site-features.php';
 /**
  * Tests for the cached Backup entitlement.
  *
- * @covers \Automattic\Jetpack\Backup\V0005\Rewind_State_Cache
+ * @covers \Automattic\Jetpack\Backup\V0005\Backup_Entitlement
  */
-#[CoversClass( Rewind_State_Cache::class )]
-class Rewind_State_Cache_Test extends TestCase {
+#[CoversClass( Backup_Entitlement::class )]
+class Backup_Entitlement_Test extends TestCase {
 
 	use Wpcom_Request_Mock;
 
@@ -39,7 +40,7 @@ class Rewind_State_Cache_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		$this->reset_wpcom_request_mock();
-		$this->forget_rewind_state();
+		My_Jetpack_Product::reset_site_features_cache();
 
 		Constants::clear_single_constant( 'IS_ATOMIC' );
 		unset( $GLOBALS['jetpack_backup_test_site_features'] );
@@ -55,9 +56,9 @@ class Rewind_State_Cache_Test extends TestCase {
 	 * Nothing stored yet answers "no Backup" and queues a read rather than making one.
 	 */
 	public function test_unread_site_answers_false_without_calling_wpcom() {
-		$this->arrange_wpcom( array( 'state' => 'active' ) );
+		$this->arrange_wpcom_features( array( 'backups' ) );
 
-		$this->assertFalse( Rewind_State_Cache::has_backup() );
+		$this->assertFalse( Backup_Entitlement::has_backup() );
 		$this->assertSame( array(), $this->captured_urls );
 		$this->assertTrue( $this->refresh_is_queued() );
 	}
@@ -66,13 +67,24 @@ class Rewind_State_Cache_Test extends TestCase {
 	 * A clear answer is stored and then served without further reads.
 	 */
 	public function test_stored_answer_is_served_without_calling_wpcom() {
-		$this->arrange_wpcom( array( 'state' => 'active' ) );
+		$this->arrange_wpcom_features( array( 'backups' ) );
 
-		$this->assertTrue( Rewind_State_Cache::refresh() );
+		$this->assertTrue( Backup_Entitlement::refresh() );
 		$this->assertCount( 1, $this->captured_urls );
 
-		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertTrue( Backup_Entitlement::has_backup() );
 		$this->assertCount( 1, $this->captured_urls );
+	}
+
+	/**
+	 * The entitlement comes from the same feature list My Jetpack's own Backup card reads.
+	 */
+	public function test_refresh_reads_the_site_features() {
+		$this->arrange_wpcom_features( array( 'backups' ) );
+
+		Backup_Entitlement::refresh();
+
+		$this->assertStringContainsString( '/sites/999/features', $this->captured_url );
 	}
 
 	/**
@@ -85,10 +97,10 @@ class Rewind_State_Cache_Test extends TestCase {
 		$this->arrange_stored_answer( true );
 		$this->arrange_wpcom( array(), 500 );
 
-		$result = Rewind_State_Cache::refresh();
+		$result = Backup_Entitlement::refresh();
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertTrue( Backup_Entitlement::has_backup() );
 	}
 
 	/**
@@ -98,29 +110,29 @@ class Rewind_State_Cache_Test extends TestCase {
 		$this->arrange_stored_answer( true );
 		$this->arrange_wpcom_unreachable();
 
-		$this->assertInstanceOf( WP_Error::class, Rewind_State_Cache::refresh() );
-		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertInstanceOf( WP_Error::class, Backup_Entitlement::refresh() );
+		$this->assertTrue( Backup_Entitlement::has_backup() );
 	}
 
 	/**
 	 * Only a clear answer takes the entitlement away.
 	 */
-	public function test_unavailable_state_removes_the_entitlement() {
+	public function test_a_feature_list_without_backup_removes_the_entitlement() {
 		$this->arrange_stored_answer( true );
-		$this->arrange_wpcom( array( 'state' => 'unavailable' ) );
+		$this->arrange_wpcom_features( array( 'scan' ) );
 
-		$this->assertFalse( Rewind_State_Cache::refresh() );
-		$this->assertFalse( Rewind_State_Cache::has_backup() );
+		$this->assertFalse( Backup_Entitlement::refresh() );
+		$this->assertFalse( Backup_Entitlement::has_backup() );
 	}
 
 	/**
 	 * A stale answer is still served while its refresh is queued.
 	 */
 	public function test_stale_answer_is_served_while_a_refresh_is_queued() {
-		$this->arrange_stored_answer( true, time() - Rewind_State_Cache::TTL - 1 );
-		$this->arrange_wpcom( array( 'state' => 'active' ) );
+		$this->arrange_stored_answer( true, time() - Backup_Entitlement::TTL - 1 );
+		$this->arrange_wpcom_features( array( 'backups' ) );
 
-		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertTrue( Backup_Entitlement::has_backup() );
 		$this->assertSame( array(), $this->captured_urls );
 		$this->assertTrue( $this->refresh_is_queued() );
 	}
@@ -131,7 +143,7 @@ class Rewind_State_Cache_Test extends TestCase {
 	public function test_fresh_answer_queues_no_refresh() {
 		$this->arrange_stored_answer( true );
 
-		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertTrue( Backup_Entitlement::has_backup() );
 		$this->assertFalse( $this->refresh_is_queued() );
 	}
 
@@ -145,10 +157,10 @@ class Rewind_State_Cache_Test extends TestCase {
 		$this->arrange_stored_answer( true );
 		$this->arrange_wpcom( array(), 500 );
 
-		Rewind_State_Cache::refresh();
+		Backup_Entitlement::refresh();
 		remove_all_actions( 'shutdown' );
 
-		Rewind_State_Cache::has_backup();
+		Backup_Entitlement::has_backup();
 
 		$this->assertFalse( $this->refresh_is_queued() );
 	}
@@ -159,9 +171,9 @@ class Rewind_State_Cache_Test extends TestCase {
 	public function test_failure_before_any_answer_stores_no_entitlement() {
 		$this->arrange_wpcom( array(), 500 );
 
-		$this->assertInstanceOf( WP_Error::class, Rewind_State_Cache::refresh() );
+		$this->assertInstanceOf( WP_Error::class, Backup_Entitlement::refresh() );
 
-		$stored = get_option( Rewind_State_Cache::OPTION );
+		$stored = get_option( Backup_Entitlement::OPTION );
 		$this->assertNull( $stored['has_backup'] );
 		$this->assertSame( 0, $stored['checked_at'] );
 
@@ -174,71 +186,70 @@ class Rewind_State_Cache_Test extends TestCase {
 	 * within one request — no WP-Cron event, loopback request or system cron involved.
 	 */
 	public function test_queued_refresh_runs_on_shutdown() {
-		$this->arrange_wpcom( array( 'state' => 'active' ) );
+		$this->arrange_wpcom_features( array( 'backups' ) );
 
-		$this->assertFalse( Rewind_State_Cache::has_backup() );
+		$this->assertFalse( Backup_Entitlement::has_backup() );
 		$this->assertSame( array(), $this->captured_urls );
 
 		do_action( 'shutdown' );
 
 		$this->assertCount( 1, $this->captured_urls );
-		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertTrue( Backup_Entitlement::has_backup() );
 	}
 
 	/**
-	 * My Jetpack seeing Backup on a site we think has none queues a re-read.
+	 * A queued refresh that something else answered first makes no request.
 	 *
-	 * The post-checkout case: most purchases land the buyer back on My Jetpack, which
-	 * reads the site's features there.
+	 * My Jetpack reading the site's features mid-request is the case: the listener below
+	 * stores the answer, and the queued read has nothing left to go and ask.
 	 */
-	public function test_site_features_queue_a_reread_when_they_disagree() {
-		$this->arrange_stored_answer( false );
-		$this->arrange_wpcom( array( 'state' => 'active' ) );
+	public function test_queued_refresh_is_dropped_once_something_else_answers() {
+		$this->arrange_wpcom_features( array( 'backups' ) );
 
-		Rewind_State_Cache::maybe_refresh_from_site_features( array( 'active' => array( 'backups' ) ) );
-
-		$this->assertTrue( $this->refresh_is_queued() );
+		Backup_Entitlement::has_backup();
+		Backup_Entitlement::store_from_site_features( array( 'active' => array( 'backups' ) ) );
 
 		do_action( 'shutdown' );
 
-		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertSame( array(), $this->captured_urls );
+		$this->assertTrue( Backup_Entitlement::has_backup() );
 	}
 
 	/**
-	 * The stored answer survives until the re-read lands, so the menu does not flicker.
+	 * My Jetpack's read is the answer, not a reason to go and make a second one.
 	 */
-	public function test_site_features_do_not_drop_the_stored_answer() {
+	public function test_site_features_are_stored_without_a_request() {
+		$this->arrange_wpcom_features( array( 'backups' ) );
+
+		Backup_Entitlement::store_from_site_features( array( 'active' => array( 'backups' ) ) );
+
+		$this->assertSame( array(), $this->captured_urls );
+		$this->assertTrue( Backup_Entitlement::has_backup() );
+		$this->assertFalse( $this->refresh_is_queued() );
+	}
+
+	/**
+	 * And it revokes as readily as it grants, being the same signal the refresh reads.
+	 */
+	public function test_site_features_without_backup_revoke_the_entitlement() {
 		$this->arrange_stored_answer( true );
 
-		Rewind_State_Cache::maybe_refresh_from_site_features( array( 'active' => array( 'backups' ) ) );
+		Backup_Entitlement::store_from_site_features( array( 'active' => array( 'scan', 'akismet' ) ) );
 
-		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertFalse( Backup_Entitlement::has_backup() );
 	}
 
 	/**
-	 * Nothing to do when the two already agree — My Jetpack's 15-second cache would
-	 * otherwise queue a read on every page view.
+	 * Nothing to write when the two already agree — My Jetpack reads its features on
+	 * most page loads, and each write would only restamp the same answer.
 	 */
 	public function test_site_features_are_ignored_when_they_agree() {
 		$this->arrange_stored_answer( true );
+		$before = get_option( Backup_Entitlement::OPTION );
 
-		Rewind_State_Cache::maybe_refresh_from_site_features( array( 'active' => array( 'backups' ) ) );
+		Backup_Entitlement::store_from_site_features( array( 'active' => array( 'backups' ) ) );
 
-		$this->assertFalse( $this->refresh_is_queued() );
-	}
-
-	/**
-	 * A feature list without Backup never revokes the entitlement.
-	 *
-	 * One-directional on purpose: only the rewind state decides that.
-	 */
-	public function test_site_features_never_revoke() {
-		$this->arrange_stored_answer( true );
-
-		Rewind_State_Cache::maybe_refresh_from_site_features( array( 'active' => array( 'scan', 'akismet' ) ) );
-
-		$this->assertTrue( Rewind_State_Cache::has_backup() );
-		$this->assertFalse( $this->refresh_is_queued() );
+		$this->assertSame( $before, get_option( Backup_Entitlement::OPTION ) );
 	}
 
 	/**
@@ -250,11 +261,12 @@ class Rewind_State_Cache_Test extends TestCase {
 	 */
 	#[DataProvider( 'provide_unusable_feature_payloads' )]
 	public function test_unusable_site_features_are_ignored( $label, $payload ) {
-		$this->arrange_stored_answer( false );
+		$this->arrange_stored_answer( true );
+		$before = get_option( Backup_Entitlement::OPTION );
 
-		Rewind_State_Cache::maybe_refresh_from_site_features( $payload );
+		Backup_Entitlement::store_from_site_features( $payload );
 
-		$this->assertFalse( $this->refresh_is_queued(), $label );
+		$this->assertSame( $before, get_option( Backup_Entitlement::OPTION ), $label );
 	}
 
 	/**
@@ -266,13 +278,23 @@ class Rewind_State_Cache_Test extends TestCase {
 		return array(
 			array( 'not an array', 'backups' ),
 			array( 'no active key', array( 'available' => array( 'backups' ) ) ),
-			array( 'empty active list', array( 'active' => array() ) ),
 			array( 'active is not a list', array( 'active' => 'backups' ) ),
 		);
 	}
 
 	/**
-	 * On WoA the plan feature is the answer, so no rewind read is made at all.
+	 * An empty feature list is an answer, unlike a malformed one.
+	 */
+	public function test_an_empty_feature_list_revokes_the_entitlement() {
+		$this->arrange_stored_answer( true );
+
+		Backup_Entitlement::store_from_site_features( array( 'active' => array() ) );
+
+		$this->assertFalse( Backup_Entitlement::has_backup() );
+	}
+
+	/**
+	 * On WoA the plan feature is readable in-process, so nothing is fetched at all.
 	 *
 	 * The jetpack-mu-wpcom Backup page reads the same feature to decide whether to leave
 	 * the `jetpack-backup` slug to this plugin, and a slug claimed by neither is a page
@@ -280,9 +302,9 @@ class Rewind_State_Cache_Test extends TestCase {
 	 */
 	public function test_atomic_answers_from_the_plan_feature_without_calling_wpcom() {
 		$this->arrange_atomic( true );
-		$this->arrange_wpcom( array( 'state' => 'unavailable' ) );
+		$this->arrange_wpcom_features( array() );
 
-		$this->assertTrue( Rewind_State_Cache::has_backup() );
+		$this->assertTrue( Backup_Entitlement::has_backup() );
 		$this->assertSame( array(), $this->captured_urls );
 		$this->assertFalse( $this->refresh_is_queued() );
 	}
@@ -294,7 +316,7 @@ class Rewind_State_Cache_Test extends TestCase {
 		$this->arrange_atomic( false );
 		$this->arrange_stored_answer( true );
 
-		$this->assertFalse( Rewind_State_Cache::has_backup() );
+		$this->assertFalse( Backup_Entitlement::has_backup() );
 		$this->assertSame( array(), $this->captured_urls );
 	}
 
@@ -304,35 +326,48 @@ class Rewind_State_Cache_Test extends TestCase {
 	 */
 	public function test_atomic_refresh_answers_from_the_plan_feature() {
 		$this->arrange_atomic( true );
-		$this->arrange_wpcom( array( 'state' => 'unavailable' ) );
+		$this->arrange_wpcom_features( array() );
 
-		$this->assertTrue( Rewind_State_Cache::refresh() );
+		$this->assertTrue( Backup_Entitlement::refresh() );
 		$this->assertSame( array(), $this->captured_urls );
-		$this->assertSame( false, get_option( Rewind_State_Cache::OPTION ) );
+		$this->assertSame( false, get_option( Backup_Entitlement::OPTION ) );
 	}
 
 	/**
 	 * My Jetpack reads the site's features on most page loads, so the listener must not
-	 * write an option on each one where the cache it would refresh is not consulted.
+	 * write an option on each one where the cache it would fill is not consulted.
 	 */
 	public function test_atomic_site_features_listener_stores_nothing() {
 		$this->arrange_atomic( false );
 
-		Rewind_State_Cache::maybe_refresh_from_site_features( array( 'active' => array( 'backups' ) ) );
+		Backup_Entitlement::store_from_site_features( array( 'active' => array( 'backups' ) ) );
 
-		$this->assertSame( false, get_option( Rewind_State_Cache::OPTION ) );
-		$this->assertFalse( $this->refresh_is_queued() );
+		$this->assertSame( false, get_option( Backup_Entitlement::OPTION ) );
 	}
 
 	/**
-	 * A self-hosted site has no such function, and has to keep reading the rewind state.
+	 * A self-hosted site has no such function, and has to go and ask.
 	 */
-	public function test_self_hosted_still_reads_the_rewind_state() {
-		$this->arrange_wpcom( array( 'state' => 'active' ) );
+	public function test_self_hosted_reads_the_site_features() {
+		$this->arrange_wpcom_features( array( 'backups' ) );
 		$GLOBALS['jetpack_backup_test_site_features'] = array();
 
-		$this->assertTrue( Rewind_State_Cache::refresh() );
+		$this->assertTrue( Backup_Entitlement::refresh() );
 		$this->assertCount( 1, $this->captured_urls );
+	}
+
+	/**
+	 * Have WordPress.com answer the site features request with this active list.
+	 *
+	 * @param string[] $active The site's active features.
+	 */
+	private function arrange_wpcom_features( array $active ) {
+		$this->arrange_wpcom(
+			array(
+				'active'    => $active,
+				'available' => array(),
+			)
+		);
 	}
 
 	/**
@@ -358,7 +393,7 @@ class Rewind_State_Cache_Test extends TestCase {
 		$checked_at ??= time();
 
 		update_option(
-			Rewind_State_Cache::OPTION,
+			Backup_Entitlement::OPTION,
 			array(
 				'has_backup'   => $has_backup,
 				'checked_at'   => $checked_at,
@@ -374,20 +409,6 @@ class Rewind_State_Cache_Test extends TestCase {
 	 * @return bool
 	 */
 	private function refresh_is_queued() {
-		return has_action( 'shutdown', array( Rewind_State_Cache::class, 'refresh' ) ) !== false;
-	}
-
-	/**
-	 * Clear the memoized rewind state, which is otherwise kept for the whole process.
-	 */
-	private function forget_rewind_state() {
-		$property = new \ReflectionProperty( Jetpack_Backup::class, 'rewind_state' );
-
-		// `setAccessible()` has been a no-op since PHP 8.1 and is deprecated in 8.5.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-
-		$property->setValue( null, null );
+		return has_action( 'shutdown', array( Backup_Entitlement::class, 'refresh_if_stale' ) ) !== false;
 	}
 }

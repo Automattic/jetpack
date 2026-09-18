@@ -245,18 +245,20 @@ class Jetpack_Backup {
 	 * @return void
 	 */
 	public static function maybe_refresh_backup_entitlement() {
-		if ( ! self::$require_backup_plan || ! self::is_backup_admin_request() ) {
+		// `admin_menu` fires before WordPress checks who may see the page, so without the
+		// capability check any logged-in user could drive this unthrottled remote read.
+		if ( ! self::$require_backup_plan || ! current_user_can( 'manage_options' ) || ! self::is_backup_admin_request() ) {
 			return;
 		}
 
-		Rewind_State_Cache::refresh();
+		Backup_Entitlement::refresh();
 	}
 
 	/**
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
-		if ( self::$require_backup_plan && ! Rewind_State_Cache::has_backup() ) {
+		if ( self::$require_backup_plan && ! Backup_Entitlement::has_backup() ) {
 			return;
 		}
 

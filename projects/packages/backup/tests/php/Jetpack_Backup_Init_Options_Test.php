@@ -155,7 +155,7 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 	 */
 	private function arrange_entitlement( $has_backup ) {
 		update_option(
-			Rewind_State_Cache::OPTION,
+			Backup_Entitlement::OPTION,
 			array(
 				'has_backup'   => $has_backup,
 				'checked_at'   => time(),

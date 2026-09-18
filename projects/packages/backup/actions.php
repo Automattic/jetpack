@@ -26,7 +26,7 @@ if ( function_exists( 'add_filter' ) ) {
 $add_action( 'jetpack_backup_cleanup_helper_scripts', array( 'Automattic\\Jetpack\\Backup\\V0005\\Helper_Script_Manager', 'cleanup_expired_helper_scripts' ) );
 
 // Pick up a just-purchased plan: My Jetpack reads the site's features after checkout returns.
-$add_action( 'my_jetpack_site_features_updated', array( 'Automattic\\Jetpack\\Backup\\V0005\\Rewind_State_Cache', 'maybe_refresh_from_site_features' ) );
+$add_action( 'my_jetpack_site_features_updated', array( 'Automattic\\Jetpack\\Backup\\V0005\\Backup_Entitlement', 'store_from_site_features' ) );
 
 // Register REST routes.
 $add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\REST_Controller', 'register_rest_routes' ) );
