@@ -495,6 +495,73 @@ const HARD_RULES = `HARD RULES (do not break - the server rejects output that vi
 - Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].`;
 
 /**
+ * Whether a WordPress locale is any flavour of English (`en`, `en_US`, `en-gb`, …).
+ *
+ * @param locale - The WordPress locale code.
+ * @return True for English locales.
+ */
+export function isEnglishLocale( locale: string ): boolean {
+	return /^en([-_]|$)/i.test( locale );
+}
+
+/**
+ * The English name of a locale's language for the prompt (`it_IT` → "Italian (Italy)"), falling
+ * back to the raw code where the runtime cannot resolve it.
+ *
+ * @param locale - The WordPress locale code.
+ * @return The language name.
+ */
+export function languageDisplayName( locale: string ): string {
+	try {
+		return (
+			new Intl.DisplayNames( [ 'en' ], { type: 'language' } ).of( locale.replace( /_/g, '-' ) ) ??
+			locale
+		);
+	} catch {
+		return locale;
+	}
+}
+
+/**
+ * Whether two locales name the same language. A regional code counts as its base language, because
+ * WordPress.com hands out both forms for one language (`it` and `it_IT`), but two regions of one
+ * language do not (`pt_BR` is not `pt_PT`).
+ *
+ * @param a - A WordPress locale code.
+ * @param b - Another WordPress locale code.
+ * @return True when both name the same language.
+ */
+function sameLanguage( a: string, b: string ): boolean {
+	const normalize = ( locale: string ) => locale.toLowerCase().replace( /_/g, '-' );
+	const [ first, second ] = [ normalize( a ), normalize( b ) ];
+	return first === second || first.startsWith( second + '-' ) || second.startsWith( first + '-' );
+}
+
+/**
+ * The output-language instruction for a site language and an account language.
+ *
+ * The two differ in what they govern rather than in importance: the task subtitles are read in
+ * wp-admin by whoever is setting the site up, so they follow the account language, while the drafts
+ * and page intros become the site's own published content and follow the site's. When both are the
+ * same — the ordinary case — the instruction collapses to one language.
+ *
+ * @param locale   - The site language.
+ * @param uiLocale - The account language of whoever runs the wizard.
+ * @return The instruction sentence(s).
+ */
+function languageInstruction( locale: string, uiLocale: string ): string {
+	const site = `${ languageDisplayName( locale ) } (locale "${ locale }")`;
+
+	if ( sameLanguage( locale, uiLocale ) ) {
+		return `The site's language is ${ site }. Write EVERY free-text value in that language: the task subtitles, "niche", "vibe", "audience", "tagline", the whole first_post_draft and about_page_draft, and every page_intros line. The About page title is that language's equivalent of "About".`;
+	}
+
+	return `Two languages are in play, and mixing them up is the failure to avoid. Write the task "subtitle" values in ${ languageDisplayName(
+		uiLocale
+	) } (locale "${ uiLocale }"), because they are read in the site owner's admin screens and never published. Write every OTHER free-text value in ${ site } — "niche", "vibe", "audience", "tagline", the whole first_post_draft and about_page_draft, and every page_intros line — because that text becomes the site's own published content. The About page title is the site language's equivalent of "About".`;
+}
+
+/**
  * Build the single combined prompt sent to jetpack-ai-query, producing the
  * inferred blob, task list, and first-post draft in one JSON response. Hard rules
  * mirror the server-side validation so valid output is not rejected.
@@ -508,6 +575,9 @@ export function buildTailorPrompt(
 	availableTaskIds?: readonly string[]
 ): string {
 	const { goal, site_name, description } = input;
+	const locale = input.locale || 'en';
+	// Older persisted inputs carry no account language; they fall back to writing everything in one.
+	const uiLocale = input.ui_locale || locale;
 
 	// Offer only tasks that will actually render on this site+goal, so the model never spends a pick on a task the
 	// server would drop. Falls back to the full menu when availability is unknown (e.g. the lookup failed).
@@ -516,6 +586,28 @@ export function buildTailorPrompt(
 			? TASK_ANNOTATIONS.filter( task => availableTaskIds.includes( task.id ) )
 			: TASK_ANNOTATIONS;
 
+	// Naming the subtitle language once at the top is not enough: STEP 2 spends a paragraph on
+	// subtitles without mentioning language, and the model follows the nearer instruction. Repeat it
+	// where the field is actually defined.
+	const subtitleLanguage = sameLanguage( locale, uiLocale )
+		? ''
+		: ` Write every subtitle in ${ languageDisplayName(
+				uiLocale
+		  ) }, NOT in the language of the rest of this response - see the output-language section above.`;
+
+	// A site and an account that are both English get no language block at all, so the prompt those
+	// users have always had stays byte-identical.
+	const languageSection =
+		isEnglishLocale( locale ) && isEnglishLocale( uiLocale )
+			? ''
+			: `
+============ output language ============
+${ languageInstruction(
+	locale,
+	uiLocale
+) } Keep the slug values exactly as listed, in English: "goal", "inferred_goal", "theme_category", and every task "id". The GOOD/BAD subtitle examples below illustrate the style, not the language - do not copy them, and do not answer in English.
+`;
+
 	return `You are helping a new WordPress.com user onboard. They have described their site in their own words. Your job is to make their onboarding checklist feel hand-picked for THIS site, not generic.
 
 Produce a single JSON object with FOUR parts, in this order: an inferred-context blob, a tailored task list, a starter blog post draft, and a starter About-page draft. Add a FIFTH part, "page_intros", only when STEP 5 applies.
@@ -523,7 +615,7 @@ Produce a single JSON object with FOUR parts, in this order: an inferred-context
 Site name: ${ site_name }
 Goal: ${ goal }
 User description: ${ description }
-
+${ languageSection }
 ============ STEP 1 - inferred ============
 First, read the description closely and infer the site's context. You will use this to choose and describe the tasks, so do it before anything else.
 - "goal": echo the goal value above verbatim. One of: write, build, sell, newsletter, educate, portfolio. Required.
@@ -540,7 +632,7 @@ First, read the description closely and infer the site's context. You will use t
 ============ STEP 2 - tasks ============
 Now choose the 6 tasks from the menu below that are MOST RELEVANT to this site, judged against the site name, goal, description, and the niche/audience you just inferred. Each menu entry says what the task does, when it is a good fit, sometimes when to avoid it, and sometimes which goals it tends to suit - use that, not the id, to judge relevance. Treat the "goals" line as a soft affinity, never a filter: a task that does not list this site's goal is still fair game when it fits the site, and one that does list it still has to earn its place. Rank the whole menu and keep the top 6. Prefer a list that includes at least one task which creates something to publish (e.g. "first_post_published", "woo_products", or "add_about_page"), unless the menu offers none. Do not follow a fixed template - two different sites should get noticeably different lists.
 
-For each chosen task write a "subtitle" (max 200 characters) that is specific and engaging: reference the user's niche, audience, or what they will actually publish or sell, so the checklist reads as written for them. Avoid generic, interchangeable phrasing.
+For each chosen task write a "subtitle" (max 200 characters) that is specific and engaging: reference the user's niche, audience, or what they will actually publish or sell, so the checklist reads as written for them. Avoid generic, interchangeable phrasing.${ subtitleLanguage }
 
 GOOD vs BAD subtitles (illustrations - adapt to the user's own niche, do not copy):
 - For a handmade-ceramics studio, "add_about_page" -> GOOD: "Share the story behind your studio and what makes each handmade piece one of a kind." BAD: "Tell visitors who you are."
@@ -555,7 +647,7 @@ ${ HARD_RULES }
 Write a friendly starter blog post the user can edit and publish.
 - "title": clear and evocative, max 8 words.
 - "subtitle": ONE line, verb-led, max 10 words, describing what publishing this post does for them. Optional.
-- "paragraphs": exactly 2 short paragraphs of opening body text. First introduces the topic in a warm, personal voice grounded in the user's niche; second invites the reader in. Plain English, no jargon. Avoid "Welcome to my blog" and "Hello world" cliches.
+- "paragraphs": exactly 2 short paragraphs of opening body text. First introduces the topic in a warm, personal voice grounded in the user's niche; second invites the reader in. Plain language, no jargon. Avoid "Welcome to my blog" and "Hello world" cliches.
 
 ============ STEP 4 - about_page_draft ============
 Write starter content for the site's About page, grounded in the user's own description - never generic filler.

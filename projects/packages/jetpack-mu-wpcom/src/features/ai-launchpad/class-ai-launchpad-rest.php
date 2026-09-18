@@ -260,7 +260,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 							'sanitize_callback' => 'sanitize_textarea_field',
 						),
 						'locale'      => array(
-							'description'       => 'The user locale.',
+							'description'       => 'The site language the AI writes the drafts and page intros in.',
+							'type'              => 'string',
+							'default'           => 'en',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+						'ui_locale'   => array(
+							'description'       => 'The account language the AI writes the task subtitles in.',
 							'type'              => 'string',
 							'default'           => 'en',
 							'sanitize_callback' => 'sanitize_text_field',
@@ -457,6 +463,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'checklist_statuses' => $checklist_statuses,
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,
+			// The language this request is translated into, which is the reader's own. Task subtitles
+			// follow it, since they are read here and never published.
+			'user_language'      => determine_locale(),
 			// Site context the client needs for the launch-task CTA, the preview thumbnail/title, and wizard prefill.
 			'site'               => array(
 				'url'         => home_url(),
@@ -464,6 +473,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				'description' => get_bloginfo( 'description' ),
 				// Block themes open the Site Editor; classic themes fall back to the Customizer.
 				'edit_url'    => wp_is_block_theme() ? admin_url( 'site-editor.php' ) : admin_url( 'customize.php' ),
+				// The site language, which the AI output and the copy written into pages follow.
+				'language'    => get_locale(),
+				'copy'        => wpcom_ai_launchpad_site_copy(),
 			),
 		);
 	}
@@ -716,6 +728,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'site_name'    => $request['site_name'],
 			'description'  => $request['description'],
 			'locale'       => $request['locale'],
+			'ui_locale'    => $request['ui_locale'],
 			'generated_at' => time(),
 		);
 
