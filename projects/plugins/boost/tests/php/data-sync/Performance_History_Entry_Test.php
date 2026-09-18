@@ -5,6 +5,7 @@ namespace Automattic\Jetpack_Boost\Tests\Data_Sync;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Graph_History_Request;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Data_Sync\Performance_History_Entry;
+use Automattic\Jetpack_Boost\Lib\Connection;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
@@ -21,10 +22,22 @@ use PHPUnit\Framework\TestCase;
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
 class Performance_History_Entry_Test extends TestCase {
+	/**
+	 * WordPress.com blog ID the cache keys are built from.
+	 *
+	 * @var int
+	 */
+	private $blog_id = 1;
+
 	protected function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
 		Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
+		Mockery::mock( 'alias:' . Connection::class )->shouldReceive( 'wpcom_blog_id' )->andReturnUsing(
+			function () {
+				return $this->blog_id;
+			}
+		);
 	}
 
 	protected function tearDown(): void {
@@ -386,6 +399,24 @@ class Performance_History_Entry_Test extends TestCase {
 		$ranges = array();
 		$this->older_history_entry()->get();
 		$this->assertCount( 6, $ranges );
+	}
+
+	public function test_another_blog_does_not_answer_from_the_previous_blog_cache() {
+		$options = array();
+		$ranges  = array();
+		$this->stub_transient_store( $options );
+		$this->stub_upstream_windows( array(), $ranges );
+		$this->older_history_entry()->get();
+		$this->assertCount( 6, $ranges );
+
+		$this->blog_id = 2;
+		$ranges        = array();
+		$this->older_history_entry()->get();
+		$this->assertSame(
+			array( array( 6000, 6999 ), array( 5000, 5999 ), array( 4000, 4999 ), array( 3000, 3999 ), array( 2000, 2999 ), array( 1000, 1999 ) ),
+			$ranges
+		);
+		$this->assertCount( 12, $options );
 	}
 
 	public function test_a_dropped_older_windows_value_fails_instead_of_widening_the_request() {

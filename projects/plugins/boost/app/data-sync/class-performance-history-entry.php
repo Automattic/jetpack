@@ -7,6 +7,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 use Automattic\Jetpack_Boost\Admin\Admin;
+use Automattic\Jetpack_Boost\Lib\Connection;
 
 class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_Set {
 	/**
@@ -16,8 +17,8 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	private const OLDER_WINDOW_LIMIT = 6;
 
 	/**
-	 * Daily recording only lands scores in windows that end today, so an older window
-	 * keeps whatever it holds until a plan or connection change alters what history exists.
+	 * Daily recording only lands scores in windows that end today, so an older window keeps
+	 * whatever it holds until this expiry passes or Connection::register() clears the cache.
 	 */
 	private const OLDER_WINDOW_TTL = 12 * 60 * 60;
 
@@ -93,7 +94,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	}
 
 	private function get_older_window_periods( $window ) {
-		$cache_key = self::CACHE_PREFIX . md5( wp_json_encode( $window, JSON_UNESCAPED_SLASHES ) );
+		$cache_key = self::CACHE_PREFIX . md5( wp_json_encode( array( Connection::wpcom_blog_id(), $window ), JSON_UNESCAPED_SLASHES ) );
 		$cached    = Transient::get( $cache_key );
 		if ( null !== $cached ) {
 			return $cached;
@@ -130,7 +131,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	}
 
 	/**
-	 * Forget every cached older window, for when a plan or connection change alters what history exists.
+	 * Forget every cached older window, for when registering the site alters what history exists.
 	 */
 	public static function clear_cache() {
 		Transient::delete_by_prefix( self::CACHE_PREFIX );
