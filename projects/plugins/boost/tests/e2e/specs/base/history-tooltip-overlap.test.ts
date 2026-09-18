@@ -363,6 +363,36 @@ test( 'Tabbing between daily charts preserves focus and resets the previous tool
 	await expect( tooltip ).toContainText( 'August 11, 2026' );
 } );
 
+test( 'Tab from the paging controls reaches the chart once the day details close', async ( {
+	page,
+} ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const grid = chart.getByRole( 'grid' );
+	const next = page.getByRole( 'button', { name: 'Next 30 days' } );
+	const popover = page.locator( '.boost-daily-history__popover' );
+	const openByPointer = async () => {
+		await hoverDay( chart, 21 );
+		await expect( popover ).toBeVisible();
+		await page.mouse.move( 0, 0 );
+	};
+	const openByKeyboard = async () => {
+		await grid.focus();
+		for ( let day = 0; day <= 21; day++ ) {
+			await page.keyboard.press( 'ArrowRight' );
+		}
+		await expect( popover ).toBeVisible();
+		await page.keyboard.press( 'Escape' );
+	};
+	for ( const open of [ openByPointer, openByKeyboard ] ) {
+		await open();
+		await expect( popover ).toHaveCount( 0 );
+		await expect( page.locator( '[data-base-ui-focus-guard]' ) ).toHaveCount( 0 );
+		await next.focus();
+		await page.keyboard.press( 'Tab' );
+		await expect( grid ).toBeFocused();
+	}
+} );
+
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
 	page,
 } ) => {

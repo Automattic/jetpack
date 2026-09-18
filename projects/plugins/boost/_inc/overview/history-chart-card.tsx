@@ -263,6 +263,11 @@ export default function HistoryChartCard( {
 	const shown = recorded ?? ( hoverOpen && ! highlight ? lastRecorded : null );
 	const details = ( hoverOpen || keyboardOpen ) && shown ? shown : null;
 	const band = details?.selection ?? highlight;
+	// base-ui unmounts the popup, and drops the chart's focus guards, only once its exit ends.
+	const [ popupPeriod, setPopupPeriod ] = useState< HistoryPeriod | null >( null );
+	if ( details && details.period !== popupPeriod ) {
+		setPopupPeriod( details.period );
+	}
 	let content;
 	let bodyClassName;
 	if ( needsUpgrade ) {
@@ -440,7 +445,7 @@ export default function HistoryChartCard( {
 							</section>
 						) ) }
 					</Popover.Trigger>
-					{ details && (
+					{ popupPeriod && (
 						<Popover.Popup
 							variant="unstyled"
 							// Portalled outside the page, so it takes the page class for the score colour tokens.
@@ -461,7 +466,7 @@ export default function HistoryChartCard( {
 								/>
 							}
 						>
-							<HistoryTooltip period={ details.period } dateComponent={ PopoverDate } />
+							<HistoryTooltip period={ popupPeriod } dateComponent={ PopoverDate } />
 						</Popover.Popup>
 					) }
 				</Popover.Root>
