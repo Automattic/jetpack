@@ -101,6 +101,7 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::set_connection_manager( $connection );
 		Admin_Menu::set_visibility_resolver( null );
 		remove_all_filters( 'jetpack_admin_menu_visibility' );
+		Admin_Menu::reset();
 		remove_all_filters( 'jetpack_offline_mode' );
 		if ( class_exists( '\Automattic\Jetpack\Status\Cache' ) ) {
 			\Automattic\Jetpack\Status\Cache::clear();
@@ -113,35 +114,6 @@ class Admin_Menu_Test extends TestCase {
 		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 		wp_dequeue_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
 		wp_deregister_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
-
-		$reflection = new \ReflectionClass( Admin_Menu::class );
-
-		if ( $reflection->hasProperty( 'menu_items' ) ) {
-			$menu_items = $reflection->getProperty( 'menu_items' );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$menu_items->setAccessible( true );
-			}
-			$menu_items->setValue( null, array() );
-		}
-
-		if ( $reflection->hasProperty( 'top_level_items' ) ) {
-			$top_level_items = $reflection->getProperty( 'top_level_items' );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$top_level_items->setAccessible( true );
-			}
-			$top_level_items->setValue( null, array() );
-		}
-
-		if ( $reflection->hasProperty( 'initialized' ) ) {
-			$initialized = $reflection->getProperty( 'initialized' );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$initialized->setAccessible( true );
-			}
-			$initialized->setValue( null, false );
-		}
 	}
 
 	/**
@@ -1258,14 +1230,34 @@ class Admin_Menu_Test extends TestCase {
 
 	/**
 	 * The returned hook suffix matches the one core derives for a top-level page.
+	 *
+	 * @param string $menu_slug The slug of the menu being added.
+	 *
+	 * @dataProvider top_level_suffix_data
 	 */
-	public function test_add_top_level_menu_returns_the_core_hook_suffix() {
+	#[DataProvider( 'top_level_suffix_data' )]
+	public function test_add_top_level_menu_returns_the_core_hook_suffix( $menu_slug ) {
 		wp_set_current_user( self::$admin_user_id );
 
-		$our_suffix = Admin_Menu::add_top_level_menu( 'Top', 'Top', 'manage_options', 'top-hook', '__return_null' );
-		$wp_suffix  = add_menu_page( 'Top', 'Top', 'manage_options', 'top-hook', '__return_null' );
+		$our_suffix = Admin_Menu::add_top_level_menu( 'Top', 'Top', 'manage_options', $menu_slug, '__return_null' );
+		$wp_suffix  = add_menu_page( 'Top', 'Top', 'manage_options', $menu_slug, '__return_null' );
 
 		$this->assertSame( $wp_suffix, $our_suffix );
+	}
+
+	/**
+	 * Slugs for test_add_top_level_menu_returns_the_core_hook_suffix.
+	 *
+	 * Core strips ".php" anywhere in the slug, not only at the end.
+	 *
+	 * @return array
+	 */
+	public static function top_level_suffix_data() {
+		return array(
+			'plain'         => array( 'top-hook' ),
+			'php extension' => array( 'top-hook.php' ),
+			'php mid-slug'  => array( 'top.phpish' ),
+		);
 	}
 
 	/**
@@ -1443,6 +1435,106 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::maybe_enqueue_design_tokens( 'toplevel_page_top-tokens' );
 
 		$this->assertFalse( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+	}
+
+	/**
+	 * Without the Jetpack plugin, a top-level item must not register the Jetpack menu's page.
+	 *
+	 * Removing an entry only drops it from $menu, so a registered page stays loadable as a blank screen.
+	 */
+	public function test_a_top_level_item_alone_registers_no_jetpack_page() {
+		global $_registered_pages;
+
+		if ( class_exists( 'Jetpack_React_Page' ) ) {
+			$this->markTestSkipped( 'Top level menu belongs to the Jetpack plugin when it is present.' );
+		}
+
+		wp_set_current_user( self::$admin_user_id );
+		$_registered_pages = array();
+
+		Admin_Menu::add_top_level_menu( 'Alone', 'Alone', 'manage_options', 'top-alone-page', '__return_null' );
+
+		$this->render_menu();
+
+		$this->assertArrayHasKey( 'toplevel_page_top-alone-page', $_registered_pages, 'The item itself should register.' );
+		$this->assertArrayNotHasKey( 'toplevel_page_jetpack', $_registered_pages );
+	}
+
+	/**
+	 * A top-level item alone does not start the Jetpack menu, which also moves Akismet and adds upsell assets.
+	 */
+	public function test_a_top_level_item_alone_does_not_start_the_jetpack_menu() {
+		Admin_Menu::add_top_level_menu( 'Alone', 'Alone', 'manage_options', 'top-alone-hooks', '__return_null' );
+
+		$this->assertFalse( has_action( 'admin_menu', array( Admin_Menu::class, 'admin_menu_hook_callback' ) ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Admin_Menu::class, 'add_upgrade_menu_item_styles' ) ) );
+	}
+
+	/**
+	 * Forcing a top-level item visible does not hand it to a user who lacks the capability.
+	 */
+	public function test_forced_visible_top_level_item_still_respects_capability() {
+		global $_registered_pages;
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['top-forced-caps'] = Admin_Menu::VISIBILITY_VISIBLE;
+				return $states;
+			}
+		);
+		Admin_Menu::add_top_level_menu( 'Forced', 'Forced', 'manage_options', 'top-forced-caps', '__return_null' );
+
+		wp_set_current_user( self::$admin_user_id );
+		$this->render_menu();
+		$this->assertContains( 'top-forced-caps', $this->get_top_level_slugs(), 'An admin should see the forced item, or the editor case below proves nothing.' );
+
+		global $menu;
+		$menu              = array();
+		$_registered_pages = array();
+		wp_set_current_user( self::$editor_user_id );
+		$this->render_menu();
+
+		$this->assertNotContains( 'top-forced-caps', $this->get_top_level_slugs() );
+		$this->assertArrayNotHasKey( 'toplevel_page_top-forced-caps', $_registered_pages );
+	}
+
+	/**
+	 * Two top-level items asking for the same free position register in the order they were queued.
+	 */
+	public function test_top_level_items_sharing_a_position_register_in_queue_order() {
+		global $menu;
+
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::add_top_level_menu( 'Zulu', 'Zulu', 'manage_options', 'top-order-first', '__return_null', '', 71 );
+		Admin_Menu::add_top_level_menu( 'Alpha', 'Alpha', 'manage_options', 'top-order-second', '__return_null', '', 71 );
+
+		$this->render_menu();
+
+		$this->assertSame( 'top-order-first', $menu[71][2], 'The first item queued takes the position it asked for.' );
+		$positions = array_flip( array_column( $menu, 2 ) );
+		$keys      = array_keys( $menu );
+		$this->assertGreaterThan( $keys[ $positions['top-order-first'] ], $keys[ $positions['top-order-second'] ] );
+	}
+
+	/**
+	 * Reset drops every queued item and the hooks that would have registered them.
+	 */
+	public function test_reset_clears_queued_items_and_their_hooks() {
+		global $submenu;
+
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::add_menu( 'Sub', 'Sub', 'manage_options', 'reset-sub', '__return_null' );
+		Admin_Menu::add_top_level_menu( 'Top', 'Top', 'manage_options', 'reset-top', '__return_null' );
+
+		Admin_Menu::reset();
+		$this->render_menu();
+
+		$this->assertFalse( has_action( 'admin_menu', array( Admin_Menu::class, 'admin_menu_hook_callback' ) ) );
+		$this->assertFalse( has_action( 'admin_menu', array( Admin_Menu::class, 'top_level_menu_hook_callback' ) ) );
+		$this->assertNotContains( 'reset-top', $this->get_top_level_slugs() );
+		$this->assertNotContains( 'reset-sub', array_column( $submenu['jetpack'] ?? array(), 2 ) );
 	}
 
 	/**
