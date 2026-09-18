@@ -7,6 +7,7 @@
 	display: inline-flex;
 	align-items: flex-start;
 	gap: 10px;
+	padding: 5px 0;
 	cursor: pointer;
 
 	input[type="checkbox"] {
@@ -20,55 +21,67 @@
 			border-color: transparent;
 
 			&::after {
-				inset-inline-start: 20px;
+				inset-inline-start: calc(100% - 2px);
+				transform: translateX(-100%);
 				background: #fff;
 			}
 		}
 
-		&:focus-visible + .jetpack-comments__toggle-switch {
+		&:focus + .jetpack-comments__toggle-switch {
 			outline: 1px solid var(--jetpack-comments-accent-color);
-			outline-offset: 1px;
 		}
 	}
 }
 
 .jetpack-comments__toggle-switch {
+	all: unset;
 	position: relative;
 	display: block;
-	box-sizing: border-box;
-	flex-shrink: 0;
-	inline-size: 38px;
-	block-size: 20px;
-	margin-block-start: 1px;
-	padding: 0;
-	border: 1px solid currentColor;
-	border-radius: 10px;
-	background: transparent;
+	box-sizing: content-box;
+	inline-size: 36px;
+	min-inline-size: 36px;
+	block-size: 18px;
+	margin-block-start: 4px;
+	border: 1px solid #000;
+	border-radius: 9px;
+	background: #fff;
+	opacity: var(--jetpack-comments-element-opacity);
 	cursor: pointer;
 
 	&::after {
 		content: "";
 		position: absolute;
-		inset-block: 0;
+		inset-block-start: 2px;
 		inset-inline-start: 2px;
-		margin-block: auto;
-		box-sizing: border-box;
 		inline-size: 14px;
 		block-size: 14px;
 		border-radius: 50%;
-		background: currentColor;
-		transition:
-			inset-inline-start 0.2s ease-in-out,
-			background 0.2s ease-in-out;
+		background: #000;
+		transition: 0.3s;
 	}
 }
 
 .jetpack-comments__toggle-text {
 	display: block;
 	flex: 1;
+}
+
+.jetpack-comments__toggle-label,
+.jetpack-comments__toggle-description {
+	all: unset;
+	display: block;
+	margin: 0;
+	color: var(--jetpack-comments-font-color);
+	line-height: 22px;
+}
+
+.jetpack-comments__toggle-label {
 	font-size: 14px;
 	font-weight: 500;
-	line-height: 22px;
+}
+
+.jetpack-comments__toggle-description {
+	font-size: 13px;
 }
 
 // Named by its own class rather than the theme's .screen-reader-text, which is

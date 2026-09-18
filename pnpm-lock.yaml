@@ -2315,6 +2315,9 @@ importers:
 
   projects/packages/comments:
     dependencies:
+      '@gravatar-com/quick-editor':
+        specifier: 0.8.0
+        version: 0.8.0
       '@preact/signals':
         specifier: 1.2.2
         version: 1.2.2(preact@10.28.2)

@@ -2,7 +2,7 @@ import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
 import { readPassport } from '../identity/checkpoint/passport';
-import type { Commenter, FormSettings, Provider, SignedIn } from './types';
+import type { Commenter, FormSettings, Provider, SignedIn, SubscriptionState } from './types';
 
 /**
  * Build one form's signals.
@@ -41,6 +41,10 @@ export function createSignals( formSettings: FormSettings ) {
 	// The identity tray under the textarea: opened by typing, or by the gear once signed in.
 	const isTrayOpen = signal( false );
 
+	const isSignedIn = computed( () => Boolean( JetpackComments.user ) || signedIn.value !== null );
+
+	const subscriptions = signal< SubscriptionState | null | undefined >( undefined );
+
 	const isSubmitDisabled = computed(
 		() =>
 			( JetpackComments.mustLogIn && ! signedIn.value ) ||
@@ -61,6 +65,8 @@ export function createSignals( formSettings: FormSettings ) {
 		isSigningIn,
 		signInError,
 		isTrayOpen,
+		isSignedIn,
+		subscriptions,
 		isSubmitDisabled,
 	} as const;
 }

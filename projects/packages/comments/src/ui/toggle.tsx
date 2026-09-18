@@ -4,26 +4,19 @@ import './style.scss';
 
 type ToggleProps = {
 	id: string;
-	name: string;
-	value: string;
 	label: ComponentChildren;
+	description?: ComponentChildren;
+	name?: string;
+	value?: string;
+	checked?: boolean;
 	defaultChecked?: boolean;
+	disabled?: boolean;
+	onChange?: ( checked: boolean ) => void;
 };
 
-/**
- * A checkbox drawn as a switch. It stays a real checkbox so the form posts it
- * without any help.
- *
- * @param props                - Component props.
- * @param props.id             - Element id, shared with the label.
- * @param props.name           - Field name to post under.
- * @param props.value          - Value to post when checked.
- * @param props.label          - Text shown beside the switch.
- * @param props.defaultChecked - Whether it starts on.
- * @return The switch and its label.
- */
 export const Toggle = ( props: ToggleProps ) => {
-	const { id, name, value, label, defaultChecked } = props;
+	const { id, label, description, name, value, checked, defaultChecked, disabled, onChange } =
+		props;
 
 	return (
 		<label className="jetpack-comments__toggle" htmlFor={ id }>
@@ -32,10 +25,18 @@ export const Toggle = ( props: ToggleProps ) => {
 				name={ name }
 				type="checkbox"
 				value={ value }
+				checked={ checked }
 				defaultChecked={ defaultChecked }
+				disabled={ disabled }
+				onChange={ event => onChange?.( event.currentTarget.checked ) }
 			/>
 			<span className="jetpack-comments__toggle-switch" />
-			<span className="jetpack-comments__toggle-text">{ label }</span>
+			<span className="jetpack-comments__toggle-text">
+				<span className="jetpack-comments__toggle-label">{ label }</span>
+				{ description && (
+					<span className="jetpack-comments__toggle-description">{ description }</span>
+				) }
+			</span>
 		</label>
 	);
 };

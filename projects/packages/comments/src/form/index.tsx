@@ -3,6 +3,7 @@ import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 import { CommentingAs, Identity } from '../identity';
 import { CommentSignals, createSignals } from '../shared/state';
+import { hasSubscriptionOptions } from '../subscriptions';
 import { CommentField } from './comment-field';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
 import { SubmitButton } from './submit-button';
@@ -19,9 +20,22 @@ type CommentFormProps = {
 const DRAFT_DEBOUNCE_MS = 300;
 
 const CommentForm = ( { form }: CommentFormProps ) => {
-	const { formSettings, commentParent, commentValue, isEmptyComment, isSavingComment, isTrayOpen } =
-		useContext( CommentSignals );
+	const {
+		formSettings,
+		commentParent,
+		commentValue,
+		isEmptyComment,
+		isSavingComment,
+		isTrayOpen,
+		isSignedIn,
+	} = useContext( CommentSignals );
 	const isSubmitting = useRef( false );
+
+	useEffect( () => {
+		if ( isSignedIn.value && ! hasSubscriptionOptions() ) {
+			isTrayOpen.value = true;
+		}
+	}, [ isSignedIn.value, isTrayOpen ] );
 
 	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence sticks.
 	useEffect( () => {
@@ -99,16 +113,14 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	return (
 		<>
 			<CommentField />
-			{ ! JetpackComments.isLoggedIn && (
-				<div
-					id={ `jetpack-comments-tray-${ formSettings.postId }` }
-					className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }
-				>
-					<div>
-						<Identity />
-					</div>
+			<div
+				id={ `jetpack-comments-tray-${ formSettings.postId }` }
+				className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }
+			>
+				<div>
+					<Identity />
 				</div>
-			) }
+			</div>
 			<div className="jetpack-comments__footer">
 				<CommentingAs />
 				<SubmitButton />

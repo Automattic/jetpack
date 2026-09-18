@@ -26,6 +26,7 @@
 		"watch": "pnpm run build-js --watch"
 	},
 	"dependencies": {
+		"@gravatar-com/quick-editor": "0.8.0",
 		"@preact/signals": "1.2.2",
 		"clsx": "2.1.1",
 		"preact": "10.28.2"

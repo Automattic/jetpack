@@ -37,9 +37,15 @@ A successful exchange also sets two first-party cookies with the same expiry. `j
 
 A returning commenter is admitted on the passport alone for as long as it lasts, up to 30 days, without going back to WordPress.com. The form says so with a hidden `jetpack_comment_identity_passport` field, and the server reads the passport only when that field is posted, so a log-out that never reached the server still leaves the reader posting as the guest the form showed them as. That is deliberate: consent for this site was given on the connect page, and the exchange already returned everything the comment needs. "Log out" posts the `jetpack_comments_identity_logout` admin-ajax action, which takes both cookies back, and flags the page so the next popup carries `reauth=1`: WordPress.com keeps its own 30-day cookie for the person, and without that flag it would sign the same person straight back in. The flag lives in memory, so it covers switching accounts without a reload; after one, WordPress.com's cookie decides, as it already does on every other site. That is admin-ajax rather than REST because only the site's own host can clear its first-party cookie, and on Simple that host serves no REST API. A spent or expired code clears them and asks the reader to sign in again, and so does a passport marker posted after the passport itself is gone, say from a log-out in another tab.
 
-## Not here yet
+## Subscriptions
 
-**Subscriptions.** The "email me new comments" and "email me new posts" options, and the modal after submitting. Jetpack Subscriptions adds its checkboxes through `comment_form_submit_field`, which this form replaces wholesale, so they are dropped while the filter is on. On Simple the older `subscription_comment_form` output is removed for the same reason, so that no host shows a subscribe option rather than one showing it and another not.
+The options Verbum offered, in the same places: for a signed-in reader, in the tray behind the gear next to their avatar, and for a guest, under the name and email fields. "Email me new posts" with its instantly, daily or weekly control, "Email me new comments" for the thread, and "Notify me of new posts" for a WordPress.com account, which is a site login on Simple or a WordPress.com sign-in through the popup. What is offered follows the site: on Simple both email options, always, as Verbum had it; elsewhere the Subscriptions module's own settings, while that module is active to handle what the form posts.
+
+A guest's choices post with the comment, in the field names each host's subscription handler already reads, and the confirmation email follows as it always has. Jetpack Subscriptions itself no longer draws its checkboxes: it adds them through `comment_form_submit_field`, which this form replaces wholesale, and on Simple the older `subscription_comment_form` output is removed for the same reason.
+
+A signed-in reader's choices are saved as they are made, and the tray shows what they already have. It is all email: the browser has no WordPress.com session to ask with, so it asks the site, at its own `wpcom/v2/comments/subscriptions` route, and the site relays the reader's email to WordPress.com over its blog connection: `wpcom/v2/sites/{id}/comments/subscriptions`, served in process on Simple. Simple serves no REST API on the site host, and the route needs the passport cookie, so there it is dispatched in process from the `jetpack_comments_subscriptions` admin-ajax action instead. WordPress.com's own rules then apply. A Simple site runs the request as the reader, so a WordPress.com login's own address is activated on the spot and offered the reader options, "Notify me of new posts" among them. Any other address, a popup sign-in or a site login elsewhere, gets the confirmation email the subscribe checkbox always sent, and the tray shows the request as on until it is confirmed.
+
+Not here yet: the modal after submitting.
 
 ## What it stores
 
@@ -68,15 +74,16 @@ src/
   class-comments.php    the filter, and what to boot
   class-avatars.php     avatars on comments already written
   form/                 takeover, mount, nonce, layout, the text box, submit
-  identity/             who is commenting: guest fields, log-in prompt, attribution
+  identity/             who is commenting: guest fields, log-in prompt, the tray, the footer
     checkpoint/         the popup sign-in, the exchange, the passport cookie, its REST routes
+  subscriptions/        the options, and the site's channel to WordPress.com for them
   ui/                   widgets shared across the form
   shared/               signals, and the PHP-to-JS settings shape
 ```
 
-Sections appear when there is something to put in them. Subscriptions, a block
-editor and submission handling each earn a directory once they exist, and a REST
-route belongs to the feature it serves rather than to a folder of endpoints.
+Sections appear when there is something to put in them. A block editor and
+submission handling each earn a directory once they exist, and a REST route
+belongs to the feature it serves rather than to a folder of endpoints.
 
 The comment meta this writes is on Jetpack Sync's comment meta whitelist, so it
 reaches WordPress.com from Jetpack and Atomic sites the way `hc_avatar` does.

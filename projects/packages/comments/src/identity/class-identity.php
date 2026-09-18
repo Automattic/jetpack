@@ -51,6 +51,7 @@ class Identity {
 			$user             = wp_get_current_user();
 			$settings['user'] = array(
 				'avatarUrl'    => get_avatar_url( $user->ID, array( 'size' => 74 ) ),
+				'email'        => $user->user_email,
 				'commentingAs' => sprintf(
 					/* translators: %s is the display name of the logged-in user. */
 					__( 'Commenting as %s', 'jetpack-comments' ),

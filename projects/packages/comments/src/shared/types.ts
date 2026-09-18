@@ -7,6 +7,7 @@ export type Commenter = {
 export type CurrentUser = {
 	avatarUrl: string;
 	commentingAs: string;
+	email: string;
 };
 
 export type Provider = 'wordpress' | 'google' | 'facebook';
@@ -47,6 +48,32 @@ export type SignedIn = Passport & {
 	code: string | null;
 };
 
+export type Frequency = 'instantly' | 'daily' | 'weekly';
+
+export type SubscriptionState = {
+	email: {
+		send_posts: boolean;
+		send_comments: boolean;
+		post_delivery_frequency: Frequency;
+	};
+	notification: {
+		send_posts: boolean;
+	};
+};
+
+export type SubscriptionChange =
+	| { field: 'email_posts' | 'email_comments' | 'notify_posts'; value: boolean }
+	| { field: 'frequency'; value: Frequency };
+
+export type SubscriptionSettings = {
+	blog: boolean;
+	comments: boolean;
+	notifications: boolean;
+	url: string;
+	action: string;
+	nonce: string;
+};
+
 export type FormSettings = {
 	postId: number;
 	loginUrl: string;
@@ -78,13 +105,21 @@ export type Strings = {
 	logInOptional: string;
 	logInOptionalReply: string;
 	logInToReply: string;
-	signedInAs: string;
+	loggedInVia: Record< Provider, string >;
 	cancel: string;
 	settings: string;
 	close: string;
 	providers: Record< Provider | 'mail', string >;
 	signInFailed: string;
 	signInRateLimited: string;
+	emailNewPosts: string;
+	emailNewComments: string;
+	notifyNewPosts: string;
+	notifyNewPostsHint: string;
+	instantly: string;
+	daily: string;
+	weekly: string;
+	editGravatar: string;
 };
 
 export type Settings = {
@@ -93,10 +128,12 @@ export type Settings = {
 	showCookiesConsent: boolean;
 	mustLogIn: boolean;
 	maxLength: number;
+	locale: string;
 	strings: Strings;
 	commenter: Commenter;
 	user: CurrentUser | null;
 	identity: IdentitySettings;
+	subscriptions: SubscriptionSettings;
 };
 
 declare global {

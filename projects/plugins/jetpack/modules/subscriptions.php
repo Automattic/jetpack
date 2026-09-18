@@ -848,15 +848,19 @@ class Jetpack_Subscriptions {
 			$post_ids[] = 0;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$delivery_frequency = isset( $_REQUEST['delivery_frequency'] ) ? sanitize_key( $_REQUEST['delivery_frequency'] ) : '';
+
 		$result = self::subscribe(
 			$comment->comment_author_email,
 			$post_ids,
 			true,
 			array(
-				'source'         => 'comment-form',
-				'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
-				'comment_status' => $approved,
-				'server_data'    => jetpack_subscriptions_cherry_pick_server_data(),
+				'source'             => 'comment-form',
+				'widget-in-use'      => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
+				'comment_status'     => $approved,
+				'delivery_frequency' => in_array( $delivery_frequency, array( 'instantly', 'daily', 'weekly' ), true ) ? $delivery_frequency : '',
+				'server_data'        => jetpack_subscriptions_cherry_pick_server_data(),
 			)
 		);
 
