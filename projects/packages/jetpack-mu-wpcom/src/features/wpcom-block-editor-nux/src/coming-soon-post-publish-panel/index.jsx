@@ -16,10 +16,15 @@ if ( isComingSoon ) {
 	addFilter(
 		'i18n.gettext_default',
 		'jetpack-mu-wpcom/coming-soon-post-publish-header',
-		( translation, text ) =>
-			text === 'is now live.'
-				? __( 'is published. Your site is in Coming Soon mode.', 'jetpack-mu-wpcom' )
-				: translation
+		( translation, text ) => {
+			if ( text !== 'is now live.' ) {
+				return translation;
+			}
+			return (
+				/* translators: Follows the post title in the post-publish panel. "Coming Soon" is the Site visibility option of the same name. */
+				__( 'is published, but your site’s visibility is set to Coming Soon.', 'jetpack-mu-wpcom' )
+			);
+		}
 	);
 }
 
