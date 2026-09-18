@@ -214,7 +214,7 @@ jobs:
             QUEUEFILE: ${{ runner.temp }}/testqueue
             WORKERTOKENS: ${{ runner.temp }}/workertokens
           run: |
-            WORKERID=$( flock "$WORKERTOKENS" sed -i -e '1{w/dev/stdout' -e 'd}' "$WORKERTOKENS" )
+            WORKERID=$( flock "$WORKERTOKENS.lock" sed -i -e '1{w/dev/stdout' -e 'd}' "$WORKERTOKENS" )
             if [[ -z "$WORKERID" ]]; then
               echo "Failed to get a worker token. Exiting."
               exit 0
@@ -222,7 +222,7 @@ jobs:
 
             EXIT=0
             while true; do
-              P=$( flock "$QUEUEFILE" sed -i -e '1{w/dev/stdout' -e 'd}' "$QUEUEFILE" )
+              P=$( flock "$QUEUEFILE.lock" sed -i -e '1{w/dev/stdout' -e 'd}' "$QUEUEFILE" )
               [[ -z "$P" ]] && break
 
               if [[ "$P" == "composer.json" ]]; then
