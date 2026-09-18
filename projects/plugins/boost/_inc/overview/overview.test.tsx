@@ -664,6 +664,7 @@ test( 'shows the free history upgrade without requesting history', async () => {
 	renderOverview();
 	await expect( screen.findByRole( 'button', { name: 'Upgrade now' } ) ).resolves.toBeTruthy();
 	expect( screen.getByText( 'Unlock historical performance' ) ).toBeInTheDocument();
+	expect( screen.getByRole( 'heading', { name: /Last \d+ days/ } ) ).toBeInTheDocument();
 	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
@@ -673,23 +674,19 @@ test( 'shows the free history upgrade without requesting history', async () => {
 	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
 } );
 
-test( 'shows the empty history without upgrade copy when My Jetpack is unavailable', async () => {
+test( 'omits the history card when My Jetpack is unavailable on a free site', async () => {
 	window.Jetpack_Boost.site.myJetpack = false;
 	window.jetpack_boost_ds!.modules_state!.value = {
 		performance_history: { available: false, active: false },
 	};
-	window.jetpack_boost_ds!.dismissed_alerts!.value = {
-		performance_history_fresh_start: false,
-	};
 	renderOverview();
-	await expect( screen.findByTestId( 'history-chart' ) ).resolves.toBeInTheDocument();
 	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
+	await waitFor( () =>
+		expect( screen.queryByRole( 'heading', { name: /Last \d+ days/ } ) ).not.toBeInTheDocument()
+	);
 	expect( screen.queryByText( 'Unlock historical performance' ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
-	expect(
-		screen.queryByText( /Jetpack Boost premium has been activated/ )
-	).not.toBeInTheDocument();
-	expect( screen.queryByText( 'Failed to load performance history' ) ).not.toBeInTheDocument();
+	expect( screen.queryByTestId( 'history-chart' ) ).not.toBeInTheDocument();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
 			url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history',

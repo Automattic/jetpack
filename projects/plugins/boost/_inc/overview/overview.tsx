@@ -70,6 +70,7 @@ function OverviewContent( {
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
 	const historyAvailable = modules.data?.performance_history?.available === true;
+	const needsUpgrade = modules.data !== undefined && ! historyAvailable;
 	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
 	const history = usePerformanceHistory( historyAvailable && isVisible, range );
 	const [ freshStartCompleted, dismissFreshStart ] = useDismissibleAlertState(
@@ -197,23 +198,25 @@ function OverviewContent( {
 					</Notice.Actions>
 				</Notice.Root>
 			) }
-			<HistoryChartCard
-				range={ range }
-				dayCount={ dayCount }
-				onPrevious={ onPrevious }
-				onNext={ onNext }
-				canGoNext={ canGoNext }
-				hasOlderHistory={ hasOlderHistory }
-				isVisible={ isVisible }
-				data={ modules.isPending ? undefined : history.data }
-				isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }
-				isError={ history.isError && ! history.isFetching }
-				error={ history.error }
-				onRetry={ () => history.refetch() }
-				needsUpgrade={ modules.data !== undefined && ! historyAvailable && isMyJetpackAvailable() }
-				isFreshStart={ historyAvailable && ! freshStartCompleted }
-				onDismissFreshStart={ dismissFreshStart }
-			/>
+			{ ( ! needsUpgrade || isMyJetpackAvailable() ) && (
+				<HistoryChartCard
+					range={ range }
+					dayCount={ dayCount }
+					onPrevious={ onPrevious }
+					onNext={ onNext }
+					canGoNext={ canGoNext }
+					hasOlderHistory={ hasOlderHistory }
+					isVisible={ isVisible }
+					data={ modules.isPending ? undefined : history.data }
+					isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }
+					isError={ history.isError && ! history.isFetching }
+					error={ history.error }
+					onRetry={ () => history.refetch() }
+					needsUpgrade={ needsUpgrade }
+					isFreshStart={ ! freshStartCompleted }
+					onDismissFreshStart={ dismissFreshStart }
+				/>
+			) }
 		</div>
 	);
 }
