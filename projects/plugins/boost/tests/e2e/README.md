@@ -139,21 +139,23 @@ test.afterAll(async ({ boostUtils }) => {
 
 ### Dashboard modernization
 
-The `e2e-dashboard-modernization` plugin is mounted in the Docker E2E environment.
-Use `boostUtils.setDashboardModernization( true )` to opt in, or pass `false` to
-force the legacy dashboard. Call `boostUtils.resetDashboardModernization()` in
-teardown to deactivate the fixture and remove its option. Calling
-`resetEnvironment()` during suite setup also resets the filter.
+The modern dashboard is the default. The `e2e-dashboard-modernization` plugin is
+mounted in the Docker E2E environment to switch dashboards. Use
+`boostUtils.setDashboardModernization( false )` to force the legacy dashboard, or
+pass `true` to force the modern one. `resetEnvironment()` pins the legacy
+dashboard, because the feature specs still target it. Call
+`boostUtils.resetDashboardModernization()` to deactivate the fixture, remove its
+option, and return to the modern default.
 
-For a local demo, run these commands from the monorepo root after starting your
-E2E environment:
+To see the legacy dashboard locally, run these commands from the monorepo root
+after starting your E2E environment:
 
 ```sh
 pnpm jetpack docker --type e2e --name t1 wp -- plugin activate e2e-dashboard-modernization
-pnpm jetpack docker --type e2e --name t1 wp -- option update e2e_boost_dashboard_modernization true --format=json
+pnpm jetpack docker --type e2e --name t1 wp -- option update e2e_boost_dashboard_modernization 0
 ```
 
-Open `/wp-admin/admin.php?page=jetpack-boost`. Restore the default dashboard with:
+Open `/wp-admin/admin.php?page=jetpack-boost`. Restore the modern dashboard with:
 
 ```sh
 pnpm jetpack docker --type e2e --name t1 wp -- plugin deactivate e2e-dashboard-modernization
