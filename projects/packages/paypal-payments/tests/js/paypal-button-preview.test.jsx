@@ -469,7 +469,9 @@ describe( 'PayPalButtonPreview', () => {
 
 		it( 'draws the button card for a format it does not know', () => {
 			// render_api_managed_button() validates the same way server-side.
-			render( <PayPalButtonPreview { ...defaultProps } format="STACKED" /> );
+			// SPIKE-WOOPTP-496-CANVAS-SDK: this used to say STACKED, which is a
+			// real format now, so the fixture needs a value nothing recognizes.
+			render( <PayPalButtonPreview { ...defaultProps } format="NOT_A_FORMAT" /> );
 			expect(
 				document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
 			).toBeInTheDocument();

@@ -18,6 +18,13 @@ import metadata from '../block.json';
  */
 export const RESOURCE_ATTRIBUTES = [
 	'paymentLink',
+	// The payment's own integration_mode, so a LINK or QR block re-sends what the
+	// payment already has rather than downgrading a stacked payment back to LINK.
+	'integrationMode',
+	// The PayPal SDK URL, which only a BUTTON-mode payment carries. Shared with the
+	// legacy paste-code path, which is safe only because the read-back GET is gated
+	// on resourceId AND isApiManaged, and no legacy block has either.
+	'scriptSrc',
 	'productName',
 	'price',
 	'currencyCode',

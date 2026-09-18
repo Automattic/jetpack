@@ -27,6 +27,7 @@ import { DEFAULT_LABEL } from '../utils/defaults';
 import { linkPrice } from '../utils/link-price';
 import { withPartnerAttribution } from '../utils/partner-attribution';
 import QrCodePreview from './qr-code-preview';
+import StackedButtonsPreview from './stacked-buttons-preview';
 import { hasVariantPricing } from './variant-builder';
 
 /**
@@ -248,7 +249,7 @@ function ButtonPreview( {
  * The block's canvas preview, by Display Format.
  *
  * @param {object} props        - Component props. The rest go to the format's own preview.
- * @param {string} props.format - Display format: BUTTON, LINK or QR.
+ * @param {string} props.format - Display format: BUTTON, LINK, QR or STACKED.
  * @return {Element} The preview for that format.
  */
 export default function PayPalButtonPreview( { format, ...props } ) {
@@ -259,6 +260,17 @@ export default function PayPalButtonPreview( { format, ...props } ) {
 			return <LinkPreview { ...props } />;
 		case 'QR':
 			return <QrPreview { ...props } />;
+		// PayPal draws the whole card here — name, price, buttons, logo row — so
+		// nothing of ours goes around it.
+		case 'STACKED':
+			return (
+				<StackedButtonsPreview
+					scriptSrc={ props.attributes?.scriptSrc }
+					hostedButtonId={ props.attributes?.resourceId }
+					partnerAttributionId={ props.partnerAttributionId }
+					isSelected={ props.isSelected }
+				/>
+			);
 		default:
 			return <ButtonPreview { ...props } />;
 	}

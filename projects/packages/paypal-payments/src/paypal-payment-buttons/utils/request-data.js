@@ -55,6 +55,8 @@ function buildShipping( mode, value, additional ) {
  */
 export function buildRequestData( attributes, usesVariantPricing ) {
 	const {
+		format,
+		integrationMode,
 		productName,
 		price,
 		currencyCode,
@@ -91,7 +93,15 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 
 	return {
 		type: 'BUY_NOW',
-		integration_mode: 'LINK',
+		// A stacked block needs the payment in BUTTON mode — that is what makes
+		// PayPal return code_snippets, and so the SDK URL, on the next GET.
+		//
+		// Everything else re-sends the mode the payment already has, and never a
+		// hardcoded 'LINK'. Two blocks can share one payment, and a downgrade would
+		// drop code_snippets, clear the stacked block's scriptSrc on its next mount
+		// and blank it — then restore it on the next save, so it flaps rather than
+		// dies. An empty attribute means "never read one", which is LINK.
+		integration_mode: 'STACKED' === format ? 'BUTTON' : integrationMode || 'LINK',
 		reusable: 'MULTIPLE',
 		line_items: [
 			{

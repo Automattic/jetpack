@@ -366,7 +366,50 @@ class PayPal_Attribute_Mapper {
 			}
 		}
 
+		// The payment's own mode, carried so a LINK or QR block re-sends what the
+		// payment already has instead of downgrading a stacked payment to LINK.
+		// Always written, including as '', so a block never keeps a stale mode.
+		$attributes['integrationMode'] = sanitize_text_field( $response['integration_mode'] ?? '' );
+
+		// The SDK URL for the stacked format. Only a BUTTON-mode payment carries
+		// code_snippets, so this clears itself in LINK mode — which is correct, and
+		// is why nothing may downgrade the mode (see the plan's 5.2).
+		$attributes['scriptSrc'] = self::extract_script_src( $response );
+
 		return $attributes;
+	}
+
+	/**
+	 * The PayPal SDK URL out of a payment's stacked code snippet.
+	 *
+	 * PayPal returns the snippet per framework; the HTML one carries a plain
+	 * `<script src="…">`. The URL bakes in the merchant's client-id and currency,
+	 * so it cannot be synthesized and has to be read back.
+	 *
+	 * @param array $response The payment resource from the API.
+	 * @return string The sanitized SDK URL, or '' when there is none.
+	 */
+	private static function extract_script_src( array $response ) {
+		$snippets = $response['code_snippets']['stacked'] ?? null;
+		if ( ! is_array( $snippets ) ) {
+			return '';
+		}
+
+		foreach ( $snippets as $snippet ) {
+			if ( ! is_array( $snippet ) || 'HTML' !== ( $snippet['framework'] ?? '' ) ) {
+				continue;
+			}
+
+			if ( ! preg_match( '/src=[\'"]([^\'"]+)[\'"]/', (string) ( $snippet['head'] ?? '' ), $matches ) ) {
+				continue;
+			}
+
+			$url = PayPal_Payment_Buttons::sanitize_paypal_script_url( html_entity_decode( $matches[1] ) );
+
+			return false === $url ? '' : $url;
+		}
+
+		return '';
 	}
 
 	/**
