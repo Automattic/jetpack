@@ -398,8 +398,10 @@ class Jetpack_AI_Page {
 		// reads it, and only Scheduled tasks used to need it here.
 		Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 
-		$host           = new Host();
-		$has_my_jetpack = self::has_my_jetpack();
+		$host            = new Host();
+		$has_my_jetpack  = self::has_my_jetpack();
+		$connection      = new Connection_Manager();
+		$is_offline_mode = $status->is_offline_mode();
 
 		/**
 		 * Filters the host-specific AI Hub configuration.
@@ -416,16 +418,15 @@ class Jetpack_AI_Page {
 				'showGatedViews'    => ! $host->is_vip_site()
 					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
-				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
+				'isUserConnected'   => $connection->is_user_connected(),
 				// The same verdicts the feature-settings endpoint reports. That call
 				// exists for the AI Features toggles; the notice must not wait on it.
-				'isConnected'       => ( new Connection_Manager() )->has_connected_owner()
-					&& ! ( new Status() )->is_offline_mode(),
+				'isConnected'       => $connection->has_connected_owner() && ! $is_offline_mode,
 				'hostAllowsAi'      => Jetpack_AI_Settings::host_allows_ai(),
 				'masterEnabled'     => Jetpack_AI_Settings::is_master_enabled(),
 				// The route, not a flag: each one documents a different hook.
 				'masterForcedOff'   => Jetpack_AI_Settings::get_master_forced_off_route(),
-				'isOfflineMode'     => ( new Status() )->is_offline_mode(),
+				'isOfflineMode'     => $is_offline_mode,
 				// These three answer one question; a filter changing one alone leaves
 				// a label pointing at a page that is not there.
 				'hasMyJetpack'      => $has_my_jetpack,
