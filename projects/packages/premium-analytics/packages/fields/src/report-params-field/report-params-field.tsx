@@ -209,9 +209,7 @@ function ReportParamsControl( {
 	 * to that window. A custom range or a year is not ours to rewrite.
 	 */
 	const offeredPresetIds = presetIds as readonly string[] | undefined;
-	const fallbackPreset = offeredPresetIds?.includes( defaultPreset )
-		? defaultPreset
-		: presetIds?.[ 0 ];
+	const { preset: fallbackPreset } = defaultReportParamsForGrain( grain );
 
 	const appliedPreset = appliedParams.preset;
 	const isUnofferedPreset =
