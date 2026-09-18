@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Async_Options: do not call add_action() with a null hook when get_plugin_page_hook() returns null (admin-ajax and other requests without an admin menu). Fixes a PHP 8.5 "Using null as an array offset" deprecation flood.
