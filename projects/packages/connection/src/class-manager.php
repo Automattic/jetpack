@@ -1401,46 +1401,6 @@ class Manager {
 	}
 
 	/**
-	 * Re-point the connection owner at the protected owner when they connect.
-	 *
-	 * Local only: it promotes an owner WordPress.com has already confirmed, and never establishes.
-	 * The binding is resolved rather than read because the token written moments earlier
-	 * invalidated any stored one.
-	 *
-	 * @internal Hooked on `jetpack_user_authorized`.
-	 * @since $$next-version$$
-	 */
-	public function promote_protected_owner_on_connect() {
-		$anchor = Protected_Owner::get_locked();
-
-		if ( ! $anchor ) {
-			return;
-		}
-
-		$user_id = get_current_user_id();
-
-		if ( ! $user_id ) {
-			return;
-		}
-
-		// `jetpack_connect_user` drops to `read` once an owner exists, so any user can authorize.
-		if ( ! user_can( $user_id, ( new Roles() )->translate_role_to_cap( 'administrator' ) ) ) {
-			return;
-		}
-
-		if ( $this->resolve_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
-			return;
-		}
-
-		// The cached local ID moves with the owner even when the master slot already agrees.
-		Protected_Owner::repoint( $user_id );
-
-		if ( (int) \Jetpack_Options::get_option( 'master_user' ) !== $user_id ) {
-			\Jetpack_Options::update_option( 'master_user', $user_id );
-		}
-	}
-
-	/**
 	 * Classify why `has_protected_owner()` answered false, and what would change it.
 	 *
 	 * Deliberately inspects only what the gate inspects — the anchor and the current connection
@@ -1498,6 +1458,46 @@ class Manager {
 			'status'                 => $status,
 			'is_current_user_the_po' => $is_current_user_the_po,
 		);
+	}
+
+	/**
+	 * Re-point the connection owner at the protected owner when they connect.
+	 *
+	 * Local only: it promotes an owner WordPress.com has already confirmed, and never establishes.
+	 * The binding is resolved rather than read because the token written moments earlier
+	 * invalidated any stored one.
+	 *
+	 * @internal Hooked on `jetpack_user_authorized`.
+	 * @since $$next-version$$
+	 */
+	public function promote_protected_owner_on_connect() {
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return;
+		}
+
+		// `jetpack_connect_user` drops to `read` once an owner exists, so any user can authorize.
+		if ( ! user_can( $user_id, ( new Roles() )->translate_role_to_cap( 'administrator' ) ) ) {
+			return;
+		}
+
+		if ( $this->resolve_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
+			return;
+		}
+
+		// The cached local ID moves with the owner even when the master slot already agrees.
+		Protected_Owner::repoint( $user_id );
+
+		if ( (int) \Jetpack_Options::get_option( 'master_user' ) !== $user_id ) {
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
 	}
 
 	/**
