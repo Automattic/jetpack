@@ -1388,14 +1388,9 @@ class Manager {
 	/**
 	 * Re-point the connection owner at the protected owner when they connect.
 	 *
-	 * Local only. The anchor names a WordPress.com identity that WordPress.com already holds as the
-	 * owner of record, so this corrects this site's pointer at that identity and asks WordPress.com
-	 * for nothing. It only ever promotes an owner already confirmed: with no anchor it does nothing
-	 * at all, so a first connection still lets whoever connects take a vacant master slot.
-	 *
-	 * The binding is resolved rather than read, because the token written moments earlier has just
-	 * invalidated any stored one. That single lookup is the re-heal, and it is the only network
-	 * call in the path.
+	 * Local only: it promotes an owner WordPress.com has already confirmed, and never establishes.
+	 * The binding is resolved rather than read because the token written moments earlier
+	 * invalidated any stored one.
 	 *
 	 * @internal Hooked on `jetpack_user_authorized`.
 	 * @since $$next-version$$
@@ -1410,6 +1405,11 @@ class Manager {
 		$user_id = get_current_user_id();
 
 		if ( ! $user_id ) {
+			return;
+		}
+
+		// `jetpack_connect_user` drops to `read` once an owner exists, so any user can authorize.
+		if ( ! user_can( $user_id, ( new Roles() )->translate_role_to_cap( 'administrator' ) ) ) {
 			return;
 		}
 

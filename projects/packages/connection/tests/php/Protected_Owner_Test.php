@@ -913,4 +913,36 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertSame( $before['confirmed_at'], $after['confirmed_at'] );
 		$this->assertSame( $before['confirmed_by'], $after['confirmed_by'] );
 	}
+
+	/**
+	 * A lesser role holding the anchored account is not promoted.
+	 */
+	public function test_a_non_administrator_matching_the_anchor_is_not_promoted() {
+		$this->anchor();
+		$subscriber = $this->actor( 'subscriber' );
+		Utils::set_wpcom_user_id( $subscriber, self::ANCHORED_WPCOM_ID );
+		Jetpack_Options::update_option( 'master_user', $this->owner_id );
+		wp_set_current_user( $subscriber );
+
+		$this->manager( $this->owner_id, false, $this->never() )->promote_protected_owner_on_connect();
+
+		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * The callback is wired to the action it relies on.
+	 *
+	 * Every other test here calls the method directly, so a wrong hook name would leave the fix
+	 * inert in production while they all still pass.
+	 */
+	public function test_promotion_is_hooked_to_user_authorization() {
+		$manager = new Manager( 'jetpack' );
+		add_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
+
+		$this->assertNotFalse(
+			has_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) )
+		);
+
+		remove_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
+	}
 }
