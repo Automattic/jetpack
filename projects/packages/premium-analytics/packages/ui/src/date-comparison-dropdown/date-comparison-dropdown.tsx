@@ -103,7 +103,7 @@ export function DateComparisonDropdown( {
 	 * Names the preset, not the period.
 	 */
 	return (
-		<Stack direction="row" align="center" gap="md">
+		<Stack direction="row" align="center" gap="sm">
 			{ selectedPreset ? (
 				<span>
 					{ _x(
