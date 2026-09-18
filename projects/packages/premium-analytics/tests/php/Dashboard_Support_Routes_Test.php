@@ -50,6 +50,27 @@ class Dashboard_Support_Routes_Test extends TestCase {
 	}
 
 	/**
+	 * Older copies guard their include of dashboard-layout.php on this function and call it from
+	 * boot_routes(), so it has to exist and register nothing.
+	 */
+	public function test_older_copies_can_still_call_the_default_layout_route_function() {
+		Dashboard_Support_Routes::register();
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		do_action( 'init' );
+		do_action( 'rest_api_init' );
+
+		$this->assertTrue( function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) );
+		register_dashboard_default_layout_route();
+
+		$this->assertArrayNotHasKey(
+			'/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout',
+			rest_get_server()->get_routes()
+		);
+	}
+
+	/**
 	 * Calling it twice doesn't register a route twice or error.
 	 */
 	public function test_register_is_safe_to_call_twice() {

@@ -69,6 +69,16 @@ function get_dashboard_default_layout_for( $dashboard_name ) {
 }
 
 /**
+ * No-op kept for older copies of the package: they guard their include of this file on this
+ * symbol and call it from boot_routes(), so a newer copy loading first must still define it.
+ *
+ * @since $$next-version$$ Registers nothing; the route it registered is gone.
+ *
+ * @return void
+ */
+function register_dashboard_default_layout_route() {}
+
+/**
  * Builds a widget instance for bundled dashboard defaults.
  *
  * @param string $uuid       Widget instance UUID.
