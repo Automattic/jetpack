@@ -33,4 +33,20 @@ body.toplevel_page_jetpack-social {
 	.jetpack-social-page__content--padded {
 		padding: $jetpack-social-inset;
 	}
+
+	// Line the JITM card up with the Overview and Settings columns.
+	.jetpack-social-jitm-card {
+		margin-inline: auto;
+		max-inline-size: 720px;
+		inline-size: 100%;
+
+		&--settings {
+			max-inline-size: 660px;
+		}
+
+		// On the card, so a dismissed (hidden) card leaves no gap.
+		.jitm-card {
+			margin: 0 0 var(--wpds-dimension-gap-lg);
+		}
+	}
 }
