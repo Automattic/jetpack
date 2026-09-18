@@ -1,3 +1,4 @@
+/* No jest-dom in this project; the sibling check needs direct node access. */
 /* eslint-disable jest-dom/prefer-in-document, testing-library/no-node-access */
 import { render, screen } from '@testing-library/react';
 import CornerstonePages from './cornerstone-pages';
