@@ -46,6 +46,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
+		if ( property_exists( 'WPCOM_Features', 'legacy_gating_blog_ids' ) ) {
+			WPCOM_Features::$legacy_gating_blog_ids = array();
+		}
+
 		$this->tear_down_rest_parity();
 		parent::tear_down();
 		WPCOM_JSON_API::init()->query         = array();
@@ -163,19 +167,20 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Off WordPress.com there is no WPCOM_Features to ask, and the documented fallback is false: a
-	 * site nothing is known about must not be reported as being on the legacy gating, or clients would
-	 * run the plan-change check for every Jetpack site.
+	 * The rendered value has to be the predicate's verdict for the rendered site, not just any
+	 * boolean: clients skip the plan-change check entirely when it is false.
 	 *
 	 * @group json-api
 	 */
 	#[Group( 'json-api' )]
-	public function test_is_legacy_gating_site_falls_back_to_false_without_wpcom_features() {
-		if ( method_exists( 'WPCOM_Features', 'is_legacy_gating_site' ) ) {
-			$this->markTestSkipped(
-				'WPCOM_Features is loaded in this environment, so the fallback branch is unreachable here.'
-			);
+	public function test_is_legacy_gating_site_renders_the_predicate_verdict() {
+		global $blog_id;
+
+		if ( ! property_exists( 'WPCOM_Features', 'legacy_gating_blog_ids' ) ) {
+			$this->markTestSkipped( 'The real WPCOM_Features is loaded here, so the predicate is not controllable.' );
 		}
+
+		WPCOM_Features::$legacy_gating_blog_ids = array( (int) $blog_id );
 
 		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
 			$this->get_endpoint(),
@@ -191,9 +196,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 		) as $transport => $body ) {
 			$options = (array) $body['options'];
 
-			$this->assertFalse(
+			$this->assertTrue(
 				$options['is_legacy_gating_site'],
-				"`is_legacy_gating_site` must fall back to false ($transport) when WPCOM_Features is absent."
+				"`is_legacy_gating_site` must render the predicate's verdict ($transport)."
 			);
 		}
 	}

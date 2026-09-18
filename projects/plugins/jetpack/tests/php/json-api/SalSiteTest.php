@@ -26,6 +26,17 @@ class SalSiteTest extends WP_UnitTestCase {
 		self::$site = $platform->get_site( self::$token->blog_id );
 	}
 
+	/**
+	 * Clean up after each test.
+	 */
+	public function tear_down() {
+		if ( property_exists( 'WPCOM_Features', 'legacy_gating_blog_ids' ) ) {
+			WPCOM_Features::$legacy_gating_blog_ids = array();
+		}
+
+		parent::tear_down();
+	}
+
 	public function test_uses_synced_api_post_type_whitelist_if_available() {
 
 		$this->assertFalse( self::$site->is_post_type_allowed( 'my_new_type' ) );
@@ -72,25 +83,43 @@ class SalSiteTest extends WP_UnitTestCase {
 		delete_option( 'difm-lite-in-progress' );
 	}
 
-	/**
-	 * Unlike its neighbours this reads no sticker of its own: the pre-2026 gating verdict ranks two
-	 * markers and falls back to a blog-ID cutoff, so WPCOM_Features owns it. Off WordPress.com that
-	 * class does not exist, and the method has to answer false rather than warn about a site it knows
-	 * nothing about.
-	 */
-	public function test_is_legacy_gating_site_is_false_outside_wpcom() {
-		if ( method_exists( 'WPCOM_Features', 'is_legacy_gating_site' ) ) {
-			$this->markTestSkipped( 'WPCOM_Features is loaded here, so the fallback branch is unreachable.' );
-		}
+	public function test_is_legacy_gating_site_is_true_when_the_predicate_says_so() {
+		$this->stub_legacy_gating_sites( array( self::$site->blog_id ) );
+
+		$this->assertTrue( self::$site->is_legacy_gating_site() );
+	}
+
+	public function test_is_legacy_gating_site_is_false_when_the_predicate_says_so() {
+		$this->stub_legacy_gating_sites( array() );
 
 		$this->assertFalse( self::$site->is_legacy_gating_site() );
 	}
 
 	/**
-	 * A boolean either way, since clients branch on it directly.
+	 * Get-site renders whichever /sites/{id} was asked for, so the verdict has to be about the site
+	 * this object represents and not whichever blog is serving the request.
 	 */
-	public function test_is_legacy_gating_site_returns_a_boolean() {
-		$this->assertIsBool( self::$site->is_legacy_gating_site() );
+	public function test_is_legacy_gating_site_asks_about_the_site_it_represents() {
+		$other_blog_id = self::$site->blog_id + 1;
+		$other_site    = wpcom_get_sal_platform( self::$token )->get_site( $other_blog_id );
+
+		$this->stub_legacy_gating_sites( array( $other_blog_id ) );
+
+		$this->assertTrue( $other_site->is_legacy_gating_site() );
+		$this->assertFalse( self::$site->is_legacy_gating_site() );
+	}
+
+	/**
+	 * The predicate ships with WordPress.com; the bootstrap mock stands in for it here.
+	 *
+	 * @param int[] $blog_ids Blog IDs the mock should report as being on the pre-2026 gating.
+	 */
+	private function stub_legacy_gating_sites( array $blog_ids ) {
+		if ( ! property_exists( 'WPCOM_Features', 'legacy_gating_blog_ids' ) ) {
+			$this->markTestSkipped( 'The real WPCOM_Features is loaded here, so the predicate is not controllable.' );
+		}
+
+		WPCOM_Features::$legacy_gating_blog_ids = $blog_ids;
 	}
 
 	/**

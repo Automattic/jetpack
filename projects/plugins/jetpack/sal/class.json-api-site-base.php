@@ -1589,13 +1589,8 @@ abstract class SAL_Site {
 			return false;
 		}
 
-		// The predicate compares against the WordPress.com blog ID, which on Atomic lives in
-		// jetpack_options rather than in $blog_id -- the same resolution WPCOM_Features does itself.
-		$blog_id = function_exists( '_wpcom_get_current_blog_id' )
-			? _wpcom_get_current_blog_id()
-			: get_current_blog_id();
-
-		return (bool) WPCOM_Features::is_legacy_gating_site( $blog_id );
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded above.
+		return (bool) WPCOM_Features::is_legacy_gating_site( $this->blog_id );
 	}
 
 	/**
