@@ -98,8 +98,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import( 'react' ).JSX.
 					displayName={ gravatarDisplayName }
 					key={ gravatarEmail }
 				/>
-				{ /* `justify` centres a short name against the 48px avatar, which VStack did by
-				     default and Stack does not. No `gap`: the old spacing="0" has no token. */ }
+				{ /* `justify` centres a short name against the 48px avatar. */ }
 				<Stack className="jp-forms__inbox-response-meta-from" direction="column" justify="center">
 					<Stack align="center" direction="row" gap="sm" justify="start">
 						<Text className="jp-forms__inbox-response-meta-from-name" variant="heading-lg">

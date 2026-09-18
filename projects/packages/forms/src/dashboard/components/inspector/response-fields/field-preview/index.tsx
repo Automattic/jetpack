@@ -139,7 +139,6 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 			justify="flex-start"
 		>
 			<div className="jp-forms__field-preview-icon">{ icon }</div>
-			{ /* No `gap`: the old VStack used spacing="0", and the token scale has no zero. */ }
 			<Stack className="jp-forms__field-preview-content" direction="column" justify="center">
 				{ label && <div className="jp-forms__field-preview-label">{ label }</div> }
 				<div className="jp-forms__field-preview-value">{ renderFieldValue() }</div>

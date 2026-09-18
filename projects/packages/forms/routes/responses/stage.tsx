@@ -100,7 +100,7 @@ function getItemId( item: unknown ): string {
 }
 
 /**
- * Cuts a string to a character limit, the way `Truncate`'s `ellipsizeMode="tail"` did.
+ * Cuts a string to a character limit and appends an ellipsis.
  *
  * @param value - The text to shorten.
  * @param limit - The most characters to keep before the ellipsis.
