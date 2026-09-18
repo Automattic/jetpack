@@ -178,13 +178,13 @@ export function formatMetricValue(
 							...compactFractionDigits( Math.abs( numericValue ) ),
 							signDisplay,
 						},
-				  } )
+					} )
 				: formatNumber( numericValue, {
 						decimals: decimals ?? 0,
 						numberFormatOptions: {
 							signDisplay,
 						},
-				  } );
+					} );
 		}
 	}
 }

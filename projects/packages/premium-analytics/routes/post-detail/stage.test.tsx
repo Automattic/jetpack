@@ -66,6 +66,9 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 		value && /^https?:\/\//.test( value ) ? value : undefined,
 } ) );
 
+// The core-data selector the stage's `useSelect` callback reaches.
+const mockGetEntityRecords = jest.fn( () => [] );
+
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
 // Proxies `@wordpress/data` lazily: `requireActual` at import time would
@@ -74,7 +77,10 @@ jest.mock(
 	'@wordpress/data',
 	() =>
 		new Proxy(
-			{ useSelect: () => [] },
+			{
+				useSelect: ( selector: ( select: unknown ) => unknown ) =>
+					selector( () => ( { getEntityRecords: mockGetEntityRecords } ) ),
+			},
 			{
 				get: ( overrides, prop ) =>
 					prop in overrides

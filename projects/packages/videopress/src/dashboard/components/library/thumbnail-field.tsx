@@ -59,7 +59,7 @@ export default function ThumbnailField( { item }: Props ) {
 									/* translators: %d: transcoding progress percentage */
 									__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
 									processingProgress
-							  )
+								)
 							: __( 'Processing', 'jetpack-videopress-pkg' ) }
 					</Text>
 					<ProgressBar

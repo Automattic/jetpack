@@ -21,6 +21,12 @@ export const LOCATION_CHANGE_EVENT = 'jetpack-boost:location-change';
 /** Everything that means the location changed; the chassis dispatches the custom one. */
 export const LOCATION_EVENTS = [ 'hashchange', 'popstate', LOCATION_CHANGE_EVENT ];
 
+/**
+ * The webpack app's settled `getting_started` value as a boolean `detail`, sent after each read or write and deferred while a tagged Getting Started save is pending.
+ * No replay, and `jetpack_boost_ds` holds only the page-load value, so a listener must subscribe at page load and seed from that value; repeats are normal.
+ */
+export const ONBOARDING_CHANGE_EVENT = 'jetpack-boost:onboarding-change';
+
 export const SETTINGS_SLOT_ID = 'jb-settings-tab-mount';
 export const SUBPAGE_SLOT_ID = 'jb-subpage-mount';
 

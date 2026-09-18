@@ -3,6 +3,13 @@ jest.mock( '@wordpress/compose', () => ( {
 	useMediaQuery: jest.fn( () => false ),
 } ) );
 
+// Loading the barrels' unused libraries (core-data, charts, dataviews) costs more than every test here.
+jest.mock( '@jetpack-premium-analytics/data', () =>
+	jest.requireActual( '../../../../data/src/providers/period-change-signal' )
+);
+jest.mock( '@automattic/charts', () => ( {} ) );
+jest.mock( '@wordpress/dataviews', () => ( {} ) );
+
 import { TZDate } from '@date-fns/tz';
 import { configure, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

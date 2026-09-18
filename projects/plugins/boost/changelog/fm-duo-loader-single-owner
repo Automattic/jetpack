@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Fix the modernized onboarding loader staying in place of the Overview after onboarding completes.

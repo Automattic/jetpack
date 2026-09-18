@@ -33,6 +33,7 @@ export {
 	normalizeColorToHex,
 	useCalendarHeatmapData,
 	useGlobalChartsContext,
+	useMonthCalendarHeatmapData,
 	type BaseLegendItem,
 	type BucketInfo,
 	type ChartTheme,
@@ -43,8 +44,10 @@ export {
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 	type HeatmapColumn,
+	type HeatmapColumnGroup,
 	type HeatmapTooltipData,
 	type LineStyles,
+	type MonthCalendarHeatmapRange,
 	type SeriesData,
 	type TickResolution,
 } from '@automattic/charts';

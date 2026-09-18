@@ -11,3 +11,11 @@ const ModuleSurfaceContext = createContext< ModuleSurface >( 'block' );
 export const ModuleSurfaceProvider = ModuleSurfaceContext.Provider;
 
 export const useModuleSurface = () => useContext( ModuleSurfaceContext );
+
+const portalTooltip = { inline: false, shift: true };
+
+/**
+ * `IconTooltip` props for this surface: group cards clip their overflow, so
+ * tooltips inside a row render in a portal, shifted to stay on screen.
+ */
+export const useTooltipLayer = () => ( useModuleSurface() === 'row' ? portalTooltip : {} );

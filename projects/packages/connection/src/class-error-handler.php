@@ -753,7 +753,7 @@ class Error_Handler {
 	 * Deliberately brief: Site Health holds the transport detail and the resolution
 	 * steps, so the message only names the condition and points there.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param array $error The stored error array (unused; part of the message_callback contract).
 	 * @return string The message.
@@ -1649,7 +1649,7 @@ class Error_Handler {
 	 * reads the raw autoloaded set, so it is unaffected by option_* filters and adds
 	 * no query.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param string $option  The error option name.
 	 * @param bool   $deleted Whether delete_option() found and removed a DB row.

@@ -1,9 +1,10 @@
-import { createDateFormatter, sanitizeFormatting } from '../../utils/date-formatting';
+import { sanitizeFormatting } from '../../utils/date-formatting';
 import { warnOnce } from '../../utils/warn-once';
 import {
 	addCivilDays,
 	civilDate,
 	civilKey,
+	civilLabelFormatters,
 	civilWeekSpan,
 	instantDayReader,
 	pointDayKey,
@@ -90,7 +91,7 @@ export const buildCalendarHeatmapData = (
 				offending
 					? `${ JSON.stringify(
 							offending
-					  ) } is not a day this can read, so its point is left out of the calendar. A \`dateString\` must start \`yyyy-MM-dd\`.`
+						) } is not a day this can read, so its point is left out of the calendar. A \`dateString\` must start \`yyyy-MM-dd\`.`
 					: 'A point carries neither `date` nor `dateString`, so it is left out of the calendar.'
 			);
 			continue;
@@ -118,15 +119,8 @@ export const buildCalendarHeatmapData = (
 	const requestedMinDate = civilDate( requestedMinDayKey ) as CivilDate;
 	const gridMaxDate = civilDate( gridMaxDayKey ) as CivilDate;
 
-	// The grid walks UTC proxies, so the label formatters read UTC. The host's zone
-	// was already spent on bucketing.
-	const labelFormatting = { locale, timeZone: 'UTC' };
-	const formatWeekday = createDateFormatter( { weekday: 'short' }, labelFormatting );
-	const formatMonth = createDateFormatter( { month: 'short' }, labelFormatting );
-	const formatDay = createDateFormatter(
-		{ weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' },
-		labelFormatting
-	);
+	// The host's zone was already spent on bucketing; labels read the UTC proxies.
+	const { formatWeekday, formatMonth, formatDay } = civilLabelFormatters( locale );
 
 	const gridStart = startOfCivilWeek( requestedMinDate, weekStartsOn );
 

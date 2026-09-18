@@ -83,7 +83,7 @@ export const buildTimeAxisOptions = ( {
 					effectiveDomain,
 					ownFormatter,
 					callerNumTicks ?? getMaxTicksForWidth( width )
-			  );
+				);
 
 	// An empty selection means the domain holds no point to tick, not that the
 	// axis wants no ticks: visx reads `[]` as the latter and labels nothing.

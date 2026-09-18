@@ -35,7 +35,7 @@ export function useCompMutation() {
 							__( 'Comped %1$s on %2$s.', 'jetpack-newsletter' ),
 							variables.subscriberName,
 							variables.planTitle
-					  )
+						)
 					: __( 'Comp added.', 'jetpack-newsletter' ),
 				{ type: 'snackbar' }
 			);
@@ -76,7 +76,7 @@ export function useRemoveCompMutation() {
 							__( 'Removed %1$s from %2$s.', 'jetpack-newsletter' ),
 							variables.subscriberName,
 							variables.planTitle
-					  )
+						)
 					: __( 'Comp removed.', 'jetpack-newsletter' ),
 				{ type: 'snackbar' }
 			);

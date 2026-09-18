@@ -19,7 +19,7 @@ class Performance_History implements Feature, Is_Always_On, Has_Data_Sync {
 	public function register_data_sync( Data_Sync $instance ) {
 		$performance_history_schema = Schema::as_assoc_array(
 			array(
-				'periods'     => Schema::as_array(
+				'periods'           => Schema::as_array(
 					Schema::as_assoc_array(
 						array(
 							'timestamp'  => Schema::as_number(),
@@ -27,18 +27,18 @@ class Performance_History implements Feature, Is_Always_On, Has_Data_Sync {
 								array(
 									'desktop_overall_score' => Schema::as_number(),
 									'mobile_overall_score' => Schema::as_number(),
-									'desktop_cls'          => Schema::as_number(),
-									'desktop_lcp'          => Schema::as_number(),
-									'desktop_tbt'          => Schema::as_number(),
-									'mobile_cls'           => Schema::as_number(),
-									'mobile_lcp'           => Schema::as_number(),
-									'mobile_tbt'           => Schema::as_number(),
+									'desktop_cls'          => Schema::as_float(),
+									'desktop_lcp'          => Schema::as_float(),
+									'desktop_tbt'          => Schema::as_float(),
+									'mobile_cls'           => Schema::as_float(),
+									'mobile_lcp'           => Schema::as_float(),
+									'mobile_tbt'           => Schema::as_float(),
 								)
 							),
 						)
 					)
 				),
-				'annotations' => Schema::as_array(
+				'annotations'       => Schema::as_array(
 					Schema::as_assoc_array(
 						array(
 							'timestamp' => Schema::as_number(),
@@ -46,8 +46,18 @@ class Performance_History implements Feature, Is_Always_On, Has_Data_Sync {
 						)
 					)
 				),
-				'startDate'   => Schema::as_number(),
-				'endDate'     => Schema::as_number(),
+				'startDate'         => Schema::as_number(),
+				'endDate'           => Schema::as_number(),
+				'surfaceErrors'     => Schema::as_boolean()->nullable(),
+				'checkOlderWindows' => Schema::as_boolean()->nullable(),
+				'olderWindows'      => Schema::as_array(
+					Schema::as_assoc_array(
+						array(
+							'startDate' => Schema::as_number(),
+							'endDate'   => Schema::as_number(),
+						)
+					)
+				)->nullable(),
 			)
 		);
 

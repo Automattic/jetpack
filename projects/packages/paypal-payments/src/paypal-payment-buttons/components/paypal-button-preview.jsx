@@ -26,7 +26,7 @@ import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
 import { DEFAULT_LABEL } from '../utils/defaults';
 import { withPartnerAttribution } from '../utils/partner-attribution';
 import QrCodePreview from './qr-code-preview';
-import { getPrimaryDimension, hasVariantPricing } from './variant-builder';
+import { getLowestVariantPrice, hasVariantPricing } from './variant-builder';
 
 /**
  * Format a price with currency symbol.
@@ -38,31 +38,6 @@ import { getPrimaryDimension, hasVariantPricing } from './variant-builder';
 function formatPrice( priceValue, currencyCode ) {
 	const symbol = CURRENCY_SYMBOLS[ currencyCode ] || currencyCode;
 	return `${ symbol }${ priceValue }`;
-}
-
-/**
- * Find the cheapest per-option price in the primary option group.
- *
- * PayPal only prices the primary group, so an amount left on another group is
- * not a price a buyer can pay and must not become the headline.
- *
- * @param {object} variants - Variants data with dimensions.
- * @return {string|null} The lowest option price, or null when none are priced.
- */
-function getLowestVariantPrice( variants ) {
-	let lowest = null;
-
-	( getPrimaryDimension( variants )?.options || [] ).forEach( opt => {
-		const value = `${ opt.unit_amount?.value ?? '' }`.trim();
-		if ( value === '' || isNaN( parseFloat( value ) ) ) {
-			return;
-		}
-		if ( lowest === null || parseFloat( value ) < parseFloat( lowest ) ) {
-			lowest = value;
-		}
-	} );
-
-	return lowest;
 }
 
 /**
