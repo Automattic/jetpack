@@ -92,4 +92,35 @@ class SalSiteTest extends WP_UnitTestCase {
 	public function test_is_legacy_gating_site_returns_a_boolean() {
 		$this->assertIsBool( self::$site->is_legacy_gating_site() );
 	}
+
+	/**
+	 * The mocked has_blog_sticker() returns get_option()'s raw value, hence the cast: on WordPress.com
+	 * the real function answers with a boolean and these methods pass it straight through.
+	 */
+	public function test_is_gating_business_q1_reflects_the_sticker() {
+		$this->assertFalse( self::$site->is_gating_business_q1() );
+
+		update_option( 'gating-business-q1', true );
+		$this->assertTrue( (bool) self::$site->is_gating_business_q1() );
+
+		delete_option( 'gating-business-q1' );
+	}
+
+	public function test_is_a4a_dev_site_reflects_the_sticker() {
+		$this->assertFalse( self::$site->is_a4a_dev_site() );
+
+		update_option( 'a4a-is-dev-site', true );
+		$this->assertTrue( (bool) self::$site->is_a4a_dev_site() );
+
+		delete_option( 'a4a-is-dev-site' );
+	}
+
+	public function test_is_wpcom_flex_reflects_the_sticker() {
+		$this->assertFalse( self::$site->is_wpcom_flex() );
+
+		update_option( 'flex-cache-site', true );
+		$this->assertTrue( (bool) self::$site->is_wpcom_flex() );
+
+		delete_option( 'flex-cache-site' );
+	}
 }
