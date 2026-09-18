@@ -34,8 +34,10 @@ interface Props {
 	initialIntent?: string;
 	// The site's front-end URL, used to key the Calypso My Home URL on Skip.
 	siteUrl?: string;
-	// User locale, forwarded to the wizard payload and the AI call.
+	// The site language, forwarded to the wizard payload and the AI call, which writes the drafts in it.
 	locale?: string;
+	// The account language, which the AI writes the task subtitles in.
+	uiLocale?: string;
 	// The site-language copy the fallback drafts are written from.
 	copy: SiteCopy;
 	// Fired once Finish completes, with the persisted input and the in-flight
@@ -51,7 +53,8 @@ interface Props {
  * @param props.initialSiteName - Existing site title used to pre-fill Name.
  * @param props.initialIntent   - Existing site tagline used to pre-fill the description.
  * @param props.siteUrl         - The site's front-end URL (for the Skip redirect).
- * @param props.locale          - User locale forwarded to the payload.
+ * @param props.locale          - Site language forwarded to the payload.
+ * @param props.uiLocale        - Account language the task subtitles are written in.
  * @param props.copy            - Site-language copy for the fallback drafts.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
@@ -61,6 +64,7 @@ export function Wizard( {
 	initialIntent = '',
 	siteUrl,
 	locale = 'en',
+	uiLocale = locale,
 	copy,
 	onComplete,
 }: Props ) {
@@ -70,7 +74,7 @@ export function Wizard( {
 	const [ intent, setIntent ] = useState< string >( initialIntent );
 	const [ skipping, setSkipping ] = useState( false );
 
-	const state: WizardState = { goal, siteName, intent, locale };
+	const state: WizardState = { goal, siteName, intent, locale, uiLocale };
 	// The analytics name of the current step, shared by every event that reports one.
 	const stepName = 0 === step ? 'goal' : 'site_details';
 

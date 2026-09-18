@@ -75,6 +75,8 @@ export function App() {
 				initialSiteName={ initialData?.site?.title }
 				initialIntent={ initialData?.site?.description }
 				siteUrl={ initialData?.site?.url }
+				locale={ initialData?.site?.language }
+				uiLocale={ initialData?.user_language }
 				copy={ copy }
 				onComplete={ ( input, tailoring ) => {
 					setPendingTailor( () => tailoring );

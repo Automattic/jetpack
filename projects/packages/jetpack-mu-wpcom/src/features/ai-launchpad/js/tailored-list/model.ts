@@ -51,6 +51,8 @@ export interface LaunchpadData {
 	site?: SiteData;
 	// The persisted wizard input; seeds the Tracks goal before tailoring exists.
 	wizard?: { goal?: string } | null;
+	// The account language of the admin reading the page, which the AI writes task subtitles in.
+	user_language?: string;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */
