@@ -8,7 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-import { SelectField } from '@jetpack-premium-analytics/fields';
+import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Identifier persisted in the widget's `metrics` attribute for each metric
@@ -52,7 +52,7 @@ export default {
 			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
 			type: 'array',
 			relevance: 'high',
-			Edit: SelectField,
+			Edit: ArrayCheckboxField,
 			elements: SITE_OVERVIEW_METRICS.map( metric => ( {
 				value: metric.id,
 				label: metric.label,

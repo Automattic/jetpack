@@ -1,0 +1,25 @@
+/* Match SelectControl item hover (item-popup.module.css). */
+.menuItem[data-active-item]:not([data-focus-visible]):not([aria-disabled="true"]) {
+	background-color: var(--wpds-color-background-interactive-brand-weak-active);
+	color: var(--wpds-color-foreground-interactive-neutral);
+}
+
+.trigger {
+	max-inline-size: var(--wpds-dimension-surface-width-xs);
+	font-size: max(var(--wpds-typography-font-size-md), 16px); /* match SelectControl trigger; avoid mobile zoom */
+
+	@media (min-width: 600px) {
+		font-size: var(--wpds-typography-font-size-md);
+	}
+}
+
+.triggerLabel {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
+}
+
+.triggerCaret {
+	flex: 0 0 auto;
+}
