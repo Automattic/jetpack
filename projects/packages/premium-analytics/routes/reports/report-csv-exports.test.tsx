@@ -360,7 +360,7 @@ describe( 'report CSV exports', () => {
 		useEarningsReportRecordsMock.mockReturnValue( {
 			...reportStatus,
 			tab: 'wordads',
-			populatedTabs: [ 'wordads' ],
+			availableTabs: [ 'wordads' ],
 			rows,
 		} as ReturnType< typeof useEarningsReportRecords > );
 

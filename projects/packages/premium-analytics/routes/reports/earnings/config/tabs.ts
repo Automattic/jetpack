@@ -13,7 +13,7 @@ export const EARNINGS_BUCKETS = {
 	adjustments: 'adjustment',
 } as const;
 
-const DEFAULT_TAB_ID: EarningsReportTabId = 'wordads';
+export const DEFAULT_TAB_ID: EarningsReportTabId = 'wordads';
 
 const earningsReportTabs = defineReportTabs< EarningsReportTabId >(
 	[
@@ -36,7 +36,7 @@ const earningsReportTabs = defineReportTabs< EarningsReportTabId >(
 	DEFAULT_TAB_ID
 );
 
-/** Ordered tab IDs; the page shows a tab only when its bucket has rows. */
+/** Ordered tab IDs. */
 export const EARNINGS_TAB_IDS = earningsReportTabs.ids;
 
 /**

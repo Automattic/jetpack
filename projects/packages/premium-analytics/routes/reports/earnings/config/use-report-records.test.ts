@@ -72,12 +72,22 @@ describe( 'useEarningsReportRecords', () => {
 		] );
 	} );
 
-	it( 'lists only the tabs whose bucket has rows', () => {
+	it( 'offers WordAds plus the tabs whose bucket has rows', () => {
 		mockEarnings( EARNINGS );
 
 		const { result } = renderHook( () => useEarningsReportRecords( 'wordads' ) );
 
-		expect( result.current.populatedTabs ).toEqual( [ 'wordads', 'adjustments' ] );
+		expect( result.current.availableTabs ).toEqual( [ 'wordads', 'adjustments' ] );
+	} );
+
+	it( 'offers WordAds even when only an adjustment bucket has rows', () => {
+		mockEarnings( { ...EARNINGS, wordads: {} } );
+
+		const { result } = renderHook( () => useEarningsReportRecords( 'wordads' ) );
+
+		expect( result.current.availableTabs ).toEqual( [ 'wordads', 'adjustments' ] );
+		expect( result.current.tab ).toBe( 'wordads' );
+		expect( result.current.rows ).toEqual( [] );
 	} );
 
 	it( 'falls back to WordAds when the asked-for bucket is empty', () => {
@@ -96,6 +106,6 @@ describe( 'useEarningsReportRecords', () => {
 
 		expect( result.current.tab ).toBe( 'adjustments' );
 		expect( result.current.rows ).toEqual( [] );
-		expect( result.current.populatedTabs ).toEqual( [] );
+		expect( result.current.availableTabs ).toEqual( [ 'wordads' ] );
 	} );
 } );

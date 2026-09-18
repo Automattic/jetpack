@@ -70,16 +70,11 @@ const sortEarningsCsvRows = ( a: EarningsHistoryRow, b: EarningsHistoryRow ) =>
 function EarningsReport(): JSX.Element {
 	const [ urlTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useEarningsReportRecords( urlTab );
-	const { tab, populatedTabs } = records;
+	const { tab, availableTabs } = records;
 	const showAdsServed = hasAdsServed( tab );
-	// WordAds is always offered; the other buckets are empty on nearly every site,
-	// so their tabs appear only when there is something to show.
 	const tabs = useMemo(
-		() =>
-			getEarningsReportTabs().filter(
-				( { id } ) => id === 'wordads' || populatedTabs.includes( id )
-			),
-		[ populatedTabs ]
+		() => getEarningsReportTabs().filter( ( { id } ) => availableTabs.includes( id ) ),
+		[ availableTabs ]
 	);
 	const fields = useMemo( () => {
 		const all = getWordAdsHistoryFields();
@@ -96,7 +91,7 @@ function EarningsReport(): JSX.Element {
 							label: __( 'Ads Served', 'jetpack-premium-analytics-pkg' ),
 							getValue: ( row: EarningsHistoryRow ) => row.pageviews,
 						},
-				  ]
+					]
 				: [] ),
 			{
 				label: __( 'Status', 'jetpack-premium-analytics-pkg' ),

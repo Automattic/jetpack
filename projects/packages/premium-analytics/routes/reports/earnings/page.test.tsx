@@ -64,7 +64,7 @@ function buildRecords( overrides: Partial< ReturnType< typeof useEarningsReportR
 	return {
 		tab: 'wordads' as EarningsReportTabId,
 		rows: [],
-		populatedTabs: [ 'wordads' as EarningsReportTabId ],
+		availableTabs: [ 'wordads' as EarningsReportTabId ],
 		isLoading: false,
 		isFetching: false,
 		isError: false,
@@ -106,7 +106,7 @@ describe( 'EarningsReportPage', () => {
 
 	it( 'offers a tab for each bucket that has rows', () => {
 		useRecordsMock.mockReturnValue(
-			buildRecords( { rows: [ earningsRow ], populatedTabs: [ 'wordads', 'adjustments' ] } )
+			buildRecords( { rows: [ earningsRow ], availableTabs: [ 'wordads', 'adjustments' ] } )
 		);
 
 		render( <EarningsReportPage /> );
@@ -125,7 +125,7 @@ describe( 'EarningsReportPage', () => {
 			buildRecords( {
 				tab: 'adjustments',
 				rows: [ adjustmentRow ],
-				populatedTabs: [ 'wordads', 'adjustments' ],
+				availableTabs: [ 'wordads', 'adjustments' ],
 			} )
 		);
 
