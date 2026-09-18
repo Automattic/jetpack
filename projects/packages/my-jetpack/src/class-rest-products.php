@@ -368,18 +368,6 @@ class REST_Products {
 		$products_array = $request->get_param( 'products' );
 
 		foreach ( $products_array as $product_slug ) {
-			if ( Product_Visibility::is_pinned( $product_slug ) ) {
-				return new \WP_Error(
-					'product_pinned',
-					sprintf(
-						/* translators: %s is the product_slug */
-						__( 'The product %s is managed by your host and cannot be deactivated.', 'jetpack-my-jetpack' ),
-						$product_slug
-					),
-					array( 'status' => 403 )
-				);
-			}
-
 			$product = Products::get_product( $product_slug );
 			if ( ! isset( $product['class'] ) ) {
 				return new \WP_Error(
