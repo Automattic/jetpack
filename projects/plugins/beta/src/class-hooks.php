@@ -351,7 +351,7 @@ class Hooks {
 
 		// Delete dev plugin dirs.
 		foreach ( $plugins as $plugin ) {
-			// Ensure Beta Tester doesn't self-delete if `jetpack-beta-dev` is the only copy.
+			// Skip self-deletion of Jetpack Beta when the dev version was the one running and the non-dev copy is missing.
 			if ( $plugin->dev_plugin_slug() === JPBETA__PLUGIN_FOLDER && ! file_exists( $plugin->plugin_path() ) ) {
 				continue;
 			}
