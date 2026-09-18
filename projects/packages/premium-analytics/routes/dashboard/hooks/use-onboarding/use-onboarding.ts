@@ -63,9 +63,7 @@ export function resetOnboardingForTesting() {
  * reader per site the first time the surface is ready, marking the preference
  * as it opens so the journey never comes back, and records each move to Tracks.
  *
- * @param options           - Journey options.
- * @param options.enabled   - Whether the surface the journey introduces is ready.
- * @param options.stepCount - Tour steps after the modal; zero ends the journey at Get started.
+ * @param {OnboardingOptions} options - Journey options.
  * @return The current phase and step, and the transitions the UI can trigger.
  */
 export function useOnboarding( { enabled, stepCount = 0 }: OnboardingOptions ): Onboarding {
