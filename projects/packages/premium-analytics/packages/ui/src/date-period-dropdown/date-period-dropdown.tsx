@@ -223,7 +223,6 @@ export function DatePeriodDropdown( {
 					<Button
 						{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
 						{ ...triggerProps }
-						className="date-period-dropdown__toggle"
 						disabled={ disabled }
 						onClick={ onToggle }
 						aria-expanded={ isOpen }
