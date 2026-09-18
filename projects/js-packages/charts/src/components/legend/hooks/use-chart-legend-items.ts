@@ -370,7 +370,7 @@ export function useChartLegendItems<
 							: __( 'Comparison period', 'jetpack-charts' ),
 						getElementStyles,
 						legendShape
-				  )
+					)
 				: null;
 
 			return comparison ? [ ...items, comparison ] : items;
