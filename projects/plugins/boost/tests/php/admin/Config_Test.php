@@ -114,6 +114,11 @@ class Config_Test extends TestCase {
 				}
 			);
 
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'jetpack_my_jetpack_should_initialize', true )
+			->andReturn( true );
+
 		// Mock Host class for this specific test
 		$host = Mockery::mock( 'overload:' . Host::class );
 		$host->shouldReceive( 'is_woa_site' )->andReturn( false );
@@ -128,6 +133,7 @@ class Config_Test extends TestCase {
 		$this->assertEquals( 'http://example.com', $result['site']['url'] );
 		$this->assertEquals( 'atomic', $result['site']['host'] );
 		$this->assertTrue( $result['site']['online'] );
+		$this->assertTrue( $result['site']['myJetpack'] );
 	}
 
 	public function test_constants_private_site() {
@@ -177,6 +183,11 @@ class Config_Test extends TestCase {
 				}
 			);
 
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'jetpack_my_jetpack_should_initialize', true )
+			->andReturn( true );
+
 		// Create a fresh Status mock for private site
 		$status = Mockery::mock( 'overload:' . Status::class );
 		$status->shouldReceive( 'get_site_suffix' )->andReturn( 'example.com' );
@@ -199,6 +210,32 @@ class Config_Test extends TestCase {
 			$result['site']['online'],
 			'Site should be offline when Status::is_private_site() returns true'
 		);
+	}
+
+	public function test_my_jetpack_unavailable_when_filtered_off() {
+		$status = Mockery::mock( 'overload:' . Status::class );
+		$status->shouldReceive( 'is_offline_mode' )->andReturn( false );
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'jetpack_my_jetpack_should_initialize', true )
+			->andReturn( false );
+
+		$this->assertFalse( Config::is_my_jetpack_available() );
+	}
+
+	public function test_my_jetpack_unavailable_in_offline_mode() {
+		$status = Mockery::mock( 'overload:' . Status::class );
+		$status->shouldReceive( 'is_offline_mode' )->andReturn( true );
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'jetpack_my_jetpack_should_initialize', false )
+			->andReturnUsing(
+				function ( $hook, $should ) {
+					return $should;
+				}
+			);
+
+		$this->assertFalse( Config::is_my_jetpack_available() );
 	}
 
 	public function test_get_hosting_provider_woa() {

@@ -26,6 +26,7 @@ declare global {
 			domain: string;
 			url: string;
 			online: boolean;
+			myJetpack: boolean;
 			host: string;
 			hasCache: boolean;
 		};
