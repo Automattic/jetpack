@@ -20,9 +20,7 @@ const ModernSettings = ( { hidden = false }: ModernSettingsProps ) => {
 
 	return (
 		<div className={ clsx( 'jb-modern-settings', styles.settings ) } hidden={ hidden }>
-			<div className="jb-section jb-section--main">
-				<Settings />
-			</div>
+			<Settings />
 
 			<Tips />
 

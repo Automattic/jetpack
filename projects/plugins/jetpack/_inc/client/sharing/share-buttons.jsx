@@ -46,7 +46,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				siteAdminUrl && this.props.themeStylesheet
 					? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
 							this.props.themeStylesheet
-					  ) }%2F%2Fsingle&canvas=edit`
+						) }%2F%2Fsingle&canvas=edit`
 					: '';
 			const shouldUseSharingBlockAction = shouldShowSharingBlock && sharingTemplateUrl;
 			const isForcedActive =
@@ -62,7 +62,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							'Add the Sharing Buttons block to your theme’s template.',
 							'Sharing block migration instruction',
 							'jetpack'
-					  );
+						);
 			}
 
 			const sharingModuleSupportUrl = getRedirectUrl( 'jetpack-support-sharing' );

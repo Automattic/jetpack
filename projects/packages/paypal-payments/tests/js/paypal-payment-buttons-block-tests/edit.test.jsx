@@ -17,6 +17,10 @@ import {
 } from '../../../src/paypal-payment-buttons/components/variant-builder';
 import Edit from '../../../src/paypal-payment-buttons/edit';
 import {
+	forgetSyncedRequests,
+	syncBlocksBeforeSave,
+} from '../../../src/paypal-payment-buttons/utils/sync-on-save';
+import {
 	ADVISORY_ERROR_KEYS,
 	getValidationErrors,
 	REQUIRED_FIELD_ERROR,
@@ -90,6 +94,13 @@ jest.mock( 'qrcode', () => ( {
 const mockMarkNotPersistent = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { __unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent } ),
+} ) );
+
+// The real snackbar dispatches to @wordpress/notices, so in jsdom the call is all
+// there is to assert on.
+const mockToast = jest.fn();
+jest.mock( '../../../src/paypal-payment-buttons/utils/toast', () => ( {
+	toast: ( ...args ) => mockToast( ...args ),
 } ) );
 
 // What the media library hands back. jsdom has none, so the MediaUpload mock
@@ -1141,7 +1152,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						? Promise.reject( new Error( 'Could not create a PayPal onboarding link.' ) )
 						: Promise.resolve( {
 								action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
-						  } );
+							} );
 				}
 				return Promise.resolve( {} );
 			} );
@@ -1332,6 +1343,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				screen.findByRole( 'button', { name: /Connect PayPal/i } )
 			).resolves.toBeVisible();
 		}
+
+		it( 'reports the disconnect in the snackbar', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await onboardThenDisconnect( user );
+
+			expect( mockToast ).toHaveBeenCalledWith( 'success', 'PayPal account disconnected.' );
+		} );
 
 		it( 'drops the spent referral link when onboarding completes', async () => {
 			const user = userEvent.setup();
@@ -1912,7 +1932,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				path === listPath
 					? new Promise( resolve => {
 							resolveList = resolve;
-					  } )
+						} )
 					: Promise.resolve( { connected: true, environment: 'sandbox' } )
 			);
 
@@ -2021,7 +2041,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		} );
 
-		it( 'shows the failure when a picked link cannot be read back', async () => {
+		it( 'reports a failed link pick in the snackbar', async () => {
 			const user = userEvent.setup();
 			apiFetch.mockImplementation( ( { path } ) => {
 				if ( path === listPath ) {
@@ -2037,7 +2057,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await user.click( await screen.findByRole( 'button', { name: /Croissant/ } ) );
 
-			await expect( screen.findByText( /PayPal is unavailable/ ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( mockToast ).toHaveBeenCalledWith( 'error', 'PayPal is unavailable' )
+			);
 			expect( setAttributes ).not.toHaveBeenCalled();
 		} );
 
@@ -2670,8 +2692,32 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		}
 
+		/**
+		 * Run one save over the rendered block.
+		 *
+		 * @param {Function} respond - Answers each request; defaults to an empty response.
+		 * @return {Promise<object>} deps plus the recorded calls.
+		 */
+		async function saveTheBlock( respond ) {
+			const requests = [];
+			const deps = {
+				requests,
+				request: jest.fn( options => {
+					requests.push( options );
+					return respond ? respond( options ) : Promise.resolve( {} );
+				} ),
+				updateBlockAttributes: jest.fn(),
+				reportError: jest.fn(),
+				reportHeldBack: jest.fn(),
+			};
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes } ], deps );
+
+			return deps;
+		}
+
 		beforeEach( () => {
 			mockMarkNotPersistent.mockClear();
+			forgetSyncedRequests();
 		} );
 
 		it( 'corrects a stale copy from the payment PayPal holds, without dirtying the post', async () => {
@@ -2683,6 +2729,121 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( setAttributes ).toHaveBeenCalledWith( { productName: 'duplicate', price: '49.00' } )
 			);
 			expect( mockMarkNotPersistent ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		/**
+		 * Answer the connection check as connected and leave the payment read for the test to settle.
+		 *
+		 * @return {Function} Settles the read with the given response.
+		 */
+		function deferResource() {
+			let settle;
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath ) {
+					return new Promise( resolve => {
+						settle = resolve;
+					} );
+				}
+
+				return Promise.resolve( {} );
+			} );
+
+			return response => act( async () => settle( response ) );
+		}
+
+		it( 'keeps a price typed while the read was in flight, and still takes PayPal’s other fields', async () => {
+			const settleRead = deferResource();
+
+			const { rerender } = render(
+				<Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" />
+			);
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			rerender(
+				<Edit
+					attributes={ { ...attributes, price: '1.50' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await settleRead( {
+				id: 'PLB-SHARED1',
+				attributes: { ...attributes, price: '7.55', productName: 'duplicate' },
+			} );
+
+			// Just the name; the merchant keeps the price they typed.
+			expect( setAttributes ).toHaveBeenCalledWith( { productName: 'duplicate' } );
+		} );
+
+		// A re-render rebuilds the variants object, so the comparison has to be by value.
+		it( 'takes PayPal’s variants when a re-render rebuilt the block’s own copy unchanged', async () => {
+			const settleRead = deferResource();
+			const empty = { dimensions: [] };
+			const withEmpty = { ...attributes, variantsEnabled: true, variants: empty };
+
+			const { rerender } = render(
+				<Edit attributes={ withEmpty } setAttributes={ setAttributes } clientId="a" />
+			);
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			// Same contents, new object — what a re-render produces.
+			rerender(
+				<Edit
+					attributes={ { ...withEmpty, variants: { dimensions: [] } } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			const stored = {
+				dimensions: [
+					{
+						name: 'Size',
+						primary: true,
+						options: [ { label: 'S', unit_amount: { currency_code: 'USD', value: '9.99' } } ],
+					},
+				],
+			};
+			await settleRead( { id: 'PLB-SHARED1', attributes: { ...withEmpty, variants: stored } } );
+
+			// normalizeResourceVariants() adds a _key per row, so check fields rather than the whole object.
+			const [ [ applied ] ] = setAttributes.mock.calls;
+			expect( applied.variants.dimensions[ 0 ].name ).toBe( 'Size' );
+			expect( applied.variants.dimensions[ 0 ].options[ 0 ].unit_amount.value ).toBe( '9.99' );
+		} );
+
+		it( 'keeps customer notes edited while the read was in flight', async () => {
+			const settleRead = deferResource();
+			const withNotes = { ...attributes, customerNotes: [ { label: 'Gift', required: false } ] };
+
+			const { rerender } = render(
+				<Edit attributes={ withNotes } setAttributes={ setAttributes } clientId="a" />
+			);
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			rerender(
+				<Edit
+					attributes={ { ...withNotes, customerNotes: [ { label: 'Delivery', required: true } ] } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await settleRead( {
+				id: 'PLB-SHARED1',
+				attributes: { ...withNotes, customerNotes: [ { label: 'Stored', required: false } ] },
+			} );
+
+			expect( setAttributes ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { customerNotes: [ { label: 'Stored', required: false } ] } )
+			);
 		} );
 
 		it( 'leaves a block alone when it already matches the payment', async () => {
@@ -2761,6 +2922,123 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect(
 				screen.queryByText( 'Changes made will apply to all payment buttons with this link.' )
 			).not.toBeInTheDocument();
+		} );
+
+		// Only these tests run the real read and the real save together.
+		const unread = 'Its current settings have not loaded yet. Reload the post and try again.';
+
+		it( 'writes the payment once the block has read it', async () => {
+			mockResource( { ...attributes } );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { requests, reportHeldBack } = await saveTheBlock();
+
+			expect( requests.map( r => [ r.method, r.path ] ) ).toEqual( [ [ 'PUT', resourcePath ] ] );
+			expect( reportHeldBack ).not.toHaveBeenCalled();
+		} );
+
+		// A PUT replaces the payment outright, so a block still on its block.json defaults
+		// would wipe the product id set at PayPal.
+		it( 'holds back the save while the read is still running', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return new Promise( () => {} );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { request, reportHeldBack } = await saveTheBlock();
+
+			expect( request ).not.toHaveBeenCalled();
+			expect( reportHeldBack ).toHaveBeenCalledWith(
+				expect.objectContaining( { clientId: 'a' } ),
+				unread
+			);
+		} );
+
+		it( 'holds back the save when the read fails', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.reject( { message: 'PayPal is having a day.' } );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { request, reportHeldBack } = await saveTheBlock();
+
+			expect( request ).not.toHaveBeenCalled();
+			expect( reportHeldBack ).toHaveBeenCalledWith(
+				expect.objectContaining( { clientId: 'a' } ),
+				unread
+			);
+		} );
+
+		// A response with no attributes leaves the block on its own values, so the save waits.
+		it( 'holds back the save when the read comes back empty', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.resolve( { id: 'PLB-SHARED1' } );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { request, reportHeldBack } = await saveTheBlock();
+
+			expect( request ).not.toHaveBeenCalled();
+			expect( reportHeldBack ).toHaveBeenCalledWith(
+				expect.objectContaining( { clientId: 'a' } ),
+				unread
+			);
+		} );
+
+		// A 404 counts as a read - PayPal already dropped the payment, so the save re-creates it.
+		it( 're-creates a payment that has been deleted from PayPal', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+
+			const { requests, updateBlockAttributes, reportHeldBack } = await saveTheBlock( options =>
+				options.method === 'POST'
+					? Promise.resolve( {
+							id: 'PLB-NEW1',
+							payment_link: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
+						} )
+					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
+			);
+
+			expect( requests.map( r => r.method ) ).toEqual( [ 'PUT', 'POST' ] );
+			expect( updateBlockAttributes ).toHaveBeenCalledWith(
+				'a',
+				expect.objectContaining( { resourceId: 'PLB-NEW1' } )
+			);
+			expect( reportHeldBack ).not.toHaveBeenCalled();
 		} );
 
 		it( 'stays quiet on a block with no payment link yet', async () => {
@@ -5042,7 +5320,45 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await waitFor( () => expect( deleteRequests() ).toHaveLength( 1 ) );
 			expect( deleteRequests()[ 0 ][ 0 ].path ).toContain( '/buttons/PLB-DELETE1' );
-			await expect( screen.findByText( 'Payment link deleted.' ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment link deleted.' )
+			);
+		} );
+
+		// PayPal 404s a link already deleted from the admin page or another block.
+		it( 'clears the payment and reports success when PayPal already deleted the link', async () => {
+			const user = userEvent.setup();
+			apiFetch.mockImplementation( request => {
+				if ( request.path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( 'DELETE' === request.method ) {
+					return Promise.reject( {
+						code: 'paypal_api_resource_not_found',
+						data: { status: 404 },
+					} );
+				}
+				return Promise.resolve( {} );
+			} );
+
+			renderForm( saved );
+
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
+
+			await waitFor( () =>
+				expect( mockToast ).toHaveBeenCalledWith(
+					'success',
+					'The payment link was already removed from PayPal.'
+				)
+			);
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				isApiManaged: false,
+				resourceId: undefined,
+				paymentLink: undefined,
+			} );
 		} );
 
 		it( 'cancelling closes the dialog without deleting', async () => {
@@ -5190,11 +5506,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					: respond( request )
 			);
 
-		// A save drops the merchant back on the preview, so the notice it leaves
-		// behind is a different one from the form's.
-		// A delete is refused without ever leaving the preview, so its error lands
-		// there rather than on the form.
-		it( 'clears the error notice on the preview when it is dismissed', async () => {
+		it( 'reports a refused delete in the snackbar and keeps the preview', async () => {
 			const user = userEvent.setup();
 			const refused = 'PayPal could not delete the payment.';
 			mockRoutes( ( { method } ) =>
@@ -5207,12 +5519,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
 
-			await expect( screen.findByText( refused ) ).resolves.toBeInTheDocument();
+			await waitFor( () => expect( mockToast ).toHaveBeenCalledWith( 'error', refused ) );
+
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
-
-			await user.click( screen.getByTestId( 'dismiss-notice' ) );
-
-			expect( screen.queryByText( refused ) ).not.toBeInTheDocument();
+			// The lone info notice is the save status.
+			expect(
+				screen.queryAllByTestId( 'notice' ).map( n => n.getAttribute( 'data-status' ) )
+			).toEqual( [ 'info' ] );
 		} );
 
 		// A saved button keeps its preview while PayPal is disconnected, so the
@@ -5223,10 +5536,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			renderForm( saved );
 
-			// The preview carries the shared-link notice too, so the action has to
-			// come out of the disconnected one.
-			const disconnected = ( await screen.findAllByTestId( 'notice' ) ).find(
-				body => body.getAttribute( 'data-status' ) === 'warning'
+			// Match on the copy - the canvas carries other warnings too, and the sidebar
+			// has its own Reconnect button, so scope the click.
+			const disconnected = ( await screen.findAllByTestId( 'notice' ) ).find( body =>
+				body.textContent.includes( 'Your PayPal account is disconnected' )
 			);
 			await user.click(
 				within( disconnected ).getByRole( 'button', { name: 'Reconnect PayPal' } )

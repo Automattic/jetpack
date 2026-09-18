@@ -156,16 +156,16 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 					? {
 							mobile: castToNumber( response.scores.current.mobile, 0 ),
 							desktop: castToNumber( response.scores.current.desktop, 0 ),
-					  }
+						}
 					: {
 							mobile: 0,
 							desktop: 0,
-					  },
+						},
 				noBoost: isJsonObject( response.scores.noBoost )
 					? {
 							mobile: castToNumber( response.scores.noBoost.mobile, 0 ),
 							desktop: castToNumber( response.scores.noBoost.desktop, 0 ),
-					  }
+						}
 					: null,
 				isStale: !! response.scores.isStale,
 			},

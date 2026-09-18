@@ -41,8 +41,6 @@ describe( 'DashItem', () => {
 	const testProps = {
 		label: 'Protect',
 		module: 'protect',
-		status: '',
-		statusText: '',
 		disabled: true,
 		pro: true,
 		isOfflineMode: false,
@@ -174,7 +172,6 @@ describe( 'DashItem', () => {
 		const monitorProps = {
 			module: 'monitor',
 			label: 'Monitor',
-			status: '',
 			pro: false,
 			isOfflineMode: false,
 			userCanToggle: true,

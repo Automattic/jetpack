@@ -21,7 +21,7 @@ export type ModuleToggleProps = {
 // Modules that register a server-rendered wp-admin sidebar item. Toggling them
 // needs a full page reload for the sidebar to reflect the change; the success
 // notice is persisted so it survives the reload.
-const MODULES_REQUIRING_RELOAD = [ 'podcast', 'subscriptions', 'wpcom-reader' ];
+const MODULES_REQUIRING_RELOAD = [ 'activity-log', 'podcast', 'subscriptions', 'wpcom-reader' ];
 
 /**
  * Renders a toggle for a Jetpack module.
@@ -57,7 +57,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 								/* translators: %s is the module name */
 								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
 								$module.name
-						  );
+							);
 				createSuccessNotice( message );
 			} else {
 				const message =
@@ -66,12 +66,12 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 								/* translators: %s is the module name */
 								__( 'Failed to activate %s.', 'jetpack-my-jetpack' ),
 								$module.name
-						  )
+							)
 						: sprintf(
 								/* translators: %s is the module name */
 								__( 'Failed to deactivate %s.', 'jetpack-my-jetpack' ),
 								$module.name
-						  );
+							);
 
 				createErrorNotice( message );
 			}
@@ -105,7 +105,7 @@ export function ModuleToggle( { module: $module, describedby }: ModuleToggleProp
 								/* translators: %s is the module name */
 								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
 								$module.name
-						  )
+							)
 				);
 				reloadPage();
 				return;

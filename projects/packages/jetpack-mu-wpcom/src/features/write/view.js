@@ -1562,7 +1562,7 @@ function convertToBlocks( html ) {
 			// comment attributes (see serializeAttributes in @wordpress/blocks).
 			const jsonAttr = Object.keys( attrs ).length
 				? ' ' +
-				  JSON.stringify( attrs )
+					JSON.stringify( attrs )
 						.replaceAll( '\\\\', '\\u005c' )
 						.replaceAll( '--', '\\u002d\\u002d' )
 						.replaceAll( '<', '\\u003c' )

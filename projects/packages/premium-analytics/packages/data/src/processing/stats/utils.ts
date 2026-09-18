@@ -248,7 +248,7 @@ export function mergeStatsTreeComparisonRows<
 				const childContext = getChildContext?.( mappedRow, levelParentContext );
 				const children = mergeLevel(
 					getPrimaryChildren( row ) ?? [],
-					context.comparisonItem ? getComparisonChildren( context.comparisonItem ) ?? [] : [],
+					context.comparisonItem ? ( getComparisonChildren( context.comparisonItem ) ?? [] ) : [],
 					childContext
 				);
 
@@ -376,7 +376,7 @@ export function normalizeStatsReportSummary(
 					excludedKeys
 				),
 				...getStatsSummaryIntervalFields( query, response ),
-		  }
+			}
 		: {};
 }
 
@@ -448,7 +448,7 @@ export function createStatsListDataPoint< TItem extends StatsNormalizedItem >(
 					time_interval: '',
 					date_start: '',
 					date_end: '',
-			  } ),
+				} ),
 		...getStatsSummaryIntervalFields( query, response ),
 		items,
 	};

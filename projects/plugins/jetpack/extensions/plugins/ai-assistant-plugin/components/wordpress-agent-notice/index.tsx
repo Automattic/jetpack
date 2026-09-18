@@ -203,9 +203,9 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 									/>
 								),
 							}
-					  )
+						)
 					: /* translators: "WordPress Agent" is a product name. */
-					  __( 'AI tools have moved to the WordPress Agent.', 'jetpack' ) }
+						__( 'AI tools have moved to the WordPress Agent.', 'jetpack' ) }
 			</Notice.Description>
 
 			<Notice.Actions>

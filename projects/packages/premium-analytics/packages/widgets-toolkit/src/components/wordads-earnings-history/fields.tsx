@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import type { StatsWordAdsEarningsBreakdown } from '@jetpack-premium-analytics/data';
-import type { Field, View } from '@jetpack-premium-analytics/externals';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
 /** A single WordAds earnings-history row (one period). */
 export type EarningsHistoryRow = {
@@ -179,17 +179,3 @@ export function getWordAdsHistoryFields(): Field< EarningsHistoryRow >[] {
 		},
 	];
 }
-
-/** Default view: newest period first, with responsive equal-width columns. */
-export const EARNINGS_HISTORY_VIEW: Partial< View > = {
-	sort: { field: 'period', direction: 'desc' },
-	layout: {
-		density: 'compact',
-		styles: {
-			period: { width: '25%' },
-			amount: { align: 'end', width: '25%' },
-			pageviews: { align: 'end', width: '25%' },
-			status: { width: '25%' },
-		},
-	},
-};

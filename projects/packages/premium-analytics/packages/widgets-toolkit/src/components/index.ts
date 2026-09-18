@@ -184,7 +184,6 @@ export {
 } from './download-csv';
 export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
-	EARNINGS_HISTORY_VIEW,
 	EarningsHistoryList,
 	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,

@@ -46,10 +46,8 @@ class Script_Data_Test extends BaseTestCase {
 		$filter = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
 		$this->assertNull( Initializer::add_admin_script_data( array() )['myJetpack']['productsSection'] );
 
-		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::WP_BUILD_FEATURE_FLAG, '__return_true' );
 		add_filter( $filter, '__return_true' );
 		$data = Initializer::add_admin_script_data( array() );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::WP_BUILD_FEATURE_FLAG );
 		remove_all_filters( $filter );
 
 		$this->assertSame( 'features', $data['myJetpack']['productsSection']['slug'] );

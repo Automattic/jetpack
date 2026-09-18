@@ -6,113 +6,20 @@
  * of videos costs no player script until someone presses play.
  */
 
+import { ensurePlayer, parsePlaceholderOptions, releasePlayerId } from './loader';
+import type { PlayerFactory, PlayerOptions } from './loader';
+
+export { ensurePlayer, parsePlaceholderOptions };
+
 export const PLACEHOLDER_SELECTOR = '.jetpack-videopress-player__inline[data-videopress-guid]';
 const FACADE_ATTRIBUTE = 'data-videopress-facade';
 const FACADE_CLASS = 'jetpack-videopress-player__facade';
-const PLAYER_ID_PREFIX = 'videopress-player-';
 const PRECONNECT_ORIGINS = [
 	'https://public-api.wordpress.com',
 	'https://videos.files.wordpress.com',
 ];
 
-type PlayerOptions = Record< string, unknown >;
-type PlayerFactory = ( guid: string, container: HTMLElement, options: PlayerOptions ) => unknown;
-type AssetConfig = { script: string; style: string };
-
-declare global {
-	interface Window {
-		videopress?: PlayerFactory;
-		jetpackVideoPressInlinePlayer?: AssetConfig;
-	}
-}
-
-let playerLoading: Promise< PlayerFactory > | null = null;
 let connectionsWarmed = false;
-
-/**
- * Parse the options a placeholder carries; malformed JSON yields no options.
- *
- * @param raw - The `data-videopress-options` attribute value.
- * @return The parsed options object.
- */
-export function parsePlaceholderOptions( raw: string | undefined ): PlayerOptions {
-	if ( ! raw ) {
-		return {};
-	}
-	try {
-		const parsed = JSON.parse( raw );
-		return parsed && typeof parsed === 'object' && ! Array.isArray( parsed ) ? parsed : {};
-	} catch {
-		return {};
-	}
-}
-
-const withoutQuery = ( url: string ) => url.split( '?' )[ 0 ];
-
-/**
- * Resolve the player factory, fetching the bundle and its stylesheet at most once per page.
- *
- * @return The `videopress()` factory once the bundle has run.
- */
-export function ensurePlayer(): Promise< PlayerFactory > {
-	if ( typeof window.videopress === 'function' ) {
-		return Promise.resolve( window.videopress );
-	}
-	if ( playerLoading ) {
-		return playerLoading;
-	}
-
-	const config = window.jetpackVideoPressInlinePlayer;
-	if ( ! config?.script ) {
-		return Promise.reject( new Error( 'VideoPress inline player: no bundle URL configured.' ) );
-	}
-
-	playerLoading = new Promise< PlayerFactory >( ( resolve, reject ) => {
-		if ( config.style && ! document.querySelector( `link[href="${ config.style }"]` ) ) {
-			const link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.href = config.style;
-			document.head.appendChild( link );
-		}
-
-		// PHP may already have enqueued the bundle for an eager placeholder; wait on that tag instead of adding one.
-		let script = Array.from( document.scripts ).find(
-			s => s.src && withoutQuery( s.src ) === withoutQuery( config.script )
-		);
-		if ( ! script ) {
-			script = document.createElement( 'script' );
-			script.src = config.script;
-			script.async = true;
-			document.head.appendChild( script );
-		}
-
-		script.addEventListener(
-			'load',
-			() => {
-				if ( typeof window.videopress === 'function' ) {
-					resolve( window.videopress );
-				} else {
-					reject(
-						new Error( 'VideoPress inline player: bundle loaded without the videopress global.' )
-					);
-				}
-			},
-			{ once: true }
-		);
-		script.addEventListener(
-			'error',
-			() => reject( new Error( 'VideoPress inline player: bundle failed to load.' ) ),
-			{ once: true }
-		);
-	} );
-
-	// A failed fetch must not poison every later click.
-	playerLoading.catch( () => {
-		playerLoading = null;
-	} );
-
-	return playerLoading;
-}
 
 /**
  * Open connections to the hosts the first play will hit, once, on the first hover or focus.
@@ -140,33 +47,6 @@ export function warmConnections(): void {
 		link.crossOrigin = 'anonymous';
 		document.head.appendChild( link );
 	} );
-}
-
-/**
- * Hand an earlier instance of the same video a unique element id before this one mounts.
- *
- * The bundle names its element after the GUID and adopts any element already carrying that
- * name, so a second embed of one video would otherwise pile onto the first.
- *
- * @param guid        - The video being mounted.
- * @param placeholder - The placeholder about to receive it.
- */
-function releasePlayerId( guid: string, placeholder: HTMLElement ): void {
-	const id = PLAYER_ID_PREFIX + guid;
-	const holder = document.getElementById( id );
-	if ( ! holder || placeholder.contains( holder ) ) {
-		return;
-	}
-	let unique = id;
-	for ( let n = 2; document.getElementById( unique ); n++ ) {
-		unique = `${ id }-${ n }`;
-	}
-	// video.js moves the id to its wrapper and suffixes the tag it wrapped.
-	const tag = document.getElementById( `${ id }_html5_api` );
-	holder.id = unique;
-	if ( tag && holder.contains( tag ) ) {
-		tag.id = `${ unique }_html5_api`;
-	}
 }
 
 /**

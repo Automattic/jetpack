@@ -1,5 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import BoostPage from '../../_inc/components/boost-page';
@@ -8,6 +10,7 @@ import {
 	getSubpage,
 	LOCATION_CHANGE_EVENT,
 	LOCATION_EVENTS,
+	ONBOARDING_CHANGE_EVENT,
 	SETTINGS_SLOT_ID,
 	SUBPAGE_SLOT_ID,
 } from '../../_inc/runtime-contract';
@@ -44,11 +47,23 @@ function subscribeToLocationChange( listener: () => void ) {
 }
 
 function Stage() {
+	const [ queryClient ] = useState( () => new QueryClient() );
+
+	return (
+		<QueryClientProvider client={ queryClient }>
+			<DashboardStage />
+		</QueryClientProvider>
+	);
+}
+
+function DashboardStage() {
 	const search = useSearch( { from: '/' as never, strict: false } ) as { tab?: string };
 	const navigate = useNavigate();
-	const [ queryClient ] = useState( () => new QueryClient() );
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const lastSubpage = useRef( subpage );
+	const [ onboarding, setOnboarding ] = useState(
+		() => window.jetpack_boost_ds?.getting_started?.value === true
+	);
 	const [ headerAction, setHeaderAction ] = useState< ReactNode >( null );
 	const activeTab: Tab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
@@ -84,6 +99,13 @@ function Stage() {
 		} );
 	}, [ goToTab ] );
 
+	useEffect( () => {
+		const onOnboardingChange = ( event: Event ) =>
+			setOnboarding( ( event as CustomEvent< boolean > ).detail );
+		window.addEventListener( ONBOARDING_CHANGE_EVENT, onOnboardingChange );
+		return () => window.removeEventListener( ONBOARDING_CHANGE_EVENT, onOnboardingChange );
+	}, [] );
+
 	return (
 		<BoostPage
 			activeTab={ activeTab }
@@ -93,12 +115,20 @@ function Stage() {
 			subpage={ <div id={ SUBPAGE_SLOT_ID } hidden={ subpage === null } /> }
 		>
 			<Tabs.Panel value="overview" keepMounted>
-				<QueryClientProvider client={ queryClient }>
+				{ onboarding ? (
+					<div
+						className="jetpack-boost-dashboard__loading"
+						role="status"
+						aria-label={ __( 'Loading', 'jetpack-boost' ) }
+					>
+						<Spinner />
+					</div>
+				) : (
 					<Overview
 						isVisible={ activeTab === 'overview' && subpage === null }
 						onHeaderActionChange={ setHeaderAction }
 					/>
-				</QueryClientProvider>
+				) }
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>
 				<div id={ SETTINGS_SLOT_ID } />

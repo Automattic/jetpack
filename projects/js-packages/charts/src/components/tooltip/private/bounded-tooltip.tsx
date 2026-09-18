@@ -14,6 +14,9 @@ export type BoundedTooltipProps = Omit< TooltipProps, 'left' | 'top' | 'applyPos
 };
 
 const DEFAULT_OFFSET = 10;
+// Above anything else layered inside a chart, such as the zoom reset button (2).
+// Chart wrappers isolate their stacking context, so it never reaches page chrome.
+export const TOOLTIP_Z_INDEX = 3;
 const POINTER_HEIGHT = 6;
 
 const clamp = ( position: number, min: number, max: number, size: number ) =>

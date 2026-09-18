@@ -196,6 +196,8 @@ describe( 'PopularPostWidget', () => {
 		expect( search.get( 'preset' ) ).toBe( 'last-12-months' );
 		expect( search.get( 'from' ) ).toContain( '2025-09-01T00:00:00' );
 		expect( search.get( 'to' ) ).toContain( '2026-08-27T23:59:59' );
+		expect( search.get( 'ref' ) ).toBe( 'posts' );
+		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 
 		// A complete window, so the detail route reseeds the URL from these params
 		// rather than from its own defaults. (It does reseed either way — its

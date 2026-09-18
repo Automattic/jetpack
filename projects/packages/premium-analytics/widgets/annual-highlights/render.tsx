@@ -82,7 +82,7 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: totals.total_comments,
 				},
-		  ]
+			]
 		: [];
 
 	return (

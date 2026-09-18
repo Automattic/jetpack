@@ -179,9 +179,9 @@ export function withCurrency( variants, currencyCode ) {
  * @param {string} key - Attribute name.
  * @param {*}      a   - Current value.
  * @param {*}      b   - Value from the payment.
- * @return {boolean} True when no update is needed.
+ * @return {boolean} True when both values mean the same thing.
  */
-function isSameValue( key, a, b ) {
+export function isSameValue( key, a, b ) {
 	if ( key === 'variants' ) {
 		return JSON.stringify( comparableVariants( a ) ) === JSON.stringify( comparableVariants( b ) );
 	}

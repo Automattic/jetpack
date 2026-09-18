@@ -186,7 +186,7 @@ class SiteStatsComponent extends Component {
 												/>
 											),
 										}
-								  ) }
+									) }
 						</div>
 						{ ! this.props.isOfflineMode && (
 							<div className="jp-at-a-glance__stats-inactive-button">
