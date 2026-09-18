@@ -37,8 +37,8 @@ class Admin_Menu {
 
 	/*
 	 * The sidebar's position tiers. Items sharing a tier sort alphabetically by menu title, so a
-	 * product should pass no position and land in POSITION_DEFAULT. Reach for another tier only
-	 * for one of the roles below; an int of your own silently opts the item out of that order.
+	 * product should pass no position and land in POSITION_DEFAULT. add_menu() treats any value
+	 * that is not a tier below as omitted, so an int of your own cannot opt an item out.
 	 */
 
 	/**
@@ -82,6 +82,19 @@ class Admin_Menu {
 	 * @var int
 	 */
 	const POSITION_UPGRADE = 999;
+
+	/**
+	 * The tiers add_menu() accepts. POSITION_UPGRADE is left out: only this class claims it.
+	 *
+	 * @var int[]
+	 */
+	private const CALLER_POSITIONS = array(
+		self::POSITION_FIRST,
+		self::POSITION_FIRST_FALLBACK,
+		self::POSITION_DEFAULT,
+		self::POSITION_EXTERNAL,
+		self::POSITION_LAST,
+	);
 
 	/**
 	 * Handle for the shared, token-only WPDS design-tokens stylesheet.
@@ -239,12 +252,9 @@ class Admin_Menu {
 			$can_see_toplevel_menu = false;
 		}
 
-		/**
-		 * The add_sub_menu function has a bug and will not keep the right order of menu items.
-		 *
-		 * @see https://core.trac.wordpress.org/ticket/52035
-		 * Let's order the items before registering them.
-		 * Since this all happens after the Jetpack plugin menu items were added, all items will be added after Jetpack plugin items - unless position is very low number (smaller than the number of menu items present in Jetpack plugin).
+		/*
+		 * Sort here and register in that order, without passing the position on: core splices an
+		 * int back in, and prepends 0 or less. See https://core.trac.wordpress.org/ticket/52035.
 		 */
 		usort(
 			self::$menu_items,
@@ -288,8 +298,7 @@ class Admin_Menu {
 				$menu_item['menu_title'],
 				$menu_item['capability'],
 				$menu_item['menu_slug'],
-				$menu_item['function'],
-				$menu_item['position']
+				$menu_item['function']
 			);
 		}
 
@@ -319,7 +328,7 @@ class Admin_Menu {
 	 *                                   and only include lowercase alphanumeric, dashes, and underscores characters
 	 *                                   to be compatible with sanitize_key().
 	 * @param callable|null $function    The function to be called to output the content for this page.
-	 * @param int|null      $position    The position in the menu order this item should appear. Leave empty typically.
+	 * @param int|null      $position    One of the POSITION_* tiers; any other value is ignored. Leave empty typically.
 	 * @param array         $args        Optional. Visibility declaration for this item:
 	 *                                   - 'product' (string) My Jetpack product slug whose activation gates the item.
 	 *                                   - 'module'  (string) Jetpack module name, for items with no product class.
@@ -331,6 +340,14 @@ class Admin_Menu {
 	 */
 	public static function add_menu( $page_title, $menu_title, $capability, $menu_slug, $function, $position = null, $args = array() ) {
 		self::init();
+
+		/*
+		 * Anything but a tier would opt the item out of the alphabetical order, so treat it as omitted.
+		 * @todo Add _doing_it_wrong() here after December 2026. Until all our own plugins ship tier-only
+		 * positions, it would have the latest release of one Jetpack plugin warning about another.
+		 */
+		$position = is_numeric( $position ) && in_array( (int) $position, self::CALLER_POSITIONS, true ) ? (int) $position : null;
+
 		self::$menu_items[] = compact( 'page_title', 'menu_title', 'capability', 'menu_slug', 'function', 'position', 'args' );
 
 		/**
