@@ -6,9 +6,15 @@
  * row rather than from how much the vendor wrote.
  */
 
+/*
+ * 350px is what holds three to a row across the widths wp-admin actually gets:
+ * three at 1100 (a 1280 laptop), at 1355 and at 1413, and four only on a screen
+ * wide enough to carry them. At 320 a 1355 content area fitted four, which left
+ * the cards too narrow for the price and the button to share a line.
+ */
 .wpcom-marketplace-tab .wpcom-marketplace-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 	gap: 16px;
 	margin-block: 8px 24px;
 }
@@ -30,8 +36,8 @@
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__icon {
 	flex: none;
-	inline-size: 44px;
-	block-size: 44px;
+	inline-size: 64px;
+	block-size: 64px;
 	object-fit: contain;
 }
 
@@ -88,16 +94,33 @@
  * The price reads as the cost of the action beside it, rather than as a fact
  * stated a row earlier.
  */
+
+/*
+ * One row, always. Left to wrap, a price wide enough to crowd the button pushed
+ * it onto its own line, and that card's footer then sat taller than the rest of
+ * the row. The price gives up the space instead, and wraps inside itself.
+ */
 .wpcom-marketplace-tab .wpcom-marketplace-card__footer {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	align-items: center;
 	justify-content: space-between;
-	gap: 8px 12px;
+	gap: 12px;
 
 	/* Takes up the slack, so the price sits against the bottom of every card. */
 	margin-block-start: auto;
 	padding-block-start: 16px;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__footer .wpcom-marketplace-card__price {
+	flex: 1 1 auto;
+
+	/* Without this a flex item refuses to shrink below its content. */
+	min-inline-size: 0;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-card__footer .button {
+	flex: none;
 }
 
 .wpcom-marketplace-tab .wpcom-marketplace-card__price {

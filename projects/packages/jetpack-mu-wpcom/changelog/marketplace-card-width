@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Plugins: widen the Marketplace tab's cards to three a row, so a plugin's price and its Purchase button always share a line.
