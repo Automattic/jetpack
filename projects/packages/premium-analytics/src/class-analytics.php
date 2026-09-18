@@ -334,9 +334,12 @@ class Analytics {
 			require_once __DIR__ . '/dashboard-layout.php';
 		}
 
-		// Dashboard sections and their default layout seeding.
+		// Dashboard section API, then the package's own sections registered through it.
 		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
 			require_once __DIR__ . '/dashboard-sections.php';
+		}
+		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
+			require_once __DIR__ . '/default-dashboard-sections.php';
 		}
 		configure_dashboard_preview_scope();
 
