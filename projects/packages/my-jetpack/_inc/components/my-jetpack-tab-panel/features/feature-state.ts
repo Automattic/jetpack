@@ -49,6 +49,15 @@ const stateForFeature = (
 ): FeatureState => {
 	const product = feature.product ? products?.[ feature.product ] : undefined;
 
+	// Switched by its standalone plugin, as Boost is, so the plugin is what it reports —
+	// never the module that happens to share its name (Protect's brute force module).
+	if ( product && feature.standalone_switch ) {
+		const standalone = product.standalonePluginInfo;
+		const isOn = !! standalone?.isStandaloneInstalled && !! standalone?.isStandaloneActive;
+
+		return { feature, product, status: isOn ? 'active' : 'inactive' };
+	}
+
 	// A product's module is rarely named after it (Social runs 'publicize'), and a few
 	// features name theirs outright. Resolved the way the Products tab builds its cards,
 	// which also keeps the pre-release gate on Jetpack AI: with the flag off that map

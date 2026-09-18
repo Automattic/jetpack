@@ -7,10 +7,57 @@ import ActionButton from '../../action-button';
 import { useModuleActivation } from '../../module-toggle';
 import { getProductActivation, useProductActivation } from '../products/product-card-action';
 import { hasNothingLocalToSwitch } from './feature-state';
+import { useStandaloneSwitch } from './use-standalone-switch';
 import type { FeatureState } from './feature-state';
 import type { ProductCamelCase } from '../../../data/types';
 import type { MyJetpackModule } from '../../../types';
 import type { ProductActivation } from '../products/product-card-action';
+
+type SwitchButtonProps = {
+	isOn: boolean;
+	name: string;
+	disabled: boolean;
+	onClick: () => void;
+};
+
+/**
+ * The modal's Activate/Deactivate button, whichever mechanism switches the feature.
+ *
+ * @param {SwitchButtonProps} props          - The component props.
+ * @param {boolean}           props.isOn     - Whether the feature is on.
+ * @param {string}            props.name     - The feature's name, for the label.
+ * @param {boolean}           props.disabled - Whether a switch is in flight.
+ * @param {Function}          props.onClick  - Flips the feature.
+ * @return The rendered component.
+ */
+function SwitchButton( { isOn, name, disabled, onClick }: SwitchButtonProps ) {
+	// Bound before the branch: minification folds `c ? __( a ) : __( b )` into one call
+	// with a ternary msgid, which the i18n build check rejects.
+	const deactivateText = __( 'Deactivate', 'jetpack-my-jetpack' );
+	const activateText = __( 'Activate', 'jetpack-my-jetpack' );
+	const deactivateLabel = sprintf(
+		/* translators: %s is the feature name. */
+		__( 'Deactivate %s', 'jetpack-my-jetpack' ),
+		name
+	);
+	const activateLabel = sprintf(
+		/* translators: %s is the feature name. */
+		__( 'Activate %s', 'jetpack-my-jetpack' ),
+		name
+	);
+
+	return (
+		<Button
+			variant={ isOn ? 'outline' : 'solid' }
+			size="compact"
+			disabled={ disabled }
+			onClick={ onClick }
+			aria-label={ isOn ? deactivateLabel : activateLabel }
+		>
+			{ isOn ? deactivateText : activateText }
+		</Button>
+	);
+}
 
 type ProductSwitchProps = {
 	product: ProductCamelCase;
@@ -32,24 +79,12 @@ function ProductSwitch( { product, activation, name }: ProductSwitchProps ) {
 	const { setActive, isBusy } = useProductActivation( { product, ...activation } );
 
 	return (
-		<Button
-			variant={ isActive ? 'outline' : 'solid' }
-			size="compact"
-			disabled={ activation.disabled || isBusy }
+		<SwitchButton
+			isOn={ isActive }
+			name={ name }
+			disabled={ !! activation.disabled || isBusy }
 			onClick={ setActive }
-			aria-label={ sprintf(
-				/* translators: 1: Activate or Deactivate, 2: the feature name. */
-				__( '%1$s %2$s', 'jetpack-my-jetpack' ),
-				isActive
-					? __( 'Deactivate', 'jetpack-my-jetpack' )
-					: __( 'Activate', 'jetpack-my-jetpack' ),
-				name
-			) }
-		>
-			{ isActive
-				? __( 'Deactivate', 'jetpack-my-jetpack' )
-				: __( 'Activate', 'jetpack-my-jetpack' ) }
-		</Button>
+		/>
 	);
 }
 
@@ -73,25 +108,34 @@ function ModuleSwitch( { module: $module, name }: ModuleSwitchProps ) {
 	const onClick = useCallback( () => setModuleActive( ! isActive ), [ isActive, setModuleActive ] );
 
 	return (
-		<Button
-			variant={ isActive ? 'outline' : 'solid' }
-			size="compact"
+		<SwitchButton
+			isOn={ isActive }
+			name={ name }
 			disabled={ isUpdating || ! $module.available || !! $module.override }
 			onClick={ onClick }
-			aria-label={ sprintf(
-				/* translators: 1: Activate or Deactivate, 2: the feature name. */
-				__( '%1$s %2$s', 'jetpack-my-jetpack' ),
-				isActive
-					? __( 'Deactivate', 'jetpack-my-jetpack' )
-					: __( 'Activate', 'jetpack-my-jetpack' ),
-				name
-			) }
-		>
-			{ isActive
-				? __( 'Deactivate', 'jetpack-my-jetpack' )
-				: __( 'Activate', 'jetpack-my-jetpack' ) }
-		</Button>
+		/>
 	);
+}
+
+type StandaloneSwitchProps = {
+	product: ProductCamelCase;
+	isOn: boolean;
+	name: string;
+};
+
+/**
+ * Switch a feature by its standalone plugin, as a button rather than the card's toggle.
+ *
+ * @param {StandaloneSwitchProps} props         - The component props.
+ * @param {ProductCamelCase}      props.product - The product whose plugin is the switch.
+ * @param {boolean}               props.isOn    - Whether the plugin is installed and active.
+ * @param {string}                props.name    - The feature's name, for the label.
+ * @return The rendered component.
+ */
+function StandaloneSwitch( { product, isOn, name }: StandaloneSwitchProps ) {
+	const { setActive, isBusy } = useStandaloneSwitch( product, isOn );
+
+	return <SwitchButton isOn={ isOn } name={ name } disabled={ isBusy } onClick={ setActive } />;
 }
 
 type FeatureModalActionsProps = {
@@ -137,9 +181,19 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				</LinkButton>
 			) : null }
 
-			{ $module?.available ? <ModuleSwitch module={ $module } name={ feature.name } /> : null }
+			{ product && feature.standalone_switch ? (
+				<StandaloneSwitch product={ product } isOn={ isActive } name={ feature.name } />
+			) : null }
 
-			{ ! $module?.available && product && activation && ! nothingToSwitch ? (
+			{ ! feature.standalone_switch && $module?.available ? (
+				<ModuleSwitch module={ $module } name={ feature.name } />
+			) : null }
+
+			{ ! feature.standalone_switch &&
+			! $module?.available &&
+			product &&
+			activation &&
+			! nothingToSwitch ? (
 				<ProductSwitch
 					product={ product }
 					activation={ { ...activation, disabled: false, reloadOnToggle: false } }

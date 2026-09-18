@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Install a product's standalone plugin on request even when the Jetpack plugin is installed.

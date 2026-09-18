@@ -472,6 +472,7 @@ type MainFeature = {
 	manage_url: string;
 	learn_more_route: string;
 	essential: boolean;
+	standalone_switch: boolean;
 	paid_highlights: string[];
 	plans: Array< { slug: string; name: string } >;
 	paid_product: string;

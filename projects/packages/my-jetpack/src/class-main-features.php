@@ -42,7 +42,8 @@ class Main_Features {
 	 * `delivery.standalone` and `delivery.standalone_url` name a separate plugin that does and
 	 * its WordPress.org page, and `delivery.free` says it can be used without paying.
 	 * `paid_highlights` lists what paying adds, `paid_product` names what to buy, and `plans`
-	 * lists the bundles that include it.
+	 * lists the bundles that include it. `standalone_switch` makes the feature's switch install
+	 * and activate its standalone plugin rather than toggle the module named after it.
 	 *
 	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
@@ -271,29 +272,30 @@ class Main_Features {
 				'paid_product'     => __( 'Jetpack Growth', 'jetpack-my-jetpack' ),
 			),
 			'protect'       => array(
-				'info_url'         => 'https://jetpack.com/protect/',
-				'docs_url'         => 'https://jetpack.com/support/jetpack-protect/',
-				'image'            => 'https://jetpack.com/wp-content/uploads/2024/05/6c5c0-d16e7-hero-scan-2x.png',
-				'name'             => __( 'Protect', 'jetpack-my-jetpack' ),
-				'description'      => __( 'Get warned about vulnerable plugins and stop login attacks on your site.', 'jetpack-my-jetpack' ),
-				'long_description' => __( 'Your WordPress version, plugins and themes are checked daily against a database of known vulnerabilities, with results in your dashboard. Login attacks are blocked automatically, and you can block specific IP addresses yourself.', 'jetpack-my-jetpack' ),
-				'icon'             => 'shield',
-				'product'          => 'protect',
-				'essential'        => true,
-				'interstitial'     => '/add-protect',
-				'paid_highlights'  => array(
+				'info_url'          => 'https://jetpack.com/protect/',
+				'docs_url'          => 'https://jetpack.com/support/jetpack-protect/',
+				'image'             => 'https://jetpack.com/wp-content/uploads/2024/05/6c5c0-d16e7-hero-scan-2x.png',
+				'name'              => __( 'Protect', 'jetpack-my-jetpack' ),
+				'description'       => __( 'Get warned about vulnerable plugins and stop login attacks on your site.', 'jetpack-my-jetpack' ),
+				'long_description'  => __( 'Your WordPress version, plugins and themes are checked daily against a database of known vulnerabilities, with results in your dashboard. Login attacks are blocked automatically, and you can block specific IP addresses yourself.', 'jetpack-my-jetpack' ),
+				'icon'              => 'shield',
+				'product'           => 'protect',
+				'standalone_switch' => true,
+				'essential'         => true,
+				'interstitial'      => '/add-protect',
+				'paid_highlights'   => array(
 					__( 'Daily malware scanning with one-click fixes for most threats', 'jetpack-my-jetpack' ),
 					__( 'Automatic firewall rules that block harmful requests', 'jetpack-my-jetpack' ),
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
-				'delivery'         => array(
+				'delivery'          => array(
 					'in_jetpack'     => true,
 					'standalone'     => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 					'standalone_url' => 'https://wordpress.org/plugins/jetpack-protect/',
 					'free'           => true,
 				),
-				'plans'            => array( 'security', 'complete' ),
-				'paid_product'     => __( 'Jetpack Scan', 'jetpack-my-jetpack' ),
+				'plans'             => array( 'security', 'complete' ),
+				'paid_product'      => __( 'Jetpack Scan', 'jetpack-my-jetpack' ),
 			),
 			'search'        => array(
 				'info_url'         => 'https://jetpack.com/search/',
@@ -433,26 +435,27 @@ class Main_Features {
 
 		foreach ( self::get_feature_definitions() as $slug => $definition ) {
 			$features[] = array(
-				'slug'             => $slug,
-				'name'             => $definition['name'],
-				'description'      => $definition['description'],
-				'long_description' => $definition['long_description'] ?? '',
-				'icon'             => $definition['icon'],
-				'status'           => self::get_feature_status( $definition ),
-				'manage_url'       => self::get_feature_manage_url( $definition ),
-				'learn_more_route' => $definition['interstitial'] ?? '',
-				'essential'        => ! empty( $definition['essential'] ),
-				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
-				'plans'            => self::get_plan_badges( $definition ),
-				'paid_product'     => $definition['paid_product'] ?? '',
-				'delivery'         => $definition['delivery'] ?? array(),
-				'screenshot'       => $definition['image'],
-				'info_url'         => $definition['info_url'],
-				'docs_url'         => $definition['docs_url'],
+				'slug'              => $slug,
+				'name'              => $definition['name'],
+				'description'       => $definition['description'],
+				'long_description'  => $definition['long_description'] ?? '',
+				'icon'              => $definition['icon'],
+				'status'            => self::get_feature_status( $definition ),
+				'manage_url'        => self::get_feature_manage_url( $definition ),
+				'learn_more_route'  => $definition['interstitial'] ?? '',
+				'essential'         => ! empty( $definition['essential'] ),
+				'standalone_switch' => ! empty( $definition['standalone_switch'] ),
+				'paid_highlights'   => $definition['paid_highlights'] ?? array(),
+				'plans'             => self::get_plan_badges( $definition ),
+				'paid_product'      => $definition['paid_product'] ?? '',
+				'delivery'          => $definition['delivery'] ?? array(),
+				'screenshot'        => $definition['image'],
+				'info_url'          => $definition['info_url'],
+				'docs_url'          => $definition['docs_url'],
 				// Join keys: the UI reads live, post-mutation state from the product and
 				// module stores rather than from the `status` resolved above.
-				'product'          => $definition['product'] ?? '',
-				'module'           => $definition['module'] ?? '',
+				'product'           => $definition['product'] ?? '',
+				'module'            => $definition['module'] ?? '',
 			);
 		}
 

@@ -1,15 +1,63 @@
+import { FormToggle } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
 import ActionButton from '../../action-button';
 import { ModuleToggle } from '../../module-toggle';
 import { ActivationToggle, getProductActivation } from '../products/product-card-action';
 import { hasNothingLocalToSwitch } from './feature-state';
+import { useStandaloneSwitch } from './use-standalone-switch';
 import type { FeatureState } from './feature-state';
+import type { ProductCamelCase } from '../../../data/types';
 
 type FeatureActionProps = {
 	state: FeatureState;
 };
 
+type StandaloneToggleProps = {
+	product: ProductCamelCase;
+	isOn: boolean;
+	name: string;
+};
+
+/**
+ * The card switch for a feature switched by its standalone plugin.
+ *
+ * @param {StandaloneToggleProps} props         - The component props.
+ * @param {ProductCamelCase}      props.product - The product whose plugin is the switch.
+ * @param {boolean}               props.isOn    - Whether the plugin is installed and active.
+ * @param {string}                props.name    - The feature's name, for the label.
+ * @return The rendered component.
+ */
+function StandaloneToggle( { product, isOn, name }: StandaloneToggleProps ) {
+	const { setActive, isBusy } = useStandaloneSwitch( product, isOn );
+	// Bound before the branch, for the reason given in feature-modal-actions.tsx.
+	const deactivateLabel = sprintf(
+		/* translators: %s is the feature name. */
+		__( 'Deactivate %s', 'jetpack-my-jetpack' ),
+		name
+	);
+	const activateLabel = sprintf(
+		/* translators: %s is the feature name. */
+		__( 'Activate %s', 'jetpack-my-jetpack' ),
+		name
+	);
+
+	return (
+		<FormToggle
+			checked={ isOn }
+			disabled={ isBusy }
+			onChange={ setActive }
+			aria-label={ isOn ? deactivateLabel : activateLabel }
+		/>
+	);
+}
+
+/**
+ *
+ * @param root0
+ * @param root0.state
+ */
 /**
  * The control that switches a feature on, or moves it towards being switchable.
  *
@@ -27,6 +75,16 @@ type FeatureActionProps = {
 export function FeatureAction( { state }: FeatureActionProps ) {
 	const { data: interstitials } = useInterstitialsState();
 	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+
+	if ( state.product && state.feature.standalone_switch ) {
+		return (
+			<StandaloneToggle
+				product={ state.product }
+				isOn={ state.status === 'active' }
+				name={ state.feature.name }
+			/>
+		);
+	}
 
 	const activation = state.product
 		? getProductActivation(

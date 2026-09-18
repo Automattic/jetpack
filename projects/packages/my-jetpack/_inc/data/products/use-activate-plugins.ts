@@ -7,7 +7,7 @@ import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-s
 import useProducts from './use-products';
 import type { ProductCamelCase, ProductSnakeCase } from '../types';
 
-const setPluginActiveState = ( productId: string ) => {
+export const setPluginActiveState = ( productId: string ) => {
 	const { items } = getMyJetpackWindowInitialState( 'products' );
 	if ( items[ productId ]?.plugin_slug === 'jetpack' ) {
 		return;
