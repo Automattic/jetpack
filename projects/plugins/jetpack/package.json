@@ -65,7 +65,7 @@
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/social-previews": "workspace:*",
 		"@automattic/viewport": "1.1.1",
-		"@date-fns/tz": "1.4.1",
+		"@date-fns/tz": "1.5.0",
 		"@react-spring/web": "10.1.1",
 		"@visx/curve": "4.0.0",
 		"@visx/legend": "^4.0.0",

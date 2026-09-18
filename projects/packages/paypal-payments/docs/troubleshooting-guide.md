@@ -115,7 +115,7 @@ Support documentation for common issues with the PayPal Payment Buttons plugin.
 
 ### A buyer says the link opens a PayPal "not found" page
 
-**Cause:** The payment link was deleted, either from the block, from the PayPal Payment Links admin page, or by removing the last block that used it and updating the post. PayPal cannot pause or restore a deleted link, so every copy of it (emails, printed QR codes, other posts) stops working at once.
+**Cause:** The payment link was deleted, either from the block or from the PayPal Payment Links admin page. PayPal cannot pause or restore a deleted link, so every copy of it (emails, printed QR codes, other posts) stops working at once.
 
 **Steps to fix:**
 1. Create a new payment link by adding the block again and filling in the product details

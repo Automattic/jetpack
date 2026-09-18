@@ -2,9 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
+import type { HistoryWindow } from './history-days';
 import {
 	parsePerformanceHistory,
 	useDismissibleAlertState,
+	useHasOlderHistory,
 	usePerformanceHistory,
 } from './use-performance-history';
 
@@ -252,4 +254,128 @@ it( 'restores an absent dismissal after an optimistic save fails', async () => {
 	await act( async () => rejectSave( new Error( 'Save failed' ) ) );
 	await waitFor( () => expect( result.current[ 0 ] ).toBe( false ) );
 	expect( queryClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( { score_increase: true } );
+} );
+
+it( 'checks six empty older windows with one request', async () => {
+	const windows = Array.from( { length: 6 }, ( _, index ) => ( {
+		startDate: history.startDate - ( index + 1 ) * 30 * 86400000,
+		endDate: history.startDate - index * 30 * 86400000 - 1,
+	} ) );
+	fetchMock.mockImplementation( async options => ( {
+		status: 'success',
+		JSON: { ...options.data.JSON, periods: [] },
+	} ) );
+	const { result } = renderHook( () => useHasOlderHistory( true, windows ), { wrapper } );
+	await waitFor( () => expect( result.current.data ).toBe( false ) );
+	expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+	expect( fetchMock ).toHaveBeenLastCalledWith(
+		expect.objectContaining( {
+			data: {
+				JSON: {
+					startDate: windows[ 5 ].startDate,
+					endDate: windows[ 0 ].endDate,
+					olderWindows: windows,
+					periods: [],
+					annotations: [],
+					surfaceErrors: true,
+					checkOlderWindows: true,
+				},
+			},
+		} )
+	);
+} );
+
+it( 'attributes a score in the returned periods to its own older window', async () => {
+	const windows = Array.from( { length: 6 }, ( _, index ) => ( {
+		startDate: history.startDate - ( index + 1 ) * 30 * 86400000,
+		endDate: history.startDate - index * 30 * 86400000 - 1,
+	} ) );
+	const oldest = { ...history.periods[ 0 ], timestamp: windows[ 5 ].startDate };
+	fetchMock.mockImplementation( async options => {
+		const request = options.data.JSON;
+		// Model the service's cap before invalid-score filtering for each requested window.
+		const records = [
+			...Array.from( { length: 100 }, () => ( {
+				timestamp: windows[ 0 ].startDate,
+				valid: false,
+			} ) ),
+			{ timestamp: oldest.timestamp, valid: true },
+		];
+		const periods = ( request.olderWindows ?? [ request ] ).flatMap( ( window: HistoryWindow ) =>
+			records
+				.filter(
+					record => record.timestamp >= window.startDate && record.timestamp <= window.endDate
+				)
+				.slice( 0, 100 )
+				.filter( record => record.valid )
+				.map( () => oldest )
+		);
+		return { status: 'success', JSON: { ...request, periods } };
+	} );
+	const { result } = renderHook( () => useHasOlderHistory( true, windows ), { wrapper } );
+	await waitFor( () => expect( result.current.data ).toBe( true ) );
+	expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+} );
+
+it( 'keeps page requests independent of the older-history existence check', async () => {
+	const windows = [
+		historyWindow,
+		{ startDate: history.startDate - 30 * 86400000, endDate: history.startDate - 1 },
+	];
+	fetchMock.mockResolvedValue( { status: 'success', JSON: history } );
+	const { result, rerender } = renderHook( enabled => useHasOlderHistory( enabled, windows ), {
+		wrapper,
+		initialProps: false,
+	} );
+	expect( fetchMock ).not.toHaveBeenCalled();
+	rerender( true );
+	await waitFor( () => expect( result.current.data ).toBe( true ) );
+	const { result: page } = renderHook( () => usePerformanceHistory( true, historyWindow ), {
+		wrapper,
+	} );
+	await waitFor( () => expect( page.current.data ).toEqual( history ) );
+	expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+	expect( fetchMock ).toHaveBeenLastCalledWith(
+		expect.objectContaining( {
+			data: { JSON: { ...historyWindow, periods: [], annotations: [], surfaceErrors: true } },
+		} )
+	);
+} );
+
+it( 'counts only scores that fall inside an older window', async () => {
+	const windows = Array.from( { length: 2 }, ( _, index ) => ( {
+		startDate: history.startDate - ( index + 2 ) * 30 * 86400000,
+		endDate: history.startDate - ( index + 1 ) * 30 * 86400000 - 1,
+	} ) );
+	fetchMock.mockImplementation( async options => ( {
+		status: 'success',
+		JSON: { ...options.data.JSON, periods: history.periods },
+	} ) );
+	const { result } = renderHook( () => useHasOlderHistory( true, windows ), { wrapper } );
+	await waitFor( () => expect( result.current.data ).toBe( false ) );
+} );
+
+it( 'checks each set of older windows separately', async () => {
+	const first = [
+		{ startDate: history.startDate - 30 * 86400000, endDate: history.startDate - 1 },
+	];
+	const second = [
+		{ startDate: history.startDate - 60 * 86400000, endDate: history.startDate - 1 },
+	];
+	fetchMock.mockImplementation( async options => ( {
+		status: 'success',
+		JSON: { ...options.data.JSON, periods: [] },
+	} ) );
+	const { result, rerender } = renderHook( windows => useHasOlderHistory( true, windows ), {
+		wrapper,
+		initialProps: first,
+	} );
+	await waitFor( () => expect( result.current.data ).toBe( false ) );
+	rerender( second );
+	await waitFor( () => expect( fetchMock ).toHaveBeenCalledTimes( 2 ) );
+	expect( fetchMock ).toHaveBeenLastCalledWith(
+		expect.objectContaining( {
+			data: { JSON: expect.objectContaining( { olderWindows: second } ) },
+		} )
+	);
 } );

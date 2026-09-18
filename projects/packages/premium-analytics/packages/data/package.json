@@ -10,7 +10,7 @@
 	"sideEffects": false,
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@date-fns/tz": "1.4.1",
+		"@date-fns/tz": "1.5.0",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@tanstack/react-query": "5.102.8",
 		"@wordpress/api-fetch": "7.55.0",

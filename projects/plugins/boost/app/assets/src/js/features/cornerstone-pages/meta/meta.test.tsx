@@ -28,7 +28,9 @@ jest.mock( '$features/notice/context', () => ( {
 } ) );
 jest.mock(
 	'$features/upgrade-cta/interstitial-modal-cta',
-	() => ( props: { description: string } ) => <div>{ props.description }</div>
+	() => ( props: { description: string; showLicenseKeyLink?: boolean } ) => (
+		<div data-license-link={ String( !! props.showLicenseKeyLink ) }>{ props.description }</div>
+	)
 );
 jest.mock( '$lib/stores/premium-features', () => ( {
 	usePremiumFeatures: () => mockPremiumFeatures,
@@ -95,7 +97,9 @@ describe( 'Cornerstone pages meta', () => {
 
 	it( 'offers the premium page limit only to free sites with loaded properties', () => {
 		const { rerender } = render( <CornerstonePagesUpgradeCTA /> );
-		expect( screen.getByText( 'Premium users can add up to 10 cornerstone pages.' ) ).toBeTruthy();
+		const prompt = screen.getByText( 'Premium users can add up to 10 cornerstone pages.' );
+		expect( prompt ).toBeTruthy();
+		expect( prompt.getAttribute( 'data-license-link' ) ).toBe( 'true' );
 
 		mockPremiumFeatures = [ 'cornerstone-10-pages' ];
 		rerender( <CornerstonePagesUpgradeCTA /> );
