@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent completed uploads from incorrectly updating the upload queue.

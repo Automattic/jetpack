@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent repeated upload completion responses from updating later uploads.

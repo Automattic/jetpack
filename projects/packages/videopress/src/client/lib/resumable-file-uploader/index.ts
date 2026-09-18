@@ -62,9 +62,18 @@ const resumableFileUploader = ( {
 	onSuccess,
 	onError,
 }: UploadVideoArguments ) => {
+	let isComplete = false;
 	const upload = new tus.Upload( file, {
-		onError,
-		onProgress,
+		onError: error => {
+			if ( ! isComplete ) {
+				onError( error );
+			}
+		},
+		onProgress: ( bytesSent, bytesTotal ) => {
+			if ( ! isComplete ) {
+				onProgress( bytesSent, bytesTotal );
+			}
+		},
 		endpoint: tokenData.url,
 		removeFingerprintOnSuccess: true,
 		overridePatchMethod: false,
@@ -145,7 +154,10 @@ const resumableFileUploader = ( {
 			const src = res.getHeader( SRC_URL_HEADER );
 
 			if ( guid && mediaId && src ) {
-				onSuccess && onSuccess( { id: Number( mediaId ), guid, src }, file );
+				if ( ! isComplete ) {
+					isComplete = true;
+					onSuccess && onSuccess( { id: Number( mediaId ), guid, src }, file );
+				}
 				return;
 			}
 
