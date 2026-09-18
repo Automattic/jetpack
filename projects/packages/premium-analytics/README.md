@@ -27,7 +27,7 @@ capability-gated admin page serves the dashboard.
 
 ## Documentation
 
-- [Dashboard sections](docs/dashboard-sections.md): how a tab is registered, filtered, served
+- [Dashboard sections](docs/dashboard-sections.md): how a section is registered, filtered, served
   to the client and rendered, and how another plugin registers one.
 
 ## Requirements

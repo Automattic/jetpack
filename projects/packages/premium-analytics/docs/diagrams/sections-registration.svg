@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="1000" height="300" role="img" aria-label="The package registers its five tabs from bootstrap_dashboard_sections() at file scope, on init or at once when init has run; register() refuses an invalid dashboard name, an unnamespaced id and a duplicate id; a plugin calls register_dashboard_section() once the API file is loaded.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="1000" height="300" role="img" aria-label="The package registers its five sections from bootstrap_dashboard_sections() at file scope, on init or at once when init has run; register() refuses an invalid dashboard name, an unnamespaced id and a duplicate id; a plugin calls register_dashboard_section() once the API file is loaded.">
   <style>
     text { font: 12px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1f2328; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
