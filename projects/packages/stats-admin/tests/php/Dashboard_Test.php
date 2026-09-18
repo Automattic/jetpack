@@ -1,6 +1,7 @@
 <?php
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 use ReflectionProperty;
@@ -12,9 +13,35 @@ use ReflectionProperty;
  */
 class Dashboard_Test extends Stats_TestCase {
 	/**
+	 * How many site records WordPress.com was asked for.
+	 *
+	 * @var int
+	 */
+	private $site_record_requests = 0;
+
+	/**
+	 * The plan fetch this test owns, so it can be removed again.
+	 *
+	 * @var \Closure|null
+	 */
+	private $site_record_filter;
+
+	/**
+	 * The timeout the site record request carried.
+	 *
+	 * @var int|null
+	 */
+	private $site_record_timeout;
+
+	/**
 	 * Returning the environment into its initial state.
 	 */
 	public function tearDown(): void {
+		if ( $this->site_record_filter ) {
+			remove_filter( 'pre_http_request', $this->site_record_filter, 9 );
+			$this->site_record_filter = null;
+		}
+		delete_transient( Dashboard::PLAN_REFRESH_TRANSIENT );
 		wp_dequeue_script( 'jp-stats-dashboard' );
 		wp_deregister_script( 'jp-stats-dashboard' );
 		wp_dequeue_script( 'jp-stats-dashboard-bootstrap' );
@@ -147,5 +174,133 @@ class Dashboard_Test extends Stats_TestCase {
 		}
 
 		return $method->invoke( $dashboard );
+	}
+
+	/**
+	 * Answer the site record fetch with a Personal plan, counting the requests it takes.
+	 */
+	private function serve_a_personal_plan() {
+		$this->site_record_filter = function ( $response, $parsed_args, $url ) {
+			if ( strpos( $url, '/sites/999?' ) === false ) {
+				return $response;
+			}
+
+			++$this->site_record_requests;
+			$this->site_record_timeout = isset( $parsed_args['timeout'] ) ? (int) $parsed_args['timeout'] : null;
+
+			return array(
+				'response' => array(
+					'code'    => 200,
+					'message' => 'ok',
+				),
+				'body'     => '{"plan":{"product_slug":"personal-bundle","features":{"active":["stats-paid"]}}}',
+			);
+		};
+
+		add_filter( 'pre_http_request', $this->site_record_filter, 9, 3 );
+	}
+
+	/**
+	 * A site that never stored a plan would print the paywalls of a free site, and the app cannot
+	 * correct that for itself, so opening the page fetches the plan first. See STATS-475.
+	 */
+	public function test_opening_the_page_fills_an_empty_plan_cache() {
+		$this->serve_a_personal_plan();
+
+		( new Dashboard() )->admin_init();
+
+		$this->assertSame( 1, $this->site_record_requests );
+		$this->assertSame( array( 'stats-paid' ), Current_Plan::get()['features']['active'] );
+
+		// The client always sends a timeout of its own, so `http_request_timeout` cannot cap this
+		// and the request has to carry the cap itself.
+		$this->assertSame( 5, $this->site_record_timeout );
+	}
+
+	/**
+	 * WordPress.com can keep answering without a plan, so the fetch is throttled rather than
+	 * repeated on every load of the page.
+	 */
+	public function test_the_plan_is_not_fetched_again_within_the_throttle() {
+		$this->site_record_filter = function ( $response, $parsed_args, $url ) {
+			if ( strpos( $url, '/sites/999?' ) === false ) {
+				return $response;
+			}
+
+			++$this->site_record_requests;
+
+			return array(
+				'response' => array(
+					'code'    => 200,
+					'message' => 'ok',
+				),
+				'body'     => '{}',
+			);
+		};
+		add_filter( 'pre_http_request', $this->site_record_filter, 9, 3 );
+
+		( new Dashboard() )->admin_init();
+		$this->reset_plan_caches();
+		( new Dashboard() )->admin_init();
+
+		$this->assertSame( 1, $this->site_record_requests );
+	}
+
+	/**
+	 * A stored plan already carries the features the app needs.
+	 */
+	public function test_a_populated_plan_cache_is_left_alone() {
+		$this->serve_a_personal_plan();
+		update_option(
+			Current_Plan::PLAN_OPTION,
+			array(
+				'product_slug' => 'personal-bundle',
+				'features'     => array( 'active' => array( 'stats-paid' ) ),
+			),
+			true
+		);
+		$this->reset_plan_caches();
+
+		( new Dashboard() )->admin_init();
+
+		$this->assertSame( 0, $this->site_record_requests );
+	}
+
+	/**
+	 * A site that answers feature checks from its own registry has nothing to gain from the fetch.
+	 */
+	public function test_a_site_with_a_feature_registry_does_not_fetch_the_plan() {
+		$this->serve_a_personal_plan();
+		$this->make_site_atomic();
+
+		( new Dashboard() )->admin_init();
+
+		$this->assertSame( 0, $this->site_record_requests );
+	}
+
+	/**
+	 * A registry holding nothing is a site whose data has not synced as readily as one that bought
+	 * nothing, so it is WordPress.com that has to settle it.
+	 */
+	public function test_a_site_whose_registry_has_no_purchases_fetches_the_plan() {
+		$this->serve_a_personal_plan();
+		$this->make_site_atomic();
+		$GLOBALS['wpcom_test_site_purchases'] = array();
+
+		( new Dashboard() )->admin_init();
+
+		$this->assertSame( 1, $this->site_record_requests );
+	}
+
+	/**
+	 * An unconnected site cannot sign the request, and the page it gets offers a plan anyway.
+	 */
+	public function test_an_unconnected_site_does_not_fetch_the_plan() {
+		$this->serve_a_personal_plan();
+		$this->disconnect_site();
+
+		( new Dashboard() )->admin_init();
+
+		$this->assertSame( 0, $this->site_record_requests );
 	}
 }

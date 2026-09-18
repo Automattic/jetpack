@@ -234,8 +234,16 @@ class Odyssey_Config_Data {
 
 	/**
 	 * Get the features of the current plan.
+	 *
+	 * The app cannot refresh what it paywalls on, so a WordPress.com-hosted site is asked
+	 * directly; a plan cached before an upgrade gates a feature the site has already paid for.
 	 */
 	protected function get_plan_features() {
+		$features = Jetpack_Plan::get_wpcom_site_specific_features();
+		if ( null !== $features ) {
+			return $features;
+		}
+
 		$plan = Jetpack_Plan::get();
 		if ( empty( $plan['features'] ) ) {
 			return array();
