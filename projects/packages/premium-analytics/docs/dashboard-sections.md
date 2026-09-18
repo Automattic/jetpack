@@ -1,6 +1,6 @@
 # Dashboard sections
 
-How a tab of the Premium Analytics dashboard is registered, filtered, served to the client, and rendered. A section is a top-level tab: it has a label, an order, a date-filter shape, an availability rule and a default widget layout. Sections are registered on the server through one registry, and the client renders whatever the server publishes.
+How a tab of the Premium Analytics dashboard is registered, filtered, served to the client, and rendered. A section is a top-level tab: it has a label, an order, a date-filter shape, an availability rule and a default widget layout. Sections are registered on the server by whoever owns them, the package for its own tabs and another plugin for its tab, and the client renders whatever the server publishes.
 
 This page covers sections only. Widget types and report pages have their own registration paths, described at the end.
 
@@ -20,10 +20,10 @@ This page covers sections only. Widget types and report pages have their own reg
 | File                                               | Role                                                                                                                                                                      |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `to_array()`.                                                                                    |
-| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations and the reads.                                                                                                            |
+| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                    |
 | `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the preview scope, the script data, the REST routes and their schema.                                         |
 | `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout filter name, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts. |
-| `src/default-dashboard-sections.php`               | The package's own tabs: Traffic, Insights, Subscribers, Store, Ads, their gates and their default layouts, registered on `init` by `bootstrap_dashboard_sections()`.      |
+| `src/default-dashboard-sections.php`               | The package's own tabs: Traffic, Insights, Subscribers, Store, Ads, their gates and their default layouts, registered through the action like any plugin's.               |
 | `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                         |
 | `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                       |
 | `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                 |
@@ -32,17 +32,17 @@ This page covers sections only. Widget types and report pages have their own reg
 
 ## When the section files load
 
-![The three section files load at plugin load in wp-admin and on rest_api_init on REST and on WordPress.com Simple; the package registers its tabs at file scope, on init or at once when init has run.](diagrams/sections-load-paths.svg)
+![The three section files load at plugin load in wp-admin and on rest_api_init on REST and on WordPress.com Simple; on every path the registry hydrates on its first read and fires the registration action.](diagrams/sections-load-paths.svg)
 
 The same three files load on three paths, at three moments. In wp-admin `Analytics::load_dashboard_components()` requires them at plugin load, before `init`. On a connected site's REST request `Dashboard_Support_Routes::boot_routes()` requires them on `rest_api_init`, after `init`. On WordPress.com Simple the public-api process calls `Dashboard_Support_Routes::register()` directly and the same `boot_routes()` runs. Each include is guarded on a symbol the file declares, because two copies of the package can be loaded in one request on Simple.
 
-The package registers its tabs from `bootstrap_dashboard_sections()`, called at the bottom of `src/default-dashboard-sections.php`: on `init` when the file loads before it, or at once when `init` has already run, which is the REST case. A plugin has no dedicated moment yet: it can call `register_dashboard_section()` once the API file is loaded, and the files load before `init` in wp-admin but only on `rest_api_init` on REST, so a callback hooked on `init` alone reaches the tab bar in wp-admin and misses the REST response the tab bar is built from.
+That is why the registration moment is not `init`: a registrant hooked on `init` reaches the tab bar in wp-admin and misses the REST response the tab bar is built from. The registry hydrates on its first read, whichever path reads it, and fires one action then.
 
 ## Registering a section
 
-![The package registers its five tabs from bootstrap_dashboard_sections() at file scope, on init or at once when init has run; register() refuses an invalid dashboard name, an unnamespaced id and a duplicate id; a plugin calls register_dashboard_section() once the API file is loaded.](diagrams/sections-registration.svg)
+![The first read of the section registry latches, fires the registration action once, the package registers its tabs at priority 10 and a plugin registers at priority 20, and register() refuses unnamespaced and duplicate ids.](diagrams/sections-hydration.svg)
 
-The package's own tabs are registered by `register_default_dashboard_sections()` in `src/default-dashboard-sections.php`, each skipped when its id is already registered. A plugin calls the same API once `src/dashboard-sections.php` is loaded:
+A plugin registers a section from a callback on `jetpack_premium_analytics_register_dashboard_sections`:
 
 ```php
 use Automattic\Jetpack\PremiumAnalytics\Capabilities;
@@ -50,24 +50,32 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 
-register_dashboard_section(
-	DASHBOARD_NAME,
-	'videopress/videos',
-	array(
-		'label'          => __( 'Videos', 'jetpack-videopress-pkg' ),
-		'order'          => 45,
-		'is_available'   => array( Capabilities::class, 'current_user_can_view_analytics' ),
-		'default_layout' => static function () {
-			return array(
-				get_dashboard_default_widget_instance( 'videopress-top-videos', 'jpa/videopress', 0, 3, 2 ),
-			);
-		},
-	)
+add_action(
+	'jetpack_premium_analytics_register_dashboard_sections',
+	static function ( $registry ) {
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'videopress/videos',
+			array(
+				'label'          => __( 'Videos', 'jetpack-videopress-pkg' ),
+				'order'          => 45,
+				'is_available'   => array( Capabilities::class, 'current_user_can_view_analytics' ),
+				'default_layout' => static function () {
+					return array(
+						get_dashboard_default_widget_instance( 'videopress-top-videos', 'jpa/videopress', 0, 3, 2 ),
+					);
+				},
+			)
+		);
+	},
+	20
 );
 ```
 
 The mechanics behind it:
 
+- **Hydration.** `Dashboard_Section_Registry` fires `REGISTER_ACTION` from `ensure_hydrated()`, which `get_registered()` and `get_all_registered()` call. The latch is set before the action fires, so a callback that reads the registry does not re-enter it. `is_registered()` does not hydrate: `register()` relies on it, and a registrant may run before the action.
+- **Order.** The package's own tabs register at priority 10; a plugin that wants to see them registered first hooks later.
 - **Validation in `register()`.** The dashboard name must match `get_dashboard_name_pattern()`, the id must be namespaced (`get_dashboard_section_id_pattern()`), and the id must not be registered. Each failure is a `_doing_it_wrong()` and a `false` return. Two ids sharing a slug are not refused, and the client keys tabs by slug, so a registrant must pick one no other section uses.
 - **Arguments.** `label`, `title`, `order`, `date_filter` (`range` or `year`), `date_filter_options` (`with_date_comparison`, `with_header_date_control`), `requires_sync`, `is_available` (a boolean or a callable receiving the section), and `default_layout` (an array of instances or a callable returning one). Unknown keys are ignored; an unrecognized `date_filter` keeps the default. See `Dashboard_Section::set_props()`.
 
@@ -112,20 +120,20 @@ The client stores customized layouts in the `dashboardSectionLayouts` preference
 
 `is_available()` combines two rules, in this order:
 
-1. **Preview scope**, which is about the rollout rather than the site. `is_dashboard_preview_scoped()` is true when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the customer preview. In that mode a section is exposed only when its slug is in `PREVIEW_SECTIONS` (`traffic`). `jetpack_premium_analytics_dashboard_preview_scope` then overrides the answer per section; `__return_true` gives a development site every tab. A dashboard other than this package's is never scoped. The sticker and filter overrides that switch the dashboard on for the team leave the option off, so they see every section.
+1. **Preview scope**, which is about the rollout rather than the site. `is_dashboard_preview_scoped()` is true when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the customer preview. In that mode a section is exposed only when its slug is in `get_dashboard_preview_sections()`: `PREVIEW_SECTIONS` (`traffic`) extended by the `jetpack_premium_analytics_preview_sections` filter. `jetpack_premium_analytics_dashboard_preview_scope` then overrides the answer per section; `__return_true` gives a development site every tab. A dashboard other than this package's is never scoped. The sticker and filter overrides that switch the dashboard on for the team leave the option off, so they see every section.
 2. **The section's own rule**, `is_available` from the registration: a capability check, a plugin's presence, a plan feature. Store checks WooCommerce and `view_woocommerce_reports`; Subscribers checks the subscriptions module; Ads checks the WordAds module, or the plan feature on the WordPress.com platform, and `manage_options`. Each of the three has a filter of its own (`jetpack_premium_analytics_<name>_dashboard_section_available`).
 
 A section that fails either rule is absent from the sections route, from the script data and from the tab bar, and `GET …/sections/{section}/default-layout` answers 404 for it.
 
 ## Where the tests are
 
-| Behaviour                                                                           | Test                                                                 |
-| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Registry rules, the built-in tabs, preview scope, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                               |
-| Default-layout primitives, the filter and the package's policy, the bundled layouts | `tests/php/Dashboard_Layout_Test.php`                                |
-| The REST entry point WordPress.com calls                                            | `tests/php/Dashboard_Support_Routes_Test.php`                        |
-| Tab bar, active section, stored layouts, section heading                            | `routes/dashboard/**/*.test.ts(x)`                                   |
-| Reports behind a hidden tab                                                         | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts` |
+| Behaviour                                                                               | Test                                                                 |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Registry rules, hydration, the action, preview scope, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                               |
+| Default-layout primitives, the filter and the package's policy, the bundled layouts     | `tests/php/Dashboard_Layout_Test.php`                                |
+| The REST entry point WordPress.com calls                                                | `tests/php/Dashboard_Support_Routes_Test.php`                        |
+| Tab bar, active section, stored layouts, section heading                                | `routes/dashboard/**/*.test.ts(x)`                                   |
+| Reports behind a hidden tab                                                             | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts` |
 
 ## Not covered here
 

@@ -81,7 +81,7 @@ there. The section registry hydrates on its first read, from wp-admin or from RE
 that action once; `src/default-dashboard-sections.php` registers the package's own tabs the same
 way. A section declares its default layout in the registration; the
 `jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
-any section by id.
+any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
 
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
 
