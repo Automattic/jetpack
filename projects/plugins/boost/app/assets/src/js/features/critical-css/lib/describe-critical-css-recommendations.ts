@@ -226,6 +226,37 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 }
 
 /**
+ * Whether the site answered these pages with its login gate rather than the page itself.
+ *
+ * @param {ErrorSet} set Set to check.
+ */
+function requiresLogin( set: ErrorSet ): boolean {
+	return set.firstMeta?.login_required === true;
+}
+
+/**
+ * Explain that Critical CSS is generated from what a logged-out visitor sees.
+ */
+function loginRequiredSuggestion(): Suggestion {
+	return {
+		paragraph: __(
+			'Boost generates Critical CSS from the page as a logged-out visitor sees it. Your site sends those visitors to the login page instead, so there is nothing for Boost to read.',
+			'jetpack-boost'
+		),
+		list: [
+			__(
+				'If these pages are meant to be private, you can safely ignore this message. Critical CSS is still generated for the rest of your site.',
+				'jetpack-boost'
+			),
+			__(
+				'If they should be public, check the plugin or setting that requires a login for them, then <retry>try again</retry>.',
+				'jetpack-boost'
+			),
+		],
+	};
+}
+
+/**
  * Helper function to return a count of affected URLs for an error set.
  *
  * @param {ErrorSet} set Set to count the relevant URLs from.
@@ -249,17 +280,27 @@ type ErrorTypeSpec = {
 const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 	HttpError: {
 		describeSet: set =>
-			sprintf(
-				/* translators: %d is the HTTP error code. */
-				_n(
-					'Boost received HTTP error <b>%d</b> on the following page:',
-					'Boost received HTTP error <b>%d</b> on the following pages:',
-					urlCount( set ),
-					'jetpack-boost'
-				),
-				set.firstMeta.code
-			),
-		suggestion: set => httpErrorSuggestion( castToNumber( set.firstMeta.code ), urlCount( set ) ),
+			requiresLogin( set )
+				? _n(
+						'This page is only shown to logged-in visitors, so Boost cannot read it:',
+						'These pages are only shown to logged-in visitors, so Boost cannot read them:',
+						urlCount( set ),
+						'jetpack-boost'
+				  )
+				: sprintf(
+						/* translators: %d is the HTTP error code. */
+						_n(
+							'Boost received HTTP error <b>%d</b> on the following page:',
+							'Boost received HTTP error <b>%d</b> on the following pages:',
+							urlCount( set ),
+							'jetpack-boost'
+						),
+						set.firstMeta.code
+				  ),
+		suggestion: set =>
+			requiresLogin( set )
+				? loginRequiredSuggestion()
+				: httpErrorSuggestion( castToNumber( set.firstMeta.code ), urlCount( set ) ),
 	},
 
 	RedirectError: {

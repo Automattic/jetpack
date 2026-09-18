@@ -21,6 +21,10 @@ class Generator_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		unset( $_GET[ Generator::GENERATE_QUERY_ACTION ] );
+		unset( $GLOBALS['current_screen'] );
+		$GLOBALS['pagenow'] = 'index.php';
+		remove_all_filters( 'wp_doing_ajax' );
+		remove_all_filters( 'wp_doing_cron' );
 		remove_all_filters( 'wp_redirect' );
 		remove_all_filters( 'wp_redirect_status' );
 		remove_all_filters( 'wp_die_handler' );
@@ -103,7 +107,6 @@ class Generator_Test extends BaseTestCase {
 			array(
 				$homepage,
 				$homepage . '?login=0',
-				set_url_scheme( $login, 'http' ),
 				'https://other.example.org/?login=1',
 				$homepage . 'members/?login=1',
 			) as $location
@@ -111,7 +114,14 @@ class Generator_Test extends BaseTestCase {
 			$this->assertSame( $location, apply_filters( 'wp_redirect', $location, 302 ) );
 		}
 
-		foreach ( array( $login, $login . '&reauth=1&redirect_to=%2Fprivate-page%2F' ) as $location ) {
+		foreach (
+			array(
+				$login,
+				$login . '&reauth=1&redirect_to=%2Fprivate-page%2F',
+				// A site behind a TLS-terminating proxy can redirect to either scheme.
+				set_url_scheme( $login, 'http' ),
+			) as $location
+		) {
 			try {
 				// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Exercise the redirect interface used by auth_redirect().
 				wp_redirect( $location );
@@ -192,6 +202,111 @@ class Generator_Test extends BaseTestCase {
 			'same-site reauth arg'  => array( '{home}/members/?reauth=1' ),
 			'relative reauth arg'   => array( '/members/?reauth=1' ),
 			'other host login page' => array( 'https://login.example.org/wp-login.php?reauth=1' ),
+		);
+	}
+
+	/**
+	 * Every non-canonical shape of the login redirect terminates generation too.
+	 *
+	 * @dataProvider provide_non_canonical_login_redirects
+	 *
+	 * @param string $location Redirect location.
+	 */
+	#[DataProvider( 'provide_non_canonical_login_redirects' )]
+	public function test_non_canonical_login_redirects_terminate( $location ) {
+		$this->init_request( true );
+		$location = str_replace( '{host}', wp_parse_url( home_url(), PHP_URL_HOST ), $location );
+		add_filter(
+			'wp_die_handler',
+			function () {
+				/** @return never */
+				return function ( $message, $title, $args ) {
+					throw new \RuntimeException( $message, $args['response'] );
+				};
+			}
+		);
+
+		try {
+			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Exercise the redirect interface used by auth_redirect().
+			wp_redirect( $location );
+			$this->fail( 'A login redirect must terminate generation whatever shape it arrives in.' );
+		} catch ( \RuntimeException $error ) {
+			$this->assertSame( 403, $error->getCode() );
+		}
+	}
+
+	/**
+	 * Data provider for test_non_canonical_login_redirects_terminate.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_non_canonical_login_redirects() {
+		return array(
+			'bare relative'   => array( 'wp-login.php?reauth=1' ),
+			'scheme flipped'  => array( 'https://{host}/wp-login.php?reauth=1' ),
+			'uppercase path'  => array( '/WP-LOGIN.PHP?reauth=1' ),
+			'double slash'    => array( '//wp-login.php?reauth=1' ),
+			'percent encoded' => array( '%2Fwp-login.php?reauth=1' ),
+			'path traversal'  => array( '/members/../wp-login.php?reauth=1' ),
+		);
+	}
+
+	/**
+	 * Generation mode only engages while a front-end page is rendered.
+	 *
+	 * @dataProvider provide_non_front_end_contexts
+	 *
+	 * @param callable $enter_context Puts the request into the context under test.
+	 */
+	#[DataProvider( 'provide_non_front_end_contexts' )]
+	public function test_generation_mode_is_front_end_only( $enter_context ) {
+		$admin = wp_insert_user(
+			array(
+				'user_login' => 'generator_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin );
+		$_GET[ Generator::GENERATE_QUERY_ACTION ] = '1700000000000';
+		$this->assertTrue( Generator::is_generating_critical_css() );
+
+		$enter_context();
+
+		$this->assertFalse( Generator::is_generating_critical_css() );
+
+		Generator::init();
+		$this->assertSame( $admin, get_current_user_id() );
+		$this->assertFalse( has_filter( 'wp_redirect' ) );
+	}
+
+	/**
+	 * Data provider for test_generation_mode_is_front_end_only.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_non_front_end_contexts() {
+		return array(
+			'wp-admin'     => array(
+				function () {
+					set_current_screen( 'dashboard' );
+				},
+			),
+			'wp-login.php' => array(
+				function () {
+					$GLOBALS['pagenow'] = 'wp-login.php';
+				},
+			),
+			'admin-ajax'   => array(
+				function () {
+					add_filter( 'wp_doing_ajax', '__return_true' );
+				},
+			),
+			'cron'         => array(
+				function () {
+					add_filter( 'wp_doing_cron', '__return_true' );
+				},
+			),
 		);
 	}
 
