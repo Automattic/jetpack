@@ -422,8 +422,11 @@ class Comment_Form {
 			'logInOptional'       => __( 'Leave a comment. (log in optional)', 'jetpack-comments' ),
 			'logInOptionalReply'  => __( 'Leave a reply. (log in optional)', 'jetpack-comments' ),
 			'logInToReply'        => __( 'Log in to leave a reply.', 'jetpack-comments' ),
-			/* translators: %1$s is the commenter's name, %2$s the provider (WordPress.com, Google, Facebook). The line ends before a "Log out" button. */
-			'signedInAs'          => __( '%1$s - Logged in via %2$s -', 'jetpack-comments' ),
+			'loggedInVia'         => array(
+				'wordpress' => __( 'Logged in via WordPress.com', 'jetpack-comments' ),
+				'google'    => __( 'Logged in via Google', 'jetpack-comments' ),
+				'facebook'  => __( 'Logged in via Facebook', 'jetpack-comments' ),
+			),
 			'cancel'              => __( 'Cancel', 'jetpack-comments' ),
 			'settings'            => __( 'Settings', 'jetpack-comments' ),
 			'close'               => __( 'Close', 'jetpack-comments' ),
