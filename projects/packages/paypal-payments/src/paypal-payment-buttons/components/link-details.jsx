@@ -57,6 +57,7 @@ export default function LinkDetails( { attributes, resource, notices, onEdit } )
 				<DropdownMenu
 					icon={ moreVertical }
 					label={ __( 'Payment link options', 'jetpack-paypal-payments' ) }
+					toggleProps={ { size: 'small' } }
 					controls={ [
 						{
 							title: __( 'Edit', 'jetpack-paypal-payments' ),

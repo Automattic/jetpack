@@ -581,11 +581,12 @@ class PayPal_REST_Controller {
 
 		return new WP_REST_Response(
 			array(
-				'connected'   => true,
-				'environment' => PayPal_OAuth::get_environment(),
-				'merchant_id' => PayPal_Partner_Onboarding::get_merchant_id(),
-				'method'      => 'partner_referrals',
-				'message'     => __( 'PayPal account connected successfully via Connect with PayPal.', 'jetpack-paypal-payments' ),
+				'connected'     => true,
+				'environment'   => PayPal_OAuth::get_environment(),
+				'merchant_id'   => PayPal_Partner_Onboarding::get_merchant_id(),
+				'account_email' => PayPal_Partner_Onboarding::get_merchant_email(),
+				'method'        => 'partner_referrals',
+				'message'       => __( 'PayPal account connected successfully via Connect with PayPal.', 'jetpack-paypal-payments' ),
 			),
 			200
 		);

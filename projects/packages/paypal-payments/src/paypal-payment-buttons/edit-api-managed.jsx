@@ -46,6 +46,7 @@ import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import GridiconPlus from 'gridicons/dist/plus-small';
+import PayPalAccountHeader from './components/account-header';
 import AmountField from './components/amount-field';
 import ConfirmDialogs from './components/confirm-dialogs';
 import ConnectionWizard, { OnboardingFrame } from './components/connection-wizard';
@@ -176,9 +177,15 @@ const labelShippingFee = __( 'Enter shipping fee', 'jetpack-paypal-payments' );
  * @param {Function} props.setAttributes - Function to update block attributes.
  * @param {string}   props.clientId      - The block's client id, renamed because
  *                                       usePayPalConnection() returns PayPal's own clientId.
+ * @param {boolean}  props.isSelected    - Whether this block is the selected one.
  * @return {Element} Block editor UI.
  */
-export default function ApiManagedEdit( { attributes, setAttributes, clientId: blockClientId } ) {
+export default function ApiManagedEdit( {
+	attributes,
+	setAttributes,
+	clientId: blockClientId,
+	isSelected,
+} ) {
 	const {
 		isApiManaged,
 		scriptSrc,
@@ -239,6 +246,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		setEnvironment,
 		connectionLoading,
 		partnerAttributionId,
+		accountEmail,
 		showReconnect,
 		setShowReconnect,
 		signupUrl,
@@ -298,6 +306,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 	// Confirmation dialog state for destructive actions.
 	const [ showDeleteConfirm, setShowDeleteConfirm ] = useState( false );
 	const [ showDisconnectConfirm, setShowDisconnectConfirm ] = useState( false );
+	const [ showLogOutConfirm, setShowLogOutConfirm ] = useState( false );
 
 	// Inline validation state — track which fields have been touched.
 	//
@@ -691,6 +700,17 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		</BlockControls>
 	) : null;
 
+	// The account header replaces core's block card. A block can still hold a button
+	// after a site-wide disconnect, and there the canvas offers Reconnect instead.
+	const accountHeader = isConnected ? (
+		<PayPalAccountHeader
+			isSelected={ isSelected }
+			environment={ environment }
+			accountEmail={ accountEmail }
+			onLogOut={ () => setShowLogOutConfirm( true ) }
+		/>
+	) : null;
+
 	// The connection panel sits last in the Settings tab, under whichever view is showing.
 	const connectionPanel = (
 		<PayPalInspectorControls
@@ -722,6 +742,8 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 			setShowDeleteConfirm={ setShowDeleteConfirm }
 			showDisconnectConfirm={ showDisconnectConfirm }
 			setShowDisconnectConfirm={ setShowDisconnectConfirm }
+			showLogOutConfirm={ showLogOutConfirm }
+			setShowLogOutConfirm={ setShowLogOutConfirm }
 			executeDeleteButton={ executeDeleteButton }
 			executeDisconnect={ executeDisconnect }
 		/>
@@ -1395,6 +1417,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 				{ sidebar }
 				{ connectionPanel }
 			</InspectorControls>
+			{ accountHeader }
 			{ formatControls }
 
 			<div className="jetpack-paypal-payment-buttons__preview">
