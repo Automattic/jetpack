@@ -67,7 +67,7 @@ type ModuleSwitchProps = {
  * @return The rendered component.
  */
 function ModuleSwitch( { module: $module, name }: ModuleSwitchProps ) {
-	const { setModuleActive, isUpdating } = useModuleActivation( $module );
+	const { setModuleActive, isUpdating } = useModuleActivation( $module, { reload: false } );
 	const isActive = $module.activated;
 
 	const onClick = useCallback( () => setModuleActive( ! isActive ), [ isActive, setModuleActive ] );
@@ -142,7 +142,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 			{ ! $module?.available && product && activation && ! nothingToSwitch ? (
 				<ProductSwitch
 					product={ product }
-					activation={ { ...activation, disabled: false } }
+					activation={ { ...activation, disabled: false, reloadOnToggle: false } }
 					name={ feature.name }
 				/>
 			) : null }

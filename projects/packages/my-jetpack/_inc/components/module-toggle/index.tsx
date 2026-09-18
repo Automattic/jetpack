@@ -16,20 +16,31 @@ import type { ChangeEvent } from 'react';
 export type ModuleToggleProps = {
 	module: MyJetpackModule;
 	describedby?: string;
+	/** False keeps the page in place, leaving the sidebar to catch up on the next load. */
+	reloadAfterToggle?: boolean;
 };
 
 // Modules that register a server-rendered wp-admin sidebar item. Toggling them
 // needs a full page reload for the sidebar to reflect the change; the success
 // notice is persisted so it survives the reload.
-const MODULES_REQUIRING_RELOAD = [
-	'activity-log',
-	'ai',
-	'contact-form',
-	'podcast',
-	'subscriptions',
-	'videopress',
-	'wpcom-reader',
-];
+const MODULES_REQUIRING_RELOAD = [ 'activity-log', 'podcast', 'subscriptions', 'wpcom-reader' ];
+
+// The server read-modify-writes one option holding every active module, so two
+// requests in flight at once can each drop the other's change. Send them one at a time.
+let pendingModuleUpdate: Promise< unknown > = Promise.resolve();
+
+/**
+ * Run a module update once every update queued before it has settled.
+ *
+ * @param update - The update to run.
+ * @return The update's result.
+ */
+export function queueModuleUpdate< T >( update: () => Promise< T > ): Promise< T > {
+	const run = pendingModuleUpdate.then( update, update );
+	pendingModuleUpdate = run.catch( () => undefined );
+
+	return run;
+}
 
 /**
  * Switch a Jetpack module on or off, however the surface chooses to present that.
@@ -37,10 +48,16 @@ const MODULES_REQUIRING_RELOAD = [
  * Shared with the Features modal, which offers buttons rather than a switch: both must
  * run the same mutation, notices and post-activation reload.
  *
- * @param $module - The module to switch.
+ * @param $module        - The module to switch.
+ * @param options        - Hook options.
+ * @param options.reload - False skips the sidebar reload, for surfaces where several
+ *                       switches are flipped in a row.
  * @return The handler and whether a mutation is in flight.
  */
-export function useModuleActivation( $module: MyJetpackModule ) {
+export function useModuleActivation(
+	$module: MyJetpackModule,
+	{ reload = true }: { reload?: boolean } = {}
+) {
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { trackProductAction } = useProductFiltersContext() || {};
@@ -101,12 +118,14 @@ export function useModuleActivation( $module: MyJetpackModule ) {
 				} );
 			}
 
-			const success = await toggleModule( {
-				name: $module.module,
-				active,
-			} );
+			const success = await queueModuleUpdate( () =>
+				toggleModule( {
+					name: $module.module,
+					active,
+				} )
+			);
 
-			if ( success && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
+			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
 				setPendingSuccessNotice(
 					active
 						? getModuleActivationMessage( $module.module, $module.name )
@@ -125,7 +144,7 @@ export function useModuleActivation( $module: MyJetpackModule ) {
 				action: active ? 'activation' : 'deactivation',
 			} );
 		},
-		[ toggleModule, $module, showToggleNotice, trackProductAction ]
+		[ toggleModule, $module, showToggleNotice, trackProductAction, reload ]
 	);
 
 	return { setModuleActive, isUpdating };
@@ -138,8 +157,14 @@ export function useModuleActivation( $module: MyJetpackModule ) {
  *
  * @return The rendered component.
  */
-export function ModuleToggle( { module: $module, describedby }: ModuleToggleProps ) {
-	const { setModuleActive, isUpdating } = useModuleActivation( $module );
+export function ModuleToggle( {
+	module: $module,
+	describedby,
+	reloadAfterToggle = true,
+}: ModuleToggleProps ) {
+	const { setModuleActive, isUpdating } = useModuleActivation( $module, {
+		reload: reloadAfterToggle,
+	} );
 	const blockThemeMigration = getBlockThemeMigration( $module );
 
 	const onChange = useCallback(

@@ -37,11 +37,15 @@ export function FeatureAction( { state }: FeatureActionProps ) {
 			)
 		: null;
 
+	// No switch here reloads the page, though the Products tab's do: a reload keeps the
+	// wp-admin sidebar current, but it makes flipping several features in a row
+	// impossible. The sidebar catches up on the next page load instead.
+	//
 	// Every feature backed by a module gets a switch, whatever its product needs: the
 	// module is the part of it this site can turn on and off, and what `feature-state`
 	// reports, so the switch and the badge always agree.
 	if ( state.module?.available ) {
-		return <ModuleToggle module={ state.module } />;
+		return <ModuleToggle module={ state.module } reloadAfterToggle={ false } />;
 	}
 
 	// Reaching here means no module can be switched, so the product is the whole feature
@@ -52,6 +56,7 @@ export function FeatureAction( { state }: FeatureActionProps ) {
 				product={ state.product }
 				{ ...activation }
 				disabled={ false }
+				reloadOnToggle={ false }
 				showBadge={ false }
 			/>
 		);
