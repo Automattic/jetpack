@@ -681,10 +681,18 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( Dashboard_Section::class, $section );
 
-		$served = array_column( $section->get_default_layout(), 'type' );
+		$unsupported = get_unsupported_widget_types( get_widget_support_context() );
+		$expected    = array_values(
+			array_filter(
+				$declared,
+				static function ( $item ) use ( $unsupported ) {
+					return ! in_array( $item['type'], $unsupported, true );
+				}
+			)
+		);
 
-		$this->assertNotEmpty( $served );
-		$this->assertSame( array(), array_values( array_diff( $served, array_column( $declared, 'type' ) ) ), 'A section serves nothing it did not declare.' );
+		$this->assertNotEmpty( $expected );
+		$this->assertSame( array_column( $expected, 'uuid' ), array_column( $section->get_default_layout(), 'uuid' ), 'A section serves its declared layout minus what the site cannot show.' );
 	}
 
 	/**
