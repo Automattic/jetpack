@@ -1,11 +1,25 @@
 /* The height chain from the tile down: WidgetState's blocks are 100%, so is
- * this, and the chart below fills it rather than hugging its rows. */
+ * this, and the chart below fills it rather than hugging its rows. The tooltip
+ * is a one-line pill, so it takes the compact padding of a plain tooltip; the
+ * chart reads it inline, and only a stylesheet gets the token fallbacks. */
 .root {
+	--jpa-heatmap-tooltip-padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+
 	block-size: 100%;
 }
 
 .selectable [role="gridcell"][data-column] {
 	cursor: pointer;
+}
+
+/* Lifts the hovered cell above its flush band: a translucent light ring sets
+ * it off from neighbours of the same shade, the shadow reads as clickable. */
+.selectable [role="gridcell"][data-column]:hover {
+	position: relative;
+	z-index: 1;
+	box-shadow:
+		0 0 0 1px color-mix(in sRGB, var(--a8c-charts-color-surface) 60%, transparent),
+		0 2px 8px rgba(0, 0, 0, 0.24);
 }
 
 /* A height-capped chart sizes itself to its rows. Here it fills the tile so
@@ -16,13 +30,19 @@
 }
 
 /* `align-content: start`: the label row is the grid's only auto track, so
- * stretching would hand it the leftover height. */
+ * stretching would hand it the leftover height.
+ * Each row is one contiguous band: no gap between cells and no rounding, with
+ * the totals column flush against December. Scoped to the grid so the legend
+ * keeps the rounded band the radius token also shapes. */
 .root .chart [role="grid"] {
+	--a8c-charts-dimension-heatmap-cell-gap: 0px;
+	--a8c-charts-border-radius-cell: 0;
 
-	/* The sticky labels' sizes, applied below: the chart label's line-height,
-	 * a four-digit year, and the grid gap the labels also paint over. */
-	--jpa-heatmap-label-row: var(--wpds-typography-line-height-xs);
-	--jpa-heatmap-year-column: calc(3 * var(--wpds-typography-font-size-xs) + var(--wpds-dimension-padding-xs));
+	/* The sticky labels' sizes, applied below: the label line-height and a
+	 * four-digit year, both sized for the table's larger labels, and the grid
+	 * gap the labels also paint over. */
+	--jpa-heatmap-label-row: var(--wpds-typography-line-height-sm);
+	--jpa-heatmap-year-column: calc(3 * var(--wpds-typography-font-size-md) + var(--wpds-dimension-padding-sm));
 	--jpa-heatmap-cell-gap: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs));
 
 	flex: 1 1 0;
@@ -43,11 +63,14 @@
 }
 
 /* The grid is the scroll container, so the label row and the year column stay
- * in view while a long history scrolls; the corner covers where they cross. */
+ * in view while a long history scrolls; the corner covers where they cross.
+ * Table headings rather than calendar captions, so they read a size up. */
 .root .chart [role="row"][aria-hidden="true"] > span,
 .root .chart [role="row"][aria-rowindex] > span:first-child {
 	position: sticky;
 	z-index: 1;
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--jpa-heatmap-label-row);
 
 	/* The chart's own background, which its cell fills mix against too. */
 	background: var(--a8c-charts-color-background);
@@ -68,10 +91,20 @@
 	inset-inline-start: 0;
 	inline-size: var(--jpa-heatmap-year-column);
 	box-sizing: border-box;
+	padding-inline-end: var(--wpds-dimension-padding-sm);
 	align-self: stretch;
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
+}
+
+/* Zeroing the cell gap above also zeroed the chart's set-off for the totals
+ * column, so the column pads itself and right-aligns like a table total. */
+.root .chart [role="row"] > [role="gridcell"]:last-child,
+.root .chart [role="row"][aria-hidden="true"] > span:last-child {
+	padding-inline: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+	justify-content: flex-end;
+	text-align: end;
 }
 
 .root .chart [role="row"][aria-hidden="true"] > span:first-child {

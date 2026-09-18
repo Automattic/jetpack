@@ -133,16 +133,16 @@ describe( 'PostingActivityWidget', () => {
 		setViewportWidth( originalInnerWidth );
 	} );
 
-	it( 'keeps the post wording and leads the tooltip with the count', () => {
+	it( 'keeps the post wording and titles the tooltip with the date', () => {
 		render( <PostingActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
 
 		// The empty label and the plural forms are this widget's own; the shared
-		// component only decides that the count comes before the date.
-		expect( screen.getByTestId( 'tooltip-empty' ) ).toHaveTextContent( 'No postsMon, Jun 2, 2025' );
+		// component only decides that the date comes before the count.
+		expect( screen.getByTestId( 'tooltip-empty' ) ).toHaveTextContent( 'Mon, Jun 2, 2025No posts' );
 		expect( screen.getByTestId( 'tooltip-singular' ) ).toHaveTextContent(
-			'1 postTue, Jun 3, 2025'
+			'Tue, Jun 3, 20251 post'
 		);
-		expect( screen.getByTestId( 'tooltip-plural' ) ).toHaveTextContent( '3 postsWed, Jun 4, 2025' );
+		expect( screen.getByTestId( 'tooltip-plural' ) ).toHaveTextContent( 'Wed, Jun 4, 20253 posts' );
 	} );
 
 	it( 'shows the empty state when only days outside the range have posts', () => {
