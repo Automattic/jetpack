@@ -88,13 +88,9 @@ class Stats_Product_Test extends TestCase {
 	}
 
 	/**
-	 * The activation gate a sidebar item would declare needs the Jetpack plugin.
+	 * Stats reads as off without the Jetpack plugin, which the standalone Stats plugin runs without.
 	 *
-	 * Stats is a Module_Product, so is_activated() is the Jetpack plugin AND the module. The
-	 * standalone Jetpack Stats plugin runs without the Jetpack plugin, so a `product` gate
-	 * would resolve false there and take the menu with it.
-	 *
-	 * @see \Automattic\Jetpack\My_Jetpack\Menu_Visibility::resolve()
+	 * @see \Automattic\Jetpack\Stats_Admin\Dashboard::add_wp_admin_menu()
 	 */
 	public function test_is_activated_is_false_without_the_jetpack_plugin() {
 		deactivate_plugins( 'jetpack/jetpack.php' );

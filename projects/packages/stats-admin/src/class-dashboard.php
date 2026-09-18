@@ -56,9 +56,8 @@ class Dashboard {
 	/**
 	 * Add a "Stats" top-level admin menu.
 	 *
-	 * Registered through Admin_Menu for the `jetpack_admin_menu_visibility` filter; placement
-	 * is unchanged. Do not declare a `product` gate here: it resolves false without the Jetpack
-	 * plugin, which is exactly when the standalone Stats plugin registers this page.
+	 * Declares no `product` gate: that resolves false without the Jetpack plugin, which is
+	 * exactly when the standalone Stats plugin registers this page.
 	 *
 	 * @return void
 	 */
@@ -72,7 +71,7 @@ class Dashboard {
 			return;
 		}
 
-		$page_suffix = Admin_Menu::add_top_level_menu(
+		$menu_args = array(
 			__( 'Stats', 'jetpack-stats-admin' ),
 			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
 			$this->get_capability(),
@@ -80,15 +79,23 @@ class Dashboard {
 			array( $this, 'render' ),
 			'dashicons-chart-bar',
 			2,
-			// Same key the legacy Stats screen declares in the Jetpack plugin, so a host naming
-			// Stats reaches whichever of the two registered the page.
-			array( 'key' => 'jetpack-stats' )
 		);
+
+		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
+		if ( method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
+			// The key the legacy Stats screen in the Jetpack plugin also declares, so hosts name Stats once.
+			$menu_args[] = array( 'key' => 'jetpack-stats' );
+			$page_suffix = Admin_Menu::add_top_level_menu( ...$menu_args );
+		} else {
+			$page_suffix = add_menu_page( ...$menu_args );
+		}
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 			// The dashboard renders full bleed, so core notices stacked above it look broken.
-			add_action( 'load-' . $page_suffix, array( Admin_Menu::class, 'hide_core_admin_notices' ) );
+			if ( method_exists( Admin_Menu::class, 'hide_core_admin_notices' ) ) {
+				add_action( 'load-' . $page_suffix, array( Admin_Menu::class, 'hide_core_admin_notices' ) );
+			}
 		}
 	}
 

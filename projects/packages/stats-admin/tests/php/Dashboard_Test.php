@@ -37,7 +37,8 @@ class Dashboard_Test extends Stats_TestCase {
 		// A connected site grants view_stats from the stats package, which this bootstrap
 		// does not load, so the menu's own capability would keep every item out.
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		$this->reset_admin_menu_state();
+		Admin_Menu::reset();
+		$this->reset_dashboard();
 		wp_dequeue_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 	}
@@ -54,17 +55,27 @@ class Dashboard_Test extends Stats_TestCase {
 	}
 
 	/**
-	 * Empty Admin_Menu's registration queues so each test starts from an empty sidebar.
+	 * Undoes Dashboard::init(), whose admin_menu hook would otherwise queue Stats again in later tests.
 	 */
-	private function reset_admin_menu_state() {
-		foreach ( array( 'menu_items', 'top_level_items', 'hidden_top_level_slugs', 'hidden_menu_slugs' ) as $name ) {
-			$property = new ReflectionProperty( Admin_Menu::class, $name );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$property->setAccessible( true );
+	private function reset_dashboard() {
+		global $wp_filter;
+
+		if ( isset( $wp_filter['admin_menu'] ) ) {
+			foreach ( $wp_filter['admin_menu']->callbacks as $priority => $callbacks ) {
+				foreach ( $callbacks as $callback ) {
+					if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof Dashboard ) {
+						remove_action( 'admin_menu', $callback['function'], $priority );
+					}
+				}
 			}
-			$property->setValue( null, array() );
 		}
+
+		$initialized = new ReflectionProperty( Dashboard::class, 'initialized' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
 	}
 
 	/**

@@ -489,7 +489,7 @@ class Analytics {
 	 * page and widget artifacts independently since the build loader includes each conditionally.
 	 *
 	 * Queued through Admin_Menu rather than registered here, so the entry is reachable by the
-	 * `jetpack_admin_menu_visibility` filter. Placement is unchanged.
+	 * `jetpack_admin_menu_visibility` filter.
 	 *
 	 * @return void
 	 */
@@ -525,7 +525,7 @@ class Analytics {
 
 		$menu_title = self::menu_title();
 
-		Admin_Menu::add_top_level_menu(
+		$menu_args = array(
 			esc_html( $menu_title ),
 			esc_html( $menu_title ),
 			Capabilities::VIEW_ANALYTICS,
@@ -533,10 +533,18 @@ class Analytics {
 			$render_callback,
 			'dashicons-chart-bar',
 			2,
-			// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
-			// the dashboard has no My Jetpack product class and no module to name.
-			array( 'key' => 'jetpack-premium-analytics' )
 		);
+
+		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
+		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
+			add_menu_page( ...$menu_args );
+			return;
+		}
+
+		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
+		// the dashboard has no My Jetpack product class and no module to name.
+		$menu_args[] = array( 'key' => 'jetpack-premium-analytics' );
+		Admin_Menu::add_top_level_menu( ...$menu_args );
 	}
 
 	/**

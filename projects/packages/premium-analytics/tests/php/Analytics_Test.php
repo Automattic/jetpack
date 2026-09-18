@@ -64,40 +64,8 @@ class Analytics_Test extends TestCase {
 
 		unset( $GLOBALS['jpa_test_build_loaded'], $GLOBALS['jpa_test_interceptor_priority'] );
 
-		$this->reset_admin_menu_state();
+		\Automattic\Jetpack\Admin_UI\Admin_Menu::reset();
 		remove_all_filters( 'jetpack_admin_menu_visibility' );
-	}
-
-	/**
-	 * Clears Admin_Menu's statics between tests.
-	 *
-	 * Every admin_menu action is dropped in tearDown(), but $initialized is out of its reach,
-	 * so without this the class believes it is already hooked and never registers what later
-	 * tests queue.
-	 *
-	 * @return void
-	 */
-	private function reset_admin_menu_state() {
-		$reflection = new \ReflectionClass( \Automattic\Jetpack\Admin_UI\Admin_Menu::class );
-
-		foreach ( array( 'menu_items', 'top_level_items', 'hidden_menu_slugs', 'hidden_top_level_slugs' ) as $name ) {
-			if ( ! $reflection->hasProperty( $name ) ) {
-				continue;
-			}
-			$property = $reflection->getProperty( $name );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$property->setAccessible( true );
-			}
-			$property->setValue( null, array() );
-		}
-
-		$initialized = $reflection->getProperty( 'initialized' );
-		// @todo Remove this call once we no longer need to support PHP <8.1.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$initialized->setAccessible( true );
-		}
-		$initialized->setValue( null, false );
 	}
 
 	/**
