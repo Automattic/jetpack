@@ -13,8 +13,6 @@ import type { OnboardingDismissReason } from '@jetpack-premium-analytics/ui';
 
 export type OnboardingPhase = 'closed' | 'modal' | 'tour';
 
-export type { OnboardingDismissReason };
-
 export type OnboardingOptions = {
 	/** Whether the reader is on the surface the journey introduces; nothing opens until then. */
 	enabled: boolean;

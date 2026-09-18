@@ -1,6 +1,1 @@
-export {
-	useOnboarding,
-	type Onboarding,
-	type OnboardingDismissReason,
-	type OnboardingPhase,
-} from './use-onboarding';
+export { useOnboarding } from './use-onboarding';
