@@ -42,24 +42,13 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 // The paste-code editor has its own suite; keep its imports out of this one.
 jest.mock( '../../../src/paypal-payment-buttons/edit-paste-code', () => () => null );
 
-// Mock WordPress element with real React hooks.
-jest.mock( '@wordpress/element', () => {
-	const React = require( 'react' );
-	return {
-		createElement: React.createElement,
-		Fragment: React.Fragment,
-		// The Copy button's hook comes from @wordpress/compose, which builds a
-		// context at import time and reaches for useLayoutEffect when it runs.
-		createContext: React.createContext,
-		useState: React.useState,
-		useEffect: React.useEffect,
-		useLayoutEffect: React.useLayoutEffect,
-		useCallback: React.useCallback,
-		useMemo: React.useMemo,
-		useRef: React.useRef,
-		createInterpolateElement: jest.requireActual( '@wordpress/element' ).createInterpolateElement,
-	};
-} );
+// Mock WordPress element with real React. Spread rather than hand-picked, so a
+// package reaching for another export still finds it.
+jest.mock( '@wordpress/element', () => ( {
+	...require( 'react' ),
+	createPortal: require( 'react-dom' ).createPortal,
+	createInterpolateElement: jest.requireActual( '@wordpress/element' ).createInterpolateElement,
+} ) );
 
 // The tax hint interpolates a Link into its sentence. The rel here is eslint's rule
 // for target="_blank", so it says nothing about the real Link.
@@ -313,14 +302,17 @@ jest.mock( '@wordpress/components', () => ( {
 		)
 	),
 	ButtonGroup: ( { children } ) => <div data-testid="button-group">{ children }</div>,
-	// The real menu opens on click; the mock lays its items out flat.
-	DropdownMenu: ( { label, controls } ) => (
+	// The real menu opens on click; the mock lays its items out flat. Takes a
+	// controls array or children as a render prop, like the real one.
+	DropdownMenu: ( { label, controls, children } ) => (
 		<div data-testid="dropdown-menu" aria-label={ label }>
-			{ ( controls || [] ).flat().map( control => (
-				<button key={ control.title } type="button" onClick={ control.onClick }>
-					{ control.title }
-				</button>
-			) ) }
+			{ children
+				? children( { onClose: () => {} } )
+				: ( controls || [] ).flat().map( control => (
+						<button key={ control.title } type="button" onClick={ control.onClick }>
+							{ control.title }
+						</button>
+					) ) }
 		</div>
 	),
 	ExternalLink: ( { children, href } ) => (
@@ -347,6 +339,22 @@ jest.mock( '@wordpress/components', () => ( {
 			</button>
 		</div>
 	),
+	MenuGroup: ( { children } ) => <div role="group">{ children }</div>,
+	// isDestructive and the icon props belong to MenuItem, so they stay off the DOM node.
+	MenuItem: ( { children, info, href, onClick, icon, iconPosition, isDestructive, ...rest } ) =>
+		href ? (
+			<a role="menuitem" href={ href } onClick={ onClick } { ...rest }>
+				{ children }
+			</a>
+		) : (
+			<button type="button" role="menuitem" onClick={ onClick } { ...rest }>
+				{ children }
+				{ info && <span>{ info }</span> }
+			</button>
+		),
+	// The block icon is built from these two.
+	SVG: ( { children, ...rest } ) => <svg { ...rest }>{ children }</svg>,
+	Path: props => <path { ...props } />,
 	Notice: ( { children, status, isDismissible, onDismiss, actions } ) => (
 		<div data-testid="notice" data-status={ status }>
 			{ children }
@@ -5378,6 +5386,120 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Account header', () => {
+		const saved = {
+			isApiManaged: true,
+			resourceId: 'PLB-LOGOUT1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-LOGOUT1',
+		};
+
+		let inspector = null;
+		let rendered = null;
+
+		/**
+		 * Put the block card in the document, the way the open sidebar does.
+		 */
+		const openSidebar = () => {
+			inspector = document.createElement( 'div' );
+			inspector.className = 'block-editor-block-inspector';
+			inspector.innerHTML = '<div class="block-editor-block-card"></div>';
+			document.body.appendChild( inspector );
+		};
+
+		/**
+		 * Answer the connection check, and everything else with an empty response.
+		 *
+		 * @param {boolean} connected - What the connection check reports.
+		 * @return {jest.Mock} The apiFetch mock.
+		 */
+		const mockRoutes = connected =>
+			apiFetch.mockImplementation( request =>
+				request.path.endsWith( '/connection' )
+					? Promise.resolve( {
+							connected,
+							environment: 'sandbox',
+							account_email: 'junior@sports.com',
+						} )
+					: Promise.resolve( {} )
+			);
+
+		const disconnectRequests = () =>
+			apiFetch.mock.calls.filter( ( [ request ] ) => request.path.endsWith( '/disconnect' ) );
+
+		afterEach( () => {
+			// Unmount first, so the header stops watching before its sidebar goes.
+			rendered?.unmount();
+			rendered = null;
+			inspector?.remove();
+			inspector = null;
+		} );
+
+		/**
+		 * Render the selected block, which is the only one that takes the card.
+		 *
+		 * @return {object} Testing Library render result.
+		 */
+		const renderSelected = () => {
+			rendered = render( <Edit attributes={ saved } setAttributes={ setAttributes } isSelected /> );
+			return rendered;
+		};
+
+		it( 'leaves the block card alone while PayPal is disconnected', async () => {
+			mockRoutes( false );
+			openSidebar();
+			renderSelected();
+
+			// The reconnect notice is what the merchant gets instead.
+			await expect(
+				screen.findByText( /PayPal account is disconnected/ )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( 'PayPal Payment Button' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'logs out through the same disconnect the connection panel runs', async () => {
+			const user = userEvent.setup();
+			mockRoutes( true );
+			openSidebar();
+			renderSelected();
+
+			await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+			// The DropdownMenu mock lays its items out flat, so there is nothing to open.
+			await user.click( screen.getByRole( 'menuitem', { name: /Log out/ } ) );
+
+			const dialog = screen.getByRole( 'dialog', { name: 'Log out from PayPal' } );
+			await user.click( within( dialog ).getByRole( 'button', { name: 'Log out' } ) );
+
+			await waitFor( () => expect( disconnectRequests() ).toHaveLength( 1 ) );
+			expect( disconnectRequests()[ 0 ][ 0 ].method ).toBe( 'POST' );
+			// Back to block.json's defaults, with the block-owned image cleared.
+			expect( setAttributes ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					isApiManaged: false,
+					resourceId: '',
+					paymentLink: '',
+					imageUrl: undefined,
+				} )
+			);
+		} );
+
+		it( 'closes the log-out dialog and keeps the account connected', async () => {
+			const user = userEvent.setup();
+			mockRoutes( true );
+			openSidebar();
+			renderSelected();
+
+			await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+			// The DropdownMenu mock lays its items out flat, so there is nothing to open.
+			await user.click( screen.getByRole( 'menuitem', { name: /Log out/ } ) );
+			await user.click( screen.getByTestId( 'modal-close' ) );
+
+			expect(
+				screen.queryByRole( 'dialog', { name: 'Log out from PayPal' } )
+			).not.toBeInTheDocument();
+			expect( disconnectRequests() ).toHaveLength( 0 );
 		} );
 	} );
 

@@ -135,6 +135,55 @@
 }
 
 // ---------------------------------------------------------------
+// Account header
+// ---------------------------------------------------------------
+
+// Our row is the whole card, so what core drew in it goes.
+.block-editor-block-card:has(.jetpack-paypal-payment-buttons__account-header) {
+	padding: 0;
+
+	> :not(.jetpack-paypal-payment-buttons__account-header) {
+		display: none;
+	}
+}
+
+.jetpack-paypal-payment-buttons__account-header {
+	display: flex;
+	align-items: center;
+	gap: variables.$grid-unit-10;
+	padding: variables.$grid-unit-20 variables.$grid-unit-15;
+	border-bottom: variables.$border-width solid colors.$gray-300;
+
+	// Nested for the second class: .block-editor-block-inspector h2 sets a
+	// 1.5em bottom margin, which a single class loses to.
+	.jetpack-paypal-payment-buttons__account-header-title {
+		flex: 1 1 auto;
+		margin: 0;
+		font-size: variables.$font-size-medium;
+		font-weight: 600;
+		line-height: variables.$font-line-height-small;
+		color: colors.$gray-900;
+	}
+}
+
+.jetpack-paypal-payment-buttons__account-header-icon {
+	display: flex;
+	flex: 0 0 auto;
+}
+
+// The design greys the menu glyphs so the labels read first. Core paints them
+// currentColor. Log out keeps its red, where the glyph matches the label.
+.jetpack-paypal-payment-buttons__account-menu {
+
+	.components-menu-item__button:not(.is-destructive) {
+
+		.components-menu-items__item-icon {
+			color: colors.$gray-700;
+		}
+	}
+}
+
+// ---------------------------------------------------------------
 // Connection Wizard
 // ---------------------------------------------------------------
 
@@ -833,14 +882,16 @@
 	}
 }
 
-.jetpack-paypal-payment-buttons__delete-dialog {
+.jetpack-paypal-payment-buttons__delete-dialog,
+.jetpack-paypal-payment-buttons__log-out-dialog {
 
 	p {
 		margin: 0 0 12px;
 	}
 }
 
-.jetpack-paypal-payment-buttons__delete-dialog-actions {
+.jetpack-paypal-payment-buttons__delete-dialog-actions,
+.jetpack-paypal-payment-buttons__log-out-dialog-actions {
 	display: flex;
 	justify-content: flex-end;
 	gap: 8px;
