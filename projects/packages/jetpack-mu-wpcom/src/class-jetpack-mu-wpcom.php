@@ -31,11 +31,11 @@ class Jetpack_Mu_Wpcom {
 	 */
 	const REACT_19_INCOMPATIBLE_THEMES  = array(
 		'divi'     => null,
-		'woodmart' => null,
+		'woodmart' => '8.6.1',
 	);
 	const REACT_19_INCOMPATIBLE_PLUGINS = array(
 		'wp-table-builder/wp-table-builder.php'          => null,
-		'ultimate-blocks/ultimate-blocks.php'            => null,
+		'ultimate-blocks/ultimate-blocks.php'            => '3.6.0',
 		'beehive-analytics/beehive-analytics.php'        => null,
 		'xspeed/xspeed.php'                              => null,
 		'classified-listing/classified-listing.php'      => null,
