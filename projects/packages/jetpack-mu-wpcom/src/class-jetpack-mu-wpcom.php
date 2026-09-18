@@ -888,6 +888,8 @@ class Jetpack_Mu_Wpcom {
 
 	/**
 	 * Load the Backup page on WordPress.com Simple and WoA sites.
+	 *
+	 * The file hooks its own `init`, where the plan lookup it gates on is ready.
 	 */
 	public static function load_wpcom_backup() {
 		require_once __DIR__ . '/features/wpcom-backup/wpcom-backup.php';

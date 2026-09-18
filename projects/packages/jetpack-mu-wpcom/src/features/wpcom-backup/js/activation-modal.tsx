@@ -2,22 +2,10 @@ import { Button, ExternalLink, Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Stack, Text } from '@wordpress/ui';
-import DOMPurify from 'dompurify';
-import { ErrorContentInfo, hasAnyBlockingError, needsPlanUpgrade } from './error-content-info.tsx';
+import { splitDomainName } from './domain.ts';
+import { canProceed, hasAnyBlockingError, needsPlanUpgrade } from './eligibility.ts';
+import { ErrorContentInfo } from './error-content-info.tsx';
 import type { DomainNames, TransferError, TransferWarning } from './types.ts';
-
-/**
- * Split a domain so the subdomain can truncate while the rest stays readable.
- *
- * @param domainName - The full domain.
- * @return The first label, and the remainder including the leading dot.
- */
-function splitDomainName( domainName: string ) {
-	const parts = domainName.split( '.' );
-	const first = parts.shift();
-	const rest = '.' + parts.join( '.' );
-	return { first, rest };
-}
 
 /**
  * The current and new site addresses, side by side.
@@ -30,11 +18,13 @@ function AddressPair( { names }: { names: DomainNames } ) {
 	const items = [
 		{
 			label: splitDomainName( names.current ),
+			/* translators: badge marking which of two site addresses is the existing one. */
 			badgeLabel: __( 'current', 'jetpack-mu-wpcom' ),
 			intent: 'none' as const,
 		},
 		{
 			label: splitDomainName( names.new ),
+			/* translators: badge marking which of two site addresses the site will move to. */
 			badgeLabel: __( 'new', 'jetpack-mu-wpcom' ),
 			intent: 'stable' as const,
 		},
@@ -44,7 +34,7 @@ function AddressPair( { names }: { names: DomainNames } ) {
 		<Stack direction="column" gap="sm">
 			{ items.map( item => (
 				<Stack
-					key={ item.badgeLabel }
+					key={ item.intent }
 					className="wpcom-backup__domain"
 					direction="row"
 					align="center"
@@ -92,12 +82,7 @@ function Warning( { warning }: { warning: TransferWarning } ) {
 						) }
 					</span>
 				) : (
-					// The eligibility API returns descriptions containing markup, so they
-					// are sanitized rather than escaped.
-					<span
-						// eslint-disable-next-line react/no-danger
-						dangerouslySetInnerHTML={ { __html: DOMPurify.sanitize( warning.description ) } }
-					/>
+					<span>{ warning.description }</span>
 				) }
 				{ warning.support_url && (
 					<>
@@ -149,7 +134,6 @@ export function TransferActivationModal( {
 } ) {
 	const isBlocked = hasAnyBlockingError( errors );
 	const needsUpgrade = needsPlanUpgrade( errors );
-	const canProceed = isEligible || needsUpgrade;
 
 	return (
 		<Modal
@@ -188,7 +172,7 @@ export function TransferActivationModal( {
 					<Button
 						__next40pxDefaultSize
 						variant="primary"
-						disabled={ ! canProceed }
+						disabled={ ! canProceed( isEligible, errors ) }
 						href={ activateUrl }
 					>
 						{ needsUpgrade

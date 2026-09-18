@@ -99,7 +99,6 @@
 		"canvas-confetti": "^1.9.4",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
-		"dompurify": "^3.3.3",
 		"events": "^3.3.0",
 		"lib0": "0.2.99",
 		"lodash": "4.18.1",

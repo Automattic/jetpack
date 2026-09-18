@@ -28,8 +28,8 @@ export type DomainNames = {
 export type TransferWarning = {
 	id: string;
 	description: string;
-	domain_names?: DomainNames;
-	support_url?: string;
+	domain_names: DomainNames | null;
+	support_url: string;
 };
 
 /**

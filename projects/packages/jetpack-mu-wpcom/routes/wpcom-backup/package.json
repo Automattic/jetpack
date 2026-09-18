@@ -8,8 +8,7 @@
 		"@wordpress/components": "40.0.0",
 		"@wordpress/element": "8.6.0",
 		"@wordpress/i18n": "6.27.0",
-		"@wordpress/ui": "0.21.0",
-		"dompurify": "^3.3.3"
+		"@wordpress/ui": "0.21.0"
 	},
 	"route": {
 		"path": "/",

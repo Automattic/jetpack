@@ -5,6 +5,7 @@ import { Text } from '@wordpress/ui';
 import { useState } from 'react';
 import { TransferActivationModal } from './activation-modal.tsx';
 import { Callout } from './callout.tsx';
+import { needsConfirmation } from './eligibility.ts';
 import { upsell } from './icons.tsx';
 import { backupsCalloutIllustration } from './illustration.ts';
 import type { InitialState } from './types.ts';
@@ -66,8 +67,7 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 
 	// A site with nothing to surface can start the transfer directly; the modal
 	// exists to explain errors and confirm warnings, so it would be empty.
-	const needsConfirmation =
-		! state.isEligible || state.errors.length > 0 || state.warnings.length > 0;
+	const showModalFirst = needsConfirmation( state.isEligible, state.errors, state.warnings );
 
 	return (
 		<>
@@ -87,15 +87,15 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 					</>
 				}
 				actions={
-					needsConfirmation ? (
-						<Button variant="primary" size="compact" onClick={ () => setIsModalOpen( true ) }>
-							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
-						</Button>
-					) : (
-						<Button variant="primary" size="compact" href={ state.activateUrl }>
-							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
-						</Button>
-					)
+					<Button
+						variant="primary"
+						size="compact"
+						{ ...( showModalFirst
+							? { onClick: () => setIsModalOpen( true ) }
+							: { href: state.activateUrl } ) }
+					>
+						{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
+					</Button>
 				}
 			/>
 			{ isModalOpen && (

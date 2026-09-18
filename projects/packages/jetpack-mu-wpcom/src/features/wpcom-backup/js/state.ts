@@ -13,7 +13,7 @@ const FALLBACK: InitialState = {
 	errors: [],
 	warnings: [],
 	upgradeUrl: 'https://wordpress.com/plans/',
-	activateUrl: 'https://wordpress.com/backup/',
+	activateUrl: 'https://wordpress.com/setup/transferring-hosted-site',
 	supportUrl: 'https://wordpress.com/support/backups/',
 };
 
