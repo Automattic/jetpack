@@ -6,7 +6,9 @@
 		padding: 20px;
 		background-color: #fff;
 		margin-inline: auto;
-		max-width: clamp(200px, 100%, 555px);
+		width: 100%;
+		max-width: 555px;
+		min-width: 200px;
 	}
 
 	// When the preview is in a section of all previews
@@ -15,12 +17,14 @@
 	}
 
 	&__section.social-preview__section {
-		width: clamp(200px, 100%, 555px);
+		width: 100%;
+		max-width: 555px;
+		min-width: 200px;
 	}
 
 	&__container {
-
-		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+		border: none;
+		border-radius: 8px;
 		overflow: hidden;
 	}
 
@@ -56,17 +60,30 @@
 	}
 
 	&__media {
-		display: flex;
+		overflow: hidden;
+		border-radius: 4px;
+		margin: 0 3px;
+
+		// Default to 4:5 while the image loads.
+		// JS will override with the clamped ratio (1.91:1 to 4:5) via inline style.
+		aspect-ratio: 4/5;
+
+		&.is-loading {
+			visibility: hidden;
+		}
 
 		&--image,
 		&--video {
 			width: 100%;
+			height: 100%;
 			object-fit: cover;
+			display: block;
 		}
 	}
 
 	&__media-item {
-		flex-grow: 1;
+		width: 100%;
+		height: 100%;
 	}
 
 	&__content {
