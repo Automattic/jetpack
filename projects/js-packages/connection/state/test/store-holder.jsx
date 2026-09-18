@@ -47,10 +47,6 @@ describe( 'storeHolder.mayBeInit', () => {
 		expect( register ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	/*
-	 * Another bundle's copy got there first. The module-scope guard cannot see
-	 * that, which is the whole reason this path exists.
-	 */
 	describe( 'when another copy of the package already registered the store', () => {
 		beforeEach( () => {
 			select.mockReturnValue( { someSelector: () => {} } );
@@ -69,11 +65,8 @@ describe( 'storeHolder.mayBeInit', () => {
 
 			const message = error.mock.calls[ 0 ][ 0 ];
 
-			// Names the store, so it is greppable.
 			expect( message ).toContain( STORE_ID );
-			// Says it is a bundling problem, not a runtime break.
 			expect( message ).toContain( 'bundled their own copy' );
-			// Points at the actual cause and the fix.
 			expect( message ).toContain( 'subpath import' );
 			expect( message ).toContain( "from '@automattic/jetpack-connection'" );
 		} );

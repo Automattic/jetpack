@@ -1,14 +1,7 @@
 import { createReduxStore, register, select } from '@wordpress/data';
 
 /**
- * Explains a duplicate registration, which is a build problem rather than a
- * runtime one.
- *
- * `@wordpress/data`'s own message — `Store "x" is already registered.` — says
- * what happened but not why or what to do about it, and the cause is never
- * where the message points: no code registered the store twice. Two scripts
- * each bundled their own copy of this package, and each copy ran its own
- * registration on import.
+ * Explains a duplicate registration, which is a build problem rather than a runtime one.
  *
  * @param {string} storeId - The store that was already registered.
  * @return {string} The message to log.
