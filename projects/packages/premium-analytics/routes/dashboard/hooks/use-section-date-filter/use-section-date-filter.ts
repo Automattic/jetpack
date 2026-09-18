@@ -12,7 +12,7 @@ import {
 	resolvePresetForSurface,
 	type DashboardSection,
 	type DateFilterSurface,
-} from '../config';
+} from '../../config';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 
 /**

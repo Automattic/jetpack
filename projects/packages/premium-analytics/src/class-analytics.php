@@ -329,8 +329,8 @@ class Analytics {
 			require_once __DIR__ . '/widget-modules.php';
 		}
 
-		// Default layout's first-load preference injection.
-		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+		// Default layout primitives and the bundled defaults' seed.
+		if ( ! function_exists( __NAMESPACE__ . '\\get_dashboard_default_widget_instance' ) ) {
 			require_once __DIR__ . '/dashboard-layout.php';
 		}
 

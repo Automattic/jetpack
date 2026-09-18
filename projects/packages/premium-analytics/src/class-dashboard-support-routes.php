@@ -9,8 +9,8 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
- * Registers the dashboard's REST support routes (widget modules, default
- * layout, sections) for a host that never calls Analytics::init().
+ * Registers the dashboard's REST support routes (widget modules, sections)
+ * for a host that never calls Analytics::init().
  *
  * WordPress.com Simple serves the dashboard from WPCOM, not the site (see
  * Analytics::init_wpcom_simple()), so WPCOM's public-api process calls this
@@ -55,7 +55,7 @@ class Dashboard_Support_Routes {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_widget_modules_rest_route' ) ) {
 			require_once __DIR__ . '/widget-modules.php';
 		}
-		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+		if ( ! function_exists( __NAMESPACE__ . '\\get_dashboard_default_widget_instance' ) ) {
 			require_once __DIR__ . '/dashboard-layout.php';
 		}
 		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
@@ -70,7 +70,6 @@ class Dashboard_Support_Routes {
 		Capabilities::register();
 
 		register_widget_modules_rest_route();
-		register_dashboard_default_layout_route();
 		register_dashboard_sections_rest_routes();
 	}
 }
