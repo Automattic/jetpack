@@ -169,6 +169,51 @@
 		overflow: hidden;
 	}
 
+	// Three explainer columns with hairline dividers between them; stacked
+	// with horizontal dividers under the 600px collapse the rest of the tab uses.
+	&__how-it-works-steps {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--wpds-dimension-gap-lg, 16px);
+	}
+
+	&__how-it-works-step {
+		padding-inline-start: var(--wpds-dimension-gap-lg, 16px);
+		border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
+
+		&:first-child {
+			padding-inline-start: 0;
+			border-inline-start: 0;
+		}
+	}
+
+	&__how-it-works-icon {
+		margin-block-end: var(--wpds-dimension-gap-sm, 8px);
+	}
+
+	&__how-it-works-description {
+		color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+	}
+
+	@media (max-width: 600px) {
+
+		&__how-it-works-steps {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		&__how-it-works-step {
+			padding-inline-start: 0;
+			border-inline-start: 0;
+			padding-block-start: var(--wpds-dimension-gap-lg, 16px);
+			border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
+
+			&:first-child {
+				padding-block-start: 0;
+				border-block-start: 0;
+			}
+		}
+	}
+
 	// Callout card shared by the plan upsell and the connect-account card.
 	// Layout mirrors Activity Log's UpsellCallout: bordered card with copy
 	// on the left and the illustration on the right; stacks on narrow
