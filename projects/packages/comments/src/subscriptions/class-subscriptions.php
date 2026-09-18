@@ -15,28 +15,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * What the form offers to subscribe to, and the route it saves a signed-in reader's choices through.
- *
- * It is all email. A guest's choices post with the comment, in the fields each
- * host's own subscription handler reads. A signed-in reader's are saved as they
- * are made: the route relays their email to WordPress.com over the blog
- * connection, `wpcom/v2/sites/{id}/comments/subscriptions`, and hands back what
- * it answered. WordPress.com's rules apply there: a login's own address is
- * activated at once and offered the reader options, any other address confirms
- * by email first.
- *
- * The route is served by the site's own REST API on self-hosted and Atomic.
- * Simple serves REST only from public-api, which never receives the passport,
- * a host-only cookie on a mapped domain, and cannot set one for a fresh
- * sign-in. So there the same route is dispatched in process from an admin-ajax
- * action, as the log-out is.
- *
- * It carries no nonce for a passport holder, because a page rendered for a
- * logged-out reader is cached and shared, so a nonce in it is everyone's.
- * What stands in is what the log-out relies on: the browser has to say the
- * request is same-origin, and the cookies it acts on are SameSite=Lax, so a
- * page elsewhere cannot send them. A reader logged in to the site gets the
- * REST nonce, which cookie authentication needs to see them at all.
+ * The subscription options, and the route that saves a signed-in reader's choices.
  */
 class Subscriptions extends WP_REST_Controller {
 
@@ -58,7 +37,7 @@ class Subscriptions extends WP_REST_Controller {
 	private static $instance = null;
 
 	/**
-	 * Register the route, and on Simple the action that reaches it. Safe to call more than once.
+	 * Register the hooks. Safe to call more than once.
 	 *
 	 * @return Subscriptions
 	 */
@@ -86,12 +65,7 @@ class Subscriptions extends WP_REST_Controller {
 	}
 
 	/**
-	 * What the app needs to draw and save the options.
-	 *
-	 * Simple always offered both email options under Verbum, whatever the blog's
-	 * own setting said, so that stays. Elsewhere it is the Subscriptions module's
-	 * setting, which only counts while the module is loaded to handle what the
-	 * form posts.
+	 * Settings the app reads.
 	 *
 	 * @return array
 	 */
@@ -104,11 +78,9 @@ class Subscriptions extends WP_REST_Controller {
 			'subscriptions' => array(
 				'blog'          => $is_wpcom || ( $module && ! empty( get_option( 'stb_enabled', 1 ) ) ),
 				'comments'      => $is_wpcom || ( $module && ! empty( get_option( 'stc_enabled', 1 ) ) ),
-				// Notifications reach a WordPress.com account, which a site login only is on Simple.
 				'notifications' => $logged_in && $is_wpcom,
 				'url'           => $is_wpcom ? admin_url( 'admin-ajax.php' ) : rest_url( 'wpcom/v2/' . self::ROUTE ),
 				'action'        => $is_wpcom ? self::ACTION : '',
-				// REST cookie authentication sees a site login only with this.
 				'nonce'         => $logged_in ? wp_create_nonce( 'wp_rest' ) : '',
 			),
 		);
@@ -151,7 +123,7 @@ class Subscriptions extends WP_REST_Controller {
 	}
 
 	/**
-	 * Only from this site's own pages.
+	 * Permission check: same-origin, and the feature on.
 	 *
 	 * @return true|WP_Error
 	 */
@@ -162,7 +134,6 @@ class Subscriptions extends WP_REST_Controller {
 			return new WP_Error( 'cross_site', __( 'Invalid request.', 'jetpack-comments' ), array( 'status' => 403 ) );
 		}
 
-		// On Simple the route is registered ahead of the loader's gates, which skip admin-ajax. Gate here.
 		if ( ! Comments::is_enabled() ) {
 			return new WP_Error( 'not_enabled', __( 'Subscriptions are not available on this site.', 'jetpack-comments' ), array( 'status' => 404 ) );
 		}
@@ -171,11 +142,7 @@ class Subscriptions extends WP_REST_Controller {
 	}
 
 	/**
-	 * Relay the reader's email and their change to WordPress.com, and answer with what it said, status and all.
-	 *
-	 * A fresh popup sign-in holds only a code until its first comment posts.
-	 * Given that code, it is redeemed here and the passport issued now, so the
-	 * comment that follows posts on the passport instead.
+	 * Relay the reader's email and change to WordPress.com and return its answer.
 	 *
 	 * @param WP_REST_Request $request The request.
 	 * @return WP_REST_Response|WP_Error
@@ -227,7 +194,6 @@ class Subscriptions extends WP_REST_Controller {
 				(string) wp_json_encode(
 					array(
 						'email'    => $email,
-						// A WordPress.com sign-in is offered the reader options by its account, found by email.
 						'provider' => $provider,
 						'post_id'  => $post_id,
 						'field'    => sanitize_key( (string) $request->get_param( 'field' ) ),
@@ -258,7 +224,7 @@ class Subscriptions extends WP_REST_Controller {
 	}
 
 	/**
-	 * Simple only: run the route from admin-ajax, the one same-origin entry the site host has. Does not return.
+	 * Simple only: run the route from admin-ajax. Does not return.
 	 *
 	 * @return void
 	 */

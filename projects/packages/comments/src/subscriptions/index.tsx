@@ -21,8 +21,7 @@ type OptionsProps = {
 };
 
 /**
- * The three options as Verbum laid them out: notifications, new-post emails
- * with their frequency, new-comment emails.
+ * The subscription options.
  *
  * @param props               - Component props.
  * @param props.notifications - The web and mobile notifications option, when offered.
@@ -83,18 +82,17 @@ const Options = ( { notifications, posts, comments, disabled }: OptionsProps ) =
 };
 
 /**
- * Whether the site offers anything to subscribe to from the form.
+ * Whether the site offers either email option.
  *
- * @return Whether either option is on.
+ * @return Whether it does.
  */
 export const hasSubscriptionOptions = () =>
 	JetpackComments.subscriptions.blog || JetpackComments.subscriptions.comments;
 
 /**
- * The options for a signed-in reader. Each change is saved as it is made, and
- * the state is read the first time the tray opens.
+ * The options for a signed-in reader, saved as they change.
  *
- * @return The options, or nothing while the site has no email for the reader.
+ * @return The options, or null when the site has no email for the reader.
  */
 export const SubscriptionOptions = () => {
 	const { formSettings, subscriptions, signedIn, signInError, activeService, isTrayOpen } =
@@ -102,7 +100,6 @@ export const SubscriptionOptions = () => {
 	const { subscriptions: settings, user, strings } = JetpackComments;
 	const reading = useRef( false );
 
-	// A fresh sign-in's code is redeemed by the first request that goes through, and the passport stands for it after.
 	const settle = ( answer: Answer ) => {
 		if ( answer.ok && signedIn.value?.code ) {
 			signedIn.value = { ...signedIn.value, code: null };
@@ -125,7 +122,6 @@ export const SubscriptionOptions = () => {
 		reading.current = true;
 		fetchSubscriptions( formSettings.postId, signedIn.value?.code ?? null ).then( answer => {
 			settle( answer );
-			// A failure reads as no subscription, as it did in Verbum.
 			subscriptions.value = 'state' in answer ? answer.state : NO_SUBSCRIPTION;
 		} );
 	}, [ isTrayOpen.value, subscriptions, formSettings, signedIn ] );
@@ -142,11 +138,9 @@ export const SubscriptionOptions = () => {
 			await fetchSubscriptions( formSettings.postId, signedIn.value?.code ?? null, change )
 		);
 
-		// A declined change still re-renders, so the control snaps back to the state.
 		subscriptions.value = answer.state ?? { ...state };
 	};
 
-	// Notifications reach a WordPress.com account: one the site logs in as, or one that signed in through the popup.
 	const offerNotifications =
 		settings.blog && ( user ? settings.notifications : signedIn.value?.provider === 'wordpress' );
 
@@ -186,8 +180,7 @@ export const SubscriptionOptions = () => {
 };
 
 /**
- * The options for a guest, who has no account to save against. They post with
- * the comment, in the fields each host's subscription handler already reads.
+ * The options for a guest, posted with the comment.
  *
  * @return The options and their hidden fields.
  */
@@ -207,7 +200,6 @@ export const GuestSubscriptionOptions = () => {
 				}
 				comments={ settings.comments ? { checked: comments, onChange: setComments } : undefined }
 			/>
-			{ /* Simple reads `subscribe`, the Jetpack plugin `subscribe_comments`. */ }
 			{ comments && <input type="hidden" name="subscribe" value="subscribe" /> }
 			{ comments && <input type="hidden" name="subscribe_comments" value="subscribe" /> }
 			{ posts && (

@@ -1,19 +1,10 @@
-/**
- * The browser side of subscriptions: the site's route, which relays to
- * WordPress.com on the reader's behalf. Same-origin, so it carries the site
- * login or the passport, whichever the reader holds.
- */
-
 import type { SubscriptionChange, SubscriptionState } from '../shared/types';
 
-// What a reader with no subscription sees. Daily rather than instantly is what
-// Verbum showed on the greyed-out control.
 export const NO_SUBSCRIPTION: SubscriptionState = {
 	email: { send_posts: false, send_comments: false, post_delivery_frequency: 'daily' },
 	notification: { send_posts: false },
 };
 
-// Errors that mean the sign-in behind the request is gone.
 const SIGN_IN_LOST = [
 	'not_signed_in',
 	'code_expired',
@@ -23,18 +14,13 @@ const SIGN_IN_LOST = [
 ];
 
 export type Answer = {
-	/** The state afterwards, or null when there is no email to subscribe. Absent on failure. */
 	state?: SubscriptionState | null;
-	/** Whether the request went through, so a code sent with it is spent. */
 	ok: boolean;
-	/** Whether the reader should be shown as signed out. */
 	signedOut: boolean;
 };
 
 /**
- * One round trip: what the reader is subscribed to, after one change if given.
- * The answer is WordPress.com's own, relayed with its status, so a change the
- * server declined leaves the control where it was.
+ * Read the reader's subscriptions, after one change if given.
  *
  * @param postId - The post the comment thread belongs to.
  * @param code   - The code a fresh sign-in is holding, for the site to redeem first.

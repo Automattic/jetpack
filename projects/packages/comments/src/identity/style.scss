@@ -1,6 +1,5 @@
 /**
- * The identity block: guest fields when logged out, the tray heading when
- * signed in, and the avatar and gear in the submit row.
+ * The identity block.
  */
 
 // Hidden, not just collapsed, so nothing inside a closed tray can take focus.
@@ -116,7 +115,6 @@
 	border-block-end: none;
 }
 
-// Two option blocks in a row read as one.
 .jetpack-comments__options + .jetpack-comments__options {
 	padding-block-start: 0;
 	border-block-start: none;

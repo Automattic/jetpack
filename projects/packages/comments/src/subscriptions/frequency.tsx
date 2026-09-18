@@ -11,7 +11,7 @@ type FrequencyToggleProps = {
 const FREQUENCIES: Frequency[] = [ 'instantly', 'daily', 'weekly' ];
 
 /**
- * Whether a media query matches, kept current.
+ * Whether a media query matches.
  *
  * @param query - The media query.
  * @return Whether it matches now.
@@ -33,7 +33,7 @@ const useMediaQuery = ( query: string ) => {
 };
 
 /**
- * Instantly, daily or weekly: a segmented control, or a select on a narrow screen.
+ * The delivery frequency control.
  *
  * @param props          - Component props.
  * @param props.name     - Radio group name, unique to the form.

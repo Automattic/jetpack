@@ -7,11 +7,10 @@ import { openGravatarEditor } from './gravatar-editor';
 
 import './style.scss';
 
-// Gravatar's caches take a moment to see a new avatar.
 const AVATAR_REFRESH_MS = 2000;
 
 /**
- * The avatar with a fresh query string, so a just-changed one is fetched again.
+ * The avatar URL with a cache-busting stamp.
  *
  * @param avatar - The avatar URL.
  * @param stamp  - When it was last changed, or 0 for never.
@@ -38,10 +37,9 @@ type Current = {
 };
 
 /**
- * Who the comment will be attributed to: the avatar, which opens the Gravatar
- * editor, and the gear that opens the tray. Nothing for a guest.
+ * The footer group for a signed-in reader.
  *
- * @return The footer group, or null.
+ * @return The group, or null for a guest.
  */
 export const CommentingAs = () => {
 	const { signedIn } = useContext( CommentSignals );
@@ -67,7 +65,7 @@ type UserSettingsProps = {
 };
 
 /**
- * The avatar and gear group, and the Edit Gravatar link while the tray is open.
+ * The avatar and gear group.
  *
  * @param props         - Component props.
  * @param props.current - Whose avatar this is.

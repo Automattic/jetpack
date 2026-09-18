@@ -6,7 +6,6 @@ type ToggleProps = {
 	id: string;
 	label: ComponentChildren;
 	description?: ComponentChildren;
-	/** Field name to post under. Leave out for a control that only reports changes. */
 	name?: string;
 	value?: string;
 	checked?: boolean;
@@ -16,8 +15,7 @@ type ToggleProps = {
 };
 
 /**
- * A checkbox drawn as a switch. It stays a real checkbox, so given a name the
- * form posts it without any help.
+ * A checkbox drawn as a switch.
  *
  * @param props                - Component props.
  * @param props.id             - Element id, shared with the label.
