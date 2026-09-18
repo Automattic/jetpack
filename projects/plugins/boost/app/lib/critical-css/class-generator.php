@@ -246,13 +246,27 @@ class Generator {
 		}
 
 		$request_path = wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', PHP_URL_PATH );
-		$rest_path    = wp_parse_url( site_url( rest_get_url_prefix(), 'relative' ), PHP_URL_PATH );
-
-		if ( ! is_string( $request_path ) || ! is_string( $rest_path ) || '/' === $rest_path ) {
+		if ( ! is_string( $request_path ) ) {
 			return false;
 		}
 
-		return 0 === strpos( trailingslashit( $request_path ), trailingslashit( $rest_path ) );
+		$prefix = rest_get_url_prefix();
+
+		// get_rest_url() builds REST URLs from home_url(), and puts the prefix behind index.php on
+		// index permalinks. $wp_rewrite does not exist yet, so accept either shape.
+		foreach ( array( $prefix, 'index.php/' . $prefix ) as $route ) {
+			$rest_path = wp_parse_url( home_url( $route, 'relative' ), PHP_URL_PATH );
+
+			if ( ! is_string( $rest_path ) || '/' === $rest_path ) {
+				continue;
+			}
+
+			if ( 0 === strpos( trailingslashit( $request_path ), trailingslashit( $rest_path ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

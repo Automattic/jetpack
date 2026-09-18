@@ -50,6 +50,8 @@ class Generator_Test extends BaseTestCase {
 		remove_all_filters( 'wp_redirect_status' );
 		remove_all_filters( 'wp_die_handler' );
 		remove_all_filters( 'login_url' );
+		remove_all_filters( 'option_siteurl' );
+		remove_all_filters( 'option_home' );
 		remove_all_actions( 'wp_head' );
 		remove_all_filters( 'show_admin_bar' );
 		parent::tear_down();
@@ -330,7 +332,7 @@ class Generator_Test extends BaseTestCase {
 			),
 			'rest route'   => array(
 				function () {
-					$_SERVER['REQUEST_URI'] = '/' . rest_get_url_prefix() . '/jetpack-boost-ds/critical-css-state?' . Generator::GENERATE_QUERY_ACTION . '=1700000000000';
+					$_SERVER['REQUEST_URI'] = self::rest_request_uri( '' );
 				},
 			),
 			'rest query'   => array(
@@ -338,7 +340,40 @@ class Generator_Test extends BaseTestCase {
 					$_GET['rest_route'] = '/jetpack-boost-ds/critical-css-state';
 				},
 			),
+			// WordPress in its own directory: REST URLs follow home, not siteurl.
+			'rest own dir' => array(
+				function () {
+					add_filter(
+						'option_siteurl',
+						function () {
+							return 'http://example.org/wp';
+						}
+					);
+					add_filter(
+						'option_home',
+						function () {
+							return 'http://example.org';
+						}
+					);
+					$_SERVER['REQUEST_URI'] = self::rest_request_uri( '' );
+				},
+			),
+			'rest index'   => array(
+				function () {
+					$_SERVER['REQUEST_URI'] = self::rest_request_uri( '/index.php' );
+				},
+			),
 		);
+	}
+
+	/**
+	 * Build the REST request a dashboard poll makes while carrying the generation parameter.
+	 *
+	 * @param string $index Leading index.php segment, as index permalinks produce.
+	 * @return string
+	 */
+	private static function rest_request_uri( $index ) {
+		return $index . '/' . rest_get_url_prefix() . '/jetpack-boost-ds/critical-css-state?' . Generator::GENERATE_QUERY_ACTION . '=1700000000000';
 	}
 
 	/**
