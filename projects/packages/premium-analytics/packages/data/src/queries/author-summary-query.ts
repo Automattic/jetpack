@@ -6,8 +6,6 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { isResponse } from '../api/is-response';
-import { normalizeErrorResponse } from '../api/stats-proxy-fetch';
 import { sanitizeAuthorSummaryResponse } from '../processing/author';
 import { getApiErrorCode } from '../utils/api-error';
 import { toAuthorId } from '../utils/to-post-id';
@@ -22,45 +20,10 @@ export type { AuthorSummaryRecord, AuthorSummaryResponse };
 const MISSING_AUTHOR_CODES = [ 'rest_user_invalid_id' ];
 
 /**
- * Read the author's oldest published post plus the total from the response
- * headers. The posts endpoint only reports the count as `X-WP-Total`, which
- * apiFetch's default parse step discards, so this parses the page itself.
- *
- * @param authorId - The author's user ID.
- * @return The raw posts page and its total.
- */
-async function fetchAuthorPosts( authorId: number ): Promise< { posts: unknown; total: unknown } > {
-	let result: unknown;
-	try {
-		result = await apiFetch( {
-			path: addQueryArgs( '/wp/v2/posts', {
-				author: authorId,
-				status: 'publish',
-				per_page: 1,
-				orderby: 'date',
-				order: 'asc',
-				_fields: 'id,date',
-			} ),
-			parse: false,
-		} );
-	} catch ( thrown ) {
-		// Under `parse: false` apiFetch throws the raw `Response`; see `fetchPreservingStatus`.
-		throw isResponse( thrown ) ? await normalizeErrorResponse( thrown ) : thrown;
-	}
-
-	// Storybook's mocks resolve plain data and ignore `parse`; a page of posts
-	// with no headers counts what it holds.
-	if ( ! isResponse( result ) ) {
-		return { posts: result, total: Array.isArray( result ) ? result.length : 0 };
-	}
-
-	return { posts: await result.json(), total: result.headers.get( 'X-WP-Total' ) };
-}
-
-/**
- * React Query options for one author's header summary: user record, published
- * post count and first publish date, read from the site's own endpoints so
- * private sites resolve too. `null` means the site has no such author.
+ * React Query options for one author's header identity, read from the site's
+ * own users endpoint so private sites resolve too. `null` means the site has
+ * no such author. The post count and first publish date come from
+ * `authorPostsQuery`, so a failure there leaves the identity intact.
  *
  * @param authorId - The author's user ID.
  * @return The query options.
@@ -84,9 +47,7 @@ export function authorSummaryQuery( authorId: number ): UseQueryOptions< AuthorS
 				throw error;
 			}
 
-			const { posts, total } = await fetchAuthorPosts( authorId );
-
-			return sanitizeAuthorSummaryResponse( user, posts, total );
+			return sanitizeAuthorSummaryResponse( user );
 		},
 		enabled: toAuthorId( authorId ) > 0,
 	};

@@ -5,20 +5,24 @@ import { safeParseFloat } from '../../utils/parsing';
 import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from '../stats/utils';
 
-/** A site author, as the author detail page header needs it. */
+/** A site author, as the author detail page header names them. */
 export type AuthorSummaryRecord = {
 	id: number;
 	name: string;
 	/** The largest avatar the users endpoint offers. */
 	avatarUrl: string | null;
+};
+
+/** `null` when the users endpoint knows no such author. */
+export type AuthorSummaryResponse = AuthorSummaryRecord | null;
+
+/** The author's published posts, as the header subtitle describes them. */
+export type AuthorPostsRecord = {
 	/** Published posts by this author, from the posts endpoint's total header. */
 	postCount: number;
 	/** Publish date of the author's oldest published post. */
 	firstPublishedDate: string | null;
 };
-
-/** `null` when the users endpoint knows no such author. */
-export type AuthorSummaryResponse = AuthorSummaryRecord | null;
 
 // Largest first: the header renders the avatar at display size.
 const PREFERRED_AVATAR_SIZES = [ '96', '48', '24' ];
@@ -37,19 +41,12 @@ function pickAvatarUrl( avatarUrls: unknown ): string | null {
 }
 
 /**
- * Combine a `wp/v2/users/<id>` record with the author's oldest published post
- * and the posts endpoint's total into one header summary.
+ * Reduce a `wp/v2/users/<id>` record to the header identity.
  *
- * @param user      - The raw user record.
- * @param posts     - The raw posts page (one post, oldest first).
- * @param postCount - The `X-WP-Total` of that posts request.
- * @return The summary, or `null` when the user record is not a user.
+ * @param user - The raw user record.
+ * @return The author, or `null` when the record is not a user.
  */
-export function sanitizeAuthorSummaryResponse(
-	user: unknown,
-	posts: unknown,
-	postCount: unknown
-): AuthorSummaryResponse {
+export function sanitizeAuthorSummaryResponse( user: unknown ): AuthorSummaryResponse {
 	if ( ! isStatsRecord( user ) ) {
 		return null;
 	}
@@ -59,14 +56,30 @@ export function sanitizeAuthorSummaryResponse(
 		return null;
 	}
 
+	return {
+		id,
+		name: decodeHtmlText( user.name, '' ),
+		avatarUrl: pickAvatarUrl( user.avatar_urls ),
+	};
+}
+
+/**
+ * Reduce the author's oldest published post and the posts endpoint's total to
+ * the header subtitle's inputs.
+ *
+ * @param posts     - The raw posts page (one post, oldest first).
+ * @param postCount - The `X-WP-Total` of that posts request.
+ * @return The post count and first publish date.
+ */
+export function sanitizeAuthorPostsResponse(
+	posts: unknown,
+	postCount: unknown
+): AuthorPostsRecord {
 	const [ oldest ] = coerceStatsArray( posts );
 	const oldestDate = coerceStatsRecord( oldest ).date;
 	const total = safeParseFloat( postCount );
 
 	return {
-		id,
-		name: decodeHtmlText( user.name, '' ),
-		avatarUrl: pickAvatarUrl( user.avatar_urls ),
 		postCount: Number.isInteger( total ) && total > 0 ? total : 0,
 		firstPublishedDate: typeof oldestDate === 'string' ? oldestDate : null,
 	};

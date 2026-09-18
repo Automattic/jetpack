@@ -115,9 +115,20 @@ export function authorHeaderSlots( { summary }: AuthorHeaderSlotsArgs ): DetailP
 		};
 	}
 
+	// The posts request resolves on its own, so the subtitle carries its state
+	// while the name above stays put.
+	let subTitle: DetailPageHeaderSlots[ 'subTitle' ];
+	if ( summary.isPostsLoading ) {
+		subTitle = <Skeleton className={ placeholders.subTitlePlaceholder } />;
+	} else if ( summary.isPostsError ) {
+		subTitle = __( "We couldn't load this author's posts.", 'jetpack-premium-analytics-pkg' );
+	} else {
+		subTitle = authorSubtitle( summary.postCount, summary.firstPublishedDate );
+	}
+
 	return {
 		visual: <AuthorAvatar avatarUrl={ summary.avatarUrl } />,
 		title: summary.name?.trim() || __( 'Unnamed author', 'jetpack-premium-analytics-pkg' ),
-		subTitle: authorSubtitle( summary.postCount, summary.firstPublishedDate ),
+		subTitle,
 	};
 }

@@ -75,10 +75,11 @@ function AuthorDetail(): JSX.Element {
 		[ widgetTypes ]
 	);
 
-	// The applied report date range lives in the URL search params; all time is
-	// anchored on the author's first post.
+	// All time stays on the dashboard's default window, not the author's first post:
+	// Stats credits page and product views to the author too, and those can predate
+	// it. WOOA7S-2137 anchors it on the author's first published content instead.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( summary.firstPublishedDate, dateFilters );
+	const dateControls = useDetailDateControls( undefined, dateFilters );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );

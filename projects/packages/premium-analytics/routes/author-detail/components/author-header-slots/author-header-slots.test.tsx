@@ -13,6 +13,8 @@ const resolved: AuthorSummary = {
 	error: null,
 	isNotFound: false,
 	refetch: () => {},
+	isPostsLoading: false,
+	isPostsError: false,
 };
 
 describe( 'authorSubtitle', () => {
@@ -73,6 +75,21 @@ describe( 'authorHeaderSlots', () => {
 		expect( slots.busy ).toBe( true );
 		render( <>{ slots.title }</> );
 		expect( screen.getByText( 'Loading…' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the name while the posts half loads or fails', () => {
+		const loading = authorHeaderSlots( {
+			summary: { ...resolved, postCount: undefined, isPostsLoading: true },
+		} );
+		expect( loading.title ).toBe( 'Priya Patel' );
+		expect( loading.busy ).toBeUndefined();
+		expect( loading.subTitle ).not.toBe( 'Priya Patel' );
+
+		const failed = authorHeaderSlots( {
+			summary: { ...resolved, postCount: undefined, isPostsError: true },
+		} );
+		expect( failed.title ).toBe( 'Priya Patel' );
+		expect( failed.subTitle ).toBe( "We couldn't load this author's posts." );
 	} );
 
 	it.each( [

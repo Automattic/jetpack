@@ -180,6 +180,8 @@ function mockSummary( overrides: Record< string, unknown > = {} ) {
 		error: null,
 		isNotFound: false,
 		refetch,
+		isPostsLoading: false,
+		isPostsError: false,
 		...overrides,
 	} );
 }
@@ -250,6 +252,17 @@ describe( 'author detail stage', () => {
 		);
 		expect( screen.getByText( 'Author widgets' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the name and the widgets when only the posts request fails', () => {
+		mockSummary( { postCount: undefined, firstPublishedDate: undefined, isPostsError: true } );
+
+		render( stage() );
+
+		expect( getSummaryHeading( 'Priya Patel' ) ).toBeInTheDocument();
+		expect( screen.getByText( "We couldn't load this author's posts." ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Author widgets' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'swaps a broken avatar for the placeholder glyph', () => {
