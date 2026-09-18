@@ -11,7 +11,7 @@ import {
 	DATE_FILTER_YEAR,
 	type DashboardSection,
 	type DateFilterSurface,
-} from '../config';
+} from '../../config';
 import { useSectionDateFilter } from './use-section-date-filter';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 
