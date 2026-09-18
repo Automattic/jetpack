@@ -97,6 +97,13 @@ class WP_Build_Polyfills {
 	private static $wp_version_threshold = '7.0';
 
 	/**
+	 * Overrides the build directory. Test seam, null in production.
+	 *
+	 * @var string|null
+	 */
+	private static $build_dir_override = null;
+
+	/**
 	 * Register polyfill scripts and modules.
 	 *
 	 * Call this early (e.g. during plugin load) — it hooks into wp_default_scripts
@@ -139,18 +146,23 @@ class WP_Build_Polyfills {
 			}
 		}
 
-		if ( version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' ) ) {
+		$raised = version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' );
+		if ( $raised ) {
 			self::$wp_version_threshold = $wp_version_threshold;
 		}
 
+		$package_root = dirname( __DIR__ );
+		$build_dir    = self::$build_dir_override ?? $package_root . '/build';
+		$base_file    = $package_root . '/composer.json';
+
 		if ( self::$hooked ) {
+			// The scripts are already registered at the lower threshold, so re-register them at the raised one.
+			if ( $raised && did_action( 'wp_default_scripts' ) ) {
+				self::register_scripts( wp_scripts(), $build_dir, $base_file, self::$wp_version_threshold );
+			}
 			return;
 		}
 		self::$hooked = true;
-
-		$package_root = dirname( __DIR__ );
-		$build_dir    = $package_root . '/build';
-		$base_file    = $package_root . '/composer.json';
 
 		// `wp_default_scripts` fires once when the WP_Scripts singleton is
 		// instantiated. If something has already initialized `wp_scripts()` —
