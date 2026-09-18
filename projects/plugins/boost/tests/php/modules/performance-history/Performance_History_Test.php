@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Tests\Modules\Performance_History;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Data_Sync\Performance_History_Entry;
 use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 
@@ -36,5 +37,33 @@ class Performance_History_Test extends Base_TestCase {
 		);
 
 		$this->assertSame( $dimensions, $parsed['periods'][0]['dimensions'] );
+	}
+
+	public function test_history_schema_carries_every_older_window_to_the_entry() {
+		$data_sync = new Data_Sync( 'jetpack_boost_ds' );
+		( new Performance_History() )->register_data_sync( $data_sync );
+
+		$windows = array();
+		for ( $offset = 1; $offset <= 6; $offset++ ) {
+			$windows[] = array(
+				'startDate' => 1788999999999 - $offset * 30 * 86400000,
+				'endDate'   => 1788999999999 - ( $offset - 1 ) * 30 * 86400000 - 1,
+			);
+		}
+		$parsed = $data_sync->get_registry()->get_entry( 'performance_history' )->get_parser()->parse(
+			array(
+				'periods'           => array(),
+				'annotations'       => array(),
+				'startDate'         => $windows[5]['startDate'],
+				'endDate'           => $windows[0]['endDate'],
+				'surfaceErrors'     => true,
+				'checkOlderWindows' => true,
+				'olderWindows'      => $windows,
+			)
+		);
+
+		$this->assertSame( $windows, $parsed['olderWindows'] );
+		// Dropped windows would widen the request, so the entry rejects them instead.
+		( new Performance_History_Entry() )->set( $parsed );
 	}
 }
