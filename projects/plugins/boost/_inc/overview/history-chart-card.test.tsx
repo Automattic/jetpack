@@ -268,6 +268,13 @@ test( 'opens a recorded day when it is tapped by touch', async () => {
 	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent( '90/100' );
 } );
 
+test( 'does not open a recorded day when it is clicked with a mouse', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	await pressDay( 0, 'mouse' );
+	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( '90/100' );
+	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
+} );
+
 test( 'shows nothing beyond the empty-day tooltip when an empty day is clicked', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	await pressDay( 3, 'mouse' );
