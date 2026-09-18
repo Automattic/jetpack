@@ -90,8 +90,8 @@ class Configuration_Test extends TestCase {
 		$this->assertCount( 1, array_keys( $modules, WooCommerce_Analytics::class, true ) );
 
 		$modules = apply_filters( 'jetpack_sync_modules', array( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ) );
-		$this->assertContains( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN, $modules );
-		$this->assertNotContains( WooCommerce_Analytics::class, $modules );
+		$this->assertNotContains( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN, $modules );
+		$this->assertContains( WooCommerce_Analytics::class, $modules );
 	}
 
 	/**
@@ -158,17 +158,29 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * The standalone Analytics plugin remains authoritative during migration.
+	 * The shared module wins over the standalone plugin's, which syncs no lookup data.
 	 */
-	public function test_remove_duplicate_woocommerce_analytics_module_defers_to_standalone_plugin() {
+	public function test_remove_duplicate_woocommerce_analytics_module_drops_the_standalone_plugins_module() {
 		$modules = array(
 			Configuration::ANALYTICS_PLUGIN_MODULE_FQCN,
 			WooCommerce_Analytics::class,
 		);
 
 		$this->assertSame(
-			array( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ),
+			array( WooCommerce_Analytics::class ),
 			( new Configuration() )->remove_duplicate_woocommerce_analytics_module( $modules )
+		);
+	}
+
+	/**
+	 * The standalone plugin's module is dropped even when ours has not been added yet.
+	 */
+	public function test_remove_duplicate_woocommerce_analytics_module_drops_the_standalone_module_alone() {
+		$this->assertSame(
+			array( Posts::class ),
+			( new Configuration() )->remove_duplicate_woocommerce_analytics_module(
+				array( Posts::class, Configuration::ANALYTICS_PLUGIN_MODULE_FQCN )
+			)
 		);
 	}
 
