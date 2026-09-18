@@ -57,6 +57,7 @@ class Main_Features {
 				'long_description' => __( 'When something breaks, see exactly what changed and who changed it, from published posts to plugin updates and logins. Every connected site gets its 20 most recent events for free.', 'jetpack-my-jetpack' ),
 				'icon'             => 'list',
 				'admin_page'       => 'jetpack-activity-log',
+				'module'           => 'activity-log',
 				'paid_highlights'  => array(
 					__( '30 days of history with VaultPress Backup or Jetpack Security, a full year with Jetpack Complete', 'jetpack-my-jetpack' ),
 					__( 'Filter events by activity type and date range', 'jetpack-my-jetpack' ),

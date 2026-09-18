@@ -44,9 +44,9 @@ class Main_Features_Test extends TestCase {
 
 	/**
 	 * A feature switched by neither a product nor a module has nothing to toggle and can
-	 * only be linked to. Only Activity Log is allowed in that state.
+	 * only be linked to. Every feature now carries one, Activity Log included.
 	 */
-	public function test_only_activity_log_has_no_product_or_module() {
+	public function test_every_feature_has_a_product_or_a_module() {
 		$unswitchable = array_keys(
 			array_filter(
 				Main_Features::get_feature_definitions(),
@@ -54,7 +54,7 @@ class Main_Features_Test extends TestCase {
 			)
 		);
 
-		$this->assertSame( array( 'activity-log' ), $unswitchable );
+		$this->assertSame( array(), $unswitchable, 'These features offer nothing to switch.' );
 	}
 
 	/**
