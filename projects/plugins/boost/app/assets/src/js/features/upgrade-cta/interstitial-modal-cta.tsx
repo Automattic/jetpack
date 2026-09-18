@@ -16,6 +16,11 @@ const InterstitialModalCTA = ( {
 	identifier,
 	customModalTrigger,
 }: InterstitialModalCTAProps ) => {
+	// Non-public sites get no upsell, and offline sites have no My Jetpack routes for the modal's on-mount products fetch.
+	if ( ! Jetpack_Boost.site.online ) {
+		return null;
+	}
+
 	const learnMoreUrl = getRedirectUrl( 'jetpack-boost-interstitial-modal-learn-more' );
 
 	return (

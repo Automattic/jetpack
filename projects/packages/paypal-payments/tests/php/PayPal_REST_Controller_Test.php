@@ -851,6 +851,53 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that an update keeps an amount type the block has no option for.
+	 *
+	 * PayPal rejects an unsupported type itself, so the API is the only list to keep
+	 * in step.
+	 */
+	public function test_update_keeps_an_unknown_amount_type() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '29.99',
+					),
+					'discounts'   => array(
+						array(
+							'type'  => 'TIERED',
+							'value' => '2.00',
+						),
+					),
+					'shipping'    => array(
+						array(
+							'type'  => 'PERCENTAGE',
+							'value' => '5.00',
+						),
+					),
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$sent = $result->get_data()['line_items'][0];
+		$this->assertSame( 'TIERED', $sent['discounts'][0]['type'] );
+		$this->assertSame( 'PERCENTAGE', $sent['shipping'][0]['type'] );
+	}
+
+	/**
 	 * Test that an update keeps the fields set outside the block form.
 	 *
 	 * A PUT replaces the whole resource at PayPal, so anything the route drops
@@ -929,8 +976,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * A post saved without its block asks for the link to go, but only if no other
-	 * published post still embeds it.
+	 * A delete carrying unused_only keeps a link another published post still embeds.
 	 */
 	public function test_delete_button_keeps_a_link_other_published_posts_use() {
 		$this->set_up_connected_admin_state();
@@ -953,9 +999,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * The post being saved does not count: its block is the one going away.
+	 * The post named in post_id is left out of the embeds that keep a link.
 	 */
-	public function test_delete_button_ignores_the_post_being_saved() {
+	public function test_delete_button_ignores_the_post_named_in_post_id() {
 		$this->set_up_connected_admin_state();
 		$this->embed_in_published_post( 1000, 'PLB-42' );
 
@@ -975,7 +1021,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * The delete route declares the guard the editor sends.
+	 * The delete route declares the unused_only guard.
 	 */
 	public function test_delete_route_declares_the_unused_only_guard() {
 		$routes = $this->register_paypal_routes();
@@ -1021,6 +1067,37 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $result );
 		$this->assertTrue( $result->get_data()['line_items'][0]['collect_shipping_address'] );
+	}
+
+	/**
+	 * Test that a whitespace-only product id is dropped on an update.
+	 */
+	public function test_update_drops_a_whitespace_only_product_id() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param(
+			'line_items',
+			array(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '10.00',
+					),
+					'product_id'  => '   ',
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertArrayNotHasKey( 'product_id', $result->get_data()['line_items'][0] );
 	}
 
 	/**
@@ -1423,7 +1500,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$sent_item = array(
 			'name'                     => 'Widget',
-			'description'              => 'A fine widget.',
+			'description'              => "A fine widget.\n\nShips in two days.",
 			'image_url'                => 'https://example.com/widget.png',
 			'variants'                 => array(
 				'dimensions' => array(
@@ -1523,7 +1600,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$attributes = $data['attributes'];
 		$this->assertSame( 'Widget', $attributes['productName'] );
-		$this->assertSame( 'A fine widget.', $attributes['productDescription'] );
+		$this->assertSame( "A fine widget.\n\nShips in two days.", $attributes['productDescription'] );
 		$this->assertSame( 'https://example.com/widget.png', $attributes['imageUrl'] );
 		$this->assertTrue( $attributes['variantsEnabled'] );
 		$this->assertEquals( $expected_item['variants'], $attributes['variants'] );

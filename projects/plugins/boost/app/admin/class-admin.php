@@ -37,6 +37,13 @@ class Admin {
 	 */
 	private $modern_dashboard_loaded = false;
 
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private $wp_build_original_screen_id = null;
+
 	public function init( Modules_Setup $modules ) {
 		Environment_Change_Detector::init();
 
@@ -90,16 +97,25 @@ class Admin {
 	}
 
 	/**
-	 * Load the modern dashboard only on an opted-in Boost admin request.
+	 * Whether this request opts into the modern admin dashboard.
+	 *
+	 * @return bool Whether modernization is enabled for this admin request.
 	 */
-	private function maybe_load_wp_build() {
+	private static function is_modern_dashboard() {
 		/**
 		 * Enable the modern Boost dashboard.
 		 *
 		 * @since 4.7.1
 		 * @param bool $enabled Whether to enable the modern dashboard. Default false.
 		 */
-		if ( ! apply_filters( self::MODERNIZATION_FILTER, false ) || ! is_admin() ) {
+		return apply_filters( self::MODERNIZATION_FILTER, false ) && is_admin();
+	}
+
+	/**
+	 * Load the modern dashboard only on an opted-in Boost admin request.
+	 */
+	private function maybe_load_wp_build() {
+		if ( ! self::is_modern_dashboard() ) {
 			return;
 		}
 
@@ -116,7 +132,6 @@ class Admin {
 
 		// wp_default_scripts has already fired by admin_menu, so register the init module now.
 		jetpack_boost_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined by the generated build and checked in dashboard_build_is_available().
-		add_action( 'current_screen', array( $this, 'alias_screen_id_for_wp_build' ) );
 		$this->modern_dashboard_loaded = true;
 	}
 
@@ -132,21 +147,49 @@ class Admin {
 			return false;
 		}
 
+		// Hooked around the require, so only the generated enqueue callback, with its init action and REST preloading, sees the alias.
+		add_action( 'admin_enqueue_scripts', array( $this, 'alias_screen_id_for_wp_build' ) );
 		require_once $build_file;
+		add_action( 'admin_enqueue_scripts', array( $this, 'restore_screen_id_after_wp_build' ) );
 
-		return function_exists( 'jetpack_boost_register_script_modules' )
-			&& function_exists( 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' );
+		if ( function_exists( 'jetpack_boost_register_script_modules' )
+			&& function_exists( 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' ) ) {
+			return true;
+		}
+
+		remove_action( 'admin_enqueue_scripts', array( $this, 'alias_screen_id_for_wp_build' ) );
+		remove_action( 'admin_enqueue_scripts', array( $this, 'restore_screen_id_after_wp_build' ) );
+		return false;
 	}
 
 	/**
 	 * Match wp-build's enqueue screen without changing the Boost menu URL.
 	 *
-	 * @param \WP_Screen|null $screen Current screen.
+	 * @since $$next-version$$
 	 */
-	public function alias_screen_id_for_wp_build( $screen ) {
-		if ( is_object( $screen ) ) {
-			$screen->id = 'jetpack-boost-dashboard';
+	public function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
 		}
+
+		$this->wp_build_original_screen_id = $screen->id;
+		$screen->id                        = 'jetpack-boost-dashboard';
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === $this->wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = $this->wp_build_original_screen_id;
+		$this->wp_build_original_screen_id = null;
 	}
 
 	/**

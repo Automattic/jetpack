@@ -41,8 +41,8 @@ import McpWrite from './mcp/write';
 import AiOverview from './overview';
 
 // Split into its own chunk: only this tab uses DataViews and the AI client.
-const ScheduledTasks = lazy( () =>
-	import( /* webpackChunkName: "jetpack-ai-scheduled-tasks" */ './scheduled-tasks/index' )
+const ScheduledTasks = lazy(
+	() => import( /* webpackChunkName: "jetpack-ai-scheduled-tasks" */ './scheduled-tasks/index' )
 );
 
 // Matches the `ref` value convention used by the MCP upsell events.

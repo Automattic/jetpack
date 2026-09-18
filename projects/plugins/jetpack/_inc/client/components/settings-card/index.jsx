@@ -601,7 +601,7 @@ export const SettingsCard = inprops => {
 												'Button caption',
 												'jetpack',
 												/* dummy arg to avoid bad minification */ 0
-										  ) }
+											) }
 								</Button>
 							) }
 							{ props.action && (

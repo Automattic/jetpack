@@ -126,7 +126,7 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 	// page, so counting them would misreport how many pages there are.
 	const totalItems = query.data?.totalItems ?? entries.length;
 	const totalPages = query.data
-		? query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) )
+		? ( query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) ) )
 		: null;
 
 	// Only once the feed has answered: a failed page holds no rows, and merged

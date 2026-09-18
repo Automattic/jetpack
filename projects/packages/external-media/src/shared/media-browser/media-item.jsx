@@ -33,12 +33,12 @@ function MediaItem( { item, imageOnly, isSelected, isCopying = false, shouldProx
 				/* translators: %s: item title. */
 				__( 'Deselect item: %s', 'jetpack-external-media' ),
 				alt
-		  )
+			)
 		: sprintf(
 				/* translators: %s: item title. */
 				__( 'Select item: %s', 'jetpack-external-media' ),
 				alt
-		  );
+			);
 
 	const handleClick = event => {
 		if ( isCopying ) {

@@ -78,7 +78,7 @@ export default function PricingUpsell() {
 												/* translators: %1$s: the discount amount */
 												__( '%1$s%% off', 'jetpack-videopress-pkg' ),
 												String( yearly.discount )
-										  )
+											)
 										: undefined
 								}
 								legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }

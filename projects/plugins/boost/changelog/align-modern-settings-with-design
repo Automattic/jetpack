@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Match the modern Settings page's card order and Cornerstone card to the design when the modernization filter is on. No change with the filter off.
+
+

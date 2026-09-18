@@ -505,7 +505,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 								background: tooltipStyle?.background,
 								backgroundColor: tooltipStyle?.backgroundColor,
 							}
-					  )
+						)
 					: renderTooltip( { ...params, bucketInfo } ),
 			[ renderTooltip, bucketInfo, tooltipStyle ]
 		);

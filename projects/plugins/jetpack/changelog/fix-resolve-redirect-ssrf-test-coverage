@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Test-only: make the resolve-redirect SSRF rejection tests exercise the endpoint's own reserved-range check instead of core's gate.
+
+

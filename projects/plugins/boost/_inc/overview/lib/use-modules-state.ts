@@ -13,6 +13,7 @@ type DataSyncKey =
 	| 'modules_state'
 	| 'performance_history'
 	| 'dismissed_alerts'
+	| 'getting_started'
 	| 'critical_css_state'
 	| 'lcp_state';
 
@@ -156,8 +157,8 @@ export function useScoreRefreshState( modules?: ModulesState ): ScoreRefreshStat
 	return {
 		config: JSON.stringify( [
 			moduleStates,
-			cssEnabled ? css.data?.updated ?? 0 : 0,
-			lcpEnabled ? lcp.data?.updated ?? 0 : 0,
+			cssEnabled ? ( css.data?.updated ?? 0 ) : 0,
+			lcpEnabled ? ( lcp.data?.updated ?? 0 ) : 0,
 		] ),
 		isPending,
 	};

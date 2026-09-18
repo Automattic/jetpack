@@ -57,8 +57,7 @@ export const HoverGlyphs: FC< {
 	const yScale = dataContext?.yScale as ScaleFn | undefined;
 	const tooltipOpen = tooltipContext?.tooltipOpen;
 	const nearestDatum = tooltipContext?.tooltipData?.nearestDatum?.datum as
-		| DataPointDate
-		| undefined;
+		DataPointDate | undefined;
 
 	if (
 		! tooltipOpen ||

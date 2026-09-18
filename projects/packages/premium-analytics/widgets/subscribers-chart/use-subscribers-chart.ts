@@ -54,7 +54,7 @@ function toPoints(
 						subscribers: Number( point.subscribers ?? point.value ?? 0 ),
 						paid: Number( point.subscribers_paid ?? 0 ),
 					},
-			  ]
+				]
 			: [];
 	} );
 }

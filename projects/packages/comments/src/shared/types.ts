@@ -33,6 +33,7 @@ export type IdentitySettings = {
 	displayCookie: string;
 	cookiePath: string;
 	cookieDomain: string;
+	defaultAvatar: string;
 	refreshUrl: string;
 	logoutUrl: string;
 	logoutAction: string;

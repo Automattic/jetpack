@@ -65,14 +65,14 @@ const ScanAdminSectionHero: FC = () => {
 									hasPlan
 										? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
 										: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
-							  )
+								)
 							: sprintf(
 									/* translators: %s: the pluralized type of threat/vulnerability. */
 									__( 'No %s found', 'jetpack-protect' ),
 									hasPlan
 										? __( 'threats', 'jetpack-protect' )
 										: _x( 'vulnerabilities', 'Plural of vulnerability', 'jetpack-protect' )
-							  ) }
+								) }
 					</AdminSectionHero.Heading>
 					<AdminSectionHero.Subheading>
 						<>

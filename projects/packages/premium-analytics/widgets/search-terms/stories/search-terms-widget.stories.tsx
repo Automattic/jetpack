@@ -141,8 +141,7 @@ export const Empty: Story = {
 };
 
 interface SearchTermsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SearchTermsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SearchTermsStoryControls {}
 
 function SearchTermsDashboardStory( {
 	withComparison,
