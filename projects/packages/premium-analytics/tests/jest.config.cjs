@@ -37,6 +37,9 @@ const groupingIgnorePatterns = useGroups
 module.exports = {
 	...baseConfig,
 	rootDir,
+	// A jsdom suite rendering real components runs tens of times slower on a CI runner sharing its
+	// cores with every other project's workers, which took two suites past Jest's 5s default.
+	testTimeout: 20_000,
 	testPathIgnorePatterns: [ ...baseConfig.testPathIgnorePatterns, ...groupingIgnorePatterns ],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
